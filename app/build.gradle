@@ -16,7 +16,9 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
-
+    buildFeatures {
+        viewBinding true
+    }
     buildTypes {
         release {
             minifyEnabled false
@@ -37,7 +39,24 @@ dependencies {
     implementation libs.core.ktx
     implementation libs.appcompat
     implementation libs.material
+    implementation libs.androidx.navigation.fragment.ktx
+    implementation libs.androidx.navigation.ui.ktx
     testImplementation libs.junit
     androidTestImplementation libs.androidx.test.ext.junit
     androidTestImplementation libs.espresso.core
+    //主题库
+    implementation libs.themeEngine
+    //状态栏
+    implementation libs.ultimateBarX
+    //Html转换
+    implementation libs.html.ktx
+    //匿名统计
+    implementation libs.analytics
+    //gson
+    implementation libs.gson
+    //权限请求 支持Androidx
+    implementation libs.permissionx
+    //网络请求
+    implementation libs.okhttp
+
 }

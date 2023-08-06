@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/homeFragment">
+
+    <activity
+        android:id="@+id/mainActivity"
+        android:name="net.ankio.auto.ui.activity.MainActivity"
+        android:label="MainActivity" />
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="net.ankio.auto.ui.fragment.HomeFragment"
+        android:label="fragment_home"
+        tools:layout="@layout/fragment_home">
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/dataFragment"
+        android:name="net.ankio.auto.ui.fragment.DataFragment"
+        android:label="fragment_data"
+        tools:layout="@layout/fragment_data">
+
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/ruleFragment"
+        android:name="net.ankio.auto.ui.fragment.RuleFragment"
+        android:label="fragment_rule"
+        tools:layout="@layout/fragment_rule">
+
+    </fragment>
+    <fragment
+        android:id="@+id/orderFragment"
+        android:name="net.ankio.auto.ui.fragment.OrderFragment"
+        android:label="fragment_net"
+        tools:layout="@layout/fragment_order">
+
+
+    </fragment>
+
+
+    <fragment
+        android:id="@+id/settingFragment"
+        android:name="net.ankio.auto.ui.fragment.SettingFragment"
+        android:label="fragment_setting"
+        tools:layout="@layout/fragment_setting">
+
+    </fragment>
+
+</navigation>

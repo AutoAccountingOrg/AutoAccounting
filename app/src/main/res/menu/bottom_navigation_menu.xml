@@ -1,0 +1,27 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/homeFragment"
+        android:icon="@drawable/unselect_home"
+        android:enabled="true"
+        android:title="@string/title_home" />
+    <item
+        android:id="@+id/dataFragment"
+        android:icon="@drawable/unselect_data"
+        android:enabled="true"
+        android:title="@string/title_data" />
+    <item
+        android:id="@+id/ruleFragment"
+        android:icon="@drawable/unselect_rule"
+        android:enabled="true"
+        android:title="@string/title_rule" />
+    <item
+        android:id="@+id/orderFragment"
+        android:icon="@drawable/unselect_order"
+        android:enabled="true"
+        android:title="@string/title_order" />
+    <item
+        android:id="@+id/settingFragment"
+        android:icon="@drawable/unselect_setting"
+        android:enabled="true"
+        android:title="@string/title_setting" />
+</menu>
