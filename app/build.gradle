@@ -1,4 +1,4 @@
-import android.os.Build
+
 
 plugins {
     alias(libs.plugins.androidApplication)
@@ -19,7 +19,7 @@ android {
     defaultConfig {
         applicationId "net.ankio.auto"
         minSdk 28
-        targetSdk Build.VERSION_CODES
+        targetSdk 33
         versionCode 1
         versionName "初啼 1.0.0b1"
 
