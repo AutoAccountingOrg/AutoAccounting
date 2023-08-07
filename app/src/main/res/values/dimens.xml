@@ -5,7 +5,7 @@
     <dimen name="switch_width">48dp</dimen>
     <dimen name="border_side">15dp</dimen>
     <dimen name="padding_side">30dp</dimen>
-    <dimen name="image_size">48dp</dimen>
+    <dimen name="image_size">38dp</dimen>
     <dimen name="state_padding">28dp</dimen>
     <dimen name="radius">24dp</dimen>
 </resources>
