@@ -32,6 +32,8 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentHomeBinding.inflate(layoutInflater)
+        binding.logCard.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(requireContext()))
+        binding.grouptCard.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(requireContext()))
         refreshStatus()
         return binding.root
     }
@@ -66,7 +68,7 @@ class HomeFragment : Fragment() {
 
     private fun refreshStatus(){
         if(!ActiveUtils.getActiveAndSupportFramework()){
-            setActive(SurfaceColors.SURFACE_2.getColor(requireContext()),getThemeAttrColor(com.google.android.material.R.attr.colorOnSurface), R.drawable.ic_error)
+            setActive(SurfaceColors.SURFACE_3.getColor(requireContext()),getThemeAttrColor(com.google.android.material.R.attr.colorPrimary), R.drawable.ic_error)
         }else{
             setActive(getThemeAttrColor(com.google.android.material.R.attr.colorPrimary),getThemeAttrColor(com.google.android.material.R.attr.colorOnPrimary),R.drawable.ic_success)
         }

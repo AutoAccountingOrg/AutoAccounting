@@ -3,8 +3,13 @@ package net.ankio.auto.ui.activity
 import android.os.Bundle
 import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuItem
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
+import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.FragmentContainerView
-import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -48,9 +53,11 @@ class MainActivity : BaseActivity() {
             bottomNavigationView.menu.findItem(R.id.settingFragment).setIcon(R.drawable.unselect_setting);
             bottomNavigationView.menu.findItem(R.id.ruleFragment).setIcon(R.drawable.unselect_rule);
             bottomNavigationView.menu.findItem(R.id.orderFragment).setIcon(R.drawable.unselect_order);
-
+            clearMenuItems();
             when (navDestination.id) {
                 R.id.homeFragment -> {
+                    addMenuItem(R.string.title_setting,R.drawable.item_setting)
+                    addMenuItem(R.string.title_more,R.drawable.item_more)
                     toolbar.title = getString(R.string.title_home)
                     bottomNavigationView.menu.findItem(R.id.homeFragment).setIcon(R.drawable.select_home);
                 }
@@ -76,8 +83,8 @@ class MainActivity : BaseActivity() {
         }
 
         toolbar.setOnMenuItemClickListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.more -> {
+            when (menuItem.title) {
+                getString(R.string.title_more) -> {
                     val binding = AboutDialogBinding.inflate(LayoutInflater.from(this), null, false)
                     binding.sourceCode.movementMethod = LinkMovementMethod.getInstance()
                     binding.sourceCode.text = getString(
@@ -96,6 +103,23 @@ class MainActivity : BaseActivity() {
 
         }
         onViewCreated()
+    }
+
+    // Method to dynamically add a new menu item
+    private fun addMenuItem(@StringRes stringResId: Int,@DrawableRes iconResId: Int) {
+        val menu = toolbar.menu
+        val menuItem = menu.add(Menu.NONE, Menu.NONE, Menu.NONE, getString(stringResId))
+        menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+        val icon =  AppCompatResources.getDrawable(this,iconResId)
+        if (icon != null) {
+            DrawableCompat.setTint(icon, getThemeAttrColor(com.google.android.material.R.attr.colorOnBackground))
+            menuItem.setIcon(icon)
+        }
+    }
+
+    // Method to clear the existing menu items
+    private fun clearMenuItems() {
+        toolbar.menu.clear()
     }
 
 

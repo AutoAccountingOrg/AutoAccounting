@@ -73,6 +73,7 @@
             style="?attr/materialCardViewElevatedStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:id="@+id/grouptCard"
             android:layout_marginBottom="@dimen/padding"
             app:cardBackgroundColor="?attr/colorSurfaceVariant"
             app:cardCornerRadius="@dimen/radius"
@@ -250,6 +251,78 @@
 
         </com.google.android.material.card.MaterialCardView>
 
+
+        <com.google.android.material.card.MaterialCardView
+            style="?attr/materialCardViewElevatedStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/logCard"
+            android:layout_marginBottom="@dimen/padding"
+            app:cardBackgroundColor="?attr/colorSurfaceVariant"
+            app:cardCornerRadius="@dimen/radius"
+            app:cardElevation="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/padding"
+                android:orientation="vertical">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+
+                    android:padding="@dimen/padding">
+
+                    <ImageView
+                        android:id="@+id/log_image"
+                        android:layout_width="@dimen/icon_size"
+                        android:layout_height="@dimen/icon_size"
+                        android:layout_centerVertical="true"
+                        app:tint="?colorOnSurface"
+                        android:src="@drawable/ic_log" />
+
+                    <TextView
+
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="@dimen/one_padding"
+                        android:layout_marginEnd="@dimen/padding"
+                        android:layout_toEndOf="@+id/log_image"
+                        android:text="@string/title_log"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textStyle="bold" />
+                    <Button
+                        style="?attr/materialIconButtonFilledStyle"
+                        android:id="@+id/showLog"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+
+                        app:icon="@drawable/ic_open"
+                        tools:ignore="RelativeOverlap" />
+
+                    <Button
+
+                        style="?attr/materialIconButtonFilledTonalStyle"
+                        app:icon="@drawable/ic_share"
+                        android:id="@+id/shareLog"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="15dp"
+                        android:layout_toStartOf="@+id/showLog"
+
+                        tools:ignore="RelativeOverlap" />
+
+                </RelativeLayout>
+
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
 
 
     </LinearLayout>
