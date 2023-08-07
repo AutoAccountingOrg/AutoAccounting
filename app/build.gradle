@@ -1,6 +1,15 @@
+import android.os.Build
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
+}
+static def releaseTime() {
+    return new Date().format("yyyy-MM-dd")
+}
+
+static def releaseTimeMin() {
+    return new Date().format("HH_mm_ss")
 }
 
 android {
@@ -10,9 +19,9 @@ android {
     defaultConfig {
         applicationId "net.ankio.auto"
         minSdk 28
-        targetSdk 33
+        targetSdk Build.VERSION_CODES
         versionCode 1
-        versionName "1.0"
+        versionName "初啼 1.0.0b1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -22,7 +31,14 @@ android {
     buildTypes {
         release {
             minifyEnabled false
+            shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            applicationVariants.all { variant ->
+                variant.outputs.all {
+                    outputFileName = "${defaultConfig.versionName}_${releaseTime()}.apk"
+
+                }
+            }
         }
     }
     compileOptions {
