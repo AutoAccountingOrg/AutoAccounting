@@ -52,4 +52,12 @@
 
     </fragment>
 
+    <fragment
+        android:id="@+id/setting2Fragment"
+        android:name="net.ankio.auto.ui.fragment.home.Setting2Fragment"
+        android:label="fragment_setting2"
+        tools:layout="@layout/fragment_setting2">
+
+    </fragment>
+
 </navigation>

@@ -1,16 +1,19 @@
 package net.ankio.auto.ui.activity
 
+
 import android.os.Bundle
 import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.FragmentContainerView
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -44,16 +47,35 @@ class MainActivity : BaseActivity() {
         scrollView = binding.scrollView
         navHostFragment = (supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment?)!!
 
-        NavigationUI.setupWithNavController(bottomNavigationView, navHostFragment.navController)
 
+       val appBarConfiguration = AppBarConfiguration.Builder(
+           R.id.homeFragment,
+           R.id.dataFragment,
+           R.id.settingFragment,
+           R.id.ruleFragment,
+           R.id.orderFragment
+        ).build()
+
+        NavigationUI.setupWithNavController(toolbar, navHostFragment.navController,appBarConfiguration)
+        NavigationUI.setupWithNavController(bottomNavigationView, navHostFragment.navController);
         // 添加 Navigate 跳转监听，如果参数不带 ShowAppBar 将不显示底部导航栏
-        navHostFragment.navController.addOnDestinationChangedListener { _, navDestination, _ ->
+        navHostFragment.navController.addOnDestinationChangedListener { controller, navDestination, _ ->
             bottomNavigationView.menu.findItem(R.id.homeFragment).setIcon(R.drawable.unselect_home);
             bottomNavigationView.menu.findItem(R.id.dataFragment).setIcon(R.drawable.unselect_data);
             bottomNavigationView.menu.findItem(R.id.settingFragment).setIcon(R.drawable.unselect_setting);
             bottomNavigationView.menu.findItem(R.id.ruleFragment).setIcon(R.drawable.unselect_rule);
             bottomNavigationView.menu.findItem(R.id.orderFragment).setIcon(R.drawable.unselect_order);
             clearMenuItems();
+            if (navDestination.id == R.id.homeFragment
+                || navDestination.id == R.id.dataFragment
+                || navDestination.id == R.id.settingFragment
+                || navDestination.id == R.id.ruleFragment
+                || navDestination.id == R.id.orderFragment) {
+                bottomNavigationView.visibility = View.VISIBLE;
+            } else {
+                bottomNavigationView.visibility = View.GONE;
+            }
+
             when (navDestination.id) {
                 R.id.homeFragment -> {
                     addMenuItem(R.string.title_setting,R.drawable.item_setting)
@@ -79,8 +101,13 @@ class MainActivity : BaseActivity() {
                     bottomNavigationView.menu.findItem(R.id.orderFragment).setIcon(R.drawable.select_order);
                 }
 
+                R.id.setting2Fragment->{
+                    toolbar.title = getString(R.string.title_setting2)
+                }
+
             }
         }
+
 
         toolbar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.title) {
@@ -96,6 +123,10 @@ class MainActivity : BaseActivity() {
                     MaterialAlertDialogBuilder(this)
                         .setView(binding.root)
                         .show()
+                    true
+                }
+                getString(R.string.title_setting) -> {
+                    navHostFragment.navController.navigate(R.id.setting2Fragment)
                     true
                 }
                 else -> false

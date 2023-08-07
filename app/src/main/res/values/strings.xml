@@ -21,4 +21,25 @@
     <string name="msg_log">查看</string>
     <string name="msg_share">分享</string>
     <string name="title_more">更多</string>
+
+    <string name="setting_use_system_theme">使用系统颜色</string>
+    <string name="setting_use_dark_theme">深色模式使用纯黑色</string>
+    <string name="setting_skin">外观</string>
+    <string name="setting_theme">主题</string>
+    <string name="setting_dark_theme_off">总是关闭</string>
+    <string name="setting_dark_theme">深色主题</string>
+    <string name="setting_network">网络</string>
+    <string name="lang_follow_system">跟随系统</string>
+    <string name="setting_privacy">隐私</string>
+    <string name="setting_analysis">匿名分析</string>
+    <string name="setting_analysis_desc">我们使用Flurry来收集崩溃信息</string>
+    <string name="ok">好的</string>
+    <string name="dialog_cannot_open_browser_title">无法打开浏览器</string>
+    <string name="toast_copied_to_clipboard_with_text"><![CDATA[<b>%s</b> 已复制到剪切板。]]></string>
+    <string name="close">关闭</string>
+    <string name="default_theme">默认主题</string>
+    <string name="always_off">总是关闭</string>
+    <string name="always_on">总是开启</string>
+    <string name="choose_theme">选择主题</string>
+    <string name="title_setting2">系统设置</string>
 </resources>
