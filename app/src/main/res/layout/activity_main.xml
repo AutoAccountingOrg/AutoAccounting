@@ -26,7 +26,8 @@
         android:layout_height="match_parent"
         android:layout_above="@+id/bottom_navigation"
         android:layout_below="@+id/toolbarLayout"
-        android:layout_marginTop="0dp">
+        android:layout_marginTop="1dp"
+        android:layout_marginBottom="-1dp">
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/nav_host_fragment"

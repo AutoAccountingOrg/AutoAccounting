@@ -45,7 +45,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
                     android:layout_marginStart="@dimen/border_side"
                     android:layout_marginEnd="@dimen/border_side"
                     android:layout_toEndOf="@+id/imageView2"
@@ -53,6 +52,17 @@
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                     android:textColor="?colorOnErrorContainer"
                     tools:ignore="RelativeOverlap" />
+
+                <TextView
+                    android:id="@+id/msg_label3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/msg_label2"
+                    android:layout_marginStart="@dimen/border_side"
+                    android:layout_marginEnd="@dimen/border_side"
+                    android:layout_toEndOf="@+id/imageView2"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                     />
 
 
             </RelativeLayout>

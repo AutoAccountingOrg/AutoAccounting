@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="not_work">插件未激活\n%s</string>
-    <string name="work">插件已激活\n%s</string>
+    <string name="releaseInfo">Released For Lsposed</string>
 </resources>

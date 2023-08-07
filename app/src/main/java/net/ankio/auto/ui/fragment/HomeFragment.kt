@@ -7,10 +7,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.AttrRes
+import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.view.ContextThemeWrapper
 import com.google.android.material.color.MaterialColors
+import com.google.android.material.elevation.SurfaceColors
 import com.quickersilver.themeengine.ThemeEngine
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentHomeBinding
@@ -30,8 +32,10 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentHomeBinding.inflate(layoutInflater)
+        refreshStatus()
         return binding.root
     }
+
 
 
     override fun onResume() {
@@ -44,25 +48,27 @@ class HomeFragment : Fragment() {
     private fun getThemeAttrColor( @AttrRes attrResId: Int): Int {
         return MaterialColors.getColor(ContextThemeWrapper(requireContext(), ThemeEngine.getInstance(requireContext()).getTheme()), attrResId, Color.WHITE)
     }
-
-    private fun setActive(text: String, @AttrRes backgroundColor:Int, @AttrRes textColor:Int, @DrawableRes drawable:Int){
-        binding.active2.setBackgroundColor(getThemeAttrColor(backgroundColor))
+    private fun setActive(@ColorInt backgroundColor:Int, @ColorInt textColor:Int, @DrawableRes drawable:Int){
+        binding.active2.setBackgroundColor(backgroundColor)
         binding.imageView2.setImageDrawable(
             AppCompatResources.getDrawable(
                 requireActivity(),
                 drawable
             )
         )
-        binding.msgLabel2.text = text
-        binding.imageView2.setColorFilter(getThemeAttrColor(textColor))
-        binding.msgLabel2.setTextColor(getThemeAttrColor(textColor))
+        val versionName = requireContext().packageManager.getPackageInfo(requireContext().packageName, 0).versionName
+        val names = versionName.split("-")
+        binding.msgLabel2.text = names[0].trim()
+        binding.msgLabel3.text = getString(R.string.releaseInfo)
+        binding.imageView2.setColorFilter(textColor)
+        binding.msgLabel2.setTextColor(textColor)
     }
 
     private fun refreshStatus(){
         if(!ActiveUtils.getActiveAndSupportFramework()){
-            setActive(getString(R.string.not_work,ActiveUtils.errorMsg(requireContext())),com.google.android.material.R.attr.colorErrorContainer,com.google.android.material.R.attr.colorOnErrorContainer, R.drawable.ic_error)
+            setActive(SurfaceColors.SURFACE_2.getColor(requireContext()),getThemeAttrColor(com.google.android.material.R.attr.colorOnSurface), R.drawable.ic_error)
         }else{
-            setActive(getString(R.string.work,ActiveUtils.errorMsg(requireContext())),com.google.android.material.R.attr.colorPrimary,com.google.android.material.R.attr.colorOnPrimary,R.drawable.ic_success)
+            setActive(getThemeAttrColor(com.google.android.material.R.attr.colorPrimary),getThemeAttrColor(com.google.android.material.R.attr.colorOnPrimary),R.drawable.ic_success)
         }
     }
 
