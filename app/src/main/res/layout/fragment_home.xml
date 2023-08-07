@@ -69,6 +69,187 @@
 
         </com.google.android.material.card.MaterialCardView>
 
+        <com.google.android.material.card.MaterialCardView
+            style="?attr/materialCardViewElevatedStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/padding"
+            app:cardBackgroundColor="?attr/colorSurfaceVariant"
+            app:cardCornerRadius="@dimen/radius"
+            app:cardElevation="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/padding"
+                android:orientation="vertical">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/padding">
+
+                    <TextView
+
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentStart="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginEnd="@dimen/padding"
+                        android:text="@string/communication_title"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textStyle="bold" />
+
+
+
+                </RelativeLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    >
+
+                    <RelativeLayout
+                        android:id="@+id/msg_github_button"
+                        style="@style/CardLine"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:animateLayoutChanges="true">
+
+                        <ImageView
+                            android:id="@+id/image_git"
+                            android:layout_width="@dimen/image_size"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginStart="0dp"
+                            android:src="@drawable/msg_github"
+                            app:tint="?colorOnSurface" />
+
+                        <TextView
+                            android:id="@+id/msg_github"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:layout_marginStart="@dimen/border_side"
+                            android:layout_marginEnd="@dimen/border_side"
+                            android:layout_toEndOf="@+id/image_git"
+                            android:text="@string/msg_github"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                            android:textColor="?colorOnSurface"
+                            tools:ignore="RelativeOverlap" />
+
+                        <TextView
+                            android:id="@+id/msg_github_number"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/msg_github"
+                            android:layout_alignParentEnd="true"
+                            android:layout_marginStart="@dimen/border_side"
+                            android:layout_toEndOf="@+id/image_git"
+                            android:text="@string/msg_github_number"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Small" />
+
+
+                    </RelativeLayout>
+                    <RelativeLayout
+                        android:id="@+id/msg_telegram_button"
+                        android:clickable="true"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        style="@style/CardLine">
+
+                        <ImageView
+                            android:id="@+id/image_tg"
+                            android:layout_width="@dimen/image_size"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginStart="0dp"
+                            android:src="@drawable/msg_telegram"
+                            app:tint="?colorOnSurface" />
+
+                        <TextView
+                            android:id="@+id/msg_telegram"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:layout_marginStart="@dimen/border_side"
+                            android:layout_marginEnd="@dimen/border_side"
+                            android:layout_toEndOf="@+id/image_tg"
+                            android:text="@string/msg_telegram"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                            android:textColor="?colorOnSurface"
+                            tools:ignore="RelativeOverlap" />
+
+                        <TextView
+                            android:id="@+id/msg_telegram_number"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/msg_telegram"
+                            android:layout_alignParentEnd="true"
+                            android:layout_marginStart="@dimen/border_side"
+                            android:layout_toEndOf="@+id/image_tg"
+                            android:text="@string/msg_telegram_number"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Small" />
+
+
+                    </RelativeLayout>
+                    <RelativeLayout
+                        android:id="@+id/msg_qq_button"
+                        android:clickable="true"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        style="@style/CardLine">
+
+                        <ImageView
+                            android:id="@+id/image_qq"
+                            android:layout_width="@dimen/image_size"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginStart="0dp"
+                            android:src="@drawable/msg_qq"
+                            app:tint="?colorOnSurface" />
+
+                        <TextView
+                            android:id="@+id/msg_qq"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:layout_marginStart="@dimen/border_side"
+                            android:layout_marginEnd="@dimen/border_side"
+                            android:layout_toEndOf="@+id/image_qq"
+                            android:text="@string/msg_qq"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                            android:textColor="?colorOnSurface"
+                            tools:ignore="RelativeOverlap" />
+
+                        <TextView
+                            android:id="@+id/msg_qq_number"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/msg_qq"
+                            android:layout_alignParentEnd="true"
+                            android:layout_marginStart="@dimen/border_side"
+                            android:layout_toEndOf="@+id/image_qq"
+                            android:text="@string/msg_qq_number"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Small" />
+
+
+                    </RelativeLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
 
 
     </LinearLayout>

@@ -10,4 +10,11 @@
     <string name="nav_about">关于</string>
     <string name="active_error">未激活</string>
     <string name="description">基于规则和机器学习的自动记账模块。</string>
+    <string name="communication_title">交流讨论</string>
+    <string name="msg_telegram">Telegram</string>
+    <string name="msg_telegram_number">AutoAccounting</string>
+    <string name="msg_github">Github</string>
+    <string name="msg_github_number">AutoAccounting/AutoAccounting</string>
+    <string name="msg_qq_number">165652170</string>
+    <string name="msg_qq">QQ（付费）</string>
 </resources>
