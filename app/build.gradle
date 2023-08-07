@@ -58,5 +58,7 @@ dependencies {
     implementation libs.permissionx
     //网络请求
     implementation libs.okhttp
+    //xp依赖
+    compileOnly libs.xposed
 
 }

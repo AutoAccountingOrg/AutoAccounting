@@ -1,6 +1,7 @@
 [versions]
 agp = "8.2.0-alpha14"
 analytics = "14.3.0"
+xposed = "82"
 gson = "2.10.1"
 htmlKtx = "1.1.2"
 kotlin = "1.8.21"
@@ -20,6 +21,7 @@ navigationFragment = "2.6.0"
 analytics = { module = "com.flurry.android:analytics", version.ref = "analytics" }
 androidx-navigation-fragment-ktx = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigationFragment" }
 androidx-navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigationFragment" }
+xposed = { module = "de.robv.android.xposed:api", version.ref = "xposed" }
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 html-ktx = { module = "dev.rikka.rikkax.html:html-ktx", version.ref = "htmlKtx" }
@@ -32,7 +34,6 @@ okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 permissionx = { module = "com.guolindev.permissionx:permissionx", version.ref = "permissionx" }
 themeEngine = { module = "io.github.prathameshmm02.themeEngine:themeEngine", version.ref = "themeEngine" }
 ultimateBarX = { module = "com.gitee.zackratos:UltimateBarX", version.ref = "ultimateBarX" }
-androidx-navigation-fragment = { group = "androidx.navigation", name = "navigation-fragment", version.ref = "navigationFragment" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
