@@ -67,7 +67,7 @@ open class BaseActivity : AppCompatActivity() {
             val mStatusBarColor2 =  SurfaceColors.SURFACE_4.getColor(this)
             var animatorStart = false
             //滚动页面调整toolbar颜色
-            scrollView.setOnScrollChangeListener { view, _, scrollY, _, oldScrollY ->
+            scrollView.setOnScrollChangeListener { _, _, scrollY, _, _ ->
                 var scrollYs = scrollY //获取宽度
                 if(scrollView is RecyclerView){
                     //RecyclerView获取真实高度
