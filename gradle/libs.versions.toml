@@ -1,6 +1,9 @@
 [versions]
 agp = "8.2.0-alpha14"
 analytics = "14.3.0"
+androidx-roomRuntime = "2.5.2"
+roomCompiler = "2.5.2"
+roomRuntime = "2.5.2"
 xposed = "82"
 gson = "2.10.1"
 htmlKtx = "1.1.2"
@@ -21,6 +24,9 @@ navigationFragment = "2.6.0"
 analytics = { module = "com.flurry.android:analytics", version.ref = "analytics" }
 androidx-navigation-fragment-ktx = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigationFragment" }
 androidx-navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigationFragment" }
+androidx-room-compiler-v251 = { module = "androidx.room:room-compiler", version.ref = "roomCompiler" }
+androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "androidx-roomRuntime" }
+androidx-room-runtime-v251 = { module = "androidx.room:room-runtime", version.ref = "androidx-roomRuntime" }
 xposed = { module = "de.robv.android.xposed:api", version.ref = "xposed" }
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }

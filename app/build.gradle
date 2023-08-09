@@ -3,6 +3,7 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
+    id 'com.google.devtools.ksp' version "1.8.21-1.0.11"
 }
 static def releaseTime() {
     return new Date().format("yyyy-MM-dd")
@@ -91,5 +92,10 @@ dependencies {
     implementation libs.okhttp
     //xp依赖
     compileOnly libs.xposed
+    //room数据库
+    implementation libs.androidx.room.runtime.v251
+    ksp libs.androidx.room.compiler.v251
+    implementation libs.androidx.room.ktx
+
 
 }
