@@ -13,10 +13,21 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.bill
+package net.ankio.auto.utils
 
-enum class BillType(val type: Int)  {
-    Expend(0),//支出
-    Income(1),//收入
-    Transfer(2)//转账
+import android.content.Context
+import android.graphics.Color
+import androidx.annotation.AttrRes
+import androidx.annotation.StyleRes
+import androidx.appcompat.view.ContextThemeWrapper
+import com.google.android.material.color.MaterialColors
+import com.quickersilver.themeengine.ThemeEngine
+
+object ThemeUtils {
+    /**
+     * 获取主题色
+     */
+    fun getThemeAttrColor(context: Context,  @AttrRes attrResId: Int): Int {
+        return MaterialColors.getColor(ContextThemeWrapper(context, ThemeEngine.getInstance(context).getTheme()), attrResId, Color.WHITE)
+    }
 }

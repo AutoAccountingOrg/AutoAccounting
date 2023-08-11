@@ -12,25 +12,11 @@
  *  See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package net.ankio.auto.database.dao
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.Query
-import net.ankio.auto.database.table.AppData
+package net.ankio.auto.constant
 
-@Dao
-interface AppDataDao {
-    @Query("SELECT * FROM AppData  order by id desc limit :start,:limit")
-    suspend fun loadAll(start: Int, limit: Int): Array<AppData?>?
-
-    @Insert
-    suspend fun add(data: AppData)
-
-    @Query("DELETE FROM AppData WHERE id=:id")
-    suspend fun del(id: Int)
-
-    @Query("DELETE FROM AppData WHERE id not in (SELECT id FROM AppData order by id DESC limit :limit)")
-    suspend fun delTooMore(limit: Int)
-
+enum class BillType(val type: Int)  {
+    Expend(0),//支出
+    Income(1),//收入
+    Transfer(2)//转账
 }

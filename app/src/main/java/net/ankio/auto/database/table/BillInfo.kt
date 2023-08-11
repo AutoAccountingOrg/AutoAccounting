@@ -16,8 +16,8 @@ package net.ankio.auto.database.table
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import net.ankio.auto.bill.BillType
-import net.ankio.auto.bill.DataType
+import net.ankio.auto.constant.BillType
+import net.ankio.auto.constant.DataType
 
 @Entity
 class BillInfo {
@@ -32,17 +32,17 @@ class BillInfo {
     /**
      * 金额 大于0
      */
-    private var money: Float = 0.01F
+     var money: Float = 0.01F
 
     /**
      * 手续费
      */
-    private var fee: Float = 0.00F
+     var fee: Float = 0.00F
     /**
      * 记账时间
      * yyyy-MM-dd HH:mm:ss
      */
-    private var timeStamp: Long = 0
+     var timeStamp: Long = 0
 
     /**
      * 商户名称
@@ -101,7 +101,7 @@ class BillInfo {
     /**
      * 来源类型
      */
-    var fromType:DataType = DataType.App
+    var fromType: DataType = DataType.App
     /**
      * 分组id，这个id是指将短时间内捕获到的同等金额进行合并的分组id
      */

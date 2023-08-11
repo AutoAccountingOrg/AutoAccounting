@@ -39,6 +39,7 @@ import com.zackratos.ultimatebarx.ultimatebarx.addNavigationBarBottomPadding
 import com.zackratos.ultimatebarx.ultimatebarx.addStatusBarTopPadding
 import com.zackratos.ultimatebarx.ultimatebarx.navigationBar
 import com.zackratos.ultimatebarx.ultimatebarx.statusBar
+import net.ankio.auto.utils.ThemeUtils
 
 /**
  * 基础的BaseActivity
@@ -76,8 +77,7 @@ open class BaseActivity : AppCompatActivity() {
             toolbarLayout.addStatusBarTopPadding()
         }
         if(::toolbarLayout.isInitialized && ::toolbar.isInitialized && ::scrollView.isInitialized){
-            val theme = ThemeEngine.getInstance(this@BaseActivity).getTheme()
-            val mStatusBarColor = getThemeAttrColor(this,theme,android.R.attr.colorBackground)
+            val mStatusBarColor = getThemeAttrColor(android.R.attr.colorBackground)
             var last = mStatusBarColor
             val mStatusBarColor2 =  SurfaceColors.SURFACE_4.getColor(this)
             var animatorStart = false
@@ -118,16 +118,9 @@ open class BaseActivity : AppCompatActivity() {
      * 获取主题色
      */
     fun getThemeAttrColor( @AttrRes attrResId: Int): Int {
-        return MaterialColors.getColor(ContextThemeWrapper(this, ThemeEngine.getInstance(this@BaseActivity).getTheme()), attrResId, Color.WHITE)
+       return ThemeUtils.getThemeAttrColor(this,attrResId)
     }
 
-    /**
-     * 获取主题色
-     */
-    @ColorInt
-    fun getThemeAttrColor(context: Context, @StyleRes themeResId: Int, @AttrRes attrResId: Int): Int {
-        return MaterialColors.getColor(ContextThemeWrapper(context, themeResId), attrResId, Color.WHITE)
-    }
 
 
     /**

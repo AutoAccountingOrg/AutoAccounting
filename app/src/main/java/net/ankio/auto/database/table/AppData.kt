@@ -16,6 +16,7 @@ package net.ankio.auto.database.table
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import net.ankio.auto.constant.DataType
 
 @Entity
 class AppData {
@@ -25,26 +26,36 @@ class AppData {
 
     /**
      * 对于App数据，就是Hook得到的数据一般是Json：{} 具体情况具体分析
-     * 对于短信数据获取到的是短信内容
+     * 对于短信数据获取到的是短信内容 {msg:xxx,body:''}
      * 对于通知数据获取到的是如下json:{title:xxx,content:xxx},偷懒省略引号
      * 对于无障碍抓取的数据，也是json
      */
-    var data: String? = null
+    var data: String = ""
 
     /**
      * 指的是数据类型
      * 其中=0是app数据，=1是短信数据，=2是通知数据，=3是无障碍抓取的数据
      */
-    var type: Int? = 0
+    var type: DataType = DataType.App
 
     /**
      * 对于短信，这里是发件人号码
      * 对于通知、Hook、无障碍数据这里是包名
      */
-    var from: String? = null //源自APP
+    var from: String = "" //源自APP
 
     /**
-     * 时间是格式化好的时间
+     * 时间
      */
-    var time: String? = null //时间
+    var time: Long = 0 //时间
+
+    /**
+     * 是否匹配规则
+     */
+    var match:Boolean = false
+
+    /**
+     * 匹配到的规则名称
+     * */
+    var rule:String = ""
 }

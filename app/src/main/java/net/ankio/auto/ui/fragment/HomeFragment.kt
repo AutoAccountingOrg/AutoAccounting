@@ -48,7 +48,7 @@ class HomeFragment : Fragment() {
     ): View {
         binding = FragmentHomeBinding.inflate(layoutInflater)
         binding.logCard.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(requireContext()))
-        binding.grouptCard.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(requireContext()))
+        binding.groupCard.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(requireContext()))
         refreshStatus()
         return binding.root
     }

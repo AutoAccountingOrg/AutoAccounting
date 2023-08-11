@@ -13,7 +13,7 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.bill
+package net.ankio.auto.constant
 
 enum class Currency(val currencyName: String) {
     USD("美元"),

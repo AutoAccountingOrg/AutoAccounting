@@ -2,8 +2,9 @@
 agp = "8.2.0-alpha14"
 analytics = "14.3.0"
 androidx-roomRuntime = "2.5.2"
+kotlinxCoroutinesAndroid = "1.6.4"
 roomCompiler = "2.5.2"
-roomRuntime = "2.5.2"
+swiperefreshlayout = "1.2.0-alpha01"
 xposed = "82"
 gson = "2.10.1"
 htmlKtx = "1.1.2"
@@ -27,6 +28,8 @@ androidx-navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx",
 androidx-room-compiler-v251 = { module = "androidx.room:room-compiler", version.ref = "roomCompiler" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "androidx-roomRuntime" }
 androidx-room-runtime-v251 = { module = "androidx.room:room-runtime", version.ref = "androidx-roomRuntime" }
+androidx-swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefreshlayout", version.ref = "swiperefreshlayout" }
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroid" }
 xposed = { module = "de.robv.android.xposed:api", version.ref = "xposed" }
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }

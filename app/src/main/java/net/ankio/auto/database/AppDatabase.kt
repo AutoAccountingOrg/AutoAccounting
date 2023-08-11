@@ -37,11 +37,11 @@ import net.ankio.auto.database.table.Regular
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun RegularDao(): RegularDao?
-    abstract fun BookNameDao(): BookNameDao?
-    abstract fun AccountMapDao(): AccountMapDao?
-    abstract fun AppDataDao(): AppDataDao?
-    abstract fun BillInfoDao(): BillInfoDao?
-    abstract fun CategoryDao(): CategoryDao?
-    abstract fun AccountDao(): AccountDao?
+    abstract fun RegularDao(): RegularDao
+    abstract fun BookNameDao(): BookNameDao
+    abstract fun AccountMapDao(): AccountMapDao
+    abstract fun AppDataDao(): AppDataDao
+    abstract fun BillInfoDao(): BillInfoDao
+    abstract fun CategoryDao(): CategoryDao
+    abstract fun AccountDao(): AccountDao
 }

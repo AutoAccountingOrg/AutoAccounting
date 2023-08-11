@@ -57,4 +57,9 @@
     <string name="always_on">总是开启</string>
     <string name="choose_theme">选择主题</string>
     <string name="title_setting2">系统设置</string>
+    <string name="delete_data">删除数据</string>
+    <string name="delete_msg">您确定要删除这些数据吗？</string>
+    <string name="cancel_msg">关闭</string>
+    <string name="sure_msg">确定</string>
+    <string name="content_title">数据查看</string>
 </resources>

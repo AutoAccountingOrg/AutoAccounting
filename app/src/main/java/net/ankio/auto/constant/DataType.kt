@@ -13,7 +13,7 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.bill
+package net.ankio.auto.constant
 
 enum class DataType(val type: Int)  {
     App(0),//app

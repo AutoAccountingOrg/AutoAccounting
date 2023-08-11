@@ -19,7 +19,9 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import com.quickersilver.themeengine.ThemeEngine
+import kotlinx.coroutines.runBlocking
 import net.ankio.auto.database.Db
+import net.ankio.auto.utils.Mock
 import java.util.*
 
 
@@ -37,7 +39,13 @@ open class App : Application() {
         ThemeEngine.applyToActivities(this)
         //数据库初始化
         Db.init(this)
+        runBlocking {
+            Mock.init(this@App)
+        }
+
+
     }
+
 
 
 }
