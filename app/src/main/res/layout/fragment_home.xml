@@ -85,6 +85,237 @@
         </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/ruleCard"
+            style="?attr/materialCardViewElevatedStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/padding"
+            app:cardBackgroundColor="?attr/colorSurfaceVariant"
+            app:cardCornerRadius="@dimen/radius"
+            app:cardElevation="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/padding"
+                android:orientation="vertical">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+
+                    android:padding="@dimen/padding">
+
+                    <ImageView
+                        android:id="@+id/rule_image"
+                        android:layout_width="@dimen/icon_size"
+                        android:layout_height="@dimen/icon_size"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/select_rule"
+                        app:tint="?colorOnSurface" />
+
+                    <TextView
+
+                        android:id="@+id/textView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="@dimen/one_padding"
+                        android:layout_marginEnd="@dimen/one_padding"
+                        android:layout_toEndOf="@+id/rule_image"
+                        android:text="@string/title_rule_official"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textStyle="bold" />
+
+
+                </RelativeLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    >
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:animateLayoutChanges="true"
+
+                        android:paddingLeft="@dimen/padding"
+                        android:paddingTop="@dimen/one_padding"
+                        android:paddingRight="@dimen/padding"
+                        android:paddingBottom="@dimen/one_padding">
+
+                        <TextView
+                            android:id="@+id/ruleAnalyze"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginStart="@dimen/border_side"
+                            android:text="@string/title_rule2"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                            android:textColor="?colorOnSurface"
+                            tools:ignore="RelativeOverlap" />
+
+                        <TextView
+                            android:id="@+id/ruleVersion"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+
+                            android:layout_marginStart="3dp"
+                            android:layout_marginEnd="@dimen/border_side"
+                            android:layout_toStartOf="@+id/updateAnalyze"
+                            android:layout_toEndOf="@+id/ruleAnalyze"
+                            android:text="1.0.0"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Small" />
+
+                        <Button
+                            android:id="@+id/updateAnalyze"
+                            style="?attr/materialIconButtonFilledStyle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            app:icon="@drawable/icon_update"
+                            tools:ignore="RelativeOverlap" />
+
+
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+
+                        android:animateLayoutChanges="true"
+                        android:paddingLeft="@dimen/padding"
+                        android:paddingTop="@dimen/one_padding"
+                        android:paddingRight="@dimen/padding"
+                        android:paddingBottom="@dimen/one_padding">
+
+                        <TextView
+                            android:id="@+id/cateAnalyze"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginStart="@dimen/border_side"
+                            android:text="@string/title_rule3"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                            android:textColor="?colorOnSurface"
+                            tools:ignore="RelativeOverlap" />
+
+                        <TextView
+                            android:id="@+id/cateVersion"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:layout_marginStart="3dp"
+
+                            android:layout_marginEnd="@dimen/border_side"
+                            android:layout_toStartOf="@+id/cateUpdate"
+                            android:layout_toEndOf="@+id/cateAnalyze"
+                            android:text="1.0.0"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Small" />
+
+                        <Button
+                            android:id="@+id/cateUpdate"
+                            style="?attr/materialIconButtonFilledStyle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            app:icon="@drawable/icon_update"
+                            tools:ignore="RelativeOverlap" />
+
+
+                    </RelativeLayout>
+
+
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/logCard"
+            style="?attr/materialCardViewElevatedStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/padding"
+            app:cardBackgroundColor="?attr/colorSurfaceVariant"
+            app:cardCornerRadius="@dimen/radius"
+            app:cardElevation="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/padding"
+                android:orientation="vertical">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+
+                    android:padding="@dimen/padding">
+
+                    <ImageView
+                        android:id="@+id/log_image"
+                        android:layout_width="@dimen/icon_size"
+                        android:layout_height="@dimen/icon_size"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/ic_log"
+                        app:tint="?colorOnSurface" />
+
+                    <TextView
+
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="@dimen/one_padding"
+                        android:layout_marginEnd="@dimen/padding"
+                        android:layout_toEndOf="@+id/log_image"
+                        android:text="@string/title_log"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textStyle="bold" />
+
+                    <Button
+                        android:id="@+id/showLog"
+                        style="?attr/materialIconButtonFilledStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        app:icon="@drawable/ic_open"
+                        tools:ignore="RelativeOverlap" />
+
+                    <Button
+
+                        android:id="@+id/shareLog"
+                        style="?attr/materialIconButtonFilledTonalStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="15dp"
+                        android:layout_toStartOf="@+id/showLog"
+                        app:icon="@drawable/ic_share"
+
+                        tools:ignore="RelativeOverlap" />
+
+                </RelativeLayout>
+
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
             style="?attr/materialCardViewElevatedStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -261,79 +492,6 @@
                     </RelativeLayout>
 
                 </LinearLayout>
-
-            </LinearLayout>
-
-        </com.google.android.material.card.MaterialCardView>
-
-
-        <com.google.android.material.card.MaterialCardView
-            style="?attr/materialCardViewElevatedStyle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/logCard"
-            android:layout_marginBottom="@dimen/padding"
-            app:cardBackgroundColor="?attr/colorSurfaceVariant"
-            app:cardCornerRadius="@dimen/radius"
-            app:cardElevation="0dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="@dimen/padding"
-                android:orientation="vertical">
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-
-                    android:padding="@dimen/padding">
-
-                    <ImageView
-                        android:id="@+id/log_image"
-                        android:layout_width="@dimen/icon_size"
-                        android:layout_height="@dimen/icon_size"
-                        android:layout_centerVertical="true"
-                        app:tint="?colorOnSurface"
-                        android:src="@drawable/ic_log" />
-
-                    <TextView
-
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_marginStart="@dimen/one_padding"
-                        android:layout_marginEnd="@dimen/padding"
-                        android:layout_toEndOf="@+id/log_image"
-                        android:text="@string/title_log"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                        android:textColor="?attr/colorOnSurface"
-                        android:textStyle="bold" />
-                    <Button
-                        style="?attr/materialIconButtonFilledStyle"
-                        android:id="@+id/showLog"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentEnd="true"
-                        android:layout_centerVertical="true"
-
-                        app:icon="@drawable/ic_open"
-                        tools:ignore="RelativeOverlap" />
-
-                    <Button
-
-                        style="?attr/materialIconButtonFilledTonalStyle"
-                        app:icon="@drawable/ic_share"
-                        android:id="@+id/shareLog"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="15dp"
-                        android:layout_toStartOf="@+id/showLog"
-
-                        tools:ignore="RelativeOverlap" />
-
-                </RelativeLayout>
-
 
             </LinearLayout>
 

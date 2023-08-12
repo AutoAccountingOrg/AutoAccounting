@@ -19,6 +19,7 @@ import androidx.room.PrimaryKey
 
 @Entity
 class Regular {
+
     //自动分类规则
     @PrimaryKey(autoGenerate = true)
     var id = 0
@@ -61,4 +62,5 @@ class Regular {
     var moneyEnd:Float = 0.00F
     var use = true //是否启用该规则
     var sort = 0 //排序
+    var auto = false //是否为自动创建
 }

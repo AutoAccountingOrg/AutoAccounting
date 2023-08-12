@@ -99,6 +99,7 @@ class MainActivity : BaseActivity() {
                     bottomNavigationView.menu.findItem(R.id.homeFragment).setIcon(R.drawable.select_home);
                 }
                 R.id.dataFragment -> {
+                  //  addMenuItem(R.string.item_filter,R.drawable.item_filter)
                     toolbar.title = getString(R.string.title_data)
                     bottomNavigationView.menu.findItem(R.id.dataFragment).setIcon(R.drawable.select_data);
                 }
@@ -144,6 +145,7 @@ class MainActivity : BaseActivity() {
                     navHostFragment.navController.navigate(R.id.setting2Fragment)
                     true
                 }
+
                 else -> false
             }
 

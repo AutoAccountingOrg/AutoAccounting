@@ -32,6 +32,7 @@ import com.quickersilver.themeengine.ThemeEngine
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentHomeBinding
 import net.ankio.auto.utils.ActiveUtils
+import net.ankio.auto.utils.SpUtils
 
 
 /**
@@ -49,6 +50,11 @@ class HomeFragment : Fragment() {
         binding = FragmentHomeBinding.inflate(layoutInflater)
         binding.logCard.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(requireContext()))
         binding.groupCard.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(requireContext()))
+        binding.ruleCard.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(requireContext()))
+        binding.ruleVersion.text = SpUtils.getString("ruleVersion","1.0.0")
+        binding.cateVersion.text = SpUtils.getString("ruleVersion","1.0.0")
+        //TODO 日志查看、分享
+        //TODO 规则版本插件更新
         refreshStatus()
         return binding.root
     }

@@ -33,7 +33,7 @@ import net.ankio.auto.utils.ThemeUtils
 import org.json.JSONObject
 
 
-class DataAdapter(private val dataItems: List<AppData>,private val listener: ItemListener) : RecyclerView.Adapter<DataAdapter.ViewHolder>() {
+class DataAdapter(private val dataItems: List<AppData>, private val listener: DataItemListener) : RecyclerView.Adapter<DataAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(AdapterDataBinding.inflate(LayoutInflater.from(parent.context),parent,false),parent.context)
@@ -120,7 +120,7 @@ class DataAdapter(private val dataItems: List<AppData>,private val listener: Ite
     }
 }
 
-interface ItemListener{
+interface DataItemListener{
     fun onClickContent(string: String)
     fun onClickTest(item: AppData)
     fun onClickDelete(item: AppData,position: Int)

@@ -20,56 +20,115 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.ankio.auto.R
+import net.ankio.auto.database.Db
+import net.ankio.auto.database.table.AppData
+import net.ankio.auto.database.table.Regular
+import net.ankio.auto.databinding.FragmentDataBinding
+import net.ankio.auto.ui.adapter.DataAdapter
+import net.ankio.auto.ui.adapter.RuleAdapter
+import net.ankio.auto.ui.adapter.RuleItemListener
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 
-/**
- * A simple [Fragment] subclass.
- * Use the [RuleFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class RuleFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+    private lateinit var binding: FragmentDataBinding
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var adapter: RuleAdapter
+    private lateinit var layoutManager: LinearLayoutManager
+    private val dataItems = mutableListOf<Regular>()
+    private var currentPage = 0
+    private val itemsPerPage = 10
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    override fun onCreateView(   inflater: LayoutInflater,
+                                 container: ViewGroup?,
+                                 savedInstanceState: Bundle?
+    ): View {
+        binding = FragmentDataBinding.inflate(layoutInflater)
+        recyclerView = binding.recyclerView
+        layoutManager = LinearLayoutManager(requireContext())
+        recyclerView.layoutManager = layoutManager
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_rule, container, false)
-    }
+        adapter = RuleAdapter(dataItems,object : RuleItemListener {
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment RuleFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            RuleFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+
+
+            override fun onClickDelete(item: Regular, position: Int) {
+                MaterialAlertDialogBuilder(requireContext())
+                    .setTitle(requireContext().getString(R.string.delete_data))
+                    .setMessage(requireContext().getString(R.string.delete_msg))
+                    .setNegativeButton(requireContext().getString(R.string.sure_msg)) { _, _ ->
+                        lifecycleScope.launch {
+                            Db.get().RegularDao().del(item.id)
+                            withContext(Dispatchers.Main) {
+                                adapter.notifyItemRemoved(position)
+                            }
+                        }
+                    }
+                    .setPositiveButton(requireContext().getString(R.string.cancel_msg)) { _, _ -> }
+                    .show()
+            }
+
+            override fun onClickEditData(item: Regular, position: Int) {
+               //TODO 规则编辑功能
+            }
+
+
+        })
+
+        recyclerView.adapter = adapter
+
+        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                val visibleItemCount = layoutManager.childCount
+                val totalItemCount = layoutManager.itemCount
+                val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
+
+                if (visibleItemCount + firstVisibleItemPosition >= totalItemCount
+                    && firstVisibleItemPosition >= 0
+                ) {
+                    loadMoreData()
                 }
             }
+        })
+
+        loadMoreData()
+
+
+
+        return binding.root
     }
+
+    private fun loadMoreData() {
+
+        lifecycleScope.launch {
+            val newData = Db.get().RegularDao().loadAll(currentPage * itemsPerPage +1 ,itemsPerPage )
+            val collection: Collection<Regular> = newData?.filterNotNull() ?: emptyList()
+            withContext(Dispatchers.Main) {
+                // 在主线程更新 UI
+                dataItems.addAll(collection)
+                if(!collection.isEmpty()){
+                    adapter.notifyItemRangeInserted(currentPage * itemsPerPage +1, itemsPerPage )
+                    currentPage++
+                }
+
+            }
+        }
+
+
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+        //加载数据
+    }
+
 }

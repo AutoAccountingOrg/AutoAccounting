@@ -15,12 +15,11 @@
 
 package net.ankio.auto.ui.fragment
 
-import android.content.ClipData.Item
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -32,10 +31,8 @@ import net.ankio.auto.R
 import net.ankio.auto.database.Db
 import net.ankio.auto.database.table.AppData
 import net.ankio.auto.databinding.FragmentDataBinding
-import net.ankio.auto.databinding.FragmentHomeBinding
 import net.ankio.auto.ui.adapter.DataAdapter
-import net.ankio.auto.ui.adapter.ItemListener
-import java.util.concurrent.Executors
+import net.ankio.auto.ui.adapter.DataItemListener
 
 
 class DataFragment : Fragment() {
@@ -56,7 +53,7 @@ class DataFragment : Fragment() {
         layoutManager = LinearLayoutManager(requireContext())
         recyclerView.layoutManager = layoutManager
 
-        adapter = DataAdapter(dataItems,object :ItemListener{
+        adapter = DataAdapter(dataItems,object : DataItemListener {
             override fun onClickContent(string: String) {
                 MaterialAlertDialogBuilder(requireContext())
                     .setTitle(requireContext().getString(R.string.content_title))
@@ -66,7 +63,7 @@ class DataFragment : Fragment() {
             }
 
             override fun onClickTest(item: AppData) {
-
+                //TODO 使用规则进行测试
             }
 
             override fun onClickDelete(item: AppData,position:Int) {

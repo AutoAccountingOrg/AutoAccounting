@@ -62,4 +62,9 @@
     <string name="cancel_msg">关闭</string>
     <string name="sure_msg">确定</string>
     <string name="content_title">数据查看</string>
+    <string name="item_filter">数据过滤</string>
+    <string name="filter_name">搜索数据内容</string>
+    <string name="title_rule2">账单识别</string>
+    <string name="title_rule_official">官方规则库</string>
+    <string name="title_rule3">自动分类</string>
 </resources>
