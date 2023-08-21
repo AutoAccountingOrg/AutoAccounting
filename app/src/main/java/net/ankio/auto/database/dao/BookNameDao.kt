@@ -15,8 +15,13 @@
 package net.ankio.auto.database.dao
 
 import androidx.room.Dao
+import androidx.room.Query
+import net.ankio.auto.database.table.AppData
+import net.ankio.auto.database.table.BookName
 
 @Dao
 interface BookNameDao {
+    @Query("SELECT * FROM BookName  order by id desc")
+    suspend fun loadAll(): Array<BookName?>?
 
 }

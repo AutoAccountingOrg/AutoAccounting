@@ -15,7 +15,7 @@ static def releaseTimeMin() {
 
 android {
     namespace 'net.ankio.auto'
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         applicationId "net.ankio.auto"
@@ -99,5 +99,14 @@ dependencies {
     implementation libs.androidx.room.ktx
     //下拉列表
     implementation libs.androidx.swiperefreshlayout
+    //flexbox
+    implementation libs.flexbox
+    //圆角
+    implementation libs.round
 
+
+
+    //数据库调试：adb forward tcp:8080 tcp:8080
+    debugImplementation libs.androiddebuglib
+   // debugImplementation libs.debug.db
 }

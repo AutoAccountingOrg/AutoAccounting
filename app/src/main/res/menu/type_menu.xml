@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (C) 2023 ankio(ankio@ankio.net)
   ~ Licensed under the Apache License, Version 3.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -14,15 +13,15 @@
   ~   limitations under the License.
   -->
 
-<resources>
-    <dimen name="padding">16dp</dimen>
-    <dimen name="one_padding">8dp</dimen>
-    <dimen name="switch_width">48dp</dimen>
-    <dimen name="border_side">15dp</dimen>
-    <dimen name="padding_side">30dp</dimen>
-    <dimen name="image_size">38dp</dimen>
-    <dimen name="state_padding">28dp</dimen>
-    <dimen name="radius">24dp</dimen>
-    <dimen name="icon_size">30dp</dimen>
-    <dimen name="save_size">20sp</dimen>
-</resources>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/type_money"
+        android:title="@string/type_money" />
+    <item android:id="@+id/type_time"
+        android:title="@string/type_time" />
+    <item android:id="@+id/type_shop"
+        android:title="@string/type_shop" />
+    <item android:id="@+id/type_item"
+        android:title="@string/type_item" />
+    <item android:id="@+id/type_type"
+        android:title="@string/type_type" />
+</menu>

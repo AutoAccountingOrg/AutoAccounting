@@ -16,4 +16,16 @@
 
 <resources>
     <string-array name="xposed_scope" />
+    <string-array name="rule_condition">
+        <item>包含</item>
+        <item>等于</item>
+        <item>正则</item>
+    </string-array>
+    <string-array name="select_condition">
+        <item>金额</item>
+        <item>时间</item>
+        <item>交易类型</item>
+        <item>商户名称</item>
+        <item>商品名称</item>
+    </string-array>
 </resources>

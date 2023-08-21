@@ -108,6 +108,7 @@ class MainActivity : BaseActivity() {
                     bottomNavigationView.menu.findItem(R.id.settingFragment).setIcon(R.drawable.select_setting);
                 }
                 R.id.ruleFragment -> {
+                    addMenuItem(R.string.item_add,R.drawable.item_add)
                     toolbar.title = getString(R.string.title_rule)
                     bottomNavigationView.menu.findItem(R.id.ruleFragment).setIcon(R.drawable.select_rule);
                 }
@@ -119,6 +120,10 @@ class MainActivity : BaseActivity() {
 
                 R.id.setting2Fragment->{
                     toolbar.title = getString(R.string.title_setting2)
+                }
+
+                R.id.editFragment->{
+                    toolbar.title = getString(R.string.cate_title)
                 }
 
             }
@@ -143,6 +148,11 @@ class MainActivity : BaseActivity() {
                 }
                 getString(R.string.title_setting) -> {
                     navHostFragment.navController.navigate(R.id.setting2Fragment)
+                    true
+                }
+
+                getString(R.string.item_add) ->{
+                    navHostFragment.navController.navigate(R.id.editFragment)
                     true
                 }
 

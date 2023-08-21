@@ -13,22 +13,8 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.utils
+package net.ankio.auto.exceptions
 
-import android.content.Context
-import android.graphics.Color
-import androidx.annotation.AttrRes
-import androidx.annotation.StyleRes
-import androidx.appcompat.view.ContextThemeWrapper
-import com.google.android.material.color.MaterialColors
-import com.quickersilver.themeengine.ThemeEngine
+import java.lang.Exception
 
-object ThemeUtils {
-
-    /**
-     * 获取主题色
-     */
-    fun getThemeAttrColor(context: Context,  @AttrRes attrResId: Int): Int {
-        return MaterialColors.getColor(ContextThemeWrapper(context, ThemeEngine.getInstance(context).getTheme()), attrResId, Color.WHITE)
-    }
-}
+class UnsupportedUri(string: String):Exception()

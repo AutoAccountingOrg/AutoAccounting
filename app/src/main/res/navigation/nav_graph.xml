@@ -75,4 +75,13 @@
 
     </fragment>
 
+
+    <fragment
+        android:id="@+id/editFragment"
+        android:name="net.ankio.auto.ui.fragment.rule.EditFragment"
+        android:label="fragment_edit"
+        tools:layout="@layout/fragment_edit">
+
+    </fragment>
+
 </navigation>

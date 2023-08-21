@@ -15,8 +15,20 @@
 package net.ankio.auto.database.dao
 
 import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.Query
+import net.ankio.auto.database.table.AppData
+import net.ankio.auto.database.table.BookName
+import net.ankio.auto.database.table.Category
 
 @Dao
 interface CategoryDao {
+    @Query("SELECT * FROM Category where book=:book and parent = :id")
+    suspend fun loadAll(book:Int,id:Int = -1): Array<Category?>?
 
+    @Query("SELECT count(*) FROM Category where book=:book and parent = :id")
+    suspend fun count(book:Int,id: Int):Int
+
+    @Insert
+    suspend fun add(data: Category)
 }

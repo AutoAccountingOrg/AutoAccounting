@@ -19,6 +19,8 @@ import androidx.room.PrimaryKey
 
 @Entity
 class Category {
+
+
     @PrimaryKey(autoGenerate = true)
     var id = 0
 
@@ -51,4 +53,5 @@ class Category {
      * 排序
      */
     var sort: Int = 0 //排序
+
 }

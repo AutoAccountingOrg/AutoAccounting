@@ -1,9 +1,13 @@
 [versions]
 agp = "8.2.0-alpha14"
 analytics = "14.3.0"
+androiddebuglib = "0.1.4"
 androidx-roomRuntime = "2.5.2"
+debugDb = "1.0.6"
+flexbox = "3.0.0"
 kotlinxCoroutinesAndroid = "1.6.4"
 roomCompiler = "2.5.2"
+round = "1.1.2"
 swiperefreshlayout = "1.2.0-alpha01"
 xposed = "82"
 gson = "2.10.1"
@@ -19,17 +23,21 @@ okhttp = "4.11.0"
 permissionx = "1.7.1"
 themeEngine = "1.1.0"
 ultimateBarX = "dev-SNAPSHOT"
-navigationFragment = "2.6.0"
+navigationFragment = "2.7.0"
 
 [libraries]
 analytics = { module = "com.flurry.android:analytics", version.ref = "analytics" }
+androiddebuglib = { module = "com.itlgl.android:androiddebuglib", version.ref = "androiddebuglib" }
 androidx-navigation-fragment-ktx = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigationFragment" }
 androidx-navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigationFragment" }
 androidx-room-compiler-v251 = { module = "androidx.room:room-compiler", version.ref = "roomCompiler" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "androidx-roomRuntime" }
 androidx-room-runtime-v251 = { module = "androidx.room:room-runtime", version.ref = "androidx-roomRuntime" }
 androidx-swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefreshlayout", version.ref = "swiperefreshlayout" }
+debug-db = { module = "com.amitshekhar.android:debug-db", version.ref = "debugDb" }
+flexbox = { module = "com.google.android.flexbox:flexbox", version.ref = "flexbox" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroid" }
+round = { module = "io.github.xiaofeidev:round", version.ref = "round" }
 xposed = { module = "de.robv.android.xposed:api", version.ref = "xposed" }
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }

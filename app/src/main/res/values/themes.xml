@@ -51,4 +51,31 @@
         <item name="android:background">@drawable/ripple_effect</item>
     </style>
 
+    <style name="TextLine">
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:paddingBottom">8dp</item>
+        <item name="android:textAppearance">@style/TextAppearance.AppCompat.Small</item>
+    </style>
+
+    <style name="RuleLine">
+        <item name="android:textAppearance">@style/TextAppearance.AppCompat.Display1</item>
+       <item name="android:paddingStart">5dp</item>
+    <item name="android:paddingEnd">5dp</item>
+    </style>
+
+    <style name="SymbolLine" parent="RuleLine">
+        <item name="android:layout_width">35dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@drawable/rounded_background</item>
+        <item name="android:gravity">center_horizontal</item>
+        <item name="android:paddingStart">5dp</item>
+        <item name="android:paddingEnd">5dp</item>
+    </style>
+
+    <style name="WaveRuleLine" parent="RuleLine">
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:background">@drawable/ripple_effect</item>
+    </style>
+
 </resources>

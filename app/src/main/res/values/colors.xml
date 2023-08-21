@@ -17,8 +17,11 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="white2">#CACACA</color>
     <color name="info">#3B71CA</color>
     <color name="danger">#DC4C64</color>
     <color name="warning">#E4A11B</color>
     <color name="success">#14A44D</color>
+    <color name="gray30">#30000000</color>
+    <color name="gray40">#45000000</color>
 </resources>

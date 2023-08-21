@@ -13,22 +13,15 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.utils
+package net.ankio.auto.app
 
-import android.content.Context
-import android.graphics.Color
-import androidx.annotation.AttrRes
-import androidx.annotation.StyleRes
-import androidx.appcompat.view.ContextThemeWrapper
-import com.google.android.material.color.MaterialColors
-import com.quickersilver.themeengine.ThemeEngine
-
-object ThemeUtils {
-
+object AppManager {
     /**
-     * 获取主题色
+     * 获取分类的显示样式，或者记录方式
+     * 例如：父类 - 子类
+     * 父类 或 子类
      */
-    fun getThemeAttrColor(context: Context,  @AttrRes attrResId: Int): Int {
-        return MaterialColors.getColor(ContextThemeWrapper(context, ThemeEngine.getInstance(context).getTheme()), attrResId, Color.WHITE)
+    fun getCategory(){
+
     }
 }
