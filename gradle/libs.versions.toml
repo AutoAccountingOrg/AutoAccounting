@@ -5,7 +5,9 @@ androiddebuglib = "0.1.4"
 androidx-roomRuntime = "2.5.2"
 debugDb = "1.0.6"
 flexbox = "3.0.0"
+jerryCore = "2.2.0"
 kotlinxCoroutinesAndroid = "1.6.4"
+rhino = "1.7.14"
 roomCompiler = "2.5.2"
 round = "1.1.2"
 swiperefreshlayout = "1.2.0-alpha01"
@@ -37,6 +39,7 @@ androidx-swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefre
 debug-db = { module = "com.amitshekhar.android:debug-db", version.ref = "debugDb" }
 flexbox = { module = "com.google.android.flexbox:flexbox", version.ref = "flexbox" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroid" }
+rhino = { module = "org.mozilla:rhino", version.ref = "rhino" }
 round = { module = "io.github.xiaofeidev:round", version.ref = "round" }
 xposed = { module = "de.robv.android.xposed:api", version.ref = "xposed" }
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }

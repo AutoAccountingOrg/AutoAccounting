@@ -24,6 +24,9 @@ import androidx.appcompat.widget.AppCompatTextView
 import net.ankio.auto.R
 import kotlin.math.sin
 
+/**
+ * 给textview添加滚动波浪线
+ */
 class WaveTextView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : AppCompatTextView(context, attrs, defStyleAttr) {

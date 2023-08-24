@@ -21,6 +21,9 @@ import android.view.View
 import android.widget.TextView
 import com.google.android.flexbox.FlexboxLayout
 
+/**
+ * 虚拟流动布局器
+ */
 class FlowLayoutManager(context: Context, attrs: AttributeSet): FlexboxLayout(context,attrs) {
     var firstWaveTextViewPosition: Int = 0
     private var arrayList:ArrayList<FlowElement> = ArrayList()

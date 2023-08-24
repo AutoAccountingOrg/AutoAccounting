@@ -119,7 +119,7 @@ class EditFragment : Fragment() {
     /**
      * 选择分类
      */
-    fun selectType(view:View,element: FlowElement,menuItem: MenuItem,flexboxLayout:FlowLayoutManager){
+    private fun selectType(view:View,element: FlowElement,menuItem: MenuItem,flexboxLayout:FlowLayoutManager){
         when(menuItem.itemId){
             R.id.type_money->{
                inputMoneyRange(flexboxLayout,element)
@@ -255,7 +255,7 @@ class EditFragment : Fragment() {
     }
 
 
-    fun inputMoneyRange(flexboxLayout:FlowLayoutManager,element: FlowElement){
+    private fun inputMoneyRange(flexboxLayout:FlowLayoutManager, element: FlowElement){
         val money_range_binding = MoneyDialogBinding.inflate(LayoutInflater.from(requireContext()))
         money_range_binding.lower.setText(element.data.getOrDefault("minAmount","").toString())
         money_range_binding.higher.setText(element.data.getOrDefault("maxAmount","").toString())
@@ -312,4 +312,8 @@ class EditFragment : Fragment() {
             .setNegativeButton(R.string.cancel_msg, null)
             .show()
     }
+
+
+    //TODO 保存
+    //TODo 读取 重新渲染
 }

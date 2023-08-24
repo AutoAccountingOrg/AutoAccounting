@@ -24,6 +24,9 @@ import androidx.core.view.size
 import net.ankio.auto.R
 import net.ankio.auto.utils.ThemeUtils
 
+/**
+ * 流动布局元素
+ */
 class FlowElement(
     private val context: Context,
     private val flowLayoutManager: FlowLayoutManager,
