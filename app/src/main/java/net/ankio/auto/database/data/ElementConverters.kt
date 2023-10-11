@@ -13,23 +13,17 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.app
+package net.ankio.auto.database.data
 
-import net.ankio.auto.utils.SpUtils
+import androidx.room.TypeConverter
+import com.google.gson.Gson
 
-object AppManager {
-    /**
-     * 获取分类的显示样式，或者记录方式
-     * 例如：父类 - 子类
-     * 父类 或 子类
-     */
-    fun getCategory(category1:String,category2: String?=null): String {
-        if(category2===null){
-            return category1
-        }
-        if(SpUtils.getBoolean("category",true)){
-            return "${category1}-${category2}"
-        }
-        return "$category2"
-    }
+class ElementConverters {
+    private val gson = Gson()
+
+    @TypeConverter
+    fun fromElement(data: FlowElementList): String = gson.toJson(data)
+
+    @TypeConverter
+    fun toElement(json: String): FlowElementList = gson.fromJson(json, FlowElementList::class.java)
 }

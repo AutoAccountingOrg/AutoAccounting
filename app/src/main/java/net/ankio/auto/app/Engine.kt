@@ -13,7 +13,7 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.rule
+package net.ankio.auto.app
 
 import org.mozilla.javascript.Context
 import org.mozilla.javascript.Scriptable
@@ -65,7 +65,7 @@ object Engine {
             ScriptableObject.putProperty(scope, "time", time)
              result = context.evaluateString(scope, script, "JavaScriptForCategory", 1, null) as String
 
-        }catch (e:Exception){
+        }catch (_:Exception){
 
         }finally {
             Context.exit()

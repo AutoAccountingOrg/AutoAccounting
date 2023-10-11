@@ -15,7 +15,10 @@
 package net.ankio.auto.database.dao
 
 import androidx.room.Dao
+import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
+import net.ankio.auto.database.table.Account
 import net.ankio.auto.database.table.AppData
 import net.ankio.auto.database.table.Regular
 
@@ -25,4 +28,9 @@ interface RegularDao {
     suspend fun del(id: Int)
     @Query("SELECT * FROM Regular  order by id desc limit :start,:limit")
     suspend fun loadAll(start: Int, limit: Int): Array<Regular?>?
+    @Insert
+    suspend fun add(regular: Regular)
+
+    @Update
+    suspend fun update(regular: Regular)
 }

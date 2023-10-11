@@ -31,13 +31,12 @@ class FlowElement(
     private val context: Context,
     private val flowLayoutManager: FlowLayoutManager,
     prev: FlowElement? = null,
-
+    initData: HashMap<String, Any>? = null
 ) {
     private var elements = ArrayList<View>()
     var data = HashMap<String, Any>()
     var type = 0 // 0 button 1  text 2 wave
     private var index = 0
-    private var text = ""
     var connector = false
     var waveCallback: ((FlowElement, WaveTextView) -> Unit)? = null
 
@@ -48,6 +47,12 @@ class FlowElement(
     init {
         index = prev?.getViewStart() ?: (flowLayoutManager.size - 1)
         this.removed()
+        if(initData!=null){
+            data = initData
+        }else{
+            data["text"]=""
+        }
+
     }
 
     fun removed(): FlowElement {
@@ -62,7 +67,7 @@ class FlowElement(
         return this
     }
 
-    fun getViewStart(): Int {
+     fun getViewStart(): Int {
         if (elements.size <= 0) return if(index<0)0 else index
         return flowLayoutManager.indexOfChild(elements.first())
     }
@@ -80,7 +85,7 @@ class FlowElement(
         connector: Boolean = false,
         callback: ((FlowElement, WaveTextView) -> Unit)?
     ): Int {
-        this.text = text
+    //    data["text"]=text
         type = 2
         if (waveCallback != callback) {
             waveCallback = callback
@@ -88,11 +93,26 @@ class FlowElement(
         if(flowLayoutManager.findFirstWave()!=null){
             this.connector = connector
             if (connector) {
-                setAsButton(context.getString(R.string.and)) { _, view ->
+                var content = context.getString(R.string.and)
+                if(data.containsKey("jsPre")){
+                    if((data["jsPre"] as String).contains("or")){
+                        content = context.getString(R.string.or)
+                    }
+                }else{
+                    data["jsPre"] = " and "
+                }
+
+                setAsButton(content) { _, view ->
                     view.text =
-                        if (view.text == context.getString(R.string.or)) context.getString(R.string.and) else context.getString(
-                            R.string.or
-                        )
+                        if (view.text == context.getString(R.string.or)) {
+                            data["jsPre"] = " and "
+                            context.getString(R.string.and)
+                        } else{
+                            data["jsPre"] = " or "
+                            context.getString(
+                                R.string.or
+                            )
+                        }
                 }
             }
         }else{
@@ -107,7 +127,7 @@ class FlowElement(
             }
             val waveTextView = WaveTextView(context)
             waveTextView.text = it
-            waveTextView.setTextAppearance(com.google.android.material.R.style.TextAppearance_Material3_HeadlineLarge)
+            waveTextView.setTextAppearance(flowLayoutManager.textAppearance)
             waveTextView.setPadding(0, 0, 0, 0)
             val color = ThemeUtils.getThemeAttrColor(
                 context,
@@ -124,7 +144,7 @@ class FlowElement(
             waveTextView.setOnClickListener {
                 callback?.let { it1 -> it1(this, waveTextView) }
             }
-            waveTextView.setOnLongClickListener { it2 ->
+            waveTextView.setOnLongClickListener {
                 if(firstWaveTextView){
                     flowLayoutManager.removedElement(this)
                     flowLayoutManager.findAdd()?.callOnClick()
@@ -143,12 +163,12 @@ class FlowElement(
 
 
     fun setAsTextView(text: String) {
+    //    data["text"]=text
         type = 1
-        this.text = text
         text.trim().split("").forEach {
             val textView = TextView(context)
             textView.text = it
-            textView.setTextAppearance(com.google.android.material.R.style.TextAppearance_Material3_HeadlineLarge)
+            textView.setTextAppearance(flowLayoutManager.textAppearance)
             textView.setPadding(0, 0, 0, 0)
             elements.add(textView)
             flowLayoutManager.addView(textView, index++)
@@ -157,12 +177,12 @@ class FlowElement(
     }
 
     fun setAsButton(text: String, callback: (FlowElement, TextView) -> Unit) {
-        this.text = text
         type = 0
+      //  data["text"]=text
         val textView = TextView(context)
         textView.text = text
         textView.gravity = Gravity.CENTER
-        textView.setTextAppearance(com.google.android.material.R.style.TextAppearance_Material3_HeadlineLarge)
+        textView.setTextAppearance(flowLayoutManager.textAppearance)
         textView.setTextColor(
             ThemeUtils.getThemeAttrColor(
                 context,
@@ -183,9 +203,7 @@ class FlowElement(
         flowLayoutManager.addView(textView, index++)
     }
 
-    fun getElementText(): String {
-        return text
-    }
+
 
     fun getFirstView(): View? {
         return elements.firstOrNull()

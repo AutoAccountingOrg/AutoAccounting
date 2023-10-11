@@ -73,6 +73,7 @@ class DataFragment : Fragment() {
                     .setNegativeButton(requireContext().getString(R.string.sure_msg)) { _, _ ->
                         lifecycleScope.launch {
                             Db.get().AppDataDao().del(item.id)
+                            dataItems.removeAt(position)
                             withContext(Dispatchers.Main) {
                                 adapter.notifyItemRemoved(position)
                             }
@@ -107,7 +108,7 @@ class DataFragment : Fragment() {
             }
         })
 
-        loadMoreData()
+
 
 
 
@@ -137,6 +138,10 @@ class DataFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         //加载数据
+        dataItems.clear()
+        adapter.notifyItemRemoved(0)
+        currentPage = 0
+        loadMoreData()
     }
 
 

@@ -20,6 +20,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.core.view.size
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.elevation.SurfaceColors
@@ -27,7 +28,6 @@ import net.ankio.auto.R
 import net.ankio.auto.constant.DataType
 import net.ankio.auto.database.table.AppData
 import net.ankio.auto.database.table.Regular
-import net.ankio.auto.databinding.AdapterDataBinding
 import net.ankio.auto.databinding.AdapterRuleBinding
 import net.ankio.auto.utils.AppInfoUtils
 import net.ankio.auto.utils.DateUtils
@@ -58,7 +58,39 @@ class RuleAdapter(private val dataItems: List<Regular>,private val listener: Rul
                 binding.type.visibility = View.GONE
             }
 
-            binding.app.text = item.category
+            if(item.element.list.isEmpty()){
+                return
+            }
+            val list = item.element.list.toMutableList()
+
+            val lastElement = list.removeLast()
+
+            val flexboxLayout = binding.flexboxLayout
+            flexboxLayout.textAppearance = com.google.android.material.R.style.TextAppearance_Material3_BodyLarge
+
+             flexboxLayout.appendTextView(context.getString(R.string.if_condition_true))
+            flexboxLayout.firstWaveTextViewPosition = flexboxLayout.size - 1
+            for (hashMap in list) {
+                if(hashMap.containsKey("jsPre")){
+                    flexboxLayout.appendButton( if((hashMap["jsPre"] as String ).contains("and"))context.getString(R.string.and) else context.getString(R.string.or))
+                }
+                flexboxLayout.appendWaveTextview(hashMap["text"] as String, connector = false){ _, _ -> }
+            }
+
+            flexboxLayout.appendTextView(context.getString(R.string.condition_result_book))
+
+
+
+            flexboxLayout.appendWaveTextview(lastElement["book"] as String){_,_->
+
+            }
+
+            flexboxLayout.appendTextView(context.getString(R.string.condition_result_category))
+
+
+            flexboxLayout.appendWaveTextview(lastElement["category"] as String){ _, _ ->
+
+            }
 
             binding.deleteData.setOnClickListener {
                 listener.onClickDelete(item,position)

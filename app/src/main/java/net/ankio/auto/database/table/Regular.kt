@@ -14,53 +14,28 @@
  */
 package net.ankio.auto.database.table
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
+import net.ankio.auto.database.data.ElementConverters
+import net.ankio.auto.database.data.FlowElementList
+import java.io.Serializable
 
 @Entity
-class Regular {
+@TypeConverters(ElementConverters::class)
+class Regular:Serializable {
 
     //自动分类规则
     @PrimaryKey(autoGenerate = true)
     var id = 0
 
-    /**
-     * 分类结果
-     */
-    var category: String? = null
-
-    /**
-     * 账本结果，为空表示使用默认账本
-     */
-    var bookName: String? = null
-
-    /**
-     * 来源App，为空表示任意App
-     */
-    var app: String? = null
-
-    /**
-     * 商户名称，为空表示任意商户
-     */
-    var shopName:String? = null
-
-    /**
-     * 商品名称，为空表示任意商品
-     */
-    var shopitem:String? = null
-
-    /**
-     * 起始时间，为空表示任意时间
-     */
-    var timeStart :String? = null
-    var timeEnd :String? = null
-
-    /**
-     * 金额区间，0.00表示任意金额
-     */
-    var moneyStart:Float = 0.00F
-    var moneyEnd:Float = 0.00F
     var use = true //是否启用该规则
     var sort = 0 //排序
     var auto = false //是否为自动创建
+
+    var js = ""
+    var text = ""
+
+    lateinit var element:FlowElementList
 }

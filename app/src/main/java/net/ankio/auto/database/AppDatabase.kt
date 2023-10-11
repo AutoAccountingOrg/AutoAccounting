@@ -16,6 +16,7 @@ package net.ankio.auto.database
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import net.ankio.auto.database.dao.AccountDao
 import net.ankio.auto.database.dao.AccountMapDao
 import net.ankio.auto.database.dao.AppDataDao
@@ -23,6 +24,7 @@ import net.ankio.auto.database.dao.BillInfoDao
 import net.ankio.auto.database.dao.BookNameDao
 import net.ankio.auto.database.dao.CategoryDao
 import net.ankio.auto.database.dao.RegularDao
+import net.ankio.auto.database.data.ElementConverters
 import net.ankio.auto.database.table.Account
 import net.ankio.auto.database.table.AccountMap
 import net.ankio.auto.database.table.AppData
@@ -36,6 +38,7 @@ import net.ankio.auto.database.table.Regular
     version = 1,
     exportSchema = false
 )
+
 abstract class AppDatabase : RoomDatabase() {
     abstract fun RegularDao(): RegularDao
     abstract fun BookNameDao(): BookNameDao

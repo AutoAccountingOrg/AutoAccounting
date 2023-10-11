@@ -21,6 +21,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -66,6 +67,7 @@ class RuleFragment : Fragment() {
                     .setNegativeButton(requireContext().getString(R.string.sure_msg)) { _, _ ->
                         lifecycleScope.launch {
                             Db.get().RegularDao().del(item.id)
+                            dataItems.removeAt(position)
                             withContext(Dispatchers.Main) {
                                 adapter.notifyItemRemoved(position)
                             }
@@ -76,7 +78,10 @@ class RuleFragment : Fragment() {
             }
 
             override fun onClickEditData(item: Regular, position: Int) {
-               //TODO 规则编辑功能
+                val bundle = Bundle().apply {
+                    putSerializable("regular", item)
+                }
+                findNavController().navigate(R.id.editFragment, bundle)
             }
 
 
@@ -98,8 +103,6 @@ class RuleFragment : Fragment() {
                 }
             }
         })
-
-        loadMoreData()
 
 
 
@@ -129,6 +132,10 @@ class RuleFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         //加载数据
+        dataItems.clear()
+        adapter.notifyItemRemoved(0)
+        currentPage = 0
+        loadMoreData()
     }
 
 }

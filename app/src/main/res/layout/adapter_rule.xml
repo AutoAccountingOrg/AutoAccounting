@@ -31,47 +31,17 @@
         android:layout_margin="@dimen/padding"
         android:orientation="vertical">
 
-        <RelativeLayout
-            android:id="@+id/msg_github_button"
-            style="@style/CardLine"
+        <net.ankio.auto.ui.componets.FlowLayoutManager
+            android:id="@+id/flexboxLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:animateLayoutChanges="true">
+            android:padding="@dimen/padding"
+            app:alignItems="center"
+            app:flexWrap="wrap"
+            app:justifyContent="flex_start">
 
-            <LinearLayout
-                android:id="@+id/top"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:layout_marginStart="@dimen/border_side"
-                android:layout_marginEnd="@dimen/border_side"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+        </net.ankio.auto.ui.componets.FlowLayoutManager>
 
-                <ImageView
-                    android:id="@+id/type"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/icon_auto"
-                    app:tint="?attr/colorPrimary" />
-
-
-                <TextView
-                    android:id="@+id/app"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="@dimen/border_side"
-                    android:text="测试"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                    android:textColor="?colorOnSurface" />
-            </LinearLayout>
-
-
-        </RelativeLayout>
 
         <RelativeLayout
             android:layout_width="wrap_content"
@@ -80,6 +50,16 @@
             android:layout_marginLeft="@dimen/padding"
             android:layout_marginRight="@dimen/padding"
             >
+
+            <ImageView
+                android:id="@+id/type"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginEnd="20dp"
+                android:layout_toStartOf="@+id/editRule"
+                android:src="@drawable/icon_auto"
+                android:layout_centerVertical="true"
+                app:tint="?attr/colorPrimary" />
 
             <Button
                 style="?attr/materialIconButtonFilledStyle"

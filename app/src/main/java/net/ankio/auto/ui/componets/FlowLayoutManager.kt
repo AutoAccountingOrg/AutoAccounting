@@ -26,8 +26,9 @@ import com.google.android.flexbox.FlexboxLayout
  */
 class FlowLayoutManager(context: Context, attrs: AttributeSet): FlexboxLayout(context,attrs) {
     var firstWaveTextViewPosition: Int = 0
+    var textAppearance = com.google.android.material.R.style.TextAppearance_Material3_HeadlineLarge
     private var arrayList:ArrayList<FlowElement> = ArrayList()
-    fun appendTextView(text:String,elem: FlowElement?=null): FlowElement {
+    fun appendTextView(text: String, elem: FlowElement? = null): FlowElement {
         val flowElement = FlowElement(context,this,elem)
         flowElement.setAsTextView(text)
         arrayList.add(flowElement)
@@ -38,11 +39,12 @@ class FlowLayoutManager(context: Context, attrs: AttributeSet): FlexboxLayout(co
         flowElement.setAsButton("+"){it, view->
             callback(it,view)
         }
+        flowElement.data["text"]="+"
         arrayList.add(flowElement)
         return flowElement
     }
-    fun appendWaveTextview(text:String,elem: FlowElement?=null,connector:Boolean=false,callback:(FlowElement, WaveTextView) -> Unit): FlowElement {
-        val flowElement = FlowElement(context,this,elem)
+    fun appendWaveTextview(text:String,elem: FlowElement?=null,connector:Boolean=false,data: HashMap<String, Any>?=null,callback:(FlowElement, WaveTextView) -> Unit): FlowElement {
+        val flowElement = FlowElement(context,this,elem,data)
         flowElement.setAsWaveTextview(text,connector){it,view->
             callback(it,view)
         }
@@ -59,7 +61,7 @@ class FlowLayoutManager(context: Context, attrs: AttributeSet): FlexboxLayout(co
 
     fun findAdd(): View? {
         arrayList.forEach {
-            if(it.type == 0 && it.getElementText() == "+"){
+            if(it.type == 0 && it.data["text"] == "+"){
                 return it.getFirstView()
             }
         }
@@ -72,5 +74,17 @@ class FlowLayoutManager(context: Context, attrs: AttributeSet): FlexboxLayout(co
             }
         }
         return null
+    }
+
+    fun getViewMap(): ArrayList<FlowElement> {
+        return arrayList
+    }
+
+    fun appendButton(text: String,elem: FlowElement? = null): FlowElement {
+        val flowElement = FlowElement(context,this,elem)
+        flowElement.setAsButton(text){it, view->
+        }
+        arrayList.add(flowElement)
+        return flowElement
     }
 }

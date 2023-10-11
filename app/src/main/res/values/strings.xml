@@ -81,7 +81,7 @@
     <string name="shop_type">消费类型为</string>
     <string name="rule_book">选择账本</string>
     <string name="shop_cate">分类为</string>
-    <string name="cate_title">修改/新增分类规则</string>
+    <string name="cate_title">新增分类规则</string>
     <string name="cate_save">保存</string>
     <string name="cate_cancel">关闭</string>
     <string name="if_condition_true">若满足</string>
@@ -129,4 +129,7 @@
     <string name="image_web_error">网络图片加载失败</string>
     <string name="category">请选择分类</string>
     <string name="save_rule">保存规则</string>
+    <string name="useless_condition">条件不允许为空</string>
+    <string name="useless_book">账本不允许为空</string>
+    <string name="useless_category">分类不允许为空</string>
 </resources>

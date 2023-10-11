@@ -55,7 +55,7 @@ class WaveTextView @JvmOverloads constructor(
         )
         waveAmplitude = typedArray.getDimension(
             R.styleable.WaveTextView_waveAmplitude,
-          2.2F
+            (this.lineHeight / 9).toFloat()
         ).coerceAtLeast(1f) // 确保振幅不为零
         waveFrequency = typedArray.getFloat(
             R.styleable.WaveTextView_waveFrequency,
@@ -77,7 +77,7 @@ class WaveTextView @JvmOverloads constructor(
 
     override fun onDraw(canvas: Canvas) {
       //  background = AppCompatResources.getDrawable(context,R.drawable.ripple_effect)
-        val textHeight = 20
+        val textHeight = this.lineHeight / 3
 
         // 计算底部 padding
         val paddingBottom = (textHeight + waveAmplitude).toInt()
