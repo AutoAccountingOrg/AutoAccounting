@@ -31,6 +31,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
+import net.ankio.auto.app.BillInfoPopup
+import net.ankio.auto.app.Engine
 import net.ankio.auto.constant.DataType
 import net.ankio.auto.database.Db
 import net.ankio.auto.database.table.AppData
@@ -40,6 +42,7 @@ import net.ankio.auto.ui.adapter.DataItemListener
 import net.ankio.auto.utils.CallbackListener
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.Github
+import net.ankio.auto.utils.SpUtils
 import java.io.IOException
 
 
@@ -71,7 +74,19 @@ class DataFragment : Fragment() {
             }
 
             override fun onClickTest(item: AppData) {
-                //TODO 使用规则进行测试
+                lifecycleScope.launch {
+                    val result =   Engine.runAnalyze(item.type.type,item.from,item.data)
+                    if(result==null){
+                        //弹出悬浮窗
+                        withContext(Dispatchers.Main){
+                            Toast.makeText(context,getString(R.string.no_match),Toast.LENGTH_LONG).show()
+                        }
+                    }else{
+                        withContext(Dispatchers.Main){
+                            context?.let { BillInfoPopup.show(it,result) }
+                        }
+                    }
+                }
             }
 
             override fun onClickDelete(item: AppData,position:Int) {

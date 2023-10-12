@@ -17,6 +17,7 @@ package net.ankio.auto.database.table
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import net.ankio.auto.constant.BillType
+import net.ankio.auto.constant.Currency
 import net.ankio.auto.constant.DataType
 
 @Entity
@@ -29,6 +30,10 @@ class BillInfo {
      */
     var type: BillType = BillType.Expend
 
+    /**
+     * 币种类型
+     */
+    var currency:Currency = Currency.CNY
     /**
      * 金额 大于0
      */
@@ -106,5 +111,10 @@ class BillInfo {
      * 分组id，这个id是指将短时间内捕获到的同等金额进行合并的分组id
      */
     var groupId:Int = 0
+
+    /**
+     * 数据渠道，这里指的是更具体的渠道，例如【建设银行】微信公众号，用户【xxxx】这种
+     */
+    var channel :String  = ""
 
 }

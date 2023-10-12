@@ -12,16 +12,14 @@
  *  See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package net.ankio.auto.database.dao
 
-import androidx.room.Dao
-import androidx.room.Query
-import net.ankio.auto.constant.BillType
-import net.ankio.auto.database.table.AccountMap
+package net.ankio.auto.app
+
+import android.content.Context
 import net.ankio.auto.database.table.BillInfo
 
-@Dao
-interface AccountMapDao {
-    @Query("SELECT * FROM AccountMap")
-    fun getAll(): List<AccountMap>
+object BillInfoPopup {
+    fun show(context: Context, billInfo: BillInfo){
+
+    }
 }
