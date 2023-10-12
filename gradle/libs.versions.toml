@@ -5,6 +5,7 @@ androiddebuglib = "0.1.4"
 androidx-roomRuntime = "2.5.2"
 debugDb = "1.0.6"
 flexbox = "3.0.0"
+github-DialogLoading = "1.0.3"
 jerryCore = "2.2.0"
 kotlinxCoroutinesAndroid = "1.6.4"
 rhino = "1.7.14"
@@ -26,6 +27,7 @@ permissionx = "1.7.1"
 themeEngine = "1.1.0"
 ultimateBarX = "dev-SNAPSHOT"
 navigationFragment = "2.7.0"
+browser = "1.6.0"
 
 [libraries]
 analytics = { module = "com.flurry.android:analytics", version.ref = "analytics" }
@@ -36,11 +38,11 @@ androidx-room-compiler-v251 = { module = "androidx.room:room-compiler", version.
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "androidx-roomRuntime" }
 androidx-room-runtime-v251 = { module = "androidx.room:room-runtime", version.ref = "androidx-roomRuntime" }
 androidx-swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefreshlayout", version.ref = "swiperefreshlayout" }
-debug-db = { module = "com.amitshekhar.android:debug-db", version.ref = "debugDb" }
 flexbox = { module = "com.google.android.flexbox:flexbox", version.ref = "flexbox" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroid" }
 rhino = { module = "org.mozilla:rhino", version.ref = "rhino" }
 round = { module = "io.github.xiaofeidev:round", version.ref = "round" }
+tobeyr1DialogLoading = { module = "com.github.Tobeyr1:DialogLoading", version.ref = "github-DialogLoading" }
 xposed = { module = "de.robv.android.xposed:api", version.ref = "xposed" }
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
@@ -54,6 +56,7 @@ okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 permissionx = { module = "com.guolindev.permissionx:permissionx", version.ref = "permissionx" }
 themeEngine = { module = "io.github.prathameshmm02.themeEngine:themeEngine", version.ref = "themeEngine" }
 ultimateBarX = { module = "com.gitee.zackratos:UltimateBarX", version.ref = "ultimateBarX" }
+androidx-browser = { group = "androidx.browser", name = "browser", version.ref = "browser" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

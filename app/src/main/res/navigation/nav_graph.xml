@@ -84,4 +84,13 @@
 
     </fragment>
 
+
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="net.ankio.auto.ui.fragment.LoginFragment"
+        android:label="fragment_login"
+        tools:layout="@layout/fragment_login">
+
+    </fragment>
+
 </navigation>

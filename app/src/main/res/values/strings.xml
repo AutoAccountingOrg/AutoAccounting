@@ -132,4 +132,12 @@
     <string name="useless_condition">条件不允许为空</string>
     <string name="useless_book">账本不允许为空</string>
     <string name="useless_category">分类不允许为空</string>
+    <string name="net_error">网络错误，授权失败。</string>
+    <string name="repeater_issue">该数据已提交过，请勿重复提交。</string>
+    <string name="github_title">Github登录授权</string>
+    <string name="upload_waiting">正在上传中...</string>
+    <string name="auth_waiting">授权等待中</string>
+    <string name="upload_sure">数据上传确认</string>
+    <string name="upload_info">您即将上传数据到Github（Auto-Accounting/AutoRule），开发者可以根据您上传的数据进行规则适配。\n请注意：您上传的数据中可能含有隐私信息，自动记账将尽可能的进行脱敏上传，请确认后上传。</string>
+    <string name="upload_success">数据上传成功，开发者将在3个工作日内完成适配。</string>
 </resources>

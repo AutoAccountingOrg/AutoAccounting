@@ -58,4 +58,9 @@ class AppData {
      * 匹配到的规则名称
      * */
     var rule:String = ""
+
+    /**
+     * 关联github issue
+     */
+    var issue:Int = 0
 }

@@ -17,6 +17,7 @@ package net.ankio.auto.database.dao
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 import net.ankio.auto.database.table.AppData
 
 @Dao
@@ -32,5 +33,7 @@ interface AppDataDao {
 
     @Query("DELETE FROM AppData WHERE id not in (SELECT id FROM AppData order by id DESC limit :limit)")
     suspend fun delTooMore(limit: Int)
+    @Update
+    suspend fun update(item: AppData)
 
 }

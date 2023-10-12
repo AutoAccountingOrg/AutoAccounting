@@ -16,6 +16,7 @@
 package net.ankio.auto.ui.adapter
 
 import android.content.Context
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -28,6 +29,7 @@ import net.ankio.auto.constant.DataType
 import net.ankio.auto.database.table.AppData
 import net.ankio.auto.databinding.AdapterDataBinding
 import net.ankio.auto.utils.AppInfoUtils
+import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.DateUtils
 import net.ankio.auto.utils.ThemeUtils
 import org.json.JSONObject
@@ -75,6 +77,15 @@ class DataAdapter(private val dataItems: List<AppData>, private val listener: Da
                     binding.type.setImageResource(R.drawable.data_app)
                 }
             }
+            if(item.issue==0){
+                binding.issue.visibility = View.GONE
+            }else{
+                binding.uploadData.visibility = View.GONE
+                binding.issue.text = "# ${item.issue}"
+                binding.issue.setOnClickListener {
+                        CustomTabsHelper.launchUrl(context, Uri.parse("https://github.com/Auto-Accounting/AutoRule/issues/${item.issue}"))
+                }
+            }
             val app = AppInfoUtils(context).getAppInfoFromPackageName(item.from)
 
             binding.app.text = item.from.let {
@@ -114,7 +125,7 @@ class DataAdapter(private val dataItems: List<AppData>, private val listener: Da
 
             }
             binding.uploadData.setOnClickListener{
-                listener.onClickUploadData(item)
+                listener.onClickUploadData(item,position)
             }
         }
     }
@@ -125,5 +136,6 @@ interface DataItemListener{
     fun onClickTest(item: AppData)
     fun onClickDelete(item: AppData,position: Int)
 
-    fun onClickUploadData(item: AppData)
+    fun onClickUploadData(item: AppData,position:Int)
+   // fun on(item: AppData)
 }

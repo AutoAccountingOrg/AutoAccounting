@@ -22,6 +22,7 @@ import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.appcompat.content.res.AppCompatResources
@@ -32,11 +33,16 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.tobey.dialogloading.DialogUtil
 import com.zackratos.ultimatebarx.ultimatebarx.addNavigationBarBottomPadding
 import net.ankio.auto.R
 import net.ankio.auto.databinding.AboutDialogBinding
 import net.ankio.auto.databinding.ActivityMainBinding
+import net.ankio.auto.utils.CallbackListener
+import net.ankio.auto.utils.Github
+import net.ankio.auto.utils.HttpUtils
 import rikka.html.text.toHtml
+import java.io.IOException
 
 
 class MainActivity : BaseActivity() {
@@ -48,8 +54,28 @@ class MainActivity : BaseActivity() {
     private lateinit var bottomNavigationView: BottomNavigationView
     private lateinit var navHostFragment: NavHostFragment
 
+    private fun onLogin(){
+        val uri = intent.data
+        if (uri != null) {
+            val dialog = DialogUtil.createLoadingDialog(this, getString(R.string.auth_waiting))
+
+            val code = uri.getQueryParameter("code")
+            Github.parseAuthCode(code,object : CallbackListener {
+                override fun onSuccess(response: String) {
+                    Toast.makeText(this@MainActivity,response, Toast.LENGTH_LONG).show()
+                    DialogUtil.closeDialog(dialog)
+                }
+
+                override fun onFailure(e: IOException) {
+
+                }
+
+            })
+        }
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        onLogin()
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -124,6 +150,9 @@ class MainActivity : BaseActivity() {
 
                 R.id.editFragment->{
                     toolbar.title = getString(R.string.cate_title)
+                }
+                R.id.loginFragment->{
+                    toolbar.title = getString(R.string.github_title)
                 }
 
             }

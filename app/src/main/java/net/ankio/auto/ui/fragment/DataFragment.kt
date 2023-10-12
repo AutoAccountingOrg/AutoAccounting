@@ -15,24 +15,32 @@
 
 package net.ankio.auto.ui.fragment
 
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.tobey.dialogloading.DialogUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
+import net.ankio.auto.constant.DataType
 import net.ankio.auto.database.Db
 import net.ankio.auto.database.table.AppData
 import net.ankio.auto.databinding.FragmentDataBinding
 import net.ankio.auto.ui.adapter.DataAdapter
 import net.ankio.auto.ui.adapter.DataItemListener
+import net.ankio.auto.utils.CallbackListener
+import net.ankio.auto.utils.CustomTabsHelper
+import net.ankio.auto.utils.Github
+import java.io.IOException
 
 
 class DataFragment : Fragment() {
@@ -83,10 +91,67 @@ class DataFragment : Fragment() {
                     .show()
             }
 
-            override fun onClickUploadData(item: AppData) {
-                // TODO 判断github是否登录
-                // TODO 如果没登录提醒用户进行github授权登录。
-                // TODO 只有登录之后才能上传数据到github,上传前需要对数据进行脱敏
+            override fun onClickUploadData(item: AppData,position:Int) {
+                if(item.issue!=0){
+                    //之前上传过
+                    Toast.makeText(context,getString(R.string.repeater_issue),Toast.LENGTH_LONG).show()
+                    return
+                }
+
+
+                context?.let {
+                    MaterialAlertDialogBuilder(it)
+                        .setTitle(getString(R.string.upload_sure))  // 设置对话框的标题
+                        .setMessage(getString(R.string.upload_info))  // 设置对话框的消息
+                        .setPositiveButton(getString(R.string.ok)) { dialog, which ->
+                            val type = when(item.type){
+                                DataType.App->"App"
+                                DataType.Helper->"Helper"
+                                DataType.Notice->"Notice"
+                                DataType.Sms->"Sms"
+                            }
+                            val dialog2 = DialogUtil.createLoadingDialog(it, getString(R.string.upload_waiting))
+                            Github.createIssue("[Adaptation Request][$type]${item.from}", """
+                ```
+                ${item.data}
+                ```
+            """.trimIndent(),object :CallbackListener{
+                                override fun onSuccess(response: String) {
+                                    item.issue = response.toInt()
+                                    requireActivity().runOnUiThread {
+                                        adapter.notifyItemChanged(position)
+                                        Toast.makeText(it,getString(R.string.upload_success),Toast.LENGTH_LONG).show()
+                                    }
+                                    DialogUtil.closeDialog(dialog2)
+
+                                    lifecycleScope.launch {
+                                        Db.get().AppDataDao().update(item)
+                                    }
+                                }
+
+                                override fun onFailure(e: IOException) {
+                                    e.printStackTrace()
+                                    requireActivity().runOnUiThread {
+                                        Toast.makeText(it,e.message,Toast.LENGTH_LONG).show()
+                                        CustomTabsHelper.launchUrl(it, Uri.parse(Github.getLoginUrl()))
+                                    }
+                                    DialogUtil.closeDialog(dialog2)
+                                }
+
+                            })
+
+                            // 可以在这里添加你的处理逻辑
+                            dialog.dismiss()
+                        }
+                        .setNegativeButton(R.string.close) { dialog, which ->
+                            // 在取消按钮被点击时执行的操作
+                            dialog.dismiss()
+                        }
+                        .show()
+                }
+
+
+
             }
 
         })
