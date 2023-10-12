@@ -16,7 +16,14 @@ static def releaseTimeMin() {
 android {
     namespace 'net.ankio.auto'
     compileSdk 34
-
+    signingConfigs {
+        release {
+            storeFile file(RELEASE_STORE_FILE)
+            storePassword RELEASE_STORE_PASSWORD
+            keyAlias RELEASE_KEY_ALIAS
+            keyPassword RELEASE_KEY_PASSWORD
+        }
+    }
     defaultConfig {
         applicationId "net.ankio.auto"
         minSdk 28
