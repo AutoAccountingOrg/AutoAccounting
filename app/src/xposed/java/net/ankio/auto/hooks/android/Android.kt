@@ -19,18 +19,13 @@ import android.content.Context
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
-import net.ankio.auto.api.HookBase
+import net.ankio.auto.api.Hooker
+import net.ankio.auto.api.PartHooker
 
 
-class Android : HookBase() {
+class Android : Hooker() {
+    override var partHookers: MutableList<PartHooker> = arrayListOf()
     override fun hookLoadPackage(classLoader: ClassLoader?, context: Context?) {
-        register(classLoader)
-    }
-
-    override val packPageName: String = "android"
-    override val appName: String = "Android系统"
-    override val needHelpFindApplication: Boolean = false
-    private fun register(classLoader: ClassLoader?) {
         val activityManagerService = XposedHelpers.findClass("com.android.server.am.ActivityManagerService", classLoader)
         val serviceManager = XposedHelpers.findClass("android.os.ServiceManager", classLoader)
         XposedBridge.hookAllConstructors(activityManagerService, object : XC_MethodHook() {
@@ -62,8 +57,11 @@ class Android : HookBase() {
                     })
             }
         })
-
     }
+
+    override val packPageName: String = "android"
+    override val appName: String = "Android系统"
+    override val needHelpFindApplication: Boolean = false
 
 
 }

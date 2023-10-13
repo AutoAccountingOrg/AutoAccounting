@@ -13,29 +13,24 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.utils
+package net.ankio.auto.hooks.alipay
 
 import android.content.Context
-import android.content.Intent
+import de.robv.android.xposed.XposedBridge
+import net.ankio.auto.api.Hooker
+import net.ankio.auto.api.PartHooker
+import net.ankio.auto.hooks.alipay.hooks.SettingUIHooker
+import net.ankio.auto.hooks.android.AccountingService
 
+class Alipay:Hooker() {
+    override val packPageName: String = "com.eg.android.AlipayGphone"
+    override val appName: String = "支付宝"
+    override val needHelpFindApplication: Boolean = true
+    override var partHookers: MutableList<PartHooker> = arrayListOf(
+        SettingUIHooker(this)
+    )
 
+    override fun hookLoadPackage(classLoader: ClassLoader?, context: Context?) {
 
-
-
-object ActiveUtils {
-    fun getActiveAndSupportFramework(): Boolean {
-        return false
     }
-    fun errorMsg(context: Context):String{
-        return context.packageManager.getPackageInfo(context.packageName, 0).versionName
-    }
-
-    fun startApp(mContext:Context){
-        val intent: Intent? = mContext.packageManager.getLaunchIntentForPackage("net.ankio.auto.xposed")
-        if (intent != null) {
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            mContext.startActivity(intent)
-        }
-    }
-
 }

@@ -16,26 +16,20 @@
 package net.ankio.auto.utils
 
 import android.content.Context
-import android.content.Intent
+import android.util.DisplayMetrics
 
 
-
-
-
-object ActiveUtils {
-    fun getActiveAndSupportFramework(): Boolean {
-        return false
-    }
-    fun errorMsg(context: Context):String{
-        return context.packageManager.getPackageInfo(context.packageName, 0).versionName
+object DpUtils {
+    fun dip2px(context: Context, dipValue: Int): Int {
+        return (dipValue * getDensity(context) + 0.5f).toInt()
     }
 
-    fun startApp(mContext:Context){
-        val intent: Intent? = mContext.packageManager.getLaunchIntentForPackage("net.ankio.auto.xposed")
-        if (intent != null) {
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            mContext.startActivity(intent)
-        }
+    fun dip2pxF(context: Context, dipValue: Float): Float {
+        return dipValue * getDensity(context)
     }
 
+    private fun getDensity(context: Context): Float {
+        val dm: DisplayMetrics = context.resources.displayMetrics
+        return dm.density
+    }
 }
