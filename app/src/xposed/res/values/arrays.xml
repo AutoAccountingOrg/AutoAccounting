@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="xposed_scope">
+        <item>net.ankio.auto.xposed</item><!-- 模块自己 -->
+        <item>com.tencent.mm</item><!-- 微信 -->
+        <item>com.tencent.mobileqq</item><!-- qq -->
+        <item>com.eg.android.AlipayGphone</item><!-- 支付宝 -->
+          <item>android</item><!-- 安卓系统（启动系统服务） -->
+        <item>com.android.phone</item><!-- 短信 -->
+        <item>com.synjones.xuepay.sdu</item><!-- 山大v卡通APP（山东大学） -->
+    </string-array>
+</resources>

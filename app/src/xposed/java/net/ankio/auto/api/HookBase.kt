@@ -1,0 +1,112 @@
+/*
+ * Copyright (C) 2023 ankio(ankio@ankio.net)
+ * Licensed under the Apache License, Version 3.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-3.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
+
+package net.ankio.auto.api
+
+
+/*
+ * Copyright (C) 2021 dreamn(dream@dreamn.cn)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+import android.app.AndroidAppHelper
+import android.app.Application
+import android.content.Context
+import android.content.ContextWrapper
+import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XposedBridge
+import de.robv.android.xposed.XposedHelpers
+import de.robv.android.xposed.callbacks.XC_LoadPackage
+
+
+abstract class HookBase : iHooker {
+    private var TAG = "AutoAccounting"
+    private fun hookMainInOtherAppContext() {
+        var hookStatus = false
+        val findContext1 = Runnable {
+            XposedHelpers.findAndHookMethod(
+                ContextWrapper::class.java, "attachBaseContext",
+                Context::class.java, object : XC_MethodHook() {
+                    @Throws(Throwable::class)
+                    override fun afterHookedMethod(param: MethodHookParam) {
+                        super.afterHookedMethod(param)
+                        if(hookStatus){
+                            return
+                        }
+                        hookStatus = true
+                        val context = param.args[0] as Context
+                        hookLoadPackage(context.classLoader,context)
+                    }
+                })
+        }
+        val findContext2 = Runnable {
+            XposedHelpers.findAndHookMethod(
+                Application::class.java, "attach",
+                Context::class.java, object : XC_MethodHook() {
+                    @Throws(Throwable::class)
+                    override fun afterHookedMethod(param: MethodHookParam) {
+                        super.afterHookedMethod(param)
+                        if(hookStatus){
+                            return
+                        }
+                        hookStatus = true
+                        val context = param.args[0] as Context
+                       initLoadPackage(context.classLoader,context)
+                    }
+                })
+        }
+        try {
+            findContext1.run()
+        } catch (e: Throwable) {
+            findContext2.run()
+        }
+    }
+
+    fun initLoadPackage(classLoader: ClassLoader?,context: Context){
+        XposedBridge.log("[$TAG] Welcome to AutoAccounting")
+        hookLoadPackage(classLoader,context)
+    }
+
+    @Throws(ClassNotFoundException::class)
+    abstract fun hookLoadPackage(classLoader: ClassLoader?,context: Context?)
+    override fun onLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam?) {
+        val pkg = lpparam?.packageName
+        val processName = lpparam?.processName
+        if (lpparam != null) {
+            if (!lpparam.isFirstApplication) return
+        }
+        if (packPageName != null) {
+            if (pkg != packPageName || processName != packPageName) return
+        }
+        if (!needHelpFindApplication) {
+            initLoadPackage(lpparam?.classLoader,AndroidAppHelper.currentApplication())
+            return
+        }
+        hookMainInOtherAppContext()
+    }
+
+}

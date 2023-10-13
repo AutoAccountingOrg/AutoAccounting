@@ -15,7 +15,7 @@
   -->
 
 <resources>
-    <string-array name="xposed_scope" />
+
     <string-array name="rule_condition">
         <item>包含</item>
         <item>等于</item>
