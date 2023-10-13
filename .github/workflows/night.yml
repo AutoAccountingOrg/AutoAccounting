@@ -30,11 +30,10 @@ jobs:
           done
           ls -al .
           ls -al ${{ github.workspace }}
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: upload
-          path:
-            - ${{ github.workspace }}
+          path: ${{ github.workspace }}
 
   sign: # 签名
     runs-on: ubuntu-latest
@@ -44,8 +43,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: upload
-          path:
-            - ${{ github.workspace }}
+          path: ${{ github.workspace }}
       - uses: ilharp/sign-android-release@v1
         name: Sign app APK # ID used to access action output
         id: sign_app
@@ -56,11 +54,10 @@ jobs:
           keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
           keyPassword: ${{ secrets.KEY_PASSWORD }}
           buildToolsVersion: 34.0.0
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: upload
-          path:
-            - ${{ github.workspace }}
+          path: ${{ github.workspace }}
 
   release: # 发布
     needs: [sign]
@@ -70,8 +67,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: upload
-          path:
-            - ${{ github.workspace }}
+          path: ${{ github.workspace }}
 
       - name: Read versionName from app/build.gradle
         run: |
