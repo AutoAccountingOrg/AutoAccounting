@@ -71,6 +71,10 @@ jobs:
         id: tag_name
         run: echo "TAG_VERSION_NAME = v${{ env.VERSION_NAME }}-night-$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
 
+      - name: Create And Push Tag
+        run: |
+          git tag ${{ env.TAG_VERSION_NAME }}
+          git push origin ${{ env.TAG_VERSION_NAME }}
 
       - name: Create GitHub Release
         id: create_release
