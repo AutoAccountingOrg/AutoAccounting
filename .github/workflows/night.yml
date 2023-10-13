@@ -51,8 +51,8 @@ jobs:
       - uses: jungwinter/split@v2
         id: signed_files
         with:
-            msg: ${{ steps.sign_app.signedReleaseFiles }}
-            separator: ':'
+          msg: ${{ steps.sign_app.outputs.signedFiles }}
+          separator: ':'
       - name: Read versionName from app/build.gradle
         run: |
           versionName=$(grep 'versionName' app/build.gradle | sed -n 's/.*versionName "\([^"]*\)".*/\1/p')
@@ -86,7 +86,8 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            released/app-*.apk
+            ${{ steps.signed_files.outputs._0 }}
+            ${{ steps.signed_files.outputs._1 }}
           tag_name: $VERSION_NAME
           body: ${{ env.RELEASE_NOTES }}
           token: ${{ secrets.GITHUB_TOKEN }}
