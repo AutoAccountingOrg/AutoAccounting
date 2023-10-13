@@ -37,13 +37,17 @@ import android.app.AndroidAppHelper
 import android.app.Application
 import android.content.Context
 import android.content.ContextWrapper
+import android.util.Log
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
+import net.ankio.auto.hooks.android.Android
 
 
-abstract class HookBase : iHooker {
+abstract class Hooker : iHooker {
+
+    abstract var partHookers: MutableList<PartHooker>
     private var TAG = "AutoAccounting"
     private fun hookMainInOtherAppContext() {
         var hookStatus = false
@@ -59,7 +63,7 @@ abstract class HookBase : iHooker {
                         }
                         hookStatus = true
                         val context = param.args[0] as Context
-                        hookLoadPackage(context.classLoader,context)
+                        initLoadPackage(context.classLoader,context)
                     }
                 })
         }
@@ -86,9 +90,22 @@ abstract class HookBase : iHooker {
         }
     }
 
-    fun initLoadPackage(classLoader: ClassLoader?,context: Context){
+    fun initLoadPackage(classLoader: ClassLoader?,context: Context?){
         XposedBridge.log("[$TAG] Welcome to AutoAccounting")
+        if(needHelpFindApplication && (classLoader==null||context==null)){
+            XposedBridge.log("[AutoAccounting]"+this.appName+"hook失败: classloader 或 context = null")
+            return
+        }
         hookLoadPackage(classLoader,context)
+        for (hook in partHookers) {
+            try {
+                hook.onInit(classLoader,context)
+            }catch (e:Exception){
+                e.message?.let { Log.e("AutoAccountingError", it) }
+                println(e)
+                XposedBridge.log("[AutoAccounting]错误：${e.message}")
+            }
+        }
     }
 
     @Throws(ClassNotFoundException::class)
