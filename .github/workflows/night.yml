@@ -1,0 +1,77 @@
+name: Build and Publish Android Pre-Release APKs
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build_and_publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check Code
+        uses: actions/checkout@v2
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: 'adopt'
+      - name: Set up Android SDK
+        if: ${{ env.ACT }} # Only run on local act setups, as GitHub Actions provides the Android SDK on Ubuntu
+        uses: android-actions/setup-android@v2
+
+      - name: Make Gradle executable
+        run: chmod +x ./gradlew
+
+      - name: Build and Upload APKs
+        run: |
+          for flavor in xposed helper; do
+            ./gradlew "assemble${flavor^}Release" 
+            cp app/build/outputs/apk/${flavor}Release/app-${flavor}Release.apk $GITHUB_WORKSPACE/app-${flavor}Release-$releaseTimeMin.apk
+          done
+        env:
+          releaseTimeMin: ${{ steps.get_release_time.outputs.releaseTimeMin }}
+
+
+      - name: Read versionName from app/build.gradle
+        run: |
+          versionName=$(grep 'versionName' app/build.gradle | sed -n 's/.*versionName "\([^"]*\)".*/\1/p')
+          echo "VERSION_NAME=$versionName" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Generate Release Notes
+        id: release_notes
+        run: |
+          RELEASE_NOTES=$(git log --pretty=format:"%h %s" ${{ github.event.before }}...${{ github.sha }} | sed -E 's/^(.{7})(.*)$/- \1 \2/g')
+          echo "$RELEASE_NOTES" >> $GITHUB_ENV
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+
+      - name: Generate Tag Name
+        id: tag_name
+        run: echo "v${{ env.VERSION_NAME }}-night-$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
+
+      - name: Create Tag
+        run: git tag $VERSION_NAME
+        env:
+          VERSION_NAME: ${{ env.VERSION_NAME }}
+
+      - name: Push Tag
+        run: git push origin $VERSION_NAME
+        env:
+          VERSION_NAME: ${{ env.VERSION_NAME }}
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            app-*.apk
+          tag_name: $VERSION_NAME
+          body: ${{ env.RELEASE_NOTES }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          prerelease: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
