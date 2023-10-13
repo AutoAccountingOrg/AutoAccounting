@@ -33,15 +33,14 @@ jobs:
             mkdir released
             cp app/build/outputs/apk/${flavor}/release/app.apk released/app-${flavor}-pre-$releaseTimeMin.apk
           done
+          ls -al .
+          ls -al released
         env:
           releaseTimeMin: ${{ steps.get_release_time.outputs.releaseTimeMin }}
 
       - uses: r0adkll/sign-android-release@v1
         name: Sign app APK # ID used to access action output
         id: sign_app
-        run: |
-          ls -al .
-          ls -al released
         with:
             releaseDirectory: released
             signingKeyBase64: ${{ secrets.SIGNING_KEY }}
