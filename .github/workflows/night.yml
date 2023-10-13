@@ -39,7 +39,7 @@ jobs:
         name: Sign app APK # ID used to access action output
         id: sign_app
         with:
-            releaseDirectory: $GITHUB_WORKSPACE/
+            releaseDirectory: ${{GITHUB_WORKSPACE}}/
             signingKeyBase64: ${{ secrets.SIGNING_KEY }}
             alias: ${{ secrets.ALIAS }}
             keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
