@@ -121,4 +121,8 @@ class AccountingService(val mContext:Context?) : IAccountingService.Stub() {
     override fun put(key: String?, value: String?) {
         TODO("Not yet implemented")
     }
+
+    override fun callApp() {
+        TODO("Not yet implemented")
+    }
 }

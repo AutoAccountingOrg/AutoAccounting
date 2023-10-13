@@ -3,7 +3,7 @@ name: Build and Publish Android Pre-Release APKs
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   build_and_publish:
@@ -29,7 +29,7 @@ jobs:
         run: |
           for flavor in xposed helper; do
             ./gradlew "assemble${flavor^}Release" 
-            cp app/build/outputs/apk/${flavor}Release/app-${flavor}Release.apk $GITHUB_WORKSPACE/app-${flavor}Release-$releaseTimeMin.apk
+            cp app/build/outputs/apk/${flavor}/release/app.apk $GITHUB_WORKSPACE/app-${flavor}-pre-$releaseTimeMin.apk
           done
         env:
           releaseTimeMin: ${{ steps.get_release_time.outputs.releaseTimeMin }}
