@@ -48,7 +48,7 @@ jobs:
             keyPassword: ${{ secrets.KEY_PASSWORD }}
             buildToolsVersion: 34.0.0
 
-      - uses: jungwinter/split@v1
+      - uses: jungwinter/split@v2
         id: signed_files
         with:
             msg: ${{ steps.sign_app.signedReleaseFiles }}
@@ -86,7 +86,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            app-*.apk
+            released/app-*.apk
           tag_name: $VERSION_NAME
           body: ${{ env.RELEASE_NOTES }}
           token: ${{ secrets.GITHUB_TOKEN }}
