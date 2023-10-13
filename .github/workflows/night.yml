@@ -71,24 +71,14 @@ jobs:
         id: tag_name
         run: echo "TAG_VERSION_NAME = v${{ env.VERSION_NAME }}-night-$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
 
-      - name: Create Tag
-        run: git tag $TAG_VERSION_NAME
-        env:
-          TAG_VERSION_NAME: ${{ env.TAG_VERSION_NAME }}
-
-      - name: Push Tag
-        run: git push origin $TAG_VERSION_NAME
-        env:
-          TAG_VERSION_NAME: ${{ env.TAG_VERSION_NAME }}
 
       - name: Create GitHub Release
         id: create_release
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            ${{ steps.signed_files.outputs._0 }}
-            ${{ steps.signed_files.outputs._1 }}
-          tag_name: $VERSION_NAME
+            released/app-*.apk
+          tag_name: ${{ env.TAG_VERSION_NAME }}
           body: ${{ env.RELEASE_NOTES }}
           token: ${{ secrets.GITHUB_TOKEN }}
           prerelease: true
