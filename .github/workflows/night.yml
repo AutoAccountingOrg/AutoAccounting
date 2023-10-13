@@ -29,7 +29,7 @@ jobs:
             cp app/build/outputs/apk/${flavor}/release/app.apk ${{ github.workspace }}/app-${flavor}-pre-$current_time.apk
           done
           ls -al .
-          ls -al release
+          ls -al ${{ github.workspace }}
 
       - uses: ilharp/sign-android-release@v1
         name: Sign app APK # ID used to access action output
