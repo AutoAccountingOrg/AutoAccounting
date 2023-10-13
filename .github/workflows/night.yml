@@ -73,7 +73,7 @@ jobs:
 
       - name: Read versionName from build.gradle
         run: |
-          versionName=$(grep 'versionName' build.gradle | sed -n 's/.*versionName "\([^"]*\)".*/\1/p')
+          versionName=$(grep 'versionName' release/build.gradle | sed -n 's/.*versionName "\([^"]*\)".*/\1/p')
           echo "VERSION_NAME=$versionName" >> $GITHUB_ENV
           echo $GITHUB_ENV
         shell: bash
