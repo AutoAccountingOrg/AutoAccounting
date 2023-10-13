@@ -29,7 +29,7 @@ jobs:
         run: |
           for flavor in xposed helper; do
             # 重置签名
-            ./gradlew "assemble${flavor^}Release"  -Pandroid.injected.signing.store.file=/dev/null -Pandroid.injected.signing.store.password=yourPassword -Pandroid.injected.signing.key.alias=yourAlias -Pandroid.injected.signing.key.password=yourKeyPassword
+            ./gradlew "assemble${flavor^}Release"
             cp app/build/outputs/apk/${flavor}/release/app.apk $GITHUB_WORKSPACE/app-${flavor}-pre-$releaseTimeMin.apk
           done
         env:

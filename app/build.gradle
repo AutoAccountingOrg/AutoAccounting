@@ -47,7 +47,7 @@ android {
             minifyEnabled false
             shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-          //  signingConfig signingConfigs.release
+            signingConfig signingConfigs.debug
             applicationVariants.all { variant ->
                 variant.outputs.all {
                     outputFileName = "app.apk"
