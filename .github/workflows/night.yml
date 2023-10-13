@@ -28,13 +28,30 @@ jobs:
       - name: Build and Upload APKs
         run: |
           for flavor in xposed helper; do
-            ./gradlew "assemble${flavor^}Release" 
+            # 重置签名
+            ./gradlew "assemble${flavor^}Release"  -Pandroid.injected.signing.store.file=/dev/null -Pandroid.injected.signing.store.password=yourPassword -Pandroid.injected.signing.key.alias=yourAlias -Pandroid.injected.signing.key.password=yourKeyPassword
             cp app/build/outputs/apk/${flavor}/release/app.apk $GITHUB_WORKSPACE/app-${flavor}-pre-$releaseTimeMin.apk
           done
         env:
           releaseTimeMin: ${{ steps.get_release_time.outputs.releaseTimeMin }}
 
-
+      - uses: r0adkll/sign-android-release@v1
+        name: Sign app APK # ID used to access action output
+        id: sign_app
+        with:
+            releaseDirectory: $GITHUB_WORKSPACE/
+            signingKeyBase64: ${{ secrets.SIGNING_KEY }}
+            alias: ${{ secrets.ALIAS }}
+            keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
+            keyPassword: ${{ secrets.KEY_PASSWORD }}
+        env:
+          # override default build-tools version (29.0.3) -- optional
+            BUILD_TOOLS_VERSION: "30.0.2"
+      - uses: jungwinter/split@v1
+        id: signed_files
+        with:
+            msg: ${{ steps.sign_app.signedReleaseFiles }}
+            separator: ':'
       - name: Read versionName from app/build.gradle
         run: |
           versionName=$(grep 'versionName' app/build.gradle | sed -n 's/.*versionName "\([^"]*\)".*/\1/p')
