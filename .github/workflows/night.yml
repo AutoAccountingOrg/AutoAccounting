@@ -32,8 +32,8 @@ jobs:
           ls -al ${{ github.workspace }}
       - uses: actions/upload-artifact@v2
         with:
-          names: upload
-          paths:
+          name: upload
+          path:
             - ${{ github.workspace }}
 
   sign: # 签名
@@ -43,9 +43,9 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v2
         with:
-            name: upload
-            path:
-              - ${{ github.workspace }}
+          name: upload
+          path:
+            - ${{ github.workspace }}
       - uses: ilharp/sign-android-release@v1
         name: Sign app APK # ID used to access action output
         id: sign_app
@@ -58,8 +58,8 @@ jobs:
           buildToolsVersion: 34.0.0
       - uses: actions/upload-artifact@v2
         with:
-          names: upload
-          paths:
+          name: upload
+          path:
             - ${{ github.workspace }}
 
   release: # 发布
