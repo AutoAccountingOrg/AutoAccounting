@@ -23,7 +23,7 @@ jobs:
 
       - name: Build and Upload APKs
         run: |
-          current_time=$(date '+%Y-%m-%d-%H-%M-%S')
+          current_time=$(date '+%Y%m%d%H%M%S')
           for flavor in xposed helper; do
             ./gradlew "assemble${flavor^}Release"
             cp app/build/outputs/apk/${flavor}/release/app.apk ${{ github.workspace }}/app-${flavor}-pre-$current_time.apk
