@@ -27,10 +27,10 @@ jobs:
 
       - name: Build and Upload APKs
         run: |
+          mkdir released
           for flavor in xposed helper; do
             # 重置签名
             ./gradlew "assemble${flavor^}Release"
-            mkdir released
             cp app/build/outputs/apk/${flavor}/release/app.apk released/app-${flavor}-pre-$releaseTimeMin.apk
           done
           ls -al .
