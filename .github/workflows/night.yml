@@ -6,9 +6,8 @@ on:
       - master
 
 jobs:
-  build_and_publish:
+  build: # 编译安卓
     runs-on: ubuntu-latest
-
     steps:
       - name: Check Code
         uses: actions/checkout@v2
@@ -18,45 +17,48 @@ jobs:
         with:
           java-version: 17
           distribution: 'adopt'
-      - name: Set up Android SDK
-        if: ${{ env.ACT }} # Only run on local act setups, as GitHub Actions provides the Android SDK on Ubuntu
-        uses: android-actions/setup-android@v2
 
       - name: Make Gradle executable
         run: chmod +x ./gradlew
 
       - name: Build and Upload APKs
         run: |
-          mkdir released
           current_time=$(date '+%Y-%m-%d-%H-%M-%S')
           for flavor in xposed helper; do
-            # 重置签名
             ./gradlew "assemble${flavor^}Release"
-            cp app/build/outputs/apk/${flavor}/release/app.apk released/app-${flavor}-pre-$current_time.apk
+            cp app/build/outputs/apk/${flavor}/release/app.apk ${{ github.workspace }}/app-${flavor}-pre-$current_time.apk
           done
           ls -al .
-          ls -al released
+          ls -al ${{ github.workspace }}
 
+
+  sign: # 签名
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
       - uses: ilharp/sign-android-release@v1
         name: Sign app APK # ID used to access action output
         id: sign_app
         with:
-            releaseDir: released
-            signingKey: ${{ secrets.SIGNING_KEY }}
-            keyAlias: ${{ secrets.ALIAS }}
-            keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
-            keyPassword: ${{ secrets.KEY_PASSWORD }}
-            buildToolsVersion: 34.0.0
+          releaseDir: ${{ github.workspace }}
+          signingKey: ${{ secrets.SIGNING_KEY }}
+          keyAlias: ${{ secrets.ALIAS }}
+          keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
+          keyPassword: ${{ secrets.KEY_PASSWORD }}
+          buildToolsVersion: 34.0.0
 
-      - uses: jungwinter/split@v2
-        id: signed_files
-        with:
-          msg: ${{ steps.sign_app.outputs.signedFiles }}
-          separator: ':'
+  release: # 发布
+    needs: [sign]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Code
+        uses: actions/checkout@v2
+
       - name: Read versionName from app/build.gradle
         run: |
           versionName=$(grep 'versionName' app/build.gradle | sed -n 's/.*versionName "\([^"]*\)".*/\1/p')
           echo "VERSION_NAME=$versionName" >> $GITHUB_ENV
+          echo $GITHUB_ENV
         shell: bash
 
       - name: Generate Release Notes
@@ -69,21 +71,19 @@ jobs:
 
       - name: Generate Tag Name
         id: tag_name
-        run: echo "TAG_VERSION_NAME = v${{ env.VERSION_NAME }}-night-$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
+        run: echo "TAG_VERSION_NAME=v${{ env.VERSION_NAME }}-night-$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
 
       - name: Create And Push Tag
         run: |
           git tag ${{ env.TAG_VERSION_NAME }}
           git push origin ${{ env.TAG_VERSION_NAME }}
-        env:
-          TAG_VERSION_NAME: ${{ env.TAG_VERSION_NAME }}
 
       - name: Create GitHub Release
         id: create_release
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            released/app-*.apk
+            ${{ github.workspace }}/app-*.apk
           tag_name: ${{ env.TAG_VERSION_NAME }}
           body: ${{ env.RELEASE_NOTES }}
           token: ${{ secrets.GITHUB_TOKEN }}
