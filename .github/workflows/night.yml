@@ -23,17 +23,19 @@ jobs:
 
       - name: Build and Upload APKs
         run: |
+          mkdir release
+          cp app/build.gradle release/build.gradle
           current_time=$(date '+%Y%m%d%H%M%S')
           for flavor in xposed helper; do
             ./gradlew "assemble${flavor^}Release"
-            cp app/build/outputs/apk/${flavor}/release/app.apk ${{ github.workspace }}/app-${flavor}-pre-$current_time.apk
+            cp app/build/outputs/apk/${flavor}/release/app.apk release/app-${flavor}-pre-$current_time.apk
           done
           ls -al .
-          ls -al ${{ github.workspace }}
+          ls -al release
       - uses: actions/upload-artifact@v3
         with:
           name: upload
-          path: ${{ github.workspace }}
+          path: release
 
   sign: # 签名
     runs-on: ubuntu-latest
@@ -43,7 +45,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: upload
-          path: ${{ github.workspace }}
+          path: release
       - uses: ilharp/sign-android-release@v1
         name: Sign app APK # ID used to access action output
         id: sign_app
@@ -57,7 +59,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: upload
-          path: ${{ github.workspace }}
+          path: release
 
   release: # 发布
     needs: [sign]
@@ -67,11 +69,11 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: upload
-          path: ${{ github.workspace }}
+          path: release
 
-      - name: Read versionName from app/build.gradle
+      - name: Read versionName from build.gradle
         run: |
-          versionName=$(grep 'versionName' app/build.gradle | sed -n 's/.*versionName "\([^"]*\)".*/\1/p')
+          versionName=$(grep 'versionName' build.gradle | sed -n 's/.*versionName "\([^"]*\)".*/\1/p')
           echo "VERSION_NAME=$versionName" >> $GITHUB_ENV
           echo $GITHUB_ENV
         shell: bash
@@ -98,7 +100,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            ${{ github.workspace }}/app-*.apk
+            release/app-*.apk
           tag_name: ${{ env.TAG_VERSION_NAME }}
           body: ${{ env.RELEASE_NOTES }}
           token: ${{ secrets.GITHUB_TOKEN }}
