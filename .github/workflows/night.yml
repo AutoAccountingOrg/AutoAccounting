@@ -6,7 +6,7 @@ on:
       - master
 
 jobs:
-  build: # 编译安卓
+  buildAndRelease: # 编译安卓
     runs-on: ubuntu-latest
     steps:
       - name: Check Code
@@ -23,29 +23,14 @@ jobs:
 
       - name: Build and Upload APKs
         run: |
-          mkdir release
-          cp app/build.gradle release/build.gradle
           current_time=$(date '+%Y%m%d%H%M%S')
           for flavor in xposed helper; do
             ./gradlew "assemble${flavor^}Release"
-            cp app/build/outputs/apk/${flavor}/release/app.apk release/app-${flavor}-pre-$current_time.apk
+            cp app/build/outputs/apk/${flavor}/release/app.apk ${{ github.workspace }}/app-${flavor}-pre-$current_time.apk
           done
           ls -al .
           ls -al release
-      - uses: actions/upload-artifact@v3
-        with:
-          name: upload
-          path: release
 
-  sign: # 签名
-    runs-on: ubuntu-latest
-    needs: [build]
-    steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: upload
-          path: release
       - uses: ilharp/sign-android-release@v1
         name: Sign app APK # ID used to access action output
         id: sign_app
@@ -56,27 +41,10 @@ jobs:
           keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
           keyPassword: ${{ secrets.KEY_PASSWORD }}
           buildToolsVersion: 34.0.0
-      - uses: actions/upload-artifact@v3
-        with:
-          name: upload
-          path: release
-
-  release: # 发布
-    needs: [sign]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check Code
-        uses: actions/checkout@v2
-
-      - name: Download artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: upload
-          path: release
 
       - name: Read versionName from build.gradle
         run: |
-          versionName=$(grep 'versionName' release/build.gradle | sed -n 's/.*versionName "\([^"]*\)".*/\1/p')
+          versionName=$(grep 'versionName' app/build.gradle | sed -n 's/.*versionName "\([^"]*\)".*/\1/p')
           echo "VERSION_NAME=$versionName" >> $GITHUB_ENV
           echo $GITHUB_ENV
         shell: bash
@@ -103,7 +71,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            release/app-*.apk
+            ${{ github.workspace }}/app-*.apk
           tag_name: ${{ env.TAG_VERSION_NAME }}
           body: ${{ env.RELEASE_NOTES }}
           token: ${{ secrets.GITHUB_TOKEN }}
