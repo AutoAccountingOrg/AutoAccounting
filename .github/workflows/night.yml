@@ -30,10 +30,11 @@ jobs:
           done
           ls -al .
           ls -al ${{ github.workspace }}
-        artifacts:
+      - uses: actions/upload-artifact@v2
+        with:
           names: upload
           paths:
-          - ${{ github.workspace }}
+            - ${{ github.workspace }}
 
   sign: # 签名
     runs-on: ubuntu-latest
@@ -55,7 +56,8 @@ jobs:
           keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
           keyPassword: ${{ secrets.KEY_PASSWORD }}
           buildToolsVersion: 34.0.0
-        artifacts:
+      - uses: actions/upload-artifact@v2
+        with:
           names: upload
           paths:
             - ${{ github.workspace }}
