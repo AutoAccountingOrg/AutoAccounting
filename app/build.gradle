@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace 'net.ankio.auto'
-    compileSdk 34
+    compileSdk 34/*
     signingConfigs {
         release {
             storeFile file(RELEASE_STORE_FILE)
@@ -16,7 +16,7 @@ android {
             keyAlias RELEASE_KEY_ALIAS
             keyPassword RELEASE_KEY_PASSWORD
         }
-    }
+    }*/
     defaultConfig {
         applicationId "net.ankio.auto"
         minSdk 28
@@ -47,7 +47,7 @@ android {
             minifyEnabled false
             shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
+          //  signingConfig signingConfigs.release
             applicationVariants.all { variant ->
                 variant.outputs.all {
                     outputFileName = "app.apk"
