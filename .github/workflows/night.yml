@@ -23,19 +23,20 @@ jobs:
 
       - name: Build and Upload APKs
         run: |
+          mkdir release
           current_time=$(date '+%Y%m%d%H%M%S')
           for flavor in xposed helper; do
             ./gradlew "assemble${flavor^}Release"
-            cp app/build/outputs/apk/${flavor}/release/app.apk ${{ github.workspace }}/app-${flavor}-pre-$current_time.apk
+            cp app/build/outputs/apk/${flavor}/release/app.apk release/app-${flavor}-pre-$current_time.apk
           done
           ls -al .
-          ls -al ${{ github.workspace }}
+          ls -al release
 
       - uses: ilharp/sign-android-release@v1
         name: Sign app APK # ID used to access action output
         id: sign_app
         with:
-          releaseDir: ${{ github.workspace }}
+          releaseDir: release
           signingKey: ${{ secrets.SIGNING_KEY }}
           keyAlias: ${{ secrets.ALIAS }}
           keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
@@ -44,9 +45,8 @@ jobs:
 
       - name: Read versionName from build.gradle
         run: |
-          versionName=$(grep 'versionName' app/build.gradle | sed -n 's/.*versionName "\([^"]*\)".*/\1/p')
+          versionName=$(grep 'versionName' app/build.gradle | sed -n 's/.*versionName "\([^"]*\)".*/\1/p' | tr -d '[:space:]')
           echo "VERSION_NAME=$versionName" >> $GITHUB_ENV
-          echo $GITHUB_ENV
         shell: bash
 
       - name: Generate Release Notes
@@ -63,15 +63,15 @@ jobs:
 
       - name: Create And Push Tag
         run: |
-          git tag ${{ env.TAG_VERSION_NAME }}
-          git push origin ${{ env.TAG_VERSION_NAME }}
+          git tag "${{ env.TAG_VERSION_NAME }}"
+          git push origin "${{ env.TAG_VERSION_NAME }}"
 
       - name: Create GitHub Release
         id: create_release
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            ${{ github.workspace }}/app-*.apk
+            release/app-*-signed.apk
           tag_name: ${{ env.TAG_VERSION_NAME }}
           body: ${{ env.RELEASE_NOTES }}
           token: ${{ secrets.GITHUB_TOKEN }}
