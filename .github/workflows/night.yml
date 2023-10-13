@@ -75,6 +75,8 @@ jobs:
         run: |
           git tag ${{ env.TAG_VERSION_NAME }}
           git push origin ${{ env.TAG_VERSION_NAME }}
+        env:
+          TAG_VERSION_NAME: ${{ env.TAG_VERSION_NAME }}
 
       - name: Create GitHub Release
         id: create_release
