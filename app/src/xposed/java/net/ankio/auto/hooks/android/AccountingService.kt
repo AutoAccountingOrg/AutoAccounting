@@ -23,6 +23,8 @@ import java.io.BufferedWriter
 import java.io.File
 import java.io.FileWriter
 import java.io.IOException
+import java.nio.file.Files
+import java.nio.file.Paths
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -114,15 +116,42 @@ class AccountingService(val mContext:Context?) : IAccountingService.Stub() {
         }
     }
 
-    override fun get(key: String?): String {
+    /**
+     * 读配置文件
+     */
+    override fun get(key: String): String {
+        val dataFileName = "$dataDir/auto-$key.txt"
+        val dataFile = File(dataFileName)
+
+        return if (dataFile.exists()) {
+            dataFile.readText()
+        } else {
+            ""
+        }
+    }
+
+    /**
+     * 写配置文件
+     */
+    override fun put(key: String, value: String) {
+        val dataFileName = "$dataDir/auto-$key.txt"
+        val dataFile = File(dataFileName)
+        initFile(dataFile)
+        dataFile.writeText(value)
+    }
+
+    /**
+     * 启动自动记账
+     */
+    override fun launchApp() {
         TODO("Not yet implemented")
     }
 
-    override fun put(key: String?, value: String?) {
+    override fun analyzeData(data: String?) {
         TODO("Not yet implemented")
     }
 
-    override fun callApp() {
+    override fun getDataInfo() {
         TODO("Not yet implemented")
     }
 }
