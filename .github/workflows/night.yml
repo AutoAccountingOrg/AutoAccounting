@@ -30,7 +30,8 @@ jobs:
           for flavor in xposed helper; do
             # 重置签名
             ./gradlew "assemble${flavor^}Release"
-            cp app/build/outputs/apk/${flavor}/release/app.apk $GITHUB_WORKSPACE/app-${flavor}-pre-$releaseTimeMin.apk
+            mkdir released
+            cp app/build/outputs/apk/${flavor}/release/app.apk released/app-${flavor}-pre-$releaseTimeMin.apk
           done
         env:
           releaseTimeMin: ${{ steps.get_release_time.outputs.releaseTimeMin }}
@@ -38,8 +39,11 @@ jobs:
       - uses: r0adkll/sign-android-release@v1
         name: Sign app APK # ID used to access action output
         id: sign_app
+        run: |
+          ls -al .
+          ls -al released
         with:
-            releaseDirectory: ${{ env.GITHUB_WORKSPACE }}
+            releaseDirectory: released
             signingKeyBase64: ${{ secrets.SIGNING_KEY }}
             alias: ${{ secrets.ALIAS }}
             keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
