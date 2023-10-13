@@ -28,28 +28,26 @@ jobs:
       - name: Build and Upload APKs
         run: |
           mkdir released
+          current_time=$(date '+%Y-%m-%d-%H-%M-%S')
           for flavor in xposed helper; do
             # 重置签名
             ./gradlew "assemble${flavor^}Release"
-            cp app/build/outputs/apk/${flavor}/release/app.apk released/app-${flavor}-pre-$releaseTimeMin.apk
+            cp app/build/outputs/apk/${flavor}/release/app.apk released/app-${flavor}-pre-$current_time.apk
           done
           ls -al .
           ls -al released
-        env:
-          releaseTimeMin: ${{ steps.get_release_time.outputs.releaseTimeMin }}
 
-      - uses: r0adkll/sign-android-release@v1
+      - uses: ilharp/sign-android-release@v1
         name: Sign app APK # ID used to access action output
         id: sign_app
         with:
-            releaseDirectory: released
-            signingKeyBase64: ${{ secrets.SIGNING_KEY }}
-            alias: ${{ secrets.ALIAS }}
+            releaseDir: released
+            signingKey: ${{ secrets.SIGNING_KEY }}
+            keyAlias: ${{ secrets.ALIAS }}
             keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
             keyPassword: ${{ secrets.KEY_PASSWORD }}
-        env:
-          # override default build-tools version (29.0.3) -- optional
-            BUILD_TOOLS_VERSION: "30.0.2"
+            buildToolsVersion: 34.0.0
+
       - uses: jungwinter/split@v1
         id: signed_files
         with:
