@@ -19,6 +19,7 @@ import android.content.Context
 import net.ankio.auto.api.Hooker
 import net.ankio.auto.api.PartHooker
 import net.ankio.auto.hooks.alipay.hooks.MessageBoxHooker
+import net.ankio.auto.hooks.alipay.hooks.RedPackageHooker
 import net.ankio.auto.hooks.alipay.hooks.SettingUIHooker
 
 class AlipayHooker:Hooker() {
@@ -28,6 +29,7 @@ class AlipayHooker:Hooker() {
     override var partHookers: MutableList<PartHooker> = arrayListOf(
         SettingUIHooker(this),//支付宝设置
         MessageBoxHooker(this),//支付消息盒子
+        RedPackageHooker(this),//支付宝红包
     )
 
     override fun hookLoadPackage(classLoader: ClassLoader?, context: Context?) {

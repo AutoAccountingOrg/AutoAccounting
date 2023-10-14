@@ -16,9 +16,11 @@
 package net.ankio.auto.api
 
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam
+import net.ankio.auto.IAccountingService
 
 
 interface iHooker {
+
     val packPageName: String?
     val appName: String?
     fun onLoadPackage(lpparam: LoadPackageParam?)

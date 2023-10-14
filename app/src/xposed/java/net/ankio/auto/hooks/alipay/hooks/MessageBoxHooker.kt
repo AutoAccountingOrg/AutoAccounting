@@ -48,10 +48,10 @@ class MessageBoxHooker(hooker: Hooker) :PartHooker(hooker) {
                     getDataMethod?.let {
                         val result = it.invoke(syncMessageObject) as String
                         Log.w(hooker.appName, "Received Msg =>  $result")
-                        val billInfo = AccountingService.get(context)?.analyzeData(result)
+                        val billInfo = hooker.mService.analyzeData(result)
                         if(billInfo!=null){
                             //分析结果不是null，唤起自动记账
-                            AccountingService.get(context)?.launchApp(billInfo)
+                            hooker.mService.launchApp(billInfo)
                         }
                     }
                 }
