@@ -16,15 +16,13 @@
 package net.ankio.auto.hooks.android
 
 import android.content.Context
-import android.os.Environment
 import android.util.Log
 import net.ankio.auto.IAccountingService
+import net.ankio.auto.database.table.BillInfo
 import java.io.BufferedWriter
 import java.io.File
 import java.io.FileWriter
 import java.io.IOException
-import java.nio.file.Files
-import java.nio.file.Paths
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -140,14 +138,12 @@ class AccountingService(val mContext:Context?) : IAccountingService.Stub() {
         dataFile.writeText(value)
     }
 
-    /**
-     * 启动自动记账
-     */
-    override fun launchApp() {
+    override fun launchApp(billInfo: String?) {
         TODO("Not yet implemented")
     }
 
-    override fun analyzeData(data: String?) {
+
+    override fun analyzeData(data: String?): String? {
         TODO("Not yet implemented")
     }
 

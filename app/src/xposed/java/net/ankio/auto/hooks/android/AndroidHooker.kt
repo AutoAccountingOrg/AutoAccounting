@@ -23,7 +23,7 @@ import net.ankio.auto.api.Hooker
 import net.ankio.auto.api.PartHooker
 
 
-class Android : Hooker() {
+class AndroidHooker : Hooker() {
     override var partHookers: MutableList<PartHooker> = arrayListOf()
     override fun hookLoadPackage(classLoader: ClassLoader?, context: Context?) {
         val activityManagerService = XposedHelpers.findClass("com.android.server.am.ActivityManagerService", classLoader)

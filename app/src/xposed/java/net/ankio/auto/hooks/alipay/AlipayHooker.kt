@@ -16,18 +16,18 @@
 package net.ankio.auto.hooks.alipay
 
 import android.content.Context
-import de.robv.android.xposed.XposedBridge
 import net.ankio.auto.api.Hooker
 import net.ankio.auto.api.PartHooker
+import net.ankio.auto.hooks.alipay.hooks.MessageBoxHooker
 import net.ankio.auto.hooks.alipay.hooks.SettingUIHooker
-import net.ankio.auto.hooks.android.AccountingService
 
-class Alipay:Hooker() {
+class AlipayHooker:Hooker() {
     override val packPageName: String = "com.eg.android.AlipayGphone"
     override val appName: String = "支付宝"
     override val needHelpFindApplication: Boolean = true
     override var partHookers: MutableList<PartHooker> = arrayListOf(
-        SettingUIHooker(this)
+        SettingUIHooker(this),//支付宝设置
+        MessageBoxHooker(this),//支付消息盒子
     )
 
     override fun hookLoadPackage(classLoader: ClassLoader?, context: Context?) {
