@@ -16,13 +16,14 @@
 package net.ankio.auto.hooks.android
 
 import android.content.Context
+import android.os.IBinder
 import android.util.Log
 import net.ankio.auto.IAccountingService
-import net.ankio.auto.database.table.BillInfo
 import java.io.BufferedWriter
 import java.io.File
 import java.io.FileWriter
 import java.io.IOException
+import java.lang.reflect.Method
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -56,11 +57,13 @@ class AccountingService(val mContext:Context?) : IAccountingService.Stub() {
 
     companion object{
         private var mService: IAccountingService? = null
-        fun get( mContext:Context?): IAccountingService? {
+        fun get(): IAccountingService? {
             try {
-                 val SERVICE_NAME = "accounting.service"
                 if (mService == null) {
-                 mService = mContext?.getSystemService("user.$SERVICE_NAME") as IAccountingService
+                    val SERVICE_NAME = "user.accounting.service"
+                    val svcManager = Class.forName("android.os.ServiceManager")
+                    val getServiceMethod: Method = svcManager.getDeclaredMethod("getService", String::class.java)
+                    mService = asInterface(getServiceMethod.invoke(null, SERVICE_NAME) as IBinder)
                 }
                 return mService
             } catch (e: Exception) {
