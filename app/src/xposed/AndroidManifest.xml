@@ -3,9 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <application>
-        <service
-            android:name=".hooks.android.AutoAccoutingService"
-            android:exported="false"></service>
+        <activity
+            android:name=".ui.activity.RestartActivity"
+            android:exported="true">
+        </activity>
 
         <meta-data
             android:name="xposedmodule"
