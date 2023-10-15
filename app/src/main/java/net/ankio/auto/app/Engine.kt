@@ -76,7 +76,7 @@ object Engine {
     /**
      *
      */
-    private  fun runCategory(billInfo: BillInfo, js :String?=null) {
+    private  fun runCategory(billInfo: BillInfo) {
         val script = ActiveUtils.get("dataCategory")
         try {
             val context: Context = Context.enter()
