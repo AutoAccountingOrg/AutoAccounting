@@ -15,11 +15,12 @@
 
 package net.ankio.auto.utils
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
-
-
-
+import androidx.core.content.ContextCompat.startActivity
+import net.ankio.auto.hooks.android.AccountingService
+import net.ankio.auto.ui.activity.RestartActivity
 
 
 object ActiveUtils {
@@ -35,6 +36,12 @@ object ActiveUtils {
         if (intent != null) {
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             mContext.startActivity(intent)
+        }
+    }
+    fun onStartApp(activity: Activity){
+        if(AccountingService.get()==null){
+            val intent = Intent(activity, RestartActivity::class.java)
+            activity.startActivity(intent)
         }
     }
 

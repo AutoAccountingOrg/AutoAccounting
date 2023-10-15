@@ -48,6 +48,6 @@
         android:layout_centerVertical="true"
         android:layout_marginBottom="25dp"
         android:fitsSystemWindows="false"
-        android:tint="?attr/colorError"
-        app:srcCompat="@drawable/ic_warning" />
+        app:srcCompat="@drawable/ic_warning"
+        app:tint="?attr/colorError" />
 </RelativeLayout>

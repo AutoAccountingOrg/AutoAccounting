@@ -38,6 +38,7 @@ import com.zackratos.ultimatebarx.ultimatebarx.addNavigationBarBottomPadding
 import net.ankio.auto.R
 import net.ankio.auto.databinding.AboutDialogBinding
 import net.ankio.auto.databinding.ActivityMainBinding
+import net.ankio.auto.utils.ActiveUtils
 import net.ankio.auto.utils.CallbackListener
 import net.ankio.auto.utils.Github
 import net.ankio.auto.utils.HttpUtils
@@ -210,6 +211,9 @@ class MainActivity : BaseActivity() {
     }
 
 
-
+    override fun onResume() {
+        super.onResume()
+        ActiveUtils.onStartApp(this)
+    }
 
 }
