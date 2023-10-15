@@ -25,8 +25,7 @@ class RestartActivity: BaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityRestartBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        binding.button2.setOnClickListener {
-           exitProcess(0)
-        }
+
+        onViewCreated()
     }
 }
