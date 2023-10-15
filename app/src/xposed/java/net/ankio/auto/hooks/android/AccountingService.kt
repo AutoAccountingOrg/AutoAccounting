@@ -15,10 +15,21 @@
 
 package net.ankio.auto.hooks.android
 
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.os.IBinder
 import android.util.Log
+import androidx.room.Room
+import kotlinx.coroutines.runBlocking
+import net.ankio.auto.HookMainApp
 import net.ankio.auto.IAccountingService
+import net.ankio.auto.app.Engine
+import net.ankio.auto.constant.DataType
+import net.ankio.auto.database.AppDatabase
+import net.ankio.auto.database.table.AccountMap
+import net.ankio.auto.database.table.AppData
+import net.ankio.auto.utils.toJsonArray
 import java.io.BufferedWriter
 import java.io.File
 import java.io.FileWriter
@@ -29,7 +40,7 @@ import java.util.Date
 import java.util.Locale
 
 
-class AccountingService(val mContext:Context?) : IAccountingService.Stub() {
+class AccountingService(val mContext: Context) : IAccountingService.Stub() {
 
     private val SERVICE_NAME = "accounting.service"
 
@@ -39,30 +50,37 @@ class AccountingService(val mContext:Context?) : IAccountingService.Stub() {
         return "user.$SERVICE_NAME"
     }
 
+    private lateinit var db: AppDatabase
 
     fun systemReady() {
-        Log.e(TAG,"Welcome to AutoAccounting.")
+        Log.e(HookMainApp.getTag(TAG), "Welcome to AutoAccounting.")
         // 删除日志
         val logFile = File(logFileName)
         if (logFile.exists()) {
             logFile.delete()
         }
-        Log.e(TAG,"Removed old logs：$logFile")
+        Log.e(HookMainApp.getTag(TAG), "Removed old logs：$logFile")
         //写入启动日志
-        log("Android","------- AutoAccounting Start  ")
+        log(HookMainApp.getTag(TAG), "------- AutoAccounting Start  ")
+        //数据库初始化放到service中来
+        db = Room.databaseBuilder(
+            mContext,
+            AppDatabase::class.java,
+            "autoAccount.db"
 
-
+        ).createFromAsset("$dataDir/autoAccount.db").fallbackToDestructiveMigration().build()
 
     }
 
-    companion object{
+    companion object {
         private var mService: IAccountingService? = null
         fun get(): IAccountingService? {
             try {
                 if (mService == null) {
                     val SERVICE_NAME = "user.accounting.service"
                     val svcManager = Class.forName("android.os.ServiceManager")
-                    val getServiceMethod: Method = svcManager.getDeclaredMethod("getService", String::class.java)
+                    val getServiceMethod: Method =
+                        svcManager.getDeclaredMethod("getService", String::class.java)
                     mService = asInterface(getServiceMethod.invoke(null, SERVICE_NAME) as IBinder)
                 }
                 return mService
@@ -72,18 +90,18 @@ class AccountingService(val mContext:Context?) : IAccountingService.Stub() {
             }
             return null
         }
+
         const val dataDir = "/data/system/net.ankio.auto.xposed"
         const val logFileName = "$dataDir/auto-log.txt"
 
     }
 
 
-
     /**
      * 初始化创建文件夹子
      */
 
-    private fun initFile(file: File){
+    private fun initFile(file: File) {
         if (!file.exists()) {
             val parentDirectory = file.parentFile
             if (parentDirectory != null && !parentDirectory.exists()) {
@@ -97,7 +115,7 @@ class AccountingService(val mContext:Context?) : IAccountingService.Stub() {
     override fun log(prefix: String?, log: String?) {
         try {
             val logFile = File(logFileName)
-           initFile(logFile)
+            initFile(logFile)
 
             val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA)
             val currentTime = Date()
@@ -112,7 +130,7 @@ class AccountingService(val mContext:Context?) : IAccountingService.Stub() {
             bufferedWriter.close()
             fileWriter.close()
         } catch (e: IOException) {
-           Log.e(TAG,"Error writing to the log file: ${e.message}")
+            Log.e(TAG, "Error writing to the log file: ${e.message}")
             e.printStackTrace()
         }
     }
@@ -141,16 +159,92 @@ class AccountingService(val mContext:Context?) : IAccountingService.Stub() {
         dataFile.writeText(value)
     }
 
-    override fun launchApp(billInfo: String?) {
-        TODO("Not yet implemented")
+    override fun analyzeData(dataType: Int, app: String, data: String) {
+
+        runCatching {
+           runBlocking {
+               val billInfo = Engine.runAnalyze(dataType, app, data)
+               val appData = AppData()
+               appData.issue = 0
+               appData.type = DataType.valueOf(dataType.toString())
+               appData.rule = billInfo?.channel ?: ""
+               appData.from = app
+               appData.data = data
+               appData.match = billInfo != null
+               appData.time = System.currentTimeMillis()
+               //先存到server的数据库里面
+               db.AppDataDao().insert(appData)
+
+               if (billInfo !== null) {
+                   val serviceIntent = Intent()
+                   serviceIntent.setComponent(
+                       ComponentName(
+                           HookMainApp.pkg,
+                           "net.ankio.auto.service.FloatingWindowService"
+                       )
+                   )
+                   serviceIntent.putExtra("data", billInfo.toJSON())
+                   serviceIntent.setAction("SHOW_WINDOW")
+                   mContext.startService(serviceIntent)
+               }
+           }
+
+        }.onFailure {
+            it.printStackTrace()
+            log(HookMainApp.getTag(TAG),it.message)
+        }
+
+    }
+
+    /**
+     * 单向同步数据库
+     */
+    override fun sql(table: String, action: String, data: String) {
+        runCatching {
+        runBlocking {
+            when(table){
+                "AccountMap"->{
+                    when(action){
+                        "insert"-> db.AccountMapDao().insert(AccountMap.fromJSON(data))
+                        "update"->db.AccountMapDao().update(AccountMap.fromJSON(data))
+                        "delete"->db.AccountMapDao().delete(AccountMap.fromJSON(data))
+                    }
+                }
+              /*  "BillInfo"->{
+                    when(action){
+                        "insert"-> db.BillInfoDao().insert(BillInfo.fromJSON(data))
+                        "update"->db.BillInfoDao().update(BillInfo.fromJSON(data))
+                        "delete"->db.BillInfoDao().delete(BillInfo.fromJSON(data))
+                    }
+                }
+                "AppData"->{
+                    when(action){
+                        "insert"-> db.AppDataDao().insert(AppData.fromJSON(data))
+                        "update"->db.AppDataDao().update(AppData.fromJSON(data))
+                        "delete"->db.AppDataDao().delete(AppData.fromJSON(data))
+                    }
+                }*/
+            }
+            ""
+        }}.onFailure {
+            it.printStackTrace()
+            log(HookMainApp.getTag(TAG),it.message)
+        }
+    }
+
+    /**
+     * 需要同步 (双向同步)
+     *
+     */
+    override fun syncData(): String {
+        return runBlocking {
+            val total = db.AppDataDao().getTotal()
+            db.AppDataDao().empty()
+            total.map { it.toJSON() }.toJsonArray().toString()
+        }
     }
 
 
-    override fun analyzeData(data: String?): String? {
-        TODO("Not yet implemented")
-    }
 
-    override fun getDataInfo() {
-        TODO("Not yet implemented")
-    }
+
 }

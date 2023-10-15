@@ -13,32 +13,18 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto
+package net.ankio.auto.utils
 
-import android.annotation.SuppressLint
-import android.app.Application
-import android.content.Context
-import com.quickersilver.themeengine.ThemeEngine
-import net.ankio.auto.database.Db
+import net.ankio.auto.hooks.android.AccountingService
 
-
-open class App : Application() {
-
-    companion object {
-        @SuppressLint("StaticFieldLeak")
-        lateinit var context: Context
-    }
-    
-    override fun onCreate() {
-        super.onCreate()
-        context = applicationContext
-        //主题初始化
-        ThemeEngine.applyToActivities(this)
-        //数据库初始化
-        Db.init(this)
+/**
+ * 该类负责app 和 service 数据库同步
+ */
+object DbHelper {
 
 
-
+    fun notify(table:String,action:String,data:String){
+        AccountingService.get()?.sql(action,table,data)
     }
 
 

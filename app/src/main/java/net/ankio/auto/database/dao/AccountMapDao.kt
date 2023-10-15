@@ -15,7 +15,10 @@
 package net.ankio.auto.database.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 import net.ankio.auto.constant.BillType
 import net.ankio.auto.database.table.AccountMap
 import net.ankio.auto.database.table.BillInfo
@@ -23,5 +26,11 @@ import net.ankio.auto.database.table.BillInfo
 @Dao
 interface AccountMapDao {
     @Query("SELECT * FROM AccountMap")
-    fun getAll(): List<AccountMap>
+    suspend fun getAll(): List<AccountMap>
+    @Insert
+    suspend fun insert(accountMap: AccountMap):Long
+    @Update
+    suspend fun update(accountMap: AccountMap)
+    @Delete
+    suspend fun delete(accountMap: AccountMap)
 }

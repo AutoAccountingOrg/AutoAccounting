@@ -32,7 +32,7 @@ object BillUtils {
     /**
      * 对重复账单进行分组更新
      */
-    private fun updateBillInfo(parentBillInfo:BillInfo, billInfo: BillInfo) {
+    private suspend fun updateBillInfo(parentBillInfo:BillInfo, billInfo: BillInfo) {
         if(!parentBillInfo.shopName.contains(billInfo.shopName)){
             parentBillInfo.shopName = billInfo.shopName
         }
@@ -100,7 +100,7 @@ object BillUtils {
         Db.get().BillInfoDao().insert(billInfo)
     }
 
-    fun getAccountMap(account:String?): String {
+    suspend fun getAccountMap(account:String?): String {
         if(account===null)return ""
         val all = Db.get().AccountMapDao().getAll()
         for (map in all){

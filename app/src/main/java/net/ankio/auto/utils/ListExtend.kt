@@ -13,34 +13,16 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto
+package net.ankio.auto.utils
 
-import android.annotation.SuppressLint
-import android.app.Application
-import android.content.Context
-import com.quickersilver.themeengine.ThemeEngine
-import net.ankio.auto.database.Db
+import com.google.gson.Gson
+import com.google.gson.JsonArray
 
-
-open class App : Application() {
-
-    companion object {
-        @SuppressLint("StaticFieldLeak")
-        lateinit var context: Context
+fun <T> List<T>.toJsonArray(): JsonArray {
+    val jsonArray = JsonArray()
+    this.forEach { element ->
+        val gsonElement = Gson().toJsonTree(element)
+        jsonArray.add(gsonElement)
     }
-    
-    override fun onCreate() {
-        super.onCreate()
-        context = applicationContext
-        //主题初始化
-        ThemeEngine.applyToActivities(this)
-        //数据库初始化
-        Db.init(this)
-
-
-
-    }
-
-
-
+    return jsonArray
 }

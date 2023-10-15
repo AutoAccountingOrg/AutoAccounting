@@ -16,10 +16,13 @@ package net.ankio.auto.database.table
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.google.gson.Gson
 import net.ankio.auto.constant.DataType
 
 @Entity
 class AppData {
+
+
     //其他信息处理规则
     @PrimaryKey(autoGenerate = true)
     var id = 0
@@ -63,4 +66,12 @@ class AppData {
      * 关联github issue
      */
     var issue:Int = 0
+    fun toJSON(): String {
+        return Gson().toJson(this)
+    }
+    companion object{
+        fun fromJSON(json:String):AppData{
+            return Gson().fromJson(json,AppData::class.java)
+        }
+    }
 }

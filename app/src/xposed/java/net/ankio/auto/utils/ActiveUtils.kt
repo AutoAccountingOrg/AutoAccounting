@@ -19,6 +19,12 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import androidx.core.content.ContextCompat.startActivity
+import com.google.gson.Gson
+import com.google.gson.JsonArray
+import kotlinx.coroutines.runBlocking
+import net.ankio.auto.database.Db
+import net.ankio.auto.database.dao.AppDataDao
+import net.ankio.auto.database.table.AppData
 import net.ankio.auto.hooks.android.AccountingService
 import net.ankio.auto.ui.activity.RestartActivity
 
@@ -39,10 +45,29 @@ object ActiveUtils {
         }
     }
     fun onStartApp(activity: Activity){
-        if(AccountingService.get()==null){
+        val service = AccountingService.get()
+        if(service==null){
             val intent = Intent(activity, RestartActivity::class.java)
             activity.startActivity(intent)
+            return
         }
+
+      runBlocking {
+          val data = service.syncData()
+
+          val jsonArray = Gson().fromJson(data,JsonArray::class.java)
+          for (string in jsonArray){
+              Db.get().AppDataDao().insert(AppData.fromJSON(string.asString))
+          }
+      }
+    }
+
+    fun get(key:String):String{
+        return AccountingService.get()?.get(key) ?: ""
+    }
+
+    fun put(key:String,value:String){
+        AccountingService.get()?.put(key,value)
     }
 
 }

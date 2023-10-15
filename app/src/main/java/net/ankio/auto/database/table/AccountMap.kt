@@ -16,6 +16,7 @@ package net.ankio.auto.database.table
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.google.gson.Gson
 
 @Entity
 class AccountMap {
@@ -35,4 +36,13 @@ class AccountMap {
      * 映射到的账户名
      */
     var mapName: String? = null //映射账户名
+
+    fun toJSON(): String {
+        return Gson().toJson(this)
+    }
+    companion object{
+        fun fromJSON(json:String):AccountMap{
+            return Gson().fromJson(json,AccountMap::class.java)
+        }
+    }
 }

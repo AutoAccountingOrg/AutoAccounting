@@ -111,4 +111,8 @@ dependencies {
    // debugImplementation libs.debug.db
     //加载库
     implementation libs.tobeyr1DialogLoading
+    //kotlin反射
+    implementation libs.kotlin.reflect
+    //悬浮窗
+    implementation libs.easyFloat
 }

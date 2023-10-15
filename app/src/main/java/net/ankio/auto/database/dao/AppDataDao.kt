@@ -15,25 +15,34 @@
 package net.ankio.auto.database.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
+import net.ankio.auto.database.table.AccountMap
 import net.ankio.auto.database.table.AppData
 
 @Dao
 interface AppDataDao {
     @Query("SELECT * FROM AppData  order by id desc limit :start,:limit")
-    suspend fun loadAll(start: Int, limit: Int): Array<AppData?>?
+    suspend fun loadAll(start: Int, limit: Int): Array<AppData>
 
-    @Insert
-    suspend fun add(data: AppData)
 
     @Query("DELETE FROM AppData WHERE id=:id")
     suspend fun del(id: Int)
 
     @Query("DELETE FROM AppData WHERE id not in (SELECT id FROM AppData order by id DESC limit :limit)")
     suspend fun delTooMore(limit: Int)
-    @Update
-    suspend fun update(item: AppData)
 
+    @Query("SELECT * FROM AppData")
+    suspend fun getTotal(): Array<AppData>
+    @Query("DELETE FROM AppData")
+    suspend fun empty()
+
+    @Insert
+    suspend fun insert(appData: AppData):Long
+    @Update
+    suspend fun update(appData: AppData)
+    @Delete
+    suspend fun delete(appData: AppData)
 }

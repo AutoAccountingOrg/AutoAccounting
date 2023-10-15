@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (C) 2021 dreamn(dream@dreamn.cn)
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~       http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_layout_tip"
+    android:paddingStart="15dp"
+    android:paddingEnd="15dp">
+
+
+    <ImageView
+        android:id="@+id/logo"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="-10dp"
+        android:src="@drawable/ic_launcher_foreground" />
+
+    <TextView
+        android:id="@+id/money"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginEnd="0dp"
+        android:layout_toStartOf="@+id/time"
+        android:gravity="right|center_vertical|center_horizontal|center|end"
+        android:minWidth="100dp"
+        android:text="0.00"
+        android:textColor="?attr/colorOnSecondaryContainer"
+        android:textSize="20sp"
+        tools:ignore="RtlHardcoded,TextViewEdits" />
+
+    <TextView
+        android:id="@+id/time"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="1dp"
+        android:gravity="right|center_vertical|center_horizontal|center|end"
+        android:minWidth="20dp"
+        android:text="0s"
+        android:textColor="?attr/colorOnErrorContainer"
+        android:textSize="14sp"
+        tools:ignore="RtlHardcoded,TextViewEdits" />
+
+
+</RelativeLayout>
