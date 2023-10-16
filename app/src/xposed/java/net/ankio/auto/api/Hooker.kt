@@ -42,6 +42,7 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
+import net.ankio.auto.HookMainApp
 import net.ankio.auto.IAccountingService
 import net.ankio.auto.hooks.android.AccountingService
 
@@ -102,11 +103,12 @@ abstract class Hooker : iHooker {
            val service =  AccountingService.get()
             if(service==null){
                 //自动记账服务没加载
-                XposedBridge.log("[AutoAccounting] 自动记账服务未加载，请重启手机后再试.")
+                XposedBridge.log("${HookMainApp.getTag()}自动记账服务未加载，请重启手机后再试.")
                 return
             }
             mService = service
         }
+        XposedBridge.log("${HookMainApp.getTag()}自动记账加载中...")
         hookLoadPackage(classLoader,context)
         for (hook in partHookers) {
             try {
@@ -114,7 +116,7 @@ abstract class Hooker : iHooker {
             }catch (e:Exception){
                 e.message?.let { Log.e("AutoAccountingError", it) }
                 println(e)
-                XposedBridge.log("[AutoAccounting]错误：${e.message}")
+                XposedBridge.log("${HookMainApp.getTag()}自动记账Hook异常..${e.message}.")
             }
         }
     }

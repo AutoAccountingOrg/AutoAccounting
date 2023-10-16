@@ -17,6 +17,7 @@ package net.ankio.auto.app
 
 import net.ankio.auto.database.Db
 import net.ankio.auto.database.table.BillInfo
+import net.ankio.auto.utils.ActiveUtils
 import java.lang.Exception
 
 object BillUtils {
@@ -102,7 +103,7 @@ object BillUtils {
 
     suspend fun getAccountMap(account:String?): String {
         if(account===null)return ""
-        val all = Db.get().AccountMapDao().getAll()
+        val all = ActiveUtils.getAccountMap(account)
         for (map in all){
             if(map.regex){
                 try{

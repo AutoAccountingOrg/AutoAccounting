@@ -3,14 +3,16 @@ agp = "8.3.0-alpha07"
 analytics = "14.3.0"
 androiddebuglib = "0.1.4"
 androidx-roomRuntime = "2.5.2"
-debugDb = "1.0.6"
+easyFloat = "2.0.4"
 flexbox = "3.0.0"
 github-DialogLoading = "1.0.3"
-jerryCore = "2.2.0"
+
+kotlinReflect = "1.8.22"
 kotlinxCoroutinesAndroid = "1.6.4"
 rhino = "1.7.14"
 roomCompiler = "2.5.2"
 round = "1.1.2"
+sqliteFramework = "2.3.1"
 swiperefreshlayout = "1.2.0-alpha01"
 xposed = "82"
 gson = "2.10.1"
@@ -37,8 +39,11 @@ androidx-navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx",
 androidx-room-compiler-v251 = { module = "androidx.room:room-compiler", version.ref = "roomCompiler" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "androidx-roomRuntime" }
 androidx-room-runtime-v251 = { module = "androidx.room:room-runtime", version.ref = "androidx-roomRuntime" }
+androidx-sqlite-framework = { module = "androidx.sqlite:sqlite-framework", version.ref = "sqliteFramework" }
 androidx-swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefreshlayout", version.ref = "swiperefreshlayout" }
+easyFloat = { module = "com.github.princekin-f:EasyFloat", version.ref = "easyFloat" }
 flexbox = { module = "com.google.android.flexbox:flexbox", version.ref = "flexbox" }
+kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlinReflect" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroid" }
 rhino = { module = "org.mozilla:rhino", version.ref = "rhino" }
 round = { module = "io.github.xiaofeidev:round", version.ref = "round" }

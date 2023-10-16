@@ -13,4 +13,5 @@ interface IAccountingService {
     //同步数据的接口
    void sql(String table,String action,String data);
    String syncData();
+   String getMap(String name);
 }

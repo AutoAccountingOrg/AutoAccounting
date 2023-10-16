@@ -18,12 +18,12 @@ package net.ankio.auto.utils
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import androidx.core.content.ContextCompat.startActivity
 import com.google.gson.Gson
 import com.google.gson.JsonArray
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.runBlocking
 import net.ankio.auto.database.Db
-import net.ankio.auto.database.dao.AppDataDao
+import net.ankio.auto.database.table.AccountMap
 import net.ankio.auto.database.table.AppData
 import net.ankio.auto.hooks.android.AccountingService
 import net.ankio.auto.ui.activity.RestartActivity
@@ -55,7 +55,7 @@ object ActiveUtils {
       runBlocking {
           val data = service.syncData()
 
-          val jsonArray = Gson().fromJson(data,JsonArray::class.java)
+          val jsonArray = Gson().fromJson(data,JsonArray::class.java) ?: return@runBlocking
           for (string in jsonArray){
               Db.get().AppDataDao().insert(AppData.fromJSON(string.asString))
           }
@@ -68,6 +68,14 @@ object ActiveUtils {
 
     fun put(key:String,value:String){
         AccountingService.get()?.put(key,value)
+    }
+
+    fun getAccountMap(name:String):List<AccountMap>{
+        val string = AccountingService.get()?.getMap(name) ?:""
+        if(string.isEmpty()){
+            return arrayListOf()
+        }
+        return  Gson().fromJson(string, object : TypeToken<List<AccountMap?>?>() {}.type)
     }
 
 }

@@ -86,9 +86,9 @@ class DataAdapter(private val dataItems: List<AppData>, private val listener: Da
                         CustomTabsHelper.launchUrl(context, Uri.parse("https://github.com/Auto-Accounting/AutoRule/issues/${item.issue}"))
                 }
             }
-            val app = AppInfoUtils(context).getAppInfoFromPackageName(item.from)
+            val app = AppInfoUtils(context).getAppInfoFromPackageName(item.source)
 
-            binding.app.text = item.from.let {
+            binding.app.text = item.source.let {
                 if (item.type !== DataType.Sms){
                      app?.name
                 }else{

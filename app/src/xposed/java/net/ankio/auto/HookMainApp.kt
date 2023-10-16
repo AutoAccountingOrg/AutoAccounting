@@ -16,6 +16,12 @@ class HookMainApp : IXposedHookLoadPackage {
         val pkg = BuildConfig.APPLICATION_ID
         val versionName = BuildConfig.VERSION_NAME.substringBefore(" - Xposed")
         val versionCode = BuildConfig.VERSION_CODE
+        fun getTag(name:String? = null): String {
+            if(name===null){
+                return "[AutoAccounting]"
+            }
+            return "[AutoAccounting][$name]"
+        }
 
     }
 

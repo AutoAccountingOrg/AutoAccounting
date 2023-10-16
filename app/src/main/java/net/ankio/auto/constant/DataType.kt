@@ -21,3 +21,6 @@ enum class DataType(val type: Int)  {
     Notice(2),//通知
     Helper(3)//无障碍
 }
+fun Int.toDataType(): DataType {
+    return DataType.values().firstOrNull { it.type == this }?:DataType.App
+}

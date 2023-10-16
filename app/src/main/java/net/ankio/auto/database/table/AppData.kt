@@ -45,7 +45,7 @@ class AppData {
      * 对于短信，这里是发件人号码
      * 对于通知、Hook、无障碍数据这里是包名
      */
-    var from: String = "" //源自APP
+    var source: String = "" //源自APP
 
     /**
      * 时间

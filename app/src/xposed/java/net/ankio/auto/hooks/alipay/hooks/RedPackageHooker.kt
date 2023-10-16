@@ -22,32 +22,32 @@ import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.api.Hooker
 import net.ankio.auto.api.PartHooker
 import net.ankio.auto.constant.DataType
+import org.json.JSONObject
 
 
-class MessageBoxHooker(hooker: Hooker) :PartHooker(hooker) {
+class RedPackageHooker(hooker: Hooker) : PartHooker(hooker) {
     override fun onInit(classLoader: ClassLoader?, context: Context?) {
-        val msgboxInfoServiceImpl = XposedHelpers.findClass(
-            "com.alipay.android.phone.messageboxstatic.biz.sync.d",
-            classLoader
-        )
+        val proguard =
+            XposedHelpers.findClass("com.alipay.mobile.redenvelope.proguard.c.b", classLoader)
         val syncMessage = XposedHelpers.findClass(
             "com.alipay.mobile.rome.longlinkservice.syncmodel.SyncMessage",
             classLoader
         )
 
         XposedHelpers.findAndHookMethod(
-            msgboxInfoServiceImpl,
+            proguard,
             "onReceiveMessage",
             syncMessage,
             object : XC_MethodHook() {
                 @Throws(Throwable::class)
                 override fun beforeHookedMethod(param: MethodHookParam) {
                     super.beforeHookedMethod(param)
+                    Log.w(hooker.appName, this@RedPackageHooker::class.java.name +".onReceiveMessage")
                     val syncMessageObject = param.args[0]
                     val getDataMethod = syncMessage.methods.find { it.name == "getData" }
                     getDataMethod?.let {
                         val result = it.invoke(syncMessageObject) as String
-                        Log.w(hooker.appName, "Received Msg =>  $result")
+                        Log.w(hooker.appName, "Received RedPackage =>  $result")
                         hooker.mService.analyzeData(DataType.App.type,result,hooker.packPageName)
                     }
                 }

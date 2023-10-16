@@ -75,7 +75,7 @@ class DataFragment : Fragment() {
 
             override fun onClickTest(item: AppData) {
                 lifecycleScope.launch {
-                    val result =   Engine.runAnalyze(item.type.type,item.from,item.data)
+                    val result =   Engine.runAnalyze(item.type.type,item.source,item.data)
                     if(result==null){
                         //弹出悬浮窗
                         withContext(Dispatchers.Main){
@@ -126,7 +126,7 @@ class DataFragment : Fragment() {
                                 DataType.Sms->"Sms"
                             }
                             val dialog2 = DialogUtil.createLoadingDialog(it, getString(R.string.upload_waiting))
-                            Github.createIssue("[Adaptation Request][$type]${item.from}", """
+                            Github.createIssue("[Adaptation Request][$type]${item.source}", """
                 ```
                 ${item.data}
                 ```
