@@ -49,14 +49,15 @@ jobs:
           echo "VERSION_NAME=$versionName" >> $GITHUB_ENV
         shell: bash
 
-      - name: Generate Release Notes
-        id: release_notes
-        run: |
-          RELEASE_NOTES=$(git log --pretty=format:"%h %s" ${{ github.event.before }}...${{ github.sha }} | sed -E 's/^(.{7})(.*)$/- \1 \2/g')
-          echo "$RELEASE_NOTES" >> $GITHUB_ENV
-        env:
-          GITHUB_SHA: ${{ github.sha }}
 
+      - name: Build Changelog
+        id: github_release
+        uses: mikepenz/release-changelog-builder-action@v3
+        with:
+          commitMode: true
+          configuration: "configuration.json"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Generate Tag Name
         id: tag_name
         run: echo "TAG_VERSION_NAME=v${{ env.VERSION_NAME }}-night-$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
@@ -73,7 +74,7 @@ jobs:
           files: |
             release/app-*-signed.apk
           tag_name: ${{ env.TAG_VERSION_NAME }}
-          body: ${{ env.RELEASE_NOTES }}
+          body: ${{steps.github_release.outputs.changelog}}
           token: ${{ secrets.GITHUB_TOKEN }}
           prerelease: true
         env:
