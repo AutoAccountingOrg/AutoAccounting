@@ -28,6 +28,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import com.google.gson.Gson
+import de.robv.android.xposed.XposedBridge
 import kotlinx.coroutines.runBlocking
 import net.ankio.auto.HookMainApp
 import net.ankio.auto.IAccountingService
@@ -60,20 +61,20 @@ class AccountingService(val mContext: Context) : IAccountingService.Stub() {
     private lateinit var db: DbHelper
 
     fun systemReady() {
-        Log.e(HookMainApp.getTag(TAG), "Welcome to AutoAccounting.")
+        log(HookMainApp.getTag(TAG), "Welcome to AutoAccounting.")
         // 删除日志
         val logFile = File(logFileName)
         if (logFile.exists()) {
             logFile.delete()
         }
-        Log.e(HookMainApp.getTag(TAG), "Removed old logs：$logFile")
+        log(HookMainApp.getTag(TAG), "Removed old logs：$logFile")
         //写入启动日志
-        log(HookMainApp.getTag(TAG), "------- AutoAccounting Start  ")
+        log(HookMainApp.getTag(TAG), "AutoAccounting  Service Start  ")
         //数据库初始化放到service中来
 
         db = DbHelper(mContext,"$dataDir/database.db")
 
-        log(HookMainApp.getTag(TAG), "------- AutoAccounting Db Init  ")
+        log(HookMainApp.getTag(TAG), "AutoAccounting Db Init  ")
 
     }
 
@@ -92,6 +93,7 @@ class AccountingService(val mContext: Context) : IAccountingService.Stub() {
             } catch (e: Exception) {
                 println(e.message)
                 e.printStackTrace()
+//                XposedBridge.log(e)
             }
             return null
         }
@@ -137,6 +139,8 @@ class AccountingService(val mContext: Context) : IAccountingService.Stub() {
         } catch (e: IOException) {
             Log.e(TAG, "Error writing to the log file: ${e.message}")
             e.printStackTrace()
+        } finally {
+            Log.e(HookMainApp.getTag(TAG), "$prefix：$log")
         }
     }
 
@@ -165,13 +169,13 @@ class AccountingService(val mContext: Context) : IAccountingService.Stub() {
     }
 
     override fun analyzeData(dataType: Int, app: String, data: String) {
-
-        runCatching {
+       runCatching {
            runBlocking {
+               log("自动记账收到数据","App:$app \n Data:$data")
                val billInfo = Engine.runAnalyze(dataType, app, data)
                val appData = AppData()
                appData.issue = 0
-               appData.type = dataType.toDataType()
+               appData.type = dataType
                appData.rule = billInfo?.channel ?: ""
                appData.source = app
                appData.data = data
@@ -179,7 +183,6 @@ class AccountingService(val mContext: Context) : IAccountingService.Stub() {
                appData.time = System.currentTimeMillis()
                //先存到server的数据库里面
                db.insert("AppData",appData)
-
                if (billInfo !== null) {
                    val serviceIntent = Intent()
                    serviceIntent.setComponent(
@@ -196,7 +199,8 @@ class AccountingService(val mContext: Context) : IAccountingService.Stub() {
 
         }.onFailure {
             it.printStackTrace()
-            log(HookMainApp.getTag(TAG),it.message)
+            log(HookMainApp.getTag(TAG),"自动记账执行脚本发生错误:"+it.message)
+            XposedBridge.log(it)
         }
 
     }
@@ -234,6 +238,7 @@ class AccountingService(val mContext: Context) : IAccountingService.Stub() {
         }}.onFailure {
             it.printStackTrace()
             log(HookMainApp.getTag(TAG),it.message)
+            XposedBridge.log(it)
         }
     }
 

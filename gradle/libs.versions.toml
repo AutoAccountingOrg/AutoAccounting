@@ -9,11 +9,14 @@ github-DialogLoading = "1.0.3"
 
 kotlinReflect = "1.8.22"
 kotlinxCoroutinesAndroid = "1.6.4"
+kotlinxHtml = "0.1.0"
+markdown = "0.5.0"
 rhino = "1.7.14"
 roomCompiler = "2.5.2"
 round = "1.1.2"
 sqliteFramework = "2.3.1"
 swiperefreshlayout = "1.2.0-alpha01"
+vovMarkdown = "2.0.1"
 xposed = "82"
 gson = "2.10.1"
 htmlKtx = "1.1.2"
@@ -45,9 +48,12 @@ easyFloat = { module = "com.github.princekin-f:EasyFloat", version.ref = "easyFl
 flexbox = { module = "com.google.android.flexbox:flexbox", version.ref = "flexbox" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlinReflect" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroid" }
+kotlinx-html = { module = "org.jetbrains.kotlinx:kotlinx-html", version.ref = "kotlinxHtml" }
+markdown = { module = "org.jetbrains:markdown", version.ref = "markdown" }
 rhino = { module = "org.mozilla:rhino", version.ref = "rhino" }
 round = { module = "io.github.xiaofeidev:round", version.ref = "round" }
 tobeyr1DialogLoading = { module = "com.github.Tobeyr1:DialogLoading", version.ref = "github-DialogLoading" }
+vov-markdown = { module = "org.vov.markdown:vov-markdown", version.ref = "vovMarkdown" }
 xposed = { module = "de.robv.android.xposed:api", version.ref = "xposed" }
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }

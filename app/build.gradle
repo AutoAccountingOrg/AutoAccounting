@@ -115,4 +115,5 @@ dependencies {
     implementation libs.kotlin.reflect
     //悬浮窗
     implementation libs.easyFloat
+    implementation  libs.markdown
 }

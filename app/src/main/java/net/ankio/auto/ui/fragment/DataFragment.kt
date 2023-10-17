@@ -34,6 +34,7 @@ import net.ankio.auto.R
 import net.ankio.auto.app.BillInfoPopup
 import net.ankio.auto.app.Engine
 import net.ankio.auto.constant.DataType
+import net.ankio.auto.constant.toDataType
 import net.ankio.auto.database.Db
 import net.ankio.auto.database.table.AppData
 import net.ankio.auto.databinding.FragmentDataBinding
@@ -75,7 +76,7 @@ class DataFragment : Fragment() {
 
             override fun onClickTest(item: AppData) {
                 lifecycleScope.launch {
-                    val result =   Engine.runAnalyze(item.type.type,item.source,item.data)
+                    val result =   Engine.runAnalyze(item.type,item.source,item.data)
                     if(result==null){
                         //弹出悬浮窗
                         withContext(Dispatchers.Main){
@@ -119,7 +120,7 @@ class DataFragment : Fragment() {
                         .setTitle(getString(R.string.upload_sure))  // 设置对话框的标题
                         .setMessage(getString(R.string.upload_info))  // 设置对话框的消息
                         .setPositiveButton(getString(R.string.ok)) { dialog, which ->
-                            val type = when(item.type){
+                            val type = when(item.type.toDataType()){
                                 DataType.App->"App"
                                 DataType.Helper->"Helper"
                                 DataType.Notice->"Notice"
@@ -127,9 +128,9 @@ class DataFragment : Fragment() {
                             }
                             val dialog2 = DialogUtil.createLoadingDialog(it, getString(R.string.upload_waiting))
                             Github.createIssue("[Adaptation Request][$type]${item.source}", """
-                ```
+```
                 ${item.data}
-                ```
+```
             """.trimIndent(),object :CallbackListener{
                                 override fun onSuccess(response: String) {
                                     item.issue = response.toInt()
@@ -199,7 +200,7 @@ class DataFragment : Fragment() {
 
         lifecycleScope.launch {
             val newData = Db.get().AppDataDao().loadAll(currentPage * itemsPerPage +1 ,itemsPerPage )
-            val collection: Collection<AppData> = newData?.filterNotNull() ?: emptyList()
+            val collection: Collection<AppData> = newData.toList()
             withContext(Dispatchers.Main) {
                 // 在主线程更新 UI
                 dataItems.addAll(collection)

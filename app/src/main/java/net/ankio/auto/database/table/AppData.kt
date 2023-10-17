@@ -39,7 +39,7 @@ class AppData {
      * 指的是数据类型
      * 其中=0是app数据，=1是短信数据，=2是通知数据，=3是无障碍抓取的数据
      */
-    var type: DataType = DataType.App
+    var type: Int = DataType.App.type
 
     /**
      * 对于短信，这里是发件人号码

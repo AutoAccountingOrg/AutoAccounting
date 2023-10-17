@@ -182,6 +182,7 @@ enum class Currency(val currencyName: String) {
         fun findByCurrencyName(name: String): List<Currency> {
             return values().filter { it.currencyName.contains(name) }
         }
+
     }
 }
 

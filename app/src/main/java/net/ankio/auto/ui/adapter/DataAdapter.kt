@@ -26,6 +26,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.elevation.SurfaceColors
 import net.ankio.auto.R
 import net.ankio.auto.constant.DataType
+import net.ankio.auto.constant.toDataType
 import net.ankio.auto.database.table.AppData
 import net.ankio.auto.databinding.AdapterDataBinding
 import net.ankio.auto.utils.AppInfoUtils
@@ -59,7 +60,7 @@ class DataAdapter(private val dataItems: List<AppData>, private val listener: Da
             val prettyJson: String = jsonObject.toString(4) // 使用4个空格缩进
 
             binding.content.text = prettyJson
-            when(item.type){
+            when(item.type.toDataType()){
                 DataType.Notice -> {
                     binding.type.setColorFilter(ContextCompat.getColor(context,R.color.warning))
                     binding.type.setImageResource(R.drawable.data_notice)
@@ -89,7 +90,7 @@ class DataAdapter(private val dataItems: List<AppData>, private val listener: Da
             val app = AppInfoUtils(context).getAppInfoFromPackageName(item.source)
 
             binding.app.text = item.source.let {
-                if (item.type !== DataType.Sms){
+                if (item.type.toDataType() !== DataType.Sms){
                      app?.name
                 }else{
                     it
