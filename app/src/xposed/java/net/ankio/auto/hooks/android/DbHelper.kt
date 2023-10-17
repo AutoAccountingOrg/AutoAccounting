@@ -60,7 +60,9 @@ class DbHelper(context: Context,dbPath: String) : SQLiteOpenHelper(context, dbPa
     val db = writableDatabase
 
     fun insert(table:String,data:Any):Long{
-        return db.insert(table, null, data.toContentValues())
+        val value = data.toContentValues()
+        value.remove("id")
+        return db.insert(table, null, value)
     }
     fun update(table:String,data:Any){
 
