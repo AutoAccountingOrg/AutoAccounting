@@ -18,6 +18,7 @@ package net.ankio.auto.ui.activity
 
 import android.os.Bundle
 import android.text.method.LinkMovementMethod
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
@@ -28,6 +29,7 @@ import androidx.annotation.StringRes
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.FragmentContainerView
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
@@ -35,13 +37,20 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tobey.dialogloading.DialogUtil
 import com.zackratos.ultimatebarx.ultimatebarx.addNavigationBarBottomPadding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.databinding.AboutDialogBinding
 import net.ankio.auto.databinding.ActivityMainBinding
+import net.ankio.auto.ui.dialog.UpdateDialog
 import net.ankio.auto.utils.ActiveUtils
 import net.ankio.auto.utils.CallbackListener
 import net.ankio.auto.utils.Github
 import net.ankio.auto.utils.HttpUtils
+import net.ankio.auto.utils.SpUtils
+import net.ankio.auto.utils.UpdateInfo
+import net.ankio.auto.utils.UpdateListener
 import rikka.html.text.toHtml
 import java.io.IOException
 
@@ -61,9 +70,12 @@ class MainActivity : BaseActivity() {
             val dialog = DialogUtil.createLoadingDialog(this, getString(R.string.auth_waiting))
 
             val code = uri.getQueryParameter("code")
+
             Github.parseAuthCode(code,object : CallbackListener {
                 override fun onSuccess(response: String) {
-                    Toast.makeText(this@MainActivity,response, Toast.LENGTH_LONG).show()
+                    runOnUiThread {
+                        Toast.makeText(this@MainActivity,response, Toast.LENGTH_LONG).show()
+                    }
                     DialogUtil.closeDialog(dialog)
                 }
 
@@ -214,6 +226,33 @@ class MainActivity : BaseActivity() {
     override fun onResume() {
         super.onResume()
         ActiveUtils.onStartApp(this)
+        lifecycleScope.launch {
+            checkUpdate()
+        }
     }
+
+  private  fun checkUpdate(){
+        //检查规则更新
+        if(SpUtils.getBoolean("checkVersionUpdate",true)){
+            Github.checkVersionUpdate(object :UpdateListener{
+                override fun onUpdate(updateInfo: UpdateInfo) {
+
+                }
+
+
+            })
+        }
+
+        if(SpUtils.getBoolean("checkRuleUpdate",true)){
+            Github.checkRuleUpdate(object :UpdateListener{
+                override fun onUpdate(updateInfo: UpdateInfo) {
+                  runOnUiThread {
+                      UpdateDialog(updateInfo).show(this@MainActivity,false)
+                  }
+                }
+            })
+        }
+    }
+
 
 }

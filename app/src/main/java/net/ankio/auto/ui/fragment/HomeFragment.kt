@@ -51,8 +51,7 @@ class HomeFragment : Fragment() {
         binding.logCard.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(requireContext()))
         binding.groupCard.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(requireContext()))
         binding.ruleCard.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(requireContext()))
-        binding.ruleVersion.text = SpUtils.getString("ruleVersion","1.0.0")
-        binding.cateVersion.text = SpUtils.getString("ruleVersion","1.0.0")
+        binding.ruleVersion.text = SpUtils.getInt("ruleVersion",0).toString()
         //TODO 日志查看、分享
         //TODO 规则版本插件更新
         refreshStatus()

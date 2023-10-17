@@ -1,4 +1,5 @@
 package net.ankio.auto.utils
+import android.util.Log
 import okhttp3.*
 import java.io.IOException
 
@@ -30,6 +31,7 @@ class HttpUtils {
 
                 } else {
                     listener.onFailure(IOException("Request failed"))
+                    Log.e("Github",response.body?.toString()?:"")
                 }
                 response.close()
             }

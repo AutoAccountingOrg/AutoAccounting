@@ -141,4 +141,9 @@
     <string name="upload_info">您即将上传数据到Github（Auto-Accounting/AutoRule），开发者可以根据您上传的数据进行规则适配。\n请注意：您上传的数据中可能含有隐私信息，自动记账将尽可能的进行脱敏上传，请确认后上传。</string>
     <string name="upload_success">数据上传成功，开发者将在3个工作日内完成适配。</string>
     <string name="no_match">所有规则均未命中该数据。</string>
+    <string name="new_version">新版本%s</string>
+    <string name="sure_update">更新</string>
+    <string name="cancel_update">取消</string>
+    <string name="app_update">应用更新</string>
+    <string name="rule_update">规则更新</string>
 </resources>
