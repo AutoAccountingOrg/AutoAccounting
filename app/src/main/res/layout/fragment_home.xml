@@ -128,114 +128,24 @@
                         android:textColor="?attr/colorOnSurface"
                         android:textStyle="bold" />
 
+                    <TextView
+                        android:id="@+id/ruleVersion"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerInParent="true"
+                        android:layout_marginEnd="15dp"
+                        android:text="1.0.0"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Small" />
+
 
                 </RelativeLayout>
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    >
-
-                    <RelativeLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:animateLayoutChanges="true"
-
-                        android:paddingLeft="@dimen/padding"
-                        android:paddingTop="@dimen/one_padding"
-                        android:paddingRight="@dimen/padding"
-                        android:paddingBottom="@dimen/one_padding">
-
-                        <TextView
-                            android:id="@+id/ruleAnalyze"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentStart="true"
-                            android:layout_centerVertical="true"
-                            android:layout_marginStart="@dimen/border_side"
-                            android:text="@string/title_rule2"
-                            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                            android:textColor="?colorOnSurface"
-                            tools:ignore="RelativeOverlap" />
-
-                        <TextView
-                            android:id="@+id/ruleVersion"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_centerVertical="true"
-
-                            android:layout_marginStart="3dp"
-                            android:layout_marginEnd="@dimen/border_side"
-                            android:layout_toStartOf="@+id/updateAnalyze"
-                            android:layout_toEndOf="@+id/ruleAnalyze"
-                            android:text="1.0.0"
-                            android:textAppearance="@style/TextAppearance.AppCompat.Small" />
-
-                        <Button
-                            android:id="@+id/updateAnalyze"
-                            style="?attr/materialIconButtonFilledStyle"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentEnd="true"
-                            android:layout_centerVertical="true"
-                            app:icon="@drawable/icon_update"
-                            tools:ignore="RelativeOverlap" />
-
-
-                    </RelativeLayout>
-
-                    <RelativeLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-
-                        android:animateLayoutChanges="true"
-                        android:paddingLeft="@dimen/padding"
-                        android:paddingTop="@dimen/one_padding"
-                        android:paddingRight="@dimen/padding"
-                        android:paddingBottom="@dimen/one_padding">
-
-                        <TextView
-                            android:id="@+id/cateAnalyze"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentStart="true"
-                            android:layout_centerVertical="true"
-                            android:layout_marginStart="@dimen/border_side"
-                            android:text="@string/title_rule3"
-                            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                            android:textColor="?colorOnSurface"
-                            tools:ignore="RelativeOverlap" />
-
-                        <TextView
-                            android:id="@+id/cateVersion"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_centerVertical="true"
-                            android:layout_marginStart="3dp"
-
-                            android:layout_marginEnd="@dimen/border_side"
-                            android:layout_toStartOf="@+id/cateUpdate"
-                            android:layout_toEndOf="@+id/cateAnalyze"
-                            android:text="1.0.0"
-                            android:textAppearance="@style/TextAppearance.AppCompat.Small" />
-
-                        <Button
-                            android:id="@+id/cateUpdate"
-                            style="?attr/materialIconButtonFilledStyle"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentEnd="true"
-                            android:layout_centerVertical="true"
-                            app:icon="@drawable/icon_update"
-                            tools:ignore="RelativeOverlap" />
-
-
-                    </RelativeLayout>
-
-
-                </LinearLayout>
+                    />
 
 
             </LinearLayout>
