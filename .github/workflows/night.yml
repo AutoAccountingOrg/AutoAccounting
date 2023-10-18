@@ -25,7 +25,8 @@ jobs:
         run: |
           mkdir release
           current_time=$(date '+%Y%m%d%H%M%S')
-          for flavor in xposed helper; do
+          # 优先构建xposed版本
+          for flavor in xposed ; do
             ./gradlew "assemble${flavor^}Release"
             cp app/build/outputs/apk/${flavor}/release/app.apk release/app-${flavor}-pre-$current_time.apk
           done
