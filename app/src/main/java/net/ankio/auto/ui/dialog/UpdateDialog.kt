@@ -58,7 +58,7 @@ class UpdateDialog(private val updateInfo: UpdateInfo): BottomSheetDialogFragmen
     ): View {
         binding =  UpdateDialogBinding.inflate(inflater)
 
-        val data = "# ${updateInfo.name}\n"+updateInfo.log
+        val data = "# ${updateInfo.name} \n ### ⏰ ${updateInfo.date}\n"+updateInfo.log
         val flavour = CommonMarkFlavourDescriptor()
         val parsedTree = MarkdownParser(flavour).buildMarkdownTreeFromString(data)
         val html = HtmlGenerator(data, parsedTree, flavour).generateHtml()

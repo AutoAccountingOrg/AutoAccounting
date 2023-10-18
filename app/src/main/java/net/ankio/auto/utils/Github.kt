@@ -156,6 +156,7 @@ object  Github {
         val ruleVersion = 0 // SpUtils.getInt("${name}Version",0)
         httpUtils.get(url, getHeaders(),object : HttpUtils.CallbackListener {
             override fun onSuccess(response: String) {
+                Log.e("updateInfo",response)
                 try {
                     val jsonArray = Gson().fromJson(response,JsonArray::class.java)
                     if(jsonArray.isEmpty){
@@ -169,7 +170,7 @@ object  Github {
                     SpUtils.putInt("${name}Version",version)
                     val updateInfo = UpdateInfo()
                     val  sdf  =  SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
-                    val  date  =  sdf.parse(json.get("published_at").asString)
+                    val  date  =  sdf.parse(json.get("created_at").asString)
                     val dateFormat  =  SimpleDateFormat("yyyy-MM-dd  HH:mm:ss")
                     updateInfo.date  =
                         date?.let { dateFormat.format(it).toString() } ?:""
