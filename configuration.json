@@ -1,0 +1,54 @@
+{
+  "categories": [
+    {
+      "title": "## 🚀 Features",
+      "labels": ["feat","feats"]
+    },
+    {
+      "title": "## \uD83C\uDF1F Optimizes",
+      "labels": ["pref"]
+    },
+    {
+      "title": "## 🐛 Fixes",
+      "labels": ["bug","fix"]
+    },
+    {
+      "title": "## 🧪 Tests",
+      "labels": ["🧪","test","tests"]
+    },
+    {
+      "title": "## 💬 Other",
+      "labels": ["💬",  "🚨","other"]
+    },
+    {
+      "title": "## \uD83D\uDCD6 Docs",
+      "labels": ["doc","docs"]
+    },
+    {
+      "title": "## 📦 Dependencies",
+      "labels": ["dependencies","deps"]
+    }
+  ],
+  "template": "${{CHANGELOG}}",
+  "pr_template": "- **${{TITLE}}**",
+  "label_extractor": [
+    {
+      "pattern": "(\\w+):(.+)",
+      "target": "$1",
+      "on_property": "title"
+    }
+  ],
+  "transformers": [
+    {
+      "pattern": "(\\w+):(.+)",
+      "target": "$2"
+    }
+  ],
+  "duplicate_filter": {
+    "pattern": ".+",
+    "on_property": "title",
+    "method": "match"
+  },
+  "max_pull_requests": 1000,
+  "max_back_track_time_days": 1000
+}
