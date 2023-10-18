@@ -51,7 +51,8 @@
 
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
-        <WebView
+        <TextView
+            android:padding="16dp"
             android:id="@+id/updateInfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>

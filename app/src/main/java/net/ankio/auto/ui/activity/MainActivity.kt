@@ -164,8 +164,8 @@ class MainActivity : BaseActivity() {
                 R.id.editFragment->{
                     toolbar.title = getString(R.string.cate_title)
                 }
-                R.id.loginFragment->{
-                    toolbar.title = getString(R.string.github_title)
+                R.id.logFragment->{
+                    toolbar.title = getString(R.string.log_title)
                 }
 
             }

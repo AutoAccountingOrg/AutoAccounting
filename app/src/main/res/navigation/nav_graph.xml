@@ -86,10 +86,10 @@
 
 
     <fragment
-        android:id="@+id/loginFragment"
-        android:name="net.ankio.auto.ui.fragment.LoginFragment"
-        android:label="fragment_login"
-        tools:layout="@layout/fragment_login">
+        android:id="@+id/logFragment"
+        android:name="net.ankio.auto.ui.fragment.home.LogFragment"
+        android:label="fragment_log"
+        tools:layout="@layout/fragment_log">
 
     </fragment>
 

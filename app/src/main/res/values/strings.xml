@@ -134,7 +134,7 @@
     <string name="useless_category">分类不允许为空</string>
     <string name="net_error">网络错误，授权失败。</string>
     <string name="repeater_issue">该数据已提交过，请勿重复提交。</string>
-    <string name="github_title">Github登录授权</string>
+    <string name="log_title">日志查看</string>
     <string name="upload_waiting">正在上传中...</string>
     <string name="auth_waiting">授权等待中</string>
     <string name="upload_sure">数据上传确认</string>
@@ -146,4 +146,5 @@
     <string name="cancel_update">取消</string>
     <string name="app_update">应用更新</string>
     <string name="rule_update">规则更新</string>
+    <string name="share_file">分享日志</string>
 </resources>

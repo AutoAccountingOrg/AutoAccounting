@@ -34,6 +34,7 @@ import net.ankio.auto.utils.UpdateInfo
 import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
 import org.intellij.markdown.html.HtmlGenerator
 import org.intellij.markdown.parser.MarkdownParser
+import rikka.html.text.HtmlCompat
 
 
 class UpdateDialog(private val updateInfo: UpdateInfo): BottomSheetDialogFragment() {
@@ -62,21 +63,8 @@ class UpdateDialog(private val updateInfo: UpdateInfo): BottomSheetDialogFragmen
         val flavour = CommonMarkFlavourDescriptor()
         val parsedTree = MarkdownParser(flavour).buildMarkdownTreeFromString(data)
         val html = HtmlGenerator(data, parsedTree, flavour).generateHtml()
-        //val html =  HtmlCompat.fromHtml("<h1>${updateInfo.name}</h1>\n"+updateInfo.log)
-       // val html = Markdown.markdownToHtml("# ${updateInfo.name}\n"+updateInfo.log)
-        val  webView: WebView =  binding.updateInfo
 
-        //  设置  WebView  客户端
-        webView.webViewClient = object : WebViewClient() {
-            override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
-                // 在这里返回true表示禁止加载其他页面
-                return true
-            }
-        }
-
-        //  加载  HTML  内容
-        webView.loadDataWithBaseURL(null, html,  "text/html",  "UTF-8",  null)
-
+        binding.updateInfo.text = HtmlCompat.fromHtml(html)
 
 
         binding.update.setOnClickListener {

@@ -15,9 +15,12 @@
 
 package net.ankio.auto.ui.fragment
 
+import android.content.ClipData
+import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -26,6 +29,9 @@ import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.view.ContextThemeWrapper
+import androidx.core.content.FileProvider
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.elevation.SurfaceColors
 import com.quickersilver.themeengine.ThemeEngine
@@ -33,6 +39,9 @@ import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentHomeBinding
 import net.ankio.auto.utils.ActiveUtils
 import net.ankio.auto.utils.SpUtils
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 
 
 /**
@@ -51,11 +60,52 @@ class HomeFragment : Fragment() {
         binding.logCard.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(requireContext()))
         binding.groupCard.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(requireContext()))
         binding.ruleCard.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(requireContext()))
-        binding.ruleVersion.text = SpUtils.getString("ruleVersionName","无版本")
-        //TODO 日志查看、分享
+        binding.ruleVersion.text = SpUtils.getString("ruleVersionName","None")
+        binding.showLog.setOnClickListener {
+            findNavController().navigate(R.id.logFragment)
+        }
+        binding.shareLog.setOnClickListener {
+
+            val cacheDir = requireContext().cacheDir
+            val file = File(cacheDir, "auto-accounting.log")
+
+            try {
+                // 创建文件输出流
+                val fileOutputStream = FileOutputStream(file)
+
+                // 将内容写入文件
+                fileOutputStream.write(ActiveUtils.get("log").toByteArray())
+
+                // 刷新缓冲区
+                fileOutputStream.flush()
+
+                // 关闭文件输出流
+                fileOutputStream.close()
+
+                val shareIntent = Intent(Intent.ACTION_SEND)
+                // 设置分享类型为文件
+                shareIntent.type = "application/octet-stream"
+
+                // 将文件URI添加到分享意图
+                val fileUri = FileProvider.getUriForFile(requireContext(), "net.ankio.auto.fileprovider", file)
+                shareIntent.putExtra(Intent.EXTRA_STREAM, fileUri)
+
+                // 添加可选的文本标题
+                shareIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.share_file))
+
+                // 启动分享意图
+                requireContext().startActivity(Intent.createChooser(shareIntent, getString(R.string.share_file)))
+
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
         refreshStatus()
         return binding.root
     }
+
+
+
 
 
 
