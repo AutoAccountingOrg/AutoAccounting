@@ -31,7 +31,8 @@ class HttpUtils {
 
                 } else {
                     listener.onFailure(IOException("Request failed"))
-                    Log.e("Github",response.body?.toString()?:"")
+                    Log.e("Github",url)
+                    Log.e("Github",response.body?.string()?:"")
                 }
                 response.close()
             }

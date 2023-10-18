@@ -153,7 +153,7 @@ object  Github {
     }
     private fun checkUpdate(url:String,name: String,listener: UpdateListener){
         val  httpUtils = HttpUtils()
-        val ruleVersion = 0 // SpUtils.getInt("${name}Version",0)
+        val ruleVersion =  SpUtils.getInt("${name}Version",0)
         httpUtils.get(url, getHeaders(),object : HttpUtils.CallbackListener {
             override fun onSuccess(response: String) {
                 Log.e("updateInfo",response)
@@ -206,7 +206,7 @@ object  Github {
                 //https://ghproxy.com/
                 for (u in updateInfo.downloadUrl){
                     val  httpUtils = HttpUtils()
-                    httpUtils.get("https://ghproxy.com/$u",getHeaders(),object : HttpUtils.CallbackListener {
+                    httpUtils.get(u,getHeaders(),object : HttpUtils.CallbackListener {
                         override fun onSuccess(response: String) {
                             if(u.contains("rule.js")){
                                 ActiveUtils.put("dataRule",response)
