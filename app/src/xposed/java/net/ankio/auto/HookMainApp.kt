@@ -6,7 +6,6 @@ import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 import net.ankio.auto.api.Hooker
 import net.ankio.auto.hooks.alipay.AlipayHooker
-import net.ankio.auto.hooks.android.AndroidHooker
 
 
 class HookMainApp : IXposedHookLoadPackage {
@@ -26,8 +25,7 @@ class HookMainApp : IXposedHookLoadPackage {
     }
 
     private var mHookList: MutableList<Hooker> = arrayListOf(
-        AndroidHooker(), //系统hook放到最前面
-        AlipayHooker()
+        AlipayHooker() //支付宝hook
     )
 
 

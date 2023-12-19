@@ -48,7 +48,8 @@ class MessageBoxHooker(hooker: Hooker) :PartHooker(hooker) {
                     getDataMethod?.let {
                         val result = it.invoke(syncMessageObject) as String
                         Log.w(hooker.appName, "Received Msg =>  $result")
-                        hooker.mService.analyzeData(DataType.App.type,result,hooker.packPageName)
+                        //调用分析服务进行数据分析
+                        hooker.hookUtils.analyzeData(DataType.App.type,hooker.packPageName,result)
                     }
                 }
             })

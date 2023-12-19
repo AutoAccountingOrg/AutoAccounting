@@ -48,7 +48,7 @@ class RedPackageHooker(hooker: Hooker) : PartHooker(hooker) {
                     getDataMethod?.let {
                         val result = it.invoke(syncMessageObject) as String
                         Log.w(hooker.appName, "Received RedPackage =>  $result")
-                        hooker.mService.analyzeData(DataType.App.type,result,hooker.packPageName)
+                        hooker.hookUtils.analyzeData(DataType.App.type,hooker.packPageName,result)
                     }
                 }
             })

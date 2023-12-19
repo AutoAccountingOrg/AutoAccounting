@@ -43,14 +43,12 @@ import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 import net.ankio.auto.HookMainApp
-import net.ankio.auto.IAccountingService
-import net.ankio.auto.hooks.android.AccountingService
-
+import net.ankio.auto.utils.HookUtils
 
 abstract class Hooker : iHooker {
-    lateinit var  mService: IAccountingService
     abstract var partHookers: MutableList<PartHooker>
     private var TAG = "AutoAccounting"
+    lateinit var hookUtils: HookUtils
     private fun hookMainInOtherAppContext() {
         var hookStatus = false
         val findContext1 = Runnable {
@@ -98,16 +96,10 @@ abstract class Hooker : iHooker {
             XposedBridge.log("[AutoAccounting]"+this.appName+"hook失败: classloader 或 context = null")
             return
         }
-        //安卓系统是第一个Hook，不是安卓系统判断自动记账服务是否加载
-        if(packPageName!=="android"){
-           val service =  AccountingService.get()
-            if(service==null){
-                //自动记账服务没加载
-                XposedBridge.log("${HookMainApp.getTag()}自动记账服务未加载，请重启手机后再试.")
-                return
-            }
-            mService = service
+        if(context!==null){
+            hookUtils = HookUtils(context)
         }
+
         XposedBridge.log("${HookMainApp.getTag()}自动记账加载中...")
         hookLoadPackage(classLoader,context)
         for (hook in partHookers) {
@@ -129,11 +121,9 @@ abstract class Hooker : iHooker {
         if (lpparam != null) {
             if (!lpparam.isFirstApplication) return
         }
-        if (packPageName != null) {
-            if (pkg != packPageName || processName != packPageName) return
-        }
+        if (pkg != packPageName || processName != packPageName) return
         if (!needHelpFindApplication) {
-            initLoadPackage(lpparam?.classLoader,AndroidAppHelper.currentApplication())
+            initLoadPackage(lpparam.classLoader,AndroidAppHelper.currentApplication())
             return
         }
         hookMainInOtherAppContext()
