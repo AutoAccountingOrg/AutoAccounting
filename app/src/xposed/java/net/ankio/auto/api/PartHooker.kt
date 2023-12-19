@@ -22,8 +22,16 @@ abstract class PartHooker(val hooker: Hooker) {
     abstract fun onInit(classLoader: ClassLoader?,context: Context?)
 
     fun log(string: String){
-        val name = this.javaClass.superclass?.simpleName?: this.javaClass.simpleName
-        hooker.hookUtils.log(HookMainApp.getTag(hooker.appName,name),string)
+        val stackTrace = Thread.currentThread().stackTrace
+        val callerClassName = if (stackTrace.size >= 4) {
+            // 获取调用log方法的类的全限定名
+            stackTrace[3].className
+        } else {
+            "Unknown"
+        }
+        val simpleName = callerClassName.substringAfterLast('.') // 获取简单类名
+        hooker.hookUtils.log(HookMainApp.getTag(hooker.appName, simpleName), string)
+
     }
 
     fun analyzeData(dataType: Int,  data: String,app:String? = null)

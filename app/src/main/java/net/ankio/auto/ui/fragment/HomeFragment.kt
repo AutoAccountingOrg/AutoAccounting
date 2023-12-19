@@ -74,7 +74,7 @@ class HomeFragment : Fragment() {
                 val fileOutputStream = FileOutputStream(file)
 
                 // 将内容写入文件
-                fileOutputStream.write(ActiveUtils.get("log").toByteArray())
+                fileOutputStream.write(ActiveUtils.getLogList(requireContext()).toByteArray())
 
                 // 刷新缓冲区
                 fileOutputStream.flush()
@@ -133,6 +133,7 @@ class HomeFragment : Fragment() {
         binding.msgLabel3.text = getString(R.string.releaseInfo)
         binding.imageView2.setColorFilter(textColor)
         binding.msgLabel2.setTextColor(textColor)
+        binding.msgLabel3.setTextColor(textColor)
     }
 
     private fun refreshStatus(){

@@ -32,7 +32,7 @@ class LogFragment  : Fragment() {
     ): View {
         binding = FragmentLogBinding.inflate(layoutInflater)
 
-        binding.logTextView.text = ActiveUtils.get("log")
+        binding.logTextView.text = ActiveUtils.getLogList(requireContext())
 
         return binding.root
     }
