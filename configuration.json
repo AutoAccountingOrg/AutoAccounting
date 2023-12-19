@@ -2,15 +2,15 @@
   "categories": [
     {
       "title": "## 🚀 Features",
-      "labels": ["feat","feats"]
+      "labels": ["feat","feats","sparkles"]
     },
     {
       "title": "## \uD83C\uDF1F Optimizes",
-      "labels": ["pref"]
+      "labels": ["art","zap","lipstick"]
     },
     {
       "title": "## 🐛 Fixes",
-      "labels": ["bug","fix"]
+      "labels": ["bug","fix","ambulance"]
     },
     {
       "title": "## 🧪 Tests",
@@ -18,29 +18,29 @@
     },
     {
       "title": "## 💬 Other",
-      "labels": ["💬",  "🚨","other"]
+      "labels": ["fire",  "rocket","other","tada","construction_worker","green_heart"]
     },
     {
       "title": "## \uD83D\uDCD6 Docs",
-      "labels": ["doc","docs"]
+      "labels": ["doc","docs","memo"]
     },
     {
       "title": "## 📦 Dependencies",
-      "labels": ["dependencies","deps"]
+      "labels": ["dependencies","deps","arrow_down","arrow_up"]
     }
   ],
   "template": "${{CHANGELOG}}",
   "pr_template": "- **${{TITLE}}**",
   "label_extractor": [
     {
-      "pattern": "(\\w+):(.+)",
+      "pattern": ":(.+): (.+)",
       "target": "$1",
       "on_property": "title"
     }
   ],
   "transformers": [
     {
-      "pattern": "(\\w+):(.+)",
+      "pattern": ":(.+): (.+)",
       "target": "$2"
     }
   ],
