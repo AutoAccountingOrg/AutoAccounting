@@ -23,7 +23,6 @@ import net.ankio.auto.database.Db
 
 
 open class App : Application() {
-
     companion object {
         @SuppressLint("StaticFieldLeak")
         lateinit var context: Context
@@ -36,11 +35,5 @@ open class App : Application() {
         ThemeEngine.applyToActivities(this)
         //数据库初始化
         Db.init(this)
-
-
-
     }
-
-
-
 }
