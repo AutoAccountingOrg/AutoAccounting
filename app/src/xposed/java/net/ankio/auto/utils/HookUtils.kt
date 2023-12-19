@@ -34,7 +34,6 @@ import java.util.Locale
 
 class HookUtils(private val context: Context) {
 
-    private val TAG = "AutoAccountingHook"
 
     private fun getSp(key:String): String {
         val sharedPreferences = context.getSharedPreferences("AutoAccounting", Context.MODE_PRIVATE)
@@ -78,7 +77,7 @@ class HookUtils(private val context: Context) {
     fun analyzeData(dataType: Int, app: String, data: String) {
         runCatching {
             CoroutineScope(Dispatchers.IO).launch {
-                log("自动记账收到数据", "App:$app \n Data:$data")
+                log(HookMainApp.getTag(app,"数据分析"), data)
                 val billInfo = Engine.runAnalyze(dataType, app, data)
                 val appData = AppData()
                 appData.issue = 0
@@ -102,7 +101,7 @@ class HookUtils(private val context: Context) {
             }
         }.onFailure {
             it.printStackTrace()
-            log(HookMainApp.getTag(TAG), "自动记账执行脚本发生错误:" + it.message)
+            it.message?.let { it1 -> log(HookMainApp.getTag(app,"自动记账执行脚本发生错误"), it1) }
             XposedBridge.log(it)
         }
 

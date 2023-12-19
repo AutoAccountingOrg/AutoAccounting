@@ -19,6 +19,7 @@ import android.content.Context
 import android.util.Log
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
+import net.ankio.auto.HookMainApp
 import net.ankio.auto.api.Hooker
 import net.ankio.auto.api.PartHooker
 import net.ankio.auto.constant.DataType
@@ -42,13 +43,12 @@ class RedPackageHooker(hooker: Hooker) : PartHooker(hooker) {
                 @Throws(Throwable::class)
                 override fun beforeHookedMethod(param: MethodHookParam) {
                     super.beforeHookedMethod(param)
-                    Log.w(hooker.appName, this@RedPackageHooker::class.java.name +".onReceiveMessage")
                     val syncMessageObject = param.args[0]
                     val getDataMethod = syncMessage.methods.find { it.name == "getData" }
                     getDataMethod?.let {
                         val result = it.invoke(syncMessageObject) as String
-                        hooker.hookUtils.log(hooker.appName, "Received RedPackage =>  $result")
-                        hooker.hookUtils.analyzeData(DataType.App.type,hooker.packPageName,result)
+                        log("红包数据： $result")
+                        analyzeData(DataType.App.type,result)
                     }
                 }
             })

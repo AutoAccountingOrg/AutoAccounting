@@ -16,7 +16,18 @@
 package net.ankio.auto.api
 
 import android.content.Context
+import net.ankio.auto.HookMainApp
 
 abstract class PartHooker(val hooker: Hooker) {
     abstract fun onInit(classLoader: ClassLoader?,context: Context?)
+
+    fun log(string: String){
+        val name = this.javaClass.superclass?.simpleName?: this.javaClass.simpleName
+        hooker.hookUtils.log(HookMainApp.getTag(hooker.appName,name),string)
+    }
+
+    fun analyzeData(dataType: Int,  data: String)
+    {
+        hooker.hookUtils.analyzeData(dataType, hooker.packPageName, data)
+    }
 }
