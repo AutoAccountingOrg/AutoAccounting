@@ -91,7 +91,7 @@ class HookUtils(private val context: Context) {
                 //先存到server的数据库里面
                 var billData = getSp(key)
                 billData+=Gson().toJson(appData)
-                putSp(key,getLastLine(billData,500))
+                putSp(key,getLastLine(billData,100))
                 if (billInfo !== null) {
                     withContext(Dispatchers.Main) {
                         // TODO 切换到主线程拉起自动记账的Activity
