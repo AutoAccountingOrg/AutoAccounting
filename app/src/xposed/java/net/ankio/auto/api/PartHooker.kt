@@ -26,8 +26,8 @@ abstract class PartHooker(val hooker: Hooker) {
         hooker.hookUtils.log(HookMainApp.getTag(hooker.appName,name),string)
     }
 
-    fun analyzeData(dataType: Int,  data: String)
+    fun analyzeData(dataType: Int,  data: String,app:String? = null)
     {
-        hooker.hookUtils.analyzeData(dataType, hooker.packPageName, data)
+        hooker.hookUtils.analyzeData(dataType, app?:hooker.packPageName, data)
     }
 }
