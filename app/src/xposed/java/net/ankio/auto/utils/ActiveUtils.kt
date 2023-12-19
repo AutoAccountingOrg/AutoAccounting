@@ -23,7 +23,9 @@ import com.google.gson.reflect.TypeToken
 import de.robv.android.xposed.XSharedPreferences
 import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
+import net.ankio.auto.R
 import net.ankio.auto.database.table.AccountMap
+import net.ankio.auto.database.table.AppData
 
 
 object ActiveUtils {
@@ -69,4 +71,47 @@ object ActiveUtils {
         return  Gson().fromJson(string, object : TypeToken<List<AccountMap?>?>() {}.type)
     }
 
+    /**
+     * 非Hook环境
+     * 获取日志，Xposed模式下，日志从目标app读取
+     */
+    fun getLogList(context: Context): String {
+        var log = "";
+        for (app in context.resources.getStringArray(R.array.xposed_scope)){
+            try {
+                val pref = XSharedPreferences(BuildConfig.APPLICATION_ID, "AutoAccounting")
+                pref.reload()
+                log += pref.getString("log","")?:""
+            }catch (_:Exception){
+
+            }
+        }
+
+        return sortLogs(log)
+    }
+    /**
+     * 非Hook环境
+     * 获取APP数据
+     */
+    fun getDataList(context: Context): List<AppData> {
+        val list = arrayListOf<AppData>();
+        for (app in context.resources.getStringArray(R.array.xposed_scope)){
+            try {
+                val pref = XSharedPreferences(BuildConfig.APPLICATION_ID, "AutoAccounting")
+                pref.reload()
+                val data =  pref.getString("billData","")?:""
+                list.add(AppData.fromJSON(data))
+            }catch (_:Exception){
+
+            }
+        }
+        return list.sortedBy { it.time }
+    }
+   private fun sortLogs(logString: String): String {
+        val regex = Regex("\\[(\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2})\\]") // 正则表达式匹配日期和时间
+        return logString.split("\n") // 将字符串分割成日志条目列表
+            .filter { it.isNotBlank() } // 过滤掉空白行
+            .sortedBy { regex.find(it)?.groups?.get(1)?.value } // 排序
+            .joinToString("\n") // 用换行符重新连接
+    }
 }
