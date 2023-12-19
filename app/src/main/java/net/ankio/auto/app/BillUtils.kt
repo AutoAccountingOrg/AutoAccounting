@@ -103,7 +103,7 @@ object BillUtils {
 
     suspend fun getAccountMap(account:String?): String {
         if(account===null)return ""
-        val all = ActiveUtils.getAccountMap(account)
+        val all = ActiveUtils.getAccountMap()
         for (map in all){
             if(map.regex){
                 try{

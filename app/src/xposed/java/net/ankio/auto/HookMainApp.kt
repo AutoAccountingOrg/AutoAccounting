@@ -6,6 +6,7 @@ import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 import net.ankio.auto.api.Hooker
 import net.ankio.auto.hooks.alipay.AlipayHooker
+import net.ankio.auto.hooks.auto.AutoHooker
 
 
 class HookMainApp : IXposedHookLoadPackage {
@@ -32,6 +33,7 @@ class HookMainApp : IXposedHookLoadPackage {
     }
 
     private var mHookList: MutableList<Hooker> = arrayListOf(
+        AutoHooker(),//自动记账hook
         AlipayHooker() //支付宝hook
     )
 

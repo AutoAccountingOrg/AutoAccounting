@@ -15,6 +15,7 @@
 
 package net.ankio.auto.utils
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
 import com.google.gson.Gson
@@ -34,22 +35,29 @@ import java.util.Locale
 
 class HookUtils(private val context: Context) {
 
+    companion object{
+        val TAG = "AutoAccounting"
+    }
 
+    @SuppressLint("WorldReadableFiles")
     private fun getSp(key:String): String {
-        val sharedPreferences = context.getSharedPreferences("AutoAccounting", Context.MODE_PRIVATE)
+     //   Log.e(TAG,"读取数据：${key}")
+        val sharedPreferences = context.getSharedPreferences(TAG, Context.MODE_WORLD_READABLE)
         return sharedPreferences.getString(key,"")?:""
     }
 
-   private fun putSp(key: String,data: String){
-        val sharedPreferences = context.getSharedPreferences("AutoAccounting", Context.MODE_PRIVATE)
-         sharedPreferences.edit().putString(key,data).apply()
+   @SuppressLint("WorldReadableFiles")
+   private fun putSp(key: String, data: String){
+      // Log.e(TAG,"存入数据：${key} => $data")
+            context.getSharedPreferences(TAG, Context.MODE_WORLD_READABLE).edit().putString(key,data).apply()
+
     }
 
     /**
      * 从自动记账获取配置
      */
      fun getConfig(key: String): String {
-         val pref = XSharedPreferences(BuildConfig.APPLICATION_ID, "AutoAccounting")
+         val pref = XSharedPreferences(BuildConfig.APPLICATION_ID, TAG)
          pref.reload()
         return pref.getString(key,"")?:""
     }
@@ -63,7 +71,7 @@ class HookUtils(private val context: Context) {
         val logMessage = "[${dateFormat.format(currentTime)}]$prefix$log\n"
         logInfo+=logMessage
         putSp(key,getLastLine(logInfo,200))
-      //  Log.e(HookMainApp.getTag(TAG), "$prefix：$log")
+        Log.e(TAG, "$prefix：$log")
     }
 
     private fun getLastLine(string: String,line:Int = 200): String {
