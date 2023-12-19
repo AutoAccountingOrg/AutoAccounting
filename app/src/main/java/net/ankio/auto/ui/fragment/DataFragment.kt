@@ -40,6 +40,7 @@ import net.ankio.auto.database.table.AppData
 import net.ankio.auto.databinding.FragmentDataBinding
 import net.ankio.auto.ui.adapter.DataAdapter
 import net.ankio.auto.ui.adapter.DataItemListener
+import net.ankio.auto.utils.ActiveUtils
 import net.ankio.auto.utils.CallbackListener
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.Github
@@ -198,7 +199,15 @@ class DataFragment : Fragment() {
 
     private fun loadMoreData() {
 
-        lifecycleScope.launch {
+        ActiveUtils.getDataList(currentPage,itemsPerPage,requireContext()){
+            dataItems.addAll(it)
+            adapter.notifyItemRangeInserted(currentPage * itemsPerPage +1, it.size )
+            currentPage++
+        }
+
+        //下面这个放到无障碍中
+
+       /* lifecycleScope.launch {
             val newData = Db.get().AppDataDao().loadAll(currentPage * itemsPerPage +1 ,itemsPerPage )
             val collection: Collection<AppData> = newData.toList()
             withContext(Dispatchers.Main) {
@@ -210,7 +219,7 @@ class DataFragment : Fragment() {
                 }
 
             }
-        }
+        }*/
 
 
 
