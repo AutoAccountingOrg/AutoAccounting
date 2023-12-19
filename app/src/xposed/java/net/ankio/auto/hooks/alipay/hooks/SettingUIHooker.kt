@@ -15,6 +15,7 @@
 
 package net.ankio.auto.hooks.alipay.hooks
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.graphics.Color
@@ -26,6 +27,7 @@ import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.TextView
 import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.HookMainApp
 import net.ankio.auto.api.Hooker
@@ -40,15 +42,18 @@ import net.ankio.auto.utils.ViewUtils
 
 class SettingUIHooker(hooker: Hooker) :PartHooker(hooker) {
     override fun onInit(classLoader: ClassLoader?, context: Context?) {
-        XposedHelpers.findAndHookMethod("com.alipay.android.phone.home.setting.MySettingActivity_",classLoader,"setContentView",Int::class.java,object : XC_MethodHook() {
+        XposedHelpers.findAndHookMethod("com.alipay.mobile.framework.app.ui.BaseActivity",classLoader,"setContentView",View::class.java,object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
+                hooker.hookUtils.log(HookMainApp.getTag("SettingUIHooker"),"hook com.alipay.mobile.antcardsdk.cardapp.CSPushActivity")
                 val activity = param.thisObject as Activity
-                createListView(activity)
+                val view = param.args[0] as View
+                createListView(activity,view)
             }
         })
     }
 
-    private fun createListView(activity: Activity) {
+    @SuppressLint("SetTextI18n")
+    private fun createListView(activity: Activity, view: View) {
         val lineTopView = View(activity)
         lineTopView.setBackgroundColor(-0x111112)
         val itemHlinearLayout = LinearLayout(activity)
@@ -63,7 +68,7 @@ class SettingUIHooker(hooker: Hooker) :PartHooker(hooker) {
         }
         val itemNameText = TextView(activity)
         apply(itemNameText)
-        itemNameText.text = HookMainApp.name
+        itemNameText.text = "\uD83D\uDCB0  "+HookMainApp.name
         itemNameText.gravity = Gravity.CENTER_VERTICAL
         itemNameText.setPadding(dip2px(activity, 12), 0, 0, 0)
         itemNameText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, StyleUtils.TEXT_SIZE_BIG)
@@ -104,6 +109,10 @@ class SettingUIHooker(hooker: Hooker) :PartHooker(hooker) {
         val lineBottomView = View(activity)
         lineBottomView.setBackgroundColor(-0x111112)
         val rootLinearLayout = LinearLayout(activity)
+        val paddingSide = 25
+        val paddingTop = 5
+        // 参数是：左侧，顶部，右侧和底部的 padding，单位是像素
+        rootLinearLayout.setPadding(paddingSide, paddingTop, paddingSide, paddingTop)
         rootLinearLayout.orientation = LinearLayout.VERTICAL
         rootLinearLayout.addView(
             lineTopView,
@@ -120,13 +129,23 @@ class SettingUIHooker(hooker: Hooker) :PartHooker(hooker) {
             LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dip2px(activity, 50))
         )
         rootLinearLayout.addView(lineBottomView, lineParams)
-        val listViewId = activity.resources.getIdentifier(
-            "setting_list",
-            "id",
-            "com.alipay.android.phone.openplatform"
-        )
-        val listView: ListView = activity.findViewById(listViewId)
-        listView.addHeaderView(rootLinearLayout)
+
+
+        val firstLinearLayout = findFirstLinearLayout(view as ViewGroup)
+
+        firstLinearLayout?.addView(rootLinearLayout)
     }
 
+    private fun findFirstLinearLayout(viewGroup: ViewGroup): LinearLayout? {
+        for (i in 0 until viewGroup.childCount) {
+            val view = viewGroup.getChildAt(i)
+            if (view is LinearLayout) {
+                return view // 找到第一个 LinearLayout 并返回
+            } else if (view is ViewGroup) {
+                val result = findFirstLinearLayout(view)
+                if (result != null) return result
+            }
+        }
+        return null // 如果没有找到 LinearLayout，则返回 null
+    }
 }
