@@ -16,5 +16,5 @@
 
 <resources>
     <string name="releaseInfo">Released For Lsposed</string>
-    <string name="restart_msg">未连接到自动记账服务，请重启手机后再试。</string>
+    <string name="restart_msg">未连接到自动记账服务。\n请在lsposed中勾选系统框架，重启手机后再试。</string>
 </resources>
