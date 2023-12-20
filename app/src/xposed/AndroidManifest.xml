@@ -3,11 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <application>
-        <activity
-            android:name=".ui.activity.RestartActivity"
-            android:exported="true">
-        </activity>
-
+        <provider
+            android:name=".utils.SharePreferenceProvider"
+            android:authorities="net.ankio.auto.utils.SharePreferenceProvider"
+            android:exported="true"/>
         <meta-data
             android:name="xposedmodule"
             android:value="true" />

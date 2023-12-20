@@ -97,10 +97,9 @@ abstract class Hooker : iHooker {
             return
         }
         if(context!==null){
-            hookUtils = HookUtils(context)
+            hookUtils = HookUtils(context,packPageName)
         }
-
-        XposedBridge.log("${HookMainApp.getTag()}自动记账加载中...")
+        hookUtils.logD(HookMainApp.getTag(),"自动记账加载中...")
         hookLoadPackage(classLoader,context)
         for (hook in partHookers) {
             try {
@@ -108,6 +107,7 @@ abstract class Hooker : iHooker {
             }catch (e:Exception){
                 e.message?.let { Log.e("AutoAccountingError", it) }
                 println(e)
+                hookUtils.log(HookMainApp.getTag(),"自动记账Hook异常..${e.message}.")
                 XposedBridge.log("${HookMainApp.getTag()}自动记账Hook异常..${e.message}.")
             }
         }

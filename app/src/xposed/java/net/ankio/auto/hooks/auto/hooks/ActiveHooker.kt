@@ -18,9 +18,7 @@ package net.ankio.auto.hooks.auto.hooks
 import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XC_MethodReplacement
-import de.robv.android.xposed.XSharedPreferences
 import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.api.Hooker
 import net.ankio.auto.api.PartHooker
@@ -39,26 +37,6 @@ class ActiveHooker(hooker: Hooker) : PartHooker(hooker) {
             XC_MethodReplacement.returnConstant(true))
 
 
-        // hook get方法
-        XposedHelpers.findAndHookMethod(
-            activeUtils,
-            "get",
-            String::class.java,
-            String::class.java,
-            object : XC_MethodReplacement() {
-                override fun replaceHookedMethod(param: MethodHookParam): Any? {
-                    val key  = param.args[0] as String
-                    val app  = param.args[1] as String
-                    return try {
-                        val pref = XSharedPreferences(app, "AutoAccounting")
-                        pref.reload()
-                        pref.getString(key,"")?:""
-                    }catch (e:Exception){
-                        log("获取配置异常：${e.message}")
-                        ""
-                    }
-                }
-            })
         // hook getAccountMap方法
         XposedHelpers.findAndHookMethod(
             activeUtils,

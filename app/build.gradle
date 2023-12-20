@@ -116,4 +116,6 @@ dependencies {
     //悬浮窗
     implementation libs.easyFloat
     implementation  libs.markdown
+    //Xposed跨进程读写
+    implementation libs.remotepreferences
 }

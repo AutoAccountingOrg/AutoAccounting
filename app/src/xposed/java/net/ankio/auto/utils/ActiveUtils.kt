@@ -18,6 +18,7 @@ package net.ankio.auto.utils
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
@@ -45,11 +46,12 @@ object ActiveUtils {
     }
     //仅Hook环境有效，所以此处不实现，交给hook
     fun get(key:String,app:String=BuildConfig.APPLICATION_ID): String {
-        return ""
+        val sharedPreferences = App.context.getSharedPreferences("AutoAccounting.$app", Context.MODE_PRIVATE)
+        return sharedPreferences.getString(key,"")?:""
     }
     //非hook环境
     fun put(key:String,value:String){
-        val sharedPreferences = App.context.getSharedPreferences("AutoAccounting", Context.MODE_WORLD_READABLE)
+        val sharedPreferences = App.context.getSharedPreferences("AutoAccounting", Context.MODE_PRIVATE)
         sharedPreferences.edit().putString(key,value).apply()
     }
     //仅hook环境有效
@@ -78,6 +80,7 @@ object ActiveUtils {
         for (app in context.resources.getStringArray(R.array.xposed_scope)){
             try {
                 val data = get("billData",app)
+                Log.e("是是是",data)
                 for (line in data.lines()){
                     if(line.isNotEmpty()){
                         list.add(AppData.fromJSON(line))

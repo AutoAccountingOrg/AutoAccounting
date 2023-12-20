@@ -30,6 +30,6 @@ class AutoHooker: Hooker(){
     )
 
     override fun hookLoadPackage(classLoader: ClassLoader?, context: Context?) {
-        hookUtils.log("[AutoHooker]","自动记账App被打开")
+        hookUtils.logD(appName,"欢迎使用自动记账，该日志表示 $appName 已被hook")
     }
 }

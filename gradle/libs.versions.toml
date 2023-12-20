@@ -11,6 +11,7 @@ kotlinReflect = "1.8.22"
 kotlinxCoroutinesAndroid = "1.6.4"
 kotlinxHtml = "0.1.0"
 markdown = "0.5.0"
+remotepreferences = "0.8"
 rhino = "1.7.14"
 roomCompiler = "2.5.2"
 round = "1.1.2"
@@ -50,6 +51,7 @@ kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref =
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroid" }
 kotlinx-html = { module = "org.jetbrains.kotlinx:kotlinx-html", version.ref = "kotlinxHtml" }
 markdown = { module = "org.jetbrains:markdown", version.ref = "markdown" }
+remotepreferences = { module = "com.crossbowffs.remotepreferences:remotepreferences", version.ref = "remotepreferences" }
 rhino = { module = "org.mozilla:rhino", version.ref = "rhino" }
 round = { module = "io.github.xiaofeidev:round", version.ref = "round" }
 tobeyr1DialogLoading = { module = "com.github.Tobeyr1:DialogLoading", version.ref = "github-DialogLoading" }

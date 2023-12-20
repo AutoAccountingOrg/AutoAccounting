@@ -28,6 +28,7 @@ import org.json.JSONObject
 
 class RedPackageHooker(hooker: Hooker) : PartHooker(hooker) {
     override fun onInit(classLoader: ClassLoader?, context: Context?) {
+        logD("支付宝红包页面hook")
         val proguard =
             XposedHelpers.findClass("com.alipay.mobile.redenvelope.proguard.c.b", classLoader)
         val syncMessage = XposedHelpers.findClass(
@@ -42,12 +43,13 @@ class RedPackageHooker(hooker: Hooker) : PartHooker(hooker) {
             object : XC_MethodHook() {
                 @Throws(Throwable::class)
                 override fun beforeHookedMethod(param: MethodHookParam) {
+                    logD("支付宝收到红包数据hook成功。")
                     super.beforeHookedMethod(param)
                     val syncMessageObject = param.args[0]
                     val getDataMethod = syncMessage.methods.find { it.name == "getData" }
                     getDataMethod?.let {
                         val result = it.invoke(syncMessageObject) as String
-                        log("红包数据： $result")
+                        logD("红包数据： $result")
                         analyzeData(DataType.App.type,result)
                     }
                 }

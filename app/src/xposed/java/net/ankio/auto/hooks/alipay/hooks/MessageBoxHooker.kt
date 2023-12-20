@@ -26,6 +26,7 @@ import net.ankio.auto.constant.DataType
 
 class MessageBoxHooker(hooker: Hooker) :PartHooker(hooker) {
     override fun onInit(classLoader: ClassLoader?, context: Context?) {
+        logD("支付宝消息盒子页面hook")
         val msgboxInfoServiceImpl = XposedHelpers.findClass(
             "com.alipay.android.phone.messageboxstatic.biz.sync.d",
             classLoader
@@ -42,12 +43,13 @@ class MessageBoxHooker(hooker: Hooker) :PartHooker(hooker) {
             object : XC_MethodHook() {
                 @Throws(Throwable::class)
                 override fun beforeHookedMethod(param: MethodHookParam) {
+                    logD("支付宝消息盒子页面hook成功")
                     super.beforeHookedMethod(param)
                     val syncMessageObject = param.args[0]
                     val getDataMethod = syncMessage.methods.find { it.name == "getData" }
                     getDataMethod?.let {
                         val result = it.invoke(syncMessageObject) as String
-                        Log.w(hooker.appName, "Received Msg =>  $result")
+                        logD("支付宝消息盒子页面收到数据：$result")
                         //调用分析服务进行数据分析
                         hooker.hookUtils.analyzeData(DataType.App.type,hooker.packPageName,result)
                     }

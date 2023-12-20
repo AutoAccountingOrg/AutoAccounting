@@ -17,9 +17,10 @@ package net.ankio.auto.utils
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.SharedPreferences
 import android.util.Log
+import com.crossbowffs.remotepreferences.RemotePreferences
 import com.google.gson.Gson
-import de.robv.android.xposed.XSharedPreferences
 import de.robv.android.xposed.XposedBridge
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -33,36 +34,52 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class HookUtils(private val context: Context) {
+
+class HookUtils(private val context: Context,private val packageName:String) {
 
     companion object{
         val TAG = "AutoAccounting"
     }
 
+    private fun getSharedPreferences(): SharedPreferences? {
+        if(packageName===BuildConfig.APPLICATION_ID){
+            return context.getSharedPreferences("$TAG.$packageName",Context.MODE_PRIVATE);
+        }
+        return  RemotePreferences(context, "net.ankio.auto.utils.SharePreferenceProvider", "$TAG.$packageName")
+    }
+
+    /**
+     * 获取自动记账配置
+     */
+    private fun getConfig(key: String): String {
+        return RemotePreferences(context, "net.ankio.auto.utils.SharePreferenceProvider", "$TAG").getString(key,"")?:""
+    }
     @SuppressLint("WorldReadableFiles")
     private fun getSp(key:String): String {
-     //   Log.e(TAG,"读取数据：${key}")
-        val sharedPreferences = context.getSharedPreferences(TAG, Context.MODE_WORLD_READABLE)
-        return sharedPreferences.getString(key,"")?:""
+        return getSharedPreferences()?.getString(key,"") ?:""
     }
 
    @SuppressLint("WorldReadableFiles")
    private fun putSp(key: String, data: String){
       // Log.e(TAG,"存入数据：${key} => $data")
-            context.getSharedPreferences(TAG, Context.MODE_WORLD_READABLE).edit().putString(key,data).apply()
+       getSharedPreferences()?.edit()?.putString(key,data)?.apply()
 
     }
 
     /**
-     * 从自动记账获取配置
+     * 判断自动记账目前是否处于调试模式
      */
-     fun getConfig(key: String): String {
-         val pref = XSharedPreferences(BuildConfig.APPLICATION_ID, TAG)
-         pref.reload()
-        return pref.getString(key,"")?:""
+    fun isDebug(): Boolean {
+        return this.getConfig("debug") == "true";
     }
-
-
+    //仅调试模式输出日志
+    fun logD(prefix: String?, log: String){
+        if(!isDebug())return
+        val printLog = "[自动记账] $prefix：$log"
+        XposedBridge.log(printLog) //xp输出
+        log(prefix,log)
+    }
+    //正常输出日志
     fun log(prefix: String?, log: String) {
         val key = "log"
         var logInfo = getSp(key)
@@ -71,7 +88,7 @@ class HookUtils(private val context: Context) {
         val logMessage = "[${dateFormat.format(currentTime)}]$prefix$log\n"
         logInfo+=logMessage
         putSp(key,getLastLine(logInfo,200))
-        Log.e(TAG, "$prefix：$log")
+
     }
 
     private fun getLastLine(string: String,line:Int = 200): String {

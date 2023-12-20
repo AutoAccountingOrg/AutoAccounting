@@ -42,9 +42,10 @@ import net.ankio.auto.utils.ViewUtils
 
 class SettingUIHooker(hooker: Hooker) :PartHooker(hooker) {
     override fun onInit(classLoader: ClassLoader?, context: Context?) {
+        logD("支付宝设置页面Hook")
         XposedHelpers.findAndHookMethod("com.alipay.mobile.framework.app.ui.BaseActivity",classLoader,"setContentView",View::class.java,object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
-                hooker.hookUtils.log(HookMainApp.getTag("SettingUIHooker"),"hook com.alipay.mobile.antcardsdk.cardapp.CSPushActivity")
+                logD("支付宝设置页面Hook成功，添加自动记账设置项目中....")
                 val activity = param.thisObject as Activity
                 val view = param.args[0] as View
                 createListView(activity,view)

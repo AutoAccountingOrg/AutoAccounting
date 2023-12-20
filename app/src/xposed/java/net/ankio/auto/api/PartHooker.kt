@@ -21,7 +21,14 @@ import net.ankio.auto.HookMainApp
 abstract class PartHooker(val hooker: Hooker) {
     abstract fun onInit(classLoader: ClassLoader?,context: Context?)
 
+    /**
+     * 正常输出日志
+     */
     fun log(string: String){
+        hooker.hookUtils.log(HookMainApp.getTag(hooker.appName, getSimpleName()), string)
+    }
+
+    private fun getSimpleName(): String {
         val stackTrace = Thread.currentThread().stackTrace
         val callerClassName = if (stackTrace.size >= 4) {
             // 获取调用log方法的类的全限定名
@@ -29,8 +36,14 @@ abstract class PartHooker(val hooker: Hooker) {
         } else {
             "Unknown"
         }
-        val simpleName = callerClassName.substringAfterLast('.') // 获取简单类名
-        hooker.hookUtils.log(HookMainApp.getTag(hooker.appName, simpleName), string)
+        return callerClassName.substringAfterLast('.') // 获取简单类名
+    }
+
+    /**
+     * 调试模式输出日志
+     */
+    fun logD(string: String){
+        hooker.hookUtils.logD(HookMainApp.getTag(hooker.appName, getSimpleName()), string)
 
     }
 
