@@ -52,7 +52,8 @@ object ActiveUtils {
     //非hook环境
     fun put(key:String,value:String){
         val sharedPreferences = App.context.getSharedPreferences("AutoAccounting.${BuildConfig.APPLICATION_ID}", Context.MODE_PRIVATE)
-        sharedPreferences.edit().putString(key,value).apply()
+        val result = sharedPreferences.edit().putString(key,value).commit()
+        Log.e("写入结果",result.toString())
     }
     //仅hook环境有效
     fun getAccountMap():List<AccountMap>{

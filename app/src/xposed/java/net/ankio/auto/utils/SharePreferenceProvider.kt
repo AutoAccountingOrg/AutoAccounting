@@ -16,7 +16,7 @@
 package net.ankio.auto.utils
 
 import com.crossbowffs.remotepreferences.RemotePreferenceProvider
-//TODO 手动添加好像有点呆，全写到一个文件感觉又不合适
+//TODO 手动添加好像有点呆，全写到一个文件感觉又不合适，因为这时候拿不到context，没办法从scope中构建
 class SharePreferenceProvider:  RemotePreferenceProvider(
     "net.ankio.auto.utils.SharePreferenceProvider",
     arrayListOf(

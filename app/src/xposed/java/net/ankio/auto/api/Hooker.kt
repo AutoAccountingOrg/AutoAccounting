@@ -99,9 +99,9 @@ abstract class Hooker : iHooker {
         if(context!==null){
             hookUtils = HookUtils(context,packPageName)
         }
-        hookUtils.logD(HookMainApp.getTag(),"自动记账加载中...")
+
         hookLoadPackage(classLoader,context)
-        hookUtils.logD(appName,"欢迎使用自动记账，该日志表示《${appName} App》已被hook。")
+        hookUtils.logD(HookMainApp.getTag(appName,packPageName),"欢迎使用自动记账，该日志表示 ${appName} App 已被hook。")
         for (hook in partHookers) {
             try {
                 hook.onInit(classLoader,context)

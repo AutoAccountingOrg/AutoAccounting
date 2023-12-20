@@ -30,9 +30,8 @@ abstract class PartHooker(val hooker: Hooker) {
 
     private fun getSimpleName(): String {
         val stackTrace = Thread.currentThread().stackTrace
-        val callerClassName = if (stackTrace.size >= 4) {
-            // 获取调用log方法的类的全限定名
-            stackTrace[3].className
+        val callerClassName = if (stackTrace.size >= 5) {
+            stackTrace[4].className
         } else {
             "Unknown"
         }

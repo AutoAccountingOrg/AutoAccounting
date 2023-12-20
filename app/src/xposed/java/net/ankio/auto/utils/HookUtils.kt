@@ -15,10 +15,9 @@
 
 package net.ankio.auto.utils
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
-import android.util.Log
+import com.crossbowffs.remotepreferences.RemotePreferenceAccessException
 import com.crossbowffs.remotepreferences.RemotePreferences
 import com.google.gson.Gson
 import de.robv.android.xposed.XposedBridge
@@ -45,7 +44,7 @@ class HookUtils(private val context: Context,private val packageName:String) {
         if(packageName===BuildConfig.APPLICATION_ID){
             return context.getSharedPreferences("$TAG.${packageName}",Context.MODE_PRIVATE);
         }
-        return  RemotePreferences(context, "net.ankio.auto.utils.SharePreferenceProvider", "$TAG.${packageName.replace(".","_")}")
+        return  RemotePreferences(context, "net.ankio.auto.utils.SharePreferenceProvider", "$TAG.${packageName}",true)
     }
 
     /**
@@ -55,18 +54,19 @@ class HookUtils(private val context: Context,private val packageName:String) {
         if(packageName===BuildConfig.APPLICATION_ID){
             return context.getSharedPreferences("$TAG.$packageName",Context.MODE_PRIVATE).getString(key,"")?:""
         }
-        return RemotePreferences(context, "net.ankio.auto.utils.SharePreferenceProvider", "$TAG.${BuildConfig.APPLICATION_ID}").getString(key,"")?:""
+        return RemotePreferences(context, "net.ankio.auto.utils.SharePreferenceProvider", "$TAG.${BuildConfig.APPLICATION_ID}",true).getString(key,"")?:""
     }
-    @SuppressLint("WorldReadableFiles")
+
     private fun getSp(key:String): String {
         return getSharedPreferences()?.getString(key,"") ?:""
     }
 
-   @SuppressLint("WorldReadableFiles")
    private fun putSp(key: String, data: String){
-      // Log.e(TAG,"存入数据：${key} => $data")
-       getSharedPreferences()?.edit()?.putString(key,data)?.apply()
-
+       try {
+            getSharedPreferences()?.edit()?.putString(key,data)?.apply()
+       }catch (e: RemotePreferenceAccessException){
+           XposedBridge.log(e)
+       }
     }
 
     /**
@@ -78,8 +78,6 @@ class HookUtils(private val context: Context,private val packageName:String) {
     //仅调试模式输出日志
     fun logD(prefix: String?, log: String){
         if(!isDebug()  || !BuildConfig.DEBUG ){ return }
-        val printLog = "[自动记账] $prefix：$log"
-        XposedBridge.log(printLog) //xp输出
         log(prefix,log)
     }
     //正常输出日志
@@ -91,7 +89,10 @@ class HookUtils(private val context: Context,private val packageName:String) {
         val logMessage = "[${dateFormat.format(currentTime)}]$prefix$log\n"
         logInfo+=logMessage
         putSp(key,getLastLine(logInfo,200))
-
+        if(isDebug() || BuildConfig.DEBUG ){
+            val printLog = "[自动记账] $prefix：$log"
+            XposedBridge.log(printLog) //xp输出
+        }
     }
 
     private fun getLastLine(string: String,line:Int = 200): String {
