@@ -147,4 +147,6 @@
     <string name="app_update">应用更新</string>
     <string name="rule_update">规则更新</string>
     <string name="share_file">分享日志</string>
+    <string name="setting_others">其他</string>
+    <string name="setting_debug">调试模式</string>
 </resources>

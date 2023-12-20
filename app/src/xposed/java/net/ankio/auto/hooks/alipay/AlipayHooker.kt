@@ -33,6 +33,5 @@ class AlipayHooker:Hooker() {
     )
 
     override fun hookLoadPackage(classLoader: ClassLoader?, context: Context?) {
-        hookUtils.logD(appName,"欢迎使用自动记账，该日志表示 $appName 已被hook")
     }
 }

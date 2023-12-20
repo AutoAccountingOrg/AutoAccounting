@@ -43,16 +43,19 @@ class HookUtils(private val context: Context,private val packageName:String) {
 
     private fun getSharedPreferences(): SharedPreferences? {
         if(packageName===BuildConfig.APPLICATION_ID){
-            return context.getSharedPreferences("$TAG.$packageName",Context.MODE_PRIVATE);
+            return context.getSharedPreferences("$TAG.${packageName}",Context.MODE_PRIVATE);
         }
-        return  RemotePreferences(context, "net.ankio.auto.utils.SharePreferenceProvider", "$TAG.$packageName")
+        return  RemotePreferences(context, "net.ankio.auto.utils.SharePreferenceProvider", "$TAG.${packageName.replace(".","_")}")
     }
 
     /**
      * 获取自动记账配置
      */
     private fun getConfig(key: String): String {
-        return RemotePreferences(context, "net.ankio.auto.utils.SharePreferenceProvider", "$TAG").getString(key,"")?:""
+        if(packageName===BuildConfig.APPLICATION_ID){
+            return context.getSharedPreferences("$TAG.$packageName",Context.MODE_PRIVATE).getString(key,"")?:""
+        }
+        return RemotePreferences(context, "net.ankio.auto.utils.SharePreferenceProvider", "$TAG.${BuildConfig.APPLICATION_ID}").getString(key,"")?:""
     }
     @SuppressLint("WorldReadableFiles")
     private fun getSp(key:String): String {
@@ -70,11 +73,11 @@ class HookUtils(private val context: Context,private val packageName:String) {
      * 判断自动记账目前是否处于调试模式
      */
     fun isDebug(): Boolean {
-        return this.getConfig("debug") == "true";
+        return getConfig("debug") == "true";
     }
     //仅调试模式输出日志
     fun logD(prefix: String?, log: String){
-        if(!isDebug())return
+        if(!isDebug()  || !BuildConfig.DEBUG ){ return }
         val printLog = "[自动记账] $prefix：$log"
         XposedBridge.log(printLog) //xp输出
         log(prefix,log)

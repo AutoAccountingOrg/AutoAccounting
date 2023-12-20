@@ -29,6 +29,7 @@ import com.quickersilver.themeengine.ThemeEngine
 import com.quickersilver.themeengine.ThemeMode
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentSetting2Binding
+import net.ankio.auto.utils.ActiveUtils
 import net.ankio.auto.utils.SpUtils
 
 
@@ -140,6 +141,13 @@ class Setting2Fragment:Fragment() {
             recreateInit()
         }
 
+        //调试模式
+        binding.systemDebug.isChecked = ActiveUtils.get("debug") == "true"
+        binding.settingDebug.setOnClickListener {
+            binding.systemDebug.isChecked = !binding.systemDebug.isChecked
+            ActiveUtils.put("debug",if(binding.systemDebug.isChecked) "true" else "false")
+        }
+        binding.systemDebug.setOnCheckedChangeListener {_, isChecked -> ActiveUtils.put("debug",if(isChecked) "true" else "false") }
 
     }
 

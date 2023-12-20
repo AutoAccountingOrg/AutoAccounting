@@ -51,7 +51,7 @@ object ActiveUtils {
     }
     //非hook环境
     fun put(key:String,value:String){
-        val sharedPreferences = App.context.getSharedPreferences("AutoAccounting", Context.MODE_PRIVATE)
+        val sharedPreferences = App.context.getSharedPreferences("AutoAccounting.${BuildConfig.APPLICATION_ID}", Context.MODE_PRIVATE)
         sharedPreferences.edit().putString(key,value).apply()
     }
     //仅hook环境有效
@@ -80,7 +80,6 @@ object ActiveUtils {
         for (app in context.resources.getStringArray(R.array.xposed_scope)){
             try {
                 val data = get("billData",app)
-                Log.e("是是是",data)
                 for (line in data.lines()){
                     if(line.isNotEmpty()){
                         list.add(AppData.fromJSON(line))
