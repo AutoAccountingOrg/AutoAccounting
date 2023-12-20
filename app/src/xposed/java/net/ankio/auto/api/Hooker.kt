@@ -109,7 +109,6 @@ abstract class Hooker : iHooker {
                 e.message?.let { Log.e("AutoAccountingError", it) }
                 println(e)
                 hookUtils.log(HookMainApp.getTag(),"自动记账Hook异常..${e.message}.")
-                XposedBridge.log("${HookMainApp.getTag()}自动记账Hook异常..${e.message}.")
             }
         }
     }
