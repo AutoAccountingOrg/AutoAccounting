@@ -68,7 +68,7 @@ material = { group = "com.google.android.material", name = "material", version.r
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 permissionx = { module = "com.guolindev.permissionx:permissionx", version.ref = "permissionx" }
 themeEngine = { module = "io.github.prathameshmm02.themeEngine:themeEngine", version.ref = "themeEngine" }
-ultimateBarX = { module = "com.gitee.zackratos:UltimateBarX", version.ref = "ultimateBarX" }
+ultimateBarX = { module = "com.github.zackratos:UltimateBarX", version.ref = "ultimateBarX" }
 androidx-browser = { group = "androidx.browser", name = "browser", version.ref = "browser" }
 
 [plugins]
