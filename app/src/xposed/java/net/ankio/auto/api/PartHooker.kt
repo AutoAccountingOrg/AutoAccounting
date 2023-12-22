@@ -50,4 +50,8 @@ abstract class PartHooker(val hooker: Hooker) {
     {
         hooker.hookUtils.analyzeData(dataType, app?:hooker.packPageName, data)
     }
+
+    fun getConfig(key:String):String{
+        return hooker.hookUtils.getConfig(key)
+    }
 }
