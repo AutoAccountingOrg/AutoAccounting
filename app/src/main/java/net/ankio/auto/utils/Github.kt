@@ -16,6 +16,7 @@
 package net.ankio.auto.utils
 
 
+import android.annotation.SuppressLint
 import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.JsonArray
@@ -30,25 +31,19 @@ import java.io.IOException
 import java.text.SimpleDateFormat
 
 
-interface CallbackListener {
-    fun onSuccess(response: String)
-    fun onFailure(e: IOException)
-}
-interface UpdateListener {
-    fun onUpdate(updateInfo: UpdateInfo)
-}
+
 object  Github {
-    private val clientId = "d91ad91003a65611d5a5"
-    private val clientSecret = "ffaf0c5c1f6acb2c047b7689e7d14d4f4772899a"
-    private val redirectUri = "autoaccounting://github/auth"
+    private const val clientId = "d91ad91003a65611d5a5"
+    private const val clientSecret = "ffaf0c5c1f6acb2c047b7689e7d14d4f4772899a"
+    private const val redirectUri = "autoaccounting://github/auth"
 
     fun getLoginUrl():String{
         return   "https://github.com/login/oauth/authorize?client_id=$clientId&redirect_uri=$redirectUri&scope=public_repo"
 ;
     }
-    fun parseAuthCode(code:String?,listener: CallbackListener){
+    fun parseAuthCode(code:String?,onSuccess: ()->Unit,onError: (String)->Unit){
         if(code==null) {
-            listener.onSuccess("响应代码为空！")
+            onError("响应代码为空！")
             return
         }
         val requestBody = FormBody.Builder()
@@ -59,37 +54,32 @@ object  Github {
             .build()
 
         val  httpUtils = HttpUtils()
-        httpUtils.post("https://github.com/login/oauth/access_token",requestBody,null,object : HttpUtils.CallbackListener {
-            override fun onSuccess(response: String) {
-                // 处理成功响应
-                val params = response.split("&")
-                for (param in params) {
-                    val keyValue = param.split("=")
-                    if (keyValue.size == 2 && keyValue[0] == "access_token") {
-                        SpUtils.putString("accessToken",keyValue[1])
-                        listener.onSuccess("授权成功！")
-                    }
+        httpUtils.post("https://github.com/login/oauth/access_token",requestBody,null,{
+            val params = it.split("&")
+            for (param in params) {
+                val keyValue = param.split("=")
+                if (keyValue.size == 2 && keyValue[0] == "access_token") {
+                    SpUtils.putString("accessToken",keyValue[1])
+                    onSuccess()
                 }
             }
-
-            override fun onFailure(e: IOException) {
-                // 处理请求失败
-                e.printStackTrace()
-                listener.onSuccess("请求授权失败！")
-
-            }
+        },{ _, error ->
+            onError(error)
         })
 
     }
 
     fun getHeaders(): Headers {
-        return   Headers.Builder()
-            .add("Authorization", "Bearer ${SpUtils.getString("accessToken")}")
+        val accessToken = SpUtils.getString("accessToken","")
+        val builder =   Headers.Builder()
             .add("Accept","application/vnd.github+json")
             .add("X-GitHub-Api-Version","2022-11-28")
-            .build()
+        if(accessToken.isNotEmpty()){
+            builder.add("Authorization", "Bearer ${SpUtils.getString("accessToken")}")
+        }
+        return  builder.build();
     }
-    fun createIssue(title: String, body: String,listener: CallbackListener) {
+    fun createIssue(title: String, body: String,onSuccess: (String)->Unit,onError: (String)->Unit) {
         val url = "https://api.github.com/repos/Auto-Accounting/AutoRule/issues"
 
         val jsonRequest = JSONObject()
@@ -98,133 +88,107 @@ object  Github {
             jsonRequest.put("body", body)
         } catch (e: JSONException) {
             e.printStackTrace()
-            listener.onFailure(IOException(e.message))
+            onError(e.message.toString())
             return
         }
 
-
-
-        val body = jsonRequest.toString().toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
-
+        val bodyInfo = jsonRequest.toString().toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
 
         val  httpUtils = HttpUtils()
-        httpUtils.post(url,body, getHeaders(),object : HttpUtils.CallbackListener {
-            override fun onSuccess(response: String) {
-
-                try {
-                    val jsonObject = JSONObject(response)
-                    val id = jsonObject.getInt("number")
-                    listener.onSuccess(id.toString())
-                } catch (e: JSONException) {
-                    e.printStackTrace()
-                    listener.onFailure(IOException(e.message))
-                }
-                // 处理成功响应
-
-            }
-
-            override fun onFailure(e: IOException) {
+        httpUtils.post(url,bodyInfo, getHeaders(),{
+            try {
+                val jsonObject = JSONObject(it)
+                val id = jsonObject.getInt("number")
+                onSuccess(id.toString())
+            } catch (e: JSONException) {
                 e.printStackTrace()
-                // 处理请求失败
-                listener.onFailure(e)
+                onError(e.message.toString())
             }
+        },{url, errorInfo ->
+            onError(errorInfo)
         })
     }
 
     fun getIssueStatus( issueNumber: Int) {
         val url = "https://api.github.com/repos/Auto-Accounting/AutoRule/issues/$issueNumber"
-
-
         val  httpUtils = HttpUtils()
-        httpUtils.get(url,getHeaders(),object : HttpUtils.CallbackListener {
-            override fun onSuccess(response: String) {
-                // 处理成功响应
-            }
+        httpUtils.get(url,getHeaders(),{
 
-            override fun onFailure(e: IOException) {
-                // 处理请求失败
-            }
-        })
+        },{url, errorInfo ->  })
     }
 
-    fun checkVersionUpdate(listener: UpdateListener) {
+    fun checkVersionUpdate(onUpdate: (updateInfo: UpdateInfo) -> Unit) {
         val url = "https://api.github.com/repos/Auto-Accounting/AutoRule/issues"
 
     }
-    private fun checkUpdate(url:String,name: String,listener: UpdateListener){
+    @SuppressLint("SimpleDateFormat")
+    private fun checkUpdate(url:String, name: String, onUpdate: (updateInfo: UpdateInfo) -> Unit){
         val  httpUtils = HttpUtils()
         val ruleVersion =  SpUtils.getInt("${name}Version",0)
-        httpUtils.get(url, getHeaders(),object : HttpUtils.CallbackListener {
-            override fun onSuccess(response: String) {
-                Log.e("updateInfo",response)
-                try {
-                    val jsonArray = Gson().fromJson(response,JsonArray::class.java)
-                    if(jsonArray.isEmpty){
-                        return
-                    }
-                    val json = jsonArray[0].asJsonObject
-                    val version = json.get("tag_name").asString.replace(".","").replace("v","").toInt()
-                    if(version<=ruleVersion){
-                        return
-                    }
-                    SpUtils.putInt("${name}Version",version)
-                    val updateInfo = UpdateInfo()
-                    val  sdf  =  SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
-                    val  date  =  sdf.parse(json.get("created_at").asString)
-                    val dateFormat  =  SimpleDateFormat("yyyy-MM-dd  HH:mm:ss")
-                    updateInfo.date  =
-                        date?.let { dateFormat.format(it).toString() } ?:""
-                    updateInfo.name = json.get("tag_name").asString
-                    updateInfo.log = json.get("body").asString?:"无日志"
-                    updateInfo.version = version
-                    val arrayList = ArrayList<String>()
-                        val assets = json.get("assets").asJsonArray
-                    SpUtils.putString("${name}VersionName",updateInfo.name)
-                    for (asset in assets){
-                        arrayList.add(asset.asJsonObject.get("browser_download_url").asString)
-                    }
-                    updateInfo.downloadUrl = arrayList
-                    listener.onUpdate(updateInfo)
-                } catch (e: JSONException) {
-                    e.printStackTrace()
-                    Log.e("Github",e.message?:"")
+        httpUtils.get(url, getHeaders(),{
+            Log.e("更新信息",it)
+            try {
+                val jsonArray = Gson().fromJson(it,JsonArray::class.java)
+                if(jsonArray.isEmpty){
+                    return@get
                 }
-                // 处理成功响应
-
-            }
-
-            override fun onFailure(e: IOException) {
-                e.printStackTrace() // 处理请求失败
+                val json = jsonArray[0].asJsonObject
+                val version = json.get("tag_name").asString.replace(".","").replace("v","").toInt()
+                if(version<=ruleVersion){
+                    return@get
+                }
+                // SpUtils.putInt("${name}Version",version)
+                val updateInfo = UpdateInfo()
+                val  sdf  =  SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
+                val  date  =  sdf.parse(json.get("created_at").asString)
+                val dateFormat  =  SimpleDateFormat("yyyy-MM-dd  HH:mm:ss")
+                updateInfo.date  =
+                    date?.let { it2 -> dateFormat.format(it2).toString() } ?:""
+                updateInfo.name = json.get("tag_name").asString
+                updateInfo.log = json.get("body").asString?:"无日志"
+                updateInfo.version = version
+                val arrayList = ArrayList<String>()
+                val assets = json.get("assets").asJsonArray
+                //SpUtils.putString("${name}VersionName",updateInfo.name)
+                for (asset in assets){
+                    arrayList.add(asset.asJsonObject.get("browser_download_url").asString)
+                }
+                updateInfo.downloadUrl = arrayList
+               onUpdate(updateInfo)
+            } catch (e: JSONException) {
+                e.printStackTrace()
                 Log.e("Github",e.message?:"")
             }
+        },{url, errorInfo ->
+            Log.e("Github",errorInfo)
         })
     }
-    fun checkRuleUpdate(listener: UpdateListener) {
+    fun checkRuleUpdate(onUpdate:(updateInfo:UpdateInfo)->Unit) {
         val url = "https://api.github.com/repos/Auto-Accounting/AutoRule/releases"
-        checkUpdate(url,"rule",object :UpdateListener{
-            override fun onUpdate(updateInfo: UpdateInfo) {
-                //https://ghproxy.com/
-                for (u in updateInfo.downloadUrl){
-                    val  httpUtils = HttpUtils()
-                    httpUtils.get(u,getHeaders(),object : HttpUtils.CallbackListener {
-                        override fun onSuccess(response: String) {
-                            if(u.contains("rule.js")){
-                                ActiveUtils.put("dataRule",response)
-                            }else{
-                                ActiveUtils.put("dataCategory",response)
-                            }
-                        }
-                        override fun onFailure(e: IOException) {
-                            // 处理请求失败
-                            Log.e("Github",e.message?:"")
-                            e.printStackTrace()
-                        }
-                    })
-                }
-                updateInfo.type = "Rule"
-                listener.onUpdate(updateInfo)
+        checkUpdate(url,"rule") {
+            SpUtils.putInt("ruleVersion",it.version)
+            SpUtils.putString("ruleVersionName",it.name)
+            for (downloadUrl in it.downloadUrl) {
+                val httpUtils = HttpUtils()
+                //使用镜像站下载
+                httpUtils.get("https://mirror.ghproxy.com/$downloadUrl", getHeaders(), { response ->
+                    Log.e(downloadUrl, response)
+                    if (downloadUrl.contains("rule.js")) {
+                        ActiveUtils.put("dataRule", response)
+                    } else {
+                        ActiveUtils.put("dataCategory", response)
+                    }
+
+                }, { _, errorInfo ->
+                    Log.e("Github", errorInfo)
+                    //若是下载失败，不更新
+                    SpUtils.putInt("ruleVersion",0)
+                    SpUtils.putString("ruleVersionName","Update Error")
+                })
             }
-        })
+            it.type = "Rule"
+            onUpdate(it)
+        }
 
     }
 }

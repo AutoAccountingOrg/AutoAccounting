@@ -30,6 +30,7 @@ import com.tobey.dialogloading.DialogUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.app.BillInfoPopup
 import net.ankio.auto.app.Engine
@@ -41,9 +42,9 @@ import net.ankio.auto.databinding.FragmentDataBinding
 import net.ankio.auto.ui.adapter.DataAdapter
 import net.ankio.auto.ui.adapter.DataItemListener
 import net.ankio.auto.utils.ActiveUtils
-import net.ankio.auto.utils.CallbackListener
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.Github
+import net.ankio.auto.utils.HookUtils
 import net.ankio.auto.utils.SpUtils
 import java.io.IOException
 
@@ -77,7 +78,7 @@ class DataFragment : Fragment() {
 
             override fun onClickTest(item: AppData) {
                 lifecycleScope.launch {
-                    val result =   Engine.runAnalyze(item.type,item.source,item.data)
+                    val result =   Engine.runAnalyze(item.type,item.source,item.data, HookUtils(requireContext(),BuildConfig.APPLICATION_ID))
                     if(result==null){
                         //弹出悬浮窗
                         withContext(Dispatchers.Main){
@@ -132,29 +133,23 @@ class DataFragment : Fragment() {
 ```
                 ${item.data}
 ```
-            """.trimIndent(),object :CallbackListener{
-                                override fun onSuccess(response: String) {
-                                    item.issue = response.toInt()
-                                    requireActivity().runOnUiThread {
-                                        adapter.notifyItemChanged(position)
-                                        Toast.makeText(it,getString(R.string.upload_success),Toast.LENGTH_LONG).show()
-                                    }
-                                    DialogUtil.closeDialog(dialog2)
-
-                                    lifecycleScope.launch {
-                                        Db.get().AppDataDao().update(item)
-                                    }
+            """.trimIndent(),{ issue ->
+                                item.issue = issue.toInt()
+                                requireActivity().runOnUiThread {
+                                    adapter.notifyItemChanged(position)
+                                    Toast.makeText(it,getString(R.string.upload_success),Toast.LENGTH_LONG).show()
                                 }
+                                DialogUtil.closeDialog(dialog2)
 
-                                override fun onFailure(e: IOException) {
-                                    e.printStackTrace()
-                                    requireActivity().runOnUiThread {
-                                        Toast.makeText(it,e.message,Toast.LENGTH_LONG).show()
-                                        CustomTabsHelper.launchUrl(it, Uri.parse(Github.getLoginUrl()))
-                                    }
-                                    DialogUtil.closeDialog(dialog2)
+                                lifecycleScope.launch {
+                                    Db.get().AppDataDao().update(item)
                                 }
-
+                            },{ msg ->
+                                requireActivity().runOnUiThread {
+                                    Toast.makeText(it,msg,Toast.LENGTH_LONG).show()
+                                    CustomTabsHelper.launchUrl(it, Uri.parse(Github.getLoginUrl()))
+                                }
+                                DialogUtil.closeDialog(dialog2)
                             })
 
                             // 可以在这里添加你的处理逻辑

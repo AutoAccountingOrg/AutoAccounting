@@ -6,13 +6,9 @@ import java.io.IOException
 class HttpUtils {
     private val client = OkHttpClient()
 
-    interface CallbackListener {
-        fun onSuccess(response: String)
-        fun onFailure(e: IOException)
-    }
-
     // 封装GET请求
-    fun get(url: String, headers: Headers? = null, listener: CallbackListener) {
+    fun get(url: String, headers: Headers? = null, onSuccess: (body:String)->Unit, onError: (url:String,errorInfo:String)->Unit) {
+        Log.e("Github请求",url)
         val requestBuilder = Request.Builder()
             .url(url)
 
@@ -27,10 +23,9 @@ class HttpUtils {
             override fun onResponse(call: Call, response: Response) {
                 if (response.isSuccessful) {
                     val responseBody = response.body?.string() ?: ""
-                    listener.onSuccess(responseBody)
-
+                    onSuccess(responseBody)
                 } else {
-                    listener.onFailure(IOException("Request failed"))
+                    onError(url,response.body?.string()?:"")
                     Log.e("Github",url)
                     Log.e("Github",response.body?.string()?:"")
                 }
@@ -38,13 +33,14 @@ class HttpUtils {
             }
 
             override fun onFailure(call: Call, e: IOException) {
-                listener.onFailure(e)
+                onError(url,e.message.toString())
             }
         })
     }
 
     // 封装POST请求
-    fun post(url: String, requestBody: RequestBody, headers: Headers? = null, listener: CallbackListener) {
+    fun post(url: String, requestBody: RequestBody, headers: Headers? = null, onSuccess: (String)->Unit, onError: (url:String,errorInfo:String)->Unit) {
+        Log.e("Github请求",url)
         val requestBuilder = Request.Builder()
             .url(url)
             .post(requestBody)
@@ -60,15 +56,17 @@ class HttpUtils {
             override fun onResponse(call: Call, response: Response) {
                 if (response.isSuccessful) {
                     val responseBody = response.body?.string() ?: ""
-                    listener.onSuccess(responseBody)
+                    onSuccess(responseBody)
                 } else {
-                    listener.onFailure(IOException("Request failed: "+response.code+" "+ (response.body?.string() ?: "")))
+                    onError(url,response.body?.string()?:"")
+                    Log.e("Github",url)
+                    Log.e("Github",response.body?.string()?:"")
                 }
                 response.close()
             }
 
             override fun onFailure(call: Call, e: IOException) {
-                listener.onFailure(e)
+                onError(url,e.message.toString())
             }
         })
     }

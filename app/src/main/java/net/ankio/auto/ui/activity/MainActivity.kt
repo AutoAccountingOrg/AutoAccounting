@@ -45,12 +45,10 @@ import net.ankio.auto.databinding.AboutDialogBinding
 import net.ankio.auto.databinding.ActivityMainBinding
 import net.ankio.auto.ui.dialog.UpdateDialog
 import net.ankio.auto.utils.ActiveUtils
-import net.ankio.auto.utils.CallbackListener
 import net.ankio.auto.utils.Github
 import net.ankio.auto.utils.HttpUtils
 import net.ankio.auto.utils.SpUtils
 import net.ankio.auto.utils.UpdateInfo
-import net.ankio.auto.utils.UpdateListener
 import rikka.html.text.toHtml
 import java.io.IOException
 
@@ -71,18 +69,13 @@ class MainActivity : BaseActivity() {
 
             val code = uri.getQueryParameter("code")
 
-            Github.parseAuthCode(code,object : CallbackListener {
-                override fun onSuccess(response: String) {
-                    runOnUiThread {
-                        Toast.makeText(this@MainActivity,response, Toast.LENGTH_LONG).show()
-                    }
-                    DialogUtil.closeDialog(dialog)
+            Github.parseAuthCode(code,{
+
+            },{
+                runOnUiThread {
+                    Toast.makeText(this@MainActivity,it, Toast.LENGTH_LONG).show()
                 }
-
-                override fun onFailure(e: IOException) {
-
-                }
-
+                DialogUtil.closeDialog(dialog)
             })
         }
     }
@@ -232,25 +225,19 @@ class MainActivity : BaseActivity() {
     }
 
   private  fun checkUpdate(){
-        //检查规则更新
+        //检查版本更新
         if(SpUtils.getBoolean("checkVersionUpdate",true)){
-            Github.checkVersionUpdate(object :UpdateListener{
-                override fun onUpdate(updateInfo: UpdateInfo) {
+            Github.checkVersionUpdate {
 
-                }
-
-
-            })
+            }
         }
-
+      //检查规则更新
         if(SpUtils.getBoolean("checkRuleUpdate",true)){
-            Github.checkRuleUpdate(object :UpdateListener{
-                override fun onUpdate(updateInfo: UpdateInfo) {
-                  runOnUiThread {
-                      UpdateDialog(updateInfo).show(this@MainActivity,false)
-                  }
+            Github.checkRuleUpdate{
+                runOnUiThread {
+                    UpdateDialog(it).show(this@MainActivity,false)
                 }
-            })
+            }
         }
     }
 
