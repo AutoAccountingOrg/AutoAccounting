@@ -101,7 +101,7 @@ object BillUtils {
         Db.get().BillInfoDao().insert(billInfo)
     }
 
-    suspend fun getAccountMap(account:String?): String {
+     fun getAccountMap(account:String?): String {
         if(account===null)return ""
         val all = ActiveUtils.getAccountMap()
         for (map in all){
