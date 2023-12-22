@@ -18,12 +18,18 @@ package net.ankio.auto.utils
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.util.Log
+import com.crossbowffs.remotepreferences.RemotePreferences
+import de.robv.android.xposed.XposedBridge
 import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.database.table.AccountMap
 import net.ankio.auto.database.table.AppData
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 
 object ActiveUtils {
@@ -53,7 +59,7 @@ object ActiveUtils {
     fun put(key:String,value:String){
         val sharedPreferences = App.context.getSharedPreferences("AutoAccounting.${BuildConfig.APPLICATION_ID}", Context.MODE_PRIVATE)
         val result = sharedPreferences.edit().putString(key,value).commit()
-        Log.e("写入结果",result.toString())
+        Log.e("写入结果 $key",result.toString())
     }
     //仅hook环境有效
     fun getAccountMap():List<AccountMap>{
@@ -79,16 +85,15 @@ object ActiveUtils {
     fun getDataList(currentPage:Int,itemsPerPage:Int,context: Context,callback: (list: List<AppData>) -> Unit) {
         val list = arrayListOf<AppData>();
         for (app in context.resources.getStringArray(R.array.xposed_scope)){
-            try {
+            runCatching {
                 val data = get("billData",app)
                 for (line in data.lines()){
                     if(line.isNotEmpty()){
-                        list.add(AppData.fromJSON(line))
+                        runCatching {
+                            list.add(AppData.fromJSON(line))
+                        }
                     }
                 }
-
-            }catch (_:Exception){
-
             }
         }
         callback(list.sortedBy { it.time })
@@ -96,10 +101,13 @@ object ActiveUtils {
     private fun sortLogs(logString: String): String {
         val regex = Regex("\\[(\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2})\\]") // 正则表达式匹配日期和时间
         return logString.split("\n") // 将字符串分割成日志条目列表
-            .map { it.trim() } // 移除每行的首尾空白
+            .map { it.trim().replace("___r_n","\n") } // 移除每行的首尾空白
             .filter { it.isNotBlank() } // 过滤掉空白行
             .sortedBy { regex.find(it)?.groups?.get(1)?.value } // 排序
             .joinToString("\n") // 用换行符重新连接
     }
+
+
+
 
 }
