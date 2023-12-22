@@ -60,7 +60,7 @@ class HookUtils(private val context: Context,private val packageName:String) {
 
    private fun putSp(key: String, data: String){
        try {
-            getSharedPreferences(packageName)?.edit()?.putString(key,data)?.commit()
+            getSharedPreferences(packageName)?.edit()?.putString(key,data)?.apply()
        }catch (e: RemotePreferenceAccessException){
            XposedBridge.log(e)
        }
@@ -70,11 +70,11 @@ class HookUtils(private val context: Context,private val packageName:String) {
      * 判断自动记账目前是否处于调试模式
      */
     fun isDebug(): Boolean {
-        return getConfig("debug") == "true";
+        return BuildConfig.DEBUG || getConfig("debug") == "true";
     }
     //仅调试模式输出日志
     fun logD(prefix: String?, log: String){
-        if(!isDebug()  && !BuildConfig.DEBUG ){ return }
+        if(!isDebug()){ return }
         log(prefix,log)
     }
     //正常输出日志
@@ -83,10 +83,10 @@ class HookUtils(private val context: Context,private val packageName:String) {
         var logInfo = getSp(key)
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA)
         val currentTime = Date()
-        val logMessage = "[${dateFormat.format(currentTime)}]$prefix${log.replace("\n","___r_n")}\n"
+        val logMessage = "[${dateFormat.format(currentTime)}]$prefix ${log.replace("\n","___r_n")}\n"
         logInfo+=logMessage
         putSp(key,getLastLine(logInfo,200))
-        if(isDebug() || BuildConfig.DEBUG ){
+        if(isDebug()){
             val printLog = "[自动记账] $prefix：$log"
             XposedBridge.log(printLog) //xp输出
         }
@@ -115,13 +115,11 @@ class HookUtils(private val context: Context,private val packageName:String) {
                 val key = "billData"
                 //先存到server的数据库里面
                 var billData = getSp(key)
-                billData+=Gson().toJson(appData)
+                billData+="\n"+Gson().toJson(appData).replace("\n","___r_n")
                 putSp(key,getLastLine(billData,100))
                 if (billInfo !== null) {
                     // TODO 拉起自动记账的Activity
                 }
-
-
         }.onFailure {
             it.printStackTrace()
             it.message?.let { it1 -> log(HookMainApp.getTag(app,"自动记账执行脚本发生错误"), it1) }
