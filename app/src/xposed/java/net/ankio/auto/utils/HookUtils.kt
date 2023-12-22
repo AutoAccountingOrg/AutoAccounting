@@ -40,30 +40,27 @@ class HookUtils(private val context: Context,private val packageName:String) {
         val TAG = "AutoAccounting"
     }
 
-    private fun getSharedPreferences(): SharedPreferences? {
-        if(packageName===BuildConfig.APPLICATION_ID){
-            return context.getSharedPreferences("$TAG.${packageName}",Context.MODE_PRIVATE);
+    private fun getSharedPreferences(pkg:String = BuildConfig.APPLICATION_ID): SharedPreferences? {
+        if(pkg===BuildConfig.APPLICATION_ID && packageName===pkg){
+            return context.getSharedPreferences("$TAG.${pkg}",Context.MODE_PRIVATE);
         }
-        return  RemotePreferences(context, "net.ankio.auto.utils.SharePreferenceProvider", "$TAG.${packageName}",true)
+        return  RemotePreferences(context, "net.ankio.auto.utils.SharePreferenceProvider", "$TAG.${pkg}",true)
     }
 
     /**
      * 获取自动记账配置
      */
-    private fun getConfig(key: String): String {
-        if(packageName===BuildConfig.APPLICATION_ID){
-            return context.getSharedPreferences("$TAG.$packageName",Context.MODE_PRIVATE).getString(key,"")?:""
-        }
-        return RemotePreferences(context, "net.ankio.auto.utils.SharePreferenceProvider", "$TAG.${BuildConfig.APPLICATION_ID}",true).getString(key,"")?:""
+    fun getConfig(key: String): String {
+        return getSharedPreferences(BuildConfig.APPLICATION_ID)?.getString(key,"")?:""
     }
 
     private fun getSp(key:String): String {
-        return getSharedPreferences()?.getString(key,"") ?:""
+        return getSharedPreferences(packageName)?.getString(key,"") ?:""
     }
 
    private fun putSp(key: String, data: String){
        try {
-            getSharedPreferences()?.edit()?.putString(key,data)?.apply()
+            getSharedPreferences(packageName)?.edit()?.putString(key,data)?.commit()
        }catch (e: RemotePreferenceAccessException){
            XposedBridge.log(e)
        }
@@ -77,7 +74,7 @@ class HookUtils(private val context: Context,private val packageName:String) {
     }
     //仅调试模式输出日志
     fun logD(prefix: String?, log: String){
-        if(!isDebug()  || !BuildConfig.DEBUG ){ return }
+        if(!isDebug()  && !BuildConfig.DEBUG ){ return }
         log(prefix,log)
     }
     //正常输出日志
@@ -86,7 +83,7 @@ class HookUtils(private val context: Context,private val packageName:String) {
         var logInfo = getSp(key)
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA)
         val currentTime = Date()
-        val logMessage = "[${dateFormat.format(currentTime)}]$prefix$log\n"
+        val logMessage = "[${dateFormat.format(currentTime)}]$prefix${log.replace("\n","___r_n")}\n"
         logInfo+=logMessage
         putSp(key,getLastLine(logInfo,200))
         if(isDebug() || BuildConfig.DEBUG ){
@@ -105,9 +102,8 @@ class HookUtils(private val context: Context,private val packageName:String) {
 
     fun analyzeData(dataType: Int, app: String, data: String) {
         runCatching {
-            CoroutineScope(Dispatchers.IO).launch {
                 log(HookMainApp.getTag(app,"数据分析"), data)
-                val billInfo = Engine.runAnalyze(dataType, app, data)
+                val billInfo = Engine.runAnalyze(dataType, app, data,this@HookUtils)
                 val appData = AppData()
                 appData.issue = 0
                 appData.type = dataType
@@ -122,16 +118,13 @@ class HookUtils(private val context: Context,private val packageName:String) {
                 billData+=Gson().toJson(appData)
                 putSp(key,getLastLine(billData,100))
                 if (billInfo !== null) {
-                    withContext(Dispatchers.Main) {
-                        // TODO 切换到主线程拉起自动记账的Activity
-                    }
+                    // TODO 拉起自动记账的Activity
                 }
 
-            }
+
         }.onFailure {
             it.printStackTrace()
             it.message?.let { it1 -> log(HookMainApp.getTag(app,"自动记账执行脚本发生错误"), it1) }
-            XposedBridge.log(it)
         }
 
     }
