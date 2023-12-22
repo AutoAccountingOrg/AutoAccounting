@@ -16,7 +16,6 @@
 package net.ankio.auto.hooks.alipay.hooks
 
 import android.content.Context
-import android.util.Log
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.api.Hooker
