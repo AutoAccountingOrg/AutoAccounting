@@ -58,8 +58,7 @@ object ActiveUtils {
     //非hook环境
     fun put(key:String,value:String){
         val sharedPreferences = App.context.getSharedPreferences("AutoAccounting.${BuildConfig.APPLICATION_ID}", Context.MODE_PRIVATE)
-        val result = sharedPreferences.edit().putString(key,value).commit()
-        Log.e("写入结果 $key",result.toString())
+         sharedPreferences.edit().putString(key,value).apply()
     }
     //仅hook环境有效
     fun getAccountMap():List<AccountMap>{
@@ -90,7 +89,10 @@ object ActiveUtils {
                 for (line in data.lines()){
                     if(line.isNotEmpty()){
                         runCatching {
-                            list.add(AppData.fromJSON(line))
+                            list.add(AppData.fromJSON(line.replace("___r_n","\n")))
+                        }.onFailure {
+                            Log.e("数据异常",line)
+                            Log.e("异常",it.message.toString())
                         }
                     }
                 }
