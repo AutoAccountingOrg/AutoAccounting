@@ -53,8 +53,9 @@ object ImageUtils {
             getFromWeb(context,uriString, callback, error)
         } else if (isContentProviderUri(uri)) {
             getFromContentProvider(context, uriString, callback, error)
+        }else{
+            error("不支持的图片链接")
         }
-        throw UnsupportedUri("不支持的图片链接")
     }
 
     private fun getFromContentProvider(
