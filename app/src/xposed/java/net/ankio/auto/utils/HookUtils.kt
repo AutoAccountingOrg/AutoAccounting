@@ -16,6 +16,7 @@
 package net.ankio.auto.utils
 
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import com.crossbowffs.remotepreferences.RemotePreferenceAccessException
 import com.crossbowffs.remotepreferences.RemotePreferences
@@ -118,7 +119,14 @@ class HookUtils(private val context: Context,private val packageName:String) {
                 billData+="\n"+Gson().toJson(appData).replace("\n","___r_n")
                 putSp(key,getLastLine(billData,100))
                 if (billInfo !== null) {
-                    // TODO 拉起自动记账的Activity
+                    val intent = Intent().apply {
+                        setClassName(BuildConfig.APPLICATION_ID, "net.ankio.auto.ui.activity.FloatingWindowTriggerActivity")
+                        putExtra("data", Gson().toJson(billInfo))
+                    }
+                    intent.setAction("net.ankio.auto.ACTION_SHOW_FLOATING_WINDOW")
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                    context.startActivity(intent)
                 }
         }.onFailure {
             it.printStackTrace()

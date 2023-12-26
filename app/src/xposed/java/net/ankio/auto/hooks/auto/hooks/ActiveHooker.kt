@@ -42,13 +42,22 @@ class ActiveHooker(hooker: Hooker) : PartHooker(hooker) {
             "getAccountMap",
             object : XC_MethodReplacement() {
                 override fun replaceHookedMethod(param: MethodHookParam): Any? {
-                    val string = ActiveUtils.get("AccountMap")
+                    val string = getConfig("AccountMap")
                     if(string.isEmpty()){
                         return arrayListOf<AccountMap>()
                     }
                     return  Gson().fromJson(string, object : TypeToken<List<AccountMap?>?>() {}.type)
                 }
             })
+
+
+        //fun getDataRule(): String {
+        //        return ""
+        //    }
+        //
+        //    fun getDataCategory(): String {
+        //        return ""
+        //    }
 
     }
 }
