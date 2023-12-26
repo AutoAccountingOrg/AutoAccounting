@@ -16,18 +16,15 @@
 package net.ankio.auto.ui.dialog
 
 
-import android.app.Activity
-import android.os.Build
-import android.os.Bundle
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.view.WindowManager
-import androidx.appcompat.app.AppCompatActivity
+import android.widget.FrameLayout
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.google.android.material.elevation.SurfaceColors
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -36,32 +33,48 @@ import net.ankio.auto.database.table.BookName
 import net.ankio.auto.databinding.BookSelectDialogBinding
 import net.ankio.auto.ui.adapter.BookItemListener
 import net.ankio.auto.ui.adapter.BookSelectorAdapter
-import okhttp3.internal.notifyAll
 
 
-class BookSelectorDialog: BottomSheetDialogFragment() {
+
+class BookSelectorDialog(context: Context) : BottomSheetDialog(context) {
 
     private lateinit var callback: (BookName) -> Unit
-    fun show(context: Activity,float: Boolean,callback: (BookName) -> Unit){
+    fun show(float: Boolean,callback: (BookName) -> Unit){
         this.callback = callback
         // 创建 BottomSheetDialogFragment
         val dialogFragment = this
 
+        val root = this.onCreateView()
+
+        this.setContentView(root)
+
+
         if(float){
-            dialog?.window?.setType((WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY));
+            dialogFragment.window?.setType((WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY));
+        }
+        this.setOnShowListener {
+          /*  val bottomSheet =
+                dialogFragment.findViewById<FrameLayout>(com.google.android.material.R.id.design_bottom_sheet)
+            if (bottomSheet != null) {
+                val behavior: BottomSheetBehavior<*> =
+                    BottomSheetBehavior.from(bottomSheet)
+                behavior.state = BottomSheetBehavior.STATE_EXPANDED
+                behavior.isDraggable = false // 禁用拖动
+
+                // 设置高度为屏幕高度的 50%
+                val parent = bottomSheet.parent as View
+                val height = parent.height
+                behavior.peekHeight = height / 2
+            }*/
         }
         // 显示 BottomSheetDialogFragment
-        dialogFragment.show((context as AppCompatActivity).supportFragmentManager, dialogFragment.tag)
+        dialogFragment.show()
 
     }
     private lateinit var binding:BookSelectDialogBinding
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        binding =  BookSelectDialogBinding.inflate(inflater)
-         val layoutManager = LinearLayoutManager(requireContext())
+    fun onCreateView(): View {
+        binding =  BookSelectDialogBinding.inflate(LayoutInflater.from(context))
+         val layoutManager = LinearLayoutManager(context)
         binding.recyclerView.layoutManager = layoutManager
         val dataItems = mutableListOf<BookName>()
         val adapter = BookSelectorAdapter(dataItems,object:BookItemListener{
@@ -90,21 +103,6 @@ class BookSelectorDialog: BottomSheetDialogFragment() {
 
         return binding.root
     }
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        // 禁止用户通过下滑手势关闭对话框
-        dialog?.setCancelable(false)
 
-        // 允许用户通过点击空白处关闭对话框
-        dialog?.setCanceledOnTouchOutside(true)
-
-        // Get the display metrics using the DisplayMetrics directly
-        val displayMetrics = resources.displayMetrics
-        val screenHeight = displayMetrics.heightPixels
-
-        // Calculate and set dialog height as a percentage of screen height
-        val dialogHeight = (screenHeight * 0.5).toInt() // 50% height
-        view.layoutParams.height = dialogHeight
-    }
 
 }
