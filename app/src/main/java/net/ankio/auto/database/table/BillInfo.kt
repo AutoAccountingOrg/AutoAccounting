@@ -14,12 +14,20 @@
  */
 package net.ankio.auto.database.table
 
+import android.content.Context
+import android.graphics.drawable.Drawable
+import android.widget.ImageView
+import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.content.res.ResourcesCompat
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.Gson
+import net.ankio.auto.R
 import net.ankio.auto.constant.BillType
 import net.ankio.auto.constant.Currency
 import net.ankio.auto.constant.DataType
+import net.ankio.auto.database.Db
+import net.ankio.auto.utils.ImageUtils
 
 @Entity
 class BillInfo {
@@ -132,9 +140,25 @@ class BillInfo {
         return Gson().toJson(this)
     }
 
+
+
     companion object{
         fun fromJSON(json:String):BillInfo{
             return Gson().fromJson(json,BillInfo::class.java)
+        }
+        suspend fun getCategoryDrawable(cateName: String,context: Context): Drawable? {
+            //TODO 根据分类名称获取对应的分类图标
+            return AppCompatResources.getDrawable(context, R.drawable.default_cate)
+        }
+        suspend fun getBookDrawable(bookName: String,context: Context,imageView: ImageView) {
+
+            ImageUtils.get(context, Db.get().BookNameDao().getByName(bookName)?.icon ?:"",{
+                imageView.setImageDrawable(it)
+            },{
+                imageView.setImageDrawable(
+                    ResourcesCompat.getDrawable(context.resources,R.drawable.default_book,context.theme)
+                )
+            })
         }
     }
 }
