@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (C) 2023 ankio(ankio@ankio.net)
+  ~ Licensed under the Apache License, Version 3.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~         http://www.apache.org/licenses/LICENSE-3.0
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~   limitations under the License.
+  -->
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:ignore="MissingDefaultResource">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="0dp"
+        android:orientation="vertical">
+        <!--这里再嵌套一层是为了使用另一个UI的时候方便修改圆角-->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/editorCard"
+            style="?attr/materialCardViewElevatedStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:layout_marginBottom="@dimen/padding"
+            app:cardBackgroundColor="?attr/colorSurfaceBright"
+            app:cardCornerRadius="@dimen/radius"
+            app:cardElevation="0dp">
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/book_image"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:layout_gravity="top"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/default_book" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginTop="41dp"
+                    android:background="@drawable/fade_mask" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginTop="20dp"
+                    android:orientation="vertical"
+                    android:padding="@dimen/padding">
+
+                    <LinearLayout
+                        android:id="@+id/priceContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+
+                        android:gravity="center"
+                        android:padding="@dimen/float_padding">
+
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="0dp" android:layout_weight="1" />
+
+                        <ImageView
+                            android:id="@+id/typeIcon"
+                            android:layout_width="@dimen/icon_size"
+                            android:layout_height="@dimen/icon_size"
+                            android:layout_marginTop="4dp"
+                            android:layout_marginStart="30dp"
+                            android:src="@drawable/float_add"
+                            app:tint="@color/success"
+
+                            />
+
+                        <TextView
+
+                            android:id="@+id/price"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="15dp"
+                            android:ellipsize="end"
+                            android:maxLines="1"
+                            android:text="1000000000000.00"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Display2"
+                            android:textColor="@color/success"
+                            android:textStyle="bold" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/payInfo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:padding="@dimen/float_padding">
+
+                       <LinearLayout
+                           android:id="@+id/payInfoFromContainer"
+                           android:layout_width="wrap_content"
+                           android:layout_height="wrap_content">
+                           <ImageView
+
+                               android:id="@+id/payFromIcon"
+                               android:layout_width="@dimen/float_icon_size"
+                               android:layout_height="@dimen/float_icon_size"
+                               android:src="@mipmap/ic_launcher_round" />
+
+
+                           <TextView
+
+                               android:id="@+id/payFromName"
+                               android:layout_width="wrap_content"
+                               android:layout_height="wrap_content"
+                               android:layout_marginStart="@dimen/one_padding"
+                               android:layout_marginEnd="@dimen/one_padding"
+                               android:text="微信零钱"
+                               android:textColor="?attr/colorOnSurface"
+                               style="@style/TextAppearance.AppCompat.Medium" />
+                       </LinearLayout>
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_weight="1" />
+
+                        <com.google.android.material.materialswitch.MaterialSwitch
+                            android:id="@+id/reimbursement"
+                            style="@style/TextAppearance.AppCompat.Medium"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checked="true"
+                            android:text="@string/float_reimbursement" />
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+
+                        android:gravity="center"
+                        android:padding="0dp">
+                        <Button
+                            style="@style/Widget.Material3.Button.TextButton"
+                            android:id="@+id/chooseReimbursement"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/float_choose_reimbursement"
+                            />
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/cateIconContainer"
+                        android:gravity="center_vertical"
+                        android:padding="@dimen/float_padding">
+                        <ImageView
+
+                            android:id="@+id/cateIcon"
+                            android:layout_width="@dimen/float_icon_size"
+                            android:layout_height="@dimen/float_icon_size"
+
+                            android:src="@drawable/default_cate"
+                            app:tint="?colorOnSurface" />
+
+                        <TextView
+
+                            android:id="@+id/cateName"
+                            style="@style/TextAppearance.AppCompat.Medium"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/one_padding"
+                            android:layout_marginEnd="@dimen/one_padding"
+                            android:text="默认分类"
+                            android:textColor="?attr/colorOnSurface" />
+                    </LinearLayout>
+                    <LinearLayout
+                        android:id="@+id/timeContainer"
+                        android:gravity="center_vertical"
+                        android:padding="@dimen/float_padding"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                        <ImageView
+
+                            android:id="@+id/timeIcon"
+                            android:layout_width="@dimen/float_icon_size"
+                            android:layout_height="@dimen/float_icon_size"
+                            android:src="@drawable/float_time"  app:tint="?colorOnSurface"
+                            />
+
+                        <TextView
+
+                            android:id="@+id/timeDate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/one_padding"
+                            android:layout_marginEnd="@dimen/one_padding"
+                            android:text="2023年12月21日 11:11:00"
+                            android:textColor="?attr/colorOnSurface"
+                            style="@style/TextAppearance.AppCompat.Medium"
+                            />
+                    </LinearLayout>
+
+
+                    <LinearLayout
+                    android:gravity="center_vertical"
+                    android:padding="@dimen/float_padding"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/textField"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/float_remark">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                           android:id="@+id/remark"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            style="@style/TextAppearance.AppCompat.Medium"
+                            android:text="xxxxxxxx"
+                            />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                </LinearLayout>
+
+                    <LinearLayout
+                        android:padding="@dimen/float_padding"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+><!-- 左侧的LinearLayout，用于垂直居中左侧按钮 -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:layout_marginEnd="@dimen/one_padding"
+                            android:orientation="vertical">
+
+                            <Button
+                                android:id="@+id/cancel_button"
+                                style="@style/Widget.Material3.Button.TonalButton"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/btn_cancel" />
+                        </LinearLayout>
+
+                        <!-- 右侧的LinearLayout，用于垂直居中右侧按钮 -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <Button
+                                android:id="@+id/sure_button"
+                                style="@style/Widget.Material3.Button"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/btn_save" />
+                        </LinearLayout>
+
+
+
+
+                    </LinearLayout>
+
+
+                </LinearLayout>
+
+            </RelativeLayout>
+
+
+        </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
+</RelativeLayout>
