@@ -149,4 +149,16 @@
     <string name="share_file">分享日志</string>
     <string name="setting_others">其他</string>
     <string name="setting_debug">调试模式</string>
+    <string name="floatTip">请授予悬浮窗权限</string>
+    <string name="noFloatTip">没有悬浮窗权限无法记账</string>
+    <string name="auto_success">自动记账成功，金额为 %s</string>
+    <string name="btn_save">保存</string>
+    <string name="btn_cancel">取消</string>
+    <string name="float_remark">备注</string>
+    <string name="float_choose_reimbursement">选择报销账单</string>
+    <string name="float_reimbursement">报销</string>
+    <string name="float_income">收入</string>
+    <string name="float_expend">支出</string>
+    <string name="float_transfer">转账</string>
+    <string name="float_debt">债务</string>
 </resources>

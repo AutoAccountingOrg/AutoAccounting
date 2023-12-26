@@ -29,6 +29,16 @@
         android:theme="@style/AppTheme"
         android:name=".App"
         tools:targetApi="31" >
+        <activity android:name=".ui.activity.FloatingWindowTriggerActivity"
+            android:exported="true"
+            android:excludeFromRecents="true">
+
+            <intent-filter>
+                <action android:name="net.ankio.auto.ACTION_SHOW_FLOATING_WINDOW" />
+                <category android:name="android.intent.category.DEFAULT" />
+
+            </intent-filter>
+        </activity>
         <activity
             android:name=".ui.activity.MainActivity"
             android:exported="true">
