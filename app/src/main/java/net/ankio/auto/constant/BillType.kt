@@ -18,5 +18,6 @@ package net.ankio.auto.constant
 enum class BillType(val type: Int)  {
     Expend(0),//支出
     Income(1),//收入
-    Transfer(2)//转账
+    Transfer(2),//转账
+    Debt(3) //债务
 }
