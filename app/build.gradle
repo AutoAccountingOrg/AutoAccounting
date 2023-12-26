@@ -113,8 +113,7 @@ dependencies {
     implementation libs.tobeyr1DialogLoading
     //kotlin反射
     implementation libs.kotlin.reflect
-    //悬浮窗
-    implementation libs.easyFloat
+    //markdown解析
     implementation  libs.markdown
     //Xposed跨进程读写
     implementation libs.remotepreferences
