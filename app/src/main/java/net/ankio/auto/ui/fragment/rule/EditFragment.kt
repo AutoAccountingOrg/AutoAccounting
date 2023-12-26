@@ -171,7 +171,7 @@ class EditFragment : Fragment() {
         return binding.root
     }
     private fun onClickBook(it2: FlowElement){
-        BookSelectorDialog().show(requireActivity(),false) {
+        BookSelectorDialog(requireContext()).show(false) {
             it2.removed().setAsWaveTextview(it.name?:"",it2.connector, callback = it2.waveCallback)
             bookName = it.name?:""
             book = it.id
