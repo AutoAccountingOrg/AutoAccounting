@@ -62,6 +62,8 @@ open class BaseActivity : AppCompatActivity() {
      */
     fun onViewCreated(){
         //主题初始化
+        ThemeEngine.applyToActivity(this)
+        //主题初始化
         val themeMode = ThemeEngine.getInstance(this@BaseActivity).themeMode
 
         val currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK

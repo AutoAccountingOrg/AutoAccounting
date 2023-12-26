@@ -31,8 +31,6 @@ open class App : Application() {
     override fun onCreate() {
         super.onCreate()
         context = applicationContext
-        //主题初始化
-        ThemeEngine.applyToActivities(this)
         //数据库初始化
         Db.init(this)
     }
