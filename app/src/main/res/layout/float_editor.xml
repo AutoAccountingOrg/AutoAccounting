@@ -13,17 +13,16 @@
   ~   limitations under the License.
   -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:ignore="MissingDefaultResource">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
         android:layout_marginBottom="0dp"
         android:orientation="vertical">
         <!--这里再嵌套一层是为了使用另一个UI的时候方便修改圆角-->
@@ -34,9 +33,10 @@
             android:layout_height="wrap_content"
             android:layout_margin="20dp"
             android:layout_marginBottom="@dimen/padding"
-            app:cardBackgroundColor="?attr/colorSurfaceBright"
+            app:cardBackgroundColor="?attr/colorSurfaceContainer"
             app:cardCornerRadius="@dimen/radius"
-            app:cardElevation="0dp">
+            app:strokeWidth="0dp"
+            app:strokeColor="?attr/colorSurfaceContainerHighest"  app:cardElevation="0dp">
 
             <RelativeLayout
                 android:layout_width="wrap_content"
@@ -52,9 +52,9 @@
 
                 <View
                     android:layout_width="match_parent"
-                    android:layout_height="60dp"
+                    android:layout_height="100dp"
                     android:layout_alignParentTop="true"
-                    android:layout_marginTop="41dp"
+                    android:layout_marginTop="0dp"
                     android:background="@drawable/fade_mask" />
 
                 <LinearLayout
@@ -83,7 +83,8 @@
                             android:layout_width="@dimen/icon_size"
                             android:layout_height="@dimen/icon_size"
                             android:layout_marginTop="4dp"
-                            android:layout_marginStart="30dp"
+                            android:layout_marginStart="40dp"
+                            android:layout_marginEnd="10dp"
                             android:src="@drawable/float_add"
                             app:tint="@color/success"
 
@@ -94,7 +95,7 @@
                             android:id="@+id/price"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginEnd="15dp"
+                            android:layout_marginEnd="35dp"
                             android:ellipsize="end"
                             android:maxLines="1"
                             android:text="1000000000000.00"
@@ -154,7 +155,7 @@
 
                         android:gravity="center"
                         android:padding="0dp">
-                        <Button
+                        <com.google.android.material.button.MaterialButton
                             style="@style/Widget.Material3.Button.TextButton"
                             android:id="@+id/chooseReimbursement"
                             android:layout_width="match_parent"
@@ -168,25 +169,15 @@
                         android:id="@+id/cateIconContainer"
                         android:gravity="center_vertical"
                         android:padding="@dimen/float_padding">
-                        <ImageView
 
-                            android:id="@+id/cateIcon"
-                            android:layout_width="@dimen/float_icon_size"
-                            android:layout_height="@dimen/float_icon_size"
-
-                            android:src="@drawable/default_cate"
-                            app:tint="?colorOnSurface" />
-
-                        <TextView
-
-                            android:id="@+id/cateName"
-                            style="@style/TextAppearance.AppCompat.Medium"
+                        <net.ankio.auto.ui.componets.IconView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="@dimen/one_padding"
-                            android:layout_marginEnd="@dimen/one_padding"
-                            android:text="默认分类"
-                            android:textColor="?attr/colorOnSurface" />
+                            app:iconSrc="@drawable/default_cate"
+                            app:iconTintEnabled="true"
+                            app:text="分类"
+                            app:textColor="?attr/colorOnSurface" />
+
                     </LinearLayout>
                     <LinearLayout
                         android:id="@+id/timeContainer"
@@ -199,7 +190,8 @@
                             android:id="@+id/timeIcon"
                             android:layout_width="@dimen/float_icon_size"
                             android:layout_height="@dimen/float_icon_size"
-                            android:src="@drawable/float_time"  app:tint="?colorOnSurface"
+                            android:src="@drawable/float_time"
+                            app:tint="?attr/colorOnSurface"
                             />
 
                         <TextView
@@ -242,7 +234,7 @@
                     <LinearLayout
                         android:padding="@dimen/float_padding"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="78dp"
                         android:gravity="center"
 ><!-- 左侧的LinearLayout，用于垂直居中左侧按钮 -->
                         <LinearLayout
@@ -253,11 +245,12 @@
                             android:layout_marginEnd="@dimen/one_padding"
                             android:orientation="vertical">
 
-                            <Button
+                            <com.google.android.material.button.MaterialButton
+
                                 android:id="@+id/cancel_button"
                                 style="@style/Widget.Material3.Button.TonalButton"
                                 android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
+                                android:layout_height="match_parent"
                                 android:text="@string/btn_cancel" />
                         </LinearLayout>
 
@@ -269,11 +262,12 @@
                             android:gravity="center"
                             android:orientation="vertical">
 
-                            <Button
+                            <com.google.android.material.button.MaterialButton
+
                                 android:id="@+id/sure_button"
                                 style="@style/Widget.Material3.Button"
                                 android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
+                                android:layout_height="match_parent"
                                 android:text="@string/btn_save" />
                         </LinearLayout>
 
@@ -290,4 +284,4 @@
 
         </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
-</RelativeLayout>
+</LinearLayout>

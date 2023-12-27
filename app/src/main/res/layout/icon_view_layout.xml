@@ -1,0 +1,15 @@
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <ImageView
+        android:id="@+id/icon_view_image"
+        android:layout_width="@dimen/float_icon_size"
+        android:layout_height="@dimen/float_icon_size"
+        android:layout_marginEnd="8dp" />
+
+    <TextView
+        android:id="@+id/icon_view_text"
+        android:layout_width="wrap_content"
+        style="@style/TextAppearance.AppCompat.Medium"
+    android:layout_height="wrap_content" />
+
+</merge>

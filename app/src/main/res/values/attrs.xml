@@ -21,4 +21,10 @@
         <attr name="waveSpeed" format="float" />
         <attr name="waveBottomPadding" format="float" />
     </declare-styleable>
+    <declare-styleable name="IconView">
+        <attr name="iconSrc" format="reference"/>
+        <attr name="iconTintEnabled" format="boolean"/>
+        <attr name="text" format="string"/>
+        <attr name="textColor" format="color"/>
+    </declare-styleable>
 </resources>
