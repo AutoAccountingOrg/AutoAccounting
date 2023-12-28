@@ -22,17 +22,22 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.ListPopupWindow
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.widget.ImageViewCompat
 import kotlinx.coroutines.launch
+import net.ankio.auto.App
 import net.ankio.auto.R
+import net.ankio.auto.app.BillUtils
 import net.ankio.auto.constant.BillType
 import net.ankio.auto.database.table.BillInfo
 import net.ankio.auto.databinding.FloatEditorBinding
+import net.ankio.auto.utils.DateUtils
 import net.ankio.auto.utils.ImageUtils
+import net.ankio.auto.utils.SpUtils
 
 class FloatEditorDialog(context: Context,val billInfo: BillInfo) : BaseSheetDialog(context) {
      lateinit var binding: FloatEditorBinding
@@ -44,10 +49,120 @@ class FloatEditorDialog(context: Context,val billInfo: BillInfo) : BaseSheetDial
         //TODO 报销 分类
         //修改账本
         bindingChangeBookName()
+        //关闭按钮
+        this.binding.cancelButton.setOnClickListener {
+            this.dismiss()
+        }
+        //确定按钮
+        this.binding.sureButton.setOnClickListener {
+
+
+            //TODO 应用UI上的更改
+
+            coroutineScope.launch {
+                BillUtils.groupBillInfo(billInfo)
+                if(!SpUtils.getBoolean("float_no_disturb")){
+                    Toast.makeText(
+                        context,context.getString(R.string.auto_success,billInfo.money.toString()),
+                        Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+
+        binding.reimbursement.setOnCheckedChangeListener { buttonView, isChecked ->
+            binding.chooseDebt.visibility = if(isChecked) View.VISIBLE else View.GONE
+
+            if(!isChecked){
+                changeInput()
+            }else{
+                binding.payInfo.visibility = View.VISIBLE
+                binding.debtExpend.visibility = View.GONE
+                binding.debtIncome.visibility = View.GONE
+            }
+        }
+
+
+        binding.radioNone.setOnClickListener {
+            binding.debtContainer.visibility = View.GONE
+            binding.reimbursementContainer.visibility = View.GONE
+            binding.reimbursement.isChecked = false
+            binding.payInfo.visibility = View.VISIBLE
+            binding.debtExpend.visibility = View.GONE
+            binding.debtIncome.visibility = View.GONE
+        }
+
+
+        binding.radioDebt.setOnClickListener {
+            binding.debtContainer.visibility = View.VISIBLE
+            binding.reimbursementContainer.visibility = View.GONE
+            binding.reimbursement.isChecked = false
+            changeInput()
+
+        }
+
+
+        binding.radioReimbursement.setOnClickListener {
+            binding.debtContainer.visibility = View.GONE
+            binding.reimbursementContainer.visibility = if(billInfo.type===BillType.Income) View.VISIBLE else View.GONE
+            binding.payInfo.visibility = View.VISIBLE
+            binding.debtExpend.visibility = View.GONE
+            binding.debtIncome.visibility = View.GONE
+        }
+
+        setEditorUI()
+
+        setPayInfo()
 
         return binding.root
     }
 
+    private fun setPayInfo(){
+        coroutineScope.launch {
+            BillInfo.getAccountDrawable(billInfo.accountNameTo,context){
+                binding.payFrom.setIcon(it)
+                binding.payFrom.setText(billInfo.accountNameTo)
+
+                binding.transferFrom.setIcon(it)
+                binding.transferFrom.setText(billInfo.accountNameTo)
+
+                binding.debtExpendFrom.setIcon(it)
+                binding.debtExpendFrom.setText(billInfo.accountNameTo)
+
+                binding.debtIncomeTo.setIcon(it)
+                binding.debtIncomeTo.setText(billInfo.accountNameTo)
+            }
+            if(billInfo.accountNameFrom!==""){
+                BillInfo.getAccountDrawable(billInfo.accountNameFrom,context){
+                    binding.transferTo.setIcon(it)
+                    binding.transferTo.setText(billInfo.accountNameFrom)
+                }
+            }
+
+
+            BillInfo.getCategoryDrawable(billInfo.cateName,context){
+                binding.category.setIcon(it,true)
+                binding.category.setText(billInfo.cateName)
+            }
+        }
+        binding.moneyType.setText(billInfo.currency.currencyName)
+        binding.fee.setText(billInfo.fee.toString())
+        binding.time.setText(DateUtils.getTime(billInfo.timeStamp))
+        binding.remark.setText(billInfo.remark)
+    }
+    private fun changeInput(){
+        binding.payInfo.visibility = View.GONE
+        binding.debtExpend.visibility = View.GONE
+        binding.debtIncome.visibility = View.GONE
+        if(billInfo.type === BillType.Income){
+            binding.debtIncome.visibility = View.VISIBLE
+            binding.debtIncomeFrom.setText(billInfo.shopName)
+        }else if (billInfo.type === BillType.Expend){
+            binding.debtExpend.visibility = View.VISIBLE
+            binding.debtExpendTo.setText(billInfo.shopName)
+        }else{
+            binding.payInfo.visibility = View.VISIBLE
+        }
+    }
 
     private fun bindingChangeBookName(){
         coroutineScope.launch{
@@ -71,7 +186,7 @@ class FloatEditorDialog(context: Context,val billInfo: BillInfo) : BaseSheetDial
 
 
         val stringList = arrayListOf(context.getString(R.string.float_expend),context.getString(R.string.float_income),context.getString(
-            R.string.float_transfer),context.getString(R.string.float_debt))
+            R.string.float_transfer))
         val listPopupThemeWindow = ListPopupWindow(context, null)
 
         listPopupThemeWindow.anchorView =  binding.priceContainer
@@ -89,17 +204,28 @@ class FloatEditorDialog(context: Context,val billInfo: BillInfo) : BaseSheetDial
         }
         //修改账单类型
         binding.priceContainer.setOnClickListener{ listPopupThemeWindow.show() }
+
+
     }
 
 
     //设置不同类型的UI
     private fun setEditorUI(){
+
         when(billInfo.type){
-            BillType.Transfer->setAsTransfer(billInfo,binding)
-            BillType.Expend->setAsExpend(billInfo,binding)
-            BillType.Income->setAsIncome(billInfo,binding)
-            else -> setAsDebt(billInfo,binding)
+            BillType.Transfer->setAsTransfer()
+            BillType.Expend-> {
+                setAsExpend()
+                binding.radioNone.callOnClick()
+            }
+            BillType.Income-> {
+                setAsIncome()
+                binding.radioNone.callOnClick()
+            }
         }
+        binding.debtContainer.visibility = View.GONE
+        binding.reimbursementContainer.visibility = View.GONE
+
     }
 
     private fun setPriceColor(position:Int){
@@ -117,11 +243,6 @@ class FloatEditorDialog(context: Context,val billInfo: BillInfo) : BaseSheetDial
                 tint = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.info))
                 color = ContextCompat.getColor(context, R.color.info)
             }
-            3 -> {
-                drawable = AppCompatResources.getDrawable(context,R.drawable.float_check)
-                tint = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.warning))
-                color = ContextCompat.getColor(context, R.color.warning)
-            }
         }
 
         binding.typeIcon.setImageDrawable(drawable)
@@ -130,23 +251,59 @@ class FloatEditorDialog(context: Context,val billInfo: BillInfo) : BaseSheetDial
     }
 
     //UI设置为支出
-    private fun setAsExpend(billInfo: BillInfo,binding: FloatEditorBinding){
+    private fun setAsExpend(){
+
+        binding.tagInfo.visibility  = View.VISIBLE
+        binding.payInfo.visibility = View.VISIBLE
+        binding.transferInfo.visibility = View.GONE
+        binding.debtExpend.visibility = View.GONE
+        binding.debtIncome.visibility = View.GONE
+        binding.category.visibility = View.VISIBLE
+        //设置来自账户，分类信息
+
+        //只有收入才需要选择报销容器
+
+        //币种不管他，反正就在那
+
+        //手续费似乎也不用管？
+
+        //时间和备注也不用管，反正都在
 
 
     }
     //UI设置为收入
-    private fun setAsIncome(billInfo: BillInfo,binding: FloatEditorBinding){
+    private fun setAsIncome(){
+        binding.debtContainer.visibility = View.GONE
+        binding.reimbursementContainer.visibility = View.GONE
+
+        binding.tagInfo.visibility  = View.VISIBLE
+        binding.payInfo.visibility = View.VISIBLE
+        binding.transferInfo.visibility = View.GONE
+        binding.debtExpend.visibility = View.GONE
+        binding.debtIncome.visibility = View.GONE
+        binding.category.visibility = View.VISIBLE
+
+
 
     }
 
     //UI设置为转账
-    private fun setAsTransfer(billInfo: BillInfo,binding: FloatEditorBinding){
+    private fun setAsTransfer(){
+        binding.tagInfo.visibility  = View.GONE
+        //转账也使用自己的
+        binding.payInfo.visibility = View.GONE
+        binding.transferInfo.visibility = View.VISIBLE
+        binding.debtExpend.visibility = View.GONE
+        binding.debtIncome.visibility = View.GONE
+        //转账没有分类
+        binding.category.visibility = View.GONE
+
+
+        //只有收入才需要选择报销容器
+
 
     }
     //UI设置为债务
-    private fun setAsDebt(billInfo: BillInfo,binding: FloatEditorBinding){
-
-    }
 
 
 

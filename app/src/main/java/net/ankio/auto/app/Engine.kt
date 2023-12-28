@@ -106,7 +106,6 @@ object Engine {
             billInfo.cateName = cateJson.getString("category")
             billInfo.bookName = cateJson.getString("book")
             hookUtils?.logD("分类脚本执行结果", billInfo.cateName)
-
         } catch (e: Exception) {
             hookUtils?.logD("执行脚本失败",  e.stackTraceToString())
             billInfo = null

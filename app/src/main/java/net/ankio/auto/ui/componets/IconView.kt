@@ -35,6 +35,7 @@ class IconView @JvmOverloads constructor(
 
     private var imageView: ImageView
     private var textView: TextView
+    private var color:Int
 
     init {
         orientation = HORIZONTAL
@@ -55,18 +56,17 @@ class IconView @JvmOverloads constructor(
                 val iconTintEnabled = getBoolean(R.styleable.IconView_iconTintEnabled, true)
                 val icon = getDrawable(R.styleable.IconView_iconSrc)
                 val text = getString(R.styleable.IconView_text)
-                val textColor = getColor(R.styleable.IconView_textColor, Color.BLACK)
+                color = getColor(R.styleable.IconView_textColor, Color.BLACK)
 
-                setIcon(icon, iconTintEnabled,textColor)
+                setIcon(icon, iconTintEnabled)
                 setText(text)
-                setTextColor(textColor)
             } finally {
                 recycle()
             }
         }
     }
 
-    fun setIcon(icon: Drawable?, tintEnabled: Boolean,color: Int) {
+    fun setIcon(icon: Drawable?, tintEnabled: Boolean = false) {
         imageView.setImageDrawable(icon)
         if (!tintEnabled) {
             imageView.clearColorFilter()
@@ -76,10 +76,9 @@ class IconView @JvmOverloads constructor(
     }
 
     fun setText(text: CharSequence?) {
+        textView.setTextColor(color)
         textView.text = text
     }
 
-    fun setTextColor(color: Int) {
-        textView.setTextColor(color)
-    }
+
 }

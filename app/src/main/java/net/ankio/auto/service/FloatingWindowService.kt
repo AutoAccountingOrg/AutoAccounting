@@ -63,6 +63,7 @@ class FloatingWindowService : Service(), CoroutineScope {
         val value = intent.getStringExtra("data") ?: return START_NOT_STICKY
         val timeCount: Int = SpUtils.getInt("float_timeout",10)
         val billInfo = BillInfo.fromJSON(value)
+        billInfo.remark = BillUtils.getRemark(billInfo)
         val defaultTheme = ContextThemeWrapper(this,R.style.AppTheme)
         val themedContext = ContextThemeWrapper(defaultTheme, ThemeEngine.getInstance(applicationContext).getTheme())
 

@@ -18,6 +18,7 @@ package net.ankio.auto.app
 import net.ankio.auto.database.Db
 import net.ankio.auto.database.table.BillInfo
 import net.ankio.auto.utils.ActiveUtils
+import net.ankio.auto.utils.SpUtils
 import java.lang.Exception
 
 object BillUtils {
@@ -122,5 +123,18 @@ object BillUtils {
             }
         }
         return account
+    }
+
+    /**
+     * 生成备注信息
+     */
+    fun getRemark(billInfo: BillInfo): String {
+        return SpUtils.getString("remarkTpl","[商户名称] - [商品名称]")
+            .replace("[商户名称]",billInfo.shopName)
+            .replace("[币种类型]",billInfo.currency.currencyName)
+            .replace("[金额]",billInfo.money.toString())
+            .replace("[分类]",billInfo.cateName)
+            .replace("[账本]",billInfo.bookName)
+            .replace("[来源]",billInfo.from)
     }
 }

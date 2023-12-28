@@ -83,7 +83,7 @@ class BillInfo {
     var reimbursement: Boolean = false
 
     /**
-     * 远程id，就是记账App中对应的账单ID
+     * 销账的账单id或者报销的账单id
      */
     var remoteId: String = "-1"
 
@@ -136,6 +136,20 @@ class BillInfo {
      * 是否已从App同步
      */
     var syncFromApp:Boolean = false
+
+    /**
+     * 这笔账单是否为债务
+     */
+    var debt:Boolean = false
+    /**
+     * 是否为债务销账
+     */
+    var debtOver:Boolean = false
+
+    /**
+     * 备注信息
+     */
+    var remark:String = ""
     fun toJSON(): String {
         return Gson().toJson(this)
     }
@@ -146,9 +160,18 @@ class BillInfo {
         fun fromJSON(json:String):BillInfo{
             return Gson().fromJson(json,BillInfo::class.java)
         }
-        suspend fun getCategoryDrawable(cateName: String,context: Context): Drawable? {
-            //TODO 根据分类名称获取对应的分类图标
-            return AppCompatResources.getDrawable(context, R.drawable.default_cate)
+        suspend fun getCategoryDrawable(cateName: String,context: Context,onGet:(drawable:Drawable)->Unit) {
+            val categoryInfo = Db.get().CategoryDao().get(cateName)
+            ImageUtils.get(context, categoryInfo?.icon ?:"",{
+                onGet(it)
+            },{
+                ResourcesCompat.getDrawable(context.resources,R.drawable.default_cate,context.theme)
+                    ?.let { it1 ->
+                        onGet(
+                            it1
+                        )
+                    }
+            })
         }
         suspend fun getBookDrawable(bookName: String,context: Context,imageView: ImageView) {
 
@@ -158,6 +181,20 @@ class BillInfo {
                 imageView.setImageDrawable(
                     ResourcesCompat.getDrawable(context.resources,R.drawable.default_book,context.theme)
                 )
+            })
+        }
+
+        suspend fun getAccountDrawable(account:String,context: Context,onGet:(drawable:Drawable)->Unit) {
+            val accountInfo = Db.get().AccountDao().get(account)
+            ImageUtils.get(context, accountInfo?.icon ?:"",{
+                onGet(it)
+            },{
+                ResourcesCompat.getDrawable(context.resources,R.mipmap.ic_launcher_round,context.theme)
+                    ?.let { it1 ->
+                        onGet(
+                            it1
+                        )
+                    }
             })
         }
     }

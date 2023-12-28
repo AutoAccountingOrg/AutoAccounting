@@ -31,4 +31,6 @@ interface CategoryDao {
 
     @Insert
     suspend fun add(data: Category)
+    @Query("SELECT * FROM Category where name=:cateName limit 1")
+    suspend fun get(cateName: String): Category?
 }

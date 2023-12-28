@@ -14,10 +14,10 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:ignore="MissingDefaultResource">
 
     <LinearLayout
@@ -35,8 +35,9 @@
             android:layout_marginBottom="@dimen/padding"
             app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
             app:cardCornerRadius="@dimen/radius"
-            app:strokeWidth="1dp"
-            app:strokeColor="?attr/colorSurfaceContainerHighest"  app:cardElevation="0dp">
+            app:cardElevation="0dp"
+            app:strokeColor="?attr/colorSurfaceContainerHighest"
+            app:strokeWidth="0dp">
 
             <RelativeLayout
                 android:layout_width="wrap_content"
@@ -76,19 +77,16 @@
 
                         <View
                             android:layout_width="0dp"
-                            android:layout_height="0dp" android:layout_weight="1" />
-
-
-
-
+                            android:layout_height="0dp"
+                            android:layout_weight="1" />
 
 
                         <ImageView
                             android:id="@+id/typeIcon"
                             android:layout_width="@dimen/icon_size"
                             android:layout_height="@dimen/icon_size"
-                            android:layout_marginTop="4dp"
                             android:layout_marginStart="40dp"
+                            android:layout_marginTop="4dp"
                             android:layout_marginEnd="10dp"
                             android:src="@drawable/float_add"
                             app:tint="@color/success"
@@ -110,12 +108,14 @@
 
                     </LinearLayout>
 
+
                     <LinearLayout
                         android:id="@+id/payInfo"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
                         android:padding="@dimen/float_padding">
+
                         <net.ankio.auto.ui.componets.IconView
                             android:id="@+id/payFrom"
                             android:layout_width="wrap_content"
@@ -131,31 +131,215 @@
                             android:layout_height="0dp"
                             android:layout_weight="1" />
 
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/transferInfo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:padding="@dimen/float_padding"
+                        android:visibility="visible">
+
+                        <net.ankio.auto.ui.componets.IconView
+                            android:id="@+id/transferFrom"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:iconSrc="@mipmap/ic_launcher_round"
+                            app:iconTintEnabled="false"
+                            app:text="微信零钱"
+                            app:textColor="?attr/colorOnSurface" />
+
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:text="➜" />
+
+                        <net.ankio.auto.ui.componets.IconView
+                            android:id="@+id/transferTo"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:iconSrc="@mipmap/ic_launcher_round"
+                            app:iconTintEnabled="false"
+                            app:text="微信零钱"
+                            app:textColor="?attr/colorOnSurface" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/debtExpend"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:padding="@dimen/float_padding">
+
+                        <net.ankio.auto.ui.componets.IconView
+                            android:id="@+id/debtExpendFrom"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:iconSrc="@mipmap/ic_launcher_round"
+                            app:iconTintEnabled="false"
+                            app:text="微信零钱"
+                            app:textColor="?attr/colorOnSurface" />
+
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:text="➜" />
+
+
+                        <com.google.android.material.textfield.TextInputLayout
+
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:hint="@string/float_expend_debt"
+                            android:maxWidth="200dp">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/debtExpendTo"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/debtIncome"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:padding="@dimen/float_padding">
+
+                        <com.google.android.material.textfield.TextInputLayout
+
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:maxWidth="200dp"
+                            android:hint="@string/float_income_debt">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/debtIncomeFrom"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:text="➜" />
+
+                        <net.ankio.auto.ui.componets.IconView
+                            android:id="@+id/debtIncomeTo"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:iconSrc="@mipmap/ic_launcher_round"
+                            app:iconTintEnabled="false"
+                            app:text="微信零钱"
+                            app:textColor="?attr/colorOnSurface" />
+
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/tagInfo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:checkedButton="@+id/radio_none"
+                        android:gravity="center_vertical"
+                        android:padding="@dimen/float_padding">
+
+                        <RadioGroup
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:checkedButton="@+id/radio_none"
+                            android:orientation="horizontal"
+                            android:weightSum="3">
+
+                            <RadioButton
+
+                                android:id="@+id/radio_none"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:text="@string/float_none" />
+
+                            <RadioButton
+                                android:id="@+id/radio_debt"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:text="@string/float_debt" />
+
+                            <RadioButton
+                                android:id="@+id/radio_reimbursement"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:text="@string/float_reimbursement" />
+
+                        </RadioGroup>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/debtContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:padding="@dimen/one_padding">
+
                         <com.google.android.material.materialswitch.MaterialSwitch
                             android:id="@+id/reimbursement"
                             style="@style/TextAppearance.AppCompat.Medium"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:checked="true"
-                            android:text="@string/float_reimbursement" />
+                            android:checked="false"
+                            android:text="@string/float_income_tip" />
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_weight="1" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/chooseDebt"
+                            style="@style/Widget.Material3.Button.TextButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/float_choose_debt" />
                     </LinearLayout>
+
                     <LinearLayout
+                        android:id="@+id/reimbursementContainer"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:padding="0dp">
+
                         <com.google.android.material.button.MaterialButton
-                            style="@style/Widget.Material3.Button.TextButton"
                             android:id="@+id/chooseReimbursement"
+                            style="@style/Widget.Material3.Button.TextButton"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/float_choose_reimbursement"
-                            />
+                            android:text="@string/float_choose_reimbursement" />
                     </LinearLayout>
+
                     <LinearLayout
+                        android:id="@+id/cateIconContainer"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:id="@+id/cateIconContainer"
                         android:gravity="center"
                         android:padding="@dimen/float_padding">
 
@@ -163,6 +347,8 @@
                             android:id="@+id/category"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:visibility="visible"
                             app:iconSrc="@drawable/default_cate"
                             app:iconTintEnabled="true"
                             app:text="分类"
@@ -170,6 +356,7 @@
 
                         <net.ankio.auto.ui.componets.IconView
                             android:id="@+id/moneyType"
+                            android:layout_weight="1"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="@dimen/padding"
@@ -180,6 +367,7 @@
 
                         <net.ankio.auto.ui.componets.IconView
                             android:id="@+id/fee"
+                            android:layout_weight="1"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="@dimen/padding"
@@ -187,17 +375,16 @@
                             app:iconTintEnabled="true"
                             app:text="-0.01"
                             app:textColor="?attr/colorError" />
-                        <View
-                            android:layout_width="0dp"
-                            android:layout_height="0dp"
-                            android:layout_weight="1" />
+
                     </LinearLayout>
+
                     <LinearLayout
                         android:id="@+id/timeContainer"
-                        android:gravity="center_vertical"
-                        android:padding="@dimen/float_padding"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:padding="@dimen/float_padding">
+
                         <net.ankio.auto.ui.componets.IconView
                             android:id="@+id/time"
                             android:layout_width="wrap_content"
@@ -211,40 +398,39 @@
 
 
                     <LinearLayout
-                    android:gravity="center_vertical"
-                    android:padding="@dimen/float_padding"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/textField"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="@string/float_remark">
+                        android:gravity="center_vertical"
+                        android:padding="@dimen/float_padding">
 
-                        <com.google.android.material.textfield.TextInputEditText
-                           android:id="@+id/remark"
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/textField"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            style="@style/TextAppearance.AppCompat.Medium"
-                            android:text="xxxxxxxx"
-                            />
+                            android:hint="@string/float_remark">
 
-                    </com.google.android.material.textfield.TextInputLayout>
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/remark"
+                                style="@style/TextAppearance.AppCompat.Medium"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="xxxxxxxx" />
 
-                </LinearLayout>
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                    </LinearLayout>
 
                     <LinearLayout
-                        android:padding="@dimen/float_padding"
                         android:layout_width="match_parent"
                         android:layout_height="78dp"
                         android:gravity="center"
-><!-- 左侧的LinearLayout，用于垂直居中左侧按钮 -->
+                        android:padding="@dimen/float_padding"><!-- 左侧的LinearLayout，用于垂直居中左侧按钮 -->
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
+                            android:layout_marginEnd="@dimen/one_padding"
                             android:layout_weight="1"
                             android:gravity="center"
-                            android:layout_marginEnd="@dimen/one_padding"
                             android:orientation="vertical">
 
                             <com.google.android.material.button.MaterialButton
@@ -272,8 +458,6 @@
                                 android:layout_height="match_parent"
                                 android:text="@string/btn_save" />
                         </LinearLayout>
-
-
 
 
                     </LinearLayout>

@@ -32,4 +32,6 @@ interface AccountDao {
 
     @Query("UPDATE  Account set sort=:sort WHERE id=:id")
     suspend fun setSort(id: Int, sort: Int)
+    @Query("SELECT * FROM  Account WHERE name=:account limit 1")
+    suspend fun get(account: String):Account?
 }

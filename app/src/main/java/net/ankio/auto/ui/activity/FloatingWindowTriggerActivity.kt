@@ -40,6 +40,7 @@ class FloatingWindowTriggerActivity : AppCompatActivity() {
             return
         }
         val billInfo = BillInfo.fromJSON(data)
+        billInfo.remark = BillUtils.getRemark(billInfo)
         // 如果是全自动记账，则不会显示这个窗口，直接弹出记账成功
         if(SpUtils.getBoolean("float_auto")){
             lifecycleScope.launch {

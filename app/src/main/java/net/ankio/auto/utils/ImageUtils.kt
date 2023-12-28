@@ -20,11 +20,9 @@ import android.content.Intent
 import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
-import android.graphics.drawable.DrawableWrapper
 import android.net.Uri
 import net.ankio.auto.R
 import net.ankio.auto.exceptions.ImageLoadException
-import net.ankio.auto.exceptions.UnsupportedUri
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response

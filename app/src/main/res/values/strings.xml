@@ -161,4 +161,9 @@
     <string name="float_expend">支出</string>
     <string name="float_transfer">转账</string>
     <string name="float_debt">债务</string>
+    <string name="float_choose_debt">请选择债务账单</string>
+    <string name="float_none">无</string>
+    <string name="float_expend_debt">借款人</string>
+    <string name="float_income_debt">债权人</string>
+    <string name="float_income_tip">销账</string>
 </resources>
