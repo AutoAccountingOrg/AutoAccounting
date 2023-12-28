@@ -33,9 +33,9 @@
             android:layout_height="wrap_content"
             android:layout_margin="20dp"
             android:layout_marginBottom="@dimen/padding"
-            app:cardBackgroundColor="?attr/colorSurfaceContainer"
+            app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
             app:cardCornerRadius="@dimen/radius"
-            app:strokeWidth="0dp"
+            app:strokeWidth="1dp"
             app:strokeColor="?attr/colorSurfaceContainerHighest"  app:cardElevation="0dp">
 
             <RelativeLayout
@@ -52,16 +52,16 @@
 
                 <View
                     android:layout_width="match_parent"
-                    android:layout_height="100dp"
+                    android:layout_height="80dp"
                     android:layout_alignParentTop="true"
-                    android:layout_marginTop="0dp"
+                    android:layout_marginTop="20dp"
                     android:background="@drawable/fade_mask" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_alignParentTop="true"
-                    android:layout_marginTop="20dp"
+                    android:layout_marginTop="10dp"
                     android:orientation="vertical"
                     android:padding="@dimen/padding">
 
@@ -77,6 +77,11 @@
                         <View
                             android:layout_width="0dp"
                             android:layout_height="0dp" android:layout_weight="1" />
+
+
+
+
+
 
                         <ImageView
                             android:id="@+id/typeIcon"
@@ -111,30 +116,15 @@
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
                         android:padding="@dimen/float_padding">
+                        <net.ankio.auto.ui.componets.IconView
+                            android:id="@+id/payFrom"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:iconSrc="@mipmap/ic_launcher_round"
+                            app:iconTintEnabled="false"
+                            app:text="微信零钱"
+                            app:textColor="?attr/colorOnSurface" />
 
-                       <LinearLayout
-                           android:id="@+id/payInfoFromContainer"
-                           android:layout_width="wrap_content"
-                           android:layout_height="wrap_content">
-                           <ImageView
-
-                               android:id="@+id/payFromIcon"
-                               android:layout_width="@dimen/float_icon_size"
-                               android:layout_height="@dimen/float_icon_size"
-                               android:src="@mipmap/ic_launcher_round" />
-
-
-                           <TextView
-
-                               android:id="@+id/payFromName"
-                               android:layout_width="wrap_content"
-                               android:layout_height="wrap_content"
-                               android:layout_marginStart="@dimen/one_padding"
-                               android:layout_marginEnd="@dimen/one_padding"
-                               android:text="微信零钱"
-                               android:textColor="?attr/colorOnSurface"
-                               style="@style/TextAppearance.AppCompat.Medium" />
-                       </LinearLayout>
 
                         <View
                             android:layout_width="0dp"
@@ -152,7 +142,6 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-
                         android:gravity="center"
                         android:padding="0dp">
                         <com.google.android.material.button.MaterialButton
@@ -167,10 +156,11 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:id="@+id/cateIconContainer"
-                        android:gravity="center_vertical"
+                        android:gravity="center"
                         android:padding="@dimen/float_padding">
 
                         <net.ankio.auto.ui.componets.IconView
+                            android:id="@+id/category"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             app:iconSrc="@drawable/default_cate"
@@ -178,6 +168,29 @@
                             app:text="分类"
                             app:textColor="?attr/colorOnSurface" />
 
+                        <net.ankio.auto.ui.componets.IconView
+                            android:id="@+id/moneyType"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/padding"
+                            app:iconSrc="@drawable/float_money"
+                            app:iconTintEnabled="true"
+                            app:text="人民币"
+                            app:textColor="?attr/colorOnSurface" />
+
+                        <net.ankio.auto.ui.componets.IconView
+                            android:id="@+id/fee"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/padding"
+                            app:iconSrc="@drawable/float_fee"
+                            app:iconTintEnabled="true"
+                            app:text="-0.01"
+                            app:textColor="?attr/colorError" />
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_weight="1" />
                     </LinearLayout>
                     <LinearLayout
                         android:id="@+id/timeContainer"
@@ -185,26 +198,15 @@
                         android:padding="@dimen/float_padding"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
-                        <ImageView
-
-                            android:id="@+id/timeIcon"
-                            android:layout_width="@dimen/float_icon_size"
-                            android:layout_height="@dimen/float_icon_size"
-                            android:src="@drawable/float_time"
-                            app:tint="?attr/colorOnSurface"
-                            />
-
-                        <TextView
-
-                            android:id="@+id/timeDate"
+                        <net.ankio.auto.ui.componets.IconView
+                            android:id="@+id/time"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="@dimen/one_padding"
-                            android:layout_marginEnd="@dimen/one_padding"
-                            android:text="2023年12月21日 11:11:00"
-                            android:textColor="?attr/colorOnSurface"
-                            style="@style/TextAppearance.AppCompat.Medium"
-                            />
+                            app:iconSrc="@drawable/float_time"
+                            app:iconTintEnabled="true"
+                            app:text="2023年12月21日 11:11:00"
+                            app:textColor="?attr/colorOnSurface" />
+
                     </LinearLayout>
 
 
