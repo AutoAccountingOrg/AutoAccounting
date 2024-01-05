@@ -43,6 +43,7 @@ class FloatEditorDialog(context: Context,val billInfo: BillInfo) : BaseSheetDial
      lateinit var binding: FloatEditorBinding
     override fun onCreateView(inflater: LayoutInflater): View {
          this.binding = FloatEditorBinding.inflate(inflater)
+        this.cardView = binding.editorCard
         //金额类型
          bindingTypePopup()
         //TODO 币种 手续费

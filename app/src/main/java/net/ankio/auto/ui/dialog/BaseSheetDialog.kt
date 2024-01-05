@@ -16,24 +16,26 @@
 package net.ankio.auto.ui.dialog
 
 import android.content.Context
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.card.MaterialCardView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import net.ankio.auto.R
+import net.ankio.auto.utils.SpUtils
 
 
 abstract class BaseSheetDialog(context: Context) :
     BottomSheetDialog(context, R.style.BottomSheetDialog) {
     private val job = Job()
     val coroutineScope = CoroutineScope(Dispatchers.Main + job)
+    lateinit var cardView: MaterialCardView
     abstract fun onCreateView(inflater: LayoutInflater): View
 
     fun show(float: Boolean = false) {
@@ -55,8 +57,36 @@ abstract class BaseSheetDialog(context: Context) :
         bottomSheetBehavior.skipCollapsed = true
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED;
 
+        if(::cardView.isInitialized){
+            val layoutParams = if (cardView.layoutParams != null) {
+                cardView.layoutParams as ViewGroup.MarginLayoutParams
+            } else {
+                // 如果 RadiusCardView 还没有布局参数，则创建新的参数
+                ViewGroup.MarginLayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            }
+            //是否使用圆角风格
+            val margin = dpToPx(context,20f)
+            if(SpUtils.getBoolean("cardRound",false)){
+                layoutParams.setMargins(margin,margin,margin,margin)
+                cardView.layoutParams = layoutParams
+                //使用圆角风格
+            }else{
+                cardView.setPadding(0,0,0,margin)
+                layoutParams.setMargins(0, 0, 0, - margin)
+                cardView.layoutParams = layoutParams
+            }
+        }
+
         this.show()
     }
+    fun dpToPx(context: Context, dp: Float): Int {
+        return TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            dp,
+            context.resources.displayMetrics
+        ).toInt()
+    }
+
 
     override fun dismiss() {
         super.dismiss()
