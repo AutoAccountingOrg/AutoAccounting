@@ -17,4 +17,7 @@
 
 MODDIR=${0%/*}
 
-magiskpolicy --live "allow system_server default_android_service service_manager add"
+magiskpolicy --live "allow system_server default_android_service service_manager add"\
+    "allow system_server  default_android_service service_manager find"\
+    "allow untrusted_app  default_android_service service_manager find"\
+    "allow untrusted_app_30 default_android_service service_manager find"
