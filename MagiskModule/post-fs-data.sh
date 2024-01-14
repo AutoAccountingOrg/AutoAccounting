@@ -1,5 +1,3 @@
-#!/system/bin/sh
-
 #
 # Copyright (C) 2024 ankio(ankio@ankio.net)
 # Licensed under the Apache License, Version 3.0 (the "License");
@@ -14,10 +12,10 @@
 #  See the License for the specific language governing permissions and
 #   limitations under the License.
 #
+MODDIR="${0%/*}"
+if [ -n  "$KSU" ]; then
+    ksud sepolicy apply  "$MODDIR/sepolicy.rule"
+else
+    magiskpolicy --live --apply "$MODDIR/sepolicy.rule"
+fi
 
-MODDIR=${0%/*}
-
-magiskpolicy --live "allow system_server default_android_service service_manager add"\
-    "allow system_server  default_android_service service_manager find"\
-    "allow untrusted_app  default_android_service service_manager find"\
-    "allow untrusted_app_30 default_android_service service_manager find"
