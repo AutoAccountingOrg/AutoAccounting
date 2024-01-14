@@ -115,6 +115,4 @@ dependencies {
     implementation libs.kotlin.reflect
     //markdown解析
     implementation  libs.markdown
-    //Xposed跨进程读写
-    implementation libs.remotepreferences
 }

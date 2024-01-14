@@ -1,0 +1,6 @@
+id=auto_accounting
+name=自动记账
+version=1.0
+versionCode=1
+author=Ankio
+description=添加SeLinux策略允许自动记账创建系统服务
