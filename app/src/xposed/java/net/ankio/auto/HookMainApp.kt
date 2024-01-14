@@ -2,14 +2,16 @@ package net.ankio.auto
 
 import android.util.Log
 import de.robv.android.xposed.IXposedHookLoadPackage
+import de.robv.android.xposed.IXposedHookZygoteInit
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 import net.ankio.auto.api.Hooker
 import net.ankio.auto.hooks.alipay.AlipayHooker
+import net.ankio.auto.hooks.android.AndroidHooker
 import net.ankio.auto.hooks.auto.AutoHooker
 
 
-class HookMainApp : IXposedHookLoadPackage {
+class HookMainApp : IXposedHookLoadPackage,IXposedHookZygoteInit {
 
     companion object {
         val name = "自动记账"
@@ -33,10 +35,12 @@ class HookMainApp : IXposedHookLoadPackage {
     }
 
     private var mHookList: MutableList<Hooker> = arrayListOf(
+        AndroidHooker(),//安卓系统hook
         AutoHooker(),//自动记账hook
         AlipayHooker() //支付宝hook
     )
 
+    private val androidSystemHooker = AndroidHooker()
 
     @Throws(Throwable::class)
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
@@ -49,6 +53,10 @@ class HookMainApp : IXposedHookLoadPackage {
                 XposedBridge.log(e.message)
             }
         }
+    }
+
+    override fun initZygote(startupParam: IXposedHookZygoteInit.StartupParam?) {
+
     }
 
 }

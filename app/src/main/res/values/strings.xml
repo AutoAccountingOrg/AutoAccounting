@@ -166,4 +166,7 @@
     <string name="float_expend_debt">借款人</string>
     <string name="float_income_debt">债权人</string>
     <string name="float_income_tip">销账</string>
+    <string name="restart_msg">无法连接到自动记账服务，请安装Magisk模块并重启后再试。</string>
+    <string name="download_magisk">下载模块</string>
+    <string name="tutorial">使用教程</string>
 </resources>

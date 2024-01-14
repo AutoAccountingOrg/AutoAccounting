@@ -43,6 +43,7 @@ import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 import net.ankio.auto.HookMainApp
+import net.ankio.auto.hooks.android.AccountingService
 import net.ankio.auto.utils.HookUtils
 
 abstract class Hooker : iHooker {
@@ -96,12 +97,19 @@ abstract class Hooker : iHooker {
             XposedBridge.log("[AutoAccounting]"+this.appName+"hook失败: classloader 或 context = null")
             return
         }
-        if(context!==null){
-            hookUtils = HookUtils(context,packPageName)
+        if(packPageName!=="android"){
+            val service =  AccountingService.get()
+            if(service==null){
+                //自动记账服务没加载
+                XposedBridge.log("${HookMainApp.getTag()}自动记账服务未加载，请重启手机后再试.")
+                return
+            }
         }
 
         hookLoadPackage(classLoader,context)
-        hookUtils.logD(HookMainApp.getTag(appName,packPageName),"欢迎使用自动记账，该日志表示 ${appName} App 已被hook。")
+        hookUtils = HookUtils(context, packPageName)
+
+        hookUtils.logD(HookMainApp.getTag(appName,packPageName),"欢迎使用自动记账，该日志表示 $appName App 已被hook。")
         for (hook in partHookers) {
             try {
                 hook.onInit(classLoader,context)

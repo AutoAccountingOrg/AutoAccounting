@@ -52,6 +52,6 @@ abstract class PartHooker(val hooker: Hooker) {
     }
 
     fun getConfig(key:String):String{
-        return hooker.hookUtils.getConfig(key)
+        return hooker.hookUtils.getSp(key)
     }
 }
