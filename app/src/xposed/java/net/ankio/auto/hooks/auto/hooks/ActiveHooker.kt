@@ -33,7 +33,7 @@ class ActiveHooker(hooker: Hooker) : PartHooker(hooker) {
         // hook激活方法
         XposedHelpers.findAndHookMethod(
             activeUtils,
-            "getActiveAndSupportFramework",
+            "getActiveAndSupportFramework",Context::class.java,
             XC_MethodReplacement.returnConstant(true))
 
         // hook getAccountMap方法
