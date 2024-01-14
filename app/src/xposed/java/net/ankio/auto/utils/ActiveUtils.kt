@@ -18,22 +18,23 @@ package net.ankio.auto.utils
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.util.Log
-import com.crossbowffs.remotepreferences.RemotePreferences
-import de.robv.android.xposed.XposedBridge
 import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.database.table.AccountMap
 import net.ankio.auto.database.table.AppData
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import net.ankio.auto.hooks.android.AccountingService
+import net.ankio.auto.ui.activity.RestartActivity
 
 
 object ActiveUtils {
-    fun getActiveAndSupportFramework(): Boolean {
+    fun getActiveAndSupportFramework(context: Context): Boolean {
+        if(AccountingService.get()===null){
+            val intent = Intent(context, RestartActivity::class.java)
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            context.startActivity(intent)
+        }
         return false
     }
     fun errorMsg(context: Context):String{
