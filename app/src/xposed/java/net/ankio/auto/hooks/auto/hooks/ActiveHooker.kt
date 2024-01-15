@@ -28,13 +28,14 @@ import net.ankio.auto.utils.ActiveUtils
 
 class ActiveHooker(hooker: Hooker) : PartHooker(hooker) {
     override fun onInit(classLoader: ClassLoader?, context: Context?) {
-        val activeUtils =
-            XposedHelpers.findClass("net.ankio.auto.utils.ActiveUtils", classLoader)
+        val activeUtils = XposedHelpers.findClass("net.ankio.auto.utils.ActiveUtils", classLoader)
         // hook激活方法
         XposedHelpers.findAndHookMethod(
             activeUtils,
-            "getActiveAndSupportFramework",Context::class.java,
-            XC_MethodReplacement.returnConstant(true))
+            "getActiveAndSupportFramework",
+            Context::class.java,
+            XC_MethodReplacement.returnConstant(true)
+        )
 
         // hook getAccountMap方法
         XposedHelpers.findAndHookMethod(
