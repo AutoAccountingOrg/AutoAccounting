@@ -137,7 +137,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun refreshStatus(){
-        if(!ActiveUtils.getActiveAndSupportFramework()){
+        if(!ActiveUtils.getActiveAndSupportFramework(requireContext())){
             setActive(SurfaceColors.SURFACE_3.getColor(requireContext()),getThemeAttrColor(com.google.android.material.R.attr.colorPrimary), R.drawable.ic_error)
         }else{
             setActive(getThemeAttrColor(com.google.android.material.R.attr.colorPrimary),getThemeAttrColor(com.google.android.material.R.attr.colorOnPrimary),R.drawable.ic_success)

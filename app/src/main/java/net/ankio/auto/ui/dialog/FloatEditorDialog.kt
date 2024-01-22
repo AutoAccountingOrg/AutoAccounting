@@ -35,6 +35,7 @@ import net.ankio.auto.app.BillUtils
 import net.ankio.auto.constant.BillType
 import net.ankio.auto.database.table.BillInfo
 import net.ankio.auto.databinding.FloatEditorBinding
+import net.ankio.auto.ui.componets.IconView
 import net.ankio.auto.utils.DateUtils
 import net.ankio.auto.utils.ImageUtils
 import net.ankio.auto.utils.SpUtils
@@ -51,11 +52,11 @@ class FloatEditorDialog(context: Context,val billInfo: BillInfo) : BaseSheetDial
         //修改账本
         bindingChangeBookName()
         //关闭按钮
-        this.binding.cancelButton.setOnClickListener {
-            this.dismiss()
+        binding.cancelButton.setOnClickListener {
+            dismiss()
         }
         //确定按钮
-        this.binding.sureButton.setOnClickListener {
+        binding.sureButton.setOnClickListener {
 
 
             //TODO 应用UI上的更改
@@ -114,9 +115,33 @@ class FloatEditorDialog(context: Context,val billInfo: BillInfo) : BaseSheetDial
 
         setPayInfo()
 
+
+        binding.payFrom.setOnClickListener {
+            selectPayInfo(it as IconView)
+        }
+
+        binding.transferFrom.setOnClickListener {
+            selectPayInfo(it as IconView)
+        }
+        binding.transferTo.setOnClickListener {
+            selectPayInfo(it as IconView)
+        }
+
+        binding.debtExpendFrom.setOnClickListener {
+            selectPayInfo(it as IconView)
+        }
+
+        binding.debtIncomeTo.setOnClickListener {
+            selectPayInfo(it as IconView)
+        }
+
+
         return binding.root
     }
 
+    private fun selectPayInfo(view: IconView){
+        //TODO 查找可用资产
+    }
     private fun setPayInfo(){
         coroutineScope.launch {
             BillInfo.getAccountDrawable(billInfo.accountNameTo,context){

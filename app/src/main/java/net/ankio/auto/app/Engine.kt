@@ -15,11 +15,9 @@
 
 package net.ankio.auto.app
 
-import net.ankio.auto.BuildConfig
 import net.ankio.auto.constant.BillType
 import net.ankio.auto.constant.Currency
 import net.ankio.auto.database.table.BillInfo
-import net.ankio.auto.utils.ActiveUtils
 import net.ankio.auto.utils.DateUtils
 import net.ankio.auto.utils.HookUtils
 import org.json.JSONObject
@@ -58,7 +56,7 @@ object Engine {
             val scope: Scriptable = context.initStandardObjects()
             context.setOptimizationLevel(-1)
             //识别脚本补充
-            var js = "var window = {data:data, dataType:dataType, app:app};${hookUtils?.getConfig("dataRule")}"
+            var js = "var window = {data:data, dataType:dataType, app:app};${hookUtils?.getSp("dataRule")}"
             hookUtils?.logD("执行识别脚本", js)
             ScriptableObject.putProperty(scope, "data", data)
             ScriptableObject.putProperty(scope, "dataType", dataType)
@@ -86,7 +84,7 @@ object Engine {
             billInfo.channel = jsonObject2.getString("channel")
             //分类脚本补充
             js =
-                "var window = {money:money, type:type, shopName:shopName, shopItem:shopItem, time:time};${hookUtils?.getConfig("dataCategory")}"
+                "var window = {money:money, type:type, shopName:shopName, shopItem:shopItem, time:time};${hookUtils?.getSp("dataCategory")}"
             outputBuilder.clear();//清空
             hookUtils?.logD("执行分类脚本", js)
 
