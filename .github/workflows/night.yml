@@ -25,14 +25,13 @@ jobs:
       - name: Build and Upload APKs
         run: |
           mkdir release
-          current_time=$(date '+%Y%m%d%H%M%S')
           # 优先构建xposed版本
           for flavor in xposed ; do
             ./gradlew "assemble${flavor^}Release"
-            cp app/build/outputs/apk/${flavor}/release/app.apk release/app-${flavor}-pre-$current_time.apk
+            cp app/build/outputs/apk/${flavor}/release/app.apk release/app-${flavor}.apk
           done
-          ls -al .
-          ls -al release
+          ./gradlew "packageMagiskModule"
+          cp build/outputs/MagiskModule.zip release/MagiskModule.zip
 
       - uses: ilharp/sign-android-release@v1
         name: Sign app APK # ID used to access action output
@@ -51,33 +50,36 @@ jobs:
           echo "VERSION_NAME=$versionName" >> $GITHUB_ENV
         shell: bash
 
-
       - name: Build Changelog
         id: github_release
         uses: mikepenz/release-changelog-builder-action@v3
         with:
           commitMode: true
-          configuration: "configuration.json"
+          configuration: ".github/workflows/configuration.json"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Generate Tag Name
         id: tag_name
-        run: echo "TAG_VERSION_NAME=v${{ env.VERSION_NAME }}-night-$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
-
+        run: echo "TAG_VERSION_NAME=v${{ env.VERSION_NAME }}-commit-$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
+      - name: Upload Apks
+        id: upload_apk
+        run: pip install requests && python .github/workflows/upload.py
+        env:
+          CHANGELOG: ${{steps.github_release.outputs.changelog}}
       - name: Create And Push Tag
         run: |
           git tag "${{ env.TAG_VERSION_NAME }}"
           git push origin "${{ env.TAG_VERSION_NAME }}"
 
-      - name: Create GitHub Release
-        id: create_release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            release/app-*-signed.apk
-          tag_name: ${{ env.TAG_VERSION_NAME }}
-          body: ${{steps.github_release.outputs.changelog}}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          prerelease: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+       # - name: Create GitHub Release
+       #  id: create_release
+       #    uses: softprops/action-gh-release@v1
+       #   with:
+       #    files: |
+       #      release/app-*-signed.apk
+       #     tag_name: ${{ env.TAG_VERSION_NAME }}
+       #   body: ${{steps.github_release.outputs.changelog}}
+       #    token: ${{ secrets.GITHUB_TOKEN }}
+       #   prerelease: true
+       # env:
+       #   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
