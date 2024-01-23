@@ -5,8 +5,11 @@ on:
     branches:
       - master
 
+permissions: write-all
+
 jobs:
   buildAndRelease: # 编译安卓
+
     runs-on: ubuntu-latest
     steps:
       - name: Check Code
