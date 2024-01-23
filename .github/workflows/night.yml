@@ -66,6 +66,10 @@ jobs:
         run: pip install requests && python .github/workflows/upload.py
         env:
           CHANGELOG: ${{steps.github_release.outputs.changelog}}
+          GITHUB_WORKSPACE: ${{ env.GITHUB_WORKSPACE }}
+          HOST_ENV_VAR: ${{ secrets.HOST_ENV_VAR }}
+          USERNAME_ENV_VAR: ${{ secrets.USERNAME_ENV_VAR }}
+          PASSWORD_ENV_VAR: ${{ secrets.PASSWORD_ENV_VAR }}
       - name: Create And Push Tag
         run: |
           git tag "${{ env.TAG_VERSION_NAME }}"

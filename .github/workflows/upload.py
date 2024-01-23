@@ -3,7 +3,6 @@ from urllib.parse import quote
 import requests
 import json
 import os
-
 # 登录
 username = os.getenv('USERNAME_ENV_VAR')
 password = os.getenv('PASSWORD_ENV_VAR')
