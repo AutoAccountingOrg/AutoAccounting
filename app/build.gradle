@@ -115,4 +115,9 @@ dependencies {
     implementation libs.kotlin.reflect
     //markdown解析
     implementation  libs.markdown
+    //shizuku
+    implementation libs.api
+
+// Add this line if you want to support Shizuku
+    implementation libs.provider
 }

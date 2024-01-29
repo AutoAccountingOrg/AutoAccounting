@@ -3,13 +3,13 @@ agp = "8.4.0-alpha04"
 analytics = "14.3.0"
 androiddebuglib = "0.1.4"
 androidx-roomRuntime = "2.5.2"
+api = "13.1.5"
 flexbox = "3.0.0"
 github-DialogLoading = "1.0.3"
 
 kotlinReflect = "1.8.22"
 kotlinxCoroutinesAndroid = "1.6.4"
 markdown = "0.5.0"
-remotepreferences = "0.8"
 rhino = "1.7.14"
 roomCompiler = "2.5.2"
 round = "1.1.2"
@@ -40,11 +40,12 @@ androidx-room-compiler-v251 = { module = "androidx.room:room-compiler", version.
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "androidx-roomRuntime" }
 androidx-room-runtime-v251 = { module = "androidx.room:room-runtime", version.ref = "androidx-roomRuntime" }
 androidx-swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefreshlayout", version.ref = "swiperefreshlayout" }
+api = { module = "dev.rikka.shizuku:api", version.ref = "api" }
 flexbox = { module = "com.google.android.flexbox:flexbox", version.ref = "flexbox" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlinReflect" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroid" }
 markdown = { module = "org.jetbrains:markdown", version.ref = "markdown" }
-remotepreferences = { module = "com.crossbowffs.remotepreferences:remotepreferences", version.ref = "remotepreferences" }
+provider = { module = "dev.rikka.shizuku:provider", version.ref = "api" }
 rhino = { module = "org.mozilla:rhino", version.ref = "rhino" }
 round = { module = "io.github.xiaofeidev:round", version.ref = "round" }
 tobeyr1DialogLoading = { module = "com.github.Tobeyr1:DialogLoading", version.ref = "github-DialogLoading" }
