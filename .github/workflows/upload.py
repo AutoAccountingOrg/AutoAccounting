@@ -48,9 +48,9 @@ def upload(filename, filename_new, auth):
 
 
 changeLog = os.getenv('CHANGELOG')
+log = "Ver "+os.getenv("TAG_VERSION_NAME")+"\n"+changeLog
 with open(os.getenv("GITHUB_WORKSPACE")+"/release/README.md", 'w') as file:
-    file.writelines(changeLog)
+    file.writelines(log)
 upload("/release/README.md", "README.md", token)
 upload("/release/app-xposed.apk", "xposed.apk", token)
-upload("/release/MagiskModule.zip", "MagiskModule.zip", token)
 # TODO 除了上传文件到服务器以外，还需要通过bot通知到自动记账群的用户。

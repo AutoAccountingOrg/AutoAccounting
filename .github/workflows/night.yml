@@ -33,8 +33,7 @@ jobs:
             ./gradlew "assemble${flavor^}Release"
             cp app/build/outputs/apk/${flavor}/release/app.apk release/app-${flavor}.apk
           done
-          ./gradlew "packageMagiskModule"
-          cp build/outputs/MagiskModule.zip release/MagiskModule.zip
+         
 
       - uses: ilharp/sign-android-release@v1
         name: Sign app APK # ID used to access action output
