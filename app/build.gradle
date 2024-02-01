@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
     id 'com.google.devtools.ksp' version "1.8.21-1.0.11"
+    id "com.bugsnag.android.gradle"
 }
 
 android {
@@ -37,6 +38,11 @@ android {
                 versionNameSuffix = " - 无障碍"
             }
         }
+        externalNativeBuild {
+            cmake {
+                cppFlags ''
+            }
+        }
     }
     buildFeatures {
         viewBinding true
@@ -63,6 +69,12 @@ android {
     kotlinOptions {
         jvmTarget = '17'
     }
+    externalNativeBuild {
+        cmake {
+            path file('src/main/cpp/CMakeLists.txt')
+            version '3.22.1'
+        }
+    }
 
 }
 
@@ -75,6 +87,8 @@ dependencies {
     implementation libs.androidx.navigation.fragment.ktx
     implementation libs.androidx.navigation.ui.ktx
     implementation libs.androidx.browser
+    implementation libs.androidx.activity
+    implementation libs.androidx.constraintlayout
     testImplementation libs.junit
     androidTestImplementation libs.androidx.test.ext.junit
     androidTestImplementation libs.espresso.core
@@ -90,8 +104,6 @@ dependencies {
     implementation libs.gson
     //权限请求 支持Androidx
     implementation libs.permissionx
-    //网络请求
-    implementation libs.okhttp
     //xp依赖
     compileOnly libs.xposed
     //room数据库
@@ -106,18 +118,12 @@ dependencies {
     implementation libs.round
     //js引擎
     implementation libs.rhino
-    //数据库调试：adb forward tcp:8080 tcp:8080
-    debugImplementation libs.androiddebuglib
-   // debugImplementation libs.debug.db
     //加载库
     implementation libs.tobeyr1DialogLoading
     //kotlin反射
     implementation libs.kotlin.reflect
     //markdown解析
     implementation  libs.markdown
-    //shizuku
-    implementation libs.api
-
-// Add this line if you want to support Shizuku
-    implementation libs.provider
+    implementation "com.bugsnag:bugsnag-android:5.32.1"
+    implementation "com.bugsnag:bugsnag-android-performance:1.2.1"
 }
