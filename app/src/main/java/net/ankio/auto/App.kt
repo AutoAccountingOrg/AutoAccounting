@@ -15,23 +15,30 @@
 
 package net.ankio.auto
 
-import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
-import com.quickersilver.themeengine.ThemeEngine
+import com.bugsnag.android.Bugsnag
 import net.ankio.auto.database.Db
+import net.ankio.auto.utils.AppUtils
+import net.ankio.auto.utils.SpUtils
 
 
-open class App : Application() {
-    companion object {
-        @SuppressLint("StaticFieldLeak")
-        lateinit var context: Context
-    }
-    
+class App : Application() {
+
+
     override fun onCreate() {
         super.onCreate()
-        context = applicationContext
         //数据库初始化
         Db.init(this)
+        //AppCenter初始化
+        if(SpUtils.getBoolean("sendToAppCenter",true)){
+            Bugsnag.start(this)
+        }
+    }
+
+
+    override fun attachBaseContext(base: Context?) {
+        super.attachBaseContext(base)
+        AppUtils.setApplication(this)
     }
 }

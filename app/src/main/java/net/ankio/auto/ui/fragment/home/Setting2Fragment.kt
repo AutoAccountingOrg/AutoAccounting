@@ -24,13 +24,20 @@ import android.view.WindowManager
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.appcompat.widget.ListPopupWindow
+import androidx.core.text.HtmlCompat
 import com.quickersilver.themeengine.ThemeChooserDialogBuilder
 import com.quickersilver.themeengine.ThemeEngine
 import com.quickersilver.themeengine.ThemeMode
+import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentSetting2Binding
 import net.ankio.auto.utils.ActiveUtils
+import net.ankio.auto.utils.AppUtils
+import net.ankio.auto.utils.CustomTabsHelper
+import net.ankio.auto.utils.LocaleDelegate
 import net.ankio.auto.utils.SpUtils
+import net.ankio.utils.LangList
+import java.util.Locale
 
 
 class Setting2Fragment:Fragment() {
@@ -45,22 +52,74 @@ class Setting2Fragment:Fragment() {
         return binding.root
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-    }
     private fun initView(){
         //匿名分析
-        SpUtils.getBoolean("app_center_analyze",true).apply { binding.analyze.isChecked = this }
-        binding.AnalyzeView.setOnClickListener {
-            binding.analyze.isChecked = !binding.analyze.isChecked
-            SpUtils.putBoolean("app_center_analyze",binding.analyze.isChecked )
-        }
-        binding.analyze.setOnCheckedChangeListener { _, isChecked ->  SpUtils.putBoolean("app_center_analyze",isChecked ) }
+        initCrash()
         //语言配置
-
+        initLanguage()
 
         //主题
+        initTheme()
+
+        //调试模式
+       initDebug()
+    }
+
+    private fun initCrash(){
+        SpUtils.getBoolean("sendToAppCenter",true).apply { binding.analyze.isChecked = this }
+        binding.AnalyzeView.setOnClickListener {
+            binding.analyze.isChecked = !binding.analyze.isChecked
+            SpUtils.putBoolean("sendToAppCenter",binding.analyze.isChecked )
+        }
+        binding.analyze.setOnCheckedChangeListener { _, isChecked ->  SpUtils.putBoolean("sendToAppCenter",isChecked ) }
+    }
+
+    private fun initLanguage(){
+        val languages: ArrayList<String> = ArrayList()
+
+        LangList.LOCALES.forEach {
+            if (it.equals("SYSTEM")) {
+                languages.add(getString(R.string.lang_follow_system))
+            }else{
+                val locale = Locale.forLanguageTag(it)
+                languages.add(
+                    HtmlCompat.fromHtml(locale.getDisplayName(locale), HtmlCompat.FROM_HTML_MODE_LEGACY)
+                        .toString())
+            }
+        }
+
+        SpUtils.getString("setting_language","SYSTEM").apply { binding.settingLangDesc.text = if (this == "SYSTEM") getString(R.string.lang_follow_system) else Locale.forLanguageTag(this).displayName }
+
+
+
+        val listPopupWindow = ListPopupWindow(requireContext(), null)
+
+        listPopupWindow.anchorView =  binding.settingLangDesc
+
+        val adapter = ArrayAdapter(requireContext(), R.layout.list_popup_window_item,  languages)
+        listPopupWindow.setAdapter(adapter)
+        listPopupWindow.width = WindowManager.LayoutParams.WRAP_CONTENT
+
+        listPopupWindow.setOnItemClickListener { _: AdapterView<*>?, _: View?, position: Int, _: Long ->
+            val value = LangList.LOCALES[position]
+            binding.settingLangDesc.text = languages[position]
+            SpUtils.putString("setting_language",value)
+            val locale = AppUtils.getLocale(value)
+            if(locale===null)return@setOnItemClickListener
+            listPopupWindow.dismiss()
+            LocaleDelegate.defaultLocale = AppUtils.getLocale()
+            recreateInit()
+        }
+
+        binding.settingLang.setOnClickListener{ listPopupWindow.show() }
+        //翻译
+        binding.settingTranslate.setOnClickListener{
+            CustomTabsHelper.launchUrlOrCopy(requireContext(), getString(R.string.translation_url))
+        }
+
+    }
+
+    private fun initTheme(){
         val color = ThemeEngine.getInstance(requireContext()).staticTheme.primaryColor
 
         binding.colorSwitch.setCardBackgroundColor(requireActivity().getColor(color))
@@ -141,16 +200,23 @@ class Setting2Fragment:Fragment() {
             recreateInit()
         }
 
-        //调试模式
-        binding.systemDebug.isChecked = ActiveUtils.get("debug") == "true"
-        binding.settingDebug.setOnClickListener {
-            binding.systemDebug.isChecked = !binding.systemDebug.isChecked
-            ActiveUtils.put("debug",if(binding.systemDebug.isChecked) "true" else "false")
-        }
-        binding.systemDebug.setOnCheckedChangeListener {_, isChecked -> ActiveUtils.put("debug",if(isChecked) "true" else "false") }
-
     }
 
+    private fun initDebug(){
+        AppUtils.getService().get("debug"){
+            binding.systemDebug.isChecked = it == "true"
+        }
+
+        binding.settingDebug.setOnClickListener {
+            binding.systemDebug.isChecked = !binding.systemDebug.isChecked
+            AppUtils.getService().set("debug",if(binding.systemDebug.isChecked) "true" else "false")
+        }
+        binding.systemDebug.setOnClickListener {
+            AppUtils.getService().set("debug",if(binding.systemDebug.isChecked) "true" else "false")
+        }
+       // binding.systemDebug.setOnCheckedChangeListener {_, isChecked -> AppUtils.getService().set("debug",if(isChecked) "true" else "false")}
+
+    }
     /**
      * 页面重新初始化
      */
