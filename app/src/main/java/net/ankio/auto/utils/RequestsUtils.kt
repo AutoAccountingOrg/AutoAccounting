@@ -58,7 +58,15 @@ private class HttpLogger : HttpLoggingInterceptor.Logger {
         mMessage.append(message + "\n")
         // 请求或者响应结束，打印整条日志
         if (message.startsWith("<-- END HTTP")) {
-            Logger.d(mMessage.toString())
+
+            var msg  = mMessage.toString()
+
+            msg =  msg.replace("--> END ","\n───────────────────────────────────────────────────────────────\n")
+            msg =   msg.replace("<-- END ","\n───────────────────────────────────────────────────────────────\n")
+            msg =  msg.replace("--> ","")
+            msg =  msg.replace("<--","\n───────────────────────────────────────────────────────────────\n")
+
+            Logger.d(msg)
         }
     }
 }
