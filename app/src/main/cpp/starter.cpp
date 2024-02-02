@@ -34,10 +34,16 @@ static inline void trim(std::string &s) {
 }
 
 
-std::string httpResponse(const std::string &status,const std::string &responseBody) {
-    return "HTTP/1.1 " + status + "\nContent-Type: text/plain\nContent-Length: " +
-           std::to_string(responseBody.size()) + "\n\n" + responseBody;
+std::string httpResponse(const std::string &status, const std::string &responseBody) {
+
+    return "HTTP/1.1 " + status + "\r\n" // 使用 \r\n 而不是 \n 作为行结束符，以符合HTTP协议标准
+           "Content-Type: text/plain\r\n"
+           "Content-Length: " + std::to_string(responseBody.size()) + "\r\n"
+           "Connection: close\r\n" // 添加这行来指示连接将被关闭
+           "\r\n" +
+           responseBody;
 }
+
 
 void writeFile(const std::string &filename, const std::string &fileInfo) {
     std::ofstream outFile(filename + ".txt"); // 打开或创建文件用于写入
@@ -132,7 +138,8 @@ std::string readFile(const std::string &filename) {
 }
 
 std::string
-handleRoute(const std::string &path, const std::string &requestBody, const std::string &authHeader,const std::unordered_map<std::string, std::string>& queryParams) {
+handleRoute(const std::string &path, const std::string &requestBody, const std::string &authHeader,
+            const std::unordered_map<std::string, std::string> &queryParams) {
     std::string response = "OK";
     std::string status = "200 OK";
     if (path == "/") {
@@ -147,14 +154,14 @@ handleRoute(const std::string &path, const std::string &requestBody, const std::
     } else if (path == "/set") {
         if (queryParams.find("name") != queryParams.end()) {
             std::string key = queryParams.at("name");
-            if(key!="auth" && key!="data" && key!="log"){
+            if (key != "auth" && key != "data" && key != "log") {
                 writeFile(queryParams.at("name"), requestBody);
             }
         }
     } else if (path == "/log") {
-            writeLog(requestBody);
+        writeLog(requestBody);
     } else if (path == "/data") {
-            writeData(requestBody);
+        writeData(requestBody);
     } else {
         response = "404 Not Found";
         status = "404 Not Found";
@@ -164,7 +171,7 @@ handleRoute(const std::string &path, const std::string &requestBody, const std::
     return httpResponse(status, response);
 }
 
-std::unordered_map<std::string, std::string> parseQuery(const std::string& query) {
+std::unordered_map<std::string, std::string> parseQuery(const std::string &query) {
     std::unordered_map<std::string, std::string> queryParams;
     std::istringstream queryStream(query);
     std::string pair;
@@ -280,8 +287,8 @@ void handleConnection(int socket) {
 
     close(socket);
 }
-void daemonize()
-{
+
+void daemonize(std::string &path) {
     pid_t pid;
 
     // 创建子进程
@@ -300,23 +307,29 @@ void daemonize()
     if (setsid() < 0) exit(EXIT_FAILURE);
 
     // 改变工作目录
-    if (chdir("/data/local/tmp/autoAccount") < 0) exit(EXIT_FAILURE);
+    if (chdir(path.c_str()) < 0) exit(EXIT_FAILURE);
 
     // 关闭所有打开的文件描述符
-    for (int x = sysconf(_SC_OPEN_MAX); x>=0; x--)
-    {
-        close (x);
+    for (int x = sysconf(_SC_OPEN_MAX); x >= 0; x--) {
+        close(x);
     }
 
     // 重定向标准输入、输出和错误到/dev/null
-    open("/dev/null",O_RDWR);
+    open("/dev/null", O_RDWR);
     dup(0);
     dup(0);
 }
 
 
-int main() {
-    daemonize();
+int main(int argc, char* argv[]) {
+
+    if (argc < 2) {
+        std::cout << "Usage: " << argv[0] << " <path>" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+    std::string path = argv[1];
+
+    daemonize(path);
 
     // 守护进程步骤结束，以下是原有的服务器代码
     int server_fd, new_socket;
@@ -354,7 +367,8 @@ int main() {
     }
 
     while (true) {
-        if ((new_socket = accept(server_fd, (struct sockaddr *) &address, (socklen_t *) &addrlen)) < 0) {
+        if ((new_socket = accept(server_fd, (struct sockaddr *) &address, (socklen_t *) &addrlen)) <
+            0) {
             perror("accept");
             exit(EXIT_FAILURE);
         }
