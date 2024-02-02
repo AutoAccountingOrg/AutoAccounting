@@ -21,17 +21,14 @@ import android.animation.ValueAnimator
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
-import android.graphics.Color
+import android.os.Bundle
+import android.os.PersistableBundle
 import android.view.View
 import androidx.annotation.AttrRes
-import androidx.annotation.ColorInt
-import androidx.annotation.StyleRes
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.view.ContextThemeWrapper
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.MaterialToolbar
-import com.google.android.material.color.MaterialColors
 import com.google.android.material.elevation.SurfaceColors
 import com.quickersilver.themeengine.ThemeEngine
 import com.quickersilver.themeengine.ThemeMode
@@ -39,6 +36,7 @@ import com.zackratos.ultimatebarx.ultimatebarx.addNavigationBarBottomPadding
 import com.zackratos.ultimatebarx.ultimatebarx.addStatusBarTopPadding
 import com.zackratos.ultimatebarx.ultimatebarx.navigationBar
 import com.zackratos.ultimatebarx.ultimatebarx.statusBar
+import net.ankio.auto.utils.LanguageUtils
 import net.ankio.auto.utils.ThemeUtils
 
 /**
@@ -54,15 +52,24 @@ open class BaseActivity : AppCompatActivity() {
      * 重构context
      */
     override fun attachBaseContext(newBase: Context?) {
-        super.attachBaseContext(newBase)
+       val context = newBase?.let {
+           LanguageUtils.initAppLanguage(it)
+        }
+        super.attachBaseContext(context)
+
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        //主题初始化
+        ThemeEngine.applyToActivity(this)
     }
 
     /**
      * 在子activity手动调用该方法
      */
     fun onViewCreated(){
-        //主题初始化
-        ThemeEngine.applyToActivity(this)
+
         //主题初始化
         val themeMode = ThemeEngine.getInstance(this@BaseActivity).themeMode
 
@@ -145,6 +152,12 @@ open class BaseActivity : AppCompatActivity() {
      */
     inline fun <reified T : BaseActivity> Context.start() {
         val intent = Intent(this, T::class.java)
+        startActivity(intent)
+    }
+
+    inline fun <reified T : BaseActivity> Context.startNew() {
+        val intent = Intent(this, T::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         startActivity(intent)
     }
 
