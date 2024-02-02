@@ -60,8 +60,9 @@ object CustomTabsHelper {
             try {
                 context.startActivity(intent)
             } catch (tr: Throwable) {
+                Logger.e("打开默认浏览器失败",tr)
                 try {
-                    ClipboardUtils.put(context, url)
+                    AppUtils.copyToClipboard(url)
                     MaterialAlertDialogBuilder(context)
                         .setTitle(R.string.dialog_cannot_open_browser_title)
                         .setMessage(

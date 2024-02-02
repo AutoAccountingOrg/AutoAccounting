@@ -16,28 +16,20 @@
 package net.ankio.auto.ui.fragment.home
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import androidx.appcompat.widget.ListPopupWindow
-import androidx.core.text.HtmlCompat
+import androidx.fragment.app.Fragment
 import com.quickersilver.themeengine.ThemeChooserDialogBuilder
 import com.quickersilver.themeengine.ThemeEngine
 import com.quickersilver.themeengine.ThemeMode
-import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentSetting2Binding
-import net.ankio.auto.utils.ActiveUtils
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.CustomTabsHelper
-import net.ankio.auto.utils.LocaleDelegate
+import net.ankio.auto.utils.LanguageUtils
+import net.ankio.auto.utils.ListPopupUtils
 import net.ankio.auto.utils.SpUtils
-import net.ankio.utils.LangList
-import java.util.Locale
 
 
 class Setting2Fragment:Fragment() {
@@ -75,43 +67,22 @@ class Setting2Fragment:Fragment() {
     }
 
     private fun initLanguage(){
-        val languages: ArrayList<String> = ArrayList()
+        val languages: ArrayList<String> = LanguageUtils.getLangListName(requireContext())
 
-        LangList.LOCALES.forEach {
-            if (it.equals("SYSTEM")) {
-                languages.add(getString(R.string.lang_follow_system))
-            }else{
-                val locale = Locale.forLanguageTag(it)
-                languages.add(
-                    HtmlCompat.fromHtml(locale.getDisplayName(locale), HtmlCompat.FROM_HTML_MODE_LEGACY)
-                        .toString())
-            }
-        }
-
-        SpUtils.getString("setting_language","SYSTEM").apply { binding.settingLangDesc.text = if (this == "SYSTEM") getString(R.string.lang_follow_system) else Locale.forLanguageTag(this).displayName }
+        val langListArray = LanguageUtils.getLangList()
 
 
+        binding.settingLangDesc.text = LanguageUtils.getAppLangName(requireContext())
 
-        val listPopupWindow = ListPopupWindow(requireContext(), null)
 
-        listPopupWindow.anchorView =  binding.settingLangDesc
-
-        val adapter = ArrayAdapter(requireContext(), R.layout.list_popup_window_item,  languages)
-        listPopupWindow.setAdapter(adapter)
-        listPopupWindow.width = WindowManager.LayoutParams.WRAP_CONTENT
-
-        listPopupWindow.setOnItemClickListener { _: AdapterView<*>?, _: View?, position: Int, _: Long ->
-            val value = LangList.LOCALES[position]
-            binding.settingLangDesc.text = languages[position]
-            SpUtils.putString("setting_language",value)
-            val locale = AppUtils.getLocale(value)
-            if(locale===null)return@setOnItemClickListener
-            listPopupWindow.dismiss()
-            LocaleDelegate.defaultLocale = AppUtils.getLocale()
+        val listPopupWindow = ListPopupUtils(requireContext(), binding.settingLangDesc,languages){
+            val value = langListArray[it]
+            binding.settingLangDesc.text = languages[it]
+            LanguageUtils.setAppLanguage(value)
             recreateInit()
         }
 
-        binding.settingLang.setOnClickListener{ listPopupWindow.show() }
+        binding.settingLang.setOnClickListener{ listPopupWindow.toggle() }
         //翻译
         binding.settingTranslate.setOnClickListener{
             CustomTabsHelper.launchUrlOrCopy(requireContext(), getString(R.string.translation_url))
@@ -149,24 +120,16 @@ class Setting2Fragment:Fragment() {
             else  -> stringList[2]
         }
 
-        val listPopupThemeWindow = ListPopupWindow(requireContext(), null)
-
-        listPopupThemeWindow.anchorView =  binding.settingDarkTheme
-
-        listPopupThemeWindow.setAdapter(ArrayAdapter(requireContext(), R.layout.list_popup_window_item,  stringList))
-        listPopupThemeWindow.width = WindowManager.LayoutParams.WRAP_CONTENT
-
-        listPopupThemeWindow.setOnItemClickListener { _: AdapterView<*>?, _: View?, position: Int, _: Long ->
-            binding.settingDarkTheme.text = stringList[position]
-            ThemeEngine.getInstance(requireContext()).themeMode = when(position){
+        val listPopupThemeWindow = ListPopupUtils(requireContext(), binding.settingDarkTheme,stringList){
+            binding.settingDarkTheme.text = stringList[it]
+            ThemeEngine.getInstance(requireContext()).themeMode = when(it){
                 1 -> ThemeMode.DARK
                 0 -> ThemeMode.LIGHT
                 else -> ThemeMode.AUTO
             }
-            listPopupThemeWindow.dismiss()
         }
 
-        binding.settingDark.setOnClickListener{ listPopupThemeWindow.show() }
+        binding.settingDark.setOnClickListener{ listPopupThemeWindow.toggle() }
 
 
         binding.alwaysDark.isChecked = ThemeEngine.getInstance(requireContext()).isTrueBlack
@@ -174,7 +137,8 @@ class Setting2Fragment:Fragment() {
             ThemeEngine.getInstance(requireContext()).isTrueBlack = !binding.alwaysDark.isChecked
             binding.alwaysDark.isChecked = !binding.alwaysDark.isChecked
         }
-        binding.alwaysDark.setOnCheckedChangeListener { _, isChecked ->  ThemeEngine.getInstance(requireContext()).isTrueBlack =  isChecked //;recreateInit()
+        binding.alwaysDark.setOnCheckedChangeListener { _, isChecked ->
+            ThemeEngine.getInstance(requireContext()).isTrueBlack =  isChecked
         }
         if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.S){
             binding.settingUseSystemTheme.visibility = View.GONE
@@ -190,13 +154,15 @@ class Setting2Fragment:Fragment() {
 
         binding.systemColor.isChecked = ThemeEngine.getInstance(requireContext()).isDynamicTheme
         isUseSystemColor(binding.systemColor.isChecked)
+
+
+
         binding.settingUseSystemTheme.setOnClickListener {
-            ThemeEngine.getInstance(requireContext()).isDynamicTheme = !binding.systemColor.isChecked
             binding.systemColor.isChecked = !binding.systemColor.isChecked
         }
-        binding.systemColor.setOnClickListener {
+        binding.systemColor.setOnCheckedChangeListener { _, isChecked ->
             isUseSystemColor(binding.systemColor.isChecked)
-            ThemeEngine.getInstance(requireContext()).isDynamicTheme = binding.systemColor.isChecked
+            ThemeEngine.getInstance(requireContext()).isDynamicTheme = isChecked
             recreateInit()
         }
 
@@ -209,13 +175,10 @@ class Setting2Fragment:Fragment() {
 
         binding.settingDebug.setOnClickListener {
             binding.systemDebug.isChecked = !binding.systemDebug.isChecked
-            AppUtils.getService().set("debug",if(binding.systemDebug.isChecked) "true" else "false")
         }
-        binding.systemDebug.setOnClickListener {
-            AppUtils.getService().set("debug",if(binding.systemDebug.isChecked) "true" else "false")
+        binding.systemDebug.setOnCheckedChangeListener { _, isChecked ->
+            AppUtils.getService().set("debug",if(isChecked) "true" else "false")
         }
-       // binding.systemDebug.setOnCheckedChangeListener {_, isChecked -> AppUtils.getService().set("debug",if(isChecked) "true" else "false")}
-
     }
     /**
      * 页面重新初始化
@@ -223,5 +186,8 @@ class Setting2Fragment:Fragment() {
     fun recreateInit() {
         activity?.recreate()
     }
+
+
+
 
 }
