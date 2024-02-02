@@ -16,9 +16,6 @@
 package net.ankio.auto.ui.adapter
 
 import android.content.Context
-import android.graphics.ColorFilter
-import android.graphics.PorterDuff
-import android.graphics.PorterDuffColorFilter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -37,8 +34,8 @@ import net.ankio.auto.R
 import net.ankio.auto.database.Db
 import net.ankio.auto.database.table.Category
 import net.ankio.auto.databinding.AdapterCategoryListBinding
+import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.ImageUtils
-import net.ankio.auto.utils.ThemeUtils
 
 
 class CategorySelectorAdapter(
@@ -68,17 +65,17 @@ class CategorySelectorAdapter(
     }
     fun setActive(textView: TextView,imageView: ImageView,imageView2: ImageView,boolean: Boolean,context: Context){
         if(boolean){
-            textView.setTextColor(ThemeUtils.getThemeAttrColor(context,com.google.android.material.R.attr.colorPrimary))
+            textView.setTextColor(AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorPrimary))
             imageView.setBackgroundResource(R.drawable.rounded_border)
-            imageView.setColorFilter(ThemeUtils.getThemeAttrColor(context,com.google.android.material.R.attr.colorOnPrimary))
+            imageView.setColorFilter(AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorOnPrimary))
             imageView2.setBackgroundResource(R.drawable.rounded_border2)
-            imageView2.setColorFilter(ThemeUtils.getThemeAttrColor(context,com.google.android.material.R.attr.colorOnPrimary))
+            imageView2.setColorFilter(AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorOnPrimary))
         }else{
-            textView.setTextColor(ThemeUtils.getThemeAttrColor(context,com.google.android.material.R.attr.colorSecondary))
+            textView.setTextColor(AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorSecondary))
            imageView.setBackgroundResource(R.drawable.rounded_border_)
-            imageView.setColorFilter(ThemeUtils.getThemeAttrColor(context,com.google.android.material.R.attr.colorSecondary))
+            imageView.setColorFilter(AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorSecondary))
             imageView2.setBackgroundResource(R.drawable.rounded_border_2)
-            imageView2.setColorFilter(ThemeUtils.getThemeAttrColor(context,com.google.android.material.R.attr.colorSecondary))
+            imageView2.setColorFilter(AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorSecondary))
         }
     }
 

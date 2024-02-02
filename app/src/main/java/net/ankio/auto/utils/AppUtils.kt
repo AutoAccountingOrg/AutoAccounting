@@ -21,8 +21,13 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+import android.graphics.Color
 import android.os.Process
 import android.text.TextUtils
+import androidx.annotation.AttrRes
+import androidx.appcompat.view.ContextThemeWrapper
+import com.google.android.material.color.MaterialColors
+import com.quickersilver.themeengine.ThemeEngine
 import net.ankio.auto.ui.activity.LauncherActivity
 import java.util.Locale
 
@@ -70,17 +75,13 @@ object  AppUtils {
         val clip = ClipData.newPlainText("text", text)
         clipboard.setPrimaryClip(clip)
     }
-
-    fun getLocale(tag: String): Locale? {
-        return if (TextUtils.isEmpty(tag) || "SYSTEM" == tag) {
-            LocaleDelegate.systemLocale
-        } else Locale.forLanguageTag(tag)
+    /**
+     * 获取主题色
+     */
+    fun getThemeAttrColor( @AttrRes attrResId: Int): Int {
+        return MaterialColors.getColor(ContextThemeWrapper(application, ThemeEngine.getInstance(application).getTheme()), attrResId, Color.WHITE)
     }
 
-    fun getLocale(): Locale? {
-        val tag: String = SpUtils.getString("setting_language", "SYSTEM")
-        return getLocale(tag)
-    }
 
 
 }

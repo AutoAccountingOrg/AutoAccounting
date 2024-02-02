@@ -22,7 +22,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.view.View
 import androidx.annotation.AttrRes
 import androidx.appcompat.app.AppCompatActivity
@@ -36,8 +35,8 @@ import com.zackratos.ultimatebarx.ultimatebarx.addNavigationBarBottomPadding
 import com.zackratos.ultimatebarx.ultimatebarx.addStatusBarTopPadding
 import com.zackratos.ultimatebarx.ultimatebarx.navigationBar
 import com.zackratos.ultimatebarx.ultimatebarx.statusBar
+import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.LanguageUtils
-import net.ankio.auto.utils.ThemeUtils
 
 /**
  * 基础的BaseActivity
@@ -127,7 +126,7 @@ open class BaseActivity : AppCompatActivity() {
      * 获取主题色
      */
     fun getThemeAttrColor( @AttrRes attrResId: Int): Int {
-       return ThemeUtils.getThemeAttrColor(this,attrResId)
+       return AppUtils.getThemeAttrColor(attrResId)
     }
 
 
