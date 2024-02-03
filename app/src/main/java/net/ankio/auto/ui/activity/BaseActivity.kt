@@ -67,7 +67,7 @@ open class BaseActivity : AppCompatActivity() {
     /**
      * 在子activity手动调用该方法
      */
-    fun onViewCreated(){
+    open fun onViewCreated(){
 
         //主题初始化
         val themeMode = ThemeEngine.getInstance(this@BaseActivity).themeMode
