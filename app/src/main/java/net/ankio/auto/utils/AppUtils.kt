@@ -23,13 +23,14 @@ import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.graphics.Color
 import android.os.Process
-import android.text.TextUtils
 import androidx.annotation.AttrRes
 import androidx.appcompat.view.ContextThemeWrapper
 import com.google.android.material.color.MaterialColors
 import com.quickersilver.themeengine.ThemeEngine
+import net.ankio.auto.BuildConfig
 import net.ankio.auto.ui.activity.LauncherActivity
-import java.util.Locale
+import java.math.BigInteger
+import java.security.MessageDigest
 
 
 object  AppUtils {
@@ -82,6 +83,28 @@ object  AppUtils {
         return MaterialColors.getColor(ContextThemeWrapper(application, ThemeEngine.getInstance(application).getTheme()), attrResId, Color.WHITE)
     }
 
+    fun getVersionCode(): Int {
+        return BuildConfig.VERSION_CODE
+    }
+
+    fun getVersionName():String{
+        return BuildConfig.VERSION_NAME
+    }
+
+    fun getApplicationId():String{
+        return BuildConfig.APPLICATION_ID
+    }
+
+    fun md5(input:String):String{
+        val md5Digest = MessageDigest.getInstance("MD5")
+        val messageDigest = md5Digest.digest(input.toByteArray())
+        val number = BigInteger(1, messageDigest)
+        var md5Hash = number.toString(16)
+        while (md5Hash.length < 32) {
+            md5Hash = "0$md5Hash"
+        }
+        return md5Hash
+    }
 
 
 }
