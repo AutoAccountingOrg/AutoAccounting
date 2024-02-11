@@ -82,21 +82,29 @@ class ServiceActivity:BaseActivity() {
     private fun checkService(){
         val checkInterval = 1000L // 检查间隔，这里设置为5000毫秒（5秒）
         // 在一个新的协程中执行定时任务
-      lifecycleScope.launch { // 使用IO调度器，适合执行I/O操作
+        lifecycleScope.launch { // 默认在主线程执行
             while (isActive) { // 循环直到协程被取消
-                if(!AutoAccountingServiceUtils.isPortAvailable()){
-                    Toast.makeText(this@ServiceActivity,getString(R.string.service_started),Toast.LENGTH_SHORT).show()
-                    delay(3000L)
-                    //如果端口可用，则服务未启动
-                    withContext(Dispatchers.Main) {
-                        AppUtils.restart()
-                    }
-                    return@launch // 结束协程的执行
-                }
+                Logger.i("check active")
+                // 切换到IO线程执行耗时I/O操作
+                val isServerStarted = AutoAccountingServiceUtils.isServerStart(this@ServiceActivity)
 
-                delay(checkInterval) // 等待指定的检查间隔
+                // 回到主线程执行UI操作
+                if (isServerStarted) {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(
+                            this@ServiceActivity,
+                            getString(R.string.service_started),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        AppUtils.restart() // 假设这需要在主线程执行
+                    }
+                    delay(3000L) // 在循环中等待一段时间后再次检查
+                } else {
+                    delay(checkInterval) // 等待指定的检查间隔后再次检查
+                }
             }
         }
+
     }
 
 
