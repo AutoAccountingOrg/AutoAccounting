@@ -46,8 +46,8 @@ object  AppUtils {
         this.application = application
     }
 
-    fun setService(){
-        this.service = AutoAccountingServiceUtils(application)
+    fun setService(context: Context){
+        this.service = AutoAccountingServiceUtils(context)
     }
 
     fun getService():AutoAccountingServiceUtils{

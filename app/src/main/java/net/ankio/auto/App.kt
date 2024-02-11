@@ -17,28 +17,26 @@ package net.ankio.auto
 
 import android.app.Application
 import android.content.Context
-import com.bugsnag.android.Bugsnag
 import net.ankio.auto.database.Db
 import net.ankio.auto.utils.AppUtils
-import net.ankio.auto.utils.SpUtils
+import net.ankio.auto.utils.ExceptionHandler
 
 
-class App : Application() {
+class App : Application(){
 
 
     override fun onCreate() {
         super.onCreate()
         //数据库初始化
         Db.init(this)
-        //AppCenter初始化
-        if(SpUtils.getBoolean("sendToAppCenter",true)){
-            Bugsnag.start(this)
-        }
+        //设置全局异常
+        ExceptionHandler.init(this)
     }
 
 
     override fun attachBaseContext(base: Context?) {
         super.attachBaseContext(base)
         AppUtils.setApplication(this)
+
     }
 }

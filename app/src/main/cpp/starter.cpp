@@ -1,5 +1,6 @@
 #include <iostream>
 #include <sstream>
+#include <random>
 #include <string>
 #include <unistd.h>
 #include <sys/socket.h>
@@ -12,7 +13,6 @@
 
 #define PORT 52045
 #define MAX_CONNECTIONS 6
-#define TOKEN "qSohhh91qLBMtIMpdXoOwGn8vvVKJx6UXkZkiW"
 
 static inline void ltrim(std::string &s) {
     s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
@@ -131,6 +131,9 @@ std::string readFile(const std::string &filename) {
         std::string content = buffer.str(); // 将字符串流转换为字符串
 
         inFile.close(); // 关闭文件
+
+        trim(content); // 移除字符串两端的空白字符（空格、制表符、换行符等
+
         return content;
     } else {
         return "";
@@ -142,19 +145,29 @@ handleRoute(const std::string &path, const std::string &requestBody, const std::
             const std::unordered_map<std::string, std::string> &queryParams) {
     std::string response = "OK";
     std::string status = "200 OK";
+    //授权校验
+    if (readFile("token") != authHeader || authHeader == "") {
+        return httpResponse("401 Incorrect Authorization", "Incorrect Authorization");
+    }
+
     if (path == "/") {
         response = "Welcome to use 自动记账";
         return httpResponse("200 OK", response);
-    } else if (TOKEN != authHeader) {
-        return httpResponse("401 Incorrect Authorization", "Incorrect Authorization");
-    } else if (path == "/get") {
+    }  else if (path == "/get") {
         if (queryParams.find("name") != queryParams.end()) {
-            response = readFile(queryParams.at("name"));
+            std::string key = queryParams.at("name");
+            if(key!="token"){
+                response = readFile(key);
+            }
         }
     } else if (path == "/set") {
         if (queryParams.find("name") != queryParams.end()) {
             std::string key = queryParams.at("name");
-            if (key != "auth" && key != "data" && key != "log") {
+            if (
+               key != "data"
+            && key != "log"
+            && key!="token"
+            ) {
                 writeFile(queryParams.at("name"), requestBody);
             }
         }
@@ -320,6 +333,28 @@ void daemonize(std::string &path) {
     dup(0);
 }
 
+void createToken() {
+
+    if(readFile("token")!="")return;
+
+    const std::string chars =
+            "0123456789"
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            "abcdefghijklmnopqrstuvwxyz";
+    const size_t length = 64;
+
+    std::random_device rd;
+    std::mt19937 generator(rd());
+    std::uniform_int_distribution<> distribution(0, chars.size() - 1);
+
+    std::string token;
+    for (size_t i = 0; i < length; ++i) {
+        token += chars[distribution(generator)];
+    }
+
+    writeFile("token", token);
+}
+
 
 int main(int argc, char* argv[]) {
 
@@ -332,6 +367,9 @@ int main(int argc, char* argv[]) {
     daemonize(path);
 
     // 守护进程步骤结束，以下是原有的服务器代码
+
+    createToken();
+
     int server_fd, new_socket;
     struct sockaddr_in address{};
     int opt = 1;

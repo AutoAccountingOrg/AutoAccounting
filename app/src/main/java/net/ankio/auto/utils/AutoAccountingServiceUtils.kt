@@ -16,47 +16,63 @@
 package net.ankio.auto.utils
 
 import android.content.Context
+import android.os.Environment
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import net.ankio.auto.BuildConfig
 import net.ankio.auto.exceptions.AutoServiceException
-import java.io.IOException
-import java.net.ServerSocket
+import java.io.File
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 /**
  * AutoAccountingServiceUtils
  * 自动记账服务调用工具
  */
-class AutoAccountingServiceUtils(mContext: Context) {
+class AutoAccountingServiceUtils(mContext: Context) : CoroutineScope by MainScope(){
 
     private var requestsUtils = RequestsUtils(mContext)
 
     private val host = "http://127.0.0.1"
 
-
-
-    private val token = "qSohhh91qLBMtIMpdXoOwGn8vvVKJx6UXkZkiW"
-
     private val headers = HashMap<String, String>()
 
     companion object{
         private const val PORT = 52045
-        fun isPortAvailable(): Boolean {
-            var serverSocket: ServerSocket? = null
-            return try {
-                serverSocket = ServerSocket(PORT)
-                true // 端口可用
-            } catch (e: IOException) {
-                false // 端口被占用
-            } finally {
-                serverSocket?.close()
+        // 将isServerStart转换为挂起函数
+        suspend fun isServerStart(mContext: Context): Boolean = withContext(Dispatchers.IO) {
+            suspendCoroutine { continuation ->
+                RequestsUtils(mContext).get("http://127.0.0.1:$PORT/",
+                    headers = hashMapOf("Authorization" to getToken()),
+                    onSuccess = { _, code ->
+                        continuation.resume(code == 200)
+                    },
+                    onError = {
+                        continuation.resume(false)
+                    })
             }
+        }
+
+        fun getToken(): String {
+            val path =  Environment.getExternalStorageDirectory().path+"/Android/data/${BuildConfig.APPLICATION_ID}/cache/shell/token.txt"
+            val file = File(path)
+            if(file.exists()){
+                return file.readText().trim()
+            }
+            return ""
         }
     }
 
     init {
-
-       if(isPortAvailable()){
-          throw AutoServiceException("Service not started")
-       }
-        headers["Authorization"] = token
+        headers["Authorization"] = getToken()
+        launch {
+            if(!isServerStart(mContext)){
+                throw AutoServiceException("Server error")
+            }
+        }
 
     }
 
