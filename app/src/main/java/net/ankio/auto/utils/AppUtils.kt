@@ -21,10 +21,16 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageInfo
+import android.content.pm.PackageManager
+import android.content.res.Resources
 import android.graphics.Color
+import android.os.Build
 import android.os.Process
 import androidx.annotation.AttrRes
 import androidx.appcompat.view.ContextThemeWrapper
+import androidx.core.content.res.ResourcesCompat
 import com.google.android.material.color.MaterialColors
 import com.quickersilver.themeengine.ThemeEngine
 import net.ankio.auto.BuildConfig
@@ -106,5 +112,47 @@ object  AppUtils {
         return md5Hash
     }
 
+    fun getAppInfoFromPackageName(packageName: String,  context: Context): AppInfo? {
+        try {
+            val packageManager: PackageManager = context.packageManager
+
+            val app: ApplicationInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                context.packageManager.getApplicationInfo(
+                    packageName,
+                    PackageManager.ApplicationInfoFlags.of(0)
+                )
+            } else {
+                context.packageManager
+                    .getApplicationInfo(packageName, PackageManager.GET_META_DATA)
+            }
+
+            val appName = packageManager.getApplicationLabel(app).toString()
+
+
+            val appIcon =  try {
+                val resources: Resources = context.packageManager.getResourcesForApplication(app.packageName)
+                ResourcesCompat.getDrawable(resources,app.icon, context.theme)
+            } catch (e: PackageManager.NameNotFoundException) {
+                e.printStackTrace()
+                null
+            }
+
+
+            val packageInfo: PackageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                context.packageManager.getPackageInfo(
+                    packageName,
+                    PackageManager.PackageInfoFlags.of(0)
+                )
+            } else {
+                context.packageManager
+                    .getPackageInfo(packageName, PackageManager.GET_META_DATA)
+            }
+            val appVersion = packageInfo.versionName
+            return AppInfo(appName, appIcon, appVersion)
+        } catch (e: PackageManager.NameNotFoundException) {
+            e.printStackTrace()
+        }
+        return null
+    }
 
 }
