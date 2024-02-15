@@ -18,18 +18,18 @@ package net.ankio.auto.ui.adapter
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import net.ankio.auto.R
 import net.ankio.auto.database.table.BookName
 import net.ankio.auto.databinding.AdapterBookBinding
 import net.ankio.auto.utils.ImageUtils
+import net.ankio.auto.utils.Logger
 
 
 class BookSelectorAdapter(
     private val dataItems: List<BookName>,
-    private val onClick: (item: BookName, position: Int)->Unit
+    private val onClick: (item: BookName, position: Int) -> Unit
 ) : RecyclerView.Adapter<BookSelectorAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -55,20 +55,20 @@ class BookSelectorAdapter(
         RecyclerView.ViewHolder(binding.root) {
         fun bind(item: BookName, position: Int) {
             ImageUtils.get(context, item.icon, { drawable ->
-                run {
-                    binding.book.background = drawable
-                }
+                binding.book.background = drawable
             }, { error ->
-                run {
-                    Toast.makeText(context, error, Toast.LENGTH_LONG).show()
-                    binding.book.background = ResourcesCompat.getDrawable(context.resources,R.drawable.default_book,context.theme)
+                Logger.w("加载图片失败：$error")
+                binding.book.background = ResourcesCompat.getDrawable(
+                    context.resources,
+                    R.drawable.default_book,
+                    context.theme
+                )
 
-                }
             })
 
             binding.itemValue.text = item.name
             binding.book.setOnClickListener {
-                onClick(item,position)
+                onClick(item, position)
             }
         }
     }
