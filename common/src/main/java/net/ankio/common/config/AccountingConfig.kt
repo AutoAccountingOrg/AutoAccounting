@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 ankio(ankio@ankio.net)
+ * Copyright (C) 2024 ankio(ankio@ankio.net)
  * Licensed under the Apache License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,10 +13,13 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.constant
+package net.ankio.common.config
 
-enum class BillType(val type: Int)  {
-    Expend(0),//支出
-    Income(1),//收入
-    Transfer(2),//转账
-}
+data class AccountingConfig(
+    val assetManagement: Boolean = false,//是否开启资产管理
+    val multiCurrency: Boolean = false,//是否开启多币种
+    val reimbursement: Boolean = false,//是否开启报销
+    val lending: Boolean = false,//是否开启债务功能
+    val multiBooks: Boolean = false,//是否开启多账本
+    val fee: Boolean = false,//是否开启手续费
+)

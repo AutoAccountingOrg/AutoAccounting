@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (C) 2024 ankio(ankio@ankio.net)
+  ~ Licensed under the Apache License, Version 3.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~         http://www.apache.org/licenses/LICENSE-3.0
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~   limitations under the License.
+  -->
+
+<resources>
+    <string name="currency_cny">Chinese Yuan</string>
+    <string name="currency_aed">United Arab Emirates Dirham</string>
+    <string name="currency_afn">Afghan Afghani</string>
+    <string name="currency_all">Albanian Lek</string>
+    <string name="currency_amd">Armenian Dram</string>
+    <string name="currency_aoa">Angolan Kwanza</string>
+    <string name="currency_ars">Argentine Peso</string>
+    <string name="currency_aud">Australian Dollar</string>
+    <string name="currency_azn">Azerbaijani Manat</string>
+    <string name="currency_bam">Bosnia and Herzegovina Mark</string>
+    <string name="currency_bbd">Barbados Dollar</string>
+    <string name="currency_bdt">Bangladeshi Taka</string>
+    <string name="currency_bgn">Bulgarian Lev</string>
+    <string name="currency_bhd">Bahraini Dinar</string>
+    <string name="currency_bif">Burundian Franc</string>
+    <string name="currency_bmd">Bermudan Dollar</string>
+    <string name="currency_bnd">Brunei Dollar</string>
+    <string name="currency_bob">Bolivian Boliviano</string>
+    <string name="currency_brl">Brazilian Real</string>
+    <string name="currency_bsd">Bahamian Dollar</string>
+    <string name="currency_btn">Bhutanese Ngultrum</string>
+    <string name="currency_bwp">Botswana Pula</string>
+    <string name="currency_byn">Belarusian Ruble</string>
+    <string name="currency_bzd">Belize Dollar</string>
+    <string name="currency_cad">Canadian Dollar</string>
+    <string name="currency_cdf">Congolese Franc</string>
+    <string name="currency_chf">Swiss Franc</string>
+    <string name="currency_clp">Chilean Peso</string>
+    <string name="currency_cop">Colombian Peso</string>
+    <string name="currency_crc">Costa Rican Colón</string>
+    <string name="currency_cup">Cuban Peso</string>
+    <string name="currency_cve">Cape Verdean Escudo</string>
+    <string name="currency_czk">Czech Koruna</string>
+    <string name="currency_djf">Djiboutian Franc</string>
+    <string name="currency_dkk">Danish Krone</string>
+    <string name="currency_dop">Dominican Peso</string>
+    <string name="currency_dzd">Algerian Dinar</string>
+    <string name="currency_egp">Egyptian Pound</string>
+    <string name="currency_ern">Eritrean Nakfa</string>
+    <string name="currency_etb">Ethiopian Birr</string>
+    <string name="currency_eur">Euro</string>
+    <string name="currency_fjd">Fiji Dollar</string>
+    <string name="currency_gbp">Pound Sterling</string>
+    <string name="currency_gel">Georgian Lari</string>
+    <string name="currency_ghs">Ghanaian Cedi</string>
+    <string name="currency_gmd">Gambian Dalasi</string>
+    <string name="currency_gnf">Guinean Franc</string>
+    <string name="currency_gtq">Guatemalan Quetzal</string>
+    <string name="currency_gyd">Guyanese Dollar</string>
+    <string name="currency_hkd">Hong Kong Dollar</string>
+    <string name="currency_hnl">Honduran Lempira</string>
+    <string name="currency_hrk">Croatian Kuna</string>
+    <string name="currency_htg">Haitian Gourde</string>
+    <string name="currency_huf">Hungarian Forint</string>
+    <string name="currency_idr">Indonesian Rupiah</string>
+    <string name="currency_ils">Israeli New Shekel</string>
+    <string name="currency_inr">Indian Rupee</string>
+    <string name="currency_iqd">Iraqi Dinar</string>
+    <string name="currency_irr">Iranian Rial</string>
+    <string name="currency_isk">Icelandic Króna</string>
+    <string name="currency_jmd">Jamaican Dollar</string>
+    <string name="currency_jod">Jordanian Dinar</string>
+    <string name="currency_jpy">Japanese Yen</string>
+    <string name="currency_kes">Kenyan Shilling</string>
+    <string name="currency_kgs">Kyrgyzstani som</string>
+    <string name="currency_khr">Cambodian Riel</string>
+    <string name="currency_kmf">Comorian Franc</string>
+    <string name="currency_krw">South Korean Won</string>
+    <string name="currency_kwd">Kuwaiti Dinar</string>
+    <string name="currency_kyd">Cayman Islands Dollar</string>
+    <string name="currency_kzt">Kazakhstani Tenge</string>
+    <string name="currency_lak">Lao Kip</string>
+    <string name="currency_lbp">Lebanese Pound</string>
+    <string name="currency_lkr">Sri Lankan Rupee</string>
+    <string name="currency_lrd">Liberian Dollar</string>
+    <string name="currency_lsl">Lesotho Loti</string>
+    <string name="currency_lyd">Libyan Dinar</string>
+    <string name="currency_mad">Moroccan Dirham</string>
+    <string name="currency_mdl">Moldovan Leu</string>
+    <string name="currency_mkd">Macedonian Denar</string>
+    <string name="currency_mmk">Myanma Kyat</string>
+    <string name="currency_mnt">Mongolian Tugrik</string>
+    <string name="currency_mop">Pataca de Macau</string>
+    <string name="currency_mru">Mauritanian Ouguiya</string>
+    <string name="currency_mur">Mauritian Rupee</string>
+    <string name="currency_mvr">Maldivian Rufiyaa</string>
+    <string name="currency_mwk">Malawian Kwacha</string>
+    <string name="currency_mxn">Mexican Peso</string>
+    <string name="currency_myr">Malaysian Ringgit</string>
+    <string name="currency_mzn">Mozambican Metical</string>
+    <string name="currency_nad">Namibian Dollar</string>
+    <string name="currency_ngn">Nigerian Naira</string>
+    <string name="currency_nio">Nicaraguan Córdoba</string>
+    <string name="currency_nok">Norwegian Krone</string>
+    <string name="currency_npr">Nepalese Rupee</string>
+    <string name="currency_nzd">New Zealand Dollar</string>
+    <string name="currency_omr">Omani Rial</string>
+    <string name="currency_pab">Panamanian Balboa</string>
+    <string name="currency_pen">Peruvian Sol</string>
+    <string name="currency_pgk">Papua New Guinean Kina</string>
+    <string name="currency_php">Philippine Peso</string>
+    <string name="currency_pkr">Pakistani Rupee</string>
+    <string name="currency_pln">Polish Złoty</string>
+    <string name="currency_pyg">Paraguayan Guaraní</string>
+    <string name="currency_qar">Qatari Rial</string>
+    <string name="currency_ron">Romanian Leu</string>
+    <string name="currency_rsd">Serbian Dinar</string>
+    <string name="currency_rub">Russia</string>
+    <string name="currency_rwf">Rwandan Franc</string>
+    <string name="currency_sar">Saudi Riyal</string>
+    <string name="currency_sbd">Solomon Islands Dollar</string>
+    <string name="currency_scr">Seychellois Rupee</string>
+    <string name="currency_sdg">Sudanese Pound</string>
+    <string name="currency_sek">Swedish Krona</string>
+    <string name="currency_sgd">Singapore Dollar</string>
+    <string name="currency_sle">Sierra Second Leone</string>
+    <string name="currency_sll">Sierra First Leone</string>
+    <string name="currency_sos">Somali Shilling</string>
+    <string name="currency_srd">Surinamese Dollar</string>
+    <string name="currency_ssp">South Sudanese Pound</string>
+    <string name="currency_stn">São Tomé and Príncipe dobra</string>
+    <string name="currency_syp">Syrian Pound</string>
+    <string name="currency_szl">Eswatini Lilangeni</string>
+    <string name="currency_thb">Thai Baht</string>
+    <string name="currency_tjs">Tajikistani Somoni</string>
+    <string name="currency_tmt">Turkmenistan Manat</string>
+    <string name="currency_tnd">Tunisian Dinar</string>
+    <string name="currency_top">Tongan Paʻanga</string>
+    <string name="currency_try">Turkish lira</string>
+    <string name="currency_ttd">Trinidad and Tobago Dollar</string>
+    <string name="currency_tvd">Tuvaluan Dollar</string>
+    <string name="currency_twd">New Taiwan Dollar</string>
+    <string name="currency_tzs">Tanzanian Shilling</string>
+    <string name="currency_uah">Ukrainian Hryvnia</string>
+    <string name="currency_ugx">Ugandan Shilling</string>
+    <string name="currency_usd">United States Dollar</string>
+    <string name="currency_uyu">Uruguayan Peso</string>
+    <string name="currency_uzs">Uzbekistan Som</string>
+    <string name="currency_ves">Venezuelan Bolívar Soberano</string>
+    <string name="currency_vnd">Vietnamese Dong</string>
+    <string name="currency_vuv">Vanuatu Vatu</string>
+    <string name="currency_wst">Samoan Tālā</string>
+    <string name="currency_xaf">Central African CFA franc</string>
+    <string name="currency_xcd">East Caribbean Dollar</string>
+    <string name="currency_xdr">Special Drawing Rights</string>
+    <string name="currency_xof">West African CFA franc</string>
+    <string name="currency_xpf">CFP Franc</string>
+    <string name="currency_yer">Yemeni Rial</string>
+    <string name="currency_zar">South African Rand</string>
+    <string name="currency_zmw">Zambian Kwacha</string>
+    <string name="currency_zwl">Zimbabwe Dollar</string>
+</resources>
