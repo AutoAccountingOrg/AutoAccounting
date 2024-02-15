@@ -18,7 +18,6 @@ package net.ankio.auto.ui.activity
 
 import android.os.Bundle
 import android.text.method.LinkMovementMethod
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
@@ -35,22 +34,29 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.tobey.dialogloading.DialogUtil
 import com.zackratos.ultimatebarx.ultimatebarx.addNavigationBarBottomPadding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
+import net.ankio.auto.database.Db
+import net.ankio.auto.database.table.BookName
+import net.ankio.auto.database.table.Category
 import net.ankio.auto.databinding.AboutDialogBinding
 import net.ankio.auto.databinding.ActivityMainBinding
 import net.ankio.auto.ui.dialog.UpdateDialog
 import net.ankio.auto.utils.ActiveUtils
+import net.ankio.auto.utils.AutoAccountingServiceUtils
+import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.Github
-import net.ankio.auto.utils.HttpUtils
+import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.SpUtils
-import net.ankio.auto.utils.UpdateInfo
+import net.ankio.auto.utils.UpdateUtils
+import net.ankio.common.model.BookModel
 import rikka.html.text.toHtml
-import java.io.IOException
 
 
 class MainActivity : BaseActivity() {
@@ -62,23 +68,24 @@ class MainActivity : BaseActivity() {
     private lateinit var bottomNavigationView: BottomNavigationView
     private lateinit var navHostFragment: NavHostFragment
 
-    private fun onLogin(){
+    private fun onLogin() {
         val uri = intent.data
         if (uri != null) {
             val dialog = DialogUtil.createLoadingDialog(this, getString(R.string.auth_waiting))
 
             val code = uri.getQueryParameter("code")
 
-            Github.parseAuthCode(code,{
+            Github.parseAuthCode(code, {
 
-            },{
+            }, {
                 runOnUiThread {
-                    Toast.makeText(this@MainActivity,it, Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@MainActivity, it, Toast.LENGTH_LONG).show()
                 }
                 DialogUtil.closeDialog(dialog)
             })
         }
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         onLogin()
@@ -92,32 +99,40 @@ class MainActivity : BaseActivity() {
         toolbar = binding.toolbar
         bottomNavigationView.addNavigationBarBottomPadding()
         scrollView = binding.scrollView
-        navHostFragment = (supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment?)!!
+        navHostFragment =
+            (supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment?)!!
 
 
-       val appBarConfiguration = AppBarConfiguration.Builder(
-           R.id.homeFragment,
-           R.id.dataFragment,
-           R.id.settingFragment,
-           R.id.ruleFragment,
-           R.id.orderFragment
+        val appBarConfiguration = AppBarConfiguration.Builder(
+            R.id.homeFragment,
+            R.id.dataFragment,
+            R.id.settingFragment,
+            R.id.ruleFragment,
+            R.id.orderFragment
         ).build()
 
-        NavigationUI.setupWithNavController(toolbar, navHostFragment.navController,appBarConfiguration)
+        NavigationUI.setupWithNavController(
+            toolbar,
+            navHostFragment.navController,
+            appBarConfiguration
+        )
         NavigationUI.setupWithNavController(bottomNavigationView, navHostFragment.navController);
         // 添加 Navigate 跳转监听，如果参数不带 ShowAppBar 将不显示底部导航栏
         navHostFragment.navController.addOnDestinationChangedListener { controller, navDestination, _ ->
             bottomNavigationView.menu.findItem(R.id.homeFragment).setIcon(R.drawable.unselect_home);
             bottomNavigationView.menu.findItem(R.id.dataFragment).setIcon(R.drawable.unselect_data);
-            bottomNavigationView.menu.findItem(R.id.settingFragment).setIcon(R.drawable.unselect_setting);
+            bottomNavigationView.menu.findItem(R.id.settingFragment)
+                .setIcon(R.drawable.unselect_setting);
             bottomNavigationView.menu.findItem(R.id.ruleFragment).setIcon(R.drawable.unselect_rule);
-            bottomNavigationView.menu.findItem(R.id.orderFragment).setIcon(R.drawable.unselect_order);
+            bottomNavigationView.menu.findItem(R.id.orderFragment)
+                .setIcon(R.drawable.unselect_order);
             clearMenuItems();
             if (navDestination.id == R.id.homeFragment
                 || navDestination.id == R.id.dataFragment
                 || navDestination.id == R.id.settingFragment
                 || navDestination.id == R.id.ruleFragment
-                || navDestination.id == R.id.orderFragment) {
+                || navDestination.id == R.id.orderFragment
+            ) {
                 bottomNavigationView.visibility = View.VISIBLE;
             } else {
                 bottomNavigationView.visibility = View.GONE;
@@ -125,39 +140,48 @@ class MainActivity : BaseActivity() {
 
             when (navDestination.id) {
                 R.id.homeFragment -> {
-                    addMenuItem(R.string.title_setting,R.drawable.item_setting)
-                    addMenuItem(R.string.title_more,R.drawable.item_more)
+                    addMenuItem(R.string.title_setting, R.drawable.item_setting)
+                    addMenuItem(R.string.title_more, R.drawable.item_more)
                     toolbar.title = getString(R.string.title_home)
-                    bottomNavigationView.menu.findItem(R.id.homeFragment).setIcon(R.drawable.select_home);
+                    bottomNavigationView.menu.findItem(R.id.homeFragment)
+                        .setIcon(R.drawable.select_home);
                 }
+
                 R.id.dataFragment -> {
-                  //  addMenuItem(R.string.item_filter,R.drawable.item_filter)
+                    //  addMenuItem(R.string.item_filter,R.drawable.item_filter)
                     toolbar.title = getString(R.string.title_data)
-                    bottomNavigationView.menu.findItem(R.id.dataFragment).setIcon(R.drawable.select_data);
+                    bottomNavigationView.menu.findItem(R.id.dataFragment)
+                        .setIcon(R.drawable.select_data);
                 }
+
                 R.id.settingFragment -> {
                     toolbar.title = getString(R.string.title_setting)
-                    bottomNavigationView.menu.findItem(R.id.settingFragment).setIcon(R.drawable.select_setting);
+                    bottomNavigationView.menu.findItem(R.id.settingFragment)
+                        .setIcon(R.drawable.select_setting);
                 }
+
                 R.id.ruleFragment -> {
-                    addMenuItem(R.string.item_add,R.drawable.item_add)
+                    addMenuItem(R.string.item_add, R.drawable.item_add)
                     toolbar.title = getString(R.string.title_rule)
-                    bottomNavigationView.menu.findItem(R.id.ruleFragment).setIcon(R.drawable.select_rule);
+                    bottomNavigationView.menu.findItem(R.id.ruleFragment)
+                        .setIcon(R.drawable.select_rule);
                 }
 
-                R.id.orderFragment->{
+                R.id.orderFragment -> {
                     toolbar.title = getString(R.string.title_order)
-                    bottomNavigationView.menu.findItem(R.id.orderFragment).setIcon(R.drawable.select_order);
+                    bottomNavigationView.menu.findItem(R.id.orderFragment)
+                        .setIcon(R.drawable.select_order);
                 }
 
-                R.id.setting2Fragment->{
+                R.id.setting2Fragment -> {
                     toolbar.title = getString(R.string.title_setting2)
                 }
 
-                R.id.editFragment->{
+                R.id.editFragment -> {
                     toolbar.title = getString(R.string.cate_title)
                 }
-                R.id.logFragment->{
+
+                R.id.logFragment -> {
                     toolbar.title = getString(R.string.log_title)
                 }
 
@@ -175,18 +199,20 @@ class MainActivity : BaseActivity() {
                         "<b><a href=\"https://github.com/Auto-Accounting/AutoAccounting\n\">GitHub</a></b>"
                     ).toHtml()
 
-                    binding.versionName.text = packageManager.getPackageInfo(packageName, 0).versionName
+                    binding.versionName.text =
+                        packageManager.getPackageInfo(packageName, 0).versionName
                     MaterialAlertDialogBuilder(this)
                         .setView(binding.root)
                         .show()
                     true
                 }
+
                 getString(R.string.title_setting) -> {
                     navHostFragment.navController.navigate(R.id.setting2Fragment)
                     true
                 }
 
-                getString(R.string.item_add) ->{
+                getString(R.string.item_add) -> {
                     navHostFragment.navController.navigate(R.id.editFragment)
                     true
                 }
@@ -196,18 +222,67 @@ class MainActivity : BaseActivity() {
 
         }
         onViewCreated()
+
     }
 
     // Method to dynamically add a new menu item
-    private fun addMenuItem(@StringRes stringResId: Int,@DrawableRes iconResId: Int) {
+    private fun addMenuItem(@StringRes stringResId: Int, @DrawableRes iconResId: Int) {
         val menu = toolbar.menu
         val menuItem = menu.add(Menu.NONE, Menu.NONE, Menu.NONE, getString(stringResId))
         menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-        val icon =  AppCompatResources.getDrawable(this,iconResId)
+        val icon = AppCompatResources.getDrawable(this, iconResId)
         if (icon != null) {
-            DrawableCompat.setTint(icon, getThemeAttrColor(com.google.android.material.R.attr.colorOnBackground))
+            DrawableCompat.setTint(
+                icon,
+                getThemeAttrColor(com.google.android.material.R.attr.colorOnBackground)
+            )
             menuItem.setIcon(icon)
         }
+    }
+
+    override fun onViewCreated() {
+      super.onViewCreated()
+        //除了执行父页面的办法之外还要执行检查更新
+       try {
+           checkUpdate()
+       }catch (e:Exception){
+           Logger.e("更新异常",e)
+       }
+        //判断是否设置了记账软件
+        if (SpUtils.getString("bookApp", "").isEmpty()) {
+            MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.title_book_app)
+                .setMessage(R.string.msg_book_app)
+                .setPositiveButton(R.string.sure_book_app) { _, _ ->
+                  CustomTabsHelper.launchUrlOrCopy(this,getString(R.string.book_app_url))
+                }
+                .setNegativeButton(R.string.cancel) { _, _ ->
+                    //finish()
+                }
+                .show()
+        }
+
+
+    }
+    //从接口同步数据
+    private suspend fun syncData() = withContext(Dispatchers.IO){
+       val autoBooks = AutoAccountingServiceUtils.get("auto_books")
+        //同步账本数据和分类数据
+        if(autoBooks.isNotEmpty()){
+            Db.get().BookNameDao().deleteAll()
+            val type = object : TypeToken<List<BookModel>>() {}
+            Gson().fromJson(autoBooks,type).forEach {
+                val bookModel = it as BookModel
+                val bookName = BookName.fromModel(bookModel)
+                val id = Db.get().BookNameDao().insert(bookName)
+                Category.importModel(bookModel.category, id)
+            }
+            withContext(Dispatchers.Main){
+                Toast.makeText(this@MainActivity, R.string.sync_success, Toast.LENGTH_SHORT).show()
+            }
+            AutoAccountingServiceUtils.delete("auto_books")
+        }
+
     }
 
     // Method to clear the existing menu items
@@ -220,23 +295,22 @@ class MainActivity : BaseActivity() {
         super.onResume()
         ActiveUtils.onStartApp(this)
         lifecycleScope.launch {
-            checkUpdate()
+            syncData()
         }
     }
 
-  private  fun checkUpdate(){
+    private fun checkUpdate() {
+        val updateUtils = UpdateUtils()
         //检查版本更新
-        if(SpUtils.getBoolean("checkVersionUpdate",true)){
-            Github.checkVersionUpdate {
+        if (SpUtils.getBoolean("checkAppUpdate", true)) {
+            updateUtils.checkAppUpdate { version, log, date, download ->
 
             }
         }
-      //检查规则更新
-        if(SpUtils.getBoolean("checkRuleUpdate",true)){
-            Github.checkRuleUpdate{
-                runOnUiThread {
-                    UpdateDialog(it).show(this@MainActivity,false)
-                }
+        //检查规则更新
+        if (SpUtils.getBoolean("checkRuleUpdate", true)) {
+            updateUtils.checkRuleUpdate { version, log, date, category, rule ->
+
             }
         }
     }

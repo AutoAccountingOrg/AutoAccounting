@@ -34,11 +34,18 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.elevation.SurfaceColors
+import com.google.gson.Gson
 import com.quickersilver.themeengine.ThemeEngine
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentHomeBinding
+import net.ankio.auto.ui.dialog.BookSelectorDialog
 import net.ankio.auto.utils.ActiveUtils
+import net.ankio.auto.utils.AppUtils
+import net.ankio.auto.utils.AutoAccountingServiceUtils
+import net.ankio.auto.utils.CustomTabsHelper
+import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.SpUtils
+import net.ankio.common.config.AccountingConfig
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -57,10 +64,20 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentHomeBinding.inflate(layoutInflater)
-        binding.logCard.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(requireContext()))
-        binding.groupCard.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(requireContext()))
-        binding.ruleCard.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(requireContext()))
-        binding.ruleVersion.text = SpUtils.getString("ruleVersionName","None")
+
+        bindBookAppEvents()
+
+        val cards = listOf(
+            binding.infoCard,
+            binding.logCard,
+            binding.groupCard,
+            binding.ruleCard
+        )
+        val color = SurfaceColors.SURFACE_1.getColor(requireContext())
+        cards.forEach { it.setCardBackgroundColor(color) }
+
+
+        binding.ruleVersion.text = SpUtils.getString("ruleVersionName", "None")
         binding.showLog.setOnClickListener {
             findNavController().navigate(R.id.logFragment)
         }
@@ -87,39 +104,114 @@ class HomeFragment : Fragment() {
                 shareIntent.type = "application/octet-stream"
 
                 // 将文件URI添加到分享意图
-                val fileUri = FileProvider.getUriForFile(requireContext(), "net.ankio.auto.fileprovider", file)
+                val fileUri = FileProvider.getUriForFile(
+                    requireContext(),
+                    "net.ankio.auto.fileprovider",
+                    file
+                )
                 shareIntent.putExtra(Intent.EXTRA_STREAM, fileUri)
 
                 // 添加可选的文本标题
                 shareIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.share_file))
 
                 // 启动分享意图
-                requireContext().startActivity(Intent.createChooser(shareIntent, getString(R.string.share_file)))
+                requireContext().startActivity(
+                    Intent.createChooser(
+                        shareIntent,
+                        getString(R.string.share_file)
+                    )
+                )
 
             } catch (e: IOException) {
                 e.printStackTrace()
             }
         }
-        refreshStatus()
+        //UI刷新
+        refreshUI()
         return binding.root
     }
 
+    private fun refreshUI() {
+        bindActiveUI()
+        bindBookAppUI()
 
+    }
 
+    /**
+     * 绑定记账软件数据部分的UI
+     */
+    private fun bindBookAppUI() {
+        AppUtils.getService().config {
+            binding.book.visibility = if (it.multiBooks) View.VISIBLE else View.GONE
+            binding.assets.visibility = if (it.assetManagement) View.VISIBLE else View.GONE
+        }
+        SpUtils.getString("bookApp", "").apply {
+            if (this.isEmpty()) {
+                binding.bookApp.text = getString(R.string.no_setting)
+            } else {
+                AppUtils.getAppInfoFromPackageName(this, requireContext())?.apply {
+                    binding.bookApp.text = this.name
+                }
+            }
+        }
+    }
 
+    private fun bindBookAppEvents() {
+
+        binding.bookAppContainer.setOnClickListener {
+            CustomTabsHelper.launchUrlOrCopy(requireContext(), getString(R.string.book_app_url))
+        }
+        //资产映射
+        binding.map.setOnClickListener {
+
+        }
+        //资产管理
+        binding.readAssets.setOnClickListener {
+
+        }
+        //账本数据
+        binding.readBook.setOnClickListener {
+            BookSelectorDialog(requireContext()) {
+                Logger.i("选择的账本是：${it.name}")
+            }.show(cancel = true)
+        }
+        //分类数据
+        binding.readCategory.setOnClickListener {
+
+        }
+    }
+
+    private fun bindActiveUI() {
+        val colorPrimary = AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorPrimary)
+
+        if (!ActiveUtils.getActiveAndSupportFramework(requireContext())) {
+            setActive(
+                SurfaceColors.SURFACE_3.getColor(requireContext()),
+                colorPrimary,
+                R.drawable.ic_error
+            )
+        } else {
+            setActive(
+                colorPrimary,
+                AppUtils.getThemeAttrColor(
+                    com.google.android.material.R.attr.colorOnPrimary
+                ),
+                R.drawable.ic_success
+            )
+        }
+    }
 
 
     override fun onResume() {
         super.onResume()
-        refreshStatus()
+        refreshUI()
     }
-    /**
-     * 获取主题色
-     */
-    private fun getThemeAttrColor( @AttrRes attrResId: Int): Int {
-        return MaterialColors.getColor(ContextThemeWrapper(requireContext(), ThemeEngine.getInstance(requireContext()).getTheme()), attrResId, Color.WHITE)
-    }
-    private fun setActive(@ColorInt backgroundColor:Int, @ColorInt textColor:Int, @DrawableRes drawable:Int){
+
+    private fun setActive(
+        @ColorInt backgroundColor: Int,
+        @ColorInt textColor: Int,
+        @DrawableRes drawable: Int
+    ) {
         binding.active2.setBackgroundColor(backgroundColor)
         binding.imageView2.setImageDrawable(
             AppCompatResources.getDrawable(
@@ -127,7 +219,7 @@ class HomeFragment : Fragment() {
                 drawable
             )
         )
-        val versionName = requireContext().packageManager.getPackageInfo(requireContext().packageName, 0).versionName
+        val versionName = AppUtils.getVersionName()
         val names = versionName.split("-")
         binding.msgLabel2.text = names[0].trim()
         binding.msgLabel3.text = getString(R.string.releaseInfo)
@@ -136,12 +228,5 @@ class HomeFragment : Fragment() {
         binding.msgLabel3.setTextColor(textColor)
     }
 
-    private fun refreshStatus(){
-        if(!ActiveUtils.getActiveAndSupportFramework(requireContext())){
-            setActive(SurfaceColors.SURFACE_3.getColor(requireContext()),getThemeAttrColor(com.google.android.material.R.attr.colorPrimary), R.drawable.ic_error)
-        }else{
-            setActive(getThemeAttrColor(com.google.android.material.R.attr.colorPrimary),getThemeAttrColor(com.google.android.material.R.attr.colorOnPrimary),R.drawable.ic_success)
-        }
-    }
 
 }
