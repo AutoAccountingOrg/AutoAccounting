@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (C) 2023 ankio(ankio@ankio.net)
+  ~ Licensed under the Apache License, Version 3.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~         http://www.apache.org/licenses/LICENSE-3.0
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~   limitations under the License.
+  -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorBackgroundFloating"
+    android:orientation="vertical">
+
+  <ScrollView
+      android:id="@+id/scrollview"
+      android:padding="@dimen/padding"
+      android:layout_marginTop="@dimen/marginTop"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent">
+      <LinearLayout
+          android:orientation="vertical"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content">
+
+          <com.google.android.material.card.MaterialCardView
+
+              android:id="@+id/errorCard"
+              style="?attr/materialCardViewElevatedStyle"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginBottom="@dimen/padding"
+              app:cardBackgroundColor="?attr/colorErrorContainer"
+
+              app:cardCornerRadius="@dimen/radius"
+              app:cardElevation="0dp">
+              <TextView
+                  android:padding="@dimen/padding"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  app:drawableTint="?attr/colorError"
+                  android:drawablePadding="8dp"
+                  app:drawableLeftCompat="@drawable/ic_warning"
+
+                  android:text="@string/restart_msg"
+                  android:textAppearance="@style/TextAppearance.AppCompat.Title"
+
+                  android:gravity="center_vertical"
+                  android:layout_margin="@dimen/padding"
+
+                  />
+
+
+          </com.google.android.material.card.MaterialCardView>
+
+          <com.google.android.material.card.MaterialCardView
+              android:id="@+id/adbCard"
+              style="?attr/materialCardViewElevatedStyle"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginBottom="@dimen/padding"
+              app:cardBackgroundColor="?attr/colorSurfaceContainer"
+              app:cardCornerRadius="@dimen/radius"
+              app:cardElevation="0dp">
+
+              <LinearLayout
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:layout_margin="@dimen/padding"
+                  android:orientation="vertical">
+
+
+
+                  <LinearLayout
+                      android:layout_width="match_parent"
+                      android:layout_height="wrap_content">
+                      <io.github.xiaofeidev.round.RoundFrameLayout
+                          android:layout_width="@dimen/image_size"
+                          android:layout_height="@dimen/image_size"
+                          android:background="?attr/colorSecondaryContainer"
+                          app:rd_radius="@dimen/radius">
+                          <io.github.xiaofeidev.round.RoundImageView
+                              android:layout_gravity="center"
+                              android:layout_width="@dimen/icon_size"
+                              android:layout_height="@dimen/icon_size"
+                              android:tint="?attr/colorOnSecondaryContainer"
+                              android:src="@drawable/icon_adb"
+                              />
+                      </io.github.xiaofeidev.round.RoundFrameLayout>
+                      <TextView
+
+                          android:layout_gravity="center"
+                          android:paddingStart="@dimen/one_padding"
+                          android:paddingEnd="0dp"
+                          android:layout_width="wrap_content"
+                          android:layout_height="wrap_content"
+                          android:layout_marginEnd="@dimen/padding"
+                          android:text="@string/active_adb"
+                          android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                          android:textColor="?attr/colorOnSurface"
+                        />
+                  </LinearLayout>
+
+
+
+                  <TextView
+                      android:padding="@dimen/padding"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:layout_marginEnd="@dimen/padding"
+                      android:text="@string/adb_msg"
+                      android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                      android:textColor="?attr/colorOnSurface"
+                     />
+
+                  <com.google.android.material.button.MaterialButton
+                      style="@style/Widget.Material3.Button.Icon"
+
+                      app:icon="@drawable/icon_code"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:text="@string/copy_command"
+                      android:id="@+id/copy_command"
+                      />
+              </LinearLayout>
+
+          </com.google.android.material.card.MaterialCardView>
+
+          <com.google.android.material.card.MaterialCardView
+              android:id="@+id/groupCard"
+              style="?attr/materialCardViewElevatedStyle"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginBottom="@dimen/padding"
+              app:cardBackgroundColor="?attr/colorSurfaceContainer"
+              app:cardCornerRadius="@dimen/radius"
+              app:cardElevation="0dp">
+
+              <LinearLayout
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:layout_margin="@dimen/padding"
+                  android:orientation="vertical">
+
+
+
+                  <LinearLayout
+                      android:layout_width="match_parent"
+                      android:layout_height="wrap_content">
+                      <io.github.xiaofeidev.round.RoundFrameLayout
+                          android:layout_width="@dimen/image_size"
+                          android:layout_height="@dimen/image_size"
+                          android:background="?attr/colorSecondaryContainer"
+                          app:rd_radius="@dimen/radius">
+                          <io.github.xiaofeidev.round.RoundImageView
+                              android:layout_gravity="center"
+                              android:layout_width="@dimen/icon_size"
+                              android:tint="?attr/colorOnSecondaryContainer"
+                              android:layout_height="@dimen/icon_size"
+                              android:src="@drawable/icon_android"
+                              />
+                      </io.github.xiaofeidev.round.RoundFrameLayout>
+                      <TextView
+
+                          android:layout_gravity="center"
+                          android:paddingStart="@dimen/one_padding"
+                          android:paddingEnd="0dp"
+                          android:layout_width="wrap_content"
+                          android:layout_height="wrap_content"
+                          android:layout_marginEnd="@dimen/padding"
+                          android:text="@string/active_root"
+                          android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                          android:textColor="?attr/colorOnSurface"
+                          />
+                  </LinearLayout>
+
+
+
+                  <TextView
+                      android:padding="@dimen/padding"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:layout_marginEnd="@dimen/padding"
+                      android:text="@string/root_msg"
+                      android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                      android:textColor="?attr/colorOnSurface"
+                      />
+                  <com.google.android.material.button.MaterialButton
+                      style="@style/Widget.Material3.Button.Icon"
+                      app:icon="@drawable/icon_play"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:text="@string/start"
+                      android:id="@+id/start"
+                      />
+              </LinearLayout>
+
+          </com.google.android.material.card.MaterialCardView>
+      </LinearLayout>
+  </ScrollView>
+
+
+</LinearLayout>

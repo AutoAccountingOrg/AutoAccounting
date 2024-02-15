@@ -16,8 +16,6 @@
 package net.ankio.auto.ui.activity
 
 import android.content.Intent
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import com.zackratos.ultimatebarx.ultimatebarx.addNavigationBarBottomPadding
 import com.zackratos.ultimatebarx.ultimatebarx.addStatusBarTopPadding
@@ -25,6 +23,7 @@ import net.ankio.auto.R
 import net.ankio.auto.databinding.ActivityAuthBinding
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.AutoAccountingServiceUtils
+import net.ankio.auto.utils.SpUtils
 
 
 class AuthActivity :  BaseActivity() {
@@ -64,6 +63,7 @@ class AuthActivity :  BaseActivity() {
         binding.sure.setOnClickListener {
             val resultIntent = Intent()
             resultIntent.putExtra("token", AutoAccountingServiceUtils.getToken())
+            SpUtils.putString("bookApp",packageName)
             setResult(RESULT_OK, resultIntent)
             finish()
         }

@@ -15,5 +15,4 @@
 
 package net.ankio.auto.exceptions
 
-class AutoServiceException(string: String) : Exception(){
-}
+class AutoServiceException(string: String) : Exception(string)
