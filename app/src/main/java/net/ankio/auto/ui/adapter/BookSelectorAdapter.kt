@@ -17,32 +17,19 @@ package net.ankio.auto.ui.adapter
 
 import android.content.Context
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.elevation.SurfaceColors
 import net.ankio.auto.R
-import net.ankio.auto.constant.DataType
-import net.ankio.auto.database.table.AppData
 import net.ankio.auto.database.table.BookName
-import net.ankio.auto.database.table.Regular
 import net.ankio.auto.databinding.AdapterBookBinding
-import net.ankio.auto.databinding.AdapterDataBinding
-import net.ankio.auto.databinding.AdapterRuleBinding
-import net.ankio.auto.utils.AppInfoUtils
-import net.ankio.auto.utils.DateUtils
 import net.ankio.auto.utils.ImageUtils
-import net.ankio.auto.utils.ThemeUtils
-import org.json.JSONObject
 
 
 class BookSelectorAdapter(
     private val dataItems: List<BookName>,
-    private val listener: BookItemListener
+    private val onClick: (item: BookName, position: Int)->Unit
 ) : RecyclerView.Adapter<BookSelectorAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -56,7 +43,6 @@ class BookSelectorAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        ImageUtils.init()
         val item = dataItems[position]
         holder.bind(item, position)
     }
@@ -68,30 +54,22 @@ class BookSelectorAdapter(
     inner class ViewHolder(private val binding: AdapterBookBinding, private val context: Context) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(item: BookName, position: Int) {
-            if(item.icon==null){
-                binding.book.background = ResourcesCompat.getDrawable(context.resources,R.drawable.default_book,context.theme)
-            }else{
-                ImageUtils.get(context, item.icon!!, { drawable ->
-                    run {
-                        binding.book.background = drawable
-                    }
-                }, { error ->
-                    run {
-                        Toast.makeText(context, error, Toast.LENGTH_LONG).show()
-                        binding.book.background = ResourcesCompat.getDrawable(context.resources,R.drawable.default_book,context.theme)
+            ImageUtils.get(context, item.icon, { drawable ->
+                run {
+                    binding.book.background = drawable
+                }
+            }, { error ->
+                run {
+                    Toast.makeText(context, error, Toast.LENGTH_LONG).show()
+                    binding.book.background = ResourcesCompat.getDrawable(context.resources,R.drawable.default_book,context.theme)
 
-                    }
-                })
-            }
+                }
+            })
 
             binding.itemValue.text = item.name
             binding.book.setOnClickListener {
-                listener.onClick(item,position)
+                onClick(item,position)
             }
         }
     }
-}
-
-interface BookItemListener {
-    fun onClick(item: BookName, position: Int)
 }

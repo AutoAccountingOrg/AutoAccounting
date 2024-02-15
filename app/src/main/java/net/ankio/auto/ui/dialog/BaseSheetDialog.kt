@@ -38,11 +38,11 @@ abstract class BaseSheetDialog(context: Context) :
     lateinit var cardView: MaterialCardView
     abstract fun onCreateView(inflater: LayoutInflater): View
 
-    fun show(float: Boolean = false) {
+    fun show(float: Boolean = false,cancel:Boolean = false) {
         val inflater = LayoutInflater.from(context)
         val root = this.onCreateView(inflater)
         this.setContentView(root)
-        this.setCancelable(false);
+        this.setCancelable(cancel);
         if (float) {
             this.window?.setType((WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY));
         }
@@ -79,7 +79,7 @@ abstract class BaseSheetDialog(context: Context) :
 
         this.show()
     }
-    fun dpToPx(context: Context, dp: Float): Int {
+    private fun dpToPx(context: Context, dp: Float): Int {
         return TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP,
             dp,
