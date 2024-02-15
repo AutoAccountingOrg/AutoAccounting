@@ -16,48 +16,47 @@
 package net.ankio.auto.sdk.utils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.io.DataOutputStream
 import java.net.HttpURLConnection
 import java.net.URL
-data class PostResult(val byteArray: ByteArray?, val isSuccess: Boolean)
+
 
 object RequestUtils {
+
 
     suspend fun post(
         url: String,
         query: HashMap<String, String>? = null,
         data: String? = null,
         headers: HashMap<String, String> = HashMap(),
-    ): PostResult{
-        try {
-            var requestUrl = url
-            if (!query.isNullOrEmpty()) {
-                requestUrl += query.entries.joinToString("&", prefix = "?") { "${it.key}=${it.value}" }
-            }
-
-            val urlObj = URL(requestUrl)
-            val conn = withContext(Dispatchers.IO) {
-                urlObj.openConnection()
-            } as HttpURLConnection
-            conn.requestMethod = "POST"
-
-            headers.forEach { (key, value) ->
-                conn.setRequestProperty(key, value)
-            }
-
-            conn.doOutput = true
-
-            DataOutputStream(conn.outputStream).use { dos ->
-                dos.writeBytes(data ?: "")
-                dos.flush()
-            }
-
-            val responseCode = conn.responseCode
-            val response = conn.inputStream.use { it.readBytes() }
-            return PostResult(response, responseCode == HttpURLConnection.HTTP_OK)
-        } catch (e: Exception) {
-           Logger.i("请求异常：${e.message}")
-           return PostResult(null, false)
+    ) :PostResult = withContext(Dispatchers.IO){
+        var requestUrl = url
+        if (!query.isNullOrEmpty()) {
+            requestUrl += query.entries.joinToString("&", prefix = "?") { "${it.key}=${it.value}" }
         }
+        val urlObj = URL(requestUrl)
+        val con =  urlObj.openConnection() as HttpURLConnection
+        con.requestMethod = "POST" //设置请求方法POST
+        con.connectTimeout = 30000
+        con.readTimeout = 30000
+        con.doOutput = true
+        con.doInput = true
+        headers.forEach { (key, value) ->
+            con.setRequestProperty(key, value)
+        }
+        val outputStream = con.outputStream
+        if(!data.isNullOrEmpty()){
+            outputStream.write(data.toByteArray())
+            outputStream.close()
+        }
+
+      try {
+          val responseCode = con.responseCode
+          val response = con.inputStream.use { it.readBytes() }
+          PostResult(response, responseCode == HttpURLConnection.HTTP_OK)
+      } catch (e: Exception) {
+          Logger.i("请求异常：${e.message}",e)
+          PostResult(null, false)
+      }
     }
+
 }
