@@ -22,7 +22,9 @@ package net.ankio.auto.utils
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
-import net.ankio.auto.utils.JsonUtil.formatJson
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonObject
 import okhttp3.Cache
 import okhttp3.Call
 import okhttp3.Callback
@@ -53,20 +55,26 @@ private class HttpLogger : HttpLoggingInterceptor.Logger {
         if ((message.startsWith("{") && message.endsWith("}"))
             || (message.startsWith("[") && message.endsWith("]"))
         ) {
-            message = formatJson(message)
+
+            kotlin.runCatching {
+                val gson = GsonBuilder().setPrettyPrinting().create()
+                // 将JSON字符串转换成Java对象，然后再转换回格式化的JSON字符串
+                val obj: Any = gson.fromJson(message, Any::class.java)
+                message = gson.toJson(obj)
+            }
         }
         mMessage.append(message + "\n")
         // 请求或者响应结束，打印整条日志
         if (message.startsWith("<-- END HTTP")) {
 
-            var msg  = mMessage.toString()
+            var messageString  = mMessage.toString()
 
-            msg =  msg.replace("--> END ","\n───────────────────────────────────────────────────────────────\n")
-            msg =   msg.replace("<-- END ","\n───────────────────────────────────────────────────────────────\n")
-            msg =  msg.replace("--> ","")
-            msg =  msg.replace("<--","\n───────────────────────────────────────────────────────────────\n")
+            messageString =  messageString.replace("--> END ","\n───────────────────────────────────────────────────────────────\n")
+            messageString =   messageString.replace("<-- END ","\n───────────────────────────────────────────────────────────────\n")
+            messageString =  messageString.replace("--> ","")
+            messageString =  messageString.replace("<--","\n───────────────────────────────────────────────────────────────\n")
 
-            Logger.d(msg)
+            Logger.d(messageString)
         }
     }
 }
@@ -84,10 +92,11 @@ class RequestsUtils(private val context: Context) {
         const val METHOD_DELETE = "DELETE"
          var client: OkHttpClient? = null
         val mainHandler = Handler(Looper.getMainLooper())
+
     }
 
 
-
+    val cacheManager = CacheManager(context)
     init {
         if(client === null){
             val logInterceptor = HttpLoggingInterceptor(HttpLogger())
@@ -156,10 +165,8 @@ class RequestsUtils(private val context: Context) {
         }
 
         val cacheKey = generateCacheKey(requestUrl, method, data)
-        val cacheFile = File(context.cacheDir, "httpCache").resolve(cacheKey)
-
-        if (cacheTime > 0 && cacheFile.exists() && (System.currentTimeMillis() - cacheFile.lastModified()) < cacheTime * 1000) {
-            val cachedData = cacheFile.readBytes()
+        val cachedData = cacheManager.readFromCache(cacheKey)
+        if (cacheTime > 0 && cachedData.isNotEmpty()) {
             onSuccess(cachedData, 200) // Assuming HTTP 200 for cached responses
             return
         }
@@ -179,8 +186,7 @@ class RequestsUtils(private val context: Context) {
                 response.body?.byteStream()?.use {
                     val bytes = it.readBytes()
                     if (cacheTime > 0 && response.isSuccessful) {
-                        cacheFile.parentFile?.mkdirs()
-                        cacheFile.writeBytes(bytes)
+                        cacheManager.saveToCacheWithExpiry(cacheKey, bytes, cacheTime.toLong())
                     }
                     mainHandler.post {
                         onSuccess(bytes, response.code)
@@ -253,8 +259,12 @@ class RequestsUtils(private val context: Context) {
         sendRequest(url, query, data, METHOD_DELETE, contentType, headers, onSuccess, onError, cacheTime)
     }
 
+    fun json(byteArray: ByteArray): JsonObject? {
+        return Gson().fromJson(byteArray.toString(Charsets.UTF_8), JsonObject::class.java)
+    }
+
     private fun generateCacheKey(url: String, method: String, data: Map<String, String>?): String {
-        return (url + method + (data?.toString() ?: "")).hashCode().toString()
+        return AppUtils.md5(url + method + (data?.toString() ?: ""))
     }
 
 }
