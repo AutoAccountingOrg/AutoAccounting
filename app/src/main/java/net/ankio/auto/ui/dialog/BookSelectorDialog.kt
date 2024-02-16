@@ -30,7 +30,7 @@ import net.ankio.auto.databinding.BookSelectDialogBinding
 import net.ankio.auto.ui.adapter.BookSelectorAdapter
 
 
-class BookSelectorDialog(context: Context,val callback: (BookName) -> Unit) : BaseSheetDialog(context) {
+class BookSelectorDialog(private val context: Context,val callback: (BookName) -> Unit) : BaseSheetDialog(context) {
 
     private lateinit var binding:BookSelectDialogBinding
 

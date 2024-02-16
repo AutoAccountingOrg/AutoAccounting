@@ -17,6 +17,7 @@ package net.ankio.auto.ui.dialog
 
 import android.content.Context
 import android.util.TypedValue
+import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,6 +25,7 @@ import android.view.WindowManager
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.card.MaterialCardView
+import com.quickersilver.themeengine.ThemeEngine
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -31,7 +33,7 @@ import net.ankio.auto.R
 import net.ankio.auto.utils.SpUtils
 
 
-abstract class BaseSheetDialog(context: Context) :
+abstract class BaseSheetDialog(private val context: Context) :
     BottomSheetDialog(context, R.style.BottomSheetDialog) {
     private val job = Job()
     val coroutineScope = CoroutineScope(Dispatchers.Main + job)

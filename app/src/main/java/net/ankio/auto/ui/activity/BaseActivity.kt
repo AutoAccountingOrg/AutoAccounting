@@ -45,7 +45,6 @@ open class BaseActivity : AppCompatActivity() {
     lateinit var toolbarLayout: AppBarLayout
     lateinit var toolbar: MaterialToolbar
     lateinit var scrollView: View
-    var tag = "BaseActivity"
 
     /**
      * 重构context
