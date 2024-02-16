@@ -16,6 +16,7 @@
 package net.ankio.auto.ui.dialog
 
 import android.app.Activity
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -38,38 +39,16 @@ import net.ankio.auto.ui.adapter.CateItemListener
 import net.ankio.auto.ui.adapter.CategorySelectorAdapter
 
 
-class CategorySelectorDialog : BottomSheetDialogFragment() {
-
-    private lateinit var callback: (Category?,Category?) -> Unit
+class CategorySelectorDialog(private val context: Context,private var book: Int = 0,private val callback: (Category?,Category?) -> Unit) : BaseSheetDialog(context) {
 
     //父类
     private var category1: Category? = null
-
     //子类
     private var category2: Category? = null
 
     private var expand = false //显示状态
-
     private var line = 5 //默认一行5个
-    private var book: Int = 1
 
-    /**
-     * name:选中的分类
-     */
-    fun show(context: Activity, book: Int, float: Boolean, callback: (Category?,Category?) -> Unit) {
-        this.callback = callback
-        this.book = book
-        // 创建 BottomSheetDialogFragment
-        val dialogFragment = this
-        if (float) {
-            dialog?.window?.setType((WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY));
-        }
-
-        // 显示 BottomSheetDialogFragment
-        dialogFragment.show((context as AppCompatActivity).supportFragmentManager, dialogFragment.tag)
-
-
-    }
 
     private lateinit var binding: CategorySelectDialogBinding
 
@@ -107,13 +86,14 @@ class CategorySelectorDialog : BottomSheetDialogFragment() {
         category.id = leftDistanceWithMargin - view.width / 2 + 14
         return category
     }
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+
+
+    override fun onCreateView(inflater: LayoutInflater): View {
         binding = CategorySelectDialogBinding.inflate(inflater)
-        val layoutManager = GridLayoutManager(requireContext(), line)
+
+        this.cardView = binding.cardView
+
+        val layoutManager = GridLayoutManager(context, line)
         layoutManager.spanSizeLookup = SpecialSpanSizeLookup()
         binding.recyclerView.layoutManager = layoutManager
         expand = false
@@ -187,10 +167,11 @@ class CategorySelectorDialog : BottomSheetDialogFragment() {
 
 
         lifecycleScope.launch {
-            val newData = Db.get().CategoryDao().loadAll(book)
+            val newData = withContext(Dispatchers.IO) {
+                 Db.get().CategoryDao().loadAll(book)
+            }
             val defaultCategory = Category()
             defaultCategory.name = "其他"
-
 
             val collection =
                 newData?.mapNotNull { it }?.takeIf { it.isNotEmpty() } ?: listOf(defaultCategory)
@@ -205,24 +186,6 @@ class CategorySelectorDialog : BottomSheetDialogFragment() {
         }
         return binding.root
     }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        // 禁止用户通过下滑手势关闭对话框
-        dialog?.setCancelable(false)
-
-        // 允许用户通过点击空白处关闭对话框
-        dialog?.setCanceledOnTouchOutside(true)
-
-        // Get the display metrics using the DisplayMetrics directly
-        val displayMetrics = resources.displayMetrics
-        val screenHeight = displayMetrics.heightPixels
-
-        // Calculate and set dialog height as a percentage of screen height
-        val dialogHeight = (screenHeight * 0.7).toInt() // 50% height
-        view.layoutParams.height = dialogHeight
-    }
-
 
 
 }

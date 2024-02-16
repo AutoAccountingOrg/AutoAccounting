@@ -55,7 +55,6 @@ class CategorySelectorAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        ImageUtils.init()
         val item = dataItems[position]
         holder.bind(item, position)
     }
