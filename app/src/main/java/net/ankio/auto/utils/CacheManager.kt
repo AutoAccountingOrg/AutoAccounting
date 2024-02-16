@@ -46,11 +46,12 @@ class CacheManager(private val context: Context) {
         if (file.exists()) {
             val fis = FileInputStream(file)
             val data = fis.readBytes()
-            val expiryTime = data.takeLast(13).toString().toLong()
+            val expiryTime = data.takeLast(13).map { it.toInt().toChar() }.joinToString("").toLong()
             if (System.currentTimeMillis() > expiryTime) {
                 file.delete()
                 return ByteArray(0)
             }
+            Logger.i("缓存命中: ${file.absolutePath}")
             return data.dropLast(13).toByteArray()
         } else {
             return ByteArray(0)
