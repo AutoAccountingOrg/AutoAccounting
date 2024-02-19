@@ -40,7 +40,7 @@ abstract class BaseSheetDialog(private val context: Context) :
     lateinit var cardView: MaterialCardView
     abstract fun onCreateView(inflater: LayoutInflater): View
 
-    fun show(float: Boolean = false,cancel:Boolean = false) {
+    open fun show(float: Boolean = false,cancel:Boolean = false) {
         val inflater = LayoutInflater.from(context)
         val root = this.onCreateView(inflater)
         this.setContentView(root)

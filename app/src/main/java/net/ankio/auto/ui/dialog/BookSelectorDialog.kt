@@ -33,12 +33,12 @@ import net.ankio.auto.ui.adapter.BookSelectorAdapter
 class BookSelectorDialog(private val context: Context,val callback: (BookName) -> Unit) : BaseSheetDialog(context) {
 
     private lateinit var binding:BookSelectDialogBinding
-
+    private val dataItems = mutableListOf<BookName>()
     override fun onCreateView(inflater: LayoutInflater): View {
         binding =  BookSelectDialogBinding.inflate(inflater)
         val layoutManager = LinearLayoutManager(context)
         binding.recyclerView.layoutManager = layoutManager
-        val dataItems = mutableListOf<BookName>()
+
         val adapter = BookSelectorAdapter(dataItems) { item, _ ->
             callback(item)
             this@BookSelectorDialog.dismiss()
@@ -57,6 +57,7 @@ class BookSelectorDialog(private val context: Context,val callback: (BookName) -
 
             val collection = newData.takeIf { it.isNotEmpty() } ?: listOf(defaultBook)
 
+
             withContext(Dispatchers.Main) {
                 dataItems.addAll(collection)
                 adapter.notifyItemInserted(0)
@@ -66,5 +67,13 @@ class BookSelectorDialog(private val context: Context,val callback: (BookName) -
         return binding.root
     }
 
+
+    override fun show(float: Boolean, cancel: Boolean) {
+        if(dataItems.size == 1){
+            callback(dataItems[0])
+            return
+        }
+        super.show(float, cancel)
+    }
 
 }
