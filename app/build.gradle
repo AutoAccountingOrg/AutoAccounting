@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlinAndroid)
     id 'com.google.devtools.ksp' version "1.8.21-1.0.11"
     id "com.bugsnag.android.gradle"
+    id 'dev.rikka.tools.autoresconfig'
 }
 
 android {
@@ -75,6 +76,27 @@ android {
             version '3.22.1'
         }
     }
+    autoResConfig {
+        generateClass = true
+        generatedClassFullName = "net.ankio.utils.LangList"
+        generateRes = true
+        generatedResPrefix = null
+        generatedArrayFirstItem = "SYSTEM"
+        generateLocaleConfig = true
+    }
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.md'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/NOTICE.md'
+        exclude 'META-INF/ASL2.0'
+        exclude 'META-INF/gson/FieldAttributes.txt'
+        exclude 'META-INF/gson/LongSerializationPolicy.txt'
+        exclude 'META-INF/gson/annotations.txt'
+    }
 
 }
 
@@ -89,6 +111,7 @@ dependencies {
     implementation libs.androidx.browser
     implementation libs.androidx.activity
     implementation libs.androidx.constraintlayout
+    implementation project(':sdk')
     testImplementation libs.junit
     androidTestImplementation libs.androidx.test.ext.junit
     androidTestImplementation libs.espresso.core
@@ -98,8 +121,6 @@ dependencies {
     implementation libs.ultimateBarX
     //Html转换
     implementation libs.html.ktx
-    //匿名统计
-    implementation libs.analytics
     //gson
     implementation libs.gson
     //权限请求 支持Androidx
@@ -120,10 +141,16 @@ dependencies {
     implementation libs.rhino
     //加载库
     implementation libs.tobeyr1DialogLoading
-    //kotlin反射
-    implementation libs.kotlin.reflect
     //markdown解析
     implementation  libs.markdown
-    implementation "com.bugsnag:bugsnag-android:5.32.1"
-    implementation "com.bugsnag:bugsnag-android-performance:1.2.1"
+    //bug
+    implementation libs.bugsnag.android
+    //okhttp
+    implementation libs.okhttp // 确保使用最新版本
+    //日志的拦截器
+    implementation libs.logging.interceptor
+    //常用的工具类
+    implementation project(':common')
+    //数据库调试
+    debugImplementation 'com.github.amitshekhariitbhu.Android-Debug-Database:debug-db:development-SNAPSHOT'
 }

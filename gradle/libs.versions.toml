@@ -1,15 +1,15 @@
 [versions]
 agp = "8.4.0-alpha04"
-analytics = "14.3.0"
-androiddebuglib = "0.1.4"
 androidx-roomRuntime = "2.5.2"
-api = "13.1.5"
+bugsnagAndroid = "5.32.1"
 flexbox = "3.0.0"
 github-DialogLoading = "1.0.3"
 
-kotlinReflect = "1.8.22"
+gsonVersion = "2.8.8"
 kotlinxCoroutinesAndroid = "1.6.4"
+loggingInterceptor = "3.9.1"
 markdown = "0.5.0"
+okhttp = "4.11.0"
 rhino = "1.7.14"
 roomCompiler = "2.5.2"
 round = "1.1.2"
@@ -24,28 +24,30 @@ androidx-test-ext-junit = "1.1.5"
 espresso-core = "3.5.1"
 appcompat = "1.6.1"
 material = "1.11.0"
-okhttp = "4.11.0"
 permissionx = "1.7.1"
 themeEngine = "master-SNAPSHOT"
 ultimateBarX = "dev-SNAPSHOT"
 navigationFragment = "2.7.0"
 browser = "1.6.0"
+activity = "1.8.2"
+constraintlayout = "2.1.4"
+lifecycleLivedataKtx = "2.6.1"
+lifecycleViewmodelKtx = "2.6.1"
 
 [libraries]
-analytics = { module = "com.flurry.android:analytics", version.ref = "analytics" }
-androiddebuglib = { module = "com.itlgl.android:androiddebuglib", version.ref = "androiddebuglib" }
 androidx-navigation-fragment-ktx = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigationFragment" }
 androidx-navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigationFragment" }
 androidx-room-compiler-v251 = { module = "androidx.room:room-compiler", version.ref = "roomCompiler" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "androidx-roomRuntime" }
 androidx-room-runtime-v251 = { module = "androidx.room:room-runtime", version.ref = "androidx-roomRuntime" }
 androidx-swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefreshlayout", version.ref = "swiperefreshlayout" }
-api = { module = "dev.rikka.shizuku:api", version.ref = "api" }
+bugsnag-android = { module = "com.bugsnag:bugsnag-android", version.ref = "bugsnagAndroid" }
 flexbox = { module = "com.google.android.flexbox:flexbox", version.ref = "flexbox" }
-kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlinReflect" }
+gson-v288 = { module = "com.google.code.gson:gson", version.ref = "gsonVersion" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroid" }
+logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "loggingInterceptor" }
 markdown = { module = "org.jetbrains:markdown", version.ref = "markdown" }
-provider = { module = "dev.rikka.shizuku:provider", version.ref = "api" }
+okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 rhino = { module = "org.mozilla:rhino", version.ref = "rhino" }
 round = { module = "io.github.xiaofeidev:round", version.ref = "round" }
 tobeyr1DialogLoading = { module = "com.github.Tobeyr1:DialogLoading", version.ref = "github-DialogLoading" }
@@ -58,13 +60,16 @@ androidx-test-ext-junit = { group = "androidx.test.ext", name = "junit", version
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espresso-core" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
-okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 permissionx = { module = "com.guolindev.permissionx:permissionx", version.ref = "permissionx" }
 
-themeEngine = { module = "com.github.dreamncn:ThemeEngine", version.ref = "themeEngine" }
+themeEngine = { module = "com.github.AnkioTomas:ThemeEngine", version.ref = "themeEngine" }
 
 ultimateBarX = { module = "com.github.zackratos:UltimateBarX", version.ref = "ultimateBarX" }
 androidx-browser = { group = "androidx.browser", name = "browser", version.ref = "browser" }
+androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
+androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+androidx-lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycleLivedataKtx" }
+androidx-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
