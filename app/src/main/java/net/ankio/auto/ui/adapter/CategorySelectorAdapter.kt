@@ -15,19 +15,19 @@
 
 package net.ankio.auto.ui.adapter
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
@@ -37,13 +37,24 @@ import net.ankio.auto.databinding.AdapterCategoryListBinding
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.ImageUtils
 
-
+/**
+ * 分类选择器适配器
+ * @property dataItems 分类数据列表
+ * @property onItemClick 点击事件回调
+ * @property onItemChildClick 子项点击事件回调
+ */
 class CategorySelectorAdapter(
     private val dataItems: List<Category>,
-    private val listener: CateItemListener
+    private val onItemClick: (item: Category, position: Int, hasChild: Boolean, view: View) -> Unit,
+    private val onItemChildClick: (item: Category, position: Int) -> Unit
 ) : RecyclerView.Adapter<CategorySelectorAdapter.ViewHolder>() {
+    private val job = Job()
+    // 创建一个协程作用域，绑定在 IO 线程
+    private val scope = CoroutineScope(Dispatchers.IO + job)
 
-
+    /**
+     * 创建ViewHolder
+     */
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
             AdapterCategoryListBinding.inflate(
@@ -54,142 +65,207 @@ class CategorySelectorAdapter(
         )
     }
 
+    /**
+     * ViewHolder被回收时调用
+     */
+    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView)
+        job.cancel()
+    }
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int, payloads: MutableList<Any>) {
+        if (payloads.isEmpty()) {
+            // 如果没有 payload，按照正常方式绑定数据
+            onBindViewHolder(holder, position)
+        } else {
+            // 如果有 payload，根据 payload 更新部分内容
+            val category = payloads[0] as Category
+            holder.updatePanel(category)
+        }
+    }
+
+    /**
+     * 绑定ViewHolder
+     */
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = dataItems[position]
         holder.bind(item, position)
     }
 
+    /**
+     * 获取数据项数量
+     */
     override fun getItemCount(): Int {
         return dataItems.size
     }
-    fun setActive(textView: TextView,imageView: ImageView,imageView2: ImageView,boolean: Boolean,context: Context){
-        if(boolean){
-            textView.setTextColor(AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorPrimary))
-            imageView.setBackgroundResource(R.drawable.rounded_border)
-            imageView.setColorFilter(AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorOnPrimary))
-            imageView2.setBackgroundResource(R.drawable.rounded_border2)
-            imageView2.setColorFilter(AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorOnPrimary))
-        }else{
-            textView.setTextColor(AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorSecondary))
-           imageView.setBackgroundResource(R.drawable.rounded_border_)
-            imageView.setColorFilter(AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorSecondary))
-            imageView2.setBackgroundResource(R.drawable.rounded_border_2)
-            imageView2.setColorFilter(AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorSecondary))
+
+    /**
+     * 设置激活状态
+     */
+    fun setActive(
+        textView: TextView,
+        imageView: ImageView,
+        imageView2: ImageView,
+        isActive: Boolean,
+    ) {
+        val (textColor, imageBackground, imageColorFilter) = if (isActive) {
+            Triple(
+                AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorPrimary),
+                R.drawable.rounded_border,
+                AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorOnPrimary)
+            )
+        } else {
+            Triple(
+                AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorSecondary),
+                R.drawable.rounded_border_,
+                AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorSecondary)
+            )
+        }
+
+        textView.setTextColor(textColor)
+        imageView.apply {
+            setBackgroundResource(imageBackground)
+            setColorFilter(imageColorFilter)
+        }
+        imageView2.apply {
+            setBackgroundResource(imageBackground)
+            setColorFilter(imageColorFilter)
         }
     }
 
-    private var itemTextView:TextView? = null
-    private var itemImageIcon:ImageView? = null
-    private var ivMore:ImageView? = null
+    private var itemTextView: TextView? = null
+    private var itemImageIcon: ImageView? = null
+    private var ivMore: ImageView? = null
+
+    /**
+     * ViewHolder内部类
+     * @property binding 视图绑定
+     * @property context 上下文
+     */
     inner class ViewHolder(
         private val binding: AdapterCategoryListBinding,
         private val context: Context
-    ) :
-        RecyclerView.ViewHolder(binding.root) {
-
-        @OptIn(DelicateCoroutinesApi::class)
+    ) :RecyclerView.ViewHolder(binding.root) {
+        private lateinit var adapter : CategorySelectorAdapter
+        /**
+         * UI绑定
+         */
         fun bind(item: Category, position: Int) {
-            //刚绑定false
-            setActive(binding.itemText,binding.itemImageIcon,binding.ivMore,false,context)
-            if(item.book==-2){
+            setActive(binding.itemText, binding.itemImageIcon, binding.ivMore, false)
+            if (item.isPanel()) { // -2表示他是一个面板，而非item，需要切换为面板视图
                 binding.icon.visibility = View.GONE
                 binding.container.visibility = View.VISIBLE
-                renderItem(item.parent,item.remoteId,item.id)
-                return
+                adapter = CategorySelectorAdapter(items, { childItem, pos, _, _ ->
+                    onItemChildClick(childItem, pos)
+                }, { _, _ ->
+                    //因为二级分类下面不会再有子类，所以子类点击直接忽略。
+                })
+                //渲染面板视图
+                renderPanel(item)
+            }else{
+                renderItem(item,position)
             }
+
+        }
+
+        /**
+         * item渲染
+         */
+        private fun renderItem(item: Category, position: Int){
             if (item.parent != -1) {
                 binding.ivMore.visibility = View.GONE
             } else {
-                GlobalScope.launch {
-                    if (Db.get().CategoryDao().count(item.book,item.id) == 0) {
-                        launch(Dispatchers.Main) {
+                scope.launch {
+                    if (Db.get().CategoryDao().count(item.book, item.id,item.type) == 0) {
+                        withContext(Dispatchers.Main) {
                             binding.ivMore.visibility = View.GONE
                         }
                     }
                 }
             }
 
-            if (item.icon == null) {
-                binding.itemImageIcon.setImageDrawable(ResourcesCompat.getDrawable(
-                    context.resources,
-                    R.drawable.default_cate,
-                    context.theme
-                ))
+            if (item.icon.isNullOrEmpty()) {
+                binding.itemImageIcon.setImageDrawable(
+                    ResourcesCompat.getDrawable(
+                        context.resources,
+                        R.drawable.default_cate,
+                        context.theme
+                    )
+                )
             } else {
-                GlobalScope.launch {
-                    ImageUtils.get(context, item.icon!!, { drawable ->
-                        launch(Dispatchers.Main) {
+                scope.launch {
+                    //自动切回主线程
+                    withContext(Dispatchers.Main){
+                        ImageUtils.get(context, item.icon!!, { drawable ->
                             binding.itemImageIcon.setImageDrawable(drawable)
-                        }
-                    }, { error ->
-                        launch(Dispatchers.Main) {
-                            Toast.makeText(context, error, Toast.LENGTH_LONG).show()
-                            binding.itemImageIcon.setImageDrawable(ResourcesCompat.getDrawable(
-                                context.resources,
-                                R.drawable.default_cate,
-                                context.theme
-                            ))
-                        }
-                    })
+                        }, {
+                            binding.itemImageIcon.setImageDrawable(
+                                ResourcesCompat.getDrawable(
+                                    context.resources,
+                                    R.drawable.default_cate,
+                                    context.theme
+                                )
+                            )
+                        })
+                    }
                 }
+
             }
 
             binding.itemText.text = item.name
             binding.itemImageIcon.setOnClickListener {
-                if(itemTextView!==null){
-                     setActive(itemTextView!!,itemImageIcon!!,ivMore!!,false,context)
-
-
+                if (itemTextView !== null) {
+                    setActive(itemTextView!!, itemImageIcon!!, ivMore!!, false)
                 }
-                setActive(binding.itemText,binding.itemImageIcon,binding.ivMore,true,context)
-
+                setActive(binding.itemText, binding.itemImageIcon, binding.ivMore, true,)
                 itemTextView = binding.itemText
                 itemImageIcon = binding.itemImageIcon
                 ivMore = binding.ivMore
-
-                listener.onClick(item, position,binding.ivMore.visibility==View.VISIBLE,it)
+                onItemClick(item, position, binding.ivMore.visibility == View.VISIBLE, it)
             }
         }
+        private val items = ArrayList<Category>()
+        /**
+         * 渲染项目
+         */
+        private fun renderPanel(item: Category) {
 
-        @OptIn(DelicateCoroutinesApi::class)
-        private fun renderItem(parent:Int, book: String?,position: Int){
-            val bookIndex = book?.toInt()?:1
             val layoutManager = GridLayoutManager(context, 5)
             binding.recyclerView.layoutManager = layoutManager
-            val leftDistanceView2: Int = position
-            val layoutParams =  binding.imageView.layoutParams as ViewGroup.MarginLayoutParams
-            layoutParams.leftMargin = leftDistanceView2 // 设置左边距
-           // binding.imageView.layoutParams = leftDistanceView2
-            val items = ArrayList<Category>()
-            val adapter = CategorySelectorAdapter(items,object: CateItemListener {
-                override fun onClick(item: Category, position: Int, hasChild: Boolean,view: View) {
-                    listener.onChildClick(item, position)
-                }
-                override fun onChildClick(item: Category, position: Int) {
 
-                }
-            })
+
+
             binding.recyclerView.adapter = adapter
 
-            GlobalScope.launch {
-                val newData = Db.get().CategoryDao().loadAll(bookIndex,parent)
-                val collection = newData?.mapNotNull { it }?.takeIf { it.isNotEmpty() } ?: listOf()
-                withContext(Dispatchers.Main) {
-                    // 在主线程更新 UI
-                    items.addAll(collection)
-                    if(collection.isNotEmpty()){
-                        adapter.notifyItemInserted(0)
-                    }
+            updatePanel(item)
+        }
 
+        /**
+         * 更新面板内容，由于面板复用的时候是全部内容替换，所以使用NotifyDataSetChanged
+         */
+        @SuppressLint("NotifyDataSetChanged")
+        fun updatePanel(item: Category){
+            val leftDistanceView2: Int = item.id
+            val layoutParams = binding.imageView.layoutParams as ViewGroup.MarginLayoutParams
+            layoutParams.leftMargin = leftDistanceView2 // 设置左边距
+            scope.launch {
+                val newData = Db.get().CategoryDao().loadAll(
+                    item.book,
+                    item.type,
+                    item.parent
+                )
+
+                val collection = newData?.mapNotNull { it }?.takeIf { it.isNotEmpty() } ?: listOf()
+
+                if(collection.isNotEmpty()){
+                    withContext(Dispatchers.Main) {
+                        items.clear()
+                        items.addAll(collection)
+                        adapter.notifyDataSetChanged()
+                    }
                 }
             }
-
         }
 
     }
-}
-
-interface CateItemListener {
-    fun onClick(item: Category, position: Int,hasChild:Boolean,view: View)
-    fun onChildClick(item: Category, position: Int)
 }

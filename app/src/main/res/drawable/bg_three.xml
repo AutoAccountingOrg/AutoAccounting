@@ -8,7 +8,7 @@
             android:pivotX="-40%"
             android:pivotY="87%">
             <shape android:shape="rectangle">
-                <solid android:color="?colorSurfaceContainerHighest" />
+                <solid android:color="?colorSurfaceContainer" />
             </shape>
         </rotate>
     </item>

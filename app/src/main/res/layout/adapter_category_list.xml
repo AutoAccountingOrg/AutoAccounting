@@ -17,12 +17,12 @@
         android:id="@+id/icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
         android:layout_marginStart="5dp"
         android:layout_marginTop="5dp"
         android:layout_marginEnd="5dp"
         android:gravity="center"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:visibility="visible">
 
 
         <RelativeLayout
@@ -69,9 +69,9 @@
             android:textSize="11sp" />
     </LinearLayout>
 
-    <RelativeLayout
+    <LinearLayout
         android:id="@+id/container"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
 
         android:orientation="vertical"
@@ -81,8 +81,6 @@
             android:id="@+id/imageView"
             android:layout_width="20dp"
             android:layout_height="20dp"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
             android:layout_marginStart="50dp"
             android:layout_marginTop="-10dp"
             android:src="@drawable/bg_three" />
@@ -93,7 +91,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
 
-            android:layout_below="@+id/imageView"
             android:layout_marginTop="-1dp"
             android:background="@drawable/bg_round_default"
             android:orientation="vertical"
@@ -101,7 +98,7 @@
 
         </androidx.recyclerview.widget.RecyclerView>
 
-    </RelativeLayout>
+    </LinearLayout>
 
 
 </LinearLayout>
