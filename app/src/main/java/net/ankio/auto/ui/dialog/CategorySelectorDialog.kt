@@ -28,7 +28,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.database.Db
 import net.ankio.auto.database.table.Category
-import net.ankio.auto.databinding.CategorySelectDialogBinding
+import net.ankio.auto.databinding.DialogCategorySelectBinding
 import net.ankio.auto.ui.adapter.CategorySelectorAdapter
 import net.ankio.common.constant.BillType
 
@@ -57,7 +57,7 @@ class CategorySelectorDialog(
     // 默认一行的项目数
     private var line = 5
     // 对话框的绑定对象
-    private lateinit var binding: CategorySelectDialogBinding
+    private lateinit var binding: DialogCategorySelectBinding
     // 类别列表
     private var items = ArrayList<Category>()
     private var totalItems = 0;
@@ -130,7 +130,7 @@ class CategorySelectorDialog(
      */
     override fun onCreateView(inflater: LayoutInflater): View {
         // 为对话框填充布局
-        binding = CategorySelectDialogBinding.inflate(inflater)
+        binding = DialogCategorySelectBinding.inflate(inflater)
 
         // 设置卡片视图
         this.cardView = binding.cardView

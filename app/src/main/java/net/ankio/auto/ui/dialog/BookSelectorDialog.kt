@@ -19,7 +19,6 @@ package net.ankio.auto.ui.dialog
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
-import androidx.core.view.children
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.Dispatchers
@@ -27,16 +26,16 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.database.Db
 import net.ankio.auto.database.table.BookName
-import net.ankio.auto.databinding.BookSelectDialogBinding
+import net.ankio.auto.databinding.DialogBookSelectBinding
 import net.ankio.auto.ui.adapter.BookSelectorAdapter
 
 
 class BookSelectorDialog(private val context: Context,val callback: (BookName) -> Unit) : BaseSheetDialog(context) {
 
-    private lateinit var binding:BookSelectDialogBinding
+    private lateinit var binding:DialogBookSelectBinding
     private val dataItems = mutableListOf<BookName>()
     override fun onCreateView(inflater: LayoutInflater): View {
-        binding =  BookSelectDialogBinding.inflate(inflater)
+        binding =  DialogBookSelectBinding.inflate(inflater)
         val layoutManager = LinearLayoutManager(context)
         binding.recyclerView.layoutManager = layoutManager
 
