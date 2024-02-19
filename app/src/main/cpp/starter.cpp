@@ -10,9 +10,10 @@
 #include <unordered_map>
 #include <sys/stat.h>
 #include <sys/fcntl.h>
+#include <thread>
 
 #define PORT 52045
-#define MAX_CONNECTIONS 6
+#define MAX_CONNECTIONS 32
 
 static inline void ltrim(std::string &s) {
     s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
@@ -37,10 +38,10 @@ static inline void trim(std::string &s) {
 std::string httpResponse(const std::string &status, const std::string &responseBody) {
 
     return "HTTP/1.1 " + status + "\r\n" // 使用 \r\n 而不是 \n 作为行结束符，以符合HTTP协议标准
-           "Content-Type: text/plain\r\n"
-           "Content-Length: " + std::to_string(responseBody.size()) + "\r\n"
-           "Connection: close\r\n" // 添加这行来指示连接将被关闭
-           "\r\n" +
+                                  "Content-Type: text/plain\r\n"
+                                  "Content-Length: " + std::to_string(responseBody.size()) + "\r\n"
+                                                                                             "Connection: close\r\n" // 添加这行来指示连接将被关闭
+                                                                                             "\r\n" +
            responseBody;
 }
 
@@ -140,34 +141,41 @@ std::string readFile(const std::string &filename) {
     }
 }
 
-std::string
-handleRoute(const std::string &path, const std::string &requestBody, const std::string &authHeader,
-            const std::unordered_map<std::string, std::string> &queryParams) {
+std::string handleRoute(const std::string &path,
+            const std::string &requestBody,
+            const std::string &authHeader,
+            const std::unordered_map<std::string,
+            std::string> &queryParams
+            ) {
     std::string response = "OK";
     std::string status = "200 OK";
+   // std::cout<<authHeader<<":"<<"Authorization"<<std::endl;
     //授权校验
-    if (readFile("token") != authHeader || authHeader == "") {
+    if (readFile("token") != authHeader || authHeader.empty()) {
         return httpResponse("401 Incorrect Authorization", "Incorrect Authorization");
     }
 
     if (path == "/") {
         response = "Welcome to use 自动记账";
         return httpResponse("200 OK", response);
-    }  else if (path == "/get") {
+    } else if (path == "/get") {
         if (queryParams.find("name") != queryParams.end()) {
             std::string key = queryParams.at("name");
-            if(key!="token"){
+            if (key != "token") {
                 response = readFile(key);
             }
         }
     } else if (path == "/set") {
         if (queryParams.find("name") != queryParams.end()) {
             std::string key = queryParams.at("name");
+
+//            std::cout<<key<<":"<<requestBody<<std::endl;
+
             if (
-               key != "data"
-            && key != "log"
-            && key!="token"
-            ) {
+                    key != "data"
+                    && key != "log"
+                    && key != "token"
+                    ) {
                 writeFile(queryParams.at("name"), requestBody);
             }
         }
@@ -201,14 +209,23 @@ std::unordered_map<std::string, std::string> parseQuery(const std::string &query
     return queryParams;
 }
 
-std::string parseRequest(const std::string &request) {
+std::string getAuthorization(const std::string &request) {
+    std::istringstream stream(request);
+    std::string line;
+    while (std::getline(stream, line) && line != "\r") {
+        if (line.find("Authorization:") == 0) {
+            return line.substr(14);
+        }
+    }
+    return "";
+}
+
+std::string parseRequest(const std::string &header, const std::string &body) {
     size_t pos = 0, end;
 
     // 解析请求行
-    end = request.find("\n", pos);
-    std::string requestLine = request.substr(pos, end - pos);
-    pos = end + 1; // 更新位置
-
+    end = header.find("\n", pos);
+    std::string requestLine = header.substr(pos, end - pos);
     // 分离方法、路径和HTTP版本
     end = requestLine.find(" ");
     std::string method = requestLine.substr(0, end);
@@ -216,7 +233,6 @@ std::string parseRequest(const std::string &request) {
     end = requestLine.find(" ", pathStart);
     std::string path = requestLine.substr(pathStart, end - pathStart);
     std::string httpVersion = requestLine.substr(end + 1);
-
     // 提取查询参数
     std::unordered_map<std::string, std::string> queryParams;
     size_t queryPos = path.find('?');
@@ -224,53 +240,42 @@ std::string parseRequest(const std::string &request) {
         queryParams = parseQuery(path.substr(queryPos + 1));
         path = path.substr(0, queryPos);
     }
+    std::string authHeader  = getAuthorization(header);
+    trim(authHeader);
 
-    // 解析头部
-    std::string authHeader;
-    while ((end = request.find("\n", pos)) != std::string::npos) {
-        std::string line = request.substr(pos, end - pos);
-        pos = end + 1; // 更新位置
+    return handleRoute(path, body,authHeader , queryParams);
+}
 
-        // 移除回车符
-        if (!line.empty() && line.back() == '\r') {
-            line.pop_back();
-        }
-
-        // 跳过空行
-        if (line.empty()) {
-            break; // 头部结束
-        }
-
-        // 分割头部
-        size_t colonPos = line.find(":");
-        std::string headerName = line.substr(0, colonPos);
-        std::string headerValue = line.substr(colonPos + 2);
-
-        trim(headerName);
-        trim(headerValue);
-
-        // 处理特定头部
-        if (headerName == "Authorization" || headerName == "authorization") {
-            authHeader = headerValue;
+ssize_t getContentLength(const std::string &request) {
+    std::istringstream stream(request);
+    std::string line;
+    while (std::getline(stream, line) && line != "\r") {
+        if (line.find("Content-Length:") == 0) {
+            std::istringstream lengthStream(line.substr(15));
+            ssize_t length;
+            lengthStream >> length;
+            return length;
         }
     }
-
-    // 读取请求体
-    std::string body = request.substr(pos);
-
-    return handleRoute(path, body, authHeader, queryParams);
+    return -1;
 }
 
 
 void handleConnection(int socket) {
-    std::string request;
+    std::string request, header, body;
     const size_t bufferSize = 4096;
     char buffer[bufferSize];
 
-    while (true) {
-        ssize_t bytesRead = read(socket, buffer, bufferSize - 1);
+    ssize_t contentLength = -1;
+    ssize_t bodyStart = 0;
+    bool headerReceived = false;
 
+
+    while (true) {
+        memset(buffer, 0, bufferSize); // 清理缓冲区
+        ssize_t bytesRead = read(socket, buffer, bufferSize - 1);
         if (bytesRead < 0) {
+            perror("read error");
             // 发生错误
             if (errno == EAGAIN || errno == EWOULDBLOCK) {
                 // 非阻塞模式下，没有数据可读
@@ -283,18 +288,39 @@ void handleConnection(int socket) {
             // 读取完成，没有更多数据
             break;
         }
-
         buffer[bytesRead] = '\0';
         request.append(buffer);
+        // 检查是否接收到完整的HTTP请求
+        if (!headerReceived && request.find("\r\n\r\n") != std::string::npos) {
+            // 请求头接收完毕
+            headerReceived = true;
+            contentLength = getContentLength(request);
+            bodyStart = request.find("\r\n\r\n") + 4;
+            header = request.substr(0, bodyStart);
+        }
 
-        if (bytesRead < bufferSize - 1) {
-            // 读取到的数据少于缓冲区大小，假设已经到达请求的末尾
-            break;
+
+        if (headerReceived) {
+            if (contentLength <= 0)break;
+            // 已接收到请求头且已解析出Content-Length
+            if (request.length() >= bodyStart + contentLength) {
+                // 已接收到完整的请求体
+                break;
+            }
         }
     }
 
-    if (!request.empty()) {
-        std::string response = parseRequest(request);
+    body = request.substr(bodyStart);
+
+    if (!header.empty()) {
+        std::string response;
+        try {
+            response = parseRequest(header, body);
+        } catch (const std::exception &e) {
+            // 发生错误，发送错误响应
+            response = httpResponse("500 Internal Server Error",
+                                    "An error occurred while processing the request.");
+        }
         write(socket, response.c_str(), response.size());
     }
 
@@ -335,7 +361,7 @@ void daemonize(std::string &path) {
 
 void createToken() {
 
-    if(readFile("token")!="")return;
+    if (readFile("token") != "")return;
 
     const std::string chars =
             "0123456789"
@@ -356,7 +382,7 @@ void createToken() {
 }
 
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
 
     if (argc < 2) {
         std::cout << "Usage: " << argv[0] << " <path>" << std::endl;
@@ -372,21 +398,10 @@ int main(int argc, char* argv[]) {
 
     int server_fd, new_socket;
     struct sockaddr_in address{};
-    int opt = 1;
     int addrlen = sizeof(address);
 
     if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
         perror("socket failed");
-        exit(EXIT_FAILURE);
-    }
-
-    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt))) {
-        perror("setsockopt SO_REUSEADDR failed");
-        exit(EXIT_FAILURE);
-    }
-
-    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt))) {
-        perror("setsockopt SO_REUSEPORT failed");
         exit(EXIT_FAILURE);
     }
 
@@ -410,22 +425,8 @@ int main(int argc, char* argv[]) {
             perror("accept");
             exit(EXIT_FAILURE);
         }
-
-        pid_t pid = fork();
-        if (pid == 0) {
-            // Child process
-            close(server_fd);
-            handleConnection(new_socket);
-            exit(0);
-        } else if (pid > 0) {
-            // Parent process
-            close(new_socket);
-            waitpid(-1, nullptr, WNOHANG); // Clean up zombie processes
-        } else {
-            perror("fork");
-            exit(EXIT_FAILURE);
-        }
+        std::thread t(handleConnection, new_socket);
+        t.detach(); // 让线程在后台运行
     }
-
     return 0;
 }

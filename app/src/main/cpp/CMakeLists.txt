@@ -4,8 +4,6 @@ project("auto")
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# 优化级别 -Os 或 -O2
-set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 
 add_executable(starter starter.cpp)
 
