@@ -16,25 +16,29 @@ package net.ankio.auto.database.table
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import net.ankio.common.model.BookModel
 
 @Entity
 class BookName {
-    //账户列表
+    //账本列表
     @PrimaryKey(autoGenerate = true)
     var id = 0
-
     /**
      * 账户名
      */
-    var name: String? = null
+    var name: String = ""
 
     /**
      * 图标是url或base64编码字符串
      */
-    var icon: String? = null //图标
+    var icon: String = "" //图标
 
-    /**
-     * 该账户对应的远程账户id
-     */
-    var remoteId: String? = null
+    companion object{
+        fun fromModel(model: BookModel): BookName {
+            return BookName().apply {
+                name = model.name
+                icon = model.icon
+            }
+        }
+    }
 }

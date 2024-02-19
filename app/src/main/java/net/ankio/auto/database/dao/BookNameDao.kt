@@ -15,15 +15,24 @@
 package net.ankio.auto.database.dao
 
 import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import net.ankio.auto.database.table.AppData
 import net.ankio.auto.database.table.BookName
+import net.ankio.common.model.BookModel
 
 @Dao
 interface BookNameDao {
     @Query("SELECT * FROM BookName  order by id desc")
-    suspend fun loadAll(): Array<BookName?>?
-    @Query("SELECT * FROM BookName WHERE name= :name")
-    suspend fun getByName(name:String):BookName?
+    suspend fun loadAll(): List<BookName>
 
+    @Query("SELECT * FROM BookName WHERE name= :name")
+    suspend fun getByName(name: String): BookName?
+
+    @Insert
+    suspend fun insert(bookName: BookName): Long
+
+    @Query("DELETE FROM BookName")
+    suspend fun deleteAll()
 }

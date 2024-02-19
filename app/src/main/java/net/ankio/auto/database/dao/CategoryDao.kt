@@ -17,20 +17,25 @@ package net.ankio.auto.database.dao
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
-import net.ankio.auto.database.table.AppData
-import net.ankio.auto.database.table.BookName
 import net.ankio.auto.database.table.Category
 
 @Dao
 interface CategoryDao {
-    @Query("SELECT * FROM Category where book=:book and parent = :id")
-    suspend fun loadAll(book:Int,id:Int = -1): Array<Category?>?
+    @Query("SELECT * FROM Category where book = :book and parent = :parent and type = :type order by id,sort")
+    suspend fun loadAll(book: Int, type: Int = 0, parent: Int = -1): Array<Category?>?
 
-    @Query("SELECT count(*) FROM Category where book=:book and parent = :id")
-    suspend fun count(book:Int,id: Int):Int
+    @Query("SELECT count(*) FROM Category where book=:book and parent = :parent and type = :type")
+    suspend fun count(book: Int, parent: Int, type: Int = 0): Int
 
     @Insert
     suspend fun add(data: Category)
-    @Query("SELECT * FROM Category where name=:cateName limit 1")
-    suspend fun get(cateName: String): Category?
+
+    @Query("SELECT * FROM Category where name=:cateName and book=:book limit 1")
+    suspend fun get(cateName: String, book: Long): Category?
+
+    @Query("SELECT * FROM Category where remoteId=:remote and book=:book limit 1")
+    suspend fun getRemote(remote: String, book: Int): Category?
+
+    @Query("DELETE FROM Category")
+    suspend fun deleteAll()
 }

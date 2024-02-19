@@ -16,6 +16,9 @@ package net.ankio.auto.database.table
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import net.ankio.auto.database.Db
+import net.ankio.auto.utils.Logger
+import net.ankio.common.model.CategoryModel
 
 @Entity
 class Category {
@@ -37,7 +40,7 @@ class Category {
     /**
      * 远程id
      */
-    var remoteId: String? = null
+    var remoteId: String = ""
 
     /**
      * 父类id
@@ -53,5 +56,42 @@ class Category {
      * 排序
      */
     var sort: Int = 0 //排序
+
+    /**
+     * 分类类型，0：支出，1：收入
+
+     */
+    var type: Int = 0
+    companion object{
+        suspend fun importModel(model: List<CategoryModel>,bookID: Long) {
+            //排序
+            val sortedModel = model.sortedWith(compareBy<CategoryModel> { it.parent != "-1" }.thenBy { it.sort })
+           sortedModel.forEach {
+                Category().apply {
+                    name = it.name
+                    icon = it.icon
+                    book = bookID.toInt()
+                    sort = it.sort
+                    type = it.type
+                    remoteId = it.id
+                    if (it.parent != "-1") {
+                        Db.get().CategoryDao().getRemote(it.parent,book)?.let { it2 ->
+                            parent = it2.id
+                        }
+                    }
+                   Db.get().CategoryDao().add(this)
+                }
+            }
+
+        }
+    }
+
+    fun isPanel(): Boolean {
+        return remoteId === "-9999"
+    }
+
+    override fun toString(): String {
+        return "Category(id=$id, name=$name, icon=$icon, remoteId='$remoteId', parent=$parent, book=$book, sort=$sort, type=$type)"
+    }
 
 }
