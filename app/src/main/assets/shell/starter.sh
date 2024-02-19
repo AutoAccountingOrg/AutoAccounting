@@ -18,7 +18,7 @@ echo "info: starter.sh begin"
 PORT=52045
 SERVER_NAME="自动记账"
 # 检测端口52045是否被占用
-if netstat -tuln | grep ":$PORT " | awk '$6 == "LISTEN" {print $7}'  > /dev/null; then
+if netstat -tulnp  | grep ":$PORT " | awk '$6 == "LISTEN" {print $7}'  > /dev/null; then
     echo "info: Port $PORT is in use. Attempting to terminate the process."
     # Get the Process ID of the process using port 52045
     # 使用netstat和awk获取端口52045的进程ID
@@ -26,7 +26,7 @@ if netstat -tuln | grep ":$PORT " | awk '$6 == "LISTEN" {print $7}'  > /dev/null
 
     if [ ! -z "$PID" ]; then
         echo "info: Terminating process with PID $PID."
-        kill $PID
+        kill -9 $PID
 
         # Check if the process was successfully terminated
         if netstat -tuln | grep ":$PORT " > /dev/null; then
@@ -35,8 +35,6 @@ if netstat -tuln | grep ":$PORT " | awk '$6 == "LISTEN" {print $7}'  > /dev/null
         else
             echo "info: Process $PID has been terminated."
         fi
-    else
-        echo "warn: Unable to find PID for port $PORT."
     fi
 else
     echo "info: Port 52045 is not in use."
