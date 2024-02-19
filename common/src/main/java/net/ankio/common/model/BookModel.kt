@@ -13,10 +13,10 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.sdk.model
+package net.ankio.common.model
 
 data class BookModel(
     val name:String,//账本名称
     val icon:String,//账本图标，url或者base64
-    val sort:Int,//排序
+    val category:List<CategoryModel>
 )
