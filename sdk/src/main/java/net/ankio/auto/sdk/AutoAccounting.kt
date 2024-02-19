@@ -20,7 +20,7 @@ import android.content.SharedPreferences
 import net.ankio.auto.sdk.exception.AutoAccountingException
 import net.ankio.auto.sdk.utils.RequestUtils
 
-class AutoAccounting() {
+class AutoAccounting {
     private  val PORT = 52045
     private val url = "http://127.0.0.1:$PORT/"
     // 将isServerStart转换为挂起函数
@@ -56,6 +56,7 @@ class AutoAccounting() {
             if(!instance.isServerStart(context)){
                 throw AutoAccountingException("自动记账服务未启动或自动记账未授权服务")
             }
+
         }
         private fun checkInit(){
             if(!::instance.isInitialized){
@@ -83,14 +84,6 @@ class AutoAccounting() {
             instance.setBooks(context,books)
         }
         /**
-         * 通过应用内广播或者hook的方式，将分类数据传递给自动记账，不支持增量传递，请全量传递。
-         */
-        suspend fun setCategories(context: Context,categories:String){
-            checkInit()
-            instance.setCategories(context,categories)
-        }
-
-        /**
          * 设置待报销的账单、借款等信息
          */
         suspend fun setBills(context: Context,bills:String){
@@ -114,7 +107,7 @@ class AutoAccounting() {
         )
         //获取账单后清空原有的账单避免重复同步
         setBills(context,"")
-        return String(result.byteArray?:ByteArray(0))
+        return result.result?:""
     }
 
     private suspend fun setBills(context: Context, bills: String) {

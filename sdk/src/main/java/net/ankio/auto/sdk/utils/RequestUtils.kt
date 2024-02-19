@@ -14,49 +14,104 @@
  */
 
 package net.ankio.auto.sdk.utils
+
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.net.HttpURLConnection
+import java.io.BufferedReader
+import java.io.BufferedWriter
+import java.io.InputStreamReader
+import java.io.OutputStreamWriter
+import java.net.Socket
 import java.net.URL
 
 
 object RequestUtils {
-
-
     suspend fun post(
         url: String,
         query: HashMap<String, String>? = null,
         data: String? = null,
-        headers: HashMap<String, String> = HashMap(),
-    ) :PostResult = withContext(Dispatchers.IO){
-        var requestUrl = url
-        if (!query.isNullOrEmpty()) {
-            requestUrl += query.entries.joinToString("&", prefix = "?") { "${it.key}=${it.value}" }
-        }
-        val urlObj = URL(requestUrl)
-        val con =  urlObj.openConnection() as HttpURLConnection
-        con.requestMethod = "POST" //设置请求方法POST
-        con.connectTimeout = 30000
-        con.readTimeout = 30000
-        con.doOutput = true
-        con.doInput = true
-        headers.forEach { (key, value) ->
-            con.setRequestProperty(key, value)
-        }
-        val outputStream = con.outputStream
-        if(!data.isNullOrEmpty()){
-            outputStream.write(data.toByteArray())
-            outputStream.close()
+        headers: HashMap<String, String> = HashMap()
+    ): PostResult = withContext(Dispatchers.IO) {
+        val (host, port) = parseUrl(url)
+
+        var response: String? = null
+        var isSuccess = false
+
+        // 创建 Socket 连接
+        var socket: Socket? = null
+        var writer: BufferedWriter? = null
+        var reader: BufferedReader? = null
+
+        try {
+            socket = Socket(host, port)
+            socket.soTimeout = 60000 // 设置读取超时时间为 10 秒
+            writer = BufferedWriter(OutputStreamWriter(socket.getOutputStream()))
+            reader = BufferedReader(InputStreamReader(socket.getInputStream()))
+
+            // 构建请求头
+            val requestHeaders = StringBuilder()
+            headers.forEach { (key, value) ->
+                requestHeaders.append("$key: $value\r\n")
+            }
+            val parsedUrl = URL(url)
+            var path = parsedUrl.path
+
+            if (!query.isNullOrEmpty()) {
+                path += query.entries.joinToString("&", prefix = "?") { "${it.key}=${it.value}" }
+            }
+
+            // 构建请求行和请求体
+            val requestBody = data ?: ""
+            val requestLine = "POST $path HTTP/1.1\r\n"
+            val contentLength = "Content-Length: ${requestBody.toByteArray().size}\r\n"
+
+            // 发送 HTTP 请求
+            writer.write(requestLine+"Host: $host\r\n")
+            writer.write(requestHeaders.toString())
+            writer.write(contentLength)
+            writer.write("Connection: close\r\n") // 关闭连接
+            writer.write("\r\n")
+            writer.write(requestBody)
+            writer.flush()
+
+            // 读取响应状态行
+            val statusLine = reader.readLine()
+            val statusParts = statusLine.split(" ")
+            if (statusParts.size >= 3) {
+                val statusCode = statusParts[1].toInt()
+                isSuccess = statusCode == 200
+            }
+
+            // 跳过响应头部分
+            var line: String?
+            do {
+                line = reader.readLine()
+            } while (!line.isNullOrEmpty())
+
+            // 读取响应体
+            response = reader.readText()
+            Logger.i("请求成功：\n${path}\n${response}")
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Logger.i("请求异常：\n${url}\n${e.message}", e)
+        } finally {
+            // 关闭资源
+            kotlin.runCatching {
+                writer?.close()
+                reader?.close()
+                socket?.close()
+
+            }
         }
 
-      try {
-          val responseCode = con.responseCode
-          val response = con.inputStream.use { it.readBytes() }
-          PostResult(response, responseCode == HttpURLConnection.HTTP_OK)
-      } catch (e: Exception) {
-          Logger.i("请求异常：${e.message}",e)
-          PostResult(null, false)
-      }
+        PostResult(response, isSuccess)
     }
 
+
+    private fun parseUrl(url: String): Pair<String, Int> {
+        val parsedUrl = URL(url)
+        val host = parsedUrl.host
+        val port = if (parsedUrl.port != -1) parsedUrl.port else parsedUrl.defaultPort
+        return Pair(host, port)
+    }
 }
