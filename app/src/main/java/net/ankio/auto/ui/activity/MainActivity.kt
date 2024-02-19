@@ -50,6 +50,7 @@ import net.ankio.auto.databinding.ActivityMainBinding
 import net.ankio.auto.ui.dialog.UpdateDialog
 import net.ankio.auto.utils.ActiveUtils
 import net.ankio.auto.utils.AutoAccountingServiceUtils
+import net.ankio.auto.utils.BookSyncUtils
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.Github
 import net.ankio.auto.utils.Logger
@@ -265,25 +266,7 @@ class MainActivity : BaseActivity() {
 
     }
     //从接口同步数据
-    private suspend fun syncData() = withContext(Dispatchers.IO){
-       val autoBooks = AutoAccountingServiceUtils.get("auto_books")
-        //同步账本数据和分类数据
-        if(autoBooks.isNotEmpty()){
-            Db.get().BookNameDao().deleteAll()
-            val type = object : TypeToken<List<BookModel>>() {}
-            Gson().fromJson(autoBooks,type).forEach {
-                val bookModel = it as BookModel
-                val bookName = BookName.fromModel(bookModel)
-                val id = Db.get().BookNameDao().insert(bookName)
-                Category.importModel(bookModel.category, id)
-            }
-            withContext(Dispatchers.Main){
-                Toast.makeText(this@MainActivity, R.string.sync_success, Toast.LENGTH_SHORT).show()
-            }
-            AutoAccountingServiceUtils.delete("auto_books")
-        }
 
-    }
 
     // Method to clear the existing menu items
     private fun clearMenuItems() {
@@ -295,7 +278,7 @@ class MainActivity : BaseActivity() {
         super.onResume()
         ActiveUtils.onStartApp(this)
         lifecycleScope.launch {
-            syncData()
+            BookSyncUtils.syncBook(this@MainActivity)
         }
     }
 
