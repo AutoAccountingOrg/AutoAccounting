@@ -22,6 +22,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.widget.LinearLayout
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.card.MaterialCardView
@@ -38,6 +39,7 @@ abstract class BaseSheetDialog(private val context: Context) :
     private val job = Job()
     val coroutineScope = CoroutineScope(Dispatchers.Main + job)
     lateinit var cardView: MaterialCardView
+    lateinit var cardViewInner: ViewGroup
     abstract fun onCreateView(inflater: LayoutInflater): View
 
     open fun show(float: Boolean = false,cancel:Boolean = false) {
@@ -58,7 +60,8 @@ abstract class BaseSheetDialog(private val context: Context) :
         // 设置BottomSheetDialog展开到全屏高度
         bottomSheetBehavior.skipCollapsed = true
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED;
-
+        //是否使用圆角风格
+        val margin = dpToPx(context,20f)
         if(::cardView.isInitialized){
             val layoutParams = if (cardView.layoutParams != null) {
                 cardView.layoutParams as ViewGroup.MarginLayoutParams
@@ -66,17 +69,22 @@ abstract class BaseSheetDialog(private val context: Context) :
                 // 如果 RadiusCardView 还没有布局参数，则创建新的参数
                 ViewGroup.MarginLayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
             }
-            //是否使用圆角风格
-            val margin = dpToPx(context,20f)
+
             if(SpUtils.getBoolean("cardRound",false)){
                 layoutParams.setMargins(margin,margin,margin,margin)
                 cardView.layoutParams = layoutParams
                 //使用圆角风格
             }else{
-                cardView.setPadding(0,0,0,margin)
                 layoutParams.setMargins(0, 0, 0, - margin)
                 cardView.layoutParams = layoutParams
             }
+        }
+
+        if(::cardViewInner.isInitialized){
+            cardViewInner.setPadding(0,0,0,
+                if(SpUtils.getBoolean("cardRound",false)) 0 else  margin
+            )
+
         }
 
         this.show()

@@ -13,11 +13,29 @@
   ~   limitations under the License.
   -->
 
-<androidx.recyclerview.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="@dimen/padding"
-    android:id="@+id/recycler_view"
-    android:orientation="vertical">
+    android:layout_height="wrap_content">
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/cardPadding"
+        app:cardCornerRadius="@dimen/radius"
+        app:cardElevation="0dp"
+        app:strokeColor="?attr/colorSurfaceContainerHighest"
+        app:strokeWidth="0dp">
+        <androidx.recyclerview.widget.RecyclerView
 
-</androidx.recyclerview.widget.RecyclerView>
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="@dimen/padding"
+            android:id="@+id/recycler_view"
+            android:orientation="vertical">
+
+        </androidx.recyclerview.widget.RecyclerView>
+    </com.google.android.material.card.MaterialCardView>
+</LinearLayout>
+

@@ -134,6 +134,7 @@ class CategorySelectorDialog(
 
         // 设置卡片视图
         this.cardView = binding.cardView
+        cardViewInner = binding.cardViewInner
         // 为RecyclerView设置布局管理器
         val layoutManager = GridLayoutManager(context, line)
         layoutManager.spanSizeLookup = SpecialSpanSizeLookup()

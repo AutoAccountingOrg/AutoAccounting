@@ -19,6 +19,7 @@ package net.ankio.auto.ui.dialog
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
+import androidx.core.view.children
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.Dispatchers
@@ -39,6 +40,8 @@ class BookSelectorDialog(private val context: Context,val callback: (BookName) -
         val layoutManager = LinearLayoutManager(context)
         binding.recyclerView.layoutManager = layoutManager
 
+        cardView = binding.cardView
+        cardViewInner = binding.recyclerView
         val adapter = BookSelectorAdapter(dataItems) { item, _ ->
             callback(item)
             this@BookSelectorDialog.dismiss()
