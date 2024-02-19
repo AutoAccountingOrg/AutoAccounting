@@ -45,6 +45,13 @@ class BookSelectorDialog(private val context: Context,val callback: (BookName) -
         }
         //binding.recyclerView.setBackgroundColor(SurfaceColors.SURFACE_1.getColor(requireContext()))
         binding.recyclerView.adapter = adapter
+
+
+        return binding.root
+    }
+
+
+    private fun getData(callback: (List<BookName>) -> Unit){
         val defaultBook = BookName().apply {
             name = "默认账本"
             id = 0
@@ -57,21 +64,17 @@ class BookSelectorDialog(private val context: Context,val callback: (BookName) -
 
             val collection = newData.takeIf { it.isNotEmpty() } ?: listOf(defaultBook)
 
-
-            withContext(Dispatchers.Main) {
-                dataItems.addAll(collection)
-                adapter.notifyItemInserted(0)
-            }
+            callback(collection)
         }
-
-        return binding.root
     }
 
-
     override fun show(float: Boolean, cancel: Boolean) {
-        if(dataItems.size == 1){
-            callback(dataItems[0])
-            return
+        getData {
+            dataItems.addAll(it)
+            if(dataItems.size == 1){
+                callback(dataItems[0])
+                return@getData
+            }
         }
         super.show(float, cancel)
     }
