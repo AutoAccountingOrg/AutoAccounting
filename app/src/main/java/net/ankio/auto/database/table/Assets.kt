@@ -18,15 +18,14 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity
-class Account {
+class Assets {
     //账户列表
     @PrimaryKey(autoGenerate = true)
     var id = 0
-    var name: String? = null //账户名
-
+    var name: String = "" //账户名
     /**
      * 这里的图标是url链接或存储的base64图片
      */
-    var icon: String? = null //图标
+    var icon: String = "" //图标
     var sort = 0
 }

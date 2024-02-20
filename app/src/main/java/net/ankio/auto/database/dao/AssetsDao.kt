@@ -17,21 +17,24 @@ package net.ankio.auto.database.dao
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
-import net.ankio.auto.database.table.Account
+import net.ankio.auto.database.table.Assets
 
 @Dao
-interface AccountDao {
+interface AssetsDao {
 
-    @Query("DELETE FROM Account WHERE id=:id")
+    @Query("DELETE FROM Assets WHERE id=:id")
     suspend fun del(id: Int)
 
 
     @Insert
-    suspend fun add(account: Account)
+    suspend fun add(account: Assets)
 
 
-    @Query("UPDATE  Account set sort=:sort WHERE id=:id")
+    @Query("UPDATE  Assets set sort=:sort WHERE id=:id")
     suspend fun setSort(id: Int, sort: Int)
-    @Query("SELECT * FROM  Account WHERE name=:account limit 1")
-    suspend fun get(account: String):Account?
+    @Query("SELECT * FROM  Assets WHERE name=:account limit 1")
+    suspend fun get(account: String):Assets?
+
+    @Query("SELECT * FROM Assets  order by id,sort desc")
+    suspend fun loadAll():List<Assets>
 }
