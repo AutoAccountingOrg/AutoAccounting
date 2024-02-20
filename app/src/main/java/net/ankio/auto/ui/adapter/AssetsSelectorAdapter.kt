@@ -20,6 +20,10 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.database.table.Assets
 import net.ankio.auto.databinding.AdapterAssetsBinding
@@ -51,23 +55,49 @@ class AssetsSelectorAdapter(
         return dataItems.size
     }
 
-    inner class ViewHolder(private val binding: AdapterAssetsBinding, private val context: Context) :
+    override fun onViewRecycled(holder: ViewHolder) {
+        super.onViewRecycled(holder)
+        holder.cancel()
+    }
+
+    inner class ViewHolder(
+        private val binding: AdapterAssetsBinding,
+        private val context: Context
+    ) :
         RecyclerView.ViewHolder(binding.root) {
+
+
+            private val job = Job()
+
+            private val scope = CoroutineScope(Dispatchers.IO + job)
+
+         fun cancel() {
+             job.cancel()
+         }
         fun bind(item: Assets) {
-            ImageUtils.get(context, item.icon, { drawable ->
-                binding.assets.setCompoundDrawables(drawable, null, null, null)
-            }, { error ->
-                Logger.w("加载图片失败：$error")
-                binding.assets.setCompoundDrawables(ResourcesCompat.getDrawable(
-                    context.resources,
-                    R.drawable.default_cate,
-                    context.theme
-                ), null, null, null)
 
-            })
+            //图片加载丢到IO线程
 
-            binding.assets.text = item.name
-            binding.assetsContainer.setOnClickListener {
+            scope.launch {
+                ImageUtils.get(context, item.icon, { drawable ->
+                    binding.assets.setIcon(drawable)
+                }, { error ->
+                    Logger.w("加载图片失败：$error")
+                    binding.assets.setIcon(
+                        ResourcesCompat.getDrawable(
+                            context.resources,
+                            R.drawable.default_cate,
+                            context.theme
+                        )
+                    )
+
+                })
+            }
+
+
+
+            binding.assets.setText(item.name)
+            binding.assets.setOnClickListener {
                 onClick(item)
             }
         }

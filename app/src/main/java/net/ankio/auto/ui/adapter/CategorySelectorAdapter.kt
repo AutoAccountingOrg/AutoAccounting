@@ -195,19 +195,17 @@ class CategorySelectorAdapter(
             } else {
                 scope.launch {
                     //自动切回主线程
-                    withContext(Dispatchers.Main){
-                        ImageUtils.get(context, item.icon!!, { drawable ->
-                            binding.itemImageIcon.setImageDrawable(drawable)
-                        }, {
-                            binding.itemImageIcon.setImageDrawable(
-                                ResourcesCompat.getDrawable(
-                                    context.resources,
-                                    R.drawable.default_cate,
-                                    context.theme
-                                )
+                    ImageUtils.get(context, item.icon!!, { drawable ->
+                        binding.itemImageIcon.setImageDrawable(drawable)
+                    }, {
+                        binding.itemImageIcon.setImageDrawable(
+                            ResourcesCompat.getDrawable(
+                                context.resources,
+                                R.drawable.default_cate,
+                                context.theme
                             )
-                        })
-                    }
+                        )
+                    })
                 }
 
             }

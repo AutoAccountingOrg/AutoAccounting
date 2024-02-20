@@ -20,6 +20,10 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.database.table.BookName
 import net.ankio.auto.databinding.AdapterBookBinding
@@ -51,20 +55,36 @@ class BookSelectorAdapter(
         return dataItems.size
     }
 
+    override fun onViewRecycled(holder: ViewHolder) {
+        super.onViewRecycled(holder)
+        holder.cancel()
+    }
+
     inner class ViewHolder(private val binding: AdapterBookBinding, private val context: Context) :
         RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: BookName, position: Int) {
-            ImageUtils.get(context, item.icon, { drawable ->
-                binding.book.background = drawable
-            }, { error ->
-                Logger.w("加载图片失败：$error")
-                binding.book.background = ResourcesCompat.getDrawable(
-                    context.resources,
-                    R.drawable.default_book,
-                    context.theme
-                )
 
-            })
+        private val job = Job()
+
+        private val scope = CoroutineScope(Dispatchers.IO + job)
+
+        fun cancel() {
+            job.cancel()
+        }
+        fun bind(item: BookName, position: Int) {
+            scope.launch {
+                ImageUtils.get(context, item.icon, { drawable ->
+                    binding.book.background = drawable
+                }, { error ->
+                    Logger.w("加载图片失败：$error")
+                    binding.book.background = ResourcesCompat.getDrawable(
+                        context.resources,
+                        R.drawable.default_book,
+                        context.theme
+                    )
+
+                })
+            }
+
 
             binding.itemValue.text = item.name
             binding.book.setOnClickListener {
