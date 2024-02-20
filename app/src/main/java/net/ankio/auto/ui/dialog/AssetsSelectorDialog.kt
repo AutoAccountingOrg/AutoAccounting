@@ -57,6 +57,8 @@ class AssetsSelectorDialog(private val context: Context,private val callback:(As
             val collection = newData.takeIf { it.isNotEmpty() } ?: listOf()
 
             dataItems.addAll(collection)
+
+            adapter.notifyItemInserted(0)
         }
 
         return binding.root

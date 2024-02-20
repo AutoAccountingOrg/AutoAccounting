@@ -19,6 +19,8 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import androidx.core.content.res.ResourcesCompat
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.database.table.BookName
 import net.ankio.auto.databinding.DialogBookInfoBinding
@@ -34,18 +36,20 @@ class BookInfoDialog(private val context: Context, private val book: BookName, p
         cardView = binding.cardView
         cardViewInner = binding.cardViewInner
 
-        ImageUtils.get(context, book.icon,
-            callback = {
-            binding.adapterBook.book.setImageDrawable(it)
-        },
-            error = {
-            binding.adapterBook.book.setImageDrawable(
-                ResourcesCompat.getDrawable(
-                context.resources,
-                R.drawable.default_book,
-                context.theme
-            ))
-        })
+        lifecycleScope.launch {
+            ImageUtils.get(context, book.icon,
+                callback = {
+                    binding.adapterBook.book.setImageDrawable(it)
+                },
+                error = {
+                    binding.adapterBook.book.setImageDrawable(
+                        ResourcesCompat.getDrawable(
+                            context.resources,
+                            R.drawable.default_book,
+                            context.theme
+                        ))
+                })
+        }
 
         binding.adapterBook.itemValue.text = book.name
 
