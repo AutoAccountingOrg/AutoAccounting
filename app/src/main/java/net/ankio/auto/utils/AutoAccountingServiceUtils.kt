@@ -17,6 +17,7 @@ package net.ankio.auto.utils
 
 import android.content.Context
 import android.os.Environment
+import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
@@ -24,6 +25,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.exceptions.AutoServiceException
+import net.ankio.common.config.AccountingConfig
 import java.io.File
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -51,18 +53,33 @@ class AutoAccountingServiceUtils(mContext: Context) : CoroutineScope by MainScop
                         continuation.resume(code == 200)
                     },
                     onError = {
+                        Logger.i("http://127.0.0.1:$PORT/ 请求错误$it")
                         continuation.resume(false)
                     })
             }
         }
 
         fun getToken(): String {
-            val path =  Environment.getExternalStorageDirectory().path+"/Android/data/${BuildConfig.APPLICATION_ID}/cache/shell/token.txt"
+           return get("token")
+        }
+        /**
+         * 获取文件内容
+         */
+        fun get(name: String): String {
+            val path =  Environment.getExternalStorageDirectory().path+"/Android/data/${BuildConfig.APPLICATION_ID}/cache/shell/${name}.txt"
             val file = File(path)
             if(file.exists()){
                 return file.readText().trim()
             }
             return ""
+        }
+
+        fun delete(name: String) {
+            val path =  Environment.getExternalStorageDirectory().path+"/Android/data/${BuildConfig.APPLICATION_ID}/cache/shell/${name}.txt"
+            val file = File(path)
+            if(file.exists()){
+                file.delete()
+            }
         }
     }
 
@@ -165,5 +182,25 @@ class AutoAccountingServiceUtils(mContext: Context) : CoroutineScope by MainScop
      */
     fun getLog(onSuccess: (String) -> Unit){
         get("log",onSuccess)
+    }
+    /**
+     * 获取配置
+     */
+    fun config(autoAccountingConfig: (AccountingConfig)->Unit){
+        runCatching {
+            get("bookAppConfig") {
+                val config = Gson().fromJson(it, AccountingConfig::class.java)
+                if(config==null){
+                    set("bookAppConfig",Gson().toJson(AccountingConfig()))
+                    autoAccountingConfig(AccountingConfig())
+                }else{
+                    autoAccountingConfig(config)
+                }
+
+            }
+        }.onFailure {
+            Logger.e("获取配置失败",it)
+            autoAccountingConfig(AccountingConfig())
+        }
     }
 }
