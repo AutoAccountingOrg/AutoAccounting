@@ -34,6 +34,7 @@ class BookSelectorDialog(private val context: Context,val callback: (BookName) -
 
     private lateinit var binding:DialogBookSelectBinding
     private val dataItems = mutableListOf<BookName>()
+    private lateinit var adapter : BookSelectorAdapter
     override fun onCreateView(inflater: LayoutInflater): View {
         binding =  DialogBookSelectBinding.inflate(inflater)
         val layoutManager = LinearLayoutManager(context)
@@ -41,7 +42,7 @@ class BookSelectorDialog(private val context: Context,val callback: (BookName) -
 
         cardView = binding.cardView
         cardViewInner = binding.recyclerView
-        val adapter = BookSelectorAdapter(dataItems) { item, _ ->
+        adapter = BookSelectorAdapter(dataItems) { item, _ ->
             callback(item)
             this@BookSelectorDialog.dismiss()
         }
@@ -72,11 +73,13 @@ class BookSelectorDialog(private val context: Context,val callback: (BookName) -
 
     override fun show(float: Boolean, cancel: Boolean) {
         getData {
-            dataItems.addAll(it)
-            if(dataItems.size == 1){
-                callback(dataItems[0])
+
+            if(it.size == 1){
+                callback(it[0])
                 return@getData
             }
+            dataItems.addAll(it)
+            adapter.notifyItemInserted(0)
         }
         super.show(float, cancel)
     }
