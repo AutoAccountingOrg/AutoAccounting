@@ -1,0 +1,26 @@
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:id="@+id/assetsContainer"
+    android:layout_margin="@dimen/one_padding"
+    app:cardCornerRadius="@dimen/radius"
+    app:cardElevation="0dp"
+    app:strokeColor="?attr/colorSurfaceContainerHighest"
+    app:strokeWidth="0dp"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <TextView
+        android:id="@+id/assets"
+        android:padding="@dimen/padding"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/one_padding"
+        android:layout_marginEnd="@dimen/one_padding"
+        android:drawablePadding="@dimen/one_padding"
+        android:text="测试账户"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textColor="?attr/colorOnSurface"
+        android:textStyle="bold"
+        app:drawableLeftCompat="@drawable/icon_android_width"
+        />
+</com.google.android.material.card.MaterialCardView>
