@@ -19,21 +19,29 @@ import android.content.Context
 import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
+//TODO 协程优化
 
 object ImageUtils {
 
-    fun get(
+   suspend fun get(
         context: Context,
         uriString: String,
         callback: (Drawable) -> Unit,
         error: (String) -> Unit
-    ) {
+    ) = withContext(Dispatchers.IO) {
         Logger.i("加载图片：${uriString}")
         if (uriString.startsWith("data:image")) {
-            callback(getFromBase64(context, uriString))
+            val drawable = getFromBase64(context, uriString)
+            withContext(Dispatchers.Main) {
+                callback(drawable)
+            }
         } else if (uriString.startsWith("http")) {
-            getFromWeb(context, uriString, callback, error)
+            withContext(Dispatchers.Main) {
+                getFromWeb(context, uriString, callback, error)
+            }
         } else {
             error("不支持的图片链接")
         }
