@@ -20,15 +20,37 @@ import android.widget.Toast
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.database.Db
+import net.ankio.auto.database.table.Assets
 import net.ankio.auto.database.table.BookName
 import net.ankio.auto.database.table.Category
+import net.ankio.common.model.AssetsModel
 import net.ankio.common.model.BookModel
 
 object BookSyncUtils {
-    suspend fun syncBook(context: Context) = withContext(Dispatchers.IO) {
+
+    suspend fun sync(context: Context) = withContext(Dispatchers.IO){
+       runCatching {
+           val bookJob = async { syncBook() }
+           val assetsJob = async { syncAssets() }
+
+           bookJob.await()
+           assetsJob.await()
+
+       }.onSuccess {
+           withContext(Dispatchers.Main) {
+               Toast.makeText(context, R.string.sync_success, Toast.LENGTH_SHORT).show()
+           }
+       }.onFailure {
+           Logger.e("sync error",it)
+       }
+    }
+
+
+   private suspend fun syncBook() = withContext(Dispatchers.IO) {
         val autoBooks = AutoAccountingServiceUtils.get("auto_books")
         //同步账本数据和分类数据
         if (autoBooks.isNotEmpty()) {
@@ -42,10 +64,21 @@ object BookSyncUtils {
                 val id = Db.get().BookNameDao().insert(bookName)
                 Category.importModel(bookModel.category, id)
             }
-            withContext(Dispatchers.Main) {
-                Toast.makeText(context, R.string.sync_success, Toast.LENGTH_SHORT).show()
+
+           AutoAccountingServiceUtils.delete("auto_books")
+        }
+    }
+
+   private suspend fun syncAssets() = withContext(Dispatchers.IO){
+        val autoAssets = AutoAccountingServiceUtils.get("auto_assets")
+        if (autoAssets.isNotEmpty()) {
+            val type = object : TypeToken<List<AssetsModel>>() {}
+            val assets = Gson().fromJson(autoAssets, type)
+            Db.get().AssetsDao().deleteAll()
+            assets.forEach {
+                Db.get().AssetsDao().add(Assets.fromModel(it))
             }
-         //   AutoAccountingServiceUtils.delete("auto_books")
+            AutoAccountingServiceUtils.delete("auto_assets")
         }
     }
 }
