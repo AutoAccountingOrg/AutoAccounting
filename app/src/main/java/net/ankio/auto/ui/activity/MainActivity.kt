@@ -34,29 +34,19 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.tobey.dialogloading.DialogUtil
 import com.zackratos.ultimatebarx.ultimatebarx.addNavigationBarBottomPadding
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import net.ankio.auto.R
-import net.ankio.auto.database.Db
-import net.ankio.auto.database.table.BookName
-import net.ankio.auto.database.table.Category
 import net.ankio.auto.databinding.AboutDialogBinding
 import net.ankio.auto.databinding.ActivityMainBinding
-import net.ankio.auto.ui.dialog.UpdateDialog
 import net.ankio.auto.utils.ActiveUtils
-import net.ankio.auto.utils.AutoAccountingServiceUtils
 import net.ankio.auto.utils.BookSyncUtils
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.Github
 import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.SpUtils
 import net.ankio.auto.utils.UpdateUtils
-import net.ankio.common.model.BookModel
 import rikka.html.text.toHtml
 
 
@@ -278,7 +268,7 @@ class MainActivity : BaseActivity() {
         super.onResume()
         ActiveUtils.onStartApp(this)
         lifecycleScope.launch {
-            BookSyncUtils.syncBook(this@MainActivity)
+            BookSyncUtils.sync(this@MainActivity)
         }
     }
 
