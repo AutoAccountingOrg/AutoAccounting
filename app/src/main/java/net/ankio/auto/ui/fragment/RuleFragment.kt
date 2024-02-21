@@ -36,9 +36,10 @@ import net.ankio.auto.databinding.FragmentDataBinding
 import net.ankio.auto.ui.adapter.DataAdapter
 import net.ankio.auto.ui.adapter.RuleAdapter
 import net.ankio.auto.ui.adapter.RuleItemListener
+import net.ankio.auto.ui.utils.MenuItem
 
 
-class RuleFragment : Fragment() {
+class RuleFragment : BaseFragment() {
     private lateinit var binding: FragmentDataBinding
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: RuleAdapter
@@ -46,7 +47,12 @@ class RuleFragment : Fragment() {
     private val dataItems = mutableListOf<Regular>()
     private var currentPage = 0
     private val itemsPerPage = 10
-
+    override val menuList: ArrayList<MenuItem>
+        get() = arrayListOf(
+            MenuItem(R.string.item_add, R.drawable.item_add){
+it.navigate(R.id.editFragment)
+            }
+        )
     override fun onCreateView(   inflater: LayoutInflater,
                                  container: ViewGroup?,
                                  savedInstanceState: Bundle?

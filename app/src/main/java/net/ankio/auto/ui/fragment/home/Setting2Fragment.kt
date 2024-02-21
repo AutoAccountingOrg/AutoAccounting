@@ -25,6 +25,8 @@ import com.quickersilver.themeengine.ThemeEngine
 import com.quickersilver.themeengine.ThemeMode
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentSetting2Binding
+import net.ankio.auto.ui.fragment.BaseFragment
+import net.ankio.auto.ui.utils.MenuItem
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.LanguageUtils
@@ -32,8 +34,9 @@ import net.ankio.auto.utils.ListPopupUtils
 import net.ankio.auto.utils.SpUtils
 
 
-class Setting2Fragment:Fragment() {
+class Setting2Fragment:BaseFragment() {
     private lateinit var binding: FragmentSetting2Binding
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -49,12 +52,12 @@ class Setting2Fragment:Fragment() {
         initCrash()
         //语言配置
         initLanguage()
-
         //主题
         initTheme()
-
+        //更新
+        initUpdate()
         //调试模式
-       initDebug()
+        initDebug()
     }
 
     private fun initCrash(){
@@ -180,10 +183,14 @@ class Setting2Fragment:Fragment() {
             AppUtils.getService().set("debug",if(isChecked) "true" else "false")
         }
     }
+
+    private fun initUpdate(){
+
+    }
     /**
      * 页面重新初始化
      */
-    fun recreateInit() {
+    private fun recreateInit() {
         activity?.recreate()
     }
 

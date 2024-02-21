@@ -44,10 +44,11 @@ import net.ankio.auto.ui.componets.FlowElement
 import net.ankio.auto.ui.componets.FlowLayoutManager
 import net.ankio.auto.ui.dialog.BookSelectorDialog
 import net.ankio.auto.ui.dialog.CategorySelectorDialog
+import net.ankio.auto.ui.fragment.BaseFragment
 import java.util.Calendar
 
 
-class EditFragment : Fragment() {
+class EditFragment : BaseFragment() {
     private lateinit var binding: FragmentEditBinding
 
 
@@ -55,6 +56,8 @@ class EditFragment : Fragment() {
     private var bookName = ""
     private var category = ""
     private var regularId = 0
+
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -171,14 +174,14 @@ class EditFragment : Fragment() {
         return binding.root
     }
     private fun onClickBook(it2: FlowElement){
-        BookSelectorDialog(requireContext()).show(false) {
+      /*  BookSelectorDialog(requireContext()).show(false) {
             it2.removed().setAsWaveTextview(it.name?:"",it2.connector, callback = it2.waveCallback)
             bookName = it.name?:""
             book = it.id
-        }
+        }*/
     }
     private fun onClickCategory(it2:FlowElement){
-        CategorySelectorDialog().show(requireActivity(),book,false){ parent,child->
+       /* CategorySelectorDialog().show(requireActivity(),book,false){ parent,child->
             var string  = ""
             string = if(parent==null){
                 "其他"
@@ -192,7 +195,7 @@ class EditFragment : Fragment() {
             it2.removed().setAsWaveTextview(string,it2.connector, callback = it2.waveCallback)
             category = string
 
-        }
+        }*/
     }
     private fun showSelectType(flexboxLayout:FlowLayoutManager,view:View,element: FlowElement){
         val popup = PopupMenu(requireContext(), view)

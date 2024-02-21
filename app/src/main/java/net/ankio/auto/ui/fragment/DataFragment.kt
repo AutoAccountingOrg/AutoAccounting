@@ -41,6 +41,7 @@ import net.ankio.auto.database.table.AppData
 import net.ankio.auto.databinding.FragmentDataBinding
 import net.ankio.auto.ui.adapter.DataAdapter
 import net.ankio.auto.ui.adapter.DataItemListener
+import net.ankio.auto.ui.utils.MenuItem
 import net.ankio.auto.utils.ActiveUtils
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.Github
@@ -49,7 +50,7 @@ import net.ankio.auto.utils.SpUtils
 import java.io.IOException
 
 
-class DataFragment : Fragment() {
+class DataFragment : BaseFragment() {
     private lateinit var binding: FragmentDataBinding
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: DataAdapter
@@ -57,6 +58,13 @@ class DataFragment : Fragment() {
     private val dataItems = mutableListOf<AppData>()
     private var currentPage = 0
     private val itemsPerPage = 10
+    override val menuList: ArrayList<MenuItem>
+        get() = arrayListOf(
+            MenuItem(R.string.item_add, R.drawable.item_add){
+
+            }
+        )
+
 
     override fun onCreateView(   inflater: LayoutInflater,
                                  container: ViewGroup?,

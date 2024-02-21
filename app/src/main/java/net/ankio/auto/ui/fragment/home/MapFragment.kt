@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 ankio(ankio@ankio.net)
+ * Copyright (C) 2024 ankio(ankio@ankio.net)
  * Licensed under the Apache License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,31 +12,29 @@
  *  See the License for the specific language governing permissions and
  *   limitations under the License.
  */
+
 package net.ankio.auto.ui.fragment.home
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import net.ankio.auto.R
-import net.ankio.auto.databinding.FragmentLogBinding
-import net.ankio.auto.databinding.FragmentSetting2Binding
+import net.ankio.auto.databinding.FragmentMapBinding
 import net.ankio.auto.ui.fragment.BaseFragment
 import net.ankio.auto.ui.utils.MenuItem
-import net.ankio.auto.utils.ActiveUtils
 
-class LogFragment  : BaseFragment() {
-    private lateinit var binding:FragmentLogBinding
+class MapFragment : BaseFragment() {
+
+    private  lateinit var binding: FragmentMapBinding
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentLogBinding.inflate(layoutInflater)
+        binding = FragmentMapBinding.inflate(layoutInflater)
 
-        binding.logTextView.text = ActiveUtils.getLogList(requireContext())
 
         return binding.root
     }
