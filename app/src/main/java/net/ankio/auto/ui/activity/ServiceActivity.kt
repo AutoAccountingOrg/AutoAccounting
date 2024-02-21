@@ -17,6 +17,7 @@ package net.ankio.auto.ui.activity
 
 import android.content.res.AssetManager
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.lifecycle.lifecycleScope
@@ -42,13 +43,13 @@ import java.io.InputStreamReader
 import java.io.OutputStream
 import java.io.OutputStreamWriter
 
-class ServiceActivity:BaseActivity() {
+class ServiceActivity : BaseActivity() {
     private lateinit var binding: ActivityServiceBinding
-    private lateinit var shell  : String
-    private  var cacheDir : File? = null
+    private lateinit var shell: String
+    private var cacheDir: File? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         cacheDir = AppUtils.getApplication().externalCacheDir
-        if(cacheDir===null){
+        if (cacheDir === null) {
             throw UnsupportedDeviceException(getString(R.string.unsupport_device))
         }
 
@@ -67,10 +68,14 @@ class ServiceActivity:BaseActivity() {
         binding.copyCommand.setOnClickListener {
             //复制命令
             AppUtils.copyToClipboard("adb shell $shell")
-            Toast.makeText(this@ServiceActivity,getString(R.string.copy_command_success),Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                this@ServiceActivity,
+                getString(R.string.copy_command_success),
+                Toast.LENGTH_SHORT
+            ).show()
         }
         setContentView(binding.root)
-        onBackPressedDispatcher.addCallback(this, object: OnBackPressedCallback(true) {
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 finishAffinity() // 关闭所有活动并退出应用
             }
@@ -79,14 +84,15 @@ class ServiceActivity:BaseActivity() {
         checkService()
     }
 
-    private fun checkService(){
+    private fun checkService() {
         val checkInterval = 1000L // 检查间隔，这里设置为5000毫秒（5秒）
         // 在一个新的协程中执行定时任务
-        lifecycleScope.launch { // 默认在主线程执行
+        lifecycleScope.launch(Dispatchers.IO) { // 默认在主线程执行
+
             while (isActive) { // 循环直到协程被取消
-                Logger.i("check active")
                 // 切换到IO线程执行耗时I/O操作
-                val isServerStarted = AutoAccountingServiceUtils.isServerStart(this@ServiceActivity)
+                val isServerStarted =
+                    AutoAccountingServiceUtils.isServerStart(this@ServiceActivity)
 
                 // 回到主线程执行UI操作
                 if (isServerStarted) {
@@ -103,17 +109,19 @@ class ServiceActivity:BaseActivity() {
                     delay(checkInterval) // 等待指定的检查间隔后再次检查
                 }
             }
+
+
         }
 
     }
 
 
-    private fun startServerByRoot(){
+    private fun startServerByRoot() {
 
 
-       val dialogBinding = DialogProgressBinding.inflate(layoutInflater)
+        val dialogBinding = DialogProgressBinding.inflate(layoutInflater)
         val textView = dialogBinding.progressText
-
+        val scrollView = dialogBinding.scrollView
         val progressDialog = MaterialAlertDialogBuilder(this)
             .setTitle(R.string.title_command)
             .setView(dialogBinding.root)
@@ -138,6 +146,7 @@ class ServiceActivity:BaseActivity() {
                     withContext(Dispatchers.Main) {
                         // 更新 TextView 来显示命令输出
                         textView.append(line + "\n")
+                        scrollView.post { scrollView.fullScroll(View.FOCUS_DOWN) }
                     }
                 }
                 process.waitFor()
@@ -159,7 +168,6 @@ class ServiceActivity:BaseActivity() {
     }
 
 
-
     private fun copyAssetsShellFolderToCache() {
         val assetManager = assets
         val shellFolderPath = "shell"
@@ -168,7 +176,11 @@ class ServiceActivity:BaseActivity() {
         copyFolderFromAssets(assetManager, shellFolderPath, destinationPath)
     }
 
-    private fun copyFolderFromAssets(assetManager: AssetManager, sourceFolderPath: String, destinationFolderPath: String) {
+    private fun copyFolderFromAssets(
+        assetManager: AssetManager,
+        sourceFolderPath: String,
+        destinationFolderPath: String
+    ) {
         try {
             val files = assetManager.list(sourceFolderPath) ?: return
 
@@ -179,7 +191,8 @@ class ServiceActivity:BaseActivity() {
             }
 
             for (filename in files) {
-                val sourceFilePath = if (sourceFolderPath == "") filename else "$sourceFolderPath/$filename"
+                val sourceFilePath =
+                    if (sourceFolderPath == "") filename else "$sourceFolderPath/$filename"
                 val destinationFilePath = "$destinationFolderPath/$filename"
 
                 try {
@@ -205,7 +218,7 @@ class ServiceActivity:BaseActivity() {
                 outputStream.write(buffer, 0, length)
             }
         } catch (e: IOException) {
-            Logger.e( "Error copying file", e)
+            Logger.e("Error copying file", e)
         } finally {
             try {
                 inputStream.close()

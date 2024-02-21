@@ -27,14 +27,6 @@ if netstat -tulnp  | grep ":$PORT " | awk '$6 == "LISTEN" {print $7}'  > /dev/nu
     if [ ! -z "$PID" ]; then
         echo "info: Terminating process with PID $PID."
         kill -9 $PID
-
-        # Check if the process was successfully terminated
-        if netstat -tuln | grep ":$PORT " > /dev/null; then
-            echo "fatal: Failed to terminate process $PID. Script exiting."
-            exit 1
-        else
-            echo "info: Process $PID has been terminated."
-        fi
     fi
 else
     echo "info: Port 52045 is not in use."
@@ -78,17 +70,22 @@ if [ -f "$OLD_PATH" ]; then
   NEW_PATH="$TARGET_PATH/starter"
   cp -r "$OLD_PATH" "$TARGET_PATH"
   echo "info: exec $NEW_PATH"
-    chmod +x "$NEW_PATH"
-    $NEW_PATH "$SHELL_PATH"
-    echo "info: $SERVER_NAME service start... "
-    PID=$(netstat -tulnp 2>/dev/null | grep ":$PORT" | awk '$6 == "LISTEN" {print $7}' | cut -d'/' -f1 | head -n 1)
-    if [ ! -z "$PID" ]; then
-        echo "info: $SERVER_NAME service start success, PID: $PID"
-    else
-        echo "fatal: $SERVER_NAME service start failed"
-        exit 1
-    fi
-    exit 0
+    retries=0
+    while [ $retries -lt 20 ]; do
+           $NEW_PATH "$SHELL_PATH"
+           echo "info: $SERVER_NAME service start... "
+           PID=$(netstat -tulnp 2>/dev/null | grep ":$PORT" | awk '$6 == "LISTEN" {print $7}' | cut -d'/' -f1 | head -n 1)
+           if [ ! -z "$PID" ]; then
+               echo "info: $SERVER_NAME service start success, PID: $PID"
+               return 0
+           else
+               echo "warning: $SERVER_NAME service start failed, retrying in $((retries+1)) second(s)..."
+               sleep $((retries+1))
+               retries=$((retries+1))
+           fi
+       done
+    echo "fatal: $SERVER_NAME service start failed after 10 attempts"
+    exit 1
 else
     echo "fatal: can't find binary file , please restart $SERVER_NAME: $OLD_PATH"
     exit 3

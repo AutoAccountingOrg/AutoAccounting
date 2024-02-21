@@ -382,6 +382,15 @@ void createToken() {
 }
 
 
+// 全局标志，指示程序是否应该开始关闭流程
+volatile sig_atomic_t shutdown_flag = 0;
+
+void signal_handler(int signum) {
+    std::cout << "Received signal " << signum << ", initiating shutdown..." << std::endl;
+    shutdown_flag = 1;
+}
+
+
 int main(int argc, char *argv[]) {
 
     if (argc < 2) {
@@ -391,6 +400,12 @@ int main(int argc, char *argv[]) {
     std::string path = argv[1];
 
     daemonize(path);
+
+// 注册信号处理函数
+    signal(SIGINT, signal_handler);
+    signal(SIGTERM, signal_handler);
+
+
 
     // 守护进程步骤结束，以下是原有的服务器代码
 
@@ -419,7 +434,7 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    while (true) {
+    while (shutdown_flag == 0) {
         if ((new_socket = accept(server_fd, (struct sockaddr *) &address, (socklen_t *) &addrlen)) <
             0) {
             perror("accept");
@@ -428,5 +443,8 @@ int main(int argc, char *argv[]) {
         std::thread t(handleConnection, new_socket);
         t.detach(); // 让线程在后台运行
     }
+
+    close(server_fd);
+
     return 0;
 }
