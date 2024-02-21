@@ -37,10 +37,8 @@ import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
-import okhttp3.logging.HttpLoggingInterceptor
 import java.io.File
 import java.io.IOException
-
 
 
 class RequestsUtils(private val context: Context) {
