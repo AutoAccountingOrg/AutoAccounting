@@ -41,9 +41,9 @@ object BookSyncUtils {
            assetsJob.await()
 
        }.onSuccess {
-           withContext(Dispatchers.Main) {
+           /*withContext(Dispatchers.Main) {
                Toast.makeText(context, R.string.sync_success, Toast.LENGTH_SHORT).show()
-           }
+           }*/
        }.onFailure {
            Logger.e("sync error",it)
        }
