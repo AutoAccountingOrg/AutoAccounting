@@ -31,8 +31,6 @@ navigationFragment = "2.7.0"
 browser = "1.6.0"
 activity = "1.8.2"
 constraintlayout = "2.1.4"
-lifecycleLivedataKtx = "2.6.1"
-lifecycleViewmodelKtx = "2.6.1"
 
 [libraries]
 androidx-navigation-fragment-ktx = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigationFragment" }
@@ -45,7 +43,6 @@ bugsnag-android = { module = "com.bugsnag:bugsnag-android", version.ref = "bugsn
 flexbox = { module = "com.google.android.flexbox:flexbox", version.ref = "flexbox" }
 gson-v288 = { module = "com.google.code.gson:gson", version.ref = "gsonVersion" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroid" }
-logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "loggingInterceptor" }
 markdown = { module = "org.jetbrains:markdown", version.ref = "markdown" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 rhino = { module = "org.mozilla:rhino", version.ref = "rhino" }
@@ -68,8 +65,6 @@ ultimateBarX = { module = "com.github.zackratos:UltimateBarX", version.ref = "ul
 androidx-browser = { group = "androidx.browser", name = "browser", version.ref = "browser" }
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
-androidx-lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycleLivedataKtx" }
-androidx-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

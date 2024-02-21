@@ -42,42 +42,7 @@ import java.io.File
 import java.io.IOException
 
 
-private class HttpLogger : HttpLoggingInterceptor.Logger {
-    private val mMessage = StringBuilder()
 
-    override fun log(msg: String) {
-        // 请求或者响应开始
-        var message = msg
-        if (message.startsWith("--> POST")) {
-            mMessage.setLength(0)
-        }
-        // 以{}或者[]形式的说明是响应结果的json数据，需要进行格式化
-        if ((message.startsWith("{") && message.endsWith("}"))
-            || (message.startsWith("[") && message.endsWith("]"))
-        ) {
-
-            kotlin.runCatching {
-                val gson = GsonBuilder().setPrettyPrinting().create()
-                // 将JSON字符串转换成Java对象，然后再转换回格式化的JSON字符串
-                val obj: Any = gson.fromJson(message, Any::class.java)
-                message = gson.toJson(obj)
-            }
-        }
-        mMessage.append(message + "\n")
-        // 请求或者响应结束，打印整条日志
-        if (message.startsWith("<-- END HTTP")) {
-
-            var messageString  = mMessage.toString()
-
-            messageString =  messageString.replace("--> END ","\n───────────────────────────────────────────────────────────────\n")
-            messageString =   messageString.replace("<-- END ","\n───────────────────────────────────────────────────────────────\n")
-            messageString =  messageString.replace("--> ","")
-            messageString =  messageString.replace("<--","\n───────────────────────────────────────────────────────────────\n")
-
-            Logger.d(messageString)
-        }
-    }
-}
 class RequestsUtils(private val context: Context) {
 
     companion object {
@@ -99,10 +64,7 @@ class RequestsUtils(private val context: Context) {
     val cacheManager = CacheManager(context)
     init {
         if(client === null){
-            val logInterceptor = HttpLoggingInterceptor(HttpLogger())
-            logInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
             client = OkHttpClient.Builder()
-                .addNetworkInterceptor(logInterceptor)
                 .cache(Cache(context.cacheDir, 10 * 1024 * 1024)) // 10MB cache
                 .build()
         }
@@ -148,6 +110,36 @@ class RequestsUtils(private val context: Context) {
     }
 
 
+    private fun convertByteArray(byteArray: ByteArray):String{
+        var message = ""
+        runCatching {
+            message = String(byteArray, Charsets.UTF_8)
+        }.onSuccess {
+            if ((message.startsWith("{") && message.endsWith("}"))
+                || (message.startsWith("[") && message.endsWith("]"))
+            ) {
+
+                runCatching {
+                    val gson = GsonBuilder().setPrettyPrinting().create()
+                    // 将JSON字符串转换成Java对象，然后再转换回格式化的JSON字符串
+                    val obj: Any = gson.fromJson(message, Any::class.java)
+                    message = gson.toJson(obj)
+                }
+            }
+        }.onFailure {
+            val hexResult = byteArray.joinToString(separator = " ") {
+                String.format("%02X", it)
+            }
+            val asciiResult = byteArray.filter { it.toInt() in 32..126 }.map { it.toInt().toChar() }.joinToString("")
+
+            message = "[ Cannot be displayed byteArray ] Size: ${byteArray.size} \n Hex: \n $hexResult\nASCII:\n $asciiResult"
+
+        }
+
+        return message
+
+    }
+
     private fun sendRequest(
         url: String,
         query: HashMap<String, String>? = null,
@@ -159,14 +151,26 @@ class RequestsUtils(private val context: Context) {
         onError: (String) -> Unit,
         cacheTime: Int = 0
     ) {
+
+        val message = StringBuilder()
+        message.append("$method ")
         var requestUrl = url
         if (!query.isNullOrEmpty()) {
             requestUrl += query.entries.joinToString("&", prefix = "?") { "${it.key}=${it.value}" }
         }
 
+        message.append(requestUrl + "\n")
+
         val cacheKey = generateCacheKey(requestUrl, method, data)
         val cachedData = cacheManager.readFromCache(cacheKey)
         if (cacheTime > 0 && cachedData.isNotEmpty()) {
+            message.append(
+                "\n───────────────────────────────────────────────────────────────\n" +
+                " Cache Hit \n" +
+                "───────────────────────────────────────────────────────────────\n"+
+                 convertByteArray(cachedData)
+            )
+            Logger.d(message.toString())
             onSuccess(cachedData, 200) // Assuming HTTP 200 for cached responses
             return
         }
@@ -175,9 +179,23 @@ class RequestsUtils(private val context: Context) {
 
         val body = if (method == METHOD_GET) null else buildRequestBody(data, contentType)
 
+
+
         requestBuilder.method(method, body)
 
-        headers.forEach { (key, value) -> requestBuilder.addHeader(key, value) }
+        headers.forEach { (key, value) ->
+            message.append("$key: $value\n")
+            requestBuilder.addHeader(key, value)
+        }
+
+        if(body!=null){
+            message.append(
+                "\n───────────────────────────────────────────────────────────────\n" +
+                        " Request Body \n" +
+                        "───────────────────────────────────────────────────────────────\n"+
+                        convertByteArray(body.toString().toByteArray())
+            )
+        }
 
         val request = requestBuilder.build()
 
@@ -188,16 +206,38 @@ class RequestsUtils(private val context: Context) {
                     if (cacheTime > 0 && response.isSuccessful) {
                         cacheManager.saveToCacheWithExpiry(cacheKey, bytes, cacheTime.toLong())
                     }
+                    message.append(
+                        "\n───────────────────────────────────────────────────────────────\n" +
+                                " Response Success " + response.code+"\n"+
+                                "───────────────────────────────────────────────────────────────\n"+
+                                convertByteArray(bytes)
+                    )
+                    Logger.d(message.toString())
                     mainHandler.post {
                         onSuccess(bytes, response.code)
                     }
 
-                } ?:  mainHandler.post {
-                    onSuccess(ByteArray(0), response.code)
+                } ?: {
+                    message.append(
+                        "\n───────────────────────────────────────────────────────────────\n" +
+                                " Response Empty " + response.code+"\n"+
+                                "───────────────────────────────────────────────────────────────\n"
+                    )
+                    Logger.d(message.toString())
+                    mainHandler.post {
+                        onSuccess(ByteArray(0), response.code)
+                    }
                 }
             }
 
             override fun onFailure(call: Call, e: IOException) {
+                message.append(
+                    "\n───────────────────────────────────────────────────────────────\n" +
+                            " Response Error \n" +
+                            "───────────────────────────────────────────────────────────────\n"+
+                    e.message
+                )
+                Logger.e(message.toString(),e)
                 mainHandler.post {
                     onError(e.message ?: "Unknown error")
                 }

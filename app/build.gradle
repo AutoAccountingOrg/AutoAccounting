@@ -146,9 +146,7 @@ dependencies {
     //bug
     implementation libs.bugsnag.android
     //okhttp
-    implementation libs.okhttp // 确保使用最新版本
-    //日志的拦截器
-    implementation libs.logging.interceptor
+    implementation libs.okhttp
     //常用的工具类
     implementation project(':common')
     //数据库调试
