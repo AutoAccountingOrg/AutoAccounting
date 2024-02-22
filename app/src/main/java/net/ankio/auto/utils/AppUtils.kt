@@ -184,7 +184,7 @@ object  AppUtils {
      * 设置debug状态
      */
     fun setDebug(debug:Boolean = false){
-        getService().set("debug", debug.toString())
+        getService().set("debug", if(debug)"true" else "false")
         SpUtils.putBoolean("debug", debug)
     }
 
