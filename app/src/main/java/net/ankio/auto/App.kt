@@ -18,6 +18,7 @@ package net.ankio.auto
 import android.app.Application
 import android.content.Context
 import net.ankio.auto.database.Db
+import net.ankio.auto.utils.AppTimeMonitor
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.ExceptionHandler
 import net.ankio.auto.utils.Logger
@@ -26,8 +27,23 @@ import net.ankio.auto.utils.Logger
 class App : Application(){
 
 
-    override fun onCreate() {
-        super.onCreate()
+    override fun onTerminate() {
+        super.onTerminate()
+        AppUtils.getJob().cancel()
+    }
+
+
+    override fun attachBaseContext(base: Context?) {
+        super.attachBaseContext(base)
+        //初始化工具类
+        AppUtils.setApplication(this)
+
+
+        //监控
+
+        AppTimeMonitor.startMonitoring("App初始化")
+
+
         //数据库初始化
         Db.init(this)
         //日志初始化
@@ -35,11 +51,7 @@ class App : Application(){
         //设置全局异常
         ExceptionHandler.init(this)
 
-    }
 
-
-    override fun attachBaseContext(base: Context?) {
-        super.attachBaseContext(base)
-        AppUtils.setApplication(this)
+        AppTimeMonitor.stopMonitoring("App初始化")
     }
 }

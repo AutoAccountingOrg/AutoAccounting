@@ -15,31 +15,46 @@
 
 package net.ankio.auto.utils
 
+import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
-import net.ankio.auto.BuildConfig
+import kotlinx.coroutines.launch
+import java.io.File
 
 /**
  * 日志工具类，包含调用日志的类和行号信息，以及异常的堆栈跟踪。
  */
 object Logger {
 
-    private lateinit var preferences: SharedPreferences
 
     private var level = Log.VERBOSE
-    fun init(context: Context){
-        preferences = context.getSharedPreferences("LoggerPrefs", Context.MODE_PRIVATE)
+
+    private  var debug = false
+
+    private lateinit var fileLogger: FileLogger
+
+    private lateinit var file :File
+    fun init(context: Application){
+        debug = AppUtils.getDebug()
+
         //如果是调试模式，日志级别就是VERBOSE，否则就是ERROR
-        level = preferences.getInt("log_level", if(BuildConfig.DEBUG)Log.VERBOSE else Log.ERROR)
+        level = SpUtils.getInt("log_level", if(debug)Log.VERBOSE else Log.ERROR)
+
+        if(!debug){
+            AppUtils.getScope().launch {
+                file = File(context.externalCacheDir, "log.txt")
+                fileLogger = FileLogger(file)
+            }
+        }
     }
 
     fun setLevel(level:Int){
-        preferences.edit().putInt("log_level", level).apply()
+        SpUtils.putInt("log_level", level)
     }
 
     private fun createLogMessage(message: String): String {
-        val stackTraceElement = Throwable().stackTrace[2] // 获取调用日志方法的堆栈跟踪元素
+        val stackTraceElement = Throwable().stackTrace[3] // 获取调用日志方法的堆栈跟踪元素
 
         return StringBuilder().apply {
             append("┌───────────────────────────────────────────────────────────────\n")
@@ -77,6 +92,12 @@ object Logger {
                 Log.INFO->Log.i(tag, it)
                 Log.WARN->Log.w(tag, it)
                 Log.ERROR->Log.e(tag, it)
+            }
+        }
+
+        if(!debug && ::fileLogger.isInitialized){
+            AppUtils.getScope().launch {
+                fileLogger.log(logMessage)
             }
         }
 

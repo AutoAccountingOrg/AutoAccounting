@@ -25,6 +25,9 @@ import android.os.Looper
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.Cache
 import okhttp3.Call
 import okhttp3.Callback
@@ -41,7 +44,7 @@ import java.io.File
 import java.io.IOException
 
 
-class RequestsUtils(private val context: Context) {
+class RequestsUtils(context: Context) {
 
     companion object {
         const val TYPE_FORM = 0
@@ -56,6 +59,8 @@ class RequestsUtils(private val context: Context) {
          var client: OkHttpClient? = null
         val mainHandler = Handler(Looper.getMainLooper())
 
+
+
     }
 
 
@@ -67,6 +72,7 @@ class RequestsUtils(private val context: Context) {
                 .build()
         }
     }
+
 
 
     // 构建请求体
@@ -149,99 +155,106 @@ class RequestsUtils(private val context: Context) {
         onError: (String) -> Unit,
         cacheTime: Int = 0
     ) {
+        AppUtils.getScope().launch {
 
-        val message = StringBuilder()
-        message.append("$method ")
-        var requestUrl = url
-        if (!query.isNullOrEmpty()) {
-            requestUrl += query.entries.joinToString("&", prefix = "?") { "${it.key}=${it.value}" }
-        }
-
-        message.append(requestUrl + "\n")
-
-        val cacheKey = generateCacheKey(requestUrl, method, data)
-        val cachedData = cacheManager.readFromCache(cacheKey)
-        if (cacheTime > 0 && cachedData.isNotEmpty()) {
-            message.append(
-                "\n───────────────────────────────────────────────────────────────\n" +
-                " Cache Hit \n" +
-                "───────────────────────────────────────────────────────────────\n"+
-                 convertByteArray(cachedData)
-            )
-            Logger.d(message.toString())
-            onSuccess(cachedData, 200) // Assuming HTTP 200 for cached responses
-            return
-        }
-
-        val requestBuilder = Request.Builder().url(requestUrl)
-
-        val body = if (method == METHOD_GET) null else buildRequestBody(data, contentType)
-
-
-
-        requestBuilder.method(method, body)
-
-        headers.forEach { (key, value) ->
-            message.append("$key: $value\n")
-            requestBuilder.addHeader(key, value)
-        }
-
-        if(body!=null){
-            message.append(
-                "\n───────────────────────────────────────────────────────────────\n" +
-                        " Request Body \n" +
-                        "───────────────────────────────────────────────────────────────\n"+
-                        convertByteArray(body.toString().toByteArray())
-            )
-        }
-
-        val request = requestBuilder.build()
-
-        client?.newCall(request)?.enqueue(object : Callback {
-            override fun onResponse(call: Call, response: Response) {
-                response.body?.byteStream()?.use {
-                    val bytes = it.readBytes()
-                    if (cacheTime > 0 && response.isSuccessful) {
-                        cacheManager.saveToCacheWithExpiry(cacheKey, bytes, cacheTime.toLong())
-                    }
-                    message.append(
-                        "\n───────────────────────────────────────────────────────────────\n" +
-                                " Response Success " + response.code+"\n"+
-                                "───────────────────────────────────────────────────────────────\n"+
-                                convertByteArray(bytes)
-                    )
-                    Logger.d(message.toString())
-                    mainHandler.post {
-                        onSuccess(bytes, response.code)
-                    }
-
-                } ?: {
-                    message.append(
-                        "\n───────────────────────────────────────────────────────────────\n" +
-                                " Response Empty " + response.code+"\n"+
-                                "───────────────────────────────────────────────────────────────\n"
-                    )
-                    Logger.d(message.toString())
-                    mainHandler.post {
-                        onSuccess(ByteArray(0), response.code)
-                    }
-                }
+            val message = StringBuilder()
+            message.append("$method ")
+            var requestUrl = url
+            if (!query.isNullOrEmpty()) {
+                requestUrl += query.entries.joinToString("&", prefix = "?") { "${it.key}=${it.value}" }
             }
 
-            override fun onFailure(call: Call, e: IOException) {
+            message.append(requestUrl + "\n")
+
+            val cacheKey = generateCacheKey(requestUrl, method, data)
+            val cachedData = cacheManager.readFromCache(cacheKey)
+            if (cacheTime > 0 && cachedData.isNotEmpty()) {
                 message.append(
                     "\n───────────────────────────────────────────────────────────────\n" +
-                            " Response Error \n" +
+                            " Cache Hit \n" +
                             "───────────────────────────────────────────────────────────────\n"+
-                    e.message
+                            convertByteArray(cachedData)
                 )
-                Logger.e(message.toString(),e)
-                mainHandler.post {
-                    onError(e.message ?: "Unknown error")
-                }
-
+                Logger.d(message.toString())
+                onSuccess(cachedData, 200) // Assuming HTTP 200 for cached responses
+                return@launch
             }
-        })
+            AppTimeMonitor.startMonitoring("请求: $requestUrl")
+            val requestBuilder = Request.Builder().url(requestUrl)
+
+            val body = if (method == METHOD_GET) null else buildRequestBody(data, contentType)
+
+
+
+            requestBuilder.method(method, body)
+
+            headers.forEach { (key, value) ->
+                message.append("$key: $value\n")
+                requestBuilder.addHeader(key, value)
+            }
+
+            if(body!=null){
+                message.append( convertByteArray(body.toString().toByteArray()))
+            }
+
+            val request = requestBuilder.build()
+
+            withContext(Dispatchers.Main){
+                client?.newCall(request)?.enqueue(object : Callback {
+                    //还在子线程中
+                    override fun onResponse(call: Call, response: Response) {
+                        AppTimeMonitor.startMonitoring("请求: $requestUrl")
+                        response.body?.byteStream()?.use {
+                            val bytes = it.readBytes()
+                            if (cacheTime > 0 && response.isSuccessful) {
+                                AppUtils.getScope().launch {
+                                    cacheManager.saveToCacheWithExpiry(cacheKey, bytes, cacheTime.toLong())
+                                }
+                            }
+                            message.append(
+                                "\n───────────────────────────────────────────────────────────────\n" +
+                                        " Response Success \n " + response.code+" "+ response.message+"\n"+
+                                        "───────────────────────────────────────────────────────────────\n"+
+                                        convertByteArray(bytes)
+                            )
+                            Logger.d(message.toString())
+                            mainHandler.post {
+                                onSuccess(bytes, response.code)
+                            }
+
+                        } ?: {
+                            message.append(
+                                "\n───────────────────────────────────────────────────────────────\n" +
+                                        " Response Empty \n " + response.code+" "+ response.message+"\n"+
+                                        "───────────────────────────────────────────────────────────────\n"
+                            )
+                            Logger.d(message.toString())
+                            mainHandler.post {
+                                onSuccess(ByteArray(0), response.code)
+                            }
+                        }
+                    }
+
+                    override fun onFailure(call: Call, e: IOException) {
+                        AppTimeMonitor.startMonitoring("请求: $requestUrl")
+                        message.append(
+                            "\n───────────────────────────────────────────────────────────────\n" +
+                                    " Response Error \n" +
+                                    "───────────────────────────────────────────────────────────────\n"+
+                                    e.message
+                        )
+                        Logger.e(message.toString(),e)
+                        mainHandler.post {
+                            onError(e.message ?: "Unknown error")
+                        }
+
+                    }
+                })
+            }
+
+        }
+
+
     }
     // GET请求
     fun get(
@@ -304,5 +317,6 @@ class RequestsUtils(private val context: Context) {
     private fun generateCacheKey(url: String, method: String, data: Map<String, String>?): String {
         return AppUtils.md5(url + method + (data?.toString() ?: ""))
     }
+
 
 }

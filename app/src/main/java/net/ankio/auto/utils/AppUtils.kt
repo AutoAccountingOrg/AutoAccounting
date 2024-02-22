@@ -33,8 +33,11 @@ import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.content.res.ResourcesCompat
 import com.google.android.material.color.MaterialColors
 import com.quickersilver.themeengine.ThemeEngine
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import net.ankio.auto.BuildConfig
-import net.ankio.auto.ui.activity.LauncherActivity
+import net.ankio.auto.ui.activity.MainActivity
 import java.math.BigInteger
 import java.security.MessageDigest
 
@@ -42,7 +45,15 @@ import java.security.MessageDigest
 object  AppUtils {
     private lateinit var application: Application
     private lateinit var service: AutoAccountingServiceUtils
+    private val job = Job()
+    private val scope = CoroutineScope(Dispatchers.IO + job)
 
+    fun getJob():Job{
+        return job
+    }
+    fun getScope(): CoroutineScope {
+        return scope
+    }
     fun getApplication(): Application {
         return application
     }
@@ -68,7 +79,7 @@ object  AppUtils {
      * 重启应用
      */
     fun restart(){
-        val intent = Intent(application, LauncherActivity::class.java)
+        val intent = Intent(application, MainActivity::class.java)
         intent.addFlags(FLAG_ACTIVITY_NEW_TASK)
         application.startActivity(intent)
         Process.killProcess(Process.myPid())
@@ -87,6 +98,13 @@ object  AppUtils {
      */
     fun getThemeAttrColor( @AttrRes attrResId: Int): Int {
         return MaterialColors.getColor(ContextThemeWrapper(application, ThemeEngine.getInstance(application).getTheme()), attrResId, Color.WHITE)
+    }
+
+    /**
+     * 获取主题Context
+     */
+    fun getThemeContext(context: Context):Context{
+        return ContextThemeWrapper(context, ThemeEngine.getInstance(context).getTheme())
     }
 
     fun getVersionCode(): Int {
@@ -153,6 +171,21 @@ object  AppUtils {
             e.printStackTrace()
         }
         return null
+    }
+
+    /**
+     * 获取debug状态
+     */
+    fun getDebug(): Boolean {
+        return SpUtils.getBoolean("debug",BuildConfig.DEBUG)
+    }
+
+    /**
+     * 设置debug状态
+     */
+    fun setDebug(debug:Boolean = false){
+        getService().set("debug", debug.toString())
+        SpUtils.putBoolean("debug", debug)
     }
 
 }
