@@ -69,7 +69,7 @@ class AssetsSelectorAdapter(
 
             private val job = Job()
 
-            private val scope = CoroutineScope(Dispatchers.IO + job)
+            private val scope = CoroutineScope(Dispatchers.Main + job)
 
          fun cancel() {
              job.cancel()
