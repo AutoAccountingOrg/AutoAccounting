@@ -16,6 +16,7 @@
 package net.ankio.auto.ui.fragment
 
 import android.view.Menu
+import android.view.View
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.Fragment
@@ -31,13 +32,14 @@ abstract class BaseFragment:Fragment() {
         return this.javaClass.simpleName
     }
 
-    private lateinit var  activityBinding : ActivityMainBinding
+    protected lateinit var  activityBinding : ActivityMainBinding
 
     override fun onResume() {
         super.onResume()
         if(!this::activityBinding.isInitialized){
             activityBinding =  (activity as MainActivity).getBinding()
         }
+        activityBinding.toolbar.visibility = View.VISIBLE
         // 重置顶部导航栏图标
         activityBinding.toolbar.menu.clear()
         //添加菜单

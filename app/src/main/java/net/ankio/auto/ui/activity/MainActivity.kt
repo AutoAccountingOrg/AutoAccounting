@@ -162,7 +162,7 @@ class MainActivity : BaseActivity() {
         }.onFailure {
             //如果服务没启动，则跳转到服务未启动界面
             Logger.e("自动记账服务未连接",it)
-            start<ServiceActivity>()
+            navHostFragment.navController.navigate(R.id.serviceFragment)
         }
     }
 
