@@ -28,9 +28,8 @@ import java.util.Locale
 object LanguageUtils {
      fun initAppLanguage(context: Context): Context {
         val language = getAppLang()
-         Logger.i("App语言：$language")
          val locale = getLocale(language)
-         Logger.i("实际获取的语言：${locale.language}")
+         Logger.i("App语言：$language 实际获取的语言：${locale.language}")
         Locale.setDefault(locale)
         return updateResourcesLocale(context, locale)
     }
