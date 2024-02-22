@@ -54,7 +54,6 @@ open class BaseActivity : AppCompatActivity() {
            LanguageUtils.initAppLanguage(it)
         }
         super.attachBaseContext(context)
-
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

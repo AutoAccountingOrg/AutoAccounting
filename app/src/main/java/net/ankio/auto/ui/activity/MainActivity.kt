@@ -44,6 +44,7 @@ import net.ankio.auto.databinding.AboutDialogBinding
 import net.ankio.auto.databinding.ActivityMainBinding
 import net.ankio.auto.ui.fragment.BaseFragment
 import net.ankio.auto.utils.ActiveUtils
+import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.BookSyncUtils
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.Github
@@ -146,26 +147,39 @@ class MainActivity : BaseActivity() {
     override fun onViewCreated() {
       super.onViewCreated()
         //除了执行父页面的办法之外还要执行检查更新
-       try {
-           checkUpdate()
-       }catch (e:Exception){
-           Logger.e("更新异常",e)
-       }
+      runCatching {
+          checkAutoService()
+          checkBookApp()
+          checkUpdate()
+      }.onFailure {
+            Logger.e("检查更新失败",it)
+      }
+    }
+
+    private fun checkAutoService(){
+        runCatching {
+            AppUtils.setService(AppUtils.getApplication())
+        }.onFailure {
+            //如果服务没启动，则跳转到服务未启动界面
+            Logger.e("自动记账服务未连接",it)
+            start<ServiceActivity>()
+        }
+    }
+
+    private fun checkBookApp(){
         //判断是否设置了记账软件
         if (SpUtils.getString("bookApp", "").isEmpty()) {
             MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.title_book_app)
                 .setMessage(R.string.msg_book_app)
                 .setPositiveButton(R.string.sure_book_app) { _, _ ->
-                  CustomTabsHelper.launchUrlOrCopy(this,getString(R.string.book_app_url))
+                    CustomTabsHelper.launchUrlOrCopy(this,getString(R.string.book_app_url))
                 }
                 .setNegativeButton(R.string.cancel) { _, _ ->
                     //finish()
                 }
                 .show()
         }
-
-
     }
 
 
@@ -188,7 +202,6 @@ class MainActivity : BaseActivity() {
         //检查规则更新
         if (SpUtils.getBoolean("checkRuleUpdate", true)) {
             updateUtils.checkRuleUpdate { version, log, date, category, rule ->
-
             }
         }
     }
