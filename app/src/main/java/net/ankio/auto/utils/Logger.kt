@@ -15,6 +15,8 @@
 
 package net.ankio.auto.utils
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.util.Log
 import net.ankio.auto.BuildConfig
 
@@ -23,12 +25,27 @@ import net.ankio.auto.BuildConfig
  */
 object Logger {
 
+    private lateinit var preferences: SharedPreferences
+
+    private var level = Log.VERBOSE
+    fun init(context: Context){
+        preferences = context.getSharedPreferences("LoggerPrefs", Context.MODE_PRIVATE)
+        //如果是调试模式，日志级别就是VERBOSE，否则就是ERROR
+        level = preferences.getInt("log_level", if(BuildConfig.DEBUG)Log.VERBOSE else Log.ERROR)
+    }
+
+    fun setLevel(level:Int){
+        preferences.edit().putInt("log_level", level).apply()
+    }
+
     private fun createLogMessage(message: String): String {
         val stackTraceElement = Throwable().stackTrace[2] // 获取调用日志方法的堆栈跟踪元素
 
         return StringBuilder().apply {
             append("┌───────────────────────────────────────────────────────────────\n")
-            append("│ Logger For 自动记账                                            \n")
+            append("│ Thread: ")
+            append(Thread.currentThread().name)
+            append("\n")
             append("│ ")
             append(stackTraceElement.className.substringAfterLast('.'))
             append(".")
@@ -50,10 +67,10 @@ object Logger {
         return Throwable().stackTrace[2].className.substringAfterLast('.')
     }
 
-
     private fun printLog(type: Int,tag: String,message: String){
-        if(!BuildConfig.DEBUG)return
-        message.lines().forEach {
+        if(type< level) return
+        val logMessage = createLogMessage(message)
+        logMessage.lines().forEach {
             when(type){
                 Log.VERBOSE->Log.v(tag, it)
                 Log.DEBUG->Log.d(tag, it)
@@ -62,16 +79,16 @@ object Logger {
                 Log.ERROR->Log.e(tag, it)
             }
         }
+
     }
 
     fun d(message: String) {
-        printLog(Log.DEBUG,getTag(), createLogMessage(message))
+        printLog(Log.DEBUG,getTag(), message)
     }
 
     fun e(message: String, throwable: Throwable? = null) {
         val messageInfo = StringBuilder()
         messageInfo.append(message).append("\n")
-
         if (throwable != null) {
             messageInfo.append("───────────────────────────────────────────────────────────────\n")
             messageInfo.append(throwable.javaClass.name).append(": ").append(throwable.message).append("\n")
@@ -83,15 +100,15 @@ object Logger {
                     .append(it.lineNumber).append(")\n")
             }
         }
-        printLog(Log.ERROR,getTag(), createLogMessage(messageInfo.toString()))
+        printLog(Log.ERROR,getTag(), messageInfo.toString())
     }
 
     fun i(message: String) {
-        printLog(Log.INFO,getTag(), createLogMessage(message))
+        printLog(Log.INFO,getTag(), message)
     }
 
     fun w(message: String) {
-        printLog(Log.WARN,getTag(), createLogMessage(message))
+        printLog(Log.WARN,getTag(), message)
     }
 
 }

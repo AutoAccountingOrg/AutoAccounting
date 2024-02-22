@@ -20,6 +20,7 @@ import android.content.Context
 import net.ankio.auto.database.Db
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.ExceptionHandler
+import net.ankio.auto.utils.Logger
 
 
 class App : Application(){
@@ -29,14 +30,16 @@ class App : Application(){
         super.onCreate()
         //数据库初始化
         Db.init(this)
+        //日志初始化
+        Logger.init(this)
         //设置全局异常
         ExceptionHandler.init(this)
+
     }
 
 
     override fun attachBaseContext(base: Context?) {
         super.attachBaseContext(base)
         AppUtils.setApplication(this)
-
     }
 }
