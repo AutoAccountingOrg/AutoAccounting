@@ -19,30 +19,33 @@ import androidx.room.PrimaryKey
 import com.google.gson.Gson
 
 @Entity
-class AccountMap {
+class AssetsMap {
     //账户列表
     @PrimaryKey(autoGenerate = true)
     var id = 0
     /**
      * 是否将原始映射的账户名作为正则使用
      */
-    var regex = false
+    var regex:Boolean = false
     /**
      * 原始获取到的账户名
      */
-    var name: String? = null //账户名
+    var name: String = "" //账户名
 
     /**
      * 映射到的账户名
      */
-    var mapName: String? = null //映射账户名
+    var mapName: String = "" //映射账户名
 
+    override fun toString(): String {
+        return "AssetsMap(id=$id, regex=${if(regex) "true" else "false"}, name='$name', mapName='$mapName')"
+    }
     fun toJSON(): String {
         return Gson().toJson(this)
     }
     companion object{
-        fun fromJSON(json:String):AccountMap{
-            return Gson().fromJson(json,AccountMap::class.java)
+        fun fromJSON(json:String):AssetsMap{
+            return Gson().fromJson(json,AssetsMap::class.java)
         }
     }
 }

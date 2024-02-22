@@ -28,7 +28,7 @@
     <fragment
         android:id="@+id/homeFragment"
         android:name="net.ankio.auto.ui.fragment.HomeFragment"
-        android:label="fragment_home"
+        android:label="@string/title_home"
         tools:layout="@layout/fragment_home">
 
     </fragment>
@@ -36,7 +36,7 @@
     <fragment
         android:id="@+id/dataFragment"
         android:name="net.ankio.auto.ui.fragment.DataFragment"
-        android:label="fragment_data"
+        android:label="@string/title_data"
         tools:layout="@layout/fragment_data">
 
 
@@ -45,14 +45,14 @@
     <fragment
         android:id="@+id/ruleFragment"
         android:name="net.ankio.auto.ui.fragment.RuleFragment"
-        android:label="fragment_rule"
+        android:label="@string/title_rule"
         tools:layout="@layout/fragment_rule">
 
     </fragment>
     <fragment
         android:id="@+id/orderFragment"
         android:name="net.ankio.auto.ui.fragment.OrderFragment"
-        android:label="fragment_net"
+        android:label="@string/title_order"
         tools:layout="@layout/fragment_order">
 
 
@@ -62,7 +62,7 @@
     <fragment
         android:id="@+id/settingFragment"
         android:name="net.ankio.auto.ui.fragment.SettingFragment"
-        android:label="fragment_setting"
+        android:label="@string/title_setting"
         tools:layout="@layout/fragment_setting">
 
     </fragment>
@@ -70,7 +70,7 @@
     <fragment
         android:id="@+id/setting2Fragment"
         android:name="net.ankio.auto.ui.fragment.home.Setting2Fragment"
-        android:label="fragment_setting2"
+        android:label="@string/title_setting2"
         tools:layout="@layout/fragment_setting2">
 
     </fragment>
@@ -79,7 +79,7 @@
     <fragment
         android:id="@+id/editFragment"
         android:name="net.ankio.auto.ui.fragment.rule.EditFragment"
-        android:label="fragment_edit"
+        android:label="@string/title_category"
         tools:layout="@layout/fragment_edit">
 
     </fragment>
@@ -88,8 +88,17 @@
     <fragment
         android:id="@+id/logFragment"
         android:name="net.ankio.auto.ui.fragment.home.LogFragment"
-        android:label="fragment_log"
+        android:label="@string/title_log"
         tools:layout="@layout/fragment_log">
+
+    </fragment>
+
+
+    <fragment
+        android:id="@+id/mapFragment"
+        android:name="net.ankio.auto.ui.fragment.home.MapFragment"
+        android:label="@string/title_map"
+        tools:layout="@layout/fragment_map">
 
     </fragment>
 

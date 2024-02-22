@@ -149,8 +149,6 @@ class HomeFragment : BaseFragment() {
                 e.printStackTrace()
             }
         }
-        //UI刷新
-        refreshUI()
         return binding.root
     }
 
@@ -192,7 +190,8 @@ class HomeFragment : BaseFragment() {
         }
         //资产映射
         binding.map.setOnClickListener {
-
+            //切换到MapFragment
+            findNavController().navigate(R.id.mapFragment)
         }
         //资产管理（只读）
         binding.readAssets.setOnClickListener {
