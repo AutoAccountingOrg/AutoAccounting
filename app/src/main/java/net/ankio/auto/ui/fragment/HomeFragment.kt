@@ -65,10 +65,7 @@ class HomeFragment : BaseFragment() {
         MenuItem(R.string.title_more, R.drawable.item_more) {
             val binding = AboutDialogBinding.inflate(LayoutInflater.from(requireContext()), null, false)
             binding.sourceCode.movementMethod = LinkMovementMethod.getInstance()
-            binding.sourceCode.text = getString(
-                R.string.about_view_source_code,
-                "<b><a href=\"https://github.com/Auto-Accounting/AutoAccounting\n\">GitHub</a></b>"
-            ).toHtml()
+            binding.sourceCode.text = getString(R.string.about_view_source_code).toHtml()
             binding.versionName.text = AppUtils.getVersionName()
             MaterialAlertDialogBuilder(requireContext())
                 .setView(binding.root)
@@ -84,6 +81,7 @@ class HomeFragment : BaseFragment() {
     ): View {
         binding = FragmentHomeBinding.inflate(layoutInflater)
 
+        bindingActiveEvents()
 
         bindBookAppEvents()
 
@@ -217,6 +215,15 @@ class HomeFragment : BaseFragment() {
         }
     }
 
+    /**
+     *
+     */
+    private fun bindingActiveEvents(){
+        binding.active.setOnClickListener {
+          //  findNavController().navigate(R.id.serviceFragment)
+        }
+    }
+
     private fun bindActiveUI() {
         val colorPrimary =
             AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorPrimary)
@@ -249,8 +256,8 @@ class HomeFragment : BaseFragment() {
         @ColorInt textColor: Int,
         @DrawableRes drawable: Int
     ) {
-        binding.active2.setBackgroundColor(backgroundColor)
-        binding.imageView2.setImageDrawable(
+        binding.active.setBackgroundColor(backgroundColor)
+        binding.imageView.setImageDrawable(
             AppCompatResources.getDrawable(
                 requireActivity(),
                 drawable
@@ -258,11 +265,11 @@ class HomeFragment : BaseFragment() {
         )
         val versionName = AppUtils.getVersionName()
         val names = versionName.split("-")
-        binding.msgLabel2.text = names[0].trim()
-        binding.msgLabel3.text = getString(R.string.releaseInfo)
-        binding.imageView2.setColorFilter(textColor)
+        binding.msgLabel.text = names[0].trim()
+        binding.msgLabel2.text = getString(R.string.releaseInfo)
+        binding.imageView.setColorFilter(textColor)
+        binding.msgLabel.setTextColor(textColor)
         binding.msgLabel2.setTextColor(textColor)
-        binding.msgLabel3.setTextColor(textColor)
     }
 
 
