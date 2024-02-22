@@ -176,7 +176,9 @@ class RequestsUtils(context: Context) {
                             convertByteArray(cachedData)
                 )
                 Logger.d(message.toString())
-                onSuccess(cachedData, 200) // Assuming HTTP 200 for cached responses
+                withContext(Dispatchers.Main){
+                    onSuccess(cachedData, 200)
+                }
                 return@launch
             }
             AppTimeMonitor.startMonitoring("请求: $requestUrl")
