@@ -22,8 +22,6 @@ import android.graphics.drawable.Drawable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-//TODO 协程优化
-
 object ImageUtils {
 
    suspend fun get(
@@ -43,7 +41,10 @@ object ImageUtils {
                 getFromWeb(context, uriString, callback, error)
             }
         } else {
-            error("不支持的图片链接")
+            withContext(Dispatchers.Main) {
+                error("不支持的图片链接")
+            }
+
         }
     }
 
