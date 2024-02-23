@@ -59,8 +59,9 @@ class Setting2Fragment:BaseFragment() {
         initTheme()
         //更新
         initUpdate()
-        //调试模式
-        initDebug()
+        //其他
+        initOthers()
+
     }
 
     private fun initCrash(){
@@ -185,7 +186,7 @@ class Setting2Fragment:BaseFragment() {
         }
     }
 
-    private fun initDebug(){
+    private fun initOthers(){
 
         AppUtils.getDebug().apply {
             binding.systemDebug.isChecked = this
