@@ -24,6 +24,7 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.app.ActivityCompat.finishAffinity
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -62,10 +63,16 @@ class ServiceFragment:BaseFragment() {
 
     override fun onResume() {
         super.onResume()
-        activityBinding.toolbar.visibility  = View.INVISIBLE
+        activityBinding.toolbar.visibility  = View.GONE
+        AppUtils.logger = false
     }
 
-    fun initView(){
+    override fun onDestroy() {
+        super.onDestroy()
+        AppUtils.logger = true
+    }
+
+    private fun initView(){
         cacheDir = AppUtils.getApplication().externalCacheDir
         if (cacheDir === null) {
             throw UnsupportedDeviceException(getString(R.string.unsupport_device))
@@ -101,25 +108,12 @@ class ServiceFragment:BaseFragment() {
         // 在一个新的协程中执行定时任务
         lifecycleScope.launch(Dispatchers.IO) { // 默认在主线程执行
 
-            while (isActive) { // 循环直到协程被取消
-                // 切换到IO线程执行耗时I/O操作
-                val isServerStarted =
-                    AutoAccountingServiceUtils.isServerStart(requireActivity())
-
-                // 回到主线程执行UI操作
-                if (isServerStarted) {
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(
-                            requireActivity(),
-                            getString(R.string.service_started),
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        AppUtils.restart() // 假设这需要在主线程执行
-                    }
-                    delay(3000L) // 在循环中等待一段时间后再次检查
-                } else {
-                    delay(checkInterval) // 等待指定的检查间隔后再次检查
-                }
+            while (isActive && !AutoAccountingServiceUtils.isServerStart(requireActivity())) { // 循环直到协程被取消
+                delay(checkInterval)
+            }
+            withContext(Dispatchers.Main) {
+                findNavController().navigate(R.id.homeFragment)
+                requireActivity().recreate()
             }
 
 
@@ -148,6 +142,8 @@ class ServiceFragment:BaseFragment() {
                 val bufferedReader = BufferedReader(InputStreamReader(process.inputStream))
                 val bufferedWriter = OutputStreamWriter(process.outputStream)
 
+                Logger.i("Executing shell command: $shell")
+
                 // 写入命令
                 bufferedWriter.write(shell)
                 bufferedWriter.flush()
@@ -174,6 +170,7 @@ class ServiceFragment:BaseFragment() {
                 delay(5000L)
                 withContext(Dispatchers.Main) {
                     progressDialog.dismiss()
+
                 }
             }
         }
@@ -183,7 +180,7 @@ class ServiceFragment:BaseFragment() {
     private fun copyAssetsShellFolderToCache() {
         val assetManager = requireActivity().assets
         val shellFolderPath = "shell"
-        val destinationPath = requireActivity().cacheDir!!.path + File.separator + shellFolderPath
+        val destinationPath = cacheDir!!.path + File.separator + shellFolderPath
         Logger.i("Copying shell folder from assets to $destinationPath")
         copyFolderFromAssets(assetManager, shellFolderPath, destinationPath)
     }
