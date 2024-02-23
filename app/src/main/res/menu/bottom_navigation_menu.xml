@@ -25,10 +25,10 @@
         android:enabled="true"
         android:title="@string/title_data" />
     <item
-        android:id="@+id/ruleFragment"
-        android:icon="@drawable/unselect_rule"
+        android:id="@+id/logFragment"
+        android:icon="@drawable/unselect_log"
         android:enabled="true"
-        android:title="@string/title_rule" />
+        android:title="@string/title_log" />
     <item
         android:id="@+id/orderFragment"
         android:icon="@drawable/unselect_order"

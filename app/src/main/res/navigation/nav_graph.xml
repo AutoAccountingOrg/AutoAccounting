@@ -87,7 +87,7 @@
 
     <fragment
         android:id="@+id/logFragment"
-        android:name="net.ankio.auto.ui.fragment.home.LogFragment"
+        android:name="net.ankio.auto.ui.fragment.LogFragment"
         android:label="@string/title_log"
         tools:layout="@layout/fragment_log">
 
@@ -99,6 +99,14 @@
         android:name="net.ankio.auto.ui.fragment.home.MapFragment"
         android:label="@string/title_map"
         tools:layout="@layout/fragment_map">
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/serviceFragment"
+        android:name="net.ankio.auto.ui.fragment.ServiceFragment"
+        android:label="@string/title_service"
+        tools:layout="@layout/fragment_service">
 
     </fragment>
 

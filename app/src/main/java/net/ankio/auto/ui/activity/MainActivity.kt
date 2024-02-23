@@ -87,7 +87,7 @@ class MainActivity : BaseActivity() {
         arrayListOf(R.id.homeFragment, R.drawable.select_home, R.drawable.unselect_home),
         arrayListOf(R.id.dataFragment, R.drawable.select_data, R.drawable.unselect_data),
         arrayListOf(R.id.settingFragment, R.drawable.select_setting, R.drawable.unselect_setting),
-        arrayListOf(R.id.ruleFragment, R.drawable.select_rule, R.drawable.unselect_rule),
+        arrayListOf(R.id.logFragment, R.drawable.select_log, R.drawable.unselect_log),
         arrayListOf(R.id.orderFragment, R.drawable.select_order, R.drawable.unselect_order),
     )
 
