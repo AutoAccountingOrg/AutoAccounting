@@ -1,3 +1,5 @@
 <paths>
-    <cache-path name="cache" path="/" />
+    <external-path
+        name="my_logs"
+        path="/" />
 </paths>
