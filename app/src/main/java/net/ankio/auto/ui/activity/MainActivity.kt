@@ -42,6 +42,7 @@ import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.AboutDialogBinding
 import net.ankio.auto.databinding.ActivityMainBinding
+import net.ankio.auto.ui.dialog.UpdateDialog
 import net.ankio.auto.ui.fragment.BaseFragment
 import net.ankio.auto.utils.ActiveUtils
 import net.ankio.auto.utils.AppUtils
@@ -185,7 +186,6 @@ class MainActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        ActiveUtils.onStartApp(this)
         lifecycleScope.launch {
             BookSyncUtils.sync(this@MainActivity)
         }
@@ -193,16 +193,11 @@ class MainActivity : BaseActivity() {
 
     private fun checkUpdate() {
         val updateUtils = UpdateUtils()
-        //检查版本更新
-        if (SpUtils.getBoolean("checkAppUpdate", true)) {
-            updateUtils.checkAppUpdate { version, log, date, download ->
-
-            }
+        updateUtils.checkAppUpdate { version, log, date, download,code ->
+          UpdateDialog(this, hashMapOf("url" to download), log, version, date, 0,code).show(cancel = true)
         }
-        //检查规则更新
-        if (SpUtils.getBoolean("checkRuleUpdate", true)) {
-            updateUtils.checkRuleUpdate { version, log, date, category, rule ->
-            }
+        updateUtils.checkRuleUpdate { version, log, date, category, rule,code ->
+          UpdateDialog(this, hashMapOf("category" to category, "rule" to rule), log, version, date, 1,code).show(cancel = true)
         }
     }
 
