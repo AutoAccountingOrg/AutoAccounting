@@ -308,6 +308,7 @@
 
             </LinearLayout>
             <TextView
+                android:clickable="true"
                 android:padding="@dimen/padding"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -317,70 +318,17 @@
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textColor="?attr/colorOnSurface"
                 android:textStyle="bold"
-                app:drawableLeftCompat="@drawable/ic_log"
+                app:drawableLeftCompat="@drawable/icon_category"
                 app:drawableTint="?attr/colorOnSurface"
                 android:drawablePadding="@dimen/one_padding"
+                android:background="@drawable/ripple_effect"
+                android:id="@+id/customCategory"
                 />
         </LinearLayout>
 
 
     </com.google.android.material.card.MaterialCardView>
 
-
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/logCard"
-        style="@style/HomeCard">
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/padding"
-            android:padding="@dimen/padding"
-            android:orientation="horizontal">
-
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/one_padding"
-                android:layout_marginEnd="@dimen/one_padding"
-                android:text="@string/title_log"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:textColor="?attr/colorOnSurface"
-                android:textStyle="bold"
-                app:drawableLeftCompat="@drawable/ic_log"
-                app:drawableTint="?attr/colorOnSurface"
-                android:drawablePadding="@dimen/one_padding"
-                />
-            <View
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                />
-            <Button
-                android:id="@+id/showLog"
-                style="?attr/materialIconButtonFilledStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:icon="@drawable/ic_open"
-                tools:ignore="RelativeOverlap" />
-
-            <Button
-
-                android:id="@+id/shareLog"
-                style="?attr/materialIconButtonFilledTonalStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="0dp"
-                app:icon="@drawable/ic_share"
-
-                tools:ignore="RelativeOverlap" />
-
-
-
-
-        </LinearLayout>
-
-    </com.google.android.material.card.MaterialCardView>
 
     <com.google.android.material.card.MaterialCardView
         style="@style/HomeCard"

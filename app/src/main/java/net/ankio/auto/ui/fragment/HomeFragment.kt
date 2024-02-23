@@ -84,7 +84,6 @@ class HomeFragment : BaseFragment() {
 
         val cards = listOf(
             binding.infoCard,
-            binding.logCard,
             binding.groupCard,
             binding.ruleCard
         )
