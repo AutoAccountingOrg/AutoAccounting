@@ -38,11 +38,12 @@ class AutoAccountingServiceUtils(mContext: Context) : CoroutineScope by MainScop
 
     private var requestsUtils = RequestsUtils(mContext)
 
-    private val host = "http://127.0.0.1"
+
 
     private val headers = HashMap<String, String>()
 
     companion object{
+        private const val HOST = "http://127.0.0.1"
         private const val PORT = 52045
         // 将isServerStart转换为挂起函数
         suspend fun isServerStart(mContext: Context): Boolean = withContext(Dispatchers.IO) {
@@ -81,6 +82,16 @@ class AutoAccountingServiceUtils(mContext: Context) : CoroutineScope by MainScop
                 file.delete()
             }
         }
+
+        /**
+         * 获取请求地址
+         */
+        fun getUrl(path:String = ""): String {
+            return "$HOST:$PORT$path"
+        }
+
+
+
     }
 
     init {
@@ -93,12 +104,7 @@ class AutoAccountingServiceUtils(mContext: Context) : CoroutineScope by MainScop
 
     }
 
-    /**
-     * 获取请求地址
-     */
-    private fun getUrl(path:String): String {
-        return "$host:$PORT$path"
-    }
+
 
     /**
      * 请求错误

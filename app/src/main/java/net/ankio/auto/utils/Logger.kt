@@ -30,26 +30,17 @@ object Logger {
 
     private var level = Log.VERBOSE
 
-    private  var debug = false
+    private var debug = false
 
-    private lateinit var fileLogger: FileLogger
-
-    private lateinit var file :File
-    fun init(context: Application){
+    fun init(context: Application) {
         debug = AppUtils.getDebug()
 
         //如果是调试模式，日志级别就是VERBOSE，否则就是ERROR
-        level = SpUtils.getInt("log_level", if(debug)Log.VERBOSE else Log.ERROR)
+        level = SpUtils.getInt("log_level", if (debug) Log.VERBOSE else Log.ERROR)
 
-        if(!debug){
-            AppUtils.getScope().launch {
-                file = File(context.externalCacheDir, "log.txt")
-                fileLogger = FileLogger(file)
-            }
-        }
     }
 
-    fun setLevel(level:Int){
+    fun setLevel(level: Int) {
         SpUtils.putInt("log_level", level)
     }
 
@@ -82,29 +73,35 @@ object Logger {
         return Throwable().stackTrace[2].className.substringAfterLast('.')
     }
 
-    private fun printLog(type: Int,tag: String,message: String){
-        if(type< level) return
+    private fun printLog(type: Int, tag: String, message: String) {
+        if (message.contains(AutoAccountingServiceUtils.getUrl("/log"))){
+            return
+        }
+        if (type < level) return
         val logMessage = createLogMessage(message)
         logMessage.lines().forEach {
-            when(type){
-                Log.VERBOSE->Log.v(tag, it)
-                Log.DEBUG->Log.d(tag, it)
-                Log.INFO->Log.i(tag, it)
-                Log.WARN->Log.w(tag, it)
-                Log.ERROR->Log.e(tag, it)
+            when (type) {
+                Log.VERBOSE -> Log.v(tag, it)
+                Log.DEBUG -> Log.d(tag, it)
+                Log.INFO -> Log.i(tag, it)
+                Log.WARN -> Log.w(tag, it)
+                Log.ERROR -> Log.e(tag, it)
             }
+        }
+        //与服务交互的日志不记录，仅打印
+        if (message.contains(AutoAccountingServiceUtils.getUrl("/"))){
+            return
+        }
+        //异常直接忽略
+        runCatching {
+            AppUtils.getService().putLog(logMessage)
         }
 
-        if(!debug && ::fileLogger.isInitialized){
-            AppUtils.getScope().launch {
-                fileLogger.log(logMessage)
-            }
-        }
 
     }
 
     fun d(message: String) {
-        printLog(Log.DEBUG,getTag(), message)
+        printLog(Log.DEBUG, getTag(), message)
     }
 
     fun e(message: String, throwable: Throwable? = null) {
@@ -112,7 +109,8 @@ object Logger {
         messageInfo.append(message).append("\n")
         if (throwable != null) {
             messageInfo.append("───────────────────────────────────────────────────────────────\n")
-            messageInfo.append(throwable.javaClass.name).append(": ").append(throwable.message).append("\n")
+            messageInfo.append(throwable.javaClass.name).append(": ").append(throwable.message)
+                .append("\n")
             // 循环遍历异常堆栈信息，添加到messageInfo
             throwable.stackTrace.forEach {
                 messageInfo.append("  ").append("at ").append(it.className).append(".")
@@ -121,15 +119,15 @@ object Logger {
                     .append(it.lineNumber).append(")\n")
             }
         }
-        printLog(Log.ERROR,getTag(), messageInfo.toString())
+        printLog(Log.ERROR, getTag(), messageInfo.toString())
     }
 
     fun i(message: String) {
-        printLog(Log.INFO,getTag(), message)
+        printLog(Log.INFO, getTag(), message)
     }
 
     fun w(message: String) {
-        printLog(Log.WARN,getTag(), message)
+        printLog(Log.WARN, getTag(), message)
     }
 
 }
