@@ -89,7 +89,7 @@ object Logger {
             }
         }
         //与服务交互的日志不记录，仅打印
-        if (message.contains(AutoAccountingServiceUtils.getUrl("/"))){
+        if (message.contains(AutoAccountingServiceUtils.getUrl("/"))|| !AppUtils.logger){
             return
         }
         //异常直接忽略

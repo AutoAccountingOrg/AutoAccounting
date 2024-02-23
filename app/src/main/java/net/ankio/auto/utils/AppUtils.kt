@@ -37,6 +37,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import net.ankio.auto.BuildConfig
+import net.ankio.auto.exceptions.AutoServiceException
 import net.ankio.auto.ui.activity.MainActivity
 import java.math.BigInteger
 import java.security.MessageDigest
@@ -63,8 +64,11 @@ object  AppUtils {
         this.application = application
     }
 
-    fun setService(context: Context){
+    suspend fun setService(context: Context){
         this.service = AutoAccountingServiceUtils(context)
+        if(!AutoAccountingServiceUtils.isServerStart(context)){
+            throw AutoServiceException("Server error")
+        }
     }
 
     fun getService():AutoAccountingServiceUtils{
@@ -187,5 +191,7 @@ object  AppUtils {
         getService().set("debug", if(debug)"true" else "false")
         SpUtils.putBoolean("debug", debug)
     }
+
+   var logger = false
 
 }

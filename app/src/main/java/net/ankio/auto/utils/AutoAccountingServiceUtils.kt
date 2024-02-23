@@ -96,12 +96,6 @@ class AutoAccountingServiceUtils(mContext: Context) : CoroutineScope by MainScop
 
     init {
         headers["Authorization"] = getToken()
-        launch {
-            if(!isServerStart(mContext)){
-                throw AutoServiceException("Server error")
-            }
-        }
-
     }
 
 
@@ -110,7 +104,8 @@ class AutoAccountingServiceUtils(mContext: Context) : CoroutineScope by MainScop
      * 请求错误
      */
     private fun onError(string: String){
-        Logger.i("自动记账服务错误：${string}")
+     //   Logger.i("自动记账服务错误：${string}")
+
     }
 
     /**
