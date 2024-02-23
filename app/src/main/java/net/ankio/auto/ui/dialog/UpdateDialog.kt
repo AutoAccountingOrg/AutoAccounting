@@ -47,6 +47,9 @@ class UpdateDialog(
     override fun onCreateView(inflater: LayoutInflater): View {
         binding = DialogUpdateBinding.inflate(inflater)
 
+        cardView = binding.cardView
+        cardViewInner  = binding.cardViewInner
+
         binding.version.text = version
         binding.updateInfo.text = log.toHtml()
         binding.date.text = date
