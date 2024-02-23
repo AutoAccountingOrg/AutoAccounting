@@ -36,11 +36,10 @@ import net.ankio.auto.utils.SpUtils
 
 abstract class BaseSheetDialog(private val context: Context) :
     BottomSheetDialog(context, R.style.BottomSheetDialog) {
-    private val job = Job()
-    val coroutineScope = CoroutineScope(Dispatchers.Main + job)
     lateinit var cardView: MaterialCardView
     lateinit var cardViewInner: ViewGroup
     abstract fun onCreateView(inflater: LayoutInflater): View
+
 
     open fun show(float: Boolean = false,cancel:Boolean = false) {
         val inflater = LayoutInflater.from(context)
@@ -62,6 +61,7 @@ abstract class BaseSheetDialog(private val context: Context) :
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED;
         //是否使用圆角风格
         val margin = dpToPx(context,20f)
+        val round = SpUtils.getBoolean("cardRound",false)
         if(::cardView.isInitialized){
             val layoutParams = if (cardView.layoutParams != null) {
                 cardView.layoutParams as ViewGroup.MarginLayoutParams
@@ -70,7 +70,7 @@ abstract class BaseSheetDialog(private val context: Context) :
                 ViewGroup.MarginLayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
             }
 
-            if(SpUtils.getBoolean("cardRound",false)){
+            if(round){
                 layoutParams.setMargins(margin,margin,margin,margin)
                 cardView.layoutParams = layoutParams
                 //使用圆角风格
@@ -82,12 +82,12 @@ abstract class BaseSheetDialog(private val context: Context) :
 
         if(::cardViewInner.isInitialized){
             cardViewInner.setPadding(0,0,0,
-                if(SpUtils.getBoolean("cardRound",false)) 0 else  margin
+                if(round) 0 else  margin
             )
 
         }
 
-        this.show()
+        show()
     }
     private fun dpToPx(context: Context, dp: Float): Int {
         return TypedValue.applyDimension(
@@ -97,10 +97,5 @@ abstract class BaseSheetDialog(private val context: Context) :
         ).toInt()
     }
 
-
-    override fun dismiss() {
-        super.dismiss()
-        job.cancel()
-    }
 
 }

@@ -16,86 +16,92 @@
 package net.ankio.auto.ui.dialog
 
 
-import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import android.view.WindowManager
-import android.webkit.WebView
-import android.webkit.WebViewClient
-import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import net.ankio.auto.R
-import net.ankio.auto.databinding.UpdateDialogBinding
-import net.ankio.auto.utils.UpdateInfo
-import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
-import org.intellij.markdown.html.HtmlGenerator
-import org.intellij.markdown.parser.MarkdownParser
-import rikka.html.text.HtmlCompat
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import net.ankio.auto.databinding.DialogUpdateBinding
+import net.ankio.auto.utils.AppUtils
+import net.ankio.auto.utils.Logger
+import net.ankio.auto.utils.RequestsUtils
+import net.ankio.auto.utils.SpUtils
+import rikka.html.text.toHtml
 
 
-class UpdateDialog(private val updateInfo: UpdateInfo): BottomSheetDialogFragment() {
+class UpdateDialog(
+    private val context: Context,
+    private val download: HashMap<String, String>,//下载地址
+    val log: String,//更新日志,html
+    val version: String,//版本号
+    private val date: String,//更新日期
+    val type: Int = 0,//更新类型,0 为App, 1 为规则
+    private val code:Int = 0
+) : BaseSheetDialog(context) {
 
+    private lateinit var binding: DialogUpdateBinding
+    override fun onCreateView(inflater: LayoutInflater): View {
+        binding = DialogUpdateBinding.inflate(inflater)
 
-    fun show(context: Activity,float: Boolean){
-        // 创建 BottomSheetDialogFragment
-        val dialogFragment = this
-
-        if(float){
-            dialog?.window?.setType((WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY));
-        }
-        // 显示 BottomSheetDialogFragment
-        dialogFragment.show((context as AppCompatActivity).supportFragmentManager, dialogFragment.tag)
-
-    }
-    private lateinit var binding:UpdateDialogBinding
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        binding =  UpdateDialogBinding.inflate(inflater)
-
-        val data = "# ${updateInfo.name} \n ### ⏰ ${updateInfo.date}\n"+updateInfo.log
-        val flavour = CommonMarkFlavourDescriptor()
-        val parsedTree = MarkdownParser(flavour).buildMarkdownTreeFromString(data)
-        val html = HtmlGenerator(data, parsedTree, flavour).generateHtml()
-
-        binding.updateInfo.text = HtmlCompat.fromHtml(html)
-
+        binding.version.text = version
+        binding.updateInfo.text = log.toHtml()
+        binding.date.text = date
 
         binding.update.setOnClickListener {
-            if(updateInfo.type=="Rule"){
-                dismiss()
-                return@setOnClickListener
+            if (type == 1) {
+                lifecycleScope.launch {
+                    updateRule(download["category"] ?: "", download["rule"] ?: "")
+                }
+            } else {
+                updateApp(download["url"] ?: "")
             }
-            val  intent  =  Intent(Intent.ACTION_VIEW,  Uri.parse(updateInfo.downloadUrl[0]))
-            context?.startActivity(intent)
             dismiss()
         }
 
-
-        binding.version.text = if(updateInfo.type=="Rule")getString(R.string.rule_update) else getString(R.string.app_update)
         return binding.root
     }
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        // 禁止用户通过下滑手势关闭对话框
-        dialog?.setCancelable(false)
 
-        // 允许用户通过点击空白处关闭对话框
-        dialog?.setCanceledOnTouchOutside(true)
-
-        // Get the display metrics using the DisplayMetrics directly
-        val displayMetrics = resources.displayMetrics
-        val screenHeight = displayMetrics.heightPixels
-
-        // Calculate and set dialog height as a percentage of screen height
-        val dialogHeight = (screenHeight * 0.7).toInt() // 50% height
-        view.layoutParams.height = dialogHeight
+    private suspend fun updateRule(category: String, rule: String) = withContext(Dispatchers.IO){
+        runCatching {
+            val requestUtils = RequestsUtils(context)
+            //规则更新
+            requestUtils.get(rule, cacheTime = 0, onSuccess = { bytes: ByteArray, i: Int ->
+                String(bytes).let {
+                    AppUtils.getService().set("auto_rule", it)
+                }
+            }, onError = {
+                Logger.i("更新出错: $it")
+            })
+            //分类更新
+            requestUtils.get(category, cacheTime = 0, onSuccess = { bytes: ByteArray, i: Int ->
+                String(bytes).let {
+                    AppUtils.getService().set("auto_category", it)
+                }
+            }, onError = {
+                Logger.i("更新出错: $it")
+            })
+        }.onFailure {
+            Logger.e("更新出错", it)
+        }.onSuccess {
+            SpUtils.putString("ruleVersionName", version)
+            SpUtils.putInt("ruleVersion", code)
+        }
     }
+    //URL由外部构造可能出错
+    private fun updateApp(url: String) {
+        runCatching {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            context.startActivity(intent)
+        }.onFailure {
+            Logger.e("更新出错", it)
+        }
+    }
+
+
+
 
 }
