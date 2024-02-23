@@ -40,6 +40,7 @@ import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
+import okio.Buffer
 import java.io.File
 import java.io.IOException
 
@@ -73,7 +74,12 @@ class RequestsUtils(context: Context) {
         }
     }
 
-
+    fun requestBodyToString(requestBody: RequestBody?): String? {
+        if (requestBody == null) return null
+        val buffer = Buffer()
+        requestBody.writeTo(buffer)
+        return buffer.readString(Charsets.UTF_8)
+    }
 
     // 构建请求体
     private fun buildRequestBody(data: Map<String, String>?, contentType: Int): RequestBody? {
@@ -184,19 +190,20 @@ class RequestsUtils(context: Context) {
             AppTimeMonitor.startMonitoring("请求: $requestUrl")
             val requestBuilder = Request.Builder().url(requestUrl)
 
-            val body = if (method == METHOD_GET) null else buildRequestBody(data, contentType)
 
-
-
-            requestBuilder.method(method, body)
 
             headers.forEach { (key, value) ->
                 message.append("$key: $value\n")
                 requestBuilder.addHeader(key, value)
             }
 
+            val body = if (method == METHOD_GET) null else buildRequestBody(data, contentType)
+
+            requestBuilder.method(method, body)
+
             if(body!=null){
-                message.append( convertByteArray(body.toString().toByteArray()))
+                message.append(requestBodyToString(body)?.toByteArray(Charsets.UTF_8)
+                    ?.let { convertByteArray(it) })
             }
 
             val request = requestBuilder.build()
