@@ -16,6 +16,8 @@
 package net.ankio.auto.ui.fragment.home
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -32,6 +34,7 @@ import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.LanguageUtils
 import net.ankio.auto.utils.ListPopupUtils
 import net.ankio.auto.utils.SpUtils
+import net.ankio.auto.utils.UpdateUtils
 
 
 class Setting2Fragment:BaseFragment() {
@@ -168,24 +171,97 @@ class Setting2Fragment:BaseFragment() {
             ThemeEngine.getInstance(requireContext()).isDynamicTheme = isChecked
             recreateInit()
         }
+        //圆角弹窗，不需要重建Activity
+        SpUtils.getBoolean("cardRound",false).apply {
+            binding.roundStyle.isChecked = this
+        }
 
+        binding.settingUseRoundStyle.setOnClickListener {
+            binding.roundStyle.isChecked = !binding.roundStyle.isChecked
+        }
+
+        binding.roundStyle.setOnCheckedChangeListener{_,isChecked ->
+            SpUtils.putBoolean("cardRound",isChecked)
+        }
     }
 
     private fun initDebug(){
-        AppUtils.getService().get("debug"){
-            binding.systemDebug.isChecked = it == "true"
+
+        AppUtils.getDebug().apply {
+            binding.systemDebug.isChecked = this
         }
 
         binding.settingDebug.setOnClickListener {
             binding.systemDebug.isChecked = !binding.systemDebug.isChecked
         }
         binding.systemDebug.setOnCheckedChangeListener { _, isChecked ->
-            AppUtils.getService().set("debug",if(isChecked) "true" else "false")
+            AppUtils.setDebug(isChecked)
         }
     }
 
-    private fun initUpdate(){
+    /**
+     * 更新部分
+     */
+    private fun initUpdate() {
 
+        //url
+
+        UpdateUtils.getUrl().apply {
+            binding.url.setText(this)
+        }
+
+        binding.url.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                UpdateUtils.setUrl(s.toString())
+            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+
+        //更新类型
+        val stringList = arrayListOf(getString(R.string.stable_version),
+          getString(R.string.continuous_build_version))
+
+        UpdateUtils.getUpdateType().apply {
+            binding.settingUpdateTypeDesc.text = if (this) stringList[1] else stringList[0]
+        }
+
+        binding.settingUpdateType.setOnClickListener {
+            val listPopupWindow = ListPopupUtils(requireContext(), binding.settingUpdateTypeDesc,stringList){
+                binding.settingUpdateTypeDesc.text = stringList[it]
+                UpdateUtils.setUpdateType(it == 1)
+            }
+            listPopupWindow.toggle()
+        }
+
+        //检查更新
+
+        SpUtils.getBoolean("checkApp",true).apply {
+            binding.systemApp.isChecked = this
+        }
+
+        binding.settingApp.setOnClickListener {
+            binding.systemApp.isChecked = !binding.systemApp.isChecked
+        }
+
+        binding.systemApp.setOnCheckedChangeListener{_,isChecked ->
+            SpUtils.putBoolean("checkApp",isChecked)
+        }
+
+
+        //检查Rule
+
+        SpUtils.getBoolean("checkRule",true).apply {
+            binding.systemRule.isChecked = this
+        }
+
+        binding.settingRule.setOnClickListener {
+            binding.systemRule.isChecked = !binding.systemRule.isChecked
+        }
+
+        binding.systemRule.setOnCheckedChangeListener{_,isChecked ->
+            SpUtils.putBoolean("checkRule",isChecked)
+        }
     }
     /**
      * 页面重新初始化
