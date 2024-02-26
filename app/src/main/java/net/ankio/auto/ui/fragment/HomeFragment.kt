@@ -58,7 +58,7 @@ class HomeFragment : BaseFragment() {
         MenuItem(R.string.title_more, R.drawable.item_more) {
             val binding = AboutDialogBinding.inflate(LayoutInflater.from(requireContext()), null, false)
             binding.sourceCode.movementMethod = LinkMovementMethod.getInstance()
-            binding.sourceCode.text = getString(R.string.about_view_source_code).toHtml()
+            binding.sourceCode.text = getString(R.string.about_view_source_code,"<b><a href=\"https://github.com/AutoAccountingOrg/AutoAccounting\">GitHub</a></b>").toHtml()
             binding.versionName.text = AppUtils.getVersionName()
             MaterialAlertDialogBuilder(requireContext())
                 .setView(binding.root)
@@ -79,6 +79,8 @@ class HomeFragment : BaseFragment() {
         bindBookAppEvents()
 
         bindRuleEvents()
+
+        bindingCommunicationEvents()
 
         //卡片部分颜色设置
 
@@ -202,6 +204,19 @@ class HomeFragment : BaseFragment() {
         }
     }
 
+    private fun  bindingCommunicationEvents(){
+        binding.msgGithub.setOnClickListener {
+            CustomTabsHelper.launchUrlOrCopy(requireContext(),getString(R.string.github_url))
+        }
+
+        binding.msgTelegram.setOnClickListener {
+            CustomTabsHelper.launchUrlOrCopy(requireContext(),getString(R.string.telegram_url))
+        }
+
+        binding.msgQq.setOnClickListener {
+            CustomTabsHelper.launchUrlOrCopy(requireContext(),getString(R.string.qq_url))
+        }
+    }
 
     override fun onResume() {
         super.onResume()
