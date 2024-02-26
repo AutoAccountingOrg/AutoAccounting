@@ -150,31 +150,19 @@ class MainActivity : BaseActivity() {
 
     override fun onViewCreated() {
       super.onViewCreated()
+        if(System.currentTimeMillis()  - SpUtils.getInt("checkTime",0) < 1000 * 60 * 30){
+
+            return
+        }
+        SpUtils.putInt("checkTime",System.currentTimeMillis().toInt())
         //除了执行父页面的办法之外还要执行检查更新
         lifecycleScope.launch {
-            checkAutoService()
-        }
-    }
-
-    private suspend fun checkAutoService() = withContext(Dispatchers.IO){
-        runCatching {
-            AppUtils.setService(AppUtils.getApplication())
-        }.onFailure {
-            //如果服务没启动，则跳转到服务未启动界面
-            Logger.e("自动记账服务未连接",it)
-            withContext(Dispatchers.Main){
-                navHostFragment.navController.navigate(R.id.serviceFragment)
+            runCatching {
+                checkBookApp()
+                checkUpdate()
+            }.onFailure {
+                Logger.e("检查更新失败",it)
             }
-        }.onSuccess {
-            withContext(Dispatchers.Main){
-                runCatching {
-                    checkBookApp()
-                    checkUpdate()
-                }.onFailure {
-                    Logger.e("检查更新失败",it)
-                }
-            }
-            AppUtils.logger = true
         }
     }
 

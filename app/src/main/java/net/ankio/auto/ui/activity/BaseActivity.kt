@@ -70,6 +70,7 @@ open class BaseActivity : AppCompatActivity() {
         //主题初始化
         val themeMode = ThemeEngine.getInstance(this@BaseActivity).themeMode
 
+
         val currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
         statusBar {
             fitWindow = false

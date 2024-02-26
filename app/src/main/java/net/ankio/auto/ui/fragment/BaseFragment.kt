@@ -21,11 +21,16 @@ import android.view.View
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.databinding.ActivityMainBinding
 import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.utils.MenuItem
 import net.ankio.auto.utils.AppUtils
+import net.ankio.auto.utils.AutoAccountingServiceUtils
 
 abstract class BaseFragment:Fragment() {
    open val menuList:ArrayList<MenuItem> = arrayListOf()
@@ -40,6 +45,13 @@ abstract class BaseFragment:Fragment() {
         if (this.javaClass.simpleName != "ServiceFragment") {
             try {
                 AppUtils.getService()
+                lifecycleScope.launch {
+                   if(!AutoAccountingServiceUtils.isServerStart(requireContext())){
+                          withContext(Dispatchers.Main){
+                              (activity as MainActivity).getNavController().navigate(R.id.serviceFragment)
+                          }
+                   }
+                }
             } catch (e: Exception) {
                 (activity as MainActivity).getNavController().navigate(R.id.serviceFragment)
             }
