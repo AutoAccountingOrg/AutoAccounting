@@ -17,17 +17,8 @@ package net.ankio.auto.ui.activity
 
 
 import android.os.Bundle
-import android.text.method.LinkMovementMethod
-import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
-import androidx.appcompat.content.res.AppCompatResources
-import androidx.core.graphics.drawable.DrawableCompat
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentContainerView
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
@@ -38,24 +29,16 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tobey.dialogloading.DialogUtil
 import com.zackratos.ultimatebarx.ultimatebarx.addNavigationBarBottomPadding
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import net.ankio.auto.R
-import net.ankio.auto.databinding.AboutDialogBinding
 import net.ankio.auto.databinding.ActivityMainBinding
 import net.ankio.auto.ui.dialog.UpdateDialog
-import net.ankio.auto.ui.fragment.BaseFragment
-import net.ankio.auto.utils.ActiveUtils
-import net.ankio.auto.utils.AppUtils
-import net.ankio.auto.utils.AutoAccountingServiceUtils
 import net.ankio.auto.utils.BookSyncUtils
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.Github
 import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.SpUtils
 import net.ankio.auto.utils.UpdateUtils
-import rikka.html.text.toHtml
 
 
 class MainActivity : BaseActivity() {
@@ -150,11 +133,10 @@ class MainActivity : BaseActivity() {
 
     override fun onViewCreated() {
       super.onViewCreated()
-        if(System.currentTimeMillis()  - SpUtils.getInt("checkTime",0) < 1000 * 60 * 30){
-
+        if(System.currentTimeMillis()  - SpUtils.getLong("checkTime",0) < 1000 * 60 * 30){
             return
         }
-        SpUtils.putInt("checkTime",System.currentTimeMillis().toInt())
+        SpUtils.putLong("checkTime",System.currentTimeMillis())
         //除了执行父页面的办法之外还要执行检查更新
         lifecycleScope.launch {
             runCatching {
