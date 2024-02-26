@@ -15,11 +15,13 @@
 
 package net.ankio.auto.ui.fragment
 
+import android.os.Bundle
 import android.view.Menu
 import android.view.View
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.Fragment
+import net.ankio.auto.R
 import net.ankio.auto.databinding.ActivityMainBinding
 import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.utils.MenuItem
@@ -35,6 +37,13 @@ abstract class BaseFragment:Fragment() {
     protected lateinit var  activityBinding : ActivityMainBinding
 
     override fun onResume() {
+        if (this.javaClass.simpleName != "ServiceFragment") {
+            try {
+                AppUtils.getService()
+            } catch (e: Exception) {
+                (activity as MainActivity).getNavController().navigate(R.id.serviceFragment)
+            }
+        }
         super.onResume()
         if(!this::activityBinding.isInitialized){
             activityBinding =  (activity as MainActivity).getBinding()
