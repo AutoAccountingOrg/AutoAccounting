@@ -29,10 +29,13 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tobey.dialogloading.DialogUtil
 import com.zackratos.ultimatebarx.ultimatebarx.addNavigationBarBottomPadding
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.databinding.ActivityMainBinding
 import net.ankio.auto.ui.dialog.UpdateDialog
+import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.BookSyncUtils
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.Github
@@ -80,6 +83,11 @@ class MainActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         onLogin()
+
+
+
+
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -133,18 +141,36 @@ class MainActivity : BaseActivity() {
 
     override fun onViewCreated() {
       super.onViewCreated()
-        if(System.currentTimeMillis()  - SpUtils.getLong("checkTime",0) < 1000 * 60 * 30){
-            return
-        }
-        SpUtils.putLong("checkTime",System.currentTimeMillis())
         //除了执行父页面的办法之外还要执行检查更新
         lifecycleScope.launch {
-            runCatching {
-                checkBookApp()
-                checkUpdate()
-            }.onFailure {
-                Logger.e("检查更新失败",it)
+            checkAutoService()
+        }
+    }
+
+    private suspend fun checkAutoService() = withContext(Dispatchers.IO){
+        runCatching {
+            AppUtils.setService(AppUtils.getApplication())
+        }.onFailure {
+            //如果服务没启动，则跳转到服务未启动界面
+            Logger.e("自动记账服务未连接",it)
+            withContext(Dispatchers.Main){
+                navHostFragment.navController.navigate(R.id.serviceFragment)
             }
+        }.onSuccess {
+            if(System.currentTimeMillis()  - SpUtils.getLong("checkTime",0) < 1000 * 60 * 30){
+                return@onSuccess
+            }
+            SpUtils.putLong("checkTime",System.currentTimeMillis())
+
+            withContext(Dispatchers.Main){
+                runCatching {
+                    checkBookApp()
+                    checkUpdate()
+                }.onFailure {
+                    Logger.e("检查更新失败",it)
+                }
+            }
+            AppUtils.logger = true
         }
     }
 

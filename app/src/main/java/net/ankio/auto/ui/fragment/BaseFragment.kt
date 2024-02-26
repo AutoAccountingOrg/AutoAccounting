@@ -32,33 +32,45 @@ import net.ankio.auto.ui.utils.MenuItem
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.AutoAccountingServiceUtils
 
-abstract class BaseFragment:Fragment() {
-   open val menuList:ArrayList<MenuItem> = arrayListOf()
+abstract class BaseFragment : Fragment() {
+    open val menuList: ArrayList<MenuItem> = arrayListOf()
 
     override fun toString(): String {
         return this.javaClass.simpleName
     }
 
-    protected lateinit var  activityBinding : ActivityMainBinding
+    protected lateinit var activityBinding: ActivityMainBinding
+
+    private fun goToServiceFragment() {
+        // 获取 NavController
+        val navController = (activity as MainActivity).getNavController()
+
+// 弹出当前 Fragment
+        navController.popBackStack()
+
+// 导航到新的 Fragment
+        navController.navigate(R.id.serviceFragment)
+
+    }
 
     override fun onResume() {
         if (this.javaClass.simpleName != "ServiceFragment") {
             try {
                 AppUtils.getService()
                 lifecycleScope.launch {
-                   if(!AutoAccountingServiceUtils.isServerStart(requireContext())){
-                          withContext(Dispatchers.Main){
-                              (activity as MainActivity).getNavController().navigate(R.id.serviceFragment)
-                          }
-                   }
+                    if (!AutoAccountingServiceUtils.isServerStart(requireContext())) {
+                        withContext(Dispatchers.Main) {
+                            goToServiceFragment()
+                        }
+                    }
                 }
             } catch (e: Exception) {
-                (activity as MainActivity).getNavController().navigate(R.id.serviceFragment)
+                goToServiceFragment()
             }
         }
         super.onResume()
-        if(!this::activityBinding.isInitialized){
-            activityBinding =  (activity as MainActivity).getBinding()
+        if (!this::activityBinding.isInitialized) {
+            activityBinding = (activity as MainActivity).getBinding()
         }
         activityBinding.toolbar.visibility = View.VISIBLE
         // 重置顶部导航栏图标
