@@ -36,6 +36,7 @@ import net.ankio.auto.R
 import net.ankio.auto.app.BillUtils
 import net.ankio.auto.database.Db
 import net.ankio.auto.database.data.FlowElementList
+import net.ankio.auto.database.table.BookName
 import net.ankio.auto.database.table.Regular
 import net.ankio.auto.databinding.DialogRegexInputBinding
 import net.ankio.auto.databinding.DialogRegexMoneyBinding
@@ -190,35 +191,37 @@ class EditFragment : BaseFragment() {
     private fun onClickCategory(it2: FlowElement) {
 
         lifecycleScope.launch {
-            val book = withContext(Dispatchers.IO) {
+            var book = withContext(Dispatchers.IO) {
                 Db.get().BookNameDao().getByName(bookName)
             }
-            withContext(Dispatchers.Main) {
-                if (book != null) {
-                    BookInfoDialog(requireActivity(), book) { type ->
-                        CategorySelectorDialog(requireActivity(), book.id, type) { parent, child ->
-                            val string: String = if (parent == null) {
-                                "其他"
-                            } else {
-                                if (child == null) {
-                                    BillUtils.getCategory(parent.name.toString())
-                                } else {
-                                    BillUtils.getCategory(
-                                        parent.name.toString(),
-                                        child.name.toString()
-                                    )
-                                }
-                            }
-                            it2.removed().setAsWaveTextview(
-                                string,
-                                it2.connector,
-                                callback = it2.waveCallback
-                            )
-                            category = string
-                        }.show(cancel = true)
-                    }.show(cancel = true)
-                }
+            if (book == null) {
+                book = BookName()
+                book.name  = bookName
             }
+
+            BookInfoDialog(requireActivity(), book) { type ->
+                CategorySelectorDialog(requireActivity(), book.id, type) { parent, child ->
+                    val string: String = if (parent == null) {
+                        "其他"
+                    } else {
+                        if (child == null) {
+                            BillUtils.getCategory(parent.name.toString())
+                        } else {
+                            BillUtils.getCategory(
+                                parent.name.toString(),
+                                child.name.toString()
+                            )
+                        }
+                    }
+                    it2.removed().setAsWaveTextview(
+                        string,
+                        it2.connector,
+                        callback = it2.waveCallback
+                    )
+                    category = string
+                }.show(cancel = true)
+            }.show(cancel = true)
+
         }
     }
 
