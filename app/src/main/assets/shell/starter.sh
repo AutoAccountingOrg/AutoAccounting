@@ -70,6 +70,7 @@ if [ -f "$OLD_PATH" ]; then
   NEW_PATH="$TARGET_PATH/starter"
   cp -r "$OLD_PATH" "$TARGET_PATH"
   echo "info: exec $NEW_PATH"
+  chmod +x "$NEW_PATH"
     retries=0
     while [ $retries -lt 20 ]; do
            $NEW_PATH "$SHELL_PATH"
