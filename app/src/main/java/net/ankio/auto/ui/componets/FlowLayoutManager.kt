@@ -21,6 +21,7 @@ import android.view.View
 import android.widget.TextView
 import com.google.android.flexbox.FlexboxLayout
 
+
 /**
  * 虚拟流动布局器
  */
@@ -28,6 +29,8 @@ class FlowLayoutManager(context: Context, attrs: AttributeSet): FlexboxLayout(co
     var firstWaveTextViewPosition: Int = 0
     var textAppearance = com.google.android.material.R.style.TextAppearance_Material3_HeadlineLarge
     private var arrayList:ArrayList<FlowElement> = ArrayList()
+
+
     fun appendTextView(text: String, elem: FlowElement? = null): FlowElement {
         val flowElement = FlowElement(context,this,elem)
         flowElement.setAsTextView(text)
@@ -87,4 +90,6 @@ class FlowLayoutManager(context: Context, attrs: AttributeSet): FlexboxLayout(co
         arrayList.add(flowElement)
         return flowElement
     }
+
+
 }

@@ -43,7 +43,6 @@ class WaveTextView @JvmOverloads constructor(
         style = Paint.Style.FILL_AND_STROKE
     }
 
-     var data = HashMap<String,Any>()
 
     init {
         val typedArray = context.obtainStyledAttributes(
@@ -75,49 +74,49 @@ class WaveTextView @JvmOverloads constructor(
     }
 
 
-    override fun onDraw(canvas: Canvas) {
-      //  background = AppCompatResources.getDrawable(context,R.drawable.ripple_effect)
-        val textHeight = this.lineHeight / 3
+    /*    override fun onDraw(canvas: Canvas) {
+          //  background = AppCompatResources.getDrawable(context,R.drawable.ripple_effect)
+            val textHeight = this.lineHeight / 3
 
-        // 计算底部 padding
-        val paddingBottom = (textHeight + waveAmplitude).toInt()
-        // 绘制文本之前增加底部 padding
-        setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom)
+            // 计算底部 padding
+            val paddingBottom = (textHeight + waveAmplitude).toInt()
+            // 绘制文本之前增加底部 padding
+            setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom)
 
-        super.onDraw(canvas)
+            super.onDraw(canvas)
 
-        val centerY = height - paddingBottom.toFloat()
-        val startX = 0f
-        val endX = width.toFloat()
+            val centerY = height - paddingBottom.toFloat()
+            val startX = 0f
+            val endX = width.toFloat()
 
-        paint.color = waveColor
+            paint.color = waveColor
 
-        path.reset()
+            path.reset()
 
-        // 移动到左下角
-        path.moveTo(0f, centerY)
+            // 移动到左下角
+            path.moveTo(0f, centerY)
 
-        for (x in startX.toInt()..endX.toInt()) {
-            val radians = (x + waveOffset) * waveFrequency
-            val yOffset = waveAmplitude * sin(radians.toDouble())
-            val y = centerY + yOffset.toFloat() // +textHeight
-            path.lineTo(x.toFloat(), y.toFloat())
-        }
+            for (x in startX.toInt()..endX.toInt()) {
+                val radians = (x + waveOffset) * waveFrequency
+                val yOffset = waveAmplitude * sin(radians.toDouble())
+                val y = centerY + yOffset.toFloat() // +textHeight
+                path.lineTo(x.toFloat(), y.toFloat())
+            }
 
-        // 从右到左，绘制波浪线的下半部分
-        for (x in endX.toInt() downTo startX.toInt()) {
-            val radians = (x + waveOffset) * waveFrequency
-            val yOffset = waveAmplitude * sin(radians.toDouble())
-            val y = centerY + yOffset.toFloat() + textHeight*0.4
-            path.lineTo(x.toFloat(), y.toFloat())
-        }
+            // 从右到左，绘制波浪线的下半部分
+            for (x in endX.toInt() downTo startX.toInt()) {
+                val radians = (x + waveOffset) * waveFrequency
+                val yOffset = waveAmplitude * sin(radians.toDouble())
+                val y = centerY + yOffset.toFloat() + textHeight*0.4
+                path.lineTo(x.toFloat(), y.toFloat())
+            }
 
-        path.close()
+            path.close()
 
-        canvas.drawPath(path, paint)
+            canvas.drawPath(path, paint)
 
-        waveOffset += waveSpeed
-        invalidate()
-    }
+            waveOffset += waveSpeed
+            invalidate()
+        }*/
 }
 
