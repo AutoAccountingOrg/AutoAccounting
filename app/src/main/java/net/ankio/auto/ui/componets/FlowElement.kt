@@ -124,14 +124,11 @@ class FlowElement(
 
         //存储当前index
 
-        var chars = ""
-        val textArray = text.trim().split("")
-        Log.i("FlowLayoutManager实际插入文本","text:$text")
-        val total = textArray.size
+        val textArray = " $text ".split("")
+
         textArray.forEach {
 
-            val newWaveTextView = createWaveView(chars+it) //直接插入
-            chars = ""
+            val newWaveTextView = createWaveView(it) //直接插入
             flowLayoutManager.addView(newWaveTextView, index++)
             newWaveTextView.setOnClickListener {
                 callback?.let { it1 -> it1(this, newWaveTextView) }
@@ -210,7 +207,7 @@ class FlowElement(
         )
         textView.isClickable = true
         textView.isFocusable = true
-        textView.width = AppUtils.dp2px(40f)
+        textView.width = AppUtils.dp2px(50f)
         textView.background =
             ResourcesCompat.getDrawable(context.resources, R.drawable.ripple_effect, context.theme)
         textView.setBackgroundResource(R.drawable.rounded_border3)
