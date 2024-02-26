@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 ankio(ankio@ankio.net)
+ * Copyright (C) 2024 ankio(ankio@ankio.net)
  * Licensed under the Apache License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,10 +13,9 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.ui.fragment
+package net.ankio.auto.ui.fragment.home
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,12 +29,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.database.Db
-import net.ankio.auto.database.table.AppData
 import net.ankio.auto.database.table.Regular
 import net.ankio.auto.databinding.FragmentDataBinding
-import net.ankio.auto.ui.adapter.DataAdapter
 import net.ankio.auto.ui.adapter.RuleAdapter
-import net.ankio.auto.ui.adapter.RuleItemListener
+import net.ankio.auto.ui.fragment.BaseFragment
 import net.ankio.auto.ui.utils.MenuItem
 
 
@@ -45,92 +42,69 @@ class RuleFragment : BaseFragment() {
     private lateinit var adapter: RuleAdapter
     private lateinit var layoutManager: LinearLayoutManager
     private val dataItems = mutableListOf<Regular>()
-    private var currentPage = 0
-    private val itemsPerPage = 10
     override val menuList: ArrayList<MenuItem>
         get() = arrayListOf(
-            MenuItem(R.string.item_add, R.drawable.item_add){
-it.navigate(R.id.editFragment)
+            MenuItem(R.string.item_add, R.drawable.item_add) {
+                it.navigate(R.id.editFragment)
             }
         )
-    override fun onCreateView(   inflater: LayoutInflater,
-                                 container: ViewGroup?,
-                                 savedInstanceState: Bundle?
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View {
         binding = FragmentDataBinding.inflate(layoutInflater)
         recyclerView = binding.recyclerView
         layoutManager = LinearLayoutManager(requireContext())
         recyclerView.layoutManager = layoutManager
 
-        adapter = RuleAdapter(dataItems,object : RuleItemListener {
+        adapter = RuleAdapter(dataItems,
 
+            onClickEdit = { item, position ->
+                val bundle = Bundle().apply {
+                    putSerializable("regular", item)
+                }
+                findNavController().navigate(R.id.editFragment, bundle)
+            },
 
-
-            override fun onClickDelete(item: Regular, position: Int) {
+            onClickDelete = { item, position ->
                 MaterialAlertDialogBuilder(requireContext())
                     .setTitle(requireContext().getString(R.string.delete_data))
                     .setMessage(requireContext().getString(R.string.delete_msg))
                     .setNegativeButton(requireContext().getString(R.string.sure_msg)) { _, _ ->
                         lifecycleScope.launch {
-                            Db.get().RegularDao().del(item.id)
-                            dataItems.removeAt(position)
-                            withContext(Dispatchers.Main) {
-                                adapter.notifyItemRemoved(position)
+                            withContext(Dispatchers.IO){
+                                Db.get().RegularDao().del(item.id)
                             }
+                            dataItems.removeAt(position)
+                            adapter.notifyItemRemoved(position)
                         }
                     }
                     .setPositiveButton(requireContext().getString(R.string.cancel_msg)) { _, _ -> }
                     .show()
+
             }
 
-            override fun onClickEditData(item: Regular, position: Int) {
-                val bundle = Bundle().apply {
-                    putSerializable("regular", item)
-                }
-                findNavController().navigate(R.id.editFragment, bundle)
-            }
-
-
-        })
+        )
 
         recyclerView.adapter = adapter
-
-        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                val visibleItemCount = layoutManager.childCount
-                val totalItemCount = layoutManager.itemCount
-                val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
-
-                if (visibleItemCount + firstVisibleItemPosition >= totalItemCount
-                    && firstVisibleItemPosition >= 0
-                ) {
-                    loadMoreData()
-                }
-            }
-        })
-
-
 
         return binding.root
     }
 
-    private fun loadMoreData() {
-
+    private fun loadData() {
+        dataItems.clear()
         lifecycleScope.launch {
-            val newData = Db.get().RegularDao().loadAll(currentPage * itemsPerPage +1 ,itemsPerPage )
+            val newData = withContext(Dispatchers.IO) {
+                Db.get().RegularDao().loadAll()
+            }
             val collection: Collection<Regular> = newData?.filterNotNull() ?: emptyList()
-            withContext(Dispatchers.Main) {
-                // 在主线程更新 UI
-                dataItems.addAll(collection)
-                if(!collection.isEmpty()){
-                    adapter.notifyItemRangeInserted(currentPage * itemsPerPage +1, itemsPerPage )
-                    currentPage++
-                }
-
+            dataItems.addAll(collection)
+            if (!collection.isEmpty()) {
+                adapter.notifyDataSetChanged()
             }
         }
-
 
 
     }
@@ -138,10 +112,8 @@ it.navigate(R.id.editFragment)
     override fun onResume() {
         super.onResume()
         //加载数据
-        dataItems.clear()
-        adapter.notifyItemRemoved(0)
-        currentPage = 0
-        loadMoreData()
+
+        loadData()
     }
 
 }
