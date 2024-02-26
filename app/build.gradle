@@ -3,7 +3,7 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
-    id 'com.google.devtools.ksp' version "1.8.21-1.0.11"
+    id 'com.google.devtools.ksp' version "1.9.21-1.0.15"
     id "com.bugsnag.android.gradle"
     id 'dev.rikka.tools.autoresconfig'
 }
@@ -22,7 +22,7 @@ android {
     defaultConfig {
         applicationId "net.ankio.auto"
         minSdk 28
-        targetSdk 33
+        targetSdk 34
         versionCode 200
         versionName "初啼 4.0.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
