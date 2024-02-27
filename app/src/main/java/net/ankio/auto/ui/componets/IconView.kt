@@ -80,5 +80,9 @@ class IconView @JvmOverloads constructor(
         textView.text = text
     }
 
+    fun getText(): String {
+        return textView.text.toString()
+    }
+
 
 }
