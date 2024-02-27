@@ -21,7 +21,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -30,24 +29,19 @@ import com.tobey.dialogloading.DialogUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.app.BillInfoPopup
-import net.ankio.auto.app.Engine
+import net.ankio.auto.app.js.Engine
+import net.ankio.auto.app.model.AppData
 import net.ankio.auto.constant.DataType
 import net.ankio.auto.constant.toDataType
-import net.ankio.auto.database.Db
-import net.ankio.auto.database.table.AppData
 import net.ankio.auto.databinding.FragmentDataBinding
 import net.ankio.auto.ui.adapter.DataAdapter
-import net.ankio.auto.ui.adapter.DataItemListener
-import net.ankio.auto.ui.utils.MenuItem
-import net.ankio.auto.utils.ActiveUtils
+import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.Github
-import net.ankio.auto.utils.HookUtils
 import net.ankio.auto.utils.SpUtils
-import java.io.IOException
+import java.io.File
 
 
 class DataFragment : BaseFragment() {
@@ -56,72 +50,60 @@ class DataFragment : BaseFragment() {
     private lateinit var adapter: DataAdapter
     private lateinit var layoutManager: LinearLayoutManager
     private val dataItems = mutableListOf<AppData>()
-    private var currentPage = 0
-    private val itemsPerPage = 10
-    override val menuList: ArrayList<MenuItem>
-        get() = arrayListOf(
-            MenuItem(R.string.item_add, R.drawable.item_add){
 
-            }
-        )
+    private lateinit var file: File
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        //判断缓存中的data_issue文件夹是否存在，不存在创建
+        file = File(AppUtils.getApplication().cacheDir, "data_issue")
+        if (!file.exists()) {
+            file.mkdirs()
+        }
+    }
 
-    override fun onCreateView(   inflater: LayoutInflater,
-                                 container: ViewGroup?,
-                                 savedInstanceState: Bundle?
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View {
         binding = FragmentDataBinding.inflate(layoutInflater)
         recyclerView = binding.recyclerView
         layoutManager = LinearLayoutManager(requireContext())
         recyclerView.layoutManager = layoutManager
 
-        adapter = DataAdapter(dataItems,object : DataItemListener {
-            override fun onClickContent(string: String) {
+        adapter = DataAdapter(
+            dataItems,
+            onClickContent = { string ->
                 MaterialAlertDialogBuilder(requireContext())
                     .setTitle(requireContext().getString(R.string.content_title))
                     .setMessage(string)
                     .setPositiveButton(requireContext().getString(R.string.cancel_msg)) { _, _ -> }
                     .show()
-            }
-
-            override fun onClickTest(item: AppData) {
+            },
+            onClickTest = { item ->
                 lifecycleScope.launch {
-                    val result =   Engine.runAnalyze(item.type,item.source,item.data, HookUtils(requireContext(),BuildConfig.APPLICATION_ID))
-                    if(result==null){
+                    val result = Engine.analyze(item.type, item.source, item.data)
+                    if (result == null) {
                         //弹出悬浮窗
-                        withContext(Dispatchers.Main){
-                            Toast.makeText(context,getString(R.string.no_match),Toast.LENGTH_LONG).show()
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(context, getString(R.string.no_match), Toast.LENGTH_LONG)
+                                .show()
                         }
-                    }else{
-                        withContext(Dispatchers.Main){
-                            context?.let { BillInfoPopup.show(it,result) }
+                    } else {
+                        withContext(Dispatchers.Main) {
+                            context?.let { BillInfoPopup.show(it, result) }
                         }
                     }
                 }
-            }
+            },
 
-            override fun onClickDelete(item: AppData,position:Int) {
-                MaterialAlertDialogBuilder(requireContext())
-                    .setTitle(requireContext().getString(R.string.delete_data))
-                    .setMessage(requireContext().getString(R.string.delete_msg))
-                    .setNegativeButton(requireContext().getString(R.string.sure_msg)) { _, _ ->
-                        lifecycleScope.launch {
-                            Db.get().AppDataDao().del(item.id)
-                            dataItems.removeAt(position)
-                            withContext(Dispatchers.Main) {
-                                adapter.notifyItemRemoved(position)
-                            }
-                        }
-                    }
-                    .setPositiveButton(requireContext().getString(R.string.cancel_msg)) { _, _ -> }
-                    .show()
-            }
 
-            override fun onClickUploadData(item: AppData,position:Int) {
-                if(item.issue!=0){
-                    //之前上传过
-                    Toast.makeText(context,getString(R.string.repeater_issue),Toast.LENGTH_LONG).show()
-                    return
+            onClickUploadData = { item: AppData, position: Int ->
+
+                if (item.issue != 0) {
+                    Toast.makeText(context, getString(R.string.repeater_issue), Toast.LENGTH_LONG).show()
+                    return@DataAdapter
                 }
 
 
@@ -130,32 +112,41 @@ class DataFragment : BaseFragment() {
                         .setTitle(getString(R.string.upload_sure))  // 设置对话框的标题
                         .setMessage(getString(R.string.upload_info))  // 设置对话框的消息
                         .setPositiveButton(getString(R.string.ok)) { dialog, which ->
-                            val type = when(item.type.toDataType()){
-                                DataType.App->"App"
-                                DataType.Helper->"Helper"
-                                DataType.Notice->"Notice"
-                                DataType.Sms->"Sms"
+                            val type = when (item.type.toDataType()) {
+                                DataType.App -> "App"
+                                DataType.Helper -> "Helper"
+                                DataType.Notice -> "Notice"
+                                DataType.Sms -> "Sms"
                             }
-                            val dialog2 = DialogUtil.createLoadingDialog(it, getString(R.string.upload_waiting))
+                            val dialog2 = DialogUtil.createLoadingDialog(
+                                it,
+                                getString(R.string.upload_waiting)
+                            )
                             Github.createIssue("[Adaptation Request][$type]${item.source}", """
 ```
                 ${item.data}
 ```
-            """.trimIndent(),{ issue ->
+            """.trimIndent(), { issue ->
                                 item.issue = issue.toInt()
                                 requireActivity().runOnUiThread {
                                     adapter.notifyItemChanged(position)
-                                    Toast.makeText(it,getString(R.string.upload_success),Toast.LENGTH_LONG).show()
+                                    Toast.makeText(
+                                        it,
+                                        getString(R.string.upload_success),
+                                        Toast.LENGTH_LONG
+                                    ).show()
                                 }
                                 DialogUtil.closeDialog(dialog2)
 
-                                lifecycleScope.launch {
-                                    Db.get().AppDataDao().update(item)
-                                }
-                            },{ msg ->
+                                writeIssue(item, issue.toInt(), position)
+
+                            }, { msg ->
                                 requireActivity().runOnUiThread {
-                                    Toast.makeText(it,msg,Toast.LENGTH_LONG).show()
-                                    CustomTabsHelper.launchUrl(it, Uri.parse(Github.getLoginUrl()))
+                                    Toast.makeText(it, msg, Toast.LENGTH_LONG).show()
+                                    CustomTabsHelper.launchUrl(
+                                        it,
+                                        Uri.parse(Github.getLoginUrl())
+                                    )
                                 }
                                 DialogUtil.closeDialog(dialog2)
                             })
@@ -171,29 +162,12 @@ class DataFragment : BaseFragment() {
                 }
 
 
-
             }
+        )
 
-        })
+
 
         recyclerView.adapter = adapter
-
-        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                val visibleItemCount = layoutManager.childCount
-                val totalItemCount = layoutManager.itemCount
-                val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
-
-                if (visibleItemCount + firstVisibleItemPosition >= totalItemCount
-                    && firstVisibleItemPosition >= 0
-                ) {
-                    loadMoreData()
-                }
-            }
-        })
-
-
 
 
 
@@ -201,42 +175,50 @@ class DataFragment : BaseFragment() {
     }
 
     private fun loadMoreData() {
-
-        ActiveUtils.getDataList(currentPage,itemsPerPage,requireContext()){
-            dataItems.addAll(it)
-            adapter.notifyItemRangeInserted(currentPage * itemsPerPage +1, it.size )
-            currentPage++
+        dataItems.clear()
+        lifecycleScope.launch {
+            AppUtils.getService().getData {
+                val collection: Collection<AppData> = AppData.fromTxt(it)
+                forEachIssue(collection)
+                dataItems.addAll(collection)
+                if (!collection.isEmpty()) {
+                    adapter.notifyDataSetChanged()
+                }
+            }
         }
 
-        //下面这个放到无障碍中
 
-       /* lifecycleScope.launch {
-            val newData = Db.get().AppDataDao().loadAll(currentPage * itemsPerPage +1 ,itemsPerPage )
-            val collection: Collection<AppData> = newData.toList()
-            withContext(Dispatchers.Main) {
-                // 在主线程更新 UI
-                dataItems.addAll(collection)
-                if(!collection.isEmpty()){
-                    adapter.notifyItemRangeInserted(currentPage * itemsPerPage +1, itemsPerPage )
-                    currentPage++
-                }
+    }
 
+    private fun writeIssue(item: AppData, issue: Int, pos: Int) {
+        val file = File(file, "${item.hashCode()}.txt")
+        file.writeText(issue.toString())
+        item.issue = issue
+        adapter.notifyItemChanged(pos)
+    }
+
+    private fun forEachIssue(collection: Collection<AppData>) {
+        //遍历file文件夹下所有的txt
+        file.listFiles()?.forEach {
+            val issue = it.readText().toInt()
+            val hashCode = it.nameWithoutExtension.toInt()
+            val item = collection.find { item ->
+                item.hashCode() == hashCode
             }
-        }*/
-
-
-
+            if (item != null) {
+                item.issue = issue
+            } else {
+                //没有匹配到文件需要删除
+                it.delete()
+            }
+        }
     }
 
     override fun onResume() {
         super.onResume()
         //加载数据
-        dataItems.clear()
-        adapter.notifyItemRemoved(0)
-        currentPage = 0
         loadMoreData()
     }
-
 
 
 }

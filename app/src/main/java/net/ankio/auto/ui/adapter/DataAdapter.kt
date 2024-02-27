@@ -22,21 +22,24 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.elevation.SurfaceColors
 import net.ankio.auto.R
+import net.ankio.auto.app.model.AppData
 import net.ankio.auto.constant.DataType
 import net.ankio.auto.constant.toDataType
-import net.ankio.auto.database.table.AppData
 import net.ankio.auto.databinding.AdapterDataBinding
-import net.ankio.auto.utils.AppInfoUtils
+import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.DateUtils
-import net.ankio.auto.utils.ThemeUtils
 import org.json.JSONObject
 
 
-class DataAdapter(private val dataItems: List<AppData>, private val listener: DataItemListener) : RecyclerView.Adapter<DataAdapter.ViewHolder>() {
+class DataAdapter(
+    private val dataItems: List<AppData>,
+    private val onClickContent: (string: String)->Unit,
+    private val onClickTest: (item: AppData)->Unit,
+    private val onClickUploadData: (item: AppData,position: Int)->Unit
+) : RecyclerView.Adapter<DataAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(AdapterDataBinding.inflate(LayoutInflater.from(parent.context),parent,false),parent.context)
@@ -84,10 +87,10 @@ class DataAdapter(private val dataItems: List<AppData>, private val listener: Da
                 binding.uploadData.visibility = View.GONE
                 binding.issue.text = "# ${item.issue}"
                 binding.issue.setOnClickListener {
-                        CustomTabsHelper.launchUrl(context, Uri.parse("https://github.com/Auto-Accounting/AutoRule/issues/${item.issue}"))
+                        CustomTabsHelper.launchUrl(context, Uri.parse("https://github.com/AutoAccountingOrg/AutoRule/issues/${item.issue}"))
                 }
             }
-            val app = AppInfoUtils(context).getAppInfoFromPackageName(item.source)
+            val app = AppUtils.getAppInfoFromPackageName(item.source,context)
 
             binding.app.text = item.source.let {
                 if (item.type.toDataType() !== DataType.Sms){
@@ -115,28 +118,17 @@ class DataAdapter(private val dataItems: List<AppData>, private val listener: Da
             binding.rule.text = item.rule
 
             binding.testRule.setOnClickListener {
-                listener.onClickTest(item);
+                onClickTest(item);
             }
             binding.content.setOnClickListener{
-                listener.onClickContent(binding.content.text as String);
+                onClickContent(binding.content.text as String);
 
             }
-            binding.deleteData.setOnClickListener {
-                listener.onClickDelete(item,position)
 
-            }
             binding.uploadData.setOnClickListener{
-                listener.onClickUploadData(item,position)
+                onClickUploadData(item,position)
             }
         }
     }
 }
 
-interface DataItemListener{
-    fun onClickContent(string: String)
-    fun onClickTest(item: AppData)
-    fun onClickDelete(item: AppData,position: Int)
-
-    fun onClickUploadData(item: AppData,position:Int)
-   // fun on(item: AppData)
-}
