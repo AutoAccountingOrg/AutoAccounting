@@ -43,7 +43,8 @@ import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 import net.ankio.auto.HookMainApp
-import net.ankio.auto.hooks.android.AccountingService
+import net.ankio.auto.exceptions.AutoServiceException
+import net.ankio.auto.utils.ActiveUtils
 import net.ankio.auto.utils.HookUtils
 
 abstract class Hooker : iHooker {
@@ -52,67 +53,49 @@ abstract class Hooker : iHooker {
     lateinit var hookUtils: HookUtils
     private fun hookMainInOtherAppContext() {
         var hookStatus = false
-        val findContext1 = Runnable {
-            XposedHelpers.findAndHookMethod(
-                ContextWrapper::class.java, "attachBaseContext",
-                Context::class.java, object : XC_MethodHook() {
-                    @Throws(Throwable::class)
-                    override fun afterHookedMethod(param: MethodHookParam) {
-                        super.afterHookedMethod(param)
-                        if(hookStatus){
-                            return
-                        }
-                        hookStatus = true
-                        val context = param.args[0] as Context
-                        initLoadPackage(context.classLoader,context)
+        XposedHelpers.findAndHookMethod(
+            Application::class.java, "attach",
+            Context::class.java, object : XC_MethodHook() {
+                @Throws(Throwable::class)
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    super.afterHookedMethod(param)
+                    if(hookStatus){
+                        return
                     }
-                })
-        }
-        val findContext2 = Runnable {
-            XposedHelpers.findAndHookMethod(
-                Application::class.java, "attach",
-                Context::class.java, object : XC_MethodHook() {
-                    @Throws(Throwable::class)
-                    override fun afterHookedMethod(param: MethodHookParam) {
-                        super.afterHookedMethod(param)
-                        if(hookStatus){
-                            return
-                        }
-                        hookStatus = true
-                        val context = param.args[0] as Context
-                       initLoadPackage(context.classLoader,context)
+                    hookStatus = true
+                    val context = param.args[0] as Context
+                    val application = param.thisObject as Application
+                    runCatching {
+                        initLoadPackage(context.classLoader,application)
+                    }.onFailure {
+                        XposedBridge.log("自动记账Hook异常..${it.message}.")
+                        Log.e("AutoAccountingError", it.message.toString())
+                        it.printStackTrace()
                     }
-                })
-        }
-        try {
-            findContext1.run()
-        } catch (e: Throwable) {
-            findContext2.run()
-        }
+                }
+        })
     }
 
-    fun initLoadPackage(classLoader: ClassLoader?,context: Context?){
+    fun initLoadPackage(classLoader: ClassLoader?,application: Application){
         XposedBridge.log("[$TAG] Welcome to AutoAccounting")
-        if(needHelpFindApplication && (classLoader==null||context==null)){
+        if(classLoader==null){
             XposedBridge.log("[AutoAccounting]"+this.appName+"hook失败: classloader 或 context = null")
             return
         }
-        if(packPageName!=="android"){
-            val service =  AccountingService.get()
-            if(service==null){
-                //自动记账服务没加载
-                XposedBridge.log("${HookMainApp.getTag()}自动记账服务未加载，请重启手机后再试.")
-                return
-            }
-        }
+        ActiveUtils.APPLICATION_ID = packPageName
 
-        hookLoadPackage(classLoader,context)
-        hookUtils = HookUtils(context, packPageName)
+        hookLoadPackage(classLoader,application)
+        try{
+            hookUtils = HookUtils(application, packPageName)
+        }catch (e: AutoServiceException){
+            XposedBridge.log("[AutoAccounting]自动记账服务未启动: "+e.message)
+            return
+        }
 
         hookUtils.logD(HookMainApp.getTag(appName,packPageName),"欢迎使用自动记账，该日志表示 $appName App 已被hook。")
         for (hook in partHookers) {
             try {
-                hook.onInit(classLoader,context)
+                hook.onInit(classLoader,application)
             }catch (e:Exception){
                 e.message?.let { Log.e("AutoAccountingError", it) }
                 println(e)
@@ -130,10 +113,6 @@ abstract class Hooker : iHooker {
             if (!lpparam.isFirstApplication) return
         }
         if (pkg != packPageName || processName != packPageName) return
-        if (!needHelpFindApplication) {
-            initLoadPackage(lpparam.classLoader,AndroidAppHelper.currentApplication())
-            return
-        }
         hookMainInOtherAppContext()
     }
 
