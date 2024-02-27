@@ -16,9 +16,9 @@
 package net.ankio.auto.utils
 
 
-import android.annotation.SuppressLint
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
 /**
  * 格式化时间工具类
