@@ -16,25 +16,21 @@ package net.ankio.auto.database
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import androidx.room.TypeConverters
-import net.ankio.auto.database.dao.AccountDao
-import net.ankio.auto.database.dao.AccountMapDao
-import net.ankio.auto.database.dao.AppDataDao
+import net.ankio.auto.database.dao.AssetsDao
+import net.ankio.auto.database.dao.AssetsMapDao
 import net.ankio.auto.database.dao.BillInfoDao
 import net.ankio.auto.database.dao.BookNameDao
 import net.ankio.auto.database.dao.CategoryDao
 import net.ankio.auto.database.dao.RegularDao
-import net.ankio.auto.database.data.ElementConverters
-import net.ankio.auto.database.table.Account
-import net.ankio.auto.database.table.AccountMap
-import net.ankio.auto.database.table.AppData
+import net.ankio.auto.database.table.Assets
+import net.ankio.auto.database.table.AssetsMap
 import net.ankio.auto.database.table.BillInfo
 import net.ankio.auto.database.table.BookName
 import net.ankio.auto.database.table.Category
 import net.ankio.auto.database.table.Regular
 
 @Database(
-    entities = [Account::class,AccountMap::class,AppData::class,BillInfo::class,BookName::class,Category::class,Regular::class],
+    entities = [Assets::class,AssetsMap::class,BillInfo::class,BookName::class,Category::class,Regular::class],
     version = 1,
     exportSchema = false
 )
@@ -42,9 +38,8 @@ import net.ankio.auto.database.table.Regular
 abstract class AppDatabase : RoomDatabase() {
     abstract fun RegularDao(): RegularDao
     abstract fun BookNameDao(): BookNameDao
-    abstract fun AccountMapDao(): AccountMapDao
-    abstract fun AppDataDao(): AppDataDao
+    abstract fun AssetsMapDao(): AssetsMapDao
     abstract fun BillInfoDao(): BillInfoDao
     abstract fun CategoryDao(): CategoryDao
-    abstract fun AccountDao(): AccountDao
+    abstract fun AssetsDao(): AssetsDao
 }

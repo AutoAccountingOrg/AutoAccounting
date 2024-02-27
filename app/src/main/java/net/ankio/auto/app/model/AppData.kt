@@ -12,20 +12,18 @@
  *  See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package net.ankio.auto.database.table
+package net.ankio.auto.app.model
 
+import android.util.Base64
+import android.util.Log
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.Gson
 import net.ankio.auto.constant.DataType
+import net.ankio.auto.utils.AppUtils
+import net.ankio.auto.utils.Logger
 
-@Entity
 class AppData {
-
-
-    //其他信息处理规则
-    @PrimaryKey(autoGenerate = true)
-    var id = 0
 
     /**
      * 对于App数据，就是Hook得到的数据一般是Json：{} 具体情况具体分析
@@ -69,9 +67,26 @@ class AppData {
     fun toJSON(): String {
         return Gson().toJson(this)
     }
+    fun toText():String{
+        return Base64.encodeToString(toJSON().toByteArray(),Base64.DEFAULT)
+    }
     companion object{
         fun fromJSON(json:String):AppData{
             return Gson().fromJson(json,AppData::class.java)
+        }
+        fun fromTxt(txt:String):ArrayList<AppData>{
+            val list = arrayListOf<AppData>()
+                for (line in txt.lines()){
+                    if(line.isNotEmpty()){
+                        runCatching {
+                            list.add(fromJSON(String(Base64.decode(line,Base64.DEFAULT))))
+                        }.onFailure {
+                            Logger.e("数据异常",it)
+                        }
+                    }
+                }
+
+            return list
         }
     }
 }
