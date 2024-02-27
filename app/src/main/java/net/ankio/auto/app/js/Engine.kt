@@ -111,12 +111,22 @@ object Engine {
                 })
             }
         }
+        val categoryCustom = async {
+            suspendCancellableCoroutine { continuation ->
+                AppUtils.getService().get("auto_category_custom"){
+                    continuation.resume(it)
+                }
+            }
+        }
         val outputBuilder = StringBuilder()
         runCatching {
             val context: Context = Context.enter()
             context.setOptimizationLevel(-1)
             val categoryJs =
-                "var window = {money:money, type:type, shopName:shopName, shopItem:shopItem, time:time};${category.await()}"
+                "var window = {money:money, type:type, shopName:shopName, shopItem:shopItem, time:time};" +
+                        "function getCategory(money,type,shopName,shopItem,time){ ${categoryCustom.await()} return null};" +
+                        "var categoryInfo = getCategory(money,type,shopName,shopItem,time);" +
+                        "if(categoryInfo !== null) { print(JSON.stringify(categoryInfo));  } else { ${category.await()} }"
             outputBuilder.clear() //清空
             log(hookUtils, "执行分类脚本", categoryJs)
 

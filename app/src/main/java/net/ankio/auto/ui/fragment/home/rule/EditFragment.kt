@@ -47,6 +47,7 @@ import net.ankio.auto.ui.dialog.BookInfoDialog
 import net.ankio.auto.ui.dialog.BookSelectorDialog
 import net.ankio.auto.ui.dialog.CategorySelectorDialog
 import net.ankio.auto.ui.fragment.BaseFragment
+import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.ListPopupUtils
 import java.util.Calendar
 
@@ -510,6 +511,17 @@ class EditFragment : BaseFragment() {
                     Db.get().RegularDao().add(regular)
                 }
             }
+
+            val rule = StringBuilder()
+
+            Db.get().RegularDao().loadAll()?.forEach {
+                if (it != null) {
+                    rule.append(it.js).append("\n")
+                }
+            }
+
+            AppUtils.getService().set("auto_category_custom", rule.toString())
+
             findNavController().popBackStack()//返回上一个页面
         }
 
