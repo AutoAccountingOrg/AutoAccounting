@@ -159,7 +159,7 @@ class AutoAccountingServiceUtils(mContext: Context) : CoroutineScope by MainScop
     /**
      * 获取记录的数据
      */
-    fun getData(onSuccess: (String) -> Unit){
+    suspend fun getData(onSuccess: (String) -> Unit) = withContext(Dispatchers.IO){
         get("data",onSuccess)
     }
 
