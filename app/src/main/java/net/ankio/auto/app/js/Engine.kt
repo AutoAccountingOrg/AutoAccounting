@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 ankio(ankio@ankio.net)
+ * Copyright (C) 2024 ankio(ankio@ankio.net)
  * Licensed under the Apache License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,51 +13,53 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.app
+package net.ankio.auto.app.js
 
-import net.ankio.auto.constant.BillType
-import net.ankio.auto.constant.Currency
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
+import net.ankio.auto.app.BillUtils
 import net.ankio.auto.database.table.BillInfo
+import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.DateUtils
 import net.ankio.auto.utils.HookUtils
+import net.ankio.auto.utils.Logger
+import net.ankio.common.constant.BillType
 import org.json.JSONObject
-import org.mozilla.javascript.BaseFunction
 import org.mozilla.javascript.Context
 import org.mozilla.javascript.Scriptable
 import org.mozilla.javascript.ScriptableObject
+import kotlin.coroutines.resume
 
-class CustomPrintFunction(private val output: StringBuilder) : BaseFunction() {
-    override fun call(cx: Context, scope: Scriptable, thisObj: Scriptable, args: Array<Any>): Any {
-        args.forEach { arg ->
-            output.append(Context.toString(arg)).append("\n")
-        }
-        return Context.getUndefinedValue()
-    }
-}
-
+/**
+ * 在Xposed环境中也需要调用
+ */
 object Engine {
-
-    /**
-     *   App(0),//app
-     *     Sms(1),//短信
-     *     Notice(2),//通知
-     *     Helper(3)//无障碍
-     */
-    fun runAnalyze(
+    suspend fun analyze(
         dataType: Int, //类型
         app: String,  //来自哪个App或者手机号
         data: String, //具体的数据
-        hookUtils: HookUtils? = null, //hook工具
-    ): BillInfo? {
-        var billInfo: BillInfo?
+        hookUtils: HookUtils? = null,
+    ): BillInfo? = withContext(Dispatchers.IO) {
+
         val outputBuilder = StringBuilder()
-        try {
+        val rule = async {
+            suspendCancellableCoroutine<String> { continuation ->
+                AppUtils.getService().get("auto_rule", onSuccess = { result ->
+                    continuation.resume(result)
+                })
+            }
+        }
+
+        val result = runCatching {
             val context: Context = Context.enter()
             val scope: Scriptable = context.initStandardObjects()
             context.setOptimizationLevel(-1)
             //识别脚本补充
-            var js = "var window = {data:data, dataType:dataType, app:app};${hookUtils?.getSp("dataRule")}"
-            hookUtils?.logD("执行识别脚本", js)
+            val js = "var window = {data:data, dataType:dataType, app:app};${rule.await()}"
+
+            log(hookUtils, "执行识别脚本", js)
             ScriptableObject.putProperty(scope, "data", data)
             ScriptableObject.putProperty(scope, "dataType", dataType)
             ScriptableObject.putProperty(scope, "app", app)
@@ -65,11 +67,13 @@ object Engine {
             ScriptableObject.putProperty(scope, "print", printFunction)
             context.evaluateString(scope, js, "<analyze>", 1, null)
             val json = outputBuilder.toString()
-            hookUtils?.logD("识别结果", json)
+            log(hookUtils, "识别结果", json)
             //{"type":1,"money":"0.01","fee":0,"shopName":"支付宝商家服务","shopItem":"老顾客消费","accountNameFrom":"","accountNameTo":"支付宝余额","currency":"CNY","time":1703056950000,"channel":"支付宝收款码收款","ruleName":"支付宝消息盒子"}
-            billInfo = BillInfo()
+
+
+            val billInfo = BillInfo()
             val jsonObject2 = JSONObject(json)
-            billInfo.type = BillType.values()[jsonObject2.getInt("type")]
+            billInfo.type = BillType.fromInt(jsonObject2.getInt("type"))
             billInfo.money =
                 (BillUtils.removeSpecialCharacters(jsonObject2.getString("money"))).toFloat()
             billInfo.fee =
@@ -79,14 +83,42 @@ object Engine {
             billInfo.accountNameFrom =
                 BillUtils.getAccountMap(jsonObject2.getString("accountNameFrom"))
             billInfo.accountNameTo = BillUtils.getAccountMap(jsonObject2.getString("accountNameTo"))
-            billInfo.currency = Currency.valueOf(jsonObject2.getString("currency"))
+            billInfo.currency =
+                net.ankio.common.constant.Currency.valueOf(jsonObject2.getString("currency"))
             billInfo.timeStamp = DateUtils.getAnyTime(jsonObject2.getString("time"))
             billInfo.channel = jsonObject2.getString("channel")
-            //分类脚本补充
-            js =
-                "var window = {money:money, type:type, shopName:shopName, shopItem:shopItem, time:time};${hookUtils?.getSp("dataCategory")}"
-            outputBuilder.clear();//清空
-            hookUtils?.logD("执行分类脚本", js)
+
+
+            context.close()
+
+            category(billInfo, hookUtils)
+
+           billInfo
+        }.onFailure {
+            log(hookUtils, "识别脚本执行出错", it.message ?: "")
+        }
+
+        return@withContext result.getOrNull()
+
+    }
+
+
+    suspend fun category(billInfo: BillInfo, hookUtils: HookUtils?) = withContext(Dispatchers.IO) {
+        val category = async {
+            suspendCancellableCoroutine<String> { continuation ->
+                AppUtils.getService().get("auto_category", onSuccess = { result ->
+                    continuation.resume(result)
+                })
+            }
+        }
+        val outputBuilder = StringBuilder()
+        runCatching {
+            val context: Context = Context.enter()
+            context.setOptimizationLevel(-1)
+            val categoryJs =
+                "var window = {money:money, type:type, shopName:shopName, shopItem:shopItem, time:time};${category.await()}"
+            outputBuilder.clear() //清空
+            log(hookUtils, "执行分类脚本", categoryJs)
 
             val categoryScope: Scriptable = context.initStandardObjects()
             ScriptableObject.putProperty(categoryScope, "money", billInfo.money)
@@ -98,22 +130,24 @@ object Engine {
                 "time",
                 DateUtils.stampToDate(billInfo.timeStamp, "HH:mm")
             )
+            val printFunction = CustomPrintFunction(outputBuilder)
             ScriptableObject.putProperty(categoryScope, "print", printFunction)
-            context.evaluateString(categoryScope, js, "<category>", 1, null)
+            context.evaluateString(categoryScope, categoryJs, "<category>", 1, null)
             val cateJson = JSONObject(outputBuilder.toString())
             billInfo.cateName = cateJson.getString("category")
             billInfo.bookName = cateJson.getString("book")
-            hookUtils?.logD("分类脚本执行结果", billInfo.cateName)
-        } catch (e: Exception) {
-            hookUtils?.logD("执行脚本失败",  e.stackTraceToString())
-            billInfo = null
-        } finally {
-            Context.exit()
-            hookUtils?.logD("脚本执行完毕",  "")
+            log(hookUtils, "分类脚本执行结果", billInfo.cateName)
+            context.close()
+        }.onFailure {
+            log(hookUtils, "分类脚本执行出错", it.message ?: "")
         }
-        return billInfo
-
     }
 
-
+    private fun log(hookUtils: HookUtils? = null, prefix: String, data: String) {
+        if (hookUtils !== null) {
+            hookUtils.logD(prefix, data)
+        } else {
+            Logger.d("$prefix:$data")
+        }
+    }
 }
