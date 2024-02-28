@@ -19,8 +19,10 @@ import android.app.Activity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.viewbinding.ViewBinding
 import net.ankio.auto.databinding.SettingItemColorBinding
 import net.ankio.auto.databinding.SettingItemInputBinding
@@ -130,20 +132,7 @@ class SettingUtils(
 
 
 
-
-
-        if (binding.subTitle.visibility == View.VISIBLE) {
-            val params = binding.title.layoutParams as ConstraintLayout.LayoutParams
-            params.bottomToBottom = ConstraintLayout.LayoutParams.UNSET
-            params.topToTop = ConstraintLayout.LayoutParams.UNSET
-            binding.title.layoutParams = params
-        } else {
-            val params = binding.title.layoutParams as ConstraintLayout.LayoutParams
-            params.bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID
-            params.topToTop = ConstraintLayout.LayoutParams.PARENT_ID
-            binding.title.layoutParams = params
-        }
-
+      //  setCenterItem(binding.title,binding.subTitle)
 
 
 
@@ -210,17 +199,9 @@ class SettingUtils(
         }
 
 
-        if (binding.subTitle.visibility == View.VISIBLE) {
-            val params = binding.title.layoutParams as ConstraintLayout.LayoutParams
-            params.bottomToBottom = ConstraintLayout.LayoutParams.UNSET
-            params.topToTop = ConstraintLayout.LayoutParams.UNSET
-            binding.title.layoutParams = params
-        } else {
-            val params = binding.title.layoutParams as ConstraintLayout.LayoutParams
-            params.bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID
-            params.topToTop = ConstraintLayout.LayoutParams.PARENT_ID
-            binding.title.layoutParams = params
-        }
+
+
+    //    setCenterItem(binding.title,binding.subTitle)
 
         return binding
     }
@@ -278,6 +259,7 @@ class SettingUtils(
         }
         return binding
     }
+
 
 
     private fun getFromSp(key: String, default: Any): Any {
