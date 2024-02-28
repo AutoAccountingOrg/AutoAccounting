@@ -59,7 +59,7 @@ object Config {
             //皮肤
             SettingItem(R.string.setting_skin),
             SettingItem(
-                id = "setting_theme",
+                regex = "setting_use_system=false",
                 title = R.string.setting_theme,
                 type = ItemType.COLOR,
                 onGetKeyValue = {
@@ -111,8 +111,7 @@ object Config {
                 }
             ),
             SettingItem(
-                idLink = "setting_theme",
-                idLinkBoolean = true,
+                variable = "setting_use_system",
                 title = R.string.setting_use_system_theme,
                 type = ItemType.SWITCH,
                 onGetKeyValue = {
@@ -128,6 +127,92 @@ object Config {
                 key = "setting_use_round_style",
                 type = ItemType.SWITCH,
             ),
+            //备份
+            SettingItem(R.string.setting_backup),
+            SettingItem(
+                title = R.string.setting_auto_backup,
+                subTitle = R.string.setting_auto_backup_desc,
+                key = "setting_auto_backup",
+                default = false,
+                type = ItemType.SWITCH,
+                onSavedValue = { value,activity ->
+                    //如果是webdav启用webdav并且webdav不正常，拒绝开启
+                },
+            ),
+
+            //备份方式二选一，本地或者Webdav
+
+            SettingItem(
+                variable = "setting_use_webdav",
+                title = R.string.setting_use_webdav,
+                key = "setting_use_webdav",
+                default = false,
+                type = ItemType.SWITCH,
+            ),
+
+            SettingItem(
+                regex = "setting_use_webdav=false",
+                title = R.string.setting_backup_2_local,
+            //    subTitle = R.string.setting_backup_2_local_desc,
+                type = ItemType.TEXT,
+                onItemClick = { _, activity ->
+                    //TODO 备份到本地
+                }
+            ),
+
+
+            SettingItem(
+                regex = "setting_use_webdav=false",
+                title = R.string.setting_restore_2_local,
+              //  subTitle = R.string.setting_restore_2_local_desc,
+                type = ItemType.TEXT,
+                onItemClick = { _, activity ->
+                    //TODO 从本地恢复
+                }
+            ),
+
+            SettingItem(
+                regex = "setting_use_webdav=true",
+                title = R.string.setting_webdav_host,
+                key = "setting_webdav_host",
+                default = "https://dav.jianguoyun.com/dav/",
+                type = ItemType.INPUT,
+            ),
+            SettingItem(
+                regex = "setting_use_webdav=true",
+                title = R.string.setting_webdav_username,
+                key = "setting_webdav_username",
+                default = "",
+                type = ItemType.INPUT,
+            ),
+            SettingItem(
+                regex = "setting_use_webdav=true",
+                title = R.string.setting_webdav_password,
+                key = "setting_webdav_password",
+                default = "",
+                type = ItemType.INPUT,
+            ),
+
+            SettingItem(
+                regex = "setting_use_webdav=true",
+                title = R.string.setting_backup_2_webdav,
+              //  subTitle = R.string.setting_backup_2_webdav_desc,
+                type = ItemType.TEXT,
+                onItemClick = { _, activity ->
+                    //TODO 备份到webdav
+                }
+            ),
+
+            SettingItem(
+                regex = "setting_use_webdav=true",
+                title = R.string.setting_restore_2_webdav,
+              //  subTitle = R.string.setting_restore_2_webdav_desc,
+                type = ItemType.TEXT,
+                onItemClick = { _, activity ->
+                    //TODO 从webdav恢复
+                }
+            ),
+
             //更新
             SettingItem(R.string.setting_update),
             SettingItem(
@@ -155,7 +240,7 @@ object Config {
                 key = "setting_rule",
                 type = ItemType.SWITCH,
             ),
-            //更新
+            //其他
             SettingItem(R.string.setting_others),
             SettingItem(
                 title = R.string.setting_debug,

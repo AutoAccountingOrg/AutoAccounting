@@ -22,9 +22,8 @@ import net.ankio.auto.setting.types.ItemType
 
 data class SettingItem(
     @StringRes val title: Int,//标题
-    val id :String? = null,//id
-    val idLink:String? = null,//和某个ID进行关联，只有boolean类型才能关联
-    val idLinkBoolean:Boolean = false,//关联的boolean类型的值，为false隐藏对应idLink否则就是为true的时候隐藏
+    val variable :String? = null,//显示或者隐藏的关联名称
+    val regex:String? = null,//关联表达式
     val key: String? = null, //key，存储专用
     @DrawableRes val icon: Int? = null, //图标
     @StringRes val subTitle: Int? = null,//副标题

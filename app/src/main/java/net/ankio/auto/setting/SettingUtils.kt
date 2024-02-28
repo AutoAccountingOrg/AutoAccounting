@@ -38,7 +38,7 @@ class SettingUtils(
     private val inflater: LayoutInflater,
     private val settingItems: ArrayList<SettingItem>
 ) {
-    private val viewBinding = HashMap<String, ViewBinding>()
+    private val viewBinding = HashMap<SettingItem, ViewBinding>()
     fun render() {
         settingItems.forEach {
             val binding = when (it.type) {
@@ -48,21 +48,28 @@ class SettingUtils(
                 ItemType.INPUT -> renderInput(it)
                 ItemType.COLOR -> renderColor(it)
             }
-            viewBinding[it.id ?: it.hashCode().toString()] = binding
+            viewBinding[it] = binding
             container.addView(binding.root)
         }
     }
 
-    fun onRemoved(){
-        viewBinding.forEach { (t, viewBinding) ->
-            viewBinding.root.setOnClickListener(null)
-        }
-    }
 
     private fun renderTitle(settingItem: SettingItem): SettingItemTitleBinding {
         val binding = SettingItemTitleBinding.inflate(inflater, container, false)
         binding.title.setText(settingItem.title)
         return binding
+    }
+
+    private fun setVisibility(variable: String, variableBoolean: Boolean) {
+        val trueKey = "$variable=true"
+        val falseKey = "$variable=false"
+        viewBinding.forEach { (item, binding) ->
+            if (item.regex == trueKey) {
+                binding.root.visibility = if (variableBoolean) View.VISIBLE else View.GONE
+            } else if (item.regex == falseKey) {
+                binding.root.visibility = if (variableBoolean) View.GONE else View.VISIBLE
+            }
+        }
     }
 
     private fun renderSwitch(settingItem: SettingItem): SettingItemSwitchBinding {
@@ -76,13 +83,8 @@ class SettingUtils(
 
         fun setLinkVisibility(isChecked: Boolean) {
 
-            settingItem.idLink?.apply {
-                val linkBinding = viewBinding[this]
-                if (linkBinding != null) {
-                    // true and true，当选中的时候，不显示，否则隐藏
-                    linkBinding.root.visibility = if (isChecked && settingItem.idLinkBoolean) View.GONE else View.VISIBLE
-                }
-
+            settingItem.variable?.apply {
+                setVisibility(this, isChecked)
             }
         }
 
@@ -105,7 +107,7 @@ class SettingUtils(
 
 
 
-        fun onClickSwitch(){
+        fun onClickSwitch() {
             val isChecked = binding.switchWidget.isChecked
             setLinkVisibility(isChecked)
             settingItem.onItemClick?.invoke(isChecked, context) ?: settingItem.key?.let {
@@ -117,7 +119,7 @@ class SettingUtils(
         }
 
         binding.root.setOnClickListener {
-            binding.switchWidget.isChecked=!binding.switchWidget.isChecked
+            binding.switchWidget.isChecked = !binding.switchWidget.isChecked
             onClickSwitch()
         }
 
@@ -171,11 +173,14 @@ class SettingUtils(
             }
         }
 
-        val savedValue = settingItem.onGetKeyValue?.invoke() ?: getFromSp(settingItem.key?:"", settingItem.default?:"")
+        val savedValue = settingItem.onGetKeyValue?.invoke() ?: getFromSp(
+            settingItem.key ?: "",
+            settingItem.default ?: ""
+        )
 
         settingItem.selectList?.apply {
 
-            fun setValue(savedValue:Any){
+            fun setValue(savedValue: Any) {
                 for ((key, value) in this) {
                     if (value == savedValue) {
                         binding.subTitle.text = key
@@ -187,12 +192,12 @@ class SettingUtils(
 
             setValue(savedValue)
 
-            val  listPopupUtils =  ListPopupUtils(context, binding.title, this) { pos, key, value ->
+            val listPopupUtils = ListPopupUtils(context, binding.title, this) { pos, key, value ->
                 binding.subTitle.text = key
 
                 settingItem.onItemClick?.invoke(value, context) ?: settingItem.key?.let {
                     SpUtils.putString(it, value.toString())
-                    saveToSp(it,value)
+                    saveToSp(it, value)
                 }
 
                 settingItem.onSavedValue?.invoke(value, context)
@@ -223,27 +228,35 @@ class SettingUtils(
     private fun renderInput(settingItem: SettingItem): SettingItemInputBinding {
         val binding = SettingItemInputBinding.inflate(inflater, container, false)
 
-        settingItem.onGetKeyValue?.invoke()?.apply {
-            binding.input.setText(this.toString())
-        }
-        settingItem.key?.apply {
-            binding.input.setText(
-                SpUtils.getString(
-                    settingItem.key,
-                    (settingItem.default ?: "").toString()
-                )
-            )
-        }
-
-        binding.input.setOnFocusChangeListener { v, hasFocus ->
-            if (!hasFocus) {
-                settingItem.onItemClick?.invoke(binding.input.text.toString(),context) ?: settingItem.key?.let {
-                    SpUtils.putString(
-                        it, binding.input.text.toString())
+        binding.input.post {
+            settingItem.onGetKeyValue?.invoke()?.let {
+                binding.input.setText(it.toString())
+            } ?: run {
+                settingItem.key?.apply {
+                    binding.input.setText(
+                        SpUtils.getString(
+                            settingItem.key,
+                            (settingItem.default ?: "").toString()
+                        )
+                    )
                 }
-                settingItem.onSavedValue?.invoke(binding.input.text.toString(),context)
+            }
+
+            binding.input.setOnFocusChangeListener { v, hasFocus ->
+                if (!hasFocus) {
+                    settingItem.onItemClick?.invoke(binding.input.text.toString(), context)
+                        ?: settingItem.key?.let {
+                            SpUtils.putString(
+                                it, binding.input.text.toString()
+                            )
+                        }
+                    settingItem.onSavedValue?.invoke(binding.input.text.toString(), context)
+                }
             }
         }
+
+
+        binding.inputLayout.setHint(settingItem.title)
 
         return binding
     }
@@ -267,25 +280,22 @@ class SettingUtils(
     }
 
 
-    private fun getFromSp(key: String,default :Any):Any{
-        return when(default){
-            is Boolean -> SpUtils.getBoolean(key,default)
-            is String -> SpUtils.getString(key,default)
-            is Int -> SpUtils.getInt(key,default)
+    private fun getFromSp(key: String, default: Any): Any {
+        return when (default) {
+            is Boolean -> SpUtils.getBoolean(key, default)
+            is String -> SpUtils.getString(key, default)
+            is Int -> SpUtils.getInt(key, default)
             else -> default
         }
     }
 
-    private fun saveToSp(key: String,value :Any){
-        when(value){
-            is Boolean -> SpUtils.putBoolean(key,value)
-            is String -> SpUtils.putString(key,value)
-            is Int -> SpUtils.putInt(key,value)
+    private fun saveToSp(key: String, value: Any) {
+        when (value) {
+            is Boolean -> SpUtils.putBoolean(key, value)
+            is String -> SpUtils.putString(key, value)
+            is Int -> SpUtils.putInt(key, value)
         }
     }
 
-    fun addUI() {
-        TODO("Not yet implemented")
-    }
 
 }
