@@ -13,8 +13,18 @@
   ~   limitations under the License.
   -->
 
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+<com.google.android.material.textfield.TextInputLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+    style="@style/SettingLine"
+
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:hint="@string/app_url">
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+</com.google.android.material.textfield.TextInputLayout>

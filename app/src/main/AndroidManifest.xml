@@ -33,6 +33,7 @@
         <activity
             android:name=".ui.activity.FloatingWindowTriggerActivity"
             android:excludeFromRecents="true"
+
             android:exported="true">
             <intent-filter>
                 <action android:name="net.ankio.auto.ACTION_SHOW_FLOATING_WINDOW" />
@@ -42,6 +43,7 @@
         </activity>
         <activity
             android:name=".ui.activity.MainActivity"
+            android:windowSoftInputMode="adjustResize"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

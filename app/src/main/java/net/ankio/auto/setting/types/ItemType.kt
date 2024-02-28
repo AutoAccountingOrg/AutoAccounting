@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 ankio(ankio@ankio.net)
+ * Copyright (C) 2024 ankio(ankio@ankio.net)
  * Licensed under the Apache License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,8 +13,12 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.exceptions
+package net.ankio.auto.setting.types
 
-import java.lang.Exception
-
-class ImageLoadException (string: String): Exception()
+enum class ItemType {
+    TITLE,
+    SWITCH,
+    TEXT,
+    INPUT,
+    COLOR,
+}
