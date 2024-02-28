@@ -36,6 +36,7 @@ import net.ankio.auto.R
 import net.ankio.auto.databinding.ActivityMainBinding
 import net.ankio.auto.ui.dialog.UpdateDialog
 import net.ankio.auto.utils.AppUtils
+import net.ankio.auto.utils.AutoAccountingServiceUtils
 import net.ankio.auto.utils.BookSyncUtils
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.Github
@@ -148,8 +149,11 @@ class MainActivity : BaseActivity() {
     }
 
     private suspend fun checkAutoService() = withContext(Dispatchers.IO){
+        AppUtils.setService(AppUtils.getApplication())
         runCatching {
-            AppUtils.setService(AppUtils.getApplication())
+            if(!AutoAccountingServiceUtils.isServerStart(this@MainActivity)){
+                throw Exception("自动记账服务未连接")
+            }
         }.onFailure {
             //如果服务没启动，则跳转到服务未启动界面
             Logger.e("自动记账服务未连接",it)
