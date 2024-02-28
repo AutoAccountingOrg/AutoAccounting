@@ -27,14 +27,17 @@ import android.widget.ListPopupWindow
 import net.ankio.auto.R
 
 
-class ListPopupUtils(val context: Context, anchor: View, val list: ArrayList<String>, onClick:(position:Int)->Unit) {
+class ListPopupUtils(val context: Context, anchor: View, val list: HashMap<String,Any>, onClick:(position:Int,key:String,value:Any)->Unit) {
     private val listPopupWindow: ListPopupWindow = ListPopupWindow(context)
-    private val adapter: ArrayAdapter<String> = ArrayAdapter(context, R.layout.list_popup_window_item, list)
+    private var adapter: ArrayAdapter<String>
     init {
+        val keyList = list.keys.toList()
+        adapter =   ArrayAdapter(context, R.layout.list_popup_window_item, keyList)
         listPopupWindow.setAdapter(adapter)
         listPopupWindow.anchorView = anchor
         listPopupWindow.setOnItemClickListener{ _: AdapterView<*>?, _: View?, position: Int, _: Long ->
-            onClick(position)
+            val key = keyList[position]
+            onClick(position,key,list[key]!!)
             listPopupWindow.dismiss()
             hasShowPopupWindow = false
         }

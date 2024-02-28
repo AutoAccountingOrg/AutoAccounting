@@ -228,14 +228,14 @@ class EditFragment : BaseFragment() {
 
 
     private fun showSelectType(flexboxLayout: FlowLayoutManager, view: View, element: FlowElement) {
-        val menuItems = arrayListOf(
-            getString(R.string.type_money),
-            getString(R.string.type_time),
-            getString(R.string.type_shop),
-            getString(R.string.type_item),
-            getString(R.string.type_type)
+        val menuItems : HashMap<String, Any> = hashMapOf(
+            getString(R.string.type_money) to 0,
+            getString(R.string.type_time) to 1,
+            getString(R.string.type_shop) to 2,
+            getString(R.string.type_item) to 3,
+            getString(R.string.type_type) to 4
         )
-        val listPopupUtils = ListPopupUtils(requireContext(), view, menuItems) { pos ->
+        val listPopupUtils = ListPopupUtils(requireContext(), view, menuItems) { pos,key,value ->
             when (pos) {
                 0 -> inputMoneyRange(flexboxLayout, element)
                 1 -> inputTimeRange(flexboxLayout, element)
@@ -249,15 +249,15 @@ class EditFragment : BaseFragment() {
 
 
     private fun inputType(element: FlowElement, view: View) {
-        val menuItems = arrayListOf(
-            getString(R.string.type_for_pay),
-            getString(R.string.type_for_income),
+        val menuItems : HashMap<String, Any> = hashMapOf(
+            getString(R.string.type_for_pay) to 0,
+            getString(R.string.type_for_income) to 1,
         )
         var msg = ""
         var js = ""
 
-        val listPopupUtils = ListPopupUtils(requireContext(), view, menuItems) { pos ->
-            msg = getString(R.string.type_pay, menuItems[pos])
+        val listPopupUtils = ListPopupUtils(requireContext(), view, menuItems) { pos,key,value ->
+            msg = getString(R.string.type_pay, key)
             when (pos) {
                 0 -> js = "type === 0"
                 1 -> js = "type === 1"
