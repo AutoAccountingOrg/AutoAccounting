@@ -25,7 +25,7 @@
         android:id="@+id/icon"
         android:layout_width="@dimen/image_size"
         android:layout_height="@dimen/image_size"
-        android:src="@drawable/ic_error"
+        app:tint="?colorPrimary"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />
@@ -33,6 +33,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/innerConstraintLayout"
         android:layout_width="0dp"
+        android:layout_marginStart="@dimen/one_padding"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toEndOf="@id/icon"
         app:layout_constraintEnd_toEndOf="parent"

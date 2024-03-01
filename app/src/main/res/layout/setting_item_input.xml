@@ -22,6 +22,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     app:helperTextEnabled="true"
+    android:layout_marginTop="@dimen/one_padding"
+    android:layout_marginBottom="@dimen/one_padding"
     android:hint="@string/app_url">
 
     <com.google.android.material.textfield.TextInputEditText
