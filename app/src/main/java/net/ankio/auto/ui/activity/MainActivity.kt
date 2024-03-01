@@ -16,9 +16,12 @@
 package net.ankio.auto.ui.activity
 
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import com.hjq.toast.Toaster
 import androidx.fragment.app.FragmentContainerView
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
@@ -37,6 +40,7 @@ import net.ankio.auto.databinding.ActivityMainBinding
 import net.ankio.auto.ui.dialog.UpdateDialog
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.AutoAccountingServiceUtils
+import net.ankio.auto.utils.BackupUtils
 import net.ankio.auto.utils.BookSyncUtils
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.Github
@@ -46,6 +50,7 @@ import net.ankio.auto.utils.UpdateUtils
 
 
 class MainActivity : BaseActivity() {
+
 
     //视图绑定
     private lateinit var binding: ActivityMainBinding
@@ -65,7 +70,7 @@ class MainActivity : BaseActivity() {
 
             }, {
                 runOnUiThread {
-                    Toast.makeText(this@MainActivity, it, Toast.LENGTH_LONG).show()
+                    Toaster.show(it)
                 }
                 DialogUtil.closeDialog(dialog)
             })
@@ -85,6 +90,7 @@ class MainActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         onLogin()
 
+        onBackup()
 
 
 
@@ -136,6 +142,19 @@ class MainActivity : BaseActivity() {
         }
 
         onViewCreated()
+
+    }
+    lateinit var backupLauncher: ActivityResultLauncher<Uri?>
+
+    lateinit var restoreLauncher: ActivityResultLauncher<Array<String>>
+    private fun onBackup() {
+        BackupUtils.registerBackupLauncher(this).let {
+            backupLauncher = it
+        }
+
+        BackupUtils.registerRestoreLauncher(this).let {
+            restoreLauncher = it
+        }
 
     }
 
