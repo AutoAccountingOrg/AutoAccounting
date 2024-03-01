@@ -11,6 +11,7 @@
 #include <sys/stat.h>
 #include <sys/fcntl.h>
 #include <thread>
+#include <deque>
 
 #define PORT 52045
 #define MAX_CONNECTIONS 32
