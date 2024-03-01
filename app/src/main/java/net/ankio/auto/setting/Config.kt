@@ -32,6 +32,7 @@ import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.BackupUtils
 import net.ankio.auto.utils.LanguageUtils
+import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.SpUtils
 
 object Config {
@@ -191,6 +192,7 @@ object Config {
                                  BackupUtils.requestPermission(activity as MainActivity)
                            }
                             loading.close()
+                           Toaster.show(R.string.backup_error_msg)
                        }
                     }
                 }
@@ -224,6 +226,7 @@ object Config {
             SettingItem(
                 regex = "setting_use_webdav=true",
                 title = R.string.setting_webdav_password,
+                subTitle = R.string.setting_webdav_password_desc,
                 key = "setting_webdav_password",
                 default = "",
                 type = ItemType.INPUT,
@@ -232,20 +235,40 @@ object Config {
             SettingItem(
                 regex = "setting_use_webdav=true",
                 title = R.string.setting_backup_2_webdav,
-              //  subTitle = R.string.setting_backup_2_webdav_desc,
+           //     subTitle = R.string.setting_backup_2_webdav_desc,
                 type = ItemType.TEXT,
                 onItemClick = { _, activity ->
-                    //TODO 备份到webdav
+                    setting2Fragment.lifecycleScope.launch {
+                        runCatching {
+                            val backupUtils = BackupUtils(activity)
+                            backupUtils.putWebdavBackup(activity as MainActivity)
+                        }.onSuccess {
+
+                        }.onFailure {
+                            Logger.e("备份到webdav失败",it)
+                        }
+                    }
+
                 }
             ),
 
             SettingItem(
                 regex = "setting_use_webdav=true",
                 title = R.string.setting_restore_2_webdav,
-              //  subTitle = R.string.setting_restore_2_webdav_desc,
+           //     subTitle = R.string.setting_backup_2_webdav_desc,
                 type = ItemType.TEXT,
                 onItemClick = { _, activity ->
-                    //TODO 从webdav恢复
+                    setting2Fragment.lifecycleScope.launch {
+                        runCatching {
+                            val backupUtils = BackupUtils(activity)
+                            backupUtils.getWebdavBackup(activity as MainActivity)
+                        }.onSuccess {
+
+                        }.onFailure {
+
+                            Logger.e("获取webdav备份失败",it)
+                        }
+                    }
                 }
             ),
 

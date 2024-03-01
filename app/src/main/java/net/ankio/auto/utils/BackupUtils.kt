@@ -37,6 +37,7 @@ import net.ankio.auto.exceptions.RestoreBackupException
 import net.ankio.auto.ui.activity.BaseActivity
 import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.utils.LoadingUtils
+import okhttp3.Credentials
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -50,7 +51,7 @@ class BackupUtils(private val context: Context) {
     private val SUPPORT_VERSION = 200 //支持恢复数据的版本号
 
 
-    private val filename = "auto_backup_${System.currentTimeMillis()}.$suffix"
+    private var filename = "auto_backup_${System.currentTimeMillis()}.$suffix"
 
     private val uri = Uri.parse(SpUtils.getString("backup_uri", ""))
 
@@ -126,11 +127,6 @@ class BackupUtils(private val context: Context) {
     }
 
 
-    init {
-        if (!hasAccessPermission(context)) throw PermissionException("No Storage Permission.")
-    }
-
-
     /**
      * 打包数据文件
      */
@@ -157,9 +153,8 @@ class BackupUtils(private val context: Context) {
 
         ZipOutputStream(outputStream).use { zos ->
             //将json写入压缩包
-            zos.putNextEntry(ZipEntry("info.json"))
+            zos.putNextEntry(ZipEntry("auto.index"))
             zos.write(json.toByteArray())
-
             addToZip(zos, dataDir, "data")
             addToZip(zos, cacheDir, "cache")
             if (externalCacheDir != null) {
@@ -198,7 +193,7 @@ class BackupUtils(private val context: Context) {
             var entry: ZipEntry? = null
             var useful = false
             while (zis.nextEntry.also { entry = it } != null) {
-                if (entry!!.name == "info.json") {
+                if (entry!!.name == "auto.index") {
                     val json = zis.bufferedReader().use {
                         it.readText()
                     }
@@ -284,6 +279,8 @@ class BackupUtils(private val context: Context) {
      * 文件备份到本地
      */
     suspend fun putLocalBackup() = withContext(Dispatchers.IO) {
+        if (!hasAccessPermission(context)) throw PermissionException("No Storage Permission.")
+
         val documentUri = DocumentsContract.buildDocumentUriUsingTree(
             uri,
             DocumentsContract.getTreeDocumentId(uri)
@@ -307,5 +304,130 @@ class BackupUtils(private val context: Context) {
 
     }
 
+
+    suspend fun putWebdavBackup(mainActivity: MainActivity) = withContext(Dispatchers.IO) {
+        filename = "auto_backup.$suffix"
+        val file = File(context.cacheDir, filename)
+        val loadingUtils = LoadingUtils(mainActivity)
+        val outputStream = FileOutputStream(file)
+        withContext(Dispatchers.Main) {
+            loadingUtils.show(R.string.backup_pack)
+        }
+        packData(outputStream)
+        //使用requestUtils上传
+        val requestUtils = RequestsUtils(context)
+        loadingUtils.setText(R.string.backup_webdav)
+
+        val (url, username, password) = getWebdavInfo()
+
+        //判断AutoAccounting目录是否存在
+        requestUtils.mkcol(
+            "${url}/AutoAccounting",
+            headers = hashMapOf(
+                "Authorization" to Credentials.basic(username, password)
+            ),
+            onSuccess = { _, code ->
+                if (code == 201) {
+                    uploadFile(requestUtils, url, username, password, file, loadingUtils)
+                } else {
+                    showWebDavMsg(code)
+                    loadingUtils.close()
+                }
+            },
+            onError = {
+                Logger.e("创建目录失败:$it")
+                showWebDavMsg(100)
+                loadingUtils.close()
+            },
+        )
+
+    }
+
+    private fun uploadFile(requestUtils: RequestsUtils, url: String, username: String, password: String, file: File, loadingUtils: LoadingUtils) {
+        requestUtils.put(
+            "${url}/AutoAccounting/$filename",
+            data = hashMapOf(
+                "raw" to file.path.toString()
+            ),
+            contentType = RequestsUtils.TYPE_RAW,
+            headers = hashMapOf(
+                "Authorization" to Credentials.basic(username, password)
+            ),
+            onSuccess = { byte, code ->
+                showWebDavMsg(code)
+                loadingUtils.close()
+            },
+            onError = {
+                Logger.e("上传失败:$it")
+                showWebDavMsg(100)
+                loadingUtils.close()
+            },
+        )
+    }
+
+
+    private fun getWebdavInfo(): Array<String> {
+        val url = SpUtils.getString("setting_webdav_host", "").trim('/')
+        val username = SpUtils.getString("setting_webdav_username", "")
+        val password = SpUtils.getString("setting_webdav_password", "")
+        return arrayOf(url, username, password)
+    }
+
+    private fun showWebDavMsg(code: Int) {
+        when (code) {
+            100 -> Toaster.show(R.string.net_error_msg)
+            200 -> Toaster.show(R.string.backup_success)
+            201 -> Toaster.show(R.string.backup_success)
+            204 -> Toaster.show(R.string.backup_success)
+            401 -> Toaster.show(R.string.backup_auth)
+            403 -> Toaster.show(R.string.backup_auth)
+            404 -> Toaster.show(R.string.backup_not_found)
+            409 -> Toaster.show(R.string.backup_not_found)
+            else -> Toaster.show(R.string.backup_unknown)
+        }
+    }
+
+    suspend fun getWebdavBackup(mainActivity: MainActivity) = withContext(Dispatchers.IO) {
+        val requestUtils = RequestsUtils(context)
+        val (url, username, password) = getWebdavInfo()
+
+        filename = "auto_backup.$suffix"
+        val file = File(context.cacheDir, filename)
+        val loadingUtils = LoadingUtils(mainActivity)
+        withContext(Dispatchers.Main) {
+            loadingUtils.show(R.string.restore_webdav)
+        }
+        requestUtils.get(
+            "${url}/AutoAccounting/$filename",
+            headers = hashMapOf(
+                "Authorization" to Credentials.basic(username, password)
+            ),
+            onSuccess = { byte, code ->
+                if (code == 200) {
+                    loadingUtils.setText(R.string.restore_loading)
+                    mainActivity.lifecycleScope.launch {
+                        file.writeBytes(byte)
+                        unpackData(file.inputStream(), filename)
+                        withContext(Dispatchers.Main) {
+                            loadingUtils.close()
+                            Toaster.show(R.string.restore_success)
+                            delay(3000)
+                            AppUtils.restart()
+
+                        }
+                    }
+                } else {
+                    showWebDavMsg(code)
+                    loadingUtils.close()
+                }
+            },
+            onError = {
+                Logger.e("下载失败$it")
+                loadingUtils.close()
+                showWebDavMsg(100)
+            },
+        )
+
+    }
 
 }
