@@ -16,16 +16,26 @@
 package net.ankio.auto.setting
 
 import android.content.Context
+import android.net.Uri
+import androidx.lifecycle.lifecycleScope
+import com.hjq.toast.Toaster
 import com.quickersilver.themeengine.ThemeChooserDialogBuilder
 import com.quickersilver.themeengine.ThemeEngine
 import com.quickersilver.themeengine.ThemeMode
+import kotlinx.coroutines.launch
 import net.ankio.auto.R
+import net.ankio.auto.exceptions.PermissionException
 import net.ankio.auto.setting.types.ItemType
+import net.ankio.auto.ui.activity.MainActivity
+import net.ankio.auto.ui.fragment.home.Setting2Fragment
+import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.utils.AppUtils
+import net.ankio.auto.utils.BackupUtils
 import net.ankio.auto.utils.LanguageUtils
+import net.ankio.auto.utils.SpUtils
 
 object Config {
-    fun app(context: Context): ArrayList<SettingItem> {
+    fun app(context: Context,setting2Fragment: Setting2Fragment): ArrayList<SettingItem> {
         return arrayListOf(
             //隐私
             SettingItem(R.string.setting_privacy),
@@ -44,7 +54,7 @@ object Config {
                 onGetKeyValue = {
                     LanguageUtils.getAppLang()
                 },
-                onSavedValue = { value,activity ->
+                onSavedValue = { value, activity ->
                     LanguageUtils.setAppLanguage(value as String)
                     activity.recreate()
                 },
@@ -87,14 +97,14 @@ object Config {
                 type = ItemType.TEXT,
                 default = ThemeMode.AUTO,
                 selectList = hashMapOf(
-                    context.getString(R.string.always_off) to ThemeMode.DARK,
-                    context.getString(R.string.always_on) to ThemeMode.LIGHT,
+                    context.getString(R.string.always_off) to ThemeMode.LIGHT,
+                    context.getString(R.string.always_on) to ThemeMode.DARK,
                     context.getString(R.string.lang_follow_system) to ThemeMode.AUTO
                 ),
                 onGetKeyValue = {
                     ThemeEngine.getInstance(context).themeMode
                 },
-                onSavedValue = { value,activity ->
+                onSavedValue = { value, activity ->
                     ThemeEngine.getInstance(context).themeMode = value as Int
                     activity.recreate()
                 }
@@ -105,7 +115,7 @@ object Config {
                 onGetKeyValue = {
                     ThemeEngine.getInstance(context).isTrueBlack
                 },
-                onSavedValue = { value,activity ->
+                onSavedValue = { value, activity ->
                     ThemeEngine.getInstance(context).isTrueBlack = value as Boolean
                     activity.recreate()
                 }
@@ -117,7 +127,7 @@ object Config {
                 onGetKeyValue = {
                     ThemeEngine.getInstance(context).isDynamicTheme
                 },
-                onSavedValue = { value,activity ->
+                onSavedValue = { value, activity ->
                     ThemeEngine.getInstance(context).isDynamicTheme = value as Boolean
                     activity.recreate()
                 }
@@ -129,16 +139,6 @@ object Config {
             ),
             //备份
             SettingItem(R.string.setting_backup),
-            SettingItem(
-                title = R.string.setting_auto_backup,
-                subTitle = R.string.setting_auto_backup_desc,
-                key = "setting_auto_backup",
-                default = false,
-                type = ItemType.SWITCH,
-                onSavedValue = { value,activity ->
-                    //如果是webdav启用webdav并且webdav不正常，拒绝开启
-                },
-            ),
 
             //备份方式二选一，本地或者Webdav
 
@@ -152,11 +152,47 @@ object Config {
 
             SettingItem(
                 regex = "setting_use_webdav=false",
+                title = R.string.setting_backup_path,
+                type = ItemType.TEXT,
+               onGetKeyValue = {
+                  val uri =  SpUtils.getString("backup_uri","")
+                   if(uri.isNotEmpty()){
+                       runCatching {
+                           Uri.parse(uri).path
+                       }.getOrDefault(context.getString(R.string.setting_backup_path_desc))
+                   }else{
+                       context.getString(R.string.setting_backup_path_desc)
+                   }
+               },
+                onItemClick = { _, activity ->
+                    BackupUtils.requestPermission(activity as MainActivity)
+                 //   activity.recreate()
+                }
+            ),
+
+            SettingItem(
+                regex = "setting_use_webdav=false",
                 title = R.string.setting_backup_2_local,
             //    subTitle = R.string.setting_backup_2_local_desc,
                 type = ItemType.TEXT,
                 onItemClick = { _, activity ->
-                    //TODO 备份到本地
+                    setting2Fragment.lifecycleScope.launch {
+                        val loading  = LoadingUtils(activity)
+                       runCatching {
+                           loading.show(R.string.backup_loading)
+                           val backupUtils = BackupUtils(activity)
+                           backupUtils.putLocalBackup()
+                       }.onSuccess {
+                           Toaster.show(R.string.backup_success)
+                           loading.close()
+                       }.onFailure {
+                           //失败请求权限
+                           if(it is PermissionException){
+                                 BackupUtils.requestPermission(activity as MainActivity)
+                           }
+                            loading.close()
+                       }
+                    }
                 }
             ),
 
@@ -167,7 +203,7 @@ object Config {
               //  subTitle = R.string.setting_restore_2_local_desc,
                 type = ItemType.TEXT,
                 onItemClick = { _, activity ->
-                    //TODO 从本地恢复
+                    (activity as MainActivity).restoreLauncher.launch(arrayOf("*/*"))
                 }
             ),
 
@@ -247,7 +283,7 @@ object Config {
                 subTitle = R.string.debug_msg,
                 key = "setting_debug",
                 type = ItemType.SWITCH,
-                onSavedValue = { value,activity ->
+                onSavedValue = { value, activity ->
                     AppUtils.setDebug(value as Boolean)
                 },
                 default = false,
