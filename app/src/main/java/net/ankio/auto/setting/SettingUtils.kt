@@ -223,7 +223,6 @@ class SettingUtils(
                     )
                 }
             }
-
         }
         binding.input.setOnFocusChangeListener { v, hasFocus ->
             if (!hasFocus) {
@@ -237,6 +236,9 @@ class SettingUtils(
             }
         }
         binding.inputLayout.setHint(settingItem.title)
+        settingItem.subTitle?.let {
+            binding.inputLayout.helperText = context.getString(it)
+        }
         return binding
     }
 

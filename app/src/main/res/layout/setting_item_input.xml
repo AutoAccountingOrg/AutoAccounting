@@ -15,16 +15,21 @@
 
 
 <com.google.android.material.textfield.TextInputLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
 
     style="@style/SettingLine"
     android:id="@+id/input_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    app:helperTextEnabled="true"
     android:hint="@string/app_url">
 
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/input"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+
+
+        />
 
 </com.google.android.material.textfield.TextInputLayout>
