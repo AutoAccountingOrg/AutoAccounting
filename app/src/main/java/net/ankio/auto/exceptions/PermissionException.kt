@@ -13,25 +13,8 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.ui.activity
+package net.ankio.auto.exceptions
 
-import android.os.Bundle
-import net.ankio.auto.databinding.ActivityRestartBinding
+class PermissionException(string: String) : Exception(string) {
 
-class RestartActivity: BaseActivity() {
-    private lateinit var binding: ActivityRestartBinding
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityRestartBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-       binding.btnTutorial.setOnClickListener {
-
-       }
-
-        binding.btnDownloadMagisk.setOnClickListener {
-
-        }
-
-        onViewCreated()
-    }
 }

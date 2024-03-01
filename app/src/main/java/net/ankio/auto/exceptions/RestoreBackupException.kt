@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 ankio(ankio@ankio.net)
+ * Copyright (C) 2024 ankio(ankio@ankio.net)
  * Licensed under the Apache License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,13 +13,6 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.app
+package net.ankio.auto.exceptions
 
-import android.content.Context
-import net.ankio.auto.database.table.BillInfo
-
-object BillInfoPopup {
-    fun show(context: Context, billInfo: BillInfo){
-
-    }
-}
+class RestoreBackupException(string: String) : Exception(string)
