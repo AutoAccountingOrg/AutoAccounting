@@ -19,8 +19,14 @@ enum class DataType(val type: Int)  {
     App(0),//app
     Sms(1),//短信
     Notice(2),//通知
-    Helper(3)//无障碍
+    Helper(3);//无障碍
+    companion object{
+        fun fromType(type: Int): DataType {
+            return entries.firstOrNull { it.type == type }?:App
+        }
+
+    }
 }
 fun Int.toDataType(): DataType {
-    return DataType.values().firstOrNull { it.type == this }?:DataType.App
+    return DataType.entries.firstOrNull { it.type == this }?:DataType.App
 }
