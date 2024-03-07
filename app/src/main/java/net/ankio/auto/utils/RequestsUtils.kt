@@ -57,6 +57,7 @@ class RequestsUtils(context: Context) {
         const val METHOD_POST = "POST"
         const val METHOD_PUT = "PUT"
         const val METHOD_DELETE = "DELETE"
+        const val METHOD_MKCOL = "MKCOL"
          var client: OkHttpClient? = null
         val mainHandler = Handler(Looper.getMainLooper())
 
@@ -123,6 +124,10 @@ class RequestsUtils(context: Context) {
     private fun convertByteArray(byteArray: ByteArray):String{
         var message = ""
         runCatching {
+            //判断byteArray大小，太大抛异常
+            if(byteArray.size > 1024 * 100){
+                throw Exception("byteArray too large")
+            }
             message = String(byteArray, Charsets.UTF_8)
         }.onSuccess {
             if ((message.startsWith("{") && message.endsWith("}"))
@@ -137,12 +142,8 @@ class RequestsUtils(context: Context) {
                 }
             }
         }.onFailure {
-            val hexResult = byteArray.joinToString(separator = " ") {
-                String.format("%02X", it)
-            }
-            val asciiResult = byteArray.filter { it.toInt() in 32..126 }.map { it.toInt().toChar() }.joinToString("")
 
-            message = "[ Cannot be displayed byteArray ] Size: ${byteArray.size} \n Hex: \n $hexResult\nASCII:\n $asciiResult"
+            message = "[ Cannot be displayed byteArray ] Size: ${byteArray.size} "
 
         }
 
@@ -325,6 +326,19 @@ class RequestsUtils(context: Context) {
 
     private fun generateCacheKey(url: String, method: String, data: Map<String, String>?): String {
         return AppUtils.md5(url + method + (data?.toString() ?: ""))
+    }
+
+    fun mkcol(
+        url: String,
+        query: HashMap<String, String>? = null,
+        data: HashMap<String, String>? = null,
+        contentType: Int = TYPE_FORM,
+        headers: HashMap<String, String> = HashMap(),
+        onSuccess: (ByteArray, Int) -> Unit,
+        onError: (String) -> Unit,
+        cacheTime: Int = 0
+    ) {
+        sendRequest(url, query, data, METHOD_MKCOL, contentType, headers, onSuccess, onError, cacheTime)
     }
 
 
