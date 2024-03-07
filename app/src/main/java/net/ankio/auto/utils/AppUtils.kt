@@ -26,6 +26,8 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.Typeface
 import android.os.Build
 import android.os.Process
 import androidx.annotation.AttrRes
@@ -37,7 +39,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import net.ankio.auto.BuildConfig
-import net.ankio.auto.exceptions.AutoServiceException
 import net.ankio.auto.ui.activity.MainActivity
 import java.math.BigInteger
 import java.security.MessageDigest
@@ -64,11 +65,9 @@ object  AppUtils {
         this.application = application
     }
 
-    suspend fun setService(context: Context){
+    fun setService(context: Context): AutoAccountingServiceUtils {
         this.service = AutoAccountingServiceUtils(context)
-        if(!AutoAccountingServiceUtils.isServerStart(context)){
-            throw AutoServiceException("Server error")
-        }
+        return this.service
     }
 
     fun getService():AutoAccountingServiceUtils{
@@ -193,5 +192,24 @@ object  AppUtils {
     }
 
    var logger = false
+
+    /**
+     * 获取屏幕宽度
+     */
+    fun getScreenWidth(): Int {
+        return  Resources.getSystem().displayMetrics.widthPixels
+    }
+
+    fun dp2px(dp: Float): Int {
+        val scale = Resources.getSystem().displayMetrics.density
+        return (dp * scale + 0.5f).toInt()
+    }
+
+    fun measureTextWidth(text: String, textSize: Float, typeface: Typeface): Int {
+        val paint = Paint()
+        paint.textSize = textSize
+        paint.typeface = typeface
+        return paint.measureText(text).toInt()
+    }
 
 }
