@@ -14,10 +14,18 @@
  */
 package net.ankio.auto.database.dao
 
+import android.content.Context
+import android.graphics.drawable.Drawable
+import androidx.core.content.res.ResourcesCompat
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import net.ankio.auto.R
+import net.ankio.auto.database.Db
 import net.ankio.auto.database.table.Assets
+import net.ankio.auto.utils.ImageUtils
 
 @Dao
 interface AssetsDao {
@@ -29,12 +37,34 @@ interface AssetsDao {
     @Insert
     suspend fun add(account: Assets)
 
+    @Insert
+    suspend fun addList(list: List<Assets>)
 
     @Query("UPDATE  Assets set sort=:sort WHERE id=:id")
     suspend fun setSort(id: Int, sort: Int)
     @Query("SELECT * FROM  Assets WHERE name=:account limit 1")
     suspend fun get(account: String):Assets?
 
-    @Query("SELECT * FROM Assets  order by id,sort desc")
+    @Query("SELECT * FROM Assets  order by id,sort")
     suspend fun loadAll():List<Assets>
+    @Query("DELETE FROM Assets")
+   suspend fun deleteAll()
+
+    suspend fun getAccountDrawable(account:String, context: Context, onGet:(drawable:Drawable)->Unit) = withContext(Dispatchers.IO) {
+        val accountInfo = Db.get().AssetsDao().get(account)
+        getDrawable(accountInfo?.icon?:"",context,onGet)
+    }
+
+    suspend fun getDrawable(url:String, context: Context, onGet:(drawable:Drawable)->Unit) = withContext(Dispatchers.IO) {
+        ImageUtils.get(context, url,{
+            onGet(it)
+        },{
+            ResourcesCompat.getDrawable(context.resources, R.mipmap.ic_launcher_round,context.theme)
+                ?.let { it1 ->
+                    onGet(
+                        it1
+                    )
+                }
+        })
+    }
 }

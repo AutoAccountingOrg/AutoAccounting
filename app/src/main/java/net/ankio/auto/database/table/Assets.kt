@@ -16,6 +16,7 @@ package net.ankio.auto.database.table
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import net.ankio.common.model.AssetsModel
 
 @Entity
 class Assets {
@@ -28,4 +29,14 @@ class Assets {
      */
     var icon: String = "" //图标
     var sort = 0
+
+    companion object {
+        fun fromModel(it: AssetsModel): Assets {
+            val assets = Assets()
+            assets.name = it.name
+            assets.icon = it.icon
+            assets.sort = it.sort
+            return assets
+        }
+    }
 }

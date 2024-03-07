@@ -37,5 +37,11 @@ class Regular:Serializable {
     var js = ""
     var text = ""
 
-    lateinit var element:FlowElementList
+    var element: FlowElementList? = null
+        get() {
+            if (field == null) {
+                field = FlowElementList(mutableListOf())
+            }
+            return field
+        }
 }

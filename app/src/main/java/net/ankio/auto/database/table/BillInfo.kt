@@ -17,14 +17,13 @@ package net.ankio.auto.database.table
 import android.content.Context
 import android.graphics.drawable.Drawable
 import android.widget.ImageView
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.res.ResourcesCompat
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.Gson
 import net.ankio.auto.R
-import net.ankio.auto.constant.BillType
-import net.ankio.auto.constant.Currency
+import net.ankio.common.constant.BillType
+import net.ankio.common.constant.Currency
 import net.ankio.auto.constant.DataType
 import net.ankio.auto.database.Db
 import net.ankio.auto.utils.ImageUtils
@@ -39,12 +38,12 @@ class BillInfo {
     /**
      * 账单类型 只有三种
      */
-    var type: BillType = BillType.Expend
+    var type: net.ankio.common.constant.BillType = net.ankio.common.constant.BillType.Expend
 
     /**
      * 币种类型
      */
-    var currency: Currency = Currency.CNY
+    var currency: net.ankio.common.constant.Currency = net.ankio.common.constant.Currency.CNY
 
     /**
      * 金额 大于0
@@ -161,7 +160,7 @@ class BillInfo {
             return Gson().fromJson(json,BillInfo::class.java)
         }
         suspend fun getCategoryDrawable(cateName: String,context: Context,onGet:(drawable:Drawable)->Unit) {
-            val categoryInfo = Db.get().CategoryDao().get(cateName)
+            val categoryInfo = Db.get().CategoryDao().get(cateName,0)
             ImageUtils.get(context, categoryInfo?.icon ?:"",{
                 onGet(it)
             },{
@@ -185,7 +184,7 @@ class BillInfo {
         }
 
         suspend fun getAccountDrawable(account:String,context: Context,onGet:(drawable:Drawable)->Unit) {
-            val accountInfo = Db.get().AccountDao().get(account)
+            val accountInfo = Db.get().AssetsDao().get(account)
             ImageUtils.get(context, accountInfo?.icon ?:"",{
                 onGet(it)
             },{

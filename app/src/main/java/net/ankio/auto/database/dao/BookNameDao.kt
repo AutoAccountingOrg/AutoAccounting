@@ -16,11 +16,8 @@ package net.ankio.auto.database.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import net.ankio.auto.database.table.AppData
 import net.ankio.auto.database.table.BookName
-import net.ankio.common.model.BookModel
 
 @Dao
 interface BookNameDao {

@@ -18,20 +18,17 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
-import androidx.room.Transaction
 import androidx.room.Update
-import net.ankio.auto.constant.BillType
-import net.ankio.auto.database.table.AppData
 import net.ankio.auto.database.table.BillInfo
 
 @Dao
 interface BillInfoDao {
 
     @Query("SELECT DISTINCT groupId FROM BillInfo WHERE money = :money AND type = :type AND timeStamp >= :timestamp  and groupId != 0")
-    suspend fun findDistinctNonZeroGroupIds(money: Float, type: BillType, timestamp: Long): List<Int>
+    suspend fun findDistinctNonZeroGroupIds(money: Float, type: net.ankio.common.constant.BillType, timestamp: Long): List<Int>
 
     @Query("SELECT * FROM BillInfo WHERE money = :money AND type = :type AND timeStamp >= :timestamp and groupId=:groupId")
-    suspend fun findDuplicateBills(money: Float, type: BillType, timestamp: Long,groupId:Int): List<BillInfo>
+    suspend fun findDuplicateBills(money: Float, type: net.ankio.common.constant.BillType, timestamp: Long, groupId:Int): List<BillInfo>
 
     @Query("SELECT * FROM BillInfo WHERE groupId = :groupId")
     suspend fun findParentBill(groupId: Int): BillInfo?
