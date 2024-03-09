@@ -15,5 +15,5 @@
   -->
 
 <resources>
-    <string name="releaseInfo">Released For Lsposed</string>
+    <string name="releaseInfo" translatable="false">Released For Lsposed</string>
 </resources>
