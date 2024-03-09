@@ -21,10 +21,7 @@ import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import net.ankio.auto.BuildConfig
-import net.ankio.auto.exceptions.AutoServiceException
 import net.ankio.common.config.AccountingConfig
 import java.io.File
 import kotlin.coroutines.resume
@@ -48,26 +45,26 @@ class AutoAccountingServiceUtils(mContext: Context) : CoroutineScope by MainScop
         // 将isServerStart转换为挂起函数
         suspend fun isServerStart(mContext: Context): Boolean = withContext(Dispatchers.IO) {
             suspendCoroutine { continuation ->
-                RequestsUtils(mContext).get("http://127.0.0.1:$PORT/",
-                    headers = hashMapOf("Authorization" to getToken()),
+                RequestsUtils(mContext).get("$HOST:$PORT/",
+                    headers = hashMapOf("Authorization" to getToken(mContext)),
                     onSuccess = { _, code ->
                         continuation.resume(code == 200)
                     },
                     onError = {
-                        Logger.i("http://127.0.0.1:$PORT/ 请求错误$it")
+                        Logger.i("$HOST:$PORT/ 请求错误$it")
                         continuation.resume(false)
                     })
             }
         }
 
-        fun getToken(): String {
-           return get("token")
+        fun getToken(mContext: Context): String {
+           return ActiveUtils.getToken(context = mContext)
         }
         /**
          * 获取文件内容
          */
         fun get(name: String): String {
-            val path =  Environment.getExternalStorageDirectory().path+"/Android/data/${BuildConfig.APPLICATION_ID}/cache/shell/${name}.txt"
+            val path =  Environment.getExternalStorageDirectory().path+"/Android/data/${ActiveUtils.APPLICATION_ID}/cache/shell/${name}.txt"
             val file = File(path)
             if(file.exists()){
                 return file.readText().trim()
@@ -76,7 +73,7 @@ class AutoAccountingServiceUtils(mContext: Context) : CoroutineScope by MainScop
         }
 
         fun delete(name: String) {
-            val path =  Environment.getExternalStorageDirectory().path+"/Android/data/${BuildConfig.APPLICATION_ID}/cache/shell/${name}.txt"
+            val path =  Environment.getExternalStorageDirectory().path+"/Android/data/${ActiveUtils.APPLICATION_ID}/cache/shell/${name}.txt"
             val file = File(path)
             if(file.exists()){
                 file.delete()
@@ -95,7 +92,7 @@ class AutoAccountingServiceUtils(mContext: Context) : CoroutineScope by MainScop
     }
 
     init {
-        headers["Authorization"] = getToken()
+        headers["Authorization"] = getToken(mContext)
     }
 
 
@@ -104,8 +101,7 @@ class AutoAccountingServiceUtils(mContext: Context) : CoroutineScope by MainScop
      * 请求错误
      */
     private fun onError(string: String){
-     //   Logger.i("自动记账服务错误：${string}")
-
+       Logger.i("自动记账服务错误：${string}")
     }
 
     /**
