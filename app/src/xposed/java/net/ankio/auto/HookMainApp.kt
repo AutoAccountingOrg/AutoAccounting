@@ -7,7 +7,6 @@ import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 import net.ankio.auto.api.Hooker
 import net.ankio.auto.hooks.alipay.AlipayHooker
-import net.ankio.auto.hooks.android.AndroidHooker
 import net.ankio.auto.hooks.auto.AutoHooker
 
 
@@ -15,9 +14,7 @@ class HookMainApp : IXposedHookLoadPackage,IXposedHookZygoteInit {
 
     companion object {
         val name = "自动记账"
-        val pkg = BuildConfig.APPLICATION_ID
         val versionName = BuildConfig.VERSION_NAME.substringBefore(" - Xposed")
-        val versionCode = BuildConfig.VERSION_CODE
         fun getTag(name:String? = null,clazz:String?=null): String {
             var tag: String = if(name===null){
                 "[AutoAccounting]"
@@ -35,12 +32,10 @@ class HookMainApp : IXposedHookLoadPackage,IXposedHookZygoteInit {
     }
 
     private var mHookList: MutableList<Hooker> = arrayListOf(
-        AndroidHooker(),//安卓系统hook
         AutoHooker(),//自动记账hook
         AlipayHooker() //支付宝hook
     )
 
-    private val androidSystemHooker = AndroidHooker()
 
     @Throws(Throwable::class)
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
