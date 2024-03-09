@@ -34,7 +34,7 @@ object LanguageUtils {
         return updateResourcesLocale(context, locale)
     }
 
-    private fun getAppLang(): String {
+    fun getAppLang(): String {
         return SpUtils.getString("setting_language","SYSTEM")
     }
 
@@ -48,6 +48,18 @@ object LanguageUtils {
         SpUtils.putString("setting_language",language)
     }
 
+    fun getLangList(context: Context):HashMap<String,Any>{
+        val hashMap = HashMap<String,Any>()
+        getLangList().forEach {
+            if (it == "SYSTEM") {
+                hashMap[context.getString(R.string.lang_follow_system)] = it
+            }else{
+                val locale = Locale.forLanguageTag(it)
+                hashMap[locale.getDisplayName(locale)] =  it
+            }
+        }
+        return hashMap
+    }
     fun getLangListName(context: Context): ArrayList<String> {
         val languages: ArrayList<String> = ArrayList()
         getLangList().forEach {
