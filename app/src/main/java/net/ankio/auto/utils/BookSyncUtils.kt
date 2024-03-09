@@ -16,7 +16,7 @@
 package net.ankio.auto.utils
 
 import android.content.Context
-import android.widget.Toast
+import com.hjq.toast.Toaster
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
@@ -42,7 +42,7 @@ object BookSyncUtils {
 
        }.onSuccess {
            /*withContext(Dispatchers.Main) {
-               Toast.makeText(context, R.string.sync_success, Toast.LENGTH_SHORT).show()
+               Toaster.show(R.string.sync_success)
            }*/
        }.onFailure {
            Logger.e("sync error",it)
