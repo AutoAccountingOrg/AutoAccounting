@@ -39,7 +39,7 @@ class OrderFragment : BaseFragment() {
     private var param2: String? = null
     override val menuList: ArrayList<MenuItem>
         get() = arrayListOf(
-            MenuItem(R.string.item_add, R.drawable.item_add){
+            MenuItem(R.string.item_add, R.drawable.menu_item_add){
 
             }
         )

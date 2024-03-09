@@ -21,7 +21,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.Toast
+import com.hjq.toast.Toaster
 import androidx.core.view.size
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -432,7 +432,7 @@ class EditFragment : BaseFragment() {
                 }
                 // 在此处处理用户输入的金额范围
                 if (js === "") {
-                    Toast.makeText(requireContext(), R.string.money_error, Toast.LENGTH_LONG).show()
+                    Toaster.show(R.string.money_error)
                     return@setPositiveButton
                 }
                 element.data["js"] = js
@@ -491,16 +491,15 @@ class EditFragment : BaseFragment() {
         regular.use = true
 
         if (regular.js.contains("if()")) {
-            Toast.makeText(context, getString(R.string.useless_condition), Toast.LENGTH_LONG)
-                .show();
+            Toaster.show(R.string.useless_condition)
             return
         }
         if (regular.js.contains("book:''")) {
-            Toast.makeText(context, getString(R.string.useless_book), Toast.LENGTH_LONG).show();
+            Toaster.show(getString(R.string.useless_book));
             return
         }
         if (regular.js.contains("category:''")) {
-            Toast.makeText(context, getString(R.string.useless_category), Toast.LENGTH_LONG).show();
+            Toaster.show(getString(R.string.useless_category));
             return
         }
         lifecycleScope.launch {

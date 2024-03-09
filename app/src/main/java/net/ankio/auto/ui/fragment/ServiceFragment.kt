@@ -20,7 +20,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import com.hjq.toast.Toaster
 import androidx.activity.OnBackPressedCallback
 import androidx.core.app.ActivityCompat.finishAffinity
 import androidx.lifecycle.lifecycleScope
@@ -89,11 +89,7 @@ class ServiceFragment:BaseFragment() {
         binding.copyCommand.setOnClickListener {
             //复制命令
             AppUtils.copyToClipboard("adb shell $shell")
-            Toast.makeText(
-                requireActivity(),
-                getString(R.string.copy_command_success),
-                Toast.LENGTH_SHORT
-            ).show()
+            Toaster.show(getString(R.string.copy_command_success))
         }
         requireActivity().onBackPressedDispatcher.addCallback(requireActivity(), object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {

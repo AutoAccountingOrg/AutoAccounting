@@ -17,6 +17,7 @@ package net.ankio.auto
 
 import android.app.Application
 import android.content.Context
+import com.hjq.toast.Toaster
 import net.ankio.auto.database.Db
 import net.ankio.auto.utils.AppTimeMonitor
 import net.ankio.auto.utils.AppUtils
@@ -38,7 +39,6 @@ class App : Application(){
         //初始化工具类
         AppUtils.setApplication(this)
 
-
         //监控
 
         AppTimeMonitor.startMonitoring("App初始化")
@@ -50,7 +50,8 @@ class App : Application(){
         Logger.init(this)
         //设置全局异常
         ExceptionHandler.init(this)
-
+        // 初始化 Toast 框架
+        Toaster.init(this);
 
         AppTimeMonitor.stopMonitoring("App初始化")
     }

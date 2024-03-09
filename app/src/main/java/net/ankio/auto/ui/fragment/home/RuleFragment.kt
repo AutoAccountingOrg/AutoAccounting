@@ -44,7 +44,7 @@ class RuleFragment : BaseFragment() {
     private val dataItems = mutableListOf<Regular>()
     override val menuList: ArrayList<MenuItem>
         get() = arrayListOf(
-            MenuItem(R.string.item_add, R.drawable.item_add) {
+            MenuItem(R.string.item_add, R.drawable.menu_item_add) {
                 it.navigate(R.id.editFragment)
             }
         )

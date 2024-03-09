@@ -31,7 +31,7 @@ class LogFragment : BaseFragment() {
     private lateinit var binding: FragmentLogBinding
 
     override val menuList: ArrayList<MenuItem> = arrayListOf(
-        MenuItem(R.string.item_share, R.drawable.ic_share) {
+        MenuItem(R.string.item_share, R.drawable.menu_icon_share) {
 
             runCatching {
                 val cacheDir = AppUtils.getApplication().externalCacheDir
@@ -60,7 +60,7 @@ class LogFragment : BaseFragment() {
                 Logger.e("日志分享失败", it)
             }
         },
-        MenuItem(R.string.item_clear, R.drawable.ic_clear) {
+        MenuItem(R.string.item_clear, R.drawable.menu_icon_clear) {
             runCatching {
                 val cacheDir = AppUtils.getApplication().externalCacheDir
                 val file = File(cacheDir, "/shell/log.txt")

@@ -52,10 +52,10 @@ class HomeFragment : BaseFragment() {
 
     private lateinit var binding: FragmentHomeBinding
     override val menuList: ArrayList<MenuItem> = arrayListOf(
-        MenuItem(R.string.title_setting, R.drawable.item_setting) {
+        MenuItem(R.string.title_setting, R.drawable.menu_item_setting) {
             it.navigate(R.id.setting2Fragment)
         },
-        MenuItem(R.string.title_more, R.drawable.item_more) {
+        MenuItem(R.string.title_more, R.drawable.menu_item_more) {
             val binding = AboutDialogBinding.inflate(LayoutInflater.from(requireContext()), null, false)
             binding.sourceCode.movementMethod = LinkMovementMethod.getInstance()
             binding.sourceCode.text = getString(R.string.about_view_source_code,"<b><a href=\"https://github.com/AutoAccountingOrg/AutoAccounting\">GitHub</a></b>").toHtml()
@@ -129,7 +129,7 @@ class HomeFragment : BaseFragment() {
             setActive(
                 SurfaceColors.SURFACE_3.getColor(requireContext()),
                 colorPrimary,
-                R.drawable.ic_error
+                R.drawable.home_active_error
             )
         } else {
             setActive(
@@ -137,7 +137,7 @@ class HomeFragment : BaseFragment() {
                 AppUtils.getThemeAttrColor(
                     com.google.android.material.R.attr.colorOnPrimary
                 ),
-                R.drawable.ic_success
+                R.drawable.home_active_success
             )
         }
     }

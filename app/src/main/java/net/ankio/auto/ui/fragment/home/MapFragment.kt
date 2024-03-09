@@ -43,7 +43,7 @@ class MapFragment : BaseFragment() {
     private  var  dataItems = mutableListOf<AssetsMap>()
     override val menuList: ArrayList<MenuItem>
         get() = arrayListOf(
-            MenuItem(R.string.item_add, R.drawable.item_add){
+            MenuItem(R.string.item_add, R.drawable.menu_item_add){
                MapDialog(requireContext(), onClose = {
                    dataItems.add(it)
                    adapter.notifyItemInserted(dataItems.size-1)

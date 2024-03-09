@@ -16,7 +16,6 @@
 package net.ankio.auto.ui.activity
 
 
-import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
@@ -78,23 +77,32 @@ class MainActivity : BaseActivity() {
     }
 
 
-    private val barList = arrayListOf(
-        arrayListOf(R.id.homeFragment, R.drawable.select_home, R.drawable.unselect_home),
-        arrayListOf(R.id.dataFragment, R.drawable.select_data, R.drawable.unselect_data),
-        arrayListOf(R.id.settingFragment, R.drawable.select_setting, R.drawable.unselect_setting),
-        arrayListOf(R.id.logFragment, R.drawable.select_log, R.drawable.unselect_log),
-        arrayListOf(R.id.orderFragment, R.drawable.select_order, R.drawable.unselect_order),
+    val barList = arrayListOf(
+        arrayListOf(R.id.homeFragment, R.drawable.bottom_select_home, R.drawable.bottom_unselect_home),
+        arrayListOf(R.id.dataFragment, R.drawable.bottom_select_data, R.drawable.bottom_unselect_data),
+        arrayListOf(R.id.settingFragment, R.drawable.bottom_select_setting, R.drawable.bottom_unselect_setting),
+        arrayListOf(R.id.logFragment, R.drawable.bottom_select_log, R.drawable.bottom_unselect_log),
+        arrayListOf(R.id.orderFragment, R.drawable.bottom_select_order, R.drawable.bottom_unselect_order),
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        //Github登录
         onLogin()
-
+        //备份注册
         onBackup()
+        //初始化底部导航栏
+        onBottomViewInit()
+
+        //检查自动记账服务
+        lifecycleScope.launch {
+            checkAutoService()
+        }
+
+    }
 
 
-
-
+    fun onBottomViewInit(){
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -141,9 +149,8 @@ class MainActivity : BaseActivity() {
 
         }
 
-        onViewCreated()
-
     }
+
     lateinit var backupLauncher: ActivityResultLauncher<Uri?>
 
     lateinit var restoreLauncher: ActivityResultLauncher<Array<String>>
@@ -159,13 +166,7 @@ class MainActivity : BaseActivity() {
     }
 
 
-    override fun onViewCreated() {
-      super.onViewCreated()
-        //除了执行父页面的办法之外还要执行检查更新
-        lifecycleScope.launch {
-            checkAutoService()
-        }
-    }
+
 
     private suspend fun checkAutoService() = withContext(Dispatchers.IO){
         AppUtils.setService(AppUtils.getApplication())

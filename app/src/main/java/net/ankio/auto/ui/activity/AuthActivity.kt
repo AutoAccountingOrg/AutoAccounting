@@ -62,7 +62,7 @@ class AuthActivity :  BaseActivity() {
 
         binding.sure.setOnClickListener {
             val resultIntent = Intent()
-            resultIntent.putExtra("token", AutoAccountingServiceUtils.getToken())
+            resultIntent.putExtra("token", AutoAccountingServiceUtils.getToken(this@AuthActivity))
             SpUtils.putString("bookApp",packageName)
             setResult(RESULT_OK, resultIntent)
             finish()

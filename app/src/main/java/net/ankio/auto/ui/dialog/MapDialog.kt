@@ -18,7 +18,7 @@ package net.ankio.auto.ui.dialog
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.Toast
+import com.hjq.toast.Toaster
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -66,7 +66,7 @@ class MapDialog(private val context: Context,
             assetsMap.regex = binding.regex.isChecked
 
             if(assetsMap.name.isEmpty()||assetsMap.mapName == context.getString(R.string.map_no_target)){
-                Toast.makeText(context,context.getString(R.string.map_empty),Toast.LENGTH_SHORT).show()
+                Toaster.show(context.getString(R.string.map_empty))
                 return@setOnClickListener
             }
 

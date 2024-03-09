@@ -20,7 +20,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import com.hjq.toast.Toaster
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -30,7 +30,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
-import net.ankio.auto.app.BillInfoPopup
 import net.ankio.auto.app.js.Engine
 import net.ankio.auto.app.model.AppData
 import net.ankio.auto.constant.DataType
@@ -40,7 +39,6 @@ import net.ankio.auto.ui.adapter.DataAdapter
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.Github
-import net.ankio.auto.utils.SpUtils
 import java.io.File
 
 
@@ -87,22 +85,19 @@ class DataFragment : BaseFragment() {
                     if (result == null) {
                         //弹出悬浮窗
                         withContext(Dispatchers.Main) {
-                            Toast.makeText(context, getString(R.string.no_match), Toast.LENGTH_LONG)
-                                .show()
+
+                            Toaster.show(R.string.no_match)
                         }
                     } else {
-                        withContext(Dispatchers.Main) {
-                            context?.let { BillInfoPopup.show(it, result) }
-                        }
+                       //TODO 弹出记账面板
                     }
                 }
             },
 
-
             onClickUploadData = { item: AppData, position: Int ->
 
                 if (item.issue != 0) {
-                    Toast.makeText(context, getString(R.string.repeater_issue), Toast.LENGTH_LONG).show()
+                    Toaster.show(getString(R.string.repeater_issue))
                     return@DataAdapter
                 }
 
@@ -130,11 +125,7 @@ class DataFragment : BaseFragment() {
                                 item.issue = issue.toInt()
                                 requireActivity().runOnUiThread {
                                     adapter.notifyItemChanged(position)
-                                    Toast.makeText(
-                                        it,
-                                        getString(R.string.upload_success),
-                                        Toast.LENGTH_LONG
-                                    ).show()
+                                    Toaster.show(getString(R.string.upload_success))
                                 }
                                 DialogUtil.closeDialog(dialog2)
 
@@ -142,7 +133,7 @@ class DataFragment : BaseFragment() {
 
                             }, { msg ->
                                 requireActivity().runOnUiThread {
-                                    Toast.makeText(it, msg, Toast.LENGTH_LONG).show()
+                                    Toaster.show(msg)
                                     CustomTabsHelper.launchUrl(
                                         it,
                                         Uri.parse(Github.getLoginUrl())

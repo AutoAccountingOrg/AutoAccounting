@@ -18,15 +18,15 @@ package net.ankio.auto.ui.activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
+import com.hjq.toast.Toaster
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
-import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.app.BillUtils
 import net.ankio.auto.database.table.BillInfo
 import net.ankio.auto.service.FloatingWindowService
+import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.FloatPermissionUtils
 import net.ankio.auto.utils.SpUtils
 
@@ -47,7 +47,7 @@ class FloatingWindowTriggerActivity : AppCompatActivity() {
                 BillUtils.groupBillInfo(billInfo)
                 //免打扰不显示提示
                 if(!SpUtils.getBoolean("float_no_disturb")){
-                    Toast.makeText(App.context,getString(R.string.auto_success,billInfo.money.toString()),Toast.LENGTH_LONG).show()
+                    Toaster.show(getString(R.string.auto_success,billInfo.money.toString()))
                 }
                 finish()
             }
@@ -57,7 +57,7 @@ class FloatingWindowTriggerActivity : AppCompatActivity() {
         //以下需要悬浮窗
 
         if(!FloatPermissionUtils.checkPermission(this)){
-            Toast.makeText(this, R.string.floatTip,Toast.LENGTH_LONG).show()
+            Toaster.show(R.string.floatTip)
             FloatPermissionUtils.requestPermission(this)
             finish()
             return

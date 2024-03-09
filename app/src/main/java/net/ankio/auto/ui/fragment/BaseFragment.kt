@@ -22,6 +22,7 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.zackratos.ultimatebarx.ultimatebarx.addNavigationBarBottomPadding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -56,7 +57,6 @@ abstract class BaseFragment : Fragment() {
     override fun onResume() {
         if (this.javaClass.simpleName != "ServiceFragment") {
             try {
-                AppUtils.getService()
                 lifecycleScope.launch {
                     if (!AutoAccountingServiceUtils.isServerStart(requireContext())) {
                         withContext(Dispatchers.Main) {
@@ -79,7 +79,9 @@ abstract class BaseFragment : Fragment() {
         menuList.forEach {
             addMenuItem(it)
         }
-    }
+
+
+     }
 
     private fun addMenuItem(menuItemObject: MenuItem) {
         val menu = activityBinding.toolbar.menu
@@ -87,11 +89,12 @@ abstract class BaseFragment : Fragment() {
         menuItem.setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_ALWAYS)
         val icon = AppCompatResources.getDrawable(requireActivity(), menuItemObject.drawable)
         if (icon != null) {
+            menuItem.setIcon(icon)
             DrawableCompat.setTint(
                 icon,
-                AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorOnBackground)
+                AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorOnPrimary)
             )
-            menuItem.setIcon(icon)
+
         }
         menuItem.setOnMenuItemClickListener {
             menuItemObject.callback.invoke((activity as MainActivity).getNavController())
