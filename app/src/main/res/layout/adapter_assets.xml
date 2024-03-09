@@ -13,7 +13,7 @@
     android:layout_marginStart="@dimen/one_padding"
     android:layout_marginEnd="@dimen/one_padding"
     android:drawablePadding="@dimen/one_padding"
-    app:iconSrc="@drawable/icon_android_width"
+    app:iconSrc="@drawable/home_app_book"
     android:textStyle="bold"
     app:text="测试账户"
     />

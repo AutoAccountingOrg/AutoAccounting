@@ -48,7 +48,7 @@
                 android:layout_alignParentStart="true"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="@dimen/border_side"
-                android:src="@drawable/ic_error"
+                android:src="@drawable/home_active_error"
                 app:tint="?colorOnErrorContainer" />
 
             <TextView
@@ -116,7 +116,7 @@
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                     android:textColor="?attr/colorOnSurface"
                     android:textStyle="bold"
-                    app:drawableLeftCompat="@drawable/icon_android_width"
+                    app:drawableLeftCompat="@drawable/home_app_book"
                     app:drawableTint="?attr/colorOnSurface" />
 
                 <View
@@ -149,7 +149,7 @@
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                     android:textColor="?attr/colorOnSurface"
                     android:textStyle="bold"
-                    app:drawableLeftCompat="@drawable/icon_asset"
+                    app:drawableLeftCompat="@drawable/home_app_assets"
                     app:drawableTint="?attr/colorOnSurface"
                     android:drawablePadding="@dimen/one_padding"
                     />
@@ -189,7 +189,7 @@
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                     android:textColor="?attr/colorOnSurface"
                     android:textStyle="bold"
-                    app:drawableLeftCompat="@drawable/icon_book"
+                    app:drawableLeftCompat="@drawable/home_app_book_data"
                     app:drawableTint="?attr/colorOnSurface"
                     android:drawablePadding="@dimen/one_padding"
                     />
@@ -223,7 +223,7 @@
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                     android:textColor="?attr/colorOnSurface"
                     android:textStyle="bold"
-                    app:drawableLeftCompat="@drawable/icon_category"
+                    app:drawableLeftCompat="@drawable/home_app_category"
                     app:drawableTint="?attr/colorOnSurface"
                     android:drawablePadding="@dimen/one_padding"
                     />
@@ -285,7 +285,7 @@
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                     android:textColor="?attr/colorOnSurface"
                     android:textStyle="bold"
-                    app:drawableLeftCompat="@drawable/select_rule"
+                    app:drawableLeftCompat="@drawable/home_rule"
                     app:drawableTint="?attr/colorOnSurface"
                     android:drawablePadding="@dimen/one_padding"
                     />
@@ -318,7 +318,7 @@
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textColor="?attr/colorOnSurface"
                 android:textStyle="bold"
-                app:drawableLeftCompat="@drawable/icon_category"
+                app:drawableLeftCompat="@drawable/home_app_category"
                 app:drawableTint="?attr/colorOnSurface"
                 android:drawablePadding="@dimen/one_padding"
                 android:background="@drawable/ripple_effect"
@@ -374,7 +374,7 @@
                         android:layout_alignParentStart="true"
                         android:layout_centerVertical="true"
                         android:layout_marginStart="0dp"
-                        android:src="@drawable/msg_github"
+                        android:src="@drawable/home_msg_github"
                         app:tint="?colorOnSurface" />
 
                     <TextView
@@ -418,7 +418,7 @@
                         android:layout_alignParentStart="true"
                         android:layout_centerVertical="true"
                         android:layout_marginStart="0dp"
-                        android:src="@drawable/msg_telegram"
+                        android:src="@drawable/home_msg_telegram"
                         app:tint="?colorOnSurface" />
 
                     <TextView
@@ -462,7 +462,7 @@
                         android:layout_alignParentStart="true"
                         android:layout_centerVertical="true"
                         android:layout_marginStart="0dp"
-                        android:src="@drawable/msg_qq"
+                        android:src="@drawable/home_msg_qq"
                         app:tint="?colorOnSurface" />
 
                     <TextView

@@ -44,7 +44,7 @@
 
     <fragment
         android:id="@+id/ruleFragment"
-        android:name="net.ankio.auto.ui.fragment.RuleFragment"
+        android:name="net.ankio.auto.ui.fragment.home.RuleFragment"
         android:label="@string/title_rule"
         tools:layout="@layout/fragment_rule">
 
@@ -78,7 +78,7 @@
 
     <fragment
         android:id="@+id/editFragment"
-        android:name="net.ankio.auto.ui.fragment.rule.EditFragment"
+        android:name="net.ankio.auto.ui.fragment.home.rule.EditFragment"
         android:label="@string/title_category"
         tools:layout="@layout/fragment_edit">
 
