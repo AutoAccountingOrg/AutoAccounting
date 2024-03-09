@@ -124,7 +124,9 @@ dependencies {
     //gson
     implementation libs.gson
     //权限请求 支持Androidx
-    implementation libs.permissionx
+    implementation libs.xx.permissions
+    //toast
+    implementation libs.toaster
     //xp依赖
     compileOnly libs.xposed
     //room数据库
@@ -132,7 +134,7 @@ dependencies {
     ksp libs.androidx.room.compiler.v251
     implementation libs.androidx.room.ktx
     //下拉列表
-    implementation libs.androidx.swiperefreshlayout
+    //implementation libs.androidx.swiperefreshlayout
     //flexbox
     implementation libs.flexbox
     //圆角
@@ -151,4 +153,6 @@ dependencies {
     implementation project(':common')
     //数据库调试
     debugImplementation 'com.github.amitshekhariitbhu.Android-Debug-Database:debug-db:development-SNAPSHOT'
+//
+    implementation libs.remotepreferences
 }
