@@ -9,7 +9,7 @@
     tools:context=".MainActivity">
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/authorization"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="请求授权自动记账"
@@ -17,10 +17,18 @@
         tools:layout_editor_absoluteY="33dp" />
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/syncBook"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="同步账本及分类给自动记账"
+        tools:layout_editor_absoluteX="24dp"
+        tools:layout_editor_absoluteY="90dp" />
+
+    <Button
+        android:id="@+id/syncAssets"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="同步资产给自动记账"
         tools:layout_editor_absoluteX="24dp"
         tools:layout_editor_absoluteY="90dp" />
 

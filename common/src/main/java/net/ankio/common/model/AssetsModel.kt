@@ -13,13 +13,13 @@
  *   limitations under the License.
  */
 
-package net.ankio.common.config
+package net.ankio.common.model
 
-data class AccountingConfig(
-    var assetManagement: Boolean = false,//是否开启资产管理
-    var multiCurrency: Boolean = false,//是否开启多币种
-    var reimbursement: Boolean = false,//是否开启报销
-    var lending: Boolean = false,//是否开启债务功能
-    var multiBooks: Boolean = false,//是否开启多账本
-    var fee: Boolean = false,//是否开启手续费
-)
+class AssetsModel  {
+    var name: String = "" //账户名
+    /**
+     * 这里的图标是url链接或存储的base64图片
+     */
+    var icon: String = "" //图标
+    var sort = 0 //排序
+}

@@ -20,5 +20,5 @@ data class BillModel(
     val time: Long,//时间
     val remark: String,//备注
     val id: Int = 0,//账单id，自动记账进行报销、销账的时候需要用到
-    val type: Int = 0,//账单类型，0：支出，1：收入，2：转账，3：报销，4：支出销账，5：收入销账，这些类型不全是记账应用传递的，也可能是自动记账传递的。
+    val type: Int = 0,//账单类型，参考BillType类
 )

@@ -1,17 +1,20 @@
 plugins {
-    alias(libs.plugins.androidLibrary)
+    alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
 }
 
 android {
-    namespace 'net.ankio.auto.sdk'
+    namespace 'net.ankio.demo'
     compileSdk 34
 
     defaultConfig {
+        applicationId "net.ankio.demo"
         minSdk 28
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        consumerProguardFiles "consumer-rules.pro"
     }
 
     buildTypes {
@@ -34,8 +37,14 @@ dependencies {
     implementation libs.core.ktx
     implementation libs.appcompat
     implementation libs.material
+    implementation libs.androidx.activity
+    implementation libs.androidx.constraintlayout
+    implementation project(':common')
     testImplementation libs.junit
     androidTestImplementation libs.androidx.test.ext.junit
     androidTestImplementation libs.espresso.core
-    implementation project(':common')
+    implementation libs.gson.v288
+    implementation project(':sdk')
+
+
 }

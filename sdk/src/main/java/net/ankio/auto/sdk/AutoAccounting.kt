@@ -19,6 +19,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import net.ankio.auto.sdk.exception.AutoAccountingException
 import net.ankio.auto.sdk.utils.RequestUtils
+import net.ankio.common.config.AccountingConfig
 
 class AutoAccounting {
     private  val PORT = 52045
@@ -50,12 +51,17 @@ class AutoAccounting {
         private lateinit var instance: AutoAccounting
         /**
          * 初始化自动记账
+         * @param context 上下文
+         * @param config 自动记账配置，使用JSON序列化传输
          */
-        suspend fun init(context: Context){
+        suspend fun init(context: Context,config: String){
             instance = AutoAccounting()
             if(!instance.isServerStart(context)){
                 throw AutoAccountingException("自动记账服务未启动或自动记账未授权服务")
             }
+            //初始化成功后，传递自动记账配置
+
+           instance.setConfig(context,config)
 
         }
         private fun checkInit(){
@@ -97,6 +103,34 @@ class AutoAccounting {
             checkInit()
             return instance.getBills(context)
         }
+
+        /**
+         * @param context 上下文
+         * @param config 自动记账配置，使用JSON序列化传输
+         */
+        suspend fun setConfig(context: Context,config: String){
+            checkInit()
+            instance.setConfig(context,config)
+        }
+
+        /**
+         * 设置资产数据
+         * @param context 上下文
+         *
+         */
+        suspend fun setAssets(context: Context, assets: String) {
+            checkInit()
+            instance.setAssets(context,assets)
+        }
+    }
+
+    private suspend fun setAssets(context: Context, assets: String) {
+        RequestUtils.post(
+            url +"set",
+            query = hashMapOf("name" to "auto_assets"),
+            data = assets,
+            headers = hashMapOf("Authorization" to getToken(context))
+        )
     }
 
     private suspend fun getBills(context: Context): String {
@@ -119,21 +153,20 @@ class AutoAccounting {
         )
     }
 
-    private suspend fun setCategories(context: Context, categories: String) {
-        RequestUtils.post(
-            url +"set",
-            query = hashMapOf("name" to "auto_categories"),
-            data = categories,
-            headers = hashMapOf("Authorization" to getToken(context))
-        )
-    }
-
-
     private suspend fun setBooks(context: Context,books: String) {
         RequestUtils.post(
             url +"set",
             query = hashMapOf("name" to "auto_books"),
             data = books,
+            headers = hashMapOf("Authorization" to getToken(context))
+        )
+    }
+
+    private suspend fun setConfig(context: Context,config: String) {
+        RequestUtils.post(
+            url +"set",
+            query = hashMapOf("name" to "bookAppConfig"),
+            data = config,
             headers = hashMapOf("Authorization" to getToken(context))
         )
     }
