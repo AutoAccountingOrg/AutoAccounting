@@ -1,1 +1,6 @@
 /build
+/src/main/assets/shell/arm64-v8a/starter
+/src/main/assets/shell/armeabi-v7a/starter
+/src/main/assets/shell/x86/starter
+/src/main/assets/shell/x86_64/starter
+/src/main/cpp/.idea/*
