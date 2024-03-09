@@ -24,7 +24,6 @@ import net.ankio.auto.hooks.auto.hooks.ActiveHooker
 class AutoHooker: Hooker(){
     override val packPageName: String = "net.ankio.auto.xposed"
     override val appName: String = "自动记账"
-    override val needHelpFindApplication: Boolean = true
     override var partHookers: MutableList<PartHooker> = arrayListOf(
         ActiveHooker(this)
     )
