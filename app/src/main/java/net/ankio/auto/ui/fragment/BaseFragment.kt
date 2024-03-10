@@ -92,7 +92,7 @@ abstract class BaseFragment : Fragment() {
             menuItem.setIcon(icon)
             DrawableCompat.setTint(
                 icon,
-                AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorOnPrimary)
+                AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorOnBackground)
             )
 
         }

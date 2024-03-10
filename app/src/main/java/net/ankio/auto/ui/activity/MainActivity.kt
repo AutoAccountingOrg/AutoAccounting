@@ -99,6 +99,8 @@ class MainActivity : BaseActivity() {
             checkAutoService()
         }
 
+        onViewCreated()
+
     }
 
 
