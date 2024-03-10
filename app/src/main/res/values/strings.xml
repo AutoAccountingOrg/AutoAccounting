@@ -263,4 +263,20 @@
     <string name="backup_webdav">正准备上传中...</string>
     <string name="backup_pack">正在打包数据中...</string>
     <string name="setting_webdav_password_desc">坚果云需要创建应用密码后才能正常使用。</string>
+    <string name="setting_mode">记账模式</string>
+    <string name="setting_unlock_mode">解锁状态下识别到账单</string>
+    <string name="setting_bill">账单设置</string>
+    <string name="setting_bill_remark">备注格式</string>
+    <string name="setting_bill_repeat">账单去重</string>
+    <string name="setting_bill_repeat_desc">账单去重功能会使用内置的去重算法对当前识别到的账单进行去重（该功能只在账单未同步到记账软件时有效）</string>
+    <string name="setting_bill_remark_desc">支持使用如下中文变量：【支付渠道】</string>
+    <string name="setting_float">悬浮角标</string>
+    <string name="setting_float_time">倒计时时长（单位：秒）</string>
+    <string name="setting_float_time_desc">设置倒计时为0则不显示悬浮窗口</string>
+    <string name="setting_float_on_badge_click">悬浮角标被单击时</string>
+    <string name="pop_edit_window">弹出记账编辑面板</string>
+    <string name="auto_account">直接记录账单</string>
+    <string name="no_account">不记录账单</string>
+    <string name="setting_float_on_badge_long_click">悬浮角标被长按时</string>
+    <string name="setting_float_on_badge_timeout">悬浮角标超时后</string>
 </resources>
