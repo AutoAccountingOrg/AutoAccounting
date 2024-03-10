@@ -67,8 +67,12 @@ class AppData {
     fun toJSON(): String {
         return Gson().toJson(this)
     }
-    fun toText():String{
-        return Base64.encodeToString(toJSON().toByteArray(),Base64.DEFAULT)
+    fun hash() :String{
+        //对data计算md5
+        return AppUtils.md5(data)
+    }
+    fun toText(): String {
+        return Base64.encodeToString(toJSON().toByteArray(), Base64.NO_WRAP)
     }
     companion object{
         fun fromJSON(json:String):AppData{
@@ -79,7 +83,9 @@ class AppData {
                 for (line in txt.lines()){
                     if(line.isNotEmpty()){
                         runCatching {
-                            list.add(fromJSON(String(Base64.decode(line,Base64.DEFAULT))))
+                            val base64  = String(Base64.decode(line,Base64.NO_WRAP))
+                            Logger.i("数据列表: $base64")
+                            list.add(fromJSON(base64))
                         }.onFailure {
                             Logger.e("数据异常",it)
                         }

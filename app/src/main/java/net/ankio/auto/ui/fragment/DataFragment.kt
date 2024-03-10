@@ -182,7 +182,7 @@ class DataFragment : BaseFragment() {
     }
 
     private fun writeIssue(item: AppData, issue: Int, pos: Int) {
-        val file = File(file, "${item.hashCode()}.txt")
+        val file = File(file, "${item.hash()}.txt")
         file.writeText(issue.toString())
         item.issue = issue
         adapter.notifyItemChanged(pos)
@@ -192,9 +192,9 @@ class DataFragment : BaseFragment() {
         //遍历file文件夹下所有的txt
         file.listFiles()?.forEach {
             val issue = it.readText().toInt()
-            val hashCode = it.nameWithoutExtension.toInt()
+            val hashCode = it.nameWithoutExtension
             val item = collection.find { item ->
-                item.hashCode() == hashCode
+                item.hash() == hashCode
             }
             if (item != null) {
                 item.issue = issue
