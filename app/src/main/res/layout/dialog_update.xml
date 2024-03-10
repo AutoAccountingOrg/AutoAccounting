@@ -19,26 +19,44 @@
             android:id="@+id/cardViewInner"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_margin="@dimen/padding"
             android:orientation="vertical"
-            android:layout_margin="@dimen/padding">
+            android:padding="@dimen/cardPadding">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
+
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:orientation="vertical">
 
-                    <TextView
-                        android:id="@+id/version"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:ellipsize="end"
-                        android:maxLines="1"
-                        android:text="xxx更新"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                        android:textColor="?colorPrimary" />
+                   <LinearLayout
+                       android:layout_width="match_parent"
+                       android:layout_height="match_parent">
+                       <TextView
+                           android:id="@+id/name"
+                           android:layout_width="wrap_content"
+                           android:layout_height="wrap_content"
+                           android:ellipsize="end"
+                           android:maxLines="1"
+                           android:text="App"
+                           android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                           android:textStyle="bold"
+                           android:layout_marginEnd="@dimen/one_padding"
+                           android:textColor="?colorPrimary" />
+                       <TextView
+                           android:id="@+id/version"
+                           android:layout_width="wrap_content"
+                           android:layout_height="wrap_content"
+                           android:ellipsize="end"
+                           android:maxLines="1"
+                           android:text="xxx更新"
+                           android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                           android:textColor="?colorPrimary" />
+                   </LinearLayout>
 
                     <TextView
                         android:id="@+id/date"
@@ -53,11 +71,11 @@
                 </LinearLayout>
 
                 <Button
-                    android:layout_gravity="center"
                     android:id="@+id/update"
                     style="@style/Widget.Material3.Button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center"
                     android:text="@string/sure_update" />
             </LinearLayout>
 

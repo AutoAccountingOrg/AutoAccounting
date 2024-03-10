@@ -59,8 +59,11 @@ class DataAdapter(
             binding.groupCard.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(context))
             binding.content.setBackgroundColor(SurfaceColors.SURFACE_3.getColor(context))
 
-            val jsonObject = JSONObject(item.data)
-            val prettyJson: String = jsonObject.toString(4) // 使用4个空格缩进
+            val prettyJson: String = kotlin.runCatching {
+                JSONObject(item.data).toString(4)
+            }.getOrElse {
+                item.data
+            }
 
             binding.content.text = prettyJson
             when(item.type.toDataType()){

@@ -53,7 +53,7 @@ class UpdateDialog(
         binding.version.text = version
         binding.updateInfo.text = log.toHtml()
         binding.date.text = date
-
+        binding.name.text = if (type == 1) "规则" else "App"
         binding.update.setOnClickListener {
             if (type == 1) {
                 lifecycleScope.launch {

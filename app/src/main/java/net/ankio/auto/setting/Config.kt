@@ -35,6 +35,7 @@ import net.ankio.auto.utils.BackupUtils
 import net.ankio.auto.utils.LanguageUtils
 import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.SpUtils
+import net.ankio.auto.utils.UpdateUtils
 
 object Config {
     /**
@@ -294,8 +295,13 @@ object Config {
             SettingItem(R.string.setting_update),
             SettingItem(
                 title = R.string.app_url,
-                key = "app_url",
                 type = ItemType.INPUT,
+                onGetKeyValue = {
+                    UpdateUtils.getUrl()
+                },
+                onSavedValue = { value, activity ->
+                    UpdateUtils.setUrl(value as String)
+                },
             ),
             SettingItem(
                 title = R.string.setting_update_type,

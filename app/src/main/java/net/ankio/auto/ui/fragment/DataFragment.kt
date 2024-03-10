@@ -20,12 +20,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.hjq.toast.Toaster
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.tobey.dialogloading.DialogUtil
+import com.hjq.toast.Toaster
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -36,6 +35,7 @@ import net.ankio.auto.constant.DataType
 import net.ankio.auto.constant.toDataType
 import net.ankio.auto.databinding.FragmentDataBinding
 import net.ankio.auto.ui.adapter.DataAdapter
+import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.Github
@@ -113,10 +113,8 @@ class DataFragment : BaseFragment() {
                                 DataType.Notice -> "Notice"
                                 DataType.Sms -> "Sms"
                             }
-                            val dialog2 = DialogUtil.createLoadingDialog(
-                                it,
-                                getString(R.string.upload_waiting)
-                            )
+                            val loadingUtils = LoadingUtils(requireActivity())
+                            loadingUtils.show(R.string.upload_waiting)
                             Github.createIssue("[Adaptation Request][$type]${item.source}", """
 ```
                 ${item.data}
@@ -124,10 +122,11 @@ class DataFragment : BaseFragment() {
             """.trimIndent(), { issue ->
                                 item.issue = issue.toInt()
                                 requireActivity().runOnUiThread {
+                                    loadingUtils.close()
                                     adapter.notifyItemChanged(position)
                                     Toaster.show(getString(R.string.upload_success))
                                 }
-                                DialogUtil.closeDialog(dialog2)
+
 
                                 writeIssue(item, issue.toInt(), position)
 
@@ -138,8 +137,9 @@ class DataFragment : BaseFragment() {
                                         it,
                                         Uri.parse(Github.getLoginUrl())
                                     )
+                                    loadingUtils.close()
                                 }
-                                DialogUtil.closeDialog(dialog2)
+
                             })
 
                             // 可以在这里添加你的处理逻辑

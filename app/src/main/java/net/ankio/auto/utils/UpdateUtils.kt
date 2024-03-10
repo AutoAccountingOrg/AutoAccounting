@@ -29,18 +29,11 @@ class UpdateUtils {
              SpUtils.putString("app_url", url)
         }
 
-        fun getUpdateType():Boolean{
-            return SpUtils.getBoolean("update_type_commit", false)
-        }
-
-        fun setUpdateType(type: Boolean){
-            SpUtils.putBoolean("update_type_commit", type)
-        }
     }
 
 
     private val appBaseUrl = getUrl()
-    private var appUrl: String = if (!getUpdateType()) {
+    private var appUrl: String = if (SpUtils.getInt("setting_update_type", 0) == 0) {
         "${appBaseUrl}版本更新/稳定版/"
     } else {
         "${appBaseUrl}版本更新/持续构建版/"

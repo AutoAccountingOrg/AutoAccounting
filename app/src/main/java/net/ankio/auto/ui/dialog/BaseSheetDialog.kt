@@ -61,7 +61,7 @@ abstract class BaseSheetDialog(private val context: Context) :
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED;
         //是否使用圆角风格
         val margin = dpToPx(context,20f)
-        val round = SpUtils.getBoolean("cardRound",false)
+        val round = SpUtils.getBoolean("setting_use_round_style",false)
         if(::cardView.isInitialized){
             val layoutParams = if (cardView.layoutParams != null) {
                 cardView.layoutParams as ViewGroup.MarginLayoutParams
@@ -81,8 +81,8 @@ abstract class BaseSheetDialog(private val context: Context) :
         }
 
         if(::cardViewInner.isInitialized){
-            cardViewInner.setPadding(0,0,0,
-                if(round) 0 else  margin
+            cardViewInner.setPadding(margin,margin,margin,
+                if(round) margin else  margin * 2
             )
 
         }
