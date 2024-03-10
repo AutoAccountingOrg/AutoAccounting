@@ -24,6 +24,7 @@ import com.quickersilver.themeengine.ThemeEngine
 import com.quickersilver.themeengine.ThemeMode
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
+import net.ankio.auto.constant.FloatEvent
 import net.ankio.auto.exceptions.PermissionException
 import net.ankio.auto.setting.types.ItemType
 import net.ankio.auto.ui.activity.MainActivity
@@ -36,6 +37,9 @@ import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.SpUtils
 
 object Config {
+    /**
+     * 获取App设置项
+     */
     fun app(context: Context,setting2Fragment: Setting2Fragment): ArrayList<SettingItem> {
         return arrayListOf(
             //隐私
@@ -329,6 +333,80 @@ object Config {
                 },
                 default = false,
             ),
+        )
+    }
+    fun setting(context: Context):ArrayList<SettingItem>{
+        return arrayListOf(
+            //账单
+            SettingItem(R.string.setting_bill),
+            //备注
+            SettingItem(
+                title = R.string.setting_bill_remark,
+                key = "setting_bill_remark",
+                subTitle = R.string.setting_bill_remark_desc,
+                type = ItemType.INPUT,
+                default = "",
+                icon = R.drawable.setting2_icon_anonymous
+            ),
+            //去重
+            SettingItem(
+                title = R.string.setting_bill_repeat,
+                subTitle = R.string.setting_bill_repeat_desc,
+                key = "setting_bill_repeat",
+                type = ItemType.SWITCH,
+                default = false,
+                icon = R.drawable.setting2_icon_anonymous
+            ),
+            //悬浮窗
+            SettingItem(R.string.setting_float),
+            SettingItem(
+                title = R.string.setting_float_time,
+                key = "setting_float_time",
+                subTitle = R.string.setting_float_time_desc,
+                type = ItemType.INPUT,
+                default = "10",
+                icon = R.drawable.setting2_icon_anonymous
+            ),
+
+            SettingItem(
+                title = R.string.setting_float_on_badge_click,
+                key = "setting_float_on_badge_click",
+                type = ItemType.TEXT,
+                default = FloatEvent.POP_EDIT_WINDOW.ordinal,
+                icon = R.drawable.setting2_icon_anonymous,
+                selectList = hashMapOf(
+                    context.getString(R.string.pop_edit_window) to FloatEvent.POP_EDIT_WINDOW.ordinal,
+                    context.getString(R.string.auto_account) to FloatEvent.AUTO_ACCOUNT.ordinal,
+                    context.getString(R.string.no_account) to FloatEvent.NO_ACCOUNT.ordinal,
+                ),
+            ),
+
+            SettingItem(
+                title = R.string.setting_float_on_badge_long_click,
+                key = "setting_float_on_badge_long_click",
+                type = ItemType.TEXT,
+                default = FloatEvent.NO_ACCOUNT.ordinal,
+                icon = R.drawable.setting2_icon_anonymous,
+                selectList = hashMapOf(
+                    context.getString(R.string.pop_edit_window) to FloatEvent.POP_EDIT_WINDOW.ordinal,
+                    context.getString(R.string.auto_account) to FloatEvent.AUTO_ACCOUNT.ordinal,
+                    context.getString(R.string.no_account) to FloatEvent.NO_ACCOUNT.ordinal,
+                ),
+            ),
+
+            SettingItem(
+                title = R.string.setting_float_on_badge_timeout,
+                key = "setting_float_on_badge_timeout",
+                type = ItemType.TEXT,
+                default = FloatEvent.POP_EDIT_WINDOW.ordinal,
+                icon = R.drawable.setting2_icon_anonymous,
+                selectList = hashMapOf(
+                    context.getString(R.string.pop_edit_window) to FloatEvent.POP_EDIT_WINDOW.ordinal,
+                    context.getString(R.string.auto_account) to FloatEvent.AUTO_ACCOUNT.ordinal,
+                    context.getString(R.string.no_account) to FloatEvent.NO_ACCOUNT.ordinal,
+                ),
+            ),
+
         )
     }
 }
