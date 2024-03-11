@@ -21,6 +21,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import net.ankio.auto.app.BillUtils
 import net.ankio.auto.database.table.BillInfo
+import net.ankio.auto.utils.AppTimeMonitor
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.DateUtils
 import net.ankio.auto.utils.HookUtils
@@ -36,42 +37,51 @@ import kotlin.coroutines.resume
  * 在Xposed环境中也需要调用
  */
 object Engine {
+
+
     suspend fun analyze(
         dataType: Int, //类型
         app: String,  //来自哪个App或者手机号
         data: String, //具体的数据
         hookUtils: HookUtils? = null,
     ): BillInfo? = withContext(Dispatchers.IO) {
+        AppTimeMonitor.startMonitoring("规则识别")
+        val billInfo = data(dataType, app, data, hookUtils) ?: return@withContext null
+        category(billInfo, hookUtils)
+        AppTimeMonitor.stopMonitoring("规则识别")
+        return@withContext billInfo
+    }
 
+    suspend fun data(dataType: Int, app: String, data: String, hookUtils: HookUtils?):BillInfo? = withContext(Dispatchers.IO) {
         val outputBuilder = StringBuilder()
         val rule = async {
-            suspendCancellableCoroutine<String> { continuation ->
+            suspendCancellableCoroutine { continuation ->
                 AppUtils.getService().get("auto_rule", onSuccess = { result ->
                     continuation.resume(result)
                 })
             }
         }
 
-        val result = runCatching {
+
+        val billInfo = BillInfo()
+        try {
+
+            //识别脚本补充
+            val js = "var window = {data:data, dataType:dataType, app:app};${rule.await()}"
+            log(hookUtils, "执行识别脚本", js)
             val context: Context = Context.enter()
             val scope: Scriptable = context.initStandardObjects()
             context.setOptimizationLevel(-1)
-            //识别脚本补充
-            val js = "var window = {data:data, dataType:dataType, app:app};${rule.await()}"
-
-            log(hookUtils, "执行识别脚本", js)
             ScriptableObject.putProperty(scope, "data", data)
             ScriptableObject.putProperty(scope, "dataType", dataType)
             ScriptableObject.putProperty(scope, "app", app)
             val printFunction = CustomPrintFunction(outputBuilder)
             ScriptableObject.putProperty(scope, "print", printFunction)
-            context.evaluateString(scope, js, "<analyze>", 1, null)
+            context.evaluateString(scope, js, "<analyzeBill>", 1, null)
             val json = outputBuilder.toString()
             log(hookUtils, "识别结果", json)
             //{"type":1,"money":"0.01","fee":0,"shopName":"支付宝商家服务","shopItem":"老顾客消费","accountNameFrom":"","accountNameTo":"支付宝余额","currency":"CNY","time":1703056950000,"channel":"支付宝收款码收款","ruleName":"支付宝消息盒子"}
 
-
-            val billInfo = BillInfo()
             val jsonObject2 = JSONObject(json)
             billInfo.type = BillType.fromInt(jsonObject2.getInt("type"))
             billInfo.money =
@@ -88,18 +98,14 @@ object Engine {
             billInfo.timeStamp = DateUtils.getAnyTime(jsonObject2.getString("time"))
             billInfo.channel = jsonObject2.getString("channel")
 
-
-            context.close()
-
-            category(billInfo, hookUtils)
-
-           billInfo
-        }.onFailure {
-            log(hookUtils, "识别脚本执行出错", it.message ?: "")
+        } catch (e: Exception) {
+            log(hookUtils, "识别脚本执行出错", e.message ?: "",e)
+        }finally {
+          runCatching {
+              Context.exit()
+          }
         }
-
-        return@withContext result.getOrNull()
-
+        return@withContext if(billInfo.money <= 0f)null else billInfo
     }
 
 
@@ -119,9 +125,9 @@ object Engine {
             }
         }
         val outputBuilder = StringBuilder()
-        runCatching {
-            val context: Context = Context.enter()
-            context.setOptimizationLevel(-1)
+
+        try {
+
             val categoryJs =
                 "var window = {money:money, type:type, shopName:shopName, shopItem:shopItem, time:time};" +
                         "function getCategory(money,type,shopName,shopItem,time){ ${categoryCustom.await()} return null};" +
@@ -129,7 +135,8 @@ object Engine {
                         "if(categoryInfo !== null) { print(JSON.stringify(categoryInfo));  } else { ${category.await()} }"
             outputBuilder.clear() //清空
             log(hookUtils, "执行分类脚本", categoryJs)
-
+            val context: Context = Context.enter()
+            context.setOptimizationLevel(-1)
             val categoryScope: Scriptable = context.initStandardObjects()
             ScriptableObject.putProperty(categoryScope, "money", billInfo.money)
             ScriptableObject.putProperty(categoryScope, "type", billInfo.type)
@@ -147,17 +154,27 @@ object Engine {
             billInfo.cateName = cateJson.getString("category")
             billInfo.bookName = cateJson.getString("book")
             log(hookUtils, "分类脚本执行结果", billInfo.cateName)
-            context.close()
-        }.onFailure {
-            log(hookUtils, "分类脚本执行出错", it.message ?: "")
+
+        }catch (e:Exception){
+            log(hookUtils, "分类脚本执行出错", e.message ?: "",e)
+        }finally {
+            runCatching {
+                Context.exit()
+            }
         }
+
     }
 
-    private fun log(hookUtils: HookUtils? = null, prefix: String, data: String) {
+    private fun log(hookUtils: HookUtils? = null, prefix: String, data: String,throwable: Throwable?=null) {
         if (hookUtils !== null) {
             hookUtils.logD(prefix, data)
         } else {
-            Logger.d("$prefix:$data")
+            if(throwable!==null){
+                Logger.e("$prefix:$data",throwable)
+            }else{
+                Logger.d("$prefix:$data")
+            }
+            AppUtils.getService().putLog("$prefix:$data")
         }
     }
 }
