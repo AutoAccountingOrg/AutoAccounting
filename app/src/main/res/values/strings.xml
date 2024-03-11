@@ -138,7 +138,7 @@
     <string name="upload_waiting">正在上传中...</string>
     <string name="auth_waiting">授权等待中</string>
     <string name="upload_sure">数据上传确认</string>
-    <string name="upload_info">您即将上传数据到Github（Auto-Accounting/AutoRule），开发者可以根据您上传的数据进行规则适配。</string>
+    <string name="upload_info">您即将上传数据到Github（AutoAccountingOrg/AutoRule），开发者可以根据您上传的数据进行规则适配。</string>
     <string name="upload_success">数据上传成功，开发者将在3个工作日内完成适配。</string>
     <string name="no_match">所有规则均未命中该数据。</string>
     <string name="new_version">新版本%s</string>
@@ -269,7 +269,7 @@
     <string name="setting_bill_remark">备注格式</string>
     <string name="setting_bill_repeat">账单去重</string>
     <string name="setting_bill_repeat_desc">账单去重功能会使用内置的去重算法对当前识别到的账单进行去重（该功能只在账单未同步到记账软件时有效）</string>
-    <string name="setting_bill_remark_desc">支持使用如下中文变量：【支付渠道】</string>
+    <string name="setting_bill_remark_desc">支持使用如下中文变量：【商户名称】、【商品名称】、【币种类型】、【金额】、【分类】、【账本】、【来源】</string>
     <string name="setting_float">悬浮角标</string>
     <string name="setting_float_time">倒计时时长（单位：秒）</string>
     <string name="setting_float_time_desc">设置倒计时为0则不显示悬浮窗口</string>
@@ -279,4 +279,13 @@
     <string name="no_account">不记录账单</string>
     <string name="setting_float_on_badge_long_click">悬浮角标被长按时</string>
     <string name="setting_float_on_badge_timeout">悬浮角标超时后</string>
+    <string name="setting_category">自动分类</string>
+    <string name="setting_auto_create_category">允许自动生成分类</string>
+    <string name="setting_auto_create_category_desc">如果每次手动选择的分类结果与系统自动分类的结果不一致，则提示自动生成分类。</string>
+    <string name="setting_color">颜色偏好</string>
+    <string name="setting_pay_color">收支高亮颜色</string>
+    <string name="setting_pay_color_red">红色支出，绿色收入。</string>
+    <string name="setting_pay_color_green">绿色支出，红色收入。</string>
+    <string name="setting_category_style">分类展示样式</string>
+    <string name="setting_category_show_parent">二级分类显示父类</string>
 </resources>
