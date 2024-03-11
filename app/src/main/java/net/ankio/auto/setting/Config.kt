@@ -412,7 +412,37 @@ object Config {
                     context.getString(R.string.no_account) to FloatEvent.NO_ACCOUNT.ordinal,
                 ),
             ),
+            //分类
+            SettingItem(R.string.setting_category),
+            SettingItem(
+                title = R.string.setting_auto_create_category,
+                key = "setting_auto_create_category",
+                subTitle = R.string.setting_auto_create_category_desc,
+                type = ItemType.SWITCH,
+                default = false,
+                icon = R.drawable.setting2_icon_anonymous
+            ),
+            SettingItem(
+                title = R.string.setting_category_show_parent,
+                key = "setting_category_show_parent",
+               // subTitle = R.string.setting_category_show_parent_desc,
+                type = ItemType.SWITCH,
+                default = false,
+                icon = R.drawable.setting2_icon_anonymous
+            ),
 
+            SettingItem(R.string.setting_color),
+            SettingItem(
+                title = R.string.setting_pay_color,
+                key = "setting_pay_color_red",
+                type = ItemType.TEXT,
+                default = 0,
+                icon = R.drawable.setting2_icon_anonymous,
+                selectList = hashMapOf(
+                    context.getString(R.string.setting_pay_color_red) to 0,
+                    context.getString(R.string.setting_pay_color_green) to 1,
+                ),
+            ),
         )
     }
 }

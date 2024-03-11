@@ -148,7 +148,7 @@ object BillUtils {
         if(category2===null){
             return category1
         }
-        if(SpUtils.getBoolean("showChildCategory",true)){
+        if(SpUtils.getBoolean("setting_category_show_parent",true)){
             return "${category1}-${category2}"
         }
         return "$category2"
