@@ -28,10 +28,17 @@ import net.ankio.auto.database.table.Assets
 import net.ankio.auto.databinding.DialogBookSelectBinding
 import net.ankio.auto.ui.adapter.AssetsSelectorAdapter
 
-class AssetsSelectorDialog(private val context: Context,private val callback:(Assets)->Unit): BaseSheetDialog(context) {
+class AssetsSelectorDialog(private val context: Context, private val callback: (Assets) -> Unit) :
+    BaseSheetDialog(context) {
     private lateinit var binding: DialogBookSelectBinding
+    private val dataItems = mutableListOf<Assets>()
+    private val adapter = AssetsSelectorAdapter(dataItems) { item ->
+        callback(item)
+        dismiss()
+    }
+
     override fun onCreateView(inflater: LayoutInflater): View {
-        binding =  DialogBookSelectBinding.inflate(inflater)
+        binding = DialogBookSelectBinding.inflate(inflater)
         val layoutManager = LinearLayoutManager(context)
         binding.recyclerView.layoutManager = layoutManager
 
@@ -39,16 +46,19 @@ class AssetsSelectorDialog(private val context: Context,private val callback:(As
         cardViewInner = binding.recyclerView
 
 
-        val dataItems = mutableListOf<Assets>()
 
-        val adapter = AssetsSelectorAdapter(dataItems) { item ->
-            callback(item)
-            dismiss()
-        }
+
+
 
         binding.recyclerView.adapter = adapter
 
 
+
+        return binding.root
+    }
+
+    override fun show(float: Boolean, cancel: Boolean) {
+        super.show(float, cancel)
         lifecycleScope.launch {
             val newData = withContext(Dispatchers.IO) {
                 Db.get().AssetsDao().loadAll()
@@ -56,12 +66,18 @@ class AssetsSelectorDialog(private val context: Context,private val callback:(As
 
             val collection = newData.takeIf { it.isNotEmpty() } ?: listOf()
 
+            if (collection.isEmpty()) {
+                dismiss()
+                return@launch
+            }
+
             dataItems.addAll(collection)
 
             adapter.notifyItemInserted(0)
         }
 
-        return binding.root
+
     }
+
 
 }

@@ -26,6 +26,7 @@ import android.widget.LinearLayout
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.card.MaterialCardView
+import com.google.android.material.elevation.SurfaceColors
 import com.quickersilver.themeengine.ThemeEngine
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -78,6 +79,9 @@ abstract class BaseSheetDialog(private val context: Context) :
                 layoutParams.setMargins(0, 0, 0, - margin)
                 cardView.layoutParams = layoutParams
             }
+
+            val color = SurfaceColors.SURFACE_2.getColor(context)
+            cardView.setCardBackgroundColor(color)
         }
 
         if(::cardViewInner.isInitialized){
@@ -96,6 +100,8 @@ abstract class BaseSheetDialog(private val context: Context) :
             context.resources.displayMetrics
         ).toInt()
     }
+
+
 
 
 }
