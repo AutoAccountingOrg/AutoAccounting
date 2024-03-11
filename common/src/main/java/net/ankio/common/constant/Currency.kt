@@ -189,5 +189,16 @@ enum class Currency(
      * 获取货币图标
      */
     fun icon(context: Context) = AppCompatResources.getDrawable(context,currencyIconResId)
+
+   companion object {
+        //获取所有枚举值的hash
+        fun getCurrencyMap(context: Context):HashMap<String,Any>{
+            val map = HashMap<String,Any>()
+            entries.forEach {
+                map[it.name(context)] = it
+            }
+            return map
+        }
+    }
 }
 
