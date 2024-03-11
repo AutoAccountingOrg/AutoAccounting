@@ -27,9 +27,10 @@ import android.widget.ListPopupWindow
 import net.ankio.auto.R
 
 
-class ListPopupUtils(val context: Context, anchor: View, val list: HashMap<String,Any>, onClick:(position:Int,key:String,value:Any)->Unit) {
+class ListPopupUtils(val context: Context, anchor: View, val list: HashMap<String,Any>,val value: Any, onClick:(position:Int,key:String,value:Any)->Unit) {
     private val listPopupWindow: ListPopupWindow = ListPopupWindow(context)
     private var adapter: ArrayAdapter<String>
+    private var selectIndex = 0
     init {
         val keyList = list.keys.toList()
         adapter =   ArrayAdapter(context, R.layout.list_popup_window_item, keyList)
@@ -41,6 +42,11 @@ class ListPopupUtils(val context: Context, anchor: View, val list: HashMap<Strin
             listPopupWindow.dismiss()
             hasShowPopupWindow = false
         }
+        //查找value值一样的数据
+        list.filterValues { it == value }.keys.firstOrNull()?.let {
+            selectIndex = keyList.indexOf(it)
+        }
+
        // listPopupWindow.width = ListPopupWindow.WRAP_CONTENT;
        // listPopupWindow.width = 300
         listPopupWindow.width =  measureContentWidth(adapter)
@@ -83,12 +89,14 @@ class ListPopupUtils(val context: Context, anchor: View, val list: HashMap<Strin
 
     private var hasShowPopupWindow = false
 
+
     fun toggle() {
         listPopupWindow.apply {
             if (hasShowPopupWindow) {
                 dismiss()
             }else {
                 show()
+                setSelection(selectIndex)
             }
             hasShowPopupWindow = !hasShowPopupWindow
         }
