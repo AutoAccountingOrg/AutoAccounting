@@ -178,7 +178,7 @@ class SettingUtils(
 
                 setValue(savedValue)
 
-                val listPopupUtils = ListPopupUtils(context, binding.title, it) { pos, key, value ->
+                val listPopupUtils = ListPopupUtils(context, binding.title, it,savedValue) { pos, key, value ->
                     binding.subTitle.text = key
 
                     settingItem.onItemClick?.invoke(value, context) ?: settingItem.key?.let {
