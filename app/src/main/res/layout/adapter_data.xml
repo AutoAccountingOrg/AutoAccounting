@@ -126,8 +126,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:layout_marginStart="15dp"
-                android:layout_toEndOf="@+id/rule"
                 android:background="@drawable/rounded_background_primary"
                 android:paddingLeft="@dimen/padding"
                 android:paddingTop="@dimen/one_padding"
@@ -136,16 +134,7 @@
                 android:text="#1"
                 android:textColor="?attr/colorOnPrimary" />
 
-            <Button
-                style="?attr/materialIconButtonFilledStyle"
-                android:id="@+id/deleteData"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
 
-                app:icon="@drawable/icon_delete"
-                tools:ignore="RelativeOverlap" />
 
             <Button
 
@@ -154,8 +143,7 @@
                 android:id="@+id/testRule"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="15dp"
-                android:layout_toStartOf="@+id/deleteData"
+                android:layout_alignParentEnd="true"
 
                 tools:ignore="RelativeOverlap" />
             <Button
