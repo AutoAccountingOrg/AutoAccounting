@@ -17,7 +17,7 @@ package net.ankio.common.constant
 
 enum class BillType(val value: Int)  {
     Expend(0),//支出
-    ExpendReimbursement( 4),//支出（报销），只有支出会有报销标记
+    ExpendReimbursement( 4),//支出（报销）
     ExpendLending(5),//支出（借出）
     ExpendRepayment(6),//支出（还款销账）
 
@@ -25,14 +25,14 @@ enum class BillType(val value: Int)  {
     Income(1),//收入
     IncomeLending(7),//收入（借入）
     IncomeRepayment(8),//收入（还款销账）
-
+    IncomeReimbursement( 9),//收入（报销）
     Transfer(2);//转账
     fun toInt(): Int = value
 
     companion object {
         // 将整数转换为枚举值
         fun fromInt(value: Int): BillType {
-            return values().firstOrNull { it.value == value } ?: throw IllegalArgumentException("Invalid value: $value")
+            return entries.firstOrNull { it.value == value } ?: throw IllegalArgumentException("Invalid value: $value")
         }
     }
 }
