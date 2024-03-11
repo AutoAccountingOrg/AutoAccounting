@@ -74,12 +74,12 @@ object Logger {
     }
 
     private fun printLog(type: Int, tag: String, message: String) {
-        if (message.contains(AutoAccountingServiceUtils.getUrl("/log"))){
+        if (message.contains(AutoAccountingServiceUtils.getUrl("/log"))) {
             return
         }
         if (type < level) return
-        val logMessage = createLogMessage(message)
-        logMessage.lines().forEach {
+
+        fun log(it: String) {
             when (type) {
                 Log.VERBOSE -> Log.v(tag, it)
                 Log.DEBUG -> Log.d(tag, it)
@@ -87,6 +87,27 @@ object Logger {
                 Log.WARN -> Log.w(tag, it)
                 Log.ERROR -> Log.e(tag, it)
             }
+        }
+
+        val logMessage = createLogMessage(message)
+        logMessage.lines().forEach {
+
+            var msg = it
+
+            val segmentSize = 3 * 1024
+            val length = msg.length
+            if (length <= segmentSize) {// 长度小于等于限制直接打印
+                log(msg)
+            } else {
+                while (msg.length > segmentSize) {// 循环分段打印日志
+                    val logContent = msg.substring(0, segmentSize);
+                    msg = msg.replace(logContent, "");
+                    log(logContent);
+                }
+                log(msg)// 打印剩余日志
+            }
+
+
         }
     }
 
