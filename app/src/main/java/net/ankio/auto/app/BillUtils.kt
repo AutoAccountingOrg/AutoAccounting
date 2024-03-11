@@ -15,9 +15,11 @@
 
 package net.ankio.auto.app
 
+import net.ankio.auto.App
 import net.ankio.auto.database.Db
 import net.ankio.auto.database.table.BillInfo
 import net.ankio.auto.utils.ActiveUtils
+import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.SpUtils
 import java.lang.Exception
 
@@ -57,7 +59,7 @@ object BillUtils {
      * 重复账单的要素：
      * 1.金额一致
      * 2.来源平台不同  //这个逻辑不对，可能同一个平台可以获取到多个信息，例如多次转账同一金额给同一个人
-     * 3.账单时间不超过5分钟
+     * 3.账单时间不超过15分钟
      * 4.账单的类型一致
      * 5.账单的交易账户部分一致（有的交易无法获取完整的账户信息）
      */
@@ -108,7 +110,6 @@ object BillUtils {
         for (map in all){
             if(map.regex){
                 try{
-                    if(map.name==null)continue
                     val pattern = Regex(map.name!!) // 匹配三个字母的单词
                     if(pattern.matches(account)){
                         return map.mapName?:account
@@ -131,10 +132,25 @@ object BillUtils {
     fun getRemark(billInfo: BillInfo): String {
         return SpUtils.getString("remarkTpl","[商户名称] - [商品名称]")
             .replace("[商户名称]",billInfo.shopName)
-            .replace("[币种类型]",billInfo.currency.currencyName)
+            .replace("[币种类型]",billInfo.currency.name(AppUtils.getApplication()))
             .replace("[金额]",billInfo.money.toString())
             .replace("[分类]",billInfo.cateName)
             .replace("[账本]",billInfo.bookName)
             .replace("[来源]",billInfo.from)
+    }
+
+    /**
+     * 获取分类的显示样式，或者记录方式
+     * 例如：父类 - 子类
+     * 父类 或 子类
+     */
+    fun getCategory(category1:String,category2: String?=null): String {
+        if(category2===null){
+            return category1
+        }
+        if(SpUtils.getBoolean("showChildCategory",true)){
+            return "${category1}-${category2}"
+        }
+        return "$category2"
     }
 }
