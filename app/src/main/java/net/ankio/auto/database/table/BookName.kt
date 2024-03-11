@@ -16,6 +16,9 @@ package net.ankio.auto.database.table
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import net.ankio.auto.database.Db
 import net.ankio.common.model.BookModel
 
 @Entity
@@ -40,5 +43,16 @@ class BookName {
                 icon = model.icon
             }
         }
+
+        suspend fun getByName(name:String) = withContext(Dispatchers.IO) {
+            var book =  Db.get().BookNameDao().getByName(name)
+            if (book == null) {
+                book = BookName()
+                book.name  = name
+            }
+            return@withContext book
+        }
+
+
     }
 }
