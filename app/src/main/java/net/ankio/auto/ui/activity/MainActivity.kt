@@ -29,7 +29,6 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.tobey.dialogloading.DialogUtil
 import com.zackratos.ultimatebarx.ultimatebarx.addNavigationBarBottomPadding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -61,7 +60,7 @@ class MainActivity : BaseActivity() {
     private fun onLogin() {
         val uri = intent.data
         if (uri != null) {
-            val dialog = DialogUtil.createLoadingDialog(this, getString(R.string.auth_waiting))
+            //val dialog = DialogUtil.createLoadingDialog(this, getString(R.string.auth_waiting))
 
             val code = uri.getQueryParameter("code")
 
@@ -71,7 +70,7 @@ class MainActivity : BaseActivity() {
                 runOnUiThread {
                     Toaster.show(it)
                 }
-                DialogUtil.closeDialog(dialog)
+             //   DialogUtil.closeDialog(dialog)
             })
         }
     }
@@ -94,6 +93,7 @@ class MainActivity : BaseActivity() {
         //初始化底部导航栏
         onBottomViewInit()
 
+        AppUtils.setService(AppUtils.getApplication())
         //检查自动记账服务
         lifecycleScope.launch {
             checkAutoService()
@@ -171,7 +171,7 @@ class MainActivity : BaseActivity() {
 
 
     private suspend fun checkAutoService() = withContext(Dispatchers.IO){
-        AppUtils.setService(AppUtils.getApplication())
+
         runCatching {
             if(!AutoAccountingServiceUtils.isServerStart(this@MainActivity)){
                 throw Exception("自动记账服务未连接")
@@ -183,10 +183,6 @@ class MainActivity : BaseActivity() {
                 navHostFragment.navController.navigate(R.id.serviceFragment)
             }
         }.onSuccess {
-            if(System.currentTimeMillis()  - SpUtils.getLong("checkTime",0) < 1000 * 60 * 30){
-                return@onSuccess
-            }
-            SpUtils.putLong("checkTime",System.currentTimeMillis())
 
             withContext(Dispatchers.Main){
                 runCatching {
@@ -194,6 +190,7 @@ class MainActivity : BaseActivity() {
                     checkUpdate()
                 }.onFailure {
                     Logger.e("检查更新失败",it)
+
                 }
             }
             AppUtils.logger = true
