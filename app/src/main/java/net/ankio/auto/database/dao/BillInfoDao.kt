@@ -20,15 +20,16 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 import net.ankio.auto.database.table.BillInfo
+import net.ankio.common.constant.BillType
 
 @Dao
 interface BillInfoDao {
 
     @Query("SELECT DISTINCT groupId FROM BillInfo WHERE money = :money AND type = :type AND timeStamp >= :timestamp  and groupId != 0")
-    suspend fun findDistinctNonZeroGroupIds(money: Float, type: net.ankio.common.constant.BillType, timestamp: Long): List<Int>
+    suspend fun findDistinctNonZeroGroupIds(money: Int, type: BillType, timestamp: Long): List<Int>
 
     @Query("SELECT * FROM BillInfo WHERE money = :money AND type = :type AND timeStamp >= :timestamp and groupId=:groupId")
-    suspend fun findDuplicateBills(money: Float, type: net.ankio.common.constant.BillType, timestamp: Long, groupId:Int): List<BillInfo>
+    suspend fun findDuplicateBills(money: Int, type: BillType, timestamp: Long, groupId:Int): List<BillInfo>
 
     @Query("SELECT * FROM BillInfo WHERE groupId = :groupId")
     suspend fun findParentBill(groupId: Int): BillInfo?
@@ -43,4 +44,14 @@ interface BillInfoDao {
     suspend fun getTotal(): Array<BillInfo>
     @Query("DELETE FROM BillInfo")
     suspend fun empty()
+
+    //只保留最近500条数据
+    @Query("DELETE FROM BillInfo WHERE id NOT IN (SELECT id FROM BillInfo ORDER BY timeStamp DESC LIMIT 500)")
+    suspend fun keepLatest300()
+
+    @Query("SELECT * FROM BillInfo where  groupId == 0  and syncFromApp=0")
+    suspend fun getAllParents(): Array<BillInfo>
+
+    @Query("Update BillInfo set syncFromApp=1 where  groupId == 0 and syncFromApp=0"   )
+    suspend fun setAllParents(): Array<BillInfo>
 }

@@ -22,11 +22,13 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.Gson
 import net.ankio.auto.R
+import net.ankio.auto.app.BillUtils
 import net.ankio.common.constant.BillType
 import net.ankio.common.constant.Currency
 import net.ankio.auto.constant.DataType
 import net.ankio.auto.database.Db
 import net.ankio.auto.utils.ImageUtils
+import net.ankio.common.model.AutoBillModel
 
 @Entity
 class BillInfo {
@@ -38,22 +40,22 @@ class BillInfo {
     /**
      * 账单类型 只有三种
      */
-    var type: net.ankio.common.constant.BillType = net.ankio.common.constant.BillType.Expend
+    var type: BillType = BillType.Expend
 
     /**
      * 币种类型
      */
-    var currency: net.ankio.common.constant.Currency = net.ankio.common.constant.Currency.CNY
+    var currency: Currency = Currency.CNY
 
     /**
      * 金额 大于0
      */
-    var money: Float = 0.01F
+    var money: Int = 0
 
     /**
      * 手续费
      */
-    var fee: Float = 0.00F
+    var fee: Int = 0
 
     /**
      * 记账时间
@@ -77,15 +79,9 @@ class BillInfo {
     var cateName: String = "其他"
 
     /**
-     * 该账单是否记为报销账单
+     * 拓展数据域，如果是报销或者销账，会对应账单ID
      */
-    var reimbursement: Boolean = false
-
-    /**
-     * 销账的账单id或者报销的账单id
-     */
-    var remoteId: String = "-1"
-
+    var extendData: String = ""
     /**
      * 账本名称
      */
@@ -97,20 +93,9 @@ class BillInfo {
     var accountNameFrom: String = ""
 
     /**
-     * 远程app中的资产id
-     */
-    var accountIdFrom: String = "-1"
-
-    /**
      * 转入账户
      */
     var accountNameTo = ""
-
-    /**
-     * 远程app中的资产id
-     */
-    var accountIdTo: String = "-1"
-
     /**
      * 这笔账单的来源
      */
@@ -135,22 +120,53 @@ class BillInfo {
      * 是否已从App同步
      */
     var syncFromApp:Boolean = false
-
-    /**
-     * 这笔账单是否为债务
-     */
-    var debt:Boolean = false
-    /**
-     * 是否为债务销账
-     */
-    var debtOver:Boolean = false
-
     /**
      * 备注信息
      */
     var remark:String = ""
     fun toJSON(): String {
         return Gson().toJson(this)
+    }
+
+    fun toAutoBillModel(): AutoBillModel {
+        return AutoBillModel(
+            type = type.ordinal,
+            currency = currency,
+            amount = BillUtils.getFloatMoney(money),
+            fee = BillUtils.getFloatMoney(fee),
+            timeStamp = timeStamp,
+            cateName = cateName,
+            extendData = extendData,
+            bookName = bookName,
+            accountNameFrom = accountNameFrom,
+            accountNameTo = accountNameTo,
+            remark = remark
+        )
+    }
+    override fun toString(): String {
+        return """
+            BillInfo(
+                id=$id, 
+                type=$type, 
+                currency=$currency, 
+                money=$money, 
+                fee=$fee, 
+                timeStamp=$timeStamp, 
+                shopName='$shopName', 
+                shopItem='$shopItem', 
+                cateName='$cateName', 
+                extendData='$extendData', 
+                bookName='$bookName', 
+                accountNameFrom='$accountNameFrom', 
+                accountNameTo='$accountNameTo', 
+                from='$from', 
+                fromType=$fromType, 
+                groupId=$groupId, 
+                channel='$channel', 
+                syncFromApp=$syncFromApp, 
+                remark='$remark'
+            )
+        """.trimIndent()
     }
 
 
