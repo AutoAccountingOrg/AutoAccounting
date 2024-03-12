@@ -214,6 +214,7 @@ class DataFragment : BaseFragment() {
     }
 
     override fun onResume() {
+
         super.onResume()
         //加载数据
         loadMoreData()

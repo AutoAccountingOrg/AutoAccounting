@@ -15,67 +15,93 @@
 
 package net.ankio.auto.ui.fragment
 
+import android.net.Uri
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.hjq.toast.Toaster
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.ankio.auto.R
+import net.ankio.auto.app.js.Engine
+import net.ankio.auto.app.model.AppData
+import net.ankio.auto.constant.DataType
+import net.ankio.auto.constant.toDataType
+import net.ankio.auto.database.Db
+import net.ankio.auto.database.table.BillInfoGroup
+import net.ankio.auto.databinding.FragmentDataBinding
+import net.ankio.auto.databinding.FragmentOrderBinding
+import net.ankio.auto.ui.adapter.DataAdapter
+import net.ankio.auto.ui.adapter.OrderAdapter
+import net.ankio.auto.ui.dialog.FloatEditorDialog
+import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.MenuItem
+import net.ankio.auto.utils.AppUtils
+import net.ankio.auto.utils.CustomTabsHelper
+import net.ankio.auto.utils.Github
+import java.io.File
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [OrderFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class OrderFragment : BaseFragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+
     override val menuList: ArrayList<MenuItem>
         get() = arrayListOf(
-            MenuItem(R.string.item_add, R.drawable.menu_item_add){
-
+            MenuItem(R.string.item_sync, R.drawable.float_round){
+                //同步账单
+                AppUtils.startBookApp()
             }
         )
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    private lateinit var binding: FragmentOrderBinding
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var adapter: OrderAdapter
+    private lateinit var layoutManager: LinearLayoutManager
+    private val dataItems = mutableListOf<BillInfoGroup>()
+
+    private lateinit var file: File
+
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_order, container, false)
+    ): View {
+        binding = FragmentOrderBinding.inflate(layoutInflater)
+        recyclerView = binding.recyclerView
+        layoutManager = LinearLayoutManager(requireContext())
+        recyclerView.layoutManager = layoutManager
+
+        adapter = OrderAdapter(dataItems)
+
+
+
+        recyclerView.adapter = adapter
+
+
+
+        return binding.root
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment OrderFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            OrderFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+    private fun loadMoreData() {
+        dataItems.clear()
+        lifecycleScope.launch {
+            dataItems.addAll(Db.get().BillInfoDao().getListGroup())
+            adapter.notifyDataSetChanged()
+        }
+
+
     }
+
+
+    override fun onResume() {
+        super.onResume()
+        //加载数据
+        loadMoreData()
+    }
+
 }

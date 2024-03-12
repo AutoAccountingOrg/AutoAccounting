@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="@dimen/padding">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="@dimen/one_padding"
+        >
+
+        <net.ankio.auto.ui.componets.IconView
+            android:id="@+id/category"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/one_padding"
+            app:text="理财收益"
+            app:iconSrc="@drawable/icon_map"
+            app:iconTintEnabled="true"
+            app:textColor="?colorPrimary"
+            android:textColor="@color/black" />
+
+        <TextView
+            android:id="@+id/date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/one_padding"
+            android:text="11:00:22"
+            android:textColor="?colorSecondary"
+            style="@style/TextAppearance.Material3.TitleMedium"
+           />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp" android:layout_weight="1" />
+
+        <net.ankio.auto.ui.componets.IconView
+            android:id="@+id/money"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            app:text="4.0"
+            app:iconSrc="@drawable/icon_map"
+            app:iconTintEnabled="true"
+            app:textColor="@color/danger"
+         />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+
+            android:id="@+id/remark"
+            android:layout_width="wrap_content"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/one_padding"
+            android:text="余额宝-030222222222222222222222226余额宝收益"
+            android:textColor="?colorAccent"
+            style="@style/TextAppearance.Material3.BodySmall" />
+
+
+        <net.ankio.auto.ui.componets.IconView
+            android:id="@+id/payTools"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            app:text="4.0"
+            app:iconSrc="@drawable/icon_map"
+            app:iconTintEnabled="false"
+            app:textColor="?colorAccent"
+            style="@style/TextAppearance.Material3.BodySmall" />
+    </LinearLayout>
+</LinearLayout>

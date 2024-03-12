@@ -20,6 +20,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 import net.ankio.auto.database.table.BillInfo
+import net.ankio.auto.database.table.BillInfoGroup
 import net.ankio.common.constant.BillType
 
 @Dao
@@ -40,8 +41,8 @@ interface BillInfoDao {
     suspend fun update(billInfo: BillInfo)
     @Delete
     suspend fun delete(billInfo: BillInfo)
-    @Query("SELECT * FROM BillInfo")
-    suspend fun getTotal(): Array<BillInfo>
+    @Query("SELECT  * FROM BillInfo where id in (:ids)")
+    suspend fun getTotal(ids:List<Int>): Array<BillInfo>
     @Query("DELETE FROM BillInfo")
     suspend fun empty()
 
@@ -53,5 +54,8 @@ interface BillInfoDao {
     suspend fun getAllParents(): Array<BillInfo>
 
     @Query("Update BillInfo set syncFromApp=1 where  groupId == 0 and syncFromApp=0"   )
-    suspend fun setAllParents(): Array<BillInfo>
+    suspend fun setAllParents()
+
+    @Query("SELECT  strftime('%Y-%m-%d', timeStamp / 1000, 'unixepoch') as date,group_concat(id) as ids FROM BillInfo where  groupId == 0 group by date order by date desc")
+    suspend fun getListGroup(): List<BillInfoGroup>
 }
