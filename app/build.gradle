@@ -133,16 +133,12 @@ dependencies {
     implementation libs.androidx.room.runtime.v251
     ksp libs.androidx.room.compiler.v251
     implementation libs.androidx.room.ktx
-    //下拉列表
-    //implementation libs.androidx.swiperefreshlayout
     //flexbox
     implementation libs.flexbox
     //圆角
     implementation libs.round
     //js引擎
     implementation libs.rhino
-    //加载库
-    implementation libs.tobeyr1DialogLoading
     //markdown解析
     implementation  libs.markdown
     //bug
@@ -151,8 +147,6 @@ dependencies {
     implementation libs.okhttp
     //常用的工具类
     implementation project(':common')
-    //数据库调试
-    debugImplementation 'com.github.amitshekhariitbhu.Android-Debug-Database:debug-db:development-SNAPSHOT'
-//
+
     implementation libs.remotepreferences
 }
