@@ -17,7 +17,7 @@ package net.ankio.common.constant
 
 enum class BillType(val value: Int)  {
     Expend(0),//支出
-    ExpendReimbursement( 4),//支出（报销）
+    ExpendReimbursement( 4),//支出（记作报销）
     ExpendLending(5),//支出（借出）
     ExpendRepayment(6),//支出（还款销账）
 
