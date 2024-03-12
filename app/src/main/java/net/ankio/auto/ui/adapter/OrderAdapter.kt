@@ -16,38 +16,20 @@
 package net.ankio.auto.ui.adapter
 
 import android.content.Context
-import android.net.Uri
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.elevation.SurfaceColors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import net.ankio.auto.R
-import net.ankio.auto.app.model.AppData
-import net.ankio.auto.constant.DataType
-import net.ankio.auto.constant.toDataType
-import net.ankio.auto.database.Db
 import net.ankio.auto.database.table.BillInfo
-import net.ankio.auto.database.table.BillInfoGroup
-import net.ankio.auto.databinding.AdapterDataBinding
 import net.ankio.auto.databinding.AdapterOrderBinding
-import net.ankio.auto.utils.AppUtils
-import net.ankio.auto.utils.CustomTabsHelper
-import net.ankio.auto.utils.DateUtils
-import net.ankio.auto.utils.Logger
-import org.json.JSONObject
 
 
 class OrderAdapter(
-    private val dataItems: List<BillInfoGroup>,
+    private val dataItems: ArrayList<Pair<String, Array<BillInfo>>>,
 ) : RecyclerView.Adapter<OrderAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -55,10 +37,19 @@ class OrderAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        //根据position获取Array<BillInfo>
         val item = dataItems[position]
-        holder.bind(item,position)
+        holder.bind(item.first, item.second)
     }
 
+    private val job = Job()
+    // 创建一个协程作用域，绑定在 IO 线程
+    private val scope = CoroutineScope(Dispatchers.IO + job)
+
+    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView)
+        job.cancel()
+    }
     override fun getItemCount(): Int {
         return dataItems.size
     }
@@ -71,28 +62,24 @@ class OrderAdapter(
     inner class ViewHolder(private val binding: AdapterOrderBinding,private val context:Context) : RecyclerView.ViewHolder(binding.root) {
         private lateinit var recyclerView: RecyclerView
         private lateinit var adapter: OrderItemAdapter
-        private lateinit var layoutManager: LinearLayoutManager
         private val dataInnerItems=mutableListOf<BillInfo>()
-        private val job = Job()
-        // 创建一个协程作用域，绑定在 IO 线程
-        private val scope = CoroutineScope(Dispatchers.IO + job)
-        fun bind(item: BillInfoGroup,position: Int) {
+
+        fun bind(title:String,bills:Array<BillInfo>) {
             binding.groupCard.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(context))
             recyclerView = binding.recyclerView
-            layoutManager = LinearLayoutManager(context)
+            val layoutManager: LinearLayoutManager = object : LinearLayoutManager(context) {
+                override fun canScrollVertically(): Boolean {
+                    return false
+                }
+            }
             recyclerView.layoutManager = layoutManager
 
             adapter = OrderItemAdapter(dataInnerItems)
             recyclerView.adapter = adapter
             dataInnerItems.clear()
-            scope.launch {
-                dataInnerItems.addAll(Db.get().BillInfoDao().getTotal(item.ids.split(",").map { it.toInt() }))
-                Logger.i("dataInnerItems:${item.ids}")
-                withContext(Dispatchers.Main){
-                    adapter.notifyDataSetChanged()
-                }
-            }
-            binding.title.text = item.date
+            dataInnerItems.addAll(bills)
+            adapter.notifyDataSetChanged()
+            binding.title.text = title
 
         }
         fun cancel(){

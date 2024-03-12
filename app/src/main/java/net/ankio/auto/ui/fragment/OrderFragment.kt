@@ -35,6 +35,7 @@ import net.ankio.auto.app.model.AppData
 import net.ankio.auto.constant.DataType
 import net.ankio.auto.constant.toDataType
 import net.ankio.auto.database.Db
+import net.ankio.auto.database.table.BillInfo
 import net.ankio.auto.database.table.BillInfoGroup
 import net.ankio.auto.databinding.FragmentDataBinding
 import net.ankio.auto.databinding.FragmentOrderBinding
@@ -46,6 +47,7 @@ import net.ankio.auto.ui.utils.MenuItem
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.Github
+import net.ankio.auto.utils.Logger
 import java.io.File
 
 class OrderFragment : BaseFragment() {
@@ -61,10 +63,7 @@ class OrderFragment : BaseFragment() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: OrderAdapter
     private lateinit var layoutManager: LinearLayoutManager
-    private val dataItems = mutableListOf<BillInfoGroup>()
-
-    private lateinit var file: File
-
+    private val dataItems = ArrayList<Pair<String, Array<BillInfo>>>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -90,8 +89,14 @@ class OrderFragment : BaseFragment() {
     private fun loadMoreData() {
         dataItems.clear()
         lifecycleScope.launch {
-            dataItems.addAll(Db.get().BillInfoDao().getListGroup())
-            adapter.notifyDataSetChanged()
+            val list = Db.get().BillInfoDao().getListGroup()
+            list.forEach {
+                val billInfo = Db.get().BillInfoDao().getTotal(it.ids.split(",").map { item -> item.toInt() })
+                dataItems.add(Pair(it.date, billInfo))
+            }
+            withContext(Dispatchers.Main){
+                adapter.notifyDataSetChanged()
+            }
         }
 
 
