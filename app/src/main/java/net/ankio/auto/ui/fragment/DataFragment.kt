@@ -35,6 +35,7 @@ import net.ankio.auto.constant.DataType
 import net.ankio.auto.constant.toDataType
 import net.ankio.auto.databinding.FragmentDataBinding
 import net.ankio.auto.ui.adapter.DataAdapter
+import net.ankio.auto.ui.dialog.FloatEditorDialog
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.CustomTabsHelper
@@ -89,7 +90,14 @@ class DataFragment : BaseFragment() {
                             Toaster.show(R.string.no_match)
                         }
                     } else {
-                       //TODO 弹出记账面板
+
+
+                        AppUtils.getService().config {
+                            FloatEditorDialog(requireActivity(), result,it).show(float = false)
+                        }
+
+
+
                     }
                 }
             },
