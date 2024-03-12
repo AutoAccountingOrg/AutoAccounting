@@ -14,6 +14,7 @@
         android:layout_marginBottom="@dimen/one_padding"
         >
 
+
         <net.ankio.auto.ui.componets.IconView
             android:id="@+id/category"
             android:layout_width="wrap_content"
@@ -23,6 +24,8 @@
             app:iconSrc="@drawable/icon_map"
             app:iconTintEnabled="true"
             app:textColor="?colorPrimary"
+            app:textSize="@dimen/font_size"
+            app:iconSize="@dimen/mini_icon_size"
             android:textColor="@color/black" />
 
         <TextView
@@ -32,7 +35,7 @@
             android:layout_marginEnd="@dimen/one_padding"
             android:text="11:00:22"
             android:textColor="?colorSecondary"
-            style="@style/TextAppearance.Material3.TitleMedium"
+            style="@style/TextAppearance.AppCompat.Medium"
            />
 
         <View
@@ -48,6 +51,8 @@
             app:iconSrc="@drawable/icon_map"
             app:iconTintEnabled="true"
             app:textColor="@color/danger"
+            app:textSize="@dimen/font_size"
+            app:iconSize="10dp"
          />
     </LinearLayout>
 
@@ -66,18 +71,18 @@
             android:layout_marginEnd="@dimen/one_padding"
             android:text="余额宝-030222222222222222222222226余额宝收益"
             android:textColor="?colorAccent"
-            style="@style/TextAppearance.Material3.BodySmall" />
+            style="@style/TextAppearance.AppCompat.Small" />
 
 
         <net.ankio.auto.ui.componets.IconView
             android:id="@+id/payTools"
-            android:layout_width="100dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            app:text="4.0"
+            app:text="4.88888880"
             app:iconSrc="@drawable/icon_map"
             app:iconTintEnabled="false"
-            app:textColor="?colorAccent"
-            style="@style/TextAppearance.Material3.BodySmall" />
+            app:textColor="?colorTertiary"
+            app:textSize="@dimen/font_size"
+            app:iconSize="@dimen/mini_icon_size" />
     </LinearLayout>
 </LinearLayout>

@@ -146,14 +146,15 @@
                 android:layout_alignParentEnd="true"
 
                 tools:ignore="RelativeOverlap" />
-
             <Button
 
-                android:id="@+id/uploadData"
                 style="?attr/materialIconButtonOutlinedStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" android:layout_alignParentEnd="true"
                 app:icon="@drawable/icon_upload"
+                android:id="@+id/uploadData"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="15dp"
+                android:layout_toStartOf="@+id/testRule"
 
                 tools:ignore="RelativeOverlap" />
         </RelativeLayout>

@@ -32,6 +32,7 @@ import net.ankio.auto.app.BillUtils
 import net.ankio.auto.database.table.BillInfo
 import net.ankio.auto.databinding.AdapterOrderItemBinding
 import net.ankio.auto.utils.DateUtils
+import net.ankio.common.constant.BillType
 
 class OrderItemAdapter(
     private val dataItems: List<BillInfo>,
@@ -64,7 +65,19 @@ class OrderItemAdapter(
             binding.date.text = DateUtils.getTime("HH:mm:ss",item.timeStamp)
 
 
-            val drawableRes = when (position) {
+            val type = when (item.type ) {
+                BillType.Expend -> BillType.Expend
+                BillType.ExpendReimbursement -> BillType.Expend
+                BillType.ExpendLending -> BillType.Expend
+                BillType.ExpendRepayment -> BillType.Expend
+                BillType.Income ->   BillType.Income
+                BillType.IncomeLending ->   BillType.Income
+                BillType.IncomeRepayment ->   BillType.Income
+                BillType.IncomeReimbursement ->   BillType.Income
+                BillType.Transfer -> BillType.Transfer
+            }
+
+            val drawableRes = when (type.toInt()) {
                 0 -> R.drawable.float_minus
                 1 -> R.drawable.float_add
                 2 -> R.drawable.float_round
@@ -72,7 +85,7 @@ class OrderItemAdapter(
             }
 
 
-            val tintRes = BillUtils.getColor(position)
+            val tintRes = BillUtils.getColor(type.toInt())
 
 
             val drawable = AppCompatResources.getDrawable(context, drawableRes)

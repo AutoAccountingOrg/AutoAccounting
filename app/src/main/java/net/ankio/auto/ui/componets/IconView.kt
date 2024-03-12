@@ -27,6 +27,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import net.ankio.auto.utils.AppUtils
 
 
 class IconView @JvmOverloads constructor(
@@ -35,7 +36,7 @@ class IconView @JvmOverloads constructor(
 
     private var imageView: ImageView
     private var textView: TextView
-    private var color:Int
+    private var color:Int = 0
 
     init {
         orientation = HORIZONTAL
@@ -56,7 +57,13 @@ class IconView @JvmOverloads constructor(
                 val iconTintEnabled = getBoolean(R.styleable.IconView_iconTintEnabled, true)
                 val icon = getDrawable(R.styleable.IconView_iconSrc)
                 val text = getString(R.styleable.IconView_text)
-                color = getColor(R.styleable.IconView_textColor, Color.BLACK)
+
+                val textSize = getDimension(R.styleable.IconView_textSize, 14f)
+                val iconSize = getDimensionPixelSize(R.styleable.IconView_iconSize, 32)*2
+
+                setTextSize(textSize)
+                setIconSize(iconSize)
+                setColor(getColor(R.styleable.IconView_textColor, Color.BLACK))
 
                 setIcon(icon, iconTintEnabled)
                 setText(text)
@@ -83,6 +90,21 @@ class IconView @JvmOverloads constructor(
     fun getText(): String {
         return textView.text.toString()
     }
+
+    fun setColor(col: Int) {
+        color = col
+    }
+
+    fun setTextSize(size: Float) {
+        textView.textSize = size
+    }
+
+    fun setIconSize(size: Int) {
+        imageView.layoutParams.width = size
+        imageView.layoutParams.height = size
+        imageView.requestLayout()
+    }
+
 
 
 }

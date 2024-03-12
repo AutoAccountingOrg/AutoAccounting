@@ -37,14 +37,14 @@
            android:text="1月12日"
            android:textColor="?colorPrimary"
            android:textStyle="bold"
-           style="@style/TextAppearance.Material3.TitleMedium"
+           android:layout_marginStart="@dimen/padding"
+           style="@style/TextAppearance.Material3.TitleLarge"
            />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="@dimen/padding"
             />
     </LinearLayout>
 
