@@ -15,10 +15,22 @@
 
 package net.ankio.common.model
 
+import net.ankio.common.constant.Currency
+
+/**
+ * 自动记账传递给记账软件的数据模型
+ */
 data class AutoBillModel(
-    val amount: Double,//金额
-    val time: Long,//时间
-    val remark: String,//备注
-    val id: Int = 0,//账单id，自动记账进行报销、销账的时候需要用到
     val type: Int = 0,//账单类型，参考BillType类
+    var currency: Currency = Currency.CNY,//货币类型
+    val amount: Float = 0.00F,//金额
+    var fee: Float = 0.00F,//手续费
+    var timeStamp: Long = 0,//时间戳
+    var cateName: String = "其他",//分类名称
+    var extendData: String = "",//扩展数据
+    var bookName: String = "默认账本",//账本名称
+    var accountNameFrom: String = "",//转出账户名称
+    var accountNameTo: String = "",//转入账户名称
+    val remark: String,//备注
+    val id: Int = 0,//账单id，自动记账生成
 )
