@@ -19,7 +19,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import net.ankio.auto.sdk.exception.AutoAccountingException
 import net.ankio.auto.sdk.utils.RequestUtils
-import net.ankio.common.config.AccountingConfig
+import net.ankio.common.constant.BillType
 
 class AutoAccounting {
     private  val PORT = 52045
@@ -92,9 +92,9 @@ class AutoAccounting {
         /**
          * 设置待报销的账单、借款等信息
          */
-        suspend fun setBills(context: Context,bills:String){
+        suspend fun setBills(context: Context,bills:String,type: BillType){
             checkInit()
-            instance.setBills(context,bills)
+            instance.setBills(context,bills,type)
         }
         /**
          * 获取需要同步到记账App的账单账本等信息
@@ -140,14 +140,19 @@ class AutoAccounting {
             headers = hashMapOf("Authorization" to getToken(context))
         )
         //获取账单后清空原有的账单避免重复同步
-        setBills(context,"")
-        return result.result?:""
-    }
-
-    private suspend fun setBills(context: Context, bills: String) {
         RequestUtils.post(
             url +"set",
             query = hashMapOf("name" to "auto_bills"),
+            data = "",
+            headers = hashMapOf("Authorization" to getToken(context))
+        )
+        return result.result?:""
+    }
+
+    private suspend fun setBills(context: Context, bills: String,type:BillType) {
+        RequestUtils.post(
+            url +"set",
+            query = hashMapOf("name" to "auto_bills_${type.name}"),
             data = bills,
             headers = hashMapOf("Authorization" to getToken(context))
         )
