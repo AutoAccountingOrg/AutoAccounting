@@ -8,6 +8,12 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="使用自动记账需要先获得token，只有自动记账服务已经启动的情况下才有" />
+
     <Button
         android:id="@+id/authorization"
         android:layout_width="match_parent"
@@ -15,6 +21,12 @@
         android:text="请求授权自动记账"
         tools:layout_editor_absoluteX="24dp"
         tools:layout_editor_absoluteY="33dp" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="以下同步内容建议在发生更改的时候全量输出给自动记账" />
 
     <Button
         android:id="@+id/syncBook"
@@ -33,13 +45,31 @@
         tools:layout_editor_absoluteY="90dp" />
 
     <Button
-        android:id="@+id/button4"
+        android:id="@+id/syncReimbursement"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="同步账单给自动记账" />
+        android:text="同步待报销账单给自动记账" />
 
     <Button
-        android:id="@+id/button5"
+        android:id="@+id/syncDebtExpend"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="同步债务账单给自动记账（借钱给别人）" />
+
+    <Button
+        android:id="@+id/syncDebtIncome"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="同步债务账单给自动记账（借别人钱）" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="下面的同步功能建议在onResume中进行，在后台线程处理" />
+
+    <Button
+        android:id="@+id/syncBills"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="从自动记账获取需要同步的账单" />

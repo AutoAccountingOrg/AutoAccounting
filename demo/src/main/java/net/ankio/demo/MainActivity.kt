@@ -32,6 +32,7 @@ import kotlinx.coroutines.launch
 import net.ankio.auto.sdk.AutoAccounting
 import net.ankio.auto.sdk.exception.AutoAccountingException
 import net.ankio.auto.sdk.utils.Logger
+import net.ankio.common.constant.BillType
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,6 +55,9 @@ class MainActivity : AppCompatActivity() {
                 //调用自动记账存储
                 try {
                     AutoAccounting.setToken(this, resultData)
+
+                    //授权成功后可以一次性将所有数据先同步给自动记账
+
                 }catch (e:AutoAccountingException){
                     e.printStackTrace()
                     Toast.makeText(this,"数据为空，可能是因为自动记账服务未启动",Toast.LENGTH_SHORT).show()
@@ -96,6 +100,7 @@ class MainActivity : AppCompatActivity() {
             }
 
         }
+        //设置资产数据
         findViewById<Button>(R.id.syncAssets).setOnClickListener {
             lifecycleScope.launch {
                 try {
@@ -108,11 +113,63 @@ class MainActivity : AppCompatActivity() {
             }
 
         }
-        //TODO 设置资产数据
+        //设置待报销账单
+        findViewById<Button>(R.id.syncReimbursement).setOnClickListener {
+            lifecycleScope.launch {
+                try {
+                    AutoAccounting.setBills(this@MainActivity,Gson().toJson(MockUtils.generateRandomBills(30)),
+                        BillType.ExpendReimbursement //支出时标记为报销的账单
+                    )
+                    Toast.makeText(this@MainActivity,"设置成功",Toast.LENGTH_SHORT).show()
+                }catch (e:AutoAccountingException){
+                    e.printStackTrace()
+                    Toast.makeText(this@MainActivity,"设置失败",Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+        //同步债务账单给自动记账（借钱给别人）
 
-        //TODO 设置账单数据
-
-        //TODO 获取自动记账的账单数据
+        findViewById<Button>(R.id.syncDebtExpend).setOnClickListener {
+            lifecycleScope.launch {
+                try {
+                    AutoAccounting.setBills(this@MainActivity,Gson().toJson(MockUtils.generateRandomBills(10)),
+                        BillType.ExpendLending //借钱给别人
+                    )
+                    Toast.makeText(this@MainActivity,"设置成功",Toast.LENGTH_SHORT).show()
+                }catch (e:AutoAccountingException){
+                    e.printStackTrace()
+                    Toast.makeText(this@MainActivity,"设置失败",Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+        //同步债务账单给自动记账（借别人钱）
+        findViewById<Button>(R.id.syncDebtIncome).setOnClickListener {
+            lifecycleScope.launch {
+                try {
+                    AutoAccounting.setBills(this@MainActivity,Gson().toJson(MockUtils.generateRandomBills(10)),
+                        BillType.IncomeLending //借别人钱
+                    )
+                    Toast.makeText(this@MainActivity,"设置成功",Toast.LENGTH_SHORT).show()
+                }catch (e:AutoAccountingException){
+                    e.printStackTrace()
+                    Toast.makeText(this@MainActivity,"设置失败",Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+        //从自动记账获取需要同步的账单
+        findViewById<Button>(R.id.syncBills).setOnClickListener {
+            //这一步放在onresume里面
+            lifecycleScope.launch {
+                try {
+                    val bills = AutoAccounting.getBills(this@MainActivity)
+                    Logger.i("bills:$bills")
+                    Toast.makeText(this@MainActivity,"获取成功",Toast.LENGTH_SHORT).show()
+                }catch (e:AutoAccountingException){
+                    e.printStackTrace()
+                    Toast.makeText(this@MainActivity,"获取失败",Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
 
     }
     private fun tryStartAutoAccounting() {

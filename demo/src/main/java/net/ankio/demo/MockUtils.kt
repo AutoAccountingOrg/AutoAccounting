@@ -66,8 +66,8 @@ object MockUtils {
                 amount = Random.nextDouble(1.0, 100.0),
                 time = System.currentTimeMillis(),
                 remark = List(10) { Random.nextInt('a'.code, 'z'.code).toChar() }.joinToString(""),
-                id = it,
-                type = Random.nextInt(0, 5)
+                id = it.toString(),
+                type = Random.nextInt(0, 1)
             )
         }
     }
