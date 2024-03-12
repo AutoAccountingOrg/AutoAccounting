@@ -15,14 +15,21 @@
 
 package net.ankio.auto.ui.dialog
 
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.content.Context
 import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.DatePicker
+import android.widget.TimePicker
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.core.widget.TextViewCompat
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.android.material.timepicker.MaterialTimePicker
+import com.google.android.material.timepicker.TimeFormat
 import com.hjq.toast.Toaster
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -32,6 +39,7 @@ import net.ankio.auto.app.BillUtils
 import net.ankio.auto.database.table.BillInfo
 import net.ankio.auto.database.table.BookName
 import net.ankio.auto.databinding.FloatEditorBinding
+import net.ankio.auto.sdk.model.BillModel
 import net.ankio.auto.ui.componets.IconView
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.DateUtils
@@ -41,6 +49,7 @@ import net.ankio.auto.utils.SpUtils
 import net.ankio.common.config.AccountingConfig
 import net.ankio.common.constant.BillType
 import net.ankio.common.constant.Currency
+import java.util.Calendar
 
 class FloatEditorDialog(private val context: Context, private val billInfo: BillInfo, private  val autoAccountingConfig: AccountingConfig,private val float:Boolean = false) :
     BaseSheetDialog(context) {
@@ -48,18 +57,20 @@ class FloatEditorDialog(private val context: Context, private val billInfo: Bill
     private var billTypeLevel1 = BillType.Expend
     private var billTypeLevel2 = BillType.Expend
     private var billCategory = ""
+    private var rawChooseDebt = ""
+    private var rawChooseReimbursement = ""
     override fun onCreateView(inflater: LayoutInflater): View {
         binding = FloatEditorBinding.inflate(inflater)
         cardView = binding.editorCard
 
-        Logger.d("onCreateView => $billInfo")
+        Logger.d("原始账单结果 => $billInfo",true)
 
         billTypeLevel1 = billInfo.type
         billTypeLevel2 = billInfo.type
         binding.radioContainer.check(binding.radioNone.id)
         billCategory = billInfo.cateName
-
-
+        rawChooseDebt = binding.chooseDebt.text.toString()
+        rawChooseReimbursement =  binding.chooseReimbursement.text.toString()
      //   billInfo.remark = BillUtils.getRemark(billInfo)
 
         bindUI()
@@ -74,30 +85,101 @@ class FloatEditorDialog(private val context: Context, private val billInfo: Bill
         //确定按钮
         binding.sureButton.setOnClickListener {
 
+            val bill = getBillData()
 
-            //TODO 应用UI上的更改
+            Logger.d("最终账单结果 => $bill",true)
+
 
 
             lifecycleScope.launch {
-                BillUtils.groupBillInfo(billInfo)
-                if (!SpUtils.getBoolean("float_no_disturb")) {
+                BillUtils.groupBillInfo(bill)
+                if (SpUtils.getBoolean("setting_book_success", true)) {
                     Toaster.show(
                         context.getString(
                             R.string.auto_success,
-                            billInfo.money.toString()
+                            BillUtils.getFloatMoney(billInfo.money).toString()
                         )
                     )
                 }
+                dismiss()
             }
+         //   dismiss()
         }
 
 
         return binding.root
     }
 
+    //综合以上内容，应用到billInfo对象上
+
+    private fun getBillData(): BillInfo {
+       return BillInfo().apply {
+           this.channel = billInfo.channel
+           this.from = billInfo.from
+           this.fromType = billInfo.fromType
+            this.money = billInfo.money
+            this.type = billInfo.type
+            this.fee = billInfo.fee
+            this.bookName = billInfo.bookName
+           this.type = billTypeLevel2
+
+           when(billTypeLevel2){
+                BillType.Expend -> {
+                     this.accountNameFrom = binding.payFrom.getText()
+                     this.accountNameTo = ""
+                }
+                BillType.Income -> {
+                    this.accountNameFrom = binding.payFrom.getText()
+                    this.accountNameTo = ""
+                }
+                BillType.Transfer -> {
+                    this.accountNameFrom = binding.transferFrom.getText()
+                    this.accountNameTo = binding.transferTo.getText()
+                }
+
+               BillType.ExpendReimbursement -> {
+                     this.accountNameFrom = binding.payFrom.getText()
+                     this.accountNameTo = ""
+               }
+               BillType.IncomeReimbursement -> {
+                   this.accountNameFrom = binding.payFrom.getText()
+                   this.extendData = selectedBills.joinToString { it.id }
+               }
+               BillType.ExpendLending -> {
+                   this.accountNameFrom = binding.debtExpendFrom.getText()
+                   this.accountNameTo = binding.debtExpendTo.getText().toString()
+               }
+               BillType.ExpendRepayment -> {
+                     this.accountNameFrom = binding.payFrom.getText()
+                   this.extendData = selectedBills.joinToString { it.id }
+               }
+               BillType.IncomeLending -> {
+                   this.accountNameFrom =  binding.debtIncomeFrom.getText().toString()
+                   this.accountNameTo =  binding.debtIncomeTo.getText()
+               }
+               BillType.IncomeRepayment -> {
+                   this.accountNameFrom = binding.payFrom.getText()
+                   this.extendData = selectedBills.joinToString { it.id }
+               }
+
+           }
+
+
+            this.shopName = billInfo.shopName
+            this.shopItem = billInfo.shopItem
+
+            this.cateName = billInfo.cateName
+
+            this.currency = billInfo.currency
+
+            this.timeStamp = billInfo.timeStamp
+            this.remark = binding.remark.text.toString()
+        }
+
+    }
 
     private fun bindingTypePopupUI(){
-        binding.priceContainer.text = billInfo.money.toString()
+        binding.priceContainer.text =BillUtils.getFloatMoney(billInfo.money).toString()
         setPriceColor(billTypeLevel1.toInt())
     }
 
@@ -130,7 +212,7 @@ class FloatEditorDialog(private val context: Context, private val billInfo: Bill
             binding.fee.visibility = View.GONE
         }else{
             binding.fee.visibility = View.VISIBLE
-            binding.fee.setText(billInfo.fee.toString())
+            binding.fee.setText(BillUtils.getFloatMoney(billInfo.fee).toString())
         }
     }
 
@@ -363,13 +445,15 @@ class FloatEditorDialog(private val context: Context, private val billInfo: Bill
         setDebt(binding.reimbursement.isChecked)
         binding.debtContainer.visibility = View.VISIBLE
 
-
-
-
         binding.chooseDebt.visibility = if(billTypeLevel2 == BillType.IncomeRepayment || billTypeLevel2 == BillType.ExpendRepayment) View.VISIBLE else View.GONE
        // binding.reimbursement.isChecked = (billInfo.type == BillType.ExpendLending || billInfo.type == BillType.IncomeLending)
 
+        binding.chooseDebt.text = rawChooseDebt
+        selectedBills.clear()
     }
+
+    private val selectedBills:ArrayList<BillModel> = ArrayList()
+
 
     private fun bindingDebtEvents() {
         binding.reimbursement.setOnCheckedChangeListener { buttonView, isChecked ->
@@ -382,9 +466,25 @@ class FloatEditorDialog(private val context: Context, private val billInfo: Bill
 
         }
 
-        binding.chooseDebt.setOnClickListener {
-            //TODO 债务账单选择列表
+        fun getBillType(type: BillType): BillType {
+           return when(type){
+                BillType.ExpendLending -> BillType.ExpendRepayment
+                BillType.IncomeLending -> BillType.IncomeRepayment
+                BillType.ExpendRepayment -> BillType.ExpendLending
+                BillType.IncomeRepayment -> BillType.IncomeLending
+                else -> BillType.ExpendLending
+            }
         }
+
+        binding.chooseDebt.setOnClickListener {
+
+            BillSelectorDialog(context,getBillType(billTypeLevel2),selectedBills){
+                binding.chooseDebt.text = context.getString(R.string.float_debt_selected,selectedBills.size)
+            }.show(float)
+
+        }
+
+
     }
 
 
@@ -396,14 +496,22 @@ class FloatEditorDialog(private val context: Context, private val billInfo: Bill
         if(billTypeLevel2 == BillType.IncomeReimbursement){
             binding.chooseReimbursement.visibility = View.VISIBLE
         }
+
+        binding.chooseReimbursement.text = rawChooseReimbursement
+        selectedBills.clear()
     }
 
     private fun bindingReimbursementEvents() {
-
-
         binding.chooseReimbursement.setOnClickListener {
-            //TODO 报销账单选择列表
+            BillSelectorDialog(context,BillType.ExpendReimbursement,selectedBills){
+                binding.chooseReimbursement.text = context.getString(R.string.float_debt_selected,selectedBills.size)
+            }.show(float)
         }
+        if(!autoAccountingConfig.reimbursement || billTypeLevel2 != BillType.IncomeReimbursement){
+            return
+        }
+
+
     }
    private fun bindingCategoryUI(){
         binding.category.visibility = View.VISIBLE
@@ -457,9 +565,48 @@ class FloatEditorDialog(private val context: Context, private val billInfo: Bill
         binding.time.setText(DateUtils.getTime(billInfo.timeStamp))
     }
 
+
+    private fun showDateTimePicker(defaultTimestamp: Long) {
+        val calendar = Calendar.getInstance().apply {
+            timeInMillis = defaultTimestamp
+        }
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH)
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+        val hour = calendar.get(Calendar.HOUR_OF_DAY)
+        val minute = calendar.get(Calendar.MINUTE)
+
+        // 创建并显示日期选择器
+        val datePickerDialog = DatePickerDialog(
+            context, { _: DatePicker, selectedYear: Int, selectedMonth: Int, selectedDay: Int ->
+                // 更新日历对象的日期
+                calendar.set(Calendar.YEAR, selectedYear)
+                calendar.set(Calendar.MONTH, selectedMonth)
+                calendar.set(Calendar.DAY_OF_MONTH, selectedDay)
+
+                // 创建并显示时间选择器
+                val timePickerDialog = TimePickerDialog(
+                    context, { _: TimePicker, selectedHour: Int, selectedMinute: Int ->
+                        // 更新日历对象的时间
+                        calendar.set(Calendar.HOUR_OF_DAY, selectedHour)
+                        calendar.set(Calendar.MINUTE, selectedMinute)
+
+                        // 最终的日期和时间结果
+                         billInfo.timeStamp = calendar.timeInMillis
+                        bindingTimeUI()
+                        // 处理最终的时间戳
+                    }, hour, minute, true
+                )
+                timePickerDialog.show()
+            }, year, month, day
+        )
+        datePickerDialog.show()
+    }
+
     private fun bindingTimeEvents(){
         binding.time.setOnClickListener {
-            //TODO 时间选择器
+            //弹出时间选择器 时间选择器
+            showDateTimePicker(billInfo.timeStamp)
         }
     }
 
@@ -468,7 +615,7 @@ class FloatEditorDialog(private val context: Context, private val billInfo: Bill
     }
 
     private fun bindingRemarkEvents(){
-       // TODO
+
     }
 
     private fun bindUI(){
@@ -526,14 +673,8 @@ class FloatEditorDialog(private val context: Context, private val billInfo: Bill
             else -> R.drawable.float_minus
         }
 
-        val payColor = SpUtils.getInt("setting_pay_color_red",0)
 
-        val tintRes = when (position) {
-            0 -> if(payColor == 0) R.color.danger else R.color.success
-            1 ->if(payColor == 1) R.color.danger else R.color.success
-            2 -> R.color.info
-            else -> R.color.danger
-        }
+        val tintRes = BillUtils.getColor(position)
 
 
         val drawable = AppCompatResources.getDrawable(context, drawableRes)
