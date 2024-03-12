@@ -212,4 +212,15 @@ object  AppUtils {
         return paint.measureText(text).toInt()
     }
 
+    /**
+     * 打开记账软件应用
+     */
+    fun startBookApp() {
+        val packageName = SpUtils.getString("bookApp", "")
+        val launchIntent = application.packageManager.getLaunchIntentForPackage(packageName)
+        if (launchIntent != null) {
+            application.startActivity(launchIntent)
+        }
+    }
+
 }
