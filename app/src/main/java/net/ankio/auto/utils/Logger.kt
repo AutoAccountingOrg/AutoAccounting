@@ -45,7 +45,7 @@ object Logger {
     }
 
     private fun createLogMessage(message: String): String {
-        val stackTraceElement = Throwable().stackTrace[3] // 获取调用日志方法的堆栈跟踪元素
+        val stackTraceElement = Throwable().stackTrace[4] // 获取调用日志方法的堆栈跟踪元素
 
         return StringBuilder().apply {
             append("┌───────────────────────────────────────────────────────────────\n")
@@ -73,7 +73,7 @@ object Logger {
         return Throwable().stackTrace[2].className.substringAfterLast('.')
     }
 
-    private fun printLog(type: Int, tag: String, message: String) {
+    private fun printLog(type: Int, tag: String, message: String,save:Boolean = false) {
         if (message.contains(AutoAccountingServiceUtils.getUrl("/log"))) {
             return
         }
@@ -109,13 +109,16 @@ object Logger {
 
 
         }
+        if (save){
+            AppUtils.getService().putLog(logMessage)
+        }
     }
 
-    fun d(message: String) {
-        printLog(Log.DEBUG, getTag(), message)
+    fun d(message: String,save:Boolean = false) {
+        printLog(Log.DEBUG, getTag(), message,save)
     }
 
-    fun e(message: String, throwable: Throwable? = null) {
+    fun e(message: String, throwable: Throwable? = null,save:Boolean = false) {
         val messageInfo = StringBuilder()
         messageInfo.append(message).append("\n")
         if (throwable != null) {
@@ -130,15 +133,15 @@ object Logger {
                     .append(it.lineNumber).append(")\n")
             }
         }
-        printLog(Log.ERROR, getTag(), messageInfo.toString())
+        printLog(Log.ERROR, getTag(), messageInfo.toString(),save)
     }
 
-    fun i(message: String) {
-        printLog(Log.INFO, getTag(), message)
+    fun i(message: String,save:Boolean = false) {
+        printLog(Log.INFO, getTag(), message,save)
     }
 
-    fun w(message: String) {
-        printLog(Log.WARN, getTag(), message)
+    fun w(message: String,save:Boolean = false) {
+        printLog(Log.WARN, getTag(), message,save)
     }
 
 }
