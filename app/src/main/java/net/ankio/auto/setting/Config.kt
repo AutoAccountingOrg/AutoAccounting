@@ -334,7 +334,7 @@ object Config {
                 key = "setting_debug",
                 icon = R.drawable.setting2_icon_debug,
                 type = ItemType.SWITCH,
-                onSavedValue = { value, activity ->
+                onSavedValue = { value, _ ->
                     AppUtils.setDebug(value as Boolean)
                 },
                 default = false,
@@ -351,8 +351,11 @@ object Config {
                 key = "setting_bill_remark",
                 subTitle = R.string.setting_bill_remark_desc,
                 type = ItemType.INPUT,
-                default = "",
-                icon = R.drawable.setting2_icon_anonymous
+                default = "【商户名称】 - 【商品名称】",
+                icon = R.drawable.setting2_icon_anonymous,
+                onSavedValue = { value, activity ->
+                    AppUtils.getService().set("setting_bill_remark", value as String)
+                },
             ),
             //去重
             SettingItem(
@@ -360,8 +363,11 @@ object Config {
                 subTitle = R.string.setting_bill_repeat_desc,
                 key = "setting_bill_repeat",
                 type = ItemType.SWITCH,
-                default = false,
-                icon = R.drawable.setting2_icon_anonymous
+                default = true,
+                icon = R.drawable.setting2_icon_anonymous,
+                onSavedValue = { value, activity ->
+                    AppUtils.getService().set("setting_bill_repeat", value.toString())
+                },
             ),
             //悬浮窗
             SettingItem(R.string.setting_float),
@@ -421,14 +427,19 @@ object Config {
                 type = ItemType.SWITCH,
                 default = false,
                 icon = R.drawable.setting2_icon_anonymous
+
             ),
             SettingItem(
                 title = R.string.setting_category_show_parent,
                 key = "setting_category_show_parent",
-               // subTitle = R.string.setting_category_show_parent_desc,
+                subTitle = R.string.setting_category_show_parent_desc,
                 type = ItemType.SWITCH,
                 default = false,
-                icon = R.drawable.setting2_icon_anonymous
+                icon = R.drawable.setting2_icon_anonymous,
+                onSavedValue = { value, activity ->
+                    AppUtils.getService().set("setting_category_show_parent", value.toString())
+                },
+
             ),
 
             SettingItem(R.string.setting_color),
@@ -443,6 +454,17 @@ object Config {
                     context.getString(R.string.setting_pay_color_green) to 1,
                 ),
             ),
+
+            SettingItem(R.string.setting_book),
+            SettingItem(
+                title = R.string.setting_book_success,
+                key = "setting_book_success",
+                // subTitle = R.string.setting_category_show_parent_desc,
+                type = ItemType.SWITCH,
+                default = false,
+                icon = R.drawable.setting2_icon_anonymous,
+
+                ),
         )
     }
 }
