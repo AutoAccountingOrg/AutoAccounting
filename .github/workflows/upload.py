@@ -1,8 +1,11 @@
 from urllib.parse import quote
 
 import requests
+import markdown
 import json
+import time
 import os
+import re
 # 登录
 username = os.getenv('USERNAME_ENV_VAR')
 password = os.getenv('PASSWORD_ENV_VAR')
@@ -47,10 +50,31 @@ def upload(filename, filename_new, auth):
     print(res.text)
 
 
+
+name = os.getenv("TAG_VERSION_NAME")
+code = os.getenv("VERSION_CODE")
 changeLog = os.getenv('CHANGELOG')
-log = "Ver "+os.getenv("TAG_VERSION_NAME")+"\n"+changeLog
+html = markdown.markdown(changeLog)
+
+t = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+
+data= {
+    "version": name,
+    "code": extract_int(name),
+    "log": html,
+    "date": t
+}
+
+json_str = json.dumps(data, indent=4)
+
+with open(os.getenv("GITHUB_WORKSPACE")+"/release/index.json", 'w') as file:
+    file.writelines(json_str)
+
 with open(os.getenv("GITHUB_WORKSPACE")+"/release/README.md", 'w') as file:
-    file.writelines(log)
+    file.writelines("# 更新日志\n - 时间："+t+"\n - 版本："+name+"\n"+changeLog)
+
+
 upload("/release/README.md", "README.md", token)
+upload("/release/index.json", "index.json", token)
 upload("/release/app-xposed.apk", "xposed.apk", token)
 # TODO 除了上传文件到服务器以外，还需要通过bot通知到自动记账群的用户。

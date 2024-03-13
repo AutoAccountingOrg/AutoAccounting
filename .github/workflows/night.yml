@@ -28,6 +28,8 @@ jobs:
       - name: Build and Upload APKs
         run: |
           mkdir release
+          # 构建二进制文件
+          ./gradlew app:buildCMakeRelWithDebInfo
           # 优先构建xposed版本
           for flavor in xposed ; do
             ./gradlew "assemble${flavor^}Release"
@@ -49,7 +51,9 @@ jobs:
       - name: Read versionName from build.gradle
         run: |
           versionName=$(grep 'versionName' app/build.gradle | sed -n 's/.*versionName "\([^"]*\)".*/\1/p' | tr -d '[:space:]')
+          versionCode=$(grep 'versionCode' app/build.gradle |  awk '{print $2}' | tr -d '[:space:]')
           echo "VERSION_NAME=$versionName" >> $GITHUB_ENV
+          echo "VERSION_CODE=versionCode" >> $GITHUB_ENV
         shell: bash
 
       - name: Build Changelog
@@ -65,7 +69,7 @@ jobs:
         run: echo "TAG_VERSION_NAME=v${{ env.VERSION_NAME }}-commit-$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
       - name: Upload Apks
         id: upload_apk
-        run: pip install requests && python .github/workflows/upload.py
+        run: pip install requests markdown && python .github/workflows/upload.py
         env:
           CHANGELOG: ${{steps.github_release.outputs.changelog}}
           GITHUB_WORKSPACE: ${{ env.GITHUB_WORKSPACE }}
