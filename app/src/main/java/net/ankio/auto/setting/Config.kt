@@ -352,7 +352,7 @@ object Config {
                 subTitle = R.string.setting_bill_remark_desc,
                 type = ItemType.INPUT,
                 default = "【商户名称】 - 【商品名称】",
-                icon = R.drawable.setting2_icon_anonymous,
+                icon = R.drawable.setting_icon_remark,
                 onSavedValue = { value, activity ->
                     AppUtils.getService().set("setting_bill_remark", value as String)
                 },
@@ -364,7 +364,7 @@ object Config {
                 key = "setting_bill_repeat",
                 type = ItemType.SWITCH,
                 default = true,
-                icon = R.drawable.setting2_icon_anonymous,
+                icon = R.drawable.setting_icon_repeat,
                 onSavedValue = { value, activity ->
                     AppUtils.getService().set("setting_bill_repeat", value.toString())
                 },
@@ -376,8 +376,7 @@ object Config {
                 key = "setting_float_time",
                 subTitle = R.string.setting_float_time_desc,
                 type = ItemType.INPUT,
-                default = "10",
-                icon = R.drawable.setting2_icon_anonymous
+                default = 10
             ),
 
             SettingItem(
@@ -385,7 +384,7 @@ object Config {
                 key = "setting_float_on_badge_click",
                 type = ItemType.TEXT,
                 default = FloatEvent.POP_EDIT_WINDOW.ordinal,
-                icon = R.drawable.setting2_icon_anonymous,
+                icon = R.drawable.setting_icon_click,
                 selectList = hashMapOf(
                     context.getString(R.string.pop_edit_window) to FloatEvent.POP_EDIT_WINDOW.ordinal,
                     context.getString(R.string.auto_account) to FloatEvent.AUTO_ACCOUNT.ordinal,
@@ -398,7 +397,7 @@ object Config {
                 key = "setting_float_on_badge_long_click",
                 type = ItemType.TEXT,
                 default = FloatEvent.NO_ACCOUNT.ordinal,
-                icon = R.drawable.setting2_icon_anonymous,
+                icon = R.drawable.setting_icon_long_click,
                 selectList = hashMapOf(
                     context.getString(R.string.pop_edit_window) to FloatEvent.POP_EDIT_WINDOW.ordinal,
                     context.getString(R.string.auto_account) to FloatEvent.AUTO_ACCOUNT.ordinal,
@@ -411,7 +410,7 @@ object Config {
                 key = "setting_float_on_badge_timeout",
                 type = ItemType.TEXT,
                 default = FloatEvent.POP_EDIT_WINDOW.ordinal,
-                icon = R.drawable.setting2_icon_anonymous,
+                icon = R.drawable.setting_icon_timeout,
                 selectList = hashMapOf(
                     context.getString(R.string.pop_edit_window) to FloatEvent.POP_EDIT_WINDOW.ordinal,
                     context.getString(R.string.auto_account) to FloatEvent.AUTO_ACCOUNT.ordinal,
@@ -426,7 +425,7 @@ object Config {
                 subTitle = R.string.setting_auto_create_category_desc,
                 type = ItemType.SWITCH,
                 default = false,
-                icon = R.drawable.setting2_icon_anonymous
+                icon = R.drawable.setting_icon_auto
 
             ),
             SettingItem(
@@ -435,7 +434,7 @@ object Config {
                 subTitle = R.string.setting_category_show_parent_desc,
                 type = ItemType.SWITCH,
                 default = false,
-                icon = R.drawable.setting2_icon_anonymous,
+                icon = R.drawable.setting_icon_parent,
                 onSavedValue = { value, activity ->
                     AppUtils.getService().set("setting_category_show_parent", value.toString())
                 },
@@ -448,7 +447,7 @@ object Config {
                 key = "setting_pay_color_red",
                 type = ItemType.TEXT,
                 default = 0,
-                icon = R.drawable.setting2_icon_anonymous,
+                icon = R.drawable.setting_icon_color,
                 selectList = hashMapOf(
                     context.getString(R.string.setting_pay_color_red) to 0,
                     context.getString(R.string.setting_pay_color_green) to 1,
@@ -461,8 +460,8 @@ object Config {
                 key = "setting_book_success",
                 // subTitle = R.string.setting_category_show_parent_desc,
                 type = ItemType.SWITCH,
-                default = false,
-                icon = R.drawable.setting2_icon_anonymous,
+                default = true,
+                icon = R.drawable.setting_icon_success,
 
                 ),
         )
