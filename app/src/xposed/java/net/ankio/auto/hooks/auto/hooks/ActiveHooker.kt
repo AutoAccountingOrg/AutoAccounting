@@ -22,11 +22,12 @@ import de.robv.android.xposed.XC_MethodReplacement
 import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.api.Hooker
 import net.ankio.auto.api.PartHooker
-import net.ankio.auto.database.table.AccountMap
-import net.ankio.auto.utils.ActiveUtils
+import net.ankio.auto.database.table.AssetsMap
 
 
 class ActiveHooker(hooker: Hooker) : PartHooker(hooker) {
+    override val hookName: String
+        get() = "自动记账激活"
     override fun onInit(classLoader: ClassLoader?, context: Context?) {
         val activeUtils = XposedHelpers.findClass("net.ankio.auto.utils.ActiveUtils", classLoader)
         // hook激活方法
@@ -37,28 +38,6 @@ class ActiveHooker(hooker: Hooker) : PartHooker(hooker) {
             XC_MethodReplacement.returnConstant(true)
         )
 
-        // hook getAccountMap方法
-        XposedHelpers.findAndHookMethod(
-            activeUtils,
-            "getAccountMap",
-            object : XC_MethodReplacement() {
-                override fun replaceHookedMethod(param: MethodHookParam): Any? {
-                    val string = getConfig("AccountMap")
-                    if(string.isEmpty()){
-                        return arrayListOf<AccountMap>()
-                    }
-                    return  Gson().fromJson(string, object : TypeToken<List<AccountMap?>?>() {}.type)
-                }
-            })
-
-
-        //fun getDataRule(): String {
-        //        return ""
-        //    }
-        //
-        //    fun getDataCategory(): String {
-        //        return ""
-        //    }
 
     }
 }
