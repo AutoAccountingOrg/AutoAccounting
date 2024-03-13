@@ -186,6 +186,12 @@ class FloatEditorDialog(
                         )
                     )
                 }
+
+                if(billCategory!=bill.cateName && SpUtils.getBoolean("setting_auto_create_category", false)){
+                    //弹出询问框
+                    BillCategoryDialog(context,bill).show(float)
+                }
+
                 dismiss()
             }
             //   dismiss()

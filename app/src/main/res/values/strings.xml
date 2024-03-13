@@ -296,4 +296,5 @@
     <string name="float_debt_selected">已选择%d条账单</string>
     <string name="item_sync">同步</string>
     <string name="more_bill">当前账单由以下账单合并而成</string>
+    <string name="auto_category">检测到保存账单时使用的分类与自动记账规则识别的分类不一致，是否为您生成新的分类规则？</string>
 </resources>

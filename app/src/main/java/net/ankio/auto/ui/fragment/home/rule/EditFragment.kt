@@ -511,16 +511,7 @@ class EditFragment : BaseFragment() {
                 }
             }
 
-            val rule = StringBuilder()
-
-            Db.get().RegularDao().loadAll()?.forEach {
-                if (it != null) {
-                    rule.append(it.js).append("\n")
-                }
-            }
-
-            AppUtils.getService().set("auto_category_custom", rule.toString())
-
+            BillUtils.syncRules()
             findNavController().popBackStack()//返回上一个页面
         }
 

@@ -267,13 +267,31 @@ object BillUtils {
         }
     }
 
+    /**
+     * 将 100 转换为 1.00
+     */
     fun getFloatMoney(money: Int): Float {
         val df = DecimalFormat("#.00")
         val amount = df.format(money / 100.0f)
         return amount.toFloat()
     }
-
+    /**
+     * 将 1.0023323232 转换为 100
+     */
     fun getMoney(money: Float): Int {
         return (money * 100.0f).toInt()
+    }
+    /**
+     * 同步自定义规则到远程目录
+     */
+    suspend fun syncRules() = withContext(Dispatchers.IO){
+        Logger.i("同步自定义规则到远程目录")
+        val rule = StringBuilder()
+        Db.get().RegularDao().loadAll()?.forEach {
+            if (it != null) {
+                rule.append(it.js).append("\n")
+            }
+        }
+        AppUtils.getService().set("auto_category_custom", rule.toString())
     }
 }
