@@ -41,8 +41,10 @@ import net.ankio.auto.utils.ViewUtils
 
 
 class SettingUIHooker(hooker: Hooker) :PartHooker(hooker) {
+    override val hookName: String
+        get() = "支付宝设置页面"
     override fun onInit(classLoader: ClassLoader?, context: Context?) {
-        logD("支付宝设置页面Hook")
+
         XposedHelpers.findAndHookMethod("com.alipay.mobile.framework.app.ui.BaseActivity",classLoader,"setContentView",View::class.java,object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
                 logD("支付宝设置页面Hook成功，添加自动记账设置项目中....")
