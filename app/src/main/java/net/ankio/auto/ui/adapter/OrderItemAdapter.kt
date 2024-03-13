@@ -18,6 +18,7 @@ package net.ankio.auto.ui.adapter
 import android.content.Context
 import android.content.res.ColorStateList
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
@@ -31,11 +32,15 @@ import net.ankio.auto.R
 import net.ankio.auto.app.BillUtils
 import net.ankio.auto.database.table.BillInfo
 import net.ankio.auto.databinding.AdapterOrderItemBinding
+import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.DateUtils
 import net.ankio.common.constant.BillType
 
 class OrderItemAdapter(
     private val dataItems: List<BillInfo>,
+
+    private val onItemChildClick:( (item: BillInfo, position: Int) -> Unit)?,
+    private val onItemChildMoreClick:( (item: BillInfo, position: Int) -> Unit)?
 ) : RecyclerView.Adapter<OrderItemAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -51,10 +56,20 @@ class OrderItemAdapter(
         return dataItems.size
     }
 
+    private val job = Job()
+    // 创建一个协程作用域，绑定在 IO 线程
+    private val scope = CoroutineScope(Dispatchers.IO + job)
+
+    /**
+     * ViewHolder被回收时调用
+     */
+    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView)
+        job.cancel()
+    }
+
     inner class ViewHolder(private val binding: AdapterOrderItemBinding, private val context: Context) : RecyclerView.ViewHolder(binding.root) {
-        private val job = Job()
-        // 创建一个协程作用域，绑定在 IO 线程
-        private val scope = CoroutineScope(Dispatchers.IO + job)
+
         fun bind(item: BillInfo, position: Int) {
             binding.category.setText(item.cateName)
             scope.launch {
@@ -104,6 +119,31 @@ class OrderItemAdapter(
                 BillInfo.getAccountDrawable(item.accountNameFrom,context) {
                     binding.payTools.setIcon(it,false)
                 }
+            }
+
+            binding.channel.text = item.channel
+            scope.launch {
+               AppUtils.getAppInfoFromPackageName(item.from,context)?.let {
+             //      binding.fromApp.text = it.name
+                   binding.fromApp.icon = it.icon
+               }
+            }
+         //   binding.fromApp.setIcon()
+
+            binding.root.setOnClickListener {
+                onItemChildClick?.invoke(item,position)
+            }
+
+            if(BillUtils.noNeedFilter(item)){
+                binding.moreBills.visibility = View.GONE
+            }
+
+            if(onItemChildMoreClick==null){
+                binding.moreBills.visibility = View.GONE
+            }
+
+            binding.moreBills.setOnClickListener {
+                onItemChildMoreClick?.invoke(item,position)
             }
         }
     }

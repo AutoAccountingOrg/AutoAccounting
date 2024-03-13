@@ -85,4 +85,45 @@
             app:textSize="@dimen/font_size"
             app:iconSize="@dimen/mini_icon_size" />
     </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/one_padding"
+
+        >
+        <TextView
+            android:id="@+id/channel"
+            style="@style/TextAppearance.AppCompat.Small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="?attr/colorOnPrimary"
+            android:paddingLeft="@dimen/padding"
+            android:paddingRight="@dimen/padding"
+            android:paddingTop="@dimen/one_padding"
+            android:paddingBottom="@dimen/one_padding"
+            android:text="测试"
+            android:background="@drawable/rounded_background"
+            />
+
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp" android:layout_weight="1" />
+
+        <com.google.android.material.button.MaterialButton
+
+            style="?attr/materialIconButtonFilledTonalStyle"
+            app:icon="@drawable/icon_test"
+            android:id="@+id/fromApp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
+        <Button
+            style="?attr/materialIconButtonOutlinedStyle"
+            app:icon="@drawable/menu_item_more"
+            android:id="@+id/moreBills"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
 </LinearLayout>

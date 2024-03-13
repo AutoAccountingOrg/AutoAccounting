@@ -58,4 +58,6 @@ interface BillInfoDao {
 
     @Query("SELECT  strftime('%Y-%m-%d', timeStamp / 1000, 'unixepoch') as date,group_concat(id) as ids FROM BillInfo where  groupId == 0 group by date order by date desc")
     suspend fun getListGroup(): List<BillInfoGroup>
+    @Query("SELECT * from BillInfo where groupId = :id"   )
+    suspend fun getChild(id: Int): Array<BillInfo>
 }
