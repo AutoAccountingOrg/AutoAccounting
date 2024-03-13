@@ -93,7 +93,7 @@ class MainActivity : BaseActivity() {
         //初始化底部导航栏
         onBottomViewInit()
 
-        AppUtils.setService(AppUtils.getApplication())
+
         //检查自动记账服务
         lifecycleScope.launch {
             checkAutoService()

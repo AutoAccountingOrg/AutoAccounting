@@ -94,7 +94,7 @@
                         app:singleSelection="true"
                         app:selectionRequired="true">
 
-                        <Button
+                        <com.google.android.material.button.MaterialButton
                             android:id="@+id/radio_none"
                             style="?attr/materialButtonOutlinedStyle"
                             android:layout_width="wrap_content"
@@ -102,7 +102,7 @@
                             android:layout_weight="1"
                             android:text="@string/float_none" />
 
-                        <Button
+                        <com.google.android.material.button.MaterialButton
                             android:id="@+id/radio_debt"
                             style="?attr/materialButtonOutlinedStyle"
                             android:layout_width="wrap_content"
@@ -110,7 +110,7 @@
                             android:layout_weight="1"
                             android:text="@string/float_debt" />
 
-                        <Button
+                        <com.google.android.material.button.MaterialButton
                             android:id="@+id/radio_reimbursement"
                             style="?attr/materialButtonOutlinedStyle"
                             android:layout_width="wrap_content"

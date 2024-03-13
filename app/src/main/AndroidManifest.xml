@@ -41,6 +41,9 @@
                 <action android:name="net.ankio.auto.ACTION_SHOW_FLOATING_WINDOW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
+                <data
+                    android:path="/bill"
+                    android:scheme="autoaccounting" />
             </intent-filter>
         </activity>
         <activity

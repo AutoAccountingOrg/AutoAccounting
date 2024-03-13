@@ -35,7 +35,7 @@ object FloatPermissionUtils {
     @JvmStatic
     fun requestPermission(activity: Activity){
         val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-            Uri.parse("package:${context.packageName}"))
+            Uri.parse("package:${AppUtils.getApplication().packageName}"))
         activity.startActivity(intent)
     }
 

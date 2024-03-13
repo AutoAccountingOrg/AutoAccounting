@@ -18,58 +18,57 @@ package net.ankio.auto.ui.activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import com.hjq.toast.Toaster
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.launch
+import com.hjq.toast.Toaster
 import net.ankio.auto.R
-import net.ankio.auto.app.BillUtils
 import net.ankio.auto.database.table.BillInfo
 import net.ankio.auto.service.FloatingWindowService
-import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.FloatPermissionUtils
-import net.ankio.auto.utils.SpUtils
+import net.ankio.auto.utils.Logger
+
 
 class FloatingWindowTriggerActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val data = intent.getStringExtra("data")
+        // 获取启动此Activity的Intent
+        val intent = intent
+        // 获取Intent中的URI数据
+        val data = intent.data
         if (data === null) {
             //没数据耍流氓
-            finish()
+            exitActivity()
             return
         }
-        val billInfo = BillInfo.fromJSON(data)
-        billInfo.remark = BillUtils.getRemark(billInfo)
-        // 如果是全自动记账，则不会显示这个窗口，直接弹出记账成功
-        if(SpUtils.getBoolean("float_auto")){
-            lifecycleScope.launch {
-                BillUtils.groupBillInfo(billInfo)
-                //免打扰不显示提示
-                if(!SpUtils.getBoolean("float_no_disturb")){
-                    Toaster.show(getString(R.string.auto_success,billInfo.money.toString()))
-                }
-                finish()
+
+
+        runCatching {
+            val dataValue = data.getQueryParameter("data") // 获取名为"data"的查询参数的值
+            //以下需要悬浮窗
+            if(!FloatPermissionUtils.checkPermission(this)){
+                Toaster.show(R.string.floatTip)
+                FloatPermissionUtils.requestPermission(this)
+                exitActivity()
+                return
             }
-            return
+
+            Log.e("悬浮窗口启动",data.toString())
+            // 将数据传递给悬浮窗服务
+            val serviceIntent = Intent(this, FloatingWindowService::class.java).apply {
+                putExtra("data", dataValue)
+            }
+            startService(serviceIntent)
+            // 关闭 Activity
+            exitActivity()
+        }.onFailure {
+            Logger.e("解析数据失败",it)
+            exitActivity()
         }
 
-        //以下需要悬浮窗
 
-        if(!FloatPermissionUtils.checkPermission(this)){
-            Toaster.show(R.string.floatTip)
-            FloatPermissionUtils.requestPermission(this)
-            finish()
-            return
-        }
-
-        Log.e("悬浮窗口启动",data.toString())
-        // 将数据传递给悬浮窗服务
-        val serviceIntent = Intent(this, FloatingWindowService::class.java).apply {
-            putExtra("data", data)
-        }
-        startService(serviceIntent)
-        // 关闭 Activity
-        finish()
     }
+    fun exitActivity(){
+        finish()
+        overridePendingTransition(0, 0);
+    }
+
 }

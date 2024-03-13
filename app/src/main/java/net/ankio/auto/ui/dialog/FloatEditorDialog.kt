@@ -66,7 +66,7 @@ class FloatEditorDialog(
         cardView = binding.editorCard
 
         Logger.d("原始账单结果 => $billInfo",true)
-
+        Logger.d("原始账单结果 => ${billInfo.toJSON()}",true)
         billTypeLevel1 = billInfo.type
         billTypeLevel2 = billInfo.type
         binding.radioContainer.check(binding.radioNone.id)

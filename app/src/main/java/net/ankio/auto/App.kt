@@ -38,7 +38,7 @@ class App : Application(){
         super.attachBaseContext(base)
         //初始化工具类
         AppUtils.setApplication(this)
-
+        AppUtils.setService(this)
         //监控
 
         AppTimeMonitor.startMonitoring("App初始化")

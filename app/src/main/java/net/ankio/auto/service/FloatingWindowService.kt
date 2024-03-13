@@ -16,7 +16,6 @@
 package net.ankio.auto.service
 
 
-import android.annotation.SuppressLint
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -29,19 +28,24 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
-import android.widget.Toast
+import com.hjq.toast.Toaster
 import com.quickersilver.themeengine.ThemeEngine
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import net.ankio.auto.App
+import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.app.BillUtils
+import net.ankio.auto.constant.FloatEvent
 import net.ankio.auto.database.table.BillInfo
 import net.ankio.auto.databinding.FloatTipBinding
 import net.ankio.auto.ui.dialog.FloatEditorDialog
+import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.SpUtils
+import net.ankio.common.config.AccountingConfig
+import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.CoroutineContext
 
 
@@ -54,51 +58,74 @@ class FloatingWindowService : Service(), CoroutineScope {
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job
 
+
+    private lateinit var themedContext : Context
+
     override fun onBind(intent: Intent): IBinder? {
         return null
     }
 
-    @SuppressLint("SetTextI18n")
+    private val intentQueue = ConcurrentLinkedQueue<Intent>()
+    private val isProcessing = AtomicBoolean(false)
+
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        val value = intent.getStringExtra("data") ?: return START_NOT_STICKY
-        val timeCount: Int = SpUtils.getInt("float_timeout",10)
+        if(!::themedContext.isInitialized){
+            val defaultTheme = ContextThemeWrapper(this.baseContext,R.style.AppTheme)
+            themedContext =   ContextThemeWrapper(defaultTheme, ThemeEngine.getInstance(applicationContext).getTheme())
+        }
+        intentQueue.add(intent)
+        if (!isProcessing.get()) {
+            processIntents()
+        }
+        return START_NOT_STICKY
+    }
+
+    private fun processIntents() {
+        isProcessing.set(true)
+        CoroutineScope(Dispatchers.IO).launch {
+            while (intentQueue.isNotEmpty()) {
+                val intent = intentQueue.peek()
+                if (intent != null) {
+                    withContext(Dispatchers.Main){
+                        processIntent(intent)
+                    }
+                    intentQueue.remove()
+                }
+            }
+            isProcessing.set(false)
+        }
+    }
+
+
+    private fun processIntent(intent: Intent) {
+        val value = intent.getStringExtra("data") ?: return
+        val timeCount: Int = SpUtils.getInt("setting_float_time",10)
         val billInfo = BillInfo.fromJSON(value)
-        billInfo.remark = BillUtils.getRemark(billInfo)
-        val defaultTheme = ContextThemeWrapper(this,R.style.AppTheme)
-        val themedContext = ContextThemeWrapper(defaultTheme, ThemeEngine.getInstance(applicationContext).getTheme())
+
 
         if (timeCount == 0) {
-            callBillInfoEditor(billInfo,themedContext)
+            callBillInfoEditor(billInfo,"setting_float_on_badge_timeout")
             // 显示编辑悬浮窗
-            return START_NOT_STICKY
+            return
         }
 
         Log.e("启动悬浮窗服务", value)
          // 使用 ViewBinding 初始化悬浮窗视图
         val binding = FloatTipBinding.inflate(LayoutInflater.from(themedContext))
         binding.root.visibility = View.INVISIBLE
-        binding.money.text = billInfo.money.toString()
+        binding.money.text = BillUtils.getFloatMoney(billInfo.money).toString()
 
-        binding.time.text = timeCount.toString() + "s"
+        binding.time.text = String.format("%ss", timeCount.toString())
 
         val countDownTimer = object : CountDownTimer(timeCount * 1000L, 1000) {
             override fun onTick(millisUntilFinished: Long) {
-                binding.time.text = (millisUntilFinished / 1000).toString() + "s"
+                binding.time.text = String.format("%ss", (millisUntilFinished / 1000).toString())
             }
 
             override fun onFinish() {
                //取消倒计时
                 removeTips(binding)
-                when(SpUtils.getInt("float_timeout_result",0)){
-                    0 -> {
-                        //打开
-                        callBillInfoEditor(billInfo,themedContext)
-                    }
-                    1 -> {
-                        //直接记账
-                        recordBillInfo(billInfo)
-                    }
-                }
+                callBillInfoEditor(billInfo,"setting_float_on_badge_timeout")
             }
         }
         countDownTimer.start()
@@ -106,21 +133,15 @@ class FloatingWindowService : Service(), CoroutineScope {
         binding.root.setOnClickListener {
             countDownTimer.cancel()//定时器停止
             removeTips(binding)
-            when (SpUtils.getInt("float_click", 0)) {
-                0 -> {
-                    callBillInfoEditor(billInfo,themedContext)
-                }
-
-                1 -> {
-                    recordBillInfo(billInfo)
-                }
-            }
+            callBillInfoEditor(billInfo,"setting_float_on_badge_click")
         }
 
         binding.root.setOnLongClickListener {
-            //不记录
+            countDownTimer.cancel()//定时器停止
             removeTips(binding)
-            false
+            //不记录
+            callBillInfoEditor(billInfo,"setting_float_on_badge_long_click")
+            true
         }
 
         // 设置 WindowManager.LayoutParams
@@ -156,7 +177,6 @@ class FloatingWindowService : Service(), CoroutineScope {
         // 可以使用 binding 访问视图元素，例如设置监听器
         // binding.someView.setOnClickListener { ... }
 
-        return START_NOT_STICKY
     }
 
     private fun removeTips(binding: FloatTipBinding){
@@ -167,16 +187,34 @@ class FloatingWindowService : Service(), CoroutineScope {
     private fun recordBillInfo(billInfo:BillInfo){
         launch {
             BillUtils.groupBillInfo(billInfo)
-            if(!SpUtils.getBoolean("float_no_disturb")){
-                Toast.makeText(
-                    App.context,getString(R.string.auto_success,billInfo.money.toString()),
-                    Toast.LENGTH_LONG).show()
+            if (SpUtils.getBoolean("setting_book_success", true)) {
+                Toaster.show(
+                    getString(
+                        R.string.auto_success,
+                        BillUtils.getFloatMoney(billInfo.money).toString()
+                    )
+                )
             }
         }
     }
 
-    private fun callBillInfoEditor(billInfo: BillInfo, themedContext: Context){
-       FloatEditorDialog(themedContext,billInfo).show(true)
+    private fun callBillInfoEditor(billInfo: BillInfo, key: String){
+
+        when(SpUtils.getInt(key, FloatEvent.POP_EDIT_WINDOW.ordinal)){
+            FloatEvent.AUTO_ACCOUNT.ordinal -> {
+                //记账
+                recordBillInfo(billInfo)
+            }
+            FloatEvent.POP_EDIT_WINDOW.ordinal -> {
+                //编辑
+                FloatEditorDialog(themedContext,billInfo, AccountingConfig(),true).show(true)
+            }
+            FloatEvent.NO_ACCOUNT.ordinal -> {
+                //不处理
+            }
+        }
+
+
     }
 
     override fun onDestroy() {
