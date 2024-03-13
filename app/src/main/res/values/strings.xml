@@ -16,7 +16,6 @@
 <resources>
     <string name="app_name">自动记账</string>
     <string name="about_view_source_code"><![CDATA[在 %s 查看源码]]></string>
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_home">主页</string>
     <string name="title_data">数据</string>
     <string name="title_rule">规则</string>
