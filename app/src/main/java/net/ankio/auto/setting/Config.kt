@@ -26,7 +26,7 @@ import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.constant.FloatEvent
 import net.ankio.auto.exceptions.PermissionException
-import net.ankio.auto.setting.types.ItemType
+import net.ankio.auto.constant.ItemType
 import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.fragment.home.Setting2Fragment
 import net.ankio.auto.ui.utils.LoadingUtils

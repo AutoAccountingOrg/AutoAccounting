@@ -13,7 +13,7 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.setting.types
+package net.ankio.auto.constant
 
 enum class ItemType {
     TITLE,
