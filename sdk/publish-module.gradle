@@ -1,0 +1,42 @@
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
+
+task androidSourcesJar(type: Jar) {
+    archiveClassifier.set('sources')
+    if (project.plugins.findPlugin("com.android.library")) {
+        from android.sourceSets.main.java.srcDirs
+    } else {
+        from sourceSets.main.java.srcDirs
+    }
+}
+
+group = 'net.ankio'
+version = '1.0.0'
+
+artifacts {
+    archives androidSourcesJar
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                artifactId "sdk"
+                // Two artifacts, the `aar` (or `jar`) and the sources
+                if (project.plugins.findPlugin("com.android.library")) {
+                    from components.release
+                } else {
+                    artifact("$buildDir/libs/${project.getName()}-${version}.jar")
+                }
+
+            //    artifact androidSourcesJar
+               generateMetadataFileForReleasePublication.dependsOn androidSourcesJar
+            }
+        }
+        repositories {
+            maven {
+                url = 'file://' + new File(System.getProperty('user.home'), '.m2/repository').absolutePath
+            }
+        }
+    }
+}

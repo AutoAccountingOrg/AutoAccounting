@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlinAndroid)
 }
-
+apply from: "publish-module.gradle"
 android {
     namespace 'net.ankio.auto.sdk'
     compileSdk 34
