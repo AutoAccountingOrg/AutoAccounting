@@ -27,9 +27,6 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.core.widget.TextViewCompat
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.datepicker.MaterialDatePicker
-import com.google.android.material.timepicker.MaterialTimePicker
-import com.google.android.material.timepicker.TimeFormat
 import com.hjq.toast.Toaster
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -41,7 +38,6 @@ import net.ankio.auto.database.table.BookName
 import net.ankio.auto.databinding.FloatEditorBinding
 import net.ankio.auto.sdk.model.BillModel
 import net.ankio.auto.ui.componets.IconView
-import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.DateUtils
 import net.ankio.auto.utils.ListPopupUtils
 import net.ankio.auto.utils.Logger
@@ -51,7 +47,13 @@ import net.ankio.common.constant.BillType
 import net.ankio.common.constant.Currency
 import java.util.Calendar
 
-class FloatEditorDialog(private val context: Context, private val billInfo: BillInfo, private  val autoAccountingConfig: AccountingConfig,private val float:Boolean = false) :
+class FloatEditorDialog(
+    private val context: Context,
+    private val billInfo: BillInfo,
+    private  val autoAccountingConfig: AccountingConfig,
+    private val float:Boolean = false,
+    private val onlyShow: Boolean = false,//是否仅展示
+) :
     BaseSheetDialog(context) {
     lateinit var binding: FloatEditorBinding
     private var billTypeLevel1 = BillType.Expend
@@ -75,36 +77,18 @@ class FloatEditorDialog(private val context: Context, private val billInfo: Bill
 
         bindUI()
 
-        bindEvents()
-
-
-        //关闭按钮
-        binding.cancelButton.setOnClickListener {
-            dismiss()
-        }
-        //确定按钮
-        binding.sureButton.setOnClickListener {
-
-            val bill = getBillData()
-
-            Logger.d("最终账单结果 => $bill",true)
-
-
-
-            lifecycleScope.launch {
-                BillUtils.groupBillInfo(bill)
-                if (SpUtils.getBoolean("setting_book_success", true)) {
-                    Toaster.show(
-                        context.getString(
-                            R.string.auto_success,
-                            BillUtils.getFloatMoney(billInfo.money).toString()
-                        )
-                    )
-                }
+        if(!onlyShow){
+            bindEvents()
+        }else{
+            binding.sureButton.setOnClickListener {
                 dismiss()
             }
-         //   dismiss()
+            binding.sureButton.text = context.getString(R.string.ok)
+            binding.cancelButton.visibility = View.GONE
         }
+
+
+
 
 
         return binding.root
@@ -176,6 +160,36 @@ class FloatEditorDialog(private val context: Context, private val billInfo: Bill
             this.remark = binding.remark.text.toString()
         }
 
+    }
+
+    private fun bindingButtonsEvents(){
+        //关闭按钮
+        binding.cancelButton.setOnClickListener {
+            dismiss()
+        }
+        //确定按钮
+        binding.sureButton.setOnClickListener {
+
+            val bill = getBillData()
+
+            Logger.d("最终账单结果 => $bill",true)
+
+
+
+            lifecycleScope.launch {
+                BillUtils.groupBillInfo(bill)
+                if (SpUtils.getBoolean("setting_book_success", true)) {
+                    Toaster.show(
+                        context.getString(
+                            R.string.auto_success,
+                            BillUtils.getFloatMoney(billInfo.money).toString()
+                        )
+                    )
+                }
+                dismiss()
+            }
+            //   dismiss()
+        }
     }
 
     private fun bindingTypePopupUI(){
@@ -661,6 +675,7 @@ class FloatEditorDialog(private val context: Context, private val billInfo: Bill
         bindingMoneyTypeEvents()
         bindingTimeEvents()
         bindingRemarkEvents()
+        bindingButtonsEvents()
     }
 
 
