@@ -15,62 +15,78 @@
 
 package net.ankio.auto.utils
 
-import android.content.Context
+import android.app.Application
 import android.content.Intent
+import android.net.Uri
 import com.google.gson.Gson
 import de.robv.android.xposed.XposedBridge
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.HookMainApp
-import net.ankio.auto.IAccountingService
-import net.ankio.auto.app.Engine
-import net.ankio.auto.database.table.AppData
-import net.ankio.auto.hooks.android.AccountingService
+import net.ankio.auto.app.js.Engine
+import net.ankio.auto.app.model.AppData
 
 
-class HookUtils(private val context: Context?,private val packageName:String) {
+class HookUtils(private val context: Application, private val packageName: String) {
 
-    companion object {
-        const val TAG = "AutoAccounting"
+    private var autoAccountingServiceUtils: AutoAccountingServiceUtils
 
-    }
-    private val service: IAccountingService? = AccountingService.get()
-
-    fun getSp(key:String): String {
-        return service?.get(key) ?:""
-    }
-
-   private fun putSp(key: String, data: String){
-       service?.put(key,data)
+    init {
+        AppUtils.setApplication(context)
+        autoAccountingServiceUtils = AppUtils.setService(context)
     }
 
     /**
      * 判断自动记账目前是否处于调试模式
      */
-    fun isDebug(): Boolean {
-        return BuildConfig.DEBUG || getSp("debug") == "true";
-    }
-    //仅调试模式输出日志
-    fun logD(prefix: String?, log: String){
-        if(!isDebug()){ return }
-        log(prefix,log)
-    }
-    //正常输出日志
-    fun log(prefix: String?, log: String) {
-
-        service?.log(prefix,log)
-
-        if (isDebug()) {
-            XposedBridge.log("[自动记账] $prefix：$log") //xp输出
+    fun isDebug(onResult: (Boolean) -> Unit) {
+        if (BuildConfig.DEBUG) {
+            onResult(true)
+            return
+        }
+        autoAccountingServiceUtils.get("debug") {
+            onResult(it == "true")
         }
     }
 
-    private fun getLastLine(string: String, line: Int = 200): String {
-        return string.lines().takeLast(line).joinToString("\n")
+    //仅调试模式输出日志
+    fun logD(prefix: String?, log: String) {
+        isDebug {
+            if (it) {
+                log(prefix, log)
+            }
+        }
     }
-    fun analyzeData(dataType: Int, app: String, data: String) {
-        runCatching {
-                log(HookMainApp.getTag(app,"数据分析"), data)
-                val billInfo = Engine.runAnalyze(dataType, app, data,this@HookUtils)
+
+    //正常输出日志
+    fun log(prefix: String?, log: String) {
+        Logger.d(log)
+        autoAccountingServiceUtils.putLog("[自动记账] $prefix：$log")
+        isDebug {
+            if (it) {
+                XposedBridge.log("[自动记账] $prefix：$log") //xp输出
+            }
+        }
+
+
+    }
+
+    private val job = Job()
+
+    private val scope = CoroutineScope(Dispatchers.Main + job)
+
+    fun cancel() {
+        job.cancel()
+    }
+
+    fun analyzeData(dataType: Int, app: String, data: String, appName: String) {
+        scope.launch {
+            runCatching {
+                log(HookMainApp.getTag(appName, "数据分析"), data)
+                val billInfo = Engine.analyze(dataType, app, data)
                 val appData = AppData()
                 appData.issue = 0
                 appData.type = dataType
@@ -79,28 +95,38 @@ class HookUtils(private val context: Context?,private val packageName:String) {
                 appData.data = data
                 appData.match = billInfo != null
                 appData.time = System.currentTimeMillis()
-                val key = "billData"
+
                 //先存到server的数据库里面
-                var billData = getSp(key)
-                billData+="\n"+Gson().toJson(appData).replace("\n","___r_n")
-                putSp(key,getLastLine(billData,100))
+                val billData = appData.toText()
+
+                autoAccountingServiceUtils.putData(billData)
+
+                //从外部启动自动记账服务，这里需要处理队列问题
+
+                logD(HookMainApp.getTag(appName, "自动记账结果"), appData.toJSON())
                 if (billInfo !== null) {
-                    val intent = Intent().apply {
-                        setClassName(BuildConfig.APPLICATION_ID, "net.ankio.auto.ui.activity.FloatingWindowTriggerActivity")
-                        putExtra("data", Gson().toJson(billInfo))
-                    }
-                    intent.setAction("net.ankio.auto.ACTION_SHOW_FLOATING_WINDOW")
+                    // 创建一个Intent来启动目标应用程序
+                    val intent = Intent("net.ankio.auto.ACTION_SHOW_FLOATING_WINDOW")
+                    intent.setData(Uri.parse("autoaccounting://bill?data=${billInfo.toJSON()}"))
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-                    context?.startActivity(intent)
+                    context.startActivity(intent)
                 }
-        }.onFailure {
-            it.printStackTrace()
-            it.message?.let { it1 -> log(HookMainApp.getTag(app,"自动记账执行脚本发生错误"), it1) }
+
+            }.onFailure {
+                it.printStackTrace()
+                it.message?.let { it1 ->
+                    log(
+                        HookMainApp.getTag(
+                            appName,
+                            "自动记账执行脚本发生错误"
+                        ), it1
+                    )
+                }
+            }
         }
 
-    }
-    fun onExitApp(){
 
     }
+
 }

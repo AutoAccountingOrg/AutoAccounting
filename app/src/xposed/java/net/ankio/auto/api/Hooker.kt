@@ -33,10 +33,8 @@ package net.ankio.auto.api
  *
  */
 
-import android.app.AndroidAppHelper
 import android.app.Application
 import android.content.Context
-import android.content.ContextWrapper
 import android.util.Log
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
@@ -76,6 +74,7 @@ abstract class Hooker : iHooker {
         })
     }
 
+
     fun initLoadPackage(classLoader: ClassLoader?,application: Application){
         XposedBridge.log("[$TAG] Welcome to AutoAccounting")
         if(classLoader==null){
@@ -85,20 +84,15 @@ abstract class Hooker : iHooker {
         ActiveUtils.APPLICATION_ID = packPageName
 
         hookLoadPackage(classLoader,application)
-        try{
-            hookUtils = HookUtils(application, packPageName)
-        }catch (e: AutoServiceException){
-            XposedBridge.log("[AutoAccounting]自动记账服务未启动: "+e.message)
-            return
-        }
-
+        hookUtils = HookUtils(application, packPageName)
+        //服务未启动不用抛异常
         hookUtils.logD(HookMainApp.getTag(appName,packPageName),"欢迎使用自动记账，该日志表示 $appName App 已被hook。")
         for (hook in partHookers) {
             try {
+                hookUtils.logD(HookMainApp.getTag(appName,packPageName),"正在初始化Hook:${hook.hookName}...")
                 hook.onInit(classLoader,application)
             }catch (e:Exception){
                 e.message?.let { Log.e("AutoAccountingError", it) }
-                println(e)
                 hookUtils.log(HookMainApp.getTag(),"自动记账Hook异常..${e.message}.")
             }
         }

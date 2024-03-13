@@ -19,6 +19,9 @@ import android.content.Context
 import net.ankio.auto.HookMainApp
 
 abstract class PartHooker(val hooker: Hooker) {
+    abstract  val hookName: String
+
+
     abstract fun onInit(classLoader: ClassLoader?,context: Context?)
 
     /**
@@ -48,11 +51,7 @@ abstract class PartHooker(val hooker: Hooker) {
 
     fun analyzeData(dataType: Int,  data: String,app:String? = null)
     {
-        hooker.hookUtils.analyzeData(dataType, app?:hooker.packPageName, data)
+        hooker.hookUtils.analyzeData(dataType, app?:hooker.packPageName, data,hooker.appName)
     }
 
-    fun getConfig(key:String):String{
-        //return hooker.hookUtils.getSp(key)
-        return ""
-    }
 }
