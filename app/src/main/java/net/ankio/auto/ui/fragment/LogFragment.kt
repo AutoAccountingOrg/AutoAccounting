@@ -20,8 +20,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.FileProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.launch
 import net.ankio.auto.R
+import net.ankio.auto.database.table.BillInfo
 import net.ankio.auto.databinding.FragmentLogBinding
+import net.ankio.auto.databinding.FragmentOrderBinding
+import net.ankio.auto.ui.adapter.LogAdapter
+import net.ankio.auto.ui.adapter.OrderAdapter
 import net.ankio.auto.ui.utils.MenuItem
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.Logger
@@ -29,7 +37,10 @@ import java.io.File
 
 class LogFragment : BaseFragment() {
     private lateinit var binding: FragmentLogBinding
-
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var adapter: LogAdapter
+    private lateinit var layoutManager: LinearLayoutManager
+    private val dataItems = ArrayList<String>()
     override val menuList: ArrayList<MenuItem> = arrayListOf(
         MenuItem(R.string.item_share, R.drawable.menu_icon_share) {
 
@@ -67,7 +78,7 @@ class LogFragment : BaseFragment() {
                 if (file.exists()) {
                     file.delete()
                 }
-                binding.logTextView.text = "no logs"
+                dataItems.clear()
             }.onFailure {
                 Logger.e("清除失败", it)
             }
@@ -81,15 +92,29 @@ class LogFragment : BaseFragment() {
     ): View {
         binding = FragmentLogBinding.inflate(layoutInflater)
 
+        recyclerView = binding.recyclerView
+        layoutManager = LinearLayoutManager(requireContext())
+        recyclerView.layoutManager = layoutManager
 
+        adapter = LogAdapter(dataItems)
+
+
+
+        recyclerView.adapter = adapter
 
         return binding.root
     }
 
     override fun onResume() {
         super.onResume()
-        AppUtils.getService().getLog {
-            binding.logTextView.text = it
+        dataItems.clear()
+        lifecycleScope.launch {
+            AppUtils.getService().getLog {
+                dataItems.addAll(it.split("\n"))
+                adapter.notifyItemInserted(0)
+            }
         }
+
+
     }
 }

@@ -1,24 +1,19 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
     android:scrollbars="vertical">
 
-    <HorizontalScrollView
-        android:layout_width="match_parent"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:scrollbars="none"
         android:overScrollMode="never"
         android:fadeScrollbars="false">
 
-        <TextView
-            android:id="@+id/logTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="@dimen/padding"
-            android:textAppearance="@style/TextAppearance.AppCompat.Small"
-            tools:text="no logs" />
 
-    </HorizontalScrollView>
-</ScrollView>
+
+    </androidx.recyclerview.widget.RecyclerView>
+</HorizontalScrollView>
