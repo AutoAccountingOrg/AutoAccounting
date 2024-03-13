@@ -13,21 +13,8 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.utils
+package net.ankio.auto.app.model
 
-import java.math.BigInteger
-import java.security.MessageDigest
+import android.graphics.drawable.Drawable
 
-object MD5Util {
-
-    fun get(input: String): String {
-        val md5Digest = MessageDigest.getInstance("MD5")
-        val messageDigest = md5Digest.digest(input.toByteArray())
-        val number = BigInteger(1, messageDigest)
-        var md5Hash = number.toString(16)
-        while (md5Hash.length < 32) {
-            md5Hash = "0$md5Hash"
-        }
-        return md5Hash
-    }
-}
+data class AppInfo(val name: String, val icon: Drawable?, val version: String)

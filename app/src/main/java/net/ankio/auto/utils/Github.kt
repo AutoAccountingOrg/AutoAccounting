@@ -16,6 +16,7 @@
 package net.ankio.auto.utils
 
 
+import com.google.gson.Gson
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -28,7 +29,6 @@ object Github {
 
     fun getLoginUrl(): String {
         return "https://github.com/login/oauth/authorize?client_id=$clientId&redirect_uri=$redirectUri&scope=public_repo"
-        ;
     }
 
     fun parseAuthCode(code: String?, onSuccess: () -> Unit, onError: (String) -> Unit) {
@@ -45,7 +45,8 @@ object Github {
 
         requestsUtils.post(
             url = "https://github.com/login/oauth/access_token",
-            data = data,
+            data = hashMapOf("json" to Gson().toJson(data)),
+            contentType = RequestsUtils.TYPE_JSON,
             onSuccess = { bytearray, code ->
                 val result = String(bytearray)
                 val params = result.split("&")
@@ -85,7 +86,7 @@ object Github {
         onSuccess: (String) -> Unit,
         onError: (String) -> Unit
     ) {
-        val url = "https://api.github.com/repos/Auto-Accounting/AutoRule/issues"
+        val url = "https://api.github.com/repos/AutoAccountingOrg/AutoRule/issues"
 
         val jsonRequest = JSONObject()
         try {
@@ -101,8 +102,14 @@ object Github {
             url = url,
             data = hashMapOf("json" to jsonRequest.toString()),
             headers = getHeaders(),
+            contentType = RequestsUtils.TYPE_JSON,
             onSuccess = { bytearray, code ->
+
                 val result = String(bytearray)
+                if(code!=201){
+                    onError(result)
+                    return@post
+                }
                 val jsonObject = JSONObject(result)
                 val id = jsonObject.getInt("number")
                 onSuccess(id.toString())

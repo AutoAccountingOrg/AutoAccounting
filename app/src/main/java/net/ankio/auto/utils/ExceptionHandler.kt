@@ -20,7 +20,6 @@ import android.content.Intent
 import com.bugsnag.android.Bugsnag
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.exceptions.AutoServiceException
-import net.ankio.auto.ui.activity.ServiceActivity
 
 
 class ExceptionHandler : Thread.UncaughtExceptionHandler {
@@ -56,12 +55,12 @@ class ExceptionHandler : Thread.UncaughtExceptionHandler {
         }
         Logger.e("未处理异常",e)
         if(e is AutoServiceException){
-            context?.let {
+        /*    context?.let {
                 val intent = Intent(it, ServiceActivity::class.java).apply {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 }
                 it.startActivity(intent)
-            }
+            }*/
         }else{
             if(SpUtils.getBoolean("sendToAppCenter",true) && !BuildConfig.DEBUG){
                 Bugsnag.notify(e)
