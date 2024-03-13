@@ -163,6 +163,7 @@ class MainActivity : AppCompatActivity() {
                 try {
                     val bills = AutoAccounting.getBills(this@MainActivity)
                     Logger.i("bills:$bills")
+                    //获取到的是json数据，需要自己序列化为 List<AutoBillModel>
                     Toast.makeText(this@MainActivity,"获取成功",Toast.LENGTH_SHORT).show()
                 }catch (e:AutoAccountingException){
                     e.printStackTrace()
@@ -188,14 +189,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    //随机账本数据
-
-
-
-
-    private fun randImage(){
-
-    }
 
 
 
