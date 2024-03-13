@@ -73,4 +73,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="从自动记账获取需要同步的账单" />
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="测试自动记账拉起服务" />
+
+    <Button
+        android:id="@+id/autoAccounting"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="测试自动记账拉起服务" />
 </LinearLayout>

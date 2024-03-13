@@ -18,6 +18,7 @@ package net.ankio.demo
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.widget.Button
 import android.widget.Toast
@@ -33,6 +34,7 @@ import net.ankio.auto.sdk.AutoAccounting
 import net.ankio.auto.sdk.exception.AutoAccountingException
 import net.ankio.auto.sdk.utils.Logger
 import net.ankio.common.constant.BillType
+
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -170,6 +172,23 @@ class MainActivity : AppCompatActivity() {
                     Toast.makeText(this@MainActivity,"获取失败",Toast.LENGTH_SHORT).show()
                 }
             }
+        }
+
+        findViewById<Button>(R.id.autoAccounting).setOnClickListener {
+            val data = """
+                {"accountNameFrom":"支付宝余额","accountNameTo":"","bookName":"默认账本","cateName":"收红包","channel":"支付宝收到一笔转账","currency":"CNY","extendData":"","fee":0,"from":"com.eg.android.AlipayGphone","fromType":"App","groupId":0,"id":0,"money":1,"remark":"从前慢 185******30 - 收到一笔转账","shopItem":"收到一笔转账","shopName":"从前慢 185******30","syncFromApp":false,"timeStamp":1710075624000,"type":"Income"}
+            """.trimIndent()
+
+            // 创建一个Intent来启动目标应用程序
+            val intent = Intent("net.ankio.auto.ACTION_SHOW_FLOATING_WINDOW")
+
+// 设置URI，可以添加查询参数（如 data=some_data）
+            intent.setData(Uri.parse("autoaccounting://bill?data=${data}"))
+
+// 启动目标应用程序
+            startActivity(intent)
+
+
         }
 
     }
