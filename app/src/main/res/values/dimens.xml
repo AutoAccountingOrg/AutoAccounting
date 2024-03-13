@@ -32,4 +32,6 @@
     <dimen name="float_icon_size">25dp</dimen>
     <dimen name="save_size">20sp</dimen>
     <dimen name="float_icon_book_size">18dp</dimen>
+    <dimen name="font_size">6sp</dimen>
+    <dimen name="mini_icon_size">12dp</dimen>
 </resources>

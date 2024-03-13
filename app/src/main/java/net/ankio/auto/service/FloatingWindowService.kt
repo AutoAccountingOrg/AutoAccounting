@@ -28,11 +28,13 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
+import androidx.core.content.ContextCompat
 import com.hjq.toast.Toaster
 import com.quickersilver.themeengine.ThemeEngine
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
@@ -65,36 +67,18 @@ class FloatingWindowService : Service(), CoroutineScope {
         return null
     }
 
-    private val intentQueue = ConcurrentLinkedQueue<Intent>()
-    private val isProcessing = AtomicBoolean(false)
+
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         if(!::themedContext.isInitialized){
             val defaultTheme = ContextThemeWrapper(this.baseContext,R.style.AppTheme)
             themedContext =   ContextThemeWrapper(defaultTheme, ThemeEngine.getInstance(applicationContext).getTheme())
         }
-        intentQueue.add(intent)
-        if (!isProcessing.get()) {
-            processIntents()
-        }
-        return START_NOT_STICKY
+
+        processIntent(intent)
+        return START_REDELIVER_INTENT
     }
 
-    private fun processIntents() {
-        isProcessing.set(true)
-        CoroutineScope(Dispatchers.IO).launch {
-            while (intentQueue.isNotEmpty()) {
-                val intent = intentQueue.peek()
-                if (intent != null) {
-                    withContext(Dispatchers.Main){
-                        processIntent(intent)
-                    }
-                    intentQueue.remove()
-                }
-            }
-            isProcessing.set(false)
-        }
-    }
 
 
     private fun processIntent(intent: Intent) {
@@ -115,6 +99,9 @@ class FloatingWindowService : Service(), CoroutineScope {
         binding.root.visibility = View.INVISIBLE
         binding.money.text = BillUtils.getFloatMoney(billInfo.money).toString()
 
+        val colorRes = BillUtils.getColor(billInfo.type.toInt())
+        val color = ContextCompat.getColor(themedContext, colorRes)
+        binding.money.setTextColor(color)
         binding.time.text = String.format("%ss", timeCount.toString())
 
         val countDownTimer = object : CountDownTimer(timeCount * 1000L, 1000) {
@@ -206,8 +193,10 @@ class FloatingWindowService : Service(), CoroutineScope {
                 recordBillInfo(billInfo)
             }
             FloatEvent.POP_EDIT_WINDOW.ordinal -> {
-                //编辑
-                FloatEditorDialog(themedContext,billInfo, AccountingConfig(),true).show(true)
+                AppUtils.getService().config {
+                    //编辑
+                    FloatEditorDialog(themedContext,billInfo, it,true).show(true)
+                }
             }
             FloatEvent.NO_ACCOUNT.ordinal -> {
                 //不处理

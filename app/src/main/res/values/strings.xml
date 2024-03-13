@@ -162,7 +162,7 @@
     <string name="float_transfer">转账</string>
     <string name="float_debt">债务</string>
     <string name="float_choose_debt">请选择债务账单</string>
-    <string name="float_none">无</string>
+    <string name="float_none">常规</string>
     <string name="float_expend_debt">借款人</string>
     <string name="float_income_debt">债权人</string>
     <string name="float_income_tip">销账</string>
@@ -288,4 +288,12 @@
     <string name="setting_pay_color_green">绿色支出，红色收入。</string>
     <string name="setting_category_style">分类展示样式</string>
     <string name="setting_category_show_parent">二级分类显示父类</string>
+    <string name="setting_book">记账偏好</string>
+    <string name="setting_book_success">记账成功后使用弹出提示</string>
+    <string name="setting_category_show_parent_desc">该项只在用户自己编写分类规则或手动选择分类时有效，自动记账官方规则不会显示二级分类。</string>
+    <string name="no_bills">没有任何账单</string>
+    <string name="select_bill">请选择账单</string>
+    <string name="float_debt_selected">已选择%d条账单</string>
+    <string name="item_sync">同步</string>
+    <string name="more_bill">当前账单由以下账单合并而成</string>
 </resources>
