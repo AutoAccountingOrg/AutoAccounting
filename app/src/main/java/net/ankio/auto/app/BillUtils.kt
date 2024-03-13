@@ -17,8 +17,6 @@ package net.ankio.auto.app
 
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.database.Db
@@ -94,6 +92,15 @@ object BillUtils {
         })
     }
 
+     fun noNeedFilter(billInfo: BillInfo): Boolean {
+         return  !SpUtils.getBoolean("setting_bill_repeat", true) ||
+                  (
+                   billInfo.type != BillType.Income &&
+                   billInfo.type != BillType.Expend
+                  )
+     }
+
+
     /**
      * 重复账单的要素：
      * 1.金额一致
@@ -105,13 +112,7 @@ object BillUtils {
      */
 
     suspend fun groupBillInfo(billInfo: BillInfo) {
-        if (
-            !SpUtils.getBoolean("setting_bill_repeat", true) ||
-            (
-                    billInfo.type != BillType.Income &&
-                            billInfo.type != BillType.Expend
-                    )
-        ) {
+        if (noNeedFilter(billInfo) ) {
             Db.get().BillInfoDao().insert(billInfo)
             syncBillInfo()
             return
