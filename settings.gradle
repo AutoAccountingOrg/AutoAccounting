@@ -7,18 +7,20 @@ pluginManagement {
     }
 }
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
-
         maven { url "https://api.xposed.info/" }
         maven { url "https://jitpack.io"}
+        maven { url   'file://' + new File(System.getProperty('user.home'), '.m2/repository').absolutePath
+        }
     }
+
 }
 
+
 rootProject.name = "AutoAccounting"
+include 'common'
 include ':app'
 include ':sdk'
 include ':demo'
-include ':common'

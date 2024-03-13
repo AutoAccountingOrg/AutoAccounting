@@ -1,8 +1,21 @@
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlinAndroid)
+    id 'maven-publish'
 }
-apply from: "publish-module.gradle"
+
+// 定义工程的资源目录
+def source_path = '/src/main/java' //源码
+def aidl_path = '/src/main/aidl' //aidl
+def res_path = '/src/main/res' // res
+def assets_path = '/src/main/assets' // assets
+def jni_path = '/src/main/jniLibs' // jni so
+
+// 定义需要打包的module目录
+def module_list = [
+        project(":common"),
+]
+
 android {
     namespace 'net.ankio.auto.sdk'
     compileSdk 34
@@ -17,6 +30,7 @@ android {
     buildTypes {
         release {
             minifyEnabled false
+
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -27,15 +41,70 @@ android {
     kotlinOptions {
         jvmTarget = '17'
     }
+
+    // 定义maven-publish需要的release
+    publishing {
+        singleVariant('release') {
+            //需要源码
+            withSourcesJar()
+            //需要Javadoc
+            withJavadocJar()
+        }
+    }
+
+    //定义所有的资源目录
+    sourceSets {
+        def source_dirs = []
+        def aidl_dirs = []
+        def res_dirs = []
+        def assets_dirs = []
+        def jni_dirs = []
+        module_list.forEach {
+            source_dirs.add(it.getProjectDir().absolutePath + source_path)
+            aidl_dirs.add(it.getProjectDir().absolutePath + aidl_path)
+            res_dirs.add(it.getProjectDir().absolutePath + res_path)
+            assets_dirs.add(it.getProjectDir().absolutePath + assets_path)
+            jni_dirs.add(it.getProjectDir().absolutePath + jni_path)
+        }
+
+        main {
+            java.srcDirs += source_dirs
+            aidl.srcDirs += aidl_dirs
+            res.srcDirs += res_dirs
+            assets.srcDirs += assets_dirs
+            jniLibs.srcDirs += jni_dirs
+        }
+    }
+
 }
 
-dependencies {
+publishing {
+    publications {
+        release(MavenPublication) {
 
+            groupId = 'net.ankio.auto'
+            artifactId = 'sdk'
+            version = "1.0.0"
+
+            afterEvaluate {
+                from components.release
+            }
+        }
+    }
+    repositories {
+        maven {
+            url = 'file://' + new File(System.getProperty('user.home'), '.m2/repository').absolutePath
+        }
+    }
+}
+
+
+dependencies {
     implementation libs.core.ktx
+    implementation project(":common")
+
     implementation libs.appcompat
     implementation libs.material
     testImplementation libs.junit
     androidTestImplementation libs.androidx.test.ext.junit
-    androidTestImplementation libs.espresso.core
-    implementation project(':common')
 }
