@@ -25,7 +25,7 @@ import com.hjq.toast.Toaster
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogBillSelectBinding
-import net.ankio.auto.sdk.model.BillModel
+import net.ankio.common.model.BillModel
 import net.ankio.auto.ui.adapter.BillSelectorAdapter
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.Logger

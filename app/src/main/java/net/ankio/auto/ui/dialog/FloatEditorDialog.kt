@@ -36,7 +36,7 @@ import net.ankio.auto.app.BillUtils
 import net.ankio.auto.database.table.BillInfo
 import net.ankio.auto.database.table.BookName
 import net.ankio.auto.databinding.FloatEditorBinding
-import net.ankio.auto.sdk.model.BillModel
+import net.ankio.common.model.BillModel
 import net.ankio.auto.ui.componets.IconView
 import net.ankio.auto.utils.DateUtils
 import net.ankio.auto.utils.ListPopupUtils

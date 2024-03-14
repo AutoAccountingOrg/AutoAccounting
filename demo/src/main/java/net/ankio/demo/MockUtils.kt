@@ -15,9 +15,10 @@
 
 package net.ankio.demo
 
-import net.ankio.auto.sdk.model.AssetModel
-import net.ankio.auto.sdk.model.BillModel
+
 import net.ankio.common.config.AccountingConfig
+import net.ankio.common.model.AssetsModel
+import net.ankio.common.model.BillModel
 import net.ankio.common.model.BookModel
 import net.ankio.common.model.CategoryModel
 import kotlin.random.Random
@@ -72,9 +73,9 @@ object MockUtils {
         }
     }
 
-    fun generateAssets(numAssets:Int = 5):List<AssetModel>{
+    fun generateAssets(numAssets:Int = 5):List<AssetsModel>{
         return List(numAssets){
-            AssetModel(
+            AssetsModel(
                 name = List(10) { Random.nextInt('a'.code, 'z'.code).toChar() }.joinToString(""),
                 icon = randomImage(),
                 sort = Random.nextInt(1, 100)

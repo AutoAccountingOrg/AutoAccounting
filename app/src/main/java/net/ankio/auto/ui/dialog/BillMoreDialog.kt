@@ -20,21 +20,11 @@ import android.view.LayoutInflater
 import android.view.View
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.gson.Gson
-import com.hjq.toast.Toaster
 import kotlinx.coroutines.launch
-import net.ankio.auto.R
 import net.ankio.auto.database.Db
 import net.ankio.auto.database.table.BillInfo
-import net.ankio.auto.databinding.AdapterOrderItemBinding
 import net.ankio.auto.databinding.DialogBillMoreBinding
-import net.ankio.auto.databinding.DialogBillSelectBinding
-import net.ankio.auto.sdk.model.BillModel
-import net.ankio.auto.ui.adapter.BillSelectorAdapter
 import net.ankio.auto.ui.adapter.OrderItemAdapter
-import net.ankio.auto.utils.AppUtils
-import net.ankio.auto.utils.Logger
-import net.ankio.common.constant.BillType
 
 class BillMoreDialog(
     private val context: Context,

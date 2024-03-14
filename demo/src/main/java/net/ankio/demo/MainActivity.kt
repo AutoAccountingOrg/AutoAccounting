@@ -120,7 +120,7 @@ class MainActivity : AppCompatActivity() {
             lifecycleScope.launch {
                 try {
                     AutoAccounting.setBills(this@MainActivity,Gson().toJson(MockUtils.generateRandomBills(30)),
-                        BillType.ExpendReimbursement //支出时标记为报销的账单
+                        BillType.ExpendReimbursement.name //支出时标记为报销的账单
                     )
                     Toast.makeText(this@MainActivity,"设置成功",Toast.LENGTH_SHORT).show()
                 }catch (e:AutoAccountingException){
@@ -135,7 +135,7 @@ class MainActivity : AppCompatActivity() {
             lifecycleScope.launch {
                 try {
                     AutoAccounting.setBills(this@MainActivity,Gson().toJson(MockUtils.generateRandomBills(10)),
-                        BillType.ExpendLending //借钱给别人
+                        BillType.ExpendLending.name //借钱给别人
                     )
                     Toast.makeText(this@MainActivity,"设置成功",Toast.LENGTH_SHORT).show()
                 }catch (e:AutoAccountingException){
@@ -149,7 +149,7 @@ class MainActivity : AppCompatActivity() {
             lifecycleScope.launch {
                 try {
                     AutoAccounting.setBills(this@MainActivity,Gson().toJson(MockUtils.generateRandomBills(10)),
-                        BillType.IncomeLending //借别人钱
+                        BillType.IncomeLending.name //借别人钱
                     )
                     Toast.makeText(this@MainActivity,"设置成功",Toast.LENGTH_SHORT).show()
                 }catch (e:AutoAccountingException){

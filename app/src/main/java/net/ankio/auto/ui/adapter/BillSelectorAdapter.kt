@@ -15,28 +15,20 @@
 
 package net.ankio.auto.ui.adapter
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
-import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
-import net.ankio.auto.R
 import net.ankio.auto.app.BillUtils
-import net.ankio.auto.database.table.Assets
-import net.ankio.auto.databinding.AdapterAssetsBinding
 import net.ankio.auto.databinding.AdapterBillBookBinding
-import net.ankio.auto.sdk.model.BillModel
+import net.ankio.common.model.BillModel
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.DateUtils
-import net.ankio.auto.utils.ImageUtils
-import net.ankio.auto.utils.Logger
 import net.ankio.common.constant.BillType
 
 
