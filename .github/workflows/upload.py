@@ -60,7 +60,7 @@ t = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
 data= {
     "version": name,
-    "code": extract_int(name),
+    "code": code,
     "log": html,
     "date": t
 }
