@@ -1,2 +1,3 @@
 install:
   - ./gradlew :sdk:publishToMavenLocal
+  - ./gradlew :common:publishToMavenLocal
