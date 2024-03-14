@@ -19,7 +19,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import net.ankio.auto.sdk.exception.AutoAccountingException
 import net.ankio.auto.sdk.utils.RequestUtils
-import net.ankio.common.constant.BillType
 
 class AutoAccounting {
     private  val PORT = 52045
@@ -92,7 +91,7 @@ class AutoAccounting {
         /**
          * 设置待报销的账单、借款等信息
          */
-        suspend fun setBills(context: Context,bills:String,type: BillType){
+        suspend fun setBills(context: Context,bills:String,type: String){
             checkInit()
             instance.setBills(context,bills,type)
         }
@@ -149,10 +148,10 @@ class AutoAccounting {
         return result.result?:""
     }
 
-    private suspend fun setBills(context: Context, bills: String,type:BillType) {
+    private suspend fun setBills(context: Context, bills: String,type:String) {
         RequestUtils.post(
             url +"set",
-            query = hashMapOf("name" to "auto_bills_${type.name}"),
+            query = hashMapOf("name" to "auto_bills_${type}"),
             data = bills,
             headers = hashMapOf("Authorization" to getToken(context))
         )
