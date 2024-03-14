@@ -15,11 +15,11 @@
 
 package net.ankio.common.model
 
-class AssetsModel  {
-    var name: String = "" //账户名
+data class AssetsModel(
+    var name: String = "", //账户名
     /**
      * 这里的图标是url链接或存储的base64图片
      */
-    var icon: String = "" //图标
-    var sort = 0 //排序
-}
+    var icon: String = "", //图标
+    var sort: Int = 0 //排序
+)

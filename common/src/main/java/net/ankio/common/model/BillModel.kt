@@ -13,7 +13,7 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.sdk.model
+package net.ankio.common.model
 
 data class BillModel(
     val amount: Double,//金额
