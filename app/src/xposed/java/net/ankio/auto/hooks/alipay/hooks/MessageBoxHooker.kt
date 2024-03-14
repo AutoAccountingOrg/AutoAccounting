@@ -51,7 +51,7 @@ class MessageBoxHooker(hooker: Hooker) :PartHooker(hooker) {
                         val result = it.invoke(syncMessageObject) as String
                         logD("支付宝消息盒子页面收到数据：$result")
                         //调用分析服务进行数据分析
-                        analyzeData(DataType.App.ordinal,hooker.packPageName,result)
+                        analyzeData(DataType.App.ordinal,result)
                     }
                 }
             })
