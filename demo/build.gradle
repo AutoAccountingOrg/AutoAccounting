@@ -41,13 +41,17 @@ dependencies {
     implementation libs.androidx.activity
     implementation libs.androidx.constraintlayout
 
+
     testImplementation libs.junit
     androidTestImplementation libs.androidx.test.ext.junit
     androidTestImplementation libs.espresso.core
     implementation libs.gson.v288
-    implementation project(':sdk')
-  //  implementation "com.github.AutoAccountingOrg:AutoAccounting:-SNAPSHOT"
+  //  implementation 'com.github.AutoAccountingOrg:AutoAccounting:-SNAPSHOT'
+   implementation project(':common')
+  implementation project(':sdk')
+   // implementation "net.ankio.auto:common:1.0.0"
+    //implementation "net.ankio.auto:sdk:1.0.0"
+    //implementation "com.github.AutoAccountingOrg:AutoAccounting:-SNAPSHOT"
 
-    implementation project(':common')
 
 }

@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlinAndroid)
+    id 'maven-publish'
 }
 
 android {
@@ -27,7 +28,37 @@ android {
     kotlinOptions {
         jvmTarget = '17'
     }
+    // 定义maven-publish需要的release
+    publishing {
+        singleVariant('release') {
+            //需要源码
+            withSourcesJar()
+            //需要Javadoc
+            withJavadocJar()
+        }
+    }
 }
+
+publishing {
+    publications {
+        release(MavenPublication) {
+
+            groupId = 'net.ankio.auto'
+            artifactId = 'common'
+            version = "1.0.0"
+
+            afterEvaluate {
+                from components.release
+            }
+        }
+    }
+    repositories {
+        maven {
+            url = 'file://' + new File(System.getProperty('user.home'), '.m2/repository').absolutePath
+        }
+    }
+}
+
 
 dependencies {
     implementation libs.core.ktx
