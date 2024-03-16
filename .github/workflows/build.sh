@@ -13,7 +13,7 @@
 #   limitations under the License.
 #
 #
-rootDir=$(pwd)/../../
+rootDir=$(pwd)
 # 配置版本号和版本名
 versionName=$(grep 'versionName' "${rootDir}/app/build.gradle" | sed -n 's/.*versionName "\([^"]*\)".*/\1/p' | tr -d '[:space:]')
 versionCode=$(grep 'versionCode' "${rootDir}/app/build.gradle" |  awk '{print $2}' | tr -d '[:space:]')
