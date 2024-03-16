@@ -24,8 +24,8 @@ jobs:
 
       - name: 编译安卓
         run: |
-          chmod +x ./github/workflows/build.sh
-          ./github/workflows/build.sh
+          chmod +x .github/workflows/build.sh
+          .github/workflows/build.sh
          
 
       - uses: ilharp/sign-android-release@v1
