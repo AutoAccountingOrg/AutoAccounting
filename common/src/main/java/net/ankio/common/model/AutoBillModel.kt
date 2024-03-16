@@ -33,4 +33,8 @@ data class AutoBillModel(
     var accountNameTo: String = "",//转入账户名称
     val remark: String,//备注
     val id: Int = 0,//账单id，自动记账生成
-)
+){
+    override fun toString(): String {
+        return "AutoBillModel(type=$type, currency=$currency, amount=$amount, fee=$fee, timeStamp=$timeStamp, cateName='$cateName', extendData='$extendData', bookName='$bookName', accountNameFrom='$accountNameFrom', accountNameTo='$accountNameTo', remark='$remark', id=$id)"
+    }
+}

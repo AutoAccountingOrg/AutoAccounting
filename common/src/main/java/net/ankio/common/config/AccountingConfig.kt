@@ -22,4 +22,8 @@ data class AccountingConfig(
     var lending: Boolean = false,//是否开启债务功能
     var multiBooks: Boolean = false,//是否开启多账本
     var fee: Boolean = false,//是否开启手续费
-)
+){
+    override fun toString(): String {
+        return "AccountingConfig(assetManagement=$assetManagement, multiCurrency=$multiCurrency, reimbursement=$reimbursement, lending=$lending, multiBooks=$multiBooks, fee=$fee)"
+    }
+}

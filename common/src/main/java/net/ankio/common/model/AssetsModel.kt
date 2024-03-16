@@ -22,4 +22,8 @@ data class AssetsModel(
      */
     var icon: String = "", //图标
     var sort: Int = 0 //排序
-)
+){
+    override fun toString(): String {
+        return "AssetsModel(name='$name', icon='$icon', sort=$sort)"
+    }
+}

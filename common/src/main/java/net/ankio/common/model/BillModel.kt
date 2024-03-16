@@ -16,9 +16,13 @@
 package net.ankio.common.model
 
 data class BillModel(
-    val amount: Double,//金额
-    val time: Long,//时间
-    val remark: String,//备注
+    val amount: Double = 0.0,//金额
+    val time: Long = 0,//时间
+    val remark: String = "",//备注
     val id: String = "",//账单id，自动记账进行报销、销账的时候需要用到
     val type: Int = 0,//账单类型，只有 0 支出 1 收入，（包括报销、债务
-)
+){
+    override fun toString(): String {
+        return "BillModel(amount=$amount, time=$time, remark='$remark', id='$id', type=$type)"
+    }
+}

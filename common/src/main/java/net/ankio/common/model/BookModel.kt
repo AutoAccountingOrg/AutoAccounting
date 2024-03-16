@@ -16,7 +16,11 @@
 package net.ankio.common.model
 
 data class BookModel(
-    val name:String,//账本名称
-    val icon:String,//账本图标，url或者base64
-    val category:List<CategoryModel>
-)
+    val name:String = "",//账本名称
+    val icon:String = "",//账本图标，url或者base64
+    val category:List<CategoryModel> = arrayListOf()
+){
+    override fun toString(): String {
+        return "BookModel(name='$name', icon='$icon', category=$category)"
+    }
+}
