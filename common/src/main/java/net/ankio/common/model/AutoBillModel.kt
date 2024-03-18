@@ -21,9 +21,9 @@ import net.ankio.common.constant.Currency
  * 自动记账传递给记账软件的数据模型
  */
 data class AutoBillModel(
-    val type: Int = 0,//账单类型，参考BillType类
+    var type: Int = 0,//账单类型，参考BillType类
     var currency: Currency = Currency.CNY,//货币类型
-    val amount: Float = 0.00F,//金额
+    var amount: Float = 0.00F,//金额
     var fee: Float = 0.00F,//手续费
     var timeStamp: Long = 0,//时间戳
     var cateName: String = "其他",//分类名称
@@ -31,8 +31,8 @@ data class AutoBillModel(
     var bookName: String = "默认账本",//账本名称
     var accountNameFrom: String = "",//转出账户名称
     var accountNameTo: String = "",//转入账户名称
-    val remark: String,//备注
-    val id: Int = 0,//账单id，自动记账生成
+    var remark: String,//备注
+    var id: Int = 0,//账单id，自动记账生成
 ){
     override fun toString(): String {
         return "AutoBillModel(type=$type, currency=$currency, amount=$amount, fee=$fee, timeStamp=$timeStamp, cateName='$cateName', extendData='$extendData', bookName='$bookName', accountNameFrom='$accountNameFrom', accountNameTo='$accountNameTo', remark='$remark', id=$id)"
