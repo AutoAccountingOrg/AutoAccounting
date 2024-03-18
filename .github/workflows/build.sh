@@ -19,8 +19,12 @@ versionName=$(grep 'versionName' "${rootDir}/app/build.gradle" | sed -n 's/.*ver
 versionCode=$(grep 'versionCode' "${rootDir}/app/build.gradle" |  awk '{print $2}' | tr -d '[:space:]')
 echo "VERSION_NAME=${versionName}" >> $GITHUB_ENV
 echo "VERSION_CODE=${versionCode}" >> $GITHUB_ENV
-# 设置标签名
-echo "TAG_VERSION_NAME=v${versionName}-commit-$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
+
+# 格式化版本名以符合SemVer规范
+formattedVersionName=$(echo "${versionName}" | sed 's/初啼 //g' | sed 's/ beta/beta/g')
+
+# 设置标签名，使用 '+' 分隔构建元数据
+echo "TAG_VERSION_NAME=v${formattedVersionName}+commit.$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
 # 配置运行权限
 chmod +x "${rootDir}/gradlew"
  # 创建release目录
