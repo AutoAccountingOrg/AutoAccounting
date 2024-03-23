@@ -40,12 +40,8 @@ object BookSyncUtils {
            bookJob.await()
            assetsJob.await()
 
-       }.onSuccess {
-           /*withContext(Dispatchers.Main) {
-               Toaster.show(R.string.sync_success)
-           }*/
        }.onFailure {
-           Logger.e("sync error",it)
+           Logger.e("sync error",it,true)
        }
     }
 
@@ -64,7 +60,7 @@ object BookSyncUtils {
                 val id = Db.get().BookNameDao().insert(bookName)
                 Category.importModel(bookModel.category, id)
             }
-
+            Logger.i("从记账软件同步【 账本和分类数据 】 成功",true)
            AutoAccountingServiceUtils.delete("auto_books")
         }
     }
@@ -78,6 +74,7 @@ object BookSyncUtils {
             assets.forEach {
                 Db.get().AssetsDao().add(Assets.fromModel(it))
             }
+            Logger.i("从记账软件同步【 资产数据 】 成功",true)
             AutoAccountingServiceUtils.delete("auto_assets")
         }
     }
