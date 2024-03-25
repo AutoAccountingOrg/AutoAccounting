@@ -13,21 +13,16 @@
  *   limitations under the License.
  */
 
-package net.ankio.common.model
+package net.ankio.common.constant
 
-import net.ankio.common.constant.AssetType
-
-data class AssetsModel(
-    var name: String = "", //账户名
-    /**
-     * 这里的图标是url链接或存储的base64图片
-     */
-    var icon: String = "", //图标
-    var sort: Int = 0, //排序
-    var type: AssetType = AssetType.CASH, //账户类型
-    var extra:String = ""//额外信息
-){
-    override fun toString(): String {
-        return "AssetsModel(name='$name', icon='$icon', sort=$sort)"
-    }
+enum class AssetType {
+    DEBT_EXPAND,//债务支出账户（借钱给别人）
+    DEBT_INCOME,//债务收入账户（借别人钱）
+    CASH, // 现金
+    BANK_CARD, // 银行卡
+    APP, // 软件账户，例如支付宝余额、微信余额、京东余额这种
+    DIGITAL_CASH, // 数字货币，如比特币这些
+    CREDIT, // 信用账户，花呗、白条、信用卡等
+    INVEST, // 理财账户，股票、基金、余额宝、余利宝等
+    RECHARGE // 储值账户，例如地铁卡、手机话费、游戏点卡等
 }
