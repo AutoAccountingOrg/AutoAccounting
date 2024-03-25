@@ -16,7 +16,7 @@ android {
         minSdk 28
         targetSdk 34
         versionCode 201
-        versionName "4.0.0-beta1"
+        versionName "初啼 4.0.0-beta1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         flavorDimensions += "version"
         productFlavors {

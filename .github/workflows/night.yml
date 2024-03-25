@@ -26,12 +26,10 @@ jobs:
         run: |
           rootDir=$(pwd)
           # 配置版本号和版本名
-          versionName=$(grep 'versionName' "${rootDir}/app/build.gradle" | sed -n 's/.*versionName "\([^"]*\)".*/\1/p' | tr -d '[:space:]')
+          versionName=$(grep 'versionName' "${rootDir}/app/build.gradle" | sed -n 's/.*versionName "\([^"]*\)".*/\1/p' |awk '{print $2}' |  tr -d '[:space:]')
           versionCode=$(grep 'versionCode' "${rootDir}/app/build.gradle" |  awk '{print $2}' | tr -d '[:space:]')
-          # 格式化版本名以符合SemVer规范
-          formattedVersionName=$(echo "${versionName}" | sed 's/ beta/-beta/g' | sed 's/[\x80-\xFF]//g')
           # 设置标签名，使用 '+' 分隔构建元数据
-          tagVersionName="v${formattedVersionName}+commit.$(date +'%Y%m%d%H%M%S')"
+          tagVersionName="v${versionName}+commit.$(date +'%Y%m%d%H%M%S')"
           echo "tag_version_name=${tagVersionName}" >> $GITHUB_OUTPUT
           # 配置运行权限
           chmod +x "${rootDir}/gradlew"
