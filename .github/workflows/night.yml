@@ -58,7 +58,7 @@ jobs:
       - name: 下载 APK
         uses: actions/download-artifact@v3
         with:
-          name: app-apk
+          name: temp-apk
           path: release/
       - uses: ilharp/sign-android-release@v1
         name: 签名
