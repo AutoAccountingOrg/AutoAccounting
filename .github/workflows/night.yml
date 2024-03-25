@@ -31,6 +31,8 @@ jobs:
           # 设置标签名，使用 '+' 分隔构建元数据
           tagVersionName="v${versionName}+commit.$(date +'%Y%m%d%H%M%S')"
           echo "tag_version_name=${tagVersionName}" >> $GITHUB_OUTPUT
+          echo "${tagVersionName}" >> ${{github.workspace}}/tagVersionName.txt
+          echo "${versionCode}" >> ${{github.workspace}}/versionCode.txt
           # 配置运行权限
           chmod +x "${rootDir}/gradlew"
           # 创建release目录
@@ -48,6 +50,15 @@ jobs:
         with:
           name: temp-apk
           path: ${{github.workspace}}/release/
+      - name: 打包脚本
+        uses: actions/upload-artifact@v3
+        with:
+          name: package
+          path: |
+            ${{github.workspace}}/tagVersionName.txt
+            ${{github.workspace}}/versionCode.txt
+            ${{github.workspace}}/.github/workflows/upload.py
+            
 
   sign:
     needs: setup
@@ -98,11 +109,25 @@ jobs:
           configuration: ".github/workflows/configuration.json"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+      - name: 下载脚本
+        uses: actions/download-artifact@v3
+        with:
+          name: package
+          path: package/
+      - name: 保存更新日志
+        run: |
+            echo "${{ steps.github_release.outputs.changelog }}" > changelog.txt
+      - name: Upload Changelog as Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: Changelog
+          path: changelog.txt
       - name: Add Changelog to Summary
         run: |
+          # 从文件中读取版本号
+          VERSION=$(cat "${{github.workspace}}/package/tagVersionName.txt")
           echo "# 更新日志" >> $GITHUB_STEP_SUMMARY
-          echo "- 版本：${{ needs.setup.outputs.tag_version_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 版本：$VERSION" >> $GITHUB_STEP_SUMMARY
           echo "- 时间：$(date +'%Y-%m-%d %H:%M:%S')" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           cat ${{ steps.github_release.outputs.changelog }} >> $GITHUB_STEP_SUMMARY
@@ -116,6 +141,11 @@ jobs:
         with:
           name: signed-app-apk
           path: release/
+      - name: 下载脚本
+        uses: actions/download-artifact@v3
+        with:
+          name: package
+          path: package/
       - name: 上传 APK
         run: pip install requests markdown && python .github/workflows/upload.py
         env:
