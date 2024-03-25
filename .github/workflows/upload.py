@@ -54,7 +54,7 @@ with open(os.getenv("GITHUB_WORKSPACE")+"/package/tagVersionName.txt", 'r') as f
     name = file.read()
 with open(os.getenv("GITHUB_WORKSPACE")+"/package/versionCode.txt", 'r') as file:
     code = file.read()
-with open(os.getenv("GITHUB_WORKSPACE")+"/log/changeLog.txt", 'r') as file:
+with open(os.getenv("GITHUB_WORKSPACE")+"/log/changelog.txt", 'r') as file:
     changeLog = file.read()
 html = markdown.markdown(changeLog)
 
