@@ -21,8 +21,12 @@ data class BillModel(
     var remark: String = "",//备注
     var id: String = "",//账单id，自动记账进行报销、销账的时候需要用到
     var type: Int = 0,//账单类型，只有 0 支出 1 收入，（包括报销、债务
+    var book: String = "",//账本名称
+    var category: String = "",//分类名称
+    var accountFrom: String = "",//转出账户名称
+    var accountTo: String = "",//转入账户名称
 ){
     override fun toString(): String {
-        return "BillModel(amount=$amount, time=$time, remark='$remark', id='$id', type=$type)"
+       return "BillModel(amount=$amount, time=$time, remark='$remark', id='$id', type=$type, book='$book', category='$category', accountFrom='$accountFrom', accountTo='$accountTo')"
     }
 }
