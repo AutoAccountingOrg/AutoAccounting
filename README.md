@@ -5,7 +5,7 @@
 <p align="center">
 <img src="https://img.shields.io/static/v1?label=framework&message=Xposed%2F%E6%97%A0%E9%9A%9C%E7%A2%8D&color=success&style=for-the-badge"/>
  <img src="https://img.shields.io/static/v1?label=licenes&message=GPL3.0&color=important&style=for-the-badge"/>
- <img src="https://img.shields.io/github/stars/Auto-Accounting/AutoAccounting.svg?style=for-the-badge"/>
+ <img src="https://img.shields.io/github/stars/AutoAccountingOrg/AutoAccounting.svg?style=for-the-badge"/>
 </p>
 </p>
 
@@ -13,9 +13,9 @@
 
 ## 💸 支持的记账软件
 
-| 软件名称 | 简介 | 下载 | 备注                     |
-| -------- | ---- | ---- | ------------------------ |
-| 钱迹     |      |      | 需搭配`qianji_patch`使用 |
+| 软件名称 | 简介 | 下载 | 备注                                               |
+| -------- | ---- | ---- |--------------------------------------------------|
+| 钱迹     |      |      | 需搭配[`钱迹补丁`](https://github.com/c/QianjiPatch/)使用 |
 
 开发者适配
 
@@ -46,7 +46,7 @@ AndroidStudio最低版本：`Android Studio Jellyfish | 2023.3.1 Canary 12`
 - 下载源代码到本地
 
 ```bash
-git clone https://github.com/Auto-Accounting/AutoAccounting
+git clone https://github.com/AutoAccountingOrg/AutoAccounting
 ```
 
 - 使用[Android Studio](https://developer.android.com/studio)打开，等待自动配置完成，如出现失败请配置科学上网
@@ -60,7 +60,7 @@ git clone https://github.com/Auto-Accounting/AutoAccounting
 
 ## 📝 License
 
-Copyright © 2023 [Ankio](https://www.ankio.net).<br />
+Copyright © 2024 [Ankio](https://www.ankio.net).<br />
 This project is [GPL3.0](https://github.com/dreamncn/Qianji_auto/blob/master/LICENSE) licensed.
 
 
