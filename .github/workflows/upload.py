@@ -64,7 +64,8 @@ data= {
     "version": name,
     "code": code,
     "log": html,
-    "date": t
+    "date": t,
+    "file": name+".apk"
 }
 
 json_str = json.dumps(data, indent=4)
