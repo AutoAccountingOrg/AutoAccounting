@@ -58,7 +58,7 @@ jobs:
             ${{github.workspace}}/tagVersionName.txt
             ${{github.workspace}}/versionCode.txt
             ${{github.workspace}}/.github/workflows/upload.py
-            
+            ${{github.workspace}}/.github/workflows/configuration.json
 
   sign:
     needs: setup
@@ -101,22 +101,20 @@ jobs:
     needs: sign
     runs-on: ubuntu-latest
     steps:
-      - name: 生成构建日志
-        id: github_release
-        uses: mikepenz/release-changelog-builder-action@v3
-        with:
-          commitMode: true
-          configuration: ".github/workflows/configuration.json"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: 下载脚本
         uses: actions/download-artifact@v3
         with:
           name: package
           path: package/
-      - name: 保存更新日志
-        run: |
-            echo "${{ steps.github_release.outputs.changelog }}" > changelog.txt
+      - name: 生成构建日志
+        id: github_release
+        uses: mikepenz/release-changelog-builder-action@v3
+        with:
+          commitMode: true
+          configuration: "package/configuration.json"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Upload Changelog as Artifact
         uses: actions/upload-artifact@v3
         with:
