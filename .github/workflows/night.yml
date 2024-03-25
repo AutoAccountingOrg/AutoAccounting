@@ -111,7 +111,7 @@ jobs:
         uses: mikepenz/release-changelog-builder-action@v3
         with:
           commitMode: true
-          configuration: "package/configuration.json"
+          configuration: "package/.github/workflows/configuration.json"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -154,7 +154,7 @@ jobs:
           name: Changelog
           path: log/
       - name: 上传 APK
-        run: pip install requests markdown && python package/upload.py
+        run: pip install requests markdown && python package/.github/workflows/upload.py
         env:
           GITHUB_WORKSPACE: ${{ env.GITHUB_WORKSPACE }}
           HOST_ENV_VAR: ${{ secrets.HOST_ENV_VAR }}
