@@ -10,6 +10,8 @@ permissions: write-all
 jobs:
   setup:
     runs-on: ubuntu-latest
+    outputs:
+      tag_version_name: ${{ steps.set_version.outputs.tag_version_name }}
     steps:
       - name: 下载代码
         uses: actions/checkout@v2
@@ -23,27 +25,41 @@ jobs:
       - name: 编译安卓
         run: |
           rootDir=$(pwd)
-# 配置版本号和版本名
-  versionName=$(grep 'versionName' "${rootDir}/app/build.gradle" | sed -n 's/.*versionName "\([^"]*\)".*/\1/p' | tr -d '[:space:]')
-  versionCode=$(grep 'versionCode' "${rootDir}/app/build.gradle" |  awk '{print $2}' | tr -d '[:space:]')
-  # 格式化版本名以符合SemVer规范
-  formattedVersionName=$(echo "${versionName}" | sed 's/ beta/-beta/g' | sed 's/[\x80-\xFF]//g')
-  echo "VERSION_NAME=${formattedVersionName}" >> $GITHUB_ENV
-  echo "VERSION_CODE=${versionCode}" >> $GITHUB_ENV
-  # 设置标签名，使用 '+' 分隔构建元数据
-  echo "TAG_VERSION_NAME=v${formattedVersionName}+commit.$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
-  echo $GITHUB_ENV
-  # 配置运行权限
-  chmod +x "${rootDir}/gradlew"
-  # 创建release目录
-  mkdir "${rootDir}/release/"
-# 构建二进制文件
-  "${rootDir}/gradlew" app:buildCMakeRelWithDebInfo
-  # 优先构建xposed版本
-  for flavor in xposed ; do
-  "${rootDir}/gradlew" "assemble${flavor^}Release"
-  cp "${rootDir}/app/build/outputs/apk/${flavor}/release/app.apk" "${rootDir}/release/app-${flavor}.apk"
-  done
+          # 配置版本号和版本名
+          versionName=$(grep 'versionName' "${rootDir}/app/build.gradle" | sed -n 's/.*versionName "\([^"]*\)".*/\1/p' | tr -d '[:space:]')
+          versionCode=$(grep 'versionCode' "${rootDir}/app/build.gradle" |  awk '{print $2}' | tr -d '[:space:]')
+          # 格式化版本名以符合SemVer规范
+          formattedVersionName=$(echo "${versionName}" | sed 's/ beta/-beta/g' | sed 's/[\x80-\xFF]//g')
+          # 设置标签名，使用 '+' 分隔构建元数据
+          tagVersionName="v${formattedVersionName}+commit.$(date +'%Y%m%d%H%M%S')"
+          echo "tag_version_name=${tagVersionName}" >> $GITHUB_OUTPUT
+          # 配置运行权限
+          chmod +x "${rootDir}/gradlew"
+          # 创建release目录
+          mkdir "${rootDir}/release/"
+          # 构建二进制文件
+          "${rootDir}/gradlew" app:buildCMakeRelWithDebInfo
+          # 优先构建xposed版本
+          for flavor in xposed ; do
+            "${rootDir}/gradlew" "assemble${flavor^}Release"
+            cp "${rootDir}/app/build/outputs/apk/${flavor}/release/app.apk" "${rootDir}/release/app-${flavor}.apk"
+          done
+        id: set_version
+      - name: 上传 APK 到 artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: temp-apk
+          path: ${{github.workspace}}/release/
+
+  sign:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: 下载 APK
+        uses: actions/download-artifact@v3
+        with:
+          name: app-apk
+          path: release/
       - uses: ilharp/sign-android-release@v1
         name: 签名
         id: sign_app
@@ -54,18 +70,19 @@ jobs:
           keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
           keyPassword: ${{ secrets.KEY_PASSWORD }}
           buildToolsVersion: 34.0.0
-
-  push-tag:
-    needs: setup
-    runs-on: ubuntu-latest
-    steps:
+      - name: 上传 APK 到 artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: signed-app-apk
+          path: ${{steps.sign_app.outputs.signedFile}}
       - name: 推送本次TAG
         run: |
-          git tag "${{ env.TAG_VERSION_NAME }}"
-          git push origin "${{ env.TAG_VERSION_NAME }}"
+          git tag "${{ needs.setup.outputs.tag_version_name }}"
+          git push origin "${{ needs.setup.outputs.tag_version_name }}"    
 
-  log-and-upload:
-    needs: push-tag
+
+  log:
+    needs: sign
     runs-on: ubuntu-latest
     steps:
       - name: 生成构建日志
@@ -77,28 +94,24 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: 上传到artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: app-apk
-          path: ${{github.workspace}}/release/xposed.apk
-
       - name: Add Changelog to Summary
         run: |
           echo "# 更新日志" >> $GITHUB_STEP_SUMMARY
-          echo "- 版本：${{ env.TAG_VERSION_NAME }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 版本：${{ needs.setup.outputs.tag_version_name }}" >> $GITHUB_STEP_SUMMARY
           echo "- 时间：$(date +'%Y-%m-%d %H:%M:%S')" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           cat ${{ steps.github_release.outputs.changelog }} >> $GITHUB_STEP_SUMMARY
 
-
-
   upload-apk:
-    needs: log-and-upload
+    needs: log
     runs-on: ubuntu-latest
     steps:
-      - name: 上传Apk
-        id: upload_apk
+      - name: 下载签名后的 APK
+        uses: actions/download-artifact@v3
+        with:
+          name: signed-app-apk
+          path: release/
+      - name: 上传 APK
         run: pip install requests markdown && python .github/workflows/upload.py
         env:
           CHANGELOG: ${{steps.github_release.outputs.changelog}}
@@ -106,3 +119,4 @@ jobs:
           HOST_ENV_VAR: ${{ secrets.HOST_ENV_VAR }}
           USERNAME_ENV_VAR: ${{ secrets.USERNAME_ENV_VAR }}
           PASSWORD_ENV_VAR: ${{ secrets.PASSWORD_ENV_VAR }}
+
