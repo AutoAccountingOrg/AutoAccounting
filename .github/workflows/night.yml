@@ -49,6 +49,20 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: 上传到artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-apk
+          path: ${{github.workspace}}/release/*.apk
+
+      - name: Add Changelog to Summary
+        run: |
+          echo "# 更新日志" >> $GITHUB_STEP_SUMMARY
+          echo "- 版本：${{ env.TAG_VERSION_NAME }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 时间：$(date +'%Y-%m-%d %H:%M:%S')" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo ${{ steps.github_release.outputs.changelog }} >> $GITHUB_STEP_SUMMARY
+
 
       - name: 上传Apk
         id: upload_apk

@@ -76,5 +76,5 @@ with open(os.getenv("GITHUB_WORKSPACE")+"/release/README.md", 'w') as file:
 
 upload("/release/README.md", "README.md", token)
 upload("/release/index.json", "index.json", token)
-upload("/release/app-xposed.apk", "xposed.apk", token)
+upload("/release/app-xposed.apk", name+".apk", token)
 # TODO 除了上传文件到服务器以外，还需要通过bot通知到自动记账群的用户。
