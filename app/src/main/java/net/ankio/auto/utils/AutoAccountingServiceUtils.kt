@@ -22,6 +22,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.withContext
+import net.ankio.auto.exceptions.AutoServiceException
 import net.ankio.common.config.AccountingConfig
 import java.io.File
 import kotlin.coroutines.resume
@@ -43,8 +44,7 @@ class AutoAccountingServiceUtils(mContext: Context) : CoroutineScope by MainScop
         private const val HOST = "http://127.0.0.1"
         private const val PORT = 52045
         // 将isServerStart转换为挂起函数
-        suspend fun isServerStart(mContext: Context): Boolean = withContext(Dispatchers.IO) {
-            suspendCoroutine { continuation ->
+        suspend fun isServerStart(mContext: Context): Boolean = suspendCoroutine { continuation ->
                 RequestsUtils(mContext).get("$HOST:$PORT/",
                     headers = hashMapOf("Authorization" to getToken(mContext)),
                     onSuccess = { _, code ->
@@ -54,7 +54,6 @@ class AutoAccountingServiceUtils(mContext: Context) : CoroutineScope by MainScop
                         Logger.i("$HOST:$PORT/ 请求错误$it")
                         continuation.resume(false)
                     })
-            }
         }
 
         fun getToken(mContext: Context): String {
@@ -102,6 +101,7 @@ class AutoAccountingServiceUtils(mContext: Context) : CoroutineScope by MainScop
      */
     private fun onError(string: String){
        Logger.i("自动记账服务错误：${string}")
+
     }
 
     /**
