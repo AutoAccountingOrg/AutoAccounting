@@ -50,10 +50,12 @@ def upload(filename, filename_new, auth):
     print(res.text)
 
 
-
-name = os.getenv("TAG_VERSION_NAME")
-code = os.getenv("VERSION_CODE")
-changeLog = os.getenv('CHANGELOG')
+with open(os.getenv("GITHUB_WORKSPACE")+"/package/tagVersionName.txt", 'r') as file:
+    name = file.read()
+with open(os.getenv("GITHUB_WORKSPACE")+"/package/versionCode.txt", 'r') as file:
+    code = file.read()
+with open(os.getenv("GITHUB_WORKSPACE")+"/log/changeLog.txt", 'r') as file:
+    changeLog = file.read()
 html = markdown.markdown(changeLog)
 
 t = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())

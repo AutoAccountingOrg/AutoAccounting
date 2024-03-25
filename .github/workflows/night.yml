@@ -115,11 +115,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload Changelog as Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: Changelog
-          path: changelog.txt
+
       - name: Add Changelog to Summary
         run: |
           # 从文件中读取版本号
@@ -128,7 +124,15 @@ jobs:
           echo "- 版本：$VERSION" >> $GITHUB_STEP_SUMMARY
           echo "- 时间：$(date +'%Y-%m-%d %H:%M:%S')" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          cat ${{ steps.github_release.outputs.changelog }} >> $GITHUB_STEP_SUMMARY
+          cat <<EOF > changelog.txt
+            ${{ steps.github_release.outputs.changelog }}
+          EOF
+          cat changelog.txt >> $GITHUB_STEP_SUMMARY
+      - name: Upload Changelog as Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: Changelog
+          path: changelog.txt
 
   upload-apk:
     needs: log
@@ -144,10 +148,14 @@ jobs:
         with:
           name: package
           path: package/
+      - name: 下载日志
+        uses: actions/download-artifact@v3
+        with:
+          name: Changelog
+          path: log/
       - name: 上传 APK
-        run: pip install requests markdown && python .github/workflows/upload.py
+        run: pip install requests markdown && python package/upload.py
         env:
-          CHANGELOG: ${{steps.github_release.outputs.changelog}}
           GITHUB_WORKSPACE: ${{ env.GITHUB_WORKSPACE }}
           HOST_ENV_VAR: ${{ secrets.HOST_ENV_VAR }}
           USERNAME_ENV_VAR: ${{ secrets.USERNAME_ENV_VAR }}
