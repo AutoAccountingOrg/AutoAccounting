@@ -39,6 +39,11 @@ jobs:
           keyPassword: ${{ secrets.KEY_PASSWORD }}
           buildToolsVersion: 34.0.0
 
+      - name: 推送本次TAG
+        run: |
+          git tag "${{ env.TAG_VERSION_NAME }}"
+          git push origin "${{ env.TAG_VERSION_NAME }}"
+
 
       - name: 生成构建日志
         id: github_release
@@ -53,7 +58,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: app-apk
-          path: ${{github.workspace}}/release/*.apk
+          path: ${{github.workspace}}/release/xposed.apk
 
       - name: Add Changelog to Summary
         run: |
@@ -61,8 +66,8 @@ jobs:
           echo "- 版本：${{ env.TAG_VERSION_NAME }}" >> $GITHUB_STEP_SUMMARY
           echo "- 时间：$(date +'%Y-%m-%d %H:%M:%S')" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo ${{ steps.github_release.outputs.changelog }} >> $GITHUB_STEP_SUMMARY
-
+          cat ${{ steps.github_release.outputs.changelog }} >> $GITHUB_STEP_SUMMARY
+      
 
       - name: 上传Apk
         id: upload_apk
@@ -74,7 +79,3 @@ jobs:
           USERNAME_ENV_VAR: ${{ secrets.USERNAME_ENV_VAR }}
           PASSWORD_ENV_VAR: ${{ secrets.PASSWORD_ENV_VAR }}
 
-      - name: 推送本次TAG
-        run: |
-          git tag "${{ env.TAG_VERSION_NAME }}"
-          git push origin "${{ env.TAG_VERSION_NAME }}"
