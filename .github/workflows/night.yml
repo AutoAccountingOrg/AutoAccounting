@@ -8,8 +8,7 @@ on:
 permissions: write-all
 
 jobs:
-  buildAndRelease: # 编译安卓
-
+  setup:
     runs-on: ubuntu-latest
     steps:
       - name: 下载代码
@@ -22,14 +21,21 @@ jobs:
           java-version: 17
           distribution: 'adopt'
 
+  build:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
       - name: 编译安卓
         run: |
           chmod +x .github/workflows/build.sh
           .github/workflows/build.sh
-         
 
+  sign:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
       - uses: ilharp/sign-android-release@v1
-        name: 签名 # ID used to access action output
+        name: 签名
         id: sign_app
         with:
           releaseDir: release
@@ -38,13 +44,19 @@ jobs:
           keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
           keyPassword: ${{ secrets.KEY_PASSWORD }}
           buildToolsVersion: 34.0.0
-
+  push-tag:
+    needs: sign
+    runs-on: ubuntu-latest
+    steps:
       - name: 推送本次TAG
         run: |
           git tag "${{ env.TAG_VERSION_NAME }}"
           git push origin "${{ env.TAG_VERSION_NAME }}"
 
-
+  log-and-upload:
+    needs: push-tag
+    runs-on: ubuntu-latest
+    steps:
       - name: 生成构建日志
         id: github_release
         uses: mikepenz/release-changelog-builder-action@v3
@@ -67,8 +79,13 @@ jobs:
           echo "- 时间：$(date +'%Y-%m-%d %H:%M:%S')" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           cat ${{ steps.github_release.outputs.changelog }} >> $GITHUB_STEP_SUMMARY
-      
 
+
+
+  upload-apk:
+    needs: log-and-upload
+    runs-on: ubuntu-latest
+    steps:
       - name: 上传Apk
         id: upload_apk
         run: pip install requests markdown && python .github/workflows/upload.py
@@ -78,4 +95,3 @@ jobs:
           HOST_ENV_VAR: ${{ secrets.HOST_ENV_VAR }}
           USERNAME_ENV_VAR: ${{ secrets.USERNAME_ENV_VAR }}
           PASSWORD_ENV_VAR: ${{ secrets.PASSWORD_ENV_VAR }}
-
