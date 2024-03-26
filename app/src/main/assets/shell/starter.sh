@@ -17,19 +17,15 @@
 echo "info: starter.sh begin"
 PORT=52045
 SERVER_NAME="自动记账"
-# 检测端口52045是否被占用
-if netstat -tulnp  | grep ":$PORT " | awk '$6 == "LISTEN" {print $7}'  > /dev/null; then
-    echo "info: Port $PORT is in use. Attempting to terminate the process."
-    # Get the Process ID of the process using port 52045
-    # 使用netstat和awk获取端口52045的进程ID
-    PID=$(netstat -tulnp 2>/dev/null | grep ":$PORT" | awk '$6 == "LISTEN" {print $7}' | cut -d'/' -f1 | head -n 1)
 
-    if [ ! -z "$PID" ]; then
+get_pid(){
+  netstat -tulnp 2>/dev/null | grep ":$PORT" | awk '$6 == "LISTEN" {print $7}' | cut -d'/' -f1 | head -n 1
+}
+# 获取PID
+PID=$(get_pid)
+if [ -n "$PID" ]; then
         echo "info: Terminating process with PID $PID."
-        kill -9 $PID
-    fi
-else
-    echo "info: Port 52045 is not in use."
+        kill -9 "$PID"
 fi
 
 # 获取CPU架构
@@ -39,16 +35,16 @@ CPU_ARCH=$(uname -m)
 SHELL_PATH=$(dirname "$0")
 case "$CPU_ARCH" in
     "armv7l" | "armv8l")
-        BINARY_PATH="armeabi-v7a/starter"
+        BINARY_PATH="armeabi-v7a"
         ;;
     "aarch64")
-        BINARY_PATH="arm64-v8a/starter"
+        BINARY_PATH="arm64-v8a"
         ;;
     "i386" | "i686")
-        BINARY_PATH="x86/starter"
+        BINARY_PATH="x86"
         ;;
     "x86_64")
-        BINARY_PATH="x86_64/starter"
+        BINARY_PATH="x86_64"
         ;;
     *)
         echo "fatal: unsupported this cpu: $CPU_ARCH"
@@ -56,7 +52,7 @@ case "$CPU_ARCH" in
         ;;
 esac
 
-OLD_PATH="$SHELL_PATH/$BINARY_PATH"
+OLD_PATH="$SHELL_PATH/$BINARY_PATH/starter"
 
 # 启动二进制文件
 if [ -f "$OLD_PATH" ]; then
@@ -72,11 +68,12 @@ if [ -f "$OLD_PATH" ]; then
   echo "info: exec $NEW_PATH"
   chmod +x "$NEW_PATH"
     retries=0
+    $NEW_PATH stop
     while [ $retries -lt 20 ]; do
            $NEW_PATH "$SHELL_PATH"
            echo "info: $SERVER_NAME service start... "
-           PID=$(netstat -tulnp 2>/dev/null | grep ":$PORT" | awk '$6 == "LISTEN" {print $7}' | cut -d'/' -f1 | head -n 1)
-           if [ ! -z "$PID" ]; then
+           PID=$(get_pid)
+           if [ -n "$PID" ]; then
                echo "info: $SERVER_NAME service start success, PID: $PID"
                return 0
            else
