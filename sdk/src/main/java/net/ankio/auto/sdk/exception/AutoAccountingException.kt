@@ -23,9 +23,6 @@ class AutoAccountingException(message:String,val code:Int = 0) : Exception(messa
         const val CODE_SERVER_UN_INIT = 102 //没有初始化自动记账
     }
 
-    fun getCode():Int{
-        return code
-    }
     override fun toString(): String {
         return "AutoAccountingException(message='$message', code=$code)"
     }
