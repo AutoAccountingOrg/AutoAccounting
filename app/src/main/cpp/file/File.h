@@ -16,7 +16,7 @@ public:
     //修剪日志文件
     static void trimLogFile(const std::string &filename, size_t maxLines);
     //格式化时间
-    static std::string formatTime(std::time_t time);
+    static std::string formatTime();
     //写入日志
     static void writeLog(const std::string &fileInfo);
     //写入数据

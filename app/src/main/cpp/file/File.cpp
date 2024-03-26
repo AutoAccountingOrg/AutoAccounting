@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <deque>
 #include "File.h"
 #include "../utils/trim.cpp"
 void File::writeFile(const std::string &filename, const std::string &fileInfo) {
@@ -35,21 +36,22 @@ void File::trimLogFile(const std::string &filename, size_t maxLines) {
     }
 }
 
-std::string File::formatTime(std::time_t time) {
-    std::tm *ptm = std::localtime(&time);
+std::string File::formatTime() {
+    // 获取当前时间和日期
+    std::time_t now = std::time(nullptr);
+    std::tm *ptm = std::localtime(&now);
     char buffer[32];
 
     // 格式化日期和时间：YYYY-MM-DD HH:MM:SS
-    std::strftime(buffer, 32, "%Y-%m-%d %H:%M:%S", ptm);
+    std::strftime(buffer, 32, "[ %Y-%m-%d %H:%M:%S ] ", ptm);
 
     return {buffer};
 }
 
 
 void File::writeLog(const std::string &fileInfo) {
-    // 获取当前时间和日期
-    std::time_t now = std::time(nullptr);
-    std::string timestamp = formatTime(now);
+
+    std::string timestamp = formatTime();
 
     // 设置日志文件的名称
     std::string logFileName = "log.txt";
@@ -57,7 +59,7 @@ void File::writeLog(const std::string &fileInfo) {
     // 写入日志
     std::ofstream logFile(logFileName, std::ios_base::app);
     if (logFile.is_open()) {
-        logFile << "[" << timestamp << "] " << fileInfo << std::endl;
+        logFile << timestamp  << fileInfo << std::endl;
         logFile.close();
     }
 
