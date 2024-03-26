@@ -20,6 +20,7 @@ class AutoAccountingException(message:String,val code:Int = 0) : Exception(messa
     companion object{
         const val CODE_SERVER_ERROR = 100 //服务未启动
         const val CODE_SERVER_AUTHORIZE = 101 //服务未授权
+        const val CODE_SERVER_UN_INIT = 102 //没有初始化自动记账
     }
 
     fun getCode():Int{

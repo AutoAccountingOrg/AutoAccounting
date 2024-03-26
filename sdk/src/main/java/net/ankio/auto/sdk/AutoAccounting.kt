@@ -34,7 +34,11 @@ class AutoAccounting {
     }
 
     private fun getToken(mContext: Context): String {
-        return getSp(mContext)?.getString("token", "")?:""
+        val token = getSp(mContext)?.getString("token", "")
+        if(token.isNullOrEmpty()){
+            throw AutoAccountingException("token不能为空",AutoAccountingException.CODE_SERVER_AUTHORIZE)
+        }
+        return token
     }
 
 
@@ -51,7 +55,7 @@ class AutoAccounting {
         }
         private fun checkInit(){
             if(!::instance.isInitialized){
-                throw AutoAccountingException("AutoAccounting未初始化")
+                throw AutoAccountingException("AutoAccounting未初始化",AutoAccountingException.CODE_SERVER_UN_INIT)
             }
 
         }
@@ -61,7 +65,7 @@ class AutoAccounting {
         fun setToken(context: Context,token: String?) {
             checkInit()
             if(token.isNullOrEmpty()){
-                throw AutoAccountingException("token不能为空")
+                throw AutoAccountingException("token不能为空",AutoAccountingException.CODE_SERVER_AUTHORIZE)
             }
             instance.setToken(context,token)
         }
