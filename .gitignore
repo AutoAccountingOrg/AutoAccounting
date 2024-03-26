@@ -13,3 +13,5 @@
 .externalNativeBuild
 .cxx
 local.properties
+/app/src/main/cpp/cmake-build-debug/
+/app/src/main/cpp/.idea/
