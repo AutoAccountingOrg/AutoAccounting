@@ -16,6 +16,7 @@
 package net.ankio.common.model
 
 import net.ankio.common.constant.AssetType
+import net.ankio.common.constant.Currency
 
 data class AssetsModel(
     var name: String = "", //账户名
@@ -25,7 +26,8 @@ data class AssetsModel(
     var icon: String = "", //图标
     var sort: Int = 0, //排序
     var type: AssetType = AssetType.CASH, //账户类型
-    var extra:String = ""//额外信息
+    var extra:String = "",//额外信息
+    var currency: Currency = Currency.CNY //货币类型
 ){
     override fun toString(): String {
         return "AssetsModel(name='$name', icon='$icon', sort=$sort)"
