@@ -15,4 +15,17 @@
 
 package net.ankio.auto.sdk.exception
 
-class AutoAccountingException(message:String) : Exception(message)
+class AutoAccountingException(message:String,val code:Int = 0) : Exception(message){
+
+    companion object{
+        const val CODE_SERVER_ERROR = 100 //服务未启动
+        const val CODE_SERVER_AUTHORIZE = 101 //服务未授权
+    }
+
+    fun getCode():Int{
+        return code
+    }
+    override fun toString(): String {
+        return "AutoAccountingException(message='$message', code=$code)"
+    }
+}

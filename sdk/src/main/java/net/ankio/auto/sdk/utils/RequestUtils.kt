@@ -17,6 +17,7 @@ package net.ankio.auto.sdk.utils
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import net.ankio.auto.sdk.exception.AutoAccountingException
 import java.io.BufferedReader
 import java.io.BufferedWriter
 import java.io.InputStreamReader
@@ -31,7 +32,7 @@ object RequestUtils {
         query: HashMap<String, String>? = null,
         data: String? = null,
         headers: HashMap<String, String> = HashMap()
-    ): PostResult = withContext(Dispatchers.IO) {
+    ): String = withContext(Dispatchers.IO) {
         val (host, port) = parseUrl(url)
 
         var response: String? = null
@@ -82,6 +83,12 @@ object RequestUtils {
                 isSuccess = statusCode == 200
             }
 
+            if(!isSuccess){
+                throw AutoAccountingException("未授权自动记账",AutoAccountingException.CODE_SERVER_AUTHORIZE)
+            }
+
+
+
             // 跳过响应头部分
             var line: String?
             do {
@@ -90,10 +97,11 @@ object RequestUtils {
 
             // 读取响应体
             response = reader.readText()
-            Logger.i("请求成功：\n${path}\n${response}")
+            Logger.i("请求成功：\n${path}\n${requestBody}\n${response}")
         } catch (e: Exception) {
             e.printStackTrace()
             Logger.i("请求异常：\n${url}\n${e.message}", e)
+            throw AutoAccountingException("请求异常：\n${url}\n${e.message}",AutoAccountingException.CODE_SERVER_ERROR)
         } finally {
             // 关闭资源
             kotlin.runCatching {
@@ -104,7 +112,11 @@ object RequestUtils {
             }
         }
 
-        PostResult(response, isSuccess)
+
+        //请求失败有两个可能，一个是401，一个是服务未启动
+
+
+        response ?: throw AutoAccountingException("请求失败",AutoAccountingException.CODE_SERVER_ERROR)
     }
 
 

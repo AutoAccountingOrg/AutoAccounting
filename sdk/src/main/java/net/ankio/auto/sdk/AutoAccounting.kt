@@ -23,14 +23,6 @@ import net.ankio.auto.sdk.utils.RequestUtils
 class AutoAccounting {
     private  val PORT = 52045
     private val url = "http://127.0.0.1:$PORT/"
-    // 将isServerStart转换为挂起函数
-    suspend fun isServerStart(mContext: Context): Boolean  {
-       val result = RequestUtils.post(
-            url = url,
-            headers = hashMapOf("Authorization" to getToken(mContext)),
-        )
-        return result.isSuccess
-    }
     private fun getSp(mContext: Context): SharedPreferences? {
         return mContext.getSharedPreferences("AutoAccountingConfig", Context.MODE_PRIVATE)
     }
@@ -55,13 +47,7 @@ class AutoAccounting {
          */
         suspend fun init(context: Context,config: String){
             instance = AutoAccounting()
-            if(!instance.isServerStart(context)){
-                throw AutoAccountingException("自动记账服务未启动或自动记账未授权服务")
-            }
-            //初始化成功后，传递自动记账配置
-
-           instance.setConfig(context,config)
-
+            instance.setConfig(context,config)
         }
         private fun checkInit(){
             if(!::instance.isInitialized){
@@ -145,7 +131,7 @@ class AutoAccounting {
             data = "",
             headers = hashMapOf("Authorization" to getToken(context))
         )
-        return result.result?:""
+        return result
     }
 
     private suspend fun setBills(context: Context, bills: String,type:String) {
