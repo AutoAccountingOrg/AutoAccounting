@@ -18,9 +18,7 @@ package net.ankio.auto.utils
 import android.content.Context
 import android.os.Environment
 import com.google.gson.Gson
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.withContext
 import net.ankio.auto.exceptions.AutoServiceException
 import net.ankio.common.config.AccountingConfig
@@ -31,12 +29,11 @@ import kotlin.coroutines.suspendCoroutine
 /**
  * AutoAccountingServiceUtils
  * 自动记账服务调用工具
+ * @throws AutoServiceException
  */
-class AutoAccountingServiceUtils(mContext: Context) : CoroutineScope by MainScope(){
+class AutoAccountingServiceUtils(mContext: Context) {
 
     private var requestsUtils = RequestsUtils(mContext)
-
-
 
     private val headers = HashMap<String, String>()
 
@@ -56,14 +53,15 @@ class AutoAccountingServiceUtils(mContext: Context) : CoroutineScope by MainScop
                     })
         }
 
+
         fun getToken(mContext: Context): String {
-           return ActiveUtils.getToken(context = mContext)
+           return get("token",mContext)
         }
         /**
          * 获取文件内容
          */
-        fun get(name: String): String {
-            val path =  Environment.getExternalStorageDirectory().path+"/Android/data/${ActiveUtils.APPLICATION_ID}/cache/shell/${name}.txt"
+        fun get(name: String,mContext: Context): String {
+            val path =  Environment.getExternalStorageDirectory().path+"/Android/data/${mContext.packageName}/cache/shell/${name}.txt"
             val file = File(path)
             if(file.exists()){
                 return file.readText().trim()
@@ -71,8 +69,8 @@ class AutoAccountingServiceUtils(mContext: Context) : CoroutineScope by MainScop
             return ""
         }
 
-        fun delete(name: String) {
-            val path =  Environment.getExternalStorageDirectory().path+"/Android/data/${ActiveUtils.APPLICATION_ID}/cache/shell/${name}.txt"
+        fun delete(name: String,mContext: Context) {
+            val path =  Environment.getExternalStorageDirectory().path+"/Android/data/${mContext.packageName}/cache/shell/${name}.txt"
             val file = File(path)
             if(file.exists()){
                 file.delete()
@@ -100,25 +98,24 @@ class AutoAccountingServiceUtils(mContext: Context) : CoroutineScope by MainScop
      * 请求错误
      */
     private fun onError(string: String){
-       Logger.i("自动记账服务错误：${string}")
-
+        throw AutoServiceException(string,AutoServiceException.CODE_SERVER_ERROR)
     }
 
     /**
      * 获取数据
      */
-    fun get(name: String, onSuccess: (String) -> Unit){
+    suspend fun get(name: String):String = suspendCoroutine{
         requestsUtils.get(getUrl("/get"),
             query = hashMapOf("name" to name),
             headers = headers,
             onSuccess = { bytearray,code ->
                         if(code==200){
-                            onSuccess(String(bytearray).trim())
+                            it.resume(String(bytearray).trim())
                         }else{
-                            onError(String(bytearray).trim())
+                            throw AutoServiceException(String(bytearray),AutoServiceException.CODE_SERVER_AUTHORIZE)
                         }
         },
-            onError = this::onError)
+     onError = this::onError)
     }
 
     /**
@@ -132,7 +129,7 @@ class AutoAccountingServiceUtils(mContext: Context) : CoroutineScope by MainScop
             contentType = RequestsUtils.TYPE_RAW,
             onSuccess = { bytearray, code ->
                 if(code!=200){
-                    onError(String(bytearray).trim())
+                    throw AutoServiceException(String(bytearray),AutoServiceException.CODE_SERVER_AUTHORIZE)
                 }
         },onError = this::onError)
     }
@@ -147,7 +144,7 @@ class AutoAccountingServiceUtils(mContext: Context) : CoroutineScope by MainScop
             headers = headers,
             onSuccess = { bytearray,code ->
                 if(code!=200){
-                    onError(String(bytearray).trim())
+                    throw AutoServiceException(String(bytearray),AutoServiceException.CODE_SERVER_AUTHORIZE)
                 }
         },onError = this::onError)
     }
@@ -155,8 +152,8 @@ class AutoAccountingServiceUtils(mContext: Context) : CoroutineScope by MainScop
     /**
      * 获取记录的数据
      */
-    suspend fun getData(onSuccess: (String) -> Unit) = withContext(Dispatchers.IO){
-        get("data",onSuccess)
+    suspend fun getData():String = withContext(Dispatchers.IO){
+        get("data")
     }
 
     /**
@@ -177,27 +174,24 @@ class AutoAccountingServiceUtils(mContext: Context) : CoroutineScope by MainScop
     /**
      * 获取App记录的日志
      */
-    fun getLog(onSuccess: (String) -> Unit){
-        get("log",onSuccess)
+    suspend fun getLog():String = withContext(Dispatchers.IO){
+        get("log")
     }
     /**
      * 获取配置
      */
-    fun config(autoAccountingConfig: (AccountingConfig)->Unit){
+   suspend fun config():AccountingConfig = withContext(Dispatchers.IO){
         runCatching {
-            get("bookAppConfig") {
-                val config = Gson().fromJson(it, AccountingConfig::class.java)
-                if(config==null){
-                    set("bookAppConfig",Gson().toJson(AccountingConfig()))
-                    autoAccountingConfig(AccountingConfig())
-                }else{
-                    autoAccountingConfig(config)
-                }
-
+            val bookAppConfig = get("bookAppConfig")
+            val config = Gson().fromJson(bookAppConfig, AccountingConfig::class.java)
+            if(config==null){
+                set("bookAppConfig",Gson().toJson(AccountingConfig()))
+                AccountingConfig()
+            }else{
+                config
             }
         }.onFailure {
             Logger.e("获取配置失败",it)
-            autoAccountingConfig(AccountingConfig())
-        }
+        }.getOrNull()?:AccountingConfig()
     }
 }
