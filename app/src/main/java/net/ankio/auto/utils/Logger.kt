@@ -110,7 +110,11 @@ object Logger {
 
         }
         if (save){
-            AppUtils.getService().putLog(logMessage)
+           AppUtils.getScope().launch {
+               runCatching {
+                   AppUtils.getService().putLog(logMessage)
+               }
+           }
         }
     }
 

@@ -21,6 +21,7 @@ import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.exceptions.AutoServiceException
+import net.ankio.auto.utils.request.RequestsUtils
 import net.ankio.common.config.AccountingConfig
 import java.io.File
 import kotlin.coroutines.resume
@@ -159,7 +160,7 @@ class AutoAccountingServiceUtils(mContext: Context) {
     /**
      * 设置App记录日志
      */
-    fun putLog(value: String){
+    suspend fun putLog(value: String){
         requestsUtils.post(getUrl("/log"),
             data = hashMapOf("raw" to value),
             contentType = RequestsUtils.TYPE_RAW,

@@ -13,7 +13,7 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.utils
+package net.ankio.auto.utils.request
 
 /**
  * RequestsUtils
@@ -28,9 +28,12 @@ import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import net.ankio.auto.exceptions.HttpException
+import net.ankio.auto.utils.AppTimeMonitor
+import net.ankio.auto.utils.AppUtils
+import net.ankio.auto.utils.CacheManager
+import net.ankio.auto.utils.Logger
 import okhttp3.Cache
-import okhttp3.Call
-import okhttp3.Callback
 import okhttp3.FormBody
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -39,10 +42,8 @@ import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import okhttp3.Response
 import okio.Buffer
 import java.io.File
-import java.io.IOException
 
 
 class RequestsUtils(context: Context) {
@@ -66,7 +67,7 @@ class RequestsUtils(context: Context) {
     }
 
 
-    val cacheManager = CacheManager(context)
+    private val cacheManager = CacheManager(context)
     init {
         if(client === null){
             client = OkHttpClient.Builder()
@@ -75,7 +76,7 @@ class RequestsUtils(context: Context) {
         }
     }
 
-    fun requestBodyToString(requestBody: RequestBody?): String? {
+    private fun requestBodyToString(requestBody: RequestBody?): String? {
         if (requestBody == null) return null
         val buffer = Buffer()
         requestBody.writeTo(buffer)
@@ -126,7 +127,7 @@ class RequestsUtils(context: Context) {
         runCatching {
             //判断byteArray大小，太大抛异常
             if(byteArray.size > 1024 * 100){
-                throw Exception("byteArray too large")
+                throw HttpException("byteArray too large")
             }
             message = String(byteArray, Charsets.UTF_8)
         }.onSuccess {
@@ -150,20 +151,15 @@ class RequestsUtils(context: Context) {
         return message
 
     }
-
-    private fun sendRequest(
+    private suspend fun sendRequest(
         url: String,
         query: HashMap<String, String>? = null,
         data: HashMap<String, String>? = null,
         method: String = METHOD_GET,
         contentType: Int = TYPE_FORM,
         headers: HashMap<String, String> = HashMap(),
-        onSuccess: (ByteArray, Int) -> Unit,
-        onError: (String) -> Unit,
         cacheTime: Int = 0
-    ) {
-        AppUtils.getScope().launch {
-
+    ): RequestResult = withContext(Dispatchers.IO) {
             val message = StringBuilder()
             message.append("$method ")
             var requestUrl = url
@@ -179,16 +175,13 @@ class RequestsUtils(context: Context) {
                 message.append(
                     "\n───────────────────────────────────────────────────────────────\n" +
                             " Cache Hit \n" +
-                            "───────────────────────────────────────────────────────────────\n"+
+                            "───────────────────────────────────────────────────────────────\n" +
                             convertByteArray(cachedData)
                 )
                 Logger.d(message.toString())
-                withContext(Dispatchers.Main){
-                    onSuccess(cachedData, 200)
-                }
-                return@launch
+                return@withContext RequestResult(cachedData, 200)
             }
-            AppTimeMonitor.startMonitoring("请求: $requestUrl")
+        AppTimeMonitor.startMonitoring("请求: $requestUrl")
             val requestBuilder = Request.Builder().url(requestUrl)
 
 
@@ -209,115 +202,79 @@ class RequestsUtils(context: Context) {
 
             val request = requestBuilder.build()
 
-            withContext(Dispatchers.Main){
-                client?.newCall(request)?.enqueue(object : Callback {
-                    //还在子线程中
-                    override fun onResponse(call: Call, response: Response) {
-                        AppTimeMonitor.startMonitoring("请求: $requestUrl")
-                        response.body?.byteStream()?.use {
-                            val bytes = it.readBytes()
-                            if (cacheTime > 0 && response.isSuccessful) {
-                                AppUtils.getScope().launch {
-                                    cacheManager.saveToCacheWithExpiry(cacheKey, bytes, cacheTime.toLong())
-                                }
-                            }
-                            message.append(
-                                "\n───────────────────────────────────────────────────────────────\n" +
-                                        " Response Success \n " + response.code+" "+ response.message+"\n"+
-                                        "───────────────────────────────────────────────────────────────\n"+
-                                        convertByteArray(bytes)
-                            )
-                            Logger.d(message.toString())
-                            mainHandler.post {
-                                onSuccess(bytes, response.code)
-                            }
+        val response = client?.newCall(request)?.execute()
+            ?: throw HttpException("Request failed: response is null")
 
-                        } ?: {
-                            message.append(
-                                "\n───────────────────────────────────────────────────────────────\n" +
-                                        " Response Empty \n " + response.code+" "+ response.message+"\n"+
-                                        "───────────────────────────────────────────────────────────────\n"
-                            )
-                            Logger.d(message.toString())
-                            mainHandler.post {
-                                onSuccess(ByteArray(0), response.code)
-                            }
-                        }
-                    }
-
-                    override fun onFailure(call: Call, e: IOException) {
-                        AppTimeMonitor.startMonitoring("请求: $requestUrl")
-                        message.append(
-                            "\n───────────────────────────────────────────────────────────────\n" +
-                                    " Response Error \n" +
-                                    "───────────────────────────────────────────────────────────────\n"+
-                                    e.message
-                        )
-                        Logger.e(message.toString(),e)
-                        mainHandler.post {
-                            onError(e.message ?: "Unknown error")
-                        }
-
-                    }
-                })
-            }
-
+        if (!response.isSuccessful) {
+            response.close()
+            throw HttpException("Request failed: ${response.code} ${response.message}")
         }
+        val bytes = response.body?.bytes()
+        if (cacheTime > 0 && response.isSuccessful) {
+            AppUtils.getScope().launch {
+                cacheManager.saveToCacheWithExpiry(
+                    cacheKey,
+                    bytes ?: ByteArray(0),
+                    cacheTime.toLong()
+                )
+            }
+        }
+        message.append(
+            "\n───────────────────────────────────────────────────────────────\n" +
+                    " Response Success \n " + response.code + " " + response.message + "\n" +
+                    "───────────────────────────────────────────────────────────────\n" +
+                    convertByteArray(bytes ?: ByteArray(0))
+        )
+        Logger.d(message.toString())
+
+        AppTimeMonitor.stopMonitoring("请求: $requestUrl")
 
 
+        RequestResult(bytes ?: ByteArray(0), response.code)
     }
-    // GET请求
-    fun get(
+    suspend fun get(
         url: String,
         query: HashMap<String, String>? = null,
         headers: HashMap<String, String> = HashMap(),
-        onSuccess: (ByteArray, Int) -> Unit,
-        onError: (String) -> Unit,
         cacheTime: Int = 0
-    ) {
-        sendRequest(url, query, null, METHOD_GET, TYPE_FORM, headers, onSuccess, onError, cacheTime)
+    ):RequestResult {
+       return sendRequest(url, query, null, METHOD_GET, TYPE_FORM, headers, cacheTime)
     }
 
     // POST请求
-    fun post(
+    suspend fun post(
         url: String,
         query: HashMap<String, String>? = null,
         data: HashMap<String, String>? = null,
         contentType: Int = TYPE_FORM,
         headers: HashMap<String, String> = HashMap(),
-        onSuccess: (ByteArray, Int) -> Unit,
-        onError: (String) -> Unit,
         cacheTime: Int = 0
-    ) {
-        sendRequest(url, query, data, METHOD_POST, contentType, headers, onSuccess, onError, cacheTime)
+    ):RequestResult {
+       return sendRequest(url, query, data, METHOD_POST, contentType, headers, cacheTime)
     }
 
     // PUT请求
-    fun put(
+    suspend fun put(
         url: String,
         query: HashMap<String, String>? = null,
         data: HashMap<String, String>? = null,
         contentType: Int = TYPE_FORM,
         headers: HashMap<String, String> = HashMap(),
-        onSuccess: (ByteArray, Int) -> Unit,
-        onError: (String) -> Unit,
         cacheTime: Int = 0
-    ) {
-        sendRequest(url, query, data, METHOD_PUT, contentType, headers, onSuccess, onError, cacheTime)
+    ):RequestResult {
+      return  sendRequest(url, query, data, METHOD_PUT, contentType, headers, cacheTime)
     }
 
     // DELETE请求
-    fun delete(
+    suspend fun delete(
         url: String,
         query: HashMap<String, String>? = null,
         data: HashMap<String, String>? = null,
         contentType: Int = TYPE_FORM,
         headers: HashMap<String, String> = HashMap(),
-        onSuccess: (ByteArray, Int) -> Unit,
-        onError: (String) -> Unit,
         cacheTime: Int = 0
-    ) {
-        sendRequest(url, query, data, METHOD_DELETE, contentType, headers, onSuccess, onError, cacheTime)
+    ):RequestResult {
+       return sendRequest(url, query, data, METHOD_DELETE, contentType, headers, cacheTime)
     }
 
     fun json(byteArray: ByteArray): JsonObject? {
@@ -328,17 +285,15 @@ class RequestsUtils(context: Context) {
         return AppUtils.md5(url + method + (data?.toString() ?: ""))
     }
 
-    fun mkcol(
+    suspend fun mkcol(
         url: String,
         query: HashMap<String, String>? = null,
         data: HashMap<String, String>? = null,
         contentType: Int = TYPE_FORM,
         headers: HashMap<String, String> = HashMap(),
-        onSuccess: (ByteArray, Int) -> Unit,
-        onError: (String) -> Unit,
         cacheTime: Int = 0
-    ) {
-        sendRequest(url, query, data, METHOD_MKCOL, contentType, headers, onSuccess, onError, cacheTime)
+    ) :RequestResult{
+       return sendRequest(url, query, data, METHOD_MKCOL, contentType, headers, cacheTime)
     }
 
 

@@ -28,7 +28,7 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.databinding.DialogUpdateBinding
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.Logger
-import net.ankio.auto.utils.RequestsUtils
+import net.ankio.auto.utils.request.RequestsUtils
 import net.ankio.auto.utils.SpUtils
 import rikka.html.text.toHtml
 

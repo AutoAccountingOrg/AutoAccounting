@@ -15,6 +15,12 @@
 
 package net.ankio.auto.utils
 
+import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import net.ankio.auto.utils.request.RequestsUtils
+import net.ankio.auto.utils.update.UpdateInfo
+
 /**
  * 更新工具，用于处理App更新、规则更新
  */
@@ -51,77 +57,53 @@ class UpdateUtils {
      *     "log":"日志信息",
      * }
      */
-    private fun request(
+    private suspend fun request(
         url: String,
         local: Int,
-        onUpdate: (version: String, log: String, date: String,code:Int) -> Unit
-    ) {
-        requestUtils.get(url,
-            cacheTime = 60,
-            onSuccess = { bytes, _ ->
-
-                runCatching {
-                    val json = requestUtils.json(bytes)
-                    val version = json?.get("version")?.asString ?: ""
-                    val code = json?.get("code")?.asInt ?: 0
-                    val date = json?.get("date")?.asString ?: ""
-                    val log = json?.get("log")?.asString ?: ""
-                    //本地版本小于云端版本就是需要更新
-                    if (local < code) {
-                        onUpdate(version, log, date,code)
-                        Logger.i(
-                            " 升级信息：$url\n" +
-                                    " 版本:$version\n" +
-                                    " 版本号:$code\n" +
-                                    " 更新时间:$date\n" +
-                                    " 更新日志:$log"
-                        )
-                    } else {
-                        Logger.i("无需更新")
-                    }
-                }.onFailure {
-                    Logger.e("检测更新出错", it)
-                }
-
-            },
-            onError = {
-                Logger.i("检测更新出错：$it")
-            })
+    ):UpdateInfo? = withContext(Dispatchers.IO) {
+       runCatching {
+          val result =  requestUtils.get(url, cacheTime = 60)
+           val json =  Gson().fromJson(result.byteArray.toString(Charsets.UTF_8), UpdateInfo::class.java)
+           //本地版本小于云端版本就是需要更新
+           if (local < json.code) {
+               Logger.i(
+                   " 升级信息：$url\n" +
+                           " 版本:${json.version}\n" +
+                           " 版本号:${json.code}\n" +
+                           " 更新时间:${json.date}\n" +
+                           " 更新日志:${json.log}"
+               )
+               json
+           } else {
+               Logger.i("无需更新")
+               null
+           }
+       }.onFailure {
+           Logger.i("检测更新出错：$it")
+       }.getOrNull()
     }
 
     /**
      * 检查App更新
      */
-    fun checkAppUpdate(onUpdate: (version: String, log: String, date: String, download: String,code:Int) -> Unit) {
+    suspend fun checkAppUpdate():UpdateInfo? {
         SpUtils.getBoolean("checkApp", true).apply {
             if (!this) {
-                return
+                return null
             }
         }
-        request("$appUrl/index.json", AppUtils.getVersionCode()) { version, log, date,code ->
-            onUpdate(
-                version,
-                log,
-                date,
-                appUrl + (if (AppUtils.getApplicationId()
-                        .endsWith("xposed")
-                ) "/xposed.apk" else "/helper.apk")
-                ,code
-            )
-        }
+       return  request("$appUrl/index.json", AppUtils.getVersionCode())
     }
 
     /**
      * 检查规则更新
      */
-    fun checkRuleUpdate(onUpdate: (version: String, log: String, date: String, category: String, rule: String,code:Int) -> Unit) {
+    suspend fun checkRuleUpdate():UpdateInfo?  {
         SpUtils.getBoolean("checkRule", true).apply {
             if (!this) {
-                return
+                return null
             }
         }
-        request("$ruleUrl/index.json", SpUtils.getInt("ruleVersion",0)) { version, log, date,code ->
-            onUpdate(version, log, date, "$ruleUrl/category.js", "$ruleUrl/rule.js",code)
-        }
+        return request("$ruleUrl/index.json", SpUtils.getInt("ruleVersion",0))
     }
 }

@@ -37,6 +37,7 @@ import net.ankio.auto.exceptions.RestoreBackupException
 import net.ankio.auto.ui.activity.BaseActivity
 import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.utils.LoadingUtils
+import net.ankio.auto.utils.request.RequestsUtils
 import okhttp3.Credentials
 import java.io.File
 import java.io.FileInputStream
