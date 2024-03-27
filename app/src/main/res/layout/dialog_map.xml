@@ -9,7 +9,6 @@
         android:id="@+id/cardView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/cardPadding"
         app:cardCornerRadius="@dimen/radius"
         app:cardElevation="0dp"
         app:strokeColor="?attr/colorSurfaceContainerHighest"
@@ -19,8 +18,7 @@
             android:id="@+id/cardViewInner"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_margin="@dimen/marginTop"
-            android:padding="@dimen/padding"
+            android:padding="@dimen/cardPadding"
             android:orientation="vertical">
 
             <com.google.android.material.textfield.TextInputLayout

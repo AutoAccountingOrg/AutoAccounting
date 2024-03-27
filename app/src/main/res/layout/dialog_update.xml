@@ -9,7 +9,7 @@
         android:id="@+id/cardView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/cardPadding"
+        android:layout_marginBottom="-20dp"
         app:cardCornerRadius="@dimen/radius"
         app:cardElevation="0dp"
         app:strokeColor="?attr/colorSurfaceContainerHighest"
@@ -19,9 +19,9 @@
             android:id="@+id/cardViewInner"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_margin="@dimen/padding"
             android:orientation="vertical"
-            android:padding="@dimen/cardPadding">
+            android:padding="@dimen/cardPadding"
+            android:paddingBottom="40dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -33,30 +33,32 @@
                     android:layout_weight="1"
                     android:orientation="vertical">
 
-                   <LinearLayout
-                       android:layout_width="match_parent"
-                       android:layout_height="match_parent">
-                       <TextView
-                           android:id="@+id/name"
-                           android:layout_width="wrap_content"
-                           android:layout_height="wrap_content"
-                           android:ellipsize="end"
-                           android:maxLines="1"
-                           android:text="App"
-                           android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                           android:textStyle="bold"
-                           android:layout_marginEnd="@dimen/one_padding"
-                           android:textColor="?colorPrimary" />
-                       <TextView
-                           android:id="@+id/version"
-                           android:layout_width="wrap_content"
-                           android:layout_height="wrap_content"
-                           android:ellipsize="end"
-                           android:maxLines="1"
-                           android:text="xxx更新"
-                           android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                           android:textColor="?colorPrimary" />
-                   </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <TextView
+                            android:id="@+id/name"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="@dimen/one_padding"
+                            android:ellipsize="end"
+                            android:maxLines="1"
+                            android:text="App"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                            android:textColor="?colorPrimary"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/version"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:ellipsize="end"
+                            android:maxLines="1"
+                            android:text="xxx更新"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                            android:textColor="?colorPrimary" />
+                    </LinearLayout>
 
                     <TextView
                         android:id="@+id/date"
@@ -93,7 +95,6 @@
                     android:text="xxxxx更新日志" />
             </ScrollView>
         </LinearLayout>
-
 
 
     </com.google.android.material.card.MaterialCardView>

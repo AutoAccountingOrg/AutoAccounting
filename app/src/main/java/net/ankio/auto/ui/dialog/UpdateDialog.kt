@@ -22,14 +22,20 @@ import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import androidx.lifecycle.lifecycleScope
+import com.hjq.toast.Toaster
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogUpdateBinding
+import net.ankio.auto.events.AutoServiceErrorEvent
+import net.ankio.auto.events.UpdateSuccessEvent
+import net.ankio.auto.exceptions.AutoServiceException
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.request.RequestsUtils
 import net.ankio.auto.utils.SpUtils
+import net.ankio.auto.utils.event.EventBus
 import rikka.html.text.toHtml
 
 
@@ -53,7 +59,7 @@ class UpdateDialog(
         binding.version.text = version
         binding.updateInfo.text = log.toHtml()
         binding.date.text = date
-        binding.name.text = if (type == 1) "规则" else "App"
+        binding.name.text = if (type == 1) context.getString(R.string.rule) else context.getString(R.string.app)
         binding.update.setOnClickListener {
             if (type == 1) {
                 lifecycleScope.launch {
@@ -71,27 +77,33 @@ class UpdateDialog(
     private suspend fun updateRule(category: String, rule: String) = withContext(Dispatchers.IO){
         runCatching {
             val requestUtils = RequestsUtils(context)
+            val result = requestUtils.get(rule, cacheTime = 0)
             //规则更新
-            requestUtils.get(rule, cacheTime = 0, onSuccess = { bytes: ByteArray, i: Int ->
-                String(bytes).let {
-                    AppUtils.getService().set("auto_rule", it)
-                }
-            }, onError = {
-                Logger.i("更新出错: $it")
-            })
+            String(result.byteArray).let {
+                AppUtils.getService().set("auto_rule", it)
+            }
             //分类更新
-            requestUtils.get(category, cacheTime = 0, onSuccess = { bytes: ByteArray, i: Int ->
-                String(bytes).let {
-                    AppUtils.getService().set("auto_category", it)
-                }
-            }, onError = {
-                Logger.i("更新出错: $it")
-            })
+
+            val result2 = requestUtils.get(category, cacheTime = 0)
+            //规则更新
+            String(result2.byteArray).let {
+                AppUtils.getService().set("auto_category", it)
+            }
+
         }.onFailure {
+            if(it is AutoServiceException){
+                withContext(Dispatchers.Main){
+                    EventBus.post(AutoServiceErrorEvent(it))
+                }
+            }
             Logger.e("更新出错", it)
         }.onSuccess {
             SpUtils.putString("ruleVersionName", version)
             SpUtils.putInt("ruleVersion", code)
+
+            withContext(Dispatchers.Main){
+                EventBus.post(UpdateSuccessEvent())
+            }
         }
     }
     //URL由外部构造可能出错
@@ -103,8 +115,6 @@ class UpdateDialog(
             Logger.e("更新出错", it)
         }
     }
-
-
 
 
 }

@@ -80,7 +80,7 @@ abstract class BaseSheetDialog(private val context: Context) :
                 cardView.layoutParams = layoutParams
             }
 
-            val color = SurfaceColors.SURFACE_2.getColor(context)
+            val color = SurfaceColors.SURFACE_3.getColor(context)
             cardView.setCardBackgroundColor(color)
         }
 

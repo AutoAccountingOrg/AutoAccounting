@@ -10,7 +10,7 @@
         android:id="@+id/progress_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/initializing"
+        android:text=""
         android:textAppearance="@style/TextAppearance.AppCompat.Small" />
 
     <!-- 可以根据需要添加其他视图元素，如进度条 -->

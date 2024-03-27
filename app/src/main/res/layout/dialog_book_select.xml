@@ -22,7 +22,6 @@
         android:id="@+id/cardView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/cardPadding"
         app:cardCornerRadius="@dimen/radius"
         app:cardElevation="0dp"
         app:strokeColor="?attr/colorSurfaceContainerHighest"
@@ -31,7 +30,7 @@
 
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_margin="@dimen/padding"
+            android:padding="@dimen/cardPadding"
             android:id="@+id/recycler_view"
             android:orientation="vertical">
 

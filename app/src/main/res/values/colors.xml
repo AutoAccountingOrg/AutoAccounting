@@ -25,4 +25,6 @@
     <color name="gray30">#30000000</color>
     <color name="gray40">#45000000</color>
 
+    <color name="background9F">#9FFFFFFF</color>
+
 </resources>

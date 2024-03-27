@@ -18,4 +18,5 @@
     <color name="danger">#DC4C64</color>
     <color name="warning">#E4A11B</color>
     <color name="success">#14A44D</color>
+    <color name="background9F">#9F000000</color>
 </resources>
