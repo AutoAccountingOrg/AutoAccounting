@@ -28,25 +28,14 @@ object ImageUtils {
    suspend fun get(
         context: Context,
         uriString: String,
-        callback: (Drawable) -> Unit,
-        error: (String) -> Unit
-    ) = withContext(Dispatchers.IO) {
+    ):Drawable? = withContext(Dispatchers.IO) {
         Logger.i("加载图片：${uriString}")
         if (uriString.startsWith("data:image")) {
-            val drawable = getFromBase64(context, uriString)
-            withContext(Dispatchers.Main) {
-                callback(drawable)
-            }
+            getFromBase64(context, uriString)
         } else if (uriString.startsWith("http")) {
-            withContext(Dispatchers.Main) {
-                getFromWeb(context, uriString, callback, error)
-            }
-        } else {
-            withContext(Dispatchers.Main) {
-                error("不支持的图片链接")
-            }
-
+            getFromWeb(context, uriString)
         }
+       null
     }
 
     private fun getFromBase64(context: Context, base64String: String): Drawable {
@@ -57,22 +46,20 @@ object ImageUtils {
     }
 
 
-    private fun getFromWeb(
+    private suspend fun getFromWeb(
         context: Context,
         uriString: String,
-        callback: (Drawable) -> Unit,
-        error: (String) -> Unit
-    ) {
-        RequestsUtils(context).get(
-            url = uriString,
-            onSuccess = { byteArray, _ ->
-                val bitmap = BitmapFactory.decodeStream(byteArray.inputStream())
-                val drawable = BitmapDrawable(null, bitmap)
-                callback(drawable)
-            },
-            onError = error,
-            cacheTime = 60 * 24 * 180,//图片缓存180天
-        )
+    ):Drawable? = withContext(Dispatchers.IO) {
+       runCatching {
+           val result = RequestsUtils(context).get(
+               url = uriString,
+               cacheTime = 60 * 24 * 180,//图片缓存180天
+           )
+           val bitmap = BitmapFactory.decodeStream(result.byteArray.inputStream())
+           BitmapDrawable(null, bitmap)
+       }.onFailure {
+              Logger.e("加载图片失败：${it.message}",it)
+       }.getOrNull()
     }
 
 }
