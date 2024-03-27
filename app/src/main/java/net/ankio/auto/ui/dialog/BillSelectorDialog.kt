@@ -25,10 +25,13 @@ import com.hjq.toast.Toaster
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogBillSelectBinding
+import net.ankio.auto.events.AutoServiceErrorEvent
+import net.ankio.auto.exceptions.AutoServiceException
 import net.ankio.common.model.BillModel
 import net.ankio.auto.ui.adapter.BillSelectorAdapter
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.Logger
+import net.ankio.auto.utils.event.EventBus
 import net.ankio.common.constant.BillType
 
 class BillSelectorDialog(
@@ -66,22 +69,26 @@ class BillSelectorDialog(
         super.show(float, cancel)
         lifecycleScope.launch {
 
-            AppUtils.getService().get("auto_bills_${billType.name}"){
-               runCatching {
-                   val data = Gson().fromJson(it,Array<BillModel>::class.java)
-                   if(data.isEmpty()){
-                       dismiss()
-                       Toaster.show(R.string.no_bills)
-                       return@runCatching
-                   }
-                   dataItems.addAll(data)
+            runCatching {
+                val it = AppUtils.getService().get("auto_bills_${billType.name}")
+                val data = Gson().fromJson(it,Array<BillModel>::class.java)
+                if(data.isEmpty()){
+                    dismiss()
+                    Toaster.show(R.string.no_bills)
+                    return@runCatching
+                }
+                dataItems.addAll(data)
 
-                   adapter.notifyItemInserted(0)
-               }.onFailure {
-                   dismiss()
-                   Logger.e("get auto_bills_${billType.name} error",it)
-               }
+                adapter.notifyItemInserted(0)
+            }.onFailure {
+                dismiss()
+                Logger.e("get auto_bills_${billType.name} error",it)
+                if(it is AutoServiceException){
+                    EventBus.post(AutoServiceErrorEvent(it))
+                }
             }
+
+
 
         }
 

@@ -38,10 +38,12 @@ class WaveTextView @JvmOverloads constructor(
     private var waveOffset: Float = 0f
     private val path = Path()
 
+/*
     private val paint = Paint().apply {
         isAntiAlias = true
         style = Paint.Style.FILL_AND_STROKE
     }
+*/
 
 
     init {

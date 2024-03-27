@@ -109,7 +109,7 @@ class LogFragment : BaseFragment() {
         super.onResume()
         dataItems.clear()
         lifecycleScope.launch {
-            AppUtils.getService().getLog {
+            AppUtils.getService().getLog().let {
                 dataItems.addAll(it.split("\n"))
                 adapter.notifyItemInserted(0)
             }

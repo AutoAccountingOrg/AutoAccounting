@@ -64,12 +64,10 @@ class ServiceFragment:BaseFragment() {
     override fun onResume() {
         super.onResume()
         activityBinding.toolbar.visibility  = View.GONE
-        AppUtils.logger = false
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        AppUtils.logger = true
     }
 
     private fun initView(){

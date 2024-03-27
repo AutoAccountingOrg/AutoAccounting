@@ -92,7 +92,7 @@ class DataFragment : BaseFragment() {
                     } else {
 
 
-                        AppUtils.getService().config {
+                        AppUtils.getService().config().let {
                             FloatEditorDialog(requireActivity(), result,it).show(float = false)
                         }
 
@@ -123,33 +123,34 @@ class DataFragment : BaseFragment() {
                             }
                             val loadingUtils = LoadingUtils(requireActivity())
                             loadingUtils.show(R.string.upload_waiting)
-                            Github.createIssue("[Adaptation Request][$type]${item.source}", """
+                            lifecycleScope.launch {
+                                runCatching {
+                                    val issue = Github.createIssue("[Adaptation Request][$type]${item.source}", """
 ```
                 ${item.data}
 ```
-            """.trimIndent(), { issue ->
-                                item.issue = issue.toInt()
-                                requireActivity().runOnUiThread {
-                                    loadingUtils.close()
-                                    adapter.notifyItemChanged(position)
-                                    Toaster.show(getString(R.string.upload_success))
+            """.trimIndent())
+                                    item.issue = issue.toInt()
+                                    requireActivity().runOnUiThread {
+                                        loadingUtils.close()
+                                        adapter.notifyItemChanged(position)
+                                        Toaster.show(getString(R.string.upload_success))
+                                    }
+
+
+                                    writeIssue(item, issue.toInt(), position)
+                                }.onFailure {
+                                    requireActivity().runOnUiThread {
+                                        Toaster.show(it.message)
+                                        CustomTabsHelper.launchUrl(
+                                            requireContext(),
+                                            Uri.parse(Github.getLoginUrl())
+                                        )
+                                        loadingUtils.close()
+                                    }
                                 }
 
-
-                                writeIssue(item, issue.toInt(), position)
-
-                            }, { msg ->
-                                requireActivity().runOnUiThread {
-                                    Toaster.show(msg)
-                                    CustomTabsHelper.launchUrl(
-                                        it,
-                                        Uri.parse(Github.getLoginUrl())
-                                    )
-                                    loadingUtils.close()
-                                }
-
-                            })
-
+                            }
                             // 可以在这里添加你的处理逻辑
                             dialog.dismiss()
                         }
@@ -176,12 +177,12 @@ class DataFragment : BaseFragment() {
     private fun loadMoreData() {
         dataItems.clear()
         lifecycleScope.launch {
-            AppUtils.getService().getData {
+            AppUtils.getService().getData().let {
                 val collection: Collection<AppData> = AppData.fromTxt(it)
                 forEachIssue(collection)
                 dataItems.addAll(collection)
                 if (!collection.isEmpty()) {
-                    adapter.notifyDataSetChanged()
+                    adapter.notifyItemInserted(0)
                 }
             }
         }

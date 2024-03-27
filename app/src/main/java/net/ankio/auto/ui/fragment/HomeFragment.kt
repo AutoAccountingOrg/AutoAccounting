@@ -24,12 +24,16 @@ import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.elevation.SurfaceColors
+import com.hjq.toast.Toaster
+import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.AboutDialogBinding
 import net.ankio.auto.databinding.FragmentHomeBinding
+import net.ankio.auto.events.UpdateSuccessEvent
 import net.ankio.auto.ui.dialog.AssetsSelectorDialog
 import net.ankio.auto.ui.dialog.BookInfoDialog
 import net.ankio.auto.ui.dialog.BookSelectorDialog
@@ -40,6 +44,7 @@ import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.SpUtils
+import net.ankio.auto.utils.event.EventBus
 import rikka.html.text.toHtml
 
 
@@ -106,9 +111,11 @@ class HomeFragment : BaseFragment() {
      * 绑定记账软件数据部分的UI
      */
     private fun bindBookAppUI() {
-        AppUtils.getService().config {
-            binding.book.visibility = if (it.multiBooks) View.VISIBLE else View.GONE
-            binding.assets.visibility = if (it.assetManagement) View.VISIBLE else View.GONE
+        lifecycleScope.launch {
+            AppUtils.getService().config().let {
+                binding.book.visibility = if (it.multiBooks) View.VISIBLE else View.GONE
+                binding.assets.visibility = if (it.assetManagement) View.VISIBLE else View.GONE
+            }
         }
         SpUtils.getString("bookApp", "").apply {
             if (this.isEmpty()) {
@@ -148,10 +155,20 @@ class HomeFragment : BaseFragment() {
     }
 
 
+    private  val onUpdateRule = {event: UpdateSuccessEvent ->
+        Toaster.show(R.string.update_success)
+        refreshUI()
+    }
     private fun bindRuleEvents(){
         binding.customCategory.setOnClickListener {
             findNavController().navigate(R.id.ruleFragment)
         }
+        EventBus.register(UpdateSuccessEvent::class.java,onUpdateRule)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        EventBus.unregister(UpdateSuccessEvent::class.java,onUpdateRule)
     }
 
 

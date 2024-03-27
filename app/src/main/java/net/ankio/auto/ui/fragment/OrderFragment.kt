@@ -95,7 +95,7 @@ class OrderFragment : BaseFragment() {
                 dataItems.add(Pair(it.date, billInfo))
             }
             withContext(Dispatchers.Main){
-                adapter.notifyDataSetChanged()
+                adapter.notifyItemInserted(0)
             }
         }
 

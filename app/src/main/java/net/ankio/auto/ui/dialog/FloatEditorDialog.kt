@@ -33,15 +33,20 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.app.BillUtils
+import net.ankio.auto.database.table.Assets
 import net.ankio.auto.database.table.BillInfo
 import net.ankio.auto.database.table.BookName
+import net.ankio.auto.database.table.Category
 import net.ankio.auto.databinding.FloatEditorBinding
+import net.ankio.auto.events.AutoServiceErrorEvent
+import net.ankio.auto.exceptions.AutoServiceException
 import net.ankio.common.model.BillModel
 import net.ankio.auto.ui.componets.IconView
 import net.ankio.auto.utils.DateUtils
 import net.ankio.auto.utils.ListPopupUtils
 import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.SpUtils
+import net.ankio.auto.utils.event.EventBus
 import net.ankio.common.config.AccountingConfig
 import net.ankio.common.constant.BillType
 import net.ankio.common.constant.Currency
@@ -177,20 +182,27 @@ class FloatEditorDialog(
 
 
             lifecycleScope.launch {
-                BillUtils.groupBillInfo(bill)
-                if (SpUtils.getBoolean("setting_book_success", true)) {
-                    Toaster.show(
-                        context.getString(
-                            R.string.auto_success,
-                            BillUtils.getFloatMoney(billInfo.money).toString()
+                runCatching {
+                    BillUtils.groupBillInfo(bill)
+                    if (SpUtils.getBoolean("setting_book_success", true)) {
+                        Toaster.show(
+                            context.getString(
+                                R.string.auto_success,
+                                BillUtils.getFloatMoney(billInfo.money).toString()
+                            )
                         )
-                    )
+                    }
+
+                    if(billCategory!=bill.cateName && SpUtils.getBoolean("setting_auto_create_category", false)){
+                        //弹出询问框
+                        BillCategoryDialog(context,bill).show(float)
+                    }
+                }.onFailure {
+                    if(it is AutoServiceException){
+                        EventBus.post(AutoServiceErrorEvent(it))
+                    }
                 }
 
-                if(billCategory!=bill.cateName && SpUtils.getBoolean("setting_auto_create_category", false)){
-                    //弹出询问框
-                    BillCategoryDialog(context,bill).show(float)
-                }
 
                 dismiss()
             }
@@ -244,7 +256,7 @@ class FloatEditorDialog(
     private fun bindingBookNameUI(){
         Logger.d("bindingBookNameUI => ${billInfo.bookName}")
         lifecycleScope.launch {
-            BillInfo.getBookDrawable(billInfo.bookName, context, binding.bookImage)
+            BookName.getDrawable(billInfo.bookName, context, binding.bookImage)
         }
     }
 
@@ -265,7 +277,7 @@ class FloatEditorDialog(
     private fun setAssetItem(name:String,view:IconView){
         view.setText(name)
         lifecycleScope.launch {
-            BillInfo.getAccountDrawable(name,context){
+            Assets.getDrawable(name,context).let{
                 view.setIcon(it)
             }
         }
@@ -536,7 +548,7 @@ class FloatEditorDialog(
    private fun bindingCategoryUI(){
         binding.category.visibility = View.VISIBLE
         lifecycleScope.launch {
-            BillInfo.getCategoryDrawable(billInfo.cateName,context){
+            Category.getDrawable(billInfo.cateName,context).let{
                 binding.category.setIcon(it,true)
             }
         }

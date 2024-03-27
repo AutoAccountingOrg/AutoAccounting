@@ -37,18 +37,9 @@ class BookInfoDialog(private val context: Context, private val book: BookName, p
         cardViewInner = binding.cardViewInner
 
         lifecycleScope.launch {
-            ImageUtils.get(context, book.icon,
-                callback = {
-                    binding.adapterBook.book.setImageDrawable(it)
-                },
-                error = {
-                    binding.adapterBook.book.setImageDrawable(
-                        ResourcesCompat.getDrawable(
-                            context.resources,
-                            R.drawable.default_book,
-                            context.theme
-                        ))
-                })
+            binding.adapterBook.book.setImageDrawable(
+                ImageUtils.get(context, book.icon,R.drawable.default_book)
+            )
         }
 
         binding.adapterBook.itemValue.text = book.name

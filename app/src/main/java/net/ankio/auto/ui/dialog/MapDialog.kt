@@ -26,6 +26,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.database.Db
+import net.ankio.auto.database.table.Assets
 import net.ankio.auto.database.table.AssetsMap
 import net.ankio.auto.databinding.DialogMapBinding
 import net.ankio.auto.utils.AppUtils
@@ -53,7 +54,7 @@ class MapDialog(private val context: Context,
         binding.target.setText(assetsMap.mapName)
         binding.regex.isChecked = assetsMap.regex
         lifecycleScope.launch {
-            Db.get().AssetsDao().getAccountDrawable(assetsMap.mapName,context) {
+            Assets.getDrawable(assetsMap.mapName,context).let {
                 binding.target.setIcon(it)
             }
         }
@@ -91,7 +92,7 @@ class MapDialog(private val context: Context,
                 assetsMap.mapName = it.name
                 binding.target.setText(it.name)
                 lifecycleScope.launch {
-                    Db.get().AssetsDao().getDrawable(it.icon,context) { drawable ->
+                    Assets.getDrawable(it.icon,context).let { drawable ->
                         binding.target.setIcon(drawable)
                     }
                 }
