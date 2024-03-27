@@ -20,7 +20,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import androidx.activity.result.ActivityResultLauncher
-import com.hjq.toast.Toaster
 import androidx.fragment.app.FragmentContainerView
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
@@ -29,12 +28,16 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.hjq.toast.Toaster
 import com.zackratos.ultimatebarx.ultimatebarx.addNavigationBarBottomPadding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.databinding.ActivityMainBinding
+import net.ankio.auto.events.AutoServiceErrorEvent
+import net.ankio.auto.events.UpdateSuccessEvent
+import net.ankio.auto.exceptions.AutoServiceException
 import net.ankio.auto.ui.dialog.UpdateDialog
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.AutoAccountingServiceUtils
@@ -44,7 +47,8 @@ import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.Github
 import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.SpUtils
-import net.ankio.auto.utils.UpdateUtils
+import net.ankio.auto.utils.event.EventBus
+import net.ankio.auto.utils.update.UpdateUtils
 
 
 class MainActivity : BaseActivity() {
@@ -61,17 +65,16 @@ class MainActivity : BaseActivity() {
         val uri = intent.data
         if (uri != null) {
             //val dialog = DialogUtil.createLoadingDialog(this, getString(R.string.auth_waiting))
-
             val code = uri.getQueryParameter("code")
-
-            Github.parseAuthCode(code, {
-
-            }, {
-                runOnUiThread {
-                    Toaster.show(it)
-                }
-             //   DialogUtil.closeDialog(dialog)
-            })
+           lifecycleScope.launch {
+               runCatching {
+                   Github.parseAuthCode(code)
+               }.onFailure {
+                   Toaster.show(it.message)
+               }.onSuccess {
+                   Toaster.show(R.string.auth_success)
+               }
+           }
         }
     }
 
@@ -93,15 +96,14 @@ class MainActivity : BaseActivity() {
         //初始化底部导航栏
         onBottomViewInit()
 
-
         //检查自动记账服务
-        lifecycleScope.launch {
-            checkAutoService()
-        }
+        checkAutoService()
 
         onViewCreated()
 
+
     }
+
 
 
     fun onBottomViewInit(){
@@ -169,31 +171,20 @@ class MainActivity : BaseActivity() {
 
 
 
+    private val autoListener = { event: AutoServiceErrorEvent ->
+        Logger.e("自动记账服务未连接",event.exception)
+        navHostFragment.navController.navigate(R.id.serviceFragment)
+    }
 
-    private suspend fun checkAutoService() = withContext(Dispatchers.IO){
-
-        runCatching {
+    private  fun checkAutoService(){
+        EventBus.register(AutoServiceErrorEvent::class.java, autoListener)
+        lifecycleScope.launch {
             if(!AutoAccountingServiceUtils.isServerStart(this@MainActivity)){
-                throw Exception("自动记账服务未连接")
+                EventBus.post(AutoServiceErrorEvent(AutoServiceException("自动记账服务未连接",AutoServiceException.CODE_SERVER_AUTHORIZE)))
+            }else{
+                checkBookApp()
+                checkUpdate()
             }
-        }.onFailure {
-            //如果服务没启动，则跳转到服务未启动界面
-            Logger.e("自动记账服务未连接",it)
-            withContext(Dispatchers.Main){
-                navHostFragment.navController.navigate(R.id.serviceFragment)
-            }
-        }.onSuccess {
-
-            withContext(Dispatchers.Main){
-                runCatching {
-                    checkBookApp()
-                    checkUpdate()
-                }.onFailure {
-                    Logger.e("检查更新失败",it)
-
-                }
-            }
-            AppUtils.logger = true
         }
     }
 
@@ -221,13 +212,13 @@ class MainActivity : BaseActivity() {
         }
     }
 
-    private fun checkUpdate() {
+    private suspend fun checkUpdate() {
         val updateUtils = UpdateUtils()
-        updateUtils.checkAppUpdate { version, log, date, download,code ->
-          UpdateDialog(this, hashMapOf("url" to download), log, version, date, 0,code).show(cancel = true)
+        updateUtils.checkAppUpdate()?.apply {
+            UpdateDialog(this@MainActivity, hashMapOf("url" to file), log, version, date, 0,code).show(cancel = true)
         }
-        updateUtils.checkRuleUpdate { version, log, date, category, rule,code ->
-          UpdateDialog(this, hashMapOf("category" to category, "rule" to rule), log, version, date, 1,code).show(cancel = true)
+        updateUtils.checkRuleUpdate()?.apply {
+          UpdateDialog(this@MainActivity, hashMapOf("category" to file+"category.js", "rule" to file+"rule.js"), log, version, date, 1,code).show(cancel = true)
         }
     }
 
@@ -237,6 +228,11 @@ class MainActivity : BaseActivity() {
 
     fun getNavController(): NavController {
         return navHostFragment.navController
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        EventBus.unregister(AutoServiceErrorEvent::class.java, autoListener)
     }
 
 
