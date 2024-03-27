@@ -72,8 +72,7 @@ object DateUtils {
             if ("undefined" in time || time.isEmpty()) {
                 throw Throwable("not useful date")
             }
-            val t: Long
-            t = if ((time.length == 10 || time.length == 13) && !time.contains(" ")) {
+            val t: Long = if ((time.length == 10 || time.length == 13) && !time.contains(" ")) {
                 var parsedTime = time.toLong()
                 if (time.length == 10) {
                     parsedTime *= 1000
@@ -81,7 +80,7 @@ object DateUtils {
                 parsedTime
             } else {
                 var format = ""
-                var t2: Array<String>
+                val t2: Array<String>
                 var modifiedTime = time.replace("号", "日")
 
                 if ("日" in modifiedTime) {
