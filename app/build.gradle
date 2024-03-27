@@ -91,6 +91,31 @@ android {
 
 }
 
+task extractArraysToTxt {
+    doLast {
+        // 检查当前构建的 flavor 是否是 'xposed'
+        if (gradle.startParameter.taskNames.any { it.contains("Xposed") }) {
+            // 指定 arrays.xml 文件的路径
+            def arraysXmlFile = file('src/xposed/res/values/arrays.xml')
+            // 指定输出的 txt 文件路径
+            def outputTxtFile = file('src/xposed/assets/shell/apps.txt')
+
+            // 确保输出目录存在
+            outputTxtFile.parentFile.mkdirs()
+
+            // 读取 arrays.xml 文件并提取数据
+            def arraysXmlContent = arraysXmlFile.text
+            def extractedData = arraysXmlContent.replaceAll(/<.*?>/, '').trim() // 简单地移除 XML 标签
+
+            // 写入到 txt 文件
+            outputTxtFile.text = extractedData
+        }
+    }
+}
+
+// 确保在构建 APK 之前运行此任务
+preBuild.dependsOn extractArraysToTxt
+
 dependencies {
 
     implementation libs.core.ktx
