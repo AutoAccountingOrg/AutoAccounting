@@ -32,7 +32,7 @@ object Logger {
 
     private var debug = false
 
-    fun init(context: Application) {
+    fun init() {
         debug = AppUtils.getDebug()
 
         //如果是调试模式，日志级别就是VERBOSE，否则就是ERROR
