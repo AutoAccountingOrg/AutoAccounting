@@ -34,30 +34,5 @@ interface AssetsMapDao {
     suspend fun delete(accountMap: AssetsMap)
     @Query("DELETE FROM AssetsMap")
     suspend fun deleteAll()
-    @Query("SELECT * FROM AssetsMap where regex=:regex")
-    suspend fun getRegex(regex: Boolean): List<AssetsMap>
-
-    /**
-     * 提供原始账户名，获取映射的账户名
-     * @param name 原始账户名
-     * @return 映射的账户名
-     */
-    suspend fun getMapName(name:String):String{
-        getRegex(true).forEach {
-            runCatching {
-                //如果原始账户名符合正则表达式，则返回映射的账户名
-                if (name.matches(Regex(it.name))) {
-                    return it.mapName
-                }
-            }.onFailure {
-                Logger.e("正则匹配出错",it)
-            }
-        }
-
-        val map= getRegex(false).find { it.name==name }
-        return map?.mapName?:name
-    }
-
-
 
 }

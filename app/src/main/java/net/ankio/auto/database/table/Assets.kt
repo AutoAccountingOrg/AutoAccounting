@@ -14,8 +14,17 @@
  */
 package net.ankio.auto.database.table
 
+import android.content.Context
+import android.graphics.drawable.Drawable
+import androidx.core.content.res.ResourcesCompat
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import net.ankio.auto.R
+import net.ankio.auto.database.Db
+import net.ankio.auto.utils.ImageUtils
+import net.ankio.common.constant.AssetType
 import net.ankio.common.model.AssetsModel
 
 @Entity
@@ -29,14 +38,22 @@ class Assets {
      */
     var icon: String = "" //图标
     var sort = 0
-
+    var type: AssetType = AssetType.CASH //账户类型
+    var extras: String = "" //额外信息，例如银行卡的卡号等
     companion object {
         fun fromModel(it: AssetsModel): Assets {
             val assets = Assets()
             assets.name = it.name
             assets.icon = it.icon
             assets.sort = it.sort
+            assets.type = it.type
+            assets.extras = it.extra
             return assets
+        }
+
+        suspend fun getDrawable(account:String, context: Context):Drawable {
+            val accountInfo = Db.get().AssetsDao().get(account)
+            return ImageUtils.get(context, accountInfo?.icon?:"",R.mipmap.ic_launcher_round)
         }
     }
 }

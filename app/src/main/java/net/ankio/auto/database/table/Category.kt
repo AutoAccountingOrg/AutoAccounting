@@ -14,9 +14,13 @@
  */
 package net.ankio.auto.database.table
 
+import android.content.Context
+import android.graphics.drawable.Drawable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import net.ankio.auto.R
 import net.ankio.auto.database.Db
+import net.ankio.auto.utils.ImageUtils
 import net.ankio.auto.utils.Logger
 import net.ankio.common.model.CategoryModel
 
@@ -84,6 +88,13 @@ class Category {
             }
 
         }
+
+        suspend fun getDrawable(cateName: String,context: Context): Drawable {
+            val categoryInfo = Db.get().CategoryDao().get(cateName,0)
+            return ImageUtils.get(context, categoryInfo?.icon ?:"", R.drawable.default_cate)
+        }
+
+
     }
 
     fun isPanel(): Boolean {

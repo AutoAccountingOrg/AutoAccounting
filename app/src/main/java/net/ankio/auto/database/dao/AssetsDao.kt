@@ -50,21 +50,5 @@ interface AssetsDao {
     @Query("DELETE FROM Assets")
    suspend fun deleteAll()
 
-    suspend fun getAccountDrawable(account:String, context: Context, onGet:(drawable:Drawable)->Unit) = withContext(Dispatchers.IO) {
-        val accountInfo = Db.get().AssetsDao().get(account)
-        getDrawable(accountInfo?.icon?:"",context,onGet)
-    }
 
-    suspend fun getDrawable(url:String, context: Context, onGet:(drawable:Drawable)->Unit) = withContext(Dispatchers.IO) {
-        ImageUtils.get(context, url,{
-            onGet(it)
-        },{
-            ResourcesCompat.getDrawable(context.resources, R.mipmap.ic_launcher_round,context.theme)
-                ?.let { it1 ->
-                    onGet(
-                        it1
-                    )
-                }
-        })
-    }
 }

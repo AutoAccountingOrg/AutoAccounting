@@ -14,11 +14,15 @@
  */
 package net.ankio.auto.database.table
 
+import android.content.Context
+import android.widget.ImageView
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import net.ankio.auto.R
 import net.ankio.auto.database.Db
+import net.ankio.auto.utils.ImageUtils
 import net.ankio.common.model.BookModel
 
 @Entity
@@ -52,7 +56,15 @@ class BookName {
             }
             return@withContext book
         }
-
+        suspend fun getDrawable(bookName: String, context: Context, imageView: ImageView) {
+            imageView.setImageDrawable(
+                ImageUtils.get(
+                    context,
+                    Db.get().BookNameDao().getByName(bookName)?.icon ?:"",
+                    R.drawable.default_book
+                )
+            )
+        }
 
     }
 }

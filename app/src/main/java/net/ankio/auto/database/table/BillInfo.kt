@@ -21,6 +21,8 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.app.BillUtils
 import net.ankio.common.constant.BillType
@@ -175,42 +177,6 @@ class BillInfo {
         fun fromJSON(json:String):BillInfo{
             return Gson().fromJson(json,BillInfo::class.java)
         }
-        suspend fun getCategoryDrawable(cateName: String,context: Context,onGet:(drawable:Drawable)->Unit) {
-            val categoryInfo = Db.get().CategoryDao().get(cateName,0)
-            ImageUtils.get(context, categoryInfo?.icon ?:"",{
-                onGet(it)
-            },{
-                ResourcesCompat.getDrawable(context.resources,R.drawable.default_cate,context.theme)
-                    ?.let { it1 ->
-                        onGet(
-                            it1
-                        )
-                    }
-            })
-        }
-        suspend fun getBookDrawable(bookName: String,context: Context,imageView: ImageView) {
 
-            ImageUtils.get(context, Db.get().BookNameDao().getByName(bookName)?.icon ?:"",{
-                imageView.setImageDrawable(it)
-            },{
-                imageView.setImageDrawable(
-                    ResourcesCompat.getDrawable(context.resources,R.drawable.default_book,context.theme)
-                )
-            })
-        }
-
-        suspend fun getAccountDrawable(account:String,context: Context,onGet:(drawable:Drawable)->Unit) {
-            val accountInfo = Db.get().AssetsDao().get(account)
-            ImageUtils.get(context, accountInfo?.icon ?:"",{
-                onGet(it)
-            },{
-                ResourcesCompat.getDrawable(context.resources,R.mipmap.ic_launcher_round,context.theme)
-                    ?.let { it1 ->
-                        onGet(
-                            it1
-                        )
-                    }
-            })
-        }
     }
 }

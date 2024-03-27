@@ -47,5 +47,6 @@ class AssetsMap {
         fun fromJSON(json:String):AssetsMap{
             return Gson().fromJson(json,AssetsMap::class.java)
         }
+
     }
 }
