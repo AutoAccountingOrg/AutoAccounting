@@ -205,10 +205,10 @@ class RequestsUtils(context: Context) {
         val response = client?.newCall(request)?.execute()
             ?: throw HttpException("Request failed: response is null")
 
-        if (!response.isSuccessful) {
+       /* if (!response.isSuccessful) {
             response.close()
             throw HttpException("Request failed: ${response.code} ${response.message}")
-        }
+        }*/
         val bytes = response.body?.bytes()
         if (cacheTime > 0 && response.isSuccessful) {
             AppUtils.getScope().launch {
