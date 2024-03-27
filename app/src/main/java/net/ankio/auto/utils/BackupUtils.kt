@@ -49,8 +49,8 @@ import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 
 class BackupUtils(private val context: Context) {
-    private val SUPPORT_VERSION = 200 //支持恢复数据的版本号
 
+    private val SUPPORT_VERSION = 201 //支持恢复数据的版本号
 
     private var filename = "auto_backup_${System.currentTimeMillis()}.$suffix"
 
@@ -317,53 +317,61 @@ class BackupUtils(private val context: Context) {
         packData(outputStream)
         //使用requestUtils上传
         val requestUtils = RequestsUtils(context)
-        loadingUtils.setText(R.string.backup_webdav)
+        withContext(Dispatchers.Main) {
+            loadingUtils.setText(R.string.backup_webdav)
+        }
+
 
         val (url, username, password) = getWebdavInfo()
 
-        //判断AutoAccounting目录是否存在
-        requestUtils.mkcol(
-            "${url}/AutoAccounting",
-            headers = hashMapOf(
-                "Authorization" to Credentials.basic(username, password)
-            ),
-            onSuccess = { _, code ->
-                if (code == 201) {
-                    uploadFile(requestUtils, url, username, password, file, loadingUtils)
-                } else {
-                    showWebDavMsg(code)
+        runCatching {
+            val result = requestUtils.mkcol(
+                "${url}/AutoAccounting",
+                headers = hashMapOf(
+                    "Authorization" to Credentials.basic(username, password)
+                ))
+            if (result.code == 201) {
+                uploadFile(requestUtils, url, username, password, file, loadingUtils)
+            } else {
+                showWebDavMsg(result.code)
+                withContext(Dispatchers.Main) {
                     loadingUtils.close()
                 }
-            },
-            onError = {
-                Logger.e("创建目录失败:$it")
-                showWebDavMsg(100)
+            }
+        }.onFailure {
+            Logger.e("创建目录失败:$it")
+            showWebDavMsg(100)
+            withContext(Dispatchers.Main) {
                 loadingUtils.close()
-            },
-        )
+            }
+        }
+
 
     }
 
-    private fun uploadFile(requestUtils: RequestsUtils, url: String, username: String, password: String, file: File, loadingUtils: LoadingUtils) {
-        requestUtils.put(
-            "${url}/AutoAccounting/$filename",
-            data = hashMapOf(
-                "raw" to file.path.toString()
-            ),
-            contentType = RequestsUtils.TYPE_RAW,
-            headers = hashMapOf(
-                "Authorization" to Credentials.basic(username, password)
-            ),
-            onSuccess = { byte, code ->
-                showWebDavMsg(code)
-                loadingUtils.close()
-            },
-            onError = {
-                Logger.e("上传失败:$it")
-                showWebDavMsg(100)
-                loadingUtils.close()
-            },
-        )
+    private suspend fun uploadFile(requestUtils: RequestsUtils, url: String, username: String, password: String, file: File, loadingUtils: LoadingUtils) {
+       runCatching {
+          val result =  requestUtils.put(
+               "${url}/AutoAccounting/$filename",
+               data = hashMapOf(
+                   "raw" to file.path.toString()
+               ),
+               contentType = RequestsUtils.TYPE_RAW,
+               headers = hashMapOf(
+                   "Authorization" to Credentials.basic(username, password)
+               ),
+           )
+           showWebDavMsg(result.code)
+           withContext(Dispatchers.Main) {
+               loadingUtils.close()
+           }
+       }.onFailure {
+              Logger.e("上传失败:$it",it)
+              showWebDavMsg(100)
+           withContext(Dispatchers.Main) {
+               loadingUtils.close()
+           }
+       }
     }
 
 
@@ -398,36 +406,42 @@ class BackupUtils(private val context: Context) {
         withContext(Dispatchers.Main) {
             loadingUtils.show(R.string.restore_webdav)
         }
-        requestUtils.get(
-            "${url}/AutoAccounting/$filename",
-            headers = hashMapOf(
-                "Authorization" to Credentials.basic(username, password)
-            ),
-            onSuccess = { byte, code ->
-                if (code == 200) {
-                    loadingUtils.setText(R.string.restore_loading)
-                    mainActivity.lifecycleScope.launch {
-                        file.writeBytes(byte)
-                        unpackData(file.inputStream(), filename)
-                        withContext(Dispatchers.Main) {
-                            loadingUtils.close()
-                            Toaster.show(R.string.restore_success)
-                            delay(3000)
-                            AppUtils.restart()
+        runCatching {
+            val result =  requestUtils.get(
+                "${url}/AutoAccounting/$filename",
+                headers = hashMapOf(
+                    "Authorization" to Credentials.basic(username, password)
+                ))
 
-                        }
+            if (result.code == 200) {
+                withContext(Dispatchers.Main) {
+                    loadingUtils.setText(R.string.restore_loading)
+                }
+                mainActivity.lifecycleScope.launch {
+                    file.writeBytes(result.byteArray)
+                    unpackData(file.inputStream(), filename)
+                    withContext(Dispatchers.Main) {
+                        loadingUtils.close()
+                        Toaster.show(R.string.restore_success)
+                        delay(3000)
+                        AppUtils.restart()
                     }
-                } else {
-                    showWebDavMsg(code)
+                }
+            } else {
+                withContext(Dispatchers.Main) {
+                    showWebDavMsg(result.code)
                     loadingUtils.close()
                 }
-            },
-            onError = {
-                Logger.e("下载失败$it")
+            }
+
+        }.onFailure {
+            Logger.e("下载失败$it")
+            withContext(Dispatchers.Main){
                 loadingUtils.close()
-                showWebDavMsg(100)
-            },
-        )
+            }
+            showWebDavMsg(100)
+        }
+
 
     }
 
