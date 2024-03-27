@@ -68,6 +68,7 @@
                     android:scheme="autoaccounting" />
             </intent-filter>
         </activity>
+        <activity android:name=".ui.activity.ErrorActivity" android:exported="false" />
 
         <service android:name=".service.FloatingWindowService" />
 

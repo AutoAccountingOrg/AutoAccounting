@@ -299,4 +299,6 @@
     <string name="rule">规则</string>
     <string name="app">App</string>
     <string name="update_success">规则更新成功</string>
+    <string name="auth_success">Github授权成功</string>
+    <string name="app_error_msg">自动记账运行发生错误</string>
 </resources>
