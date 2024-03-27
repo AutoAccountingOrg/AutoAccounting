@@ -38,10 +38,9 @@ import net.ankio.common.constant.BillType
 
 class OrderItemAdapter(
     private val dataItems: List<BillInfo>,
-
     private val onItemChildClick:( (item: BillInfo, position: Int) -> Unit)?,
     private val onItemChildMoreClick:( (item: BillInfo, position: Int) -> Unit)?
-) : RecyclerView.Adapter<OrderItemAdapter.ViewHolder>() {
+) : BaseAdapter<OrderItemAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(AdapterOrderItemBinding.inflate(LayoutInflater.from(parent.context),parent,false),parent.context)
@@ -54,18 +53,6 @@ class OrderItemAdapter(
 
     override fun getItemCount(): Int {
         return dataItems.size
-    }
-
-    private val job = Job()
-    // 创建一个协程作用域，绑定在 IO 线程
-    private val scope = CoroutineScope(Dispatchers.IO + job)
-
-    /**
-     * ViewHolder被回收时调用
-     */
-    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
-        super.onDetachedFromRecyclerView(recyclerView)
-        job.cancel()
     }
 
     inner class ViewHolder(private val binding: AdapterOrderItemBinding, private val context: Context) : RecyclerView.ViewHolder(binding.root) {

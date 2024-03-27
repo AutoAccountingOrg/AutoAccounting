@@ -20,21 +20,17 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.database.table.Assets
 import net.ankio.auto.databinding.AdapterAssetsBinding
 import net.ankio.auto.utils.ImageUtils
-import net.ankio.auto.utils.Logger
 
 
 class AssetsSelectorAdapter(
     private val dataItems: List<Assets>,
     private val onClick: (item: Assets) -> Unit
-) : RecyclerView.Adapter<AssetsSelectorAdapter.ViewHolder>() {
+) : BaseAdapter<AssetsSelectorAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
@@ -46,6 +42,7 @@ class AssetsSelectorAdapter(
         )
     }
 
+
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = dataItems[position]
         holder.bind(item)
@@ -55,10 +52,7 @@ class AssetsSelectorAdapter(
         return dataItems.size
     }
 
-    override fun onViewRecycled(holder: ViewHolder) {
-        super.onViewRecycled(holder)
-        holder.cancel()
-    }
+
 
     inner class ViewHolder(
         private val binding: AdapterAssetsBinding,
@@ -66,23 +60,12 @@ class AssetsSelectorAdapter(
     ) :
         RecyclerView.ViewHolder(binding.root) {
 
-
-            private val job = Job()
-
-            private val scope = CoroutineScope(Dispatchers.Main + job)
-
-         fun cancel() {
-             job.cancel()
-         }
         fun bind(item: Assets) {
-
             //图片加载丢到IO线程
-
             scope.launch {
-                ImageUtils.get(context, item.icon, { drawable ->
-                    binding.assets.setIcon(drawable)
-                }, { error ->
-                    Logger.w("加载图片失败：$error")
+                ImageUtils.get(context, item.icon)?.let {
+                    binding.assets.setIcon(it)
+                } ?: run {
                     binding.assets.setIcon(
                         ResourcesCompat.getDrawable(
                             context.resources,
@@ -91,10 +74,8 @@ class AssetsSelectorAdapter(
                         )
                     )
 
-                })
+                }
             }
-
-
 
             binding.assets.setText(item.name)
             binding.assets.setOnClickListener {

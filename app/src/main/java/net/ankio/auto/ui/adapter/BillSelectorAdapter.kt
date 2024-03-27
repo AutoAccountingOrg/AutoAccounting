@@ -35,7 +35,7 @@ import net.ankio.common.constant.BillType
 class BillSelectorAdapter(
     private val dataItems: List<BillModel>,
     private val selectedItems:ArrayList<BillModel>,
-) : RecyclerView.Adapter<BillSelectorAdapter.ViewHolder>() {
+) : BaseAdapter<BillSelectorAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
@@ -56,10 +56,6 @@ class BillSelectorAdapter(
         return dataItems.size
     }
 
-    override fun onViewRecycled(holder: ViewHolder) {
-        super.onViewRecycled(holder)
-        holder.cancel()
-    }
 
     inner class ViewHolder(
         private val binding: AdapterBillBookBinding,
@@ -68,13 +64,6 @@ class BillSelectorAdapter(
         RecyclerView.ViewHolder(binding.root) {
 
 
-            private val job = Job()
-
-            private val scope = CoroutineScope(Dispatchers.Main + job)
-
-         fun cancel() {
-             job.cancel()
-         }
         fun bind(item: BillModel) {
 
             binding.root.setOnClickListener {
@@ -92,13 +81,13 @@ class BillSelectorAdapter(
                 binding.root.setBackgroundColor(AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorPrimaryContainer))
             }
 
-            val prefix = if(item.type == BillType.Income.toInt() ) "-" else "+"
+            val prefix = if(item.type == BillType.Income ) "-" else "+"
 
             binding.tvAmount.text = String.format("$prefix %.2f", item.amount) //保留两位有效数字
             binding.tvTime.text = DateUtils.getTime(item.time)
             binding.tvRemark.text = item.remark
 
-            val colorRes = BillUtils.getColor(item.type)
+            val colorRes = BillUtils.getColor(item.type.toInt())
             val color = ContextCompat.getColor(context, colorRes)
             binding.tvAmount.setTextColor(color)
         }

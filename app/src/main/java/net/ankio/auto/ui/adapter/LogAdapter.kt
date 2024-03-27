@@ -36,7 +36,7 @@ import net.ankio.auto.utils.AppUtils
 
 class LogAdapter(
     private val dataItems: ArrayList<String>,
-) : RecyclerView.Adapter<LogAdapter.ViewHolder>() {
+) : BaseAdapter<LogAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(AdapterTextBinding.inflate(LayoutInflater.from(parent.context),parent,false),parent.context)

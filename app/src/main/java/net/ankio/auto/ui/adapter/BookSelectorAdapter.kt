@@ -34,7 +34,7 @@ import net.ankio.auto.utils.Logger
 class BookSelectorAdapter(
     private val dataItems: List<BookName>,
     private val onClick: (item: BookName, position: Int) -> Unit
-) : RecyclerView.Adapter<BookSelectorAdapter.ViewHolder>() {
+) : BaseAdapter<BookSelectorAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
@@ -55,36 +55,21 @@ class BookSelectorAdapter(
         return dataItems.size
     }
 
-    override fun onViewRecycled(holder: ViewHolder) {
-        super.onViewRecycled(holder)
-        holder.cancel()
-    }
 
     inner class ViewHolder(private val binding: AdapterBookBinding, private val context: Context) :
         RecyclerView.ViewHolder(binding.root) {
-
-        private val job = Job()
-
-        private val scope = CoroutineScope(Dispatchers.IO + job)
-
-        fun cancel() {
-            job.cancel()
-        }
         fun bind(item: BookName, position: Int) {
             scope.launch {
-                ImageUtils.get(context, item.icon, { drawable ->
-                    binding.book.background = drawable
-                }, { error ->
-                    Logger.w("加载图片失败：$error")
+                ImageUtils.get(context, item.icon)?.let {
+                    binding.book.background = it
+                }?:run {
                     binding.book.background = ResourcesCompat.getDrawable(
                         context.resources,
                         R.drawable.default_book,
                         context.theme
                     )
-
-                })
+                }
             }
-
 
             binding.itemValue.text = item.name
             binding.book.setOnClickListener {

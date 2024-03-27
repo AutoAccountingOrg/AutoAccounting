@@ -38,7 +38,7 @@ class MapAdapter(
     private val dataItems: List<AssetsMap>,
     private val onClick: (adapter:MapAdapter,item: AssetsMap,pos:Int) -> Unit,
     private val onLongClick: (adapter:MapAdapter,item: AssetsMap,pos:Int) -> Unit
-) : RecyclerView.Adapter<MapAdapter.ViewHolder>() {
+) : BaseAdapter<MapAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(

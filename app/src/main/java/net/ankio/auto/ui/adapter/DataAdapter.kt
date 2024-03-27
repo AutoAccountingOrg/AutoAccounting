@@ -39,7 +39,7 @@ class DataAdapter(
     private val onClickContent: (string: String)->Unit,
     private val onClickTest: (item: AppData)->Unit,
     private val onClickUploadData: (item: AppData,position: Int)->Unit
-) : RecyclerView.Adapter<DataAdapter.ViewHolder>() {
+) : BaseAdapter<DataAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(AdapterDataBinding.inflate(LayoutInflater.from(parent.context),parent,false),parent.context)

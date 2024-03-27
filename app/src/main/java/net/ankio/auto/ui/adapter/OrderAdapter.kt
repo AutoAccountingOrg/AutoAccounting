@@ -35,7 +35,7 @@ import net.ankio.auto.utils.AppUtils
 
 class OrderAdapter(
     private val dataItems: ArrayList<Pair<String, Array<BillInfo>>>,
-) : RecyclerView.Adapter<OrderAdapter.ViewHolder>() {
+) : BaseAdapter<OrderAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(AdapterOrderBinding.inflate(LayoutInflater.from(parent.context),parent,false),parent.context)
@@ -52,21 +52,6 @@ class OrderAdapter(
     }
 
 
-    private val job = Job()
-    // 创建一个协程作用域，绑定在 IO 线程
-    private val scope = CoroutineScope(Dispatchers.IO + job)
-
-    /**
-     * ViewHolder被回收时调用
-     */
-    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
-        super.onDetachedFromRecyclerView(recyclerView)
-        job.cancel()
-    }
-    override fun onViewRecycled(holder: ViewHolder) {
-        super.onViewRecycled(holder)
-        holder.cancel()
-    }
     inner class ViewHolder(private val binding: AdapterOrderBinding,private val context:Context) : RecyclerView.ViewHolder(binding.root) {
         private lateinit var recyclerView: RecyclerView
         private lateinit var adapter: OrderItemAdapter
@@ -88,7 +73,7 @@ class OrderAdapter(
                 item, position ->
 
                 scope.launch {
-                    AppUtils.getService().config {
+                    AppUtils.getService().config().let {
                         FloatEditorDialog(context, item,it, onlyShow = true).show(false,true)
                     }
                 }
@@ -104,13 +89,10 @@ class OrderAdapter(
             recyclerView.adapter = adapter
             dataInnerItems.clear()
             dataInnerItems.addAll(bills)
-            adapter.notifyDataSetChanged()
+            adapter.notifyItemInserted(0)
             binding.title.text = title
 
 
-        }
-        fun cancel(){
-       //     job.cancel()
         }
     }
 }

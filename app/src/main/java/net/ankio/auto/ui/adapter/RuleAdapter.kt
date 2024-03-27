@@ -31,7 +31,7 @@ class RuleAdapter(
     private val dataItems: List<Regular>,
     private val onClickEdit: (item: Regular,position: Int)->Unit,
     private val onClickDelete: (item: Regular,position: Int)->Unit
-    ) : RecyclerView.Adapter<RuleAdapter.ViewHolder>() {
+    ) : BaseAdapter<RuleAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(AdapterRuleBinding.inflate(LayoutInflater.from(parent.context),parent,false),parent.context)

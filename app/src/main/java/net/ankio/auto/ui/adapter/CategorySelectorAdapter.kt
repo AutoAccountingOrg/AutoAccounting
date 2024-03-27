@@ -47,10 +47,7 @@ class CategorySelectorAdapter(
     private val dataItems: List<Category>,
     private val onItemClick: (item: Category, position: Int, hasChild: Boolean, view: View) -> Unit,
     private val onItemChildClick: (item: Category, position: Int) -> Unit
-) : RecyclerView.Adapter<CategorySelectorAdapter.ViewHolder>() {
-    private val job = Job()
-    // 创建一个协程作用域，绑定在 IO 线程
-    private val scope = CoroutineScope(Dispatchers.IO + job)
+) : BaseAdapter<CategorySelectorAdapter.ViewHolder>() {
 
     /**
      * 创建ViewHolder
@@ -63,14 +60,6 @@ class CategorySelectorAdapter(
                 false
             ), parent.context
         )
-    }
-
-    /**
-     * ViewHolder被回收时调用
-     */
-    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
-        super.onDetachedFromRecyclerView(recyclerView)
-        job.cancel()
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int, payloads: MutableList<Any>) {
@@ -195,9 +184,9 @@ class CategorySelectorAdapter(
             } else {
                 scope.launch {
                     //自动切回主线程
-                    ImageUtils.get(context, item.icon!!, { drawable ->
-                        binding.itemImageIcon.setImageDrawable(drawable)
-                    }, {
+                    ImageUtils.get(context, item.icon!!)?.let {
+                        binding.itemImageIcon.setImageDrawable(it)
+                    }?:run {
                         binding.itemImageIcon.setImageDrawable(
                             ResourcesCompat.getDrawable(
                                 context.resources,
@@ -205,7 +194,7 @@ class CategorySelectorAdapter(
                                 context.theme
                             )
                         )
-                    })
+                    }
                 }
 
             }
@@ -241,7 +230,6 @@ class CategorySelectorAdapter(
         /**
          * 更新面板内容，由于面板复用的时候是全部内容替换，所以使用NotifyDataSetChanged
          */
-        @SuppressLint("NotifyDataSetChanged")
         fun updatePanel(item: Category){
             val leftDistanceView2: Int = item.id
             val layoutParams = binding.imageView.layoutParams as ViewGroup.MarginLayoutParams
@@ -259,7 +247,7 @@ class CategorySelectorAdapter(
                     withContext(Dispatchers.Main) {
                         items.clear()
                         items.addAll(collection)
-                        adapter.notifyDataSetChanged()
+                        adapter.notifyItemInserted(0)
                     }
                 }
             }
