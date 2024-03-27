@@ -84,7 +84,6 @@ void File::writeData(const std::string &fileInfo) {
 
 std::string File::readFile(const std::string &filename) {
     std::ifstream inFile(filename + ".txt"); // 打开文件用于读取
-
     if (inFile.is_open()) {
         std::stringstream buffer;
         buffer << inFile.rdbuf(); // 将文件内容读入到字符串流中
@@ -97,6 +96,7 @@ std::string File::readFile(const std::string &filename) {
 
         return content;
     } else {
+
         return "";
     }
 }
@@ -110,7 +110,10 @@ bool File::fileExists(const std::string &string) {
     return false;
 }
 
+bool File::directoryExists(const std::string& path) {
+    return std::__fs::filesystem::exists(path);
+}
+
 void File::createDir(std::string path) {
-    //如果文件夹不存在就创建文件夹，但是不要用命令创建
     std::__fs::filesystem::create_directories(path);
 }

@@ -16,8 +16,8 @@
  * 启动HTTP服务器
  */
 void Http::start() {
-    Http::createToken();
-    Http::publishToken();
+    this->createToken();
+    this->publishToken();
     this->server();
 }
 /**
@@ -25,7 +25,11 @@ void Http::start() {
  */
 void Http::createToken() {
     //如果token文件不为空，则不创建新的token
-    if (!File::readFile("token").empty())return;
+    std::string  token = File::readFile(workspace + "token");
+    if (!token.empty()) {
+        *this->logFile << File::formatTime() << "Token already exists:"<<token << std::endl;
+        return;
+    }
 
     const std::string chars =
             "0123456789"
@@ -36,30 +40,25 @@ void Http::createToken() {
     std::random_device rd;
     std::mt19937 generator(rd());
     std::uniform_int_distribution<> distribution(0, chars.size() - 1);
-
-    std::string token;
+    token = "";
     for (size_t i = 0; i < length; ++i) {
         token += chars[distribution(generator)];
     }
-   File::writeFile("token", token);
+   File::writeFile(workspace +"token", token);
+    *this->logFile << File::formatTime() << "Create new token:"<<token << std::endl;
 }
 
 /**
  * 发布token
  */
 void Http::publishToken(){
-    //发布到所有支持的App
-    const std::string token = File::readFile("token");
-    //发布到所有支持的App
-    //如果存在apps.txt，则读取并解析每一行
-    //每一行的格式为：包名
-    //然后将token发送到包名对应的App的缓存目录
-    //例如：/sdcard/Android/data/com.example.app/cache/shell/token.txt
-    //如果文件不存在，则创建文件
-    //如果文件存在，则覆盖文件
-    //文件内容为token
-    if(File::fileExists("apps.txt")){
-        std::string apps = File::readFile("apps.txt");
+    const std::string token = File::readFile(workspace +"token");
+    if(File::fileExists(workspace + "apps.txt")){
+        *this->logFile << File::formatTime() << "Find Apps.txt " << std::endl;
+        std::string apps = File::readFile(workspace +"apps");
+        *this->logFile << File::formatTime() << "Find Apps.txt Path => "<< workspace << "apps.txt" << std::endl;
+        *this->logFile << File::formatTime() << "Find Apps.txt => "<< apps << std::endl;
+
         std::istringstream stream(apps);
         std::string line;
         while (std::getline(stream, line)) {
@@ -67,7 +66,8 @@ void Http::publishToken(){
             std::string path = "/sdcard/Android/data/" + line + "/cache/shell/";
             //使用函数创建文件夹
             File::createDir(path);
-            File::writeFile(path+"token.txt", token);
+            File::writeFile(path + "token", token);
+            *this->logFile << File::formatTime() << "Publish Token :" << path + "token.txt" << std::endl;
         }
     }
 }
@@ -91,6 +91,7 @@ void Http::server() const {
 
     if (bind(server_fd, (struct sockaddr *) &address, sizeof(address)) < 0) {
         perror("bind failed");
+        *this->logFile << File::formatTime() << "Bind port "<< PORT << "failed" << std::endl;
         exit(EXIT_FAILURE);
     }
 
@@ -106,7 +107,10 @@ void Http::server() const {
             perror("accept");
             exit(EXIT_FAILURE);
         }
-        std::thread t(Http::handleConnection, new_socket);
+        std::thread t([this](int new_socket) {
+            this->handleConnection(new_socket);
+        }, new_socket);
+
         t.detach(); // 让线程在后台运行
     }
 
@@ -116,7 +120,7 @@ void Http::server() const {
  * 处理连接
  * @param socket
  */
-void Http::handleConnection(int socket) {
+void Http::handleConnection(int socket) const {
     std::string request, header, body;
     const size_t bufferSize = 4096;
     char buffer[bufferSize];
@@ -149,7 +153,7 @@ void Http::handleConnection(int socket) {
         if (!headerReceived && request.find("\r\n\r\n") != std::string::npos) {
             // 请求头接收完毕
             headerReceived = true;
-            contentLength = Http::getContentLength(request);
+            contentLength = this->getContentLength(request);
             bodyStart = request.find("\r\n\r\n") + 4;
             header = request.substr(0, bodyStart);
         }
@@ -170,10 +174,10 @@ void Http::handleConnection(int socket) {
     if (!header.empty()) {
         std::string response;
         try {
-            response = parseRequest(header, body);
+            response = this->parseRequest(header, body);
         } catch (const std::exception &e) {
             // 发生错误，发送错误响应
-            response = Http::httpResponse("500 Internal Server Error",
+            response = this->httpResponse("500 Internal Server Error",
                                     "An error occurred while processing the request.");
         }
         write(socket, response.c_str(), response.size());
@@ -188,7 +192,7 @@ void Http::handleConnection(int socket) {
  * @param responseBody
  * @return
  */
-std::string Http::httpResponse(const std::string &status, const std::string &responseBody) {
+std::string Http::httpResponse(const std::string &status, const std::string &responseBody) const {
 
     return "HTTP/1.1 " + status + "\r\n" // 使用 \r\n 而不是 \n 作为行结束符，以符合HTTP协议标准
            "Content-Type: text/plain\r\n"
@@ -213,12 +217,12 @@ std::string Http::handleRoute(const std::string &path,
                         const std::string &authHeader,
                         const std::unordered_map<std::string,
                                 std::string> &queryParams
-) {
+) const {
     std::string response = "OK";
     std::string status = "200 OK";
     //授权校验
     if (File::readFile("token") != authHeader || authHeader.empty()) {
-        return httpResponse("401 Incorrect Authorization", "Incorrect Authorization");
+        return httpResponse("401 Incorrect Authorization", "Incorrect Authorization: "+authHeader);
     }
 
     if (path == "/") {
@@ -261,7 +265,7 @@ std::string Http::handleRoute(const std::string &path,
  * @param query
  * @return
  */
-std::unordered_map<std::string, std::string> Http::parseQuery(const std::string &query) {
+std::unordered_map<std::string, std::string> Http::parseQuery(const std::string &query) const {
     std::unordered_map<std::string, std::string> queryParams;
     std::istringstream queryStream(query);
     std::string pair;
@@ -282,7 +286,7 @@ std::unordered_map<std::string, std::string> Http::parseQuery(const std::string 
  * @param request
  * @return
  */
-std::string Http::getAuthorization(const std::string &request) {
+std::string Http::getAuthorization(const std::string &request) const {
     std::istringstream stream(request);
     std::string line;
     while (std::getline(stream, line) && line != "\r") {
@@ -298,7 +302,7 @@ std::string Http::getAuthorization(const std::string &request) {
  * @param body
  * @return
  */
-std::string Http::parseRequest(const std::string &header, const std::string &body) {
+std::string Http::parseRequest(const std::string &header, const std::string &body) const {
     size_t pos = 0, end;
 
     // 解析请求行
@@ -315,20 +319,23 @@ std::string Http::parseRequest(const std::string &header, const std::string &bod
     std::unordered_map<std::string, std::string> queryParams;
     size_t queryPos = path.find('?');
     if (queryPos != std::string::npos) {
-        queryParams = Http::parseQuery(path.substr(queryPos + 1));
+        queryParams = this->parseQuery(path.substr(queryPos + 1));
         path = path.substr(0, queryPos);
     }
-    std::string authHeader  = getAuthorization(header);
+    std::string authHeader  = this->getAuthorization(header);
     trim(authHeader);
 
-    return handleRoute(path, body,authHeader , queryParams);
+    return this->handleRoute(path, body,authHeader , queryParams);
 }
+
+
+
 /**
  * 获取请求头中的Content-Length
  * @param request
  * @return
  */
-ssize_t Http::getContentLength(const std::string &request) {
+ssize_t Http::getContentLength(const std::string &request) const {
     std::istringstream stream(request);
     std::string line;
     while (std::getline(stream, line) && line != "\r") {

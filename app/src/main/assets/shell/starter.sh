@@ -56,12 +56,12 @@ OLD_PATH="$SHELL_PATH/$BINARY_PATH/starter"
 
 # 启动二进制文件
 if [ -f "$OLD_PATH" ]; then
-  TARGET_PATH="/data/local/tmp/autoAccount/"
+  TARGET_PATH="/data/local/tmp/autoAccount"
   # 检查文件夹是否存在
   if [ ! -d "$TARGET_PATH" ]; then
       # 文件夹不存在，创建文件夹
-      mkdir -p "$TARGET_PATH"
-      echo "info：create dir $TARGET_PATH"
+      mkdir -p "$TARGET_PATH/"
+      echo "info：create dir $TARGET_PATH/"
   fi
   NEW_PATH="$TARGET_PATH/starter"
   cp -r "$OLD_PATH" "$TARGET_PATH"
@@ -69,16 +69,16 @@ if [ -f "$OLD_PATH" ]; then
   chmod +x "$NEW_PATH"
     retries=0
     $NEW_PATH stop
-    while [ $retries -lt 20 ]; do
-           $NEW_PATH "$SHELL_PATH"
-           echo "info: $SERVER_NAME service start... "
+    sleep 3
+    $NEW_PATH start
+    echo "info: waiting $SERVER_NAME service start... "
+    while [ $retries -lt 120 ]; do
            PID=$(get_pid)
            if [ -n "$PID" ]; then
                echo "info: $SERVER_NAME service start success, PID: $PID"
                return 0
            else
-               echo "warning: $SERVER_NAME service start failed, retrying in $((retries+1)) second(s)..."
-               sleep $((retries+1))
+               sleep 2
                retries=$((retries+1))
            fi
        done

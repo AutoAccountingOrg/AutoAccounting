@@ -19,10 +19,12 @@ public:
     static void writeLog(const std::string &fileInfo);
     //写入数据
     static void writeData(const std::string &fileInfo);
-
+    //文件是否存在
     static bool fileExists(const std::string &string);
-
+    //创建目录
     static void createDir(std::string path);
+    //目录是否存在
+    static bool directoryExists(const std::string& path);
 };
 
 

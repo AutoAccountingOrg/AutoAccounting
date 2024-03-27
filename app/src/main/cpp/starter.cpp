@@ -17,11 +17,15 @@ void worker_process(int id);
 void handle_signal(int sig);
 void start_workers();
 void stop_workers();
+std::string select_workspace();
+std::string workspace;
 bool should_restart_workers = true;
 int main(int argc, char *argv[]) {
+    //一开始就选定工作目录
+    workspace = select_workspace();
     if (argc > 1) {
         // 处理外部命令
-        std::ifstream pidFile(PID_FILE);
+        std::ifstream pidFile(workspace + PID_FILE);
         pid_t pid;
         pidFile >> pid;
         pidFile.close();
@@ -44,7 +48,7 @@ int main(int argc, char *argv[]) {
             return 0;
         }
     }else{
-        std::cout << "Usage: " << argv[0] << " [stop|restart|status|[workspace]]" << std::endl;
+        std::cout << "Usage: " << argv[0] << " [stop|restart|status|start]" << std::endl;
         return 1;
     }
 
@@ -54,13 +58,10 @@ int main(int argc, char *argv[]) {
         return 0;
     }
     setsid();
-    pid = fork();
-    if (pid > 0) {
-        return 0;
-    }
+
 
     // 设置工作目录为当前目录
-    chdir(argv[0]);
+    chdir(workspace.c_str());
 
     // 设置信号处理函数
     signal(SIGCHLD, handle_signal);
@@ -68,12 +69,12 @@ int main(int argc, char *argv[]) {
     signal(SIGHUP, handle_signal);
 
     // 保存 PID 到文件
-    std::ofstream pidFile(PID_FILE);
+    std::ofstream pidFile(workspace + PID_FILE);
     pidFile << getpid();
     pidFile.close();
 
     // 打开日志文件
-    logFile.open("daemon.log");
+    logFile.open(workspace +"daemon.log");
 
     logFile << File::formatTime() <<"Master process started (PID: " << getpid() << ")" << std::endl;
 
@@ -87,9 +88,21 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
+std::string select_workspace(){
+    if(File::directoryExists("/sdcard/Android/data/net.ankio.auto.xposed/cache/shell")){
+        workspace = "/sdcard/Android/data/net.ankio.auto.xposed/cache/shell/";
+    }else if(File::directoryExists("/sdcard/Android/data/net.ankio.auto.helper/cache/shell")){
+        workspace = "/sdcard/Android/data/net.ankio.auto.helper/cache/shell/";
+    }else{
+        printf( "You must have at least one of the following directories: /sdcard/Android/data/net.ankio.auto.xposed/cache/shell or /sdcard/Android/data/net.ankio.auto.helper/cache/shell" );
+        exit(2);
+    }
+    return workspace;
+}
+
 void worker_process(int id) {
     logFile << File::formatTime() <<"Worker " << id << " started (PID: " << getpid() << ")" << std::endl;
-    Http server = Http();
+    Http server = Http(workspace,&logFile);
     server.start();
     logFile << File::formatTime() <<"Worker " << id << " stopped (PID: " << getpid() << ")" << std::endl;
 }
@@ -125,7 +138,7 @@ void handle_signal(int sig) {
             logFile << File::formatTime() <<"Master: Received SIGTERM, stopping" << std::endl;
             stop_workers();
             logFile.close();
-            remove(PID_FILE);
+            remove((workspace + PID_FILE).c_str());
             exit(0);
             break;
         case SIGHUP:
@@ -153,8 +166,6 @@ void start_workers() {
         }
     }
 }
-
-
 
 void stop_workers() {
     should_restart_workers = false;
