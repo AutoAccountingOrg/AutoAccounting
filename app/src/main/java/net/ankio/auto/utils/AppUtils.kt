@@ -38,6 +38,7 @@ import com.quickersilver.themeengine.ThemeEngine
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.app.model.AppInfo
 import net.ankio.auto.ui.activity.MainActivity
@@ -188,7 +189,9 @@ object  AppUtils {
      * 设置debug状态
      */
     fun setDebug(debug:Boolean = false){
-        getService().set("debug", if(debug)"true" else "false")
+        scope.launch {
+            getService().set("debug", if(debug)"true" else "false")
+        }
         SpUtils.putBoolean("debug", debug)
     }
 
