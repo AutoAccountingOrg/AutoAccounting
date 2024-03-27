@@ -22,9 +22,12 @@ import net.ankio.auto.R
 import net.ankio.auto.database.Db
 import net.ankio.auto.database.table.AssetsMap
 import net.ankio.auto.database.table.BillInfo
+import net.ankio.auto.events.AutoServiceErrorEvent
+import net.ankio.auto.exceptions.AutoServiceException
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.SpUtils
+import net.ankio.auto.utils.event.EventBus
 import net.ankio.common.constant.BillType
 import net.ankio.common.model.AutoBillModel
 import java.text.DecimalFormat
@@ -65,31 +68,29 @@ object BillUtils {
     private suspend fun syncBillInfo() = withContext(Dispatchers.IO) {
         val bills = Db.get().BillInfoDao().getAllParents()
         Db.get().BillInfoDao().setAllParents()
-        AppUtils.getService().get("auto_bills", onSuccess = { it ->
-            val list = runCatching {
-                Gson().fromJson(it, Array<AutoBillModel>::class.java).toMutableList()
-            }.getOrElse {
-                Logger.e("解析自动记账出错", it)
-                mutableListOf()
+       val it = AppUtils.getService().get("auto_bills")
+        val list = runCatching {
+            Gson().fromJson(it, Array<AutoBillModel>::class.java).toMutableList()
+        }.getOrElse {
+            Logger.e("解析自动记账出错", it)
+            mutableListOf()
+        }
+        // 添加或更新list中的元素
+        bills.forEach { bill ->
+            val index = list.indexOfFirst { it.id == bill.id }
+            if (index != -1) {
+                list[index] = bill.toAutoBillModel()
+            } else {
+                list.add(bill.toAutoBillModel())
             }
-            // 添加或更新list中的元素
-            bills.forEach { bill ->
-                val index = list.indexOfFirst { it.id == bill.id }
-                if (index != -1) {
-                    list[index] = bill.toAutoBillModel()
-                } else {
-                    list.add(bill.toAutoBillModel())
-                }
-            }
+        }
 
-            val json = Gson().toJson(list)
-            AppUtils.getService().set("auto_bills", json)
-            //如果需要同步的数据过多，则尝试自动跳转
-            if (list.size > 20) {
-                AppUtils.startBookApp()
-            }
-
-        })
+        val json = Gson().toJson(list)
+        AppUtils.getService().set("auto_bills", json)
+        //如果需要同步的数据过多，则尝试自动跳转
+        if (list.size > 20) {
+            AppUtils.startBookApp()
+        }
     }
 
      fun noNeedFilter(billInfo: BillInfo): Boolean {
@@ -204,7 +205,7 @@ object BillUtils {
             return name
         }
 
-        AppUtils.getService().get("assets_map", onSuccess = {
+        AppUtils.getService().get("assets_map").let {
             runCatching {
                 val list = Gson().fromJson(it, Array<AssetsMap>::class.java).toList()
                 billInfo.accountNameFrom = getMapName(list, billInfo.accountNameFrom)
@@ -212,7 +213,7 @@ object BillUtils {
             }.onFailure {
                 Logger.e("获取资产映射出错", it)
             }
-        })
+        }
     }
 
     /**

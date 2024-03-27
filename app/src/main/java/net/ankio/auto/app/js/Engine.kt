@@ -46,16 +46,8 @@ object Engine {
 
         //做一些收尾工作
         // 1. 识别备注
-        val tpl = async {
-            suspendCancellableCoroutine { continuation ->
-                AppUtils.getService().get("setting_bill_remark", onSuccess = { result ->
-                    continuation.resume(result)
-                })
-            }
-        }
-
-        billInfo.remark  = BillUtils.getRemark(billInfo,tpl.await())
-
+        val tpl =  AppUtils.getService().get("setting_bill_remark")
+        billInfo.remark  = BillUtils.getRemark(billInfo,tpl)
         // 2. 识别账户
         BillUtils.setAccountMap(billInfo)
 
@@ -72,20 +64,11 @@ object Engine {
     suspend fun data(dataType: Int, app: String, data: String):BillInfo? = withContext(Dispatchers.IO) {
         log( "识别数据", "dataType:$dataType,app:$app,data:$data")
         val outputBuilder = StringBuilder()
-        val rule = async {
-            suspendCancellableCoroutine { continuation ->
-                AppUtils.getService().get("auto_rule", onSuccess = { result ->
-                    continuation.resume(result)
-                })
-            }
-        }
-
-
+        val rule = AppUtils.getService().get("auto_rule")
         val billInfo = BillInfo()
         try {
-
             //识别脚本补充
-            val js = "var window = {data:data, dataType:dataType, app:app};${rule.await()}"
+            val js = "var window = {data:data, dataType:dataType, app:app};${rule}"
             log( "执行识别脚本", js)
             val context: Context = Context.enter()
             val scope: Scriptable = context.initStandardObjects()
@@ -128,29 +111,17 @@ object Engine {
      */
 
     suspend fun category(billInfo: BillInfo) = withContext(Dispatchers.IO) {
-        val category = async {
-            suspendCancellableCoroutine { continuation ->
-                AppUtils.getService().get("auto_category", onSuccess = { result ->
-                    continuation.resume(result)
-                })
-            }
-        }
-        val categoryCustom = async {
-            suspendCancellableCoroutine { continuation ->
-                AppUtils.getService().get("auto_category_custom"){
-                    continuation.resume(it)
-                }
-            }
-        }
+        val category = AppUtils.getService().get("auto_category")
+        val categoryCustom = AppUtils.getService().get("auto_category_custom")
         val outputBuilder = StringBuilder()
 
         try {
 
             val categoryJs =
                 "var window = {money:money, type:type, shopName:shopName, shopItem:shopItem, time:time};" +
-                        "function getCategory(money,type,shopName,shopItem,time){ ${categoryCustom.await()} return null};" +
+                        "function getCategory(money,type,shopName,shopItem,time){ $categoryCustom return null};" +
                         "var categoryInfo = getCategory(money,type,shopName,shopItem,time);" +
-                        "if(categoryInfo !== null) { print(JSON.stringify(categoryInfo));  } else { ${category.await()} }"
+                        "if(categoryInfo !== null) { print(JSON.stringify(categoryInfo));  } else { $category }"
             outputBuilder.clear() //清空
             log( "执行分类脚本", categoryJs)
             val context: Context = Context.enter()
@@ -185,10 +156,9 @@ object Engine {
 
     private fun log(prefix: String, data: String,throwable: Throwable?=null) {
         if(throwable!==null){
-            Logger.e("$prefix: $data",throwable)
+            Logger.e("$prefix: $data",throwable,true)
         }else{
-            Logger.d("$prefix: $data")
+            Logger.d("$prefix: $data",true)
         }
-        AppUtils.getService().putLog("$prefix: $data")
     }
 }
