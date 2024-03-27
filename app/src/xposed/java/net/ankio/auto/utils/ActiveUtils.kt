@@ -42,23 +42,8 @@ object ActiveUtils {
 
     var APPLICATION_ID = BuildConfig.APPLICATION_ID
 
-    private  var TOKEN = ""
 
-    fun getToken(context: Context): String {
-        if(TOKEN.isNotEmpty())return TOKEN
-        val auth = "net.ankio.preferences"
-        val file = "main_prefs"
-        if (APPLICATION_ID == BuildConfig.APPLICATION_ID) {
-            val token = AutoAccountingServiceUtils.get("token")
-            TOKEN = token
-            val prefs = context.getSharedPreferences(file, Context.MODE_PRIVATE)
-            prefs.edit().putString("token", token).apply()
-            return token
-        } else {
 
-            val prefs: SharedPreferences = RemotePreferences(context, auth, file)
-            TOKEN = prefs.getString("token", "") ?: ""
-            return TOKEN
-        }
-    }
+
+
 }

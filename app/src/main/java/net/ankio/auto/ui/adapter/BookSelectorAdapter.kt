@@ -60,14 +60,8 @@ class BookSelectorAdapter(
         RecyclerView.ViewHolder(binding.root) {
         fun bind(item: BookName, position: Int) {
             scope.launch {
-                ImageUtils.get(context, item.icon)?.let {
+                ImageUtils.get(context, item.icon,R.drawable.default_book).let {
                     binding.book.background = it
-                }?:run {
-                    binding.book.background = ResourcesCompat.getDrawable(
-                        context.resources,
-                        R.drawable.default_book,
-                        context.theme
-                    )
                 }
             }
 

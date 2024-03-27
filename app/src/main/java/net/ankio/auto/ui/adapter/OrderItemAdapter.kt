@@ -30,7 +30,9 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.app.BillUtils
+import net.ankio.auto.database.table.Assets
 import net.ankio.auto.database.table.BillInfo
+import net.ankio.auto.database.table.Category
 import net.ankio.auto.databinding.AdapterOrderItemBinding
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.DateUtils
@@ -60,7 +62,7 @@ class OrderItemAdapter(
         fun bind(item: BillInfo, position: Int) {
             binding.category.setText(item.cateName)
             scope.launch {
-                BillInfo.getCategoryDrawable(item.cateName,context) {
+                Category.getDrawable(item.cateName,context).let {
                     binding.category.setIcon(it,true)
                 }
             }
@@ -103,7 +105,7 @@ class OrderItemAdapter(
             binding.payTools.setText(item.accountNameFrom)
 
             scope.launch {
-                BillInfo.getAccountDrawable(item.accountNameFrom,context) {
+                Assets.getDrawable(item.accountNameFrom,context).let {
                     binding.payTools.setIcon(it,false)
                 }
             }

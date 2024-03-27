@@ -35,7 +35,7 @@ import net.ankio.auto.utils.BackupUtils
 import net.ankio.auto.utils.LanguageUtils
 import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.SpUtils
-import net.ankio.auto.utils.UpdateUtils
+import net.ankio.auto.utils.update.UpdateUtils
 
 object Config {
     /**
@@ -354,7 +354,9 @@ object Config {
                 default = "【商户名称】 - 【商品名称】",
                 icon = R.drawable.setting_icon_remark,
                 onSavedValue = { value, activity ->
-                    AppUtils.getService().set("setting_bill_remark", value as String)
+                    AppUtils.getScope().launch {
+                        AppUtils.getService().set("setting_bill_remark", value as String)
+                    }
                 },
             ),
             //去重
@@ -366,7 +368,9 @@ object Config {
                 default = true,
                 icon = R.drawable.setting_icon_repeat,
                 onSavedValue = { value, activity ->
-                    AppUtils.getService().set("setting_bill_repeat", value.toString())
+                   AppUtils.getScope().launch {
+                       AppUtils.getService().set("setting_bill_repeat", value.toString())
+                   }
                 },
             ),
             //悬浮窗
@@ -436,7 +440,9 @@ object Config {
                 default = false,
                 icon = R.drawable.setting_icon_parent,
                 onSavedValue = { value, activity ->
-                    AppUtils.getService().set("setting_category_show_parent", value.toString())
+                   AppUtils.getScope().launch {
+                       AppUtils.getService().set("setting_category_show_parent", value.toString())
+                   }
                 },
 
             ),

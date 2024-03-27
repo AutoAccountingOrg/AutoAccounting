@@ -42,9 +42,12 @@ import net.ankio.auto.app.BillUtils
 import net.ankio.auto.constant.FloatEvent
 import net.ankio.auto.database.table.BillInfo
 import net.ankio.auto.databinding.FloatTipBinding
+import net.ankio.auto.events.AutoServiceErrorEvent
+import net.ankio.auto.exceptions.AutoServiceException
 import net.ankio.auto.ui.dialog.FloatEditorDialog
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.SpUtils
+import net.ankio.auto.utils.event.EventBus
 import net.ankio.common.config.AccountingConfig
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicBoolean
@@ -173,15 +176,21 @@ class FloatingWindowService : Service(), CoroutineScope {
 
     private fun recordBillInfo(billInfo:BillInfo){
         launch {
-            BillUtils.groupBillInfo(billInfo)
-            if (SpUtils.getBoolean("setting_book_success", true)) {
-                Toaster.show(
-                    getString(
-                        R.string.auto_success,
-                        BillUtils.getFloatMoney(billInfo.money).toString()
-                    )
-                )
-            }
+           runCatching {
+               BillUtils.groupBillInfo(billInfo)
+               if (SpUtils.getBoolean("setting_book_success", true)) {
+                   Toaster.show(
+                       getString(
+                           R.string.auto_success,
+                           BillUtils.getFloatMoney(billInfo.money).toString()
+                       )
+                   )
+               }
+           }.onFailure {
+               if(it is AutoServiceException){
+                   EventBus.post(AutoServiceErrorEvent(it))
+               }
+           }
         }
     }
 
@@ -193,9 +202,13 @@ class FloatingWindowService : Service(), CoroutineScope {
                 recordBillInfo(billInfo)
             }
             FloatEvent.POP_EDIT_WINDOW.ordinal -> {
-                AppUtils.getService().config {
-                    //编辑
-                    FloatEditorDialog(themedContext,billInfo, it,true).show(true)
+                launch {
+                    AppUtils.getService().config().let{
+                        //编辑
+                       withContext(Dispatchers.Main){
+                           FloatEditorDialog(themedContext,billInfo, it,true).show(true)
+                       }
+                    }
                 }
             }
             FloatEvent.NO_ACCOUNT.ordinal -> {

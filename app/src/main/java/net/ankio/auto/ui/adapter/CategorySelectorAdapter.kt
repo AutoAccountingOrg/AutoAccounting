@@ -184,16 +184,8 @@ class CategorySelectorAdapter(
             } else {
                 scope.launch {
                     //自动切回主线程
-                    ImageUtils.get(context, item.icon!!)?.let {
+                    ImageUtils.get(context, item.icon!!,R.drawable.default_cate).let {
                         binding.itemImageIcon.setImageDrawable(it)
-                    }?:run {
-                        binding.itemImageIcon.setImageDrawable(
-                            ResourcesCompat.getDrawable(
-                                context.resources,
-                                R.drawable.default_cate,
-                                context.theme
-                            )
-                        )
                     }
                 }
 

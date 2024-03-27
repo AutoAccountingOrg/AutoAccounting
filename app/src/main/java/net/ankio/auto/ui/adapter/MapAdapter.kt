@@ -81,7 +81,7 @@ class MapAdapter(
         fun bind(item: AssetsMap,pos: Int) {
             //图片加载丢到IO线程
             scope.launch {
-               Db.get().AssetsDao().getAccountDrawable(item.mapName,context) { drawable ->
+               Assets.getDrawable(item.mapName,context).let { drawable ->
                    binding.target.setIcon(drawable)
                }
             }

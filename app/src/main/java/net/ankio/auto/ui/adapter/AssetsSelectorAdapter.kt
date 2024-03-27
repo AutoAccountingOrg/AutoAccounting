@@ -63,17 +63,8 @@ class AssetsSelectorAdapter(
         fun bind(item: Assets) {
             //图片加载丢到IO线程
             scope.launch {
-                ImageUtils.get(context, item.icon)?.let {
+                ImageUtils.get(context, item.icon,R.drawable.default_cate).let {
                     binding.assets.setIcon(it)
-                } ?: run {
-                    binding.assets.setIcon(
-                        ResourcesCompat.getDrawable(
-                            context.resources,
-                            R.drawable.default_cate,
-                            context.theme
-                        )
-                    )
-
                 }
             }
 

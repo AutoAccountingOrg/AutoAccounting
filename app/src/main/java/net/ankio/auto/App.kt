@@ -40,14 +40,13 @@ class App : Application(){
         AppUtils.setApplication(this)
         AppUtils.setService(this)
         //监控
-
         AppTimeMonitor.startMonitoring("App初始化")
 
 
         //数据库初始化
         Db.init(this)
         //日志初始化
-        Logger.init(this)
+        Logger.init()
         //设置全局异常
         ExceptionHandler.init(this)
         // 初始化 Toast 框架
