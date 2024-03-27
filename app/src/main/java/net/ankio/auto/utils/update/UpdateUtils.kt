@@ -13,13 +13,15 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.utils
+package net.ankio.auto.utils.update
 
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import net.ankio.auto.utils.AppUtils
+import net.ankio.auto.utils.Logger
+import net.ankio.auto.utils.SpUtils
 import net.ankio.auto.utils.request.RequestsUtils
-import net.ankio.auto.utils.update.UpdateInfo
 
 /**
  * 更新工具，用于处理App更新、规则更新
@@ -32,7 +34,7 @@ class UpdateUtils {
         }
 
         fun setUrl(url: String){
-             SpUtils.putString("app_url", url)
+            SpUtils.putString("app_url", url)
         }
 
     }
@@ -73,6 +75,12 @@ class UpdateUtils {
                            " 更新时间:${json.date}\n" +
                            " 更新日志:${json.log}"
                )
+
+               if(json.file!=""){
+                     json.file = "$appUrl${json.file}"
+               }else{
+                     json.file = ruleUrl
+               }
                json
            } else {
                Logger.i("无需更新")
@@ -104,6 +112,6 @@ class UpdateUtils {
                 return null
             }
         }
-        return request("$ruleUrl/index.json", SpUtils.getInt("ruleVersion",0))
+        return request("$ruleUrl/index.json", SpUtils.getInt("ruleVersion", 0))
     }
 }

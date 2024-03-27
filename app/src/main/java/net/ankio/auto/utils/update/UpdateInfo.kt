@@ -20,5 +20,5 @@ data class UpdateInfo(
     val version:String,
     val date:String,
     val log:String,
-    val file:String
+    var file:String
 )
