@@ -21,6 +21,7 @@ import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.exceptions.AutoServiceException
+import net.ankio.auto.utils.event.EventBus
 import net.ankio.auto.utils.request.RequestsUtils
 import net.ankio.common.config.AccountingConfig
 import java.io.File
@@ -42,16 +43,12 @@ class AutoAccountingServiceUtils(mContext: Context) {
         private const val HOST = "http://127.0.0.1"
         private const val PORT = 52045
         // 将isServerStart转换为挂起函数
-        suspend fun isServerStart(mContext: Context): Boolean = suspendCoroutine { continuation ->
-                RequestsUtils(mContext).get("$HOST:$PORT/",
-                    headers = hashMapOf("Authorization" to getToken(mContext)),
-                    onSuccess = { _, code ->
-                        continuation.resume(code == 200)
-                    },
-                    onError = {
-                        Logger.i("$HOST:$PORT/ 请求错误$it")
-                        continuation.resume(false)
-                    })
+        suspend fun isServerStart(mContext: Context): Boolean = withContext(Dispatchers.IO) {
+              runCatching {
+                  val result =   RequestsUtils(mContext).get("$HOST:$PORT/",
+                      headers = hashMapOf("Authorization" to getToken(mContext)))
+                  result.code == 200
+              }.getOrNull()?:false
         }
 
 
@@ -96,58 +93,59 @@ class AutoAccountingServiceUtils(mContext: Context) {
 
 
     /**
-     * 请求错误
-     */
-    private fun onError(string: String){
-        throw AutoServiceException(string,AutoServiceException.CODE_SERVER_ERROR)
-    }
-
-    /**
      * 获取数据
      */
-    suspend fun get(name: String):String = suspendCoroutine{
-        requestsUtils.get(getUrl("/get"),
-            query = hashMapOf("name" to name),
-            headers = headers,
-            onSuccess = { bytearray,code ->
-                        if(code==200){
-                            it.resume(String(bytearray).trim())
-                        }else{
-                            throw AutoServiceException(String(bytearray),AutoServiceException.CODE_SERVER_AUTHORIZE)
-                        }
-        },
-     onError = this::onError)
+    suspend fun get(name: String):String = withContext(Dispatchers.IO){
+            val result = requestsUtils.post(
+                getUrl("/get"),
+                query = hashMapOf("name" to name),
+                headers = headers
+            )
+            if (result.code == 200) {
+                String(result.byteArray).trim()
+            } else {
+                throw AutoServiceException(
+                    String(result.byteArray),
+                    AutoServiceException.CODE_SERVER_AUTHORIZE
+                )
+            }
+
     }
 
     /**
      * 设置数据
      */
-    fun set(name: String, value: String){
+    suspend fun set(name: String, value: String) = withContext(Dispatchers.IO){
         requestsUtils.post(getUrl("/set"),
             query = hashMapOf("name" to name),
             data = hashMapOf("raw" to value),
-            headers = headers,
             contentType = RequestsUtils.TYPE_RAW,
-            onSuccess = { bytearray, code ->
-                if(code!=200){
-                    throw AutoServiceException(String(bytearray),AutoServiceException.CODE_SERVER_AUTHORIZE)
-                }
-        },onError = this::onError)
+            headers = headers).apply {
+            if (code != 200) {
+                throw AutoServiceException(
+                    String(byteArray),
+                    AutoServiceException.CODE_SERVER_AUTHORIZE
+                )
+            }
+        }
     }
 
     /**
      * 设置App记录数据
      */
-    fun putData(value: String){
+   suspend fun putData(value: String)= withContext(Dispatchers.IO){
         requestsUtils.post(getUrl("/data"),
             data = hashMapOf("raw" to value),
             contentType = RequestsUtils.TYPE_RAW,
-            headers = headers,
-            onSuccess = { bytearray,code ->
-                if(code!=200){
-                    throw AutoServiceException(String(bytearray),AutoServiceException.CODE_SERVER_AUTHORIZE)
-                }
-        },onError = this::onError)
+            headers = headers).apply {
+            if (code != 200) {
+                throw AutoServiceException(
+                    String(byteArray),
+                    AutoServiceException.CODE_SERVER_AUTHORIZE
+                )
+            }
+        }
+
     }
 
     /**
@@ -160,16 +158,19 @@ class AutoAccountingServiceUtils(mContext: Context) {
     /**
      * 设置App记录日志
      */
-    suspend fun putLog(value: String){
+    suspend fun putLog(value: String)= withContext(Dispatchers.IO){
         requestsUtils.post(getUrl("/log"),
             data = hashMapOf("raw" to value),
             contentType = RequestsUtils.TYPE_RAW,
             headers = headers,
-            onSuccess = { bytearray,code ->
-                if(code!=200){
-                    onError(String(bytearray).trim())
-                }
-        },onError = this::onError)
+        ).apply {
+            if(code!=200){
+                throw AutoServiceException(
+                    String(byteArray),
+                    AutoServiceException.CODE_SERVER_AUTHORIZE
+                )
+            }
+        }
     }
 
     /**
