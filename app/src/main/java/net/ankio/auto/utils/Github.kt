@@ -17,8 +17,10 @@ package net.ankio.auto.utils
 
 
 import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import net.ankio.auto.exceptions.GithubException
 import net.ankio.auto.utils.request.RequestsUtils
-import org.json.JSONException
 import org.json.JSONObject
 
 
@@ -32,10 +34,9 @@ object Github {
         return "https://github.com/login/oauth/authorize?client_id=$clientId&redirect_uri=$redirectUri&scope=public_repo"
     }
 
-    fun parseAuthCode(code: String?, onSuccess: () -> Unit, onError: (String) -> Unit) {
+   suspend fun parseAuthCode(code: String?) = withContext(Dispatchers.IO) {
         if (code == null) {
-            onError("响应代码为空！")
-            return
+            throw GithubException("授权代码为空")
         }
         val data = hashMapOf(
             "client_id" to clientId,
@@ -44,30 +45,24 @@ object Github {
             "redirect_uri" to redirectUri
         )
 
-        requestsUtils.post(
+       val result =  requestsUtils.post(
             url = "https://github.com/login/oauth/access_token",
             data = hashMapOf("json" to Gson().toJson(data)),
-            contentType = RequestsUtils.TYPE_JSON,
-            onSuccess = { bytearray, code ->
-                val result = String(bytearray)
-                val params = result.split("&")
-                for (param in params) {
-                    val keyValue = param.split("=")
-                    if (keyValue.size == 2 && keyValue[0] == "access_token") {
-                        SpUtils.putString("accessToken", keyValue[1])
-                        onSuccess()
-                    }
-                }
-            },
-            onError = {
-                onError(it)
-            }
+            contentType = RequestsUtils.TYPE_JSON
         )
 
 
+        val params = String(result.byteArray).split("&")
+        for (param in params) {
+            val keyValue = param.split("=")
+            if (keyValue.size == 2 && keyValue[0] == "access_token") {
+                SpUtils.putString("accessToken", keyValue[1])
+            }
+        }
+
     }
 
-    fun getHeaders(): HashMap<String, String> {
+    private fun getHeaders(): HashMap<String, String> {
 
 
         val hashMap = hashMapOf(
@@ -81,44 +76,28 @@ object Github {
         return hashMap
     }
 
-    fun createIssue(
+    suspend fun createIssue(
         title: String,
         body: String,
-        onSuccess: (String) -> Unit,
-        onError: (String) -> Unit
-    ) {
+    ):String = withContext(Dispatchers.IO) {
         val url = "https://api.github.com/repos/AutoAccountingOrg/AutoRule/issues"
 
         val jsonRequest = JSONObject()
-        try {
-            jsonRequest.put("title", title)
-            jsonRequest.put("body", body)
-        } catch (e: JSONException) {
-            e.printStackTrace()
-            onError(e.message.toString())
-            return
-        }
+        jsonRequest.put("title", title)
+        jsonRequest.put("body", body)
 
-        requestsUtils.post(
+        val result = requestsUtils.post(
             url = url,
             data = hashMapOf("json" to jsonRequest.toString()),
             headers = getHeaders(),
-            contentType = RequestsUtils.TYPE_JSON,
-            onSuccess = { bytearray, code ->
-
-                val result = String(bytearray)
-                if(code!=201){
-                    onError(result)
-                    return@post
-                }
-                val jsonObject = JSONObject(result)
-                val id = jsonObject.getInt("number")
-                onSuccess(id.toString())
-            },
-            onError = {
-                onError(it)
-            }
+            contentType = RequestsUtils.TYPE_JSON
         )
+        if (result.code != 201) {
+            throw GithubException("创建Issue失败")
+        }
+        val jsonObject = JSONObject(String(result.byteArray))
+        val id = jsonObject.getInt("number")
+        id.toString()
     }
 
 }
