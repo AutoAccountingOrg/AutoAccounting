@@ -17,6 +17,7 @@
  */
 void Http::start() {
     Http::createToken();
+    Http::publishToken();
     this->server();
 }
 /**
@@ -41,6 +42,34 @@ void Http::createToken() {
         token += chars[distribution(generator)];
     }
    File::writeFile("token", token);
+}
+
+/**
+ * 发布token
+ */
+void Http::publishToken(){
+    //发布到所有支持的App
+    const std::string token = File::readFile("token");
+    //发布到所有支持的App
+    //如果存在apps.txt，则读取并解析每一行
+    //每一行的格式为：包名
+    //然后将token发送到包名对应的App的缓存目录
+    //例如：/sdcard/Android/data/com.example.app/cache/shell/token.txt
+    //如果文件不存在，则创建文件
+    //如果文件存在，则覆盖文件
+    //文件内容为token
+    if(File::fileExists("apps.txt")){
+        std::string apps = File::readFile("apps.txt");
+        std::istringstream stream(apps);
+        std::string line;
+        while (std::getline(stream, line)) {
+            trim(line);
+            std::string path = "/sdcard/Android/data/" + line + "/cache/shell/";
+            //使用函数创建文件夹
+            File::createDir(path);
+            File::writeFile(path+"token.txt", token);
+        }
+    }
 }
 
 /**

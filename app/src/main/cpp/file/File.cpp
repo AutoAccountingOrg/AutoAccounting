@@ -100,3 +100,17 @@ std::string File::readFile(const std::string &filename) {
         return "";
     }
 }
+
+bool File::fileExists(const std::string &string) {
+    std::ifstream file(string);
+    if (file.good()) {
+        file.close();
+        return true;
+    }
+    return false;
+}
+
+void File::createDir(std::string path) {
+    //如果文件夹不存在就创建文件夹，但是不要用命令创建
+    std::__fs::filesystem::create_directories(path);
+}

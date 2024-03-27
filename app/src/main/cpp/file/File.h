@@ -1,6 +1,4 @@
-//
-// Created by 徐贵江 on 2024/3/26.
-//
+
 
 #ifndef AUTO_FILE_H
 #define AUTO_FILE_H
@@ -22,6 +20,9 @@ public:
     //写入数据
     static void writeData(const std::string &fileInfo);
 
+    static bool fileExists(const std::string &string);
+
+    static void createDir(std::string path);
 };
 
 

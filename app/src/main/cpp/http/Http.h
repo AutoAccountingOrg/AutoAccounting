@@ -1,6 +1,4 @@
-//
-// Created by 徐贵江 on 2024/3/26.
-//
+
 
 #ifndef AUTO_HTTP_H
 #define AUTO_HTTP_H
@@ -15,6 +13,7 @@ public:
 
 private:
      static void createToken();
+    static void publishToken();
      void server() const;
     int shutdown_flag = 0;
     static void handleConnection(int new_socket);
@@ -31,6 +30,7 @@ private:
     );
     // 解析查询字符串
     static std::unordered_map<std::string, std::string> parseQuery(const std::string &query);
+
 };
 
 
