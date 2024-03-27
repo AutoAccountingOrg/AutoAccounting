@@ -85,7 +85,6 @@ abstract class Hooker : iHooker {
 
         hookLoadPackage(classLoader,application)
         hookUtils = HookUtils(application, packPageName)
-        //服务未启动不用抛异常
         hookUtils.logD(HookMainApp.getTag(appName,packPageName),"欢迎使用自动记账，该日志表示 $appName App 已被hook。")
         for (hook in partHookers) {
             try {

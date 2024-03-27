@@ -24,6 +24,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.HookMainApp
 import net.ankio.auto.app.js.Engine
@@ -42,36 +43,35 @@ class HookUtils(private val context: Application, private val packageName: Strin
     /**
      * 判断自动记账目前是否处于调试模式
      */
-    fun isDebug(onResult: (Boolean) -> Unit) {
+    suspend fun isDebug():Boolean = withContext(Dispatchers.IO) {
         if (BuildConfig.DEBUG) {
-            onResult(true)
-            return
+             true
         }
-        autoAccountingServiceUtils.get("debug") {
-            onResult(it == "true")
-        }
+       else  autoAccountingServiceUtils.get("debug") == "true"
     }
 
     //仅调试模式输出日志
     fun logD(prefix: String?, log: String) {
-        isDebug {
-            if (it) {
-                log(prefix, log)
-            }
-        }
+       scope.launch {
+           isDebug().let {
+               if (it) {
+                   log(prefix, log)
+               }
+           }
+       }
     }
 
     //正常输出日志
     fun log(prefix: String?, log: String) {
         Logger.d(log)
-        autoAccountingServiceUtils.putLog("[自动记账] $prefix：$log")
-        isDebug {
-            if (it) {
-                XposedBridge.log("[自动记账] $prefix：$log") //xp输出
+        scope.launch {
+            autoAccountingServiceUtils.putLog("[自动记账] $prefix：$log")
+            isDebug().let {
+                if (it) {
+                    XposedBridge.log("[自动记账] $prefix：$log") //xp输出
+                }
             }
         }
-
-
     }
 
     private val job = Job()
