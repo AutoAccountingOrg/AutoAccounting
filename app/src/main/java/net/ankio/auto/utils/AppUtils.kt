@@ -195,8 +195,6 @@ object  AppUtils {
         SpUtils.putBoolean("debug", debug)
     }
 
-   var logger = false
-
     /**
      * 获取屏幕宽度
      */

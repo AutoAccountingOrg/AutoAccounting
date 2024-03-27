@@ -19,8 +19,10 @@ import android.content.Context
 import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import androidx.core.content.res.ResourcesCompat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import net.ankio.auto.R
 import net.ankio.auto.utils.request.RequestsUtils
 
 object ImageUtils {
@@ -28,14 +30,17 @@ object ImageUtils {
    suspend fun get(
         context: Context,
         uriString: String,
-    ):Drawable? = withContext(Dispatchers.IO) {
+        default:Int
+    ):Drawable = withContext(Dispatchers.IO) {
         Logger.i("加载图片：${uriString}")
-        if (uriString.startsWith("data:image")) {
+        val result =  if (uriString.startsWith("data:image")) {
             getFromBase64(context, uriString)
         } else if (uriString.startsWith("http")) {
             getFromWeb(context, uriString)
+        } else {
+            null
         }
-       null
+       (result ?: ResourcesCompat.getDrawable(context.resources, default,context.theme))!!
     }
 
     private fun getFromBase64(context: Context, base64String: String): Drawable {
