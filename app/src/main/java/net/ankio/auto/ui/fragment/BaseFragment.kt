@@ -42,32 +42,7 @@ abstract class BaseFragment : Fragment() {
 
     protected lateinit var activityBinding: ActivityMainBinding
 
-    private fun goToServiceFragment() {
-        // 获取 NavController
-        val navController = (activity as MainActivity).getNavController()
-
-// 弹出当前 Fragment
-        navController.popBackStack()
-
-// 导航到新的 Fragment
-        navController.navigate(R.id.serviceFragment)
-
-    }
-
     override fun onResume() {
-        if (this.javaClass.simpleName != "ServiceFragment") {
-            try {
-                lifecycleScope.launch {
-                    if (!AutoAccountingServiceUtils.isServerStart(requireContext())) {
-                        withContext(Dispatchers.Main) {
-                            goToServiceFragment()
-                        }
-                    }
-                }
-            } catch (e: Exception) {
-                goToServiceFragment()
-            }
-        }
         super.onResume()
         if (!this::activityBinding.isInitialized) {
             activityBinding = (activity as MainActivity).getBinding()
