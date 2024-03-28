@@ -93,7 +93,7 @@ class AutoAccountingServiceUtils(mContext: Context) {
                 file.createNewFile()
             }
             // 将当前日志追加到文件
-            file.appendText("[ ${DateUtils.getTime(System.currentTimeMillis())} ]\n$data\n")
+            file.appendText("\n[ ${DateUtils.getTime(System.currentTimeMillis())} ]\n$data\n")
 
             // 处理日志，超过500行只保留最后的500行
             val lines = file.readLines()
