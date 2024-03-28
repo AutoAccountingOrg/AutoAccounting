@@ -28,6 +28,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.app.BillUtils
 import net.ankio.auto.database.table.Assets
@@ -63,9 +64,12 @@ class OrderItemAdapter(
             binding.category.setText(item.cateName)
             scope.launch {
                 Category.getDrawable(item.cateName,context).let {
-                    binding.category.setIcon(it,true)
+                    withContext(Dispatchers.Main){
+                        binding.category.setIcon(it,true)
+                    }
                 }
             }
+
             binding.date.text = DateUtils.getTime("HH:mm:ss",item.timeStamp)
 
 
