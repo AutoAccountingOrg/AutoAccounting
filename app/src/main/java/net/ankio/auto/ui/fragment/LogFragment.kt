@@ -20,18 +20,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.FileProvider
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.coroutines.launch
 import net.ankio.auto.R
-import net.ankio.auto.database.table.BillInfo
 import net.ankio.auto.databinding.FragmentLogBinding
-import net.ankio.auto.databinding.FragmentOrderBinding
 import net.ankio.auto.ui.adapter.LogAdapter
-import net.ankio.auto.ui.adapter.OrderAdapter
 import net.ankio.auto.ui.utils.MenuItem
 import net.ankio.auto.utils.AppUtils
+import net.ankio.auto.utils.AutoAccountingServiceUtils
 import net.ankio.auto.utils.Logger
 import java.io.File
 
@@ -43,7 +39,6 @@ class LogFragment : BaseFragment() {
     private val dataItems = ArrayList<String>()
     override val menuList: ArrayList<MenuItem> = arrayListOf(
         MenuItem(R.string.item_share, R.drawable.menu_icon_share) {
-
             runCatching {
                 val cacheDir = AppUtils.getApplication().externalCacheDir
                 val file = File(cacheDir, "/shell/log.txt")
@@ -73,17 +68,16 @@ class LogFragment : BaseFragment() {
         },
         MenuItem(R.string.item_clear, R.drawable.menu_icon_clear) {
             runCatching {
-                val cacheDir = AppUtils.getApplication().externalCacheDir
-                val file = File(cacheDir, "/shell/log.txt")
-                if (file.exists()) {
-                    file.delete()
-                }
+                AutoAccountingServiceUtils.delete("log",requireContext())
                 dataItems.clear()
+                adapter.notifyDataSetChanged()
             }.onFailure {
                 Logger.e("清除失败", it)
             }
         }
     )
+
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -91,30 +85,20 @@ class LogFragment : BaseFragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentLogBinding.inflate(layoutInflater)
-
         recyclerView = binding.recyclerView
         layoutManager = LinearLayoutManager(requireContext())
         recyclerView.layoutManager = layoutManager
-
         adapter = LogAdapter(dataItems)
-
-
-
         recyclerView.adapter = adapter
-
         return binding.root
     }
 
     override fun onResume() {
         super.onResume()
-        dataItems.clear()
-        lifecycleScope.launch {
-            AppUtils.getService().getLog().let {
-                dataItems.addAll(it.split("\n"))
-                adapter.notifyItemInserted(0)
-            }
+        AutoAccountingServiceUtils.get("log",requireContext()).let {
+            dataItems.clear()
+            dataItems.addAll(it.split("\n"))
+            adapter.notifyDataSetChanged()
         }
-
-
     }
 }

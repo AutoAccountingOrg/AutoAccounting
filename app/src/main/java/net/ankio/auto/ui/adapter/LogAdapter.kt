@@ -51,15 +51,9 @@ class LogAdapter(
         return dataItems.size
     }
 
-
     inner class ViewHolder(private val binding: AdapterTextBinding,private val context:Context) : RecyclerView.ViewHolder(binding.root) {
-
-
         fun bind(title:String) {
-
             binding.item.text = title
-
-
         }
     }
 }
