@@ -21,7 +21,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import com.hjq.toast.Toaster
 import androidx.core.view.size
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -29,6 +28,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.elevation.SurfaceColors
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
+import com.hjq.toast.Toaster
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -47,30 +47,17 @@ import net.ankio.auto.ui.dialog.BookInfoDialog
 import net.ankio.auto.ui.dialog.BookSelectorDialog
 import net.ankio.auto.ui.dialog.CategorySelectorDialog
 import net.ankio.auto.ui.fragment.BaseFragment
-import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.ListPopupUtils
 import java.util.Calendar
 
 
 class EditFragment : BaseFragment() {
     private lateinit var binding: FragmentEditBinding
-    private var regular = Regular()
-    private var book = 0
-    private var bookName = ""
-    private var category = ""
+    private var regular: Regular = Regular()
+    private var book: Int = 0
+    private var bookName: String = ""
+    private var category: String = ""
 
-    override fun onResume() {
-        super.onResume()
-        arguments?.apply {
-            regular = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                getSerializable("regular", Regular::class.java)
-            } else {
-                getSerializable("regular") as? Regular
-            } ?: Regular()
-
-        }
-        buildUI()
-    }
 
 
     private fun buildUI() {
@@ -115,7 +102,7 @@ class EditFragment : BaseFragment() {
         }
         //最后一个是数据
         val lastElement = list.removeLast()
-        book = (lastElement["id"] as Double).toInt()
+        book = lastElement["id"] as Int
         bookName = lastElement["book"] as String
         category = lastElement["category"] as String
 
@@ -178,6 +165,16 @@ class EditFragment : BaseFragment() {
 
         }
 
+        arguments?.apply {
+            regular = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                getSerializable("regular", Regular::class.java)
+            } else {
+                getSerializable("regular") as? Regular
+            } ?: Regular()
+
+        }
+        buildUI()
+
         return binding.root
     }
 
@@ -236,7 +233,7 @@ class EditFragment : BaseFragment() {
             getString(R.string.type_type) to 4
         )
         val listPopupUtils = ListPopupUtils(requireContext(), view, menuItems,0) { pos,key,value ->
-            when (pos) {
+            when (value) {
                 0 -> inputMoneyRange(flexboxLayout, element)
                 1 -> inputTimeRange(flexboxLayout, element)
                 2 -> inputShop(flexboxLayout, element)
@@ -258,7 +255,7 @@ class EditFragment : BaseFragment() {
 
         val listPopupUtils = ListPopupUtils(requireContext(), view, menuItems,0) { pos,key,value ->
             msg = getString(R.string.type_pay, key)
-            when (pos) {
+            when (value) {
                 0 -> js = "type === 0"
                 1 -> js = "type === 1"
             }
