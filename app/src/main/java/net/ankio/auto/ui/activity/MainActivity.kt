@@ -56,7 +56,6 @@ class MainActivity : BaseActivity() {
 
     //视图绑定
     private lateinit var binding: ActivityMainBinding
-
     private lateinit var fragmentContainerView: FragmentContainerView
     private lateinit var bottomNavigationView: BottomNavigationView
     private lateinit var navHostFragment: NavHostFragment
@@ -79,7 +78,7 @@ class MainActivity : BaseActivity() {
     }
 
 
-    val barList = arrayListOf(
+    private val barList = arrayListOf(
         arrayListOf(R.id.homeFragment, R.drawable.bottom_select_home, R.drawable.bottom_unselect_home),
         arrayListOf(R.id.dataFragment, R.drawable.bottom_select_data, R.drawable.bottom_unselect_data),
         arrayListOf(R.id.settingFragment, R.drawable.bottom_select_setting, R.drawable.bottom_unselect_setting),

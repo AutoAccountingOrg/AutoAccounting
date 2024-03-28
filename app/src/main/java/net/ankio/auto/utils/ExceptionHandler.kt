@@ -33,11 +33,12 @@ class ExceptionHandler {
      * 初始化默认异常捕获
      */
     fun init(context: Context?) {
-        if(SpUtils.getBoolean("sendToAppCenter",true)){
-            Bugsnag.start(context!!)
-            Bugsnag.addOnError { event ->
-                handleException(event) // 发送此异常
-            }
+
+        Bugsnag.start(context!!)
+        Bugsnag.addOnError { event ->
+           val result =  handleException(event) // 发送此异常
+            Logger.i("是否发送异常到AppCenter => $result")
+            result
         }
         this.context = context
     }
@@ -70,11 +71,11 @@ class ExceptionHandler {
         }
         //打开ErrorActivity
         val intent = Intent(context, ErrorActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         intent.putExtra("msg", sb.toString())
         context?.startActivity(intent)
-
         //调试模式不上传错误数据
-        return !AppUtils.getDebug()
+        return   !AppUtils.getDebug() && SpUtils.getBoolean("sendToAppCenter",true)
     }
 
     private fun getRootCause(e: Throwable): Throwable {
