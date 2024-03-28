@@ -102,7 +102,12 @@ class EditFragment : BaseFragment() {
         }
         //最后一个是数据
         val lastElement = list.removeLast()
-        book = lastElement["id"] as Int
+        //fix #7 因为存储的时候使用的是hashmap<String,Any>，反向识别的时候可能会将Int类型识别为Double
+        book = if(lastElement["id"] is Int){
+            lastElement["id"] as Int
+        }else if(lastElement["id"] is Double){
+            (lastElement["id"] as Double).toInt()
+        }else 0
         bookName = lastElement["book"] as String
         category = lastElement["category"] as String
 
