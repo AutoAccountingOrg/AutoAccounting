@@ -85,6 +85,13 @@ void Http::server() const {
         exit(EXIT_FAILURE);
     }
 
+    int opt = 1;
+    // 设置 SO_REUSEADDR 选项
+    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt))) {
+        perror("setsockopt");
+        exit(EXIT_FAILURE);
+    }
+
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(PORT);

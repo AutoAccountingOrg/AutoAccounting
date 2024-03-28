@@ -21,12 +21,13 @@ SERVER_NAME="自动记账"
 get_pid(){
   netstat -tulnp 2>/dev/null | grep ":$PORT" | awk '$6 == "LISTEN" {print $7}' | cut -d'/' -f1 | head -n 1
 }
-# 获取PID
-PID=$(get_pid)
-if [ -n "$PID" ]; then
-        echo "info: Terminating process with PID $PID."
-        kill -9 "$PID"
-fi
+
+ASSOCIATED_PIDS=$(ps -A | grep "auto_accounting_starter" | awk '{print $2}')
+        # 结束所有关联的进程
+        for pid in $ASSOCIATED_PIDS; do
+            kill -9 "$pid"
+            echo "info: Terminating process with PID $pid."
+        done
 
 # 获取CPU架构
 CPU_ARCH=$(uname -m)
@@ -52,7 +53,7 @@ case "$CPU_ARCH" in
         ;;
 esac
 
-OLD_PATH="$SHELL_PATH/$BINARY_PATH/starter"
+OLD_PATH="$SHELL_PATH/$BINARY_PATH/auto_accounting_starter"
 
 # 启动二进制文件
 if [ -f "$OLD_PATH" ]; then
@@ -63,7 +64,7 @@ if [ -f "$OLD_PATH" ]; then
       mkdir -p "$TARGET_PATH/"
       echo "info：create dir $TARGET_PATH/"
   fi
-  NEW_PATH="$TARGET_PATH/starter"
+  NEW_PATH="$TARGET_PATH/auto_accounting_starter"
   cp -r "$OLD_PATH" "$TARGET_PATH"
   echo "info: exec $NEW_PATH"
   chmod +x "$NEW_PATH"

@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 
-add_executable(starter starter.cpp
+add_executable(auto_accounting_starter starter.cpp
         http/Http.cpp
         http/Http.h
         utils/trim.cpp
@@ -13,7 +13,7 @@ add_executable(starter starter.cpp
         file/File.cpp
         file/File.h)
 
-set_target_properties(starter PROPERTIES
+set_target_properties(auto_accounting_starter PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/../assets/shell/${ANDROID_ABI}"
 )
 
