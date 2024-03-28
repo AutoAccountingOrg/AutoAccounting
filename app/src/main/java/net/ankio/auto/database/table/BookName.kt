@@ -29,7 +29,7 @@ import net.ankio.common.model.BookModel
 class BookName {
     //账本列表
     @PrimaryKey(autoGenerate = true)
-    var id = 0
+    var id:Int = 0
     /**
      * 账户名
      */
