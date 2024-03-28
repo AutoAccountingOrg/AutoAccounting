@@ -38,6 +38,7 @@ import net.ankio.auto.constant.toDataType
 import net.ankio.auto.database.Db
 import net.ankio.auto.databinding.FragmentDataBinding
 import net.ankio.auto.ui.adapter.DataAdapter
+import net.ankio.auto.ui.dialog.DataEditorDialog
 import net.ankio.auto.ui.dialog.FilterDialog
 import net.ankio.auto.ui.dialog.FloatEditorDialog
 import net.ankio.auto.ui.utils.LoadingUtils
@@ -89,19 +90,11 @@ class DataFragment : BaseFragment() {
                     val result = Engine.analyze(item.type, item.source, item.data)
                     if (result == null) {
                         //弹出悬浮窗
-                        withContext(Dispatchers.Main) {
-
-                            Toaster.show(R.string.no_match)
-                        }
+                        Toaster.show(R.string.no_match)
                     } else {
-
-
                         AppUtils.getService().config().let {
                             FloatEditorDialog(requireActivity(), result,it).show(float = false)
                         }
-
-
-
                     }
                 }
             },
@@ -114,11 +107,12 @@ class DataFragment : BaseFragment() {
                 }
 
 
-                context?.let {
-                    MaterialAlertDialogBuilder(it)
-                        .setTitle(getString(R.string.upload_sure))  // 设置对话框的标题
-                        .setMessage(getString(R.string.upload_info))  // 设置对话框的消息
-                        .setPositiveButton(getString(R.string.ok)) { dialog, which ->
+
+                MaterialAlertDialogBuilder(requireContext())
+                    .setTitle(getString(R.string.upload_sure))  // 设置对话框的标题
+                    .setMessage(getString(R.string.upload_info))  // 设置对话框的消息
+                    .setPositiveButton(getString(R.string.ok)) { dialog, which ->
+                        DataEditorDialog(requireContext(), item.data) { data ->
                             val type = when (item.type.toDataType()) {
                                 DataType.App -> "App"
                                 DataType.Helper -> "Helper"
@@ -154,16 +148,17 @@ class DataFragment : BaseFragment() {
                                 }
 
                             }
-                            // 可以在这里添加你的处理逻辑
                             dialog.dismiss()
-                        }
-                        .setNegativeButton(R.string.close) { dialog, which ->
-                            // 在取消按钮被点击时执行的操作
-                            dialog.dismiss()
-                        }
-                        .show()
-                }
 
+                        }.show(false)
+
+
+                    }
+                    .setNegativeButton(R.string.close) { dialog, which ->
+                        // 在取消按钮被点击时执行的操作
+                        dialog.dismiss()
+                    }
+                    .show()
 
             }
         )
@@ -177,6 +172,12 @@ class DataFragment : BaseFragment() {
         return binding.root
     }
 
+
+
+
+    private val callEditorPanel = {
+
+    }
     private fun loadMoreData(
          keywords:String = ""
     ) {

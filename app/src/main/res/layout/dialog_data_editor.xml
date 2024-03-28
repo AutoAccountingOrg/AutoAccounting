@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="@dimen/radius"
+        app:cardElevation="0dp"
+        app:strokeColor="?attr/colorSurfaceContainerHighest"
+        app:strokeWidth="0dp">
+
+        <LinearLayout
+            android:id="@+id/cardViewInner"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="@dimen/cardPadding">
+
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/str_replace"
+                android:textColor="?colorPrimary" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                >
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                 android:layout_margin="@dimen/one_padding"
+                    android:layout_weight="1"
+                    android:hint="@string/rawData">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/rawData"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/padding"
+                    android:layout_weight="1"
+                    android:layout_margin="@dimen/one_padding"
+                    android:hint="@string/replaceData">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/replaceData"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </LinearLayout>
+
+           <TextView
+               android:id="@+id/keywordsCount"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:layout_gravity="end"
+               android:text="3个匹配关键词"
+/>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnReplace"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_weight="1"
+                android:text="@string/btn_replace" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/str_replace"
+                android:textColor="?colorPrimary" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/padding"
+                android:layout_weight="1"
+                android:layout_margin="@dimen/one_padding"
+                >
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/data"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/one_padding"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/buttonCancel"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/one_padding"
+                    android:layout_weight="1"
+                    android:text="@string/cancel_msg" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/buttonSure"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/one_padding"
+                    android:layout_weight="1"
+                    android:text="@string/sure_msg" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+</LinearLayout>
