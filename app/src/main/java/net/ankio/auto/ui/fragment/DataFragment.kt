@@ -38,6 +38,7 @@ import net.ankio.auto.ui.adapter.DataAdapter
 import net.ankio.auto.ui.dialog.FloatEditorDialog
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.utils.AppUtils
+import net.ankio.auto.utils.AutoAccountingServiceUtils
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.Github
 import java.io.File
@@ -177,15 +178,16 @@ class DataFragment : BaseFragment() {
     private fun loadMoreData() {
 
         lifecycleScope.launch {
-            AppUtils.getService().getData().let {
+
+            AutoAccountingServiceUtils.get("data",requireContext()).let {
                 val collection: Collection<AppData> = AppData.fromTxt(it)
                 forEachIssue(collection)
                 dataItems.clear()
                 dataItems.addAll(collection)
-                if (!collection.isEmpty()) {
-                    adapter.notifyDataSetChanged()
-                }
+                adapter.notifyItemRangeInserted(0, collection.size)
+                binding.empty.root.visibility = if(collection.isEmpty()) View.VISIBLE else View.GONE
             }
+
         }
 
 

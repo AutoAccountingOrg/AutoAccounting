@@ -45,6 +45,7 @@ import net.ankio.auto.ui.dialog.FloatEditorDialog
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.MenuItem
 import net.ankio.auto.utils.AppUtils
+import net.ankio.auto.utils.AutoAccountingServiceUtils
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.Github
 import net.ankio.auto.utils.Logger
@@ -95,11 +96,10 @@ class OrderFragment : BaseFragment() {
                 val billInfo = Db.get().BillInfoDao().getTotal(it.ids.split(",").map { item -> item.toInt() })
                 dataItems.add(Pair(it.date, billInfo))
             }
-            withContext(Dispatchers.Main){
-
-                adapter.notifyDataSetChanged()
-            }
+            adapter.notifyItemRangeInserted(0, dataItems.size)
+            binding.empty.root.visibility = if(dataItems.isEmpty()) View.VISIBLE else View.GONE
         }
+
 
 
     }

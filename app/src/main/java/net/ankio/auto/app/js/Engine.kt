@@ -156,9 +156,9 @@ object Engine {
 
     private fun log(prefix: String, data: String,throwable: Throwable?=null) {
         if(throwable!==null){
-            Logger.e("$prefix: $data",throwable,true)
+            Logger.e("$prefix: $data",throwable)
         }else{
-            Logger.d("$prefix: $data",true)
+            Logger.d("$prefix: $data")
         }
     }
 }

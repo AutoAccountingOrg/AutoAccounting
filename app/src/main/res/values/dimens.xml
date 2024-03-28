@@ -26,6 +26,7 @@
     <dimen name="image_size">38dp</dimen>
     <dimen name="image_size_small">28dp</dimen>
     <dimen name="image_size_large">48dp</dimen>
+    <dimen name="image_size_large2">128dp</dimen>
     <dimen name="state_padding">28dp</dimen>
     <dimen name="radius">24dp</dimen>
     <dimen name="icon_size">30dp</dimen>

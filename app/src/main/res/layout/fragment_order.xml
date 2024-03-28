@@ -25,6 +25,10 @@
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="@dimen/padding" />
-
+        android:padding="@dimen/padding" >
+    </androidx.recyclerview.widget.RecyclerView>
+    <include
+        android:id="@+id/empty"
+        layout="@layout/list_empty"
+        android:visibility="invisible" />
 </FrameLayout>

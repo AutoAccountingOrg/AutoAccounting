@@ -70,8 +70,8 @@ class FloatEditorDialog(
         binding = FloatEditorBinding.inflate(inflater)
         cardView = binding.editorCard
 
-        Logger.d("原始账单结果 => $billInfo",true)
-        Logger.d("原始账单结果 => ${billInfo.toJSON()}",true)
+        Logger.d("原始账单结果 => $billInfo")
+        Logger.d("原始账单结果 => ${billInfo.toJSON()}")
         billTypeLevel1 = billInfo.type
         billTypeLevel2 = billInfo.type
         binding.radioContainer.check(binding.radioNone.id)
@@ -177,7 +177,7 @@ class FloatEditorDialog(
 
             val bill = getBillData()
 
-            Logger.d("最终账单结果 => $bill",true)
+            Logger.d("最终账单结果 => $bill")
 
 
 

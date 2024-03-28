@@ -20,9 +20,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.FileProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.launch
 import net.ankio.auto.R
+import net.ankio.auto.app.model.AppData
 import net.ankio.auto.databinding.FragmentLogBinding
 import net.ankio.auto.ui.adapter.LogAdapter
 import net.ankio.auto.ui.utils.MenuItem
@@ -69,8 +72,7 @@ class LogFragment : BaseFragment() {
         MenuItem(R.string.item_clear, R.drawable.menu_icon_clear) {
             runCatching {
                 AutoAccountingServiceUtils.delete("log",requireContext())
-                dataItems.clear()
-                adapter.notifyDataSetChanged()
+                loadMoreData()
             }.onFailure {
                 Logger.e("清除失败", it)
             }
@@ -95,10 +97,22 @@ class LogFragment : BaseFragment() {
 
     override fun onResume() {
         super.onResume()
-        AutoAccountingServiceUtils.get("log",requireContext()).let {
-            dataItems.clear()
-            dataItems.addAll(it.split("\n"))
-            adapter.notifyDataSetChanged()
+        loadMoreData()
+    }
+
+    private fun loadMoreData() {
+
+        lifecycleScope.launch {
+            AutoAccountingServiceUtils.get("log",requireContext()).let {
+                dataItems.clear()
+                val collection = it.split("\n")
+                dataItems.addAll(collection)
+                adapter.notifyItemRangeInserted(0, collection.size)
+                binding.empty.root.visibility = if(collection.isEmpty()) View.VISIBLE else View.GONE
+            }
+
         }
+
+
     }
 }

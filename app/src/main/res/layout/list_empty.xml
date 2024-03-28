@@ -14,17 +14,28 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="@dimen/padding"
+    android:layout_centerInParent="false"
+    android:layout_centerHorizontal="false"
+    android:layout_centerVertical="false"
+    android:gravity="center"
+    android:minHeight="400dp"
     android:orientation="vertical">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-    <include
-        android:id="@+id/empty"
-        layout="@layout/list_empty"
-        android:visibility="invisible" />
+    <ImageView
+        android:layout_width="@dimen/image_size_large2"
+        android:layout_height="@dimen/image_size_large2"
+        android:src="@drawable/list_empty"
+        app:tint="?colorPrimary" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/no_data"
+        android:textColor="?colorPrimary"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+        />
 </LinearLayout>

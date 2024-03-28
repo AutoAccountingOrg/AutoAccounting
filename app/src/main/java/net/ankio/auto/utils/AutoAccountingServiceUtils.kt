@@ -85,13 +85,21 @@ class AutoAccountingServiceUtils(mContext: Context) {
             }
         }
 
-        fun log(data: String,mContext: Context) {
-            val path =  Environment.getExternalStorageDirectory().path+"/Android/data/${mContext.packageName}/cache/shell/log.txt"
+        fun log(data: String, mContext: Context) {
+            val path = Environment.getExternalStorageDirectory().path + "/Android/data/${mContext.packageName}/cache/shell/log.txt"
             val file = File(path)
-            if(!file.exists()){
+            if (!file.exists()) {
+                file.parentFile?.mkdirs() // 确保父目录存在
                 file.createNewFile()
             }
+            // 将当前日志追加到文件
             file.appendText("[ ${DateUtils.getTime(System.currentTimeMillis())} ]\n$data\n")
+
+            // 处理日志，超过500行只保留最后的500行
+            val lines = file.readLines()
+            if (lines.size > 500) {
+                file.writeText(lines.takeLast(500).joinToString(separator = "\n"))
+            }
         }
 
         /**

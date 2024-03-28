@@ -14,10 +14,11 @@
   ~   limitations under the License.
   -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="horizontal"
     tools:context=".ui.fragment.home.RuleFragment">
 
     <androidx.recyclerview.widget.RecyclerView
@@ -26,4 +27,8 @@
         android:layout_height="match_parent"
         android:padding="@dimen/padding" />
 
-</FrameLayout>
+    <include
+        android:id="@+id/empty"
+        layout="@layout/list_empty"
+        android:visibility="invisible" />
+</LinearLayout>
