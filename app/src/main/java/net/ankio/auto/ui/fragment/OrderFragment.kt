@@ -87,15 +87,17 @@ class OrderFragment : BaseFragment() {
     }
 
     private fun loadMoreData() {
-        dataItems.clear()
+
         lifecycleScope.launch {
             val list = Db.get().BillInfoDao().getListGroup()
+            dataItems.clear()
             list.forEach {
                 val billInfo = Db.get().BillInfoDao().getTotal(it.ids.split(",").map { item -> item.toInt() })
                 dataItems.add(Pair(it.date, billInfo))
             }
             withContext(Dispatchers.Main){
-                adapter.notifyItemInserted(0)
+
+                adapter.notifyDataSetChanged()
             }
         }
 

@@ -175,14 +175,15 @@ class DataFragment : BaseFragment() {
     }
 
     private fun loadMoreData() {
-        dataItems.clear()
+
         lifecycleScope.launch {
             AppUtils.getService().getData().let {
                 val collection: Collection<AppData> = AppData.fromTxt(it)
                 forEachIssue(collection)
+                dataItems.clear()
                 dataItems.addAll(collection)
                 if (!collection.isEmpty()) {
-                    adapter.notifyItemInserted(0)
+                    adapter.notifyDataSetChanged()
                 }
             }
         }

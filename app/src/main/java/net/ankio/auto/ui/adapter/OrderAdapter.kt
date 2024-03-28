@@ -89,7 +89,7 @@ class OrderAdapter(
             recyclerView.adapter = adapter
             dataInnerItems.clear()
             dataInnerItems.addAll(bills)
-            adapter.notifyItemInserted(0)
+            adapter.notifyDataSetChanged()
             binding.title.text = title
 
 

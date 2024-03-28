@@ -239,7 +239,7 @@ class CategorySelectorAdapter(
                     withContext(Dispatchers.Main) {
                         items.clear()
                         items.addAll(collection)
-                        adapter.notifyItemInserted(0)
+                        adapter.notifyDataSetChanged()
                     }
                 }
             }
