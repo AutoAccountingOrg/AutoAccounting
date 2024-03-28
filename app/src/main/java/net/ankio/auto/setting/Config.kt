@@ -317,12 +317,14 @@ object Config {
             SettingItem(
                 title = R.string.setting_app,
                 key = "setting_app",
+                default = true,
                 icon = R.drawable.setting2_icon_rule,
                 type = ItemType.SWITCH,
             ),
             SettingItem(
                 title = R.string.setting_rule,
                 key = "setting_rule",
+                default = true,
                 icon = R.drawable.setting2_icon_category,
                 type = ItemType.SWITCH,
             ),
