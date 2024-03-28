@@ -67,6 +67,16 @@ class AutoAccountingServiceUtils(mContext: Context) {
             return ""
         }
 
+        fun set(name: String,data:String,mContext: Context) {
+            val path =  Environment.getExternalStorageDirectory().path+"/Android/data/${mContext.packageName}/cache/shell/${name}.txt"
+            val file = File(path)
+            if(!file.exists()){
+                file.createNewFile()
+            }
+            file.writeText(data)
+
+        }
+
         fun delete(name: String,mContext: Context) {
             val path =  Environment.getExternalStorageDirectory().path+"/Android/data/${mContext.packageName}/cache/shell/${name}.txt"
             val file = File(path)
