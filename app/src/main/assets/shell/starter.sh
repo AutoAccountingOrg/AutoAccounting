@@ -76,7 +76,7 @@ if [ -f "$OLD_PATH" ]; then
            PID=$(get_pid)
            if [ -n "$PID" ]; then
                echo "info: $SERVER_NAME service start success, PID: $PID"
-               return 0
+               exit 0
            else
                sleep 2
                retries=$((retries+1))
