@@ -85,6 +85,7 @@ class ExceptionHandler: Thread.UncaughtExceptionHandler {
         val root = getRootCause(e)
         if(root is AutoServiceException){
             EventBus.post(AutoServiceErrorEvent(root))
+            return
         }
         Logger.e("发生未处理的异常", root,true)
 
