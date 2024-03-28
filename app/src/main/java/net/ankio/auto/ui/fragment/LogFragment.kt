@@ -107,7 +107,7 @@ class LogFragment : BaseFragment() {
                 dataItems.clear()
                 val collection = it.split("\n")
                 dataItems.addAll(collection)
-                adapter.notifyItemRangeInserted(0, collection.size)
+                adapter.notifyDataSetChanged()
                 binding.empty.root.visibility = if(collection.isEmpty()) View.VISIBLE else View.GONE
             }
 

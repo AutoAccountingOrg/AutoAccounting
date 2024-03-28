@@ -184,7 +184,7 @@ class DataFragment : BaseFragment() {
                 forEachIssue(collection)
                 dataItems.clear()
                 dataItems.addAll(collection)
-                adapter.notifyItemRangeInserted(0, collection.size)
+                adapter.notifyDataSetChanged()
                 binding.empty.root.visibility = if(collection.isEmpty()) View.VISIBLE else View.GONE
             }
 

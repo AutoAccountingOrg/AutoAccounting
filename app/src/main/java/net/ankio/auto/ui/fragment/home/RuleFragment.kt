@@ -103,7 +103,7 @@ class RuleFragment : BaseFragment() {
             }
             val collection: Collection<Regular> = newData?.filterNotNull() ?: emptyList()
             dataItems.addAll(collection)
-            adapter.notifyItemRangeInserted(0, collection.size)
+            adapter.notifyDataSetChanged()
             binding.empty.root.visibility = if(collection.isEmpty()) View.VISIBLE else View.GONE
 
         }

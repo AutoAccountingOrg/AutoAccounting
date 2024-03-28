@@ -96,7 +96,7 @@ class OrderFragment : BaseFragment() {
                 val billInfo = Db.get().BillInfoDao().getTotal(it.ids.split(",").map { item -> item.toInt() })
                 dataItems.add(Pair(it.date, billInfo))
             }
-            adapter.notifyItemRangeInserted(0, dataItems.size)
+            adapter.notifyDataSetChanged()
             binding.empty.root.visibility = if(dataItems.isEmpty()) View.VISIBLE else View.GONE
         }
 
