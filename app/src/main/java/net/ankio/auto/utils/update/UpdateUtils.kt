@@ -62,32 +62,35 @@ class UpdateUtils {
     private suspend fun request(
         url: String,
         local: Int,
+        type:Int
     ):UpdateInfo? = withContext(Dispatchers.IO) {
        runCatching {
           val result =  requestUtils.get(url, cacheTime = 60)
            val json =  Gson().fromJson(result.byteArray.toString(Charsets.UTF_8), UpdateInfo::class.java)
            //本地版本小于云端版本就是需要更新
            if (local < json.code) {
+
+
+               if(type == 1){
+                     json.file = "$appUrl${json.file}"
+               }else{
+                     json.file = ruleUrl
+               }
                Logger.i(
                    " 升级信息：$url\n" +
                            " 版本:${json.version}\n" +
                            " 版本号:${json.code}\n" +
                            " 更新时间:${json.date}\n" +
-                           " 更新日志:${json.log}"
+                           " 更新日志:${json.log}" +
+                           " 更新路径:${json.file}"
                )
-
-               if(json.file!=""){
-                     json.file = "$appUrl${json.file}"
-               }else{
-                     json.file = ruleUrl
-               }
                json
            } else {
                Logger.i("无需更新")
                null
            }
        }.onFailure {
-           Logger.i("检测更新出错：$it")
+           Logger.i("检测更新出错：$it",true)
        }.getOrNull()
     }
 
@@ -100,7 +103,7 @@ class UpdateUtils {
                 return null
             }
         }
-       return  request("$appUrl/index.json", AppUtils.getVersionCode())
+       return  request("$appUrl/index.json", AppUtils.getVersionCode(),1)
     }
 
     /**
@@ -112,6 +115,6 @@ class UpdateUtils {
                 return null
             }
         }
-        return request("$ruleUrl/index.json", SpUtils.getInt("ruleVersion", 0))
+        return request("$ruleUrl/index.json", SpUtils.getInt("ruleVersion", 0),0)
     }
 }

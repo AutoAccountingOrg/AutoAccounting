@@ -16,6 +16,7 @@
 package net.ankio.auto.ui.dialog
 
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -29,8 +30,11 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogUpdateBinding
 import net.ankio.auto.events.AutoServiceErrorEvent
+import net.ankio.auto.events.UpdateFinishEvent
 import net.ankio.auto.events.UpdateSuccessEvent
 import net.ankio.auto.exceptions.AutoServiceException
+import net.ankio.auto.ui.utils.LoadingUtils
+import net.ankio.auto.utils.ActiveUtils
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.request.RequestsUtils
@@ -50,6 +54,14 @@ class UpdateDialog(
 ) : BaseSheetDialog(context) {
 
     private lateinit var binding: DialogUpdateBinding
+
+    private lateinit var loadingUtils: LoadingUtils
+    private val listener = { event:UpdateFinishEvent ->
+        if(::loadingUtils.isInitialized){
+            loadingUtils.close()
+        }
+        dismiss()
+    }
     override fun onCreateView(inflater: LayoutInflater): View {
         binding = DialogUpdateBinding.inflate(inflater)
 
@@ -62,28 +74,42 @@ class UpdateDialog(
         binding.name.text = if (type == 1) context.getString(R.string.rule) else context.getString(R.string.app)
         binding.update.setOnClickListener {
             if (type == 1) {
-                lifecycleScope.launch {
+                loadingUtils = LoadingUtils(context as Activity)
+                loadingUtils.show(context.getString(R.string.update_process))
+                //使用顶级协程作用域
+               lifecycleScope.launch {
                     updateRule(download["category"] ?: "", download["rule"] ?: "")
                 }
             } else {
                 updateApp(download["url"] ?: "")
+                dismiss()
             }
-            dismiss()
         }
 
+        EventBus.register( UpdateFinishEvent::class.java, listener)
+
         return binding.root
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        EventBus.unregister(UpdateFinishEvent::class.java, listener)
+    }
+
+    private suspend fun updateLoadingUtils(int: Int) = withContext(Dispatchers.Main){
+        loadingUtils.setText(int)
     }
 
     private suspend fun updateRule(category: String, rule: String) = withContext(Dispatchers.IO){
         runCatching {
             val requestUtils = RequestsUtils(context)
-            val result = requestUtils.get(rule, cacheTime = 0)
-            //规则更新
+            updateLoadingUtils(R.string.update_rule)
+                val result = requestUtils.get(rule, cacheTime = 0)
             String(result.byteArray).let {
                 AppUtils.getService().set("auto_rule", it)
             }
+            updateLoadingUtils(R.string.update_category)
             //分类更新
-
             val result2 = requestUtils.get(category, cacheTime = 0)
             //规则更新
             String(result2.byteArray).let {
@@ -97,12 +123,15 @@ class UpdateDialog(
                 }
             }
             Logger.e("更新出错", it)
+            withContext(Dispatchers.Main){
+                EventBus.post(UpdateFinishEvent())
+            }
+
         }.onSuccess {
             SpUtils.putString("ruleVersionName", version)
             SpUtils.putInt("ruleVersion", code)
-
             withContext(Dispatchers.Main){
-                EventBus.post(UpdateSuccessEvent())
+                EventBus.post(UpdateFinishEvent())
             }
         }
     }
@@ -114,6 +143,7 @@ class UpdateDialog(
         }.onFailure {
             Logger.e("更新出错", it)
         }
+
     }
 
 
