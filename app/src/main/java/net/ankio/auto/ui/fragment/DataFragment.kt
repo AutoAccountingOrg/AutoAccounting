@@ -186,6 +186,7 @@ class DataFragment : BaseFragment() {
             val collection: Collection<AppData> = AppData.fromTxt(data)
             //如果不为空需要做对比后插入数据库
             if(collection.isEmpty()){
+                binding.empty.root.visibility = if(dataItems.isEmpty()) View.VISIBLE else View.GONE
                 return@launch
             }
             val appData = Db.get().AppDataDao().loadAll()
