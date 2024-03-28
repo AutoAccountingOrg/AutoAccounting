@@ -55,7 +55,12 @@ class FlowLayoutManager(context: Context, attrs: AttributeSet): FlexboxLayout(co
         return flowElement
     }
 
-
+    fun removedAllElement(){
+        arrayList.forEach {
+            it.removed()
+        }
+        arrayList.clear()
+    }
 
     fun removedElement(flowElement: FlowElement){
         flowElement.removed()

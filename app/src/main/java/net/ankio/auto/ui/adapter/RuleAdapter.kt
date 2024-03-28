@@ -61,6 +61,7 @@ class RuleAdapter(
 
             val lastElement = list.removeLast()
             val flexboxLayout = binding.flexboxLayout
+            flexboxLayout.removedAllElement()
             flexboxLayout.textAppearance = com.google.android.material.R.style.TextAppearance_Material3_BodyLarge
             flexboxLayout.appendTextView(context.getString(R.string.if_condition_true))
             flexboxLayout.firstWaveTextViewPosition = flexboxLayout.size - 1
