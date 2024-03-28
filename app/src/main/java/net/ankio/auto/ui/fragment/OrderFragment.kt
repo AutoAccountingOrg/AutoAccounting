@@ -15,41 +15,21 @@
 
 package net.ankio.auto.ui.fragment
 
-import android.net.Uri
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.hjq.toast.Toaster
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import net.ankio.auto.R
-import net.ankio.auto.app.js.Engine
-import net.ankio.auto.app.model.AppData
-import net.ankio.auto.constant.DataType
-import net.ankio.auto.constant.toDataType
 import net.ankio.auto.database.Db
 import net.ankio.auto.database.table.BillInfo
-import net.ankio.auto.database.table.BillInfoGroup
-import net.ankio.auto.databinding.FragmentDataBinding
 import net.ankio.auto.databinding.FragmentOrderBinding
-import net.ankio.auto.ui.adapter.DataAdapter
 import net.ankio.auto.ui.adapter.OrderAdapter
-import net.ankio.auto.ui.dialog.FloatEditorDialog
-import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.MenuItem
 import net.ankio.auto.utils.AppUtils
-import net.ankio.auto.utils.AutoAccountingServiceUtils
-import net.ankio.auto.utils.CustomTabsHelper
-import net.ankio.auto.utils.Github
-import net.ankio.auto.utils.Logger
-import java.io.File
 
 class OrderFragment : BaseFragment() {
 

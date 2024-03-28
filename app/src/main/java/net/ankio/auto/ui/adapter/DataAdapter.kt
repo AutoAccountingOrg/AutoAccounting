@@ -24,7 +24,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.elevation.SurfaceColors
 import net.ankio.auto.R
-import net.ankio.auto.app.model.AppData
+import net.ankio.auto.database.table.AppData
 import net.ankio.auto.constant.DataType
 import net.ankio.auto.constant.toDataType
 import net.ankio.auto.databinding.AdapterDataBinding
@@ -38,7 +38,7 @@ class DataAdapter(
     private val dataItems: List<AppData>,
     private val onClickContent: (string: String)->Unit,
     private val onClickTest: (item: AppData)->Unit,
-    private val onClickUploadData: (item: AppData,position: Int)->Unit
+    private val onClickUploadData: (item: AppData, position: Int)->Unit
 ) : BaseAdapter<DataAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -55,7 +55,7 @@ class DataAdapter(
     }
 
     inner class ViewHolder(private val binding: AdapterDataBinding,private val context:Context) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: AppData,position: Int) {
+        fun bind(item: AppData, position: Int) {
             binding.groupCard.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(context))
             binding.content.setBackgroundColor(SurfaceColors.SURFACE_3.getColor(context))
 

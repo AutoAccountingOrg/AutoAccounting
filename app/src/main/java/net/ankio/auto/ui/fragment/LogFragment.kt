@@ -25,7 +25,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
-import net.ankio.auto.app.model.AppData
 import net.ankio.auto.databinding.FragmentLogBinding
 import net.ankio.auto.ui.adapter.LogAdapter
 import net.ankio.auto.ui.utils.MenuItem

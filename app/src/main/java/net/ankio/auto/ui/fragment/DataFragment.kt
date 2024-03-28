@@ -15,11 +15,13 @@
 
 package net.ankio.auto.ui.fragment
 
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -30,17 +32,21 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.app.js.Engine
-import net.ankio.auto.app.model.AppData
+import net.ankio.auto.database.table.AppData
 import net.ankio.auto.constant.DataType
 import net.ankio.auto.constant.toDataType
+import net.ankio.auto.database.Db
 import net.ankio.auto.databinding.FragmentDataBinding
 import net.ankio.auto.ui.adapter.DataAdapter
+import net.ankio.auto.ui.dialog.FilterDialog
 import net.ankio.auto.ui.dialog.FloatEditorDialog
 import net.ankio.auto.ui.utils.LoadingUtils
+import net.ankio.auto.ui.utils.MenuItem
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.AutoAccountingServiceUtils
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.Github
+import net.ankio.auto.utils.Logger
 import java.io.File
 
 
@@ -50,17 +56,14 @@ class DataFragment : BaseFragment() {
     private lateinit var adapter: DataAdapter
     private lateinit var layoutManager: LinearLayoutManager
     private val dataItems = mutableListOf<AppData>()
-
-    private lateinit var file: File
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        //判断缓存中的data_issue文件夹是否存在，不存在创建
-        file = File(AppUtils.getApplication().cacheDir, "data_issue")
-        if (!file.exists()) {
-            file.mkdirs()
+    override val menuList: ArrayList<MenuItem> = arrayListOf(
+        MenuItem(R.string.item_filter, R.drawable.menu_icon_filter) {
+            FilterDialog(requireContext()) { keyword ->
+                loadMoreData(keyword)
+            }.show(false)
         }
-    }
+    )
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -138,8 +141,7 @@ class DataFragment : BaseFragment() {
                                         Toaster.show(getString(R.string.upload_success))
                                     }
 
-
-                                    writeIssue(item, issue.toInt(), position)
+                                    Db.get().AppDataDao().update(item)
                                 }.onFailure {
                                     requireActivity().runOnUiThread {
                                         Toaster.show(it.message)
@@ -175,47 +177,58 @@ class DataFragment : BaseFragment() {
         return binding.root
     }
 
-    private fun loadMoreData() {
+    private fun loadMoreData(
+         keywords:String = ""
+    ) {
 
         lifecycleScope.launch {
-
-            AutoAccountingServiceUtils.get("data",requireContext()).let {
-                val collection: Collection<AppData> = AppData.fromTxt(it)
-                forEachIssue(collection)
-                dataItems.clear()
-                dataItems.addAll(collection)
-                adapter.notifyDataSetChanged()
-                binding.empty.root.visibility = if(collection.isEmpty()) View.VISIBLE else View.GONE
+            val data =  AutoAccountingServiceUtils.get("data",requireContext())
+            val collection: Collection<AppData> = AppData.fromTxt(data)
+            //如果不为空需要做对比后插入数据库
+            if(collection.isEmpty()){
+                return@launch
             }
+            val appData = Db.get().AppDataDao().loadAll()
+
+            val filteredCollection = collection.filter { item ->
+                appData.none { it.hash() == item.hash() }
+            }
+
+            Db.get().AppDataDao().addList(filteredCollection)
+
+            val resultList = mutableListOf<AppData>()
+            resultList.addAll(appData)
+            resultList.addAll(filteredCollection)
+
+
+            //在这里处理搜索逻辑
+            val resultSearch = resultList.filter {
+                var include = true
+
+                if (keywords != "") {
+                    if(
+                        !it.data.contains(keywords) &&
+                        !it.rule.contains(keywords)
+                            ){
+                        include = false
+                    }
+
+                }
+
+                include
+            }
+
+
+            dataItems.clear()
+            dataItems.addAll(resultSearch)
+            adapter.notifyDataSetChanged()
+            binding.empty.root.visibility = if(dataItems.isEmpty()) View.VISIBLE else View.GONE
 
         }
 
 
     }
 
-    private fun writeIssue(item: AppData, issue: Int, pos: Int) {
-        val file = File(file, "${item.hash()}.txt")
-        file.writeText(issue.toString())
-        item.issue = issue
-        adapter.notifyItemChanged(pos)
-    }
-
-    private fun forEachIssue(collection: Collection<AppData>) {
-        //遍历file文件夹下所有的txt
-        file.listFiles()?.forEach {
-            val issue = it.readText().toInt()
-            val hashCode = it.nameWithoutExtension
-            val item = collection.find { item ->
-                item.hash() == hashCode
-            }
-            if (item != null) {
-                item.issue = issue
-            } else {
-                //没有匹配到文件需要删除
-                it.delete()
-            }
-        }
-    }
 
     override fun onResume() {
 

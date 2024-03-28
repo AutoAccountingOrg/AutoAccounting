@@ -16,12 +16,14 @@ package net.ankio.auto.database
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import net.ankio.auto.database.dao.AppDataDao
 import net.ankio.auto.database.dao.AssetsDao
 import net.ankio.auto.database.dao.AssetsMapDao
 import net.ankio.auto.database.dao.BillInfoDao
 import net.ankio.auto.database.dao.BookNameDao
 import net.ankio.auto.database.dao.CategoryDao
 import net.ankio.auto.database.dao.RegularDao
+import net.ankio.auto.database.table.AppData
 import net.ankio.auto.database.table.Assets
 import net.ankio.auto.database.table.AssetsMap
 import net.ankio.auto.database.table.BillInfo
@@ -30,7 +32,7 @@ import net.ankio.auto.database.table.Category
 import net.ankio.auto.database.table.Regular
 
 @Database(
-    entities = [Assets::class,AssetsMap::class,BillInfo::class,BookName::class,Category::class,Regular::class],
+    entities = [Assets::class,AssetsMap::class,BillInfo::class,BookName::class,Category::class,Regular::class,AppData::class],
     version = 1,
     exportSchema = false
 )
@@ -42,4 +44,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun BillInfoDao(): BillInfoDao
     abstract fun CategoryDao(): CategoryDao
     abstract fun AssetsDao(): AssetsDao
+    abstract fun AppDataDao(): AppDataDao
 }

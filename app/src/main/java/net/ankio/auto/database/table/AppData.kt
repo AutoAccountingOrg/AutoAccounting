@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 ankio(ankio@ankio.net)
+ * Copyright (C) 2024 ankio(ankio@ankio.net)
  * Licensed under the Apache License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,19 +12,19 @@
  *  See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package net.ankio.auto.app.model
+package net.ankio.auto.database.table
 
 import android.util.Base64
-import android.util.Log
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.Gson
 import net.ankio.auto.constant.DataType
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.Logger
-
+@Entity
 class AppData {
-
+    @PrimaryKey(autoGenerate = true)
+    var id = 0
     /**
      * 对于App数据，就是Hook得到的数据一般是Json：{} 具体情况具体分析
      * 对于短信数据获取到的是短信内容 {msg:xxx,body:''}
@@ -64,6 +64,7 @@ class AppData {
      * 关联github issue
      */
     var issue:Int = 0
+
     fun toJSON(): String {
         return Gson().toJson(this)
     }
@@ -75,8 +76,8 @@ class AppData {
         return Base64.encodeToString(toJSON().toByteArray(), Base64.NO_WRAP)
     }
     companion object{
-        fun fromJSON(json:String):AppData{
-            return Gson().fromJson(json,AppData::class.java)
+        fun fromJSON(json:String): AppData {
+            return Gson().fromJson(json, AppData::class.java)
         }
         fun fromTxt(txt:String):ArrayList<AppData>{
             val list = arrayListOf<AppData>()
