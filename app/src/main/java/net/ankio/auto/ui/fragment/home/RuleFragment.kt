@@ -102,6 +102,7 @@ class RuleFragment : BaseFragment() {
                 Db.get().RegularDao().loadAll()
             }
             val collection: Collection<Regular> = newData?.filterNotNull() ?: emptyList()
+            dataItems.clear()
             dataItems.addAll(collection)
             adapter.notifyDataSetChanged()
             binding.empty.root.visibility = if(collection.isEmpty()) View.VISIBLE else View.GONE
