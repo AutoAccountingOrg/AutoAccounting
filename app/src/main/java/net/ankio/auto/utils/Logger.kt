@@ -15,12 +15,7 @@
 
 package net.ankio.auto.utils
 
-import android.app.Application
-import android.content.Context
-import android.content.SharedPreferences
 import android.util.Log
-import kotlinx.coroutines.launch
-import java.io.File
 
 /**
  * 日志工具类，包含调用日志的类和行号信息，以及异常的堆栈跟踪。
@@ -73,7 +68,7 @@ object Logger {
         return Throwable().stackTrace[2].className.substringAfterLast('.')
     }
 
-    private fun printLog(type: Int, tag: String, message: String,save:Boolean = false) {
+    private fun printLog(type: Int, tag: String, message: String) {
         if (message.contains(AutoAccountingServiceUtils.getUrl("/log"))) {
             return
         }
@@ -109,20 +104,14 @@ object Logger {
 
 
         }
-        if (save){
-           AppUtils.getScope().launch {
-               runCatching {
-                   AppUtils.getService().putLog(logMessage)
-               }
-           }
-        }
+        AutoAccountingServiceUtils.log(logMessage, AppUtils.getApplication())
     }
 
-    fun d(message: String,save:Boolean = false) {
-        printLog(Log.DEBUG, getTag(), message,save)
+    fun d(message: String) {
+        printLog(Log.DEBUG, getTag(), message)
     }
 
-    fun e(message: String, throwable: Throwable? = null,save:Boolean = false) {
+    fun e(message: String, throwable: Throwable? = null) {
         val messageInfo = StringBuilder()
         messageInfo.append(message).append("\n")
         if (throwable != null) {
@@ -137,15 +126,15 @@ object Logger {
                     .append(it.lineNumber).append(")\n")
             }
         }
-        printLog(Log.ERROR, getTag(), messageInfo.toString(),save)
+        printLog(Log.ERROR, getTag(), messageInfo.toString())
     }
 
-    fun i(message: String,save:Boolean = false) {
-        printLog(Log.INFO, getTag(), message,save)
+    fun i(message: String) {
+        printLog(Log.INFO, getTag(), message)
     }
 
-    fun w(message: String,save:Boolean = false) {
-        printLog(Log.WARN, getTag(), message,save)
+    fun w(message: String) {
+        printLog(Log.WARN, getTag(), message)
     }
 
 }

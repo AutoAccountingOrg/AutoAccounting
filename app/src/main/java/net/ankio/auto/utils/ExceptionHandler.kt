@@ -87,7 +87,7 @@ class ExceptionHandler: Thread.UncaughtExceptionHandler {
             EventBus.post(AutoServiceErrorEvent(root))
             return
         }
-        Logger.e("发生未处理的异常", root,true)
+        Logger.e("发生未处理的异常", root)
 
         //将异常拼成字符串
         val sb = StringBuilder()

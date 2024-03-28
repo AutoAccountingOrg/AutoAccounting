@@ -90,7 +90,7 @@ class UpdateUtils {
                null
            }
        }.onFailure {
-           Logger.i("检测更新出错：$it",true)
+           Logger.i("检测更新出错：$it")
        }.getOrNull()
     }
 

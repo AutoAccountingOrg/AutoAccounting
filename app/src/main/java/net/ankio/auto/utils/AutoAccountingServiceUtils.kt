@@ -85,6 +85,15 @@ class AutoAccountingServiceUtils(mContext: Context) {
             }
         }
 
+        fun log(data: String,mContext: Context) {
+            val path =  Environment.getExternalStorageDirectory().path+"/Android/data/${mContext.packageName}/cache/shell/log.txt"
+            val file = File(path)
+            if(!file.exists()){
+                file.createNewFile()
+            }
+            file.appendText("[ ${DateUtils.getTime(System.currentTimeMillis())} ]\n$data\n")
+        }
+
         /**
          * 获取请求地址
          */

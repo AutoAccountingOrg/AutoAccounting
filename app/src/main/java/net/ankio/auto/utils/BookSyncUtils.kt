@@ -55,7 +55,7 @@ object BookSyncUtils {
                    val id = Db.get().BookNameDao().insert(bookName)
                    Category.importModel(bookModel.category, id)
                }
-               Logger.i("从记账软件同步【 账本和分类数据 】 成功",true)
+               Logger.i("从记账软件同步【 账本和分类数据 】 成功")
                AutoAccountingServiceUtils.delete("auto_books",context)
                Toaster.show(R.string.sync_book_success)
            }
@@ -77,7 +77,7 @@ object BookSyncUtils {
                 assets.forEach {
                     Db.get().AssetsDao().add(Assets.fromModel(it))
                 }
-                Logger.i("从记账软件同步【 资产数据 】 成功",true)
+                Logger.i("从记账软件同步【 资产数据 】 成功")
 
                 AutoAccountingServiceUtils.delete("auto_assets",context)
                 Toaster.show(R.string.sync_assets_success)
