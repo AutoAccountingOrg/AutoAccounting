@@ -17,16 +17,14 @@ package net.ankio.auto.utils
 
 import android.content.Context
 import android.os.Environment
+import android.util.Log
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.exceptions.AutoServiceException
-import net.ankio.auto.utils.event.EventBus
 import net.ankio.auto.utils.request.RequestsUtils
 import net.ankio.common.config.AccountingConfig
 import java.io.File
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 /**
  * AutoAccountingServiceUtils
@@ -86,20 +84,27 @@ class AutoAccountingServiceUtils(mContext: Context) {
         }
 
         fun log(data: String, mContext: Context) {
-            val path = Environment.getExternalStorageDirectory().path + "/Android/data/${mContext.packageName}/cache/shell/log.txt"
-            val file = File(path)
-            if (!file.exists()) {
-                file.parentFile?.mkdirs() // 确保父目录存在
-                file.createNewFile()
-            }
-            // 将当前日志追加到文件
-            file.appendText("\n[ ${DateUtils.getTime(System.currentTimeMillis())} ]\n$data\n")
+           runCatching {
+               val path = Environment.getExternalStorageDirectory().path + "/Android/data/${mContext.packageName}/cache/shell/log.txt"
+               val file = File(path)
+               val parentDir = file.parentFile
+               if (parentDir != null && !parentDir.exists()) {
+                   parentDir.mkdirs() // 创建所有必需的父目录
+               }
+               if (!file.exists()) {
+                   file.createNewFile() // 创建文件
+               }
+               // 将当前日志追加到文件
+               file.appendText("\n[ ${DateUtils.getTime(System.currentTimeMillis())} ]\n$data\n")
 
-            // 处理日志，超过500行只保留最后的500行
-            val lines = file.readLines()
-            if (lines.size > 500) {
-                file.writeText(lines.takeLast(500).joinToString(separator = "\n"))
-            }
+               // 处理日志，超过500行只保留最后的500行
+               val lines = file.readLines()
+               if (lines.size > 500) {
+                   file.writeText(lines.takeLast(500).joinToString(separator = "\n"))
+               }
+           }.onFailure {
+               //写入到文件失败，忽略
+           }
         }
 
         /**
@@ -186,7 +191,8 @@ class AutoAccountingServiceUtils(mContext: Context) {
      * 设置App记录日志
      */
     suspend fun putLog(value: String)= withContext(Dispatchers.IO){
-        requestsUtils.post(getUrl("/log"),
+        requestsUtils.post(
+            getUrl("/log"),
             data = hashMapOf("raw" to value),
             contentType = RequestsUtils.TYPE_RAW,
             headers = headers,

@@ -109,8 +109,6 @@ class ServiceFragment:BaseFragment() {
                 findNavController().navigate(R.id.homeFragment)
                 requireActivity().recreate()
             }
-
-
         }
 
     }
