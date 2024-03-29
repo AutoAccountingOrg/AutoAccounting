@@ -17,6 +17,7 @@ package net.ankio.demo
 
 
 import net.ankio.common.config.AccountingConfig
+import net.ankio.common.constant.BillType
 import net.ankio.common.model.AssetsModel
 import net.ankio.common.model.BillModel
 import net.ankio.common.model.BookModel
@@ -68,7 +69,7 @@ object MockUtils {
                 time = System.currentTimeMillis(),
                 remark = List(10) { Random.nextInt('a'.code, 'z'.code).toChar() }.joinToString(""),
                 id = it.toString(),
-                type = Random.nextInt(0, 1)
+                type = BillType.fromInt(Random.nextInt(0, 1))
             )
         }
     }
