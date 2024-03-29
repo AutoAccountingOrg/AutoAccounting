@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 ankio(ankio@ankio.net)
+ * Copyright (C) 2024 ankio(ankio@ankio.net)
  * Licensed under the Apache License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,20 +13,20 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto
+package net.ankio.auto.app.js
 
+import org.junit.Assert
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 
-import org.junit.Assert.*
-
-/**
- * Example local unit test, which will execute on the development machine (host).
- *
- * See [testing documentation](http://d.android.com/tools/testing).
- */
-class ExampleUnitTest {
+@RunWith(RobolectricTestRunner::class)
+class EngineTest {
     @Test
-    fun addition_isCorrect() {
-        assertEquals(4, 2 + 2)
+    fun runJS(){
+        Assert.assertEquals(
+            "4\n",
+            Engine.runJS("print(2+2)")
+        )
     }
 }

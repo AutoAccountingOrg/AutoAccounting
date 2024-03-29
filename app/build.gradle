@@ -89,6 +89,11 @@ android {
         exclude 'META-INF/gson/annotations.txt'
     }
 
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
 }
 
 task extractArraysToTxt {
@@ -118,6 +123,17 @@ preBuild.dependsOn extractArraysToTxt
 
 dependencies {
 
+
+    ////测试依赖
+    testImplementation libs.junit
+    androidTestImplementation libs.androidx.test.ext.junit
+    testImplementation libs.robolectric
+
+
+
+    //打包依赖
+
+
     implementation libs.core.ktx
     implementation libs.kotlinx.coroutines.android
     implementation libs.appcompat
@@ -128,9 +144,7 @@ dependencies {
     implementation libs.androidx.activity
     implementation libs.androidx.constraintlayout
     implementation project(":common")
-    testImplementation libs.junit
-    androidTestImplementation libs.androidx.test.ext.junit
-    androidTestImplementation libs.espresso.core
+
     //主题库
     implementation libs.themeEngine
     //状态栏
