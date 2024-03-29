@@ -26,7 +26,7 @@ import net.ankio.auto.constant.DataType
 class MessageBoxHooker(hooker: Hooker) :PartHooker(hooker) {
     override val hookName: String
         get() = "支付宝消息盒子页面"
-    override fun onInit(classLoader: ClassLoader?, context: Context?) {
+    override fun onInit(classLoader: ClassLoader, context: Context) {
         val msgboxInfoServiceImpl = XposedHelpers.findClass(
             "com.alipay.android.phone.messageboxstatic.biz.sync.d",
             classLoader

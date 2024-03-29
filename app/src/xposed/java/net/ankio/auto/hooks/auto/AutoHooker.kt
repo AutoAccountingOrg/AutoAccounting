@@ -28,7 +28,7 @@ class AutoHooker: Hooker(){
         ActiveHooker(this)
     )
 
-    override fun hookLoadPackage(classLoader: ClassLoader?, context: Context?) {
+    override fun hookLoadPackage(classLoader: ClassLoader, context: Context) {
 
     }
 }

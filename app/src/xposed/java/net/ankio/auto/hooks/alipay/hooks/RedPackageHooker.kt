@@ -29,7 +29,7 @@ import org.json.JSONObject
 class RedPackageHooker(hooker: Hooker) : PartHooker(hooker) {
     override val hookName: String
         get() = "支付宝红包页面"
-    override fun onInit(classLoader: ClassLoader?, context: Context?) {
+    override fun onInit(classLoader: ClassLoader, context: Context) {
 
         val proguard =
             XposedHelpers.findClass("com.alipay.mobile.redenvelope.proguard.c.b", classLoader)

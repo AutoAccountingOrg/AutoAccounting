@@ -28,7 +28,7 @@ import net.ankio.auto.database.table.AssetsMap
 class ActiveHooker(hooker: Hooker) : PartHooker(hooker) {
     override val hookName: String
         get() = "自动记账激活"
-    override fun onInit(classLoader: ClassLoader?, context: Context?) {
+    override fun onInit(classLoader: ClassLoader, context: Context) {
         val activeUtils = XposedHelpers.findClass("net.ankio.auto.utils.ActiveUtils", classLoader)
         // hook激活方法
         XposedHelpers.findAndHookMethod(

@@ -21,6 +21,7 @@ import net.ankio.auto.api.PartHooker
 import net.ankio.auto.hooks.alipay.hooks.MessageBoxHooker
 import net.ankio.auto.hooks.alipay.hooks.RedPackageHooker
 import net.ankio.auto.hooks.alipay.hooks.SettingUIHooker
+import net.ankio.auto.hooks.alipay.hooks.WebViewHooker
 
 class AlipayHooker:Hooker() {
     override val packPageName: String = "com.eg.android.AlipayGphone"
@@ -29,9 +30,10 @@ class AlipayHooker:Hooker() {
         SettingUIHooker(this),//支付宝设置
         MessageBoxHooker(this),//支付消息盒子
         RedPackageHooker(this),//支付宝红包
+        WebViewHooker(this),//支付宝webview
     )
 
-    override fun hookLoadPackage(classLoader: ClassLoader?, context: Context?) {
+    override fun hookLoadPackage(classLoader: ClassLoader, context: Context) {
 
     }
 }

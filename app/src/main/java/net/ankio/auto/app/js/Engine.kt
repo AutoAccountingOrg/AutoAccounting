@@ -154,6 +154,29 @@ object Engine {
 
     }
 
+    fun runJS(code:String):String{
+        val outputBuilder = StringBuilder()
+        var result = ""
+        try {
+            log("执行脚本", code)
+            val context: Context = Context.enter()
+            val scope: Scriptable = context.initStandardObjects()
+            context.setOptimizationLevel(-1)
+            val printFunction = CustomPrintFunction(outputBuilder)
+            ScriptableObject.putProperty(scope, "print", printFunction)
+            context.evaluateString(scope, code, "<runJS>", 1, null)
+             result = outputBuilder.toString()
+        }catch (e:Exception){
+            log( "JS执行错误", e.message ?: "",e)
+        }finally {
+            runCatching {
+                Context.exit()
+            }
+
+        }
+        return result
+    }
+
     private fun log(prefix: String, data: String,throwable: Throwable?=null) {
         if(throwable!==null){
             Logger.e("$prefix: $data",throwable)

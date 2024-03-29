@@ -87,7 +87,7 @@ abstract class Hooker : iHooker {
         }
         ActiveUtils.APPLICATION_ID = packPageName
 
-        hookLoadPackage(classLoader,application)
+        hookLoadPackage(classLoader, application)
         hookUtils = HookUtils(application, packPageName)
         hookUtils.scope.launch {
             for (hook in partHookers) {
@@ -120,7 +120,7 @@ abstract class Hooker : iHooker {
     }
 
     @Throws(ClassNotFoundException::class)
-    abstract fun hookLoadPackage(classLoader: ClassLoader?,context: Context?)
+    abstract fun hookLoadPackage(classLoader: ClassLoader,context: Context)
     override fun onLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam?) {
         val pkg = lpparam?.packageName
         val processName = lpparam?.processName
