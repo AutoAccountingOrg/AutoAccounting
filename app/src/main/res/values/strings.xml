@@ -315,4 +315,5 @@
     <string name="no_empty">两侧的替换内容不允许为空</string>
     <string name="no_replace">没有内容被替换</string>
     <string name="json_error">数据存在错误</string>
+    <string name="str_content">上传内容</string>
 </resources>
