@@ -15,10 +15,7 @@
         <meta-data
             android:name="xposedscope"
             android:resource="@array/xposed_scope" />
-        <provider
-            android:name=".provider.MyPreferenceProvider"
-            android:authorities="net.ankio.preferences"
-            android:exported="true"/>
+
     </application>
 
 </manifest>
