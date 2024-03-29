@@ -157,8 +157,4 @@ dependencies {
     implementation libs.bugsnag.android
     //okhttp
     implementation libs.okhttp
-    //常用的工具类
-
-
-    implementation libs.remotepreferences
 }
