@@ -18,7 +18,6 @@ package net.ankio.auto.utils
 import android.app.Application
 import android.content.Intent
 import android.net.Uri
-import com.google.gson.Gson
 import de.robv.android.xposed.XposedBridge
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -28,10 +27,10 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.HookMainApp
 import net.ankio.auto.app.js.Engine
-import net.ankio.auto.app.model.AppData
+import net.ankio.auto.database.table.AppData
 
 
-class HookUtils(private val context: Application, private val packageName: String) {
+class HookUtils(val context: Application, private val packageName: String) {
 
     private var autoAccountingServiceUtils: AutoAccountingServiceUtils
 
@@ -51,38 +50,29 @@ class HookUtils(private val context: Application, private val packageName: Strin
     }
 
     //仅调试模式输出日志
-    fun logD(prefix: String?, log: String) {
-       scope.launch {
-           isDebug().let {
-               if (it) {
-                   log(prefix, log)
-               }
-           }
-       }
+    suspend fun logD(prefix: String?, log: String) = withContext(Dispatchers.IO) {
+        if (isDebug()) {
+            log(prefix, log)
+        }
     }
 
     //正常输出日志
-    fun log(prefix: String?, log: String) {
-        Logger.d(log)
-        scope.launch {
-            autoAccountingServiceUtils.putLog("[自动记账] $prefix：$log")
-            isDebug().let {
-                if (it) {
-                    XposedBridge.log("[自动记账] $prefix：$log") //xp输出
-                }
-            }
+   suspend fun log(prefix: String?, log: String)= withContext(Dispatchers.IO)  {
+        autoAccountingServiceUtils.putLog("[自动记账] $prefix：$log")
+        if (isDebug()) {
+            XposedBridge.log("[自动记账] $prefix：$log") //xp输出
         }
     }
 
     private val job = Job()
 
-    private val scope = CoroutineScope(Dispatchers.Main + job)
+    val scope = CoroutineScope(Dispatchers.Main + job)
 
     fun cancel() {
         job.cancel()
     }
 
-    fun analyzeData(dataType: Int, app: String, data: String, appName: String) {
+    suspend fun analyzeData(dataType: Int, app: String, data: String, appName: String) = withContext(Dispatchers.IO) {
         scope.launch {
             runCatching {
                 log(HookMainApp.getTag(appName, "数据分析"), data)
@@ -106,11 +96,13 @@ class HookUtils(private val context: Application, private val packageName: Strin
                 logD(HookMainApp.getTag(appName, "自动记账结果"), appData.toJSON())
                 if (billInfo !== null) {
                     // 创建一个Intent来启动目标应用程序
-                    val intent = Intent("net.ankio.auto.ACTION_SHOW_FLOATING_WINDOW")
-                    intent.setData(Uri.parse("autoaccounting://bill?data=${billInfo.toJSON()}"))
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-                    context.startActivity(intent)
+                   withContext(Dispatchers.Main){
+                       val intent = Intent("net.ankio.auto.ACTION_SHOW_FLOATING_WINDOW")
+                       intent.setData(Uri.parse("autoaccounting://bill?data=${billInfo.toJSON()}"))
+                       intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                       intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                       context.startActivity(intent)
+                   }
                 }
 
             }.onFailure {

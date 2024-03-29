@@ -40,6 +40,10 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import net.ankio.auto.BuildConfig
 import net.ankio.auto.HookMainApp
 import net.ankio.auto.exceptions.AutoServiceException
 import net.ankio.auto.utils.ActiveUtils
@@ -85,16 +89,34 @@ abstract class Hooker : iHooker {
 
         hookLoadPackage(classLoader,application)
         hookUtils = HookUtils(application, packPageName)
-        hookUtils.logD(HookMainApp.getTag(appName,packPageName),"欢迎使用自动记账，该日志表示 $appName App 已被hook。")
-        for (hook in partHookers) {
-            try {
-                hookUtils.logD(HookMainApp.getTag(appName,packPageName),"正在初始化Hook:${hook.hookName}...")
-                hook.onInit(classLoader,application)
-            }catch (e:Exception){
-                e.message?.let { Log.e("AutoAccountingError", it) }
-                hookUtils.log(HookMainApp.getTag(),"自动记账Hook异常..${e.message}.")
+        hookUtils.scope.launch {
+            for (hook in partHookers) {
+                try {
+                    hookUtils.logD(HookMainApp.getTag(appName,packPageName),"正在初始化Hook...")
+                    withContext(Dispatchers.Main){
+                        hook.onInit(classLoader,application)
+                    }
+                }catch (e:Exception){
+                    e.message?.let { Log.e("AutoAccountingError", it) }
+                    XposedBridge.log(e)
+                    if(startAutoApp(e,application))return@launch
+                    hookUtils.log(HookMainApp.getTag(),"自动记账Hook异常..${e.message}.")
+                }
             }
         }
+
+    }
+
+   suspend fun startAutoApp(e:Throwable,application: Application): Boolean = withContext(Dispatchers.Main) {
+       var result = false
+       if(e is AutoServiceException){
+            //不在自动记账跳转
+            if(application.packageName!=BuildConfig.APPLICATION_ID){
+                ActiveUtils.startApp(application)
+            }
+           result = true
+        }
+      result
     }
 
     @Throws(ClassNotFoundException::class)

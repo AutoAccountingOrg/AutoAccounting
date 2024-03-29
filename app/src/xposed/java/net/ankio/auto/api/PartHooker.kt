@@ -16,6 +16,8 @@
 package net.ankio.auto.api
 
 import android.content.Context
+import de.robv.android.xposed.XposedBridge
+import kotlinx.coroutines.launch
 import net.ankio.auto.HookMainApp
 
 abstract class PartHooker(val hooker: Hooker) {
@@ -28,7 +30,14 @@ abstract class PartHooker(val hooker: Hooker) {
      * 正常输出日志
      */
     fun log(string: String){
-        hooker.hookUtils.log(HookMainApp.getTag(hooker.appName, getSimpleName()), string)
+        hooker.hookUtils.scope.launch {
+           runCatching {
+               hooker.hookUtils.log(HookMainApp.getTag(hooker.appName, getSimpleName()), string)
+           }.onFailure {
+               if(hooker.startAutoApp(it, hooker.hookUtils.context))return@launch
+               XposedBridge.log(it)
+           }
+        }
     }
 
     private fun getSimpleName(): String {
@@ -45,13 +54,39 @@ abstract class PartHooker(val hooker: Hooker) {
      * 调试模式输出日志
      */
     fun logD(string: String){
-        hooker.hookUtils.logD(HookMainApp.getTag(hooker.appName, getSimpleName()), string)
+        hooker.hookUtils.scope.launch {
+            runCatching {
+                hooker.hookUtils.logD(HookMainApp.getTag(hooker.appName, getSimpleName()), string)
+            }.onFailure {
+                if(hooker.startAutoApp(it, hooker.hookUtils.context))return@launch
+                XposedBridge.log(it)
+            }
+        }
 
     }
 
     fun analyzeData(dataType: Int,  data: String,app:String? = null)
     {
-        hooker.hookUtils.analyzeData(dataType, app?:hooker.packPageName, data,hooker.appName)
+        hooker.hookUtils.scope.launch {
+            runCatching {
+                hooker.hookUtils.analyzeData(dataType, app?:hooker.packPageName, data,hooker.appName)
+            }.onFailure {
+                if(hooker.startAutoApp(it, hooker.hookUtils.context))return@launch
+                XposedBridge.log(it)
+            }
+        }
     }
+
+
+    suspend fun isDebug():Boolean{
+        runCatching {
+            return hooker.hookUtils.isDebug()
+        }.onFailure {
+            if(hooker.startAutoApp(it, hooker.hookUtils.context))return false
+            XposedBridge.log(it)
+        }
+        return false
+    }
+
 
 }
