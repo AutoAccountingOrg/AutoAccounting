@@ -171,4 +171,8 @@ dependencies {
     implementation libs.bugsnag.android
     //okhttp
     implementation libs.okhttp
+    // Dex工具
+    implementation libs.qianjipatch
+    // xml2json
+    implementation libs.xmltojson
 }

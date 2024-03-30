@@ -36,6 +36,7 @@ package net.ankio.auto.api
 import android.app.Application
 import android.content.Context
 import android.util.Log
+import com.google.gson.Gson
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
@@ -43,11 +44,14 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.HookMainApp
 import net.ankio.auto.exceptions.AutoServiceException
 import net.ankio.auto.utils.ActiveUtils
 import net.ankio.auto.utils.HookUtils
+import net.ankio.dex.Dex
+import net.ankio.dex.model.Clazz
 
 abstract class Hooker : iHooker {
     abstract var partHookers: MutableList<PartHooker>
@@ -85,7 +89,12 @@ abstract class Hooker : iHooker {
             XposedBridge.log("[AutoAccounting]"+this.appName+"hook失败: classloader 或 context = null")
             return
         }
-        ActiveUtils.APPLICATION_ID = packPageName
+
+
+        if(!autoAdaption(application,classLoader)){
+            XposedBridge.log("[AutoAccounting]自动适配失败，停止模块运行")
+            return
+        }
 
         hookLoadPackage(classLoader, application)
         hookUtils = HookUtils(application, packPageName)
@@ -129,6 +138,47 @@ abstract class Hooker : iHooker {
         }
         if (pkg != packPageName || processName != packPageName) return
         hookMainInOtherAppContext()
+    }
+    open var clazz = HashMap<String,String>()
+
+    open val rule = ArrayList<Clazz>()
+    fun autoAdaption(context: Application, classLoader: ClassLoader):Boolean{
+        val code = hookUtils.getVersionCode()
+        if(rule.size==0){
+            return true
+        }
+        val adaptationVersion  = hookUtils.readData("adaptation").toIntOrNull() ?: 0
+        if(adaptationVersion == code){
+            runCatching {
+                clazz = Gson().fromJson(hookUtils.readData("clazz"),HashMap::class.java) as HashMap<String, String>
+                if(clazz.size!=rule.size){
+                    throw Exception("适配失败")
+                }
+            }.onFailure {
+                hookUtils.writeData("adaptation","0")
+                XposedBridge.log(it)
+            }.onSuccess {
+                return true
+            }
+
+        }
+        hookUtils.toast("自动记账开始适配中...")
+        val total = rule.size
+        val hashMap = Dex.findClazz(context.packageResourcePath, classLoader, rule)
+        if(hashMap.size==total){
+            hookUtils.writeData("adaptation",code.toString())
+            clazz = hashMap
+            hookUtils.writeData("clazz", Gson().toJson(clazz))
+            XposedBridge.log("适配成功:${hashMap}")
+            hookUtils.toast("适配成功")
+            return  true
+        }else{
+            XposedBridge.log("适配失败:${hashMap}")
+            hookUtils.toast("适配失败")
+            return false
+        }
+
+
     }
 
 }

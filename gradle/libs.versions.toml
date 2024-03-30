@@ -7,12 +7,14 @@ gsonVersion = "2.10.1"
 kotlinxCoroutinesAndroid = "1.8.0"
 
 okhttp = "4.12.0"
+qianjipatch = "-SNAPSHOT"
 remotepreferences = "0.8"
 rhino = "1.7.14"
 robolectric = "4.11.1"
 roomCompiler = "2.6.1"
 round = "1.1.2"
 toaster = "12.6"
+xmltojson = "1.5.3"
 xposed = "82"
 gson = "2.10.1"
 htmlKtx = "1.1.2"
@@ -40,11 +42,13 @@ flexbox = { module = "com.google.android.flexbox:flexbox", version.ref = "flexbo
 gson-v288 = { module = "com.google.code.gson:gson", version.ref = "gsonVersion" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroid" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
+qianjipatch = { module = "com.github.AutoAccountingOrg:QianjiPatch", version.ref = "qianjipatch" }
 remotepreferences = { module = "com.crossbowffs.remotepreferences:remotepreferences", version.ref = "remotepreferences" }
 rhino = { module = "org.mozilla:rhino", version.ref = "rhino" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 round = { module = "io.github.xiaofeidev:round", version.ref = "round" }
 toaster = { module = "com.github.getActivity:Toaster", version.ref = "toaster" }
+xmltojson = { module = "com.github.smart-fun:XmlToJson", version.ref = "xmltojson" }
 xposed = { module = "de.robv.android.xposed:api", version.ref = "xposed" }
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }

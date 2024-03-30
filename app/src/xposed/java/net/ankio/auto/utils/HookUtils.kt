@@ -16,8 +16,11 @@
 package net.ankio.auto.utils
 
 import android.app.Application
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.net.Uri
+import android.widget.Toast
 import de.robv.android.xposed.XposedBridge
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -120,5 +123,44 @@ class HookUtils(val context: Application, private val packageName: String) {
 
 
     }
+
+    fun getVersionCode(): Int {
+        return kotlin.runCatching {
+            context.packageManager.getPackageInfo(context.packageName, 0).versionCode
+        }.getOrElse {
+           scope.launch {
+               it.message?.let { it1 -> log("获取版本号失败", it1) }
+           }
+            0
+        }
+    }
+
+    private val TAG = "AutoAccounting"
+    fun writeData(key: String, value: String) {
+        val sharedPreferences: SharedPreferences =
+            context.getSharedPreferences(TAG, Context.MODE_PRIVATE) //私有数据
+
+        val editor = sharedPreferences.edit() //获取编辑器
+
+        editor.putString(key, value)
+
+        editor.apply() //提交修改
+    }
+
+
+    fun readData(key: String): String {
+        val sharedPreferences: SharedPreferences =
+            context.getSharedPreferences(TAG, Context.MODE_PRIVATE) //私有数据
+        return sharedPreferences.getString(key, "")?:""
+    }
+
+
+
+
+    fun toast(msg:String){
+        Toast.makeText(context,msg, Toast.LENGTH_LONG).show()
+    }
+
+
 
 }

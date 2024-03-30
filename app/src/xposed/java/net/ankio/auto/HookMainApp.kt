@@ -1,6 +1,7 @@
 package net.ankio.auto
 
 import android.util.Log
+import com.google.gson.Gson
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.IXposedHookZygoteInit
 import de.robv.android.xposed.XposedBridge
@@ -8,6 +9,8 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage
 import net.ankio.auto.api.Hooker
 import net.ankio.auto.hooks.alipay.AlipayHooker
 import net.ankio.auto.hooks.auto.AutoHooker
+import net.ankio.auto.hooks.wechat.WechatHooker
+import net.ankio.dex.Dex
 
 
 class HookMainApp : IXposedHookLoadPackage,IXposedHookZygoteInit {
@@ -29,11 +32,15 @@ class HookMainApp : IXposedHookLoadPackage,IXposedHookZygoteInit {
             return tag
         }
 
+
+
+
     }
 
     private var mHookList: MutableList<Hooker> = arrayListOf(
         AutoHooker(),//自动记账hook
-        AlipayHooker() //支付宝hook
+        AlipayHooker(), //支付宝hook
+        WechatHooker(),//微信Hook
     )
 
 
@@ -53,5 +60,8 @@ class HookMainApp : IXposedHookLoadPackage,IXposedHookZygoteInit {
     override fun initZygote(startupParam: IXposedHookZygoteInit.StartupParam?) {
 
     }
+
+
+
 
 }
