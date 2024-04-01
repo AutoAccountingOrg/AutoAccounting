@@ -17,38 +17,28 @@ package net.ankio.auto.hooks.wechat.hooks
 
 import android.content.Context
 import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.api.Hooker
 import net.ankio.auto.api.PartHooker
-import net.ankio.auto.constant.DataType
 
-
-class TransferHooker (hooker: Hooker) : PartHooker(hooker){
+class ChatUserHooker(hooker: Hooker) : PartHooker(hooker){
+    override val hookName: String
+        get() = "用户页面hook"
 
     override fun onInit(classLoader: ClassLoader, context: Context) {
-
-        XposedHelpers.findAndHookMethod(hooker.clazz["remittance.model"],classLoader, "onGYNetEnd",
-            Int::class.java,
+      XposedHelpers.findAndHookMethod(
+          "com.tencent.mm.ui.chatting.ChattingUIFragment",
+          classLoader,
+          "setMMTitle",
             String::class.java,
-            org.json.JSONObject::class.java, object : XC_MethodHook() {
-                @Throws(Throwable::class)
+            object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
-
-                    val json = param.args[2] as org.json.JSONObject
-
-                    json.put("hookUser",hooker.hookUtils.readData("hookerUser"))
-
-                    logD("微信转账页面数据： $json")
-
-                    analyzeData(DataType.App.ordinal, json.toString())
+                    val username = param.args[0] as String
+                    logD("用户页面hook: $username")
+                    hooker.hookUtils.writeData("hookerUser",username)
                 }
-            })
-
+            }
+      )
     }
-
-
-    override val hookName: String
-        get() = "微信转账页面"
-
-
 }

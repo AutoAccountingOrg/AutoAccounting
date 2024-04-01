@@ -19,7 +19,9 @@ import android.content.Context
 import net.ankio.auto.api.Hooker
 import net.ankio.auto.api.PartHooker
 import net.ankio.auto.hooks.auto.hooks.ActiveHooker
+import net.ankio.auto.hooks.wechat.hooks.ChatUserHooker
 import net.ankio.auto.hooks.wechat.hooks.DatabaseHooker
+import net.ankio.auto.hooks.wechat.hooks.PayToolsHooker
 import net.ankio.auto.hooks.wechat.hooks.TransferHooker
 import net.ankio.dex.model.Clazz
 import net.ankio.dex.model.ClazzField
@@ -31,7 +33,9 @@ class WechatHooker: Hooker(){
     override val appName: String = "微信"
     override var partHookers: MutableList<PartHooker> = arrayListOf(
         DatabaseHooker(this),
-        TransferHooker(this)
+        TransferHooker(this),
+        ChatUserHooker(this),
+        PayToolsHooker(this)
     )
 
     override var clazz = hashMapOf(

@@ -66,8 +66,11 @@ class DatabaseHooker (hooker: Hooker) : PartHooker(hooker){
                             analyzeData(DataType.App.ordinal,Gson().toJson(contentValues))
                             return
                         }else if (type == 2000){
+                            //补充用户数据
+                            contentValues.put("hookUser",hooker.hookUtils.readData("hookerUser"))
                             //这个应该是微信转账给别人
                             val xml = contentValues.get("xml")
+
                             if(xml!== null){
                                 contentValues.put("xml",xmlToJson(xml as String))
                                 //TODO 补充付款工具
