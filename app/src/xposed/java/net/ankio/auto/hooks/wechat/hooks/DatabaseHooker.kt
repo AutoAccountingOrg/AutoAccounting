@@ -73,7 +73,10 @@ class DatabaseHooker (hooker: Hooker) : PartHooker(hooker){
 
                             if(xml!== null){
                                 contentValues.put("xml",xmlToJson(xml as String))
-                                //TODO 补充付款工具
+                                contentValues.put("cachedPayTools",hooker.hookUtils.readData("cachedPayTools"))
+                                contentValues.put("cachedPayMoney",hooker.hookUtils.readData("cachedPayMoney"))
+                                contentValues.put("cachedPayShop",hooker.hookUtils.readData("cachedPayShop"))
+
                             }
 
                         }
