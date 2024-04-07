@@ -21,27 +21,13 @@ import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.api.Hooker
 import net.ankio.auto.api.PartHooker
+import java.lang.ref.WeakReference
+
 
 class PayToolsHooker(hooker: Hooker) : PartHooker(hooker){
     override val hookName: String
         get() = "支付方式Hook"
 
-    /**
-     * 更底层的hook(未试验，frida调用失败）
-     * com.tencent.kinda.framework.module.impl.WXPCommReqResp.getUri
-     *  var response = Java.use("com.tencent.kinda.framework.module.impl.WXPCommReqResp");
-     *             response.getUri.implementation = function (){
-     *                 var uri =   this.getUri();
-     *                 var data = this.getWXPReqData();
-     *                 console.log("之前",uri,data)
-     *                 var mockMgr = this.m_mockMgr.value;
-     *                 var loaded_methods = mockMgr.class.getDeclaredMethods();
-     *                 console.log(mockMgr,loaded_methods)
-     *                 var json = mockMgr.get().requestDataToJson(data)
-     *                   console.log("之后",json)
-     *                 return uri;
-     *             };
-     */
     override fun onInit(classLoader: ClassLoader, context: Context) {
       XposedHelpers.findAndHookMethod(
           "com.tencent.kinda.framework.widget.base.MMKRichText",
@@ -51,8 +37,9 @@ class PayToolsHooker(hooker: Hooker) : PartHooker(hooker){
             object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     val text = param.args[0] as String
+                    logD("Text: $text")
                     when{
-                        text.contains("卡(") || text.contains("零钱通(")  || text.contains("零钱(") -> {
+                        text.contains("卡(") || text.contains("零钱")  -> {
                             logD("支付方式Hook: $text")
                             hooker.hookUtils.writeData("cachedPayTools",text)
                         }

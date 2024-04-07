@@ -27,9 +27,11 @@ class ChatUserHooker(hooker: Hooker) : PartHooker(hooker){
         get() = "用户页面hook"
 
     override fun onInit(classLoader: ClassLoader, context: Context) {
-      XposedHelpers.findAndHookMethod(
-          "com.tencent.mm.ui.chatting.ChattingUIFragment",
-          classLoader,
+
+        val clazz = classLoader.loadClass("com.tencent.mm.ui.chatting.ChattingUIFragment")
+
+        XposedHelpers.findAndHookMethod(
+            clazz,
           "setMMTitle",
             String::class.java,
             object : XC_MethodHook() {
