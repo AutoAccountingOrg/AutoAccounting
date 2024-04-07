@@ -30,11 +30,12 @@ abstract class PartHooker(val hooker: Hooker) {
      * 正常输出日志
      */
     fun log(string: String){
+        val tag = HookMainApp.getTag(hooker.appName, getSimpleName())
         hooker.hookUtils.scope.launch {
            runCatching {
-               hooker.hookUtils.log(HookMainApp.getTag(hooker.appName, getSimpleName()), string)
+               hooker.hookUtils.log(tag, string)
            }.onFailure {
-               if(hooker.startAutoApp(it, hooker.hookUtils.context))return@launch
+               if(hooker.hookUtils.startAutoApp(it, hooker.hookUtils.context))return@launch
                XposedBridge.log(it)
            }
         }
@@ -42,6 +43,7 @@ abstract class PartHooker(val hooker: Hooker) {
 
     private fun getSimpleName(): String {
         val stackTrace = Thread.currentThread().stackTrace
+        //XposedBridge.log(Throwable())
         val callerClassName = if (stackTrace.size >= 5) {
             stackTrace[4].className
         } else {
@@ -54,11 +56,12 @@ abstract class PartHooker(val hooker: Hooker) {
      * 调试模式输出日志
      */
     fun logD(string: String){
+        val tag = HookMainApp.getTag(hooker.appName, getSimpleName())
         hooker.hookUtils.scope.launch {
             runCatching {
-                hooker.hookUtils.logD(HookMainApp.getTag(hooker.appName, getSimpleName()), string)
+                hooker.hookUtils.logD(tag, string)
             }.onFailure {
-                if(hooker.startAutoApp(it, hooker.hookUtils.context))return@launch
+                if(hooker.hookUtils.startAutoApp(it, hooker.hookUtils.context))return@launch
                 XposedBridge.log(it)
             }
         }
@@ -71,7 +74,7 @@ abstract class PartHooker(val hooker: Hooker) {
             runCatching {
                 hooker.hookUtils.analyzeData(dataType, app?:hooker.packPageName, data,hooker.appName)
             }.onFailure {
-                if(hooker.startAutoApp(it, hooker.hookUtils.context))return@launch
+                if(hooker.hookUtils.startAutoApp(it, hooker.hookUtils.context))return@launch
                 XposedBridge.log(it)
             }
         }
@@ -82,7 +85,7 @@ abstract class PartHooker(val hooker: Hooker) {
         runCatching {
             return hooker.hookUtils.isDebug()
         }.onFailure {
-            if(hooker.startAutoApp(it, hooker.hookUtils.context))return false
+            if(hooker.hookUtils.startAutoApp(it, hooker.hookUtils.context))return false
             XposedBridge.log(it)
         }
         return false

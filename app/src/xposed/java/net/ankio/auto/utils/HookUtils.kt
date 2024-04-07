@@ -31,6 +31,7 @@ import net.ankio.auto.BuildConfig
 import net.ankio.auto.HookMainApp
 import net.ankio.auto.app.js.Engine
 import net.ankio.auto.database.table.AppData
+import net.ankio.auto.exceptions.AutoServiceException
 
 
 class HookUtils(val context: Application, private val packageName: String) {
@@ -41,6 +42,17 @@ class HookUtils(val context: Application, private val packageName: String) {
         AppUtils.setApplication(context)
         autoAccountingServiceUtils = AppUtils.setService(context)
     }
+    fun startAutoApp(e:Throwable,application: Application): Boolean  {
+        var result = false
+        if(e is AutoServiceException){
+            //不在自动记账跳转
+            if(application.packageName!=BuildConfig.APPLICATION_ID){
+                ActiveUtils.startApp(application)
+            }
+            result = true
+        }
+        return result
+    }
 
     /**
      * 判断自动记账目前是否处于调试模式
@@ -49,7 +61,9 @@ class HookUtils(val context: Application, private val packageName: String) {
         if (BuildConfig.DEBUG) {
              true
         }
-       else  autoAccountingServiceUtils.get("debug") == "true"
+       else  runCatching {
+            autoAccountingServiceUtils.get("debug") == "true"
+        }.getOrNull()?:false
     }
 
     //仅调试模式输出日志
@@ -61,10 +75,13 @@ class HookUtils(val context: Application, private val packageName: String) {
 
     //正常输出日志
    suspend fun log(prefix: String?, log: String)= withContext(Dispatchers.IO)  {
-        autoAccountingServiceUtils.putLog("[自动记账] $prefix：$log")
-        if (isDebug()) {
-            XposedBridge.log("[自动记账] $prefix：$log") //xp输出
+        runCatching {
+            autoAccountingServiceUtils.putLog("$prefix：$log")
+        }.onFailure {
+            XposedBridge.log(it)
+            startAutoApp(AutoServiceException(it.message.toString()),context)
         }
+        XposedBridge.log("[自动记账]$prefix：$log") //xp输出
     }
 
     private val job = Job()
@@ -125,7 +142,7 @@ class HookUtils(val context: Application, private val packageName: String) {
     }
 
     fun getVersionCode(): Int {
-        return kotlin.runCatching {
+        return runCatching {
             context.packageManager.getPackageInfo(context.packageName, 0).versionCode
         }.getOrElse {
            scope.launch {

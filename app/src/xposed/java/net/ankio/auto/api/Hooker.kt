@@ -55,41 +55,69 @@ import net.ankio.dex.model.Clazz
 
 abstract class Hooker : iHooker {
     abstract var partHookers: MutableList<PartHooker>
+     open val applicationClazz = "android.app.Application"
     private var TAG = "AutoAccounting"
     lateinit var hookUtils: HookUtils
-    private fun hookMainInOtherAppContext() {
+    private fun hookMainInOtherAppContext(classLoader: ClassLoader) {
         var hookStatus = false
-        XposedHelpers.findAndHookMethod(
-            Application::class.java, "attach",
-            Context::class.java, object : XC_MethodHook() {
-                @Throws(Throwable::class)
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    super.afterHookedMethod(param)
-                    if(hookStatus){
-                        return
+
+
+
+        fun onCachedApplication(application: Application){
+            hookStatus = true
+            runCatching {
+                initLoadPackage(application.classLoader,application)
+            }.onFailure {
+                XposedBridge.log("自动记账Hook异常..${it.message}.")
+                Log.e("AutoAccountingError", it.message.toString())
+                it.printStackTrace()
+            }
+        }
+
+
+
+        runCatching {
+            XposedHelpers.findAndHookMethod(
+                applicationClazz,classLoader,"attach",
+                Context::class.java, object : XC_MethodHook() {
+                    @Throws(Throwable::class)
+                    override fun afterHookedMethod(param: MethodHookParam) {
+                        super.afterHookedMethod(param)
+                        if(hookStatus){
+                            return
+                        }
+
+                        val context = param.thisObject as Application
+
+                        onCachedApplication(context)
                     }
-                    hookStatus = true
-                    val context = param.args[0] as Context
-                    val application = param.thisObject as Application
-                    runCatching {
-                        initLoadPackage(context.classLoader,application)
-                    }.onFailure {
-                        XposedBridge.log("自动记账Hook异常..${it.message}.")
-                        Log.e("AutoAccountingError", it.message.toString())
-                        it.printStackTrace()
-                    }
-                }
-        })
+                })
+        }.onFailure {
+            runCatching {
+                XposedHelpers.findAndHookMethod(
+                    applicationClazz,classLoader,"attachBaseContext",
+                    Context::class.java, object : XC_MethodHook() {
+                        @Throws(Throwable::class)
+                        override fun afterHookedMethod(param: MethodHookParam) {
+                            super.afterHookedMethod(param)
+                            if(hookStatus){
+                                return
+                            }
+
+                            val context = param.thisObject as Application
+
+                            onCachedApplication(context)
+                        }
+                    })
+            }
+        }
     }
 
 
-    fun initLoadPackage(classLoader: ClassLoader?,application: Application){
+    fun initLoadPackage(classLoader: ClassLoader,application: Application){
         XposedBridge.log("[$TAG] Welcome to AutoAccounting")
-        if(classLoader==null){
-            XposedBridge.log("[AutoAccounting]"+this.appName+"hook失败: classloader 或 context = null")
-            return
-        }
 
+        hookUtils = HookUtils(application, packPageName)
 
         if(!autoAdaption(application,classLoader)){
             XposedBridge.log("[AutoAccounting]自动适配失败，停止模块运行")
@@ -97,36 +125,39 @@ abstract class Hooker : iHooker {
         }
 
         hookLoadPackage(classLoader, application)
-        hookUtils = HookUtils(application, packPageName)
-        hookUtils.scope.launch {
-            for (hook in partHookers) {
-                try {
-                    hookUtils.logD(HookMainApp.getTag(appName,packPageName),"正在初始化Hook...")
-                    withContext(Dispatchers.Main){
-                        hook.onInit(classLoader,application)
-                    }
-                }catch (e:Exception){
-                    e.message?.let { Log.e("AutoAccountingError", it) }
-                    XposedBridge.log(e)
-                    if(startAutoApp(e,application))return@launch
-                    hookUtils.log(HookMainApp.getTag(),"自动记账Hook异常..${e.message}.")
+
+        for (hook in partHookers) {
+            try {
+                hookUtils.scope.launch {
+                    hookUtils.logD(HookMainApp.getTag(appName,packPageName),"正在初始化Hook ${hook.hookName}")
+
                 }
+                 hook.onInit(classLoader,application)
+            }catch (e:Exception){
+                e.message?.let { Log.e("AutoAccountingError", it) }
+                XposedBridge.log(e)
+                hookUtils.scope.launch {
+                    hookUtils.logD(HookMainApp.getTag(appName,packPageName),"正在初始化Hook ${hook.hookName}")
+
+                }
+                if(hookUtils.startAutoApp(e,application))return
+                hookUtils.scope.launch {
+                    hookUtils.log(HookMainApp.getTag(),"自动" +
+                            "记账Hook异常..${e.message}.")
+
+                }
+
             }
         }
+        hookUtils.scope.launch {
+            hookUtils.logD(HookMainApp.getTag(appName,packPageName),"欢迎使用自动记账...")
+        }
+
+
+
 
     }
 
-   suspend fun startAutoApp(e:Throwable,application: Application): Boolean = withContext(Dispatchers.Main) {
-       var result = false
-       if(e is AutoServiceException){
-            //不在自动记账跳转
-            if(application.packageName!=BuildConfig.APPLICATION_ID){
-                ActiveUtils.startApp(application)
-            }
-           result = true
-        }
-      result
-    }
 
     @Throws(ClassNotFoundException::class)
     abstract fun hookLoadPackage(classLoader: ClassLoader,context: Context)
@@ -136,8 +167,11 @@ abstract class Hooker : iHooker {
         if (lpparam != null) {
             if (!lpparam.isFirstApplication) return
         }
-        if (pkg != packPageName || processName != packPageName) return
-        hookMainInOtherAppContext()
+        if (
+            pkg != packPageName
+            || processName != packPageName
+            ) return
+        hookMainInOtherAppContext(lpparam.classLoader)
     }
     open var clazz = HashMap<String,String>()
 
@@ -162,6 +196,7 @@ abstract class Hooker : iHooker {
             }
 
         }
+        XposedBridge.log("context? ${context.packageResourcePath}")
         hookUtils.toast("自动记账开始适配中...")
         val total = rule.size
         val hashMap = Dex.findClazz(context.packageResourcePath, classLoader, rule)

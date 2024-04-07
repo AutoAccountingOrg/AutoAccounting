@@ -191,19 +191,21 @@ class AutoAccountingServiceUtils(mContext: Context) {
      * 设置App记录日志
      */
     suspend fun putLog(value: String)= withContext(Dispatchers.IO){
-        requestsUtils.post(
-            getUrl("/log"),
-            data = hashMapOf("raw" to value),
-            contentType = RequestsUtils.TYPE_RAW,
-            headers = headers,
-        ).apply {
-            if(code!=200){
-                throw AutoServiceException(
-                    String(byteArray),
-                    AutoServiceException.CODE_SERVER_AUTHORIZE
-                )
-            }
-        }
+
+           requestsUtils.post(
+               getUrl("/log"),
+               data = hashMapOf("raw" to value),
+               contentType = RequestsUtils.TYPE_RAW,
+               headers = headers,
+           ).apply {
+               if(code!=200){
+                   throw AutoServiceException(
+                       String(byteArray),
+                       AutoServiceException.CODE_SERVER_AUTHORIZE
+                   )
+               }
+           }
+
     }
 
     /**
