@@ -22,9 +22,10 @@ public:
     //文件是否存在
     static bool fileExists(const std::string &string);
     //创建目录
-    static void createDir(std::string path);
+    static void createDir(const std::string& path);
     //目录是否存在
     static bool directoryExists(const std::string& path);
+
 };
 
 

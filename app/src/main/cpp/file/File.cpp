@@ -114,6 +114,6 @@ bool File::directoryExists(const std::string& path) {
     return std::__fs::filesystem::exists(path);
 }
 
-void File::createDir(std::string path) {
+void File::createDir(const std::string &path) {
     std::__fs::filesystem::create_directories(path);
 }

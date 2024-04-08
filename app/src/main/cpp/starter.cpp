@@ -5,24 +5,25 @@
 #include <csignal>
 #include <cstring>
 #include <vector>
-#include "http/Http.h"
+#include "http/server/Server.h"
 
 #define NUM_WORKERS 1
 #define PID_FILE "daemon.pid"
 
-std::ofstream logFile;
+std::ofstream logFile;//日志记录
 std::vector<pid_t> workerPids;  // 存储工作进程的 PID
 
 void worker_process(int id);
 void handle_signal(int sig);
 void start_workers();
 void stop_workers();
-std::string select_workspace();
-std::string workspace;
+std::string select_workspace(char *argv[]);
+std::string workspace; //工作环境
+
 bool should_restart_workers = true;
 int main(int argc, char *argv[]) {
     //一开始就选定工作目录
-    workspace = select_workspace();
+    workspace = select_workspace(argv);
     if (argc > 1) {
         // 处理外部命令
         std::ifstream pidFile(workspace + PID_FILE);
@@ -48,47 +49,60 @@ int main(int argc, char *argv[]) {
             return 0;
         }
     }else{
-        std::cout << "Usage: " << argv[0] << " [stop|restart|status|start]" << std::endl;
+        std::cout << "Usage: " << argv[0] << " [stop|restart|status|foreground|start  <path>?]" << std::endl;
         return 1;
     }
-
-    // 创建守护进程
-    pid_t pid = fork();
-    if (pid > 0) {
-        return 0;
-    }
-    setsid();
-
-
-    // 设置工作目录为当前目录
-    chdir(workspace.c_str());
-
-    // 设置信号处理函数
-    signal(SIGCHLD, handle_signal);
-    signal(SIGTERM, handle_signal);
-    signal(SIGHUP, handle_signal);
-
-    // 保存 PID 到文件
-    std::ofstream pidFile(workspace + PID_FILE);
-    pidFile << getpid();
-    pidFile.close();
-
     // 打开日志文件
     logFile.open(workspace +"daemon.log");
 
     logFile << File::formatTime() <<"Master process started (PID: " << getpid() << ")" << std::endl;
 
-    // 启动工作进程
-    start_workers();
+    if (strcmp(argv[1], "foreground") != 0){
+        // 创建守护进程
+        pid_t pid = fork();
+        if (pid > 0) {
+            return 0;
+        }
+        setsid();
 
-    while (true) {
-        pause();
+
+        // 设置工作目录为当前目录
+        chdir(workspace.c_str());
+
+        // 设置信号处理函数
+        signal(SIGCHLD, handle_signal);
+        signal(SIGTERM, handle_signal);
+        signal(SIGHUP, handle_signal);
+
+        // 保存 PID 到文件
+        std::ofstream pidFile(workspace + PID_FILE);
+        pidFile << getpid();
+        pidFile.close();
+
+        // 启动工作进程
+        start_workers();
+
+        while (true) {
+            pause();
+        }
+
+    } else{
+        // 在前台运行
+       Server::server();
     }
+
+
+
+
+
 
     return 0;
 }
 
-std::string select_workspace(){
+std::string select_workspace(char *argv[]){
+    if(argv[2] != nullptr) {
+        return argv[2];
+    }
     if(File::directoryExists("/sdcard/Android/data/net.ankio.auto.xposed/cache/shell")){
         workspace = "/sdcard/Android/data/net.ankio.auto.xposed/cache/shell/";
     }else if(File::directoryExists("/sdcard/Android/data/net.ankio.auto.helper/cache/shell")){
@@ -102,8 +116,7 @@ std::string select_workspace(){
 
 void worker_process(int id) {
     logFile << File::formatTime() <<"Worker " << id << " started (PID: " << getpid() << ")" << std::endl;
-    Http server = Http(workspace,&logFile);
-    server.start();
+    Server::start();
     logFile << File::formatTime() <<"Worker " << id << " stopped (PID: " << getpid() << ")" << std::endl;
 }
 
@@ -123,7 +136,8 @@ void handle_signal(int sig) {
                 pid_t newPid = fork();
                 if (newPid == 0) {
                     // 在新的子进程中
-                    worker_process(workerPids.size() + 1);
+                    int size = static_cast<int>(workerPids.size());
+                    worker_process(size + 1);
                     exit(0);
                 } else if (newPid > 0) {
                     // 在主进程中，记录新的子进程 PID
@@ -140,13 +154,14 @@ void handle_signal(int sig) {
             logFile.close();
             remove((workspace + PID_FILE).c_str());
             exit(0);
-            break;
         case SIGHUP:
             logFile << File::formatTime() <<"Master: Received SIGHUP, restarting" << std::endl;
             stop_workers();
             logFile.close();
             logFile.open("daemon.log");
             start_workers();
+            break;
+        default:
             break;
     }
 }
@@ -171,7 +186,7 @@ void stop_workers() {
     should_restart_workers = false;
     for (pid_t pid : workerPids) {
         kill(pid, SIGTERM);
-        waitpid(pid, NULL, 0);  // 等待工作进程退出
+        waitpid(pid, nullptr, 0);  // 等待工作进程退出
         logFile << File::formatTime() <<"Master: Stopped worker process " << pid << std::endl;
     }
     workerPids.clear();  // 清空工作进程 PID 列表
