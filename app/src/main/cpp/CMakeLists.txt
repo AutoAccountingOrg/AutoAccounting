@@ -19,6 +19,8 @@ add_executable(auto_accounting_starter starter.cpp
         http/handler/Handler.h
         http/handler/Handler.cpp
         http/server/Server.cpp
+           http/server/Server.h
+
 
 
 )

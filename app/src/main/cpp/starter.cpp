@@ -57,7 +57,12 @@ int main(int argc, char *argv[]) {
 
     logFile << File::formatTime() <<"Master process started (PID: " << getpid() << ")" << std::endl;
 
-    if (strcmp(argv[1], "foreground") != 0){
+    if (strcmp(argv[1], "foreground") == 0){
+        // 在前台运行
+        Server::server();
+
+    } else{
+
         // 创建守护进程
         pid_t pid = fork();
         if (pid > 0) {
@@ -85,10 +90,6 @@ int main(int argc, char *argv[]) {
         while (true) {
             pause();
         }
-
-    } else{
-        // 在前台运行
-       Server::server();
     }
 
 

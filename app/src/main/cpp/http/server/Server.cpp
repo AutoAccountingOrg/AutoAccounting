@@ -28,7 +28,7 @@ void Server::start() {
  */
 void Server::createToken() {
     //如果token文件不为空，则不创建新的token
-    std::string  token = File::readFile(workspace + "token");
+    std::string  token = File::readFile(workspace + "token.txt");
     if (!token.empty()) {
         logFile << File::formatTime() << "Token already exists:"<<token << std::endl;
         return;
@@ -48,15 +48,15 @@ void Server::createToken() {
     for (size_t i = 0; i < length; ++i) {
         token += chars[distribution(generator)];
     }
-   File::writeFile(workspace +"token", token);
-    logFile << File::formatTime() << "Create new token:"<<token << std::endl;
+   File::writeFile(workspace +"token.txt", token);
+    logFile << File::formatTime() << "Create new token.txt:"<<token << std::endl;
 }
 
 /**
  * 发布token
  */
 void Server::publishToken() {
-    const std::string token = File::readFile(workspace +"token");
+    const std::string token = File::readFile(workspace +"token.txt");
     if(File::fileExists(workspace + "apps.txt")){
         logFile << File::formatTime() << "Find Apps.txt " << std::endl;
         std::string apps = File::readFile(workspace +"apps");
@@ -70,7 +70,7 @@ void Server::publishToken() {
             std::string path = "/sdcard/Android/data/" + line + "/shell/";
             //使用函数创建文件夹
             File::createDir(path);
-            File::writeFile(path + "token", token);
+            File::writeFile(path + "token.txt", token);
             logFile << File::formatTime() << "Publish Token :" << path + "token.txt" << std::endl;
         }
     }
@@ -82,8 +82,7 @@ std::mutex ThreadLocalStorage::mutex;
 void handleConnection(int socket) {
     Handler handler(socket);
     handler.handleConnection();
-    close(socket);
-    ThreadLocalStorage::clearThreadLocalStorage();
+
 }
 /**
  * 启动HTTP服务器
@@ -122,7 +121,7 @@ void Server::server()  {
     }
 
     int count = 0;
-    while (count < MAX_CONNECTIONS * 2) { //连接超过64重启，保证稳定性，客户端需要有重试机制，例如重试3次，间隔 1秒，3秒，5秒这样
+    while (count < MAX_CONNECTIONS ) { //连接超过64重启，保证稳定性，客户端需要有重试机制，例如重试3次，间隔 1秒，3秒，5秒这样
         if ((new_socket = accept(server_fd, (struct sockaddr *) &address, (socklen_t *) &addrlen)) < 0) {
             perror("accept");
             break;

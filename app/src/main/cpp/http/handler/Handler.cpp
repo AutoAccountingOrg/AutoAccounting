@@ -80,6 +80,8 @@ void Handler::handleConnection()   {
         write(socket, response.c_str(), response.size());
     }
 
+    close(socket);
+    ThreadLocalStorage::clearThreadLocalStorage();
 
 
 
@@ -120,7 +122,6 @@ std::string Handler::handleRoute(std::string &path,
     std::string status = "200 OK";
     //授权校验
     if (File::readFile("token") != authHeader || authHeader.empty()) {
-
         Server::publishToken();
         return httpResponse("401 Incorrect Authorization", "Incorrect Authorization: "+authHeader);
     }
@@ -132,7 +133,7 @@ std::string Handler::handleRoute(std::string &path,
 
         if (queryParams.find("name") != queryParams.end()) {
             std::string key = queryParams.at("name");
-            if (key != "token") {
+            if (key != "token.txt") {
                 response = File::readFile(key);
             }
         }
@@ -143,7 +144,7 @@ std::string Handler::handleRoute(std::string &path,
             if (
                     key != "data"
                     && key != "log"
-                    && key != "token"
+                    && key != "token.txt"
                     ) {
                 File::writeFile(queryParams.at("name"), requestBody);
             }
@@ -169,10 +170,12 @@ std::string Handler::handleRoute(std::string &path,
  * @param args
  */
 void println(qjs::rest<std::string> args)  {
+    std::cout << args[0] << std::endl;
     ThreadLocalStorage::getJsRes() = args[0];
 }
 
  std::string Handler::js(std::string &js) {
+     std::cout << js << std::endl;
     qjs::Runtime runtime;
     qjs::Context context(runtime);
     try
@@ -193,7 +196,7 @@ void println(qjs::rest<std::string> args)  {
     {
         auto exc = context.getException();
         logFile <<  File::formatTime() << "JS Error: "<< (std::string) exc << std::endl;
-
+        std::cout << (std::string) exc << std::endl;
         if((bool) exc["stack"])
             logFile <<  File::formatTime() << "JS Error: "<< (std::string) exc["stack"]  << std::endl;
     }
