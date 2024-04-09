@@ -7,6 +7,8 @@
 #include "Server.h"
 #include "../../utils/trim.cpp"
 #include "../handler/Handler.h"
+#include "../../utils/ThreadLocalStorage.h"
+
 #define PORT 52045
 #define MAX_CONNECTIONS 32
 
@@ -73,10 +75,15 @@ void Server::publishToken() {
         }
     }
 }
+
+std::mutex ThreadLocalStorage::mutex;
+
 //处理连接
 void handleConnection(int socket) {
     Handler handler(socket);
     handler.handleConnection();
+    close(socket);
+    ThreadLocalStorage::clearThreadLocalStorage();
 }
 /**
  * 启动HTTP服务器
@@ -115,7 +122,7 @@ void Server::server()  {
     }
 
     int count = 0;
-    while (count < MAX_CONNECTIONS / 2) { //连接超过16重启，保证稳定性，客户端需要有重试机制，例如重试3次，间隔 1秒，3秒，5秒这样
+    while (count < MAX_CONNECTIONS * 2) { //连接超过64重启，保证稳定性，客户端需要有重试机制，例如重试3次，间隔 1秒，3秒，5秒这样
         if ((new_socket = accept(server_fd, (struct sockaddr *) &address, (socklen_t *) &addrlen)) < 0) {
             perror("accept");
             break;

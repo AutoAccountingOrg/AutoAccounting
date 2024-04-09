@@ -6,27 +6,25 @@
 #include <iostream>
 #include <unordered_map>
 #include "../../file/File.h"
-#include "../../js/quickjspp.hpp"
-#include <mutex>
 #include "../../utils/ThreadLocalStorage.h"
 #include "../../utils/trim.cpp"
 #include "../server/Server.h"
 extern std::string workspace;
 extern std::ofstream logFile;
+
 Handler::Handler(int socket) : socket(socket) {}
 
 /**
  * 处理连接
  * @param socket
  */
-void Handler::handleConnection() const  {
+void Handler::handleConnection()   {
     std::string request, header, body;
     size_t bufferSize = 4096;
     char buffer[bufferSize];//一次读取缓存是4096
     ssize_t contentLength = -1;
     ssize_t bodyStart = 0;
     bool headerReceived = false;
-
     while (true) {
         memset(buffer, 0, bufferSize); // 清理缓冲区
         ssize_t bytesRead = read(socket, buffer, bufferSize - 1);
@@ -69,6 +67,7 @@ void Handler::handleConnection() const  {
     body = request.substr(bodyStart);
 
 
+
     if (!header.empty()) {
         std::string response;
         try {
@@ -81,7 +80,9 @@ void Handler::handleConnection() const  {
         write(socket, response.c_str(), response.size());
     }
 
-    close(socket);
+
+
+
 }
 
 /**
@@ -153,7 +154,6 @@ std::string Handler::handleRoute(std::string &path,
         File::writeData(requestBody);
     } else if (path == "/js") {
         response = js(requestBody);
-        ThreadLocalStorage::clearThreadLocalStorage();
         //执行js
     } else {
         response = "404 Not Found";
@@ -161,14 +161,14 @@ std::string Handler::handleRoute(std::string &path,
     }
 
 
-    requestBody = "";
-
     return httpResponse(status, response);
 }
 
-std::mutex ThreadLocalStorage::mutex;
-
-void println(qjs::rest<std::string> args) {
+/**
+ * 打印
+ * @param args
+ */
+void println(qjs::rest<std::string> args)  {
     ThreadLocalStorage::getJsRes() = args[0];
 }
 
@@ -179,7 +179,6 @@ void println(qjs::rest<std::string> args) {
     {
 
         auto& module = context.addModule("MyModule");
-
         module.function<&println>("print");
         context.eval(R"xxx(
              import { print } from 'MyModule';
@@ -270,7 +269,6 @@ std::string Handler::parseRequest( std::string &header, std::string &body) {
  */
 ssize_t Handler::getContentLength( std::string &request) {
     std::string header = getHeader("Content-Length:",request);
-    logFile << "Content-Length" << header <<std::endl;
     std::istringstream lengthStream(header);
     ssize_t length;
     lengthStream >> length;
