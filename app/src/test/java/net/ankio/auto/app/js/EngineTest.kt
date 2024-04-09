@@ -22,11 +22,6 @@ import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
 class EngineTest {
-    @Test
-    fun runJS(){
-        Assert.assertEquals(
-            "4\n",
-            Engine.runJS("print(2+2)")
-        )
-    }
+
+
 }

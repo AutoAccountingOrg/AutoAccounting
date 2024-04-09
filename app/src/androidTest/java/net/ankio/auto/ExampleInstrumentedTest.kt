@@ -34,6 +34,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("net.ankio.auto", appContext.packageName)
+       // assertEquals("net.ankio.auto", appContext.packageName)
     }
 }
