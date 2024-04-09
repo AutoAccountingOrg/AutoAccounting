@@ -172,7 +172,7 @@ dependencies {
     //okhttp
     implementation libs.okhttp
     // Dex工具
-    implementation libs.qianjipatch
+    implementation project(":dex")
     // xml2json
     implementation libs.xmltojson
 }

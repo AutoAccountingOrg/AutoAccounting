@@ -17,6 +17,8 @@ package net.ankio.auto.sdk
 
 import android.content.Context
 import android.content.SharedPreferences
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import net.ankio.auto.sdk.exception.AutoAccountingException
 import net.ankio.auto.sdk.utils.RequestUtils
 
@@ -113,55 +115,76 @@ class AutoAccounting {
         }
     }
 
+    /**
+     * 请求自动延迟尝试4次
+     */
+    private suspend fun request(path:String, query:HashMap<String,String> = hashMapOf(), data:String = "", context: Context, count:Int = 0):String = withContext(Dispatchers.IO){
+         runCatching {
+             RequestUtils.post(
+                 url = url +path,
+                 query = query,
+                 data = data,
+                 headers = hashMapOf("Authorization" to getToken(context))
+             )
+         }.getOrElse {
+             if(count>4){
+                 throw it
+             } else {
+                 Thread.sleep((count * 1000).toLong())
+                 request(path,query,data,context,count+1)
+             }
+         }
+    }
+
     private suspend fun setAssets(context: Context, assets: String) {
-        RequestUtils.post(
-            url +"set",
+        request(
+             "set",
             query = hashMapOf("name" to "auto_assets"),
             data = assets,
-            headers = hashMapOf("Authorization" to getToken(context))
+            context = context
         )
     }
 
     private suspend fun getBills(context: Context): String {
-        val result = RequestUtils.post(
-            url = url +"get",
+       val result = request(
+            "get",
             query = hashMapOf("name" to "auto_bills"),
-            headers = hashMapOf("Authorization" to getToken(context))
+            context = context
         )
         //获取账单后清空原有的账单避免重复同步
-        RequestUtils.post(
-            url +"set",
+        request(
+            "set",
             query = hashMapOf("name" to "auto_bills"),
             data = "",
-            headers = hashMapOf("Authorization" to getToken(context))
+            context =context,
         )
         return result
     }
 
     private suspend fun setBills(context: Context, bills: String,type:String) {
-        RequestUtils.post(
-            url +"set",
+        request(
+             "set",
             query = hashMapOf("name" to "auto_bills_${type}"),
             data = bills,
-            headers = hashMapOf("Authorization" to getToken(context))
+            context =context,
         )
     }
 
     private suspend fun setBooks(context: Context,books: String) {
-        RequestUtils.post(
-            url +"set",
+        request(
+            "set",
             query = hashMapOf("name" to "auto_books"),
             data = books,
-            headers = hashMapOf("Authorization" to getToken(context))
+            context = context
         )
     }
 
     private suspend fun setConfig(context: Context,config: String) {
-        RequestUtils.post(
+        request(
             url +"set",
             query = hashMapOf("name" to "bookAppConfig"),
             data = config,
-            headers = hashMapOf("Authorization" to getToken(context))
+            context =context
         )
     }
 

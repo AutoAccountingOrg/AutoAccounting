@@ -104,7 +104,7 @@ object RequestUtils {
             throw AutoAccountingException("请求异常：\n${url}\n${e.message}",AutoAccountingException.CODE_SERVER_ERROR)
         } finally {
             // 关闭资源
-            kotlin.runCatching {
+            runCatching {
                 writer?.close()
                 reader?.close()
                 socket?.close()
