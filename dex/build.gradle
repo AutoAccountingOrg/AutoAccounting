@@ -1,0 +1,43 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'org.jetbrains.kotlin.jvm'
+    // alias(libs.plugins.jetbrains.kotlin.jvm)
+}
+
+java {
+}
+
+publishing {
+    publications {
+        release(MavenPublication) {
+            groupId = 'net.ankio.dex'
+            artifactId = 'DexLib'
+            version = "1.0.0"
+
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            url = 'file://' + new File(System.getProperty('user.home'), '.m2/repository').absolutePath
+        }
+    }
+}
+
+dependencies {
+    implementation libs.dexlib2
+  //  implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk17"
+}
+repositories {
+    mavenCentral()
+}
+kotlin {
+    jvmToolchain(17)
+}
+
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}

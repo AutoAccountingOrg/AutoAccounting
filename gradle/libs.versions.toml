@@ -5,7 +5,7 @@ bugsnagAndroid = "6.2.0"
 flexbox = "3.0.0"
 gsonVersion = "2.10.1"
 kotlinxCoroutinesAndroid = "1.8.0"
-
+jetbrainsKotlinJvm = "1.9.21"
 okhttp = "4.12.0"
 qianjipatch = "-SNAPSHOT"
 remotepreferences = "0.8"
@@ -30,7 +30,7 @@ navigationFragment = "2.7.7"
 browser = "1.8.0"
 activity = "1.8.2"
 constraintlayout = "2.1.4"
-
+dexlib2 = "2.5.2"
 [libraries]
 androidx-navigation-fragment-ktx = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigationFragment" }
 androidx-navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigationFragment" }
@@ -65,9 +65,12 @@ ultimateBarX = { module = "com.github.zackratos:UltimateBarX", version.ref = "ul
 androidx-browser = { group = "androidx.browser", name = "browser", version.ref = "browser" }
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+dexlib2 = { module = "org.smali:dexlib2", version.ref = "dexlib2" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
+jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
+
 
