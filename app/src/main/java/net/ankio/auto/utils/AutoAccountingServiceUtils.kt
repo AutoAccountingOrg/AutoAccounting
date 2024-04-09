@@ -17,7 +17,6 @@ package net.ankio.auto.utils
 
 import android.content.Context
 import android.os.Environment
-import android.util.Log
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -51,7 +50,12 @@ class AutoAccountingServiceUtils(mContext: Context) {
 
 
         fun getToken(mContext: Context): String {
-           return get("token",mContext)
+            val path =  Environment.getExternalStorageDirectory().path+"/Android/data/${mContext.packageName}/shell/token.txt"
+            val file = File(path)
+            if(file.exists()){
+                return file.readText().trim()
+            }
+            return ""
         }
         /**
          * 获取文件内容
@@ -123,60 +127,68 @@ class AutoAccountingServiceUtils(mContext: Context) {
     }
 
 
+    suspend fun request(path: String,
+                        query: HashMap<String, String> = hashMapOf(),
+                        data: HashMap<String, String> = hashMapOf(),
+                        contentType: Int = RequestsUtils.TYPE_FORM,
+                        count:Int = 0
+    ):String = withContext(Dispatchers.IO) {
+        runCatching {
+            requestsUtils.post(
+                getUrl(path),
+                query = query,
+                data = data,
+                contentType = contentType,
+                headers = headers).apply {
+                if (code != 200) {
+                    throw AutoServiceException(
+                        String(byteArray),
+                        AutoServiceException.CODE_SERVER_AUTHORIZE
+                    )
+                }
+            }.let {
+                String(it.byteArray).trim()
+            }
+        }.getOrElse {
+            if(count>4){
+                throw it
+            } else {
+                Thread.sleep((count * 1000).toLong())
+                request(path,query,data,count+1)
+            }
+        }
+    }
 
     /**
      * 获取数据
      */
     suspend fun get(name: String):String = withContext(Dispatchers.IO){
-            val result = requestsUtils.post(
-                getUrl("/get"),
+            request(
+                "/get",
                 query = hashMapOf("name" to name),
-                headers = headers
             )
-            if (result.code == 200) {
-                String(result.byteArray).trim()
-            } else {
-                throw AutoServiceException(
-                    String(result.byteArray),
-                    AutoServiceException.CODE_SERVER_AUTHORIZE
-                )
-            }
-
     }
 
     /**
      * 设置数据
      */
     suspend fun set(name: String, value: String) = withContext(Dispatchers.IO){
-        requestsUtils.post(getUrl("/set"),
+        request("/set",
             query = hashMapOf("name" to name),
             data = hashMapOf("raw" to value),
             contentType = RequestsUtils.TYPE_RAW,
-            headers = headers).apply {
-            if (code != 200) {
-                throw AutoServiceException(
-                    String(byteArray),
-                    AutoServiceException.CODE_SERVER_AUTHORIZE
-                )
-            }
+           )
         }
-    }
+
 
     /**
      * 设置App记录数据
      */
    suspend fun putData(value: String)= withContext(Dispatchers.IO){
-        requestsUtils.post(getUrl("/data"),
+        request("/data",
             data = hashMapOf("raw" to value),
             contentType = RequestsUtils.TYPE_RAW,
-            headers = headers).apply {
-            if (code != 200) {
-                throw AutoServiceException(
-                    String(byteArray),
-                    AutoServiceException.CODE_SERVER_AUTHORIZE
-                )
-            }
-        }
+        )
 
     }
 
@@ -192,19 +204,10 @@ class AutoAccountingServiceUtils(mContext: Context) {
      */
     suspend fun putLog(value: String)= withContext(Dispatchers.IO){
 
-           requestsUtils.post(
-               getUrl("/log"),
+          request("/log",
                data = hashMapOf("raw" to value),
                contentType = RequestsUtils.TYPE_RAW,
-               headers = headers,
-           ).apply {
-               if(code!=200){
-                   throw AutoServiceException(
-                       String(byteArray),
-                       AutoServiceException.CODE_SERVER_AUTHORIZE
-                   )
-               }
-           }
+          )
 
     }
 
