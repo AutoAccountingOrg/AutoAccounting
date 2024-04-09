@@ -60,7 +60,6 @@ class RequestsUtils(context: Context) {
         const val METHOD_DELETE = "DELETE"
         const val METHOD_MKCOL = "MKCOL"
          var client: OkHttpClient? = null
-        val mainHandler = Handler(Looper.getMainLooper())
 
 
 

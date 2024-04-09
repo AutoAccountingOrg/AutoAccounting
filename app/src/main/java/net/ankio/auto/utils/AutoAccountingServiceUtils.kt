@@ -42,10 +42,12 @@ class AutoAccountingServiceUtils(mContext: Context) {
         // 将isServerStart转换为挂起函数
         suspend fun isServerStart(mContext: Context): Boolean = withContext(Dispatchers.IO) {
               runCatching {
-                  val result =   RequestsUtils(mContext).get("$HOST:$PORT/",
-                      headers = hashMapOf("Authorization" to getToken(mContext)))
-                  result.code == 200
-              }.getOrNull()?:false
+                  AppUtils.getService().request("/")
+                  true
+              }.getOrElse {
+                  Logger.e("异常：",it)
+                  false
+              }
         }
 
 
@@ -55,7 +57,7 @@ class AutoAccountingServiceUtils(mContext: Context) {
             if(file.exists()){
                 return file.readText().trim()
             }
-            return ""
+            return get("token",mContext)
         }
         /**
          * 获取文件内容
@@ -127,37 +129,43 @@ class AutoAccountingServiceUtils(mContext: Context) {
     }
 
 
-    suspend fun request(path: String,
-                        query: HashMap<String, String> = hashMapOf(),
-                        data: HashMap<String, String> = hashMapOf(),
-                        contentType: Int = RequestsUtils.TYPE_FORM,
-                        count:Int = 0
-    ):String = withContext(Dispatchers.IO) {
-        runCatching {
-            requestsUtils.post(
-                getUrl(path),
-                query = query,
-                data = data,
-                contentType = contentType,
-                headers = headers).apply {
-                if (code != 200) {
-                    throw AutoServiceException(
-                        String(byteArray),
-                        AutoServiceException.CODE_SERVER_AUTHORIZE
-                    )
+    suspend fun request(
+        path: String,
+        query: HashMap<String, String> = hashMapOf(),
+        data: HashMap<String, String> = hashMapOf(),
+        contentType: Int = RequestsUtils.TYPE_FORM,
+        count: Int = 0
+    ): String {
+        return runCatching {
+            withContext(Dispatchers.IO) {
+                requestsUtils.post(
+                    getUrl(path),
+                    query = query,
+                    data = data,
+                    contentType = contentType,
+                    headers = headers
+                ).apply {
+                    if (code != 200) {
+                        throw AutoServiceException(
+                            String(byteArray),
+                            AutoServiceException.CODE_SERVER_AUTHORIZE
+                        )
+                    }
+                }.let {
+                    String(it.byteArray).trim()
                 }
-            }.let {
-                String(it.byteArray).trim()
             }
         }.getOrElse {
-            if(count>4){
+            val nextCount = count + 1 // 递增 count 的值
+            if (nextCount > 4) {
                 throw it
             } else {
-                Thread.sleep((count * 1000).toLong())
-                request(path,query,data,count+1)
+                Thread.sleep((nextCount * 1000).toLong())
+                request(path, query, data, contentType, nextCount) // 明确传递递增后的 count 值
             }
         }
     }
+
 
     /**
      * 获取数据
@@ -190,6 +198,14 @@ class AutoAccountingServiceUtils(mContext: Context) {
             contentType = RequestsUtils.TYPE_RAW,
         )
 
+    }
+
+
+    suspend fun js(string: String):String = withContext(Dispatchers.IO){
+        request("/js",
+            data = hashMapOf("raw" to string),
+            contentType = RequestsUtils.TYPE_RAW,
+        )
     }
 
     /**
