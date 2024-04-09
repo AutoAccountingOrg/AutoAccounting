@@ -27,6 +27,7 @@ import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.DateUtils
 import net.ankio.auto.utils.Logger
 import net.ankio.common.constant.BillType
+import net.ankio.common.constant.Currency
 import org.json.JSONObject
 import org.mozilla.javascript.Context
 import org.mozilla.javascript.Scriptable
@@ -63,23 +64,13 @@ object Engine {
 
     suspend fun data(dataType: Int, app: String, data: String):BillInfo? = withContext(Dispatchers.IO) {
         log( "识别数据", "dataType:$dataType,app:$app,data:$data")
-        val outputBuilder = StringBuilder()
         val rule = AppUtils.getService().get("auto_rule")
         val billInfo = BillInfo()
         try {
             //识别脚本补充
-            val js = "var window = {data:data, dataType:dataType, app:app};${rule}"
+            val js = "var window = {data:JSON.stringify(${data}), dataType:${dataType}, app:\"${app}\"};${rule}"
             log( "执行识别脚本", js)
-            val context: Context = Context.enter()
-            val scope: Scriptable = context.initStandardObjects()
-            context.setOptimizationLevel(-1)
-            ScriptableObject.putProperty(scope, "data", data)
-            ScriptableObject.putProperty(scope, "dataType", dataType)
-            ScriptableObject.putProperty(scope, "app", app)
-            val printFunction = CustomPrintFunction(outputBuilder)
-            ScriptableObject.putProperty(scope, "print", printFunction)
-            context.evaluateString(scope, js, "<analyzeBill>", 1, null)
-            val json = outputBuilder.toString()
+            val json = AppUtils.getService().js(js)
             log( "识别结果", json)
             val jsonObject2 = JSONObject(json)
             billInfo.type = BillType.fromInt(jsonObject2.getInt("type"))
@@ -89,8 +80,7 @@ object Engine {
             billInfo.shopName = jsonObject2.getString("shopName")
             billInfo.accountNameFrom =jsonObject2.getString("accountNameFrom")
             billInfo.accountNameTo = jsonObject2.getString("accountNameTo")
-            billInfo.currency =
-                net.ankio.common.constant.Currency.valueOf(jsonObject2.getString("currency"))
+            billInfo.currency = Currency.valueOf(jsonObject2.getString("currency"))
             billInfo.timeStamp = DateUtils.getAnyTime(jsonObject2.getString("time"))
             billInfo.channel = jsonObject2.getString("channel")
             billInfo.fromType = dataType.toDataType()
@@ -113,69 +103,27 @@ object Engine {
     suspend fun category(billInfo: BillInfo) = withContext(Dispatchers.IO) {
         val category = AppUtils.getService().get("auto_category")
         val categoryCustom = AppUtils.getService().get("auto_category_custom")
-        val outputBuilder = StringBuilder()
 
         try {
-
             val categoryJs =
-                "var window = {money:money, type:type, shopName:shopName, shopItem:shopItem, time:time};" +
+                "var window = {money:${billInfo.money}, type:${billInfo.type.value}, shopName:'${billInfo.shopName.replace("'","\"")}', shopItem:'${billInfo.shopItem.replace("'","\"")}', time:${DateUtils.stampToDate(billInfo.timeStamp, "HH:mm")}};" +
                         "function getCategory(money,type,shopName,shopItem,time){ $categoryCustom return null};" +
                         "var categoryInfo = getCategory(money,type,shopName,shopItem,time);" +
                         "if(categoryInfo !== null) { print(JSON.stringify(categoryInfo));  } else { $category }"
-            outputBuilder.clear() //清空
+
             log( "执行分类脚本", categoryJs)
-            val context: Context = Context.enter()
-            context.setOptimizationLevel(-1)
-            val categoryScope: Scriptable = context.initStandardObjects()
-            ScriptableObject.putProperty(categoryScope, "money", billInfo.money)
-            ScriptableObject.putProperty(categoryScope, "type", billInfo.type)
-            ScriptableObject.putProperty(categoryScope, "shopName", billInfo.shopName)
-            ScriptableObject.putProperty(categoryScope, "shopItem", billInfo.shopItem)
-            ScriptableObject.putProperty(
-                categoryScope,
-                "time",
-                DateUtils.stampToDate(billInfo.timeStamp, "HH:mm")
-            )
-            val printFunction = CustomPrintFunction(outputBuilder)
-            ScriptableObject.putProperty(categoryScope, "print", printFunction)
-            context.evaluateString(categoryScope, categoryJs, "<category>", 1, null)
-            val cateJson = JSONObject(outputBuilder.toString())
+            val json = AppUtils.getService().js(categoryJs)
+            val cateJson = JSONObject(json)
             billInfo.cateName = cateJson.getString("category")
             billInfo.bookName = cateJson.getString("book")
             log( "分类脚本执行结果", billInfo.cateName)
 
         }catch (e:Exception){
             log( "分类脚本执行出错", e.message ?: "",e)
-        }finally {
-            runCatching {
-                Context.exit()
-            }
         }
 
     }
 
-    fun runJS(code:String):String{
-        val outputBuilder = StringBuilder()
-        var result = ""
-        try {
-            log("执行脚本", code)
-            val context: Context = Context.enter()
-            val scope: Scriptable = context.initStandardObjects()
-            context.setOptimizationLevel(-1)
-            val printFunction = CustomPrintFunction(outputBuilder)
-            ScriptableObject.putProperty(scope, "print", printFunction)
-            context.evaluateString(scope, code, "<runJS>", 1, null)
-             result = outputBuilder.toString()
-        }catch (e:Exception){
-            log( "JS执行错误", e.message ?: "",e)
-        }finally {
-            runCatching {
-                Context.exit()
-            }
-
-        }
-        return result
-    }
 
     private fun log(prefix: String, data: String,throwable: Throwable?=null) {
         if(throwable!==null){

@@ -228,7 +228,7 @@ object BillUtils {
         return tpl
             .replace("【商户名称】", billInfo.shopName)
             .replace("【商品名称】", billInfo.shopItem)
-            .replace("【币种类型】", billInfo.currency.name(AppUtils.getApplication()))
+         //   .replace("【币种类型】", billInfo.currency.name(AppUtils.getApplication()))
             .replace("【金额】", billInfo.money.toString())
             .replace("【分类】", billInfo.cateName)
             .replace("【账本】", billInfo.bookName)
