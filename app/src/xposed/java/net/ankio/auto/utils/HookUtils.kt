@@ -21,6 +21,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
 import android.widget.Toast
+import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -38,9 +39,22 @@ class HookUtils(val context: Application, private val packageName: String) {
 
     private var autoAccountingServiceUtils: AutoAccountingServiceUtils
 
+    private val loadClazz = HashMap<String,Class<*>>()
+
     init {
         AppUtils.setApplication(context)
         autoAccountingServiceUtils = AppUtils.setService(context)
+        XposedBridge.hookAllMethods(ClassLoader::class.java, "loadClass", object : XC_MethodHook() {
+            @Throws(Throwable::class)
+            override fun afterHookedMethod(param: MethodHookParam) {
+                if (param.hasThrowable()) return
+                if (param.args.size != 1) return
+
+                val cls = param.result as Class<*>
+                val name = cls.name
+                loadClazz[name] = cls
+            }
+        })
     }
     fun startAutoApp(e:Throwable,application: Application): Boolean  {
         var result = false
@@ -178,6 +192,18 @@ class HookUtils(val context: Application, private val packageName: String) {
         Toast.makeText(context,msg, Toast.LENGTH_LONG).show()
     }
 
-
-
+    /**
+     * 加载clazz类
+     */
+    suspend fun loadClass(name:String,count:Int = 0):Class<*> = withContext(Dispatchers.IO){
+        var clazz = loadClazz[name]
+        if(clazz===null){
+            Thread.sleep((count * 1000).toLong())
+            if(count>30){
+                throw ClassNotFoundException("加载类（$name）失败")
+            }
+            clazz = loadClass(name,count+1)
+        }
+        clazz
+    }
 }

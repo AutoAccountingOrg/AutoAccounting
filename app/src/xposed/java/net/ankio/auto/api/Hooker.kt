@@ -41,14 +41,8 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import net.ankio.auto.App
-import net.ankio.auto.BuildConfig
 import net.ankio.auto.HookMainApp
-import net.ankio.auto.exceptions.AutoServiceException
-import net.ankio.auto.utils.ActiveUtils
 import net.ankio.auto.utils.HookUtils
 import net.ankio.dex.Dex
 import net.ankio.dex.model.Clazz
@@ -111,6 +105,10 @@ abstract class Hooker : iHooker {
                     })
             }
         }
+
+
+
+
     }
 
 
@@ -130,7 +128,6 @@ abstract class Hooker : iHooker {
             try {
                 hookUtils.scope.launch {
                     hookUtils.logD(HookMainApp.getTag(appName,packPageName),"正在初始化Hook ${hook.hookName}")
-
                 }
                  hook.onInit(classLoader,application)
             }catch (e:Exception){
@@ -142,8 +139,7 @@ abstract class Hooker : iHooker {
                 }
                 if(hookUtils.startAutoApp(e,application))return
                 hookUtils.scope.launch {
-                    hookUtils.log(HookMainApp.getTag(),"自动" +
-                            "记账Hook异常..${e.message}.")
+                    hookUtils.log(HookMainApp.getTag(),"自动记账Hook异常..${e.message}.")
 
                 }
 
@@ -157,6 +153,7 @@ abstract class Hooker : iHooker {
 
 
     }
+
 
 
     @Throws(ClassNotFoundException::class)

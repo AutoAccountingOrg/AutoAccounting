@@ -26,6 +26,7 @@ import net.ankio.auto.hooks.alipay.hooks.WebViewHooker
 class AlipayHooker:Hooker() {
     override val packPageName: String = "com.eg.android.AlipayGphone"
     override val appName: String = "支付宝"
+    override val applicationClazz: String = "com.alipay.mobile.quinox.LauncherApplication"
     override var partHookers: MutableList<PartHooker> = arrayListOf(
         SettingUIHooker(this),//支付宝设置
         MessageBoxHooker(this),//支付消息盒子

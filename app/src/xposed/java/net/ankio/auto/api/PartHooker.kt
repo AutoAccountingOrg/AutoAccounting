@@ -17,14 +17,22 @@ package net.ankio.auto.api
 
 import android.content.Context
 import de.robv.android.xposed.XposedBridge
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.ankio.auto.HookMainApp
 
 abstract class PartHooker(val hooker: Hooker) {
     abstract  val hookName: String
+    //   private val loadedClazz = mutableListOf<String>()
 
 
-    abstract fun onInit(classLoader: ClassLoader,context: Context)
+    abstract  fun onInit(classLoader: ClassLoader, context: Context) //初始化
+    suspend fun loadClass(name: String): Class<*> {
+        return hooker.hookUtils.loadClass(name)
+    }
+
+
 
     /**
      * 正常输出日志
