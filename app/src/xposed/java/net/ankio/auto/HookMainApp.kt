@@ -1,7 +1,6 @@
 package net.ankio.auto
 
 import android.util.Log
-import com.google.gson.Gson
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.IXposedHookZygoteInit
 import de.robv.android.xposed.XposedBridge
@@ -10,7 +9,6 @@ import net.ankio.auto.api.Hooker
 import net.ankio.auto.hooks.alipay.AlipayHooker
 import net.ankio.auto.hooks.auto.AutoHooker
 import net.ankio.auto.hooks.wechat.WechatHooker
-import net.ankio.dex.Dex
 
 
 class HookMainApp : IXposedHookLoadPackage,IXposedHookZygoteInit {
@@ -31,7 +29,7 @@ class HookMainApp : IXposedHookLoadPackage,IXposedHookZygoteInit {
             }
             return tag
         }
-
+        var modulePath = ""
 
 
 
@@ -58,7 +56,7 @@ class HookMainApp : IXposedHookLoadPackage,IXposedHookZygoteInit {
     }
 
     override fun initZygote(startupParam: IXposedHookZygoteInit.StartupParam?) {
-
+        modulePath = startupParam?.modulePath?:""
     }
 
 

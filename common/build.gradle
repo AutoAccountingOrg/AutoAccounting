@@ -37,6 +37,9 @@ android {
             withJavadocJar()
         }
     }
+    aaptOptions {
+        additionalParameters '--allow-reserved-package-id', '--package-id', '0x65'
+    }
 }
 
 publishing {

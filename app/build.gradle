@@ -94,6 +94,9 @@ android {
             includeAndroidResources = true
         }
     }
+    aaptOptions {
+        additionalParameters '--allow-reserved-package-id', '--package-id', '0x65'
+    }
 }
 
 task extractArraysToTxt {

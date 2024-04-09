@@ -23,8 +23,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.api.Hooker
 import net.ankio.auto.api.PartHooker
-import net.ankio.auto.app.js.Engine
 import net.ankio.auto.constant.DataType
+import net.ankio.auto.utils.AppUtils
 import org.json.JSONObject
 
 
@@ -49,26 +49,30 @@ class WebViewHooker(hooker: Hooker) : PartHooker(hooker) {
                        val js = param?.args?.get(0) as String
                        logD("支付宝WebView页面hook数据:$js")
                        if(!js.trim().startsWith(PREFIX))return
-                       val json = getJSON(js) ?: return
-                       logD("支付宝WebView页面hook数据:$js")
-                       val func = json.getString("func")
+                       hooker.hookUtils.scope.launch {
+                           val json = getJSON(js)
+                           if(json !== null){
+                               val func = json.getString("func")
+                               if (func.equals("rpc")) {
+                                   val alipayParam = json.getJSONObject("param")
+                                   //分析支付宝数据
+                                   log("分析支付宝数据:$alipayParam")
+                                   analyzeData(DataType.App.ordinal, alipayParam.toString())
+                               }
 
-                       if(!func.equals("rpc")){
-                           return
+                           }
+
                        }
-                       val alipayParam = json.getJSONObject("param")
-                       //分析支付宝数据
-                       log("分析支付宝数据:$alipayParam")
-                       analyzeData(DataType.App.ordinal,alipayParam.toString())
                    }
                })
            }
         }
 
     }
-    fun getJSON(js:String):JSONObject?{
+
+    suspend fun getJSON(js: String): JSONObject? {
         var code = js.trim().removePrefix(PREFIX).removeSuffix(")}})();")
         code = "print(JSON.stringify(JSON.parse($code)))"
-        return runCatching { JSONObject(Engine.runJS(code)) }.getOrNull()
+        return runCatching { JSONObject(AppUtils.getService().js(code)) }.getOrNull()
     }
 }

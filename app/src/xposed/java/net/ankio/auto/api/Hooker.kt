@@ -122,6 +122,7 @@ abstract class Hooker : iHooker {
             return
         }
 
+
         hookLoadPackage(classLoader, application)
 
         for (hook in partHookers) {

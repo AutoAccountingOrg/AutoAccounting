@@ -23,6 +23,7 @@ import android.net.Uri
 import android.widget.Toast
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
+import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -42,6 +43,12 @@ class HookUtils(val context: Application, private val packageName: String) {
     private val loadClazz = HashMap<String,Class<*>>()
 
     init {
+        XposedHelpers.callMethod(
+            context.resources.assets,
+            "addAssetPath",
+            HookMainApp.modulePath
+        )
+
         AppUtils.setApplication(context)
         autoAccountingServiceUtils = AppUtils.setService(context)
         XposedBridge.hookAllMethods(ClassLoader::class.java, "loadClass", object : XC_MethodHook() {
@@ -149,6 +156,7 @@ class HookUtils(val context: Application, private val packageName: String) {
                         ), it1
                     )
                 }
+                XposedBridge.log(it)
             }
         }
 
