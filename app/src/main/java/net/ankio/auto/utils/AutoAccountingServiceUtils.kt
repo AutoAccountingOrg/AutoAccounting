@@ -15,8 +15,10 @@
 
 package net.ankio.auto.utils
 
+import android.app.Activity
 import android.content.Context
 import android.os.Environment
+import android.util.Log
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -24,6 +26,8 @@ import net.ankio.auto.exceptions.AutoServiceException
 import net.ankio.auto.utils.request.RequestsUtils
 import net.ankio.common.config.AccountingConfig
 import java.io.File
+import java.io.FileOutputStream
+
 
 /**
  * AutoAccountingServiceUtils
@@ -32,7 +36,7 @@ import java.io.File
  */
 class AutoAccountingServiceUtils(private val mContext: Context) {
 
-    private var requestsUtils = RequestsUtils(mContext)
+
 
 
 
@@ -135,7 +139,7 @@ class AutoAccountingServiceUtils(private val mContext: Context) {
     ): String {
         return runCatching {
             withContext(Dispatchers.IO) {
-                requestsUtils.post(
+                RequestsUtils(mContext).post(
                     getUrl(path),
                     query = query,
                     data = data,
@@ -159,7 +163,7 @@ class AutoAccountingServiceUtils(private val mContext: Context) {
             if (nextCount > 4) {
                 throw it
             } else {
-                Thread.sleep((nextCount * 1000).toLong())
+                Thread.sleep((nextCount * 300).toLong())
                 request(path, query, data, contentType, nextCount) // 明确传递递增后的 count 值
             }
         }
@@ -180,11 +184,12 @@ class AutoAccountingServiceUtils(private val mContext: Context) {
      * 设置数据
      */
     suspend fun set(name: String, value: String) = withContext(Dispatchers.IO){
-        request("/set",
+        request(
+            "/set",
             query = hashMapOf("name" to name),
             data = hashMapOf("raw" to value),
             contentType = RequestsUtils.TYPE_RAW,
-           )
+        )
         }
 
 
@@ -192,7 +197,8 @@ class AutoAccountingServiceUtils(private val mContext: Context) {
      * 设置App记录数据
      */
    suspend fun putData(value: String)= withContext(Dispatchers.IO){
-        request("/data",
+        request(
+            "/data",
             data = hashMapOf("raw" to value),
             contentType = RequestsUtils.TYPE_RAW,
         )
@@ -201,7 +207,8 @@ class AutoAccountingServiceUtils(private val mContext: Context) {
 
 
     suspend fun js(string: String):String = withContext(Dispatchers.IO){
-        request("/js",
+        request(
+            "/js",
             data = hashMapOf("raw" to string),
             contentType = RequestsUtils.TYPE_RAW,
         )
@@ -219,9 +226,10 @@ class AutoAccountingServiceUtils(private val mContext: Context) {
      */
     suspend fun putLog(value: String)= withContext(Dispatchers.IO){
 
-          request("/log",
-               data = hashMapOf("raw" to value),
-               contentType = RequestsUtils.TYPE_RAW,
+          request(
+              "/log",
+              data = hashMapOf("raw" to value),
+              contentType = RequestsUtils.TYPE_RAW,
           )
 
     }
@@ -248,5 +256,53 @@ class AutoAccountingServiceUtils(private val mContext: Context) {
         }.onFailure {
             Logger.e("获取配置失败",it)
         }.getOrNull()?:AccountingConfig()
+    }
+
+    suspend  fun copyAssetsShellFolderToCache(activity: Activity,cacheDir: File?) = withContext(Dispatchers.IO) {
+        val shellFolderPath = "shell"
+        val destinationPath = cacheDir!!.path + File.separator //+ shellFolderPath
+        Logger.i("Copying shell folder from assets to $destinationPath")
+        copyAssetsDirToSDCard(activity, shellFolderPath, destinationPath)
+    }
+
+    fun copyAssetsDirToSDCard(context: Context, assetsDirName: String, sdCardPath: String) {
+        Logger.d("copyAssetsDirToSDCard() called with: context = [$context], assetsDirName = [$assetsDirName], sdCardPath = [$sdCardPath]")
+        try {
+            val list = context.assets.list(assetsDirName)
+            if (list!!.isEmpty()) {
+                val inputStream = context.assets.open(assetsDirName)
+                val mByte = ByteArray(1024)
+                var bt = 0
+                val file = File(
+                    sdCardPath + File.separator
+                            + assetsDirName.substring(assetsDirName.lastIndexOf('/'))
+                )
+                if (!file.exists()) {
+                    file.createNewFile()
+                } else {
+                    return
+                }
+                val fos = FileOutputStream(file)
+                while ((inputStream.read(mByte).also { bt = it }) != -1) {
+                    fos.write(mByte, 0, bt)
+                }
+                fos.flush()
+                inputStream.close()
+                fos.close()
+            } else {
+                var subDirName = assetsDirName
+                if (assetsDirName.contains("/")) {
+                    subDirName = assetsDirName.substring(assetsDirName.lastIndexOf('/') + 1)
+                }
+                val newPath = sdCardPath + File.separator + subDirName
+                val file = File(newPath)
+                if (!file.exists()) file.mkdirs()
+                for (s: String in list) {
+                    copyAssetsDirToSDCard(context, assetsDirName + File.separator + s, newPath)
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 }

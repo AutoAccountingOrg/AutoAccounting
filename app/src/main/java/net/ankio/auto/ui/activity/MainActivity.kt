@@ -178,6 +178,7 @@ class MainActivity : BaseActivity() {
     private  fun checkAutoService(){
         EventBus.register(AutoServiceErrorEvent::class.java, autoListener)
         lifecycleScope.launch {
+            AppUtils.getService().copyAssetsShellFolderToCache(this@MainActivity,externalCacheDir)
             if(!AutoAccountingServiceUtils.isServerStart(this@MainActivity)){
                 EventBus.post(AutoServiceErrorEvent(AutoServiceException("自动记账服务未连接",AutoServiceException.CODE_SERVER_AUTHORIZE)))
             }else{

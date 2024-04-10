@@ -76,10 +76,8 @@ class ServiceFragment:BaseFragment() {
             throw UnsupportedDeviceException(getString(R.string.unsupport_device))
         }
         shell = "sh ${cacheDir!!.path}/shell/starter.sh"
-        //复制二进制文件到缓存路径
-        lifecycleScope.launch {
-            copyAssetsShellFolderToCache()
-        }
+
+
         binding.start.setOnClickListener {
             //启动服务
             startServerByRoot()
@@ -169,65 +167,6 @@ class ServiceFragment:BaseFragment() {
     }
 
 
-    private fun copyAssetsShellFolderToCache() {
-        val assetManager = requireActivity().assets
-        val shellFolderPath = "shell"
-        val destinationPath = cacheDir!!.path + File.separator + shellFolderPath
-        Logger.i("Copying shell folder from assets to $destinationPath")
-        copyFolderFromAssets(assetManager, shellFolderPath, destinationPath)
-    }
 
-    private fun copyFolderFromAssets(
-        assetManager: AssetManager,
-        sourceFolderPath: String,
-        destinationFolderPath: String
-    ) {
-        try {
-            val files = assetManager.list(sourceFolderPath) ?: return
-
-            // Create the destination folder if it doesn't exist
-            val destinationFolder = File(destinationFolderPath)
-            if (!destinationFolder.exists()) {
-                destinationFolder.mkdirs()
-            }
-
-            for (filename in files) {
-                val sourceFilePath =
-                    if (sourceFolderPath == "") filename else "$sourceFolderPath/$filename"
-                val destinationFilePath = "$destinationFolderPath/$filename"
-
-                try {
-                    val inputStream = assetManager.open(sourceFilePath)
-                    copyFile(inputStream, destinationFilePath)
-                } catch (e: IOException) {
-                    // If we encounter an IOException, it might be because it's a directory
-                    copyFolderFromAssets(assetManager, sourceFilePath, destinationFilePath)
-                }
-            }
-        } catch (e: IOException) {
-            Logger.e("Error copying shell folder", e)
-        }
-    }
-
-    private fun copyFile(inputStream: InputStream, destinationFilePath: String) {
-        var outputStream: OutputStream? = null
-        try {
-            outputStream = FileOutputStream(destinationFilePath)
-            val buffer = ByteArray(1024)
-            var length: Int
-            while (inputStream.read(buffer).also { length = it } > 0) {
-                outputStream.write(buffer, 0, length)
-            }
-        } catch (e: IOException) {
-            Logger.e("Error copying file", e)
-        } finally {
-            try {
-                inputStream.close()
-                outputStream?.close()
-            } catch (e: IOException) {
-                Logger.e("Error closing streams", e)
-            }
-        }
-    }
 
 }
