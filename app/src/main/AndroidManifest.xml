@@ -35,7 +35,7 @@
         <activity
             android:name=".ui.activity.FloatingWindowTriggerActivity"
             android:excludeFromRecents="true"
-
+            android:theme="@style/TransparentActivityTheme"
             android:exported="true">
             <intent-filter>
                 <action android:name="net.ankio.auto.ACTION_SHOW_FLOATING_WINDOW" />
