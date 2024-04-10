@@ -133,7 +133,7 @@ std::string Handler::handleRoute(std::string &path,
 
         if (queryParams.find("name") != queryParams.end()) {
             std::string key = queryParams.at("name");
-            if (key != "token.txt") {
+            if (key != "token") {
                 response = File::readFile(key);
             }
         }
@@ -144,7 +144,7 @@ std::string Handler::handleRoute(std::string &path,
             if (
                     key != "data"
                     && key != "log"
-                    && key != "token.txt"
+                    && key != "token"
                     ) {
                 File::writeFile(queryParams.at("name"), requestBody);
             }

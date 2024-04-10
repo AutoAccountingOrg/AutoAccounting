@@ -30,11 +30,11 @@ import java.io.File
  * 自动记账服务调用工具
  * @throws AutoServiceException
  */
-class AutoAccountingServiceUtils(mContext: Context) {
+class AutoAccountingServiceUtils(private val mContext: Context) {
 
     private var requestsUtils = RequestsUtils(mContext)
 
-    private val headers = HashMap<String, String>()
+
 
     companion object{
         private const val HOST = "http://127.0.0.1"
@@ -124,9 +124,6 @@ class AutoAccountingServiceUtils(mContext: Context) {
 
     }
 
-    init {
-        headers["Authorization"] = getToken(mContext)
-    }
 
 
     suspend fun request(
@@ -143,7 +140,9 @@ class AutoAccountingServiceUtils(mContext: Context) {
                     query = query,
                     data = data,
                     contentType = contentType,
-                    headers = headers
+                    headers = hashMapOf(
+                        "Authorization" to getToken(mContext)
+                    )
                 ).apply {
                     if (code != 200) {
                         throw AutoServiceException(

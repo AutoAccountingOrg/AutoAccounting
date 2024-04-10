@@ -28,7 +28,7 @@ void Server::start() {
  */
 void Server::createToken() {
     //如果token文件不为空，则不创建新的token
-    std::string  token = File::readFile(workspace + "token.txt");
+    std::string  token = File::readFile(workspace + "token");
     if (!token.empty()) {
         logFile << File::formatTime() << "Token already exists:"<<token << std::endl;
         return;
@@ -48,15 +48,15 @@ void Server::createToken() {
     for (size_t i = 0; i < length; ++i) {
         token += chars[distribution(generator)];
     }
-   File::writeFile(workspace +"token.txt", token);
-    logFile << File::formatTime() << "Create new token.txt:"<<token << std::endl;
+   File::writeFile(workspace +"token", token);
+    logFile << File::formatTime() << "Create new token:"<<token << std::endl;
 }
 
 /**
  * 发布token
  */
 void Server::publishToken() {
-    const std::string token = File::readFile(workspace +"token.txt");
+    const std::string token = File::readFile(workspace +"token");
     if(File::fileExists(workspace + "apps.txt")){
         logFile << File::formatTime() << "Find Apps.txt " << std::endl;
         std::string apps = File::readFile(workspace +"apps");
@@ -70,7 +70,7 @@ void Server::publishToken() {
             std::string path = "/sdcard/Android/data/" + line + "/shell/";
             //使用函数创建文件夹
             File::createDir(path);
-            File::writeFile(path + "token.txt", token);
+            File::writeFile(path + "token", token);
             logFile << File::formatTime() << "Publish Token :" << path + "token.txt" << std::endl;
         }
     }
