@@ -202,7 +202,7 @@ class DataFragment : BaseFragment() {
             resultList.addAll(appData)
             resultList.addAll(filteredCollection)
             //处理完成再删
-            AutoAccountingServiceUtils.delete("data",requireContext())
+            //AutoAccountingServiceUtils.delete("data",requireContext())
 
             //在这里处理搜索逻辑
             val resultSearch = resultList.filter {
