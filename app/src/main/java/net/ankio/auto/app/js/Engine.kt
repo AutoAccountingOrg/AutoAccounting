@@ -99,8 +99,8 @@ object Engine {
 
         try {
             val categoryJs =
-                "var window = {money:${billInfo.money}, type:${billInfo.type.value}, shopName:'${billInfo.shopName.replace("'","\"")}', shopItem:'${billInfo.shopItem.replace("'","\"")}', time:${DateUtils.stampToDate(billInfo.timeStamp, "HH:mm")}};" +
-                        "function getCategory(money,type,shopName,shopItem,time){ $categoryCustom return null};" +
+                "var window = {money:${BillUtils.getFloatMoney(billInfo.money)}, type:${billInfo.type.value}, shopName:'${billInfo.shopName.replace("'","\"")}', shopItem:'${billInfo.shopItem.replace("'","\"")}', time:'${DateUtils.stampToDate(billInfo.timeStamp, "HH:mm")}'};\n" +
+                        "function getCategory(money,type,shopName,shopItem,time){ $categoryCustom return null};\n" +
                         "var categoryInfo = getCategory(money,type,shopName,shopItem,time);" +
                         "if(categoryInfo !== null) { print(JSON.stringify(categoryInfo));  } else { $category }"
 
