@@ -18,6 +18,8 @@ import android.util.Base64
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import net.ankio.auto.constant.DataType
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.Logger
@@ -79,13 +81,12 @@ class AppData {
         fun fromJSON(json:String): AppData {
             return Gson().fromJson(json, AppData::class.java)
         }
-        fun fromTxt(txt:String):ArrayList<AppData>{
+        suspend fun fromTxt(txt:String):ArrayList<AppData> = withContext(Dispatchers.IO){
             val list = arrayListOf<AppData>()
                 for (line in txt.lines()){
                     if(line.isNotEmpty()){
                         runCatching {
                             val base64  = String(Base64.decode(line,Base64.NO_WRAP))
-                            Logger.i("数据列表: $base64")
                             list.add(fromJSON(base64))
                         }.onFailure {
                             Logger.e("数据异常",it)
@@ -93,7 +94,7 @@ class AppData {
                     }
                 }
 
-            return list
+             list
         }
     }
 }
