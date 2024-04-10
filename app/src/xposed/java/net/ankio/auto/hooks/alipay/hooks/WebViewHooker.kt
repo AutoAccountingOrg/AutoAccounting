@@ -47,8 +47,10 @@ class WebViewHooker(hooker: Hooker) : PartHooker(hooker) {
                    override fun afterHookedMethod(param: MethodHookParam?) {
                        super.afterHookedMethod(param)
                        val js = param?.args?.get(0) as String
-                       logD("支付宝WebView页面hook数据:$js")
+
                        if(!js.trim().startsWith(PREFIX))return
+                       if(!js.contains("func") && !js.contains("rpc") && !js.contains("param"))return
+                       logD("支付宝WebView页面hook数据:$js")
                        hooker.hookUtils.scope.launch {
                            val json = getJSON(js)
                            if(json !== null){
