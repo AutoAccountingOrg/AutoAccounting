@@ -70,7 +70,7 @@ class RequestsUtils(context: Context) {
     init {
         if(client === null){
             client = OkHttpClient.Builder()
-                .cache(Cache(context.cacheDir, 10 * 1024 * 1024)) // 10MB cache
+                .retryOnConnectionFailure(true)
                 .build()
         }
     }
@@ -168,6 +168,9 @@ class RequestsUtils(context: Context) {
 
             message.append(requestUrl + "\n")
 
+
+
+
             val cacheKey = generateCacheKey(requestUrl, method, data)
             val cachedData = cacheManager.readFromCache(cacheKey)
             if (cacheTime > 0 && cachedData.isNotEmpty()) {
@@ -182,6 +185,7 @@ class RequestsUtils(context: Context) {
             }
         AppTimeMonitor.startMonitoring("请求: $requestUrl")
             val requestBuilder = Request.Builder().url(requestUrl)
+
 
 
 
@@ -201,13 +205,12 @@ class RequestsUtils(context: Context) {
 
             val request = requestBuilder.build()
 
+        Logger.d(message.toString())
+
         val response = client?.newCall(request)?.execute()
             ?: throw HttpException("Request failed: response is null")
 
-       /* if (!response.isSuccessful) {
-            response.close()
-            throw HttpException("Request failed: ${response.code} ${response.message}")
-        }*/
+
         val bytes = response.body?.bytes()
         if (cacheTime > 0 && response.isSuccessful) {
             AppUtils.getScope().launch {
