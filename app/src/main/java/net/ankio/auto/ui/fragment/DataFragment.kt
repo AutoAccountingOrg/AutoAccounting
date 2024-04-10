@@ -201,7 +201,8 @@ class DataFragment : BaseFragment() {
             val resultList = mutableListOf<AppData>()
             resultList.addAll(appData)
             resultList.addAll(filteredCollection)
-
+            //处理完成再删
+            AutoAccountingServiceUtils.delete("data",requireContext())
 
             //在这里处理搜索逻辑
             val resultSearch = resultList.filter {
