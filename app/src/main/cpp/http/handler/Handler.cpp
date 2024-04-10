@@ -9,10 +9,14 @@
 #include "../../utils/ThreadLocalStorage.h"
 #include "../../utils/trim.cpp"
 #include "../server/Server.h"
+#define CRLF "\r\n"
+#define CRLF_2 "\r\n\r\n"
 extern std::string workspace;
 extern std::ofstream logFile;
 
 Handler::Handler(int socket) : socket(socket) {}
+
+
 
 /**
  * 处理连接
@@ -29,7 +33,7 @@ void Handler::handleConnection()   {
         memset(buffer, 0, bufferSize); // 清理缓冲区
         ssize_t bytesRead = read(socket, buffer, bufferSize - 1);
         if (bytesRead < 0) {
-            perror("read error");
+            File::log("Read error.");
             // 发生错误
             if (errno == EAGAIN || errno == EWOULDBLOCK) {
                 // 非阻塞模式下，没有数据可读
@@ -45,11 +49,11 @@ void Handler::handleConnection()   {
         buffer[bytesRead] = '\0';
         request.append(buffer);
         // 检查是否接收到完整的HTTP请求
-        if (!headerReceived && request.find("\r\n\r\n") != std::string::npos) {
+        if (!headerReceived && request.find(CRLF_2) != std::string::npos) {
             // 请求头接收完毕
             headerReceived = true;
             contentLength = getContentLength(request);
-            int index = static_cast<int>(request.find("\r\n\r\n"));
+            int index = static_cast<int>(request.find(CRLF_2));
             bodyStart = index + 4;
             header = request.substr(0, bodyStart);
         }
@@ -94,11 +98,11 @@ void Handler::handleConnection()   {
  * @return
  */
  std::string Handler::httpResponse(const std::string &status,const std::string &responseBody) {
-    return "HTTP/1.1 " + status + "\r\n" // 使用 \r\n 而不是 \n 作为行结束符，以符合HTTP协议标准
-           "Content-Type: text/plain\r\n"
-           "Content-Length: " + std::to_string(responseBody.size()) + "\r\n"
-           "Connection: close\r\n" // 添加这行来指示连接将被关闭
-           "\r\n" +
+    return "HTTP/1.1 " + status + CRLF // 使用 \r\n 而不是 \n 作为行结束符，以符合HTTP协议标准
+           "Content-Type: text/plain" + CRLF
+           "Content-Length: " + std::to_string(responseBody.size())  + CRLF
+           "Connection: close" + CRLF // 添加这行来指示连接将被关闭
+           + CRLF +
            responseBody;
 }
 
@@ -122,6 +126,7 @@ std::string Handler::handleRoute(std::string &path,
     std::string status = "200 OK";
     //授权校验
     if (File::readFile("token") != authHeader || authHeader.empty()) {
+        File::logD("Request Authorization Error, Server will republish tokens..");
         Server::publishToken();
         return httpResponse("401 Incorrect Authorization", "Incorrect Authorization: "+authHeader);
     }
@@ -170,12 +175,16 @@ std::string Handler::handleRoute(std::string &path,
  * @param args
  */
 void println(qjs::rest<std::string> args)  {
-    std::cout << args[0] << std::endl;
+    File::logD("-----js result------");
+    File::logD(args[0]);
+    File::logD("-----js result------");
     ThreadLocalStorage::getJsRes() = args[0];
 }
 
  std::string Handler::js(std::string &js) {
-     std::cout << js << std::endl;
+     File::logD("-----js------");
+    File::logD(js);
+     File::logD("-----js------");
     qjs::Runtime runtime;
     qjs::Context context(runtime);
     try
@@ -195,10 +204,9 @@ void println(qjs::rest<std::string> args)  {
     catch(qjs::exception &e)
     {
         auto exc = context.getException();
-        logFile <<  File::formatTime() << "JS Error: "<< (std::string) exc << std::endl;
-        std::cout << (std::string) exc << std::endl;
+        File::log("JS Error: "+ (std::string) exc );
         if((bool) exc["stack"])
-            logFile <<  File::formatTime() << "JS Error: "<< (std::string) exc["stack"]  << std::endl;
+             File::log("JS Error: "+ (std::string) exc["stack"]  );
     }
     return "";
 }

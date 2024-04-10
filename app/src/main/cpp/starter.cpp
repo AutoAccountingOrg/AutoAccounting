@@ -6,7 +6,7 @@
 #include <cstring>
 #include <vector>
 #include "http/server/Server.h"
-
+#define VERSION "1.0.0"
 #define NUM_WORKERS 1
 #define PID_FILE "daemon.pid"
 
@@ -19,9 +19,10 @@ void start_workers();
 void stop_workers();
 std::string select_workspace(char *argv[]);
 std::string workspace; //工作环境
-
+bool debug = false;
 bool should_restart_workers = true;
 int main(int argc, char *argv[]) {
+    std::cout << "AutoAccountingServer Version: " << VERSION << std::endl;
     //一开始就选定工作目录
     workspace = select_workspace(argv);
     if (argc > 1) {
@@ -50,6 +51,7 @@ int main(int argc, char *argv[]) {
         }
     }else{
         std::cout << "Usage: " << argv[0] << " [stop|restart|status|foreground|start  <path>?]" << std::endl;
+
         return 1;
     }
     // 打开日志文件
@@ -127,7 +129,15 @@ void handle_signal(int sig) {
             pid_t pid;
             int status;
             while ((pid = waitpid(-1, &status, WNOHANG)) > 0) {
-                logFile << File::formatTime() <<"Master: Detected worker process " << pid << " exit" << std::endl;
+                if (WIFEXITED(status)) {
+                    logFile << File::formatTime() <<"Worker process " << pid << " exited with status " << WEXITSTATUS(status) << std::endl;
+                } else if (WIFSIGNALED(status)) {
+                    logFile << File::formatTime() <<"Worker process " << pid << " was killed by signal " << WTERMSIG(status) << std::endl;
+                } else if (WIFSTOPPED(status)) {
+                    logFile << File::formatTime() <<"Worker process " << pid << " was stopped by signal " << WSTOPSIG(status) << std::endl;
+                } else {
+                    logFile << File::formatTime() <<"Worker process " << pid << " exited for unknown reasons" << std::endl;
+                }
                 // 从 workerPids 中移除退出的子进程 PID
                 workerPids.erase(std::remove(workerPids.begin(), workerPids.end(), pid), workerPids.end());
                 // 重新启动一个新的子进程

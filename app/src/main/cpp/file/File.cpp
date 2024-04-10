@@ -117,3 +117,13 @@ bool File::directoryExists(const std::string& path) {
 void File::createDir(const std::string &path) {
     std::__fs::filesystem::create_directories(path);
 }
+extern std::ofstream logFile;
+extern bool debug;
+void File::log(const std::string &data){
+    logFile << formatTime() << data << std::endl;
+}
+ void File::logD(const std::string &data){
+     if (debug){
+         logFile << formatTime() << data << std::endl;
+     }
+}

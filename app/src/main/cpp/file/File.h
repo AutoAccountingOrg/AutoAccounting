@@ -25,7 +25,8 @@ public:
     static void createDir(const std::string& path);
     //目录是否存在
     static bool directoryExists(const std::string& path);
-
+    static void log(const std::string &data);
+    static void logD(const std::string &data);
 };
 
 
