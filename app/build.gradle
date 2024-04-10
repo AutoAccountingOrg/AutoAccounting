@@ -168,8 +168,6 @@ dependencies {
     implementation libs.flexbox
     //圆角
     implementation libs.round
-    //js引擎
-    implementation libs.rhino
     //bug
     implementation libs.bugsnag.android
     //okhttp

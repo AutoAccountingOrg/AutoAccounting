@@ -29,9 +29,6 @@ import net.ankio.auto.utils.Logger
 import net.ankio.common.constant.BillType
 import net.ankio.common.constant.Currency
 import org.json.JSONObject
-import org.mozilla.javascript.Context
-import org.mozilla.javascript.Scriptable
-import org.mozilla.javascript.ScriptableObject
 import kotlin.coroutines.resume
 
 
@@ -88,10 +85,6 @@ object Engine {
             log( "最终整合", billInfo.toString())
         } catch (e: Exception) {
             log( "识别脚本执行出错", e.message ?: "",e)
-        }finally {
-          runCatching {
-              Context.exit()
-          }
         }
         return@withContext if(billInfo.money <= 0)null else billInfo
     }
