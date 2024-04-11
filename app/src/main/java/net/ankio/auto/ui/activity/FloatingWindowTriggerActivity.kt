@@ -51,7 +51,7 @@ class FloatingWindowTriggerActivity : AppCompatActivity() {
                 return
             }
 
-            Logger.i("悬浮窗口启动 $data")
+            Logger.d("悬浮窗口启动 $data")
             // 将数据传递给悬浮窗服务
             val serviceIntent = Intent(this, FloatingWindowService::class.java).apply {
                 putExtra("data", dataValue)
@@ -67,7 +67,7 @@ class FloatingWindowTriggerActivity : AppCompatActivity() {
 
     }
     fun exitActivity(){
-        finish()
+        finishAffinity()
         overridePendingTransition(0, 0);
     }
 
