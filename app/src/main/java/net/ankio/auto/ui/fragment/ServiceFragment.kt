@@ -57,6 +57,7 @@ class ServiceFragment:BaseFragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentServiceBinding.inflate(layoutInflater)
+
         initView();
         return binding.root
     }
@@ -74,6 +75,9 @@ class ServiceFragment:BaseFragment() {
         cacheDir = AppUtils.getApplication().externalCacheDir
         if (cacheDir === null) {
             throw UnsupportedDeviceException(getString(R.string.unsupport_device))
+        }
+        lifecycleScope.launch {
+            AppUtils.getService().copyAssetsShellFolderToCache(requireActivity(),cacheDir)
         }
         shell = "sh ${cacheDir!!.path}/shell/starter.sh"
 

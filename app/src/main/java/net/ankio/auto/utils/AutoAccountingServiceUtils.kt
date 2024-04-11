@@ -292,11 +292,10 @@ class AutoAccountingServiceUtils(private val mContext: Context) {
                     sdCardPath + File.separator
                             + assetsDirName.substring(assetsDirName.lastIndexOf('/'))
                 )
-                if (!file.exists()) {
-                    file.createNewFile()
-                } else {
-                    return
+                if (file.exists()) {
+                    file.delete()
                 }
+                file.createNewFile()
                 val fos = FileOutputStream(file)
                 while ((inputStream.read(mByte).also { bt = it }) != -1) {
                     fos.write(mByte, 0, bt)
