@@ -77,7 +77,6 @@ class ServiceFragment:BaseFragment() {
         }
         shell = "sh ${cacheDir!!.path}/shell/starter.sh"
 
-
         binding.start.setOnClickListener {
             //启动服务
             startServerByRoot()
@@ -100,7 +99,7 @@ class ServiceFragment:BaseFragment() {
         // 在一个新的协程中执行定时任务
         lifecycleScope.launch(Dispatchers.IO) { // 默认在主线程执行
 
-            while (isActive && !AutoAccountingServiceUtils.isServerStart(requireActivity())) { // 循环直到协程被取消
+            while (isActive && !AutoAccountingServiceUtils.isServerStart(5)) { // 循环直到协程被取消
                 delay(checkInterval)
             }
             withContext(Dispatchers.Main) {
@@ -113,8 +112,6 @@ class ServiceFragment:BaseFragment() {
 
 
     private fun startServerByRoot() {
-
-
         val dialogBinding = DialogProgressBinding.inflate(layoutInflater)
         val textView = dialogBinding.progressText
         val scrollView = dialogBinding.scrollView

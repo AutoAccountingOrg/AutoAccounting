@@ -36,21 +36,16 @@ import java.io.FileOutputStream
  */
 class AutoAccountingServiceUtils(private val mContext: Context) {
 
-
-
-
-
     companion object {
         private const val HOST = "http://127.0.0.1"
         private const val PORT = 52045
-
+        private const val SUPPORT_VERSION = "1.0.1"
         // 将isServerStart转换为挂起函数
-        suspend fun isServerStart(mContext: Context): Boolean = withContext(Dispatchers.IO) {
+        suspend fun isServerStart(retries:Int = 0): Boolean = withContext(Dispatchers.IO) {
             runCatching {
-                AppUtils.getService().request("/")
-                true
+                val version = AppUtils.getService().request("/", count = retries).trim()
+                SUPPORT_VERSION==version
             }.getOrElse {
-                Logger.e("异常：", it)
                 false
             }
         }
