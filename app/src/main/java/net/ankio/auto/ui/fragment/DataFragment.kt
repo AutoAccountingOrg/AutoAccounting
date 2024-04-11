@@ -112,7 +112,8 @@ class DataFragment : BaseFragment() {
                     .setTitle(getString(R.string.upload_sure))  // 设置对话框的标题
                     .setMessage(getString(R.string.upload_info))  // 设置对话框的消息
                     .setPositiveButton(getString(R.string.ok)) { dialog, which ->
-                        DataEditorDialog(requireContext(), item.data) { data ->
+                        val uploadData = AppUtils.toPrettyFormat(item.data)
+                        DataEditorDialog(requireContext(), uploadData) { data ->
                             val type = when (item.type.toDataType()) {
                                 DataType.App -> "App"
                                 DataType.Helper -> "Helper"
@@ -125,7 +126,7 @@ class DataFragment : BaseFragment() {
                                 runCatching {
                                     val issue = Github.createIssue("[Adaptation Request][$type]${item.source}", """
 ```
-                ${item.data}
+                $data
 ```
             """.trimIndent())
                                     item.issue = issue.toInt()

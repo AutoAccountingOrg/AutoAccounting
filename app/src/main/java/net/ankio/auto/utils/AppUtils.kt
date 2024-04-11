@@ -34,6 +34,9 @@ import androidx.annotation.AttrRes
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.content.res.ResourcesCompat
 import com.google.android.material.color.MaterialColors
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonObject
+import com.google.gson.JsonParser
 import com.quickersilver.themeengine.ThemeEngine
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -223,6 +226,16 @@ object  AppUtils {
         if (launchIntent != null) {
             application.startActivity(launchIntent)
         }
+    }
+
+    fun toPrettyFormat(jsonString: String): String {
+       runCatching {
+           val json = JsonParser.parseString(jsonString)
+           val gson = GsonBuilder().setPrettyPrinting().create()
+           val prettyJson = gson.toJson(json)
+           return prettyJson
+       }
+      return jsonString
     }
 
 }

@@ -31,6 +31,7 @@ import net.ankio.auto.databinding.AdapterDataBinding
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.DateUtils
+import org.json.JSONArray
 import org.json.JSONObject
 
 
@@ -58,12 +59,8 @@ class DataAdapter(
         fun bind(item: AppData, position: Int) {
             binding.groupCard.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(context))
             binding.content.setBackgroundColor(SurfaceColors.SURFACE_3.getColor(context))
-
-            val prettyJson: String = kotlin.runCatching {
-                JSONObject(item.data).toString(4)
-            }.getOrElse {
-                item.data
-            }
+            //格式化数据
+            val prettyJson: String = AppUtils.toPrettyFormat(item.data)
 
             binding.content.text = prettyJson
             when(item.type.toDataType()){
