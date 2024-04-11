@@ -105,22 +105,26 @@
             android:layout_marginLeft="@dimen/padding"
             android:layout_marginRight="@dimen/padding"
             >
+
             <TextView
                 android:id="@+id/rule"
                 style="@style/TextAppearance.AppCompat.Small"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="?attr/colorOnPrimary"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="@dimen/one_padding"
+                android:layout_marginEnd="@dimen/one_padding"
+                android:layout_toStartOf="@+id/uploadData"
+                android:layout_toEndOf="@+id/issue"
+                android:background="@drawable/rounded_background"
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:paddingLeft="@dimen/padding"
-                android:paddingRight="@dimen/padding"
                 android:paddingTop="@dimen/one_padding"
+                android:paddingRight="@dimen/padding"
                 android:paddingBottom="@dimen/one_padding"
                 android:text="测试"
-                android:layout_centerVertical="true"
-                android:background="@drawable/rounded_background"
-                />
-
-            <TextView
+                android:textColor="?attr/colorOnPrimary" /><TextView
                 android:id="@+id/issue"
                 style="@style/TextAppearance.AppCompat.Small"
                 android:layout_width="wrap_content"
