@@ -51,7 +51,7 @@ def upload(filename, filename_new, auth):
 
 
 with open(os.getenv("GITHUB_WORKSPACE")+"/package/tagVersionName.txt", 'r') as file:
-    name = file.read().replace("+", ".")
+    name = file.read().replace("+", "-").replace(".","-")
 with open(os.getenv("GITHUB_WORKSPACE")+"/package/versionCode.txt", 'r') as file:
     code = file.read()
 with open(os.getenv("GITHUB_WORKSPACE")+"/log/changelog.txt", 'r') as file:
