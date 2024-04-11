@@ -7,7 +7,8 @@
 #include <iostream>
 #include <unordered_map>
 #include "../../js/quickjspp.hpp"
-
+#define CRLF "\r\n"
+#define CRLF_2 "\r\n\r\n"
 class Handler {
 
 public:

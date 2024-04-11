@@ -6,9 +6,7 @@
 #include <cstring>
 #include <vector>
 #include "http/server/Server.h"
-#define VERSION "1.0.0"
-#define NUM_WORKERS 1
-#define PID_FILE "daemon.pid"
+#include "starter.h"
 
 std::ofstream logFile;//日志记录
 std::vector<pid_t> workerPids;  // 存储工作进程的 PID

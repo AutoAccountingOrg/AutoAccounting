@@ -9,8 +9,9 @@
 #include "../../utils/ThreadLocalStorage.h"
 #include "../../utils/trim.cpp"
 #include "../server/Server.h"
-#define CRLF "\r\n"
-#define CRLF_2 "\r\n\r\n"
+#include "../../starter.h"
+#include "Handler.h"
+
 extern std::string workspace;
 extern std::ofstream logFile;
 
@@ -70,8 +71,6 @@ void Handler::handleConnection()   {
 
     body = request.substr(bodyStart);
 
-
-
     if (!header.empty()) {
         std::string response;
         try {
@@ -101,9 +100,8 @@ void Handler::handleConnection()   {
     return "HTTP/1.1 " + status + CRLF // 使用 \r\n 而不是 \n 作为行结束符，以符合HTTP协议标准
            "Content-Type: text/plain" + CRLF
            "Content-Length: " + std::to_string(responseBody.size())  + CRLF
-           "Connection: close" + CRLF // 添加这行来指示连接将被关闭
-           + CRLF +
-           responseBody;
+           "Connection: close" + CRLF_2 // 添加这行来指示连接将被关闭
+           +responseBody;
 }
 
 
@@ -132,7 +130,7 @@ std::string Handler::handleRoute(std::string &path,
     }
 
     if (path == "/") {
-        response = "Welcome to use 自动记账";
+        response = VERSION;
         return httpResponse("200 OK", response);
     } else if (path == "/get") {
 
