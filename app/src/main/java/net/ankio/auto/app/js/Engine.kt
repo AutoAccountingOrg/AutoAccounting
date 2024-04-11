@@ -69,6 +69,7 @@ object Engine {
             log( "执行识别脚本", js)
             val json = AppUtils.getService().js(js)
             log( "识别结果", json)
+            if(json == "")return@withContext null
             val jsonObject2 = JSONObject(json)
             billInfo.type = BillType.fromInt(jsonObject2.getInt("type"))
             billInfo.money = getMoney(jsonObject2.getString("money"))
