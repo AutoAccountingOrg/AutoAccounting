@@ -129,7 +129,7 @@ void Server::server()  {
     }
 
     int count = 0;
-    while (count < MAX_CONNECTIONS ) { //连接超过64重启，保证稳定性，客户端需要有重试机制，例如重试3次，间隔 1秒，3秒，5秒这样
+    while (true) { //连接超过64重启，保证稳定性，客户端需要有重试机制，例如重试3次，间隔 1秒，3秒，5秒这样
         if ((new_socket = accept(server_fd, (struct sockaddr *) &address, (socklen_t *) &addrlen)) < 0) {
             File::log("Accept failed");
             break;
@@ -141,6 +141,8 @@ void Server::server()  {
     File::logD("Stop server and wait to start new worker.");
     //等待所有线程结束再关闭
     close(server_fd);
+    File::log("Server stopped.");
+    exit(0);
 }
 
 
