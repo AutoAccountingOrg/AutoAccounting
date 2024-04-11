@@ -308,7 +308,7 @@ object Config {
                 key = "setting_update_type",
                 icon = R.drawable.setting2_icon_update,
                 type = ItemType.TEXT,
-                default = 0,
+                default = 1,
                 selectList = hashMapOf(
                     context.getString(R.string.stable_version) to 0,
                     context.getString(R.string.continuous_build_version) to 1
