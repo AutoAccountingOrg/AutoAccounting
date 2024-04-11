@@ -214,12 +214,16 @@ class MainActivity : BaseActivity() {
 
     private suspend fun checkUpdate() {
         val updateUtils = UpdateUtils()
-        updateUtils.checkAppUpdate()?.apply {
-            UpdateDialog(this@MainActivity, hashMapOf("url" to file), log, version, date, 0,code).show(cancel = true)
-        }
-        updateUtils.checkRuleUpdate()?.apply {
-          UpdateDialog(this@MainActivity, hashMapOf("category" to file+"category.js", "rule" to file+"rule.js"), log, version, date, 1,code).show(cancel = true)
-        }
+       runCatching {
+           updateUtils.checkAppUpdate()?.apply {
+               UpdateDialog(this@MainActivity, hashMapOf("url" to file), log, version, date, 0,code).show(cancel = true)
+           }
+           updateUtils.checkRuleUpdate()?.apply {
+               UpdateDialog(this@MainActivity, hashMapOf("category" to file+"category.js", "rule" to file+"rule.js"), log, version, date, 1,code).show(cancel = true)
+           }
+       }.onFailure {
+           Logger.e("更新异常",it)
+       }
     }
 
     fun getBinding(): ActivityMainBinding {
