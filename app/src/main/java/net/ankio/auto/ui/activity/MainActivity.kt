@@ -172,7 +172,9 @@ class MainActivity : BaseActivity() {
 
     private val autoListener = { event: AutoServiceErrorEvent ->
         Logger.e("自动记账服务未连接",event.exception)
-        navHostFragment.navController.navigate(R.id.serviceFragment)
+        runOnUiThread {
+            navHostFragment.navController.navigate(R.id.serviceFragment)
+        }
     }
 
     private  fun checkAutoService(){
