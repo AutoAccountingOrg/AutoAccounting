@@ -41,6 +41,7 @@ import net.ankio.auto.ui.dialog.CategorySelectorDialog
 import net.ankio.auto.ui.utils.MenuItem
 import net.ankio.auto.utils.ActiveUtils
 import net.ankio.auto.utils.AppUtils
+import net.ankio.auto.utils.AutoAccountingServiceUtils
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.SpUtils
@@ -112,7 +113,7 @@ class HomeFragment : BaseFragment() {
      */
     private fun bindBookAppUI() {
         lifecycleScope.launch {
-            AppUtils.getService().config().let {
+            AutoAccountingServiceUtils.config(requireContext()).let {
                 binding.book.visibility = if (it.multiBooks) View.VISIBLE else View.GONE
                 binding.assets.visibility = if (it.assetManagement) View.VISIBLE else View.GONE
             }

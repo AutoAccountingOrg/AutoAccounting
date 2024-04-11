@@ -92,7 +92,7 @@ class DataFragment : BaseFragment() {
                         //弹出悬浮窗
                         Toaster.show(R.string.no_match)
                     } else {
-                        AppUtils.getService().config().let {
+                        AutoAccountingServiceUtils.config(requireContext()).let {
                             FloatEditorDialog(requireActivity(), result,it).show(float = false)
                         }
                     }

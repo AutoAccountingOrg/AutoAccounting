@@ -40,91 +40,111 @@ class AutoAccountingServiceUtils(private val mContext: Context) {
 
 
 
-    companion object{
+    companion object {
         private const val HOST = "http://127.0.0.1"
         private const val PORT = 52045
+
         // 将isServerStart转换为挂起函数
         suspend fun isServerStart(mContext: Context): Boolean = withContext(Dispatchers.IO) {
-              runCatching {
-                  AppUtils.getService().request("/")
-                  true
-              }.getOrElse {
-                  Logger.e("异常：",it)
-                  false
-              }
+            runCatching {
+                AppUtils.getService().request("/")
+                true
+            }.getOrElse {
+                Logger.e("异常：", it)
+                false
+            }
         }
 
 
         fun getToken(mContext: Context): String {
-            val path =  Environment.getExternalStorageDirectory().path+"/Android/data/${mContext.packageName}/shell/token.txt"
+            val path =
+                Environment.getExternalStorageDirectory().path + "/Android/data/${mContext.packageName}/shell/token.txt"
             val file = File(path)
-            if(file.exists()){
+            if (file.exists()) {
                 return file.readText().trim()
             }
-            return get("token",mContext)
+            return get("token", mContext)
         }
+
         /**
          * 获取文件内容
          */
-        fun get(name: String,mContext: Context): String {
-            val path =  Environment.getExternalStorageDirectory().path+"/Android/data/${mContext.packageName}/cache/shell/${name}.txt"
+        fun get(name: String, mContext: Context): String {
+            val path =
+                Environment.getExternalStorageDirectory().path + "/Android/data/${mContext.packageName}/cache/shell/${name}.txt"
             val file = File(path)
-            if(file.exists()){
+            if (file.exists()) {
                 return file.readText().trim()
             }
             return ""
         }
 
-        fun set(name: String,data:String,mContext: Context) {
-            val path =  Environment.getExternalStorageDirectory().path+"/Android/data/${mContext.packageName}/cache/shell/${name}.txt"
+        fun set(name: String, data: String, mContext: Context) {
+            val path =
+                Environment.getExternalStorageDirectory().path + "/Android/data/${mContext.packageName}/cache/shell/${name}.txt"
             val file = File(path)
-            if(!file.exists()){
+            if (!file.exists()) {
                 file.createNewFile()
             }
             file.writeText(data)
 
         }
 
-        fun delete(name: String,mContext: Context) {
-            val path =  Environment.getExternalStorageDirectory().path+"/Android/data/${mContext.packageName}/cache/shell/${name}.txt"
+        fun delete(name: String, mContext: Context) {
+            val path =
+                Environment.getExternalStorageDirectory().path + "/Android/data/${mContext.packageName}/cache/shell/${name}.txt"
             val file = File(path)
-            if(file.exists()){
+            if (file.exists()) {
                 file.delete()
             }
         }
 
         fun log(data: String, mContext: Context) {
-           runCatching {
-               val path = Environment.getExternalStorageDirectory().path + "/Android/data/${mContext.packageName}/cache/shell/log.txt"
-               val file = File(path)
-               val parentDir = file.parentFile
-               if (parentDir != null && !parentDir.exists()) {
-                   parentDir.mkdirs() // 创建所有必需的父目录
-               }
-               if (!file.exists()) {
-                   file.createNewFile() // 创建文件
-               }
-               // 将当前日志追加到文件
-               file.appendText("\n[ ${DateUtils.getTime(System.currentTimeMillis())} ]\n$data\n")
+            runCatching {
+                val path =
+                    Environment.getExternalStorageDirectory().path + "/Android/data/${mContext.packageName}/cache/shell/log.txt"
+                val file = File(path)
+                val parentDir = file.parentFile
+                if (parentDir != null && !parentDir.exists()) {
+                    parentDir.mkdirs() // 创建所有必需的父目录
+                }
+                if (!file.exists()) {
+                    file.createNewFile() // 创建文件
+                }
+                // 将当前日志追加到文件
+                file.appendText("\n[ ${DateUtils.getTime(System.currentTimeMillis())} ]\n$data\n")
 
-               // 处理日志，超过500行只保留最后的500行
-               val lines = file.readLines()
-               if (lines.size > 500) {
-                   file.writeText(lines.takeLast(500).joinToString(separator = "\n"))
-               }
-           }.onFailure {
-               //写入到文件失败，忽略
-           }
+                // 处理日志，超过500行只保留最后的500行
+                val lines = file.readLines()
+                if (lines.size > 500) {
+                    file.writeText(lines.takeLast(500).joinToString(separator = "\n"))
+                }
+            }.onFailure {
+                //写入到文件失败，忽略
+            }
         }
 
         /**
          * 获取请求地址
          */
-        fun getUrl(path:String = ""): String {
+        fun getUrl(path: String = ""): String {
             return "$HOST:$PORT$path"
         }
 
-
+        fun config(context: Context): AccountingConfig {
+           return runCatching {
+                val bookAppConfig = get("bookAppConfig", context)
+                val config = Gson().fromJson(bookAppConfig, AccountingConfig::class.java)
+                if (config == null) {
+                    set("bookAppConfig", Gson().toJson(AccountingConfig()), context)
+                    AccountingConfig()
+                } else {
+                    config
+                }
+            }.onFailure {
+                Logger.e("获取配置失败", it)
+            }.getOrNull() ?: AccountingConfig()
+        }
 
     }
 
@@ -241,7 +261,7 @@ class AutoAccountingServiceUtils(private val mContext: Context) {
         get("log")
     }
     /**
-     * 获取配置
+     * 获取配置(API)
      */
    suspend fun config():AccountingConfig = withContext(Dispatchers.IO){
         runCatching {
@@ -265,8 +285,8 @@ class AutoAccountingServiceUtils(private val mContext: Context) {
         copyAssetsDirToSDCard(activity, shellFolderPath, destinationPath)
     }
 
-    fun copyAssetsDirToSDCard(context: Context, assetsDirName: String, sdCardPath: String) {
-        Logger.d("copyAssetsDirToSDCard() called with: context = [$context], assetsDirName = [$assetsDirName], sdCardPath = [$sdCardPath]")
+    private fun copyAssetsDirToSDCard(context: Context, assetsDirName: String, sdCardPath: String) {
+       // Logger.d("copyAssetsDirToSDCard() called with: context = [$context], assetsDirName = [$assetsDirName], sdCardPath = [$sdCardPath]")
         try {
             val list = context.assets.list(assetsDirName)
             if (list!!.isEmpty()) {

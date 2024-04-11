@@ -31,6 +31,7 @@ import net.ankio.auto.databinding.DialogBillMoreBinding
 import net.ankio.auto.ui.dialog.BillMoreDialog
 import net.ankio.auto.ui.dialog.FloatEditorDialog
 import net.ankio.auto.utils.AppUtils
+import net.ankio.auto.utils.AutoAccountingServiceUtils
 
 
 class OrderAdapter(
@@ -73,7 +74,7 @@ class OrderAdapter(
                 item, position ->
 
                 scope.launch {
-                    AppUtils.getService().config().let {
+                    AutoAccountingServiceUtils.config(context).let {
                         FloatEditorDialog(context, item,it, onlyShow = true).show(false,true)
                     }
                 }

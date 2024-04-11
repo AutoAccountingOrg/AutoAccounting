@@ -46,6 +46,7 @@ import net.ankio.auto.events.AutoServiceErrorEvent
 import net.ankio.auto.exceptions.AutoServiceException
 import net.ankio.auto.ui.dialog.FloatEditorDialog
 import net.ankio.auto.utils.AppUtils
+import net.ankio.auto.utils.AutoAccountingServiceUtils
 import net.ankio.auto.utils.SpUtils
 import net.ankio.auto.utils.event.EventBus
 import net.ankio.common.config.AccountingConfig
@@ -203,7 +204,7 @@ class FloatingWindowService : Service(), CoroutineScope {
             }
             FloatEvent.POP_EDIT_WINDOW.ordinal -> {
                 launch {
-                    AppUtils.getService().config().let{
+                    AutoAccountingServiceUtils.config(themedContext).let{
                         //编辑
                        withContext(Dispatchers.Main){
                            FloatEditorDialog(themedContext,billInfo, it,true).show(true)
