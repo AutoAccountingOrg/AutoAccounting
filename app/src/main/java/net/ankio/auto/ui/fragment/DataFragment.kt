@@ -129,23 +129,23 @@ class DataFragment : BaseFragment() {
                 $data
 ```
             """.trimIndent())
-                                    item.issue = issue.toInt()
-                                    requireActivity().runOnUiThread {
-                                        loadingUtils.close()
-                                        adapter.notifyItemChanged(position)
-                                        Toaster.show(getString(R.string.upload_success))
-                                    }
-
+                                  item.issue = issue.toInt()
+                                   withContext(Dispatchers.Main){
+                                       loadingUtils.close()
+                                       dataItems[position] = item
+                                       adapter.notifyItemChanged(position)
+                                       Toaster.show(getString(R.string.upload_success))
+                                   }
                                     Db.get().AppDataDao().update(item)
                                 }.onFailure {
-                                    requireActivity().runOnUiThread {
-                                        Toaster.show(it.message)
-                                        CustomTabsHelper.launchUrl(
-                                            requireContext(),
-                                            Uri.parse(Github.getLoginUrl())
-                                        )
-                                        loadingUtils.close()
-                                    }
+                                   withContext(Dispatchers.Main){
+                                       Toaster.show(it.message)
+                                       CustomTabsHelper.launchUrl(
+                                           requireContext(),
+                                           Uri.parse(Github.getLoginUrl())
+                                       )
+                                       loadingUtils.close()
+                                   }
                                 }
 
                             }
@@ -174,11 +174,6 @@ class DataFragment : BaseFragment() {
     }
 
 
-
-
-    private val callEditorPanel = {
-
-    }
     private fun loadMoreData(
          keywords:String = ""
     ) {
