@@ -254,7 +254,7 @@ class HomeFragment : BaseFragment() {
             )
         )
         val versionName = AppUtils.getVersionName()
-        val names = versionName.split("-")
+        val names = versionName.split(" - ")
         binding.msgLabel.text = names[0].trim()
         binding.msgLabel2.text = getString(R.string.releaseInfo)
         binding.imageView.setColorFilter(textColor)
