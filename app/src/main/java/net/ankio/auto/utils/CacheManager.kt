@@ -18,18 +18,22 @@ package net.ankio.auto.utils
 import android.content.Context
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.io.*
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
 
 class CacheManager(private val context: Context) {
-
     /**
      * 将数据保存到缓存中，并设置过期时间
      * @param key 缓存的键
      * @param data 要缓存的数据
      * @param expiryTimeInMinutes 过期时间，单位为分
      */
-    suspend fun saveToCacheWithExpiry(key: String, data: ByteArray, expiryTimeInMinutes: Long = 0) =
-        withContext(Dispatchers.IO) {
+    suspend fun saveToCacheWithExpiry(
+        key: String,
+        data: ByteArray,
+        expiryTimeInMinutes: Long = 0,
+    ) = withContext(Dispatchers.IO) {
         val file = File(context.cacheDir, key)
         FileOutputStream(file).use { fos ->
             fos.write(data)
@@ -43,26 +47,26 @@ class CacheManager(private val context: Context) {
      * @param key 缓存的键
      * @return 缓存的数据，如果没有找到或已过期则返回 null
      */
-    suspend fun readFromCache(key: String): ByteArray   =
+    suspend fun readFromCache(key: String): ByteArray =
         withContext(Dispatchers.IO) {
-
-        val file = File(context.cacheDir, key)
-        if (file.exists()) {
-            AppTimeMonitor.startMonitoring("读取缓存: $key")
-            return@withContext FileInputStream(file).use { fis ->
-                val data = fis.readBytes()
-                val expiryTime = data.takeLast(13).map { it.toInt().toChar() }.joinToString("").toLong()
-                val nowTime = System.currentTimeMillis()
-                if (nowTime > expiryTime) {
-                    file.delete()
-                    return@use ByteArray(0)
+            val file = File(context.cacheDir, key)
+            if (file.exists()) {
+                AppTimeMonitor.startMonitoring("读取缓存: $key")
+                return@withContext FileInputStream(file).use { fis ->
+                    val data = fis.readBytes()
+                    val expiryTime =
+                        data.takeLast(13).map { it.toInt().toChar() }.joinToString("").toLong()
+                    val nowTime = System.currentTimeMillis()
+                    if (nowTime > expiryTime) {
+                        file.delete()
+                        return@use ByteArray(0)
+                    }
+                    Logger.i("缓存命中: $key，当前时间：$nowTime 超时时间：$expiryTime")
+                    AppTimeMonitor.stopMonitoring("读取缓存: $key")
+                    data.dropLast(13).toByteArray()
                 }
-                Logger.i("缓存命中: ${key}，当前时间：$nowTime 超时时间：$expiryTime")
-                AppTimeMonitor.stopMonitoring("读取缓存: $key")
-                data.dropLast(13).toByteArray()
+            } else {
+                return@withContext ByteArray(0)
             }
-        } else {
-            return@withContext ByteArray(0)
         }
-    }
 }

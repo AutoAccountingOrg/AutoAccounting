@@ -16,65 +16,70 @@
 package net.ankio.auto.ui.componets
 
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Paint
 import android.graphics.Path
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatTextView
 import net.ankio.auto.R
-import kotlin.math.sin
 
 /**
  * 给textview添加滚动波浪线
  */
-class WaveTextView @JvmOverloads constructor(
-    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
-) : AppCompatTextView(context, attrs, defStyleAttr) {
+class WaveTextView
+    @JvmOverloads
+    constructor(
+        context: Context,
+        attrs: AttributeSet? = null,
+        defStyleAttr: Int = 0,
+    ) : AppCompatTextView(context, attrs, defStyleAttr) {
+        private var waveColor: Int
+        private var waveAmplitude: Float
+        private val waveFrequency: Float
+        private val waveSpeed: Float
+        private var waveOffset: Float = 0f
+        private val path = Path()
 
-    private var waveColor: Int
-    private var waveAmplitude: Float
-    private val waveFrequency: Float
-    private val waveSpeed: Float
-    private var waveOffset: Float = 0f
-    private val path = Path()
+    /*
+        private val paint = Paint().apply {
+            isAntiAlias = true
+            style = Paint.Style.FILL_AND_STROKE
+        }
+     */
 
-/*
-    private val paint = Paint().apply {
-        isAntiAlias = true
-        style = Paint.Style.FILL_AND_STROKE
-    }
-*/
+        init {
+            val typedArray =
+                context.obtainStyledAttributes(
+                    attrs,
+                    R.styleable.WaveTextView,
+                    defStyleAttr,
+                    0,
+                )
+            waveColor =
+                typedArray.getColor(
+                    R.styleable.WaveTextView_waveColor,
+                    currentTextColor, // 默认颜色
+                )
+            waveAmplitude =
+                typedArray.getDimension(
+                    R.styleable.WaveTextView_waveAmplitude,
+                    (this.lineHeight / 9).toFloat(),
+                ).coerceAtLeast(1f) // 确保振幅不为零
+            waveFrequency =
+                typedArray.getFloat(
+                    R.styleable.WaveTextView_waveFrequency,
+                    0.1f, // 默认频率
+                )
+            waveSpeed =
+                typedArray.getFloat(
+                    R.styleable.WaveTextView_waveSpeed,
+                    0.7f, // 默认速度
+                )
+            typedArray.recycle()
+        }
 
-
-    init {
-        val typedArray = context.obtainStyledAttributes(
-            attrs, R.styleable.WaveTextView, defStyleAttr, 0
-        )
-        waveColor = typedArray.getColor(
-            R.styleable.WaveTextView_waveColor,
-            currentTextColor // 默认颜色
-        )
-        waveAmplitude = typedArray.getDimension(
-            R.styleable.WaveTextView_waveAmplitude,
-            (this.lineHeight / 9).toFloat()
-        ).coerceAtLeast(1f) // 确保振幅不为零
-        waveFrequency = typedArray.getFloat(
-            R.styleable.WaveTextView_waveFrequency,
-            0.1f // 默认频率
-        )
-        waveSpeed = typedArray.getFloat(
-            R.styleable.WaveTextView_waveSpeed,
-            0.7f // 默认速度
-        )
-        typedArray.recycle()
-    }
-
-
-    override fun setTextColor(color: Int) {
-        super.setTextColor(color)
-        waveColor  = color
-    }
-
+        override fun setTextColor(color: Int) {
+            super.setTextColor(color)
+            waveColor = color
+        }
 
     /*    override fun onDraw(canvas: Canvas) {
           //  background = AppCompatResources.getDrawable(context,R.drawable.ripple_effect)
@@ -120,5 +125,4 @@ class WaveTextView @JvmOverloads constructor(
             waveOffset += waveSpeed
             invalidate()
         }*/
-}
-
+    }

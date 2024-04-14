@@ -17,5 +17,4 @@ package net.ankio.auto.events
 
 import net.ankio.auto.utils.event.Event
 
-class UpdateFinishEvent:Event() {
-}
+class UpdateFinishEvent : Event()

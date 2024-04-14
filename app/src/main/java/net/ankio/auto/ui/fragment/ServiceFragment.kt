@@ -15,17 +15,16 @@
 
 package net.ankio.auto.ui.fragment
 
-import android.content.res.AssetManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.hjq.toast.Toaster
 import androidx.activity.OnBackPressedCallback
 import androidx.core.app.ActivityCompat.finishAffinity
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.hjq.toast.Toaster
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -40,61 +39,57 @@ import net.ankio.auto.utils.AutoAccountingServiceUtils
 import net.ankio.auto.utils.Logger
 import java.io.BufferedReader
 import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
-import java.io.InputStream
 import java.io.InputStreamReader
-import java.io.OutputStream
 import java.io.OutputStreamWriter
 
-class ServiceFragment:BaseFragment() {
+class ServiceFragment : BaseFragment() {
     private lateinit var binding: FragmentServiceBinding
     private lateinit var shell: String
     private var cacheDir: File? = null
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         binding = FragmentServiceBinding.inflate(layoutInflater)
 
-        initView();
+        initView()
         return binding.root
     }
 
     override fun onResume() {
         super.onResume()
-        activityBinding.toolbar.visibility  = View.GONE
+        activityBinding.toolbar.visibility = View.GONE
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-    }
-
-    private fun initView(){
+    private fun initView() {
         cacheDir = AppUtils.getApplication().externalCacheDir
         if (cacheDir === null) {
             throw UnsupportedDeviceException(getString(R.string.unsupport_device))
         }
         lifecycleScope.launch {
-            AppUtils.getService().copyAssetsShellFolderToCache(requireActivity(),cacheDir)
+            AppUtils.getService().copyAssetsShellFolderToCache(requireActivity(), cacheDir)
         }
         shell = "sh ${cacheDir!!.path}/shell/starter.sh"
 
         binding.start.setOnClickListener {
-            //启动服务
+            // 启动服务
             startServerByRoot()
         }
         binding.copyCommand.setOnClickListener {
-            //复制命令
+            // 复制命令
             AppUtils.copyToClipboard("adb shell $shell")
             Toaster.show(getString(R.string.copy_command_success))
         }
-        requireActivity().onBackPressedDispatcher.addCallback(requireActivity(), object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                finishAffinity(requireActivity()) // 关闭所有活动并退出应用
-            }
-        })
+        requireActivity().onBackPressedDispatcher.addCallback(
+            requireActivity(),
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    finishAffinity(requireActivity()) // 关闭所有活动并退出应用
+                }
+            },
+        )
         checkService()
     }
 
@@ -111,23 +106,21 @@ class ServiceFragment:BaseFragment() {
                 requireActivity().recreate()
             }
         }
-
     }
-
 
     private fun startServerByRoot() {
         val dialogBinding = DialogProgressBinding.inflate(layoutInflater)
         val textView = dialogBinding.progressText
         val scrollView = dialogBinding.scrollView
-        val progressDialog = MaterialAlertDialogBuilder(requireActivity())
-            .setTitle(R.string.title_command)
-            .setView(dialogBinding.root)
-            .setCancelable(false) // 设置对话框不可关闭
-            .show()
+        val progressDialog =
+            MaterialAlertDialogBuilder(requireActivity())
+                .setTitle(R.string.title_command)
+                .setView(dialogBinding.root)
+                .setCancelable(false) // 设置对话框不可关闭
+                .show()
 
         // 在协程中检查 root 权限并执行命令
         lifecycleScope.launch(Dispatchers.IO) {
-
             try {
                 val process = Runtime.getRuntime().exec("su")
                 val bufferedReader = BufferedReader(InputStreamReader(process.inputStream))
@@ -157,17 +150,12 @@ class ServiceFragment:BaseFragment() {
                     textView.append(getText(R.string.no_root_permission))
                 }
             } finally {
-                //等待5秒钟关闭对话框
+                // 等待5秒钟关闭对话框
                 delay(5000L)
                 withContext(Dispatchers.Main) {
                     progressDialog.dismiss()
-
                 }
             }
         }
     }
-
-
-
-
 }

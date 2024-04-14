@@ -21,17 +21,17 @@ import androidx.annotation.StringRes
 import net.ankio.auto.constant.ItemType
 
 data class SettingItem(
-    @StringRes val title: Int,//标题
-    val variable: String? = null,//显示或者隐藏的关联名称
-    val regex: String? = null,//关联表达式
-    val key: String? = null, //key，存储专用
-    @DrawableRes val icon: Int? = null, //图标
-    @StringRes val subTitle: Int? = null,//副标题
-    val type: ItemType = ItemType.TITLE,//类型
-    val selectList: HashMap<String, Any>? = null,//如果为switch类型，需要提供选项
-    val link: String? = null,//如果为link类型，需要提供链接
-    val default: Any? = null,//默认值
+    @StringRes val title: Int, // 标题
+    val variable: String? = null, // 显示或者隐藏的关联名称
+    val regex: String? = null, // 关联表达式
+    val key: String? = null, // key，存储专用
+    @DrawableRes val icon: Int? = null, // 图标
+    @StringRes val subTitle: Int? = null, // 副标题
+    val type: ItemType = ItemType.TITLE, // 类型
+    val selectList: HashMap<String, Any>? = null, // 如果为switch类型，需要提供选项
+    val link: String? = null, // 如果为link类型，需要提供链接
+    val default: Any? = null, // 默认值
     val onGetKeyValue: (() -> Any?)? = null,
-    val onItemClick: ((value: Any, activity: Activity) -> Unit)? = null,   //点击事件
-    val onSavedValue: ((value: Any, activity: Activity) -> Unit)? = null,//保存事件
+    val onItemClick: ((value: Any, activity: Activity) -> Unit)? = null, // 点击事件
+    val onSavedValue: ((value: Any, activity: Activity) -> Unit)? = null, // 保存事件
 )

@@ -21,8 +21,9 @@ import com.zackratos.ultimatebarx.ultimatebarx.addStatusBarTopPadding
 import net.ankio.auto.databinding.ActivityErrorBinding
 import net.ankio.auto.utils.AppUtils
 
-class ErrorActivity:  BaseActivity() {
+class ErrorActivity : BaseActivity() {
     private lateinit var binding: ActivityErrorBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

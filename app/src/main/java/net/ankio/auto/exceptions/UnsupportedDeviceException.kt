@@ -15,5 +15,4 @@
 
 package net.ankio.auto.exceptions
 
-class UnsupportedDeviceException(string: String) : Exception(string){
-}
+class UnsupportedDeviceException(string: String) : Exception(string)

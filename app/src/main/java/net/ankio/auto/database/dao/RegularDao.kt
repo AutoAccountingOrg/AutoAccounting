@@ -24,8 +24,10 @@ import net.ankio.auto.database.table.Regular
 interface RegularDao {
     @Query("DELETE FROM Regular WHERE id=:id")
     suspend fun del(id: Int)
+
     @Query("SELECT * FROM Regular  order by id desc")
     suspend fun loadAll(): Array<Regular?>?
+
     @Insert
     suspend fun add(regular: Regular)
 

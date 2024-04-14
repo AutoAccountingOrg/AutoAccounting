@@ -21,8 +21,6 @@ import android.util.Log
  * 日志工具类，包含调用日志的类和行号信息，以及异常的堆栈跟踪。
  */
 object Logger {
-
-
     private var level = Log.VERBOSE
 
     private var debug = false
@@ -30,9 +28,8 @@ object Logger {
     fun init() {
         debug = AppUtils.getDebug()
 
-        //如果是调试模式，日志级别就是VERBOSE，否则就是ERROR
+        // 如果是调试模式，日志级别就是VERBOSE，否则就是ERROR
         level = SpUtils.getInt("log_level", if (debug) Log.VERBOSE else Log.ERROR)
-
     }
 
     fun setLevel(level: Int) {
@@ -68,7 +65,11 @@ object Logger {
         return Throwable().stackTrace[2].className.substringAfterLast('.')
     }
 
-    private fun printLog(type: Int, tag: String, message: String) {
+    private fun printLog(
+        type: Int,
+        tag: String,
+        message: String,
+    ) {
         if (message.contains(AutoAccountingServiceUtils.getUrl("/log"))) {
             return
         }
@@ -86,23 +87,20 @@ object Logger {
 
         val logMessage = createLogMessage(message)
         logMessage.lines().forEach {
-
             var msg = it
 
             val segmentSize = 3 * 1024
             val length = msg.length
-            if (length <= segmentSize) {// 长度小于等于限制直接打印
+            if (length <= segmentSize) { // 长度小于等于限制直接打印
                 log(msg)
             } else {
-                while (msg.length > segmentSize) {// 循环分段打印日志
-                    val logContent = msg.substring(0, segmentSize);
-                    msg = msg.replace(logContent, "");
-                    log(logContent);
+                while (msg.length > segmentSize) { // 循环分段打印日志
+                    val logContent = msg.substring(0, segmentSize)
+                    msg = msg.replace(logContent, "")
+                    log(logContent)
                 }
-                log(msg)// 打印剩余日志
+                log(msg) // 打印剩余日志
             }
-
-
         }
         AutoAccountingServiceUtils.log(logMessage, AppUtils.getApplication())
     }
@@ -111,7 +109,10 @@ object Logger {
         printLog(Log.DEBUG, getTag(), message)
     }
 
-    fun e(message: String, throwable: Throwable? = null) {
+    fun e(
+        message: String,
+        throwable: Throwable? = null,
+    ) {
         val messageInfo = StringBuilder()
         messageInfo.append(message).append("\n")
         if (throwable != null) {
@@ -136,5 +137,4 @@ object Logger {
     fun w(message: String) {
         printLog(Log.WARN, getTag(), message)
     }
-
 }

@@ -26,44 +26,42 @@ import net.ankio.auto.ui.activity.ErrorActivity
 import net.ankio.auto.utils.event.EventBus
 import kotlin.system.exitProcess
 
-
-class ExceptionHandler: Thread.UncaughtExceptionHandler {
+class ExceptionHandler : Thread.UncaughtExceptionHandler {
     private var mDefaultHandler: Thread.UncaughtExceptionHandler? = null
 
     private var context: Context? = null
+
     /**
      * 初始化默认异常捕获
      */
     fun init(context: Context?) {
-
         mDefaultHandler = Thread.getDefaultUncaughtExceptionHandler()
         // 将当前类设为默认异常处理器
         Thread.setDefaultUncaughtExceptionHandler(this)
 
         Bugsnag.start(context!!)
         Bugsnag.addOnError { event ->
-           val result =  handleException(event) // 发送此异常
+            val result = handleException(event) // 发送此异常
             Logger.i("是否发送异常到AppCenter => $result")
             result
         }
         this.context = context
     }
 
-
-    private fun handleException(events:Event): Boolean {
+    private fun handleException(events: Event): Boolean {
         val error = events.originalError
-        if(error == null){
-            val msg = events.errors[0].errorMessage?:""
+        if (error == null) {
+            val msg = events.errors[0].errorMessage ?: ""
             Logger.e("发生内容为NULL的异常 => $msg")
             return false
         }
         val root = getRootCause(error)
-        if(root is AutoServiceException){
-         return false
+        if (root is AutoServiceException) {
+            return false
         }
 
-        //调试模式不上传错误数据
-        return   !AppUtils.getDebug() && SpUtils.getBoolean("sendToAppCenter",true)
+        // 调试模式不上传错误数据
+        return !AppUtils.getDebug() && SpUtils.getBoolean("sendToAppCenter", true)
     }
 
     private fun getRootCause(e: Throwable): Throwable {
@@ -74,22 +72,24 @@ class ExceptionHandler: Thread.UncaughtExceptionHandler {
         return cause ?: e
     }
 
-
     companion object {
         fun init(context: Context) {
-              ExceptionHandler().init(context)
+            ExceptionHandler().init(context)
         }
     }
 
-    override fun uncaughtException(t: Thread, e: Throwable) {
+    override fun uncaughtException(
+        t: Thread,
+        e: Throwable,
+    ) {
         val root = getRootCause(e)
-        if(root is AutoServiceException){
+        if (root is AutoServiceException) {
             EventBus.post(AutoServiceErrorEvent(root))
             return
         }
         Logger.e("发生未处理的异常", root)
 
-        //将异常拼成字符串
+        // 将异常拼成字符串
         val sb = StringBuilder()
         sb.append("版本: ${BuildConfig.VERSION_NAME}\n")
         sb.append("版本号: ${BuildConfig.VERSION_CODE}\n")
@@ -99,11 +99,11 @@ class ExceptionHandler: Thread.UncaughtExceptionHandler {
             sb.append(it.toString())
             sb.append("\n")
         }
-        //打开ErrorActivity
+        // 打开ErrorActivity
         val intent = Intent(context, ErrorActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         intent.putExtra("msg", sb.toString())
         context?.startActivity(intent)
-        exitProcess(0);// 关闭已奔溃的app进程
+        exitProcess(0) // 关闭已奔溃的app进程
     }
 }

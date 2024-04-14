@@ -3,9 +3,9 @@
  * Licensed under the Apache License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *         http://www.apache.org/licenses/LICENSE-3.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,28 +14,18 @@
  */
 package net.ankio.auto.database.table
 
-import android.content.Context
-import android.graphics.drawable.Drawable
-import android.widget.ImageView
-import androidx.core.content.res.ResourcesCompat
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.Gson
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import net.ankio.auto.R
 import net.ankio.auto.app.BillUtils
+import net.ankio.auto.constant.DataType
 import net.ankio.common.constant.BillType
 import net.ankio.common.constant.Currency
-import net.ankio.auto.constant.DataType
-import net.ankio.auto.database.Db
-import net.ankio.auto.utils.ImageUtils
 import net.ankio.common.model.AutoBillModel
 
 @Entity
 class BillInfo {
-
-    //账单列表
+    // 账单列表
     @PrimaryKey(autoGenerate = true)
     var id = 0
 
@@ -84,6 +74,7 @@ class BillInfo {
      * 拓展数据域，如果是报销或者销账，会对应账单ID
      */
     var extendData: String = ""
+
     /**
      * 账本名称
      */
@@ -98,6 +89,7 @@ class BillInfo {
      * 转入账户
      */
     var accountNameTo = ""
+
     /**
      * 这笔账单的来源
      */
@@ -121,11 +113,13 @@ class BillInfo {
     /**
      * 是否已从App同步
      */
-    var syncFromApp:Boolean = false
+    var syncFromApp: Boolean = false
+
     /**
      * 备注信息
      */
-    var remark:String = ""
+    var remark: String = ""
+
     fun toJSON(): String {
         return Gson().toJson(this)
     }
@@ -142,9 +136,10 @@ class BillInfo {
             bookName = bookName,
             accountNameFrom = accountNameFrom,
             accountNameTo = accountNameTo,
-            remark = remark
+            remark = remark,
         )
     }
+
     override fun toString(): String {
         return """
             BillInfo(
@@ -168,15 +163,12 @@ class BillInfo {
                 syncFromApp=$syncFromApp, 
                 remark='$remark'
             )
-        """.trimIndent()
+            """.trimIndent()
     }
 
-
-
-    companion object{
-        fun fromJSON(json:String):BillInfo{
-            return Gson().fromJson(json,BillInfo::class.java)
+    companion object {
+        fun fromJSON(json: String): BillInfo {
+            return Gson().fromJson(json, BillInfo::class.java)
         }
-
     }
 }

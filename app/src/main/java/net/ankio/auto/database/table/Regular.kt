@@ -14,7 +14,6 @@
  */
 package net.ankio.auto.database.table
 
-import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
@@ -24,15 +23,14 @@ import java.io.Serializable
 
 @Entity
 @TypeConverters(ElementConverters::class)
-class Regular:Serializable {
-
-    //自动分类规则
+class Regular : Serializable {
+    // 自动分类规则
     @PrimaryKey(autoGenerate = true)
     var id = 0
 
-    var use = true //是否启用该规则
-    var sort = 0 //排序
-    var auto = false //是否为自动创建
+    var use = true // 是否启用该规则
+    var sort = 0 // 排序
+    var auto = false // 是否为自动创建
 
     var js = ""
     var text = ""

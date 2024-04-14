@@ -15,6 +15,4 @@
 
 package net.ankio.auto.exceptions
 
-class PermissionException(string: String) : Exception(string) {
-
-}
+class PermissionException(string: String) : Exception(string)

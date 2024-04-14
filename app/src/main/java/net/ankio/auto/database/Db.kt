@@ -19,12 +19,14 @@ import androidx.room.Room.databaseBuilder
 
 object Db {
     private lateinit var db: AppDatabase
+
     fun init(context: Context?) {
-        db = databaseBuilder(
-            context!!,
-            AppDatabase::class.java,
-            "autoAccount.db"
-        ).fallbackToDestructiveMigration().build()
+        db =
+            databaseBuilder(
+                context!!,
+                AppDatabase::class.java,
+                "autoAccount.db",
+            ).fallbackToDestructiveMigration().build()
     }
 
     fun get(): AppDatabase {

@@ -21,7 +21,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.elevation.SurfaceColors
 import kotlinx.coroutines.Dispatchers
@@ -29,84 +28,103 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.app.js.Engine
-import net.ankio.auto.database.table.AppData
 import net.ankio.auto.constant.DataType
 import net.ankio.auto.constant.toDataType
 import net.ankio.auto.database.Db
+import net.ankio.auto.database.table.AppData
 import net.ankio.auto.databinding.AdapterDataBinding
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.DateUtils
-import org.json.JSONArray
-import org.json.JSONObject
-
 
 class DataAdapter(
     private val dataItems: MutableList<AppData>,
-    private val onClickContent: (string: String)->Unit,
-    private val onClickTest: (item: AppData)->Unit,
-    private val onClickUploadData: (item: AppData, position: Int)->Unit
+    private val onClickContent: (string: String) -> Unit,
+    private val onClickTest: (item: AppData) -> Unit,
+    private val onClickUploadData: (item: AppData, position: Int) -> Unit,
 ) : BaseAdapter<DataAdapter.ViewHolder>() {
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(AdapterDataBinding.inflate(LayoutInflater.from(parent.context),parent,false),parent.context)
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int,
+    ): ViewHolder {
+        return ViewHolder(
+            AdapterDataBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false,
+            ),
+            parent.context,
+        )
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+    override fun onBindViewHolder(
+        holder: ViewHolder,
+        position: Int,
+    ) {
         val item = dataItems[position]
-        holder.bind(item,position,this)
+        holder.bind(item, position, this)
     }
 
     override fun getItemCount(): Int {
         return dataItems.size
     }
 
-    inner class ViewHolder(private val binding: AdapterDataBinding,private val context:Context) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: AppData, position: Int,adapter: DataAdapter) {
+    inner class ViewHolder(private val binding: AdapterDataBinding, private val context: Context) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun bind(
+            item: AppData,
+            position: Int,
+            adapter: DataAdapter,
+        ) {
             binding.groupCard.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(context))
             binding.content.setBackgroundColor(SurfaceColors.SURFACE_3.getColor(context))
-            //格式化数据
+            // 格式化数据
             val prettyJson: String = AppUtils.toPrettyFormat(item.data)
 
             binding.content.text = prettyJson
-            when(item.type.toDataType()){
+            when (item.type.toDataType()) {
                 DataType.Notice -> {
-                    binding.type.setColorFilter(ContextCompat.getColor(context,R.color.warning))
+                    binding.type.setColorFilter(ContextCompat.getColor(context, R.color.warning))
                     binding.type.setImageResource(R.drawable.data_notice)
                 }
-                DataType.Helper ->{
-                    binding.type.setColorFilter(ContextCompat.getColor(context,R.color.danger))
+
+                DataType.Helper -> {
+                    binding.type.setColorFilter(ContextCompat.getColor(context, R.color.danger))
                     binding.type.setImageResource(R.drawable.data_helper)
                 }
+
                 DataType.Sms -> {
-                    binding.type.setColorFilter(ContextCompat.getColor(context,R.color.info))
+                    binding.type.setColorFilter(ContextCompat.getColor(context, R.color.info))
                     binding.type.setImageResource(R.drawable.data_sms)
                 }
+
                 DataType.App -> {
-                    binding.type.setColorFilter(ContextCompat.getColor(context,R.color.success))
+                    binding.type.setColorFilter(ContextCompat.getColor(context, R.color.success))
                     binding.type.setImageResource(R.drawable.data_app)
                 }
             }
             binding.issue.visibility = View.VISIBLE
             binding.uploadData.visibility = View.VISIBLE
 
-                if(item.issue==0){
+            if (item.issue == 0) {
                 binding.issue.visibility = View.GONE
-            }else{
+            } else {
                 binding.uploadData.visibility = View.GONE
                 binding.issue.text = "# ${item.issue}"
                 binding.issue.setOnClickListener {
-                        CustomTabsHelper.launchUrl(context, Uri.parse("https://github.com/AutoAccountingOrg/AutoRule/issues/${item.issue}"))
+                    CustomTabsHelper.launchUrl(
+                        context,
+                        Uri.parse("https://github.com/AutoAccountingOrg/AutoRule/issues/${item.issue}"),
+                    )
                 }
-
             }
-            if(!item.match){
+            if (!item.match) {
                 scope.launch {
                     val result = Engine.analyze(item.type, item.source, item.data)
-                    if (result!==null){
+                    if (result !== null) {
                         item.rule = result.channel
                         item.match = true
-                        withContext(Dispatchers.Main){
+                        withContext(Dispatchers.Main) {
                             dataItems[position] = item
                             adapter.notifyItemChanged(position)
                         }
@@ -114,45 +132,45 @@ class DataAdapter(
                     }
                 }
             }
-            val app = AppUtils.getAppInfoFromPackageName(item.source,context)
+            val app = AppUtils.getAppInfoFromPackageName(item.source, context)
 
-            binding.app.text = item.source.let {
-                if (item.type.toDataType() !== DataType.Sms){
-                     app?.name
-                }else{
-                    it
+            binding.app.text =
+                item.source.let {
+                    if (item.type.toDataType() !== DataType.Sms) {
+                        app?.name
+                    } else {
+                        it
+                    }
                 }
-            }
             if (app != null) {
                 binding.image.setImageDrawable(app.icon)
-            }else{
+            } else {
                 binding.image.setImageResource(R.drawable.data_sms)
             }
 
-            binding.time.text = item.time.let {
-                DateUtils.getTime(it)
-            }
+            binding.time.text =
+                item.time.let {
+                    DateUtils.getTime(it)
+                }
             binding.rule.visibility = View.VISIBLE
-            if(!item.match){
+            if (!item.match) {
                 binding.rule.visibility = View.GONE
-            }else{
+            } else {
                 binding.uploadData.visibility = View.GONE
                 binding.groupCard.setCardBackgroundColor(SurfaceColors.SURFACE_5.getColor(context))
             }
             binding.rule.text = item.rule
 
             binding.testRule.setOnClickListener {
-                onClickTest(item);
+                onClickTest(item)
             }
-            binding.content.setOnClickListener{
-                onClickContent(binding.content.text as String);
-
+            binding.content.setOnClickListener {
+                onClickContent(binding.content.text as String)
             }
 
-            binding.uploadData.setOnClickListener{
-                onClickUploadData(item,position)
+            binding.uploadData.setOnClickListener {
+                onClickUploadData(item, position)
             }
         }
     }
 }
-

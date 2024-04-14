@@ -25,9 +25,9 @@ import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.AutoAccountingServiceUtils
 import net.ankio.auto.utils.SpUtils
 
-
-class AuthActivity :  BaseActivity() {
+class AuthActivity : BaseActivity() {
     private lateinit var binding: ActivityAuthBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -44,7 +44,7 @@ class AuthActivity :  BaseActivity() {
 
         val packageName = intent.getStringExtra("packageName")
 
-        if (packageName.isNullOrEmpty()){
+        if (packageName.isNullOrEmpty()) {
             setResult(RESULT_CANCELED)
             finish()
             return
@@ -52,7 +52,7 @@ class AuthActivity :  BaseActivity() {
 
         val appInfo = AppUtils.getAppInfoFromPackageName(packageName, this@AuthActivity)
 
-        if(appInfo == null){
+        if (appInfo == null) {
             setResult(RESULT_CANCELED)
             finish()
             return
@@ -63,7 +63,7 @@ class AuthActivity :  BaseActivity() {
         binding.sure.setOnClickListener {
             val resultIntent = Intent()
             resultIntent.putExtra("token", AutoAccountingServiceUtils.getToken(this@AuthActivity))
-            SpUtils.putString("bookApp",packageName)
+            SpUtils.putString("bookApp", packageName)
             setResult(RESULT_OK, resultIntent)
             finish()
         }

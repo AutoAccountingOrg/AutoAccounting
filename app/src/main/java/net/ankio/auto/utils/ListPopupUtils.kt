@@ -26,30 +26,36 @@ import android.widget.ListAdapter
 import android.widget.ListPopupWindow
 import net.ankio.auto.R
 
-
-class ListPopupUtils(val context: Context, anchor: View, val list: HashMap<String,Any>,val value: Any, onClick:(position:Int,key:String,value:Any)->Unit) {
+class ListPopupUtils(
+    val context: Context,
+    anchor: View,
+    val list: HashMap<String, Any>,
+    val value: Any,
+    onClick: (position: Int, key: String, value: Any) -> Unit,
+) {
     private val listPopupWindow: ListPopupWindow = ListPopupWindow(context)
     private var adapter: ArrayAdapter<String>
     private var selectIndex = 0
+
     init {
         val keyList = list.keys.toList()
-        adapter =   ArrayAdapter(context, R.layout.list_popup_window_item, keyList)
+        adapter = ArrayAdapter(context, R.layout.list_popup_window_item, keyList)
         listPopupWindow.setAdapter(adapter)
         listPopupWindow.anchorView = anchor
-        listPopupWindow.setOnItemClickListener{ _: AdapterView<*>?, _: View?, position: Int, _: Long ->
+        listPopupWindow.setOnItemClickListener { _: AdapterView<*>?, _: View?, position: Int, _: Long ->
             val key = keyList[position]
-            onClick(position,key,list[key]!!)
+            onClick(position, key, list[key]!!)
             listPopupWindow.dismiss()
             hasShowPopupWindow = false
         }
-        //查找value值一样的数据
+        // 查找value值一样的数据
         list.filterValues { it == value }.keys.firstOrNull()?.let {
             selectIndex = keyList.indexOf(it)
         }
 
-       // listPopupWindow.width = ListPopupWindow.WRAP_CONTENT;
-       // listPopupWindow.width = 300
-        listPopupWindow.width =  measureContentWidth(adapter)
+        // listPopupWindow.width = ListPopupWindow.WRAP_CONTENT;
+        // listPopupWindow.width = 300
+        listPopupWindow.width = measureContentWidth(adapter)
     }
 
     private fun measureContentWidth(listAdapter: ListAdapter): Int {
@@ -86,20 +92,17 @@ class ListPopupUtils(val context: Context, anchor: View, val list: HashMap<Strin
         return maxWidth
     }
 
-
     private var hasShowPopupWindow = false
-
 
     fun toggle() {
         listPopupWindow.apply {
             if (hasShowPopupWindow) {
                 dismiss()
-            }else {
+            } else {
                 show()
                 setSelection(selectIndex)
             }
             hasShowPopupWindow = !hasShowPopupWindow
         }
     }
-
 }

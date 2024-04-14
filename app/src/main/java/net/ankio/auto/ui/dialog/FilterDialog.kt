@@ -18,21 +18,14 @@ package net.ankio.auto.ui.dialog
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
-import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
-import kotlinx.coroutines.launch
-import net.ankio.auto.database.Db
-import net.ankio.auto.database.table.BillInfo
-import net.ankio.auto.databinding.DialogBillMoreBinding
 import net.ankio.auto.databinding.DialogFilterBinding
-import net.ankio.auto.ui.adapter.OrderItemAdapter
 
 class FilterDialog(
     context: Context,
-    private val callback: (keyword:String)->Unit) :
+    private val callback: (keyword: String) -> Unit,
+) :
     BaseSheetDialog(context) {
     private lateinit var binding: DialogFilterBinding
-
 
     override fun onCreateView(inflater: LayoutInflater): View {
         binding = DialogFilterBinding.inflate(inflater)
@@ -49,7 +42,4 @@ class FilterDialog(
 
         return binding.root
     }
-
-
-
 }

@@ -15,18 +15,20 @@
 
 package net.ankio.auto.constant
 
-enum class DataType  {
-    App,//app
-    Sms,//短信
-    Notice,//通知
-    Helper;//无障碍
-    companion object{
-        fun fromType(type: Int): DataType {
-            return entries.firstOrNull { it.ordinal == type }?:App
-        }
+enum class DataType {
+    App, // app
+    Sms, // 短信
+    Notice, // 通知
+    Helper, // 无障碍
+    ;
 
+    companion object {
+        fun fromType(type: Int): DataType {
+            return entries.firstOrNull { it.ordinal == type } ?: App
+        }
     }
 }
+
 fun Int.toDataType(): DataType {
-    return DataType.entries.firstOrNull { it.ordinal == this }?:DataType.App
+    return DataType.entries.firstOrNull { it.ordinal == this } ?: DataType.App
 }

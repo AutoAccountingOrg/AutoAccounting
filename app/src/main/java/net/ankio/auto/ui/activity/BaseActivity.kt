@@ -15,7 +15,6 @@
 
 package net.ankio.auto.ui.activity
 
-
 import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
 import android.content.Context
@@ -50,26 +49,25 @@ open class BaseActivity : AppCompatActivity() {
      * 重构context
      */
     override fun attachBaseContext(newBase: Context?) {
-       val context = newBase?.let {
-           LanguageUtils.initAppLanguage(it)
-        }
+        val context =
+            newBase?.let {
+                LanguageUtils.initAppLanguage(it)
+            }
         super.attachBaseContext(context)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //主题初始化
+        // 主题初始化
         ThemeEngine.applyToActivity(this)
     }
 
     /**
      * 在子activity手动调用该方法
      */
-    open fun onViewCreated(){
-
-        //主题初始化
+    open fun onViewCreated() {
+        // 主题初始化
         val themeMode = ThemeEngine.getInstance(this@BaseActivity).themeMode
-
 
         val currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
         statusBar {
@@ -78,72 +76,80 @@ open class BaseActivity : AppCompatActivity() {
             light =
                 !(themeMode == ThemeMode.DARK || (themeMode == ThemeMode.AUTO && currentNightMode == Configuration.UI_MODE_NIGHT_YES))
         }
-        //根据主题设置statusBar
+        // 根据主题设置statusBar
         navigationBar { transparent() }
-        if(::toolbarLayout.isInitialized){
+        if (::toolbarLayout.isInitialized) {
             toolbarLayout.addStatusBarTopPadding()
         }
-        if(::toolbarLayout.isInitialized && ::toolbar.isInitialized && ::scrollView.isInitialized){
+        if (::toolbarLayout.isInitialized && ::toolbar.isInitialized && ::scrollView.isInitialized) {
             val mStatusBarColor = getThemeAttrColor(android.R.attr.colorBackground)
             var last = mStatusBarColor
-            val mStatusBarColor2 =  SurfaceColors.SURFACE_4.getColor(this)
+            val mStatusBarColor2 = SurfaceColors.SURFACE_4.getColor(this)
             var animatorStart = false
-            //滚动页面调整toolbar颜色
+            // 滚动页面调整toolbar颜色
             scrollView.setOnScrollChangeListener { _, _, scrollY, _, _ ->
-                var scrollYs = scrollY //获取宽度
-                if(scrollView is RecyclerView){
-                    //RecyclerView获取真实高度
-                    scrollYs = (scrollView as RecyclerView).computeVerticalScrollOffset();
+                var scrollYs = scrollY // 获取宽度
+                if (scrollView is RecyclerView) {
+                    // RecyclerView获取真实高度
+                    scrollYs = (scrollView as RecyclerView).computeVerticalScrollOffset()
                 }
 
-                if(animatorStart)return@setOnScrollChangeListener
+                if (animatorStart) return@setOnScrollChangeListener
 
-                if(scrollYs.toFloat()>0){
-                    if (last!=mStatusBarColor2){
+                if (scrollYs.toFloat() > 0) {
+                    if (last != mStatusBarColor2) {
                         animatorStart = true
-                        viewBackgroundGradientAnimation(toolbarLayout,mStatusBarColor,mStatusBarColor2)
-                        last=mStatusBarColor2
+                        viewBackgroundGradientAnimation(
+                            toolbarLayout,
+                            mStatusBarColor,
+                            mStatusBarColor2,
+                        )
+                        last = mStatusBarColor2
                     }
-                }else{
-                    if (last!=mStatusBarColor){
+                } else {
+                    if (last != mStatusBarColor) {
                         animatorStart = true
-                        viewBackgroundGradientAnimation(toolbarLayout,mStatusBarColor2,mStatusBarColor)
-                        last=mStatusBarColor
+                        viewBackgroundGradientAnimation(
+                            toolbarLayout,
+                            mStatusBarColor2,
+                            mStatusBarColor,
+                        )
+                        last = mStatusBarColor
                     }
-
-
                 }
                 animatorStart = false
             }
 
             scrollView.addNavigationBarBottomPadding()
-
         }
     }
 
     /**
      * 获取主题色
      */
-    fun getThemeAttrColor( @AttrRes attrResId: Int): Int {
-       return AppUtils.getThemeAttrColor(attrResId)
+    fun getThemeAttrColor(
+        @AttrRes attrResId: Int,
+    ): Int {
+        return AppUtils.getThemeAttrColor(attrResId)
     }
-
-
 
     /**
      * toolbar颜色渐变动画
      */
-    private fun viewBackgroundGradientAnimation(view: View, fromColor: Int, toColor: Int, duration: Long = 600) {
+    private fun viewBackgroundGradientAnimation(
+        view: View,
+        fromColor: Int,
+        toColor: Int,
+        duration: Long = 600,
+    ) {
         val colorAnimator = ValueAnimator.ofObject(ArgbEvaluator(), fromColor, toColor)
         colorAnimator.addUpdateListener { animation ->
-            val color = animation.animatedValue as Int //之后就可以得到动画的颜色了
-            view.setBackgroundColor(color) //设置一下, 就可以看到效果.
+            val color = animation.animatedValue as Int // 之后就可以得到动画的颜色了
+            view.setBackgroundColor(color) // 设置一下, 就可以看到效果.
         }
         colorAnimator.duration = duration
         colorAnimator.start()
     }
-
-
 
     /**
      * 切换activity
@@ -158,6 +164,4 @@ open class BaseActivity : AppCompatActivity() {
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         startActivity(intent)
     }
-
-
 }

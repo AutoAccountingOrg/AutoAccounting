@@ -16,7 +16,6 @@
 package net.ankio.auto.utils
 
 object AppTimeMonitor {
-
     private var isDebugMode = AppUtils.getDebug()
 
     private val timeMap = mutableMapOf<String, Long>()

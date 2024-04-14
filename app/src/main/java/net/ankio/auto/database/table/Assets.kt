@@ -16,11 +16,8 @@ package net.ankio.auto.database.table
 
 import android.content.Context
 import android.graphics.drawable.Drawable
-import androidx.core.content.res.ResourcesCompat
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.database.Db
 import net.ankio.auto.utils.ImageUtils
@@ -29,17 +26,19 @@ import net.ankio.common.model.AssetsModel
 
 @Entity
 class Assets {
-    //账户列表
+    // 账户列表
     @PrimaryKey(autoGenerate = true)
     var id = 0
-    var name: String = "" //账户名
+    var name: String = "" // 账户名
+
     /**
      * 这里的图标是url链接或存储的base64图片
      */
-    var icon: String = "" //图标
+    var icon: String = "" // 图标
     var sort = 0
-    var type: AssetType = AssetType.CASH //账户类型
-    var extras: String = "" //额外信息，例如银行卡的卡号等
+    var type: AssetType = AssetType.CASH // 账户类型
+    var extras: String = "" // 额外信息，例如银行卡的卡号等
+
     companion object {
         fun fromModel(it: AssetsModel): Assets {
             val assets = Assets()
@@ -51,9 +50,12 @@ class Assets {
             return assets
         }
 
-        suspend fun getDrawable(account:String, context: Context):Drawable {
+        suspend fun getDrawable(
+            account: String,
+            context: Context,
+        ): Drawable {
             val accountInfo = Db.get().AssetsDao().get(account)
-            return ImageUtils.get(context, accountInfo?.icon?:"",R.mipmap.ic_launcher_round)
+            return ImageUtils.get(context, accountInfo?.icon ?: "", R.mipmap.ic_launcher_round)
         }
     }
 }

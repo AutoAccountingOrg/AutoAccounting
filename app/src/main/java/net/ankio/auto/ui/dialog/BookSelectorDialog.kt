@@ -15,7 +15,6 @@
 
 package net.ankio.auto.ui.dialog
 
-
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
@@ -29,41 +28,42 @@ import net.ankio.auto.database.table.BookName
 import net.ankio.auto.databinding.DialogBookSelectBinding
 import net.ankio.auto.ui.adapter.BookSelectorAdapter
 
-
-class BookSelectorDialog(private val context: Context,val callback: (BookName) -> Unit) : BaseSheetDialog(context) {
-
-    private lateinit var binding:DialogBookSelectBinding
+class BookSelectorDialog(private val context: Context, val callback: (BookName) -> Unit) :
+    BaseSheetDialog(context) {
+    private lateinit var binding: DialogBookSelectBinding
     private val dataItems = mutableListOf<BookName>()
-    private lateinit var adapter : BookSelectorAdapter
+    private lateinit var adapter: BookSelectorAdapter
+
     override fun onCreateView(inflater: LayoutInflater): View {
-        binding =  DialogBookSelectBinding.inflate(inflater)
+        binding = DialogBookSelectBinding.inflate(inflater)
         val layoutManager = LinearLayoutManager(context)
         binding.recyclerView.layoutManager = layoutManager
 
         cardView = binding.cardView
         cardViewInner = binding.recyclerView
-        adapter = BookSelectorAdapter(dataItems) { item, _ ->
-            callback(item)
-            this@BookSelectorDialog.dismiss()
-        }
-        //binding.recyclerView.setBackgroundColor(SurfaceColors.SURFACE_1.getColor(requireContext()))
+        adapter =
+            BookSelectorAdapter(dataItems) { item, _ ->
+                callback(item)
+                this@BookSelectorDialog.dismiss()
+            }
+        // binding.recyclerView.setBackgroundColor(SurfaceColors.SURFACE_1.getColor(requireContext()))
         binding.recyclerView.adapter = adapter
-
 
         return binding.root
     }
 
-
-    private fun getData(callback: (List<BookName>) -> Unit){
-        val defaultBook = BookName().apply {
-            name = "默认账本"
-            id = 0
-        }
+    private fun getData(callback: (List<BookName>) -> Unit) {
+        val defaultBook =
+            BookName().apply {
+                name = "默认账本"
+                id = 0
+            }
 
         lifecycleScope.launch {
-            val newData = withContext(Dispatchers.IO) {
-                Db.get().BookNameDao().loadAll()
-            }
+            val newData =
+                withContext(Dispatchers.IO) {
+                    Db.get().BookNameDao().loadAll()
+                }
 
             val collection = newData.takeIf { it.isNotEmpty() } ?: listOf(defaultBook)
 
@@ -71,10 +71,12 @@ class BookSelectorDialog(private val context: Context,val callback: (BookName) -
         }
     }
 
-    override fun show(float: Boolean, cancel: Boolean) {
+    override fun show(
+        float: Boolean,
+        cancel: Boolean,
+    ) {
         getData {
-
-            if(it.size == 1){
+            if (it.size == 1) {
                 callback(it[0])
                 return@getData
             }
@@ -83,5 +85,4 @@ class BookSelectorDialog(private val context: Context,val callback: (BookName) -
         }
         super.show(float, cancel)
     }
-
 }

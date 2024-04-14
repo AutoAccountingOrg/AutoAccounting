@@ -16,17 +16,14 @@
 package net.ankio.auto.ui.componets
 
 import android.content.Context
-import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.size
-import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.utils.AppUtils
-import net.ankio.auto.utils.Logger
 
 /**
  * 流动布局元素
@@ -35,7 +32,7 @@ class FlowElement(
     private val context: Context,
     private val flowLayoutManager: FlowLayoutManager,
     prev: FlowElement? = null,
-    initData: HashMap<String, Any>? = null
+    initData: HashMap<String, Any>? = null,
 ) {
     private var elements = ArrayList<View>()
     var data = HashMap<String, Any>()
@@ -55,7 +52,6 @@ class FlowElement(
         } else {
             data["text"] = ""
         }
-
     }
 
     fun removed(): FlowElement {
@@ -86,7 +82,7 @@ class FlowElement(
     fun setAsWaveTextview(
         text: String,
         connector: Boolean = false,
-        callback: ((FlowElement, WaveTextView) -> Unit)?
+        callback: ((FlowElement, WaveTextView) -> Unit)?,
     ): Int {
         type = 2
         if (waveCallback != callback) {
@@ -112,7 +108,7 @@ class FlowElement(
                         } else {
                             data["jsPre"] = " or "
                             context.getString(
-                                R.string.or
+                                R.string.or,
                             )
                         }
                 }
@@ -122,13 +118,12 @@ class FlowElement(
             index = flowLayoutManager.firstWaveTextViewPosition
         }
 
-        //存储当前index
+        // 存储当前index
 
         val textArray = " $text ".split("")
 
         textArray.forEach {
-
-            val newWaveTextView = createWaveView(it) //直接插入
+            val newWaveTextView = createWaveView(it) // 直接插入
             flowLayoutManager.addView(newWaveTextView, index++)
             newWaveTextView.setOnClickListener {
                 callback?.let { it1 -> it1(this, newWaveTextView) }
@@ -145,40 +140,40 @@ class FlowElement(
             elements.add(newWaveTextView)
         }
 
-
         return index
     }
-
 
     private fun createWaveView(it: String): WaveTextView {
         val waveTextView = WaveTextView(context)
         waveTextView.text = it
         waveTextView.setTextAppearance(flowLayoutManager.textAppearance)
         waveTextView.setPadding(0, 0, 0, 0)
-        val color = AppUtils.getThemeAttrColor(
-            com.google.android.material.R.attr.colorPrimary
-        )
+        val color =
+            AppUtils.getThemeAttrColor(
+                com.google.android.material.R.attr.colorPrimary,
+            )
         waveTextView.setTextColor(color)
         waveTextView.isClickable = true
         waveTextView.isFocusable = true
-        waveTextView.background = ResourcesCompat.getDrawable(
-            context.resources,
-            R.drawable.ripple_effect,
-            context.theme
-        )
-        //设置前后margin
-        val layoutParams = ViewGroup.MarginLayoutParams(
-            ViewGroup.LayoutParams.WRAP_CONTENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        )
+        waveTextView.background =
+            ResourcesCompat.getDrawable(
+                context.resources,
+                R.drawable.ripple_effect,
+                context.theme,
+            )
+        // 设置前后margin
+        val layoutParams =
+            ViewGroup.MarginLayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+            )
 
-      /*  layoutParams.marginStart = AppUtils.dp2px(10f)
-        layoutParams.marginEnd = AppUtils.dp2px(10f)*/
+        /*  layoutParams.marginStart = AppUtils.dp2px(10f)
+          layoutParams.marginEnd = AppUtils.dp2px(10f)*/
         waveTextView.layoutParams = layoutParams
 
         return waveTextView
     }
-
 
     fun setAsTextView(text: String) {
         type = 1
@@ -190,10 +185,12 @@ class FlowElement(
             elements.add(textView)
             flowLayoutManager.addView(textView, index++)
         }
-
     }
 
-    fun setAsButton(text: String, callback: (FlowElement, TextView) -> Unit) {
+    fun setAsButton(
+        text: String,
+        callback: (FlowElement, TextView) -> Unit,
+    ) {
         type = 0
         //  data["text"]=text
         val textView = TextView(context)
@@ -202,8 +199,8 @@ class FlowElement(
         textView.setTextAppearance(flowLayoutManager.textAppearance)
         textView.setTextColor(
             AppUtils.getThemeAttrColor(
-                com.google.android.material.R.attr.colorOnSecondaryFixed
-            )
+                com.google.android.material.R.attr.colorOnSecondaryFixed,
+            ),
         )
         textView.isClickable = true
         textView.isFocusable = true
@@ -219,10 +216,7 @@ class FlowElement(
         flowLayoutManager.addView(textView, index++)
     }
 
-
     fun getFirstView(): View? {
         return elements.firstOrNull()
     }
-
-
 }

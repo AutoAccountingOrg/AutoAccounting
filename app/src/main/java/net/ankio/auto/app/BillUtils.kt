@@ -22,22 +22,21 @@ import net.ankio.auto.R
 import net.ankio.auto.database.Db
 import net.ankio.auto.database.table.AssetsMap
 import net.ankio.auto.database.table.BillInfo
-import net.ankio.auto.events.AutoServiceErrorEvent
-import net.ankio.auto.exceptions.AutoServiceException
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.SpUtils
-import net.ankio.auto.utils.event.EventBus
 import net.ankio.common.constant.BillType
 import net.ankio.common.model.AutoBillModel
 import java.text.DecimalFormat
 
 object BillUtils {
-
     /**
      * 对重复账单进行分组更新
      */
-    private suspend fun updateBillInfo(parentBillInfo: BillInfo, billInfo: BillInfo) {
+    private suspend fun updateBillInfo(
+        parentBillInfo: BillInfo,
+        billInfo: BillInfo,
+    ) {
         if (!parentBillInfo.shopName.contains(billInfo.shopName)) {
             parentBillInfo.shopName = billInfo.shopName
         }
@@ -45,10 +44,11 @@ object BillUtils {
             parentBillInfo.shopItem += " / " + billInfo.shopItem
         }
 
-        parentBillInfo.remark = getRemark(
-            parentBillInfo,
-            SpUtils.getString("setting_bill_remark", "【商户名称】 - 【商品名称】")
-        )
+        parentBillInfo.remark =
+            getRemark(
+                parentBillInfo,
+                SpUtils.getString("setting_bill_remark", "【商户名称】 - 【商品名称】"),
+            )
 
         parentBillInfo.cateName = billInfo.cateName
 
@@ -65,42 +65,43 @@ object BillUtils {
     /**
      * 将自动记账的账单与待同步区域的账单进行合并
      */
-    private suspend fun syncBillInfo() = withContext(Dispatchers.IO) {
-        val bills = Db.get().BillInfoDao().getAllParents()
-        Db.get().BillInfoDao().setAllParents()
-       val it = AppUtils.getService().get("auto_bills")
-        val list = runCatching {
-            Gson().fromJson(it, Array<AutoBillModel>::class.java).toMutableList()
-        }.getOrElse {
-            Logger.e("解析自动记账出错", it)
-            mutableListOf()
-        }
-        // 添加或更新list中的元素
-        bills.forEach { bill ->
-            val index = list.indexOfFirst { it.id == bill.id }
-            if (index != -1) {
-                list[index] = bill.toAutoBillModel()
-            } else {
-                list.add(bill.toAutoBillModel())
+    private suspend fun syncBillInfo() =
+        withContext(Dispatchers.IO) {
+            val bills = Db.get().BillInfoDao().getAllParents()
+            Db.get().BillInfoDao().setAllParents()
+            val it = AppUtils.getService().get("auto_bills")
+            val list =
+                runCatching {
+                    Gson().fromJson(it, Array<AutoBillModel>::class.java).toMutableList()
+                }.getOrElse {
+                    Logger.e("解析自动记账出错", it)
+                    mutableListOf()
+                }
+            // 添加或更新list中的元素
+            bills.forEach { bill ->
+                val index = list.indexOfFirst { it.id == bill.id }
+                if (index != -1) {
+                    list[index] = bill.toAutoBillModel()
+                } else {
+                    list.add(bill.toAutoBillModel())
+                }
+            }
+
+            val json = Gson().toJson(list)
+            AppUtils.getService().set("auto_bills", json)
+            // 如果需要同步的数据过多，则尝试自动跳转
+            if (list.size > 20) {
+                AppUtils.startBookApp()
             }
         }
 
-        val json = Gson().toJson(list)
-        AppUtils.getService().set("auto_bills", json)
-        //如果需要同步的数据过多，则尝试自动跳转
-        if (list.size > 20) {
-            AppUtils.startBookApp()
-        }
+    fun noNeedFilter(billInfo: BillInfo): Boolean {
+        return !SpUtils.getBoolean("setting_bill_repeat", true) ||
+            (
+                billInfo.type != BillType.Income &&
+                    billInfo.type != BillType.Expend
+            )
     }
-
-     fun noNeedFilter(billInfo: BillInfo): Boolean {
-         return  !SpUtils.getBoolean("setting_bill_repeat", true) ||
-                  (
-                   billInfo.type != BillType.Income &&
-                   billInfo.type != BillType.Expend
-                  )
-     }
-
 
     /**
      * 重复账单的要素：
@@ -113,32 +114,33 @@ object BillUtils {
      */
 
     suspend fun groupBillInfo(billInfo: BillInfo) {
-        if (noNeedFilter(billInfo) ) {
+        if (noNeedFilter(billInfo)) {
             Db.get().BillInfoDao().insert(billInfo)
             syncBillInfo()
             return
         }
-        //因为是新账单，所以groupId = 0
-        //3分钟之内 重复金额、交易类型的可能是重复订单
+        // 因为是新账单，所以groupId = 0
+        // 3分钟之内 重复金额、交易类型的可能是重复订单
         val minutesAgo = billInfo.timeStamp - (3 * 60 * 1000)
-        //只遍历金额和类型重复的，时间在10分钟之内
-        val duplicateIds = Db.get().BillInfoDao()
-            .findDistinctNonZeroGroupIds(billInfo.money, billInfo.type, minutesAgo)
-        //这边是这个时间段所有重复的GroupId
+        // 只遍历金额和类型重复的，时间在10分钟之内
+        val duplicateIds =
+            Db.get().BillInfoDao()
+                .findDistinctNonZeroGroupIds(billInfo.money, billInfo.type, minutesAgo)
+        // 这边是这个时间段所有重复的GroupId
         var groupId = 0
 
         Logger.i("重复GroupId：$duplicateIds")
 
         if (duplicateIds.isNotEmpty()) {
-            //循环所有id
+            // 循环所有id
             for (id in duplicateIds) {
-                val duplicateBills = Db.get().BillInfoDao()
-                    .findDuplicateBills(billInfo.money, billInfo.type, minutesAgo, id)
-                //这里的重复账单有两种：1. 本身重复 2.
-                //获取到所有重复账单，若来源渠道一致，认为不是重复的
+                val duplicateBills =
+                    Db.get().BillInfoDao()
+                        .findDuplicateBills(billInfo.money, billInfo.type, minutesAgo, id)
+                // 这里的重复账单有两种：1. 本身重复 2.
+                // 获取到所有重复账单，若来源渠道一致，认为不是重复的
                 for (duplicateBill in duplicateBills) {
-
-                    //无论如何重复，如果发生时间（毫秒）完全一致，可以认定是重复的
+                    // 无论如何重复，如果发生时间（毫秒）完全一致，可以认定是重复的
                     if (duplicateBill.timeStamp == billInfo.timeStamp) {
                         groupId = duplicateBill.groupId
                         break
@@ -156,7 +158,6 @@ object BillUtils {
                         groupId = duplicateBill.groupId
                         break
                     }
-
                 }
                 if (groupId != 0) break
             }
@@ -183,38 +184,42 @@ object BillUtils {
     /**
      * 获取资产映射
      */
-    suspend fun setAccountMap(billInfo: BillInfo) = withContext(Dispatchers.IO) {
-        fun getMapName(list: List<AssetsMap>, name: String): String {
-            for (map in list) {
-                if (map.regex) {
-                    try {
-                        val pattern = Regex(map.name)
-                        if (pattern.matches(name)) {
+    suspend fun setAccountMap(billInfo: BillInfo) =
+        withContext(Dispatchers.IO) {
+            fun getMapName(
+                list: List<AssetsMap>,
+                name: String,
+            ): String {
+                for (map in list) {
+                    if (map.regex) {
+                        try {
+                            val pattern = Regex(map.name)
+                            if (pattern.matches(name)) {
+                                return map.mapName
+                            }
+                        } catch (e: Exception) {
+                            Logger.e("正则匹配出错", e)
+                            continue
+                        }
+                    } else {
+                        if (map.name === name) {
                             return map.mapName
                         }
-                    } catch (e: Exception) {
-                        Logger.e("正则匹配出错", e)
-                        continue
-                    }
-                } else {
-                    if (map.name === name) {
-                        return map.mapName
                     }
                 }
+                return name
             }
-            return name
-        }
 
-        AppUtils.getService().get("assets_map").let {
-            runCatching {
-                val list = Gson().fromJson(it, Array<AssetsMap>::class.java).toList()
-                billInfo.accountNameFrom = getMapName(list, billInfo.accountNameFrom)
-                billInfo.accountNameTo = getMapName(list, billInfo.accountNameTo)
-            }.onFailure {
-                Logger.e("获取资产映射出错", it)
+            AppUtils.getService().get("assets_map").let {
+                runCatching {
+                    val list = Gson().fromJson(it, Array<AssetsMap>::class.java).toList()
+                    billInfo.accountNameFrom = getMapName(list, billInfo.accountNameFrom)
+                    billInfo.accountNameTo = getMapName(list, billInfo.accountNameTo)
+                }.onFailure {
+                    Logger.e("获取资产映射出错", it)
+                }
             }
         }
-    }
 
     /**
      * 生成备注信息
@@ -222,13 +227,13 @@ object BillUtils {
      */
     fun getRemark(
         billInfo: BillInfo,
-        settingBillRemark: String = "【商户名称】 - 【商品名称】"
+        settingBillRemark: String = "【商户名称】 - 【商品名称】",
     ): String {
         val tpl = settingBillRemark.ifEmpty { "【商户名称】 - 【商品名称】" }
         return tpl
             .replace("【商户名称】", billInfo.shopName)
             .replace("【商品名称】", billInfo.shopItem)
-         //   .replace("【币种类型】", billInfo.currency.name(AppUtils.getApplication()))
+            //   .replace("【币种类型】", billInfo.currency.name(AppUtils.getApplication()))
             .replace("【金额】", billInfo.money.toString())
             .replace("【分类】", billInfo.cateName)
             .replace("【账本】", billInfo.bookName)
@@ -243,13 +248,13 @@ object BillUtils {
     fun getCategory(
         category1: String,
         category2: String? = null,
-        settingCategoryShowParent: Boolean = false
+        settingCategoryShowParent: Boolean = false,
     ): String {
         if (category2 === null) {
             return category1
         }
         if (settingCategoryShowParent) {
-            return "${category1}-${category2}"
+            return "$category1-$category2"
         }
         return "$category2"
     }
@@ -276,23 +281,26 @@ object BillUtils {
         val amount = df.format(money / 100.0f)
         return amount.toFloat()
     }
+
     /**
      * 将 1.0023323232 转换为 100
      */
     fun getMoney(money: Float): Int {
         return (money * 100.0f).toInt()
     }
+
     /**
      * 同步自定义规则到远程目录
      */
-    suspend fun syncRules() = withContext(Dispatchers.IO){
-        Logger.i("同步自定义规则到远程目录")
-        val rule = StringBuilder()
-        Db.get().RegularDao().loadAll()?.forEach {
-            if (it != null) {
-                rule.append(it.js).append("\n")
+    suspend fun syncRules() =
+        withContext(Dispatchers.IO) {
+            Logger.i("同步自定义规则到远程目录")
+            val rule = StringBuilder()
+            Db.get().RegularDao().loadAll()?.forEach {
+                if (it != null) {
+                    rule.append(it.js).append("\n")
+                }
             }
+            AppUtils.getService().set("auto_category_custom", rule.toString())
         }
-        AppUtils.getService().set("auto_category_custom", rule.toString())
-    }
 }

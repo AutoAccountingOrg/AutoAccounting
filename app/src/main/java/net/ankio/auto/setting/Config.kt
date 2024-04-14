@@ -25,8 +25,8 @@ import com.quickersilver.themeengine.ThemeMode
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.constant.FloatEvent
-import net.ankio.auto.exceptions.PermissionException
 import net.ankio.auto.constant.ItemType
+import net.ankio.auto.exceptions.PermissionException
 import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.fragment.home.Setting2Fragment
 import net.ankio.auto.ui.utils.LoadingUtils
@@ -41,9 +41,12 @@ object Config {
     /**
      * 获取App设置项
      */
-    fun app(context: Context,setting2Fragment: Setting2Fragment): ArrayList<SettingItem> {
+    fun app(
+        context: Context,
+        setting2Fragment: Setting2Fragment,
+    ): ArrayList<SettingItem> {
         return arrayListOf(
-            //隐私
+            // 隐私
             SettingItem(R.string.setting_privacy),
             SettingItem(
                 title = R.string.setting_analysis,
@@ -51,9 +54,9 @@ object Config {
                 key = "setting_analysis",
                 type = ItemType.SWITCH,
                 default = true,
-                icon = R.drawable.setting2_icon_anonymous
+                icon = R.drawable.setting2_icon_anonymous,
             ),
-            //语言
+            // 语言
             SettingItem(R.string.setting_lang),
             SettingItem(
                 title = R.string.setting_lang,
@@ -66,16 +69,16 @@ object Config {
                     activity.recreate()
                 },
                 type = ItemType.TEXT,
-                icon = R.drawable.setting2_icon_language
+                icon = R.drawable.setting2_icon_language,
             ),
             SettingItem(
                 title = R.string.setting_translation,
                 subTitle = R.string.setting_help_translation,
                 link = context.getString(R.string.translation_url),
                 type = ItemType.TEXT,
-                icon = R.drawable.setting2_icon_translate
+                icon = R.drawable.setting2_icon_translate,
             ),
-            //皮肤
+            // 皮肤
             SettingItem(R.string.setting_skin),
             SettingItem(
                 regex = "setting_use_system=false",
@@ -83,7 +86,7 @@ object Config {
                 type = ItemType.COLOR,
                 icon = R.drawable.setting2_icon_theme,
                 onGetKeyValue = {
-                     ThemeEngine.getInstance(context).staticTheme.primaryColor
+                    ThemeEngine.getInstance(context).staticTheme.primaryColor
                 },
                 onItemClick = { _, activity ->
                     ThemeChooserDialogBuilder(activity)
@@ -100,25 +103,26 @@ object Config {
                         .setIcon(R.drawable.ic_theme)
                         .create()
                         .show()
-                }
+                },
             ),
             SettingItem(
                 title = R.string.setting_dark_theme,
                 type = ItemType.TEXT,
                 icon = R.drawable.setting2_icon_dark_theme,
                 default = ThemeMode.AUTO,
-                selectList = hashMapOf(
-                    context.getString(R.string.always_off) to ThemeMode.LIGHT,
-                    context.getString(R.string.always_on) to ThemeMode.DARK,
-                    context.getString(R.string.lang_follow_system) to ThemeMode.AUTO
-                ),
+                selectList =
+                    hashMapOf(
+                        context.getString(R.string.always_off) to ThemeMode.LIGHT,
+                        context.getString(R.string.always_on) to ThemeMode.DARK,
+                        context.getString(R.string.lang_follow_system) to ThemeMode.AUTO,
+                    ),
                 onGetKeyValue = {
                     ThemeEngine.getInstance(context).themeMode
                 },
                 onSavedValue = { value, activity ->
                     ThemeEngine.getInstance(context).themeMode = value as Int
                     activity.recreate()
-                }
+                },
             ),
             SettingItem(
                 title = R.string.setting_use_dark_theme,
@@ -130,7 +134,7 @@ object Config {
                 onSavedValue = { value, activity ->
                     ThemeEngine.getInstance(context).isTrueBlack = value as Boolean
                     activity.recreate()
-                }
+                },
             ),
             SettingItem(
                 variable = "setting_use_system",
@@ -143,7 +147,7 @@ object Config {
                 onSavedValue = { value, activity ->
                     ThemeEngine.getInstance(context).isDynamicTheme = value as Boolean
                     activity.recreate()
-                }
+                },
             ),
             SettingItem(
                 title = R.string.setting_use_round_style,
@@ -151,11 +155,9 @@ object Config {
                 icon = R.drawable.setting2_icon_round_theme,
                 type = ItemType.SWITCH,
             ),
-            //备份
+            // 备份
             SettingItem(R.string.setting_backup),
-
-            //备份方式二选一，本地或者Webdav
-
+            // 备份方式二选一，本地或者Webdav
             SettingItem(
                 variable = "setting_use_webdav",
                 title = R.string.setting_use_webdav,
@@ -164,68 +166,63 @@ object Config {
                 default = false,
                 type = ItemType.SWITCH,
             ),
-
             SettingItem(
                 regex = "setting_use_webdav=false",
                 title = R.string.setting_backup_path,
                 icon = R.drawable.setting2_icon_dir,
                 type = ItemType.TEXT,
-               onGetKeyValue = {
-                  val uri =  SpUtils.getString("backup_uri","")
-                   if(uri.isNotEmpty()){
-                       runCatching {
-                           Uri.parse(uri).path
-                       }.getOrDefault(context.getString(R.string.setting_backup_path_desc))
-                   }else{
-                       context.getString(R.string.setting_backup_path_desc)
-                   }
-               },
+                onGetKeyValue = {
+                    val uri = SpUtils.getString("backup_uri", "")
+                    if (uri.isNotEmpty()) {
+                        runCatching {
+                            Uri.parse(uri).path
+                        }.getOrDefault(context.getString(R.string.setting_backup_path_desc))
+                    } else {
+                        context.getString(R.string.setting_backup_path_desc)
+                    }
+                },
                 onItemClick = { _, activity ->
                     BackupUtils.requestPermission(activity as MainActivity)
-                 //   activity.recreate()
-                }
+                    //   activity.recreate()
+                },
             ),
-
             SettingItem(
                 regex = "setting_use_webdav=false",
                 title = R.string.setting_backup_2_local,
-            //    subTitle = R.string.setting_backup_2_local_desc,
+                //    subTitle = R.string.setting_backup_2_local_desc,
                 type = ItemType.TEXT,
                 icon = R.drawable.setting2_icon_to_local,
                 onItemClick = { _, activity ->
                     setting2Fragment.lifecycleScope.launch {
-                        val loading  = LoadingUtils(activity)
-                       runCatching {
-                           loading.show(R.string.backup_loading)
-                           val backupUtils = BackupUtils(activity)
-                           backupUtils.putLocalBackup()
-                       }.onSuccess {
-                           Toaster.show(R.string.backup_success)
-                           loading.close()
-                       }.onFailure {
-                           //失败请求权限
-                           if(it is PermissionException){
-                                 BackupUtils.requestPermission(activity as MainActivity)
-                           }
+                        val loading = LoadingUtils(activity)
+                        runCatching {
+                            loading.show(R.string.backup_loading)
+                            val backupUtils = BackupUtils(activity)
+                            backupUtils.putLocalBackup()
+                        }.onSuccess {
+                            Toaster.show(R.string.backup_success)
                             loading.close()
-                           Toaster.show(R.string.backup_error_msg)
-                       }
+                        }.onFailure {
+                            // 失败请求权限
+                            if (it is PermissionException) {
+                                BackupUtils.requestPermission(activity as MainActivity)
+                            }
+                            loading.close()
+                            Toaster.show(R.string.backup_error_msg)
+                        }
                     }
-                }
+                },
             ),
-
-
             SettingItem(
                 regex = "setting_use_webdav=false",
                 title = R.string.setting_restore_2_local,
                 icon = R.drawable.setting2_icon_from_local,
-              //  subTitle = R.string.setting_restore_2_local_desc,
+                //  subTitle = R.string.setting_restore_2_local_desc,
                 type = ItemType.TEXT,
                 onItemClick = { _, activity ->
                     (activity as MainActivity).restoreLauncher.launch(arrayOf("*/*"))
-                }
+                },
             ),
-
             SettingItem(
                 regex = "setting_use_webdav=true",
                 title = R.string.setting_webdav_host,
@@ -248,12 +245,11 @@ object Config {
                 default = "",
                 type = ItemType.INPUT,
             ),
-
             SettingItem(
                 regex = "setting_use_webdav=true",
                 title = R.string.setting_backup_2_webdav,
                 icon = R.drawable.setting2_icon_webdav_upload,
-           //     subTitle = R.string.setting_backup_2_webdav_desc,
+                //     subTitle = R.string.setting_backup_2_webdav_desc,
                 type = ItemType.TEXT,
                 onItemClick = { _, activity ->
                     setting2Fragment.lifecycleScope.launch {
@@ -261,20 +257,17 @@ object Config {
                             val backupUtils = BackupUtils(activity)
                             backupUtils.putWebdavBackup(activity as MainActivity)
                         }.onSuccess {
-
                         }.onFailure {
-                            Logger.e("备份到webdav失败",it)
+                            Logger.e("备份到webdav失败", it)
                         }
                     }
-
-                }
+                },
             ),
-
             SettingItem(
                 regex = "setting_use_webdav=true",
                 title = R.string.setting_restore_2_webdav,
                 icon = R.drawable.setting2_icon_webdav_download,
-           //     subTitle = R.string.setting_backup_2_webdav_desc,
+                //     subTitle = R.string.setting_backup_2_webdav_desc,
                 type = ItemType.TEXT,
                 onItemClick = { _, activity ->
                     setting2Fragment.lifecycleScope.launch {
@@ -282,16 +275,13 @@ object Config {
                             val backupUtils = BackupUtils(activity)
                             backupUtils.getWebdavBackup(activity as MainActivity)
                         }.onSuccess {
-
                         }.onFailure {
-
-                            Logger.e("获取webdav备份失败",it)
+                            Logger.e("获取webdav备份失败", it)
                         }
                     }
-                }
+                },
             ),
-
-            //更新
+            // 更新
             SettingItem(R.string.setting_update),
             SettingItem(
                 title = R.string.app_url,
@@ -309,10 +299,11 @@ object Config {
                 icon = R.drawable.setting2_icon_update,
                 type = ItemType.TEXT,
                 default = 1,
-                selectList = hashMapOf(
-                    context.getString(R.string.stable_version) to 0,
-                    context.getString(R.string.continuous_build_version) to 1
-                )
+                selectList =
+                    hashMapOf(
+                        context.getString(R.string.stable_version) to 0,
+                        context.getString(R.string.continuous_build_version) to 1,
+                    ),
             ),
             SettingItem(
                 title = R.string.setting_app,
@@ -328,7 +319,7 @@ object Config {
                 icon = R.drawable.setting2_icon_category,
                 type = ItemType.SWITCH,
             ),
-            //其他
+            // 其他
             SettingItem(R.string.setting_others),
             SettingItem(
                 title = R.string.setting_debug,
@@ -343,11 +334,12 @@ object Config {
             ),
         )
     }
-    fun setting(context: Context):ArrayList<SettingItem>{
+
+    fun setting(context: Context): ArrayList<SettingItem> {
         return arrayListOf(
-            //账单
+            // 账单
             SettingItem(R.string.setting_bill),
-            //备注
+            // 备注
             SettingItem(
                 title = R.string.setting_bill_remark,
                 key = "setting_bill_remark",
@@ -361,7 +353,7 @@ object Config {
                     }
                 },
             ),
-            //去重
+            // 去重
             SettingItem(
                 title = R.string.setting_bill_repeat,
                 subTitle = R.string.setting_bill_repeat_desc,
@@ -370,60 +362,60 @@ object Config {
                 default = true,
                 icon = R.drawable.setting_icon_repeat,
                 onSavedValue = { value, activity ->
-                   AppUtils.getScope().launch {
-                       AppUtils.getService().set("setting_bill_repeat", value.toString())
-                   }
+                    AppUtils.getScope().launch {
+                        AppUtils.getService().set("setting_bill_repeat", value.toString())
+                    }
                 },
             ),
-            //悬浮窗
+            // 悬浮窗
             SettingItem(R.string.setting_float),
             SettingItem(
                 title = R.string.setting_float_time,
                 key = "setting_float_time",
                 subTitle = R.string.setting_float_time_desc,
                 type = ItemType.INPUT,
-                default = 10
+                default = 10,
             ),
-
             SettingItem(
                 title = R.string.setting_float_on_badge_click,
                 key = "setting_float_on_badge_click",
                 type = ItemType.TEXT,
                 default = FloatEvent.POP_EDIT_WINDOW.ordinal,
                 icon = R.drawable.setting_icon_click,
-                selectList = hashMapOf(
-                    context.getString(R.string.pop_edit_window) to FloatEvent.POP_EDIT_WINDOW.ordinal,
-                    context.getString(R.string.auto_account) to FloatEvent.AUTO_ACCOUNT.ordinal,
-                    context.getString(R.string.no_account) to FloatEvent.NO_ACCOUNT.ordinal,
-                ),
+                selectList =
+                    hashMapOf(
+                        context.getString(R.string.pop_edit_window) to FloatEvent.POP_EDIT_WINDOW.ordinal,
+                        context.getString(R.string.auto_account) to FloatEvent.AUTO_ACCOUNT.ordinal,
+                        context.getString(R.string.no_account) to FloatEvent.NO_ACCOUNT.ordinal,
+                    ),
             ),
-
             SettingItem(
                 title = R.string.setting_float_on_badge_long_click,
                 key = "setting_float_on_badge_long_click",
                 type = ItemType.TEXT,
                 default = FloatEvent.NO_ACCOUNT.ordinal,
                 icon = R.drawable.setting_icon_long_click,
-                selectList = hashMapOf(
-                    context.getString(R.string.pop_edit_window) to FloatEvent.POP_EDIT_WINDOW.ordinal,
-                    context.getString(R.string.auto_account) to FloatEvent.AUTO_ACCOUNT.ordinal,
-                    context.getString(R.string.no_account) to FloatEvent.NO_ACCOUNT.ordinal,
-                ),
+                selectList =
+                    hashMapOf(
+                        context.getString(R.string.pop_edit_window) to FloatEvent.POP_EDIT_WINDOW.ordinal,
+                        context.getString(R.string.auto_account) to FloatEvent.AUTO_ACCOUNT.ordinal,
+                        context.getString(R.string.no_account) to FloatEvent.NO_ACCOUNT.ordinal,
+                    ),
             ),
-
             SettingItem(
                 title = R.string.setting_float_on_badge_timeout,
                 key = "setting_float_on_badge_timeout",
                 type = ItemType.TEXT,
                 default = FloatEvent.POP_EDIT_WINDOW.ordinal,
                 icon = R.drawable.setting_icon_timeout,
-                selectList = hashMapOf(
-                    context.getString(R.string.pop_edit_window) to FloatEvent.POP_EDIT_WINDOW.ordinal,
-                    context.getString(R.string.auto_account) to FloatEvent.AUTO_ACCOUNT.ordinal,
-                    context.getString(R.string.no_account) to FloatEvent.NO_ACCOUNT.ordinal,
-                ),
+                selectList =
+                    hashMapOf(
+                        context.getString(R.string.pop_edit_window) to FloatEvent.POP_EDIT_WINDOW.ordinal,
+                        context.getString(R.string.auto_account) to FloatEvent.AUTO_ACCOUNT.ordinal,
+                        context.getString(R.string.no_account) to FloatEvent.NO_ACCOUNT.ordinal,
+                    ),
             ),
-            //分类
+            // 分类
             SettingItem(R.string.setting_category),
             SettingItem(
                 title = R.string.setting_auto_create_category,
@@ -431,8 +423,7 @@ object Config {
                 subTitle = R.string.setting_auto_create_category_desc,
                 type = ItemType.SWITCH,
                 default = false,
-                icon = R.drawable.setting_icon_auto
-
+                icon = R.drawable.setting_icon_auto,
             ),
             SettingItem(
                 title = R.string.setting_category_show_parent,
@@ -442,13 +433,11 @@ object Config {
                 default = false,
                 icon = R.drawable.setting_icon_parent,
                 onSavedValue = { value, activity ->
-                   AppUtils.getScope().launch {
-                       AppUtils.getService().set("setting_category_show_parent", value.toString())
-                   }
+                    AppUtils.getScope().launch {
+                        AppUtils.getService().set("setting_category_show_parent", value.toString())
+                    }
                 },
-
             ),
-
             SettingItem(R.string.setting_color),
             SettingItem(
                 title = R.string.setting_pay_color,
@@ -456,12 +445,12 @@ object Config {
                 type = ItemType.TEXT,
                 default = 0,
                 icon = R.drawable.setting_icon_color,
-                selectList = hashMapOf(
-                    context.getString(R.string.setting_pay_color_red) to 0,
-                    context.getString(R.string.setting_pay_color_green) to 1,
-                ),
+                selectList =
+                    hashMapOf(
+                        context.getString(R.string.setting_pay_color_red) to 0,
+                        context.getString(R.string.setting_pay_color_green) to 1,
+                    ),
             ),
-
             SettingItem(R.string.setting_book),
             SettingItem(
                 title = R.string.setting_book_success,
@@ -470,8 +459,7 @@ object Config {
                 type = ItemType.SWITCH,
                 default = true,
                 icon = R.drawable.setting_icon_success,
-
-                ),
+            ),
         )
     }
 }

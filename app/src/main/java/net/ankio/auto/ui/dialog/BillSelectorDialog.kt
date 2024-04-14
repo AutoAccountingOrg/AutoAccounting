@@ -27,22 +27,23 @@ import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogBillSelectBinding
 import net.ankio.auto.events.AutoServiceErrorEvent
 import net.ankio.auto.exceptions.AutoServiceException
-import net.ankio.common.model.BillModel
 import net.ankio.auto.ui.adapter.BillSelectorAdapter
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.event.EventBus
 import net.ankio.common.constant.BillType
+import net.ankio.common.model.BillModel
 
 class BillSelectorDialog(
     private val context: Context,
     private val billType: BillType,
-    private val selectedBills:ArrayList<BillModel> = ArrayList(),
-    private val callback: () -> Unit) :
+    private val selectedBills: ArrayList<BillModel> = ArrayList(),
+    private val callback: () -> Unit,
+) :
     BaseSheetDialog(context) {
     private lateinit var binding: DialogBillSelectBinding
     private val dataItems = mutableListOf<BillModel>()
-    private val adapter = BillSelectorAdapter(dataItems,selectedBills)
+    private val adapter = BillSelectorAdapter(dataItems, selectedBills)
 
     override fun onCreateView(inflater: LayoutInflater): View {
         binding = DialogBillSelectBinding.inflate(inflater)
@@ -52,8 +53,6 @@ class BillSelectorDialog(
         cardView = binding.cardView
         cardViewInner = binding.innerView
 
-
-
         binding.recyclerView.adapter = adapter
 
         binding.btn.setOnClickListener {
@@ -61,18 +60,19 @@ class BillSelectorDialog(
             dismiss()
         }
 
-
         return binding.root
     }
 
-    override fun show(float: Boolean, cancel: Boolean) {
+    override fun show(
+        float: Boolean,
+        cancel: Boolean,
+    ) {
         super.show(float, cancel)
         lifecycleScope.launch {
-
             runCatching {
                 val it = AppUtils.getService().get("auto_bills_${billType.name}")
-                val data = Gson().fromJson(it,Array<BillModel>::class.java)
-                if(data.isEmpty()){
+                val data = Gson().fromJson(it, Array<BillModel>::class.java)
+                if (data.isEmpty()) {
                     dismiss()
                     Toaster.show(R.string.no_bills)
                     return@runCatching
@@ -82,18 +82,11 @@ class BillSelectorDialog(
                 adapter.notifyItemInserted(0)
             }.onFailure {
                 dismiss()
-                Logger.e("get auto_bills_${billType.name} error",it)
-                if(it is AutoServiceException){
+                Logger.e("get auto_bills_${billType.name} error", it)
+                if (it is AutoServiceException) {
                     EventBus.post(AutoServiceErrorEvent(it))
                 }
             }
-
-
-
         }
-
-
     }
-
-
 }

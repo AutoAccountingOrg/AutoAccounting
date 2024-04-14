@@ -17,41 +17,36 @@ package net.ankio.auto.ui.dialog
 
 import android.content.Context
 import android.util.TypedValue
-import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.LinearLayout
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.elevation.SurfaceColors
-import com.quickersilver.themeengine.ThemeEngine
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import net.ankio.auto.R
 import net.ankio.auto.utils.SpUtils
-
 
 abstract class BaseSheetDialog(private val context: Context) :
     BottomSheetDialog(context, R.style.BottomSheetDialog) {
     lateinit var cardView: MaterialCardView
     lateinit var cardViewInner: ViewGroup
+
     abstract fun onCreateView(inflater: LayoutInflater): View
 
-
-    open fun show(float: Boolean = false,cancel:Boolean = false) {
+    open fun show(
+        float: Boolean = false,
+        cancel: Boolean = false,
+    ) {
         val inflater = LayoutInflater.from(context)
         val root = this.onCreateView(inflater)
         this.setContentView(root)
-        this.setCancelable(cancel);
+        this.setCancelable(cancel)
         if (float) {
-            this.window?.setType((WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY));
+            this.window?.setType((WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY))
         }
         val bottomSheet: View = root.parent as View
-
 
         val bottomSheetBehavior: BottomSheetBehavior<*> = BottomSheetBehavior.from(bottomSheet)
 
@@ -59,24 +54,28 @@ abstract class BaseSheetDialog(private val context: Context) :
         bottomSheetBehavior.isDraggable = false
         // 设置BottomSheetDialog展开到全屏高度
         bottomSheetBehavior.skipCollapsed = true
-        bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED;
-        //是否使用圆角风格
-        val margin = dpToPx(context,20f)
-        val round = SpUtils.getBoolean("setting_use_round_style",false)
-        if(::cardView.isInitialized){
-            val layoutParams = if (cardView.layoutParams != null) {
-                cardView.layoutParams as ViewGroup.MarginLayoutParams
-            } else {
-                // 如果 RadiusCardView 还没有布局参数，则创建新的参数
-                ViewGroup.MarginLayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-            }
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+        // 是否使用圆角风格
+        val margin = dpToPx(context, 20f)
+        val round = SpUtils.getBoolean("setting_use_round_style", false)
+        if (::cardView.isInitialized) {
+            val layoutParams =
+                if (cardView.layoutParams != null) {
+                    cardView.layoutParams as ViewGroup.MarginLayoutParams
+                } else {
+                    // 如果 RadiusCardView 还没有布局参数，则创建新的参数
+                    ViewGroup.MarginLayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                    )
+                }
 
-            if(round){
-                layoutParams.setMargins(margin,margin,margin,margin)
+            if (round) {
+                layoutParams.setMargins(margin, margin, margin, margin)
                 cardView.layoutParams = layoutParams
-                //使用圆角风格
-            }else{
-                layoutParams.setMargins(0, 0, 0, - margin)
+                // 使用圆角风格
+            } else {
+                layoutParams.setMargins(0, 0, 0, -margin)
                 cardView.layoutParams = layoutParams
             }
 
@@ -84,24 +83,26 @@ abstract class BaseSheetDialog(private val context: Context) :
             cardView.setCardBackgroundColor(color)
         }
 
-        if(::cardViewInner.isInitialized){
-            cardViewInner.setPadding(margin,margin,margin,
-                if(round) margin else  margin * 2
+        if (::cardViewInner.isInitialized) {
+            cardViewInner.setPadding(
+                margin,
+                margin,
+                margin,
+                if (round) margin else margin * 2,
             )
-
         }
 
         show()
     }
-    private fun dpToPx(context: Context, dp: Float): Int {
+
+    private fun dpToPx(
+        context: Context,
+        dp: Float,
+    ): Int {
         return TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP,
             dp,
-            context.resources.displayMetrics
+            context.resources.displayMetrics,
         ).toInt()
     }
-
-
-
-
 }

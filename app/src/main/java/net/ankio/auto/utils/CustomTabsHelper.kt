@@ -1,6 +1,5 @@
 package net.ankio.auto.utils
 
-
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
@@ -11,12 +10,12 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import net.ankio.auto.R
 import rikka.html.text.HtmlCompat
 
-
 /**
  * Created by fytho on 2017/12/15.
  */
 object CustomTabsHelper {
     private var sOnCreateIntentBuilderListener: OnCreateIntentBuilderListener? = null
+
     fun setOnCreateIntentBuilderListener(onCreateIntentBuilderListener: OnCreateIntentBuilderListener?) {
         sOnCreateIntentBuilderListener = onCreateIntentBuilderListener
     }
@@ -27,7 +26,10 @@ object CustomTabsHelper {
         return builder
     }
 
-    private fun launchHelp(context: Context, uri: Uri): Boolean {
+    private fun launchHelp(
+        context: Context,
+        uri: Uri,
+    ): Boolean {
         val builder: CustomTabsIntent.Builder = createBuilder()
         if (sOnCreateIntentBuilderListener != null) {
             sOnCreateIntentBuilderListener!!.onCreateHelpIntentBuilder(context, builder)
@@ -39,11 +41,18 @@ object CustomTabsHelper {
         return launchUrl(context, builder.build(), uriBuilder.build())
     }
 
-    fun launchUrl(context: Context, uri: Uri): Boolean {
+    fun launchUrl(
+        context: Context,
+        uri: Uri,
+    ): Boolean {
         return launchUrl(context, createBuilder().build(), uri)
     }
 
-    private fun launchUrl(context: Context, customTabsIntent: CustomTabsIntent, uri: Uri): Boolean {
+    private fun launchUrl(
+        context: Context,
+        customTabsIntent: CustomTabsIntent,
+        uri: Uri,
+    ): Boolean {
         return try {
             customTabsIntent.launchUrl(context, uri)
             true
@@ -52,7 +61,10 @@ object CustomTabsHelper {
         }
     }
 
-    fun launchUrlOrCopy(context: Context, url: String?) {
+    fun launchUrlOrCopy(
+        context: Context,
+        url: String?,
+    ) {
         val uri = Uri.parse(url)
         if (!launchHelp(context, uri)) {
             val intent = Intent(Intent.ACTION_VIEW)
@@ -60,7 +72,7 @@ object CustomTabsHelper {
             try {
                 context.startActivity(intent)
             } catch (tr: Throwable) {
-                Logger.e("打开默认浏览器失败",tr)
+                Logger.e("打开默认浏览器失败", tr)
                 try {
                     AppUtils.copyToClipboard(url)
                     MaterialAlertDialogBuilder(context)
@@ -69,9 +81,9 @@ object CustomTabsHelper {
                             HtmlCompat.fromHtml(
                                 context.getString(
                                     R.string.toast_copied_to_clipboard_with_text,
-                                    url
-                                )
-                            )
+                                    url,
+                                ),
+                            ),
                         )
                         .setPositiveButton(R.string.ok, null)
                         .show()
@@ -82,6 +94,9 @@ object CustomTabsHelper {
     }
 
     interface OnCreateIntentBuilderListener {
-        fun onCreateHelpIntentBuilder(context: Context?, builder: CustomTabsIntent.Builder?)
+        fun onCreateHelpIntentBuilder(
+            context: Context?,
+            builder: CustomTabsIntent.Builder?,
+        )
     }
 }

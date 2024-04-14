@@ -21,12 +21,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.viewbinding.ViewBinding
+import net.ankio.auto.constant.ItemType
 import net.ankio.auto.databinding.SettingItemColorBinding
 import net.ankio.auto.databinding.SettingItemInputBinding
 import net.ankio.auto.databinding.SettingItemSwitchBinding
 import net.ankio.auto.databinding.SettingItemTextBinding
 import net.ankio.auto.databinding.SettingItemTitleBinding
-import net.ankio.auto.constant.ItemType
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.ListPopupUtils
 import net.ankio.auto.utils.SpUtils
@@ -35,24 +35,25 @@ class SettingUtils(
     private val context: Activity,
     private val container: ViewGroup,
     private val inflater: LayoutInflater,
-    private val settingItems: ArrayList<SettingItem>
+    private val settingItems: ArrayList<SettingItem>,
 ) {
     private val viewBinding = HashMap<SettingItem, ViewBinding>()
     private val resume = HashMap<SettingItem, () -> Unit>()
+
     fun init() {
         settingItems.forEach {
-            val binding = when (it.type) {
-                ItemType.SWITCH -> renderSwitch(it)
-                ItemType.TITLE -> renderTitle(it)
-                ItemType.TEXT -> renderText(it)
-                ItemType.INPUT -> renderInput(it)
-                ItemType.COLOR -> renderColor(it)
-            }
+            val binding =
+                when (it.type) {
+                    ItemType.SWITCH -> renderSwitch(it)
+                    ItemType.TITLE -> renderTitle(it)
+                    ItemType.TEXT -> renderText(it)
+                    ItemType.INPUT -> renderInput(it)
+                    ItemType.COLOR -> renderColor(it)
+                }
             viewBinding[it] = binding
             container.addView(binding.root)
         }
     }
-
 
     fun onResume() {
         resume.forEach {
@@ -67,7 +68,10 @@ class SettingUtils(
         return binding
     }
 
-    private fun setVisibility(variable: String, variableBoolean: Boolean) {
+    private fun setVisibility(
+        variable: String,
+        variableBoolean: Boolean,
+    ) {
         val trueKey = "$variable=true"
         val falseKey = "$variable=false"
         viewBinding.forEach { (item, binding) ->
@@ -105,7 +109,8 @@ class SettingUtils(
             setLinkVisibility(isChecked)
             settingItem.onItemClick?.invoke(isChecked, context) ?: settingItem.key?.let {
                 SpUtils.putBoolean(
-                    it, isChecked
+                    it,
+                    isChecked,
                 )
             }
             settingItem.onSavedValue?.invoke(isChecked, context)
@@ -158,14 +163,13 @@ class SettingUtils(
         }
 
         resume[settingItem] = {
-
-            val savedValue = settingItem.onGetKeyValue?.invoke() ?: getFromSp(
-                settingItem.key ?: "",
-                settingItem.default ?: ""
-            )
+            val savedValue =
+                settingItem.onGetKeyValue?.invoke() ?: getFromSp(
+                    settingItem.key ?: "",
+                    settingItem.default ?: "",
+                )
 
             settingItem.selectList?.let {
-
                 fun setValue(savedValue: Any) {
                     for ((key, value) in it) {
                         if (value == savedValue) {
@@ -178,17 +182,18 @@ class SettingUtils(
 
                 setValue(savedValue)
 
-                val listPopupUtils = ListPopupUtils(context, binding.title, it,savedValue) { pos, key, value ->
-                    binding.subTitle.text = key
+                val listPopupUtils =
+                    ListPopupUtils(context, binding.title, it, savedValue) { pos, key, value ->
+                        binding.subTitle.text = key
 
-                    settingItem.onItemClick?.invoke(value, context) ?: settingItem.key?.let {
-                        SpUtils.putString(it, value.toString())
-                        saveToSp(it, value)
+                        settingItem.onItemClick?.invoke(value, context) ?: settingItem.key?.let {
+                            SpUtils.putString(it, value.toString())
+                            saveToSp(it, value)
+                        }
+
+                        settingItem.onSavedValue?.invoke(value, context)
+                        setValue(value)
                     }
-
-                    settingItem.onSavedValue?.invoke(value, context)
-                    setValue(value)
-                }
 
                 binding.root.setOnClickListener {
                     listPopupUtils.toggle()
@@ -201,7 +206,6 @@ class SettingUtils(
                 }
             }
         }
-
 
         //    setCenterItem(binding.title,binding.subTitle)
 
@@ -218,8 +222,8 @@ class SettingUtils(
                     binding.input.setText(
                         SpUtils.getString(
                             settingItem.key,
-                            (settingItem.default ?: "").toString()
-                        )
+                            (settingItem.default ?: "").toString(),
+                        ),
                     )
                 }
             }
@@ -229,7 +233,8 @@ class SettingUtils(
                 settingItem.onItemClick?.invoke(binding.input.text.toString(), context)
                     ?: settingItem.key?.let {
                         SpUtils.putString(
-                            it, binding.input.text.toString()
+                            it,
+                            binding.input.text.toString(),
                         )
                     }
                 settingItem.onSavedValue?.invoke(binding.input.text.toString(), context)
@@ -251,10 +256,8 @@ class SettingUtils(
             binding.icon.visibility = View.GONE
         }
         resume[settingItem] = {
-
             val color = context.getColor(settingItem.onGetKeyValue?.invoke() as Int)
             binding.colorView.setCardBackgroundColor(color)
-
         }
 
         binding.root.setOnClickListener {
@@ -263,8 +266,10 @@ class SettingUtils(
         return binding
     }
 
-
-    private fun getFromSp(key: String, default: Any): Any {
+    private fun getFromSp(
+        key: String,
+        default: Any,
+    ): Any {
         return when (default) {
             is Boolean -> SpUtils.getBoolean(key, default)
             is String -> SpUtils.getString(key, default)
@@ -273,13 +278,14 @@ class SettingUtils(
         }
     }
 
-    private fun saveToSp(key: String, value: Any) {
+    private fun saveToSp(
+        key: String,
+        value: Any,
+    ) {
         when (value) {
             is Boolean -> SpUtils.putBoolean(key, value)
             is String -> SpUtils.putString(key, value)
             is Int -> SpUtils.putInt(key, value)
         }
     }
-
-
 }

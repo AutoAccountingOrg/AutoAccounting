@@ -17,4 +17,4 @@ package net.ankio.auto.events
 
 import net.ankio.auto.utils.event.Event
 
-class UpdateSuccessEvent: Event() {}
+class UpdateSuccessEvent : Event()

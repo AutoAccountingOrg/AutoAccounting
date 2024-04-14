@@ -30,7 +30,9 @@ import net.ankio.auto.databinding.DialogBillCategoryBinding
 import net.ankio.auto.utils.Logger
 
 class BillCategoryDialog(
-    private val context: Context,private val billInfo: BillInfo) :
+    private val context: Context,
+    private val billInfo: BillInfo,
+) :
     BaseSheetDialog(context) {
     private lateinit var binding: DialogBillCategoryBinding
 
@@ -45,92 +47,104 @@ class BillCategoryDialog(
         }
 
         binding.sureButton.setOnClickListener {
-
-
-            //自动生成只关注 shopName和shopItem
+            // 自动生成只关注 shopName和shopItem
 
             var shopName = billInfo.shopName
             var shopItem = billInfo.shopItem
 
-            //如果包含数字，就是无效数据
+            // 如果包含数字，就是无效数据
 
-            if(shopName.contains(Regex("\\d"))){
+            if (shopName.contains(Regex("\\d"))) {
                 shopName = ""
             }
 
-            if(shopItem.contains(Regex("\\d"))){
+            if (shopItem.contains(Regex("\\d"))) {
                 shopItem = ""
             }
 
-            if(shopItem.isEmpty() && shopName.isEmpty()){
+            if (shopItem.isEmpty() && shopName.isEmpty()) {
                 dismiss()
                 return@setOnClickListener
             }
             val list: MutableList<HashMap<String, Any>> = mutableListOf()
             var text = "若满足"
             var condition = ""
-            if(shopName.isNotEmpty()){
-               val select = 0
+            if (shopName.isNotEmpty()) {
+                val select = 0
                 val content = shopName
                 val type = "shopName"
                 val js = "$type.indexOf(\"$content\")!==-1 "
-                val msg =   context.getString(R.string.shop_name_contains,  context.getString(R.string.shop_name), content)
+                val msg =
+                    context.getString(
+                        R.string.shop_name_contains,
+                        context.getString(R.string.shop_name),
+                        content,
+                    )
 
-                val data:HashMap<String, Any> = hashMapOf(
-                    "select" to select,
-                    "content" to content,
-                    "type" to type,
-                    "js" to js,
-                    "text" to msg
-                )
+                val data: HashMap<String, Any> =
+                    hashMapOf(
+                        "select" to select,
+                        "content" to content,
+                        "type" to type,
+                        "js" to js,
+                        "text" to msg,
+                    )
                 text += msg
-                condition+=js
+                condition += js
                 list.add(data)
             }
 
-            if(shopItem.isNotEmpty()){
-                if(shopName.isNotEmpty()){
-                    val innerData:HashMap<String, Any> = hashMapOf(
-                        "jsPre" to "and",
-                        "text" to " 且 ",
-                        "js" to " && ",
-                    )
-                    condition+=" && "
-                    text +=  " 且 "
+            if (shopItem.isNotEmpty()) {
+                if (shopName.isNotEmpty()) {
+                    val innerData: HashMap<String, Any> =
+                        hashMapOf(
+                            "jsPre" to "and",
+                            "text" to " 且 ",
+                            "js" to " && ",
+                        )
+                    condition += " && "
+                    text += " 且 "
                     list.add(innerData)
                 }
                 val select = 0
                 val content = shopItem
                 val type = "shopItem"
                 val js = "$type.indexOf(\"$content\")!==-1 "
-                val msg =   context.getString(R.string.shop_name_contains,  context.getString(R.string.shop_item_name), content)
-                val data:HashMap<String, Any> = hashMapOf(
-                    "select" to select,
-                    "content" to content,
-                    "type" to type,
-                    "js" to js,
-                    "text" to msg
-                )
-                condition+=js
+                val msg =
+                    context.getString(
+                        R.string.shop_name_contains,
+                        context.getString(R.string.shop_item_name),
+                        content,
+                    )
+                val data: HashMap<String, Any> =
+                    hashMapOf(
+                        "select" to select,
+                        "content" to content,
+                        "type" to type,
+                        "js" to js,
+                        "text" to msg,
+                    )
+                condition += js
                 text += msg
                 list.add(data)
             }
 
             text += "，则账本为【${billInfo.bookName}】，分类为【${billInfo.cateName}】。"
 
-
             lifecycleScope.launch {
                 Logger.i("condition:$condition")
                 val book = Db.get().BookNameDao().getByName(billInfo.bookName)
-                val id = book?.id?:0
-                val otherData = hashMapOf<String, Any>(
-                    "book" to billInfo.bookName,
-                    "category" to billInfo.cateName,
-                    "id" to id
-                )
+                val id = book?.id ?: 0
+                val otherData =
+                    hashMapOf<String, Any>(
+                        "book" to billInfo.bookName,
+                        "category" to billInfo.cateName,
+                        "id" to id,
+                    )
                 list.add(otherData)
                 condition += ""
-                val js = "if($condition){ return { book:'${billInfo.bookName}',category:'${billInfo.cateName}'} }"
+                val js =
+                    "if($condition){ return { book:'${billInfo.bookName}',category:'${billInfo.cateName}'} }"
                 val regular = Regular()
                 regular.js = js
                 regular.text = text
@@ -140,21 +154,9 @@ class BillCategoryDialog(
                 Db.get().RegularDao().add(regular)
                 BillUtils.syncRules()
                 dismiss()
-
             }
-
-
-
-
-
-
-
         }
 
         return binding.root
     }
-
-
-
-
 }

@@ -37,60 +37,76 @@ import net.ankio.common.constant.BillType
 
 class OrderItemAdapter(
     private val dataItems: List<BillInfo>,
-    private val onItemChildClick:( (item: BillInfo, position: Int) -> Unit)?,
-    private val onItemChildMoreClick:( (item: BillInfo, position: Int) -> Unit)?
+    private val onItemChildClick: ((item: BillInfo, position: Int) -> Unit)?,
+    private val onItemChildMoreClick: ((item: BillInfo, position: Int) -> Unit)?,
 ) : BaseAdapter<OrderItemAdapter.ViewHolder>() {
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(AdapterOrderItemBinding.inflate(LayoutInflater.from(parent.context),parent,false),parent.context)
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int,
+    ): ViewHolder {
+        return ViewHolder(
+            AdapterOrderItemBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false,
+            ),
+            parent.context,
+        )
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+    override fun onBindViewHolder(
+        holder: ViewHolder,
+        position: Int,
+    ) {
         val item = dataItems[position]
-        holder.bind(item,position)
+        holder.bind(item, position)
     }
 
     override fun getItemCount(): Int {
         return dataItems.size
     }
 
-    inner class ViewHolder(private val binding: AdapterOrderItemBinding, private val context: Context) : RecyclerView.ViewHolder(binding.root) {
-
-        fun bind(item: BillInfo, position: Int) {
+    inner class ViewHolder(
+        private val binding: AdapterOrderItemBinding,
+        private val context: Context,
+    ) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(
+            item: BillInfo,
+            position: Int,
+        ) {
             binding.category.setText(item.cateName)
             scope.launch {
-                Category.getDrawable(item.cateName,context).let {
-                    withContext(Dispatchers.Main){
-                        binding.category.setIcon(it,true)
+                Category.getDrawable(item.cateName, context).let {
+                    withContext(Dispatchers.Main) {
+                        binding.category.setIcon(it, true)
                     }
                 }
             }
 
-            binding.date.text = DateUtils.getTime("HH:mm:ss",item.timeStamp)
+            binding.date.text = DateUtils.getTime("HH:mm:ss", item.timeStamp)
 
+            val type =
+                when (item.type) {
+                    BillType.Expend -> BillType.Expend
+                    BillType.ExpendReimbursement -> BillType.Expend
+                    BillType.ExpendLending -> BillType.Expend
+                    BillType.ExpendRepayment -> BillType.Expend
+                    BillType.Income -> BillType.Income
+                    BillType.IncomeLending -> BillType.Income
+                    BillType.IncomeRepayment -> BillType.Income
+                    BillType.IncomeReimbursement -> BillType.Income
+                    BillType.Transfer -> BillType.Transfer
+                }
 
-            val type = when (item.type ) {
-                BillType.Expend -> BillType.Expend
-                BillType.ExpendReimbursement -> BillType.Expend
-                BillType.ExpendLending -> BillType.Expend
-                BillType.ExpendRepayment -> BillType.Expend
-                BillType.Income ->   BillType.Income
-                BillType.IncomeLending ->   BillType.Income
-                BillType.IncomeRepayment ->   BillType.Income
-                BillType.IncomeReimbursement ->   BillType.Income
-                BillType.Transfer -> BillType.Transfer
-            }
-
-            val drawableRes = when (type.toInt()) {
-                0 -> R.drawable.float_minus
-                1 -> R.drawable.float_add
-                2 -> R.drawable.float_round
-                else -> R.drawable.float_minus
-            }
-
+            val drawableRes =
+                when (type.toInt()) {
+                    0 -> R.drawable.float_minus
+                    1 -> R.drawable.float_add
+                    2 -> R.drawable.float_round
+                    else -> R.drawable.float_minus
+                }
 
             val tintRes = BillUtils.getColor(type.toInt())
-
 
             val drawable = AppCompatResources.getDrawable(context, drawableRes)
             val color = ContextCompat.getColor(context, tintRes)
@@ -105,34 +121,34 @@ class OrderItemAdapter(
             binding.payTools.setText(item.accountNameFrom)
 
             scope.launch {
-                Assets.getDrawable(item.accountNameFrom,context).let {
-                    binding.payTools.setIcon(it,false)
+                Assets.getDrawable(item.accountNameFrom, context).let {
+                    binding.payTools.setIcon(it, false)
                 }
             }
 
             binding.channel.text = item.channel
             scope.launch {
-               AppUtils.getAppInfoFromPackageName(item.from,context)?.let {
-             //      binding.fromApp.text = it.name
-                   binding.fromApp.icon = it.icon
-               }
+                AppUtils.getAppInfoFromPackageName(item.from, context)?.let {
+                    //      binding.fromApp.text = it.name
+                    binding.fromApp.icon = it.icon
+                }
             }
-         //   binding.fromApp.setIcon()
+            //   binding.fromApp.setIcon()
 
             binding.root.setOnClickListener {
-                onItemChildClick?.invoke(item,position)
+                onItemChildClick?.invoke(item, position)
             }
 
-            if(BillUtils.noNeedFilter(item)){
+            if (BillUtils.noNeedFilter(item)) {
                 binding.moreBills.visibility = View.GONE
             }
 
-            if(onItemChildMoreClick==null){
+            if (onItemChildMoreClick == null) {
                 binding.moreBills.visibility = View.GONE
             }
 
             binding.moreBills.setOnClickListener {
-                onItemChildMoreClick?.invoke(item,position)
+                onItemChildMoreClick?.invoke(item, position)
             }
         }
     }

@@ -17,87 +17,88 @@ package net.ankio.auto.api
 
 import android.content.Context
 import de.robv.android.xposed.XposedBridge
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import net.ankio.auto.HookMainApp
 
 abstract class PartHooker(val hooker: Hooker) {
-    abstract  val hookName: String
+    abstract val hookName: String
     //   private val loadedClazz = mutableListOf<String>()
 
+    abstract fun onInit(classLoader: ClassLoader, context: Context) // 初始化
 
-    abstract  fun onInit(classLoader: ClassLoader, context: Context) //初始化
     suspend fun loadClass(name: String): Class<*> {
         return hooker.hookUtils.loadClass(name)
     }
 
-
-
     /**
      * 正常输出日志
      */
-    fun log(string: String){
+    fun log(string: String) {
         val tag = HookMainApp.getTag(hooker.appName, getSimpleName())
         hooker.hookUtils.scope.launch {
-           runCatching {
-               hooker.hookUtils.log(tag, string)
-           }.onFailure {
-               if(hooker.hookUtils.startAutoApp(it, hooker.hookUtils.context))return@launch
-               XposedBridge.log(it)
-           }
+            runCatching {
+                hooker.hookUtils.log(tag, string)
+            }.onFailure {
+                if (hooker.hookUtils.startAutoApp(it, hooker.hookUtils.context)) return@launch
+                XposedBridge.log(it)
+            }
         }
     }
 
     private fun getSimpleName(): String {
         val stackTrace = Thread.currentThread().stackTrace
-        //XposedBridge.log(Throwable())
-        val callerClassName = if (stackTrace.size >= 5) {
-            stackTrace[4].className
-        } else {
-            "Unknown"
-        }
+        // XposedBridge.log(Throwable())
+        val callerClassName =
+            if (stackTrace.size >= 5) {
+                stackTrace[4].className
+            } else {
+                "Unknown"
+            }
         return callerClassName.substringAfterLast('.') // 获取简单类名
     }
 
     /**
      * 调试模式输出日志
      */
-    fun logD(string: String){
+    fun logD(string: String) {
         val tag = HookMainApp.getTag(hooker.appName, getSimpleName())
         hooker.hookUtils.scope.launch {
             runCatching {
                 hooker.hookUtils.logD(tag, string)
             }.onFailure {
-                if(hooker.hookUtils.startAutoApp(it, hooker.hookUtils.context))return@launch
+                if (hooker.hookUtils.startAutoApp(it, hooker.hookUtils.context)) return@launch
                 XposedBridge.log(it)
             }
         }
-
     }
 
-    fun analyzeData(dataType: Int,  data: String,app:String? = null)
-    {
+    fun analyzeData(
+        dataType: Int,
+        data: String,
+        app: String? = null,
+    ) {
         hooker.hookUtils.scope.launch {
             runCatching {
-                hooker.hookUtils.analyzeData(dataType, app?:hooker.packPageName, data,hooker.appName)
+                hooker.hookUtils.analyzeData(
+                    dataType,
+                    app ?: hooker.packPageName,
+                    data,
+                    hooker.appName,
+                )
             }.onFailure {
-                if(hooker.hookUtils.startAutoApp(it, hooker.hookUtils.context))return@launch
+                if (hooker.hookUtils.startAutoApp(it, hooker.hookUtils.context)) return@launch
                 XposedBridge.log(it)
             }
         }
     }
 
-
-    suspend fun isDebug():Boolean{
+    suspend fun isDebug(): Boolean {
         runCatching {
             return hooker.hookUtils.isDebug()
         }.onFailure {
-            if(hooker.hookUtils.startAutoApp(it, hooker.hookUtils.context))return false
+            if (hooker.hookUtils.startAutoApp(it, hooker.hookUtils.context)) return false
             XposedBridge.log(it)
         }
         return false
     }
-
-
 }

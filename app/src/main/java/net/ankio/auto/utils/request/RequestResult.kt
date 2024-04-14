@@ -17,7 +17,7 @@ package net.ankio.auto.utils.request
 
 data class RequestResult(
     val byteArray: ByteArray,
-    val code:Int
+    val code: Int,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

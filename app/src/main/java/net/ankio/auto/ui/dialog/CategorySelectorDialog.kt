@@ -22,7 +22,6 @@ import android.view.ViewGroup.MarginLayoutParams
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup
-import androidx.recyclerview.widget.SimpleItemAnimator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -31,7 +30,6 @@ import net.ankio.auto.database.table.Category
 import net.ankio.auto.databinding.DialogCategorySelectBinding
 import net.ankio.auto.ui.adapter.CategorySelectorAdapter
 import net.ankio.common.constant.BillType
-
 
 /**
  * 这个类表示一个用于选择类别的对话框。
@@ -46,21 +44,27 @@ class CategorySelectorDialog(
     private val context: Context,
     private var book: Int = 0,
     private val type: BillType = BillType.Expend,
-    private val callback: (Category?, Category?) -> Unit
+    private val callback: (Category?, Category?) -> Unit,
 ) : BaseSheetDialog(context) {
     // 父类别
     private var category1: Category? = null
+
     // 子类别
     private var category2: Category? = null
+
     // 显示状态
     private var expand = false
+
     // 默认一行的项目数
     private var line = 5
+
     // 对话框的绑定对象
     private lateinit var binding: DialogCategorySelectBinding
+
     // 类别列表
     private var items = ArrayList<Category>()
-    private var totalItems = 0;
+    private var totalItems = 0
+
     /**
      * 这个类提供了一种查找给定项目的跨度大小的方法。
      * 它扩展了SpanSizeLookup类。
@@ -80,6 +84,7 @@ class CategorySelectorDialog(
 
     // 最后点击的位置
     private var lastPosition = -1
+
     // RecyclerView的适配器
     private lateinit var adapter: CategorySelectorAdapter
 
@@ -95,7 +100,7 @@ class CategorySelectorDialog(
             line++
         }
         var location = line * 5
-        if(location > totalItems){
+        if (location > totalItems) {
             location = totalItems
         }
         return location
@@ -108,7 +113,10 @@ class CategorySelectorDialog(
      * @param item 被点击的项目。
      * @return 假的类别。
      */
-    private fun getPanelData(view: View, item: Category): Category {
+    private fun getPanelData(
+        view: View,
+        item: Category,
+    ): Category {
         val category = Category()
         category.remoteId = "-9999"
         category.parent = item.id
@@ -139,73 +147,73 @@ class CategorySelectorDialog(
         val layoutManager = GridLayoutManager(context, line)
         layoutManager.spanSizeLookup = SpecialSpanSizeLookup()
         binding.recyclerView.layoutManager = layoutManager
- //       (binding.recyclerView.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
+        //       (binding.recyclerView.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
         expand = false
         // 为RecyclerView设置适配器
-        adapter = CategorySelectorAdapter(items,
-            onItemClick = { item, pos, hasChild, view ->
-                category1 = item
-                val panelPosition = getPanelIndex(pos) //在当前位置，面板应该插入到哪里。
+        adapter =
+            CategorySelectorAdapter(
+                items,
+                onItemClick = { item, pos, hasChild, view ->
+                    category1 = item
+                    val panelPosition = getPanelIndex(pos) // 在当前位置，面板应该插入到哪里。
 
-                val lastPanelPosition = getPanelIndex(lastPosition) //在上一个位置，面板在那里
+                    val lastPanelPosition = getPanelIndex(lastPosition) // 在上一个位置，面板在那里
 
-                if (pos == lastPosition) { //两次点击同一个，收起面板
-                    if (hasChild) {
-                        //点击两次，说明需要删除
-                        items.removeAt(panelPosition)
-                        //计算位置的面板删除
-                        adapter.notifyItemRemoved(panelPosition)
-                        lastPosition = -1//归位
-                        expand = false
-                        category2 = null
-                        return@CategorySelectorAdapter
+                    if (pos == lastPosition) { // 两次点击同一个，收起面板
+                        if (hasChild) {
+                            // 点击两次，说明需要删除
+                            items.removeAt(panelPosition)
+                            // 计算位置的面板删除
+                            adapter.notifyItemRemoved(panelPosition)
+                            lastPosition = -1 // 归位
+                            expand = false
+                            category2 = null
+                            return@CategorySelectorAdapter
+                        }
+                        lastPosition = -1
                     }
-                    lastPosition = -1
-                }
-                //构造数据
-                val category = getPanelData(view, item)
-                // 同一行，不需要做删除，直接更新数据即可
-                if (panelPosition == lastPanelPosition) {
-                    if (hasChild) {
-                        if (expand) {
-                            items[panelPosition] = category
-                            adapter.notifyItemChanged(panelPosition, category)
+                    // 构造数据
+                    val category = getPanelData(view, item)
+                    // 同一行，不需要做删除，直接更新数据即可
+                    if (panelPosition == lastPanelPosition) {
+                        if (hasChild) {
+                            if (expand) {
+                                items[panelPosition] = category
+                                adapter.notifyItemChanged(panelPosition, category)
+                            } else {
+                                items.add(panelPosition, category)
+                                adapter.notifyItemInserted(panelPosition)
+                                expand = true
+                            }
                         } else {
+                            // 没有就移除
+                            if (lastPosition != -1 && expand) {
+                                items.removeAt(lastPanelPosition)
+                                adapter.notifyItemRemoved(lastPanelPosition)
+                                lastPosition = -1 // 归位
+                                expand = false
+                                return@CategorySelectorAdapter
+                            }
+                        }
+                    } else {
+                        // 不同行的需要先删除
+                        if (lastPosition != -1 && expand) {
+                            items.removeAt(lastPanelPosition)
+                            adapter.notifyItemRemoved(lastPanelPosition)
+                            expand = false
+                        }
+                        if (hasChild) {
                             items.add(panelPosition, category)
                             adapter.notifyItemInserted(panelPosition)
                             expand = true
                         }
-                    } else {
-                        //没有就移除
-                        if (lastPosition != -1 && expand) {
-                            items.removeAt(lastPanelPosition)
-                            adapter.notifyItemRemoved(lastPanelPosition)
-                            lastPosition = -1//归位
-                            expand = false
-                            return@CategorySelectorAdapter
-                        }
                     }
-                } else {
-                    //不同行的需要先删除
-                    if (lastPosition != -1 && expand) {
-                        items.removeAt(lastPanelPosition)
-                        adapter.notifyItemRemoved(lastPanelPosition)
-                        expand = false
-                    }
-                    if (hasChild) {
-                        items.add(panelPosition, category)
-                        adapter.notifyItemInserted(panelPosition)
-                        expand = true
-                    }
-                }
-                lastPosition = pos
-
-            },
-
-            onItemChildClick = { item, _ ->
-                category2 = item
-            }
-        )
+                    lastPosition = pos
+                },
+                onItemChildClick = { item, _ ->
+                    category2 = item
+                },
+            )
 
         // 为RecyclerView设置适配器
         binding.recyclerView.adapter = adapter
@@ -219,13 +227,15 @@ class CategorySelectorDialog(
 
         // 从数据库加载类别
         lifecycleScope.launch {
-            val newData = withContext(Dispatchers.IO) {
-                //加载指定类型的所有分类，只加载父类
-                Db.get().CategoryDao().loadAll(book, type.toInt(),-1)
-            }
+            val newData =
+                withContext(Dispatchers.IO) {
+                    // 加载指定类型的所有分类，只加载父类
+                    Db.get().CategoryDao().loadAll(book, type.toInt(), -1)
+                }
             val defaultCategory = Category()
             defaultCategory.name = "其他"
-            val collection =   newData?.mapNotNull { it }?.takeIf { it.isNotEmpty() } ?: listOf(defaultCategory)
+            val collection =
+                newData?.mapNotNull { it }?.takeIf { it.isNotEmpty() } ?: listOf(defaultCategory)
             totalItems = collection.size
             withContext(Dispatchers.Main) {
                 items.addAll(collection)
@@ -235,6 +245,4 @@ class CategorySelectorDialog(
         }
         return binding.root
     }
-
 }
-

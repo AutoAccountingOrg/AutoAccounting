@@ -15,7 +15,6 @@
 
 package net.ankio.auto.ui.componets
 
-import net.ankio.auto.R
 import android.content.Context
 import android.graphics.Color
 import android.graphics.PorterDuff
@@ -26,85 +25,87 @@ import android.view.LayoutInflater
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.core.content.ContextCompat
-import net.ankio.auto.utils.AppUtils
+import net.ankio.auto.R
 
+class IconView
+    @JvmOverloads
+    constructor(
+        context: Context,
+        attrs: AttributeSet? = null,
+        defStyleAttr: Int = 0,
+    ) : LinearLayout(context, attrs, defStyleAttr) {
+        private var imageView: ImageView
+        private var textView: TextView
+        private var color: Int = 0
 
-class IconView @JvmOverloads constructor(
-    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
-) : LinearLayout(context, attrs, defStyleAttr) {
+        init {
+            orientation = HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
 
-    private var imageView: ImageView
-    private var textView: TextView
-    private var color:Int = 0
+            val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+            inflater.inflate(R.layout.icon_view_layout, this, true)
 
-    init {
-        orientation = HORIZONTAL
-        gravity = Gravity.CENTER_VERTICAL
+            imageView = findViewById(R.id.icon_view_image)
+            textView = findViewById(R.id.icon_view_text)
 
-        val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        inflater.inflate(R.layout.icon_view_layout, this, true)
+            context.theme.obtainStyledAttributes(
+                attrs,
+                R.styleable.IconView,
+                0,
+                0,
+            ).apply {
+                try {
+                    val iconTintEnabled = getBoolean(R.styleable.IconView_iconTintEnabled, true)
+                    val icon = getDrawable(R.styleable.IconView_iconSrc)
+                    val text = getString(R.styleable.IconView_text)
 
-        imageView = findViewById(R.id.icon_view_image)
-        textView = findViewById(R.id.icon_view_text)
+                    val textSize = getDimension(R.styleable.IconView_textSize, 14f)
+                    val iconSize = getDimensionPixelSize(R.styleable.IconView_iconSize, 32) * 2
 
-        context.theme.obtainStyledAttributes(
-            attrs,
-            R.styleable.IconView,
-            0, 0
-        ).apply {
-            try {
-                val iconTintEnabled = getBoolean(R.styleable.IconView_iconTintEnabled, true)
-                val icon = getDrawable(R.styleable.IconView_iconSrc)
-                val text = getString(R.styleable.IconView_text)
+                    setTextSize(textSize)
+                    setIconSize(iconSize)
+                    setColor(getColor(R.styleable.IconView_textColor, Color.BLACK))
 
-                val textSize = getDimension(R.styleable.IconView_textSize, 14f)
-                val iconSize = getDimensionPixelSize(R.styleable.IconView_iconSize, 32)*2
-
-                setTextSize(textSize)
-                setIconSize(iconSize)
-                setColor(getColor(R.styleable.IconView_textColor, Color.BLACK))
-
-                setIcon(icon, iconTintEnabled)
-                setText(text)
-            } finally {
-                recycle()
+                    setIcon(icon, iconTintEnabled)
+                    setText(text)
+                } finally {
+                    recycle()
+                }
             }
         }
-    }
 
-    fun setIcon(icon: Drawable?, tintEnabled: Boolean = false) {
-        imageView.setImageDrawable(icon)
-        if (!tintEnabled) {
-            imageView.clearColorFilter()
-        }else{
-            imageView.setColorFilter(color, PorterDuff.Mode.SRC_IN)
+        fun setIcon(
+            icon: Drawable?,
+            tintEnabled: Boolean = false,
+        ) {
+            imageView.setImageDrawable(icon)
+            if (!tintEnabled) {
+                imageView.clearColorFilter()
+            } else {
+                imageView.setColorFilter(color, PorterDuff.Mode.SRC_IN)
+            }
+        }
+
+        fun setText(text: CharSequence?) {
+            textView.setTextColor(color)
+            textView.text = text
+        }
+
+        fun getText(): String {
+            return textView.text.toString()
+        }
+
+        fun setColor(col: Int) {
+            color = col
+        }
+
+        fun setTextSize(size: Float) {
+            textView.textSize = size
+        }
+
+        fun setIconSize(size: Int) {
+            imageView.layoutParams.width = size
+            imageView.layoutParams.height = size
+            imageView.requestLayout()
         }
     }
-
-    fun setText(text: CharSequence?) {
-        textView.setTextColor(color)
-        textView.text = text
-    }
-
-    fun getText(): String {
-        return textView.text.toString()
-    }
-
-    fun setColor(col: Int) {
-        color = col
-    }
-
-    fun setTextSize(size: Float) {
-        textView.textSize = size
-    }
-
-    fun setIconSize(size: Int) {
-        imageView.layoutParams.width = size
-        imageView.layoutParams.height = size
-        imageView.requestLayout()
-    }
-
-
-
-}

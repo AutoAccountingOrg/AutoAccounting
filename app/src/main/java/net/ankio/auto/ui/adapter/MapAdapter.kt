@@ -18,41 +18,40 @@ package net.ankio.auto.ui.adapter
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import net.ankio.auto.R
-import net.ankio.auto.database.Db
 import net.ankio.auto.database.table.Assets
 import net.ankio.auto.database.table.AssetsMap
-import net.ankio.auto.databinding.AdapterAssetsBinding
 import net.ankio.auto.databinding.AdapterMapBinding
-import net.ankio.auto.utils.ImageUtils
-import net.ankio.auto.utils.Logger
-
 
 class MapAdapter(
     private val dataItems: List<AssetsMap>,
-    private val onClick: (adapter:MapAdapter,item: AssetsMap,pos:Int) -> Unit,
-    private val onLongClick: (adapter:MapAdapter,item: AssetsMap,pos:Int) -> Unit
+    private val onClick: (adapter: MapAdapter, item: AssetsMap, pos: Int) -> Unit,
+    private val onLongClick: (adapter: MapAdapter, item: AssetsMap, pos: Int) -> Unit,
 ) : BaseAdapter<MapAdapter.ViewHolder>() {
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int,
+    ): ViewHolder {
         return ViewHolder(
             AdapterMapBinding.inflate(
                 LayoutInflater.from(parent.context),
                 parent,
-                false
-            ), parent.context
+                false,
+            ),
+            parent.context,
         )
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+    override fun onBindViewHolder(
+        holder: ViewHolder,
+        position: Int,
+    ) {
         val item = dataItems[position]
-        holder.bind(item,position)
+        holder.bind(item, position)
     }
 
     override fun getItemCount(): Int {
@@ -66,35 +65,37 @@ class MapAdapter(
 
     inner class ViewHolder(
         private val binding: AdapterMapBinding,
-        private val context: Context
+        private val context: Context,
     ) :
         RecyclerView.ViewHolder(binding.root) {
+        private val job = Job()
 
+        private val scope = CoroutineScope(Dispatchers.Main + job)
 
-            private val job = Job()
+        fun cancel() {
+            job.cancel()
+        }
 
-            private val scope = CoroutineScope(Dispatchers.Main + job)
-
-         fun cancel() {
-             job.cancel()
-         }
-        fun bind(item: AssetsMap,pos: Int) {
-            //图片加载丢到IO线程
+        fun bind(
+            item: AssetsMap,
+            pos: Int,
+        ) {
+            // 图片加载丢到IO线程
             scope.launch {
-               Assets.getDrawable(item.mapName,context).let { drawable ->
-                   binding.target.setIcon(drawable)
-               }
+                Assets.getDrawable(item.mapName, context).let { drawable ->
+                    binding.target.setIcon(drawable)
+                }
             }
 
             binding.raw.text = item.name
             binding.target.setText(item.mapName)
-            //单击编辑
+            // 单击编辑
             binding.item.setOnClickListener {
-                onClick(this@MapAdapter,item,pos)
+                onClick(this@MapAdapter, item, pos)
             }
-            //长按删除
+            // 长按删除
             binding.item.setOnLongClickListener {
-                onLongClick(this@MapAdapter,item,pos)
+                onLongClick(this@MapAdapter, item, pos)
                 true
             }
         }

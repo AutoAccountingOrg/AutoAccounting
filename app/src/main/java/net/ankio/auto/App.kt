@@ -24,33 +24,28 @@ import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.ExceptionHandler
 import net.ankio.auto.utils.Logger
 
-
-class App : Application(){
-
-
+class App : Application() {
     override fun onTerminate() {
         super.onTerminate()
         AppUtils.getJob().cancel()
     }
 
-
     override fun attachBaseContext(base: Context?) {
         super.attachBaseContext(base)
-        //初始化工具类
+        // 初始化工具类
         AppUtils.setApplication(this)
         AppUtils.setService(this)
-        //监控
+        // 监控
         AppTimeMonitor.startMonitoring("App初始化")
 
-
-        //数据库初始化
+        // 数据库初始化
         Db.init(this)
-        //日志初始化
+        // 日志初始化
         Logger.init()
-        //设置全局异常
+        // 设置全局异常
         ExceptionHandler.init(this)
         // 初始化 Toast 框架
-        Toaster.init(this);
+        Toaster.init(this)
 
         AppTimeMonitor.stopMonitoring("App初始化")
     }

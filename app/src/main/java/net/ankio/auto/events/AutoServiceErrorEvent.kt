@@ -18,5 +18,4 @@ package net.ankio.auto.events
 import net.ankio.auto.exceptions.AutoServiceException
 import net.ankio.auto.utils.event.Event
 
-class AutoServiceErrorEvent(val exception:AutoServiceException):Event() {
-}
+class AutoServiceErrorEvent(val exception: AutoServiceException) : Event()

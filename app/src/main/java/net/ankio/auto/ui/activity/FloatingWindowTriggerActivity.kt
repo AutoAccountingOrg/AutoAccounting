@@ -17,15 +17,12 @@ package net.ankio.auto.ui.activity
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.hjq.toast.Toaster
 import net.ankio.auto.R
-import net.ankio.auto.database.table.BillInfo
 import net.ankio.auto.service.FloatingWindowService
 import net.ankio.auto.utils.FloatPermissionUtils
 import net.ankio.auto.utils.Logger
-
 
 class FloatingWindowTriggerActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,16 +32,15 @@ class FloatingWindowTriggerActivity : AppCompatActivity() {
         // 获取Intent中的URI数据
         val data = intent.data
         if (data === null) {
-            //没数据耍流氓
+            // 没数据耍流氓
             exitActivity()
             return
         }
 
-
         runCatching {
             val dataValue = data.getQueryParameter("data") // 获取名为"data"的查询参数的值
-            //以下需要悬浮窗
-            if(!FloatPermissionUtils.checkPermission(this)){
+            // 以下需要悬浮窗
+            if (!FloatPermissionUtils.checkPermission(this)) {
                 Toaster.show(R.string.floatTip)
                 FloatPermissionUtils.requestPermission(this)
                 exitActivity()
@@ -53,22 +49,21 @@ class FloatingWindowTriggerActivity : AppCompatActivity() {
 
             Logger.d("悬浮窗口启动 $data")
             // 将数据传递给悬浮窗服务
-            val serviceIntent = Intent(this, FloatingWindowService::class.java).apply {
-                putExtra("data", dataValue)
-            }
+            val serviceIntent =
+                Intent(this, FloatingWindowService::class.java).apply {
+                    putExtra("data", dataValue)
+                }
             startService(serviceIntent)
             // 关闭 Activity
             exitActivity()
         }.onFailure {
-            Logger.e("解析数据失败",it)
+            Logger.e("解析数据失败", it)
             exitActivity()
         }
-
-
     }
-    fun exitActivity(){
+
+    fun exitActivity() {
         finishAffinity()
-        overridePendingTransition(0, 0);
+        overridePendingTransition(0, 0)
     }
-
 }

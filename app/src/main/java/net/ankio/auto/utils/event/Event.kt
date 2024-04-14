@@ -15,5 +15,4 @@
 
 package net.ankio.auto.utils.event
 
-open class Event {
-}
+open class Event

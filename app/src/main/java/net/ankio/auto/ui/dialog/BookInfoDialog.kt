@@ -18,7 +18,6 @@ package net.ankio.auto.ui.dialog
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
-import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
@@ -27,9 +26,14 @@ import net.ankio.auto.databinding.DialogBookInfoBinding
 import net.ankio.auto.utils.ImageUtils
 import net.ankio.common.constant.BillType
 
-class BookInfoDialog(private val context: Context, private val book: BookName, private val callback: (BillType) -> Unit) :
+class BookInfoDialog(
+    private val context: Context,
+    private val book: BookName,
+    private val callback: (BillType) -> Unit,
+) :
     BaseSheetDialog(context) {
     lateinit var binding: DialogBookInfoBinding
+
     override fun onCreateView(inflater: LayoutInflater): View {
         binding = DialogBookInfoBinding.inflate(inflater)
 
@@ -38,7 +42,7 @@ class BookInfoDialog(private val context: Context, private val book: BookName, p
 
         lifecycleScope.launch {
             binding.adapterBook.book.setImageDrawable(
-                ImageUtils.get(context, book.icon,R.drawable.default_book)
+                ImageUtils.get(context, book.icon, R.drawable.default_book),
             )
         }
 

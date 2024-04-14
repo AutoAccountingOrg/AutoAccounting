@@ -17,5 +17,5 @@ package net.ankio.auto.database.table
 
 class BillInfoGroup {
     var date: String = ""
-    var ids: String = ""// 由group_concat生成的ID列表，以逗号分隔
+    var ids: String = "" // 由group_concat生成的ID列表，以逗号分隔
 }

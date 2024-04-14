@@ -19,4 +19,8 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.navigation.NavController
 
-data class MenuItem(@StringRes val title:Int, @DrawableRes val drawable: Int, val callback: (NavController) -> Unit)
+data class MenuItem(
+    @StringRes val title: Int,
+    @DrawableRes val drawable: Int,
+    val callback: (NavController) -> Unit,
+)

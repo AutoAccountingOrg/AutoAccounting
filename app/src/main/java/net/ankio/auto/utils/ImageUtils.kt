@@ -22,49 +22,52 @@ import android.graphics.drawable.Drawable
 import androidx.core.content.res.ResourcesCompat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.ankio.auto.R
 import net.ankio.auto.utils.request.RequestsUtils
 
 object ImageUtils {
-
-   suspend fun get(
+    suspend fun get(
         context: Context,
         uriString: String,
-        default:Int
-    ):Drawable = withContext(Dispatchers.IO) {
-        Logger.i("加载图片：${uriString}")
-        val result =  if (uriString.startsWith("data:image")) {
-            getFromBase64(context, uriString)
-        } else if (uriString.startsWith("http")) {
-            getFromWeb(context, uriString)
-        } else {
-            null
+        default: Int,
+    ): Drawable =
+        withContext(Dispatchers.IO) {
+            Logger.i("加载图片：$uriString")
+            val result =
+                if (uriString.startsWith("data:image")) {
+                    getFromBase64(context, uriString)
+                } else if (uriString.startsWith("http")) {
+                    getFromWeb(context, uriString)
+                } else {
+                    null
+                }
+            (result ?: ResourcesCompat.getDrawable(context.resources, default, context.theme))!!
         }
-       (result ?: ResourcesCompat.getDrawable(context.resources, default,context.theme))!!
-    }
 
-    private fun getFromBase64(context: Context, base64String: String): Drawable {
+    private fun getFromBase64(
+        context: Context,
+        base64String: String,
+    ): Drawable {
         val base64Image = base64String.substring(base64String.indexOf(",") + 1)
         val decodedString = android.util.Base64.decode(base64Image, android.util.Base64.DEFAULT)
         val decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.size)
         return BitmapDrawable(context.resources, decodedByte)
     }
 
-
     private suspend fun getFromWeb(
         context: Context,
         uriString: String,
-    ):Drawable? = withContext(Dispatchers.IO) {
-       runCatching {
-           val result = RequestsUtils(context).get(
-               url = uriString,
-               cacheTime = 60 * 24 * 180,//图片缓存180天
-           )
-           val bitmap = BitmapFactory.decodeStream(result.byteArray.inputStream())
-           BitmapDrawable(null, bitmap)
-       }.onFailure {
-              Logger.e("加载图片失败：${it.message}",it)
-       }.getOrNull()
-    }
-
+    ): Drawable? =
+        withContext(Dispatchers.IO) {
+            runCatching {
+                val result =
+                    RequestsUtils(context).get(
+                        url = uriString,
+                        cacheTime = 60 * 24 * 180, // 图片缓存180天
+                    )
+                val bitmap = BitmapFactory.decodeStream(result.byteArray.inputStream())
+                BitmapDrawable(null, bitmap)
+            }.onFailure {
+                Logger.e("加载图片失败：${it.message}", it)
+            }.getOrNull()
+        }
 }

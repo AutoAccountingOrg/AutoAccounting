@@ -15,8 +15,8 @@
 
 package net.ankio.auto.constant
 
-enum class FloatEvent (){
-       POP_EDIT_WINDOW , //弹出编辑窗口
-            NO_ACCOUNT , //不记录账单
-    AUTO_ACCOUNT , //自动记账
+enum class FloatEvent {
+    POP_EDIT_WINDOW, // 弹出编辑窗口
+    NO_ACCOUNT, // 不记录账单
+    AUTO_ACCOUNT, // 自动记账
 }

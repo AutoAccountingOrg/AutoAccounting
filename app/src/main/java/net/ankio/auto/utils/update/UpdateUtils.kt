@@ -27,25 +27,23 @@ import net.ankio.auto.utils.request.RequestsUtils
  * 更新工具，用于处理App更新、规则更新
  */
 class UpdateUtils {
-
-    companion object{
-        fun getUrl():String{
+    companion object {
+        fun getUrl(): String {
             return SpUtils.getString("app_url", "https://cloud.ankio.net/d/阿里云盘/自动记账/")
         }
 
-        fun setUrl(url: String){
+        fun setUrl(url: String) {
             SpUtils.putString("app_url", url)
         }
-
     }
-
 
     private val appBaseUrl = getUrl()
-    private var appUrl: String = if (SpUtils.getInt("setting_update_type", 0) == 0) {
-        "${appBaseUrl}版本更新/稳定版/"
-    } else {
-        "${appBaseUrl}版本更新/持续构建版/"
-    }
+    private var appUrl: String =
+        if (SpUtils.getInt("setting_update_type", 0) == 0) {
+            "${appBaseUrl}版本更新/稳定版/"
+        } else {
+            "${appBaseUrl}版本更新/持续构建版/"
+        }
 
     private var ruleUrl = "${appBaseUrl}规则更新/"
 
@@ -62,59 +60,62 @@ class UpdateUtils {
     private suspend fun request(
         url: String,
         local: Int,
-        type:Int
-    ):UpdateInfo? = withContext(Dispatchers.IO) {
-       runCatching {
-          val result =  requestUtils.get(url, cacheTime = 60)
-           val json =  Gson().fromJson(result.byteArray.toString(Charsets.UTF_8), UpdateInfo::class.java)
-           //本地版本小于云端版本就是需要更新
-           if (local < json.code) {
-
-
-               if(type == 1){
-                     json.file = "$appUrl${json.file}"
-               }else{
-                     json.file = ruleUrl
-               }
-               Logger.i(
-                   " 升级信息：$url\n" +
-                           " 版本:${json.version}\n" +
-                           " 版本号:${json.code}\n" +
-                           " 更新时间:${json.date}\n" +
-                           " 更新日志:${json.log}" +
-                           " 更新路径:${json.file}"
-               )
-               json
-           } else {
-               Logger.i("无需更新")
-               null
-           }
-       }.onFailure {
-           Logger.i("检测更新出错：$it")
-       }.getOrNull()
-    }
+        type: Int,
+    ): UpdateInfo? =
+        withContext(Dispatchers.IO) {
+            runCatching {
+                val result = requestUtils.get(url, cacheTime = 60)
+                val json =
+                    Gson().fromJson(
+                        result.byteArray.toString(Charsets.UTF_8),
+                        UpdateInfo::class.java,
+                    )
+                // 本地版本小于云端版本就是需要更新
+                if (local < json.code) {
+                    if (type == 1) {
+                        json.file = "$appUrl${json.file}"
+                    } else {
+                        json.file = ruleUrl
+                    }
+                    Logger.i(
+                        " 升级信息：$url\n" +
+                            " 版本:${json.version}\n" +
+                            " 版本号:${json.code}\n" +
+                            " 更新时间:${json.date}\n" +
+                            " 更新日志:${json.log}" +
+                            " 更新路径:${json.file}",
+                    )
+                    json
+                } else {
+                    Logger.i("无需更新")
+                    null
+                }
+            }.onFailure {
+                Logger.i("检测更新出错：$it")
+            }.getOrNull()
+        }
 
     /**
      * 检查App更新
      */
-    suspend fun checkAppUpdate():UpdateInfo? {
+    suspend fun checkAppUpdate(): UpdateInfo? {
         SpUtils.getBoolean("checkApp", true).apply {
             if (!this) {
                 return null
             }
         }
-       return  request("$appUrl/index.json", AppUtils.getVersionCode(),1)
+        return request("$appUrl/index.json", AppUtils.getVersionCode(), 1)
     }
 
     /**
      * 检查规则更新
      */
-    suspend fun checkRuleUpdate():UpdateInfo?  {
+    suspend fun checkRuleUpdate(): UpdateInfo? {
         SpUtils.getBoolean("checkRule", true).apply {
             if (!this) {
                 return null
             }
         }
-        return request("$ruleUrl/index.json", SpUtils.getInt("ruleVersion", 0),0)
+        return request("$ruleUrl/index.json", SpUtils.getInt("ruleVersion", 0), 0)
     }
 }

@@ -16,11 +16,10 @@
 package net.ankio.auto.utils
 
 import android.content.Context
-import com.hjq.toast.Toaster
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.hjq.toast.Toaster
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.database.Db
@@ -34,59 +33,61 @@ import net.ankio.common.model.AssetsModel
 import net.ankio.common.model.BookModel
 
 object BookSyncUtils {
-
-    suspend fun sync(context: Context) = withContext(Dispatchers.IO){
-        syncBook(context)
-        syncAssets(context)
-    }
-
-   private suspend fun syncBook(context: Context) = withContext(Dispatchers.IO) {
-       runCatching {
-           val autoBooks = AutoAccountingServiceUtils.get("auto_books",context)
-           //同步账本数据和分类数据
-           if (autoBooks.isNotEmpty()) {
-               Db.get().BookNameDao().deleteAll()
-               //删除原有的分类
-               Db.get().CategoryDao().deleteAll()
-               val type = object : TypeToken<List<BookModel>>() {}
-               Gson().fromJson(autoBooks, type).forEach {
-                   val bookModel = it
-                   val bookName = BookName.fromModel(bookModel)
-                   val id = Db.get().BookNameDao().insert(bookName)
-                   Category.importModel(bookModel.category, id)
-               }
-               Logger.i("从记账软件同步【 账本和分类数据 】 成功")
-               AutoAccountingServiceUtils.delete("auto_books",context)
-               Toaster.show(R.string.sync_book_success)
-           }
-       }.onFailure {
-           if(it is AutoServiceException){
-               EventBus.post(AutoServiceErrorEvent(it))
-           }
-           Logger.e("从记账软件同步【 账本和分类数据 】 失败",it)
-       }
-    }
-
-   private suspend fun syncAssets(context: Context) = withContext(Dispatchers.IO){
-        runCatching {
-            val autoAssets = AutoAccountingServiceUtils.get("auto_assets",context)
-            if (autoAssets.isNotEmpty()) {
-                val type = object : TypeToken<List<AssetsModel>>() {}
-                val assets = Gson().fromJson(autoAssets, type)
-                Db.get().AssetsDao().deleteAll()
-                assets.forEach {
-                    Db.get().AssetsDao().add(Assets.fromModel(it))
-                }
-                Logger.i("从记账软件同步【 资产数据 】 成功")
-
-                AutoAccountingServiceUtils.delete("auto_assets",context)
-                Toaster.show(R.string.sync_assets_success)
-            }
-        }.onFailure {
-            if(it is AutoServiceException){
-                EventBus.post(AutoServiceErrorEvent(it))
-            }
-            Logger.e("从记账软件同步【 资产数据 】 失败",it)
+    suspend fun sync(context: Context) =
+        withContext(Dispatchers.IO) {
+            syncBook(context)
+            syncAssets(context)
         }
-    }
+
+    private suspend fun syncBook(context: Context) =
+        withContext(Dispatchers.IO) {
+            runCatching {
+                val autoBooks = AutoAccountingServiceUtils.get("auto_books", context)
+                // 同步账本数据和分类数据
+                if (autoBooks.isNotEmpty()) {
+                    Db.get().BookNameDao().deleteAll()
+                    // 删除原有的分类
+                    Db.get().CategoryDao().deleteAll()
+                    val type = object : TypeToken<List<BookModel>>() {}
+                    Gson().fromJson(autoBooks, type).forEach {
+                        val bookModel = it
+                        val bookName = BookName.fromModel(bookModel)
+                        val id = Db.get().BookNameDao().insert(bookName)
+                        Category.importModel(bookModel.category, id)
+                    }
+                    Logger.i("从记账软件同步【 账本和分类数据 】 成功")
+                    AutoAccountingServiceUtils.delete("auto_books", context)
+                    Toaster.show(R.string.sync_book_success)
+                }
+            }.onFailure {
+                if (it is AutoServiceException) {
+                    EventBus.post(AutoServiceErrorEvent(it))
+                }
+                Logger.e("从记账软件同步【 账本和分类数据 】 失败", it)
+            }
+        }
+
+    private suspend fun syncAssets(context: Context) =
+        withContext(Dispatchers.IO) {
+            runCatching {
+                val autoAssets = AutoAccountingServiceUtils.get("auto_assets", context)
+                if (autoAssets.isNotEmpty()) {
+                    val type = object : TypeToken<List<AssetsModel>>() {}
+                    val assets = Gson().fromJson(autoAssets, type)
+                    Db.get().AssetsDao().deleteAll()
+                    assets.forEach {
+                        Db.get().AssetsDao().add(Assets.fromModel(it))
+                    }
+                    Logger.i("从记账软件同步【 资产数据 】 成功")
+
+                    AutoAccountingServiceUtils.delete("auto_assets", context)
+                    Toaster.show(R.string.sync_assets_success)
+                }
+            }.onFailure {
+                if (it is AutoServiceException) {
+                    EventBus.post(AutoServiceErrorEvent(it))
+                }
+                Logger.e("从记账软件同步【 资产数据 】 失败", it)
+            }
+        }
 }

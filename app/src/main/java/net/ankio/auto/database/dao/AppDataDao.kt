@@ -14,39 +14,29 @@
  */
 package net.ankio.auto.database.dao
 
-import android.content.Context
-import android.graphics.drawable.Drawable
-import androidx.core.content.res.ResourcesCompat
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import net.ankio.auto.R
-import net.ankio.auto.database.Db
 import net.ankio.auto.database.table.AppData
-import net.ankio.auto.database.table.Assets
-import net.ankio.auto.utils.ImageUtils
 
 @Dao
 interface AppDataDao {
-
     @Query("DELETE FROM AppData WHERE id=:id")
     suspend fun del(id: Int)
-
 
     @Insert
     suspend fun add(appData: AppData)
 
     @Insert
     suspend fun addList(list: List<AppData>)
+
     @Update
     suspend fun update(appData: AppData)
+
     @Query("SELECT * FROM AppData  order by id")
-    suspend fun loadAll():List<AppData>
+    suspend fun loadAll(): List<AppData>
+
     @Query("DELETE FROM AppData")
-   suspend fun deleteAll()
-
-
+    suspend fun deleteAll()
 }

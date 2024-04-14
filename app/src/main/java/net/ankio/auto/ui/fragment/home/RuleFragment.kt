@@ -34,8 +34,6 @@ import net.ankio.auto.databinding.FragmentDataBinding
 import net.ankio.auto.ui.adapter.RuleAdapter
 import net.ankio.auto.ui.fragment.BaseFragment
 import net.ankio.auto.ui.utils.MenuItem
-import net.ankio.auto.utils.AutoAccountingServiceUtils
-
 
 class RuleFragment : BaseFragment() {
     private lateinit var binding: FragmentDataBinding
@@ -44,50 +42,50 @@ class RuleFragment : BaseFragment() {
     private lateinit var layoutManager: LinearLayoutManager
     private val dataItems = mutableListOf<Regular>()
     override val menuList: ArrayList<MenuItem>
-        get() = arrayListOf(
-            MenuItem(R.string.item_add, R.drawable.menu_item_add) {
-                it.navigate(R.id.editFragment)
-            }
-        )
+        get() =
+            arrayListOf(
+                MenuItem(R.string.item_add, R.drawable.menu_item_add) {
+                    it.navigate(R.id.editFragment)
+                },
+            )
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         binding = FragmentDataBinding.inflate(layoutInflater)
         recyclerView = binding.recyclerView
         layoutManager = LinearLayoutManager(requireContext())
         recyclerView.layoutManager = layoutManager
 
-        adapter = RuleAdapter(dataItems,
-
-            onClickEdit = { item, position ->
-                val bundle = Bundle().apply {
-                    putSerializable("regular", item)
-                }
-                findNavController().navigate(R.id.editFragment, bundle)
-            },
-
-            onClickDelete = { item, position ->
-                MaterialAlertDialogBuilder(requireContext())
-                    .setTitle(requireContext().getString(R.string.delete_data))
-                    .setMessage(requireContext().getString(R.string.delete_msg))
-                    .setNegativeButton(requireContext().getString(R.string.sure_msg)) { _, _ ->
-                        lifecycleScope.launch {
-                            withContext(Dispatchers.IO){
-                                Db.get().RegularDao().del(item.id)
-                            }
-                            dataItems.removeAt(position)
-                            adapter.notifyItemRemoved(position)
+        adapter =
+            RuleAdapter(
+                dataItems,
+                onClickEdit = { item, position ->
+                    val bundle =
+                        Bundle().apply {
+                            putSerializable("regular", item)
                         }
-                    }
-                    .setPositiveButton(requireContext().getString(R.string.cancel_msg)) { _, _ -> }
-                    .show()
-
-            }
-
-        )
+                    findNavController().navigate(R.id.editFragment, bundle)
+                },
+                onClickDelete = { item, position ->
+                    MaterialAlertDialogBuilder(requireContext())
+                        .setTitle(requireContext().getString(R.string.delete_data))
+                        .setMessage(requireContext().getString(R.string.delete_msg))
+                        .setNegativeButton(requireContext().getString(R.string.sure_msg)) { _, _ ->
+                            lifecycleScope.launch {
+                                withContext(Dispatchers.IO) {
+                                    Db.get().RegularDao().del(item.id)
+                                }
+                                dataItems.removeAt(position)
+                                adapter.notifyItemRemoved(position)
+                            }
+                        }
+                        .setPositiveButton(requireContext().getString(R.string.cancel_msg)) { _, _ -> }
+                        .show()
+                },
+            )
 
         recyclerView.adapter = adapter
 
@@ -95,28 +93,23 @@ class RuleFragment : BaseFragment() {
     }
 
     private fun loadData() {
-
-
         lifecycleScope.launch {
-            val newData = withContext(Dispatchers.IO) {
-                Db.get().RegularDao().loadAll()
-            }
+            val newData =
+                withContext(Dispatchers.IO) {
+                    Db.get().RegularDao().loadAll()
+                }
             val collection: Collection<Regular> = newData?.filterNotNull() ?: emptyList()
             dataItems.clear()
             dataItems.addAll(collection)
             adapter.notifyDataSetChanged()
-            binding.empty.root.visibility = if(collection.isEmpty()) View.VISIBLE else View.GONE
-
+            binding.empty.root.visibility = if (collection.isEmpty()) View.VISIBLE else View.GONE
         }
-
-
     }
 
     override fun onResume() {
         super.onResume()
-        //加载数据
+        // 加载数据
 
         loadData()
     }
-
 }

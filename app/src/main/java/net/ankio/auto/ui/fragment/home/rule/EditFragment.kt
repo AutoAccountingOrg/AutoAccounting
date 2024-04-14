@@ -50,7 +50,6 @@ import net.ankio.auto.ui.fragment.BaseFragment
 import net.ankio.auto.utils.ListPopupUtils
 import java.util.Calendar
 
-
 class EditFragment : BaseFragment() {
     private lateinit var binding: FragmentEditBinding
     private var regular: Regular = Regular()
@@ -58,33 +57,31 @@ class EditFragment : BaseFragment() {
     private var bookName: String = ""
     private var category: String = ""
 
-
-
     private fun buildUI() {
-
         val flexboxLayout = binding.flexboxLayout
-        //监听器取消
+        // 监听器取消
         for (i in 0 until binding.flexboxLayout.childCount) {
             val child = binding.flexboxLayout.getChildAt(i)
             child.setOnClickListener(null)
             child.setOnLongClickListener(null)
         }
-        //清除所有的UI
+        // 清除所有的UI
         flexboxLayout.removeAllViews()
         flexboxLayout.appendTextView(getString(R.string.if_condition_true))
 
         val list = regular.element?.list?.toMutableList()
-        //依次排列
+        // 依次排列
         if (list.isNullOrEmpty()) {
-            val buttonElem = flexboxLayout.appendAddButton(callback = { it, _ ->
-                flexboxLayout.appendWaveTextview(
-                    getString(R.string.condition),
-                    connector = true,
-                    elem = it
-                ) { it2, view ->
-                    showSelectType(flexboxLayout, view, it2)
-                }
-            })
+            val buttonElem =
+                flexboxLayout.appendAddButton(callback = { it, _ ->
+                    flexboxLayout.appendWaveTextview(
+                        getString(R.string.condition),
+                        connector = true,
+                        elem = it,
+                    ) { it2, view ->
+                        showSelectType(flexboxLayout, view, it2)
+                    }
+                })
 
             val buttonView = buttonElem.getFirstView()
             flexboxLayout.firstWaveTextViewPosition = flexboxLayout.indexOfChild(buttonView)
@@ -97,37 +94,41 @@ class EditFragment : BaseFragment() {
             flexboxLayout.appendWaveTextview(getString(R.string.category)) { it2, _ ->
                 onClickCategory(it2)
             }
-            //列表为空
+            // 列表为空
             return
         }
-        //最后一个是数据
+        // 最后一个是数据
         val lastElement = list.removeLast()
-        //fix #7 因为存储的时候使用的是hashmap<String,Any>，反向识别的时候可能会将Int类型识别为Double
-        book = if(lastElement["id"] is Int){
-            lastElement["id"] as Int
-        }else if(lastElement["id"] is Double){
-            (lastElement["id"] as Double).toInt()
-        }else 0
+        // fix #7 因为存储的时候使用的是hashmap<String,Any>，反向识别的时候可能会将Int类型识别为Double
+        book =
+            if (lastElement["id"] is Int) {
+                lastElement["id"] as Int
+            } else if (lastElement["id"] is Double) {
+                (lastElement["id"] as Double).toInt()
+            } else {
+                0
+            }
         bookName = lastElement["book"] as String
         category = lastElement["category"] as String
 
-        //添加到页面来
+        // 添加到页面来
         flexboxLayout.firstWaveTextViewPosition = flexboxLayout.size - 1
-        val buttonElem = flexboxLayout.appendAddButton(callback = { it, _ ->
-            flexboxLayout.appendWaveTextview(
-                getString(R.string.condition),
-                connector = true,
-                elem = it
-            ) { it2, view ->
-                showSelectType(flexboxLayout, view, it2)
-            }
-        })
+        val buttonElem =
+            flexboxLayout.appendAddButton(callback = { it, _ ->
+                flexboxLayout.appendWaveTextview(
+                    getString(R.string.condition),
+                    connector = true,
+                    elem = it,
+                ) { it2, view ->
+                    showSelectType(flexboxLayout, view, it2)
+                }
+            })
         for (hashMap in list) {
             flexboxLayout.appendWaveTextview(
                 hashMap["text"] as String,
                 connector = hashMap.containsKey("jsPre"),
                 elem = buttonElem,
-                data = hashMap
+                data = hashMap,
             ) { it2, view ->
                 when (it2.data["type"] as String) {
                     "type" -> inputType(it2, view)
@@ -148,26 +149,21 @@ class EditFragment : BaseFragment() {
 
         flexboxLayout.appendWaveTextview(lastElement["category"] as String) { it2, _ ->
 
-
             onClickCategory(it2)
         }
-
     }
-
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
-
         binding = FragmentEditBinding.inflate(layoutInflater)
 
         binding.ruleCard.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(requireContext()))
 
         binding.saveItem.setOnClickListener {
             saveItem()
-
         }
 
         arguments?.apply {
@@ -176,7 +172,6 @@ class EditFragment : BaseFragment() {
             } else {
                 getSerializable("regular") as? Regular
             } ?: Regular()
-
         }
         buildUI()
 
@@ -192,105 +187,120 @@ class EditFragment : BaseFragment() {
     }
 
     private fun onClickCategory(it2: FlowElement) {
-
         lifecycleScope.launch {
-            var book = withContext(Dispatchers.IO) {
-                Db.get().BookNameDao().getByName(bookName)
-            }
+            var book =
+                withContext(Dispatchers.IO) {
+                    Db.get().BookNameDao().getByName(bookName)
+                }
             if (book == null) {
                 book = BookName()
-                book.name  = bookName
+                book.name = bookName
             }
 
             BookInfoDialog(requireActivity(), book) { type ->
                 CategorySelectorDialog(requireActivity(), book.id, type) { parent, child ->
-                    val string: String = if (parent == null) {
-                        "其他"
-                    } else {
-                        if (child == null) {
-                            BillUtils.getCategory(parent.name.toString())
+                    val string: String =
+                        if (parent == null) {
+                            "其他"
                         } else {
-                            BillUtils.getCategory(
-                                parent.name.toString(),
-                                child.name.toString()
-                            )
+                            if (child == null) {
+                                BillUtils.getCategory(parent.name.toString())
+                            } else {
+                                BillUtils.getCategory(
+                                    parent.name.toString(),
+                                    child.name.toString(),
+                                )
+                            }
                         }
-                    }
                     it2.removed().setAsWaveTextview(
                         string,
                         it2.connector,
-                        callback = it2.waveCallback
+                        callback = it2.waveCallback,
                     )
                     category = string
                 }.show(cancel = true)
             }.show(cancel = true)
-
         }
     }
 
-
-    private fun showSelectType(flexboxLayout: FlowLayoutManager, view: View, element: FlowElement) {
-        val menuItems : HashMap<String, Any> = hashMapOf(
-            getString(R.string.type_money) to 0,
-            getString(R.string.type_time) to 1,
-            getString(R.string.type_shop) to 2,
-            getString(R.string.type_item) to 3,
-            getString(R.string.type_type) to 4
-        )
-        val listPopupUtils = ListPopupUtils(requireContext(), view, menuItems,0) { pos,key,value ->
-            when (value) {
-                0 -> inputMoneyRange(flexboxLayout, element)
-                1 -> inputTimeRange(flexboxLayout, element)
-                2 -> inputShop(flexboxLayout, element)
-                3 -> inputShopItem(flexboxLayout, element)
-                4 -> inputType(element, view)
+    private fun showSelectType(
+        flexboxLayout: FlowLayoutManager,
+        view: View,
+        element: FlowElement,
+    ) {
+        val menuItems: HashMap<String, Any> =
+            hashMapOf(
+                getString(R.string.type_money) to 0,
+                getString(R.string.type_time) to 1,
+                getString(R.string.type_shop) to 2,
+                getString(R.string.type_item) to 3,
+                getString(R.string.type_type) to 4,
+            )
+        val listPopupUtils =
+            ListPopupUtils(requireContext(), view, menuItems, 0) { pos, key, value ->
+                when (value) {
+                    0 -> inputMoneyRange(flexboxLayout, element)
+                    1 -> inputTimeRange(flexboxLayout, element)
+                    2 -> inputShop(flexboxLayout, element)
+                    3 -> inputShopItem(flexboxLayout, element)
+                    4 -> inputType(element, view)
+                }
             }
-        }
         listPopupUtils.toggle()
     }
 
-
-    private fun inputType(element: FlowElement, view: View) {
-        val menuItems : HashMap<String, Any> = hashMapOf(
-            getString(R.string.type_for_pay) to 0,
-            getString(R.string.type_for_income) to 1,
-        )
+    private fun inputType(
+        element: FlowElement,
+        view: View,
+    ) {
+        val menuItems: HashMap<String, Any> =
+            hashMapOf(
+                getString(R.string.type_for_pay) to 0,
+                getString(R.string.type_for_income) to 1,
+            )
         var msg = ""
         var js = ""
 
-        val listPopupUtils = ListPopupUtils(requireContext(), view, menuItems,0) { pos,key,value ->
-            msg = getString(R.string.type_pay, key)
-            when (value) {
-                0 -> js = "type === 0"
-                1 -> js = "type === 1"
+        val listPopupUtils =
+            ListPopupUtils(requireContext(), view, menuItems, 0) { pos, key, value ->
+                msg = getString(R.string.type_pay, key)
+                when (value) {
+                    0 -> js = "type === 0"
+                    1 -> js = "type === 1"
+                }
+                element.data["js"] = js
+                element.data["type"] = "type"
+                element.data["text"] = msg
+                element.removed()
+                    .setAsWaveTextview(msg, element.connector, callback = element.waveCallback)
             }
-            element.data["js"] = js
-            element.data["type"] = "type"
-            element.data["text"] = msg
-            element.removed()
-                .setAsWaveTextview(msg, element.connector, callback = element.waveCallback)
-        }
 
         listPopupUtils.toggle()
     }
 
-    private fun inputShop(flexboxLayout: FlowLayoutManager, view: FlowElement) {
+    private fun inputShop(
+        flexboxLayout: FlowLayoutManager,
+        view: FlowElement,
+    ) {
         showInput(
             flexboxLayout,
             view,
             R.string.shop_input,
             "shopName",
-            getString(R.string.shop_name)
+            getString(R.string.shop_name),
         )
     }
 
-    private fun inputShopItem(flexboxLayout: FlowLayoutManager, view: FlowElement) {
+    private fun inputShopItem(
+        flexboxLayout: FlowLayoutManager,
+        view: FlowElement,
+    ) {
         showInput(
             flexboxLayout,
             view,
             R.string.shop_item_input,
             "shopItem",
-            getString(R.string.shop_item_name)
+            getString(R.string.shop_item_name),
         )
     }
 
@@ -299,14 +309,15 @@ class EditFragment : BaseFragment() {
         element: FlowElement,
         title: Int,
         item: String,
-        name: String
+        name: String,
     ) {
         val inputBinding = DialogRegexInputBinding.inflate(LayoutInflater.from(requireContext()))
-        var select: Int = when (val selectValue = element.data.getOrDefault("select", 0)) {
-            is Int -> selectValue
-            is Double -> selectValue.toInt()
-            else -> 0 // 或者你可以选择其他默认值
-        }
+        var select: Int =
+            when (val selectValue = element.data.getOrDefault("select", 0)) {
+                is Int -> selectValue
+                is Double -> selectValue.toInt()
+                else -> 0 // 或者你可以选择其他默认值
+            }
         var content = element.data.getOrDefault("content", "") as String
         val options: Array<String> =
             arrayOf(getString(R.string.input_contains), getString(R.string.input_regex))
@@ -344,14 +355,19 @@ class EditFragment : BaseFragment() {
             .show()
     }
 
-    private fun showTimer(time: String, title: String, callback: (String) -> Unit) {
+    private fun showTimer(
+        time: String,
+        title: String,
+        callback: (String) -> Unit,
+    ) {
         val result = time.split(":")
-        val picker = MaterialTimePicker.Builder()
-            .setTimeFormat(TimeFormat.CLOCK_24H)
-            .setHour(result[0].toInt())
-            .setMinute(result[1].toInt())
-            .setTitleText(title)
-            .build()
+        val picker =
+            MaterialTimePicker.Builder()
+                .setTimeFormat(TimeFormat.CLOCK_24H)
+                .setHour(result[0].toInt())
+                .setMinute(result[1].toInt())
+                .setTitleText(title)
+                .build()
         picker.show(requireActivity().supportFragmentManager, "time_picker")
         picker.addOnPositiveButtonClickListener {
             val selectedTime = "${picker.hour}:${picker.minute}"
@@ -359,7 +375,10 @@ class EditFragment : BaseFragment() {
         }
     }
 
-    private fun inputTimeRange(flexboxLayout: FlowLayoutManager, element: FlowElement) {
+    private fun inputTimeRange(
+        flexboxLayout: FlowLayoutManager,
+        element: FlowElement,
+    ) {
         val currentTime = Calendar.getInstance()
         val hour = currentTime.get(Calendar.HOUR_OF_DAY)
         val minute = currentTime.get(Calendar.MINUTE)
@@ -369,7 +388,7 @@ class EditFragment : BaseFragment() {
             minTime = it1
             showTimer(maxTime, getString(R.string.select_time_higher)) {
                 maxTime = it
-                val js = "timeRange('${minTime}','${maxTime}')"
+                val js = "timeRange('$minTime','$maxTime')"
                 val input = getString(R.string.time_range, minTime, maxTime)
                 element.data["js"] = js
                 element.data["minTime"] = minTime
@@ -381,12 +400,12 @@ class EditFragment : BaseFragment() {
                 }
             }
         }
-
-
     }
 
-
-    private fun inputMoneyRange(flexboxLayout: FlowLayoutManager, element: FlowElement) {
+    private fun inputMoneyRange(
+        flexboxLayout: FlowLayoutManager,
+        element: FlowElement,
+    ) {
         val moneyRangeBinding =
             DialogRegexMoneyBinding.inflate(LayoutInflater.from(requireContext()))
         moneyRangeBinding.lower.setText(element.data.getOrDefault("minAmount", "").toString())
@@ -398,14 +417,15 @@ class EditFragment : BaseFragment() {
                 // 处理用户输入的金额范围
                 // 从 dialogView 中获取用户输入的数据
 
+                val maxAmount =
+                    runCatching {
+                        moneyRangeBinding.higher.text.toString().toFloat()
+                    }.getOrDefault(0).toFloat()
 
-                val maxAmount = runCatching {
-                    moneyRangeBinding.higher.text.toString().toFloat()
-                }.getOrDefault(0).toFloat()
-
-                val minAmount = runCatching {
-                    moneyRangeBinding.lower.text.toString().toFloat()
-                }.getOrDefault(0).toFloat()
+                val minAmount =
+                    runCatching {
+                        moneyRangeBinding.lower.text.toString().toFloat()
+                    }.getOrDefault(0).toFloat()
 
                 var js = ""
                 var input = ""
@@ -421,11 +441,12 @@ class EditFragment : BaseFragment() {
 
                 if (minAmount > 0 && maxAmount > 0 && maxAmount > minAmount) {
                     js = "money < $maxAmount and money > $minAmount"
-                    input = getString(
-                        R.string.money_range_info,
-                        minAmount.toString(),
-                        maxAmount.toString()
-                    )
+                    input =
+                        getString(
+                            R.string.money_range_info,
+                            minAmount.toString(),
+                            maxAmount.toString(),
+                        )
                 }
 
                 if (minAmount > 0 && maxAmount > 0 && maxAmount == minAmount) {
@@ -445,18 +466,15 @@ class EditFragment : BaseFragment() {
                 element.removed().setAsWaveTextview(input, element.connector) { it, view ->
                     inputMoneyRange(flexboxLayout, it)
                 }
-
             }
             .setNegativeButton(R.string.cancel_msg, null)
             .show()
     }
 
-
     private fun saveItem() {
-
         val map = binding.flexboxLayout.getViewMap()
         var condition = ""
-        var text = "若满足";
+        var text = "若满足"
 
         val list: MutableList<HashMap<String, Any>> = mutableListOf()
 
@@ -473,18 +491,17 @@ class EditFragment : BaseFragment() {
                 condition += flowElement.data["js"]
                 text += t
             }
-
-
         }
         text += "，则账本为【$bookName】，分类为【$category】。"
-        val otherData = hashMapOf<String, Any>(
-            "book" to bookName,
-            "category" to category,
-            "id" to book
-        )
+        val otherData =
+            hashMapOf<String, Any>(
+                "book" to bookName,
+                "category" to category,
+                "id" to book,
+            )
         list.add(otherData)
         condition += ""
-        val js = "if($condition){ return { book:'${bookName}',category:'${category}'} }"
+        val js = "if($condition){ return { book:'$bookName',category:'$category'} }"
 
         regular.js = js
         regular.text = text
@@ -497,11 +514,11 @@ class EditFragment : BaseFragment() {
             return
         }
         if (regular.js.contains("book:''")) {
-            Toaster.show(getString(R.string.useless_book));
+            Toaster.show(getString(R.string.useless_book))
             return
         }
         if (regular.js.contains("category:''")) {
-            Toaster.show(getString(R.string.useless_category));
+            Toaster.show(getString(R.string.useless_category))
             return
         }
         lifecycleScope.launch {
@@ -514,8 +531,7 @@ class EditFragment : BaseFragment() {
             }
 
             BillUtils.syncRules()
-            findNavController().popBackStack()//返回上一个页面
+            findNavController().popBackStack() // 返回上一个页面
         }
-
     }
 }

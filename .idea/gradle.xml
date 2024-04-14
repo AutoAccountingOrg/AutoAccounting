@@ -12,6 +12,7 @@
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/common" />
             <option value="$PROJECT_DIR$/demo" />
+            <option value="$PROJECT_DIR$/dex" />
             <option value="$PROJECT_DIR$/sdk" />
           </set>
         </option>

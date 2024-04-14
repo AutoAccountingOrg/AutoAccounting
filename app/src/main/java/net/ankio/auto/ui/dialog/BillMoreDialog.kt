@@ -28,7 +28,8 @@ import net.ankio.auto.ui.adapter.OrderItemAdapter
 
 class BillMoreDialog(
     private val context: Context,
-    private val billInfo: BillInfo) :
+    private val billInfo: BillInfo,
+) :
     BaseSheetDialog(context) {
     private lateinit var binding: DialogBillMoreBinding
     private val dataItems = mutableListOf<BillInfo>()
@@ -42,28 +43,21 @@ class BillMoreDialog(
         cardView = binding.cardView
         cardViewInner = binding.innerView
 
-
-
         binding.recyclerView.adapter = adapter
-
-
 
         return binding.root
     }
 
-    override fun show(float: Boolean, cancel: Boolean) {
+    override fun show(
+        float: Boolean,
+        cancel: Boolean,
+    ) {
         super.show(float, cancel)
         lifecycleScope.launch {
-
             Db.get().BillInfoDao().getChild(billInfo.id).apply {
                 dataItems.addAll(this)
                 adapter.notifyItemInserted(0)
             }
-
         }
-
-
     }
-
-
 }

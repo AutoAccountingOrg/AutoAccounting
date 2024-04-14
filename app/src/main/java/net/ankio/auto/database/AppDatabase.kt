@@ -32,17 +32,22 @@ import net.ankio.auto.database.table.Category
 import net.ankio.auto.database.table.Regular
 
 @Database(
-    entities = [Assets::class,AssetsMap::class,BillInfo::class,BookName::class,Category::class,Regular::class,AppData::class],
+    entities = [Assets::class, AssetsMap::class, BillInfo::class, BookName::class, Category::class, Regular::class, AppData::class],
     version = 1,
-    exportSchema = false
+    exportSchema = false,
 )
-
 abstract class AppDatabase : RoomDatabase() {
     abstract fun RegularDao(): RegularDao
+
     abstract fun BookNameDao(): BookNameDao
+
     abstract fun AssetsMapDao(): AssetsMapDao
+
     abstract fun BillInfoDao(): BillInfoDao
+
     abstract fun CategoryDao(): CategoryDao
+
     abstract fun AssetsDao(): AssetsDao
+
     abstract fun AppDataDao(): AppDataDao
 }

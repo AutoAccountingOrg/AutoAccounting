@@ -21,7 +21,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 
-abstract class BaseAdapter<T: ViewHolder> : RecyclerView.Adapter<T>() {
+abstract class BaseAdapter<T : ViewHolder> : RecyclerView.Adapter<T>() {
     private val job = Job()
 
     val scope: CoroutineScope

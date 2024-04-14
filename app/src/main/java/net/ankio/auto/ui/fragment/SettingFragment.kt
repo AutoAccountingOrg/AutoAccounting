@@ -16,32 +16,27 @@
 package net.ankio.auto.ui.fragment
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import net.ankio.auto.R
-import net.ankio.auto.databinding.FragmentSetting2Binding
 import net.ankio.auto.databinding.FragmentSettingBinding
 import net.ankio.auto.setting.Config
 import net.ankio.auto.setting.SettingUtils
-import net.ankio.auto.ui.utils.MenuItem
-
 
 class SettingFragment : BaseFragment() {
     private lateinit var binding: FragmentSettingBinding
 
     private lateinit var settingRenderUtils: SettingUtils
 
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         binding = FragmentSettingBinding.inflate(layoutInflater)
         val settingItems = Config.setting(requireContext())
-        settingRenderUtils = SettingUtils(requireActivity(),binding.container,layoutInflater,settingItems)
+        settingRenderUtils =
+            SettingUtils(requireActivity(), binding.container, layoutInflater, settingItems)
         settingRenderUtils.init()
         return binding.root
     }
@@ -50,5 +45,4 @@ class SettingFragment : BaseFragment() {
         super.onResume()
         settingRenderUtils.onResume()
     }
-
 }

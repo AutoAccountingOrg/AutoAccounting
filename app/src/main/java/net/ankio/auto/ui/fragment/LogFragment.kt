@@ -39,51 +39,51 @@ class LogFragment : BaseFragment() {
     private lateinit var adapter: LogAdapter
     private lateinit var layoutManager: LinearLayoutManager
     private val dataItems = ArrayList<String>()
-    override val menuList: ArrayList<MenuItem> = arrayListOf(
-        MenuItem(R.string.item_share, R.drawable.menu_icon_share) {
-            runCatching {
-                val cacheDir = AppUtils.getApplication().externalCacheDir
-                val file = File(cacheDir, "/shell/log.txt")
-                val shareIntent = Intent(Intent.ACTION_SEND)
-                // 设置分享类型为文件
-                shareIntent.type = "application/octet-stream"
-                // 将文件URI添加到分享意图
-                val fileUri = FileProvider.getUriForFile(
-                    requireContext(),
-                    "net.ankio.auto.fileprovider",
-                    file
-                )
-                shareIntent.putExtra(Intent.EXTRA_STREAM, fileUri)
-                // 添加可选的文本标题
-                shareIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.share_file))
+    override val menuList: ArrayList<MenuItem> =
+        arrayListOf(
+            MenuItem(R.string.item_share, R.drawable.menu_icon_share) {
+                runCatching {
+                    val cacheDir = AppUtils.getApplication().externalCacheDir
+                    val file = File(cacheDir, "/shell/log.txt")
+                    val shareIntent = Intent(Intent.ACTION_SEND)
+                    // 设置分享类型为文件
+                    shareIntent.type = "application/octet-stream"
+                    // 将文件URI添加到分享意图
+                    val fileUri =
+                        FileProvider.getUriForFile(
+                            requireContext(),
+                            "net.ankio.auto.fileprovider",
+                            file,
+                        )
+                    shareIntent.putExtra(Intent.EXTRA_STREAM, fileUri)
+                    // 添加可选的文本标题
+                    shareIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.share_file))
 
-                // 启动分享意图
-                requireContext().startActivity(
-                    Intent.createChooser(
-                        shareIntent,
-                        getString(R.string.share_file)
+                    // 启动分享意图
+                    requireContext().startActivity(
+                        Intent.createChooser(
+                            shareIntent,
+                            getString(R.string.share_file),
+                        ),
                     )
-                )
-            }.onFailure {
-                Logger.e("日志分享失败", it)
-            }
-        },
-        MenuItem(R.string.item_clear, R.drawable.menu_icon_clear) {
-            runCatching {
-                AutoAccountingServiceUtils.delete("log",requireContext())
-                loadMoreData()
-            }.onFailure {
-                Logger.e("清除失败", it)
-            }
-        }
-    )
-
-
+                }.onFailure {
+                    Logger.e("日志分享失败", it)
+                }
+            },
+            MenuItem(R.string.item_clear, R.drawable.menu_icon_clear) {
+                runCatching {
+                    AutoAccountingServiceUtils.delete("log", requireContext())
+                    loadMoreData()
+                }.onFailure {
+                    Logger.e("清除失败", it)
+                }
+            },
+        )
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         binding = FragmentLogBinding.inflate(layoutInflater)
         recyclerView = binding.recyclerView
@@ -100,18 +100,15 @@ class LogFragment : BaseFragment() {
     }
 
     private fun loadMoreData() {
-
         lifecycleScope.launch {
-            AutoAccountingServiceUtils.get("log",requireContext()).let {
+            AutoAccountingServiceUtils.get("log", requireContext()).let {
                 dataItems.clear()
                 val collection = it.split("\n")
                 dataItems.addAll(collection)
                 adapter.notifyDataSetChanged()
-                binding.empty.root.visibility = if(collection.isEmpty()) View.VISIBLE else View.GONE
+                binding.empty.root.visibility =
+                    if (collection.isEmpty()) View.VISIBLE else View.GONE
             }
-
         }
-
-
     }
 }

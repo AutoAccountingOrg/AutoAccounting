@@ -15,23 +15,16 @@
 
 package net.ankio.auto.ui.fragment
 
-import android.os.Bundle
 import android.view.Menu
 import android.view.View
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
-import com.zackratos.ultimatebarx.ultimatebarx.addNavigationBarBottomPadding
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.databinding.ActivityMainBinding
 import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.utils.MenuItem
 import net.ankio.auto.utils.AppUtils
-import net.ankio.auto.utils.AutoAccountingServiceUtils
 
 abstract class BaseFragment : Fragment() {
     open val menuList: ArrayList<MenuItem> = arrayListOf()
@@ -50,13 +43,11 @@ abstract class BaseFragment : Fragment() {
         activityBinding.toolbar.visibility = View.VISIBLE
         // 重置顶部导航栏图标
         activityBinding.toolbar.menu.clear()
-        //添加菜单
+        // 添加菜单
         menuList.forEach {
             addMenuItem(it)
         }
-
-
-     }
+    }
 
     private fun addMenuItem(menuItemObject: MenuItem) {
         val menu = activityBinding.toolbar.menu
@@ -67,9 +58,8 @@ abstract class BaseFragment : Fragment() {
             menuItem.setIcon(icon)
             DrawableCompat.setTint(
                 icon,
-                AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorOnBackground)
+                AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorOnBackground),
             )
-
         }
         menuItem.setOnMenuItemClickListener {
             menuItemObject.callback.invoke((activity as MainActivity).getNavController())

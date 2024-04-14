@@ -15,5 +15,4 @@
 
 package net.ankio.auto.exceptions
 
-class HttpException(message:String):Exception(message) {
-}
+class HttpException(message: String) : Exception(message)

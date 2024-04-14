@@ -25,39 +25,54 @@ import net.ankio.common.constant.BillType
 
 @Dao
 interface BillInfoDao {
-
     @Query("SELECT DISTINCT groupId FROM BillInfo WHERE money = :money AND type = :type AND timeStamp >= :timestamp  and groupId != 0")
-    suspend fun findDistinctNonZeroGroupIds(money: Int, type: BillType, timestamp: Long): List<Int>
+    suspend fun findDistinctNonZeroGroupIds(
+        money: Int,
+        type: BillType,
+        timestamp: Long,
+    ): List<Int>
 
     @Query("SELECT * FROM BillInfo WHERE money = :money AND type = :type AND timeStamp >= :timestamp and groupId=:groupId")
-    suspend fun findDuplicateBills(money: Int, type: BillType, timestamp: Long, groupId:Int): List<BillInfo>
+    suspend fun findDuplicateBills(
+        money: Int,
+        type: BillType,
+        timestamp: Long,
+        groupId: Int,
+    ): List<BillInfo>
 
     @Query("SELECT * FROM BillInfo WHERE groupId = :groupId")
     suspend fun findParentBill(groupId: Int): BillInfo?
 
     @Insert
-    suspend fun insert(billInfo: BillInfo):Long
+    suspend fun insert(billInfo: BillInfo): Long
+
     @Update
     suspend fun update(billInfo: BillInfo)
+
     @Delete
     suspend fun delete(billInfo: BillInfo)
+
     @Query("SELECT  * FROM BillInfo where id in (:ids)")
-    suspend fun getTotal(ids:List<Int>): Array<BillInfo>
+    suspend fun getTotal(ids: List<Int>): Array<BillInfo>
+
     @Query("DELETE FROM BillInfo")
     suspend fun empty()
 
-    //只保留最近500条数据
+    // 只保留最近500条数据
     @Query("DELETE FROM BillInfo WHERE id NOT IN (SELECT id FROM BillInfo ORDER BY timeStamp DESC LIMIT 500)")
     suspend fun keepLatest300()
 
     @Query("SELECT * FROM BillInfo where  groupId == 0  and syncFromApp=0")
     suspend fun getAllParents(): Array<BillInfo>
 
-    @Query("Update BillInfo set syncFromApp=1 where  groupId == 0 and syncFromApp=0"   )
+    @Query("Update BillInfo set syncFromApp=1 where  groupId == 0 and syncFromApp=0")
     suspend fun setAllParents()
 
-    @Query("SELECT  strftime('%Y-%m-%d', timeStamp / 1000, 'unixepoch') as date,group_concat(id) as ids FROM BillInfo where  groupId == 0 group by date order by date desc")
+    @Query(
+        "SELECT  strftime('%Y-%m-%d', timeStamp / 1000, 'unixepoch') as date,group_concat(id) as ids FROM BillInfo where  groupId == 0 group by date order by date desc",
+    )
     suspend fun getListGroup(): List<BillInfoGroup>
-    @Query("SELECT * from BillInfo where groupId = :id"   )
+
+    @Query("SELECT * from BillInfo where groupId = :id")
     suspend fun getChild(id: Int): Array<BillInfo>
 }

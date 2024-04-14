@@ -15,34 +15,29 @@
 
 package net.ankio.auto.ui.fragment.home
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.result.ActivityResultLauncher
 import net.ankio.auto.databinding.FragmentSetting2Binding
 import net.ankio.auto.setting.Config
 import net.ankio.auto.setting.SettingUtils
-import net.ankio.auto.ui.activity.BaseActivity
 import net.ankio.auto.ui.fragment.BaseFragment
-import net.ankio.auto.utils.BackupUtils
 
-
-class Setting2Fragment:BaseFragment() {
+class Setting2Fragment : BaseFragment() {
     private lateinit var binding: FragmentSetting2Binding
 
-    private lateinit var settingRenderUtils:SettingUtils
-
+    private lateinit var settingRenderUtils: SettingUtils
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         binding = FragmentSetting2Binding.inflate(layoutInflater)
-        val settingItems = Config.app(requireContext(),this)
-        settingRenderUtils = SettingUtils(requireActivity(),binding.container,layoutInflater,settingItems)
+        val settingItems = Config.app(requireContext(), this)
+        settingRenderUtils =
+            SettingUtils(requireActivity(), binding.container, layoutInflater, settingItems)
         settingRenderUtils.init()
         return binding.root
     }
@@ -51,5 +46,4 @@ class Setting2Fragment:BaseFragment() {
         super.onResume()
         settingRenderUtils.onResume()
     }
-
 }

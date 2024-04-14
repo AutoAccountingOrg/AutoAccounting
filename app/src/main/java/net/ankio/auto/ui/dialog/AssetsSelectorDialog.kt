@@ -32,10 +32,11 @@ class AssetsSelectorDialog(private val context: Context, private val callback: (
     BaseSheetDialog(context) {
     private lateinit var binding: DialogBookSelectBinding
     private val dataItems = mutableListOf<Assets>()
-    private val adapter = AssetsSelectorAdapter(dataItems) { item ->
-        callback(item)
-        dismiss()
-    }
+    private val adapter =
+        AssetsSelectorAdapter(dataItems) { item ->
+            callback(item)
+            dismiss()
+        }
 
     override fun onCreateView(inflater: LayoutInflater): View {
         binding = DialogBookSelectBinding.inflate(inflater)
@@ -45,24 +46,21 @@ class AssetsSelectorDialog(private val context: Context, private val callback: (
         cardView = binding.cardView
         cardViewInner = binding.recyclerView
 
-
-
-
-
-
         binding.recyclerView.adapter = adapter
-
-
 
         return binding.root
     }
 
-    override fun show(float: Boolean, cancel: Boolean) {
+    override fun show(
+        float: Boolean,
+        cancel: Boolean,
+    ) {
         super.show(float, cancel)
         lifecycleScope.launch {
-            val newData = withContext(Dispatchers.IO) {
-                Db.get().AssetsDao().loadAll()
-            }
+            val newData =
+                withContext(Dispatchers.IO) {
+                    Db.get().AssetsDao().loadAll()
+                }
 
             val collection = newData.takeIf { it.isNotEmpty() } ?: listOf()
 
@@ -75,9 +73,5 @@ class AssetsSelectorDialog(private val context: Context, private val callback: (
 
             adapter.notifyItemInserted(0)
         }
-
-
     }
-
-
 }

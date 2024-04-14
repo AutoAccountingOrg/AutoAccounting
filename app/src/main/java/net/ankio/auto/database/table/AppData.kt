@@ -23,10 +23,12 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.constant.DataType
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.Logger
+
 @Entity
 class AppData {
     @PrimaryKey(autoGenerate = true)
     var id = 0
+
     /**
      * 对于App数据，就是Hook得到的数据一般是Json：{} 具体情况具体分析
      * 对于短信数据获取到的是短信内容 {msg:xxx,body:''}
@@ -45,56 +47,61 @@ class AppData {
      * 对于短信，这里是发件人号码
      * 对于通知、Hook、无障碍数据这里是包名
      */
-    var source: String = "" //源自APP
+    var source: String = "" // 源自APP
 
     /**
      * 时间
      */
-    var time: Long = 0 //时间
+    var time: Long = 0 // 时间
 
     /**
      * 是否匹配规则
      */
-    var match:Boolean = false
+    var match: Boolean = false
 
     /**
      * 匹配到的规则名称
      * */
-    var rule:String = ""
+    var rule: String = ""
 
     /**
      * 关联github issue
      */
-    var issue:Int = 0
+    var issue: Int = 0
 
     fun toJSON(): String {
         return Gson().toJson(this)
     }
-    fun hash() :String{
-        //对data计算md5
+
+    fun hash(): String {
+        // 对data计算md5
         return AppUtils.md5(data)
     }
+
     fun toText(): String {
         return Base64.encodeToString(toJSON().toByteArray(), Base64.NO_WRAP)
     }
-    companion object{
-        fun fromJSON(json:String): AppData {
+
+    companion object {
+        fun fromJSON(json: String): AppData {
             return Gson().fromJson(json, AppData::class.java)
         }
-        suspend fun fromTxt(txt:String):ArrayList<AppData> = withContext(Dispatchers.IO){
-            val list = arrayListOf<AppData>()
-                for (line in txt.lines()){
-                    if(line.isNotEmpty()){
+
+        suspend fun fromTxt(txt: String): ArrayList<AppData> =
+            withContext(Dispatchers.IO) {
+                val list = arrayListOf<AppData>()
+                for (line in txt.lines()) {
+                    if (line.isNotEmpty()) {
                         runCatching {
-                            val base64  = String(Base64.decode(line,Base64.NO_WRAP))
+                            val base64 = String(Base64.decode(line, Base64.NO_WRAP))
                             list.add(fromJSON(base64))
                         }.onFailure {
-                            Logger.e("数据异常",it)
+                            Logger.e("数据异常", it)
                         }
                     }
                 }
 
-             list
-        }
+                list
+            }
     }
 }

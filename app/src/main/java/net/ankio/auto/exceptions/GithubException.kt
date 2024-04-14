@@ -15,7 +15,4 @@
 
 package net.ankio.auto.exceptions
 
-class GithubException(message:String) : Exception(message){
-
-
-}
+class GithubException(message: String) : Exception(message)

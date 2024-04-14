@@ -18,31 +18,30 @@ package net.ankio.auto.ui.adapter
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.elevation.SurfaceColors
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
-import net.ankio.auto.database.table.BillInfo
-import net.ankio.auto.databinding.AdapterOrderBinding
 import net.ankio.auto.databinding.AdapterTextBinding
-import net.ankio.auto.databinding.DialogBillMoreBinding
-import net.ankio.auto.ui.dialog.BillMoreDialog
-import net.ankio.auto.ui.dialog.FloatEditorDialog
-import net.ankio.auto.utils.AppUtils
-
 
 class LogAdapter(
     private val dataItems: ArrayList<String>,
 ) : BaseAdapter<LogAdapter.ViewHolder>() {
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(AdapterTextBinding.inflate(LayoutInflater.from(parent.context),parent,false),parent.context)
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int,
+    ): ViewHolder {
+        return ViewHolder(
+            AdapterTextBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false,
+            ),
+            parent.context,
+        )
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+    override fun onBindViewHolder(
+        holder: ViewHolder,
+        position: Int,
+    ) {
         val item = dataItems[position]
         holder.bind(item)
     }
@@ -51,10 +50,10 @@ class LogAdapter(
         return dataItems.size
     }
 
-    inner class ViewHolder(private val binding: AdapterTextBinding,private val context:Context) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(title:String) {
+    inner class ViewHolder(private val binding: AdapterTextBinding, private val context: Context) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun bind(title: String) {
             binding.item.text = title
         }
     }
 }
-

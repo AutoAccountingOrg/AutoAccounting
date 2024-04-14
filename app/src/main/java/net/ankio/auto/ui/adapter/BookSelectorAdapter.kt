@@ -18,35 +18,35 @@ package net.ankio.auto.ui.adapter
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.database.table.BookName
 import net.ankio.auto.databinding.AdapterBookBinding
 import net.ankio.auto.utils.ImageUtils
-import net.ankio.auto.utils.Logger
-
 
 class BookSelectorAdapter(
     private val dataItems: List<BookName>,
-    private val onClick: (item: BookName, position: Int) -> Unit
+    private val onClick: (item: BookName, position: Int) -> Unit,
 ) : BaseAdapter<BookSelectorAdapter.ViewHolder>() {
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int,
+    ): ViewHolder {
         return ViewHolder(
             AdapterBookBinding.inflate(
                 LayoutInflater.from(parent.context),
                 parent,
-                false
-            ), parent.context
+                false,
+            ),
+            parent.context,
         )
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+    override fun onBindViewHolder(
+        holder: ViewHolder,
+        position: Int,
+    ) {
         val item = dataItems[position]
         holder.bind(item, position)
     }
@@ -55,12 +55,14 @@ class BookSelectorAdapter(
         return dataItems.size
     }
 
-
     inner class ViewHolder(private val binding: AdapterBookBinding, private val context: Context) :
         RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: BookName, position: Int) {
+        fun bind(
+            item: BookName,
+            position: Int,
+        ) {
             scope.launch {
-                ImageUtils.get(context, item.icon,R.drawable.default_book).let {
+                ImageUtils.get(context, item.icon, R.drawable.default_book).let {
                     binding.book.background = it
                 }
             }

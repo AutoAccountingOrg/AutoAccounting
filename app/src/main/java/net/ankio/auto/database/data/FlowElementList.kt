@@ -15,5 +15,4 @@
 
 package net.ankio.auto.database.data
 
-
 data class FlowElementList(val list: MutableList<HashMap<String, Any>>)

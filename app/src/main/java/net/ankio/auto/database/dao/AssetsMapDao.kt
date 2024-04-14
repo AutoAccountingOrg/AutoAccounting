@@ -20,19 +20,21 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 import net.ankio.auto.database.table.AssetsMap
-import net.ankio.auto.utils.Logger
 
 @Dao
 interface AssetsMapDao {
     @Query("SELECT * FROM AssetsMap")
     suspend fun loadAll(): List<AssetsMap>
+
     @Insert
-    suspend fun insert(accountMap: AssetsMap):Long
+    suspend fun insert(accountMap: AssetsMap): Long
+
     @Update
     suspend fun update(accountMap: AssetsMap)
+
     @Delete
     suspend fun delete(accountMap: AssetsMap)
+
     @Query("DELETE FROM AssetsMap")
     suspend fun deleteAll()
-
 }

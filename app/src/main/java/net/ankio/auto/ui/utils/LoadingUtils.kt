@@ -21,14 +21,16 @@ import android.view.View
 import androidx.annotation.StringRes
 import net.ankio.auto.databinding.DialogLoadingBinding
 
-
 class LoadingUtils(private val activity: Activity) {
-    private lateinit  var dialog: Dialog
+    private lateinit var dialog: Dialog
     private lateinit var binding: DialogLoadingBinding
 
-    fun show(@StringRes text: Int) {
+    fun show(
+        @StringRes text: Int,
+    ) {
         show(activity.getString(text))
     }
+
     fun show(text: String? = null) {
         if (::dialog.isInitialized && dialog.isShowing) {
             return
@@ -38,17 +40,21 @@ class LoadingUtils(private val activity: Activity) {
         dialog.setCancelable(false)
 
         binding = DialogLoadingBinding.inflate(activity.layoutInflater)
-        if (text.isNullOrEmpty()){
+        if (text.isNullOrEmpty()) {
             binding.loadingText.visibility = View.GONE
-        }else{
+        } else {
             binding.loadingText.text = text
         }
         dialog.setContentView(binding.getRoot())
         dialog.show()
     }
-    fun setText(@StringRes text: Int) {
-        show( activity.getString(text))
+
+    fun setText(
+        @StringRes text: Int,
+    ) {
+        show(activity.getString(text))
     }
+
     fun setText(text: String?) {
         if (dialog.isShowing) {
             binding.loadingText.text = text

@@ -18,7 +18,6 @@ package net.ankio.auto.ui.adapter
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
@@ -26,24 +25,28 @@ import net.ankio.auto.database.table.Assets
 import net.ankio.auto.databinding.AdapterAssetsBinding
 import net.ankio.auto.utils.ImageUtils
 
-
 class AssetsSelectorAdapter(
     private val dataItems: List<Assets>,
-    private val onClick: (item: Assets) -> Unit
+    private val onClick: (item: Assets) -> Unit,
 ) : BaseAdapter<AssetsSelectorAdapter.ViewHolder>() {
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int,
+    ): ViewHolder {
         return ViewHolder(
             AdapterAssetsBinding.inflate(
                 LayoutInflater.from(parent.context),
                 parent,
-                false
-            ), parent.context
+                false,
+            ),
+            parent.context,
         )
     }
 
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+    override fun onBindViewHolder(
+        holder: ViewHolder,
+        position: Int,
+    ) {
         val item = dataItems[position]
         holder.bind(item)
     }
@@ -52,18 +55,15 @@ class AssetsSelectorAdapter(
         return dataItems.size
     }
 
-
-
     inner class ViewHolder(
         private val binding: AdapterAssetsBinding,
-        private val context: Context
+        private val context: Context,
     ) :
         RecyclerView.ViewHolder(binding.root) {
-
         fun bind(item: Assets) {
-            //图片加载丢到IO线程
+            // 图片加载丢到IO线程
             scope.launch {
-                ImageUtils.get(context, item.icon,R.drawable.default_cate).let {
+                ImageUtils.get(context, item.icon, R.drawable.default_cate).let {
                     binding.assets.setIcon(it)
                 }
             }

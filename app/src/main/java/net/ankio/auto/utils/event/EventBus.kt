@@ -7,14 +7,20 @@ object EventBus {
     private val listenersMap = ConcurrentHashMap<Class<*>, CopyOnWriteArrayList<(Event) -> Unit>>()
 
     // 注册监听器
-    fun <T : Event> register(eventType: Class<T>, listener: (T) -> Unit) {
+    fun <T : Event> register(
+        eventType: Class<T>,
+        listener: (T) -> Unit,
+    ) {
         val listeners = listenersMap.getOrPut(eventType) { CopyOnWriteArrayList() }
         @Suppress("UNCHECKED_CAST")
         listeners.add(listener as (Event) -> Unit)
     }
 
     // 注销监听器
-    fun <T : Event> unregister(eventType: Class<T>, listener: (T) -> Unit) {
+    fun <T : Event> unregister(
+        eventType: Class<T>,
+        listener: (T) -> Unit,
+    ) {
         listenersMap[eventType]?.remove(listener)
     }
 

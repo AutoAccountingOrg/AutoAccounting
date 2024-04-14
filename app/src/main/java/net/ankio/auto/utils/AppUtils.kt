@@ -35,7 +35,6 @@ import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.content.res.ResourcesCompat
 import com.google.android.material.color.MaterialColors
 import com.google.gson.GsonBuilder
-import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.quickersilver.themeengine.ThemeEngine
 import kotlinx.coroutines.CoroutineScope
@@ -48,25 +47,25 @@ import net.ankio.auto.ui.activity.MainActivity
 import java.math.BigInteger
 import java.security.MessageDigest
 
-
-object  AppUtils {
+object AppUtils {
     private lateinit var application: Application
     private lateinit var service: AutoAccountingServiceUtils
     private val job = Job()
     private val scope = CoroutineScope(Dispatchers.IO + job)
 
-    fun getJob():Job{
+    fun getJob(): Job {
         return job
     }
+
     fun getScope(): CoroutineScope {
         return scope
     }
+
     fun getApplication(): Application {
         return application
     }
 
     fun setApplication(application: Application) {
-
         this.application = application
     }
 
@@ -75,7 +74,7 @@ object  AppUtils {
         return this.service
     }
 
-    fun getService():AutoAccountingServiceUtils{
+    fun getService(): AutoAccountingServiceUtils {
         return service
     }
 
@@ -86,7 +85,7 @@ object  AppUtils {
     /**
      * 重启应用
      */
-    fun restart(){
+    fun restart() {
         val intent = Intent(application, MainActivity::class.java)
         intent.addFlags(FLAG_ACTIVITY_NEW_TASK)
         application.startActivity(intent)
@@ -101,17 +100,27 @@ object  AppUtils {
         val clip = ClipData.newPlainText("text", text)
         clipboard.setPrimaryClip(clip)
     }
+
     /**
      * 获取主题色
      */
-    fun getThemeAttrColor( @AttrRes attrResId: Int): Int {
-        return MaterialColors.getColor(ContextThemeWrapper(application, ThemeEngine.getInstance(application).getTheme()), attrResId, Color.WHITE)
+    fun getThemeAttrColor(
+        @AttrRes attrResId: Int,
+    ): Int {
+        return MaterialColors.getColor(
+            ContextThemeWrapper(
+                application,
+                ThemeEngine.getInstance(application).getTheme(),
+            ),
+            attrResId,
+            Color.WHITE,
+        )
     }
 
     /**
      * 获取主题Context
      */
-    fun getThemeContext(context: Context):Context{
+    fun getThemeContext(context: Context): Context {
         return ContextThemeWrapper(context, ThemeEngine.getInstance(context).getTheme())
     }
 
@@ -119,15 +128,15 @@ object  AppUtils {
         return BuildConfig.VERSION_CODE
     }
 
-    fun getVersionName():String{
+    fun getVersionName(): String {
         return BuildConfig.VERSION_NAME
     }
 
-    fun getApplicationId():String{
+    fun getApplicationId(): String {
         return BuildConfig.APPLICATION_ID
     }
 
-    fun md5(input:String):String{
+    fun md5(input: String): String {
         val md5Digest = MessageDigest.getInstance("MD5")
         val messageDigest = md5Digest.digest(input.toByteArray())
         val number = BigInteger(1, messageDigest)
@@ -138,41 +147,46 @@ object  AppUtils {
         return md5Hash
     }
 
-    fun getAppInfoFromPackageName(packageName: String,  context: Context): AppInfo? {
+    fun getAppInfoFromPackageName(
+        packageName: String,
+        context: Context,
+    ): AppInfo? {
         try {
             val packageManager: PackageManager = context.packageManager
 
-            val app: ApplicationInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                context.packageManager.getApplicationInfo(
-                    packageName,
-                    PackageManager.ApplicationInfoFlags.of(0)
-                )
-            } else {
-                context.packageManager
-                    .getApplicationInfo(packageName, PackageManager.GET_META_DATA)
-            }
+            val app: ApplicationInfo =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    context.packageManager.getApplicationInfo(
+                        packageName,
+                        PackageManager.ApplicationInfoFlags.of(0),
+                    )
+                } else {
+                    context.packageManager
+                        .getApplicationInfo(packageName, PackageManager.GET_META_DATA)
+                }
 
             val appName = packageManager.getApplicationLabel(app).toString()
 
+            val appIcon =
+                try {
+                    val resources: Resources =
+                        context.packageManager.getResourcesForApplication(app.packageName)
+                    ResourcesCompat.getDrawable(resources, app.icon, context.theme)
+                } catch (e: PackageManager.NameNotFoundException) {
+                    e.printStackTrace()
+                    null
+                }
 
-            val appIcon =  try {
-                val resources: Resources = context.packageManager.getResourcesForApplication(app.packageName)
-                ResourcesCompat.getDrawable(resources,app.icon, context.theme)
-            } catch (e: PackageManager.NameNotFoundException) {
-                e.printStackTrace()
-                null
-            }
-
-
-            val packageInfo: PackageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                context.packageManager.getPackageInfo(
-                    packageName,
-                    PackageManager.PackageInfoFlags.of(0)
-                )
-            } else {
-                context.packageManager
-                    .getPackageInfo(packageName, PackageManager.GET_META_DATA)
-            }
+            val packageInfo: PackageInfo =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    context.packageManager.getPackageInfo(
+                        packageName,
+                        PackageManager.PackageInfoFlags.of(0),
+                    )
+                } else {
+                    context.packageManager
+                        .getPackageInfo(packageName, PackageManager.GET_META_DATA)
+                }
             val appVersion = packageInfo.versionName
             return AppInfo(appName, appIcon, appVersion)
         } catch (e: PackageManager.NameNotFoundException) {
@@ -185,15 +199,15 @@ object  AppUtils {
      * 获取debug状态
      */
     fun getDebug(): Boolean {
-        return SpUtils.getBoolean("debug",BuildConfig.DEBUG)
+        return SpUtils.getBoolean("debug", BuildConfig.DEBUG)
     }
 
     /**
      * 设置debug状态
      */
-    fun setDebug(debug:Boolean = false){
+    fun setDebug(debug: Boolean = false) {
         scope.launch {
-            getService().set("debug", if(debug)"true" else "false")
+            getService().set("debug", if (debug) "true" else "false")
         }
         SpUtils.putBoolean("debug", debug)
     }
@@ -202,7 +216,7 @@ object  AppUtils {
      * 获取屏幕宽度
      */
     fun getScreenWidth(): Int {
-        return  Resources.getSystem().displayMetrics.widthPixels
+        return Resources.getSystem().displayMetrics.widthPixels
     }
 
     fun dp2px(dp: Float): Int {
@@ -210,7 +224,11 @@ object  AppUtils {
         return (dp * scale + 0.5f).toInt()
     }
 
-    fun measureTextWidth(text: String, textSize: Float, typeface: Typeface): Int {
+    fun measureTextWidth(
+        text: String,
+        textSize: Float,
+        typeface: Typeface,
+    ): Int {
         val paint = Paint()
         paint.textSize = textSize
         paint.typeface = typeface
@@ -229,13 +247,12 @@ object  AppUtils {
     }
 
     fun toPrettyFormat(jsonString: String): String {
-       runCatching {
-           val json = JsonParser.parseString(jsonString)
-           val gson = GsonBuilder().setPrettyPrinting().create()
-           val prettyJson = gson.toJson(json)
-           return prettyJson
-       }
-      return jsonString
+        runCatching {
+            val json = JsonParser.parseString(jsonString)
+            val gson = GsonBuilder().setPrettyPrinting().create()
+            val prettyJson = gson.toJson(json)
+            return prettyJson
+        }
+        return jsonString
     }
-
 }

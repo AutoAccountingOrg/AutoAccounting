@@ -35,19 +35,24 @@ class GradientImageView : AppCompatImageView {
 
     constructor(context: Context?, attrs: AttributeSet?) : super(context!!, attrs)
 
-    constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(context!!, attrs, defStyleAttr)
+    constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(
+        context!!,
+        attrs,
+        defStyleAttr,
+    )
 
     private val paint = Paint()
 
-    private var gradient:LinearGradient? = null
+    private var gradient: LinearGradient? = null
 
-    private   val matrix = Matrix()
+    private val matrix = Matrix()
 
-    private var shader:BitmapShader? = null
-    private var composeShader:ComposeShader? = null
+    private var shader: BitmapShader? = null
+    private var composeShader: ComposeShader? = null
+
     override fun onDraw(canvas: Canvas) {
         val bitmap = drawableToBitmap(drawable)
-        if(shader==null){
+        if (shader == null) {
             shader = BitmapShader(bitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP)
         }
 
@@ -56,11 +61,17 @@ class GradientImageView : AppCompatImageView {
         matrix.setScale(scaleX, scaleY)
         shader!!.setLocalMatrix(matrix)
 
-        if(gradient==null){
-            gradient = LinearGradient(
-                0f, height * 0f, 0f, height.toFloat(),
-                0xFFFFFFFF.toInt(), 0x00FFFFFF, Shader.TileMode.CLAMP
-            )
+        if (gradient == null) {
+            gradient =
+                LinearGradient(
+                    0f,
+                    height * 0f,
+                    0f,
+                    height.toFloat(),
+                    0xFFFFFFFF.toInt(),
+                    0x00FFFFFF,
+                    Shader.TileMode.CLAMP,
+                )
         }
         if (composeShader == null) {
             composeShader = ComposeShader(shader!!, gradient!!, PorterDuff.Mode.DST_IN)
@@ -76,7 +87,12 @@ class GradientImageView : AppCompatImageView {
             return drawable.bitmap
         }
 
-        val bitmap = Bitmap.createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight, Bitmap.Config.ARGB_8888)
+        val bitmap =
+            Bitmap.createBitmap(
+                drawable.intrinsicWidth,
+                drawable.intrinsicHeight,
+                Bitmap.Config.ARGB_8888,
+            )
         val canvas = Canvas(bitmap)
         drawable.setBounds(0, 0, canvas.width, canvas.height)
         drawable.draw(canvas)

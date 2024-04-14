@@ -32,14 +32,14 @@ import net.ankio.auto.ui.utils.MenuItem
 import net.ankio.auto.utils.AppUtils
 
 class OrderFragment : BaseFragment() {
-
     override val menuList: ArrayList<MenuItem>
-        get() = arrayListOf(
-            MenuItem(R.string.item_sync, R.drawable.float_round){
-                //同步账单
-                AppUtils.startBookApp()
-            }
-        )
+        get() =
+            arrayListOf(
+                MenuItem(R.string.item_sync, R.drawable.float_round) {
+                    // 同步账单
+                    AppUtils.startBookApp()
+                },
+            )
     private lateinit var binding: FragmentOrderBinding
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: OrderAdapter
@@ -49,7 +49,7 @@ class OrderFragment : BaseFragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         binding = FragmentOrderBinding.inflate(layoutInflater)
         recyclerView = binding.recyclerView
@@ -58,37 +58,28 @@ class OrderFragment : BaseFragment() {
 
         adapter = OrderAdapter(dataItems)
 
-
-
         recyclerView.adapter = adapter
-
-
 
         return binding.root
     }
 
     private fun loadMoreData() {
-
         lifecycleScope.launch {
             val list = Db.get().BillInfoDao().getListGroup()
             dataItems.clear()
             list.forEach {
-                val billInfo = Db.get().BillInfoDao().getTotal(it.ids.split(",").map { item -> item.toInt() })
+                val billInfo =
+                    Db.get().BillInfoDao().getTotal(it.ids.split(",").map { item -> item.toInt() })
                 dataItems.add(Pair(it.date, billInfo))
             }
             adapter.notifyDataSetChanged()
-            binding.empty.root.visibility = if(dataItems.isEmpty()) View.VISIBLE else View.GONE
+            binding.empty.root.visibility = if (dataItems.isEmpty()) View.VISIBLE else View.GONE
         }
-
-
-
     }
-
 
     override fun onResume() {
         super.onResume()
-        //加载数据
+        // 加载数据
         loadMoreData()
     }
-
 }

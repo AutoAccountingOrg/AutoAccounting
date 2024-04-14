@@ -16,9 +16,9 @@
 package net.ankio.auto.utils.update
 
 data class UpdateInfo(
-    val code:Int,
-    val version:String,
-    val date:String,
-    val log:String,
-    var file:String
+    val code: Int,
+    val version: String,
+    val date: String,
+    val log: String,
+    var file: String,
 )

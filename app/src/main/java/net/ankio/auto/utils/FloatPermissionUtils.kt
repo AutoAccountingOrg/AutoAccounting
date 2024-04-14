@@ -22,7 +22,6 @@ import android.net.Uri
 import android.provider.Settings
 
 object FloatPermissionUtils {
-
     /**
      * 检测是否有悬浮窗权限
      */
@@ -33,10 +32,12 @@ object FloatPermissionUtils {
      * 申请悬浮窗权限
      */
     @JvmStatic
-    fun requestPermission(activity: Activity){
-        val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-            Uri.parse("package:${AppUtils.getApplication().packageName}"))
+    fun requestPermission(activity: Activity) {
+        val intent =
+            Intent(
+                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                Uri.parse("package:${AppUtils.getApplication().packageName}"),
+            )
         activity.startActivity(intent)
     }
-
 }

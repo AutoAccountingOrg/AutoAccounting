@@ -18,9 +18,9 @@ package net.ankio.auto.ui.dialog
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
-import com.hjq.toast.Toaster
 import androidx.lifecycle.lifecycleScope
 import com.google.gson.Gson
+import com.hjq.toast.Toaster
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -30,37 +30,40 @@ import net.ankio.auto.database.table.Assets
 import net.ankio.auto.database.table.AssetsMap
 import net.ankio.auto.databinding.DialogMapBinding
 import net.ankio.auto.utils.AppUtils
-import net.ankio.auto.utils.Logger
 
-class MapDialog(private val context: Context,
-                private val assetsMap: AssetsMap = AssetsMap(), val onClose:(AssetsMap)->Unit):BaseSheetDialog(context) {
-    private lateinit var binding:DialogMapBinding
+class MapDialog(
+    private val context: Context,
+    private val assetsMap: AssetsMap = AssetsMap(),
+    val onClose: (AssetsMap) -> Unit,
+) : BaseSheetDialog(context) {
+    private lateinit var binding: DialogMapBinding
+
     override fun onCreateView(inflater: LayoutInflater): View {
         binding = DialogMapBinding.inflate(inflater)
         cardView = binding.cardView
         cardViewInner = binding.cardViewInner
 
-        if(assetsMap.id!=0){
+        if (assetsMap.id != 0) {
             setBindingData()
-        }else{
+        } else {
             binding.target.setText(context.getString(R.string.map_no_target))
         }
         bindingEvents()
         return binding.root
     }
 
-    private fun setBindingData(){
-       binding.raw.setText(assetsMap.name)
+    private fun setBindingData() {
+        binding.raw.setText(assetsMap.name)
         binding.target.setText(assetsMap.mapName)
         binding.regex.isChecked = assetsMap.regex
         lifecycleScope.launch {
-            Assets.getDrawable(assetsMap.mapName,context).let {
+            Assets.getDrawable(assetsMap.mapName, context).let {
                 binding.target.setIcon(it)
             }
         }
     }
 
-    private fun bindingEvents(){
+    private fun bindingEvents() {
         binding.buttonCancel.setOnClickListener { dismiss() }
 
         binding.buttonSure.setOnClickListener {
@@ -68,36 +71,36 @@ class MapDialog(private val context: Context,
             assetsMap.mapName = binding.target.getText()
             assetsMap.regex = binding.regex.isChecked
 
-            if(assetsMap.name.isEmpty()||assetsMap.mapName == context.getString(R.string.map_no_target)){
+            if (assetsMap.name.isEmpty() || assetsMap.mapName == context.getString(R.string.map_no_target)) {
                 Toaster.show(context.getString(R.string.map_empty))
                 return@setOnClickListener
             }
 
             lifecycleScope.launch {
-                withContext(Dispatchers.IO){
-                    if(assetsMap.id!=0) {
+                withContext(Dispatchers.IO) {
+                    if (assetsMap.id != 0) {
                         Db.get().AssetsMapDao().update(assetsMap)
-                    }else{
+                    } else {
                         assetsMap.id = Db.get().AssetsMapDao().insert(assetsMap).toInt()
                     }
-                    //处理完成后同步远程数据
-                    AppUtils.getService().set("assets_map",Gson().toJson(Db.get().AssetsMapDao().loadAll()))
+                    // 处理完成后同步远程数据
+                    AppUtils.getService()
+                        .set("assets_map", Gson().toJson(Db.get().AssetsMapDao().loadAll()))
                 }
                 onClose(assetsMap)
                 dismiss()
             }
         }
         binding.target.setOnClickListener {
-            AssetsSelectorDialog(context){
+            AssetsSelectorDialog(context) {
                 assetsMap.mapName = it.name
                 binding.target.setText(it.name)
                 lifecycleScope.launch {
-                    Assets.getDrawable(it.icon,context).let { drawable ->
+                    Assets.getDrawable(it.icon, context).let { drawable ->
                         binding.target.setIcon(drawable)
                     }
                 }
             }.show(cancel = true)
         }
     }
-
 }

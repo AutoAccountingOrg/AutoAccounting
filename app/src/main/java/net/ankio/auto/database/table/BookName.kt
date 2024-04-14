@@ -27,9 +27,10 @@ import net.ankio.common.model.BookModel
 
 @Entity
 class BookName {
-    //账本列表
+    // 账本列表
     @PrimaryKey(autoGenerate = true)
-    var id:Int = 0
+    var id: Int = 0
+
     /**
      * 账户名
      */
@@ -38,9 +39,9 @@ class BookName {
     /**
      * 图标是url或base64编码字符串
      */
-    var icon: String = "" //图标
+    var icon: String = "" // 图标
 
-    companion object{
+    companion object {
         fun fromModel(model: BookModel): BookName {
             return BookName().apply {
                 name = model.name
@@ -48,23 +49,28 @@ class BookName {
             }
         }
 
-        suspend fun getByName(name:String) = withContext(Dispatchers.IO) {
-            var book =  Db.get().BookNameDao().getByName(name)
-            if (book == null) {
-                book = BookName()
-                book.name  = name
+        suspend fun getByName(name: String) =
+            withContext(Dispatchers.IO) {
+                var book = Db.get().BookNameDao().getByName(name)
+                if (book == null) {
+                    book = BookName()
+                    book.name = name
+                }
+                return@withContext book
             }
-            return@withContext book
-        }
-        suspend fun getDrawable(bookName: String, context: Context, imageView: ImageView) {
+
+        suspend fun getDrawable(
+            bookName: String,
+            context: Context,
+            imageView: ImageView,
+        ) {
             imageView.setImageDrawable(
                 ImageUtils.get(
                     context,
-                    Db.get().BookNameDao().getByName(bookName)?.icon ?:"",
-                    R.drawable.default_book
-                )
+                    Db.get().BookNameDao().getByName(bookName)?.icon ?: "",
+                    R.drawable.default_book,
+                ),
             )
         }
-
     }
 }

@@ -18,7 +18,6 @@ package net.ankio.auto.utils
 import android.app.Activity
 import android.content.Context
 import android.os.Environment
-import android.util.Log
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -28,28 +27,27 @@ import net.ankio.common.config.AccountingConfig
 import java.io.File
 import java.io.FileOutputStream
 
-
 /**
  * AutoAccountingServiceUtils
  * 自动记账服务调用工具
  * @throws AutoServiceException
  */
 class AutoAccountingServiceUtils(private val mContext: Context) {
-
     companion object {
         private const val HOST = "http://127.0.0.1"
         private const val PORT = 52045
         private const val SUPPORT_VERSION = "1.0.1"
-        // 将isServerStart转换为挂起函数
-        suspend fun isServerStart(retries:Int = 0): Boolean = withContext(Dispatchers.IO) {
-            runCatching {
-                val version = AppUtils.getService().request("/", count = retries).trim()
-                SUPPORT_VERSION==version
-            }.getOrElse {
-                false
-            }
-        }
 
+        // 将isServerStart转换为挂起函数
+        suspend fun isServerStart(retries: Int = 0): Boolean =
+            withContext(Dispatchers.IO) {
+                runCatching {
+                    val version = AppUtils.getService().request("/", count = retries).trim()
+                    SUPPORT_VERSION == version
+                }.getOrElse {
+                    false
+                }
+            }
 
         fun getToken(mContext: Context): String {
             val path =
@@ -64,9 +62,12 @@ class AutoAccountingServiceUtils(private val mContext: Context) {
         /**
          * 获取文件内容
          */
-        fun get(name: String, mContext: Context): String {
+        fun get(
+            name: String,
+            mContext: Context,
+        ): String {
             val path =
-                Environment.getExternalStorageDirectory().path + "/Android/data/${mContext.packageName}/cache/shell/${name}.txt"
+                Environment.getExternalStorageDirectory().path + "/Android/data/${mContext.packageName}/cache/shell/$name.txt"
             val file = File(path)
             if (file.exists()) {
                 return file.readText().trim()
@@ -74,27 +75,36 @@ class AutoAccountingServiceUtils(private val mContext: Context) {
             return ""
         }
 
-        fun set(name: String, data: String, mContext: Context) {
+        fun set(
+            name: String,
+            data: String,
+            mContext: Context,
+        ) {
             val path =
-                Environment.getExternalStorageDirectory().path + "/Android/data/${mContext.packageName}/cache/shell/${name}.txt"
+                Environment.getExternalStorageDirectory().path + "/Android/data/${mContext.packageName}/cache/shell/$name.txt"
             val file = File(path)
             if (!file.exists()) {
                 file.createNewFile()
             }
             file.writeText(data)
-
         }
 
-        fun delete(name: String, mContext: Context) {
+        fun delete(
+            name: String,
+            mContext: Context,
+        ) {
             val path =
-                Environment.getExternalStorageDirectory().path + "/Android/data/${mContext.packageName}/cache/shell/${name}.txt"
+                Environment.getExternalStorageDirectory().path + "/Android/data/${mContext.packageName}/cache/shell/$name.txt"
             val file = File(path)
             if (file.exists()) {
                 file.delete()
             }
         }
 
-        fun log(data: String, mContext: Context) {
+        fun log(
+            data: String,
+            mContext: Context,
+        ) {
             runCatching {
                 val path =
                     Environment.getExternalStorageDirectory().path + "/Android/data/${mContext.packageName}/cache/shell/log.txt"
@@ -115,7 +125,7 @@ class AutoAccountingServiceUtils(private val mContext: Context) {
                     file.writeText(lines.takeLast(500).joinToString(separator = "\n"))
                 }
             }.onFailure {
-                //写入到文件失败，忽略
+                // 写入到文件失败，忽略
             }
         }
 
@@ -127,7 +137,7 @@ class AutoAccountingServiceUtils(private val mContext: Context) {
         }
 
         fun config(context: Context): AccountingConfig {
-           return runCatching {
+            return runCatching {
                 val bookAppConfig = get("bookAppConfig", context)
                 val config = Gson().fromJson(bookAppConfig, AccountingConfig::class.java)
                 if (config == null) {
@@ -140,17 +150,14 @@ class AutoAccountingServiceUtils(private val mContext: Context) {
                 Logger.e("获取配置失败", it)
             }.getOrNull() ?: AccountingConfig()
         }
-
     }
-
-
 
     suspend fun request(
         path: String,
         query: HashMap<String, String> = hashMapOf(),
         data: HashMap<String, String> = hashMapOf(),
         contentType: Int = RequestsUtils.TYPE_FORM,
-        count: Int = 0
+        count: Int = 0,
     ): String {
         return runCatching {
             withContext(Dispatchers.IO) {
@@ -159,14 +166,15 @@ class AutoAccountingServiceUtils(private val mContext: Context) {
                     query = query,
                     data = data,
                     contentType = contentType,
-                    headers = hashMapOf(
-                        "Authorization" to getToken(mContext)
-                    )
+                    headers =
+                        hashMapOf(
+                            "Authorization" to getToken(mContext),
+                        ),
                 ).apply {
                     if (code != 200) {
                         throw AutoServiceException(
                             String(byteArray),
-                            AutoServiceException.CODE_SERVER_AUTHORIZE
+                            AutoServiceException.CODE_SERVER_AUTHORIZE,
                         )
                     }
                 }.let {
@@ -184,114 +192,127 @@ class AutoAccountingServiceUtils(private val mContext: Context) {
         }
     }
 
-
     /**
      * 获取数据
      */
-    suspend fun get(name: String):String = withContext(Dispatchers.IO){
+    suspend fun get(name: String): String =
+        withContext(Dispatchers.IO) {
             request(
                 "/get",
                 query = hashMapOf("name" to name),
             )
-    }
+        }
 
     /**
      * 设置数据
      */
-    suspend fun set(name: String, value: String) = withContext(Dispatchers.IO){
+    suspend fun set(
+        name: String,
+        value: String,
+    ) = withContext(Dispatchers.IO) {
         request(
             "/set",
             query = hashMapOf("name" to name),
             data = hashMapOf("raw" to value),
             contentType = RequestsUtils.TYPE_RAW,
         )
-        }
-
+    }
 
     /**
      * 设置App记录数据
      */
-   suspend fun putData(value: String)= withContext(Dispatchers.IO){
-        request(
-            "/data",
-            data = hashMapOf("raw" to value),
-            contentType = RequestsUtils.TYPE_RAW,
-        )
+    suspend fun putData(value: String) =
+        withContext(Dispatchers.IO) {
+            request(
+                "/data",
+                data = hashMapOf("raw" to value),
+                contentType = RequestsUtils.TYPE_RAW,
+            )
+        }
 
-    }
-
-
-    suspend fun js(string: String):String = withContext(Dispatchers.IO){
-        request(
-            "/js",
-            data = hashMapOf("raw" to string),
-            contentType = RequestsUtils.TYPE_RAW,
-        )
-    }
+    suspend fun js(string: String): String =
+        withContext(Dispatchers.IO) {
+            request(
+                "/js",
+                data = hashMapOf("raw" to string),
+                contentType = RequestsUtils.TYPE_RAW,
+            )
+        }
 
     /**
      * 获取记录的数据
      */
-    suspend fun getData():String = withContext(Dispatchers.IO){
-        get("data")
-    }
+    suspend fun getData(): String =
+        withContext(Dispatchers.IO) {
+            get("data")
+        }
 
     /**
      * 设置App记录日志
      */
-    suspend fun putLog(value: String)= withContext(Dispatchers.IO){
-
-          request(
-              "/log",
-              data = hashMapOf("raw" to value),
-              contentType = RequestsUtils.TYPE_RAW,
-          )
-
-    }
+    suspend fun putLog(value: String) =
+        withContext(Dispatchers.IO) {
+            request(
+                "/log",
+                data = hashMapOf("raw" to value),
+                contentType = RequestsUtils.TYPE_RAW,
+            )
+        }
 
     /**
      * 获取App记录的日志
      */
-    suspend fun getLog():String = withContext(Dispatchers.IO){
-        get("log")
-    }
+    suspend fun getLog(): String =
+        withContext(Dispatchers.IO) {
+            get("log")
+        }
+
     /**
      * 获取配置(API)
      */
-   suspend fun config():AccountingConfig = withContext(Dispatchers.IO){
-        runCatching {
-            val bookAppConfig = get("bookAppConfig")
-            val config = Gson().fromJson(bookAppConfig, AccountingConfig::class.java)
-            if(config==null){
-                set("bookAppConfig",Gson().toJson(AccountingConfig()))
-                AccountingConfig()
-            }else{
-                config
-            }
-        }.onFailure {
-            Logger.e("获取配置失败",it)
-        }.getOrNull()?:AccountingConfig()
-    }
+    suspend fun config(): AccountingConfig =
+        withContext(Dispatchers.IO) {
+            runCatching {
+                val bookAppConfig = get("bookAppConfig")
+                val config = Gson().fromJson(bookAppConfig, AccountingConfig::class.java)
+                if (config == null) {
+                    set("bookAppConfig", Gson().toJson(AccountingConfig()))
+                    AccountingConfig()
+                } else {
+                    config
+                }
+            }.onFailure {
+                Logger.e("获取配置失败", it)
+            }.getOrNull() ?: AccountingConfig()
+        }
 
-    suspend  fun copyAssetsShellFolderToCache(activity: Activity,cacheDir: File?) = withContext(Dispatchers.IO) {
+    suspend fun copyAssetsShellFolderToCache(
+        activity: Activity,
+        cacheDir: File?,
+    ) = withContext(Dispatchers.IO) {
         val shellFolderPath = "shell"
-        val destinationPath = cacheDir!!.path + File.separator //+ shellFolderPath
+        val destinationPath = cacheDir!!.path + File.separator // + shellFolderPath
         Logger.i("Copying shell folder from assets to $destinationPath")
         copyAssetsDirToSDCard(activity, shellFolderPath, destinationPath)
     }
 
-    private fun copyAssetsDirToSDCard(context: Context, assetsDirName: String, sdCardPath: String) {
-       // Logger.d("copyAssetsDirToSDCard() called with: context = [$context], assetsDirName = [$assetsDirName], sdCardPath = [$sdCardPath]")
+    private fun copyAssetsDirToSDCard(
+        context: Context,
+        assetsDirName: String,
+        sdCardPath: String,
+    ) {
+        // Logger.d("copyAssetsDirToSDCard() called with: context = [$context], assetsDirName = [$assetsDirName], sdCardPath = [$sdCardPath]")
         try {
             val list = context.assets.list(assetsDirName)
             if (list!!.isEmpty()) {
                 val inputStream = context.assets.open(assetsDirName)
                 val mByte = ByteArray(1024)
                 var bt = 0
-                val file = File(
-                    sdCardPath + File.separator
-                            + assetsDirName.substring(assetsDirName.lastIndexOf('/'))
-                )
+                val file =
+                    File(
+                        sdCardPath + File.separator +
+                            assetsDirName.substring(assetsDirName.lastIndexOf('/')),
+                    )
                 if (file.exists()) {
                     file.delete()
                 }

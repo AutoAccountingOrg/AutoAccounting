@@ -21,33 +21,35 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import net.ankio.auto.app.BillUtils
 import net.ankio.auto.databinding.AdapterBillBookBinding
-import net.ankio.common.model.BillModel
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.DateUtils
 import net.ankio.common.constant.BillType
-
+import net.ankio.common.model.BillModel
 
 class BillSelectorAdapter(
     private val dataItems: List<BillModel>,
-    private val selectedItems:ArrayList<BillModel>,
+    private val selectedItems: ArrayList<BillModel>,
 ) : BaseAdapter<BillSelectorAdapter.ViewHolder>() {
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int,
+    ): ViewHolder {
         return ViewHolder(
             AdapterBillBookBinding.inflate(
                 LayoutInflater.from(parent.context),
                 parent,
-                false
-            ), parent.context
+                false,
+            ),
+            parent.context,
         )
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+    override fun onBindViewHolder(
+        holder: ViewHolder,
+        position: Int,
+    ) {
         val item = dataItems[position]
         holder.bind(item)
     }
@@ -56,34 +58,30 @@ class BillSelectorAdapter(
         return dataItems.size
     }
 
-
     inner class ViewHolder(
         private val binding: AdapterBillBookBinding,
-        private val context: Context
+        private val context: Context,
     ) :
         RecyclerView.ViewHolder(binding.root) {
-
-
         fun bind(item: BillModel) {
-
             binding.root.setOnClickListener {
-                if(selectedItems.contains(item)){
+                if (selectedItems.contains(item)) {
                     selectedItems.remove(item)
-                    //清除背景
+                    // 清除背景
                     binding.root.setBackgroundColor(Color.TRANSPARENT)
-                }else{
+                } else {
                     selectedItems.add(item)
                     binding.root.setBackgroundColor(AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorPrimaryContainer))
                 }
             }
 
-            if(selectedItems.contains(item)) {
+            if (selectedItems.contains(item)) {
                 binding.root.setBackgroundColor(AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorPrimaryContainer))
             }
 
-            val prefix = if(item.type == BillType.Income ) "-" else "+"
+            val prefix = if (item.type == BillType.Income) "-" else "+"
 
-            binding.tvAmount.text = String.format("$prefix %.2f", item.amount) //保留两位有效数字
+            binding.tvAmount.text = String.format("$prefix %.2f", item.amount) // 保留两位有效数字
             binding.tvTime.text = DateUtils.getTime(item.time)
             binding.tvRemark.text = item.remark
 

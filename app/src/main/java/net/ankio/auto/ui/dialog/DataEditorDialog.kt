@@ -26,11 +26,11 @@ import net.ankio.auto.databinding.DialogDataEditorBinding
 
 class DataEditorDialog(
     context: Context,
-    private val data:String,
-    private val callback: (keyword:String)->Unit) :
+    private val data: String,
+    private val callback: (keyword: String) -> Unit,
+) :
     BaseSheetDialog(context) {
     private lateinit var binding: DialogDataEditorBinding
-
 
     override fun onCreateView(inflater: LayoutInflater): View {
         binding = DialogDataEditorBinding.inflate(inflater)
@@ -39,14 +39,13 @@ class DataEditorDialog(
         binding.buttonSure.setOnClickListener {
             val data = binding.data.text.toString()
             runCatching {
-                Gson().fromJson(data,JsonElement::class.java)
+                Gson().fromJson(data, JsonElement::class.java)
             }.onFailure {
                 Toaster.show(R.string.json_error)
             }.onSuccess {
                 callback(binding.data.text.toString())
                 dismiss()
             }
-
         }
 
         binding.buttonCancel.setOnClickListener {
@@ -55,28 +54,23 @@ class DataEditorDialog(
 
         binding.data.setText(data)
 
-
         binding.btnReplace.setOnClickListener {
             val keyword = binding.rawData.text.toString()
             val replaceData = binding.replaceData.text.toString()
             val editorData = binding.data.text.toString()
 
-            if(keyword.isEmpty() || replaceData.isEmpty()){
+            if (keyword.isEmpty() || replaceData.isEmpty()) {
                 Toaster.show(R.string.no_empty)
                 return@setOnClickListener
             }
 
-            if(!editorData.contains(keyword)){
+            if (!editorData.contains(keyword)) {
                 Toaster.show(R.string.no_replace)
                 return@setOnClickListener
             }
             binding.data.setText(editorData.replace(keyword, replaceData))
-
         }
 
         return binding.root
     }
-
-
-
 }
