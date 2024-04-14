@@ -74,7 +74,7 @@ class DatabaseHooker (hooker: Hooker) : PartHooker(hooker){
                                 }
                             """.trimIndent(),JsonObject::class.java)
 
-                            logD("微信支付数据JSON：$json")
+                         //   logD("微信支付数据JSON：$json")
 
                             val msg = json.get("msg").asJsonObject.get("appmsg").asJsonObject
                             tpl.addProperty("description",msg.get("des").asString)

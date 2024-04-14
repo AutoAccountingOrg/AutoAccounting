@@ -134,7 +134,7 @@ class HookUtils(val context: Application, private val packageName: String) {
 
                 //从外部启动自动记账服务，这里需要处理队列问题
 
-                logD(HookMainApp.getTag(appName, "自动记账结果"), appData.toJSON())
+              // logD(HookMainApp.getTag(appName, "自动记账结果"), appData.toJSON())
                 if (billInfo !== null) {
                     // 创建一个Intent来启动目标应用程序
                    withContext(Dispatchers.Main){
