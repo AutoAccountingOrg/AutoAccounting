@@ -18,6 +18,7 @@ package net.ankio.auto.hooks.wechat.hooks
 import android.content.ContentValues
 import android.content.Context
 import com.google.gson.Gson
+import com.google.gson.JsonObject
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import fr.arnaudguyon.xmltojsonlib.XmlToJson
@@ -49,7 +50,6 @@ class DatabaseHooker (hooker: Hooker) : PartHooker(hooker){
 
                     logD("微信数据：${Gson().toJson(contentValues)} table:$tableName arg:$arg")
 
-
                     val type = contentValues.getAsInteger("type") ?: return
                     //补充数据
                     contentValues.put("tableName",tableName)
@@ -58,10 +58,45 @@ class DatabaseHooker (hooker: Hooker) : PartHooker(hooker){
                     if(tableName == "message"){
                         if(type == 1){
                             //这是聊天消息，content就是对话内容
+                        }else if (type == 318767153){
+                            //这是消息盒子
+                            val content = contentValues.get("content").toString()
+                            if(!content.contains("CDATA[微信支付"))return //只对微信支付特殊处理
+                            val json = Gson().fromJson(xmlToJson(content),JsonObject::class.java)
+                            val tpl = Gson().fromJson("""
+                                {
+                                  "description": "",
+                                        "source": "微信支付",
+                                        "type": 5,
+                                        "appId": "",
+                                        "msgId": 99064,
+                                        "title": ""
+                                }
+                            """.trimIndent(),JsonObject::class.java)
+
+                            logD("微信支付数据JSON：$json")
+
+                            val msg = json.get("msg").asJsonObject.get("appmsg").asJsonObject
+                            tpl.addProperty("description",msg.get("des").asString)
+                            tpl.addProperty("title",msg.get("title").asString)
+                            tpl.addProperty("display_name",msg.get("mmreader").asJsonObject.get("template_header").asJsonObject.get("display_name").asString)
+
+
+                            val result = JsonObject()
+                            result.add("mMap",tpl)
+
+                            logD("微信支付数据：$result")
+
+                            analyzeData(DataType.App.ordinal,result.toString())
+
                         }
                     }else if (tableName == "AppMessage"){
 
                         if(type == 5){
+                            if(contentValues.get("source").equals("微信支付")){
+                                //微信支付
+                                return
+                            }
                             //这个应该是公众号推送
                             analyzeData(DataType.App.ordinal,Gson().toJson(contentValues))
                             return
