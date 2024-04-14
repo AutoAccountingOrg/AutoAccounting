@@ -55,13 +55,13 @@ git clone https://github.com/AutoAccountingOrg/AutoAccounting
 
 ## ⬇️ 下载
 
-- 正在准备中
+- [持续构建版](https://cloud.ankio.net/%E9%98%BF%E9%87%8C%E4%BA%91%E7%9B%98/%E8%87%AA%E5%8A%A8%E8%AE%B0%E8%B4%A6/%E7%89%88%E6%9C%AC%E6%9B%B4%E6%96%B0/%E6%8C%81%E7%BB%AD%E6%9E%84%E5%BB%BA%E7%89%88)：每次提交到Github都会自动构建，可能会有新功能或者bug修复，不保证可用性。
 
 
 ## 📝 License
 
 Copyright © 2024 [Ankio](https://www.ankio.net).<br />
-This project is [GPL3.0](https://github.com/dreamncn/Qianji_auto/blob/master/LICENSE) licensed.
+This project is [GPL3.0](https://github.com/AutoAccountingOrg/AutoAccounting/blob/master/LICENSE) licensed.
 
 
 
