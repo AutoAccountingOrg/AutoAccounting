@@ -101,21 +101,92 @@
 
 #### 提交代码
 
-commit格式采用： :[类型]: [更改内容] #关联issue
+commit格式采用： :[emoji]: [更改内容] #关联issue
 
-例如给issue(#1)编写规则：
+例如修复issue(#1)：
 
 ```shell
-git commit -m ":sparkles: 新增支付宝消息盒子规则 #1"
+git commit -m ":bug: 修复xx问题 #1"
 ```
 
-类型包括：
-```
-art    # 美化界面或者优化体验
-sparkles   # 新功能
-bug    # 修复bug
-memo   # 文档修改
-fire  # 删除代码或文件
-recycle  # 重构代码
-boom  # 代码或文件拆分
-```
+**注意：**
+- emoji(:)和提交文本之间需要有一个空格
+- 一个commit信息只允许包含一个关联issue
+
+emoji可以参考如下列表，也可以使用该插件[gitmoji-intellij-plugin](https://github.com/AnkioTomas/gitmoji-intellij-plugin/releases/tag/v1.14.0)：
+
+| Emoji | Entity | Code | Description | Name | Semver |
+|-------|--------|------|------------|------|--------|
+| 🎨 | &#x1f3a8; | :art: | 改善代码的结构/格式。 | art |  |
+| ⚡️ | &#x26a1; | :zap: | 提高性能。 | zap | patch |
+| 🔥 | &#x1f525; | :fire: | 删除代码或文件。 | fire |  |
+| 🐛 | &#x1f41b; | :bug: | 修复错误。 | bug | patch |
+| 🚑️ | &#128657; | :ambulance: | 关键热修复。 | ambulance | patch |
+| ✨ | &#x2728; | :sparkles: | 引入新功能。 | sparkles | minor |
+| 📝 | &#x1f4dd; | :memo: | 添加或更新文档。 | memo |  |
+| 🚀 | &#x1f680; | :rocket: | 部署代码。 | rocket |  |
+| 💄 | &#xff99cc; | :lipstick: | 添加或更新 UI 和样式文件。 | lipstick | patch |
+| 🎉 | &#127881; | :tada: | 开始一个新项目。 | tada |  |
+| ✅ | &#x2705; | :white_check_mark: | 添加、更新或通过测试。 | white-check-mark |  |
+| 🔒️ | &#x1f512; | :lock: | 修复安全问题。 | lock | patch |
+| 🔐 | &#x1f510; | :closed_lock_with_key: | 添加或更新秘密信息。 | closed-lock-with-key |  |
+| 🔖 | &#x1f516; | :bookmark: | 发布/版本标签。 | bookmark |  |
+| 🚨 | &#x1f6a8; | :rotating_light: | 修复编译器/检查器警告。 | rotating-light |  |
+| 🚧 | &#x1f6a7; | :construction: | 工作正在进行中。 | construction |  |
+| 💚 | &#x1f49a; | :green_heart: | 修复 CI 构建。 | green-heart |  |
+| ⬇️ | ⬇️ | :arrow_down: | 降级依赖项。 | arrow-down | patch |
+| ⬆️ | ⬆️ | :arrow_up: | 升级依赖项。 | arrow-up | patch |
+| 📌 | &#x1f4cc; | :pushpin: | 将依赖项固定到特定版本。 | pushpin | patch |
+| 👷 | &#x1f477; | :construction_worker: | 添加或更新 CI 构建系统。 | construction-worker |  |
+| 📈 | &#x1f4c8; | :chart_with_upwards_trend: | 添加或更新分析或代码跟踪。 | chart-with-upwards-trend | patch |
+| ♻️ | &#x267b; | :recycle: | 重构代码。 | recycle |  |
+| ➕ | &#10133; | :heavy_plus_sign: | 添加依赖项。 | heavy-plus-sign | patch |
+| ➖ | &#10134; | :heavy_minus_sign: | 删除依赖项。 | heavy-minus-sign | patch |
+| 🔧 | &#x1f527; | :wrench: | 添加或更新配置文件。 | wrench | patch |
+| 🔨 | &#128296; | :hammer: | 添加或更新开发脚本。 | hammer |  |
+| 🌐 | &#127760; | :globe_with_meridians: | 国际化和本地化。 | globe-with-meridians | patch |
+| ✏️ | &#59161; | :pencil2: | 修复拼写错误。 | pencil2 | patch |
+| 💩 | &#58613; | :poop: | 编写需要改进的糟糕代码。 | poop |  |
+| ⏪️ | &#9194; | :rewind: | 撤销更改。 | rewind | patch |
+| 🔀 | &#128256; | :twisted_rightwards_arrows: | 合并分支。 | twisted-rightwards-arrows |  |
+| 📦️ | &#1F4E6; | :package: | 添加或更新已编译文件或软件包。 | package | patch |
+| 👽️ | &#1F47D; | :alien: | 因外部 API 更改而更新代码。 | alien | patch |
+| 🚚 | &#1F69A; | :truck: | 移动或重命名资源（例如：文件、路径、路由）。 | truck |  |
+| 📄 | &#1F4C4; | :page_facing_up: | 添加或更新许可证。 | page-facing-up |  |
+| 💥 | &#x1f4a5; | :boom: | 引入重大更改。 | boom | major |
+| 🍱 | &#1F371 | :bento: | 添加或更新资源。 | bento | patch |
+| ♿️ | &#9855; | :wheelchair: | 改善可访问性。 | wheelchair | patch |
+| 💡 | &#128161; | :bulb: | 在源代码中添加或更新注释。 | bulb |  |
+| 🍻 | &#x1f37b; | :beers: | 醉酒地编写代码。 | beers |  |
+| 💬 | &#128172; | :speech_balloon: | 添加或更新文本和文字。 | speech-balloon | patch |
+| 🗃️ | &#128451; | :card_file_box: | 执行与数据库相关的更改。 | card-file-box | patch |
+| 🔊 | &#128266; | :loud_sound: | 添加或更新日志。 | loud-sound |  |
+| 🔇 | &#128263; | :mute: | 删除日志。 | mute |  |
+| 👥 | &#128101; | :busts_in_silhouette: | 添加或更新贡献者。 | busts-in-silhouette |  |
+| 🚸 | &#128696; | :children_crossing: | 改善用户体验/可用性。 | children-crossing | patch |
+| 🏗️ | &#1f3d7; | :building_construction: | 进行架构更改。 | building-construction |  |
+| 📱 | &#128241; | :iphone: | 工作在响应式设计上。 | iphone | patch |
+| 🤡 | &#129313; | :clown_face: | 嘲笑事物。 | clown-face |  |
+| 🥚 | &#129370; | :egg: | 添加或更新彩蛋。 | egg | patch |
+| 🙈 | &#8bdfe7; | :see_no_evil: | 添加或更新 .gitignore 文件。 | see-no-evil |  |
+| 📸 | &#128248; | :camera_flash: | 添加或更新快照。 | camera-flash |  |
+| ⚗️ | &#128248; | :alembic: | 进行实验。 | alembic | patch |
+| 🔍️ | &#128269; | :mag: | 改善搜索引擎优化。 | mag | patch |
+| 🏷️ | &#127991; | :label: | 添加或更新类型。 | label | patch |
+| 🌱 | &#127793; | :seedling: | 添加或更新种子文件。 | seedling |  |
+| 🚩 | &#x1F6A9; | :triangular_flag_on_post: | 添加、更新或删除功能标志。 | triangular-flag-on-post | patch |
+| 🥅 | &#x1F945; | :goal_net: | 捕捉错误。 | goal-net | patch |
+| 💫 | &#x1f4ab; | :dizzy: | 添加或更新动画和过渡。 | animation | patch |
+| 🗑️ | &#x1F5D1; | :wastebasket: | 弃用需要清理的代码。 | wastebasket | patch |
+| 🛂 | &#x1F6C2; | :passport_control: | 处理与授权、角色和权限相关的代码。 | passport-control | patch |
+| 🩹 | &#x1FA79; | :adhesive_bandage: | 对非关键问题进行简单修复。 | adhesive-bandage | patch |
+| 🧐 | &#x1F9D0; | :monocle_face: | 数据探索/检查。 | monocle-face |  |
+| ⚰️ | &#x26B0; | :coffin: | 删除无用的代码。 | coffin |  |
+| 🧪 | &#x1F9EA; | :test_tube: | 添加失败的测试。 | test-tube |  |
+| 👔 | &#128084; | :necktie: | 添加或更新业务逻辑。 | necktie | patch |
+| 🩺 | &#x1FA7A; | :stethoscope: | 添加或更新健康检查。 | stethoscope |  |
+| 🧱 | &#x1f9f1; | :bricks: | 与基础设施相关的更改。 | bricks |  |
+| 🧑‍💻 | &#129489;&#8205;&#128187; | :technologist: | 改善开发者体验。 | technologist |  |
+| 💸 | &#x1F4B8; | :money_with_wings: | 添加赞助或与货币相关的基础设施。 | money-with-wings |  |
+| 🧵 | &#x1F9F5; | :thread: | 添加或更新与多线程或并发相关的代码。 | thread |  |
+| 🦺 | &#x1F9BA; | :safety_vest: | 添加或更新与验证相关的代码。 | safety-vest |  |
