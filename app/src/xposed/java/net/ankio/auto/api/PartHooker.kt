@@ -16,6 +16,8 @@
 package net.ankio.auto.api
 
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import de.robv.android.xposed.XposedBridge
 import kotlinx.coroutines.launch
 import net.ankio.auto.HookMainApp
@@ -100,5 +102,13 @@ abstract class PartHooker(val hooker: Hooker) {
             XposedBridge.log(it)
         }
         return false
+    }
+
+    fun runOnUiThread(function: () -> Unit) {
+        if (Looper.getMainLooper().thread !== Thread.currentThread()) {
+            Handler(Looper.getMainLooper()).post { function() }
+        } else {
+            function()
+        }
     }
 }
