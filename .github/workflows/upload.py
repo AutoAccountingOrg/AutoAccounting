@@ -40,6 +40,7 @@ def upload(filename, filename_new, auth):
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
                       'Chrome/58.0.3029.110 Safari/537.3',
         'Authorization': auth,
+        'As-Task':true,
         'file-path': filename_new
     }
     dir = os.getenv("GITHUB_WORKSPACE")
@@ -51,7 +52,7 @@ def upload(filename, filename_new, auth):
 
 
 with open(os.getenv("GITHUB_WORKSPACE")+"/package/tagVersionName.txt", 'r') as file:
-    name = file.read().replace("+", "-").replace(".","-")
+    name = file.read().replace("+", "-")
 with open(os.getenv("GITHUB_WORKSPACE")+"/package/versionCode.txt", 'r') as file:
     code = file.read()
 with open(os.getenv("GITHUB_WORKSPACE")+"/log/changelog.txt", 'r') as file:
