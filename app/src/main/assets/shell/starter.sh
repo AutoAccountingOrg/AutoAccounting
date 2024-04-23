@@ -14,19 +14,36 @@
 #  See the License for the specific language governing permissions and
 #   limitations under the License.
 #
-echo "info: starter.sh begin"
+
 PORT=52045
 SERVER_NAME="自动记账"
+info() {
+    echo   " [INFO] $1 "
+}
+
+success() {
+    echo  " [SUCCESS] $1"
+}
+
+warn() {
+    echo  " [WARN] $1"
+}
+
+error() {
+    echo   " [FATAL] $1"
+}
 
 get_pid(){
   netstat -tulnp 2>/dev/null | grep ":$PORT" | awk '$6 == "LISTEN" {print $7}' | cut -d'/' -f1 | head -n 1
 }
 
+info "$SERVER_NAME 启动脚本执行中...."
+
 ASSOCIATED_PIDS=$(ps -A | grep "auto_accounting_starter" | awk '{print $2}')
         # 结束所有关联的进程
         for pid in $ASSOCIATED_PIDS; do
             kill -9 "$pid"
-            echo "info: Terminating process with PID $pid."
+            info "结束关联进程 PID $pid."
         done
 
 # 获取CPU架构
@@ -48,7 +65,7 @@ case "$CPU_ARCH" in
         BINARY_PATH="x86_64"
         ;;
     *)
-        echo "fatal: unsupported this cpu: $CPU_ARCH"
+        error "不支持的CPU架构: $CPU_ARCH"
         exit 2
         ;;
 esac
@@ -58,34 +75,31 @@ OLD_PATH="$SHELL_PATH/$BINARY_PATH/auto_accounting_starter"
 # 启动二进制文件
 if [ -f "$OLD_PATH" ]; then
   TARGET_PATH="/data/local/tmp/autoAccount"
-  # 检查文件夹是否存在
-  if [ ! -d "$TARGET_PATH" ]; then
-      # 文件夹不存在，创建文件夹
-      mkdir -p "$TARGET_PATH/"
-      echo "info：create dir $TARGET_PATH/"
-  fi
+  rm -rf "$TARGET_PATH"
+  mkdir -p "$TARGET_PATH/"
+  info "正在创建工作文件夹 $TARGET_PATH/"
   NEW_PATH="$TARGET_PATH/auto_accounting_starter"
   cp -r "$OLD_PATH" "$TARGET_PATH"
-  echo "info: exec $NEW_PATH"
+  info "执行自动记账二进制文件 $NEW_PATH"
   chmod +x "$NEW_PATH"
     retries=0
-    $NEW_PATH stop
-    sleep 3
     $NEW_PATH start
-    echo "info: waiting $SERVER_NAME service start... "
+    info "等待 $SERVER_NAME 服务启动... "
     while [ $retries -lt 120 ]; do
            PID=$(get_pid)
            if [ -n "$PID" ]; then
-               echo "info: $SERVER_NAME service start success, PID: $PID"
+               success "$SERVER_NAME 服务启动成功, PID: $PID"
+               warn "若脚本未自动退出，请按Ctrl+C退出。"
                exit 0
            else
                sleep 2
                retries=$((retries+1))
            fi
        done
-    echo "fatal: $SERVER_NAME service start failed after 10 attempts"
+    error "$SERVER_NAME 服务在多次尝试启动后仍未启动成功，请将该问题报告给自动记账开发团队，日志路径为：$SHELL_PATH/daemon.log。"
     exit 1
 else
-    echo "fatal: can't find binary file , please restart $SERVER_NAME: $OLD_PATH"
+    error "未找到 $SERVER_NAME 服务二进制文件：$OLD_PATH"
     exit 3
 fi
+exit 0

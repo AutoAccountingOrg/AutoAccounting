@@ -19,7 +19,6 @@ import android.content.Context
 import android.content.Intent
 import net.ankio.auto.BuildConfig
 
-
 object ActiveUtils {
     fun getActiveAndSupportFramework(context: Context): Boolean {
         return false
@@ -33,12 +32,4 @@ object ActiveUtils {
             mContext.startActivity(intent)
         }
     }
-
-
-    var APPLICATION_ID = BuildConfig.APPLICATION_ID
-
-
-
-
-
 }

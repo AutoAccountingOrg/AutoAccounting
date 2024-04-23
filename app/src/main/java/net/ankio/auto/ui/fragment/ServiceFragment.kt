@@ -34,6 +34,7 @@ import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogProgressBinding
 import net.ankio.auto.databinding.FragmentServiceBinding
 import net.ankio.auto.exceptions.UnsupportedDeviceException
+import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.AutoAccountingServiceUtils
 import net.ankio.auto.utils.Logger
@@ -68,8 +69,14 @@ class ServiceFragment : BaseFragment() {
         if (cacheDir === null) {
             throw UnsupportedDeviceException(getString(R.string.unsupport_device))
         }
+        val loading = LoadingUtils(requireActivity())
+        loading.setText(R.string.wait_shell_update)
         lifecycleScope.launch {
             AppUtils.getService().copyAssetsShellFolderToCache(requireActivity(), cacheDir)
+            withContext(Dispatchers.Main) {
+                loading.close()
+                checkService()
+            }
         }
         shell = "sh ${cacheDir!!.path}/shell/starter.sh"
 
@@ -90,7 +97,6 @@ class ServiceFragment : BaseFragment() {
                 }
             },
         )
-        checkService()
     }
 
     private fun checkService() {

@@ -18,12 +18,17 @@ void stop_workers();
 std::string select_workspace(char *argv[]);
 std::string workspace; //工作环境
 bool debug = false;
+std::string version = "1.0.1";
 bool should_restart_workers = true;
 int main(int argc, char *argv[]) {
-    std::cout << "AutoAccountingServer Version: " << VERSION << std::endl;
     //一开始就选定工作目录
     workspace = select_workspace(argv);
+    version =  File::readFile(workspace+"VERSION");
+    debug = File::readFile(workspace+ "debug") == "true";
+
     if (argc > 1) {
+        std::cout << "AutoAccountingServer Version: " << version << std::endl;
+        std::cout << "Model: " << (debug?"DEBUG":"PRODUCTION") << std::endl;
         // 处理外部命令
         std::ifstream pidFile(workspace + PID_FILE);
         pid_t pid;
@@ -69,8 +74,6 @@ int main(int argc, char *argv[]) {
             return 0;
         }
         setsid();
-
-
         // 设置工作目录为当前目录
         chdir(workspace.c_str());
 
@@ -86,7 +89,6 @@ int main(int argc, char *argv[]) {
 
         // 启动工作进程
         start_workers();
-
         while (true) {
             pause();
         }

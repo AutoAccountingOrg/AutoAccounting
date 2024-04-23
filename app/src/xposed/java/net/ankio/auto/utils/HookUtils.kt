@@ -17,9 +17,8 @@ package net.ankio.auto.utils
 
 import android.app.Application
 import android.content.Context
-import android.content.Intent
 import android.content.SharedPreferences
-import android.net.Uri
+import android.util.Base64
 import android.widget.Toast
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
@@ -155,14 +154,7 @@ class HookUtils(val context: Application, private val packageName: String) {
 
                 // logD(HookMainApp.getTag(appName, "自动记账结果"), appData.toJSON())
                 if (billInfo !== null) {
-                    // 创建一个Intent来启动目标应用程序
-                    withContext(Dispatchers.Main) {
-                        val intent = Intent("net.ankio.auto.ACTION_SHOW_FLOATING_WINDOW")
-                        intent.setData(Uri.parse("autoaccounting://bill?data=${billInfo.toJSON()}"))
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-                        context.startActivity(intent)
-                    }
+                    autoAccountingServiceUtils.startApp(Base64.encodeToString(billInfo.toJSON().toByteArray(), Base64.NO_WRAP))
                 }
             }.onFailure {
                 it.printStackTrace()

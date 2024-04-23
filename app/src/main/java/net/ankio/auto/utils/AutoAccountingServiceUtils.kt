@@ -21,6 +21,7 @@ import android.os.Environment
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import net.ankio.auto.BuildConfig
 import net.ankio.auto.exceptions.AutoServiceException
 import net.ankio.auto.utils.request.RequestsUtils
 import net.ankio.common.config.AccountingConfig
@@ -36,14 +37,16 @@ class AutoAccountingServiceUtils(private val mContext: Context) {
     companion object {
         private const val HOST = "http://127.0.0.1"
         private const val PORT = 52045
-        private const val SUPPORT_VERSION = "1.0.1"
+        private const val MAX_TRY_COUNTS = 4
+        private const val SLEEP_TIME = 200L
+        private const val MAX_LOG_LENGTH = 500
 
         // 将isServerStart转换为挂起函数
         suspend fun isServerStart(retries: Int = 0): Boolean =
             withContext(Dispatchers.IO) {
                 runCatching {
                     val version = AppUtils.getService().request("/", count = retries).trim()
-                    SUPPORT_VERSION == version
+                    get("VERSION", AppUtils.getApplication()) == version
                 }.getOrElse {
                     false
                 }
@@ -121,8 +124,8 @@ class AutoAccountingServiceUtils(private val mContext: Context) {
 
                 // 处理日志，超过500行只保留最后的500行
                 val lines = file.readLines()
-                if (lines.size > 500) {
-                    file.writeText(lines.takeLast(500).joinToString(separator = "\n"))
+                if (lines.size > MAX_LOG_LENGTH) {
+                    file.writeText(lines.takeLast(MAX_LOG_LENGTH).joinToString(separator = "\n"))
                 }
             }.onFailure {
                 // 写入到文件失败，忽略
@@ -183,10 +186,10 @@ class AutoAccountingServiceUtils(private val mContext: Context) {
             }
         }.getOrElse {
             val nextCount = count + 1 // 递增 count 的值
-            if (nextCount > 4) {
+            if (nextCount > MAX_TRY_COUNTS) {
                 throw it
             } else {
-                Thread.sleep((nextCount * 300).toLong())
+                Thread.sleep(nextCount * SLEEP_TIME)
                 request(path, query, data, contentType, nextCount) // 明确传递递增后的 count 值
             }
         }
@@ -296,34 +299,23 @@ class AutoAccountingServiceUtils(private val mContext: Context) {
         copyAssetsDirToSDCard(activity, shellFolderPath, destinationPath)
     }
 
+    suspend fun startApp(data: String) {
+        request("/start", data = hashMapOf("raw" to data), contentType = RequestsUtils.TYPE_RAW)
+    }
+
     private fun copyAssetsDirToSDCard(
         context: Context,
         assetsDirName: String,
         sdCardPath: String,
     ) {
+        if (BuildConfig.DEBUG) {
+            set("debug", "true", context)
+        }
         // Logger.d("copyAssetsDirToSDCard() called with: context = [$context], assetsDirName = [$assetsDirName], sdCardPath = [$sdCardPath]")
         try {
             val list = context.assets.list(assetsDirName)
             if (list!!.isEmpty()) {
-                val inputStream = context.assets.open(assetsDirName)
-                val mByte = ByteArray(1024)
-                var bt = 0
-                val file =
-                    File(
-                        sdCardPath + File.separator +
-                            assetsDirName.substring(assetsDirName.lastIndexOf('/')),
-                    )
-                if (file.exists()) {
-                    file.delete()
-                }
-                file.createNewFile()
-                val fos = FileOutputStream(file)
-                while ((inputStream.read(mByte).also { bt = it }) != -1) {
-                    fos.write(mByte, 0, bt)
-                }
-                fos.flush()
-                inputStream.close()
-                fos.close()
+                copyFile(sdCardPath, assetsDirName)
             } else {
                 var subDirName = assetsDirName
                 if (assetsDirName.contains("/")) {
@@ -339,5 +331,38 @@ class AutoAccountingServiceUtils(private val mContext: Context) {
         } catch (e: Exception) {
             e.printStackTrace()
         }
+    }
+
+    private fun copyFile(
+        sdCardPath: String,
+        assetsDirName: String,
+    ) {
+        val inputStream = mContext.assets.open(assetsDirName)
+        val mByte = ByteArray(1024)
+        var bt = 0
+        val file =
+            File(
+                sdCardPath + File.separator +
+                    assetsDirName.substring(assetsDirName.lastIndexOf('/')),
+            )
+        if (file.exists()) {
+            file.delete() // 删除已存在的文件
+        }
+        file.createNewFile()
+        val fos = FileOutputStream(file)
+        while ((inputStream.read(mByte).also { bt = it }) != -1) {
+            fos.write(mByte, 0, bt)
+        }
+        fos.flush()
+        inputStream.close()
+        fos.close()
+    }
+
+    fun copyVersion() {
+        val cacheDir = AppUtils.getApplication().externalCacheDir
+
+        val shellFolderPath = "shell" + File.separator + "VERSION.txt"
+        val destinationPath = cacheDir!!.path + File.separator + "shell" // + shellFolderPath
+        AppUtils.getService().copyFile(destinationPath, shellFolderPath)
     }
 }
