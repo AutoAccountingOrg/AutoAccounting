@@ -15,6 +15,7 @@
 extern std::string workspace;
 extern std::ofstream logFile;
 extern bool debug;
+extern bool should_restart_workers;
 
 
 
@@ -120,6 +121,7 @@ void Server::server()  {
 
     if (bind(server_fd, (struct sockaddr *) &address, sizeof(address)) < 0) {
         File::log("Bind port " + std::to_string(PORT) + " failed");
+        should_restart_workers = false;
         exit(EXIT_FAILURE);
     }
 
