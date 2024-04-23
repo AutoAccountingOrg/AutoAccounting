@@ -39,65 +39,49 @@ class WebViewHooker(hooker: Hooker) : PartHooker(hooker) {
 
         XposedHelpers.findAndHookMethod(
             webView,
-            "loadUrl",
+            "evaluateJavascript",
             String::class.java,
+            ValueCallback::class.java,
             object :
                 XC_MethodHook() {
-                override fun beforeHookedMethod(param: MethodHookParam?) {
-                    super.beforeHookedMethod(param)
-                    if (param != null) {
-                        hooker.hookUtils.scope.launch {
-                            if (isDebug())
-                                {
-                                    runOnUiThread {
-                                        XposedHelpers.callMethod(param.thisObject, "setWebContentsDebuggingEnabled", true)
-                                    }
-                                }
-                        }
-                    }
-                }
-
                 override fun afterHookedMethod(param: MethodHookParam) {
-                    val url = param.args[0] as String
-                    logD("load url $url")
-                    val h5WebView = param.thisObject
-                    if (url.startsWith("https://66666676.h5app.alipay.com/www/index.html?tradeNo=")) {
-                        val number = extractTradeNo(url)
-                        val type = extractBizType(url)
-                        val stringBuilder = StringBuilder()
-                        stringBuilder.append("javascript:(function(){")
-                        stringBuilder.append("window.ankioResults = '';")
-                        stringBuilder.append("let queryJSON = {")
-                        stringBuilder.append("appMode: \"normal\",")
-                        stringBuilder.append("tradeNoType: undefined,")
-                        stringBuilder.append("bizType: \"$type\",")
-                        stringBuilder.append("tradeNo: \"$number\",")
-                        stringBuilder.append("gmtCreate: undefined,")
-                        stringBuilder.append("useCardStyle: false,")
-                        stringBuilder.append("queryOrder: false,")
-                        stringBuilder.append("version: \"v1\"")
-                        stringBuilder.append("};")
-                        stringBuilder.append("let query = {")
-                        stringBuilder.append("headers: undefined,")
-                        stringBuilder.append("operationType : \"alipay.mobile.bill.QuerySingleBillDetailForH5\",")
-                        stringBuilder.append("requestData: [queryJSON]};")
-                        stringBuilder.append("AlipayJSBridge.call(\"rpc\",query,function(result){")
-                        stringBuilder.append("window.ankioResults = result;")
-                        stringBuilder.append("});")
-                        stringBuilder.append("})();")
-                        hooker.hookUtils.writeData("waitExecDetailInfo", stringBuilder.toString())
-                    } else if (url.contains("AlipayJSBridge.call(\"setStartParam\"")) {
-                        val waitExecDetailInfo = hooker.hookUtils.readData("waitExecDetailInfo")
-                        if (waitExecDetailInfo == "")return
-                        hooker.hookUtils.writeData("waitExecDetailInfo", "")
-                        XposedHelpers.callMethod(h5WebView, "loadUrl", waitExecDetailInfo)
+                    val script = param.args[0] as String
+                    val obj = param.thisObject
+                    val url = XposedHelpers.callMethod(obj, "getUrl") as String
+                    if (!url.contains("tradeNo="))return
+                    if (script.contains("AlipayJSBridge.call(\"setStartParam\"")) {
+                        val js =
+                            """
+                            javascript:(function(){
+                                 window.ankioResults = {};
+                                let alipayCall = AlipayJSBridge.call;
+                                AlipayJSBridge.call = function(a,b,c){
+                                    if(typeof c === 'function'){
+                                         alipayCall(a,b,function(d){
+                                            if(d.ariverRpcTraceId!==undefined){
+                                                window.ankioResults = d;
+                                            }
+                                            c(d);
+                                         });
+                                        
+                                    }else{
+                                        alipayCall(a,b,c);
+                                    }
+                                };
+                            })();
+                            """.trimIndent().replace("\n", "")
+                        XposedHelpers.callMethod(
+                            obj,
+                            "loadUrl",
+                            js,
+                        )
+
                         var needWait = true
-                        var count = 500
+                        var count = MAX_CHECK_COUNT
 
                         val resultCallback =
                             ValueCallback<String> { result ->
-                                logD("支付宝WebView获取到数据：$result")
-                                if (result.isNullOrEmpty() || result.equals("\"\"")) {
+                                if (result.isNullOrEmpty() || result.equals("{}")) {
                                     return@ValueCallback
                                 }
 
@@ -110,30 +94,38 @@ class WebViewHooker(hooker: Hooker) : PartHooker(hooker) {
                             while (needWait && count > 0) {
                                 count--
                                 XposedHelpers.callMethod(
-                                    h5WebView,
+                                    obj,
                                     "evaluateJavascript",
                                     "javascript:window.ankioResults",
                                     resultCallback,
                                 )
-                                delay(200L)
+                                delay(WAIT_TIME)
                             }
                         }
                     }
                 }
             },
         )
+
+        XposedHelpers.findAndHookMethod(
+            webView, // 目标类名
+            "addJavascriptInterface", // 目标方法名
+            Object::class.java,
+            String::class.java, // 方法参数类型
+            object : XC_MethodHook() {
+                override fun beforeHookedMethod(param: MethodHookParam) {
+                    // 在方法执行前拦截
+                    val obj = param.args[0]; // 第一个参数是Object obj
+                    val str = param.args[1] as String; // 第二个参数是String str
+                    // 可以在这里修改参数或者进行其他操作
+                    logD("加载obj: $obj  加载名称：$str")
+                }
+            },
+        )
     }
 
-    fun extractTradeNo(url: String): String? {
-        val regex = Regex("""tradeNo=([^&]+)""")
-        val matchResult = regex.find(url)
-        return matchResult?.groupValues?.get(1)
-    }
-
-    // bizType
-    fun extractBizType(url: String): String? {
-        val regex = Regex("""bizType=([^&]+)""")
-        val matchResult = regex.find(url)
-        return matchResult?.groupValues?.get(1)
+    companion object {
+        const val WAIT_TIME = 200L
+        const val MAX_CHECK_COUNT = 500
     }
 }
