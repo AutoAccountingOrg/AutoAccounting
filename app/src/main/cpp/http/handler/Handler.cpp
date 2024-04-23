@@ -159,6 +159,12 @@ std::string Handler::handleRoute(std::string &path,
     } else if (path == "/js") {
         response = js(requestBody);
         //执行js
+    } else if (path == "/rule") {
+response = rule(requestBody);
+//执行js
+}else if (path == "/category") {
+        response = category(requestBody);
+//执行js
     }else if (path == "/start") {
        //执行adb shell: adb shell am start -a "net.ankio.auto.ACTION_SHOW_FLOATING_WINDOW" -d "autoaccounting://bill?data=billInfoJson" --ez "android.intent.extra.NO_ANIMATION" true -f 0x10000000
         std::string cmd = R"(am start -a "net.ankio.auto.ACTION_SHOW_FLOATING_WINDOW" -d "autoaccounting://bill?data=)"+requestBody+R"(" --ez "android.intent.extra.NO_ANIMATION" true -f 0x10000000)";
@@ -185,7 +191,17 @@ void println(qjs::rest<std::string> args)  {
     File::logD("-----js result------");
     ThreadLocalStorage::getJsRes() = args[0];
 }
+std::string Handler::rule(std::string &data) {
+    std::string rule = File::readFile("auto_rule");
+    std::string total = replaceSubstring(data,"<RULE>",rule);
+    return js(total);
+}
 
+std::string Handler::category(std::string &data) {
+    std::string category = replaceSubstring(data,"<CATEGORY>",File::readFile("auto_category"));
+    std::string categoryCustom = replaceSubstring(data,"<CATEGORY_CUSTOM>",File::readFile("auto_category_custom"));
+    return js(categoryCustom);
+}
  std::string Handler::js(std::string &js) {
      File::logD("-----js------");
     File::logD(js);

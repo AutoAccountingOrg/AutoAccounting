@@ -31,6 +31,8 @@ private:
     // 解析查询字符串
      std::unordered_map<std::string, std::string> parseQuery(const std::string &query) ;
      std::string js( std::string &js) ;
+    std::string rule(std::string &data);
+    std::string category(std::string &data);
 };
 
 

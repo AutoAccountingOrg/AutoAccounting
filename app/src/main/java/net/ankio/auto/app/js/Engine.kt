@@ -62,14 +62,12 @@ object Engine {
     ): BillInfo? =
         withContext(Dispatchers.IO) {
             log("识别数据", "dataType:$dataType,app:$app,data:$data")
-            val rule = AppUtils.getService().get("auto_rule")
             val billInfo = BillInfo()
             try {
                 // 识别脚本补充
-                val js =
-                    "var window = {data:JSON.stringify($data), dataType:$dataType, app:\"${app}\"};$rule"
+                val js = "var window = {data:JSON.stringify($data), dataType:$dataType, app:\"${app}\"};<RULE>"
                 log("执行识别脚本", js)
-                val json = AppUtils.getService().js(js)
+                val json = AppUtils.getService().rule(js)
                 log("识别结果", json)
                 if (json == "") return@withContext null
                 val jsonObject2 = JSONObject(json)
@@ -98,9 +96,6 @@ object Engine {
 
     suspend fun category(billInfo: BillInfo) =
         withContext(Dispatchers.IO) {
-            val category = AppUtils.getService().get("auto_category")
-            val categoryCustom = AppUtils.getService().get("auto_category_custom")
-
             try {
                 val categoryJs =
                     "var window = {money:${BillUtils.getFloatMoney(billInfo.money)}, type:${billInfo.type.value}, shopName:'${
@@ -114,12 +109,12 @@ object Engine {
                             "\"",
                         )
                     }', time:'${DateUtils.stampToDate(billInfo.timeStamp, "HH:mm")}'};\n" +
-                        "function getCategory(money,type,shopName,shopItem,time){ $categoryCustom return null};\n" +
+                        "function getCategory(money,type,shopName,shopItem,time){ <CATEGORY_CUSTOM> return null};\n" +
                         "var categoryInfo = getCategory(money,type,shopName,shopItem,time);" +
-                        "if(categoryInfo !== null) { print(JSON.stringify(categoryInfo));  } else { $category }"
+                        "if(categoryInfo !== null) { print(JSON.stringify(categoryInfo));  } else { <CATEGORY> }"
 
                 log("执行分类脚本", categoryJs)
-                val json = AppUtils.getService().js(categoryJs)
+                val json = AppUtils.getService().category(categoryJs)
                 val cateJson = JSONObject(json)
                 billInfo.cateName = cateJson.getString("category")
                 billInfo.bookName = cateJson.getString("book")

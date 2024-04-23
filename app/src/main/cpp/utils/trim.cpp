@@ -19,3 +19,11 @@ static inline void trim(std::string &s) {
     ltrim(s);
     rtrim(s);
 }
+
+static inline std::string replaceSubstring(std::string str, const std::string& toReplace, const std::string& replacement) {
+    size_t startPos = str.find(toReplace);
+    if(startPos != std::string::npos) {
+        str.replace(startPos, toReplace.length(), replacement);
+    }
+    return str;
+}

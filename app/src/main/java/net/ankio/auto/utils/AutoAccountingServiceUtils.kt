@@ -242,6 +242,24 @@ class AutoAccountingServiceUtils(private val mContext: Context) {
             )
         }
 
+    suspend fun rule(string: String): String =
+        withContext(Dispatchers.IO) {
+            request(
+                "/rule",
+                data = hashMapOf("raw" to string),
+                contentType = RequestsUtils.TYPE_RAW,
+            )
+        }
+
+    suspend fun category(string: String): String =
+        withContext(Dispatchers.IO) {
+            request(
+                "/category",
+                data = hashMapOf("raw" to string),
+                contentType = RequestsUtils.TYPE_RAW,
+            )
+        }
+
     /**
      * 获取记录的数据
      */
