@@ -35,6 +35,7 @@ import net.ankio.auto.databinding.ActivityMainBinding
 import net.ankio.auto.events.AutoServiceErrorEvent
 import net.ankio.auto.exceptions.AutoServiceException
 import net.ankio.auto.ui.dialog.UpdateDialog
+import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.AutoAccountingServiceUtils
 import net.ankio.auto.utils.BackupUtils
 import net.ankio.auto.utils.BookSyncUtils
@@ -175,6 +176,10 @@ class MainActivity : BaseActivity() {
     }
 
     private fun checkAutoService() {
+        AppUtils.getService().copyVersion()
+
+        // val shellFolderPath = "shell"
+        //        val destinationPath = cacheDir!!.path + File.separator // + shellFolderPath
         EventBus.register(AutoServiceErrorEvent::class.java, autoListener)
         lifecycleScope.launch {
             if (!AutoAccountingServiceUtils.isServerStart(5)) {
