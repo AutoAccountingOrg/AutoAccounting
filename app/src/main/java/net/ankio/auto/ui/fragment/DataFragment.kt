@@ -165,13 +165,9 @@ class DataFragment : BaseFragment() {
     private fun loadMoreData(keywords: String = "") {
         lifecycleScope.launch {
             val data = AutoAccountingServiceUtils.get("data", requireContext())
-            val collection: Collection<AppData> = AppData.fromTxt(data)
-            // 如果不为空需要做对比后插入数据库
-            if (collection.isEmpty()) {
-                binding.empty.root.visibility = if (dataItems.isEmpty()) View.VISIBLE else View.GONE
-                return@launch
-            }
+
             val appData = Db.get().AppDataDao().loadAll()
+            val collection: Collection<AppData> = AppData.fromTxt(data)
 
             val filteredCollection =
                 collection.filter { item ->
@@ -184,13 +180,12 @@ class DataFragment : BaseFragment() {
             resultList.addAll(appData)
             resultList.addAll(filteredCollection)
             // 处理完成再删
-            // AutoAccountingServiceUtils.delete("data",requireContext())
+            AutoAccountingServiceUtils.delete("data", requireContext())
 
             // 在这里处理搜索逻辑
             val resultSearch =
                 resultList.filter {
                     var include = true
-
                     if (keywords != "") {
                         if (
                             !it.data.contains(keywords) &&
@@ -201,8 +196,9 @@ class DataFragment : BaseFragment() {
                     }
 
                     include
-                }
+                }.reversed()
 
+            // 倒序排列resultSearch
             dataItems.clear()
             dataItems.addAll(resultSearch)
             adapter.notifyDataSetChanged()

@@ -69,8 +69,34 @@ class DataAdapter(
         return dataItems.size
     }
 
+    private val hashMap = HashMap<AppData, Long>()
+
     inner class ViewHolder(private val binding: AdapterDataBinding, private val context: Context) :
         RecyclerView.ViewHolder(binding.root) {
+        private suspend fun tryAdaptUnmatchedItems(
+            item: AppData,
+            position: Int,
+            adapter: DataAdapter,
+        ) = withContext(Dispatchers.IO) {
+            if (!item.match) {
+                val t = System.currentTimeMillis() / 1000
+                if (hashMap.containsKey(item) && t - hashMap[item]!! < 30) { // 30秒内不重复匹配
+                    return@withContext
+                }
+                hashMap[item] = t
+                val result = Engine.analyze(item.type, item.source, item.data)
+                if (result !== null) {
+                    item.rule = result.channel
+                    item.match = true
+                    withContext(Dispatchers.Main) {
+                        dataItems[position] = item
+                        adapter.notifyItemChanged(position)
+                    }
+                    Db.get().AppDataDao().update(item)
+                }
+            }
+        }
+
         fun bind(
             item: AppData,
             position: Int,
@@ -118,19 +144,8 @@ class DataAdapter(
                     )
                 }
             }
-            if (!item.match) {
-                scope.launch {
-                    val result = Engine.analyze(item.type, item.source, item.data)
-                    if (result !== null) {
-                        item.rule = result.channel
-                        item.match = true
-                        withContext(Dispatchers.Main) {
-                            dataItems[position] = item
-                            adapter.notifyItemChanged(position)
-                        }
-                        Db.get().AppDataDao().update(item)
-                    }
-                }
+            scope.launch {
+                tryAdaptUnmatchedItems(item, position, adapter)
             }
             val app = AppUtils.getAppInfoFromPackageName(item.source, context)
 
