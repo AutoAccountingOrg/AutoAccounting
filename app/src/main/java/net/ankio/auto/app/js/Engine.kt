@@ -110,7 +110,7 @@ object Engine {
                         )
                     }', time:'${DateUtils.stampToDate(billInfo.timeStamp, "HH:mm")}'};\n" +
                         "function getCategory(money,type,shopName,shopItem,time){ <CATEGORY_CUSTOM> return null};\n" +
-                        "var categoryInfo = getCategory(money,type,shopName,shopItem,time);" +
+                        "var categoryInfo = getCategory(window.money,window.type,window.shopName,window.shopItem,window.time);" +
                         "if(categoryInfo !== null) { print(JSON.stringify(categoryInfo));  } else { <CATEGORY> }"
 
                 log("执行分类脚本", categoryJs)

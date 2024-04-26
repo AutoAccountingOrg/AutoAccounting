@@ -188,7 +188,6 @@ response = rule(requestBody);
 void println(qjs::rest<std::string> args)  {
     File::logD("-----js result------");
     File::logD(args[0]);
-    File::logD("-----js result------");
     ThreadLocalStorage::getJsRes() = args[0];
 }
 std::string Handler::rule(std::string &data) {
@@ -199,7 +198,7 @@ std::string Handler::rule(std::string &data) {
 
 std::string Handler::category(std::string &data) {
     std::string category = replaceSubstring(data,"<CATEGORY>",File::readFile("auto_category"));
-    std::string categoryCustom = replaceSubstring(data,"<CATEGORY_CUSTOM>",File::readFile("auto_category_custom"));
+    std::string categoryCustom = replaceSubstring(category,"<CATEGORY_CUSTOM>",File::readFile("auto_category_custom"));
     return js(categoryCustom);
 }
  std::string Handler::js(std::string &js) {
