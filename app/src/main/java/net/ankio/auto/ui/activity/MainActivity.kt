@@ -176,12 +176,11 @@ class MainActivity : BaseActivity() {
     }
 
     private fun checkAutoService() {
-        AppUtils.getService().copyVersion()
-
         // val shellFolderPath = "shell"
         //        val destinationPath = cacheDir!!.path + File.separator // + shellFolderPath
         EventBus.register(AutoServiceErrorEvent::class.java, autoListener)
         lifecycleScope.launch {
+            AppUtils.getService().copyAssets()
             if (!AutoAccountingServiceUtils.isServerStart(5)) {
                 EventBus.post(
                     AutoServiceErrorEvent(

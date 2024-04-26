@@ -15,13 +15,11 @@
 
 package net.ankio.auto.utils
 
-import android.app.Activity
 import android.content.Context
 import android.os.Environment
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.ankio.auto.BuildConfig
 import net.ankio.auto.exceptions.AutoServiceException
 import net.ankio.auto.utils.request.RequestsUtils
 import net.ankio.common.config.AccountingConfig
@@ -307,80 +305,44 @@ class AutoAccountingServiceUtils(private val mContext: Context) {
             }.getOrNull() ?: AccountingConfig()
         }
 
-    suspend fun copyAssetsShellFolderToCache(
-        activity: Activity,
-        cacheDir: File?,
-    ) = withContext(Dispatchers.IO) {
-        val shellFolderPath = "shell"
-        val destinationPath = cacheDir!!.path + File.separator // + shellFolderPath
-        Logger.i("Copying shell folder from assets to $destinationPath")
-        copyAssetsDirToSDCard(activity, shellFolderPath, destinationPath)
-    }
-
     suspend fun startApp(data: String) {
         request("/start", data = hashMapOf("raw" to data), contentType = RequestsUtils.TYPE_RAW)
     }
 
-    private fun copyAssetsDirToSDCard(
-        context: Context,
-        assetsDirName: String,
-        sdCardPath: String,
-    ) {
-        if (BuildConfig.DEBUG) {
-            set("debug", "true", context)
-        }
-        // Logger.d("copyAssetsDirToSDCard() called with: context = [$context], assetsDirName = [$assetsDirName], sdCardPath = [$sdCardPath]")
-        try {
-            val list = context.assets.list(assetsDirName)
-            if (list!!.isEmpty()) {
-                copyFile(sdCardPath, assetsDirName)
-            } else {
-                var subDirName = assetsDirName
-                if (assetsDirName.contains("/")) {
-                    subDirName = assetsDirName.substring(assetsDirName.lastIndexOf('/') + 1)
+    suspend fun copyAssets() =
+        withContext(Dispatchers.IO) {
+            val context = AppUtils.getApplication()
+            val cacheDir = context.externalCacheDir!!.absolutePath + File.separator + "shell"
+            val copyFiles = arrayListOf("VERSION.txt", "starter.sh", "apps.txt")
+            // 检查cpu架构
+            val cpu = System.getProperty("os.arch")!!
+            val androidCpu =
+                when {
+                    cpu.contains("arm") -> "armeabi-v7a"
+                    cpu.contains("aarch64") -> "arm64-v8a"
+                    cpu.contains("i386") || cpu.contains("i686") -> "x86"
+                    cpu.contains("x86_64") -> "x86_64"
+                    else -> "arm64-v8a"
                 }
-                val newPath = sdCardPath + File.separator + subDirName
-                val file = File(newPath)
-                if (!file.exists()) file.mkdirs()
-                for (s: String in list) {
-                    copyAssetsDirToSDCard(context, assetsDirName + File.separator + s, newPath)
+            copyFiles.add("$androidCpu/auto_accounting_starter")
+            copyFiles.forEach {
+                // 从assets复制到cacheDir
+                runCatching {
+                    context.assets.open("shell" + File.separator + it).use { input ->
+                        val file = File(cacheDir, it)
+                        if (!file.exists()) {
+                            file.parentFile?.mkdirs()
+                        } else {
+                            file.delete()
+                        }
+                        file.createNewFile()
+                        FileOutputStream(file).use { output ->
+                            input.copyTo(output)
+                        }
+                    }
+                }.onFailure {
+                    Logger.e("复制文件失败", it)
                 }
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
         }
-    }
-
-    private fun copyFile(
-        sdCardPath: String,
-        assetsDirName: String,
-    ) {
-        val inputStream = mContext.assets.open(assetsDirName)
-        val mByte = ByteArray(1024)
-        var bt = 0
-        val file =
-            File(
-                sdCardPath + File.separator +
-                    assetsDirName.substring(assetsDirName.lastIndexOf('/')),
-            )
-        if (file.exists()) {
-            file.delete() // 删除已存在的文件
-        }
-        file.createNewFile()
-        val fos = FileOutputStream(file)
-        while ((inputStream.read(mByte).also { bt = it }) != -1) {
-            fos.write(mByte, 0, bt)
-        }
-        fos.flush()
-        inputStream.close()
-        fos.close()
-    }
-
-    fun copyVersion() {
-        val cacheDir = AppUtils.getApplication().externalCacheDir
-
-        val shellFolderPath = "shell" + File.separator + "VERSION.txt"
-        val destinationPath = cacheDir!!.path + File.separator + "shell" // + shellFolderPath
-        AppUtils.getService().copyFile(destinationPath, shellFolderPath)
-    }
 }

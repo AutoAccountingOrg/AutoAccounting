@@ -72,7 +72,7 @@ class ServiceFragment : BaseFragment() {
         val loading = LoadingUtils(requireActivity())
         loading.setText(R.string.wait_shell_update)
         lifecycleScope.launch {
-            AppUtils.getService().copyAssetsShellFolderToCache(requireActivity(), cacheDir)
+            AppUtils.getService().copyAssets()
             withContext(Dispatchers.Main) {
                 loading.close()
                 checkService()
