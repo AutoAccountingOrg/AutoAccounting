@@ -16,25 +16,32 @@
 package net.ankio.auto.hooks.alipay.hooks
 
 import android.content.Context
+import com.google.gson.Gson
+import com.google.gson.JsonArray
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.api.Hooker
 import net.ankio.auto.api.PartHooker
 import net.ankio.auto.constant.DataType
 
-
-class MessageBoxHooker(hooker: Hooker) :PartHooker(hooker) {
+class MessageBoxHooker(hooker: Hooker) : PartHooker(hooker) {
     override val hookName: String
         get() = "支付宝消息盒子页面"
-    override fun onInit(classLoader: ClassLoader, context: Context) {
-        val msgboxInfoServiceImpl = XposedHelpers.findClass(
-            "com.alipay.android.phone.messageboxstatic.biz.sync.d",
-            classLoader
-        )
-        val syncMessage = XposedHelpers.findClass(
-            "com.alipay.mobile.rome.longlinkservice.syncmodel.SyncMessage",
-            classLoader
-        )
+
+    override fun onInit(
+        classLoader: ClassLoader,
+        context: Context,
+    ) {
+        val msgboxInfoServiceImpl =
+            XposedHelpers.findClass(
+                "com.alipay.android.phone.messageboxstatic.biz.sync.d",
+                classLoader,
+            )
+        val syncMessage =
+            XposedHelpers.findClass(
+                "com.alipay.mobile.rome.longlinkservice.syncmodel.SyncMessage",
+                classLoader,
+            )
 
         XposedHelpers.findAndHookMethod(
             msgboxInfoServiceImpl,
@@ -49,11 +56,18 @@ class MessageBoxHooker(hooker: Hooker) :PartHooker(hooker) {
                     val getDataMethod = syncMessage.methods.find { it.name == "getData" }
                     getDataMethod?.let {
                         val result = it.invoke(syncMessageObject) as String
-                        logD("支付宝消息盒子页面收到数据：$result")
-                        //调用分析服务进行数据分析
-                        analyzeData(DataType.App.ordinal,result)
+                        // 收到的是数组，拆分
+                        Gson().fromJson(result, JsonArray::class.java).forEach { jsonObject ->
+
+                            val jsonArray = JsonArray().set(0, jsonObject)
+
+                            logD("支付宝消息盒子页面收到数据：$jsonArray")
+                            // 调用分析服务进行数据分析
+                            analyzeData(DataType.App.ordinal, Gson().toJson(jsonArray))
+                        }
                     }
                 }
-            })
+            },
+        )
     }
 }
