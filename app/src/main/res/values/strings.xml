@@ -317,4 +317,18 @@
     <string name="json_error">数据存在错误</string>
     <string name="str_content">上传内容</string>
     <string name="wait_shell_update">正在更新自动记账服务文件...</string>
+    <string name="data_type">数据类型</string>
+    <string name="data_type_null">不区分</string>
+    <string name="data_type_app">App</string>
+    <string name="data_type_notice">通知</string>
+    <string name="data_type_sms">短信</string>
+    <string name="data_type_helper">无障碍</string>
+    <string name="data_app">来源App</string>
+    <string name="data_match">规则匹配状态</string>
+    <string name="data_rule_match">匹配</string>
+    <string name="data_rule_not_match">不匹配</string>
+    <string name="data_upload">数据上传状态</string>
+    <string name="data_data_upload">已上传</string>
+    <string name="data_data_not_upload">数据未上传</string>
+    <string name="data_content">内容包含</string>
 </resources>

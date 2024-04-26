@@ -17,26 +17,19 @@
         <LinearLayout
             android:id="@+id/cardViewInner"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:padding="@dimen/cardPadding"
-            android:orientation="vertical">
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/editText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/input_keywords">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/raw"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-
-            </com.google.android.material.textfield.TextInputLayout>
+            android:layout_height="match_parent"    android:orientation="vertical">
 
 
             <LinearLayout
-                android:layout_marginTop="@dimen/padding"
+                android:id="@+id/container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_margin="@dimen/padding"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">

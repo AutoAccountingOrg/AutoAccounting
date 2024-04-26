@@ -16,6 +16,8 @@
 package net.ankio.auto.setting
 
 import android.app.Activity
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -228,18 +230,40 @@ class SettingUtils(
                 }
             }
         }
-        binding.input.setOnFocusChangeListener { v, hasFocus ->
-            if (!hasFocus) {
-                settingItem.onItemClick?.invoke(binding.input.text.toString(), context)
-                    ?: settingItem.key?.let {
-                        SpUtils.putString(
-                            it,
-                            binding.input.text.toString(),
-                        )
-                    }
-                settingItem.onSavedValue?.invoke(binding.input.text.toString(), context)
-            }
-        }
+        binding.input.addTextChangedListener(
+            object : TextWatcher {
+                override fun afterTextChanged(s: Editable?) {
+                    // 当输入框的值发生变化后，将新的值存储起来
+                    settingItem.onItemClick?.invoke(s.toString(), context)
+                        ?: settingItem.key?.let {
+                            SpUtils.putString(
+                                it,
+                                s.toString(),
+                            )
+                        }
+                    settingItem.onSavedValue?.invoke(s.toString(), context)
+                }
+
+                override fun beforeTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    count: Int,
+                    after: Int,
+                ) {
+                    // 这里不需要做任何事情
+                }
+
+                override fun onTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    before: Int,
+                    count: Int,
+                ) {
+                    // 这里不需要做任何事情
+                }
+            },
+        )
+
         binding.inputLayout.setHint(settingItem.title)
         settingItem.subTitle?.let {
             binding.inputLayout.helperText = context.getString(it)

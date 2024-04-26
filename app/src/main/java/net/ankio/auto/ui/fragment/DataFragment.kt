@@ -45,6 +45,7 @@ import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.AutoAccountingServiceUtils
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.Github
+import net.ankio.auto.utils.SpUtils
 
 class DataFragment : BaseFragment() {
     private lateinit var binding: FragmentDataBinding
@@ -55,8 +56,8 @@ class DataFragment : BaseFragment() {
     override val menuList: ArrayList<MenuItem> =
         arrayListOf(
             MenuItem(R.string.item_filter, R.drawable.menu_icon_filter) {
-                FilterDialog(requireContext()) { keyword ->
-                    loadMoreData(keyword)
+                FilterDialog(requireActivity()) {
+                    loadMoreData()
                 }.show(false)
             },
         )
@@ -162,47 +163,85 @@ class DataFragment : BaseFragment() {
         return binding.root
     }
 
-    private fun loadMoreData(keywords: String = "") {
+    private fun loadMoreData() {
         lifecycleScope.launch {
-            val data = AutoAccountingServiceUtils.get("data", requireContext())
+            withContext(Dispatchers.IO) {
+                val data = AutoAccountingServiceUtils.get("data", requireContext())
+                val appData = Db.get().AppDataDao().loadAll()
+                val collection: Collection<AppData> = AppData.fromTxt(data)
 
-            val appData = Db.get().AppDataDao().loadAll()
-            val collection: Collection<AppData> = AppData.fromTxt(data)
-
-            val filteredCollection =
-                collection.filter { item ->
-                    appData.none { it.hash() == item.hash() }
-                }
-
-            Db.get().AppDataDao().addList(filteredCollection)
-
-            val resultList = mutableListOf<AppData>()
-            resultList.addAll(appData)
-            resultList.addAll(filteredCollection)
-            // 处理完成再删
-            AutoAccountingServiceUtils.delete("data", requireContext())
-
-            // 在这里处理搜索逻辑
-            val resultSearch =
-                resultList.filter {
-                    var include = true
-                    if (keywords != "") {
-                        if (
-                            !it.data.contains(keywords) &&
-                            !it.rule.contains(keywords)
-                        ) {
-                            include = false
-                        }
+                val filteredCollection =
+                    collection.filter { item ->
+                        appData.none { it.hash() == item.hash() }
                     }
 
-                    include
-                }.reversed()
+                Db.get().AppDataDao().addList(filteredCollection)
+                Db.get().AppDataDao().deleteLast500()
 
-            // 倒序排列resultSearch
-            dataItems.clear()
-            dataItems.addAll(resultSearch)
-            adapter.notifyDataSetChanged()
-            binding.empty.root.visibility = if (dataItems.isEmpty()) View.VISIBLE else View.GONE
+                // 处理完成再删
+                AutoAccountingServiceUtils.delete("data", requireContext())
+
+                val resultList = mutableListOf<AppData>()
+                resultList.addAll(appData)
+                resultList.addAll(filteredCollection)
+
+                // 在这里处理搜索逻辑
+                val resultSearch =
+                    resultList.filter {
+                        var include = true
+
+                        val dataType = SpUtils.getInt("dialog_filter_data_type", 0)
+
+                        if (dataType != 0) {
+                            if (it.type != dataType) {
+                                include = false
+                            }
+                        }
+
+                        val match = SpUtils.getInt("dialog_filter_match", 0)
+                        if (match != 0) {
+                            if (it.match && match == 2) {
+                                include = false
+                            }
+
+                            if (!it.match && match == 1) {
+                                include = false
+                            }
+                        }
+
+                        val upload = SpUtils.getInt("dialog_filter_upload", 0)
+
+                        if (upload != 0) {
+                            if (it.issue != 0 && upload == 2) {
+                                include = false
+                            }
+
+                            if (it.issue == 0 && upload == 1) {
+                                include = false
+                            }
+                        }
+
+                        val keywords = SpUtils.getString("dialog_filter_data", "")
+
+                        if (keywords != "") {
+                            if (
+                                !it.data.contains(keywords)
+                            ) {
+                                include = false
+                            }
+                        }
+
+                        include
+                    }.reversed()
+
+                // 倒序排列resultSearch
+                dataItems.clear()
+                dataItems.addAll(resultSearch)
+                withContext(Dispatchers.Main) {
+                    adapter.notifyDataSetChanged()
+                    binding.empty.root.visibility = if (dataItems.isEmpty()) View.VISIBLE else View.GONE
+                }
+            }
         }
     }
 

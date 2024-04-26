@@ -39,4 +39,7 @@ interface AppDataDao {
 
     @Query("DELETE FROM AppData")
     suspend fun deleteAll()
+
+    @Query("DELETE FROM AppData WHERE id NOT IN (SELECT id FROM AppData ORDER BY id DESC LIMIT 500) ")
+    suspend fun deleteLast500()
 }
