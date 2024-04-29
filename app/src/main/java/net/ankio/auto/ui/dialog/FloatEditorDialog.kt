@@ -431,7 +431,8 @@ class FloatEditorDialog(
 
     // 是否为债务
     private fun isDebt(): Boolean {
-        return billTypeLevel2 == BillType.ExpendLending || billTypeLevel2 == BillType.IncomeLending || billTypeLevel2 == BillType.ExpendRepayment || billTypeLevel2 == BillType.IncomeRepayment
+        return billTypeLevel2 == BillType.ExpendLending || billTypeLevel2 == BillType.IncomeLending ||
+            billTypeLevel2 == BillType.ExpendRepayment || billTypeLevel2 == BillType.IncomeRepayment
     }
 
     // 是否为报销

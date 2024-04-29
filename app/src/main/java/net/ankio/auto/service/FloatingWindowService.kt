@@ -68,7 +68,7 @@ class FloatingWindowService : Service(), CoroutineScope {
         startId: Int,
     ): Int {
         if (!::themedContext.isInitialized) {
-            val defaultTheme = ContextThemeWrapper(this.baseContext, R.style.AppTheme)
+            val defaultTheme = ContextThemeWrapper(applicationContext, R.style.AppTheme)
             themedContext =
                 ContextThemeWrapper(
                     defaultTheme,
