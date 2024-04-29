@@ -1,204 +1,100 @@
 #include <iostream>
 #include <fstream>
 #include <unistd.h>
-#include <sys/wait.h>
 #include <csignal>
 #include <cstring>
 #include <vector>
-#include "http/server/Server.h"
+#include "Server.h"
 #include "starter.h"
+#include "misc.h"
 
-std::ofstream logFile;//日志记录
-std::vector<pid_t> workerPids;  // 存储工作进程的 PID
 
-void worker_process(int id);
-void handle_signal(int sig);
-void start_workers();
-void stop_workers();
 std::string select_workspace(char *argv[]);
+
 std::string workspace; //工作环境
+Server autoAccountingServer;
 bool debug = false;
 std::string version = "1.0.1";
-bool should_restart_workers = true;
+bool shouldRestart = true;
+void output(const std::string& message) {
+    std::cout << File::formatTime()  <<message << std::endl;
+}
+void startServer();
+void handle_sigchld(int sig) {
+    // 这里可以添加你的服务重启代码
+    if(shouldRestart)startServer();
+}
+
 int main(int argc, char *argv[]) {
     //一开始就选定工作目录
     workspace = select_workspace(argv);
-    version =  File::readFile(workspace+"VERSION");
-    debug = File::readFile(workspace+ "debug") == "true";
+    version = File::readFile(workspace + "VERSION");
+    debug = File::readFile(workspace + "debug") == "true";
 
     if (argc > 1) {
-        std::cout << "AutoAccountingServer Version: " << version << std::endl;
-        std::cout << "Model: " << (debug?"DEBUG":"PRODUCTION") << std::endl;
+        output("[INFO] 自动记账服务 Version: " + version);
+        std::string mode = debug ? "调试" : "生产";
+        output("[INFO] 当前模式 : " + mode);
         // 处理外部命令
         std::ifstream pidFile(workspace + PID_FILE);
         pid_t pid;
         pidFile >> pid;
         pidFile.close();
-        if (strcmp(argv[1], "stop") == 0) {
-            if (pid > 0) {
-                kill(pid, SIGTERM);
-            }
-            return 0;
-        } else if (strcmp(argv[1], "restart") == 0) {
-            if (pid > 0) {
-                kill(pid, SIGHUP);
-            }
-            return 0;
-        }else if (strcmp(argv[1], "status") == 0) {
-            if (pid > 0 && kill(pid, 0) == 0) {
-                std::cout << File::formatTime() <<"Daemon is running with PID " << pid << std::endl;
-            } else {
-                std::cout << File::formatTime() <<"Daemon is not running." << std::endl;
-            }
-            return 0;
-        }
-    }else{
-        std::cout << "Usage: " << argv[0] << " [stop|restart|status|foreground|start  <path>?]" << std::endl;
-
+    } else {
+        output("[ERROR]  使用方法: " + std::string(argv[0]) + " foreground|start [<path>?]");
         return 1;
     }
-    // 打开日志文件
-    logFile.open(workspace +"daemon.log");
 
-    logFile << File::formatTime() <<"Master process started (PID: " << getpid() << ")" << std::endl;
+    output("[INFO] 工作目录: " + workspace);
+    output("[INFO] 父进程启动: " + std::to_string(getpid()));
 
-    if (strcmp(argv[1], "foreground") == 0){
-        // 在前台运行
-        Server::server();
 
-    } else{
-
-        // 创建守护进程
-        pid_t pid = fork();
-        if (pid > 0) {
-            return 0;
-        }
-        setsid();
-        // 设置工作目录为当前目录
-        chdir(workspace.c_str());
-
-        // 设置信号处理函数
-        signal(SIGCHLD, handle_signal);
-        signal(SIGTERM, handle_signal);
-        signal(SIGHUP, handle_signal);
-
-        // 保存 PID 到文件
-        std::ofstream pidFile(workspace + PID_FILE);
-        pidFile << getpid();
-        pidFile.close();
-
-        // 启动工作进程
-        start_workers();
-        while (true) {
-            pause();
-        }
+    if (strcmp(argv[1], "foreground") == 0) {
+        output("[INFO] 服务前台运行中 ");
+        autoAccountingServer.server();
+    } else {
+        signal(SIGCHLD, handle_sigchld);
+        startServer();
     }
-
-
-
-
-
-
-    return 0;
+    exit(EXIT_SUCCESS);
 }
 
-std::string select_workspace(char *argv[]){
-    if(argv[2] != nullptr) {
+void startServer() {
+    output("[INFO] 服务将以守护进程的方式运行 ");
+    // 创建守护进程
+    pid_t pid = fork();
+    if (pid > 0) {
+        output("[INFO] 父进程结束。 ");
+        exit(EXIT_SUCCESS);
+    }else if(pid < 0){
+        output("[ERROR] 创建子进程失败。 ");
+        exit(FORK_CHILD_ERROR);
+    }else{
+        setsid();
+        chdir(workspace.c_str());
+        autoAccountingServer.start();
+    }
+}
+
+
+
+std::string select_workspace(char *argv[]) {
+    if (argv[2] != nullptr) {
         return argv[2];
     }
-    if(File::directoryExists("/sdcard/Android/data/net.ankio.auto.xposed/cache/shell")){
-        workspace = "/sdcard/Android/data/net.ankio.auto.xposed/cache/shell/";
-    }else if(File::directoryExists("/sdcard/Android/data/net.ankio.auto.helper/cache/shell")){
-        workspace = "/sdcard/Android/data/net.ankio.auto.helper/cache/shell/";
-    }else{
-        printf( "You must have at least one of the following directories: /sdcard/Android/data/net.ankio.auto.xposed/cache/shell or /sdcard/Android/data/net.ankio.auto.helper/cache/shell" );
-        exit(2);
-    }
-    return workspace;
-}
 
-void worker_process(int id) {
-    logFile << File::formatTime() <<"Worker " << id << " started (PID: " << getpid() << ")" << std::endl;
-    Server::start();
-    logFile << File::formatTime() <<"Worker " << id << " stopped (PID: " << getpid() << ")" << std::endl;
-}
+    std::string packages[] = {
+            "net.ankio.auto.xposed",
+            "net.ankio.auto.helper"
+    };
 
-void handle_signal(int sig) {
-    switch (sig) {
-        case SIGCHLD:
-            pid_t pid;
-            int status;
-            while ((pid = waitpid(-1, &status, WNOHANG)) > 0) {
-                if (WIFEXITED(status)) {
-                    logFile << File::formatTime() <<"Worker process " << pid << " exited with status " << WEXITSTATUS(status) << std::endl;
-                } else if (WIFSIGNALED(status)) {
-                    logFile << File::formatTime() <<"Worker process " << pid << " was killed by signal " << WTERMSIG(status) << std::endl;
-                } else if (WIFSTOPPED(status)) {
-                    logFile << File::formatTime() <<"Worker process " << pid << " was stopped by signal " << WSTOPSIG(status) << std::endl;
-                } else {
-                    logFile << File::formatTime() <<"Worker process " << pid << " exited for unknown reasons" << std::endl;
-                }
-                // 从 workerPids 中移除退出的子进程 PID
-                workerPids.erase(std::remove(workerPids.begin(), workerPids.end(), pid), workerPids.end());
-                // 重新启动一个新的子进程
-                if (!should_restart_workers) {
-                    return;
-                }
-                pid_t newPid = fork();
-                if (newPid == 0) {
-                    // 在新的子进程中
-                    int size = static_cast<int>(workerPids.size());
-                    worker_process(size + 1);
-                    exit(0);
-                } else if (newPid > 0) {
-                    // 在主进程中，记录新的子进程 PID
-                    workerPids.push_back(newPid);
-                    logFile << File::formatTime() <<"Master: Restarted worker process " << newPid << std::endl;
-                } else {
-                    logFile << File::formatTime() <<"Failed to fork new worker process" << std::endl;
-                }
-            }
-            break;
-        case SIGTERM:
-            logFile << File::formatTime() <<"Master: Received SIGTERM, stopping" << std::endl;
-            stop_workers();
-            logFile.close();
-            remove((workspace + PID_FILE).c_str());
-            exit(0);
-        case SIGHUP:
-            logFile << File::formatTime() <<"Master: Received SIGHUP, restarting" << std::endl;
-            stop_workers();
-            logFile.close();
-            logFile.open("daemon.log");
-            start_workers();
-            break;
-        default:
-            break;
-    }
-}
-
-void start_workers() {
-    pid_t pid;
-    for (int i = 0; i < NUM_WORKERS; ++i) {
-        pid = fork();
-        if (pid == 0) {
-            worker_process(i + 1);
-            exit(0);
-        } else if (pid > 0) {
-            workerPids.push_back(pid);
-            logFile << File::formatTime() <<"Master: Started worker process " << pid << std::endl;
-        } else {
-            logFile << File::formatTime() <<"Failed to fork worker process" << std::endl;
+    for (auto &package: packages) {
+        if (File::directoryExists("/sdcard/Android/data/" + package + "/cache/shell")) {
+            workspace = "/sdcard/Android/data/" + package + "/cache/shell/";
+            return workspace;
         }
     }
-}
 
-void stop_workers() {
-    should_restart_workers = false;
-    for (pid_t pid : workerPids) {
-        kill(pid, SIGTERM);
-        waitpid(pid, nullptr, 0);  // 等待工作进程退出
-        logFile << File::formatTime() <<"Master: Stopped worker process " << pid << std::endl;
-    }
-    workerPids.clear();  // 清空工作进程 PID 列表
+    output("[ERROR] 缺失工作目录，请传入参数指定工作目录。");
+    exit(EXIT_FAILURE);
 }

@@ -4,7 +4,7 @@
 #include <sstream>
 #include <deque>
 #include "File.h"
-#include "../utils/trim.cpp"
+#include "misc.h"
 void File::writeFile(const std::string &filename, const std::string &fileInfo) {
     std::ofstream outFile(filename + ".txt"); // 打开或创建文件用于写入
     if (outFile.is_open()) {
@@ -92,7 +92,7 @@ std::string File::readFile(const std::string &filename) {
 
         inFile.close(); // 关闭文件
 
-        trim(content); // 移除字符串两端的空白字符（空格、制表符、换行符等
+         trim(content);
 
         return content;
     } else {
@@ -117,13 +117,4 @@ bool File::directoryExists(const std::string& path) {
 void File::createDir(const std::string &path) {
     std::__fs::filesystem::create_directories(path);
 }
-extern std::ofstream logFile;
 extern bool debug;
-void File::log(const std::string &data){
-    logFile << formatTime() << data << std::endl;
-}
- void File::logD(const std::string &data){
-     if (debug){
-         logFile << formatTime() << data << std::endl;
-     }
-}

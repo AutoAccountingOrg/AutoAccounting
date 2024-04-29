@@ -5,22 +5,24 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 
-add_executable(auto_accounting_starter starter.cpp
+add_executable(auto_accounting_starter
 
+        starter.cpp
+        starter.h
 
+        File.cpp
+        File.h
 
-        utils/trim.cpp
-
-        file/File.cpp
-        file/File.h
         js/quickjspp.hpp
-        utils/ThreadLocalStorage.h
 
-        http/handler/Handler.h
-        http/handler/Handler.cpp
-        http/server/Server.cpp
-           http/server/Server.h
+        Handler.h
+        Handler.cpp
 
+        Server.cpp
+        Server.h
+
+        misc.cpp
+        misc.h
 
 
 )

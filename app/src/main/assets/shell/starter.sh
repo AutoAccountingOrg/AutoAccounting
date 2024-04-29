@@ -52,14 +52,8 @@ CPU_ARCH=$(uname -m)
 # 根据CPU架构选择二进制文件路径
 SHELL_PATH=$(dirname "$0")
 case "$CPU_ARCH" in
-    "armv7l" | "armv8l")
-        BINARY_PATH="armeabi-v7a"
-        ;;
     "aarch64")
         BINARY_PATH="arm64-v8a"
-        ;;
-    "i386" | "i686")
-        BINARY_PATH="x86"
         ;;
     "x86_64")
         BINARY_PATH="x86_64"
@@ -83,7 +77,7 @@ if [ -f "$OLD_PATH" ]; then
   info "执行自动记账二进制文件 $NEW_PATH"
   chmod +x "$NEW_PATH"
     retries=0
-    $NEW_PATH start
+    $NEW_PATH start > "$SHELL_PATH/daemon.log" 2>&1 &
     info "等待 $SERVER_NAME 服务启动... "
     while [ $retries -lt 120 ]; do
            PID=$(get_pid)
@@ -94,6 +88,7 @@ if [ -f "$OLD_PATH" ]; then
            else
                sleep 2
                retries=$((retries+1))
+               info "重试：$retries"
            fi
        done
     error "$SERVER_NAME 服务在多次尝试启动后仍未启动成功，请将该问题报告给自动记账开发团队，日志路径为：$SHELL_PATH/daemon.log。"
