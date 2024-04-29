@@ -40,7 +40,7 @@ def upload(filename, filename_new, auth):
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
                       'Chrome/58.0.3029.110 Safari/537.3',
         'Authorization': auth,
-        'As-Task':true,
+        'As-Task':True,
         'file-path': filename_new
     }
     dir = os.getenv("GITHUB_WORKSPACE")
