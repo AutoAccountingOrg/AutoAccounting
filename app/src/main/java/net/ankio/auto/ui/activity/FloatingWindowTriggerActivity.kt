@@ -64,7 +64,7 @@ class FloatingWindowTriggerActivity : AppCompatActivity() {
         }
     }
 
-    fun exitActivity() {
+    private fun exitActivity() {
         finishAffinity()
         overridePendingTransition(0, 0)
     }

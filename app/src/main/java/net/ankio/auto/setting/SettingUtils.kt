@@ -188,9 +188,9 @@ class SettingUtils(
                     ListPopupUtils(context, binding.title, it, savedValue) { pos, key, value ->
                         binding.subTitle.text = key
 
-                        settingItem.onItemClick?.invoke(value, context) ?: settingItem.key?.let {
-                            SpUtils.putString(it, value.toString())
-                            saveToSp(it, value)
+                        settingItem.onItemClick?.invoke(value, context) ?: settingItem.key?.let { item ->
+                            SpUtils.putString(item, value.toString())
+                            saveToSp(item, value)
                         }
 
                         settingItem.onSavedValue?.invoke(value, context)
