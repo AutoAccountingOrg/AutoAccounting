@@ -166,13 +166,19 @@ std::string Handler::handleRoute(const std::string &path,
 //执行js
     } else if (path == "/start") {
         //执行adb shell: adb shell am start -a "net.ankio.auto.ACTION_SHOW_FLOATING_WINDOW" -d "autoaccounting://bill?data=billInfoJson" --ez "android.intent.extra.NO_ANIMATION" true -f 0x10000000
-        std::string cmd =
-                R"(am start -a "net.ankio.auto.ACTION_SHOW_FLOATING_WINDOW" -d "autoaccounting://bill?data=)" +
-                requestBody + R"(" --ez "android.intent.extra.NO_ANIMATION" true -f 0x10000000)";
-        //写日志
-        output("执行命令" + cmd);
-        system(cmd.c_str());
-        response = cmd;
+        //这里进行异常处理
+        try {
+            std::string cmd =
+                    R"(am start -a "net.ankio.auto.ACTION_SHOW_FLOATING_WINDOW" -d "autoaccounting://bill?data=)" +
+                    requestBody + R"(" --ez "android.intent.extra.NO_ANIMATION" true -f 0x10000000)";
+            //写日志
+            output("执行命令" + cmd);
+            system(cmd.c_str());
+            response = cmd;
+        } catch (const std::exception &e) {
+            response = "404 Not Found";
+            status = "404 Not Found";
+        }
     } else {
         response = "404 Not Found";
         status = "404 Not Found";

@@ -15,14 +15,17 @@ std::string workspace; //工作环境
 Server autoAccountingServer;
 bool debug = false;
 std::string version = "1.0.1";
-bool shouldRestart = true;
+int restartCount = 0;
 void output(const std::string& message) {
     std::cout << File::formatTime()  <<message << std::endl;
 }
 void startServer();
 void handle_sigchld(int sig) {
-    // 这里可以添加你的服务重启代码
-    if(shouldRestart)startServer();
+    if(restartCount++ > 1000){
+        output("[ERROR] 重启次数过多，服务退出。");
+        exit(EXIT_FAILURE);
+    }
+    startServer();
 }
 
 int main(int argc, char *argv[]) {

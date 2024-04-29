@@ -16,9 +16,7 @@
 #define MAX_CONNECTIONS 128
 
 extern std::string workspace;
-extern std::ofstream logFile;
 extern bool debug;
-extern bool  shouldRestart;
 extern void output(const std::string& message);
 
 
@@ -93,14 +91,12 @@ void Server::server() {
     output("[INFO] 启动HTTP服务器");
 
     if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
-        shouldRestart = false;
         exit(EXIT_FAILURE);
     }
 
     int opt = 1;
     // 设置 SO_REUSEADDR 选项
     if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt))) {
-        shouldRestart = false;
         exit(EXIT_FAILURE);
     }
 
@@ -110,12 +106,10 @@ void Server::server() {
 
     if (bind(server_fd, (struct sockaddr *) &address, sizeof(address)) < 0) {
         output("[ERROR] 端口绑定失败");
-        shouldRestart = false;
         exit(EXIT_FAILURE);
     }
 
     if (listen(server_fd, MAX_CONNECTIONS) < 0) {
-        shouldRestart = false;
         exit(EXIT_FAILURE);
     }
 
@@ -137,7 +131,6 @@ void Server::server() {
         startWorker(new_socket);
 
     }
-    shouldRestart = true;
     close(server_fd);
     output("[INFO] HTTP服务器关闭");
 }
