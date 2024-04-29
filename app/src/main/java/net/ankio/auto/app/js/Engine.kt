@@ -51,8 +51,10 @@ object Engine {
         }
 
     private fun getMoney(data: String): Int {
-        val regex = Regex("【^\\d.】")
-        return BillUtils.getMoney((regex.replace(data, "")).toFloat())
+        val regex = Regex("[^\\d,.]")
+        val cleanData = regex.replace(data, "") // 清除除数字、逗号和小数点之外的字符
+        val amount = cleanData.replace(",", "").toFloat() // 删除逗号并转换为浮点数
+        return BillUtils.getMoney(amount)
     }
 
     suspend fun data(
@@ -79,7 +81,7 @@ object Engine {
                 billInfo.accountNameFrom = jsonObject2.getString("accountNameFrom")
                 billInfo.accountNameTo = jsonObject2.getString("accountNameTo")
                 billInfo.currency = Currency.valueOf(jsonObject2.getString("currency"))
-                billInfo.timeStamp = DateUtils.getAnyTime(jsonObject2.getString("time"))
+                billInfo.timeStamp = jsonObject2.getString("time").toLong()
                 billInfo.channel = jsonObject2.getString("channel")
                 billInfo.fromType = dataType.toDataType()
                 billInfo.from = app
