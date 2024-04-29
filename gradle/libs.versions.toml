@@ -1,5 +1,5 @@
 [versions]
-agp = "8.4.0-beta02"
+agp = "8.5.0-alpha06"
 androidx-roomRuntime = "2.6.1"
 bugsnagAndroid = "6.2.0"
 flexbox = "3.0.0"
