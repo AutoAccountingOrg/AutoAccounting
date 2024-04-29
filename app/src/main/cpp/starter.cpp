@@ -4,6 +4,7 @@
 #include <csignal>
 #include <cstring>
 #include <vector>
+#include <sys/wait.h>
 #include "Server.h"
 #include "starter.h"
 #include "misc.h"
@@ -15,15 +16,19 @@ std::string workspace; //工作环境
 Server autoAccountingServer;
 bool debug = false;
 std::string version = "1.0.1";
-int restartCount = 0;
 void output(const std::string& message) {
     std::cout << File::formatTime()  <<message << std::endl;
 }
 void startServer();
 void handle_sigchld(int sig) {
-    if(restartCount++ > 1000){
-        output("[ERROR] 重启次数过多，服务退出。");
-        exit(EXIT_FAILURE);
+    int status;
+    pid_t pid;
+    while ((pid = waitpid(-1, &status, WNOHANG)) > 0) {
+        if (WIFEXITED(status)) {
+            printf("子进程 %d 正常退出，退出码为：%d\n", pid, WEXITSTATUS(status));
+        } else if (WIFSIGNALED(status)) {
+            printf("子进程 %d 因为信号 %d 退出\n", pid, WTERMSIG(status));
+        }
     }
     startServer();
 }
@@ -56,19 +61,18 @@ int main(int argc, char *argv[]) {
         output("[INFO] 服务前台运行中 ");
         autoAccountingServer.server();
     } else {
-        signal(SIGCHLD, handle_sigchld);
         startServer();
     }
-    exit(EXIT_SUCCESS);
 }
 
 void startServer() {
     output("[INFO] 服务将以守护进程的方式运行 ");
+    signal(SIGCHLD, handle_sigchld);
     // 创建守护进程
     pid_t pid = fork();
     if (pid > 0) {
         output("[INFO] 父进程结束。 ");
-        exit(EXIT_SUCCESS);
+
     }else if(pid < 0){
         output("[ERROR] 创建子进程失败。 ");
         exit(FORK_CHILD_ERROR);

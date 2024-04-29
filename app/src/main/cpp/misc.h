@@ -8,10 +8,6 @@
 #include <string>
 #include <vector>
 
-
-using foreach_proc_function = void(pid_t);
-
-
 void trim(std::string &s);
 
 std::vector<std::string> split(const std::string &s, const std::string &delim);

@@ -91,13 +91,13 @@ void Server::server() {
     output("[INFO] 启动HTTP服务器");
 
     if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
-        exit(EXIT_FAILURE);
+        return;
     }
 
     int opt = 1;
     // 设置 SO_REUSEADDR 选项
     if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt))) {
-        exit(EXIT_FAILURE);
+        return;
     }
 
     address.sin_family = AF_INET;
@@ -106,11 +106,11 @@ void Server::server() {
 
     if (bind(server_fd, (struct sockaddr *) &address, sizeof(address)) < 0) {
         output("[ERROR] 端口绑定失败");
-        exit(EXIT_FAILURE);
+        return;
     }
 
     if (listen(server_fd, MAX_CONNECTIONS) < 0) {
-        exit(EXIT_FAILURE);
+        return;
     }
 
   //  int count = 0;
@@ -119,7 +119,7 @@ void Server::server() {
         int addrlen = sizeof(address);
         if ((new_socket = accept(server_fd, (struct sockaddr *) &address, (socklen_t *) &addrlen)) < 0) {
             output("[ERROR] 连接失败");
-            break;
+            continue;
         }
 
       //  count++;
@@ -133,12 +133,13 @@ void Server::server() {
     }
     close(server_fd);
     output("[INFO] HTTP服务器关闭");
+    server();
 }
 
 
 void Server::startWorker(int socket) {
 
-  //  output("[INFO] 启动工作线程");
+    output("[INFO] 启动工作线程");
     std::thread workerThread([this, socket]() {
         processWorker(socket);
     });
@@ -152,11 +153,11 @@ void Server::startWorker(int socket) {
  * @param socket
  */
 void Server::processWorker(int socket) {
-   // output("[INFO] 工作线程  开始处理任务" + std::to_string(socket));
+    output("[INFO] 工作线程  开始处理任务" + std::to_string(socket));
     Handler handler(socket);
     handler.handleConnection();
     close(socket);
-   // output("[INFO] 工作线程 处理" + std::to_string(socket) + " 结束");
+    output("[INFO] 工作线程 处理" + std::to_string(socket) + " 结束");
 }
 
 
