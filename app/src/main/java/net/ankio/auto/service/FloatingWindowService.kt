@@ -165,7 +165,7 @@ class FloatingWindowService : Service(), CoroutineScope {
     }
 
     private fun removeTips(binding: FloatTipBinding) {
-        windowManager.removeView(binding.root)
+        if (binding.root.isAttachedToWindow) windowManager.removeView(binding.root)
         floatingViews.remove(binding)
     }
 
@@ -219,7 +219,7 @@ class FloatingWindowService : Service(), CoroutineScope {
     override fun onDestroy() {
         // 清理所有悬浮窗
         for (binding in floatingViews) {
-            windowManager.removeView(binding.root)
+            if (binding.root.isAttachedToWindow) windowManager.removeView(binding.root)
         }
         floatingViews.clear()
         job.cancel()
