@@ -148,7 +148,9 @@ object BillUtils {
                     val t = billInfo.timeStamp - duplicateBill.timeStamp
 
                     // 不同应用在5分钟内发出的账单
-                    if ((duplicateBill.fromType != billInfo.fromType || duplicateBill.from != billInfo.from) && t > 0 && t < 1000 * 60 * 2) {
+                    if ((duplicateBill.fromType != billInfo.fromType || duplicateBill.from != billInfo.from) &&
+                        t > 0 && t < 1000 * 60 * 2
+                    ) {
                         groupId = duplicateBill.groupId
                         break
                     }

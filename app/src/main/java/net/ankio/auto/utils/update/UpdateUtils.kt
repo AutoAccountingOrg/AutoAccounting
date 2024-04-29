@@ -39,7 +39,7 @@ class UpdateUtils {
 
     private val appBaseUrl = getUrl()
     private var appUrl: String =
-        if (SpUtils.getInt("setting_update_type", 0) == 0) {
+        if (SpUtils.getInt("setting_update_type", 1) == 0) {
             "${appBaseUrl}版本更新/稳定版/"
         } else {
             "${appBaseUrl}版本更新/持续构建版/"
