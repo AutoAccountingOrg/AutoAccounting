@@ -60,7 +60,7 @@ with open(os.getenv("GITHUB_WORKSPACE")+"/log/changelog.txt", 'r') as file:
 html = markdown.markdown(changeLog)
 
 t = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-
+name = name.replace("\n", "").replace("\\n","")
 data= {
     "version": name,
     "code": code,
