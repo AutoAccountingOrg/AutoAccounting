@@ -133,7 +133,7 @@ void Server::server() {
     }
     close(server_fd);
     output("[INFO] HTTP服务器关闭");
-    server();
+  //  server();
 }
 
 

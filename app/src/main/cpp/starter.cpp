@@ -61,13 +61,17 @@ int main(int argc, char *argv[]) {
         output("[INFO] 服务前台运行中 ");
         autoAccountingServer.server();
     } else {
+        signal(SIGCHLD, handle_sigchld);
         startServer();
+        while (true){
+            pause();
+        }
     }
 }
 
 void startServer() {
     output("[INFO] 服务将以守护进程的方式运行 ");
-    signal(SIGCHLD, handle_sigchld);
+
     // 创建守护进程
     pid_t pid = fork();
     if (pid > 0) {
@@ -79,6 +83,7 @@ void startServer() {
     }else{
         setsid();
         chdir(workspace.c_str());
+        autoAccountingServer = Server();
         autoAccountingServer.start();
     }
 }
