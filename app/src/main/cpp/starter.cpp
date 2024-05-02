@@ -31,10 +31,24 @@ void handle_sigchld(int sig) {
             int code = WTERMSIG(status);
             if (code == TOO_MATCH_CONNECTIONS_ERROR || code == BIND_ADDRESS_ERROR){
                 shouldRestart = false;
+                exit(LOG_FILE_TOO_LARGE);
             }
             printf("[WARN] 子进程 %d 因为信号 %d 退出\n", pid, WTERMSIG(status));
         }
     }
+
+    //检查daemon.log文件大小，如果达到GB级别说明有问题
+    std::ifstream logFile(workspace + "daemon.log");
+    logFile.seekg(0, std::ios::end);
+    int size = logFile.tellg();
+    logFile.close();
+    if (size > 1024 * 1024 * 1024){
+        output("[ERROR] 日志文件过大，可能是死循环或者其他问题导致。");
+        shouldRestart = false;
+        exit(LOG_FILE_TOO_LARGE);
+    }
+
+
     if(shouldRestart)startServer();
 }
 
