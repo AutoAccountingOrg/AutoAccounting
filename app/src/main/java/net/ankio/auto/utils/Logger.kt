@@ -36,33 +36,41 @@ object Logger {
         SpUtils.putInt("log_level", level)
     }
 
-    private fun createLogMessage(message: String): String {
-        val stackTraceElement = Throwable().stackTrace[4] // 获取调用日志方法的堆栈跟踪元素
+    private fun createLogMessage(message: String): ArrayList<String> {
+        val stackTraceElement = Throwable().stackTrace[3] // 获取调用日志方法的堆栈跟踪元素
 
-        return StringBuilder().apply {
-            append("┌───────────────────────────────────────────────────────────────\n")
-            append("│ Thread: ")
-            append(Thread.currentThread().name)
-            append("\n")
-            append("│ ")
-            append(stackTraceElement.className.substringAfterLast('.'))
-            append(".")
-            append(stackTraceElement.methodName)
-            append("(")
-            append(stackTraceElement.fileName)
-            append(":")
-            append(stackTraceElement.lineNumber)
-            append(") \n")
-            append("├───────────────────────────────────────────────────────────────\n")
-            message.lines().forEach {
-                append("│ $it\n")
+        val header =
+            StringBuilder().apply {
+                append("[ ")
+                append(Thread.currentThread().name)
+                append(" ] ")
+                append("(")
+                append(stackTraceElement.fileName)
+                append(":")
+                append(stackTraceElement.lineNumber)
+                append(") ")
+            }.toString() // 将StringBuilder转换为String
+        val list = ArrayList<String>()
+        message.lines().forEach {
+            val segmentSize = 3 * 1024
+            val length = it.length
+            if (length <= segmentSize) { // 长度小于等于限制直接打印
+                list.add("$header $it")
+            } else {
+                var msg = it
+                while (msg.length > segmentSize) { // 循环分段打印日志
+                    val logContent = msg.substring(0, segmentSize)
+                    msg = msg.replace(logContent, "")
+                    list.add("$header $logContent")
+                }
+                list.add("$header $msg")
             }
-            append("└───────────────────────────────────────────────────────────────")
-        }.toString() // 将StringBuilder转换为String
+        }
+        return list
     }
 
     private fun getTag(): String {
-        return Throwable().stackTrace[2].className.substringAfterLast('.')
+        return Throwable().stackTrace[2].className.substringBefore('$').substringAfterLast(".")
     }
 
     private fun printLog(
@@ -86,23 +94,13 @@ object Logger {
         }
 
         val logMessage = createLogMessage(message)
-        logMessage.lines().forEach {
-            var msg = it
-
-            val segmentSize = 3 * 1024
-            val length = msg.length
-            if (length <= segmentSize) { // 长度小于等于限制直接打印
-                log(msg)
-            } else {
-                while (msg.length > segmentSize) { // 循环分段打印日志
-                    val logContent = msg.substring(0, segmentSize)
-                    msg = msg.replace(logContent, "")
-                    log(logContent)
-                }
-                log(msg) // 打印剩余日志
-            }
+        logMessage.forEach {
+            log(it)
         }
-        AutoAccountingServiceUtils.log(logMessage, AppUtils.getApplication())
+        // 一些发起服务请求的不记录到日志文件里面来
+        if (logMessage.any { it.contains("127.0.0.1:52045") })return
+
+        AutoAccountingServiceUtils.log(logMessage.joinToString("\n"), AppUtils.getApplication())
     }
 
     fun d(message: String) {
@@ -116,7 +114,6 @@ object Logger {
         val messageInfo = StringBuilder()
         messageInfo.append(message).append("\n")
         if (throwable != null) {
-            messageInfo.append("───────────────────────────────────────────────────────────────\n")
             messageInfo.append(throwable.javaClass.name).append(": ").append(throwable.message)
                 .append("\n")
             // 循环遍历异常堆栈信息，添加到messageInfo

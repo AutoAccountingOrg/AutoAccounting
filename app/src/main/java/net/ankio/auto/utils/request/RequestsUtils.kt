@@ -170,62 +170,62 @@ class RequestsUtils(context: Context) {
             val cachedData = cacheManager.readFromCache(cacheKey)
             if (cacheTime > 0 && cachedData.isNotEmpty()) {
                 message.append(
-                    "\n───────────────────────────────────────────────────────────────\n" +
-                        " Cache Hit \n" +
-                        "───────────────────────────────────────────────────────────────\n" +
+                    " Cache Hit \n" +
                         convertByteArray(cachedData),
                 )
                 Logger.d(message.toString())
                 return@withContext RequestResult(cachedData, 200)
             }
             AppTimeMonitor.startMonitoring("请求: $requestUrl")
-            val requestBuilder = Request.Builder().url(requestUrl)
 
-            headers.forEach { (key, value) ->
-                message.append("$key: $value\n")
-                requestBuilder.addHeader(key, value)
-            }
+            try {
+                val requestBuilder = Request.Builder().url(requestUrl)
 
-            val body = if (method == METHOD_GET) null else buildRequestBody(data, contentType)
+                headers.forEach { (key, value) ->
+                    message.append("$key: $value\n")
+                    requestBuilder.addHeader(key, value)
+                }
 
-            requestBuilder.method(method, body)
+                val body = if (method == METHOD_GET) null else buildRequestBody(data, contentType)
 
-            if (body != null) {
-                message.append(
-                    requestBodyToString(body)?.toByteArray(Charsets.UTF_8)
-                        ?.let { convertByteArray(it) },
-                )
-            }
+                requestBuilder.method(method, body)
 
-            val request = requestBuilder.build()
-
-            Logger.d(message.toString())
-
-            val response =
-                client?.newCall(request)?.execute()
-                    ?: throw HttpException("Request failed: response is null")
-
-            val bytes = response.body?.bytes()
-            if (cacheTime > 0 && response.isSuccessful) {
-                AppUtils.getScope().launch {
-                    cacheManager.saveToCacheWithExpiry(
-                        cacheKey,
-                        bytes ?: ByteArray(0),
-                        cacheTime.toLong(),
+                if (body != null) {
+                    message.append(
+                        requestBodyToString(body)?.toByteArray(Charsets.UTF_8)
+                            ?.let { convertByteArray(it) },
                     )
                 }
+
+                val request = requestBuilder.build()
+
+                Logger.d(message.toString())
+
+                val response =
+                    client?.newCall(request)?.execute()
+                        ?: throw HttpException("Request failed: response is null")
+
+                val bytes = response.body?.bytes()
+                if (cacheTime > 0 && response.isSuccessful) {
+                    AppUtils.getScope().launch {
+                        cacheManager.saveToCacheWithExpiry(
+                            cacheKey,
+                            bytes ?: ByteArray(0),
+                            cacheTime.toLong(),
+                        )
+                    }
+                }
+                message.append(
+                    " Response Success  " + response.code + " " + response.message + "\n" +
+                        convertByteArray(bytes ?: ByteArray(0)),
+                )
+                RequestResult(bytes ?: ByteArray(0), response.code)
+            } catch (e: Throwable) {
+                throw e
+            } finally {
+                Logger.d(message.toString())
+                AppTimeMonitor.stopMonitoring("请求: $requestUrl")
             }
-            message.append(
-                "\n───────────────────────────────────────────────────────────────\n" +
-                    " Response Success \n " + response.code + " " + response.message + "\n" +
-                    "───────────────────────────────────────────────────────────────\n" +
-                    convertByteArray(bytes ?: ByteArray(0)),
-            )
-            Logger.d(message.toString())
-
-            AppTimeMonitor.stopMonitoring("请求: $requestUrl")
-
-            RequestResult(bytes ?: ByteArray(0), response.code)
         }
 
     suspend fun get(
