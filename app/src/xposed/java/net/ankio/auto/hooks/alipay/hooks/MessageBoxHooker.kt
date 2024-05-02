@@ -59,7 +59,7 @@ class MessageBoxHooker(hooker: Hooker) : PartHooker(hooker) {
                         // 收到的是数组，拆分
                         Gson().fromJson(result, JsonArray::class.java).forEach { jsonObject ->
 
-                            val jsonArray = JsonArray().set(0, jsonObject)
+                            val jsonArray = JsonArray().add(jsonObject)
 
                             logD("支付宝消息盒子页面收到数据：$jsonArray")
                             // 调用分析服务进行数据分析
