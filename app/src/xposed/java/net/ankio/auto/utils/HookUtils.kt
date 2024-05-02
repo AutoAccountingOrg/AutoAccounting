@@ -81,6 +81,7 @@ class HookUtils(val context: Application, private val packageName: String) {
     }
 
     /**
+     * TODO 公测结束后需要使用正常模式
      * 判断自动记账目前是否处于调试模式
      */
     suspend fun isDebug(): Boolean = true
