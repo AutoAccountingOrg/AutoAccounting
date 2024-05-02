@@ -12,9 +12,9 @@
 #include <sys/mman.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
-#define PORT 52045
-#define MAX_CONNECTIONS 128
 
+
+#include "starter.h"
 extern std::string workspace;
 extern bool debug;
 extern void output(const std::string& message);
@@ -110,21 +110,26 @@ void Server::server() {
 
     if (bind(server_fd, (struct sockaddr *) &address, sizeof(address)) < 0) {
         output("[ERROR] 端口绑定失败");
-        return;
+        exit(BIND_ADDRESS_ERROR);
     }
 
     if (listen(server_fd, MAX_CONNECTIONS) < 0) {
         return;
     }
 
-  //  int count = 0;
+    int count = 0;
     while (true) {
         int new_socket;
         int addrlen = sizeof(address);
         if ((new_socket = accept(server_fd, (struct sockaddr *) &address, (socklen_t *) &addrlen)) < 0) {
             output("[ERROR] 连接失败");
+            count++;
+            if(count > 100){
+                exit(TOO_MATCH_CONNECTIONS_ERROR)
+            }
             continue;
         }
+        count--;
 
       //  count++;
 

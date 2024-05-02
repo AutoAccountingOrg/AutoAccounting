@@ -13,7 +13,8 @@
 #include <netinet/in.h>
 #include <list>
 #include <thread>
-
+#define PORT 52045
+#define MAX_CONNECTIONS 128
 class Server {
 public:
     void start();
