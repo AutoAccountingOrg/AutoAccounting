@@ -44,6 +44,7 @@ import kotlinx.coroutines.launch
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.app.model.AppInfo
 import net.ankio.auto.ui.activity.MainActivity
+import java.io.File
 import java.math.BigInteger
 import java.security.MessageDigest
 
@@ -254,5 +255,12 @@ object AppUtils {
             return prettyJson
         }
         return jsonString
+    }
+
+    fun readTail(
+        file: File,
+        numLines: Int,
+    ): String {
+        return file.readLines().takeLast(numLines).joinToString("\n")
     }
 }

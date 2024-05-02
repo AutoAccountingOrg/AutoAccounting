@@ -24,6 +24,7 @@ import net.ankio.auto.events.AutoServiceErrorEvent
 import net.ankio.auto.exceptions.AutoServiceException
 import net.ankio.auto.ui.activity.ErrorActivity
 import net.ankio.auto.utils.event.EventBus
+import java.io.File
 import kotlin.system.exitProcess
 
 class ExceptionHandler : Thread.UncaughtExceptionHandler {
@@ -41,6 +42,11 @@ class ExceptionHandler : Thread.UncaughtExceptionHandler {
 
         Bugsnag.start(context!!)
         Bugsnag.addOnError { event ->
+            // 获取日志最后500行
+            val log = AppUtils.readTail(File(context.externalCacheDir!!.absolutePath + "/shell/log.txt"), 200)
+            val daemonLog = AppUtils.readTail(File(context.externalCacheDir!!.absolutePath + "/shell/daemon.log"), 200)
+            event.addMetadata("运行日志", "log", log)
+            event.addMetadata("服务日志", "server_log", daemonLog)
             val result = handleException(event) // 发送此异常
             Logger.i("是否发送异常到AppCenter => $result")
             result
@@ -59,9 +65,9 @@ class ExceptionHandler : Thread.UncaughtExceptionHandler {
         if (root is AutoServiceException) {
             return false
         }
-
+        return true
         // 调试模式不上传错误数据
-        return !AppUtils.getDebug() && SpUtils.getBoolean("sendToAppCenter", true)
+        // return !AppUtils.getDebug() && SpUtils.getBoolean("sendToAppCenter", true)
     }
 
     private fun getRootCause(e: Throwable): Throwable {

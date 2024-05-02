@@ -16,7 +16,6 @@
 package net.ankio.auto.utils
 
 import android.content.Context
-import android.os.Environment
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -94,7 +93,7 @@ class AutoAccountingServiceUtils(private val mContext: Context) {
             mContext: Context,
         ) {
             val path =
-                Environment.getExternalStorageDirectory().path + "/Android/data/${mContext.packageName}/cache/shell/$name.txt"
+                mContext.externalCacheDir!!.absolutePath + "/shell/$name.txt"
             val file = File(path)
             if (file.exists()) {
                 file.delete()
@@ -106,8 +105,7 @@ class AutoAccountingServiceUtils(private val mContext: Context) {
             mContext: Context,
         ) {
             runCatching {
-                val path =
-                    Environment.getExternalStorageDirectory().path + "/Android/data/${mContext.packageName}/cache/shell/log.txt"
+                val path = mContext.externalCacheDir!!.absolutePath + "/shell/log.txt"
                 val file = File(path)
                 val parentDir = file.parentFile
                 if (parentDir != null && !parentDir.exists()) {

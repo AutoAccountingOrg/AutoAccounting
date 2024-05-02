@@ -25,10 +25,12 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
+import com.bugsnag.android.Bugsnag
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.hjq.toast.Toaster
 import com.zackratos.ultimatebarx.ultimatebarx.addNavigationBarBottomPadding
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.ActivityMainBinding
@@ -180,6 +182,8 @@ class MainActivity : BaseActivity() {
         //        val destinationPath = cacheDir!!.path + File.separator // + shellFolderPath
         EventBus.register(AutoServiceErrorEvent::class.java, autoListener)
         lifecycleScope.launch {
+            delay(5000L)
+            Bugsnag.notify(Throwable("Test error"))
             AppUtils.getService().copyAssets()
             if (!AutoAccountingServiceUtils.isServerStart(5)) {
                 EventBus.post(
