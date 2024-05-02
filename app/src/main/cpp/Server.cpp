@@ -11,7 +11,7 @@
 #include <csignal>
 #include <sys/mman.h>
 #include <sys/wait.h>
-
+#include <sys/stat.h>
 #define PORT 52045
 #define MAX_CONNECTIONS 128
 
@@ -80,6 +80,10 @@ void Server::publishToken() {
             //使用函数创建文件夹
             File::createDir(path);
             File::writeFile(path + "token", token);
+            //查询"/sdcard/Android/data/" + line的username,并修改文件权限
+
+            //修改文件权限为777
+            chmod((path + "token.txt").c_str(), 0777);
         }
     }
 }

@@ -51,8 +51,7 @@ class AutoAccountingServiceUtils(private val mContext: Context) {
             }
 
         fun getToken(mContext: Context): String {
-            val path =
-                Environment.getExternalStorageDirectory().path + "/Android/data/${mContext.packageName}/shell/token.txt"
+            val path = mContext.externalCacheDir!!.parentFile!!.absolutePath + "/shell/token.txt"
             val file = File(path)
             if (file.exists()) {
                 return file.readText().trim()
@@ -67,8 +66,8 @@ class AutoAccountingServiceUtils(private val mContext: Context) {
             name: String,
             mContext: Context,
         ): String {
-            val path =
-                Environment.getExternalStorageDirectory().path + "/Android/data/${mContext.packageName}/cache/shell/$name.txt"
+            val path = mContext.externalCacheDir!!.absolutePath + "/shell/$name.txt"
+            //  Environment.getExternalStorageDirectory().path + "/Android/data/${mContext.packageName}/cache/shell/$name.txt"
             val file = File(path)
             if (file.exists()) {
                 return file.readText().trim()
@@ -82,7 +81,7 @@ class AutoAccountingServiceUtils(private val mContext: Context) {
             mContext: Context,
         ) {
             val path =
-                Environment.getExternalStorageDirectory().path + "/Android/data/${mContext.packageName}/cache/shell/$name.txt"
+                mContext.externalCacheDir!!.absolutePath + "/shell/$name.txt"
             val file = File(path)
             if (!file.exists()) {
                 file.createNewFile()
@@ -162,6 +161,7 @@ class AutoAccountingServiceUtils(private val mContext: Context) {
     ): String {
         return runCatching {
             withContext(Dispatchers.IO) {
+                val token = getToken(mContext)
                 RequestsUtils(mContext).post(
                     getUrl(path),
                     query = query,
@@ -169,7 +169,7 @@ class AutoAccountingServiceUtils(private val mContext: Context) {
                     contentType = contentType,
                     headers =
                         hashMapOf(
-                            "Authorization" to getToken(mContext),
+                            "Authorization" to token,
                         ),
                 ).apply {
                     if (code != 200) {
