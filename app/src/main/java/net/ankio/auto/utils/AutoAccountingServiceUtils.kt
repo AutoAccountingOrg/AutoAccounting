@@ -37,7 +37,7 @@ class AutoAccountingServiceUtils(private val mContext: Context) {
         private const val PORT = 52045
         private const val MAX_TRY_COUNTS = 4
         private const val SLEEP_TIME = 200L
-        private const val MAX_LOG_LENGTH = 500
+        private const val MAX_LOG_LENGTH = 5000
 
         // 将isServerStart转换为挂起函数
         suspend fun isServerStart(retries: Int = 0): Boolean =
