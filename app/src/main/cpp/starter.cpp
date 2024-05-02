@@ -26,13 +26,15 @@ void handle_sigchld(int sig) {
     bool shouldRestart = true;
     while ((pid = waitpid(-1, &status, WNOHANG)) > 0) {
         if (WIFEXITED(status)) {
-            printf("[WARN] 子进程 %d 正常退出，退出码为：%d\n", pid, WEXITSTATUS(status));
-        } else if (WIFSIGNALED(status)) {
-            int code = WTERMSIG(status);
+            int code = WEXITSTATUS(status);
             if (code == TOO_MATCH_CONNECTIONS_ERROR || code == BIND_ADDRESS_ERROR){
                 shouldRestart = false;
+                printf("[WARN] 主进程退出");
                 exit(LOG_FILE_TOO_LARGE);
             }
+            printf("[WARN] 子进程 %d 正常退出，退出码为：%d\n", pid, code);
+        } else if (WIFSIGNALED(status)) {
+
             printf("[WARN] 子进程 %d 因为信号 %d 退出\n", pid, WTERMSIG(status));
         }
     }
