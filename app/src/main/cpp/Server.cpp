@@ -125,7 +125,7 @@ void Server::server() {
             output("[ERROR] 连接失败");
             count++;
             if(count > 100){
-                exit(TOO_MATCH_CONNECTIONS_ERROR)
+                exit(TOO_MATCH_CONNECTIONS_ERROR);
             }
             continue;
         }
