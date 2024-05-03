@@ -64,6 +64,7 @@ class AutoAccountingServiceUtils(private val mContext: Context) {
         fun get(
             name: String,
             mContext: Context,
+            defaultValue: String = "",
         ): String {
             val path = mContext.externalCacheDir!!.absolutePath + "/shell/$name.txt"
             //  Environment.getExternalStorageDirectory().path + "/Android/data/${mContext.packageName}/cache/shell/$name.txt"
@@ -71,7 +72,7 @@ class AutoAccountingServiceUtils(private val mContext: Context) {
             if (file.exists()) {
                 return file.readText().trim()
             }
-            return ""
+            return defaultValue
         }
 
         fun set(

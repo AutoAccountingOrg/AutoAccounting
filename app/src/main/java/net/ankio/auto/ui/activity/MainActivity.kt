@@ -234,7 +234,7 @@ class MainActivity : BaseActivity() {
                     code,
                 ).show(cancel = true)
             }
-            updateUtils.checkRuleUpdate()?.apply {
+            updateUtils.checkRuleUpdate(this)?.apply {
                 UpdateDialog(
                     this@MainActivity,
                     hashMapOf("category" to file + "category.js", "rule" to file + "rule.js"),

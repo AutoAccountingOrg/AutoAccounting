@@ -32,6 +32,7 @@ import net.ankio.auto.events.UpdateFinishEvent
 import net.ankio.auto.exceptions.AutoServiceException
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.utils.AppUtils
+import net.ankio.auto.utils.AutoAccountingServiceUtils
 import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.SpUtils
 import net.ankio.auto.utils.event.EventBus
@@ -131,6 +132,7 @@ class UpdateDialog(
             withContext(Dispatchers.Main) {
                 EventBus.post(UpdateFinishEvent())
             }
+            AutoAccountingServiceUtils.set("ruleVersion", code.toString(), context)
         }
     }
 

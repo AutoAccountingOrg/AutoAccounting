@@ -15,10 +15,12 @@
 
 package net.ankio.auto.utils.update
 
+import android.content.Context
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.utils.AppUtils
+import net.ankio.auto.utils.AutoAccountingServiceUtils
 import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.SpUtils
 import net.ankio.auto.utils.request.RequestsUtils
@@ -110,12 +112,18 @@ class UpdateUtils {
     /**
      * 检查规则更新
      */
-    suspend fun checkRuleUpdate(): UpdateInfo? {
+    suspend fun checkRuleUpdate(mContext: Context): UpdateInfo? {
         SpUtils.getBoolean("checkRule", true).apply {
             if (!this) {
                 return null
             }
         }
-        return request("$ruleUrl/index.json", SpUtils.getInt("ruleVersion", 0), 0)
+        return request(
+            "$ruleUrl/index.json",
+            runCatching {
+                AutoAccountingServiceUtils.get("ruleVersion", mContext, "0").toInt()
+            }.getOrNull() ?: 0,
+            0,
+        )
     }
 }
