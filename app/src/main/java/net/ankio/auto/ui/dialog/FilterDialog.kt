@@ -109,4 +109,9 @@ class FilterDialog(
         super.show(float, cancel)
         settingRenderUtils.onResume()
     }
+
+    override fun dismiss() {
+        super.dismiss()
+        settingRenderUtils.onDestroy()
+    }
 }

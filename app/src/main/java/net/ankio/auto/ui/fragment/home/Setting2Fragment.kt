@@ -66,6 +66,11 @@ class Setting2Fragment : BaseFragment() {
         settingRenderUtils.onResume()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        settingRenderUtils.onDestroy()
+    }
+
     /**
      * 获取App设置项
      */

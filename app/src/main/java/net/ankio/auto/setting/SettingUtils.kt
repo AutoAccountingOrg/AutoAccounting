@@ -16,8 +16,6 @@
 package net.ankio.auto.setting
 
 import android.app.Activity
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -41,6 +39,7 @@ class SettingUtils(
 ) {
     private val viewBinding = HashMap<SettingItem, ViewBinding>()
     private val resume = HashMap<SettingItem, () -> Unit>()
+    private val destroy = HashMap<SettingItem, () -> Unit>()
 
     fun init() {
         settingItems.forEach {
@@ -62,6 +61,16 @@ class SettingUtils(
             val resume = it.value
             resume.invoke()
         }
+    }
+
+    fun onDestroy() {
+        destroy.forEach {
+            val destroy = it.value
+            destroy.invoke()
+        }
+        viewBinding.clear()
+        resume.clear()
+        destroy.clear()
     }
 
     private fun renderTitle(settingItem: SettingItem): SettingItemTitleBinding {
@@ -230,39 +239,17 @@ class SettingUtils(
                 }
             }
         }
-        binding.input.addTextChangedListener(
-            object : TextWatcher {
-                override fun afterTextChanged(s: Editable?) {
-                    // 当输入框的值发生变化后，将新的值存储起来
-                    settingItem.onItemClick?.invoke(s.toString(), context)
-                        ?: settingItem.key?.let {
-                            SpUtils.putString(
-                                it,
-                                s.toString(),
-                            )
-                        }
-                    settingItem.onSavedValue?.invoke(s.toString(), context)
+        destroy[settingItem] = {
+            val result = binding.input.text.toString()
+            settingItem.onItemClick?.invoke(result, context)
+                ?: settingItem.key?.let {
+                    SpUtils.putString(
+                        it,
+                        result,
+                    )
                 }
-
-                override fun beforeTextChanged(
-                    s: CharSequence?,
-                    start: Int,
-                    count: Int,
-                    after: Int,
-                ) {
-                    // 这里不需要做任何事情
-                }
-
-                override fun onTextChanged(
-                    s: CharSequence?,
-                    start: Int,
-                    before: Int,
-                    count: Int,
-                ) {
-                    // 这里不需要做任何事情
-                }
-            },
-        )
+            settingItem.onSavedValue?.invoke(result, context)
+        }
 
         binding.inputLayout.setHint(settingItem.title)
         settingItem.subTitle?.let {

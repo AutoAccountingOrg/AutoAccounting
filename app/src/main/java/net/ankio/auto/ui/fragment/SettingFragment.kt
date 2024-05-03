@@ -52,6 +52,11 @@ class SettingFragment : BaseFragment() {
         settingRenderUtils.onResume()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        settingRenderUtils.onDestroy()
+    }
+
     private fun setting(context: Context): ArrayList<SettingItem> {
         return arrayListOf(
             // 账单
