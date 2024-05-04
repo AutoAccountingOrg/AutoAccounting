@@ -23,7 +23,9 @@ import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentLogBinding
 import net.ankio.auto.ui.adapter.LogAdapter
@@ -101,13 +103,18 @@ class LogFragment : BaseFragment() {
 
     private fun loadMoreData() {
         lifecycleScope.launch {
-            AutoAccountingServiceUtils.get("log", requireContext()).let {
-                dataItems.clear()
-                val collection = it.split("\n")
-                dataItems.addAll(collection)
-                adapter.notifyDataSetChanged()
-                binding.empty.root.visibility =
-                    if (collection.isEmpty()) View.VISIBLE else View.GONE
+            // 读取log.txt
+            withContext(Dispatchers.IO) {
+                AutoAccountingServiceUtils.get("log", requireContext()).let {
+                    dataItems.clear()
+                    val collection = it.split("\n")
+                    dataItems.addAll(collection)
+                    withContext(Dispatchers.Main) {
+                        adapter.notifyDataSetChanged()
+                        binding.empty.root.visibility =
+                            if (collection.isEmpty()) View.VISIBLE else View.GONE
+                    }
+                }
             }
         }
     }
