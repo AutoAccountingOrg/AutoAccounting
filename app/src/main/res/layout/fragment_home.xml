@@ -198,6 +198,16 @@
                     android:layout_height="0dp"
                     android:layout_weight="1"
                     />
+                <TextView
+                    android:id="@+id/defaultBook"
+                    android:layout_width="100dp"
+                    android:ellipsize="end"
+                    android:singleLine="true"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="15dp"
+                    android:text="eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small" />
+
                 <Button
                     android:id="@+id/readBook"
                     style="?attr/materialIconButtonFilledStyle"
@@ -299,7 +309,8 @@
                     android:id="@+id/ruleVersion"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-
+                    android:ellipsize="end"
+                    android:singleLine="true"
                     android:layout_marginEnd="15dp"
                     android:text="1.0.0"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small" />

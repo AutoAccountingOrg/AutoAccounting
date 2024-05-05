@@ -24,6 +24,7 @@ import net.ankio.auto.utils.AppTimeMonitor
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.DateUtils
 import net.ankio.auto.utils.Logger
+import net.ankio.auto.utils.SpUtils
 import net.ankio.common.constant.BillType
 import net.ankio.common.constant.Currency
 import org.json.JSONObject
@@ -120,6 +121,12 @@ object Engine {
                 val cateJson = JSONObject(json)
                 billInfo.cateName = cateJson.getString("category")
                 billInfo.bookName = cateJson.getString("book")
+
+                if (billInfo.bookName == "默认账本")
+                    {
+                        billInfo.bookName = SpUtils.getString("defaultBook", "默认账本")
+                    }
+
                 log("分类脚本执行结果", billInfo.cateName)
             } catch (e: Exception) {
                 log("分类脚本执行出错", e.message ?: "", e)

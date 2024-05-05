@@ -65,9 +65,9 @@ class ExceptionHandler : Thread.UncaughtExceptionHandler {
         if (root is AutoServiceException) {
             return false
         }
-        return true
+        // return true
         // 调试模式不上传错误数据
-        // return !AppUtils.getDebug() && SpUtils.getBoolean("sendToAppCenter", true)
+        return !AppUtils.getDebug() && SpUtils.getBoolean("sendToAppCenter", true)
     }
 
     private fun getRootCause(e: Throwable): Throwable {

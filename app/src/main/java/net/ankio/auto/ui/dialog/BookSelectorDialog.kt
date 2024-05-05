@@ -27,6 +27,7 @@ import net.ankio.auto.database.Db
 import net.ankio.auto.database.table.BookName
 import net.ankio.auto.databinding.DialogBookSelectBinding
 import net.ankio.auto.ui.adapter.BookSelectorAdapter
+import net.ankio.auto.utils.SpUtils
 
 class BookSelectorDialog(private val context: Context, val callback: (BookName) -> Unit) :
     BaseSheetDialog(context) {
@@ -55,7 +56,7 @@ class BookSelectorDialog(private val context: Context, val callback: (BookName) 
     private fun getData(callback: (List<BookName>) -> Unit) {
         val defaultBook =
             BookName().apply {
-                name = "默认账本"
+                name = SpUtils.getString("defaultBook", "默认账本")
                 id = 0
             }
 

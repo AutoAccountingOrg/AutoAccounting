@@ -240,20 +240,22 @@ class CategorySelectorAdapter(
             val layoutParams = binding.imageView.layoutParams as ViewGroup.MarginLayoutParams
             layoutParams.leftMargin = leftDistanceView2 // 设置左边距
             scope.launch {
-                val newData =
-                    Db.get().CategoryDao().loadAll(
-                        item.book,
-                        item.type,
-                        item.parent,
-                    )
+                withContext(Dispatchers.IO) {
+                    val newData =
+                        Db.get().CategoryDao().loadAll(
+                            item.book,
+                            item.type,
+                            item.parent,
+                        )
 
-                val collection = newData?.mapNotNull { it }?.takeIf { it.isNotEmpty() } ?: listOf()
+                    val collection = newData?.mapNotNull { it }?.takeIf { it.isNotEmpty() } ?: listOf()
 
-                if (collection.isNotEmpty()) {
-                    withContext(Dispatchers.Main) {
-                        items.clear()
-                        items.addAll(collection)
-                        adapter.notifyDataSetChanged()
+                    if (collection.isNotEmpty()) {
+                        withContext(Dispatchers.Main) {
+                            items.clear()
+                            items.addAll(collection)
+                            adapter.notifyDataSetChanged()
+                        }
                     }
                 }
             }

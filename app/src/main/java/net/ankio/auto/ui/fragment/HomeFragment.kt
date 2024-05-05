@@ -130,6 +130,9 @@ class HomeFragment : BaseFragment() {
                 }
             }
         }
+        SpUtils.getString("defaultBook", "默认账本").let {
+            binding.defaultBook.text = it
+        }
     }
 
     private fun bindActiveUI() {
@@ -200,7 +203,9 @@ class HomeFragment : BaseFragment() {
         // 账本数据（只读）
         binding.readBook.setOnClickListener {
             BookSelectorDialog(themeContext) {
-                Logger.i("选择的账本是：${it.name}")
+                Logger.d("选择的账本是：${it.name}")
+                // defaultBook
+                SpUtils.putString("defaultBook", it.name)
             }.show(cancel = true)
         }
         // 分类数据（只读）

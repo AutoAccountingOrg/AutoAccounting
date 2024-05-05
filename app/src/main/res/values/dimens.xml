@@ -24,6 +24,7 @@
     <dimen name="border_side">15dp</dimen>
     <dimen name="padding_side">30dp</dimen>
     <dimen name="image_size">38dp</dimen>
+    <dimen name="image_size_small_min">18dp</dimen>
     <dimen name="image_size_small">28dp</dimen>
     <dimen name="image_size_large">48dp</dimen>
     <dimen name="image_size_large2">128dp</dimen>
@@ -35,4 +36,5 @@
     <dimen name="float_icon_book_size">18dp</dimen>
     <dimen name="font_size">6sp</dimen>
     <dimen name="mini_icon_size">12dp</dimen>
+    <dimen name="font_size_normal">12sp</dimen>
 </resources>

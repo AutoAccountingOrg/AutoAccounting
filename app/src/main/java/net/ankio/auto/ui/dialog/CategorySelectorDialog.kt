@@ -125,8 +125,8 @@ class CategorySelectorDialog(
         val location = IntArray(2)
         view.getLocationOnScreen(location)
         val params = view.layoutParams as MarginLayoutParams
-        val leftDistanceWithMargin = location[0] + view.paddingLeft + params.leftMargin - 16
-        category.id = leftDistanceWithMargin - view.width / 2 + 14
+        val leftDistanceWithMargin = location[0] + view.paddingLeft + params.leftMargin - 19
+        category.id = leftDistanceWithMargin - view.width / 2 + 10
         return category
     }
 

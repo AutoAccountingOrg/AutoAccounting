@@ -19,4 +19,6 @@
     <color name="warning">#E4A11B</color>
     <color name="success">#14A44D</color>
     <color name="background9F">#9F000000</color>
+    <color name="black">#000</color>
+    <color name="gray40">#90FFFFFF</color>
 </resources>

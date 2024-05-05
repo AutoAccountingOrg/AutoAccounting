@@ -15,7 +15,7 @@
 
     <LinearLayout
         android:id="@+id/icon"
-        android:layout_width="wrap_content"
+        android:layout_width="50dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="5dp"
         android:layout_marginTop="5dp"
@@ -26,14 +26,14 @@
 
 
         <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_gravity="center">
 
             <ImageView
                 android:id="@+id/item_image_icon"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
+                android:layout_width="@dimen/image_size"
+                android:layout_height="@dimen/image_size"
                 android:layout_centerHorizontal="true"
                 android:background="@drawable/rounded_border"
                 android:padding="7dp"
@@ -44,29 +44,33 @@
 
             <ImageView
                 android:id="@+id/iv_more"
-                android:layout_width="12dp"
-                android:layout_height="12dp"
-                android:layout_marginStart="-12dp"
+                android:layout_width="@dimen/image_size_small_min"
+                android:layout_height="@dimen/image_size_small_min"
+
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
                 android:layout_marginTop="20dp"
-                android:layout_toEndOf="@+id/item_image_icon"
+                android:layout_marginEnd="2dp"
                 android:background="@drawable/rounded_border_2"
                 android:padding="2dp"
                 android:src="@drawable/ic_more2"
                 app:tint="?colorOnSecondary"
                 tools:ignore="UseAppTint" />
+
         </RelativeLayout>
 
         <TextView
             android:id="@+id/item_text"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="0dp"
-            android:lines="1"
-            android:maxWidth="32dp"
-            android:maxLength="3"
-            android:text="测试"
+            android:layout_marginTop="4dp"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:text="哈哈哈"
             android:textColor="?attr/colorPrimary"
-            android:textSize="11sp" />
+            android:textSize="@dimen/font_size_normal" />
+
     </LinearLayout>
 
     <LinearLayout
