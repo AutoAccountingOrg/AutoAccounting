@@ -174,7 +174,20 @@ class DataAdapter(
                 binding.uploadData.visibility = View.GONE
                 binding.groupCard.setCardBackgroundColor(SurfaceColors.SURFACE_5.getColor(context))
             }
-            binding.rule.text = item.rule
+
+            // 使用正则提取 \[(.*?)\]
+
+            val rule = item.rule
+            val regex = "\\[(.*?)]".toRegex()
+            val matchResult = regex.find(rule)
+            if (matchResult != null) {
+                val (value) = matchResult.destructured
+                binding.rule.text = value
+            } else {
+                binding.rule.text = item.rule
+            }
+
+            //    binding.rule.text = item.rule
 
             binding.testRule.setOnClickListener {
                 onClickTest(item)

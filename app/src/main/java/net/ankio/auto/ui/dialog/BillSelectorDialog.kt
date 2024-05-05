@@ -67,7 +67,6 @@ class BillSelectorDialog(
         float: Boolean,
         cancel: Boolean,
     ) {
-        super.show(float, cancel)
         lifecycleScope.launch {
             runCatching {
                 val it = AppUtils.getService().get("auto_bills_${billType.name}")
@@ -77,11 +76,13 @@ class BillSelectorDialog(
                     Toaster.show(R.string.no_bills)
                     return@runCatching
                 }
+                super.show(float, cancel)
                 dataItems.addAll(data)
 
                 adapter.notifyItemInserted(0)
             }.onFailure {
                 dismiss()
+                Toaster.show(R.string.no_bills)
                 Logger.e("get auto_bills_${billType.name} error", it)
                 if (it is AutoServiceException) {
                     EventBus.post(AutoServiceErrorEvent(it))
