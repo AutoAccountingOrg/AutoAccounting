@@ -29,6 +29,7 @@ import net.ankio.auto.R
 import net.ankio.auto.app.BillUtils
 import net.ankio.auto.database.table.Assets
 import net.ankio.auto.database.table.BillInfo
+import net.ankio.auto.database.table.BookName
 import net.ankio.auto.database.table.Category
 import net.ankio.auto.databinding.AdapterOrderItemBinding
 import net.ankio.auto.utils.AppUtils
@@ -76,7 +77,8 @@ class OrderItemAdapter(
         ) {
             binding.category.setText(item.cateName)
             scope.launch {
-                Category.getDrawable(item.cateName, context).let {
+                val book = BookName.getByName(item.bookName)
+                Category.getDrawable(item.cateName, book.id, context).let {
                     withContext(Dispatchers.Main) {
                         binding.category.setIcon(it, true)
                     }

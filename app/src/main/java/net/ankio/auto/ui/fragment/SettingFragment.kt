@@ -154,11 +154,6 @@ class SettingFragment : BaseFragment() {
                 type = ItemType.SWITCH,
                 default = false,
                 icon = R.drawable.setting_icon_parent,
-                onSavedValue = { value, activity ->
-                    AppUtils.getScope().launch {
-                        AppUtils.getService().set("setting_category_show_parent", value.toString())
-                    }
-                },
             ),
             SettingItem(R.string.setting_color),
             SettingItem(

@@ -92,9 +92,14 @@ class Category {
 
         suspend fun getDrawable(
             cateName: String,
+            bookID: Int,
             context: Context,
         ): Drawable {
-            val categoryInfo = Db.get().CategoryDao().get(cateName, 0)
+            var newCateName = cateName
+            if (newCateName.contains("-")) {
+                newCateName = newCateName.split("-").last()
+            }
+            val categoryInfo = Db.get().CategoryDao().get(newCateName, bookID)
             return ImageUtils.get(context, categoryInfo?.icon ?: "", R.drawable.default_cate)
         }
     }

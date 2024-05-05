@@ -41,7 +41,7 @@ interface CategoryDao {
     @Query("SELECT * FROM Category where name=:cateName and book=:book limit 1")
     suspend fun get(
         cateName: String,
-        book: Long,
+        book: Int,
     ): Category?
 
     @Query("SELECT * FROM Category where remoteId=:remote and book=:book limit 1")
