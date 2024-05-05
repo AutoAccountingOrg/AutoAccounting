@@ -129,10 +129,10 @@ class UpdateDialog(
         }.onSuccess {
             SpUtils.putString("ruleVersionName", version)
             SpUtils.putInt("ruleVersion", code)
+            AutoAccountingServiceUtils.set("ruleVersion", code.toString(), context)
             withContext(Dispatchers.Main) {
                 EventBus.post(UpdateFinishEvent())
             }
-            AutoAccountingServiceUtils.set("ruleVersion", code.toString(), context)
         }
     }
 
