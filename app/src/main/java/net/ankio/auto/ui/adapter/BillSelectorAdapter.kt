@@ -64,6 +64,7 @@ class BillSelectorAdapter(
     ) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(item: BillModel) {
+            binding.root.setBackgroundColor(Color.TRANSPARENT)
             binding.root.setOnClickListener {
                 if (selectedItems.contains(item)) {
                     selectedItems.remove(item)
