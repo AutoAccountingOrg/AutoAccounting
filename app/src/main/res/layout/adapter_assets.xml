@@ -16,4 +16,7 @@
     app:iconSrc="@drawable/home_app_book"
     android:textStyle="bold"
     app:text="测试账户"
+    app:textColor="?colorOnBackground"
+    app:textSize="10sp"
+    app:iconSize="20dp"
     />
