@@ -20,4 +20,4 @@ local.properties
 /app/src/main/assets/shell/x86/
 /app/src/main/assets/shell/x86_64/
 /app/src/xposed/assets/shell/apps.txt
-/.github/workflows/.env
+/.github/workflows/env.json
