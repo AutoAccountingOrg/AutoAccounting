@@ -16,6 +16,7 @@
 package net.ankio.auto.utils
 
 import android.util.Log
+import kotlinx.coroutines.launch
 
 /**
  * 日志工具类，包含调用日志的类和行号信息，以及异常的堆栈跟踪。
@@ -100,7 +101,9 @@ object Logger {
         // 一些发起服务请求的不记录到日志文件里面来
         if (logMessage.any { it.contains("127.0.0.1:52045") })return
 
-        AutoAccountingServiceUtils.log(logMessage.joinToString("\n"), AppUtils.getApplication())
+        AppUtils.getScope().launch {
+            AutoAccountingServiceUtils.log(logMessage.joinToString("\n"), AppUtils.getApplication())
+        }
     }
 
     fun d(message: String) {

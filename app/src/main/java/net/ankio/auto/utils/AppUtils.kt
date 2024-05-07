@@ -261,6 +261,7 @@ object AppUtils {
         file: File,
         numLines: Int,
     ): String {
+        if (!file.exists())return ""
         return file.readLines().takeLast(numLines).joinToString("\n")
     }
 }

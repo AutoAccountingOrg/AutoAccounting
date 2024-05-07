@@ -65,13 +65,13 @@ class ServiceFragment : BaseFragment() {
     }
 
     private fun initView() {
-        cacheDir = AppUtils.getApplication().externalCacheDir
-        if (cacheDir === null) {
-            throw UnsupportedDeviceException(getString(R.string.unsupport_device))
-        }
         val loading = LoadingUtils(requireActivity())
         loading.setText(R.string.wait_shell_update)
         lifecycleScope.launch {
+            cacheDir = AppUtils.getApplication().externalCacheDir
+            if (cacheDir === null) {
+                throw UnsupportedDeviceException(getString(R.string.unsupport_device))
+            }
             AppUtils.getService().copyAssets()
             withContext(Dispatchers.Main) {
                 loading.close()

@@ -75,8 +75,10 @@ class LogFragment : BaseFragment() {
             },
             MenuItem(R.string.item_clear, R.drawable.menu_icon_clear) {
                 runCatching {
-                    AutoAccountingServiceUtils.delete("log", requireContext())
-                    loadMoreData()
+                    lifecycleScope.launch {
+                        AutoAccountingServiceUtils.delete("log", requireContext())
+                        loadMoreData()
+                    }
                 }.onFailure {
                     Logger.e("清除失败", it)
                 }

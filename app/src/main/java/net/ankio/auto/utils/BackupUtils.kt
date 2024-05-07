@@ -433,15 +433,13 @@ class BackupUtils(private val context: Context) {
                     withContext(Dispatchers.Main) {
                         loadingUtils.setText(R.string.restore_loading)
                     }
-                    mainActivity.lifecycleScope.launch {
-                        file.writeBytes(result.byteArray)
-                        unpackData(file.inputStream(), filename)
-                        withContext(Dispatchers.Main) {
-                            loadingUtils.close()
-                            Toaster.show(R.string.restore_success)
-                            delay(3000)
-                            AppUtils.restart()
-                        }
+                    file.writeBytes(result.byteArray)
+                    unpackData(file.inputStream(), filename)
+                    withContext(Dispatchers.Main) {
+                        loadingUtils.close()
+                        Toaster.show(R.string.restore_success)
+                        delay(3000)
+                        AppUtils.restart()
                     }
                 } else {
                     withContext(Dispatchers.Main) {

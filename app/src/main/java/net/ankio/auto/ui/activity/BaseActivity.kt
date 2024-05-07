@@ -24,6 +24,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.annotation.AttrRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.MaterialToolbar
@@ -34,6 +35,9 @@ import com.zackratos.ultimatebarx.ultimatebarx.addNavigationBarBottomPadding
 import com.zackratos.ultimatebarx.ultimatebarx.addStatusBarTopPadding
 import com.zackratos.ultimatebarx.ultimatebarx.navigationBar
 import com.zackratos.ultimatebarx.ultimatebarx.statusBar
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.LanguageUtils
 
@@ -59,7 +63,11 @@ open class BaseActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // 主题初始化
-        ThemeEngine.applyToActivity(this)
+        lifecycleScope.launch {
+            withContext(Dispatchers.IO) {
+                ThemeEngine.applyToActivity(this@BaseActivity)
+            }
+        }
     }
 
     /**

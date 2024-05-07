@@ -17,8 +17,10 @@ package net.ankio.auto.ui.activity
 
 import android.content.Intent
 import android.os.Bundle
+import androidx.lifecycle.lifecycleScope
 import com.zackratos.ultimatebarx.ultimatebarx.addNavigationBarBottomPadding
 import com.zackratos.ultimatebarx.ultimatebarx.addStatusBarTopPadding
+import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.ActivityAuthBinding
 import net.ankio.auto.utils.AppUtils
@@ -61,11 +63,13 @@ class AuthActivity : BaseActivity() {
         binding.authInfo.text = getString(R.string.auth_msg, appInfo.name)
 
         binding.sure.setOnClickListener {
-            val resultIntent = Intent()
-            resultIntent.putExtra("token", AutoAccountingServiceUtils.getToken(this@AuthActivity))
-            SpUtils.putString("bookApp", packageName)
-            setResult(RESULT_OK, resultIntent)
-            finish()
+            lifecycleScope.launch {
+                val resultIntent = Intent()
+                resultIntent.putExtra("token", AutoAccountingServiceUtils.getToken(this@AuthActivity))
+                SpUtils.putString("bookApp", packageName)
+                setResult(RESULT_OK, resultIntent)
+                finish()
+            }
         }
         binding.cancel.setOnClickListener {
             setResult(RESULT_CANCELED)

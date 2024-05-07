@@ -49,37 +49,41 @@ class AutoAccountingServiceUtils(private val mContext: Context) {
                 }
             }
 
-        fun getToken(mContext: Context): String {
-            val path = mContext.externalCacheDir!!.parentFile!!.absolutePath + "/shell/token.txt"
-            val file = File(path)
-            if (file.exists()) {
-                return file.readText().trim()
+        suspend fun getToken(mContext: Context): String =
+            withContext(Dispatchers.IO) {
+                val path = mContext.externalCacheDir!!.parentFile!!.absolutePath + "/shell/token.txt"
+                val file = File(path)
+                if (file.exists()) {
+                    file.readText().trim()
+                } else {
+                    get("token", mContext)
+                }
             }
-            return get("token", mContext)
-        }
 
         /**
          * 获取文件内容
          */
-        fun get(
+        suspend fun get(
             name: String,
             mContext: Context,
             defaultValue: String = "",
-        ): String {
-            val path = mContext.externalCacheDir!!.absolutePath + "/shell/$name.txt"
-            //  Environment.getExternalStorageDirectory().path + "/Android/data/${mContext.packageName}/cache/shell/$name.txt"
-            val file = File(path)
-            if (file.exists()) {
-                return file.readText().trim()
+        ): String =
+            withContext(Dispatchers.IO) {
+                val path = mContext.externalCacheDir!!.absolutePath + "/shell/$name.txt"
+                //  Environment.getExternalStorageDirectory().path + "/Android/data/${mContext.packageName}/cache/shell/$name.txt"
+                val file = File(path)
+                if (file.exists()) {
+                    file.readText().trim()
+                } else {
+                    defaultValue
+                }
             }
-            return defaultValue
-        }
 
-        fun set(
+        suspend fun set(
             name: String,
             data: String,
             mContext: Context,
-        ) {
+        ) = withContext(Dispatchers.IO) {
             val path =
                 mContext.externalCacheDir!!.absolutePath + "/shell/$name.txt"
             val file = File(path)
@@ -89,10 +93,10 @@ class AutoAccountingServiceUtils(private val mContext: Context) {
             file.writeText(data)
         }
 
-        fun delete(
+        suspend fun delete(
             name: String,
             mContext: Context,
-        ) {
+        ) = withContext(Dispatchers.IO) {
             val path =
                 mContext.externalCacheDir!!.absolutePath + "/shell/$name.txt"
             val file = File(path)
@@ -101,10 +105,10 @@ class AutoAccountingServiceUtils(private val mContext: Context) {
             }
         }
 
-        fun log(
+        suspend fun log(
             data: String,
             mContext: Context,
-        ) {
+        ) = withContext(Dispatchers.IO) {
             runCatching {
                 val path = mContext.externalCacheDir!!.absolutePath + "/shell/log.txt"
                 val file = File(path)
@@ -135,20 +139,21 @@ class AutoAccountingServiceUtils(private val mContext: Context) {
             return "$HOST:$PORT$path"
         }
 
-        fun config(context: Context): AccountingConfig {
-            return runCatching {
-                val bookAppConfig = get("bookAppConfig", context)
-                val config = Gson().fromJson(bookAppConfig, AccountingConfig::class.java)
-                if (config == null) {
-                    set("bookAppConfig", Gson().toJson(AccountingConfig()), context)
-                    AccountingConfig()
-                } else {
-                    config
-                }
-            }.onFailure {
-                Logger.e("获取配置失败", it)
-            }.getOrNull() ?: AccountingConfig()
-        }
+        suspend fun config(context: Context): AccountingConfig =
+            withContext(Dispatchers.IO) {
+                runCatching {
+                    val bookAppConfig = get("bookAppConfig", context)
+                    val config = Gson().fromJson(bookAppConfig, AccountingConfig::class.java)
+                    if (config == null) {
+                        set("bookAppConfig", Gson().toJson(AccountingConfig()), context)
+                        AccountingConfig()
+                    } else {
+                        config
+                    }
+                }.onFailure {
+                    Logger.e("获取配置失败", it)
+                }.getOrNull() ?: AccountingConfig()
+            }
     }
 
     suspend fun request(
