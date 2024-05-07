@@ -164,6 +164,8 @@ class DataFragment : BaseFragment() {
     }
 
     private fun loadMoreData() {
+        val loading = LoadingUtils(requireActivity())
+        loading.show(R.string.loading)
         lifecycleScope.launch {
             withContext(Dispatchers.IO) {
                 val data = AutoAccountingServiceUtils.get("data", requireContext())
@@ -240,6 +242,7 @@ class DataFragment : BaseFragment() {
                 withContext(Dispatchers.Main) {
                     adapter.notifyDataSetChanged()
                     binding.empty.root.visibility = if (dataItems.isEmpty()) View.VISIBLE else View.GONE
+                    loading.close()
                 }
             }
         }

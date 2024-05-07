@@ -22,12 +22,15 @@ import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.database.Db
 import net.ankio.auto.database.table.BillInfo
 import net.ankio.auto.databinding.FragmentOrderBinding
 import net.ankio.auto.ui.adapter.OrderAdapter
+import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.MenuItem
 import net.ankio.auto.utils.AppUtils
 
@@ -64,16 +67,22 @@ class OrderFragment : BaseFragment() {
     }
 
     private fun loadMoreData() {
+        val loading = LoadingUtils(requireActivity())
+        loading.show(R.string.loading)
+
         lifecycleScope.launch {
-            val list = Db.get().BillInfoDao().getListGroup()
-            dataItems.clear()
-            list.forEach {
-                val billInfo =
-                    Db.get().BillInfoDao().getTotal(it.ids.split(",").map { item -> item.toInt() })
-                dataItems.add(Pair(it.date, billInfo))
+            withContext(Dispatchers.IO) {
+                val list = Db.get().BillInfoDao().getListGroup()
+                dataItems.clear()
+                list.forEach {
+                    val billInfo =
+                        Db.get().BillInfoDao().getTotal(it.ids.split(",").map { item -> item.toInt() })
+                    dataItems.add(Pair(it.date, billInfo))
+                }
             }
             adapter.notifyDataSetChanged()
             binding.empty.root.visibility = if (dataItems.isEmpty()) View.VISIBLE else View.GONE
+            loading.close()
         }
     }
 

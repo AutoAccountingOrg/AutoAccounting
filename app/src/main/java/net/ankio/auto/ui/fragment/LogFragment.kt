@@ -29,6 +29,7 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentLogBinding
 import net.ankio.auto.ui.adapter.LogAdapter
+import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.MenuItem
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.AutoAccountingServiceUtils
@@ -102,18 +103,19 @@ class LogFragment : BaseFragment() {
     }
 
     private fun loadMoreData() {
+        val loading = LoadingUtils(requireActivity())
+        loading.show(R.string.loading)
         lifecycleScope.launch {
             // 读取log.txt
             withContext(Dispatchers.IO) {
-                AutoAccountingServiceUtils.get("log", requireContext()).let {
-                    dataItems.clear()
-                    val collection = it.split("\n")
-                    dataItems.addAll(collection)
-                    withContext(Dispatchers.Main) {
-                        adapter.notifyDataSetChanged()
-                        binding.empty.root.visibility =
-                            if (collection.isEmpty()) View.VISIBLE else View.GONE
-                    }
+                val path = requireContext().externalCacheDir?.absolutePath + "/shell/log.txt"
+                dataItems.clear()
+                dataItems.addAll(File(path).readLines())
+                withContext(Dispatchers.Main) {
+                    loading.close()
+                    adapter.notifyDataSetChanged()
+                    binding.empty.root.visibility =
+                        if (dataItems.isEmpty()) View.VISIBLE else View.GONE
                 }
             }
         }
