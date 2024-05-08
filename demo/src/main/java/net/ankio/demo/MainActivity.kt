@@ -35,7 +35,6 @@ import net.ankio.auto.sdk.exception.AutoAccountingException
 import net.ankio.auto.sdk.utils.Logger
 import net.ankio.common.constant.BillType
 
-
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,170 +46,167 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        //注册授权请求
+        // 注册授权请求
 
-        val requestAuthorization = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK && result.data != null) {
-                val data: Intent? = result.data
-                val resultData = data?.getStringExtra("token")
-                Toast.makeText(this,"接收到的数据: $resultData",Toast.LENGTH_SHORT).show()
-                //调用自动记账存储
-                try {
-                    AutoAccounting.setToken(this, resultData)
+        val requestAuthorization =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                if (result.resultCode == Activity.RESULT_OK && result.data != null) {
+                    val data: Intent? = result.data
+                    val resultData = data?.getStringExtra("token")
+                    Toast.makeText(this, "接收到的数据: $resultData", Toast.LENGTH_SHORT).show()
+                    // 调用自动记账存储
+                    try {
+                        AutoAccounting.setToken(this, resultData ?: "")
 
-                    //授权成功后可以一次性将所有数据先同步给自动记账
-
-                }catch (e:AutoAccountingException){
-                    e.printStackTrace()
-                    Toast.makeText(this,"数据为空，可能是因为自动记账服务未启动",Toast.LENGTH_SHORT).show()
+                        // 授权成功后可以一次性将所有数据先同步给自动记账
+                    } catch (e: AutoAccountingException) {
+                        e.printStackTrace()
+                        Toast.makeText(this, "数据为空，可能是因为自动记账服务未启动", Toast.LENGTH_SHORT).show()
+                    }
+                    // 授权成功尝试重启
+                    tryStartAutoAccounting()
+                } else {
+                    Toast.makeText(this, "授权失败或者用户拒绝授权", Toast.LENGTH_SHORT).show()
                 }
-                //授权成功尝试重启
-                tryStartAutoAccounting()
-            }else{
-                Toast.makeText(this,"授权失败或者用户拒绝授权",Toast.LENGTH_SHORT).show()
             }
-        }
-        //尝试启动自动记账服务
+        // 尝试启动自动记账服务
         tryStartAutoAccounting()
-        //请求授权
+        // 请求授权
         findViewById<Button>(R.id.authorization).setOnClickListener {
-            //设置Action
+            // 设置Action
             val intent = Intent("net.ankio.auto.ACTION_REQUEST_AUTHORIZATION")
-            //设置包名，用于自动记账对目标app进行检查
+            // 设置包名，用于自动记账对目标app进行检查
             intent.putExtra("packageName", packageName)
             try {
-                //启动授权请求
+                // 启动授权请求
                 requestAuthorization.launch(intent)
-            }catch (e: ActivityNotFoundException){
-                //没有自动记账，需要引导用户下载自动记账App
+            } catch (e: ActivityNotFoundException) {
+                // 没有自动记账，需要引导用户下载自动记账App
                 e.printStackTrace()
-                Toast.makeText(this,"未找到自动记账，请从xxxx下载自动记账App",Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "未找到自动记账，请从xxxx下载自动记账App", Toast.LENGTH_SHORT).show()
             }
         }
-        //设置账本数据
+        // 设置账本数据
         findViewById<Button>(R.id.syncBook).setOnClickListener {
             lifecycleScope.launch {
                 try {
-                    val books =  Gson().toJson(MockUtils.generateRandomBooks(4))
+                    val books = Gson().toJson(MockUtils.generateRandomBooks(4))
                     Logger.i("books:$books")
-                    AutoAccounting.setBooks(this@MainActivity,books)
-                    Toast.makeText(this@MainActivity,"设置成功",Toast.LENGTH_SHORT).show()
-                }catch (e:AutoAccountingException){
+                    AutoAccounting.setBooks(this@MainActivity, books)
+                    Toast.makeText(this@MainActivity, "设置成功", Toast.LENGTH_SHORT).show()
+                } catch (e: AutoAccountingException) {
                     e.printStackTrace()
-                    Toast.makeText(this@MainActivity,"设置失败",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@MainActivity, "设置失败", Toast.LENGTH_SHORT).show()
                 }
             }
-
         }
-        //设置资产数据
+        // 设置资产数据
         findViewById<Button>(R.id.syncAssets).setOnClickListener {
             lifecycleScope.launch {
                 try {
-                    AutoAccounting.setAssets(this@MainActivity,Gson().toJson(MockUtils.generateAssets(30)))
-                    Toast.makeText(this@MainActivity,"设置成功",Toast.LENGTH_SHORT).show()
-                }catch (e:AutoAccountingException){
+                    AutoAccounting.setAssets(this@MainActivity, Gson().toJson(MockUtils.generateAssets(30)))
+                    Toast.makeText(this@MainActivity, "设置成功", Toast.LENGTH_SHORT).show()
+                } catch (e: AutoAccountingException) {
                     e.printStackTrace()
-                    Toast.makeText(this@MainActivity,"设置失败",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@MainActivity, "设置失败", Toast.LENGTH_SHORT).show()
                 }
             }
-
         }
-        //设置待报销账单
+        // 设置待报销账单
         findViewById<Button>(R.id.syncReimbursement).setOnClickListener {
             lifecycleScope.launch {
                 try {
-                    AutoAccounting.setBills(this@MainActivity,Gson().toJson(MockUtils.generateRandomBills(30)),
-                        BillType.ExpendReimbursement.name //支出时标记为报销的账单
+                    AutoAccounting.setBills(
+                        this@MainActivity,
+                        Gson().toJson(MockUtils.generateRandomBills(30)),
+                        BillType.ExpendReimbursement.name, // 支出时标记为报销的账单
                     )
-                    Toast.makeText(this@MainActivity,"设置成功",Toast.LENGTH_SHORT).show()
-                }catch (e:AutoAccountingException){
+                    Toast.makeText(this@MainActivity, "设置成功", Toast.LENGTH_SHORT).show()
+                } catch (e: AutoAccountingException) {
                     e.printStackTrace()
-                    Toast.makeText(this@MainActivity,"设置失败",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@MainActivity, "设置失败", Toast.LENGTH_SHORT).show()
                 }
             }
         }
-        //同步债务账单给自动记账（借钱给别人）
+        // 同步债务账单给自动记账（借钱给别人）
 
         findViewById<Button>(R.id.syncDebtExpend).setOnClickListener {
             lifecycleScope.launch {
                 try {
-                    AutoAccounting.setBills(this@MainActivity,Gson().toJson(MockUtils.generateRandomBills(10)),
-                        BillType.ExpendLending.name //借钱给别人
+                    AutoAccounting.setBills(
+                        this@MainActivity,
+                        Gson().toJson(MockUtils.generateRandomBills(10)),
+                        BillType.ExpendLending.name, // 借钱给别人
                     )
-                    Toast.makeText(this@MainActivity,"设置成功",Toast.LENGTH_SHORT).show()
-                }catch (e:AutoAccountingException){
+                    Toast.makeText(this@MainActivity, "设置成功", Toast.LENGTH_SHORT).show()
+                } catch (e: AutoAccountingException) {
                     e.printStackTrace()
-                    Toast.makeText(this@MainActivity,"设置失败",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@MainActivity, "设置失败", Toast.LENGTH_SHORT).show()
                 }
             }
         }
-        //同步债务账单给自动记账（借别人钱）
+        // 同步债务账单给自动记账（借别人钱）
         findViewById<Button>(R.id.syncDebtIncome).setOnClickListener {
             lifecycleScope.launch {
                 try {
-                    AutoAccounting.setBills(this@MainActivity,Gson().toJson(MockUtils.generateRandomBills(10)),
-                        BillType.IncomeLending.name //借别人钱
+                    AutoAccounting.setBills(
+                        this@MainActivity,
+                        Gson().toJson(MockUtils.generateRandomBills(10)),
+                        BillType.IncomeLending.name, // 借别人钱
                     )
-                    Toast.makeText(this@MainActivity,"设置成功",Toast.LENGTH_SHORT).show()
-                }catch (e:AutoAccountingException){
+                    Toast.makeText(this@MainActivity, "设置成功", Toast.LENGTH_SHORT).show()
+                } catch (e: AutoAccountingException) {
                     e.printStackTrace()
-                    Toast.makeText(this@MainActivity,"设置失败",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@MainActivity, "设置失败", Toast.LENGTH_SHORT).show()
                 }
             }
         }
-        //从自动记账获取需要同步的账单
+        // 从自动记账获取需要同步的账单
         findViewById<Button>(R.id.syncBills).setOnClickListener {
-            //这一步放在onresume里面
+            // 这一步放在onresume里面
             lifecycleScope.launch {
                 try {
                     val bills = AutoAccounting.getBills(this@MainActivity)
                     Logger.i("bills:$bills")
-                    //获取到的是json数据，需要自己序列化为 List<AutoBillModel>
-                    Toast.makeText(this@MainActivity,"获取成功",Toast.LENGTH_SHORT).show()
-                }catch (e:AutoAccountingException){
+                    // 获取到的是json数据，需要自己序列化为 List<AutoBillModel>
+                    Toast.makeText(this@MainActivity, "获取成功", Toast.LENGTH_SHORT).show()
+                } catch (e: AutoAccountingException) {
                     e.printStackTrace()
-                    Toast.makeText(this@MainActivity,"获取失败",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@MainActivity, "获取失败", Toast.LENGTH_SHORT).show()
                 }
             }
         }
 
         findViewById<Button>(R.id.autoAccounting).setOnClickListener {
-            val data = """
+            val data =
+                """
                 {"accountNameFrom":"支付宝余额","accountNameTo":"","bookName":"默认账本","cateName":"收红包","channel":"支付宝收到一笔转账","currency":"CNY","extendData":"","fee":0,"from":"com.eg.android.AlipayGphone","fromType":"App","groupId":0,"id":0,"money":1,"remark":"从前慢 185******30 - 收到一笔转账","shopItem":"收到一笔转账","shopName":"从前慢 185******30","syncFromApp":false,"timeStamp":1710075624000,"type":"Income"}
-            """.trimIndent()
+                """.trimIndent()
 
             // 创建一个Intent来启动目标应用程序
             val intent = Intent("net.ankio.auto.ACTION_SHOW_FLOATING_WINDOW")
 
 // 设置URI，可以添加查询参数（如 data=some_data）
-            intent.setData(Uri.parse("autoaccounting://bill?data=${data}"))
+            intent.setData(Uri.parse("autoaccounting://bill?data=$data"))
 
 // 启动目标应用程序
             startActivity(intent)
-
-
         }
-
     }
+
     private fun tryStartAutoAccounting() {
         lifecycleScope.launch {
             try {
                 //
                 AutoAccounting.init(
                     this@MainActivity,
-                    Gson().toJson(MockUtils.generateRandomConfig()),//自动记账的demo使用的是Gson库来序列化对象，你也可以使用其他的库来序列化，只要保证传输给自动记账的数据是json的即可。
+                    Gson().toJson(MockUtils.generateRandomConfig()), // 自动记账的demo使用的是Gson库来序列化对象，你也可以使用其他的库来序列化，只要保证传输给自动记账的数据是json的即可。
                 )
-                Toast.makeText(this@MainActivity,"自动记账服务已连接",Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@MainActivity, "自动记账服务已连接", Toast.LENGTH_SHORT).show()
             } catch (e: AutoAccountingException) {
                 e.printStackTrace()
-                Toast.makeText(this@MainActivity,"自动记账服务未启动或自动记账未授权服务",Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@MainActivity, "自动记账服务未启动或自动记账未授权服务", Toast.LENGTH_SHORT).show()
             }
         }
     }
-
-
-
-
-
-
 }

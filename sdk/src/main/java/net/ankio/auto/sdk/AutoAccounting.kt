@@ -26,29 +26,6 @@ class AutoAccounting {
     private val PORT = 52045
     private val url = "http://127.0.0.1:$PORT/"
 
-    private fun getSp(mContext: Context): SharedPreferences? {
-        return mContext.getSharedPreferences("AutoAccountingConfig", Context.MODE_PRIVATE)
-    }
-
-    fun setToken(
-        mContext: Context,
-        token: String,
-    ) {
-        with(getSp(mContext)?.edit()) {
-            this?.putString("token", token)
-            this?.apply()
-        }
-    }
-
-    private fun getToken(mContext: Context): String {
-        val token = getSp(mContext)?.getString("token", "")
-        if (token.isNullOrEmpty())
-            {
-                throw AutoAccountingException("token不能为空", AutoAccountingException.CODE_SERVER_AUTHORIZE)
-            }
-        return token
-    }
-
     companion object {
         private lateinit var instance: AutoAccounting
 
@@ -60,31 +37,37 @@ class AutoAccounting {
         suspend fun init(
             context: Context,
             config: String,
-        )  {
+        ) {
             instance = AutoAccounting()
             instance.setConfig(context, config)
         }
 
-        private fun checkInit()  {
-            if (!::instance.isInitialized)
-                {
-                    throw AutoAccountingException("AutoAccounting未初始化", AutoAccountingException.CODE_SERVER_UN_INIT)
-                }
+        private fun checkInit() {
+            if (!::instance.isInitialized) {
+                throw AutoAccountingException("AutoAccounting未初始化", AutoAccountingException.CODE_SERVER_UN_INIT)
+            }
         }
 
-        /**
-         * 向自动记账请求授权后，会得到一个token，如果token为空可能未启动自动记账服务
-         */
+        private fun getSp(mContext: Context): SharedPreferences? {
+            return mContext.getSharedPreferences("AutoAccountingConfig", Context.MODE_PRIVATE)
+        }
+
         fun setToken(
-            context: Context,
-            token: String?,
+            mContext: Context,
+            token: String,
         ) {
-            checkInit()
-            if (token.isNullOrEmpty())
-                {
-                    throw AutoAccountingException("token不能为空", AutoAccountingException.CODE_SERVER_AUTHORIZE)
-                }
-            instance.setToken(context, token)
+            with(getSp(mContext)?.edit()) {
+                this?.putString("token", token)
+                this?.apply()
+            }
+        }
+
+        private fun getToken(mContext: Context): String {
+            val token = getSp(mContext)?.getString("token", "")
+            if (token.isNullOrEmpty()) {
+                throw AutoAccountingException("token不能为空", AutoAccountingException.CODE_SERVER_AUTHORIZE)
+            }
+            return token
         }
 
         /**
@@ -94,7 +77,7 @@ class AutoAccounting {
         suspend fun setBooks(
             context: Context,
             books: String,
-        )  {
+        ) {
             checkInit()
             instance.setBooks(context, books)
         }
@@ -106,7 +89,7 @@ class AutoAccounting {
             context: Context,
             bills: String,
             type: String,
-        )  {
+        ) {
             checkInit()
             instance.setBills(context, bills, type)
         }
@@ -126,7 +109,7 @@ class AutoAccounting {
         suspend fun setConfig(
             context: Context,
             config: String,
-        )  {
+        ) {
             checkInit()
             instance.setConfig(context, config)
         }
@@ -164,10 +147,9 @@ class AutoAccounting {
                     headers = hashMapOf("Authorization" to getToken(context)),
                 )
             }.getOrElse {
-                if (count > 4)
-                    {
-                        throw it
-                    } else {
+                if (count > 4) {
+                    throw it
+                } else {
                     Thread.sleep((count * 1000).toLong())
                     request(path, query, data, context, count + 1)
                 }
