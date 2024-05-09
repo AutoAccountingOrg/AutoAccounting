@@ -50,6 +50,7 @@
         android:id="@+id/target"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        app:textColor="?colorOnBackground"
         app:text="原始"
         />
 </LinearLayout>

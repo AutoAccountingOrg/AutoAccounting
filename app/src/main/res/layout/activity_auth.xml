@@ -17,6 +17,7 @@
         app:cardCornerRadius="@dimen/radius"
         android:layout_height="wrap_content">
         <LinearLayout
+            android:padding="@dimen/cardPadding"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
@@ -39,8 +40,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/one_padding"
                 android:layout_marginBottom="@dimen/one_padding"
-                android:layout_marginLeft="@dimen/padding"
-                android:layout_marginRight="@dimen/padding"
+
                 android:layout_gravity="center_horizontal"
                 android:text="@string/auth_msg"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium" />

@@ -60,7 +60,7 @@
                     android:paddingTop="@dimen/padding"
                     android:clickable="true"
                     android:background="@drawable/ripple_effect"
-
+                    app:textColor="?colorOnBackground"
                     />
 
             </LinearLayout>
