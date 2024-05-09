@@ -20,9 +20,11 @@ import android.view.LayoutInflater
 import android.view.View
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.hjq.toast.Toaster
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import net.ankio.auto.R
 import net.ankio.auto.database.Db
 import net.ankio.auto.database.table.Assets
 import net.ankio.auto.databinding.DialogBookSelectBinding
@@ -55,7 +57,6 @@ class AssetsSelectorDialog(private val context: Context, private val callback: (
         float: Boolean,
         cancel: Boolean,
     ) {
-        super.show(float, cancel)
         lifecycleScope.launch {
             val newData =
                 withContext(Dispatchers.IO) {
@@ -65,9 +66,10 @@ class AssetsSelectorDialog(private val context: Context, private val callback: (
             val collection = newData.takeIf { it.isNotEmpty() } ?: listOf()
 
             if (collection.isEmpty()) {
-                dismiss()
+                Toaster.show(R.string.no_assets)
                 return@launch
             }
+            super.show(float, cancel)
 
             dataItems.addAll(collection)
 
