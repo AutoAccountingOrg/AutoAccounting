@@ -82,7 +82,7 @@ class FloatingWindowService : Service(), CoroutineScope {
 
     private fun processIntent(intent: Intent) {
         val value = intent.getStringExtra("data") ?: return
-        val timeCount: Int = SpUtils.getString("setting_float_time", "10").toInt()
+        val timeCount: Int = runCatching { SpUtils.getString("setting_float_time", "10").toInt() }.getOrNull() ?: 0
         val billInfo = BillInfo.fromJSON(value)
 
         if (timeCount == 0) {
