@@ -16,12 +16,10 @@
 package net.ankio.auto.ui.adapter
 
 import android.view.View
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import net.ankio.auto.R
 import net.ankio.auto.app.BillUtils
 import net.ankio.auto.database.table.Assets
 import net.ankio.auto.database.table.BillInfo
@@ -83,23 +81,20 @@ class OrderItemAdapter(
                 BillType.Transfer -> BillType.Transfer
             }
 
-        val drawableRes =
+        val symbols =
             when (type.toInt()) {
-                0 -> R.drawable.float_minus
-                1 -> R.drawable.float_add
-                2 -> R.drawable.float_round
-                else -> R.drawable.float_minus
+                0 -> "- "
+                1 -> "+ "
+                2 -> "→ "
+                else -> "- "
             }
 
         val tintRes = BillUtils.getColor(type.toInt())
 
-        val drawable = AppCompatResources.getDrawable(context, drawableRes)
         val color = ContextCompat.getColor(context, tintRes)
         binding.money.setColor(color)
 
-        binding.money.setIcon(drawable, true)
-
-        binding.money.setText(BillUtils.getFloatMoney(billInfo.money).toString())
+        binding.money.setText(symbols + BillUtils.getFloatMoney(billInfo.money).toString())
 
         binding.remark.text = billInfo.remark
 
@@ -109,15 +104,21 @@ class OrderItemAdapter(
             Assets.getDrawable(billInfo.accountNameFrom, context).let {
                 binding.payTools.setIcon(it, false)
             }
-        }
-
-        binding.channel.text = billInfo.channel
-        scope.launch {
             AppUtils.getAppInfoFromPackageName(item.from, context)?.let {
-                //      binding.fromApp.text = it.name
-                binding.fromApp.icon = it.icon
+                binding.fromApp.setImageDrawable(it.icon)
             }
         }
+
+        val rule = billInfo.channel
+        val regex = "\\[(.*?)]".toRegex()
+        val matchResult = regex.find(rule)
+        if (matchResult != null) {
+            val (value) = matchResult.destructured
+            binding.channel.text = value
+        } else {
+            binding.channel.text = billInfo.channel
+        }
+
         //   binding.fromApp.setIcon()
 
         if (BillUtils.noNeedFilter(item)) {

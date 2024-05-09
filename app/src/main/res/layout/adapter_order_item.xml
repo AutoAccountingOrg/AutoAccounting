@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:padding="@dimen/padding">
 
@@ -48,7 +49,6 @@
             android:layout_height="wrap_content"
 
             app:text="4.0"
-            app:iconSrc="@drawable/icon_map"
             app:iconTintEnabled="true"
             app:textColor="@color/danger"
             app:textSize="@dimen/font_size"
@@ -79,7 +79,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:text="4.88888880"
-            app:iconSrc="@drawable/icon_map"
             app:iconTintEnabled="false"
             app:textColor="?colorTertiary"
             app:textSize="@dimen/font_size"
@@ -92,6 +91,16 @@
         android:layout_marginTop="@dimen/one_padding"
 
         >
+
+        <ImageView
+            android:id="@+id/fromApp"
+            android:layout_width="@dimen/image_size_small"
+            android:layout_height="@dimen/image_size_small"
+            android:layout_gravity="center"
+            android:layout_marginStart="0dp"
+            android:layout_marginEnd="10dp"
+            tools:srcCompat="@tools:sample/avatars" />
+
         <TextView
             android:id="@+id/channel"
             style="@style/TextAppearance.AppCompat.Small"
@@ -111,14 +120,7 @@
             android:layout_width="0dp"
             android:layout_height="0dp" android:layout_weight="1" />
 
-        <com.google.android.material.button.MaterialButton
 
-            style="?attr/materialIconButtonFilledTonalStyle"
-            app:icon="@drawable/icon_test"
-            android:id="@+id/fromApp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            />
         <Button
             style="?attr/materialIconButtonOutlinedStyle"
             app:icon="@drawable/menu_item_more"
