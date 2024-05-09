@@ -84,7 +84,12 @@ class AppData {
 
     companion object {
         fun fromJSON(json: String): AppData {
-            return Gson().fromJson(json, AppData::class.java)
+            return runCatching {
+                Gson().fromJson(json, AppData::class.java)
+            }.onFailure {
+                Logger.e("数据异常", it)
+                Logger.i(json)
+            }.getOrDefault(AppData())
         }
 
         suspend fun fromTxt(txt: String): ArrayList<AppData> =
@@ -97,6 +102,7 @@ class AppData {
                             list.add(fromJSON(base64))
                         }.onFailure {
                             Logger.e("数据异常", it)
+                            Logger.i(line)
                         }
                     }
                 }
