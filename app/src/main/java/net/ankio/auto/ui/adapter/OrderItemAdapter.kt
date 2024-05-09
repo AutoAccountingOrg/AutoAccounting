@@ -28,6 +28,7 @@ import net.ankio.auto.database.table.Category
 import net.ankio.auto.databinding.AdapterOrderItemBinding
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.DateUtils
+import net.ankio.common.config.AccountingConfig
 import net.ankio.common.constant.BillType
 
 class OrderItemAdapter(
@@ -45,6 +46,14 @@ class OrderItemAdapter(
         binding.moreBills.setOnClickListener {
             onItemChildMoreClick?.invoke(billInfo, position)
         }
+
+        binding.payTools.visibility = if (config.assetManagement) View.VISIBLE else View.GONE
+    }
+
+    private lateinit var config: AccountingConfig
+
+    fun notifyConfig(autoAccountingConfig: AccountingConfig) {
+        config = autoAccountingConfig
     }
 
     override fun onBindView(

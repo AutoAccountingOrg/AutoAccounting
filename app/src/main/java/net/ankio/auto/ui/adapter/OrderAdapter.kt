@@ -23,6 +23,7 @@ import net.ankio.auto.databinding.AdapterOrderBinding
 import net.ankio.auto.ui.dialog.BillMoreDialog
 import net.ankio.auto.ui.dialog.FloatEditorDialog
 import net.ankio.auto.utils.AutoAccountingServiceUtils
+import net.ankio.common.config.AccountingConfig
 
 class OrderAdapter(
     override val dataItems: ArrayList<Pair<String, Array<BillInfo>>>,
@@ -69,7 +70,14 @@ class OrderAdapter(
         binding.recyclerView.adapter = adapter
         dataInnerItems.clear()
         dataInnerItems.addAll(items.second)
+        adapter.notifyConfig(config)
         adapter.notifyDataSetChanged()
         binding.title.text = items.first
+    }
+
+    private lateinit var config: AccountingConfig
+
+    fun notifyConfig(autoAccountingConfig: AccountingConfig) {
+        config = autoAccountingConfig
     }
 }

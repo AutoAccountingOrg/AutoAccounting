@@ -33,6 +33,7 @@ import net.ankio.auto.ui.adapter.OrderAdapter
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.MenuItem
 import net.ankio.auto.utils.AppUtils
+import net.ankio.auto.utils.AutoAccountingServiceUtils
 
 class OrderFragment : BaseFragment() {
     override val menuList: ArrayList<MenuItem>
@@ -72,14 +73,18 @@ class OrderFragment : BaseFragment() {
 
         lifecycleScope.launch {
             withContext(Dispatchers.IO) {
+                val autoAccountingConfig = AutoAccountingServiceUtils.config(requireContext())
                 val list = Db.get().BillInfoDao().getListGroup()
                 dataItems.clear()
+
                 list.forEach {
                     val billInfo =
                         Db.get().BillInfoDao().getTotal(it.ids.split(",").map { item -> item.toInt() })
                     dataItems.add(Pair(it.date, billInfo))
                 }
+                adapter.notifyConfig(autoAccountingConfig)
             }
+
             adapter.notifyDataSetChanged()
             binding.empty.root.visibility = if (dataItems.isEmpty()) View.VISIBLE else View.GONE
             loading.close()
