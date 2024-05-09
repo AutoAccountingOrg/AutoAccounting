@@ -15,10 +15,6 @@
 
 package net.ankio.auto.ui.adapter
 
-import android.content.Context
-import android.view.LayoutInflater
-import android.view.ViewGroup
-import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.database.table.Assets
@@ -26,52 +22,29 @@ import net.ankio.auto.databinding.AdapterAssetsBinding
 import net.ankio.auto.utils.ImageUtils
 
 class AssetsSelectorAdapter(
-    private val dataItems: List<Assets>,
+    override val dataItems: List<Assets>,
     private val onClick: (item: Assets) -> Unit,
-) : BaseAdapter<AssetsSelectorAdapter.ViewHolder>() {
-    override fun onCreateViewHolder(
-        parent: ViewGroup,
-        viewType: Int,
-    ): ViewHolder {
-        return ViewHolder(
-            AdapterAssetsBinding.inflate(
-                LayoutInflater.from(parent.context),
-                parent,
-                false,
-            ),
-            parent.context,
-        )
+) : BaseAdapter(dataItems, AdapterAssetsBinding::class.java) {
+
+    override fun onInitView(holder: BaseViewHolder) {
+        (holder.binding as AdapterAssetsBinding).assets.setOnClickListener {
+            onClick(dataItems[holder.adapterPosition])
+        }
     }
 
-    override fun onBindViewHolder(
-        holder: ViewHolder,
+    override fun onBindView(
+        holder: BaseViewHolder,
+        item: Any,
         position: Int,
     ) {
-        val item = dataItems[position]
-        holder.bind(item)
-    }
-
-    override fun getItemCount(): Int {
-        return dataItems.size
-    }
-
-    inner class ViewHolder(
-        private val binding: AdapterAssetsBinding,
-        private val context: Context,
-    ) :
-        RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: Assets) {
-            // 图片加载丢到IO线程
-            scope.launch {
-                ImageUtils.get(context, item.icon, R.drawable.default_cate).let {
-                    binding.assets.setIcon(it)
-                }
-            }
-
-            binding.assets.setText(item.name)
-            binding.assets.setOnClickListener {
-                onClick(item)
+        val it = item as Assets
+        val binding = (holder.binding as AdapterAssetsBinding)
+        holder.scope.launch {
+            ImageUtils.get(holder.context, it.icon, R.drawable.default_cate).let {
+                binding.assets.setIcon(it)
             }
         }
+
+        binding.assets.setText(it.name)
     }
 }

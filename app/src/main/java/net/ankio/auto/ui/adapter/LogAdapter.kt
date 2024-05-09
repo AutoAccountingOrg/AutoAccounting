@@ -15,45 +15,21 @@
 
 package net.ankio.auto.ui.adapter
 
-import android.content.Context
-import android.view.LayoutInflater
-import android.view.ViewGroup
-import androidx.recyclerview.widget.RecyclerView
 import net.ankio.auto.databinding.AdapterTextBinding
 
 class LogAdapter(
-    private val dataItems: ArrayList<String>,
-) : BaseAdapter<LogAdapter.ViewHolder>() {
-    override fun onCreateViewHolder(
-        parent: ViewGroup,
-        viewType: Int,
-    ): ViewHolder {
-        return ViewHolder(
-            AdapterTextBinding.inflate(
-                LayoutInflater.from(parent.context),
-                parent,
-                false,
-            ),
-            parent.context,
-        )
+    override val dataItems: ArrayList<String>,
+) : BaseAdapter(dataItems, AdapterTextBinding::class.java) {
+    override fun onInitView(holder: BaseViewHolder) {
     }
 
-    override fun onBindViewHolder(
-        holder: ViewHolder,
+    override fun onBindView(
+        holder: BaseViewHolder,
+        item: Any,
         position: Int,
     ) {
-        val item = dataItems[position]
-        holder.bind(item)
-    }
-
-    override fun getItemCount(): Int {
-        return dataItems.size
-    }
-
-    inner class ViewHolder(private val binding: AdapterTextBinding, private val context: Context) :
-        RecyclerView.ViewHolder(binding.root) {
-        fun bind(title: String) {
-            binding.item.text = title
-        }
+        val binding = holder.binding as AdapterTextBinding
+        val it = item as String
+        binding.item.text = it
     }
 }

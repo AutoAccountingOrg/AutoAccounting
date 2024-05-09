@@ -15,100 +15,78 @@
 
 package net.ankio.auto.ui.adapter
 
-import android.content.Context
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.core.view.size
-import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.elevation.SurfaceColors
 import net.ankio.auto.R
 import net.ankio.auto.database.table.Regular
 import net.ankio.auto.databinding.AdapterRuleBinding
 
 class RuleAdapter(
-    private val dataItems: List<Regular>,
+    override val dataItems: List<Regular>,
     private val onClickEdit: (item: Regular, position: Int) -> Unit,
     private val onClickDelete: (item: Regular, position: Int) -> Unit,
-) : BaseAdapter<RuleAdapter.ViewHolder>() {
-    override fun onCreateViewHolder(
-        parent: ViewGroup,
-        viewType: Int,
-    ): ViewHolder {
-        return ViewHolder(
-            AdapterRuleBinding.inflate(
-                LayoutInflater.from(parent.context),
-                parent,
-                false,
-            ),
-            parent.context,
-        )
-    }
-
-    override fun onBindViewHolder(
-        holder: ViewHolder,
+) : BaseAdapter(dataItems, AdapterRuleBinding::class.java) {
+    override fun onBindView(
+        holder: BaseViewHolder,
+        item: Any,
         position: Int,
     ) {
+        val binding = holder.binding as AdapterRuleBinding
+        val context = binding.root.context
+        val regular = item as Regular
+
+        if (!regular.auto) {
+            binding.type.visibility = View.GONE
+        }
+
+        if (regular.element == null || regular.element!!.list.isEmpty()) {
+            return
+        }
+        val list = regular.element!!.list.toMutableList()
+
+        val lastElement = list.removeLast()
+        val flexboxLayout = binding.flexboxLayout
+        flexboxLayout.removedAllElement()
+        flexboxLayout.textAppearance =
+            com.google.android.material.R.style.TextAppearance_Material3_BodyLarge
+        flexboxLayout.appendTextView(context.getString(R.string.if_condition_true))
+        flexboxLayout.firstWaveTextViewPosition = flexboxLayout.size - 1
+        for (hashMap in list) {
+            if (hashMap.containsKey("jsPre")) {
+                flexboxLayout.appendButton(
+                    if ((hashMap["jsPre"] as String).contains("and")) {
+                        context.getString(
+                            R.string.and,
+                        )
+                    } else {
+                        context.getString(R.string.or)
+                    },
+                )
+            }
+            flexboxLayout.appendWaveTextview(
+                hashMap["text"] as String,
+                connector = false,
+            ) { _, _ -> }
+        }
+        flexboxLayout.appendTextView(context.getString(R.string.condition_result_book))
+        flexboxLayout.appendWaveTextview(lastElement["book"] as String) { _, _ -> }
+        flexboxLayout.appendTextView(context.getString(R.string.condition_result_category))
+        flexboxLayout.appendWaveTextview(lastElement["category"] as String) { _, _ -> }
+    }
+
+    override fun onInitView(holder: BaseViewHolder) {
+        val binding = holder.binding as AdapterRuleBinding
+        val context = binding.root.context
+        val position = holder.adapterPosition
         val item = dataItems[position]
-        holder.bind(item, position)
-    }
 
-    override fun getItemCount(): Int {
-        return dataItems.size
-    }
-
-    inner class ViewHolder(private val binding: AdapterRuleBinding, private val context: Context) :
-        RecyclerView.ViewHolder(binding.root) {
-        fun bind(
-            item: Regular,
-            position: Int,
-        ) {
-            binding.groupCard.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(context))
-
-            if (!item.auto) {
-                binding.type.visibility = View.GONE
-            }
-
-            if (item.element == null || item.element!!.list.isEmpty()) {
-                return
-            }
-            val list = item.element!!.list.toMutableList()
-
-            val lastElement = list.removeLast()
-            val flexboxLayout = binding.flexboxLayout
-            flexboxLayout.removedAllElement()
-            flexboxLayout.textAppearance =
-                com.google.android.material.R.style.TextAppearance_Material3_BodyLarge
-            flexboxLayout.appendTextView(context.getString(R.string.if_condition_true))
-            flexboxLayout.firstWaveTextViewPosition = flexboxLayout.size - 1
-            for (hashMap in list) {
-                if (hashMap.containsKey("jsPre")) {
-                    flexboxLayout.appendButton(
-                        if ((hashMap["jsPre"] as String).contains("and")) {
-                            context.getString(
-                                R.string.and,
-                            )
-                        } else {
-                            context.getString(R.string.or)
-                        },
-                    )
-                }
-                flexboxLayout.appendWaveTextview(
-                    hashMap["text"] as String,
-                    connector = false,
-                ) { _, _ -> }
-            }
-            flexboxLayout.appendTextView(context.getString(R.string.condition_result_book))
-            flexboxLayout.appendWaveTextview(lastElement["book"] as String) { _, _ -> }
-            flexboxLayout.appendTextView(context.getString(R.string.condition_result_category))
-            flexboxLayout.appendWaveTextview(lastElement["category"] as String) { _, _ -> }
-
-            binding.deleteData.setOnClickListener {
-                onClickDelete(item, position)
-            }
-            binding.editRule.setOnClickListener {
-                onClickEdit(item, position)
-            }
+        binding.groupCard.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(context))
+        binding.deleteData.setOnClickListener {
+            onClickDelete(item, position)
+        }
+        binding.editRule.setOnClickListener {
+            onClickEdit(item, position)
         }
     }
 }

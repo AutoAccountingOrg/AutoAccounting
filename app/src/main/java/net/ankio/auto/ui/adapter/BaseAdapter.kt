@@ -15,20 +15,63 @@
 
 package net.ankio.auto.ui.adapter
 
+import android.view.LayoutInflater
+import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.ViewHolder
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import androidx.viewbinding.ViewBinding
 
-abstract class BaseAdapter<T : ViewHolder> : RecyclerView.Adapter<T>() {
-    private val job = Job()
+abstract class BaseAdapter(open val dataItems: List<Any>, val viewBindingClazz: Class<*>) : RecyclerView.Adapter<BaseViewHolder>() {
+    open fun wrapHolder(viewBinding: ViewBinding): BaseViewHolder {
+        return BaseViewHolder(viewBinding, viewBinding.root.context)
+    }
 
-    val scope: CoroutineScope
-        get() = CoroutineScope(Dispatchers.Main + job)
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int,
+    ): BaseViewHolder {
+        // 反射判断viewBindingClazz是否为viewbing的子类，并存在inflate方法，存在就调用
+        val inflateMethod =
+            viewBindingClazz.getDeclaredMethod(
+                "inflate",
+                LayoutInflater::class.java,
+                ViewGroup::class.java,
+                Boolean::class.java,
+            )
+        val viewBinding = inflateMethod.invoke(null, LayoutInflater.from(parent.context), parent, false) as ViewBinding
+        return wrapHolder(viewBinding)
+    }
 
-    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
-        super.onDetachedFromRecyclerView(recyclerView)
-        job.cancel()
+    override fun getItemCount(): Int {
+        return dataItems.size
+    }
+
+    abstract fun onBindView(
+        holder: BaseViewHolder,
+        item: Any,
+        position: Int,
+    )
+
+    abstract fun onInitView(holder: BaseViewHolder)
+
+    override fun onBindViewHolder(
+        holder: BaseViewHolder,
+        position: Int,
+    ) {
+        holder.createScope()
+        val item = dataItems[position]
+        runCatching {
+            if (!holder.hasInit) {
+                onInitView(holder)
+                holder.hasInit = true
+            }
+            onBindView(holder, item, position)
+        }.onFailure {
+            it.printStackTrace()
+        }
+    }
+
+    override fun onViewDetachedFromWindow(holder: BaseViewHolder) {
+        super.onViewDetachedFromWindow(holder)
+        holder.cancelScope()
     }
 }

@@ -15,13 +15,9 @@
 
 package net.ankio.auto.ui.adapter
 
-import android.content.Context
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
-import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -37,121 +33,99 @@ import net.ankio.auto.utils.DateUtils
 import net.ankio.common.constant.BillType
 
 class OrderItemAdapter(
-    private val dataItems: List<BillInfo>,
+    override val dataItems: List<BillInfo>,
     private val onItemChildClick: ((item: BillInfo, position: Int) -> Unit)?,
     private val onItemChildMoreClick: ((item: BillInfo, position: Int) -> Unit)?,
-) : BaseAdapter<OrderItemAdapter.ViewHolder>() {
-    override fun onCreateViewHolder(
-        parent: ViewGroup,
-        viewType: Int,
-    ): ViewHolder {
-        return ViewHolder(
-            AdapterOrderItemBinding.inflate(
-                LayoutInflater.from(parent.context),
-                parent,
-                false,
-            ),
-            parent.context,
-        )
+) : BaseAdapter(dataItems, AdapterOrderItemBinding::class.java) {
+    override fun onInitView(holder: BaseViewHolder) {
+        val binding = holder.binding as AdapterOrderItemBinding
+        val position = holder.adapterPosition
+        val billInfo = dataItems[position]
+        binding.root.setOnClickListener {
+            onItemChildClick?.invoke(billInfo, position)
+        }
+        binding.moreBills.setOnClickListener {
+            onItemChildMoreClick?.invoke(billInfo, position)
+        }
     }
 
-    override fun onBindViewHolder(
-        holder: ViewHolder,
+    override fun onBindView(
+        holder: BaseViewHolder,
+        item: Any,
         position: Int,
     ) {
-        val item = dataItems[position]
-        holder.bind(item, position)
-    }
-
-    override fun getItemCount(): Int {
-        return dataItems.size
-    }
-
-    inner class ViewHolder(
-        private val binding: AdapterOrderItemBinding,
-        private val context: Context,
-    ) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(
-            item: BillInfo,
-            position: Int,
-        ) {
-            binding.category.setText(item.cateName)
-            scope.launch {
-                val book = BookName.getByName(item.bookName)
-                Category.getDrawable(item.cateName, book.id, context).let {
-                    withContext(Dispatchers.Main) {
-                        binding.category.setIcon(it, true)
-                    }
+        val binding = holder.binding as AdapterOrderItemBinding
+        val billInfo = item as BillInfo
+        val scope = holder.scope
+        val context = holder.context
+        binding.category.setText(billInfo.cateName)
+        scope.launch {
+            val book = BookName.getByName(billInfo.bookName)
+            Category.getDrawable(billInfo.cateName, book.id, context).let {
+                withContext(Dispatchers.Main) {
+                    binding.category.setIcon(it, true)
                 }
             }
+        }
 
-            binding.date.text = DateUtils.getTime("HH:mm:ss", item.timeStamp)
+        binding.date.text = DateUtils.getTime("HH:mm:ss", billInfo.timeStamp)
 
-            val type =
-                when (item.type) {
-                    BillType.Expend -> BillType.Expend
-                    BillType.ExpendReimbursement -> BillType.Expend
-                    BillType.ExpendLending -> BillType.Expend
-                    BillType.ExpendRepayment -> BillType.Expend
-                    BillType.Income -> BillType.Income
-                    BillType.IncomeLending -> BillType.Income
-                    BillType.IncomeRepayment -> BillType.Income
-                    BillType.IncomeReimbursement -> BillType.Income
-                    BillType.Transfer -> BillType.Transfer
-                }
-
-            val drawableRes =
-                when (type.toInt()) {
-                    0 -> R.drawable.float_minus
-                    1 -> R.drawable.float_add
-                    2 -> R.drawable.float_round
-                    else -> R.drawable.float_minus
-                }
-
-            val tintRes = BillUtils.getColor(type.toInt())
-
-            val drawable = AppCompatResources.getDrawable(context, drawableRes)
-            val color = ContextCompat.getColor(context, tintRes)
-            binding.money.setColor(color)
-
-            binding.money.setIcon(drawable, true)
-
-            binding.money.setText(BillUtils.getFloatMoney(item.money).toString())
-
-            binding.remark.text = item.remark
-
-            binding.payTools.setText(item.accountNameFrom)
-
-            scope.launch {
-                Assets.getDrawable(item.accountNameFrom, context).let {
-                    binding.payTools.setIcon(it, false)
-                }
+        val type =
+            when (billInfo.type) {
+                BillType.Expend -> BillType.Expend
+                BillType.ExpendReimbursement -> BillType.Expend
+                BillType.ExpendLending -> BillType.Expend
+                BillType.ExpendRepayment -> BillType.Expend
+                BillType.Income -> BillType.Income
+                BillType.IncomeLending -> BillType.Income
+                BillType.IncomeRepayment -> BillType.Income
+                BillType.IncomeReimbursement -> BillType.Income
+                BillType.Transfer -> BillType.Transfer
             }
 
-            binding.channel.text = item.channel
-            scope.launch {
-                AppUtils.getAppInfoFromPackageName(item.from, context)?.let {
-                    //      binding.fromApp.text = it.name
-                    binding.fromApp.icon = it.icon
-                }
-            }
-            //   binding.fromApp.setIcon()
-
-            binding.root.setOnClickListener {
-                onItemChildClick?.invoke(item, position)
+        val drawableRes =
+            when (type.toInt()) {
+                0 -> R.drawable.float_minus
+                1 -> R.drawable.float_add
+                2 -> R.drawable.float_round
+                else -> R.drawable.float_minus
             }
 
-            if (BillUtils.noNeedFilter(item)) {
-                binding.moreBills.visibility = View.GONE
-            }
+        val tintRes = BillUtils.getColor(type.toInt())
 
-            if (onItemChildMoreClick == null) {
-                binding.moreBills.visibility = View.GONE
-            }
+        val drawable = AppCompatResources.getDrawable(context, drawableRes)
+        val color = ContextCompat.getColor(context, tintRes)
+        binding.money.setColor(color)
 
-            binding.moreBills.setOnClickListener {
-                onItemChildMoreClick?.invoke(item, position)
+        binding.money.setIcon(drawable, true)
+
+        binding.money.setText(BillUtils.getFloatMoney(billInfo.money).toString())
+
+        binding.remark.text = billInfo.remark
+
+        binding.payTools.setText(billInfo.accountNameFrom)
+
+        scope.launch {
+            Assets.getDrawable(billInfo.accountNameFrom, context).let {
+                binding.payTools.setIcon(it, false)
             }
+        }
+
+        binding.channel.text = billInfo.channel
+        scope.launch {
+            AppUtils.getAppInfoFromPackageName(item.from, context)?.let {
+                //      binding.fromApp.text = it.name
+                binding.fromApp.icon = it.icon
+            }
+        }
+        //   binding.fromApp.setIcon()
+
+        if (BillUtils.noNeedFilter(item)) {
+            binding.moreBills.visibility = View.GONE
+        }
+
+        if (onItemChildMoreClick == null) {
+            binding.moreBills.visibility = View.GONE
         }
     }
 }

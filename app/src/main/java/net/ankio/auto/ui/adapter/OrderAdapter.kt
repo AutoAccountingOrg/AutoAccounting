@@ -15,11 +15,7 @@
 
 package net.ankio.auto.ui.adapter
 
-import android.content.Context
-import android.view.LayoutInflater
-import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.elevation.SurfaceColors
 import kotlinx.coroutines.launch
 import net.ankio.auto.database.table.BillInfo
@@ -29,77 +25,51 @@ import net.ankio.auto.ui.dialog.FloatEditorDialog
 import net.ankio.auto.utils.AutoAccountingServiceUtils
 
 class OrderAdapter(
-    private val dataItems: ArrayList<Pair<String, Array<BillInfo>>>,
-) : BaseAdapter<OrderAdapter.ViewHolder>() {
-    override fun onCreateViewHolder(
-        parent: ViewGroup,
-        viewType: Int,
-    ): ViewHolder {
-        return ViewHolder(
-            AdapterOrderBinding.inflate(
-                LayoutInflater.from(parent.context),
-                parent,
-                false,
-            ),
-            parent.context,
-        )
+    override val dataItems: ArrayList<Pair<String, Array<BillInfo>>>,
+) : BaseAdapter(dataItems, AdapterOrderBinding::class.java) {
+    override fun onInitView(holder: BaseViewHolder) {
+        val binding = holder.binding as AdapterOrderBinding
+        val context = holder.context
+        binding.groupCard.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(context))
     }
 
-    override fun onBindViewHolder(
-        holder: ViewHolder,
+    override fun onBindView(
+        holder: BaseViewHolder,
+        item: Any,
         position: Int,
     ) {
-        // 根据position获取Array<BillInfo>
-        val item = dataItems[position]
-        holder.bind(item.first, item.second)
-    }
-
-    override fun getItemCount(): Int {
-        return dataItems.size
-    }
-
-    inner class ViewHolder(private val binding: AdapterOrderBinding, private val context: Context) :
-        RecyclerView.ViewHolder(binding.root) {
-        private lateinit var recyclerView: RecyclerView
-        private lateinit var adapter: OrderItemAdapter
-        private val dataInnerItems = mutableListOf<BillInfo>()
-
-        fun bind(
-            title: String,
-            bills: Array<BillInfo>,
-        ) {
-            binding.groupCard.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(context))
-            recyclerView = binding.recyclerView
-            val layoutManager: LinearLayoutManager =
-                object : LinearLayoutManager(context) {
-                    override fun canScrollVertically(): Boolean {
-                        return false
-                    }
+        val binding = holder.binding as AdapterOrderBinding
+        val context = holder.context
+        val dataInnerItems = mutableListOf<BillInfo>()
+        val layoutManager: LinearLayoutManager =
+            object : LinearLayoutManager(context) {
+                override fun canScrollVertically(): Boolean {
+                    return false
                 }
-            recyclerView.layoutManager = layoutManager
+            }
+        binding.recyclerView.layoutManager = layoutManager
 
-            adapter =
-                OrderItemAdapter(
-                    dataInnerItems,
-                    onItemChildClick = { item, position ->
-
-                        scope.launch {
-                            AutoAccountingServiceUtils.config(context).let {
-                                FloatEditorDialog(context, item, it, onlyShow = true).show(false, true)
-                            }
+        val adapter =
+            OrderItemAdapter(
+                dataInnerItems,
+                onItemChildClick = { itemBill, _ ->
+                    holder.scope.launch {
+                        AutoAccountingServiceUtils.config(context).let {
+                            FloatEditorDialog(context, itemBill, it, onlyShow = true).show(false, true)
                         }
-                    },
-                    onItemChildMoreClick = { item, position ->
+                    }
+                },
+                onItemChildMoreClick = { itemBill, _ ->
+                    BillMoreDialog(context, itemBill).show(false, true)
+                },
+            )
 
-                        BillMoreDialog(context, item).show(false, true)
-                    },
-                )
+        val items = item as Pair<String, Array<BillInfo>>
 
-            recyclerView.adapter = adapter
-            dataInnerItems.clear()
-            dataInnerItems.addAll(bills)
-            adapter.notifyDataSetChanged()
-            binding.title.text = title
-        }
+        binding.recyclerView.adapter = adapter
+        dataInnerItems.clear()
+        dataInnerItems.addAll(items.second)
+        adapter.notifyDataSetChanged()
+        binding.title.text = items.first
     }
 }

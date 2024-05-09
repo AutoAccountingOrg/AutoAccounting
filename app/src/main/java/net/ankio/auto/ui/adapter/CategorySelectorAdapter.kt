@@ -16,14 +16,13 @@
 package net.ankio.auto.ui.adapter
 
 import android.content.Context
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import androidx.viewbinding.ViewBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -41,93 +40,55 @@ import net.ankio.auto.utils.ImageUtils
  * @property onItemChildClick 子项点击事件回调
  */
 class CategorySelectorAdapter(
-    private val dataItems: List<Category>,
+    override val dataItems: List<Category>,
     private val onItemClick: (item: Category, position: Int, hasChild: Boolean, view: View) -> Unit,
     private val onItemChildClick: (item: Category, position: Int) -> Unit,
-) : BaseAdapter<CategorySelectorAdapter.ViewHolder>() {
-    /**
-     * 创建ViewHolder
-     */
-    override fun onCreateViewHolder(
-        parent: ViewGroup,
-        viewType: Int,
-    ): ViewHolder {
-        return ViewHolder(
-            AdapterCategoryListBinding.inflate(
-                LayoutInflater.from(parent.context),
-                parent,
-                false,
-            ),
-            parent.context,
-        )
-    }
-
+) : BaseAdapter(dataItems, AdapterCategoryListBinding::class.java) {
     override fun onBindViewHolder(
-        holder: ViewHolder,
+        holder: BaseViewHolder,
         position: Int,
         payloads: MutableList<Any>,
     ) {
         if (payloads.isEmpty()) {
-            // 如果没有 payload，按照正常方式绑定数据
             onBindViewHolder(holder, position)
         } else {
             // 如果有 payload，根据 payload 更新部分内容
             val category = payloads[0] as Category
-            holder.updatePanel(category)
+            val viewHolder = holder as ViewHolder
+            viewHolder.updatePanel(category)
         }
     }
 
-    /**
-     * 绑定ViewHolder
-     */
-    override fun onBindViewHolder(
-        holder: ViewHolder,
+    override fun onBindView(
+        holder: BaseViewHolder,
+        item: Any,
         position: Int,
     ) {
-        val item = dataItems[position]
-        holder.bind(item, position)
+        val it = dataItems[position] as Category
+        val viewHolder = holder as ViewHolder
+        viewHolder.bind(it, position)
     }
 
-    /**
-     * 获取数据项数量
-     */
-    override fun getItemCount(): Int {
-        return dataItems.size
-    }
-
-    /**
-     * 设置激活状态
-     */
-    fun setActive(
-        textView: TextView,
-        imageView: ImageView,
-        imageView2: ImageView,
-        isActive: Boolean,
-    ) {
-        val (textColor, imageBackground, imageColorFilter) =
-            if (isActive) {
-                Triple(
-                    AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorPrimary),
-                    R.drawable.rounded_border,
-                    AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorOnPrimary),
-                )
+    override fun onInitView(holder: BaseViewHolder) {
+        val viewHolder = holder as ViewHolder
+        val binding = viewHolder.binding
+        binding.itemImageIcon.setOnClickListener {
+            if (itemTextView !== null) {
+                viewHolder.setActive(itemTextView!!, itemImageIcon!!, ivMore!!, false)
             } else {
-                Triple(
-                    AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorSecondary),
-                    R.drawable.rounded_border_,
-                    AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorSecondary),
-                )
+                viewHolder.setActive(binding.itemText, binding.itemImageIcon, binding.ivMore, true)
             }
+            itemTextView = binding.itemText
+            itemImageIcon = binding.itemImageIcon
+            ivMore = binding.ivMore
+            val item = dataItems[holder.adapterPosition] as Category
+            val position = holder.adapterPosition
+            onItemClick(item, position, binding.ivMore.visibility == View.VISIBLE, it)
+        }
+    }
 
-        textView.setTextColor(textColor)
-        imageView.apply {
-            setBackgroundResource(imageBackground)
-            setColorFilter(imageColorFilter)
-        }
-        imageView2.apply {
-            setBackgroundResource(imageBackground)
-            setColorFilter(imageColorFilter)
-        }
+    override fun wrapHolder(viewBinding: ViewBinding): BaseViewHolder {
+        return ViewHolder(viewBinding as AdapterCategoryListBinding, viewBinding.root.context)
     }
 
     private var itemTextView: TextView? = null
@@ -140,14 +101,46 @@ class CategorySelectorAdapter(
      * @property context 上下文
      */
     inner class ViewHolder(
-        private val binding: AdapterCategoryListBinding,
-        private val context: Context,
-    ) : RecyclerView.ViewHolder(binding.root) {
+        override val binding: AdapterCategoryListBinding,
+        override val context: Context,
+    ) : BaseViewHolder(binding, context) {
         private lateinit var adapter: CategorySelectorAdapter
 
         /**
-         * UI绑定
+         * 设置激活状态
          */
+        fun setActive(
+            textView: TextView,
+            imageView: ImageView,
+            imageView2: ImageView,
+            isActive: Boolean,
+        ) {
+            val (textColor, imageBackground, imageColorFilter) =
+                if (isActive) {
+                    Triple(
+                        AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorPrimary),
+                        R.drawable.rounded_border,
+                        AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorOnPrimary),
+                    )
+                } else {
+                    Triple(
+                        AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorSecondary),
+                        R.drawable.rounded_border_,
+                        AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorSecondary),
+                    )
+                }
+
+            textView.setTextColor(textColor)
+            imageView.apply {
+                setBackgroundResource(imageBackground)
+                setColorFilter(imageColorFilter)
+            }
+            imageView2.apply {
+                setBackgroundResource(imageBackground)
+                setColorFilter(imageColorFilter)
+            }
+        }
+
         fun bind(
             item: Category,
             position: Int,
@@ -172,7 +165,7 @@ class CategorySelectorAdapter(
         /**
          * item渲染
          */
-        private fun renderItem(
+        fun renderItem(
             item: Category,
             position: Int,
         ) {
@@ -206,16 +199,6 @@ class CategorySelectorAdapter(
             }
 
             binding.itemText.text = item.name
-            binding.itemImageIcon.setOnClickListener {
-                if (itemTextView !== null) {
-                    setActive(itemTextView!!, itemImageIcon!!, ivMore!!, false)
-                }
-                setActive(binding.itemText, binding.itemImageIcon, binding.ivMore, true)
-                itemTextView = binding.itemText
-                itemImageIcon = binding.itemImageIcon
-                ivMore = binding.ivMore
-                onItemClick(item, position, binding.ivMore.visibility == View.VISIBLE, it)
-            }
         }
 
         private val items = ArrayList<Category>()

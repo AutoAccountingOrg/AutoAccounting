@@ -15,12 +15,8 @@
 
 package net.ankio.auto.ui.adapter
 
-import android.content.Context
 import android.graphics.Color
-import android.view.LayoutInflater
-import android.view.ViewGroup
 import androidx.core.content.ContextCompat
-import androidx.recyclerview.widget.RecyclerView
 import net.ankio.auto.app.BillUtils
 import net.ankio.auto.databinding.AdapterBillBookBinding
 import net.ankio.auto.utils.AppUtils
@@ -29,66 +25,47 @@ import net.ankio.common.constant.BillType
 import net.ankio.common.model.BillModel
 
 class BillSelectorAdapter(
-    private val dataItems: List<BillModel>,
+    override val dataItems: List<BillModel>,
     private val selectedItems: ArrayList<BillModel>,
-) : BaseAdapter<BillSelectorAdapter.ViewHolder>() {
-    override fun onCreateViewHolder(
-        parent: ViewGroup,
-        viewType: Int,
-    ): ViewHolder {
-        return ViewHolder(
-            AdapterBillBookBinding.inflate(
-                LayoutInflater.from(parent.context),
-                parent,
-                false,
-            ),
-            parent.context,
-        )
-    }
-
-    override fun onBindViewHolder(
-        holder: ViewHolder,
-        position: Int,
-    ) {
-        val item = dataItems[position]
-        holder.bind(item)
-    }
-
-    override fun getItemCount(): Int {
-        return dataItems.size
-    }
-
-    inner class ViewHolder(
-        private val binding: AdapterBillBookBinding,
-        private val context: Context,
-    ) :
-        RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: BillModel) {
-            binding.root.setBackgroundColor(Color.TRANSPARENT)
-            binding.root.setOnClickListener {
-                if (selectedItems.contains(item)) {
-                    selectedItems.remove(item)
-                    // 清除背景
-                    binding.root.setBackgroundColor(Color.TRANSPARENT)
-                } else {
-                    selectedItems.add(item)
-                    binding.root.setBackgroundColor(AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorPrimaryContainer))
-                }
-            }
-
+) : BaseAdapter(dataItems, AdapterBillBookBinding::class.java) {
+    override fun onInitView(holder: BaseViewHolder) {
+        val binding = holder.binding as AdapterBillBookBinding
+        binding.root.setOnClickListener {
+            val item = dataItems[holder.adapterPosition]
             if (selectedItems.contains(item)) {
+                selectedItems.remove(item)
+                // 清除背景
+                binding.root.setBackgroundColor(Color.TRANSPARENT)
+            } else {
+                selectedItems.add(item)
                 binding.root.setBackgroundColor(AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorPrimaryContainer))
             }
-
-            val prefix = if (item.type == BillType.Income) "-" else "+"
-
-            binding.tvAmount.text = String.format("$prefix %.2f", item.amount) // 保留两位有效数字
-            binding.tvTime.text = DateUtils.getTime(item.time)
-            binding.tvRemark.text = item.remark
-
-            val colorRes = BillUtils.getColor(item.type.toInt())
-            val color = ContextCompat.getColor(context, colorRes)
-            binding.tvAmount.setTextColor(color)
         }
+    }
+
+    override fun onBindView(
+        holder: BaseViewHolder,
+        item: Any,
+        position: Int,
+    ) {
+        val binding = holder.binding as AdapterBillBookBinding
+        val it = item as BillModel
+        val context = holder.context
+
+        if (selectedItems.contains(item)) {
+            binding.root.setBackgroundColor(AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorPrimaryContainer))
+        } else {
+            binding.root.setBackgroundColor(Color.TRANSPARENT)
+        }
+
+        val prefix = if (item.type == BillType.Income) "-" else "+"
+
+        binding.tvAmount.text = String.format("$prefix %.2f", item.amount) // 保留两位有效数字
+        binding.tvTime.text = DateUtils.getTime(item.time)
+        binding.tvRemark.text = item.remark
+
+        val colorRes = BillUtils.getColor(item.type.toInt())
+        val color = ContextCompat.getColor(context, colorRes)
+        binding.tvAmount.setTextColor(color)
     }
 }

@@ -15,13 +15,9 @@
 
 package net.ankio.auto.ui.adapter
 
-import android.content.Context
 import android.net.Uri
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.core.content.ContextCompat
-import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.elevation.SurfaceColors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -38,166 +34,148 @@ import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.DateUtils
 
 class DataAdapter(
-    private val dataItems: MutableList<AppData>,
+    override val dataItems: MutableList<AppData>,
     private val onClickContent: (string: String) -> Unit,
     private val onClickTest: (item: AppData) -> Unit,
     private val onClickUploadData: (item: AppData, position: Int) -> Unit,
-) : BaseAdapter<DataAdapter.ViewHolder>() {
-    override fun onCreateViewHolder(
-        parent: ViewGroup,
-        viewType: Int,
-    ): ViewHolder {
-        return ViewHolder(
-            AdapterDataBinding.inflate(
-                LayoutInflater.from(parent.context),
-                parent,
-                false,
-            ),
-            parent.context,
-        )
+) : BaseAdapter(dataItems, AdapterDataBinding::class.java) {
+    override fun onInitView(holder: BaseViewHolder) {
+        val binding = holder.binding as AdapterDataBinding
+        val context = holder.context
+        val item = dataItems[holder.adapterPosition]
+        val position = holder.adapterPosition
+        binding.issue.setOnClickListener {
+            CustomTabsHelper.launchUrl(
+                context,
+                Uri.parse("https://github.com/AutoAccountingOrg/AutoRule/issues/${item.issue}"),
+            )
+        }
+
+        binding.testRule.setOnClickListener {
+            onClickTest(item)
+        }
+        binding.content.setOnClickListener {
+            onClickContent(binding.content.text as String)
+        }
+
+        binding.uploadData.setOnClickListener {
+            onClickUploadData(item, position)
+        }
     }
 
-    override fun onBindViewHolder(
-        holder: ViewHolder,
+    override fun onBindView(
+        holder: BaseViewHolder,
+        item: Any,
         position: Int,
     ) {
-        val item = dataItems[position]
-        holder.bind(item, position, this)
-    }
+        val binding = holder.binding as AdapterDataBinding
+        val appData = item as AppData
+        val context = holder.context
 
-    override fun getItemCount(): Int {
-        return dataItems.size
+        binding.groupCard.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(context))
+        binding.content.setBackgroundColor(SurfaceColors.SURFACE_3.getColor(context))
+        // 格式化数据
+        val prettyJson: String = AppUtils.toPrettyFormat(appData.data)
+
+        binding.content.text = prettyJson
+        when (appData.type.toDataType()) {
+            DataType.Notice -> {
+                binding.type.setColorFilter(ContextCompat.getColor(context, R.color.warning))
+                binding.type.setImageResource(R.drawable.data_notice)
+            }
+
+            DataType.Helper -> {
+                binding.type.setColorFilter(ContextCompat.getColor(context, R.color.danger))
+                binding.type.setImageResource(R.drawable.data_helper)
+            }
+
+            DataType.Sms -> {
+                binding.type.setColorFilter(ContextCompat.getColor(context, R.color.info))
+                binding.type.setImageResource(R.drawable.data_sms)
+            }
+
+            DataType.App -> {
+                binding.type.setColorFilter(ContextCompat.getColor(context, R.color.success))
+                binding.type.setImageResource(R.drawable.data_app)
+            }
+        }
+        binding.issue.visibility = View.VISIBLE
+        binding.uploadData.visibility = View.VISIBLE
+
+        if (appData.issue == 0) {
+            binding.issue.visibility = View.GONE
+        } else {
+            binding.uploadData.visibility = View.GONE
+            binding.issue.text = "# ${appData.issue}"
+        }
+        holder.scope.launch {
+            tryAdaptUnmatchedItems(item, position, this@DataAdapter)
+        }
+        val app = AppUtils.getAppInfoFromPackageName(item.source, context)
+
+        binding.app.text =
+            item.source.let {
+                if (item.type.toDataType() !== DataType.Sms) {
+                    app?.name
+                } else {
+                    it
+                }
+            }
+        if (app != null) {
+            binding.image.setImageDrawable(app.icon)
+        } else {
+            binding.image.setImageResource(R.drawable.data_sms)
+        }
+
+        binding.time.text =
+            item.time.let {
+                DateUtils.getTime(it)
+            }
+        binding.rule.visibility = View.VISIBLE
+        if (!item.match) {
+            binding.rule.visibility = View.GONE
+        } else {
+            binding.uploadData.visibility = View.GONE
+            binding.groupCard.setCardBackgroundColor(SurfaceColors.SURFACE_5.getColor(context))
+        }
+
+        // 使用正则提取 \[(.*?)\]
+
+        val rule = item.rule
+        val regex = "\\[(.*?)]".toRegex()
+        val matchResult = regex.find(rule)
+        if (matchResult != null) {
+            val (value) = matchResult.destructured
+            binding.rule.text = value
+        } else {
+            binding.rule.text = item.rule
+        }
+
+        //    binding.rule.text = item.rule
     }
 
     private val hashMap = HashMap<AppData, Long>()
 
-    inner class ViewHolder(private val binding: AdapterDataBinding, private val context: Context) :
-        RecyclerView.ViewHolder(binding.root) {
-        private suspend fun tryAdaptUnmatchedItems(
-            item: AppData,
-            position: Int,
-            adapter: DataAdapter,
-        ) = withContext(Dispatchers.IO) {
-            if (!item.match) {
-                val t = System.currentTimeMillis() / 1000
-                if (hashMap.containsKey(item) && t - hashMap[item]!! < 30) { // 30秒内不重复匹配
-                    return@withContext
-                }
-                hashMap[item] = t
-                val result = Engine.analyze(item.type, item.source, item.data)
-                if (result !== null) {
-                    item.rule = result.channel
-                    item.match = true
-                    withContext(Dispatchers.Main) {
-                        dataItems[position] = item
-                        adapter.notifyItemChanged(position)
-                    }
-                    Db.get().AppDataDao().update(item)
-                }
+    private suspend fun tryAdaptUnmatchedItems(
+        item: AppData,
+        position: Int,
+        adapter: DataAdapter,
+    ) = withContext(Dispatchers.IO) {
+        if (!item.match) {
+            val t = System.currentTimeMillis() / 1000
+            if (hashMap.containsKey(item) && t - hashMap[item]!! < 30) { // 30秒内不重复匹配
+                return@withContext
             }
-        }
-
-        fun bind(
-            item: AppData,
-            position: Int,
-            adapter: DataAdapter,
-        ) {
-            binding.groupCard.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(context))
-            binding.content.setBackgroundColor(SurfaceColors.SURFACE_3.getColor(context))
-            // 格式化数据
-            val prettyJson: String = AppUtils.toPrettyFormat(item.data)
-
-            binding.content.text = prettyJson
-            when (item.type.toDataType()) {
-                DataType.Notice -> {
-                    binding.type.setColorFilter(ContextCompat.getColor(context, R.color.warning))
-                    binding.type.setImageResource(R.drawable.data_notice)
+            hashMap[item] = t
+            val result = Engine.analyze(item.type, item.source, item.data)
+            if (result !== null) {
+                item.rule = result.channel
+                item.match = true
+                withContext(Dispatchers.Main) {
+                    dataItems[position] = item
+                    adapter.notifyItemChanged(position)
                 }
-
-                DataType.Helper -> {
-                    binding.type.setColorFilter(ContextCompat.getColor(context, R.color.danger))
-                    binding.type.setImageResource(R.drawable.data_helper)
-                }
-
-                DataType.Sms -> {
-                    binding.type.setColorFilter(ContextCompat.getColor(context, R.color.info))
-                    binding.type.setImageResource(R.drawable.data_sms)
-                }
-
-                DataType.App -> {
-                    binding.type.setColorFilter(ContextCompat.getColor(context, R.color.success))
-                    binding.type.setImageResource(R.drawable.data_app)
-                }
-            }
-            binding.issue.visibility = View.VISIBLE
-            binding.uploadData.visibility = View.VISIBLE
-
-            if (item.issue == 0) {
-                binding.issue.visibility = View.GONE
-            } else {
-                binding.uploadData.visibility = View.GONE
-                binding.issue.text = "# ${item.issue}"
-                binding.issue.setOnClickListener {
-                    CustomTabsHelper.launchUrl(
-                        context,
-                        Uri.parse("https://github.com/AutoAccountingOrg/AutoRule/issues/${item.issue}"),
-                    )
-                }
-            }
-            scope.launch {
-                tryAdaptUnmatchedItems(item, position, adapter)
-            }
-            val app = AppUtils.getAppInfoFromPackageName(item.source, context)
-
-            binding.app.text =
-                item.source.let {
-                    if (item.type.toDataType() !== DataType.Sms) {
-                        app?.name
-                    } else {
-                        it
-                    }
-                }
-            if (app != null) {
-                binding.image.setImageDrawable(app.icon)
-            } else {
-                binding.image.setImageResource(R.drawable.data_sms)
-            }
-
-            binding.time.text =
-                item.time.let {
-                    DateUtils.getTime(it)
-                }
-            binding.rule.visibility = View.VISIBLE
-            if (!item.match) {
-                binding.rule.visibility = View.GONE
-            } else {
-                binding.uploadData.visibility = View.GONE
-                binding.groupCard.setCardBackgroundColor(SurfaceColors.SURFACE_5.getColor(context))
-            }
-
-            // 使用正则提取 \[(.*?)\]
-
-            val rule = item.rule
-            val regex = "\\[(.*?)]".toRegex()
-            val matchResult = regex.find(rule)
-            if (matchResult != null) {
-                val (value) = matchResult.destructured
-                binding.rule.text = value
-            } else {
-                binding.rule.text = item.rule
-            }
-
-            //    binding.rule.text = item.rule
-
-            binding.testRule.setOnClickListener {
-                onClickTest(item)
-            }
-            binding.content.setOnClickListener {
-                onClickContent(binding.content.text as String)
-            }
-
-            binding.uploadData.setOnClickListener {
-                onClickUploadData(item, position)
+                Db.get().AppDataDao().update(item)
             }
         }
     }
