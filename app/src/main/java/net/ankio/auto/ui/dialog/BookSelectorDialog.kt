@@ -82,8 +82,8 @@ class BookSelectorDialog(private val context: Context, val callback: (BookName) 
                 return@getData
             }
             dataItems.addAll(it)
-            adapter.notifyItemInserted(0)
             super.show(float, cancel)
+            adapter.notifyItemInserted(0)
         }
     }
 }
