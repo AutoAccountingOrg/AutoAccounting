@@ -78,7 +78,7 @@ class RuleAdapter(
     override fun onInitView(holder: BaseViewHolder) {
         val binding = holder.binding as AdapterRuleBinding
         val context = binding.root.context
-        val position = holder.adapterPosition
+        val position = clickPosition
         val item = dataItems[position]
 
         binding.groupCard.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(context))

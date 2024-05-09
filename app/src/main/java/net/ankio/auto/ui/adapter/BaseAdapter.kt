@@ -25,6 +25,8 @@ abstract class BaseAdapter(open val dataItems: List<Any>, val viewBindingClazz: 
         return BaseViewHolder(viewBinding, viewBinding.root.context)
     }
 
+    protected var clickPosition = 0
+
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int,
@@ -60,6 +62,7 @@ abstract class BaseAdapter(open val dataItems: List<Any>, val viewBindingClazz: 
         holder.createScope()
         val item = dataItems[position]
         runCatching {
+            clickPosition = position
             if (!holder.hasInit) {
                 onInitView(holder)
                 holder.hasInit = true

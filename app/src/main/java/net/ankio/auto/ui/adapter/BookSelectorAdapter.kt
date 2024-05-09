@@ -42,7 +42,7 @@ class BookSelectorAdapter(
 
     override fun onInitView(holder: BaseViewHolder) {
         (holder.binding as AdapterBookBinding).book.setOnClickListener {
-            onClick(dataItems[holder.adapterPosition], holder.adapterPosition)
+            onClick(dataItems[clickPosition], clickPosition)
         }
     }
 }

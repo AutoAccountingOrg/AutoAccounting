@@ -45,7 +45,7 @@ class MapAdapter(
     }
 
     override fun onInitView(holder: BaseViewHolder) {
-        val pos = holder.adapterPosition
+        val pos = clickPosition
         val item = dataItems[pos]
         val binding = holder.binding as AdapterMapBinding
 

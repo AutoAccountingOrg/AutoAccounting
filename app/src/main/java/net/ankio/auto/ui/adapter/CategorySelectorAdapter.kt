@@ -81,8 +81,8 @@ class CategorySelectorAdapter(
             itemTextView = binding.itemText
             itemImageIcon = binding.itemImageIcon
             ivMore = binding.ivMore
-            val item = dataItems[holder.adapterPosition] as Category
-            val position = holder.adapterPosition
+            val item = dataItems[clickPosition] as Category
+            val position = clickPosition
             onItemClick(item, position, binding.ivMore.visibility == View.VISIBLE, it)
         }
     }

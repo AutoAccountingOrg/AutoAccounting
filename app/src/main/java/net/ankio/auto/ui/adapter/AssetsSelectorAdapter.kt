@@ -25,10 +25,9 @@ class AssetsSelectorAdapter(
     override val dataItems: List<Assets>,
     private val onClick: (item: Assets) -> Unit,
 ) : BaseAdapter(dataItems, AdapterAssetsBinding::class.java) {
-
     override fun onInitView(holder: BaseViewHolder) {
         (holder.binding as AdapterAssetsBinding).assets.setOnClickListener {
-            onClick(dataItems[holder.adapterPosition])
+            onClick(dataItems[clickPosition])
         }
     }
 

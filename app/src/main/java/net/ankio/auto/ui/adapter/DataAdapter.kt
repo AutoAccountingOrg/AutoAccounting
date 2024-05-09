@@ -42,8 +42,8 @@ class DataAdapter(
     override fun onInitView(holder: BaseViewHolder) {
         val binding = holder.binding as AdapterDataBinding
         val context = holder.context
-        val item = dataItems[holder.adapterPosition]
-        val position = holder.adapterPosition
+        val item = dataItems[clickPosition]
+        val position = clickPosition
         binding.issue.setOnClickListener {
             CustomTabsHelper.launchUrl(
                 context,
