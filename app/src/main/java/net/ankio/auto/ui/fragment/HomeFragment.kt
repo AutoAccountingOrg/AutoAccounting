@@ -201,7 +201,7 @@ class HomeFragment : BaseFragment() {
             }.show(cancel = true)
         }
         // 账本数据（只读）
-        binding.readBook.setOnClickListener {
+        binding.defaultBook.setOnClickListener {
             BookSelectorDialog(themeContext) {
                 Logger.d("选择的账本是：${it.name}")
                 // defaultBook

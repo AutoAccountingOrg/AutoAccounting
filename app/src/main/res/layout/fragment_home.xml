@@ -134,6 +134,46 @@
 
 
             </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/book"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="@dimen/padding">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/one_padding"
+                    android:layout_marginEnd="@dimen/one_padding"
+                    android:drawablePadding="@dimen/one_padding"
+                    android:text="@string/title_books"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textStyle="bold"
+                    app:drawableLeftCompat="@drawable/home_app_book_data"
+                    app:drawableTint="?attr/colorOnSurface" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
+                <TextView
+                    android:id="@+id/defaultBook"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="15dp"
+                    android:ellipsize="end"
+                    android:maxWidth="100dp"
+                    android:singleLine="true"
+                    android:text="eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small" />
+
+
+            </LinearLayout>
+
             <LinearLayout
                 android:id="@+id/assets"
                 android:layout_width="match_parent"
@@ -174,50 +214,7 @@
                     tools:ignore="RelativeOverlap" />
 
             </LinearLayout>
-            <LinearLayout
-                android:id="@+id/book"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="@dimen/padding"
-                android:orientation="horizontal">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/one_padding"
-                    android:layout_marginEnd="@dimen/one_padding"
-                    android:text="@string/title_books"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textStyle="bold"
-                    app:drawableLeftCompat="@drawable/home_app_book_data"
-                    app:drawableTint="?attr/colorOnSurface"
-                    android:drawablePadding="@dimen/one_padding"
-                    />
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    />
-                <TextView
-                    android:id="@+id/defaultBook"
-                    android:layout_width="100dp"
-                    android:ellipsize="end"
-                    android:singleLine="true"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="15dp"
-                    android:text="eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Small" />
 
-                <Button
-                    android:id="@+id/readBook"
-                    style="?attr/materialIconButtonFilledStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:icon="@drawable/icon_eye"
-                    tools:ignore="RelativeOverlap" />
-
-
-            </LinearLayout>
             <LinearLayout
                 android:id="@+id/category"
                 android:layout_width="match_parent"
