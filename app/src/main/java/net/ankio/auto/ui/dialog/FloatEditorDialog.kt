@@ -21,6 +21,7 @@ import android.content.Context
 import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.View
+import android.view.WindowManager
 import android.widget.DatePicker
 import android.widget.TimePicker
 import androidx.appcompat.content.res.AppCompatResources
@@ -640,12 +641,14 @@ class FloatEditorDialog(
                             minute,
                             true,
                         )
+                    timePickerDialog.window!!.setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY)
                     timePickerDialog.show()
                 },
                 year,
                 month,
                 day,
             )
+        datePickerDialog.window!!.setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY)
         datePickerDialog.show()
     }
 
