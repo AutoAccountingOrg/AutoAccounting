@@ -113,10 +113,9 @@ class LogFragment : BaseFragment() {
                 val path = requireContext().externalCacheDir?.absolutePath + "/shell/log.txt"
                 dataItems.clear()
                 val file = File(path)
-                if (file.exists())
-                    {
-                        dataItems.addAll(file.readLines())
-                    }
+                if (file.exists()) {
+                    dataItems.addAll(file.readLines().takeLast(500))
+                }
 
                 withContext(Dispatchers.Main) {
                     loading.close()
