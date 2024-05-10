@@ -66,7 +66,7 @@ class OrderItemAdapter(
         val context = holder.context
         binding.category.setText(billInfo.cateName)
         scope.launch {
-            val book = BookName.getByName(billInfo.bookName)
+            val book = BookName.getDefaultBook(billInfo.bookName)
             Category.getDrawable(billInfo.cateName, book.id, context).let {
                 withContext(Dispatchers.Main) {
                     binding.category.setIcon(it, true)

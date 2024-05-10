@@ -24,6 +24,9 @@ interface BookNameDao {
     @Query("SELECT * FROM BookName  order by id desc")
     suspend fun loadAll(): List<BookName>
 
+    @Query("SELECT * FROM BookName  order by id desc limit 1")
+    suspend fun loadOne(): BookName?
+
     @Query("SELECT * FROM BookName WHERE name= :name")
     suspend fun getByName(name: String): BookName?
 

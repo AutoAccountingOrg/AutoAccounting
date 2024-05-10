@@ -49,6 +49,21 @@ class BookName {
             }
         }
 
+        suspend fun getDefaultBook(bookName: String): BookName =
+            withContext(Dispatchers.IO) {
+                if (bookName == "默认账本")
+                    {
+                        var book = Db.get().BookNameDao().loadOne()
+                        if (book == null) {
+                            book = BookName()
+                            book.name = bookName
+                        }
+                        book
+                    } else {
+                    getByName(bookName)
+                }
+            }
+
         suspend fun getByName(name: String) =
             withContext(Dispatchers.IO) {
                 var book = Db.get().BookNameDao().getByName(name)
@@ -67,7 +82,7 @@ class BookName {
             imageView.setImageDrawable(
                 ImageUtils.get(
                     context,
-                    Db.get().BookNameDao().getByName(bookName)?.icon ?: "",
+                    getDefaultBook(bookName).icon,
                     R.drawable.default_book,
                 ),
             )

@@ -546,7 +546,7 @@ class FloatEditorDialog(
         if (billTypeLevel1 == BillType.Income || billTypeLevel1 == BillType.Expend) {
             binding.category.visibility = View.VISIBLE
             lifecycleScope.launch {
-                val book = BookName.getByName(billInfo.bookName)
+                val book = BookName.getDefaultBook(billInfo.bookName)
                 Category.getDrawable(billInfo.cateName, book.id, context).let {
                     binding.category.setIcon(it, true)
                 }
@@ -560,7 +560,7 @@ class FloatEditorDialog(
     private fun bindingCategoryEvents() {
         binding.category.setOnClickListener {
             lifecycleScope.launch {
-                val book = BookName.getByName(billInfo.bookName)
+                val book = BookName.getDefaultBook(billInfo.bookName)
                 withContext(Dispatchers.Main) {
                     CategorySelectorDialog(context, book.id, billTypeLevel1) { parent, child ->
                         if (parent == null)return@CategorySelectorDialog
