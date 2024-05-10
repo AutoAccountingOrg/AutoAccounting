@@ -257,14 +257,13 @@ class FloatEditorDialog(
     }
 
     private fun bindingBookNameUI() {
-        Logger.d("bindingBookNameUI => ${billInfo.bookName}")
         lifecycleScope.launch {
             BookName.getDrawable(billInfo.bookName, context, binding.bookImage)
         }
     }
 
     private fun bindingBookNameEvents() {
-        binding.bookImage.setOnClickListener {
+        binding.bookImageClick.setOnClickListener {
             if (!autoAccountingConfig.multiBooks) return@setOnClickListener
             BookSelectorDialog(context) {
                 billInfo.bookName = it.name

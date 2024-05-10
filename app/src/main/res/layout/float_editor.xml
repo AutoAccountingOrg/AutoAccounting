@@ -40,8 +40,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="170dp"
                 android:layout_gravity="top"
+                android:clickable="true"
+                android:focusable="true"
                 android:scaleType="centerCrop"
                 android:src="@drawable/default_book" />
+
 
 
             <ScrollView
@@ -401,7 +404,10 @@
 
                 </LinearLayout>
             </ScrollView>
-
+            <View
+                android:id="@+id/book_image_click"
+                android:layout_width="match_parent"
+                android:layout_height="80dp" />
         </RelativeLayout>
 
 

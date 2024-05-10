@@ -34,7 +34,6 @@ class GradientImageView : AppCompatImageView {
     constructor(context: Context?) : super(context!!)
 
     constructor(context: Context?, attrs: AttributeSet?) : super(context!!, attrs)
-
     constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(
         context!!,
         attrs,
@@ -80,6 +79,13 @@ class GradientImageView : AppCompatImageView {
         paint.shader = composeShader
 
         canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)
+    }
+
+    override fun setImageDrawable(drawable: Drawable?) {
+        super.setImageDrawable(drawable)
+        shader = null
+        composeShader = null
+        invalidate()
     }
 
     private fun drawableToBitmap(drawable: Drawable): Bitmap {
