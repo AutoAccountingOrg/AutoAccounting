@@ -38,29 +38,28 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/one_padding"
                 android:layout_marginEnd="@dimen/one_padding"
+                android:layout_height="@dimen/btn_height"
+                android:gravity="center"
+                android:padding="@dimen/float_padding"
               >
 
                 <Button
                     android:id="@+id/income"
                     style="@style/Widget.Material3.Button.TonalButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="@dimen/one_padding"
                     android:layout_weight="1"
                     android:text="@string/float_income"
                     />
 
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp" android:layout_weight="1" />
-
                 <Button
                     android:id="@+id/expend"
                     style="@style/Widget.Material3.Button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:text="@string/float_expend" />
             </LinearLayout>

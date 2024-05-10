@@ -37,4 +37,6 @@
     <dimen name="font_size">6sp</dimen>
     <dimen name="mini_icon_size">12dp</dimen>
     <dimen name="font_size_normal">12sp</dimen>
+    <dimen name="btn_height">80dp</dimen>
+    <dimen name="btn_height_small">60dp</dimen>
 </resources>

@@ -91,7 +91,7 @@
 
                         app:icon="@drawable/icon_restart"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="@dimen/btn_height_small"
                         android:text="@string/restart"
                         android:id="@+id/errorRestart"
                         />

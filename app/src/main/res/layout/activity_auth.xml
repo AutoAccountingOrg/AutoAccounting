@@ -47,23 +47,22 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:layout_height="@dimen/btn_height"
+                android:gravity="center"
+                android:padding="@dimen/float_padding">
 
                 <com.google.android.material.button.MaterialButton
                     style="@style/Widget.Material3.Button.TonalButton"
                     android:id="@+id/cancel"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="@dimen/padding"
+                    android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:text="@string/auth_cancel_msg" />
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/sure"
                     android:layout_width="0dp"
-                    android:layout_margin="@dimen/padding"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:text="@string/auth_sure_msg" />
             </LinearLayout>

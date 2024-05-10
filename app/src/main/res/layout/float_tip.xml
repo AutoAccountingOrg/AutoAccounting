@@ -17,7 +17,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="60dp"
+    android:layout_height="@dimen/btn_height_small"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@drawable/bg_layout_tip"
     android:paddingStart="15dp"

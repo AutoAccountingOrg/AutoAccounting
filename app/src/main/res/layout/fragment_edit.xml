@@ -53,7 +53,7 @@
         <Button
             android:id="@+id/saveItem"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/btn_height"
             android:text="@string/save_rule"
             android:textSize="@dimen/save_size"
             style="@style/Widget.Material3.Button"
