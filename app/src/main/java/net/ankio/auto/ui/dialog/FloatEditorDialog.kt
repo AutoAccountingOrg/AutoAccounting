@@ -73,7 +73,6 @@ class FloatEditorDialog(
         cardView = binding.editorCard
 
         Logger.d("原始账单结果 => $billInfo")
-        Logger.d("原始账单结果 => ${billInfo.toJSON()}")
         billTypeLevel1 = billInfo.type
         billTypeLevel2 = billInfo.type
         binding.radioContainer.check(binding.radioNone.id)
@@ -291,6 +290,7 @@ class FloatEditorDialog(
 
     private fun bindingPayInfoUI() {
         binding.payInfo.visibility = View.GONE
+
         if (!autoAccountingConfig.assetManagement || billTypeLevel1 == BillType.Transfer) {
             // 没有资产管理
             return
@@ -325,6 +325,7 @@ class FloatEditorDialog(
 
     private fun bindingTransferInfoUI() {
         binding.transferInfo.visibility = View.GONE
+
         if (!autoAccountingConfig.assetManagement) {
             return
         }
@@ -495,6 +496,7 @@ class FloatEditorDialog(
             bindingDebtExpendUI()
             bindingDebtIncomeUI()
             bindingDebtUI()
+            bindingCategoryUI()
         }
 
         fun getBillType(type: BillType): BillType {
@@ -541,14 +543,18 @@ class FloatEditorDialog(
     }
 
     private fun bindingCategoryUI() {
-        binding.category.visibility = View.VISIBLE
-        lifecycleScope.launch {
-            val book = BookName.getByName(billInfo.bookName)
-            Category.getDrawable(billInfo.cateName, book.id, context).let {
-                binding.category.setIcon(it, true)
+        if (billTypeLevel1 == BillType.Income || billTypeLevel1 == BillType.Expend) {
+            binding.category.visibility = View.VISIBLE
+            lifecycleScope.launch {
+                val book = BookName.getByName(billInfo.bookName)
+                Category.getDrawable(billInfo.cateName, book.id, context).let {
+                    binding.category.setIcon(it, true)
+                }
             }
+            binding.category.setText(billInfo.cateName)
+        } else {
+            binding.category.visibility = View.GONE
         }
-        binding.category.setText(billInfo.cateName)
     }
 
     private fun bindingCategoryEvents() {
