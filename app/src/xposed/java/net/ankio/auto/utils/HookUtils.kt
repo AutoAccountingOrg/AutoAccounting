@@ -133,43 +133,43 @@ class HookUtils(val context: Application, private val packageName: String) {
         data: String,
         appName: String,
     ) = withContext(Dispatchers.IO) {
-        scope.launch {
-            runCatching {
-                log(HookMainApp.getTag(appName, "数据分析"), data)
-                val billInfo = Engine.analyze(dataType, app, data)
-                val appData = AppData()
-                appData.issue = 0
-                appData.type = dataType
-                appData.rule = billInfo?.channel ?: ""
-                appData.source = app
-                appData.data = data
-                appData.match = billInfo != null
-                appData.time = System.currentTimeMillis()
+        runCatching {
+            log(HookMainApp.getTag(appName, "数据分析"), data)
+            val billInfo = Engine.analyze(dataType, app, data)
+            val appData = AppData()
+            appData.issue = 0
+            appData.type = dataType
+            appData.rule = billInfo?.channel ?: ""
+            appData.source = app
+            appData.data = data
+            appData.match = billInfo != null
+            appData.time = System.currentTimeMillis()
 
-                // 先存到server的数据库里面
-                val billData = appData.toText()
+            // 先存到server的数据库里面
+            val billData = appData.toText()
 
-                autoAccountingServiceUtils.putData(billData)
+            log(HookMainApp.getTag(appName, "分析结果"), "$billInfo")
 
-                // 从外部启动自动记账服务，这里需要处理队列问题
+            autoAccountingServiceUtils.putData(billData)
 
-                // logD(HookMainApp.getTag(appName, "自动记账结果"), appData.toJSON())
-                if (billInfo !== null) {
-                    autoAccountingServiceUtils.startApp(Base64.encodeToString(billInfo.toJSON().toByteArray(), Base64.NO_WRAP))
-                }
-            }.onFailure {
-                it.printStackTrace()
-                it.message?.let { it1 ->
-                    log(
-                        HookMainApp.getTag(
-                            appName,
-                            "自动记账执行脚本发生错误",
-                        ),
-                        it1,
-                    )
-                }
-                XposedBridge.log(it)
+            // 从外部启动自动记账服务，这里需要处理队列问题
+
+            // logD(HookMainApp.getTag(appName, "自动记账结果"), appData.toJSON())
+            if (billInfo !== null) {
+                autoAccountingServiceUtils.startApp(Base64.encodeToString(billInfo.toJSON().toByteArray(), Base64.NO_WRAP))
             }
+        }.onFailure {
+            it.printStackTrace()
+            it.message?.let { it1 ->
+                log(
+                    HookMainApp.getTag(
+                        appName,
+                        "自动记账执行脚本发生错误",
+                    ),
+                    it1,
+                )
+            }
+            XposedBridge.log(it)
         }
     }
 
