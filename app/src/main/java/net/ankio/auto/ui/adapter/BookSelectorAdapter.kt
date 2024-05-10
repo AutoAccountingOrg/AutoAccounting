@@ -23,12 +23,11 @@ import net.ankio.auto.utils.ImageUtils
 
 class BookSelectorAdapter(
     override val dataItems: List<BookName>,
-    private val onClick: (item: BookName, position: Int) -> Unit,
+    private val onClick: (item: BookName) -> Unit,
 ) : BaseAdapter(dataItems, AdapterBookBinding::class.java) {
     override fun onBindView(
         holder: BaseViewHolder,
         item: Any,
-        position: Int,
     ) {
         val it = item as BookName
         val binding = (holder.binding as AdapterBookBinding)
@@ -42,7 +41,7 @@ class BookSelectorAdapter(
 
     override fun onInitView(holder: BaseViewHolder) {
         (holder.binding as AdapterBookBinding).book.setOnClickListener {
-            onClick(dataItems[clickPosition], clickPosition)
+            onClick(holder.item as BookName)
         }
     }
 }

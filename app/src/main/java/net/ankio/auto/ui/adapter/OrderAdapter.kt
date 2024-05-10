@@ -37,7 +37,6 @@ class OrderAdapter(
     override fun onBindView(
         holder: BaseViewHolder,
         item: Any,
-        position: Int,
     ) {
         val binding = holder.binding as AdapterOrderBinding
         val context = holder.context
@@ -53,14 +52,14 @@ class OrderAdapter(
         val adapter =
             OrderItemAdapter(
                 dataInnerItems,
-                onItemChildClick = { itemBill, _ ->
+                onItemChildClick = { itemBill ->
                     holder.scope.launch {
                         AutoAccountingServiceUtils.config(context).let {
                             FloatEditorDialog(context, itemBill, it, onlyShow = true).show(false, true)
                         }
                     }
                 },
-                onItemChildMoreClick = { itemBill, _ ->
+                onItemChildMoreClick = { itemBill ->
                     BillMoreDialog(context, itemBill).show(false, true)
                 },
             )

@@ -28,7 +28,6 @@ class MapAdapter(
     override fun onBindView(
         holder: BaseViewHolder,
         item: Any,
-        position: Int,
     ) {
         val binding = holder.binding as AdapterMapBinding
         val it = item as AssetsMap
@@ -45,17 +44,16 @@ class MapAdapter(
     }
 
     override fun onInitView(holder: BaseViewHolder) {
-        val pos = clickPosition
-        val item = dataItems[pos]
+        val item = holder.item as AssetsMap
         val binding = holder.binding as AdapterMapBinding
 
         // 单击编辑
         binding.item.setOnClickListener {
-            onClick(this@MapAdapter, item, pos)
+            onClick(this@MapAdapter, item, getHolderIndex(holder))
         }
         // 长按删除
         binding.item.setOnLongClickListener {
-            onLongClick(this@MapAdapter, item, pos)
+            onLongClick(this@MapAdapter, item, getHolderIndex(holder))
             true
         }
     }

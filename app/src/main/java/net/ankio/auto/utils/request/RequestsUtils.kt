@@ -170,8 +170,8 @@ class RequestsUtils(context: Context) {
             val cachedData = cacheManager.readFromCache(cacheKey)
             if (cacheTime > 0 && cachedData.isNotEmpty()) {
                 message.append(
-                    " Cache Hit \n" +
-                        convertByteArray(cachedData),
+                    " Cache Hit \n",
+                    //    convertByteArray(cachedData),
                 )
                 Logger.d(message.toString())
                 return@withContext RequestResult(cachedData, 200)
@@ -216,8 +216,8 @@ class RequestsUtils(context: Context) {
                     }
                 }
                 message.append(
-                    " Response Success  " + response.code + " " + response.message + "\n" +
-                        convertByteArray(bytes ?: ByteArray(0)),
+                    " Response Success  " + response.code + " " + response.message + "\n",
+                    //   convertByteArray(bytes ?: ByteArray(0)),
                 )
                 RequestResult(bytes ?: ByteArray(0), response.code)
             } catch (e: Throwable) {

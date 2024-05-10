@@ -43,7 +43,7 @@ class BookSelectorDialog(private val context: Context, val callback: (BookName) 
         cardView = binding.cardView
         cardViewInner = binding.recyclerView
         adapter =
-            BookSelectorAdapter(dataItems) { item, _ ->
+            BookSelectorAdapter(dataItems) { item ->
                 callback(item)
                 this@BookSelectorDialog.dismiss()
             }

@@ -41,8 +41,8 @@ import net.ankio.auto.utils.ImageUtils
  */
 class CategorySelectorAdapter(
     override val dataItems: List<Category>,
-    private val onItemClick: (item: Category, position: Int, hasChild: Boolean, view: View) -> Unit,
-    private val onItemChildClick: (item: Category, position: Int) -> Unit,
+    private val onItemClick: (item: Category, pos: Int, hasChild: Boolean, view: View) -> Unit,
+    private val onItemChildClick: (item: Category, pos: Int) -> Unit,
 ) : BaseAdapter(dataItems, AdapterCategoryListBinding::class.java) {
     override fun onBindViewHolder(
         holder: BaseViewHolder,
@@ -55,6 +55,7 @@ class CategorySelectorAdapter(
             // 如果有 payload，根据 payload 更新部分内容
             val category = payloads[0] as Category
             val viewHolder = holder as ViewHolder
+            viewHolder.item = category
             viewHolder.updatePanel(category)
         }
     }
@@ -62,28 +63,28 @@ class CategorySelectorAdapter(
     override fun onBindView(
         holder: BaseViewHolder,
         item: Any,
-        position: Int,
     ) {
-        val it = dataItems[position] as Category
+        val it = item as Category
         val viewHolder = holder as ViewHolder
-        viewHolder.bind(it, position)
+        viewHolder.bind(it)
     }
 
     override fun onInitView(holder: BaseViewHolder) {
         val viewHolder = holder as ViewHolder
+
         val binding = viewHolder.binding
         binding.itemImageIcon.setOnClickListener {
             if (itemTextView !== null) {
                 viewHolder.setActive(itemTextView!!, itemImageIcon!!, ivMore!!, false)
-            } else {
-                viewHolder.setActive(binding.itemText, binding.itemImageIcon, binding.ivMore, true)
             }
+            viewHolder.setActive(binding.itemText, binding.itemImageIcon, binding.ivMore, true)
+
             itemTextView = binding.itemText
             itemImageIcon = binding.itemImageIcon
             ivMore = binding.ivMore
-            val item = dataItems[clickPosition] as Category
-            val position = clickPosition
-            onItemClick(item, position, binding.ivMore.visibility == View.VISIBLE, it)
+
+            val item = holder.item as Category
+            onItemClick(item, getHolderIndex(holder), binding.ivMore.visibility == View.VISIBLE, it)
         }
     }
 
@@ -141,10 +142,7 @@ class CategorySelectorAdapter(
             }
         }
 
-        fun bind(
-            item: Category,
-            position: Int,
-        ) {
+        fun bind(item: Category) {
             setActive(binding.itemText, binding.itemImageIcon, binding.ivMore, false)
             if (item.isPanel()) { // -2表示他是一个面板，而非item，需要切换为面板视图
                 binding.icon.visibility = View.GONE
@@ -158,17 +156,14 @@ class CategorySelectorAdapter(
                 // 渲染面板视图
                 renderPanel(item)
             } else {
-                renderItem(item, position)
+                renderItem(item)
             }
         }
 
         /**
          * item渲染
          */
-        fun renderItem(
-            item: Category,
-            position: Int,
-        ) {
+        fun renderItem(item: Category) {
             if (item.parent != -1) {
                 binding.ivMore.visibility = View.GONE
             } else {

@@ -26,6 +26,7 @@ open class BaseViewHolder(open val binding: ViewBinding, open val context: Conte
     private lateinit var job: Job
     lateinit var scope: CoroutineScope
     var hasInit = false
+    var item: Any? = null
 
     fun createScope() {
         cancelScope()

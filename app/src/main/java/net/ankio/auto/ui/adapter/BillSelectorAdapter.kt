@@ -31,7 +31,7 @@ class BillSelectorAdapter(
     override fun onInitView(holder: BaseViewHolder) {
         val binding = holder.binding as AdapterBillBookBinding
         binding.root.setOnClickListener {
-            val item = dataItems[clickPosition]
+            val item = holder.item as BillModel
             if (selectedItems.contains(item)) {
                 selectedItems.remove(item)
                 // 清除背景
@@ -46,7 +46,6 @@ class BillSelectorAdapter(
     override fun onBindView(
         holder: BaseViewHolder,
         item: Any,
-        position: Int,
     ) {
         val binding = holder.binding as AdapterBillBookBinding
         val it = item as BillModel

@@ -33,18 +33,18 @@ import net.ankio.common.constant.BillType
 
 class OrderItemAdapter(
     override val dataItems: List<BillInfo>,
-    private val onItemChildClick: ((item: BillInfo, position: Int) -> Unit)?,
-    private val onItemChildMoreClick: ((item: BillInfo, position: Int) -> Unit)?,
+    private val onItemChildClick: ((item: BillInfo) -> Unit)?,
+    private val onItemChildMoreClick: ((item: BillInfo) -> Unit)?,
 ) : BaseAdapter(dataItems, AdapterOrderItemBinding::class.java) {
     override fun onInitView(holder: BaseViewHolder) {
         val binding = holder.binding as AdapterOrderItemBinding
         val position = holder.adapterPosition
         val billInfo = dataItems[position]
         binding.root.setOnClickListener {
-            onItemChildClick?.invoke(billInfo, position)
+            onItemChildClick?.invoke(billInfo)
         }
         binding.moreBills.setOnClickListener {
-            onItemChildMoreClick?.invoke(billInfo, position)
+            onItemChildMoreClick?.invoke(billInfo)
         }
 
         binding.payTools.visibility = if (config.assetManagement) View.VISIBLE else View.GONE
@@ -59,7 +59,6 @@ class OrderItemAdapter(
     override fun onBindView(
         holder: BaseViewHolder,
         item: Any,
-        position: Int,
     ) {
         val binding = holder.binding as AdapterOrderItemBinding
         val billInfo = item as BillInfo

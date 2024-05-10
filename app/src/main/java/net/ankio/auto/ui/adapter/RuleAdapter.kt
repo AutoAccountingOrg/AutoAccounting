@@ -24,13 +24,12 @@ import net.ankio.auto.databinding.AdapterRuleBinding
 
 class RuleAdapter(
     override val dataItems: List<Regular>,
-    private val onClickEdit: (item: Regular, position: Int) -> Unit,
-    private val onClickDelete: (item: Regular, position: Int) -> Unit,
+    private val onClickEdit: (item: Regular, pos: Int) -> Unit,
+    private val onClickDelete: (item: Regular, pos: Int) -> Unit,
 ) : BaseAdapter(dataItems, AdapterRuleBinding::class.java) {
     override fun onBindView(
         holder: BaseViewHolder,
         item: Any,
-        position: Int,
     ) {
         val binding = holder.binding as AdapterRuleBinding
         val context = binding.root.context
@@ -78,15 +77,14 @@ class RuleAdapter(
     override fun onInitView(holder: BaseViewHolder) {
         val binding = holder.binding as AdapterRuleBinding
         val context = binding.root.context
-        val position = clickPosition
-        val item = dataItems[position]
+        val item = holder.item as Regular
 
         binding.groupCard.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(context))
         binding.deleteData.setOnClickListener {
-            onClickDelete(item, position)
+            onClickDelete(item, getHolderIndex(holder))
         }
         binding.editRule.setOnClickListener {
-            onClickEdit(item, position)
+            onClickEdit(item, getHolderIndex(holder))
         }
     }
 }

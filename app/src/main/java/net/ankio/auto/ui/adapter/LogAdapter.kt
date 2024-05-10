@@ -26,7 +26,6 @@ class LogAdapter(
     override fun onBindView(
         holder: BaseViewHolder,
         item: Any,
-        position: Int,
     ) {
         val binding = holder.binding as AdapterTextBinding
         val it = item as String

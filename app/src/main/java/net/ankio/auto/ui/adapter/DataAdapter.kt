@@ -37,14 +37,14 @@ class DataAdapter(
     override val dataItems: MutableList<AppData>,
     private val onClickContent: (string: String) -> Unit,
     private val onClickTest: (item: AppData) -> Unit,
-    private val onClickUploadData: (item: AppData, position: Int) -> Unit,
+    private val onClickUploadData: (item: AppData, pos: Int) -> Unit,
 ) : BaseAdapter(dataItems, AdapterDataBinding::class.java) {
     override fun onInitView(holder: BaseViewHolder) {
         val binding = holder.binding as AdapterDataBinding
         val context = holder.context
-        val item = dataItems[clickPosition]
-        val position = clickPosition
+
         binding.issue.setOnClickListener {
+            val item = holder.item as AppData
             CustomTabsHelper.launchUrl(
                 context,
                 Uri.parse("https://github.com/AutoAccountingOrg/AutoRule/issues/${item.issue}"),
@@ -52,6 +52,7 @@ class DataAdapter(
         }
 
         binding.testRule.setOnClickListener {
+            val item = holder.item as AppData
             onClickTest(item)
         }
         binding.content.setOnClickListener {
@@ -59,14 +60,14 @@ class DataAdapter(
         }
 
         binding.uploadData.setOnClickListener {
-            onClickUploadData(item, position)
+            val item = holder.item as AppData
+            onClickUploadData(item, getHolderIndex(holder))
         }
     }
 
     override fun onBindView(
         holder: BaseViewHolder,
         item: Any,
-        position: Int,
     ) {
         val binding = holder.binding as AdapterDataBinding
         val appData = item as AppData
@@ -109,7 +110,7 @@ class DataAdapter(
             binding.issue.text = "# ${appData.issue}"
         }
         holder.scope.launch {
-            tryAdaptUnmatchedItems(item, position, this@DataAdapter)
+            tryAdaptUnmatchedItems(holder, this@DataAdapter)
         }
         val app = AppUtils.getAppInfoFromPackageName(item.source, context)
 
@@ -157,10 +158,10 @@ class DataAdapter(
     private val hashMap = HashMap<AppData, Long>()
 
     private suspend fun tryAdaptUnmatchedItems(
-        item: AppData,
-        position: Int,
+        holder: BaseViewHolder,
         adapter: DataAdapter,
     ) = withContext(Dispatchers.IO) {
+        val item = holder.item as AppData
         if (!item.match) {
             val t = System.currentTimeMillis() / 1000
             if (hashMap.containsKey(item) && t - hashMap[item]!! < 30) { // 30秒内不重复匹配
@@ -172,8 +173,9 @@ class DataAdapter(
                 item.rule = result.channel
                 item.match = true
                 withContext(Dispatchers.Main) {
-                    dataItems[position] = item
-                    adapter.notifyItemChanged(position)
+                    val index = getHolderIndex(holder)
+                    dataItems[index] = item
+                    adapter.notifyItemChanged(index)
                 }
                 Db.get().AppDataDao().update(item)
             }
