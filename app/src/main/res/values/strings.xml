@@ -333,4 +333,7 @@
     <string name="data_content">内容包含</string>
     <string name="loading">加载中...</string>
     <string name="no_assets">资产数据为空</string>
+    <string name="data_question">规则异常反馈</string>
+    <string name="data_question_info">反馈内容</string>
+    <string name="question_success">反馈成功</string>
 </resources>

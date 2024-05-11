@@ -116,7 +116,7 @@
                 android:layout_centerVertical="true"
                 android:layout_marginStart="@dimen/one_padding"
                 android:layout_marginEnd="@dimen/one_padding"
-                android:layout_toStartOf="@+id/uploadData"
+                android:layout_toStartOf="@+id/question"
                 android:layout_toEndOf="@+id/issue"
                 android:background="@drawable/rounded_background"
                 android:ellipsize="end"
@@ -142,27 +142,29 @@
 
 
 
-            <Button
+            <com.google.android.material.button.MaterialButton
 
                 style="?attr/materialIconButtonFilledTonalStyle"
                 app:icon="@drawable/icon_test"
                 android:id="@+id/testRule"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:layout_alignParentEnd="true"
 
                 tools:ignore="RelativeOverlap" />
-            <Button
+            <com.google.android.material.button.MaterialButton
 
                 style="?attr/materialIconButtonOutlinedStyle"
                 app:icon="@drawable/icon_upload"
                 android:id="@+id/uploadData"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:layout_marginEnd="15dp"
                 android:layout_toStartOf="@+id/testRule"
 
                 tools:ignore="RelativeOverlap" />
+
+
         </RelativeLayout>
 
     </LinearLayout>

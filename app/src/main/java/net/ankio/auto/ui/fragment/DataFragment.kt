@@ -35,6 +35,7 @@ import net.ankio.auto.constant.toDataType
 import net.ankio.auto.database.Db
 import net.ankio.auto.database.table.AppData
 import net.ankio.auto.databinding.FragmentDataBinding
+import net.ankio.auto.databinding.SettingItemInputBinding
 import net.ankio.auto.ui.adapter.DataAdapter
 import net.ankio.auto.ui.dialog.DataEditorDialog
 import net.ankio.auto.ui.dialog.FilterDialog
@@ -102,54 +103,98 @@ class DataFragment : BaseFragment() {
                         return@DataAdapter
                     }
 
-                    MaterialAlertDialogBuilder(requireContext())
-                        .setTitle(getString(R.string.upload_sure)) // 设置对话框的标题
-                        .setMessage(getString(R.string.upload_info)) // 设置对话框的消息
-                        .setPositiveButton(getString(R.string.ok)) { dialog, which ->
-                            val uploadData = AppUtils.toPrettyFormat(item.data)
-                            DataEditorDialog(requireContext(), uploadData) { data ->
-                                val type =
-                                    when (item.type.toDataType()) {
-                                        DataType.App -> "App"
-                                        DataType.Helper -> "Helper"
-                                        DataType.Notice -> "Notice"
-                                        DataType.Sms -> "Sms"
-                                    }
-                                val loadingUtils = LoadingUtils(requireActivity())
-                                loadingUtils.show(R.string.upload_waiting)
-                                lifecycleScope.launch {
-                                    runCatching {
-                                        val issue =
-                                            Github.createIssue(
-                                                "[Adaptation Request][$type]${item.source}",
-                                                """
+                    val builder =
+                        MaterialAlertDialogBuilder(requireContext())
+                            .setTitle(if (item.match) getString(R.string.data_question) else getString(R.string.upload_sure)) // 设置对话框的标题
+
+                    var settingItemInputBinding: SettingItemInputBinding? = null
+
+                    if (!item.match) {
+                        builder.setMessage(getString(R.string.upload_info))
+                    } else {
+                        settingItemInputBinding = SettingItemInputBinding.inflate(layoutInflater)
+                        settingItemInputBinding.inputLayout.hint = getString(R.string.data_question_info)
+                        builder.setView(settingItemInputBinding.root)
+                    }
+                    builder.setPositiveButton(getString(R.string.ok)) { dialog, which ->
+                        var text = ""
+                        if (settingItemInputBinding != null) {
+                            text = settingItemInputBinding.input.text.toString()
+                        }
+                        val uploadData = AppUtils.toPrettyFormat(item.data)
+                        DataEditorDialog(requireContext(), uploadData) { data ->
+                            val type =
+                                when (item.type.toDataType()) {
+                                    DataType.App -> "App"
+                                    DataType.Helper -> "Helper"
+                                    DataType.Notice -> "Notice"
+                                    DataType.Sms -> "Sms"
+                                }
+                            val loadingUtils = LoadingUtils(requireActivity())
+                            loadingUtils.show(R.string.upload_waiting)
+                            lifecycleScope.launch {
+                                runCatching {
+                                    val title =
+                                        if (!item.match) {
+                                            "[Adaptation Request][$type]${item.source}"
+                                        } else {
+                                            "[Bug][Rule][$type]${item.source}"
+                                        }
+                                    val msg =
+                                        if (!item.match) {
+                                            """
 ```
                 $data
 ```
-                                                """.trimIndent(),
-                                            )
-                                        item.issue = issue.toInt()
-                                        withContext(Dispatchers.Main) {
-                                            loadingUtils.close()
-                                            dataItems[position] = item
-                                            adapter.notifyItemChanged(position)
-                                            Toaster.show(getString(R.string.upload_success))
+                                            """.trimIndent()
+                                        } else {
+                                            """
+## 规则
+${item.rule}
+## 说明
+$text
+## 数据
+```
+$data
+```
+                                            """.trimIndent()
                                         }
-                                        Db.get().AppDataDao().update(item)
-                                    }.onFailure {
-                                        withContext(Dispatchers.Main) {
-                                            Toaster.show(it.message)
-                                            CustomTabsHelper.launchUrl(
-                                                requireContext(),
-                                                Uri.parse(Github.getLoginUrl()),
-                                            )
-                                            loadingUtils.close()
-                                        }
+                                    val issue =
+                                        Github.createIssue(
+                                            title,
+                                            msg,
+                                            if (!item.match) "AutoRule" else "AutoAccounting",
+                                        )
+                                    item.issue = issue.toInt()
+                                    withContext(Dispatchers.Main) {
+                                        loadingUtils.close()
+                                        dataItems[position] = item
+                                        adapter.notifyItemChanged(position)
+                                        Toaster.show(
+                                            if (!item.match) {
+                                                getString(
+                                                    R.string.upload_success,
+                                                )
+                                            } else {
+                                                getString(R.string.question_success)
+                                            },
+                                        )
+                                    }
+                                    Db.get().AppDataDao().update(item)
+                                }.onFailure {
+                                    withContext(Dispatchers.Main) {
+                                        Toaster.show(it.message)
+                                        CustomTabsHelper.launchUrl(
+                                            requireContext(),
+                                            Uri.parse(Github.getLoginUrl()),
+                                        )
+                                        loadingUtils.close()
                                     }
                                 }
-                                dialog.dismiss()
-                            }.show(false)
-                        }
+                            }
+                            dialog.dismiss()
+                        }.show(false)
+                    }
                         .setNegativeButton(R.string.close) { dialog, which ->
                             // 在取消按钮被点击时执行的操作
                             dialog.dismiss()

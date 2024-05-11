@@ -47,7 +47,9 @@ class DataAdapter(
             val item = holder.item as AppData
             CustomTabsHelper.launchUrl(
                 context,
-                Uri.parse("https://github.com/AutoAccountingOrg/AutoRule/issues/${item.issue}"),
+                Uri.parse(
+                    if (item.match) "https://github.com/AutoAccountingOrg/AutoAccounting/issues/${item.issue}" else "https://github.com/AutoAccountingOrg/AutoRule/issues/${item.issue}",
+                ),
             )
         }
 
@@ -135,8 +137,10 @@ class DataAdapter(
         binding.rule.visibility = View.VISIBLE
         if (!item.match) {
             binding.rule.visibility = View.GONE
+
+            binding.uploadData.setIconResource(R.drawable.icon_upload)
         } else {
-            binding.uploadData.visibility = View.GONE
+            binding.uploadData.setIconResource(R.drawable.icon_question)
             binding.groupCard.setCardBackgroundColor(SurfaceColors.SURFACE_5.getColor(context))
         }
 

@@ -77,9 +77,10 @@ object Github {
     suspend fun createIssue(
         title: String,
         body: String,
+        repo: String = "AutoRule",
     ): String =
         withContext(Dispatchers.IO) {
-            val url = "https://api.github.com/repos/AutoAccountingOrg/AutoRule/issues"
+            val url = "https://api.github.com/repos/AutoAccountingOrg/$repo/issues"
 
             val jsonRequest = JSONObject()
             jsonRequest.put("title", title)
