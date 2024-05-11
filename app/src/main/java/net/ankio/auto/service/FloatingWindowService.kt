@@ -27,6 +27,7 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
+import android.view.WindowManager.BadTokenException
 import androidx.core.content.ContextCompat
 import com.hjq.toast.Toaster
 import com.quickersilver.themeengine.ThemeEngine
@@ -44,6 +45,8 @@ import net.ankio.auto.events.AutoServiceErrorEvent
 import net.ankio.auto.exceptions.AutoServiceException
 import net.ankio.auto.ui.dialog.FloatEditorDialog
 import net.ankio.auto.utils.AutoAccountingServiceUtils
+import net.ankio.auto.utils.FloatPermissionUtils
+import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.SpUtils
 import net.ankio.auto.utils.event.EventBus
 import kotlin.coroutines.CoroutineContext
@@ -76,7 +79,19 @@ class FloatingWindowService : Service(), CoroutineScope {
                 )
         }
 
-        processIntent(intent)
+        runCatching {
+            processIntent(intent)
+        }.onFailure {
+            if (it is BadTokenException)
+                {
+                    if (it.message != null && it.message!!.contains("permission denied"))
+                        {
+                            Toaster.show(R.string.floatTip)
+                            FloatPermissionUtils.requestPermission(this)
+                        }
+                }
+            Logger.e("记账失败", it)
+        }
         return START_REDELIVER_INTENT
     }
 
