@@ -38,13 +38,11 @@ class OrderItemAdapter(
 ) : BaseAdapter(dataItems, AdapterOrderItemBinding::class.java) {
     override fun onInitView(holder: BaseViewHolder) {
         val binding = holder.binding as AdapterOrderItemBinding
-        val position = holder.adapterPosition
-        val billInfo = dataItems[position]
         binding.root.setOnClickListener {
-            onItemChildClick?.invoke(billInfo)
+            onItemChildClick?.invoke(holder.item as BillInfo)
         }
         binding.moreBills.setOnClickListener {
-            onItemChildMoreClick?.invoke(billInfo)
+            onItemChildMoreClick?.invoke(holder.item as BillInfo)
         }
 
         binding.payTools.visibility = if (config.assetManagement) View.VISIBLE else View.GONE

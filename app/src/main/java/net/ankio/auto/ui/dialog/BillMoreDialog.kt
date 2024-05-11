@@ -25,6 +25,7 @@ import net.ankio.auto.database.Db
 import net.ankio.auto.database.table.BillInfo
 import net.ankio.auto.databinding.DialogBillMoreBinding
 import net.ankio.auto.ui.adapter.OrderItemAdapter
+import net.ankio.auto.utils.AutoAccountingServiceUtils
 
 class BillMoreDialog(
     private val context: Context,
@@ -54,9 +55,12 @@ class BillMoreDialog(
     ) {
         super.show(float, cancel)
         lifecycleScope.launch {
+            val config = AutoAccountingServiceUtils.config(context)
             Db.get().BillInfoDao().getChild(billInfo.id).apply {
+                adapter.notifyConfig(config)
+                dataItems.clear()
                 dataItems.addAll(this)
-                adapter.notifyItemInserted(0)
+                adapter.notifyDataSetChanged()
             }
         }
     }
