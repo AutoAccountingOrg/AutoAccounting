@@ -77,13 +77,14 @@ class RuleAdapter(
     override fun onInitView(holder: BaseViewHolder) {
         val binding = holder.binding as AdapterRuleBinding
         val context = binding.root.context
-        val item = holder.item as Regular
 
         binding.groupCard.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(context))
         binding.deleteData.setOnClickListener {
+            val item = holder.item as Regular
             onClickDelete(item, getHolderIndex(holder))
         }
         binding.editRule.setOnClickListener {
+            val item = holder.item as Regular
             onClickEdit(item, getHolderIndex(holder))
         }
     }

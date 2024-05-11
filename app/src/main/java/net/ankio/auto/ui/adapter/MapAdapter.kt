@@ -44,15 +44,16 @@ class MapAdapter(
     }
 
     override fun onInitView(holder: BaseViewHolder) {
-        val item = holder.item as AssetsMap
         val binding = holder.binding as AdapterMapBinding
 
         // 单击编辑
         binding.item.setOnClickListener {
+            val item = holder.item as AssetsMap
             onClick(this@MapAdapter, item, getHolderIndex(holder))
         }
         // 长按删除
         binding.item.setOnLongClickListener {
+            val item = holder.item as AssetsMap
             onLongClick(this@MapAdapter, item, getHolderIndex(holder))
             true
         }
