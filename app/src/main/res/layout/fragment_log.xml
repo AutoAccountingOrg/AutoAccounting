@@ -4,24 +4,16 @@
     android:layout_height="match_parent"
     android:orientation="horizontal">
 
-    <HorizontalScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fillViewport="true"
-        android:scrollbars="vertical">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fadeScrollbars="false"
-            android:overScrollMode="never"
-            android:scrollbars="none">
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fadeScrollbars="false"
+        android:overScrollMode="never"
+        android:scrollbars="none">
 
 
-        </androidx.recyclerview.widget.RecyclerView>
-
-    </HorizontalScrollView>
+    </androidx.recyclerview.widget.RecyclerView>
     <include
         android:id="@+id/empty"
         layout="@layout/list_empty"

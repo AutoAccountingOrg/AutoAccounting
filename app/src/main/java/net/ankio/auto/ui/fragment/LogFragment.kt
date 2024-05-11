@@ -114,7 +114,7 @@ class LogFragment : BaseFragment() {
                 dataItems.clear()
                 val file = File(path)
                 if (file.exists()) {
-                    dataItems.addAll(file.readLines().takeLast(500))
+                    dataItems.addAll(file.readLines().takeLast(500).filter { it.isNotBlank() && it.isNotEmpty() })
                 }
 
                 withContext(Dispatchers.Main) {

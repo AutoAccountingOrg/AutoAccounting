@@ -16,6 +16,7 @@
 package net.ankio.auto.utils
 
 import android.content.Context
+import android.util.Log
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -106,7 +107,9 @@ class AutoAccountingServiceUtils(private val mContext: Context) {
         }
 
         suspend fun log(
-            data: String,
+            data: List<String>,
+            header: String,
+            type: Int,
             mContext: Context,
         ) = withContext(Dispatchers.IO) {
             runCatching {
@@ -119,8 +122,17 @@ class AutoAccountingServiceUtils(private val mContext: Context) {
                 if (!file.exists()) {
                     file.createNewFile() // 创建文件
                 }
+                val tag =
+                    when (type) {
+                        Log.VERBOSE -> "V"
+                        Log.DEBUG -> "D"
+                        Log.INFO -> "I"
+                        Log.WARN -> "W"
+                        Log.ERROR -> "E"
+                        else -> "V"
+                    }
                 // 将当前日志追加到文件
-                file.appendText("\n[ ${DateUtils.getTime(System.currentTimeMillis())} ]\n$data\n")
+                file.appendText("\n[${DateUtils.getTime(System.currentTimeMillis())}][$tag]$header${data.joinToString("")}")
 
                 // 处理日志，超过500行只保留最后的500行
                 val lines = file.readLines()
