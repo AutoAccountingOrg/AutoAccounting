@@ -123,6 +123,7 @@ class LogFragment : BaseFragment() {
                     adapter.notifyDataSetChanged()
                     binding.empty.root.visibility =
                         if (dataItems.isEmpty()) View.VISIBLE else View.GONE
+                    recyclerView.scrollToPosition(adapter.itemCount - 1)
                 }
             }
         }
