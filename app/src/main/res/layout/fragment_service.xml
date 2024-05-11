@@ -13,19 +13,22 @@
   ~   limitations under the License.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/scrollView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_marginTop="1dp"
+    android:layout_marginBottom="-1dp"
 
-  <ScrollView
-      android:id="@+id/scrollview"
-      android:padding="@dimen/padding"
-      android:layout_marginTop="@dimen/marginTop"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent">
+    >
+
+
       <LinearLayout
+          android:padding="@dimen/cardPadding"
+          android:layout_marginTop="@dimen/marginTop"
           android:orientation="vertical"
           android:layout_width="match_parent"
           android:layout_height="wrap_content">
@@ -204,7 +207,6 @@
 
           </com.google.android.material.card.MaterialCardView>
       </LinearLayout>
-  </ScrollView>
 
 
-</LinearLayout>
+</ScrollView>

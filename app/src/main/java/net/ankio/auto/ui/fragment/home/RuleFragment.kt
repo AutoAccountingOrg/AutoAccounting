@@ -58,7 +58,7 @@ class RuleFragment : BaseFragment() {
         recyclerView = binding.recyclerView
         layoutManager = LinearLayoutManager(requireContext())
         recyclerView.layoutManager = layoutManager
-
+        scrollView = recyclerView
         adapter =
             RuleAdapter(
                 dataItems,

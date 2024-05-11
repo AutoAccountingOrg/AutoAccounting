@@ -18,13 +18,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+
     tools:context=".ui.fragment.DataFragment">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="@dimen/padding" />
+        android:scrollbars="vertical"
+        android:paddingTop="@dimen/padding"
+        android:paddingBottom="@dimen/padding"
+        />
     <include
         android:id="@+id/empty"
         layout="@layout/list_empty"

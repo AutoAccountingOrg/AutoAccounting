@@ -20,6 +20,8 @@
     android:layout_height="wrap_content"
     android:id="@+id/groupCard"
     android:layout_marginBottom="@dimen/padding"
+    android:layout_marginEnd="@dimen/padding"
+    android:layout_marginStart="@dimen/padding"
     app:cardCornerRadius="@dimen/radius"
     app:cardBackgroundColor="?attr/colorSurfaceContainer"
     app:cardElevation="0dp">

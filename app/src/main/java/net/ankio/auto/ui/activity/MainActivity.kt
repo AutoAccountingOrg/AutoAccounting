@@ -120,7 +120,7 @@ class MainActivity : BaseActivity() {
         toolbarLayout = binding.toolbarLayout
         toolbar = binding.toolbar
         bottomNavigationView.addNavigationBarBottomPadding()
-        scrollView = binding.scrollView
+
         navHostFragment =
             (supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment?)!!
 
@@ -128,7 +128,7 @@ class MainActivity : BaseActivity() {
             AppBarConfiguration.Builder(*barList.map { it[0] }.toIntArray()).build()
 
         NavigationUI.setupWithNavController(
-            toolbar,
+            toolbar!!,
             navHostFragment.navController,
             appBarConfiguration,
         )

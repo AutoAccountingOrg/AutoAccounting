@@ -95,7 +95,7 @@ class MapFragment : BaseFragment() {
             )
 
         binding.recyclerView.adapter = adapter
-
+        scrollView = binding.recyclerView
         lifecycleScope.launch {
             val newData =
                 withContext(Dispatchers.IO) {

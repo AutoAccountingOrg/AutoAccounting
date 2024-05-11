@@ -63,7 +63,7 @@ class OrderFragment : BaseFragment() {
         adapter = OrderAdapter(dataItems)
 
         recyclerView.adapter = adapter
-
+        scrollView = recyclerView
         return binding.root
     }
 

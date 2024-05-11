@@ -96,6 +96,7 @@ class LogFragment : BaseFragment() {
         recyclerView.layoutManager = layoutManager
         adapter = LogAdapter(dataItems)
         recyclerView.adapter = adapter
+        scrollView = recyclerView
         return binding.root
     }
 

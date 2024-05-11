@@ -102,6 +102,8 @@ class HomeFragment : BaseFragment() {
         val color = SurfaceColors.SURFACE_1.getColor(requireContext())
         cards.forEach { it.setCardBackgroundColor(color) }
 
+        scrollView = binding.scrollView
+
         return binding.root
     }
 

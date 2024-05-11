@@ -13,498 +13,506 @@
   ~  See the License for the specific language governing permissions and
   ~   limitations under the License.
   -->
-
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/scrollView"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="@dimen/padding"
-    tools:context=".ui.fragment.HomeFragment"
-    >
+    android:layout_height="match_parent"
+    android:layout_marginTop="1dp"
+    android:layout_marginBottom="-1dp">
 
-
-    <com.google.android.material.card.MaterialCardView
-        style="?attr/materialCardViewFilledStyle"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/padding"
-        app:cardCornerRadius="@dimen/radius">
+        android:orientation="vertical"
+        android:padding="@dimen/padding"
+        tools:context=".ui.fragment.HomeFragment"
+        >
 
-        <RelativeLayout
-            android:id="@+id/active"
+
+        <com.google.android.material.card.MaterialCardView
+            style="?attr/materialCardViewFilledStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:background="?attr/colorErrorContainer"
-            android:clickable="true"
-            android:padding="@dimen/state_padding">
+            android:layout_marginBottom="@dimen/padding"
+            app:cardCornerRadius="@dimen/radius">
 
-            <ImageView
-                android:id="@+id/imageView"
-                android:layout_width="@dimen/image_size"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_centerVertical="true"
-                android:layout_marginStart="@dimen/border_side"
-                android:src="@drawable/home_active_error"
-                app:tint="?colorOnErrorContainer" />
-
-            <TextView
-                android:id="@+id/msg_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_marginStart="@dimen/border_side"
-                android:layout_marginEnd="@dimen/border_side"
-                android:layout_toEndOf="@+id/imageView"
-                android:text="@string/active_error"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:textColor="?colorOnErrorContainer"
-                tools:ignore="RelativeOverlap" />
-
-            <TextView
-                android:id="@+id/msg_label2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/msg_label"
-                android:layout_marginStart="@dimen/border_side"
-                android:layout_marginEnd="@dimen/border_side"
-                android:layout_toEndOf="@+id/imageView"
-                android:textAppearance="@style/TextAppearance.AppCompat.Small" />
-
-
-        </RelativeLayout>
-
-    </com.google.android.material.card.MaterialCardView>
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/infoCard"
-        style="@style/HomeCard">
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_margin="@dimen/padding"
-            >
-            <TextView
-                android:padding="@dimen/padding"
+            <RelativeLayout
+                android:id="@+id/active"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/padding"
-                android:text="@string/data_title"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:textColor="?attr/colorOnSurface"
-                android:textStyle="bold" />
-
-            <LinearLayout
-                android:id="@+id/bookAppContainer"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/ripple_effect"
+                android:layout_gravity="center_vertical"
+                android:background="?attr/colorErrorContainer"
                 android:clickable="true"
-                android:orientation="horizontal"
-                android:padding="@dimen/padding">
+                android:padding="@dimen/state_padding">
+
+                <ImageView
+                    android:id="@+id/imageView"
+                    android:layout_width="@dimen/image_size"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="@dimen/border_side"
+                    android:src="@drawable/home_active_error"
+                    app:tint="?colorOnErrorContainer" />
 
                 <TextView
+                    android:id="@+id/msg_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/one_padding"
-                    android:layout_marginEnd="@dimen/one_padding"
-                    android:drawablePadding="@dimen/one_padding"
-                    android:text="@string/title_app"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginStart="@dimen/border_side"
+                    android:layout_marginEnd="@dimen/border_side"
+                    android:layout_toEndOf="@+id/imageView"
+                    android:text="@string/active_error"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                    android:textColor="?colorOnErrorContainer"
+                    tools:ignore="RelativeOverlap" />
+
+                <TextView
+                    android:id="@+id/msg_label2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/msg_label"
+                    android:layout_marginStart="@dimen/border_side"
+                    android:layout_marginEnd="@dimen/border_side"
+                    android:layout_toEndOf="@+id/imageView"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small" />
+
+
+            </RelativeLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/infoCard"
+            style="@style/HomeCard">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_margin="@dimen/padding"
+                >
+                <TextView
+                    android:padding="@dimen/padding"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/padding"
+                    android:text="@string/data_title"
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                     android:textColor="?attr/colorOnSurface"
-                    android:textStyle="bold"
-                    app:drawableLeftCompat="@drawable/home_app_book"
-                    app:drawableTint="?attr/colorOnSurface" />
+                    android:textStyle="bold" />
 
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1" />
-
-                <TextView
-                    android:id="@+id/bookApp"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:id="@+id/bookAppContainer"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="15dp"
-                    android:text=""
-                    android:textAppearance="@style/TextAppearance.AppCompat.Small" />
+                    android:background="@drawable/ripple_effect"
+                    android:clickable="true"
+                    android:orientation="horizontal"
+                    android:padding="@dimen/padding">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/one_padding"
+                        android:layout_marginEnd="@dimen/one_padding"
+                        android:drawablePadding="@dimen/one_padding"
+                        android:text="@string/title_app"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textStyle="bold"
+                        app:drawableLeftCompat="@drawable/home_app_book"
+                        app:drawableTint="?attr/colorOnSurface" />
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+
+                    <TextView
+                        android:id="@+id/bookApp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="15dp"
+                        android:text=""
+                        android:textAppearance="@style/TextAppearance.AppCompat.Small" />
+
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/book"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="@dimen/padding">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/one_padding"
+                        android:layout_marginEnd="@dimen/one_padding"
+                        android:drawablePadding="@dimen/one_padding"
+                        android:text="@string/title_books"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textStyle="bold"
+                        app:drawableLeftCompat="@drawable/home_app_book_data"
+                        app:drawableTint="?attr/colorOnSurface" />
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+
+                    <TextView
+                        android:id="@+id/defaultBook"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="15dp"
+                        android:ellipsize="end"
+                        android:maxWidth="100dp"
+                        android:singleLine="true"
+                        android:text="eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Small" />
+
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/assets"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/padding"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/one_padding"
+                        android:layout_marginEnd="@dimen/one_padding"
+                        android:text="@string/title_assets"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textStyle="bold"
+                        app:drawableLeftCompat="@drawable/home_app_assets"
+                        app:drawableTint="?attr/colorOnSurface"
+                        android:drawablePadding="@dimen/one_padding"
+                        />
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        />
+                    <Button
+                        android:id="@+id/map"
+                        style="?attr/materialIconButtonFilledTonalStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:icon="@drawable/icon_map"
+                        tools:ignore="RelativeOverlap" />
+                    <Button
+                        android:id="@+id/readAssets"
+                        style="?attr/materialIconButtonFilledStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:icon="@drawable/icon_eye"
+                        tools:ignore="RelativeOverlap" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/category"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/padding"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/one_padding"
+                        android:layout_marginEnd="@dimen/one_padding"
+                        android:text="@string/title_category"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textStyle="bold"
+                        app:drawableLeftCompat="@drawable/home_app_category"
+                        app:drawableTint="?attr/colorOnSurface"
+                        android:drawablePadding="@dimen/one_padding"
+                        />
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        />
+                    <Button
+                        android:id="@+id/readCategory"
+                        style="?attr/materialIconButtonFilledStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:icon="@drawable/icon_eye"
+                        tools:ignore="RelativeOverlap" />
+
+
+                </LinearLayout>
 
 
             </LinearLayout>
 
+
+        </com.google.android.material.card.MaterialCardView>
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/ruleCard"
+            style="@style/HomeCard"
+            >
             <LinearLayout
-                android:id="@+id/book"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="@dimen/padding">
-
+                android:orientation="vertical"
+                android:layout_margin="@dimen/padding"
+                >
                 <TextView
+                    android:padding="@dimen/padding"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/one_padding"
-                    android:layout_marginEnd="@dimen/one_padding"
-                    android:drawablePadding="@dimen/one_padding"
-                    android:text="@string/title_books"
+                    android:layout_marginEnd="@dimen/padding"
+                    android:text="@string/rule_title"
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                     android:textColor="?attr/colorOnSurface"
-                    android:textStyle="bold"
-                    app:drawableLeftCompat="@drawable/home_app_book_data"
-                    app:drawableTint="?attr/colorOnSurface" />
-
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1" />
-
-                <TextView
-                    android:id="@+id/defaultBook"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="15dp"
-                    android:ellipsize="end"
-                    android:maxWidth="100dp"
-                    android:singleLine="true"
-                    android:text="eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Small" />
-
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/assets"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="@dimen/padding"
-                android:orientation="horizontal">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/one_padding"
-                    android:layout_marginEnd="@dimen/one_padding"
-                    android:text="@string/title_assets"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textStyle="bold"
-                    app:drawableLeftCompat="@drawable/home_app_assets"
                     app:drawableTint="?attr/colorOnSurface"
                     android:drawablePadding="@dimen/one_padding"
-                    />
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    />
-                <Button
-                    android:id="@+id/map"
-                    style="?attr/materialIconButtonFilledTonalStyle"
-                    android:layout_width="wrap_content"
+                    android:textStyle="bold" />
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:icon="@drawable/icon_map"
-                    tools:ignore="RelativeOverlap" />
-                <Button
-                    android:id="@+id/readAssets"
-                    style="?attr/materialIconButtonFilledStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:icon="@drawable/icon_eye"
-                    tools:ignore="RelativeOverlap" />
+                    android:padding="@dimen/padding"
+                    android:orientation="horizontal">
 
-            </LinearLayout>
+                    <TextView
+                        android:id="@+id/textView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/one_padding"
+                        android:layout_marginEnd="@dimen/one_padding"
+                        android:text="@string/title_rule_official"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textStyle="bold"
+                        app:drawableLeftCompat="@drawable/home_rule"
+                        app:drawableTint="?attr/colorOnSurface"
+                        android:drawablePadding="@dimen/one_padding"
+                        />
 
-            <LinearLayout
-                android:id="@+id/category"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="@dimen/padding"
-                android:orientation="horizontal">
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        />
+                    <TextView
+                        android:id="@+id/ruleVersion"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:singleLine="true"
+                        android:layout_marginEnd="15dp"
+                        android:text="1.0.0"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Small" />
+
+
+
+                </LinearLayout>
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:clickable="true"
+                    android:padding="@dimen/padding"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/one_padding"
                     android:layout_marginEnd="@dimen/one_padding"
-                    android:text="@string/title_category"
+                    android:text="@string/title_rule_category"
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                     android:textColor="?attr/colorOnSurface"
                     android:textStyle="bold"
                     app:drawableLeftCompat="@drawable/home_app_category"
                     app:drawableTint="?attr/colorOnSurface"
                     android:drawablePadding="@dimen/one_padding"
+                    android:background="@drawable/ripple_effect"
+                    android:id="@+id/customCategory"
                     />
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    />
-                <Button
-                    android:id="@+id/readCategory"
-                    style="?attr/materialIconButtonFilledStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:icon="@drawable/icon_eye"
-                    tools:ignore="RelativeOverlap" />
-
-
             </LinearLayout>
 
 
-        </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
 
-    </com.google.android.material.card.MaterialCardView>
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/ruleCard"
-        style="@style/HomeCard"
-        >
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_margin="@dimen/padding"
+        <com.google.android.material.card.MaterialCardView
+            style="@style/HomeCard"
+            android:id="@+id/groupCard"
             >
-            <TextView
-                android:padding="@dimen/padding"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/padding"
-                android:text="@string/rule_title"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:textColor="?attr/colorOnSurface"
-                app:drawableTint="?attr/colorOnSurface"
-                android:drawablePadding="@dimen/one_padding"
-                android:textStyle="bold" />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="@dimen/padding"
-                android:orientation="horizontal">
+                android:layout_margin="@dimen/padding"
+                android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/textView"
+                    android:padding="@dimen/padding"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/one_padding"
-                    android:layout_marginEnd="@dimen/one_padding"
-                    android:text="@string/title_rule_official"
+                    android:layout_marginEnd="@dimen/padding"
+                    android:text="@string/communication_title"
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                     android:textColor="?attr/colorOnSurface"
-                    android:textStyle="bold"
-                    app:drawableLeftCompat="@drawable/home_rule"
-                    app:drawableTint="?attr/colorOnSurface"
-                    android:drawablePadding="@dimen/one_padding"
-                    />
-
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    />
-                <TextView
-                    android:id="@+id/ruleVersion"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:ellipsize="end"
-                    android:singleLine="true"
-                    android:layout_marginEnd="15dp"
-                    android:text="1.0.0"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Small" />
+                    android:textStyle="bold" />
 
 
 
-            </LinearLayout>
-            <TextView
-                android:clickable="true"
-                android:padding="@dimen/padding"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/one_padding"
-                android:layout_marginEnd="@dimen/one_padding"
-                android:text="@string/title_rule_category"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:textColor="?attr/colorOnSurface"
-                android:textStyle="bold"
-                app:drawableLeftCompat="@drawable/home_app_category"
-                app:drawableTint="?attr/colorOnSurface"
-                android:drawablePadding="@dimen/one_padding"
-                android:background="@drawable/ripple_effect"
-                android:id="@+id/customCategory"
-                />
-        </LinearLayout>
-
-
-    </com.google.android.material.card.MaterialCardView>
-
-
-    <com.google.android.material.card.MaterialCardView
-        style="@style/HomeCard"
-        android:id="@+id/groupCard"
-        >
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/padding"
-            android:orientation="vertical">
-
-            <TextView
-                android:padding="@dimen/padding"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/padding"
-                android:text="@string/communication_title"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:textColor="?attr/colorOnSurface"
-                android:textStyle="bold" />
-
-
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                >
-
-                <RelativeLayout
-                    android:id="@+id/msg_github_button"
-                    style="@style/CardLine"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:animateLayoutChanges="true">
+                    android:orientation="vertical"
+                    >
 
-                    <ImageView
-                        android:id="@+id/image_git"
-                        android:layout_width="@dimen/image_size"
+                    <RelativeLayout
+                        android:id="@+id/msg_github_button"
+                        style="@style/CardLine"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentStart="true"
-                        android:layout_centerVertical="true"
-                        android:layout_marginStart="0dp"
-                        android:src="@drawable/home_msg_github"
-                        app:tint="?colorOnSurface" />
+                        android:layout_gravity="center_vertical"
+                        android:animateLayoutChanges="true">
 
-                    <TextView
-                        android:id="@+id/msg_github"
-                        android:layout_width="wrap_content"
+                        <ImageView
+                            android:id="@+id/image_git"
+                            android:layout_width="@dimen/image_size"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginStart="0dp"
+                            android:src="@drawable/home_msg_github"
+                            app:tint="?colorOnSurface" />
+
+                        <TextView
+                            android:id="@+id/msg_github"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:layout_marginStart="@dimen/border_side"
+                            android:layout_marginEnd="@dimen/border_side"
+                            android:layout_toEndOf="@+id/image_git"
+                            android:text="@string/msg_github"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                            android:textColor="?colorOnSurface"
+                            tools:ignore="RelativeOverlap" />
+
+                        <TextView
+                            android:id="@+id/msg_github_number"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/msg_github"
+                            android:layout_alignParentEnd="true"
+                            android:layout_marginStart="@dimen/border_side"
+                            android:layout_toEndOf="@+id/image_git"
+                            android:text="@string/msg_github_number"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Small" />
+
+
+                    </RelativeLayout>
+                    <RelativeLayout
+                        android:id="@+id/msg_telegram_button"
+                        android:clickable="true"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentEnd="true"
-                        android:layout_marginStart="@dimen/border_side"
-                        android:layout_marginEnd="@dimen/border_side"
-                        android:layout_toEndOf="@+id/image_git"
-                        android:text="@string/msg_github"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                        android:textColor="?colorOnSurface"
-                        tools:ignore="RelativeOverlap" />
+                        android:layout_gravity="center_vertical"
+                        style="@style/CardLine">
 
-                    <TextView
-                        android:id="@+id/msg_github_number"
-                        android:layout_width="wrap_content"
+                        <ImageView
+                            android:id="@+id/image_tg"
+                            android:layout_width="@dimen/image_size"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginStart="0dp"
+                            android:src="@drawable/home_msg_telegram"
+                            app:tint="?colorOnSurface" />
+
+                        <TextView
+                            android:id="@+id/msg_telegram"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:layout_marginStart="@dimen/border_side"
+                            android:layout_marginEnd="@dimen/border_side"
+                            android:layout_toEndOf="@+id/image_tg"
+                            android:text="@string/msg_telegram"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                            android:textColor="?colorOnSurface"
+                            tools:ignore="RelativeOverlap" />
+
+                        <TextView
+                            android:id="@+id/msg_telegram_number"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/msg_telegram"
+                            android:layout_alignParentEnd="true"
+                            android:layout_marginStart="@dimen/border_side"
+                            android:layout_toEndOf="@+id/image_tg"
+                            android:text="@string/msg_telegram_number"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Small" />
+
+
+                    </RelativeLayout>
+                    <RelativeLayout
+                        android:id="@+id/msg_qq_button"
+                        android:clickable="true"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_below="@+id/msg_github"
-                        android:layout_alignParentEnd="true"
-                        android:layout_marginStart="@dimen/border_side"
-                        android:layout_toEndOf="@+id/image_git"
-                        android:text="@string/msg_github_number"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Small" />
+                        android:layout_gravity="center_vertical"
+                        style="@style/CardLine">
+
+                        <ImageView
+                            android:id="@+id/image_qq"
+                            android:layout_width="@dimen/image_size"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginStart="0dp"
+                            android:src="@drawable/home_msg_qq"
+                            app:tint="?colorOnSurface" />
+
+                        <TextView
+                            android:id="@+id/msg_qq"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:layout_marginStart="@dimen/border_side"
+                            android:layout_marginEnd="@dimen/border_side"
+                            android:layout_toEndOf="@+id/image_qq"
+                            android:text="@string/msg_qq"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                            android:textColor="?colorOnSurface"
+                            tools:ignore="RelativeOverlap" />
+
+                        <TextView
+                            android:id="@+id/msg_qq_number"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/msg_qq"
+                            android:layout_alignParentEnd="true"
+                            android:layout_marginStart="@dimen/border_side"
+                            android:layout_toEndOf="@+id/image_qq"
+                            android:text="@string/msg_qq_number"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Small" />
 
 
-                </RelativeLayout>
-                <RelativeLayout
-                    android:id="@+id/msg_telegram_button"
-                    android:clickable="true"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    style="@style/CardLine">
+                    </RelativeLayout>
 
-                    <ImageView
-                        android:id="@+id/image_tg"
-                        android:layout_width="@dimen/image_size"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentStart="true"
-                        android:layout_centerVertical="true"
-                        android:layout_marginStart="0dp"
-                        android:src="@drawable/home_msg_telegram"
-                        app:tint="?colorOnSurface" />
-
-                    <TextView
-                        android:id="@+id/msg_telegram"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentEnd="true"
-                        android:layout_marginStart="@dimen/border_side"
-                        android:layout_marginEnd="@dimen/border_side"
-                        android:layout_toEndOf="@+id/image_tg"
-                        android:text="@string/msg_telegram"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                        android:textColor="?colorOnSurface"
-                        tools:ignore="RelativeOverlap" />
-
-                    <TextView
-                        android:id="@+id/msg_telegram_number"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@+id/msg_telegram"
-                        android:layout_alignParentEnd="true"
-                        android:layout_marginStart="@dimen/border_side"
-                        android:layout_toEndOf="@+id/image_tg"
-                        android:text="@string/msg_telegram_number"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Small" />
-
-
-                </RelativeLayout>
-                <RelativeLayout
-                    android:id="@+id/msg_qq_button"
-                    android:clickable="true"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    style="@style/CardLine">
-
-                    <ImageView
-                        android:id="@+id/image_qq"
-                        android:layout_width="@dimen/image_size"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentStart="true"
-                        android:layout_centerVertical="true"
-                        android:layout_marginStart="0dp"
-                        android:src="@drawable/home_msg_qq"
-                        app:tint="?colorOnSurface" />
-
-                    <TextView
-                        android:id="@+id/msg_qq"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentEnd="true"
-                        android:layout_marginStart="@dimen/border_side"
-                        android:layout_marginEnd="@dimen/border_side"
-                        android:layout_toEndOf="@+id/image_qq"
-                        android:text="@string/msg_qq"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                        android:textColor="?colorOnSurface"
-                        tools:ignore="RelativeOverlap" />
-
-                    <TextView
-                        android:id="@+id/msg_qq_number"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@+id/msg_qq"
-                        android:layout_alignParentEnd="true"
-                        android:layout_marginStart="@dimen/border_side"
-                        android:layout_toEndOf="@+id/image_qq"
-                        android:text="@string/msg_qq_number"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Small" />
-
-
-                </RelativeLayout>
+                </LinearLayout>
 
             </LinearLayout>
 
-        </LinearLayout>
-
-    </com.google.android.material.card.MaterialCardView>
+        </com.google.android.material.card.MaterialCardView>
 
 
-</LinearLayout>
+    </LinearLayout>
+</ScrollView>

@@ -58,6 +58,7 @@ class Setting2Fragment : BaseFragment() {
         settingRenderUtils =
             SettingUtils(requireActivity(), binding.container, layoutInflater, settingItems)
         settingRenderUtils.init()
+        scrollView = binding.scrollView
         return binding.root
     }
 

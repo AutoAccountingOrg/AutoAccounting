@@ -10,7 +10,8 @@
         android:layout_height="wrap_content"
         android:fadeScrollbars="false"
         android:overScrollMode="never"
-        android:scrollbars="none">
+
+        android:scrollbars="vertical" >
 
 
     </androidx.recyclerview.widget.RecyclerView>
