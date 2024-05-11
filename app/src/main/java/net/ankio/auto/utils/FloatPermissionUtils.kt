@@ -15,7 +15,6 @@
 
 package net.ankio.auto.utils
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -32,12 +31,13 @@ object FloatPermissionUtils {
      * 申请悬浮窗权限
      */
     @JvmStatic
-    fun requestPermission(activity: Activity) {
+    fun requestPermission(activity: Context) {
         val intent =
             Intent(
                 Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                 Uri.parse("package:${AppUtils.getApplication().packageName}"),
             )
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         activity.startActivity(intent)
     }
 }
