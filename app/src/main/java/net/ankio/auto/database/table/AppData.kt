@@ -83,7 +83,7 @@ class AppData {
     }
 
     companion object {
-        fun fromJSON(json: String): AppData {
+        private fun fromJSON(json: String): AppData {
             return runCatching {
                 Gson().fromJson(json, AppData::class.java)
             }.onFailure {
@@ -97,12 +97,17 @@ class AppData {
                 val list = arrayListOf<AppData>()
                 for (line in txt.lines()) {
                     if (line.isNotEmpty()) {
+                        var appData: AppData? = null
                         runCatching {
                             val base64 = String(Base64.decode(line, Base64.NO_WRAP))
-                            list.add(fromJSON(base64))
+                            appData = fromJSON(base64)
                         }.onFailure {
                             Logger.e("数据异常", it)
                             Logger.i(line)
+                        }.onSuccess {
+                            if (appData != null) {
+                                list.add(appData!!)
+                            }
                         }
                     }
                 }

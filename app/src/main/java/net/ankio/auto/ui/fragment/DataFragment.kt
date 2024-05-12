@@ -218,12 +218,12 @@ $data
         lifecycleScope.launch {
             withContext(Dispatchers.IO) {
                 val data = AutoAccountingServiceUtils.get("data", requireContext())
-                val appData = Db.get().AppDataDao().loadAll()
+                val allAppData = Db.get().AppDataDao().loadAll()
                 val collection: Collection<AppData> = AppData.fromTxt(data)
 
                 val filteredCollection =
                     collection.filter { item ->
-                        appData.none { it.hash() == item.hash() }
+                        allAppData.none { it.hash() == item.hash() }
                     }
 
                 Db.get().AppDataDao().addList(filteredCollection)
@@ -233,7 +233,7 @@ $data
                 AutoAccountingServiceUtils.delete("data", requireContext())
 
                 val resultList = mutableListOf<AppData>()
-                resultList.addAll(appData)
+                resultList.addAll(allAppData)
                 resultList.addAll(filteredCollection)
 
                 // 在这里处理搜索逻辑
