@@ -130,13 +130,17 @@ class EditFragment : BaseFragment() {
                 elem = buttonElem,
                 data = hashMap,
             ) { it2, view ->
-                when (it2.data["type"] as String) {
-                    "type" -> inputType(it2, view)
-                    "shopName" -> inputShop(flexboxLayout, it2)
-                    "shopItem" -> inputShopItem(flexboxLayout, it2)
-                    "timeRange" -> inputTimeRange(flexboxLayout, it2)
-                    "moneyRange" -> inputMoneyRange(flexboxLayout, it2)
-                }
+                val type = it2.data["type"]
+                if (type != null)
+                    {
+                        when (type as String) {
+                            "type" -> inputType(it2, view)
+                            "shopName" -> inputShop(flexboxLayout, it2)
+                            "shopItem" -> inputShopItem(flexboxLayout, it2)
+                            "timeRange" -> inputTimeRange(flexboxLayout, it2)
+                            "moneyRange" -> inputMoneyRange(flexboxLayout, it2)
+                        }
+                    }
             }
         }
 
