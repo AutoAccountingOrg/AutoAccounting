@@ -200,7 +200,7 @@ object AppUtils {
      * 获取debug状态
      */
     fun getDebug(): Boolean {
-        return SpUtils.getBoolean("debug", BuildConfig.DEBUG)
+        return /*SpUtils.getBoolean("debug", BuildConfig.DEBUG)*/ true
     }
 
     /**
