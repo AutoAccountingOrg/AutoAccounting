@@ -116,7 +116,6 @@
                 android:layout_centerVertical="true"
                 android:layout_marginStart="@dimen/one_padding"
                 android:layout_marginEnd="@dimen/one_padding"
-                android:layout_toStartOf="@+id/question"
                 android:layout_toEndOf="@+id/issue"
                 android:background="@drawable/rounded_background"
                 android:ellipsize="end"
