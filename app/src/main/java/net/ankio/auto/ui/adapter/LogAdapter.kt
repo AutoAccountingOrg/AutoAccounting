@@ -47,7 +47,8 @@ class LogAdapter(
 
                     binding.logThread.text = groups[3].trim()
                     binding.logFile.text = groups[4].trim()
-                    binding.log.text = groups[5].trim()
+                    // 数据需要进行截断处理，防止过长导致绘制ANR
+                    binding.log.text = groups[5].trim().substring(0, 500)
                     when (level) {
                         "D" -> binding.log.setTextColor(holder.context.getColor(R.color.success))
                         "I" -> binding.log.setTextColor(holder.context.getColor(R.color.info))
@@ -61,7 +62,7 @@ class LogAdapter(
             } else {
                 withContext(Dispatchers.Main) {
                     binding.header.visibility = View.GONE
-                    binding.log.text = it.trim()
+                    binding.log.text = it.trim().substring(0, 500)
                     binding.log.setTextColor(holder.context.getColor(R.color.info))
                 }
             }
