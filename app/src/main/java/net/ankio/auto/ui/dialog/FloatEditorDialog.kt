@@ -34,7 +34,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.app.BillUtils
+import net.ankio.auto.database.Db
 import net.ankio.auto.database.table.Assets
+import net.ankio.auto.database.table.AssetsMap
 import net.ankio.auto.database.table.BillInfo
 import net.ankio.auto.database.table.BookName
 import net.ankio.auto.database.table.Category
@@ -64,7 +66,8 @@ class FloatEditorDialog(
     lateinit var binding: FloatEditorBinding
     private var billTypeLevel1 = BillType.Expend
     private var billTypeLevel2 = BillType.Expend
-    private var billCategory = ""
+
+    private val rawBillInfo = billInfo.copy()
     private var rawChooseDebt = ""
     private var rawChooseReimbursement = ""
 
@@ -72,14 +75,13 @@ class FloatEditorDialog(
         binding = FloatEditorBinding.inflate(inflater)
         cardView = binding.editorCard
 
-        Logger.d("原始账单结果 => $billInfo")
-        billTypeLevel1 = billInfo.type
-        billTypeLevel2 = billInfo.type
+        Logger.d("原始账单结果 => $rawBillInfo")
+        billTypeLevel1 = rawBillInfo.type
+        billTypeLevel2 = rawBillInfo.type
         binding.radioContainer.check(binding.radioNone.id)
-        billCategory = billInfo.cateName
+        //   billInfo.remark = BillUtils.getRemark(billInfo)
         rawChooseDebt = binding.chooseDebt.text.toString()
         rawChooseReimbursement = binding.chooseReimbursement.text.toString()
-        //   billInfo.remark = BillUtils.getRemark(billInfo)
 
         bindUI()
 
@@ -191,7 +193,7 @@ class FloatEditorDialog(
                         )
                     }
 
-                    if (billCategory != bill.cateName &&
+                    if (rawBillInfo.cateName != bill.cateName &&
                         SpUtils.getBoolean(
                             "setting_auto_create_category",
                             false,
@@ -199,6 +201,43 @@ class FloatEditorDialog(
                     ) {
                         // 弹出询问框
                         BillCategoryDialog(context, bill).show(float)
+                    }
+
+                    if (SpUtils.getBoolean(
+                            "setting_auto_asset",
+                            false,
+                        )
+                    ) {
+                        if (listOf(
+                                binding.transferFrom,
+                                binding.payFrom,
+                                binding.debtExpendFrom,
+                            ).any { it.visibility == View.VISIBLE } && rawBillInfo.accountNameFrom != "" && rawBillInfo.accountNameFrom != bill.accountNameFrom
+                        ) {
+                            withContext(Dispatchers.IO) {
+                                Db.get().AssetsMapDao().insert(
+                                    AssetsMap().apply {
+                                        this.name = rawBillInfo.accountNameFrom
+                                        this.mapName = bill.accountNameFrom
+                                    },
+                                )
+                            }
+                        }
+
+                        if (listOf(
+                                binding.debtIncomeTo,
+                                binding.transferTo,
+                            ).any { it.visibility == View.VISIBLE } && rawBillInfo.accountNameTo != "" && rawBillInfo.accountNameTo != bill.accountNameTo
+                        ) {
+                            withContext(Dispatchers.IO) {
+                                Db.get().AssetsMapDao().insert(
+                                    AssetsMap().apply {
+                                        this.name = rawBillInfo.accountNameTo
+                                        this.mapName = bill.accountNameTo
+                                    },
+                                )
+                            }
+                        }
                     }
                 }.onFailure {
                     if (it is AutoServiceException) {
@@ -646,10 +685,9 @@ class FloatEditorDialog(
                             minute,
                             true,
                         )
-                    if (float)
-                        {
-                            timePickerDialog.window!!.setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY)
-                        }
+                    if (float) {
+                        timePickerDialog.window!!.setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY)
+                    }
 
                     timePickerDialog.show()
                 },

@@ -166,6 +166,30 @@ class BillInfo {
             """.trimIndent()
     }
 
+    fun copy(): BillInfo {
+        val billInfo = BillInfo()
+        billInfo.id = id
+        billInfo.type = type
+        billInfo.currency = currency
+        billInfo.money = money
+        billInfo.fee = fee
+        billInfo.timeStamp = timeStamp
+        billInfo.shopName = shopName
+        billInfo.shopItem = shopItem
+        billInfo.cateName = cateName
+        billInfo.extendData = extendData
+        billInfo.bookName = bookName
+        billInfo.accountNameFrom = accountNameFrom
+        billInfo.accountNameTo = accountNameTo
+        billInfo.from = from
+        billInfo.fromType = fromType
+        billInfo.groupId = groupId
+        billInfo.channel = channel
+        billInfo.syncFromApp = syncFromApp
+        billInfo.remark = remark
+        return billInfo
+    }
+
     companion object {
         fun fromJSON(json: String): BillInfo {
             return Gson().fromJson(json, BillInfo::class.java)

@@ -336,4 +336,7 @@
     <string name="data_question">规则异常反馈</string>
     <string name="data_question_info">反馈内容</string>
     <string name="question_success">反馈成功</string>
+    <string name="setting_asset">资产映射</string>
+    <string name="setting_auto_asset">自动生成资产映射</string>
+    <string name="setting_auto_asset_desc">如果你手动选择了资产，即最终记录到账单的资产和一开始是识别到的资产不一致，自动记账会自动创建映射。</string>
 </resources>

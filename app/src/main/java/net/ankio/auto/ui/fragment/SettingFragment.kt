@@ -156,6 +156,15 @@ class SettingFragment : BaseFragment() {
                 default = false,
                 icon = R.drawable.setting_icon_parent,
             ),
+            SettingItem(R.string.setting_asset),
+            SettingItem(
+                title = R.string.setting_auto_asset,
+                key = "setting_auto_asset",
+                subTitle = R.string.setting_auto_asset_desc,
+                type = ItemType.SWITCH,
+                default = false,
+                icon = R.drawable.setting_icon_map,
+            ),
             SettingItem(R.string.setting_color),
             SettingItem(
                 title = R.string.setting_pay_color,
