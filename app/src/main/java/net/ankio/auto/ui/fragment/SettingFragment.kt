@@ -70,11 +70,6 @@ class SettingFragment : BaseFragment() {
                 type = ItemType.INPUT,
                 default = "【商户名称】 - 【商品名称】",
                 icon = R.drawable.setting_icon_remark,
-                onSavedValue = { value, activity ->
-                    AppUtils.getScope().launch {
-                        AppUtils.getService().set("setting_bill_remark", value as String)
-                    }
-                },
             ),
             // 去重
             SettingItem(
@@ -164,6 +159,14 @@ class SettingFragment : BaseFragment() {
                 type = ItemType.SWITCH,
                 default = false,
                 icon = R.drawable.setting_icon_map,
+            ),
+            SettingItem(
+                title = R.string.setting_auto_ai_asset,
+                key = "setting_auto_ai_asset",
+                subTitle = R.string.setting_auto_ai_asset_desc,
+                type = ItemType.SWITCH,
+                default = false,
+                icon = R.drawable.setting_icon_ai_map,
             ),
             SettingItem(R.string.setting_color),
             SettingItem(

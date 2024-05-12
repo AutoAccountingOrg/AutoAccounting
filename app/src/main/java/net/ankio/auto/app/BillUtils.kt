@@ -20,6 +20,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.database.Db
+import net.ankio.auto.database.table.Assets
 import net.ankio.auto.database.table.AssetsMap
 import net.ankio.auto.database.table.BillInfo
 import net.ankio.auto.utils.AppUtils
@@ -183,46 +184,107 @@ object BillUtils {
         syncBillInfo()
     }
 
+    private fun getMapName(
+        list: List<AssetsMap>,
+        name: String,
+    ): String {
+        for (map in list) {
+            if (map.regex) {
+                try {
+                    val pattern = Regex(map.name)
+                    if (pattern.matches(name)) {
+                        return map.mapName
+                    }
+                } catch (e: Exception) {
+                    Logger.e("正则匹配出错", e)
+                    continue
+                }
+            } else {
+                if (map.name == name) {
+                    return map.mapName
+                }
+            }
+        }
+        return name
+    }
+
+// TODO 相似度计算算法优化
+    fun calculateConsecutiveSimilarity(
+        a: String,
+        b: String,
+    ): Int {
+        val m = a.length
+        val n = b.length
+        val dp = Array(m + 1) { IntArray(n + 1) }
+        var maxLength = 0
+        var endIndex = 0
+
+        for (i in 1..m) {
+            for (j in 1..n) {
+                if (a[i - 1] == b[j - 1]) {
+                    dp[i][j] = dp[i - 1][j - 1] + 1
+                    if (dp[i][j] > maxLength) {
+                        maxLength = dp[i][j]
+                        endIndex = i - 1
+                    }
+                } else {
+                    dp[i][j] = 0
+                }
+            }
+        }
+
+        return maxLength
+    }
+
+    private fun getAiAssets(
+        list: List<Assets>,
+        raw: String,
+    ): String {
+        // 提取raw出数字部分
+        val regex = Regex("\\d+")
+        val matchResult = regex.find(raw)
+        val number = matchResult?.value ?: ""
+        if (number.length > 2) {
+            val find = list.find { it.name.contains(number) }
+            if (find != null) {
+                return find.name
+            }
+        }
+        // 去掉所有的括号
+        val noNumber = raw.replace(number, "")
+        val cleanData = Regex("\\([^()]*\\)").replace(noNumber, "")
+        var nowSimilarity = 0
+        var nowAssets = raw
+        list.forEach {
+            calculateConsecutiveSimilarity(cleanData, it.name).let { similarity ->
+                Logger.d("相似度（$cleanData,${it.name}）：$similarity")
+                if (similarity > nowSimilarity) {
+                    nowSimilarity = similarity
+                    nowAssets = it.name
+                }
+            }
+        }
+        return nowAssets
+    }
+
     /**
      * 获取资产映射
      */
     suspend fun setAccountMap(billInfo: BillInfo) =
         withContext(Dispatchers.IO) {
-            fun getMapName(
-                list: List<AssetsMap>,
-                name: String,
-            ): String {
-                for (map in list) {
-                    if (map.regex) {
-                        try {
-                            val pattern = Regex(map.name)
-                            if (pattern.matches(name)) {
-                                return map.mapName
-                            }
-                        } catch (e: Exception) {
-                            Logger.e("正则匹配出错", e)
-                            continue
-                        }
-                    } else {
-                        if (map.name == name) {
-                            return map.mapName
-                        }
-                    }
+            val list = Db.get().AssetsMapDao().loadAll()
+            val rawAccountNameFrom = billInfo.accountNameFrom
+            val rawAccountNameTo = billInfo.accountNameTo
+            billInfo.accountNameFrom = getMapName(list, rawAccountNameFrom)
+            billInfo.accountNameTo = getMapName(list, rawAccountNameTo)
+
+            if (SpUtils.getBoolean("setting_auto_ai_asset", false)) {
+                val assets = Db.get().AssetsDao().loadAll()
+                if (rawAccountNameTo != "" && rawAccountNameTo == billInfo.accountNameTo && assets.find { it.name == rawAccountNameTo } == null) {
+                    billInfo.accountNameTo = getAiAssets(assets, rawAccountNameTo)
                 }
-                return name
-            }
-
-            AppUtils.getService().get("assets_map").let {
-                runCatching {
-                    val list = Gson().fromJson(it, Array<AssetsMap>::class.java).toList()
-
-                    Logger.d("资产映射数据：$list")
-                    Logger.d("accountNameFrom：${ billInfo.accountNameFrom}")
-                    Logger.d("accountNameTo：${ billInfo.accountNameTo}")
-                    billInfo.accountNameFrom = getMapName(list, billInfo.accountNameFrom)
-                    billInfo.accountNameTo = getMapName(list, billInfo.accountNameTo)
-                }.onFailure {
-                    Logger.e("获取资产映射出错", it)
+                if (rawAccountNameFrom != "" && rawAccountNameFrom == billInfo.accountNameFrom && assets.find { it.name == rawAccountNameFrom } == null) {
+                    billInfo.accountNameFrom = getAiAssets(assets, rawAccountNameFrom)
                 }
             }
         }
@@ -239,7 +301,7 @@ object BillUtils {
         return tpl
             .replace("【商户名称】", billInfo.shopName)
             .replace("【商品名称】", billInfo.shopItem)
-            //   .replace("【币种类型】", billInfo.currency.name(AppUtils.getApplication()))
+            .replace("【币种类型】", billInfo.currency.name(AppUtils.getApplication()))
             .replace("【金额】", billInfo.money.toString())
             .replace("【分类】", billInfo.cateName)
             .replace("【账本】", billInfo.bookName)

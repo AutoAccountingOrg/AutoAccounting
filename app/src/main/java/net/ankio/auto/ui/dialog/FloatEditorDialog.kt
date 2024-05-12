@@ -217,12 +217,15 @@ class FloatEditorDialog(
                             ).any { it.visibility == View.VISIBLE } && rawBillInfo.accountNameFrom != "" && rawBillInfo.accountNameFrom != bill.accountNameFrom
                         ) {
                             withContext(Dispatchers.IO) {
-                                Db.get().AssetsMapDao().insert(
-                                    AssetsMap().apply {
-                                        this.name = rawBillInfo.accountNameFrom
-                                        this.mapName = bill.accountNameFrom
-                                    },
-                                )
+                                if (Db.get().AssetsDao().get(rawBillInfo.accountNameFrom) == null)
+                                    {
+                                        Db.get().AssetsMapDao().insert(
+                                            AssetsMap().apply {
+                                                this.name = rawBillInfo.accountNameFrom
+                                                this.mapName = bill.accountNameFrom
+                                            },
+                                        )
+                                    }
                             }
                         }
 
@@ -232,12 +235,14 @@ class FloatEditorDialog(
                             ).any { it.visibility == View.VISIBLE } && rawBillInfo.accountNameTo != "" && rawBillInfo.accountNameTo != bill.accountNameTo
                         ) {
                             withContext(Dispatchers.IO) {
-                                Db.get().AssetsMapDao().insert(
-                                    AssetsMap().apply {
-                                        this.name = rawBillInfo.accountNameTo
-                                        this.mapName = bill.accountNameTo
-                                    },
-                                )
+                                if (Db.get().AssetsDao().get(rawBillInfo.accountNameTo) == null) {
+                                    Db.get().AssetsMapDao().insert(
+                                        AssetsMap().apply {
+                                            this.name = rawBillInfo.accountNameTo
+                                            this.mapName = bill.accountNameTo
+                                        },
+                                    )
+                                }
                             }
                         }
                         AppUtils.getService()

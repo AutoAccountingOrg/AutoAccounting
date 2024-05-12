@@ -29,6 +29,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
+import net.ankio.auto.app.BillUtils
 import net.ankio.auto.app.js.Engine
 import net.ankio.auto.constant.DataType
 import net.ankio.auto.constant.toDataType
@@ -90,6 +91,9 @@ class DataFragment : BaseFragment() {
                             // 弹出悬浮窗
                             Toaster.show(R.string.no_match)
                         } else {
+                            val tpl = SpUtils.getString("setting_bill_remark", "【商户名称】 - 【商品名称】")
+                            result.remark = BillUtils.getRemark(result, tpl)
+                            BillUtils.setAccountMap(result)
                             AutoAccountingServiceUtils.config(requireContext()).let {
                                 FloatEditorDialog(requireActivity(), result, it).show(float = false)
                             }

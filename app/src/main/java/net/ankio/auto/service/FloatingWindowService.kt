@@ -21,7 +21,6 @@ import android.content.Intent
 import android.graphics.PixelFormat
 import android.os.CountDownTimer
 import android.os.IBinder
-import android.util.Log
 import android.view.ContextThemeWrapper
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -34,6 +33,7 @@ import com.quickersilver.themeengine.ThemeEngine
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
@@ -60,9 +60,49 @@ class FloatingWindowService : Service(), CoroutineScope {
         get() = Dispatchers.Main + job
 
     private lateinit var themedContext: Context
+    private val list = ArrayDeque<BillInfo>()
 
     override fun onBind(intent: Intent): IBinder? {
         return null
+    }
+
+    private var notFirstStart = true
+    private var timeCount: Int = 0
+
+    override fun onCreate() {
+        super.onCreate()
+        timeCount = runCatching { net.ankio.auto.utils.SpUtils.getString("setting_float_time", "10").toInt() }.getOrNull() ?: 0
+
+        val defaultTheme = ContextThemeWrapper(applicationContext, R.style.AppTheme)
+
+        themedContext =
+            ContextThemeWrapper(
+                defaultTheme,
+                ThemeEngine.getInstance(applicationContext).getTheme(),
+            )
+        launch {
+            withContext(Dispatchers.IO) {
+                while (notFirstStart || list.isNotEmpty()) {
+                    if (notFirstStart && list.isEmpty()) {
+                        delay(50)
+                        continue
+                    }
+                    notFirstStart = false
+                    val billInfo = list.removeFirst()
+                    runCatching {
+                        processBillInfo(billInfo)
+                    }.onFailure {
+                        if (it is BadTokenException) {
+                            if (it.message != null && it.message!!.contains("permission denied")) {
+                                Toaster.show(R.string.floatTip)
+                                FloatPermissionUtils.requestPermission(themedContext)
+                            }
+                        }
+                        Logger.e("记账失败", it)
+                    }
+                }
+            }
+        }
     }
 
     override fun onStartCommand(
@@ -70,39 +110,27 @@ class FloatingWindowService : Service(), CoroutineScope {
         flags: Int,
         startId: Int,
     ): Int {
-        val defaultTheme = ContextThemeWrapper(applicationContext, R.style.AppTheme)
-        themedContext =
-            ContextThemeWrapper(
-                defaultTheme,
-                ThemeEngine.getInstance(applicationContext).getTheme(),
-            )
+        val value = intent.getStringExtra("data") ?: return START_REDELIVER_INTENT
+        val billInfo = BillInfo.fromJSON(value)
+        launch {
+            val tpl = SpUtils.getString("setting_bill_remark", "【商户名称】 - 【商品名称】")
+            billInfo.remark = BillUtils.getRemark(billInfo, tpl)
+            BillUtils.setAccountMap(billInfo)
 
-        runCatching {
-            processIntent(intent)
-        }.onFailure {
-            if (it is BadTokenException) {
-                if (it.message != null && it.message!!.contains("permission denied")) {
-                    Toaster.show(R.string.floatTip)
-                    FloatPermissionUtils.requestPermission(this)
-                }
-            }
-            Logger.e("记账失败", it)
+            // TODO 这里处理去重逻辑
+
+            list.add(billInfo)
         }
         return START_REDELIVER_INTENT
     }
 
-    private fun processIntent(intent: Intent) {
-        val value = intent.getStringExtra("data") ?: return
-        val timeCount: Int = runCatching { SpUtils.getString("setting_float_time", "10").toInt() }.getOrNull() ?: 0
-        val billInfo = BillInfo.fromJSON(value)
-
+    private fun processBillInfo(billInfo: BillInfo) {
         if (timeCount == 0) {
             callBillInfoEditor(billInfo, "setting_float_on_badge_timeout")
             // 显示编辑悬浮窗
             return
         }
 
-        Log.e("启动悬浮窗服务", value)
         // 使用 ViewBinding 初始化悬浮窗视图
         val binding = FloatTipBinding.inflate(LayoutInflater.from(themedContext))
         binding.root.visibility = View.INVISIBLE
@@ -170,9 +198,6 @@ class FloatingWindowService : Service(), CoroutineScope {
 
         // 将绑定添加到列表中以便管理
         floatingViews.add(binding)
-
-        // 可以使用 binding 访问视图元素，例如设置监听器
-        // binding.someView.setOnClickListener { ... }
     }
 
     private fun removeTips(binding: FloatTipBinding) {

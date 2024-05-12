@@ -40,13 +40,6 @@ object Engine {
             val billInfo = data(dataType, app, data) ?: return@withContext null
             category(billInfo)
 
-            // 做一些收尾工作
-            // 1. 识别备注
-            val tpl = AppUtils.getService().get("setting_bill_remark")
-            billInfo.remark = BillUtils.getRemark(billInfo, tpl)
-            // 2. 识别账户
-            BillUtils.setAccountMap(billInfo)
-
             AppTimeMonitor.stopMonitoring("规则识别")
             return@withContext billInfo
         }
