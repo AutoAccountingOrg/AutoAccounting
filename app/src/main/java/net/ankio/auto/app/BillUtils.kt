@@ -242,23 +242,37 @@ object BillUtils {
     ): String {
         // 提取raw出数字部分
         val regex = Regex("\\d+")
-        val matchResult = regex.find(raw)
-        val number = matchResult?.value ?: ""
-        if (number.length > 2) {
-            val find = list.find { it.name.contains(number) }
+        val number = regex.find(raw)?.value ?: ""
+        Logger.d("识别到卡号：$number")
+        if (number.isNotEmpty()) {
+            val find = list.find { it.name.contains(number.trim()) }
             if (find != null) {
+                Logger.d("找到对应数据：${ find.name}")
                 return find.name
             }
         }
+        Logger.d("未通过卡号找到数据，开始使用文本匹配查找。")
         // 去掉所有的括号
         val noNumber = raw.replace(number, "")
-        val cleanData = Regex("\\([^()]*\\)").replace(noNumber, "")
+        val cleanData = Regex("\\([^(（【】）)]*\\)").replace(noNumber, "").trim()
         var nowSimilarity = 0
         var nowAssets = raw
         list.forEach {
-            calculateConsecutiveSimilarity(cleanData, it.name).let { similarity ->
+            val wait =
+                listOf(
+                    "卡",
+                    "银行",
+                )
+            var newName = Regex("\\([^(（【】）)]*\\)").replace(it.name, "").trim()
+            var newCleanData = cleanData
+            wait.forEach { item ->
+                newName = newName.replace(item, "")
+                newCleanData = newCleanData.replace(item, "")
+            }
+            Logger.d("尝试匹配:$newCleanData => $newName ")
+            calculateConsecutiveSimilarity(newName, newCleanData).let { similarity ->
                 Logger.d("相似度（$cleanData,${it.name}）：$similarity")
-                if (similarity > nowSimilarity) {
+                if (similarity >= nowSimilarity) {
                     nowSimilarity = similarity
                     nowAssets = it.name
                 }
