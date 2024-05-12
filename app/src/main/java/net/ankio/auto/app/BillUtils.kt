@@ -204,7 +204,7 @@ object BillUtils {
                             continue
                         }
                     } else {
-                        if (map.name === name) {
+                        if (map.name == name) {
                             return map.mapName
                         }
                     }
@@ -215,6 +215,10 @@ object BillUtils {
             AppUtils.getService().get("assets_map").let {
                 runCatching {
                     val list = Gson().fromJson(it, Array<AssetsMap>::class.java).toList()
+
+                    Logger.d("资产映射数据：$list")
+                    Logger.d("accountNameFrom：${ billInfo.accountNameFrom}")
+                    Logger.d("accountNameTo：${ billInfo.accountNameTo}")
                     billInfo.accountNameFrom = getMapName(list, billInfo.accountNameFrom)
                     billInfo.accountNameTo = getMapName(list, billInfo.accountNameTo)
                 }.onFailure {

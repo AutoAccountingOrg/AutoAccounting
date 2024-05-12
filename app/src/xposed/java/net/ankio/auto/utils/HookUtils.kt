@@ -155,7 +155,7 @@ class HookUtils(val context: Application, private val packageName: String) {
             // 从外部启动自动记账服务，这里需要处理队列问题
 
             // logD(HookMainApp.getTag(appName, "自动记账结果"), appData.toJSON())
-            if (billInfo !== null) {
+            if (billInfo != null) {
                 autoAccountingServiceUtils.startApp(Base64.encodeToString(billInfo.toJSON().toByteArray(), Base64.NO_WRAP))
             }
         }.onFailure {
@@ -219,7 +219,7 @@ class HookUtils(val context: Application, private val packageName: String) {
     ): Class<*> =
         withContext(Dispatchers.IO) {
             var clazz = loadClazz[name]
-            if (clazz === null) {
+            if (clazz == null) {
                 Thread.sleep((count * 1000).toLong())
                 if (count > 30) {
                     throw ClassNotFoundException("加载类（$name）失败")

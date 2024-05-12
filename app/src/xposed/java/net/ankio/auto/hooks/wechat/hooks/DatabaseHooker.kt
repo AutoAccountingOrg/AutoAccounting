@@ -48,7 +48,7 @@ class DatabaseHooker(hooker: Hooker) : PartHooker(hooker) {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     val contentValues = param.args[2] as ContentValues
                     val tableName = param.args[0] as String
-                    val arg = if (param.args[1] !== null)param.args[1] as String else ""
+                    val arg = if (param.args[1] != null)param.args[1] as String else ""
 
                     logD("微信数据：${Gson().toJson(contentValues)} table:$tableName arg:$arg")
 
@@ -116,7 +116,7 @@ class DatabaseHooker(hooker: Hooker) : PartHooker(hooker) {
                             // 这个应该是微信转账给别人
                             val xml = contentValues.get("xml")
 
-                            if (xml !== null) {
+                            if (xml != null) {
                                 contentValues.put("xml", xmlToJson(xml as String))
                                 contentValues.put("cachedPayTools", hooker.hookUtils.readData("cachedPayTools"))
                                 contentValues.put("cachedPayMoney", hooker.hookUtils.readData("cachedPayMoney"))

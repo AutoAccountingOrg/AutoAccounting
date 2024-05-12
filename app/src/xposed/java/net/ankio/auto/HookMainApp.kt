@@ -20,13 +20,13 @@ class HookMainApp : IXposedHookLoadPackage, IXposedHookZygoteInit {
             clazz: String? = null,
         ): String {
             var tag: String =
-                if (name === null) {
+                if (name == null) {
                     "[AutoAccounting]"
                 } else {
                     "[$name]"
                 }
             tag +=
-                if (clazz === null) {
+                if (clazz == null) {
                     "[None]"
                 } else {
                     "[$clazz]"

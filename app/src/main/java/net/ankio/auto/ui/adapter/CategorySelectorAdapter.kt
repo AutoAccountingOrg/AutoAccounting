@@ -74,7 +74,7 @@ class CategorySelectorAdapter(
 
         val binding = viewHolder.binding
         binding.itemImageIcon.setOnClickListener {
-            if (itemTextView !== null) {
+            if (itemTextView != null) {
                 viewHolder.setActive(itemTextView!!, itemImageIcon!!, ivMore!!, false)
             }
             viewHolder.setActive(binding.itemText, binding.itemImageIcon, binding.ivMore, true)

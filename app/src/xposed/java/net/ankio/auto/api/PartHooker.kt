@@ -105,7 +105,7 @@ abstract class PartHooker(val hooker: Hooker) {
     }
 
     fun runOnUiThread(function: () -> Unit) {
-        if (Looper.getMainLooper().thread !== Thread.currentThread()) {
+        if (Looper.getMainLooper().thread != Thread.currentThread()) {
             Handler(Looper.getMainLooper()).post { function() }
         } else {
             function()

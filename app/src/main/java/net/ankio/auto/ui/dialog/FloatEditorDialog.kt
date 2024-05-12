@@ -28,6 +28,7 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.core.widget.TextViewCompat
 import androidx.lifecycle.lifecycleScope
+import com.google.gson.Gson
 import com.hjq.toast.Toaster
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -44,6 +45,7 @@ import net.ankio.auto.databinding.FloatEditorBinding
 import net.ankio.auto.events.AutoServiceErrorEvent
 import net.ankio.auto.exceptions.AutoServiceException
 import net.ankio.auto.ui.componets.IconView
+import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.DateUtils
 import net.ankio.auto.utils.ListPopupUtils
 import net.ankio.auto.utils.Logger
@@ -238,6 +240,8 @@ class FloatEditorDialog(
                                 )
                             }
                         }
+                        AppUtils.getService()
+                            .set("assets_map", Gson().toJson(Db.get().AssetsMapDao().loadAll()))
                     }
                 }.onFailure {
                     if (it is AutoServiceException) {

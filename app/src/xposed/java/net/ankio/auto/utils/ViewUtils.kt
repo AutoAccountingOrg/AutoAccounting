@@ -50,12 +50,12 @@ import androidx.appcompat.widget.SwitchCompat
 import java.util.Random
 import java.util.concurrent.atomic.AtomicInteger
 
-
 /**
  * Created by Jason on 2017/9/9.
  */
 object ViewUtils {
     private val sNextGeneratedId = AtomicInteger(1)
+
     @SuppressLint("NewApi")
     fun generateViewId(): Int {
         return View.generateViewId()
@@ -81,34 +81,44 @@ object ViewUtils {
         val x = (if (width > 0) Random(downTime).nextInt(width) else 0).toFloat()
         val y = (if (height > 0) Random(eventTime).nextInt(height) else 0).toFloat()
         val metaState = 0
-        var motionEvent = MotionEvent.obtain(
-            downTime,
-            eventTime,
-            MotionEvent.ACTION_DOWN,
-            x,
-            y,
-            metaState
-        )
+        var motionEvent =
+            MotionEvent.obtain(
+                downTime,
+                eventTime,
+                MotionEvent.ACTION_DOWN,
+                x,
+                y,
+                metaState,
+            )
         view.dispatchTouchEvent(motionEvent)
         downTime = SystemClock.uptimeMillis() + 120
         eventTime = SystemClock.uptimeMillis() + 200
-        motionEvent = MotionEvent.obtain(
-            downTime,
-            eventTime,
-            MotionEvent.ACTION_UP,
-            x,
-            y,
-            metaState
-        )
+        motionEvent =
+            MotionEvent.obtain(
+                downTime,
+                eventTime,
+                MotionEvent.ACTION_UP,
+                x,
+                y,
+                metaState,
+            )
         view.dispatchTouchEvent(motionEvent)
     }
 
-    fun findViewByName(activity: Activity, packageName: String?, vararg names: String?): View? {
+    fun findViewByName(
+        activity: Activity,
+        packageName: String?,
+        vararg names: String?,
+    ): View? {
         val rootView = activity.window.decorView
         return findViewByName(rootView, packageName, *names)
     }
 
-    fun findViewByName(rootView: View, packageName: String?, vararg names: String?): View? {
+    fun findViewByName(
+        rootView: View,
+        packageName: String?,
+        vararg names: String?,
+    ): View? {
         val resources = rootView.resources
         for (name in names) {
             val id = resources.getIdentifier(name, "id", packageName)
@@ -132,7 +142,10 @@ object ViewUtils {
         return null
     }
 
-    fun findViewByText(rootView: View, vararg names: String): View? {
+    fun findViewByText(
+        rootView: View,
+        vararg names: String,
+    ): View? {
         for (name in names) {
             val viewList: MutableList<View> = ArrayList()
             getChildViews(rootView as ViewGroup, name, viewList)
@@ -152,6 +165,7 @@ object ViewUtils {
     }
 
     private var sRecycleViewClz: Class<*>? = null
+
     private fun getViewBaseDesc(view: View): String {
         if (sRecycleViewClz == null) {
             try {
@@ -167,7 +181,6 @@ object ViewUtils {
             return SeekBar::class.java.name
         } else if (view is TableLayout) {
             return TableLayout::class.java.name
-
         } else if (view is TableRow) {
             return TableRow::class.java.name
         } else if (view is LinearLayout) {
@@ -234,9 +247,11 @@ object ViewUtils {
         return stringBuffer.toString()
     }
 
-
-
-    fun getChildViews(parent: ViewGroup, text: String, outList: MutableList<View>) {
+    fun getChildViews(
+        parent: ViewGroup,
+        text: String,
+        outList: MutableList<View>,
+    ) {
         for (i in parent.childCount - 1 downTo 0) {
             val child = parent.getChildAt(i) ?: continue
             if (child is EditText) {
@@ -256,7 +271,11 @@ object ViewUtils {
         }
     }
 
-    fun getChildViews(parent: ViewGroup, id: Int, outList: MutableList<View>) {
+    fun getChildViews(
+        parent: ViewGroup,
+        id: Int,
+        outList: MutableList<View>,
+    ) {
         for (i in parent.childCount - 1 downTo 0) {
             val child = parent.getChildAt(i) ?: continue
             if (id == child.id) {
@@ -269,7 +288,11 @@ object ViewUtils {
         }
     }
 
-    fun getChildViewsByType(parent: ViewGroup, type: String?, outList: MutableList<View?>) {
+    fun getChildViewsByType(
+        parent: ViewGroup,
+        type: String?,
+        outList: MutableList<View?>,
+    ) {
         for (i in parent.childCount - 1 downTo 0) {
             val child = parent.getChildAt(i) ?: continue
             if (child.javaClass.name.contains(type!!)) {
@@ -281,7 +304,10 @@ object ViewUtils {
         }
     }
 
-    fun getChildViews(parent: ViewGroup, outList: MutableList<View?>) {
+    fun getChildViews(
+        parent: ViewGroup,
+        outList: MutableList<View?>,
+    ) {
         for (i in parent.childCount - 1 downTo 0) {
             val child = parent.getChildAt(i) ?: continue
             outList.add(child)
@@ -290,10 +316,6 @@ object ViewUtils {
             }
         }
     }
-
-
-
-
 
     fun getViewYPosInScreen(v: View): Int {
         val location = intArrayOf(0, 0)
@@ -322,17 +344,19 @@ object ViewUtils {
      * @param childView
      * @return found >= 0, not found -1
      */
-    fun findChildViewPosition(viewGroup: ViewGroup, childView: View): Int {
+    fun findChildViewPosition(
+        viewGroup: ViewGroup,
+        childView: View,
+    ): Int {
         val childViewCount = viewGroup.childCount
         for (i in 0 until childViewCount) {
             val view = viewGroup.getChildAt(i)
-            if (view === childView) {
+            if (view == childView) {
                 return i
             }
         }
         return -1
     }
-
 
     fun isShown(v: View): Boolean {
         val r = Rect()
@@ -364,14 +388,19 @@ object ViewUtils {
         }
         return if (view.width <= 0 && view.height <= 0) {
             false
-        } else view.windowVisibility == View.VISIBLE
+        } else {
+            view.windowVisibility == View.VISIBLE
+        }
     }
 
     fun getTopestView(view: View): ViewGroup? {
         return getTopestView(view, null)
     }
 
-    private fun getTopestView(view: View, current: ViewGroup?): ViewGroup? {
+    private fun getTopestView(
+        view: View,
+        current: ViewGroup?,
+    ): ViewGroup? {
         val parent = view.rootView ?: return current
         return getTopestView(parent, parent as ViewGroup)
     }
@@ -379,28 +408,38 @@ object ViewUtils {
     fun relayout(view: View) {
         view.measure(
             View.MeasureSpec.makeMeasureSpec(view.width, View.MeasureSpec.EXACTLY),
-            View.MeasureSpec.makeMeasureSpec(view.height, View.MeasureSpec.EXACTLY)
+            View.MeasureSpec.makeMeasureSpec(view.height, View.MeasureSpec.EXACTLY),
         )
         view.layout(view.left, view.top, view.right, view.bottom)
     }
 
-    fun <T : ViewGroup?> findParentViewByClass(view: View, clz: Class<T>): T? {
+    fun <T : ViewGroup?> findParentViewByClass(
+        view: View,
+        clz: Class<T>,
+    ): T? {
         val parentView = view.parent ?: return null
         if (clz.isAssignableFrom(parentView.javaClass)) {
             return parentView as T
         }
         return if (parentView is View) {
             findParentViewByClass(parentView as View, clz)
-        } else null
+        } else {
+            null
+        }
     }
 
-    fun findParentViewByClassNamePart(view: View, classPart: String?): ViewGroup? {
+    fun findParentViewByClassNamePart(
+        view: View,
+        classPart: String?,
+    ): ViewGroup? {
         val parentView = view.parent ?: return null
         if (parentView.javaClass.name.contains(classPart!!)) {
             return parentView as ViewGroup
         }
         return if (parentView is ViewGroup) {
             findParentViewByClassNamePart(parentView, classPart)
-        } else null
+        } else {
+            null
+        }
     }
 }

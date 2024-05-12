@@ -122,10 +122,9 @@ object Engine {
                 billInfo.cateName = cateJson.getString("category")
                 billInfo.bookName = cateJson.getString("book")
 
-                if (billInfo.bookName == "默认账本")
-                    {
-                        billInfo.bookName = SpUtils.getString("defaultBook", "默认账本")
-                    }
+                if (billInfo.bookName == "默认账本") {
+                    billInfo.bookName = SpUtils.getString("defaultBook", "默认账本")
+                }
 
                 log("分类脚本执行结果", billInfo.cateName)
             } catch (e: Exception) {
@@ -138,7 +137,7 @@ object Engine {
         data: String,
         throwable: Throwable? = null,
     ) {
-        if (throwable !== null) {
+        if (throwable != null) {
             Logger.e("$prefix: $data", throwable)
         } else {
             Logger.d("$prefix: $data")

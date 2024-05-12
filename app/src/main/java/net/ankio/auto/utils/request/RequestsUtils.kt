@@ -60,7 +60,7 @@ class RequestsUtils(context: Context) {
     private val cacheManager = CacheManager(context)
 
     init {
-        if (client === null) {
+        if (client == null) {
             client =
                 OkHttpClient.Builder()
                     .retryOnConnectionFailure(true)

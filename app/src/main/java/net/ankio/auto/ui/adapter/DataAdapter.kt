@@ -118,7 +118,7 @@ class DataAdapter(
 
         binding.app.text =
             item.source.let {
-                if (item.type.toDataType() !== DataType.Sms) {
+                if (item.type.toDataType() != DataType.Sms) {
                     app?.name
                 } else {
                     it
@@ -173,7 +173,7 @@ class DataAdapter(
             }
             hashMap[item] = t
             val result = Engine.analyze(item.type, item.source, item.data)
-            if (result !== null) {
+            if (result != null) {
                 item.rule = result.channel
                 item.match = true
                 withContext(Dispatchers.Main) {
