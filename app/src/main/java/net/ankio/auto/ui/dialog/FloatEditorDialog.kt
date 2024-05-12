@@ -646,14 +646,20 @@ class FloatEditorDialog(
                             minute,
                             true,
                         )
-                    timePickerDialog.window!!.setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY)
+                    if (float)
+                        {
+                            timePickerDialog.window!!.setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY)
+                        }
+
                     timePickerDialog.show()
                 },
                 year,
                 month,
                 day,
             )
-        datePickerDialog.window!!.setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY)
+        if (float) {
+            datePickerDialog.window!!.setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY)
+        }
         datePickerDialog.show()
     }
 

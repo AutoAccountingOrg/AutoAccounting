@@ -70,26 +70,22 @@ class FloatingWindowService : Service(), CoroutineScope {
         flags: Int,
         startId: Int,
     ): Int {
-        if (!::themedContext.isInitialized) {
-            val defaultTheme = ContextThemeWrapper(applicationContext, R.style.AppTheme)
-            themedContext =
-                ContextThemeWrapper(
-                    defaultTheme,
-                    ThemeEngine.getInstance(applicationContext).getTheme(),
-                )
-        }
+        val defaultTheme = ContextThemeWrapper(applicationContext, R.style.AppTheme)
+        themedContext =
+            ContextThemeWrapper(
+                defaultTheme,
+                ThemeEngine.getInstance(applicationContext).getTheme(),
+            )
 
         runCatching {
             processIntent(intent)
         }.onFailure {
-            if (it is BadTokenException)
-                {
-                    if (it.message != null && it.message!!.contains("permission denied"))
-                        {
-                            Toaster.show(R.string.floatTip)
-                            FloatPermissionUtils.requestPermission(this)
-                        }
+            if (it is BadTokenException) {
+                if (it.message != null && it.message!!.contains("permission denied")) {
+                    Toaster.show(R.string.floatTip)
+                    FloatPermissionUtils.requestPermission(this)
                 }
+            }
             Logger.e("记账失败", it)
         }
         return START_REDELIVER_INTENT
