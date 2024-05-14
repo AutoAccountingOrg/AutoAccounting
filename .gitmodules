@@ -1,0 +1,3 @@
+[submodule "server/src/main/cpp/sqlite"]
+	path = server/src/main/cpp/sqlite
+	url = https://github.com/frida/sqlite
