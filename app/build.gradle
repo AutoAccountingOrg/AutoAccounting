@@ -64,12 +64,6 @@ android {
     kotlinOptions {
         jvmTarget = '17'
     }
-    externalNativeBuild {
-        cmake {
-            path file('src/main/cpp/CMakeLists.txt')
-            version '3.22.1'
-        }
-    }
     autoResConfig {
         generateClass = true
         generatedClassFullName = "net.ankio.utils.LangList"
@@ -126,6 +120,9 @@ task extractArraysToTxt {
 
 // 确保在构建 APK 之前运行此任务
 preBuild.dependsOn extractArraysToTxt
+
+
+
 
 dependencies {
 

@@ -14,6 +14,7 @@
             <option value="$PROJECT_DIR$/demo" />
             <option value="$PROJECT_DIR$/dex" />
             <option value="$PROJECT_DIR$/sdk" />
+            <option value="$PROJECT_DIR$/server" />
           </set>
         </option>
         <option name="resolveExternalAnnotations" value="false" />
