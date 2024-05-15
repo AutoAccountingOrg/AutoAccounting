@@ -1,0 +1,3 @@
+/Users/ankio/Documents/SourceCode/Andriod/AutoAccounting2/server/src/main/cpp/CMakeFiles/auto_server.dir
+/Users/ankio/Documents/SourceCode/Andriod/AutoAccounting2/server/src/main/cpp/CMakeFiles/edit_cache.dir
+/Users/ankio/Documents/SourceCode/Andriod/AutoAccounting2/server/src/main/cpp/CMakeFiles/rebuild_cache.dir
