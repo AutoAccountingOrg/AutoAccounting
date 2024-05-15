@@ -1,3 +1,11 @@
 [submodule "server/src/main/cpp/sqlite"]
 	path = server/src/main/cpp/sqlite
 	url = https://github.com/frida/sqlite
+[submodule "server/src/main/cpp/wsServer"]
+	path = server/src/main/cpp/wsServer
+	url = https://github.com/Theldus/wsServer
+
+
+[submodule "server/src/main/cpp/jsoncpp"]
+	path = server/src/main/cpp/jsoncpp
+	url = https://github.com/open-source-parsers/jsoncpp
