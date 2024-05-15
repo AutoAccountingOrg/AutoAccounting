@@ -21,3 +21,5 @@ local.properties
 /app/src/main/assets/shell/x86_64/
 /app/src/xposed/assets/shell/apps.txt
 /.github/workflows/env.json
+/app/src/main/assets/shell/auto_accounting_starter
+/server/src/main/cpp/auto_server
