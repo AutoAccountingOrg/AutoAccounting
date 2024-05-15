@@ -273,8 +273,28 @@ object BillUtils {
             calculateConsecutiveSimilarity(newName, newCleanData).let { similarity ->
                 Logger.d("相似度（$cleanData,${it.name}）：$similarity")
                 if (similarity >= nowSimilarity) {
-                    nowSimilarity = similarity
-                    nowAssets = it.name
+                    val useless =
+                        listOf(
+                            "储蓄",
+                            "借记",
+                            "信用",
+                        )
+
+                    var newName2 = newName
+                    var newCleanData2 = newCleanData
+
+                    useless.forEach { item ->
+                        newName2 = newName.replace(item, "")
+                        newCleanData2 = newCleanData.replace(item, "")
+                    }
+
+                    calculateConsecutiveSimilarity(newName2, newCleanData2).let { similarity2 ->
+                        Logger.d("二次验证相似度（$newName2,$newCleanData2）：$similarity2")
+                        if (similarity2 >= 1) {
+                            nowSimilarity = similarity
+                            nowAssets = it.name
+                        }
+                    }
                 }
             }
         }
