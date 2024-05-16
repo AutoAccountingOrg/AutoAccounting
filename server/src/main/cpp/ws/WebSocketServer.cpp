@@ -8,6 +8,8 @@
 #include "../jsoncpp/include/json/value.h"
 #include "../jsoncpp/include/json/reader.h"
 #include "../db/DbManager.h"
+#include "../common.h"
+#include "../base64/include/base64.hpp"
 #include <random>
 
 WebSocketServer::WebSocketServer(int port) {
@@ -96,10 +98,9 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
 
 
         if (message_type == "log/put") {
-
             DbManager::getInstance().insertLog(data["date"].asString(), data["app"].asString(),
                                                data["hook"].asInt(), data["thread"].asString(),
-                                               data["line"].asString(), data["log"].asString());
+                                               data["line"].asString(), data["log"].asString(),data["level"].asInt());
 
         } else if (message_type == "log/get") {
             ret["data"] = DbManager::getInstance().getLog(data["limit"].asInt());
@@ -158,7 +159,223 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
         }
 
 
+        else if(message_type == "data/put"){
+            int id = data["id"].asInt();
+            std::string _data = data["data"].asString();
+            int _type = data["type"].asInt();
+            std::string source = data["source"].asString();
+            int time = data["time"].asInt();
+            int match = data["match"].asInt();
+            int issue = data["issue"].asInt();
+            DbManager::getInstance().insertAppData(id, _data, _type, source, time, match, issue);
+        } else if(message_type == "data/get"){
+            ret["data"]=DbManager::getInstance().getAppData(data["limit"].asInt());
+        }
 
+
+        else if(message_type == "asset/put"){
+            int id = data["id"].asInt();
+            std::string name = data["name"].asString();
+            int _type = data["type"].asInt();
+            int sort = data["sort"].asInt();
+            std::string icon = data["icon"].asString();
+            std::string extra = data["extra"].asString();
+            DbManager::getInstance().insertAsset(id, name, _type, sort, icon, extra);
+        } else if(message_type == "asset/get"){
+            ret["data"]=DbManager::getInstance().getAsset(data["limit"].asInt());
+        } else if(message_type == "asset/get/name"){
+            ret["data"]=DbManager::getInstance().getAssetByName(data["name"].asString());
+        } else if(message_type == "asset/remove"){
+            std::string name = data["name"].asString();
+            DbManager::getInstance().removeAsset(name);
+        }
+
+
+        else if(message_type == "asset/map/put"){
+            int id = data["id"].asInt();
+            std::string name = data["name"].asString();
+            std::string mapName = data["mapName"].asString();
+            int regex = data["regex"].asInt();
+            DbManager::getInstance().insertAssetMap(id,name, mapName, regex);
+        } else if(message_type == "asset/map/get"){
+            ret["data"]=DbManager::getInstance().getAssetMap();
+        } else if(message_type == "asset/map/remove"){
+            int id = data["id"].asInt();
+            DbManager::getInstance().removeAssetMap(id);
+        }
+
+
+        else if(message_type == "book/put"){
+            int id = data["id"].asInt();
+            std::string name = data["name"].asString();
+            std::string icon = data["icon"].asString();
+            DbManager::getInstance().insertBookName(id, name, icon);
+        } else if(message_type == "book/get/one"){
+            ret["data"] = DbManager::getInstance().getOneBookName();
+        } else if(message_type == "book/get/name"){
+            ret["data"] = DbManager::getInstance().getBookName(data["name"].asString());
+        } else if(message_type == "book/get/all"){
+            ret["data"] = DbManager::getInstance().getBookName();
+        } else if(message_type == "book/remove"){
+            std::string name = data["name"].asString();
+            DbManager::getInstance().removeBookName(name);
+        }
+
+
+        else if(message_type == "cate/put"){
+            int id = data["id"].asInt();
+            std::string name = data["name"].asString();
+            std::string icon = data["icon"].asString();
+            std::string remoteId = data["remoteId"].asString();
+            int parent = data["parent"].asInt();
+            int book = data["book"].asInt();
+            int sort = data["sort"].asInt();
+            int _type = data["type"].asInt();
+            DbManager::getInstance().insertCate(id, name, icon, remoteId, parent, book, sort, _type);
+        } else if(message_type == "cate/get/all"){
+            int book = data["book"].asInt();
+            int _type = data["type"].asInt();
+            int parent = data["parent"].asInt();
+            ret["data"] = DbManager::getInstance().getAllCate(book, _type, parent);
+        } else if(message_type == "cate/get/name"){
+            int book = data["book"].asInt();
+            std::string cateName = data["cateName"].asString();
+            ret["data"] = DbManager::getInstance().getCate(book, cateName);
+        } else if(message_type == "cate/get/remote"){
+            int book = data["book"].asInt();
+            std::string remoteId = data["remoteId"].asString();
+            ret["data"] = DbManager::getInstance().getCateByRemote(book, remoteId);
+        } else if(message_type == "cate/remove"){
+            int id = data["id"].asInt();
+            DbManager::getInstance().removeAssetMap(id);
+        }
+
+        else if(message_type == "rule/custom/put"){
+            int id = data["id"].asInt();
+            std::string js = data["js"].asString();
+            std::string text = data["text"].asString();
+            std::string element = data["element"].asString();
+            int use = data["use"].asInt();
+            int sort = data["sort"].asInt();
+            int _auto = data["auto"].asInt();
+            DbManager::getInstance().insertCustomRule(id, js, text, element, use, sort, _auto);
+        } else if(message_type == "rule/custom/get"){
+            ret["data"] = DbManager::getInstance().loadCustomRules(data["limit"].asInt());
+        } else if(message_type == "rule/custom/remove"){
+            int id = data["id"].asInt();
+            DbManager::getInstance().removeCustomRule(id);
+        } else if(message_type == "rule/custom/get/id"){
+            int id = data["id"].asInt();
+            ret["data"] = DbManager::getInstance().getCustomRule(id);
+        }
+
+
+        else if(message_type == "rule/put"){
+            std::string app = data["app"].asString();
+            std::string js = data["js"].asString();
+            std::string version = data["version"].asString();
+            int _type = data["type"].asInt();
+            DbManager::getInstance().insertRule(app, js, version, _type);
+        } else if(message_type == "rule/get"){
+            std::string app = data["app"].asString();
+            int _type = data["type"].asInt();
+            ret["data"] = DbManager::getInstance().getRule(app, _type);
+        }
+
+
+
+        else if(message_type == "analyze"){
+            std::string _data = data["data"].asString();
+            std::string app = data["app"].asString();
+            int _type = data["type"].asInt();
+            Json::Value rule = DbManager::getInstance().getRule(app, _type);
+            //先执行分析账单内容
+// val js = "var window = {data:JSON.stringify($data), dataType:$dataType, app:\"${app}\"};<RULE>"
+//
+            std::string billJs = "var window = {data:JSON.stringify("+_data+")};<RULE>" + rule["js"].asString();
+
+            std::string result = runJs(billJs);
+
+            //获取当前时间戳
+            int time = std::time(nullptr);
+
+            Json::Value _json;
+            Json::Reader _reader;
+            if (!_reader.parse((const char *) msg, _json)) {
+                printf("json parse error\n");
+                DbManager::getInstance().insertAppData(0, _data, _type, app, "", time, 0,0);
+                return;
+            }
+
+            float money = _json["money"].asFloat();
+            int bill_type = _json["type"].asInt();
+            std::string shopName = replaceSubstring( _json["shopName"].asString(),"'","\"");
+            std::string shopItem = replaceSubstring( _json["shopItem"].asString(),"'","\"");
+            std::time_t now = std::time(nullptr);
+            //time时间戳格式化为：HH:mm
+            char buffer[32];
+            std::tm *ptm = std::localtime(&now);
+            std::strftime(buffer, 32, "%H:%M", ptm);
+            std::string timeStr = buffer;
+
+            std::string channel = _json["channel"].asString();
+
+            DbManager::getInstance().insertAppData(0, _data, _type, app, channel, time, 1,0);
+
+            //分析分类内容
+
+            /**
+             *      val categoryJs =
+                    "var window = {money:${BillUtils.getFloatMoney(billInfo.money)}, type:${billInfo.type.value}, shopName:'${
+                        billInfo.shopName.replace(
+                            "'",
+                            "\"",
+                        )
+                    }', shopItem:'${
+                        billInfo.shopItem.replace(
+                            "'",
+                            "\"",
+                        )
+                    }', time:'${DateUtils.stampToDate(billInfo.timeStamp, "HH:mm")}'};\n" +
+                        "function getCategory(money,type,shopName,shopItem,time){ <CATEGORY_CUSTOM> return null};\n" +
+                        "var categoryInfo = getCategory(window.money,window.type,window.shopName,window.shopItem,window.time);" +
+                        "if(categoryInfo !== null) { print(JSON.stringify(categoryInfo));  } else { <CATEGORY> }"
+
+             */
+
+            std::string customJs = DbManager::getInstance().getSetting("server", "custom_js");
+            std::string official_cate_js = DbManager::getInstance().getSetting("server", "official_cate_js");
+            std::string categoryJs = "var window = {money:"+std::to_string(money)+", type:"+std::to_string(bill_type)+", shopName:'"+shopName+"', shopItem:'"+shopItem+"', time:'"+timeStr+"'};\n" +
+                        "function getCategory(money,type,shopName,shopItem,time){ "+customJs+" return null};\n" +
+                        "var categoryInfo = getCategory(window.money,window.type,window.shopName,window.shopItem,window.time);" +
+                        "if(categoryInfo !== null) { print(JSON.stringify(categoryInfo));  } else { "+official_cate_js+" }";
+
+
+            std::string categoryResult = runJs(categoryJs);
+            Json::Value categoryJson;
+            if (!_reader.parse(categoryResult, categoryJson)) {
+                printf("json parse error\n");
+                return;
+            }
+            std::string bookName = categoryJson["bookName"].asString();
+            std::string cateName = categoryJson["cateName"].asString();
+            //拉起自动记账app
+            _json["bookName"] = bookName;
+            _json["cateName"] = cateName;
+
+
+            try {
+                std::string cmd =
+                        R"(am start -a "net.ankio.auto.ACTION_SHOW_FLOATING_WINDOW" -d "autoaccounting://bill?data=)" +
+                       base64::to_base64(_json.toStyledString())  + R"(" --ez "android.intent.extra.NO_ANIMATION" true -f 0x10000000)";
+                //写日志
+                log("执行命令" + cmd,LOG_LEVEL_INFO);
+                system(cmd.c_str());
+            } catch (const std::exception &e) {
+                log("拉起自动记账失败："+std::string(e.what()),LOG_LEVEL_ERROR);
+            }
+
+        }
 
 
         else {
@@ -212,7 +429,9 @@ void WebSocketServer::publishToken() {
         char buf[1024];
         while (fgets(buf, 1024, appsFile) != nullptr) {
             //读取包名拼接目录，将token写入目录
-            std::string path = std::string("/sdcard/Android/data/") + buf + "/token.txt";
+            std::string app = std::string(buf);
+            trim(app);
+            std::string path = std::string("/sdcard/Android/data/") + app + "/token.txt";
             FILE *appFile = fopen(path.c_str(), "w");
             fprintf(appFile, "%s", token.c_str());
             fclose(appFile);
@@ -223,3 +442,49 @@ void WebSocketServer::publishToken() {
 
 std::map<ws_cli_conn_t *, bool> WebSocketServer::clients{};
 std::string WebSocketServer::token;
+
+void WebSocketServer::print(qjs::rest<std::string> args) {
+    resultMap[std::thread::id()] = args[0];
+}
+
+void WebSocketServer::log(const std::string &msg,int level ){
+    std::time_t now = std::time(nullptr);
+    std::tm *ptm = std::localtime(&now);
+    char buffer[32];
+    // 格式化日期和时间：YYYY-MM-DD HH:MM:SS
+    std::strftime(buffer, 32, "%Y-%m-%d %H:%M:%S", ptm);
+    //获取当前时间
+    std::string  date = {buffer};
+    //获取堆栈信息
+    DbManager::getInstance().insertLog(date, "server", 0, "main", "server", msg,level);
+    printf("[ %s ] %s\n", buffer, msg.c_str());
+}
+
+
+std::string WebSocketServer::runJs(const std::string &js) {
+    log("执行JS脚本",LOG_LEVEL_INFO);
+    log(js,LOG_LEVEL_DEBUG);
+    qjs::Runtime runtime;
+    qjs::Context context(runtime);
+    std::thread::id id = std::this_thread::get_id();
+    try {
+        auto &module = context.addModule("MyModule");
+        module.function<&WebSocketServer::print>("print");
+        context.eval(R"xxx(
+             import { print } from 'MyModule';
+            globalThis.print = print;
+        )xxx", "<import>", JS_EVAL_TYPE_MODULE);
+
+        context.eval(js);
+        std::string data = resultMap[id];
+        resultMap.erase(id);
+        return data;
+    }
+    catch (qjs::exception &e) {
+        auto exc = context.getException();
+        log("JS Error: " + (std::string) exc,LOG_LEVEL_WARN);
+        if ((bool) exc["stack"])
+            log("JS Error: " + (std::string) exc["stack"],LOG_LEVEL_WARN);
+    }
+    return "";
+}

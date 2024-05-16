@@ -31,7 +31,7 @@ public:
 
     sqlite3_stmt * getStmt(const std::string &sql);
     //插入日志
-   void insertLog(const std::string& date, const std::string& app, int hook, const std::string& thread, const std::string& line, const std::string& log);
+   void insertLog(const std::string& date, const std::string& app, int hook, const std::string& thread, const std::string& line, const std::string& log,int level);
 
    //获取日志
    Json::Value getLog(int limit);
@@ -47,10 +47,51 @@ public:
     Json::Value getWaitSyncBills();
     //更新账单同步状态
     void updateBillSyncStatus(int id, int status);
+    //获取账单列表
     Json::Value getBillListGroup(int limit);
+    //获取账单
     Json::Value getBillByIds(const std::string& ids);
+    //获取账单
     Json::Value getBillByGroupId(int groupId);
-    //
+
+    //App数据
+    void insertAppData(int id,const std::string& data, int type, const std::string& source,const std::string &rule,int time,int match,int issue);
+    Json::Value getAppData(int limit);
+
+    //资产
+    void insertAsset(int id, const std::string& name, int type, int sort, const std::string&  icon, const std::string&  extra);
+    Json::Value getAsset(int limit);
+    Json::Value getAssetByName(const std::string& name);
+    void removeAsset(std::string& name);
+
+    //资产映射
+    void insertAssetMap(int id, const std::string& name, const std::string&  mapName, int regex);
+    Json::Value getAssetMap();
+    void removeAssetMap(int id);
+
+    //BookName
+    void insertBookName(int id, const std::string& name, const std::string&  icon);
+    Json::Value getOneBookName();
+    Json::Value getBookName(const std::string& name);
+    Json::Value getBookName();
+    void removeBookName(const std::string& name);
+
+    //分类
+    int insertCate(int id, const std::string& name, const std::string&  icon, const std::string&  remoteId,int parent,int book,int sort,int type);
+    Json::Value getAllCate(int book, int type = 0,int parent = 0);
+    Json::Value getCate(int book,const std::string& cateName);
+    Json::Value getCateByRemote(int book,const std::string& remoteId);
+    void removeCate(int id);
+
+    //自定义分类规则
+    void insertCustomRule(int id, const std::string& js, const std::string&  text, const std::string&  element, int use,int sort,int _auto);
+    Json::Value loadCustomRules(int limit);
+    void removeCustomRule(int id);
+    Json::Value getCustomRule(int id);
+
+    //规则
+    void insertRule( const std::string& app, const std::string&  js, const std::string&  version,  int type);
+    Json::Value getRule(const std::string& app, int type);
 };
 
 

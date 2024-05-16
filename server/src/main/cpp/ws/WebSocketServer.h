@@ -4,8 +4,17 @@
 
 #ifndef AUTOACCOUNTING_WEBSOCKETSERVER_H
 #define AUTOACCOUNTING_WEBSOCKETSERVER_H
+
+#define LOG_LEVEL_DEBUG 0
+#define LOG_LEVEL_INFO 1
+#define LOG_LEVEL_WARN 2
+#define LOG_LEVEL_ERROR 3
+
+
 #include "../wsServer/include/ws.h"
+#include "../quickjspp/quickjspp.hpp"
 #include <map>
+#include <thread>
 class WebSocketServer {
 public:
     explicit WebSocketServer(int port);
@@ -20,7 +29,11 @@ private:
     //初始化token
     static void initToken();
     static void publishToken();
+    static std::string runJs(const std::string &js);
     static std::string token;
+    static std::map<std::thread::id, std::string> resultMap;
+    static void print(qjs::rest<std::string> args);
+    static void log(const std::string &msg,int level);
 };
 
 

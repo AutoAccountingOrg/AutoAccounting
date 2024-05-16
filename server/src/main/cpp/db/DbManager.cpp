@@ -134,7 +134,8 @@ void DbManager::initTable() {
             "app TEXT,"//app名称，如果为空取所有type类型
             "type INTEGER,"//规则类型
             "js TEXT"//规则内容
-            "version TEXT"//规则版本
+            "version TEXT,"//规则版本
+            "UNIQUE(app, type)"
             ");",
     };
 
@@ -161,11 +162,11 @@ sqlite3_stmt *DbManager::getStmt(const std::string &sql) {
 
 void DbManager::insertLog(const std::string &date, const std::string &app, int hook,
                           const std::string &thread, const std::string &line,
-                          const std::string &log) {
+                          const std::string &log,int level) {
     char *zErrMsg = nullptr;
     //使用参数绑定
     sqlite3_stmt *stmt = getStmt(
-            "INSERT INTO log (date, app, hook, thread, line, log) VALUES (?, ?, ?, ?, ?, ?);");
+            "INSERT INTO log (date, app, hook, thread, line, log,level) VALUES (?, ?, ?, ?, ?, ?,?);");
 
     sqlite3_bind_text(stmt, 1, date.c_str(), -1, SQLITE_STATIC);
     sqlite3_bind_text(stmt, 2, app.c_str(), -1, SQLITE_STATIC);
@@ -173,6 +174,7 @@ void DbManager::insertLog(const std::string &date, const std::string &app, int h
     sqlite3_bind_text(stmt, 4, thread.c_str(), -1, SQLITE_STATIC);
     sqlite3_bind_text(stmt, 5, line.c_str(), -1, SQLITE_STATIC);
     sqlite3_bind_text(stmt, 6, log.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_int(stmt, 7, level);
     int rc = sqlite3_step(stmt);
     if (rc != SQLITE_DONE) {
         fprintf(stderr, "SQL error 2: %s\n", sqlite3_errmsg(db));
@@ -463,6 +465,546 @@ Json::Value DbManager::getBillByGroupId(int groupId) {
         bill["remark"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 16));
         bill["fromType"] = sqlite3_column_int(stmt, 17);
         ret.append(bill);
+    }
+    if (rc != SQLITE_DONE) {
+        fprintf(stderr, "SQL error 5: %s\n", sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
+    return ret;
+}
+
+void DbManager::insertAppData(int id, const std::string &data, int type, const std::string &source,const std::string &rule,
+                              int time, int match, int issue) {
+    char *zErrMsg = nullptr;
+    sqlite3_stmt *stmt ;
+    int count = -1;
+    if(id == 0){
+        stmt = getStmt(
+                "INSERT INTO appData ( data, type, source, time, match, issue,rule) VALUES (?,?,?,?,?,?,?);");
+    }else{
+        count = 0;
+        stmt = getStmt(
+                "INSERT OR REPLACE INTO appData (id, data, type, source, time, match, issue,rule) VALUES (?,?,?,?,?,?,?,?);");
+    }
+    if(count == 0){
+        sqlite3_bind_int(stmt, count + 1, id);
+    }
+    sqlite3_bind_text(stmt, count + 2, data.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_int(stmt, count + 3, type);
+    sqlite3_bind_text(stmt,  count +4, source.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_int(stmt,  count +5, time);
+    sqlite3_bind_int(stmt,  count +6, match);
+    sqlite3_bind_int(stmt, count + 7, issue);
+    sqlite3_bind_text(stmt, count + 8, rule.c_str(), -1, SQLITE_STATIC);
+    int rc = sqlite3_step(stmt);
+    if (rc != SQLITE_DONE) {
+        fprintf(stderr, "SQL error 8: %s\n", sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
+}
+
+Json::Value DbManager::getAppData(int limit) {
+    Json::Value ret;
+    char *zErrMsg = nullptr;
+    sqlite3_stmt *stmt = getStmt("SELECT * FROM appData ORDER BY id DESC LIMIT ?;");
+    sqlite3_bind_int(stmt, 1, limit);
+    int rc = 0;
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+        Json::Value appData;
+        appData["id"] = sqlite3_column_int(stmt, 0);
+        appData["data"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1));
+        appData["type"] = sqlite3_column_int(stmt, 2);
+        appData["source"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 3));
+        appData["time"] = sqlite3_column_int(stmt, 4);
+        appData["match"] = sqlite3_column_int(stmt, 5);
+        appData["issue"] = sqlite3_column_int(stmt, 6);
+        ret.append(appData);
+    }
+    if (rc != SQLITE_DONE) {
+        fprintf(stderr, "SQL error 5: %s\n", sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
+    return ret;
+}
+
+void DbManager::insertAsset(int id, const std::string &name, int type, int sort, const std::string &icon,
+                            const std::string &extra) {
+    char *zErrMsg = nullptr;
+    sqlite3_stmt *stmt;
+    int count = -1;
+    if(id == 0){
+        stmt = getStmt(
+                "INSERT INTO assets ( name, type, sort, icon, extras) VALUES (?,?,?,?,?);");
+    }else{
+        count = 0;
+        stmt = getStmt(
+                "INSERT OR REPLACE INTO assets (id, name, type, sort, icon, extras) VALUES (?,?,?,?,?,?,?);");
+    }
+    if(count == 0){
+        sqlite3_bind_int(stmt, count + 1, id);
+    }
+    sqlite3_bind_text(stmt, count + 2, name.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_int(stmt, count + 3, type);
+    sqlite3_bind_int(stmt, count + 4, sort);
+    sqlite3_bind_text(stmt, count + 5, icon.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, count + 6, extra.c_str(), -1, SQLITE_STATIC);
+    int rc = sqlite3_step(stmt);
+    if (rc != SQLITE_DONE) {
+        fprintf(stderr, "SQL error 8: %s\n", sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
+}
+
+Json::Value DbManager::getAsset(int limit) {
+    Json::Value ret;
+    char *zErrMsg = nullptr;
+    sqlite3_stmt *stmt = getStmt("SELECT * FROM assets ORDER BY id DESC LIMIT ?;");
+    sqlite3_bind_int(stmt, 1, limit);
+    int rc = 0;
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+        Json::Value asset;
+        asset["id"] = sqlite3_column_int(stmt, 0);
+        asset["name"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1));
+        asset["type"] = sqlite3_column_int(stmt, 2);
+        asset["sort"] = sqlite3_column_int(stmt, 3);
+        asset["icon"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 4));
+        asset["extras"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 5));
+        ret.append(asset);
+    }
+    if (rc != SQLITE_DONE) {
+        fprintf(stderr, "SQL error 5: %s\n", sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
+    return ret;
+}
+
+Json::Value DbManager::getAssetByName(const std::string &name) {
+    Json::Value asset;
+    char *zErrMsg = nullptr;
+    sqlite3_stmt *stmt = getStmt("SELECT * FROM assets WHERE name = ? LIMIT 1;");
+    sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_STATIC);
+    int rc = 0;
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+        asset["id"] = sqlite3_column_int(stmt, 0);
+        asset["name"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1));
+        asset["type"] = sqlite3_column_int(stmt, 2);
+        asset["sort"] = sqlite3_column_int(stmt, 3);
+        asset["icon"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 4));
+        asset["extras"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 5));
+    }
+    if (rc != SQLITE_DONE) {
+        fprintf(stderr, "SQL error 5: %s\n", sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
+    return asset;
+}
+
+void DbManager::removeAsset(std::string &name) {
+    char *zErrMsg = nullptr;
+    sqlite3_stmt *stmt = getStmt("DELETE FROM assets WHERE name = ?;");
+    sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_STATIC);
+    int rc = sqlite3_step(stmt);
+    if (rc != SQLITE_DONE) {
+        fprintf(stderr, "SQL error 9: %s\n", sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
+}
+
+void DbManager::insertAssetMap(int id, const std::string &name, const std::string &mapName, int regex) {
+    char *zErrMsg = nullptr;
+    sqlite3_stmt *stmt;
+    int count = -1;
+    if(id == 0){
+        stmt = getStmt(
+                "INSERT INTO assetsMap ( name, mapName, regex) VALUES (?,?,?);");
+    }else{
+        count = 0;
+        stmt = getStmt(
+                "INSERT OR REPLACE INTO assetsMap (id, name, mapName, regex) VALUES (?,?,?,?);");
+    }
+    if(count == 0){
+        sqlite3_bind_int(stmt, count + 1, id);
+    }
+    sqlite3_bind_text(stmt, count + 2, name.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, count + 3, mapName.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_int(stmt, count + 4, regex);
+    int rc = sqlite3_step(stmt);
+    if (rc != SQLITE_DONE) {
+        fprintf(stderr, "SQL error 8: %s\n", sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
+}
+
+Json::Value DbManager::getAssetMap() {
+    Json::Value ret;
+    char *zErrMsg = nullptr;
+    sqlite3_stmt *stmt = getStmt("SELECT * FROM assetsMap ORDER BY id DESC;");
+    int rc = 0;
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+        Json::Value assetMap;
+        assetMap["id"] = sqlite3_column_int(stmt, 0);
+        assetMap["name"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1));
+        assetMap["mapName"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2));
+        assetMap["regex"] = sqlite3_column_int(stmt, 3);
+        ret.append(assetMap);
+    }
+    if (rc != SQLITE_DONE) {
+        fprintf(stderr, "SQL error 5: %s\n", sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
+    return ret;
+}
+
+void DbManager::removeAssetMap(int id) {
+    char *zErrMsg = nullptr;
+    sqlite3_stmt *stmt = getStmt("DELETE FROM assetsMap WHERE id = ?;");
+    sqlite3_bind_int(stmt, 1, id);
+    int rc = sqlite3_step(stmt);
+    if (rc != SQLITE_DONE) {
+        fprintf(stderr, "SQL error 9: %s\n", sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
+}
+
+
+void DbManager::insertBookName(int id, const std::string &name, const std::string &icon) {
+    char *zErrMsg = nullptr;
+    sqlite3_stmt *stmt;
+    int count = -1;
+    if(id == 0){
+        stmt = getStmt(
+                "INSERT INTO bookName ( name, icon) VALUES (?,?);");
+    }else{
+        count = 0;
+        stmt = getStmt(
+                "INSERT OR REPLACE INTO bookName (id, name, icon) VALUES (?,?,?);");
+    }
+    if(count == 0){
+        sqlite3_bind_int(stmt, count + 1, id);
+    }
+    sqlite3_bind_text(stmt, count + 2, name.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, count + 3, icon.c_str(), -1, SQLITE_STATIC);
+    int rc = sqlite3_step(stmt);
+    if (rc != SQLITE_DONE) {
+        fprintf(stderr, "SQL error 8: %s\n", sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
+}
+
+Json::Value DbManager::getBookName() {
+    Json::Value ret;
+    char *zErrMsg = nullptr;
+    sqlite3_stmt *stmt = getStmt("SELECT * FROM bookName ORDER BY id DESC;");
+    int rc = 0;
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+        Json::Value bookName;
+        bookName["id"] = sqlite3_column_int(stmt, 0);
+        bookName["name"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1));
+        bookName["icon"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2));
+        ret.append(bookName);
+    }
+    if (rc != SQLITE_DONE) {
+        fprintf(stderr, "SQL error 5: %s\n", sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
+    return ret;
+}
+
+void DbManager::removeBookName(const std::string& name){
+    char *zErrMsg = nullptr;
+    sqlite3_stmt *stmt = getStmt("DELETE FROM bookName WHERE name = ?;");
+    sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_STATIC);
+    int rc = sqlite3_step(stmt);
+    if (rc != SQLITE_DONE) {
+        fprintf(stderr, "SQL error 9: %s\n", sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
+}
+
+Json::Value DbManager::getBookName(const std::string& name){
+    Json::Value bookName;
+    char *zErrMsg = nullptr;
+    sqlite3_stmt *stmt = getStmt("SELECT * FROM bookName WHERE name = ?;");
+    sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_STATIC);
+    int rc = 0;
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+        bookName["id"] = sqlite3_column_int(stmt, 0);
+        bookName["name"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1));
+        bookName["icon"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2));
+    }
+    if (rc != SQLITE_DONE) {
+        fprintf(stderr, "SQL error 5: %s\n", sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
+    return bookName;
+}
+
+Json::Value DbManager::getOneBookName() {
+    Json::Value ret;
+    char *zErrMsg = nullptr;
+    sqlite3_stmt *stmt = getStmt("SELECT * FROM bookName ORDER BY id DESC LIMIT 1;");
+    int rc = 0;
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+        Json::Value bookName;
+        bookName["id"] = sqlite3_column_int(stmt, 0);
+        bookName["name"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1));
+        bookName["icon"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2));
+        ret.append(bookName);
+    }
+    if (rc != SQLITE_DONE) {
+        fprintf(stderr, "SQL error 5: %s\n", sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
+    return ret;
+}
+
+
+int DbManager::insertCate(int id, const std::string &name, const std::string &icon,
+                          const std::string &remoteId, int parent, int book, int sort, int type) {
+    char *zErrMsg = nullptr;
+    sqlite3_stmt *stmt;
+    int count = -1;
+    if (id == 0) {
+        stmt = getStmt(
+                "INSERT INTO category ( name, icon, remoteId, parent, book, sort, type) VALUES (?,?,?,?,?,?,?);");
+    } else {
+        count = 0;
+        stmt = getStmt(
+                "INSERT OR REPLACE INTO category (id, name, icon, remoteId, parent, book, sort, type) VALUES (?,?,?,?,?,?,?,?);");
+
+    }
+    if (count == 0) {
+        sqlite3_bind_int(stmt, count + 1, id);
+    }
+    sqlite3_bind_text(stmt, count + 2, name.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, count + 3, icon.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, count + 4, remoteId.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_int(stmt, count + 5, parent);
+    sqlite3_bind_int(stmt, count + 6, book);
+    sqlite3_bind_int(stmt, count + 7, sort);
+    sqlite3_bind_int(stmt, count + 8, type);
+    int rc = sqlite3_step(stmt);
+    if (rc != SQLITE_DONE) {
+        fprintf(stderr, "SQL error 8: %s\n", sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
+    return sqlite3_last_insert_rowid(db);
+}
+
+Json::Value DbManager::getAllCate(int parent, int book, int type) {
+    Json::Value ret;
+    char *zErrMsg = nullptr;
+    sqlite3_stmt *stmt = getStmt(
+            "SELECT * FROM category WHERE parent = ? AND book = ? AND type = ? ORDER BY sort;");
+    sqlite3_bind_int(stmt, 1, parent);
+    sqlite3_bind_int(stmt, 2, book);
+    sqlite3_bind_int(stmt, 3, type);
+    int rc = 0;
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+        Json::Value cate;
+        cate["id"] = sqlite3_column_int(stmt, 0);
+        cate["name"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1));
+        cate["icon"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2));
+        cate["remoteId"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 3));
+        cate["parent"] = sqlite3_column_int(stmt, 4);
+        cate["book"] = sqlite3_column_int(stmt, 5);
+        cate["sort"] = sqlite3_column_int(stmt, 6);
+        cate["type"] = sqlite3_column_int(stmt, 7);
+       // cate["child"] = getAllCate(db, sqlite3_column_int(stmt, 0), book, type);
+        ret.append(cate);
+    }
+    if (rc != SQLITE_DONE) {
+        fprintf(stderr, "SQL error 5: %s\n", sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
+    return ret;
+}
+
+Json::Value DbManager::getCate(int book, const std::string &cateName) {
+    Json::Value ret;
+    char *zErrMsg = nullptr;
+    sqlite3_stmt *stmt = getStmt(
+            "SELECT * FROM category WHERE book = ? AND name = ?;");
+    sqlite3_bind_int(stmt, 1, book);
+    sqlite3_bind_text(stmt, 2, cateName.c_str(), -1, SQLITE_STATIC);
+    int rc = 0;
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+        Json::Value cate;
+        cate["id"] = sqlite3_column_int(stmt, 0);
+        cate["name"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1));
+        cate["icon"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2));
+        cate["remoteId"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 3));
+        cate["parent"] = sqlite3_column_int(stmt, 4);
+        cate["book"] = sqlite3_column_int(stmt, 5);
+        cate["sort"] = sqlite3_column_int(stmt, 6);
+        cate["type"] = sqlite3_column_int(stmt, 7);
+        ret.append(cate);
+    }
+    if (rc != SQLITE_DONE) {
+        fprintf(stderr, "SQL error 5: %s\n", sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
+    return ret;
+}
+
+Json::Value DbManager::getCateByRemote(int book, const std::string &remoteId) {
+    Json::Value ret;
+    char *zErrMsg = nullptr;
+    sqlite3_stmt *stmt = getStmt(
+            "SELECT * FROM category WHERE book = ? AND remoteId = ?;");
+    sqlite3_bind_int(stmt, 1, book);
+    sqlite3_bind_text(stmt, 2, remoteId.c_str(), -1, SQLITE_STATIC);
+    int rc = 0;
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+        Json::Value cate;
+        cate["id"] = sqlite3_column_int(stmt, 0);
+        cate["name"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1));
+        cate["icon"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2));
+        cate["remoteId"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 3));
+        cate["parent"] = sqlite3_column_int(stmt, 4);
+        cate["book"] = sqlite3_column_int(stmt, 5);
+        cate["sort"] = sqlite3_column_int(stmt, 6);
+        cate["type"] = sqlite3_column_int(stmt, 7);
+        ret.append(cate);
+    }
+    if (rc != SQLITE_DONE) {
+        fprintf(stderr, "SQL error 5: %s\n", sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
+    return ret;
+}
+
+void DbManager::removeCate(int id) {
+    char *zErrMsg = nullptr;
+    sqlite3_stmt *stmt = getStmt("DELETE FROM category WHERE id = ?;");
+    sqlite3_bind_int(stmt, 1, id);
+    int rc = sqlite3_step(stmt);
+    if (rc != SQLITE_DONE) {
+        fprintf(stderr, "SQL error 9: %s\n", sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
+}
+
+void DbManager::insertRule(const std::string &app, const std::string &js,
+                           const std::string &version, int type) {
+    char *zErrMsg = nullptr;
+    sqlite3_stmt *stmt = getStmt(
+            "INSERT OR REPLACE INTO rule ( app, js, version, type) VALUES (?,?,?,?);");
+    sqlite3_bind_text(stmt, 1, app.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 2, js.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 3, version.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_int(stmt, 4, type);
+    int rc = sqlite3_step(stmt);
+    if (rc != SQLITE_DONE) {
+        fprintf(stderr, "SQL error 8: %s\n", sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
+
+}
+
+Json::Value DbManager::getRule(const std::string &app, int type) {
+    Json::Value ret;
+    char *zErrMsg = nullptr;
+    sqlite3_stmt *stmt = getStmt("SELECT * FROM rule WHERE app = ? AND type = ?;");
+    sqlite3_bind_text(stmt, 1, app.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_int(stmt, 2, type);
+    int rc = 0;
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+        Json::Value rule;
+        rule["app"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1));
+        rule["js"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2));
+        rule["version"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 3));
+        rule["type"] = sqlite3_column_int(stmt, 4);
+        ret.append(rule);
+    }
+    if (rc != SQLITE_DONE) {
+        fprintf(stderr, "SQL error 5: %s\n", sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
+    return ret;
+}
+
+void DbManager::insertCustomRule(int id, const std::string &js, const std::string &text,
+                                 const std::string &element, int use, int sort, int _auto) {
+    char *zErrMsg = nullptr;
+    sqlite3_stmt *stmt;
+    int count = -1;
+    if(id == 0){
+        stmt = getStmt(
+                "INSERT INTO customRule ( js, text, element, use, sort, auto) VALUES (?,?,?,?,?,?,?);");
+    }else{
+        count = 0;
+        stmt = getStmt(
+                "INSERT OR REPLACE INTO customRule (id, js, text, element, use, sort, auto) VALUES (?,?,?,?,?,?,?,?);");
+
+    }
+    if(count == 0){
+        sqlite3_bind_int(stmt, count + 1, id);
+    }
+    sqlite3_bind_text(stmt, count + 2, js.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, count + 3, text.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, count + 4, element.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_int(stmt, count + 5, use);
+    sqlite3_bind_int(stmt, count + 6, sort);
+    sqlite3_bind_int(stmt, count + 7, _auto);
+    int rc = sqlite3_step(stmt);
+    if (rc != SQLITE_DONE) {
+        fprintf(stderr, "SQL error 8: %s\n", sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
+}
+
+Json::Value DbManager::loadCustomRules(int limit) {
+    Json::Value ret;
+    char *zErrMsg = nullptr;
+    sqlite3_stmt *stmt = getStmt("SELECT * FROM customRule ORDER BY sort LIMIT ?;");
+    sqlite3_bind_int(stmt, 1, limit);
+    int rc = 0;
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+        Json::Value rule;
+        rule["id"] = sqlite3_column_int(stmt, 0);
+        rule["js"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1));
+        rule["text"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2));
+        rule["element"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 3));
+        rule["use"] = sqlite3_column_int(stmt, 4);
+        rule["sort"] = sqlite3_column_int(stmt, 5);
+        rule["auto"] = sqlite3_column_int(stmt, 6);
+        ret.append(rule);
+    }
+    if (rc != SQLITE_DONE) {
+        fprintf(stderr, "SQL error 5: %s\n", sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
+    return ret;
+}
+
+void DbManager::removeCustomRule(int id) {
+    char *zErrMsg = nullptr;
+    sqlite3_stmt *stmt = getStmt("DELETE FROM customRule WHERE id = ?;");
+    sqlite3_bind_int(stmt, 1, id);
+    int rc = sqlite3_step(stmt);
+    if (rc != SQLITE_DONE) {
+        fprintf(stderr, "SQL error 9: %s\n", sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
+}
+
+Json::Value DbManager::getCustomRule(int id) {
+    Json::Value ret;
+    char *zErrMsg = nullptr;
+    sqlite3_stmt *stmt = getStmt("SELECT * FROM customRule WHERE id = ?;");
+    sqlite3_bind_int(stmt, 1, id);
+    int rc = 0;
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+        Json::Value rule;
+        rule["id"] = sqlite3_column_int(stmt, 0);
+        rule["js"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1));
+        rule["text"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2));
+        rule["element"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 3));
+        rule["use"] = sqlite3_column_int(stmt, 4);
+        rule["sort"] = sqlite3_column_int(stmt, 5);
+        rule["auto"] = sqlite3_column_int(stmt, 6);
+        ret.append(rule);
     }
     if (rc != SQLITE_DONE) {
         fprintf(stderr, "SQL error 5: %s\n", sqlite3_errmsg(db));

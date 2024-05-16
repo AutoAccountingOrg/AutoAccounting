@@ -26,13 +26,30 @@ set(JSON_FILES
 )
 include_directories(jsoncpp/include)
 
+set(JS_FILES
+        quickjspp/qjs.cpp
+        quickjspp/quickjspp.hpp
+        quickjspp/quickjs/quickjs.c
+        quickjspp/quickjs/libbf.c
+        quickjspp/quickjs/libunicode.c
+        quickjspp/quickjs/libregexp.c
+        quickjspp/quickjs/cutils.c
+        quickjspp/quickjs/quickjs-libc.c
+)
 
+set(BASE64
+    base64/include/base64.hpp
+)
 
 add_executable(
         auto_${CMAKE_PROJECT_NAME}
         server.cpp
+        common.cpp
         ${WEBSOCKET_FILES}
         ${SQLITE_FILES}
         ${JSON_FILES}
         db/DbManager.cpp
+        ${JS_FILES}
+        ${BASE64}
+
 )
