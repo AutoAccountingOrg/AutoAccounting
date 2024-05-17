@@ -1,7 +1,7 @@
 
 cmake_minimum_required(VERSION 3.22.1)
 
-project("server")
+project("auto_server")
 
 set(WEBSOCKET_FILES
         wsServer/src/ws.c
@@ -26,30 +26,29 @@ set(JSON_FILES
 )
 include_directories(jsoncpp/include)
 
-set(JS_FILES
-        quickjspp/qjs.cpp
-        quickjspp/quickjspp.hpp
-        quickjspp/quickjs/quickjs.c
-        quickjspp/quickjs/libbf.c
-        quickjspp/quickjs/libunicode.c
-        quickjspp/quickjs/libregexp.c
-        quickjspp/quickjs/cutils.c
-        quickjspp/quickjs/quickjs-libc.c
-)
 
 set(BASE64
     base64/include/base64.hpp
 )
 
+add_subdirectory(quickjspp/quickjs)
+
+add_library(quickjspp INTERFACE)
+target_link_libraries(quickjspp INTERFACE quickjs ${CMAKE_REQUIRED_LIBRARIES})
+target_compile_features(quickjspp INTERFACE cxx_std_17)
+target_include_directories(quickjspp INTERFACE .)
+set_target_properties(quickjspp PROPERTIES PUBLIC_HEADER quickjspp/quickjspp.hpp)
+
 add_executable(
-        auto_${CMAKE_PROJECT_NAME}
+        ${CMAKE_PROJECT_NAME}
         server.cpp
         common.cpp
         ${WEBSOCKET_FILES}
         ${SQLITE_FILES}
         ${JSON_FILES}
         db/DbManager.cpp
-        ${JS_FILES}
         ${BASE64}
 
 )
+
+target_link_libraries(${CMAKE_PROJECT_NAME} quickjspp)

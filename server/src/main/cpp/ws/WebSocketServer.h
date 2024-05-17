@@ -32,6 +32,7 @@ private:
     static std::string runJs(const std::string &js);
     static std::string token;
     static std::map<std::thread::id, std::string> resultMap;
+    static std::mutex resultMapMutex;
     static void print(qjs::rest<std::string> args);
     static void log(const std::string &msg,int level);
 };

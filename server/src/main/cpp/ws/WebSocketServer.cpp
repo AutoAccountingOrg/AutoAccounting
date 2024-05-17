@@ -167,7 +167,8 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
             int time = data["time"].asInt();
             int match = data["match"].asInt();
             int issue = data["issue"].asInt();
-            DbManager::getInstance().insertAppData(id, _data, _type, source, time, match, issue);
+            std::string rule = data["rule"].asString();
+            DbManager::getInstance().insertAppData(id, _data, _type, source,rule, time, match, issue);
         } else if(message_type == "data/get"){
             ret["data"]=DbManager::getInstance().getAppData(data["limit"].asInt());
         }
@@ -444,6 +445,7 @@ std::map<ws_cli_conn_t *, bool> WebSocketServer::clients{};
 std::string WebSocketServer::token;
 
 void WebSocketServer::print(qjs::rest<std::string> args) {
+    std::lock_guard<std::mutex> lock(resultMapMutex);
     resultMap[std::thread::id()] = args[0];
 }
 
@@ -476,6 +478,7 @@ std::string WebSocketServer::runJs(const std::string &js) {
         )xxx", "<import>", JS_EVAL_TYPE_MODULE);
 
         context.eval(js);
+        std::lock_guard<std::mutex> lock(resultMapMutex);
         std::string data = resultMap[id];
         resultMap.erase(id);
         return data;
@@ -488,3 +491,5 @@ std::string WebSocketServer::runJs(const std::string &js) {
     }
     return "";
 }
+std::map<std::thread::id, std::string> WebSocketServer::resultMap;
+std::mutex WebSocketServer::resultMapMutex;
