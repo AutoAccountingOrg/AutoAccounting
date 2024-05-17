@@ -22,5 +22,3 @@ local.properties
 /app/src/xposed/assets/shell/apps.txt
 /.github/workflows/env.json
 /app/src/main/assets/shell/auto_accounting_starter
-/server/src/main/cpp/auto_server
-/server/src/main/cpp/CMakeFiles/
