@@ -16,6 +16,7 @@
 package net.ankio.auto.utils.server.model
 
 import com.google.gson.Gson
+import com.google.gson.JsonArray
 import kotlinx.coroutines.launch
 import net.ankio.auto.utils.AppUtils
 
@@ -43,7 +44,7 @@ class LogModel {
 
         suspend fun get(limit: Int = 500): List<LogModel> {
             val data = AppUtils.getService().sendMsg("log/get", mapOf("limit" to limit))
-            return Gson().fromJson(Gson().toJson(data), Array<LogModel>::class.java).toList()
+            return Gson().fromJson(data as JsonArray, Array<LogModel>::class.java).toList()
         }
 
         fun deleteAll() {

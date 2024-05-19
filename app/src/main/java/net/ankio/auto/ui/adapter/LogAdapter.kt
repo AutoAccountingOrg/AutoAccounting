@@ -15,7 +15,6 @@
 
 package net.ankio.auto.ui.adapter
 
-import android.view.View
 import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterLogBinding
 import net.ankio.auto.utils.server.model.LogModel
@@ -46,6 +45,5 @@ class LogAdapter(
             LogModel.LOG_LEVEL_ERROR -> binding.log.setTextColor(holder.context.getColor(R.color.danger))
             else -> binding.log.setTextColor(holder.context.getColor(R.color.info))
         }
-        binding.header.visibility = View.VISIBLE
     }
 }

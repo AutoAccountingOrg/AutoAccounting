@@ -186,9 +186,10 @@ Json::Value DbManager::getLog(int limit) {
         log["date"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1));
         log["app"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2));
         log["hook"] = sqlite3_column_int(stmt, 3);
-        log["thread"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 4));
-        log["line"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 5));
-        log["log"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 6));
+        log["level"] = sqlite3_column_int(stmt, 4);
+        log["thread"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 5));
+        log["line"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 6));
+        log["log"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 7));
         ret.append(log);
     }
     if (rc != SQLITE_DONE) {

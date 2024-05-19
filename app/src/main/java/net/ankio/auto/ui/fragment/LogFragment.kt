@@ -112,7 +112,7 @@ class LogFragment : BaseFragment() {
             // 读取log.txt
             withContext(Dispatchers.IO) {
                 dataItems.clear()
-                dataItems.addAll(LogModel.get(500))
+                dataItems.addAll(LogModel.get(10))
 
                 withContext(Dispatchers.Main) {
                     loading.close()

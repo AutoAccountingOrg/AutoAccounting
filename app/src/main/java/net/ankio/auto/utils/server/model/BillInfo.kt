@@ -17,6 +17,7 @@ package net.ankio.auto.utils.server.model
 import com.google.gson.Gson
 import com.google.gson.JsonArray
 import net.ankio.auto.utils.AppUtils
+import net.ankio.auto.utils.Logger
 
 class BillInfo {
     // 账单列表
@@ -143,13 +144,18 @@ class BillInfo {
         }
 
         suspend fun getBillListGroup(limit: Int = 500): List<Pair<String, String>> {
-            val data = AppUtils.getService().sendMsg("bill/list/group", mapOf("limit" to limit)) as JsonArray
             val array = ArrayList<Pair<String, String>>()
-            data.forEach {
-                val obj = it.asJsonObject
-                val date = obj.get("date").asString
-                val ids = obj.get("ids").asString
-                array.add(Pair(date, ids))
+            runCatching {
+                val data = AppUtils.getService().sendMsg("bill/list/group", mapOf("limit" to limit)) as JsonArray
+
+                data.forEach {
+                    val obj = it.asJsonObject
+                    val date = obj.get("date").asString
+                    val ids = obj.get("ids").asString
+                    array.add(Pair(date, ids))
+                }
+            }.onFailure {
+                Logger.e("getBillListGroup", it)
             }
             return array
         }
