@@ -17,9 +17,7 @@ package net.ankio.auto
 
 import android.app.Application
 import android.content.Context
-import android.os.StrictMode
 import com.hjq.toast.Toaster
-import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.utils.AppTimeMonitor
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.ExceptionHandler
@@ -46,7 +44,7 @@ class App : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        if (BuildConfig.DEBUG) {
+       /* if (BuildConfig.DEBUG) {
             StrictMode.setThreadPolicy(
                 StrictMode.ThreadPolicy.Builder()
                     .detectCustomSlowCalls() // 配合StrictMode.noteSlowCall使用
@@ -70,6 +68,6 @@ class App : Application() {
                     .penaltyDeath() // 直接Crash掉当前应用程序
                     .build(),
             )
-        }
+        }*/
     }
 }

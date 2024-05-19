@@ -34,6 +34,7 @@ import net.ankio.auto.R
 import net.ankio.auto.databinding.ActivityMainBinding
 import net.ankio.auto.events.AutoServiceErrorEvent
 import net.ankio.auto.ui.dialog.UpdateDialog
+import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.BackupUtils
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.Github
@@ -93,6 +94,7 @@ class MainActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        EventBus.register(AutoServiceErrorEvent::class.java, autoListener)
         // Github登录
         onLogin()
         // 备份注册
@@ -101,6 +103,10 @@ class MainActivity : BaseActivity() {
         onBottomViewInit()
 
         onViewCreated()
+
+        lifecycleScope.launch {
+            AppUtils.getService().connect()
+        }
     }
 
     fun onBottomViewInit() {
@@ -161,13 +167,6 @@ class MainActivity : BaseActivity() {
         }
     }
 
-    private val autoListener = { event: AutoServiceErrorEvent ->
-        Logger.e("自动记账服务未连接", event.exception)
-        runOnUiThread {
-            navHostFragment.navController.navigate(R.id.serviceFragment)
-        }
-    }
-
     private fun checkBookApp() {
         // 判断是否设置了记账软件
         if (SpUtils.getString("bookApp", "").isEmpty()) {
@@ -220,6 +219,16 @@ class MainActivity : BaseActivity() {
 
     fun getNavController(): NavController {
         return navHostFragment.navController
+    }
+
+    private val autoListener = { event: AutoServiceErrorEvent ->
+        Logger.e("自动记账服务未连接", event.exception)
+        runOnUiThread {
+            // 判断当前fragment是否为serviceFragment
+            if (navHostFragment.navController.currentDestination?.id != R.id.serviceFragment) {
+                navHostFragment.navController.navigate(R.id.serviceFragment)
+            }
+        }
     }
 
     override fun onDestroy() {

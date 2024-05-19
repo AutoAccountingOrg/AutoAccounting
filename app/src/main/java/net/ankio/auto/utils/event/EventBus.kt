@@ -1,5 +1,7 @@
 package net.ankio.auto.utils.event
 
+import android.os.Handler
+import android.os.Looper
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -27,7 +29,17 @@ object EventBus {
     // 发布事件
     fun post(event: Event) {
         listenersMap[event::class.java]?.forEach { listener ->
-            listener(event)
+            runOnUiThread {
+                listener(event)
+            }
+        }
+    }
+
+    private fun runOnUiThread(block: () -> Unit) {
+        if (Thread.currentThread() == Looper.getMainLooper().thread) {
+            block()
+        } else {
+            Handler(Looper.getMainLooper()).post(block)
         }
     }
 }

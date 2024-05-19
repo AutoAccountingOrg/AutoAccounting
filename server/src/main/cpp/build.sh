@@ -44,5 +44,6 @@ fi
 
 make
 
-adb push auto_server /data/local/tmp
-adb shell chmod 777 /data/local/tmp/auto_server
+adb push ../assets/shell/arm64-v8a/auto_accounting_starter /data/local/tmp
+adb shell chmod 777 /data/local/tmp/auto_accounting_starter
+

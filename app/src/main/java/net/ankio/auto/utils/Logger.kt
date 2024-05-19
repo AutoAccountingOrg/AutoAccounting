@@ -87,7 +87,7 @@ object Logger {
             log(header + it)
         }
         // 一些发起服务请求的不记录到日志文件里面来
-        if (list.any { it.contains("127.0.0.1:52045") })return
+        if (list.any { it.contains("log/put") })return
 
         AppUtils.getScope().launch {
             LogModel.put(

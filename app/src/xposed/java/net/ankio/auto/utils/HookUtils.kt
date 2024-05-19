@@ -31,12 +31,9 @@ import net.ankio.auto.BuildConfig
 import net.ankio.auto.HookMainApp
 import net.ankio.auto.app.js.Engine
 import net.ankio.auto.exceptions.AutoServiceException
-import net.ankio.auto.utils.server.AutoServer
 import net.ankio.auto.utils.server.model.LogModel
 
 class HookUtils(val context: Application, private val packageName: String) {
-    private var autoServer: AutoServer
-
     private val loadClazz = HashMap<String, Class<*>>()
 
     init {
@@ -47,8 +44,6 @@ class HookUtils(val context: Application, private val packageName: String) {
         )
 
         AppUtils.setApplication(context)
-        autoServer = AutoServer()
-        autoServer.connect()
         XposedBridge.hookAllMethods(
             ClassLoader::class.java,
             "loadClass",

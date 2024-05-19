@@ -35,7 +35,7 @@ class SettingModel {
             key: String,
         ): String {
             val data = AppUtils.getService().sendMsg("setting/get", mapOf("app" to app, "key" to key))
-            return data as String
+            return runCatching { data as String }.getOrNull() ?: ""
         }
     }
 }

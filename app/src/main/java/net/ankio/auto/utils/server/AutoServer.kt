@@ -16,6 +16,7 @@
 package net.ankio.auto.utils.server
 
 import com.google.gson.Gson
+import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -34,7 +35,6 @@ import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import okio.ByteString
-import org.json.JSONObject
 import java.io.File
 import java.io.FileOutputStream
 import java.util.UUID
@@ -58,7 +58,7 @@ class AutoServer {
     }
 
     private var ws: WebSocket? = null
-    private val callbacks: HashMap<String, (json: JSONObject) -> Unit> = HashMap()
+    private val callbacks: HashMap<String, (json: JsonObject) -> Unit> = HashMap()
 
     suspend fun sendMsg(
         type: String,
@@ -69,15 +69,17 @@ class AutoServer {
                 continuation.resume(null)
                 return@suspendCancellableCoroutine
             }
-            val json = JSONObject()
+            val json = JsonObject()
             val id = UUID.randomUUID().toString()
-            json.put("id", id)
-            json.put("type", type)
-            json.put("data", data)
-            callbacks[id] = { it: JSONObject ->
+            json.addProperty("id", id)
+            json.addProperty("type", type)
+            json.add("data", Gson().toJsonTree(data))
+            callbacks[id] = { it: JsonObject ->
                 continuation.resume(it.get("data"))
             }
-            ws!!.send(Gson().toJson(json))
+            val msg = Gson().toJson(json)
+            Logger.d("发送消息：$msg")
+            ws!!.send(msg)
             // 等待返回
         }
 
@@ -93,41 +95,48 @@ class AutoServer {
                     webSocket: WebSocket,
                     response: Response,
                 ) {
-                    ws = webSocket
-                    EventBus.post(AutoServerConnectedEvent())
                 }
 
                 override fun onMessage(
                     webSocket: WebSocket,
                     text: String,
                 ) {
+                    Logger.d("收到服务端消息：$text")
                     AppUtils.getScope().launch {
                         runCatching {
-                            val json = Gson().fromJson(text, JSONObject::class.java)
-                            val type = json.getString("type")
+                            val json = Gson().fromJson(text, JsonObject::class.java)
+                            val type = json.get("type").asString
                             if (type == "auth") {
                                 val token = getToken()
                                 if (token.isNotEmpty()) {
-                                    ws!!.send(
-                                        Gson().toJson(
-                                            JSONObject().apply {
-                                                put("type", "auth")
-                                                put("data", token)
-                                                put("id", "")
-                                            },
-                                        ),
+                                    val msg =
+                                        JsonObject().apply {
+                                            addProperty("type", "auth")
+                                            addProperty("data", token.trim())
+                                            addProperty("id", "")
+                                        }.toString()
+
+                                    Logger.i("授权响应：$msg")
+                                    webSocket.send(
+                                        msg,
                                     )
                                 } else {
-                                    ws!!.close(1000, "Token not found")
+                                    webSocket.close(1000, "Token not found")
                                     Logger.i("Token not found")
                                 }
+                                // ws = webSocket
                                 return@runCatching
+                            } else if (type == "auth/success") {
+                                Logger.d("服务链接成功")
+                                ws = webSocket
+                                EventBus.post(AutoServerConnectedEvent())
                             }
-                            val id = json.getString("id")
+                            val id = json.get("id").asString
                             callbacks[id]?.invoke(json)
                             callbacks.remove(id)
                         }.onFailure {
                             it.printStackTrace()
+                            webSocket.close(1000, it.message)
                         }
                     }
                 }
@@ -143,8 +152,9 @@ class AutoServer {
                     code: Int,
                     reason: String,
                 ) {
-                    webSocket.close(1000, null)
                     ws = null
+                    webSocket.close(1000, null)
+
                     println("WebSocket closing: $code / $reason")
                 }
 
@@ -153,6 +163,7 @@ class AutoServer {
                     code: Int,
                     reason: String,
                 ) {
+                    ws = null
                     println("WebSocket closed: $code / $reason")
 
                     EventBus.post(AutoServiceErrorEvent(AutoServiceException("WebSocket closed: $code / $reason")))
@@ -163,7 +174,6 @@ class AutoServer {
                     t: Throwable,
                     response: Response?,
                 ) {
-                    System.err.println("WebSocket error: " + t.message)
                     Logger.e("WebSocket error: " + t.message, t)
                     EventBus.post(AutoServiceErrorEvent(AutoServiceException(t.message ?: "WebSocket error")))
                 }
@@ -215,10 +225,15 @@ class AutoServer {
         }
 
     fun getToken(): String {
-        val file = File(AppUtils.getApplication().externalCacheDir!!.absolutePath + "/token.txt")
+        val file = File(AppUtils.getApplication().externalCacheDir!!.absolutePath + "/../token.txt")
+        Logger.i("Token file path: ${file.absolutePath}")
         if (file.exists()) {
             return file.readText()
         }
         return ""
+    }
+
+    fun isConnected(): Boolean {
+        return ws != null
     }
 }

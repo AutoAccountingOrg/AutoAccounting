@@ -72,7 +72,7 @@ class FloatEditorDialog(
     private var rawChooseDebt = ""
     private var rawChooseReimbursement = ""
 
-    private var child = ArrayList<BillInfo>()
+    private var child: ArrayList<BillInfo>? = null
 
     private val onBillUpdateEvent = { event: BillUpdateEvent ->
         child = event.child

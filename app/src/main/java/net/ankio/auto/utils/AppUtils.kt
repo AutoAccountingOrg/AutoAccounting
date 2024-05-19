@@ -40,7 +40,6 @@ import com.quickersilver.themeengine.ThemeEngine
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.app.model.AppInfo
 import net.ankio.auto.ui.activity.MainActivity
@@ -70,9 +69,6 @@ object AppUtils {
     fun setApplication(application: Application) {
         this.application = application
         server = AutoServer()
-        scope.launch {
-            server.connect()
-        }
     }
 
     fun getProcessName(): String {
@@ -196,7 +192,7 @@ object AppUtils {
      * 获取debug状态
      */
     fun getDebug(): Boolean {
-        return SpUtils.getBoolean("debug", false)
+        return BuildConfig.DEBUG || SpUtils.getBoolean("debug", false)
     }
 
     /**

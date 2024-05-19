@@ -11,6 +11,7 @@
 #include "../common.h"
 #include "../base64/include/base64.hpp"
 #include <random>
+#include <sys/stat.h>
 
 WebSocketServer::WebSocketServer(int port) {
     initToken();
@@ -54,6 +55,9 @@ void WebSocketServer::onClose(ws_cli_conn_t *client) {
 void WebSocketServer::onMessage(ws_cli_conn_t *client,
                                 const unsigned char *msg, uint64_t size, int type) {
 
+
+
+
     try {
         Json::Value json;
         Json::Reader reader;
@@ -61,7 +65,7 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
             printf("json parse error\n");
             return;
         }
-
+        printf("recived: %s\n", json.toStyledString().c_str());
 
         std::string message_id = json["id"].asString();
         std::string message_type = json["type"].asString();
@@ -71,14 +75,17 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
 
         Json::Value ret;
         if (message_type == "auth") {
+
+
             if (json["data"].asString() != token) {
-                printf("token error\n");
+                printf("token error %s\n",json["data"].asString().c_str());
+                printf("token error %s\n",token.c_str());
                 publishToken();
                 ws_close_client(client);
                 return;
             }
             clients[client] = true;
-            ret["type"] = "auth";
+            ret["type"] = "auth/success";
             ret["id"] = message_id;
             ret["data"] = "OK";
             ws_sendframe_txt(client, ret.toStyledString().c_str());
@@ -391,7 +398,7 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
     }
 
 
-    ws_sendframe_txt(client, "hello");
+  //ws_sendframe_txt(client, "hello");
 
 
 }
@@ -415,6 +422,9 @@ void WebSocketServer::initToken() {
         fgets(buf, 1024, file);
         token = buf;
     }
+
+    trim(token);
+
     fclose(file);
 
     publishToken();
@@ -435,6 +445,7 @@ void WebSocketServer::publishToken() {
             FILE *appFile = fopen(path.c_str(), "w");
             fprintf(appFile, "%s", token.c_str());
             fclose(appFile);
+            chmod(path.c_str(), 0777);
         }
         fclose(appsFile);
     }

@@ -49,16 +49,7 @@ void DbManager::initTable() {
             "name TEXT,"
             "mapName TEXT"
             ");",
-            "CREATE TABLE IF NOT EXISTS appData ("
-            "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-            "data TEXT,"
-            "source TEXT,"
-            "time INTEGER,"
-            "match INTEGER,"
-            "rule TEXT,"
-            "issue INTEGER,"
-            "type INTEGER"
-            ");",
+
             "CREATE TABLE IF NOT EXISTS billInfo ("
             "id INTEGER PRIMARY KEY AUTOINCREMENT,"
             "type INTEGER,"
@@ -94,16 +85,7 @@ void DbManager::initTable() {
             "sort INTEGER,"
             "type INTEGER"
             ");",
-            "CREATE TABLE IF NOT EXISTS appData ("
-            "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-            "data TEXT,"
-            "source TEXT,"
-            "time INTEGER,"
-            "match INTEGER,"
-            "rule TEXT,"
-            "issue INTEGER,"
-            "type INTEGER"
-            ");",
+
             "CREATE TABLE IF NOT EXISTS customRule ("
             "id INTEGER PRIMARY KEY AUTOINCREMENT,"
             "use INTEGER,"
@@ -118,6 +100,7 @@ void DbManager::initTable() {
             "date TEXT," //日志日期
             "app TEXT," //来源app
             "hook INTEGER,"//区分是否为hook
+            "level INTEGER,"//区分是否为hook
             "thread TEXT,"//当前在哪个线程
             "line TEXT,"//在哪一行
             "log TEXT"//日志具体内容

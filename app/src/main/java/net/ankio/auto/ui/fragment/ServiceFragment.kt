@@ -22,7 +22,6 @@ import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.core.app.ActivityCompat.finishAffinity
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.hjq.toast.Toaster
 import kotlinx.coroutines.Dispatchers
@@ -34,22 +33,27 @@ import net.ankio.auto.databinding.DialogProgressBinding
 import net.ankio.auto.databinding.FragmentServiceBinding
 import net.ankio.auto.events.AutoServerConnectedEvent
 import net.ankio.auto.exceptions.UnsupportedDeviceException
-import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.event.EventBus
+import net.ankio.auto.utils.server.AutoServer
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
+import java.net.InetSocketAddress
+import java.net.Socket
 
 class ServiceFragment : BaseFragment() {
     private lateinit var binding: FragmentServiceBinding
     private lateinit var shell: String
     private var cacheDir: File? = null
 
+    private var connected = false
+
     private val onConnectedListener = { event: AutoServerConnectedEvent ->
-        findNavController().navigate(R.id.homeFragment)
+        connected = true
+        // findNavController().navigate(R.id.homeFragment)
         requireActivity().recreate()
     }
 
@@ -77,17 +81,12 @@ class ServiceFragment : BaseFragment() {
     }
 
     private fun initView() {
-        val loading = LoadingUtils(requireActivity())
-        loading.setText(R.string.wait_shell_update)
         lifecycleScope.launch {
             cacheDir = AppUtils.getApplication().externalCacheDir
             if (cacheDir === null) {
                 throw UnsupportedDeviceException(getString(R.string.unsupport_device))
             }
             AppUtils.getService().copyAssets()
-            withContext(Dispatchers.Main) {
-                loading.close()
-            }
         }
         shell = "sh ${cacheDir!!.path}/shell/starter.sh"
 
@@ -108,6 +107,31 @@ class ServiceFragment : BaseFragment() {
                 }
             },
         )
+
+        lifecycleScope.launch {
+            // 检测52045端口是否开放
+            val host = AutoServer.HOST
+            val port = AutoServer.PORT
+            while (!isPortOpen(host, port, 500)) {
+                delay(1000)
+            }
+            AppUtils.getService().connect()
+        }
+    }
+
+    fun isPortOpen(
+        host: String,
+        port: Int,
+        timeout: Int,
+    ): Boolean {
+        return try {
+            Socket().use { socket ->
+                socket.connect(InetSocketAddress(host, port), timeout)
+                true
+            }
+        } catch (e: Exception) {
+            false
+        }
     }
 
     private fun startServerByRoot() {
