@@ -305,7 +305,7 @@
     <string name="sync_assets_success">已同步资产数据</string>
     <string name="update_process">更新中...</string>
     <string name="update_rule">更新自动记账识别规则中...</string>
-    <string name="update_category">更新自动自己识别规则中</string>
+    <string name="update_category">更新自动分类规则中</string>
     <string name="no_data">无数据</string>
     <string name="input_keywords">请输入关键词</string>
     <string name="str_replace">数据替换</string>

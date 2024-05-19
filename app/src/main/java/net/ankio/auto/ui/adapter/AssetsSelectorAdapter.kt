@@ -17,9 +17,9 @@ package net.ankio.auto.ui.adapter
 
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
-import net.ankio.auto.database.table.Assets
 import net.ankio.auto.databinding.AdapterAssetsBinding
 import net.ankio.auto.utils.ImageUtils
+import net.ankio.auto.utils.server.model.Assets
 
 class AssetsSelectorAdapter(
     override val dataItems: List<Assets>,

@@ -17,9 +17,9 @@ package net.ankio.auto.ui.adapter
 
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
-import net.ankio.auto.database.table.BookName
 import net.ankio.auto.databinding.AdapterBookBinding
 import net.ankio.auto.utils.ImageUtils
+import net.ankio.auto.utils.server.model.BookName
 
 class BookSelectorAdapter(
     override val dataItems: List<BookName>,

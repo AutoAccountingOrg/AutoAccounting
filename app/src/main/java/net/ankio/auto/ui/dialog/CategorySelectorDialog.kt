@@ -25,10 +25,9 @@ import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import net.ankio.auto.database.Db
-import net.ankio.auto.database.table.Category
 import net.ankio.auto.databinding.DialogCategorySelectBinding
 import net.ankio.auto.ui.adapter.CategorySelectorAdapter
+import net.ankio.auto.utils.server.model.Category
 import net.ankio.common.constant.BillType
 
 /**
@@ -227,15 +226,11 @@ class CategorySelectorDialog(
 
         // 从数据库加载类别
         lifecycleScope.launch {
-            val newData =
-                withContext(Dispatchers.IO) {
-                    // 加载指定类型的所有分类，只加载父类
-                    Db.get().CategoryDao().loadAll(book, type.toInt(), -1)
-                }
+            val newData = Category.getAll(book, type.toInt(), -1)
             val defaultCategory = Category()
             defaultCategory.name = "其他"
             val collection =
-                newData?.mapNotNull { it }?.takeIf { it.isNotEmpty() } ?: listOf(defaultCategory)
+                newData.map { it }.takeIf { it.isNotEmpty() } ?: listOf(defaultCategory)
             totalItems = collection.size
             withContext(Dispatchers.Main) {
                 items.addAll(collection)

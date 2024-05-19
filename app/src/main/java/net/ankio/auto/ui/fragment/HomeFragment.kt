@@ -41,11 +41,11 @@ import net.ankio.auto.ui.dialog.CategorySelectorDialog
 import net.ankio.auto.ui.utils.MenuItem
 import net.ankio.auto.utils.ActiveUtils
 import net.ankio.auto.utils.AppUtils
-import net.ankio.auto.utils.AutoAccountingServiceUtils
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.SpUtils
 import net.ankio.auto.utils.event.EventBus
+import net.ankio.auto.utils.server.model.Category
 import rikka.html.text.toHtml
 
 /**
@@ -118,10 +118,9 @@ class HomeFragment : BaseFragment() {
      */
     private fun bindBookAppUI() {
         lifecycleScope.launch {
-            AutoAccountingServiceUtils.config(requireContext()).let {
-                binding.book.visibility = if (it.multiBooks) View.VISIBLE else View.GONE
-                binding.assets.visibility = if (it.assetManagement) View.VISIBLE else View.GONE
-            }
+            val config = AppUtils.getService().config()
+            binding.book.visibility = if (config.multiBooks) View.VISIBLE else View.GONE
+            binding.assets.visibility = if (config.assetManagement) View.VISIBLE else View.GONE
         }
         SpUtils.getString("bookApp", "").apply {
             if (this.isEmpty()) {
@@ -165,7 +164,7 @@ class HomeFragment : BaseFragment() {
 
     private val onUpdateRule = { event: UpdateSuccessEvent ->
         Toaster.show(R.string.update_success)
-        refreshUI()
+        bindRuleUI()
     }
 
     private fun bindRuleEvents() {
@@ -214,7 +213,7 @@ class HomeFragment : BaseFragment() {
         binding.readCategory.setOnClickListener {
             BookSelectorDialog(themeContext) {
                 BookInfoDialog(themeContext, it) { type ->
-                    CategorySelectorDialog(themeContext, it.id, type) { category1, category2 ->
+                    CategorySelectorDialog(themeContext, it.id, type) { category1: Category?, category2: Category? ->
                         Logger.i("选择的分类是：${category1?.name ?: ""} - ${category2?.name ?: ""}")
                     }.show(cancel = true)
                 }.show(cancel = true)

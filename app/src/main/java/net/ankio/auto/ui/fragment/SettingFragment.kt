@@ -20,14 +20,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.constant.FloatEvent
 import net.ankio.auto.constant.ItemType
 import net.ankio.auto.databinding.FragmentSettingBinding
 import net.ankio.auto.setting.SettingItem
 import net.ankio.auto.setting.SettingUtils
-import net.ankio.auto.utils.AppUtils
 
 class SettingFragment : BaseFragment() {
     private lateinit var binding: FragmentSettingBinding
@@ -79,11 +77,6 @@ class SettingFragment : BaseFragment() {
                 type = ItemType.SWITCH,
                 default = true,
                 icon = R.drawable.setting_icon_repeat,
-                onSavedValue = { value, activity ->
-                    AppUtils.getScope().launch {
-                        AppUtils.getService().set("setting_bill_repeat", value.toString())
-                    }
-                },
             ),
             // 悬浮窗
             SettingItem(R.string.setting_float),

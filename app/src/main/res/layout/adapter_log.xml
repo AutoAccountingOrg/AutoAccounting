@@ -3,6 +3,24 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/app"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingTop="@dimen/one_padding"
+        android:paddingBottom="@dimen/one_padding"
+        android:paddingLeft="@dimen/padding"
+        android:paddingRight="@dimen/padding"
+        android:background="@drawable/border"
+        android:ellipsize="end"
+        android:layout_gravity="center"
+        android:maxLines="1"
+        android:text="自动记账"
+        android:textSize="10sp"
+        android:textStyle="bold"/>
+
     <LinearLayout
         android:id="@+id/header"
         android:layout_width="match_parent"
@@ -57,6 +75,7 @@
             android:textSize="10sp"
             android:textStyle="bold" />
     </LinearLayout>
+
     <TextView
         android:id="@+id/log"
         android:layout_width="match_parent"

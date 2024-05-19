@@ -33,8 +33,6 @@ import net.ankio.auto.app.BillUtils
 import net.ankio.auto.app.js.Engine
 import net.ankio.auto.constant.DataType
 import net.ankio.auto.constant.toDataType
-import net.ankio.auto.database.Db
-import net.ankio.auto.database.table.AppData
 import net.ankio.auto.databinding.FragmentDataBinding
 import net.ankio.auto.databinding.SettingItemInputBinding
 import net.ankio.auto.ui.adapter.DataAdapter
@@ -44,10 +42,10 @@ import net.ankio.auto.ui.dialog.FloatEditorDialog
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.MenuItem
 import net.ankio.auto.utils.AppUtils
-import net.ankio.auto.utils.AutoAccountingServiceUtils
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.Github
 import net.ankio.auto.utils.SpUtils
+import net.ankio.auto.utils.server.model.AppData
 
 class DataFragment : BaseFragment() {
     private lateinit var binding: FragmentDataBinding
@@ -86,7 +84,7 @@ class DataFragment : BaseFragment() {
                 },
                 onClickTest = { item ->
                     lifecycleScope.launch {
-                        val result = Engine.analyze(item.type, item.source, item.data)
+                        val result = Engine.analyze(item.type, item.source, item.data, false)
                         if (result == null) {
                             // 弹出悬浮窗
                             Toaster.show(R.string.no_match)
@@ -94,7 +92,7 @@ class DataFragment : BaseFragment() {
                             val tpl = SpUtils.getString("setting_bill_remark", "【商户名称】 - 【商品名称】")
                             result.remark = BillUtils.getRemark(result, tpl)
                             BillUtils.setAccountMap(result)
-                            AutoAccountingServiceUtils.config(requireContext()).let {
+                            AppUtils.getService().config().let {
                                 FloatEditorDialog(requireActivity(), result, it).show(float = false)
                             }
                         }
@@ -184,7 +182,7 @@ $data
                                             },
                                         )
                                     }
-                                    Db.get().AppDataDao().update(item)
+                                    AppData.put(item)
                                 }.onFailure {
                                     withContext(Dispatchers.Main) {
                                         Toaster.show(it.message)
@@ -217,24 +215,10 @@ $data
         loading.show(R.string.loading)
         lifecycleScope.launch {
             withContext(Dispatchers.IO) {
-                val data = AutoAccountingServiceUtils.get("data", requireContext())
-                val allAppData = Db.get().AppDataDao().loadAll()
-                val collection: Collection<AppData> = AppData.fromTxt(data)
-
-                val filteredCollection =
-                    collection.filter { item ->
-                        allAppData.none { it.hash() == item.hash() }
-                    }
-
-                Db.get().AppDataDao().addList(filteredCollection)
-                Db.get().AppDataDao().deleteLast500()
-
-                // 处理完成再删
-                AutoAccountingServiceUtils.delete("data", requireContext())
+                val dataList = AppData.get(500)
 
                 val resultList = mutableListOf<AppData>()
-                resultList.addAll(allAppData)
-                resultList.addAll(filteredCollection)
+                resultList.addAll(dataList)
 
                 // 在这里处理搜索逻辑
                 val resultSearch =

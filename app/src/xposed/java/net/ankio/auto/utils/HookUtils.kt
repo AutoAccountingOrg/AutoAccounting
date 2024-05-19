@@ -18,7 +18,6 @@ package net.ankio.auto.utils
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
-import android.util.Base64
 import android.widget.Toast
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
@@ -31,11 +30,12 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.HookMainApp
 import net.ankio.auto.app.js.Engine
-import net.ankio.auto.database.table.AppData
 import net.ankio.auto.exceptions.AutoServiceException
+import net.ankio.auto.utils.server.AutoServer
+import net.ankio.auto.utils.server.model.LogModel
 
 class HookUtils(val context: Application, private val packageName: String) {
-    private var autoAccountingServiceUtils: AutoAccountingServiceUtils
+    private var autoServer: AutoServer
 
     private val loadClazz = HashMap<String, Class<*>>()
 
@@ -47,7 +47,8 @@ class HookUtils(val context: Application, private val packageName: String) {
         )
 
         AppUtils.setApplication(context)
-        autoAccountingServiceUtils = AppUtils.setService(context)
+        autoServer = AutoServer()
+        autoServer.connect()
         XposedBridge.hookAllMethods(
             ClassLoader::class.java,
             "loadClass",
@@ -101,17 +102,27 @@ class HookUtils(val context: Application, private val packageName: String) {
         log: String,
     ) = withContext(Dispatchers.IO) {
         if (isDebug()) {
-            log(prefix, log)
+            log(prefix ?: "", log)
         }
     }
 
     // 正常输出日志
     suspend fun log(
-        prefix: String?,
+        prefix: String,
         log: String,
     ) = withContext(Dispatchers.IO) {
         runCatching {
-            autoAccountingServiceUtils.putLog("$prefix：$log")
+            LogModel.put(
+                LogModel().apply {
+                    this.app = packageName
+                    this.hook = 1
+                    this.date = DateUtils.getTime(System.currentTimeMillis())
+                    this.log = log
+                    this.level = LogModel.LOG_LEVEL_INFO
+                    this.thread = Thread.currentThread().name
+                    this.line = prefix
+                },
+            )
         }.onFailure {
             XposedBridge.log(it)
             startAutoApp(AutoServiceException(it.message.toString()), context)
@@ -135,29 +146,7 @@ class HookUtils(val context: Application, private val packageName: String) {
     ) = withContext(Dispatchers.IO) {
         runCatching {
             log(HookMainApp.getTag(appName, "数据分析"), data)
-            val billInfo = Engine.analyze(dataType, app, data)
-            val appData = AppData()
-            appData.issue = 0
-            appData.type = dataType
-            appData.rule = billInfo?.channel ?: ""
-            appData.source = app
-            appData.data = data
-            appData.match = billInfo != null
-            appData.time = System.currentTimeMillis()
-
-            // 先存到server的数据库里面
-            val billData = appData.toText()
-
-            log(HookMainApp.getTag(appName, "分析结果"), "$billInfo")
-
-            autoAccountingServiceUtils.putData(billData)
-
-            // 从外部启动自动记账服务，这里需要处理队列问题
-
-            // logD(HookMainApp.getTag(appName, "自动记账结果"), appData.toJSON())
-            if (billInfo != null) {
-                autoAccountingServiceUtils.startApp(Base64.encodeToString(billInfo.toJSON().toByteArray(), Base64.NO_WRAP))
-            }
+            Engine.analyze(dataType, app, data, true)
         }.onFailure {
             it.printStackTrace()
             it.message?.let { it1 ->

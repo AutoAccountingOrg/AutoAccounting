@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 ankio(ankio@ankio.net)
+ * Copyright (C) 2024 ankio(ankio@ankio.net)
  * Licensed under the Apache License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,32 +12,25 @@
  *  See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package net.ankio.auto.database.table
+package net.ankio.auto.utils.server.model
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
 import com.google.gson.Gson
-import net.ankio.auto.app.BillUtils
-import net.ankio.auto.constant.DataType
-import net.ankio.common.constant.BillType
-import net.ankio.common.constant.Currency
-import net.ankio.common.model.AutoBillModel
+import com.google.gson.JsonArray
+import net.ankio.auto.utils.AppUtils
 
-@Entity
 class BillInfo {
     // 账单列表
-    @PrimaryKey(autoGenerate = true)
     var id = 0
 
     /**
      * 账单类型 只有三种
      */
-    var type: BillType = BillType.Expend
+    var type: Int = 0
 
     /**
      * 币种类型
      */
-    var currency: Currency = Currency.CNY
+    var currency: String = ""
 
     /**
      * 金额 大于0
@@ -91,14 +84,14 @@ class BillInfo {
     var accountNameTo = ""
 
     /**
-     * 这笔账单的来源
+     * 这笔账单的来源,例如是微信还是支付宝
      */
     var from = ""
 
     /**
-     * 来源类型
+     * 来源类型，app、无障碍、通知、短信
      */
-    var fromType: DataType = DataType.App
+    var fromType: Int = 0
 
     /**
      * 分组id，这个id是指将短时间内捕获到的同等金额进行合并的分组id
@@ -119,52 +112,6 @@ class BillInfo {
      * 备注信息
      */
     var remark: String = ""
-
-    fun toJSON(): String {
-        return Gson().toJson(this)
-    }
-
-    fun toAutoBillModel(): AutoBillModel {
-        return AutoBillModel(
-            type = type.ordinal,
-            currency = currency,
-            amount = BillUtils.getFloatMoney(money),
-            fee = BillUtils.getFloatMoney(fee),
-            timeStamp = timeStamp,
-            cateName = cateName,
-            extendData = extendData,
-            bookName = bookName,
-            accountNameFrom = accountNameFrom,
-            accountNameTo = accountNameTo,
-            remark = remark,
-        )
-    }
-
-    override fun toString(): String {
-        return """
-            BillInfo(
-                id=$id, 
-                type=$type, 
-                currency=$currency, 
-                money=$money, 
-                fee=$fee, 
-                timeStamp=$timeStamp, 
-                shopName='$shopName', 
-                shopItem='$shopItem', 
-                cateName='$cateName', 
-                extendData='$extendData', 
-                bookName='$bookName', 
-                accountNameFrom='$accountNameFrom', 
-                accountNameTo='$accountNameTo', 
-                from='$from', 
-                fromType=$fromType, 
-                groupId=$groupId, 
-                channel='$channel', 
-                syncFromApp=$syncFromApp, 
-                remark='$remark'
-            )
-            """.trimIndent()
-    }
 
     fun copy(): BillInfo {
         val billInfo = BillInfo()
@@ -191,8 +138,39 @@ class BillInfo {
     }
 
     companion object {
-        fun fromJSON(json: String): BillInfo {
-            return Gson().fromJson(json, BillInfo::class.java)
+        suspend fun put(billInfo: BillInfo): Int {
+            return AppUtils.getService().sendMsg("bill/put", billInfo) as Int
+        }
+
+        suspend fun getBillListGroup(limit: Int = 500): List<Pair<String, String>> {
+            val data = AppUtils.getService().sendMsg("bill/list/group", mapOf("limit" to limit)) as JsonArray
+            val array = ArrayList<Pair<String, String>>()
+            data.forEach {
+                val obj = it.asJsonObject
+                val date = obj.get("date").asString
+                val ids = obj.get("ids").asString
+                array.add(Pair(date, ids))
+            }
+            return array
+        }
+
+        suspend fun getBillByIds(ids: String): Array<BillInfo> {
+            val data = AppUtils.getService().sendMsg("bill/list/id", mapOf("ids" to ids))
+            return data as Array<BillInfo>
+        }
+
+        suspend fun getBillByGroup(group: Int): Array<BillInfo> {
+            val data = AppUtils.getService().sendMsg("bill/list/child", mapOf("groupId" to group))
+            return data as Array<BillInfo>
+        }
+
+        fun fromJSON(value: String): BillInfo {
+            return Gson().fromJson(value, BillInfo::class.java)
+        }
+
+        suspend fun getAllParents(): Array<BillInfo> {
+            val data = AppUtils.getService().sendMsg("bill/list/parent", null)
+            return data as Array<BillInfo>
         }
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 ankio(ankio@ankio.net)
+ * Copyright (C) 2024 ankio(ankio@ankio.net)
  * Licensed under the Apache License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,6 +13,9 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.database.data
+package net.ankio.auto.events
 
-data class FlowElementList(val list: MutableList<HashMap<String, Any>>)
+import net.ankio.auto.utils.event.Event
+import net.ankio.auto.utils.server.model.BillInfo
+
+class BillUpdateEvent(val billInfo: BillInfo, val child: ArrayList<BillInfo>?) : Event()

@@ -31,12 +31,11 @@ import net.ankio.auto.events.AutoServiceErrorEvent
 import net.ankio.auto.events.UpdateFinishEvent
 import net.ankio.auto.exceptions.AutoServiceException
 import net.ankio.auto.ui.utils.LoadingUtils
-import net.ankio.auto.utils.AppUtils
-import net.ankio.auto.utils.AutoAccountingServiceUtils
 import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.SpUtils
 import net.ankio.auto.utils.event.EventBus
 import net.ankio.auto.utils.request.RequestsUtils
+import net.ankio.auto.utils.server.model.SettingModel
 import rikka.html.text.toHtml
 
 class UpdateDialog(
@@ -107,14 +106,26 @@ class UpdateDialog(
             updateLoadingUtils(R.string.update_rule)
             val result = requestUtils.get(rule, cacheTime = 0)
             String(result.byteArray).let {
-                AppUtils.getService().set("auto_rule", it)
+                SettingModel.set(
+                    SettingModel().apply {
+                        app = "server"
+                        key = "rule_js"
+                        value = it
+                    },
+                )
             }
             updateLoadingUtils(R.string.update_category)
             // 分类更新
             val result2 = requestUtils.get(category, cacheTime = 0)
             // 规则更新
             String(result2.byteArray).let {
-                AppUtils.getService().set("auto_category", it)
+                SettingModel.set(
+                    SettingModel().apply {
+                        app = "server"
+                        key = "official_cate_js"
+                        value = it
+                    },
+                )
             }
         }.onFailure {
             if (it is AutoServiceException) {
@@ -129,7 +140,6 @@ class UpdateDialog(
         }.onSuccess {
             SpUtils.putString("ruleVersionName", version)
             SpUtils.putInt("ruleVersion", code)
-            AutoAccountingServiceUtils.set("ruleVersion", code.toString(), context)
             withContext(Dispatchers.Main) {
                 EventBus.post(UpdateFinishEvent())
             }

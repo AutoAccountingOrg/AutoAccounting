@@ -16,28 +16,44 @@
 package net.ankio.auto.hooks.auto.hooks
 
 import android.content.Context
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
+import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XC_MethodReplacement
+import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.api.Hooker
 import net.ankio.auto.api.PartHooker
-import net.ankio.auto.database.table.AssetsMap
-
+import java.lang.reflect.Field
 
 class ActiveHooker(hooker: Hooker) : PartHooker(hooker) {
     override val hookName: String
         get() = "自动记账激活"
-    override fun onInit(classLoader: ClassLoader, context: Context) {
+
+    override fun onInit(
+        classLoader: ClassLoader,
+        context: Context,
+    ) {
         val activeUtils = XposedHelpers.findClass("net.ankio.auto.utils.ActiveUtils", classLoader)
         // hook激活方法
         XposedHelpers.findAndHookMethod(
             activeUtils,
             "getActiveAndSupportFramework",
             Context::class.java,
-            XC_MethodReplacement.returnConstant(true)
+            XC_MethodReplacement.returnConstant(true),
         )
-
-
+        XposedHelpers.findAndHookMethod(
+            activeUtils,
+            "getFramework",
+            Context::class.java,
+            object : XC_MethodHook() {
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    // 获取TAG字段
+                    val tagField: Field = XposedBridge::class.java.getDeclaredField("TAG")
+                    // 设置字段可访问
+                    tagField.isAccessible = true
+                    // 获取TAG字段的值
+                    param.result = tagField.get(null) as String
+                }
+            },
+        )
     }
 }

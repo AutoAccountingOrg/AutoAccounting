@@ -15,51 +15,100 @@
 
 package net.ankio.auto.utils
 
-import android.content.Context
-import android.content.SharedPreferences
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import net.ankio.auto.utils.server.model.SettingModel
 
 object SpUtils {
-    private const val NAME = "config"
-    private val sp: SharedPreferences? =
-        AppUtils.getApplication().getSharedPreferences(NAME, Context.MODE_PRIVATE)
+    val sp = AppUtils.getApplication().getSharedPreferences("setting", 0)
+
+    fun putBooleanRemote(
+        key: String,
+        value: Boolean,
+    ) {
+        put(key, value)
+    }
+
+    private fun put(
+        key: String,
+        value: Any,
+    ) {
+        SettingModel.set(
+            SettingModel().apply {
+                app = AppUtils.getApplication().packageName
+                this.key = key
+                this.value = value.toString()
+            },
+        )
+    }
+
+    private suspend fun get(key: String): String {
+        return withContext(Dispatchers.IO) {
+            SettingModel.get(AppUtils.getApplication().packageName, key)
+        }
+    }
+
+    suspend fun getBooleanRemote(key: String): Boolean = get(key).toBoolean()
 
     fun putBoolean(
         key: String,
         value: Boolean,
-    ) = sp?.edit()?.putBoolean(key, value)?.apply()
+    ) {
+        sp.edit().putBoolean(key, value).apply()
+    }
 
     fun getBoolean(
         key: String,
-        result: Boolean = false,
-    ) = sp?.getBoolean(key, result) ?: result
+        default: Boolean,
+    ): Boolean = sp.getBoolean(key, default)
+
+    fun putStringRemote(
+        key: String,
+        value: String,
+    ) {
+        put(key, value)
+    }
 
     fun putString(
         key: String,
         value: String,
-    ) = sp?.edit()?.putString(key, value)?.apply()
+    ) {
+        sp.edit().putString(key, value).apply()
+    }
 
     fun getString(
         key: String,
-        result: String? = "",
-    ): String = sp?.getString(key, result) ?: ""
+        default: String? = "",
+    ): String = sp.getString(key, default) ?: ""
+
+    suspend fun getStringRemote(
+        key: String,
+        default: String? = "",
+    ): String = get(key) ?: default ?: ""
+
+    fun putIntRemote(
+        key: String,
+        value: Int,
+    ) {
+        put(key, value)
+    }
+
+    suspend fun getIntRemote(
+        key: String,
+        default: Int = 0,
+    ): Int = get(key).toIntOrNull() ?: default
+
+    fun getInt(
+        key: String,
+        default: Int = 0,
+    ): Int {
+        return sp.getInt(key, default)
+    }
 
     fun putInt(
         key: String,
         value: Int,
-    ) = sp?.edit()?.putInt(key, value)?.apply()
-
-    fun getInt(
-        key: String,
-        result: Int = 0,
-    ): Int = sp?.getInt(key, result) ?: result
-
-    fun putLong(
-        key: String,
-        value: Long,
-    ) = sp?.edit()?.putLong(key, value)?.apply()
-
-    fun getLong(
-        key: String,
-        result: Long = 0,
-    ): Long = sp?.getLong(key, result) ?: result
+    ) {
+        sp.edit().putInt(key, value).apply()
+    }
 }

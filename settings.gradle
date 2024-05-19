@@ -29,6 +29,5 @@ rootProject.name = "AutoAccounting"
 include 'common'
 include ':app'
 include ':sdk'
-include ':demo'
 include ':dex'
 include ':server'

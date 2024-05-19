@@ -28,29 +28,27 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.core.widget.TextViewCompat
 import androidx.lifecycle.lifecycleScope
-import com.google.gson.Gson
 import com.hjq.toast.Toaster
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.app.BillUtils
-import net.ankio.auto.database.Db
-import net.ankio.auto.database.table.Assets
-import net.ankio.auto.database.table.AssetsMap
-import net.ankio.auto.database.table.BillInfo
-import net.ankio.auto.database.table.BookName
-import net.ankio.auto.database.table.Category
 import net.ankio.auto.databinding.FloatEditorBinding
 import net.ankio.auto.events.AutoServiceErrorEvent
+import net.ankio.auto.events.BillUpdateEvent
 import net.ankio.auto.exceptions.AutoServiceException
 import net.ankio.auto.ui.componets.IconView
-import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.DateUtils
 import net.ankio.auto.utils.ListPopupUtils
 import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.SpUtils
 import net.ankio.auto.utils.event.EventBus
+import net.ankio.auto.utils.server.model.Assets
+import net.ankio.auto.utils.server.model.AssetsMap
+import net.ankio.auto.utils.server.model.BillInfo
+import net.ankio.auto.utils.server.model.BookName
+import net.ankio.auto.utils.server.model.Category
 import net.ankio.common.config.AccountingConfig
 import net.ankio.common.constant.BillType
 import net.ankio.common.constant.Currency
@@ -63,6 +61,7 @@ class FloatEditorDialog(
     private val autoAccountingConfig: AccountingConfig,
     private val float: Boolean = false,
     private val onlyShow: Boolean = false, // 是否仅展示
+    private val onClose: (() -> Unit)? = null,
 ) :
     BaseSheetDialog(context) {
     lateinit var binding: FloatEditorBinding
@@ -73,13 +72,22 @@ class FloatEditorDialog(
     private var rawChooseDebt = ""
     private var rawChooseReimbursement = ""
 
+    private var child = ArrayList<BillInfo>()
+
+    private val onBillUpdateEvent = { event: BillUpdateEvent ->
+        child = event.child
+        val billInfo = event.billInfo
+        Logger.i("onBillUpdateEvent => $billInfo")
+    }
+
     override fun onCreateView(inflater: LayoutInflater): View {
+        EventBus.register(BillUpdateEvent::class.java, onBillUpdateEvent)
         binding = FloatEditorBinding.inflate(inflater)
         cardView = binding.editorCard
 
         Logger.d("原始账单结果 => $rawBillInfo")
-        billTypeLevel1 = rawBillInfo.type
-        billTypeLevel2 = rawBillInfo.type
+        billTypeLevel1 = BillType.fromInt(rawBillInfo.type)
+        billTypeLevel2 = BillType.fromInt(rawBillInfo.type)
         binding.radioContainer.check(binding.radioNone.id)
         //   billInfo.remark = BillUtils.getRemark(billInfo)
         rawChooseDebt = binding.chooseDebt.text.toString()
@@ -111,7 +119,7 @@ class FloatEditorDialog(
             this.type = billInfo.type
             this.fee = billInfo.fee
             this.bookName = billInfo.bookName
-            this.type = billTypeLevel2
+            this.type = billTypeLevel2.value
 
             when (billTypeLevel2) {
                 BillType.Expend -> {
@@ -172,6 +180,12 @@ class FloatEditorDialog(
         }
     }
 
+    override fun dismiss() {
+        super.dismiss()
+        onClose?.invoke()
+        EventBus.unregister(BillUpdateEvent::class.java, onBillUpdateEvent)
+    }
+
     private fun bindingButtonsEvents() {
         // 关闭按钮
         binding.cancelButton.setOnClickListener {
@@ -185,7 +199,7 @@ class FloatEditorDialog(
 
             lifecycleScope.launch {
                 runCatching {
-                    BillUtils.groupBillInfo(bill)
+                    BillUtils.groupBillInfo(bill, child)
                     if (SpUtils.getBoolean("setting_book_success", true)) {
                         Toaster.show(
                             context.getString(
@@ -217,15 +231,14 @@ class FloatEditorDialog(
                             ).any { it.visibility == View.VISIBLE } && rawBillInfo.accountNameFrom != "" && rawBillInfo.accountNameFrom != bill.accountNameFrom
                         ) {
                             withContext(Dispatchers.IO) {
-                                if (Db.get().AssetsDao().get(rawBillInfo.accountNameFrom) == null)
-                                    {
-                                        Db.get().AssetsMapDao().insert(
-                                            AssetsMap().apply {
-                                                this.name = rawBillInfo.accountNameFrom
-                                                this.mapName = bill.accountNameFrom
-                                            },
-                                        )
-                                    }
+                                if (Assets.getByName(rawBillInfo.accountNameFrom) == null) {
+                                    AssetsMap.put(
+                                        AssetsMap().apply {
+                                            this.name = rawBillInfo.accountNameFrom
+                                            this.mapName = bill.accountNameFrom
+                                        },
+                                    )
+                                }
                             }
                         }
 
@@ -235,8 +248,8 @@ class FloatEditorDialog(
                             ).any { it.visibility == View.VISIBLE } && rawBillInfo.accountNameTo != "" && rawBillInfo.accountNameTo != bill.accountNameTo
                         ) {
                             withContext(Dispatchers.IO) {
-                                if (Db.get().AssetsDao().get(rawBillInfo.accountNameTo) == null) {
-                                    Db.get().AssetsMapDao().insert(
+                                if (Assets.getByName(rawBillInfo.accountNameTo) == null) {
+                                    AssetsMap.put(
                                         AssetsMap().apply {
                                             this.name = rawBillInfo.accountNameTo
                                             this.mapName = bill.accountNameTo
@@ -245,8 +258,6 @@ class FloatEditorDialog(
                                 }
                             }
                         }
-                        AppUtils.getService()
-                            .set("assets_map", Gson().toJson(Db.get().AssetsMapDao().loadAll()))
                     }
                 }.onFailure {
                     if (it is AutoServiceException) {
@@ -280,9 +291,9 @@ class FloatEditorDialog(
                 stringList,
                 billTypeLevel1,
             ) { pos, key, value ->
-                billInfo.type = value as BillType
-                billTypeLevel1 = billInfo.type
-                billTypeLevel2 = billInfo.type
+                billInfo.type = (value as BillType).value
+                billTypeLevel1 = BillType.fromInt(billInfo.type)
+                billTypeLevel2 = BillType.fromInt(billInfo.type)
                 binding.radioContainer.check(binding.radioNone.id)
                 bindUI()
             }
@@ -629,8 +640,9 @@ class FloatEditorDialog(
             binding.moneyType.visibility = View.GONE
             return
         }
-        binding.moneyType.setText(billInfo.currency.name(context))
-        binding.moneyType.setIcon(billInfo.currency.icon(context))
+        val currency = Currency.valueOf(billInfo.currency)
+        binding.moneyType.setText(currency.name(context))
+        binding.moneyType.setIcon(currency.icon(context))
     }
 
     private fun bindingMoneyTypeEvents() {
@@ -644,7 +656,7 @@ class FloatEditorDialog(
                     hashMap,
                     billInfo.currency,
                 ) { pos, key, value ->
-                    billInfo.currency = value as Currency
+                    billInfo.currency = (value as Currency).name
                     bindingMoneyTypeUI()
                 }
             popupUtils.toggle()

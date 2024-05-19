@@ -19,7 +19,6 @@ import android.content.Context
 import android.content.res.Configuration
 import android.content.res.Resources
 import androidx.core.os.ConfigurationCompat
-import androidx.core.text.HtmlCompat
 import net.ankio.auto.R
 import net.ankio.utils.LangList
 import java.util.Locale
@@ -35,15 +34,6 @@ object LanguageUtils {
 
     fun getAppLang(): String {
         return SpUtils.getString("setting_language", "SYSTEM")
-    }
-
-    fun getAppLangName(context: Context): String {
-        val language = getAppLang()
-        return if (language == "SYSTEM") {
-            context.getString(R.string.lang_follow_system)
-        } else {
-            Locale.forLanguageTag(language).displayName
-        }
     }
 
     fun setAppLanguage(language: String) {
@@ -63,30 +53,11 @@ object LanguageUtils {
         return hashMap
     }
 
-    fun getLangListName(context: Context): ArrayList<String> {
-        val languages: ArrayList<String> = ArrayList()
-        getLangList().forEach {
-            if (it == "SYSTEM") {
-                languages.add(context.getString(R.string.lang_follow_system))
-            } else {
-                val locale = Locale.forLanguageTag(it)
-                languages.add(
-                    HtmlCompat.fromHtml(
-                        locale.getDisplayName(locale),
-                        HtmlCompat.FROM_HTML_MODE_LEGACY,
-                    )
-                        .toString(),
-                )
-            }
-        }
-        return languages
-    }
-
-    fun getLangList(): Array<String> {
+    private fun getLangList(): Array<String> {
         return LangList.LOCALES.plus("zh")
     }
 
-    fun getLocale(language: String): Locale {
+    private fun getLocale(language: String): Locale {
         return if (language == "SYSTEM") getSystemLocale() else Locale(language)
     }
 

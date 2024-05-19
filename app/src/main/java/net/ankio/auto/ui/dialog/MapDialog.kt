@@ -19,17 +19,14 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import androidx.lifecycle.lifecycleScope
-import com.google.gson.Gson
 import com.hjq.toast.Toaster
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
-import net.ankio.auto.database.Db
-import net.ankio.auto.database.table.Assets
-import net.ankio.auto.database.table.AssetsMap
 import net.ankio.auto.databinding.DialogMapBinding
-import net.ankio.auto.utils.AppUtils
+import net.ankio.auto.utils.server.model.Assets
+import net.ankio.auto.utils.server.model.AssetsMap
 
 class MapDialog(
     private val context: Context,
@@ -78,14 +75,7 @@ class MapDialog(
 
             lifecycleScope.launch {
                 withContext(Dispatchers.IO) {
-                    if (assetsMap.id != 0) {
-                        Db.get().AssetsMapDao().update(assetsMap)
-                    } else {
-                        assetsMap.id = Db.get().AssetsMapDao().insert(assetsMap).toInt()
-                    }
-                    // 处理完成后同步远程数据
-                    AppUtils.getService()
-                        .set("assets_map", Gson().toJson(Db.get().AssetsMapDao().loadAll()))
+                    AssetsMap.put(assetsMap)
                 }
                 onClose(assetsMap)
                 dismiss()

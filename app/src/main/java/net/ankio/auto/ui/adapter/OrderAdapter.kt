@@ -18,11 +18,10 @@ package net.ankio.auto.ui.adapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.elevation.SurfaceColors
 import kotlinx.coroutines.launch
-import net.ankio.auto.database.table.BillInfo
 import net.ankio.auto.databinding.AdapterOrderBinding
 import net.ankio.auto.ui.dialog.BillMoreDialog
 import net.ankio.auto.ui.dialog.FloatEditorDialog
-import net.ankio.auto.utils.AutoAccountingServiceUtils
+import net.ankio.auto.utils.server.model.BillInfo
 import net.ankio.common.config.AccountingConfig
 
 class OrderAdapter(
@@ -54,9 +53,7 @@ class OrderAdapter(
                 dataInnerItems,
                 onItemChildClick = { itemBill ->
                     holder.scope.launch {
-                        AutoAccountingServiceUtils.config(context).let {
-                            FloatEditorDialog(context, itemBill, it, onlyShow = true).show(false, true)
-                        }
+                        FloatEditorDialog(context, itemBill, config, onlyShow = true).show(false, true)
                     }
                 },
                 onItemChildMoreClick = { itemBill ->

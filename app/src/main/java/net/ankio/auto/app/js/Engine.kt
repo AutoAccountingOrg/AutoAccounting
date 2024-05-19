@@ -17,16 +17,9 @@ package net.ankio.auto.app.js
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.ankio.auto.app.BillUtils
-import net.ankio.auto.constant.toDataType
-import net.ankio.auto.database.table.BillInfo
 import net.ankio.auto.utils.AppTimeMonitor
 import net.ankio.auto.utils.AppUtils
-import net.ankio.auto.utils.DateUtils
-import net.ankio.auto.utils.Logger
-import net.ankio.auto.utils.SpUtils
-import net.ankio.common.constant.BillType
-import net.ankio.common.constant.Currency
+import net.ankio.auto.utils.server.model.BillInfo
 import org.json.JSONObject
 
 object Engine {
@@ -34,106 +27,25 @@ object Engine {
         dataType: Int, // 类型
         app: String, // 来自哪个App或者手机号
         data: String, // 具体的数据
+        call: Boolean = true,
     ): BillInfo? =
         withContext(Dispatchers.IO) {
             AppTimeMonitor.startMonitoring("规则识别")
-            val billInfo = data(dataType, app, data) ?: return@withContext null
-            category(billInfo)
+
+            val json =
+                AppUtils.getService().sendMsg(
+                    "analyze",
+                    JSONObject().apply {
+                        put("type", dataType)
+                        put("app", app)
+                        put("data", data)
+                        put("call", if (call) 1 else 0)
+                    },
+                )
+
+            val billInfo = runCatching { json as BillInfo }.getOrNull()
 
             AppTimeMonitor.stopMonitoring("规则识别")
-            return@withContext billInfo
+            billInfo
         }
-
-    private fun getMoney(data: String): Int {
-        val regex = Regex("[^\\d,.]")
-        val cleanData = regex.replace(data, "") // 清除除数字、逗号和小数点之外的字符
-        val amount = cleanData.replace(",", "").toFloat() // 删除逗号并转换为浮点数
-        return BillUtils.getMoney(amount)
-    }
-
-    suspend fun data(
-        dataType: Int,
-        app: String,
-        data: String,
-    ): BillInfo? =
-        withContext(Dispatchers.IO) {
-            log("识别数据", "dataType:$dataType,app:$app,data:$data")
-            val billInfo = BillInfo()
-            try {
-                // 识别脚本补充
-                val js = "var window = {data:JSON.stringify($data), dataType:$dataType, app:\"${app}\"};<RULE>"
-                log("执行识别脚本", js)
-                val json = AppUtils.getService().rule(js)
-                log("识别结果", json)
-                if (json == "") return@withContext null
-                val jsonObject2 = JSONObject(json)
-                billInfo.type = BillType.fromInt(jsonObject2.getInt("type"))
-                billInfo.money = getMoney(jsonObject2.getString("money"))
-                billInfo.fee = getMoney(jsonObject2.getString("fee"))
-                billInfo.shopItem = jsonObject2.getString("shopItem")
-                billInfo.shopName = jsonObject2.getString("shopName")
-                billInfo.accountNameFrom = jsonObject2.getString("accountNameFrom")
-                billInfo.accountNameTo = jsonObject2.getString("accountNameTo")
-                billInfo.currency = Currency.valueOf(jsonObject2.getString("currency"))
-                billInfo.timeStamp = jsonObject2.getString("time").toLong()
-                billInfo.channel = jsonObject2.getString("channel")
-                billInfo.fromType = dataType.toDataType()
-                billInfo.from = app
-                log("最终整合", billInfo.toString())
-            } catch (e: Exception) {
-                log("识别脚本执行出错", e.message ?: "", e)
-            }
-            return@withContext if (billInfo.money <= 0) null else billInfo
-        }
-
-    /**
-     * 规则只能识别出一节分类，只有用户手动选择的时候才会有二级分类
-     */
-
-    suspend fun category(billInfo: BillInfo) =
-        withContext(Dispatchers.IO) {
-            try {
-                val categoryJs =
-                    "var window = {money:${BillUtils.getFloatMoney(billInfo.money)}, type:${billInfo.type.value}, shopName:'${
-                        billInfo.shopName.replace(
-                            "'",
-                            "\"",
-                        )
-                    }', shopItem:'${
-                        billInfo.shopItem.replace(
-                            "'",
-                            "\"",
-                        )
-                    }', time:'${DateUtils.stampToDate(billInfo.timeStamp, "HH:mm")}'};\n" +
-                        "function getCategory(money,type,shopName,shopItem,time){ <CATEGORY_CUSTOM> return null};\n" +
-                        "var categoryInfo = getCategory(window.money,window.type,window.shopName,window.shopItem,window.time);" +
-                        "if(categoryInfo !== null) { print(JSON.stringify(categoryInfo));  } else { <CATEGORY> }"
-
-                log("执行分类脚本", categoryJs)
-                val json = AppUtils.getService().category(categoryJs)
-                val cateJson = JSONObject(json)
-                billInfo.cateName = cateJson.getString("category")
-                billInfo.bookName = cateJson.getString("book")
-
-                if (billInfo.bookName == "默认账本") {
-                    billInfo.bookName = SpUtils.getString("defaultBook", "默认账本")
-                }
-
-                log("分类脚本执行结果", billInfo.cateName)
-            } catch (e: Exception) {
-                log("分类脚本执行出错", e.message ?: "", e)
-            }
-        }
-
-    private fun log(
-        prefix: String,
-        data: String,
-        throwable: Throwable? = null,
-    ) {
-        if (throwable != null) {
-            Logger.e("$prefix: $data", throwable)
-        } else {
-            Logger.d("$prefix: $data")
-        }
-    }
 }

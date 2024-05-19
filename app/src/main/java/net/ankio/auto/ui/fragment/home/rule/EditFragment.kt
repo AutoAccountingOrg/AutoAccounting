@@ -28,16 +28,11 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.elevation.SurfaceColors
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
+import com.google.gson.Gson
 import com.hjq.toast.Toaster
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.app.BillUtils
-import net.ankio.auto.database.Db
-import net.ankio.auto.database.data.FlowElementList
-import net.ankio.auto.database.table.BookName
-import net.ankio.auto.database.table.Regular
 import net.ankio.auto.databinding.DialogRegexInputBinding
 import net.ankio.auto.databinding.DialogRegexMoneyBinding
 import net.ankio.auto.databinding.FragmentEditBinding
@@ -48,6 +43,8 @@ import net.ankio.auto.ui.dialog.BookSelectorDialog
 import net.ankio.auto.ui.dialog.CategorySelectorDialog
 import net.ankio.auto.ui.fragment.BaseFragment
 import net.ankio.auto.utils.ListPopupUtils
+import net.ankio.auto.utils.server.model.BookName
+import net.ankio.auto.utils.server.model.Regular
 import java.util.Calendar
 
 class EditFragment : BaseFragment() {
@@ -56,6 +53,7 @@ class EditFragment : BaseFragment() {
     private var book: Int = 0
     private var bookName: String = ""
     private var category: String = ""
+    private var list: MutableList<HashMap<String, Any>>? = mutableListOf()
 
     private fun buildUI() {
         val flexboxLayout = binding.flexboxLayout
@@ -69,7 +67,7 @@ class EditFragment : BaseFragment() {
         flexboxLayout.removeAllViews()
         flexboxLayout.appendTextView(getString(R.string.if_condition_true))
 
-        val list = regular.element?.list?.toMutableList()
+        list = Gson().fromJson(regular.element, List::class.java) as MutableList<HashMap<String, Any>>?
         // 依次排列
         if (list.isNullOrEmpty()) {
             val buttonElem =
@@ -98,7 +96,7 @@ class EditFragment : BaseFragment() {
             return
         }
         // 最后一个是数据
-        val lastElement = list.removeLast()
+        val lastElement = list!!.removeLast()
         // fix #7 因为存储的时候使用的是hashmap<String,Any>，反向识别的时候可能会将Int类型识别为Double
         book =
             if (lastElement["id"] is Int) {
@@ -123,7 +121,7 @@ class EditFragment : BaseFragment() {
                     showSelectType(flexboxLayout, view, it2)
                 }
             })
-        for (hashMap in list) {
+        for (hashMap in list!!) {
             flexboxLayout.appendWaveTextview(
                 hashMap["text"] as String,
                 connector = hashMap.containsKey("jsPre"),
@@ -131,16 +129,15 @@ class EditFragment : BaseFragment() {
                 data = hashMap,
             ) { it2, view ->
                 val type = it2.data["type"]
-                if (type != null)
-                    {
-                        when (type as String) {
-                            "type" -> inputType(it2, view)
-                            "shopName" -> inputShop(flexboxLayout, it2)
-                            "shopItem" -> inputShopItem(flexboxLayout, it2)
-                            "timeRange" -> inputTimeRange(flexboxLayout, it2)
-                            "moneyRange" -> inputMoneyRange(flexboxLayout, it2)
-                        }
+                if (type != null) {
+                    when (type as String) {
+                        "type" -> inputType(it2, view)
+                        "shopName" -> inputShop(flexboxLayout, it2)
+                        "shopItem" -> inputShopItem(flexboxLayout, it2)
+                        "timeRange" -> inputTimeRange(flexboxLayout, it2)
+                        "moneyRange" -> inputMoneyRange(flexboxLayout, it2)
                     }
+                }
             }
         }
 
@@ -192,14 +189,7 @@ class EditFragment : BaseFragment() {
 
     private fun onClickCategory(it2: FlowElement) {
         lifecycleScope.launch {
-            var book =
-                withContext(Dispatchers.IO) {
-                    Db.get().BookNameDao().getByName(bookName)
-                }
-            if (book == null) {
-                book = BookName()
-                book.name = bookName
-            }
+            var book = BookName.getByName(bookName)
 
             BookInfoDialog(requireActivity(), book) { type ->
                 CategorySelectorDialog(requireActivity(), book.id, type) { parent, child ->
@@ -479,12 +469,11 @@ class EditFragment : BaseFragment() {
         val map = binding.flexboxLayout.getViewMap()
         var condition = ""
         var text = "若满足"
-
-        val list: MutableList<HashMap<String, Any>> = mutableListOf()
+        list = mutableListOf()
 
         for (flowElement in map) {
             if (flowElement.data.containsKey("js")) {
-                list.add(flowElement.data)
+                list!!.add(flowElement.data)
                 val t = flowElement.data["text"] as String
 
                 if (flowElement.data.containsKey("jsPre")) {
@@ -503,13 +492,13 @@ class EditFragment : BaseFragment() {
                 "category" to category,
                 "id" to book,
             )
-        list.add(otherData)
+        list!!.add(otherData)
         condition += ""
         val js = "if($condition){ return { book:'$bookName',category:'$category'} }"
 
         regular.js = js
         regular.text = text
-        regular.element = FlowElementList(list)
+        regular.element = Gson().toJson(list)
 
         regular.use = true
 
@@ -525,16 +514,10 @@ class EditFragment : BaseFragment() {
             Toaster.show(getString(R.string.useless_category))
             return
         }
-        lifecycleScope.launch {
-            withContext(Dispatchers.IO) {
-                if (regular.id > 0) {
-                    Db.get().RegularDao().update(regular)
-                } else {
-                    Db.get().RegularDao().add(regular)
-                }
-            }
 
-            BillUtils.syncRules()
+        Regular.put(regular)
+
+        lifecycleScope.launch {
             findNavController().popBackStack() // 返回上一个页面
         }
     }

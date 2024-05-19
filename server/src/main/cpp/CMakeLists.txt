@@ -1,7 +1,7 @@
 
 cmake_minimum_required(VERSION 3.22.1)
 
-project("auto_server")
+project("auto_accounting_starter")
 
 set(WEBSOCKET_FILES
         wsServer/src/ws.c
@@ -52,3 +52,7 @@ add_executable(
 )
 
 target_link_libraries(${CMAKE_PROJECT_NAME} quickjspp)
+
+set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/../assets/shell/${ANDROID_ABI}"
+)

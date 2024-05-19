@@ -24,7 +24,6 @@ import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.ActivityAuthBinding
 import net.ankio.auto.utils.AppUtils
-import net.ankio.auto.utils.AutoAccountingServiceUtils
 import net.ankio.auto.utils.SpUtils
 
 class AuthActivity : BaseActivity() {
@@ -65,7 +64,7 @@ class AuthActivity : BaseActivity() {
         binding.sure.setOnClickListener {
             lifecycleScope.launch {
                 val resultIntent = Intent()
-                resultIntent.putExtra("token", AutoAccountingServiceUtils.getToken(this@AuthActivity))
+                resultIntent.putExtra("token", AppUtils.getService().getToken())
                 SpUtils.putString("bookApp", packageName)
                 setResult(RESULT_OK, resultIntent)
                 finish()

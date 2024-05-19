@@ -44,15 +44,16 @@ import kotlinx.coroutines.launch
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.app.model.AppInfo
 import net.ankio.auto.ui.activity.MainActivity
+import net.ankio.auto.utils.server.AutoServer
 import java.io.File
 import java.math.BigInteger
 import java.security.MessageDigest
 
 object AppUtils {
     private lateinit var application: Application
-    private lateinit var service: AutoAccountingServiceUtils
     private val job = Job()
     private val scope = CoroutineScope(Dispatchers.IO + job)
+    private lateinit var server: AutoServer
 
     fun getJob(): Job {
         return job
@@ -68,15 +69,10 @@ object AppUtils {
 
     fun setApplication(application: Application) {
         this.application = application
-    }
-
-    fun setService(context: Context): AutoAccountingServiceUtils {
-        this.service = AutoAccountingServiceUtils(context)
-        return this.service
-    }
-
-    fun getService(): AutoAccountingServiceUtils {
-        return service
+        server = AutoServer()
+        scope.launch {
+            server.connect()
+        }
     }
 
     fun getProcessName(): String {
@@ -200,17 +196,15 @@ object AppUtils {
      * 获取debug状态
      */
     fun getDebug(): Boolean {
-        return /*SpUtils.getBoolean("debug", BuildConfig.DEBUG)*/ true
+        return SpUtils.getBoolean("debug", false)
     }
 
     /**
      * 设置debug状态
      */
     fun setDebug(debug: Boolean = false) {
-        scope.launch {
-            getService().set("debug", if (debug) "true" else "false")
-        }
         SpUtils.putBoolean("debug", debug)
+        SpUtils.putBooleanRemote("debug", debug)
     }
 
     /**
@@ -263,5 +257,9 @@ object AppUtils {
     ): String {
         if (!file.exists())return ""
         return file.readLines().takeLast(numLines).joinToString("\n")
+    }
+
+    fun getService(): AutoServer {
+        return server
     }
 }

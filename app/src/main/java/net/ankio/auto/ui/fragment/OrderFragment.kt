@@ -26,14 +26,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
-import net.ankio.auto.database.Db
-import net.ankio.auto.database.table.BillInfo
 import net.ankio.auto.databinding.FragmentOrderBinding
 import net.ankio.auto.ui.adapter.OrderAdapter
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.MenuItem
 import net.ankio.auto.utils.AppUtils
-import net.ankio.auto.utils.AutoAccountingServiceUtils
+import net.ankio.auto.utils.server.model.BillInfo
 
 class OrderFragment : BaseFragment() {
     override val menuList: ArrayList<MenuItem>
@@ -73,14 +71,12 @@ class OrderFragment : BaseFragment() {
 
         lifecycleScope.launch {
             withContext(Dispatchers.IO) {
-                val autoAccountingConfig = AutoAccountingServiceUtils.config(requireContext())
-                val list = Db.get().BillInfoDao().getListGroup()
+                val autoAccountingConfig = AppUtils.getService().config()
+                val list = BillInfo.getBillListGroup(500)
                 dataItems.clear()
 
                 list.forEach {
-                    val billInfo =
-                        Db.get().BillInfoDao().getTotal(it.ids.split(",").map { item -> item.toInt() })
-                    dataItems.add(Pair(it.date, billInfo))
+                    dataItems.add(Pair(it.first, BillInfo.getBillByIds(it.second)))
                 }
                 adapter.notifyConfig(autoAccountingConfig)
             }

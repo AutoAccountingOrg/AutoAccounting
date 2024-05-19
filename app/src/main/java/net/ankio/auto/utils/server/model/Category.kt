@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 ankio(ankio@ankio.net)
+ * Copyright (C) 2024 ankio(ankio@ankio.net)
  * Licensed under the Apache License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,20 +12,18 @@
  *  See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package net.ankio.auto.database.table
+package net.ankio.auto.utils.server.model
 
 import android.content.Context
 import android.graphics.drawable.Drawable
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+import com.google.gson.Gson
+import kotlinx.coroutines.launch
 import net.ankio.auto.R
-import net.ankio.auto.database.Db
+import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.ImageUtils
 import net.ankio.common.model.CategoryModel
 
-@Entity
 class Category {
-    @PrimaryKey(autoGenerate = true)
     var id = 0
 
     /**
@@ -81,11 +79,12 @@ class Category {
                     type = it.type
                     remoteId = it.id
                     if (it.parent != "-1") {
-                        Db.get().CategoryDao().getRemote(it.parent, book)?.let { it2 ->
+                        getByRemote(it.parent, book)?.let { it2 ->
                             parent = it2.id
                         }
                     }
-                    Db.get().CategoryDao().add(this)
+
+                    put(this)
                 }
             }
         }
@@ -99,8 +98,43 @@ class Category {
             if (newCateName.contains("-")) {
                 newCateName = newCateName.split("-").last()
             }
-            val categoryInfo = Db.get().CategoryDao().get(newCateName, bookID)
+            val categoryInfo = getByName(newCateName, bookID)
             return ImageUtils.get(context, categoryInfo?.icon ?: "", R.drawable.default_cate)
+        }
+
+        fun put(cate: Category) {
+            AppUtils.getScope().launch {
+                AppUtils.getService().sendMsg("cate/put", cate)
+            }
+        }
+
+        suspend fun getAll(
+            bookID: Int,
+            type: Int,
+            parent: Int,
+        ): List<Category> {
+            val data = AppUtils.getService().sendMsg("cate/get/all", mapOf("book" to bookID, "type" to type, "parent" to parent))
+            return Gson().fromJson(Gson().toJson(data), Array<Category>::class.java).toList()
+        }
+
+        suspend fun getByName(
+            name: String,
+            bookID: Int,
+        ): Category? {
+            val data = AppUtils.getService().sendMsg("cate/get/name", mapOf("name" to name, "book" to bookID))
+            return runCatching { Gson().fromJson(data as String, Category::class.java) }.getOrNull()
+        }
+
+        suspend fun getByRemote(
+            remoteId: String,
+            book: Int,
+        ): Category?  {
+            val data = AppUtils.getService().sendMsg("cate/get/remote", mapOf("remoteId" to remoteId, "book" to book))
+            return runCatching { Gson().fromJson(data as String, Category::class.java) }.getOrNull()
+        }
+
+        suspend fun remove(id: Int) {
+            AppUtils.getService().sendMsg("cate/remove", mapOf("id" to id))
         }
     }
 

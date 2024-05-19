@@ -16,9 +16,9 @@
 package net.ankio.auto.ui.adapter
 
 import kotlinx.coroutines.launch
-import net.ankio.auto.database.table.Assets
-import net.ankio.auto.database.table.AssetsMap
 import net.ankio.auto.databinding.AdapterMapBinding
+import net.ankio.auto.utils.server.model.Assets
+import net.ankio.auto.utils.server.model.AssetsMap
 
 class MapAdapter(
     override val dataItems: List<AssetsMap>,

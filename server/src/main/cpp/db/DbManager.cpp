@@ -62,7 +62,7 @@ void DbManager::initTable() {
             "CREATE TABLE IF NOT EXISTS billInfo ("
             "id INTEGER PRIMARY KEY AUTOINCREMENT,"
             "type INTEGER,"
-            "currency INTEGER,"
+            "currency TEXT,"
             "money INTEGER,"
             "fee INTEGER,"
             "timeStamp INTEGER,"
@@ -214,7 +214,16 @@ Json::Value DbManager::getLog(int limit) {
     sqlite3_finalize(stmt);
     return ret;
 }
-
+void DbManager::deleteAllLog(){
+    char *zErrMsg = nullptr;
+    sqlite3_exec(db,
+                 "DELETE FROM log;",
+                 nullptr, nullptr, &zErrMsg);
+    if (zErrMsg) {
+        fprintf(stderr, "SQL error 3: %s\n", zErrMsg);
+        sqlite3_free(zErrMsg);
+    }
+}
 void
 DbManager::setSetting(const std::string &app, const std::string &key, const std::string &value) {
     char *zErrMsg = nullptr;
@@ -247,7 +256,7 @@ std::string DbManager::getSetting(const std::string &app, const std::string &key
     return ret;
 }
 
-int DbManager::insertBill(int id, int type, int currency, int money, int fee, int timeStamp,
+int DbManager::insertBill(int id, int type, const std::string &currency, int money, int fee, int timeStamp,
                            const std::string &shopName, const std::string &cateName,
                            const std::string &extendData, const std::string &bookName,
                            const std::string &accountNameFrom, const std::string &accountNameTo,
@@ -271,7 +280,7 @@ int DbManager::insertBill(int id, int type, int currency, int money, int fee, in
     }
 
     sqlite3_bind_int(stmt, count + 2, type);
-    sqlite3_bind_int(stmt, count + 3, currency);
+    sqlite3_bind_text(stmt, count + 3, currency.c_str(), -1, SQLITE_STATIC);
     sqlite3_bind_int(stmt, count + 4, money);
     sqlite3_bind_int(stmt, count + 5, fee);
     sqlite3_bind_int(stmt, count + 6, timeStamp);
@@ -345,7 +354,7 @@ Json::Value DbManager::getWaitSyncBills() {
         Json::Value bill;
         bill["id"] = sqlite3_column_int(stmt, 0);
         bill["type"] = sqlite3_column_int(stmt, 1);
-        bill["currency"] = sqlite3_column_int(stmt, 2);
+        bill["currency"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2));
         bill["money"] = sqlite3_column_int(stmt, 3);
         bill["fee"] = sqlite3_column_int(stmt, 4);
         bill["timeStamp"] = sqlite3_column_int(stmt, 5);
@@ -410,26 +419,22 @@ Json::Value DbManager::getBillByIds(const std::string& ids) {
     sqlite3_stmt *stmt = getStmt("SELECT * FROM billInfo WHERE id IN (" + ids + ");");
     int rc = 0;
     while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
-        Json::Value bill;
-        bill["id"] = sqlite3_column_int(stmt, 0);
-        bill["type"] = sqlite3_column_int(stmt, 1);
-        bill["currency"] = sqlite3_column_int(stmt, 2);
-        bill["money"] = sqlite3_column_int(stmt, 3);
-        bill["fee"] = sqlite3_column_int(stmt, 4);
-        bill["timeStamp"] = sqlite3_column_int(stmt, 5);
-        bill["shopName"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 6));
-        bill["cateName"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 7));
-        bill["extendData"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 8));
-        bill["bookName"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 9));
-        bill["accountNameFrom"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 10));
-        bill["accountNameTo"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 11));
-        bill["fromApp"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 12));
-        bill["groupId"] = sqlite3_column_int(stmt, 13);
-        bill["channel"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 14));
-        bill["syncFromApp"] = sqlite3_column_int(stmt, 15);
-        bill["remark"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 16));
-        bill["fromType"] = sqlite3_column_int(stmt, 17);
-        ret.append(bill);
+        ret.append(buildBill(stmt));
+    }
+    if (rc != SQLITE_DONE) {
+        fprintf(stderr, "SQL error 5: %s\n", sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
+    return ret;
+}
+
+Json::Value DbManager::getBillAllParents() {
+    Json::Value ret;
+    char *zErrMsg = nullptr;
+    sqlite3_stmt *stmt = getStmt("SELECT * FROM BillInfo where  groupId = 0  and syncFromApp = 0;");
+    int rc = 0;
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+        ret.append(buildBill(stmt));
     }
     if (rc != SQLITE_DONE) {
         fprintf(stderr, "SQL error 5: %s\n", sqlite3_errmsg(db));
@@ -445,32 +450,36 @@ Json::Value DbManager::getBillByGroupId(int groupId) {
     sqlite3_bind_int(stmt, 1, groupId);
     int rc = 0;
     while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
-        Json::Value bill;
-        bill["id"] = sqlite3_column_int(stmt, 0);
-        bill["type"] = sqlite3_column_int(stmt, 1);
-        bill["currency"] = sqlite3_column_int(stmt, 2);
-        bill["money"] = sqlite3_column_int(stmt, 3);
-        bill["fee"] = sqlite3_column_int(stmt, 4);
-        bill["timeStamp"] = sqlite3_column_int(stmt, 5);
-        bill["shopName"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 6));
-        bill["cateName"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 7));
-        bill["extendData"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 8));
-        bill["bookName"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 9));
-        bill["accountNameFrom"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 10));
-        bill["accountNameTo"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 11));
-        bill["fromApp"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 12));
-        bill["groupId"] = sqlite3_column_int(stmt, 13);
-        bill["channel"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 14));
-        bill["syncFromApp"] = sqlite3_column_int(stmt, 15);
-        bill["remark"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 16));
-        bill["fromType"] = sqlite3_column_int(stmt, 17);
-        ret.append(bill);
+        ret.append(buildBill(stmt));
     }
     if (rc != SQLITE_DONE) {
         fprintf(stderr, "SQL error 5: %s\n", sqlite3_errmsg(db));
     }
     sqlite3_finalize(stmt);
     return ret;
+}
+
+Json::Value DbManager::buildBill(sqlite3_stmt *stmt){
+    Json::Value bill;
+    bill["id"] = sqlite3_column_int(stmt, 0);
+    bill["type"] = sqlite3_column_int(stmt, 1);
+    bill["currency"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2));
+    bill["money"] = sqlite3_column_int(stmt, 3);
+    bill["fee"] = sqlite3_column_int(stmt, 4);
+    bill["timeStamp"] = sqlite3_column_int(stmt, 5);
+    bill["shopName"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 6));
+    bill["cateName"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 7));
+    bill["extendData"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 8));
+    bill["bookName"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 9));
+    bill["accountNameFrom"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 10));
+    bill["accountNameTo"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 11));
+    bill["fromApp"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 12));
+    bill["groupId"] = sqlite3_column_int(stmt, 13);
+    bill["channel"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 14));
+    bill["syncFromApp"] = sqlite3_column_int(stmt, 15);
+    bill["remark"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 16));
+    bill["fromType"] = sqlite3_column_int(stmt, 17);
+    return bill;
 }
 
 void DbManager::insertAppData(int id, const std::string &data, int type, const std::string &source,const std::string &rule,
@@ -820,13 +829,14 @@ Json::Value DbManager::getAllCate(int parent, int book, int type) {
     return ret;
 }
 
-Json::Value DbManager::getCate(int book, const std::string &cateName) {
+Json::Value DbManager::getCate(int book, const std::string &cateName,int type) {
     Json::Value ret;
     char *zErrMsg = nullptr;
     sqlite3_stmt *stmt = getStmt(
-            "SELECT * FROM category WHERE book = ? AND name = ?;");
+            "SELECT * FROM category WHERE book = ? AND name = ? AND type = ?;");
     sqlite3_bind_int(stmt, 1, book);
     sqlite3_bind_text(stmt, 2, cateName.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_int(stmt, 3, type);
     int rc = 0;
     while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
         Json::Value cate;
@@ -851,21 +861,19 @@ Json::Value DbManager::getCateByRemote(int book, const std::string &remoteId) {
     Json::Value ret;
     char *zErrMsg = nullptr;
     sqlite3_stmt *stmt = getStmt(
-            "SELECT * FROM category WHERE book = ? AND remoteId = ?;");
+            "SELECT * FROM category WHERE book = ? AND remoteId = ?  limit 1;");
     sqlite3_bind_int(stmt, 1, book);
     sqlite3_bind_text(stmt, 2, remoteId.c_str(), -1, SQLITE_STATIC);
     int rc = 0;
     while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
-        Json::Value cate;
-        cate["id"] = sqlite3_column_int(stmt, 0);
-        cate["name"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1));
-        cate["icon"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2));
-        cate["remoteId"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 3));
-        cate["parent"] = sqlite3_column_int(stmt, 4);
-        cate["book"] = sqlite3_column_int(stmt, 5);
-        cate["sort"] = sqlite3_column_int(stmt, 6);
-        cate["type"] = sqlite3_column_int(stmt, 7);
-        ret.append(cate);
+        ret["id"] = sqlite3_column_int(stmt, 0);
+        ret["name"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1));
+        ret["icon"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2));
+        ret["remoteId"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 3));
+        ret["parent"] = sqlite3_column_int(stmt, 4);
+        ret["book"] = sqlite3_column_int(stmt, 5);
+        ret["sort"] = sqlite3_column_int(stmt, 6);
+        ret["type"] = sqlite3_column_int(stmt, 7);
     }
     if (rc != SQLITE_DONE) {
         fprintf(stderr, "SQL error 5: %s\n", sqlite3_errmsg(db));

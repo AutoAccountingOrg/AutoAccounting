@@ -26,12 +26,11 @@ import net.ankio.auto.R
 import net.ankio.auto.app.js.Engine
 import net.ankio.auto.constant.DataType
 import net.ankio.auto.constant.toDataType
-import net.ankio.auto.database.Db
-import net.ankio.auto.database.table.AppData
 import net.ankio.auto.databinding.AdapterDataBinding
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.DateUtils
+import net.ankio.auto.utils.server.model.AppData
 
 class DataAdapter(
     override val dataItems: MutableList<AppData>,
@@ -181,7 +180,7 @@ class DataAdapter(
                     dataItems[index] = item
                     adapter.notifyItemChanged(index)
                 }
-                Db.get().AppDataDao().update(item)
+                AppData.put(item)
             }
         }
     }

@@ -19,15 +19,14 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import androidx.lifecycle.lifecycleScope
+import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
-import net.ankio.auto.app.BillUtils
-import net.ankio.auto.database.Db
-import net.ankio.auto.database.data.FlowElementList
-import net.ankio.auto.database.table.BillInfo
-import net.ankio.auto.database.table.Regular
 import net.ankio.auto.databinding.DialogBillCategoryBinding
 import net.ankio.auto.utils.Logger
+import net.ankio.auto.utils.server.model.BillInfo
+import net.ankio.auto.utils.server.model.BookName
+import net.ankio.auto.utils.server.model.Regular
 
 class BillCategoryDialog(
     private val context: Context,
@@ -133,8 +132,8 @@ class BillCategoryDialog(
 
             lifecycleScope.launch {
                 Logger.i("condition:$condition")
-                val book = Db.get().BookNameDao().getByName(billInfo.bookName)
-                val id = book?.id ?: 0
+                val book = BookName.getByName(billInfo.bookName)
+                val id = book.id
                 val otherData =
                     hashMapOf<String, Any>(
                         "book" to billInfo.bookName,
@@ -148,11 +147,10 @@ class BillCategoryDialog(
                 val regular = Regular()
                 regular.js = js
                 regular.text = text
-                regular.element = FlowElementList(list)
+                regular.element = Gson().toJson(list)
                 regular.auto = true
                 regular.use = true
-                Db.get().RegularDao().add(regular)
-                BillUtils.syncRules()
+                Regular.put(regular)
                 dismiss()
             }
         }

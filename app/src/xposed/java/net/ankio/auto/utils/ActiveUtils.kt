@@ -24,6 +24,10 @@ object ActiveUtils {
         return false
     }
 
+    fun getFramework(context: Context): String {
+        return "Unknown"
+    }
+
     fun startApp(mContext: Context) {
         val intent: Intent? =
             mContext.packageManager.getLaunchIntentForPackage(BuildConfig.APPLICATION_ID)

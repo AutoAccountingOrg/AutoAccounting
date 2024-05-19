@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 ankio(ankio@ankio.net)
+ * Copyright (C) 2024 ankio(ankio@ankio.net)
  * Licensed under the Apache License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,23 +12,19 @@
  *  See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package net.ankio.auto.database.table
+package net.ankio.auto.utils.server.model
 
 import android.content.Context
 import android.widget.ImageView
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import com.google.gson.Gson
+import kotlinx.coroutines.launch
 import net.ankio.auto.R
-import net.ankio.auto.database.Db
+import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.ImageUtils
 import net.ankio.common.model.BookModel
 
-@Entity
 class BookName {
     // 账本列表
-    @PrimaryKey(autoGenerate = true)
     var id: Int = 0
 
     /**
@@ -49,30 +45,44 @@ class BookName {
             }
         }
 
-        suspend fun getDefaultBook(bookName: String): BookName =
-            withContext(Dispatchers.IO) {
-                if (bookName == "默认账本")
-                    {
-                        var book = Db.get().BookNameDao().loadOne()
-                        if (book == null) {
-                            book = BookName()
-                            book.name = bookName
-                        }
-                        book
-                    } else {
-                    getByName(bookName)
-                }
+        fun put(book: BookName) {
+            AppUtils.getScope().launch {
+                AppUtils.getService().sendMsg("book/put", book)
             }
+        }
 
-        suspend fun getByName(name: String) =
-            withContext(Dispatchers.IO) {
-                var book = Db.get().BookNameDao().getByName(name)
+        suspend fun getOne(): BookName? {
+            val data = AppUtils.getService().sendMsg("book/get/one", null)
+            return runCatching { Gson().fromJson(data as String, BookName::class.java) }.getOrNull()
+        }
+
+        suspend fun getByName(name: String): BookName {
+            val data = AppUtils.getService().sendMsg("book/get/name", mapOf("name" to name))
+            return runCatching { Gson().fromJson(data as String, BookName::class.java) }.getOrNull()
+                ?: BookName().apply { this.name = name }
+        }
+
+        suspend fun get(): List<BookName> {
+            val data = AppUtils.getService().sendMsg("book/get/all", null)
+            return Gson().fromJson(Gson().toJson(data), Array<BookName>::class.java).toList()
+        }
+
+        suspend fun remove(name: String)  {
+            AppUtils.getService().sendMsg("book/remove", mapOf("name" to name))
+        }
+
+        suspend fun getDefaultBook(bookName: String): BookName {
+            if (bookName == "默认账本") {
+                var book = getOne()
                 if (book == null) {
                     book = BookName()
-                    book.name = name
+                    book.name = bookName
                 }
-                return@withContext book
+                return book
+            } else {
+                return getByName(bookName)
             }
+        }
 
         suspend fun getDrawable(
             bookName: String,

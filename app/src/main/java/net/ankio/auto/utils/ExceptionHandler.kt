@@ -42,13 +42,16 @@ class ExceptionHandler : Thread.UncaughtExceptionHandler {
 
         Bugsnag.start(context!!)
         Bugsnag.addOnError { event ->
-            // 获取日志最后500行
-            val log = AppUtils.readTail(File(context.externalCacheDir!!.absolutePath + "/shell/log.txt"), 200)
-            val daemonLog = AppUtils.readTail(File(context.externalCacheDir!!.absolutePath + "/shell/daemon.log"), 200)
-            event.addMetadata("运行日志", "log", log)
-            event.addMetadata("服务日志", "server_log", daemonLog)
+
             val result = handleException(event) // 发送此异常
             Logger.i("是否发送异常到AppCenter => $result")
+            if (result) {
+                // 获取日志最后500行
+                val log = AppUtils.readTail(File(context.externalCacheDir!!.absolutePath + "/shell/log.txt"), 200)
+                val daemonLog = AppUtils.readTail(File(context.externalCacheDir!!.absolutePath + "/shell/daemon.log"), 200)
+                event.addMetadata("运行日志", "log", log)
+                event.addMetadata("服务日志", "server_log", daemonLog)
+            }
             result
         }
         this.context = context

@@ -33,12 +33,8 @@ import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.ActivityMainBinding
 import net.ankio.auto.events.AutoServiceErrorEvent
-import net.ankio.auto.exceptions.AutoServiceException
 import net.ankio.auto.ui.dialog.UpdateDialog
-import net.ankio.auto.utils.AppUtils
-import net.ankio.auto.utils.AutoAccountingServiceUtils
 import net.ankio.auto.utils.BackupUtils
-import net.ankio.auto.utils.BookSyncUtils
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.Github
 import net.ankio.auto.utils.Logger
@@ -103,9 +99,6 @@ class MainActivity : BaseActivity() {
         onBackup()
         // 初始化底部导航栏
         onBottomViewInit()
-
-        // 检查自动记账服务
-        checkAutoService()
 
         onViewCreated()
     }
@@ -175,28 +168,6 @@ class MainActivity : BaseActivity() {
         }
     }
 
-    private fun checkAutoService() {
-        // val shellFolderPath = "shell"
-        //        val destinationPath = cacheDir!!.path + File.separator // + shellFolderPath
-        EventBus.register(AutoServiceErrorEvent::class.java, autoListener)
-        lifecycleScope.launch {
-            AppUtils.getService().copyAssets()
-            if (!AutoAccountingServiceUtils.isServerStart(5)) {
-                EventBus.post(
-                    AutoServiceErrorEvent(
-                        AutoServiceException(
-                            "自动记账服务未连接",
-                            AutoServiceException.CODE_SERVER_AUTHORIZE,
-                        ),
-                    ),
-                )
-            } else {
-                checkBookApp()
-                checkUpdate()
-            }
-        }
-    }
-
     private fun checkBookApp() {
         // 判断是否设置了记账软件
         if (SpUtils.getString("bookApp", "").isEmpty()) {
@@ -210,13 +181,6 @@ class MainActivity : BaseActivity() {
                     // finish()
                 }
                 .show()
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        lifecycleScope.launch {
-            BookSyncUtils.sync(this@MainActivity)
         }
     }
 
@@ -234,7 +198,7 @@ class MainActivity : BaseActivity() {
                     code,
                 ).show(cancel = true)
             }
-            updateUtils.checkRuleUpdate(this)?.apply {
+            updateUtils.checkRuleUpdate()?.apply {
                 UpdateDialog(
                     this@MainActivity,
                     hashMapOf("category" to file + "category.js", "rule" to file + "rule.js"),

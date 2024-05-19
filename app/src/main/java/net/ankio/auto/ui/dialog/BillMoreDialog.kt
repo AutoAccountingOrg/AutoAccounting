@@ -21,11 +21,10 @@ import android.view.View
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.launch
-import net.ankio.auto.database.Db
-import net.ankio.auto.database.table.BillInfo
 import net.ankio.auto.databinding.DialogBillMoreBinding
 import net.ankio.auto.ui.adapter.OrderItemAdapter
-import net.ankio.auto.utils.AutoAccountingServiceUtils
+import net.ankio.auto.utils.AppUtils
+import net.ankio.auto.utils.server.model.BillInfo
 
 class BillMoreDialog(
     private val context: Context,
@@ -55,8 +54,8 @@ class BillMoreDialog(
     ) {
         super.show(float, cancel)
         lifecycleScope.launch {
-            val config = AutoAccountingServiceUtils.config(context)
-            Db.get().BillInfoDao().getChild(billInfo.id).apply {
+            val config = AppUtils.getService().config()
+            BillInfo.getBillByGroup(billInfo.id).apply {
                 adapter.notifyConfig(config)
                 dataItems.clear()
                 dataItems.addAll(this)

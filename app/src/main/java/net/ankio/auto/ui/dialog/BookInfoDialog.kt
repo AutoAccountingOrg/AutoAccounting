@@ -21,9 +21,9 @@ import android.view.View
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
-import net.ankio.auto.database.table.BookName
 import net.ankio.auto.databinding.DialogBookInfoBinding
 import net.ankio.auto.utils.ImageUtils
+import net.ankio.auto.utils.server.model.BookName
 import net.ankio.common.constant.BillType
 
 class BookInfoDialog(

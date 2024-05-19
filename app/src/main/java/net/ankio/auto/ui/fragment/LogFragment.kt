@@ -32,8 +32,8 @@ import net.ankio.auto.ui.adapter.LogAdapter
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.MenuItem
 import net.ankio.auto.utils.AppUtils
-import net.ankio.auto.utils.AutoAccountingServiceUtils
 import net.ankio.auto.utils.Logger
+import net.ankio.auto.utils.server.model.LogModel
 import java.io.File
 
 class LogFragment : BaseFragment() {
@@ -41,7 +41,7 @@ class LogFragment : BaseFragment() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: LogAdapter
     private lateinit var layoutManager: LinearLayoutManager
-    private val dataItems = ArrayList<String>()
+    private val dataItems = ArrayList<LogModel>()
     override val menuList: ArrayList<MenuItem> =
         arrayListOf(
             MenuItem(R.string.item_share, R.drawable.menu_icon_share) {
@@ -76,7 +76,7 @@ class LogFragment : BaseFragment() {
             MenuItem(R.string.item_clear, R.drawable.menu_icon_clear) {
                 runCatching {
                     lifecycleScope.launch {
-                        AutoAccountingServiceUtils.delete("log", requireContext())
+                        LogModel.deleteAll()
                         loadMoreData()
                     }
                 }.onFailure {
@@ -111,12 +111,8 @@ class LogFragment : BaseFragment() {
         lifecycleScope.launch {
             // 读取log.txt
             withContext(Dispatchers.IO) {
-                val path = requireContext().externalCacheDir?.absolutePath + "/shell/log.txt"
                 dataItems.clear()
-                val file = File(path)
-                if (file.exists()) {
-                    dataItems.addAll(file.readLines().takeLast(500).filter { it.isNotBlank() && it.isNotEmpty() })
-                }
+                dataItems.addAll(LogModel.get(500))
 
                 withContext(Dispatchers.Main) {
                     loading.close()

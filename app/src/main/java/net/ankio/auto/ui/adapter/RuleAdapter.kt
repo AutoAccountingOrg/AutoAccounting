@@ -18,9 +18,10 @@ package net.ankio.auto.ui.adapter
 import android.view.View
 import androidx.core.view.size
 import com.google.android.material.elevation.SurfaceColors
+import com.google.gson.Gson
 import net.ankio.auto.R
-import net.ankio.auto.database.table.Regular
 import net.ankio.auto.databinding.AdapterRuleBinding
+import net.ankio.auto.utils.server.model.Regular
 
 class RuleAdapter(
     override val dataItems: List<Regular>,
@@ -39,10 +40,9 @@ class RuleAdapter(
             binding.type.visibility = View.GONE
         }
 
-        if (regular.element == null || regular.element!!.list.isEmpty()) {
-            return
-        }
-        val list = regular.element!!.list.toMutableList()
+        val list =
+            Gson().fromJson(regular.element, List::class.java) as MutableList<HashMap<String, Any>>?
+                ?: return
 
         val lastElement = list.removeLast()
         val flexboxLayout = binding.flexboxLayout

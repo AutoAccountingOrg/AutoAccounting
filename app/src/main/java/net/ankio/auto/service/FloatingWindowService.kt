@@ -34,21 +34,23 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.app.BillUtils
 import net.ankio.auto.constant.FloatEvent
-import net.ankio.auto.database.table.BillInfo
 import net.ankio.auto.databinding.FloatTipBinding
 import net.ankio.auto.events.AutoServiceErrorEvent
+import net.ankio.auto.events.BillUpdateEvent
 import net.ankio.auto.exceptions.AutoServiceException
 import net.ankio.auto.ui.dialog.FloatEditorDialog
-import net.ankio.auto.utils.AutoAccountingServiceUtils
+import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.FloatPermissionUtils
 import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.SpUtils
 import net.ankio.auto.utils.event.EventBus
+import net.ankio.auto.utils.server.model.BillInfo
 import kotlin.coroutines.CoroutineContext
 
 class FloatingWindowService : Service(), CoroutineScope {
@@ -66,12 +68,16 @@ class FloatingWindowService : Service(), CoroutineScope {
         return null
     }
 
-    private var notFirstStart = true
+    private var showWindow = false
     private var timeCount: Int = 0
+
+    private var billInfo: BillInfo? = null
+
+    private var child = HashMap<Int, ArrayList<BillInfo>>()
 
     override fun onCreate() {
         super.onCreate()
-        timeCount = runCatching { net.ankio.auto.utils.SpUtils.getString("setting_float_time", "10").toInt() }.getOrNull() ?: 0
+        timeCount = runCatching { SpUtils.getString("setting_float_time", "10").toInt() }.getOrNull() ?: 0
 
         val defaultTheme = ContextThemeWrapper(applicationContext, R.style.AppTheme)
 
@@ -82,15 +88,14 @@ class FloatingWindowService : Service(), CoroutineScope {
             )
         launch {
             withContext(Dispatchers.IO) {
-                while (notFirstStart || list.isNotEmpty()) {
-                    if (notFirstStart && list.isEmpty()) {
-                        delay(50)
+                while (isActive) {
+                    if (list.isEmpty() || showWindow) {
+                        delay(100)
                         continue
                     }
-                    notFirstStart = false
-                    val billInfo = list.removeFirst()
+                    billInfo = list.removeFirst()
                     runCatching {
-                        processBillInfo(billInfo)
+                        processBillInfo()
                     }.onFailure {
                         if (it is BadTokenException) {
                             if (it.message != null && it.message!!.contains("permission denied")) {
@@ -111,22 +116,58 @@ class FloatingWindowService : Service(), CoroutineScope {
         startId: Int,
     ): Int {
         val value = intent.getStringExtra("data") ?: return START_REDELIVER_INTENT
-        val billInfo = BillInfo.fromJSON(value)
+        val bill = BillInfo.fromJSON(value)
         launch {
             val tpl = SpUtils.getString("setting_bill_remark", "【商户名称】 - 【商品名称】")
-            billInfo.remark = BillUtils.getRemark(billInfo, tpl)
-            BillUtils.setAccountMap(billInfo)
+            bill.remark = BillUtils.getRemark(bill, tpl)
+            BillUtils.setAccountMap(bill)
 
-            // TODO 这里处理去重逻辑
+            if (BillUtils.noNeedFilter(bill))
+                {
+                    list.add(bill)
+                    return@launch
+                }
 
-            list.add(billInfo)
+            val newList = ArrayList<BillInfo>()
+            newList.addAll(list)
+            if (billInfo != null) {
+                newList.add(billInfo!!)
+            }
+
+            val repeatBill = BillUtils.checkRepeatBill(bill, newList)
+            if (repeatBill != null)
+                {
+                    Logger.i("重复账单:$bill")
+                    BillUtils.updateBillInfo(repeatBill, bill)
+
+                    if (!child.contains(repeatBill.money))
+                        {
+                            child[repeatBill.money] = ArrayList()
+                        }
+
+                    child[repeatBill.money]?.add(bill)
+                    EventBus.post(BillUpdateEvent(repeatBill, child[repeatBill.money]))
+                    if (repeatBill == billInfo)
+                        {
+                            Logger.i("重复账单:$bill 与当前显示的账单相同")
+                            billInfo = repeatBill
+                        } else {
+                        list.find { it == repeatBill }?.let {
+                            list.remove(it)
+                            list.add(repeatBill)
+                        }
+                    }
+                } else {
+                list.add(bill)
+            }
         }
         return START_REDELIVER_INTENT
     }
 
-    private fun processBillInfo(billInfo: BillInfo) {
+    private suspend fun processBillInfo() {
+        showWindow = true
         if (timeCount == 0) {
-            callBillInfoEditor(billInfo, "setting_float_on_badge_timeout")
+            callBillInfoEditor("setting_float_on_badge_timeout")
             // 显示编辑悬浮窗
             return
         }
@@ -134,9 +175,9 @@ class FloatingWindowService : Service(), CoroutineScope {
         // 使用 ViewBinding 初始化悬浮窗视图
         val binding = FloatTipBinding.inflate(LayoutInflater.from(themedContext))
         binding.root.visibility = View.INVISIBLE
-        binding.money.text = BillUtils.getFloatMoney(billInfo.money).toString()
+        binding.money.text = BillUtils.getFloatMoney(billInfo!!.money).toString()
 
-        val colorRes = BillUtils.getColor(billInfo.type.toInt())
+        val colorRes = BillUtils.getColor(billInfo!!.type.toInt())
         val color = ContextCompat.getColor(themedContext, colorRes)
         binding.money.setTextColor(color)
         binding.time.text = String.format("%ss", timeCount.toString())
@@ -150,7 +191,7 @@ class FloatingWindowService : Service(), CoroutineScope {
                 override fun onFinish() {
                     // 取消倒计时
                     removeTips(binding)
-                    callBillInfoEditor(billInfo, "setting_float_on_badge_timeout")
+                    callBillInfoEditor("setting_float_on_badge_timeout")
                 }
             }
         countDownTimer.start()
@@ -158,14 +199,14 @@ class FloatingWindowService : Service(), CoroutineScope {
         binding.root.setOnClickListener {
             countDownTimer.cancel() // 定时器停止
             removeTips(binding)
-            callBillInfoEditor(billInfo, "setting_float_on_badge_click")
+            callBillInfoEditor("setting_float_on_badge_click")
         }
 
         binding.root.setOnLongClickListener {
             countDownTimer.cancel() // 定时器停止
             removeTips(binding)
             // 不记录
-            callBillInfoEditor(billInfo, "setting_float_on_badge_long_click")
+            callBillInfoEditor("setting_float_on_badge_long_click")
             true
         }
 
@@ -208,7 +249,7 @@ class FloatingWindowService : Service(), CoroutineScope {
     private fun recordBillInfo(billInfo: BillInfo) {
         launch {
             runCatching {
-                BillUtils.groupBillInfo(billInfo)
+                BillUtils.groupBillInfo(billInfo, child[billInfo.money])
                 if (SpUtils.getBoolean("setting_book_success", true)) {
                     Toaster.show(
                         getString(
@@ -217,6 +258,7 @@ class FloatingWindowService : Service(), CoroutineScope {
                         ),
                     )
                 }
+                child.remove(billInfo.money)
             }.onFailure {
                 if (it is AutoServiceException) {
                     EventBus.post(AutoServiceErrorEvent(it))
@@ -225,29 +267,29 @@ class FloatingWindowService : Service(), CoroutineScope {
         }
     }
 
-    private fun callBillInfoEditor(
-        billInfo: BillInfo,
-        key: String,
-    ) {
+    private fun callBillInfoEditor(key: String) {
         when (SpUtils.getInt(key, FloatEvent.POP_EDIT_WINDOW.ordinal)) {
             FloatEvent.AUTO_ACCOUNT.ordinal -> {
                 // 记账
-                recordBillInfo(billInfo)
+                recordBillInfo(billInfo!!)
+                showWindow = false
             }
 
             FloatEvent.POP_EDIT_WINDOW.ordinal -> {
                 launch {
-                    AutoAccountingServiceUtils.config(themedContext).let {
+                    AppUtils.getService().config().let {
                         // 编辑
                         withContext(Dispatchers.Main) {
-                            FloatEditorDialog(themedContext, billInfo, it, true).show(true)
+                            FloatEditorDialog(themedContext, billInfo!!, it, true, false) {
+                                showWindow = false
+                            }.show(true)
                         }
                     }
                 }
             }
 
             FloatEvent.NO_ACCOUNT.ordinal -> {
-                // 不处理
+                showWindow = false
             }
         }
     }

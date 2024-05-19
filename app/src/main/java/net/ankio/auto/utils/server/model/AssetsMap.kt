@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 ankio(ankio@ankio.net)
+ * Copyright (C) 2024 ankio(ankio@ankio.net)
  * Licensed under the Apache License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,16 +12,14 @@
  *  See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package net.ankio.auto.database.table
+package net.ankio.auto.utils.server.model
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
 import com.google.gson.Gson
+import kotlinx.coroutines.launch
+import net.ankio.auto.utils.AppUtils
 
-@Entity
 class AssetsMap {
     // 账户列表
-    @PrimaryKey(autoGenerate = true)
     var id = 0
 
     /**
@@ -39,17 +37,20 @@ class AssetsMap {
      */
     var mapName: String = "" // 映射账户名
 
-    override fun toString(): String {
-        return "AssetsMap(id=$id, regex=${if (regex) "true" else "false"}, name='$name', mapName='$mapName')"
-    }
-
-    fun toJSON(): String {
-        return Gson().toJson(this)
-    }
-
     companion object {
-        fun fromJSON(json: String): AssetsMap {
-            return Gson().fromJson(json, AssetsMap::class.java)
+        fun put(map: AssetsMap) {
+            AppUtils.getScope().launch {
+                AppUtils.getService().sendMsg("asset/map/put", map)
+            }
+        }
+
+        suspend fun get(): List<AssetsMap> {
+            val data = AppUtils.getService().sendMsg("asset/map/get", null)
+            return Gson().fromJson(Gson().toJson(data), Array<AssetsMap>::class.java).toList()
+        }
+
+        suspend fun remove(id: Int)  {
+            AppUtils.getService().sendMsg("asset/map/remove", mapOf("id" to id))
         }
     }
 }

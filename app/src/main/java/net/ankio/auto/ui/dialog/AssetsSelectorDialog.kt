@@ -21,14 +21,11 @@ import android.view.View
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.hjq.toast.Toaster
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import net.ankio.auto.R
-import net.ankio.auto.database.Db
-import net.ankio.auto.database.table.Assets
 import net.ankio.auto.databinding.DialogBookSelectBinding
 import net.ankio.auto.ui.adapter.AssetsSelectorAdapter
+import net.ankio.auto.utils.server.model.Assets
 
 class AssetsSelectorDialog(private val context: Context, private val callback: (Assets) -> Unit) :
     BaseSheetDialog(context) {
@@ -58,10 +55,7 @@ class AssetsSelectorDialog(private val context: Context, private val callback: (
         cancel: Boolean,
     ) {
         lifecycleScope.launch {
-            val newData =
-                withContext(Dispatchers.IO) {
-                    Db.get().AssetsDao().loadAll()
-                }
+            val newData = Assets.get(500)
 
             val collection = newData.takeIf { it.isNotEmpty() } ?: listOf()
 

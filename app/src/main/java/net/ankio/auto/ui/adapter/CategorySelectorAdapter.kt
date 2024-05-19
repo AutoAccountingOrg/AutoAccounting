@@ -27,11 +27,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
-import net.ankio.auto.database.Db
-import net.ankio.auto.database.table.Category
 import net.ankio.auto.databinding.AdapterCategoryListBinding
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.ImageUtils
+import net.ankio.auto.utils.server.model.Category
 
 /**
  * 分类选择器适配器
@@ -168,7 +167,8 @@ class CategorySelectorAdapter(
                 binding.ivMore.visibility = View.GONE
             } else {
                 scope.launch {
-                    if (Db.get().CategoryDao().count(item.book, item.id, item.type) == 0) {
+                    val count = Category.getAll(item.book, item.id, item.type).size
+                    if (count == 0) {
                         withContext(Dispatchers.Main) {
                             binding.ivMore.visibility = View.GONE
                         }
@@ -220,13 +220,13 @@ class CategorySelectorAdapter(
             scope.launch {
                 withContext(Dispatchers.IO) {
                     val newData =
-                        Db.get().CategoryDao().loadAll(
+                        Category.getAll(
                             item.book,
                             item.type,
                             item.parent,
                         )
 
-                    val collection = newData?.mapNotNull { it }?.takeIf { it.isNotEmpty() } ?: listOf()
+                    val collection = newData.map { it }.takeIf { it.isNotEmpty() } ?: listOf()
 
                     if (collection.isNotEmpty()) {
                         withContext(Dispatchers.Main) {

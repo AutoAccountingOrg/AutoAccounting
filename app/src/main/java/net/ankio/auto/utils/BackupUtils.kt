@@ -49,14 +49,13 @@ import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 
 class BackupUtils(private val context: Context) {
-    private val SUPPORT_VERSION = 201 // 支持恢复数据的版本号
-
-    private var filename = "auto_backup_${System.currentTimeMillis()}.$suffix"
+    private var filename = "auto_backup_${System.currentTimeMillis()}.$SUFFIX"
 
     private val uri = Uri.parse(SpUtils.getString("backup_uri", ""))
 
     companion object {
-        const val suffix = "pk"
+        const val SUFFIX = "pk"
+        const val SUPPORT_VERSION = 201 // 支持恢复数据的版本号
 
         fun registerBackupLauncher(activity: BaseActivity): ActivityResultLauncher<Uri?> {
             return activity.registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
@@ -78,7 +77,7 @@ class BackupUtils(private val context: Context) {
                         activity.contentResolver.getType(uri)
                             ?.let { MimeTypeMap.getSingleton().getExtensionFromMimeType(it) }
 
-                    if (!suffix.equals(fileExtension, true)) {
+                    if (!SUFFIX.equals(fileExtension, true)) {
                         Logger.i("fileExtension:$fileExtension")
                         Toaster.show(R.string.backup_error)
                         return@let
@@ -189,7 +188,7 @@ class BackupUtils(private val context: Context) {
     private suspend fun checkUseful(inputStream: InputStream) =
         withContext(Dispatchers.IO) {
             ZipInputStream(inputStream).use { zis ->
-                var entry: ZipEntry? = null
+                var entry: ZipEntry?
                 var useful = false
                 while (zis.nextEntry.also { entry = it } != null) {
                     if (entry!!.name == "auto.index") {
@@ -231,7 +230,7 @@ class BackupUtils(private val context: Context) {
     ) = withContext(Dispatchers.IO) {
         ZipInputStream(inputStream).use { zis ->
 
-            var entry: ZipEntry? = null
+            var entry: ZipEntry?
 
             while (zis.nextEntry.also { entry = it } != null) {
                 if (entry!!.name != name) {
@@ -294,7 +293,7 @@ class BackupUtils(private val context: Context) {
                 DocumentsContract.createDocument(
                     context.contentResolver,
                     documentUri,
-                    "application/$suffix",
+                    "application/$SUFFIX",
                     filename,
                 )
 
@@ -310,7 +309,7 @@ class BackupUtils(private val context: Context) {
 
     suspend fun putWebdavBackup(mainActivity: MainActivity) =
         withContext(Dispatchers.IO) {
-            filename = "auto_backup.$suffix"
+            filename = "auto_backup.$SUFFIX"
             val file = File(context.cacheDir, filename)
             val loadingUtils = LoadingUtils(mainActivity)
             val outputStream = FileOutputStream(file)
@@ -413,7 +412,7 @@ class BackupUtils(private val context: Context) {
             val requestUtils = RequestsUtils(context)
             val (url, username, password) = getWebdavInfo()
 
-            filename = "auto_backup.$suffix"
+            filename = "auto_backup.$SUFFIX"
             val file = File(context.cacheDir, filename)
             val loadingUtils = LoadingUtils(mainActivity)
             withContext(Dispatchers.Main) {

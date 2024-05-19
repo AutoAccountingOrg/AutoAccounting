@@ -36,8 +36,4 @@ data class RequestResult(
         result = 31 * result + code
         return result
     }
-
-    override fun toString(): String {
-        return "RequestResult(byteArray=${byteArray.contentToString()}, code=$code)"
-    }
 }

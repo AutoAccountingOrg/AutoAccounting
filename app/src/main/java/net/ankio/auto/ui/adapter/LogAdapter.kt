@@ -16,14 +16,12 @@
 package net.ankio.auto.ui.adapter
 
 import android.view.View
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterLogBinding
+import net.ankio.auto.utils.server.model.LogModel
 
 class LogAdapter(
-    override val dataItems: ArrayList<String>,
+    override val dataItems: ArrayList<LogModel>,
 ) : BaseAdapter(dataItems, AdapterLogBinding::class.java) {
     override fun onInitView(holder: BaseViewHolder) {
     }
@@ -33,39 +31,21 @@ class LogAdapter(
         item: Any,
     ) {
         val binding = holder.binding as AdapterLogBinding
-        val it = item as String
-        // [2024-05-11 13:12:06][D][ DefaultDispatcher-worker-3 ] (RequestsUtils.kt:202) GET https://cloud.ankio.net/d/阿里云盘/自动记账/规则更新//index.json
-        // 正则提取数据
-        holder.scope.launch {
-            val regex = Regex("""\[(.*?)]\[(.*?)]\[(.*?)] \((.*?)\) (.*)""")
-            val matchResult = regex.find(it.trim())
-            if (matchResult != null) {
-                val groups = matchResult.groupValues
-                val level = groups[2].trim()
-                withContext(Dispatchers.Main) {
-                    binding.logDate.text = groups[1].trim()
-
-                    binding.logThread.text = groups[3].trim()
-                    binding.logFile.text = groups[4].trim()
-                    // 数据需要进行截断处理，防止过长导致绘制ANR
-                    binding.log.text = groups[5].trim().substring(0, 500)
-                    when (level) {
-                        "D" -> binding.log.setTextColor(holder.context.getColor(R.color.success))
-                        "I" -> binding.log.setTextColor(holder.context.getColor(R.color.info))
-                        "V" -> binding.log.setTextColor(holder.context.getColor(R.color.info))
-                        "W" -> binding.log.setTextColor(holder.context.getColor(R.color.warning))
-                        "E" -> binding.log.setTextColor(holder.context.getColor(R.color.danger))
-                        else -> binding.log.setTextColor(holder.context.getColor(R.color.info))
-                    }
-                    binding.header.visibility = View.VISIBLE
-                }
-            } else {
-                withContext(Dispatchers.Main) {
-                    binding.header.visibility = View.GONE
-                    binding.log.text = it.trim().substring(0, 500)
-                    binding.log.setTextColor(holder.context.getColor(R.color.info))
-                }
-            }
+        val it = item as LogModel
+        val level = it.level
+        binding.logDate.text = it.date
+        binding.app.text = it.app
+        binding.logThread.text = it.thread
+        binding.logFile.text = it.line
+        // 数据需要进行截断处理，防止过长导致绘制ANR
+        binding.log.text = it.log
+        when (level) {
+            LogModel.LOG_LEVEL_DEBUG -> binding.log.setTextColor(holder.context.getColor(R.color.success))
+            LogModel.LOG_LEVEL_INFO -> binding.log.setTextColor(holder.context.getColor(R.color.info))
+            LogModel.LOG_LEVEL_WARN -> binding.log.setTextColor(holder.context.getColor(R.color.warning))
+            LogModel.LOG_LEVEL_ERROR -> binding.log.setTextColor(holder.context.getColor(R.color.danger))
+            else -> binding.log.setTextColor(holder.context.getColor(R.color.info))
         }
+        binding.header.visibility = View.VISIBLE
     }
 }

@@ -23,13 +23,13 @@ import net.ankio.auto.utils.request.RequestsUtils
 import org.json.JSONObject
 
 object Github {
-    private const val clientId = "1fc6754f52bdfaae24ff"
-    private const val clientSecret = "4b4417f52358526dcfc3370dc2c3bc87d83cbc6a"
-    private const val redirectUri = "autoaccounting://github/auth"
+    private const val CLIENT_ID = "1fc6754f52bdfaae24ff"
+    private const val CLIENT_SECRET = "4b4417f52358526dcfc3370dc2c3bc87d83cbc6a"
+    private const val REDIRECT_URI = "autoaccounting://github/auth"
     private val requestsUtils = RequestsUtils(AppUtils.getApplication())
 
     fun getLoginUrl(): String {
-        return "https://github.com/login/oauth/authorize?client_id=$clientId&redirect_uri=$redirectUri&scope=public_repo"
+        return "https://github.com/login/oauth/authorize?client_id=$CLIENT_ID&redirect_uri=$REDIRECT_URI&scope=public_repo"
     }
 
     suspend fun parseAuthCode(code: String?) =
@@ -39,10 +39,10 @@ object Github {
             }
             val data =
                 hashMapOf(
-                    "client_id" to clientId,
-                    "client_secret" to clientSecret,
+                    "client_id" to CLIENT_ID,
+                    "client_secret" to CLIENT_SECRET,
                     "code" to code,
-                    "redirect_uri" to redirectUri,
+                    "redirect_uri" to REDIRECT_URI,
                 )
 
             val result =
@@ -69,7 +69,7 @@ object Github {
             )
         val accessToken = SpUtils.getString("accessToken", "")
         if (accessToken.isNotEmpty()) {
-            hashMap["Authorization"] = "Bearer ${SpUtils.getString("accessToken")}"
+            hashMap["Authorization"] = "Bearer $accessToken"
         }
         return hashMap
     }

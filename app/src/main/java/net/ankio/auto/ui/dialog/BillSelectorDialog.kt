@@ -28,9 +28,9 @@ import net.ankio.auto.databinding.DialogBillSelectBinding
 import net.ankio.auto.events.AutoServiceErrorEvent
 import net.ankio.auto.exceptions.AutoServiceException
 import net.ankio.auto.ui.adapter.BillSelectorAdapter
-import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.event.EventBus
+import net.ankio.auto.utils.server.model.SettingModel
 import net.ankio.common.constant.BillType
 import net.ankio.common.model.BillModel
 
@@ -69,7 +69,7 @@ class BillSelectorDialog(
     ) {
         lifecycleScope.launch {
             runCatching {
-                val it = AppUtils.getService().get("auto_bills_${billType.name}")
+                val it = SettingModel.get("server", "auto_bills_${billType.name}")
                 val data = Gson().fromJson(it, Array<BillModel>::class.java)
                 if (data.isEmpty()) {
                     dismiss()

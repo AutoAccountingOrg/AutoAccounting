@@ -36,13 +36,15 @@ public:
    //获取日志
    Json::Value getLog(int limit);
 
+   void deleteAllLog();
+
    //设置项
     void setSetting(const std::string& app, const std::string& key, const std::string& value);
     std::string getSetting(const std::string& app, const std::string& key);
 
 
     //账单
-    int insertBill(int id, int type, int currency,int money, int fee, int timeStamp, const std::string& shopName, const std::string& cateName, const std::string& extendData, const std::string& bookName, const std::string& accountNameFrom, const std::string& accountNameTo, const std::string& fromApp, int groupId, const std::string& channel, int syncFromApp, const std::string& remark, int fromType);
+    int insertBill(int id, int type, const std::string &currency,int money, int fee, int timeStamp, const std::string& shopName, const std::string& cateName, const std::string& extendData, const std::string& bookName, const std::string& accountNameFrom, const std::string& accountNameTo, const std::string& fromApp, int groupId, const std::string& channel, int syncFromApp, const std::string& remark, int fromType);
     //获取需要同步的账单
     Json::Value getWaitSyncBills();
     //更新账单同步状态
@@ -79,7 +81,7 @@ public:
     //分类
     int insertCate(int id, const std::string& name, const std::string&  icon, const std::string&  remoteId,int parent,int book,int sort,int type);
     Json::Value getAllCate(int book, int type = 0,int parent = 0);
-    Json::Value getCate(int book,const std::string& cateName);
+    Json::Value getCate(int book,const std::string& cateName,int type);
     Json::Value getCateByRemote(int book,const std::string& remoteId);
     void removeCate(int id);
 
@@ -92,6 +94,10 @@ public:
     //规则
     void insertRule( const std::string& app, const std::string&  js, const std::string&  version,  int type);
     Json::Value getRule(const std::string& app, int type);
+
+    Json::Value buildBill(sqlite3_stmt *stmt);
+
+    Json::Value getBillAllParents();
 };
 
 

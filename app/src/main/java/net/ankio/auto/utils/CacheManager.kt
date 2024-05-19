@@ -51,7 +51,6 @@ class CacheManager(private val context: Context) {
         withContext(Dispatchers.IO) {
             val file = File(context.cacheDir, key)
             if (file.exists()) {
-                AppTimeMonitor.startMonitoring("读取缓存: $key")
                 return@withContext FileInputStream(file).use { fis ->
                     val data = fis.readBytes()
                     val expiryTime =
@@ -61,8 +60,6 @@ class CacheManager(private val context: Context) {
                         file.delete()
                         return@use ByteArray(0)
                     }
-                    Logger.i("缓存命中: $key，当前时间：$nowTime 超时时间：$expiryTime")
-                    AppTimeMonitor.stopMonitoring("读取缓存: $key")
                     data.dropLast(13).toByteArray()
                 }
             } else {

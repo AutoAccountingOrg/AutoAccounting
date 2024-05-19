@@ -160,10 +160,7 @@ dependencies {
     implementation libs.toaster
     //xp依赖
     compileOnly libs.xposed
-    //room数据库
-    implementation libs.androidx.room.runtime.v251
-    ksp libs.androidx.room.compiler.v251
-    implementation libs.androidx.room.ktx
+
     //flexbox
     implementation libs.flexbox
     //圆角
@@ -176,4 +173,6 @@ dependencies {
     implementation project(":dex")
     // xml2json
     implementation libs.xmltojson
+
+    implementation project(":server")
 }

@@ -27,17 +27,17 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.hjq.toast.Toaster
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogProgressBinding
 import net.ankio.auto.databinding.FragmentServiceBinding
+import net.ankio.auto.events.AutoServerConnectedEvent
 import net.ankio.auto.exceptions.UnsupportedDeviceException
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.utils.AppUtils
-import net.ankio.auto.utils.AutoAccountingServiceUtils
 import net.ankio.auto.utils.Logger
+import net.ankio.auto.utils.event.EventBus
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
@@ -48,12 +48,19 @@ class ServiceFragment : BaseFragment() {
     private lateinit var shell: String
     private var cacheDir: File? = null
 
+    private val onConnectedListener = { event: AutoServerConnectedEvent ->
+        findNavController().navigate(R.id.homeFragment)
+        requireActivity().recreate()
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
         binding = FragmentServiceBinding.inflate(layoutInflater)
+
+        EventBus.register(AutoServerConnectedEvent::class.java, onConnectedListener)
 
         initView()
         return binding.root
@@ -62,6 +69,11 @@ class ServiceFragment : BaseFragment() {
     override fun onResume() {
         super.onResume()
         activityBinding.toolbar.visibility = View.GONE
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        EventBus.unregister(AutoServerConnectedEvent::class.java, onConnectedListener)
     }
 
     private fun initView() {
@@ -75,7 +87,6 @@ class ServiceFragment : BaseFragment() {
             AppUtils.getService().copyAssets()
             withContext(Dispatchers.Main) {
                 loading.close()
-                checkService()
             }
         }
         shell = "sh ${cacheDir!!.path}/shell/starter.sh"
@@ -97,21 +108,6 @@ class ServiceFragment : BaseFragment() {
                 }
             },
         )
-    }
-
-    private fun checkService() {
-        val checkInterval = 1000L // 检查间隔，这里设置为5000毫秒（5秒）
-        // 在一个新的协程中执行定时任务
-        lifecycleScope.launch(Dispatchers.IO) { // 默认在主线程执行
-
-            while (isActive && !AutoAccountingServiceUtils.isServerStart(5)) { // 循环直到协程被取消
-                delay(checkInterval)
-            }
-            withContext(Dispatchers.Main) {
-                findNavController().navigate(R.id.homeFragment)
-                requireActivity().recreate()
-            }
-        }
     }
 
     private fun startServerByRoot() {

@@ -28,12 +28,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
-import net.ankio.auto.database.Db
-import net.ankio.auto.database.table.Regular
 import net.ankio.auto.databinding.FragmentDataBinding
 import net.ankio.auto.ui.adapter.RuleAdapter
 import net.ankio.auto.ui.fragment.BaseFragment
 import net.ankio.auto.ui.utils.MenuItem
+import net.ankio.auto.utils.server.model.Regular
 
 class RuleFragment : BaseFragment() {
     private lateinit var binding: FragmentDataBinding
@@ -76,7 +75,7 @@ class RuleFragment : BaseFragment() {
                         .setNegativeButton(requireContext().getString(R.string.sure_msg)) { _, _ ->
                             lifecycleScope.launch {
                                 withContext(Dispatchers.IO) {
-                                    Db.get().RegularDao().del(item.id)
+                                    Regular.remove(item.id)
                                 }
                                 dataItems.removeAt(position)
                                 adapter.notifyItemRemoved(position)
@@ -94,11 +93,8 @@ class RuleFragment : BaseFragment() {
 
     private fun loadData() {
         lifecycleScope.launch {
-            val newData =
-                withContext(Dispatchers.IO) {
-                    Db.get().RegularDao().loadAll()
-                }
-            val collection: Collection<Regular> = newData?.filterNotNull() ?: emptyList()
+            val newData = Regular.get(500)
+            val collection: Collection<Regular> = newData
             dataItems.clear()
             dataItems.addAll(collection)
             adapter.notifyDataSetChanged()

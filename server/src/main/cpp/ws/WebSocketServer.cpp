@@ -104,6 +104,8 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
 
         } else if (message_type == "log/get") {
             ret["data"] = DbManager::getInstance().getLog(data["limit"].asInt());
+        }else if (message_type == "log/delete/all") {
+            DbManager::getInstance().deleteAllLog();
         }
 
 
@@ -125,7 +127,7 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
 
             int id = data["id"].asInt();
             int _type = data["type"].asInt();
-            int currency = data["currency"].asInt();
+            std::string currency = data["currency"].asString();
             int money = data["money"].asInt();
             int fee = data["fee"].asInt();
             int timeStamp = data["timeStamp"].asInt();
@@ -156,7 +158,9 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
             ret["data"]=DbManager::getInstance().getBillByIds(data["ids"].asString());
         } else if(message_type == "bill/list/child"){
             ret["data"]=DbManager::getInstance().getBillByGroupId(data["groupId"].asInt());
-        }
+        }else if(message_type == "bill/list/parent"){
+        ret["data"]=DbManager::getInstance().getBillAllParents();
+    }
 
 
         else if(message_type == "data/put"){
@@ -240,8 +244,9 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
             ret["data"] = DbManager::getInstance().getAllCate(book, _type, parent);
         } else if(message_type == "cate/get/name"){
             int book = data["book"].asInt();
+            int _type = data["type"].asInt();
             std::string cateName = data["cateName"].asString();
-            ret["data"] = DbManager::getInstance().getCate(book, cateName);
+            ret["data"] = DbManager::getInstance().getCate(book, cateName,_type);
         } else if(message_type == "cate/get/remote"){
             int book = data["book"].asInt();
             std::string remoteId = data["remoteId"].asString();
@@ -289,11 +294,13 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
             std::string _data = data["data"].asString();
             std::string app = data["app"].asString();
             int _type = data["type"].asInt();
-            Json::Value rule = DbManager::getInstance().getRule(app, _type);
+            int call = data["call"].asInt();
+            //Json::Value rule = DbManager::getInstance().getRule(app, _type);
+            std::string rule = DbManager::getInstance().getSetting("server", "rule_js");
             //先执行分析账单内容
 // val js = "var window = {data:JSON.stringify($data), dataType:$dataType, app:\"${app}\"};<RULE>"
 //
-            std::string billJs = "var window = {data:JSON.stringify("+_data+")};<RULE>" + rule["js"].asString();
+            std::string billJs = "var window = {data:JSON.stringify("+_data+")};<RULE>" + rule;
 
             std::string result = runJs(billJs);
 
@@ -304,77 +311,69 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
             Json::Reader _reader;
             if (!_reader.parse((const char *) msg, _json)) {
                 printf("json parse error\n");
-                DbManager::getInstance().insertAppData(0, _data, _type, app, "", time, 0,0);
-                return;
+                if(call==1)DbManager::getInstance().insertAppData(0, _data, _type, app, "", time, 0,0);
+
+                ret["data"] = "json parse error";
+            }else{
+                float money = _json["money"].asFloat();
+                int bill_type = _json["type"].asInt();
+                std::string shopName = replaceSubstring( _json["shopName"].asString(),"'","\"");
+                std::string shopItem = replaceSubstring( _json["shopItem"].asString(),"'","\"");
+                std::time_t now = std::time(nullptr);
+                //time时间戳格式化为：HH:mm
+                char buffer[32];
+                std::tm *ptm = std::localtime(&now);
+                std::strftime(buffer, 32, "%H:%M", ptm);
+                std::string timeStr = buffer;
+
+                std::string channel = _json["channel"].asString();
+
+                if(call==1)DbManager::getInstance().insertAppData(0, _data, _type, app, channel, time, 1,0);
+
+                //分析分类内容
+
+
+                std::string customJs = DbManager::getInstance().getSetting("server", "custom_js");
+                std::string official_cate_js = DbManager::getInstance().getSetting("server", "official_cate_js");
+                std::string categoryJs = "var window = {money:"+std::to_string(money)+", type:"+std::to_string(bill_type)+", shopName:'"+shopName+"', shopItem:'"+shopItem+"', time:'"+timeStr+"'};\n" +
+                                         "function getCategory(money,type,shopName,shopItem,time){ "+customJs+" return null};\n" +
+                                         "var categoryInfo = getCategory(window.money,window.type,window.shopName,window.shopItem,window.time);" +
+                                         "if(categoryInfo !== null) { print(JSON.stringify(categoryInfo));  } else { "+official_cate_js+" }";
+
+
+                std::string categoryResult = runJs(categoryJs);
+                Json::Value categoryJson;
+                if (!_reader.parse(categoryResult, categoryJson)) {
+                    printf("json parse error\n");
+                    ret["data"] = "json parse error";
+                }else{
+                    std::string bookName = categoryJson["bookName"].asString();
+                    std::string cateName = categoryJson["cateName"].asString();
+                    //拉起自动记账app
+                    _json["bookName"] = bookName;
+                    _json["cateName"] = cateName;
+
+                    if(call==1){
+                        try {
+                            std::string cmd =
+                                    R"(am start -a "net.ankio.auto.ACTION_SHOW_FLOATING_WINDOW" -d "autoaccounting://bill?data=)" +
+                                    base64::to_base64(_json.toStyledString())  + R"(" --ez "android.intent.extra.NO_ANIMATION" true -f 0x10000000)";
+                            //写日志
+                            log("执行命令" + cmd,LOG_LEVEL_INFO);
+                            system(cmd.c_str());
+                        } catch (const std::exception &e) {
+                            log("拉起自动记账失败："+std::string(e.what()),LOG_LEVEL_ERROR);
+                        }
+
+                    }
+
+                    ret["data"] = _json;
+                }
+
             }
 
-            float money = _json["money"].asFloat();
-            int bill_type = _json["type"].asInt();
-            std::string shopName = replaceSubstring( _json["shopName"].asString(),"'","\"");
-            std::string shopItem = replaceSubstring( _json["shopItem"].asString(),"'","\"");
-            std::time_t now = std::time(nullptr);
-            //time时间戳格式化为：HH:mm
-            char buffer[32];
-            std::tm *ptm = std::localtime(&now);
-            std::strftime(buffer, 32, "%H:%M", ptm);
-            std::string timeStr = buffer;
-
-            std::string channel = _json["channel"].asString();
-
-            DbManager::getInstance().insertAppData(0, _data, _type, app, channel, time, 1,0);
-
-            //分析分类内容
-
-            /**
-             *      val categoryJs =
-                    "var window = {money:${BillUtils.getFloatMoney(billInfo.money)}, type:${billInfo.type.value}, shopName:'${
-                        billInfo.shopName.replace(
-                            "'",
-                            "\"",
-                        )
-                    }', shopItem:'${
-                        billInfo.shopItem.replace(
-                            "'",
-                            "\"",
-                        )
-                    }', time:'${DateUtils.stampToDate(billInfo.timeStamp, "HH:mm")}'};\n" +
-                        "function getCategory(money,type,shopName,shopItem,time){ <CATEGORY_CUSTOM> return null};\n" +
-                        "var categoryInfo = getCategory(window.money,window.type,window.shopName,window.shopItem,window.time);" +
-                        "if(categoryInfo !== null) { print(JSON.stringify(categoryInfo));  } else { <CATEGORY> }"
-
-             */
-
-            std::string customJs = DbManager::getInstance().getSetting("server", "custom_js");
-            std::string official_cate_js = DbManager::getInstance().getSetting("server", "official_cate_js");
-            std::string categoryJs = "var window = {money:"+std::to_string(money)+", type:"+std::to_string(bill_type)+", shopName:'"+shopName+"', shopItem:'"+shopItem+"', time:'"+timeStr+"'};\n" +
-                        "function getCategory(money,type,shopName,shopItem,time){ "+customJs+" return null};\n" +
-                        "var categoryInfo = getCategory(window.money,window.type,window.shopName,window.shopItem,window.time);" +
-                        "if(categoryInfo !== null) { print(JSON.stringify(categoryInfo));  } else { "+official_cate_js+" }";
 
 
-            std::string categoryResult = runJs(categoryJs);
-            Json::Value categoryJson;
-            if (!_reader.parse(categoryResult, categoryJson)) {
-                printf("json parse error\n");
-                return;
-            }
-            std::string bookName = categoryJson["bookName"].asString();
-            std::string cateName = categoryJson["cateName"].asString();
-            //拉起自动记账app
-            _json["bookName"] = bookName;
-            _json["cateName"] = cateName;
-
-
-            try {
-                std::string cmd =
-                        R"(am start -a "net.ankio.auto.ACTION_SHOW_FLOATING_WINDOW" -d "autoaccounting://bill?data=)" +
-                       base64::to_base64(_json.toStyledString())  + R"(" --ez "android.intent.extra.NO_ANIMATION" true -f 0x10000000)";
-                //写日志
-                log("执行命令" + cmd,LOG_LEVEL_INFO);
-                system(cmd.c_str());
-            } catch (const std::exception &e) {
-                log("拉起自动记账失败："+std::string(e.what()),LOG_LEVEL_ERROR);
-            }
 
         }
 

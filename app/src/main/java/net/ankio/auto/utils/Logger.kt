@@ -17,39 +17,19 @@ package net.ankio.auto.utils
 
 import android.util.Log
 import kotlinx.coroutines.launch
+import net.ankio.auto.utils.server.model.LogModel
 
 /**
  * 日志工具类，包含调用日志的类和行号信息，以及异常的堆栈跟踪。
  */
 object Logger {
-    private var level = Log.VERBOSE
-
-    private var debug = false
-
-    fun init() {
-        debug = AppUtils.getDebug()
-
-        // 如果是调试模式，日志级别就是VERBOSE，否则就是ERROR
-        level = SpUtils.getInt("log_level", if (debug) Log.VERBOSE else Log.ERROR)
-    }
-
-    fun setLevel(level: Int) {
-        SpUtils.putInt("log_level", level)
-    }
-
-    private fun getLogHeader(): String {
+    private fun getLogHeader(): Triple<String, String, String> {
         val stackTraceElement = Throwable().stackTrace[3] // 获取调用日志方法的堆栈跟踪元素
-
-        return StringBuilder().apply {
-            append("[ ")
-            append(Thread.currentThread().name)
-            append(" ] ")
-            append("(")
-            append(stackTraceElement.fileName)
-            append(":")
-            append(stackTraceElement.lineNumber)
-            append(") ")
-        }.toString() // 将StringBuilder转换为String
+        return Triple(
+            Thread.currentThread().name,
+            stackTraceElement.fileName,
+            stackTraceElement.lineNumber.toString(),
+        )
     }
 
     private fun getTag(): String {
@@ -61,10 +41,9 @@ object Logger {
         tag: String,
         message: String,
     ) {
-        if (message.contains(AutoAccountingServiceUtils.getUrl("/log"))) {
+        if (message.contains("log/put") || message.contains("log/get")) {
             return
         }
-        if (type < level) return
 
         fun log(it: String) {
             when (type) {
@@ -75,7 +54,19 @@ object Logger {
                 Log.ERROR -> Log.e(tag, it)
             }
         }
-        val header = getLogHeader()
+        val (thread, file, line) = getLogHeader()
+
+        val header =
+            StringBuilder().apply {
+                append("[ ")
+                append(thread)
+                append(" ] ")
+                append("(")
+                append(file)
+                append(":")
+                append(line)
+                append(") ")
+            }.toString()
         val list = ArrayList<String>()
         message.lines().forEach {
             val segmentSize = 3 * 1024
@@ -99,7 +90,24 @@ object Logger {
         if (list.any { it.contains("127.0.0.1:52045") })return
 
         AppUtils.getScope().launch {
-            AutoAccountingServiceUtils.log(list, header, type, AppUtils.getApplication())
+            LogModel.put(
+                LogModel().apply {
+                    date = DateUtils.getTime(System.currentTimeMillis())
+                    app = AppUtils.getApplication().packageName
+                    hook = 0
+                    this.thread = thread
+                    this.line = "$file:$line"
+                    level =
+                        when (type) {
+                            Log.DEBUG -> LogModel.LOG_LEVEL_DEBUG
+                            Log.INFO -> LogModel.LOG_LEVEL_INFO
+                            Log.WARN -> LogModel.LOG_LEVEL_WARN
+                            Log.ERROR -> LogModel.LOG_LEVEL_ERROR
+                            else -> LogModel.LOG_LEVEL_DEBUG
+                        }
+                    log = message
+                },
+            )
         }
     }
 

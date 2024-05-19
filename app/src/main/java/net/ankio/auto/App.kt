@@ -19,12 +19,10 @@ import android.app.Application
 import android.content.Context
 import android.os.StrictMode
 import com.hjq.toast.Toaster
-import net.ankio.auto.database.Db
 import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.utils.AppTimeMonitor
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.ExceptionHandler
-import net.ankio.auto.utils.Logger
 
 class App : Application() {
     override fun onTerminate() {
@@ -36,14 +34,8 @@ class App : Application() {
         super.attachBaseContext(base)
         // 初始化工具类
         AppUtils.setApplication(this)
-        AppUtils.setService(this)
         // 监控
         AppTimeMonitor.startMonitoring("App初始化")
-
-        // 数据库初始化
-        Db.init(this)
-        // 日志初始化
-        Logger.init()
         // 设置全局异常
         ExceptionHandler.init(this)
         // 初始化 Toast 框架

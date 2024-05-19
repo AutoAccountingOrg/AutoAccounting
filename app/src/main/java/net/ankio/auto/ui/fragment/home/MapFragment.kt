@@ -26,13 +26,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
-import net.ankio.auto.database.Db
-import net.ankio.auto.database.table.AssetsMap
 import net.ankio.auto.databinding.FragmentMapBinding
 import net.ankio.auto.ui.adapter.MapAdapter
 import net.ankio.auto.ui.dialog.MapDialog
 import net.ankio.auto.ui.fragment.BaseFragment
 import net.ankio.auto.ui.utils.MenuItem
+import net.ankio.auto.utils.server.model.AssetsMap
 
 class MapFragment : BaseFragment() {
     private lateinit var binding: FragmentMapBinding
@@ -83,7 +82,7 @@ class MapFragment : BaseFragment() {
 
                             lifecycleScope.launch {
                                 withContext(Dispatchers.IO) {
-                                    Db.get().AssetsMapDao().delete(item)
+                                    AssetsMap.remove(item.id)
                                 }
                             }
 
@@ -97,10 +96,7 @@ class MapFragment : BaseFragment() {
         binding.recyclerView.adapter = adapter
         scrollView = binding.recyclerView
         lifecycleScope.launch {
-            val newData =
-                withContext(Dispatchers.IO) {
-                    Db.get().AssetsMapDao().loadAll()
-                }
+            val newData = AssetsMap.get()
 
             val collection = newData.takeIf { it.isNotEmpty() } ?: listOf()
 

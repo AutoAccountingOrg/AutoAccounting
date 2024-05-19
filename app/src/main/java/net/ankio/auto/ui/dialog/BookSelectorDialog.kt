@@ -20,14 +20,11 @@ import android.view.LayoutInflater
 import android.view.View
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import net.ankio.auto.database.Db
-import net.ankio.auto.database.table.BookName
 import net.ankio.auto.databinding.DialogBookSelectBinding
 import net.ankio.auto.ui.adapter.BookSelectorAdapter
 import net.ankio.auto.utils.SpUtils
+import net.ankio.auto.utils.server.model.BookName
 
 class BookSelectorDialog(private val context: Context, val callback: (BookName) -> Unit) :
     BaseSheetDialog(context) {
@@ -61,10 +58,7 @@ class BookSelectorDialog(private val context: Context, val callback: (BookName) 
             }
 
         lifecycleScope.launch {
-            val newData =
-                withContext(Dispatchers.IO) {
-                    Db.get().BookNameDao().loadAll()
-                }
+            val newData = BookName.get()
 
             val collection = newData.takeIf { it.isNotEmpty() } ?: listOf(defaultBook)
 

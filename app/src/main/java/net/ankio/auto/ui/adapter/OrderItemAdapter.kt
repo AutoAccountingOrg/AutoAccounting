@@ -21,13 +21,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.app.BillUtils
-import net.ankio.auto.database.table.Assets
-import net.ankio.auto.database.table.BillInfo
-import net.ankio.auto.database.table.BookName
-import net.ankio.auto.database.table.Category
 import net.ankio.auto.databinding.AdapterOrderItemBinding
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.DateUtils
+import net.ankio.auto.utils.server.model.Assets
+import net.ankio.auto.utils.server.model.BillInfo
+import net.ankio.auto.utils.server.model.BookName
+import net.ankio.auto.utils.server.model.Category
 import net.ankio.common.config.AccountingConfig
 import net.ankio.common.constant.BillType
 
@@ -75,7 +75,7 @@ class OrderItemAdapter(
         binding.date.text = DateUtils.getTime("HH:mm:ss", billInfo.timeStamp)
 
         val type =
-            when (billInfo.type) {
+            when (BillType.fromInt(billInfo.type)) {
                 BillType.Expend -> BillType.Expend
                 BillType.ExpendReimbursement -> BillType.Expend
                 BillType.ExpendLending -> BillType.Expend
