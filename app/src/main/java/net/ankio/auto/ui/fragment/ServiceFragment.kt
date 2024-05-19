@@ -31,31 +31,20 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogProgressBinding
 import net.ankio.auto.databinding.FragmentServiceBinding
-import net.ankio.auto.events.AutoServerConnectedEvent
 import net.ankio.auto.exceptions.UnsupportedDeviceException
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.Logger
-import net.ankio.auto.utils.event.EventBus
 import net.ankio.auto.utils.server.AutoServer
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
-import java.net.InetSocketAddress
 import java.net.Socket
 
 class ServiceFragment : BaseFragment() {
     private lateinit var binding: FragmentServiceBinding
     private lateinit var shell: String
     private var cacheDir: File? = null
-
-    private var connected = false
-
-    private val onConnectedListener = { event: AutoServerConnectedEvent ->
-        connected = true
-        // findNavController().navigate(R.id.homeFragment)
-        requireActivity().recreate()
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -64,7 +53,7 @@ class ServiceFragment : BaseFragment() {
     ): View {
         binding = FragmentServiceBinding.inflate(layoutInflater)
 
-        EventBus.register(AutoServerConnectedEvent::class.java, onConnectedListener)
+        //   EventBus.register(AutoServerConnectedEvent::class.java, onConnectedListener)
 
         initView()
         return binding.root
@@ -77,7 +66,7 @@ class ServiceFragment : BaseFragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        EventBus.unregister(AutoServerConnectedEvent::class.java, onConnectedListener)
+        //   EventBus.unregister(AutoServerConnectedEvent::class.java, onConnectedListener)
     }
 
     private fun initView() {
@@ -110,23 +99,27 @@ class ServiceFragment : BaseFragment() {
 
         lifecycleScope.launch {
             // 检测52045端口是否开放
-            val host = AutoServer.HOST
+            val host = AutoServer.HOST.replace("ws://", "")
             val port = AutoServer.PORT
-            while (!isPortOpen(host, port, 500)) {
-                delay(1000)
+
+            withContext(Dispatchers.IO) {
+                while (!isPortOpen(host, port)) {
+                    Logger.i("Waiting for port $port to open")
+                    delay(1000)
+                }
+                withContext(Dispatchers.Main) {
+                    AppUtils.restart()
+                }
             }
-            AppUtils.getService().connect()
         }
     }
 
-    fun isPortOpen(
-        host: String,
+    private fun isPortOpen(
+        ip: String,
         port: Int,
-        timeout: Int,
     ): Boolean {
         return try {
-            Socket().use { socket ->
-                socket.connect(InetSocketAddress(host, port), timeout)
+            Socket(ip, port).use {
                 true
             }
         } catch (e: Exception) {
