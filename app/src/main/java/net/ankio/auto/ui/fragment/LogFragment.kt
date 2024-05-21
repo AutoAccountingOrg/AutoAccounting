@@ -74,6 +74,8 @@ class LogFragment : BaseFragment() {
                                 file,
                             )
                         shareIntent.putExtra(Intent.EXTRA_STREAM, fileUri)
+                        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+
                         // 添加可选的文本标题
                         shareIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.share_file))
 
