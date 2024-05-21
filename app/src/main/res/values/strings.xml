@@ -341,4 +341,5 @@
     <string name="setting_auto_asset_desc">如果你手动选择了资产，即最终记录到账单的资产和一开始是识别到的资产不一致，自动记账会自动创建映射。</string>
     <string name="setting_auto_ai_asset">智能识别资产</string>
     <string name="setting_auto_ai_asset_desc">自动记账将尝试使用内置的识别算法自动映射正确的资产</string>
+    <string name="loading_logs">正在打包日志中...</string>
 </resources>

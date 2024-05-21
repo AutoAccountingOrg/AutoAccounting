@@ -46,29 +46,45 @@ class LogFragment : BaseFragment() {
         arrayListOf(
             MenuItem(R.string.item_share, R.drawable.menu_icon_share) {
                 runCatching {
-                    val cacheDir = AppUtils.getApplication().externalCacheDir
-                    val file = File(cacheDir, "/shell/log.txt")
-                    val shareIntent = Intent(Intent.ACTION_SEND)
-                    // 设置分享类型为文件
-                    shareIntent.type = "application/octet-stream"
-                    // 将文件URI添加到分享意图
-                    val fileUri =
-                        FileProvider.getUriForFile(
-                            requireContext(),
-                            "net.ankio.auto.fileprovider",
-                            file,
-                        )
-                    shareIntent.putExtra(Intent.EXTRA_STREAM, fileUri)
-                    // 添加可选的文本标题
-                    shareIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.share_file))
+                    val loadingUtils = LoadingUtils(requireActivity())
+                    loadingUtils.show(R.string.loading_logs)
 
-                    // 启动分享意图
-                    requireContext().startActivity(
-                        Intent.createChooser(
-                            shareIntent,
-                            getString(R.string.share_file),
-                        ),
-                    )
+                    lifecycleScope.launch {
+                        val cacheDir = AppUtils.getApplication().externalCacheDir
+                        val file = File(cacheDir, "/shell/log.txt")
+                        withContext(Dispatchers.IO) {
+
+                            if (file.exists()) {
+                                file.delete()
+                            }
+                            file.createNewFile()
+                            LogModel.get(10000).forEach {
+                                file.appendText("[ ${it.date} ] [ ${it.app} ] [ ${it.thread} ] [ ${it.line} ] ${it.log}\n")
+                            }
+                        }
+                        loadingUtils.close()
+                        val shareIntent = Intent(Intent.ACTION_SEND)
+                        // 设置分享类型为文件
+                        shareIntent.type = "application/octet-stream"
+                        // 将文件URI添加到分享意图
+                        val fileUri =
+                            FileProvider.getUriForFile(
+                                requireContext(),
+                                "net.ankio.auto.fileprovider",
+                                file,
+                            )
+                        shareIntent.putExtra(Intent.EXTRA_STREAM, fileUri)
+                        // 添加可选的文本标题
+                        shareIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.share_file))
+
+                        // 启动分享意图
+                        requireContext().startActivity(
+                            Intent.createChooser(
+                                shareIntent,
+                                getString(R.string.share_file),
+                            ),
+                        )
+                    }
                 }.onFailure {
                     Logger.e("日志分享失败", it)
                 }
@@ -112,7 +128,7 @@ class LogFragment : BaseFragment() {
             // 读取log.txt
             withContext(Dispatchers.IO) {
                 dataItems.clear()
-                dataItems.addAll(LogModel.get(10))
+                dataItems.addAll(LogModel.get(500))
 
                 withContext(Dispatchers.Main) {
                     loading.close()
