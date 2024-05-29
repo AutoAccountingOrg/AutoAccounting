@@ -103,8 +103,9 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
         //对于不同的路由进行处理
         Json::Value data = json["data"];
 
-
-        if (message_type == "log/put") {
+        if(message_type == "hi,server"){
+            ret["data"] = "hi,client";
+        }else if (message_type == "log/put") {
             DbManager::getInstance().insertLog(data["date"].asString(), data["app"].asString(),
                                                data["hook"].asInt(), data["thread"].asString(),
                                                data["line"].asString(), data["log"].asString(),data["level"].asInt());
