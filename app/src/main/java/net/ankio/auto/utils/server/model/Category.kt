@@ -22,7 +22,6 @@ import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.ImageUtils
-import net.ankio.common.model.CategoryModel
 
 class Category {
     var id = 0
@@ -64,32 +63,6 @@ class Category {
     var type: Int = 0
 
     companion object {
-        suspend fun importModel(
-            model: List<CategoryModel>,
-            bookID: Long,
-        ) {
-            // 排序
-            val sortedModel =
-                model.sortedWith(compareBy<CategoryModel> { it.parent != "-1" }.thenBy { it.sort })
-            sortedModel.forEach {
-                Category().apply {
-                    name = it.name
-                    icon = it.icon
-                    book = bookID.toInt()
-                    sort = it.sort
-                    type = it.type
-                    remoteId = it.id
-                    if (it.parent != "-1") {
-                        getByRemote(it.parent, book)?.let { it2 ->
-                            parent = it2.id
-                        }
-                    }
-
-                    put(this)
-                }
-            }
-        }
-
         suspend fun getDrawable(
             cateName: String,
             bookID: Int,

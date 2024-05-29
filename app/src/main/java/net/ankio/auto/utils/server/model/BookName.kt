@@ -22,7 +22,6 @@ import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.ImageUtils
-import net.ankio.common.model.BookModel
 
 class BookName {
     // 账本列表
@@ -39,13 +38,6 @@ class BookName {
     var icon: String = "" // 图标
 
     companion object {
-        fun fromModel(model: BookModel): BookName {
-            return BookName().apply {
-                name = model.name
-                icon = model.icon
-            }
-        }
-
         fun put(book: BookName) {
             AppUtils.getScope().launch {
                 AppUtils.getService().sendMsg("book/put", book)
