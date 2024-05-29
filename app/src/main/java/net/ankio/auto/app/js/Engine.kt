@@ -15,12 +15,12 @@
 
 package net.ankio.auto.app.js
 
+import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.utils.AppTimeMonitor
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.server.model.BillInfo
-import org.json.JSONObject
 
 object Engine {
     suspend fun analyze(
@@ -35,11 +35,11 @@ object Engine {
             val json =
                 AppUtils.getService().sendMsg(
                     "analyze",
-                    JSONObject().apply {
-                        put("type", dataType)
-                        put("app", app)
-                        put("data", data)
-                        put("call", if (call) 1 else 0)
+                    JsonObject().apply {
+                        addProperty("type", dataType)
+                        addProperty("app", app)
+                        addProperty("data", data)
+                        addProperty("call", if (call) 1 else 0)
                     },
                 )
 

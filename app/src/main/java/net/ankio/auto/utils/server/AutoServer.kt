@@ -66,6 +66,7 @@ class AutoServer {
     ): Any? =
         suspendCancellableCoroutine { continuation ->
             if (ws == null) {
+                Logger.d("WebSocket未连接")
                 continuation.resume(null)
                 return@suspendCancellableCoroutine
             }
