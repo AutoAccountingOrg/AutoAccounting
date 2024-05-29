@@ -120,6 +120,15 @@ void DbManager::initTable() {
             "version TEXT,"//规则版本
             "UNIQUE(app, type)"
             ");",
+            "CREATE TABLE IF NOT EXISTS ruleSetting ("
+            "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+            "app TEXT,"//app名称，如果为空取所有type类型
+            "type INTEGER,"//规则类型
+            "channel TEXT"//规则名称
+            "enable INTEGER,"//是否拉起自动记账
+            "auto INTEGER,"//是否自动记账
+            "UNIQUE(app, type,channel)"
+            ");",
     };
 
     for (const char *sql: sqls) {
@@ -1003,4 +1012,84 @@ Json::Value DbManager::getCustomRule(int id) {
     }
     sqlite3_finalize(stmt);
     return ret;
+}
+//ruleSetting
+
+std::pair<bool,bool>  DbManager::checkRule(const std::string& app, int  type,const std::string&  channel){
+    char *zErrMsg = nullptr;
+    sqlite3_stmt *stmt = getStmt("SELECT * FROM ruleSetting WHERE app = ? AND type = ? AND channel = ?;");
+    sqlite3_bind_text(stmt, 1, app.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_int(stmt, 2, type);
+    sqlite3_bind_text(stmt, 3, channel.c_str(), -1, SQLITE_STATIC);
+    int rc = 0;
+    bool ret = true;
+    bool ret2 = true;
+    //如果没有查到数据就自己添加数据
+    if ((rc = sqlite3_step(stmt)) == SQLITE_DONE) {
+        sqlite3_stmt *stmt2 = getStmt("INSERT INTO ruleSetting ( app, type, channel, enable, auto) VALUES (?,?,?,?,?);");
+        sqlite3_bind_text(stmt2, 1, app.c_str(), -1, SQLITE_STATIC);
+        sqlite3_bind_int(stmt2, 2, type);
+        sqlite3_bind_text(stmt2, 3, channel.c_str(), -1, SQLITE_STATIC);
+        sqlite3_bind_int(stmt2, 4, 1);
+        sqlite3_bind_int(stmt2, 5, 1);
+        int rc2 = sqlite3_step(stmt2);
+        if (rc2 != SQLITE_DONE) {
+            fprintf(stderr, "SQL error 8: %s\n", sqlite3_errmsg(db));
+        }
+        sqlite3_finalize(stmt2);
+    }else{
+        ret = sqlite3_column_int(stmt, 3);
+        ret2 = sqlite3_column_int(stmt, 4);
+    }
+    if (rc != SQLITE_DONE) {
+        fprintf(stderr, "SQL error 5: %s\n", sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
+    return std::make_pair(ret,ret2);
+}
+
+void DbManager::ruleSetting(int id,int autoAccounting,int enable){
+    char *zErrMsg = nullptr;
+    sqlite3_stmt *stmt = getStmt("UPDATE ruleSetting SET auto = ?, enable = ? WHERE id = ?;");
+    sqlite3_bind_int(stmt, 1, autoAccounting);
+    sqlite3_bind_int(stmt, 2, enable);
+    int rc = sqlite3_step(stmt);
+    if (rc != SQLITE_DONE) {
+        fprintf(stderr, "SQL error 8: %s\n", sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
+}
+
+Json::Value DbManager::getRule(int limit){
+    Json::Value ret;
+    char *zErrMsg = nullptr;
+    sqlite3_stmt *stmt = getStmt("SELECT * FROM ruleSetting ORDER BY id DESC LIMIT ?;");
+    sqlite3_bind_int(stmt, 1, limit);
+    int rc = 0;
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+        Json::Value rule;
+        rule["id"] = sqlite3_column_int(stmt, 0);
+        rule["app"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1));
+        rule["type"] = sqlite3_column_int(stmt, 2);
+        rule["channel"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 3));
+        rule["enable"] = sqlite3_column_int(stmt, 4);
+        rule["auto"] = sqlite3_column_int(stmt, 5);
+        ret.append(rule);
+    }
+    if (rc != SQLITE_DONE) {
+        fprintf(stderr, "SQL error 5: %s\n", sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
+    return ret;
+}
+
+void DbManager::removeRule(int id) {
+    char *zErrMsg = nullptr;
+    sqlite3_stmt *stmt = getStmt("DELETE FROM ruleSetting WHERE id = ?;");
+    sqlite3_bind_int(stmt, 1, id);
+    int rc = sqlite3_step(stmt);
+    if (rc != SQLITE_DONE) {
+        fprintf(stderr, "SQL error 9: %s\n", sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
 }

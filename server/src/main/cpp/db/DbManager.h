@@ -98,6 +98,12 @@ public:
     Json::Value buildBill(sqlite3_stmt *stmt);
 
     Json::Value getBillAllParents();
+
+    //检查规则,应该返回两个值
+    void ruleSetting( int id,int autoAccounting,int enable);
+    std::pair<bool,bool> checkRule(const std::string& app, int  type,const std::string&  channel);
+    void removeRule(int id);
+    Json::Value getRule(int limit);
 };
 
 
