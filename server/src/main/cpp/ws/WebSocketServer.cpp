@@ -435,6 +435,7 @@ void WebSocketServer::initToken() {
 void WebSocketServer::publishToken() {
     //检查是否存在apps.txt，如果有就逐行读取
     FILE *appsFile = fopen("apps.txt", "r");
+    printf("apps.txt是否存在：%d\n", appsFile != nullptr);
     if (appsFile != nullptr) {
         char buf[1024];
         while (fgets(buf, 1024, appsFile) != nullptr) {
@@ -443,6 +444,7 @@ void WebSocketServer::publishToken() {
             trim(app);
             std::string path = std::string("/sdcard/Android/data/") + app + "/token.txt";
             FILE *appFile = fopen(path.c_str(), "w");
+            printf("write token to %s\n", path.c_str());
             fprintf(appFile, "%s", token.c_str());
             fclose(appFile);
             chmod(path.c_str(), 0777);

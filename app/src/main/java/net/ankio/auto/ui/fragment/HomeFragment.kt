@@ -140,7 +140,7 @@ class HomeFragment : BaseFragment() {
         val colorPrimary =
             AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorPrimary)
 
-        if (!ActiveUtils.getActiveAndSupportFramework(requireContext())) {
+        if (!ActiveUtils.ISACTIVE) {
             setActive(
                 SurfaceColors.SURFACE_3.getColor(requireContext()),
                 colorPrimary,

@@ -20,9 +20,7 @@ import android.content.Intent
 import net.ankio.auto.BuildConfig
 
 object ActiveUtils {
-    fun getActiveAndSupportFramework(context: Context): Boolean {
-        return false
-    }
+    var ISACTIVE = false
 
     fun getFramework(context: Context): String {
         return "Unknown"

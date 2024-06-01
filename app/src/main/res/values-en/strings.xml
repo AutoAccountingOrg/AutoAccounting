@@ -243,7 +243,7 @@
     <string name="setting_webdav_username">WebDav username</string>
     <string name="setting_webdav_password">WebDav password</string>
     <string name="backup_success">Backup successful</string>
-    <string name="setting_backup_path">Local backup storage path</string>
+    <string name="setting_backup_path">Stop</string>
     <string name="setting_backup_path_desc">Not set</string>
     <string name="backup_loading">Backing up...</string>
     <string name="restore_loading">Restoring...</string>

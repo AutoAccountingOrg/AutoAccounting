@@ -2,7 +2,9 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/server/src/main/cpp/base64" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/server/src/main/cpp/jsoncpp" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/server/src/main/cpp/quickjspp" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/server/src/main/cpp/sqlite" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/server/src/main/cpp/wsServer" vcs="Git" />
   </component>
