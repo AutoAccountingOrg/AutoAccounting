@@ -284,6 +284,7 @@
                     android:drawablePadding="@dimen/one_padding"
                     android:textStyle="bold" />
                 <LinearLayout
+                    android:id="@+id/ruleLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="@dimen/padding"

@@ -15,9 +15,13 @@
 
 package net.ankio.auto.utils.update
 
+import android.os.Handler
+import android.os.Looper
+import android.widget.Toast
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import net.ankio.auto.App
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.SpUtils
@@ -88,6 +92,9 @@ class UpdateUtils {
                     json
                 } else {
                     Logger.i("无需更新")
+                    Handler(Looper.getMainLooper()).post {
+                        Toast.makeText(App.appContext, "无需更新", Toast.LENGTH_SHORT).show()
+                    }
                     null
                 }
             }.onFailure {

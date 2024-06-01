@@ -23,6 +23,12 @@ import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.ExceptionHandler
 
 class App : Application() {
+    companion object {
+        @JvmStatic
+        lateinit var appContext: Context
+            private set
+    }
+
     override fun onTerminate() {
         super.onTerminate()
         AppUtils.getJob().cancel()
@@ -44,6 +50,7 @@ class App : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        appContext = applicationContext // 初始化全局 Context
        /* if (BuildConfig.DEBUG) {
             StrictMode.setThreadPolicy(
                 StrictMode.ThreadPolicy.Builder()
