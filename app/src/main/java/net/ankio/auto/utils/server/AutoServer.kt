@@ -24,7 +24,6 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.events.AutoServerConnectedEvent
 import net.ankio.auto.events.AutoServiceErrorEvent
 import net.ankio.auto.exceptions.AutoServiceException
-import net.ankio.auto.utils.ActiveUtils
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.event.EventBus
@@ -130,7 +129,6 @@ class AutoServer {
                             } else if (type == "auth/success") {
                                 Logger.d("服务链接成功")
                                 ws = webSocket
-                                ActiveUtils.ISACTIVE = true
                                 EventBus.post(AutoServerConnectedEvent())
                             }
                             val id = json.get("id").asString

@@ -37,13 +37,11 @@ class ActiveHooker(hooker: Hooker) : PartHooker(hooker) {
         XposedHelpers.findAndHookMethod(
             activeUtils,
             "getActiveAndSupportFramework",
-            Context::class.java,
             XC_MethodReplacement.returnConstant(true),
         )
         XposedHelpers.findAndHookMethod(
             activeUtils,
             "getFramework",
-            Context::class.java,
             object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     // 获取TAG字段
