@@ -1,17 +1,10 @@
 [versions]
-agp = "8.5.0-alpha06"
-androidx-roomRuntime = "2.6.1"
+agp = "8.6.0-alpha04"
 bugsnagAndroid = "6.2.0"
 flexbox = "3.0.0"
-gsonVersion = "2.10.1"
 kotlinxCoroutinesAndroid = "1.8.0"
-jetbrainsKotlinJvm = "1.9.21"
 okhttp = "4.12.0"
-qianjipatch = "-SNAPSHOT"
-remotepreferences = "0.8"
-rhino = "1.7.14"
 robolectric = "4.11.1"
-roomCompiler = "2.6.1"
 round = "1.1.2"
 toaster = "12.6"
 xmltojson = "1.5.3"
@@ -34,17 +27,10 @@ dexlib2 = "2.5.2"
 [libraries]
 androidx-navigation-fragment-ktx = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigationFragment" }
 androidx-navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigationFragment" }
-androidx-room-compiler-v251 = { module = "androidx.room:room-compiler", version.ref = "roomCompiler" }
-androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "androidx-roomRuntime" }
-androidx-room-runtime-v251 = { module = "androidx.room:room-runtime", version.ref = "androidx-roomRuntime" }
 bugsnag-android = { module = "com.bugsnag:bugsnag-android", version.ref = "bugsnagAndroid" }
 flexbox = { module = "com.google.android.flexbox:flexbox", version.ref = "flexbox" }
-gson-v288 = { module = "com.google.code.gson:gson", version.ref = "gsonVersion" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroid" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
-qianjipatch = { module = "com.github.AutoAccountingOrg:QianjiPatch", version.ref = "qianjipatch" }
-remotepreferences = { module = "com.crossbowffs.remotepreferences:remotepreferences", version.ref = "remotepreferences" }
-rhino = { module = "org.mozilla:rhino", version.ref = "rhino" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 round = { module = "io.github.xiaofeidev:round", version.ref = "round" }
 toaster = { module = "com.github.getActivity:Toaster", version.ref = "toaster" }
@@ -58,9 +44,7 @@ androidx-test-ext-junit = { group = "androidx.test.ext", name = "junit", version
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espresso-core" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version = "1.12.0-alpha03" }
-
 themeEngine = { module = "com.github.AnkioTomas:ThemeEngine", version.ref = "themeEngine" }
-
 ultimateBarX = { module = "com.github.zackratos:UltimateBarX", version.ref = "ultimateBarX" }
 androidx-browser = { group = "androidx.browser", name = "browser", version.ref = "browser" }
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
@@ -71,6 +55,5 @@ dexlib2 = { module = "org.smali:dexlib2", version.ref = "dexlib2" }
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
-jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
 
 
