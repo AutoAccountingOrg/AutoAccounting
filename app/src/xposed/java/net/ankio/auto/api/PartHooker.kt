@@ -69,7 +69,9 @@ abstract class PartHooker(val hooker: Hooker) {
                 hooker.hookUtils.logD(tag, string)
             }.onFailure {
                 if (hooker.hookUtils.startAutoApp(it, hooker.hookUtils.context)) return@launch
-                XposedBridge.log(it)
+                if (hooker.hookUtils.isDebug()) {
+                    XposedBridge.log(it)
+                }
             }
         }
     }
