@@ -30,7 +30,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.elevation.SurfaceColors
 import com.hjq.toast.Toaster
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import net.ankio.auto.R
 import net.ankio.auto.databinding.AboutDialogBinding
 import net.ankio.auto.databinding.FragmentHomeBinding
@@ -108,6 +107,8 @@ class HomeFragment : BaseFragment() {
 
         scrollView = binding.scrollView
 
+        checkBookApp()
+
         return binding.root
     }
 
@@ -161,6 +162,22 @@ class HomeFragment : BaseFragment() {
         }
     }
 
+    private fun checkBookApp() {
+        // 判断是否设置了记账软件
+        if (SpUtils.getString("bookApp", "").isEmpty()) {
+            MaterialAlertDialogBuilder(requireActivity())
+                .setTitle(R.string.title_book_app)
+                .setMessage(R.string.msg_book_app)
+                .setPositiveButton(R.string.sure_book_app) { _, _ ->
+                    CustomTabsHelper.launchUrlOrCopy(requireActivity(), getString(R.string.book_app_url))
+                }
+                .setNegativeButton(R.string.cancel) { _, _ ->
+                    // finish()
+                }
+                .show()
+        }
+    }
+
     private fun bindRuleUI() {
         val ruleVersion = SpUtils.getString("ruleVersionName", "None")
         binding.ruleVersion.text = ruleVersion
@@ -176,10 +193,14 @@ class HomeFragment : BaseFragment() {
             findNavController().navigate(R.id.ruleFragment)
         }
         EventBus.register(UpdateSuccessEvent::class.java, onUpdateRule)
-        binding.ruleLayout.setOnClickListener {
-            runBlocking {
-                checkUpdate()
+        binding.checkRuleUpdate.setOnClickListener {
+            Toaster.show(R.string.check_update)
+            lifecycleScope.launch {
+                checkUpdate(true)
             }
+        }
+        lifecycleScope.launch {
+            checkUpdate(false)
         }
     }
 
@@ -258,8 +279,8 @@ class HomeFragment : BaseFragment() {
         refreshUI()
     }
 
-    private suspend fun checkUpdate() {
-        val updateUtils = UpdateUtils()
+    private suspend fun checkUpdate(showResult: Boolean = false) {
+        val updateUtils = UpdateUtils(showResult)
         runCatching {
             updateUtils.checkAppUpdate()?.apply {
                 UpdateDialog(

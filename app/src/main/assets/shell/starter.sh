@@ -74,11 +74,10 @@ if [ -f "$OLD_PATH" ]; then
   info "正在创建工作文件夹 $TARGET_PATH/"
   NEW_PATH="$TARGET_PATH/auto_accounting_starter"
   cp -r "$OLD_PATH" "$TARGET_PATH"
-  cp -r "$SHELL_PATH/apps.txt" "$TARGET_PATH"
   info "执行自动记账二进制文件 $NEW_PATH"
   chmod +x "$NEW_PATH"
   retries=0
-  "$NEW_PATH" "$TARGET_PATH" > "$SHELL_PATH/daemon.log" 2>&1 &
+  "$NEW_PATH" "$DIR" > "$SHELL_PATH/daemon.log" 2>&1 & #自动记账的工作路径就是自动记账的缓存路径
   info "等待 $SERVER_NAME 服务启动... "
   while [ $retries -lt 120 ]; do
      PID=$(get_pid)

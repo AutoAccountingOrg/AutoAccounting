@@ -2,8 +2,8 @@ name: Build and Publish Android Pre-Release APKs
 
 on:
   push:
-    branches:
-      - master
+    tags:
+      - '*beta*'
 
 permissions: write-all
 

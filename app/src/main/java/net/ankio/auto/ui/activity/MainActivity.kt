@@ -26,7 +26,6 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.hjq.toast.Toaster
 import com.zackratos.ultimatebarx.ultimatebarx.addNavigationBarBottomPadding
 import kotlinx.coroutines.Dispatchers
@@ -34,15 +33,11 @@ import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.ActivityMainBinding
 import net.ankio.auto.events.AutoServiceErrorEvent
-import net.ankio.auto.ui.dialog.UpdateDialog
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.BackupUtils
-import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.Github
 import net.ankio.auto.utils.Logger
-import net.ankio.auto.utils.SpUtils
 import net.ankio.auto.utils.event.EventBus
-import net.ankio.auto.utils.update.UpdateUtils
 
 class MainActivity : BaseActivity() {
     // 视图绑定
@@ -169,52 +164,6 @@ class MainActivity : BaseActivity() {
 
         BackupUtils.registerRestoreLauncher(this).let {
             restoreLauncher = it
-        }
-    }
-
-    private fun checkBookApp() {
-        // 判断是否设置了记账软件
-        if (SpUtils.getString("bookApp", "").isEmpty()) {
-            MaterialAlertDialogBuilder(this)
-                .setTitle(R.string.title_book_app)
-                .setMessage(R.string.msg_book_app)
-                .setPositiveButton(R.string.sure_book_app) { _, _ ->
-                    CustomTabsHelper.launchUrlOrCopy(this, getString(R.string.book_app_url))
-                }
-                .setNegativeButton(R.string.cancel) { _, _ ->
-                    // finish()
-                }
-                .show()
-        }
-    }
-
-    private suspend fun checkUpdate() {
-        val updateUtils = UpdateUtils()
-        runCatching {
-            updateUtils.checkAppUpdate()?.apply {
-                UpdateDialog(
-                    this@MainActivity,
-                    hashMapOf("url" to file),
-                    log,
-                    version,
-                    date,
-                    0,
-                    code,
-                ).show(cancel = true)
-            }
-            updateUtils.checkRuleUpdate()?.apply {
-                UpdateDialog(
-                    this@MainActivity,
-                    hashMapOf("category" to file + "category.js", "rule" to file + "rule.js"),
-                    log,
-                    version,
-                    date,
-                    1,
-                    code,
-                ).show(cancel = true)
-            }
-        }.onFailure {
-            Logger.e("更新异常", it)
         }
     }
 

@@ -17,12 +17,11 @@ package net.ankio.auto.utils.server.model
 import android.content.Context
 import android.widget.ImageView
 import com.google.gson.Gson
-import com.google.gson.JsonNull
+import com.google.gson.JsonArray
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.ImageUtils
-import net.ankio.common.model.BookModel
 
 class BookName {
     // 账本列表
@@ -39,13 +38,6 @@ class BookName {
     var icon: String = "" // 图标
 
     companion object {
-        fun fromModel(model: BookModel): BookName {
-            return BookName().apply {
-                name = model.name
-                icon = model.icon
-            }
-        }
-
         fun put(book: BookName) {
             AppUtils.getScope().launch {
                 AppUtils.getService().sendMsg("book/put", book)
@@ -65,14 +57,11 @@ class BookName {
 
         suspend fun get(): List<BookName> {
             val data = AppUtils.getService().sendMsg("book/get/all", null)
-            return if (data !is JsonNull) {
-                Gson().fromJson(Gson().toJson(data), Array<BookName>::class.java).toList()
-            } else {
-                emptyList()
-            }
+            return runCatching { Gson().fromJson(data as JsonArray, Array<BookName>::class.java).toList() }
+                .getOrNull() ?: emptyList()
         }
 
-        suspend fun remove(name: String)  {
+        suspend fun remove(name: String) {
             AppUtils.getService().sendMsg("book/remove", mapOf("name" to name))
         }
 

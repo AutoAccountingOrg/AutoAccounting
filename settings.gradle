@@ -28,6 +28,5 @@ dependencyResolutionManagement {
 rootProject.name = "AutoAccounting"
 include 'common'
 include ':app'
-include ':sdk'
 include ':dex'
 include ':server'
