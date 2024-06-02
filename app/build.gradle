@@ -122,7 +122,8 @@ task extractArraysToTxt {
 preBuild.dependsOn extractArraysToTxt
 
 
-
+// 构建apk之前，先构建server模块
+preBuild.dependsOn(":server:assembleRelease")
 
 dependencies {
 
