@@ -175,11 +175,8 @@ class AutoServer {
                     t: Throwable,
                     response: Response?,
                 ) {
-                    if (!t.message?.contains("unexpected end of stream")!!) {
-                        Logger.e("WebSocket error: " + t.message, t)
-                        EventBus.post(AutoServiceErrorEvent(AutoServiceException(t.message ?: "WebSocket error")))
-                        return
-                    }
+                    Logger.e("WebSocket error: " + t.message, t)
+                    EventBus.post(AutoServiceErrorEvent(AutoServiceException(t.message ?: "WebSocket error")))
                 }
             }
 
