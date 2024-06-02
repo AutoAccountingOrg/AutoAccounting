@@ -28,7 +28,7 @@ import net.ankio.auto.utils.request.RequestsUtils
 /**
  * 更新工具，用于处理App更新、规则更新
  */
-class UpdateUtils {
+class UpdateUtils(private val showResult: Boolean = true) {
     companion object {
         fun getUrl(): String {
             return SpUtils.getString("app_url", "https://cloud.ankio.net/d/阿里云盘/自动记账/")
@@ -90,7 +90,11 @@ class UpdateUtils {
                     json
                 } else {
                     Logger.i("无需更新")
-                    Toaster.show(R.string.no_need_to_update)
+                    if (showResult)
+                        {
+                            Toaster.show(R.string.no_need_to_update)
+                        }
+
                     null
                 }
             }.onFailure {

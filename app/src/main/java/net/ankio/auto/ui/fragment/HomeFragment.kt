@@ -195,8 +195,11 @@ class HomeFragment : BaseFragment() {
         EventBus.register(UpdateSuccessEvent::class.java, onUpdateRule)
         binding.checkRuleUpdate.setOnClickListener {
             lifecycleScope.launch {
-                checkUpdate()
+                checkUpdate(true)
             }
+        }
+        lifecycleScope.launch {
+            checkUpdate(false)
         }
     }
 
@@ -275,8 +278,8 @@ class HomeFragment : BaseFragment() {
         refreshUI()
     }
 
-    private suspend fun checkUpdate() {
-        val updateUtils = UpdateUtils()
+    private suspend fun checkUpdate(showResult: Boolean = false) {
+        val updateUtils = UpdateUtils(showResult)
         runCatching {
             updateUtils.checkAppUpdate()?.apply {
                 UpdateDialog(
