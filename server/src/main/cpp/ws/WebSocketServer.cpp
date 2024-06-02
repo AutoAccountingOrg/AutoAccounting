@@ -12,7 +12,7 @@
 #include "../base64/include/base64.hpp"
 #include <random>
 #include <sys/stat.h>
-
+std::string WebSocketServer::version;
 WebSocketServer::WebSocketServer(int port) {
     initToken();
     version = getVersion();
