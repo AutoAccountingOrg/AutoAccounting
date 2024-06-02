@@ -90,15 +90,18 @@ class UpdateUtils(private val showResult: Boolean = true) {
                     json
                 } else {
                     Logger.i("无需更新")
-                    if (showResult)
-                        {
-                            Toaster.show(R.string.no_need_to_update)
-                        }
+                    if (showResult) {
+                        Toaster.show(R.string.no_need_to_update)
+                    }
 
                     null
                 }
             }.onFailure {
-                Logger.i("检测更新出错：$it")
+                Logger.e("检测更新出错：$it", it)
+                if (showResult)
+                    {
+                        Toaster.show(R.string.check_update_error)
+                    }
             }.getOrNull()
         }
 

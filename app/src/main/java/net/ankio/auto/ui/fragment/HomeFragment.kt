@@ -194,6 +194,7 @@ class HomeFragment : BaseFragment() {
         }
         EventBus.register(UpdateSuccessEvent::class.java, onUpdateRule)
         binding.checkRuleUpdate.setOnClickListener {
+            Toaster.show(R.string.check_update)
             lifecycleScope.launch {
                 checkUpdate(true)
             }
