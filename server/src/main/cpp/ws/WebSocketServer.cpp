@@ -81,12 +81,17 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
             printf("json parse error\n");
             return;
         }
-        printf("recived: %s\n", json.toStyledString().c_str());
+
 
         std::string message_id = json["id"].asString();
         std::string message_type = json["type"].asString();
 
-        printf("message_type: %s\n", message_type.c_str());
+
+        if(json["type"].asString()!="log/put"){
+            printf("--------------\n");
+            printf("recived: %s\n", json.toStyledString().c_str());
+            printf("message_type: %s\n", message_type.c_str());
+        }
 
 
         Json::Value ret;
