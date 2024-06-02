@@ -35,6 +35,8 @@ private:
     static std::mutex resultMapMutex;
     static void print(qjs::rest<std::string> args);
     static void log(const std::string &msg,int level);
+    static std::string version;
+    static std::string getVersion();
 };
 
 

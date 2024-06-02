@@ -15,6 +15,7 @@
 
 WebSocketServer::WebSocketServer(int port) {
     initToken();
+    version = getVersion();
     struct ws_server wsServer{};
     wsServer.host = "0.0.0.0";
     wsServer.port = static_cast<uint16_t>(port);
@@ -23,7 +24,21 @@ WebSocketServer::WebSocketServer(int port) {
     wsServer.evs.onopen = &WebSocketServer::onOpen;
     wsServer.evs.onclose = &WebSocketServer::onClose;
     wsServer.evs.onmessage = &WebSocketServer::onMessage;
+
     ws_socket(&wsServer);
+}
+
+std::string WebSocketServer::getVersion() {
+    FILE *file = fopen("version.txt", "r");
+    if (file == nullptr) {
+        file = fopen("version.txt", "w");
+        fprintf(file, "%s", "1.0.0");
+        return "1.0.0";
+    } else {
+        char buf[1024];
+        fgets(buf, 1024, file);
+        return buf;
+    }
 }
 
 /**
@@ -33,6 +48,7 @@ WebSocketServer::WebSocketServer(int port) {
 void WebSocketServer::onOpen(ws_cli_conn_t *client) {
     Json::Value json;
     json["type"] = "auth";
+    json["version"] = version;
     ws_sendframe_txt(client, json.toStyledString().c_str());
 }
 
@@ -76,6 +92,12 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
         Json::Value ret;
         if (message_type == "auth") {
 
+            if(getVersion()!=version){
+                printf("server need update\n");
+                ws_close_client(client);
+                exit(65);//直接退出进程
+                return;
+            }
 
             if (json["data"].asString() != token) {
                 printf("token error %s\n",json["data"].asString().c_str());
@@ -103,9 +125,7 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
         //对于不同的路由进行处理
         Json::Value data = json["data"];
 
-        if(message_type == "hi,server"){
-            ret["data"] = "hi,client";
-        }else if (message_type == "log/put") {
+         if (message_type == "log/put") {
             DbManager::getInstance().insertLog(data["date"].asString(), data["app"].asString(),
                                                data["hook"].asInt(), data["thread"].asString(),
                                                data["line"].asString(), data["log"].asString(),data["level"].asInt());
@@ -316,7 +336,6 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
         }
 
 
-
         else if(message_type == "analyze"){
             std::string _data = data["data"].asString();
             std::string app = data["app"].asString();
@@ -491,7 +510,7 @@ void WebSocketServer::publishToken() {
                 std::string path = appPath + "/token.txt";
                 FILE *appFile = fopen(path.c_str(), "w");
                 // 检查文件指针是否为空
-                if (appFile == NULL) {
+                if (appFile == nullptr) {
                     printf("打开文件失败");
                 } else {
                     printf("write token to %s\n", path.c_str());
