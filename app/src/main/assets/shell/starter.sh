@@ -77,7 +77,14 @@ if [ -f "$OLD_PATH" ]; then
   info "执行自动记账二进制文件 $NEW_PATH"
   chmod +x "$NEW_PATH"
   retries=0
-  "$NEW_PATH" "$DIR" > "$SHELL_PATH/daemon.log" 2>&1 & #自动记账的工作路径就是自动记账的缓存路径
+  # 判断启动命令是否携带debug参数
+  if [ "$2" = "debug" ]; then
+    info "启动自动记账服务，调试模式"
+    "$NEW_PATH" "$DIR"  #自动记账的工作路径就是自动记账的缓存路径
+  else
+    info "启动自动记账服务"
+    "$NEW_PATH" "$DIR" > "$SHELL_PATH/daemon.log" 2>&1 & #自动记账的工作路径就是自动记账的缓存路径
+  fi
   info "等待 $SERVER_NAME 服务启动... "
   while [ $retries -lt 120 ]; do
      PID=$(get_pid)
