@@ -979,9 +979,9 @@ Json::Value DbManager::loadCustomRules(int limit) {
         rule["js"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 4));
         rule["text"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 5));
         rule["element"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 6));
-        rule["use"] = sqlite3_column_int(stmt, 1);
+        rule["use"] = sqlite3_column_int(stmt, 1) == 1;
         rule["sort"] = sqlite3_column_int(stmt, 2);
-        rule["auto"] = sqlite3_column_int(stmt, 3);
+        rule["auto"] = sqlite3_column_int(stmt, 3) == 1;
         ret.append(rule);
     }
     if (rc != SQLITE_DONE) {
