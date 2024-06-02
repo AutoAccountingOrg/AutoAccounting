@@ -44,6 +44,7 @@ class HookUtils(val context: Application, private val packageName: String) {
         )
 
         AppUtils.setApplication(context)
+        AppUtils.getService().connect()
         XposedBridge.hookAllMethods(
             ClassLoader::class.java,
             "loadClass",
