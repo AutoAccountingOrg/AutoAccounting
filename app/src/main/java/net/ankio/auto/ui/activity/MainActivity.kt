@@ -29,8 +29,8 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.hjq.toast.Toaster
 import com.zackratos.ultimatebarx.ultimatebarx.addNavigationBarBottomPadding
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import net.ankio.auto.R
 import net.ankio.auto.databinding.ActivityMainBinding
 import net.ankio.auto.events.AutoServiceErrorEvent
@@ -103,7 +103,7 @@ class MainActivity : BaseActivity() {
         // 初始化底部导航栏
         onBottomViewInit()
         // 检查规则更新
-        runBlocking {
+        lifecycleScope.launch(Dispatchers.IO) {
             checkUpdate()
         }
 
