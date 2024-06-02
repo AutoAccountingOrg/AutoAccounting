@@ -33,11 +33,13 @@ import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.AboutDialogBinding
 import net.ankio.auto.databinding.FragmentHomeBinding
+import net.ankio.auto.events.UpdateFinishEvent
 import net.ankio.auto.events.UpdateSuccessEvent
 import net.ankio.auto.ui.dialog.AssetsSelectorDialog
 import net.ankio.auto.ui.dialog.BookInfoDialog
 import net.ankio.auto.ui.dialog.BookSelectorDialog
 import net.ankio.auto.ui.dialog.CategorySelectorDialog
+import net.ankio.auto.ui.dialog.UpdateDialog
 import net.ankio.auto.ui.utils.MenuItem
 import net.ankio.auto.utils.ActiveUtils
 import net.ankio.auto.utils.AppUtils
@@ -46,6 +48,7 @@ import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.SpUtils
 import net.ankio.auto.utils.event.EventBus
 import net.ankio.auto.utils.server.model.Category
+import net.ankio.auto.utils.update.UpdateUtils
 import rikka.html.text.toHtml
 
 /**
@@ -104,6 +107,8 @@ class HomeFragment : BaseFragment() {
 
         scrollView = binding.scrollView
 
+        checkBookApp()
+
         return binding.root
     }
 
@@ -140,7 +145,7 @@ class HomeFragment : BaseFragment() {
         val colorPrimary =
             AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorPrimary)
 
-        if (!ActiveUtils.getActiveAndSupportFramework(requireContext())) {
+        if (!ActiveUtils.getActiveAndSupportFramework()) {
             setActive(
                 SurfaceColors.SURFACE_3.getColor(requireContext()),
                 colorPrimary,
@@ -154,6 +159,22 @@ class HomeFragment : BaseFragment() {
                 ),
                 R.drawable.home_active_success,
             )
+        }
+    }
+
+    private fun checkBookApp() {
+        // 判断是否设置了记账软件
+        if (SpUtils.getString("bookApp", "").isEmpty()) {
+            MaterialAlertDialogBuilder(requireActivity())
+                .setTitle(R.string.title_book_app)
+                .setMessage(R.string.msg_book_app)
+                .setPositiveButton(R.string.sure_book_app) { _, _ ->
+                    CustomTabsHelper.launchUrlOrCopy(requireActivity(), getString(R.string.book_app_url))
+                }
+                .setNegativeButton(R.string.cancel) { _, _ ->
+                    // finish()
+                }
+                .show()
         }
     }
 
@@ -172,6 +193,11 @@ class HomeFragment : BaseFragment() {
             findNavController().navigate(R.id.ruleFragment)
         }
         EventBus.register(UpdateSuccessEvent::class.java, onUpdateRule)
+        binding.checkRuleUpdate.setOnClickListener {
+            lifecycleScope.launch {
+                checkUpdate()
+            }
+        }
     }
 
     override fun onDestroy() {
@@ -247,6 +273,40 @@ class HomeFragment : BaseFragment() {
     override fun onResume() {
         super.onResume()
         refreshUI()
+    }
+
+    private suspend fun checkUpdate() {
+        val updateUtils = UpdateUtils()
+        runCatching {
+            updateUtils.checkAppUpdate()?.apply {
+                UpdateDialog(
+                    requireContext(),
+                    hashMapOf("url" to file),
+                    log,
+                    version,
+                    date,
+                    0,
+                    code,
+                ).show(cancel = true)
+            }
+            updateUtils.checkRuleUpdate()?.apply {
+                UpdateDialog(
+                    requireContext(),
+                    hashMapOf("category" to file + "category.js", "rule" to file + "rule.js"),
+                    log,
+                    version,
+                    date,
+                    1,
+                    code,
+                ).show(cancel = true)
+            }
+            val listener = { _: UpdateFinishEvent ->
+                bindRuleUI()
+            }
+            EventBus.register(UpdateFinishEvent::class.java, listener)
+        }.onFailure {
+            Logger.e("更新异常", it)
+        }
     }
 
     private fun setActive(

@@ -272,18 +272,40 @@
                 android:orientation="vertical"
                 android:layout_margin="@dimen/padding"
                 >
-                <TextView
-                    android:padding="@dimen/padding"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/padding"
-                    android:text="@string/rule_title"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                    android:textColor="?attr/colorOnSurface"
-                    app:drawableTint="?attr/colorOnSurface"
-                    android:drawablePadding="@dimen/one_padding"
-                    android:textStyle="bold" />
+
                 <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/padding"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="@dimen/padding"
+                        android:text="@string/rule_title"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                        android:textColor="?attr/colorOnSurface"
+                        app:drawableTint="?attr/colorOnSurface"
+                        android:drawablePadding="@dimen/one_padding"
+                        android:textStyle="bold"
+                        />
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        />
+                    <Button
+                        android:id="@+id/checkRuleUpdate"
+                        style="?attr/materialIconButtonFilledStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:icon="@drawable/icon_restart"
+                        tools:ignore="RelativeOverlap" />
+
+
+                </LinearLayout>
+                <LinearLayout
+
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="@dimen/padding"
