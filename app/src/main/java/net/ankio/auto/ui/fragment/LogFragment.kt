@@ -14,6 +14,7 @@
  */
 package net.ankio.auto.ui.fragment
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -105,6 +106,7 @@ class LogFragment : BaseFragment() {
         loadMoreData()
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun loadMoreData() {
         val loading = LoadingUtils(requireActivity())
         loading.show(R.string.loading)

@@ -17,6 +17,7 @@ package net.ankio.auto.utils.server.model
 import android.content.Context
 import android.graphics.drawable.Drawable
 import com.google.gson.Gson
+import com.google.gson.JsonNull
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.utils.AppUtils
@@ -114,7 +115,11 @@ class Category {
             parent: Int,
         ): List<Category> {
             val data = AppUtils.getService().sendMsg("cate/get/all", mapOf("book" to bookID, "type" to type, "parent" to parent))
-            return Gson().fromJson(Gson().toJson(data), Array<Category>::class.java).toList()
+            return if (data !is JsonNull) {
+                Gson().fromJson(Gson().toJson(data), Array<Category>::class.java).toList()
+            } else {
+                emptyList()
+            }
         }
 
         suspend fun getByName(
