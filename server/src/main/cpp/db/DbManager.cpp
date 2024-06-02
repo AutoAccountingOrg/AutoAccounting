@@ -976,12 +976,12 @@ Json::Value DbManager::loadCustomRules(int limit) {
     while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
         Json::Value rule;
         rule["id"] = sqlite3_column_int(stmt, 0);
-        rule["js"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1));
-        rule["text"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2));
-        rule["element"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 3));
-        rule["use"] = sqlite3_column_int(stmt, 4);
-        rule["sort"] = sqlite3_column_int(stmt, 5);
-        rule["auto"] = sqlite3_column_int(stmt, 6);
+        rule["js"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 4));
+        rule["text"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 5));
+        rule["element"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 6));
+        rule["use"] = sqlite3_column_int(stmt, 1);
+        rule["sort"] = sqlite3_column_int(stmt, 2);
+        rule["auto"] = sqlite3_column_int(stmt, 3);
         ret.append(rule);
     }
     if (rc != SQLITE_DONE) {
@@ -1011,12 +1011,12 @@ Json::Value DbManager::getCustomRule(int id) {
     while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
         Json::Value rule;
         rule["id"] = sqlite3_column_int(stmt, 0);
-        rule["js"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1));
-        rule["text"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2));
-        rule["element"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 3));
-        rule["use"] = sqlite3_column_int(stmt, 4);
-        rule["sort"] = sqlite3_column_int(stmt, 5);
-        rule["auto"] = sqlite3_column_int(stmt, 6);
+        rule["js"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 4));
+        rule["text"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 5));
+        rule["element"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 6));
+        rule["use"] = sqlite3_column_int(stmt, 1);
+        rule["sort"] = sqlite3_column_int(stmt, 2);
+        rule["auto"] = sqlite3_column_int(stmt, 3);
         ret.append(rule);
     }
     if (rc != SQLITE_DONE) {
