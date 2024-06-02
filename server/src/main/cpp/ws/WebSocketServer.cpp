@@ -234,6 +234,14 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
             DbManager::getInstance().removeBookName(name);
         }
 
+        else if(message_type == "book/sync"){
+            //TODO 来自
+        }
+        else if(message_type == "assets/sync"){
+            //TODO 来自
+        }else if(message_type == "app/bill/add"){
+            //TODO 来自
+        }
 
         else if(message_type == "cate/put"){
             int id = data["id"].asInt();

@@ -104,6 +104,8 @@ public:
     std::pair<bool,bool> checkRule(const std::string& app, int  type,const std::string&  channel);
     void removeRule(int id);
     Json::Value getRule(int limit);
+
+    void addBxBills(const Json::Value& billArray);
 };
 
 

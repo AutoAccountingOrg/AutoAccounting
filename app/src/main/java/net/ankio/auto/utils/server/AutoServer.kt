@@ -187,7 +187,7 @@ class AutoServer {
     }
 
     suspend fun config(): AccountingConfig {
-        val json = SettingModel.get(AppUtils.getApplication().packageName, "config")
+        val json = SettingModel.get("server", "config")
         return runCatching { Gson().fromJson(json, AccountingConfig::class.java) }.getOrNull() ?: AccountingConfig()
     }
 

@@ -70,6 +70,18 @@ void DbManager::initTable() {
             "remark TEXT,"
             "fromType INTEGER"
             ");",
+            "CREATE TABLE IF NOT EXISTS bookBill ("
+            "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+            "amount INTEGER,"
+            "time INTEGER,"
+            "remark TEXT,"
+            "billId TEXT,"
+            "type INTEGER,"
+            "book TEXT,"
+            "category TEXT,"
+            "accountFrom TEXT,"
+            "accountTo TEXT"
+            ");",
             "CREATE TABLE IF NOT EXISTS bookName ("
             "id INTEGER PRIMARY KEY AUTOINCREMENT,"
             "name TEXT,"
@@ -1092,4 +1104,53 @@ void DbManager::removeRule(int id) {
         fprintf(stderr, "SQL error 9: %s\n", sqlite3_errmsg(db));
     }
     sqlite3_finalize(stmt);
+}
+
+void DbManager::addBxBills(const Json::Value& billArray){
+    //这里使用事物操作
+    sqlite3_exec(db, "BEGIN;", nullptr, nullptr, nullptr);
+    try {
+        //先清空bookBill表
+        sqlite3_stmt *stmt = getStmt("DELETE FROM bookBill;");
+        int rc = sqlite3_step(stmt);
+        if (rc != SQLITE_DONE) {
+            fprintf(stderr, "SQL error 9: %s\n", sqlite3_errmsg(db));
+        }
+        sqlite3_finalize(stmt);
+        //插入数据
+        for (auto bill : billArray) {
+            std::string billId = bill["billId"].asString();
+            int amount = bill["amount"].asInt();
+            int time = bill["time"].asInt();
+            std::string remark = bill["remark"].asString();
+            int type = bill["type"].asInt();
+            std::string book = bill["book"].asString();
+            std::string category = bill["category"].asString();
+            std::string accountFrom = bill["accountFrom"].asString();
+            std::string accountTo = bill["accountTo"].asString();
+
+            sqlite3_stmt *stmt2 = getStmt(
+                    "INSERT INTO bookBill ( billId, amount, time, remark, type, book, category, accountFrom, accountTo) VALUES (?,?,?,?,?,?,?,?,?);");
+
+            sqlite3_bind_text(stmt2, 1, billId.c_str(), -1, SQLITE_STATIC);
+            sqlite3_bind_int(stmt2, 2, amount);
+            sqlite3_bind_int(stmt2, 3, time);
+            sqlite3_bind_text(stmt2, 4, remark.c_str(), -1, SQLITE_STATIC);
+            sqlite3_bind_int(stmt2, 5, type);
+            sqlite3_bind_text(stmt2, 6, book.c_str(), -1, SQLITE_STATIC);
+            sqlite3_bind_text(stmt2, 7, category.c_str(), -1, SQLITE_STATIC);
+            sqlite3_bind_text(stmt2, 8, accountFrom.c_str(), -1, SQLITE_STATIC);
+            sqlite3_bind_text(stmt2, 9, accountTo.c_str(), -1, SQLITE_STATIC);
+            int rc2 = sqlite3_step(stmt2);
+            if (rc2 != SQLITE_DONE) {
+                fprintf(stderr, "SQL error 8: %s\n", sqlite3_errmsg(db));
+            }
+            sqlite3_finalize(stmt2);
+
+        }
+        sqlite3_exec(db, "COMMIT;", nullptr, nullptr, nullptr);
+
+    } catch (...) {
+        sqlite3_exec(db, "ROLLBACK;", nullptr, nullptr, nullptr);
+    }
 }
