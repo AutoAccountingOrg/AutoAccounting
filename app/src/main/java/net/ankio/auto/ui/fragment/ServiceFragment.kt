@@ -43,7 +43,8 @@ import java.net.Socket
 
 class ServiceFragment : BaseFragment() {
     private lateinit var binding: FragmentServiceBinding
-    private lateinit var shell: String
+    private lateinit var startShell: String
+    private lateinit var stopShell: String
     private var cacheDir: File? = null
 
     override fun onCreateView(
@@ -77,15 +78,35 @@ class ServiceFragment : BaseFragment() {
             }
             AppUtils.getService().copyAssets()
         }
-        shell = "sh ${cacheDir!!.path}/shell/starter.sh"
+        startShell = "sh ${cacheDir!!.path}/shell/starter.sh"
+        stopShell = "sh ${cacheDir!!.path}/shell/stoper.sh"
 
         binding.start.setOnClickListener {
             // 启动服务
-            startServerByRoot()
+            serverByRoot(startShell)
+            lifecycleScope.launch {
+                // 检测52045端口是否开放
+                val host = AutoServer.HOST.replace("ws://", "")
+                val port = AutoServer.PORT
+
+                withContext(Dispatchers.IO) {
+                    while (!isPortOpen(host, port)) {
+                        Logger.i("Waiting for port $port to open")
+                        delay(1000)
+                    }
+                    withContext(Dispatchers.Main) {
+                        AppUtils.restart()
+                    }
+                }
+            }
+        }
+        binding.stop.setOnClickListener {
+            // 停止服务
+            serverByRoot(stopShell)
         }
         binding.copyCommand.setOnClickListener {
             // 复制命令
-            AppUtils.copyToClipboard("adb shell $shell")
+            AppUtils.copyToClipboard("adb shell $startShell")
             Toaster.show(getString(R.string.copy_command_success))
         }
         requireActivity().onBackPressedDispatcher.addCallback(
@@ -96,22 +117,6 @@ class ServiceFragment : BaseFragment() {
                 }
             },
         )
-
-        lifecycleScope.launch {
-            // 检测52045端口是否开放
-            val host = AutoServer.HOST.replace("ws://", "")
-            val port = AutoServer.PORT
-
-            withContext(Dispatchers.IO) {
-                while (!isPortOpen(host, port)) {
-                    Logger.i("Waiting for port $port to open")
-                    delay(1000)
-                }
-                withContext(Dispatchers.Main) {
-                    AppUtils.restart()
-                }
-            }
-        }
     }
 
     private fun isPortOpen(
@@ -127,7 +132,7 @@ class ServiceFragment : BaseFragment() {
         }
     }
 
-    private fun startServerByRoot() {
+    private fun serverByRoot(shell: String) {
         val dialogBinding = DialogProgressBinding.inflate(layoutInflater)
         val textView = dialogBinding.progressText
         val scrollView = dialogBinding.scrollView

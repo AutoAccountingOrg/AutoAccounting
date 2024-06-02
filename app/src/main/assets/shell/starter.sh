@@ -74,27 +74,28 @@ if [ -f "$OLD_PATH" ]; then
   info "正在创建工作文件夹 $TARGET_PATH/"
   NEW_PATH="$TARGET_PATH/auto_accounting_starter"
   cp -r "$OLD_PATH" "$TARGET_PATH"
+  cp -r "$SHELL_PATH/apps.txt" "$TARGET_PATH"
   info "执行自动记账二进制文件 $NEW_PATH"
   chmod +x "$NEW_PATH"
-    retries=0
-    $NEW_PATH "$DIR" > "$SHELL_PATH/daemon.log" 2>&1 &
-    info "等待 $SERVER_NAME 服务启动... "
-    while [ $retries -lt 120 ]; do
-           PID=$(get_pid)
-           if [ -n "$PID" ]; then
-               success "$SERVER_NAME 服务启动成功, PID: $PID"
-               warn "若脚本未自动退出，请按Ctrl+C退出。"
-               exit 0
-           else
-               sleep 2
-               retries=$((retries+1))
-               info "重试：$retries"
-           fi
-       done
-    error "$SERVER_NAME 服务在多次尝试启动后仍未启动成功，请将该问题报告给自动记账开发团队，日志路径为：$SHELL_PATH/daemon.log。"
-    exit 1
+  retries=0
+  "$NEW_PATH" "$TARGET_PATH" > "$SHELL_PATH/daemon.log" 2>&1 &
+  info "等待 $SERVER_NAME 服务启动... "
+  while [ $retries -lt 120 ]; do
+     PID=$(get_pid)
+     if [ -n "$PID" ]; then
+         success "$SERVER_NAME 服务启动成功, PID: $PID"
+         warn "若脚本未自动退出，请按Ctrl+C退出。"
+         exit 0
+     else
+         sleep 2
+         retries=$((retries+1))
+         info "重试：$retries"
+     fi
+  done
+  error "$SERVER_NAME 服务在多次尝试启动后仍未启动成功，请将该问题报告给自动记账开发团队，日志路径为：$SHELL_PATH/daemon.log。"
+  exit 1
 else
-    error "未找到 $SERVER_NAME 服务二进制文件：$OLD_PATH"
-    exit 3
+  error "未找到 $SERVER_NAME 服务二进制文件：$OLD_PATH"
+  exit 3
 fi
 exit 0

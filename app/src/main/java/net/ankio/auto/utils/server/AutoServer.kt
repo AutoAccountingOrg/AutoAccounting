@@ -194,7 +194,7 @@ class AutoServer {
         withContext(Dispatchers.IO) {
             val context = AppUtils.getApplication()
             val cacheDir = context.externalCacheDir!!.absolutePath + File.separator + "shell"
-            val copyFiles = arrayListOf("version.txt", "starter.sh", "apps.txt")
+            val copyFiles = arrayListOf("version.txt", "starter.sh", "stoper.sh", "apps.txt")
             // 检查cpu架构
             val cpu = System.getProperty("os.arch")!!
             val androidCpu =
@@ -231,7 +231,9 @@ class AutoServer {
         val file = File(AppUtils.getApplication().externalCacheDir!!.absolutePath + "/../token.txt")
         Logger.i("Token file path: ${file.absolutePath}")
         if (file.exists()) {
-            return file.readText()
+            val token = file.readText()
+            Logger.i("Token: $token")
+            return token
         }
         return ""
     }

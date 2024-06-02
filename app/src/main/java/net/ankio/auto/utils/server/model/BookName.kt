@@ -17,6 +17,7 @@ package net.ankio.auto.utils.server.model
 import android.content.Context
 import android.widget.ImageView
 import com.google.gson.Gson
+import com.google.gson.JsonNull
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.utils.AppUtils
@@ -64,7 +65,11 @@ class BookName {
 
         suspend fun get(): List<BookName> {
             val data = AppUtils.getService().sendMsg("book/get/all", null)
-            return Gson().fromJson(Gson().toJson(data), Array<BookName>::class.java).toList()
+            return if (data !is JsonNull) {
+                Gson().fromJson(Gson().toJson(data), Array<BookName>::class.java).toList()
+            } else {
+                emptyList()
+            }
         }
 
         suspend fun remove(name: String)  {
