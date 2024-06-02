@@ -15,6 +15,7 @@
 package net.ankio.auto.utils.server.model
 
 import com.google.gson.Gson
+import com.google.gson.JsonArray
 import kotlinx.coroutines.launch
 import net.ankio.auto.utils.AppUtils
 import java.io.Serializable
@@ -40,7 +41,7 @@ class Regular : Serializable {
 
         suspend fun get(limit: Int = 500): List<Regular> {
             val data = AppUtils.getService().sendMsg("rule/custom/get", mapOf("limit" to limit))
-            return runCatching { Gson().fromJson(Gson().toJson(data), Array<Regular>::class.java).toList() }.getOrDefault(emptyList())
+            return runCatching { Gson().fromJson(data as JsonArray, Array<Regular>::class.java).toList() }.getOrDefault(emptyList())
         }
 
         suspend fun getById(id: Int): Regular {
