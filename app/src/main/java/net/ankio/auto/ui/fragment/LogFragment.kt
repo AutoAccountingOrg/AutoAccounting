@@ -95,7 +95,7 @@ class LogFragment : BaseFragment() {
                 runCatching {
                     lifecycleScope.launch {
                         LogModel.deleteAll()
-                        loadMoreData()
+                        loadMoreData(true)
                     }
                 }.onFailure {
                     Logger.e("清除失败", it)
@@ -123,15 +123,17 @@ class LogFragment : BaseFragment() {
         loadMoreData()
     }
 
-    private fun loadMoreData() {
+    private fun loadMoreData(empty: Boolean = false) {
         val loading = LoadingUtils(requireActivity())
         loading.show(R.string.loading)
         lifecycleScope.launch {
             // 读取log.txt
             withContext(Dispatchers.IO) {
                 dataItems.clear()
-                dataItems.addAll(LogModel.get(500))
-
+                if (!empty)
+                    {
+                        dataItems.addAll(LogModel.get(500))
+                    }
                 withContext(Dispatchers.Main) {
                     loading.close()
                     adapter.notifyDataSetChanged()
