@@ -103,8 +103,9 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
         //对于不同的路由进行处理
         Json::Value data = json["data"];
 
-
-        if (message_type == "log/put") {
+        if(message_type == "hi,server"){
+            ret["data"] = "hi,client";
+        }else if (message_type == "log/put") {
             DbManager::getInstance().insertLog(data["date"].asString(), data["app"].asString(),
                                                data["hook"].asInt(), data["thread"].asString(),
                                                data["line"].asString(), data["log"].asString(),data["level"].asInt());
@@ -233,6 +234,14 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
             DbManager::getInstance().removeBookName(name);
         }
 
+        else if(message_type == "book/sync"){
+            //TODO 来自
+        }
+        else if(message_type == "assets/sync"){
+            //TODO 来自
+        }else if(message_type == "app/bill/add"){
+            //TODO 来自
+        }
 
         else if(message_type == "cate/put"){
             int id = data["id"].asInt();
@@ -293,6 +302,17 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
             std::string app = data["app"].asString();
             int _type = data["type"].asInt();
             ret["data"] = DbManager::getInstance().getRule(app, _type);
+        } else if (message_type == "rule/setting/get") {
+            int limit = data["limit"].asInt();
+            ret["data"] = DbManager::getInstance().getRule(limit);
+        } else if (message_type == "rule/setting/put") {
+            int id = data["id"].asInt();
+            int autoAccounting = data["autoAccounting"].asInt();
+            int enable = data["enable"].asInt();
+            DbManager::getInstance().ruleSetting(id, autoAccounting, enable);
+        } else if (message_type == "rule/remove") {
+            int id = data["id"].asInt();
+            DbManager::getInstance().removeRule(id);
         }
 
 
@@ -302,24 +322,26 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
             std::string app = data["app"].asString();
             int _type = data["type"].asInt();
             int call = data["call"].asInt();
+            int time = std::time(nullptr);
+            if (call == 1) {
+                // 先存data
+                DbManager::getInstance().insertAppData(0, _data, _type, app, "", time, 0, 0);
+            }
+
             //Json::Value rule = DbManager::getInstance().getRule(app, _type);
             std::string rule = DbManager::getInstance().getSetting("server", "rule_js");
             //先执行分析账单内容
-// val js = "var window = {data:JSON.stringify($data), dataType:$dataType, app:\"${app}\"};<RULE>"
-//
-            std::string billJs = "var window = {data:JSON.stringify("+_data+")};<RULE>" + rule;
+            std::string billJs = "var window = {data:JSON.stringify(" + _data + ")};" + rule;
 
             std::string result = runJs(billJs);
 
             //获取当前时间戳
-            int time = std::time(nullptr);
+
 
             Json::Value _json;
             Json::Reader _reader;
             if (!_reader.parse((const char *) msg, _json)) {
                 printf("json parse error\n");
-                if(call==1)DbManager::getInstance().insertAppData(0, _data, _type, app, "", time, 0,0);
-
                 ret["data"] = "json parse error";
             }else{
                 float money = _json["money"].asFloat();
@@ -335,47 +357,70 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
 
                 std::string channel = _json["channel"].asString();
 
-                if(call==1)DbManager::getInstance().insertAppData(0, _data, _type, app, channel, time, 1,0);
+                //自动重新更新，不需要App调用更新
+
+                DbManager::getInstance().insertAppData(0, _data, _type, app, channel, time, 1, 0);
 
                 //分析分类内容
+                std::pair<bool, bool> pair = DbManager::getInstance().checkRule(app, _type,
+                                                                                channel);
 
-
-                std::string customJs = DbManager::getInstance().getSetting("server", "custom_js");
-                std::string official_cate_js = DbManager::getInstance().getSetting("server", "official_cate_js");
-                std::string categoryJs = "var window = {money:"+std::to_string(money)+", type:"+std::to_string(bill_type)+", shopName:'"+shopName+"', shopItem:'"+shopItem+"', time:'"+timeStr+"'};\n" +
-                                         "function getCategory(money,type,shopName,shopItem,time){ "+customJs+" return null};\n" +
-                                         "var categoryInfo = getCategory(window.money,window.type,window.shopName,window.shopItem,window.time);" +
-                                         "if(categoryInfo !== null) { print(JSON.stringify(categoryInfo));  } else { "+official_cate_js+" }";
-
-
-                std::string categoryResult = runJs(categoryJs);
-                Json::Value categoryJson;
-                if (!_reader.parse(categoryResult, categoryJson)) {
-                    printf("json parse error\n");
-                    ret["data"] = "json parse error";
+                if (!pair.first && call == 1) {
+                    //不启用这个规则
+                    ret["data"] = "rule not enable";
                 }else{
-                    std::string bookName = categoryJson["bookName"].asString();
-                    std::string cateName = categoryJson["cateName"].asString();
-                    //拉起自动记账app
-                    _json["bookName"] = bookName;
-                    _json["cateName"] = cateName;
+                    std::string customJs = DbManager::getInstance().getSetting("server",
+                                                                               "custom_js");
+                    std::string official_cate_js = DbManager::getInstance().getSetting("server",
+                                                                                       "official_cate_js");
+                    std::string categoryJs =
+                            "var window = {money:" + std::to_string(money) + ", type:" +
+                            std::to_string(bill_type) + ", shopName:'" + shopName +
+                            "', shopItem:'" + shopItem + "', time:'" + timeStr + "'};\n" +
+                            "function getCategory(money,type,shopName,shopItem,time){ " + customJs +
+                            " return null};\n" +
+                            "var categoryInfo = getCategory(window.money,window.type,window.shopName,window.shopItem,window.time);" +
+                            "if(categoryInfo !== null) { print(JSON.stringify(categoryInfo));  } else { " +
+                            official_cate_js + " }";
 
-                    if(call==1){
-                        try {
-                            std::string cmd =
-                                    R"(am start -a "net.ankio.auto.ACTION_SHOW_FLOATING_WINDOW" -d "autoaccounting://bill?data=)" +
-                                    base64::to_base64(_json.toStyledString())  + R"(" --ez "android.intent.extra.NO_ANIMATION" true -f 0x10000000)";
-                            //写日志
-                            log("执行命令" + cmd,LOG_LEVEL_INFO);
-                            system(cmd.c_str());
-                        } catch (const std::exception &e) {
-                            log("拉起自动记账失败："+std::string(e.what()),LOG_LEVEL_ERROR);
+
+                    std::string categoryResult = runJs(categoryJs);
+                    Json::Value categoryJson;
+                    if (!_reader.parse(categoryResult, categoryJson)) {
+                        printf("json parse error\n");
+                        ret["data"] = "json parse error";
+                    } else {
+                        std::string bookName = categoryJson["bookName"].asString();
+                        std::string cateName = categoryJson["cateName"].asString();
+
+                        _json["bookName"] = bookName;
+                        _json["cateName"] = cateName;
+
+
+
+
+                        //拉起自动记账app
+                        if (call == 1) {
+                            try {
+                                std::string cmd =
+                                        R"(am start -a "net.ankio.auto.ACTION_SHOW_FLOATING_WINDOW" -d "autoaccounting://bill?data=)" +
+                                        base64::to_base64(_json.toStyledString()) + R"(" --ei ")" +
+                                        (pair.second ? "1" : "0") + //判断是否自动记录
+                                        R"(" --ez "android.intent.extra.NO_ANIMATION" true -f 0x10000000)";
+                                //写日志
+                                log("执行命令" + cmd, LOG_LEVEL_INFO);
+                                system(cmd.c_str());
+                            } catch (const std::exception &e) {
+                                log("拉起自动记账失败：" + std::string(e.what()), LOG_LEVEL_ERROR);
+                            }
+
                         }
 
+                        ret["data"] = _json;
                     }
-
-                    ret["data"] = _json;
                 }
+
+
 
             }
 
@@ -394,7 +439,7 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
         ret["id"] = message_id;
         ws_sendframe_txt(client, ret.toStyledString().c_str());
     } catch (std::exception &e) {
-        printf("error: %s\n", e.what());
+        log("error: " + std::string(e.what()), LOG_LEVEL_ERROR);
     }
 
 

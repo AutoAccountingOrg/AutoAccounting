@@ -66,6 +66,7 @@ class AutoServer {
     ): Any? =
         suspendCancellableCoroutine { continuation ->
             if (ws == null) {
+                //  Logger.d("WebSocket未连接")
                 continuation.resume(null)
                 return@suspendCancellableCoroutine
             }
@@ -186,7 +187,7 @@ class AutoServer {
     }
 
     suspend fun config(): AccountingConfig {
-        val json = SettingModel.get(AppUtils.getApplication().packageName, "config")
+        val json = SettingModel.get("server", "config")
         return runCatching { Gson().fromJson(json, AccountingConfig::class.java) }.getOrNull() ?: AccountingConfig()
     }
 
@@ -194,7 +195,7 @@ class AutoServer {
         withContext(Dispatchers.IO) {
             val context = AppUtils.getApplication()
             val cacheDir = context.externalCacheDir!!.absolutePath + File.separator + "shell"
-            val copyFiles = arrayListOf("version.txt", "starter.sh", "stoper.sh", "apps.txt")
+            val copyFiles = arrayListOf("version.txt", "starter.sh", "apps.txt")
             // 检查cpu架构
             val cpu = System.getProperty("os.arch")!!
             val androidCpu =
@@ -231,7 +232,7 @@ class AutoServer {
         val file = File(AppUtils.getApplication().externalCacheDir!!.absolutePath + "/../token.txt").canonicalFile
         Logger.i("Token file path: ${file.absolutePath}")
         if (file.exists()) {
-            val token = file.readText()
+            val token = file.readText().trim()
             Logger.i("Token: $token")
             return token
         }

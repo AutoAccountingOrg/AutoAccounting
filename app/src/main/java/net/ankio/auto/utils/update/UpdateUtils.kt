@@ -15,13 +15,11 @@
 
 package net.ankio.auto.utils.update
 
-import android.os.Handler
-import android.os.Looper
-import android.widget.Toast
 import com.google.gson.Gson
+import com.hjq.toast.Toaster
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.ankio.auto.App
+import net.ankio.auto.R
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.SpUtils
@@ -30,7 +28,7 @@ import net.ankio.auto.utils.request.RequestsUtils
 /**
  * 更新工具，用于处理App更新、规则更新
  */
-class UpdateUtils {
+class UpdateUtils(private val showResult: Boolean = true) {
     companion object {
         fun getUrl(): String {
             return SpUtils.getString("app_url", "https://cloud.ankio.net/d/阿里云盘/自动记账/")
@@ -92,13 +90,18 @@ class UpdateUtils {
                     json
                 } else {
                     Logger.i("无需更新")
-                    Handler(Looper.getMainLooper()).post {
-                        Toast.makeText(App.appContext, "无需更新", Toast.LENGTH_SHORT).show()
+                    if (showResult) {
+                        Toaster.show(R.string.no_need_to_update)
                     }
+
                     null
                 }
             }.onFailure {
-                Logger.i("检测更新出错：$it")
+                Logger.e("检测更新出错：$it", it)
+                if (showResult)
+                    {
+                        Toaster.show(R.string.check_update_error)
+                    }
             }.getOrNull()
         }
 
