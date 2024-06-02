@@ -29,6 +29,7 @@ import com.google.android.material.elevation.SurfaceColors
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.hjq.toast.Toaster
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
@@ -67,7 +68,8 @@ class EditFragment : BaseFragment() {
         flexboxLayout.removeAllViews()
         flexboxLayout.appendTextView(getString(R.string.if_condition_true))
 
-        list = Gson().fromJson(regular.element, List::class.java) as MutableList<HashMap<String, Any>>?
+        val listType = object : TypeToken<MutableList<HashMap<String, Any>>>() {}.type
+        val list: MutableList<HashMap<String, Any>>? = Gson().fromJson(regular.element, listType)
         // 依次排列
         if (list.isNullOrEmpty()) {
             val buttonElem =

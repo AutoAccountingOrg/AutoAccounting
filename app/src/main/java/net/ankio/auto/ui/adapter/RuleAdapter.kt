@@ -19,6 +19,7 @@ import android.view.View
 import androidx.core.view.size
 import com.google.android.material.elevation.SurfaceColors
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterRuleBinding
 import net.ankio.auto.utils.server.model.Regular
@@ -39,10 +40,8 @@ class RuleAdapter(
         if (!regular.auto) {
             binding.type.visibility = View.GONE
         }
-
-        val list =
-            Gson().fromJson(regular.element, List::class.java) as MutableList<HashMap<String, Any>>?
-                ?: return
+        val listType = object : TypeToken<MutableList<HashMap<String, Any>>>() {}.type
+        val list: MutableList<HashMap<String, Any>> = Gson().fromJson(regular.element, listType) ?: return
 
         val lastElement = list.removeLast()
         val flexboxLayout = binding.flexboxLayout
