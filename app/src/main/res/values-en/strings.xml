@@ -296,5 +296,6 @@
     <string name="item_sync">Sync</string>
     <string name="more_bill">The current bill is merged from the following bills</string>
     <string name="auto_category">It is detected that the category used when saving the bill is inconsistent with the category recognized by the automatic accounting rules. Would you like to generate a new classification rule for you?</string>
+    <string name="stop">Stop</string>
 
 </resources>
