@@ -78,7 +78,7 @@ if [ -f "$OLD_PATH" ]; then
   chmod +x "$NEW_PATH"
   retries=0
   # 判断启动命令是否携带debug参数
-  if [ "$2" = "debug" ]; then
+  if [ "$1" = "debug" ]; then
     info "启动自动记账服务，调试模式"
     "$NEW_PATH" "$DIR"  #自动记账的工作路径就是自动记账的缓存路径
   else
