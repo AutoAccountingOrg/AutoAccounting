@@ -125,7 +125,7 @@ class LogFragment : BaseFragment() {
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    private fun loadMoreData() {
+    private fun loadMoreData(empty: Boolean = false) {
         val loading = LoadingUtils(requireActivity())
         loading.show(R.string.loading)
         lifecycleScope.launch {
