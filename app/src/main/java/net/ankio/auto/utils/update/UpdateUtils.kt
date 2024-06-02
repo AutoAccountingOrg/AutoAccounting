@@ -16,8 +16,10 @@
 package net.ankio.auto.utils.update
 
 import com.google.gson.Gson
+import com.hjq.toast.Toaster
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import net.ankio.auto.R
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.SpUtils
@@ -88,6 +90,7 @@ class UpdateUtils {
                     json
                 } else {
                     Logger.i("无需更新")
+                    Toaster.show(R.string.no_need_to_update)
                     null
                 }
             }.onFailure {
