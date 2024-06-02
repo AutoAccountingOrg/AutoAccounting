@@ -232,7 +232,9 @@ class AutoServer {
         val file = File(AppUtils.getApplication().externalCacheDir!!.absolutePath + "/../token.txt")
         Logger.i("Token file path: ${file.absolutePath}")
         if (file.exists()) {
-            return file.readText()
+            val token = file.readText().trim()
+            Logger.i("Token: $token")
+            return token
         }
         return ""
     }
