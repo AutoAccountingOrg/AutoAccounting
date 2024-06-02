@@ -486,11 +486,20 @@ void WebSocketServer::publishToken() {
             //读取包名拼接目录，将token写入目录
             std::string app = std::string(buf);
             trim(app);
-            std::string path = std::string("/sdcard/Android/data/") + app + "/token.txt";
-            FILE *appFile = fopen(path.c_str(), "w");
-            fprintf(appFile, "%s", token.c_str());
-            fclose(appFile);
-            chmod(path.c_str(), 0777);
+            std::string appPath = std::string("/sdcard/Android/data/") + app;
+            if (std::filesystem::exists(appPath)) {
+                std::string path = appPath + "/token.txt";
+                FILE *appFile = fopen(path.c_str(), "w");
+                // 检查文件指针是否为空
+                if (appFile == NULL) {
+                    printf("打开文件失败");
+                } else {
+                    printf("write token to %s\n", path.c_str());
+                    fprintf(appFile, "%s", token.c_str());
+                    fclose(appFile);
+                    chmod(path.c_str(), 0777);
+                }
+            }
         }
         fclose(appsFile);
     }
