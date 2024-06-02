@@ -944,7 +944,7 @@ void DbManager::insertCustomRule(int id, const std::string &js, const std::strin
     int count = -1;
     if(id == 0){
         stmt = getStmt(
-                "INSERT INTO customRule ( js, text, element, use, sort, auto) VALUES (?,?,?,?,?,?,?);");
+                "INSERT INTO customRule ( js, text, element, use, sort, auto) VALUES (?,?,?,?,?,?);");
     }else{
         count = 0;
         stmt = getStmt(
