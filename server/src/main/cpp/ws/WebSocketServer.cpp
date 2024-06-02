@@ -69,7 +69,7 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
 
         std::string message_id = json["id"].asString();
         std::string message_type = json["type"].asString();
-
+        std::string message_token = json["token"].asString();
         printf("message_type: %s\n", message_type.c_str());
 
 
@@ -92,7 +92,7 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
             return;
         }
 
-        if (clients.find(client) == clients.end()) {
+        if (clients.find(client) == clients.end() && message_token != token) {
             printf("client not auth\n");
             ws_close_client(client);
             return;
