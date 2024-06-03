@@ -268,7 +268,8 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
             DbManager::getInstance().addBxBills(data["bills"]);
         }else if(message_type == "app/bill/get"){
              int limit = data["limit"].asInt();
-            ret["data"] = DbManager::getInstance().getBxBills(limit);
+             int t = data["type"].asInt();
+            ret["data"] = DbManager::getInstance().getBxBills(limit,t);
          }
 
         else if(message_type == "cate/put"){

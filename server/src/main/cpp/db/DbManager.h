@@ -106,7 +106,7 @@ public:
     Json::Value getRule(int limit);
 
     void addBxBills(const Json::Value& billArray);
-    Json::Value getBxBills(int limit);
+    Json::Value getBxBills(int limit,int t);
 };
 
 

@@ -1155,11 +1155,12 @@ void DbManager::addBxBills(const Json::Value& billArray){
     }
 }
 
-Json::Value DbManager::getBxBills(int limit) {
+Json::Value DbManager::getBxBills(int limit,int t) {
     Json::Value ret;
     char *zErrMsg = nullptr;
-    sqlite3_stmt *stmt = getStmt("SELECT * FROM bookBill ORDER BY time DESC LIMIT ?;");
-    sqlite3_bind_int(stmt, 1, limit);
+    sqlite3_stmt *stmt = getStmt("SELECT * FROM bookBill WHERE type=? ORDER BY time DESC LIMIT ?;");
+    sqlite3_bind_int(stmt, 1, t);
+    sqlite3_bind_int(stmt, 2, limit);
     int rc = 0;
     while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
         Json::Value bill;
