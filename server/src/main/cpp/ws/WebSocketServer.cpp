@@ -265,8 +265,11 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
         else if(message_type == "assets/sync"){
             //TODO 来自
         }else if(message_type == "app/bill/add"){
-            //TODO 来自
-        }
+            DbManager::getInstance().addBxBills(data["bills"]);
+        }else if(message_type == "app/bill/get"){
+             int limit = data["limit"].asInt();
+            ret["data"] = DbManager::getInstance().getBxBills(limit);
+         }
 
         else if(message_type == "cate/put"){
             int id = data["id"].asInt();

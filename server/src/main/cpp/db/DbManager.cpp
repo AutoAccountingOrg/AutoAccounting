@@ -1154,3 +1154,29 @@ void DbManager::addBxBills(const Json::Value& billArray){
         sqlite3_exec(db, "ROLLBACK;", nullptr, nullptr, nullptr);
     }
 }
+
+Json::Value DbManager::getBxBills(int limit) {
+    Json::Value ret;
+    char *zErrMsg = nullptr;
+    sqlite3_stmt *stmt = getStmt("SELECT * FROM bookBill ORDER BY time DESC LIMIT ?;");
+    sqlite3_bind_int(stmt, 1, limit);
+    int rc = 0;
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+        Json::Value bill;
+        bill["billId"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 0));
+        bill["amount"] = sqlite3_column_int(stmt, 1);
+        bill["time"] = sqlite3_column_int(stmt, 2);
+        bill["remark"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 3));
+        bill["type"] = sqlite3_column_int(stmt, 4);
+        bill["book"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 5));
+        bill["category"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 6));
+        bill["accountFrom"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 7));
+        bill["accountTo"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 8));
+        ret.append(bill);
+    }
+    if (rc != SQLITE_DONE) {
+        fprintf(stderr, "SQL error 5: %s\n", sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
+    return ret;
+}
