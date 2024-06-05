@@ -110,6 +110,7 @@ public:
 
 
     void syncBook(const Json::Value& bookArray);
+    void syncAssets(const Json::Value& assetArray);
 };
 
 

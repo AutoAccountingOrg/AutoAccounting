@@ -1280,3 +1280,43 @@ void DbManager::syncBook(const Json::Value &bookArray) {
         sqlite3_exec(db, "ROLLBACK;", nullptr, nullptr, nullptr);
     }
 }
+
+void DbManager::syncAssets(const Json::Value &assetArray){
+//这里使用事物操作
+    sqlite3_exec(db, "BEGIN;", nullptr, nullptr, nullptr);
+    try {
+        //先清空assets表
+        sqlite3_stmt *stmt = getStmt("DELETE FROM assets;");
+        int rc = sqlite3_step(stmt);
+        if (rc != SQLITE_DONE) {
+            fprintf(stderr, "SQL error 9: %s\n", sqlite3_errmsg(db));
+        }
+        sqlite3_finalize(stmt);
+
+        //插入数据
+        for (auto asset : assetArray) {
+            std::string name = asset["name"].asString();
+            int type = asset["type"].asInt();
+            int sort = asset["sort"].asInt();
+            std::string icon = asset["icon"].asString();
+            std::string extras = asset["extras"].asString();
+            sqlite3_stmt *stmt2 = getStmt(
+                    "INSERT INTO assets ( name, type, sort, icon, extras) VALUES (?,?,?,?,?);");
+
+            sqlite3_bind_text(stmt2, 1, name.c_str(), -1, SQLITE_STATIC);
+            sqlite3_bind_int(stmt2, 2, type);
+            sqlite3_bind_int(stmt2, 3, sort);
+            sqlite3_bind_text(stmt2, 4, icon.c_str(), -1, SQLITE_STATIC);
+            sqlite3_bind_text(stmt2, 5, extras.c_str(), -1, SQLITE_STATIC);
+            int rc2 = sqlite3_step(stmt2);
+            if (rc2 != SQLITE_DONE) {
+                fprintf(stderr, "SQL error 8: %s\n", sqlite3_errmsg(db));
+            }
+            sqlite3_finalize(stmt2);
+        }
+        sqlite3_exec(db, "COMMIT;", nullptr, nullptr, nullptr);
+
+    } catch (...) {
+        sqlite3_exec(db, "ROLLBACK;", nullptr, nullptr, nullptr);
+    }
+}

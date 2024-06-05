@@ -261,11 +261,12 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
 
         else if(message_type == "book/sync"){
 
-            DbManager::getInstance().syncBook(data["books"]);
+            DbManager::getInstance().syncBook(data["data"]);
 
             //TODO 来自
         }
         else if(message_type == "assets/sync"){
+            DbManager::getInstance().syncAssets(data["data"]);
             //TODO 来自
         }else if(message_type == "app/bill/add"){
             DbManager::getInstance().addBxBills(data["bills"]);
