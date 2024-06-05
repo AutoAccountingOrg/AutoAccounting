@@ -107,6 +107,9 @@ public:
 
     void addBxBills(const Json::Value& billArray);
     Json::Value getBxBills(int limit,int t);
+
+
+    void syncBook(const Json::Value& bookArray);
 };
 
 

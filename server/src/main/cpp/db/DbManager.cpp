@@ -1181,3 +1181,102 @@ Json::Value DbManager::getBxBills(int limit,int t) {
     sqlite3_finalize(stmt);
     return ret;
 }
+
+void DbManager::syncBook(const Json::Value &bookArray) {
+    //这里使用事物操作
+    sqlite3_exec(db, "BEGIN;", nullptr, nullptr, nullptr);
+    try {
+        //先清空book表
+        sqlite3_stmt *stmt = getStmt("DELETE FROM bookName;");
+        int rc = sqlite3_step(stmt);
+        if (rc != SQLITE_DONE) {
+            fprintf(stderr, "SQL error 9: %s\n", sqlite3_errmsg(db));
+        }
+        sqlite3_finalize(stmt);
+
+        //清空category表
+        sqlite3_stmt *stmt1 = getStmt("DELETE FROM category;");
+        int rc1 = sqlite3_step(stmt1);
+        if (rc1 != SQLITE_DONE) {
+            fprintf(stderr, "SQL error 9: %s\n", sqlite3_errmsg(db));
+        }
+        sqlite3_finalize(stmt1);
+
+        //插入数据
+        for (auto book : bookArray) {
+            Json::Value category = book["category"];
+            std::string name = book["name"].asString();
+            std::string icon = book["icon"].asString();
+            sqlite3_stmt *stmt2 = getStmt(
+                    "INSERT INTO bookName ( name, icon) VALUES (?,?);");
+
+            sqlite3_bind_text(stmt2, 1, name.c_str(), -1, SQLITE_STATIC);
+            sqlite3_bind_text(stmt2, 2, icon.c_str(), -1, SQLITE_STATIC);
+            int rc2 = sqlite3_step(stmt2);
+            if (rc2 != SQLITE_DONE) {
+                fprintf(stderr, "SQL error 8: %s\n", sqlite3_errmsg(db));
+            }
+            sqlite3_finalize(stmt2);
+
+            //获取插入的id
+            long long bookId = sqlite3_last_insert_rowid(db);
+
+            std::vector<Json::Value> sortedModel;
+            for (const auto& it : category) {
+                sortedModel.push_back(it);
+            }
+            std::sort(sortedModel.begin(), sortedModel.end(), [](const Json::Value& a, const Json::Value& b) {
+                if ((a["parent"].asString() != "-1") != (b["parent"].asString() != "-1")) {
+                    return a["parent"].asString() != "-1";
+                }
+                return a["sort"].asInt() < b["sort"].asInt();
+            });
+
+            // 处理排序后的数据
+            for (const auto& it : sortedModel) {
+                std::string cateName = it["name"].asString();
+                std::string cateIcon = it["icon"].asString();
+                std::string cateRemoteId = it["id"].asString();
+                std::string cateParent = it["parent"].asString();
+                int cateSort = it["sort"].asInt();
+                int cateType = it["type"].asInt();
+
+                if (cateParent != "-1") {
+
+                    //查找remoteId
+                    sqlite3_stmt *stmt3 = getStmt("SELECT * FROM category WHERE book = ? AND remoteId = ?;");
+                    sqlite3_bind_int64(stmt3, 1, bookId);
+                    sqlite3_bind_text(stmt3, 2, cateParent.c_str(), -1, SQLITE_STATIC);
+                    int rc3 = sqlite3_step(stmt3);
+                    if (rc3 == SQLITE_ROW) {
+                        cateParent = std::to_string(sqlite3_column_int(stmt3, 0));
+                    }
+                    sqlite3_finalize(stmt3);
+                }
+
+                //插入数据库
+                sqlite3_stmt *stmt3 = getStmt(
+                        "INSERT INTO category ( name, icon, remoteId, parent, book, sort, type) VALUES (?,?,?,?,?,?,?,?);");
+                sqlite3_bind_text(stmt3, 1, cateName.c_str(), -1, SQLITE_STATIC);
+                sqlite3_bind_text(stmt3, 2, cateIcon.c_str(), -1, SQLITE_STATIC);
+                sqlite3_bind_text(stmt3, 3, cateRemoteId.c_str(), -1, SQLITE_STATIC);
+                sqlite3_bind_int(stmt3, 4, cateParent == "-1" ? 0 : std::stoi(cateParent));
+                sqlite3_bind_int64(stmt3, 5, bookId);
+                sqlite3_bind_int(stmt3, 6, cateSort);
+                sqlite3_bind_int(stmt3, 7, cateType);
+                int rc3 = sqlite3_step(stmt3);
+                if (rc3 != SQLITE_DONE) {
+                    fprintf(stderr, "SQL error 8: %s\n", sqlite3_errmsg(db));
+                }
+                sqlite3_finalize(stmt3);
+
+            }
+
+
+        }
+        sqlite3_exec(db, "COMMIT;", nullptr, nullptr, nullptr);
+
+    } catch (...) {
+        sqlite3_exec(db, "ROLLBACK;", nullptr, nullptr, nullptr);
+    }
+}
