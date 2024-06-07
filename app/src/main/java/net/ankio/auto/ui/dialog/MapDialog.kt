@@ -25,6 +25,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogMapBinding
+import net.ankio.auto.utils.ImageUtils
 import net.ankio.auto.utils.server.model.Assets
 import net.ankio.auto.utils.server.model.AssetsMap
 
@@ -52,7 +53,7 @@ class MapDialog(
     private fun setBindingData() {
         binding.raw.setText(assetsMap.name)
         binding.target.setText(assetsMap.mapName)
-        binding.regex.isChecked = assetsMap.regex
+        binding.regex.isChecked = assetsMap.regex == 1
         lifecycleScope.launch {
             Assets.getDrawable(assetsMap.mapName, context).let {
                 binding.target.setIcon(it)
@@ -66,7 +67,7 @@ class MapDialog(
         binding.buttonSure.setOnClickListener {
             assetsMap.name = binding.raw.text.toString()
             assetsMap.mapName = binding.target.getText()
-            assetsMap.regex = binding.regex.isChecked
+            assetsMap.regex = if(binding.regex.isChecked) 1 else 0
 
             if (assetsMap.name.isEmpty() || assetsMap.mapName == context.getString(R.string.map_no_target)) {
                 Toaster.show(context.getString(R.string.map_empty))
@@ -86,9 +87,7 @@ class MapDialog(
                 assetsMap.mapName = it.name
                 binding.target.setText(it.name)
                 lifecycleScope.launch {
-                    Assets.getDrawable(it.icon, context).let { drawable ->
-                        binding.target.setIcon(drawable)
-                    }
+                    binding.target.setIcon( ImageUtils.get(context, it.icon, R.mipmap.ic_launcher_round))
                 }
             }.show(cancel = true)
         }

@@ -578,14 +578,7 @@ Json::Value DbManager::getAsset(int limit,int type) {
     sqlite3_bind_int(stmt, 2, limit);
     int rc = 0;
     while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
-        Json::Value asset;
-        asset["id"] = sqlite3_column_int(stmt, 0);
-        asset["name"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1));
-        asset["icon"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2));
-        asset["type"] = sqlite3_column_int(stmt, 4);
-        asset["sort"] = sqlite3_column_int(stmt, 3);
-        asset["extras"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 5));
-        ret.append(asset);
+        ret.append(buildAssets(stmt));
     }
     if (rc != SQLITE_DONE) {
         fprintf(stderr, "SQL error 5: %s\n", sqlite3_errmsg(db));
@@ -594,29 +587,31 @@ Json::Value DbManager::getAsset(int limit,int type) {
     return ret;
 }
 
+
+Json::Value DbManager::buildAssets(sqlite3_stmt *stmt){
+    Json::Value asset;
+    asset["id"] = sqlite3_column_int(stmt, 0);
+    asset["name"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1));
+    asset["icon"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2));
+    asset["type"] = sqlite3_column_int(stmt, 4);
+    asset["sort"] = sqlite3_column_int(stmt, 3);
+    asset["extras"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 5));
+    return asset;
+}
+
 Json::Value DbManager::getAssetByName(const std::string &name) {
     Json::Value asset;
-    char *zErrMsg = nullptr;
     sqlite3_stmt *stmt = getStmt("SELECT * FROM assets WHERE name = ? LIMIT 1;");
     sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_STATIC);
-    int rc = 0;
-    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
-        asset["id"] = sqlite3_column_int(stmt, 0);
-        asset["name"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1));
-        asset["type"] = sqlite3_column_int(stmt, 2);
-        asset["sort"] = sqlite3_column_int(stmt, 3);
-        asset["icon"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 4));
-        asset["extras"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 5));
-    }
-    if (rc != SQLITE_DONE) {
-        fprintf(stderr, "SQL error 5: %s\n", sqlite3_errmsg(db));
+    int rc = sqlite3_step(stmt);
+    if (rc == SQLITE_ROW) {
+       asset = buildAssets(stmt);
     }
     sqlite3_finalize(stmt);
     return asset;
 }
 
 void DbManager::removeAsset(std::string &name) {
-    char *zErrMsg = nullptr;
     sqlite3_stmt *stmt = getStmt("DELETE FROM assets WHERE name = ?;");
     sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_STATIC);
     int rc = sqlite3_step(stmt);
@@ -626,8 +621,7 @@ void DbManager::removeAsset(std::string &name) {
     sqlite3_finalize(stmt);
 }
 
-void DbManager::insertAssetMap(int id, const std::string &name, const std::string &mapName, int regex) {
-    char *zErrMsg = nullptr;
+void DbManager::insertAssetMap(int id, const std::string& name, const std::string&  mapName, int regex){
     sqlite3_stmt *stmt;
     int count = -1;
     if(id == 0){
@@ -653,15 +647,14 @@ void DbManager::insertAssetMap(int id, const std::string &name, const std::strin
 
 Json::Value DbManager::getAssetMap() {
     Json::Value ret;
-    char *zErrMsg = nullptr;
     sqlite3_stmt *stmt = getStmt("SELECT * FROM assetsMap ORDER BY id DESC;");
     int rc = 0;
     while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
         Json::Value assetMap;
         assetMap["id"] = sqlite3_column_int(stmt, 0);
-        assetMap["name"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1));
-        assetMap["mapName"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2));
-        assetMap["regex"] = sqlite3_column_int(stmt, 3);
+        assetMap["name"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2));
+        assetMap["mapName"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 3));
+        assetMap["regex"] = sqlite3_column_int(stmt, 1);
         ret.append(assetMap);
     }
     if (rc != SQLITE_DONE) {

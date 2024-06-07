@@ -122,7 +122,7 @@ object BillUtils {
         name: String,
     ): String {
         for (map in list) {
-            if (map.regex) {
+            if (map.regex == 1) {
                 try {
                     val pattern = Regex(map.name)
                     if (pattern.matches(name)) {

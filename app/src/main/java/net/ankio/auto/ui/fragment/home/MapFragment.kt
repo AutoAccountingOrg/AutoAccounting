@@ -102,7 +102,12 @@ class MapFragment : BaseFragment() {
 
             dataItems.addAll(collection)
 
-            adapter.notifyItemInserted(0)
+
+            withContext(Dispatchers.Main) {
+                adapter.notifyDataSetChanged()
+                binding.empty.root.visibility = if (dataItems.isEmpty()) View.VISIBLE else View.GONE
+
+            }
         }
 
         return binding.root

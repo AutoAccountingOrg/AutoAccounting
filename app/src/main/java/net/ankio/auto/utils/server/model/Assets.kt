@@ -18,6 +18,7 @@ import android.content.Context
 import android.graphics.drawable.Drawable
 import com.google.gson.Gson
 import com.google.gson.JsonArray
+import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -53,7 +54,7 @@ class Assets {
 
         suspend fun getByName(name: String): Assets? {
             val data = AppUtils.getService().sendMsg("asset/get/name", mapOf("name" to name))
-            return runCatching { Gson().fromJson(data as String, Assets::class.java) }.getOrNull()
+            return runCatching { Gson().fromJson(data as JsonObject, Assets::class.java) }.getOrNull()
         }
 
         suspend fun remove(name: String) {

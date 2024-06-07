@@ -64,6 +64,7 @@ public:
     //资产
     void insertAsset(int id, const std::string& name, int type, int sort, const std::string&  icon, const std::string&  extra);
     Json::Value getAsset(int limit,int type = 1);
+    Json::Value buildAssets(sqlite3_stmt *stmt);
     Json::Value getAssetByName(const std::string& name);
     void removeAsset(std::string& name);
 

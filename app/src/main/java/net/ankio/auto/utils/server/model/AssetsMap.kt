@@ -27,7 +27,7 @@ class AssetsMap {
     /**
      * 是否将原始映射的账户名作为正则使用
      */
-    var regex: Boolean = false
+    var regex: Int = 0
 
     /**
      * 原始获取到的账户名
