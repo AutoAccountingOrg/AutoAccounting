@@ -56,8 +56,8 @@ void DbManager::initTable() {
             "id INTEGER PRIMARY KEY AUTOINCREMENT,"
             "type INTEGER,"
             "currency TEXT,"
-            "money INTEGER,"
-            "fee INTEGER,"
+            "money REAL,"
+            "fee REAL,"
             "timeStamp INTEGER,"
             "shopName TEXT,"
             "cateName TEXT,"
@@ -74,7 +74,7 @@ void DbManager::initTable() {
             ");",
             "CREATE TABLE IF NOT EXISTS bookBill ("
             "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-            "amount INTEGER,"
+            "amount REAL,"
             "time INTEGER,"
             "remark TEXT,"
             "billId TEXT,"
@@ -263,7 +263,7 @@ std::string DbManager::getSetting(const std::string &app, const std::string &key
     return ret;
 }
 
-int DbManager::insertBill(int id, int type, const std::string &currency, int money, int fee, int timeStamp,
+int DbManager::insertBill(int id, int type, const std::string &currency, float money, float fee, int timeStamp,
                            const std::string &shopName, const std::string &cateName,
                            const std::string &extendData, const std::string &bookName,
                            const std::string &accountNameFrom, const std::string &accountNameTo,
@@ -288,8 +288,8 @@ int DbManager::insertBill(int id, int type, const std::string &currency, int mon
 
     sqlite3_bind_int(stmt, count + 2, type);
     sqlite3_bind_text(stmt, count + 3, currency.c_str(), -1, SQLITE_STATIC);
-    sqlite3_bind_int(stmt, count + 4, money);
-    sqlite3_bind_int(stmt, count + 5, fee);
+    sqlite3_bind_double(stmt, count + 4, money);
+    sqlite3_bind_double(stmt, count + 5, fee);
     sqlite3_bind_int(stmt, count + 6, timeStamp);
     sqlite3_bind_text(stmt, count + 7, shopName.c_str(), -1, SQLITE_STATIC);
     sqlite3_bind_text(stmt, count + 8, cateName.c_str(), -1, SQLITE_STATIC);
@@ -362,7 +362,7 @@ Json::Value DbManager::getWaitSyncBills() {
         bill["id"] = sqlite3_column_int(stmt, 0);
         bill["type"] = sqlite3_column_int(stmt, 1);
         bill["currency"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2));
-        bill["money"] = sqlite3_column_int(stmt, 3);
+        bill["money"] = sqlite3_column_double(stmt, 3);
         bill["fee"] = sqlite3_column_int(stmt, 4);
         bill["timeStamp"] = sqlite3_column_int(stmt, 5);
         bill["shopName"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 6));
@@ -471,8 +471,8 @@ Json::Value DbManager::buildBill(sqlite3_stmt *stmt){
     bill["id"] = sqlite3_column_int(stmt, 0);
     bill["type"] = sqlite3_column_int(stmt, 1);
     bill["currency"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2));
-    bill["money"] = sqlite3_column_int(stmt, 3);
-    bill["fee"] = sqlite3_column_int(stmt, 4);
+    bill["money"] = sqlite3_column_double(stmt, 3);
+    bill["fee"] = sqlite3_column_double(stmt, 4);
     bill["timeStamp"] = sqlite3_column_int(stmt, 5);
     bill["shopName"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 6));
     bill["cateName"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 7));
@@ -1114,14 +1114,14 @@ void DbManager::addBxBills(const Json::Value& billArray,std::string md5){
         sqlite3_stmt *stmt = getStmt("DELETE FROM bookBill;");
         int rc = sqlite3_step(stmt);
         if (rc != SQLITE_DONE) {
-            fprintf(stderr, "SQL error 9: %s\n", sqlite3_errmsg(db));
+            throw std::runtime_error("DbManager::addBxBills SQL error 1: " + std::string(sqlite3_errmsg(db)));
         }
         sqlite3_finalize(stmt);
         //插入数据
         for (auto bill : billArray) {
             std::string billId = bill["billId"].asString();
-            int amount = bill["amount"].asInt();
-            int time = bill["time"].asInt();
+            float amount = bill["amount"].asFloat() ;
+            unsigned long long time = bill["time"].asLargestUInt();
             std::string remark = bill["remark"].asString();
             int type = bill["type"].asInt();
             std::string book = bill["book"].asString();
@@ -1133,8 +1133,9 @@ void DbManager::addBxBills(const Json::Value& billArray,std::string md5){
                     "INSERT INTO bookBill ( billId, amount, time, remark, type, book, category, accountFrom, accountTo) VALUES (?,?,?,?,?,?,?,?,?);");
 
             sqlite3_bind_text(stmt2, 1, billId.c_str(), -1, SQLITE_STATIC);
-            sqlite3_bind_int(stmt2, 2, amount);
-            sqlite3_bind_int(stmt2, 3, time);
+            //sqlite3_bind_(stmt2, 2, amount);
+            sqlite3_bind_double(stmt2, 2, amount);
+            sqlite3_bind_int64(stmt2, 3, time);
             sqlite3_bind_text(stmt2, 4, remark.c_str(), -1, SQLITE_STATIC);
             sqlite3_bind_int(stmt2, 5, type);
             sqlite3_bind_text(stmt2, 6, book.c_str(), -1, SQLITE_STATIC);
@@ -1143,7 +1144,7 @@ void DbManager::addBxBills(const Json::Value& billArray,std::string md5){
             sqlite3_bind_text(stmt2, 9, accountTo.c_str(), -1, SQLITE_STATIC);
             int rc2 = sqlite3_step(stmt2);
             if (rc2 != SQLITE_DONE) {
-                fprintf(stderr, "SQL error 8: %s\n", sqlite3_errmsg(db));
+                throw std::runtime_error("DbManager::addBxBills SQL error 2: " + std::string(sqlite3_errmsg(db)));
             }
             sqlite3_finalize(stmt2);
 
@@ -1153,7 +1154,7 @@ void DbManager::addBxBills(const Json::Value& billArray,std::string md5){
         //存入md5
         setSetting("server","sync_bills_md5", md5);
     }  catch (std::exception&e) {
-        fprintf(stderr,"error:%s\n",e.what());
+        WebSocketServer::log(e.what(),LOG_LEVEL_ERROR);
         sqlite3_exec(db, "ROLLBACK;", nullptr, nullptr, nullptr);
     }
 }

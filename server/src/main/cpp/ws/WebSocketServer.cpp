@@ -160,8 +160,8 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
             int id = data["id"].asInt();
             int _type = data["type"].asInt();
             std::string currency = data["currency"].asString();
-            int money = data["money"].asInt();
-            int fee = data["fee"].asInt();
+            int money = data["money"].asFloat();
+            int fee = data["fee"].asFloat();
             int timeStamp = data["timeStamp"].asInt();
             std::string shopName = data["shopName"].asString();
             std::string cateName = data["cateName"].asString();
@@ -385,9 +385,6 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
                 std::string channel = _json["channel"].asString();
 
                 //自动重新更新，不需要App调用更新
-
-                DbManager::getInstance().insertAppData(0, _data, _type, app, channel, time, 1, 0);
-
                 //分析分类内容
                 std::pair<bool, bool> pair = DbManager::getInstance().checkRule(app, _type,
                                                                                 channel);
