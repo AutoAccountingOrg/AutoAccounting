@@ -4,6 +4,7 @@
 
 #include <cstdio>
 #include "DbManager.h"
+#include <format>
 #include "ws/WebSocketServer.h"
 
 DbManager::DbManager() {
@@ -803,17 +804,22 @@ int DbManager::insertCate(int id, const std::string &name, const std::string &ic
         fprintf(stderr, "SQL error 8: %s\n", sqlite3_errmsg(db));
     }
     sqlite3_finalize(stmt);
-    return sqlite3_last_insert_rowid(db);
+    return (int)sqlite3_last_insert_rowid(db);
 }
 
-Json::Value DbManager::getAllCate(int parent, int book, int type) {
+Json::Value DbManager::getAllCate( int book, int type,int parent) {
     Json::Value ret;
-    char *zErrMsg = nullptr;
     sqlite3_stmt *stmt = getStmt(
             "SELECT * FROM category WHERE parent = ? AND book = ? AND type = ? ORDER BY sort;");
+
+    //SELECT * FROM category WHERE parent=0 AND type=0 AND book=1 ORDER BY sort;
     sqlite3_bind_int(stmt, 1, parent);
     sqlite3_bind_int(stmt, 2, book);
     sqlite3_bind_int(stmt, 3, type);
+
+    WebSocketServer::log("SELECT * FROM category WHERE parent = "+std::to_string(parent)+" AND book = "+std::to_string(book)+" AND type = "+std::to_string(type)+" ORDER BY sort;",LOG_LEVEL_DEBUG);
+
+
     int rc = 0;
     while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
         Json::Value cate;
@@ -829,7 +835,8 @@ Json::Value DbManager::getAllCate(int parent, int book, int type) {
         ret.append(cate);
     }
     if (rc != SQLITE_DONE) {
-        fprintf(stderr, "SQL error 5: %s\n", sqlite3_errmsg(db));
+        std::string error = "DbManager::getAllCate SQL error 1: " + std::string(sqlite3_errmsg(db));
+        WebSocketServer::log(error,LOG_LEVEL_ERROR) ;
     }
     sqlite3_finalize(stmt);
     return ret;
@@ -837,7 +844,6 @@ Json::Value DbManager::getAllCate(int parent, int book, int type) {
 
 Json::Value DbManager::getCate(int book, const std::string &cateName,int type) {
     Json::Value ret;
-    char *zErrMsg = nullptr;
     sqlite3_stmt *stmt = getStmt(
             "SELECT * FROM category WHERE book = ? AND name = ? AND type = ?;");
     sqlite3_bind_int(stmt, 1, book);

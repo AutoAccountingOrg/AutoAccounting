@@ -44,7 +44,7 @@ class Category {
     /**
      * 父类id
      */
-    var parent: Int = -1
+    var parent: Int = 0
 
     /**
      * 所属账本

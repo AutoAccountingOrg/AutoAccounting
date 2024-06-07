@@ -9,6 +9,7 @@
 #include "../sqlite/sqlite3.h"
 #include "../jsoncpp/include/json/value.h"
 #include <string>
+
 class DbManager {
 private:
     sqlite3 *db{};

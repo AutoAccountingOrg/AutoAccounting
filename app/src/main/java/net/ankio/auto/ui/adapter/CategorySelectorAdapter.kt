@@ -163,11 +163,11 @@ class CategorySelectorAdapter(
          * item渲染
          */
         fun renderItem(item: Category) {
-            if (item.parent != -1) {
+            if (item.parent != 0) {
                 binding.ivMore.visibility = View.GONE
             } else {
                 scope.launch {
-                    val count = Category.getAll(item.book, item.id, item.type).size
+                    val count = Category.getAll(item.book, item.type, item.id).size
                     if (count == 0) {
                         withContext(Dispatchers.Main) {
                             binding.ivMore.visibility = View.GONE
