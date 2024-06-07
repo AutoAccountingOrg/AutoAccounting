@@ -105,12 +105,12 @@ public:
     void removeRule(int id);
     Json::Value getRule(int limit);
 
-    void addBxBills(const Json::Value& billArray);
+    void addBxBills(const Json::Value& billArray,std::string md5);
     Json::Value getBxBills(int limit,int t);
 
 
-    void syncBook(const Json::Value& bookArray);
-    void syncAssets(const Json::Value& assetArray);
+    void syncBook(const Json::Value& bookArray,std::string md5);
+    void syncAssets(const Json::Value& assetArray,std::string md5);
 };
 
 

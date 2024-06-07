@@ -78,7 +78,7 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
         Json::Value json;
         Json::Reader reader;
         if (!reader.parse((const char *) msg, json)) {
-            printf("json parse error\n");
+            log("json parse error",LOG_LEVEL_ERROR);
             return;
         }
 
@@ -88,25 +88,24 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
 
 
         if(json["type"].asString()!="log/put"){
-            printf("--------------\n");
-            printf("recived: %s\n", json.toStyledString().c_str());
-            printf("message_type: %s\n", message_type.c_str());
+            log("message: " + message_type,LOG_LEVEL_DEBUG);
+            log("recived: " + json.toStyledString(),LOG_LEVEL_DEBUG);
         }
 
 
         Json::Value ret;
         if (message_type == "auth") {
 
-            if(getVersion()!=version){
-                printf("server need update\n");
+            std::string localVersion = getVersion();
+            if(localVersion!=version){
+                log("server need update ( "+version+" => "+localVersion+" )",LOG_LEVEL_WARN);
                 ws_close_client(client);
                 exit(65);//直接退出进程
                 return;
             }
 
             if (json["data"].asString() != token) {
-                printf("token error %s\n",json["data"].asString().c_str());
-                printf("token error %s\n",token.c_str());
+                log("token error " + json["data"].asString() +" , now token is "+token,LOG_LEVEL_ERROR);
                 publishToken();
                 ws_close_client(client);
                 return;
@@ -114,7 +113,7 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
             clients[client] = true;
             ret["type"] = "auth/success";
             ret["id"] = message_id;
-            ret["data"] = "OK";
+            ret["data"] = version;
             ws_sendframe_txt(client, ret.toStyledString().c_str());
             return;
         }
@@ -260,16 +259,12 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
         }
 
         else if(message_type == "book/sync"){
-
-            DbManager::getInstance().syncBook(data["data"]);
-
-            //TODO 来自
+            DbManager::getInstance().syncBook(data["data"],data["md5"].asString());
         }
         else if(message_type == "assets/sync"){
-            DbManager::getInstance().syncAssets(data["data"]);
-            //TODO 来自
+            DbManager::getInstance().syncAssets(data["data"],data["md5"].asString());
         }else if(message_type == "app/bill/add"){
-            DbManager::getInstance().addBxBills(data["bills"]);
+            DbManager::getInstance().addBxBills(data["bills"],data["md5"].asString());
         }else if(message_type == "app/bill/get"){
              int limit = data["limit"].asInt();
              int t = data["type"].asInt();
@@ -524,9 +519,9 @@ void WebSocketServer::publishToken() {
                 FILE *appFile = fopen(path.c_str(), "w");
                 // 检查文件指针是否为空
                 if (appFile == nullptr) {
-                    printf("打开文件失败");
+                    log("open token file error: "+path,LOG_LEVEL_ERROR);
                 } else {
-                    printf("write token to %s\n", path.c_str());
+                    log("write token to " + path,LOG_LEVEL_INFO);
                     fprintf(appFile, "%s", token.c_str());
                     fclose(appFile);
                     chmod(path.c_str(), 0777);
@@ -555,7 +550,25 @@ void WebSocketServer::log(const std::string &msg,int level ){
     std::string  date = {buffer};
     //获取堆栈信息
     DbManager::getInstance().insertLog(date, "server", 0, "main", "server", msg,level);
-    printf("[ %s ] %s\n", buffer, msg.c_str());
+    std::string level_str = "";
+    switch (level) {
+        case LOG_LEVEL_INFO:
+            level_str = "INFO";
+            break;
+        case LOG_LEVEL_WARN:
+            level_str = "WARN";
+            break;
+        case LOG_LEVEL_ERROR:
+            level_str = "ERROR";
+            break;
+        case LOG_LEVEL_DEBUG:
+            level_str = "DEBUG";
+            break;
+        default:
+            level_str = "INFO";
+            break;
+    }
+    printf("[ %s ] [ %s ] %s\n", buffer,level_str.c_str(), msg.c_str());
 }
 
 

@@ -4,6 +4,7 @@
 
 #include <cstdio>
 #include "DbManager.h"
+#include "ws/WebSocketServer.h"
 
 DbManager::DbManager() {
     int rc = sqlite3_open_v2("auto.db", &db,
@@ -1106,7 +1107,7 @@ void DbManager::removeRule(int id) {
     sqlite3_finalize(stmt);
 }
 
-void DbManager::addBxBills(const Json::Value& billArray){
+void DbManager::addBxBills(const Json::Value& billArray,std::string md5){
     //这里使用事物操作
     sqlite3_exec(db, "BEGIN;", nullptr, nullptr, nullptr);
     try {
@@ -1150,7 +1151,10 @@ void DbManager::addBxBills(const Json::Value& billArray){
         }
         sqlite3_exec(db, "COMMIT;", nullptr, nullptr, nullptr);
 
-    } catch (...) {
+        //存入md5
+        setSetting("server","sync_bills_md5", md5);
+    }  catch (std::exception&e) {
+        fprintf(stderr,"error:%s\n",e.what());
         sqlite3_exec(db, "ROLLBACK;", nullptr, nullptr, nullptr);
     }
 }
@@ -1182,7 +1186,7 @@ Json::Value DbManager::getBxBills(int limit,int t) {
     return ret;
 }
 
-void DbManager::syncBook(const Json::Value &bookArray) {
+void DbManager::syncBook(const Json::Value &bookArray,std::string md5) {
     //这里使用事物操作
     sqlite3_exec(db, "BEGIN;", nullptr, nullptr, nullptr);
     try {
@@ -1190,7 +1194,8 @@ void DbManager::syncBook(const Json::Value &bookArray) {
         sqlite3_stmt *stmt = getStmt("DELETE FROM bookName;");
         int rc = sqlite3_step(stmt);
         if (rc != SQLITE_DONE) {
-            fprintf(stderr, "SQL error 9: %s\n", sqlite3_errmsg(db));
+            std::string error = " DbManager::syncBook SQL error 1: " + std::string(sqlite3_errmsg(db));
+            throw std::runtime_error(error);
         }
         sqlite3_finalize(stmt);
 
@@ -1198,7 +1203,8 @@ void DbManager::syncBook(const Json::Value &bookArray) {
         sqlite3_stmt *stmt1 = getStmt("DELETE FROM category;");
         int rc1 = sqlite3_step(stmt1);
         if (rc1 != SQLITE_DONE) {
-            fprintf(stderr, "SQL error 9: %s\n", sqlite3_errmsg(db));
+            std::string error = " DbManager::syncBook SQL error 2: " + std::string(sqlite3_errmsg(db));
+            throw std::runtime_error(error);
         }
         sqlite3_finalize(stmt1);
 
@@ -1214,7 +1220,8 @@ void DbManager::syncBook(const Json::Value &bookArray) {
             sqlite3_bind_text(stmt2, 2, icon.c_str(), -1, SQLITE_STATIC);
             int rc2 = sqlite3_step(stmt2);
             if (rc2 != SQLITE_DONE) {
-                fprintf(stderr, "SQL error 8: %s\n", sqlite3_errmsg(db));
+                std::string error = " DbManager::syncBook SQL error 3: " + std::string(sqlite3_errmsg(db));
+                throw std::runtime_error(error);
             }
             sqlite3_finalize(stmt2);
 
@@ -1226,8 +1233,8 @@ void DbManager::syncBook(const Json::Value &bookArray) {
                 sortedModel.push_back(it);
             }
             std::sort(sortedModel.begin(), sortedModel.end(), [](const Json::Value& a, const Json::Value& b) {
-                if ((a["parent"].asString() != "-1") != (b["parent"].asString() != "-1")) {
-                    return a["parent"].asString() != "-1";
+                if ((a["parent"].asString() == "-1") != (b["parent"].asString() == "-1")) {
+                    return a["parent"].asString() == "-1";
                 }
                 return a["sort"].asInt() < b["sort"].asInt();
             });
@@ -1240,48 +1247,44 @@ void DbManager::syncBook(const Json::Value &bookArray) {
                 std::string cateParent = it["parent"].asString();
                 int cateSort = it["sort"].asInt();
                 int cateType = it["type"].asInt();
-
+                WebSocketServer::log("parent => "+cateParent,LOG_LEVEL_INFO);
                 if (cateParent != "-1") {
-
                     //查找remoteId
-                    sqlite3_stmt *stmt3 = getStmt("SELECT * FROM category WHERE book = ? AND remoteId = ?;");
-                    sqlite3_bind_int64(stmt3, 1, bookId);
-                    sqlite3_bind_text(stmt3, 2, cateParent.c_str(), -1, SQLITE_STATIC);
+                    sqlite3_stmt *stmt3 = getStmt("SELECT * FROM category WHERE remoteId = ?;");
+                    sqlite3_bind_text(stmt3, 1, cateParent.c_str(), -1, SQLITE_STATIC);
                     int rc3 = sqlite3_step(stmt3);
                     if (rc3 == SQLITE_ROW) {
                         cateParent = std::to_string(sqlite3_column_int(stmt3, 0));
+                    }else{
+                        std::string error = " DbManager::syncBook SQL error 4: " + std::string(sqlite3_errmsg(db));
+                        throw std::runtime_error(error);
                     }
                     sqlite3_finalize(stmt3);
                 }
 
-                //插入数据库
-                sqlite3_stmt *stmt3 = getStmt(
-                        "INSERT INTO category ( name, icon, remoteId, parent, book, sort, type) VALUES (?,?,?,?,?,?,?,?);");
-                sqlite3_bind_text(stmt3, 1, cateName.c_str(), -1, SQLITE_STATIC);
-                sqlite3_bind_text(stmt3, 2, cateIcon.c_str(), -1, SQLITE_STATIC);
-                sqlite3_bind_text(stmt3, 3, cateRemoteId.c_str(), -1, SQLITE_STATIC);
-                sqlite3_bind_int(stmt3, 4, cateParent == "-1" ? 0 : std::stoi(cateParent));
-                sqlite3_bind_int64(stmt3, 5, bookId);
-                sqlite3_bind_int(stmt3, 6, cateSort);
-                sqlite3_bind_int(stmt3, 7, cateType);
-                int rc3 = sqlite3_step(stmt3);
-                if (rc3 != SQLITE_DONE) {
-                    fprintf(stderr, "SQL error 8: %s\n", sqlite3_errmsg(db));
-                }
-                sqlite3_finalize(stmt3);
+                insertCate(0,
+                           cateName,
+                           cateIcon,
+                           cateRemoteId,
+                           cateParent == "-1" ? 0 : std::stoi(cateParent),
+                           (int)bookId,
+                           cateSort,
+                           cateType);
+
 
             }
 
 
         }
         sqlite3_exec(db, "COMMIT;", nullptr, nullptr, nullptr);
-
-    } catch (...) {
+        setSetting("server","sync_books_md5", md5);
+    } catch ( std::exception&e) {
+        WebSocketServer::log(e.what(),LOG_LEVEL_ERROR);
         sqlite3_exec(db, "ROLLBACK;", nullptr, nullptr, nullptr);
     }
 }
 
-void DbManager::syncAssets(const Json::Value &assetArray){
+void DbManager::syncAssets(const Json::Value &assetArray,std::string md5){
 //这里使用事物操作
     sqlite3_exec(db, "BEGIN;", nullptr, nullptr, nullptr);
     try {
@@ -1315,8 +1318,9 @@ void DbManager::syncAssets(const Json::Value &assetArray){
             sqlite3_finalize(stmt2);
         }
         sqlite3_exec(db, "COMMIT;", nullptr, nullptr, nullptr);
-
-    } catch (...) {
+        setSetting("server","sync_assets_md5", md5);
+    } catch (std::exception&e) {
+        fprintf(stderr,"error:%s\n",e.what());
         sqlite3_exec(db, "ROLLBACK;", nullptr, nullptr, nullptr);
     }
 }
