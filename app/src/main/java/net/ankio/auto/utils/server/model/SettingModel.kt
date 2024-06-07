@@ -15,8 +15,10 @@
 
 package net.ankio.auto.utils.server.model
 
+import com.google.gson.JsonPrimitive
 import kotlinx.coroutines.launch
 import net.ankio.auto.utils.AppUtils
+import net.ankio.auto.utils.Logger
 
 class SettingModel {
     var app = ""
@@ -35,7 +37,7 @@ class SettingModel {
             key: String,
         ): String {
             val data = AppUtils.getService().sendMsg("setting/get", mapOf("app" to app, "key" to key))
-            return runCatching { data as String }.getOrNull() ?: ""
+            return runCatching { (data as JsonPrimitive).asString }.onFailure { Logger.e("Error",it) }.getOrNull() ?: ""
         }
     }
 }

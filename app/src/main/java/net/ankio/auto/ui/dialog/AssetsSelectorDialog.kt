@@ -26,8 +26,9 @@ import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogBookSelectBinding
 import net.ankio.auto.ui.adapter.AssetsSelectorAdapter
 import net.ankio.auto.utils.server.model.Assets
+import net.ankio.common.constant.AssetsType
 
-class AssetsSelectorDialog(private val context: Context, private val callback: (Assets) -> Unit) :
+class AssetsSelectorDialog(private val context: Context,val type:AssetsType = AssetsType.NORMAL, private val callback: (Assets) -> Unit) :
     BaseSheetDialog(context) {
     private lateinit var binding: DialogBookSelectBinding
     private val dataItems = mutableListOf<Assets>()
@@ -52,10 +53,10 @@ class AssetsSelectorDialog(private val context: Context, private val callback: (
 
     override fun show(
         float: Boolean,
-        cancel: Boolean,
+        cancel: Boolean
     ) {
         lifecycleScope.launch {
-            val newData = Assets.get(500)
+            val newData = Assets.get(500,type)
 
             val collection = newData.takeIf { it.isNotEmpty() } ?: listOf()
 

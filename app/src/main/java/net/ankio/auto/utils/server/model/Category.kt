@@ -18,6 +18,7 @@ import android.content.Context
 import android.graphics.drawable.Drawable
 import com.google.gson.Gson
 import com.google.gson.JsonArray
+import com.google.gson.JsonObject
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.utils.AppUtils
@@ -96,16 +97,10 @@ class Category {
             bookID: Int,
         ): Category? {
             val data = AppUtils.getService().sendMsg("cate/get/name", mapOf("name" to name, "book" to bookID))
-            return runCatching { Gson().fromJson(data as String, Category::class.java) }.getOrNull()
+            return runCatching { Gson().fromJson(data as JsonObject, Category::class.java) }.getOrNull()
         }
 
-        suspend fun getByRemote(
-            remoteId: String,
-            book: Int,
-        ): Category? {
-            val data = AppUtils.getService().sendMsg("cate/get/remote", mapOf("remoteId" to remoteId, "book" to book))
-            return runCatching { Gson().fromJson(data as String, Category::class.java) }.getOrNull()
-        }
+
 
         suspend fun remove(id: Int) {
             AppUtils.getService().sendMsg("cate/remove", mapOf("id" to id))

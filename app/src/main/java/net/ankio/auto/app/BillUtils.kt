@@ -24,6 +24,7 @@ import net.ankio.auto.utils.SpUtils
 import net.ankio.auto.utils.server.model.Assets
 import net.ankio.auto.utils.server.model.AssetsMap
 import net.ankio.auto.utils.server.model.BillInfo
+import net.ankio.common.constant.AssetsType
 import net.ankio.common.constant.BillType
 import net.ankio.common.constant.Currency
 import java.text.DecimalFormat
@@ -245,7 +246,7 @@ object BillUtils {
             billInfo.accountNameTo = getMapName(list, rawAccountNameTo)
 
             if (SpUtils.getBoolean("setting_auto_ai_asset", false)) {
-                val assets = Assets.get(500)
+                val assets = Assets.get(500, AssetsType.NORMAL)
                 if (rawAccountNameTo != "" &&
                     rawAccountNameTo == billInfo.accountNameTo &&
                     assets.find { it.name == rawAccountNameTo } == null

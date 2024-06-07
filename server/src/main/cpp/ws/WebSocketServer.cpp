@@ -219,7 +219,7 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
             std::string extra = data["extra"].asString();
             DbManager::getInstance().insertAsset(id, name, _type, sort, icon, extra);
         } else if(message_type == "asset/get"){
-            ret["data"]=DbManager::getInstance().getAsset(data["limit"].asInt());
+            ret["data"]=DbManager::getInstance().getAsset(data["limit"].asInt(),data["type"].asInt());
         } else if(message_type == "asset/get/name"){
             ret["data"]=DbManager::getInstance().getAssetByName(data["name"].asString());
         } else if(message_type == "asset/remove"){

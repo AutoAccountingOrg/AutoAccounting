@@ -40,11 +40,13 @@ import com.quickersilver.themeengine.ThemeEngine
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.app.model.AppInfo
 import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.utils.server.AutoServer
 import java.io.File
+import java.io.FileOutputStream
 import java.math.BigInteger
 import java.security.MessageDigest
 
@@ -68,7 +70,20 @@ object AppUtils {
 
     fun setApplication(application: Application) {
         this.application = application
+        scope.launch {
+            val versionFile = File(application.externalCacheDir, "shell/version.txt")
+            if (versionFile.exists()) {
+                versionFile.delete()
+            }
+            application.assets.open("shell/version.txt").use { input ->
+                FileOutputStream(versionFile).use { output ->
+                    input.copyTo(output)
+                }
+            }
+        }
         server = AutoServer()
+        //复制assets文件version.txt到cache目录
+
     }
 
     fun getProcessName(): String {

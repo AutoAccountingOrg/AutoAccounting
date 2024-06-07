@@ -571,19 +571,19 @@ void DbManager::insertAsset(int id, const std::string &name, int type, int sort,
     sqlite3_finalize(stmt);
 }
 
-Json::Value DbManager::getAsset(int limit) {
+Json::Value DbManager::getAsset(int limit,int type) {
     Json::Value ret;
-    char *zErrMsg = nullptr;
-    sqlite3_stmt *stmt = getStmt("SELECT * FROM assets ORDER BY id DESC LIMIT ?;");
-    sqlite3_bind_int(stmt, 1, limit);
+    sqlite3_stmt *stmt = getStmt("SELECT * FROM assets WHERE type = ? ORDER BY id DESC LIMIT ?;");
+    sqlite3_bind_int(stmt,1,type);
+    sqlite3_bind_int(stmt, 2, limit);
     int rc = 0;
     while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
         Json::Value asset;
         asset["id"] = sqlite3_column_int(stmt, 0);
         asset["name"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1));
-        asset["type"] = sqlite3_column_int(stmt, 2);
+        asset["icon"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2));
+        asset["type"] = sqlite3_column_int(stmt, 4);
         asset["sort"] = sqlite3_column_int(stmt, 3);
-        asset["icon"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 4));
         asset["extras"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 5));
         ret.append(asset);
     }
