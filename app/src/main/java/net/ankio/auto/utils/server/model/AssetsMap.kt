@@ -15,8 +15,10 @@
 package net.ankio.auto.utils.server.model
 
 import com.google.gson.Gson
+import com.google.gson.JsonArray
 import kotlinx.coroutines.launch
 import net.ankio.auto.utils.AppUtils
+import net.ankio.auto.utils.Logger
 
 class AssetsMap {
     // 账户列表
@@ -46,7 +48,9 @@ class AssetsMap {
 
         suspend fun get(): List<AssetsMap> {
             val data = AppUtils.getService().sendMsg("asset/map/get", null)
-            return Gson().fromJson(Gson().toJson(data), Array<AssetsMap>::class.java).toList()
+            return runCatching { Gson().fromJson(data as JsonArray, Array<AssetsMap>::class.java).toList() }.onFailure { Logger.w(
+                ("Transfer Error: " + it.message)
+            ) }.getOrNull() ?: emptyList()
         }
 
         suspend fun remove(id: Int)  {
