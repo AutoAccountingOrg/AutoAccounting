@@ -1247,7 +1247,7 @@ void DbManager::syncBook(const Json::Value &bookArray,std::string md5) {
                 std::string cateParent = it["parent"].asString();
                 int cateSort = it["sort"].asInt();
                 int cateType = it["type"].asInt();
-                WebSocketServer::log("parent => "+cateParent,LOG_LEVEL_INFO);
+               // WebSocketServer::log("parent => "+cateParent,LOG_LEVEL_INFO);
                 if (cateParent != "-1") {
                     //查找remoteId
                     sqlite3_stmt *stmt3 = getStmt("SELECT * FROM category WHERE remoteId = ?;");
