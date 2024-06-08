@@ -18,6 +18,7 @@ package net.ankio.auto.utils.server
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
@@ -59,7 +60,25 @@ class AutoServer {
 
     private var ws: WebSocket? = null
     private val callbacks: HashMap<String, (json: JsonObject) -> Unit> = HashMap()
+    private var times = 0
+    suspend fun reconnect() = withContext(Dispatchers.Main){
+        if (times > 15) {
+            Logger.e("重连次数过多")
+            EventBus.post(AutoServiceErrorEvent(AutoServiceException("WebSocket closed")))
+            return@withContext
+        }
+        ws = null
+        withContext(Dispatchers.IO){
+            delay(10L * times)
+            times++
+            withContext(Dispatchers.Main){
+                connect()
+            }
+        }
 
+
+
+    }
     suspend fun sendMsg(
         type: String,
         data: Any?,
@@ -167,7 +186,9 @@ class AutoServer {
                     ws = null
                     println("WebSocket closed: $code / $reason")
 
-                    EventBus.post(AutoServiceErrorEvent(AutoServiceException("WebSocket closed: $code / $reason")))
+                  AppUtils.getScope().launch {
+                      reconnect()
+                  }
                 }
 
                 override fun onFailure(
@@ -185,6 +206,7 @@ class AutoServer {
 
     suspend fun config(): AccountingConfig {
         val json = SettingModel.get("server", "config")
+        Logger.i("Config: $json")
         return runCatching { Gson().fromJson(json, AccountingConfig::class.java) }.getOrNull() ?: AccountingConfig()
     }
 

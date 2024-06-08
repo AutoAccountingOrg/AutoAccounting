@@ -75,6 +75,10 @@ object AppUtils {
             if (versionFile.exists()) {
                 versionFile.delete()
             }
+            //判断父文件夹是否存在
+            if (!versionFile.parentFile?.exists()!!) {
+                versionFile.parentFile?.mkdirs()
+            }
             application.assets.open("shell/version.txt").use { input ->
                 FileOutputStream(versionFile).use { output ->
                     input.copyTo(output)
