@@ -107,11 +107,11 @@ class DataFragment : BaseFragment() {
 
                     val builder =
                         MaterialAlertDialogBuilder(requireContext())
-                            .setTitle(if (item.match) getString(R.string.data_question) else getString(R.string.upload_sure)) // 设置对话框的标题
+                            .setTitle(if (item.match == 1) getString(R.string.data_question) else getString(R.string.upload_sure)) // 设置对话框的标题
 
                     var settingItemInputBinding: SettingItemInputBinding? = null
 
-                    if (!item.match) {
+                    if (item.match == 0) {
                         builder.setMessage(getString(R.string.upload_info))
                     } else {
                         settingItemInputBinding = SettingItemInputBinding.inflate(layoutInflater)
@@ -137,13 +137,13 @@ class DataFragment : BaseFragment() {
                             lifecycleScope.launch {
                                 runCatching {
                                     val title =
-                                        if (!item.match) {
+                                        if (item.match == 0) {
                                             "[Adaptation Request][$type]${item.source}"
                                         } else {
                                             "[Bug][Rule][$type]${item.source}"
                                         }
                                     val msg =
-                                        if (!item.match) {
+                                        if (item.match == 0) {
                                             """
 ```
                 $data
@@ -165,7 +165,7 @@ $data
                                         Github.createIssue(
                                             title,
                                             msg,
-                                            if (!item.match) "AutoRule" else "AutoAccounting",
+                                            if (item.match == 0) "AutoRule" else "AutoAccounting",
                                         )
                                     item.issue = issue.toInt()
                                     withContext(Dispatchers.Main) {
@@ -173,7 +173,7 @@ $data
                                         dataItems[position] = item
                                         adapter.notifyItemChanged(position)
                                         Toaster.show(
-                                            if (!item.match) {
+                                            if (item.match == 0) {
                                                 getString(
                                                     R.string.upload_success,
                                                 )
@@ -235,11 +235,11 @@ $data
 
                         val match = SpUtils.getInt("dialog_filter_match", 0)
                         if (match != 0) {
-                            if (it.match && match == 2) {
+                            if (it.match ==1 && match == 2) {
                                 include = false
                             }
 
-                            if (!it.match && match == 1) {
+                            if (it.match ==0 && match == 1) {
                                 include = false
                             }
                         }

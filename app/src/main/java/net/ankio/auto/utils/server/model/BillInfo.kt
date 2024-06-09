@@ -36,12 +36,12 @@ class BillInfo {
     /**
      * 金额 大于0
      */
-    var money: Int = 0
+    var money: Float = 0F
 
     /**
      * 手续费
      */
-    var fee: Int = 0
+    var fee: Float = 0F
 
     /**
      * 记账时间
@@ -114,6 +114,8 @@ class BillInfo {
      */
     var remark: String = ""
 
+    var auto:Boolean=false
+
     fun copy(): BillInfo {
         val billInfo = BillInfo()
         billInfo.id = id
@@ -136,6 +138,10 @@ class BillInfo {
         billInfo.syncFromApp = syncFromApp
         billInfo.remark = remark
         return billInfo
+    }
+
+    fun toJson(): String {
+        return  Gson().toJson(this)
     }
 
     companion object {

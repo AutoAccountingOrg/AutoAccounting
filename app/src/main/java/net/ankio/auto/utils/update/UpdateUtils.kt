@@ -24,6 +24,7 @@ import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.SpUtils
 import net.ankio.auto.utils.request.RequestsUtils
+import net.ankio.auto.utils.server.model.SettingModel
 
 /**
  * 更新工具，用于处理App更新、规则更新
@@ -65,6 +66,7 @@ class UpdateUtils(private val showResult: Boolean = true) {
         type: Int,
     ): UpdateInfo? =
         withContext(Dispatchers.IO) {
+            Logger.i("检测更新：$url, 本地版本:$local")
             runCatching {
                 val result = requestUtils.get(url, cacheTime = 60)
                 val json =
@@ -128,7 +130,7 @@ class UpdateUtils(private val showResult: Boolean = true) {
         }
         return request(
             "$ruleUrl/index.json",
-            SpUtils.getInt("ruleVersion", 0),
+            runCatching { SettingModel.get("server", "ruleVersion").toInt() }.getOrDefault(0),
             0,
         )
     }

@@ -100,7 +100,7 @@ class OrderItemAdapter(
         val color = ContextCompat.getColor(context, tintRes)
         binding.money.setColor(color)
 
-        binding.money.setText(symbols + BillUtils.getFloatMoney(billInfo.money).toString())
+        binding.money.setText(symbols + billInfo.money.toString())
 
         binding.remark.text = billInfo.remark
 

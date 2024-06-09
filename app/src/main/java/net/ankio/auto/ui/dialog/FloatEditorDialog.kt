@@ -204,7 +204,7 @@ class FloatEditorDialog(
                         Toaster.show(
                             context.getString(
                                 R.string.auto_success,
-                                BillUtils.getFloatMoney(billInfo.money).toString(),
+                                billInfo.money.toString(),
                             ),
                         )
                     }
@@ -272,7 +272,7 @@ class FloatEditorDialog(
     }
 
     private fun bindingTypePopupUI() {
-        binding.priceContainer.text = BillUtils.getFloatMoney(billInfo.money).toString()
+        binding.priceContainer.text = billInfo.money.toString()
         setPriceColor(billTypeLevel1.toInt())
     }
 
@@ -307,7 +307,7 @@ class FloatEditorDialog(
             binding.fee.visibility = View.GONE
         } else {
             binding.fee.visibility = View.VISIBLE
-            binding.fee.setText(BillUtils.getFloatMoney(billInfo.fee).toString())
+            binding.fee.setText(billInfo.fee.toString())
         }
     }
 

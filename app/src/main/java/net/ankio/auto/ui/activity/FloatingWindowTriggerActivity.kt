@@ -21,6 +21,7 @@ import android.util.Base64
 import androidx.appcompat.app.AppCompatActivity
 import net.ankio.auto.service.FloatingWindowService
 import net.ankio.auto.utils.Logger
+import net.ankio.auto.utils.server.model.BillInfo
 
 class FloatingWindowTriggerActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,13 +37,27 @@ class FloatingWindowTriggerActivity : AppCompatActivity() {
         }
 
         runCatching {
-            val d = data.getQueryParameter("data")!!.replace(" ", "+")
-            val dataValue = String(Base64.decode(d, Base64.NO_WRAP)) // 获取名为"data"的查询参数的值
+
+            val billInfo = BillInfo()
+            billInfo.fee = data.getQueryParameter("fee")!!.toFloat()
+            billInfo.money = data.getQueryParameter("money")!!.toFloat()
+            billInfo.shopItem = data.getQueryParameter("shopItem")!!
+            billInfo.shopName = data.getQueryParameter("shopName")!!
+            billInfo.currency = data.getQueryParameter("currency")!!
+            billInfo.type = data.getQueryParameter("type")!!.toInt()
+            billInfo.timeStamp = data.getQueryParameter("time")!!.toLong()
+            billInfo.accountNameTo = data.getQueryParameter("accountNameTo")!!
+            billInfo.accountNameFrom = data.getQueryParameter("accountNameFrom")!!
+            billInfo.bookName = data.getQueryParameter("bookName")!!
+            billInfo.cateName = data.getQueryParameter("cateName")!!
+            billInfo.remark = data.getQueryParameter("remark")!!
+            billInfo.auto = data.getQueryParameter("auto")!!.toInt() == 1
+
 
             // 将数据传递给悬浮窗服务
             val serviceIntent =
                 Intent(this, FloatingWindowService::class.java).apply {
-                    putExtra("data", dataValue)
+                    putExtra("data", billInfo.toJson())
                 }
             startService(serviceIntent)
             // 关闭 Activity

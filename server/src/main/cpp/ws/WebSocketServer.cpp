@@ -9,7 +9,6 @@
 #include "../jsoncpp/include/json/reader.h"
 #include "../db/DbManager.h"
 #include "../common.h"
-#include "../base64/include/base64.hpp"
 #include <random>
 #include <sys/stat.h>
 std::string WebSocketServer::version;
@@ -74,7 +73,7 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
 
 
 
-    try {
+
         Json::Value json;
         Json::Reader reader;
         if (!reader.parse((const char *) msg, json)) {
@@ -94,6 +93,9 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
 
 
         Json::Value ret;
+        ret["type"] = message_type;
+        ret["id"] = message_id;
+    try {
         if (message_type == "auth") {
 
             std::string localVersion = getVersion();
@@ -112,7 +114,6 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
             }
             clients[client] = true;
             ret["type"] = "auth/success";
-            ret["id"] = message_id;
             ret["data"] = version;
             ws_sendframe_txt(client, ret.toStyledString().c_str());
             return;
@@ -358,21 +359,23 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
             //Json::Value rule = DbManager::getInstance().getRule(app, _type);
             std::string rule = DbManager::getInstance().getSetting("server", "rule_js");
             //先执行分析账单内容
-            std::string billJs = "var window = {data:JSON.stringify(" + _data + ")};" + rule;
+            std::string billJs = "var window = {data:JSON.stringify("+_data+"), dataType:"+std::to_string(_type)+", app:\""+app+"\"};" + rule;
 
             std::string result = runJs(billJs);
 
             //获取当前时间戳
 
-
+             log("analyze data: "+result,LOG_LEVEL_INFO);
             Json::Value _json;
             Json::Reader _reader;
-            if (!_reader.parse((const char *) msg, _json)) {
-                printf("json parse error\n");
+            if (!_reader.parse(result, _json)) {
+                log("json parse error",LOG_LEVEL_ERROR);
                 ret["data"] = "json parse error";
             }else{
                 float money = _json["money"].asFloat();
+                log("money: "+std::to_string(money),LOG_LEVEL_INFO);
                 int bill_type = _json["type"].asInt();
+                log("type: "+std::to_string(bill_type),LOG_LEVEL_INFO);
                 std::string shopName = replaceSubstring( _json["shopName"].asString(),"'","\"");
                 std::string shopItem = replaceSubstring( _json["shopItem"].asString(),"'","\"");
                 std::time_t now = std::time(nullptr);
@@ -383,13 +386,14 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
                 std::string timeStr = buffer;
 
                 std::string channel = _json["channel"].asString();
-
+                log("channel: "+channel,LOG_LEVEL_INFO);
                 //自动重新更新，不需要App调用更新
                 //分析分类内容
                 std::pair<bool, bool> pair = DbManager::getInstance().checkRule(app, _type,
                                                                                 channel);
-
+                log("check and add rule: "+std::to_string(pair.first)+" , "+std::to_string(pair.second),LOG_LEVEL_INFO);
                 if (!pair.first && call == 1) {
+                    log("rule not enable",LOG_LEVEL_INFO);
                     //不启用这个规则
                     ret["data"] = "rule not enable";
                 }else{
@@ -411,28 +415,27 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
                     std::string categoryResult = runJs(categoryJs);
                     Json::Value categoryJson;
                     if (!_reader.parse(categoryResult, categoryJson)) {
-                        printf("json parse error\n");
+                        log("json parse error",LOG_LEVEL_ERROR);
                         ret["data"] = "json parse error";
                     } else {
-                        std::string bookName = categoryJson["bookName"].asString();
-                        std::string cateName = categoryJson["cateName"].asString();
+                        log("category result: "+categoryJson.toStyledString(),LOG_LEVEL_INFO);
+                        std::string bookName = categoryJson["book"].asString();
+                        std::string cateName = categoryJson["category"].asString();
 
                         _json["bookName"] = bookName;
                         _json["cateName"] = cateName;
 
-
-
-
+                        _json["auto"] = pair.second ? "1" : "0";
+                        log("自动记账识别结果：" + _json.toStyledString(),LOG_LEVEL_INFO);
                         //拉起自动记账app
                         if (call == 1) {
                             try {
                                 std::string cmd =
-                                        R"(am start -a "net.ankio.auto.ACTION_SHOW_FLOATING_WINDOW" -d "autoaccounting://bill?data=)" +
-                                        base64::to_base64(_json.toStyledString()) + R"(" --ei ")" +
-                                        (pair.second ? "1" : "0") + //判断是否自动记录
+                                        R"(am start -a "net.ankio.auto.ACTION_SHOW_FLOATING_WINDOW" -d "autoaccounting://bill?)" +
+                                        json2Uri(_json) +
                                         R"(" --ez "android.intent.extra.NO_ANIMATION" true -f 0x10000000)";
                                 //写日志
-                                log("执行命令" + cmd, LOG_LEVEL_INFO);
+                                log("执行命令 " + cmd, LOG_LEVEL_INFO);
                                 system(cmd.c_str());
                             } catch (const std::exception &e) {
                                 log("拉起自动记账失败：" + std::string(e.what()), LOG_LEVEL_ERROR);
@@ -459,11 +462,12 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
         }
 
 
-        ret["type"] = message_type;
-        ret["id"] = message_id;
+
         ws_sendframe_txt(client, ret.toStyledString().c_str());
     } catch (std::exception &e) {
         log("error: " + std::string(e.what()), LOG_LEVEL_ERROR);
+        ret["data"] = std::string(e.what());
+        ws_sendframe_txt(client, ret.toStyledString().c_str());
     }
 
 
@@ -533,6 +537,7 @@ std::map<ws_cli_conn_t *, bool> WebSocketServer::clients{};
 std::string WebSocketServer::token;
 
 void WebSocketServer::print(qjs::rest<std::string> args) {
+
     std::lock_guard<std::mutex> lock(resultMapMutex);
     resultMap[std::thread::id()] = args[0];
 }
@@ -565,7 +570,15 @@ void WebSocketServer::log(const std::string &msg,int level ){
             level_str = "INFO";
             break;
     }
+
+    //写到文件里面来
+    FILE *file = fopen("server.log", "a");
+    std::string log = "[" + date + "] [" + level_str + "] " + msg + "\n";
+    fprintf(file, "%s", log.c_str());
+    fclose(file);
     printf("[ %s ] [ %s ] %s\n", buffer,level_str.c_str(), msg.c_str());
+
+
 }
 
 
@@ -574,7 +587,7 @@ std::string WebSocketServer::runJs(const std::string &js) {
     log(js,LOG_LEVEL_DEBUG);
     qjs::Runtime runtime;
     qjs::Context context(runtime);
-    std::thread::id id = std::this_thread::get_id();
+    std::thread::id id = std::thread::id();
     try {
         auto &module = context.addModule("MyModule");
         module.function<&WebSocketServer::print>("print");
@@ -599,3 +612,27 @@ std::string WebSocketServer::runJs(const std::string &js) {
 }
 std::map<std::thread::id, std::string> WebSocketServer::resultMap;
 std::mutex WebSocketServer::resultMapMutex;
+
+std::string WebSocketServer::urlencode(const std::string &str) {
+    std::ostringstream escaped;
+    escaped.fill('0');
+    escaped << std::hex;
+    for (unsigned char c : str) {
+        // Keep alphanumeric and other accepted characters intact
+        if (isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~') {
+            escaped << c;
+        } else {
+            // Any other characters are percent-encoded
+            escaped << '%' << std::setw(2) << int(c);
+        }
+    }
+    return escaped.str();
+}
+
+std::string WebSocketServer::json2Uri(const Json::Value &json) {
+    std::string result;
+    for (auto &key : json.getMemberNames()) {
+        result += key + "=" + urlencode(json[key].asString()) + "&";
+    }
+    return result;
+}

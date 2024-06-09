@@ -14,9 +14,12 @@
  */
 package net.ankio.auto.utils.server.model
 
+import android.util.Log
 import com.google.gson.Gson
+import com.google.gson.JsonArray
 import kotlinx.coroutines.launch
 import net.ankio.auto.utils.AppUtils
+import net.ankio.auto.utils.Logger
 
 class AppData {
     var id = 0
@@ -49,7 +52,7 @@ class AppData {
     /**
      * 是否匹配规则
      */
-    var match: Boolean = false
+    var match: Int = 0
 
     /**
      * 匹配到的规则名称
@@ -70,7 +73,7 @@ class AppData {
 
         suspend fun get(limit: Int = 500): List<AppData> {
             val data = AppUtils.getService().sendMsg("data/get", mapOf("limit" to limit))
-            return runCatching { Gson().fromJson(Gson().toJson(data), Array<AppData>::class.java).toList() }.getOrDefault(emptyList())
+            return runCatching { Gson().fromJson(data as JsonArray, Array<AppData>::class.java).toList() }.onFailure { Logger.e(it.message?:"",it) }.getOrDefault(emptyList())
         }
     }
 }

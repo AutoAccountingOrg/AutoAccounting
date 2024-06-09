@@ -140,6 +140,13 @@ class UpdateDialog(
         }.onSuccess {
             SpUtils.putString("ruleVersionName", version)
             SpUtils.putInt("ruleVersion", code)
+            SettingModel.set(
+                SettingModel().apply {
+                    app = "server"
+                    key = "ruleVersion"
+                    value = code.toString()
+                },
+            )
             withContext(Dispatchers.Main) {
                 EventBus.post(UpdateFinishEvent())
             }

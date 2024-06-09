@@ -15,6 +15,7 @@
 
 package net.ankio.auto.app.js
 
+import com.google.gson.Gson
 import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -43,7 +44,7 @@ object Engine {
                     },
                 )
 
-            val billInfo = runCatching { json as BillInfo }.getOrNull()
+            val billInfo = runCatching { Gson().fromJson(json as JsonObject,BillInfo::class.java) }.getOrNull()
 
             AppTimeMonitor.stopMonitoring("规则识别")
             billInfo

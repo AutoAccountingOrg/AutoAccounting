@@ -13,6 +13,7 @@
 
 #include "../wsServer/include/ws.h"
 #include "../quickjspp/quickjspp.hpp"
+#include "json/value.h"
 #include <map>
 #include <thread>
 class WebSocketServer {
@@ -40,6 +41,9 @@ private:
 
     static std::string version;
     static std::string getVersion();
+
+    static std::string urlencode(const std::string &str);
+    static std::string json2Uri(const Json::Value &json);
 };
 
 

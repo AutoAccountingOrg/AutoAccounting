@@ -47,7 +47,7 @@ class DataAdapter(
             CustomTabsHelper.launchUrl(
                 context,
                 Uri.parse(
-                    if (item.match) "https://github.com/AutoAccountingOrg/AutoAccounting/issues/${item.issue}" else "https://github.com/AutoAccountingOrg/AutoRule/issues/${item.issue}",
+                    if (item.match == 1) "https://github.com/AutoAccountingOrg/AutoAccounting/issues/${item.issue}" else "https://github.com/AutoAccountingOrg/AutoRule/issues/${item.issue}",
                 ),
             )
         }
@@ -131,10 +131,10 @@ class DataAdapter(
 
         binding.time.text =
             item.time.let {
-                DateUtils.getTime(it)
+                DateUtils.getTime(it * 1000)
             }
         binding.rule.visibility = View.VISIBLE
-        if (!item.match) {
+        if (item.match == 0) {
             binding.rule.visibility = View.GONE
 
             binding.uploadData.setIconResource(R.drawable.icon_upload)
@@ -165,16 +165,16 @@ class DataAdapter(
         adapter: DataAdapter,
     ) = withContext(Dispatchers.IO) {
         val item = holder.item as AppData
-        if (!item.match) {
+        if (item.match == 0) {
             val t = System.currentTimeMillis() / 1000
             if (hashMap.containsKey(item) && t - hashMap[item]!! < 30) { // 30秒内不重复匹配
                 return@withContext
             }
             hashMap[item] = t
-            val result = Engine.analyze(item.type, item.source, item.data)
+            val result = Engine.analyze(item.type, item.source, item.data,false)
             if (result != null) {
                 item.rule = result.channel
-                item.match = true
+                item.match = 1
                 withContext(Dispatchers.Main) {
                     val index = getHolderIndex(holder)
                     dataItems[index] = item

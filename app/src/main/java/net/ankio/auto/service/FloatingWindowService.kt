@@ -73,7 +73,7 @@ class FloatingWindowService : Service(), CoroutineScope {
 
     private var billInfo: BillInfo? = null
 
-    private var child = HashMap<Int, ArrayList<BillInfo>>()
+    private var child = HashMap<Float, ArrayList<BillInfo>>()
 
     override fun onCreate() {
         super.onCreate()
@@ -116,6 +116,7 @@ class FloatingWindowService : Service(), CoroutineScope {
         startId: Int,
     ): Int {
         val value = intent.getStringExtra("data") ?: return START_REDELIVER_INTENT
+        Logger.i("记账数据:$value")
         val bill = BillInfo.fromJSON(value)
         launch {
             val tpl = SpUtils.getString("setting_bill_remark", "【商户名称】 - 【商品名称】")
@@ -175,9 +176,9 @@ class FloatingWindowService : Service(), CoroutineScope {
         // 使用 ViewBinding 初始化悬浮窗视图
         val binding = FloatTipBinding.inflate(LayoutInflater.from(themedContext))
         binding.root.visibility = View.INVISIBLE
-        binding.money.text = BillUtils.getFloatMoney(billInfo!!.money).toString()
+        binding.money.text = billInfo!!.money.toString()
 
-        val colorRes = BillUtils.getColor(billInfo!!.type.toInt())
+        val colorRes = BillUtils.getColor(billInfo!!.type)
         val color = ContextCompat.getColor(themedContext, colorRes)
         binding.money.setTextColor(color)
         binding.time.text = String.format("%ss", timeCount.toString())
@@ -254,7 +255,7 @@ class FloatingWindowService : Service(), CoroutineScope {
                     Toaster.show(
                         getString(
                             R.string.auto_success,
-                            BillUtils.getFloatMoney(billInfo.money).toString(),
+                            billInfo.money.toString(),
                         ),
                     )
                 }

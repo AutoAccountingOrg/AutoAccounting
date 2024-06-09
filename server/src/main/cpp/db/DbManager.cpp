@@ -529,10 +529,11 @@ Json::Value DbManager::getAppData(int limit) {
         Json::Value appData;
         appData["id"] = sqlite3_column_int(stmt, 0);
         appData["data"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 1));
-        appData["type"] = sqlite3_column_int(stmt, 2);
-        appData["source"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 3));
-        appData["time"] = sqlite3_column_int(stmt, 4);
-        appData["match"] = sqlite3_column_int(stmt, 5);
+        appData["type"] = sqlite3_column_int(stmt, 7);
+        appData["source"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2));
+        appData["time"] = sqlite3_column_int(stmt, 3);
+        appData["match"] = sqlite3_column_int(stmt, 4);
+        appData["rule"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 5));
         appData["issue"] = sqlite3_column_int(stmt, 6);
         ret.append(appData);
     }
@@ -1028,7 +1029,6 @@ Json::Value DbManager::getCustomRule(int id) {
 //ruleSetting
 
 std::pair<bool,bool>  DbManager::checkRule(const std::string& app, int  type,const std::string&  channel){
-    char *zErrMsg = nullptr;
     sqlite3_stmt *stmt = getStmt("SELECT * FROM ruleSetting WHERE app = ? AND type = ? AND channel = ?;");
     sqlite3_bind_text(stmt, 1, app.c_str(), -1, SQLITE_STATIC);
     sqlite3_bind_int(stmt, 2, type);
@@ -1050,8 +1050,8 @@ std::pair<bool,bool>  DbManager::checkRule(const std::string& app, int  type,con
         }
         sqlite3_finalize(stmt2);
     }else{
-        ret = sqlite3_column_int(stmt, 3);
-        ret2 = sqlite3_column_int(stmt, 4);
+        ret = sqlite3_column_int(stmt, 3) == 1;
+        ret2 = sqlite3_column_int(stmt, 4) == 1;
     }
     if (rc != SQLITE_DONE) {
         fprintf(stderr, "SQL error 5: %s\n", sqlite3_errmsg(db));
