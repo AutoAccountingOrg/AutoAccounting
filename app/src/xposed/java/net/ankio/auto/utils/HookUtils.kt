@@ -33,18 +33,12 @@ import net.ankio.auto.app.js.Engine
 import net.ankio.auto.exceptions.AutoServiceException
 import net.ankio.auto.utils.server.model.LogModel
 
-class HookUtils(val context: Application, private val packageName: String) {
+object HookUtils {
     private val loadClazz = HashMap<String, Class<*>>()
 
-    init {
-        XposedHelpers.callMethod(
-            context.resources.assets,
-            "addAssetPath",
-            HookMainApp.modulePath,
-        )
-
-        AppUtils.setApplication(context)
-        AppUtils.getService().connect()
+    fun setApplication(application: Application) {
+        addAutoContext(application)
+       AppUtils.setApplication(application)
         XposedBridge.hookAllMethods(
             ClassLoader::class.java,
             "loadClass",
@@ -59,6 +53,14 @@ class HookUtils(val context: Application, private val packageName: String) {
                     loadClazz[name] = cls
                 }
             },
+        )
+    }
+
+    fun addAutoContext(context: Context) {
+        XposedHelpers.callMethod(
+            context.resources.assets,
+            "addAssetPath",
+            HookMainApp.modulePath,
         )
     }
 
@@ -93,45 +95,29 @@ class HookUtils(val context: Application, private val packageName: String) {
         }*/
 
     // 仅调试模式输出日志
-    suspend fun logD(
+    fun logD(
         prefix: String?,
         log: String,
-    ) = withContext(Dispatchers.IO) {
-        if (isDebug()) {
-            log(prefix ?: "", log)
-        }
+    )  {
+       AppUtils.getScope().launch {
+           if (isDebug()) {
+               log(prefix ?: "", log)
+           }else{
+               Logger.d("$prefix: $log")
+           }
+       }
     }
 
     // 正常输出日志
-    suspend fun log(
+    fun log(
         prefix: String,
         log: String,
-    ) = withContext(Dispatchers.IO) {
-        runCatching {
-            LogModel.put(
-                LogModel().apply {
-                    this.app = packageName
-                    this.hook = 1
-                    this.date = DateUtils.getTime(System.currentTimeMillis())
-                    this.log = log
-                    this.level = LogModel.LOG_LEVEL_INFO
-                    this.thread = Thread.currentThread().name
-                    this.line = prefix
-                },
-            )
-        }.onFailure {
-            XposedBridge.log(it)
-            startAutoApp(AutoServiceException(it.message.toString()), context)
+    )  {
+
+        AppUtils.getScope().launch {
+            Logger.i("$prefix: $log")
+            XposedBridge.log("$prefix：$log") // xp输出
         }
-        XposedBridge.log("[自动记账]$prefix：$log") // xp输出
-    }
-
-    private val job = Job()
-
-    val scope = CoroutineScope(Dispatchers.Main + job)
-
-    fun cancel() {
-        job.cancel()
     }
 
     suspend fun analyzeData(
@@ -141,30 +127,23 @@ class HookUtils(val context: Application, private val packageName: String) {
         appName: String,
     ) = withContext(Dispatchers.IO) {
         runCatching {
-            log(HookMainApp.getTag(appName, "数据分析"), data)
+            logD("数据分析", data)
             Engine.analyze(dataType, app, data, true)
         }.onFailure {
             it.printStackTrace()
             it.message?.let { it1 ->
                 log(
-                    HookMainApp.getTag(
-                        appName,
-                        "自动记账执行脚本发生错误",
-                    ),
+                    "自动记账执行脚本发生错误",
                     it1,
                 )
             }
-            XposedBridge.log(it)
         }
     }
 
     fun getVersionCode(): Int {
         return runCatching {
-            context.packageManager.getPackageInfo(context.packageName, 0).versionCode
+            AppUtils.getApplication().packageManager.getPackageInfo( AppUtils.getApplication().packageName, 0).longVersionCode.toInt()
         }.getOrElse {
-            scope.launch {
-                it.message?.let { it1 -> log("获取版本号失败", it1) }
-            }
             0
         }
     }
@@ -176,7 +155,7 @@ class HookUtils(val context: Application, private val packageName: String) {
         value: String,
     ) {
         val sharedPreferences: SharedPreferences =
-            context.getSharedPreferences(TAG, Context.MODE_PRIVATE) // 私有数据
+            AppUtils.getApplication().getSharedPreferences(TAG, Context.MODE_PRIVATE) // 私有数据
 
         val editor = sharedPreferences.edit() // 获取编辑器
 
@@ -187,12 +166,12 @@ class HookUtils(val context: Application, private val packageName: String) {
 
     fun readData(key: String): String {
         val sharedPreferences: SharedPreferences =
-            context.getSharedPreferences(TAG, Context.MODE_PRIVATE) // 私有数据
+            AppUtils.getApplication().getSharedPreferences(TAG, Context.MODE_PRIVATE) // 私有数据
         return sharedPreferences.getString(key, "") ?: ""
     }
 
     fun toast(msg: String) {
-        Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
+        Toast.makeText(AppUtils.getApplication(), msg, Toast.LENGTH_LONG).show()
     }
 
     /**

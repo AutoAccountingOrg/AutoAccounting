@@ -25,6 +25,7 @@ import fr.arnaudguyon.xmltojsonlib.XmlToJson
 import net.ankio.auto.api.Hooker
 import net.ankio.auto.api.PartHooker
 import net.ankio.auto.constant.DataType
+import net.ankio.auto.utils.HookUtils
 
 class DatabaseHooker(hooker: Hooker) : PartHooker(hooker) {
     override fun onInit(
@@ -91,9 +92,9 @@ class DatabaseHooker(hooker: Hooker) : PartHooker(hooker) {
                                     .asJsonObject.get("template_header")
                                     .asJsonObject.get("display_name").asString,
                             )
-                            tpl.addProperty("cachedPayTools", hooker.hookUtils.readData("cachedPayTools"))
-                            tpl.addProperty("cachedPayMoney", hooker.hookUtils.readData("cachedPayMoney"))
-                            tpl.addProperty("cachedPayShop", hooker.hookUtils.readData("cachedPayShop"))
+                            tpl.addProperty("cachedPayTools", HookUtils.readData("cachedPayTools"))
+                            tpl.addProperty("cachedPayMoney", HookUtils.readData("cachedPayMoney"))
+                            tpl.addProperty("cachedPayShop", HookUtils.readData("cachedPayShop"))
                             val result = JsonObject()
                             result.add("mMap", tpl)
 
@@ -112,15 +113,15 @@ class DatabaseHooker(hooker: Hooker) : PartHooker(hooker) {
                             return
                         } else if (type == 2000) {
                             // 补充用户数据
-                            contentValues.put("hookUser", hooker.hookUtils.readData("hookerUser"))
+                            contentValues.put("hookUser", HookUtils.readData("hookerUser"))
                             // 这个应该是微信转账给别人
                             val xml = contentValues.get("xml")
 
                             if (xml != null) {
                                 contentValues.put("xml", xmlToJson(xml as String))
-                                contentValues.put("cachedPayTools", hooker.hookUtils.readData("cachedPayTools"))
-                                contentValues.put("cachedPayMoney", hooker.hookUtils.readData("cachedPayMoney"))
-                                contentValues.put("cachedPayShop", hooker.hookUtils.readData("cachedPayShop"))
+                                contentValues.put("cachedPayTools", HookUtils.readData("cachedPayTools"))
+                                contentValues.put("cachedPayMoney", HookUtils.readData("cachedPayMoney"))
+                                contentValues.put("cachedPayShop", HookUtils.readData("cachedPayShop"))
                             }
                         }
                     } else if (tableName == "bizchatmessage") {

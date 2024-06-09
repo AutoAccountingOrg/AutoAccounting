@@ -20,6 +20,7 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.api.Hooker
 import net.ankio.auto.api.PartHooker
+import net.ankio.auto.utils.HookUtils
 
 class PayToolsHooker(hooker: Hooker) : PartHooker(hooker) {
     override val hookName: String
@@ -41,15 +42,15 @@ class PayToolsHooker(hooker: Hooker) : PartHooker(hooker) {
                     when {
                         text.contains("卡(") || text.contains("零钱") -> {
                             logD("支付方式Hook: $text")
-                            hooker.hookUtils.writeData("cachedPayTools", text)
+                            HookUtils.writeData("cachedPayTools", text)
                         }
                         text.contains("￥") || text.contains("$") -> {
                             logD("支付金额Hook: $text")
-                            hooker.hookUtils.writeData("cachedPayMoney", text)
+                            HookUtils.writeData("cachedPayMoney", text)
                         }
                         text.contains("转账") || text.contains("红包") || text.contains("付款给") -> {
                             logD("支付对象hook: $text")
-                            hooker.hookUtils.writeData("cachedPayShop", text)
+                            HookUtils.writeData("cachedPayShop", text)
                         }
                     }
                 }

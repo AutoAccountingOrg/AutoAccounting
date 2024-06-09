@@ -21,6 +21,7 @@ import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.api.Hooker
 import net.ankio.auto.api.PartHooker
+import net.ankio.auto.utils.HookUtils
 
 class ChatUserHooker(hooker: Hooker) : PartHooker(hooker){
     override val hookName: String
@@ -38,7 +39,7 @@ class ChatUserHooker(hooker: Hooker) : PartHooker(hooker){
                 override fun afterHookedMethod(param: MethodHookParam) {
                     val username = param.args[0] as String
                     logD("用户页面hook: $username")
-                    hooker.hookUtils.writeData("hookerUser",username)
+                    HookUtils.writeData("hookerUser",username)
                 }
             }
       )

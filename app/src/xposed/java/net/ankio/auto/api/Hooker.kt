@@ -42,6 +42,7 @@ import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 import kotlinx.coroutines.launch
 import net.ankio.auto.HookMainApp
+import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.HookUtils
 import net.ankio.dex.Dex
 import net.ankio.dex.model.Clazz
@@ -50,7 +51,6 @@ abstract class Hooker : iHooker {
     abstract var partHookers: MutableList<PartHooker>
     open val applicationClazz = "android.app.Application"
     private var TAG = "AutoAccounting"
-    lateinit var hookUtils: HookUtils
 
     private fun hookMainInOtherAppContext(classLoader: ClassLoader) {
         var hookStatus = false
@@ -117,7 +117,8 @@ abstract class Hooker : iHooker {
     ) {
         XposedBridge.log("[$TAG] Welcome to AutoAccounting")
 
-        hookUtils = HookUtils(application, packPageName)
+
+        HookUtils.setApplication(application)
 
         if (!autoAdaption(application, classLoader)) {
             XposedBridge.log("[AutoAccounting]自动适配失败，停止模块运行")
@@ -126,33 +127,25 @@ abstract class Hooker : iHooker {
 
         hookLoadPackage(classLoader, application)
 
+        AppUtils.getService().connect()
+
         for (hook in partHookers) {
             try {
-                hookUtils.scope.launch {
-                    hookUtils.logD(
-                        HookMainApp.getTag(appName, packPageName),
-                        "正在初始化Hook ${hook.hookName}",
-                    )
-                }
+                HookUtils.logD(
+                    "main process",
+                    "init hook ${hook.hookName}",
+                )
                 hook.onInit(classLoader, application)
             } catch (e: Exception) {
-                e.message?.let { Log.e("AutoAccountingError", it) }
-                XposedBridge.log(e)
-                hookUtils.scope.launch {
-                    hookUtils.logD(
-                        HookMainApp.getTag(appName, packPageName),
-                        "正在初始化Hook ${hook.hookName}",
-                    )
-                }
-                if (hookUtils.startAutoApp(e, application)) return
-                hookUtils.scope.launch {
-                    hookUtils.log(HookMainApp.getTag(), "自动记账Hook异常..${e.message}.")
-                }
+                HookUtils.logD(
+                    "main process",
+                    "hook error : ${e.message}.",
+                )
+                HookUtils.writeData("adaptation", "0")
+
             }
         }
-        hookUtils.scope.launch {
-            hookUtils.logD(HookMainApp.getTag(appName, packPageName), "欢迎使用自动记账...")
-        }
+        HookUtils.logD("main process", "hook success, welcome to use 自动记账")
     }
 
     @Throws(ClassNotFoundException::class)
@@ -184,42 +177,42 @@ abstract class Hooker : iHooker {
         context: Application,
         classLoader: ClassLoader,
     ): Boolean {
-        val code = hookUtils.getVersionCode()
+        val code = HookUtils.getVersionCode()
         if (rule.size == 0) {
             return true
         }
-        val adaptationVersion = hookUtils.readData("adaptation").toIntOrNull() ?: 0
+        val adaptationVersion = HookUtils.readData("adaptation").toIntOrNull() ?: 0
         if (adaptationVersion == code) {
             runCatching {
                 clazz =
                     Gson().fromJson(
-                        hookUtils.readData("clazz"),
+                        HookUtils.readData("clazz"),
                         HashMap::class.java,
                     ) as HashMap<String, String>
                 if (clazz.size != rule.size) {
                     throw Exception("适配失败")
                 }
             }.onFailure {
-                hookUtils.writeData("adaptation", "0")
+                HookUtils.writeData("adaptation", "0")
                 XposedBridge.log(it)
             }.onSuccess {
                 return true
             }
         }
-        XposedBridge.log("context? ${context.packageResourcePath}")
-        hookUtils.toast("自动记账开始适配中...")
+        HookUtils.logD("main process"," ${context.packageResourcePath}")
+        HookUtils.toast("自动记账开始适配中...")
         val total = rule.size
         val hashMap = Dex.findClazz(context.packageResourcePath, classLoader, rule)
         if (hashMap.size == total) {
-            hookUtils.writeData("adaptation", code.toString())
+            HookUtils.writeData("adaptation", code.toString())
             clazz = hashMap
-            hookUtils.writeData("clazz", Gson().toJson(clazz))
-            XposedBridge.log("适配成功:$hashMap")
-            hookUtils.toast("适配成功")
+            HookUtils.writeData("clazz", Gson().toJson(clazz))
+            HookUtils.logD("main process"," 适配成功:$hashMap")
+            HookUtils.toast("适配成功")
             return true
         } else {
-            XposedBridge.log("适配失败:$hashMap")
-            hookUtils.toast("适配失败")
+            HookUtils.logD("main process"," 适配失败:$hashMap")
+            HookUtils.toast("适配失败")
             return false
         }
     }

@@ -15,25 +15,6 @@ class HookMainApp : IXposedHookLoadPackage, IXposedHookZygoteInit {
         val name = "自动记账"
         val versionName = BuildConfig.VERSION_NAME.substringBefore(" - Xposed")
 
-        fun getTag(
-            name: String? = null,
-            clazz: String? = null,
-        ): String {
-            var tag: String =
-                if (name == null) {
-                    "[AutoAccounting]"
-                } else {
-                    "[$name]"
-                }
-            tag +=
-                if (clazz == null) {
-                    "[None]"
-                } else {
-                    "[$clazz]"
-                }
-            return tag
-        }
-
         var modulePath = ""
     }
 

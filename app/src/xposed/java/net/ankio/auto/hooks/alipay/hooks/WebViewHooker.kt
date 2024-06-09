@@ -24,6 +24,7 @@ import kotlinx.coroutines.launch
 import net.ankio.auto.api.Hooker
 import net.ankio.auto.api.PartHooker
 import net.ankio.auto.constant.DataType
+import net.ankio.auto.utils.AppUtils
 
 class WebViewHooker(hooker: Hooker) : PartHooker(hooker) {
     override val hookName: String
@@ -90,7 +91,7 @@ class WebViewHooker(hooker: Hooker) : PartHooker(hooker) {
                                 analyzeData(DataType.App.ordinal, result)
                             }
 
-                        hooker.hookUtils.scope.launch {
+                        AppUtils.getScope().launch {
                             while (needWait && count > 0) {
                                 count--
                                 XposedHelpers.callMethod(

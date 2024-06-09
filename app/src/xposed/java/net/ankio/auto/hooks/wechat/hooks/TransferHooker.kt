@@ -21,6 +21,7 @@ import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.api.Hooker
 import net.ankio.auto.api.PartHooker
 import net.ankio.auto.constant.DataType
+import net.ankio.auto.utils.HookUtils
 
 
 class TransferHooker (hooker: Hooker) : PartHooker(hooker){
@@ -36,7 +37,7 @@ class TransferHooker (hooker: Hooker) : PartHooker(hooker){
 
                     val json = param.args[2] as org.json.JSONObject
 
-                    json.put("hookUser",hooker.hookUtils.readData("hookerUser"))
+                    json.put("hookUser",HookUtils.readData("hookerUser"))
 
                     logD("微信转账页面数据： $json")
 
