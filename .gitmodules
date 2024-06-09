@@ -12,6 +12,3 @@
 [submodule "server/src/main/cpp/quickjspp"]
 	path = server/src/main/cpp/quickjspp
 	url = https://github.com/ftk/quickjspp
-[submodule "server/src/main/cpp/base64"]
-	path = server/src/main/cpp/base64
-	url = https://github.com/tobiaslocker/base64/
