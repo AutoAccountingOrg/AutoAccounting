@@ -30,6 +30,7 @@ import net.ankio.auto.exceptions.AutoServiceException
 import net.ankio.auto.ui.adapter.BillSelectorAdapter
 import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.event.EventBus
+import net.ankio.auto.utils.server.model.BookBill
 import net.ankio.auto.utils.server.model.SettingModel
 import net.ankio.common.constant.BillType
 import net.ankio.common.model.BillModel
@@ -37,12 +38,12 @@ import net.ankio.common.model.BillModel
 class BillSelectorDialog(
     private val context: Context,
     private val billType: BillType,
-    private val selectedBills: ArrayList<BillModel> = ArrayList(),
+    private val selectedBills: ArrayList<String> = ArrayList(),
     private val callback: () -> Unit,
 ) :
     BaseSheetDialog(context) {
     private lateinit var binding: DialogBillSelectBinding
-    private val dataItems = mutableListOf<BillModel>()
+    private val dataItems = mutableListOf<BookBill>()
     private val adapter = BillSelectorAdapter(dataItems, selectedBills)
 
     override fun onCreateView(inflater: LayoutInflater): View {
@@ -69,9 +70,9 @@ class BillSelectorDialog(
     ) {
         lifecycleScope.launch {
             runCatching {
-                val it = SettingModel.get("server", "auto_bills_${billType.name}")
-                val data = Gson().fromJson(it, Array<BillModel>::class.java)
-                if (data.isEmpty()) {
+
+                val data = BookBill.get(500,billType)
+                if (data.isNullOrEmpty()) {
                     dismiss()
                     Toaster.show(R.string.no_bills)
                     return@runCatching
@@ -79,11 +80,11 @@ class BillSelectorDialog(
                 super.show(float, cancel)
                 dataItems.addAll(data)
 
-                adapter.notifyItemInserted(0)
+                adapter.notifyDataSetChanged()
             }.onFailure {
                 dismiss()
                 Toaster.show(R.string.no_bills)
-                Logger.e("get auto_bills_${billType.name} error", it)
+                Logger.e("get auto_bills ${billType.name} error", it)
                 if (it is AutoServiceException) {
                     EventBus.post(AutoServiceErrorEvent(it))
                 }

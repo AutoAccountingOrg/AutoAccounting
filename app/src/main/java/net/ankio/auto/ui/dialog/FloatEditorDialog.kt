@@ -47,6 +47,7 @@ import net.ankio.auto.utils.event.EventBus
 import net.ankio.auto.utils.server.model.Assets
 import net.ankio.auto.utils.server.model.AssetsMap
 import net.ankio.auto.utils.server.model.BillInfo
+import net.ankio.auto.utils.server.model.BookBill
 import net.ankio.auto.utils.server.model.BookName
 import net.ankio.auto.utils.server.model.Category
 import net.ankio.common.config.AccountingConfig
@@ -144,7 +145,7 @@ class FloatEditorDialog(
 
                 BillType.IncomeReimbursement -> {
                     this.accountNameFrom = binding.payFrom.getText()
-                    this.extendData = selectedBills.joinToString { it.id }
+                    this.extendData = selectedBills.joinToString { it }
                 }
 
                 BillType.ExpendLending -> {
@@ -154,7 +155,7 @@ class FloatEditorDialog(
 
                 BillType.ExpendRepayment -> {
                     this.accountNameFrom = binding.payFrom.getText()
-                    this.extendData = selectedBills.joinToString { it.id }
+                    this.extendData = selectedBills.joinToString { it }
                 }
 
                 BillType.IncomeLending -> {
@@ -164,7 +165,7 @@ class FloatEditorDialog(
 
                 BillType.IncomeRepayment -> {
                     this.accountNameFrom = binding.payFrom.getText()
-                    this.extendData = selectedBills.joinToString { it.id }
+                    this.extendData = selectedBills.joinToString { it }
                 }
             }
 
@@ -544,7 +545,7 @@ class FloatEditorDialog(
         selectedBills.clear()
     }
 
-    private val selectedBills: ArrayList<BillModel> = ArrayList()
+    private val selectedBills: ArrayList<String> = ArrayList()
 
     private fun bindingDebtEvents() {
         binding.reimbursement.setOnCheckedChangeListener { buttonView, isChecked ->
@@ -601,7 +602,7 @@ class FloatEditorDialog(
     }
 
     private fun bindingCategoryUI() {
-        if (billTypeLevel1 == BillType.Income || billTypeLevel1 == BillType.Expend) {
+        if (billTypeLevel2 == BillType.Income || billTypeLevel2 == BillType.Expend || billTypeLevel2 == BillType.ExpendReimbursement) {
             binding.category.visibility = View.VISIBLE
             lifecycleScope.launch {
                 val book = BookName.getDefaultBook(billInfo.bookName)

@@ -16,28 +16,29 @@
 package net.ankio.auto.ui.adapter
 
 import android.graphics.Color
+import android.view.View
 import androidx.core.content.ContextCompat
 import net.ankio.auto.app.BillUtils
 import net.ankio.auto.databinding.AdapterBillBookBinding
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.DateUtils
+import net.ankio.auto.utils.server.model.BookBill
 import net.ankio.common.constant.BillType
-import net.ankio.common.model.BillModel
 
 class BillSelectorAdapter(
-    override val dataItems: List<BillModel>,
-    private val selectedItems: ArrayList<BillModel>,
+    override val dataItems: List<BookBill>,
+    private val selectedItems: ArrayList<String>,
 ) : BaseAdapter(dataItems, AdapterBillBookBinding::class.java) {
     override fun onInitView(holder: BaseViewHolder) {
         val binding = holder.binding as AdapterBillBookBinding
         binding.root.setOnClickListener {
-            val item = holder.item as BillModel
-            if (selectedItems.contains(item)) {
-                selectedItems.remove(item)
+            val item = holder.item as BookBill
+            if (selectedItems.contains(item.billId)) {
+                selectedItems.remove(item.billId)
                 // 清除背景
                 binding.root.setBackgroundColor(Color.TRANSPARENT)
             } else {
-                selectedItems.add(item)
+                selectedItems.add(item.billId)
                 binding.root.setBackgroundColor(AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorPrimaryContainer))
             }
         }
@@ -48,20 +49,31 @@ class BillSelectorAdapter(
         item: Any,
     ) {
         val binding = holder.binding as AdapterBillBookBinding
-        val it = item as BillModel
+        val it = item as BookBill
         val context = holder.context
 
-        if (selectedItems.contains(item)) {
+
+
+        if (selectedItems.contains(it.billId)) {
             binding.root.setBackgroundColor(AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorPrimaryContainer))
         } else {
             binding.root.setBackgroundColor(Color.TRANSPARENT)
         }
 
-        val prefix = if (item.type == BillType.Income) "-" else "+"
+        val prefix = if (item.type == BillType.Income.value) "-" else "+"
 
         binding.tvAmount.text = String.format("$prefix %.2f", item.amount) // 保留两位有效数字
         binding.tvTime.text = DateUtils.getTime(item.time)
-        binding.tvRemark.text = item.remark
+        if(item.remark.isNullOrEmpty()){
+            binding.tvRemark.visibility = View.GONE
+        }else{
+            binding.tvRemark.visibility = View.VISIBLE
+            binding.tvRemark.text = item.remark
+        }
+
+        binding.tvCategory.text = item.category
+        binding.tvAccount.text = item.accountFrom
+
 
         val colorRes = BillUtils.getColor(item.type.toInt())
         val color = ContextCompat.getColor(context, colorRes)

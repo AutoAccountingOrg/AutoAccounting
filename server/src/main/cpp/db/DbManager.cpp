@@ -1117,7 +1117,7 @@ void DbManager::addBxBills(const Json::Value& billArray,std::string md5){
         sqlite3_finalize(stmt);
         //插入数据
         for (auto bill : billArray) {
-            std::string billId = bill["billId"].asString();
+            std::string billId = bill["id"].asString();
             float amount = bill["amount"].asFloat() ;
             unsigned long long time = bill["time"].asLargestUInt();
             std::string remark = bill["remark"].asString();
@@ -1166,15 +1166,15 @@ Json::Value DbManager::getBxBills(int limit,int t) {
     int rc = 0;
     while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
         Json::Value bill;
-        bill["billId"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 0));
-        bill["amount"] = sqlite3_column_int(stmt, 1);
-        bill["time"] = sqlite3_column_int(stmt, 2);
+        bill["billId"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 4));
+        bill["amount"] = sqlite3_column_double(stmt, 1);
+        bill["time"] = static_cast<Json::Int64>(sqlite3_column_int64(stmt, 2));
         bill["remark"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 3));
-        bill["type"] = sqlite3_column_int(stmt, 4);
-        bill["book"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 5));
-        bill["category"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 6));
-        bill["accountFrom"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 7));
-        bill["accountTo"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 8));
+        bill["type"] = sqlite3_column_int(stmt, 5);
+        bill["book"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 6));
+        bill["category"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 7));
+        bill["accountFrom"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 8));
+        bill["accountTo"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 9));
         ret.append(bill);
     }
     if (rc != SQLITE_DONE) {
