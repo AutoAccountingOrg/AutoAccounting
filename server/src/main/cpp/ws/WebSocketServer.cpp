@@ -163,7 +163,7 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
             std::string currency = data["currency"].asString();
             float money = data["money"].asFloat();
              float fee = data["fee"].asFloat();
-             long long  timeStamp = data["time"].asLargestUInt();
+            unsigned long long  timeStamp = data["time"].asLargestUInt();
             std::string shopName = data["shopName"].asString();
             std::string cateName = data["cateName"].asString();
             std::string extendData = data["extendData"].asString();
@@ -372,6 +372,7 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
                 log("json parse error",LOG_LEVEL_ERROR);
                 ret["data"] = "json parse error";
             }else{
+
                 float money = _json["money"].asFloat();
                 log("money: "+std::to_string(money),LOG_LEVEL_INFO);
                 int bill_type = _json["type"].asInt();
@@ -424,7 +425,8 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
 
                         _json["bookName"] = bookName;
                         _json["cateName"] = cateName;
-
+                        _json["time"] = time;
+                        _json["fromApp"] = app;
                         _json["auto"] = pair.second ? "1" : "0";
                         log("自动记账识别结果：" + _json.toStyledString(),LOG_LEVEL_INFO);
                         //拉起自动记账app

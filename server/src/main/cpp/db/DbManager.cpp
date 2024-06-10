@@ -358,25 +358,7 @@ Json::Value DbManager::getWaitSyncBills() {
     sqlite3_stmt *stmt = getStmt("SELECT * FROM billInfo WHERE syncFromApp=0 AND groupId=0;");
     int rc = 0;
     while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
-        Json::Value bill;
-        bill["id"] = sqlite3_column_int(stmt, 0);
-        bill["type"] = sqlite3_column_int(stmt, 1);
-        bill["currency"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2));
-        bill["money"] = sqlite3_column_double(stmt, 3);
-        bill["fee"] = sqlite3_column_int(stmt, 4);
-        bill["time"] = sqlite3_column_int(stmt, 5);
-        bill["shopName"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 6));
-        bill["cateName"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 7));
-        bill["extendData"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 8));
-        bill["bookName"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 9));
-        bill["accountNameFrom"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 10));
-        bill["accountNameTo"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 11));
-        bill["fromApp"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 12));
-        bill["groupId"] = sqlite3_column_int(stmt, 13);
-        bill["channel"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 14));
-        bill["syncFromApp"] = sqlite3_column_int(stmt, 15);
-        bill["remark"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 16));
-        bill["fromType"] = sqlite3_column_int(stmt, 17);
+        Json::Value bill = buildBill(stmt);
         ret.append(bill);
     }
     if (rc != SQLITE_DONE) {
@@ -473,7 +455,7 @@ Json::Value DbManager::buildBill(sqlite3_stmt *stmt){
     bill["currency"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2));
     bill["money"] = sqlite3_column_double(stmt, 3);
     bill["fee"] = sqlite3_column_double(stmt, 4);
-    bill["time"] = sqlite3_column_int(stmt, 5);
+    bill["time"] = Json::Int64(sqlite3_column_int64(stmt, 5));
     bill["shopName"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 6));
     bill["cateName"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 7));
     bill["extendData"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 8));

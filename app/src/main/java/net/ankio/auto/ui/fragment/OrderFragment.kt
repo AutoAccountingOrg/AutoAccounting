@@ -46,7 +46,7 @@ class OrderFragment : BaseFragment() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: OrderAdapter
     private lateinit var layoutManager: LinearLayoutManager
-    private val dataItems = ArrayList<Pair<String, Array<BillInfo>>>()
+    private val dataItems = ArrayList<Pair<String, List<BillInfo>>>()
 
     override fun onCreateView(
         inflater: LayoutInflater,

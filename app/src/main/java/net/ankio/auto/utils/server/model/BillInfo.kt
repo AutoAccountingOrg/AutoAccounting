@@ -107,14 +107,14 @@ class BillInfo {
     /**
      * 是否已从App同步
      */
-    var syncFromApp: Boolean = false
+    var syncFromApp: Int = 0
 
     /**
      * 备注信息
      */
     var remark: String = ""
 
-    var auto:Boolean=false
+    var auto:Int=0
 
     fun copy(): BillInfo {
         val billInfo = BillInfo()
@@ -170,23 +170,35 @@ class BillInfo {
             return array
         }
 
-        suspend fun getBillByIds(ids: String): Array<BillInfo> {
+        suspend fun getBillByIds(ids: String): List<BillInfo> {
             val data = AppUtils.getService().sendMsg("bill/list/id", mapOf("ids" to ids))
-            return data as Array<BillInfo>
+            return runCatching { Gson().fromJson(data as JsonArray,Array<BillInfo>::class.java).toList() }.onFailure {
+                Logger.e("getBillByIds", it)
+            }.getOrDefault(
+                emptyList()
+            )
         }
 
-        suspend fun getBillByGroup(group: Int): Array<BillInfo> {
+        suspend fun getBillByGroup(group: Int): List<BillInfo> {
             val data = AppUtils.getService().sendMsg("bill/list/child", mapOf("groupId" to group))
-            return data as Array<BillInfo>
+            return runCatching { Gson().fromJson(data as JsonArray,Array<BillInfo>::class.java).toList() }.onFailure {
+                Logger.e("getBillByGroup", it)
+            }.getOrDefault(
+                emptyList()
+            )
         }
 
         fun fromJSON(value: String): BillInfo {
             return Gson().fromJson(value, BillInfo::class.java)
         }
 
-        suspend fun getAllParents(): Array<BillInfo> {
+        suspend fun getAllParents(): List<BillInfo> {
             val data = AppUtils.getService().sendMsg("bill/list/parent", null)
-            return data as Array<BillInfo>
+            return runCatching { Gson().fromJson(data as JsonArray,Array<BillInfo>::class.java).toList() }.onFailure {
+                Logger.e("getAllParents", it)
+            }.getOrDefault(
+                emptyList()
+            )
         }
     }
 }

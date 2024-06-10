@@ -25,7 +25,7 @@ import net.ankio.auto.utils.server.model.BillInfo
 import net.ankio.common.config.AccountingConfig
 
 class OrderAdapter(
-    override val dataItems: ArrayList<Pair<String, Array<BillInfo>>>,
+    override val dataItems: ArrayList<Pair<String, List<BillInfo>>>,
 ) : BaseAdapter(dataItems, AdapterOrderBinding::class.java) {
     override fun onInitView(holder: BaseViewHolder) {
         val binding = holder.binding as AdapterOrderBinding
@@ -61,7 +61,7 @@ class OrderAdapter(
                 },
             )
 
-        val items = item as Pair<String, Array<BillInfo>>
+        val items = item as Pair<String, List<BillInfo>>
 
         binding.recyclerView.adapter = adapter
         dataInnerItems.clear()

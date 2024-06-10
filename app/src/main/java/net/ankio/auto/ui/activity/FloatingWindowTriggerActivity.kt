@@ -51,7 +51,7 @@ class FloatingWindowTriggerActivity : AppCompatActivity() {
             billInfo.bookName = data.getQueryParameter("bookName")!!
             billInfo.cateName = data.getQueryParameter("cateName")!!
             billInfo.remark = data.getQueryParameter("remark")!!
-            billInfo.auto = data.getQueryParameter("auto")!!.toInt() == 1
+            billInfo.auto = data.getQueryParameter("auto")!!.toInt()
 
 
             // 将数据传递给悬浮窗服务
