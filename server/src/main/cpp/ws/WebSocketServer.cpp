@@ -161,9 +161,9 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
             int id = data["id"].asInt();
             int _type = data["type"].asInt();
             std::string currency = data["currency"].asString();
-            int money = data["money"].asFloat();
-            int fee = data["fee"].asFloat();
-            int timeStamp = data["timeStamp"].asInt();
+            float money = data["money"].asFloat();
+             float fee = data["fee"].asFloat();
+             long long  timeStamp = data["time"].asLargestUInt();
             std::string shopName = data["shopName"].asString();
             std::string cateName = data["cateName"].asString();
             std::string extendData = data["extendData"].asString();

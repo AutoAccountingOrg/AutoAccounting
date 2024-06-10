@@ -58,7 +58,7 @@ void DbManager::initTable() {
             "currency TEXT,"
             "money REAL,"
             "fee REAL,"
-            "timeStamp INTEGER,"
+            "time INTEGER,"
             "shopName TEXT,"
             "cateName TEXT,"
             "extendData TEXT,"
@@ -263,7 +263,7 @@ std::string DbManager::getSetting(const std::string &app, const std::string &key
     return ret;
 }
 
-int DbManager::insertBill(int id, int type, const std::string &currency, float money, float fee, int timeStamp,
+int DbManager::insertBill(int id, int type, const std::string &currency, float money, float fee, long long timeStamp,
                            const std::string &shopName, const std::string &cateName,
                            const std::string &extendData, const std::string &bookName,
                            const std::string &accountNameFrom, const std::string &accountNameTo,
@@ -276,10 +276,10 @@ int DbManager::insertBill(int id, int type, const std::string &currency, float m
     if (id == 0) {
         //id=0表示插入，反之表示更新
         stmt = getStmt(
-                "INSERT INTO billInfo ( type, currency, money, fee, timeStamp, shopName, cateName, extendData, bookName, accountNameFrom, accountNameTo, fromApp, groupId, channel, syncFromApp, remark, fromType) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);");
+                "INSERT INTO billInfo ( type, currency, money, fee, time, shopName, cateName, extendData, bookName, accountNameFrom, accountNameTo, fromApp, groupId, channel, syncFromApp, remark, fromType) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);");
     } else {
         stmt = getStmt(
-                "INSERT OR REPLACE INTO billInfo (id, type, currency, money, fee, timeStamp, shopName, cateName, extendData, bookName, accountNameFrom, accountNameTo, fromApp, groupId, channel, syncFromApp, remark, fromType) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);");
+                "INSERT OR REPLACE INTO billInfo (id, type, currency, money, fee, time, shopName, cateName, extendData, bookName, accountNameFrom, accountNameTo, fromApp, groupId, channel, syncFromApp, remark, fromType) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);");
         count = 0;
     }
     if (count == 0) {
@@ -290,7 +290,7 @@ int DbManager::insertBill(int id, int type, const std::string &currency, float m
     sqlite3_bind_text(stmt, count + 3, currency.c_str(), -1, SQLITE_STATIC);
     sqlite3_bind_double(stmt, count + 4, money);
     sqlite3_bind_double(stmt, count + 5, fee);
-    sqlite3_bind_int(stmt, count + 6, timeStamp);
+    sqlite3_bind_int64(stmt, count + 6, timeStamp);
     sqlite3_bind_text(stmt, count + 7, shopName.c_str(), -1, SQLITE_STATIC);
     sqlite3_bind_text(stmt, count + 8, cateName.c_str(), -1, SQLITE_STATIC);
     sqlite3_bind_text(stmt, count + 9, extendData.c_str(), -1, SQLITE_STATIC);
@@ -326,7 +326,7 @@ int DbManager::insertBill(int id, int type, const std::string &currency, float m
 
     //删除syncFromApp=1并且排名在1000名之后的数据
     sqlite3_exec(db,
-                 "DELETE FROM billInfo WHERE syncFromApp=1 AND id NOT IN (SELECT id FROM billInfo WHERE syncFromApp=1 ORDER BY timeStamp DESC LIMIT 1000);",
+                 "DELETE FROM billInfo WHERE syncFromApp=1 AND id NOT IN (SELECT id FROM billInfo WHERE syncFromApp=1 ORDER BY time DESC LIMIT 1000);",
                  nullptr, nullptr, &zErrMsg);
     if (zErrMsg) {
         fprintf(stderr, "SQL error 3: %s\n", zErrMsg);
@@ -364,7 +364,7 @@ Json::Value DbManager::getWaitSyncBills() {
         bill["currency"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2));
         bill["money"] = sqlite3_column_double(stmt, 3);
         bill["fee"] = sqlite3_column_int(stmt, 4);
-        bill["timeStamp"] = sqlite3_column_int(stmt, 5);
+        bill["time"] = sqlite3_column_int(stmt, 5);
         bill["shopName"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 6));
         bill["cateName"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 7));
         bill["extendData"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 8));
@@ -403,7 +403,7 @@ Json::Value DbManager::getBillListGroup(int limit) {
     Json::Value ret;
     char *zErrMsg = nullptr;
     sqlite3_stmt *stmt = getStmt(
-            "SELECT strftime('%Y-%m-%d', timeStamp / 1000, 'unixepoch') as date, group_concat(id) as ids FROM billInfo WHERE groupId = 0 GROUP BY date ORDER BY date DESC LIMIT ?;"
+            "SELECT strftime('%Y-%m-%d', time / 1000, 'unixepoch') as date, group_concat(id) as ids FROM billInfo WHERE groupId = 0 GROUP BY date ORDER BY date DESC LIMIT ?;"
     );
     sqlite3_bind_int(stmt, 1, limit);
     int rc = 0;
@@ -473,7 +473,7 @@ Json::Value DbManager::buildBill(sqlite3_stmt *stmt){
     bill["currency"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 2));
     bill["money"] = sqlite3_column_double(stmt, 3);
     bill["fee"] = sqlite3_column_double(stmt, 4);
-    bill["timeStamp"] = sqlite3_column_int(stmt, 5);
+    bill["time"] = sqlite3_column_int(stmt, 5);
     bill["shopName"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 6));
     bill["cateName"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 7));
     bill["extendData"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 8));
