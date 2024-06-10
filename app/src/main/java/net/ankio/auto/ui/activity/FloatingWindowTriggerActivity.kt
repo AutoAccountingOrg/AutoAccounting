@@ -45,7 +45,7 @@ class FloatingWindowTriggerActivity : AppCompatActivity() {
             billInfo.shopName = data.getQueryParameter("shopName")!!
             billInfo.currency = data.getQueryParameter("currency")!!
             billInfo.type = data.getQueryParameter("type")!!.toInt()
-            billInfo.timeStamp = data.getQueryParameter("time")!!.toLong()
+            billInfo.time = data.getQueryParameter("time")!!.toLong()
             billInfo.accountNameTo = data.getQueryParameter("accountNameTo")!!
             billInfo.accountNameFrom = data.getQueryParameter("accountNameFrom")!!
             billInfo.bookName = data.getQueryParameter("bookName")!!

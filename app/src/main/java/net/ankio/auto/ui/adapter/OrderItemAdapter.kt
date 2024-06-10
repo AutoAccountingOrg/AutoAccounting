@@ -65,14 +65,14 @@ class OrderItemAdapter(
         binding.category.setText(billInfo.cateName)
         scope.launch {
             val book = BookName.getDefaultBook(billInfo.bookName)
-            Category.getDrawable(billInfo.cateName, book.id, context).let {
+            Category.getDrawable(billInfo.cateName, book.id,billInfo.type, context).let {
                 withContext(Dispatchers.Main) {
                     binding.category.setIcon(it, true)
                 }
             }
         }
 
-        binding.date.text = DateUtils.getTime("HH:mm:ss", billInfo.timeStamp)
+        binding.date.text = DateUtils.getTime("HH:mm:ss", billInfo.time)
 
         val type =
             when (BillType.fromInt(billInfo.type)) {

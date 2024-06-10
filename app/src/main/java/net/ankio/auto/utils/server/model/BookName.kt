@@ -18,6 +18,7 @@ import android.content.Context
 import android.widget.ImageView
 import com.google.gson.Gson
 import com.google.gson.JsonArray
+import com.google.gson.JsonObject
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.utils.AppUtils
@@ -46,12 +47,12 @@ class BookName {
 
         suspend fun getOne(): BookName? {
             val data = AppUtils.getService().sendMsg("book/get/one", null)
-            return runCatching { Gson().fromJson(data as String, BookName::class.java) }.getOrNull()
+            return runCatching { Gson().fromJson(data as JsonObject, BookName::class.java) }.getOrNull()
         }
 
         suspend fun getByName(name: String): BookName {
             val data = AppUtils.getService().sendMsg("book/get/name", mapOf("name" to name))
-            return runCatching { Gson().fromJson(data as String, BookName::class.java) }.getOrNull()
+            return runCatching { Gson().fromJson(data as JsonObject, BookName::class.java) }.getOrNull()
                 ?: BookName().apply { this.name = name }
         }
 

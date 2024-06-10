@@ -67,13 +67,14 @@ class Category {
         suspend fun getDrawable(
             cateName: String,
             bookID: Int,
+            type: Int,
             context: Context,
         ): Drawable {
             var newCateName = cateName
             if (newCateName.contains("-")) {
                 newCateName = newCateName.split("-").last()
             }
-            val categoryInfo = getByName(newCateName, bookID)
+            val categoryInfo = getByName(newCateName, bookID,type)
             return ImageUtils.get(context, categoryInfo?.icon ?: "", R.drawable.default_cate)
         }
 
@@ -95,8 +96,9 @@ class Category {
         suspend fun getByName(
             name: String,
             bookID: Int,
+            type: Int
         ): Category? {
-            val data = AppUtils.getService().sendMsg("cate/get/name", mapOf("name" to name, "book" to bookID))
+            val data = AppUtils.getService().sendMsg("cate/get/name", mapOf("cateName" to name, "book" to bookID, "type" to type))
             return runCatching { Gson().fromJson(data as JsonObject, Category::class.java) }.getOrNull()
         }
 

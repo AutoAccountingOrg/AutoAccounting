@@ -47,7 +47,7 @@ class BillInfo {
      * 记账时间
      * yyyy-MM-dd HH:mm:ss
      */
-    var timeStamp: Long = 0
+    var time: Long = 0
 
     /**
      * 商户名称
@@ -123,7 +123,7 @@ class BillInfo {
         billInfo.currency = currency
         billInfo.money = money
         billInfo.fee = fee
-        billInfo.timeStamp = timeStamp
+        billInfo.time = time
         billInfo.shopName = shopName
         billInfo.shopItem = shopItem
         billInfo.cateName = cateName
@@ -142,6 +142,10 @@ class BillInfo {
 
     fun toJson(): String {
         return  Gson().toJson(this)
+    }
+
+    override fun toString(): String {
+        return toJson()
     }
 
     companion object {

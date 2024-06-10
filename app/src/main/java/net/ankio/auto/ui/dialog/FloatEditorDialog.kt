@@ -175,7 +175,7 @@ class FloatEditorDialog(
 
             this.currency = billInfo.currency
 
-            this.timeStamp = billInfo.timeStamp
+            this.time = billInfo.time
             this.remark = binding.remark.text.toString()
         }
     }
@@ -605,7 +605,7 @@ class FloatEditorDialog(
             binding.category.visibility = View.VISIBLE
             lifecycleScope.launch {
                 val book = BookName.getDefaultBook(billInfo.bookName)
-                Category.getDrawable(billInfo.cateName, book.id, context).let {
+                Category.getDrawable(billInfo.cateName, book.id, billInfo.type,context).let {
                     binding.category.setIcon(it, true)
                 }
             }
@@ -664,7 +664,7 @@ class FloatEditorDialog(
     }
 
     private fun bindingTimeUI() {
-        binding.time.setText(DateUtils.getTime(billInfo.timeStamp))
+        binding.time.setText(DateUtils.getTime(billInfo.time))
     }
 
     private fun showDateTimePicker(defaultTimestamp: Long) {
@@ -698,7 +698,7 @@ class FloatEditorDialog(
                                 calendar.set(Calendar.MINUTE, selectedMinute)
 
                                 // 最终的日期和时间结果
-                                billInfo.timeStamp = calendar.timeInMillis
+                                billInfo.time = calendar.timeInMillis
                                 bindingTimeUI()
                                 // 处理最终的时间戳
                             },
@@ -725,7 +725,7 @@ class FloatEditorDialog(
     private fun bindingTimeEvents() {
         binding.time.setOnClickListener {
             // 弹出时间选择器 时间选择器
-            showDateTimePicker(billInfo.timeStamp)
+            showDateTimePicker(billInfo.time)
         }
     }
 
