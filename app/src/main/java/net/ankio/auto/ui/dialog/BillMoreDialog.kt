@@ -33,7 +33,7 @@ class BillMoreDialog(
     BaseSheetDialog(context) {
     private lateinit var binding: DialogBillMoreBinding
     private val dataItems = mutableListOf<BillInfo>()
-    private val adapter = OrderItemAdapter(dataItems, null, null)
+    private val adapter = OrderItemAdapter(dataItems, null, null,context)
 
     override fun onCreateView(inflater: LayoutInflater): View {
         binding = DialogBillMoreBinding.inflate(inflater)

@@ -62,14 +62,14 @@ class FloatEditorDialog(
     private val autoAccountingConfig: AccountingConfig,
     private val float: Boolean = false,
     private val onlyShow: Boolean = false, // 是否仅展示
-    private val onClose: (() -> Unit)? = null,
+    private val onClose: ((billInfo: BillInfo) -> Unit)? = null,
 ) :
     BaseSheetDialog(context) {
     lateinit var binding: FloatEditorBinding
     private var billTypeLevel1 = BillType.Expend
     private var billTypeLevel2 = BillType.Expend
 
-    private val rawBillInfo = billInfo.copy()
+    private var rawBillInfo = billInfo.copy()
     private var rawChooseDebt = ""
     private var rawChooseReimbursement = ""
 
@@ -121,7 +121,7 @@ class FloatEditorDialog(
             this.fee = billInfo.fee
             this.bookName = billInfo.bookName
             this.type = billTypeLevel2.value
-
+            this.id = billInfo.id
             when (billTypeLevel2) {
                 BillType.Expend -> {
                     this.accountNameFrom = binding.payFrom.getText()
@@ -183,7 +183,7 @@ class FloatEditorDialog(
 
     override fun dismiss() {
         super.dismiss()
-        onClose?.invoke()
+        onClose?.invoke(rawBillInfo)
         EventBus.unregister(BillUpdateEvent::class.java, onBillUpdateEvent)
     }
 
@@ -196,6 +196,7 @@ class FloatEditorDialog(
         binding.sureButton.setOnClickListener {
             val bill = getBillData()
 
+            rawBillInfo = bill.copy()
             Logger.d("最终账单结果 => $bill")
 
             lifecycleScope.launch {

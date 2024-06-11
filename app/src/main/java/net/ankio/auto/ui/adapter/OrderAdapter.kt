@@ -59,6 +59,7 @@ class OrderAdapter(
                 onItemChildMoreClick = { itemBill ->
                     BillMoreDialog(context, itemBill).show(false, true)
                 },
+                context
             )
 
         val items = item as Pair<String, List<BillInfo>>

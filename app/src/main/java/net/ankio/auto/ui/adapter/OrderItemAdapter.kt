@@ -15,6 +15,7 @@
 
 package net.ankio.auto.ui.adapter
 
+import android.content.Context
 import android.view.View
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.Dispatchers
@@ -22,6 +23,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.app.BillUtils
 import net.ankio.auto.databinding.AdapterOrderItemBinding
+import net.ankio.auto.ui.dialog.FloatEditorDialog
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.DateUtils
 import net.ankio.auto.utils.server.model.Assets
@@ -32,9 +34,10 @@ import net.ankio.common.config.AccountingConfig
 import net.ankio.common.constant.BillType
 
 class OrderItemAdapter(
-    override val dataItems: List<BillInfo>,
+    override val dataItems: MutableList<BillInfo>,
     private val onItemChildClick: ((item: BillInfo) -> Unit)?,
     private val onItemChildMoreClick: ((item: BillInfo) -> Unit)?,
+    private val context: Context,
 ) : BaseAdapter(dataItems, AdapterOrderItemBinding::class.java) {
     override fun onInitView(holder: BaseViewHolder) {
         val binding = holder.binding as AdapterOrderItemBinding
@@ -46,6 +49,16 @@ class OrderItemAdapter(
         }
 
         binding.payTools.visibility = if (config.assetManagement) View.VISIBLE else View.GONE
+
+        binding.editBill.setOnClickListener {
+            holder.scope.launch {
+                val index = getHolderIndex(holder)
+                FloatEditorDialog(context, holder.item as BillInfo, config, onlyShow = false, onClose = {
+                    dataItems[index] = it
+                    notifyItemChanged(index)
+                }).show(false, true)
+            }
+        }
     }
 
     private lateinit var config: AccountingConfig
@@ -129,10 +142,16 @@ class OrderItemAdapter(
 
         if (BillUtils.noNeedFilter(item)) {
             binding.moreBills.visibility = View.GONE
+        }else{
+            binding.moreBills.visibility = View.VISIBLE
         }
 
         if (onItemChildMoreClick == null) {
             binding.moreBills.visibility = View.GONE
+            binding.editBill.visibility = View.GONE
+        }else{
+            binding.editBill.visibility = View.VISIBLE
+            binding.moreBills.visibility = View.VISIBLE
         }
     }
 }
