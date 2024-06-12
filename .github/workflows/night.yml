@@ -16,6 +16,7 @@ jobs:
       - name: 下载代码
         uses: actions/checkout@v2
         with:
+          submodules: true
           fetch-depth: 0
       - name: 设置Java编译环境
         uses: actions/setup-java@v3
