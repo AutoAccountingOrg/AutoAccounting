@@ -27,9 +27,7 @@ set(JSON_FILES
 include_directories(jsoncpp/include)
 
 
-set(BASE64
-    base64/include/base64.hpp
-)
+
 
 add_subdirectory(quickjspp/quickjs)
 
@@ -47,7 +45,6 @@ add_executable(
         ${SQLITE_FILES}
         ${JSON_FILES}
         db/DbManager.cpp
-        ${BASE64}
 
 )
 
