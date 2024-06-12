@@ -38,7 +38,7 @@ jobs:
           # 创建release目录
           mkdir "${rootDir}/release/"
           # 构建二进制文件
-          "${rootDir}/gradlew" app:buildCMakeRelWithDebInfo
+          "${rootDir}/gradlew" server:buildCMakeRelWithDebInfo
           # 优先构建xposed版本
           for flavor in xposed ; do
             "${rootDir}/gradlew" "assemble${flavor^}Release"

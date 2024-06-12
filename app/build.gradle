@@ -15,8 +15,8 @@ android {
         applicationId "net.ankio.auto"
         minSdk 28
         targetSdk 34
-        versionCode 210
-        versionName "初啼 4.0.0-beta10"
+        versionCode 211
+        versionName "初啼 4.0.0-beta11"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         flavorDimensions += "version"
         productFlavors {
