@@ -216,7 +216,7 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
         } else if(message_type == "data/get"){
             ret["data"]=DbManager::getInstance().getAppData(data["limit"].asInt());
         }else if(message_type == "data/remove"){
-             ret["data"]=DbManager::getInstance().removeAppData(data["id"].asInt());
+             DbManager::getInstance().removeAppData(data["id"].asInt());
          }
 
 
