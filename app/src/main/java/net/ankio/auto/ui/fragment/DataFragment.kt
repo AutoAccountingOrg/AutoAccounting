@@ -271,7 +271,7 @@ $data
                         }
 
                         include
-                    }.reversed()
+                    }
 
                 // 倒序排列resultSearch
                 dataItems.clear()

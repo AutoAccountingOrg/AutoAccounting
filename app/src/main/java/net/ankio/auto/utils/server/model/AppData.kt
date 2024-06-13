@@ -73,7 +73,9 @@ class AppData {
 
         suspend fun get(limit: Int = 500): List<AppData> {
             val data = AppUtils.getService().sendMsg("data/get", mapOf("limit" to limit))
-            return runCatching { Gson().fromJson(data as JsonArray, Array<AppData>::class.java).toList() }.onFailure { Logger.e(it.message?:"",it) }.getOrDefault(emptyList())
+            return runCatching {
+                Gson().fromJson(data as JsonArray, Array<AppData>::class.java).toList()
+            }.onFailure { Logger.e(it.message?:"",it) }.getOrDefault(emptyList())
         }
 
         fun remove(id: Int) {

@@ -515,7 +515,6 @@ void DbManager::insertAppData(int id, const std::string &data, int type, const s
 
 Json::Value DbManager::getAppData(int limit) {
     Json::Value ret;
-    char *zErrMsg = nullptr;
     sqlite3_stmt *stmt = getStmt("SELECT * FROM appData ORDER BY id DESC LIMIT ?;");
     sqlite3_bind_int(stmt, 1, limit);
     int rc = 0;
@@ -539,7 +538,7 @@ Json::Value DbManager::getAppData(int limit) {
 }
 void DbManager::removeAppData(int id){
     char *zErrMsg = nullptr;
-    sqlite3_stmt *stmt = getStmt("DELETE FROM appData WHERE id = ?;");
+    sqlite3_stmt *stmt = getStmt("DELETE FROM appData WHERE id = ? ;");
     sqlite3_bind_int(stmt, 1, id);
     int rc = sqlite3_step(stmt);
     if (rc != SQLITE_DONE) {
