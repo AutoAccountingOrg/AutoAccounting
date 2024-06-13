@@ -15,14 +15,21 @@
 
 package net.ankio.auto.ui.adapter
 
+import com.hjq.toast.Toaster
 import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterLogBinding
+import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.server.model.LogModel
 
 class LogAdapter(
     override val dataItems: ArrayList<LogModel>,
 ) : BaseAdapter(dataItems, AdapterLogBinding::class.java) {
     override fun onInitView(holder: BaseViewHolder) {
+        val binding = holder.binding as AdapterLogBinding
+        binding.log.setOnClickListener {
+            AppUtils.copyToClipboard( binding.log.text.toString())
+            Toaster.show(R.string.copy_command_success)
+        }
     }
 
     override fun onBindView(
