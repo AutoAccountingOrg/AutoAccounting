@@ -80,6 +80,10 @@ class DataFragment : BaseFragment() {
                         .setTitle(requireContext().getString(R.string.content_title))
                         .setMessage(string)
                         .setPositiveButton(requireContext().getString(R.string.cancel_msg)) { _, _ -> }
+                        .setNegativeButton(requireContext().getString(R.string.copy)) { _, _ ->
+                            AppUtils.copyToClipboard(string)
+                            Toaster.show(R.string.copy_command_success)
+                        }
                         .show()
                 },
                 onClickTest = { item ->
