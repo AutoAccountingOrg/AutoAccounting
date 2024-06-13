@@ -37,6 +37,7 @@ class FloatingWindowTriggerActivity : AppCompatActivity() {
         }
 
         runCatching {
+            Logger.i("解析数据 => $data")
 
             val billInfo = BillInfo()
             billInfo.fee = data.getQueryParameter("fee")!!.toFloat()
@@ -50,7 +51,7 @@ class FloatingWindowTriggerActivity : AppCompatActivity() {
             billInfo.accountNameFrom = data.getQueryParameter("accountNameFrom")!!
             billInfo.bookName = data.getQueryParameter("bookName")!!
             billInfo.cateName = data.getQueryParameter("cateName")!!
-            billInfo.remark = data.getQueryParameter("remark")!!
+           // billInfo.remark = data.getQueryParameter("remark")!!
             billInfo.auto = data.getQueryParameter("auto")!!.toInt()
 
 

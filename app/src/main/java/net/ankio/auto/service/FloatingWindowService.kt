@@ -165,12 +165,12 @@ class FloatingWindowService : Service(), CoroutineScope {
         return START_REDELIVER_INTENT
     }
 
-    private suspend fun processBillInfo() {
+    private suspend fun processBillInfo() = withContext(Dispatchers.Main) {
         showWindow = true
         if (timeCount == 0) {
             callBillInfoEditor("setting_float_on_badge_timeout")
             // 显示编辑悬浮窗
-            return
+            return@withContext
         }
 
         // 使用 ViewBinding 初始化悬浮窗视图
