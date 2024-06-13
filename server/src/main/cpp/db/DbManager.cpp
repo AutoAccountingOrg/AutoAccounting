@@ -352,6 +352,18 @@ int DbManager::insertBill(int id, int type, const std::string &currency, float m
     return ret;
 }
 
+
+void DbManager::removeBill(int id) {
+    char *zErrMsg = nullptr;
+    sqlite3_stmt *stmt = getStmt("DELETE FROM billInfo WHERE id = ?;");
+    sqlite3_bind_int(stmt, 1, id);
+    int rc = sqlite3_step(stmt);
+    if (rc != SQLITE_DONE) {
+        fprintf(stderr, "SQL error 9: %s\n", sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
+}
+
 Json::Value DbManager::getWaitSyncBills() {
     Json::Value ret;
     char *zErrMsg = nullptr;

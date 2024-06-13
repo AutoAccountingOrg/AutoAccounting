@@ -46,6 +46,7 @@ public:
 
     //账单
     int insertBill(int id, int type, const std::string &currency,float money, float fee, long long  timeStamp, const std::string& shopName, const std::string& cateName, const std::string& extendData, const std::string& bookName, const std::string& accountNameFrom, const std::string& accountNameTo, const std::string& fromApp, int groupId, const std::string& channel, int syncFromApp, const std::string& remark, int fromType);
+    void removeBill(int id);
     //获取需要同步的账单
     Json::Value getWaitSyncBills();
     //更新账单同步状态

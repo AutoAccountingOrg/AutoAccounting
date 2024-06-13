@@ -178,7 +178,14 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
             int fromType = data["fromType"].asInt();
 
             ret["data"]=DbManager::getInstance().insertBill(id, _type, currency, money, fee, timeStamp, shopName, cateName, extendData, bookName, accountNameFrom, accountNameTo, fromApp, groupId, channel, syncFromApp, remark, fromType);
-        }else if(message_type == "bill/sync/list"){
+        }
+        else if(message_type == "bill/remove"){
+            int id = data["id"].asInt();
+            DbManager::getInstance().removeBill(id);
+
+        }
+
+        else if(message_type == "bill/sync/list"){
             ret["data"]=DbManager::getInstance().getWaitSyncBills();
             //要求账单app每次同步完后都要发送一个消息给服务器，服务器更新状态
         } else if(message_type == "bill/sync/update"){

@@ -150,7 +150,15 @@ class BillInfo {
 
     companion object {
         suspend fun put(billInfo: BillInfo): Int {
+            //判断时间戳是否为10位，10位则使用13位的
+            if (billInfo.time.toString().length == 10) {
+                billInfo.time *= 1000
+            }
             return AppUtils.getService().sendMsg("bill/put", billInfo) as Int
+        }
+
+        suspend fun remove(id: Int) {
+            AppUtils.getService().sendMsg("bill/remove", mapOf("id" to id))
         }
 
         suspend fun getBillListGroup(limit: Int = 500): List<Pair<String, String>> {

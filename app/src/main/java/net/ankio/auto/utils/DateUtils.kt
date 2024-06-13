@@ -42,12 +42,11 @@ object DateUtils {
         return SimpleDateFormat(format, Locale.getDefault()).format(Date(date))
     }
 
-    fun getTime(
-        format: String,
-        time: Long,
-    ): String {
-        return SimpleDateFormat(format, Locale.getDefault()).format(Date(time))
+    fun getTime(format: String, time: Long): String {
+        val adjustedTime = if (time.toString().length == 10) time * 1000 else time
+        return SimpleDateFormat(format, Locale.getDefault()).format(Date(adjustedTime))
     }
+
 
     /*
      * 将时间转换为时间戳

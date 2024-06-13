@@ -131,7 +131,7 @@ class DataAdapter(
 
         binding.time.text =
             item.time.let {
-                DateUtils.getTime(it * 1000)
+                DateUtils.getTime(it )
             }
         binding.rule.visibility = View.VISIBLE
         if (item.match == 0) {

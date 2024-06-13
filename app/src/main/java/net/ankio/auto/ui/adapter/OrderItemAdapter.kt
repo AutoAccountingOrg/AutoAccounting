@@ -18,14 +18,17 @@ package net.ankio.auto.ui.adapter
 import android.content.Context
 import android.view.View
 import androidx.core.content.ContextCompat
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import net.ankio.auto.R
 import net.ankio.auto.app.BillUtils
 import net.ankio.auto.databinding.AdapterOrderItemBinding
 import net.ankio.auto.ui.dialog.FloatEditorDialog
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.DateUtils
+import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.server.model.Assets
 import net.ankio.auto.utils.server.model.BillInfo
 import net.ankio.auto.utils.server.model.BookName
@@ -51,13 +54,31 @@ class OrderItemAdapter(
         binding.payTools.visibility = if (config.assetManagement) View.VISIBLE else View.GONE
 
         binding.editBill.setOnClickListener {
-            holder.scope.launch {
-                val index = getHolderIndex(holder)
-                FloatEditorDialog(context, holder.item as BillInfo, config, onlyShow = false, onClose = {
-                    dataItems[index] = it
-                    notifyItemChanged(index)
-                }).show(false, true)
-            }
+            val index = getHolderIndex(holder)
+            FloatEditorDialog(context, holder.item as BillInfo, config, onlyShow = false, onClose = {
+                dataItems[index] = it
+                notifyItemChanged(index)
+            }).show(false, true)
+        }
+
+        binding.root.setOnLongClickListener {
+
+            //弹出删除确认框
+            val index = getHolderIndex(holder)
+            MaterialAlertDialogBuilder(context)
+                .setTitle(R.string.delete_title)
+                .setMessage(R.string.delete_bill_message)
+                .setPositiveButton(R.string.sure_msg) { _, _ ->
+                    dataItems.removeAt(index)
+                    notifyItemRemoved(index)
+                    holder.scope.launch {
+                        BillInfo.remove((holder.item as BillInfo).id)
+                    }
+
+                }
+                .setNegativeButton(R.string.cancel_msg) { _, _ -> }
+                .show()
+            false
         }
     }
 
@@ -84,6 +105,7 @@ class OrderItemAdapter(
                 }
             }
         }
+
 
         binding.date.text = DateUtils.getTime("HH:mm:ss", billInfo.time)
 
