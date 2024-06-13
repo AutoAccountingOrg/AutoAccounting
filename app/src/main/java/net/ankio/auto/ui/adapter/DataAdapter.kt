@@ -18,6 +18,7 @@ package net.ankio.auto.ui.adapter
 import android.net.Uri
 import android.view.View
 import androidx.core.content.ContextCompat
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.elevation.SurfaceColors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -31,6 +32,7 @@ import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.DateUtils
 import net.ankio.auto.utils.server.model.AppData
+import net.ankio.auto.utils.server.model.BillInfo
 
 class DataAdapter(
     override val dataItems: MutableList<AppData>,
@@ -63,6 +65,25 @@ class DataAdapter(
         binding.uploadData.setOnClickListener {
             val item = holder.item as AppData
             onClickUploadData(item, getHolderIndex(holder))
+        }
+
+        binding.root.setOnLongClickListener {
+            val item = holder.item as AppData
+            val index  = getHolderIndex(holder)
+            MaterialAlertDialogBuilder(context)
+                .setTitle(R.string.delete_title)
+                .setMessage(R.string.delete_data_message)
+                .setPositiveButton(R.string.sure_msg) { _, _ ->
+                    dataItems.removeAt(index)
+                    notifyItemRemoved(index)
+                    holder.scope.launch {
+                        AppData.remove(item.id)
+                    }
+
+                }
+                .setNegativeButton(R.string.cancel_msg) { _, _ -> }
+                .show()
+            true
         }
     }
 

@@ -61,7 +61,7 @@ public:
     //App数据
     void insertAppData(int id,const std::string& data, int type, const std::string& source,const std::string &rule,int time,int match,int issue);
     Json::Value getAppData(int limit);
-
+    void removeAppData(int id);
     //资产
     void insertAsset(int id, const std::string& name, int type, int sort, const std::string&  icon, const std::string&  extra);
     Json::Value getAsset(int limit,int type = 1);

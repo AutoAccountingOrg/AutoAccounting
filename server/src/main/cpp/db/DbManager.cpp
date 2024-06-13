@@ -537,7 +537,17 @@ Json::Value DbManager::getAppData(int limit) {
     sqlite3_finalize(stmt);
     return ret;
 }
+void DbManager::removeAppData(int id){
+    char *zErrMsg = nullptr;
+    sqlite3_stmt *stmt = getStmt("DELETE FROM appData WHERE id = ?;");
+    sqlite3_bind_int(stmt, 1, id);
+    int rc = sqlite3_step(stmt);
+    if (rc != SQLITE_DONE) {
+        fprintf(stderr, "SQL error 9: %s\n", sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
 
+}
 void DbManager::insertAsset(int id, const std::string &name, int type, int sort, const std::string &icon,
                             const std::string &extra) {
     char *zErrMsg = nullptr;

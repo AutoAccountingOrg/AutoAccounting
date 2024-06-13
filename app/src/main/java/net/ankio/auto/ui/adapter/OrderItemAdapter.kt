@@ -78,7 +78,7 @@ class OrderItemAdapter(
                 }
                 .setNegativeButton(R.string.cancel_msg) { _, _ -> }
                 .show()
-            false
+            true
         }
     }
 

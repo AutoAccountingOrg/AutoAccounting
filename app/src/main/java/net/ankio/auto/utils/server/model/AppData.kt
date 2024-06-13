@@ -75,5 +75,11 @@ class AppData {
             val data = AppUtils.getService().sendMsg("data/get", mapOf("limit" to limit))
             return runCatching { Gson().fromJson(data as JsonArray, Array<AppData>::class.java).toList() }.onFailure { Logger.e(it.message?:"",it) }.getOrDefault(emptyList())
         }
+
+        fun remove(id: Int) {
+            AppUtils.getScope().launch {
+                AppUtils.getService().sendMsg("data/remove", mapOf("id" to id))
+            }
+        }
     }
 }
