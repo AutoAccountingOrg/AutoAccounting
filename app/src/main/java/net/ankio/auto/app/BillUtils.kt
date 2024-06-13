@@ -278,7 +278,7 @@ object BillUtils {
             .replace("【金额】", billInfo.money.toString())
             .replace("【分类】", billInfo.cateName)
             .replace("【账本】", billInfo.bookName)
-            .replace("【来源】", billInfo.from)
+            .replace("【来源】", billInfo.fromApp)
     }
 
     /**

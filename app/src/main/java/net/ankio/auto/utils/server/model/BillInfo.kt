@@ -87,7 +87,7 @@ class BillInfo {
     /**
      * 这笔账单的来源,例如是微信还是支付宝
      */
-    var from = ""
+    var fromApp = ""
 
     /**
      * 来源类型，app、无障碍、通知、短信
@@ -131,7 +131,7 @@ class BillInfo {
         billInfo.bookName = bookName
         billInfo.accountNameFrom = accountNameFrom
         billInfo.accountNameTo = accountNameTo
-        billInfo.from = from
+        billInfo.fromApp = fromApp
         billInfo.fromType = fromType
         billInfo.groupId = groupId
         billInfo.channel = channel

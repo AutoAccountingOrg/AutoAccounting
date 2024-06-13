@@ -563,7 +563,7 @@ void WebSocketServer::log(const std::string &msg,int level ){
     std::string  date = {buffer};
     //获取堆栈信息
     DbManager::getInstance().insertLog(date, "server", 0, "main", "server", msg,level);
-    std::string level_str = "";
+    std::string level_str;
     switch (level) {
         case LOG_LEVEL_INFO:
             level_str = "INFO";
@@ -583,10 +583,10 @@ void WebSocketServer::log(const std::string &msg,int level ){
     }
 
     //写到文件里面来
-    FILE *file = fopen("server.log", "a");
+   /* FILE *file = fopen("server.log", "a");
     std::string log = "[" + date + "] [" + level_str + "] " + msg + "\n";
     fprintf(file, "%s", log.c_str());
-    fclose(file);
+    fclose(file);*/
     printf("[ %s ] [ %s ] %s\n", buffer,level_str.c_str(), msg.c_str());
 
 
