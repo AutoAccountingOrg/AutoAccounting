@@ -70,7 +70,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".ui.activity.ErrorActivity" android:exported="false" />
-
+        <activity android:name=".ui.activity.ServiceActivity" android:exported="false" />
         <service android:name=".service.FloatingWindowService" />
 
         <provider

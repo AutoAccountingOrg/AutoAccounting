@@ -3,9 +3,9 @@
  * Licensed under the Apache License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ *  
  *         http://www.apache.org/licenses/LICENSE-3.0
- *
+ *  
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -13,7 +13,7 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.ui.fragment
+package net.ankio.auto.ui.activity
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -29,8 +29,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
+import net.ankio.auto.databinding.ActivityServiceBinding
 import net.ankio.auto.databinding.DialogProgressBinding
-import net.ankio.auto.databinding.FragmentServiceBinding
 import net.ankio.auto.exceptions.UnsupportedDeviceException
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.Logger
@@ -41,28 +41,22 @@ import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import java.net.Socket
 
-class ServiceFragment : BaseFragment() {
-    private lateinit var binding: FragmentServiceBinding
+class ServiceActivity : BaseActivity() {
+    private lateinit var binding: ActivityServiceBinding
     private lateinit var shell: String
     private var cacheDir: File? = null
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View {
-        binding = FragmentServiceBinding.inflate(layoutInflater)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityServiceBinding.inflate(layoutInflater)
 
         //   EventBus.register(AutoServerConnectedEvent::class.java, onConnectedListener)
-
+        setContentView(binding.root)
         initView()
-        return binding.root
+        onViewCreated()
     }
 
-    override fun onResume() {
-        super.onResume()
-        activityBinding.toolbar.visibility = View.GONE
-    }
+
 
     override fun onDestroy() {
         super.onDestroy()
@@ -88,11 +82,11 @@ class ServiceFragment : BaseFragment() {
             AppUtils.copyToClipboard("adb shell $shell")
             Toaster.show(getString(R.string.copy_command_success))
         }
-        requireActivity().onBackPressedDispatcher.addCallback(
-            requireActivity(),
+        onBackPressedDispatcher.addCallback(
+            this,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
-                    finishAffinity(requireActivity()) // 关闭所有活动并退出应用
+                    finishAffinity(this@ServiceActivity) // 关闭所有活动并退出应用
                 }
             },
         )
@@ -132,7 +126,7 @@ class ServiceFragment : BaseFragment() {
         val textView = dialogBinding.progressText
         val scrollView = dialogBinding.scrollView
         val progressDialog =
-            MaterialAlertDialogBuilder(requireActivity())
+            MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.title_command)
                 .setView(dialogBinding.root)
                 .setCancelable(false) // 设置对话框不可关闭

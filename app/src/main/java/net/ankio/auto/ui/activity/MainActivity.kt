@@ -89,7 +89,7 @@ class MainActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        EventBus.register(AutoServiceErrorEvent::class.java, autoListener)
+
         // Github登录
         onLogin()
         // 备份注册
@@ -171,18 +171,5 @@ class MainActivity : BaseActivity() {
         return navHostFragment.navController
     }
 
-    private val autoListener = { event: AutoServiceErrorEvent ->
-        Logger.e("自动记账服务未连接", event.exception)
-        runOnUiThread {
-            // 判断当前fragment是否为serviceFragment
-            if (navHostFragment.navController.currentDestination?.id != R.id.serviceFragment) {
-                navHostFragment.navController.navigate(R.id.serviceFragment)
-            }
-        }
-    }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        EventBus.unregister(AutoServiceErrorEvent::class.java, autoListener)
-    }
 }

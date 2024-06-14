@@ -106,6 +106,10 @@ object AppUtils {
         return Application.getProcessName()
     }
 
+    fun runOnUiThread(action: () -> Unit) {
+        application.mainExecutor.execute(action)
+    }
+
     /**
      * 重启应用
      */

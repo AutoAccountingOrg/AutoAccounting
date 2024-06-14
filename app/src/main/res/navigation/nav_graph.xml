@@ -104,9 +104,9 @@
 
     <fragment
         android:id="@+id/serviceFragment"
-        android:name="net.ankio.auto.ui.fragment.ServiceFragment"
+        android:name="net.ankio.auto.ui.activity.ServiceFragment"
         android:label="@string/title_service"
-        tools:layout="@layout/fragment_service">
+        tools:layout="@layout/activity_service">
 
     </fragment>
 
