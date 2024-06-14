@@ -49,7 +49,7 @@ class Assets {
 
         suspend fun get(limit: Int = 500,type: AssetsType): List<Assets> {
             val data = AppUtils.getService().sendMsg("asset/get", mapOf("limit" to limit , "type" to type.value))
-            return Gson().fromJson(data as JsonArray, Array<Assets>::class.java).toList()
+            return runCatching { Gson().fromJson(data as JsonArray, Array<Assets>::class.java).toList() }.getOrDefault(emptyList())
         }
 
         suspend fun getByName(name: String): Assets? {
