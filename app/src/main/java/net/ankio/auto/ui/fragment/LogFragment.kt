@@ -130,17 +130,17 @@ class LogFragment : BaseFragment() {
             // 读取log.txt
             withContext(Dispatchers.IO) {
                 dataItems.clear()
-                if (!empty)
-                    {
-                        dataItems.addAll(LogModel.get(500))
+                if (!empty){
+                    val log = LogModel.get(500)
+                    dataItems.addAll(log)
+                    withContext(Dispatchers.Main) {
+                        loading.close()
+                        adapter.notifyDataSetChanged()
+                        binding.empty.root.visibility =
+                            if (dataItems.isEmpty()) View.VISIBLE else View.GONE
                     }
-                withContext(Dispatchers.Main) {
-                    loading.close()
-                    adapter.notifyDataSetChanged()
-                    binding.empty.root.visibility =
-                        if (dataItems.isEmpty()) View.VISIBLE else View.GONE
-                    recyclerView.scrollToPosition(adapter.itemCount - 1)
                 }
+
             }
         }
     }
