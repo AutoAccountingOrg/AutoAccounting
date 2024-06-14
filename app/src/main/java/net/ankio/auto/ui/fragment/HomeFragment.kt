@@ -33,6 +33,7 @@ import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.AboutDialogBinding
 import net.ankio.auto.databinding.FragmentHomeBinding
+import net.ankio.auto.events.AutoServerConnectedEvent
 import net.ankio.auto.events.UpdateFinishEvent
 import net.ankio.auto.events.UpdateSuccessEvent
 import net.ankio.auto.ui.dialog.AssetsSelectorDialog
@@ -204,9 +205,14 @@ class HomeFragment : BaseFragment() {
         }
     }
 
+    private val onWsConnection = { event: AutoServerConnectedEvent ->
+        bindBookAppUI()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         EventBus.unregister(UpdateSuccessEvent::class.java, onUpdateRule)
+        EventBus.unregister(AutoServerConnectedEvent::class.java, onWsConnection)
     }
 
     /**
@@ -249,6 +255,8 @@ class HomeFragment : BaseFragment() {
                 }.show(cancel = true)
             }.show(cancel = true)
         }
+
+        EventBus.register(AutoServerConnectedEvent::class.java, onWsConnection)
     }
 
     /**
