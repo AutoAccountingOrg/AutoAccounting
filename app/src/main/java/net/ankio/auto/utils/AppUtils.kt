@@ -47,6 +47,7 @@ import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.utils.server.AutoServer
 import java.io.File
 import java.io.FileOutputStream
+import java.io.IOException
 import java.math.BigInteger
 import java.security.MessageDigest
 
@@ -70,23 +71,34 @@ object AppUtils {
 
     fun setApplication(application: Application) {
         this.application = application
-        scope.launch {
-            val versionFile = File(application.externalCacheDir, "shell/version.txt")
-            if (versionFile.exists()) {
-                versionFile.delete()
-            }
-            //判断父文件夹是否存在
-            if (!versionFile.parentFile?.exists()!!) {
-                versionFile.parentFile?.mkdirs()
-            }
-            application.assets.open("shell/version.txt").use { input ->
-                FileOutputStream(versionFile).use { output ->
-                    input.copyTo(output)
-                }
-            }
-        }
+
         server = AutoServer()
-        //复制assets文件version.txt到cache目录
+        scope.launch {
+
+            val versionFile = File(application.externalCacheDir, "shell/version.txt")
+
+// 检查并删除文件，确保删除成功
+            if (versionFile.exists() && !versionFile.delete()) {
+                Logger.e("Failed to delete ${versionFile.absolutePath}")
+            }
+
+            val parentFile = versionFile.parentFile
+// 检查父目录并创建，如果需要
+            if (parentFile != null && !parentFile.exists() && !parentFile.mkdirs()) {
+                Logger.e("Failed to create directory ${parentFile.absolutePath}")
+            }
+
+            try {
+                application.assets.open("shell/version.txt").use { input ->
+                    FileOutputStream(versionFile).use { output ->
+                        input.copyTo(output)
+                    }
+                }
+            } catch (e: IOException) {
+                Logger.e("Error occurred while copying file: ${e.message}")
+            }
+
+        }
 
     }
 
