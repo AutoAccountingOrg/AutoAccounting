@@ -44,7 +44,7 @@ class LogModel {
 
         suspend fun get(limit: Int = 500): List<LogModel> {
             val data = AppUtils.getService().sendMsg("log/get", mapOf("limit" to limit))
-            return Gson().fromJson(data as JsonArray, Array<LogModel>::class.java).toList()
+            return runCatching { Gson().fromJson(data as JsonArray, Array<LogModel>::class.java).toList() }.getOrDefault(emptyList())
         }
 
         fun deleteAll() {
