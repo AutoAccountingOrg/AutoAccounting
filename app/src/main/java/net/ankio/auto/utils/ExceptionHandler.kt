@@ -27,35 +27,24 @@ import net.ankio.auto.utils.event.EventBus
 import java.io.File
 import kotlin.system.exitProcess
 
-class ExceptionHandler : Thread.UncaughtExceptionHandler {
+class ExceptionHandler(private val context: Context) : Thread.UncaughtExceptionHandler {
     private var mDefaultHandler: Thread.UncaughtExceptionHandler? = null
 
-    private var context: Context? = null
 
-    /**
-     * 初始化默认异常捕获
-     */
-    fun init(context: Context?) {
+
+    init {
         mDefaultHandler = Thread.getDefaultUncaughtExceptionHandler()
         // 将当前类设为默认异常处理器
         Thread.setDefaultUncaughtExceptionHandler(this)
 
-        Bugsnag.start(context!!)
+        Bugsnag.start(context)
         Bugsnag.addOnError { event ->
-
             val result = handleException(event) // 发送此异常
             Logger.i("是否发送异常到AppCenter => $result")
-            if (result) {
-                // 获取日志最后500行
-                val log = AppUtils.readTail(File(context.externalCacheDir!!.absolutePath + "/shell/log.txt"), 200)
-                val daemonLog = AppUtils.readTail(File(context.externalCacheDir!!.absolutePath + "/shell/daemon.log"), 200)
-                event.addMetadata("运行日志", "log", log)
-                event.addMetadata("服务日志", "server_log", daemonLog)
-            }
             result
         }
-        this.context = context
     }
+
 
     private fun handleException(events: Event): Boolean {
         val error = events.originalError
@@ -83,7 +72,7 @@ class ExceptionHandler : Thread.UncaughtExceptionHandler {
 
     companion object {
         fun init(context: Context) {
-            ExceptionHandler().init(context)
+            ExceptionHandler(context)
         }
     }
 
@@ -112,7 +101,7 @@ class ExceptionHandler : Thread.UncaughtExceptionHandler {
         val intent = Intent(context, ErrorActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         intent.putExtra("msg", sb.toString())
-        context?.startActivity(intent)
+        context.startActivity(intent)
         exitProcess(0) // 关闭已奔溃的app进程
     }
 }
