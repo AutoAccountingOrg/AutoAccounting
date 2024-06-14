@@ -46,6 +46,7 @@ import net.ankio.auto.utils.ActiveUtils
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.Logger
+import net.ankio.auto.utils.ServiceUtils
 import net.ankio.auto.utils.SpUtils
 import net.ankio.auto.utils.event.EventBus
 import net.ankio.auto.utils.server.model.Category
@@ -61,6 +62,14 @@ class HomeFragment : BaseFragment() {
     private lateinit var binding: FragmentHomeBinding
     override val menuList: ArrayList<MenuItem> =
         arrayListOf(
+            MenuItem(R.string.menu_item_restart, R.drawable.icon_restart) {
+                val serviceUtils = ServiceUtils(requireContext())
+                if(serviceUtils.hashRoot()){
+                    serviceUtils.startServerByRoot()
+                }else{
+                    serviceUtils.copyAdbCommand()
+                }
+            },
             MenuItem(R.string.title_setting, R.drawable.menu_item_setting) {
                 it.navigate(R.id.setting2Fragment)
             },

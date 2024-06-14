@@ -19,6 +19,7 @@ import android.content.Context
 import android.content.Intent
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.Logger
+import net.ankio.auto.utils.ServiceUtils
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
@@ -31,31 +32,9 @@ class BootReceiver : BroadcastReceiver() {
     ) {
         if (intent?.action == Intent.ACTION_BOOT_COMPLETED) {
             // 启动服务
-            val cacheDir = AppUtils.getApplication().externalCacheDir
-            val shell = "sh ${cacheDir?.absolutePath}/start.sh"
-            try {
-                val process = Runtime.getRuntime().exec("su")
-                val bufferedReader = BufferedReader(InputStreamReader(process.inputStream))
-                val bufferedWriter = OutputStreamWriter(process.outputStream)
-
-                Logger.i("Executing shell command: $shell")
-
-                // 写入命令
-                bufferedWriter.write(shell)
-                bufferedWriter.flush()
-                bufferedWriter.close()
-
-                var line: String?
-                while (bufferedReader.readLine().also { line = it } != null) {
-                    Logger.i(line ?: "")
-                }
-                process.waitFor()
-                bufferedReader.close()
-            } catch (e: Exception) {
-                e.printStackTrace()
-                Logger.e("Error executing shell command", e)
-            } finally {
-                exitProcess(0)
+            val serviceUtils = ServiceUtils(context!!)
+            if(serviceUtils.hashRoot()){
+                serviceUtils.startServerByRoot(false)
             }
         }
     }

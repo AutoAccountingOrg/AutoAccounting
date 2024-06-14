@@ -34,6 +34,7 @@ import net.ankio.auto.databinding.DialogProgressBinding
 import net.ankio.auto.exceptions.UnsupportedDeviceException
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.Logger
+import net.ankio.auto.utils.ServiceUtils
 import net.ankio.auto.utils.server.AutoServer
 import java.io.BufferedReader
 import java.io.File
@@ -43,8 +44,7 @@ import java.net.Socket
 
 class ServiceActivity : BaseActivity() {
     private lateinit var binding: ActivityServiceBinding
-    private lateinit var shell: String
-    private var cacheDir: File? = null
+    private lateinit var serviceUtils: ServiceUtils
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,23 +64,16 @@ class ServiceActivity : BaseActivity() {
     }
 
     private fun initView() {
-        lifecycleScope.launch {
-            cacheDir = AppUtils.getApplication().externalCacheDir
-            if (cacheDir === null) {
-                throw UnsupportedDeviceException(getString(R.string.unsupport_device))
-            }
-            AppUtils.getService().copyAssets()
-        }
-        shell = "sh ${cacheDir!!.path}/shell/starter.sh"
+        serviceUtils = ServiceUtils(this)
+
 
         binding.start.setOnClickListener {
             // 启动服务
-            startServerByRoot()
+            serviceUtils.startServerByRoot()
         }
         binding.copyCommand.setOnClickListener {
             // 复制命令
-            AppUtils.copyToClipboard("adb shell $shell")
-            Toaster.show(getString(R.string.copy_command_success))
+            serviceUtils.copyAdbCommand()
         }
         onBackPressedDispatcher.addCallback(
             this,
@@ -121,54 +114,5 @@ class ServiceActivity : BaseActivity() {
         }
     }
 
-    private fun startServerByRoot() {
-        val dialogBinding = DialogProgressBinding.inflate(layoutInflater)
-        val textView = dialogBinding.progressText
-        val scrollView = dialogBinding.scrollView
-        val progressDialog =
-            MaterialAlertDialogBuilder(this)
-                .setTitle(R.string.title_command)
-                .setView(dialogBinding.root)
-                .setCancelable(false) // 设置对话框不可关闭
-                .show()
 
-        // 在协程中检查 root 权限并执行命令
-        lifecycleScope.launch(Dispatchers.IO) {
-            try {
-                val process = Runtime.getRuntime().exec("su")
-                val bufferedReader = BufferedReader(InputStreamReader(process.inputStream))
-                val bufferedWriter = OutputStreamWriter(process.outputStream)
-
-                Logger.i("Executing shell command: $shell")
-
-                // 写入命令
-                bufferedWriter.write(shell)
-                bufferedWriter.flush()
-                bufferedWriter.close()
-
-                var line: String?
-                while (bufferedReader.readLine().also { line = it } != null) {
-                    withContext(Dispatchers.Main) {
-                        // 更新 TextView 来显示命令输出
-                        textView.append(line + "\n")
-                        scrollView.post { scrollView.fullScroll(View.FOCUS_DOWN) }
-                    }
-                }
-                process.waitFor()
-                bufferedReader.close()
-            } catch (e: Exception) {
-                e.printStackTrace()
-                Logger.e("Error executing shell command", e)
-                withContext(Dispatchers.Main) {
-                    textView.append(getText(R.string.no_root_permission))
-                }
-            } finally {
-                // 等待5秒钟关闭对话框
-                delay(5000L)
-                withContext(Dispatchers.Main) {
-                    progressDialog.dismiss()
-                }
-            }
-        }
-    }
 }

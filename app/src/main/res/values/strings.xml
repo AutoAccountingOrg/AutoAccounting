@@ -348,4 +348,5 @@
     <string name="delete_bill_message">您确认要删除这笔账单吗？</string>
     <string name="delete_data_message">你确定要删除这条数据吗</string>
     <string name="copy">复制</string>
+    <string name="menu_item_restart">重启</string>
 </resources>
