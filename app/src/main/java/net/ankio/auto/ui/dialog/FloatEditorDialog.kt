@@ -79,6 +79,7 @@ class FloatEditorDialog(
         child = event.child
         val billInfo = event.billInfo
         Logger.i("onBillUpdateEvent => $billInfo")
+        false
     }
 
     override fun onCreateView(inflater: LayoutInflater): View {

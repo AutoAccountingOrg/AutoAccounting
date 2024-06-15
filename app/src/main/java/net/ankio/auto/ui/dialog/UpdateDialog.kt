@@ -55,6 +55,7 @@ class UpdateDialog(
             loadingUtils.close()
         }
         dismiss()
+        false
     }
 
     override fun onCreateView(inflater: LayoutInflater): View {
