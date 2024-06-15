@@ -53,18 +53,13 @@ class App : Application() {
 
     }
 
-    private var hasStart = false
 
-    private val autoListener = { event: AutoServiceErrorEvent ->
+    private val autoListener = { event:AutoServiceErrorEvent ->
         Logger.e("自动记账服务未连接", event.exception)
-        AppUtils.runOnUiThread {
-            if(hasStart)return@runOnUiThread
-            hasStart = true
-            //启动ServiceActivity
-            val intent = Intent(this, ServiceActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            startActivity(intent)
-        }
+        val intent = Intent(this, ServiceActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        startActivity(intent)
+        true
     }
 
 

@@ -196,6 +196,7 @@ class HomeFragment : BaseFragment() {
     private val onUpdateRule = { event: UpdateSuccessEvent ->
         Toaster.show(R.string.update_success)
         bindRuleUI()
+        false
     }
 
     private fun bindRuleEvents() {
@@ -216,6 +217,7 @@ class HomeFragment : BaseFragment() {
 
     private val onWsConnection = { event: AutoServerConnectedEvent ->
         bindBookAppUI()
+        false
     }
 
     override fun onDestroy() {
@@ -323,6 +325,7 @@ class HomeFragment : BaseFragment() {
             }
             val listener = { _: UpdateFinishEvent ->
                 bindRuleUI()
+                false
             }
             EventBus.register(UpdateFinishEvent::class.java, listener)
         }.onFailure {

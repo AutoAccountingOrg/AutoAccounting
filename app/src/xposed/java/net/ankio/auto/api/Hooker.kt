@@ -127,7 +127,7 @@ abstract class Hooker : iHooker {
 
         hookLoadPackage(classLoader, application)
 
-        AppUtils.getService().connect()
+        AppUtils.getService().connect(true)
 
         for (hook in partHookers) {
             try {

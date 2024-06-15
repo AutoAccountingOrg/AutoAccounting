@@ -62,18 +62,13 @@ class AutoServer {
     private val callbacks: HashMap<String, (json: JsonObject) -> Unit> = HashMap()
     private var times = 0
     suspend fun reconnect() = withContext(Dispatchers.Main){
-        if (times > 30) {
-            Logger.e("重连次数过多")
-            EventBus.post(AutoServiceErrorEvent(AutoServiceException("WebSocket closed")))
-            return@withContext
-        }
         ws = null
         Logger.i("重连自动记账服务...$times")
         withContext(Dispatchers.IO){
-            delay(10L * times)
+            delay(1000L)
             times++
             withContext(Dispatchers.Main){
-                connect()
+                connect(true)
             }
         }
 
@@ -104,7 +99,7 @@ class AutoServer {
             // 等待返回
         }
 
-    fun connect() {
+    fun connect(reconnect:Boolean = false) {
         val request =
             Request.Builder()
                 .url("$HOST:$PORT/")
@@ -186,10 +181,14 @@ class AutoServer {
                 ) {
                     ws = null
                     println("WebSocket closed: $code / $reason")
+                    if(reconnect){
+                        AppUtils.getScope().launch {
+                            reconnect()
+                        }
+                    }else{
+                        EventBus.post(AutoServiceErrorEvent(AutoServiceException( reason)))
+                    }
 
-                  AppUtils.getScope().launch {
-                      reconnect()
-                  }
                 }
 
                 override fun onFailure(
@@ -197,11 +196,16 @@ class AutoServer {
                     t: Throwable,
                     response: Response?,
                 ) {
-                    AppUtils.getScope().launch {
-                        reconnect()
-                    }
                     Logger.e("WebSocket error: " + t.message, t)
-                    EventBus.post(AutoServiceErrorEvent(AutoServiceException(t.message ?: "WebSocket error")))
+                    if(reconnect){
+                        AppUtils.getScope().launch {
+                            reconnect()
+                        }
+                    }else{
+                        EventBus.post(AutoServiceErrorEvent(AutoServiceException(t.message ?: "WebSocket error")))
+                    }
+
+
                 }
             }
 
