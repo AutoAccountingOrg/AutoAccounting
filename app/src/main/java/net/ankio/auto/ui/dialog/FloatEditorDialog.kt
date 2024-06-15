@@ -63,6 +63,7 @@ class FloatEditorDialog(
     private val float: Boolean = false,
     private val onlyShow: Boolean = false, // 是否仅展示
     private val onClose: ((billInfo: BillInfo) -> Unit)? = null,
+    private val onCancelClick:((billInfo: BillInfo) -> Unit)? = null,
 ) :
     BaseSheetDialog(context) {
     lateinit var binding: FloatEditorBinding
@@ -73,12 +74,15 @@ class FloatEditorDialog(
     private var rawChooseDebt = ""
     private var rawChooseReimbursement = ""
 
-    private var child: ArrayList<BillInfo>? = null
+
 
     private val onBillUpdateEvent = { event: BillUpdateEvent ->
-        child = event.child
         val billInfo = event.billInfo
         Logger.i("onBillUpdateEvent => $billInfo")
+        if (::binding.isInitialized){
+            rawBillInfo = billInfo.copy()
+            bindUI()
+        }
         false
     }
 
@@ -192,17 +196,19 @@ class FloatEditorDialog(
         // 关闭按钮
         binding.cancelButton.setOnClickListener {
             dismiss()
+            onCancelClick?.invoke(rawBillInfo)
         }
         // 确定按钮
         binding.sureButton.setOnClickListener {
             val bill = getBillData()
 
             rawBillInfo = bill.copy()
+            rawBillInfo.syncFromApp = 0
             Logger.d("最终账单结果 => $bill")
 
             lifecycleScope.launch {
                 runCatching {
-                    BillUtils.groupBillInfo(bill, child)
+                    BillInfo.put(bill)
                     if (SpUtils.getBoolean("setting_book_success", true)) {
                         Toaster.show(
                             context.getString(

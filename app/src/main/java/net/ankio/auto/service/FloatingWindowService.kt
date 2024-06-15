@@ -30,9 +30,7 @@ import android.view.WindowManager.BadTokenException
 import androidx.core.content.ContextCompat
 import com.hjq.toast.Toaster
 import com.quickersilver.themeengine.ThemeEngine
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -51,16 +49,10 @@ import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.SpUtils
 import net.ankio.auto.utils.event.EventBus
 import net.ankio.auto.utils.server.model.BillInfo
-import kotlin.coroutines.CoroutineContext
 
-class FloatingWindowService : Service(), CoroutineScope {
+class FloatingWindowService : Service() {
     private val windowManager: WindowManager by lazy { getSystemService(WINDOW_SERVICE) as WindowManager }
     private val floatingViews = mutableListOf<FloatTipBinding>()
-    private val job = Job()
-
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Main + job
-
     private lateinit var themedContext: Context
     private val list = ArrayDeque<BillInfo>()
 
@@ -73,7 +65,6 @@ class FloatingWindowService : Service(), CoroutineScope {
 
     private var billInfo: BillInfo? = null
 
-    private var child = HashMap<Float, ArrayList<BillInfo>>()
 
     override fun onCreate() {
         super.onCreate()
@@ -86,13 +77,16 @@ class FloatingWindowService : Service(), CoroutineScope {
                 defaultTheme,
                 ThemeEngine.getInstance(applicationContext).getTheme(),
             )
-        launch {
+        AppUtils.getScope().launch {
             withContext(Dispatchers.IO) {
-                while (isActive) {
-                    if (list.isEmpty() || showWindow) {
+                var count = 0
+                while (isActive || count < 600) {
+                    if (list.isEmpty()  || showWindow) {
+                        count++
                         delay(100)
                         continue
                     }
+                    count = 0
                     billInfo = list.removeFirst()
                     runCatching {
                         processBillInfo()
@@ -110,63 +104,161 @@ class FloatingWindowService : Service(), CoroutineScope {
         }
     }
 
+
+    private suspend fun addAndCheckBill(id:Int) = withContext(Dispatchers.IO){
+        val billArray = BillInfo.getBillByIds(id.toString())
+        if(billArray.isEmpty()){
+            return@withContext
+        }
+        val bill = billArray[0]
+        /**
+         * 因为原始账单全部是没有处理过的，所以这里根据处理之前的结果判断重复
+         */
+        if(list.isEmpty()){
+            val bills = BillInfo.getNoEditBills()
+
+            list.addAll(bills)
+            list.remove(bill)
+        }
+        if(BillUtils.noNeedFilter(bill)){
+            list.add(bill)
+            return@withContext
+        }
+
+        if(billInfo != null){
+            if(checkRepeat(bill,billInfo!!)){
+                mergeBillAndUpdate(bill,billInfo!!)
+                EventBus.post(BillUpdateEvent(billInfo!!))
+                return@withContext
+            }
+        }
+
+        if(checkBills(bill)){
+            return@withContext
+        }
+
+        list.add(bill)
+    }
+
+    private suspend fun checkBills(bill:BillInfo, remove:Boolean = false):Boolean{
+        list.forEach { bill2 ->
+            if(checkRepeat(bill,bill2)){
+                mergeBillAndUpdate(bill,bill2)
+                if(remove){
+                    BillInfo.remove(bill.id)
+                }
+                return true
+            }
+        }
+        //从历史记录中判断是否有重复账单
+        val history = BillInfo.getEditBills()
+
+        history.forEach { bill2 ->
+            if(checkRepeat(bill,bill2)){
+                mergeBillAndUpdate(bill,bill2)
+                if(remove){
+                    BillInfo.remove(bill.id)
+                }
+                return true
+            }
+        }
+
+        return false
+    }
+
+    /**
+     * 重复账单的要素：
+     * 1.金额一致
+     * 2.来源平台不同  //这个逻辑不对，可能同一个平台可以获取到多个信息，例如多次转账同一金额给同一个人
+     * 来源渠道不同（可以是同一个App，但是可以是不同的公众号
+     * 3.账单时间不超过15分钟 //不能根据时间判断，微信消息的时间不准确
+     * 4.账单的类型一致，只有收入或者支出需要进行区分
+     * 5.账单的交易账户部分一致（有的交易无法获取完整的账户信息）
+     * bill是新来的账单，bill2是原始的账单
+     */
+
+    private suspend fun checkRepeat(bill: BillInfo, bill2: BillInfo): Boolean {
+        //金额和时间完全一致的是重复
+        if (bill2.time == bill.time && bill.money == bill2.money && bill.type == bill2.type) return true
+        if (bill2.money == bill.money && bill.type == bill2.type) {
+            if (bill2.channel != bill.channel) {
+                return true
+            }
+        }
+        return false
+    }
+
+    /**
+     * 重复账单进行合并
+     * bill是新来的账单，bill2是原始的账单
+     */
+    private suspend fun mergeRepeatBill(bill: BillInfo, bill2: BillInfo) {
+        //合并支付方式
+        if (bill2.accountNameFrom.isEmpty()) {
+            bill2.accountNameFrom = bill.accountNameFrom
+        }
+        if (bill2.accountNameTo.isEmpty()) {
+            bill2.accountNameTo = bill.accountNameTo
+        }
+        //合并商户信息
+        if (bill2.shopName.length < bill.shopName.length) {
+            bill2.shopName = bill.shopName
+        }
+        //合并商品信息
+        if (bill2.shopItem.length < bill.shopItem.length) {
+            bill2.shopItem = bill.shopItem
+        }
+
+        //最后重新生成备注
+        bill2.remark = BillUtils.getRemark(
+            bill2,
+            SpUtils.getString("setting_bill_remark", "【商户名称】 - 【商品名称】")
+        )
+    }
+
+    private suspend fun mergeBillAndUpdate(bill: BillInfo, bill2: BillInfo) {
+        Logger.i("重复账单:$bill")
+        bill.groupId = bill2.id
+        mergeRepeatBill(bill, bill2)
+        BillInfo.put(bill)
+        BillInfo.put(bill2)
+
+    }
     override fun onStartCommand(
         intent: Intent,
         flags: Int,
         startId: Int,
     ): Int {
-        val value = intent.getStringExtra("data") ?: return START_REDELIVER_INTENT
-        Logger.i("记账数据:$value")
-        val bill = BillInfo.fromJSON(value)
-        launch {
-            val tpl = SpUtils.getString("setting_bill_remark", "【商户名称】 - 【商品名称】")
-            bill.remark = BillUtils.getRemark(bill, tpl)
-            BillUtils.setAccountMap(bill)
-
-            if (BillUtils.noNeedFilter(bill))
-                {
-                    list.add(bill)
-                    return@launch
-                }
-
-            val newList = ArrayList<BillInfo>()
-            newList.addAll(list)
-            if (billInfo != null) {
-                newList.add(billInfo!!)
-            }
-
-            val repeatBill = BillUtils.checkRepeatBill(bill, newList)
-            if (repeatBill != null)
-                {
-                    Logger.i("重复账单:$bill")
-                    BillUtils.updateBillInfo(repeatBill, bill)
-
-                    if (!child.contains(repeatBill.money))
-                        {
-                            child[repeatBill.money] = ArrayList()
-                        }
-
-                    child[repeatBill.money]?.add(bill)
-                    EventBus.post(BillUpdateEvent(repeatBill, child[repeatBill.money]))
-                    if (repeatBill == billInfo)
-                        {
-                            Logger.i("重复账单:$bill 与当前显示的账单相同")
-                            billInfo = repeatBill
-                        } else {
-                        list.find { it == repeatBill }?.let {
-                            list.remove(it)
-                            list.add(repeatBill)
-                        }
-                    }
-                } else {
-                list.add(bill)
-            }
+        val id = intent.getIntExtra("id", 0) ?: return START_REDELIVER_INTENT
+        AppUtils.getScope().launch {
+            addAndCheckBill(id)
         }
+
+
+        /*
+                // 创建通知
+                val notificationIntent = Intent(this, FloatingWindowTriggerActivity::class.java)
+                val pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+                val notification: Notification = NotificationCompat.Builder(this, "AutoAccounting Float Server")
+                    .setContentTitle("AutoAccounting Float Server")
+                    .setContentIntent(pendingIntent)
+                    .build()
+
+                // 启动前台服务
+                startForeground(1, notification)*/
+
         return START_REDELIVER_INTENT
     }
 
     private suspend fun processBillInfo() = withContext(Dispatchers.Main) {
+        if(checkBills(billInfo!!,true)){
+            return@withContext
+        }
+       // billInfo!!.syncFromApp = 0
         showWindow = true
+        val tpl = SpUtils.getString("setting_bill_remark", "【商户名称】 - 【商品名称】")
+        billInfo!!.remark = BillUtils.getRemark(billInfo!!, tpl)
+        BillUtils.setAccountMap(billInfo!!)
         if (timeCount == 0) {
             callBillInfoEditor("setting_float_on_badge_timeout")
             // 显示编辑悬浮窗
@@ -247,23 +339,24 @@ class FloatingWindowService : Service(), CoroutineScope {
         floatingViews.remove(binding)
     }
 
-    private fun recordBillInfo(billInfo: BillInfo) {
-        launch {
-            runCatching {
-                BillUtils.groupBillInfo(billInfo, child[billInfo.money])
-                if (SpUtils.getBoolean("setting_book_success", true)) {
-                    Toaster.show(
-                        getString(
-                            R.string.auto_success,
-                            billInfo.money.toString(),
-                        ),
-                    )
-                }
-                child.remove(billInfo.money)
-            }.onFailure {
-                if (it is AutoServiceException) {
-                    EventBus.post(AutoServiceErrorEvent(it))
-                }
+    private fun recordBillInfo(billInfo2: BillInfo) {
+        runCatching {
+            billInfo2.syncFromApp = 0
+            AppUtils.getScope().launch {
+                BillInfo.put(billInfo2)
+            }
+            if (SpUtils.getBoolean("setting_book_success", true)) {
+                Toaster.show(
+                    getString(
+                        R.string.auto_success,
+                        billInfo2.money.toString(),
+                    ),
+                )
+            }
+            billInfo = null
+        }.onFailure {
+            if (it is AutoServiceException) {
+                EventBus.post(AutoServiceErrorEvent(it))
             }
         }
     }
@@ -277,20 +370,28 @@ class FloatingWindowService : Service(), CoroutineScope {
             }
 
             FloatEvent.POP_EDIT_WINDOW.ordinal -> {
-                launch {
+                AppUtils.getScope().launch {
                     AppUtils.getService().config().let {
                         // 编辑
                         withContext(Dispatchers.Main) {
-                            FloatEditorDialog(themedContext, billInfo!!, it, true, false) {
+                            FloatEditorDialog(themedContext, billInfo!!, it, true, false, onCancelClick = {
+                                AppUtils.getScope().launch {
+                                    BillInfo.remove(billInfo!!.id)
+                                }
+                            }, onClose = {
                                 showWindow = false
-                            }.show(true)
+                            }).show(true)
                         }
                     }
                 }
+
             }
 
             FloatEvent.NO_ACCOUNT.ordinal -> {
                 showWindow = false
+                AppUtils.getScope().launch {
+                    BillInfo.remove(billInfo!!.id)
+                }
             }
         }
     }
@@ -301,7 +402,6 @@ class FloatingWindowService : Service(), CoroutineScope {
             if (binding.root.isAttachedToWindow) windowManager.removeView(binding.root)
         }
         floatingViews.clear()
-        job.cancel()
         super.onDestroy()
     }
 }

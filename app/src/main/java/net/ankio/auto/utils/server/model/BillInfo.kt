@@ -16,6 +16,7 @@ package net.ankio.auto.utils.server.model
 
 import com.google.gson.Gson
 import com.google.gson.JsonArray
+import com.google.gson.JsonPrimitive
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.Logger
 
@@ -154,7 +155,7 @@ class BillInfo {
             if (billInfo.time.toString().length == 10) {
                 billInfo.time *= 1000
             }
-            return AppUtils.getService().sendMsg("bill/put", billInfo) as Int
+            return (AppUtils.getService().sendMsg("bill/put", billInfo) as JsonPrimitive).asInt
         }
 
         suspend fun remove(id: Int) {
@@ -204,6 +205,24 @@ class BillInfo {
             val data = AppUtils.getService().sendMsg("bill/list/parent", null)
             return runCatching { Gson().fromJson(data as JsonArray,Array<BillInfo>::class.java).toList() }.onFailure {
                 Logger.e("getAllParents", it)
+            }.getOrDefault(
+                emptyList()
+            )
+        }
+
+        suspend fun getNoEditBills(): Collection<BillInfo> {
+            val data = AppUtils.getService().sendMsg("bill/sync/list/wait", null)
+            return runCatching { Gson().fromJson(data as JsonArray,Array<BillInfo>::class.java).toList() }.onFailure {
+                Logger.e("getNoEditBills", it)
+            }.getOrDefault(
+                emptyList()
+            )
+        }
+
+        suspend  fun getEditBills(): Collection<BillInfo> {
+            val data = AppUtils.getService().sendMsg("bill/sync/list/all", null)
+            return runCatching { Gson().fromJson(data as JsonArray,Array<BillInfo>::class.java).toList() }.onFailure {
+                Logger.e("getEditBills", it)
             }.getOrDefault(
                 emptyList()
             )

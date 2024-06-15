@@ -68,7 +68,7 @@ void DbManager::initTable() {
             "fromApp TEXT,"
             "groupId INTEGER,"
             "channel TEXT,"
-            "syncFromApp INTEGER,"
+            "syncFromApp INTEGER," // 0 未同步 1 已同步 -1 只插入数据 -2 处理中
             "remark TEXT,"
             "fromType INTEGER"
             ");",
@@ -342,14 +342,9 @@ int DbManager::insertBill(int id, int type, const std::string &currency, float m
         sqlite3_free(zErrMsg);
     }
 
-    //查询需要同步的账单数量
-    sqlite3_stmt *stmt2 = getStmt("SELECT COUNT(*) FROM billInfo WHERE syncFromApp=0;");
-    int ret = 0;
-    if (sqlite3_step(stmt2) == SQLITE_ROW) {
-        ret = sqlite3_column_int(stmt2, 0);
-    }
-    sqlite3_finalize(stmt2);
-    return ret;
+    //返回插入的id
+    return (int)sqlite3_last_insert_rowid(db);
+
 }
 
 
@@ -364,10 +359,24 @@ void DbManager::removeBill(int id) {
     sqlite3_finalize(stmt);
 }
 
-Json::Value DbManager::getWaitSyncBills() {
+Json::Value DbManager::getWaitSyncBills(int type) {
     Json::Value ret;
-    char *zErrMsg = nullptr;
-    sqlite3_stmt *stmt = getStmt("SELECT * FROM billInfo WHERE syncFromApp=0 AND groupId=0;");
+    sqlite3_stmt *stmt = getStmt("SELECT * FROM billInfo WHERE syncFromApp="+std::to_string(type)+" AND groupId=0;");
+    int rc = 0;
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+        Json::Value bill = buildBill(stmt);
+        ret.append(bill);
+    }
+    if (rc != SQLITE_DONE) {
+        fprintf(stderr, "SQL error 5: %s\n", sqlite3_errmsg(db));
+    }
+    sqlite3_finalize(stmt);
+    return ret;
+}
+
+Json::Value DbManager::getWaitSyncBillsAll() {
+    Json::Value ret;
+    sqlite3_stmt *stmt = getStmt("SELECT * FROM billInfo WHERE (syncFromApp=0 OR syncFromApp=1)  AND groupId=0;");
     int rc = 0;
     while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
         Json::Value bill = buildBill(stmt);

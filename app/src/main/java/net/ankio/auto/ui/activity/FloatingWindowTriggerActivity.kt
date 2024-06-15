@@ -38,27 +38,10 @@ class FloatingWindowTriggerActivity : AppCompatActivity() {
 
         runCatching {
             Logger.i("解析数据 => $data")
-
-            val billInfo = BillInfo()
-            billInfo.fee = data.getQueryParameter("fee")!!.toFloat()
-            billInfo.money = data.getQueryParameter("money")!!.toFloat()
-            billInfo.shopItem = data.getQueryParameter("shopItem")!!
-            billInfo.shopName = data.getQueryParameter("shopName")!!
-            billInfo.currency = data.getQueryParameter("currency")!!
-            billInfo.type = data.getQueryParameter("type")!!.toInt()
-            billInfo.time = data.getQueryParameter("time")!!.toLong()
-            billInfo.accountNameTo = data.getQueryParameter("accountNameTo")!!
-            billInfo.accountNameFrom = data.getQueryParameter("accountNameFrom")!!
-            billInfo.bookName = data.getQueryParameter("bookName")!!
-            billInfo.cateName = data.getQueryParameter("cateName")!!
-           // billInfo.remark = data.getQueryParameter("remark")!!
-            billInfo.auto = data.getQueryParameter("auto")!!.toInt()
-
-
             // 将数据传递给悬浮窗服务
             val serviceIntent =
                 Intent(this, FloatingWindowService::class.java).apply {
-                    putExtra("data", billInfo.toJson())
+                    putExtra("id", data.getQueryParameter("id")?.toIntOrNull()?:0)
                 }
             startService(serviceIntent)
             // 关闭 Activity

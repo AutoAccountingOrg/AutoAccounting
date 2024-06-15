@@ -183,10 +183,14 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
             int id = data["id"].asInt();
             DbManager::getInstance().removeBill(id);
 
-        }
+        } else if(message_type == "bill/sync/list/wait"){
+             ret["data"]=DbManager::getInstance().getWaitSyncBills(-1);
+         } else if(message_type == "bill/sync/list/all"){
+             ret["data"]=DbManager::getInstance().getWaitSyncBillsAll();
+         }
 
         else if(message_type == "bill/sync/list"){
-            ret["data"]=DbManager::getInstance().getWaitSyncBills();
+            ret["data"]=DbManager::getInstance().getWaitSyncBills(0);
             //要求账单app每次同步完后都要发送一个消息给服务器，服务器更新状态
         } else if(message_type == "bill/sync/update"){
             int id = data["id"].asInt();
@@ -360,10 +364,7 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
             int _type = data["type"].asInt();
             int call = data["call"].asInt();
             int time = std::time(nullptr);
-            if (call == 1) {
-                // 先存data
-                DbManager::getInstance().insertAppData(0, _data, _type, app, "", time, 0, 0);
-            }
+
 
             //Json::Value rule = DbManager::getInstance().getRule(app, _type);
             std::string rule = DbManager::getInstance().getSetting("server", "rule_js");
@@ -378,6 +379,10 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
             Json::Value _json;
             Json::Reader _reader;
             if (!_reader.parse(result, _json)) {
+                if (call == 1) {
+                    // 先存data
+                    DbManager::getInstance().insertAppData(0, _data, _type, app, "", time, 0, 0);
+                }
                 log("json parse error",LOG_LEVEL_ERROR);
                 ret["data"] = "json parse error";
             }else{
@@ -397,6 +402,10 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
 
                 std::string channel = _json["channel"].asString();
                 log("channel: "+channel,LOG_LEVEL_INFO);
+                if (call == 1) {
+                    // 先存data
+                    DbManager::getInstance().insertAppData(0, _data, _type, app, channel, time, 1, 0);
+                }
                 //自动重新更新，不需要App调用更新
                 //分析分类内容
                 std::pair<bool, bool> pair = DbManager::getInstance().checkRule(app, _type,
@@ -441,9 +450,14 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
                         //拉起自动记账app
                         if (call == 1) {
                             try {
+
+
+                                int id = DbManager::getInstance().insertBill(0, bill_type, "CNY", money, 0, time, shopName, cateName, shopItem, bookName, "", "", app, 0, channel, -1, "", 0);
+
+
                                 std::string cmd =
-                                        R"(am start -a "net.ankio.auto.ACTION_SHOW_FLOATING_WINDOW" -d "autoaccounting://bill?)" +
-                                        json2Uri(_json) +
+                                        R"(am start -a "net.ankio.auto.ACTION_SHOW_FLOATING_WINDOW" -d "autoaccounting://bill?id=)" +
+                                        std::to_string(id) +
                                         R"(" --ez "android.intent.extra.NO_ANIMATION" true -f 0x10000000)";
                                 //写日志
                                 log("执行命令 " + cmd, LOG_LEVEL_INFO);
