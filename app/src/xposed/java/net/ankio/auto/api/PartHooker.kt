@@ -65,6 +65,9 @@ abstract class PartHooker(val hooker: Hooker) {
         data: String,
         app: String? = null,
     ) {
+        if(data.isEmpty() || data == "null"){
+            return
+        }
         AppUtils.getScope().launch {
             HookUtils.analyzeData(
                 dataType,
