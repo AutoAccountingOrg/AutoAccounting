@@ -15,8 +15,8 @@
 
 package net.ankio.auto.utils
 
-import android.app.Dialog
 import android.content.Context
+import android.os.Environment
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.ScrollView
@@ -30,29 +30,32 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogProgressBinding
-import net.ankio.auto.exceptions.UnsupportedDeviceException
 import java.io.BufferedReader
 import java.io.File
+import java.io.FileOutputStream
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 
 class ServiceUtils(private val context: Context) {
     private var shell: String
-    private var cacheDir: File? = null
+    private var cacheDir: File
     init {
-        cacheDir = AppUtils.getApplication().externalCacheDir
-        if (cacheDir === null) {
-            throw UnsupportedDeviceException(context.getString(R.string.unsupport_device))
+        val packageName  = context.packageName
+        val filePath =  Environment.getExternalStorageDirectory().path +"/Android/data/$packageName/"
+        cacheDir = File(filePath)
+        if(!cacheDir.exists()){
+            cacheDir.mkdirs()
         }
+
 
         AppUtils.getScope().launch {
-            AppUtils.getService().copyAssets()
+            copyAssets()
         }
 
-        shell = "sh ${cacheDir!!.path}/shell/starter.sh"
+        shell = "sh ${cacheDir.path}/shell/starter.sh"
     }
 
-    fun hashRoot():Boolean{
+    fun hasRoot():Boolean{
       return runCatching { Runtime.getRuntime().exec("su")
           true }.getOrDefault(false)
     }
@@ -115,8 +118,8 @@ class ServiceUtils(private val context: Context) {
                 }
             } finally {
                 // 等待5秒钟关闭对话框
-                delay(5000L)
                 if(showUi) {
+                    delay(5000L)
                     withContext(Dispatchers.Main) {
                         progressDialog!!.dismiss()
                     }
@@ -129,5 +132,42 @@ class ServiceUtils(private val context: Context) {
         AppUtils.copyToClipboard("adb shell $shell")
         Toaster.show(context.getString(R.string.copy_command_success))
     }
+
+    private suspend fun copyAssets() =
+        withContext(Dispatchers.IO) {
+            val context = AppUtils.getApplication()
+            val cacheDir = cacheDir.path + File.separator + "shell"
+            val copyFiles = arrayListOf("version.txt", "starter.sh", "apps.txt")
+            // 检查cpu架构
+            val cpu = System.getProperty("os.arch")!!
+            val androidCpu =
+                when {
+                    cpu.contains("arm") -> "armeabi-v7a"
+                    cpu.contains("aarch64") -> "arm64-v8a"
+                    cpu.contains("i386") || cpu.contains("i686") -> "x86"
+                    cpu.contains("x86_64") -> "x86_64"
+                    else -> "arm64-v8a"
+                }
+            copyFiles.add("$androidCpu/auto_accounting_starter")
+            copyFiles.forEach {
+                // 从assets复制到cacheDir
+                runCatching {
+                    context.assets.open("shell" + File.separator + it).use { input ->
+                        val file = File(cacheDir, it)
+                        if (!file.exists()) {
+                            file.parentFile?.mkdirs()
+                        } else {
+                            file.delete()
+                        }
+                        file.createNewFile()
+                        FileOutputStream(file).use { output ->
+                            input.copyTo(output)
+                        }
+                    }
+                }.onFailure {
+                    Logger.e("复制文件失败", it)
+                }
+            }
+        }
 
 }

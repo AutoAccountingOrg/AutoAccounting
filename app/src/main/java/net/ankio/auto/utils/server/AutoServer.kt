@@ -27,6 +27,7 @@ import net.ankio.auto.events.AutoServiceErrorEvent
 import net.ankio.auto.exceptions.AutoServiceException
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.Logger
+import net.ankio.auto.utils.SpUtils
 import net.ankio.auto.utils.event.EventBus
 import net.ankio.auto.utils.server.model.SettingModel
 import net.ankio.common.config.AccountingConfig
@@ -54,6 +55,7 @@ class AutoServer {
     init {
         client =
             OkHttpClient.Builder()
+                .pingInterval(60, TimeUnit.SECONDS)
                 .readTimeout(0, TimeUnit.MILLISECONDS)
                 .build()
     }
@@ -122,9 +124,9 @@ class AutoServer {
                         runCatching {
                             val json = Gson().fromJson(text, JsonObject::class.java)
                             val type = json.get("type").asString
-                            if (type == "auth") {
-                                val token = getToken()
-                                if (token.isNotEmpty()) {
+                            when (type) {
+                                "auth" -> {
+                                    val token = getToken()
                                     val msg =
                                         JsonObject().apply {
                                             addProperty("type", "auth")
@@ -136,20 +138,19 @@ class AutoServer {
                                     webSocket.send(
                                         msg,
                                     )
-                                } else {
-                                    webSocket.close(1000, "Token not found")
-                                    Logger.i("Token not found")
                                 }
-                                // ws = webSocket
-                                return@runCatching
-                            } else if (type == "auth/success") {
-                                Logger.d("服务链接成功")
-                                ws = webSocket
-                                EventBus.post(AutoServerConnectedEvent())
+                                "auth/success" -> {
+                                    Logger.d("服务链接成功")
+                                    ws = webSocket
+                                    EventBus.post(AutoServerConnectedEvent())
+                                }
+                                else -> {
+                                    val id = json.get("id").asString
+                                    callbacks[id]?.invoke(json)
+                                    callbacks.remove(id)
+                                }
                             }
-                            val id = json.get("id").asString
-                            callbacks[id]?.invoke(json)
-                            callbacks.remove(id)
+
                         }.onFailure {
                             it.printStackTrace()
                             webSocket.close(1000, it.message)
@@ -168,10 +169,8 @@ class AutoServer {
                     code: Int,
                     reason: String,
                 ) {
-                    ws = null
                     webSocket.close(1000, null)
-
-                    println("WebSocket closing: $code / $reason")
+                    Logger.i("WebSocket closing: $code / $reason")
                 }
 
                 override fun onClosed(
@@ -180,7 +179,7 @@ class AutoServer {
                     reason: String,
                 ) {
                     ws = null
-                    println("WebSocket closed: $code / $reason")
+                    Logger.i("WebSocket closed: $code / $reason")
                     if(reconnect){
                         AppUtils.getScope().launch {
                             reconnect()
@@ -197,13 +196,7 @@ class AutoServer {
                     response: Response?,
                 ) {
                     Logger.e("WebSocket error: " + t.message, t)
-                    if(reconnect){
-                        AppUtils.getScope().launch {
-                            reconnect()
-                        }
-                    }else{
-                        EventBus.post(AutoServiceErrorEvent(AutoServiceException(t.message ?: "WebSocket error")))
-                    }
+                    webSocket.close(1000, t.message)
 
 
                 }
@@ -218,42 +211,7 @@ class AutoServer {
         return runCatching { Gson().fromJson(json, AccountingConfig::class.java) }.getOrNull() ?: AccountingConfig()
     }
 
-    suspend fun copyAssets() =
-        withContext(Dispatchers.IO) {
-            val context = AppUtils.getApplication()
-            val cacheDir = context.externalCacheDir!!.absolutePath + File.separator + "shell"
-            val copyFiles = arrayListOf("version.txt", "starter.sh", "apps.txt")
-            // 检查cpu架构
-            val cpu = System.getProperty("os.arch")!!
-            val androidCpu =
-                when {
-                    cpu.contains("arm") -> "armeabi-v7a"
-                    cpu.contains("aarch64") -> "arm64-v8a"
-                    cpu.contains("i386") || cpu.contains("i686") -> "x86"
-                    cpu.contains("x86_64") -> "x86_64"
-                    else -> "arm64-v8a"
-                }
-            copyFiles.add("$androidCpu/auto_accounting_starter")
-            copyFiles.forEach {
-                // 从assets复制到cacheDir
-                runCatching {
-                    context.assets.open("shell" + File.separator + it).use { input ->
-                        val file = File(cacheDir, it)
-                        if (!file.exists()) {
-                            file.parentFile?.mkdirs()
-                        } else {
-                            file.delete()
-                        }
-                        file.createNewFile()
-                        FileOutputStream(file).use { output ->
-                            input.copyTo(output)
-                        }
-                    }
-                }.onFailure {
-                    Logger.e("复制文件失败", it)
-                }
-            }
-        }
+
 
     fun getToken(): String {
         val file = File(AppUtils.getApplication().externalCacheDir!!.absolutePath + "/../token.txt")
