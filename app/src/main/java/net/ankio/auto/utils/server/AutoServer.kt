@@ -98,6 +98,10 @@ class AutoServer {
             }
             val msg = Gson().toJson(json)
             Logger.d("发送消息：$msg")
+            if(ws == null){
+                continuation.resume(null)
+                return@suspendCancellableCoroutine
+            }
             ws!!.send(msg)
             // 等待返回
         }
