@@ -33,7 +33,7 @@ class BootReceiver : BroadcastReceiver() {
         if (intent?.action == Intent.ACTION_BOOT_COMPLETED) {
             // 启动服务
             val serviceUtils = ServiceUtils(context!!)
-            if(serviceUtils.hashRoot()){
+            if(serviceUtils.hasRoot()){
                 serviceUtils.startServerByRoot(false)
             }
         }
