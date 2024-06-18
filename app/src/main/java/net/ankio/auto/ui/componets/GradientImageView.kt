@@ -90,7 +90,7 @@ class GradientImageView : AppCompatImageView {
 
     private fun drawableToBitmap(drawable: Drawable): Bitmap {
         if (drawable is BitmapDrawable) {
-            return drawable.bitmap
+            return drawable.bitmap?:Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
         }
 
         val bitmap =
