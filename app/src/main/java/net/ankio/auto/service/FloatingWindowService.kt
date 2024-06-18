@@ -121,6 +121,7 @@ class FloatingWindowService : Service() {
             list.remove(bill)
         }
         if(BillUtils.noNeedFilter(bill)){
+            Logger.i("不需要过滤的账单:$bill")
             list.add(bill)
             return@withContext
         }
@@ -194,10 +195,10 @@ class FloatingWindowService : Service() {
      */
     private suspend fun mergeRepeatBill(bill: BillInfo, bill2: BillInfo) {
         //合并支付方式
-        if (bill2.accountNameFrom.isEmpty()) {
+        if (bill2.accountNameFrom.length < bill.accountNameFrom.length) {
             bill2.accountNameFrom = bill.accountNameFrom
         }
-        if (bill2.accountNameTo.isEmpty()) {
+        if (bill2.accountNameTo.length < bill.accountNameTo.length) {
             bill2.accountNameTo = bill.accountNameTo
         }
         //合并商户信息
@@ -207,6 +208,15 @@ class FloatingWindowService : Service() {
         //合并商品信息
         if (bill2.shopItem.length < bill.shopItem.length) {
             bill2.shopItem = bill.shopItem
+        }
+
+        //合并商品信息
+        if (bill2.extendData.length < bill.extendData.length) {
+            bill2.extendData = bill.extendData
+        }
+
+        if(bill2.shopItem.isEmpty()){
+            bill2.shopItem = bill2.extendData
         }
 
         //最后重新生成备注
@@ -229,23 +239,10 @@ class FloatingWindowService : Service() {
         flags: Int,
         startId: Int,
     ): Int {
-        val id = intent.getIntExtra("id", 0) ?: return START_REDELIVER_INTENT
+        val id = intent.getIntExtra("id", 0)
         AppUtils.getScope().launch {
             addAndCheckBill(id)
         }
-
-
-        /*
-                // 创建通知
-                val notificationIntent = Intent(this, FloatingWindowTriggerActivity::class.java)
-                val pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)
-                val notification: Notification = NotificationCompat.Builder(this, "AutoAccounting Float Server")
-                    .setContentTitle("AutoAccounting Float Server")
-                    .setContentIntent(pendingIntent)
-                    .build()
-
-                // 启动前台服务
-                startForeground(1, notification)*/
 
         return START_REDELIVER_INTENT
     }
@@ -253,6 +250,9 @@ class FloatingWindowService : Service() {
     private suspend fun processBillInfo() = withContext(Dispatchers.Main) {
         if(checkBills(billInfo!!,true)){
             return@withContext
+        }
+        if(billInfo!!.shopItem.isEmpty()){
+            billInfo!!.shopItem = billInfo!!.extendData
         }
        // billInfo!!.syncFromApp = 0
         showWindow = true
@@ -375,7 +375,7 @@ class FloatingWindowService : Service() {
                         // 编辑
                         withContext(Dispatchers.Main) {
                             FloatEditorDialog(themedContext, billInfo!!, it, true, false, onCancelClick = {
-                                AppUtils.getScope().launch {
+                               AppUtils.getScope().launch {
                                     BillInfo.remove(billInfo!!.id)
                                 }
                             }, onClose = {
