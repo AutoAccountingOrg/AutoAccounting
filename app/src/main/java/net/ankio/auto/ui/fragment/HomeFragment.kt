@@ -141,7 +141,7 @@ class HomeFragment : BaseFragment() {
             if (this.isEmpty()) {
                 binding.bookApp.text = getString(R.string.no_setting)
             } else {
-                AppUtils.getAppInfoFromPackageName(this, requireContext())?.apply {
+                AppUtils.getAppInfoFromPackageName(this, AppUtils.getApplication())?.apply {
                     binding.bookApp.text = this.name
                 }
             }
