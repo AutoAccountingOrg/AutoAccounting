@@ -90,10 +90,6 @@ class BillInfo {
      */
     var fromApp = ""
 
-    /**
-     * 来源类型，app、无障碍、通知、短信
-     */
-    var fromType: Int = 0
 
     /**
      * 分组id，这个id是指将短时间内捕获到的同等金额进行合并的分组id
@@ -133,11 +129,11 @@ class BillInfo {
         billInfo.accountNameFrom = accountNameFrom
         billInfo.accountNameTo = accountNameTo
         billInfo.fromApp = fromApp
-        billInfo.fromType = fromType
         billInfo.groupId = groupId
         billInfo.channel = channel
         billInfo.syncFromApp = syncFromApp
         billInfo.remark = remark
+        billInfo.auto = auto
         return billInfo
     }
 
