@@ -64,7 +64,7 @@ class HomeFragment : BaseFragment() {
         arrayListOf(
             MenuItem(R.string.menu_item_restart, R.drawable.icon_restart) {
                 val serviceUtils = ServiceUtils(requireContext())
-                if(serviceUtils.hashRoot()){
+                if(serviceUtils.hasRoot()){
                     serviceUtils.startServerByRoot()
                 }else{
                     serviceUtils.copyAdbCommand()
