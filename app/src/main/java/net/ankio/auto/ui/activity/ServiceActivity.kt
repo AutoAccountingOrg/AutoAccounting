@@ -54,6 +54,7 @@ class ServiceActivity : BaseActivity() {
         setContentView(binding.root)
         initView()
         onViewCreated()
+
     }
 
 
@@ -66,6 +67,10 @@ class ServiceActivity : BaseActivity() {
     private fun initView() {
         serviceUtils = ServiceUtils(this)
 
+
+        if (serviceUtils.hasRoot()){
+            serviceUtils.startServerByRoot(true)
+        }
 
         binding.start.setOnClickListener {
             // 启动服务
