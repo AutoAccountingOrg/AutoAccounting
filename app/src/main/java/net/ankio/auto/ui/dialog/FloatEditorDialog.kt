@@ -120,7 +120,6 @@ class FloatEditorDialog(
         return BillInfo().apply {
             this.channel = billInfo.channel
             this.fromApp = billInfo.fromApp
-            this.fromType = billInfo.fromType
             this.money = billInfo.money
             this.type = billInfo.type
             this.fee = billInfo.fee
