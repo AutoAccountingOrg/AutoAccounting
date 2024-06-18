@@ -374,13 +374,23 @@ class FloatingWindowService : Service() {
                     AppUtils.getService().config().let {
                         // 编辑
                         withContext(Dispatchers.Main) {
-                            FloatEditorDialog(themedContext, billInfo!!, it, true, false, onCancelClick = {
-                               AppUtils.getScope().launch {
-                                    BillInfo.remove(billInfo!!.id)
-                                }
-                            }, onClose = {
-                                showWindow = false
-                            }).show(true)
+                           runCatching {
+                               FloatEditorDialog(themedContext, billInfo!!, it, true, false, onCancelClick = {
+                                   AppUtils.getScope().launch {
+                                       BillInfo.remove(billInfo!!.id)
+                                   }
+                               }, onClose = {
+                                   showWindow = false
+                               }).show(true)
+                           }.onFailure {
+                               if (it is BadTokenException) {
+                                   if (it.message != null && it.message!!.contains("permission denied")) {
+                                       Toaster.show(R.string.floatTip)
+                                       FloatPermissionUtils.requestPermission(themedContext)
+                                   }
+                               }
+                               Logger.e("记账失败", it)
+                           }
                         }
                     }
                 }
