@@ -111,4 +111,10 @@ open class BaseActivity : AppCompatActivity() {
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         startActivity(intent)
     }
+
+    fun recreateActivity() {
+        runOnUiThread {
+            recreate()
+        }
+    }
 }

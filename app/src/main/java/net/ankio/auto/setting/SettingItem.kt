@@ -19,6 +19,7 @@ import android.app.Activity
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import net.ankio.auto.constant.ItemType
+import net.ankio.auto.ui.activity.BaseActivity
 
 data class SettingItem(
     @StringRes val title: Int, // 标题
@@ -32,6 +33,6 @@ data class SettingItem(
     val link: String? = null, // 如果为link类型，需要提供链接
     val default: Any? = null, // 默认值
     val onGetKeyValue: (() -> Any?)? = null,
-    val onItemClick: ((value: Any, activity: Activity) -> Unit)? = null, // 点击事件
-    val onSavedValue: ((value: Any, activity: Activity) -> Unit)? = null, // 保存事件
+    val onItemClick: ((value: Any, activity: BaseActivity) -> Unit)? = null, // 点击事件
+    val onSavedValue: ((value: Any, activity: BaseActivity) -> Unit)? = null, // 保存事件
 )

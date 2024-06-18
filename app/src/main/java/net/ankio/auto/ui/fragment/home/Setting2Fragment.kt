@@ -71,6 +71,8 @@ class Setting2Fragment : BaseFragment() {
         super.onDestroy()
         settingRenderUtils.onDestroy()
     }
+    
+    
 
     /**
      * 获取App设置项
@@ -100,7 +102,7 @@ class Setting2Fragment : BaseFragment() {
                 },
                 onSavedValue = { value, activity ->
                     LanguageUtils.setAppLanguage(value as String)
-                    activity.recreate()
+                    activity.recreateActivity()
                 },
                 type = ItemType.TEXT,
                 icon = R.drawable.setting2_icon_language,
@@ -127,12 +129,12 @@ class Setting2Fragment : BaseFragment() {
                         .setTitle(R.string.choose_theme)
                         .setPositiveButton(activity.getString(R.string.ok)) { _, theme ->
                             ThemeEngine.getInstance(activity).staticTheme = theme
-                            activity.recreate()
+                            activity.recreateActivity()
                         }
                         .setNegativeButton(activity.getString(R.string.close))
                         .setNeutralButton(activity.getString(R.string.default_theme)) { _, _ ->
                             ThemeEngine.getInstance(activity).resetTheme()
-                            activity.recreate()
+                            activity.recreateActivity()
                         }
                         .setIcon(R.drawable.ic_theme)
                         .create()
@@ -155,7 +157,7 @@ class Setting2Fragment : BaseFragment() {
                 },
                 onSavedValue = { value, activity ->
                     ThemeEngine.getInstance(context).themeMode = value as Int
-                    activity.recreate()
+                    activity.recreateActivity()
                 },
             ),
             SettingItem(
@@ -167,7 +169,7 @@ class Setting2Fragment : BaseFragment() {
                 },
                 onSavedValue = { value, activity ->
                     ThemeEngine.getInstance(context).isTrueBlack = value as Boolean
-                    activity.recreate()
+                    activity.recreateActivity()
                 },
             ),
             SettingItem(
@@ -180,7 +182,7 @@ class Setting2Fragment : BaseFragment() {
                 },
                 onSavedValue = { value, activity ->
                     ThemeEngine.getInstance(context).isDynamicTheme = value as Boolean
-                    activity.recreate()
+                    activity.recreateActivity()
                 },
             ),
             SettingItem(
@@ -217,7 +219,7 @@ class Setting2Fragment : BaseFragment() {
                 },
                 onItemClick = { _, activity ->
                     BackupUtils.requestPermission(activity as MainActivity)
-                    //   activity.recreate()
+                    //   activity.recreateActivity()
                 },
             ),
             SettingItem(
