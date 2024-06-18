@@ -165,6 +165,7 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
              float fee = data["fee"].asFloat();
             unsigned long long  timeStamp = data["time"].asLargestUInt();
             std::string shopName = data["shopName"].asString();
+             std::string shopItem = data["shopItem"].asString();
             std::string cateName = data["cateName"].asString();
             std::string extendData = data["extendData"].asString();
             std::string bookName = data["bookName"].asString();
@@ -175,9 +176,9 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
             std::string channel = data["channel"].asString();
             int syncFromApp = data["syncFromApp"].asInt();
             std::string remark = data["remark"].asString();
-            int fromType = data["fromType"].asInt();
+            int isAuto = data["auto"].asInt();
 
-            ret["data"]=DbManager::getInstance().insertBill(id, _type, currency, money, fee, timeStamp, shopName, cateName, extendData, bookName, accountNameFrom, accountNameTo, fromApp, groupId, channel, syncFromApp, remark, fromType);
+            ret["data"]=DbManager::getInstance().insertBill(id, _type, currency, money, fee, timeStamp, shopName,shopItem, cateName, extendData, bookName, accountNameFrom, accountNameTo, fromApp, groupId, channel, syncFromApp, remark, isAuto);
         }
         else if(message_type == "bill/remove"){
             int id = data["id"].asInt();
@@ -445,14 +446,34 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
                         _json["cateName"] = cateName;
                         _json["time"] = time;
                         _json["fromApp"] = app;
-                        _json["auto"] = pair.second ? "1" : "0";
+                        _json["auto"] = pair.second ? 1 : 0;
                         log("自动记账识别结果：" + _json.toStyledString(),LOG_LEVEL_INFO);
                         //拉起自动记账app
                         if (call == 1) {
                             try {
 
 
-                                int id = DbManager::getInstance().insertBill(0, bill_type, "CNY", money, 0, time, shopName, cateName, shopItem, bookName, "", "", app, 0, channel, -1, "", 0);
+                                int id = DbManager::getInstance().insertBill(
+                                        0,
+                                        bill_type,
+                                        "CNY",
+                                        money,
+                                        _json["fee"].asFloat(),
+                                        time,
+                                        shopName,
+                                        shopItem,
+                                        cateName,
+                                        "",
+                                        bookName,
+                                        _json["accountNameFrom"].asString(),
+                                        _json["accountNameTo"].asString(),
+                                        app,
+                                        0,
+                                        channel,
+                                        -1,
+                                        "",
+                                        _json["auto"].asInt()
+                                        );
 
 
                                 std::string cmd =

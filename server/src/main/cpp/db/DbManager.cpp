@@ -60,6 +60,7 @@ void DbManager::initTable() {
             "fee REAL,"
             "time INTEGER,"
             "shopName TEXT,"
+            "shopItem TEXT,"
             "cateName TEXT,"
             "extendData TEXT,"
             "bookName TEXT,"
@@ -70,7 +71,7 @@ void DbManager::initTable() {
             "channel TEXT,"
             "syncFromApp INTEGER," // 0 未同步 1 已同步 -1 只插入数据 -2 处理中
             "remark TEXT,"
-            "fromType INTEGER"
+            "auto INTEGER"
             ");",
             "CREATE TABLE IF NOT EXISTS bookBill ("
             "id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -264,11 +265,11 @@ std::string DbManager::getSetting(const std::string &app, const std::string &key
 }
 
 int DbManager::insertBill(int id, int type, const std::string &currency, float money, float fee, long long timeStamp,
-                           const std::string &shopName, const std::string &cateName,
+                           const std::string &shopName,const std::string &shopItem, const std::string &cateName,
                            const std::string &extendData, const std::string &bookName,
                            const std::string &accountNameFrom, const std::string &accountNameTo,
                            const std::string &fromApp, int groupId, const std::string &channel,
-                           int syncFromApp, const std::string &remark, int fromType) {
+                           int syncFromApp, const std::string &remark, int isAuto) {
     char *zErrMsg = nullptr;
 
     int count = -1;
@@ -276,10 +277,10 @@ int DbManager::insertBill(int id, int type, const std::string &currency, float m
     if (id == 0) {
         //id=0表示插入，反之表示更新
         stmt = getStmt(
-                "INSERT INTO billInfo ( type, currency, money, fee, time, shopName, cateName, extendData, bookName, accountNameFrom, accountNameTo, fromApp, groupId, channel, syncFromApp, remark, fromType) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);");
+                "INSERT INTO billInfo ( type, currency, money, fee, time, shopName, shopItem, cateName, extendData, bookName, accountNameFrom, accountNameTo, fromApp, groupId, channel, syncFromApp, remark, auto) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);");
     } else {
         stmt = getStmt(
-                "INSERT OR REPLACE INTO billInfo (id, type, currency, money, fee, time, shopName, cateName, extendData, bookName, accountNameFrom, accountNameTo, fromApp, groupId, channel, syncFromApp, remark, fromType) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);");
+                "INSERT OR REPLACE INTO billInfo (id, type, currency, money, fee, time, shopName, shopItem, cateName, extendData, bookName, accountNameFrom, accountNameTo, fromApp, groupId, channel, syncFromApp, remark, auto) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);");
         count = 0;
     }
     if (count == 0) {
@@ -292,17 +293,18 @@ int DbManager::insertBill(int id, int type, const std::string &currency, float m
     sqlite3_bind_double(stmt, count + 5, fee);
     sqlite3_bind_int64(stmt, count + 6, timeStamp);
     sqlite3_bind_text(stmt, count + 7, shopName.c_str(), -1, SQLITE_STATIC);
-    sqlite3_bind_text(stmt, count + 8, cateName.c_str(), -1, SQLITE_STATIC);
-    sqlite3_bind_text(stmt, count + 9, extendData.c_str(), -1, SQLITE_STATIC);
-    sqlite3_bind_text(stmt, count + 10, bookName.c_str(), -1, SQLITE_STATIC);
-    sqlite3_bind_text(stmt, count + 11, accountNameFrom.c_str(), -1, SQLITE_STATIC);
-    sqlite3_bind_text(stmt, count + 12, accountNameTo.c_str(), -1, SQLITE_STATIC);
-    sqlite3_bind_text(stmt, count + 13, fromApp.c_str(), -1, SQLITE_STATIC);
-    sqlite3_bind_int(stmt, count + 14, groupId);
-    sqlite3_bind_text(stmt, count + 15, channel.c_str(), -1, SQLITE_STATIC);
-    sqlite3_bind_int(stmt, count + 16, syncFromApp);
-    sqlite3_bind_text(stmt, count + 17, remark.c_str(), -1, SQLITE_STATIC);
-    sqlite3_bind_int(stmt, count + 18, fromType);
+    sqlite3_bind_text(stmt, count + 8, shopItem.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, count + 9, cateName.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, count + 10, extendData.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, count + 11, bookName.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, count + 12, accountNameFrom.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, count + 13, accountNameTo.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, count + 14, fromApp.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_int(stmt, count + 15, groupId);
+    sqlite3_bind_text(stmt, count + 16, channel.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_int(stmt, count + 17, syncFromApp);
+    sqlite3_bind_text(stmt, count + 18, remark.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_int(stmt, count + 19, isAuto);
 
 
     int rc = sqlite3_step(stmt);
@@ -349,7 +351,6 @@ int DbManager::insertBill(int id, int type, const std::string &currency, float m
 
 
 void DbManager::removeBill(int id) {
-    char *zErrMsg = nullptr;
     sqlite3_stmt *stmt = getStmt("DELETE FROM billInfo WHERE id = ?;");
     sqlite3_bind_int(stmt, 1, id);
     int rc = sqlite3_step(stmt);
@@ -478,17 +479,18 @@ Json::Value DbManager::buildBill(sqlite3_stmt *stmt){
     bill["fee"] = sqlite3_column_double(stmt, 4);
     bill["time"] = Json::Int64(sqlite3_column_int64(stmt, 5));
     bill["shopName"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 6));
-    bill["cateName"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 7));
-    bill["extendData"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 8));
-    bill["bookName"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 9));
-    bill["accountNameFrom"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 10));
-    bill["accountNameTo"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 11));
-    bill["fromApp"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 12));
-    bill["groupId"] = sqlite3_column_int(stmt, 13);
-    bill["channel"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 14));
-    bill["syncFromApp"] = sqlite3_column_int(stmt, 15);
-    bill["remark"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 16));
-    bill["fromType"] = sqlite3_column_int(stmt, 17);
+    bill["shopItem"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 7));
+    bill["cateName"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 8));
+    bill["extendData"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 9));
+    bill["bookName"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 10));
+    bill["accountNameFrom"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 11));
+    bill["accountNameTo"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 12));
+    bill["fromApp"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 13));
+    bill["groupId"] = sqlite3_column_int(stmt, 14);
+    bill["channel"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 15));
+    bill["syncFromApp"] = sqlite3_column_int(stmt, 16);
+    bill["remark"] = reinterpret_cast<const char *>(sqlite3_column_text(stmt, 17));
+    bill["auto"] = sqlite3_column_int(stmt, 18);
     return bill;
 }
 
