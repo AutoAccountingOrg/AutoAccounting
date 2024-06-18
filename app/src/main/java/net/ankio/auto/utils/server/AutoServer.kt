@@ -15,6 +15,7 @@
 
 package net.ankio.auto.utils.server
 
+import android.os.Environment
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
@@ -214,7 +215,14 @@ class AutoServer {
 
 
     fun getToken(): String {
-        val file = File(AppUtils.getApplication().externalCacheDir!!.absolutePath + "/../token.txt")
+        val packageName  = AppUtils.getApplication().packageName
+        val filePath =  Environment.getExternalStorageDirectory().path +"/Android/data/$packageName/"
+       val  cacheDir = File(filePath)
+        if(!cacheDir.exists()){
+            cacheDir.mkdirs()
+        }
+
+        val file = File(filePath+ "token.txt")
         Logger.i("Token file path: ${file.absolutePath}")
         if (file.exists()) {
             val token = file.readText().trim()
