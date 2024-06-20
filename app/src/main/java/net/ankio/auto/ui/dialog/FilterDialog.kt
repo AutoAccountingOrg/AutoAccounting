@@ -23,9 +23,10 @@ import net.ankio.auto.constant.ItemType
 import net.ankio.auto.databinding.DialogFilterBinding
 import net.ankio.auto.setting.SettingItem
 import net.ankio.auto.setting.SettingUtils
+import net.ankio.auto.ui.activity.BaseActivity
 
 class FilterDialog(
-    private val context: Activity,
+    private val context: BaseActivity,
     private val callback: () -> Unit,
 ) :
     BaseSheetDialog(context) {

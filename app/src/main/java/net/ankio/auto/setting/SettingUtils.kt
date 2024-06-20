@@ -27,12 +27,13 @@ import net.ankio.auto.databinding.SettingItemInputBinding
 import net.ankio.auto.databinding.SettingItemSwitchBinding
 import net.ankio.auto.databinding.SettingItemTextBinding
 import net.ankio.auto.databinding.SettingItemTitleBinding
+import net.ankio.auto.ui.activity.BaseActivity
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.ListPopupUtils
 import net.ankio.auto.utils.SpUtils
 
 class SettingUtils(
-    private val context: Activity,
+    private val context: BaseActivity,
     private val container: ViewGroup,
     private val inflater: LayoutInflater,
     private val settingItems: ArrayList<SettingItem>,

@@ -33,6 +33,7 @@ import net.ankio.auto.databinding.FragmentSetting2Binding
 import net.ankio.auto.exceptions.PermissionException
 import net.ankio.auto.setting.SettingItem
 import net.ankio.auto.setting.SettingUtils
+import net.ankio.auto.ui.activity.BaseActivity
 import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.fragment.BaseFragment
 import net.ankio.auto.ui.utils.LoadingUtils
@@ -56,7 +57,7 @@ class Setting2Fragment : BaseFragment() {
         binding = FragmentSetting2Binding.inflate(layoutInflater)
         val settingItems = app(requireContext(), this)
         settingRenderUtils =
-            SettingUtils(requireActivity(), binding.container, layoutInflater, settingItems)
+            SettingUtils(requireActivity() as BaseActivity, binding.container, layoutInflater, settingItems)
         settingRenderUtils.init()
         scrollView = binding.scrollView
         return binding.root

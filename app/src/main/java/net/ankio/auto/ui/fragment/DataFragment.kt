@@ -35,6 +35,7 @@ import net.ankio.auto.constant.DataType
 import net.ankio.auto.constant.toDataType
 import net.ankio.auto.databinding.FragmentDataBinding
 import net.ankio.auto.databinding.SettingItemInputBinding
+import net.ankio.auto.ui.activity.BaseActivity
 import net.ankio.auto.ui.adapter.DataAdapter
 import net.ankio.auto.ui.dialog.DataEditorDialog
 import net.ankio.auto.ui.dialog.FilterDialog
@@ -56,7 +57,7 @@ class DataFragment : BaseFragment() {
     override val menuList: ArrayList<MenuItem> =
         arrayListOf(
             MenuItem(R.string.item_filter, R.drawable.menu_icon_filter) {
-                FilterDialog(requireActivity()) {
+                FilterDialog(requireActivity() as BaseActivity) {
                     loadMoreData()
                 }.show(false)
             },

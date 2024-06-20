@@ -26,6 +26,7 @@ import net.ankio.auto.constant.ItemType
 import net.ankio.auto.databinding.FragmentSettingBinding
 import net.ankio.auto.setting.SettingItem
 import net.ankio.auto.setting.SettingUtils
+import net.ankio.auto.ui.activity.BaseActivity
 
 class SettingFragment : BaseFragment() {
     private lateinit var binding: FragmentSettingBinding
@@ -40,7 +41,7 @@ class SettingFragment : BaseFragment() {
         binding = FragmentSettingBinding.inflate(layoutInflater)
         val settingItems = setting(requireContext())
         settingRenderUtils =
-            SettingUtils(requireActivity(), binding.container, layoutInflater, settingItems)
+            SettingUtils(requireActivity() as BaseActivity, binding.container, layoutInflater, settingItems)
         settingRenderUtils.init()
         scrollView = binding.scrollView
         return binding.root

@@ -45,7 +45,9 @@ class MainActivity : BaseActivity() {
     private lateinit var bottomNavigationView: BottomNavigationView
     private lateinit var navHostFragment: NavHostFragment
 
+    private var hasLogin = false
     private fun onLogin() {
+        if(hasLogin)return
         val uri = intent.data
         if (uri != null) {
             // val dialog = DialogUtil.createLoadingDialog(this, getString(R.string.auth_waiting))
@@ -59,6 +61,7 @@ class MainActivity : BaseActivity() {
                     Toaster.show(R.string.auth_success)
                 }
             }
+            hasLogin = true
         }
     }
 
@@ -100,9 +103,6 @@ class MainActivity : BaseActivity() {
 
         onViewCreated()
 
-        lifecycleScope.launch {
-            AppUtils.getService().connect()
-        }
     }
 
     fun onBottomViewInit() {
