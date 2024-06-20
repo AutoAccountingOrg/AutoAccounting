@@ -73,6 +73,11 @@ object AppUtils {
         this.application = application
 
         server = AutoServer()
+
+
+        if(!application.packageName.startsWith("net.ankio.auto."))return
+
+        server.connect()
         scope.launch {
 
             val versionFile = File(application.externalCacheDir, "shell/version.txt")

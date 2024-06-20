@@ -176,6 +176,7 @@ class AutoServer {
                 ) {
                     webSocket.close(1000, null)
                     Logger.i("WebSocket closing: $code / $reason")
+                    ws = null
                 }
 
                 override fun onClosed(
@@ -202,7 +203,14 @@ class AutoServer {
                 ) {
                     Logger.e("WebSocket error: " + t.message, t)
                     webSocket.close(1000, t.message)
-
+                    ws = null
+                    if(reconnect){
+                        AppUtils.getScope().launch {
+                            reconnect()
+                        }
+                    }else{
+                        EventBus.post(AutoServiceErrorEvent(AutoServiceException( t.message?:"")))
+                    }
 
                 }
             }
