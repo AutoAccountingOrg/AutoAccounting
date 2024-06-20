@@ -49,6 +49,7 @@ import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.ServiceUtils
 import net.ankio.auto.utils.SpUtils
 import net.ankio.auto.utils.event.EventBus
+import net.ankio.auto.utils.server.AutoServer
 import net.ankio.auto.utils.server.model.Category
 import net.ankio.auto.utils.update.UpdateUtils
 import rikka.html.text.toHtml
@@ -117,7 +118,10 @@ class HomeFragment : BaseFragment() {
 
         scrollView = binding.scrollView
 
-        checkBookApp()
+        if (AppUtils.getService().isConnected()){
+            checkBookApp()
+        }
+
 
         return binding.root
     }
@@ -210,9 +214,12 @@ class HomeFragment : BaseFragment() {
                 checkUpdate(true)
             }
         }
-        lifecycleScope.launch {
-            checkUpdate(false)
+        if (AppUtils.getService().isConnected()){
+            lifecycleScope.launch {
+                checkUpdate(false)
+            }
         }
+
     }
 
     private val onWsConnection = { event: AutoServerConnectedEvent ->
