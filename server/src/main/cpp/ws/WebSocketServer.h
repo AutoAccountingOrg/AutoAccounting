@@ -19,7 +19,6 @@
 class WebSocketServer {
 public:
     explicit WebSocketServer(int port);
-
     static void log(const std::string &msg,int level);
 
 private:
@@ -38,12 +37,10 @@ private:
     static std::map<std::thread::id, std::string> resultMap;
     static std::mutex resultMapMutex;
     static void print(qjs::rest<std::string> args);
-
+    struct ws_server wsServer{};
     static std::string version;
     static std::string getVersion();
 
-    static std::string urlencode(const std::string &str);
-    static std::string json2Uri(const Json::Value &json);
 };
 
 

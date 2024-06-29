@@ -140,7 +140,7 @@ void DbManager::initTable() {
             "app TEXT,"//app名称，如果为空取所有type类型
             "type INTEGER,"//规则类型
             "channel TEXT"//规则名称
-            "enable INTEGER,"//是否拉起自动记账
+            "use INTEGER,"//是否拉起自动记账
             "auto INTEGER,"//是否自动记账
             "UNIQUE(app, type,channel)"
             ");",
@@ -274,6 +274,7 @@ int DbManager::insertBill(int id, int type, const std::string &currency, float m
 
     int count = -1;
     sqlite3_stmt *stmt;
+
     if (id == 0) {
         //id=0表示插入，反之表示更新
         stmt = getStmt(
@@ -1050,7 +1051,7 @@ std::pair<bool,bool>  DbManager::checkRule(const std::string& app, int  type,con
     bool ret2 = true;
     //如果没有查到数据就自己添加数据
     if ((rc = sqlite3_step(stmt)) == SQLITE_DONE) {
-        sqlite3_stmt *stmt2 = getStmt("INSERT INTO ruleSetting ( app, type, channel, enable, auto) VALUES (?,?,?,?,?);");
+        sqlite3_stmt *stmt2 = getStmt("INSERT INTO ruleSetting ( app, type, channel, use, auto) VALUES (?,?,?,?,?);");
         sqlite3_bind_text(stmt2, 1, app.c_str(), -1, SQLITE_STATIC);
         sqlite3_bind_int(stmt2, 2, type);
         sqlite3_bind_text(stmt2, 3, channel.c_str(), -1, SQLITE_STATIC);
@@ -1074,7 +1075,7 @@ std::pair<bool,bool>  DbManager::checkRule(const std::string& app, int  type,con
 
 void DbManager::ruleSetting(int id,int autoAccounting,int enable){
     char *zErrMsg = nullptr;
-    sqlite3_stmt *stmt = getStmt("UPDATE ruleSetting SET auto = ?, enable = ? WHERE id = ?;");
+    sqlite3_stmt *stmt = getStmt("UPDATE ruleSetting SET auto = ?, use = ? WHERE id = ?;");
     sqlite3_bind_int(stmt, 1, autoAccounting);
     sqlite3_bind_int(stmt, 2, enable);
     int rc = sqlite3_step(stmt);

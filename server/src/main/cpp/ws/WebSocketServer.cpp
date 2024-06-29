@@ -27,6 +27,7 @@ WebSocketServer::WebSocketServer(int port) {
     ws_socket(&wsServer);
 }
 
+
 std::string WebSocketServer::getVersion() {
     FILE *file = fopen("version.txt", "r");
     if (file == nullptr) {
@@ -45,6 +46,7 @@ std::string WebSocketServer::getVersion() {
  * @param client Client connection.
  */
 void WebSocketServer::onOpen(ws_cli_conn_t *client) {
+    log("收到链接请求："+std::string (ws_getaddress(client)),LOG_LEVEL_INFO);
     Json::Value json;
     json["type"] = "auth";
     json["version"] = version;
@@ -77,7 +79,7 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
         Json::Value json;
         Json::Reader reader;
         if (!reader.parse((const char *) msg, json)) {
-            log("json parse error",LOG_LEVEL_ERROR);
+            log("json parse error: "+std::string((char *)msg),LOG_LEVEL_ERROR);
             return;
         }
 
@@ -444,7 +446,7 @@ void WebSocketServer::onMessage(ws_cli_conn_t *client,
 
                         _json["bookName"] = bookName;
                         _json["cateName"] = cateName;
-                        _json["time"] = time;
+                       // _json["time"] = time;
                         _json["fromApp"] = app;
                         _json["auto"] = pair.second ? 1 : 0;
                         log("自动记账识别结果：" + _json.toStyledString(),LOG_LEVEL_INFO);
@@ -617,11 +619,8 @@ void WebSocketServer::log(const std::string &msg,int level ){
             break;
     }
 
-    //写到文件里面来
-   /* FILE *file = fopen("server.log", "a");
-    std::string log = "[" + date + "] [" + level_str + "] " + msg + "\n";
-    fprintf(file, "%s", log.c_str());
-    fclose(file);*/
+
+
     printf("[ %s ] [ %s ] %s\n", buffer,level_str.c_str(), msg.c_str());
 
 
@@ -658,27 +657,3 @@ std::string WebSocketServer::runJs(const std::string &js) {
 }
 std::map<std::thread::id, std::string> WebSocketServer::resultMap;
 std::mutex WebSocketServer::resultMapMutex;
-
-std::string WebSocketServer::urlencode(const std::string &str) {
-    std::ostringstream escaped;
-    escaped.fill('0');
-    escaped << std::hex;
-    for (unsigned char c : str) {
-        // Keep alphanumeric and other accepted characters intact
-        if (isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~') {
-            escaped << c;
-        } else {
-            // Any other characters are percent-encoded
-            escaped << '%' << std::setw(2) << int(c);
-        }
-    }
-    return escaped.str();
-}
-
-std::string WebSocketServer::json2Uri(const Json::Value &json) {
-    std::string result;
-    for (auto &key : json.getMemberNames()) {
-        result += key + "=" + urlencode(json[key].asString()) + "&";
-    }
-    return result;
-}
