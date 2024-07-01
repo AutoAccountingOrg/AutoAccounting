@@ -49,6 +49,7 @@ import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.SpUtils
 import net.ankio.auto.utils.event.EventBus
 import net.ankio.auto.utils.server.model.BillInfo
+import kotlin.system.exitProcess
 
 class FloatingWindowService : Service() {
     private val windowManager: WindowManager by lazy { getSystemService(WINDOW_SERVICE) as WindowManager }
@@ -60,7 +61,7 @@ class FloatingWindowService : Service() {
         return null
     }
 
-    private var showWindow = false
+    private var processBillInfo = false
     private var timeCount: Int = 0
 
     private var billInfo: BillInfo? = null
@@ -69,7 +70,7 @@ class FloatingWindowService : Service() {
     override fun onCreate() {
         super.onCreate()
         timeCount = runCatching { SpUtils.getString("setting_float_time", "10").toInt() }.getOrNull() ?: 0
-
+        list.clear()
         val defaultTheme = ContextThemeWrapper(applicationContext, R.style.AppTheme)
 
         themedContext =
@@ -79,27 +80,40 @@ class FloatingWindowService : Service() {
             )
         AppUtils.getScope().launch {
             withContext(Dispatchers.IO) {
-                var count = 0
-                while (isActive || count < 600) {
-                    if (list.isEmpty()  || showWindow) {
-                        count++
-                        delay(100)
+                var hasProcessOneData = false
+                while (true) {
+                    Logger.i("list size:${list.size}，processBillInfo=${processBillInfo},hasProcessOneData=$hasProcessOneData, list.isEmpty()=${list.isEmpty()}, !hasProcessOneData && list.isEmpty() = ${!hasProcessOneData && list.isEmpty()}")
+                    if (processBillInfo || (!hasProcessOneData && list.isEmpty())) {
+                        delay(1000)
                         continue
                     }
-                    count = 0
+
+                    if(list.isEmpty()){
+                        break
+                    }
+
                     billInfo = list.removeFirst()
+                    hasProcessOneData = true
                     runCatching {
+                        processBillInfo = true
                         processBillInfo()
                     }.onFailure {
-                        if (it is BadTokenException) {
-                            if (it.message != null && it.message!!.contains("permission denied")) {
-                                Toaster.show(R.string.floatTip)
-                                FloatPermissionUtils.requestPermission(themedContext)
-                            }
-                        }
+                        processBillInfo = false
+                      onError(it)
                         Logger.e("记账失败", it)
+
                     }
                 }
+            }
+        }
+    }
+
+    private fun onError(it:Throwable){
+        if (it is BadTokenException) {
+            if (it.message != null && it.message!!.contains("permission denied")) {
+                Toaster.show(R.string.floatTip)
+                FloatPermissionUtils.requestPermission(themedContext)
+                exitProcess(0)
             }
         }
     }
@@ -121,7 +135,7 @@ class FloatingWindowService : Service() {
             list.remove(bill)
         }
         if(BillUtils.noNeedFilter(bill)){
-            Logger.i("不需要过滤的账单:$bill")
+            Logger.i("不需要过滤的账单:$bill, list count: ${list.size}")
             list.add(bill)
             return@withContext
         }
@@ -179,12 +193,23 @@ class FloatingWindowService : Service() {
      */
 
     private suspend fun checkRepeat(bill: BillInfo, bill2: BillInfo): Boolean {
-        //金额和时间完全一致的是重复
-        if (bill2.time == bill.time && bill.money == bill2.money && bill.type == bill2.type) return true
-        if (bill2.money == bill.money && bill.type == bill2.type) {
-            if (bill2.channel != bill.channel) {
-                return true
-            }
+        Logger.i("重复性比较")
+        Logger.i("bill:$bill")
+        Logger.i("bill2:$bill2")
+
+        Logger.i("bill2.time == bill.time => ${bill2.time == bill.time}")
+        Logger.i("bill.money == bill2.money => ${bill.money == bill2.money}")
+        Logger.i("bill.type == bill2.type => ${bill.type == bill2.type}")
+        Logger.i("bill2.channel != bill.channel => ${bill2.channel != bill.channel}")
+        if (bill2.money != bill.money){
+            return false
+        }
+
+        if (bill.type == bill2.type){
+            if(bill2.time == bill.time) return true
+            if (bill2.channel != bill.channel)return true
+            if (bill2.accountNameFrom == bill.accountNameFrom) return true
+            if(bill2.shopItem == bill.shopItem && bill.shopName == bill2.shopName) return true
         }
         return false
     }
@@ -249,16 +274,24 @@ class FloatingWindowService : Service() {
 
     private suspend fun processBillInfo() = withContext(Dispatchers.Main) {
         if(checkBills(billInfo!!,true)){
+            processBillInfo = false
             return@withContext
         }
         if(billInfo!!.shopItem.isEmpty()){
             billInfo!!.shopItem = billInfo!!.extendData
         }
        // billInfo!!.syncFromApp = 0
-        showWindow = true
         val tpl = SpUtils.getString("setting_bill_remark", "【商户名称】 - 【商品名称】")
         billInfo!!.remark = BillUtils.getRemark(billInfo!!, tpl)
+
+
         BillUtils.setAccountMap(billInfo!!)
+
+
+        Logger.i("timeCount:$timeCount")
+
+        Logger.i("BillInfo:${billInfo!!.toJson()}")
+
         if (timeCount == 0) {
             callBillInfoEditor("setting_float_on_badge_timeout")
             // 显示编辑悬浮窗
@@ -366,7 +399,7 @@ class FloatingWindowService : Service() {
             FloatEvent.AUTO_ACCOUNT.ordinal -> {
                 // 记账
                 recordBillInfo(billInfo!!)
-                showWindow = false
+                processBillInfo = false
             }
 
             FloatEvent.POP_EDIT_WINDOW.ordinal -> {
@@ -380,15 +413,11 @@ class FloatingWindowService : Service() {
                                        BillInfo.remove(billInfo!!.id)
                                    }
                                }, onClose = {
-                                   showWindow = false
+                                   processBillInfo = false
                                }).show(true)
                            }.onFailure {
-                               if (it is BadTokenException) {
-                                   if (it.message != null && it.message!!.contains("permission denied")) {
-                                       Toaster.show(R.string.floatTip)
-                                       FloatPermissionUtils.requestPermission(themedContext)
-                                   }
-                               }
+                               processBillInfo = false
+                               onError(it)
                                Logger.e("记账失败", it)
                            }
                         }
@@ -398,7 +427,7 @@ class FloatingWindowService : Service() {
             }
 
             FloatEvent.NO_ACCOUNT.ordinal -> {
-                showWindow = false
+                processBillInfo = false
                 AppUtils.getScope().launch {
                     BillInfo.remove(billInfo!!.id)
                 }

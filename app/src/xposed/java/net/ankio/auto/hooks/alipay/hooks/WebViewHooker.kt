@@ -48,7 +48,9 @@ class WebViewHooker(hooker: Hooker) : PartHooker(hooker) {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     val script = param.args[0] as String
                     val obj = param.thisObject
-                    val url = XposedHelpers.callMethod(obj, "getUrl") as String
+
+                    val urlObj = XposedHelpers.callMethod(obj, "getUrl") ?: return
+                    val url = urlObj as String
                     if (!url.contains("tradeNo="))return
                     if (script.contains("AlipayJSBridge.call(\"setStartParam\"")) {
                         val js =
@@ -82,7 +84,7 @@ class WebViewHooker(hooker: Hooker) : PartHooker(hooker) {
 
                         val resultCallback =
                             ValueCallback<String> { result ->
-                                if (result.isNullOrEmpty() || result.equals("{}")) {
+                                if (result.isNullOrEmpty() || result.equals("{}" ) || result.equals("null")) {
                                     return@ValueCallback
                                 }
 

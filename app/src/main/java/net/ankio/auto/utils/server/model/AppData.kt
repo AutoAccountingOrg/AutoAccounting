@@ -71,8 +71,11 @@ class AppData {
             }
         }
 
-        suspend fun get(limit: Int = 500): List<AppData> {
-            val data = AppUtils.getService().sendMsg("data/get", mapOf("limit" to limit))
+        suspend fun get(page: Int = 1,size:Int = 20): List<AppData> {
+            val data = AppUtils.getService().sendMsg("data/get", mapOf(
+                "page" to page,
+                "size" to size
+            ))
             return runCatching {
                 Gson().fromJson(data as JsonArray, Array<AppData>::class.java).toList()
             }.onFailure { Logger.e(it.message?:"",it) }.getOrDefault(emptyList())

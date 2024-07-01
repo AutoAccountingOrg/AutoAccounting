@@ -46,4 +46,5 @@ make
 
 adb push ../assets/shell/arm64-v8a/auto_accounting_starter /data/local/tmp
 adb shell chmod 777 /data/local/tmp/auto_accounting_starter
+adb shell /data/local/tmp/auto_accounting_starter
 

@@ -20,12 +20,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.hjq.toast.Toaster
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
@@ -40,6 +42,7 @@ import net.ankio.auto.ui.adapter.DataAdapter
 import net.ankio.auto.ui.dialog.DataEditorDialog
 import net.ankio.auto.ui.dialog.FilterDialog
 import net.ankio.auto.ui.dialog.FloatEditorDialog
+import net.ankio.auto.ui.model.AppDataViewModel
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.MenuItem
 import net.ankio.auto.utils.AppUtils
@@ -52,6 +55,7 @@ class DataFragment : BaseFragment() {
     private lateinit var binding: FragmentDataBinding
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: DataAdapter
+    private val viewModel: AppDataViewModel by viewModels()
     private lateinit var layoutManager: LinearLayoutManager
     private val dataItems = mutableListOf<AppData>()
     override val menuList: ArrayList<MenuItem> =
@@ -211,7 +215,11 @@ $data
             )
 
         recyclerView.adapter = adapter
-
+        lifecycleScope.launch {
+            viewModel.items.collectLatest { pagingData ->
+                adapter.submitData(pagingData)
+            }
+        }
         return binding.root
     }
 
