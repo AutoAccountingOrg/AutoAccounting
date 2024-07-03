@@ -17,65 +17,74 @@ package net.ankio.auto.ui.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
+import net.ankio.auto.ui.viewModes.BaseViewModel
+import net.ankio.auto.utils.Logger
+import net.ankio.auto.utils.server.model.BaseModel
+import java.lang.IllegalArgumentException
 
-abstract class BaseAdapter(open val dataItems: List<Any>, val viewBindingClazz: Class<*>) : RecyclerView.Adapter<BaseViewHolder>() {
-    open fun wrapHolder(viewBinding: ViewBinding): BaseViewHolder {
-        return BaseViewHolder(viewBinding, viewBinding.root.context)
+abstract class BaseAdapter< T:ViewBinding, E:BaseModel>(private val viewModel: BaseViewModel<out BaseModel>) : RecyclerView.Adapter<BaseViewHolder<T,E>>() {
+
+    init {
+        viewModel.dataList.observeForever { newData ->
+            notifyDataSetChanged() // 整个数据集更新
+        }
     }
+
+   abstract fun getViewBindingClazz():Class<T>
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int,
-    ): BaseViewHolder {
+    ): BaseViewHolder<T, E> {
         // 反射判断viewBindingClazz是否为viewbing的子类，并存在inflate方法，存在就调用
         val inflateMethod =
-            viewBindingClazz.getDeclaredMethod(
+            getViewBindingClazz().getDeclaredMethod(
                 "inflate",
                 LayoutInflater::class.java,
                 ViewGroup::class.java,
                 Boolean::class.java,
             )
-        val viewBinding = inflateMethod.invoke(null, LayoutInflater.from(parent.context), parent, false) as ViewBinding
-        return wrapHolder(viewBinding)
+        val viewBinding = inflateMethod.invoke(null, LayoutInflater.from(parent.context), parent, false) as T
+        return BaseViewHolder(viewBinding,parent.context)
     }
 
     override fun getItemCount(): Int {
-        return dataItems.size
+        return viewModel.dataList.value?.size?:0
     }
 
-    fun getHolderIndex(holder: BaseViewHolder): Int {
-        return dataItems.lastIndexOf(holder.item)
-    }
 
     abstract fun onBindView(
-        holder: BaseViewHolder,
+        holder: BaseViewHolder<T,E>,
         item: Any,
     )
 
-    abstract fun onInitView(holder: BaseViewHolder)
+    abstract fun onInitView(holder: BaseViewHolder<T,E>)
 
     override fun onBindViewHolder(
-        holder: BaseViewHolder,
+        holder: BaseViewHolder<T,E>,
         position: Int,
     ) {
-        holder.createScope()
-        val item = dataItems[position]
         runCatching {
-            holder.item = item
+            val item = viewModel.dataList.value?.get(position)?: throw IllegalArgumentException("position error! index=$position total=${itemCount}")
+            holder.item = item as E
             if (!holder.hasInit) {
                 onInitView(holder)
                 holder.hasInit = true
             }
             onBindView(holder, item)
         }.onFailure {
-            it.printStackTrace()
+           Logger.e("ItemException->",it)
         }
     }
 
-    override fun onViewDetachedFromWindow(holder: BaseViewHolder) {
-        super.onViewDetachedFromWindow(holder)
-        holder.cancelScope()
-    }
+     fun getHolderIndex(holder: BaseViewHolder<T, E>): Int{
+        return viewModel.dataList.value?.indexOf(holder.item!!) ?: -1
+
+     }
 }
+
+
+

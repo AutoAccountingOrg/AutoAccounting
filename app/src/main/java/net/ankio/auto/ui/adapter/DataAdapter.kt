@@ -15,39 +15,50 @@
 
 package net.ankio.auto.ui.adapter
 
+import android.app.Activity
 import android.net.Uri
+import android.view.LayoutInflater
 import android.view.View
 import androidx.core.content.ContextCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.elevation.SurfaceColors
+import com.hjq.toast.Toaster
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
+import net.ankio.auto.app.BillUtils
 import net.ankio.auto.app.js.Engine
 import net.ankio.auto.constant.DataType
 import net.ankio.auto.constant.toDataType
 import net.ankio.auto.databinding.AdapterDataBinding
+import net.ankio.auto.databinding.SettingItemInputBinding
+import net.ankio.auto.ui.dialog.DataEditorDialog
+import net.ankio.auto.ui.dialog.FloatEditorDialog
+import net.ankio.auto.ui.scope.autoDisposeScope
+import net.ankio.auto.ui.utils.LoadingUtils
+import net.ankio.auto.ui.viewModes.AppDataViewModel
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.DateUtils
-import net.ankio.auto.utils.server.model.AppData
-import net.ankio.auto.utils.server.model.BillInfo
+import net.ankio.auto.utils.Github
+import net.ankio.auto.utils.SpUtils
+import net.ankio.auto.utils.server.model.AppDataModel
 
 class DataAdapter(
-    override val dataItems: MutableList<AppData>,
-    private val onClickContent: (string: String) -> Unit,
-    private val onClickTest: (item: AppData) -> Unit,
-    private val onClickUploadData: (item: AppData, pos: Int) -> Unit,
-) : BaseAdapter(dataItems, AdapterDataBinding::class.java) {
-    override fun onInitView(holder: BaseViewHolder) {
-        val binding = holder.binding as AdapterDataBinding
-        val context = holder.context
+    private val activity: Activity,
+    private val viewModel: AppDataViewModel,
+) : BaseAdapter<AdapterDataBinding,AppDataModel>(viewModel) {
+
+
+    override fun onInitView(holder: BaseViewHolder<AdapterDataBinding,AppDataModel>) {
+    
+        val binding = holder.binding
 
         binding.issue.setOnClickListener {
-            val item = holder.item as AppData
+            val item = holder.item!!
             CustomTabsHelper.launchUrl(
-                context,
+                AppUtils.getApplication(),
                 Uri.parse(
                     if (item.match == 1) "https://github.com/AutoAccountingOrg/AutoAccounting/issues/${item.issue}" else "https://github.com/AutoAccountingOrg/AutoRule/issues/${item.issue}",
                 ),
@@ -55,31 +66,148 @@ class DataAdapter(
         }
 
         binding.testRule.setOnClickListener {
-            val item = holder.item as AppData
-            onClickTest(item)
+            val item = holder.item!!
+            holder.binding.root.autoDisposeScope.launch {
+                val result = Engine.analyze(item.type, item.source, item.data, false)
+                if (result == null) {
+                    // 弹出悬浮窗
+                    Toaster.show(R.string.no_match)
+                } else {
+                    val tpl = SpUtils.getString("setting_bill_remark", "【商户名称】 - 【商品名称】")
+                    result.remark = BillUtils.getRemark(result, tpl)
+                    BillUtils.setAccountMap(result)
+                    AppUtils.getService().config().let {
+                        FloatEditorDialog(activity, result, it).show(float = false)
+                    }
+                }
+            }
+
         }
         binding.content.setOnClickListener {
-            onClickContent(binding.content.text as String)
+            MaterialAlertDialogBuilder(activity)
+                .setTitle(activity.getString(R.string.content_title))
+                .setMessage(binding.content.text as String)
+                .setPositiveButton(activity.getString(R.string.cancel_msg)) { _, _ -> }
+                .setNegativeButton(activity.getString(R.string.copy)) { _, _ ->
+                    AppUtils.copyToClipboard(binding.content.text as String)
+                    Toaster.show(R.string.copy_command_success)
+                }
+                .show()
         }
 
         binding.uploadData.setOnClickListener {
-            val item = holder.item as AppData
-            onClickUploadData(item, getHolderIndex(holder))
+            val item = holder.item as AppDataModel
+            val position = getHolderIndex(holder)
+            if (item.issue != 0) {
+                Toaster.show(activity.getString(R.string.repeater_issue))
+                return@setOnClickListener
+            }
+
+            val builder =
+                MaterialAlertDialogBuilder(activity)
+                    .setTitle(if (item.match == 1) activity.getString(R.string.data_question) else activity.getString(R.string.upload_sure)) // 设置对话框的标题
+
+            var settingItemInputBinding: SettingItemInputBinding? = null
+
+            if (item.match == 0) {
+                builder.setMessage(activity.getString(R.string.upload_info))
+            } else {
+                settingItemInputBinding = SettingItemInputBinding.inflate(LayoutInflater.from(activity))
+                settingItemInputBinding.inputLayout.hint = activity.getString(R.string.data_question_info)
+                builder.setView(settingItemInputBinding.root)
+            }
+            builder.setPositiveButton(activity.getString(R.string.ok)) { dialog, which ->
+                var text = ""
+                if (settingItemInputBinding != null) {
+                    text = settingItemInputBinding.input.text.toString()
+                }
+                val uploadData = AppUtils.toPrettyFormat(item.data)
+                DataEditorDialog(activity, uploadData) { data ->
+                    val type =
+                        when (item.type.toDataType()) {
+                            DataType.App -> "App"
+                            DataType.Helper -> "Helper"
+                            DataType.Notice -> "Notice"
+                            DataType.Sms -> "Sms"
+                        }
+                    val loadingUtils = LoadingUtils(activity)
+                    loadingUtils.show(R.string.upload_waiting)
+                    holder.binding.root.autoDisposeScope.launch {
+                        runCatching {
+                            val title =
+                                if (item.match == 0) {
+                                    "[Adaptation Request][$type]${item.source}"
+                                } else {
+                                    "[Bug][Rule][$type]${item.source}"
+                                }
+                            val msg =
+                                if (item.match == 0) {
+                                    """
+```
+                $data
+```
+                                            """.trimIndent()
+                                } else {
+                                    """
+## 规则
+${item.rule}
+## 说明
+$text
+## 数据
+```
+$data
+```
+                                            """.trimIndent()
+                                }
+                            val issue =
+                                Github.createIssue(
+                                    title,
+                                    msg,
+                                    if (item.match == 0) "AutoRule" else "AutoAccounting",
+                                )
+                            item.issue = issue.toInt()
+                            withContext(Dispatchers.Main) {
+                                loadingUtils.close()
+                                viewModel.dataList.value?.set(position,item)
+                                Toaster.show(
+                                    if (item.match == 0) {
+                                        activity.getString(
+                                            R.string.upload_success,
+                                        )
+                                    } else {
+                                        activity.getString(R.string.question_success)
+                                    },
+                                )
+                            }
+                            AppDataModel.put(item)
+                        }.onFailure {
+                            withContext(Dispatchers.Main) {
+                                Toaster.show(it.message)
+                                CustomTabsHelper.launchUrl(
+                                    activity,
+                                    Uri.parse(Github.getLoginUrl()),
+                                )
+                                loadingUtils.close()
+                            }
+                        }
+                    }
+                    dialog.dismiss()
+                }.show(false)
+            }
+                .setNegativeButton(R.string.close) { dialog, which ->
+                    // 在取消按钮被点击时执行的操作
+                    dialog.dismiss()
+                }
+                .show()
         }
 
         binding.root.setOnLongClickListener {
-            val item = holder.item as AppData
             val index  = getHolderIndex(holder)
-            MaterialAlertDialogBuilder(context)
+            MaterialAlertDialogBuilder(activity)
                 .setTitle(R.string.delete_title)
                 .setMessage(R.string.delete_data_message)
                 .setPositiveButton(R.string.sure_msg) { _, _ ->
-                    dataItems.removeAt(index)
-                    notifyItemRemoved(index)
-                    holder.scope.launch {
-                        AppData.remove(item.id)
-                    }
-
+                    viewModel.dataList.value?.removeAt(index)
                 }
                 .setNegativeButton(R.string.cancel_msg) { _, _ -> }
                 .show()
@@ -87,38 +215,41 @@ class DataAdapter(
         }
     }
 
+    override fun getViewBindingClazz(): Class<AdapterDataBinding> {
+        return AdapterDataBinding::class.java
+    }
+
     override fun onBindView(
-        holder: BaseViewHolder,
+        holder: BaseViewHolder<AdapterDataBinding,AppDataModel>,
         item: Any,
     ) {
-        val binding = holder.binding as AdapterDataBinding
-        val appData = item as AppData
-        val context = holder.context
+        val binding = holder.binding
+        val appData = item as AppDataModel
 
-        binding.groupCard.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(context))
-        binding.content.setBackgroundColor(SurfaceColors.SURFACE_3.getColor(context))
+        binding.groupCard.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(activity))
+        binding.content.setBackgroundColor(SurfaceColors.SURFACE_3.getColor(activity))
         // 格式化数据
         val prettyJson: String = AppUtils.toPrettyFormat(appData.data)
 
         binding.content.text = prettyJson
         when (appData.type.toDataType()) {
             DataType.Notice -> {
-                binding.type.setColorFilter(ContextCompat.getColor(context, R.color.warning))
+                binding.type.setColorFilter(ContextCompat.getColor(activity, R.color.warning))
                 binding.type.setImageResource(R.drawable.data_notice)
             }
 
             DataType.Helper -> {
-                binding.type.setColorFilter(ContextCompat.getColor(context, R.color.danger))
+                binding.type.setColorFilter(ContextCompat.getColor(activity, R.color.danger))
                 binding.type.setImageResource(R.drawable.data_helper)
             }
 
             DataType.Sms -> {
-                binding.type.setColorFilter(ContextCompat.getColor(context, R.color.info))
+                binding.type.setColorFilter(ContextCompat.getColor(activity, R.color.info))
                 binding.type.setImageResource(R.drawable.data_sms)
             }
 
             DataType.App -> {
-                binding.type.setColorFilter(ContextCompat.getColor(context, R.color.success))
+                binding.type.setColorFilter(ContextCompat.getColor(activity, R.color.success))
                 binding.type.setImageResource(R.drawable.data_app)
             }
         }
@@ -131,10 +262,11 @@ class DataAdapter(
             binding.uploadData.visibility = View.GONE
             binding.issue.text = "# ${appData.issue}"
         }
-        holder.scope.launch {
-            tryAdaptUnmatchedItems(holder, this@DataAdapter)
+        holder.binding.root.autoDisposeScope.launch {
+            tryAdaptUnmatchedItems(holder)
         }
-        val app = AppUtils.getAppInfoFromPackageName(item.source, context)
+
+        val app = AppUtils.getAppInfoFromPackageName(item.source, activity)
 
         binding.app.text =
             item.source.let {
@@ -161,7 +293,7 @@ class DataAdapter(
             binding.uploadData.setIconResource(R.drawable.icon_upload)
         } else {
             binding.uploadData.setIconResource(R.drawable.icon_question)
-            binding.groupCard.setCardBackgroundColor(SurfaceColors.SURFACE_5.getColor(context))
+            binding.groupCard.setCardBackgroundColor(SurfaceColors.SURFACE_5.getColor(activity))
         }
 
         // 使用正则提取 \[(.*?)\]
@@ -179,13 +311,12 @@ class DataAdapter(
         //    binding.rule.text = item.rule
     }
 
-    private val hashMap = HashMap<AppData, Long>()
+    private val hashMap = HashMap<AppDataModel, Long>()
 
     private suspend fun tryAdaptUnmatchedItems(
-        holder: BaseViewHolder,
-        adapter: DataAdapter,
+        holder: BaseViewHolder<AdapterDataBinding,AppDataModel>
     ) = withContext(Dispatchers.IO) {
-        val item = holder.item as AppData
+        val item = holder.item as AppDataModel
         if (item.match == 0) {
             val t = System.currentTimeMillis() / 1000
             if (hashMap.containsKey(item) && t - hashMap[item]!! < 30) { // 30秒内不重复匹配
@@ -198,10 +329,9 @@ class DataAdapter(
                 item.match = 1
                 withContext(Dispatchers.Main) {
                     val index = getHolderIndex(holder)
-                    dataItems[index] = item
-                    adapter.notifyItemChanged(index)
+                    viewModel.dataList.value?.set(index,item)
                 }
-                AppData.put(item)
+                AppDataModel.put(item)
             }
         }
     }

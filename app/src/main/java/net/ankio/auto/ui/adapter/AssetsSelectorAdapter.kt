@@ -18,13 +18,14 @@ package net.ankio.auto.ui.adapter
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterAssetsBinding
+import net.ankio.auto.ui.viewModes.BaseViewModel
 import net.ankio.auto.utils.ImageUtils
 import net.ankio.auto.utils.server.model.Assets
 
 class AssetsSelectorAdapter(
-    override val dataItems: List<Assets>,
+    viewModel: BaseViewModel
     private val onClick: (item: Assets) -> Unit,
-) : BaseAdapter(dataItems, AdapterAssetsBinding::class.java) {
+) : BaseAdapter<AdapterAssetsBinding>() {
     override fun onInitView(holder: BaseViewHolder) {
         (holder.binding as AdapterAssetsBinding).assets.setOnClickListener {
             onClick(holder.item as Assets)

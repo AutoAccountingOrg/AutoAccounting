@@ -13,14 +13,20 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.ui.adapter
+package net.ankio.auto.ui.viewModes
 
-import android.content.Context
-import androidx.recyclerview.widget.RecyclerView
-import androidx.viewbinding.ViewBinding
+import net.ankio.auto.utils.server.model.AppDataModel
 import net.ankio.auto.utils.server.model.BaseModel
 
-open class BaseViewHolder<T:ViewBinding, E:BaseModel>(open val binding: T,val context:Context) : RecyclerView.ViewHolder(binding.root) {
-    var item:E? = null
-    var hasInit = false
+/**
+ * AppDataFragment所有相关的数据绑定
+ */
+class AppDataViewModel: BaseViewModel<AppDataModel>() {
+    override suspend fun fetchData(
+        page: Int,
+        pageSize: Int,
+        params: HashMap<String, Any>
+    ): MutableList<AppDataModel> {
+        return BaseModel.get<AppDataModel>(page, pageSize, params) as MutableList<AppDataModel>
+    }
 }

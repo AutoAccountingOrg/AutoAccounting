@@ -14,14 +14,10 @@
  */
 package net.ankio.auto.utils.server.model
 
-import android.util.Log
-import com.google.gson.Gson
-import com.google.gson.JsonArray
 import kotlinx.coroutines.launch
 import net.ankio.auto.utils.AppUtils
-import net.ankio.auto.utils.Logger
 
-class AppData {
+class AppDataModel:BaseModel() {
     var id = 0
 
     /**
@@ -65,21 +61,13 @@ class AppData {
     var issue: Int = 0
 
     companion object {
-        fun put(appData: AppData) {
+        fun put(appData: AppDataModel) {
             AppUtils.getScope().launch {
                 AppUtils.getService().sendMsg("data/put", appData)
             }
         }
 
-        suspend fun get(page: Int = 1,size:Int = 20): List<AppData> {
-            val data = AppUtils.getService().sendMsg("data/get", mapOf(
-                "page" to page,
-                "size" to size
-            ))
-            return runCatching {
-                Gson().fromJson(data as JsonArray, Array<AppData>::class.java).toList()
-            }.onFailure { Logger.e(it.message?:"",it) }.getOrDefault(emptyList())
-        }
+
 
         fun remove(id: Int) {
             AppUtils.getScope().launch {
