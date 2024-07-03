@@ -27,7 +27,7 @@ import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogBillSelectBinding
 import net.ankio.auto.events.AutoServiceErrorEvent
 import net.ankio.auto.exceptions.AutoServiceException
-import net.ankio.auto.ui.adapter.BillSelectorAdapter
+//import net.ankio.auto.ui.adapter.BillSelectorAdapter
 import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.event.EventBus
 import net.ankio.auto.utils.server.model.BookBill
@@ -44,7 +44,7 @@ class BillSelectorDialog(
     BaseSheetDialog(context) {
     private lateinit var binding: DialogBillSelectBinding
     private val dataItems = mutableListOf<BookBill>()
-    private val adapter = BillSelectorAdapter(dataItems, selectedBills)
+  //  private val adapter = BillSelectorAdapter(dataItems, selectedBills)
 
     override fun onCreateView(inflater: LayoutInflater): View {
         binding = DialogBillSelectBinding.inflate(inflater)
@@ -54,7 +54,7 @@ class BillSelectorDialog(
         cardView = binding.cardView
         cardViewInner = binding.innerView
 
-        binding.recyclerView.adapter = adapter
+        //binding.recyclerView.adapter = adapter
 
         binding.btn.setOnClickListener {
             callback.invoke()
@@ -80,7 +80,7 @@ class BillSelectorDialog(
                 super.show(float, cancel)
                 dataItems.addAll(data)
 
-                adapter.notifyDataSetChanged()
+             //   adapter.notifyDataSetChanged()
             }.onFailure {
                 dismiss()
                 Toaster.show(R.string.no_bills)

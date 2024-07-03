@@ -20,8 +20,7 @@ import com.google.gson.JsonArray
 import kotlinx.coroutines.launch
 import net.ankio.auto.utils.AppUtils
 
-class LogModel {
-    var id = 0
+class LogModel:BaseModel(){
     var date = ""
     var app = ""
     var hook = 0
@@ -42,10 +41,6 @@ class LogModel {
             }
         }
 
-        suspend fun get(limit: Int = 500): List<LogModel> {
-            val data = AppUtils.getService().sendMsg("log/get", mapOf("limit" to limit))
-            return runCatching { Gson().fromJson(data as JsonArray, Array<LogModel>::class.java).toList() }.getOrDefault(emptyList())
-        }
 
         fun deleteAll() {
             AppUtils.getScope().launch {

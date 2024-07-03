@@ -29,7 +29,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentDataBinding
-import net.ankio.auto.ui.adapter.RuleAdapter
+//import net.ankio.auto.ui.adapter.RuleAdapter
 import net.ankio.auto.ui.fragment.BaseFragment
 import net.ankio.auto.ui.utils.MenuItem
 import net.ankio.auto.utils.server.model.Regular
@@ -37,7 +37,7 @@ import net.ankio.auto.utils.server.model.Regular
 class RuleFragment : BaseFragment() {
     private lateinit var binding: FragmentDataBinding
     private lateinit var recyclerView: RecyclerView
-    private lateinit var adapter: RuleAdapter
+    //private lateinit var adapter: RuleAdapter
     private lateinit var layoutManager: LinearLayoutManager
     private val dataItems = mutableListOf<Regular>()
     override val menuList: ArrayList<MenuItem>
@@ -58,7 +58,7 @@ class RuleFragment : BaseFragment() {
         layoutManager = LinearLayoutManager(requireContext())
         recyclerView.layoutManager = layoutManager
         scrollView = recyclerView
-        adapter =
+   /*     adapter =
             RuleAdapter(
                 dataItems,
                 onClickEdit = { item, position ->
@@ -86,12 +86,12 @@ class RuleFragment : BaseFragment() {
                 },
             )
 
-        recyclerView.adapter = adapter
+        recyclerView.adapter = adapter*/
 
         return binding.root
     }
 
-    private fun loadData() {
+   /* private fun loadData() {
         lifecycleScope.launch {
             val newData = Regular.get(500)
             val collection: Collection<Regular> = newData
@@ -107,5 +107,5 @@ class RuleFragment : BaseFragment() {
         // 加载数据
 
         loadData()
-    }
+    }*/
 }

@@ -45,7 +45,7 @@ import net.ankio.auto.utils.Github
 import net.ankio.auto.utils.SpUtils
 import net.ankio.auto.utils.server.model.AppDataModel
 
-class DataAdapter(
+class AppDataAdapter(
     private val activity: Activity,
     private val viewModel: AppDataViewModel,
 ) : BaseAdapter<AdapterDataBinding,AppDataModel>(viewModel) {

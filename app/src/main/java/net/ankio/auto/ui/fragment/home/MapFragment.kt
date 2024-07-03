@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentMapBinding
-import net.ankio.auto.ui.adapter.MapAdapter
+//import net.ankio.auto.ui.adapter.MapAdapter
 import net.ankio.auto.ui.dialog.MapDialog
 import net.ankio.auto.ui.fragment.BaseFragment
 import net.ankio.auto.ui.utils.MenuItem
@@ -36,7 +36,7 @@ import net.ankio.auto.utils.server.model.AssetsMap
 class MapFragment : BaseFragment() {
     private lateinit var binding: FragmentMapBinding
 
-    private lateinit var adapter: MapAdapter
+  //  private lateinit var adapter: MapAdapter
 
     private var dataItems = mutableListOf<AssetsMap>()
     override val menuList: ArrayList<MenuItem>
@@ -45,7 +45,7 @@ class MapFragment : BaseFragment() {
                 MenuItem(R.string.item_add, R.drawable.menu_item_add) {
                     MapDialog(requireContext(), onClose = {
                         dataItems.add(it)
-                        adapter.notifyItemInserted(dataItems.size - 1)
+                   //     adapter.notifyItemInserted(dataItems.size - 1)
                     }).show(cancel = true)
                 },
             )
@@ -59,7 +59,7 @@ class MapFragment : BaseFragment() {
         val layoutManager = LinearLayoutManager(context)
         binding.recyclerView.layoutManager = layoutManager
 
-        adapter =
+       /* adapter =
             MapAdapter(
                 dataItems,
                 onClick = { adapter, item, pos ->
@@ -93,7 +93,7 @@ class MapFragment : BaseFragment() {
                 },
             )
 
-        binding.recyclerView.adapter = adapter
+        binding.recyclerView.adapter = adapter*/
         scrollView = binding.recyclerView
         lifecycleScope.launch {
             val newData = AssetsMap.get()
@@ -104,7 +104,7 @@ class MapFragment : BaseFragment() {
 
 
             withContext(Dispatchers.Main) {
-                adapter.notifyDataSetChanged()
+             //   adapter.notifyDataSetChanged()
                 binding.empty.root.visibility = if (dataItems.isEmpty()) View.VISIBLE else View.GONE
 
             }

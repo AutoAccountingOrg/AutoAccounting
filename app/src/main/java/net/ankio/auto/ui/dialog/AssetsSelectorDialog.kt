@@ -24,7 +24,7 @@ import com.hjq.toast.Toaster
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogBookSelectBinding
-import net.ankio.auto.ui.adapter.AssetsSelectorAdapter
+//import net.ankio.auto.ui.adapter.AssetsSelectorAdapter
 import net.ankio.auto.utils.server.model.Assets
 import net.ankio.common.constant.AssetsType
 
@@ -32,11 +32,11 @@ class AssetsSelectorDialog(private val context: Context,val type:AssetsType = As
     BaseSheetDialog(context) {
     private lateinit var binding: DialogBookSelectBinding
     private val dataItems = mutableListOf<Assets>()
-    private val adapter =
+/*    private val adapter =
         AssetsSelectorAdapter(dataItems) { item ->
             callback(item)
             dismiss()
-        }
+        }*/
 
     override fun onCreateView(inflater: LayoutInflater): View {
         binding = DialogBookSelectBinding.inflate(inflater)
@@ -46,7 +46,7 @@ class AssetsSelectorDialog(private val context: Context,val type:AssetsType = As
         cardView = binding.cardView
         cardViewInner = binding.recyclerView
 
-        binding.recyclerView.adapter = adapter
+       /* binding.recyclerView.adapter = adapter*/
 
         return binding.root
     }
@@ -67,8 +67,8 @@ class AssetsSelectorDialog(private val context: Context,val type:AssetsType = As
             super.show(float, cancel)
 
             dataItems.addAll(collection)
-
-            adapter.notifyItemInserted(0)
+/*
+            adapter.notifyItemInserted(0)*/
         }
     }
 }

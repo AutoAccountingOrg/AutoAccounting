@@ -25,7 +25,7 @@ import androidx.recyclerview.widget.RecyclerView
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentDataBinding
 import net.ankio.auto.ui.activity.BaseActivity
-import net.ankio.auto.ui.adapter.DataAdapter
+import net.ankio.auto.ui.adapter.AppDataAdapter
 import net.ankio.auto.ui.dialog.FilterDialog
 import net.ankio.auto.ui.utils.MenuItem
 import net.ankio.auto.ui.viewModes.AppDataViewModel
@@ -33,7 +33,7 @@ import net.ankio.auto.ui.viewModes.AppDataViewModel
 class DataFragment : BaseFragment() {
     private lateinit var binding: FragmentDataBinding
     private lateinit var recyclerView: RecyclerView
-    private lateinit var adapter: DataAdapter
+    private lateinit var adapter: AppDataAdapter
     private val viewModel: AppDataViewModel by viewModels()
     private lateinit var layoutManager: LinearLayoutManager
     override val menuList: ArrayList<MenuItem> =
@@ -56,7 +56,7 @@ class DataFragment : BaseFragment() {
         recyclerView.layoutManager = layoutManager
         scrollView = recyclerView
         adapter =
-            DataAdapter(
+            AppDataAdapter(
                 requireActivity(),
                 viewModel,
             )

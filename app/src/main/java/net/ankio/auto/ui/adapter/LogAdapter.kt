@@ -18,13 +18,14 @@ package net.ankio.auto.ui.adapter
 import com.hjq.toast.Toaster
 import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterLogBinding
+import net.ankio.auto.ui.viewModes.LogViewModel
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.server.model.LogModel
 
 class LogAdapter(
-    override val dataItems: ArrayList<LogModel>,
-) : BaseAdapter(dataItems, AdapterLogBinding::class.java) {
-    override fun onInitView(holder: BaseViewHolder) {
+    private val viewModel: LogViewModel,
+) : BaseAdapter<AdapterLogBinding,LogModel>(viewModel) {
+    override fun onInitView(holder: BaseViewHolder<AdapterLogBinding,LogModel>) {
         val binding = holder.binding as AdapterLogBinding
         binding.log.setOnClickListener {
             AppUtils.copyToClipboard( binding.log.text.toString())
@@ -33,10 +34,10 @@ class LogAdapter(
     }
 
     override fun onBindView(
-        holder: BaseViewHolder,
+        holder: BaseViewHolder<AdapterLogBinding,LogModel>,
         item: Any,
     ) {
-        val binding = holder.binding as AdapterLogBinding
+        val binding = holder.binding
         val it = item as LogModel
         val level = it.level
         binding.logDate.text = it.date
@@ -52,5 +53,9 @@ class LogAdapter(
             LogModel.LOG_LEVEL_ERROR -> binding.log.setTextColor(holder.context.getColor(R.color.danger))
             else -> binding.log.setTextColor(holder.context.getColor(R.color.info))
         }
+    }
+
+    override fun getViewBindingClazz(): Class<AdapterLogBinding> {
+        return AdapterLogBinding::class.java
     }
 }

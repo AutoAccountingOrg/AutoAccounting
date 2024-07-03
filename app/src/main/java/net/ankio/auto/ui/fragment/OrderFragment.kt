@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentOrderBinding
-import net.ankio.auto.ui.adapter.OrderAdapter
+//import net.ankio.auto.ui.adapter.OrderAdapter
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.MenuItem
 import net.ankio.auto.utils.AppUtils
@@ -44,7 +44,7 @@ class OrderFragment : BaseFragment() {
             )
     private lateinit var binding: FragmentOrderBinding
     private lateinit var recyclerView: RecyclerView
-    private lateinit var adapter: OrderAdapter
+    //private lateinit var adapter: OrderAdapter
     private lateinit var layoutManager: LinearLayoutManager
     private val dataItems = ArrayList<Pair<String, List<BillInfo>>>()
 
@@ -58,14 +58,14 @@ class OrderFragment : BaseFragment() {
         layoutManager = LinearLayoutManager(requireContext())
         recyclerView.layoutManager = layoutManager
 
-        adapter = OrderAdapter(dataItems)
+       /* adapter = OrderAdapter(dataItems)
 
-        recyclerView.adapter = adapter
+        recyclerView.adapter = adapter*/
         scrollView = recyclerView
         return binding.root
     }
 
-    private fun loadMoreData() {
+  /*  private fun loadMoreData() {
         val loading = LoadingUtils(requireActivity())
         loading.show(R.string.loading)
 
@@ -91,5 +91,5 @@ class OrderFragment : BaseFragment() {
         super.onResume()
         // 加载数据
         loadMoreData()
-    }
+    }*/
 }

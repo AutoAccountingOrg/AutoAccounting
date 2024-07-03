@@ -20,6 +20,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.FileProvider
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -31,6 +32,8 @@ import net.ankio.auto.databinding.FragmentLogBinding
 import net.ankio.auto.ui.adapter.LogAdapter
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.MenuItem
+import net.ankio.auto.ui.viewModes.AppDataViewModel
+import net.ankio.auto.ui.viewModes.LogViewModel
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.server.model.LogModel
@@ -42,6 +45,7 @@ class LogFragment : BaseFragment() {
     private lateinit var adapter: LogAdapter
     private lateinit var layoutManager: LinearLayoutManager
     private val dataItems = ArrayList<LogModel>()
+    private val viewModel: LogViewModel by viewModels()
     override val menuList: ArrayList<MenuItem> =
         arrayListOf(
             MenuItem(R.string.item_share, R.drawable.menu_icon_share) {
@@ -58,9 +62,7 @@ class LogFragment : BaseFragment() {
                                 file.delete()
                             }
                             file.createNewFile()
-                            LogModel.get(10000).forEach {
-                                file.appendText("[ ${it.date} ] [ ${it.app} ] [ ${it.thread} ] [ ${it.line} ] ${it.log}\n")
-                            }
+
                         }
                         loadingUtils.close()
                         val shareIntent = Intent(Intent.ACTION_SEND)
@@ -95,7 +97,6 @@ class LogFragment : BaseFragment() {
                 runCatching {
                     lifecycleScope.launch {
                         LogModel.deleteAll()
-                        loadMoreData(true)
                     }
                 }.onFailure {
                     Logger.e("清除失败", it)
@@ -112,36 +113,14 @@ class LogFragment : BaseFragment() {
         recyclerView = binding.recyclerView
         layoutManager = LinearLayoutManager(requireContext())
         recyclerView.layoutManager = layoutManager
-        adapter = LogAdapter(dataItems)
+        adapter = LogAdapter(viewModel)
         recyclerView.adapter = adapter
         scrollView = recyclerView
+        viewModel.loadMoreData()
         return binding.root
     }
 
     override fun onResume() {
         super.onResume()
-        loadMoreData()
-    }
-
-    private fun loadMoreData(empty: Boolean = false) {
-        val loading = LoadingUtils(requireActivity())
-        loading.show(R.string.loading)
-        lifecycleScope.launch {
-            // 读取log.txt
-            withContext(Dispatchers.IO) {
-                dataItems.clear()
-                if (!empty){
-                    val log = LogModel.get(500)
-                    dataItems.addAll(log)
-                    withContext(Dispatchers.Main) {
-                        loading.close()
-                        adapter.notifyDataSetChanged()
-                        binding.empty.root.visibility =
-                            if (dataItems.isEmpty()) View.VISIBLE else View.GONE
-                    }
-                }
-
-            }
-        }
     }
 }

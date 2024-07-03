@@ -26,7 +26,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.databinding.DialogCategorySelectBinding
-import net.ankio.auto.ui.adapter.CategorySelectorAdapter
+//import net.ankio.auto.ui.adapter.CategorySelectorAdapter
 import net.ankio.auto.utils.server.model.Category
 import net.ankio.common.constant.BillType
 
@@ -85,7 +85,7 @@ class CategorySelectorDialog(
     private var lastPosition = -1
 
     // RecyclerView的适配器
-    private lateinit var adapter: CategorySelectorAdapter
+   // private lateinit var adapter: CategorySelectorAdapter
 
     /**
      * 这个方法计算插入面板的索引。
@@ -149,7 +149,7 @@ class CategorySelectorDialog(
         //       (binding.recyclerView.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
         expand = false
         // 为RecyclerView设置适配器
-        adapter =
+    /*    adapter =
             CategorySelectorAdapter(
                 items,
                 onItemClick = { item, pos, hasChild, view ->
@@ -215,7 +215,7 @@ class CategorySelectorDialog(
             )
 
         // 为RecyclerView设置适配器
-        binding.recyclerView.adapter = adapter
+        binding.recyclerView.adapter = adapter*/
         // 为按钮设置点击监听器
         binding.button.setOnClickListener {
             // 当按钮被点击时，调用回调函数
@@ -235,7 +235,7 @@ class CategorySelectorDialog(
             withContext(Dispatchers.Main) {
                 items.addAll(collection)
                 // 在主线程更新 UI
-                adapter.notifyItemInserted(0)
+        //        adapter.notifyItemInserted(0)
             }
         }
         return binding.root

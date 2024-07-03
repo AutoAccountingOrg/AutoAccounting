@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 import net.ankio.auto.utils.AppUtils
 
 class AppDataModel:BaseModel() {
-    var id = 0
+
 
     /**
      * 对于App数据，就是Hook得到的数据一般是Json：{} 具体情况具体分析

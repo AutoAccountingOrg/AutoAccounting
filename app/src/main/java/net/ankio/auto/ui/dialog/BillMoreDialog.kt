@@ -22,7 +22,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.launch
 import net.ankio.auto.databinding.DialogBillMoreBinding
-import net.ankio.auto.ui.adapter.OrderItemAdapter
+//import net.ankio.auto.ui.adapter.OrderItemAdapter
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.server.model.BillInfo
 
@@ -33,7 +33,7 @@ class BillMoreDialog(
     BaseSheetDialog(context) {
     private lateinit var binding: DialogBillMoreBinding
     private val dataItems = mutableListOf<BillInfo>()
-    private val adapter = OrderItemAdapter(dataItems, null, null,context)
+    //private val adapter = OrderItemAdapter(dataItems, null, null,context)
 
     override fun onCreateView(inflater: LayoutInflater): View {
         binding = DialogBillMoreBinding.inflate(inflater)
@@ -43,7 +43,7 @@ class BillMoreDialog(
         cardView = binding.cardView
         cardViewInner = binding.innerView
 
-        binding.recyclerView.adapter = adapter
+   //     binding.recyclerView.adapter = adapter
 
         return binding.root
     }
@@ -55,12 +55,12 @@ class BillMoreDialog(
         super.show(float, cancel)
         lifecycleScope.launch {
             val config = AppUtils.getService().config()
-            BillInfo.getBillByGroup(billInfo.id).apply {
+          /*  BillInfo.getBillByGroup(billInfo.id).apply {
                 adapter.notifyConfig(config)
                 dataItems.clear()
                 dataItems.addAll(this)
                 adapter.notifyDataSetChanged()
-            }
+            }*/
         }
     }
 }

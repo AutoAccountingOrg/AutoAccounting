@@ -11,7 +11,8 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *   limitations under the License.
- */
+ *//*
+
 
 package net.ankio.auto.ui.adapter
 
@@ -32,12 +33,14 @@ import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.ImageUtils
 import net.ankio.auto.utils.server.model.Category
 
+*/
 /**
  * 分类选择器适配器
  * @property dataItems 分类数据列表
  * @property onItemClick 点击事件回调
  * @property onItemChildClick 子项点击事件回调
- */
+ *//*
+
 class CategorySelectorAdapter(
     override val dataItems: List<Category>,
     private val onItemClick: (item: Category, pos: Int, hasChild: Boolean, view: View) -> Unit,
@@ -95,20 +98,24 @@ class CategorySelectorAdapter(
     private var itemImageIcon: ImageView? = null
     private var ivMore: ImageView? = null
 
-    /**
+    */
+/**
      * ViewHolder内部类
      * @property binding 视图绑定
      * @property context 上下文
-     */
+     *//*
+
     inner class ViewHolder(
         override val binding: AdapterCategoryListBinding,
         override val context: Context,
     ) : BaseViewHolder(binding, context) {
         private lateinit var adapter: CategorySelectorAdapter
 
-        /**
+        */
+/**
          * 设置激活状态
-         */
+         *//*
+
         fun setActive(
             textView: TextView,
             imageView: ImageView,
@@ -159,9 +166,11 @@ class CategorySelectorAdapter(
             }
         }
 
-        /**
+        */
+/**
          * item渲染
-         */
+         *//*
+
         fun renderItem(item: Category) {
             if (item.parent != 0) {
                 binding.ivMore.visibility = View.GONE
@@ -198,9 +207,11 @@ class CategorySelectorAdapter(
 
         private val items = ArrayList<Category>()
 
-        /**
+        */
+/**
          * 渲染项目
-         */
+         *//*
+
         private fun renderPanel(item: Category) {
             val layoutManager = GridLayoutManager(context, 5)
             binding.recyclerView.layoutManager = layoutManager
@@ -210,9 +221,11 @@ class CategorySelectorAdapter(
             updatePanel(item)
         }
 
-        /**
+        */
+/**
          * 更新面板内容，由于面板复用的时候是全部内容替换，所以使用NotifyDataSetChanged
-         */
+         *//*
+
         fun updatePanel(item: Category) {
             val leftDistanceView2: Int = item.id
             val layoutParams = binding.imageView.layoutParams as ViewGroup.MarginLayoutParams
@@ -240,3 +253,4 @@ class CategorySelectorAdapter(
         }
     }
 }
+*/

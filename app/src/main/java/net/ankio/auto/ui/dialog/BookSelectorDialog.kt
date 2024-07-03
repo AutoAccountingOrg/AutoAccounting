@@ -22,7 +22,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.launch
 import net.ankio.auto.databinding.DialogBookSelectBinding
-import net.ankio.auto.ui.adapter.BookSelectorAdapter
+//import net.ankio.auto.ui.adapter.BookSelectorAdapter
 import net.ankio.auto.utils.SpUtils
 import net.ankio.auto.utils.server.model.BookName
 
@@ -30,7 +30,7 @@ class BookSelectorDialog(private val context: Context, val callback: (BookName) 
     BaseSheetDialog(context) {
     private lateinit var binding: DialogBookSelectBinding
     private val dataItems = mutableListOf<BookName>()
-    private lateinit var adapter: BookSelectorAdapter
+   // private lateinit var adapter: BookSelectorAdapter
 
     override fun onCreateView(inflater: LayoutInflater): View {
         binding = DialogBookSelectBinding.inflate(inflater)
@@ -39,14 +39,14 @@ class BookSelectorDialog(private val context: Context, val callback: (BookName) 
 
         cardView = binding.cardView
         cardViewInner = binding.recyclerView
-        adapter =
+      /*  adapter =
             BookSelectorAdapter(dataItems) { item ->
                 callback(item)
                 this@BookSelectorDialog.dismiss()
             }
         // binding.recyclerView.setBackgroundColor(SurfaceColors.SURFACE_1.getColor(requireContext()))
         binding.recyclerView.adapter = adapter
-
+*/
         return binding.root
     }
 
@@ -77,7 +77,7 @@ class BookSelectorDialog(private val context: Context, val callback: (BookName) 
             }
             dataItems.addAll(it)
             super.show(float, cancel)
-            adapter.notifyItemInserted(0)
+        //    adapter.notifyItemInserted(0)
         }
     }
 }
