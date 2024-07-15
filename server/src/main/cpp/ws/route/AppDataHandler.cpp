@@ -17,6 +17,10 @@ Json::Value AppDataHandler::handle(const std::string &function, Json::Value &dat
         Database::getInstance().remove(table,data["id"].asInt());
     } else if(function == "add"){
         Database::getInstance().insert(table,data);
+        //只保留最新的500条数据
+        Database::getInstance().executeSQL("delete from " + table.name + " where id not in (select id from " + table.name + " order by id desc limit 500)");
+    } else if(function == "clear"){
+        Database::getInstance().executeSQL("delete from " + table.name);
     }
     Json::Value result;
     result["status"] = 0;

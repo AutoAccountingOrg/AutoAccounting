@@ -6,12 +6,12 @@
 #include <string>
 #include "db/orm/Utils.h"
 DEFINE_TABLE(BillInfoModel, "billInfo")
-        FIELD_PK_AI(int, id)
+FIELD_PK_AI(int, id)
         FIELD(int, type)
         FIELD(std::string, currency)
         FIELD(double, money)
         FIELD(double, fee)
-        FIELD(int, time)
+        FIELD(long, time)
         FIELD(std::string, shopName)
         FIELD(std::string, shopItem)
         FIELD(std::string, cateName)

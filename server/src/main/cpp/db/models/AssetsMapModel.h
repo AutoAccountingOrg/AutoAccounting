@@ -5,6 +5,7 @@
 
 #include <string>
 #include "db/orm/Utils.h"
+
 DEFINE_TABLE(AssetsMapModel, "assetsMap")
         FIELD_PK_AI(int, id)
         FIELD(int, regex)

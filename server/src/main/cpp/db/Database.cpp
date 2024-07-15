@@ -61,53 +61,52 @@ void Database::initializeTables() {
     }
 }
 
-bool Database::executeSQL(const std::string& sql) {
-    char* errMsg = nullptr;
-    bool success = sqlite3_exec(db, sql.c_str(), nullptr, nullptr, &errMsg) == SQLITE_OK;
-    if (!success) {
-        std::cerr << "SQL error: " << errMsg << std::endl;
-        sqlite3_free(errMsg);
-    }
-    return success;
-}
-
-Json::Value Database::querySQL(const std::string& sql) {
+Json::Value Database::executeSQL(const std::string &sql, const std::vector<Json::Value> &parameters,
+                                 bool readonly) {
     Json::Value result(Json::arrayValue);
-    sqlite3_stmt* stmt;
+    sqlite3_stmt *stmt;
 
-    if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
-        std::cerr << "Failed to prepare statement: " << sqlite3_errmsg(db) << std::endl;
+    if (!prepareStatement(&stmt, sql, parameters)) {
         return result;
     }
 
-    int cols = sqlite3_column_count(stmt);
-    while (sqlite3_step(stmt) == SQLITE_ROW) {
-        Json::Value row(Json::objectValue);
-        for (int i = 0; i < cols; i++) {
-            std::string colName = sqlite3_column_name(stmt, i);
-            switch (sqlite3_column_type(stmt, i)) {
-                case SQLITE_INTEGER:
-                    row[colName] = sqlite3_column_int(stmt, i);
-                    break;
-                case SQLITE_FLOAT:
-                    row[colName] = sqlite3_column_double(stmt, i);
-                    break;
-                case SQLITE_TEXT:
-                    row[colName] = (const char*)sqlite3_column_text(stmt, i);
-                    break;
-                case SQLITE_NULL:
-                    row[colName] = Json::nullValue;
-                    break;
-                default:
-                    break;
-            }
-        }
-        result.append(row);
-    }
+    if (readonly) {
 
+        int cols = sqlite3_column_count(stmt);
+
+        while (sqlite3_step(stmt) == SQLITE_ROW) {
+            Json::Value row(Json::objectValue);
+            for (int i = 0; i < cols; i++) {
+                std::string colName = sqlite3_column_name(stmt, i);
+                switch (sqlite3_column_type(stmt, i)) {
+                    case SQLITE_INTEGER:
+                        row[colName] = sqlite3_column_int(stmt, i);
+                        break;
+                    case SQLITE_FLOAT:
+                        row[colName] = sqlite3_column_double(stmt, i);
+                        break;
+                    case SQLITE_TEXT:
+                        row[colName] = (const char *) sqlite3_column_text(stmt, i);
+                        break;
+                    case SQLITE_NULL:
+                        row[colName] = Json::nullValue;
+                        break;
+                    default:
+                        break;
+                }
+            }
+            result.append(row);
+        }
+    } else {
+        bool success = sqlite3_step(stmt) == SQLITE_DONE;
+        if (!success) {
+            std::cerr << "SQL error: " << sqlite3_errmsg(db) << std::endl;
+        }
+    }
     sqlite3_finalize(stmt);
     return result;
 }
+
 
 bool Database::bindValue(sqlite3_stmt* stmt, int index, const Json::Value& value) {
     if (value.isNull()) {
@@ -129,7 +128,7 @@ bool Database::prepareStatement(sqlite3_stmt** stmt, const std::string& sql, con
         std::cerr << "Failed to prepare statement: " << sqlite3_errmsg(db) << std::endl;
         return false;
     }
-    for (size_t i = 0; i < parameters.size(); ++i) {
+    for (int i = 0; i < parameters.size(); ++i) {
         if (!bindValue(*stmt, i + 1, parameters[i])) {
             std::cerr << "Failed to bind parameter at index " << i + 1 << std::endl;
             return false;
@@ -223,7 +222,7 @@ bool Database::remove(const Table& table, int id) {
 
 Json::Value Database::select(const Table& table, int id) {
     std::string sql = "SELECT * FROM " + table.name + " WHERE id = ?;";
-    return queryWithParams(sql, {Json::Value(id)});
+    return executeSQL(sql, {Json::Value(id)}, true);
 }
 
 Json::Value Database::selectConditional(const Table& table, const std::string& condition, const std::vector<Json::Value>& parameters) {
@@ -232,51 +231,20 @@ Json::Value Database::selectConditional(const Table& table, const std::string& c
         sql += " WHERE " + condition;
     }
     sql += ";";
-    return queryWithParams(sql, parameters);
+    return executeSQL(sql, parameters,true);
 }
 
-Json::Value Database::queryWithParams(const std::string& sql, const std::vector<Json::Value>& parameters) {
-    Json::Value result(Json::arrayValue);
-    sqlite3_stmt* stmt;
 
-    if (!prepareStatement(&stmt, sql, parameters)) {
-        return result;
-    }
-
-    int cols = sqlite3_column_count(stmt);
-    while (sqlite3_step(stmt) == SQLITE_ROW) {
-        Json::Value row(Json::objectValue);
-        for (int i = 0; i < cols; i++) {
-            std::string colName = sqlite3_column_name(stmt, i);
-            switch (sqlite3_column_type(stmt, i)) {
-                case SQLITE_INTEGER:
-                    row[colName] = sqlite3_column_int(stmt, i);
-                    break;
-                case SQLITE_FLOAT:
-                    row[colName] = sqlite3_column_double(stmt, i);
-                    break;
-                case SQLITE_TEXT:
-                    row[colName] = (const char*)sqlite3_column_text(stmt, i);
-                    break;
-                case SQLITE_NULL:
-                    row[colName] = Json::nullValue;
-                    break;
-                default:
-                    break;
-            }
-        }
-        result.append(row);
-    }
-
-    sqlite3_finalize(stmt);
-    return result;
-}
-
-Json::Value Database::page(const Table &table, int page, int size, const std::string &condition, const std::vector<Json::Value> &parameters) {
+Json::Value Database::page(const Table &table, int page, int size, const std::string &condition,
+                           const std::vector<Json::Value> &parameters, const std::string &orderBy) {
     std::string sql = "SELECT * FROM " + table.name;
     if (!condition.empty()) {
         sql += " WHERE " + condition;
     }
-    sql += " LIMIT " + std::to_string((page - 1) * size) + ", " + std::to_string(size) + ";";
-    return queryWithParams(sql, parameters);
+    sql += " ORDER BY " + orderBy;
+    if(size > 0){
+        sql += " LIMIT " + std::to_string((page - 1) * size) + ", " + std::to_string(size) ;
+    }
+    sql += ";";
+    return executeSQL(sql, parameters, true);
 }

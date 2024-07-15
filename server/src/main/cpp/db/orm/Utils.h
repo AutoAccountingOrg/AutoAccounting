@@ -35,21 +35,22 @@ FieldType GetFieldType<std::string>();
 
 // 宏：定义表
 #define DEFINE_TABLE(struct_name, table_name) \
-    std::vector<Field> fields; \
-    void initFields(); \
     struct struct_name { \
+        static std::vector<Field> fields; \
         static Table getTable() { \
-            struct_name instance; \
-            instance.initFields(); \
+            if (fields.empty()) { \
+                initFields(); \
+            } \
             return Table(table_name, fields); \
         } \
-        void initFields() { \
+        static void initFields() { \
             fields.clear();
 
 // 宏：结束表定义
 #define END_TABLE() \
         } \
     };
+
 
 // 生成建表语句的函数
 std::string generateCreateTableSQL(const Table& table);
