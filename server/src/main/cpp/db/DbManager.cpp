@@ -24,6 +24,9 @@ DbManager::~DbManager() {
     sqlite3_close(db);
 }
 
+
+void getCreate
+
 void DbManager::initTable() {
     //这里是建表数组
     const char *sqls[] = {

@@ -22,16 +22,12 @@ public:
     static void log(const std::string &msg,int level);
 
 private:
+    static void startServer(int port);
     //client map
     static std::map<ws_cli_conn_t *, bool> clients;
     static void onOpen(ws_cli_conn_t *client);
     static void onClose(ws_cli_conn_t *client);
     static void onMessage(ws_cli_conn_t *client, const unsigned char *msg, uint64_t size, int type);
-    //生成8位随机字符串
-    static std::string generateRandomString(int count = 8);
-    //初始化token
-    static void initToken();
-    static void publishToken();
     static std::string runJs(const std::string &js);
     static std::string token;
     static std::map<std::thread::id, std::string> resultMap;
