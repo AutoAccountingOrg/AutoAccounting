@@ -13,6 +13,8 @@ class AppDataHandler : public BaseHandler{
 
     static Json::Value list(int page,int size,const std::string& data="",int match = -1);
 
+public:
+    static int add(Json::Value &data);
 };
 
 

@@ -15,7 +15,7 @@
 #include "AuthModel.h"
 
 std::string TokenManager::generateRandomString(int count) {
-    std::string str = "0123456789abcdefghijklmnopqrstuvwxyz";
+    std::string str = "0123456789";
     std::random_device rd;
     std::mt19937 generator(rd());
     std::shuffle(str.begin(), str.end(), generator);
@@ -36,7 +36,7 @@ void TokenManager::initToken() {
             std::string condition = "app = ? limit 1";
             std::vector<Json::Value> params = { app };
             Json::Value queryResult = Database::getInstance().selectConditional(authTable, condition,params);
-            std::string token = "";
+            std::string token;
             if (queryResult.empty()) {
                 Json::Value auth;
                 auth["app"] = app;
@@ -80,7 +80,7 @@ bool TokenManager::checkToken(const std::string &app, const std::string &token) 
     Json::Value queryResult = Database::getInstance().selectConditional(authTable, condition, params);
     if (queryResult.empty()) {
         Logger::log("token check failed: " + app + " " + token, LOG_LEVEL_ERROR);
-        return false
+        return false;
     }else{
         std::string dbToken = queryResult[0]["token"].asString();
         if (dbToken != token) {

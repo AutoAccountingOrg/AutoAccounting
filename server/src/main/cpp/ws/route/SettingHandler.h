@@ -11,7 +11,7 @@
 class SettingHandler: public BaseHandler{
 public:
     Json::Value handle(const std::string &function, Json::Value &data) override;
-    static Json::Value get(const std::string &app, const std::string &key);
+    static std::string get(const std::string &app, const std::string &key);
 };
 
 

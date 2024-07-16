@@ -12,6 +12,7 @@ class BillHandler : public BaseHandler{
 public:
     Json::Value handle(const std::string &function, Json::Value &data) override;
     static Json::Value list(int page, int size);
+    static int add(const Json::Value &data);
 };
 
 

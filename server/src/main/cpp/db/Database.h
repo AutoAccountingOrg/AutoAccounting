@@ -17,7 +17,7 @@ public:
     Json::Value executeSQL(const std::string& sql, const std::vector<Json::Value>& parameters = {},bool readonly = false);
 
 
-    bool insert(const Table& table, const Json::Value& json);
+    int insert(const Table& table, const Json::Value& json);
     bool update(const Table& table, const Json::Value& json, int id);
     bool remove(const Table& table, int id);
     Json::Value select(const Table& table, int id);

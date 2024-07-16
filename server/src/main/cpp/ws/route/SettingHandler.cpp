@@ -9,7 +9,7 @@
 Json::Value SettingHandler::handle(const std::string &function, Json::Value &data) {
     auto table = SettingsModel::getTable();
     if (function == "get") {
-        return get(data["app"].asString(), data["key"].asString());
+        return Json::Value(get(data["app"].asString(), data["key"].asString()));
     } else if (function == "del") {
         Database::getInstance().remove(table, data["id"].asInt());
     } else if (function == "set") {
@@ -28,12 +28,12 @@ Json::Value SettingHandler::handle(const std::string &function, Json::Value &dat
     return result;
 }
 
-Json::Value SettingHandler::get(const std::string &app, const std::string &key) {
+std::string SettingHandler::get(const std::string &app, const std::string &key) {
     auto table = SettingsModel::getTable();
     Json::Value result = Database::getInstance().selectConditional(table, "app=? and key=? ",
                                                                    {app, key});
     if (!result.empty()) {
-        return result[0];
+        return result[0]["val"].asString();
     }
-    return {Json::ValueType::nullValue};
+    return "";
 }

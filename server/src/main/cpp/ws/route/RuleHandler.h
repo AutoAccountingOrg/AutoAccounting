@@ -9,6 +9,7 @@
 #include "ws/BaseHandler.h"
 
 class RuleHandler : public  BaseHandler{
+public:
     Json::Value handle(const std::string &function, Json::Value &data) override;
     static Json::Value get(const std::string &name);
 };

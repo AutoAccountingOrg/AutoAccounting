@@ -16,16 +16,23 @@ Json::Value AppDataHandler::handle(const std::string &function, Json::Value &dat
     } else if(function == "del"){
         Database::getInstance().remove(table,data["id"].asInt());
     } else if(function == "add"){
-        Database::getInstance().insert(table,data);
-        //只保留最新的500条数据
-        Database::getInstance().executeSQL("delete from " + table.name + " where id not in (select id from " + table.name + " order by id desc limit 500)");
-    } else if(function == "clear"){
+        add(data);
+            } else if(function == "clear"){
         Database::getInstance().executeSQL("delete from " + table.name);
     }
     Json::Value result;
     result["status"] = 0;
     result["message"] = "success";
     return result;
+}
+
+ int AppDataHandler::add(Json::Value &data){
+     auto table = AppDataModel::getTable();
+    int id = Database::getInstance().insert(table,data);
+    //只保留最新的500条数据
+    Database::getInstance().executeSQL("delete from " + table.name + " where id not in (select id from " + table.name + " order by id desc limit 500)");
+
+    return id;
 }
 
 Json::Value AppDataHandler::list(int page, int size, const std::string& data, int match) {

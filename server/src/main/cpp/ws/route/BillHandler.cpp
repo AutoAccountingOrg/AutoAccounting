@@ -15,7 +15,7 @@ Json::Value BillHandler::handle(const std::string &function, Json::Value &data) 
     } else if (function == "clear") {
         Database::getInstance().executeSQL("delete from " + table.name);
     }  else if (function == "add") {
-        Database::getInstance().insert(table, data);
+        return {Json::Value(add(data))};
     } else if (function == "update") {
         Database::getInstance().update(table, data, data["id"].asInt());
     } else if (function == "del") {
@@ -41,4 +41,10 @@ Json::Value BillHandler::handle(const std::string &function, Json::Value &data) 
 Json::Value BillHandler::list(int page, int size) {
     // list列表的时候，是列全局的表只允许没有分组的账单
     return Database::getInstance().page(BillInfoModel::getTable(), page, size, "groupId=0", {},"time desc");
+}
+
+int BillHandler::add(const Json::Value &data) {
+    auto table = BillInfoModel::getTable();
+    int id = Database::getInstance().insert(table, data);
+    return id;
 }

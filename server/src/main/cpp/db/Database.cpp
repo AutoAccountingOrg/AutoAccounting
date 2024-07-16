@@ -137,7 +137,7 @@ bool Database::prepareStatement(sqlite3_stmt** stmt, const std::string& sql, con
     return true;
 }
 
-bool Database::insert(const Table& table, const Json::Value& json) {
+int Database::insert(const Table& table, const Json::Value& json) {
     std::string sql = "INSERT INTO " + table.name + " (";
     std::string values = "VALUES (";
     std::vector<Json::Value> parameters;
@@ -163,13 +163,15 @@ bool Database::insert(const Table& table, const Json::Value& json) {
     if (!prepareStatement(&stmt, sql, parameters)) {
         return false;
     }
-
+    int id = 0;
     bool success = sqlite3_step(stmt) == SQLITE_DONE;
     if (!success) {
         std::cerr << "Insert failed: " << sqlite3_errmsg(db) << std::endl;
+    }else{
+        id = (int)sqlite3_last_insert_rowid(db);
     }
     sqlite3_finalize(stmt);
-    return success;
+    return id;
 }
 
 bool Database::update(const Table& table, const Json::Value& json, int id) {
