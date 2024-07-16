@@ -15,5 +15,4 @@ DEFINE_TABLE(LogModel, "log")
         FIELD(std::string, line)
         FIELD(std::string, log)
 END_TABLE()
-
 #endif //AUTOACCOUNTING_LOGMODEL_H

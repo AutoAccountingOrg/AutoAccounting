@@ -7,7 +7,6 @@
 #include "WebSocketServer.h"
 #include "../jsoncpp/include/json/value.h"
 #include "../jsoncpp/include/json/reader.h"
-#include "../db/DbManager.h"
 #include "../common.h"
 #include "BaseHandler.h"
 #include "TokenManager.h"

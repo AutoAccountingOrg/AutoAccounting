@@ -5,7 +5,6 @@
 #include "AssetsModel.h"
 #include "AuthModel.h"
 #include "BillInfoModel.h"
-#include "RuleSettingModel.h"
 #include "LogModel.h"
 #include "RuleModel.h"
 #include "CategoryModel.h"
@@ -51,7 +50,6 @@ void Database::initializeTables() {
             CustomRuleModel::getTable(),
             LogModel::getTable(),
             RuleModel::getTable(),
-            RuleSettingModel::getTable(),
             SettingsModel::getTable()
     };
 

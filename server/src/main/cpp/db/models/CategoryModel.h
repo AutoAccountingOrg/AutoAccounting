@@ -15,5 +15,4 @@ DEFINE_TABLE(CategoryModel, "category")
         FIELD(int, sort)
         FIELD(int, type)
 END_TABLE()
-
 #endif //AUTOACCOUNTING_CATEGORYMODEL_H

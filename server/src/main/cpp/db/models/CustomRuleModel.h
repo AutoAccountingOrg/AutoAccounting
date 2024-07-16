@@ -14,5 +14,4 @@ DEFINE_TABLE(CustomRuleModel, "customRule")
         FIELD(std::string, text)
         FIELD(std::string, element)
 END_TABLE()
-
 #endif //AUTOACCOUNTING_CUSTOMRULEMODEL_H

@@ -26,5 +26,4 @@ FIELD_PK_AI(int, id)
         FIELD(std::string, remark)
         FIELD(int, auto)
 END_TABLE()
-
 #endif //AUTOACCOUNTING_BILLINFOMODEL_H

@@ -12,5 +12,4 @@ DEFINE_TABLE(AssetsMapModel, "assetsMap")
         FIELD(std::string, name)
         FIELD(std::string, mapName)
 END_TABLE()
-
 #endif //AUTOACCOUNTING_ASSETSMAPMODEL_H

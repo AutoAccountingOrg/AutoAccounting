@@ -10,5 +10,4 @@ DEFINE_TABLE(BookNameModel, "bookName")
         FIELD(std::string, name)
         FIELD(std::string, icon)
 END_TABLE()
-
 #endif //AUTOACCOUNTING_BOOKNAMEMODEL_H

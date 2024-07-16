@@ -11,5 +11,4 @@ DEFINE_TABLE(SettingsModel, "settings")
         FIELD(std::string, key)
         FIELD(std::string, val)
 END_TABLE()
-
 #endif //AUTOACCOUNTING_SETTINGSMODEL_H

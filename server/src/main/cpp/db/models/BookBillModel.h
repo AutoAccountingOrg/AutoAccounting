@@ -17,5 +17,4 @@ DEFINE_TABLE(BookBillModel, "bookBill")
         FIELD(std::string, accountFrom)
         FIELD(std::string, accountTo)
 END_TABLE()
-
 #endif //AUTOACCOUNTING_BOOKBILLMODEL_H

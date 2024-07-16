@@ -13,5 +13,4 @@ FIELD(int, sort)
 FIELD(int, type)
 FIELD(std::string, extras)
 END_TABLE()
-
 #endif //AUTOACCOUNTING_ASSETSMODEL_H

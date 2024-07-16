@@ -1,7 +1,9 @@
 #include "Logger.h"
+#include "json/value.h"
+#include "db/Database.h"
+#include "LogModel.h"
 #include <cstdio>
 #include <ctime>
-#include "../db/DbManager.h"
 
 void Logger::log(const std::string &msg, int level) {
     std::time_t now = std::time(nullptr);
@@ -19,9 +21,7 @@ void Logger::log(const std::string &msg, int level) {
     log["log"] = msg;
     log["level"] = level;
 
-
-
-    DbManager::getInstance().insertLog(date, "server", 0, "main", "server", msg, level);
+    Database::getInstance().insert(LogModel::getTable(), log);
     std::string level_str;
     switch (level) {
         case LOG_LEVEL_INFO:

@@ -6,7 +6,6 @@
 #include <sstream>
 #include "Field.h"
 #include "Table.h"
-#include "../DbManager.h"
 #include <json/json.h>
 
 // 辅助函数：确定字段类型

@@ -6,7 +6,7 @@
 std::string VersionManager::version;
 
 void VersionManager::initVersion() {
-    version = getVersion()
+    version = getVersion();
 }
 
 
