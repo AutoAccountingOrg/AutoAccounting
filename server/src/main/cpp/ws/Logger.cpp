@@ -21,6 +21,11 @@ void Logger::log(const std::string &msg, int level) {
     log["log"] = msg;
     log["level"] = level;
 
+    if(!debug && level < LOG_LEVEL_ERROR){
+        return;
+
+    }
+
     Database::getInstance().insert(LogModel::getTable(), log);
     std::string level_str;
     switch (level) {
@@ -42,3 +47,5 @@ void Logger::log(const std::string &msg, int level) {
     }
     printf("[ %s ] [ %s ] %s\n", buffer, level_str.c_str(), msg.c_str());
 }
+
+bool Logger::debug = false;

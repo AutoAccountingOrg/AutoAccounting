@@ -3,6 +3,8 @@
 #include <cstdio>
 #include <unistd.h>
 #include "ws/WebSocketServer.h"
+#include "ws/Logger.h"
+
 #define PORT 52045
 #include <iostream>
 #include <unistd.h>
@@ -50,7 +52,12 @@ int main(int argc, char** argv){
     // 选择默认工作目录，如果有参数就按照参数来，如果没有参数就当前路径
     if (argc > 1)
     {
-        chdir(argv[1]);
+
+        if(strcmp(argv[1],"debug") != 0 || (argc > 2 && strcmp(argv[2],"debug") != 0)){
+            Logger::debug = true;
+        }else{
+            chdir(argv[1]);
+        }
     }
     else
     {
