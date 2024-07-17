@@ -56,7 +56,8 @@ int main(int argc, char** argv){
     {
         chdir(".");
     }
-    startChildProcess(); // 启动子进程
+    WebSocketServer server(PORT);
+   /* startChildProcess(); // 启动子进程
 
     while (true) {
         time_t now = time(nullptr);
@@ -67,7 +68,7 @@ int main(int argc, char** argv){
         sleep(seconds_to_sleep); // 等待到指定时间
 
         restartChildProcess(); // 重新启动子进程
-    }
+    }*/
 
     return 0;
 }
