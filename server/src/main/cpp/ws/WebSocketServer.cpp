@@ -78,66 +78,72 @@ void WebSocketServer::onMessage( ws_cli_conn_t *client,
 {
     Json::Value	json;
     Json::Reader	reader;
-    if ( !reader.parse( (const char *) msg, json ) )
-    {
-        Logger::log( "json parse error: " + std::string( (char *) msg ), LOG_LEVEL_ERROR );
-        return;
-    }
 
-
-    std::string	message_id	= json["id"].asString();
-    std::string	message_type	= json["type"].asString();
-
-    Json::Value ret;
-    ret["type"]	= message_type;
-    ret["id"]	= message_id;
-
-    auto pos = message_type.find( '/' );
-    if ( pos == std::string::npos )
-    {
-        Logger::log( "Invalid message type: " + message_type, LOG_LEVEL_ERROR );
-        return;
-    }
-
-    std::string	module		= message_type.substr( 0, pos );
-    std::string	function	= message_type.substr( pos + 1 );
-
-    /*
-     * login/login
-     * 如果请求不是login，检查token
-     */
-    if ( module != "login" && clients.find( client ) == clients.end() )
-    {
-        ret["data"] = "Unauthorized";
-        ws_sendframe_txt( client, ret.toStyledString().c_str() );
-        ws_close_client( client );
-        return;
-    }
-
-
-    auto it = RouteManager::getHandler( module );
-    if ( it != nullptr )
-    {
-        try {
-            ret["data"] = it->handle( function, json["data"] );
-        } catch ( std::exception &e ) {
-            Logger::log( e.what(), LOG_LEVEL_ERROR );
-            ret["data"] = e.what();
+    try{
+        if ( !reader.parse( (const char *) msg, json ) )
+        {
+            Logger::log( "json parse error: " + std::string( (char *) msg ), LOG_LEVEL_ERROR );
+            return;
         }
-    } else {
-        auto invalidModule = "Invalid module " + std::string( module );
-        ret["data"] = invalidModule;
-        Logger::log( invalidModule, LOG_LEVEL_ERROR );
-    }
 
 
-    if ( module == "login" && ret["data"]["status"].asInt() == 0 )
+        std::string	message_id	= json["id"].asString();
+        std::string	message_type	= json["type"].asString();
+
+        Json::Value ret;
+        ret["type"]	= message_type;
+        ret["id"]	= message_id;
+
+        auto pos = message_type.find( '/' );
+        if ( pos == std::string::npos )
+        {
+            Logger::log( "Invalid message type: " + message_type, LOG_LEVEL_ERROR );
+            return;
+        }
+
+        std::string	module		= message_type.substr( 0, pos );
+        std::string	function	= message_type.substr( pos + 1 );
+
+        /*
+         * login/login
+         * 如果请求不是login，检查token
+         */
+        if (!Logger::debug && module != "login" && clients.find( client ) == clients.end() )
+        {
+            ret["data"] = "Unauthorized";
+            ws_sendframe_txt( client, ret.toStyledString().c_str() );
+            ws_close_client( client );
+            return;
+        }
+
+
+        auto it = RouteManager::getHandler( module );
+        if ( it != nullptr )
+        {
+            try {
+                ret["data"] = it->handle( function, json["data"] );
+            } catch ( std::exception &e ) {
+                Logger::log( e.what(), LOG_LEVEL_ERROR );
+                ret["data"] = e.what();
+            }
+        } else {
+            auto invalidModule = "Invalid module " + std::string( module );
+            ret["data"] = invalidModule;
+            Logger::log( invalidModule, LOG_LEVEL_ERROR );
+        }
+
+
+        if ( module == "login" && ret["data"]["status"].asInt() == 0 )
+        {
+            clients[client] = true;
+        }
+
+        ws_sendframe_txt( client, ret.toStyledString().c_str() );
+
+    }catch ( std::exception &e )
     {
-        clients[client] = true;
+        Logger::log( e.what(), LOG_LEVEL_ERROR );
     }
-
-    ws_sendframe_txt( client, ret.toStyledString().c_str() );
-
 
     /* ws_sendframe_txt(client, "hello"); */
 }
