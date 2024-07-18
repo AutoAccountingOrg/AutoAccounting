@@ -15,7 +15,8 @@
 
 package net.ankio.auto.tests
 
-interface iTest {
-    fun cases(): MutableList<TestObject>
-    fun name(): String
-}
+data class TestObject(
+    val name :String,
+    val message :String,
+    val expect:String
+)

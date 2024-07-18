@@ -15,10 +15,14 @@
 
 package net.ankio.auto.tests.tests
 
+import net.ankio.auto.tests.TestObject
 import net.ankio.auto.tests.iTest
 
 class LoginTest:iTest {
-    override fun sendMessage(): String = """
+    override fun cases(): MutableList<TestObject>  = mutableListOf(
+        TestObject(
+            name = "登录",
+            message = """
         {
             "type":"login/login",
             "data":{
@@ -26,10 +30,9 @@ class LoginTest:iTest {
                 "token":"9086124753"
             }
         }
-    """.trimIndent()
-
-    override fun expect(): String = """
-{
+    """.trimIndent(),
+            expect = """
+                {
 	"data" : 
 	{
 		"msg" : "login success",
@@ -37,6 +40,11 @@ class LoginTest:iTest {
 	},
 	"id" : "",
 	"type" : "login/login"
-}  
-    """.trimIndent()
+} 
+""".trimIndent()
+        )
+    )
+
+    override fun name(): String = "登录测试"
+
 }
