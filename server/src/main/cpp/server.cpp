@@ -48,21 +48,25 @@ void restartChildProcess() {
     startChildProcess(); // 重新启动子进程
 }
 int main(int argc, char** argv){
-    printf("Server start!");
-    // 选择默认工作目录，如果有参数就按照参数来，如果没有参数就当前路径
-    if (argc > 1)
-    {
-
-        if(strcmp(argv[1],"debug") != 0 || (argc > 2 && strcmp(argv[2],"debug") != 0)){
+    printf("Server start!\n");
+    if (argc > 1) {
+        if (strcmp(argv[1], "debug") == 0) {
             Logger::debug = true;
-        }else{
+        } else {
             chdir(argv[1]);
         }
-    }
-    else
-    {
+
+        if (argc > 2 && strcmp(argv[2], "debug") == 0) {
+            Logger::debug = true;
+        }
+    } else {
         chdir(".");
     }
+
+    if(Logger::debug){
+        printf("Server run in Debug mode!\n");
+    }
+
     WebSocketServer server(PORT);
    /* startChildProcess(); // 启动子进程
 
