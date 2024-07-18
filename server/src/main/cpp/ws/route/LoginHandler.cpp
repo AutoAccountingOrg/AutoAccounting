@@ -9,7 +9,7 @@ Json::Value LoginHandler::handle(const std::string &function, Json::Value &data)
         std::string app = data["app"].asString();
 
 
-        if(VersionManager::checkVersion()){
+        if(!VersionManager::checkVersion()){
             Json::Value ret;
             ret["status"] = 2;
             ret["msg"] = "version is too low";
