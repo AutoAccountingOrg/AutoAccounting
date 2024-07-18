@@ -24,6 +24,7 @@ browser = "1.8.0"
 activity = "1.8.2"
 constraintlayout = "2.1.4"
 dexlib2 = "2.5.2"
+jetbrainsKotlinJvm = "1.9.21"
 [libraries]
 androidx-navigation-fragment-ktx = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigationFragment" }
 androidx-navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigationFragment" }
@@ -55,5 +56,6 @@ dexlib2 = { module = "org.smali:dexlib2", version.ref = "dexlib2" }
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
+jetbrainsKotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
 
 
