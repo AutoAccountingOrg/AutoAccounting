@@ -4,8 +4,6 @@
 [submodule "server/src/main/cpp/wsServer"]
 	path = server/src/main/cpp/wsServer
 	url = https://github.com/AnkioTomas/wsServer
-
-
 [submodule "server/src/main/cpp/jsoncpp"]
 	path = server/src/main/cpp/jsoncpp
 	url = https://github.com/open-source-parsers/jsoncpp
