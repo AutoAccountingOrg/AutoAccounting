@@ -47,13 +47,11 @@ import net.ankio.auto.utils.event.EventBus
 import net.ankio.auto.utils.server.model.Assets
 import net.ankio.auto.utils.server.model.AssetsMap
 import net.ankio.auto.utils.server.model.BillInfo
-import net.ankio.auto.utils.server.model.BookBill
 import net.ankio.auto.utils.server.model.BookName
-import net.ankio.auto.utils.server.model.Category
+import net.ankio.auto.utils.server.model.CategoryModel
 import net.ankio.common.config.AccountingConfig
 import net.ankio.common.constant.BillType
 import net.ankio.common.constant.Currency
-import net.ankio.common.model.BillModel
 import java.util.Calendar
 
 class FloatEditorDialog(
@@ -613,7 +611,7 @@ class FloatEditorDialog(
             binding.category.visibility = View.VISIBLE
             lifecycleScope.launch {
                 val book = BookName.getDefaultBook(billInfo.bookName)
-                Category.getDrawable(billInfo.cateName, book.id, billInfo.type,context).let {
+                CategoryModel.getDrawable(billInfo.cateName, book.id, billInfo.type,context).let {
                     binding.category.setIcon(it, true)
                 }
             }

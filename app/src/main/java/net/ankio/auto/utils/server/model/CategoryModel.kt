@@ -24,7 +24,7 @@ import net.ankio.auto.R
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.ImageUtils
 
-class Category {
+class CategoryModel {
     var id = 0
 
     /**
@@ -78,35 +78,26 @@ class Category {
             return ImageUtils.get(context, categoryInfo?.icon ?: "", R.drawable.default_cate)
         }
 
-        fun put(cate: Category) {
-            AppUtils.getScope().launch {
-                AppUtils.getService().sendMsg("cate/put", cate)
-            }
-        }
 
-        suspend fun getAll(
+
+        suspend fun list(
             bookID: Int,
             type: Int,
             parent: Int,
-        ): List<Category> {
-            val data = AppUtils.getService().sendMsg("cate/get/all", mapOf("book" to bookID, "type" to type, "parent" to parent))
-            return runCatching { Gson().fromJson(data as JsonArray, Array<Category>::class.java).toList() }.getOrDefault(emptyList())
+        ): List<CategoryModel> {
+            val data = AppUtils.getService().sendMsg("category/list", mapOf("book" to bookID, "type" to type, "parent" to parent, "size" to 0, "page" to 0))
+            return runCatching { Gson().fromJson(data as JsonArray, Array<CategoryModel>::class.java).toList() }.getOrDefault(emptyList())
         }
 
         suspend fun getByName(
             name: String,
             bookID: Int,
             type: Int
-        ): Category? {
-            val data = AppUtils.getService().sendMsg("cate/get/name", mapOf("cateName" to name, "book" to bookID, "type" to type))
-            return runCatching { Gson().fromJson(data as JsonObject, Category::class.java) }.getOrNull()
+        ): CategoryModel? {
+            val data = AppUtils.getService().sendMsg("category/get", mapOf("cateName" to name, "book" to bookID, "type" to type))
+            return runCatching { Gson().fromJson(data as JsonObject, CategoryModel::class.java) }.getOrNull()
         }
 
-
-
-        suspend fun remove(id: Int) {
-            AppUtils.getService().sendMsg("cate/remove", mapOf("id" to id))
-        }
     }
 
     fun isPanel(): Boolean {

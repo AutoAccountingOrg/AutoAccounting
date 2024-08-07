@@ -49,8 +49,7 @@ import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.ServiceUtils
 import net.ankio.auto.utils.SpUtils
 import net.ankio.auto.utils.event.EventBus
-import net.ankio.auto.utils.server.AutoServer
-import net.ankio.auto.utils.server.model.Category
+import net.ankio.auto.utils.server.model.CategoryModel
 import net.ankio.auto.utils.update.UpdateUtils
 import rikka.html.text.toHtml
 
@@ -267,8 +266,8 @@ class HomeFragment : BaseFragment() {
         binding.readCategory.setOnClickListener {
             BookSelectorDialog(themeContext) {
                 BookInfoDialog(themeContext, it) { type ->
-                    CategorySelectorDialog(themeContext, it.id, type) { category1: Category?, category2: Category? ->
-                        Logger.i("选择的分类是：${category1?.name ?: ""} - ${category2?.name ?: ""}")
+                    CategorySelectorDialog(themeContext, it.id, type) { categoryModel1: CategoryModel?, categoryModel2: CategoryModel? ->
+                        Logger.i("选择的分类是：${categoryModel1?.name ?: ""} - ${categoryModel2?.name ?: ""}")
                     }.show(cancel = true)
                 }.show(cancel = true)
             }.show(cancel = true)

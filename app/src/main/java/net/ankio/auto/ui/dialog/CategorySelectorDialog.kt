@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.databinding.DialogCategorySelectBinding
 //import net.ankio.auto.ui.adapter.CategorySelectorAdapter
-import net.ankio.auto.utils.server.model.Category
+import net.ankio.auto.utils.server.model.CategoryModel
 import net.ankio.common.constant.BillType
 
 /**
@@ -43,13 +43,13 @@ class CategorySelectorDialog(
     private val context: Context,
     private var book: Int = 0,
     private val type: BillType = BillType.Expend,
-    private val callback: (Category?, Category?) -> Unit,
+    private val callback: (CategoryModel?, CategoryModel?) -> Unit,
 ) : BaseSheetDialog(context) {
     // 父类别
-    private var category1: Category? = null
+    private var categoryModel1: CategoryModel? = null
 
     // 子类别
-    private var category2: Category? = null
+    private var categoryModel2: CategoryModel? = null
 
     // 显示状态
     private var expand = false
@@ -61,7 +61,7 @@ class CategorySelectorDialog(
     private lateinit var binding: DialogCategorySelectBinding
 
     // 类别列表
-    private var items = ArrayList<Category>()
+    private var items = ArrayList<CategoryModel>()
     private var totalItems = 0
 
     /**
@@ -76,8 +76,8 @@ class CategorySelectorDialog(
          * @return 项目的跨度大小。
          */
         override fun getSpanSize(i: Int): Int {
-            val category: Category = items[i]
-            return if (category.isPanel()) 5 else 1
+            val categoryModel: CategoryModel = items[i]
+            return if (categoryModel.isPanel()) 5 else 1
         }
     }
 
@@ -114,19 +114,19 @@ class CategorySelectorDialog(
      */
     private fun getPanelData(
         view: View,
-        item: Category,
-    ): Category {
-        val category = Category()
-        category.remoteId = "-9999"
-        category.parent = item.id
-        category.book = book
-        category.type = type.value
+        item: CategoryModel,
+    ): CategoryModel {
+        val categoryModel = CategoryModel()
+        categoryModel.remoteId = "-9999"
+        categoryModel.parent = item.id
+        categoryModel.book = book
+        categoryModel.type = type.value
         val location = IntArray(2)
         view.getLocationOnScreen(location)
         val params = view.layoutParams as MarginLayoutParams
         val leftDistanceWithMargin = location[0] + view.paddingLeft + params.leftMargin - 40
-        category.id = leftDistanceWithMargin - view.width / 2
-        return category
+        categoryModel.id = leftDistanceWithMargin - view.width / 2
+        return categoryModel
     }
 
     /**
@@ -219,18 +219,18 @@ class CategorySelectorDialog(
         // 为按钮设置点击监听器
         binding.button.setOnClickListener {
             // 当按钮被点击时，调用回调函数
-            callback(category1, category2)
+            callback(categoryModel1, categoryModel2)
             // 关闭对话框
             dismiss()
         }
 
         // 从数据库加载类别
         lifecycleScope.launch {
-            val newData = Category.getAll(book, type.toInt(), 0)
-            val defaultCategory = Category()
-            defaultCategory.name = "其他"
+            val newData = CategoryModel.getAll(book, type.toInt(), 0)
+            val defaultCategoryModel = CategoryModel()
+            defaultCategoryModel.name = "其他"
             val collection =
-                newData.map { it }.takeIf { it.isNotEmpty() } ?: listOf(defaultCategory)
+                newData.map { it }.takeIf { it.isNotEmpty() } ?: listOf(defaultCategoryModel)
             totalItems = collection.size
             withContext(Dispatchers.Main) {
                 items.addAll(collection)
