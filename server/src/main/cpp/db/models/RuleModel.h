@@ -18,5 +18,6 @@ DEFINE_TABLE(RuleModel, "rule")
         FIELD(int, use) //是否启用
         FIELD(int, auto_record) //是否自动记账
         FIELD(std::string, name) //规则名称是所有规则的唯一ID，不可重复
+        FIELD(std::string, js) //规则
 END_TABLE()
 #endif //AUTOACCOUNTING_RULEMODEL_H
