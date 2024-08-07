@@ -27,12 +27,12 @@ import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogMapBinding
 import net.ankio.auto.utils.ImageUtils
 import net.ankio.auto.utils.server.model.Assets
-import net.ankio.auto.utils.server.model.AssetsMap
+import net.ankio.auto.utils.server.model.AssetsMapModel
 
 class MapDialog(
     private val context: Context,
-    private val assetsMap: AssetsMap = AssetsMap(),
-    val onClose: (AssetsMap) -> Unit,
+    private val assetsMapModel: AssetsMapModel = AssetsMapModel(),
+    val onClose: (AssetsMapModel) -> Unit,
 ) : BaseSheetDialog(context) {
     private lateinit var binding: DialogMapBinding
 
@@ -41,7 +41,7 @@ class MapDialog(
         cardView = binding.cardView
         cardViewInner = binding.cardViewInner
 
-        if (assetsMap.id != 0) {
+        if (assetsMapModel.id != 0) {
             setBindingData()
         } else {
             binding.target.setText(context.getString(R.string.map_no_target))
@@ -51,11 +51,11 @@ class MapDialog(
     }
 
     private fun setBindingData() {
-        binding.raw.setText(assetsMap.name)
-        binding.target.setText(assetsMap.mapName)
-        binding.regex.isChecked = assetsMap.regex == 1
+        binding.raw.setText(assetsMapModel.name)
+        binding.target.setText(assetsMapModel.mapName)
+        binding.regex.isChecked = assetsMapModel.regex == 1
         lifecycleScope.launch {
-            Assets.getDrawable(assetsMap.mapName, context).let {
+            Assets.getDrawable(assetsMapModel.mapName, context).let {
                 binding.target.setIcon(it)
             }
         }
@@ -65,26 +65,26 @@ class MapDialog(
         binding.buttonCancel.setOnClickListener { dismiss() }
 
         binding.buttonSure.setOnClickListener {
-            assetsMap.name = binding.raw.text.toString()
-            assetsMap.mapName = binding.target.getText()
-            assetsMap.regex = if(binding.regex.isChecked) 1 else 0
+            assetsMapModel.name = binding.raw.text.toString()
+            assetsMapModel.mapName = binding.target.getText()
+            assetsMapModel.regex = if(binding.regex.isChecked) 1 else 0
 
-            if (assetsMap.name.isEmpty() || assetsMap.mapName == context.getString(R.string.map_no_target)) {
+            if (assetsMapModel.name.isEmpty() || assetsMapModel.mapName == context.getString(R.string.map_no_target)) {
                 Toaster.show(context.getString(R.string.map_empty))
                 return@setOnClickListener
             }
 
             lifecycleScope.launch {
                 withContext(Dispatchers.IO) {
-                    AssetsMap.put(assetsMap)
+                    AssetsMapModel.put(assetsMapModel)
                 }
-                onClose(assetsMap)
+                onClose(assetsMapModel)
                 dismiss()
             }
         }
         binding.target.setOnClickListener {
             AssetsSelectorDialog(context) {
-                assetsMap.mapName = it.name
+                assetsMapModel.mapName = it.name
                 binding.target.setText(it.name)
                 lifecycleScope.launch {
                     binding.target.setIcon( ImageUtils.get(context, it.icon, R.mipmap.ic_launcher_round))

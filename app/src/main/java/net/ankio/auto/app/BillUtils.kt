@@ -22,7 +22,7 @@ import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.SpUtils
 import net.ankio.auto.utils.server.model.Assets
-import net.ankio.auto.utils.server.model.AssetsMap
+import net.ankio.auto.utils.server.model.AssetsMapModel
 import net.ankio.auto.utils.server.model.BillInfoModel
 import net.ankio.common.constant.AssetsType
 import net.ankio.common.constant.BillType
@@ -118,7 +118,7 @@ object BillUtils {
     }
 
     private fun getMapName(
-        list: List<AssetsMap>,
+        list: List<AssetsMapModel>,
         name: String,
     ): String {
         for (map in list) {
@@ -239,7 +239,7 @@ object BillUtils {
      */
     suspend fun setAccountMap(billInfoModel: BillInfoModel) =
         withContext(Dispatchers.IO) {
-            val list = AssetsMap.get()
+            val list = AssetsMapModel.get()
             val rawAccountNameFrom = billInfoModel.accountNameFrom
             val rawAccountNameTo = billInfoModel.accountNameTo
             billInfoModel.accountNameFrom = getMapName(list, rawAccountNameFrom)

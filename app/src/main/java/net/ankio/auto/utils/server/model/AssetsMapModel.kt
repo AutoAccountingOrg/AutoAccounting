@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.Logger
 
-class AssetsMap {
+class AssetsMapModel {
     // 账户列表
     var id = 0
 
@@ -40,21 +40,26 @@ class AssetsMap {
     var mapName: String = "" // 映射账户名
 
     companion object {
-        fun put(map: AssetsMap) {
-            AppUtils.getScope().launch {
-                AppUtils.getService().sendMsg("asset/map/put", map)
-            }
+        suspend fun put(map: AssetsMapModel) {
+            if (map.id == 0)
+                AppUtils.getService().sendMsg("assets_map/add", map)
+            else
+                AppUtils.getService().sendMsg("assets_map/update", map)
         }
 
-        suspend fun get(): List<AssetsMap> {
-            val data = AppUtils.getService().sendMsg("asset/map/get", null)
-            return runCatching { Gson().fromJson(data as JsonArray, Array<AssetsMap>::class.java).toList() }.onFailure { Logger.w(
-                ("Transfer Error: " + it.message)
-            ) }.getOrNull() ?: emptyList()
+        suspend fun clear(){
+            AppUtils.getService().sendMsg("assets_map/clear", mapOf<String, Int>())
         }
 
-        suspend fun remove(id: Int)  {
-            AppUtils.getService().sendMsg("asset/map/remove", mapOf("id" to id))
+        suspend fun del(id: Int)  {
+            AppUtils.getService().sendMsg("assets_map/del", mapOf("id" to id))
+        }
+
+        suspend fun list(): List<AssetsMapModel> {
+            val data = runCatching {
+                AppUtils.getService().sendMsg("assets_map/list", mapOf("page" to 0, "size" to 0)) as List<AssetsMapModel>
+            }.getOrNull()?: emptyList()
+            return data
         }
     }
 }

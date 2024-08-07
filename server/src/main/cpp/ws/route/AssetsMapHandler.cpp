@@ -18,6 +18,8 @@ Json::Value AssetsMapHandler::handle(const std::string &function, Json::Value &d
         Database::getInstance().insert(table, data);
     } else if (function == "del") {
         Database::getInstance().remove(table, data["id"].asInt());
+    } else if (function == "update"){
+        Database::getInstance().update(table, data, data["id"].asInt());
     }
     Json::Value result;
     result["status"] = 0;

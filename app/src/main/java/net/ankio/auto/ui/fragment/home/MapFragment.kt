@@ -21,7 +21,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -31,14 +30,14 @@ import net.ankio.auto.databinding.FragmentMapBinding
 import net.ankio.auto.ui.dialog.MapDialog
 import net.ankio.auto.ui.fragment.BaseFragment
 import net.ankio.auto.ui.utils.MenuItem
-import net.ankio.auto.utils.server.model.AssetsMap
+import net.ankio.auto.utils.server.model.AssetsMapModel
 
 class MapFragment : BaseFragment() {
     private lateinit var binding: FragmentMapBinding
 
   //  private lateinit var adapter: MapAdapter
 
-    private var dataItems = mutableListOf<AssetsMap>()
+    private var dataItems = mutableListOf<AssetsMapModel>()
     override val menuList: ArrayList<MenuItem>
         get() =
             arrayListOf(
@@ -96,7 +95,7 @@ class MapFragment : BaseFragment() {
         binding.recyclerView.adapter = adapter*/
         scrollView = binding.recyclerView
         lifecycleScope.launch {
-            val newData = AssetsMap.get()
+            val newData = AssetsMapModel.get()
 
             val collection = newData.takeIf { it.isNotEmpty() } ?: listOf()
 

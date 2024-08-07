@@ -45,7 +45,7 @@ import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.SpUtils
 import net.ankio.auto.utils.event.EventBus
 import net.ankio.auto.utils.server.model.Assets
-import net.ankio.auto.utils.server.model.AssetsMap
+import net.ankio.auto.utils.server.model.AssetsMapModel
 import net.ankio.auto.utils.server.model.BillInfoModel
 import net.ankio.auto.utils.server.model.BookNameModel
 import net.ankio.auto.utils.server.model.CategoryModel
@@ -238,8 +238,8 @@ class FloatEditorDialog(
                         ) {
                             withContext(Dispatchers.IO) {
                                 if (Assets.getByName(rawBillInfo.accountNameFrom) == null) {
-                                    AssetsMap.put(
-                                        AssetsMap().apply {
+                                    AssetsMapModel.put(
+                                        AssetsMapModel().apply {
                                             this.name = rawBillInfo.accountNameFrom
                                             this.mapName = bill.accountNameFrom
                                         },
@@ -255,8 +255,8 @@ class FloatEditorDialog(
                         ) {
                             withContext(Dispatchers.IO) {
                                 if (Assets.getByName(rawBillInfo.accountNameTo) == null) {
-                                    AssetsMap.put(
-                                        AssetsMap().apply {
+                                    AssetsMapModel.put(
+                                        AssetsMapModel().apply {
                                             this.name = rawBillInfo.accountNameTo
                                             this.mapName = bill.accountNameTo
                                         },
