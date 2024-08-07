@@ -61,18 +61,27 @@ class AppDataModel:BaseModel() {
     var issue: Int = 0
 
     companion object {
-        fun put(appData: AppDataModel) {
-            AppUtils.getScope().launch {
-                AppUtils.getService().sendMsg("data/put", appData)
-            }
+        suspend  fun put(appData: AppDataModel) {
+            if (appData.id == 0)
+                AppUtils.getService().sendMsg("data/add", appData)
+            else
+                AppUtils.getService().sendMsg("data/update", appData)
+        }
+
+        suspend fun clear(){
+            AppUtils.getService().sendMsg("data/clear", mapOf<String, Int>())
+        }
+
+        suspend fun del(id:Int){
+            AppUtils.getService().sendMsg("data/del", mapOf("id" to id))
         }
 
 
 
-        fun remove(id: Int) {
-            AppUtils.getScope().launch {
-                AppUtils.getService().sendMsg("data/remove", mapOf("id" to id))
-            }
+
+
+       suspend fun list(page:Int,size:Int,data:String,match:Int):List<AppDataModel>{
+            return AppUtils.getService().sendMsg("data/list", mapOf("page" to page, "size" to size, "data" to data, "match" to match)) as List<AppDataModel>
         }
     }
 }
