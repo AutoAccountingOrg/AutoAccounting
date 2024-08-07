@@ -9,10 +9,10 @@
 Json::Value BookBillHandler::handle(const std::string &function, Json::Value &data) {
     auto table = BookBillModel::getTable();
     if (function == "list") {
-        //TODO
+        int type = data["type"].asInt();
         int page = data["page"].asInt();
         int size = data["size"].asInt();
-        return Database::getInstance().page(table, page, size, "book=?", {data["book"].asInt()});
+        return Database::getInstance().page(table, page, size, "book=? and type=?", {data["book"].asInt(),type});
     } else if (function == "clear") {
         Database::getInstance().executeSQL("delete from " + table.name);
     }  else if (function == "add") {

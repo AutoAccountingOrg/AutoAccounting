@@ -36,10 +36,10 @@ void RouteManager::initRoute() {
     registerRoute("assets",[]() -> HandlerPtr { return std::make_shared<AssetHandler>(); });
     registerRoute("assets_map",[]() -> HandlerPtr { return std::make_shared<AssetsMapHandler>(); });
     registerRoute("category",[]() -> HandlerPtr { return std::make_shared<CategoryHandler>(); });
-    registerRoute("book_name",[]() -> HandlerPtr { return std::make_shared<BookNameHandler>(); });
+    registerRoute("bookname",[]() -> HandlerPtr { return std::make_shared<BookNameHandler>(); });
     registerRoute("setting",[]() -> HandlerPtr { return std::make_shared<SettingHandler>(); });
     registerRoute("custom",[]() -> HandlerPtr { return std::make_shared<CustomRuleHandler>(); });
     registerRoute("rule",[]() -> HandlerPtr { return std::make_shared<RuleHandler>(); });
-    registerRoute("book_bill",[]() -> HandlerPtr { return std::make_shared<BookBillHandler>(); });
+    registerRoute("bookbill",[]() -> HandlerPtr { return std::make_shared<BookBillHandler>(); });
 
 }

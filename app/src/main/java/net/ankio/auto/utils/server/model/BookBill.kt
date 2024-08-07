@@ -39,18 +39,24 @@ class BookBill {
         return Gson().toJson(this)
     }
     companion object{
-       suspend fun get(limit:Int = 500,type:BillType):Array<BookBill>? = withContext(Dispatchers.IO){
-            val list = AppUtils.getService().sendMsg("app/bill/get",
+
+
+        suspend fun list(type:Int,book:String):Array<BookBill>?{
+            val list = AppUtils.getService().sendMsg("bookbill/list",
                 hashMapOf(
-                    "limit" to limit,
-                    "type" to type.value
+                    "page" to 0,
+                    "size" to 0,
+                    "book" to book,
+                    "type" to type
                 )
             )
-           return@withContext runCatching {
-               Gson().fromJson(list as JsonArray,Array<BookBill>::class.java)
-           }.onFailure {
-               Logger.e(it.message?:"",it)
-           }.getOrNull()
+            return runCatching {
+                Gson().fromJson(list as JsonArray,Array<BookBill>::class.java)
+            }.onFailure {
+                Logger.e(it.message?:"",it)
+            }.getOrNull()
         }
+
+
     }
 }
