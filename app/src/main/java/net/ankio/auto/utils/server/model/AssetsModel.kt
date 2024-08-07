@@ -27,7 +27,7 @@ import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.ImageUtils
 import net.ankio.common.constant.AssetsType
 
-class Assets {
+class AssetsModel {
     // 账户列表
     var id = 0
     var name: String = "" // 账户名
@@ -41,24 +41,17 @@ class Assets {
     var extras: String = "" // 额外信息，例如银行卡的卡号等
 
     companion object {
-        fun put(assets: Assets) {
-            AppUtils.getScope().launch {
-                AppUtils.getService().sendMsg("asset/put", assets)
-            }
+
+        suspend fun list(): List<AssetsModel> {
+            val data = runCatching {
+                AppUtils.getService().sendMsg("assets/list", mapOf("page" to 0, "size" to 0)) as List<AssetsModel>
+            }.getOrNull()?: emptyList()
+            return data
         }
 
-        suspend fun get(limit: Int = 500,type: AssetsType): List<Assets> {
-            val data = AppUtils.getService().sendMsg("asset/get", mapOf("limit" to limit , "type" to type.value))
-            return runCatching { Gson().fromJson(data as JsonArray, Array<Assets>::class.java).toList() }.getOrDefault(emptyList())
-        }
-
-        suspend fun getByName(name: String): Assets? {
-            val data = AppUtils.getService().sendMsg("asset/get/name", mapOf("name" to name))
-            return runCatching { Gson().fromJson(data as JsonObject, Assets::class.java) }.getOrNull()
-        }
-
-        suspend fun remove(name: String) {
-            AppUtils.getService().sendMsg("asset/remove", mapOf("name" to name))
+        suspend fun getByName(name: String): AssetsModel? {
+            val data = AppUtils.getService().sendMsg("assets/get", mapOf("name" to name))
+            return runCatching { Gson().fromJson(data as JsonObject, AssetsModel::class.java) }.getOrNull()
         }
 
         suspend fun getDrawable(

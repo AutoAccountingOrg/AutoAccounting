@@ -16,6 +16,12 @@ Json::Value AssetHandler::handle(const std::string &function, Json::Value &data)
         Database::getInstance().executeSQL("delete from " + table.name);
     }  else if (function == "add") {
         Database::getInstance().insert(table, data);
+    } else if (function == "del") {
+        Database::getInstance().remove(table, data["id"].asInt());
+    } else if (function == "update"){
+        Database::getInstance().update(table, data, data["id"].asInt());
+    } else if (function == "get"){
+        return Database::getInstance().selectConditional(table, "name=?", {data["name"]});
     }
     return BaseHandler::handle(function, data);
 }

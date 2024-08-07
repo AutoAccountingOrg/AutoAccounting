@@ -44,7 +44,7 @@ import net.ankio.auto.utils.ListPopupUtils
 import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.SpUtils
 import net.ankio.auto.utils.event.EventBus
-import net.ankio.auto.utils.server.model.Assets
+import net.ankio.auto.utils.server.model.AssetsModel
 import net.ankio.auto.utils.server.model.AssetsMapModel
 import net.ankio.auto.utils.server.model.BillInfoModel
 import net.ankio.auto.utils.server.model.BookNameModel
@@ -237,7 +237,7 @@ class FloatEditorDialog(
                             ).any { it.visibility == View.VISIBLE } && rawBillInfo.accountNameFrom != "" && rawBillInfo.accountNameFrom != bill.accountNameFrom
                         ) {
                             withContext(Dispatchers.IO) {
-                                if (Assets.getByName(rawBillInfo.accountNameFrom) == null) {
+                                if (AssetsModel.getByName(rawBillInfo.accountNameFrom) == null) {
                                     AssetsMapModel.put(
                                         AssetsMapModel().apply {
                                             this.name = rawBillInfo.accountNameFrom
@@ -254,7 +254,7 @@ class FloatEditorDialog(
                             ).any { it.visibility == View.VISIBLE } && rawBillInfo.accountNameTo != "" && rawBillInfo.accountNameTo != bill.accountNameTo
                         ) {
                             withContext(Dispatchers.IO) {
-                                if (Assets.getByName(rawBillInfo.accountNameTo) == null) {
+                                if (AssetsModel.getByName(rawBillInfo.accountNameTo) == null) {
                                     AssetsMapModel.put(
                                         AssetsMapModel().apply {
                                             this.name = rawBillInfo.accountNameTo
@@ -346,7 +346,7 @@ class FloatEditorDialog(
     ) {
         view.setText(name)
         lifecycleScope.launch {
-            Assets.getDrawable(name, context).let {
+            AssetsModel.getDrawable(name, context).let {
                 view.setIcon(it)
             }
         }

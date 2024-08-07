@@ -26,7 +26,7 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogMapBinding
 import net.ankio.auto.utils.ImageUtils
-import net.ankio.auto.utils.server.model.Assets
+import net.ankio.auto.utils.server.model.AssetsModel
 import net.ankio.auto.utils.server.model.AssetsMapModel
 
 class MapDialog(
@@ -55,7 +55,7 @@ class MapDialog(
         binding.target.setText(assetsMapModel.mapName)
         binding.regex.isChecked = assetsMapModel.regex == 1
         lifecycleScope.launch {
-            Assets.getDrawable(assetsMapModel.mapName, context).let {
+            AssetsModel.getDrawable(assetsMapModel.mapName, context).let {
                 binding.target.setIcon(it)
             }
         }

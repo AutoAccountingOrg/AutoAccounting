@@ -21,7 +21,7 @@ import net.ankio.auto.R
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.SpUtils
-import net.ankio.auto.utils.server.model.Assets
+import net.ankio.auto.utils.server.model.AssetsModel
 import net.ankio.auto.utils.server.model.AssetsMapModel
 import net.ankio.auto.utils.server.model.BillInfoModel
 import net.ankio.common.constant.AssetsType
@@ -170,7 +170,7 @@ object BillUtils {
     }
 
     private fun getAiAssets(
-        list: List<Assets>,
+        list: List<AssetsModel>,
         raw: String,
     ): String {
         // 提取raw出数字部分
@@ -246,7 +246,7 @@ object BillUtils {
             billInfoModel.accountNameTo = getMapName(list, rawAccountNameTo)
 
             if (SpUtils.getBoolean("setting_auto_ai_asset", false)) {
-                val assets = Assets.get(500, AssetsType.NORMAL)
+                val assets = AssetsModel.get(500, AssetsType.NORMAL)
                 if (rawAccountNameTo != "" &&
                     rawAccountNameTo == billInfoModel.accountNameTo &&
                     assets.find { it.name == rawAccountNameTo } == null
