@@ -18,14 +18,13 @@ import com.google.gson.Gson
 import com.google.gson.JsonArray
 import kotlinx.coroutines.launch
 import net.ankio.auto.utils.AppUtils
-import java.io.Serializable
 
-class Regular : Serializable {
+class CustomRuleModel  {
     var id = 0
 
-    var use = true // 是否启用该规则
+    var use = 1 // 是否启用该规则
     var sort = 0 // 排序
-    var auto = false // 是否为自动创建
+    var auto_create = 0 // 是否为自动创建
 
     var js = ""
     var text = ""
@@ -33,24 +32,27 @@ class Regular : Serializable {
     var element: String = ""
 
     companion object {
-        fun put(regular: Regular) {
-            AppUtils.getScope().launch {
-                AppUtils.getService().sendMsg("rule/custom/put", regular)
-            }
+        suspend fun clear(){
+            AppUtils.getService().sendMsg("custom/clear", mapOf<String, Int>())
         }
 
-        suspend fun get(limit: Int = 500): List<Regular> {
-            val data = AppUtils.getService().sendMsg("rule/custom/get", mapOf("limit" to limit))
-            return runCatching { Gson().fromJson(data as JsonArray, Array<Regular>::class.java).toList() }.getOrDefault(emptyList())
+        suspend fun list(page:Int,limit:Int):List<CustomRuleModel>{
+            val data = runCatching {
+                AppUtils.getService().sendMsg("custom/list", mapOf("page" to page, "limit" to limit)) as List<CustomRuleModel>
+            }.getOrNull()?: emptyList()
+            return data
         }
 
-        suspend fun getById(id: Int): Regular {
-            val data = AppUtils.getService().sendMsg("rule/custom/get/id", mapOf("id" to id))
-            return Gson().fromJson(data as String, Regular::class.java)
+        suspend fun put(model: CustomRuleModel){
+            if(model.id == 0)
+                AppUtils.getService().sendMsg("custom/add", model)
+            else
+                AppUtils.getService().sendMsg("custom/update", model)
         }
 
-        suspend fun remove(id: Int) {
-            AppUtils.getService().sendMsg("rule/custom/remove", mapOf("id" to id))
+        suspend fun del(id:Int){
+            AppUtils.getService().sendMsg("custom/del", mapOf("id" to id))
         }
+
     }
 }

@@ -19,27 +19,21 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentDataBinding
 //import net.ankio.auto.ui.adapter.RuleAdapter
 import net.ankio.auto.ui.fragment.BaseFragment
 import net.ankio.auto.ui.utils.MenuItem
-import net.ankio.auto.utils.server.model.Regular
+import net.ankio.auto.utils.server.model.CustomRuleModel
 
 class RuleFragment : BaseFragment() {
     private lateinit var binding: FragmentDataBinding
     private lateinit var recyclerView: RecyclerView
     //private lateinit var adapter: RuleAdapter
     private lateinit var layoutManager: LinearLayoutManager
-    private val dataItems = mutableListOf<Regular>()
+    private val dataItems = mutableListOf<CustomRuleModel>()
     override val menuList: ArrayList<MenuItem>
         get() =
             arrayListOf(

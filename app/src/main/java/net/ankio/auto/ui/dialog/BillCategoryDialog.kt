@@ -26,7 +26,7 @@ import net.ankio.auto.databinding.DialogBillCategoryBinding
 import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.server.model.BillInfo
 import net.ankio.auto.utils.server.model.BookName
-import net.ankio.auto.utils.server.model.Regular
+import net.ankio.auto.utils.server.model.CustomRuleModel
 
 class BillCategoryDialog(
     private val context: Context,
@@ -144,13 +144,13 @@ class BillCategoryDialog(
                 condition += ""
                 val js =
                     "if($condition){ return { book:'${billInfo.bookName}',category:'${billInfo.cateName}'} }"
-                val regular = Regular()
-                regular.js = js
-                regular.text = text
-                regular.element = Gson().toJson(list)
-                regular.auto = true
-                regular.use = true
-                Regular.put(regular)
+                val customRuleModel = CustomRuleModel()
+                customRuleModel.js = js
+                customRuleModel.text = text
+                customRuleModel.element = Gson().toJson(list)
+                customRuleModel.auto = true
+                customRuleModel.use = true
+                CustomRuleModel.put(customRuleModel)
                 dismiss()
             }
         }

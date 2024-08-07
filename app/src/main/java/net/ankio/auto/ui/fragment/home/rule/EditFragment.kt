@@ -45,12 +45,12 @@ import net.ankio.auto.ui.dialog.CategorySelectorDialog
 import net.ankio.auto.ui.fragment.BaseFragment
 import net.ankio.auto.utils.ListPopupUtils
 import net.ankio.auto.utils.server.model.BookName
-import net.ankio.auto.utils.server.model.Regular
+import net.ankio.auto.utils.server.model.CustomRuleModel
 import java.util.Calendar
 
 class EditFragment : BaseFragment() {
     private lateinit var binding: FragmentEditBinding
-    private var regular: Regular = Regular()
+    private var customRuleModel: CustomRuleModel = CustomRuleModel()
     private var book: Int = 0
     private var bookName: String = ""
     private var category: String = ""
@@ -69,7 +69,7 @@ class EditFragment : BaseFragment() {
         flexboxLayout.appendTextView(getString(R.string.if_condition_true))
 
         val listType = object : TypeToken<MutableList<HashMap<String, Any>>>() {}.type
-        val list: MutableList<HashMap<String, Any>>? = Gson().fromJson(regular.element, listType)
+        val list: MutableList<HashMap<String, Any>>? = Gson().fromJson(customRuleModel.element, listType)
         // 依次排列
         if (list.isNullOrEmpty()) {
             val buttonElem =
@@ -170,11 +170,11 @@ class EditFragment : BaseFragment() {
         }
 
         arguments?.apply {
-            regular = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                getSerializable("regular", Regular::class.java)
+            customRuleModel = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                getSerializable("regular", CustomRuleModel::class.java)
             } else {
-                getSerializable("regular") as? Regular
-            } ?: Regular()
+                getSerializable("regular") as? CustomRuleModel
+            } ?: CustomRuleModel()
         }
         buildUI()
 
@@ -498,26 +498,26 @@ class EditFragment : BaseFragment() {
         condition += ""
         val js = "if($condition){ return { book:'$bookName',category:'$category'} }"
 
-        regular.js = js
-        regular.text = text
-        regular.element = Gson().toJson(list)
+        customRuleModel.js = js
+        customRuleModel.text = text
+        customRuleModel.element = Gson().toJson(list)
 
-        regular.use = true
+        customRuleModel.use = true
 
-        if (regular.js.contains("if()")) {
+        if (customRuleModel.js.contains("if()")) {
             Toaster.show(R.string.useless_condition)
             return
         }
-        if (regular.js.contains("book:''")) {
+        if (customRuleModel.js.contains("book:''")) {
             Toaster.show(getString(R.string.useless_book))
             return
         }
-        if (regular.js.contains("category:''")) {
+        if (customRuleModel.js.contains("category:''")) {
             Toaster.show(getString(R.string.useless_category))
             return
         }
 
-        Regular.put(regular)
+        CustomRuleModel.put(customRuleModel)
 
         lifecycleScope.launch {
             findNavController().popBackStack() // 返回上一个页面
