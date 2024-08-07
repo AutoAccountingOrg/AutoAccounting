@@ -26,21 +26,31 @@ class RuleModel {
     var auto_record = 0
     var name = ""
     var js = ""
-    var version = ""
 
     companion object {
-        fun put(rule: RuleModel) {
-            AppUtils.getScope().launch {
-                AppUtils.getService().sendMsg("rule/put", rule)
+        suspend fun put(rule: RuleModel) {
+            if (rule.id == 0)
+                AppUtils.getService().sendMsg("rule/add", rule)
+            else
+                AppUtils.getService().sendMsg("rule/update", rule)
             }
+
+
+        suspend fun clear() {
+        AppUtils.getService().sendMsg("rule/clear", mapOf("id" to 0))
         }
 
-        suspend fun get(
-            app: String,
-            type: Int,
-        ): RuleModel {
-            val data = AppUtils.getService().sendMsg("rule/get", mapOf("app" to app, "type" to type))
-            return data as RuleModel
+
+        suspend fun delete(id: Int) {
+            AppUtils.getService().sendMsg("rule/del", mapOf("id" to id))
+        }
+
+        suspend fun list(page:Int,limit:Int,app: String,type: Int):List<RuleModel>{
+            val data = runCatching {
+                AppUtils.getService().sendMsg("rule/list", mapOf("page" to page, "limit" to limit, "app" to app, "type" to type)) as List<RuleModel>
+            }.getOrNull()?: emptyList()
+            return data
+
         }
     }
 }

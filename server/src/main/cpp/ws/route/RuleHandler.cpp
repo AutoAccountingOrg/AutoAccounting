@@ -11,7 +11,12 @@ Json::Value RuleHandler::handle(const std::string &function, Json::Value &data) 
     if (function == "list") {
         int page = data["page"].asInt();
         int size = data["size"].asInt();
-        return Database::getInstance().page(table, page, size, "", {});
+        std::string app = data["app"].asString();
+        int type = data["type"].asInt();
+        return Database::getInstance().page(table, page, size, "app=? and type=?", {
+                app,
+                type
+        });
     } else if (function == "clear") {
         Database::getInstance().executeSQL("delete from " + table.name);
     } else if (function == "get") {
