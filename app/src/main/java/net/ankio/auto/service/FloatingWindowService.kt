@@ -32,7 +32,6 @@ import com.hjq.toast.Toaster
 import com.quickersilver.themeengine.ThemeEngine
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
@@ -48,14 +47,14 @@ import net.ankio.auto.utils.FloatPermissionUtils
 import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.SpUtils
 import net.ankio.auto.utils.event.EventBus
-import net.ankio.auto.utils.server.model.BillInfo
+import net.ankio.auto.utils.server.model.BillInfoModel
 import kotlin.system.exitProcess
 
 class FloatingWindowService : Service() {
     private val windowManager: WindowManager by lazy { getSystemService(WINDOW_SERVICE) as WindowManager }
     private val floatingViews = mutableListOf<FloatTipBinding>()
     private lateinit var themedContext: Context
-    private val list = ArrayDeque<BillInfo>()
+    private val list = ArrayDeque<BillInfoModel>()
 
     override fun onBind(intent: Intent): IBinder? {
         return null
@@ -64,7 +63,7 @@ class FloatingWindowService : Service() {
     private var processBillInfo = false
     private var timeCount: Int = 0
 
-    private var billInfo: BillInfo? = null
+    private var billInfoModel: BillInfoModel? = null
 
 
     override fun onCreate() {
@@ -92,7 +91,7 @@ class FloatingWindowService : Service() {
                         break
                     }
 
-                    billInfo = list.removeFirst()
+                    billInfoModel = list.removeFirst()
                     hasProcessOneData = true
                     runCatching {
                         processBillInfo = true
@@ -120,7 +119,7 @@ class FloatingWindowService : Service() {
 
 
     private suspend fun addAndCheckBill(id:Int) = withContext(Dispatchers.IO){
-        val billArray = BillInfo.getBillByIds(id.toString())
+        val billArray = BillInfoModel.getBillByIds(id.toString())
         if(billArray.isEmpty()){
             return@withContext
         }
@@ -129,7 +128,7 @@ class FloatingWindowService : Service() {
          * 因为原始账单全部是没有处理过的，所以这里根据处理之前的结果判断重复
          */
         if(list.isEmpty()){
-            val bills = BillInfo.getNoEditBills()
+            val bills = BillInfoModel.getNoEditBills()
 
             list.addAll(bills)
             list.remove(bill)
@@ -140,10 +139,10 @@ class FloatingWindowService : Service() {
             return@withContext
         }
 
-        if(billInfo != null){
-            if(checkRepeat(bill,billInfo!!)){
-                mergeBillAndUpdate(bill,billInfo!!)
-                EventBus.post(BillUpdateEvent(billInfo!!))
+        if(billInfoModel != null){
+            if(checkRepeat(bill,billInfoModel!!)){
+                mergeBillAndUpdate(bill,billInfoModel!!)
+                EventBus.post(BillUpdateEvent(billInfoModel!!))
                 return@withContext
             }
         }
@@ -155,24 +154,24 @@ class FloatingWindowService : Service() {
         list.add(bill)
     }
 
-    private suspend fun checkBills(bill:BillInfo, remove:Boolean = false):Boolean{
+    private suspend fun checkBills(bill:BillInfoModel, remove:Boolean = false):Boolean{
         list.forEach { bill2 ->
             if(checkRepeat(bill,bill2)){
                 mergeBillAndUpdate(bill,bill2)
                 if(remove){
-                    BillInfo.remove(bill.id)
+                    BillInfoModel.remove(bill.id)
                 }
                 return true
             }
         }
         //从历史记录中判断是否有重复账单
-        val history = BillInfo.getEditBills()
+        val history = BillInfoModel.getEditBills()
 
         history.forEach { bill2 ->
             if(checkRepeat(bill,bill2)){
                 mergeBillAndUpdate(bill,bill2)
                 if(remove){
-                    BillInfo.remove(bill.id)
+                    BillInfoModel.remove(bill.id)
                 }
                 return true
             }
@@ -192,7 +191,7 @@ class FloatingWindowService : Service() {
      * bill是新来的账单，bill2是原始的账单
      */
 
-    private suspend fun checkRepeat(bill: BillInfo, bill2: BillInfo): Boolean {
+    private suspend fun checkRepeat(bill: BillInfoModel, bill2: BillInfoModel): Boolean {
         Logger.i("重复性比较")
         Logger.i("bill:$bill")
         Logger.i("bill2:$bill2")
@@ -218,7 +217,7 @@ class FloatingWindowService : Service() {
      * 重复账单进行合并
      * bill是新来的账单，bill2是原始的账单
      */
-    private suspend fun mergeRepeatBill(bill: BillInfo, bill2: BillInfo) {
+    private suspend fun mergeRepeatBill(bill: BillInfoModel, bill2: BillInfoModel) {
         //合并支付方式
         if (bill2.accountNameFrom.length < bill.accountNameFrom.length) {
             bill2.accountNameFrom = bill.accountNameFrom
@@ -251,12 +250,12 @@ class FloatingWindowService : Service() {
         )
     }
 
-    private suspend fun mergeBillAndUpdate(bill: BillInfo, bill2: BillInfo) {
+    private suspend fun mergeBillAndUpdate(bill: BillInfoModel, bill2: BillInfoModel) {
         Logger.i("重复账单:$bill")
         bill.groupId = bill2.id
         mergeRepeatBill(bill, bill2)
-        BillInfo.put(bill)
-        BillInfo.put(bill2)
+        BillInfoModel.put(bill)
+        BillInfoModel.put(bill2)
 
     }
     override fun onStartCommand(
@@ -273,24 +272,24 @@ class FloatingWindowService : Service() {
     }
 
     private suspend fun processBillInfo() = withContext(Dispatchers.Main) {
-        if(checkBills(billInfo!!,true)){
+        if(checkBills(billInfoModel!!,true)){
             processBillInfo = false
             return@withContext
         }
-        if(billInfo!!.shopItem.isEmpty()){
-            billInfo!!.shopItem = billInfo!!.extendData
+        if(billInfoModel!!.shopItem.isEmpty()){
+            billInfoModel!!.shopItem = billInfoModel!!.extendData
         }
        // billInfo!!.syncFromApp = 0
         val tpl = SpUtils.getString("setting_bill_remark", "【商户名称】 - 【商品名称】")
-        billInfo!!.remark = BillUtils.getRemark(billInfo!!, tpl)
+        billInfoModel!!.remark = BillUtils.getRemark(billInfoModel!!, tpl)
 
 
-        BillUtils.setAccountMap(billInfo!!)
+        BillUtils.setAccountMap(billInfoModel!!)
 
 
         Logger.i("timeCount:$timeCount")
 
-        Logger.i("BillInfo:${billInfo!!.toJson()}")
+        Logger.i("BillInfo:${billInfoModel!!.toJson()}")
 
         if (timeCount == 0) {
             callBillInfoEditor("setting_float_on_badge_timeout")
@@ -301,9 +300,9 @@ class FloatingWindowService : Service() {
         // 使用 ViewBinding 初始化悬浮窗视图
         val binding = FloatTipBinding.inflate(LayoutInflater.from(themedContext))
         binding.root.visibility = View.INVISIBLE
-        binding.money.text = billInfo!!.money.toString()
+        binding.money.text = billInfoModel!!.money.toString()
 
-        val colorRes = BillUtils.getColor(billInfo!!.type)
+        val colorRes = BillUtils.getColor(billInfoModel!!.type)
         val color = ContextCompat.getColor(themedContext, colorRes)
         binding.money.setTextColor(color)
         binding.time.text = String.format("%ss", timeCount.toString())
@@ -372,21 +371,21 @@ class FloatingWindowService : Service() {
         floatingViews.remove(binding)
     }
 
-    private fun recordBillInfo(billInfo2: BillInfo) {
+    private fun recordBillInfo(billInfoModel2: BillInfoModel) {
         runCatching {
-            billInfo2.syncFromApp = 0
+            billInfoModel2.syncFromApp = 0
             AppUtils.getScope().launch {
-                BillInfo.put(billInfo2)
+                BillInfoModel.put(billInfoModel2)
             }
             if (SpUtils.getBoolean("setting_book_success", true)) {
                 Toaster.show(
                     getString(
                         R.string.auto_success,
-                        billInfo2.money.toString(),
+                        billInfoModel2.money.toString(),
                     ),
                 )
             }
-            billInfo = null
+            billInfoModel = null
         }.onFailure {
             if (it is AutoServiceException) {
                 EventBus.post(AutoServiceErrorEvent(it))
@@ -398,7 +397,7 @@ class FloatingWindowService : Service() {
         when (SpUtils.getInt(key, FloatEvent.POP_EDIT_WINDOW.ordinal)) {
             FloatEvent.AUTO_ACCOUNT.ordinal -> {
                 // 记账
-                recordBillInfo(billInfo!!)
+                recordBillInfo(billInfoModel!!)
                 processBillInfo = false
             }
 
@@ -408,9 +407,9 @@ class FloatingWindowService : Service() {
                         // 编辑
                         withContext(Dispatchers.Main) {
                            runCatching {
-                               FloatEditorDialog(themedContext, billInfo!!, it, true, false, onCancelClick = {
+                               FloatEditorDialog(themedContext, billInfoModel!!, it, true, false, onCancelClick = {
                                    AppUtils.getScope().launch {
-                                       BillInfo.remove(billInfo!!.id)
+                                       BillInfoModel.remove(billInfoModel!!.id)
                                    }
                                }, onClose = {
                                    processBillInfo = false
@@ -429,7 +428,7 @@ class FloatingWindowService : Service() {
             FloatEvent.NO_ACCOUNT.ordinal -> {
                 processBillInfo = false
                 AppUtils.getScope().launch {
-                    BillInfo.remove(billInfo!!.id)
+                    BillInfoModel.remove(billInfoModel!!.id)
                 }
             }
         }

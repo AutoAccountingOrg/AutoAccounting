@@ -21,7 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.utils.AppTimeMonitor
 import net.ankio.auto.utils.AppUtils
-import net.ankio.auto.utils.server.model.BillInfo
+import net.ankio.auto.utils.server.model.BillInfoModel
 
 object Engine {
     suspend fun analyze(
@@ -29,7 +29,7 @@ object Engine {
         app: String, // 来自哪个App或者手机号
         data: String, // 具体的数据
         call: Boolean = true,
-    ): BillInfo? =
+    ): BillInfoModel? =
         withContext(Dispatchers.IO) {
             AppTimeMonitor.startMonitoring("规则识别")
 
@@ -44,9 +44,9 @@ object Engine {
                     },
                 )
 
-            val billInfo = runCatching { Gson().fromJson(json as JsonObject,BillInfo::class.java) }.getOrNull()
+            val billInfoModel = runCatching { Gson().fromJson(json as JsonObject,BillInfoModel::class.java) }.getOrNull()
 
             AppTimeMonitor.stopMonitoring("规则识别")
-            billInfo
+            billInfoModel
         }
 }

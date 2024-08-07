@@ -19,19 +19,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentOrderBinding
 //import net.ankio.auto.ui.adapter.OrderAdapter
-import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.MenuItem
 import net.ankio.auto.utils.AppUtils
-import net.ankio.auto.utils.server.model.BillInfo
+import net.ankio.auto.utils.server.model.BillInfoModel
 
 class OrderFragment : BaseFragment() {
     override val menuList: ArrayList<MenuItem>
@@ -46,7 +41,7 @@ class OrderFragment : BaseFragment() {
     private lateinit var recyclerView: RecyclerView
     //private lateinit var adapter: OrderAdapter
     private lateinit var layoutManager: LinearLayoutManager
-    private val dataItems = ArrayList<Pair<String, List<BillInfo>>>()
+    private val dataItems = ArrayList<Pair<String, List<BillInfoModel>>>()
 
     override fun onCreateView(
         inflater: LayoutInflater,

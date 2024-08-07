@@ -23,7 +23,7 @@ import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.SpUtils
 import net.ankio.auto.utils.server.model.Assets
 import net.ankio.auto.utils.server.model.AssetsMap
-import net.ankio.auto.utils.server.model.BillInfo
+import net.ankio.auto.utils.server.model.BillInfoModel
 import net.ankio.common.constant.AssetsType
 import net.ankio.common.constant.BillType
 import net.ankio.common.constant.Currency
@@ -34,47 +34,47 @@ object BillUtils {
      * 对重复账单进行分组更新
      */
     suspend fun updateBillInfo(
-        parentBillInfo: BillInfo,
-        billInfo: BillInfo,
+        parentBillInfoModel: BillInfoModel,
+        billInfoModel: BillInfoModel,
     ) {
-        if (!parentBillInfo.shopName.contains(billInfo.shopName)) {
-            parentBillInfo.shopName = billInfo.shopName
+        if (!parentBillInfoModel.shopName.contains(billInfoModel.shopName)) {
+            parentBillInfoModel.shopName = billInfoModel.shopName
         }
-        if (!parentBillInfo.shopItem.contains(billInfo.shopItem)) {
-            parentBillInfo.shopItem += " / " + billInfo.shopItem
+        if (!parentBillInfoModel.shopItem.contains(billInfoModel.shopItem)) {
+            parentBillInfoModel.shopItem += " / " + billInfoModel.shopItem
         }
 
-        parentBillInfo.remark =
+        parentBillInfoModel.remark =
             getRemark(
-                parentBillInfo,
+                parentBillInfoModel,
                 SpUtils.getString("setting_bill_remark", "【商户名称】 - 【商品名称】"),
             )
 
-        parentBillInfo.cateName = billInfo.cateName
+        parentBillInfoModel.cateName = billInfoModel.cateName
 
-        if (!parentBillInfo.accountNameFrom.contains(billInfo.accountNameFrom)) {
-            parentBillInfo.accountNameFrom = billInfo.accountNameFrom
+        if (!parentBillInfoModel.accountNameFrom.contains(billInfoModel.accountNameFrom)) {
+            parentBillInfoModel.accountNameFrom = billInfoModel.accountNameFrom
         }
-        if (!parentBillInfo.accountNameTo.contains(billInfo.accountNameTo)) {
-            parentBillInfo.accountNameTo = billInfo.accountNameTo
+        if (!parentBillInfoModel.accountNameTo.contains(billInfoModel.accountNameTo)) {
+            parentBillInfoModel.accountNameTo = billInfoModel.accountNameTo
         }
-        parentBillInfo.syncFromApp = 0
-        BillInfo.put(parentBillInfo)
+        parentBillInfoModel.syncFromApp = 0
+        BillInfoModel.put(parentBillInfoModel)
     }
 
-    fun noNeedFilter(billInfo: BillInfo): Boolean {
+    fun noNeedFilter(billInfoModel: BillInfoModel): Boolean {
         return !SpUtils.getBoolean("setting_bill_repeat", true) ||
             (
-                billInfo.type != BillType.Income.value &&
-                    billInfo.type != BillType.Expend.value
+                billInfoModel.type != BillType.Income.value &&
+                    billInfoModel.type != BillType.Expend.value
             )
     }
 
     // 检查是否为重复账单
     fun checkRepeatBill(
-        bill: BillInfo,
-        bills: List<BillInfo>,
-    ): BillInfo? {
+        bill: BillInfoModel,
+        bills: List<BillInfoModel>,
+    ): BillInfoModel? {
         val list = bills.filter { bill.money == it.money && bill.type == it.type }
 
         if (list.isEmpty())return null
@@ -101,19 +101,19 @@ object BillUtils {
      */
 
     suspend fun groupBillInfo(
-        billInfo: BillInfo,
-        child: ArrayList<BillInfo>?,
+        billInfoModel: BillInfoModel,
+        child: ArrayList<BillInfoModel>?,
     ) {
-        if (noNeedFilter(billInfo)) {
-            BillInfo.put(billInfo)
+        if (noNeedFilter(billInfoModel)) {
+            BillInfoModel.put(billInfoModel)
             return
         }
 
-        val billId = BillInfo.put(billInfo)
+        val billId = BillInfoModel.put(billInfoModel)
 
         child?.forEach {
             it.groupId = billId
-            BillInfo.put(it)
+            BillInfoModel.put(it)
         }
     }
 
@@ -237,27 +237,27 @@ object BillUtils {
     /**
      * 获取资产映射
      */
-    suspend fun setAccountMap(billInfo: BillInfo) =
+    suspend fun setAccountMap(billInfoModel: BillInfoModel) =
         withContext(Dispatchers.IO) {
             val list = AssetsMap.get()
-            val rawAccountNameFrom = billInfo.accountNameFrom
-            val rawAccountNameTo = billInfo.accountNameTo
-            billInfo.accountNameFrom = getMapName(list, rawAccountNameFrom)
-            billInfo.accountNameTo = getMapName(list, rawAccountNameTo)
+            val rawAccountNameFrom = billInfoModel.accountNameFrom
+            val rawAccountNameTo = billInfoModel.accountNameTo
+            billInfoModel.accountNameFrom = getMapName(list, rawAccountNameFrom)
+            billInfoModel.accountNameTo = getMapName(list, rawAccountNameTo)
 
             if (SpUtils.getBoolean("setting_auto_ai_asset", false)) {
                 val assets = Assets.get(500, AssetsType.NORMAL)
                 if (rawAccountNameTo != "" &&
-                    rawAccountNameTo == billInfo.accountNameTo &&
+                    rawAccountNameTo == billInfoModel.accountNameTo &&
                     assets.find { it.name == rawAccountNameTo } == null
                 ) {
-                    billInfo.accountNameTo = getAiAssets(assets, rawAccountNameTo)
+                    billInfoModel.accountNameTo = getAiAssets(assets, rawAccountNameTo)
                 }
                 if (rawAccountNameFrom != "" &&
-                    rawAccountNameFrom == billInfo.accountNameFrom &&
+                    rawAccountNameFrom == billInfoModel.accountNameFrom &&
                     assets.find { it.name == rawAccountNameFrom } == null
                 ) {
-                    billInfo.accountNameFrom = getAiAssets(assets, rawAccountNameFrom)
+                    billInfoModel.accountNameFrom = getAiAssets(assets, rawAccountNameFrom)
                 }
             }
         }
@@ -267,18 +267,18 @@ object BillUtils {
      * setting_bill_remark
      */
     fun getRemark(
-        billInfo: BillInfo,
+        billInfoModel: BillInfoModel,
         settingBillRemark: String = "【商户名称】 - 【商品名称】",
     ): String {
         val tpl = settingBillRemark.ifEmpty { "【商户名称】 - 【商品名称】" }
         return tpl
-            .replace("【商户名称】", billInfo.shopName)
-            .replace("【商品名称】", billInfo.shopItem)
-            .replace("【币种类型】", Currency.valueOf(billInfo.currency).name(AppUtils.getApplication()))
-            .replace("【金额】", billInfo.money.toString())
-            .replace("【分类】", billInfo.cateName)
-            .replace("【账本】", billInfo.bookName)
-            .replace("【来源】", billInfo.fromApp)
+            .replace("【商户名称】", billInfoModel.shopName)
+            .replace("【商品名称】", billInfoModel.shopItem)
+            .replace("【币种类型】", Currency.valueOf(billInfoModel.currency).name(AppUtils.getApplication()))
+            .replace("【金额】", billInfoModel.money.toString())
+            .replace("【分类】", billInfoModel.cateName)
+            .replace("【账本】", billInfoModel.bookName)
+            .replace("【来源】", billInfoModel.fromApp)
     }
 
     /**

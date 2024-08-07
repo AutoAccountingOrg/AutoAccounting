@@ -46,7 +46,7 @@ import net.ankio.auto.utils.SpUtils
 import net.ankio.auto.utils.event.EventBus
 import net.ankio.auto.utils.server.model.Assets
 import net.ankio.auto.utils.server.model.AssetsMap
-import net.ankio.auto.utils.server.model.BillInfo
+import net.ankio.auto.utils.server.model.BillInfoModel
 import net.ankio.auto.utils.server.model.BookNameModel
 import net.ankio.auto.utils.server.model.CategoryModel
 import net.ankio.common.config.AccountingConfig
@@ -56,26 +56,26 @@ import java.util.Calendar
 
 class FloatEditorDialog(
     private val context: Context,
-    private val billInfo: BillInfo,
+    private val billInfoModel: BillInfoModel,
     private val autoAccountingConfig: AccountingConfig,
     private val float: Boolean = false,
     private val onlyShow: Boolean = false, // 是否仅展示
-    private val onClose: ((billInfo: BillInfo) -> Unit)? = null,
-    private val onCancelClick:((billInfo: BillInfo) -> Unit)? = null,
+    private val onClose: ((billInfoModel: BillInfoModel) -> Unit)? = null,
+    private val onCancelClick:((billInfoModel: BillInfoModel) -> Unit)? = null,
 ) :
     BaseSheetDialog(context) {
     lateinit var binding: FloatEditorBinding
     private var billTypeLevel1 = BillType.Expend
     private var billTypeLevel2 = BillType.Expend
 
-    private var rawBillInfo = billInfo.copy()
+    private var rawBillInfo = billInfoModel.copy()
     private var rawChooseDebt = ""
     private var rawChooseReimbursement = ""
 
 
 
     private val onBillUpdateEvent = { event: BillUpdateEvent ->
-        val billInfo = event.billInfo
+        val billInfo = event.billInfoModel
         Logger.i("onBillUpdateEvent => $billInfo")
         if (::binding.isInitialized){
             rawBillInfo = billInfo.copy()
@@ -114,16 +114,16 @@ class FloatEditorDialog(
 
     // 综合以上内容，应用到billInfo对象上
 
-    private fun getBillData(): BillInfo {
-        return BillInfo().apply {
-            this.channel = billInfo.channel
-            this.fromApp = billInfo.fromApp
-            this.money = billInfo.money
-            this.type = billInfo.type
-            this.fee = billInfo.fee
-            this.bookName = billInfo.bookName
+    private fun getBillData(): BillInfoModel {
+        return BillInfoModel().apply {
+            this.channel = billInfoModel.channel
+            this.fromApp = billInfoModel.fromApp
+            this.money = billInfoModel.money
+            this.type = billInfoModel.type
+            this.fee = billInfoModel.fee
+            this.bookName = billInfoModel.bookName
             this.type = billTypeLevel2.value
-            this.id = billInfo.id
+            this.id = billInfoModel.id
             when (billTypeLevel2) {
                 BillType.Expend -> {
                     this.accountNameFrom = binding.payFrom.getText()
@@ -171,14 +171,14 @@ class FloatEditorDialog(
                 }
             }
 
-            this.shopName = billInfo.shopName
-            this.shopItem = billInfo.shopItem
+            this.shopName = billInfoModel.shopName
+            this.shopItem = billInfoModel.shopItem
 
-            this.cateName = billInfo.cateName
+            this.cateName = billInfoModel.cateName
 
-            this.currency = billInfo.currency
+            this.currency = billInfoModel.currency
 
-            this.time = billInfo.time
+            this.time = billInfoModel.time
             this.remark = binding.remark.text.toString()
         }
     }
@@ -205,12 +205,12 @@ class FloatEditorDialog(
 
             lifecycleScope.launch {
                 runCatching {
-                    BillInfo.put(bill)
+                    BillInfoModel.put(bill)
                     if (SpUtils.getBoolean("setting_book_success", true)) {
                         Toaster.show(
                             context.getString(
                                 R.string.auto_success,
-                                billInfo.money.toString(),
+                                billInfoModel.money.toString(),
                             ),
                         )
                     }
@@ -278,7 +278,7 @@ class FloatEditorDialog(
     }
 
     private fun bindingTypePopupUI() {
-        binding.priceContainer.text = billInfo.money.toString()
+        binding.priceContainer.text = billInfoModel.money.toString()
         setPriceColor(billTypeLevel1.toInt())
     }
 
@@ -297,9 +297,9 @@ class FloatEditorDialog(
                 stringList,
                 billTypeLevel1,
             ) { pos, key, value ->
-                billInfo.type = (value as BillType).value
-                billTypeLevel1 = BillType.fromInt(billInfo.type)
-                billTypeLevel2 = BillType.fromInt(billInfo.type)
+                billInfoModel.type = (value as BillType).value
+                billTypeLevel1 = BillType.fromInt(billInfoModel.type)
+                billTypeLevel2 = BillType.fromInt(billInfoModel.type)
                 binding.radioContainer.check(binding.radioNone.id)
                 bindUI()
             }
@@ -313,7 +313,7 @@ class FloatEditorDialog(
             binding.fee.visibility = View.GONE
         } else {
             binding.fee.visibility = View.VISIBLE
-            binding.fee.setText(billInfo.fee.toString())
+            binding.fee.setText(billInfoModel.fee.toString())
         }
     }
 
@@ -323,7 +323,7 @@ class FloatEditorDialog(
 
     private fun bindingBookNameUI() {
         lifecycleScope.launch {
-            BookNameModel.getDrawable(billInfo.bookName, context, binding.bookImage)
+            BookNameModel.getDrawable(billInfoModel.bookName, context, binding.bookImage)
         }
     }
 
@@ -331,7 +331,7 @@ class FloatEditorDialog(
         binding.bookImageClick.setOnClickListener {
             if (!autoAccountingConfig.multiBooks) return@setOnClickListener
             BookSelectorDialog(context) {
-                billInfo.bookName = it.name
+                billInfoModel.bookName = it.name
                 bindingBookNameUI()
             }.show(float)
         }
@@ -366,14 +366,14 @@ class FloatEditorDialog(
         ) { // 这三个有单独的UI
             // 收入销账、收入报销
             binding.payInfo.visibility = View.VISIBLE
-            setAssetItem(billInfo.accountNameFrom, binding.payFrom)
+            setAssetItem(billInfoModel.accountNameFrom, binding.payFrom)
         }
 
         // 如果是债务销账，则显示这个UI
 
         if (billTypeLevel2 == BillType.ExpendRepayment || billTypeLevel2 == BillType.IncomeRepayment) {
             binding.payInfo.visibility = View.VISIBLE
-            setAssetItem(billInfo.accountNameFrom, binding.payFrom)
+            setAssetItem(billInfoModel.accountNameFrom, binding.payFrom)
         }
     }
 
@@ -381,7 +381,7 @@ class FloatEditorDialog(
         binding.payFrom.setOnClickListener {
             if (!autoAccountingConfig.assetManagement) return@setOnClickListener
             AssetsSelectorDialog(context) {
-                billInfo.accountNameFrom = it.name
+                billInfoModel.accountNameFrom = it.name
                 bindingPayInfoUI()
             }.show(float)
         }
@@ -396,8 +396,8 @@ class FloatEditorDialog(
         // 只有转账生效
         if (billTypeLevel1 == BillType.Transfer) {
             binding.transferInfo.visibility = View.VISIBLE
-            setAssetItem(billInfo.accountNameFrom, binding.transferFrom)
-            setAssetItem(billInfo.accountNameTo, binding.transferTo)
+            setAssetItem(billInfoModel.accountNameFrom, binding.transferFrom)
+            setAssetItem(billInfoModel.accountNameTo, binding.transferTo)
         }
     }
 
@@ -405,14 +405,14 @@ class FloatEditorDialog(
         binding.transferFrom.setOnClickListener {
             if (!autoAccountingConfig.assetManagement) return@setOnClickListener
             AssetsSelectorDialog(context) {
-                billInfo.accountNameFrom = it.name
+                billInfoModel.accountNameFrom = it.name
                 bindingTransferInfoUI()
             }.show(float)
         }
         binding.transferTo.setOnClickListener {
             if (!autoAccountingConfig.assetManagement) return@setOnClickListener
             AssetsSelectorDialog(context) {
-                billInfo.accountNameTo = it.name
+                billInfoModel.accountNameTo = it.name
                 bindingTransferInfoUI()
             }.show(float)
         }
@@ -427,8 +427,8 @@ class FloatEditorDialog(
 
         if (billTypeLevel1 == BillType.Expend && billTypeLevel2 == BillType.ExpendLending) {
             binding.debtExpend.visibility = View.VISIBLE
-            setAssetItem(billInfo.accountNameFrom, binding.debtExpendFrom)
-            binding.debtExpendTo.setText(billInfo.shopName)
+            setAssetItem(billInfoModel.accountNameFrom, binding.debtExpendFrom)
+            binding.debtExpendTo.setText(billInfoModel.shopName)
         }
     }
 
@@ -436,7 +436,7 @@ class FloatEditorDialog(
         binding.debtExpendFrom.setOnClickListener {
             if (!autoAccountingConfig.assetManagement) return@setOnClickListener
             AssetsSelectorDialog(context) {
-                billInfo.accountNameFrom = it.name
+                billInfoModel.accountNameFrom = it.name
                 bindingDebtExpendUI()
             }.show(float)
         }
@@ -451,8 +451,8 @@ class FloatEditorDialog(
 
         if (billTypeLevel1 == BillType.Income && billTypeLevel2 == BillType.IncomeLending) {
             binding.debtIncome.visibility = View.VISIBLE
-            setAssetItem(billInfo.accountNameFrom, binding.debtIncomeTo)
-            binding.debtIncomeFrom.setText(billInfo.shopName)
+            setAssetItem(billInfoModel.accountNameFrom, binding.debtIncomeTo)
+            binding.debtIncomeFrom.setText(billInfoModel.shopName)
         }
     }
 
@@ -460,7 +460,7 @@ class FloatEditorDialog(
         binding.debtIncomeTo.setOnClickListener {
             if (!autoAccountingConfig.assetManagement) return@setOnClickListener
             AssetsSelectorDialog(context) {
-                billInfo.accountNameTo = it.name
+                billInfoModel.accountNameTo = it.name
                 bindingDebtIncomeUI()
             }.show(float)
         }
@@ -610,12 +610,12 @@ class FloatEditorDialog(
         if (billTypeLevel2 == BillType.Income || billTypeLevel2 == BillType.Expend || billTypeLevel2 == BillType.ExpendReimbursement) {
             binding.category.visibility = View.VISIBLE
             lifecycleScope.launch {
-                val book = BookNameModel.getDefaultBook(billInfo.bookName)
-                CategoryModel.getDrawable(billInfo.cateName, book.id, billInfo.type,context).let {
+                val book = BookNameModel.getDefaultBook(billInfoModel.bookName)
+                CategoryModel.getDrawable(billInfoModel.cateName, book.id, billInfoModel.type,context).let {
                     binding.category.setIcon(it, true)
                 }
             }
-            binding.category.setText(billInfo.cateName)
+            binding.category.setText(billInfoModel.cateName)
         } else {
             binding.category.visibility = View.GONE
         }
@@ -624,11 +624,11 @@ class FloatEditorDialog(
     private fun bindingCategoryEvents() {
         binding.category.setOnClickListener {
             lifecycleScope.launch {
-                val book = BookNameModel.getDefaultBook(billInfo.bookName)
+                val book = BookNameModel.getDefaultBook(billInfoModel.bookName)
                 withContext(Dispatchers.Main) {
                     CategorySelectorDialog(context, book.id, billTypeLevel1) { parent, child ->
                         if (parent == null)return@CategorySelectorDialog
-                        billInfo.cateName =
+                        billInfoModel.cateName =
                             BillUtils.getCategory(
                                 parent.name ?: "",
                                 child?.name,
@@ -646,7 +646,7 @@ class FloatEditorDialog(
             binding.moneyType.visibility = View.GONE
             return
         }
-        val currency = Currency.valueOf(billInfo.currency)
+        val currency = Currency.valueOf(billInfoModel.currency)
         binding.moneyType.setText(currency.name(context))
         binding.moneyType.setIcon(currency.icon(context))
     }
@@ -660,9 +660,9 @@ class FloatEditorDialog(
                     context,
                     binding.moneyType,
                     hashMap,
-                    billInfo.currency,
+                    billInfoModel.currency,
                 ) { pos, key, value ->
-                    billInfo.currency = (value as Currency).name
+                    billInfoModel.currency = (value as Currency).name
                     bindingMoneyTypeUI()
                 }
             popupUtils.toggle()
@@ -670,7 +670,7 @@ class FloatEditorDialog(
     }
 
     private fun bindingTimeUI() {
-        binding.time.setText(DateUtils.getTime(billInfo.time))
+        binding.time.setText(DateUtils.getTime(billInfoModel.time))
     }
 
     private fun showDateTimePicker(defaultTimestamp: Long) {
@@ -704,7 +704,7 @@ class FloatEditorDialog(
                                 calendar.set(Calendar.MINUTE, selectedMinute)
 
                                 // 最终的日期和时间结果
-                                billInfo.time = calendar.timeInMillis
+                                billInfoModel.time = calendar.timeInMillis
                                 bindingTimeUI()
                                 // 处理最终的时间戳
                             },
@@ -731,12 +731,12 @@ class FloatEditorDialog(
     private fun bindingTimeEvents() {
         binding.time.setOnClickListener {
             // 弹出时间选择器 时间选择器
-            showDateTimePicker(billInfo.time)
+            showDateTimePicker(billInfoModel.time)
         }
     }
 
     private fun bindingRemarkUI() {
-        binding.remark.setText(billInfo.remark)
+        binding.remark.setText(billInfoModel.remark)
     }
 
     private fun bindingRemarkEvents() {

@@ -24,15 +24,15 @@ import kotlinx.coroutines.launch
 import net.ankio.auto.databinding.DialogBillMoreBinding
 //import net.ankio.auto.ui.adapter.OrderItemAdapter
 import net.ankio.auto.utils.AppUtils
-import net.ankio.auto.utils.server.model.BillInfo
+import net.ankio.auto.utils.server.model.BillInfoModel
 
 class BillMoreDialog(
     private val context: Context,
-    private val billInfo: BillInfo,
+    private val billInfoModel: BillInfoModel,
 ) :
     BaseSheetDialog(context) {
     private lateinit var binding: DialogBillMoreBinding
-    private val dataItems = mutableListOf<BillInfo>()
+    private val dataItems = mutableListOf<BillInfoModel>()
     //private val adapter = OrderItemAdapter(dataItems, null, null,context)
 
     override fun onCreateView(inflater: LayoutInflater): View {

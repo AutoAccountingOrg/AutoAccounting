@@ -24,13 +24,13 @@ import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogBillCategoryBinding
 import net.ankio.auto.utils.Logger
-import net.ankio.auto.utils.server.model.BillInfo
+import net.ankio.auto.utils.server.model.BillInfoModel
 import net.ankio.auto.utils.server.model.BookNameModel
 import net.ankio.auto.utils.server.model.CustomRuleModel
 
 class BillCategoryDialog(
     private val context: Context,
-    private val billInfo: BillInfo,
+    private val billInfoModel: BillInfoModel,
 ) :
     BaseSheetDialog(context) {
     private lateinit var binding: DialogBillCategoryBinding
@@ -48,8 +48,8 @@ class BillCategoryDialog(
         binding.sureButton.setOnClickListener {
             // 自动生成只关注 shopName和shopItem
 
-            var shopName = billInfo.shopName
-            var shopItem = billInfo.shopItem
+            var shopName = billInfoModel.shopName
+            var shopItem = billInfoModel.shopItem
 
             // 如果包含数字，就是无效数据
 
@@ -128,22 +128,22 @@ class BillCategoryDialog(
                 list.add(data)
             }
 
-            text += "，则账本为【${billInfo.bookName}】，分类为【${billInfo.cateName}】。"
+            text += "，则账本为【${billInfoModel.bookName}】，分类为【${billInfoModel.cateName}】。"
 
             lifecycleScope.launch {
                 Logger.i("condition:$condition")
-                val book = BookNameModel.getByName(billInfo.bookName)
+                val book = BookNameModel.getByName(billInfoModel.bookName)
                 val id = book.id
                 val otherData =
                     hashMapOf<String, Any>(
-                        "book" to billInfo.bookName,
-                        "category" to billInfo.cateName,
+                        "book" to billInfoModel.bookName,
+                        "category" to billInfoModel.cateName,
                         "id" to id,
                     )
                 list.add(otherData)
                 condition += ""
                 val js =
-                    "if($condition){ return { book:'${billInfo.bookName}',category:'${billInfo.cateName}'} }"
+                    "if($condition){ return { book:'${billInfoModel.bookName}',category:'${billInfoModel.cateName}'} }"
                 val customRuleModel = CustomRuleModel()
                 customRuleModel.js = js
                 customRuleModel.text = text

@@ -17,11 +17,9 @@ package net.ankio.auto.ui.activity
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Base64
 import androidx.appcompat.app.AppCompatActivity
 import net.ankio.auto.service.FloatingWindowService
 import net.ankio.auto.utils.Logger
-import net.ankio.auto.utils.server.model.BillInfo
 
 class FloatingWindowTriggerActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
