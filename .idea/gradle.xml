@@ -13,7 +13,6 @@
             <option value="$PROJECT_DIR$/common" />
             <option value="$PROJECT_DIR$/dex" />
             <option value="$PROJECT_DIR$/server" />
-            <option value="$PROJECT_DIR$/tests" />
           </set>
         </option>
         <option name="resolveExternalAnnotations" value="false" />

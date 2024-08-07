@@ -19,10 +19,14 @@ import kotlinx.coroutines.launch
 import net.ankio.auto.utils.AppUtils
 
 class RuleModel {
+    var id = 0
     var app = ""
+    var type = 0
+    var use = 0
+    var auto_record = 0
+    var name = ""
     var js = ""
     var version = ""
-    var type = 0
 
     companion object {
         fun put(rule: RuleModel) {

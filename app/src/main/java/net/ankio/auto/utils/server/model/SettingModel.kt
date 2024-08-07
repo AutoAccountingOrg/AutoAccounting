@@ -21,6 +21,7 @@ import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.Logger
 
 class SettingModel {
+    var id  = 0
     var app = ""
     var key = ""
     var value = ""
