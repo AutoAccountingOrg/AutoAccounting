@@ -35,17 +35,22 @@ class LogModel:BaseModel(){
         const val LOG_LEVEL_WARN = 2
         const val LOG_LEVEL_ERROR = 3
 
-        fun put(logModel: LogModel) {
-            AppUtils.getScope().launch {
-                AppUtils.getService().sendMsg("log/put", logModel)
-            }
+       suspend fun put(logModel: LogModel) {
+           AppUtils.getService().sendMsg("log/add", logModel)
         }
 
 
-        fun deleteAll() {
-            AppUtils.getScope().launch {
-                AppUtils.getService().sendMsg("log/delete/all", null)
-            }
+        suspend fun clear() {
+            AppUtils.getService().sendMsg("log/clear", null)
         }
+
+        suspend fun list(page:Int,limit:Int):List<LogModel>{
+            val data = runCatching {
+                AppUtils.getService().sendMsg("log/list", mapOf("page" to page, "limit" to limit)) as List<LogModel>
+            }.getOrNull()?: emptyList()
+            return data
+        }
+
+
     }
 }
