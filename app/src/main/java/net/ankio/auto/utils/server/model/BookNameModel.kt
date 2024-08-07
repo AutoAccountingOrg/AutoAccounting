@@ -19,12 +19,11 @@ import android.widget.ImageView
 import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.ImageUtils
 
-class BookName {
+class BookNameModel {
     // 账本列表
     var id: Int = 0
 
@@ -39,38 +38,35 @@ class BookName {
     var icon: String = "" // 图标
 
     companion object {
-        fun put(book: BookName) {
-            AppUtils.getScope().launch {
-                AppUtils.getService().sendMsg("book/put", book)
-            }
-        }
 
-        suspend fun getOne(): BookName? {
-            val data = AppUtils.getService().sendMsg("book/get/one", null)
-            return runCatching { Gson().fromJson(data as JsonObject, BookName::class.java) }.getOrNull()
-        }
-
-        suspend fun getByName(name: String): BookName {
-            val data = AppUtils.getService().sendMsg("book/get/name", mapOf("name" to name))
-            return runCatching { Gson().fromJson(data as JsonObject, BookName::class.java) }.getOrNull()
-                ?: BookName().apply { this.name = name }
-        }
-
-        suspend fun get(): List<BookName> {
-            val data = AppUtils.getService().sendMsg("book/get/all", null)
-            return runCatching { Gson().fromJson(data as JsonArray, Array<BookName>::class.java).toList() }
+        suspend fun list(): List<BookNameModel> {
+            val data = AppUtils.getService().sendMsg("bookname/list", mapOf("size" to 0, "page" to 1))
+            return runCatching { Gson().fromJson(data as JsonArray, Array<BookNameModel>::class.java).toList() }
                 .getOrNull() ?: emptyList()
         }
 
-        suspend fun remove(name: String) {
-            AppUtils.getService().sendMsg("book/remove", mapOf("name" to name))
+
+
+        suspend fun getOne(): BookNameModel? {
+            val data = AppUtils.getService().sendMsg("bookname/list", mapOf("size" to 1, "page" to 1))
+            return runCatching { Gson().fromJson(data as JsonArray, Array<BookNameModel>::class.java).toList() }
+                .getOrNull()?.first()
+
         }
 
-        suspend fun getDefaultBook(bookName: String): BookName {
+        suspend fun getByName(name: String): BookNameModel {
+            val data = AppUtils.getService().sendMsg("bookname/get", mapOf("name" to name))
+            return runCatching { Gson().fromJson(data as JsonObject, BookNameModel::class.java) }.getOrNull()
+                ?: BookNameModel().apply { this.name = name }
+        }
+
+
+
+        suspend fun getDefaultBook(bookName: String): BookNameModel {
             if (bookName == "默认账本") {
                 var book = getOne()
                 if (book == null) {
-                    book = BookName()
+                    book = BookNameModel()
                     book.name = bookName
                 }
                 return book

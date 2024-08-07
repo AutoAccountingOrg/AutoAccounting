@@ -47,7 +47,7 @@ import net.ankio.auto.utils.event.EventBus
 import net.ankio.auto.utils.server.model.Assets
 import net.ankio.auto.utils.server.model.AssetsMap
 import net.ankio.auto.utils.server.model.BillInfo
-import net.ankio.auto.utils.server.model.BookName
+import net.ankio.auto.utils.server.model.BookNameModel
 import net.ankio.auto.utils.server.model.CategoryModel
 import net.ankio.common.config.AccountingConfig
 import net.ankio.common.constant.BillType
@@ -323,7 +323,7 @@ class FloatEditorDialog(
 
     private fun bindingBookNameUI() {
         lifecycleScope.launch {
-            BookName.getDrawable(billInfo.bookName, context, binding.bookImage)
+            BookNameModel.getDrawable(billInfo.bookName, context, binding.bookImage)
         }
     }
 
@@ -610,7 +610,7 @@ class FloatEditorDialog(
         if (billTypeLevel2 == BillType.Income || billTypeLevel2 == BillType.Expend || billTypeLevel2 == BillType.ExpendReimbursement) {
             binding.category.visibility = View.VISIBLE
             lifecycleScope.launch {
-                val book = BookName.getDefaultBook(billInfo.bookName)
+                val book = BookNameModel.getDefaultBook(billInfo.bookName)
                 CategoryModel.getDrawable(billInfo.cateName, book.id, billInfo.type,context).let {
                     binding.category.setIcon(it, true)
                 }
@@ -624,7 +624,7 @@ class FloatEditorDialog(
     private fun bindingCategoryEvents() {
         binding.category.setOnClickListener {
             lifecycleScope.launch {
-                val book = BookName.getDefaultBook(billInfo.bookName)
+                val book = BookNameModel.getDefaultBook(billInfo.bookName)
                 withContext(Dispatchers.Main) {
                     CategorySelectorDialog(context, book.id, billTypeLevel1) { parent, child ->
                         if (parent == null)return@CategorySelectorDialog

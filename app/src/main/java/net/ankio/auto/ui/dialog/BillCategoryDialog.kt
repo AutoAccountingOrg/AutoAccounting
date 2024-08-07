@@ -25,7 +25,7 @@ import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogBillCategoryBinding
 import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.server.model.BillInfo
-import net.ankio.auto.utils.server.model.BookName
+import net.ankio.auto.utils.server.model.BookNameModel
 import net.ankio.auto.utils.server.model.CustomRuleModel
 
 class BillCategoryDialog(
@@ -132,7 +132,7 @@ class BillCategoryDialog(
 
             lifecycleScope.launch {
                 Logger.i("condition:$condition")
-                val book = BookName.getByName(billInfo.bookName)
+                val book = BookNameModel.getByName(billInfo.bookName)
                 val id = book.id
                 val otherData =
                     hashMapOf<String, Any>(

@@ -44,7 +44,7 @@ import net.ankio.auto.ui.dialog.BookSelectorDialog
 import net.ankio.auto.ui.dialog.CategorySelectorDialog
 import net.ankio.auto.ui.fragment.BaseFragment
 import net.ankio.auto.utils.ListPopupUtils
-import net.ankio.auto.utils.server.model.BookName
+import net.ankio.auto.utils.server.model.BookNameModel
 import net.ankio.auto.utils.server.model.CustomRuleModel
 import java.util.Calendar
 
@@ -191,7 +191,7 @@ class EditFragment : BaseFragment() {
 
     private fun onClickCategory(it2: FlowElement) {
         lifecycleScope.launch {
-            var book = BookName.getByName(bookName)
+            var book = BookNameModel.getByName(bookName)
 
             BookInfoDialog(requireActivity(), book) { type ->
                 CategorySelectorDialog(requireActivity(), book.id, type) { parent, child ->

@@ -16,6 +16,8 @@ Json::Value BookNameHandler::handle(const std::string &function, Json::Value &da
         Database::getInstance().executeSQL("delete from " + table.name);
     }  else if (function == "add") {
         Database::getInstance().insert(table, data);
+    } else if (function == "get"){
+        return Database::getInstance().selectConditional(table, "name=?", {data["name"]});
     }
     Json::Value result;
     result["status"] = 0;

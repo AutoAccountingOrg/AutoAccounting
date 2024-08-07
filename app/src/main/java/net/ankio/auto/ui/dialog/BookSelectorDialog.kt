@@ -24,12 +24,12 @@ import kotlinx.coroutines.launch
 import net.ankio.auto.databinding.DialogBookSelectBinding
 //import net.ankio.auto.ui.adapter.BookSelectorAdapter
 import net.ankio.auto.utils.SpUtils
-import net.ankio.auto.utils.server.model.BookName
+import net.ankio.auto.utils.server.model.BookNameModel
 
-class BookSelectorDialog(private val context: Context, val callback: (BookName) -> Unit) :
+class BookSelectorDialog(private val context: Context, val callback: (BookNameModel) -> Unit) :
     BaseSheetDialog(context) {
     private lateinit var binding: DialogBookSelectBinding
-    private val dataItems = mutableListOf<BookName>()
+    private val dataItems = mutableListOf<BookNameModel>()
    // private lateinit var adapter: BookSelectorAdapter
 
     override fun onCreateView(inflater: LayoutInflater): View {
@@ -50,15 +50,15 @@ class BookSelectorDialog(private val context: Context, val callback: (BookName) 
         return binding.root
     }
 
-    private fun getData(callback: (List<BookName>) -> Unit) {
+    private fun getData(callback: (List<BookNameModel>) -> Unit) {
         val defaultBook =
-            BookName().apply {
+            BookNameModel().apply {
                 name = SpUtils.getString("defaultBook", "默认账本")
                 id = 0
             }
 
         lifecycleScope.launch {
-            val newData = BookName.get()
+            val newData = BookNameModel.get()
 
             val collection = newData.takeIf { it.isNotEmpty() } ?: listOf(defaultBook)
 
