@@ -17,13 +17,10 @@ package net.ankio.auto.utils.server.model
 
 import com.google.gson.Gson
 import com.google.gson.JsonArray
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.Logger
-import net.ankio.common.constant.BillType
 
-class BookBill {
+class BookBillModel {
     var id: Int? = null
     var amount: Double = 0.0
     var time: Long = 0
@@ -41,7 +38,7 @@ class BookBill {
     companion object{
 
 
-        suspend fun list(type:Int,book:String):Array<BookBill>?{
+        suspend fun list(type:Int,book:String):Array<BookBillModel>?{
             val list = AppUtils.getService().sendMsg("bookbill/list",
                 hashMapOf(
                     "page" to 0,
@@ -51,7 +48,7 @@ class BookBill {
                 )
             )
             return runCatching {
-                Gson().fromJson(list as JsonArray,Array<BookBill>::class.java)
+                Gson().fromJson(list as JsonArray,Array<BookBillModel>::class.java)
             }.onFailure {
                 Logger.e(it.message?:"",it)
             }.getOrNull()

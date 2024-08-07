@@ -20,7 +20,6 @@ import android.view.LayoutInflater
 import android.view.View
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.gson.Gson
 import com.hjq.toast.Toaster
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
@@ -30,10 +29,8 @@ import net.ankio.auto.exceptions.AutoServiceException
 //import net.ankio.auto.ui.adapter.BillSelectorAdapter
 import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.event.EventBus
-import net.ankio.auto.utils.server.model.BookBill
-import net.ankio.auto.utils.server.model.SettingModel
+import net.ankio.auto.utils.server.model.BookBillModel
 import net.ankio.common.constant.BillType
-import net.ankio.common.model.BillModel
 
 class BillSelectorDialog(
     private val context: Context,
@@ -43,7 +40,7 @@ class BillSelectorDialog(
 ) :
     BaseSheetDialog(context) {
     private lateinit var binding: DialogBillSelectBinding
-    private val dataItems = mutableListOf<BookBill>()
+    private val dataItems = mutableListOf<BookBillModel>()
   //  private val adapter = BillSelectorAdapter(dataItems, selectedBills)
 
     override fun onCreateView(inflater: LayoutInflater): View {
@@ -71,7 +68,7 @@ class BillSelectorDialog(
         lifecycleScope.launch {
             runCatching {
 
-                val data = BookBill.get(500,billType)
+                val data = BookBillModel.get(500,billType)
                 if (data.isNullOrEmpty()) {
                     dismiss()
                     Toaster.show(R.string.no_bills)
