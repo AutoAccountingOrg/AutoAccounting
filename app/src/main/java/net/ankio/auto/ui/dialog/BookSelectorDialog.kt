@@ -24,7 +24,7 @@ import kotlinx.coroutines.launch
 import net.ankio.auto.databinding.DialogBookSelectBinding
 //import net.ankio.auto.ui.adapter.BookSelectorAdapter
 import net.ankio.auto.utils.SpUtils
-import net.ankio.auto.utils.server.model.BookNameModel
+import net.ankio.auto.models.BookNameModel
 
 class BookSelectorDialog(private val context: Context, val callback: (BookNameModel) -> Unit) :
     BaseSheetDialog(context) {
@@ -58,11 +58,11 @@ class BookSelectorDialog(private val context: Context, val callback: (BookNameMo
             }
 
         lifecycleScope.launch {
-            val newData = BookNameModel.get()
+          /*  val newData = BookNameModel.get()
 
             val collection = newData.takeIf { it.isNotEmpty() } ?: listOf(defaultBook)
 
-            callback(collection)
+            callback(collection)*/
         }
     }
 

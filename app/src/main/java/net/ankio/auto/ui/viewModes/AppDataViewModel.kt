@@ -15,8 +15,8 @@
 
 package net.ankio.auto.ui.viewModes
 
-import net.ankio.auto.utils.server.model.AppDataModel
-import net.ankio.auto.utils.server.model.BaseModel
+import net.ankio.auto.models.AppDataModel
+import net.ankio.auto.models.BaseModel
 
 /**
  * AppDataFragment所有相关的数据绑定

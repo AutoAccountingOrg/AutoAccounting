@@ -16,6 +16,6 @@
 package net.ankio.auto.events
 
 import net.ankio.auto.utils.event.Event
-import net.ankio.auto.utils.server.model.BillInfoModel
+import net.ankio.auto.models.BillInfoModel
 
 class BillUpdateEvent(val billInfoModel: BillInfoModel) : Event()

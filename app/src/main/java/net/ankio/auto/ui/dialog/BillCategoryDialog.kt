@@ -24,9 +24,9 @@ import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogBillCategoryBinding
 import net.ankio.auto.utils.Logger
-import net.ankio.auto.utils.server.model.BillInfoModel
-import net.ankio.auto.utils.server.model.BookNameModel
-import net.ankio.auto.utils.server.model.CustomRuleModel
+import net.ankio.auto.models.BillInfoModel
+import net.ankio.auto.models.BookNameModel
+import net.ankio.auto.models.CustomRuleModel
 
 class BillCategoryDialog(
     private val context: Context,
@@ -148,8 +148,8 @@ class BillCategoryDialog(
                 customRuleModel.js = js
                 customRuleModel.text = text
                 customRuleModel.element = Gson().toJson(list)
-                customRuleModel.auto = true
-                customRuleModel.use = true
+             /*   customRuleModel.auto = true
+                customRuleModel.use = true*/
                 CustomRuleModel.put(customRuleModel)
                 dismiss()
             }

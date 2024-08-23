@@ -20,12 +20,12 @@ import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterLogBinding
 import net.ankio.auto.ui.viewModes.LogViewModel
 import net.ankio.auto.utils.AppUtils
-import net.ankio.auto.utils.server.model.LogModel
+import net.ankio.auto.models.LogModel
 
 class LogAdapter(
     private val viewModel: LogViewModel,
-) : BaseAdapter<AdapterLogBinding,LogModel>(viewModel) {
-    override fun onInitView(holder: BaseViewHolder<AdapterLogBinding,LogModel>) {
+) : BaseAdapter<AdapterLogBinding, LogModel>(viewModel) {
+    override fun onInitView(holder: BaseViewHolder<AdapterLogBinding, LogModel>) {
         val binding = holder.binding as AdapterLogBinding
         binding.log.setOnClickListener {
             AppUtils.copyToClipboard( binding.log.text.toString())
@@ -34,7 +34,7 @@ class LogAdapter(
     }
 
     override fun onBindView(
-        holder: BaseViewHolder<AdapterLogBinding,LogModel>,
+        holder: BaseViewHolder<AdapterLogBinding, LogModel>,
         item: Any,
     ) {
         val binding = holder.binding

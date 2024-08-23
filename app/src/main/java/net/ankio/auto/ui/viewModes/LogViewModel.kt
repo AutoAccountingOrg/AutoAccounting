@@ -15,8 +15,8 @@
 
 package net.ankio.auto.ui.viewModes
 
-import net.ankio.auto.utils.server.model.BaseModel
-import net.ankio.auto.utils.server.model.LogModel
+import net.ankio.auto.models.BaseModel
+import net.ankio.auto.models.LogModel
 
 class LogViewModel:BaseViewModel<LogModel>() {
     override suspend fun fetchData(

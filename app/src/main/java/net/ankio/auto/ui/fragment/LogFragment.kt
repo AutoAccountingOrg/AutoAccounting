@@ -32,11 +32,10 @@ import net.ankio.auto.databinding.FragmentLogBinding
 import net.ankio.auto.ui.adapter.LogAdapter
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.MenuItem
-import net.ankio.auto.ui.viewModes.AppDataViewModel
 import net.ankio.auto.ui.viewModes.LogViewModel
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.Logger
-import net.ankio.auto.utils.server.model.LogModel
+import net.ankio.auto.models.LogModel
 import java.io.File
 
 class LogFragment : BaseFragment() {
@@ -96,7 +95,7 @@ class LogFragment : BaseFragment() {
             MenuItem(R.string.item_clear, R.drawable.menu_icon_clear) {
                 runCatching {
                     lifecycleScope.launch {
-                        LogModel.deleteAll()
+                       /* LogModel.deleteAll()*/
                     }
                 }.onFailure {
                     Logger.e("清除失败", it)

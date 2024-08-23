@@ -17,7 +17,7 @@ package net.ankio.auto.utils
 
 import android.util.Log
 import kotlinx.coroutines.launch
-import net.ankio.auto.utils.server.model.LogModel
+import net.ankio.auto.models.LogModel
 
 /**
  * 日志工具类，包含调用日志的类和行号信息，以及异常的堆栈跟踪。

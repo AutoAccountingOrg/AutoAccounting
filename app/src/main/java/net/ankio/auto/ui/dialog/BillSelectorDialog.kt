@@ -29,7 +29,7 @@ import net.ankio.auto.exceptions.AutoServiceException
 //import net.ankio.auto.ui.adapter.BillSelectorAdapter
 import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.event.EventBus
-import net.ankio.auto.utils.server.model.BookBillModel
+import net.ankio.auto.models.BookBillModel
 import net.ankio.common.constant.BillType
 
 class BillSelectorDialog(
@@ -68,7 +68,7 @@ class BillSelectorDialog(
         lifecycleScope.launch {
             runCatching {
 
-                val data = BookBillModel.get(500,billType)
+             /*   val data = BookBillModel.get(500,billType)
                 if (data.isNullOrEmpty()) {
                     dismiss()
                     Toaster.show(R.string.no_bills)
@@ -76,7 +76,7 @@ class BillSelectorDialog(
                 }
                 super.show(float, cancel)
                 dataItems.addAll(data)
-
+*/
              //   adapter.notifyDataSetChanged()
             }.onFailure {
                 dismiss()

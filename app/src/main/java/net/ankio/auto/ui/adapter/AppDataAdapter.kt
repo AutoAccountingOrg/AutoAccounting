@@ -43,15 +43,15 @@ import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.DateUtils
 import net.ankio.auto.utils.Github
 import net.ankio.auto.utils.SpUtils
-import net.ankio.auto.utils.server.model.AppDataModel
+import net.ankio.auto.models.AppDataModel
 
 class AppDataAdapter(
     private val activity: Activity,
     private val viewModel: AppDataViewModel,
-) : BaseAdapter<AdapterDataBinding,AppDataModel>(viewModel) {
+) : BaseAdapter<AdapterDataBinding, AppDataModel>(viewModel) {
 
 
-    override fun onInitView(holder: BaseViewHolder<AdapterDataBinding,AppDataModel>) {
+    override fun onInitView(holder: BaseViewHolder<AdapterDataBinding, AppDataModel>) {
     
         val binding = holder.binding
 
@@ -220,7 +220,7 @@ $data
     }
 
     override fun onBindView(
-        holder: BaseViewHolder<AdapterDataBinding,AppDataModel>,
+        holder: BaseViewHolder<AdapterDataBinding, AppDataModel>,
         item: Any,
     ) {
         val binding = holder.binding
@@ -314,7 +314,7 @@ $data
     private val hashMap = HashMap<AppDataModel, Long>()
 
     private suspend fun tryAdaptUnmatchedItems(
-        holder: BaseViewHolder<AdapterDataBinding,AppDataModel>
+        holder: BaseViewHolder<AdapterDataBinding, AppDataModel>
     ) = withContext(Dispatchers.IO) {
         val item = holder.item as AppDataModel
         if (item.match == 0) {

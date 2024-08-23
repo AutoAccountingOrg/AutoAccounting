@@ -44,11 +44,11 @@ import net.ankio.auto.utils.ListPopupUtils
 import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.SpUtils
 import net.ankio.auto.utils.event.EventBus
-import net.ankio.auto.utils.server.model.AssetsModel
-import net.ankio.auto.utils.server.model.AssetsMapModel
-import net.ankio.auto.utils.server.model.BillInfoModel
-import net.ankio.auto.utils.server.model.BookNameModel
-import net.ankio.auto.utils.server.model.CategoryModel
+import net.ankio.auto.models.AssetsModel
+import net.ankio.auto.models.AssetsMapModel
+import net.ankio.auto.models.BillInfoModel
+import net.ankio.auto.models.BookNameModel
+import net.ankio.auto.models.CategoryModel
 import net.ankio.common.config.AccountingConfig
 import net.ankio.common.constant.BillType
 import net.ankio.common.constant.Currency

@@ -22,16 +22,13 @@ import android.widget.Toast
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.HookMainApp
 import net.ankio.auto.app.js.Engine
 import net.ankio.auto.exceptions.AutoServiceException
-import net.ankio.auto.utils.server.model.LogModel
 
 object HookUtils {
     private val loadClazz = HashMap<String, Class<*>>()

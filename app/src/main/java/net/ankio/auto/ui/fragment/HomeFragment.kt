@@ -49,7 +49,7 @@ import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.ServiceUtils
 import net.ankio.auto.utils.SpUtils
 import net.ankio.auto.utils.event.EventBus
-import net.ankio.auto.utils.server.model.CategoryModel
+import net.ankio.auto.models.CategoryModel
 import net.ankio.auto.utils.update.UpdateUtils
 import rikka.html.text.toHtml
 

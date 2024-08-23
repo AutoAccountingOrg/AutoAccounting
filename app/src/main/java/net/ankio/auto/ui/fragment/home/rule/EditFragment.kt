@@ -44,8 +44,8 @@ import net.ankio.auto.ui.dialog.BookSelectorDialog
 import net.ankio.auto.ui.dialog.CategorySelectorDialog
 import net.ankio.auto.ui.fragment.BaseFragment
 import net.ankio.auto.utils.ListPopupUtils
-import net.ankio.auto.utils.server.model.BookNameModel
-import net.ankio.auto.utils.server.model.CustomRuleModel
+import net.ankio.auto.models.BookNameModel
+import net.ankio.auto.models.CustomRuleModel
 import java.util.Calendar
 
 class EditFragment : BaseFragment() {
@@ -168,14 +168,14 @@ class EditFragment : BaseFragment() {
         binding.saveItem.setOnClickListener {
             saveItem()
         }
-
+/*
         arguments?.apply {
             customRuleModel = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 getSerializable("regular", CustomRuleModel::class.java)
             } else {
                 getSerializable("regular") as? CustomRuleModel
             } ?: CustomRuleModel()
-        }
+        }*/
         buildUI()
 
         return binding.root
@@ -502,7 +502,7 @@ class EditFragment : BaseFragment() {
         customRuleModel.text = text
         customRuleModel.element = Gson().toJson(list)
 
-        customRuleModel.use = true
+     /*   customRuleModel.use = true*/
 
         if (customRuleModel.js.contains("if()")) {
             Toaster.show(R.string.useless_condition)
@@ -517,7 +517,7 @@ class EditFragment : BaseFragment() {
             return
         }
 
-        CustomRuleModel.put(customRuleModel)
+       /* CustomRuleModel.put(customRuleModel)*/
 
         lifecycleScope.launch {
             findNavController().popBackStack() // 返回上一个页面

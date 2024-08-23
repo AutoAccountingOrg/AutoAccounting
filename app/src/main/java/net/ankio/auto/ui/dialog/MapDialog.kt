@@ -26,8 +26,8 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogMapBinding
 import net.ankio.auto.utils.ImageUtils
-import net.ankio.auto.utils.server.model.AssetsModel
-import net.ankio.auto.utils.server.model.AssetsMapModel
+import net.ankio.auto.models.AssetsModel
+import net.ankio.auto.models.AssetsMapModel
 
 class MapDialog(
     private val context: Context,

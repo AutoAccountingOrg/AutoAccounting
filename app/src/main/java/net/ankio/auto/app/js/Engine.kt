@@ -21,7 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.utils.AppTimeMonitor
 import net.ankio.auto.utils.AppUtils
-import net.ankio.auto.utils.server.model.BillInfoModel
+import net.ankio.auto.models.BillInfoModel
 
 object Engine {
     suspend fun analyze(
@@ -44,7 +44,7 @@ object Engine {
                     },
                 )
 
-            val billInfoModel = runCatching { Gson().fromJson(json as JsonObject,BillInfoModel::class.java) }.getOrNull()
+            val billInfoModel = runCatching { Gson().fromJson(json as JsonObject, BillInfoModel::class.java) }.getOrNull()
 
             AppTimeMonitor.stopMonitoring("规则识别")
             billInfoModel

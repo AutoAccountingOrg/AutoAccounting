@@ -35,7 +35,7 @@ import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.SpUtils
 import net.ankio.auto.utils.event.EventBus
 import net.ankio.auto.utils.request.RequestsUtils
-import net.ankio.auto.utils.server.model.SettingModel
+import net.ankio.auto.models.SettingModel
 import rikka.html.text.toHtml
 
 class UpdateDialog(

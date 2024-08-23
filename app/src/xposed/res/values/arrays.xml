@@ -7,5 +7,6 @@
         <item>com.eg.android.AlipayGphone</item><!-- 支付宝 -->
         <item>com.android.phone</item><!-- 短信 -->
         <item>com.synjones.xuepay.sdu</item><!-- 山大v卡通APP（山东大学） -->
+        <item>com.android.settings</item><!-- 滴滴 -->
     </string-array>
 </resources>

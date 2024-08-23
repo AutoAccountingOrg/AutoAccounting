@@ -17,7 +17,7 @@ package net.ankio.auto.utils
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.ankio.auto.utils.server.model.SettingModel
+import net.ankio.auto.models.SettingModel
 
 object SpUtils {
     val sp = AppUtils.getApplication().getSharedPreferences("setting", 0)

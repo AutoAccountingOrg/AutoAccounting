@@ -24,7 +24,7 @@ import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.SpUtils
 import net.ankio.auto.utils.request.RequestsUtils
-import net.ankio.auto.utils.server.model.SettingModel
+import net.ankio.auto.models.SettingModel
 
 /**
  * 更新工具，用于处理App更新、规则更新

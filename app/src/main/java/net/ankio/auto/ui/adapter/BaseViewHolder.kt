@@ -18,9 +18,9 @@ package net.ankio.auto.ui.adapter
 import android.content.Context
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
-import net.ankio.auto.utils.server.model.BaseModel
+import net.ankio.auto.models.BaseModel
 
-open class BaseViewHolder<T:ViewBinding, E:BaseModel>(open val binding: T,val context:Context) : RecyclerView.ViewHolder(binding.root) {
+open class BaseViewHolder<T:ViewBinding, E: BaseModel>(open val binding: T, val context:Context) : RecyclerView.ViewHolder(binding.root) {
     var item:E? = null
     var hasInit = false
 }

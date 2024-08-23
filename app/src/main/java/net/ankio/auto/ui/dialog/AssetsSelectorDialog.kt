@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogBookSelectBinding
 //import net.ankio.auto.ui.adapter.AssetsSelectorAdapter
-import net.ankio.auto.utils.server.model.AssetsModel
+import net.ankio.auto.models.AssetsModel
 import net.ankio.common.constant.AssetsType
 
 class AssetsSelectorDialog(private val context: Context,val type:AssetsType = AssetsType.NORMAL, private val callback: (AssetsModel) -> Unit) :
@@ -56,7 +56,7 @@ class AssetsSelectorDialog(private val context: Context,val type:AssetsType = As
         cancel: Boolean
     ) {
         lifecycleScope.launch {
-            val newData = AssetsModel.get(500,type)
+           /* val newData = AssetsModel.get(500,type)
 
             val collection = newData.takeIf { it.isNotEmpty() } ?: listOf()
 
@@ -66,7 +66,7 @@ class AssetsSelectorDialog(private val context: Context,val type:AssetsType = As
             }
             super.show(float, cancel)
 
-            dataItems.addAll(collection)
+            dataItems.addAll(collection)*/
 /*
             adapter.notifyItemInserted(0)*/
         }

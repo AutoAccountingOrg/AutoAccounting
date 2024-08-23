@@ -15,7 +15,6 @@
 
 package net.ankio.auto.setting
 
-import android.app.Activity
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import net.ankio.auto.constant.ItemType

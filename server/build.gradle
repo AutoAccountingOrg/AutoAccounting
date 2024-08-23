@@ -1,22 +1,19 @@
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlinAndroid)
+
+    id 'kotlin-kapt'
 }
 
 android {
-    namespace 'net.ankio.server'
+    namespace 'org.ezbook.server'
     compileSdk 34
 
     defaultConfig {
-        minSdk 28
+        minSdk 24
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
-        externalNativeBuild {
-            cmake {
-                cppFlags "-std=c++17"
-            }
-        }
     }
 
     buildTypes {
@@ -25,18 +22,12 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    externalNativeBuild {
-        cmake {
-            path "src/main/cpp/CMakeLists.txt"
-            version "3.22.1"
-        }
-    }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '17'
     }
 }
 
@@ -45,11 +36,21 @@ dependencies {
     implementation libs.core.ktx
     implementation libs.appcompat
     implementation libs.material
-    implementation project(':common')
     testImplementation libs.junit
     androidTestImplementation libs.androidx.test.ext.junit
     androidTestImplementation libs.espresso.core
-
+    //http
+    implementation 'org.nanohttpd:nanohttpd:2.3.1'
     //gson
     implementation libs.gson
+    //sqlite
+    def room_version = "2.4.2" // 请使用最新版本
+
+    implementation "androidx.room:room-runtime:$room_version"
+    annotationProcessor "androidx.room:room-compiler:$room_version" // 如果使用 Kotlin，使用 kapt
+    kapt "androidx.room:room-compiler:$room_version"
+
+    // 可选 - 支持 Kotlin 协程
+    implementation "androidx.room:room-ktx:$room_version"
+
 }

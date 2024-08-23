@@ -28,9 +28,8 @@ import net.ankio.auto.events.AutoServiceErrorEvent
 import net.ankio.auto.exceptions.AutoServiceException
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.Logger
-import net.ankio.auto.utils.SpUtils
 import net.ankio.auto.utils.event.EventBus
-import net.ankio.auto.utils.server.model.SettingModel
+import net.ankio.auto.models.SettingModel
 import net.ankio.common.config.AccountingConfig
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -39,7 +38,6 @@ import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import okio.ByteString
 import java.io.File
-import java.io.FileOutputStream
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume

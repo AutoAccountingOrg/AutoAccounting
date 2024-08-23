@@ -26,7 +26,7 @@ import net.ankio.auto.databinding.FragmentDataBinding
 //import net.ankio.auto.ui.adapter.RuleAdapter
 import net.ankio.auto.ui.fragment.BaseFragment
 import net.ankio.auto.ui.utils.MenuItem
-import net.ankio.auto.utils.server.model.CustomRuleModel
+import net.ankio.auto.models.CustomRuleModel
 
 class RuleFragment : BaseFragment() {
     private lateinit var binding: FragmentDataBinding

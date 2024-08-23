@@ -30,7 +30,7 @@ import net.ankio.auto.databinding.FragmentMapBinding
 import net.ankio.auto.ui.dialog.MapDialog
 import net.ankio.auto.ui.fragment.BaseFragment
 import net.ankio.auto.ui.utils.MenuItem
-import net.ankio.auto.utils.server.model.AssetsMapModel
+import net.ankio.auto.models.AssetsMapModel
 
 class MapFragment : BaseFragment() {
     private lateinit var binding: FragmentMapBinding
@@ -95,7 +95,7 @@ class MapFragment : BaseFragment() {
         binding.recyclerView.adapter = adapter*/
         scrollView = binding.recyclerView
         lifecycleScope.launch {
-            val newData = AssetsMapModel.get()
+            /*val newData = AssetsMapModel.get()
 
             val collection = newData.takeIf { it.isNotEmpty() } ?: listOf()
 
@@ -106,7 +106,7 @@ class MapFragment : BaseFragment() {
              //   adapter.notifyDataSetChanged()
                 binding.empty.root.visibility = if (dataItems.isEmpty()) View.VISIBLE else View.GONE
 
-            }
+            }*/
         }
 
         return binding.root

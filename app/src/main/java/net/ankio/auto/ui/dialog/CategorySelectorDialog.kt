@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.databinding.DialogCategorySelectBinding
 //import net.ankio.auto.ui.adapter.CategorySelectorAdapter
-import net.ankio.auto.utils.server.model.CategoryModel
+import net.ankio.auto.models.CategoryModel
 import net.ankio.common.constant.BillType
 
 /**
@@ -226,7 +226,7 @@ class CategorySelectorDialog(
 
         // 从数据库加载类别
         lifecycleScope.launch {
-            val newData = CategoryModel.getAll(book, type.toInt(), 0)
+           /* val newData = CategoryModel.getAll(book, type.toInt(), 0)
             val defaultCategoryModel = CategoryModel()
             defaultCategoryModel.name = "其他"
             val collection =
@@ -236,7 +236,7 @@ class CategorySelectorDialog(
                 items.addAll(collection)
                 // 在主线程更新 UI
         //        adapter.notifyItemInserted(0)
-            }
+            }*/
         }
         return binding.root
     }

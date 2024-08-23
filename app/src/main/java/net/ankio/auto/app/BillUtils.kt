@@ -21,9 +21,9 @@ import net.ankio.auto.R
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.SpUtils
-import net.ankio.auto.utils.server.model.AssetsModel
-import net.ankio.auto.utils.server.model.AssetsMapModel
-import net.ankio.auto.utils.server.model.BillInfoModel
+import net.ankio.auto.models.AssetsModel
+import net.ankio.auto.models.AssetsMapModel
+import net.ankio.auto.models.BillInfoModel
 import net.ankio.common.constant.AssetsType
 import net.ankio.common.constant.BillType
 import net.ankio.common.constant.Currency
@@ -239,7 +239,7 @@ object BillUtils {
      */
     suspend fun setAccountMap(billInfoModel: BillInfoModel) =
         withContext(Dispatchers.IO) {
-            val list = AssetsMapModel.get()
+           /* val list = AssetsMapModel.get()
             val rawAccountNameFrom = billInfoModel.accountNameFrom
             val rawAccountNameTo = billInfoModel.accountNameTo
             billInfoModel.accountNameFrom = getMapName(list, rawAccountNameFrom)
@@ -259,7 +259,7 @@ object BillUtils {
                 ) {
                     billInfoModel.accountNameFrom = getAiAssets(assets, rawAccountNameFrom)
                 }
-            }
+            }*/
         }
 
     /**

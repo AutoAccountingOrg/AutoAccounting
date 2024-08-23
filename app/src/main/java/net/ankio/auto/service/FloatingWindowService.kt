@@ -47,7 +47,7 @@ import net.ankio.auto.utils.FloatPermissionUtils
 import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.SpUtils
 import net.ankio.auto.utils.event.EventBus
-import net.ankio.auto.utils.server.model.BillInfoModel
+import net.ankio.auto.models.BillInfoModel
 import kotlin.system.exitProcess
 
 class FloatingWindowService : Service() {
@@ -119,14 +119,14 @@ class FloatingWindowService : Service() {
 
 
     private suspend fun addAndCheckBill(id:Int) = withContext(Dispatchers.IO){
-        val billArray = BillInfoModel.getBillByIds(id.toString())
+     /*   val billArray = BillInfoModel.getBillByIds(id.toString())
         if(billArray.isEmpty()){
             return@withContext
         }
         val bill = billArray[0]
-        /**
+        *//**
          * 因为原始账单全部是没有处理过的，所以这里根据处理之前的结果判断重复
-         */
+         *//*
         if(list.isEmpty()){
             val bills = BillInfoModel.getNoEditBills()
 
@@ -151,11 +151,11 @@ class FloatingWindowService : Service() {
             return@withContext
         }
 
-        list.add(bill)
+        list.add(bill)*/
     }
 
-    private suspend fun checkBills(bill:BillInfoModel, remove:Boolean = false):Boolean{
-        list.forEach { bill2 ->
+    private suspend fun checkBills(bill: BillInfoModel, remove:Boolean = false):Boolean{
+       /* list.forEach { bill2 ->
             if(checkRepeat(bill,bill2)){
                 mergeBillAndUpdate(bill,bill2)
                 if(remove){
@@ -175,7 +175,7 @@ class FloatingWindowService : Service() {
                 }
                 return true
             }
-        }
+        }*/
 
         return false
     }
@@ -409,7 +409,7 @@ class FloatingWindowService : Service() {
                            runCatching {
                                FloatEditorDialog(themedContext, billInfoModel!!, it, true, false, onCancelClick = {
                                    AppUtils.getScope().launch {
-                                       BillInfoModel.remove(billInfoModel!!.id)
+                                      /* BillInfoModel.remove(billInfoModel!!.id)*/
                                    }
                                }, onClose = {
                                    processBillInfo = false
@@ -428,7 +428,7 @@ class FloatingWindowService : Service() {
             FloatEvent.NO_ACCOUNT.ordinal -> {
                 processBillInfo = false
                 AppUtils.getScope().launch {
-                    BillInfoModel.remove(billInfoModel!!.id)
+                  /*  BillInfoModel.remove(billInfoModel!!.id)*/
                 }
             }
         }
