@@ -17,15 +17,23 @@ package org.ezbook.server.server
 
 import fi.iki.elonen.NanoHTTPD
 import org.ezbook.server.Server.Companion.json
-import org.ezbook.server.routes.AppDataRoute
+import org.ezbook.server.routes.LogRoute
 
-class ServerHttp : NanoHTTPD(52045) {
+class ServerHttp(port:Int) : NanoHTTPD(port) {
 
     override fun serve(session: IHTTPSession): Response {
-        return when (session.uri) {
-            "/" -> json(200,"hello,自动记账",null,0)
-            "/app/list" -> AppDataRoute(session).list()
-            else -> json(404,"Not Found",null,0)
+        return runCatching {
+             when (session.uri) {
+                "/" -> json(200,"hello,自动记账",null,0)
+                 // log
+                "/log/list" -> LogRoute(session).list()
+                 "/log/add" -> LogRoute(session).add()
+                    "/log/clear" -> LogRoute(session).clear()
+                else -> json(404,"Not Found",null,0)
+            }
+        }.getOrElse {
+            it.printStackTrace()
+            json(500, "Internal Server Error")
         }
     }
 }

@@ -15,6 +15,7 @@
 
 package net.ankio.auto.hooks.wechat.hooks
 
+import android.app.Application
 import android.content.ContentValues
 import android.content.Context
 import com.google.gson.Gson
@@ -22,18 +23,20 @@ import com.google.gson.JsonObject
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import fr.arnaudguyon.xmltojsonlib.XmlToJson
-import net.ankio.auto.api.Hooker
-import net.ankio.auto.api.PartHooker
 import net.ankio.auto.constant.DataType
-import net.ankio.auto.utils.HookUtils
+import net.ankio.auto.core.App
+import net.ankio.auto.core.api.HookerManifest
+import net.ankio.auto.core.api.PartHooker
 
-class DatabaseHooker(hooker: Hooker) : PartHooker(hooker) {
-    override fun onInit(
-        classLoader: ClassLoader,
-        context: Context,
-    ) {
-        val mAppClassLoader: ClassLoader = classLoader
-        val mContext: Context = context
+class DatabaseHooker : PartHooker {
+    fun xmlToJson(xml: String): String {
+        val xmlToJson: XmlToJson = XmlToJson.Builder(xml).build()
+        return xmlToJson.toString()
+    }
+
+    override fun hook(hookerManifest: HookerManifest, application: Application) {
+        val mAppClassLoader: ClassLoader = application.classLoader
+        val mContext = application
 
         // 分析版本 8.0.43
 
@@ -51,7 +54,7 @@ class DatabaseHooker(hooker: Hooker) : PartHooker(hooker) {
                     val tableName = param.args[0] as String
                     val arg = if (param.args[1] != null)param.args[1] as String else ""
 
-                    logD("微信数据：${Gson().toJson(contentValues)} table:$tableName arg:$arg")
+                    hookerManifest.logD("微信数据：${Gson().toJson(contentValues)} table:$tableName arg:$arg")
 
                     val type = contentValues.getAsInteger("type") ?: return
                     // 补充数据
@@ -92,15 +95,15 @@ class DatabaseHooker(hooker: Hooker) : PartHooker(hooker) {
                                     .asJsonObject.get("template_header")
                                     .asJsonObject.get("display_name").asString,
                             )
-                            tpl.addProperty("cachedPayTools", HookUtils.readData("cachedPayTools"))
-                            tpl.addProperty("cachedPayMoney", HookUtils.readData("cachedPayMoney"))
-                            tpl.addProperty("cachedPayShop", HookUtils.readData("cachedPayShop"))
+                            tpl.addProperty("cachedPayTools", App.get("cachedPayTools"))
+                            tpl.addProperty("cachedPayMoney", App.get("cachedPayMoney"))
+                            tpl.addProperty("cachedPayShop", App.get("cachedPayShop"))
                             val result = JsonObject()
                             result.add("mMap", tpl)
 
-                            logD("微信支付数据：$result")
+                            hookerManifest.logD("微信支付数据：$result")
 
-                            analyzeData(DataType.App.ordinal, result.toString())
+                            hookerManifest.analysisData(DataType.App, result.toString())
                         }
                     } else if (tableName == "AppMessage") {
                         if (type == 5) {
@@ -109,19 +112,19 @@ class DatabaseHooker(hooker: Hooker) : PartHooker(hooker) {
                                 return
                             }
                             // 这个应该是公众号推送
-                            analyzeData(DataType.App.ordinal, Gson().toJson(contentValues))
+                            hookerManifest.analysisData(DataType.App, Gson().toJson(contentValues))
                             return
                         } else if (type == 2000) {
                             // 补充用户数据
-                            contentValues.put("hookUser", HookUtils.readData("hookerUser"))
+                            contentValues.put("hookUser", App.get("hookerUser"))
                             // 这个应该是微信转账给别人
                             val xml = contentValues.get("xml")
 
                             if (xml != null) {
                                 contentValues.put("xml", xmlToJson(xml as String))
-                                contentValues.put("cachedPayTools", HookUtils.readData("cachedPayTools"))
-                                contentValues.put("cachedPayMoney", HookUtils.readData("cachedPayMoney"))
-                                contentValues.put("cachedPayShop", HookUtils.readData("cachedPayShop"))
+                                contentValues.put("cachedPayTools", App.get("cachedPayTools"))
+                                contentValues.put("cachedPayMoney", App.get("cachedPayMoney"))
+                                contentValues.put("cachedPayShop", App.get("cachedPayShop"))
                             }
                         }
                     } else if (tableName == "bizchatmessage") {
@@ -134,11 +137,5 @@ class DatabaseHooker(hooker: Hooker) : PartHooker(hooker) {
         )
     }
 
-    fun xmlToJson(xml: String): String {
-        val xmlToJson: XmlToJson = XmlToJson.Builder(xml).build()
-        return xmlToJson.toString()
-    }
 
-    override val hookName: String
-        get() = "微信数据库"
 }

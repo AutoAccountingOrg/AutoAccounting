@@ -15,26 +15,31 @@
 
 package net.ankio.auto.hooks.alipay
 
-import android.content.Context
-import net.ankio.auto.api.Hooker
-import net.ankio.auto.api.PartHooker
+import android.app.Application
+import net.ankio.auto.core.api.HookerManifest
+import net.ankio.auto.core.api.PartHooker
 import net.ankio.auto.hooks.alipay.hooks.MessageBoxHooker
 import net.ankio.auto.hooks.alipay.hooks.RedPackageHooker
-import net.ankio.auto.hooks.alipay.hooks.SettingUIHooker
 import net.ankio.auto.hooks.alipay.hooks.WebViewHooker
+import net.ankio.dex.model.Clazz
 
-class AlipayHooker:Hooker() {
-    override val packPageName: String = "com.eg.android.AlipayGphone"
+class AliPayHooker: HookerManifest() {
+    override val packageName: String
+        get() = "com.eg.android.AlipayGphone"
     override val appName: String = "支付宝"
-    override val applicationClazz: String = "com.alipay.mobile.quinox.LauncherApplication"
-    override var partHookers: MutableList<PartHooker> = arrayListOf(
-        SettingUIHooker(this),//支付宝设置
-        MessageBoxHooker(this),//支付消息盒子
-        RedPackageHooker(this),//支付宝红包
-        WebViewHooker(this),//支付宝webview
-    )
-
-    override fun hookLoadPackage(classLoader: ClassLoader, context: Context) {
+    override fun hookLoadPackage(application: Application) {
 
     }
+
+    override var applicationName: String = "com.alipay.mobile.quinox.LauncherApplication"
+    override var partHookers: MutableList<PartHooker> = mutableListOf(
+        MessageBoxHooker(),//支付消息盒子
+        RedPackageHooker(),//支付宝红包
+        WebViewHooker(),//支付宝webview
+    )
+    override var rules: MutableList<Clazz>
+        get() = mutableListOf()
+        set(value) {}
+
+
 }

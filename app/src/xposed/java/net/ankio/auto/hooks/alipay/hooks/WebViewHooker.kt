@@ -15,28 +15,29 @@
 
 package net.ankio.auto.hooks.alipay.hooks
 
+import android.app.Application
 import android.content.Context
 import android.webkit.ValueCallback
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import net.ankio.auto.api.Hooker
-import net.ankio.auto.api.PartHooker
 import net.ankio.auto.constant.DataType
+import net.ankio.auto.core.api.HookerManifest
+import net.ankio.auto.core.api.PartHooker
 import net.ankio.auto.utils.AppUtils
 
-class WebViewHooker(hooker: Hooker) : PartHooker(hooker) {
-    override val hookName: String
-        get() = "支付宝WebView页面"
+class WebViewHooker : PartHooker {
 
-    override fun onInit(
-        classLoader: ClassLoader,
-        context: Context,
-    ) {
+    companion object {
+        const val WAIT_TIME = 200L
+        const val MAX_CHECK_COUNT = 500
+    }
+
+    override fun hook(hookerManifest: HookerManifest, application: Application) {
         val webViewClazz = " com.alipay.mobile.nebulacore.web.H5WebView"
 
-        val webView = XposedHelpers.findClass(webViewClazz, classLoader)
+        val webView = XposedHelpers.findClass(webViewClazz, application.classLoader)
 
         XposedHelpers.findAndHookMethod(
             webView,
@@ -89,8 +90,8 @@ class WebViewHooker(hooker: Hooker) : PartHooker(hooker) {
                                 }
 
                                 needWait = false
-                                logD("支付宝WebView页面hook成功，获取到数据：$result")
-                                analyzeData(DataType.App.ordinal, result)
+                                hookerManifest.logD("支付宝WebView页面hook成功，获取到数据：$result")
+                                hookerManifest.analysisData(DataType.App, result)
                             }
 
                         AppUtils.getScope().launch {
@@ -121,14 +122,9 @@ class WebViewHooker(hooker: Hooker) : PartHooker(hooker) {
                     val obj = param.args[0]; // 第一个参数是Object obj
                     val str = param.args[1] as String; // 第二个参数是String str
                     // 可以在这里修改参数或者进行其他操作
-                    logD("加载obj: $obj  加载名称：$str")
+                    hookerManifest.logD("加载obj: $obj  加载名称：$str")
                 }
             },
         )
-    }
-
-    companion object {
-        const val WAIT_TIME = 200L
-        const val MAX_CHECK_COUNT = 500
     }
 }

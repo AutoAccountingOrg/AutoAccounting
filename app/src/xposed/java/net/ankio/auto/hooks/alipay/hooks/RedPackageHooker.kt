@@ -15,27 +15,23 @@
 
 package net.ankio.auto.hooks.alipay.hooks
 
-import android.content.Context
-import android.util.Log
+import android.app.Application
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
-import net.ankio.auto.HookMainApp
-import net.ankio.auto.api.Hooker
-import net.ankio.auto.api.PartHooker
 import net.ankio.auto.constant.DataType
-import org.json.JSONObject
+import net.ankio.auto.core.api.HookerManifest
+import net.ankio.auto.core.api.PartHooker
 
 
-class RedPackageHooker(hooker: Hooker) : PartHooker(hooker) {
-    override val hookName: String
-        get() = "支付宝红包页面"
-    override fun onInit(classLoader: ClassLoader, context: Context) {
+class RedPackageHooker : PartHooker {
 
+
+    override fun hook(hookerManifest: HookerManifest, application: Application) {
         val proguard =
-            XposedHelpers.findClass("com.alipay.mobile.redenvelope.proguard.c.b", classLoader)
+            XposedHelpers.findClass("com.alipay.mobile.redenvelope.proguard.c.b", application.classLoader)
         val syncMessage = XposedHelpers.findClass(
             "com.alipay.mobile.rome.longlinkservice.syncmodel.SyncMessage",
-            classLoader
+            application.classLoader
         )
 
         XposedHelpers.findAndHookMethod(
@@ -45,14 +41,14 @@ class RedPackageHooker(hooker: Hooker) : PartHooker(hooker) {
             object : XC_MethodHook() {
                 @Throws(Throwable::class)
                 override fun beforeHookedMethod(param: MethodHookParam) {
-                    logD("支付宝收到红包数据hook成功。")
+                    hookerManifest.logD("支付宝收到红包数据hook成功。")
                     super.beforeHookedMethod(param)
                     val syncMessageObject = param.args[0]
                     val getDataMethod = syncMessage.methods.find { it.name == "getData" }
                     getDataMethod?.let {
                         val result = it.invoke(syncMessageObject) as String
-                        logD("红包数据： $result")
-                        analyzeData(DataType.App.ordinal,result)
+                        hookerManifest.logD("红包数据： $result")
+                        hookerManifest.analysisData(DataType.App,result)
                     }
                 }
             })

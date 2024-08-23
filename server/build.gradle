@@ -53,4 +53,7 @@ dependencies {
     // 可选 - 支持 Kotlin 协程
     implementation "androidx.room:room-ktx:$room_version"
 
+    //okhttp
+    implementation libs.okhttp
+
 }

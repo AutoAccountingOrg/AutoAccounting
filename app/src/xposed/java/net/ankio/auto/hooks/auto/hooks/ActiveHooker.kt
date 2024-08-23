@@ -15,24 +15,19 @@
 
 package net.ankio.auto.hooks.auto.hooks
 
-import android.content.Context
+import android.app.Application
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XC_MethodReplacement
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
-import net.ankio.auto.api.Hooker
-import net.ankio.auto.api.PartHooker
+import net.ankio.auto.core.api.HookerManifest
+import net.ankio.auto.core.api.PartHooker
 import java.lang.reflect.Field
 
-class ActiveHooker(hooker: Hooker) : PartHooker(hooker) {
-    override val hookName: String
-        get() = "自动记账激活"
+class ActiveHooker : PartHooker {
 
-    override fun onInit(
-        classLoader: ClassLoader,
-        context: Context,
-    ) {
-        val activeUtils = XposedHelpers.findClass("net.ankio.auto.utils.ActiveUtils", classLoader)
+    override fun hook(hookerManifest: HookerManifest, application: Application) {
+        val activeUtils = XposedHelpers.findClass("org.ezbook.utils.ActiveUtils", application.classLoader)
         // hook激活方法
         XposedHelpers.findAndHookMethod(
             activeUtils,

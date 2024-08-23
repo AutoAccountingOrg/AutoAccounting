@@ -15,33 +15,29 @@
 
 package net.ankio.auto.hooks.wechat.hooks
 
-import android.content.Context
+import android.app.Application
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
-import net.ankio.auto.api.Hooker
-import net.ankio.auto.api.PartHooker
-import net.ankio.auto.utils.HookUtils
+import net.ankio.auto.core.App
+import net.ankio.auto.core.api.HookerManifest
+import net.ankio.auto.core.api.PartHooker
 
-class ChatUserHooker(hooker: Hooker) : PartHooker(hooker){
-    override val hookName: String
-        get() = "用户页面hook"
+class ChatUserHooker : PartHooker{
 
-    override fun onInit(classLoader: ClassLoader, context: Context) {
-
-        val clazz = classLoader.loadClass("com.tencent.mm.ui.chatting.ChattingUIFragment")
+    override fun hook(hookerManifest: HookerManifest, application: Application) {
+        val clazz = application.classLoader.loadClass("com.tencent.mm.ui.chatting.ChattingUIFragment")
 
         XposedHelpers.findAndHookMethod(
             clazz,
-          "setMMTitle",
+            "setMMTitle",
             String::class.java,
             object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     val username = param.args[0] as String
-                    logD("用户页面hook: $username")
-                    HookUtils.writeData("hookerUser",username)
+                    hookerManifest.logD("用户页面hook: $username")
+                    App.set("hookerUser",username)
                 }
             }
-      )
+        )
     }
 }

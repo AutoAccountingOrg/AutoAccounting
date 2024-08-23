@@ -15,14 +15,31 @@
 
 package org.ezbook.server.routes
 
+import com.google.gson.Gson
 import fi.iki.elonen.NanoHTTPD
 import org.ezbook.server.Server
+import org.ezbook.server.db.Db
+import org.ezbook.server.db.model.LogModel
 
-class AppDataRoute(private val session: NanoHTTPD.IHTTPSession) {
-    fun list(): NanoHTTPD.Response {
+class LogRoute(private val session: NanoHTTPD.IHTTPSession) {
+     fun list(): NanoHTTPD.Response {
         val params = session.parameters
         val page = params["page"]?.firstOrNull()?.toInt() ?: 1
         val limit = params["limit"]?.firstOrNull()?.toInt() ?: 10
-        return Server.json(200, "OK", null, 0)
+        val offset = (page - 1) * limit
+         val logs = Db.get().logDao().loadPage(limit, offset)
+         val total = Db.get().logDao().count()
+        return Server.json(200, "OK", logs, total)
+    }
+
+    fun add(): NanoHTTPD.Response {
+        val json = Gson().fromJson(session.inputStream.reader(), LogModel::class.java)
+        val id = Db.get().logDao().insert(json)
+        return Server.json(200, "OK", id)
+    }
+
+    fun clear(): NanoHTTPD.Response {
+        Db.get().logDao().clear()
+        return Server.json(200, "OK")
     }
 }

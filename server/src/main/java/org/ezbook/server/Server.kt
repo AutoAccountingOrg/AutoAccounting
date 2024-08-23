@@ -15,27 +15,40 @@
 
 package org.ezbook.server
 
+import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import fi.iki.elonen.NanoHTTPD
 import fi.iki.elonen.NanoHTTPD.SOCKET_READ_TIMEOUT
 import fi.iki.elonen.NanoHTTPD.newFixedLengthResponse
-import org.ezbook.server.routes.AppDataRoute
+import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import org.ezbook.server.db.Db
 import org.ezbook.server.server.ServerHttp
 
 
-class Server {
+class Server(context:Context) {
 
+    private val port = 52045
+    private val server = ServerHttp(port)
+    init {
+        Db.init(context)
+    }
     /**
      * 启动服务
      */
     fun startServer(){
-
-        val server = ServerHttp()
         server.start(SOCKET_READ_TIMEOUT, false);
         println("Server started on port 52045");
     }
 
+    fun stopServer(){
+        server.stop()
+    }
 
 
     companion object {
@@ -46,6 +59,26 @@ class Server {
             jsonObject.addProperty("count",count)
             jsonObject.add("data", Gson().toJsonTree(data))
             return newFixedLengthResponse(jsonObject.toString())
+        }
+
+       suspend fun request(path:String,json:String = ""):String?{
+          return runCatching {
+               val uri = "http://localhost:52045/$path"
+               // 创建一个OkHttpClient对象
+               val client = OkHttpClient()
+
+               // set as json post
+               val body: RequestBody = json
+                   .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
+               // 创建一个Request
+               val request = Request.Builder().url(uri).post(body)
+                   .addHeader("Content-Type", "application/json").build()
+               // 发送请求获取响应
+               val response = client.newCall(request).execute()
+               // 如果请求成功
+               response.body?.string()
+
+           }.getOrNull()
         }
     }
 }

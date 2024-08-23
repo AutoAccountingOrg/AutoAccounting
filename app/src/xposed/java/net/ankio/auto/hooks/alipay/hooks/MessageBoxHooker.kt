@@ -15,32 +15,28 @@
 
 package net.ankio.auto.hooks.alipay.hooks
 
-import android.content.Context
+import android.app.Application
 import com.google.gson.Gson
 import com.google.gson.JsonArray
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
-import net.ankio.auto.api.Hooker
-import net.ankio.auto.api.PartHooker
 import net.ankio.auto.constant.DataType
+import net.ankio.auto.core.api.HookerManifest
+import net.ankio.auto.core.api.PartHooker
 
-class MessageBoxHooker(hooker: Hooker) : PartHooker(hooker) {
-    override val hookName: String
-        get() = "支付宝消息盒子页面"
+class MessageBoxHooker: PartHooker {
 
-    override fun onInit(
-        classLoader: ClassLoader,
-        context: Context,
-    ) {
+
+    override fun hook(hookerManifest: HookerManifest, application: Application) {
         val msgboxInfoServiceImpl =
             XposedHelpers.findClass(
                 "com.alipay.android.phone.messageboxstatic.biz.sync.d",
-                classLoader,
+                application.classLoader,
             )
         val syncMessage =
             XposedHelpers.findClass(
                 "com.alipay.mobile.rome.longlinkservice.syncmodel.SyncMessage",
-                classLoader,
+                application.classLoader,
             )
 
         XposedHelpers.findAndHookMethod(
@@ -50,7 +46,7 @@ class MessageBoxHooker(hooker: Hooker) : PartHooker(hooker) {
             object : XC_MethodHook() {
                 @Throws(Throwable::class)
                 override fun beforeHookedMethod(param: MethodHookParam) {
-                    logD("支付宝消息盒子页面hook成功")
+                    hookerManifest.logD("支付宝消息盒子页面hook成功")
                     super.beforeHookedMethod(param)
                     val syncMessageObject = param.args[0]
                     val getDataMethod = syncMessage.methods.find { it.name == "getData" }
@@ -64,9 +60,9 @@ class MessageBoxHooker(hooker: Hooker) : PartHooker(hooker) {
                                     add(jsonObject)
                                 }
 
-                            logD("支付宝消息盒子页面收到数据：$jsonArray")
+                            hookerManifest.logD("支付宝消息盒子页面收到数据：$jsonArray")
                             // 调用分析服务进行数据分析
-                            analyzeData(DataType.App.ordinal, Gson().toJson(jsonArray))
+                            hookerManifest.analysisData(DataType.App, Gson().toJson(jsonArray))
                         }
                     }
                 }

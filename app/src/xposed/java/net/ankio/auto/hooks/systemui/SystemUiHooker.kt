@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 ankio(ankio@ankio.net)
+ * Copyright (C) 2024 ankio(ankio@ankio.net)
  * Licensed under the Apache License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,36 +13,43 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.hooks.auto
+package net.ankio.auto.hooks.systemui
 
 import android.app.Application
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
-import net.ankio.auto.hooks.auto.hooks.ActiveHooker
 import net.ankio.dex.model.Clazz
+import org.ezbook.server.Server
 
+class SystemUiHooker: HookerManifest() {
 
-class AutoHooker: HookerManifest(){
     override val packageName: String
-        get() = "org.ezbook.xposed"
-    override val appName: String = "自动记账"
+        get() = "com.android.systemui"
+    override val appName: String
+        get() = "Android SystemUI"
+
     override fun hookLoadPackage(application: Application) {
-
+        try {
+            Server(application).startServer()
+            logD("SystemUi server hook success")
+        } catch (e: Exception) {
+            logE(e)
+            logD("SystemUi server onInit error: ${e.message}")
+        }
     }
-
-    override var partHookers: MutableList<PartHooker> = mutableListOf(
-        ActiveHooker()
-    )
-    override var rules: MutableList<Clazz>
-        get() = mutableListOf()
-        set(value) {}
 
     override var permissions: MutableList<String> = mutableListOf(
         //网络权限
         "android.permission.INTERNET",
         //读取网络状态
         "android.permission.ACCESS_NETWORK_STATE",
-        //悬浮窗权限
-        "android.permission.SYSTEM_ALERT_WINDOW",
     )
+
+    override var partHookers: MutableList<PartHooker> = mutableListOf()
+    override var rules: MutableList<Clazz>
+        get() = mutableListOf()
+        set(value) {}
+
+
+
 }

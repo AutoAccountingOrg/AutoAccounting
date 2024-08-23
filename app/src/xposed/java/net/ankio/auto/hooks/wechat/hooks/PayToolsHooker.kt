@@ -15,42 +15,37 @@
 
 package net.ankio.auto.hooks.wechat.hooks
 
-import android.content.Context
+import android.app.Application
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
-import net.ankio.auto.api.Hooker
-import net.ankio.auto.api.PartHooker
-import net.ankio.auto.utils.HookUtils
+import net.ankio.auto.core.App
+import net.ankio.auto.core.api.HookerManifest
+import net.ankio.auto.core.api.PartHooker
 
-class PayToolsHooker(hooker: Hooker) : PartHooker(hooker) {
-    override val hookName: String
-        get() = "支付方式Hook"
+class PayToolsHooker : PartHooker {
 
-    override fun onInit(
-        classLoader: ClassLoader,
-        context: Context,
-    ) {
+    override fun hook(hookerManifest: HookerManifest, application: Application) {
         XposedHelpers.findAndHookMethod(
             "com.tencent.kinda.framework.widget.base.MMKRichText",
-            classLoader,
+            application.classLoader,
             "appendText",
             String::class.java,
             object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     val text = param.args[0] as String
-                    logD("Text: $text")
+                    hookerManifest.logD("Text: $text")
                     when {
                         text.contains("卡(") || text.contains("零钱") -> {
-                            logD("支付方式Hook: $text")
-                            HookUtils.writeData("cachedPayTools", text)
+                            hookerManifest.logD("支付方式Hook: $text")
+                            App.set("cachedPayTools", text)
                         }
                         text.contains("￥") || text.contains("$") -> {
-                            logD("支付金额Hook: $text")
-                            HookUtils.writeData("cachedPayMoney", text)
+                            hookerManifest.logD("支付金额Hook: $text")
+                            App.set("cachedPayMoney", text)
                         }
                         text.contains("转账") || text.contains("红包") || text.contains("付款给") -> {
-                            logD("支付对象hook: $text")
-                            HookUtils.writeData("cachedPayShop", text)
+                            hookerManifest.logD("支付对象hook: $text")
+                            App.set("cachedPayShop", text)
                         }
                     }
                 }

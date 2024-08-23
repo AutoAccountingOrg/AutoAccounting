@@ -15,20 +15,22 @@
 
 package net.ankio.auto.hooks.wechat.hooks
 
-import android.content.Context
+import android.app.Application
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
-import net.ankio.auto.api.Hooker
-import net.ankio.auto.api.PartHooker
 import net.ankio.auto.constant.DataType
-import net.ankio.auto.utils.HookUtils
+import net.ankio.auto.core.App
+import net.ankio.auto.core.api.HookerManifest
+import net.ankio.auto.core.api.PartHooker
 
 
-class TransferHooker (hooker: Hooker) : PartHooker(hooker){
+class TransferHooker  : PartHooker {
 
-    override fun onInit(classLoader: ClassLoader, context: Context) {
+    override fun hook(hookerManifest: HookerManifest, application: Application) {
 
-        XposedHelpers.findAndHookMethod(hooker.clazz["remittance.model"],classLoader, "onGYNetEnd",
+        val classLoader = application.classLoader
+        val model = hookerManifest.clazz["remittance.model"]
+        XposedHelpers.findAndHookMethod(model,classLoader, "onGYNetEnd",
             Int::class.java,
             String::class.java,
             org.json.JSONObject::class.java, object : XC_MethodHook() {
@@ -37,19 +39,14 @@ class TransferHooker (hooker: Hooker) : PartHooker(hooker){
 
                     val json = param.args[2] as org.json.JSONObject
 
-                    json.put("hookUser",HookUtils.readData("hookerUser"))
+                    json.put("hookUser", App.get("hookerUser"))
 
-                    logD("微信转账页面数据： $json")
-
-                    analyzeData(DataType.App.ordinal, json.toString())
+                    hookerManifest.logD("微信转账页面数据： $json")
+                    hookerManifest.analysisData(DataType.App, json.toString())
                 }
             })
 
     }
-
-
-    override val hookName: String
-        get() = "微信转账页面"
 
 
 }
