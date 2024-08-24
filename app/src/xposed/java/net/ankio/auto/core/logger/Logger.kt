@@ -44,7 +44,11 @@ object Logger {
        XposedBridge.log(msg)
        //写入自动记账日志
         App.scope.launch {
-            LogModel.add(LogLevel.INFO,app, getTag(),msg)
+           runCatching {
+               LogModel.add(LogLevel.INFO,app, getTag(),msg)
+           }.onFailure {
+               Log.d("自动记账", msg)
+           }
         }
 
     }

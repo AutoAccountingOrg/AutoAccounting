@@ -26,9 +26,8 @@ import net.ankio.auto.core.api.PartHooker
 
 class TransferHooker  : PartHooker {
 
-    override fun hook(hookerManifest: HookerManifest, application: Application) {
+    override fun hook(hookerManifest: HookerManifest,application: Application?,classLoader: ClassLoader) {
 
-        val classLoader = application.classLoader
         val model = hookerManifest.clazz["remittance.model"]
         XposedHelpers.findAndHookMethod(model,classLoader, "onGYNetEnd",
             Int::class.java,

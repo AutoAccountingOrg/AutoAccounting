@@ -26,12 +26,12 @@ import net.ankio.auto.core.api.PartHooker
 class RedPackageHooker : PartHooker {
 
 
-    override fun hook(hookerManifest: HookerManifest, application: Application) {
+    override fun hook(hookerManifest: HookerManifest, application: Application?,classLoader: ClassLoader) {
         val proguard =
-            XposedHelpers.findClass("com.alipay.mobile.redenvelope.proguard.c.b", application.classLoader)
+            XposedHelpers.findClass("com.alipay.mobile.redenvelope.proguard.c.b", classLoader)
         val syncMessage = XposedHelpers.findClass(
             "com.alipay.mobile.rome.longlinkservice.syncmodel.SyncMessage",
-            application.classLoader
+            classLoader
         )
 
         XposedHelpers.findAndHookMethod(

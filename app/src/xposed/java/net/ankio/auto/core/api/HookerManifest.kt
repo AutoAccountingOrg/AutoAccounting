@@ -42,7 +42,7 @@ abstract class HookerManifest {
      * hook入口，用于执行全局的hook操作
      * @param application Application
      */
-    abstract fun hookLoadPackage(application: Application)
+    abstract fun hookLoadPackage(application: Application?,classLoader: ClassLoader)
 
     /**
      * 需要hook的功能，一个功能一个hooker，方便进行错误捕获

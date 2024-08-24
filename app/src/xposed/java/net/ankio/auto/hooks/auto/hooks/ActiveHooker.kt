@@ -26,8 +26,8 @@ import java.lang.reflect.Field
 
 class ActiveHooker : PartHooker {
 
-    override fun hook(hookerManifest: HookerManifest, application: Application) {
-        val activeUtils = XposedHelpers.findClass("org.ezbook.utils.ActiveUtils", application.classLoader)
+    override fun hook(hookerManifest: HookerManifest, application: Application?,classLoader: ClassLoader) {
+        val activeUtils = XposedHelpers.findClass("org.ezbook.utils.ActiveUtils", classLoader)
         // hook激活方法
         XposedHelpers.findAndHookMethod(
             activeUtils,

@@ -24,10 +24,10 @@ import net.ankio.auto.core.api.PartHooker
 
 class PayToolsHooker : PartHooker {
 
-    override fun hook(hookerManifest: HookerManifest, application: Application) {
+    override fun hook(hookerManifest: HookerManifest,application: Application?,classLoader: ClassLoader) {
         XposedHelpers.findAndHookMethod(
             "com.tencent.kinda.framework.widget.base.MMKRichText",
-            application.classLoader,
+            classLoader,
             "appendText",
             String::class.java,
             object : XC_MethodHook() {

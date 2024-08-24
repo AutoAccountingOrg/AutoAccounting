@@ -27,7 +27,10 @@ class AndroidHooker:HookerManifest(){
     override val appName: String
         get() = "Android"
 
-    override fun hookLoadPackage(application: Application) {
+
+    override var applicationName: String = ""
+
+    override fun hookLoadPackage(application: Application?,classLoader: ClassLoader) {
 
     }
 

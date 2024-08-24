@@ -34,10 +34,10 @@ class WebViewHooker : PartHooker {
         const val MAX_CHECK_COUNT = 500
     }
 
-    override fun hook(hookerManifest: HookerManifest, application: Application) {
+    override fun hook(hookerManifest: HookerManifest, application: Application?,classLoader: ClassLoader)  {
         val webViewClazz = " com.alipay.mobile.nebulacore.web.H5WebView"
 
-        val webView = XposedHelpers.findClass(webViewClazz, application.classLoader)
+        val webView = XposedHelpers.findClass(webViewClazz, classLoader)
 
         XposedHelpers.findAndHookMethod(
             webView,

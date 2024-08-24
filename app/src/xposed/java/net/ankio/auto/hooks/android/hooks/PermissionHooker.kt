@@ -33,15 +33,12 @@ class PermissionHooker:PartHooker {
      * @param hookerManifest HookerManifest
      * @param application Application
      */
-    override fun hook(hookerManifest: HookerManifest,application: Application) {
+    override fun hook(hookerManifest: HookerManifest,application: Application?,classLoader: ClassLoader) {
         val sdk: Int = Build.VERSION.SDK_INT
-        val classLoader = application.classLoader
         try {
             // 根据SDK版本，找到PermissionManagerService类
             val permissionManagerService = XposedHelpers.findClass(
-                if (sdk >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE /* Android 14+ */)
-                    "com.android.server.pm.permission.PermissionManagerServiceImpl"
-                else if (sdk >= Build.VERSION_CODES.TIRAMISU /* Android 13+ */)
+                if (sdk >= Build.VERSION_CODES.TIRAMISU /* Android 13+ */)
                     "com.android.server.pm.permission.PermissionManagerServiceImpl"
                 else
                     "com.android.server.pm.permission.PermissionManagerService",
@@ -55,9 +52,7 @@ class PermissionHooker:PartHooker {
 
             // 根据SDK版本，找到PermissionCallback类
             val permissionCallback = XposedHelpers.findClass(
-                if (sdk >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE /* Android 14+ */)
-                    "com.android.server.pm.permission.PermissionManagerServiceImpl\$PermissionManagerServiceInternal\$PermissionCallback"
-                else if (sdk >= Build.VERSION_CODES.TIRAMISU /* Android 13+ */)
+                if (sdk >= Build.VERSION_CODES.TIRAMISU /* Android 13+ */)
                     "com.android.server.pm.permission.PermissionManagerServiceImpl\$PermissionCallback"
                 else
                     "com.android.server.pm.permission.PermissionManagerService\$PermissionCallback",

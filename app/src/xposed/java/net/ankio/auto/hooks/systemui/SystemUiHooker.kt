@@ -28,9 +28,9 @@ class SystemUiHooker: HookerManifest() {
     override val appName: String
         get() = "Android SystemUI"
 
-    override fun hookLoadPackage(application: Application) {
+    override fun hookLoadPackage(application: Application?,classLoader: ClassLoader) {
         try {
-            Server(application).startServer()
+            Server(application!!).startServer()
             logD("SystemUi server hook success")
         } catch (e: Exception) {
             logE(e)

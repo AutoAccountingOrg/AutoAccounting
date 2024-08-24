@@ -34,9 +34,9 @@ class DatabaseHooker : PartHooker {
         return xmlToJson.toString()
     }
 
-    override fun hook(hookerManifest: HookerManifest, application: Application) {
-        val mAppClassLoader: ClassLoader = application.classLoader
-        val mContext = application
+    override fun hook(hookerManifest: HookerManifest, application: Application?,classLoader: ClassLoader) {
+        val mAppClassLoader: ClassLoader = classLoader
+        val mContext = application!!
 
         // 分析版本 8.0.43
 

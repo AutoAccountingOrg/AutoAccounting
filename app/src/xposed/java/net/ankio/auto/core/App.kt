@@ -18,8 +18,11 @@ package net.ankio.auto.core
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
+import android.icu.lang.UCharacter.GraphemeClusterBreak.L
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.security.NetworkSecurityPolicy
 import android.widget.Toast
 import com.google.gson.Gson
 import de.robv.android.xposed.IXposedHookLoadPackage
@@ -35,6 +38,7 @@ import net.ankio.auto.Apps
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.logger.Logger
 import net.ankio.dex.Dex
+
 
 class App: IXposedHookLoadPackage, IXposedHookZygoteInit  {
 
@@ -126,7 +130,8 @@ class App: IXposedHookLoadPackage, IXposedHookZygoteInit  {
         Logger.log(TAG,"handleLoadPackage: $pkg，processName: $processName")
 
         for (app in Apps.get()){
-            if (app.packageName == pkg && app.appName == processName){
+            if (app.packageName == pkg && app.packageName == processName){
+                networkError()
                 hookAppContext(app, lpparam.classLoader)
                 return
             }
@@ -176,7 +181,7 @@ class App: IXposedHookLoadPackage, IXposedHookZygoteInit  {
             return false
         }
     }
-    private fun initHooker(app:HookerManifest,application: Application){
+    private fun initHooker(app:HookerManifest,application: Application?,classLoader: ClassLoader){
         Logger.log(TAG,"initHooker: ${app.appName}")
         App.application = application
 
@@ -187,13 +192,11 @@ class App: IXposedHookLoadPackage, IXposedHookZygoteInit  {
             return
         }
 
-        permissionHook(app)
-
-        app.hookLoadPackage(application)
+        app.hookLoadPackage(application,classLoader)
 
         app.partHookers.forEach {
             runCatching {
-                it.hook(app,application)
+                it.hook(app,application,classLoader)
             }.onFailure {
                app.logD("Hooker error: ${it.message}")
                 app.logE(it)
@@ -205,17 +208,27 @@ class App: IXposedHookLoadPackage, IXposedHookZygoteInit  {
 
 
 
-    private fun permissionHook(app:HookerManifest){
-
+    private fun networkError(){
+        val policy = NetworkSecurityPolicy.getInstance()
+        if (policy != null && !policy.isCleartextTrafficPermitted) {
+            // 允许明文流量
+            XposedHelpers.callMethod(policy, "setCleartextTrafficPermitted", true)
+            Logger.log(TAG, "allow CleartextTraffic:" + policy.isCleartextTrafficPermitted)
+        }
     }
 
     private fun hookAppContext(app:HookerManifest,classLoader: ClassLoader){
         var hookStatus = false
+        if (app.applicationName.isEmpty()){
+            Logger.log(TAG,"applicationName is empty")
+            initHooker(app, null,classLoader)
+            return
+        }
 
         fun onCachedApplication(application: Application) {
             hookStatus = true
             runCatching {
-                initHooker(app, application)
+                initHooker(app, application,classLoader)
             }.onFailure {
                 Logger.log(TAG,"Hook error: ${it.message}")
                 Logger.logE(TAG,it)

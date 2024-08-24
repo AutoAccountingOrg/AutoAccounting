@@ -32,7 +32,7 @@ class WechatHooker: HookerManifest(){
     override val packageName: String
         get() = "com.tencent.mm"
     override val appName: String = "微信"
-    override fun hookLoadPackage(application: Application) {
+    override fun hookLoadPackage(application: Application?,classLoader: ClassLoader) {
 
     }
 

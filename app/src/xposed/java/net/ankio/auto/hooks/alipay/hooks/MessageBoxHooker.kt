@@ -27,16 +27,15 @@ import net.ankio.auto.core.api.PartHooker
 class MessageBoxHooker: PartHooker {
 
 
-    override fun hook(hookerManifest: HookerManifest, application: Application) {
+    override fun hook(hookerManifest: HookerManifest, application: Application?,classLoader: ClassLoader) {
         val msgboxInfoServiceImpl =
             XposedHelpers.findClass(
                 "com.alipay.android.phone.messageboxstatic.biz.sync.d",
-                application.classLoader,
+                classLoader,
             )
         val syncMessage =
             XposedHelpers.findClass(
-                "com.alipay.mobile.rome.longlinkservice.syncmodel.SyncMessage",
-                application.classLoader,
+                "com.alipay.mobile.rome.longlinkservice.syncmodel.SyncMessage", classLoader,
             )
 
         XposedHelpers.findAndHookMethod(

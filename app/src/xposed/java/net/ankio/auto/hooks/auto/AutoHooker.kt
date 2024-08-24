@@ -26,7 +26,7 @@ class AutoHooker: HookerManifest(){
     override val packageName: String
         get() = "org.ezbook.xposed"
     override val appName: String = "自动记账"
-    override fun hookLoadPackage(application: Application) {
+    override fun hookLoadPackage(application: Application?,classLoader: ClassLoader) {
 
     }
 

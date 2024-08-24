@@ -18,5 +18,5 @@ package net.ankio.auto.core.api
 import android.app.Application
 
 interface PartHooker {
-    fun hook(hookerManifest: HookerManifest,application: Application)
+    fun hook(hookerManifest: HookerManifest,application: Application?,classLoader: ClassLoader)
 }
