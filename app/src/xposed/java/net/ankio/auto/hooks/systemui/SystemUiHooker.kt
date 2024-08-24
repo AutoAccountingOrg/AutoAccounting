@@ -15,7 +15,13 @@
 
 package net.ankio.auto.hooks.systemui
 
+import android.Manifest
 import android.app.Application
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import net.ankio.auto.core.App
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
 import net.ankio.dex.model.Clazz
@@ -24,13 +30,19 @@ import org.ezbook.server.Server
 class SystemUiHooker: HookerManifest() {
 
     override val packageName: String
-        get() = "com.android.systemui"
+        get() = "com.google.android.euicc"
     override val appName: String
         get() = "Android SystemUI"
 
     override fun hookLoadPackage(application: Application?,classLoader: ClassLoader) {
+        log("SystemUi server hook start")
+        startServer(application!!)
+    }
+
+    private fun startServer(application: Application){
         try {
-            Server(application!!).startServer()
+            log("try start server...")
+            Server(application).startServer()
             logD("SystemUi server hook success")
         } catch (e: Exception) {
             logE(e)
@@ -40,9 +52,9 @@ class SystemUiHooker: HookerManifest() {
 
     override var permissions: MutableList<String> = mutableListOf(
         //网络权限
-        "android.permission.INTERNET",
+        Manifest.permission.INTERNET,
         //读取网络状态
-        "android.permission.ACCESS_NETWORK_STATE",
+        Manifest.permission.ACCESS_NETWORK_STATE,
     )
 
     override var partHookers: MutableList<PartHooker> = mutableListOf()

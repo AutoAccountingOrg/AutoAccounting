@@ -15,16 +15,18 @@
 
 package net.ankio.auto.hooks.auto
 
+import android.Manifest
 import android.app.Application
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
 import net.ankio.auto.hooks.auto.hooks.ActiveHooker
 import net.ankio.dex.model.Clazz
+import org.ezbook.server.Server
 
 
 class AutoHooker: HookerManifest(){
     override val packageName: String
-        get() = "org.ezbook.xposed"
+        get() = "net.ankio.auto.xposed"
     override val appName: String = "自动记账"
     override fun hookLoadPackage(application: Application?,classLoader: ClassLoader) {
 
@@ -39,10 +41,10 @@ class AutoHooker: HookerManifest(){
 
     override var permissions: MutableList<String> = mutableListOf(
         //网络权限
-        "android.permission.INTERNET",
+        Manifest.permission.INTERNET,
         //读取网络状态
-        "android.permission.ACCESS_NETWORK_STATE",
+        Manifest.permission.ACCESS_NETWORK_STATE,
         //悬浮窗权限
-        "android.permission.SYSTEM_ALERT_WINDOW",
+        Manifest.permission.SYSTEM_ALERT_WINDOW,
     )
 }

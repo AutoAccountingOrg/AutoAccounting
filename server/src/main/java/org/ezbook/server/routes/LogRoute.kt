@@ -33,7 +33,7 @@ class LogRoute(private val session: NanoHTTPD.IHTTPSession) {
     }
 
     fun add(): NanoHTTPD.Response {
-        val json = Gson().fromJson(session.inputStream.reader(), LogModel::class.java)
+        val json = Gson().fromJson(Server.reqData(session), LogModel::class.java)
         val id = Db.get().logDao().insert(json)
         return Server.json(200, "OK", id)
     }

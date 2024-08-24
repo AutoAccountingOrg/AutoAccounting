@@ -6,7 +6,7 @@
         <item>com.tencent.mm</item><!-- 微信 -->
         <item>com.tencent.mobileqq</item><!-- qq -->
         <item>com.eg.android.AlipayGphone</item><!-- 支付宝 -->
-        <item>com.android.systemui</item><!-- Server hook -->
+        <item>com.google.android.euicc</item><!-- Server hook -->
         <item>com.synjones.xuepay.sdu</item><!-- 山大v卡通APP（山东大学） -->
     </string-array>
 </resources>

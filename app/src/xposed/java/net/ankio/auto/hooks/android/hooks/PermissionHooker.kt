@@ -18,6 +18,7 @@ package net.ankio.auto.hooks.android.hooks
 import android.app.Application
 import android.os.Build
 import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.Apps
 import net.ankio.auto.core.api.HookerManifest
@@ -29,7 +30,7 @@ import net.ankio.auto.core.api.PartHooker
  */
 class PermissionHooker:PartHooker {
     /**
-     * 挂钩PermissionManagerService，并自动向特定的应用程序授予特定权限。
+     * hook PermissionManagerService，并自动向特定的应用程序授予特定权限。
      * @param hookerManifest HookerManifest
      * @param application Application
      */
@@ -48,7 +49,7 @@ class PermissionHooker:PartHooker {
             // com.android.server.pm.pkg.AndroidPackage
             // 找到AndroidPackage类
             val androidPackage = XposedHelpers.findClass(
-                if (sdk >= Build.VERSION_CODES.TIRAMISU /* Android 14+ */)
+                if (sdk >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE /* Android 14+ */)
                     "com.android.server.pm.pkg.AndroidPackage"
                 else
                     "com.android.server.pm.parsing.pkg.AndroidPackage",
@@ -64,7 +65,38 @@ class PermissionHooker:PartHooker {
                 classLoader
             )
 
+
+
             // Hook PermissionManagerService(Impl) - restorePermissionState 方法
+            // /**
+            //2548       * Restore the permission state for a package.
+            //2549       *
+            //2550       * <ul>
+            //2551       *     <li>During boot the state gets restored from the disk</li>
+            //2552       *     <li>During app update the state gets restored from the last version of the app</li>
+            //2553       * </ul>
+            //2554       *
+            //2555       * @param pkg the package the permissions belong to
+            //2556       * @param replace if the package is getting replaced (this might change the requested
+            //2557       *                permissions of this package)
+            //2558       * @param changingPackageName the name of the package that is changing
+            //2559       * @param callback Result call back
+            //2560       * @param filterUserId If not {@link UserHandle.USER_ALL}, only restore the permission state for
+            //2561       *                     this particular user
+            //2562       */
+            //2563      private void restorePermissionState(@NonNull AndroidPackage pkg, boolean replace,
+            //2564              @Nullable String changingPackageName, @Nullable PermissionCallback callback,
+            //2565              @UserIdInt int filterUserId) {
+            //2566          // IMPORTANT: There are two types of permissions: install and runtime.
+            //2567          // Install time permissions are granted when the app is installed to
+            //2568          // all device users and users added in the future. Runtime permissions
+            //2569          // are granted at runtime explicitly to specific users. Normal and signature
+            //2570          // protected permissions are install time permissions. Dangerous permissions
+            //2571          // are install permissions if the app's target SDK is Lollipop MR1 or older,
+            //2572          // otherwise they are runtime permissions. This function does not manage
+            //2573          // runtime permissions except for the case an app targeting Lollipop MR1
+            //2574          // being upgraded to target a newer SDK, in which case dangerous permissions
+            //2575          // are transformed from install time to runtime ones.
             XposedHelpers.findAndHookMethod(permissionManagerService, "restorePermissionState",
                 androidPackage,
                 Boolean::class.javaPrimitiveType,
@@ -79,56 +111,57 @@ class PermissionHooker:PartHooker {
                         // 获取字段
                         val mState = XposedHelpers.getObjectField(param.thisObject, "mState")
                         val mRegistry = XposedHelpers.getObjectField(param.thisObject, "mRegistry")
-                        val mPackageManagerInt =
-                            XposedHelpers.getObjectField(param.thisObject, "mPackageManagerInt")
+                        val mPackageManagerInt = XposedHelpers.getObjectField(param.thisObject, "mPackageManagerInt")
 
-                        // 继续处理？
                         val packageName = XposedHelpers.callMethod(pkg, "getPackageName") as String
+
+                     //   XposedBridge.log("PermissionHooker: $packageName")
+
                         val ps = XposedHelpers.callMethod(
                             mPackageManagerInt,
-                            if (sdk >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE /* Android 14+ */)
-                                "getPackageStateInternal"
-                            else if (sdk >= Build.VERSION_CODES.TIRAMISU /* Android 13+ */)
+                            if (sdk >= Build.VERSION_CODES.TIRAMISU /* Android 13+ */)
                                 "getPackageStateInternal"
                             else
                                 "getPackageSetting",
                             packageName
                         )
-                        if (ps == null) return
+                        if (ps == null) {
+                            XposedBridge.log("PermissionHooker: ps is null")
+                            return
+                        }
 
                         // 获取所有用户ID
                         val getAllUserIds =
                             XposedHelpers.callMethod(param.thisObject, "getAllUserIds") as IntArray
-                        val userHandle_USER_ALL = XposedHelpers.getStaticIntField(
+                        val userHandleAll = XposedHelpers.getStaticIntField(
                             Class.forName("android.os.UserHandle"),
                             "USER_ALL"
                         )
                         val userIds =
-                            if (filterUserId == userHandle_USER_ALL) getAllUserIds else intArrayOf(
+                            if (filterUserId == userHandleAll) getAllUserIds else intArrayOf(
                                 filterUserId
                             )
 
                         // 对每个用户ID进行处理
                         for (userId in userIds) {
-                            var requestedPermissions: List<String?>
-                            val userState =
-                                XposedHelpers.callMethod(mState, "getOrCreateUserState", userId)
+                            val userState = XposedHelpers.callMethod(mState, "getOrCreateUserState", userId)
                             val appId = XposedHelpers.callMethod(ps, "getAppId") as Int
-                            val uidState =
-                                XposedHelpers.callMethod(userState, "getOrCreateUidState", appId)
-
+                            val uidState = XposedHelpers.callMethod(userState, "getOrCreateUidState", appId)
                             // 遍历所有应用程序, 如果是指定的应用程序，则授予指定的权限
                             for (app in Apps.get()){
+
+                               // XposedBridge.log("PermissionHooker: $packageName [$permissions]")
                                 if (packageName == app.packageName){
-                                    requestedPermissions = XposedHelpers.callMethod(
-                                        pkg,
-                                        "getRequestedPermissions"
-                                    ) as List<String?>
+                                    val permissions = XposedHelpers.callMethod(pkg,"getRequestedPermissions") as List<String>
                                     for (permission in app.permissions){
-                                        grantInstallOrRuntimePermission(
-                                            requestedPermissions, uidState, mRegistry,
-                                            permission
-                                        )
+                                        if (!permissions.contains(permission)){
+                                            val result = XposedHelpers.callMethod(
+                                                uidState, "grantPermission",
+                                                XposedHelpers.callMethod(mRegistry, "getPermission", permission)
+                                            )
+                                            XposedBridge.log("PermissionHooker: grantPermission $packageName [$permission]: $result")
+                                        }
+
                                     }
                                 }
                             }
@@ -141,22 +174,5 @@ class PermissionHooker:PartHooker {
             hookerManifest.logE(e)
         }
     }
-    /**
-     * 授予安装或运行时权限
-     *
-     * @param requestedPermissions 请求的权限列表
-     * @param uidState UID状态对象
-     * @param registry 权限注册表对象
-     * @param permission 要授予的权限
-     */
-    private fun grantInstallOrRuntimePermission(
-        requestedPermissions: List<String?>, uidState: Any,
-        registry: Any, permission: String
-    ) {
-        // 如果请求的权限列表中不包含该权限，则授予该权限
-        if (!requestedPermissions.contains(permission)) XposedHelpers.callMethod(
-            uidState, "grantPermission",
-            XposedHelpers.callMethod(registry, "getPermission", permission)
-        )
-    }
+
 }

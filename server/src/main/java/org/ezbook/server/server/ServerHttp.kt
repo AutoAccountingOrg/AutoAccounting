@@ -18,17 +18,27 @@ package org.ezbook.server.server
 import fi.iki.elonen.NanoHTTPD
 import org.ezbook.server.Server.Companion.json
 import org.ezbook.server.routes.LogRoute
+import java.util.Locale
 
-class ServerHttp(port:Int) : NanoHTTPD(port) {
-
+class ServerHttp(port:Int,threadCount:Int) : NanoHTTPD(port) {
+    init {
+        asyncRunner = BoundRunner(java.util.concurrent.Executors.newFixedThreadPool(threadCount))
+    }
     override fun serve(session: IHTTPSession): Response {
+        val method = session.method.name.uppercase(Locale.ROOT)
+        val path = "$method ${session.uri}"
         return runCatching {
-             when (session.uri) {
-                "/" -> json(200,"hello,自动记账",null,0)
-                 // log
-                "/log/list" -> LogRoute(session).list()
-                 "/log/add" -> LogRoute(session).add()
-                    "/log/clear" -> LogRoute(session).clear()
+             when (path) {
+                "GET /" -> json(200,"hello,自动记账",null,0)
+                 // 日志列表
+                "GET /log/list" -> LogRoute(session).list()
+                    // 添加日志
+                "POST /log/add" -> LogRoute(session).add()
+                    // 清空日志
+                 "GET /log/clear" -> LogRoute(session).clear()
+
+
+
                 else -> json(404,"Not Found",null,0)
             }
         }.getOrElse {

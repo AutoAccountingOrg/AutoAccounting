@@ -21,7 +21,6 @@ import com.google.gson.JsonObject
 import fi.iki.elonen.NanoHTTPD
 import fi.iki.elonen.NanoHTTPD.SOCKET_READ_TIMEOUT
 import fi.iki.elonen.NanoHTTPD.newFixedLengthResponse
-import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -34,7 +33,8 @@ import org.ezbook.server.server.ServerHttp
 class Server(context:Context) {
 
     private val port = 52045
-    private val server = ServerHttp(port)
+    private val count  = 16
+    private val server = ServerHttp(port,count)
     init {
         Db.init(context)
     }
@@ -52,13 +52,23 @@ class Server(context:Context) {
 
 
     companion object {
+
+        fun reqData(session:NanoHTTPD.IHTTPSession): String {
+            val contentLength: Int = session.headers["content-length"]?.toInt() ?: 0
+            val buffer = ByteArray(contentLength)
+            session.inputStream.read(buffer, 0, contentLength)
+            // 将字节数组转换为字符串
+           return String(buffer)
+
+        }
+
         fun json(code:Int = 200,msg:String = "OK",data:Any? = null,count:Int = 0): NanoHTTPD.Response {
             val jsonObject = JsonObject();
             jsonObject.addProperty("code",code)
             jsonObject.addProperty("msg",msg)
             jsonObject.addProperty("count",count)
             jsonObject.add("data", Gson().toJsonTree(data))
-            return newFixedLengthResponse(jsonObject.toString())
+            return newFixedLengthResponse(NanoHTTPD.Response.Status.OK, NanoHTTPD.MIME_PLAINTEXT,jsonObject.toString())
         }
 
        suspend fun request(path:String,json:String = ""):String?{

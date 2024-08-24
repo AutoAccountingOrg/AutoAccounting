@@ -17,21 +17,26 @@ package org.ezbook.server.server
 
 import fi.iki.elonen.NanoHTTPD.AsyncRunner
 import fi.iki.elonen.NanoHTTPD.ClientHandler
+import java.util.Collections
 import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
 
-class CustomAsyncRunner : AsyncRunner {
-    private val executor: ExecutorService = Executors.newFixedThreadPool(10) // 创建线程池
+
+internal class BoundRunner(private val executorService: ExecutorService) : AsyncRunner {
+    private val running: MutableList<ClientHandler> = Collections.synchronizedList(ArrayList())
 
     override fun closeAll() {
-
+        // copy of the list for concurrency
+        for (clientHandler in ArrayList(this.running)) {
+            clientHandler.close()
+        }
     }
 
     override fun closed(clientHandler: ClientHandler) {
-
+        running.remove(clientHandler)
     }
 
-    override fun exec(code: ClientHandler?) {
-        executor.submit(code)
+    override fun exec(clientHandler: ClientHandler) {
+        executorService.submit(clientHandler)
+        running.add(clientHandler)
     }
 }

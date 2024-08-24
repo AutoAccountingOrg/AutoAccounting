@@ -18,6 +18,7 @@ package net.ankio.auto.core
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.icu.lang.UCharacter.GraphemeClusterBreak.L
 import android.os.Build
 import android.os.Handler
@@ -122,6 +123,7 @@ class App: IXposedHookLoadPackage, IXposedHookZygoteInit  {
 
 
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
+       //如果运行在安卓9及以下版本，直接返回
         Logger.debug = true
         //判断是否为调试模式
         val pkg = lpparam.packageName
@@ -192,6 +194,8 @@ class App: IXposedHookLoadPackage, IXposedHookZygoteInit  {
             return
         }
 
+        permissionCheck(app)
+
         app.hookLoadPackage(application,classLoader)
 
         app.partHookers.forEach {
@@ -204,6 +208,23 @@ class App: IXposedHookLoadPackage, IXposedHookZygoteInit  {
         }
 
         app.logD("Hooker init success, ${app.appName}(${code})")
+    }
+
+
+    private fun permissionCheck(app: HookerManifest){
+        val permissions = app.permissions
+        if (permissions.isEmpty()){
+            app.logD("${app.appName} No permission required")
+            return
+        }
+        val context = application ?: return
+        permissions.forEach {
+            if (context.checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED){
+                app.logD("${app.appName} Permission denied: $it")
+            } else{
+                app.logD("${app.appName} Permission granted: $it")
+            }
+        }
     }
 
 
