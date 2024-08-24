@@ -45,9 +45,14 @@ class PermissionHooker:PartHooker {
                 classLoader
             )
 
+            // com.android.server.pm.pkg.AndroidPackage
             // 找到AndroidPackage类
             val androidPackage = XposedHelpers.findClass(
-                "com.android.server.pm.parsing.pkg.AndroidPackage", classLoader
+                if (sdk >= Build.VERSION_CODES.TIRAMISU /* Android 14+ */)
+                    "com.android.server.pm.pkg.AndroidPackage"
+                else
+                    "com.android.server.pm.parsing.pkg.AndroidPackage",
+                classLoader
             )
 
             // 根据SDK版本，找到PermissionCallback类
