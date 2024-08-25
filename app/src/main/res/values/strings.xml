@@ -351,4 +351,5 @@
     <string name="menu_item_restart">重启</string>
     <string name="auto_dispose_scope">auto_dispose_scope</string>
     <string name="setting_auto">自动记账功能配置</string>
+    <string name="title_cant_connect_service">无法连接到自动记账服务</string>
 </resources>

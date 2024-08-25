@@ -24,7 +24,6 @@ import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.ActivityAuthBinding
 import net.ankio.auto.utils.AppUtils
-import net.ankio.auto.utils.SpUtils
 
 class AuthActivity : BaseActivity() {
     private lateinit var binding: ActivityAuthBinding

@@ -30,8 +30,7 @@ import net.ankio.auto.databinding.DialogUpdateBinding
 import net.ankio.auto.exceptions.AutoServiceException
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.utils.Logger
-import net.ankio.auto.utils.SpUtils
-import net.ankio.auto.utils.event.EventBus
+import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.utils.request.RequestsUtils
 import net.ankio.auto.models.SettingModel
 import rikka.html.text.toHtml

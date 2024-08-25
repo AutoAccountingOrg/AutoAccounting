@@ -41,7 +41,7 @@ import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.BackupUtils
 import net.ankio.auto.utils.LanguageUtils
 import net.ankio.auto.utils.Logger
-import net.ankio.auto.utils.SpUtils
+import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.utils.update.UpdateUtils
 
 class Setting2Fragment : BaseFragment() {

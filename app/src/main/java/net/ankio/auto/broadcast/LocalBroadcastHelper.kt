@@ -22,7 +22,10 @@ import android.content.IntentFilter
 import android.os.Bundle
 import net.ankio.auto.App
 
-class LocalBroadcastHelper() {
+/**
+ * 本地广播助手类
+ */
+class LocalBroadcastHelper {
 
 
     /**

@@ -21,6 +21,7 @@ import com.bugsnag.android.Bugsnag
 import com.bugsnag.android.Event
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.exceptions.AutoServiceException
+import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.ui.activity.ErrorActivity
 import kotlin.system.exitProcess
 

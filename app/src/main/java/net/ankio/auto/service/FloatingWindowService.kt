@@ -38,13 +38,11 @@ import net.ankio.auto.R
 import net.ankio.auto.app.BillUtils
 import net.ankio.auto.constant.FloatEvent
 import net.ankio.auto.databinding.FloatTipBinding
-import net.ankio.auto.exceptions.AutoServiceException
 import net.ankio.auto.models.BillInfoModel
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.FloatPermissionUtils
 import net.ankio.auto.utils.Logger
-import net.ankio.auto.utils.SpUtils
-import net.ankio.auto.utils.event.EventBus
+import net.ankio.auto.storage.SpUtils
 import kotlin.system.exitProcess
 
 class FloatingWindowService : Service() {

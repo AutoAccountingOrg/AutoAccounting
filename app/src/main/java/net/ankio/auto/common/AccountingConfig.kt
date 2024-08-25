@@ -16,7 +16,7 @@
 package net.ankio.auto.common
 
 import com.google.gson.Gson
-import net.ankio.auto.utils.SpUtils
+import net.ankio.auto.storage.SpUtils
 
 data class AccountingConfig(
     var assetManagement: Boolean = true,//是否开启资产管理

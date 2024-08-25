@@ -20,6 +20,7 @@ import android.content.res.Configuration
 import android.content.res.Resources
 import androidx.core.os.ConfigurationCompat
 import net.ankio.auto.R
+import net.ankio.auto.storage.SpUtils
 import net.ankio.utils.LangList
 import java.util.Locale
 

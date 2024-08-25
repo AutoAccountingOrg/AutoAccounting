@@ -20,11 +20,10 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.Logger
-import net.ankio.auto.utils.SpUtils
+import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.models.AssetsModel
 import net.ankio.auto.models.AssetsMapModel
 import net.ankio.auto.models.BillInfoModel
-import net.ankio.common.constant.AssetsType
 import net.ankio.common.constant.BillType
 import net.ankio.common.constant.Currency
 import java.text.DecimalFormat

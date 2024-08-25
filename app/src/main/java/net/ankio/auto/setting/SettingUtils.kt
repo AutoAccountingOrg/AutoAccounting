@@ -15,7 +15,6 @@
 
 package net.ankio.auto.setting
 
-import android.app.Activity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,7 +29,7 @@ import net.ankio.auto.databinding.SettingItemTitleBinding
 import net.ankio.auto.ui.activity.BaseActivity
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.ListPopupUtils
-import net.ankio.auto.utils.SpUtils
+import net.ankio.auto.storage.SpUtils
 
 class SettingUtils(
     private val context: BaseActivity,

@@ -26,7 +26,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.elevation.SurfaceColors
 import net.ankio.auto.R
-import net.ankio.auto.utils.SpUtils
+import net.ankio.auto.storage.SpUtils
 
 abstract class BaseSheetDialog(private val context: Context) :
     BottomSheetDialog(context, R.style.BottomSheetDialog) {

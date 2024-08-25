@@ -40,15 +40,12 @@ import com.quickersilver.themeengine.ThemeEngine
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.app.model.AppInfo
+import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.ui.activity.MainActivity
-import net.ankio.auto.utils.server.AutoServer
 import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
 import java.math.BigInteger
 import java.security.MessageDigest
 

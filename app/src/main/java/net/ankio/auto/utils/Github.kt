@@ -19,6 +19,7 @@ import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.exceptions.GithubException
+import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.utils.request.RequestsUtils
 import org.json.JSONObject
 

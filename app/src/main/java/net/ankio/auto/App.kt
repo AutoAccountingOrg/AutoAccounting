@@ -18,45 +18,58 @@ package net.ankio.auto
 import android.app.Application
 import android.content.Context
 import com.hjq.toast.Toaster
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import net.ankio.auto.broadcast.LocalBroadcastHelper
-import net.ankio.auto.utils.AppTimeMonitor
-import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.ExceptionHandler
+import net.ankio.auto.storage.SpUtils
 
 class App : Application() {
-
-
     override fun onTerminate() {
         super.onTerminate()
-        AppUtils.getJob().cancel()
+        /**
+         * 取消全局协程
+         */
+        job.cancel()
     }
 
     companion object{
+        /* 本地广播 */
         lateinit var localBroadcastHelper: LocalBroadcastHelper
+        /* App实例 */
         lateinit var app: Application
+        /**
+         * 是否是调试模式
+         */
+        var debug:Boolean = false
+        /* 全局协程 */
+        private val job = Job()
+        private val scope = CoroutineScope(Dispatchers.IO + job)
+
+        /**
+         * 获取全局协程
+         */
+         fun launch(block: suspend CoroutineScope.() -> Unit) {
+            scope.launch(block = block)
+        }
     }
 
-
-
+    /**
+     * 初始化
+     */
     override fun attachBaseContext(base: Context?) {
         super.attachBaseContext(base)
-
-
         app = this
+        // 初始化调试模式
+        debug = BuildConfig.DEBUG || SpUtils.getBoolean("debug", false)
         // 初始化本地广播
         localBroadcastHelper = LocalBroadcastHelper()
-
-
-        // 监控
-        AppTimeMonitor.startMonitoring("App初始化")
         // 设置全局异常
         ExceptionHandler.init(this)
         // 初始化 Toast 框架
         Toaster.init(this)
-
-        AppTimeMonitor.stopMonitoring("App初始化")
-
-
     }
 
 

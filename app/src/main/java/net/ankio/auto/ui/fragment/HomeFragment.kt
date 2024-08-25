@@ -34,6 +34,7 @@ import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.common.AccountingConfig
 import net.ankio.auto.common.ActiveInfo
+import net.ankio.auto.common.ServerInfo
 import net.ankio.auto.databinding.AboutDialogBinding
 import net.ankio.auto.databinding.FragmentHomeBinding
 import net.ankio.auto.ui.dialog.AssetsSelectorDialog
@@ -42,13 +43,10 @@ import net.ankio.auto.ui.dialog.BookSelectorDialog
 import net.ankio.auto.ui.dialog.CategorySelectorDialog
 import net.ankio.auto.ui.dialog.UpdateDialog
 import net.ankio.auto.ui.utils.MenuItem
-import net.ankio.auto.utils.ActiveUtils
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.Logger
-import net.ankio.auto.utils.ServiceUtils
-import net.ankio.auto.utils.SpUtils
-import net.ankio.auto.utils.event.EventBus
+import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.models.CategoryModel
 import net.ankio.auto.utils.update.UpdateUtils
 import rikka.html.text.toHtml
@@ -112,9 +110,48 @@ class HomeFragment : BaseFragment() {
         checkBookApp()
 
 
+        checkAutoService()
+
         return binding.root
     }
 
+    /**
+     * 检查自动记账服务
+     */
+    private fun checkAutoService(){
+
+        lifecycleScope.launch {
+            if (!ServerInfo.isServerStart()){
+                MaterialAlertDialogBuilder(requireActivity())
+                    .setTitle(R.string.title_cant_connect_service)
+                    .setMessage(ServerInfo.getServerErrorMsg(requireContext()))
+                    .show()
+            }
+        }
+    }
+
+
+    /**
+     * 检查记账软件
+     */
+    private fun checkBookApp() {
+        if (SpUtils.getString("bookApp", "").isEmpty()) {
+            MaterialAlertDialogBuilder(requireActivity())
+                .setTitle(R.string.title_book_app)
+                .setMessage(R.string.msg_book_app)
+                .setPositiveButton(R.string.sure_book_app) { _, _ ->
+                    CustomTabsHelper.launchUrlOrCopy(requireActivity(), getString(R.string.book_app_url))
+                }
+                .setNegativeButton(R.string.cancel) { _, _ ->
+                    // finish()
+                }
+                .show()
+        }
+    }
+
+    /**
+     * 刷新UI
+     */
     private fun refreshUI() {
         bindActiveUI()
         bindBookAppUI()
@@ -166,21 +203,7 @@ class HomeFragment : BaseFragment() {
         }
     }
 
-    private fun checkBookApp() {
-        // 判断是否设置了记账软件
-        if (SpUtils.getString("bookApp", "").isEmpty()) {
-            MaterialAlertDialogBuilder(requireActivity())
-                .setTitle(R.string.title_book_app)
-                .setMessage(R.string.msg_book_app)
-                .setPositiveButton(R.string.sure_book_app) { _, _ ->
-                    CustomTabsHelper.launchUrlOrCopy(requireActivity(), getString(R.string.book_app_url))
-                }
-                .setNegativeButton(R.string.cancel) { _, _ ->
-                    // finish()
-                }
-                .show()
-        }
-    }
+
 
     /**
      * 绑定规则部分的UI

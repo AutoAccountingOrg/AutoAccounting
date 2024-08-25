@@ -23,7 +23,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.launch
 import net.ankio.auto.databinding.DialogBookSelectBinding
 //import net.ankio.auto.ui.adapter.BookSelectorAdapter
-import net.ankio.auto.utils.SpUtils
+import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.models.BookNameModel
 
 class BookSelectorDialog(private val context: Context, val callback: (BookNameModel) -> Unit) :

@@ -34,7 +34,6 @@ import net.ankio.auto.constant.toDataType
 import net.ankio.auto.databinding.AdapterDataBinding
 import net.ankio.auto.databinding.SettingItemInputBinding
 import net.ankio.auto.ui.dialog.DataEditorDialog
-import net.ankio.auto.ui.dialog.FloatEditorDialog
 import net.ankio.auto.ui.scope.autoDisposeScope
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.viewModes.AppDataViewModel
@@ -42,7 +41,7 @@ import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.DateUtils
 import net.ankio.auto.utils.Github
-import net.ankio.auto.utils.SpUtils
+import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.models.AppDataModel
 
 class AppDataAdapter(
