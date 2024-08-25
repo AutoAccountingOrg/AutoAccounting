@@ -16,14 +16,17 @@
 package net.ankio.auto.utils
 
 import android.util.Log
-import kotlinx.coroutines.launch
 import net.ankio.auto.App
-import net.ankio.auto.models.LogModel
+import org.ezbook.server.constant.LogLevel
+import org.ezbook.server.db.model.LogModel
 
 /**
  * 日志工具类，包含调用日志的类和行号信息，以及异常的堆栈跟踪。
  */
 object Logger {
+    /**
+     * 获取调用日志的类和行号信息
+     */
     private fun getLogHeader(): Triple<String, String, String> {
         val stackTraceElement = Throwable().stackTrace[3] // 获取调用日志方法的堆栈跟踪元素
         return Triple(
@@ -33,19 +36,25 @@ object Logger {
         )
     }
 
+    /**
+     * 获取调用日志的类名
+     */
     private fun getTag(): String {
         return Throwable().stackTrace[2].className.substringBefore('$').substringAfterLast(".")
     }
 
-    private fun printLog(
+    /**
+     * 打印日志
+     *
+     * @param type 日志类型
+     * @param tag 日志标签
+     * @param message 日志内容
+     */
+    private  fun printLog(
         type: Int,
         tag: String,
         message: String,
     ) {
-        if (message.contains("log/put") || message.contains("log/get")) {
-            return
-        }
-
         fun log(it: String) {
             when (type) {
                 Log.VERBOSE -> Log.v(tag, it)
@@ -87,35 +96,35 @@ object Logger {
         list.forEach {
             log(header + it)
         }
-        // 一些发起服务请求的不记录到日志文件里面来
-        if (list.any { it.contains("log/put") })return
 
-        AppUtils.getScope().launch {
-            LogModel.put(
-                LogModel().apply {
-                    date = DateUtils.getTime(System.currentTimeMillis())
-                    app = App.app.packageName
-                    hook = 0
-                    this.thread = thread
-                    this.line = "$file:$line"
-                    level =
-                        when (type) {
-                            Log.DEBUG -> LogModel.LOG_LEVEL_DEBUG
-                            Log.INFO -> LogModel.LOG_LEVEL_INFO
-                            Log.WARN -> LogModel.LOG_LEVEL_WARN
-                            Log.ERROR -> LogModel.LOG_LEVEL_ERROR
-                            else -> LogModel.LOG_LEVEL_DEBUG
-                        }
-                    log = message
+
+        App.launch {
+            LogModel.add(
+                when (type) {
+                    Log.DEBUG -> LogLevel.DEBUG
+                    Log.INFO -> LogLevel.INFO
+                    Log.WARN -> LogLevel.WARN
+                    Log.ERROR -> LogLevel.ERROR
+                    else -> LogLevel.DEBUG
                 },
+                "$file($line)",
+                message,
+                thread,
             )
         }
     }
 
+    /**
+     * 调试日志
+     */
     fun d(message: String) {
+        if (!App.debug)return
         printLog(Log.DEBUG, getTag(), message)
     }
 
+    /**
+     * 错误日志
+     */
     fun e(
         message: String,
         throwable: Throwable? = null,
@@ -136,10 +145,16 @@ object Logger {
         printLog(Log.ERROR, getTag(), messageInfo.toString())
     }
 
+    /**
+     * 常规日志
+     */
     fun i(message: String) {
         printLog(Log.INFO, getTag(), message)
     }
 
+    /**
+     * 警告日志
+     */
     fun w(message: String) {
         printLog(Log.WARN, getTag(), message)
     }
