@@ -19,8 +19,6 @@ import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
-import android.icu.lang.UCharacter.GraphemeClusterBreak.L
-import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.security.NetworkSecurityPolicy
@@ -59,6 +57,7 @@ class App: IXposedHookLoadPackage, IXposedHookZygoteInit  {
             if (application == null){
                 return
             }
+            Logger.logD(TAG,"set: $key -> $value")
             val sharedPreferences: SharedPreferences =
                 application!!.getSharedPreferences(TAG, Context.MODE_PRIVATE) // 私有数据
             val editor = sharedPreferences.edit() // 获取编辑器
@@ -74,6 +73,7 @@ class App: IXposedHookLoadPackage, IXposedHookZygoteInit  {
             if (application == null){
                 return def
             }
+            Logger.logD(TAG,"get: $key")
             val sharedPreferences: SharedPreferences =
                 application!!.getSharedPreferences(TAG, Context.MODE_PRIVATE) // 私有数据
             return sharedPreferences.getString(key, def) ?: def
@@ -87,6 +87,7 @@ class App: IXposedHookLoadPackage, IXposedHookZygoteInit  {
             if (application == null){
                 return
             }
+            Logger.logD(TAG,"toast: $msg")
             Toast.makeText(application, msg, Toast.LENGTH_LONG).show()
         }
 
@@ -114,39 +115,117 @@ class App: IXposedHookLoadPackage, IXposedHookZygoteInit  {
             }
         }
 
+        /**
+         * hook Application Context
+         * @param applicationName String
+         * @param classLoader ClassLoader
+         * @param callback Function1<Application?, Unit>
+         *     回调函数，返回Application对象
+         *     如果hook失败，返回null
+         */
+        fun hookAppContext(applicationName:String, classLoader: ClassLoader, callback: (Application?)->Unit){
+            var hookStatus = false
+            if (applicationName.isEmpty()){
+                Logger.logD(TAG,"applicationName is empty")
+                callback(null)
+                return
+            }
+
+            fun onCachedApplication(application: Application) {
+                hookStatus = true
+                runCatching {
+                    callback(application)
+                }.onFailure {
+                    Logger.log(TAG,"Hook error: ${it.message}")
+                    Logger.logE(TAG,it)
+                }
+            }
+
+            runCatching {
+                XposedHelpers.findAndHookMethod(
+                    applicationName,
+                    classLoader,
+                    "attach",
+                    Context::class.java,
+                    object : XC_MethodHook() {
+                        @Throws(Throwable::class)
+                        override fun afterHookedMethod(param: MethodHookParam) {
+                            super.afterHookedMethod(param)
+                            if (hookStatus) {
+                                return
+                            }
+
+                            val context = param.thisObject as Application
+
+                            onCachedApplication(context)
+                        }
+                    },
+                )
+            }.onFailure {
+                runCatching {
+                    XposedHelpers.findAndHookMethod(
+                        applicationName,
+                        classLoader,
+                        "attachBaseContext",
+                        Context::class.java,
+                        object : XC_MethodHook() {
+                            @Throws(Throwable::class)
+                            override fun afterHookedMethod(param: MethodHookParam) {
+                                super.afterHookedMethod(param)
+                                if (hookStatus) {
+                                    return
+                                }
+
+                                val context = param.thisObject as Application
+
+                                onCachedApplication(context)
+                            }
+                        },
+                    )
+                }
+            }
+        }
+
 
     }
 
 
-
-
-
-
+    /**
+     * 加载包时的回调
+     */
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
-       //如果运行在安卓9及以下版本，直接返回
         Logger.debug = true
         //判断是否为调试模式
         val pkg = lpparam.packageName
         val processName = lpparam.processName
 
-        Logger.log(TAG,"handleLoadPackage: $pkg，processName: $processName")
+        Logger.logD(TAG,"handleLoadPackage: $pkg，processName: $processName")
 
         for (app in Apps.get()){
             if (app.packageName == pkg && app.packageName == processName){
                 networkError()
-                hookAppContext(app, lpparam.classLoader)
+                hookAppContext(app.applicationName, lpparam.classLoader){
+                    initHooker(app,it,lpparam.classLoader)
+                }
                 return
             }
         }
 
     }
 
+    /**
+     * 自动适配hook
+     */
     private fun ruleHook(app:HookerManifest): Boolean {
         val code = getVersionCode()
         if (app.rules.size == 0) {
             return true
         }
+
         val adaptationVersion = get("adaptation","").toIntOrNull() ?: 0
+
+        Logger.logD(TAG,"adaptationVersion: $adaptationVersion")
+
         if (adaptationVersion == code) {
             runCatching {
                 app.clazz =
@@ -159,7 +238,7 @@ class App: IXposedHookLoadPackage, IXposedHookZygoteInit  {
                 }
             }.onFailure {
                 set("adaptation", "0")
-                XposedBridge.log(it)
+                Logger.logE(TAG,it)
             }.onSuccess {
                 return true
             }
@@ -183,6 +262,14 @@ class App: IXposedHookLoadPackage, IXposedHookZygoteInit  {
             return false
         }
     }
+
+    /**
+     * 初始化Hooker
+     * @param app HookerManifest
+     * @param application Application?
+     * @param classLoader ClassLoader
+     * @return Boolean
+     */
     private fun initHooker(app:HookerManifest,application: Application?,classLoader: ClassLoader){
         Logger.log(TAG,"initHooker: ${app.appName}")
         App.application = application
@@ -200,17 +287,22 @@ class App: IXposedHookLoadPackage, IXposedHookZygoteInit  {
 
         app.partHookers.forEach {
             runCatching {
+                app.logD("PartHooker init: ${it.javaClass.simpleName}")
                 it.hook(app,application,classLoader)
+                app.logD("PartHooker init success: ${it.javaClass.simpleName}")
             }.onFailure {
-               app.logD("Hooker error: ${it.message}")
-                app.logE(it)
+               app.logD("PartHooker error: ${it.message}")
+               app.logE(it)
             }
         }
 
         app.logD("Hooker init success, ${app.appName}(${code})")
     }
 
-
+    /**
+     * 权限检查
+     * 确保已经成功授权
+     */
     private fun permissionCheck(app: HookerManifest){
         val permissions = app.permissions
         if (permissions.isEmpty()){
@@ -227,77 +319,17 @@ class App: IXposedHookLoadPackage, IXposedHookZygoteInit  {
         }
     }
 
-
-
+    /**
+     * 网络错误修复
+     * 修复Android9及以上版本的网络错误
+     */
     private fun networkError(){
+        Logger.logD(TAG,"networkError Fix")
         val policy = NetworkSecurityPolicy.getInstance()
         if (policy != null && !policy.isCleartextTrafficPermitted) {
             // 允许明文流量
             XposedHelpers.callMethod(policy, "setCleartextTrafficPermitted", true)
             Logger.log(TAG, "allow CleartextTraffic:" + policy.isCleartextTrafficPermitted)
-        }
-    }
-
-    private fun hookAppContext(app:HookerManifest,classLoader: ClassLoader){
-        var hookStatus = false
-        if (app.applicationName.isEmpty()){
-            Logger.log(TAG,"applicationName is empty")
-            initHooker(app, null,classLoader)
-            return
-        }
-
-        fun onCachedApplication(application: Application) {
-            hookStatus = true
-            runCatching {
-                initHooker(app, application,classLoader)
-            }.onFailure {
-                Logger.log(TAG,"Hook error: ${it.message}")
-                Logger.logE(TAG,it)
-            }
-        }
-
-        runCatching {
-            XposedHelpers.findAndHookMethod(
-                app.applicationName,
-                classLoader,
-                "attach",
-                Context::class.java,
-                object : XC_MethodHook() {
-                    @Throws(Throwable::class)
-                    override fun afterHookedMethod(param: MethodHookParam) {
-                        super.afterHookedMethod(param)
-                        if (hookStatus) {
-                            return
-                        }
-
-                        val context = param.thisObject as Application
-
-                        onCachedApplication(context)
-                    }
-                },
-            )
-        }.onFailure {
-            runCatching {
-                XposedHelpers.findAndHookMethod(
-                    app.applicationName,
-                    classLoader,
-                    "attachBaseContext",
-                    Context::class.java,
-                    object : XC_MethodHook() {
-                        @Throws(Throwable::class)
-                        override fun afterHookedMethod(param: MethodHookParam) {
-                            super.afterHookedMethod(param)
-                            if (hookStatus) {
-                                return
-                            }
-
-                            val context = param.thisObject as Application
-
-                            onCachedApplication(context)
-                        }
-                    },
-                )
-            }
         }
     }
 

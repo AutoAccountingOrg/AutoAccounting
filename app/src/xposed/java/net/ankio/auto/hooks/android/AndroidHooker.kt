@@ -16,8 +16,11 @@
 package net.ankio.auto.hooks.android
 
 import android.app.Application
+import net.ankio.auto.core.App
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
+import net.ankio.auto.hooks.android.hooks.KeepActiveHooker
+import net.ankio.auto.hooks.android.hooks.NotificationHooker
 import net.ankio.auto.hooks.android.hooks.PermissionHooker
 import net.ankio.dex.model.Clazz
 
@@ -28,15 +31,16 @@ class AndroidHooker:HookerManifest(){
         get() = "Android"
 
 
-    override var applicationName: String = ""
+    override var applicationName: String = "android.app.Application"
 
     override fun hookLoadPackage(application: Application?,classLoader: ClassLoader) {
-
+        PermissionHooker().hook(this,application,classLoader)
     }
 
     override var partHookers: MutableList<PartHooker>
         get() = mutableListOf(
-            PermissionHooker()
+            NotificationHooker(),
+            KeepActiveHooker()
         )
         set(value) {}
     override var rules: MutableList<Clazz>

@@ -13,29 +13,24 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.hooks.systemui
+package net.ankio.auto.hooks.keychain
 
 import android.Manifest
 import android.app.Application
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import net.ankio.auto.core.App
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
 import net.ankio.dex.model.Clazz
 import org.ezbook.server.Server
 
-class SystemUiHooker: HookerManifest() {
+class KeyChainHooker: HookerManifest() {
 
     override val packageName: String
-        get() = "com.google.android.euicc"
+        get() = "com.android.keychain"
     override val appName: String
-        get() = "Android SystemUI"
+        get() = "Android KeyChain"
 
     override fun hookLoadPackage(application: Application?,classLoader: ClassLoader) {
-        log("SystemUi server hook start")
+        log("$appName server hook start")
         startServer(application!!)
     }
 
@@ -43,10 +38,10 @@ class SystemUiHooker: HookerManifest() {
         try {
             log("try start server...")
             Server(application).startServer()
-            logD("SystemUi server hook success")
+            logD("$appName server hook success")
         } catch (e: Exception) {
             logE(e)
-            logD("SystemUi server onInit error: ${e.message}")
+            logD("$appName server onInit error: ${e.message}")
         }
     }
 
