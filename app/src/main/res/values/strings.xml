@@ -350,4 +350,5 @@
     <string name="copy">复制</string>
     <string name="menu_item_restart">重启</string>
     <string name="auto_dispose_scope">auto_dispose_scope</string>
+    <string name="setting_auto">自动记账功能配置</string>
 </resources>

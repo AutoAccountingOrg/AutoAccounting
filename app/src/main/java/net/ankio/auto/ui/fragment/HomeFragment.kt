@@ -30,12 +30,12 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.elevation.SurfaceColors
 import com.hjq.toast.Toaster
 import kotlinx.coroutines.launch
+import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
+import net.ankio.auto.common.AccountingConfig
+import net.ankio.auto.common.ActiveInfo
 import net.ankio.auto.databinding.AboutDialogBinding
 import net.ankio.auto.databinding.FragmentHomeBinding
-import net.ankio.auto.events.AutoServerConnectedEvent
-import net.ankio.auto.events.UpdateFinishEvent
-import net.ankio.auto.events.UpdateSuccessEvent
 import net.ankio.auto.ui.dialog.AssetsSelectorDialog
 import net.ankio.auto.ui.dialog.BookInfoDialog
 import net.ankio.auto.ui.dialog.BookSelectorDialog
@@ -62,14 +62,6 @@ class HomeFragment : BaseFragment() {
     private lateinit var binding: FragmentHomeBinding
     override val menuList: ArrayList<MenuItem> =
         arrayListOf(
-            MenuItem(R.string.menu_item_restart, R.drawable.icon_restart) {
-                val serviceUtils = ServiceUtils(requireContext())
-                if(serviceUtils.hasRoot()){
-                    serviceUtils.startServerByRoot()
-                }else{
-                    serviceUtils.copyAdbCommand()
-                }
-            },
             MenuItem(R.string.title_setting, R.drawable.menu_item_setting) {
                 it.navigate(R.id.setting2Fragment)
             },
@@ -117,9 +109,7 @@ class HomeFragment : BaseFragment() {
 
         scrollView = binding.scrollView
 
-        if (AppUtils.getService().isConnected()){
-            checkBookApp()
-        }
+        checkBookApp()
 
 
         return binding.root
@@ -135,11 +125,9 @@ class HomeFragment : BaseFragment() {
      * 绑定记账软件数据部分的UI
      */
     private fun bindBookAppUI() {
-        lifecycleScope.launch {
-            val config = AppUtils.getService().config()
-            binding.book.visibility = if (config.multiBooks) View.VISIBLE else View.GONE
-            binding.assets.visibility = if (config.assetManagement) View.VISIBLE else View.GONE
-        }
+        val config = AccountingConfig.get()
+        binding.book.visibility = if (config.multiBooks) View.VISIBLE else View.GONE
+        binding.assets.visibility = if (config.assetManagement) View.VISIBLE else View.GONE
         SpUtils.getString("bookApp", "").apply {
             if (this.isEmpty()) {
                 binding.bookApp.text = getString(R.string.no_setting)
@@ -154,11 +142,14 @@ class HomeFragment : BaseFragment() {
         }
     }
 
+    /**
+     * 绑定激活部分的UI
+     */
     private fun bindActiveUI() {
         val colorPrimary =
             AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorPrimary)
 
-        if (!ActiveUtils.getActiveAndSupportFramework()) {
+        if (!ActiveInfo.isModuleActive()) {
             setActive(
                 SurfaceColors.SURFACE_3.getColor(requireContext()),
                 colorPrimary,
@@ -191,45 +182,40 @@ class HomeFragment : BaseFragment() {
         }
     }
 
+    /**
+     * 绑定规则部分的UI
+     */
     private fun bindRuleUI() {
         val ruleVersion = SpUtils.getString("ruleVersionName", "None")
         binding.ruleVersion.text = ruleVersion
+
+
+            // TODO 这里的规则需要重写入口
+
+
+
     }
 
-    private val onUpdateRule = { event: UpdateSuccessEvent ->
-        Toaster.show(R.string.update_success)
-        bindRuleUI()
-        false
-    }
 
     private fun bindRuleEvents() {
         binding.customCategory.setOnClickListener {
             findNavController().navigate(R.id.ruleFragment)
         }
-        EventBus.register(UpdateSuccessEvent::class.java, onUpdateRule)
         binding.checkRuleUpdate.setOnClickListener {
             Toaster.show(R.string.check_update)
             lifecycleScope.launch {
                 checkUpdate(true)
             }
         }
-        if (AppUtils.getService().isConnected()){
-            lifecycleScope.launch {
-                checkUpdate(false)
-            }
-        }
+
+        // TODO 自动检查更新
 
     }
 
-    private val onWsConnection = { event: AutoServerConnectedEvent ->
-        bindBookAppUI()
-        false
-    }
+
 
     override fun onDestroy() {
         super.onDestroy()
-        EventBus.unregister(UpdateSuccessEvent::class.java, onUpdateRule)
-        EventBus.unregister(AutoServerConnectedEvent::class.java, onWsConnection)
     }
 
     /**
@@ -273,18 +259,25 @@ class HomeFragment : BaseFragment() {
             }.show(cancel = true)
         }
 
-        EventBus.register(AutoServerConnectedEvent::class.java, onWsConnection)
     }
 
     /**
-     * TODO 激活部分的事件，未激活跳转帮助文档
+     * 激活页面的事件
      */
     private fun bindingActiveEvents() {
         binding.active.setOnClickListener {
+
+            if (!ActiveInfo.isModuleActive()) {
+              //TODO 跳转帮助文档
+            }
+
             //  findNavController().navigate(R.id.serviceFragment)
         }
     }
 
+    /**
+     * 自动记账讨论社区
+     */
     private fun bindingCommunicationEvents() {
         binding.msgGithub.setOnClickListener {
             CustomTabsHelper.launchUrlOrCopy(requireContext(), getString(R.string.github_url))
@@ -299,6 +292,9 @@ class HomeFragment : BaseFragment() {
         }
     }
 
+    /**
+     * onResume时刷新UI
+     */
     override fun onResume() {
         super.onResume()
         refreshUI()
@@ -329,16 +325,13 @@ class HomeFragment : BaseFragment() {
                     code,
                 ).show(cancel = true)
             }
-            val listener = { _: UpdateFinishEvent ->
-                bindRuleUI()
-                false
-            }
-            EventBus.register(UpdateFinishEvent::class.java, listener)
         }.onFailure {
             Logger.e("更新异常", it)
         }
     }
-
+    /**
+     * 设置激活状态
+     */
     private fun setActive(
         @ColorInt backgroundColor: Int,
         @ColorInt textColor: Int,
@@ -351,10 +344,10 @@ class HomeFragment : BaseFragment() {
                 drawable,
             ),
         )
-        val versionName = AppUtils.getVersionName()
+        val versionName = BuildConfig.VERSION_NAME
         val names = versionName.split(" - ")
         binding.msgLabel.text = names[0].trim()
-        binding.msgLabel2.text = getString(R.string.releaseInfo)
+        binding.msgLabel2.text = ActiveInfo.getFramework()
         binding.imageView.setColorFilter(textColor)
         binding.msgLabel.setTextColor(textColor)
         binding.msgLabel2.setTextColor(textColor)

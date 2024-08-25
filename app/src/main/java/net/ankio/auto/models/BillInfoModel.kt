@@ -151,20 +151,21 @@ class BillInfoModel {
             if (billInfoModel.time.toString().length == 10) {
                 billInfoModel.time *= 1000
             }
-            if (billInfoModel.id == 0) {
+           /* if (billInfoModel.id == 0) {
                 return (AppUtils.getService().sendMsg("bill/add", billInfoModel) as JsonPrimitive).asInt
             }else {
                 AppUtils.getService().sendMsg("bill/update", billInfoModel)
                 return billInfoModel.id
-            }
+            }*/
+            return 0
         }
 
         suspend fun del(id: Int) {
-            AppUtils.getService().sendMsg("bill/del", mapOf("id" to id))
-        }
+          /*  AppUtils.getService().sendMsg("bill/del", mapOf("id" to id))
+     */   }
 
         suspend fun list(page: Int, size: Int): Array<BillInfoModel>? {
-            val list = AppUtils.getService().sendMsg("bill/list",
+           /* val list = AppUtils.getService().sendMsg("bill/list",
                 hashMapOf(
                     "page" to page,
                     "size" to size,
@@ -175,12 +176,13 @@ class BillInfoModel {
                 Gson().fromJson(list as JsonArray, Array<BillInfoModel>::class.java)
             }.onFailure {
                 Logger.e(it.message ?: "", it)
-            }.getOrNull()
+            }.getOrNull()*/
+            return null
         }
 
         suspend fun clear(){
-            AppUtils.getService().sendMsg("bill/clear", mapOf<String, Int>())
-        }
+         /*   AppUtils.getService().sendMsg("bill/clear", mapOf<String, Int>())
+       */ }
 
     }
 }

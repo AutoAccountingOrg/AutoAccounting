@@ -27,11 +27,11 @@ import java.lang.reflect.Field
 class ActiveHooker : PartHooker {
 
     override fun hook(hookerManifest: HookerManifest, application: Application?,classLoader: ClassLoader) {
-        val activeUtils = XposedHelpers.findClass("net.ankio.auto.utils.ActiveUtils", classLoader)
+        val activeUtils = XposedHelpers.findClass("net.ankio.auto.common.ActiveInfo", classLoader)
         // hook激活方法
         XposedHelpers.findAndHookMethod(
             activeUtils,
-            "getActiveAndSupportFramework",
+            "isModuleActive",
             XC_MethodReplacement.returnConstant(true),
         )
         XposedHelpers.findAndHookMethod(
@@ -44,7 +44,7 @@ class ActiveHooker : PartHooker {
                     // 设置字段可访问
                     tagField.isAccessible = true
                     // 获取TAG字段的值
-                    param.result = tagField.get(null) as String
+                    param.result = (tagField.get(null) as String).replace("-Bridge", "")
                 }
             },
         )

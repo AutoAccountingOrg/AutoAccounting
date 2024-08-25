@@ -53,6 +53,8 @@ class Server(context:Context) {
 
     companion object {
 
+        public val versionCode = 1;
+
         fun reqData(session:NanoHTTPD.IHTTPSession): String {
             val contentLength: Int = session.headers["content-length"]?.toInt() ?: 0
             val buffer = ByteArray(contentLength)

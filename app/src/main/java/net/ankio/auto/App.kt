@@ -17,15 +17,11 @@ package net.ankio.auto
 
 import android.app.Application
 import android.content.Context
-import android.content.Intent
 import com.hjq.toast.Toaster
-import net.ankio.auto.events.AutoServiceErrorEvent
-import net.ankio.auto.ui.activity.ServiceActivity
+import net.ankio.auto.broadcast.LocalBroadcastHelper
 import net.ankio.auto.utils.AppTimeMonitor
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.ExceptionHandler
-import net.ankio.auto.utils.Logger
-import net.ankio.auto.utils.event.EventBus
 
 class App : Application() {
 
@@ -33,14 +29,24 @@ class App : Application() {
     override fun onTerminate() {
         super.onTerminate()
         AppUtils.getJob().cancel()
-        EventBus.unregister(AutoServiceErrorEvent::class.java, autoListener)
     }
+
+    companion object{
+        lateinit var localBroadcastHelper: LocalBroadcastHelper
+        lateinit var app: Application
+    }
+
+
 
     override fun attachBaseContext(base: Context?) {
         super.attachBaseContext(base)
-        EventBus.register(AutoServiceErrorEvent::class.java, autoListener)
-        // 初始化工具类
-        AppUtils.setApplication(this)
+
+
+        app = this
+        // 初始化本地广播
+        localBroadcastHelper = LocalBroadcastHelper()
+
+
         // 监控
         AppTimeMonitor.startMonitoring("App初始化")
         // 设置全局异常
@@ -52,17 +58,6 @@ class App : Application() {
 
 
     }
-
-
-    private val autoListener = { event:AutoServiceErrorEvent ->
-        Logger.e("自动记账服务未连接", event.exception)
-        val intent = Intent(this, ServiceActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        startActivity(intent)
-        true
-    }
-
-
 
 
 }

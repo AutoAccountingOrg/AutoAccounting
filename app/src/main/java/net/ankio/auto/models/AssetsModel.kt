@@ -40,16 +40,18 @@ class AssetsModel {
     companion object {
 
         suspend fun list(): List<AssetsModel> {
-            val data = runCatching {
+          /*  val data = runCatching {
                 AppUtils.getService().sendMsg("assets/list", mapOf("page" to 0, "size" to 0)) as List<AssetsModel>
             }.getOrNull()?: emptyList()
-            return data
+            return data*/
+            return emptyList()
         }
 
         suspend fun getByName(name: String): AssetsModel? {
-            val data = AppUtils.getService().sendMsg("assets/get", mapOf("name" to name))
+         /*   val data = AppUtils.getService().sendMsg("assets/get", mapOf("name" to name))
             return runCatching { Gson().fromJson(data as JsonObject, AssetsModel::class.java) }.getOrNull()
-        }
+        */
+        return null}
 
         suspend fun getDrawable(
             account: String,

@@ -39,7 +39,7 @@ class BookBillModel {
 
 
         suspend fun list(type:Int,book:String):Array<BookBillModel>?{
-            val list = AppUtils.getService().sendMsg("bookbill/list",
+           /* val list = AppUtils.getService().sendMsg("bookbill/list",
                 hashMapOf(
                     "page" to 0,
                     "size" to 0,
@@ -51,7 +51,8 @@ class BookBillModel {
                 Gson().fromJson(list as JsonArray,Array<BookBillModel>::class.java)
             }.onFailure {
                 Logger.e(it.message?:"",it)
-            }.getOrNull()
+            }.getOrNull()*/
+            return null
         }
 
 

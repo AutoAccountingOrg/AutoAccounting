@@ -16,6 +16,7 @@
 package org.ezbook.server.server
 
 import fi.iki.elonen.NanoHTTPD
+import org.ezbook.server.Server
 import org.ezbook.server.Server.Companion.json
 import org.ezbook.server.routes.LogRoute
 import java.util.Locale
@@ -29,13 +30,13 @@ class ServerHttp(port:Int,threadCount:Int) : NanoHTTPD(port) {
         val path = "$method ${session.uri}"
         return runCatching {
              when (path) {
-                "GET /" -> json(200,"hello,自动记账",null,0)
+                "GET /" -> json(200,"hello,欢迎使用自动记账", Server.versionCode,0)
                  // 日志列表
                 "GET /log/list" -> LogRoute(session).list()
                     // 添加日志
                 "POST /log/add" -> LogRoute(session).add()
                     // 清空日志
-                 "GET /log/clear" -> LogRoute(session).clear()
+                "GET /log/clear" -> LogRoute(session).clear()
 
 
 

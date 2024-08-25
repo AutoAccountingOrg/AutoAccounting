@@ -33,19 +33,20 @@ class LogModel: BaseModel(){
         const val LOG_LEVEL_ERROR = 3
 
        suspend fun put(logModel: LogModel) {
-           AppUtils.getService().sendMsg("log/add", logModel)
+          /* AppUtils.getService().sendMsg("log/add", logModel)*/
         }
 
 
         suspend fun clear() {
-            AppUtils.getService().sendMsg("log/clear", null)
+          /*  AppUtils.getService().sendMsg("log/clear", null)*/
         }
 
         suspend fun list(page:Int,limit:Int):List<LogModel>{
-            val data = runCatching {
+           /* val data = runCatching {
                 AppUtils.getService().sendMsg("log/list", mapOf("page" to page, "limit" to limit)) as List<LogModel>
             }.getOrNull()?: emptyList()
-            return data
+            return data*/
+            return emptyList()
         }
 
 

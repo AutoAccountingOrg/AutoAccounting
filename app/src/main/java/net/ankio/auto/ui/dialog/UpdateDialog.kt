@@ -27,8 +27,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogUpdateBinding
-import net.ankio.auto.events.AutoServiceErrorEvent
-import net.ankio.auto.events.UpdateFinishEvent
 import net.ankio.auto.exceptions.AutoServiceException
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.utils.Logger
@@ -50,13 +48,13 @@ class UpdateDialog(
     private lateinit var binding: DialogUpdateBinding
 
     private lateinit var loadingUtils: LoadingUtils
-    private val listener = { event: UpdateFinishEvent ->
+   /* private val listener = { event: UpdateFinishEvent ->
         if (::loadingUtils.isInitialized) {
             loadingUtils.close()
         }
         dismiss()
         false
-    }
+    }*/
 
     override fun onCreateView(inflater: LayoutInflater): View {
         binding = DialogUpdateBinding.inflate(inflater)
@@ -83,14 +81,14 @@ class UpdateDialog(
             }
         }
 
-        EventBus.register(UpdateFinishEvent::class.java, listener)
+      //  EventBus.register(UpdateFinishEvent::class.java, listener)
 
         return binding.root
     }
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-        EventBus.unregister(UpdateFinishEvent::class.java, listener)
+      //  EventBus.unregister(UpdateFinishEvent::class.java, listener)
     }
 
     private suspend fun updateLoadingUtils(int: Int) =
@@ -131,12 +129,12 @@ class UpdateDialog(
         }.onFailure {
             if (it is AutoServiceException) {
                 withContext(Dispatchers.Main) {
-                    EventBus.post(AutoServiceErrorEvent(it))
+                //    EventBus.post(AutoServiceErrorEvent(it))
                 }
             }
             Logger.e("更新出错", it)
             withContext(Dispatchers.Main) {
-                EventBus.post(UpdateFinishEvent())
+              //  EventBus.post(UpdateFinishEvent())
             }
         }.onSuccess {
             SpUtils.putString("ruleVersionName", version)
@@ -149,7 +147,7 @@ class UpdateDialog(
                 },
             )
             withContext(Dispatchers.Main) {
-                EventBus.post(UpdateFinishEvent())
+              //  EventBus.post(UpdateFinishEvent())
             }
         }
     }

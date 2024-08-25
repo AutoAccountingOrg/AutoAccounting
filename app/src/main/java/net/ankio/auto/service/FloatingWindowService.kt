@@ -38,16 +38,13 @@ import net.ankio.auto.R
 import net.ankio.auto.app.BillUtils
 import net.ankio.auto.constant.FloatEvent
 import net.ankio.auto.databinding.FloatTipBinding
-import net.ankio.auto.events.AutoServiceErrorEvent
-import net.ankio.auto.events.BillUpdateEvent
 import net.ankio.auto.exceptions.AutoServiceException
-import net.ankio.auto.ui.dialog.FloatEditorDialog
+import net.ankio.auto.models.BillInfoModel
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.FloatPermissionUtils
 import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.SpUtils
 import net.ankio.auto.utils.event.EventBus
-import net.ankio.auto.models.BillInfoModel
 import kotlin.system.exitProcess
 
 class FloatingWindowService : Service() {
@@ -387,9 +384,7 @@ class FloatingWindowService : Service() {
             }
             billInfoModel = null
         }.onFailure {
-            if (it is AutoServiceException) {
-                EventBus.post(AutoServiceErrorEvent(it))
-            }
+
         }
     }
 
@@ -403,13 +398,13 @@ class FloatingWindowService : Service() {
 
             FloatEvent.POP_EDIT_WINDOW.ordinal -> {
                 AppUtils.getScope().launch {
-                    AppUtils.getService().config().let {
+                    /*AppUtils.getService().config().let {
                         // 编辑
                         withContext(Dispatchers.Main) {
                            runCatching {
                                FloatEditorDialog(themedContext, billInfoModel!!, it, true, false, onCancelClick = {
                                    AppUtils.getScope().launch {
-                                      /* BillInfoModel.remove(billInfoModel!!.id)*/
+                                      *//* BillInfoModel.remove(billInfoModel!!.id)*//*
                                    }
                                }, onClose = {
                                    processBillInfo = false
@@ -420,7 +415,7 @@ class FloatingWindowService : Service() {
                                Logger.e("记账失败", it)
                            }
                         }
-                    }
+                    }*/
                 }
 
             }

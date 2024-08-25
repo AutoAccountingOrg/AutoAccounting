@@ -41,6 +41,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.app.model.AppInfo
 import net.ankio.auto.ui.activity.MainActivity
@@ -55,7 +56,6 @@ object AppUtils {
     private lateinit var application: Application
     private val job = Job()
     private val scope = CoroutineScope(Dispatchers.IO + job)
-    private lateinit var server: AutoServer
 
     fun getJob(): Job {
         return job
@@ -66,45 +66,11 @@ object AppUtils {
     }
 
     fun getApplication(): Application {
-        return application
+        return App.app
     }
 
     fun setApplication(application: Application) {
         this.application = application
-
-        server = AutoServer()
-
-
-        if(!application.packageName.startsWith("net.ankio.auto."))return
-
-        server.connect()
-        scope.launch {
-
-            val versionFile = File(application.externalCacheDir, "shell/version.txt")
-
-// 检查并删除文件，确保删除成功
-            if (versionFile.exists() && !versionFile.delete()) {
-                Logger.e("Failed to delete ${versionFile.absolutePath}")
-            }
-
-            val parentFile = versionFile.parentFile
-// 检查父目录并创建，如果需要
-            if (parentFile != null && !parentFile.exists() && !parentFile.mkdirs()) {
-                Logger.e("Failed to create directory ${parentFile.absolutePath}")
-            }
-
-            try {
-                application.assets.open("shell/version.txt").use { input ->
-                    FileOutputStream(versionFile).use { output ->
-                        input.copyTo(output)
-                    }
-                }
-            } catch (e: IOException) {
-                Logger.e("Error occurred while copying file: ${e.message}")
-            }
-
-        }
-
     }
 
     fun getProcessName(): String {
@@ -112,16 +78,16 @@ object AppUtils {
     }
 
     fun runOnUiThread(action: () -> Unit) {
-        application.mainExecutor.execute(action)
+        App.app.mainExecutor.execute(action)
     }
 
     /**
      * 重启应用
      */
     fun restart() {
-        val intent = Intent(application, MainActivity::class.java)
+        val intent = Intent(App.app, MainActivity::class.java)
         intent.addFlags(FLAG_ACTIVITY_NEW_TASK)
-        application.startActivity(intent)
+        App.app.startActivity(intent)
         Process.killProcess(Process.myPid())
     }
 
@@ -129,7 +95,7 @@ object AppUtils {
      * 复制到剪切板
      */
     fun copyToClipboard(text: String?) {
-        val clipboard = application.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clipboard = App.app.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clip = ClipData.newPlainText("text", text)
         clipboard.setPrimaryClip(clip)
     }
@@ -142,8 +108,8 @@ object AppUtils {
     ): Int {
         return MaterialColors.getColor(
             ContextThemeWrapper(
-                application,
-                ThemeEngine.getInstance(application).getTheme(),
+                App.app,
+                ThemeEngine.getInstance(App.app).getTheme(),
             ),
             attrResId,
             Color.WHITE,
@@ -271,9 +237,9 @@ object AppUtils {
      */
     fun startBookApp() {
         val packageName = SpUtils.getString("bookApp", "")
-        val launchIntent = application.packageManager.getLaunchIntentForPackage(packageName)
+        val launchIntent = App.app.packageManager.getLaunchIntentForPackage(packageName)
         if (launchIntent != null) {
-            application.startActivity(launchIntent)
+            App.app.startActivity(launchIntent)
         }
     }
 
@@ -293,9 +259,5 @@ object AppUtils {
     ): String {
         if (!file.exists())return ""
         return file.readLines().takeLast(numLines).joinToString("\n")
-    }
-
-    fun getService(): AutoServer {
-        return server
     }
 }

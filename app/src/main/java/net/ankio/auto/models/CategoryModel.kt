@@ -84,8 +84,10 @@ class CategoryModel {
             type: Int,
             parent: Int,
         ): List<CategoryModel> {
-            val data = AppUtils.getService().sendMsg("category/list", mapOf("book" to bookID, "type" to type, "parent" to parent, "size" to 0, "page" to 0))
+        /*    val data = AppUtils.getService().sendMsg("category/list", mapOf("book" to bookID, "type" to type, "parent" to parent, "size" to 0, "page" to 0))
             return runCatching { Gson().fromJson(data as JsonArray, Array<CategoryModel>::class.java).toList() }.getOrDefault(emptyList())
+   */
+        return emptyList()
         }
 
         suspend fun getByName(
@@ -93,8 +95,10 @@ class CategoryModel {
             bookID: Int,
             type: Int
         ): CategoryModel? {
-            val data = AppUtils.getService().sendMsg("category/get", mapOf("cateName" to name, "book" to bookID, "type" to type))
+       /*     val data = AppUtils.getService().sendMsg("category/get", mapOf("cateName" to name, "book" to bookID, "type" to type))
             return runCatching { Gson().fromJson(data as JsonObject, CategoryModel::class.java) }.getOrNull()
+  */
+        return null
         }
 
     }

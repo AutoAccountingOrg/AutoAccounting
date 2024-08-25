@@ -13,7 +13,10 @@
  *   limitations under the License.
  */
 
-package net.ankio.common.config
+package net.ankio.auto.common
+
+import com.google.gson.Gson
+import net.ankio.auto.utils.SpUtils
 
 data class AccountingConfig(
     var assetManagement: Boolean = true,//是否开启资产管理
@@ -26,4 +29,30 @@ data class AccountingConfig(
     override fun toString(): String {
         return "AccountingConfig(assetManagement=$assetManagement, multiCurrency=$multiCurrency, reimbursement=$reimbursement, lending=$lending, multiBooks=$multiBooks, fee=$fee)"
     }
+
+    companion object{
+        fun get():AccountingConfig{
+            return runCatching {
+                Gson().fromJson(SpUtils.getString("auto_config",""),AccountingConfig::class.java)
+            }.getOrNull()?:AccountingConfig()
+        }
+
+        fun set(config: AccountingConfig){
+            SpUtils.putString("auto_config",Gson().toJson(config))
+        }
+
+        fun setItem(key:String,value:Boolean){
+            val config = get()
+            when(key){
+                "assetManagement" -> config.assetManagement = value
+                "multiCurrency" -> config.multiCurrency = value
+                "reimbursement" -> config.reimbursement = value
+                "lending" -> config.lending = value
+                "multiBooks" -> config.multiBooks = value
+                "fee" -> config.fee = value
+            }
+            set(config)
+        }
+    }
+
 }

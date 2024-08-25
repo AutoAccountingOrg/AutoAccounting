@@ -40,24 +40,27 @@ class BookNameModel {
     companion object {
 
         suspend fun list(): List<BookNameModel> {
-            val data = AppUtils.getService().sendMsg("bookname/list", mapOf("size" to 0, "page" to 1))
+           /* val data = AppUtils.getService().sendMsg("bookname/list", mapOf("size" to 0, "page" to 1))
             return runCatching { Gson().fromJson(data as JsonArray, Array<BookNameModel>::class.java).toList() }
-                .getOrNull() ?: emptyList()
+                .getOrNull() ?: emptyList()*/
+            return emptyList()
         }
 
 
 
         suspend fun getOne(): BookNameModel? {
-            val data = AppUtils.getService().sendMsg("bookname/list", mapOf("size" to 1, "page" to 1))
+            /*val data = AppUtils.getService().sendMsg("bookname/list", mapOf("size" to 1, "page" to 1))
             return runCatching { Gson().fromJson(data as JsonArray, Array<BookNameModel>::class.java).toList() }
-                .getOrNull()?.first()
+                .getOrNull()?.first()*/
+            return null
 
         }
 
         suspend fun getByName(name: String): BookNameModel {
-            val data = AppUtils.getService().sendMsg("bookname/get", mapOf("name" to name))
+         /*   val data = AppUtils.getService().sendMsg("bookname/get", mapOf("name" to name))
             return runCatching { Gson().fromJson(data as JsonObject, BookNameModel::class.java) }.getOrNull()
-                ?: BookNameModel().apply { this.name = name }
+                ?: BookNameModel().apply { this.name = name }*/
+            return BookNameModel()
         }
 
 

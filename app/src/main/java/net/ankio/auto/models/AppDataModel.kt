@@ -61,26 +61,28 @@ class AppDataModel :BaseModel() {
 
     companion object {
         suspend  fun put(appData: AppDataModel) {
-            if (appData.id == 0)
+          /*  if (appData.id == 0)
                 AppUtils.getService().sendMsg("data/add", appData)
             else
-                AppUtils.getService().sendMsg("data/update", appData)
+                AppUtils.getService().sendMsg("data/update", appData)*/
         }
 
         suspend fun clear(){
-            AppUtils.getService().sendMsg("data/clear", mapOf<String, Int>())
-        }
+        /*    AppUtils.getService().sendMsg("data/clear", mapOf<String, Int>())
+    */    }
 
         suspend fun del(id:Int){
-            AppUtils.getService().sendMsg("data/del", mapOf("id" to id))
-        }
+           /* AppUtils.getService().sendMsg("data/del", mapOf("id" to id))
+   */     }
 
 
 
 
 
        suspend fun list(page:Int,size:Int,data:String,match:Int):List<AppDataModel>{
-            return AppUtils.getService().sendMsg("data/list", mapOf("page" to page, "size" to size, "data" to data, "match" to match)) as List<AppDataModel>
-        }
+        /*    return AppUtils.getService().sendMsg("data/list", mapOf("page" to page, "size" to size, "data" to data, "match" to match)) as List<AppDataModel>
+       */
+       return emptyList()
+       }
     }
 }

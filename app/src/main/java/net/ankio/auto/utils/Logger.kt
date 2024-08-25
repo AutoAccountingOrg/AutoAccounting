@@ -17,6 +17,7 @@ package net.ankio.auto.utils
 
 import android.util.Log
 import kotlinx.coroutines.launch
+import net.ankio.auto.App
 import net.ankio.auto.models.LogModel
 
 /**
@@ -93,7 +94,7 @@ object Logger {
             LogModel.put(
                 LogModel().apply {
                     date = DateUtils.getTime(System.currentTimeMillis())
-                    app = AppUtils.getApplication().packageName
+                    app = App.app.packageName
                     hook = 0
                     this.thread = thread
                     this.line = "$file:$line"

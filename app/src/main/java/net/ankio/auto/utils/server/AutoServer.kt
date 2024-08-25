@@ -23,14 +23,12 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
-import net.ankio.auto.events.AutoServerConnectedEvent
-import net.ankio.auto.events.AutoServiceErrorEvent
 import net.ankio.auto.exceptions.AutoServiceException
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.Logger
 import net.ankio.auto.utils.event.EventBus
 import net.ankio.auto.models.SettingModel
-import net.ankio.common.config.AccountingConfig
+import net.ankio.auto.common.AccountingConfig
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
@@ -145,7 +143,7 @@ class AutoServer {
                                 "auth/success" -> {
                                     Logger.d("服务链接成功")
                                     ws = webSocket
-                                    EventBus.post(AutoServerConnectedEvent())
+                               //     EventBus.post(AutoServerConnectedEvent())
                                 }
                                 else -> {
                                     val id = json.get("id").asString
@@ -189,7 +187,7 @@ class AutoServer {
                             reconnect()
                         }
                     }else{
-                        EventBus.post(AutoServiceErrorEvent(AutoServiceException( reason)))
+                      //  EventBus.post(AutoServiceErrorEvent(AutoServiceException( reason)))
                     }
 
                 }
@@ -207,7 +205,7 @@ class AutoServer {
                             reconnect()
                         }
                     }else{
-                        EventBus.post(AutoServiceErrorEvent(AutoServiceException( t.message?:"")))
+                     //   EventBus.post(AutoServiceErrorEvent(AutoServiceException( t.message?:"")))
                     }
 
                 }

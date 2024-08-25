@@ -64,9 +64,9 @@ class AuthActivity : BaseActivity() {
         binding.sure.setOnClickListener {
             lifecycleScope.launch {
                 val resultIntent = Intent()
-                resultIntent.putExtra("token", AppUtils.getService().getToken())
+              /*  resultIntent.putExtra("token", AppUtils.getService().getToken())
                 SpUtils.putString("bookApp", packageName)
-                setResult(RESULT_OK, resultIntent)
+                setResult(RESULT_OK, resultIntent)*/
                 finish()
             }
         }

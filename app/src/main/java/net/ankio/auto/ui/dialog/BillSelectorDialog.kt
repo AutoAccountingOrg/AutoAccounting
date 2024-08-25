@@ -24,7 +24,6 @@ import com.hjq.toast.Toaster
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogBillSelectBinding
-import net.ankio.auto.events.AutoServiceErrorEvent
 import net.ankio.auto.exceptions.AutoServiceException
 //import net.ankio.auto.ui.adapter.BillSelectorAdapter
 import net.ankio.auto.utils.Logger
@@ -83,7 +82,7 @@ class BillSelectorDialog(
                 Toaster.show(R.string.no_bills)
                 Logger.e("get auto_bills ${billType.name} error", it)
                 if (it is AutoServiceException) {
-                    EventBus.post(AutoServiceErrorEvent(it))
+                  //  EventBus.post(AutoServiceErrorEvent(it))
                 }
             }
         }

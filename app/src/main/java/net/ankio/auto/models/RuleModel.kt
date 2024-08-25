@@ -28,28 +28,29 @@ class RuleModel {
 
     companion object {
         suspend fun put(rule: RuleModel) {
-            if (rule.id == 0)
+    /*        if (rule.id == 0)
                 AppUtils.getService().sendMsg("rule/add", rule)
             else
-                AppUtils.getService().sendMsg("rule/update", rule)
+                AppUtils.getService().sendMsg("rule/update", rule)*/
             }
 
 
         suspend fun clear() {
-        AppUtils.getService().sendMsg("rule/clear", mapOf("id" to 0))
+        //AppUtils.getService().sendMsg("rule/clear", mapOf("id" to 0))
         }
 
 
         suspend fun delete(id: Int) {
-            AppUtils.getService().sendMsg("rule/del", mapOf("id" to id))
+        //    AppUtils.getService().sendMsg("rule/del", mapOf("id" to id))
         }
 
         suspend fun list(page:Int,limit:Int,app: String,type: Int):List<RuleModel>{
-            val data = runCatching {
+          /*  val data = runCatching {
                 AppUtils.getService().sendMsg("rule/list", mapOf("page" to page, "limit" to limit, "app" to app, "type" to type)) as List<RuleModel>
             }.getOrNull()?: emptyList()
             return data
-
+*/
+            return emptyList()
         }
     }
 }

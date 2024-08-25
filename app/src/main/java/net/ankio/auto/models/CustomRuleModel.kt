@@ -30,25 +30,26 @@ class CustomRuleModel  {
 
     companion object {
         suspend fun clear(){
-            AppUtils.getService().sendMsg("custom/clear", mapOf<String, Int>())
-        }
+      /*      AppUtils.getService().sendMsg("custom/clear", mapOf<String, Int>())
+      */  }
 
         suspend fun list(page:Int,limit:Int):List<CustomRuleModel>{
-            val data = runCatching {
+          /*  val data = runCatching {
                 AppUtils.getService().sendMsg("custom/list", mapOf("page" to page, "limit" to limit)) as List<CustomRuleModel>
             }.getOrNull()?: emptyList()
-            return data
+            return data*/
+            return emptyList()
         }
 
         suspend fun put(model: CustomRuleModel){
-            if(model.id == 0)
+           /* if(model.id == 0)
                 AppUtils.getService().sendMsg("custom/add", model)
             else
-                AppUtils.getService().sendMsg("custom/update", model)
+                AppUtils.getService().sendMsg("custom/update", model)*/
         }
 
         suspend fun del(id:Int){
-            AppUtils.getService().sendMsg("custom/del", mapOf("id" to id))
+           /* AppUtils.getService().sendMsg("custom/del", mapOf("id" to id))*/
         }
 
     }

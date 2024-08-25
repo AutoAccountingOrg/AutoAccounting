@@ -13,8 +13,14 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.events
+package net.ankio.auto.common
 
-import net.ankio.auto.utils.event.Event
+object ActiveInfo {
+    fun getFramework():String{
+        return "Xposed"
+    }
 
-class AutoServerConnectedEvent : Event()
+    fun isModuleActive():Boolean{
+        return false
+    }
+}

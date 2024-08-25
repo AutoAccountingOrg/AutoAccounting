@@ -35,8 +35,6 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.app.BillUtils
 import net.ankio.auto.databinding.FloatEditorBinding
-import net.ankio.auto.events.AutoServiceErrorEvent
-import net.ankio.auto.events.BillUpdateEvent
 import net.ankio.auto.exceptions.AutoServiceException
 import net.ankio.auto.ui.componets.IconView
 import net.ankio.auto.utils.DateUtils
@@ -49,7 +47,7 @@ import net.ankio.auto.models.AssetsMapModel
 import net.ankio.auto.models.BillInfoModel
 import net.ankio.auto.models.BookNameModel
 import net.ankio.auto.models.CategoryModel
-import net.ankio.common.config.AccountingConfig
+import net.ankio.auto.common.AccountingConfig
 import net.ankio.common.constant.BillType
 import net.ankio.common.constant.Currency
 import java.util.Calendar
@@ -74,7 +72,7 @@ class FloatEditorDialog(
 
 
 
-    private val onBillUpdateEvent = { event: BillUpdateEvent ->
+  /*  private val onBillUpdateEvent = { event: BillUpdateEvent ->
         val billInfo = event.billInfoModel
         Logger.i("onBillUpdateEvent => $billInfo")
         if (::binding.isInitialized){
@@ -82,10 +80,10 @@ class FloatEditorDialog(
             bindUI()
         }
         false
-    }
+    }*/
 
     override fun onCreateView(inflater: LayoutInflater): View {
-        EventBus.register(BillUpdateEvent::class.java, onBillUpdateEvent)
+      //  EventBus.register(BillUpdateEvent::class.java, onBillUpdateEvent)
         binding = FloatEditorBinding.inflate(inflater)
         cardView = binding.editorCard
 
@@ -186,7 +184,7 @@ class FloatEditorDialog(
     override fun dismiss() {
         super.dismiss()
         onClose?.invoke(rawBillInfo)
-        EventBus.unregister(BillUpdateEvent::class.java, onBillUpdateEvent)
+      //  EventBus.unregister(BillUpdateEvent::class.java, onBillUpdateEvent)
     }
 
     private fun bindingButtonsEvents() {
@@ -267,7 +265,7 @@ class FloatEditorDialog(
                     }
                 }.onFailure {
                     if (it is AutoServiceException) {
-                        EventBus.post(AutoServiceErrorEvent(it))
+                    //    EventBus.post(AutoServiceErrorEvent(it))
                     }
                 }
 

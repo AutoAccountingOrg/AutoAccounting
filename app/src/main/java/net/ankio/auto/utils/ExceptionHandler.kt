@@ -20,11 +20,8 @@ import android.content.Intent
 import com.bugsnag.android.Bugsnag
 import com.bugsnag.android.Event
 import net.ankio.auto.BuildConfig
-import net.ankio.auto.events.AutoServiceErrorEvent
 import net.ankio.auto.exceptions.AutoServiceException
 import net.ankio.auto.ui.activity.ErrorActivity
-import net.ankio.auto.utils.event.EventBus
-import java.io.File
 import kotlin.system.exitProcess
 
 class ExceptionHandler(private val context: Context) : Thread.UncaughtExceptionHandler {
@@ -81,10 +78,6 @@ class ExceptionHandler(private val context: Context) : Thread.UncaughtExceptionH
         e: Throwable,
     ) {
         val root = getRootCause(e)
-        if (root is AutoServiceException) {
-            EventBus.post(AutoServiceErrorEvent(root))
-            return
-        }
         Logger.e("发生未处理的异常", root)
 
         // 将异常拼成字符串

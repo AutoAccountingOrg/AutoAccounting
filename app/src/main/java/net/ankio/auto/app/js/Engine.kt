@@ -33,7 +33,7 @@ object Engine {
         withContext(Dispatchers.IO) {
             AppTimeMonitor.startMonitoring("规则识别")
 
-            val json =
+         /*   val json =
                 AppUtils.getService().sendMsg(
                     "analyze",
                     JsonObject().apply {
@@ -47,6 +47,7 @@ object Engine {
             val billInfoModel = runCatching { Gson().fromJson(json as JsonObject, BillInfoModel::class.java) }.getOrNull()
 
             AppTimeMonitor.stopMonitoring("规则识别")
-            billInfoModel
+            billInfoModel*/
+            null
         }
 }

@@ -13,8 +13,19 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.events
+package net.ankio.auto.common
 
-import net.ankio.auto.utils.event.Event
+import android.content.Context
+import org.ezbook.server.Server
 
-class UpdateFinishEvent : Event()
+object ServerInfo {
+
+    suspend fun isServerStart():Boolean{
+        return Server.request("/") === null
+    }
+
+
+    fun getServerErrorMsg(context: Context):String{
+        return  context.getString(net.ankio.auto.R.string.server_error)
+    }
+}

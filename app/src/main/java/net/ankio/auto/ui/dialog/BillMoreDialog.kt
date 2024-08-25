@@ -54,7 +54,7 @@ class BillMoreDialog(
     ) {
         super.show(float, cancel)
         lifecycleScope.launch {
-            val config = AppUtils.getService().config()
+         //   val config = AppUtils.getService().config()
           /*  BillInfo.getBillByGroup(billInfo.id).apply {
                 adapter.notifyConfig(config)
                 dataItems.clear()

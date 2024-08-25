@@ -29,7 +29,7 @@ class SettingModel {
     companion object {
         fun set(settingModel: SettingModel) {
             AppUtils.getScope().launch {
-                AppUtils.getService().sendMsg("setting/set", settingModel)
+               // AppUtils.getService().sendMsg("setting/set", settingModel)
             }
         }
 
@@ -37,8 +37,10 @@ class SettingModel {
             app: String,
             key: String,
         ): String {
-            val data = AppUtils.getService().sendMsg("setting/get", mapOf("app" to app, "key" to key))
+          /*  val data = AppUtils.getService().sendMsg("setting/get", mapOf("app" to app, "key" to key))
             return runCatching { (data as JsonPrimitive).asString }.onFailure { Logger.e("Error",it) }.getOrNull() ?: ""
+       */
+        return ""
         }
     }
 }

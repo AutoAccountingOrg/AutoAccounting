@@ -31,12 +31,8 @@ import com.zackratos.ultimatebarx.ultimatebarx.addNavigationBarBottomPadding
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.ActivityMainBinding
-import net.ankio.auto.events.AutoServiceErrorEvent
-import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.BackupUtils
 import net.ankio.auto.utils.Github
-import net.ankio.auto.utils.Logger
-import net.ankio.auto.utils.event.EventBus
 
 class MainActivity : BaseActivity() {
     // 视图绑定

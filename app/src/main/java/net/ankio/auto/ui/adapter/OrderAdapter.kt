@@ -23,7 +23,7 @@ import net.ankio.auto.databinding.AdapterOrderBinding
 import net.ankio.auto.ui.dialog.BillMoreDialog
 import net.ankio.auto.ui.dialog.FloatEditorDialog
 import net.ankio.auto.utils.server.model.BillInfo
-import net.ankio.common.config.AccountingConfig
+import net.ankio.auto.common.AccountingConfig
 
 class OrderAdapter(
     override val dataItems: ArrayList<Pair<String, List<BillInfo>>>,

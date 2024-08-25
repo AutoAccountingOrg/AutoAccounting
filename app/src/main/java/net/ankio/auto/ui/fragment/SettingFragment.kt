@@ -184,6 +184,12 @@ class SettingFragment : BaseFragment() {
                 default = true,
                 icon = R.drawable.setting_icon_success,
             ),
+
+
+            SettingItem(R.string.setting_auto),
+
+            // TODO 自动记账配置
+
         )
     }
 }

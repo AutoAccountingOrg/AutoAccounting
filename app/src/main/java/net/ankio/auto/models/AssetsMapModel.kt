@@ -37,25 +37,25 @@ class AssetsMapModel {
 
     companion object {
         suspend fun put(map: AssetsMapModel) {
-            if (map.id == 0)
+          /*  if (map.id == 0)
                 AppUtils.getService().sendMsg("assets_map/add", map)
             else
-                AppUtils.getService().sendMsg("assets_map/update", map)
+                AppUtils.getService().sendMsg("assets_map/update", map)*/
         }
 
         suspend fun clear(){
-            AppUtils.getService().sendMsg("assets_map/clear", mapOf<String, Int>())
-        }
+    /*        AppUtils.getService().sendMsg("assets_map/clear", mapOf<String, Int>())
+    */    }
 
         suspend fun del(id: Int)  {
-            AppUtils.getService().sendMsg("assets_map/del", mapOf("id" to id))
-        }
+       /*     AppUtils.getService().sendMsg("assets_map/del", mapOf("id" to id))
+      */  }
 
         suspend fun list(): List<AssetsMapModel> {
-            val data = runCatching {
+            /*val data = runCatching {
                 AppUtils.getService().sendMsg("assets_map/list", mapOf("page" to 0, "size" to 0)) as List<AssetsMapModel>
-            }.getOrNull()?: emptyList()
-            return data
+            }.getOrNull()?: emptyList()*/
+            return emptyList()
         }
     }
 }

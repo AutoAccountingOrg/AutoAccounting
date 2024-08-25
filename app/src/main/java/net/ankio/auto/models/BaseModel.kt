@@ -31,13 +31,14 @@ abstract class BaseModel {
             others["pageSize"] = pageSize
             // 获取子类名称
             val clazz = T::class.java.simpleName.replace("Model", "")
-            val data = AppUtils.getService().sendMsg("/$clazz/get", others)
+         /*   val data = AppUtils.getService().sendMsg("/$clazz/get", others)
             return runCatching {
                 // 使用 Gson 解析数据为 List<T>
                 Gson().fromJson(data as JsonArray, Array<T>::class.java).toList()
             }.onFailure {
                 Logger.e("BaseModelError", it)
-            }.getOrDefault(emptyList())
+            }.getOrDefault(emptyList())*/
+            return emptyList()
         }
     }
 }

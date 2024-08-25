@@ -76,9 +76,9 @@ class AppDataAdapter(
                     val tpl = SpUtils.getString("setting_bill_remark", "【商户名称】 - 【商品名称】")
                     result.remark = BillUtils.getRemark(result, tpl)
                     BillUtils.setAccountMap(result)
-                    AppUtils.getService().config().let {
+                /*    AppUtils.getService().config().let {
                         FloatEditorDialog(activity, result, it).show(float = false)
-                    }
+                    }*/
                 }
             }
 

@@ -17,10 +17,11 @@ package net.ankio.auto.utils
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import net.ankio.auto.App
 import net.ankio.auto.models.SettingModel
 
 object SpUtils {
-    val sp = AppUtils.getApplication().getSharedPreferences("setting", 0)
+    val sp = App.app.getSharedPreferences("setting", 0)
 
     fun putBooleanRemote(
         key: String,
