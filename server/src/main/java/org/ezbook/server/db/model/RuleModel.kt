@@ -49,7 +49,7 @@ class RuleModel {
             val response = Server.request("rule/list?page=$page&limit=$limit&app=$app&type=$type")
             val json = Gson().fromJson(response, JsonObject::class.java)
 
-             Gson().fromJson(json.getAsJsonArray("data"), Array<RuleModel>::class.java).toList()
+             runCatching { Gson().fromJson(json.getAsJsonArray("data"), Array<RuleModel>::class.java).toList() }.getOrNull() ?: emptyList()
         }
 
         suspend fun add(rule: RuleModel): Int  = withContext(Dispatchers.IO){
