@@ -18,6 +18,7 @@ package org.ezbook.server.db.model
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.Gson
+import com.google.gson.JsonObject
 import org.ezbook.server.Server
 import org.ezbook.server.constant.LogLevel
 import org.ezbook.server.db.Db
@@ -49,7 +50,9 @@ class LogModel {
 
        suspend fun list(page: Int = 1, limit: Int = 10): List<LogModel> {
             val response = Server.request("log/list?page=$page&limit=$limit")
-            return Gson().fromJson(response, Array<LogModel>::class.java).toList()
+           val json = Gson().fromJson(response, JsonObject::class.java)
+
+            return Gson().fromJson(json.getAsJsonArray("data"), Array<LogModel>::class.java).toList()
         }
 
        suspend fun clear() {

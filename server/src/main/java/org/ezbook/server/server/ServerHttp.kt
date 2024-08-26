@@ -19,6 +19,7 @@ import fi.iki.elonen.NanoHTTPD
 import org.ezbook.server.Server
 import org.ezbook.server.Server.Companion.json
 import org.ezbook.server.routes.LogRoute
+import org.ezbook.server.routes.RuleRoute
 import java.util.Locale
 
 class ServerHttp(port:Int,threadCount:Int) : NanoHTTPD(port) {
@@ -38,6 +39,16 @@ class ServerHttp(port:Int,threadCount:Int) : NanoHTTPD(port) {
                     // 清空日志
                 "GET /log/clear" -> LogRoute(session).clear()
 
+                 //规则列表
+                "GET /rule/list" -> RuleRoute(session).list()
+                    // 添加规则
+                "POST /rule/add" -> RuleRoute(session).add()
+                    // 删除规则
+                "GET /rule/delete" -> RuleRoute(session).delete()
+                    // 修改规则
+                "POST /rule/update" -> RuleRoute(session).update()
+                 // 获取app列表
+                 "GET /rule/apps" -> RuleRoute(session).apps()
 
 
                 else -> json(404,"Not Found",null,0)

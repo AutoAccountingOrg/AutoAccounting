@@ -60,8 +60,6 @@ class KeepActiveHooker:PartHooker {
                   )
                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                   application.startActivity(intent)
-              }else{
-                  hookerManifest.logD("KeepActiveHooker checkServerIsStart success")
               }
           } catch (e: Exception) {
               e.printStackTrace()

@@ -109,7 +109,6 @@ class HomeFragment : BaseFragment() {
 
         checkBookApp()
 
-
         checkAutoService()
 
         return binding.root
@@ -231,6 +230,9 @@ class HomeFragment : BaseFragment() {
             }
         }
 
+        binding.ruleLibrary.setOnClickListener {
+            findNavController().navigate(R.id.dataRuleFragment)
+        }
         // TODO 自动检查更新
 
     }

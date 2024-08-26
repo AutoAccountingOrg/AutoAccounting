@@ -203,7 +203,7 @@ object AppUtils {
      */
     fun setDebug(debug: Boolean = false) {
         SpUtils.putBoolean("debug", debug)
-        SpUtils.putBooleanRemote("debug", debug)
+       // SpUtils.putBooleanRemote("debug", debug)
     }
 
     /**

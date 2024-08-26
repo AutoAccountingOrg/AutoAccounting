@@ -17,11 +17,18 @@ package net.ankio.auto
 
 import android.app.Application
 import android.content.Context
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageInfo
+import android.content.pm.PackageManager
+import android.content.res.Resources
+import android.os.Build
+import androidx.core.content.res.ResourcesCompat
 import com.hjq.toast.Toaster
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import net.ankio.auto.app.model.AppInfo
 import net.ankio.auto.broadcast.LocalBroadcastHelper
 import net.ankio.auto.utils.ExceptionHandler
 import net.ankio.auto.storage.SpUtils
@@ -54,6 +61,55 @@ class App : Application() {
          fun launch(block: suspend CoroutineScope.() -> Unit) {
             scope.launch(block = block)
         }
+
+        fun getAppInfoFromPackageName(
+            packageName: String,
+            context: Context,
+        ): Array<Any?>? {
+            try {
+                val packageManager: PackageManager = context.packageManager
+
+                val app: ApplicationInfo =
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        context.packageManager.getApplicationInfo(
+                            packageName,
+                            PackageManager.ApplicationInfoFlags.of(0),
+                        )
+                    } else {
+                        context.packageManager
+                            .getApplicationInfo(packageName, PackageManager.GET_META_DATA)
+                    }
+
+                val appName = packageManager.getApplicationLabel(app).toString()
+
+                val appIcon =
+                    try {
+                        val resources: Resources =
+                            context.packageManager.getResourcesForApplication(app.packageName)
+                        ResourcesCompat.getDrawable(resources, app.icon, context.theme)
+                    } catch (e: PackageManager.NameNotFoundException) {
+                        e.printStackTrace()
+                        null
+                    }
+
+                val packageInfo: PackageInfo =
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        context.packageManager.getPackageInfo(
+                            packageName,
+                            PackageManager.PackageInfoFlags.of(0),
+                        )
+                    } else {
+                        context.packageManager
+                            .getPackageInfo(packageName, PackageManager.GET_META_DATA)
+                    }
+                val appVersion = packageInfo.versionName
+                return arrayOf(appName, appIcon, appVersion)
+            } catch (e: PackageManager.NameNotFoundException) {
+                e.printStackTrace()
+            }
+            return null
+        }
+
     }
 
     /**

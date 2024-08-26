@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 ankio(ankio@ankio.net)
+ * Copyright (C) 2024 ankio(ankio@ankio.net)
  * Licensed under the Apache License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,21 +12,14 @@
  *  See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package org.ezbook.server.db
 
-import androidx.room.Database
-import androidx.room.RoomDatabase
-import org.ezbook.server.db.dao.LogDao
-import org.ezbook.server.db.dao.RuleDao
-import org.ezbook.server.db.model.LogModel
-import org.ezbook.server.db.model.RuleModel
+package net.ankio.auto.ui.api
 
-@Database(
-    entities = [LogModel::class,RuleModel::class],
-    version = 1,
-    exportSchema = false,
-)
-abstract class AppDatabase : RoomDatabase() {
-    abstract fun logDao(): LogDao
-    abstract fun ruleDao(): RuleDao
+import android.content.Context
+import androidx.recyclerview.widget.RecyclerView
+import androidx.viewbinding.ViewBinding
+
+open class BaseViewHolder<T:ViewBinding>(open val binding: T, val context: Context) : RecyclerView.ViewHolder(binding.root) {
+    var hasInit = false
+
 }

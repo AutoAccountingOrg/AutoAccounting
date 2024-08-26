@@ -103,11 +103,10 @@
     </fragment>
 
     <fragment
-        android:id="@+id/serviceFragment"
-        android:name="net.ankio.auto.ui.activity.ServiceFragment"
-        android:label="@string/title_service"
-        tools:layout="@layout/activity_service">
-
+        android:id="@+id/dataRuleFragment"
+        android:name="net.ankio.auto.ui.fragment.home.rule.DataRuleFragment"
+        android:label="@string/title_data_rule"
+        tools:layout="@layout/fragment_data_rule">
     </fragment>
 
 </navigation>

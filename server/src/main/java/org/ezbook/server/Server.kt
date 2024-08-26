@@ -66,11 +66,15 @@ class Server(context:Context) {
 
         fun json(code:Int = 200,msg:String = "OK",data:Any? = null,count:Int = 0): NanoHTTPD.Response {
             val jsonObject = JsonObject();
-            jsonObject.addProperty("code",code)
-            jsonObject.addProperty("msg",msg)
-            jsonObject.addProperty("count",count)
+            jsonObject.addProperty("code", code)
+            jsonObject.addProperty("msg", msg)
+            jsonObject.addProperty("count", count)
             jsonObject.add("data", Gson().toJsonTree(data))
-            return newFixedLengthResponse(NanoHTTPD.Response.Status.OK, NanoHTTPD.MIME_PLAINTEXT,jsonObject.toString())
+            return newFixedLengthResponse(
+                NanoHTTPD.Response.Status.OK,
+                NanoHTTPD.MIME_PLAINTEXT,
+                jsonObject.toString()
+            )
         }
 
        suspend fun request(path:String,json:String = ""):String?{

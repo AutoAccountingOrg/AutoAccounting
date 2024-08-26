@@ -305,12 +305,14 @@
 
 
                 </LinearLayout>
+
                 <LinearLayout
 
+                    android:id="@+id/ruleLibrary"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="@dimen/padding"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:padding="@dimen/padding">
 
                     <TextView
                         android:id="@+id/textView"
@@ -318,30 +320,28 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/one_padding"
                         android:layout_marginEnd="@dimen/one_padding"
+                        android:drawablePadding="@dimen/one_padding"
                         android:text="@string/title_rule_official"
                         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                         android:textColor="?attr/colorOnSurface"
                         android:textStyle="bold"
                         app:drawableLeftCompat="@drawable/home_rule"
-                        app:drawableTint="?attr/colorOnSurface"
-                        android:drawablePadding="@dimen/one_padding"
-                        />
+                        app:drawableTint="?attr/colorOnSurface" />
 
                     <View
                         android:layout_width="0dp"
                         android:layout_height="0dp"
-                        android:layout_weight="1"
-                        />
+                        android:layout_weight="1" />
+
                     <TextView
                         android:id="@+id/ruleVersion"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginEnd="15dp"
                         android:ellipsize="end"
                         android:singleLine="true"
-                        android:layout_marginEnd="15dp"
                         android:text="1.0.0"
                         android:textAppearance="@style/TextAppearance.AppCompat.Small" />
-
 
 
                 </LinearLayout>
