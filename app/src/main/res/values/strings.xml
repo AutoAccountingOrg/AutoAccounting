@@ -355,7 +355,7 @@
     <string name="app_wechat">微信</string>
     <string name="app_alipay">支付宝</string>
     <string name="chip_all">全部</string>
-    <string name="chip_data">数据规则</string>
-    <string name="chip_notify">通知规则</string>
+    <string name="chip_data">数据</string>
+    <string name="chip_notify">通知</string>
     <string name="title_data_rule">数据规则</string>
 </resources>

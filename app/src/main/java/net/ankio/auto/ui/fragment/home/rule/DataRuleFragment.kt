@@ -174,14 +174,9 @@ class DataRuleFragment: BaseFragment()  {
 
     private fun chipEvent(){
         binding.chipGroup.setOnCheckedStateChangeListener { group, checkedId ->
-            val chipId = checkedId.firstOrNull() ?: R.id.chip_all
 
-            //将其他的设置为未选中
-            for (id in group.checkedChipIds){
-                if (id != chipId){
-                    group.findViewById<Chip>(id).isChecked = false
-                }
-            }
+
+            val chipId = checkedId.firstOrNull() ?: R.id.chip_all
 
             when(chipId){
                 R.id.chip_all -> {
