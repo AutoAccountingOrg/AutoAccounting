@@ -20,6 +20,7 @@ import org.ezbook.server.Server
 import org.ezbook.server.Server.Companion.json
 import org.ezbook.server.routes.LogRoute
 import org.ezbook.server.routes.RuleRoute
+import org.ezbook.server.routes.SettingRoute
 import java.util.Locale
 
 class ServerHttp(port:Int,threadCount:Int) : NanoHTTPD(port) {
@@ -38,7 +39,7 @@ class ServerHttp(port:Int,threadCount:Int) : NanoHTTPD(port) {
                 "POST /log/add" -> LogRoute(session).add()
                     // 清空日志
                 "GET /log/clear" -> LogRoute(session).clear()
-
+                 //--------------------------------------------
                  //规则列表
                 "GET /rule/list" -> RuleRoute(session).list()
                     // 添加规则
@@ -49,6 +50,12 @@ class ServerHttp(port:Int,threadCount:Int) : NanoHTTPD(port) {
                 "POST /rule/update" -> RuleRoute(session).update()
                  // 获取app列表
                  "GET /rule/apps" -> RuleRoute(session).apps()
+
+                 //-------------------------------
+                 // 设置列表
+                "GET /setting/get" -> SettingRoute(session).get()
+                    // 添加设置
+                "POST /setting/set" -> SettingRoute(session).set()
 
 
                 else -> json(404,"Not Found",null,0)

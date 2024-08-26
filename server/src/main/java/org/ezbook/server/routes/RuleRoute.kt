@@ -19,7 +19,6 @@ import com.google.gson.Gson
 import fi.iki.elonen.NanoHTTPD
 import org.ezbook.server.Server
 import org.ezbook.server.db.Db
-import org.ezbook.server.db.model.LogModel
 import org.ezbook.server.db.model.RuleModel
 
 class RuleRoute(private val session: NanoHTTPD.IHTTPSession) {

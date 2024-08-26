@@ -18,7 +18,6 @@ package org.ezbook.server.db.model
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.Gson
-import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -36,6 +35,8 @@ class RuleModel {
     var js = ""
     // 规则名称
     var name = ""
+    // 系统里面的规则名称
+    var systemRuleName = ""
     // 创建人
     var creator = "" // system或者user，system是系统创建的，user是用户创建的，用户创建的可以删除，系统创建的不可以删除和修改
     // 结构数组
