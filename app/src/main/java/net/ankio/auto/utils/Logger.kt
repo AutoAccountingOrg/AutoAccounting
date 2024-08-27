@@ -17,6 +17,7 @@ package net.ankio.auto.utils
 
 import android.util.Log
 import net.ankio.auto.App
+import net.ankio.auto.BuildConfig
 import org.ezbook.server.constant.LogLevel
 import org.ezbook.server.db.model.LogModel
 
@@ -107,9 +108,9 @@ object Logger {
                     Log.ERROR -> LogLevel.ERROR
                     else -> LogLevel.DEBUG
                 },
+                BuildConfig.APPLICATION_ID,
                 "$file($line)",
-                message,
-                thread,
+                message
             )
         }
     }
