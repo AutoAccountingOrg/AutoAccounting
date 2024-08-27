@@ -19,14 +19,12 @@ import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.hooks.alipay.AliPayHooker
 import net.ankio.auto.hooks.android.AndroidHooker
 import net.ankio.auto.hooks.auto.AutoHooker
-import net.ankio.auto.hooks.keychain.KeyChainHooker
 import net.ankio.auto.hooks.wechat.WechatHooker
 
 object Apps {
     fun get() : MutableList<HookerManifest>{
         return mutableListOf(
             AndroidHooker(), // Android
-            KeyChainHooker(), // SystemUI
             AutoHooker(), // Auto
             ////////////////////////////
             WechatHooker(), // Wechat
