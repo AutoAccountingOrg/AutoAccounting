@@ -8,7 +8,7 @@
 
 安卓系统内hook
 
-- KeepActive: 持续监控自动记账服务是否正在运行，并及时进行重启。
+- Service: 自动记账服务。
 - Notification: 获取通知栏的消息，用于解析消费记录。
 - Permission: 动态授权被hook的应用权限（无需用户交互）。
 

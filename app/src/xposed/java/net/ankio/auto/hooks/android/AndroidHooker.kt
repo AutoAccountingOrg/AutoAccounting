@@ -16,10 +16,9 @@
 package net.ankio.auto.hooks.android
 
 import android.app.Application
-import net.ankio.auto.core.App
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
-import net.ankio.auto.hooks.android.hooks.KeepActiveHooker
+import net.ankio.auto.hooks.android.hooks.ServiceHooker
 import net.ankio.auto.hooks.android.hooks.NotificationHooker
 import net.ankio.auto.hooks.android.hooks.PermissionHooker
 import net.ankio.dex.model.Clazz
@@ -40,7 +39,7 @@ class AndroidHooker:HookerManifest(){
     override var partHookers: MutableList<PartHooker>
         get() = mutableListOf(
             NotificationHooker(),
-            KeepActiveHooker()
+            ServiceHooker()
         )
         set(value) {}
     override var rules: MutableList<Clazz>
