@@ -62,58 +62,44 @@ class App : Application() {
          fun launch(block: suspend CoroutineScope.() -> Unit) {
             scope.launch(block = block)
         }
-
         /**
          * 获取App应用信息
          * @param packageName 应用包名
-         * @param context 上下文
          * @return Array<Any?>?
          */
-        fun getAppInfoFromPackageName(
-            packageName: String,
-        ): Array<Any?>? {
-            try {
-                val packageManager: PackageManager = app.packageManager
+        fun getAppInfoFromPackageName(packageName: String): Array<Any?>? {
+            return try {
+                val packageManager: PackageManager = App.app.packageManager
 
-                val app: ApplicationInfo =
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        app.packageManager.getApplicationInfo(
-                            packageName,
-                            PackageManager.ApplicationInfoFlags.of(0),
-                        )
-                    } else {
-                        app.packageManager
-                            .getApplicationInfo(packageName, PackageManager.GET_META_DATA)
-                    }
+                val appInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    packageManager.getApplicationInfo(packageName, PackageManager.ApplicationInfoFlags.of(0))
+                } else {
+                    packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA)
+                }
 
-                val appName = packageManager.getApplicationLabel(app).toString()
+                val appName = packageManager.getApplicationLabel(appInfo).toString()
 
-                val appIcon =
-                    try {
-                        val resources: Resources =
-                            packageManager.getResourcesForApplication(app.packageName)
-                        ResourcesCompat.getDrawable(resources, app.icon, App.app.theme)
-                    } catch (e: PackageManager.NameNotFoundException) {
-                        e.printStackTrace()
-                        null
-                    }
+                val appIcon = try {
+                    val resources: Resources = packageManager.getResourcesForApplication(packageName)
+                    ResourcesCompat.getDrawable(resources, appInfo.icon, App.app.theme)
+                } catch (e: PackageManager.NameNotFoundException) {
+                    e.printStackTrace()
+                    null
+                }
 
-                val packageInfo: PackageInfo =
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        App.app.packageManager.getPackageInfo(
-                            packageName,
-                            PackageManager.PackageInfoFlags.of(0),
-                        )
-                    } else {
-                        App.app.packageManager
-                            .getPackageInfo(packageName, PackageManager.GET_META_DATA)
-                    }
+                val packageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    packageManager.getPackageInfo(packageName, PackageManager.PackageInfoFlags.of(0))
+                } else {
+                    packageManager.getPackageInfo(packageName, PackageManager.GET_META_DATA)
+                }
+
                 val appVersion = packageInfo.versionName
-                return arrayOf(appName, appIcon, appVersion)
+
+                arrayOf(appName, appIcon, appVersion)
             } catch (e: PackageManager.NameNotFoundException) {
                 e.printStackTrace()
+                null
             }
-            return null
         }
 
         /**

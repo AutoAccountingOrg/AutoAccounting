@@ -20,6 +20,7 @@ import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import net.ankio.auto.App
+import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.request.RequestsUtils
 import net.ankio.auto.storage.SpUtils
@@ -113,6 +114,7 @@ abstract class BaseUpdate(context: Context) {
      * 从github检查版本
      */
     private suspend fun checkVersionFromGithub(localVersion: String): Array<String> {
+
         try {
             request.get(github()).let {
                 val json = Gson().fromJson(String(it.byteArray), JsonObject::class.java)

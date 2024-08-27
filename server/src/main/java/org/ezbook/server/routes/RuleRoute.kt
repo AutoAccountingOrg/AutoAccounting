@@ -15,6 +15,7 @@
 
 package org.ezbook.server.routes
 
+import android.util.Log
 import com.google.gson.Gson
 import fi.iki.elonen.NanoHTTPD
 import org.ezbook.server.Server
@@ -53,7 +54,8 @@ class RuleRoute(private val session: NanoHTTPD.IHTTPSession) {
      * 添加规则，
      */
     fun add(): NanoHTTPD.Response {
-        val json = Gson().fromJson(Server.reqData(session), RuleModel::class.java)
+        val data = Server.reqData(session)
+        val json = Gson().fromJson(data, RuleModel::class.java)
         val id = Db.get().ruleDao().insert(json)
         return Server.json(200, "OK", id)
     }

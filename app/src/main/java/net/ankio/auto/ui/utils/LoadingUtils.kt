@@ -20,6 +20,7 @@ import android.app.Dialog
 import android.view.View
 import androidx.annotation.StringRes
 import net.ankio.auto.databinding.DialogLoadingBinding
+import net.ankio.auto.utils.Logger
 
 class LoadingUtils(private val activity: Activity) {
     private lateinit var dialog: Dialog
@@ -56,6 +57,7 @@ class LoadingUtils(private val activity: Activity) {
     }
 
     fun setText(text: String?) {
+        Logger.d("setText: $text")
         activity.runOnUiThread {
             if (dialog.isShowing) {
                 binding.loadingText.text = text

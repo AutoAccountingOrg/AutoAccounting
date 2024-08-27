@@ -16,6 +16,7 @@
 package org.ezbook.server
 
 import android.content.Context
+import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import fi.iki.elonen.NanoHTTPD
@@ -82,7 +83,6 @@ class Server(context:Context) {
                val uri = "http://localhost:52045/$path"
                // 创建一个OkHttpClient对象
                val client = OkHttpClient()
-
                // set as json post
                val body: RequestBody = json
                    .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())

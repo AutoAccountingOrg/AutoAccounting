@@ -28,35 +28,35 @@ class ServerHttp(port:Int,threadCount:Int) : NanoHTTPD(port) {
         asyncRunner = BoundRunner(java.util.concurrent.Executors.newFixedThreadPool(threadCount))
     }
     override fun serve(session: IHTTPSession): Response {
-        val method = session.method.name.uppercase(Locale.ROOT)
-        val path = "$method ${session.uri}"
+
+       // val path = "$method ${session.uri}"
         return runCatching {
-             when (path) {
-                "GET /" -> json(200,"hello,欢迎使用自动记账", Server.versionCode,0)
+             when (session.uri) {
+                "/" -> json(200,"hello,欢迎使用自动记账", Server.versionCode,0)
                  // 日志列表
-                "GET /log/list" -> LogRoute(session).list()
+                "/log/list" -> LogRoute(session).list()
                     // 添加日志
-                "POST /log/add" -> LogRoute(session).add()
+                "/log/add" -> LogRoute(session).add()
                     // 清空日志
-                "GET /log/clear" -> LogRoute(session).clear()
+                "/log/clear" -> LogRoute(session).clear()
                  //--------------------------------------------
                  //规则列表
-                "GET /rule/list" -> RuleRoute(session).list()
+                "/rule/list" -> RuleRoute(session).list()
                     // 添加规则
-                "POST /rule/add" -> RuleRoute(session).add()
+                "/rule/add" -> RuleRoute(session).add()
                     // 删除规则
-                "GET /rule/delete" -> RuleRoute(session).delete()
+                "/rule/delete" -> RuleRoute(session).delete()
                     // 修改规则
-                "POST /rule/update" -> RuleRoute(session).update()
+                "/rule/update" -> RuleRoute(session).update()
                  // 获取app列表
-                 "GET /rule/apps" -> RuleRoute(session).apps()
+                 "/rule/apps" -> RuleRoute(session).apps()
                  // system
-                 "GET /rule/system" -> RuleRoute(session).system()
+                 "/rule/system" -> RuleRoute(session).system()
                  //-------------------------------
                  // 设置列表
-                "GET /setting/get" -> SettingRoute(session).get()
+                "/setting/get" -> SettingRoute(session).get()
                     // 添加设置
-                "POST /setting/set" -> SettingRoute(session).set()
+                "/setting/set" -> SettingRoute(session).set()
 
 
                 else -> json(404,"Not Found",null,0)

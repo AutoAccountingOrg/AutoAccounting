@@ -21,6 +21,7 @@ import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import net.ankio.auto.App
+import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.broadcast.LocalBroadcastHelper
 import net.ankio.auto.storage.SpUtils
@@ -40,6 +41,9 @@ class RuleUpdate(private val context: Context) : BaseUpdate(context) {
         get() = "规则"
 
     override fun ruleVersion(): String {
+        if (BuildConfig.DEBUG){
+            return ""
+        }
         return SpUtils.getString("rule_version", "")
     }
 
@@ -71,16 +75,14 @@ class RuleUpdate(private val context: Context) : BaseUpdate(context) {
 
                             val zipUtils = ZipUtils()
                             zipUtils.unzip(file.absolutePath, zip.absolutePath) { filename ->
-                                loading.setText("Unzipping File: $filename")
+                                val name = filename.substringAfterLast("/")
+                                loading.setText(context.getString(R.string.unzip, name))
                             }
-                            loading.setText("Unpacking completed.")
+                            loading.setText(context.getString(R.string.unzip_finish))
                             // 解压完成
                             file.delete()
 
                             val root = zip.resolve("home/runner/work/AutoRule/AutoRule/dist")
-
-                            Logger.d("root:$root")
-
 
                             // 读取rules.json
                             val rules = root.resolve("rules.json")
@@ -114,7 +116,7 @@ class RuleUpdate(private val context: Context) : BaseUpdate(context) {
                                 val find = models.find { it.name == systemRuleModel.name }
                                 if (find == null) {
                                     RuleModel.delete(systemRuleModel.id)
-                                    loading.setText("Remove system rule: ${systemRuleModel.name}")
+                                    loading.setText(context.getString(R.string.delete_rule, systemRuleModel.name))
                                 } else {
                                     // 更新models中的数据
                                     find.id = systemRuleModel.id
@@ -134,22 +136,22 @@ class RuleUpdate(private val context: Context) : BaseUpdate(context) {
                             models.forEach {
                                 if (it.id == 0) {
                                     RuleModel.add(it)
-                                    loading.setText("Add rule: ${it.name}")
+                                    loading.setText(context.getString(R.string.add_rule, it.name))
                                 } else {
                                     RuleModel.update(it)
-                                    loading.setText("Update rule: ${it.name}")
+                                    loading.setText(context.getString(R.string.update_rule, it.name))
                                 }
                             }
 
                             // 更新版本号
                             SpUtils.putString("rule_version", version)
 
-                            ToastUtils.info("Update completed")
+                            ToastUtils.info(R.string.update_success)
 
                         } catch (e: Exception) {
                             Logger.e("Update error", e)
                             loading.close()
-                            ToastUtils.error("Update error")
+                            ToastUtils.error(R.string.update_error)
                         }
 
 
@@ -162,7 +164,7 @@ class RuleUpdate(private val context: Context) : BaseUpdate(context) {
             }catch (e:Exception){
                 Logger.e("Update error",e)
                 loading.close()
-                ToastUtils.error("Update error")
+                ToastUtils.error(R.string.update_error)
             }
         }
 

@@ -38,10 +38,11 @@ object ToastUtils {
     }
 
     fun info(msg: String){
-        val params = ToastParams()
+      /*  val params = ToastParams()
         params.text = msg
         params.style = CustomToastStyle(R.layout.toast_info)
-        Toaster.show(params)
+        Toaster.show(params)*/
+        Toaster.show(msg)
     }
 
     fun error(msg: String){

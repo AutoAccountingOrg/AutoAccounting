@@ -27,7 +27,7 @@ class ZipUtils {
             var zipEntry: ZipEntry? = zipInputStream.nextEntry
             while (zipEntry != null) {
                 val unzipFilePath = desDirectory + File.separator + zipEntry.name
-                callback?.invoke(unzipFilePath)
+                callback?.invoke(zipEntry.name)
                 if (zipEntry.isDirectory) {
                     mkdir(File(unzipFilePath))
                 } else {

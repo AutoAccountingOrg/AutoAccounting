@@ -304,7 +304,7 @@
     <string name="sync_book_success">已同步账本和分类数据。</string>
     <string name="sync_assets_success">已同步资产数据</string>
     <string name="update_process">更新中...</string>
-    <string name="update_rule">更新自动记账识别规则中...</string>
+    <string name="update_rule">更新规则：%s</string>
     <string name="update_category">更新自动分类规则中</string>
     <string name="no_data">无数据</string>
     <string name="input_keywords">请输入关键词</string>
@@ -359,4 +359,9 @@
     <string name="chip_notify">通知</string>
     <string name="title_data_rule">数据规则</string>
     <string name="downloading">规则下载中...</string>
+    <string name="update_error">更新失败</string>
+    <string name="delete_rule">移除无效规则：%s</string>
+    <string name="add_rule">新增规则：%s</string>
+    <string name="unzip_finish">解压完成</string>
+    <string name="unzip">解压：%s</string>
 </resources>

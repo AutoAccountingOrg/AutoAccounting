@@ -36,10 +36,7 @@ class SettingModel {
         }
 
         suspend fun set(key: String, value: String) {
-            val setting  = SettingModel()
-            setting.key = key
-            setting.value = value
-             Server.request("setting/set", Gson().toJson(setting))
+             Server.request("setting/set?key=$key", value)
         }
     }
 }

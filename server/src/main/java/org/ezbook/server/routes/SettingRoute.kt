@@ -15,7 +15,6 @@
 
 package org.ezbook.server.routes
 
-import com.google.gson.Gson
 import fi.iki.elonen.NanoHTTPD
 import org.ezbook.server.Server
 import org.ezbook.server.db.Db
@@ -33,8 +32,18 @@ class SettingRoute(private val session: NanoHTTPD.IHTTPSession) {
     }
 
     fun set(): NanoHTTPD.Response {
-        val model = Gson().fromJson(Server.reqData(session), SettingModel::class.java)
-        val data = Db.get().settingDao().query(model.key)
+        val key = session.parameters["key"]?.firstOrNull()?.toString() ?: ""
+        if (key === "") {
+            return Server.json(400, "key is required")
+        }
+
+       val value = Server.reqData(session)
+
+        val model = SettingModel()
+        model.key = key
+        model.value = value
+
+        val data = Db.get().settingDao().query(key)
         if (data != null) {
             Db.get().settingDao().update(model)
         } else {
