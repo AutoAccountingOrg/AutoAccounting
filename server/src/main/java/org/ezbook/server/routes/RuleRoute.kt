@@ -91,4 +91,12 @@ class RuleRoute(private val session: NanoHTTPD.IHTTPSession) {
         }
         return Server.json(200, "OK", map)
     }
+
+    /**
+     * 获取所有的系统规则
+     */
+    fun system(): NanoHTTPD.Response {
+        val rules = Db.get().ruleDao().loadAllSystem()
+        return Server.json(200, "OK", rules)
+    }
 }

@@ -56,4 +56,7 @@ interface RuleDao {
 
     @Query("SELECT app FROM RuleModel")
     fun queryApps():List<String>
+
+    @Query("SELECT * FROM RuleModel WHERE type = 'system'")
+     fun loadAllSystem():List<RuleModel>
 }

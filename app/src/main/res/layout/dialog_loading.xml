@@ -28,7 +28,6 @@
         app:indicatorColor="?colorPrimary"
         android:indeterminate="true"
         android:layout_gravity="center"/>
-
     <TextView
         android:id="@+id/loading_text"
         android:layout_width="wrap_content"

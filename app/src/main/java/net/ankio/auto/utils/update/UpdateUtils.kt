@@ -23,7 +23,7 @@ import net.ankio.auto.R
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.Logger
 import net.ankio.auto.storage.SpUtils
-import net.ankio.auto.utils.request.RequestsUtils
+import net.ankio.auto.request.RequestsUtils
 import net.ankio.auto.models.SettingModel
 
 /**

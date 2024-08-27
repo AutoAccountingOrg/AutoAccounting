@@ -53,6 +53,13 @@ class RuleModel {
              runCatching { Gson().fromJson(json.getAsJsonArray("data"), Array<RuleModel>::class.java).toList() }.getOrNull() ?: emptyList()
         }
 
+        suspend fun system() : List<RuleModel> = withContext(Dispatchers.IO) {
+            val response = Server.request("rule/system")
+            val json = Gson().fromJson(response, JsonObject::class.java)
+
+            runCatching { Gson().fromJson(json.getAsJsonArray("data"), Array<RuleModel>::class.java).toList() }.getOrNull() ?: emptyList()
+        }
+
         suspend fun add(rule: RuleModel): Int  = withContext(Dispatchers.IO){
             val response = Server.request("rule/add", Gson().toJson(rule))
             val json = Gson().fromJson(response, JsonObject::class.java)
@@ -72,5 +79,6 @@ class RuleModel {
             val json = Gson().fromJson(response, JsonObject::class.java)
            runCatching { json.getAsJsonObject("data") }.getOrNull() ?: JsonObject()
         }
+
     }
 }

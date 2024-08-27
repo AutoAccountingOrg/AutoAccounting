@@ -48,6 +48,7 @@ import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.Logger
 import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.models.CategoryModel
+import net.ankio.auto.update.RuleUpdate
 import net.ankio.auto.utils.update.UpdateUtils
 import rikka.html.text.toHtml
 
@@ -208,7 +209,7 @@ class HomeFragment : BaseFragment() {
      * 绑定规则部分的UI
      */
     private fun bindRuleUI() {
-        val ruleVersion = SpUtils.getString("ruleVersionName", "None")
+        val ruleVersion = SpUtils.getString("rule_version", "None")
         binding.ruleVersion.text = ruleVersion
 
 
@@ -226,7 +227,7 @@ class HomeFragment : BaseFragment() {
         binding.checkRuleUpdate.setOnClickListener {
             Toaster.show(R.string.check_update)
             lifecycleScope.launch {
-                checkUpdate(true)
+                checkRuleUpdate(true)
             }
         }
 
@@ -235,6 +236,15 @@ class HomeFragment : BaseFragment() {
         }
         // TODO 自动检查更新
 
+    }
+
+
+    private suspend fun checkRuleUpdate( showResult: Boolean) {
+        val ruleUpdate = RuleUpdate(requireContext())
+        if (ruleUpdate.check(showResult)){
+            Logger.i("发现新规则")
+            UpdateDialog(requireActivity(), ruleUpdate).show(false)
+        }
     }
 
 
@@ -326,33 +336,7 @@ class HomeFragment : BaseFragment() {
     }
 
     private suspend fun checkUpdate(showResult: Boolean = false) {
-        val updateUtils = UpdateUtils(showResult)
-        runCatching {
-            updateUtils.checkAppUpdate()?.apply {
-                UpdateDialog(
-                    requireContext(),
-                    hashMapOf("url" to file),
-                    log,
-                    version,
-                    date,
-                    0,
-                    code,
-                ).show(cancel = true)
-            }
-            updateUtils.checkRuleUpdate()?.apply {
-                UpdateDialog(
-                    requireContext(),
-                    hashMapOf("category" to file + "category.js", "rule" to file + "rule.js"),
-                    log,
-                    version,
-                    date,
-                    1,
-                    code,
-                ).show(cancel = true)
-            }
-        }.onFailure {
-            Logger.e("更新异常", it)
-        }
+
     }
     /**
      * 设置激活状态

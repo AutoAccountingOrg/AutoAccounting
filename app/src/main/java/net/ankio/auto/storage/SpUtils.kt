@@ -93,4 +93,11 @@ object SpUtils {
     ) {
         sp.edit().putInt(key, value).apply()
     }
+
+    fun getLong(s: String, i: Long): Long {
+        return sp.getLong(s, i)
+    }
+    fun putLong(s: String, i: Long) {
+        sp.edit().putLong(s, i).apply()
+    }
 }

@@ -13,7 +13,7 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.utils.request
+package net.ankio.auto.request
 
 /**
  * RequestsUtils
@@ -29,7 +29,7 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.exceptions.HttpException
 import net.ankio.auto.utils.AppTimeMonitor
 import net.ankio.auto.utils.AppUtils
-import net.ankio.auto.utils.CacheManager
+import net.ankio.auto.storage.CacheManager
 import net.ankio.auto.utils.Logger
 import okhttp3.FormBody
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -57,6 +57,9 @@ class RequestsUtils(context: Context) {
         var client: OkHttpClient? = null
     }
 
+    /**
+     * 缓存管理器
+     */
     private val cacheManager = CacheManager(context)
 
     init {
@@ -68,6 +71,12 @@ class RequestsUtils(context: Context) {
         }
     }
 
+    /**
+     * 将请求体转换成字符串
+     * @param requestBody 请求体
+     * @return 返回转换后的字符串
+     * @throws Exception
+     */
     private fun requestBodyToString(requestBody: RequestBody?): String? {
         if (requestBody == null) return null
         val buffer = Buffer()
@@ -75,7 +84,12 @@ class RequestsUtils(context: Context) {
         return buffer.readString(Charsets.UTF_8)
     }
 
-    // 构建请求体
+    /**
+     * 构建请求体
+     * @param data 数据
+     * @param contentType 内容类型
+     * @return 返回请求体
+     */
     private fun buildRequestBody(
         data: Map<String, String>?,
         contentType: Int,
@@ -121,6 +135,11 @@ class RequestsUtils(context: Context) {
         }
     }
 
+    /**
+     * 将byteArray转换成字符串
+     * @param byteArray 要转换的byteArray
+     * @return 返回转换后的字符串
+     */
     private fun convertByteArray(byteArray: ByteArray): String {
         var message = ""
         runCatching {
@@ -147,6 +166,17 @@ class RequestsUtils(context: Context) {
         return message
     }
 
+    /**
+     * 发送请求
+     * @param url 请求的URL
+     * @param query 查询参数
+     * @param data 数据
+     * @param method 请求方法
+     * @param contentType 内容类型
+     * @param headers 请求头
+     * @param cacheTime 缓存时间
+     * @return 返回请求结果
+     */
     private suspend fun sendRequest(
         url: String,
         query: HashMap<String, String>? = null,
@@ -216,9 +246,10 @@ class RequestsUtils(context: Context) {
                     }
                 }
                 message.append(
-                    " Response Success  " + response.code + " " + response.message + "\n",
-                    //   convertByteArray(bytes ?: ByteArray(0)),
+                    " Response Success  " + response.code + " " + response.message + "\n"
                 )
+
+
                 RequestResult(bytes ?: ByteArray(0), response.code)
             } catch (e: Throwable) {
                 throw e
@@ -228,6 +259,14 @@ class RequestsUtils(context: Context) {
             }
         }
 
+    /**
+     * GET请求
+     * @param url 请求的URL
+     * @param query 查询参数
+     * @param headers 请求头
+     * @param cacheTime 缓存时间
+     * @return 返回请求结果
+     */
     suspend fun get(
         url: String,
         query: HashMap<String, String>? = null,
@@ -237,7 +276,16 @@ class RequestsUtils(context: Context) {
         return sendRequest(url, query, null, METHOD_GET, TYPE_FORM, headers, cacheTime)
     }
 
-    // POST请求
+    /**
+     * POST请求
+     * @param url 请求的URL
+     * @param query 查询参数
+     * @param data 数据
+     * @param contentType 内容类型
+     * @param headers 请求头
+     * @param cacheTime 缓存时间
+     * @return 返回请求结果
+     */
     suspend fun post(
         url: String,
         query: HashMap<String, String>? = null,
@@ -249,7 +297,16 @@ class RequestsUtils(context: Context) {
         return sendRequest(url, query, data, METHOD_POST, contentType, headers, cacheTime)
     }
 
-    // PUT请求
+    /**
+     * PUT请求
+     * @param url 请求的URL
+     * @param query 查询参数
+     * @param data 数据
+     * @param contentType 内容类型
+     * @param headers 请求头
+     * @param cacheTime 缓存时间
+     * @return 返回请求结果
+     */
     suspend fun put(
         url: String,
         query: HashMap<String, String>? = null,
@@ -261,7 +318,16 @@ class RequestsUtils(context: Context) {
         return sendRequest(url, query, data, METHOD_PUT, contentType, headers, cacheTime)
     }
 
-    // DELETE请求
+    /**
+     * DELETE请求
+     * @param url 请求的URL
+     * @param query 查询参数
+     * @param data 数据
+     * @param contentType 内容类型
+     * @param headers 请求头
+     * @param cacheTime 缓存时间
+     * @return 返回请求结果
+     */
     suspend fun delete(
         url: String,
         query: HashMap<String, String>? = null,
@@ -273,10 +339,22 @@ class RequestsUtils(context: Context) {
         return sendRequest(url, query, data, METHOD_DELETE, contentType, headers, cacheTime)
     }
 
+
+    /**
+     * 将byteArray转换成JSON对象
+     * @param byteArray 要转换的byteArray
+     * @return 返回转换后的JSON对象
+     */
     fun json(byteArray: ByteArray): JsonObject? {
         return Gson().fromJson(byteArray.toString(Charsets.UTF_8), JsonObject::class.java)
     }
 
+    /**
+     * 生成缓存键
+     * @param url 请求的URL
+     * @param method 请求的方法
+     * @param data 请求的数据
+     */
     private fun generateCacheKey(
         url: String,
         method: String,
@@ -285,6 +363,16 @@ class RequestsUtils(context: Context) {
         return AppUtils.md5(url + method + (data?.toString() ?: ""))
     }
 
+    /**
+     * 创建目录
+     * @param url 集合的URL
+     * @param query 查询参数
+     * @param data 数据
+     * @param contentType 内容类型
+     * @param headers 请求头
+     * @param cacheTime 缓存时间
+     * @return 返回请求结果
+     */
     suspend fun mkcol(
         url: String,
         query: HashMap<String, String>? = null,

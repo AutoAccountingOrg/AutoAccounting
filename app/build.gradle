@@ -176,7 +176,7 @@ dependencies {
     implementation libs.xmltojson
     implementation "androidx.paging:paging-runtime:3.3.0" //@Deprecated 即将删除
     implementation project(":server")
-
+    implementation 'org.markdownj:markdownj-core:0.4'
     //分页
     implementation  'io.github.scwang90:refresh-layout-kernel:2.1.0'      //核心必须依赖
     implementation  'io.github.scwang90:refresh-header-classics:2.1.0'    //经典刷新头

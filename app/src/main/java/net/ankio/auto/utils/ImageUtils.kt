@@ -22,7 +22,7 @@ import android.graphics.drawable.Drawable
 import androidx.core.content.res.ResourcesCompat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.ankio.auto.utils.request.RequestsUtils
+import net.ankio.auto.request.RequestsUtils
 
 object ImageUtils {
     suspend fun get(

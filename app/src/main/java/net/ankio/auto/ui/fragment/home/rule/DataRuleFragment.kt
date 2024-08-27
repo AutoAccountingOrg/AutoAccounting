@@ -146,7 +146,7 @@ class DataRuleFragment: BaseFragment()  {
                 var i = 0
                 for (key in result.keySet()){
                     i++;
-                    val app = App.getAppInfoFromPackageName(key,requireContext()) ?: continue
+                    val app = App.getAppInfoFromPackageName(key) ?: continue
 
                     // 动态添加菜单项
                     val item1 = menu.add(Menu.NONE,i , Menu.NONE, app[0] as String)

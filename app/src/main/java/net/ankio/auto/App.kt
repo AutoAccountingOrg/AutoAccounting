@@ -32,6 +32,7 @@ import net.ankio.auto.app.model.AppInfo
 import net.ankio.auto.broadcast.LocalBroadcastHelper
 import net.ankio.auto.utils.ExceptionHandler
 import net.ankio.auto.storage.SpUtils
+import net.ankio.auto.ui.utils.ToastUtils
 
 class App : Application() {
     override fun onTerminate() {
@@ -43,8 +44,6 @@ class App : Application() {
     }
 
     companion object{
-        /* 本地广播 */
-        lateinit var localBroadcastHelper: LocalBroadcastHelper
         /* App实例 */
         lateinit var app: Application
         /**
@@ -62,21 +61,26 @@ class App : Application() {
             scope.launch(block = block)
         }
 
+        /**
+         * 获取App应用信息
+         * @param packageName 应用包名
+         * @param context 上下文
+         * @return Array<Any?>?
+         */
         fun getAppInfoFromPackageName(
             packageName: String,
-            context: Context,
         ): Array<Any?>? {
             try {
-                val packageManager: PackageManager = context.packageManager
+                val packageManager: PackageManager = app.packageManager
 
                 val app: ApplicationInfo =
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        context.packageManager.getApplicationInfo(
+                        app.packageManager.getApplicationInfo(
                             packageName,
                             PackageManager.ApplicationInfoFlags.of(0),
                         )
                     } else {
-                        context.packageManager
+                        app.packageManager
                             .getApplicationInfo(packageName, PackageManager.GET_META_DATA)
                     }
 
@@ -85,8 +89,8 @@ class App : Application() {
                 val appIcon =
                     try {
                         val resources: Resources =
-                            context.packageManager.getResourcesForApplication(app.packageName)
-                        ResourcesCompat.getDrawable(resources, app.icon, context.theme)
+                            packageManager.getResourcesForApplication(app.packageName)
+                        ResourcesCompat.getDrawable(resources, app.icon, App.app.theme)
                     } catch (e: PackageManager.NameNotFoundException) {
                         e.printStackTrace()
                         null
@@ -94,12 +98,12 @@ class App : Application() {
 
                 val packageInfo: PackageInfo =
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        context.packageManager.getPackageInfo(
+                        App.app.packageManager.getPackageInfo(
                             packageName,
                             PackageManager.PackageInfoFlags.of(0),
                         )
                     } else {
-                        context.packageManager
+                        App.app.packageManager
                             .getPackageInfo(packageName, PackageManager.GET_META_DATA)
                     }
                 val appVersion = packageInfo.versionName
@@ -110,6 +114,13 @@ class App : Application() {
             return null
         }
 
+        /**
+         * 在主线程运行
+         * @param action () -> Unit
+         */
+        fun runOnUiThread(action: () -> Unit) {
+            app.mainExecutor.execute(action)
+        }
     }
 
     /**
@@ -120,12 +131,11 @@ class App : Application() {
         app = this
         // 初始化调试模式
         debug = BuildConfig.DEBUG || SpUtils.getBoolean("debug", false)
-        // 初始化本地广播
-        localBroadcastHelper = LocalBroadcastHelper()
+
         // 设置全局异常
         ExceptionHandler.init(this)
         // 初始化 Toast 框架
-        Toaster.init(this)
+        ToastUtils.init(this)
     }
 
 

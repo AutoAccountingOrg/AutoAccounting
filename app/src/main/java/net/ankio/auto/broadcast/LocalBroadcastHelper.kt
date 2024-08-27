@@ -1,18 +1,3 @@
-/*
- * Copyright (C) 2024 ankio(ankio@ankio.net)
- * Licensed under the Apache License, Version 3.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-3.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *   limitations under the License.
- */
-
 package net.ankio.auto.broadcast
 
 import android.content.BroadcastReceiver
@@ -25,7 +10,10 @@ import net.ankio.auto.App
 /**
  * 本地广播助手类
  */
-class LocalBroadcastHelper {
+object LocalBroadcastHelper {
+
+    const val ACTION_UPDATE_FINISH = "update_finish" // 应用更新完成广播
+
 
 
     /**
@@ -45,11 +33,17 @@ class LocalBroadcastHelper {
      * 注册广播接收器
      *
      * @param action 广播的动作（唯一标识符）
-     * @param receiver 广播接收器
+     * @param onReceive 接收广播的回调函数
      */
-    fun registerReceiver(action: String, receiver: BroadcastReceiver) {
+    fun registerReceiver(action: String, onReceive: (String?, Bundle?) -> Unit): BroadcastReceiver {
+        val receiver = object : SimpleBroadcastReceiver() {
+            override fun onReceive(action: String?, extras: Bundle?) {
+                onReceive(action, extras)
+            }
+        }
         val filter = IntentFilter(action)
         App.app.registerReceiver(receiver, filter)
+        return receiver
     }
 
     /**

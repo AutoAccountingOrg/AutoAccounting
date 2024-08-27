@@ -52,13 +52,15 @@ class LoadingUtils(private val activity: Activity) {
     fun setText(
         @StringRes text: Int,
     ) {
-        show(activity.getString(text))
+        setText(activity.getString(text))
     }
 
     fun setText(text: String?) {
-        if (dialog.isShowing) {
-            binding.loadingText.text = text
-            binding.loadingText.visibility = View.VISIBLE
+        activity.runOnUiThread {
+            if (dialog.isShowing) {
+                binding.loadingText.text = text
+                binding.loadingText.visibility = View.VISIBLE
+            }
         }
     }
 

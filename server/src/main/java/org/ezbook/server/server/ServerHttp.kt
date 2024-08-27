@@ -50,7 +50,8 @@ class ServerHttp(port:Int,threadCount:Int) : NanoHTTPD(port) {
                 "POST /rule/update" -> RuleRoute(session).update()
                  // 获取app列表
                  "GET /rule/apps" -> RuleRoute(session).apps()
-
+                 // system
+                 "GET /rule/system" -> RuleRoute(session).system()
                  //-------------------------------
                  // 设置列表
                 "GET /setting/get" -> SettingRoute(session).get()

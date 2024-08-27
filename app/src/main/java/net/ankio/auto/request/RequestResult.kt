@@ -13,7 +13,7 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.utils.request
+package net.ankio.auto.request
 
 data class RequestResult(
     val byteArray: ByteArray,
