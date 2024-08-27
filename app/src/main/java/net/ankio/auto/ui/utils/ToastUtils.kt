@@ -19,12 +19,22 @@ import android.app.Application
 import com.hjq.toast.ToastParams
 import com.hjq.toast.Toaster
 import com.hjq.toast.style.CustomToastStyle
+import net.ankio.auto.App
 import net.ankio.auto.R
 
 
 object ToastUtils {
     fun init(application: Application){
+        //这里进行主题包装
         Toaster.init(application)
+    }
+
+    fun info(int: Int){
+        info(App.app.getString(int))
+    }
+
+    fun error(int: Int){
+        error(App.app.getString(int))
     }
 
     fun info(msg: String){

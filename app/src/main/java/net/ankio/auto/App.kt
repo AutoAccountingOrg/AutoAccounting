@@ -17,11 +17,13 @@ package net.ankio.auto
 
 import android.app.Application
 import android.content.Context
+import android.content.ContextWrapper
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.os.Build
+import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.content.res.ResourcesCompat
 import com.hjq.toast.Toaster
 import kotlinx.coroutines.CoroutineScope
@@ -137,6 +139,8 @@ class App : Application() {
         // 初始化 Toast 框架
         ToastUtils.init(this)
     }
+
+
 
 
 }

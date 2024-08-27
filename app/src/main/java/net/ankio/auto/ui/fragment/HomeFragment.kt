@@ -48,6 +48,7 @@ import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.Logger
 import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.models.CategoryModel
+import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.update.RuleUpdate
 import net.ankio.auto.utils.update.UpdateUtils
 import rikka.html.text.toHtml
@@ -225,7 +226,7 @@ class HomeFragment : BaseFragment() {
             findNavController().navigate(R.id.ruleFragment)
         }
         binding.checkRuleUpdate.setOnClickListener {
-            Toaster.show(R.string.check_update)
+            ToastUtils.info(R.string.check_update)
             lifecycleScope.launch {
                 checkRuleUpdate(true)
             }
@@ -242,7 +243,6 @@ class HomeFragment : BaseFragment() {
     private suspend fun checkRuleUpdate( showResult: Boolean) {
         val ruleUpdate = RuleUpdate(requireContext())
         if (ruleUpdate.check(showResult)){
-            Logger.i("发现新规则")
             UpdateDialog(requireActivity(), ruleUpdate).show(false)
         }
     }

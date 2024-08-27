@@ -63,7 +63,7 @@ class RuleModel {
         suspend fun add(rule: RuleModel): Int  = withContext(Dispatchers.IO){
             val response = Server.request("rule/add", Gson().toJson(rule))
             val json = Gson().fromJson(response, JsonObject::class.java)
-             Gson().fromJson(json.getAsJsonObject("data"), Int::class.java)
+            json.get("data").asInt
         }
 
         suspend fun update(rule: RuleModel) = withContext(Dispatchers.IO){

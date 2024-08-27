@@ -20,8 +20,10 @@ import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import net.ankio.auto.App
+import net.ankio.auto.R
 import net.ankio.auto.request.RequestsUtils
 import net.ankio.auto.storage.SpUtils
+import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.Logger
 import org.markdownj.MarkdownProcessor
 import java.text.SimpleDateFormat
@@ -74,7 +76,7 @@ abstract class BaseUpdate(context: Context) {
             true
         } else {
             if (showToast) {
-                Logger.d("无需更新")
+               ToastUtils.info(R.string.no_need_to_update)
             }
             false
         }
