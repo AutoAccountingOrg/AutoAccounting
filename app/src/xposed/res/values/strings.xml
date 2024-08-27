@@ -15,6 +15,5 @@
   -->
 
 <resources>
-    <string name="releaseInfo" translatable="false">Released For Lsposed</string>
-    <string name="server_error">无法连接到自动记账服务，如果您是新装自动记账，在Xposed中至少需要勾选【系统框架】和【密钥链】，然后重启手机。</string>
+    <string name="server_error">无法连接到自动记账服务，如果您是新装自动记账，请在Xposed中勾选【系统框架】，然后重启手机。</string>
 </resources>

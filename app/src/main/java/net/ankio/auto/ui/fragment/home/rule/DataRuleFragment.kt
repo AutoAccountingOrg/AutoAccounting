@@ -135,6 +135,8 @@ class DataRuleFragment: BaseFragment()  {
     }
 
 
+
+
     private var leftData = JsonObject()
     private fun loadLeftData(navigation: NavigationRailView){
         val menu = navigation.menu

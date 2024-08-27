@@ -16,6 +16,7 @@
 package net.ankio.auto.hooks.android.hooks
 
 import android.app.Application
+import net.ankio.auto.BuildConfig
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
 import org.ezbook.server.Server
@@ -31,13 +32,22 @@ class ServiceHooker:PartHooker {
         application: Application?,
         classLoader: ClassLoader
     ) {
-        try {
-            hookerManifest.logD("try start server...")
-            Server(application!!).startServer()
-            hookerManifest.logD(" server hook success")
-        } catch (e: Exception) {
-            hookerManifest.logE(e)
-            hookerManifest.logD(" server onInit error: ${e.message}")
+        if (BuildConfig.DEBUG)return
+        // 调试模式下，不启动服务，使用自动记账本体启动服务。
+        startServer(hookerManifest,application)
+    }
+
+    companion object{
+        fun startServer( hookerManifest: HookerManifest,
+                         application: Application?){
+            try {
+                hookerManifest.logD("try start server...")
+                Server(application!!).startServer()
+                hookerManifest.logD(" server hook success")
+            } catch (e: Exception) {
+                hookerManifest.logE(e)
+                hookerManifest.logD(" server onInit error: ${e.message}")
+            }
         }
     }
 
