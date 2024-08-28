@@ -16,7 +16,6 @@
 package net.ankio.auto.ui.componets
 
 import android.content.Context
-import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.LinearLayout
@@ -24,7 +23,8 @@ import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
 import net.ankio.auto.App
 import net.ankio.auto.R
-data class MenuItem(val id: Int, val icon: Drawable, val text: String)
+import net.ankio.auto.ui.utils.RailMenuItem
+
 
 class CustomNavigationRail @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
@@ -34,12 +34,12 @@ class CustomNavigationRail @JvmOverloads constructor(
         orientation = VERTICAL
     }
 
-    private val menuItems = mutableListOf<MenuItem>()
-    private var onItemSelectedListener: ((MenuItem) -> Unit)? = null
+    private val menuItems = mutableListOf<RailMenuItem>()
+    private var onItemSelectedListener: ((RailMenuItem) -> Unit)? = null
     fun triggerFirstItem() {
         getChildAt(0).performClick()
     }
-    fun addMenuItem(menuItem: MenuItem) {
+    fun addMenuItem(menuItem: RailMenuItem) {
         menuItems.add(menuItem)
         val view = LayoutInflater.from(context).inflate(R.layout.custom_navigation_rail_item, this, false)
         val iconView: AppCompatImageView = view.findViewById(R.id.iconView)
@@ -68,7 +68,7 @@ class CustomNavigationRail @JvmOverloads constructor(
         addView(view)
     }
 
-    fun setOnItemSelectedListener(listener: (MenuItem) -> Unit) {
+    fun setOnItemSelectedListener(listener: (RailMenuItem) -> Unit) {
         onItemSelectedListener = listener
     }
 }

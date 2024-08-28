@@ -37,6 +37,7 @@ import net.ankio.auto.ui.adapter.DataRuleAdapter
 import net.ankio.auto.ui.componets.CustomNavigationRail
 import net.ankio.auto.ui.fragment.BaseFragment
 import net.ankio.auto.ui.utils.MenuItem
+import net.ankio.auto.ui.utils.RailMenuItem
 import org.ezbook.server.db.model.RuleModel
 
 
@@ -146,7 +147,7 @@ class DataRuleFragment: BaseFragment()  {
                     i++
                     val app = App.getAppInfoFromPackageName(key) ?: continue
                     leftList.addMenuItem(
-                        net.ankio.auto.ui.componets.MenuItem(i,app[1] as Drawable,app[0] as String)
+                        RailMenuItem(i,app[1] as Drawable,app[0] as String)
                     )
 
                 }
