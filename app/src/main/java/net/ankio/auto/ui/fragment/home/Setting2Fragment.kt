@@ -36,9 +36,9 @@ import net.ankio.auto.setting.SettingUtils
 import net.ankio.auto.storage.BackupUtils
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.storage.SpUtils
-import net.ankio.auto.ui.activity.BaseActivity
+import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.activity.MainActivity
-import net.ankio.auto.ui.fragment.BaseFragment
+import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.LanguageUtils

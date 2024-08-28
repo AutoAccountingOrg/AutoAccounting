@@ -34,7 +34,7 @@ import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.exceptions.PermissionException
 import net.ankio.auto.exceptions.RestoreBackupException
-import net.ankio.auto.ui.activity.BaseActivity
+import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.request.RequestsUtils

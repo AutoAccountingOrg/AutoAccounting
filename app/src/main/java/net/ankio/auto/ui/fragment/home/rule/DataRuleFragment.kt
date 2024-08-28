@@ -22,11 +22,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.JsonObject
-import com.scwang.smart.refresh.footer.ClassicsFooter
-import com.scwang.smart.refresh.header.ClassicsHeader
-import com.scwang.smart.refresh.layout.api.RefreshLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -34,14 +31,16 @@ import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentDataRuleBinding
 import net.ankio.auto.ui.adapter.DataRuleAdapter
+import net.ankio.auto.ui.api.BasePageFragment
 import net.ankio.auto.ui.componets.CustomNavigationRail
-import net.ankio.auto.ui.fragment.BaseFragment
 import net.ankio.auto.ui.utils.MenuItem
 import net.ankio.auto.ui.utils.RailMenuItem
 import org.ezbook.server.db.model.RuleModel
 
-
-class DataRuleFragment: BaseFragment()  {
+/**
+ * 数据规则Fragment
+ */
+class DataRuleFragment: BasePageFragment<RuleModel>()  {
     private lateinit var binding: FragmentDataRuleBinding
     override val menuList: ArrayList<MenuItem>
         get() =
@@ -51,93 +50,53 @@ class DataRuleFragment: BaseFragment()  {
                 },
             )
 
-
-
-    lateinit var recyclerView: RecyclerView
-
+    /**
+     * 初始化View
+     */
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
         binding = FragmentDataRuleBinding.inflate(layoutInflater)
-        //TODO 默认左边选中微信
-        //TODO 左侧使用 微信、支付宝、QQ、短信、云闪付、京东、银行卡这样的顺序进行排列，默认为微信
+        recyclerView = binding.recyclerView
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        recyclerView.adapter = DataRuleAdapter(pageData)
         loadDataEvent(binding.refreshLayout)
         loadLeftData(binding.leftList)
         chipEvent()
-        recyclerView = binding.recyclerView
-        recyclerView.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(requireContext())
-        recyclerView.adapter = DataRuleAdapter(pageData)
         return binding.root
     }
 
-
-    private var page = 1
-    private val pageSize = 20
-    private var search = ""
+    /**
+     * App
+     */
     private var app = ""
+
+    /**
+     * 类型
+     */
     private var type = ""
-    private var pageData = mutableListOf<RuleModel>()
-    /**
-     * 加载数据，如果数据为空或者加载失败返回false
-     */
-     private  fun loadData(callback:(Boolean, Boolean)->Unit){
-         lifecycleScope.launch {
-             RuleModel.list(app,type,page,pageSize).let { result ->
-
-                 withContext(Dispatchers.Main){
-                     if (result.isEmpty()){
-                         callback(false,false)
-                     }else{
-                         callback(true,result.size == pageSize)
-                     }
-
-                     if (page == 1){
-                        pageData.clear()
-                     }
-                     pageData.addAll(result)
-
-                 }
-
-             }
-         }
-
-    }
 
     /**
-     * 加载数据事件
+     * 加载数据
      */
-    private fun loadDataEvent(refreshLayout: RefreshLayout){
-
-        refreshLayout.setRefreshHeader(ClassicsHeader(requireContext()))
-        refreshLayout.setRefreshFooter(ClassicsFooter(requireContext()))
-        refreshLayout.setOnRefreshListener {
-            page = 1
-            loadData{ success,hasMore->
-                it.finishRefresh(2000,success,hasMore) //传入false表示刷新失败
-                recyclerView.adapter?.notifyDataSetChanged()
+    override suspend fun loadData(callback: (resultData: List<RuleModel>) -> Unit) {
+        RuleModel.list(app,type,page,pageSize).let { result ->
+            withContext(Dispatchers.Main){
+                callback(result)
             }
-        }
-        refreshLayout.setOnLoadMoreListener {
-            page++
-            loadData{ success,hasMore->
-                if (!success){
-                    page--
-                }
-                it.finishLoadMore(2000,success,hasMore) //传入false表示加载失败
-                if (success){
-                    recyclerView.adapter?.notifyItemRangeInserted(pageData.size - pageSize,pageSize)
-                }
 
-            }
         }
     }
 
-
-
-
+    /**
+     * 左侧数据
+     */
     private var leftData = JsonObject()
+    /**
+     * 加载左侧数据
+     */
     private fun loadLeftData(leftList: CustomNavigationRail){
         lifecycleScope.launch {
             RuleModel.apps().let { result ->
@@ -159,19 +118,15 @@ class DataRuleFragment: BaseFragment()  {
             val id = it.id
             app = leftData.keySet().elementAt(id - 1)
             page = 1
-            loadData{ success,hasMore->
-                if (success){
-                    recyclerView.adapter?.notifyDataSetChanged()
-                }
-            }
+            loadDataInside()
         }
     }
 
-
+    /**
+     * Chip事件
+     */
     private fun chipEvent(){
         binding.chipGroup.setOnCheckedStateChangeListener { group, checkedId ->
-
-
             val chipId = checkedId.firstOrNull() ?: R.id.chip_all
 
             when(chipId){
@@ -186,11 +141,7 @@ class DataRuleFragment: BaseFragment()  {
                 }
             }
             page = 1
-            loadData{ success,hasMore->
-                if (success){
-                   recyclerView.adapter?.notifyDataSetChanged()
-                }
-            }
+            loadDataInside()
         }
     }
 

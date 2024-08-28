@@ -13,7 +13,7 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.ui.fragment
+package net.ankio.auto.ui.api
 
 import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
@@ -23,24 +23,39 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.R
 import com.zackratos.ultimatebarx.ultimatebarx.addNavigationBarBottomPadding
 import net.ankio.auto.App
-import net.ankio.auto.R
 import net.ankio.auto.databinding.ActivityMainBinding
 import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.utils.MenuItem
-import net.ankio.auto.utils.AppUtils
 
+/**
+ * 基础的Fragment
+ */
 abstract class BaseFragment : Fragment() {
+    /**
+     * 菜单列表
+     */
     open val menuList: ArrayList<MenuItem> = arrayListOf()
 
     override fun toString(): String {
         return this.javaClass.simpleName
     }
 
+    /**
+     * 获取activity的binding
+     */
     protected lateinit var activityBinding: ActivityMainBinding
 
-    private var init = false
+    /**
+     * 是否初始化
+     */
+    private var initialized = false
+
+    /**
+     * 滚动视图
+     */
     lateinit var scrollView: View
 
     override fun onResume() {
@@ -49,7 +64,8 @@ abstract class BaseFragment : Fragment() {
         if (!this::activityBinding.isInitialized) {
             activityBinding = mainActivity.getBinding()
         }
-        if (init)return
+        if (initialized)return
+        initialized = true
         activityBinding.toolbar.visibility = View.VISIBLE
         // 重置顶部导航栏图标
         activityBinding.toolbar.menu.clear()
@@ -97,6 +113,9 @@ abstract class BaseFragment : Fragment() {
         }
     }
 
+    /**
+     * 添加菜单
+     */
     private fun addMenuItem(menuItemObject: MenuItem) {
         val menu = activityBinding.toolbar.menu
         val menuItem = menu.add(Menu.NONE, Menu.NONE, Menu.NONE, getString(menuItemObject.title))
@@ -106,7 +125,7 @@ abstract class BaseFragment : Fragment() {
             menuItem.setIcon(icon)
             DrawableCompat.setTint(
                 icon,
-                App.getThemeAttrColor(com.google.android.material.R.attr.colorOnBackground),
+                App.getThemeAttrColor(R.attr.colorOnBackground),
             )
         }
         menuItem.setOnMenuItemClickListener {

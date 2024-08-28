@@ -24,7 +24,7 @@ import androidx.recyclerview.widget.RecyclerView
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentDataBinding
 //import net.ankio.auto.ui.adapter.RuleAdapter
-import net.ankio.auto.ui.fragment.BaseFragment
+import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.utils.MenuItem
 import net.ankio.auto.models.CustomRuleModel
 

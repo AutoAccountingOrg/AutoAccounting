@@ -41,7 +41,7 @@ import net.ankio.auto.ui.componets.FlowLayoutManager
 import net.ankio.auto.ui.dialog.BookInfoDialog
 import net.ankio.auto.ui.dialog.BookSelectorDialog
 import net.ankio.auto.ui.dialog.CategorySelectorDialog
-import net.ankio.auto.ui.fragment.BaseFragment
+import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.utils.ListPopupUtils
 import net.ankio.auto.models.BookNameModel
 import net.ankio.auto.models.CustomRuleModel

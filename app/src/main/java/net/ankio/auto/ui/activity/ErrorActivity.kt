@@ -19,6 +19,7 @@ import android.os.Bundle
 import com.zackratos.ultimatebarx.ultimatebarx.addNavigationBarBottomPadding
 import com.zackratos.ultimatebarx.ultimatebarx.addStatusBarTopPadding
 import net.ankio.auto.databinding.ActivityErrorBinding
+import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.utils.AppUtils
 
 class ErrorActivity : BaseActivity() {

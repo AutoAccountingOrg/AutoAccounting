@@ -24,8 +24,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentDataBinding
-import net.ankio.auto.ui.activity.BaseActivity
+import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.adapter.AppDataAdapter
+import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.dialog.FilterDialog
 import net.ankio.auto.ui.utils.MenuItem
 import net.ankio.auto.ui.viewModes.AppDataViewModel

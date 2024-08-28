@@ -27,6 +27,7 @@ import net.ankio.auto.databinding.FragmentOrderBinding
 import net.ankio.auto.ui.utils.MenuItem
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.models.BillInfoModel
+import net.ankio.auto.ui.api.BaseFragment
 
 class OrderFragment : BaseFragment() {
     override val menuList: ArrayList<MenuItem>

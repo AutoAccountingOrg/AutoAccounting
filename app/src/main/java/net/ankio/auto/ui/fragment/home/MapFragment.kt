@@ -21,14 +21,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentMapBinding
 //import net.ankio.auto.ui.adapter.MapAdapter
 import net.ankio.auto.ui.dialog.MapDialog
-import net.ankio.auto.ui.fragment.BaseFragment
+import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.utils.MenuItem
 import net.ankio.auto.models.AssetsMapModel
 

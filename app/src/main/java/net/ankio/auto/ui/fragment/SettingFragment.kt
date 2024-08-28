@@ -26,7 +26,8 @@ import net.ankio.auto.constant.ItemType
 import net.ankio.auto.databinding.FragmentSettingBinding
 import net.ankio.auto.setting.SettingItem
 import net.ankio.auto.setting.SettingUtils
-import net.ankio.auto.ui.activity.BaseActivity
+import net.ankio.auto.ui.api.BaseActivity
+import net.ankio.auto.ui.api.BaseFragment
 
 class SettingFragment : BaseFragment() {
     private lateinit var binding: FragmentSettingBinding

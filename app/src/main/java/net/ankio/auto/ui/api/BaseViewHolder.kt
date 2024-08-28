@@ -20,6 +20,5 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 
 open class BaseViewHolder<T:ViewBinding>(open val binding: T, val context: Context) : RecyclerView.ViewHolder(binding.root) {
-    var hasInit = false
 
 }

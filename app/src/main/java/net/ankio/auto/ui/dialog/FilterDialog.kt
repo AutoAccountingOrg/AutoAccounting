@@ -15,7 +15,6 @@
 
 package net.ankio.auto.ui.dialog
 
-import android.app.Activity
 import android.view.LayoutInflater
 import android.view.View
 import net.ankio.auto.R
@@ -23,7 +22,7 @@ import net.ankio.auto.constant.ItemType
 import net.ankio.auto.databinding.DialogFilterBinding
 import net.ankio.auto.setting.SettingItem
 import net.ankio.auto.setting.SettingUtils
-import net.ankio.auto.ui.activity.BaseActivity
+import net.ankio.auto.ui.api.BaseActivity
 
 class FilterDialog(
     private val context: BaseActivity,

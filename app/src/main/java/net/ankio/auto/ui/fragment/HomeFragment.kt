@@ -41,6 +41,7 @@ import net.ankio.auto.databinding.FragmentHomeBinding
 import net.ankio.auto.models.CategoryModel
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.storage.SpUtils
+import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.dialog.AssetsSelectorDialog
 import net.ankio.auto.ui.dialog.BookInfoDialog
 import net.ankio.auto.ui.dialog.BookSelectorDialog
@@ -96,8 +97,7 @@ class HomeFragment : BaseFragment() {
 
         // 卡片部分颜色设置
 
-        val cards =
-            listOf(
+        val cards = listOf(
                 binding.infoCard,
                 binding.groupCard,
                 binding.ruleCard,
@@ -237,8 +237,14 @@ class HomeFragment : BaseFragment() {
 
     }
 
-    lateinit var broadcastReceiver: BroadcastReceiver
+    /**
+     * 本地广播
+     */
+    private lateinit var broadcastReceiver: BroadcastReceiver
 
+    /**
+     * 绑定规则部分的事件
+     */
     private fun bindRuleEvents() {
 
         broadcastReceiver = LocalBroadcastHelper.registerReceiver(LocalBroadcastHelper.ACTION_UPDATE_FINISH) {a,b->

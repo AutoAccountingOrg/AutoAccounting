@@ -26,7 +26,7 @@ import net.ankio.auto.databinding.SettingItemInputBinding
 import net.ankio.auto.databinding.SettingItemSwitchBinding
 import net.ankio.auto.databinding.SettingItemTextBinding
 import net.ankio.auto.databinding.SettingItemTitleBinding
-import net.ankio.auto.ui.activity.BaseActivity
+import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.ui.utils.ListPopupUtils
 import net.ankio.auto.storage.SpUtils

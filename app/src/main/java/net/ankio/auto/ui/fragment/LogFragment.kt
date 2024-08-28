@@ -16,17 +16,12 @@ package net.ankio.auto.ui.fragment
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.scwang.smart.refresh.footer.ClassicsFooter
-import com.scwang.smart.refresh.header.ClassicsHeader
-import com.scwang.smart.refresh.layout.api.RefreshLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -34,17 +29,18 @@ import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentLogBinding
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.adapter.LogAdapter
+import net.ankio.auto.ui.api.BasePageFragment
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.MenuItem
 import net.ankio.auto.utils.DateUtils
 import org.ezbook.server.db.model.LogModel
 import java.io.File
 
-class LogFragment : BaseFragment() {
+/**
+ * 日志页面
+ */
+class LogFragment : BasePageFragment<LogModel>() {
     private lateinit var binding: FragmentLogBinding
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var adapter: LogAdapter
-    private lateinit var layoutManager: LinearLayoutManager
     override val menuList: ArrayList<MenuItem> =
         arrayListOf(
             MenuItem(R.string.item_share, R.drawable.menu_icon_share) {
@@ -107,42 +103,29 @@ class LogFragment : BaseFragment() {
                     lifecycleScope.launch {
                         LogModel.clear()
                         page = 1
-                        loadData()
+                        loadDataInside()
                     }
                 }.onFailure {
                     Logger.e("清除失败", it)
                 }
             },
         )
-    private var page = 1
-    private val pageSize = 20
-    private val pageData = mutableListOf<LogModel>()
+
 
     /**
-     * 加载数据，如果数据为空或者加载失败返回false
+     * 加载数据
      */
-    private fun loadData(callback: ((Boolean, Boolean) -> Unit)?=null) {
-        if (page == 1) {
-            pageData.clear()
-            adapter.notifyDataSetChanged()
-        }
-        lifecycleScope.launch {
-            LogModel.list(page, pageSize).let { result ->
-                withContext(Dispatchers.Main) {
-                    if (result.isEmpty()) {
-                        callback?.invoke(true, false)
-                        return@withContext
-                    }
-                    pageData.addAll(result)
-                    adapter.notifyItemInserted(pageData.size - pageSize)
-                    if (callback != null) callback(true, result.size >= pageData.size)
-                }
-
+    override suspend fun loadData(callback: (resultData: List<LogModel>) -> Unit) {
+        LogModel.list(page, pageSize).let { result ->
+            withContext(Dispatchers.Main) {
+                callback(result)
             }
         }
-
     }
 
+    /**
+     * 创建视图
+     */
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -150,34 +133,14 @@ class LogFragment : BaseFragment() {
     ): View {
         binding = FragmentLogBinding.inflate(layoutInflater)
         recyclerView = binding.recyclerView
-        layoutManager = LinearLayoutManager(requireContext())
-        recyclerView.layoutManager = layoutManager
-        adapter = LogAdapter(pageData)
-        recyclerView.adapter = adapter
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        recyclerView.adapter = LogAdapter(pageData)
         scrollView = recyclerView
         loadDataEvent(binding.refreshLayout)
         return binding.root
     }
 
-    private fun loadDataEvent(refreshLayout: RefreshLayout) {
-        refreshLayout.setRefreshHeader(ClassicsHeader(requireContext()))
-        refreshLayout.setRefreshFooter(ClassicsFooter(requireContext()))
-        refreshLayout.setOnRefreshListener {
-            page = 1
-            loadData { success, hasMore ->
-                it.finishRefresh(0, success, hasMore) //传入false表示刷新失败
-            }
-        }
-        refreshLayout.setOnLoadMoreListener {
-            page++
-            loadData { success, hasMore ->
-                it.finishLoadMore(0, success, hasMore) //传入false表示加载失败
-            }
-        }
-    }
 
-    override fun onResume() {
-        super.onResume()
-        loadData()
-    }
+
+
 }

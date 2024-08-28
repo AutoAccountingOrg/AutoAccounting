@@ -18,7 +18,7 @@ package net.ankio.auto.setting
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import net.ankio.auto.constant.ItemType
-import net.ankio.auto.ui.activity.BaseActivity
+import net.ankio.auto.ui.api.BaseActivity
 
 data class SettingItem(
     @StringRes val title: Int, // 标题
