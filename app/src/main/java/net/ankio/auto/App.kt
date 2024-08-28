@@ -135,11 +135,6 @@ class App : Application() {
         fun getThemeContext(context: Context): Context {
             return ContextThemeWrapper(context, ThemeEngine.getInstance(context).getTheme())
         }
-
-        fun dp2px(dp: Float): Int {
-            val scale = app.resources.displayMetrics.density
-            return (dp * scale + 0.5f).toInt()
-        }
     }
 
     /**
