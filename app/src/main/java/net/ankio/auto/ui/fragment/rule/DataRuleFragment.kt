@@ -13,8 +13,7 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.ui.fragment.home.rule
-
+package net.ankio.auto.ui.fragment.rule
 
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -82,8 +81,8 @@ class DataRuleFragment: BasePageFragment<RuleModel>()  {
      * 加载数据
      */
     override suspend fun loadData(callback: (resultData: List<RuleModel>) -> Unit) {
-        RuleModel.list(app,type,page,pageSize).let { result ->
-            withContext(Dispatchers.Main){
+        RuleModel.list(app, type, page, pageSize).let { result ->
+            withContext(Dispatchers.Main) {
                 callback(result)
             }
 
@@ -106,7 +105,7 @@ class DataRuleFragment: BasePageFragment<RuleModel>()  {
                     i++
                     val app = App.getAppInfoFromPackageName(key) ?: continue
                     leftList.addMenuItem(
-                        RailMenuItem(i,app[1] as Drawable,app[0] as String)
+                        RailMenuItem(i, app[1] as Drawable, app[0] as String)
                     )
 
                 }
