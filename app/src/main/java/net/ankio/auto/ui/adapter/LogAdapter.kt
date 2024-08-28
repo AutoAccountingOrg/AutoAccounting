@@ -14,6 +14,7 @@
  */
 
 package net.ankio.auto.ui.adapter
+import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterLogBinding
 import net.ankio.auto.ui.api.BaseAdapter
@@ -27,14 +28,37 @@ class LogAdapter(private val list: MutableList<LogModel>): BaseAdapter<AdapterLo
 
     }
 
+    private val cachedApp = HashMap<String,String>()
+
     override fun onBindViewHolder(holder: BaseViewHolder<AdapterLogBinding>, position: Int) {
         val binding = holder.binding
         val it = list[position]
         val level = it.level
-        binding.logDate.text = DateUtils.getTime(it.time)
-        binding.app.text = it.app
-        binding.logFile.text = it.location
-        binding.log.text = it.message
+
+        val sb = StringBuilder()
+        sb.append("[ ")
+        sb.append(DateUtils.getTime(it.time))
+        sb.append(" ] [ ")
+
+
+        var appName = it.app
+
+        if (cachedApp.containsKey(it.app)){
+            appName = cachedApp[it.app]!!
+        }else{
+            val array = App.getAppInfoFromPackageName(it.app)
+            if (array!==null){
+                cachedApp[it.app] = array[0] as String
+                appName = cachedApp[it.app]!!
+            }
+        }
+
+        sb.append(appName)
+        sb.append(" ] [ ")
+        sb.append(it.location)
+        sb.append(" ] ")
+        sb.append(it.message)
+        binding.log.text = sb.toString()
         when (level) {
             LogLevel.DEBUG -> binding.log.setTextColor(holder.context.getColor(R.color.success))
             LogLevel.INFO -> binding.log.setTextColor(holder.context.getColor(R.color.info))
