@@ -14,18 +14,25 @@
  */
 
 package net.ankio.auto.ui.adapter
+import android.view.View
 import net.ankio.auto.databinding.AdapterDataRuleBinding
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
 import org.ezbook.server.db.model.RuleModel
 
-class DataRuleAdapter(list: MutableList<RuleModel>):BaseAdapter<AdapterDataRuleBinding,RuleModel>(AdapterDataRuleBinding::class.java,list) {
+class DataRuleAdapter(private val list: MutableList<RuleModel>):BaseAdapter<AdapterDataRuleBinding,RuleModel>(AdapterDataRuleBinding::class.java,list) {
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterDataRuleBinding>) {
-        TODO("Not yet implemented")
+
     }
 
     override fun onBindViewHolder(holder: BaseViewHolder<AdapterDataRuleBinding>, position: Int) {
-        TODO("Not yet implemented")
+        val item = list[position]
+        val system = item.creator == "system"
+        holder.binding.ruleName.text = item.name
+        holder.binding.type.visibility = if (system) View.VISIBLE else View.GONE
+        holder.binding.deleteData.visibility = if (system) View.GONE else View.VISIBLE
+        holder.binding.editRule.visibility = if (system) View.GONE else View.VISIBLE
+
     }
 
 

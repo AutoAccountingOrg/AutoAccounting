@@ -364,4 +364,5 @@
     <string name="add_rule">新增规则：%s</string>
     <string name="unzip_finish">解压完成</string>
     <string name="unzip">解压：%s</string>
+    <string name="auto_record">自动记录</string>
 </resources>

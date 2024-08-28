@@ -26,53 +26,64 @@
     app:cardBackgroundColor="?attr/colorSurfaceContainer"
     app:cardElevation="0dp">
 
+
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/padding"
         android:orientation="vertical">
 
-        <net.ankio.auto.ui.componets.FlowLayoutManager
-            android:id="@+id/flexboxLayout"
+
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/ruleName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:singleLine="true"
+                android:text="11111111111111111111111111111111111"
+                app:layout_constraintEnd_toStartOf="@+id/autoRecord"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintHorizontal_bias="0.0" />
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/autoRecord"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="false"
+                android:text="@string/auto_record"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="@dimen/padding"
-            app:alignItems="center"
-            app:flexWrap="wrap"
-            app:justifyContent="flex_start">
-
-        </net.ankio.auto.ui.componets.FlowLayoutManager>
-
-
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/padding"
-            android:layout_marginRight="@dimen/padding"
             >
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"/>
 
             <ImageView
                 android:id="@+id/type"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
+                android:layout_gravity="center_horizontal|center_vertical"
                 android:layout_marginEnd="20dp"
-                android:layout_toStartOf="@+id/editRule"
                 android:src="@drawable/icon_auto"
-                android:layout_centerVertical="true"
                 app:tint="?attr/colorPrimary" />
-
-            <Button
-                style="?attr/materialIconButtonFilledStyle"
-                android:id="@+id/deleteData"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-
-                app:icon="@drawable/icon_delete"
-                tools:ignore="RelativeOverlap" />
-
-            <Button
+            <com.google.android.material.button.MaterialButton
 
                 style="?attr/materialIconButtonFilledTonalStyle"
                 app:icon="@drawable/icon_edit"
@@ -80,10 +91,26 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="15dp"
-                android:layout_toStartOf="@+id/deleteData"
 
-                tools:ignore="RelativeOverlap" />
-        </RelativeLayout>
+                />
+            <com.google.android.material.button.MaterialButton
+                style="?attr/materialIconButtonFilledStyle"
+                android:id="@+id/deleteData"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                app:icon="@drawable/icon_delete"
+                   />
+
+
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/enable"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
