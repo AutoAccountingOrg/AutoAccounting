@@ -24,7 +24,6 @@ import android.view.ViewGroup
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.appcompat.content.res.AppCompatResources
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -39,19 +38,19 @@ import net.ankio.auto.common.ActiveInfo
 import net.ankio.auto.common.ServerInfo
 import net.ankio.auto.databinding.AboutDialogBinding
 import net.ankio.auto.databinding.FragmentHomeBinding
+import net.ankio.auto.models.CategoryModel
+import net.ankio.auto.storage.Logger
+import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.ui.dialog.AssetsSelectorDialog
 import net.ankio.auto.ui.dialog.BookInfoDialog
 import net.ankio.auto.ui.dialog.BookSelectorDialog
 import net.ankio.auto.ui.dialog.CategorySelectorDialog
 import net.ankio.auto.ui.dialog.UpdateDialog
 import net.ankio.auto.ui.utils.MenuItem
-import net.ankio.auto.utils.AppUtils
-import net.ankio.auto.utils.CustomTabsHelper
-import net.ankio.auto.storage.Logger
-import net.ankio.auto.storage.SpUtils
-import net.ankio.auto.models.CategoryModel
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.update.RuleUpdate
+import net.ankio.auto.utils.AppUtils
+import net.ankio.auto.utils.CustomTabsHelper
 import rikka.html.text.toHtml
 
 /**
@@ -115,7 +114,7 @@ class HomeFragment : BaseFragment() {
         checkAutoService()
 
         // 检查软件和规则更新
-        checkUpdate()
+        if (!BuildConfig.DEBUG) checkUpdate()
 
         return binding.root
     }
