@@ -15,7 +15,6 @@
 
 package net.ankio.auto.ui.api
 
-import android.util.Log
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.scwang.smart.refresh.footer.ClassicsFooter
