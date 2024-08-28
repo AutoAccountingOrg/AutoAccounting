@@ -15,6 +15,7 @@
 
 package net.ankio.auto.ui.api
 
+import android.util.Log
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.scwang.smart.refresh.footer.ClassicsFooter
@@ -70,7 +71,10 @@ abstract class BasePageFragment<T>: BaseFragment() {
                     }
                     pageData.addAll(resultData)
                     recyclerView.adapter?.notifyItemInserted(pageData.size - pageSize)
-                    if (callback != null) callback(true, resultData.size >= pageData.size)
+
+                    val total = page * pageSize
+
+                    if (callback != null) callback(true, total > pageData.size)
                 }
             }
         }
@@ -85,6 +89,7 @@ abstract class BasePageFragment<T>: BaseFragment() {
         refreshLayout.setOnRefreshListener {
             page = 1
             loadDataInside { success, hasMore ->
+                it.resetNoMoreData()
                 it.finishRefresh(0, success, hasMore) //传入false表示刷新失败
             }
         }
