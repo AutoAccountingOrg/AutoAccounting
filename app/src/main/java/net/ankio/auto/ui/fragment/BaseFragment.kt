@@ -24,6 +24,7 @@ import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.zackratos.ultimatebarx.ultimatebarx.addNavigationBarBottomPadding
+import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.databinding.ActivityMainBinding
 import net.ankio.auto.ui.activity.MainActivity
@@ -105,7 +106,7 @@ abstract class BaseFragment : Fragment() {
             menuItem.setIcon(icon)
             DrawableCompat.setTint(
                 icon,
-                AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorOnBackground),
+                App.getThemeAttrColor(com.google.android.material.R.attr.colorOnBackground),
             )
         }
         menuItem.setOnMenuItemClickListener {

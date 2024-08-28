@@ -18,11 +18,13 @@ package net.ankio.auto.ui.fragment.home.rule
 
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.chip.Chip
 import com.google.android.material.navigationrail.NavigationRailView
@@ -37,6 +39,7 @@ import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentDataRuleBinding
 import net.ankio.auto.ui.adapter.DataRuleAdapter
+import net.ankio.auto.ui.componets.CustomNavigationRail
 import net.ankio.auto.ui.fragment.BaseFragment
 import net.ankio.auto.ui.utils.MenuItem
 import org.ezbook.server.db.model.RuleModel
@@ -65,7 +68,7 @@ class DataRuleFragment: BaseFragment()  {
         //TODO 默认左边选中微信
         //TODO 左侧使用 微信、支付宝、QQ、短信、云闪付、京东、银行卡这样的顺序进行排列，默认为微信
         loadDataEvent(binding.refreshLayout)
-        loadLeftData(binding.navigationRail)
+        loadLeftData(binding.leftList)
         chipEvent()
         recyclerView = binding.recyclerView
         recyclerView.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(requireContext())
@@ -138,30 +141,26 @@ class DataRuleFragment: BaseFragment()  {
 
 
     private var leftData = JsonObject()
-    private fun loadLeftData(navigation: NavigationRailView){
-        val menu = navigation.menu
+    private fun loadLeftData(leftList: CustomNavigationRail){
         //TODO 左侧使用 微信、支付宝、QQ、短信、云闪付、京东、银行卡这样的顺序进行排列，默认为微信
         lifecycleScope.launch {
             RuleModel.apps().let { result ->
                 leftData = result
-                menu.clear()
                 var i = 0
                 for (key in result.keySet()){
-                    i++;
+                    i++
                     val app = App.getAppInfoFromPackageName(key) ?: continue
+                    leftList.addMenuItem(
+                        net.ankio.auto.ui.componets.MenuItem(i,app[1] as Drawable,app[0] as String)
+                    )
 
-                    // 动态添加菜单项
-                    val item1 = menu.add(Menu.NONE,i , Menu.NONE, app[0] as String)
-                    item1.setIcon(app[1] as Drawable)
-                    val badge = navigation.getOrCreateBadge(i)
-                    badge.isVisible = true
-                    badge.number = result.get(key).asInt
                 }
+
             }
         }
 
-        navigation.setOnItemSelectedListener {
-            val id = it.itemId
+        leftList.setOnItemSelectedListener {
+            val id = it.id
             app = leftData.keySet().elementAt(id - 1)
             page = 1
             loadData{ success,hasMore->
@@ -169,7 +168,6 @@ class DataRuleFragment: BaseFragment()  {
                     recyclerView.adapter?.notifyDataSetChanged()
                 }
             }
-            true
         }
     }
 

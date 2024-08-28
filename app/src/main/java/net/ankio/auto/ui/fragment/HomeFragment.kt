@@ -30,6 +30,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.elevation.SurfaceColors
 import com.hjq.toast.Toaster
 import kotlinx.coroutines.launch
+import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.common.AccountingConfig
@@ -185,7 +186,7 @@ class HomeFragment : BaseFragment() {
      */
     private fun bindActiveUI() {
         val colorPrimary =
-            AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorPrimary)
+            App.getThemeAttrColor(com.google.android.material.R.attr.colorPrimary)
 
         if (!ActiveInfo.isModuleActive()) {
             setActive(
@@ -196,7 +197,7 @@ class HomeFragment : BaseFragment() {
         } else {
             setActive(
                 colorPrimary,
-                AppUtils.getThemeAttrColor(
+                App.getThemeAttrColor(
                     com.google.android.material.R.attr.colorOnPrimary,
                 ),
                 R.drawable.home_active_success,
@@ -260,7 +261,7 @@ class HomeFragment : BaseFragment() {
         /**
          * 获取主题Context，部分弹窗样式不含M3主题
          */
-        val themeContext = AppUtils.getThemeContext(requireContext())
+        val themeContext = App.getThemeContext(requireContext())
         binding.bookAppContainer.setOnClickListener {
             CustomTabsHelper.launchUrlOrCopy(requireContext(), getString(R.string.book_app_url))
         }

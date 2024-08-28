@@ -22,10 +22,14 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.content.res.Resources
+import android.graphics.Color
 import android.os.Build
+import androidx.annotation.AttrRes
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.content.res.ResourcesCompat
+import com.google.android.material.color.MaterialColors
 import com.hjq.toast.Toaster
+import com.quickersilver.themeengine.ThemeEngine
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -69,7 +73,7 @@ class App : Application() {
          */
         fun getAppInfoFromPackageName(packageName: String): Array<Any?>? {
             return try {
-                val packageManager: PackageManager = App.app.packageManager
+                val packageManager: PackageManager = app.packageManager
 
                 val appInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     packageManager.getApplicationInfo(packageName, PackageManager.ApplicationInfoFlags.of(0))
@@ -80,8 +84,7 @@ class App : Application() {
                 val appName = packageManager.getApplicationLabel(appInfo).toString()
 
                 val appIcon = try {
-                    val resources: Resources = packageManager.getResourcesForApplication(packageName)
-                    ResourcesCompat.getDrawable(resources, appInfo.icon, App.app.theme)
+                    packageManager.getApplicationIcon(appInfo)
                 } catch (e: PackageManager.NameNotFoundException) {
                     e.printStackTrace()
                     null
@@ -108,6 +111,34 @@ class App : Application() {
          */
         fun runOnUiThread(action: () -> Unit) {
             app.mainExecutor.execute(action)
+        }
+
+        /**
+         * 获取主题色
+         */
+        fun getThemeAttrColor(
+            @AttrRes attrResId: Int,
+        ): Int {
+            return MaterialColors.getColor(
+                ContextThemeWrapper(
+                    app,
+                    ThemeEngine.getInstance(app).getTheme(),
+                ),
+                attrResId,
+                Color.WHITE,
+            )
+        }
+
+        /**
+         * 获取主题Context
+         */
+        fun getThemeContext(context: Context): Context {
+            return ContextThemeWrapper(context, ThemeEngine.getInstance(context).getTheme())
+        }
+
+        fun dp2px(dp: Float): Int {
+            val scale = app.resources.displayMetrics.density
+            return (dp * scale + 0.5f).toInt()
         }
     }
 

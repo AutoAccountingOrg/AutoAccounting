@@ -19,16 +19,22 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".ui.fragment.home.rule.DataRuleFragment">
-    <com.google.android.material.navigationrail.NavigationRailView
-        android:id="@+id/navigation_rail"
-        android:layout_width="wrap_content"
+
+
+    <net.ankio.auto.ui.componets.CustomNavigationRail
+        android:layout_width="100dp"
+        android:paddingTop="40dp"
+        android:paddingBottom="40dp"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
         android:layout_height="match_parent"
-        app:menu="@menu/navigation_rail_menu" />
+        android:id="@+id/leftList"
+        />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginStart="80dp"
+        android:layout_marginStart="100dp"
         android:orientation="vertical">
 
         <com.google.android.material.chip.ChipGroup

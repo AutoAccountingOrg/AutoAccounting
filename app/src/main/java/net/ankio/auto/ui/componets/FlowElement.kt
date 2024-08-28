@@ -22,6 +22,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.size
+import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.utils.AppUtils
 
@@ -149,7 +150,7 @@ class FlowElement(
         waveTextView.setTextAppearance(flowLayoutManager.textAppearance)
         waveTextView.setPadding(0, 0, 0, 0)
         val color =
-            AppUtils.getThemeAttrColor(
+            App.getThemeAttrColor(
                 com.google.android.material.R.attr.colorPrimary,
             )
         waveTextView.setTextColor(color)
@@ -198,7 +199,7 @@ class FlowElement(
         textView.gravity = Gravity.CENTER
         textView.setTextAppearance(flowLayoutManager.textAppearance)
         textView.setTextColor(
-            AppUtils.getThemeAttrColor(
+            App.getThemeAttrColor(
                 com.google.android.material.R.attr.colorOnSecondaryFixed,
             ),
         )

@@ -33,6 +33,7 @@ import com.zackratos.ultimatebarx.ultimatebarx.statusBar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import net.ankio.auto.App
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.LanguageUtils
 
@@ -95,7 +96,7 @@ open class BaseActivity : AppCompatActivity() {
     fun getThemeAttrColor(
         @AttrRes attrResId: Int,
     ): Int {
-        return AppUtils.getThemeAttrColor(attrResId)
+        return App.getThemeAttrColor(attrResId)
     }
 
     /**

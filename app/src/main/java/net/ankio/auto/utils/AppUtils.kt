@@ -97,28 +97,7 @@ object AppUtils {
         clipboard.setPrimaryClip(clip)
     }
 
-    /**
-     * 获取主题色
-     */
-    fun getThemeAttrColor(
-        @AttrRes attrResId: Int,
-    ): Int {
-        return MaterialColors.getColor(
-            ContextThemeWrapper(
-                App.app,
-                ThemeEngine.getInstance(App.app).getTheme(),
-            ),
-            attrResId,
-            Color.WHITE,
-        )
-    }
 
-    /**
-     * 获取主题Context
-     */
-    fun getThemeContext(context: Context): Context {
-        return ContextThemeWrapper(context, ThemeEngine.getInstance(context).getTheme())
-    }
 
     fun getVersionCode(): Int {
         return BuildConfig.VERSION_CODE
