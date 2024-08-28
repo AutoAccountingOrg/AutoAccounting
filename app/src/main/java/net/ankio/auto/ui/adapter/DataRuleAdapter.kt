@@ -22,7 +22,7 @@ import org.ezbook.server.db.model.RuleModel
 
 class DataRuleAdapter(private val list: MutableList<RuleModel>):BaseAdapter<AdapterDataRuleBinding,RuleModel>(AdapterDataRuleBinding::class.java,list) {
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterDataRuleBinding>) {
-
+        // TODO 等UI确定后再写
     }
 
     override fun onBindViewHolder(holder: BaseViewHolder<AdapterDataRuleBinding>, position: Int) {
