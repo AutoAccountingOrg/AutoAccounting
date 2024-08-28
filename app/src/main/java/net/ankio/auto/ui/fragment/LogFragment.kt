@@ -16,6 +16,7 @@ package net.ankio.auto.ui.fragment
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -35,7 +36,6 @@ import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.adapter.LogAdapter
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.MenuItem
-import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.DateUtils
 import org.ezbook.server.db.model.LogModel
 import java.io.File
@@ -56,19 +56,19 @@ class LogFragment : BaseFragment() {
                         val cacheDir = requireContext().cacheDir
                         val file = File(cacheDir, "/log.txt")
 
-                            if (file.exists()) {
-                                file.delete()
-                            }
-                            file.createNewFile()
+                        if (file.exists()) {
+                            file.delete()
+                        }
+                        file.createNewFile()
 
-                            //循环10页日志，每页100条
-                            for (i in 1..10) {
-                                LogModel.list(i, 100).let { list ->
-                                    file.appendText(list.joinToString("\n") {
-                                        "[${DateUtils.getTime(it.time)}] [ ${it.app} ] [ ${it.location} ] [ ${it.level} ] ${it.message}"
-                                    })
-                                }
+                        //循环10页日志，每页100条
+                        for (i in 1..10) {
+                            LogModel.list(i, 100).let { list ->
+                                file.appendText(list.joinToString("\n") {
+                                    "[${DateUtils.getTime(it.time)}] [ ${it.app} ] [ ${it.location} ] [ ${it.level} ] ${it.message}"
+                                })
                             }
+                        }
 
 
 
@@ -105,13 +105,9 @@ class LogFragment : BaseFragment() {
             MenuItem(R.string.item_clear, R.drawable.menu_icon_clear) {
                 runCatching {
                     lifecycleScope.launch {
-                      LogModel.clear()
+                        LogModel.clear()
                         page = 1
-                        loadData { success, hasMore ->
-                            if (success) {
-                                adapter.notifyDataSetChanged()
-                            }
-                        }
+                        loadData()
                     }
                 }.onFailure {
                     Logger.e("清除失败", it)
@@ -121,30 +117,32 @@ class LogFragment : BaseFragment() {
     private var page = 1
     private val pageSize = 20
     private val pageData = mutableListOf<LogModel>()
+
     /**
      * 加载数据，如果数据为空或者加载失败返回false
      */
-    private  fun loadData(callback:(Boolean, Boolean)->Unit){
+    private fun loadData(callback: ((Boolean, Boolean) -> Unit)?=null) {
+        if (page == 1) {
+            pageData.clear()
+            adapter.notifyDataSetChanged()
+        }
         lifecycleScope.launch {
-            LogModel.list(page,pageSize).let { result ->
-
-                withContext(Dispatchers.Main){
-                    if (result.isEmpty()){
-                        callback(false,false)
-                    }else{
-                        callback(true,result.size == pageSize)
-                    }
-
-                    if (page == 1){
-                        pageData.clear()
+            LogModel.list(page, pageSize).let { result ->
+                withContext(Dispatchers.Main) {
+                    if (result.isEmpty()) {
+                        callback?.invoke(true, false)
+                        return@withContext
                     }
                     pageData.addAll(result)
+                    adapter.notifyItemInserted(pageData.size - pageSize)
+                    if (callback != null) callback(true, result.size >= pageData.size)
                 }
 
             }
         }
 
     }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -161,38 +159,25 @@ class LogFragment : BaseFragment() {
         return binding.root
     }
 
-    private fun loadDataEvent(refreshLayout: RefreshLayout){
-
+    private fun loadDataEvent(refreshLayout: RefreshLayout) {
         refreshLayout.setRefreshHeader(ClassicsHeader(requireContext()))
         refreshLayout.setRefreshFooter(ClassicsFooter(requireContext()))
         refreshLayout.setOnRefreshListener {
             page = 1
-            loadData{ success,hasMore->
-                it.finishRefresh(2000,success,hasMore) //传入false表示刷新失败
-                recyclerView.adapter?.notifyDataSetChanged()
+            loadData { success, hasMore ->
+                it.finishRefresh(0, success, hasMore) //传入false表示刷新失败
             }
         }
         refreshLayout.setOnLoadMoreListener {
             page++
-            loadData{ success,hasMore->
-                if (!success){
-                    page--
-                }
-                it.finishLoadMore(2000,success,hasMore) //传入false表示加载失败
-                if (success){
-                    recyclerView.adapter?.notifyItemRangeInserted(pageData.size - pageSize,pageSize)
-                }
-
+            loadData { success, hasMore ->
+                it.finishLoadMore(0, success, hasMore) //传入false表示加载失败
             }
         }
     }
 
     override fun onResume() {
         super.onResume()
-        loadData { success, hasMore ->
-            if (success) {
-                adapter.notifyDataSetChanged()
-            }
-        }
+        loadData()
     }
 }
