@@ -19,7 +19,7 @@ package net.ankio.auto.ui.adapter
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterMapBinding
-import net.ankio.auto.utils.ImageUtils
+import net.ankio.auto.storage.ImageUtils
 import net.ankio.auto.utils.server.model.Assets
 import net.ankio.auto.utils.server.model.AssetsMap
 

@@ -40,8 +40,7 @@ import net.ankio.auto.constant.FloatEvent
 import net.ankio.auto.databinding.FloatTipBinding
 import net.ankio.auto.models.BillInfoModel
 import net.ankio.auto.utils.AppUtils
-import net.ankio.auto.utils.FloatPermissionUtils
-import net.ankio.auto.utils.Logger
+import net.ankio.auto.storage.Logger
 import net.ankio.auto.storage.SpUtils
 import kotlin.system.exitProcess
 
@@ -106,7 +105,6 @@ class FloatingWindowService : Service() {
         if (it is BadTokenException) {
             if (it.message != null && it.message!!.contains("permission denied")) {
                 Toaster.show(R.string.floatTip)
-                FloatPermissionUtils.requestPermission(themedContext)
                 exitProcess(0)
             }
         }

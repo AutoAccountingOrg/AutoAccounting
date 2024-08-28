@@ -15,6 +15,7 @@
 
 package net.ankio.auto.ui.dialog
 
+//import net.ankio.auto.ui.adapter.BillSelectorAdapter
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
@@ -25,10 +26,8 @@ import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogBillSelectBinding
 import net.ankio.auto.exceptions.AutoServiceException
-//import net.ankio.auto.ui.adapter.BillSelectorAdapter
-import net.ankio.auto.utils.Logger
-import net.ankio.auto.utils.event.EventBus
 import net.ankio.auto.models.BookBillModel
+import net.ankio.auto.storage.Logger
 import net.ankio.common.constant.BillType
 
 class BillSelectorDialog(

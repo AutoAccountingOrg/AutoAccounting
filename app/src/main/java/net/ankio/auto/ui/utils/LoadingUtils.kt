@@ -20,7 +20,7 @@ import android.app.Dialog
 import android.view.View
 import androidx.annotation.StringRes
 import net.ankio.auto.databinding.DialogLoadingBinding
-import net.ankio.auto.utils.Logger
+import net.ankio.auto.storage.Logger
 
 class LoadingUtils(private val activity: Activity) {
     private lateinit var dialog: Dialog

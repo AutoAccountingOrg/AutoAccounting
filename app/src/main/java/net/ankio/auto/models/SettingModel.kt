@@ -15,10 +15,8 @@
 
 package net.ankio.auto.models
 
-import com.google.gson.JsonPrimitive
 import kotlinx.coroutines.launch
 import net.ankio.auto.utils.AppUtils
-import net.ankio.auto.utils.Logger
 
 class SettingModel {
     var id  = 0

@@ -16,9 +16,6 @@
 package net.ankio.auto.models
 
 import com.google.gson.Gson
-import com.google.gson.JsonArray
-import net.ankio.auto.utils.AppUtils
-import net.ankio.auto.utils.Logger
 
 class BookBillModel {
     var id: Int? = null

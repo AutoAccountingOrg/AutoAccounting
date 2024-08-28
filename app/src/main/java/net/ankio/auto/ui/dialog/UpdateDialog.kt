@@ -17,26 +17,11 @@ package net.ankio.auto.ui.dialog
 
 import android.app.Activity
 import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.net.Uri
-import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.broadcast.LocalBroadcastHelper
 import net.ankio.auto.databinding.DialogUpdateBinding
-import net.ankio.auto.exceptions.AutoServiceException
-import net.ankio.auto.ui.utils.LoadingUtils
-import net.ankio.auto.utils.Logger
-import net.ankio.auto.storage.SpUtils
-import net.ankio.auto.request.RequestsUtils
-import net.ankio.auto.models.SettingModel
 import net.ankio.auto.update.BaseUpdate
 import net.ankio.auto.update.RuleUpdate
 import rikka.html.text.toHtml

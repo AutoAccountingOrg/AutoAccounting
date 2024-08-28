@@ -1,6 +1,5 @@
 package net.ankio.auto.storage
 
-import net.ankio.auto.utils.Logger
 import java.io.*
 import java.nio.charset.Charset
 import java.util.zip.ZipEntry

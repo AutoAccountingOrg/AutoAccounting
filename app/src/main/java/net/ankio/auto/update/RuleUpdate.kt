@@ -19,7 +19,6 @@ import android.app.Activity
 import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.JsonArray
-import com.google.gson.JsonObject
 import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
@@ -28,7 +27,7 @@ import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.storage.ZipUtils
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.ToastUtils
-import net.ankio.auto.utils.Logger
+import net.ankio.auto.storage.Logger
 import org.ezbook.server.db.model.RuleModel
 import org.ezbook.server.db.model.SettingModel
 

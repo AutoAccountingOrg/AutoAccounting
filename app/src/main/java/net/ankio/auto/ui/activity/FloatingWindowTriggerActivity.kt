@@ -19,7 +19,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import net.ankio.auto.service.FloatingWindowService
-import net.ankio.auto.utils.Logger
+import net.ankio.auto.storage.Logger
 
 class FloatingWindowTriggerActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

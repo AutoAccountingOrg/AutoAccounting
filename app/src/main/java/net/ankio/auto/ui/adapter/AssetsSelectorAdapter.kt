@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterAssetsBinding
 import net.ankio.auto.ui.viewModes.BaseViewModel
-import net.ankio.auto.utils.ImageUtils
+import net.ankio.auto.storage.ImageUtils
 import net.ankio.auto.utils.server.model.Assets
 
 class AssetsSelectorAdapter(

@@ -34,7 +34,7 @@ import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.MenuItem
 import net.ankio.auto.ui.viewModes.LogViewModel
 import net.ankio.auto.utils.AppUtils
-import net.ankio.auto.utils.Logger
+import net.ankio.auto.storage.Logger
 import net.ankio.auto.models.LogModel
 import java.io.File
 

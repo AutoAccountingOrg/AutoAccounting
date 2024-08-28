@@ -16,12 +16,8 @@ package net.ankio.auto.models
 
 import android.content.Context
 import android.graphics.drawable.Drawable
-import com.google.gson.Gson
-import com.google.gson.JsonArray
-import com.google.gson.JsonObject
 import net.ankio.auto.R
-import net.ankio.auto.utils.AppUtils
-import net.ankio.auto.utils.ImageUtils
+import net.ankio.auto.storage.ImageUtils
 
 class CategoryModel {
     var id = 0

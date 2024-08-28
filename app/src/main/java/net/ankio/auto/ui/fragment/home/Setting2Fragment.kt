@@ -33,16 +33,15 @@ import net.ankio.auto.databinding.FragmentSetting2Binding
 import net.ankio.auto.exceptions.PermissionException
 import net.ankio.auto.setting.SettingItem
 import net.ankio.auto.setting.SettingUtils
+import net.ankio.auto.storage.BackupUtils
+import net.ankio.auto.storage.Logger
+import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.ui.activity.BaseActivity
 import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.fragment.BaseFragment
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.utils.AppUtils
-import net.ankio.auto.utils.BackupUtils
 import net.ankio.auto.utils.LanguageUtils
-import net.ankio.auto.utils.Logger
-import net.ankio.auto.storage.SpUtils
-import net.ankio.auto.utils.update.UpdateUtils
 
 class Setting2Fragment : BaseFragment() {
     private lateinit var binding: FragmentSetting2Binding
@@ -324,10 +323,10 @@ class Setting2Fragment : BaseFragment() {
                 title = R.string.app_url,
                 type = ItemType.INPUT,
                 onGetKeyValue = {
-                    UpdateUtils.getUrl()
+                  //  UpdateUtils.getUrl()
                 },
                 onSavedValue = { value, activity ->
-                    UpdateUtils.setUrl(value as String)
+                  //  UpdateUtils.setUrl(value as String)
                 },
             ),
             SettingItem(

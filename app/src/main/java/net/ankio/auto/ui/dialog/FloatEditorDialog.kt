@@ -38,8 +38,8 @@ import net.ankio.auto.databinding.FloatEditorBinding
 import net.ankio.auto.exceptions.AutoServiceException
 import net.ankio.auto.ui.componets.IconView
 import net.ankio.auto.utils.DateUtils
-import net.ankio.auto.utils.ListPopupUtils
-import net.ankio.auto.utils.Logger
+import net.ankio.auto.ui.utils.ListPopupUtils
+import net.ankio.auto.storage.Logger
 import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.models.AssetsModel
 import net.ankio.auto.models.AssetsMapModel

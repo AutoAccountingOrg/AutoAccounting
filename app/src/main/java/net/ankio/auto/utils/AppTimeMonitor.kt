@@ -15,6 +15,8 @@
 
 package net.ankio.auto.utils
 
+import net.ankio.auto.storage.Logger
+
 object AppTimeMonitor {
     private var isDebugMode = AppUtils.getDebug()
 

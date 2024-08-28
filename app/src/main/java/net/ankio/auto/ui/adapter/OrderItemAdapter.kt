@@ -29,7 +29,7 @@ import net.ankio.auto.databinding.AdapterOrderItemBinding
 import net.ankio.auto.ui.dialog.FloatEditorDialog
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.DateUtils
-import net.ankio.auto.utils.Logger
+import net.ankio.auto.storage.Logger
 import net.ankio.auto.utils.server.model.Assets
 import net.ankio.auto.utils.server.model.BillInfo
 import net.ankio.auto.utils.server.model.BookName

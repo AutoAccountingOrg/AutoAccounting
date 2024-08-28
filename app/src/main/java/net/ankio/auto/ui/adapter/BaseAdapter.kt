@@ -21,7 +21,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import net.ankio.auto.models.BaseModel
 import net.ankio.auto.ui.viewModes.BaseViewModel
-import net.ankio.auto.utils.Logger
+import net.ankio.auto.storage.Logger
 
 abstract class BaseAdapter< T:ViewBinding, E: BaseModel>(private val viewModel: BaseViewModel<out BaseModel>) : RecyclerView.Adapter<BaseViewHolder<T,E>>() {
 

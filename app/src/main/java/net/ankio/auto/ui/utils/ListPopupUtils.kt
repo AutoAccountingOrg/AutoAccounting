@@ -13,7 +13,7 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.utils
+package net.ankio.auto.ui.utils
 
 import android.content.Context
 import android.view.View

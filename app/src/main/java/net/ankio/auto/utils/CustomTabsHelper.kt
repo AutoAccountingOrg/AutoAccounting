@@ -8,6 +8,7 @@ import android.net.Uri
 import androidx.browser.customtabs.CustomTabsIntent
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import net.ankio.auto.R
+import net.ankio.auto.storage.Logger
 import rikka.html.text.HtmlCompat
 
 /**

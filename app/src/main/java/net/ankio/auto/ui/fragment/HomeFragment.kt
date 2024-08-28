@@ -28,7 +28,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.elevation.SurfaceColors
-import com.hjq.toast.Toaster
 import kotlinx.coroutines.launch
 import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
@@ -46,12 +45,11 @@ import net.ankio.auto.ui.dialog.UpdateDialog
 import net.ankio.auto.ui.utils.MenuItem
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.CustomTabsHelper
-import net.ankio.auto.utils.Logger
+import net.ankio.auto.storage.Logger
 import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.models.CategoryModel
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.update.RuleUpdate
-import net.ankio.auto.utils.update.UpdateUtils
 import rikka.html.text.toHtml
 
 /**

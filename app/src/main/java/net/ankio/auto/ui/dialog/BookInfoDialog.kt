@@ -22,7 +22,7 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogBookInfoBinding
-import net.ankio.auto.utils.ImageUtils
+import net.ankio.auto.storage.ImageUtils
 import net.ankio.auto.models.BookNameModel
 import net.ankio.common.constant.BillType
 

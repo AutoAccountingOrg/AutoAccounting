@@ -15,13 +15,10 @@
 
 package net.ankio.auto.app.js
 
-import com.google.gson.Gson
-import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.ankio.auto.utils.AppTimeMonitor
-import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.models.BillInfoModel
+import net.ankio.auto.utils.AppTimeMonitor
 
 object Engine {
     suspend fun analyze(

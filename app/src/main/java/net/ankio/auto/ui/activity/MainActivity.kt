@@ -31,7 +31,7 @@ import com.zackratos.ultimatebarx.ultimatebarx.addNavigationBarBottomPadding
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.ActivityMainBinding
-import net.ankio.auto.utils.BackupUtils
+import net.ankio.auto.storage.BackupUtils
 import net.ankio.auto.utils.Github
 
 class MainActivity : BaseActivity() {

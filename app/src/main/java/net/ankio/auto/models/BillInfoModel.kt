@@ -15,10 +15,6 @@
 package net.ankio.auto.models
 
 import com.google.gson.Gson
-import com.google.gson.JsonArray
-import com.google.gson.JsonPrimitive
-import net.ankio.auto.utils.AppUtils
-import net.ankio.auto.utils.Logger
 
 class BillInfoModel {
     // 账单列表

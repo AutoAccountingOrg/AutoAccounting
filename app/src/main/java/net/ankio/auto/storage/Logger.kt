@@ -13,7 +13,7 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.utils
+package net.ankio.auto.storage
 
 import android.util.Log
 import net.ankio.auto.App

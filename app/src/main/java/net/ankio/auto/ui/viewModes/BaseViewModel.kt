@@ -22,7 +22,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.ankio.auto.models.BaseModel
-import net.ankio.auto.utils.Logger
+import net.ankio.auto.storage.Logger
 
 abstract class BaseViewModel<T : BaseModel> : ViewModel() {
     private val _dataList = MutableLiveData<MutableList<T>>(mutableListOf())

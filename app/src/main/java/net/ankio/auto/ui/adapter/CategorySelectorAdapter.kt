@@ -30,7 +30,7 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterCategoryListBinding
 import net.ankio.auto.utils.AppUtils
-import net.ankio.auto.utils.ImageUtils
+import net.ankio.auto.storage.ImageUtils
 import net.ankio.auto.utils.server.model.Category
 
 */

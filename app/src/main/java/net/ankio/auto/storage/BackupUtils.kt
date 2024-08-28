@@ -13,7 +13,7 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.utils
+package net.ankio.auto.storage
 
 import android.content.ContentResolver
 import android.content.Context
@@ -34,11 +34,11 @@ import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.exceptions.PermissionException
 import net.ankio.auto.exceptions.RestoreBackupException
-import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.ui.activity.BaseActivity
 import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.request.RequestsUtils
+import net.ankio.auto.utils.AppUtils
 import okhttp3.Credentials
 import java.io.File
 import java.io.FileInputStream
