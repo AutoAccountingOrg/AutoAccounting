@@ -97,7 +97,7 @@ class EditFragment : BaseFragment() {
             return
         }
         // 最后一个是数据
-        val lastElement = list!!.removeLast()
+        val lastElement = list.removeLast()
         // fix #7 因为存储的时候使用的是hashmap<String,Any>，反向识别的时候可能会将Int类型识别为Double
         book =
             if (lastElement["id"] is Int) {
@@ -122,7 +122,7 @@ class EditFragment : BaseFragment() {
                     showSelectType(flexboxLayout, view, it2)
                 }
             })
-        for (hashMap in list!!) {
+        for (hashMap in list) {
             flexboxLayout.appendWaveTextview(
                 hashMap["text"] as String,
                 connector = hashMap.containsKey("jsPre"),

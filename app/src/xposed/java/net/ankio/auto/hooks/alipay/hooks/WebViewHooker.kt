@@ -119,8 +119,8 @@ class WebViewHooker : PartHooker {
             object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam) {
                     // 在方法执行前拦截
-                    val obj = param.args[0]; // 第一个参数是Object obj
-                    val str = param.args[1] as String; // 第二个参数是String str
+                    val obj = param.args[0] // 第一个参数是Object obj
+                    val str = param.args[1] as String // 第二个参数是String str
                     // 可以在这里修改参数或者进行其他操作
                     hookerManifest.logD("加载obj: $obj  加载名称：$str")
                 }

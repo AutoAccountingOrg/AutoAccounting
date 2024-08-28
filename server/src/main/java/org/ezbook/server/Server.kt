@@ -43,8 +43,8 @@ class Server(context:Context) {
      * 启动服务
      */
     fun startServer(){
-        server.start(SOCKET_READ_TIMEOUT, false);
-        println("Server started on port 52045");
+        server.start(SOCKET_READ_TIMEOUT, false)
+        println("Server started on port 52045")
     }
 
     fun stopServer(){
@@ -54,7 +54,7 @@ class Server(context:Context) {
 
     companion object {
 
-        public val versionCode = 1;
+        val versionCode = 1
 
         fun reqData(session:NanoHTTPD.IHTTPSession): String {
             val contentLength: Int = session.headers["content-length"]?.toInt() ?: 0
@@ -66,7 +66,7 @@ class Server(context:Context) {
         }
 
         fun json(code:Int = 200,msg:String = "OK",data:Any? = null,count:Int = 0): NanoHTTPD.Response {
-            val jsonObject = JsonObject();
+            val jsonObject = JsonObject()
             jsonObject.addProperty("code", code)
             jsonObject.addProperty("msg", msg)
             jsonObject.addProperty("count", count)
