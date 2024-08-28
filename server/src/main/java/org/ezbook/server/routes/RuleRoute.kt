@@ -15,7 +15,6 @@
 
 package org.ezbook.server.routes
 
-import android.util.Log
 import com.google.gson.Gson
 import fi.iki.elonen.NanoHTTPD
 import org.ezbook.server.Server
@@ -34,15 +33,16 @@ class RuleRoute(private val session: NanoHTTPD.IHTTPSession) {
         val app = params["app"]?.firstOrNull() ?: ""
         val type = params["type"]?.firstOrNull() ?: ""
 
+
         val offset = (page - 1) * limit
 
-        val logs = if (type === "") {
+        val logs = if (type.isEmpty()) {
             Db.get().ruleDao().loadByAppAndType(limit, offset,app)
         } else {
             Db.get().ruleDao().loadByAppAndType(limit, offset,app,type)
         }
 
-        val total = if (type === "") {
+        val total = if (type.isEmpty()) {
             Db.get().ruleDao().count(app)
         } else {
             Db.get().ruleDao().count(app,type)

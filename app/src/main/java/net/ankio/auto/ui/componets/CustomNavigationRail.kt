@@ -36,7 +36,9 @@ class CustomNavigationRail @JvmOverloads constructor(
 
     private val menuItems = mutableListOf<MenuItem>()
     private var onItemSelectedListener: ((MenuItem) -> Unit)? = null
-
+    fun triggerFirstItem() {
+        getChildAt(0).performClick()
+    }
     fun addMenuItem(menuItem: MenuItem) {
         menuItems.add(menuItem)
         val view = LayoutInflater.from(context).inflate(R.layout.custom_navigation_rail_item, this, false)

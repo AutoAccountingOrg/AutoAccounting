@@ -18,16 +18,11 @@ package net.ankio.auto.ui.fragment.home.rule
 
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
-import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.chip.Chip
-import com.google.android.material.navigationrail.NavigationRailView
 import com.google.gson.JsonObject
 import com.scwang.smart.refresh.footer.ClassicsFooter
 import com.scwang.smart.refresh.header.ClassicsHeader
@@ -89,6 +84,7 @@ class DataRuleFragment: BaseFragment()  {
      private  fun loadData(callback:(Boolean, Boolean)->Unit){
          lifecycleScope.launch {
              RuleModel.list(app,type,page,pageSize).let { result ->
+
                  withContext(Dispatchers.Main){
                      if (result.isEmpty()){
                          callback(false,false)
@@ -142,7 +138,6 @@ class DataRuleFragment: BaseFragment()  {
 
     private var leftData = JsonObject()
     private fun loadLeftData(leftList: CustomNavigationRail){
-        //TODO 左侧使用 微信、支付宝、QQ、短信、云闪付、京东、银行卡这样的顺序进行排列，默认为微信
         lifecycleScope.launch {
             RuleModel.apps().let { result ->
                 leftData = result
@@ -155,7 +150,7 @@ class DataRuleFragment: BaseFragment()  {
                     )
 
                 }
-
+                leftList.triggerFirstItem()
             }
         }
 
