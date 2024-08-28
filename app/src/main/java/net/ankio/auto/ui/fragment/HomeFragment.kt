@@ -15,6 +15,7 @@
 
 package net.ankio.auto.ui.fragment
 
+import android.content.BroadcastReceiver
 import android.os.Bundle
 import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
@@ -32,6 +33,7 @@ import kotlinx.coroutines.launch
 import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
+import net.ankio.auto.broadcast.LocalBroadcastHelper
 import net.ankio.auto.common.AccountingConfig
 import net.ankio.auto.common.ActiveInfo
 import net.ankio.auto.common.ServerInfo
@@ -236,8 +238,14 @@ class HomeFragment : BaseFragment() {
 
     }
 
+    lateinit var broadcastReceiver: BroadcastReceiver
 
     private fun bindRuleEvents() {
+
+        broadcastReceiver = LocalBroadcastHelper.registerReceiver(LocalBroadcastHelper.ACTION_UPDATE_FINISH) {a,b->
+            refreshUI()
+        }
+
         binding.customCategory.setOnClickListener {
             findNavController().navigate(R.id.ruleFragment)
         }
@@ -265,8 +273,13 @@ class HomeFragment : BaseFragment() {
 
 
 
+
+
     override fun onDestroy() {
         super.onDestroy()
+        if (this::broadcastReceiver.isInitialized) {
+            LocalBroadcastHelper.unregisterReceiver(broadcastReceiver)
+        }
     }
 
     /**
