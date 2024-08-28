@@ -18,7 +18,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".ui.fragment.home.rule.DataRuleFragment">
+    tools:context=".ui.fragment.rule.DataRuleFragment">
 
 
     <net.ankio.auto.ui.componets.CustomNavigationRail

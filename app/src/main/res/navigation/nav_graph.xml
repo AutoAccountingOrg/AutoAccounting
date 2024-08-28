@@ -104,7 +104,7 @@
 
     <fragment
         android:id="@+id/dataRuleFragment"
-        android:name="net.ankio.auto.ui.fragment.home.rule.DataRuleFragment"
+        android:name="net.ankio.auto.ui.fragment.rule.DataRuleFragment"
         android:label="@string/title_data_rule"
         tools:layout="@layout/fragment_data_rule">
     </fragment>
