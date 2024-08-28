@@ -20,22 +20,24 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.FileProvider
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.scwang.smart.refresh.footer.ClassicsFooter
+import com.scwang.smart.refresh.header.ClassicsHeader
+import com.scwang.smart.refresh.layout.api.RefreshLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentLogBinding
+import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.adapter.LogAdapter
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.MenuItem
-import net.ankio.auto.ui.viewModes.LogViewModel
 import net.ankio.auto.utils.AppUtils
-import net.ankio.auto.storage.Logger
-import net.ankio.auto.models.LogModel
+import net.ankio.auto.utils.DateUtils
+import org.ezbook.server.db.model.LogModel
 import java.io.File
 
 class LogFragment : BaseFragment() {
@@ -43,8 +45,6 @@ class LogFragment : BaseFragment() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: LogAdapter
     private lateinit var layoutManager: LinearLayoutManager
-    private val dataItems = ArrayList<LogModel>()
-    private val viewModel: LogViewModel by viewModels()
     override val menuList: ArrayList<MenuItem> =
         arrayListOf(
             MenuItem(R.string.item_share, R.drawable.menu_icon_share) {
@@ -53,16 +53,26 @@ class LogFragment : BaseFragment() {
                     loadingUtils.show(R.string.loading_logs)
 
                     lifecycleScope.launch {
-                        val cacheDir = AppUtils.getApplication().externalCacheDir
-                        val file = File(cacheDir, "/shell/log.txt")
-                        withContext(Dispatchers.IO) {
+                        val cacheDir = requireContext().cacheDir
+                        val file = File(cacheDir, "/log.txt")
 
                             if (file.exists()) {
                                 file.delete()
                             }
                             file.createNewFile()
 
-                        }
+                            //循环10页日志，每页100条
+                            for (i in 1..10) {
+                                LogModel.list(i, 100).let { list ->
+                                    file.appendText(list.joinToString("\n") {
+                                        "[${DateUtils.getTime(it.time)}] [ ${it.app} ] [ ${it.location} ] [ ${it.level} ] ${it.message}"
+                                    })
+                                }
+                            }
+
+
+
+
                         loadingUtils.close()
                         val shareIntent = Intent(Intent.ACTION_SEND)
                         // 设置分享类型为文件
@@ -95,14 +105,46 @@ class LogFragment : BaseFragment() {
             MenuItem(R.string.item_clear, R.drawable.menu_icon_clear) {
                 runCatching {
                     lifecycleScope.launch {
-                       /* LogModel.deleteAll()*/
+                      LogModel.clear()
+                        page = 1
+                        loadData { success, hasMore ->
+                            if (success) {
+                                adapter.notifyDataSetChanged()
+                            }
+                        }
                     }
                 }.onFailure {
                     Logger.e("清除失败", it)
                 }
             },
         )
+    private var page = 1
+    private val pageSize = 20
+    private val pageData = mutableListOf<LogModel>()
+    /**
+     * 加载数据，如果数据为空或者加载失败返回false
+     */
+    private  fun loadData(callback:(Boolean, Boolean)->Unit){
+        lifecycleScope.launch {
+            LogModel.list(page,pageSize).let { result ->
 
+                withContext(Dispatchers.Main){
+                    if (result.isEmpty()){
+                        callback(false,false)
+                    }else{
+                        callback(true,result.size == pageSize)
+                    }
+
+                    if (page == 1){
+                        pageData.clear()
+                    }
+                    pageData.addAll(result)
+                }
+
+            }
+        }
+
+    }
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -112,14 +154,45 @@ class LogFragment : BaseFragment() {
         recyclerView = binding.recyclerView
         layoutManager = LinearLayoutManager(requireContext())
         recyclerView.layoutManager = layoutManager
-        adapter = LogAdapter(viewModel)
+        adapter = LogAdapter(pageData)
         recyclerView.adapter = adapter
         scrollView = recyclerView
-        viewModel.loadMoreData()
+        loadDataEvent(binding.refreshLayout)
         return binding.root
+    }
+
+    private fun loadDataEvent(refreshLayout: RefreshLayout){
+
+        refreshLayout.setRefreshHeader(ClassicsHeader(requireContext()))
+        refreshLayout.setRefreshFooter(ClassicsFooter(requireContext()))
+        refreshLayout.setOnRefreshListener {
+            page = 1
+            loadData{ success,hasMore->
+                it.finishRefresh(2000,success,hasMore) //传入false表示刷新失败
+                recyclerView.adapter?.notifyDataSetChanged()
+            }
+        }
+        refreshLayout.setOnLoadMoreListener {
+            page++
+            loadData{ success,hasMore->
+                if (!success){
+                    page--
+                }
+                it.finishLoadMore(2000,success,hasMore) //传入false表示加载失败
+                if (success){
+                    recyclerView.adapter?.notifyItemRangeInserted(pageData.size - pageSize,pageSize)
+                }
+
+            }
+        }
     }
 
     override fun onResume() {
         super.onResume()
+        loadData { success, hasMore ->
+            if (success) {
+                adapter.notifyDataSetChanged()
+            }
+        }
     }
 }

@@ -14,48 +14,34 @@
  */
 
 package net.ankio.auto.ui.adapter
-
-import com.hjq.toast.Toaster
 import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterLogBinding
-import net.ankio.auto.ui.viewModes.LogViewModel
-import net.ankio.auto.utils.AppUtils
-import net.ankio.auto.models.LogModel
+import net.ankio.auto.ui.api.BaseAdapter
+import net.ankio.auto.ui.api.BaseViewHolder
+import net.ankio.auto.utils.DateUtils
+import org.ezbook.server.constant.LogLevel
+import org.ezbook.server.db.model.LogModel
 
-class LogAdapter(
-    private val viewModel: LogViewModel,
-) : BaseAdapter<AdapterLogBinding, LogModel>(viewModel) {
-    override fun onInitView(holder: BaseViewHolder<AdapterLogBinding, LogModel>) {
-        val binding = holder.binding as AdapterLogBinding
-        binding.log.setOnClickListener {
-            AppUtils.copyToClipboard( binding.log.text.toString())
-            Toaster.show(R.string.copy_command_success)
-        }
+class LogAdapter(private val list: MutableList<LogModel>): BaseAdapter<AdapterLogBinding, LogModel>(AdapterLogBinding::class.java, list) {
+    override fun onInitViewHolder(holder: BaseViewHolder<AdapterLogBinding>) {
+
     }
 
-    override fun onBindView(
-        holder: BaseViewHolder<AdapterLogBinding, LogModel>,
-        item: Any,
-    ) {
+    override fun onBindViewHolder(holder: BaseViewHolder<AdapterLogBinding>, position: Int) {
         val binding = holder.binding
-        val it = item as LogModel
+        val it = list[position]
         val level = it.level
-        binding.logDate.text = it.date
+        binding.logDate.text = DateUtils.getTime(it.time)
         binding.app.text = it.app
-        binding.logThread.text = it.thread
-        binding.logFile.text = it.line
-        // 数据需要进行截断处理，防止过长导致绘制ANR
-        binding.log.text = it.log
+        binding.logFile.text = it.location
+        binding.log.text = it.message
         when (level) {
-            LogModel.LOG_LEVEL_DEBUG -> binding.log.setTextColor(holder.context.getColor(R.color.success))
-            LogModel.LOG_LEVEL_INFO -> binding.log.setTextColor(holder.context.getColor(R.color.info))
-            LogModel.LOG_LEVEL_WARN -> binding.log.setTextColor(holder.context.getColor(R.color.warning))
-            LogModel.LOG_LEVEL_ERROR -> binding.log.setTextColor(holder.context.getColor(R.color.danger))
+            LogLevel.DEBUG -> binding.log.setTextColor(holder.context.getColor(R.color.success))
+            LogLevel.INFO -> binding.log.setTextColor(holder.context.getColor(R.color.info))
+            LogLevel.WARN -> binding.log.setTextColor(holder.context.getColor(R.color.warning))
+            LogLevel.ERROR -> binding.log.setTextColor(holder.context.getColor(R.color.danger))
             else -> binding.log.setTextColor(holder.context.getColor(R.color.info))
         }
     }
 
-    override fun getViewBindingClazz(): Class<AdapterLogBinding> {
-        return AdapterLogBinding::class.java
-    }
 }

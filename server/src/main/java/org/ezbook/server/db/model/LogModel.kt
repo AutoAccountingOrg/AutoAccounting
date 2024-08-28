@@ -19,6 +19,8 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.Gson
 import com.google.gson.JsonObject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.ezbook.server.Server
 import org.ezbook.server.constant.LogLevel
 import org.ezbook.server.db.Db
@@ -39,7 +41,7 @@ class LogModel {
     var time = System.currentTimeMillis()
 
     companion object{
-       suspend fun add(level: LogLevel, app: String, location: String, message: String) {
+       suspend fun add(level: LogLevel, app: String, location: String, message: String) = withContext(Dispatchers.IO) {
             val log = LogModel()
             log.level = level
             log.app = app
@@ -48,14 +50,14 @@ class LogModel {
             Server.request("log/add", Gson().toJson(log))
         }
 
-       suspend fun list(page: Int = 1, limit: Int = 10): List<LogModel> {
+       suspend fun list(page: Int = 1, limit: Int = 10): List<LogModel> = withContext(Dispatchers.IO) {
             val response = Server.request("log/list?page=$page&limit=$limit")
            val json = Gson().fromJson(response, JsonObject::class.java)
 
-            return Gson().fromJson(json.getAsJsonArray("data"), Array<LogModel>::class.java).toList()
+             Gson().fromJson(json.getAsJsonArray("data"), Array<LogModel>::class.java).toList()
         }
 
-       suspend fun clear() {
+       suspend fun clear()= withContext(Dispatchers.IO)  {
             Server.request("log/clear")
         }
     }
