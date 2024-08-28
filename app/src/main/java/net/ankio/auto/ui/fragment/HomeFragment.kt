@@ -263,7 +263,9 @@ class HomeFragment : BaseFragment() {
 
     }
 
-
+    /**
+     * 检查规则更新
+     */
     private suspend fun checkRuleUpdate( showResult: Boolean) {
         val ruleUpdate = RuleUpdate(requireContext())
         if (ruleUpdate.check(showResult)){
@@ -272,9 +274,9 @@ class HomeFragment : BaseFragment() {
     }
 
 
-
-
-
+    /**
+     * 销毁时注销广播
+     */
     override fun onDestroy() {
         super.onDestroy()
         if (this::broadcastReceiver.isInitialized) {
@@ -364,6 +366,9 @@ class HomeFragment : BaseFragment() {
         refreshUI()
     }
 
+    /**
+     * 检查更新
+     */
     private  fun checkUpdate(showResult: Boolean = false) {
         if (SpUtils.getBoolean("setting_rule", true)) {
            lifecycleScope.launch {
