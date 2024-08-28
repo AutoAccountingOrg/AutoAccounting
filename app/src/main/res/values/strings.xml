@@ -365,4 +365,7 @@
     <string name="unzip_finish">解压完成</string>
     <string name="unzip">解压：%s</string>
     <string name="auto_record">自动记录</string>
+    <string name="msg_geekbar">GeekBar（推荐）</string>
+    <string name="msg_geekbar_number">forum.ez-book.org</string>
+    <string name="geekbar_uri">https://forum.ez-book.org/c/ez-book/4</string>
 </resources>

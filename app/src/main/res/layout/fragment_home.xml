@@ -408,22 +408,22 @@
                         <ImageView
                             android:id="@+id/image_git"
                             android:layout_width="@dimen/image_size"
-                            android:layout_height="wrap_content"
+                            android:layout_height="@dimen/image_size"
                             android:layout_alignParentStart="true"
                             android:layout_centerVertical="true"
                             android:layout_marginStart="0dp"
-                            android:src="@drawable/home_msg_github"
+                            android:src="@drawable/img_geekbar"
                             app:tint="?colorOnSurface" />
 
                         <TextView
-                            android:id="@+id/msg_github"
+                            android:id="@+id/msg_geekbar"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentEnd="true"
                             android:layout_marginStart="@dimen/border_side"
                             android:layout_marginEnd="@dimen/border_side"
                             android:layout_toEndOf="@+id/image_git"
-                            android:text="@string/msg_github"
+                            android:text="@string/msg_geekbar"
                             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                             android:textColor="?colorOnSurface"
                             tools:ignore="RelativeOverlap" />
@@ -432,11 +432,11 @@
                             android:id="@+id/msg_github_number"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_below="@+id/msg_github"
+                            android:layout_below="@+id/msg_geekbar"
                             android:layout_alignParentEnd="true"
                             android:layout_marginStart="@dimen/border_side"
                             android:layout_toEndOf="@+id/image_git"
-                            android:text="@string/msg_github_number"
+                            android:text="@string/msg_geekbar_number"
                             android:textAppearance="@style/TextAppearance.AppCompat.Small" />
 
 

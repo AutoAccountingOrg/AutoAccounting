@@ -53,9 +53,7 @@ import net.ankio.auto.update.RuleUpdate
 import rikka.html.text.toHtml
 
 /**
- * A simple [Fragment] subclass.
- * Use the [HomeFragment.newInstance] factory method to
- * create an instance of this fragment.
+ * 主页
  */
 class HomeFragment : BaseFragment() {
     private lateinit var binding: FragmentHomeBinding
@@ -313,8 +311,8 @@ class HomeFragment : BaseFragment() {
      * 自动记账讨论社区
      */
     private fun bindingCommunicationEvents() {
-        binding.msgGithub.setOnClickListener {
-            CustomTabsHelper.launchUrlOrCopy(requireContext(), getString(R.string.github_url))
+        binding.msgGeekbar.setOnClickListener {
+            CustomTabsHelper.launchUrlOrCopy(requireContext(), getString(R.string.geekbar_uri))
         }
 
         binding.msgTelegram.setOnClickListener {
