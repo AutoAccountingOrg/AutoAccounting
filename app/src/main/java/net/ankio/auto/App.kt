@@ -135,6 +135,20 @@ class App : Application() {
         fun getThemeContext(context: Context): Context {
             return ContextThemeWrapper(context, ThemeEngine.getInstance(context).getTheme())
         }
+
+        /**
+         * 是否安装了某个应用
+         */
+        fun isAppInstalled(appName: String?): Boolean {
+            return try {
+                appName?.let {
+                    app.packageManager.getPackageInfo(it, PackageManager.GET_ACTIVITIES)
+                    true
+                } ?: false
+            } catch (e: PackageManager.NameNotFoundException) {
+                false
+            }
+        }
     }
 
     /**

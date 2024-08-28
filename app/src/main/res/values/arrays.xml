@@ -28,4 +28,7 @@
         <item>商户名称</item>
         <item>商品名称</item>
     </string-array>
+    <string-array name="apps">
+        <item>com.mutangtech.qianji</item>
+    </string-array>
 </resources>

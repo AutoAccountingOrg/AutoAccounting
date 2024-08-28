@@ -106,9 +106,14 @@ class HomeFragment : BaseFragment() {
 
         scrollView = binding.scrollView
 
+        // 检查记账软件
         checkBookApp()
 
+        // app启动时检查自动记账服务的连通性
         checkAutoService()
+
+        // 检查软件和规则更新
+        checkUpdate()
 
         return binding.root
     }
@@ -134,16 +139,30 @@ class HomeFragment : BaseFragment() {
      */
     private fun checkBookApp() {
         if (SpUtils.getString("bookApp", "").isEmpty()) {
-            MaterialAlertDialogBuilder(requireActivity())
-                .setTitle(R.string.title_book_app)
-                .setMessage(R.string.msg_book_app)
-                .setPositiveButton(R.string.sure_book_app) { _, _ ->
-                    CustomTabsHelper.launchUrlOrCopy(requireActivity(), getString(R.string.book_app_url))
+
+            //从array.xml中获取数据
+            val appList = resources.getStringArray(R.array.apps)
+            for (app in appList) {
+
+                if (App.isAppInstalled(app)) {
+                    SpUtils.putString("bookApp", app)
+                    break
                 }
-                .setNegativeButton(R.string.cancel) { _, _ ->
-                    // finish()
-                }
-                .show()
+            }
+
+            if (SpUtils.getString("bookApp", "").isEmpty()) {
+                MaterialAlertDialogBuilder(requireActivity())
+                    .setTitle(R.string.title_book_app)
+                    .setMessage(R.string.msg_book_app)
+                    .setPositiveButton(R.string.sure_book_app) { _, _ ->
+                        CustomTabsHelper.launchUrlOrCopy(requireActivity(), getString(R.string.book_app_url))
+                    }
+                    .setNegativeButton(R.string.cancel) { _, _ ->
+                        // finish()
+                    }
+                    .show()
+            }
+
         }
     }
 
@@ -232,7 +251,7 @@ class HomeFragment : BaseFragment() {
         binding.ruleLibrary.setOnClickListener {
             findNavController().navigate(R.id.dataRuleFragment)
         }
-        // TODO 自动检查更新
+
 
     }
 
@@ -332,8 +351,12 @@ class HomeFragment : BaseFragment() {
         refreshUI()
     }
 
-    private suspend fun checkUpdate(showResult: Boolean = false) {
-
+    private  fun checkUpdate(showResult: Boolean = false) {
+        if (SpUtils.getBoolean("setting_rule", true)) {
+           lifecycleScope.launch {
+               checkRuleUpdate(showResult)
+           }
+        }
     }
     /**
      * 设置激活状态
