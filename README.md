@@ -12,9 +12,9 @@
 
 ## 💸 支持的记账软件
 
-| 软件名称 | 简介               | 主页                        | 备注                                                               |
-| -------- |------------------|---------------------------|------------------------------------------------------------------|
-| 钱迹     | 无广告、无开屏、无理财的记账软件 | <https://www.qianji.app/> | 需搭配[`钱迹补丁`](https://github.com/AutoAccountingOrg/QianjiPatch/)使用 |
+| 软件名称 | 简介               | 主页                        | 备注                        |
+| -------- |------------------|---------------------------|---------------------------|
+| 钱迹     | 无广告、无开屏、无理财的记账软件 | <https://www.qianji.app/> | 从4.0Beta13开始，钱迹补丁合并进入自动记账 |
 
 ## 🌝 开发者适配
 
@@ -42,21 +42,21 @@ Waiting...
 
 ## 🎉 贡献指南
 
+> [!IMPORTANT]
+> 提交代码/PR前请**务必**先阅读贡献指南中的代码规范及Commit规范。
+
 [贡献指南](CONTRIBUTING.md)
 
 ## 🛠️ 编译步骤
-
-AndroidStudio最低版本：`Android Studio Koala Feature Drop | 2024.1.2 Canary 4`
 
 - 下载源代码到本地
 
 ```bash
 git clone https://github.com/AutoAccountingOrg/AutoAccounting
 ```
-
 - 使用[Android Studio](https://developer.android.com/studio)打开，等待自动配置完成，如出现失败请配置科学上网
 
-- 点击菜单中 `Run` - `Build`
+- 点击菜单中 `Build` - `Build Bundle(s) / APK(s)` - `Build APK(s)`
 
 ## ⬇️ 下载
 
