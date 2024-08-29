@@ -79,7 +79,7 @@ class MainActivity : BaseActivity() {
                 R.drawable.bottom_select_setting,
                 R.drawable.bottom_unselect_setting,
             ),
-            arrayListOf(R.id.logFragment, R.drawable.bottom_select_log, R.drawable.bottom_unselect_log),
+            arrayListOf(R.id.ruleFragment, R.drawable.bottom_select_rule, R.drawable.bottom_unselect_rule),
             arrayListOf(
                 R.id.orderFragment,
                 R.drawable.bottom_select_order,

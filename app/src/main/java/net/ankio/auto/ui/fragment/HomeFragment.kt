@@ -61,6 +61,9 @@ class HomeFragment : BaseFragment() {
     private lateinit var binding: FragmentHomeBinding
     override val menuList: ArrayList<MenuItem> =
         arrayListOf(
+            MenuItem(R.string.title_log, R.drawable.menu_item_log) {
+                it.navigate(R.id.logFragment)
+            },
             MenuItem(R.string.title_setting, R.drawable.menu_item_setting) {
                 it.navigate(R.id.setting2Fragment)
             },
