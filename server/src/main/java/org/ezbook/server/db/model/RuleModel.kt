@@ -47,6 +47,14 @@ class RuleModel {
     // 这个规则是否启用
     var enabled = true
     companion object{
+        /**
+         * 根据条件查询
+         * @param app 应用
+         * @param type 类型
+         * @param page 页码
+         * @param limit 每页数量
+         * @return 规则列表
+         */
         suspend fun list(app: String, type: String, page: Int, limit: Int) : List<RuleModel> = withContext(Dispatchers.IO) {
             val response = Server.request("rule/list?page=$page&limit=$limit&app=$app&type=$type")
             val json = Gson().fromJson(response, JsonObject::class.java)
@@ -54,6 +62,9 @@ class RuleModel {
              runCatching { Gson().fromJson(json.getAsJsonArray("data"), Array<RuleModel>::class.java).toList() }.getOrNull() ?: emptyList()
         }
 
+        /**
+         * 获取所有系统规则
+         */
         suspend fun system() : List<RuleModel> = withContext(Dispatchers.IO) {
             val response = Server.request("rule/system")
             val json = Gson().fromJson(response, JsonObject::class.java)
@@ -61,20 +72,32 @@ class RuleModel {
             runCatching { Gson().fromJson(json.getAsJsonArray("data"), Array<RuleModel>::class.java).toList() }.getOrNull() ?: emptyList()
         }
 
+        /**
+         * 添加规则
+         */
         suspend fun add(rule: RuleModel): Int  = withContext(Dispatchers.IO){
             val response = Server.request("rule/add", Gson().toJson(rule))
             val json = Gson().fromJson(response, JsonObject::class.java)
             json.get("data").asInt
         }
 
+        /**
+         * 更新规则
+         */
         suspend fun update(rule: RuleModel) = withContext(Dispatchers.IO){
             Server.request("rule/update", Gson().toJson(rule))
         }
 
+        /**
+         * 删除规则
+         */
         suspend fun delete(id:Int) = withContext(Dispatchers.IO) {
             Server.request("rule/delete?id=$id")
         }
 
+        /**
+         * 获取app列表
+         */
         suspend fun apps(): JsonObject = withContext(Dispatchers.IO) {
             val response = Server.request("rule/apps")
             val json = Gson().fromJson(response, JsonObject::class.java)

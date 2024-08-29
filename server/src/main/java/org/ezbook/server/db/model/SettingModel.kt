@@ -19,6 +19,8 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.Gson
 import com.google.gson.JsonObject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.ezbook.server.Server
 
 @Entity
@@ -32,16 +34,16 @@ class SettingModel {
         /**
          * 获取设置
          */
-        suspend fun get(key: String,default:String): String{
+        suspend fun get(key: String,default:String): String = withContext(Dispatchers.IO){
             val response = Server.request("setting/get?key=$key")
             val json = Gson().fromJson(response, JsonObject::class.java)
-            return runCatching { json.get("data").asString }.getOrNull() ?: default
+             runCatching { json.get("data").asString }.getOrNull() ?: default
         }
 
         /**
          * 设置
          */
-        suspend fun set(key: String, value: String) {
+        suspend fun set(key: String, value: String)  = withContext(Dispatchers.IO){
              Server.request("setting/set?key=$key", value)
         }
     }

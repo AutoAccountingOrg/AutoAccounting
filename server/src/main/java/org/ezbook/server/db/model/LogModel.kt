@@ -41,6 +41,9 @@ class LogModel {
     var time = System.currentTimeMillis()
 
     companion object{
+        /**
+         * 添加日志
+         */
        suspend fun add(level: LogLevel, app: String, location: String, message: String) = withContext(Dispatchers.IO) {
             val log = LogModel()
             log.level = level
@@ -50,6 +53,12 @@ class LogModel {
             Server.request("log/add", Gson().toJson(log))
         }
 
+        /**
+         * 获取日志列表
+         * @param page 页码
+         * @param limit 每页数量
+         * @return 日志列表
+         */
        suspend fun list(page: Int = 1, limit: Int = 10): List<LogModel> = withContext(Dispatchers.IO) {
             val response = Server.request("log/list?page=$page&limit=$limit")
            val json = Gson().fromJson(response, JsonObject::class.java)
