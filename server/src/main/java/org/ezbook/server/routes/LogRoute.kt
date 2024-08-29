@@ -22,6 +22,9 @@ import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.LogModel
 
 class LogRoute(private val session: NanoHTTPD.IHTTPSession) {
+    /**
+     * 获取日志列表
+     */
      fun list(): NanoHTTPD.Response {
         val params = session.parameters
         val page = params["page"]?.firstOrNull()?.toInt() ?: 1
@@ -32,12 +35,18 @@ class LogRoute(private val session: NanoHTTPD.IHTTPSession) {
         return Server.json(200, "OK", logs, total)
     }
 
+    /**
+     * 添加日志
+     */
     fun add(): NanoHTTPD.Response {
         val json = Gson().fromJson(Server.reqData(session), LogModel::class.java)
         val id = Db.get().logDao().insert(json)
         return Server.json(200, "OK", id)
     }
 
+    /**
+     * 清空日志
+     */
     fun clear(): NanoHTTPD.Response {
         Db.get().logDao().clear()
         return Server.json(200, "OK")
