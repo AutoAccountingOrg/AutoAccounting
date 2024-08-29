@@ -86,9 +86,9 @@ class FloatEditorDialog(
         binding = FloatEditorBinding.inflate(inflater)
         cardView = binding.editorCard
 
-        Logger.d("原始账单结果 => $rawBillInfo")
+        Logger.d("原始账单结果 => $rawBillInfo")/*
         billTypeLevel1 = BillType.fromInt(rawBillInfo.type)
-        billTypeLevel2 = BillType.fromInt(rawBillInfo.type)
+        billTypeLevel2 = BillType.fromInt(rawBillInfo.type)*/
         binding.radioContainer.check(binding.radioNone.id)
         //   billInfo.remark = BillUtils.getRemark(billInfo)
         rawChooseDebt = binding.chooseDebt.text.toString()
@@ -113,13 +113,13 @@ class FloatEditorDialog(
 
     private fun getBillData(): BillInfoModel {
         return BillInfoModel().apply {
-            this.channel = billInfoModel.channel
-            this.fromApp = billInfoModel.fromApp
+            this.channel = billInfoModel.channel/*
+            this.fromApp = billInfoModel.fromApp*/
             this.money = billInfoModel.money
             this.type = billInfoModel.type
             this.fee = billInfoModel.fee
-            this.bookName = billInfoModel.bookName
-            this.type = billTypeLevel2.value
+            this.bookName = billInfoModel.bookName/*
+            this.type = billTypeLevel2.value*/
             this.id = billInfoModel.id
             when (billTypeLevel2) {
                 BillType.Expend -> {
@@ -202,7 +202,7 @@ class FloatEditorDialog(
 
             lifecycleScope.launch {
                 runCatching {
-                    BillInfoModel.put(bill)
+                   // BillInfoModel.put(bill)
                     if (SpUtils.getBoolean("setting_book_success", true)) {
                         Toaster.show(
                             context.getString(
@@ -275,8 +275,8 @@ class FloatEditorDialog(
     }
 
     private fun bindingTypePopupUI() {
-        binding.priceContainer.text = billInfoModel.money.toString()
-        setPriceColor(billTypeLevel1.toInt())
+        binding.priceContainer.text = billInfoModel.money.toString()/*
+        setPriceColor(billTypeLevel1.toInt())*/
     }
 
     private fun bindingTypePopupEvents() {
@@ -293,10 +293,10 @@ class FloatEditorDialog(
                 binding.priceContainer,
                 stringList,
                 billTypeLevel1,
-            ) { pos, key, value ->
+            ) { pos, key, value ->/*
                 billInfoModel.type = (value as BillType).value
                 billTypeLevel1 = BillType.fromInt(billInfoModel.type)
-                billTypeLevel2 = BillType.fromInt(billInfoModel.type)
+                billTypeLevel2 = BillType.fromInt(billInfoModel.type)*/
                 binding.radioContainer.check(binding.radioNone.id)
                 bindUI()
             }
@@ -608,9 +608,9 @@ class FloatEditorDialog(
             binding.category.visibility = View.VISIBLE
             lifecycleScope.launch {
                 val book = BookNameModel.getDefaultBook(billInfoModel.bookName)
-                CategoryModel.getDrawable(billInfoModel.cateName, book.id, billInfoModel.type,context).let {
+             /*   CategoryModel.getDrawable(billInfoModel.cateName, book.id, billInfoModel.type,context).let {
                     binding.category.setIcon(it, true)
-                }
+                }*/
             }
             binding.category.setText(billInfoModel.cateName)
         } else {

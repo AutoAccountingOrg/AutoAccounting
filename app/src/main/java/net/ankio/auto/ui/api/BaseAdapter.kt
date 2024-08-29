@@ -20,11 +20,12 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 
-abstract class BaseAdapter<T:ViewBinding,E>(private val bindingClass: Class<T>,private val list:MutableList<E>) : RecyclerView.Adapter<BaseViewHolder<T>>() {
-    /**
-     * 初始化View
-     */
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<T> {
+abstract class BaseAdapter<T : ViewBinding, E>(
+    private val bindingClass: Class<T>,
+    private val list: MutableList<E>
+) : RecyclerView.Adapter<BaseViewHolder<T, E>>() {
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<T, E> {
         val method = bindingClass.getMethod(
             "inflate",
             LayoutInflater::class.java,
@@ -33,24 +34,26 @@ abstract class BaseAdapter<T:ViewBinding,E>(private val bindingClass: Class<T>,p
         )
         val binding = method.invoke(null, LayoutInflater.from(parent.context), parent, false) as T
 
-        val viewHolder = BaseViewHolder(binding, parent.context)
+        val viewHolder = BaseViewHolder<T,E>(binding)
 
         onInitViewHolder(viewHolder)
 
         return viewHolder
     }
 
-    /**
-     * 初始化ViewHolder，执行监听等动作
-     */
-    abstract fun onInitViewHolder(holder: BaseViewHolder<T>)
+    abstract fun onInitViewHolder(holder: BaseViewHolder<T, E>)
 
-    /**
-     * 获取数据
-     */
     override fun getItemCount(): Int {
         return list.size
     }
 
+    override fun onBindViewHolder(holder: BaseViewHolder<T, E>, position: Int) {
+        // 绑定数据到视图
+        val data = list[position]
+        holder.item = data
+        holder.positionIndex = position
+        onBindViewHolder(holder, data,position)
+    }
 
+    abstract fun onBindViewHolder(holder: BaseViewHolder<T, E>, data: E, position: Int)
 }

@@ -118,7 +118,7 @@ class CategorySelectorDialog(
         categoryModel.remoteId = "-9999"
         categoryModel.parent = item.id
         categoryModel.book = book
-        categoryModel.type = type.value
+       /* categoryModel.type = type.value*/
         val location = IntArray(2)
         view.getLocationOnScreen(location)
         val params = view.layoutParams as MarginLayoutParams

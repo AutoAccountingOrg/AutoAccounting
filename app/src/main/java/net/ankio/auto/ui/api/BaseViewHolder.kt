@@ -19,6 +19,9 @@ import android.content.Context
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 
-open class BaseViewHolder<T:ViewBinding>(open val binding: T, val context: Context) : RecyclerView.ViewHolder(binding.root) {
+open class BaseViewHolder<T:ViewBinding,E>( val binding: T) : RecyclerView.ViewHolder(binding.root) {
 
+    var item: E? = null
+    var positionIndex: Int = 0
+    var context : Context = binding.root.context
 }

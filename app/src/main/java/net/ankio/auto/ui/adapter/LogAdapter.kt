@@ -24,40 +24,39 @@ import org.ezbook.server.constant.LogLevel
 import org.ezbook.server.db.model.LogModel
 
 class LogAdapter(private val list: MutableList<LogModel>): BaseAdapter<AdapterLogBinding, LogModel>(AdapterLogBinding::class.java, list) {
-    override fun onInitViewHolder(holder: BaseViewHolder<AdapterLogBinding>) {
+    override fun onInitViewHolder(holder: BaseViewHolder<AdapterLogBinding,LogModel>) {
 
     }
 
     private val cachedApp = HashMap<String,String>()
 
-    override fun onBindViewHolder(holder: BaseViewHolder<AdapterLogBinding>, position: Int) {
+    override fun onBindViewHolder(holder: BaseViewHolder<AdapterLogBinding,LogModel>,data:LogModel, position: Int) {
         val binding = holder.binding
-        val it = list[position]
-        val level = it.level
+        val level = data.level
 
         val sb = StringBuilder()
         sb.append("[ ")
-        sb.append(DateUtils.getTime(it.time))
+        sb.append(DateUtils.getTime(data.time))
         sb.append(" ] [ ")
 
 
-        var appName = it.app
+        var appName = data.app
 
-        if (cachedApp.containsKey(it.app)){
-            appName = cachedApp[it.app]!!
-        }else{
-            val array = App.getAppInfoFromPackageName(it.app)
-            if (array!==null){
-                cachedApp[it.app] = array[0] as String
-                appName = cachedApp[it.app]!!
+        if (cachedApp.containsKey(data.app)) {
+            appName = cachedApp[data.app]!!
+        } else {
+            val array = App.getAppInfoFromPackageName(data.app)
+            if (array !== null) {
+                cachedApp[data.app] = array[0] as String
+                appName = cachedApp[data.app]!!
             }
         }
 
         sb.append(appName)
         sb.append(" ] [ ")
-        sb.append(it.location)
+        sb.append(data.location)
         sb.append(" ] ")
-        sb.append(it.message)
+        sb.append(data.message)
         binding.log.text = sb.toString()
         when (level) {
             LogLevel.DEBUG -> binding.log.setTextColor(holder.context.getColor(R.color.success))

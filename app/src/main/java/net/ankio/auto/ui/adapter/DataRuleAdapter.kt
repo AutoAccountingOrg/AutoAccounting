@@ -21,14 +21,13 @@ import net.ankio.auto.ui.api.BaseViewHolder
 import org.ezbook.server.db.model.RuleModel
 
 class DataRuleAdapter(private val list: MutableList<RuleModel>):BaseAdapter<AdapterDataRuleBinding,RuleModel>(AdapterDataRuleBinding::class.java,list) {
-    override fun onInitViewHolder(holder: BaseViewHolder<AdapterDataRuleBinding>) {
+    override fun onInitViewHolder(holder: BaseViewHolder<AdapterDataRuleBinding,RuleModel>) {
         // TODO 等UI确定后再写
     }
 
-    override fun onBindViewHolder(holder: BaseViewHolder<AdapterDataRuleBinding>, position: Int) {
-        val item = list[position]
-        val system = item.creator == "system"
-        holder.binding.ruleName.text = item.name
+    override fun onBindViewHolder(holder: BaseViewHolder<AdapterDataRuleBinding,RuleModel>,data:RuleModel, position: Int) {
+        val system = data.creator == "system"
+        holder.binding.ruleName.text = data.name
         holder.binding.type.visibility = if (system) View.VISIBLE else View.GONE
         holder.binding.deleteData.visibility = if (system) View.GONE else View.VISIBLE
         holder.binding.editRule.visibility = if (system) View.GONE else View.VISIBLE

@@ -79,7 +79,10 @@ class MainActivity : BaseActivity() {
                 R.drawable.bottom_select_setting,
                 R.drawable.bottom_unselect_setting,
             ),
-            arrayListOf(R.id.ruleFragment, R.drawable.bottom_select_rule, R.drawable.bottom_unselect_rule),
+            arrayListOf(
+                R.id.ruleFragment,
+                R.drawable.bottom_select_rule,
+                R.drawable.bottom_unselect_rule),
             arrayListOf(
                 R.id.orderFragment,
                 R.drawable.bottom_select_order,
@@ -102,7 +105,7 @@ class MainActivity : BaseActivity() {
 
     }
 
-    fun onBottomViewInit() {
+    private fun onBottomViewInit() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 

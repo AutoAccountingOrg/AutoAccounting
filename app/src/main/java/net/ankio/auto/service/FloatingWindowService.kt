@@ -244,11 +244,11 @@ class FloatingWindowService : Service() {
     }
 
     private suspend fun mergeBillAndUpdate(bill: BillInfoModel, bill2: BillInfoModel) {
-        Logger.i("重复账单:$bill")
+       /* Logger.i("重复账单:$bill")
         bill.groupId = bill2.id
         mergeRepeatBill(bill, bill2)
         BillInfoModel.put(bill)
-        BillInfoModel.put(bill2)
+        BillInfoModel.put(bill2)*/
 
     }
     override fun onStartCommand(
@@ -282,7 +282,7 @@ class FloatingWindowService : Service() {
 
         Logger.i("timeCount:$timeCount")
 
-        Logger.i("BillInfo:${billInfoModel!!.toJson()}")
+       /* Logger.i("BillInfo:${billInfoModel!!.toJson()}")*/
 
         if (timeCount == 0) {
             callBillInfoEditor("setting_float_on_badge_timeout")
@@ -295,9 +295,9 @@ class FloatingWindowService : Service() {
         binding.root.visibility = View.INVISIBLE
         binding.money.text = billInfoModel!!.money.toString()
 
-        val colorRes = BillUtils.getColor(billInfoModel!!.type)
+      /*  val colorRes = BillUtils.getColor(billInfoModel!!.type)
         val color = ContextCompat.getColor(themedContext, colorRes)
-        binding.money.setTextColor(color)
+        binding.money.setTextColor(color)*/
         binding.time.text = String.format("%ss", timeCount.toString())
 
         val countDownTimer =
@@ -368,7 +368,7 @@ class FloatingWindowService : Service() {
         runCatching {
             billInfoModel2.syncFromApp = 0
             AppUtils.getScope().launch {
-                BillInfoModel.put(billInfoModel2)
+             /*   BillInfoModel.put(billInfoModel2)*/
             }
             if (SpUtils.getBoolean("setting_book_success", true)) {
                 Toaster.show(

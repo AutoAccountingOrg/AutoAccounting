@@ -58,15 +58,15 @@ object BillUtils {
             parentBillInfoModel.accountNameTo = billInfoModel.accountNameTo
         }
         parentBillInfoModel.syncFromApp = 0
-        BillInfoModel.put(parentBillInfoModel)
+      /*  BillInfoModel.put(parentBillInfoModel)*/
     }
 
     fun noNeedFilter(billInfoModel: BillInfoModel): Boolean {
-        return !SpUtils.getBoolean("setting_bill_repeat", true) ||
+        return !SpUtils.getBoolean("setting_bill_repeat", true) /*||
             (
                 billInfoModel.type != BillType.Income.value &&
                     billInfoModel.type != BillType.Expend.value
-            )
+            )*/
     }
 
     // 检查是否为重复账单
@@ -103,7 +103,7 @@ object BillUtils {
         billInfoModel: BillInfoModel,
         child: ArrayList<BillInfoModel>?,
     ) {
-        if (noNeedFilter(billInfoModel)) {
+       /* if (noNeedFilter(billInfoModel)) {
             BillInfoModel.put(billInfoModel)
             return
         }
@@ -113,7 +113,7 @@ object BillUtils {
         child?.forEach {
             it.groupId = billId
             BillInfoModel.put(it)
-        }
+        }*/
     }
 
     private fun getMapName(
@@ -277,7 +277,7 @@ object BillUtils {
             .replace("【金额】", billInfoModel.money.toString())
             .replace("【分类】", billInfoModel.cateName)
             .replace("【账本】", billInfoModel.bookName)
-            .replace("【来源】", billInfoModel.fromApp)
+           /* .replace("【来源】", billInfoModel.fromApp)*/
     }
 
     /**

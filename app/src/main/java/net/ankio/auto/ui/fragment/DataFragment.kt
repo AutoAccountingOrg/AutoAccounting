@@ -19,30 +19,39 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentDataBinding
-import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.adapter.AppDataAdapter
-import net.ankio.auto.ui.api.BaseFragment
-import net.ankio.auto.ui.dialog.FilterDialog
+import net.ankio.auto.ui.api.BaseActivity
+import net.ankio.auto.ui.api.BasePageFragment
 import net.ankio.auto.ui.utils.MenuItem
-import net.ankio.auto.ui.viewModes.AppDataViewModel
+import org.ezbook.server.db.model.AppDataModel
 
-class DataFragment : BaseFragment() {
+class DataFragment : BasePageFragment<AppDataModel>() {
     private lateinit var binding: FragmentDataBinding
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var adapter: AppDataAdapter
-    private val viewModel: AppDataViewModel by viewModels()
-    private lateinit var layoutManager: LinearLayoutManager
+    var app:String = ""
+    var type:String = ""
+    override suspend fun loadData(callback: (resultData: List<AppDataModel>) -> Unit) {
+        AppDataModel.list(app, type, page,pageSize).let { result ->
+            withContext(Dispatchers.Main) {
+                callback(result)
+            }
+        }
+    }
+
     override val menuList: ArrayList<MenuItem> =
         arrayListOf(
-            MenuItem(R.string.item_filter, R.drawable.menu_icon_filter) {
-                FilterDialog(requireActivity() as BaseActivity) {
-                    //TODO LOADDATA
-                }.show(false)
+            MenuItem(R.string.item_clear, R.drawable.menu_icon_clear) {
+                lifecycleScope.launch {
+                    AppDataModel.clear()
+                    page = 1
+                    loadDataInside()
+                }
             },
         )
 
@@ -53,96 +62,13 @@ class DataFragment : BaseFragment() {
     ): View {
         binding = FragmentDataBinding.inflate(layoutInflater)
         recyclerView = binding.recyclerView
-        layoutManager = LinearLayoutManager(requireContext())
-        recyclerView.layoutManager = layoutManager
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
         scrollView = recyclerView
-        adapter =
-            AppDataAdapter(
-                requireActivity(),
-                viewModel,
-            )
 
-        recyclerView.adapter = adapter
 
-        viewModel.loadMoreData()
+        recyclerView.adapter = AppDataAdapter(pageData, requireActivity() as BaseActivity)
 
         return binding.root
     }
 
-   /* private fun loadMoreData() {
-        val loading = LoadingUtils(requireActivity())
-        loading.show(R.string.loading)
-        lifecycleScope.launch {
-            withContext(Dispatchers.IO) {
-                val dataList = viewModel.fetchData(1, 100, hashMapOf())
-
-                val resultList = mutableListOf<AppDataModel>()
-                resultList.addAll(dataList)
-
-                // 在这里处理搜索逻辑
-                val resultSearch =
-                    resultList.filter {
-                        var include = true
-
-                        val dataType = SpUtils.getInt("dialog_filter_data_type", 0)
-
-                        if (dataType != 0) {
-                            if (it.type != dataType) {
-                                include = false
-                            }
-                        }
-
-                        val match = SpUtils.getInt("dialog_filter_match", 0)
-                        if (match != 0) {
-                            if (it.match ==1 && match == 2) {
-                                include = false
-                            }
-
-                            if (it.match ==0 && match == 1) {
-                                include = false
-                            }
-                        }
-
-                        val upload = SpUtils.getInt("dialog_filter_upload", 0)
-
-                        if (upload != 0) {
-                            if (it.issue != 0 && upload == 2) {
-                                include = false
-                            }
-
-                            if (it.issue == 0 && upload == 1) {
-                                include = false
-                            }
-                        }
-
-                        val keywords = SpUtils.getString("dialog_filter_data", "")
-
-                        if (keywords != "") {
-                            if (
-                                !it.data.contains(keywords)
-                            ) {
-                                include = false
-                            }
-                        }
-
-                        include
-                    }
-
-                // 倒序排列resultSearch
-                dataItems.clear()
-                dataItems.addAll(resultSearch)
-                withContext(Dispatchers.Main) {
-                    adapter.notifyDataSetChanged()
-                    binding.empty.root.visibility = if (dataItems.isEmpty()) View.VISIBLE else View.GONE
-                    loading.close()
-                }
-            }
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        // 加载数据
-        loadMoreData()
-    }*/
 }
