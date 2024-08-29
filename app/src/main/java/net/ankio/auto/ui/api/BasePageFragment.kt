@@ -60,7 +60,9 @@ abstract class BasePageFragment<T>: BaseFragment() {
         page = 1
         val total = pageData.size
         pageData.clear()
-        recyclerView.adapter?.notifyItemRangeRemoved(0, total)
+        lifecycleScope.launch {
+            recyclerView.adapter?.notifyItemRangeRemoved(0, total)
+        }
     }
     /**
      * 获取数据
