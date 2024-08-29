@@ -15,6 +15,7 @@
 package net.ankio.auto.ui.fragment
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -36,6 +37,7 @@ import net.ankio.auto.utils.DateUtils
 import org.ezbook.server.db.model.LogModel
 import java.io.File
 
+
 /**
  * 日志页面
  */
@@ -50,49 +52,40 @@ class LogFragment : BasePageFragment<LogModel>() {
 
                     lifecycleScope.launch {
                         val cacheDir = requireContext().cacheDir
-                        val file = File(cacheDir, "/log.txt")
+                        val file = File(cacheDir, "log.txt") // 确保这里路径是正确的，不要包含前置的 "/"
 
                         if (file.exists()) {
                             file.delete()
                         }
                         file.createNewFile()
 
-                        //循环10页日志，每页100条
-                        for (i in 1..10) {
-                            LogModel.list(i, 100).let { list ->
-                                file.appendText(list.joinToString("\n") {
-                                    "[${DateUtils.getTime(it.time)}] [ ${it.app} ] [ ${it.location} ] [ ${it.level} ] ${it.message}"
-                                })
+                        // 循环20页日志，每页100条
+                        for (i in 1..20) {
+                            val list = LogModel.list(i, 100)
+                            if (list.isEmpty()) {
+                                break
                             }
+                            file.appendText(list.joinToString("\n") {
+                                "[${DateUtils.getTime(it.time)}] [ ${it.app} ] [ ${it.location} ] [ ${it.level} ] ${it.message}"
+                            })
                         }
 
-
-
-
                         loadingUtils.close()
-                        val shareIntent = Intent(Intent.ACTION_SEND)
-                        // 设置分享类型为文件
-                        shareIntent.type = "application/octet-stream"
-                        // 将文件URI添加到分享意图
-                        val fileUri =
-                            FileProvider.getUriForFile(
-                                requireContext(),
-                                "net.ankio.auto.fileprovider",
-                                file,
-                            )
-                        shareIntent.putExtra(Intent.EXTRA_STREAM, fileUri)
-                        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
 
-                        // 添加可选的文本标题
-                        shareIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.share_file))
+                        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                            type = "application/octet-stream"
+                            val fileUri: Uri = FileProvider.getUriForFile(
+                                requireContext(),
+                                "${requireContext().packageName}.provider", // 使用动态获取包名
+                                file
+                            )
+                            putExtra(Intent.EXTRA_STREAM, fileUri)
+                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                            putExtra(Intent.EXTRA_SUBJECT, getString(R.string.share_file)) // 添加可选的文本标题
+                        }
 
                         // 启动分享意图
-                        requireContext().startActivity(
-                            Intent.createChooser(
-                                shareIntent,
-                                getString(R.string.share_file),
-                            ),
-                        )
+                        requireContext().startActivity(Intent.createChooser(shareIntent, getString(R.string.share_file)))
                     }
                 }.onFailure {
                     Logger.e("日志分享失败", it)
