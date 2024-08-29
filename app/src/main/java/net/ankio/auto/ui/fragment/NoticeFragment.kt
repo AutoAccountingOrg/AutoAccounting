@@ -17,19 +17,40 @@ package net.ankio.auto.ui.fragment
 
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.recyclerview.widget.LinearLayoutManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import net.ankio.auto.App
+import net.ankio.auto.R
+import net.ankio.auto.databinding.FragmentLogBinding
+import net.ankio.auto.storage.Logger
+import net.ankio.auto.storage.SpUtils
+import net.ankio.auto.ui.adapter.AppAdapter
 import net.ankio.auto.ui.api.BasePageFragment
 import net.ankio.auto.ui.utils.AppInfo
+import net.ankio.auto.ui.utils.ToolbarMenuItem
+import org.ezbook.server.db.model.SettingModel
 
 
 class NoticeFragment: BasePageFragment<AppInfo>() {
 
-    private var searchKey: String = ""
+
+    private var selectedApps: List<String> = emptyList()
+
+    override val menuList: ArrayList<ToolbarMenuItem> = arrayListOf(
+        ToolbarMenuItem(R.string.item_search, R.drawable.menu_icon_search,true) {
+           loadDataInside()
+        }
+    )
+
     override suspend fun loadData(callback: (resultData: List<AppInfo>) -> Unit) {
         resetPage()
         // 获取PackageManager实例
         val packageManager: PackageManager = requireActivity().packageManager
-
-
         // 获取所有已安装的应用程序
         val packageInfos = packageManager.getInstalledPackages(0)
 
@@ -45,32 +66,73 @@ class NoticeFragment: BasePageFragment<AppInfo>() {
             val packageName = packageInfo.packageName
             val appName = packageManager.getApplicationLabel(applicationInfo).toString()
 
-            if (searchKey!=="" && !appName.contains(searchKey)) {
+            if (searchData!=="" && !appName.contains(searchData)) {
                 continue
             }
 
-            val appIcon = packageManager.getApplicationIcon(applicationInfo)
             val isSystemApp = (applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
-            val isSelected = false // 默认未选择
+
+            if (isSystemApp)continue
+
+            var isSelected = false
+            if (selectedApps.contains(packageName)) {
+                 isSelected = true // 默认未选择
+            }
 
             // 创建AppInfo对象并添加到列表
-            val appInfo = AppInfo(packageName, appName, appIcon, isSystemApp, isSelected)
+            val appInfo = AppInfo(packageName, appName, isSelected)
             appInfos.add(appInfo)
         }
 
+
+
         // 按是否已选择和应用名称排序
-        appInfos.sortWith { o1, o2 ->
-            // 首先按是否已选择排序（已选择在前面）
-            if (o1.isSelected && !o2.isSelected) {
-                -1
-            } else if (!o1.isSelected && o2.isSelected) {
-                1
-            } else {
-                // 然后按应用名称排序
-                o1.appName.compareTo(o2.appName)
-            }
+        appInfos.sortWith(compareBy<AppInfo> { !it.isSelected }.thenBy { it.appName })
+
+
+        withContext(Dispatchers.Main) {
+            callback(appInfos)
         }
     }
 
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View {
+        val binding = FragmentLogBinding.inflate(layoutInflater)
+        recyclerView = binding.recyclerView
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        scrollView = recyclerView
+        selectedApps = SpUtils.getString("selectedApps", "").split(",")
+        Logger.d("selectedApps => $selectedApps")
+        recyclerView.adapter = AppAdapter(pageData,requireActivity().packageManager){
+            selectedApps = if (!it.isSelected) {
+                selectedApps.filter { packageName -> packageName != it.packageName }
+            } else {
+                selectedApps + it.packageName
+            }
+            Logger.d("selectedApps => $selectedApps")
+        }
 
+        loadDataEvent(binding.refreshLayout)
+
+        return binding.root
+    }
+
+    override fun onResume() {
+        super.onResume()
+        loadDataInside()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        //去重
+        selectedApps = selectedApps.distinct()
+        val str = selectedApps.joinToString(",")
+        SpUtils.putString("selectedApps", str)
+        App.launch {
+            SettingModel.set("selectedApps", str)
+        }
+    }
 }

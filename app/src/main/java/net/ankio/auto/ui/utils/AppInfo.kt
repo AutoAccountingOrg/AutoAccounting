@@ -22,7 +22,5 @@ class AppInfo // 构造函数
     (// Getter和Setter
     val packageName: String,
     val appName: String,
-    val appIcon: Drawable,
-    val isSystemApp: Boolean,
     var isSelected: Boolean
 )

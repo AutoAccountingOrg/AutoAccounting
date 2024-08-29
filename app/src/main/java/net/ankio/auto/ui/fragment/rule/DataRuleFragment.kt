@@ -17,7 +17,6 @@ package net.ankio.auto.ui.fragment.rule
 
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -50,9 +49,8 @@ class DataRuleFragment: BasePageFragment<RuleModel>()  {
                 ToolbarMenuItem(R.string.item_add, R.drawable.menu_item_add) {
                    ToastUtils.error("敬请期待")
                 },
-                ToolbarMenuItem(R.string.item_notice, R.drawable.menu_item_notice,true) {
-                    // TODO 跳转通知监控列表
-                    Log.i("DataRuleFragment", "通知监控$searchData")
+                ToolbarMenuItem(R.string.item_notice, R.drawable.menu_item_notice) {
+                    it.navigate(R.id.noticeFragment)
                 },
             )
 

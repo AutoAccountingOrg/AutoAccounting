@@ -109,4 +109,11 @@
         tools:layout="@layout/fragment_data_rule">
     </fragment>
 
+    <fragment
+        android:id="@+id/noticeFragment"
+        android:name="net.ankio.auto.ui.fragment.NoticeFragment"
+        android:label="@string/title_notice"
+        tools:layout="@layout/fragment_log">
+    </fragment>
+
 </navigation>
