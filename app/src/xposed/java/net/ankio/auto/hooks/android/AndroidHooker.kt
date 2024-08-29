@@ -34,6 +34,7 @@ class AndroidHooker:HookerManifest(){
 
     override fun hookLoadPackage(application: Application?,classLoader: ClassLoader) {
         PermissionHooker().hook(this,application,classLoader)
+
     }
 
     override var partHookers: MutableList<PartHooker>

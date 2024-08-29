@@ -18,10 +18,17 @@ package net.ankio.auto.core.api
 import android.app.Application
 import android.content.Context
 import de.robv.android.xposed.XposedHelpers
+import kotlinx.coroutines.launch
 import net.ankio.auto.constant.DataType
 import net.ankio.auto.core.App
 import net.ankio.auto.core.logger.Logger
+import net.ankio.auto.request.RequestsUtils
 import net.ankio.dex.model.Clazz
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 
 /**
  * HookerManifest
@@ -42,7 +49,7 @@ abstract class HookerManifest {
      * hook入口，用于执行全局的hook操作
      * @param application Application
      */
-    abstract fun hookLoadPackage(application: Application?,classLoader: ClassLoader)
+    abstract fun hookLoadPackage(application: Application?, classLoader: ClassLoader)
 
     /**
      * 需要hook的功能，一个功能一个hooker，方便进行错误捕获
@@ -89,20 +96,21 @@ abstract class HookerManifest {
      * 写日志
      */
     fun log(string: String) {
-        Logger.log(packageName,string)
+        Logger.log(packageName, string)
     }
+
     /**
      * 写调试日志
      */
     fun logD(string: String) {
-        Logger.logD(packageName,string)
+        Logger.logD(packageName, string)
     }
 
     /**
      * 写错误日志
      */
     fun logE(e: Throwable) {
-        Logger.logE(packageName,e)
+        Logger.logE(packageName, e)
     }
 
     /**
@@ -119,7 +127,28 @@ abstract class HookerManifest {
     /**
      * 分析数据
      */
-    fun analysisData(type:DataType,data:String) {
-        // TODO 分析数据
+    fun analysisData(type: DataType, data: String) {
+        App.scope.launch {
+            request("/js/analysis?type=${type.name}&app=$packageName&fromAppData=false", data)
+        }
+    }
+
+    suspend fun request(path:String,json:String = ""):String?{
+        return runCatching {
+            val uri = "http://localhost:52045/$path"
+            // 创建一个OkHttpClient对象
+            val client = OkHttpClient()
+            // set as json post
+            val body: RequestBody = json
+                .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
+            // 创建一个Request
+            val request = Request.Builder().url(uri).post(body)
+                .addHeader("Content-Type", "application/json").build()
+            // 发送请求获取响应
+            val response = client.newCall(request).execute()
+            // 如果请求成功
+            response.body?.string()
+
+        }.getOrNull()
     }
 }

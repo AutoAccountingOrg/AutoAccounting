@@ -17,11 +17,19 @@ package net.ankio.auto.hooks.android.hooks
 
 import android.app.Application
 import android.app.Notification
+import com.google.gson.Gson
+import com.google.gson.JsonObject
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import net.ankio.auto.constant.DataType
+import net.ankio.auto.core.App
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
+import org.ezbook.server.db.model.SettingModel
 
 
 class NotificationHooker:PartHooker {
@@ -30,17 +38,17 @@ class NotificationHooker:PartHooker {
         application: Application?,
         classLoader: ClassLoader
     ) {
-
         val notificationManagerService = XposedHelpers.findClass(
             "com.android.server.notification.NotificationManagerService",
             classLoader
         )
-
         XposedBridge.hookAllMethods(
             notificationManagerService,
             "enqueueNotificationInternal",
             object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam) {
+
+
                     val app = param.args[0] as String
                     val opkg = param.args[1] as String
 
@@ -59,8 +67,8 @@ class NotificationHooker:PartHooker {
                     }
 
 
-                    val originalTitle = notification.extras.getString(Notification.EXTRA_TITLE)
-                    val originalText = notification.extras.getString(Notification.EXTRA_TEXT)
+                    val originalTitle = notification.extras.getString(Notification.EXTRA_TITLE)?:""
+                    val originalText = notification.extras.getString(Notification.EXTRA_TEXT)?:""
 
 
                     hookerManifest.logD("Notification App: $opkg")
@@ -68,14 +76,35 @@ class NotificationHooker:PartHooker {
                     hookerManifest.logD("Notification Title: $originalTitle")
                     hookerManifest.logD("Notification Content: $originalText")
 
-                    // TODO 1、判断是否在监测范围
-                    // TODO 2、调用analyze函数进行分析
+
+                    App.scope.launch {
+                        SettingModel.get("selectedApps","").let {
+                            val selectedApps = it.split(",")
+                            withContext(Dispatchers.Main){
+                                checkNotification(opkg,originalTitle,originalText,selectedApps,hookerManifest)
+                            }
+                        }
+                    }
 
 
                 }
             }
         )
-
-
     }
+
+    /**
+     * 检查通知
+     */
+    private fun checkNotification(pkg: String,title:String,text:String,selectedApps: List<String>,hookerManifest: HookerManifest) {
+        if (!selectedApps.contains(pkg)) {
+            hookerManifest.logD("Notification not in selected apps: $pkg")
+            return
+        }
+        val json = JsonObject()
+        json.addProperty("title", title)
+        json.addProperty("text", text)
+
+        hookerManifest.analysisData(DataType.Notice, Gson().toJson(json))
+    }
+
 }
