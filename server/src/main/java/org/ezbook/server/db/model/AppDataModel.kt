@@ -84,7 +84,7 @@ class AppDataModel {
         }
 
         suspend fun clear() = withContext(Dispatchers.IO){
-            Db.get().dataDao().clear()
+            Server.request("data/clear")
         }
     }
 
