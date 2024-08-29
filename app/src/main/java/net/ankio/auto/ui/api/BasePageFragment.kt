@@ -58,8 +58,9 @@ abstract class BasePageFragment<T>: BaseFragment() {
      */
     protected fun loadDataInside(callback: ((Boolean, Boolean) -> Unit)?=null){
         if (page == 1) {
+            val total = pageData.size
             pageData.clear()
-            recyclerView.adapter?.notifyDataSetChanged()
+            recyclerView.adapter?.notifyItemRangeRemoved(0, total)
         }
         lifecycleScope.launch {
             withContext(Dispatchers.IO){
