@@ -80,7 +80,7 @@ class MainActivity : BaseActivity() {
                 R.drawable.bottom_unselect_setting,
             ),
             arrayListOf(
-                R.id.ruleFragment,
+                R.id.dataRuleFragment,
                 R.drawable.bottom_select_rule,
                 R.drawable.bottom_unselect_rule),
             arrayListOf(
@@ -99,7 +99,6 @@ class MainActivity : BaseActivity() {
         onBackup()
         // 初始化底部导航栏
         onBottomViewInit()
-        // 检查规则更新
 
         onViewCreated()
 

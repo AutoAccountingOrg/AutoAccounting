@@ -25,7 +25,7 @@
         android:enabled="true"
         android:title="@string/title_data" />
     <item
-        android:id="@+id/ruleFragment"
+        android:id="@+id/dataRuleFragment"
         android:icon="@drawable/bottom_unselect_rule"
         android:enabled="true"
         android:title="@string/title_rule" />
