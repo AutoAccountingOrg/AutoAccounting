@@ -47,8 +47,8 @@ import net.ankio.auto.ui.dialog.BookInfoDialog
 import net.ankio.auto.ui.dialog.BookSelectorDialog
 import net.ankio.auto.ui.dialog.CategorySelectorDialog
 import net.ankio.auto.ui.dialog.UpdateDialog
-import net.ankio.auto.ui.utils.MenuItem
 import net.ankio.auto.ui.utils.ToastUtils
+import net.ankio.auto.ui.utils.ToolbarMenuItem
 import net.ankio.auto.update.RuleUpdate
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.CustomTabsHelper
@@ -59,15 +59,15 @@ import rikka.html.text.toHtml
  */
 class HomeFragment : BaseFragment() {
     private lateinit var binding: FragmentHomeBinding
-    override val menuList: ArrayList<MenuItem> =
+    override val menuList: ArrayList<ToolbarMenuItem> =
         arrayListOf(
-            MenuItem(R.string.title_log, R.drawable.menu_item_log) {
+            ToolbarMenuItem(R.string.title_log, R.drawable.menu_item_log) {
                 it.navigate(R.id.logFragment)
             },
-            MenuItem(R.string.title_setting, R.drawable.menu_item_setting) {
+            ToolbarMenuItem(R.string.title_setting, R.drawable.menu_item_setting) {
                 it.navigate(R.id.setting2Fragment)
             },
-            MenuItem(R.string.title_more, R.drawable.menu_item_more) {
+            ToolbarMenuItem(R.string.title_more, R.drawable.menu_item_more) {
                 val binding =
                     AboutDialogBinding.inflate(LayoutInflater.from(requireContext()), null, false)
                 binding.sourceCode.movementMethod = LinkMovementMethod.getInstance()

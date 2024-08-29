@@ -24,16 +24,16 @@ import androidx.recyclerview.widget.RecyclerView
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentOrderBinding
 //import net.ankio.auto.ui.adapter.OrderAdapter
-import net.ankio.auto.ui.utils.MenuItem
 import net.ankio.auto.utils.AppUtils
 import org.ezbook.server.db.model.BillInfoModel
 import net.ankio.auto.ui.api.BaseFragment
+import net.ankio.auto.ui.utils.ToolbarMenuItem
 
 class OrderFragment : BaseFragment() {
-    override val menuList: ArrayList<MenuItem>
+    override val menuList: ArrayList<ToolbarMenuItem>
         get() =
             arrayListOf(
-                MenuItem(R.string.item_sync, R.drawable.float_round) {
+                ToolbarMenuItem(R.string.item_sync, R.drawable.float_round) {
                     // 同步账单
                     AppUtils.startBookApp()
                 },

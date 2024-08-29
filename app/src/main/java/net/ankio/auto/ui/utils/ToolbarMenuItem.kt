@@ -19,8 +19,10 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.navigation.NavController
 
-data class MenuItem(
+data class ToolbarMenuItem(
     @StringRes val title: Int,
     @DrawableRes val drawable: Int,
+    var search : Boolean = false,
     val callback: (NavController) -> Unit,
+
 )

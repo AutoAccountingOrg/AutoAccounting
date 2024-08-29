@@ -27,7 +27,7 @@ import net.ankio.auto.databinding.FragmentMapBinding
 //import net.ankio.auto.ui.adapter.MapAdapter
 import net.ankio.auto.ui.dialog.MapDialog
 import net.ankio.auto.ui.api.BaseFragment
-import net.ankio.auto.ui.utils.MenuItem
+import net.ankio.auto.ui.utils.ToolbarMenuItem
 import net.ankio.auto.models.AssetsMapModel
 
 class MapFragment : BaseFragment() {
@@ -36,10 +36,10 @@ class MapFragment : BaseFragment() {
   //  private lateinit var adapter: MapAdapter
 
     private var dataItems = mutableListOf<AssetsMapModel>()
-    override val menuList: ArrayList<MenuItem>
+    override val menuList: ArrayList<ToolbarMenuItem>
         get() =
             arrayListOf(
-                MenuItem(R.string.item_add, R.drawable.menu_item_add) {
+                ToolbarMenuItem(R.string.item_add, R.drawable.menu_item_add) {
                     MapDialog(requireContext(), onClose = {
                         dataItems.add(it)
                    //     adapter.notifyItemInserted(dataItems.size - 1)

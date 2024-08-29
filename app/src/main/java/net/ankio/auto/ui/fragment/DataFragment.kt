@@ -29,7 +29,7 @@ import net.ankio.auto.databinding.FragmentDataBinding
 import net.ankio.auto.ui.adapter.AppDataAdapter
 import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.api.BasePageFragment
-import net.ankio.auto.ui.utils.MenuItem
+import net.ankio.auto.ui.utils.ToolbarMenuItem
 import org.ezbook.server.db.model.AppDataModel
 
 class DataFragment : BasePageFragment<AppDataModel>() {
@@ -44,9 +44,9 @@ class DataFragment : BasePageFragment<AppDataModel>() {
         }
     }
 
-    override val menuList: ArrayList<MenuItem> =
+    override val menuList: ArrayList<ToolbarMenuItem> =
         arrayListOf(
-            MenuItem(R.string.item_clear, R.drawable.menu_icon_clear) {
+            ToolbarMenuItem(R.string.item_clear, R.drawable.menu_icon_clear) {
                 lifecycleScope.launch {
                     AppDataModel.clear()
                     page = 1

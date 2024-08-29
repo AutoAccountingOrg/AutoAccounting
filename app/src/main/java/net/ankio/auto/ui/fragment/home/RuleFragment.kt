@@ -25,7 +25,7 @@ import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentDataBinding
 //import net.ankio.auto.ui.adapter.RuleAdapter
 import net.ankio.auto.ui.api.BaseFragment
-import net.ankio.auto.ui.utils.MenuItem
+import net.ankio.auto.ui.utils.ToolbarMenuItem
 import net.ankio.auto.models.CustomRuleModel
 
 class RuleFragment : BaseFragment() {
@@ -34,10 +34,10 @@ class RuleFragment : BaseFragment() {
     //private lateinit var adapter: RuleAdapter
     private lateinit var layoutManager: LinearLayoutManager
     private val dataItems = mutableListOf<CustomRuleModel>()
-    override val menuList: ArrayList<MenuItem>
+    override val menuList: ArrayList<ToolbarMenuItem>
         get() =
             arrayListOf(
-                MenuItem(R.string.item_add, R.drawable.menu_item_add) {
+                ToolbarMenuItem(R.string.item_add, R.drawable.menu_item_add) {
                     it.navigate(R.id.editFragment)
                 },
             )

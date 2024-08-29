@@ -18,8 +18,10 @@ package net.ankio.auto.ui.api
 import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
 import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.appcompat.widget.SearchView
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
@@ -28,7 +30,7 @@ import com.zackratos.ultimatebarx.ultimatebarx.addNavigationBarBottomPadding
 import net.ankio.auto.App
 import net.ankio.auto.databinding.ActivityMainBinding
 import net.ankio.auto.ui.activity.MainActivity
-import net.ankio.auto.ui.utils.MenuItem
+import net.ankio.auto.ui.utils.ToolbarMenuItem
 
 /**
  * 基础的Fragment
@@ -37,7 +39,7 @@ abstract class BaseFragment : Fragment() {
     /**
      * 菜单列表
      */
-    open val menuList: ArrayList<MenuItem> = arrayListOf()
+    open val menuList: ArrayList<ToolbarMenuItem> = arrayListOf()
 
     override fun toString(): String {
         return this.javaClass.simpleName
@@ -112,13 +114,15 @@ abstract class BaseFragment : Fragment() {
         }
     }
 
+    protected var searchData = ""
+
     /**
      * 添加菜单
      */
-    private fun addMenuItem(menuItemObject: MenuItem) {
+    private fun addMenuItem(menuItemObject: ToolbarMenuItem) {
         val menu = activityBinding.toolbar.menu
         val menuItem = menu.add(Menu.NONE, Menu.NONE, Menu.NONE, getString(menuItemObject.title))
-        menuItem.setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_ALWAYS)
+
         val icon = AppCompatResources.getDrawable(requireActivity(), menuItemObject.drawable)
         if (icon != null) {
             menuItem.setIcon(icon)
@@ -127,10 +131,37 @@ abstract class BaseFragment : Fragment() {
                 App.getThemeAttrColor(R.attr.colorOnBackground),
             )
         }
-        menuItem.setOnMenuItemClickListener {
-            menuItemObject.callback.invoke((activity as MainActivity).getNavController())
-            true
+
+        if (menuItemObject.search){
+            menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM or MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW)
+
+            val searchView = SearchView(requireContext())
+            menuItem.setActionView(searchView)
+
+            searchView.queryHint = getString(menuItemObject.title)
+            searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    searchData = query.toString()
+                    menuItemObject.callback.invoke((activity as MainActivity).getNavController())
+                    return true
+                }
+
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    searchData = newText.toString()
+                    menuItemObject.callback.invoke((activity as MainActivity).getNavController())
+                    return false
+                }
+            })
+
+        }else{
+            menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+            menuItem.setOnMenuItemClickListener {
+                menuItemObject.callback.invoke((activity as MainActivity).getNavController())
+                true
+            }
         }
+
+
     }
 
     /**

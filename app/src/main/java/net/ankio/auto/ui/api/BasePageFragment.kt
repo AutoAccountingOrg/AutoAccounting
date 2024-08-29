@@ -54,13 +54,20 @@ abstract class BasePageFragment<T>: BaseFragment() {
     abstract suspend fun loadData(callback: (resultData: List<T>) -> Unit)
 
     /**
+     * 重置页面
+     */
+    protected fun resetPage(){
+        page = 1
+        val total = pageData.size
+        pageData.clear()
+        recyclerView.adapter?.notifyItemRangeRemoved(0, total)
+    }
+    /**
      * 获取数据
      */
     protected fun loadDataInside(callback: ((Boolean, Boolean) -> Unit)?=null){
         if (page == 1) {
-            val total = pageData.size
-            pageData.clear()
-            recyclerView.adapter?.notifyItemRangeRemoved(0, total)
+          resetPage()
         }
         lifecycleScope.launch {
             withContext(Dispatchers.IO){

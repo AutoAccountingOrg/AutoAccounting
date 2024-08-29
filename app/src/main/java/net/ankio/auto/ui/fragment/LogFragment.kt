@@ -31,7 +31,7 @@ import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.adapter.LogAdapter
 import net.ankio.auto.ui.api.BasePageFragment
 import net.ankio.auto.ui.utils.LoadingUtils
-import net.ankio.auto.ui.utils.MenuItem
+import net.ankio.auto.ui.utils.ToolbarMenuItem
 import net.ankio.auto.utils.DateUtils
 import org.ezbook.server.db.model.LogModel
 import java.io.File
@@ -41,9 +41,9 @@ import java.io.File
  */
 class LogFragment : BasePageFragment<LogModel>() {
     private lateinit var binding: FragmentLogBinding
-    override val menuList: ArrayList<MenuItem> =
+    override val menuList: ArrayList<ToolbarMenuItem> =
         arrayListOf(
-            MenuItem(R.string.item_share, R.drawable.menu_icon_share) {
+            ToolbarMenuItem(R.string.item_share, R.drawable.menu_icon_share) {
                 runCatching {
                     val loadingUtils = LoadingUtils(requireActivity())
                     loadingUtils.show(R.string.loading_logs)
@@ -98,7 +98,7 @@ class LogFragment : BasePageFragment<LogModel>() {
                     Logger.e("日志分享失败", it)
                 }
             },
-            MenuItem(R.string.item_clear, R.drawable.menu_icon_clear) {
+            ToolbarMenuItem(R.string.item_clear, R.drawable.menu_icon_clear) {
                 runCatching {
                     lifecycleScope.launch {
                         LogModel.clear()

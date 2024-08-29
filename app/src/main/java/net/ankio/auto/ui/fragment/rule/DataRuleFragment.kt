@@ -17,6 +17,7 @@ package net.ankio.auto.ui.fragment.rule
 
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -32,8 +33,9 @@ import net.ankio.auto.databinding.FragmentDataRuleBinding
 import net.ankio.auto.ui.adapter.DataRuleAdapter
 import net.ankio.auto.ui.api.BasePageFragment
 import net.ankio.auto.ui.componets.CustomNavigationRail
-import net.ankio.auto.ui.utils.MenuItem
 import net.ankio.auto.ui.utils.RailMenuItem
+import net.ankio.auto.ui.utils.ToastUtils
+import net.ankio.auto.ui.utils.ToolbarMenuItem
 import org.ezbook.server.constant.DataType
 import org.ezbook.server.db.model.RuleModel
 
@@ -42,11 +44,15 @@ import org.ezbook.server.db.model.RuleModel
  */
 class DataRuleFragment: BasePageFragment<RuleModel>()  {
     private lateinit var binding: FragmentDataRuleBinding
-    override val menuList: ArrayList<MenuItem>
+    override val menuList: ArrayList<ToolbarMenuItem>
         get() =
             arrayListOf(
-                MenuItem(R.string.item_add, R.drawable.menu_item_add) {
-                    it.navigate(R.id.editFragment)
+                ToolbarMenuItem(R.string.item_add, R.drawable.menu_item_add) {
+                   ToastUtils.error("敬请期待")
+                },
+                ToolbarMenuItem(R.string.item_notice, R.drawable.menu_item_notice,true) {
+                    // TODO 跳转通知监控列表
+                    Log.i("DataRuleFragment", "通知监控$searchData")
                 },
             )
 
