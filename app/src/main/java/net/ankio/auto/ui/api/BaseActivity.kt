@@ -57,11 +57,7 @@ open class BaseActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // 主题初始化
-        lifecycleScope.launch {
-            withContext(Dispatchers.IO) {
-                ThemeEngine.applyToActivity(this@BaseActivity)
-            }
-        }
+        ThemeEngine.applyToActivity(this@BaseActivity)
     }
 
     var mStatusBarColor: Int? = null
@@ -84,6 +80,7 @@ open class BaseActivity : AppCompatActivity() {
         }
         // 根据主题设置statusBar
         navigationBar { transparent() }
+        setSupportActionBar(toolbar)
         toolbarLayout?.addStatusBarTopPadding()
         mStatusBarColor = getThemeAttrColor(android.R.attr.colorBackground)
         mStatusBarColor2 = SurfaceColors.SURFACE_4.getColor(this@BaseActivity)
