@@ -21,6 +21,9 @@ import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.SettingModel
 
 class SettingRoute(private val session: NanoHTTPD.IHTTPSession) {
+    /**
+     * 获取设置
+     */
     fun get(): NanoHTTPD.Response {
         val params = session.parameters
         val key = params["key"]?.firstOrNull()?.toString() ?: ""
@@ -31,6 +34,9 @@ class SettingRoute(private val session: NanoHTTPD.IHTTPSession) {
         return Server.json(200, "OK", data)
     }
 
+    /**
+     * 设置
+     */
     fun set(): NanoHTTPD.Response {
         val key = session.parameters["key"]?.firstOrNull()?.toString() ?: ""
         if (key === "") {

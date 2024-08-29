@@ -29,12 +29,18 @@ class SettingModel {
     var value = ""
 
     companion object{
+        /**
+         * 获取设置
+         */
         suspend fun get(key: String,default:String): String{
             val response = Server.request("setting/get?key=$key")
             val json = Gson().fromJson(response, JsonObject::class.java)
             return runCatching { json.get("data").asString }.getOrNull() ?: default
         }
 
+        /**
+         * 设置
+         */
         suspend fun set(key: String, value: String) {
              Server.request("setting/set?key=$key", value)
         }
