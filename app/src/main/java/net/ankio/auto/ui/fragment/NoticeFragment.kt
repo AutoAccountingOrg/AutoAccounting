@@ -16,8 +16,10 @@
 package net.ankio.auto.ui.fragment
 
 import android.content.pm.ApplicationInfo
+import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -48,12 +50,17 @@ class NoticeFragment: BasePageFragment<AppInfo>() {
     )
 
     override suspend fun loadData(callback: (resultData: List<AppInfo>) -> Unit) {
-        resetPage()
+        Log.d("NoticeFragment", "loadData"+page)
+       if (page > 1){
+           withContext(Dispatchers.Main) {
+               callback(emptyList())
+           }
+           return
+       }
         // 获取PackageManager实例
         val packageManager: PackageManager = requireActivity().packageManager
         // 获取所有已安装的应用程序
         val packageInfos = packageManager.getInstalledPackages(0)
-
 
         // 创建列表用于存储应用程序信息
         val appInfos: MutableList<AppInfo> = ArrayList()
@@ -64,10 +71,12 @@ class NoticeFragment: BasePageFragment<AppInfo>() {
             val applicationInfo = packageInfo.applicationInfo
 
             val packageName = packageInfo.packageName
-            val appName = packageManager.getApplicationLabel(applicationInfo).toString()
+            var appName = ""
 
-            if (searchData!=="" && !appName.contains(searchData)) {
-                continue
+            //忽略大小写
+            if (searchData!=="") {
+                appName = packageManager.getApplicationLabel(applicationInfo).toString()
+                if (!appName.contains(searchData,true)) continue
             }
 
             val isSystemApp = (applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
@@ -80,11 +89,9 @@ class NoticeFragment: BasePageFragment<AppInfo>() {
             }
 
             // 创建AppInfo对象并添加到列表
-            val appInfo = AppInfo(packageName, appName, isSelected)
+            val appInfo = AppInfo(packageName, appName,applicationInfo, isSelected)
             appInfos.add(appInfo)
         }
-
-
 
         // 按是否已选择和应用名称排序
         appInfos.sortWith(compareBy<AppInfo> { !it.isSelected }.thenBy { it.appName })
@@ -94,6 +101,8 @@ class NoticeFragment: BasePageFragment<AppInfo>() {
             callback(appInfos)
         }
     }
+
+    private lateinit var  packageInfos: List<PackageInfo>
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -120,10 +129,7 @@ class NoticeFragment: BasePageFragment<AppInfo>() {
         return binding.root
     }
 
-    override fun onResume() {
-        super.onResume()
-        loadDataInside()
-    }
+
 
     override fun onPause() {
         super.onPause()

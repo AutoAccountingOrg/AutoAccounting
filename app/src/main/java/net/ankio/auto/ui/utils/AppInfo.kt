@@ -15,6 +15,7 @@
 
 package net.ankio.auto.ui.utils
 
+import android.content.pm.ApplicationInfo
 import android.graphics.drawable.Drawable
 
 
@@ -22,5 +23,6 @@ class AppInfo // 构造函数
     (// Getter和Setter
     val packageName: String,
     val appName: String,
+    val pkg: ApplicationInfo,
     var isSelected: Boolean
 )

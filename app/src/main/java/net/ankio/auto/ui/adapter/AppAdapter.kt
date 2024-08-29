@@ -34,7 +34,12 @@ class AppAdapter(private val list: MutableList<AppInfo>, private val pkg : Packa
     override fun onBindViewHolder(holder: BaseViewHolder<AdapterAppBinding,AppInfo>,data:AppInfo, position: Int) {
         val binding = holder.binding
         binding.appIcon.setImageDrawable(pkg.getApplicationIcon(data.packageName))
-        binding.appName.text = data.appName
+        if (data.appName.isNotEmpty()) {
+            binding.appName.text = data.appName
+        } else{
+            binding.appName.text = pkg.getApplicationLabel(data.pkg).toString()
+        }
+
         binding.appPackageName.text = data.packageName
         binding.checkbox.isChecked = data.isSelected
 
