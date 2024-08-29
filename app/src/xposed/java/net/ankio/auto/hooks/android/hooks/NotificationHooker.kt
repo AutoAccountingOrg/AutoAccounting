@@ -76,6 +76,7 @@ class NotificationHooker:PartHooker {
                     hookerManifest.logD("Notification Title: $originalTitle")
                     hookerManifest.logD("Notification Content: $originalText")
 
+                    // TODO 使用其他方案，这个方案不合适
 
                     App.scope.launch {
                         SettingModel.get("selectedApps","").let {
@@ -97,7 +98,7 @@ class NotificationHooker:PartHooker {
      */
     private fun checkNotification(pkg: String,title:String,text:String,selectedApps: List<String>,hookerManifest: HookerManifest) {
         if (!selectedApps.contains(pkg)) {
-            hookerManifest.logD("Notification not in selected apps: $pkg")
+            hookerManifest.logD("Notification not in selected apps: $pkg, $selectedApps")
             return
         }
         val json = JsonObject()
