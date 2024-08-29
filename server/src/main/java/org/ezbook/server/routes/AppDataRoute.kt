@@ -24,6 +24,11 @@ class AppDataRoute(private val session: NanoHTTPD.IHTTPSession) {
      * 获取规则列表
      */
     fun list(): NanoHTTPD.Response {
+
+        // 清理过期数据
+        Db.get().dataDao().clearOld()
+
+
         val params = session.parameters
         val page = params["page"]?.firstOrNull()?.toInt() ?: 1
         val limit = params["limit"]?.firstOrNull()?.toInt() ?: 10
@@ -47,5 +52,14 @@ class AppDataRoute(private val session: NanoHTTPD.IHTTPSession) {
         }
         return Server.json(200, "OK", logs, total)
     }
+
+    /**
+     * 添加规则，
+     */
+    fun clear(): NanoHTTPD.Response {
+        Db.get().dataDao().clear()
+        return Server.json(200, "OK")
+    }
+
 
 }

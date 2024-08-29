@@ -66,6 +66,9 @@ class LogModel {
              Gson().fromJson(json.getAsJsonArray("data"), Array<LogModel>::class.java).toList()
         }
 
+        /**
+         * 清空日志
+         */
        suspend fun clear()= withContext(Dispatchers.IO)  {
             Server.request("log/clear")
         }

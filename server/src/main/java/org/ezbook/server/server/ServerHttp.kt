@@ -65,7 +65,7 @@ class ServerHttp(port:Int,threadCount:Int,private val context: Context) : NanoHT
                 "/js/analysis" -> JsRoute(session,context).analysis()
                  // App Data
                  "/data/list" -> AppDataRoute(session).list()
-
+                 "/data/clear" -> AppDataRoute(session).clear()
                 else -> json(404,"Not Found",null,0)
             }
         }.getOrElse {

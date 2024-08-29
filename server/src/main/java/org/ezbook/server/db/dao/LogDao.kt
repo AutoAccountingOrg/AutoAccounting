@@ -34,4 +34,8 @@ interface LogDao {
 
     @Query("DELETE FROM LogModel")
     fun clear()
+
+    // only keep the latest 10000 records
+    @Query("DELETE FROM LogModel WHERE id NOT IN (SELECT id FROM LogModel ORDER BY id DESC LIMIT 10000)")
+    fun clearOld()
 }

@@ -26,6 +26,9 @@ class LogRoute(private val session: NanoHTTPD.IHTTPSession) {
      * 获取日志列表
      */
      fun list(): NanoHTTPD.Response {
+         //remove expired data
+            Db.get().logDao().clearOld()
+
         val params = session.parameters
         val page = params["page"]?.firstOrNull()?.toInt() ?: 1
         val limit = params["limit"]?.firstOrNull()?.toInt() ?: 10

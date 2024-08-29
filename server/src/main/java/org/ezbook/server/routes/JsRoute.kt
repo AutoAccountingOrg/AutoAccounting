@@ -28,7 +28,6 @@ import org.ezbook.server.db.model.SettingModel
 import org.ezbook.server.engine.RuleGenerator
 import org.mozilla.javascript.Context
 import org.mozilla.javascript.Scriptable
-import org.mozilla.javascript.ScriptableObject
 
 
 class JsRoute(private val session: NanoHTTPD.IHTTPSession,private val context: android.content.Context) {
@@ -60,6 +59,8 @@ class JsRoute(private val session: NanoHTTPD.IHTTPSession,private val context: a
         if (!fromAppData){
             appDataModel.id = Db.get().dataDao().insert(appDataModel)
         }
+
+        val t = System.currentTimeMillis()
 
         val js = RuleGenerator.data(app,data,dataType)
 
@@ -106,6 +107,10 @@ class JsRoute(private val session: NanoHTTPD.IHTTPSession,private val context: a
         billInfoModel.cateName = categoryJson.get("category")?.asString ?: "其他"
 
         billInfoModel.id = Db.get().billInfoDao().insert(billInfoModel)
+
+        val total = System.currentTimeMillis() - t
+        // 识别用时
+        Server.log("analysis time: $total ms")
 
         // 切换到主线程
         Server.runOnMainThread {

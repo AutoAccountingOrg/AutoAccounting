@@ -17,8 +17,11 @@ package org.ezbook.server.db.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.google.gson.Gson
+import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.ezbook.server.Server
 import org.ezbook.server.constant.DataType
 import org.ezbook.server.db.Db
 
@@ -65,13 +68,23 @@ class AppDataModel {
     var issue: Int = 0
 
     companion object{
-        suspend fun add(app:String,data:String,type:DataType):Long = withContext(Dispatchers.IO){
-            val appDataModel = AppDataModel()
-            appDataModel.app = app
-            appDataModel.data = data
-            appDataModel.type = type
-            appDataModel.time = System.currentTimeMillis()
-            Db.get().dataDao().insert(appDataModel)
+        /**
+         * 根据条件查询
+         * @param app 应用
+         * @param type 类型
+         * @param page 页码
+         * @param limit 每页数量
+         * @return 规则列表
+         */
+        suspend fun list(app: String, type: String, page: Int, limit: Int) : List<AppDataModel> = withContext(Dispatchers.IO) {
+            val response = Server.request("data/list?page=$page&limit=$limit&app=$app&type=$type")
+            val json = Gson().fromJson(response, JsonObject::class.java)
+
+            runCatching { Gson().fromJson(json.getAsJsonArray("data"), Array<AppDataModel>::class.java).toList() }.getOrNull() ?: emptyList()
+        }
+
+        suspend fun clear() = withContext(Dispatchers.IO){
+            Db.get().dataDao().clear()
         }
     }
 
