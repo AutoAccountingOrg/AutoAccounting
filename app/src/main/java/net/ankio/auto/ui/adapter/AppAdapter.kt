@@ -40,6 +40,7 @@ class AppAdapter(private val list: MutableList<AppInfo>, private val pkg : Packa
             binding.appName.text = pkg.getApplicationLabel(data.pkg).toString()
         }
 
+        binding.appVersionName.text = pkg.getPackageInfo(data.packageName, 0).versionName
         binding.appPackageName.text = data.packageName
         binding.checkbox.isChecked = data.isSelected
 

@@ -53,6 +53,7 @@
             android:textAppearance="?android:attr/textAppearanceListItemSecondary"
             android:visibility="visible"
             app:layout_constrainedWidth="true"
+            app:layout_constraintBottom_toTopOf="@id/app_Version_Name"
             app:layout_constraintEnd_toStartOf="@id/checkbox"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="@id/app_name"
@@ -60,7 +61,22 @@
             app:layout_constraintWidth_max="wrap"
             tools:text="com.lsposed.manager" />
 
-
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/app_Version_Name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="marquee"
+            android:maxLines="1"
+            android:scrollbars="none"
+            android:textAppearance="?android:attr/textAppearanceListItemSecondary"
+            android:visibility="visible"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintEnd_toStartOf="@id/checkbox"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@id/app_Package_Name"
+            app:layout_constraintTop_toBottomOf="@id/app_Package_Name"
+            app:layout_constraintWidth_max="wrap"
+            tools:text="Version :1.8.1" />
 
         <com.google.android.material.checkbox.MaterialCheckBox
             android:id="@+id/checkbox"
