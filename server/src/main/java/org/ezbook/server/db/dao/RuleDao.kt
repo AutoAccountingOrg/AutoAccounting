@@ -59,4 +59,8 @@ interface RuleDao {
 
     @Query("SELECT * FROM RuleModel WHERE creator = 'system'")
      fun loadAllSystem():List<RuleModel>
+
+
+    @Query("SELECT * FROM RuleModel WHERE app = :app AND type = :type AND name = :name limit 1")
+    fun query(type: String,app:String,name:String):RuleModel?
 }

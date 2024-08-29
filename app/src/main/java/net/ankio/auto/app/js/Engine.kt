@@ -17,7 +17,7 @@ package net.ankio.auto.app.js
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.ankio.auto.models.BillInfoModel
+import org.ezbook.server.db.model.BillInfoModel
 import net.ankio.auto.utils.AppTimeMonitor
 
 object Engine {

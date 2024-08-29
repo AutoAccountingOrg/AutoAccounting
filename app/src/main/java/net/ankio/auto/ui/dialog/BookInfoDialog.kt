@@ -24,7 +24,7 @@ import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogBookInfoBinding
 import net.ankio.auto.storage.ImageUtils
 import net.ankio.auto.models.BookNameModel
-import net.ankio.common.constant.BillType
+import org.ezbook.server.constant.BillType
 
 class BookInfoDialog(
     private val context: Context,

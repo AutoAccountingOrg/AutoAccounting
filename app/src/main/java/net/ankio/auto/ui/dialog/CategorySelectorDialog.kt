@@ -22,13 +22,11 @@ import android.view.ViewGroup.MarginLayoutParams
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import net.ankio.auto.databinding.DialogCategorySelectBinding
 //import net.ankio.auto.ui.adapter.CategorySelectorAdapter
 import net.ankio.auto.models.CategoryModel
-import net.ankio.common.constant.BillType
+import org.ezbook.server.constant.BillType
 
 /**
  * 这个类表示一个用于选择类别的对话框。

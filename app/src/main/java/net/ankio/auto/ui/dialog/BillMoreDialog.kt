@@ -23,8 +23,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.launch
 import net.ankio.auto.databinding.DialogBillMoreBinding
 //import net.ankio.auto.ui.adapter.OrderItemAdapter
-import net.ankio.auto.utils.AppUtils
-import net.ankio.auto.models.BillInfoModel
+import org.ezbook.server.db.model.BillInfoModel
 
 class BillMoreDialog(
     private val context: Context,

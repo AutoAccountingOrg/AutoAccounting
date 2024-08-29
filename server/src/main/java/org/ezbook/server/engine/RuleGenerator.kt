@@ -27,8 +27,8 @@ import org.ezbook.server.db.Db
  */
 object RuleGenerator {
     // 生成 hook的 js代码
-    suspend fun data(data:String,app:String,type:DataType):String = withContext(Dispatchers.IO){
-        val rules = Db.get().ruleDao().loadAllEnabled(app,type.name)
+    fun data(data:String,app:String,type:DataType):String {
+        val rules = Db.get().ruleDao().loadAllEnabled(app, type.name)
         val js = StringBuilder()
 
         //注入common.js
@@ -38,8 +38,8 @@ object RuleGenerator {
         val jsonArray = JsonArray()
         rules.forEach {
             val jsonObject = JsonObject()
-            jsonObject.addProperty("name",it.name)
-            jsonObject.addProperty("obj",it.systemRuleName)
+            jsonObject.addProperty("name", it.name)
+            jsonObject.addProperty("obj", it.systemRuleName)
             js.append(it.js)
             jsonArray.add(jsonObject)
         }
@@ -49,7 +49,8 @@ object RuleGenerator {
         // 注入检测逻辑
 
         //基础的js
-        js.append("""
+        js.append(
+            """
              var window = {};
              window.rules = $jsonArray;
              window.data = '$escapedInput';
@@ -80,8 +81,18 @@ object RuleGenerator {
 
 
              
-        """.trimIndent())
+        """.trimIndent()
+        )
 
-        js.toString()
+        return js.toString()
+    }
+
+    fun category():String{
+        val categoryCustom = Db.get().settingDao().query("categoryCustom")?.value ?: ""
+        val category = Db.get().settingDao().query("category")?.value ?: ""
+        return "var window = {money:money, type:type, shopName:shopName, shopItem:shopItem, time:time};" +
+                    "function getCategory(money,type,shopName,shopItem,time){ $categoryCustom return null};" +
+                    "var categoryInfo = getCategory(money,type,shopName,shopItem,time);" +
+                    "if(categoryInfo !== null) { print(JSON.stringify(categoryInfo));  } else { $category }"
     }
 }

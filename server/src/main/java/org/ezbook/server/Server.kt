@@ -22,20 +22,27 @@ import com.google.gson.JsonObject
 import fi.iki.elonen.NanoHTTPD
 import fi.iki.elonen.NanoHTTPD.SOCKET_READ_TIMEOUT
 import fi.iki.elonen.NanoHTTPD.newFixedLengthResponse
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import org.ezbook.server.constant.LogLevel
 import org.ezbook.server.db.Db
+import org.ezbook.server.db.model.LogModel
 import org.ezbook.server.server.ServerHttp
+import kotlin.jvm.Throws
 
 
 class Server(context:Context) {
 
     private val port = 52045
     private val count  = 16
-    private val server = ServerHttp(port,count)
+    private val server = ServerHttp(port,count,context)
     init {
         Db.init(context)
     }
@@ -44,8 +51,14 @@ class Server(context:Context) {
      */
     fun startServer(){
         server.start(SOCKET_READ_TIMEOUT, false)
-        println("Server started on port 52045")
+        println("Server started on port $port")
+
+
     }
+
+
+
+
 
     fun stopServer(){
         server.stop()
@@ -54,8 +67,11 @@ class Server(context:Context) {
 
     companion object {
 
-        val versionCode = 1
+        const val versionCode = 1
 
+        /**
+         * 获取请求数据
+         */
         fun reqData(session:NanoHTTPD.IHTTPSession): String {
             val contentLength: Int = session.headers["content-length"]?.toInt() ?: 0
             val buffer = ByteArray(contentLength)
@@ -65,6 +81,9 @@ class Server(context:Context) {
 
         }
 
+        /**
+         * 返回json
+         */
         fun json(code:Int = 200,msg:String = "OK",data:Any? = null,count:Int = 0): NanoHTTPD.Response {
             val jsonObject = JsonObject()
             jsonObject.addProperty("code", code)
@@ -78,6 +97,10 @@ class Server(context:Context) {
             )
         }
 
+
+        /**
+         * 发送请求
+         */
        suspend fun request(path:String,json:String = ""):String?{
           return runCatching {
                val uri = "http://localhost:52045/$path"
@@ -95,6 +118,41 @@ class Server(context:Context) {
                response.body?.string()
 
            }.getOrNull()
+        }
+
+        private const val TAG = "auto_server"
+
+        /**
+         * 日志
+         */
+        fun log(msg:String){
+            Db.get().logDao().insert(LogModel().apply {
+                level = LogLevel.INFO
+                app = TAG
+                message = msg
+            })
+            Log.d("Server",msg)
+        }
+
+        /**
+         * 错误日志
+         */
+        fun log(e:Throwable){
+
+            Db.get().logDao().insert(LogModel().apply {
+                level = LogLevel.ERROR
+                app = TAG
+                message = e.message?:""
+            })
+
+            e.printStackTrace()
+        }
+
+        fun runOnMainThread(function: () -> Unit) {
+            CoroutineScope(Job()).launch {
+                function()
+                cancel()
+            }
         }
     }
 }

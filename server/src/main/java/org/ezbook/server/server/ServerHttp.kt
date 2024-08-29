@@ -15,16 +15,18 @@
 
 package org.ezbook.server.server
 
+import android.content.Context
 import fi.iki.elonen.NanoHTTPD
 import org.ezbook.server.Server
 import org.ezbook.server.Server.Companion.json
 import org.ezbook.server.routes.AppDataRoute
+import org.ezbook.server.routes.JsRoute
 import org.ezbook.server.routes.LogRoute
 import org.ezbook.server.routes.RuleRoute
 import org.ezbook.server.routes.SettingRoute
 import java.util.Locale
 
-class ServerHttp(port:Int,threadCount:Int) : NanoHTTPD(port) {
+class ServerHttp(port:Int,threadCount:Int,private val context: Context) : NanoHTTPD(port) {
     init {
         asyncRunner = BoundRunner(java.util.concurrent.Executors.newFixedThreadPool(threadCount))
     }
@@ -59,6 +61,8 @@ class ServerHttp(port:Int,threadCount:Int) : NanoHTTPD(port) {
                     // 添加设置
                 "/setting/set" -> SettingRoute(session).set()
                  //--------------------------------
+                 // js 分析
+                "/js/analysis" -> JsRoute(session,context).analysis()
                  // App Data
                  "/data/list" -> AppDataRoute(session).list()
 

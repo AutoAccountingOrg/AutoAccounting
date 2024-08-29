@@ -38,7 +38,7 @@ import net.ankio.auto.R
 import net.ankio.auto.app.BillUtils
 import net.ankio.auto.constant.FloatEvent
 import net.ankio.auto.databinding.FloatTipBinding
-import net.ankio.auto.models.BillInfoModel
+import org.ezbook.server.db.model.BillInfoModel
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.storage.SpUtils

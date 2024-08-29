@@ -43,11 +43,11 @@ import net.ankio.auto.storage.Logger
 import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.models.AssetsModel
 import net.ankio.auto.models.AssetsMapModel
-import net.ankio.auto.models.BillInfoModel
+import org.ezbook.server.db.model.BillInfoModel
 import net.ankio.auto.models.BookNameModel
 import net.ankio.auto.models.CategoryModel
 import net.ankio.auto.common.AccountingConfig
-import net.ankio.common.constant.BillType
+import org.ezbook.server.constant.BillType
 import net.ankio.common.constant.Currency
 import java.util.Calendar
 

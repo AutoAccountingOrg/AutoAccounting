@@ -12,5 +12,15 @@
  *  See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package net.ankio.auto.models
 
+package org.ezbook.server.db.dao
+
+import androidx.room.Dao
+import androidx.room.Insert
+import org.ezbook.server.db.model.BillInfoModel
+
+@Dao
+interface BillInfoDao {
+    @Insert
+    fun insert(billInfo: BillInfoModel): Long
+}

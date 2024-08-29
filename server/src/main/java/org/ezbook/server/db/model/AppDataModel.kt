@@ -17,12 +17,15 @@ package org.ezbook.server.db.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.ezbook.server.constant.DataType
+import org.ezbook.server.db.Db
 
 @Entity
 class AppDataModel {
     @PrimaryKey(autoGenerate = true)
-    var id = 0
+    var id = 0L
     /**
      * 对于App数据，就是Hook得到的数据一般是Json：{} 具体情况具体分析
      * 对于短信数据获取到的是短信内容 {msg:xxx,body:''}
@@ -60,5 +63,16 @@ class AppDataModel {
      * 关联github issue
      */
     var issue: Int = 0
+
+    companion object{
+        suspend fun add(app:String,data:String,type:DataType):Long = withContext(Dispatchers.IO){
+            val appDataModel = AppDataModel()
+            appDataModel.app = app
+            appDataModel.data = data
+            appDataModel.type = type
+            appDataModel.time = System.currentTimeMillis()
+            Db.get().dataDao().insert(appDataModel)
+        }
+    }
 
 }
