@@ -18,6 +18,7 @@ package org.ezbook.server.server
 import fi.iki.elonen.NanoHTTPD
 import org.ezbook.server.Server
 import org.ezbook.server.Server.Companion.json
+import org.ezbook.server.routes.AppDataRoute
 import org.ezbook.server.routes.LogRoute
 import org.ezbook.server.routes.RuleRoute
 import org.ezbook.server.routes.SettingRoute
@@ -57,7 +58,9 @@ class ServerHttp(port:Int,threadCount:Int) : NanoHTTPD(port) {
                 "/setting/get" -> SettingRoute(session).get()
                     // 添加设置
                 "/setting/set" -> SettingRoute(session).set()
-
+                 //--------------------------------
+                 // App Data
+                 "/data/list" -> AppDataRoute(session).list()
 
                 else -> json(404,"Not Found",null,0)
             }
