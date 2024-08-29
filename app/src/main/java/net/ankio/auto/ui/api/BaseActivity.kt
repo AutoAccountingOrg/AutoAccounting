@@ -80,7 +80,6 @@ open class BaseActivity : AppCompatActivity() {
         }
         // 根据主题设置statusBar
         navigationBar { transparent() }
-        setSupportActionBar(toolbar)
         toolbarLayout?.addStatusBarTopPadding()
         mStatusBarColor = getThemeAttrColor(android.R.attr.colorBackground)
         mStatusBarColor2 = SurfaceColors.SURFACE_4.getColor(this@BaseActivity)

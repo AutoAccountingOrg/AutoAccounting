@@ -50,12 +50,6 @@ abstract class BaseFragment : Fragment() {
      * 获取activity的binding
      */
     private lateinit var activityBinding: ActivityMainBinding
-
-    /**
-     * 是否初始化
-     */
-    private var initialized = false
-
     /**
      * 滚动视图
      */
