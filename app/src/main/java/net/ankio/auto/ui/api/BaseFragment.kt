@@ -64,8 +64,7 @@ abstract class BaseFragment : Fragment() {
         if (!this::activityBinding.isInitialized) {
             activityBinding = mainActivity.getBinding()
         }
-        if (initialized)return
-        initialized = true
+
         activityBinding.toolbar.visibility = View.VISIBLE
         // 重置顶部导航栏图标
         activityBinding.toolbar.menu.clear()
