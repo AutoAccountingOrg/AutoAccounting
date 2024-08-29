@@ -17,6 +17,7 @@ package net.ankio.auto.ui.api
 
 import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -48,7 +49,7 @@ abstract class BaseFragment : Fragment() {
     /**
      * 获取activity的binding
      */
-    protected lateinit var activityBinding: ActivityMainBinding
+    private lateinit var activityBinding: ActivityMainBinding
 
     /**
      * 是否初始化
@@ -66,6 +67,7 @@ abstract class BaseFragment : Fragment() {
         if (!this::activityBinding.isInitialized) {
             activityBinding = mainActivity.getBinding()
         }
+
 
         activityBinding.toolbar.visibility = View.VISIBLE
         // 重置顶部导航栏图标
@@ -122,7 +124,7 @@ abstract class BaseFragment : Fragment() {
     private fun addMenuItem(menuItemObject: ToolbarMenuItem) {
         val menu = activityBinding.toolbar.menu
         val menuItem = menu.add(Menu.NONE, Menu.NONE, Menu.NONE, getString(menuItemObject.title))
-
+        menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
         val icon = AppCompatResources.getDrawable(requireActivity(), menuItemObject.drawable)
         if (icon != null) {
             menuItem.setIcon(icon)
@@ -154,7 +156,6 @@ abstract class BaseFragment : Fragment() {
             })
 
         }else{
-            menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
             menuItem.setOnMenuItemClickListener {
                 menuItemObject.callback.invoke((activity as MainActivity).getNavController())
                 true
