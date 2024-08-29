@@ -19,6 +19,7 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.ezbook.server.constant.DataType
 import org.ezbook.server.db.Db
 
 /**
@@ -26,8 +27,8 @@ import org.ezbook.server.db.Db
  */
 object RuleGenerator {
     // 生成 hook的 js代码
-    suspend fun data(data:String,app:String,type:String = "data"):String = withContext(Dispatchers.IO){
-        val rules = Db.get().ruleDao().loadAllEnabled(app,type)
+    suspend fun data(data:String,app:String,type:DataType):String = withContext(Dispatchers.IO){
+        val rules = Db.get().ruleDao().loadAllEnabled(app,type.name)
         val js = StringBuilder()
 
         //注入common.js
