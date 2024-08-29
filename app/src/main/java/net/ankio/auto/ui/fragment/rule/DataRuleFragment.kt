@@ -34,6 +34,7 @@ import net.ankio.auto.ui.api.BasePageFragment
 import net.ankio.auto.ui.componets.CustomNavigationRail
 import net.ankio.auto.ui.utils.MenuItem
 import net.ankio.auto.ui.utils.RailMenuItem
+import org.ezbook.server.constant.DataType
 import org.ezbook.server.db.model.RuleModel
 
 /**
@@ -133,10 +134,10 @@ class DataRuleFragment: BasePageFragment<RuleModel>()  {
                     type = ""
                 }
                 R.id.chip_notify -> {
-                    type = "notify"
+                    type = DataType.NOTICE.name
                 }
                 R.id.chip_data -> {
-                    type = "data"
+                    type = DataType.DATA.name
                 }
             }
             page = 1

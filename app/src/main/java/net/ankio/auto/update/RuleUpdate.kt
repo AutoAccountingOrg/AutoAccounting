@@ -28,6 +28,7 @@ import net.ankio.auto.storage.ZipUtils
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.storage.Logger
+import org.ezbook.server.constant.DataType
 import org.ezbook.server.db.model.RuleModel
 import org.ezbook.server.db.model.SettingModel
 
@@ -95,8 +96,13 @@ class RuleUpdate(private val context: Context) : BaseUpdate(context) {
                                 val ruleModel = RuleModel()
                                 ruleModel.name = json.asJsonObject.get("ruleChineseName").asString
                                 ruleModel.systemRuleName = json.asJsonObject.get("ruleName").asString
-                                ruleModel.app = json.asJsonObject.get("ruleType").asString
-                                ruleModel.type = json.asJsonObject.get("ruleApp").asString
+                                ruleModel.app = json.asJsonObject.get("ruleApp").asString
+                                ruleModel.type = when(json.asJsonObject.get("ruleType").asString){
+                                    "app" -> DataType.DATA.name
+                                    "helper" -> DataType.DATA.name
+                                    "notice" -> DataType.NOTICE.name
+                                    else -> ""
+                                }
                                 ruleModel.js =
                                     root.resolve(json.asJsonObject.get("path").asString).readText()
                                 ruleModel.creator = "system"
