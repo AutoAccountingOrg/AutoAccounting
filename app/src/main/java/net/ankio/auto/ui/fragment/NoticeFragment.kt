@@ -50,7 +50,6 @@ class NoticeFragment: BasePageFragment<AppInfo>() {
     )
 
     override suspend fun loadData(callback: (resultData: List<AppInfo>) -> Unit) {
-        Log.d("NoticeFragment", "loadData"+page)
        if (page > 1){
            withContext(Dispatchers.Main) {
                callback(emptyList())
@@ -102,7 +101,6 @@ class NoticeFragment: BasePageFragment<AppInfo>() {
         }
     }
 
-    private lateinit var  packageInfos: List<PackageInfo>
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -139,6 +137,7 @@ class NoticeFragment: BasePageFragment<AppInfo>() {
         SpUtils.putString("selectedApps", str)
         App.launch {
             SettingModel.set("selectedApps", str)
+            Logger.d("selectedApps => $selectedApps")
         }
     }
 }
