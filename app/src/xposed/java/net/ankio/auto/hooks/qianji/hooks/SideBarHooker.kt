@@ -21,6 +21,7 @@ import android.content.Intent
 import android.view.LayoutInflater
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
@@ -167,10 +168,16 @@ class SideBarHooker : PartHooker{
         }
     }
 
- //   var t = System.currentTimeMillis()
+    /**
+     * 同步数据到自动记账
+     */
     fun syncData2Auto(context: Activity){
+
+        App.toast("正在同步数据到自动记账...")
         App.launch {
            val utils = SyncUtils(hookerManifest, context.classLoader)
+            //同步资产
+            App.toast("正在同步资产数据...")
             utils.syncAssets()
         }
     }
