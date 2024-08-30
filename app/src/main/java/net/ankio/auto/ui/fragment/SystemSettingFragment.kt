@@ -217,7 +217,6 @@ class SystemSettingFragment : BaseFragment() {
                 },
                 onItemClick = { _, activity ->
                     BackupUtils.requestPermission(activity as MainActivity)
-                    //   activity.recreateActivity()
                 },
             ),
             SettingItem(
