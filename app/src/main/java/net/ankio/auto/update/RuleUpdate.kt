@@ -16,6 +16,7 @@
 package net.ankio.auto.update
 
 import android.app.Activity
+import android.app.Application
 import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.JsonArray
@@ -90,14 +91,26 @@ class RuleUpdate(private val context: Context) : BaseUpdate(context) {
 
                             // 这是所有规则的元数据
                             val models = mutableListOf<RuleModel>()
+                            val isXposed  = BuildConfig.APPLICATION_ID.endsWith("xposed")
                             // 读取每个规则的json文件
                             arrays.forEach { json ->
+                                val type = json.asJsonObject.get("ruleType").asString
+                                val app = json.asJsonObject.get("ruleApp").asString
+                                //Xposed模式不同步无障碍数据
+                                if (isXposed && type == "helper"){
+                                    return@forEach
+                                }
+                                //无障碍模式不同步Xposed数据，短信除外
+                                if(!isXposed && type == "app" && app !=="com.android.phone"){
+                                    return@forEach
+                                }
 
                                 val ruleModel = RuleModel()
                                 ruleModel.name = json.asJsonObject.get("ruleChineseName").asString
                                 ruleModel.systemRuleName = json.asJsonObject.get("ruleName").asString
-                                ruleModel.app = json.asJsonObject.get("ruleApp").asString
-                                ruleModel.type = when(json.asJsonObject.get("ruleType").asString){
+                                ruleModel.app = app
+
+                                ruleModel.type = when(type){
                                     "app" -> DataType.DATA.name
                                     "helper" -> DataType.DATA.name
                                     "notice" -> DataType.NOTICE.name
