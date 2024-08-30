@@ -268,8 +268,12 @@ class HomeFragment : BaseFragment() {
         if (this::broadcastReceiver.isInitialized) {
             LocalBroadcastHelper.unregisterReceiver(broadcastReceiver)
         }
+        if (this::broadcastReceiverBook.isInitialized) {
+            LocalBroadcastHelper.unregisterReceiver(broadcastReceiverBook)
+        }
     }
 
+    lateinit var broadcastReceiverBook: BroadcastReceiver
     /**
      * 绑定记账软件数据部分的事件
      */
@@ -278,6 +282,9 @@ class HomeFragment : BaseFragment() {
          * 获取主题Context，部分弹窗样式不含M3主题
          */
         val themeContext = App.getThemeContext(requireContext())
+        broadcastReceiverBook = LocalBroadcastHelper.registerReceiver(LocalBroadcastHelper.ACTION_APP_CHANGED) { a, b ->
+            bindBookAppUI()
+        }
         binding.bookAppContainer.setOnClickListener {
             AppDialog(requireActivity()).show(false)
         }
