@@ -21,7 +21,7 @@ import org.ezbook.server.Server
 object ServerInfo {
 
     suspend fun isServerStart():Boolean{
-        return Server.request("/") === null
+        return Server.request("/") !== null
     }
 
 

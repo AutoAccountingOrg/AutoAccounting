@@ -28,7 +28,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.elevation.SurfaceColors
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
@@ -129,6 +132,11 @@ class HomeFragment : BaseFragment() {
     private fun checkAutoService(){
 
         lifecycleScope.launch {
+            if (BuildConfig.DEBUG){
+                withContext(Dispatchers.IO){
+                    delay(60000)
+                }
+            }
             if (!ServerInfo.isServerStart()){
                 MaterialAlertDialogBuilder(requireActivity())
                     .setTitle(R.string.title_cant_connect_service)
