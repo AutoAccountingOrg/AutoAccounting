@@ -56,9 +56,9 @@ class AssetsModel {
             runCatching { Gson().fromJson(json.getAsJsonArray("data"), Array<AssetsModel>::class.java).toList() }.getOrNull() ?: emptyList()
         }
 
-        suspend fun put(data: Array<AssetsModel>) {
+        suspend fun put(data: ArrayList<AssetsModel>,md5:String) {
             val json = Gson().toJson(data)
-            Server.request("assets/put", json)
+            Server.request("assets/put?md5=$md5", json)
         }
     }
 }

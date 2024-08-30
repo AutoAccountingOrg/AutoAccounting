@@ -20,13 +20,15 @@ import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
 import net.ankio.auto.hooks.qianji.hooks.SideBarHooker
 import net.ankio.dex.model.Clazz
+import net.ankio.dex.model.ClazzField
+import net.ankio.dex.model.ClazzMethod
 
 class QianjiHooker:HookerManifest() {
     override val packageName: String
         get() = "com.mutangtech.qianji"
     override val appName: String
         get() = "钱迹"
-
+    override var minVersion: Int = 951
     override fun hookLoadPackage(application: Application?, classLoader: ClassLoader) {
 
     }
@@ -37,6 +39,167 @@ class QianjiHooker:HookerManifest() {
         )
         set(value) {}
     override var rules: MutableList<Clazz>
-        get() = mutableListOf()
+        get() = mutableListOf(
+           /* Clazz(
+                name = "BookManager",
+                nameRule = "^\\w{0,2}\\..+",
+                type = "class",
+                methods =
+                listOf(
+                    ClazzMethod(
+                        name = "isFakeDefaultBook",
+                        returnType = "boolean",
+                        parameters =
+                        listOf(
+                            ClazzField(
+                                type = "com.mutangtech.qianji.data.model.Book",
+                            ),
+                        ),
+                    ),
+                    ClazzMethod(
+                        name = "getAllBooks",
+                        returnType = "java.util.List",
+                    ),
+                ),
+            ),
+            Clazz(
+                type = "interface",
+                name = "onGetCategoryList",
+                nameRule = "^\\w{0,2}\\..+",
+                methods =
+                listOf(
+                    ClazzMethod(
+                        name = "onGetCategoryList",
+                        returnType = "void",
+                        parameters =
+                        listOf(
+                            ClazzField(
+                                type = "java.util.List",
+                            ),
+                            ClazzField(
+                                type = "java.util.List",
+                            ),
+                            ClazzField(
+                                type = "boolean",
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+           Clazz(
+                type = "interface",
+                name = "onGetAssetsFromApi", // loadAssets()
+                methods =
+                listOf(
+                    ClazzMethod(
+                        name = "onGetAssetsFromApi",
+                        returnType = "void",
+                    ),
+                    ClazzMethod(
+                        name = "onGetAssetsFromDB",
+                        returnType = "void",
+                    ),
+                ),
+            ),
+            Clazz(
+                type="class",
+                name = "AssetContainer", // onGetAssetsFromApi(boolean,f8.f)
+                methods =
+                listOf(
+                    ClazzMethod(
+                        name = "getAsset",
+                    ),
+                    ClazzMethod(
+                        name = "getCurrent",
+                        returnType = "int",
+                    ),
+                    ClazzMethod(
+                        name = "getEnabled",
+                        returnType = "boolean",
+                    ),
+                ),
+            ),
+            Clazz(
+                type="class",
+                name = "AssetPreviewPresenterImplParam1", // u7.h，用于初始化 AssetPreviewPresenterImpl assetPreviewPresenterImpl = new AssetPreviewPresenterImpl(this, this.f15789r0);
+                methods =
+                listOf(
+                    ClazzMethod(
+                        name = "onGetAssetsFromApi",
+                    ),
+                    ClazzMethod(
+                        name = "onGetAssetsFromDB",
+                    ),
+                ),
+            ),
+            Clazz(
+                type = "interface",
+                name = "onGetBaoXiaoList",
+                nameRule = "^\\w{0,2}\\..+",
+                methods =
+                listOf(
+                    ClazzMethod(
+                        name = "onGetList",
+                        returnType = "void",
+                        parameters =
+                        listOf(
+                            ClazzField(
+                                type = "java.util.List",
+                            ),
+                        ),
+                    ),
+                    ClazzMethod(
+                        name = "onBaoXiaoFinished",
+                        returnType = "void",
+                        parameters =
+                        listOf(
+                            ClazzField(
+                                type = "boolean",
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+            Clazz(
+                type = "enum",
+                name = "filterEnum",
+                nameRule = "^\\w{0,2}\\..+",
+                fields =
+                arrayListOf(
+                    ClazzField(
+                        name = "ALL",
+                    ),
+                    ClazzField(
+                        name = "HAS",
+                    ),
+                    ClazzField(
+                        name = "NOT",
+                    ),
+                ),
+            ),
+            Clazz(
+                name = "UserManager",
+                nameRule = "^\\w{0,2}\\..+",
+                type = "class",
+                methods =
+                listOf(
+                    ClazzMethod(
+                        name = "isLogin",
+                        returnType = "boolean",
+                    ),
+                    ClazzMethod(
+                        name = "isVip",
+                        returnType = "boolean",
+                    ),
+                    ClazzMethod(
+                        name = "isSuperVIP",
+                        returnType = "boolean",
+                    ),
+                ),
+            )*/
+        )
         set(value) {}
+
+
+
 }

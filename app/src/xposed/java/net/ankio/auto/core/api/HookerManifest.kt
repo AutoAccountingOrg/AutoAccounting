@@ -63,6 +63,10 @@ abstract class HookerManifest {
      */
     abstract var rules: MutableList<Clazz>
 
+    /**
+     * 最低支持的版本
+     */
+    open var minVersion: Int = 0
 
     /**
      * 应用需要附加（直接授权）的权限
@@ -150,5 +154,15 @@ abstract class HookerManifest {
             response.body?.string()
 
         }.getOrNull()
+    }
+
+    fun clazz(name:String,classLoader: ClassLoader):Class<*>{
+        return clazz[name]?.let {
+            try {
+                classLoader.loadClass(it)
+            } catch (e: ClassNotFoundException) {
+                null
+            }
+        }!!
     }
 }

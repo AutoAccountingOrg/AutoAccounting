@@ -20,6 +20,7 @@ import fi.iki.elonen.NanoHTTPD
 import org.ezbook.server.Server
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.AssetsModel
+import org.ezbook.server.db.model.SettingModel
 
 class AssetsRoute(private val session: NanoHTTPD.IHTTPSession) {
     fun list(): NanoHTTPD.Response {
@@ -45,9 +46,15 @@ class AssetsRoute(private val session: NanoHTTPD.IHTTPSession) {
     }
 
     fun put(): NanoHTTPD.Response {
+        val params = session.parameters
+        val md5 = params["md5"]?.firstOrNull()?:""
         val data = Server.reqData(session)
         val json = Gson().fromJson(data, Array<AssetsModel>::class.java)
         val id = Db.get().assetsDao().put(json)
+        Db.get().settingDao().insert(SettingModel().apply {
+            key = "sync_assets_md5"
+            value = md5
+        })
         return Server.json(200, "OK", id)
     }
 }

@@ -38,6 +38,8 @@ import net.ankio.auto.Apps
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.logger.Logger
 import net.ankio.dex.Dex
+import java.math.BigInteger
+import java.security.MessageDigest
 
 
 class App: IXposedHookLoadPackage, IXposedHookZygoteInit  {
@@ -98,6 +100,13 @@ class App: IXposedHookLoadPackage, IXposedHookZygoteInit  {
             return sharedPreferences.getString(key, def) ?: def
         }
 
+        /**
+         * md5哈希
+         */
+        fun md5(data: String): String {
+            val md = MessageDigest.getInstance("MD5")
+            return BigInteger(1, md.digest(data.toByteArray())).toString(16).padStart(32, '0')
+        }
         /**
          * 弹出提示
          * @param msg String
@@ -277,6 +286,13 @@ class App: IXposedHookLoadPackage, IXposedHookZygoteInit  {
             return true
         } else {
             app.logD(" 适配失败:$hashMap")
+
+            for (clazz in app.rules){
+                if (!hashMap.containsKey(clazz.name)){
+                    app.logD(" 适配失败:${clazz.name}")
+                }
+            }
+
             toast("适配失败")
             return false
         }
@@ -294,6 +310,12 @@ class App: IXposedHookLoadPackage, IXposedHookZygoteInit  {
         App.application = application
 
         val code = getVersionCode()
+
+        if (app.minVersion!=0 && code < app.minVersion){
+            Logger.log(TAG,"autoAdaption failed , ${app.appName}(${code}) version is too low")
+            Toast.makeText(application,"${app.appName}版本过低，无法适配，请升级到最新版本后再试。",Toast.LENGTH_LONG).show()
+            return
+        }
 
         if (!ruleHook(app)){
             Logger.log(TAG,"autoAdaption failed , ${app.appName}(${code}) will not be hooked")

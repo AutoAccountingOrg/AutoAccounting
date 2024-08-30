@@ -18,7 +18,6 @@ package net.ankio.auto.hooks.qianji.hooks
 import android.app.Activity
 import android.app.Application
 import android.content.Intent
-import android.graphics.Color
 import android.view.LayoutInflater
 import android.widget.FrameLayout
 import android.widget.LinearLayout
@@ -26,7 +25,6 @@ import androidx.appcompat.content.res.AppCompatResources
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
@@ -37,6 +35,7 @@ import net.ankio.auto.core.api.PartHooker
 import net.ankio.auto.core.ui.ColorUtils
 import net.ankio.auto.core.ui.ViewUtils
 import net.ankio.auto.databinding.MenuItemBinding
+import net.ankio.auto.hooks.qianji.tools.SyncUtils
 
 
 class SideBarHooker : PartHooker{
@@ -70,6 +69,7 @@ class SideBarHooker : PartHooker{
                         App.launch {
                             checkServerStatus(activity)
                         }
+                        syncData2Auto(activity)
                     }.onFailure {
                         hookerManifest.logE(it)
                     }
@@ -164,6 +164,14 @@ class SideBarHooker : PartHooker{
 
         App.launch {
             checkServerStatus(context)
+        }
+    }
+
+ //   var t = System.currentTimeMillis()
+    fun syncData2Auto(context: Activity){
+        App.launch {
+           val utils = SyncUtils(hookerManifest, context.classLoader)
+            utils.syncAssets()
         }
     }
 

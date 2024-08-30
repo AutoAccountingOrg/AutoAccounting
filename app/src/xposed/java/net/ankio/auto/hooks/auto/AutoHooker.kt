@@ -28,6 +28,7 @@ import org.ezbook.server.Server
 
 
 class AutoHooker: HookerManifest(){
+    override var minVersion: Int = 212
     override val packageName: String
         get() = "net.ankio.auto.xposed"
     override val appName: String = "自动记账"
