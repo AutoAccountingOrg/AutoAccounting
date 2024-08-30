@@ -42,13 +42,14 @@ import net.ankio.auto.models.CategoryModel
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.ui.api.BaseFragment
+import net.ankio.auto.ui.dialog.AppDialog
 import net.ankio.auto.ui.dialog.AssetsSelectorDialog
 import net.ankio.auto.ui.dialog.BookInfoDialog
 import net.ankio.auto.ui.dialog.BookSelectorDialog
 import net.ankio.auto.ui.dialog.CategorySelectorDialog
 import net.ankio.auto.ui.dialog.UpdateDialog
 import net.ankio.auto.ui.utils.ToastUtils
-import net.ankio.auto.ui.utils.ToolbarMenuItem
+import net.ankio.auto.ui.models.ToolbarMenuItem
 import net.ankio.auto.update.RuleUpdate
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.CustomTabsHelper
@@ -143,30 +144,7 @@ class HomeFragment : BaseFragment() {
      */
     private fun checkBookApp() {
         if (SpUtils.getString("bookApp", "").isEmpty()) {
-
-            //从array.xml中获取数据
-            val appList = resources.getStringArray(R.array.apps)
-            for (app in appList) {
-
-                if (App.isAppInstalled(app)) {
-                    SpUtils.putString("bookApp", app)
-                    break
-                }
-            }
-
-            if (SpUtils.getString("bookApp", "").isEmpty()) {
-                MaterialAlertDialogBuilder(requireActivity())
-                    .setTitle(R.string.title_book_app)
-                    .setMessage(R.string.msg_book_app)
-                    .setPositiveButton(R.string.sure_book_app) { _, _ ->
-                        CustomTabsHelper.launchUrlOrCopy(requireActivity(), getString(R.string.book_app_url))
-                    }
-                    .setNegativeButton(R.string.cancel) { _, _ ->
-                        // finish()
-                    }
-                    .show()
-            }
-
+            AppDialog(requireActivity()).show(false)
         }
     }
 
@@ -301,7 +279,7 @@ class HomeFragment : BaseFragment() {
          */
         val themeContext = App.getThemeContext(requireContext())
         binding.bookAppContainer.setOnClickListener {
-            CustomTabsHelper.launchUrlOrCopy(requireContext(), getString(R.string.book_app_url))
+            AppDialog(requireActivity()).show(false)
         }
         // 资产映射
         binding.map.setOnClickListener {

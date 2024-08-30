@@ -27,7 +27,7 @@ import net.ankio.auto.databinding.FragmentOrderBinding
 import net.ankio.auto.utils.AppUtils
 import org.ezbook.server.db.model.BillInfoModel
 import net.ankio.auto.ui.api.BaseFragment
-import net.ankio.auto.ui.utils.ToolbarMenuItem
+import net.ankio.auto.ui.models.ToolbarMenuItem
 
 class OrderFragment : BaseFragment() {
     override val menuList: ArrayList<ToolbarMenuItem>

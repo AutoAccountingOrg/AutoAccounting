@@ -32,9 +32,9 @@ import net.ankio.auto.databinding.FragmentDataRuleBinding
 import net.ankio.auto.ui.adapter.DataRuleAdapter
 import net.ankio.auto.ui.api.BasePageFragment
 import net.ankio.auto.ui.componets.CustomNavigationRail
-import net.ankio.auto.ui.utils.RailMenuItem
+import net.ankio.auto.ui.models.RailMenuItem
 import net.ankio.auto.ui.utils.ToastUtils
-import net.ankio.auto.ui.utils.ToolbarMenuItem
+import net.ankio.auto.ui.models.ToolbarMenuItem
 import org.ezbook.server.constant.DataType
 import org.ezbook.server.db.model.RuleModel
 

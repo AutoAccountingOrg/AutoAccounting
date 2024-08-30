@@ -16,10 +16,8 @@
 package net.ankio.auto.ui.fragment
 
 import android.content.pm.ApplicationInfo
-import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -33,8 +31,8 @@ import net.ankio.auto.storage.Logger
 import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.ui.adapter.AppAdapter
 import net.ankio.auto.ui.api.BasePageFragment
-import net.ankio.auto.ui.utils.AppInfo
-import net.ankio.auto.ui.utils.ToolbarMenuItem
+import net.ankio.auto.ui.models.AppInfo
+import net.ankio.auto.ui.models.ToolbarMenuItem
 import org.ezbook.server.db.model.SettingModel
 
 

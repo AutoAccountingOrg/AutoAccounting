@@ -29,7 +29,7 @@ import net.ankio.auto.databinding.FragmentDataBinding
 import net.ankio.auto.ui.adapter.AppDataAdapter
 import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.api.BasePageFragment
-import net.ankio.auto.ui.utils.ToolbarMenuItem
+import net.ankio.auto.ui.models.ToolbarMenuItem
 import org.ezbook.server.db.model.AppDataModel
 
 class DataFragment : BasePageFragment<AppDataModel>() {

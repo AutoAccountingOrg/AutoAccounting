@@ -25,7 +25,7 @@ import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentDataBinding
 //import net.ankio.auto.ui.adapter.RuleAdapter
 import net.ankio.auto.ui.api.BaseFragment
-import net.ankio.auto.ui.utils.ToolbarMenuItem
+import net.ankio.auto.ui.models.ToolbarMenuItem
 import net.ankio.auto.models.CustomRuleModel
 
 class RuleFragment : BaseFragment() {

@@ -27,7 +27,7 @@ import net.ankio.auto.databinding.FragmentMapBinding
 //import net.ankio.auto.ui.adapter.MapAdapter
 import net.ankio.auto.ui.dialog.MapDialog
 import net.ankio.auto.ui.api.BaseFragment
-import net.ankio.auto.ui.utils.ToolbarMenuItem
+import net.ankio.auto.ui.models.ToolbarMenuItem
 import net.ankio.auto.models.AssetsMapModel
 
 class MapFragment : BaseFragment() {

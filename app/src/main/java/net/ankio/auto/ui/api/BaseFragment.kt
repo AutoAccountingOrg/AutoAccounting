@@ -17,7 +17,6 @@ package net.ankio.auto.ui.api
 
 import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -31,7 +30,7 @@ import com.zackratos.ultimatebarx.ultimatebarx.addNavigationBarBottomPadding
 import net.ankio.auto.App
 import net.ankio.auto.databinding.ActivityMainBinding
 import net.ankio.auto.ui.activity.MainActivity
-import net.ankio.auto.ui.utils.ToolbarMenuItem
+import net.ankio.auto.ui.models.ToolbarMenuItem
 
 /**
  * 基础的Fragment

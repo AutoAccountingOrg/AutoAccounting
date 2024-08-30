@@ -23,7 +23,7 @@ import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
 import net.ankio.auto.App
 import net.ankio.auto.R
-import net.ankio.auto.ui.utils.RailMenuItem
+import net.ankio.auto.ui.models.RailMenuItem
 
 
 class CustomNavigationRail @JvmOverloads constructor(
