@@ -64,7 +64,7 @@ object Dex {
 
                     if (condition1)
                         {
-                            val clazz = classLoader.loadClass(className)
+                            val clazz = runCatching {  classLoader.loadClass(className) }.getOrNull() ?: return@forEach
 
                             val condition4 =
                                 if (itClazz.type.isNotEmpty())
