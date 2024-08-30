@@ -24,6 +24,7 @@ xxModel.list()
 # 数据库模型
 
 - `AppDataModel`: 存储获取到的App数据、通知
+- `AssetsModel`: 存储资产信息
 - `BillInfoModel`: 存储识别到的账单信息
 - `LogModel`: 存储日志信息
 - `SettingModel`: 存储设置信息
