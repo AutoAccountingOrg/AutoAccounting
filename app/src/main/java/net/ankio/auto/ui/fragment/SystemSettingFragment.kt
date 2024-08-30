@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 ankio(ankio@ankio.net)
+ * Copyright (C) 2024 ankio(ankio@ankio.net)
  * Licensed under the Apache License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,7 +13,7 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.ui.fragment.home
+package net.ankio.auto.ui.fragment
 
 import android.content.Context
 import android.net.Uri
@@ -29,22 +29,22 @@ import com.quickersilver.themeengine.ThemeMode
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.constant.ItemType
-import net.ankio.auto.databinding.FragmentSetting2Binding
+import net.ankio.auto.databinding.FragmentSystemSettingBinding
 import net.ankio.auto.exceptions.PermissionException
 import net.ankio.auto.setting.SettingItem
 import net.ankio.auto.setting.SettingUtils
 import net.ankio.auto.storage.BackupUtils
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.storage.SpUtils
-import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.activity.MainActivity
+import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.LanguageUtils
 
-class Setting2Fragment : BaseFragment() {
-    private lateinit var binding: FragmentSetting2Binding
+class SystemSettingFragment : BaseFragment() {
+    private lateinit var binding: FragmentSystemSettingBinding
 
     private lateinit var settingRenderUtils: SettingUtils
 
@@ -53,10 +53,15 @@ class Setting2Fragment : BaseFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
-        binding = FragmentSetting2Binding.inflate(layoutInflater)
+        binding = FragmentSystemSettingBinding.inflate(layoutInflater)
         val settingItems = app(requireContext(), this)
         settingRenderUtils =
-            SettingUtils(requireActivity() as BaseActivity, binding.container, layoutInflater, settingItems)
+            SettingUtils(
+                requireActivity() as BaseActivity,
+                binding.container,
+                layoutInflater,
+                settingItems
+            )
         settingRenderUtils.init()
         scrollView = binding.scrollView
         return binding.root
@@ -71,15 +76,15 @@ class Setting2Fragment : BaseFragment() {
         super.onDestroy()
         settingRenderUtils.onDestroy()
     }
-    
-    
+
+
 
     /**
      * 获取App设置项
      */
     private fun app(
         context: Context,
-        setting2Fragment: Setting2Fragment,
+        systemSettingFragment: SystemSettingFragment,
     ): ArrayList<SettingItem> {
         return arrayListOf(
             // 隐私
@@ -147,11 +152,11 @@ class Setting2Fragment : BaseFragment() {
                 icon = R.drawable.setting2_icon_dark_theme,
                 default = ThemeMode.AUTO,
                 selectList =
-                    hashMapOf(
-                        context.getString(R.string.always_off) to ThemeMode.LIGHT,
-                        context.getString(R.string.always_on) to ThemeMode.DARK,
-                        context.getString(R.string.lang_follow_system) to ThemeMode.AUTO,
-                    ),
+                hashMapOf(
+                    context.getString(R.string.always_off) to ThemeMode.LIGHT,
+                    context.getString(R.string.always_on) to ThemeMode.DARK,
+                    context.getString(R.string.lang_follow_system) to ThemeMode.AUTO,
+                ),
                 onGetKeyValue = {
                     ThemeEngine.getInstance(context).themeMode
                 },
@@ -229,7 +234,7 @@ class Setting2Fragment : BaseFragment() {
                 type = ItemType.TEXT,
                 icon = R.drawable.setting2_icon_to_local,
                 onItemClick = { _, activity ->
-                    setting2Fragment.lifecycleScope.launch {
+                    systemSettingFragment.lifecycleScope.launch {
                         val loading = LoadingUtils(activity)
                         runCatching {
                             loading.show(R.string.backup_loading)
@@ -288,7 +293,7 @@ class Setting2Fragment : BaseFragment() {
                 //     subTitle = R.string.setting_backup_2_webdav_desc,
                 type = ItemType.TEXT,
                 onItemClick = { _, activity ->
-                    setting2Fragment.lifecycleScope.launch {
+                    systemSettingFragment.lifecycleScope.launch {
                         runCatching {
                             val backupUtils = BackupUtils(activity)
                             backupUtils.putWebdavBackup(activity as MainActivity)
@@ -306,7 +311,7 @@ class Setting2Fragment : BaseFragment() {
                 //     subTitle = R.string.setting_backup_2_webdav_desc,
                 type = ItemType.TEXT,
                 onItemClick = { _, activity ->
-                    setting2Fragment.lifecycleScope.launch {
+                    systemSettingFragment.lifecycleScope.launch {
                         runCatching {
                             val backupUtils = BackupUtils(activity)
                             backupUtils.getWebdavBackup(activity as MainActivity)
@@ -323,10 +328,10 @@ class Setting2Fragment : BaseFragment() {
                 title = R.string.app_url,
                 type = ItemType.INPUT,
                 onGetKeyValue = {
-                  //  UpdateUtils.getUrl()
+                    //  UpdateUtils.getUrl()
                 },
                 onSavedValue = { value, activity ->
-                  //  UpdateUtils.setUrl(value as String)
+                    //  UpdateUtils.setUrl(value as String)
                 },
             ),
             SettingItem(
@@ -336,10 +341,10 @@ class Setting2Fragment : BaseFragment() {
                 type = ItemType.TEXT,
                 default = 1,
                 selectList =
-                    hashMapOf(
-                        context.getString(R.string.stable_version) to 0,
-                        context.getString(R.string.continuous_build_version) to 1,
-                    ),
+                hashMapOf(
+                    context.getString(R.string.stable_version) to 0,
+                    context.getString(R.string.continuous_build_version) to 1,
+                ),
             ),
             SettingItem(
                 title = R.string.setting_app,

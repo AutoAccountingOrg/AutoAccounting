@@ -65,7 +65,7 @@ class HomeFragment : BaseFragment() {
                 it.navigate(R.id.logFragment)
             },
             ToolbarMenuItem(R.string.title_setting, R.drawable.menu_item_setting) {
-                it.navigate(R.id.setting2Fragment)
+                it.navigate(R.id.systemSettingFragment)
             },
             ToolbarMenuItem(R.string.title_more, R.drawable.menu_item_more) {
                 val binding =

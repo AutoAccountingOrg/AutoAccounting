@@ -68,10 +68,10 @@
     </fragment>
 
     <fragment
-        android:id="@+id/setting2Fragment"
-        android:name="net.ankio.auto.ui.fragment.home.Setting2Fragment"
+        android:id="@+id/systemSettingFragment"
+        android:name="net.ankio.auto.ui.fragment.SystemSettingFragment"
         android:label="@string/title_setting2"
-        tools:layout="@layout/fragment_setting2">
+        tools:layout="@layout/fragment_system_setting">
 
     </fragment>
 
