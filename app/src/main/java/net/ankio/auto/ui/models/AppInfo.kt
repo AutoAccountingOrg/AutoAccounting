@@ -13,16 +13,14 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.ui.utils
+package net.ankio.auto.ui.models
 
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
-import androidx.navigation.NavController
+import android.content.pm.ApplicationInfo
 
-data class ToolbarMenuItem(
-    @StringRes val title: Int,
-    @DrawableRes val drawable: Int,
-    var search : Boolean = false,
-    val callback: (NavController) -> Unit,
-
+class AppInfo // 构造函数
+    (// Getter和Setter
+    val packageName: String,
+    val appName: String,
+    val pkg: ApplicationInfo,
+    var isSelected: Boolean
 )

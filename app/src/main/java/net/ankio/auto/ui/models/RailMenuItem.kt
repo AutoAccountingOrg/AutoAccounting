@@ -13,16 +13,8 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.ui.utils
+package net.ankio.auto.ui.models
 
-import android.content.pm.ApplicationInfo
 import android.graphics.drawable.Drawable
 
-
-class AppInfo // 构造函数
-    (// Getter和Setter
-    val packageName: String,
-    val appName: String,
-    val pkg: ApplicationInfo,
-    var isSelected: Boolean
-)
+data class RailMenuItem(val id: Int, val icon: Drawable, val text: String)

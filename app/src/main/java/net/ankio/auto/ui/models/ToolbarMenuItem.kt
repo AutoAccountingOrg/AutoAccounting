@@ -13,8 +13,16 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.ui.utils
+package net.ankio.auto.ui.models
 
-import android.graphics.drawable.Drawable
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
+import androidx.navigation.NavController
 
-data class RailMenuItem(val id: Int, val icon: Drawable, val text: String)
+data class ToolbarMenuItem(
+    @StringRes val title: Int,
+    @DrawableRes val drawable: Int,
+    var search : Boolean = false,
+    val callback: (NavController) -> Unit,
+
+    )
