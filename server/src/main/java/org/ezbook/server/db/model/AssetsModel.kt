@@ -16,6 +16,11 @@ package org.ezbook.server.db.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.google.gson.Gson
+import com.google.gson.JsonObject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import org.ezbook.server.Server
 import org.ezbook.server.constant.AssetsType
 
 @Entity
@@ -34,6 +39,24 @@ class AssetsModel {
     var extras: String = "" // 额外信息，例如银行卡的卡号等
 
     companion object {
+        /**
+         * 根据条件查询
+         * @param type 类型
+         * @param page 页码
+         * @param limit 每页数量
+         * @return 规则列表
+         */
+        suspend fun list( type: String, page: Int, limit: Int) : List<AssetsModel> = withContext(
+            Dispatchers.IO) {
+            val response = Server.request("assets/list?page=$page&limit=$limit&type=$type")
+            val json = Gson().fromJson(response, JsonObject::class.java)
 
+            runCatching { Gson().fromJson(json.getAsJsonArray("data"), Array<AssetsModel>::class.java).toList() }.getOrNull() ?: emptyList()
+        }
+
+        suspend fun put(data: Array<AssetsModel>) {
+            val json = Gson().toJson(data)
+            Server.request("assets/put", json)
+        }
     }
 }
