@@ -12,6 +12,28 @@
  *  See the License for the specific language governing permissions and
  *   limitations under the License.
  */
+package org.ezbook.server.db.model
 
-package net.ankio.common.constant
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import org.ezbook.server.constant.AssetsType
 
+@Entity
+class AssetsModel {
+    // 账户列表
+    @PrimaryKey(autoGenerate = true)
+    var id = 0L
+    var name: String = "" // 账户名
+
+    /**
+     * 这里的图标是url链接或存储的base64图片
+     */
+    var icon: String = "" // 图标
+    var sort = 0
+    var type: AssetsType = AssetsType.NORMAL // 账户类型
+    var extras: String = "" // 额外信息，例如银行卡的卡号等
+
+    companion object {
+
+    }
+}

@@ -13,5 +13,12 @@
  *   limitations under the License.
  */
 
-package net.ankio.common.constant
+package org.ezbook.server.constant
 
+enum class AssetsType {
+    NORMAL, // 普通，实实在在属于自己的资产，例如银行卡、支付宝、微信
+    FINANCIAL, // 金融(理财）资产，例如股票、基金，属于会存在动态波动（增减）的资产
+    CREDIT, // 信用资产，例如信用卡、蚂蚁花呗
+    BORROWE, // 借款人，例如借款给别人的钱
+    CREDITOR, // 债权人，例如别人借钱给自己
+}

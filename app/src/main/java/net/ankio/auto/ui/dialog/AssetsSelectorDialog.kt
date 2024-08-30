@@ -20,15 +20,13 @@ import android.view.LayoutInflater
 import android.view.View
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.hjq.toast.Toaster
 import kotlinx.coroutines.launch
-import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogBookSelectBinding
 //import net.ankio.auto.ui.adapter.AssetsSelectorAdapter
 import net.ankio.auto.models.AssetsModel
-import net.ankio.common.constant.AssetsType
+import org.ezbook.server.constant.AssetsType
 
-class AssetsSelectorDialog(private val context: Context,val type:AssetsType = AssetsType.NORMAL, private val callback: (AssetsModel) -> Unit) :
+class AssetsSelectorDialog(private val context: Context, val type: AssetsType = AssetsType.NORMAL, private val callback: (AssetsModel) -> Unit) :
     BaseSheetDialog(context) {
     private lateinit var binding: DialogBookSelectBinding
     private val dataItems = mutableListOf<AssetsModel>()
