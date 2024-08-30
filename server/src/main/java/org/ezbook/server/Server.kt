@@ -41,7 +41,7 @@ import kotlin.jvm.Throws
 class Server(context:Context) {
 
     private val port = 52045
-    private val count  = 16
+    private val count  = 64
     private val server = ServerHttp(port,count,context)
     init {
         Db.init(context)
