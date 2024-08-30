@@ -18,7 +18,9 @@ package org.ezbook.server.db.dao
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Transaction
 import org.ezbook.server.db.model.AssetsModel
+
 
 @Dao
 interface AssetsDao {
@@ -44,4 +46,11 @@ interface AssetsDao {
     @Query("DELETE FROM AssetsModel")
     fun clear()
 
+    @Transaction
+    fun put(data: Array<AssetsModel>) {
+        clear()
+        data.forEach {
+            insert(it)
+        }
+    }
 }
