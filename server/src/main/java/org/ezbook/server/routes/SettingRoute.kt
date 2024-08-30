@@ -50,7 +50,9 @@ class SettingRoute(private val session: NanoHTTPD.IHTTPSession) {
         model.value = value
 
         val data = Db.get().settingDao().query(key)
+
         if (data != null) {
+            model.id = data.id
             Db.get().settingDao().update(model)
         } else {
             Db.get().settingDao().insert(model)
