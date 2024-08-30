@@ -1,22 +1,61 @@
-<net.ankio.auto.ui.componets.IconView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_margin="@dimen/one_padding"
-    app:cardCornerRadius="@dimen/radius"
-    app:cardElevation="0dp"
-    app:strokeColor="?attr/colorSurfaceContainerHighest"
-    app:strokeWidth="0dp"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/assets"
-    android:padding="@dimen/padding"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="@dimen/one_padding"
-    android:layout_marginEnd="@dimen/one_padding"
-    android:drawablePadding="@dimen/one_padding"
-    app:iconSrc="@drawable/home_app_book"
-    android:textStyle="bold"
-    app:text="测试账户"
-    app:textColor="?colorOnBackground"
-    app:textSize="8sp"
-    app:iconSize="14dp"
-    />
+    android:background="?selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:minHeight="?attr/listPreferredItemHeight"
+    android:paddingVertical="16dp"
+    android:paddingStart="16dp"
+    android:paddingEnd="24dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/item_root"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/asset_icon"
+            android:layout_width="@dimen/image_size"
+            android:layout_height="@dimen/image_size"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="ContentDescription"
+            tools:srcCompat="@tools:sample/backgrounds/scenic" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/asset_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:ellipsize="marquee"
+            android:scrollbars="none"
+            android:textAppearance="?textAppearanceTitleMedium"
+            android:textIsSelectable="false"
+            app:layout_constraintStart_toEndOf="@id/asset_icon"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/assets_type"
+            app:layout_constraintWidth_max="0dp"
+            tools:text="支付宝" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/assets_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="marquee"
+            android:maxLines="1"
+            android:scrollbars="none"
+            android:textAppearance="?textAppearanceLabelMedium"
+            android:visibility="visible"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/asset_name"
+            tools:text="普通资产" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>

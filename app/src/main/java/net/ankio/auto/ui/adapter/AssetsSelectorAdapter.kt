@@ -1,51 +1,49 @@
-/*
- * Copyright (C) 2023 ankio(ankio@ankio.net)
- * Licensed under the Apache License, Version 3.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-3.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *   limitations under the License.
- *//*
-
-
 package net.ankio.auto.ui.adapter
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterAssetsBinding
-import net.ankio.auto.ui.viewModes.BaseViewModel
 import net.ankio.auto.storage.ImageUtils
-import net.ankio.auto.utils.server.model.Assets
+import net.ankio.auto.ui.api.BaseAdapter
+import net.ankio.auto.ui.api.BaseViewHolder
+import net.ankio.auto.ui.scope.autoDisposeScope
+import org.ezbook.server.constant.AssetsType
+import org.ezbook.server.db.model.AssetsModel
 
-class AssetsSelectorAdapter(
-    viewModel: BaseViewModel
-    private val onClick: (item: Assets) -> Unit,
-) : BaseAdapter<AdapterAssetsBinding>() {
-    override fun onInitView(holder: BaseViewHolder) {
-        (holder.binding as AdapterAssetsBinding).assets.setOnClickListener {
-            onClick(holder.item as Assets)
+class AssetsSelectorAdapter(private val list: MutableList<AssetsModel>,private val callback:(AssetsModel)->Unit): BaseAdapter<AdapterAssetsBinding, AssetsModel>(
+    AdapterAssetsBinding::class.java, list) {
+    override fun onInitViewHolder(holder: BaseViewHolder<AdapterAssetsBinding, AssetsModel>) {
+        holder.binding.root.setOnClickListener {
+            callback(holder.item!!)
         }
     }
 
-    override fun onBindView(
-        holder: BaseViewHolder,
-        item: Any,
+    override fun onBindViewHolder(
+        holder: BaseViewHolder<AdapterAssetsBinding, AssetsModel>,
+        data: AssetsModel,
+        position: Int
     ) {
-        val it = item as Assets
-        val binding = (holder.binding as AdapterAssetsBinding)
-        holder.scope.launch {
-            ImageUtils.get(holder.context, it.icon, R.drawable.default_cate).let {
-                binding.assets.setIcon(it)
+        val binding = holder.binding
+        binding.assetName.text = data.name
+        binding.assetsType.text = when(data.type){
+            AssetsType.CREDIT -> holder.context.getString(R.string.type_credit)
+            AssetsType.NORMAL -> holder.context.getString(R.string.type_normal)
+            AssetsType.VIRTUAL -> holder.context.getString(R.string.type_virtual)
+            AssetsType.FINANCIAL -> holder.context.getString(R.string.type_financial)
+            AssetsType.BORROWER -> holder.context.getString(R.string.type_borrower)
+            AssetsType.CREDITOR -> holder.context.getString(R.string.type_creditor)
+        }
+        holder.binding.root.autoDisposeScope.launch {
+            ImageUtils.get(holder.context,data.icon,R.drawable.default_asset).let {
+               withContext(Dispatchers.Main){
+                   binding.assetIcon.setImageDrawable(it)
+               }
             }
         }
 
-        binding.assets.setText(it.name)
+
     }
+
 }
-*/

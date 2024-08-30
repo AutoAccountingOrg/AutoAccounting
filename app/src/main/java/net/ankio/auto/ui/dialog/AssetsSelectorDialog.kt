@@ -21,31 +21,29 @@ import android.view.View
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.launch
+import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogBookSelectBinding
-//import net.ankio.auto.ui.adapter.AssetsSelectorAdapter
-import net.ankio.auto.models.AssetsModel
+import net.ankio.auto.ui.adapter.AssetsSelectorAdapter
+import net.ankio.auto.ui.utils.ToastUtils
 import org.ezbook.server.constant.AssetsType
+import org.ezbook.server.db.model.AssetsModel
 
-class AssetsSelectorDialog(private val context: Context, val type: AssetsType = AssetsType.NORMAL, private val callback: (AssetsModel) -> Unit) :
+class AssetsSelectorDialog(private val context: Context, private val callback: (AssetsModel) -> Unit) :
     BaseSheetDialog(context) {
     private lateinit var binding: DialogBookSelectBinding
     private val dataItems = mutableListOf<AssetsModel>()
-/*    private val adapter =
-        AssetsSelectorAdapter(dataItems) { item ->
-            callback(item)
-            dismiss()
-        }*/
 
     override fun onCreateView(inflater: LayoutInflater): View {
         binding = DialogBookSelectBinding.inflate(inflater)
-        val layoutManager = LinearLayoutManager(context)
-        binding.recyclerView.layoutManager = layoutManager
+        binding.recyclerView.layoutManager = LinearLayoutManager(context)
 
         cardView = binding.cardView
         cardViewInner = binding.recyclerView
 
-       /* binding.recyclerView.adapter = adapter*/
-
+       binding.recyclerView.adapter = AssetsSelectorAdapter(dataItems) { item ->
+           callback(item)
+           dismiss()
+       }
         return binding.root
     }
 
@@ -54,19 +52,31 @@ class AssetsSelectorDialog(private val context: Context, val type: AssetsType = 
         cancel: Boolean
     ) {
         lifecycleScope.launch {
-           /* val newData = AssetsModel.get(500,type)
+            dataItems.clear()
+            val newData = AssetsModel.list("",1,9999999)
 
-            val collection = newData.takeIf { it.isNotEmpty() } ?: listOf()
-
-            if (collection.isEmpty()) {
-                Toaster.show(R.string.no_assets)
+            if (newData.isEmpty()) {
+                ToastUtils.error(R.string.no_assets)
                 return@launch
             }
             super.show(float, cancel)
+            dataItems.addAll(newData)
+            //对dataItems进行排序，type为NORMAL的排在前面,债权人排在最后
+            dataItems.sortWith(compareByDescending<AssetsModel> {
+                    when (it.type) {
+                        AssetsType.NORMAL -> 6
+                        AssetsType.CREDIT -> 5
+                        AssetsType.FINANCIAL -> 4
+                        AssetsType.VIRTUAL -> 3
+                        AssetsType.BORROWER -> 2
+                        AssetsType.CREDITOR -> 1
+                    }
+                }.thenBy {
+                    it.name
+                }
+            )
 
-            dataItems.addAll(collection)*/
-/*
-            adapter.notifyItemInserted(0)*/
+            binding.recyclerView.adapter?.notifyItemInserted(0)
         }
     }
 }

@@ -389,4 +389,10 @@
     <string name="item_search">搜索...</string>
     <string name="title_notice">通知监控</string>
     <string name="auto_apps">请选择记账应用</string>
+    <string name="type_credit">信用账户</string>
+    <string name="type_normal">普通资产</string>
+    <string name="type_virtual">虚拟资产</string>
+    <string name="type_financial">理财资产</string>
+    <string name="type_borrower">借款人</string>
+    <string name="type_creditor">债权人</string>
 </resources>

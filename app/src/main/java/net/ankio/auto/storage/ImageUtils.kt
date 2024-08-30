@@ -31,7 +31,7 @@ object ImageUtils {
         default: Int,
     ): Drawable =
         withContext(Dispatchers.IO) {
-            Logger.i("加载图片：$uriString")
+            Logger.d("加载图片：$uriString")
             val result =
                 if (uriString.startsWith("data:image")) {
                     getFromBase64(context, uriString)
