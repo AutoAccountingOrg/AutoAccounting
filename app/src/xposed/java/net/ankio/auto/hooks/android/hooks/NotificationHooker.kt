@@ -33,6 +33,8 @@ import org.ezbook.server.db.model.SettingModel
 
 
 class NotificationHooker:PartHooker {
+    private var selectedApps = listOf<String>()
+    private var lastTime = 0L
     override fun hook(
         hookerManifest: HookerManifest,
         application: Application?,
@@ -76,16 +78,23 @@ class NotificationHooker:PartHooker {
                     hookerManifest.logD("Notification Title: $originalTitle")
                     hookerManifest.logD("Notification Content: $originalText")
 
-                    // TODO 使用其他方案，这个方案不合适
 
-                    App.scope.launch {
-                        SettingModel.get("selectedApps","").let {
-                            val selectedApps = it.split(",")
+                   // 1分钟内不重复请求数据，加快识别速度
+                    if (System.currentTimeMillis() - lastTime < 1000 * 60){
+                        checkNotification(opkg,originalTitle,originalText,selectedApps,hookerManifest)
+                    }else{
+                        lastTime = System.currentTimeMillis()
+                        App.scope.launch {
+                            val data = SettingModel.get("selectedApps","")
+                            selectedApps = data.split(",")
                             withContext(Dispatchers.Main){
                                 checkNotification(opkg,originalTitle,originalText,selectedApps,hookerManifest)
                             }
                         }
                     }
+
+
+
 
 
                 }
