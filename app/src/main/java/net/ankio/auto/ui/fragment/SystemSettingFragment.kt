@@ -110,13 +110,6 @@ class SystemSettingFragment : BaseFragment() {
                     activity.recreateActivity()
                 },
                 type = ItemType.TEXT,
-                icon = R.drawable.setting2_icon_language,
-            ),
-            SettingItem(
-                title = R.string.setting_translation,
-                subTitle = R.string.setting_help_translation,
-                link = context.getString(R.string.translation_url),
-                type = ItemType.TEXT,
                 icon = R.drawable.setting2_icon_translate,
             ),
             // 皮肤
