@@ -273,7 +273,7 @@ class HomeFragment : BaseFragment() {
         }
     }
 
-    lateinit var broadcastReceiverBook: BroadcastReceiver
+    private lateinit var broadcastReceiverBook: BroadcastReceiver
     /**
      * 绑定记账软件数据部分的事件
      */
