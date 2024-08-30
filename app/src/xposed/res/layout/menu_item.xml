@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:layout_margin="16dp"
+    android:padding="16dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- 图标 -->
+    <ImageView
+        android:id="@+id/appIcon"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@mipmap/ic_launcher"
+        android:layout_gravity="center_vertical"
+        android:layout_marginEnd="16dp" />
+
+    <!-- 标题和版本号容器 -->
+    <RelativeLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:visibility="visible">
+
+        <!-- 标题 -->
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="8dp"
+            android:layout_toStartOf="@+id/version"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            tools:text="应用名称" />
+
+        <!-- 版本号 -->
+        <TextView
+            android:id="@+id/version"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="8dp"
+            android:ellipsize="end"
+            android:maxWidth="100dp"
+            android:singleLine="true"
+            android:textSize="12sp"
+            tools:text="v1.000000000000000000000000000000000000000000000000000000000000000000000000" />
+    </RelativeLayout>
+
+    <!-- 状态指示器 -->
+    <View
+        android:id="@+id/serviceStatus"
+        android:layout_width="8dp"
+        android:layout_height="8dp"
+        android:layout_gravity="center_vertical"
+        android:background="@drawable/status_indicator"
+        android:visibility="visible"
+        tools:visibility="visible" />
+</LinearLayout>

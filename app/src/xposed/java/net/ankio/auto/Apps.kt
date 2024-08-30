@@ -19,6 +19,7 @@ import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.hooks.alipay.AliPayHooker
 import net.ankio.auto.hooks.android.AndroidHooker
 import net.ankio.auto.hooks.auto.AutoHooker
+import net.ankio.auto.hooks.qianji.QianjiHooker
 import net.ankio.auto.hooks.wechat.WechatHooker
 
 object Apps {
@@ -27,8 +28,12 @@ object Apps {
             AndroidHooker(), // Android
             AutoHooker(), // Auto
             ////////////////////////////
-            WechatHooker(), // Wechat
-            AliPayHooker() // AliPay
+            // 记账App hook
+            ////////////////////////////
+            QianjiHooker(),
+
+         //   WechatHooker(), // Wechat
+          //  AliPayHooker() // AliPay
             ////////////////////////////
         )
     }

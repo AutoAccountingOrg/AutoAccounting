@@ -33,6 +33,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import net.ankio.auto.Apps
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.logger.Logger
@@ -47,6 +48,24 @@ class App: IXposedHookLoadPackage, IXposedHookZygoteInit  {
         var application: Application? = null
         private val job  = Job()
         val scope = CoroutineScope(Dispatchers.IO + job)
+
+        fun launch(block: suspend CoroutineScope.() -> Unit){
+           runCatching {
+               scope.launch {
+                   block()
+               }
+           }.onFailure {
+                Logger.logE(TAG,it)
+           }
+        }
+
+        fun attachResource(context: Context){
+            XposedHelpers.callMethod(
+                context.resources.assets,
+                "addAssetPath",
+                modulePath,
+            )
+        }
 
         /**
          * 保存数据
