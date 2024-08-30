@@ -22,6 +22,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.ezbook.server.Server
 import org.ezbook.server.constant.AssetsType
+import org.ezbook.server.constant.Currency
 
 @Entity
 class AssetsModel {
@@ -37,6 +38,7 @@ class AssetsModel {
     var sort = 0
     var type: AssetsType = AssetsType.NORMAL // 账户类型
     var extras: String = "" // 额外信息，例如银行卡的卡号等
+    var currency: Currency = Currency.CNY // 货币类型
 
     companion object {
         /**
