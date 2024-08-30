@@ -147,7 +147,6 @@ dependencies {
     implementation libs.androidx.browser
     implementation libs.androidx.activity
     implementation libs.androidx.constraintlayout
-    implementation project(":common")
 
     //主题库
     implementation libs.themeEngine

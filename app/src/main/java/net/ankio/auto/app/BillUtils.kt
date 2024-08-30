@@ -24,8 +24,7 @@ import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.models.AssetsModel
 import net.ankio.auto.models.AssetsMapModel
 import org.ezbook.server.db.model.BillInfoModel
-import org.ezbook.server.constant.BillType
-import net.ankio.common.constant.Currency
+import org.ezbook.server.constant.Currency
 import java.text.DecimalFormat
 
 object BillUtils {
