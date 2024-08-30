@@ -41,6 +41,8 @@ import org.ezbook.server.db.model.SettingModel
 class NoticeFragment: BasePageFragment<AppInfo>() {
 
 
+    //TODO 需要根据已有规则支持显示推荐勾选、一键勾选推荐应用
+
     private var selectedApps: List<String> = emptyList()
 
     override val menuList: ArrayList<ToolbarMenuItem> = arrayListOf(
