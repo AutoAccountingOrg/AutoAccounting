@@ -19,6 +19,7 @@ import androidx.room.RoomDatabase
 import org.ezbook.server.db.dao.AppDataDao
 import org.ezbook.server.db.dao.AssetsDao
 import org.ezbook.server.db.dao.BillInfoDao
+import org.ezbook.server.db.dao.BookNameDao
 import org.ezbook.server.db.dao.LogDao
 import org.ezbook.server.db.dao.RuleDao
 import org.ezbook.server.db.dao.SettingDao
@@ -28,6 +29,8 @@ import org.ezbook.server.db.model.LogModel
 import org.ezbook.server.db.model.RuleModel
 import org.ezbook.server.db.model.SettingModel
 import org.ezbook.server.db.model.BillInfoModel
+import org.ezbook.server.db.model.BookNameModel
+
 @Database(
     entities = [
         LogModel::class,
@@ -35,7 +38,8 @@ import org.ezbook.server.db.model.BillInfoModel
         SettingModel::class,
         AppDataModel::class,
         BillInfoModel::class,
-        AssetsModel::class
+        AssetsModel::class,
+        BookNameModel::class
                ],
     version = 1,
     exportSchema = false,
@@ -47,4 +51,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun dataDao():AppDataDao
     abstract fun billInfoDao(): BillInfoDao
     abstract fun assetsDao(): AssetsDao
+    abstract fun bookNameDao(): BookNameDao
 }
