@@ -125,10 +125,11 @@ class LogFragment : BasePageFragment<LogModel>() {
         savedInstanceState: Bundle?,
     ): View {
         binding = FragmentLogBinding.inflate(layoutInflater)
-        recyclerView = binding.recyclerView
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        recyclerView.adapter = LogAdapter(pageData)
-        scrollView = recyclerView
+        statusPage = binding.statusPage
+        val recyclerView = binding.statusPage.contentView
+        recyclerView?.layoutManager = LinearLayoutManager(requireContext())
+        recyclerView?.adapter = LogAdapter(pageData)
+        scrollView = recyclerView!!
         loadDataEvent(binding.refreshLayout)
         return binding.root
     }

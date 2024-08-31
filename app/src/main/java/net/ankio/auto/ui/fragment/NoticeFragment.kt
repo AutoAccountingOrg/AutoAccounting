@@ -108,7 +108,8 @@ class NoticeFragment: BasePageFragment<AppInfo>() {
         savedInstanceState: Bundle?,
     ): View {
         val binding = FragmentLogBinding.inflate(layoutInflater)
-        recyclerView = binding.recyclerView
+        statusPage = binding.statusPage
+        val recyclerView = binding.statusPage.contentView!!
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         scrollView = recyclerView
         selectedApps = SpUtils.getString("selectedApps", "").split(",")

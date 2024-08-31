@@ -63,7 +63,8 @@ class DataRuleFragment: BasePageFragment<RuleModel>()  {
         savedInstanceState: Bundle?,
     ): View {
         binding = FragmentDataRuleBinding.inflate(layoutInflater)
-        recyclerView = binding.recyclerView
+        statusPage = binding.statusPage
+        val recyclerView = binding.statusPage.contentView!!
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = DataRuleAdapter(pageData)
         loadDataEvent(binding.refreshLayout)

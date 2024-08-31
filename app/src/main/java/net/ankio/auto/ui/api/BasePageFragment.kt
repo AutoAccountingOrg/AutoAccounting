@@ -15,6 +15,7 @@
 
 package net.ankio.auto.ui.api
 
+import android.health.connect.datatypes.units.Length
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.scwang.smart.refresh.footer.ClassicsFooter
@@ -23,6 +24,7 @@ import com.scwang.smart.refresh.layout.api.RefreshLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import net.ankio.auto.ui.componets.StatusPage
 
 /**
  * 基础的BasePageFragment
@@ -31,7 +33,7 @@ abstract class BasePageFragment<T>: BaseFragment() {
     /**
      * 初始化View
      */
-    lateinit var recyclerView: RecyclerView
+    lateinit var statusPage: StatusPage
 
     /**
      * 当前页码
@@ -61,7 +63,7 @@ abstract class BasePageFragment<T>: BaseFragment() {
         val total = pageData.size
         pageData.clear()
         lifecycleScope.launch {
-            recyclerView.adapter?.notifyItemRangeRemoved(0, total)
+            statusPage.contentView?.adapter?.notifyItemRangeRemoved(0, total)
         }
     }
     /**
@@ -79,7 +81,7 @@ abstract class BasePageFragment<T>: BaseFragment() {
                         return@loadData
                     }
                     pageData.addAll(resultData)
-                    recyclerView.adapter?.notifyItemInserted(pageData.size - pageSize)
+                    statusPage.contentView?.adapter?.notifyItemInserted(pageData.size - pageSize)
 
                     val total = page * pageSize
 
@@ -87,6 +89,18 @@ abstract class BasePageFragment<T>: BaseFragment() {
                 }
             }
         }
+    }
+
+    private fun  changeState(success:Boolean,length: Int){
+        if (!success){
+            statusPage.showError()
+            return
+        }
+        if (length == 0){
+            statusPage.showEmpty()
+            return
+        }
+        statusPage.showContent()
     }
 
     /**
@@ -98,6 +112,7 @@ abstract class BasePageFragment<T>: BaseFragment() {
         refreshLayout.setOnRefreshListener {
             page = 1
             loadDataInside { success, hasMore ->
+                changeState(success,pageData.size)
                 it.resetNoMoreData()
                 it.finishRefresh(0, success, hasMore) //传入false表示刷新失败
             }
@@ -105,6 +120,7 @@ abstract class BasePageFragment<T>: BaseFragment() {
         refreshLayout.setOnLoadMoreListener {
             page++
             loadDataInside { success, hasMore ->
+                changeState(success,pageData.size)
                 it.finishLoadMore(0, success, hasMore) //传入false表示加载失败
             }
         }
@@ -115,6 +131,7 @@ abstract class BasePageFragment<T>: BaseFragment() {
      */
     override fun onResume() {
         super.onResume()
+        statusPage.showLoading()
         loadDataInside()
     }
 
