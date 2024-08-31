@@ -38,13 +38,13 @@ class StatusPage : RelativeLayout {
         init(context)
     }
 
-    constructor(context: Context, @Nullable attrs: AttributeSet?) : super(context, attrs) {
+    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
         init(context)
     }
 
     constructor(
         context: Context,
-        @Nullable attrs: AttributeSet?,
+        attrs: AttributeSet?,
         defStyleAttr: Int
     ) : super(context, attrs, defStyleAttr) {
         init(context)

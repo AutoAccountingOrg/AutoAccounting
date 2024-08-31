@@ -61,7 +61,7 @@ class AssetsSelectorDialog(private val context: Context, private val callback: (
             val newData = AssetsModel.list("",1,9999999)
 
             if (newData.isEmpty()) {
-                ToastUtils.error(R.string.no_assets)
+                statusPage.showEmpty()
                 return@launch
             }
             dataItems.addAll(newData)
