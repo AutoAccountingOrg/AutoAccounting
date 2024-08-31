@@ -15,15 +15,16 @@
 
 package org.ezbook.server.routes
 
-import fi.iki.elonen.NanoHTTPD
 import org.ezbook.server.Server
 import org.ezbook.server.db.Db
+import org.nanohttpd.protocols.http.IHTTPSession
+import org.nanohttpd.protocols.http.response.Response
 
-class AppDataRoute(private val session: NanoHTTPD.IHTTPSession) {
+class AppDataRoute(private val session: IHTTPSession) {
     /**
      * 获取规则列表
      */
-    fun list(): NanoHTTPD.Response {
+    fun list(): Response {
 
         // 清理过期数据
         Db.get().dataDao().clearOld()
@@ -56,7 +57,7 @@ class AppDataRoute(private val session: NanoHTTPD.IHTTPSession) {
     /**
      * 添加规则，
      */
-    fun clear(): NanoHTTPD.Response {
+    fun clear(): Response {
         Db.get().dataDao().clear()
         return Server.json(200, "OK")
     }

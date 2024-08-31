@@ -16,7 +16,6 @@
 package org.ezbook.server.server
 
 import android.content.Context
-import fi.iki.elonen.NanoHTTPD
 import org.ezbook.server.Server
 import org.ezbook.server.Server.Companion.json
 import org.ezbook.server.routes.AppDataRoute
@@ -27,62 +26,63 @@ import org.ezbook.server.routes.JsRoute
 import org.ezbook.server.routes.LogRoute
 import org.ezbook.server.routes.RuleRoute
 import org.ezbook.server.routes.SettingRoute
-import java.util.Locale
+import org.nanohttpd.protocols.http.IHTTPSession
+import org.nanohttpd.protocols.http.NanoHTTPD
+import org.nanohttpd.protocols.http.response.Response
 
-class ServerHttp(port:Int,threadCount:Int,private val context: Context) : NanoHTTPD(port) {
+class ServerHttp(port: Int, private val context: Context) : NanoHTTPD(port) {
     init {
-        asyncRunner = BoundRunner(java.util.concurrent.Executors.newFixedThreadPool(threadCount))
+        asyncRunner = BoundRunner()
     }
-    override fun serve(session: IHTTPSession): Response {
 
-       // val path = "$method ${session.uri}"
-        return runCatching {
-             when (session.uri) {
-                "/" -> json(200,"hello,欢迎使用自动记账", Server.versionCode,0)
-                 // 日志列表
+    override fun handle(session: IHTTPSession?): Response {
+        return  runCatching {
+            when (session!!.uri) {
+                "/" -> json(200, "hello,欢迎使用自动记账", Server.versionCode, 0)
+                // 日志列表
                 "/log/list" -> LogRoute(session).list()
-                    // 添加日志
+                // 添加日志
                 "/log/add" -> LogRoute(session).add()
-                    // 清空日志
+                // 清空日志
                 "/log/clear" -> LogRoute(session).clear()
-                 //--------------------------------------------
-                 //规则列表
+                //--------------------------------------------
+                //规则列表
                 "/rule/list" -> RuleRoute(session).list()
-                    // 添加规则
+                // 添加规则
                 "/rule/add" -> RuleRoute(session).add()
-                    // 删除规则
+                // 删除规则
                 "/rule/delete" -> RuleRoute(session).delete()
-                    // 修改规则
+                // 修改规则
                 "/rule/update" -> RuleRoute(session).update()
-                 // 获取app列表
-                 "/rule/apps" -> RuleRoute(session).apps()
-                 // system
-                 "/rule/system" -> RuleRoute(session).system()
-                 //-------------------------------
-                 // 设置列表
+                // 获取app列表
+                "/rule/apps" -> RuleRoute(session).apps()
+                // system
+                "/rule/system" -> RuleRoute(session).system()
+                //-------------------------------
+                // 设置列表
                 "/setting/get" -> SettingRoute(session).get()
-                    // 添加设置
+                // 添加设置
                 "/setting/set" -> SettingRoute(session).set()
-                 //--------------------------------
-                 // js 分析
-                "/js/analysis" -> JsRoute(session,context).analysis()
-                 // App Data
-                 "/data/list" -> AppDataRoute(session).list()
-                 "/data/clear" -> AppDataRoute(session).clear()
-                 // 资产
-                    "/assets/list" -> AssetsRoute(session).list()
-                    "/assets/put" -> AssetsRoute(session).put()
-                 // 账本
-                 "/book/list" -> BookNameRoute(session).list()
-                 "/book/put" -> BookNameRoute(session).put()
-                 //分类
-                    "/category/list" -> CategoryRoute(session).list()
-                    "/category/put" -> CategoryRoute(session).put()
-                else -> json(404,"Not Found",null,0)
+                //--------------------------------
+                // js 分析
+                "/js/analysis" -> JsRoute(session, context).analysis()
+                // App Data
+                "/data/list" -> AppDataRoute(session).list()
+                "/data/clear" -> AppDataRoute(session).clear()
+                // 资产
+                "/assets/list" -> AssetsRoute(session).list()
+                "/assets/put" -> AssetsRoute(session).put()
+                // 账本
+                "/book/list" -> BookNameRoute(session).list()
+                "/book/put" -> BookNameRoute(session).put()
+                //分类
+                "/category/list" -> CategoryRoute(session).list()
+                "/category/put" -> CategoryRoute(session).put()
+                else -> json(404, "Not Found", null, 0)
             }
-        }.getOrElse {
+        }.onFailure {
             it.printStackTrace()
             json(500, "Internal Server Error")
-        }
+        }.getOrThrow()
     }
 }

@@ -16,18 +16,19 @@
 package org.ezbook.server.routes
 
 import com.google.gson.Gson
-import fi.iki.elonen.NanoHTTPD
 import org.ezbook.server.Server
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.BookNameModel
 import org.ezbook.server.db.model.SettingModel
+import org.nanohttpd.protocols.http.IHTTPSession
+import org.nanohttpd.protocols.http.response.Response
 
-class BookNameRoute(private val session: NanoHTTPD.IHTTPSession) {
-    fun list(): NanoHTTPD.Response {
+class BookNameRoute(private val session: IHTTPSession) {
+    fun list(): Response {
         return Server.json(200, "OK", Db.get().bookNameDao().load(), 0)
     }
 
-    fun put(): NanoHTTPD.Response {
+    fun put(): Response {
         val params = session.parameters
         val md5 = params["md5"]?.firstOrNull()?:""
         val data = Server.reqData(session)

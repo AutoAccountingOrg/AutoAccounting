@@ -16,16 +16,17 @@
 package org.ezbook.server.routes
 
 import com.google.gson.Gson
-import fi.iki.elonen.NanoHTTPD
 import org.ezbook.server.Server
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.LogModel
+import org.nanohttpd.protocols.http.IHTTPSession
+import org.nanohttpd.protocols.http.response.Response
 
-class LogRoute(private val session: NanoHTTPD.IHTTPSession) {
+class LogRoute(private val session: IHTTPSession) {
     /**
      * 获取日志列表
      */
-     fun list(): NanoHTTPD.Response {
+     fun list(): Response {
          //remove expired data
             Db.get().logDao().clearOld()
 
@@ -41,7 +42,7 @@ class LogRoute(private val session: NanoHTTPD.IHTTPSession) {
     /**
      * 添加日志
      */
-    fun add(): NanoHTTPD.Response {
+    fun add(): Response {
         val json = Gson().fromJson(Server.reqData(session), LogModel::class.java)
         val id = Db.get().logDao().insert(json)
         return Server.json(200, "OK", id)
@@ -50,7 +51,7 @@ class LogRoute(private val session: NanoHTTPD.IHTTPSession) {
     /**
      * 清空日志
      */
-    fun clear(): NanoHTTPD.Response {
+    fun clear(): Response {
         Db.get().logDao().clear()
         return Server.json(200, "OK")
     }

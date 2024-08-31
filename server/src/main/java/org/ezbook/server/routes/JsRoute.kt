@@ -18,7 +18,6 @@ package org.ezbook.server.routes
 
 import com.google.gson.Gson
 import com.google.gson.JsonObject
-import fi.iki.elonen.NanoHTTPD
 import org.ezbook.server.Server
 import org.ezbook.server.constant.DataType
 import org.ezbook.server.db.Db
@@ -28,13 +27,15 @@ import org.ezbook.server.db.model.SettingModel
 import org.ezbook.server.engine.RuleGenerator
 import org.mozilla.javascript.Context
 import org.mozilla.javascript.Scriptable
+import org.nanohttpd.protocols.http.IHTTPSession
+import org.nanohttpd.protocols.http.response.Response
 
 
-class JsRoute(private val session: NanoHTTPD.IHTTPSession,private val context: android.content.Context) {
+class JsRoute(private val session: IHTTPSession, private val context: android.content.Context) {
     /**
      * 获取设置
      */
-    fun analysis(): NanoHTTPD.Response {
+    fun analysis(): Response {
         val params = session.parameters
         val app = params["app"]?.firstOrNull()?.toString() ?: ""
         val type = params["type"]?.firstOrNull()?.toString() ?: ""
@@ -201,7 +202,7 @@ class JsRoute(private val session: NanoHTTPD.IHTTPSession,private val context: a
     /**
      * 设置
      */
-    fun set(): NanoHTTPD.Response {
+    fun set(): Response {
         val key = session.parameters["key"]?.firstOrNull()?.toString() ?: ""
         if (key === "") {
             return Server.json(400, "key is required")

@@ -19,9 +19,6 @@ import android.content.Context
 import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.JsonObject
-import fi.iki.elonen.NanoHTTPD
-import fi.iki.elonen.NanoHTTPD.SOCKET_READ_TIMEOUT
-import fi.iki.elonen.NanoHTTPD.newFixedLengthResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -37,14 +34,18 @@ import org.ezbook.server.constant.LogLevel
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.LogModel
 import org.ezbook.server.server.ServerHttp
-import kotlin.jvm.Throws
+import org.nanohttpd.protocols.http.IHTTPSession
+import org.nanohttpd.protocols.http.NanoHTTPD
+import org.nanohttpd.protocols.http.NanoHTTPD.SOCKET_READ_TIMEOUT
+import org.nanohttpd.protocols.http.response.Response
+import org.nanohttpd.protocols.http.response.Response.newFixedLengthResponse
+import org.nanohttpd.protocols.http.response.Status
 
 
 class Server(context:Context) {
 
     private val port = 52045
-    private val count  = 64
-    private val server = ServerHttp(port,count,context)
+    private val server = ServerHttp(port,context)
     init {
         Db.init(context)
     }
@@ -74,7 +75,7 @@ class Server(context:Context) {
         /**
          * 获取请求数据
          */
-        fun reqData(session:NanoHTTPD.IHTTPSession): String {
+        fun reqData(session: IHTTPSession): String {
             val contentLength: Int = session.headers["content-length"]?.toInt() ?: 0
             val buffer = ByteArray(contentLength)
             session.inputStream.read(buffer, 0, contentLength)
@@ -86,14 +87,14 @@ class Server(context:Context) {
         /**
          * 返回json
          */
-        fun json(code:Int = 200,msg:String = "OK",data:Any? = null,count:Int = 0): NanoHTTPD.Response {
+        fun json(code:Int = 200,msg:String = "OK",data:Any? = null,count:Int = 0): Response {
             val jsonObject = JsonObject()
             jsonObject.addProperty("code", code)
             jsonObject.addProperty("msg", msg)
             jsonObject.addProperty("count", count)
             jsonObject.add("data", Gson().toJsonTree(data))
             return newFixedLengthResponse(
-                NanoHTTPD.Response.Status.OK,
+                Status.OK,
                 NanoHTTPD.MIME_PLAINTEXT,
                 jsonObject.toString()
             )

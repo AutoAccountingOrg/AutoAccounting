@@ -15,28 +15,28 @@
 
 package org.ezbook.server.server
 
-import fi.iki.elonen.NanoHTTPD.AsyncRunner
-import fi.iki.elonen.NanoHTTPD.ClientHandler
-import java.util.Collections
+
+import org.nanohttpd.protocols.http.ClientHandler
+import org.nanohttpd.protocols.http.threading.IAsyncRunner
 import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 
-internal class BoundRunner(private val executorService: ExecutorService) : AsyncRunner {
-    private val running: MutableList<ClientHandler> = Collections.synchronizedList(ArrayList())
+ class BoundRunner : IAsyncRunner {
+    private val executorService: ExecutorService = Executors.newCachedThreadPool()
+
+    override fun exec(clientHandler: ClientHandler?) {
+        // 将任务提交给线程池执行
+        executorService.submit(clientHandler)
+    }
 
     override fun closeAll() {
-        // copy of the list for concurrency
-        for (clientHandler in ArrayList(this.running)) {
-            clientHandler.close()
-        }
+        // 关闭线程池
+        executorService.shutdown()
     }
 
-    override fun closed(clientHandler: ClientHandler) {
-        running.remove(clientHandler)
-    }
+    override fun closed(clientHandler: ClientHandler?) {
+        // 当客户端连接关闭时，处理相关逻辑（可选）
 
-    override fun exec(clientHandler: ClientHandler) {
-        executorService.submit(clientHandler)
-        running.add(clientHandler)
     }
 }

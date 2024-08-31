@@ -16,16 +16,17 @@
 package org.ezbook.server.routes
 
 import com.google.gson.Gson
-import fi.iki.elonen.NanoHTTPD
 import org.ezbook.server.Server
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.RuleModel
+import org.nanohttpd.protocols.http.IHTTPSession
+import org.nanohttpd.protocols.http.response.Response
 
-class RuleRoute(private val session: NanoHTTPD.IHTTPSession) {
+class RuleRoute(private val session: IHTTPSession) {
     /**
      * 获取规则列表
      */
-    fun list(): NanoHTTPD.Response {
+    fun list(): Response {
         val params = session.parameters
         val page = params["page"]?.firstOrNull()?.toInt() ?: 1
         val limit = params["limit"]?.firstOrNull()?.toInt() ?: 10
@@ -53,7 +54,7 @@ class RuleRoute(private val session: NanoHTTPD.IHTTPSession) {
     /**
      * 添加规则，
      */
-    fun add(): NanoHTTPD.Response {
+    fun add(): Response {
         val data = Server.reqData(session)
         val json = Gson().fromJson(data, RuleModel::class.java)
         val id = Db.get().ruleDao().insert(json)
@@ -63,7 +64,7 @@ class RuleRoute(private val session: NanoHTTPD.IHTTPSession) {
     /**
      * 更新规则
      */
-    fun update(): NanoHTTPD.Response {
+    fun update(): Response {
         val json = Gson().fromJson(Server.reqData(session), RuleModel::class.java)
         val id = Db.get().ruleDao().update(json)
         return Server.json(200, "OK", id)
@@ -71,7 +72,7 @@ class RuleRoute(private val session: NanoHTTPD.IHTTPSession) {
     /**
      * 删除规则
      */
-    fun delete(): NanoHTTPD.Response {
+    fun delete(): Response {
         val params = session.parameters
         val id = params["id"]?.firstOrNull()?.toInt() ?: 0
         Db.get().ruleDao().delete(id)
@@ -81,7 +82,7 @@ class RuleRoute(private val session: NanoHTTPD.IHTTPSession) {
     /**
      * 获取app列表
      */
-    fun apps(): NanoHTTPD.Response {
+    fun apps(): Response {
         val apps = Db.get().ruleDao().queryApps()
         val map = hashMapOf<String,Int>()
         apps.forEach {
@@ -97,7 +98,7 @@ class RuleRoute(private val session: NanoHTTPD.IHTTPSession) {
     /**
      * 获取所有的系统规则
      */
-    fun system(): NanoHTTPD.Response {
+    fun system(): Response {
         val rules = Db.get().ruleDao().loadAllSystem()
         return Server.json(200, "OK", rules)
     }
