@@ -305,6 +305,7 @@ class HomeFragment : BaseFragment() {
                 Logger.d("选择的账本是：${it.name}")
                 // defaultBook
                 SpUtils.putString("defaultBook", it.name)
+                refreshUI()
             }.show(cancel = true)
         }
         // 分类数据（只读）
