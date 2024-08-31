@@ -25,7 +25,7 @@ import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup
 import kotlinx.coroutines.launch
 import net.ankio.auto.databinding.DialogCategorySelectBinding
 //import net.ankio.auto.ui.adapter.CategorySelectorAdapter
-import net.ankio.auto.models.CategoryModel
+import org.ezbook.server.db.model.CategoryModel
 import org.ezbook.server.constant.BillType
 
 /**
@@ -39,7 +39,7 @@ import org.ezbook.server.constant.BillType
  */
 class CategorySelectorDialog(
     private val context: Context,
-    private var book: Int = 0,
+    private var book: String = "",
     private val type: BillType = BillType.Expend,
     private val callback: (CategoryModel?, CategoryModel?) -> Unit,
 ) : BaseSheetDialog(context) {
@@ -116,14 +116,14 @@ class CategorySelectorDialog(
     ): CategoryModel {
         val categoryModel = CategoryModel()
         categoryModel.remoteId = "-9999"
-        categoryModel.parent = item.id
-        categoryModel.book = book
+        categoryModel.remoteParentId = item.id.toString()
+        categoryModel.remoteBookId = book
        /* categoryModel.type = type.value*/
         val location = IntArray(2)
         view.getLocationOnScreen(location)
         val params = view.layoutParams as MarginLayoutParams
         val leftDistanceWithMargin = location[0] + view.paddingLeft + params.leftMargin - 40
-        categoryModel.id = leftDistanceWithMargin - view.width / 2
+        categoryModel.id = (leftDistanceWithMargin - view.width / 2).toLong()
         return categoryModel
     }
 

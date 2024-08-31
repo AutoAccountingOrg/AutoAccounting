@@ -25,7 +25,7 @@ import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogBillCategoryBinding
 import net.ankio.auto.storage.Logger
 import org.ezbook.server.db.model.BillInfoModel
-import net.ankio.auto.models.BookNameModel
+import org.ezbook.server.db.model.BookNameModel
 import net.ankio.auto.models.CustomRuleModel
 
 class BillCategoryDialog(

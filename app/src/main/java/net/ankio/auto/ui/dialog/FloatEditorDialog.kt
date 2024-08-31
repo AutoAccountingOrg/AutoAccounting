@@ -44,8 +44,9 @@ import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.models.AssetsModel
 import net.ankio.auto.models.AssetsMapModel
 import org.ezbook.server.db.model.BillInfoModel
-import net.ankio.auto.models.BookNameModel
+import org.ezbook.server.db.model.BookNameModel
 import net.ankio.auto.common.AccountingConfig
+import net.ankio.auto.ui.utils.ResourceUtils
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.constant.Currency
 import java.util.Calendar
@@ -319,7 +320,7 @@ class FloatEditorDialog(
 
     private fun bindingBookNameUI() {
         lifecycleScope.launch {
-            BookNameModel.getDrawable(billInfoModel.bookName, context, binding.bookImage)
+            ResourceUtils.getBookNameDrawable(billInfoModel.bookName, context, binding.bookImage)
         }
     }
 
@@ -622,7 +623,7 @@ class FloatEditorDialog(
             lifecycleScope.launch {
                 val book = BookNameModel.getDefaultBook(billInfoModel.bookName)
                 withContext(Dispatchers.Main) {
-                    CategorySelectorDialog(context, book.id, billTypeLevel1) { parent, child ->
+                    CategorySelectorDialog(context, book.remoteId, billTypeLevel1) { parent, child ->
                         if (parent == null)return@CategorySelectorDialog
                         billInfoModel.cateName =
                             BillUtils.getCategory(

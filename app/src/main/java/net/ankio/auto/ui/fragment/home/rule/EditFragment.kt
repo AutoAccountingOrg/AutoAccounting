@@ -43,7 +43,7 @@ import net.ankio.auto.ui.dialog.BookSelectorDialog
 import net.ankio.auto.ui.dialog.CategorySelectorDialog
 import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.utils.ListPopupUtils
-import net.ankio.auto.models.BookNameModel
+import org.ezbook.server.db.model.BookNameModel
 import net.ankio.auto.models.CustomRuleModel
 import java.util.Calendar
 
@@ -184,7 +184,7 @@ class EditFragment : BaseFragment() {
         BookSelectorDialog(requireContext()) {
             it2.removed().setAsWaveTextview(it.name, it2.connector, callback = it2.waveCallback)
             bookName = it.name
-            book = it.id
+            book = it.id.toInt() //TODO 最好用long
         }.show(cancel = true)
     }
 
@@ -193,7 +193,7 @@ class EditFragment : BaseFragment() {
             var book = BookNameModel.getByName(bookName)
 
             BookInfoDialog(requireActivity(), book) { type ->
-                CategorySelectorDialog(requireActivity(), book.id, type) { parent, child ->
+                CategorySelectorDialog(requireActivity(), book.remoteId, type) { parent, child ->
                     val string: String =
                         if (parent == null) {
                             "其他"

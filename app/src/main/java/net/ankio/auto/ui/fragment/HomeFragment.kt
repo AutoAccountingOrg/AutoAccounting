@@ -28,10 +28,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.elevation.SurfaceColors
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
@@ -41,7 +38,7 @@ import net.ankio.auto.common.ActiveInfo
 import net.ankio.auto.common.ServerInfo
 import net.ankio.auto.databinding.AboutDialogBinding
 import net.ankio.auto.databinding.FragmentHomeBinding
-import net.ankio.auto.models.CategoryModel
+import org.ezbook.server.db.model.CategoryModel
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.ui.api.BaseFragment
@@ -314,7 +311,7 @@ class HomeFragment : BaseFragment() {
         binding.readCategory.setOnClickListener {
             BookSelectorDialog(themeContext) {
                 BookInfoDialog(themeContext, it) { type ->
-                    CategorySelectorDialog(themeContext, it.id, type) { categoryModel1: CategoryModel?, categoryModel2: CategoryModel? ->
+                    CategorySelectorDialog(themeContext, it.remoteId, type) { categoryModel1: CategoryModel?, categoryModel2: CategoryModel? ->
                         Logger.i("选择的分类是：${categoryModel1?.name ?: ""} - ${categoryModel2?.name ?: ""}")
                     }.show(cancel = true)
                 }.show(cancel = true)
