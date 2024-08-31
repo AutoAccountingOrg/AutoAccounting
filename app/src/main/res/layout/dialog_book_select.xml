@@ -26,15 +26,11 @@
         app:cardElevation="0dp"
         app:strokeColor="?attr/colorSurfaceContainerHighest"
         app:strokeWidth="0dp">
-        <androidx.recyclerview.widget.RecyclerView
-
+        <net.ankio.auto.ui.componets.StatusPage
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:padding="@dimen/cardPadding"
-            android:id="@+id/recycler_view"
-            android:orientation="vertical">
-
-        </androidx.recyclerview.widget.RecyclerView>
+            android:id="@+id/status_page"
+            />
     </com.google.android.material.card.MaterialCardView>
 </LinearLayout>
 

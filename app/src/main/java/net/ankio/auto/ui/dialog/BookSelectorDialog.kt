@@ -35,10 +35,10 @@ class BookSelectorDialog(private val context: Context, val callback: (BookNameMo
     override fun onCreateView(inflater: LayoutInflater): View {
         binding = DialogBookSelectBinding.inflate(inflater)
         val layoutManager = LinearLayoutManager(context)
-        binding.recyclerView.layoutManager = layoutManager
+       // binding.recyclerView.layoutManager = layoutManager
 
-        cardView = binding.cardView
-        cardViewInner = binding.recyclerView
+     //   cardView = binding.cardView
+      //  cardViewInner = binding.recyclerView
       /*  adapter =
             BookSelectorAdapter(dataItems) { item ->
                 callback(item)

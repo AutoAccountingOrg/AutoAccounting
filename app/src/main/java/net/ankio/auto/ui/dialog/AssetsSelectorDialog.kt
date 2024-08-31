@@ -24,6 +24,7 @@ import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogBookSelectBinding
 import net.ankio.auto.ui.adapter.AssetsSelectorAdapter
+import net.ankio.auto.ui.componets.StatusPage
 import net.ankio.auto.ui.utils.ToastUtils
 import org.ezbook.server.constant.AssetsType
 import org.ezbook.server.db.model.AssetsModel
@@ -33,24 +34,28 @@ class AssetsSelectorDialog(private val context: Context, private val callback: (
     private lateinit var binding: DialogBookSelectBinding
     private val dataItems = mutableListOf<AssetsModel>()
 
+    private lateinit var statusPage: StatusPage
+    
     override fun onCreateView(inflater: LayoutInflater): View {
         binding = DialogBookSelectBinding.inflate(inflater)
-        binding.recyclerView.layoutManager = LinearLayoutManager(context)
+        statusPage = binding.statusPage
+        val recyclerView =  statusPage.contentView!!
+        statusPage.contentView!!.layoutManager = LinearLayoutManager(context)
 
         cardView = binding.cardView
-        cardViewInner = binding.recyclerView
+        cardViewInner =  statusPage
 
-       binding.recyclerView.adapter = AssetsSelectorAdapter(dataItems) { item ->
+       recyclerView.adapter = AssetsSelectorAdapter(dataItems) { item ->
            callback(item)
            dismiss()
        }
+        loadData()
         return binding.root
     }
 
-    override fun show(
-        float: Boolean,
-        cancel: Boolean
-    ) {
+
+    private fun loadData(){
+        statusPage.showLoading()
         lifecycleScope.launch {
             dataItems.clear()
             val newData = AssetsModel.list("",1,9999999)
@@ -59,24 +64,25 @@ class AssetsSelectorDialog(private val context: Context, private val callback: (
                 ToastUtils.error(R.string.no_assets)
                 return@launch
             }
-            super.show(float, cancel)
             dataItems.addAll(newData)
             //对dataItems进行排序，type为NORMAL的排在前面,债权人排在最后
             dataItems.sortWith(compareByDescending<AssetsModel> {
-                    when (it.type) {
-                        AssetsType.NORMAL -> 6
-                        AssetsType.CREDIT -> 5
-                        AssetsType.FINANCIAL -> 4
-                        AssetsType.VIRTUAL -> 3
-                        AssetsType.BORROWER -> 2
-                        AssetsType.CREDITOR -> 1
-                    }
-                }.thenBy {
-                    it.name
+                when (it.type) {
+                    AssetsType.NORMAL -> 6
+                    AssetsType.CREDIT -> 5
+                    AssetsType.FINANCIAL -> 4
+                    AssetsType.VIRTUAL -> 3
+                    AssetsType.BORROWER -> 2
+                    AssetsType.CREDITOR -> 1
                 }
+            }.thenBy {
+                it.name
+            }
             )
 
-            binding.recyclerView.adapter?.notifyItemInserted(0)
+            statusPage.contentView!!.adapter?.notifyItemInserted(0)
+            statusPage.showContent()
         }
     }
+
 }
