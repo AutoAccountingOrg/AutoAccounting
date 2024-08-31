@@ -21,7 +21,6 @@ import android.content.Intent
 import android.view.LayoutInflater
 import android.widget.FrameLayout
 import android.widget.LinearLayout
-import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
@@ -36,7 +35,9 @@ import net.ankio.auto.core.api.PartHooker
 import net.ankio.auto.core.ui.ColorUtils
 import net.ankio.auto.core.ui.ViewUtils
 import net.ankio.auto.databinding.MenuItemBinding
-import net.ankio.auto.hooks.qianji.tools.SyncUtils
+import net.ankio.auto.hooks.qianji.tools.AssetsUtils
+import net.ankio.auto.hooks.qianji.tools.BookUtils
+import net.ankio.auto.hooks.qianji.tools.CategoryUtils
 
 
 class SideBarHooker : PartHooker{
@@ -175,10 +176,9 @@ class SideBarHooker : PartHooker{
 
         App.toast("正在同步数据到自动记账...")
         App.launch {
-           val utils = SyncUtils(hookerManifest, context.classLoader)
-            //同步资产
-            App.toast("正在同步资产数据...")
-            utils.syncAssets()
+            AssetsUtils(hookerManifest, context.classLoader).syncAssets()
+            val books = BookUtils(hookerManifest, context.classLoader,context).syncBooks()
+            CategoryUtils(hookerManifest, context.classLoader,books).syncCategory()
         }
     }
 

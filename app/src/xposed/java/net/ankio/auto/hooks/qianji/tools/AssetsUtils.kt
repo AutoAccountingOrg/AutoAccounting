@@ -32,9 +32,9 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 /**
- * 将钱迹的数据同步给自动记账
+ * 将钱迹的资产数据同步给自动记账
  */
-class SyncUtils(private val manifest: HookerManifest, private val classLoader: ClassLoader) {
+class AssetsUtils(private val manifest: HookerManifest, private val classLoader: ClassLoader) {
 
     private val assetPreviewPresenterImplClazz by lazy {
         XposedHelpers.findClass(

@@ -22,6 +22,7 @@ import org.ezbook.server.Server.Companion.json
 import org.ezbook.server.routes.AppDataRoute
 import org.ezbook.server.routes.AssetsRoute
 import org.ezbook.server.routes.BookNameRoute
+import org.ezbook.server.routes.CategoryRoute
 import org.ezbook.server.routes.JsRoute
 import org.ezbook.server.routes.LogRoute
 import org.ezbook.server.routes.RuleRoute
@@ -74,6 +75,9 @@ class ServerHttp(port:Int,threadCount:Int,private val context: Context) : NanoHT
                  // 账本
                  "/book/list" -> BookNameRoute(session).list()
                  "/book/put" -> BookNameRoute(session).put()
+                 //分类
+                    "/category/list" -> CategoryRoute(session).list()
+                    "/category/put" -> CategoryRoute(session).put()
                 else -> json(404,"Not Found",null,0)
             }
         }.getOrElse {

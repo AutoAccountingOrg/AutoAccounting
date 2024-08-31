@@ -22,9 +22,22 @@ import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.BookNameModel
 import org.ezbook.server.db.model.SettingModel
 
-class BookNameRoute(private val session: NanoHTTPD.IHTTPSession) {
+class CategoryRoute(private val session: NanoHTTPD.IHTTPSession) {
     fun list(): NanoHTTPD.Response {
-        return Server.json(200, "OK", Db.get().bookNameDao().load(), 0)
+        val params = session.parameters
+        val book = params["book"]?.firstOrNull()?:""
+        if (book.isEmpty()) {
+            return Server.json(400, "book is empty")
+        }
+        val type = params["type"]?.firstOrNull()?:""
+        if (type.isEmpty()) {
+            return Server.json(400, "type is empty")
+        }
+
+        val parent = params["parent"]?.firstOrNull()?:"-1"
+
+
+        return Server.json(200, "OK", Db.get().categoryDao().load(book, type, parent), 0)
     }
 
     fun put(): NanoHTTPD.Response {

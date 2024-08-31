@@ -40,7 +40,55 @@ class QianjiHooker:HookerManifest() {
         set(value) {}
     override var rules: MutableList<Clazz>
         get() = mutableListOf(
+            ////////////////////////////////BookManager//////////////////////////////////////
+            Clazz(
+                name = "BookManager",
+                nameRule = "^\\w{0,2}\\..+",
+                type = "class",
+                methods =
+                listOf(
+                    ClazzMethod(
+                        name = "isFakeDefaultBook",
+                        returnType = "boolean",
+                        parameters =
+                        listOf(
+                            ClazzField(
+                                type = "com.mutangtech.qianji.data.model.Book",
+                            ),
+                        ),
+                    ),
+                    ClazzMethod(
+                        name = "getAllBooks",
+                        returnType = "java.util.List",
+                    ),
+                ),
+            ),
 
+            ///////////////////////////onGetCategoryList//////////////////////////////////////
+            Clazz(
+                type = "interface",
+                name = "onGetCategoryList",
+                nameRule = "^\\w{0,2}\\..+",
+                methods =
+                listOf(
+                    ClazzMethod(
+                        name = "onGetCategoryList",
+                        returnType = "void",
+                        parameters =
+                        listOf(
+                            ClazzField(
+                                type = "java.util.List",
+                            ),
+                            ClazzField(
+                                type = "java.util.List",
+                            ),
+                            ClazzField(
+                                type = "boolean",
+                            ),
+                        ),
+                    ),
+                ),
+            ),
         )
         set(value) {}
 
