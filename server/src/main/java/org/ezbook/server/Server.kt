@@ -23,9 +23,11 @@ import fi.iki.elonen.NanoHTTPD
 import fi.iki.elonen.NanoHTTPD.SOCKET_READ_TIMEOUT
 import fi.iki.elonen.NanoHTTPD.newFixedLengthResponse
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -101,8 +103,8 @@ class Server(context:Context) {
         /**
          * 发送请求
          */
-       suspend fun request(path:String,json:String = ""):String?{
-          return runCatching {
+       suspend fun request(path:String,json:String = ""):String? = withContext(Dispatchers.IO){
+           runCatching {
                val uri = "http://localhost:52045/$path"
                // 创建一个OkHttpClient对象
                val client = OkHttpClient()
@@ -117,7 +119,9 @@ class Server(context:Context) {
                // 如果请求成功
                response.body?.string()
 
-           }.getOrNull()
+           }.onFailure {
+                it.printStackTrace()
+          }.getOrNull()
         }
 
         private const val TAG = "auto_server"

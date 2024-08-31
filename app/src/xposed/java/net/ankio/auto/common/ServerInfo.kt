@@ -16,12 +16,14 @@
 package net.ankio.auto.common
 
 import android.content.Context
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.ezbook.server.Server
 
 object ServerInfo {
 
-    suspend fun isServerStart():Boolean{
-        return Server.request("/") !== null
+    suspend fun isServerStart():Boolean = withContext(Dispatchers.IO){
+         Server.request("/") !== null
     }
 
 

@@ -132,11 +132,6 @@ class HomeFragment : BaseFragment() {
     private fun checkAutoService(){
 
         lifecycleScope.launch {
-            if (BuildConfig.DEBUG){
-                withContext(Dispatchers.IO){
-                    delay(60000)
-                }
-            }
             if (!ServerInfo.isServerStart()){
                 MaterialAlertDialogBuilder(requireActivity())
                     .setTitle(R.string.title_cant_connect_service)
