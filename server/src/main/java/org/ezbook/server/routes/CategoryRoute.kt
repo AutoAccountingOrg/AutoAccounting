@@ -19,7 +19,7 @@ import com.google.gson.Gson
 import fi.iki.elonen.NanoHTTPD
 import org.ezbook.server.Server
 import org.ezbook.server.db.Db
-import org.ezbook.server.db.model.BookNameModel
+import org.ezbook.server.db.model.CategoryModel
 import org.ezbook.server.db.model.SettingModel
 
 class CategoryRoute(private val session: NanoHTTPD.IHTTPSession) {
@@ -44,8 +44,8 @@ class CategoryRoute(private val session: NanoHTTPD.IHTTPSession) {
         val params = session.parameters
         val md5 = params["md5"]?.firstOrNull()?:""
         val data = Server.reqData(session)
-        val json = Gson().fromJson(data, Array<BookNameModel>::class.java)
-        val id = Db.get().bookNameDao().put(json)
+        val json = Gson().fromJson(data, Array<CategoryModel>::class.java)
+        val id = Db.get().categoryDao().put(json)
         Db.get().settingDao().insert(SettingModel().apply {
             key = "sync_books_md5"
             value = md5

@@ -20,6 +20,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
 import org.ezbook.server.db.model.CategoryModel
+import org.ezbook.server.routes.CategoryRoute
 
 
 @Dao

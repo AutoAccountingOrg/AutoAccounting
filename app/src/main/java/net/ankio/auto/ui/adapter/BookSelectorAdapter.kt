@@ -11,39 +11,43 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *   limitations under the License.
- *//*
+ */
 
 
 package net.ankio.auto.ui.adapter
 
 import kotlinx.coroutines.launch
-import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterBookBinding
-import net.ankio.auto.storage.ImageUtils
-import net.ankio.auto.utils.server.model.BookName
+import net.ankio.auto.ui.api.BaseAdapter
+import net.ankio.auto.ui.api.BaseViewHolder
+import net.ankio.auto.ui.scope.autoDisposeScope
+import net.ankio.auto.ui.utils.ResourceUtils
+import org.ezbook.server.db.model.BookNameModel
 
 class BookSelectorAdapter(
-    override val dataItems: List<BookName>,
-    private val onClick: (item: BookName) -> Unit,
-) : BaseAdapter(dataItems, AdapterBookBinding::class.java) {
-    override fun onBindView(
-        holder: BaseViewHolder,
-        item: Any,
-    ) {
-        val it = item as BookName
-        val binding = (holder.binding as AdapterBookBinding)
-        holder.scope.launch {
-            ImageUtils.get(holder.context, item.icon, R.drawable.default_book).let {
-                binding.book.background = it
-            }
+    val dataItems: MutableList<BookNameModel>,
+    private val onClick: (item: BookNameModel) -> Unit,
+) : BaseAdapter<AdapterBookBinding,BookNameModel>(AdapterBookBinding::class.java, dataItems) {
+
+
+
+    override fun onInitViewHolder(holder: BaseViewHolder<AdapterBookBinding, BookNameModel>) {
+        val binding = holder.binding
+        binding.book.setOnClickListener {
+            onClick(holder.item!!)
         }
-        binding.itemValue.text = item.name
     }
 
-    override fun onInitView(holder: BaseViewHolder) {
-        (holder.binding as AdapterBookBinding).book.setOnClickListener {
-            onClick(holder.item as BookName)
+    override fun onBindViewHolder(
+        holder: BaseViewHolder<AdapterBookBinding, BookNameModel>,
+        data: BookNameModel,
+        position: Int
+    ) {
+        val binding = holder.binding
+        binding.root.autoDisposeScope.launch {
+            ResourceUtils.getBookNameDrawable(data.name,holder.context,binding.book)
         }
+        binding.itemValue.text = data.name
     }
 }
-*/
+
