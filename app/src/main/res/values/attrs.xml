@@ -29,4 +29,7 @@
         <attr name="textSize" format="dimension"/>
         <attr name="iconSize" format="dimension"/>
     </declare-styleable>
+    <declare-styleable name="StatusPage">
+        <attr name="innerHeight" format="string"/>
+    </declare-styleable>
 </resources>

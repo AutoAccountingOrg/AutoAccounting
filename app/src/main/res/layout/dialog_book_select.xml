@@ -29,6 +29,7 @@
         <net.ankio.auto.ui.componets.StatusPage
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:innerHeight = "wrap_content"
             android:id="@+id/status_page"
             />
     </com.google.android.material.card.MaterialCardView>
