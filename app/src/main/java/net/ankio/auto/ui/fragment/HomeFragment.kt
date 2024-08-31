@@ -144,7 +144,7 @@ class HomeFragment : BaseFragment() {
      */
     private fun checkBookApp() {
         if (SpUtils.getString("bookApp", "").isEmpty()) {
-            AppDialog(requireActivity()).show(false)
+            AppDialog(requireActivity()).show(cancel = BuildConfig.DEBUG)
         }
     }
 
