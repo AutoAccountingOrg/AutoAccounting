@@ -181,10 +181,10 @@ class EditFragment : BaseFragment() {
     }
 
     private fun onClickBook(it2: FlowElement) {
-        BookSelectorDialog(requireContext()) {
-            it2.removed().setAsWaveTextview(it.name, it2.connector, callback = it2.waveCallback)
-            bookName = it.name
-            book = it.id.toInt() //TODO 最好用long
+        BookSelectorDialog(requireContext()) { bookItem,_->
+            it2.removed().setAsWaveTextview(bookItem.name, it2.connector, callback = it2.waveCallback)
+            bookName = bookItem.name
+            book = bookItem.id.toInt() //TODO 最好用long
         }.show(cancel = true)
     }
 

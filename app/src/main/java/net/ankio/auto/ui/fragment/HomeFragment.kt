@@ -301,20 +301,18 @@ class HomeFragment : BaseFragment() {
         }
         // 账本数据（只读）
         binding.defaultBook.setOnClickListener {
-            BookSelectorDialog(themeContext) {
-                Logger.d("选择的账本是：${it.name}")
+            BookSelectorDialog(themeContext)  { book, _ ->
+                Logger.d("选择的账本是：${book.name}")
                 // defaultBook
-                SpUtils.putString("defaultBook", it.name)
+                SpUtils.putString("defaultBook", book.name)
                 refreshUI()
             }.show(cancel = true)
         }
         // 分类数据（只读）
         binding.readCategory.setOnClickListener {
-            BookSelectorDialog(themeContext) {
-                BookInfoDialog(themeContext, it) { type ->
-                    CategorySelectorDialog(themeContext, it.remoteId, type) { categoryModel1: CategoryModel?, categoryModel2: CategoryModel? ->
-                        Logger.i("选择的分类是：${categoryModel1?.name ?: ""} - ${categoryModel2?.name ?: ""}")
-                    }.show(cancel = true)
+            BookSelectorDialog(themeContext,true)  { book, type ->
+                CategorySelectorDialog(themeContext, book.remoteId, type) { categoryModel1: CategoryModel?, categoryModel2: CategoryModel? ->
+                    Logger.i("选择的分类是：${categoryModel1?.name ?: ""} - ${categoryModel2?.name ?: ""}")
                 }.show(cancel = true)
             }.show(cancel = true)
         }

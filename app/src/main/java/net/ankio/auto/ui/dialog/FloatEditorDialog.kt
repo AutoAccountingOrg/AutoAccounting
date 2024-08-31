@@ -327,8 +327,8 @@ class FloatEditorDialog(
     private fun bindingBookNameEvents() {
         binding.bookImageClick.setOnClickListener {
             if (!autoAccountingConfig.multiBooks) return@setOnClickListener
-            BookSelectorDialog(context) {
-                billInfoModel.bookName = it.name
+            BookSelectorDialog(context) { book, _ ->
+                billInfoModel.bookName = book.name
                 bindingBookNameUI()
             }.show(float)
         }

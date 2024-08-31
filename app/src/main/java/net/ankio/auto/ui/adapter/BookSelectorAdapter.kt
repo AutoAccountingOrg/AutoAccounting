@@ -16,26 +16,53 @@
 
 package net.ankio.auto.ui.adapter
 
+import androidx.constraintlayout.widget.ConstraintLayout
 import kotlinx.coroutines.launch
 import net.ankio.auto.databinding.AdapterBookBinding
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
 import net.ankio.auto.ui.scope.autoDisposeScope
 import net.ankio.auto.ui.utils.ResourceUtils
+import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.BookNameModel
 
 class BookSelectorAdapter(
     val dataItems: MutableList<BookNameModel>,
-    private val onClick: (item: BookNameModel) -> Unit,
+    private val showSelect: Boolean = false,
+    private val onClick: (item: BookNameModel,type:BillType) -> Unit,
 ) : BaseAdapter<AdapterBookBinding,BookNameModel>(AdapterBookBinding::class.java, dataItems) {
 
 
 
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterBookBinding, BookNameModel>) {
         val binding = holder.binding
-        binding.book.setOnClickListener {
-            onClick(holder.item!!)
+
+        binding.selectContainer.visibility = if (showSelect) android.view.View.VISIBLE else android.view.View.GONE
+
+        val itemValue = binding.itemValue
+
+        val layoutParams =  itemValue.layoutParams as ConstraintLayout.LayoutParams
+
+// 修改垂直偏移量
+        layoutParams.verticalBias = if (showSelect) 0.33f else 0.5f
+
+        itemValue.layoutParams = layoutParams
+
+        if (showSelect){
+
+            binding.income.setOnClickListener{
+                onClick(holder.item!!,BillType.Income)
+            }
+            binding.expend.setOnClickListener{
+                onClick(holder.item!!,BillType.Expend)
+            }
+
+        }else{
+            binding.root.setOnClickListener {
+                onClick(holder.item!!,BillType.Income)
+            }
         }
+
     }
 
     override fun onBindViewHolder(
