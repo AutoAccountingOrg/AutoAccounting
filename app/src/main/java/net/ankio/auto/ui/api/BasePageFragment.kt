@@ -77,10 +77,15 @@ abstract class BasePageFragment<T>: BaseFragment() {
             withContext(Dispatchers.IO){
                 loadData { resultData ->
                     if (resultData.isEmpty()) {
+                        if (pageData.isEmpty()) {
+                            statusPage.showEmpty()
+                        }
                         callback?.invoke(true, false)
                         return@loadData
                     }
+
                     pageData.addAll(resultData)
+                    statusPage.showContent()
                     statusPage.contentView?.adapter?.notifyItemInserted(pageData.size - pageSize)
 
                     val total = page * pageSize
@@ -91,17 +96,6 @@ abstract class BasePageFragment<T>: BaseFragment() {
         }
     }
 
-    private fun  changeState(success:Boolean,length: Int){
-        if (!success){
-            statusPage.showError()
-            return
-        }
-        if (length == 0){
-            statusPage.showEmpty()
-            return
-        }
-        statusPage.showContent()
-    }
 
     /**
      * 加载数据事件
@@ -112,7 +106,7 @@ abstract class BasePageFragment<T>: BaseFragment() {
         refreshLayout.setOnRefreshListener {
             page = 1
             loadDataInside { success, hasMore ->
-                changeState(success,pageData.size)
+
                 it.resetNoMoreData()
                 it.finishRefresh(0, success, hasMore) //传入false表示刷新失败
             }
@@ -120,7 +114,6 @@ abstract class BasePageFragment<T>: BaseFragment() {
         refreshLayout.setOnLoadMoreListener {
             page++
             loadDataInside { success, hasMore ->
-                changeState(success,pageData.size)
                 it.finishLoadMore(0, success, hasMore) //传入false表示加载失败
             }
         }
