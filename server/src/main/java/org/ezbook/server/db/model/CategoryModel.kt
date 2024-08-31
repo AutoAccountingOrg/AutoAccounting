@@ -23,6 +23,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.ezbook.server.Server
 import org.ezbook.server.constant.BillType
+import org.ezbook.server.constant.DataType
 
 @Entity
 class CategoryModel {
@@ -68,11 +69,12 @@ class CategoryModel {
 
 
         suspend fun list(
-            bookID: Int,
-            type: Int,
-            parent: Int,
+            bookID: String,
+            type: BillType,
+            parent: String,
         ): List<CategoryModel>  = withContext(Dispatchers.IO) {
             val response = Server.request("category/list?book=$bookID&type=$type&parent=$parent")
+
             val json = Gson().fromJson(response, JsonObject::class.java)
 
             runCatching { Gson().fromJson(json.getAsJsonArray("data"), Array<CategoryModel>::class.java).toList() }.getOrNull() ?: emptyList()
@@ -100,8 +102,14 @@ class CategoryModel {
     }
 
     fun isPanel(): Boolean {
-        return remoteId === "-9999"
+        return remoteId == "-9999"
     }
 
+    fun isChild(): Boolean {
+        return remoteParentId != "-1"
+    }
 
+    override fun toString(): String {
+       return "CategoryModel(id=$id, name=$name, icon=$icon, remoteId='$remoteId', remoteBookId='$remoteBookId', remoteParentId='$remoteParentId', book=$book, sort=$sort, type=$type)"
+    }
 }

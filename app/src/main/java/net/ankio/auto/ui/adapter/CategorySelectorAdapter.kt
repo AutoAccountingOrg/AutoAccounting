@@ -11,7 +11,7 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *   limitations under the License.
- *//*
+ */
 
 
 package net.ankio.auto.ui.adapter
@@ -19,238 +19,173 @@ package net.ankio.auto.ui.adapter
 import android.content.Context
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
-import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.viewbinding.ViewBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterCategoryListBinding
-import net.ankio.auto.utils.AppUtils
-import net.ankio.auto.storage.ImageUtils
-import net.ankio.auto.utils.server.model.Category
+import net.ankio.auto.ui.api.BaseAdapter
+import net.ankio.auto.ui.api.BaseViewHolder
+import net.ankio.auto.ui.scope.autoDisposeScope
+import net.ankio.auto.ui.utils.ResourceUtils
+import org.ezbook.server.db.model.CategoryModel
 
-*/
 /**
  * 分类选择器适配器
  * @property dataItems 分类数据列表
  * @property onItemClick 点击事件回调
  * @property onItemChildClick 子项点击事件回调
- *//*
+ */
 
 class CategorySelectorAdapter(
-    override val dataItems: List<Category>,
-    private val onItemClick: (item: Category, pos: Int, hasChild: Boolean, view: View) -> Unit,
-    private val onItemChildClick: (item: Category, pos: Int) -> Unit,
-) : BaseAdapter(dataItems, AdapterCategoryListBinding::class.java) {
+    val dataItems: MutableList<CategoryModel>,
+    private val onItemClick: (item: CategoryModel, pos: Int, hasChild: Boolean, view: View) -> Unit,
+    private val onItemChildClick: (item: CategoryModel, pos: Int) -> Unit,
+) : BaseAdapter<AdapterCategoryListBinding,CategoryModel>( AdapterCategoryListBinding::class.java,dataItems) {
+    override fun onInitViewHolder(holder: BaseViewHolder<AdapterCategoryListBinding, CategoryModel>) {
+    }
+
+    /**
+     * 二级分类缓存
+     */
+    private val level2 = hashMapOf<Long,MutableList<CategoryModel>>()
+
+    /**
+     * 当前面板对应的Item
+     */
+    private var panelItem :CategoryModel? = null
+
+    /**
+     * 加载二级分类的数据
+     */
+    private fun loadData(data:CategoryModel,binding: AdapterCategoryListBinding,callback: (MutableList<CategoryModel>) -> Unit){
+        if (!level2.containsKey(data.id)) {
+            //获取二级菜单
+            binding.root.autoDisposeScope.launch {
+                val list = CategoryModel.list(data.remoteBookId, data.type, data.remoteId)
+                level2[data.id] = list.toMutableList()
+                withContext(Dispatchers.Main) {
+                   callback(level2[data.id]!!)
+                }
+            }
+        }else{
+            callback(level2[data.id]!!)
+        }
+    }
+
     override fun onBindViewHolder(
-        holder: BaseViewHolder,
-        position: Int,
-        payloads: MutableList<Any>,
+        holder: BaseViewHolder<AdapterCategoryListBinding, CategoryModel>,
+        data: CategoryModel,
+        position: Int
     ) {
-        if (payloads.isEmpty()) {
-            onBindViewHolder(holder, position)
-        } else {
-            // 如果有 payload，根据 payload 更新部分内容
-            val category = payloads[0] as Category
-            val viewHolder = holder as ViewHolder
-            viewHolder.item = category
-            viewHolder.updatePanel(category)
-        }
+       val binding = holder.binding
+        setActive(binding,false)
+       if (data.isPanel()){
+           renderPanel(binding,data,holder.context)
+       } else {
+           renderCategory(binding,data,position)
+       }
+
     }
 
-    override fun onBindView(
-        holder: BaseViewHolder,
-        item: Any,
-    ) {
-        val it = item as Category
-        val viewHolder = holder as ViewHolder
-        viewHolder.bind(it)
-    }
+    /**
+     * 渲染面板
+     */
+    private fun renderPanel(binding: AdapterCategoryListBinding, data: CategoryModel,context: Context){
+        binding.icon.visibility = View.GONE
+        binding.container.visibility = View.VISIBLE
+        binding.recyclerView.layoutManager = GridLayoutManager(context, 5)
+        val categories = mutableListOf<CategoryModel>()
+        val adapter = CategorySelectorAdapter(categories, { childItem, pos, _, _ ->
+            onItemChildClick(childItem, pos)
+        }, { _, _ ->
+            // 因为二级分类下面不会再有子类，所以子类点击直接忽略。
+        })
+        binding.recyclerView.adapter  = adapter
 
-    override fun onInitView(holder: BaseViewHolder) {
-        val viewHolder = holder as ViewHolder
+        // 面板没有子类，所以无法渲染~
 
-        val binding = viewHolder.binding
-        binding.itemImageIcon.setOnClickListener {
-            if (itemTextView != null) {
-                viewHolder.setActive(itemTextView!!, itemImageIcon!!, ivMore!!, false)
-            }
-            viewHolder.setActive(binding.itemText, binding.itemImageIcon, binding.ivMore, true)
-
-            itemTextView = binding.itemText
-            itemImageIcon = binding.itemImageIcon
-            ivMore = binding.ivMore
-
-            val item = holder.item as Category
-            onItemClick(item, getHolderIndex(holder), binding.ivMore.visibility == View.VISIBLE, it)
-        }
-    }
-
-    override fun wrapHolder(viewBinding: ViewBinding): BaseViewHolder {
-        return ViewHolder(viewBinding as AdapterCategoryListBinding, viewBinding.root.context)
-    }
-
-    private var itemTextView: TextView? = null
-    private var itemImageIcon: ImageView? = null
-    private var ivMore: ImageView? = null
-
-    */
-/**
-     * ViewHolder内部类
-     * @property binding 视图绑定
-     * @property context 上下文
-     *//*
-
-    inner class ViewHolder(
-        override val binding: AdapterCategoryListBinding,
-        override val context: Context,
-    ) : BaseViewHolder(binding, context) {
-        private lateinit var adapter: CategorySelectorAdapter
-
-        */
-/**
-         * 设置激活状态
-         *//*
-
-        fun setActive(
-            textView: TextView,
-            imageView: ImageView,
-            imageView2: ImageView,
-            isActive: Boolean,
-        ) {
-            val (textColor, imageBackground, imageColorFilter) =
-                if (isActive) {
-                    Triple(
-                        AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorPrimary),
-                        R.drawable.rounded_border,
-                        AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorOnPrimary),
-                    )
-                } else {
-                    Triple(
-                        AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorSecondary),
-                        R.drawable.rounded_border_,
-                        AppUtils.getThemeAttrColor(com.google.android.material.R.attr.colorSecondary),
-                    )
-                }
-
-            textView.setTextColor(textColor)
-            imageView.apply {
-                setBackgroundResource(imageBackground)
-                setColorFilter(imageColorFilter)
-            }
-            imageView2.apply {
-                setBackgroundResource(imageBackground)
-                setColorFilter(imageColorFilter)
-            }
-        }
-
-        fun bind(item: Category) {
-            setActive(binding.itemText, binding.itemImageIcon, binding.ivMore, false)
-            if (item.isPanel()) { // -2表示他是一个面板，而非item，需要切换为面板视图
-                binding.icon.visibility = View.GONE
-                binding.container.visibility = View.VISIBLE
-                adapter =
-                    CategorySelectorAdapter(items, { childItem, pos, _, _ ->
-                        onItemChildClick(childItem, pos)
-                    }, { _, _ ->
-                        // 因为二级分类下面不会再有子类，所以子类点击直接忽略。
-                    })
-                // 渲染面板视图
-                renderPanel(item)
-            } else {
-                renderItem(item)
-            }
-        }
-
-        */
-/**
-         * item渲染
-         *//*
-
-        fun renderItem(item: Category) {
-            if (item.parent != 0) {
-                binding.ivMore.visibility = View.GONE
-            } else {
-                scope.launch {
-                    val count = Category.getAll(item.book, item.type, item.id).size
-                    if (count == 0) {
-                        withContext(Dispatchers.Main) {
-                            binding.ivMore.visibility = View.GONE
-                        }
-                    }
-                }
-            }
-
-            if (item.icon.isNullOrEmpty()) {
-                binding.itemImageIcon.setImageDrawable(
-                    ResourcesCompat.getDrawable(
-                        context.resources,
-                        R.drawable.default_cate,
-                        context.theme,
-                    ),
-                )
-            } else {
-                scope.launch {
-                    // 自动切回主线程
-                    ImageUtils.get(context, item.icon!!, R.drawable.default_cate).let {
-                        binding.itemImageIcon.setImageDrawable(it)
-                    }
-                }
-            }
-
-            binding.itemText.text = item.name
-        }
-
-        private val items = ArrayList<Category>()
-
-        */
-/**
-         * 渲染项目
-         *//*
-
-        private fun renderPanel(item: Category) {
-            val layoutManager = GridLayoutManager(context, 5)
-            binding.recyclerView.layoutManager = layoutManager
-
-            binding.recyclerView.adapter = adapter
-
-            updatePanel(item)
-        }
-
-        */
-/**
-         * 更新面板内容，由于面板复用的时候是全部内容替换，所以使用NotifyDataSetChanged
-         *//*
-
-        fun updatePanel(item: Category) {
-            val leftDistanceView2: Int = item.id
+        loadData(panelItem!!,binding){
+            categories.clear()
+            categories.addAll(it)
+            adapter.notifyDataSetChanged()
+            val leftDistanceView2: Int = data.id.toInt()
             val layoutParams = binding.imageView.layoutParams as ViewGroup.MarginLayoutParams
             layoutParams.leftMargin = leftDistanceView2 // 设置左边距
-            scope.launch {
-                withContext(Dispatchers.IO) {
-                    val newData =
-                        Category.getAll(
-                            item.book,
-                            item.type,
-                            item.parent,
-                        )
-
-                    val collection = newData.map { it }.takeIf { it.isNotEmpty() } ?: listOf()
-
-                    if (collection.isNotEmpty()) {
-                        withContext(Dispatchers.Main) {
-                            items.clear()
-                            items.addAll(collection)
-                            adapter.notifyDataSetChanged()
-                        }
-                    }
-                }
-            }
         }
     }
+
+    private var prevBinding:AdapterCategoryListBinding? = null
+    /**
+     * 渲染分类图标
+     */
+    private fun renderCategory(binding: AdapterCategoryListBinding, data: CategoryModel,position:Int){
+
+        binding.icon.visibility = View.VISIBLE
+        binding.container.visibility = View.GONE
+        binding.root.autoDisposeScope.launch {
+            ResourceUtils.getCategoryDrawable(data,binding.itemImageIcon)
+        }
+        binding.itemText.text = data.name
+
+        binding.root.setOnClickListener {
+            if (data.isPanel())return@setOnClickListener
+            val hasChild = binding.ivMore.visibility == View.VISIBLE
+            if (prevBinding!=null){
+                setActive(prevBinding!!,false)
+            }
+            prevBinding = binding
+            setActive(binding, true)
+            panelItem = data
+            onItemClick(data,position,hasChild,binding.itemImageIcon)
+        }
+        // 本身就是二级菜单，无需继续获取二级菜单
+        if (data.isChild()) {
+            renderMoreItem(binding,false)
+            return
+        }
+        loadData(data,binding){
+            renderMoreItem(binding,it.isNotEmpty())
+        }
+
+    }
+
+    private fun renderMoreItem(binding: AdapterCategoryListBinding, hasChild: Boolean){
+        binding.ivMore.visibility = if (hasChild) View.VISIBLE else View.GONE
+
+    }
+
+    private fun setActive(
+        binding: AdapterCategoryListBinding,
+        isActive: Boolean,
+    ) {
+        val (textColor, imageBackground, imageColorFilter) =
+            if (isActive) {
+                Triple(
+                    App.getThemeAttrColor(com.google.android.material.R.attr.colorPrimary),
+                    R.drawable.rounded_border,
+                    App.getThemeAttrColor(com.google.android.material.R.attr.colorOnPrimary),
+                )
+            } else {
+                Triple(
+                    App.getThemeAttrColor(com.google.android.material.R.attr.colorSecondary),
+                    R.drawable.rounded_border_,
+                    App.getThemeAttrColor(com.google.android.material.R.attr.colorSecondary),
+                )
+            }
+
+        binding.itemText.setTextColor(textColor)
+        binding.itemImageIcon.apply {
+            setBackgroundResource(imageBackground)
+            setColorFilter(imageColorFilter)
+        }
+        binding.ivMore.apply {
+            setBackgroundResource(imageBackground)
+            setColorFilter(imageColorFilter)
+        }
+    }
+
 }
-*/
+

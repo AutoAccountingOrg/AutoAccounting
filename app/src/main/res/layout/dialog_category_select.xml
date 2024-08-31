@@ -33,44 +33,24 @@
             android:padding="@dimen/cardPadding"
             android:orientation="vertical">
 
-            <LinearLayout
-                android:paddingTop="@dimen/padding"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+           <net.ankio.auto.ui.componets.StatusPage
+              android:id="@+id/statusPage"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               app:innerHeight="wrap_content"
+               />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginStart="@dimen/padding"
-                    android:layout_marginEnd="@dimen/padding"
-                    android:text="@string/category"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                    android:textColor="?colorPrimary" />
-
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1" />
-
-                <Button
-                    android:id="@+id/button"
-                    style="@style/Widget.Material3.Button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/padding"
-                    android:text="@string/sure_msg" />
-            </LinearLayout>
+            <Button
+                android:id="@+id/button"
+                style="@style/Widget.Material3.Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:layout_marginEnd="@dimen/padding"
+                android:gravity="center_horizontal|center_vertical"
+                android:text="@string/sure_msg" />
 
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recycler_view"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_margin="@dimen/padding"
-                android:orientation="vertical">
-
-            </androidx.recyclerview.widget.RecyclerView>
 
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>

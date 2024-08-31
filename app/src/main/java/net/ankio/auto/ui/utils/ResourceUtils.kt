@@ -17,11 +17,13 @@ package net.ankio.auto.ui.utils
 
 import android.content.Context
 import android.view.View
+import android.widget.ImageView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.storage.ImageUtils
 import org.ezbook.server.db.model.BookNameModel
+import org.ezbook.server.db.model.CategoryModel
 
 object ResourceUtils {
     //   BookNameModel.getDrawable(billInfoModel.bookName, context, binding.bookImage)
@@ -31,6 +33,15 @@ object ResourceUtils {
         ImageUtils.get(context, image, R.drawable.default_book).let {
             withContext(Dispatchers.Main){
                 view.background = it
+            }
+        }
+    }
+
+    suspend fun getCategoryDrawable(data: CategoryModel,image:ImageView) = withContext(Dispatchers.IO) {
+        val icon = data.icon?:""
+        ImageUtils.get(image.context, icon, R.drawable.default_cate).let {
+            withContext(Dispatchers.Main){
+                image.setImageDrawable(it)
             }
         }
     }

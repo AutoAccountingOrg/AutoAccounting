@@ -22,8 +22,15 @@ import android.view.ViewGroup.MarginLayoutParams
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup
+import androidx.recyclerview.widget.SimpleItemAnimator
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.ankio.auto.databinding.DialogCategorySelectBinding
+import net.ankio.auto.storage.Logger
+import net.ankio.auto.storage.SpUtils
+import net.ankio.auto.ui.adapter.CategorySelectorAdapter
+import net.ankio.auto.ui.componets.StatusPage
 //import net.ankio.auto.ui.adapter.CategorySelectorAdapter
 import org.ezbook.server.db.model.CategoryModel
 import org.ezbook.server.constant.BillType
@@ -59,7 +66,7 @@ class CategorySelectorDialog(
     private lateinit var binding: DialogCategorySelectBinding
 
     // 类别列表
-    private var items = ArrayList<CategoryModel>()
+    private var items = mutableListOf<CategoryModel>()
     private var totalItems = 0
 
     /**
@@ -83,7 +90,7 @@ class CategorySelectorDialog(
     private var lastPosition = -1
 
     // RecyclerView的适配器
-   // private lateinit var adapter: CategorySelectorAdapter
+    // private lateinit var adapter: CategorySelectorAdapter
 
     /**
      * 这个方法计算插入面板的索引。
@@ -118,14 +125,24 @@ class CategorySelectorDialog(
         categoryModel.remoteId = "-9999"
         categoryModel.remoteParentId = item.id.toString()
         categoryModel.remoteBookId = book
-       /* categoryModel.type = type.value*/
+        /* categoryModel.type = type.value*/
         val location = IntArray(2)
         view.getLocationOnScreen(location)
         val params = view.layoutParams as MarginLayoutParams
-        val leftDistanceWithMargin = location[0] + view.paddingLeft + params.leftMargin - 40
-        categoryModel.id = (leftDistanceWithMargin - view.width / 2).toLong()
+
+        var leftDistanceWithMargin = location[0] + view.paddingLeft + params.leftMargin - view.width/2
+
+        if (SpUtils.getBoolean("setting_use_round_style",false)){
+            leftDistanceWithMargin-=view.width/2
+        }
+
+        categoryModel.id = leftDistanceWithMargin.toLong()
         return categoryModel
     }
+
+    private lateinit var statusPage: StatusPage
+
+    private lateinit var adapter: CategorySelectorAdapter
 
     /**
      * 这个方法为对话框填充视图。
@@ -140,18 +157,20 @@ class CategorySelectorDialog(
         // 设置卡片视图
         this.cardView = binding.cardView
         cardViewInner = binding.cardViewInner
+        statusPage = binding.statusPage
         // 为RecyclerView设置布局管理器
         val layoutManager = GridLayoutManager(context, line)
         layoutManager.spanSizeLookup = SpecialSpanSizeLookup()
-        binding.recyclerView.layoutManager = layoutManager
-        //       (binding.recyclerView.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
+        val recyclerView = binding.statusPage.contentView!!
+        recyclerView.layoutManager = layoutManager
+        (recyclerView.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
         expand = false
         // 为RecyclerView设置适配器
-    /*    adapter =
+        adapter =
             CategorySelectorAdapter(
                 items,
                 onItemClick = { item, pos, hasChild, view ->
-                    category1 = item
+                    categoryModel2 = item
                     val panelPosition = getPanelIndex(pos) // 在当前位置，面板应该插入到哪里。
 
                     val lastPanelPosition = getPanelIndex(lastPosition) // 在上一个位置，面板在那里
@@ -164,7 +183,7 @@ class CategorySelectorDialog(
                             adapter.notifyItemRemoved(panelPosition)
                             lastPosition = -1 // 归位
                             expand = false
-                            category2 = null
+                            categoryModel2 = null
                             return@CategorySelectorAdapter
                         }
                         lastPosition = -1
@@ -208,12 +227,12 @@ class CategorySelectorDialog(
                     lastPosition = pos
                 },
                 onItemChildClick = { item, _ ->
-                    category2 = item
+                    categoryModel2 = item
                 },
             )
 
         // 为RecyclerView设置适配器
-        binding.recyclerView.adapter = adapter*/
+        recyclerView.adapter = adapter
         // 为按钮设置点击监听器
         binding.button.setOnClickListener {
             // 当按钮被点击时，调用回调函数
@@ -224,18 +243,24 @@ class CategorySelectorDialog(
 
         // 从数据库加载类别
         lifecycleScope.launch {
-           /* val newData = CategoryModel.getAll(book, type.toInt(), 0)
-            val defaultCategoryModel = CategoryModel()
-            defaultCategoryModel.name = "其他"
-            val collection =
-                newData.map { it }.takeIf { it.isNotEmpty() } ?: listOf(defaultCategoryModel)
-            totalItems = collection.size
-            withContext(Dispatchers.Main) {
-                items.addAll(collection)
-                // 在主线程更新 UI
-        //        adapter.notifyItemInserted(0)
-            }*/
+            statusPage.showLoading()
+            loadData()
         }
         return binding.root
+    }
+
+    private suspend fun loadData() = withContext(Dispatchers.IO) {
+        val newData = CategoryModel.list(book, type, "-1")
+        val defaultCategoryModel = CategoryModel()
+        defaultCategoryModel.name = "其他"
+        val collection =
+            newData.map { it }.takeIf { it.isNotEmpty() } ?: listOf(defaultCategoryModel)
+        totalItems = collection.size
+        withContext(Dispatchers.Main) {
+            items.addAll(collection)
+            // 在主线程更新 UI
+            adapter.notifyItemInserted(0)
+            statusPage.showContent()
+        }
     }
 }
