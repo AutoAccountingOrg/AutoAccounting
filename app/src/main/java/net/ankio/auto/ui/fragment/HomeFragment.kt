@@ -296,11 +296,11 @@ class HomeFragment : BaseFragment() {
         // 资产管理（只读）
         binding.readAssets.setOnClickListener {
             AssetsSelectorDialog(themeContext) {
-                Logger.i("选择的资产是：${it.name}")
+                Logger.d("选择的资产是：${it.name}")
             }.show(cancel = true)
         }
         // 账本数据（只读）
-        binding.defaultBook.setOnClickListener {
+        binding.book.setOnClickListener {
             BookSelectorDialog(themeContext)  { book, _ ->
                 Logger.d("选择的账本是：${book.name}")
                 // defaultBook
@@ -312,7 +312,7 @@ class HomeFragment : BaseFragment() {
         binding.readCategory.setOnClickListener {
             BookSelectorDialog(themeContext,true)  { book, type ->
                 CategorySelectorDialog(themeContext, book.remoteId, type) { categoryModel1: CategoryModel?, categoryModel2: CategoryModel? ->
-                    Logger.i("选择的分类是：${categoryModel1?.name ?: ""} - ${categoryModel2?.name ?: ""}")
+                    Logger.d("选择的分类是：${categoryModel1?.name ?: ""} - ${categoryModel2?.name ?: ""}")
                 }.show(cancel = true)
             }.show(cancel = true)
         }
