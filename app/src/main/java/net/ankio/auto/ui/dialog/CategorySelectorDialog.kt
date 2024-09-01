@@ -168,7 +168,7 @@ class CategorySelectorDialog(
             CategorySelectorAdapter(
                 items,
                 onItemClick = { item, pos, hasChild, view ->
-                    categoryModel2 = item
+                    categoryModel1 = item
                     val panelPosition = getPanelIndex(pos) // 在当前位置，面板应该插入到哪里。
 
                     val lastPanelPosition = getPanelIndex(lastPosition) // 在上一个位置，面板在那里
