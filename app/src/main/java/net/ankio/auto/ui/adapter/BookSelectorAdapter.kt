@@ -43,7 +43,7 @@ class BookSelectorAdapter(
 
         val layoutParams =  itemValue.layoutParams as ConstraintLayout.LayoutParams
 
-// 修改垂直偏移量
+        // 修改垂直偏移量
         layoutParams.verticalBias = if (showSelect) 0.33f else 0.5f
 
         itemValue.layoutParams = layoutParams
