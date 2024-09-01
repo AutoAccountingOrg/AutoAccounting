@@ -47,7 +47,6 @@ class DataRuleFragment: BasePageFragment<RuleModel>()  {
         get() =
             arrayListOf(
                 ToolbarMenuItem(R.string.item_search, R.drawable.menu_icon_search,true) {
-                    Logger.i("搜索: $searchData")
                     loadDataInside()
                 },
                 ToolbarMenuItem(R.string.item_notice, R.drawable.menu_item_notice) {
@@ -121,11 +120,13 @@ class DataRuleFragment: BasePageFragment<RuleModel>()  {
 
         leftList.setOnItemSelectedListener {
             val id = it.id
-            app = leftData.keySet().elementAt(id - 1)
             page = 1
+            app = leftData.keySet().elementAt(id - 1)
+            statusPage.showLoading()
             loadDataInside()
         }
     }
+
 
     /**
      * Chip事件
@@ -145,8 +146,6 @@ class DataRuleFragment: BasePageFragment<RuleModel>()  {
                     type = DataType.DATA.name
                 }
             }
-            page = 1
-            loadDataInside()
         }
     }
 

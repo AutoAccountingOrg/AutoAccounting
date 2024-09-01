@@ -135,6 +135,10 @@ class LogFragment : BasePageFragment<LogModel>() {
     }
 
 
-
+    override fun onResume() {
+        super.onResume()
+        statusPage.showLoading()
+        loadDataInside()
+    }
 
 }

@@ -124,8 +124,7 @@ abstract class BasePageFragment<T>: BaseFragment() {
      */
     override fun onResume() {
         super.onResume()
-        statusPage.showLoading()
-        loadDataInside()
+
     }
 
 }

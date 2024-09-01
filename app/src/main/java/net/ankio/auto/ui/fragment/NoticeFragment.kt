@@ -141,4 +141,10 @@ class NoticeFragment: BasePageFragment<AppInfo>() {
             Logger.d("selectedApps => $selectedApps")
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+        statusPage.showLoading()
+        loadDataInside()
+    }
 }

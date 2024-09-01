@@ -70,4 +70,9 @@ class DataFragment : BasePageFragment<AppDataModel>() {
         return binding.root
     }
 
+    override fun onResume() {
+        super.onResume()
+        statusPage.showLoading()
+        loadDataInside()
+    }
 }
