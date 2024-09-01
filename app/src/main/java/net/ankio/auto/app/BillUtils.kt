@@ -22,7 +22,7 @@ import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.models.AssetsModel
-import net.ankio.auto.models.AssetsMapModel
+import org.ezbook.server.db.model.AssetsMapModel
 import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.constant.Currency
 import java.text.DecimalFormat
@@ -120,7 +120,7 @@ object BillUtils {
         name: String,
     ): String {
         for (map in list) {
-            if (map.regex == 1) {
+            if (map.regex) {
                 try {
                     val pattern = Regex(map.name)
                     if (pattern.matches(name)) {

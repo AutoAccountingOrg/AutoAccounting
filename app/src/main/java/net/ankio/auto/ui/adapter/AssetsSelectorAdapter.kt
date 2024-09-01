@@ -9,6 +9,7 @@ import net.ankio.auto.storage.ImageUtils
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
 import net.ankio.auto.ui.scope.autoDisposeScope
+import net.ankio.auto.ui.utils.ResourceUtils
 import org.ezbook.server.constant.AssetsType
 import org.ezbook.server.db.model.AssetsModel
 
@@ -36,11 +37,7 @@ class AssetsSelectorAdapter(private val list: MutableList<AssetsModel>,private v
             AssetsType.CREDITOR -> holder.context.getString(R.string.type_creditor)
         }
         holder.binding.root.autoDisposeScope.launch {
-            ImageUtils.get(holder.context,data.icon,R.drawable.default_asset).let {
-               withContext(Dispatchers.Main){
-                   binding.assetIcon.setImageDrawable(it)
-               }
-            }
+            ResourceUtils.getAssetDrawable(data,binding.assetIcon)
         }
 
 

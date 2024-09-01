@@ -58,7 +58,7 @@ class AssetsSelectorDialog(private val context: Context, private val callback: (
         statusPage.showLoading()
         lifecycleScope.launch {
             dataItems.clear()
-            val newData = AssetsModel.list("",1,9999999)
+            val newData = AssetsModel.list()
 
             if (newData.isEmpty()) {
                 statusPage.showEmpty()

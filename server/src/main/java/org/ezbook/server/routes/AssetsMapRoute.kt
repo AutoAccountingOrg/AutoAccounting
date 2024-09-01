@@ -18,32 +18,35 @@ package org.ezbook.server.routes
 import com.google.gson.Gson
 import org.ezbook.server.Server
 import org.ezbook.server.db.Db
-import org.ezbook.server.db.model.AssetsModel
+import org.ezbook.server.db.model.AssetsMapModel
 import org.nanohttpd.protocols.http.IHTTPSession
 import org.nanohttpd.protocols.http.response.Response
 
-class AssetsRoute(private val session: IHTTPSession) {
+class AssetsMapRoute(private val session: IHTTPSession) {
     fun list(): Response {
-        val logs =  Db.get().assetsDao().load(90000, 0)
-
-        val total = Db.get().assetsDao().count()
-        return Server.json(200, "OK", logs, total)
+        val logs =  Db.get().assetsMapDao().load()
+        return Server.json(200, "OK", logs, 0)
     }
 
     fun put(): Response {
-        val params = session.parameters
-        val md5 = params["md5"]?.firstOrNull()?:""
         val data = Server.reqData(session)
-        val json = Gson().fromJson(data, Array<AssetsModel>::class.java)
-        val id = Db.get().assetsDao().put(json)
-        SettingRoute.setByInner("sync_assets_md5",md5)
-        return Server.json(200, "OK", id)
+        val model = Gson().fromJson(data, AssetsMapModel::class.java)
+
+       val name = model.mapName
+        val modelItem = Db.get().assetsMapDao().query(name)
+        if (modelItem == null){
+            model.id  = Db.get().assetsMapDao().insert(model)
+        }else{
+            model.id = modelItem.id
+            Db.get().assetsMapDao().update(model)
+        }
+        return Server.json(200, "OK", model.id)
     }
 
-    fun get(): Response {
+    fun delete(): Response {
         val params = session.parameters
-        val name = params["name"]?.firstOrNull()?:""
-        val data = Db.get().assetsDao().query(name)
-        return Server.json(200, "OK", data)
+        val id = ( params["id"]?.firstOrNull()?:"0").toLong()
+        Db.get().assetsMapDao().delete(id)
+        return Server.json(200, "OK", id)
     }
 }

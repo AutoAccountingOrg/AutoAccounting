@@ -114,7 +114,9 @@ class DataRuleFragment: BasePageFragment<RuleModel>()  {
                     )
 
                 }
-                leftList.triggerFirstItem()
+                if (!leftList.triggerFirstItem()){
+                    statusPage.showEmpty()
+                }
             }
         }
 

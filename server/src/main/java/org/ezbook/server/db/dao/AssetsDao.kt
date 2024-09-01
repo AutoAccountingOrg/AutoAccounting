@@ -53,4 +53,6 @@ interface AssetsDao {
             insert(it)
         }
     }
+    @Query("SELECT * FROM AssetsModel WHERE name = :name limit 1")
+    fun query(name: String): AssetsModel?
 }

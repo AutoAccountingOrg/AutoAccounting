@@ -95,8 +95,8 @@
 
 
     <fragment
-        android:id="@+id/mapFragment"
-        android:name="net.ankio.auto.ui.fragment.home.MapFragment"
+        android:id="@+id/assetMapFragment"
+        android:name="net.ankio.auto.ui.fragment.AssetMapFragment"
         android:label="@string/title_map"
         tools:layout="@layout/fragment_map">
 

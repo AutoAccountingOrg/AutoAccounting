@@ -19,6 +19,7 @@ import android.content.Context
 import org.ezbook.server.Server
 import org.ezbook.server.Server.Companion.json
 import org.ezbook.server.routes.AppDataRoute
+import org.ezbook.server.routes.AssetsMapRoute
 import org.ezbook.server.routes.AssetsRoute
 import org.ezbook.server.routes.BookNameRoute
 import org.ezbook.server.routes.CategoryRoute
@@ -74,6 +75,11 @@ class ServerHttp(port: Int, private val context: Context) : NanoHTTPD(port) {
                 // 资产
                 "/assets/list" -> AssetsRoute(session).list()
                 "/assets/put" -> AssetsRoute(session).put()
+                "/assets/get" -> AssetsRoute(session).get()
+                // 资产映射
+                "/assets/map/list" -> AssetsMapRoute(session).list()
+                "/assets/map/put" -> AssetsMapRoute(session).put()
+                "/assets/map/delete" -> AssetsMapRoute(session).delete()
                 // 账本
                 "/book/list" -> BookNameRoute(session).list()
                 "/book/put" -> BookNameRoute(session).put()

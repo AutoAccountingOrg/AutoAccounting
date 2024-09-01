@@ -14,6 +14,7 @@
  */
 package org.ezbook.server.db.model
 
+import android.net.Uri
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.Gson
@@ -43,14 +44,11 @@ class AssetsModel {
     companion object {
         /**
          * 根据条件查询
-         * @param type 类型
-         * @param page 页码
-         * @param limit 每页数量
          * @return 规则列表
          */
-        suspend fun list( type: String, page: Int, limit: Int) : List<AssetsModel> = withContext(
+        suspend fun list() : List<AssetsModel> = withContext(
             Dispatchers.IO) {
-            val response = Server.request("assets/list?page=$page&limit=$limit&type=$type")
+            val response = Server.request("assets/list")
             val json = Gson().fromJson(response, JsonObject::class.java)
 
             runCatching { Gson().fromJson(json.getAsJsonArray("data"), Array<AssetsModel>::class.java).toList() }.getOrNull() ?: emptyList()
@@ -59,6 +57,12 @@ class AssetsModel {
         suspend fun put(data: ArrayList<AssetsModel>,md5:String) {
             val json = Gson().toJson(data)
             Server.request("assets/put?md5=$md5", json)
+        }
+
+        suspend fun getByName(name: String): AssetsModel? {
+            val response = Server.request("assets/get?name=${Uri.encode(name)}")
+            val json = Gson().fromJson(response, JsonObject::class.java)
+            return runCatching { Gson().fromJson(json.getAsJsonObject("data"), AssetsModel::class.java) }.getOrNull()
         }
     }
 }

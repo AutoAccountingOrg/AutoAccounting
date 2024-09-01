@@ -16,12 +16,15 @@
 package net.ankio.auto.ui.utils
 
 import android.content.Context
+import android.graphics.drawable.Drawable
 import android.view.View
 import android.widget.ImageView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.storage.ImageUtils
+import org.ezbook.server.db.model.AssetsModel
 import org.ezbook.server.db.model.BookNameModel
 import org.ezbook.server.db.model.CategoryModel
 
@@ -44,5 +47,24 @@ object ResourceUtils {
                 image.setImageDrawable(it)
             }
         }
+    }
+
+    suspend fun getAssetDrawable(item:AssetsModel,image:ImageView) = withContext(Dispatchers.IO){
+        val icon = item.icon?:""
+        ImageUtils.get(image.context, icon, R.drawable.default_asset).let {
+            withContext(Dispatchers.Main){
+                image.setImageDrawable(it)
+            }
+        }
+    }
+
+    suspend fun getAssetDrawable(name: String):Drawable = withContext(Dispatchers.IO){
+        ImageUtils.get(App.app, name, R.drawable.default_asset)
+    }
+
+    suspend fun getAssetDrawableFromName(name: String):Drawable = withContext(Dispatchers.IO){
+        val asset = AssetsModel.getByName(name)
+        val icon = asset?.icon?:""
+        getAssetDrawable(icon)
     }
 }

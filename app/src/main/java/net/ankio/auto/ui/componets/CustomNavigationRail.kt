@@ -36,8 +36,12 @@ class CustomNavigationRail @JvmOverloads constructor(
 
     private val menuItems = mutableListOf<RailMenuItem>()
     private var onItemSelectedListener: ((RailMenuItem) -> Unit)? = null
-    fun triggerFirstItem() {
-        if (childCount > 0) getChildAt(0).performClick()
+    fun triggerFirstItem():Boolean {
+        if (childCount > 0) {
+            getChildAt(0).performClick()
+            return true
+        }
+        return false
     }
     fun addMenuItem(menuItem: RailMenuItem) {
         menuItems.add(menuItem)

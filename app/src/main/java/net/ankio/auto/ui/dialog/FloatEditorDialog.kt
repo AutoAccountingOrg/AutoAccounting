@@ -42,7 +42,7 @@ import net.ankio.auto.ui.utils.ListPopupUtils
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.models.AssetsModel
-import net.ankio.auto.models.AssetsMapModel
+import org.ezbook.server.db.model.AssetsMapModel
 import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.db.model.BookNameModel
 import net.ankio.auto.common.AccountingConfig
