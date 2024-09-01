@@ -16,6 +16,7 @@
 package org.ezbook.server
 
 import android.content.Context
+import android.net.TrafficStats
 import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.JsonObject
@@ -40,12 +41,14 @@ import org.nanohttpd.protocols.http.NanoHTTPD.SOCKET_READ_TIMEOUT
 import org.nanohttpd.protocols.http.response.Response
 import org.nanohttpd.protocols.http.response.Response.newFixedLengthResponse
 import org.nanohttpd.protocols.http.response.Status
+import java.net.ConnectException
 
 
 class Server(context:Context) {
 
     private val port = 52045
     private val server = ServerHttp(port,context)
+
     init {
         Db.init(context)
     }
@@ -101,6 +104,7 @@ class Server(context:Context) {
         }
 
 
+
         /**
          * 发送请求
          */
@@ -121,7 +125,10 @@ class Server(context:Context) {
                response.body?.string()
 
            }.onFailure {
-                it.printStackTrace()
+               if (it !is ConnectException){
+                   it.printStackTrace()
+               }
+
           }.getOrNull()
         }
 

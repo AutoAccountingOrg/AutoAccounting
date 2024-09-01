@@ -17,28 +17,20 @@ package net.ankio.auto
 
 import android.app.Application
 import android.content.Context
-import android.content.ContextWrapper
-import android.content.pm.ApplicationInfo
-import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
-import android.content.res.Resources
 import android.graphics.Color
 import android.os.Build
 import androidx.annotation.AttrRes
 import androidx.appcompat.view.ContextThemeWrapper
-import androidx.core.content.res.ResourcesCompat
 import com.google.android.material.color.MaterialColors
-import com.hjq.toast.Toaster
 import com.quickersilver.themeengine.ThemeEngine
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import net.ankio.auto.app.model.AppInfo
-import net.ankio.auto.broadcast.LocalBroadcastHelper
-import net.ankio.auto.utils.ExceptionHandler
 import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.ui.utils.ToastUtils
+import net.ankio.auto.utils.ExceptionHandler
 
 class App : Application() {
     override fun onTerminate() {
@@ -165,7 +157,6 @@ class App : Application() {
         // 初始化 Toast 框架
         ToastUtils.init(this)
     }
-
 
 
 
