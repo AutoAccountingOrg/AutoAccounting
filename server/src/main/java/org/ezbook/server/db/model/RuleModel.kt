@@ -106,4 +106,8 @@ class RuleModel {
         }
 
     }
+
+    override fun toString(): String {
+        return "RuleModel(id=$id, app='$app', type='$type', js='$js', name='$name', systemRuleName='$systemRuleName', creator='$creator', struct='$struct', autoRecord=$autoRecord, enabled=$enabled)"
+    }
 }

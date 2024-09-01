@@ -29,6 +29,7 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentDataRuleBinding
+import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.adapter.DataRuleAdapter
 import net.ankio.auto.ui.api.BasePageFragment
 import net.ankio.auto.ui.componets.CustomNavigationRail
@@ -46,7 +47,8 @@ class DataRuleFragment: BasePageFragment<RuleModel>()  {
         get() =
             arrayListOf(
                 ToolbarMenuItem(R.string.item_search, R.drawable.menu_icon_search,true) {
-
+                    Logger.i("搜索: $searchData")
+                    loadDataInside()
                 },
                 ToolbarMenuItem(R.string.item_notice, R.drawable.menu_item_notice) {
                     it.navigate(R.id.noticeFragment)

@@ -15,9 +15,7 @@
 
 package net.ankio.auto.ui.adapter
 import android.view.View
-import androidx.core.content.res.ResourcesCompat
 import kotlinx.coroutines.launch
-import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterDataRuleBinding
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
@@ -43,6 +41,8 @@ class DataRuleAdapter(private val list: MutableList<RuleModel>):BaseAdapter<Adap
             }
         }
 
+        // TODO 本地规则编辑
+
         binding.editRule.setOnClickListener {
             val item = holder.item!!
             ToastUtils.info("敬请期待")
@@ -54,14 +54,16 @@ class DataRuleAdapter(private val list: MutableList<RuleModel>):BaseAdapter<Adap
     }
 
     override fun onBindViewHolder(holder: BaseViewHolder<AdapterDataRuleBinding,RuleModel>,data:RuleModel, position: Int) {
+
+
+
         val system = data.creator == "system"
+
         holder.binding.ruleName.text = data.name
         holder.binding.deleteData.visibility = if (system) View.GONE else View.VISIBLE
         holder.binding.editRule.visibility = if (system) View.GONE else View.VISIBLE
 
-        val drawable = ResourcesCompat.getDrawable(holder.context.resources, R.drawable.ripple_effect, holder.context.theme)
-
-        holder.binding.ruleName.setCompoundDrawables(if (system) drawable else null,null,null,null)
+        holder.binding.icon.visibility = if (system) View.VISIBLE else View.GONE
 
         holder.binding.enable.isChecked = data.enabled
 
