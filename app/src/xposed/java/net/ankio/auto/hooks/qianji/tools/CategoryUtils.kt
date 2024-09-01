@@ -25,7 +25,6 @@ import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.BookNameModel
 import org.ezbook.server.db.model.CategoryModel
 import org.ezbook.server.db.model.SettingModel
-import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Proxy
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
