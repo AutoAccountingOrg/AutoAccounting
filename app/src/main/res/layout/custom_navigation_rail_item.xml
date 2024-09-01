@@ -8,8 +8,8 @@
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/iconView"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
         android:layout_gravity="center_horizontal"
         android:contentDescription="@null" />
 
@@ -17,13 +17,13 @@
         android:id="@+id/textView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
         android:layout_marginTop="4dp"
-        android:text="@string/app_name"
-        android:gravity="center"
-        android:textColor="?colorOnBackground"
-        android:maxLines="1"
+        android:layout_weight="1"
         android:ellipsize="end"
+        android:gravity="center"
+        android:maxLines="1"
         android:singleLine="true"
-        android:textSize="14sp" />
+        android:text="@string/app_name"
+        android:textColor="?colorOnBackground"
+        android:textSize="12sp" />
 </LinearLayout>

@@ -15,23 +15,57 @@
 
 package net.ankio.auto.ui.adapter
 import android.view.View
+import androidx.core.content.res.ResourcesCompat
+import kotlinx.coroutines.launch
+import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterDataRuleBinding
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
+import net.ankio.auto.ui.scope.autoDisposeScope
+import net.ankio.auto.ui.utils.ToastUtils
 import org.ezbook.server.db.model.RuleModel
 
 class DataRuleAdapter(private val list: MutableList<RuleModel>):BaseAdapter<AdapterDataRuleBinding,RuleModel>(AdapterDataRuleBinding::class.java,list) {
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterDataRuleBinding,RuleModel>) {
-        // TODO 等UI确定后再写
+        val binding = holder.binding
+        binding.enable.setOnCheckedChangeListener { buttonView, isChecked ->
+            val item = holder.item!!
+            item.enabled = isChecked
+           binding.root.autoDisposeScope.launch {
+               RuleModel.update(item)
+           }
+        }
+        binding.autoRecord.setOnCheckedChangeListener { buttonView, isChecked ->
+            val item = holder.item!!
+            item.autoRecord = isChecked
+            binding.root.autoDisposeScope.launch {
+                RuleModel.update(item)
+            }
+        }
+
+        binding.editRule.setOnClickListener {
+            val item = holder.item!!
+            ToastUtils.info("敬请期待")
+        }
+        binding.deleteData.setOnClickListener {
+            val item = holder.item!!
+            ToastUtils.info("敬请期待")
+        }
     }
 
     override fun onBindViewHolder(holder: BaseViewHolder<AdapterDataRuleBinding,RuleModel>,data:RuleModel, position: Int) {
         val system = data.creator == "system"
         holder.binding.ruleName.text = data.name
-        holder.binding.type.visibility = if (system) View.VISIBLE else View.GONE
         holder.binding.deleteData.visibility = if (system) View.GONE else View.VISIBLE
         holder.binding.editRule.visibility = if (system) View.GONE else View.VISIBLE
 
+        val drawable = ResourcesCompat.getDrawable(holder.context.resources, R.drawable.ripple_effect, holder.context.theme)
+
+        holder.binding.ruleName.setCompoundDrawables(if (system) drawable else null,null,null,null)
+
+        holder.binding.enable.isChecked = data.enabled
+
+        holder.binding.autoRecord.isChecked = data.autoRecord
     }
 
 

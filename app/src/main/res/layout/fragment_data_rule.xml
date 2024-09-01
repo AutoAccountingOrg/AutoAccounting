@@ -22,48 +22,48 @@
 
 
     <net.ankio.auto.ui.componets.CustomNavigationRail
-        android:layout_width="100dp"
-        android:paddingTop="40dp"
-        android:paddingBottom="40dp"
-        android:paddingLeft="5dp"
-        android:paddingRight="5dp"
-        android:layout_height="match_parent"
         android:id="@+id/leftList"
-        />
+        android:layout_width="70dp"
+        android:layout_height="match_parent"
+        android:background="?colorSurfaceContainerLow"
+        android:paddingLeft="0dp"
+        android:paddingTop="40dp"
+        android:paddingRight="0dp"
+        android:paddingBottom="40dp" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginStart="100dp"
+        android:layout_marginStart="70dp"
         android:orientation="vertical">
 
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/chipGroup"
-            app:singleSelection="true"
-            app:selectionRequired="true"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="10dp"
-            app:chipSpacingHorizontal="10dp">
+            app:chipSpacingHorizontal="10dp"
+            app:selectionRequired="true"
+            app:singleSelection="true">
 
             <com.google.android.material.chip.Chip
-                android:checked="true"
-                style="@style/Widget.Material3.Chip.Filter"
                 android:id="@+id/chip_all"
+                style="@style/Widget.Material3.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:checked="true"
                 android:text="@string/chip_all" />
 
             <com.google.android.material.chip.Chip
-                style="@style/Widget.Material3.Chip.Filter"
                 android:id="@+id/chip_data"
+                style="@style/Widget.Material3.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/chip_data" />
 
             <com.google.android.material.chip.Chip
-                style="@style/Widget.Material3.Chip.Filter"
                 android:id="@+id/chip_notify"
+                style="@style/Widget.Material3.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/chip_notify" />
@@ -84,8 +84,7 @@
             <net.ankio.auto.ui.componets.StatusPage
                 android:id="@+id/status_page"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                />
+                android:layout_height="match_parent" />
 
             <com.scwang.smart.refresh.footer.ClassicsFooter
                 android:layout_width="match_parent"

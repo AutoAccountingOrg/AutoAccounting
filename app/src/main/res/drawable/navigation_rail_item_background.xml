@@ -2,13 +2,13 @@
     android:color="?attr/colorControlHighlight">
     <item android:id="@android:id/mask">
         <shape android:shape="rectangle">
-            <corners android:radius="16dp" />
+            <corners android:radius="0dp" />
             <solid android:color="?attr/colorSecondaryContainer" />
         </shape>
     </item>
     <item>
         <shape android:shape="rectangle">
-            <corners android:radius="16dp" />
+            <corners android:radius="0dp" />
             <solid android:color="?attr/colorSecondaryContainer" />
         </shape>
     </item>

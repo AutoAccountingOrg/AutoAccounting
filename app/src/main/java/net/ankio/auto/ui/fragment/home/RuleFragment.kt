@@ -39,7 +39,7 @@ class RuleFragment : BaseFragment() {
             arrayListOf(
                 ToolbarMenuItem(R.string.item_add, R.drawable.menu_item_add) {
                     it.navigate(R.id.editFragment)
-                },
+                }
             )
 
     override fun onCreateView(
@@ -48,7 +48,7 @@ class RuleFragment : BaseFragment() {
         savedInstanceState: Bundle?,
     ): View {
         binding = FragmentDataBinding.inflate(layoutInflater)
-        recyclerView = binding.recyclerView
+        recyclerView = binding.statusPage.contentView!!
         layoutManager = LinearLayoutManager(requireContext())
         recyclerView.layoutManager = layoutManager
         scrollView = recyclerView

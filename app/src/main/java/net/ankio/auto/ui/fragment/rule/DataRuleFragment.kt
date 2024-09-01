@@ -33,7 +33,6 @@ import net.ankio.auto.ui.adapter.DataRuleAdapter
 import net.ankio.auto.ui.api.BasePageFragment
 import net.ankio.auto.ui.componets.CustomNavigationRail
 import net.ankio.auto.ui.models.RailMenuItem
-import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.ui.models.ToolbarMenuItem
 import org.ezbook.server.constant.DataType
 import org.ezbook.server.db.model.RuleModel
@@ -46,8 +45,8 @@ class DataRuleFragment: BasePageFragment<RuleModel>()  {
     override val menuList: ArrayList<ToolbarMenuItem>
         get() =
             arrayListOf(
-                ToolbarMenuItem(R.string.item_add, R.drawable.menu_item_add) {
-                   ToastUtils.error("敬请期待")
+                ToolbarMenuItem(R.string.item_search, R.drawable.menu_icon_search,true) {
+
                 },
                 ToolbarMenuItem(R.string.item_notice, R.drawable.menu_item_notice) {
                     it.navigate(R.id.noticeFragment)
@@ -87,11 +86,10 @@ class DataRuleFragment: BasePageFragment<RuleModel>()  {
      * 加载数据
      */
     override suspend fun loadData(callback: (resultData: List<RuleModel>) -> Unit) {
-        RuleModel.list(app, type, page, pageSize).let { result ->
+        RuleModel.list(app, type, page, pageSize,searchData).let { result ->
             withContext(Dispatchers.Main) {
                 callback(result)
             }
-
         }
     }
 

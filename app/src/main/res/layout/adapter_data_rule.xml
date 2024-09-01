@@ -36,38 +36,28 @@
 
 
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <TextView
+            android:id="@+id/ruleName"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:singleLine="false"
+            android:padding="@dimen/padding"
+            android:textAppearance="?attr/textAppearanceBodyMedium"
+            app:drawableStartCompat="@drawable/ic_cloud"
+           android:drawablePadding="@dimen/padding"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/autoRecord"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:text="1111111111111111111111xxxxxxxxxxxxxxx1111xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx111111111"
+            app:layout_constraintTop_toTopOf="parent" />
 
-            <TextView
-                android:id="@+id/ruleName"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:maxLines="1"
-                android:ellipsize="end"
-                android:singleLine="true"
-                android:text="11111111111111111111111111111111111"
-                app:layout_constraintEnd_toStartOf="@+id/autoRecord"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintHorizontal_bias="0.0" />
-
-            <com.google.android.material.materialswitch.MaterialSwitch
-                android:id="@+id/autoRecord"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checked="false"
-                android:text="@string/auto_record"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
             >
 
             <View
@@ -75,40 +65,55 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"/>
 
-            <ImageView
-                android:id="@+id/type"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_gravity="center_horizontal|center_vertical"
-                android:layout_marginEnd="20dp"
-                android:src="@drawable/icon_auto"
-                app:tint="?attr/colorPrimary" />
-            <com.google.android.material.button.MaterialButton
 
-                style="?attr/materialIconButtonFilledTonalStyle"
-                app:icon="@drawable/icon_edit"
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="10dp"
+                >
+                <ImageView
+                    android:id="@+id/type"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center_horizontal|center_vertical"
+                    android:layout_marginEnd="5dp"
+                    android:src="@drawable/icon_auto"
+                    app:tint="?attr/colorPrimary" />
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/autoRecord"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="false" />
+            </LinearLayout>
+
+
+            <com.google.android.material.button.MaterialButton
+                android:layout_marginEnd="10dp"
                 android:id="@+id/editRule"
+                style="?attr/materialIconButtonFilledTonalStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="15dp"
+                app:icon="@drawable/icon_edit"
 
                 />
+
             <com.google.android.material.button.MaterialButton
-                style="?attr/materialIconButtonFilledStyle"
+                android:layout_marginEnd="10dp"
                 android:id="@+id/deleteData"
+                style="?attr/materialIconButtonFilledStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
 
-                app:icon="@drawable/icon_delete"
-                   />
-
-
+                app:icon="@drawable/icon_delete" />
 
             <com.google.android.material.materialswitch.MaterialSwitch
                 android:id="@+id/enable"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="true" />
+
+
 
         </LinearLayout>
 

@@ -61,14 +61,12 @@ class DataFragment : BasePageFragment<AppDataModel>() {
         savedInstanceState: Bundle?,
     ): View {
         binding = FragmentDataBinding.inflate(layoutInflater)
-       /* statusPage = binding.statusPage
-        val recyclerView = binding.recyclerView
+        statusPage = binding.statusPage
+        val recyclerView = binding.statusPage.contentView!!
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         scrollView = recyclerView
 
-
         recyclerView.adapter = AppDataAdapter(pageData, requireActivity() as BaseActivity)
-*/
         return binding.root
     }
 

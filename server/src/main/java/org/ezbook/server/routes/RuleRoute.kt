@@ -32,22 +32,19 @@ class RuleRoute(private val session: IHTTPSession) {
         val limit = params["limit"]?.firstOrNull()?.toInt() ?: 10
 
         val app = params["app"]?.firstOrNull() ?: ""
-        val type = params["type"]?.firstOrNull() ?: ""
-
+        var type: String? = params["type"]?.firstOrNull()?:""
+        var search: String? = params["search"]?.firstOrNull()?:""
 
         val offset = (page - 1) * limit
 
-        val logs = if (type.isEmpty()) {
-            Db.get().ruleDao().loadByAppAndType(limit, offset,app)
-        } else {
-            Db.get().ruleDao().loadByAppAndType(limit, offset,app,type)
-        }
+        if (type == "")  type = null
 
-        val total = if (type.isEmpty()) {
-            Db.get().ruleDao().count(app)
-        } else {
-            Db.get().ruleDao().count(app,type)
-        }
+        if (search == "")  search = null
+
+        val logs =  Db.get().ruleDao().loadByAppAndFilters(limit, offset,app,type,search)
+
+        val total = Db.get().ruleDao().countByAppAndFilters(limit, offset, app)
+
         return Server.json(200, "OK", logs, total)
     }
 
@@ -69,6 +66,7 @@ class RuleRoute(private val session: IHTTPSession) {
         val id = Db.get().ruleDao().update(json)
         return Server.json(200, "OK", id)
     }
+
     /**
      * 删除规则
      */
