@@ -86,7 +86,6 @@ class AssetsUtils(private val manifest: HookerManifest, private val classLoader:
             HashMap::class.java,
             Int::class.java
         ) {
-            manifest.logD("setAccountList")
             val accountList = it.args[0] as List<*> // 资产列表
             if (!resumed) {
                 resumed = true
@@ -160,7 +159,7 @@ class AssetsUtils(private val manifest: HookerManifest, private val classLoader:
         val md5 = App.md5(sync)
         val server = SettingModel.get("sync_assets_md5", "")
         if (server == md5 || assets.isEmpty()) { //资产为空也不同步
-            manifest.log("资产信息未发生变化，无需同步")
+            manifest.log("资产信息未发生变化，无需同步, 服务端md5:${server} 本地md5:${md5}")
             return@withContext
         }
         manifest.log("同步账户信息:${Gson().toJson(assets)}")

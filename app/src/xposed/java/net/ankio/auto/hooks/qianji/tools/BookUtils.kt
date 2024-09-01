@@ -81,7 +81,7 @@ class BookUtils(private val manifest: HookerManifest, private val classLoader: C
             val md5 = App.md5(sync)
             val server = SettingModel.get("sync_books_md5", "")
             if (server == md5) {
-                manifest.log("账本信息未发生变化，无需同步")
+                manifest.log("账本信息未发生变化，无需同步, 服务端md5:${server} 本地md5:${md5}")
                 return@withContext bookList
             }
             manifest.log("同步账本信息:$sync")

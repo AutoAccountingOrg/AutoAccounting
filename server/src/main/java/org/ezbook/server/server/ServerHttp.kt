@@ -63,6 +63,8 @@ class ServerHttp(port: Int, private val context: Context) : NanoHTTPD(port) {
                 "/setting/get" -> SettingRoute(session).get()
                 // 添加设置
                 "/setting/set" -> SettingRoute(session).set()
+                // 设置列表
+                "/setting/list" -> SettingRoute(session).list()
                 //--------------------------------
                 // js 分析
                 "/js/analysis" -> JsRoute(session, context).analysis()

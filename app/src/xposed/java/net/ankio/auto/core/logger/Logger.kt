@@ -42,6 +42,7 @@ object Logger {
      */
     fun log(app:String,msg: String) {
        XposedBridge.log(msg)
+        Log.i("自动记账", msg)
        //写入自动记账日志
         App.scope.launch {
            runCatching {
@@ -60,7 +61,6 @@ object Logger {
         if (debug) {
            this.log(app,msg)
         }
-        Log.d("自动记账", msg)
     }
 
     /**
@@ -68,6 +68,7 @@ object Logger {
      */
     fun logE(app:String,e: Throwable) {
         XposedBridge.log(e)
+        Log.e("自动记账", e.message?:"")
         App.scope.launch {
             LogModel.add(LogLevel.ERROR,app, getTag(),e.message?:"")
         }

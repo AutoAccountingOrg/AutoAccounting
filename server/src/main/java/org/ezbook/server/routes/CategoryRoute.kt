@@ -24,6 +24,9 @@ import org.nanohttpd.protocols.http.IHTTPSession
 import org.nanohttpd.protocols.http.response.Response
 
 class CategoryRoute(private val session: IHTTPSession) {
+    /**
+     * 获取分类
+     */
     fun list(): Response {
         val params = session.parameters
         val book = params["book"]?.firstOrNull()?:""
@@ -41,16 +44,16 @@ class CategoryRoute(private val session: IHTTPSession) {
         return Server.json(200, "OK", Db.get().categoryDao().load(book, type, parent), 0)
     }
 
+    /**
+     * 设置分类
+     */
     fun put(): Response {
         val params = session.parameters
         val md5 = params["md5"]?.firstOrNull()?:""
         val data = Server.reqData(session)
         val json = Gson().fromJson(data, Array<CategoryModel>::class.java)
         val id = Db.get().categoryDao().put(json)
-        Db.get().settingDao().insert(SettingModel().apply {
-            key = "sync_books_md5"
-            value = md5
-        })
+        SettingRoute.setByInner("sync_category_md5",md5)
         return Server.json(200, "OK", id)
     }
 }

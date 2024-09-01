@@ -48,7 +48,7 @@ class CategoryUtils(private val manifest: HookerManifest, private val classLoade
     /**
      * 获取分类列表
      */
-    suspend fun getCategoryList(bookId: Long): HashMap<String, Any> =
+    private suspend fun getCategoryList(bookId: Long): HashMap<String, Any> =
         suspendCoroutine { continuation ->
             val proxyInstance =
                 Proxy.newProxyInstance(classLoader, arrayOf(proxyOnGetCategoryListClazz)) { _, method, args ->
@@ -90,7 +90,7 @@ class CategoryUtils(private val manifest: HookerManifest, private val classLoade
        val md5 = App.md5(sync)
        val server = SettingModel.get("sync_category_md5", "")
        if (server == md5) {
-           manifest.log("分类信息未发生变化，无需同步")
+           manifest.log("分类信息未发生变化，无需同步, 服务端md5:${server} 本地md5:${md5}")
            return@withContext
        }
        manifest.log("同步分类信息:$sync")
@@ -118,7 +118,6 @@ class CategoryUtils(private val manifest: HookerManifest, private val classLoade
             for (field in fields) {
                 field.isAccessible = true
                 val value = field.get(category) ?: continue
-                manifest.logD("分类字段:${field.name}=${value}")
                 /**
                  * [
                  *     {
@@ -195,18 +194,22 @@ class CategoryUtils(private val manifest: HookerManifest, private val classLoade
                  *     }
                  * ]
                  */
-                when (field.name) {
-                    "name" -> model.name = value as String
-                    "icon" -> model.icon = value as String
-                    "id" -> model.remoteId = (value as Long).toString()
-                    "parentId" -> model.remoteParentId = (value as Long).toString()
-                    "bookId" -> model.remoteBookId = (value as Long).toString()
-                    "sort" -> model.sort = value as Int
-                    "subList" -> {
-                        val subList = value as List<*>
-                        //    XposedBridge.log("子分类:${Gson().toJson(subList)}")
-                        categories.addAll(convertCategoryToModel(subList, type))
+                try {
+                    when (field.name) {
+                        "name" -> model.name = value as String
+                        "icon" -> model.icon = value as String
+                        "id" -> model.remoteId = (value as Long).toString()
+                        "parentId" -> model.remoteParentId = (value as Long).toString()
+                        "bookId" -> model.remoteBookId = (value as Long).toString()
+                        "sort" -> model.sort = value as Int
+                        "subList" -> {
+                            val subList = value as List<*>
+                            categories.addAll(convertCategoryToModel(subList, type))
+                        }
                     }
+                }catch (e:Exception){
+                    manifest.log("分类转换异常:${e.message}")
+                    manifest.logE(e)
                 }
             }
             categories.add(model)

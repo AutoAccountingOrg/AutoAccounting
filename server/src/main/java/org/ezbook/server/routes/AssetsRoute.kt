@@ -52,10 +52,7 @@ class AssetsRoute(private val session: IHTTPSession) {
         val data = Server.reqData(session)
         val json = Gson().fromJson(data, Array<AssetsModel>::class.java)
         val id = Db.get().assetsDao().put(json)
-        Db.get().settingDao().insert(SettingModel().apply {
-            key = "sync_assets_md5"
-            value = md5
-        })
+        SettingRoute.setByInner("sync_assets_md5",md5)
         return Server.json(200, "OK", id)
     }
 }

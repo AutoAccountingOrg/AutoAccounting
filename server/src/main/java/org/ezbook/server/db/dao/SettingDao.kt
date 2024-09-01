@@ -32,4 +32,7 @@ interface SettingDao {
     @Query("SELECT * FROM SettingModel WHERE `key` = :key limit 1")
      fun query(key: String): SettingModel?
 
+     @Query("SELECT * FROM SettingModel")
+        fun load(): List<SettingModel>
+
 }

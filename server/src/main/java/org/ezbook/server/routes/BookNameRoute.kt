@@ -34,10 +34,7 @@ class BookNameRoute(private val session: IHTTPSession) {
         val data = Server.reqData(session)
         val json = Gson().fromJson(data, Array<BookNameModel>::class.java)
         val id = Db.get().bookNameDao().put(json)
-        Db.get().settingDao().insert(SettingModel().apply {
-            key = "sync_books_md5"
-            value = md5
-        })
+        SettingRoute.setByInner("sync_books_md5",md5)
         return Server.json(200, "OK", id)
     }
 }

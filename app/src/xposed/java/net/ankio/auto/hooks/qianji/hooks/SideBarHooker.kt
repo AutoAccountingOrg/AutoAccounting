@@ -174,7 +174,6 @@ class SideBarHooker : PartHooker{
      */
     fun syncData2Auto(context: Activity){
 
-        App.toast("正在同步数据到自动记账...")
         App.launch {
             AssetsUtils(hookerManifest, context.classLoader).syncAssets()
             val books = BookUtils(hookerManifest, context.classLoader,context).syncBooks()
