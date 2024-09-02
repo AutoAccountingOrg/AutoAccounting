@@ -13,7 +13,7 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.ui.fragment.rule
+package net.ankio.auto.ui.fragment
 
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -29,7 +29,6 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentDataRuleBinding
-import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.adapter.DataRuleAdapter
 import net.ankio.auto.ui.api.BasePageFragment
 import net.ankio.auto.ui.componets.CustomNavigationRail
@@ -46,7 +45,7 @@ class DataRuleFragment: BasePageFragment<RuleModel>()  {
     override val menuList: ArrayList<ToolbarMenuItem>
         get() =
             arrayListOf(
-                ToolbarMenuItem(R.string.item_search, R.drawable.menu_icon_search,true) {
+                ToolbarMenuItem(R.string.item_search, R.drawable.menu_icon_search, true) {
                     loadDataInside()
                 },
                 ToolbarMenuItem(R.string.item_notice, R.drawable.menu_item_notice) {
@@ -87,7 +86,7 @@ class DataRuleFragment: BasePageFragment<RuleModel>()  {
      * 加载数据
      */
     override suspend fun loadData(callback: (resultData: List<RuleModel>) -> Unit) {
-        RuleModel.list(app, type, page, pageSize,searchData).let { result ->
+        RuleModel.list(app, type, page, pageSize, searchData).let { result ->
             withContext(Dispatchers.Main) {
                 callback(result)
             }
