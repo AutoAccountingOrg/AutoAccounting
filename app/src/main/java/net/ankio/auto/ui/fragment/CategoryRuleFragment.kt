@@ -59,7 +59,7 @@ class CategoryRuleFragment:BasePageFragment<CategoryRuleModel>() {
         binding.addButton.setOnClickListener {
             findNavController().navigate(R.id.categoryEditFragment)
         }
-
+        loadDataEvent(binding.refreshLayout)
         return binding.root
     }
 

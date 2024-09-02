@@ -64,6 +64,8 @@ class AssetMapFragment : BasePageFragment<AssetsMapModel>() {
             }.show(cancel = true)
         }
 
+        loadDataEvent(binding.refreshLayout)
+
         return binding.root
     }
 
