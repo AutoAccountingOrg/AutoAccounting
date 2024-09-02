@@ -20,15 +20,20 @@ import android.app.Activity
 import android.view.LayoutInflater
 import android.widget.ArrayAdapter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterMapBinding
 import net.ankio.auto.databinding.DialogInputBinding
 import net.ankio.auto.databinding.DialogRegexInputBinding
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
+import net.ankio.auto.ui.dialog.BookSelectorDialog
+import net.ankio.auto.ui.dialog.CategorySelectorDialog
 import net.ankio.auto.ui.scope.autoDisposeScope
 import org.ezbook.server.db.model.CategoryMapModel
+import org.ezbook.server.tools.Category
 
 class CategoryMapAdapter(
     val dataItems: MutableList<CategoryMapModel>,
@@ -38,10 +43,10 @@ class CategoryMapAdapter(
 
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterMapBinding, CategoryMapModel>) {
         val binding = holder.binding
-        binding.item.setOnClickListener {
+        binding.root.setOnClickListener {
             val item = holder.item!!
             val position = holder.positionIndex
-            val inputBinding = DialogInputBinding.inflate(LayoutInflater.from(activity))
+           /* val inputBinding = DialogInputBinding.inflate(LayoutInflater.from(activity))
             inputBinding.content.setText(item.mapName)
 
             MaterialAlertDialogBuilder(activity)
@@ -55,7 +60,21 @@ class CategoryMapAdapter(
                    notifyItemChanged(position)
                 }
                 .setNegativeButton(R.string.cancel_msg, null)
-                .show()
+                .show()*/
+
+
+            BookSelectorDialog(activity, true) { book,type ->
+               CategorySelectorDialog(activity,book.remoteId,type) { category1,category2 ->
+                   binding.root.autoDisposeScope.launch {
+                       item.mapName = Category.getName(category1!!,category2)
+                       CategoryMapModel.put(item)
+                      withContext(Dispatchers.Main){
+                          notifyItemChanged(position)
+                      }
+                   }
+               }.show(cancel = true)
+            }.show(cancel = true)
+
         }
     }
 
