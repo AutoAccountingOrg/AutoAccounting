@@ -61,6 +61,20 @@ class AppDataRoute(private val session: IHTTPSession) {
         Db.get().dataDao().clear()
         return Server.json(200, "OK")
     }
-
+    /**
+     * 获取app列表
+     */
+    fun apps(): Response {
+        val apps = Db.get().dataDao().queryApps()
+        val map = hashMapOf<String,Int>()
+        apps.forEach {
+            if (it !in map) {
+                map[it] = 1
+            } else {
+                map[it] = map[it]!! + 1
+            }
+        }
+        return Server.json(200, "OK", map)
+    }
 
 }

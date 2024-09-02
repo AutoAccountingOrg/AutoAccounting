@@ -15,25 +15,31 @@
 
 package net.ankio.auto.ui.fragment
 
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import net.ankio.auto.App
 import net.ankio.auto.R
-import net.ankio.auto.databinding.FragmentDataBinding
+import net.ankio.auto.databinding.FragmentDataRuleBinding
 import net.ankio.auto.ui.adapter.AppDataAdapter
 import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.api.BasePageFragment
+import net.ankio.auto.ui.componets.CustomNavigationRail
+import net.ankio.auto.ui.models.RailMenuItem
 import net.ankio.auto.ui.models.ToolbarMenuItem
+import org.ezbook.server.constant.DataType
 import org.ezbook.server.db.model.AppDataModel
 
 class DataFragment : BasePageFragment<AppDataModel>() {
-    private lateinit var binding: FragmentDataBinding
+    private lateinit var binding: FragmentDataRuleBinding
     var app:String = ""
     var type:String = ""
     override suspend fun loadData(callback: (resultData: List<AppDataModel>) -> Unit) {
@@ -60,19 +66,68 @@ class DataFragment : BasePageFragment<AppDataModel>() {
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
-        binding = FragmentDataBinding.inflate(layoutInflater)
+        binding = FragmentDataRuleBinding.inflate(layoutInflater)
         statusPage = binding.statusPage
         val recyclerView = binding.statusPage.contentView!!
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         scrollView = recyclerView
 
         recyclerView.adapter = AppDataAdapter(pageData, requireActivity() as BaseActivity)
+        loadDataEvent(binding.refreshLayout)
+        loadLeftData(binding.leftList)
+        chipEvent()
         return binding.root
     }
+    private var leftData = JsonObject()
+    private fun loadLeftData(leftList: CustomNavigationRail){
+        lifecycleScope.launch {
+            AppDataModel.apps().let { result ->
+                leftData = result
+                var i = 0
+                for (key in result.keySet()){
+                    i++
+                    val app = App.getAppInfoFromPackageName(key) ?: continue
+                    leftList.addMenuItem(
+                        RailMenuItem(i, app[1] as Drawable, app[0] as String)
+                    )
 
-    override fun onResume() {
-        super.onResume()
-        statusPage.showLoading()
-        loadDataInside()
+                }
+                if (!leftList.triggerFirstItem()){
+                    statusPage.showEmpty()
+                }
+            }
+        }
+
+        leftList.setOnItemSelectedListener {
+            val id = it.id
+            page = 1
+            app = leftData.keySet().elementAt(id - 1)
+            statusPage.showLoading()
+            loadDataInside()
+        }
     }
+    /**
+     * Chip事件
+     */
+    private fun chipEvent(){
+        binding.chipGroup.setOnCheckedStateChangeListener { group, checkedId ->
+            val chipId = checkedId.firstOrNull() ?: R.id.chip_all
+
+            when(chipId){
+                R.id.chip_all -> {
+                    type = ""
+                }
+                R.id.chip_notify -> {
+                    type = DataType.NOTICE.name
+                }
+                R.id.chip_data -> {
+                    type = DataType.DATA.name
+                }
+            }
+            loadDataInside()
+        }
+    }
+
+
+
 }

@@ -48,4 +48,8 @@ interface AppDataDao {
     //只保留最近的2000条数据
     @Query("DELETE FROM AppDataModel WHERE id NOT IN (SELECT id FROM AppDataModel ORDER BY id DESC LIMIT 2000)")
     fun clearOld()
+
+    //查询所有app
+    @Query("SELECT app FROM AppDataModel GROUP BY app")
+     fun queryApps(): List<String>
 }
