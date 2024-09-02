@@ -234,7 +234,9 @@ class CategorySelectorDialog(
         // 为按钮设置点击监听器
         binding.button.setOnClickListener {
             // 当按钮被点击时，调用回调函数
-            callback(categoryModel1, categoryModel2)
+            if (categoryModel1 != null) {
+                callback(categoryModel1, categoryModel2)
+            }
             // 关闭对话框
             dismiss()
         }
