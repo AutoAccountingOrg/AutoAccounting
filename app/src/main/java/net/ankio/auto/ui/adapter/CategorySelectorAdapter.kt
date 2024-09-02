@@ -65,9 +65,10 @@ class CategorySelectorAdapter(
             //获取二级菜单
             binding.root.autoDisposeScope.launch {
                 val list = CategoryModel.list(data.remoteBookId, data.type, data.remoteId)
-                level2[data.id] = list.toMutableList()
+                val items = list.toMutableList()
+                level2[data.id]  = items
                 withContext(Dispatchers.Main) {
-                   callback(level2[data.id]!!)
+                   callback(items)
                 }
             }
         }else{
