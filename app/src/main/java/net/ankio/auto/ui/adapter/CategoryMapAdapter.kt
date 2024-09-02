@@ -17,7 +17,13 @@
 package net.ankio.auto.ui.adapter
 
 import android.app.Activity
+import android.view.LayoutInflater
+import android.widget.ArrayAdapter
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterMapBinding
+import net.ankio.auto.databinding.DialogInputBinding
+import net.ankio.auto.databinding.DialogRegexInputBinding
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
 import org.ezbook.server.db.model.CategoryMapModel
@@ -33,7 +39,19 @@ class CategoryMapAdapter(
         binding.item.setOnClickListener {
             val item = holder.item!!
             val position = holder.positionIndex
-            // TODO 弹出编辑框
+            val inputBinding = DialogInputBinding.inflate(LayoutInflater.from(activity))
+            inputBinding.content.setText(item.mapName)
+
+            MaterialAlertDialogBuilder(activity)
+                .setTitle(activity.getString(R.string.category_map, item.name))
+                .setView(inputBinding.root)
+                .setPositiveButton(R.string.sure_msg) { dialog, which ->
+                   item.mapName = inputBinding.content.text.toString()
+
+                    notifyItemChanged(position)
+                }
+                .setNegativeButton(R.string.cancel_msg, null)
+                .show()
         }
     }
 

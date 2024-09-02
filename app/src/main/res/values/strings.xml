@@ -401,4 +401,6 @@
     <string name="add_category_map">添加分类映射：%s</string>
     <string name="delete_category_map">删除分类映射：%s</string>
     <string name="title_category_edit">分类规则编辑</string>
+    <string name="input">请输入</string>
+    <string name="category_map">将分类【%s】映射为</string>
 </resources>

@@ -34,7 +34,7 @@ class CategoryRuleFragment:BasePageFragment<CategoryRuleModel>() {
 
     override suspend fun loadData(callback: (resultData: List<CategoryRuleModel>) -> Unit) {
         lifecycleScope.launch {
-            val newData = CategoryRuleModel.list()
+            val newData = CategoryRuleModel.list(page,pageSize)
             callback(newData)
         }
     }
