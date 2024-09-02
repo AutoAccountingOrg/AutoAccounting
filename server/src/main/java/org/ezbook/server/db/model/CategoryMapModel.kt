@@ -39,9 +39,9 @@ class CategoryMapModel {
     var mapName: String = "" // 映射账户名
 
     companion object {
-        suspend fun list() : List<CategoryMapModel> = withContext(
+        suspend fun list(page: Int, pageSize: Int) : List<CategoryMapModel> = withContext(
             Dispatchers.IO) {
-            val response = Server.request("category/map/list")
+            val response = Server.request("category/map/list?page=$page&limit=$pageSize")
             val json = Gson().fromJson(response, JsonObject::class.java)
 
             runCatching { Gson().fromJson(json.getAsJsonArray("data"), Array<CategoryMapModel>::class.java).toList() }.getOrNull() ?: emptyList()

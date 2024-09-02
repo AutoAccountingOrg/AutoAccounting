@@ -24,7 +24,11 @@ import org.nanohttpd.protocols.http.response.Response
 
 class AssetsMapRoute(private val session: IHTTPSession) {
     fun list(): Response {
-        val logs =  Db.get().assetsMapDao().load()
+        val params = session.parameters
+        val page = params["page"]?.firstOrNull()?.toInt() ?: 1
+        val limit = params["limit"]?.firstOrNull()?.toInt() ?: 10
+        val offset = (page - 1) * limit
+        val logs =  Db.get().assetsMapDao().load(limit, offset)
         return Server.json(200, "OK", logs, 0)
     }
 

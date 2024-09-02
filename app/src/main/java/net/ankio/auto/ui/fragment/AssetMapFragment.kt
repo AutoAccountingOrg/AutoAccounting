@@ -32,12 +32,8 @@ class AssetMapFragment : BasePageFragment<AssetsMapModel>() {
     private lateinit var binding: FragmentMapBinding
 
     override suspend fun loadData(callback: (resultData: List<AssetsMapModel>) -> Unit) {
-        if (page > 1) {
-            callback(emptyList())
-            return
-        }
         lifecycleScope.launch {
-            val newData = AssetsMapModel.list()
+            val newData = AssetsMapModel.list(page,pageSize)
             callback(newData)
         }
     }

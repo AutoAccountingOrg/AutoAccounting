@@ -164,7 +164,7 @@ class RuleUpdate(private val context: Context) : BaseUpdate(context) {
 
 
                             // 更新分类映射
-                            val categoryMapDb = CategoryMapModel.list()
+                            val categoryMapDb = CategoryMapModel.list(1,0)
 
                             val categoryName = Gson().fromJson(root.resolve("category.json").readText(), JsonArray::class.java)
 

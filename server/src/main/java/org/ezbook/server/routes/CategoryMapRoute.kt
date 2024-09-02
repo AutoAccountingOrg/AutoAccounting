@@ -24,7 +24,19 @@ import org.nanohttpd.protocols.http.response.Response
 
 class CategoryMapRoute(private val session: IHTTPSession) {
     fun list(): Response {
-        val logs =  Db.get().categoryMapDao().load()
+        val params = session.parameters
+
+        val limit = params["limit"]?.firstOrNull()?.toInt() ?: 10
+
+
+
+        if (limit == 0){
+            return Server.json(200, "OK",  Db.get().categoryMapDao().loadWithoutLimit(), 0)
+        }
+        val page = params["page"]?.firstOrNull()?.toInt() ?: 1
+        val offset = (page - 1) * limit
+        val logs =  Db.get().categoryMapDao().loadWithLimit(limit, offset)
+
         return Server.json(200, "OK", logs, 0)
     }
 

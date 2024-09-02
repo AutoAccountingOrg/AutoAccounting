@@ -31,12 +31,8 @@ class CategoryMapFragment: BasePageFragment<CategoryMapModel>() {
     private lateinit var binding: FragmentMapBinding
 
     override suspend fun loadData(callback: (resultData: List<CategoryMapModel>) -> Unit) {
-        if (page > 1) {
-            callback(emptyList())
-            return
-        }
         lifecycleScope.launch {
-            val newData = CategoryMapModel.list()
+            val newData = CategoryMapModel.list(page,pageSize)
             callback(newData)
         }
     }

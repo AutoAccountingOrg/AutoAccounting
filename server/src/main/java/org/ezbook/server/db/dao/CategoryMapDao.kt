@@ -25,9 +25,11 @@ import org.ezbook.server.db.model.CategoryMapModel
 @Dao
 interface CategoryMapDao {
 
-    //根据条件查询
+    @Query("SELECT * FROM CategoryMapModel ORDER BY id DESC LIMIT :limit OFFSET :offset")
+    fun loadWithLimit(limit: Int, offset: Int): List<CategoryMapModel>
+
     @Query("SELECT * FROM CategoryMapModel ORDER BY id DESC")
-    fun load(): List<CategoryMapModel>
+    fun loadWithoutLimit(): List<CategoryMapModel>
 
     @Insert
     fun insert(log: CategoryMapModel): Long

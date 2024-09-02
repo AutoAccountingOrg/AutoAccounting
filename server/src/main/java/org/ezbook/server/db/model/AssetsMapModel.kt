@@ -44,9 +44,9 @@ class AssetsMapModel {
     var mapName: String = "" // 映射账户名
 
     companion object {
-        suspend fun list() : List<AssetsMapModel> = withContext(
+        suspend fun list(page: Int, pageSize: Int) : List<AssetsMapModel> = withContext(
             Dispatchers.IO) {
-            val response = Server.request("assets/map/list")
+            val response = Server.request("assets/map/list?page=$page&limit=$pageSize")
             val json = Gson().fromJson(response, JsonObject::class.java)
 
             runCatching { Gson().fromJson(json.getAsJsonArray("data"), Array<AssetsMapModel>::class.java).toList() }.getOrNull() ?: emptyList()
