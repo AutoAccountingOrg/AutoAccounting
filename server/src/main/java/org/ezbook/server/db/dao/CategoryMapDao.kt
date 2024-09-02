@@ -25,8 +25,8 @@ import org.ezbook.server.db.model.CategoryMapModel
 @Dao
 interface CategoryMapDao {
 
-    @Query("SELECT * FROM CategoryMapModel ORDER BY id DESC LIMIT :limit OFFSET :offset")
-    fun loadWithLimit(limit: Int, offset: Int): List<CategoryMapModel>
+    @Query("SELECT * FROM CategoryMapModel WHERE  (:searchTerm IS NULL OR name LIKE '%' || :searchTerm || '%') ORDER BY id DESC LIMIT :limit OFFSET :offset")
+    fun loadWithLimit(limit: Int, offset: Int, searchTerm: String?): List<CategoryMapModel>
 
     @Query("SELECT * FROM CategoryMapModel ORDER BY id DESC")
     fun loadWithoutLimit(): List<CategoryMapModel>

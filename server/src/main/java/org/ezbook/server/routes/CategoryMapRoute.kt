@@ -35,7 +35,10 @@ class CategoryMapRoute(private val session: IHTTPSession) {
         }
         val page = params["page"]?.firstOrNull()?.toInt() ?: 1
         val offset = (page - 1) * limit
-        val logs =  Db.get().categoryMapDao().loadWithLimit(limit, offset)
+        var search:String? = params["search"]?.firstOrNull()?:""
+        if (search == "")  search = null
+        val logs =  Db.get().categoryMapDao().loadWithLimit(limit, offset,search)
+
 
         return Server.json(200, "OK", logs, 0)
     }

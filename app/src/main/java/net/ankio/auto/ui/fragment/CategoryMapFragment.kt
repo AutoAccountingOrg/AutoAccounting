@@ -22,17 +22,27 @@ import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.launch
+import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentMapBinding
 import net.ankio.auto.ui.adapter.CategoryMapAdapter
 import net.ankio.auto.ui.api.BasePageFragment
+import net.ankio.auto.ui.models.ToolbarMenuItem
 import org.ezbook.server.db.model.CategoryMapModel
 
 class CategoryMapFragment: BasePageFragment<CategoryMapModel>() {
     private lateinit var binding: FragmentMapBinding
 
+    override val menuList: ArrayList<ToolbarMenuItem>
+        get() =
+            arrayListOf(
+                ToolbarMenuItem(R.string.item_search, R.drawable.menu_icon_search, true) {
+                    loadDataInside()
+                },
+            )
+
     override suspend fun loadData(callback: (resultData: List<CategoryMapModel>) -> Unit) {
         lifecycleScope.launch {
-            val newData = CategoryMapModel.list(page,pageSize)
+            val newData = CategoryMapModel.list(page,pageSize,searchData)
             callback(newData)
         }
     }
