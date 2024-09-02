@@ -78,7 +78,7 @@ class CategoryRuleAdapter(
     ) {
         val binding = holder.binding
 
-        binding.type.visibility = if (data.creator === "user") {
+        binding.type.visibility = if (data.creator == "user") {
            View.GONE
         } else {
             View.VISIBLE
