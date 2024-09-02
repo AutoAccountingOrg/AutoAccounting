@@ -347,23 +347,49 @@
 
 
                 </LinearLayout>
-                <TextView
-                    android:clickable="true"
-                    android:padding="@dimen/padding"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/one_padding"
-                    android:layout_marginEnd="@dimen/one_padding"
-                    android:text="@string/title_rule_category"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textStyle="bold"
-                    app:drawableLeftCompat="@drawable/home_app_category"
-                    app:drawableTint="?attr/colorOnSurface"
-                    android:drawablePadding="@dimen/one_padding"
-                    android:background="@drawable/ripple_effect"
-                    android:id="@+id/customCategory"
-                    />
+                    android:padding="@dimen/padding"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:clickable="true"
+
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+
+                        android:text="@string/title_rule_category"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textStyle="bold"
+                        app:drawableLeftCompat="@drawable/home_app_category"
+                        app:drawableTint="?attr/colorOnSurface"
+                        android:drawablePadding="@dimen/one_padding"
+                        android:background="@drawable/ripple_effect"
+                        android:id="@+id/customCategory"
+                        />
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        />
+                    <Button
+                        android:id="@+id/categoryMap"
+                        style="?attr/materialIconButtonFilledTonalStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:icon="@drawable/icon_map"
+                        tools:ignore="RelativeOverlap" />
+                    <Button
+                        android:id="@+id/categoryEdit"
+                        style="?attr/materialIconButtonFilledStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:icon="@drawable/icon_edit"
+                        tools:ignore="RelativeOverlap" />
+
+                </LinearLayout>
+
             </LinearLayout>
 
 

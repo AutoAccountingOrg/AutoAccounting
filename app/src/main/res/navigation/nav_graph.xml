@@ -43,10 +43,10 @@
     </fragment>
 
     <fragment
-        android:id="@+id/ruleFragment"
-        android:name="net.ankio.auto.ui.fragment.home.RuleFragment"
-        android:label="@string/title_rule"
-        tools:layout="@layout/fragment_rule">
+        android:id="@+id/categoryEditFragment"
+        android:name="net.ankio.auto.ui.fragment.CategoryEditFragment"
+        android:label="@string/title_category_edit"
+        tools:layout="@layout/fragment_map">
 
     </fragment>
     <fragment
@@ -77,10 +77,10 @@
 
 
     <fragment
-        android:id="@+id/editFragment"
-        android:name="net.ankio.auto.ui.fragment.home.rule.EditFragment"
+        android:id="@+id/categoryRuleFragment"
+        android:name="net.ankio.auto.ui.fragment.CategoryRuleFragment"
         android:label="@string/title_category"
-        tools:layout="@layout/fragment_edit">
+        tools:layout="@layout/fragment_map">
 
     </fragment>
 
@@ -113,6 +113,14 @@
         android:id="@+id/noticeFragment"
         android:name="net.ankio.auto.ui.fragment.NoticeFragment"
         android:label="@string/title_notice"
+        tools:layout="@layout/fragment_log">
+    </fragment>
+
+
+    <fragment
+        android:id="@+id/categoryMapFragment"
+        android:name="net.ankio.auto.ui.fragment.CategoryMapFragment"
+        android:label="@string/title_category_map"
         tools:layout="@layout/fragment_log">
     </fragment>
 

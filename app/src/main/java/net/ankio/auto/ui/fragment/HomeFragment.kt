@@ -232,9 +232,14 @@ class HomeFragment : BaseFragment() {
             refreshUI()
         }
 
-        binding.customCategory.setOnClickListener {
-            findNavController().navigate(R.id.ruleFragment)
+        binding.categoryMap.setOnClickListener {
+            findNavController().navigate(R.id.categoryMapFragment)
         }
+
+        binding.categoryEdit.setOnClickListener {
+            findNavController().navigate(R.id.categoryRuleFragment)
+        }
+
         binding.checkRuleUpdate.setOnClickListener {
             ToastUtils.info(R.string.check_update)
             lifecycleScope.launch {

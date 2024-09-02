@@ -19,7 +19,7 @@
     android:padding="@dimen/padding"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".ui.fragment.home.rule.EditFragment"
+    tools:context=".ui.fragment.CategoryEditFragment"
     >
 
     <LinearLayout

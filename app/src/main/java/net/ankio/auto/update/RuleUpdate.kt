@@ -30,6 +30,7 @@ import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.storage.Logger
 import org.ezbook.server.constant.DataType
+import org.ezbook.server.db.model.CategoryMapModel
 import org.ezbook.server.db.model.RuleModel
 import org.ezbook.server.db.model.SettingModel
 
@@ -160,6 +161,35 @@ class RuleUpdate(private val context: Context) : BaseUpdate(context) {
                                     loading.setText(context.getString(R.string.update_rule, it.name))
                                 }
                             }
+
+
+                            // 更新分类映射
+                            val categoryMapDb = CategoryMapModel.list()
+
+                            val categoryName = Gson().fromJson(root.resolve("category.json").readText(), JsonArray::class.java)
+
+                            categoryName.forEach { json ->
+                                val name = json.asString
+                                val find = categoryMapDb.find { it.name == name }
+                                if (find == null) {
+                                    val model = CategoryMapModel()
+                                    model.name = name
+                                    model.mapName = name
+                                    CategoryMapModel.put(model)
+                                    loading.setText(context.getString(R.string.add_category_map, name))
+                                }
+                            }
+
+                            categoryMapDb.forEach { categoryMapModel ->
+                                val find = categoryName.find { it.asString == categoryMapModel.name }
+                                if (find == null) {
+                                    CategoryMapModel.remove(categoryMapModel.id)
+                                    loading.setText(context.getString(R.string.delete_category_map, categoryMapModel.name))
+                                }
+                            }
+
+
+
 
                             // 更新版本号
                             SpUtils.putString("rule_version", version)

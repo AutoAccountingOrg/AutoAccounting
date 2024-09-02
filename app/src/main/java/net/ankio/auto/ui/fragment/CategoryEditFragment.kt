@@ -3,9 +3,9 @@
  * Licensed under the Apache License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ *  
  *         http://www.apache.org/licenses/LICENSE-3.0
- *
+ *  
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -13,8 +13,9 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.ui.fragment.home.rule
+package net.ankio.auto.ui.fragment
 
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -36,21 +37,21 @@ import net.ankio.auto.app.BillUtils
 import net.ankio.auto.databinding.DialogRegexInputBinding
 import net.ankio.auto.databinding.DialogRegexMoneyBinding
 import net.ankio.auto.databinding.FragmentEditBinding
+import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.componets.FlowElement
 import net.ankio.auto.ui.componets.FlowLayoutManager
 import net.ankio.auto.ui.dialog.BookInfoDialog
 import net.ankio.auto.ui.dialog.BookSelectorDialog
 import net.ankio.auto.ui.dialog.CategorySelectorDialog
-import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.utils.ListPopupUtils
 import org.ezbook.server.db.model.BookNameModel
-import net.ankio.auto.models.CustomRuleModel
+import org.ezbook.server.db.model.CategoryRuleModel
 import java.util.Calendar
 
-class EditFragment : BaseFragment() {
+class CategoryEditFragment : BaseFragment() {
     private lateinit var binding: FragmentEditBinding
-    private var customRuleModel: CustomRuleModel = CustomRuleModel()
-    private var book: Int = 0
+    private var categoryRuleModel: CategoryRuleModel = CategoryRuleModel()
+    private var remoteBookId: String = "-1" // -1是默认账本
     private var bookName: String = ""
     private var category: String = ""
     private var list: MutableList<HashMap<String, Any>>? = mutableListOf()
@@ -68,7 +69,7 @@ class EditFragment : BaseFragment() {
         flexboxLayout.appendTextView(getString(R.string.if_condition_true))
 
         val listType = object : TypeToken<MutableList<HashMap<String, Any>>>() {}.type
-        val list: MutableList<HashMap<String, Any>>? = Gson().fromJson(customRuleModel.element, listType)
+        val list: MutableList<HashMap<String, Any>>? = Gson().fromJson(categoryRuleModel.element, listType)
         // 依次排列
         if (list.isNullOrEmpty()) {
             val buttonElem =
@@ -99,14 +100,7 @@ class EditFragment : BaseFragment() {
         // 最后一个是数据
         val lastElement = list.removeLast()
         // fix #7 因为存储的时候使用的是hashmap<String,Any>，反向识别的时候可能会将Int类型识别为Double
-        book =
-            if (lastElement["id"] is Int) {
-                lastElement["id"] as Int
-            } else if (lastElement["id"] is Double) {
-                (lastElement["id"] as Double).toInt()
-            } else {
-                0
-            }
+        remoteBookId =  lastElement["id"] as String
         bookName = lastElement["book"] as String
         category = lastElement["category"] as String
 
@@ -167,55 +161,48 @@ class EditFragment : BaseFragment() {
         binding.saveItem.setOnClickListener {
             saveItem()
         }
-/*
+
         arguments?.apply {
-            customRuleModel = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                getSerializable("regular", CustomRuleModel::class.java)
-            } else {
-                getSerializable("regular") as? CustomRuleModel
-            } ?: CustomRuleModel()
-        }*/
+            categoryRuleModel = runCatching { Gson().fromJson(getString("data"), CategoryRuleModel::class.java) }.getOrDefault(CategoryRuleModel())
+        }
         buildUI()
 
         return binding.root
     }
 
     private fun onClickBook(it2: FlowElement) {
-        BookSelectorDialog(requireContext()) { bookItem,_->
-            it2.removed().setAsWaveTextview(bookItem.name, it2.connector, callback = it2.waveCallback)
+        BookSelectorDialog(requireContext()) { bookItem, _ ->
+            it2.removed()
+                .setAsWaveTextview(bookItem.name, it2.connector, callback = it2.waveCallback)
             bookName = bookItem.name
-            book = bookItem.id.toInt() //TODO 最好用long
+            remoteBookId = bookItem.remoteId
         }.show(cancel = true)
     }
 
     private fun onClickCategory(it2: FlowElement) {
-        lifecycleScope.launch {
-            var book = BookNameModel.getByName(bookName)
-
-            BookInfoDialog(requireActivity(), book) { type ->
-                CategorySelectorDialog(requireActivity(), book.remoteId, type) { parent, child ->
-                    val string: String =
-                        if (parent == null) {
-                            "其他"
+        BookSelectorDialog(requireContext(),true) { bookModel, type ->
+            CategorySelectorDialog(requireActivity(), bookModel.remoteId, type) { parent, child ->
+                val string: String =
+                    if (parent == null) {
+                        "其他"
+                    } else {
+                        if (child == null) {
+                            BillUtils.getCategory(parent.name.toString())
                         } else {
-                            if (child == null) {
-                                BillUtils.getCategory(parent.name.toString())
-                            } else {
-                                BillUtils.getCategory(
-                                    parent.name.toString(),
-                                    child.name.toString(),
-                                )
-                            }
+                            BillUtils.getCategory(
+                                parent.name.toString(),
+                                child.name.toString(),
+                            )
                         }
-                    it2.removed().setAsWaveTextview(
-                        string,
-                        it2.connector,
-                        callback = it2.waveCallback,
-                    )
-                    category = string
-                }.show(cancel = true)
+                    }
+                it2.removed().setAsWaveTextview(
+                    string,
+                    it2.connector,
+                    callback = it2.waveCallback,
+                )
+                category = string
             }.show(cancel = true)
-        }
+        }.show(cancel = true)
     }
 
     private fun showSelectType(
@@ -469,57 +456,58 @@ class EditFragment : BaseFragment() {
     private fun saveItem() {
         val map = binding.flexboxLayout.getViewMap()
         var condition = ""
-        var text = "若满足"
+     //   var text = "若满足"
         list = mutableListOf()
 
         for (flowElement in map) {
             if (flowElement.data.containsKey("js")) {
                 list!!.add(flowElement.data)
-                val t = flowElement.data["text"] as String
+            //    val t = flowElement.data["text"] as String
 
                 if (flowElement.data.containsKey("jsPre")) {
                     val pre = flowElement.data["jsPre"]
                     condition += pre
-                    text += if (pre == "or") " 或 " else " 且 "
+              //      text += if (pre == "or") " 或 " else " 且 "
                 }
                 condition += flowElement.data["js"]
-                text += t
+              //  text += t
             }
         }
-        text += "，则账本为【$bookName】，分类为【$category】。"
+        //text += "，则账本为【$bookName】，分类为【$category】。"
         val otherData =
             hashMapOf<String, Any>(
                 "book" to bookName,
                 "category" to category,
-                "id" to book,
+                "id" to remoteBookId,
             )
         list!!.add(otherData)
         condition += ""
         val js = "if($condition){ return { book:'$bookName',category:'$category'} }"
 
-        customRuleModel.js = js
-        customRuleModel.text = text
-        customRuleModel.element = Gson().toJson(list)
+        categoryRuleModel.js = js
+       // categoryRuleModel.text = text
+        categoryRuleModel.element = Gson().toJson(list)
 
-     /*   customRuleModel.use = true*/
+     /*   categoryRuleModel.use = true*/
 
-        if (customRuleModel.js.contains("if()")) {
+        if (categoryRuleModel.js.contains("if()")) {
             Toaster.show(R.string.useless_condition)
             return
         }
-        if (customRuleModel.js.contains("book:''")) {
+        if (categoryRuleModel.js.contains("book:''")) {
             Toaster.show(getString(R.string.useless_book))
             return
         }
-        if (customRuleModel.js.contains("category:''")) {
+        if (categoryRuleModel.js.contains("category:''")) {
             Toaster.show(getString(R.string.useless_category))
             return
         }
 
-       /* CustomRuleModel.put(customRuleModel)*/
-
+      categoryRuleModel.enabled = true
+        categoryRuleModel.creator = "user"
         lifecycleScope.launch {
-            findNavController().popBackStack() // 返回上一个页面
+            CategoryRuleModel.put(categoryRuleModel)
+            findNavController().popBackStack()
         }
     }
 }

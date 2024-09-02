@@ -22,7 +22,9 @@ import org.ezbook.server.routes.AppDataRoute
 import org.ezbook.server.routes.AssetsMapRoute
 import org.ezbook.server.routes.AssetsRoute
 import org.ezbook.server.routes.BookNameRoute
+import org.ezbook.server.routes.CategoryMapRoute
 import org.ezbook.server.routes.CategoryRoute
+import org.ezbook.server.routes.CategoryRuleRoute
 import org.ezbook.server.routes.JsRoute
 import org.ezbook.server.routes.LogRoute
 import org.ezbook.server.routes.RuleRoute
@@ -86,6 +88,16 @@ class ServerHttp(port: Int, private val context: Context) : NanoHTTPD(port) {
                 //分类
                 "/category/list" -> CategoryRoute(session).list()
                 "/category/put" -> CategoryRoute(session).put()
+                //
+                "/category/map/delete" -> CategoryMapRoute(session).delete()
+                "/category/map/list" -> CategoryMapRoute(session).list()
+                "/category/map/put" -> CategoryMapRoute(session).put()
+
+                //
+                "/category/rule/list" -> CategoryRuleRoute(session).list()
+                "/category/rule/put" -> CategoryRuleRoute(session).put()
+                "/category/rule/delete" -> CategoryRuleRoute(session).delete()
+
                 else -> json(404, "Not Found", null, 0)
             }
         }.onFailure {

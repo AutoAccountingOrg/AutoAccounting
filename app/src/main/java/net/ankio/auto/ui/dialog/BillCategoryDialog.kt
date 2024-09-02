@@ -26,7 +26,8 @@ import net.ankio.auto.databinding.DialogBillCategoryBinding
 import net.ankio.auto.storage.Logger
 import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.db.model.BookNameModel
-import net.ankio.auto.models.CustomRuleModel
+import org.ezbook.server.db.model.CategoryRuleModel
+
 
 class BillCategoryDialog(
     private val context: Context,
@@ -66,7 +67,7 @@ class BillCategoryDialog(
                 return@setOnClickListener
             }
             val list: MutableList<HashMap<String, Any>> = mutableListOf()
-            var text = "若满足"
+          //  var text = "若满足"
             var condition = ""
             if (shopName.isNotEmpty()) {
                 val select = 0
@@ -88,7 +89,7 @@ class BillCategoryDialog(
                         "js" to js,
                         "text" to msg,
                     )
-                text += msg
+               // text += msg
                 condition += js
                 list.add(data)
             }
@@ -102,7 +103,7 @@ class BillCategoryDialog(
                             "js" to " && ",
                         )
                     condition += " && "
-                    text += " 且 "
+                        //    text += " 且 "
                     list.add(innerData)
                 }
                 val select = 0
@@ -124,11 +125,11 @@ class BillCategoryDialog(
                         "text" to msg,
                     )
                 condition += js
-                text += msg
+              //  text += msg
                 list.add(data)
             }
 
-            text += "，则账本为【${billInfoModel.bookName}】，分类为【${billInfoModel.cateName}】。"
+          //  text += "，则账本为【${billInfoModel.bookName}】，分类为【${billInfoModel.cateName}】。"
 
             lifecycleScope.launch {
                 Logger.i("condition:$condition")
@@ -144,13 +145,14 @@ class BillCategoryDialog(
                 condition += ""
                 val js =
                     "if($condition){ return { book:'${billInfoModel.bookName}',category:'${billInfoModel.cateName}'} }"
-                val customRuleModel = CustomRuleModel()
-                customRuleModel.js = js
-                customRuleModel.text = text
-                customRuleModel.element = Gson().toJson(list)
+                val categoryRuleModel = CategoryRuleModel()
+                categoryRuleModel.js = js
+                // categoryRuleModel.text = text
+                categoryRuleModel.element = Gson().toJson(list)
+                categoryRuleModel.creator = "user"
              /*   customRuleModel.auto = true
                 customRuleModel.use = true*/
-                CustomRuleModel.put(customRuleModel)
+                CategoryRuleModel.put(categoryRuleModel)
                 dismiss()
             }
         }
