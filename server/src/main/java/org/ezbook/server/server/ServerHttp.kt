@@ -88,6 +88,7 @@ class ServerHttp(port: Int, private val context: Context) : NanoHTTPD(port) {
                 //分类
                 "/category/list" -> CategoryRoute(session).list()
                 "/category/put" -> CategoryRoute(session).put()
+                "/category/get" -> CategoryRoute(session).get()
                 //
                 "/category/map/delete" -> CategoryMapRoute(session).delete()
                 "/category/map/list" -> CategoryMapRoute(session).list()

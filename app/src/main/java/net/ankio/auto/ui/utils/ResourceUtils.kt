@@ -49,6 +49,12 @@ object ResourceUtils {
         }
     }
 
+    suspend fun getCategoryDrawableByName(name: String,context: Context):Drawable = withContext(Dispatchers.IO) {
+        val item = CategoryModel.getByName(name)
+        val icon = item?.icon?:""
+        ImageUtils.get(context, icon, R.drawable.default_cate)
+    }
+
     suspend fun getAssetDrawable(item:AssetsModel,image:ImageView) = withContext(Dispatchers.IO){
         val icon = item.icon?:""
         ImageUtils.get(image.context, icon, R.drawable.default_asset).let {

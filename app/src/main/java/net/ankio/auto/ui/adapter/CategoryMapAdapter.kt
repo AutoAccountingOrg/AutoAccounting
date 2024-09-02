@@ -32,6 +32,7 @@ import net.ankio.auto.ui.api.BaseViewHolder
 import net.ankio.auto.ui.dialog.BookSelectorDialog
 import net.ankio.auto.ui.dialog.CategorySelectorDialog
 import net.ankio.auto.ui.scope.autoDisposeScope
+import net.ankio.auto.ui.utils.ResourceUtils
 import org.ezbook.server.db.model.CategoryMapModel
 import org.ezbook.server.tools.Category
 
@@ -46,22 +47,6 @@ class CategoryMapAdapter(
         binding.root.setOnClickListener {
             val item = holder.item!!
             val position = holder.positionIndex
-           /* val inputBinding = DialogInputBinding.inflate(LayoutInflater.from(activity))
-            inputBinding.content.setText(item.mapName)
-
-            MaterialAlertDialogBuilder(activity)
-                .setTitle(activity.getString(R.string.category_map, item.name))
-                .setView(inputBinding.root)
-                .setPositiveButton(R.string.sure_msg) { dialog, which ->
-                   item.mapName = inputBinding.content.text.toString()
-                   binding.root.autoDisposeScope.launch {
-                       CategoryMapModel.put(item)
-                   }
-                   notifyItemChanged(position)
-                }
-                .setNegativeButton(R.string.cancel_msg, null)
-                .show()*/
-
 
             BookSelectorDialog(activity, true) { book,type ->
                CategorySelectorDialog(activity,book.remoteId,type) { category1,category2 ->
@@ -87,7 +72,14 @@ class CategoryMapAdapter(
 
         binding.raw.text = data.name
         binding.target.setText(data.mapName)
-        binding.target.setIcon(null)
+
+        binding.root.autoDisposeScope.launch {
+            ResourceUtils.getCategoryDrawableByName(data.mapName,activity).let {
+              withContext(Dispatchers.Main){
+                  binding.target.setIcon(it)
+              }
+            }
+        }
     }
 }
 

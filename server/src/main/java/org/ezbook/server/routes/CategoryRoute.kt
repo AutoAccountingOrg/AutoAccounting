@@ -15,6 +15,7 @@
 
 package org.ezbook.server.routes
 
+import android.util.Log
 import com.google.gson.Gson
 import org.ezbook.server.Server
 import org.ezbook.server.db.Db
@@ -55,5 +56,26 @@ class CategoryRoute(private val session: IHTTPSession) {
         val id = Db.get().categoryDao().put(json)
         SettingRoute.setByInner("sync_category_md5",md5)
         return Server.json(200, "OK", id)
+    }
+
+
+    fun get(): Response {
+        val params = session.parameters
+        var book:String? = params["book"]?.firstOrNull()?:""
+        if(book == ""){
+            book = null
+        }
+        var type:String? = params["type"]?.firstOrNull()?:""
+        if(type == ""){
+            type = null
+        }
+        val name = params["name"]?.firstOrNull()?:""
+        if (name.isEmpty()) {
+            return Server.json(400, "name is empty")
+        }
+
+        Log.d("CategoryRoute", "get: $book $type $name")
+
+        return Server.json(200, "OK", Db.get().categoryDao().getByName(book, type, name))
     }
 }

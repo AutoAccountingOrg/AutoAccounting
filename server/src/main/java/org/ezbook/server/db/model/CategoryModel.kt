@@ -15,6 +15,7 @@
 
 package org.ezbook.server.db.model
 
+import android.net.Uri
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.Gson
@@ -87,10 +88,10 @@ class CategoryModel {
 
         suspend fun getByName(
             name: String,
-            bookID: Int,
-            type: Int
+            bookID: String = "",
+            type: String = ""
         ): CategoryModel? = withContext(Dispatchers.IO) {
-            val response = Server.request("category/getByName?name=$name&book=$bookID&type=$type")
+            val response = Server.request("category/get?name=${Uri.encode(name)}&book=$bookID&type=$type")
             val json = Gson().fromJson(response, JsonObject::class.java)
             runCatching { Gson().fromJson(json.getAsJsonObject("data"), CategoryModel::class.java) }.getOrNull()
         }

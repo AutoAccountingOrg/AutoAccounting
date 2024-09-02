@@ -29,6 +29,8 @@ interface CategoryDao {
     @Query("SELECT * FROM CategoryModel WHERE remoteBookId=:book AND type = :type AND remoteParentId=:parent ORDER BY id DESC")
     fun load(book: String, type: String, parent: String): List<CategoryModel>
 
+    @Query("SELECT * FROM CategoryModel WHERE name =:name AND (:book IS NULL OR  remoteBookId = :book) AND (:type IS NULL OR  type = :type) ORDER BY id DESC LIMIT 1")
+    fun getByName(book: String?, type: String?,name:String): CategoryModel?
 
 
     @Insert
