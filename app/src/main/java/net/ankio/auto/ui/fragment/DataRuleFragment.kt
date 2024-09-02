@@ -147,6 +147,7 @@ class DataRuleFragment: BasePageFragment<RuleModel>()  {
                     type = DataType.DATA.name
                 }
             }
+            loadDataInside()
         }
     }
 
