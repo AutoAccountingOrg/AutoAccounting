@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.Build
 import android.os.Bundle
 import net.ankio.auto.App
 
@@ -43,7 +44,12 @@ object LocalBroadcastHelper {
             }
         }
         val filter = IntentFilter(action)
-        App.app.registerReceiver(receiver, filter)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            App.app.registerReceiver(receiver, filter,Context.RECEIVER_NOT_EXPORTED)
+        }else{
+            App.app.registerReceiver(receiver, filter)
+        }
+
         return receiver
     }
 
