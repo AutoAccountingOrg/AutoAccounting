@@ -52,9 +52,7 @@ class CategoryMapFragment: BasePageFragment<CategoryMapModel>() {
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = CategoryMapAdapter(pageData,requireActivity())
         scrollView = recyclerView
-
         binding.addButton.visibility  = View.GONE
-
         return binding.root
     }
 

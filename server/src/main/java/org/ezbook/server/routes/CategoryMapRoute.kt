@@ -32,7 +32,7 @@ class CategoryMapRoute(private val session: IHTTPSession) {
         val data = Server.reqData(session)
         val model = Gson().fromJson(data, CategoryMapModel::class.java)
 
-       val name = model.mapName
+       val name = model.name
         val modelItem = Db.get().categoryMapDao().query(name)
         if (modelItem == null){
             model.id  = Db.get().categoryMapDao().insert(model)

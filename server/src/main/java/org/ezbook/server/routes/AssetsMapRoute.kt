@@ -32,7 +32,7 @@ class AssetsMapRoute(private val session: IHTTPSession) {
         val data = Server.reqData(session)
         val model = Gson().fromJson(data, AssetsMapModel::class.java)
 
-       val name = model.mapName
+       val name = model.name
         val modelItem = Db.get().assetsMapDao().query(name)
         if (modelItem == null){
             model.id  = Db.get().assetsMapDao().insert(model)
