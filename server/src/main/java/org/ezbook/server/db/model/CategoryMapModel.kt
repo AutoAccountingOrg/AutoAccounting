@@ -55,7 +55,7 @@ class CategoryMapModel {
         }
 
         suspend fun remove(id: Long)= withContext(Dispatchers.IO) {
-            Server.request("assets/map/delete?id=$id")
+            Server.request("category/map/delete?id=$id")
         }
     }
 }
