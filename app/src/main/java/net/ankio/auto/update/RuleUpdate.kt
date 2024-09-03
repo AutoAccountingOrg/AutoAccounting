@@ -129,7 +129,6 @@ class RuleUpdate(private val context: Context) : BaseUpdate(context) {
                             SettingModel.set("categoryJs", root.resolve("category.js").readText())
 
                             val systemRule = RuleModel.system()
-
                             // 系统规则和云端规则做对比，使用name作为唯一标识，获取云端没有的系统规则，执行删除
                             systemRule.forEach { systemRuleModel ->
                                 val find = models.find { it.name == systemRuleModel.name }
@@ -139,15 +138,8 @@ class RuleUpdate(private val context: Context) : BaseUpdate(context) {
                                 } else {
                                     // 更新models中的数据
                                     find.id = systemRuleModel.id
-                                    find.creator = systemRuleModel.creator
                                     find.autoRecord = systemRuleModel.autoRecord
                                     find.enabled = systemRuleModel.enabled
-                                    find.struct = systemRuleModel.struct
-                                    find.systemRuleName = systemRuleModel.systemRuleName
-                                    find.app = systemRuleModel.app
-                                    find.type = systemRuleModel.type
-                                    find.js = systemRuleModel.js
-
                                 }
                             }
 
