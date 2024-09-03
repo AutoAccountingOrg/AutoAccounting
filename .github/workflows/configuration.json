@@ -1,46 +1,98 @@
 {
   "categories": [
     {
-      "title": "## 🚀 Features",
-      "labels": ["feat","feats","sparkles"]
+      "title": "## 🚀 新功能",
+      "labels": ["sparkles"]
     },
     {
-      "title": "## \uD83C\uDF1F Optimizes",
-      "labels": ["art","zap","lipstick"]
+      "title": "## 🌟 优化",
+      "labels": ["art", "zap", "lipstick", "recycle"]
     },
     {
-      "title": "## 🐛 Fixes",
-      "labels": ["bug","fix","ambulance"]
+      "title": "## 🐛 修复",
+      "labels": ["bug", "ambulance", "adhesive_bandage"]
     },
     {
-      "title": "## 🧪 Tests",
-      "labels": ["🧪","test","tests"]
+      "title": "## 🔧 配置与脚本",
+      "labels": ["wrench", "hammer"]
     },
     {
-      "title": "## 💬 Other",
-      "labels": ["fire",  "rocket","other","tada","construction_worker","green_heart"]
+      "title": "## 🧪 测试",
+      "labels": ["white_check_mark", "test_tube", "construction_worker"]
     },
     {
-      "title": "## \uD83D\uDCD6 Docs",
-      "labels": ["doc","docs","memo"]
+      "title": "## 📄 文档",
+      "labels": ["memo", "pencil2", "page_facing_up"]
     },
     {
-      "title": "## 📦 Dependencies",
-      "labels": ["dependencies","deps","arrow_down","arrow_up"]
+      "title": "## 📦 依赖",
+      "labels": ["arrow_down", "arrow_up", "pushpin", "heavy_plus_sign", "heavy_minus_sign"]
+    },
+    {
+      "title": "## 🔥 删除",
+      "labels": ["fire", "coffin", "wastebasket"]
+    },
+    {
+      "title": "## 🚀 部署",
+      "labels": ["rocket"]
+    },
+    {
+      "title": "## 💻 CI/CD",
+      "labels": ["green_heart", "construction_worker"]
+    },
+    {
+      "title": "## 🔐 安全",
+      "labels": ["lock", "closed_lock_with_key", "passport_control", "safety_vest"]
+    },
+    {
+      "title": "## 🏗 架构与基础设施",
+      "labels": ["building_construction", "bricks", "technologist"]
+    },
+    {
+      "title": "## 🌐 国际化与本地化",
+      "labels": ["globe_with_meridians"]
+    },
+    {
+      "title": "## 🔍 分析与优化",
+      "labels": ["chart_with_upwards_trend", "mag"]
+    },
+    {
+      "title": "## 🧹 代码清理",
+      "labels": ["poop", "see_no_evil", "rewind", "boom"]
+    },
+    {
+      "title": "## 🛠 开发者体验",
+      "labels": ["technologist", "thread"]
+    },
+    {
+      "title": "## 🎨 设计与 UI",
+      "labels": ["lipstick", "dizzy", "iphone", "clown_face"]
+    },
+    {
+      "title": "## 🧩 业务逻辑",
+      "labels": ["necktie"]
+    },
+    {
+      "title": "## 💬 文本与文案",
+      "labels": ["speech_balloon"]
+    },
+    {
+      "title": "## 🏷 标签",
+      "labels": ["label"]
     }
   ],
   "template": "${{CHANGELOG}}",
   "pr_template": "- **${{TITLE}}**",
   "label_extractor": [
     {
-      "pattern": ":(.+): (.+)",
+      "pattern": ":(.*?): (.+)",
       "target": "$1",
       "on_property": "title"
     }
   ],
   "transformers": [
     {
-      "pattern": ":(.+): (.+)",
+      "pattern": ":(.*?): (.+)",
       "target": "$2"
     }
   ],
