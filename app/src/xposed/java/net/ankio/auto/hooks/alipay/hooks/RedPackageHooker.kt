@@ -18,7 +18,7 @@ package net.ankio.auto.hooks.alipay.hooks
 import android.app.Application
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
-import net.ankio.auto.constant.DataType
+import org.ezbook.server.constant.DataType
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
 
@@ -48,7 +48,7 @@ class RedPackageHooker : PartHooker {
                     getDataMethod?.let {
                         val result = it.invoke(syncMessageObject) as String
                         hookerManifest.logD("红包数据： $result")
-                        hookerManifest.analysisData(DataType.App,result)
+                        hookerManifest.analysisData(DataType.DATA,result)
                     }
                 }
             })

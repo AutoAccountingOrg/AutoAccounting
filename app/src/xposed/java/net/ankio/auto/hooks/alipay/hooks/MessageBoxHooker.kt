@@ -20,7 +20,7 @@ import com.google.gson.Gson
 import com.google.gson.JsonArray
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
-import net.ankio.auto.constant.DataType
+import org.ezbook.server.constant.DataType
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
 
@@ -61,7 +61,7 @@ class MessageBoxHooker: PartHooker {
 
                             hookerManifest.logD("支付宝消息盒子页面收到数据：$jsonArray")
                             // 调用分析服务进行数据分析
-                            hookerManifest.analysisData(DataType.App, Gson().toJson(jsonArray))
+                            hookerManifest.analysisData(DataType.DATA, Gson().toJson(jsonArray))
                         }
                     }
                 }

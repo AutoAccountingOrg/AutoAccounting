@@ -25,7 +25,7 @@ import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import net.ankio.auto.constant.DataType
+import org.ezbook.server.constant.DataType
 import net.ankio.auto.core.App
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
@@ -114,7 +114,7 @@ class NotificationHooker:PartHooker {
         json.addProperty("title", title)
         json.addProperty("text", text)
 
-        hookerManifest.analysisData(DataType.Notice, Gson().toJson(json))
+        hookerManifest.analysisData(DataType.NOTICE, Gson().toJson(json))
     }
 
 }

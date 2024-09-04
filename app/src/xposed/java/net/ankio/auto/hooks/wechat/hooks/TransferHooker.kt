@@ -18,7 +18,7 @@ package net.ankio.auto.hooks.wechat.hooks
 import android.app.Application
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
-import net.ankio.auto.constant.DataType
+import org.ezbook.server.constant.DataType
 import net.ankio.auto.core.App
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
@@ -41,7 +41,7 @@ class TransferHooker  : PartHooker {
                     json.put("hookUser", App.get("hookerUser"))
 
                     hookerManifest.logD("微信转账页面数据： $json")
-                    hookerManifest.analysisData(DataType.App, json.toString())
+                    hookerManifest.analysisData(DataType.DATA, json.toString())
                 }
             })
 

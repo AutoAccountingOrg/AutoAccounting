@@ -22,7 +22,7 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import net.ankio.auto.constant.DataType
+import org.ezbook.server.constant.DataType
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
 import net.ankio.auto.utils.AppUtils
@@ -91,7 +91,7 @@ class WebViewHooker : PartHooker {
 
                                 needWait = false
                                 hookerManifest.logD("支付宝WebView页面hook成功，获取到数据：$result")
-                                hookerManifest.analysisData(DataType.App, result)
+                                hookerManifest.analysisData(DataType.DATA, result)
                             }
 
                         AppUtils.getScope().launch {

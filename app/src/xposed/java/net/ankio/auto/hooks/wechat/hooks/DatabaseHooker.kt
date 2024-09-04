@@ -23,7 +23,7 @@ import com.google.gson.JsonObject
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import fr.arnaudguyon.xmltojsonlib.XmlToJson
-import net.ankio.auto.constant.DataType
+import org.ezbook.server.constant.DataType
 import net.ankio.auto.core.App
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
@@ -103,7 +103,7 @@ class DatabaseHooker : PartHooker {
 
                             hookerManifest.logD("微信支付数据：$result")
 
-                            hookerManifest.analysisData(DataType.App, result.toString())
+                            hookerManifest.analysisData(DataType.DATA, result.toString())
                         }
                     } else if (tableName == "AppMessage") {
                         if (type == 5) {
@@ -112,7 +112,7 @@ class DatabaseHooker : PartHooker {
                                 return
                             }
                             // 这个应该是公众号推送
-                            hookerManifest.analysisData(DataType.App, Gson().toJson(contentValues))
+                            hookerManifest.analysisData(DataType.DATA, Gson().toJson(contentValues))
                             return
                         } else if (type == 2000) {
                             // 补充用户数据
