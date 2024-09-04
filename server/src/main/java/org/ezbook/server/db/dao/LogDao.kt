@@ -26,8 +26,7 @@ interface LogDao {
     // change page
     @Query("SELECT * FROM LogModel ORDER BY id DESC LIMIT :limit OFFSET :offset")
     fun loadPage(limit: Int, offset: Int): List<LogModel>
-    @Query("SELECT COUNT(*) FROM LogModel")
-    fun count(): Int
+
 
     @Insert
     fun insert(log:LogModel): Long

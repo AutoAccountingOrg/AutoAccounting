@@ -24,21 +24,13 @@ import org.ezbook.server.db.model.AppDataModel
 interface AppDataDao {
 
     //根据条件查询
-    @Query("SELECT * FROM AppDataModel WHERE app = :app ORDER BY id DESC LIMIT :limit OFFSET :offset")
-    fun loadByAppAndType(limit: Int, offset: Int,app: String): List<AppDataModel>
+    @Query("SELECT * FROM AppDataModel WHERE app = :app " +
+            "AND (:type IS NULL OR type = :type)" +
+            "AND (:search IS NULL OR data LIKE '%' || :search || '%')" +
+            "ORDER BY id DESC LIMIT :limit OFFSET :offset")
+    fun load(limit: Int, offset: Int,app: String,type: String?,search: String?): List<AppDataModel>
 
-    //根据条件查询
-    @Query("SELECT * FROM AppDataModel WHERE app = :app AND type = :type ORDER BY id DESC LIMIT :limit OFFSET :offset")
-    fun loadByAppAndType(limit: Int, offset: Int,app: String, type: String): List<AppDataModel>
 
-
-    // 统计总数
-    @Query("SELECT COUNT(*) FROM AppDataModel WHERE app = :app AND type = :type")
-    fun count(app: String,type: String): Int
-
-    // 统计总数
-    @Query("SELECT COUNT(*) FROM AppDataModel WHERE app = :app ")
-    fun count(app: String): Int
     @Insert
     fun insert(log: AppDataModel): Long
 

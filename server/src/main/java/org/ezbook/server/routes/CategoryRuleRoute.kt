@@ -29,7 +29,7 @@ class CategoryRuleRoute(private val session: IHTTPSession) {
         val limit = params["limit"]?.firstOrNull()?.toInt() ?: 10
         val offset = (page - 1) * limit
         val logs =  Db.get().categoryRuleDao().load(limit, offset)
-        return Server.json(200, "OK", logs, 0)
+        return Server.json(200, "OK", logs)
     }
 
     fun put(): Response {

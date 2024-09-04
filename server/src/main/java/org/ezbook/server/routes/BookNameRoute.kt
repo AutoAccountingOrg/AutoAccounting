@@ -25,7 +25,7 @@ import org.nanohttpd.protocols.http.response.Response
 
 class BookNameRoute(private val session: IHTTPSession) {
     fun list(): Response {
-        return Server.json(200, "OK", Db.get().bookNameDao().load(), 0)
+        return Server.json(200, "OK", Db.get().bookNameDao().load())
     }
 
     fun put(): Response {

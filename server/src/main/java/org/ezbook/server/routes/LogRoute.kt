@@ -35,8 +35,7 @@ class LogRoute(private val session: IHTTPSession) {
         val limit = params["limit"]?.firstOrNull()?.toInt() ?: 10
         val offset = (page - 1) * limit
          val logs = Db.get().logDao().loadPage(limit, offset)
-         val total = Db.get().logDao().count()
-        return Server.json(200, "OK", logs, total)
+        return Server.json(200, "OK", logs)
     }
 
     /**

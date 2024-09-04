@@ -31,7 +31,7 @@ class CategoryMapRoute(private val session: IHTTPSession) {
 
 
         if (limit == 0){
-            return Server.json(200, "OK",  Db.get().categoryMapDao().loadWithoutLimit(), 0)
+            return Server.json(200, "OK",  Db.get().categoryMapDao().loadWithoutLimit())
         }
         val page = params["page"]?.firstOrNull()?.toInt() ?: 1
         val offset = (page - 1) * limit
@@ -40,7 +40,7 @@ class CategoryMapRoute(private val session: IHTTPSession) {
         val logs =  Db.get().categoryMapDao().loadWithLimit(limit, offset,search)
 
 
-        return Server.json(200, "OK", logs, 0)
+        return Server.json(200, "OK", logs)
     }
 
     fun put(): Response {

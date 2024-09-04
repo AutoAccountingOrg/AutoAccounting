@@ -33,7 +33,7 @@ class SettingRoute(private val session: IHTTPSession) {
         }
         val data = Db.get().settingDao().query(key)
 
-        return Server.json(200, "OK", data?.value?:"", 0)
+        return Server.json(200, "OK", data?.value?:"")
     }
 
     /**
@@ -53,7 +53,7 @@ class SettingRoute(private val session: IHTTPSession) {
     }
 
     fun list(): Response {
-        return Server.json(200, "OK", Db.get().settingDao().load(), 0)
+        return Server.json(200, "OK", Db.get().settingDao().load())
     }
 
     companion object{

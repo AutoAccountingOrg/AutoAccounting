@@ -43,7 +43,7 @@ class ServerHttp(port: Int, private val context: Context) : NanoHTTPD(port) {
         return  runCatching {
             val uri = session!!.uri.replace("//", "/")
             when (uri) {
-                "/" -> json(200, "hello,欢迎使用自动记账", Server.versionCode, 0)
+                "/" -> json(200, "hello,欢迎使用自动记账", Server.versionCode)
                 // 日志列表
                 "/log/list" -> LogRoute(session).list()
                 // 添加日志
@@ -104,7 +104,7 @@ class ServerHttp(port: Int, private val context: Context) : NanoHTTPD(port) {
                 "/category/rule/put" -> CategoryRuleRoute(session).put()
                 "/category/rule/delete" -> CategoryRuleRoute(session).delete()
 
-                else -> json(404, "Not Found", null, 0)
+                else -> json(404, "Not Found", null)
             }
         }.getOrElse {
             it.printStackTrace()

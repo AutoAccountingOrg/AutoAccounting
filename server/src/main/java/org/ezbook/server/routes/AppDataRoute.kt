@@ -35,23 +35,16 @@ class AppDataRoute(private val session: IHTTPSession) {
         val limit = params["limit"]?.firstOrNull()?.toInt() ?: 10
 
         val app = params["app"]?.firstOrNull() ?: ""
-        val type = params["type"]?.firstOrNull() ?: ""
+        var type : String? = params["type"]?.firstOrNull() ?: ""
+        var search : String? = params["search"]?.firstOrNull() ?: ""
+        if (type == "")  type = null
 
+        if (search == "")  search = null
 
         val offset = (page - 1) * limit
 
-        val logs = if (type.isEmpty()) {
-            Db.get().dataDao().loadByAppAndType(limit, offset,app)
-        } else {
-            Db.get().dataDao().loadByAppAndType(limit, offset,app,type)
-        }
-
-        val total = if (type.isEmpty()) {
-            Db.get().dataDao().count(app)
-        } else {
-            Db.get().dataDao().count(app,type)
-        }
-        return Server.json(200, "OK", logs, total)
+        val logs = Db.get().dataDao().load(limit, offset,app,type,search)
+        return Server.json(200, "OK", logs)
     }
 
     /**

@@ -42,7 +42,7 @@ class CategoryRoute(private val session: IHTTPSession) {
         val parent = params["parent"]?.firstOrNull()?:"-1"
 
 
-        return Server.json(200, "OK", Db.get().categoryDao().load(book, type, parent), 0)
+        return Server.json(200, "OK", Db.get().categoryDao().load(book, type, parent))
     }
 
     /**

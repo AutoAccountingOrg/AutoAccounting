@@ -26,8 +26,7 @@ class AssetsRoute(private val session: IHTTPSession) {
     fun list(): Response {
         val logs =  Db.get().assetsDao().load(90000, 0)
 
-        val total = Db.get().assetsDao().count()
-        return Server.json(200, "OK", logs, total)
+        return Server.json(200, "OK", logs)
     }
 
     fun put(): Response {

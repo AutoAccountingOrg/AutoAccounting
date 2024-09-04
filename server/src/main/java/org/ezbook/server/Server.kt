@@ -90,11 +90,10 @@ class Server(context:Context) {
         /**
          * 返回json
          */
-        fun json(code:Int = 200,msg:String = "OK",data:Any? = null,count:Int = 0): Response {
+        fun json(code:Int = 200,msg:String = "OK",data:Any? = null): Response {
             val jsonObject = JsonObject()
             jsonObject.addProperty("code", code)
             jsonObject.addProperty("msg", msg)
-            jsonObject.addProperty("count", count)
             jsonObject.add("data", Gson().toJsonTree(data))
             return newFixedLengthResponse(
                 Status.OK,

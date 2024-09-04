@@ -33,9 +33,6 @@ interface AssetsDao {
     @Query("SELECT * FROM AssetsModel WHERE type = :type ORDER BY id DESC LIMIT :limit OFFSET :offset")
     fun load(limit: Int, offset: Int, type: String): List<AssetsModel>
 
-    // 统计总数
-    @Query("SELECT COUNT(*) FROM AssetsModel WHERE type = :type")
-    fun count(type: String): Int
 
     // 统计总数
     @Query("SELECT COUNT(*) FROM AssetsModel")

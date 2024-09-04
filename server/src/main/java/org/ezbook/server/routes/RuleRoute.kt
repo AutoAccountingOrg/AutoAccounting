@@ -43,9 +43,8 @@ class RuleRoute(private val session: IHTTPSession) {
 
         val logs =  Db.get().ruleDao().loadByAppAndFilters(limit, offset,app,type,search)
 
-        val total = Db.get().ruleDao().countByAppAndFilters(limit, offset, app)
 
-        return Server.json(200, "OK", logs, total)
+        return Server.json(200, "OK", logs)
     }
 
     /**

@@ -15,6 +15,7 @@
 
 package org.ezbook.server.db.model
 
+import android.net.Uri
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.Gson
@@ -75,8 +76,8 @@ class AppDataModel {
          * @param limit 每页数量
          * @return 规则列表
          */
-        suspend fun list(app: String, type: String, page: Int, limit: Int) : List<AppDataModel> = withContext(Dispatchers.IO) {
-            val response = Server.request("data/list?page=$page&limit=$limit&app=$app&type=$type")
+        suspend fun list(app: String, type: String, page: Int, limit: Int, search:String) : List<AppDataModel> = withContext(Dispatchers.IO) {
+            val response = Server.request("data/list?page=$page&limit=$limit&app=$app&type=$type&search=${Uri.encode(search)}")
             val json = Gson().fromJson(response, JsonObject::class.java)
 
             runCatching { Gson().fromJson(json.getAsJsonArray("data"), Array<AppDataModel>::class.java).toList() }.getOrNull() ?: emptyList()

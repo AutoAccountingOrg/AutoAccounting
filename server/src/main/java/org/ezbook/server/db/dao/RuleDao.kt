@@ -44,23 +44,7 @@ interface RuleDao {
     //查询所有启用的规则，用于JS执行
     @Query("SELECT * FROM RuleModel WHERE app = :app AND type = :type AND enabled = 1")
     fun loadAllEnabled(app: String, type: String): List<RuleModel>
-    // 统计总数
-    @Query("""
-    SELECT COUNT(*) FROM RuleModel 
-    WHERE app = :app 
-    AND (:type IS NULL OR type = :type) 
-    AND (:searchTerm IS NULL OR name LIKE '%' || :searchTerm || '%')
-    ORDER BY id DESC 
-    LIMIT :limit 
-    OFFSET :offset
-""")
-    fun countByAppAndFilters(
-        limit: Int,
-        offset: Int,
-        app: String,
-        type: String? = null,
-        searchTerm: String? = null
-    ): Int
+
 
 
     @Insert
