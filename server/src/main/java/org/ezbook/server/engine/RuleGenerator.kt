@@ -91,10 +91,12 @@ object RuleGenerator {
 
     fun category():String{
         val categoryCustom = Db.get().settingDao().query("categoryCustom")?.value ?: ""
-        val category = Db.get().settingDao().query("category")?.value ?: ""
-        return "var window = {money:money, type:type, shopName:shopName, shopItem:shopItem, time:time};" +
-                    "function getCategory(money,type,shopName,shopItem,time){ $categoryCustom return null};" +
-                    "var categoryInfo = getCategory(money,type,shopName,shopItem,time);" +
-                    "if(categoryInfo !== null) { print(JSON.stringify(categoryInfo));  } else { $category }"
+        val category = Db.get().settingDao().query("categoryJs")?.value ?: ""
+        return "var window = JSON.parse(data);" +
+                    "function getCategory(money,type,shopName,shopItem,time){ $categoryCustom return null;};" +
+                    "var categoryInfo = getCategory(window.money,window.type,window.shopName,window.shopItem,window.time);" +
+                    "if(categoryInfo !== null) { print(JSON.stringify(categoryInfo));  } else { $category" +
+                "print(JSON.stringify(category.get(window.money, window.type, window.shopName, window.shopItem, window.time))); " +
+                "}"
     }
 }

@@ -60,6 +60,7 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
 
 
         // 判断是否需要插入AppData
+        Server.log("fromAppData: $fromAppData")
         if (!fromAppData) {
             appDataModel.id = Db.get().dataDao().insert(appDataModel)
         }
@@ -97,9 +98,21 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
 
         val billInfoModel = parseBillInfo(result, app, dataType)
 
+
+        //将time从时间戳，转换为h:i的格式
+        val time = android.text.format.DateFormat.format("HH:mm", billInfoModel.time).toString()
+
+
         val categoryJS = RuleGenerator.category()
 
-        var categoryResult = runJS(categoryJS,"")
+        val win = JsonObject()
+        win.addProperty("type", dataType.name)
+        win.addProperty("money", billInfoModel.money)
+        win.addProperty("shopName", billInfoModel.shopName)
+        win.addProperty("shopItem", billInfoModel.shopItem)
+        win.addProperty("time",time)
+
+        var categoryResult = runJS(categoryJS, Gson().toJson(win))
 
         // { book: '默认账本', category: '早茶' }
         if (categoryResult == "") {
