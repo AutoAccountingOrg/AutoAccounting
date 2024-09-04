@@ -33,7 +33,7 @@
             android:theme="@style/TransparentActivityTheme"
             android:exported="true">
             <intent-filter>
-                <action android:name="net.ankio.auto.ACTION_SHOW_FLOATING_WINDOW" />
+                <action android:name="org.ezbook.server.action.AUTO_PANEL" />
 
                 <category android:name="android.intent.category.DEFAULT" />
                 <data
