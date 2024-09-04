@@ -88,14 +88,7 @@ object AppUtils {
         Process.killProcess(Process.myPid())
     }
 
-    /**
-     * 复制到剪切板
-     */
-    fun copyToClipboard(text: String?) {
-        val clipboard = App.app.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        val clip = ClipData.newPlainText("text", text)
-        clipboard.setPrimaryClip(clip)
-    }
+
 
 
 

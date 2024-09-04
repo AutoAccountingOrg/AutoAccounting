@@ -7,6 +7,7 @@ import android.content.res.Configuration
 import android.net.Uri
 import androidx.browser.customtabs.CustomTabsIntent
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.storage.Logger
 import rikka.html.text.HtmlCompat
@@ -75,7 +76,7 @@ object CustomTabsHelper {
             } catch (tr: Throwable) {
                 Logger.e("打开默认浏览器失败", tr)
                 try {
-                    AppUtils.copyToClipboard(url)
+                    App.copyToClipboard(url)
                     MaterialAlertDialogBuilder(context)
                         .setTitle(R.string.dialog_cannot_open_browser_title)
                         .setMessage(

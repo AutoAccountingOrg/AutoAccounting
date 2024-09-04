@@ -16,6 +16,8 @@
 package net.ankio.auto
 
 import android.app.Application
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Color
@@ -140,6 +142,14 @@ class App : Application() {
             } catch (e: PackageManager.NameNotFoundException) {
                 false
             }
+        }
+        /**
+         * 复制到剪切板
+         */
+        fun copyToClipboard(text: String?) {
+            val clipboard = App.app.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            val clip = ClipData.newPlainText("text", text)
+            clipboard.setPrimaryClip(clip)
         }
     }
 
