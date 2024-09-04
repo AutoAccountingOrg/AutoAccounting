@@ -26,6 +26,9 @@ import org.ezbook.server.db.model.AppDataModel
 import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.db.model.SettingModel
 import org.ezbook.server.engine.RuleGenerator
+import org.ezbook.server.tools.Assets
+import org.ezbook.server.tools.Bill
+import org.ezbook.server.tools.Category
 import org.mozilla.javascript.BaseFunction
 import org.mozilla.javascript.Context
 import org.mozilla.javascript.Scriptable
@@ -124,15 +127,30 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
         billInfoModel.bookName = categoryJson.get("book")?.asString ?: "默认账本"
         billInfoModel.cateName = categoryJson.get("category")?.asString ?: "其他"
 
-        billInfoModel.id = Db.get().billInfoDao().insert(billInfoModel)
 
         val total = System.currentTimeMillis() - t
         // 识别用时
         Server.log("analysis time: $total ms")
 
-        // 切换到主线程
-        Server.runOnMainThread {
-            startAutoPanel(billInfoModel)
+        //  资产映射
+        Assets.setAssetsMap(billInfoModel)
+
+        // 分类映射
+        Category.setCategoryMap(billInfoModel)
+
+        Bill.setRemark(billInfoModel, context)
+        //  备注生成
+
+        // 账单分组，用于检查重复账单
+        Bill.groupBillInfo(billInfoModel,context)
+
+        if (!fromAppData){
+            // 切换到主线程
+            Server.runOnMainThread {
+                startAutoPanel(billInfoModel)
+            }
+            //存入数据库
+            billInfoModel.id = Db.get().billInfoDao().insert(billInfoModel)
         }
 
         return Server.json(200, "OK", billInfoModel)

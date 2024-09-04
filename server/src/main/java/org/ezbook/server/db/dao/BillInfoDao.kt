@@ -17,10 +17,18 @@ package org.ezbook.server.db.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.Query
+import androidx.room.Update
 import org.ezbook.server.db.model.BillInfoModel
 
 @Dao
 interface BillInfoDao {
     @Insert
     fun insert(billInfo: BillInfoModel): Long
+
+    @Query("SELECT * FROM BillInfoModel WHERE money = :money AND time > :time and groupId = 0")
+    fun query(money:Double,time:Long): List<BillInfoModel>
+
+    @Update
+    fun update(billInfo: BillInfoModel)
 }

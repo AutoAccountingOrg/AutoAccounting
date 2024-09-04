@@ -17,6 +17,8 @@ package org.ezbook.server
 
 import android.content.Context
 import android.net.TrafficStats
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.JsonObject
@@ -52,6 +54,7 @@ class Server(context:Context) {
     init {
         Db.init(context)
     }
+
     /**
      * 启动服务
      */
@@ -64,8 +67,6 @@ class Server(context:Context) {
 
 
 
-
-
     fun stopServer(){
         server.stop()
     }
@@ -74,6 +75,7 @@ class Server(context:Context) {
     companion object {
 
         const val versionCode = 1
+
 
         /**
          * 获取请求数据
@@ -160,9 +162,15 @@ class Server(context:Context) {
         }
 
         fun runOnMainThread(function: () -> Unit) {
-            CoroutineScope(Job()).launch {
+            val handler = Handler(Looper.getMainLooper())
+            handler.post {
                 function()
-                cancel()
+            }
+        }
+
+        fun isRunOnMainThread() {
+            if (Thread.currentThread().name == "main"){
+                throw RuntimeException("不允许在主线程运行")
             }
         }
     }
