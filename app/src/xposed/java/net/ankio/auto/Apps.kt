@@ -33,7 +33,7 @@ object Apps {
             QianjiHooker(),
 
          //   WechatHooker(), // Wechat
-          //  AliPayHooker() // AliPay
+            AliPayHooker() // AliPay
             ////////////////////////////
         )
     }
