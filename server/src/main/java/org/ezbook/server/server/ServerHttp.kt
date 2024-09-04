@@ -16,6 +16,7 @@
 package org.ezbook.server.server
 
 import android.content.Context
+import android.util.Log
 import org.ezbook.server.Server
 import org.ezbook.server.Server.Companion.json
 import org.ezbook.server.routes.AppDataRoute
@@ -40,7 +41,8 @@ class ServerHttp(port: Int, private val context: Context) : NanoHTTPD(port) {
 
     override fun handle(session: IHTTPSession?): Response {
         return  runCatching {
-            when (session!!.uri) {
+            val uri = session!!.uri.replace("//", "/")
+            when (uri) {
                 "/" -> json(200, "hello,欢迎使用自动记账", Server.versionCode, 0)
                 // 日志列表
                 "/log/list" -> LogRoute(session).list()
@@ -71,6 +73,8 @@ class ServerHttp(port: Int, private val context: Context) : NanoHTTPD(port) {
                 //--------------------------------
                 // js 分析
                 "/js/analysis" -> JsRoute(session, context).analysis()
+                // js 代码
+                "/js/run" -> JsRoute(session, context).run()
                 // App Data
                 "/data/list" -> AppDataRoute(session).list()
                 "/data/clear" -> AppDataRoute(session).clear()
@@ -101,9 +105,9 @@ class ServerHttp(port: Int, private val context: Context) : NanoHTTPD(port) {
 
                 else -> json(404, "Not Found", null, 0)
             }
-        }.onFailure {
+        }.getOrElse {
             it.printStackTrace()
             json(500, "Internal Server Error")
-        }.getOrThrow()
+        }
     }
 }
