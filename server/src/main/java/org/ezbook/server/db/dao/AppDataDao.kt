@@ -18,17 +18,26 @@ package org.ezbook.server.db.dao
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 import org.ezbook.server.db.model.AppDataModel
 
 @Dao
 interface AppDataDao {
 
     //根据条件查询
-    @Query("SELECT * FROM AppDataModel WHERE app = :app " +
-            "AND (:type IS NULL OR type = :type)" +
-            "AND (:search IS NULL OR data LIKE '%' || :search || '%')" +
-            "ORDER BY id DESC LIMIT :limit OFFSET :offset")
-    fun load(limit: Int, offset: Int,app: String,type: String?,search: String?): List<AppDataModel>
+    @Query(
+        "SELECT * FROM AppDataModel WHERE app = :app " +
+                "AND (:type IS NULL OR type = :type)" +
+                "AND (:search IS NULL OR data LIKE '%' || :search || '%')" +
+                "ORDER BY id DESC LIMIT :limit OFFSET :offset"
+    )
+    fun load(
+        limit: Int,
+        offset: Int,
+        app: String,
+        type: String?,
+        search: String?
+    ): List<AppDataModel>
 
 
     @Insert
@@ -43,5 +52,11 @@ interface AppDataDao {
 
     //查询所有app
     @Query("SELECT app FROM AppDataModel")
-     fun queryApps(): List<String>
+    fun queryApps(): List<String>
+
+    @Update
+    fun update(log: AppDataModel)
+
+    @Query("DELETE FROM AppDataModel WHERE id = :id")
+    fun delete(id: Long)
 }

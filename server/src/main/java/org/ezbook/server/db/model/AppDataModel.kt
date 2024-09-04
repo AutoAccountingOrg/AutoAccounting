@@ -87,6 +87,14 @@ class AppDataModel {
             Server.request("data/clear")
         }
 
+        suspend fun put(data: AppDataModel) = withContext(Dispatchers.IO){
+            Server.request("data/put", Gson().toJson(data))
+        }
+
+        suspend fun delete(id: Long) = withContext(Dispatchers.IO){
+            Server.request("data/delete?id=$id")
+        }
+
         suspend fun apps(): JsonObject = withContext(Dispatchers.IO) {
             val response = Server.request("data/apps")
             val json = Gson().fromJson(response, JsonObject::class.java)

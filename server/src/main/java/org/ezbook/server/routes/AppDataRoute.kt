@@ -15,8 +15,10 @@
 
 package org.ezbook.server.routes
 
+import com.google.gson.Gson
 import org.ezbook.server.Server
 import org.ezbook.server.db.Db
+import org.ezbook.server.db.model.AppDataModel
 import org.nanohttpd.protocols.http.IHTTPSession
 import org.nanohttpd.protocols.http.response.Response
 
@@ -68,6 +70,22 @@ class AppDataRoute(private val session: IHTTPSession) {
             }
         }
         return Server.json(200, "OK", map)
+    }
+
+    fun put(): Response {
+        val data = Gson().fromJson( Server.reqData(session), AppDataModel::class.java)
+        if (data.id == 0L) {
+            Db.get().dataDao().insert(data)
+        } else {
+            Db.get().dataDao().update(data)
+        }
+        return Server.json(200, "OK")
+    }
+
+    fun delete(): Response {
+        val id = session.parameters["id"]?.firstOrNull()?.toLong() ?: 0
+        Db.get().dataDao().delete(id)
+        return Server.json(200, "OK")
     }
 
 }

@@ -79,6 +79,8 @@ class ServerHttp(port: Int, private val context: Context) : NanoHTTPD(port) {
                 "/data/list" -> AppDataRoute(session).list()
                 "/data/clear" -> AppDataRoute(session).clear()
                 "/data/apps" -> AppDataRoute(session).apps()
+                "/data/put" -> AppDataRoute(session).put()
+                "/data/delete" -> AppDataRoute(session).delete()
                 // 资产
                 "/assets/list" -> AssetsRoute(session).list()
                 "/assets/put" -> AssetsRoute(session).put()
