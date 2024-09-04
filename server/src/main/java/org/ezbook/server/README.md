@@ -1,0 +1,2 @@
+这里是自动记账的服务端
+禁止涉及任何UI的处理，包括Toast，Dialog、Activity、Fragment、悬浮窗等
