@@ -62,7 +62,8 @@ class RuleRoute(private val session: IHTTPSession) {
      * 更新规则
      */
     fun update(): Response {
-        val json = Gson().fromJson(Server.reqData(session), RuleModel::class.java)
+        val data = Server.reqData(session)
+        val json = Gson().fromJson(data, RuleModel::class.java)
         val id = Db.get().ruleDao().update(json)
         return Server.json(200, "OK", id)
     }

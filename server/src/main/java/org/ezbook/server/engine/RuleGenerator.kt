@@ -15,6 +15,7 @@
 
 package org.ezbook.server.engine
 
+import android.util.Log
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import org.ezbook.server.constant.DataType
@@ -25,7 +26,7 @@ import org.ezbook.server.db.Db
  */
 object RuleGenerator {
     // 生成 hook的 js代码
-    fun data(data:String,app:String,type:DataType):String {
+    fun data(app:String,type:DataType):String {
         val rules = Db.get().ruleDao().loadAllEnabled(app, type.name)
         val js = StringBuilder()
 
@@ -34,6 +35,7 @@ object RuleGenerator {
         js.append(commonJs)
         // 注入规则
         val jsonArray = JsonArray()
+
         rules.forEach {
             val jsonObject = JsonObject()
             jsonObject.addProperty("name", it.name)
@@ -42,16 +44,16 @@ object RuleGenerator {
             jsonArray.add(jsonObject)
         }
 
-        val escapedInput = data.replace("'", "\\'")
 
+        val rulesStr = jsonArray.toString().replace(Regex("\"(rule_\\d+)\""), "$1")
         // 注入检测逻辑
 
         //基础的js
         js.append(
             """
              var window = {};
-             window.rules = $jsonArray;
-             window.data = '$escapedInput';
+             window.rules = $rulesStr;
+             window.data = data;
              
              
              var data = window.data || '';
@@ -63,6 +65,10 @@ object RuleGenerator {
                  var result = null;
   try {
     result = rule.obj.get(data);
+    } catch (e) {
+    //print(rule.name+"执行出错",e);
+    continue;
+  }
     if (
       result !== null &&
       result.money !== null &&
@@ -72,9 +78,7 @@ object RuleGenerator {
       print(JSON.stringify(result));
       break;
     }
-  } catch (e) {
-    print(e.message);
-  }
+  
 }
 
 
