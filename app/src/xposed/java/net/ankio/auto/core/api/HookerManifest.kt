@@ -19,16 +19,15 @@ import android.app.Application
 import android.content.Context
 import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.launch
-import net.ankio.auto.constant.DataType
 import net.ankio.auto.core.App
 import net.ankio.auto.core.logger.Logger
-import net.ankio.auto.request.RequestsUtils
 import net.ankio.dex.model.Clazz
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import org.ezbook.server.constant.DataType
 
 /**
  * HookerManifest
@@ -133,7 +132,8 @@ abstract class HookerManifest {
      */
     fun analysisData(type: DataType, data: String) {
         App.scope.launch {
-            request("/js/analysis?type=${type.name}&app=$packageName&fromAppData=false", data)
+           val result = request("js/analysis?type=${type.name}&app=$packageName&fromAppData=true", data)
+            logD("analysisData: $result")
         }
     }
 
