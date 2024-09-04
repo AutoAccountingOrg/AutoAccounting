@@ -21,7 +21,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import net.ankio.auto.R
-import net.ankio.auto.constant.FloatEvent
+import org.ezbook.server.constant.FloatEvent
 import net.ankio.auto.constant.ItemType
 import net.ankio.auto.databinding.FragmentSettingBinding
 import net.ankio.auto.setting.SettingItem

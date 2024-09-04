@@ -17,6 +17,7 @@ package net.ankio.auto.ui.dialog
 
 import android.app.Activity
 import android.content.BroadcastReceiver
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -30,7 +31,7 @@ import net.ankio.auto.ui.models.AutoApp
 /**
  * 记账软件选择对话框
  */
-class AppDialog(private val context: Activity) : BaseSheetDialog(context) {
+class AppDialog(private val context: Context) : BaseSheetDialog(context) {
     private lateinit var binding: DialogAppBinding
 
     private var apps = mutableListOf(

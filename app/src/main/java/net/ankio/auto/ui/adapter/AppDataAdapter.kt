@@ -17,9 +17,7 @@ package net.ankio.auto.ui.adapter
 
 import android.graphics.drawable.Drawable
 import android.net.Uri
-import android.view.LayoutInflater
 import android.view.View
-import androidx.core.content.ContextCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.elevation.SurfaceColors
 import com.hjq.toast.Toaster
@@ -28,25 +26,15 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.App
 import net.ankio.auto.R
-import net.ankio.auto.app.BillUtils
-import net.ankio.auto.app.js.Engine
-import net.ankio.auto.constant.DataType
-import net.ankio.auto.constant.toDataType
 import net.ankio.auto.databinding.AdapterDataBinding
-import net.ankio.auto.databinding.SettingItemInputBinding
-import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
-import net.ankio.auto.ui.dialog.DataEditorDialog
 import net.ankio.auto.ui.scope.autoDisposeScope
-import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.DateUtils
-import net.ankio.auto.utils.Github
 import org.ezbook.server.db.model.AppDataModel
-import org.ezbook.server.db.model.LogModel
 
 class AppDataAdapter(private val list: MutableList<AppDataModel>,private val activity: BaseActivity): BaseAdapter<AdapterDataBinding,AppDataModel>(AdapterDataBinding::class.java, list) {
 
@@ -96,7 +84,7 @@ class AppDataAdapter(private val list: MutableList<AppDataModel>,private val act
                 .setMessage(binding.content.text as String)
                 .setPositiveButton(activity.getString(R.string.cancel_msg)) { _, _ -> }
                 .setNegativeButton(activity.getString(R.string.copy)) { _, _ ->
-                    AppUtils.copyToClipboard(binding.content.text as String)
+                    App.copyToClipboard(binding.content.text as String)
                     Toaster.show(R.string.copy_command_success)
                 }
                 .show()

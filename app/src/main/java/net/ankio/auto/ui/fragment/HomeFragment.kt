@@ -130,7 +130,7 @@ class HomeFragment : BaseFragment() {
 
         lifecycleScope.launch {
             if (!ServerInfo.isServerStart()){
-                MaterialAlertDialogBuilder(requireActivity())
+                MaterialAlertDialogBuilder(requireContext())
                     .setTitle(R.string.title_cant_connect_service)
                     .setMessage(ServerInfo.getServerErrorMsg(requireContext()))
                     .show()
@@ -144,7 +144,7 @@ class HomeFragment : BaseFragment() {
      */
     private fun checkBookApp() {
         if (SpUtils.getString("bookApp", "").isEmpty()) {
-            AppDialog(requireActivity()).show(cancel = BuildConfig.DEBUG)
+            AppDialog(requireContext()).show(cancel = BuildConfig.DEBUG)
         }
     }
 
@@ -291,7 +291,7 @@ class HomeFragment : BaseFragment() {
             bindBookAppUI()
         }
         binding.bookAppContainer.setOnClickListener {
-            AppDialog(requireActivity()).show(false)
+            AppDialog(requireContext()).show(false)
         }
         // 资产映射
         binding.map.setOnClickListener {

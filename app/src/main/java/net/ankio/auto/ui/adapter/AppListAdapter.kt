@@ -15,6 +15,7 @@
 
 package net.ankio.auto.ui.adapter
 import android.app.Activity
+import android.content.Context
 import android.content.res.Resources
 import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
@@ -28,7 +29,7 @@ import net.ankio.auto.ui.api.BaseViewHolder
 import net.ankio.auto.ui.models.AutoApp
 import net.ankio.auto.utils.CustomTabsHelper
 
-class AppListAdapter(private val context: Activity, private val list: MutableList<AutoApp>,
+class AppListAdapter(private val context: Context, private val list: MutableList<AutoApp>,
                      private val selectApp :String, private val callback: (AutoApp) -> Unit): BaseAdapter<AdapterAutoAppBinding, AutoApp>(AdapterAutoAppBinding::class.java, list) {
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterAutoAppBinding,AutoApp>) {
         val binding = holder.binding
