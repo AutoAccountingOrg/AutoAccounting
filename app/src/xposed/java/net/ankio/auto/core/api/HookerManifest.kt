@@ -119,7 +119,7 @@ abstract class HookerManifest {
     /**
      * 附加资源路径
      */
-    fun attachAssetPath(context: Context) {
+    fun attachResource(context: Context) {
         XposedHelpers.callMethod(
             context.resources.assets,
             "addAssetPath",
@@ -131,7 +131,7 @@ abstract class HookerManifest {
      * 分析数据
      */
     fun analysisData(type: DataType, data: String) {
-        App.scope.launch {
+        App.launch {
            val result = request("js/analysis?type=${type.name}&app=$packageName&fromAppData=false", data)
             logD("analysisData: $result")
         }

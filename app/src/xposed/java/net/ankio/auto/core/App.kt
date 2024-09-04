@@ -61,13 +61,6 @@ class App: IXposedHookLoadPackage, IXposedHookZygoteInit  {
            }
         }
 
-        fun attachResource(context: Context){
-            XposedHelpers.callMethod(
-                context.resources.assets,
-                "addAssetPath",
-                modulePath,
-            )
-        }
 
         /**
          * 保存数据

@@ -67,7 +67,7 @@ class SideBarHooker : PartHooker{
                 override fun afterHookedMethod(param: MethodHookParam) {
                     val activity = param.thisObject as Activity
                     runCatching {
-                        App.attachResource(activity)
+                        hookerManifest.attachResource(activity)
                         App.launch {
                             checkServerStatus(activity)
                         }
@@ -103,7 +103,7 @@ class SideBarHooker : PartHooker{
                     val linearLayout =
                         ViewUtils.getViewById("com.mutangtech.qianji.R\$id",obj, classLoader, "main_drawer_content_layout") as LinearLayout
                     runCatching {
-                        App.attachResource(activity)
+                        hookerManifest.attachResource(activity)
                         // 找到了obj里面的name字段
                         addSettingMenu(linearLayout, activity)
                     }.onFailure {
