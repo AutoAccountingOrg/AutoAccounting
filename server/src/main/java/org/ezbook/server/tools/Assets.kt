@@ -177,6 +177,13 @@ object Assets {
                 })
             }
             return autoAssetName
+        }else{
+            //将映射结果保存到映射表
+            Db.get().assetsMapDao().insert(AssetsMapModel().apply {
+                name = account
+                mapName = account
+                regex = false
+            })
         }
         return account
     }
