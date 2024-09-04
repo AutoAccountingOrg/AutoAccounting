@@ -50,6 +50,6 @@ interface AppDataDao {
     fun clearOld()
 
     //查询所有app
-    @Query("SELECT app FROM AppDataModel GROUP BY app")
+    @Query("SELECT app FROM AppDataModel")
      fun queryApps(): List<String>
 }
