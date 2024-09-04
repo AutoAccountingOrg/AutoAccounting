@@ -134,15 +134,7 @@ class AppDataAdapter(private val list: MutableList<AppDataModel>,private val act
             tryAdaptUnmatchedItems(holder)
         }
 
-        val app = App.getAppInfoFromPackageName(data.app)
 
-        if (app != null) {
-            binding.app.text = app[0] as String
-            binding.image.setImageDrawable(app[1] as Drawable)
-        }else{
-            binding.app.text = ""
-            binding.image.setImageResource(R.drawable.data_sms)
-        }
 
         binding.time.text = DateUtils.getTime(data.time)
         binding.rule.visibility = View.VISIBLE

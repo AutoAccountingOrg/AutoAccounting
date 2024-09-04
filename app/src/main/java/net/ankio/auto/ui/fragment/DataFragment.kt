@@ -22,6 +22,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -35,15 +36,17 @@ import net.ankio.auto.ui.api.BasePageFragment
 import net.ankio.auto.ui.componets.CustomNavigationRail
 import net.ankio.auto.ui.models.RailMenuItem
 import net.ankio.auto.ui.models.ToolbarMenuItem
+import net.ankio.auto.ui.scope.autoDisposeScope
 import org.ezbook.server.constant.DataType
 import org.ezbook.server.db.model.AppDataModel
+import org.ezbook.server.db.model.CategoryRuleModel
 
 class DataFragment : BasePageFragment<AppDataModel>() {
     private lateinit var binding: FragmentDataRuleBinding
     var app:String = ""
     var type:String = ""
     override suspend fun loadData(callback: (resultData: List<AppDataModel>) -> Unit) {
-        AppDataModel.list(app, type, page,pageSize).let { result ->
+        AppDataModel.list(app, type, page,pageSize,searchData).let { result ->
             withContext(Dispatchers.Main) {
                 callback(result)
             }
@@ -52,12 +55,23 @@ class DataFragment : BasePageFragment<AppDataModel>() {
 
     override val menuList: ArrayList<ToolbarMenuItem> =
         arrayListOf(
+            ToolbarMenuItem(R.string.item_search, R.drawable.menu_icon_search, true) {
+                loadDataInside()
+            },
             ToolbarMenuItem(R.string.item_clear, R.drawable.menu_icon_clear) {
-                lifecycleScope.launch {
-                    AppDataModel.clear()
-                    page = 1
-                    loadDataInside()
-                }
+                MaterialAlertDialogBuilder(requireActivity())
+                    .setTitle(requireActivity().getString(R.string.delete_data))
+                    .setMessage(requireActivity().getString(R.string.delete_msg))
+                    .setNegativeButton(requireActivity().getString(R.string.sure_msg)) { _, _ ->
+                        lifecycleScope.launch {
+                            AppDataModel.clear()
+                            page = 1
+                            loadDataInside()
+                        }
+                    }
+                    .setPositiveButton(requireActivity().getString(R.string.cancel_msg)) { _, _ -> }
+                    .show()
+
             },
         )
 
