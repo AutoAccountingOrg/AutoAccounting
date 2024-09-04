@@ -25,7 +25,10 @@ import org.ezbook.server.db.model.LogModel
 
 class LogAdapter(private val list: MutableList<LogModel>): BaseAdapter<AdapterLogBinding, LogModel>(AdapterLogBinding::class.java, list) {
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterLogBinding,LogModel>) {
-
+        holder.binding.root.setOnClickListener {
+            val item = holder.item!!
+            App.copyToClipboard(item.message)
+        }
     }
 
     private val cachedApp = HashMap<String,String>()
