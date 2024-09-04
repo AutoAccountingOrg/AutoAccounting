@@ -22,6 +22,7 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import net.ankio.auto.core.App
 import org.ezbook.server.constant.DataType
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
@@ -94,7 +95,7 @@ class WebViewHooker : PartHooker {
                                 hookerManifest.analysisData(DataType.DATA, result)
                             }
 
-                        AppUtils.getScope().launch {
+                        App.launch {
                             while (needWait && count > 0) {
                                 count--
                                 XposedHelpers.callMethod(
