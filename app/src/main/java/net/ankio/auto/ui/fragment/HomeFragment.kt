@@ -38,21 +38,19 @@ import net.ankio.auto.common.ActiveInfo
 import net.ankio.auto.common.ServerInfo
 import net.ankio.auto.databinding.AboutDialogBinding
 import net.ankio.auto.databinding.FragmentHomeBinding
-import org.ezbook.server.db.model.CategoryModel
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.dialog.AppDialog
 import net.ankio.auto.ui.dialog.AssetsSelectorDialog
-import net.ankio.auto.ui.dialog.BookInfoDialog
 import net.ankio.auto.ui.dialog.BookSelectorDialog
 import net.ankio.auto.ui.dialog.CategorySelectorDialog
 import net.ankio.auto.ui.dialog.UpdateDialog
-import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.ui.models.ToolbarMenuItem
+import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.update.RuleUpdate
-import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.CustomTabsHelper
+import org.ezbook.server.db.model.CategoryModel
 import rikka.html.text.toHtml
 
 /**
@@ -77,7 +75,7 @@ class HomeFragment : BaseFragment() {
                         R.string.about_view_source_code,
                         "<b><a href=\"https://github.com/AutoAccountingOrg/AutoAccounting\">GitHub</a></b>",
                     ).toHtml()
-                binding.versionName.text = AppUtils.getVersionName()
+                binding.versionName.text = BuildConfig.VERSION_NAME
                 MaterialAlertDialogBuilder(requireContext())
                     .setView(binding.root)
                     .show()
@@ -168,8 +166,8 @@ class HomeFragment : BaseFragment() {
             if (this.isEmpty()) {
                 binding.bookApp.text = getString(R.string.no_setting)
             } else {
-                AppUtils.getAppInfoFromPackageName(this, AppUtils.getApplication())?.apply {
-                    binding.bookApp.text = this.name
+                App.getAppInfoFromPackageName(this)?.apply {
+                    binding.bookApp.text = this[0] as String
                 }
             }
         }
