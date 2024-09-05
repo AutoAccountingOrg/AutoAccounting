@@ -13,6 +13,7 @@ import net.ankio.auto.App
  */
 object LocalBroadcastHelper {
 
+    const val ACTION_UPDATE_BILL = "update_bill" // 更新账单广播
     const val ACTION_APP_CHANGED = "app_changed"
     const val ACTION_UPDATE_FINISH = "update_finish" // 应用更新完成广播
 
