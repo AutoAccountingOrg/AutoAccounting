@@ -1,14 +1,15 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_height="match_parent"
-     android:layout_width="match_parent"
-    android:layout_gravity="center"
-    >
+    android:layout_width="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_gravity="center">
 
     <ImageView
         android:id="@+id/icon_view_image"
         android:layout_width="@dimen/float_icon_size"
         android:layout_height="@dimen/float_icon_size"
         android:layout_gravity="center"
+        tools:src="@tools:sample/avatars"
         android:layout_marginEnd="@dimen/one_padding" />
 
     <TextView
@@ -18,6 +19,7 @@
         android:id="@+id/icon_view_text"
         android:layout_width="wrap_content"
         style="@style/TextAppearance.AppCompat.Medium"
+        tools:text="@tools:sample/lorem/random"
     android:layout_height="wrap_content" />
 
 </LinearLayout>
