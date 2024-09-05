@@ -15,7 +15,6 @@
 
 package net.ankio.auto.ui.fragment
 
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -32,20 +31,20 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.hjq.toast.Toaster
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.ankio.auto.R
-import net.ankio.auto.app.BillUtils
 import net.ankio.auto.databinding.DialogRegexInputBinding
 import net.ankio.auto.databinding.DialogRegexMoneyBinding
 import net.ankio.auto.databinding.FragmentEditBinding
 import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.componets.FlowElement
 import net.ankio.auto.ui.componets.FlowLayoutManager
-import net.ankio.auto.ui.dialog.BookInfoDialog
 import net.ankio.auto.ui.dialog.BookSelectorDialog
 import net.ankio.auto.ui.dialog.CategorySelectorDialog
 import net.ankio.auto.ui.utils.ListPopupUtils
-import org.ezbook.server.db.model.BookNameModel
+import net.ankio.auto.utils.BillTool
 import org.ezbook.server.db.model.CategoryRuleModel
+import org.ezbook.server.tools.Category
 import java.util.Calendar
 
 class CategoryEditFragment : BaseFragment() {
@@ -186,14 +185,7 @@ class CategoryEditFragment : BaseFragment() {
                     if (parent == null) {
                         "其他"
                     } else {
-                        if (child == null) {
-                            BillUtils.getCategory(parent.name.toString())
-                        } else {
-                            BillUtils.getCategory(
-                                parent.name.toString(),
-                                child.name.toString(),
-                            )
-                        }
+                        BillTool.getCateName(parent.name!!, child?.name)
                     }
                 it2.removed().setAsWaveTextview(
                     string,
@@ -201,6 +193,7 @@ class CategoryEditFragment : BaseFragment() {
                     callback = it2.waveCallback,
                 )
                 category = string
+
             }.show(cancel = true)
         }.show(cancel = true)
     }

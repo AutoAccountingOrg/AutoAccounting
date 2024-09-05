@@ -33,6 +33,7 @@ import net.ankio.auto.ui.dialog.BookSelectorDialog
 import net.ankio.auto.ui.dialog.CategorySelectorDialog
 import net.ankio.auto.ui.scope.autoDisposeScope
 import net.ankio.auto.ui.utils.ResourceUtils
+import net.ankio.auto.utils.BillTool
 import org.ezbook.server.db.model.CategoryMapModel
 import org.ezbook.server.tools.Category
 
@@ -51,7 +52,7 @@ class CategoryMapAdapter(
             BookSelectorDialog(activity, true) { book,type ->
                CategorySelectorDialog(activity,book.remoteId,type) { category1,category2 ->
                    binding.root.autoDisposeScope.launch {
-                       item.mapName = Category.getName(category1!!,category2)
+                       item.mapName = BillTool.getCateName(category1?.name!!, category2?.name)
                        CategoryMapModel.put(item)
                       withContext(Dispatchers.Main){
                           notifyItemChanged(position)
