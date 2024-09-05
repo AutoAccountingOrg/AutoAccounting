@@ -17,6 +17,7 @@ package net.ankio.auto.ui.dialog
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.res.ColorStateList
 import android.view.LayoutInflater
@@ -28,36 +29,39 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.core.widget.TextViewCompat
 import androidx.lifecycle.lifecycleScope
+import com.google.gson.Gson
 import com.hjq.toast.Toaster
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
-import net.ankio.auto.app.BillUtils
+import net.ankio.auto.broadcast.LocalBroadcastHelper
+import net.ankio.auto.common.AccountingConfig
 import net.ankio.auto.databinding.FloatEditorBinding
 import net.ankio.auto.exceptions.AutoServiceException
-import net.ankio.auto.ui.componets.IconView
-import net.ankio.auto.utils.DateUtils
-import net.ankio.auto.ui.utils.ListPopupUtils
+import net.ankio.auto.models.AssetsModel
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.storage.SpUtils
-import net.ankio.auto.models.AssetsModel
+import net.ankio.auto.ui.componets.IconView
+import net.ankio.auto.ui.utils.ListPopupUtils
+import net.ankio.auto.ui.utils.ResourceUtils
+import net.ankio.auto.ui.utils.ToastUtils
+import net.ankio.auto.utils.BillTool
+import net.ankio.auto.utils.DateUtils
+import org.ezbook.server.constant.BillType
+import org.ezbook.server.constant.Currency
 import org.ezbook.server.db.model.AssetsMapModel
 import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.db.model.BookNameModel
-import net.ankio.auto.common.AccountingConfig
-import net.ankio.auto.ui.utils.ResourceUtils
-import org.ezbook.server.constant.BillType
-import org.ezbook.server.constant.Currency
+import org.ezbook.server.tools.Category
 import java.util.Calendar
 
 class FloatEditorDialog(
     private val context: Context,
-    private val billInfoModel: BillInfoModel,
+    private var billInfoModel: BillInfoModel,
     private val autoAccountingConfig: AccountingConfig,
     private val float: Boolean = false,
     private val onlyShow: Boolean = false, // 是否仅展示
-    private val onClose: ((billInfoModel: BillInfoModel) -> Unit)? = null,
     private val onCancelClick:((billInfoModel: BillInfoModel) -> Unit)? = null,
 ) :
     BaseSheetDialog(context) {
@@ -70,27 +74,25 @@ class FloatEditorDialog(
     private var rawChooseReimbursement = ""
 
 
+    private lateinit var broadcastReceiver: BroadcastReceiver
 
-  /*  private val onBillUpdateEvent = { event: BillUpdateEvent ->
-        val billInfo = event.billInfoModel
-        Logger.i("onBillUpdateEvent => $billInfo")
-        if (::binding.isInitialized){
-            rawBillInfo = billInfo.copy()
-            bindUI()
-        }
-        false
-    }*/
 
     override fun onCreateView(inflater: LayoutInflater): View {
-      //  EventBus.register(BillUpdateEvent::class.java, onBillUpdateEvent)
+
+        broadcastReceiver = LocalBroadcastHelper.registerReceiver(LocalBroadcastHelper.ACTION_UPDATE_BILL) { action,bundle ->
+            Logger.d("接收到广播，更新账单")
+            billInfoModel = Gson().fromJson(bundle!!.getString("billInfoModel"), BillInfoModel::class.java)
+            rawBillInfo = billInfoModel.copy()
+            bindUI()
+        }
+
         binding = FloatEditorBinding.inflate(inflater)
         cardView = binding.editorCard
 
-        Logger.d("原始账单结果 => $rawBillInfo")/*
-        billTypeLevel1 = BillType.fromInt(rawBillInfo.type)
-        billTypeLevel2 = BillType.fromInt(rawBillInfo.type)*/
+        Logger.d("原始账单结果 => $rawBillInfo")
+        billTypeLevel1 = rawBillInfo.type
+        billTypeLevel2 = rawBillInfo.type
         binding.radioContainer.check(binding.radioNone.id)
-        //   billInfo.remark = BillUtils.getRemark(billInfo)
         rawChooseDebt = binding.chooseDebt.text.toString()
         rawChooseReimbursement = binding.chooseReimbursement.text.toString()
 
@@ -113,13 +115,13 @@ class FloatEditorDialog(
 
     private fun getBillData(): BillInfoModel {
         return BillInfoModel().apply {
-            this.channel = billInfoModel.channel/*
-            this.fromApp = billInfoModel.fromApp*/
+            this.channel = billInfoModel.channel
+            this.app = billInfoModel.app
             this.money = billInfoModel.money
             this.type = billInfoModel.type
             this.fee = billInfoModel.fee
-            this.bookName = billInfoModel.bookName/*
-            this.type = billTypeLevel2.value*/
+            this.bookName = billInfoModel.bookName
+            this.type = billTypeLevel2
             this.id = billInfoModel.id
             when (billTypeLevel2) {
                 BillType.Expend -> {
@@ -182,8 +184,8 @@ class FloatEditorDialog(
 
     override fun dismiss() {
         super.dismiss()
-        onClose?.invoke(rawBillInfo)
-      //  EventBus.unregister(BillUpdateEvent::class.java, onBillUpdateEvent)
+        if (::broadcastReceiver.isInitialized)
+        LocalBroadcastHelper.unregisterReceiver(broadcastReceiver)
     }
 
     private fun bindingButtonsEvents() {
@@ -197,14 +199,14 @@ class FloatEditorDialog(
             val bill = getBillData()
 
             rawBillInfo = bill.copy()
-            rawBillInfo.syncFromApp = 0
+            rawBillInfo.syncFromApp = false
             Logger.d("最终账单结果 => $bill")
 
             lifecycleScope.launch {
                 runCatching {
-                   // BillInfoModel.put(bill)
+                    BillInfoModel.put(bill)
                     if (SpUtils.getBoolean("setting_book_success", true)) {
-                        Toaster.show(
+                        ToastUtils.info(
                             context.getString(
                                 R.string.auto_success,
                                 billInfoModel.money.toString(),
@@ -222,51 +224,11 @@ class FloatEditorDialog(
                         BillCategoryDialog(context, bill).show(float)
                     }
 
-                    if (SpUtils.getBoolean(
-                            "setting_auto_asset",
-                            false,
-                        )
-                    ) {
-                        if (listOf(
-                                binding.transferFrom,
-                                binding.payFrom,
-                                binding.debtExpendFrom,
-                            ).any { it.visibility == View.VISIBLE } && rawBillInfo.accountNameFrom != "" && rawBillInfo.accountNameFrom != bill.accountNameFrom
-                        ) {
-                            withContext(Dispatchers.IO) {
-                                if (AssetsModel.getByName(rawBillInfo.accountNameFrom) == null) {
-                                    AssetsMapModel.put(
-                                        AssetsMapModel().apply {
-                                            this.name = rawBillInfo.accountNameFrom
-                                            this.mapName = bill.accountNameFrom
-                                        },
-                                    )
-                                }
-                            }
-                        }
-
-                        if (listOf(
-                                binding.debtIncomeTo,
-                                binding.transferTo,
-                            ).any { it.visibility == View.VISIBLE } && rawBillInfo.accountNameTo != "" && rawBillInfo.accountNameTo != bill.accountNameTo
-                        ) {
-                            withContext(Dispatchers.IO) {
-                                if (AssetsModel.getByName(rawBillInfo.accountNameTo) == null) {
-                                    AssetsMapModel.put(
-                                        AssetsMapModel().apply {
-                                            this.name = rawBillInfo.accountNameTo
-                                            this.mapName = bill.accountNameTo
-                                        },
-                                    )
-                                }
-                            }
-                        }
-                    }
                 }.onFailure {
-                    if (it is AutoServiceException) {
-                    //    EventBus.post(AutoServiceErrorEvent(it))
-                    }
+                   Logger.e("记账失败", it)
                 }
+
+
 
                 dismiss()
             }
@@ -275,8 +237,8 @@ class FloatEditorDialog(
     }
 
     private fun bindingTypePopupUI() {
-        binding.priceContainer.text = billInfoModel.money.toString()/*
-        setPriceColor(billTypeLevel1.toInt())*/
+        binding.priceContainer.text = billInfoModel.money.toString()
+        setPriceColor(billTypeLevel1)
     }
 
     private fun bindingTypePopupEvents() {
@@ -293,10 +255,10 @@ class FloatEditorDialog(
                 binding.priceContainer,
                 stringList,
                 billTypeLevel1,
-            ) { pos, key, value ->/*
-                billInfoModel.type = (value as BillType).value
-                billTypeLevel1 = BillType.fromInt(billInfoModel.type)
-                billTypeLevel2 = BillType.fromInt(billInfoModel.type)*/
+            ) { pos, key, value ->
+                billInfoModel.type = value as BillType
+                billTypeLevel1 = billInfoModel.type
+                billTypeLevel2 = billInfoModel.type
                 binding.radioContainer.check(binding.radioNone.id)
                 bindUI()
             }
@@ -608,9 +570,9 @@ class FloatEditorDialog(
             binding.category.visibility = View.VISIBLE
             lifecycleScope.launch {
                 val book = BookNameModel.getDefaultBook(billInfoModel.bookName)
-             /*   CategoryModel.getDrawable(billInfoModel.cateName, book.id, billInfoModel.type,context).let {
+                ResourceUtils.getCategoryDrawableByName(billInfoModel.cateName,context, book.remoteId, billTypeLevel2.name ).let {
                     binding.category.setIcon(it, true)
-                }*/
+                }
             }
             binding.category.setText(billInfoModel.cateName)
         } else {
@@ -625,12 +587,8 @@ class FloatEditorDialog(
                 withContext(Dispatchers.Main) {
                     CategorySelectorDialog(context, book.remoteId, billTypeLevel1) { parent, child ->
                         if (parent == null)return@CategorySelectorDialog
-                        billInfoModel.cateName =
-                            BillUtils.getCategory(
-                                parent.name ?: "",
-                                child?.name,
-                                SpUtils.getBoolean("setting_category_show_parent", false),
-                            )
+                        billInfoModel.cateName = BillTool.getCateName( parent.name ?: "", child?.name)
+
                         bindingCategoryUI()
                     }.show(float)
                 }
@@ -780,16 +738,16 @@ class FloatEditorDialog(
         bindingButtonsEvents()
     }
 
-    private fun setPriceColor(position: Int) {
+    private fun setPriceColor(billType: BillType) {
         val drawableRes =
-            when (position) {
-                0 -> R.drawable.float_minus
-                1 -> R.drawable.float_add
-                2 -> R.drawable.float_round
+            when (billType) {
+                BillType.Expend -> R.drawable.float_minus
+                BillType.Income -> R.drawable.float_add
+                BillType.Transfer -> R.drawable.float_round
                 else -> R.drawable.float_minus
             }
 
-        val tintRes = BillUtils.getColor(position)
+      val tintRes = BillTool.getColor(billType)
 
         val drawable = AppCompatResources.getDrawable(context, drawableRes)
         val tint = ColorStateList.valueOf(ContextCompat.getColor(context, tintRes))
