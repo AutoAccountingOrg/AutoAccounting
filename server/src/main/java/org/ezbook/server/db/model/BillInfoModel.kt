@@ -170,4 +170,8 @@ class BillInfoModel {
 
 
     }
+
+    override fun toString(): String {
+        return "BillInfoModel(id=$id, type=$type, currency='$currency', money=$money, fee=$fee, time=$time, shopName='$shopName', shopItem='$shopItem', cateName='$cateName', extendData='$extendData', bookName='$bookName', accountNameFrom='$accountNameFrom', accountNameTo='$accountNameTo', app='$app', groupId=$groupId, channel='$channel', syncFromApp=$syncFromApp, remark='$remark', auto=$auto, ruleName='$ruleName')"
+    }
 }
