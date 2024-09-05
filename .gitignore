@@ -13,12 +13,5 @@
 .externalNativeBuild
 .cxx
 local.properties
-/app/src/main/cpp/cmake-build-debug/
-/app/src/main/cpp/.idea/
-/app/src/main/assets/shell/armeabi-v7a/
-/app/src/main/assets/shell/arm64-v8a/
-/app/src/main/assets/shell/x86/
-/app/src/main/assets/shell/x86_64/
-/app/src/xposed/assets/shell/apps.txt
 /.github/workflows/env.json
-/app/src/main/assets/shell/auto_accounting_starter
+/app/xposed/release/*
