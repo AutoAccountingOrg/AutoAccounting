@@ -30,6 +30,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.exceptions.PermissionException
@@ -38,7 +39,6 @@ import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.request.RequestsUtils
-import net.ankio.auto.utils.AppUtils
 import okhttp3.Credentials
 import java.io.File
 import java.io.FileInputStream
@@ -102,7 +102,7 @@ class BackupUtils(private val context: Context) {
                             loadingUtils.close()
                             Toaster.show(R.string.restore_success)
                             delay(3000)
-                            AppUtils.restart()
+                            App.restart()
                         }
                     }
                 }
@@ -439,7 +439,7 @@ class BackupUtils(private val context: Context) {
                         loadingUtils.close()
                         Toaster.show(R.string.restore_success)
                         delay(3000)
-                        AppUtils.restart()
+                        App.restart()
                     }
                 } else {
                     withContext(Dispatchers.Main) {

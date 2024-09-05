@@ -19,6 +19,7 @@ import android.content.Context
 import android.content.Intent
 import com.bugsnag.android.Bugsnag
 import com.bugsnag.android.Event
+import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.exceptions.AutoServiceException
 import net.ankio.auto.storage.Logger
@@ -58,7 +59,7 @@ class ExceptionHandler(private val context: Context) : Thread.UncaughtExceptionH
         }
         // return true
         // 调试模式不上传错误数据
-        return !AppUtils.getDebug() && SpUtils.getBoolean("sendToAppCenter", true)
+        return !App.debug && SpUtils.getBoolean("sendToAppCenter", true)
     }
 
     private fun getRootCause(e: Throwable): Throwable {

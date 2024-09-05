@@ -19,9 +19,13 @@ import android.app.Application
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
+import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.pm.PackageManager
+import android.content.res.Resources
 import android.graphics.Color
 import android.os.Build
+import android.os.Process
 import androidx.annotation.AttrRes
 import androidx.appcompat.view.ContextThemeWrapper
 import com.google.android.material.color.MaterialColors
@@ -31,8 +35,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import net.ankio.auto.storage.SpUtils
+import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.ExceptionHandler
+import java.math.BigInteger
+import java.security.MessageDigest
 
 class App : Application() {
     override fun onTerminate() {
@@ -147,9 +154,49 @@ class App : Application() {
          * 复制到剪切板
          */
         fun copyToClipboard(text: String?) {
-            val clipboard = App.app.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            val clipboard = app.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             val clip = ClipData.newPlainText("text", text)
             clipboard.setPrimaryClip(clip)
+        }
+
+        /**
+         * 重启应用
+         */
+        fun restart() {
+            val intent = Intent(app, MainActivity::class.java)
+            intent.addFlags(FLAG_ACTIVITY_NEW_TASK)
+            app.startActivity(intent)
+            Process.killProcess(Process.myPid())
+        }
+
+        /**
+         * 获取md5
+         */
+        fun md5(input: String): String {
+            val md5Digest = MessageDigest.getInstance("MD5")
+            val messageDigest = md5Digest.digest(input.toByteArray())
+            val number = BigInteger(1, messageDigest)
+            var md5Hash = number.toString(16)
+            while (md5Hash.length < 32) {
+                md5Hash = "0$md5Hash"
+            }
+            return md5Hash
+        }
+
+        fun dp2px(dp: Float): Int {
+            val scale = Resources.getSystem().displayMetrics.density
+            return (dp * scale + 0.5f).toInt()
+        }
+
+        /**
+         * 打开记账软件应用
+         */
+        fun startBookApp() {
+            val packageName = SpUtils.getString("bookApp", "")
+            val launchIntent = App.app.packageManager.getLaunchIntentForPackage(packageName)
+            if (launchIntent != null) {
+                App.app.startActivity(launchIntent)
+            }
         }
     }
 

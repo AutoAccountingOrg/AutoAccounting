@@ -18,6 +18,7 @@ package net.ankio.auto.utils
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import net.ankio.auto.App
 import net.ankio.auto.exceptions.GithubException
 import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.request.RequestsUtils
@@ -27,7 +28,7 @@ object Github {
     private const val CLIENT_ID = "1fc6754f52bdfaae24ff"
     private const val CLIENT_SECRET = "4b4417f52358526dcfc3370dc2c3bc87d83cbc6a"
     private const val REDIRECT_URI = "autoaccounting://github/auth"
-    private val requestsUtils = RequestsUtils(AppUtils.getApplication())
+    private val requestsUtils = RequestsUtils(App.app)
 
     fun getLoginUrl(): String {
         return "https://github.com/login/oauth/authorize?client_id=$CLIENT_ID&redirect_uri=$REDIRECT_URI&scope=public_repo"

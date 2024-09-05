@@ -27,6 +27,7 @@ import com.quickersilver.themeengine.ThemeChooserDialogBuilder
 import com.quickersilver.themeengine.ThemeEngine
 import com.quickersilver.themeengine.ThemeMode
 import kotlinx.coroutines.launch
+import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.constant.ItemType
 import net.ankio.auto.databinding.FragmentSystemSettingBinding
@@ -40,8 +41,8 @@ import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.utils.LoadingUtils
-import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.LanguageUtils
+import org.ezbook.server.db.model.SettingModel
 
 class SystemSettingFragment : BaseFragment() {
     private lateinit var binding: FragmentSystemSettingBinding
@@ -361,7 +362,10 @@ class SystemSettingFragment : BaseFragment() {
                 icon = R.drawable.setting2_icon_debug,
                 type = ItemType.SWITCH,
                 onSavedValue = { value, _ ->
-                    AppUtils.setDebug(value as Boolean)
+                    SpUtils.putBoolean("debug", value as Boolean)
+                    App.launch {
+                        SettingModel.set("debug", value.toString())
+                    }
                 },
                 default = false,
             ),

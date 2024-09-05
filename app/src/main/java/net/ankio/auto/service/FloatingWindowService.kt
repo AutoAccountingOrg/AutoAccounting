@@ -40,7 +40,6 @@ import net.ankio.auto.storage.Logger
 import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.ui.dialog.FloatEditorDialog
 import net.ankio.auto.ui.utils.ToastUtils
-import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.BillTool
 import net.ankio.auto.constant.FloatEvent
 import org.ezbook.server.db.model.BillInfoModel
@@ -177,7 +176,7 @@ class FloatingWindowService : Service() {
     private fun recordBillInfo(billInfoModel2: BillInfoModel) {
         runCatching {
             billInfoModel2.syncFromApp = false
-            AppUtils.getScope().launch {
+            App.launch {
                 BillInfoModel.put(billInfoModel2)
             }
             if (SpUtils.getBoolean("setting_book_success", true)) {
@@ -203,7 +202,7 @@ class FloatingWindowService : Service() {
             FloatEvent.POP_EDIT_WINDOW.ordinal -> {
                 runCatching {
                     FloatEditorDialog(themedContext, billInfoModel, AccountingConfig.get(), true, false, onCancelClick = {
-                        AppUtils.getScope().launch {
+                        App.launch {
                            BillInfoModel.remove(billInfoModel.id)
                         }
                     }).show(true)
@@ -214,7 +213,7 @@ class FloatingWindowService : Service() {
             }
 
             FloatEvent.NO_ACCOUNT.ordinal -> {
-                AppUtils.getScope().launch {
+                App.launch {
                     BillInfoModel.remove(billInfoModel.id)
                 }
             }

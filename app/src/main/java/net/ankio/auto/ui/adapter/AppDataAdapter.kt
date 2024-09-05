@@ -37,7 +37,6 @@ import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
 import net.ankio.auto.ui.scope.autoDisposeScope
 import net.ankio.auto.ui.utils.ToastUtils
-import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.DateUtils
 import org.ezbook.server.Server
@@ -95,7 +94,7 @@ class AppDataAdapter(private val list: MutableList<AppDataModel>,private val act
         binding.issue.setOnClickListener {
             val item = holder.item!!
             CustomTabsHelper.launchUrl(
-                AppUtils.getApplication(),
+                App.app,
                 Uri.parse(
                     if (item.match) "https://github.com/AutoAccountingOrg/AutoAccounting/issues/${item.issue}" else "https://github.com/AutoAccountingOrg/AutoRule/issues/${item.issue}",
 

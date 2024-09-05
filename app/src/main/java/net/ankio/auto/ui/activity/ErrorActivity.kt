@@ -18,9 +18,9 @@ package net.ankio.auto.ui.activity
 import android.os.Bundle
 import com.zackratos.ultimatebarx.ultimatebarx.addNavigationBarBottomPadding
 import com.zackratos.ultimatebarx.ultimatebarx.addStatusBarTopPadding
+import net.ankio.auto.App
 import net.ankio.auto.databinding.ActivityErrorBinding
 import net.ankio.auto.ui.api.BaseActivity
-import net.ankio.auto.utils.AppUtils
 
 class ErrorActivity : BaseActivity() {
     private lateinit var binding: ActivityErrorBinding
@@ -34,14 +34,14 @@ class ErrorActivity : BaseActivity() {
         val intent = intent
 
         if (intent == null) {
-            AppUtils.restart()
+            App.restart()
             return
         }
 
         val msg = intent.getStringExtra("msg")
         binding.errorMsg.text = msg
         binding.errorRestart.setOnClickListener {
-            AppUtils.restart()
+            App.restart()
         }
         onViewCreated()
         binding.main.addStatusBarTopPadding()

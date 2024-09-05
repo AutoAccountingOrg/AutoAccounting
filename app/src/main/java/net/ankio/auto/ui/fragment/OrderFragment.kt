@@ -21,10 +21,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentOrderBinding
 //import net.ankio.auto.ui.adapter.OrderAdapter
-import net.ankio.auto.utils.AppUtils
 import org.ezbook.server.db.model.BillInfoModel
 import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.models.ToolbarMenuItem
@@ -35,7 +35,7 @@ class OrderFragment : BaseFragment() {
             arrayListOf(
                 ToolbarMenuItem(R.string.item_sync, R.drawable.float_round) {
                     // 同步账单
-                    AppUtils.startBookApp()
+                    App.startBookApp()
                 },
             )
     private lateinit var binding: FragmentOrderBinding

@@ -30,7 +30,6 @@ import net.ankio.auto.exceptions.HttpException
 import net.ankio.auto.storage.CacheManager
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.utils.AppTimeMonitor
-import net.ankio.auto.utils.AppUtils
 import okhttp3.FormBody
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -360,7 +359,7 @@ class RequestsUtils(context: Context) {
         method: String,
         data: Map<String, String>?,
     ): String {
-        return AppUtils.md5(url + method + (data?.toString() ?: ""))
+        return App.md5(url + method + (data?.toString() ?: ""))
     }
 
     /**

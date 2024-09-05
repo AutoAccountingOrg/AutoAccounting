@@ -24,7 +24,6 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.size
 import net.ankio.auto.App
 import net.ankio.auto.R
-import net.ankio.auto.utils.AppUtils
 
 /**
  * 流动布局元素
@@ -205,7 +204,7 @@ class FlowElement(
         )
         textView.isClickable = true
         textView.isFocusable = true
-        textView.width = AppUtils.dp2px(50f)
+        textView.width = App.dp2px(50f)
         textView.background =
             ResourcesCompat.getDrawable(context.resources, R.drawable.ripple_effect, context.theme)
         textView.setBackgroundResource(R.drawable.rounded_border3)

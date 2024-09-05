@@ -15,10 +15,11 @@
 
 package net.ankio.auto.utils
 
+import net.ankio.auto.App
 import net.ankio.auto.storage.Logger
 
 object AppTimeMonitor {
-    private var isDebugMode = AppUtils.getDebug()
+    private var isDebugMode = App.debug
 
     private val timeMap = mutableMapOf<String, Long>()
 
