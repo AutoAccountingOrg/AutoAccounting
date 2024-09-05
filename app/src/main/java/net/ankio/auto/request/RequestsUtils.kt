@@ -24,13 +24,13 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import net.ankio.auto.App
 import net.ankio.auto.exceptions.HttpException
-import net.ankio.auto.utils.AppTimeMonitor
-import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.storage.CacheManager
 import net.ankio.auto.storage.Logger
+import net.ankio.auto.utils.AppTimeMonitor
+import net.ankio.auto.utils.AppUtils
 import okhttp3.FormBody
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -237,7 +237,7 @@ class RequestsUtils(context: Context) {
 
                 val bytes = response.body?.bytes()
                 if (cacheTime > 0 && response.isSuccessful) {
-                    AppUtils.getScope().launch {
+                    App.launch {
                         cacheManager.saveToCacheWithExpiry(
                             cacheKey,
                             bytes ?: ByteArray(0),
