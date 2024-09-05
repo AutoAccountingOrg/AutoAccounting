@@ -22,6 +22,7 @@ import org.ezbook.server.Server.Companion.json
 import org.ezbook.server.routes.AppDataRoute
 import org.ezbook.server.routes.AssetsMapRoute
 import org.ezbook.server.routes.AssetsRoute
+import org.ezbook.server.routes.BillRoute
 import org.ezbook.server.routes.BookNameRoute
 import org.ezbook.server.routes.CategoryMapRoute
 import org.ezbook.server.routes.CategoryRoute
@@ -105,6 +106,11 @@ class ServerHttp(port: Int, private val context: Context) : NanoHTTPD(port) {
                 "/category/rule/list" -> CategoryRuleRoute(session).list()
                 "/category/rule/put" -> CategoryRuleRoute(session).put()
                 "/category/rule/delete" -> CategoryRuleRoute(session).delete()
+
+                //
+                "/bill/list" -> BillRoute(session).list()
+                "/bill/put" -> BillRoute(session).put()
+                "/bill/remove" -> BillRoute(session).remove()
 
                 else -> json(404, "Not Found", null)
             }

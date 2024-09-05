@@ -18,6 +18,10 @@ package org.ezbook.server.db.model
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.Gson
+import com.google.gson.JsonObject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import org.ezbook.server.Server
 import org.ezbook.server.constant.BillType
 
 @Entity
@@ -103,7 +107,7 @@ class BillInfoModel {
     /**
      * 是否已从App同步
      */
-    var syncFromApp: Int = 0
+    var syncFromApp: Boolean = false
 
     /**
      * 备注信息
@@ -147,6 +151,22 @@ class BillInfoModel {
 
 
     companion object {
+        suspend  fun put(billInfoModel: BillInfoModel) = withContext(Dispatchers.IO) {
+            Server.request("bill/put", Gson().toJson(billInfoModel))
+        }
+
+        suspend fun remove(id: Long)  = withContext(Dispatchers.IO) {
+            Server.request("bill/remove?id=$id")
+        }
+
+
+        suspend fun list(page: Int, pageSize: Int) : List<BillInfoModel> = withContext(Dispatchers.IO) {
+            val response = Server.request("bill/list?page=$page&limit=$pageSize")
+            val json = Gson().fromJson(response, JsonObject::class.java)
+
+            runCatching { Gson().fromJson(json.getAsJsonArray("data"), Array<BillInfoModel>::class.java).toList() }.getOrNull() ?: emptyList()
+        }
+
 
 
     }

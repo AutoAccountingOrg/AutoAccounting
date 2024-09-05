@@ -24,18 +24,7 @@ import org.ezbook.server.db.model.CategoryModel
 import org.ezbook.server.db.model.SettingModel
 
 object Category {
-    suspend  fun getName(category1:CategoryModel,category2:CategoryModel?): String = withContext(Dispatchers.IO){
 
-      val setting = SettingModel.get("category_show_parent","false")
-       val showParent = setting.toBoolean()
-        if (category2 === null) {
-            return@withContext category1.name!!
-        }
-        if (showParent) {
-            return@withContext "${category1.name!!} - ${category2.name!!}"
-        }
-        return@withContext category2.name!!
-    }
 
     //只允许在io线程
     fun setCategoryMap(billInfoModel: BillInfoModel) {

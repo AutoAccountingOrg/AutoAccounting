@@ -87,10 +87,10 @@ object Bill {
     fun groupBillInfo(
         billInfoModel: BillInfoModel,
         context: Context
-    ) {
+    ):BillInfoModel? {
         Server.isRunOnMainThread()
         val settingBillRepeat = Db.get().settingDao().query("setting_bill_repeat")?.value ?.toBoolean() ?: false
-        if (!settingBillRepeat) return
+        if (!settingBillRepeat) return null
         //第一要素，金钱一致，时间在5分钟以内
         val bills = Db.get().billInfoDao().query(billInfoModel.money,billInfoModel.time - 5 * 60 * 1000)
         bills.forEach {
@@ -99,9 +99,10 @@ object Bill {
                 mergeRepeatBill(billInfoModel,it,context)
                 //更新到数据库
                 Db.get().billInfoDao().update(it)
-                return
+                return it
             }
         }
+        return null
     }
 
 

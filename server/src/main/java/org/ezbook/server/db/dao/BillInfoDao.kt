@@ -29,6 +29,19 @@ interface BillInfoDao {
     @Query("SELECT * FROM BillInfoModel WHERE money = :money AND time > :time and groupId = 0")
     fun query(money:Double,time:Long): List<BillInfoModel>
 
+    @Query("SELECT * FROM BillInfoModel WHERE id = :id")
+    fun queryId(id: Long): BillInfoModel?
     @Update
     fun update(billInfo: BillInfoModel)
+
+    // 删除策略，365天以前的所有数据（无论是否同步）
+    @Query("DELETE FROM BillInfoModel WHERE time < :time")
+    fun clearOld(time: Long)
+
+    @Query("SELECT * FROM BillInfoModel WHERE groupId=0 ORDER BY time DESC LIMIT :limit OFFSET :offset")
+    fun loadPage(limit: Int, offset: Int): List<BillInfoModel>
+    @Query("DELETE FROM BillInfoModel WHERE groupId = :groupId")
+    fun deleteGroup(groupId: Long)
+    @Query("DELETE FROM BillInfoModel WHERE id =:id")
+    fun deleteId(id: Long)
 }
