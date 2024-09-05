@@ -1,16 +1,15 @@
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlinAndroid)
-
-    id 'kotlin-kapt'
 }
 
 android {
-    namespace 'org.ezbook.server'
+    namespace 'net.ankio.data'
     compileSdk 34
 
     defaultConfig {
         minSdk 24
+
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
     }
@@ -22,11 +21,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
     kotlinOptions {
-        jvmTarget = '17'
+        jvmTarget = '1.8'
     }
 }
 
@@ -40,21 +39,7 @@ dependencies {
     androidTestImplementation libs.espresso.core
     //http
     implementation 'com.gitee.l0km:nanohttpd:2.3.3'
-    //gson
-    implementation libs.gson
-    //sqlite
     def room_version = "2.4.2" // 请使用最新版本
 
     implementation "androidx.room:room-runtime:$room_version"
-    annotationProcessor "androidx.room:room-compiler:$room_version" // 如果使用 Kotlin，使用 kapt
-    kapt "androidx.room:room-compiler:$room_version"
-
-
-    //okhttp
-    implementation libs.okhttp
-
-    // rhino
-    implementation 'org.mozilla:rhino:1.7.13'
-
-    debugImplementation project(":data")
 }

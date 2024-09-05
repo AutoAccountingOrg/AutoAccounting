@@ -16,9 +16,12 @@
 package org.ezbook.server.server
 
 import android.content.Context
-import android.util.Log
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.room.RoomDatabase
 import org.ezbook.server.Server
 import org.ezbook.server.Server.Companion.json
+import org.ezbook.server.db.Db
 import org.ezbook.server.routes.AppDataRoute
 import org.ezbook.server.routes.AssetsMapRoute
 import org.ezbook.server.routes.AssetsRoute
@@ -35,11 +38,13 @@ import org.nanohttpd.protocols.http.IHTTPSession
 import org.nanohttpd.protocols.http.NanoHTTPD
 import org.nanohttpd.protocols.http.response.Response
 
+
 class ServerHttp(port: Int, private val context: Context) : NanoHTTPD(port) {
     init {
         asyncRunner = BoundRunner()
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun handle(session: IHTTPSession?): Response {
         return  runCatching {
             val uri = session!!.uri.replace("//", "/")
@@ -112,7 +117,33 @@ class ServerHttp(port: Int, private val context: Context) : NanoHTTPD(port) {
                 "/bill/put" -> BillRoute(session).put()
                 "/bill/remove" -> BillRoute(session).remove()
 
-                else -> json(404, "Not Found", null)
+                else -> {
+                    runCatching {
+
+                        val clazz = javaClass.classLoader.loadClass("net.ankio.data.App")
+
+
+                        val constructor = clazz.declaredConstructors.first()
+
+
+                        val app = constructor.newInstance(Db.get())
+
+                        clazz.declaredMethods.forEach {
+                            println(it.name)
+                            it.parameters.forEach {
+                                println(it.type.name)
+                            }
+                        }
+
+                        val method = clazz.declaredMethods.first()
+                        method.invoke(app, session) as Response
+
+                    }.getOrElse {
+                        it.printStackTrace()
+                        json(404, it.message?: "Not Found", null)
+                    }
+
+                }
             }
         }.getOrElse {
             it.printStackTrace()
