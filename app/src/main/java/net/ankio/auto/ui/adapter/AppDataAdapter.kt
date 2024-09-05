@@ -15,11 +15,14 @@
 
 package net.ankio.auto.ui.adapter
 
-import android.graphics.drawable.Drawable
+import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import android.view.View
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.elevation.SurfaceColors
+import com.google.gson.Gson
+import com.google.gson.JsonObject
 import com.hjq.toast.Toaster
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -27,14 +30,19 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterDataBinding
+import net.ankio.auto.service.FloatingWindowService
+import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
 import net.ankio.auto.ui.scope.autoDisposeScope
+import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.DateUtils
+import org.ezbook.server.Server
 import org.ezbook.server.db.model.AppDataModel
+import org.ezbook.server.db.model.BillInfoModel
 
 class AppDataAdapter(private val list: MutableList<AppDataModel>,private val activity: BaseActivity): BaseAdapter<AdapterDataBinding,AppDataModel>(AdapterDataBinding::class.java, list) {
 
@@ -45,16 +53,41 @@ class AppDataAdapter(private val list: MutableList<AppDataModel>,private val act
     private suspend fun tryAdaptUnmatchedItems(
         holder: BaseViewHolder<AdapterDataBinding, AppDataModel>
     ) = withContext(Dispatchers.IO) {
-        val item = holder.item as AppDataModel
-        if (!item.match) {
-            val t = System.currentTimeMillis() / 1000
-            if (hashMap.containsKey(item) && t - hashMap[item]!! < 60) { // 30秒内不重复匹配
-                return@withContext
-            }
-            hashMap[item] = t
+        val item = holder.item!!
 
-            // TODO 匹配规则
+        Logger.d("tryAdaptUnmatchedItems: $item")
+
+        val t = System.currentTimeMillis() / 1000
+        if (hashMap.containsKey(item) && t - hashMap[item]!! < 60) { // 30秒内不重复匹配
+            return@withContext
         }
+        hashMap[item] = t
+
+        val billModel = testRule(item) ?: return@withContext
+
+        item.match = true
+        item.rule = billModel.ruleName
+
+        Logger.d("tryAdaptUnmatchedItems Update: $item")
+        // TODO issue
+
+
+        AppDataModel.put(item)
+        withContext(Dispatchers.Main) {
+            list[holder.positionIndex] = item
+            notifyItemChanged(holder.positionIndex)
+        }
+    }
+
+    private suspend fun testRule(item: AppDataModel) : BillInfoModel? = withContext(Dispatchers.IO) {
+        val result = Server.request("js/analysis?type=${item.type.name}&app=${item.app}&fromAppData=true", item.data)
+            ?: return@withContext null
+        val data = Gson().fromJson(result, JsonObject::class.java)
+        if (data.get("code").asInt != 200) {
+            Logger.e("testRule: ${data.get("msg").asString}")
+            return@withContext null
+        }
+        return@withContext Gson().fromJson(data.getAsJsonObject("data"), BillInfoModel::class.java)
     }
 
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterDataBinding, AppDataModel>) {
@@ -73,7 +106,17 @@ class AppDataAdapter(private val list: MutableList<AppDataModel>,private val act
         binding.testRule.setOnClickListener {
             val item = holder.item!!
             holder.binding.root.autoDisposeScope.launch {
-                // TODO 测试规则
+                val billModel = testRule(item)
+                if (billModel == null) {
+                    ToastUtils.error(R.string.no_rule_hint)
+                } else {
+                    val serviceIntent =
+                        Intent(activity, FloatingWindowService::class.java).apply {
+                            putExtra("parent", "")
+                            putExtra("billInfo", Gson().toJson(billModel))
+                        }
+                    activity.startService(serviceIntent)
+                }
             }
 
         }
@@ -91,7 +134,7 @@ class AppDataAdapter(private val list: MutableList<AppDataModel>,private val act
         }
 
         binding.uploadData.setOnClickListener {
-
+            //TODO 上传数据
         }
 
         binding.root.setOnLongClickListener {
@@ -129,23 +172,24 @@ class AppDataAdapter(private val list: MutableList<AppDataModel>,private val act
             binding.issue.text = "# ${data.issue}"
         }
 
-
-        holder.binding.root.autoDisposeScope.launch {
-            tryAdaptUnmatchedItems(holder)
+        if (!data.match || data.rule.isEmpty()) {
+            holder.binding.root.autoDisposeScope.launch {
+                tryAdaptUnmatchedItems(holder)
+            }
         }
 
 
-
         binding.time.text = DateUtils.getTime(data.time)
-        binding.rule.visibility = View.VISIBLE
+
         if (!data.match) {
             binding.rule.visibility = View.GONE
             binding.uploadData.setIconResource(R.drawable.icon_upload)
         } else {
+            binding.rule.visibility = View.VISIBLE
             binding.uploadData.setIconResource(R.drawable.icon_question)
-            binding.groupCard.setCardBackgroundColor(SurfaceColors.SURFACE_5.getColor(activity))
         }
         val rule = data.rule
+
         val regex = "\\[(.*?)]".toRegex()
         val matchResult = regex.find(rule)
         if (matchResult != null) {
