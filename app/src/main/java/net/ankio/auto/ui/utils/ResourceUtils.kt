@@ -30,10 +30,13 @@ import org.ezbook.server.db.model.CategoryModel
 
 object ResourceUtils {
     //   BookNameModel.getDrawable(billInfoModel.bookName, context, binding.bookImage)
-    suspend fun getBookNameDrawable(name:String,context:Context,view:View) = withContext(Dispatchers.IO){
+    suspend fun getBookNameDrawable(name:String,context:Context):Drawable = withContext(Dispatchers.IO){
         val book = BookNameModel.getByName(name)
         val image = book.icon
-        ImageUtils.get(context, image, R.drawable.default_book).let {
+        ImageUtils.get(context, image, R.drawable.default_book)
+    }
+    suspend fun getBookNameDrawable(name:String,context:Context,view:View) = withContext(Dispatchers.IO){
+        getBookNameDrawable(name,context).let {
             withContext(Dispatchers.Main){
                 view.background = it
             }
