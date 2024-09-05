@@ -39,7 +39,6 @@ import net.ankio.auto.broadcast.LocalBroadcastHelper
 import net.ankio.auto.common.AccountingConfig
 import net.ankio.auto.databinding.FloatEditorBinding
 import net.ankio.auto.exceptions.AutoServiceException
-import net.ankio.auto.models.AssetsModel
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.ui.componets.IconView
@@ -309,7 +308,7 @@ class FloatEditorDialog(
     ) {
         view.setText(name)
         lifecycleScope.launch {
-            AssetsModel.getDrawable(name, context).let {
+            ResourceUtils.getAssetDrawableFromName(name).let {
                 view.setIcon(it)
             }
         }
