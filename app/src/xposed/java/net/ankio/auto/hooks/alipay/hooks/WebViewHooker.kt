@@ -26,7 +26,6 @@ import net.ankio.auto.core.App
 import org.ezbook.server.constant.DataType
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
-import net.ankio.auto.utils.AppUtils
 
 class WebViewHooker : PartHooker {
 
