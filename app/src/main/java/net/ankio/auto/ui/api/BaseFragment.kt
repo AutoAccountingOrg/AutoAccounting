@@ -17,6 +17,7 @@ package net.ankio.auto.ui.api
 
 import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
+import android.app.Activity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -31,6 +32,8 @@ import net.ankio.auto.App
 import net.ankio.auto.databinding.ActivityMainBinding
 import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.models.ToolbarMenuItem
+import java.lang.ref.WeakReference
+
 
 /**
  * 基础的Fragment
@@ -48,7 +51,7 @@ abstract class BaseFragment : Fragment() {
     /**
      * 获取activity的binding
      */
-    private lateinit var activityBinding: ActivityMainBinding
+    private lateinit var  activityBinding: WeakReference<ActivityMainBinding>
     /**
      * 滚动视图
      */
@@ -58,13 +61,13 @@ abstract class BaseFragment : Fragment() {
         super.onResume()
         val mainActivity = activity as MainActivity
         if (!this::activityBinding.isInitialized) {
-            activityBinding = mainActivity.getBinding()
+            activityBinding = WeakReference(mainActivity.getBinding())
         }
 
 
-        activityBinding.toolbar.visibility = View.VISIBLE
+        activityBinding.get()!!.toolbar.visibility = View.VISIBLE
         // 重置顶部导航栏图标
-        activityBinding.toolbar.menu.clear()
+        activityBinding.get()!!.toolbar.menu.clear()
         // 添加菜单
         menuList.forEach {
             addMenuItem(it)
@@ -115,7 +118,7 @@ abstract class BaseFragment : Fragment() {
      * 添加菜单
      */
     private fun addMenuItem(menuItemObject: ToolbarMenuItem) {
-        val menu = activityBinding.toolbar.menu
+        val menu = activityBinding.get()!!.toolbar.menu
         val menuItem = menu.add(Menu.NONE, Menu.NONE, Menu.NONE, getString(menuItemObject.title))
         menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
         val icon = AppCompatResources.getDrawable(requireActivity(), menuItemObject.drawable)
