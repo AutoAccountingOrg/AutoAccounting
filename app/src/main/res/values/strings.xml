@@ -403,4 +403,5 @@
     <string name="title_category_edit">分类规则编辑</string>
     <string name="input">请输入</string>
     <string name="category_map">将分类【%s】映射为</string>
+    <string name="no_rule_hint">未命中任何规则</string>
 </resources>

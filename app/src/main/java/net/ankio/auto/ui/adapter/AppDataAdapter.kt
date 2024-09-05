@@ -113,7 +113,8 @@ class AppDataAdapter(private val list: MutableList<AppDataModel>,private val act
                     val serviceIntent =
                         Intent(activity, FloatingWindowService::class.java).apply {
                             putExtra("parent", "")
-                            putExtra("billInfo", Gson().toJson(billModel))
+                            putExtra("billInfoModel", Gson().toJson(billModel))
+                            putExtra("showWaitTip",false)
                         }
                     activity.startService(serviceIntent)
                 }

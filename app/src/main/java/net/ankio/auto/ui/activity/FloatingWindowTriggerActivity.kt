@@ -15,31 +15,30 @@
 
 package net.ankio.auto.ui.activity
 
+import android.app.ActivityOptions
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import net.ankio.auto.service.FloatingWindowService
 import net.ankio.auto.storage.Logger
 
+
 class FloatingWindowTriggerActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // 获取启动此Activity的Intent
-        val intent = intent
-        // 获取Intent中的URI数据
-        val data = intent.data
-        if (data === null) {
-            // 没数据耍流氓
-            exitActivity()
-            return
-        }
-
         runCatching {
-            Logger.i("解析数据 => $data")
+            //判断当前是横屏还是竖屏
+            val orientation = resources.configuration.orientation
+            if (orientation == 2) {
+                //横屏切换为竖屏
+                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+            }
             // 将数据传递给悬浮窗服务
             val serviceIntent =
                 Intent(this, FloatingWindowService::class.java).apply {
-                    putExtra("id", data.getQueryParameter("id")?.toIntOrNull()?:0)
+                    putExtra("parent", intent.getStringExtra("parent"))
+                    putExtra("billInfo", intent.getStringExtra("billInfo"))
                 }
             startService(serviceIntent)
             // 关闭 Activity
@@ -53,5 +52,7 @@ class FloatingWindowTriggerActivity : AppCompatActivity() {
     private fun exitActivity() {
         finishAffinity()
         overridePendingTransition(0, 0)
+        val options = ActivityOptions.makeBasic()
+        window.setWindowAnimations(0)
     }
 }
