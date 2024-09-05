@@ -44,6 +44,8 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Small"
             tools:text="@tools:sample/date/ddmmyy"
             app:iconSize="10dp"
+            app:textColor="?colorOnBackground"
+            app:iconTintEnabled="true"
             app:iconSrc="@drawable/float_time" />
 
         <net.ankio.auto.ui.componets.IconView
@@ -54,6 +56,8 @@
             android:layout_marginRight="@dimen/padding"
             android:layout_marginBottom="@dimen/one_padding"
             android:visibility="visible"
+            app:textColor="?colorOnBackground"
+            app:iconTintEnabled="true"
             app:iconSize="10dp"
             app:iconSrc="@drawable/home_rule"
             tools:text="这是一个规则名嘻嘻嘻嘻嘻嘻嘻休息休息谢谢谢谢谢称" />
