@@ -44,7 +44,7 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Small"
             tools:text="@tools:sample/date/ddmmyy"
             app:iconSize="10dp"
-            app:textColor="?colorOnBackground"
+            app:textColor="?colorOnSurface"
             app:iconTintEnabled="true"
             app:iconSrc="@drawable/float_time" />
 
@@ -56,7 +56,7 @@
             android:layout_marginRight="@dimen/padding"
             android:layout_marginBottom="@dimen/one_padding"
             android:visibility="visible"
-            app:textColor="?colorOnBackground"
+            app:textColor="?colorOnSurface"
             app:iconTintEnabled="true"
             app:iconSize="10dp"
             app:iconSrc="@drawable/home_rule"

@@ -129,7 +129,7 @@
             android:layout_marginEnd="15dp"
  />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             style="?attr/materialIconButtonOutlinedStyle"
             app:icon="@drawable/menu_item_more"
             android:id="@+id/moreBills"

@@ -28,7 +28,8 @@
         android:layout_margin="@dimen/cardPadding"
         app:cardCornerRadius="@dimen/radius"
         app:cardElevation="0dp"
-        app:strokeWidth="0dp">
+        app:strokeWidth="0dp"
+        >
 
         <RelativeLayout
             android:id="@+id/cardViewInner"
@@ -66,14 +67,13 @@
                         android:layout_gravity="end"
                         android:layout_weight="1"
                         android:maxLines="1"
-                        android:text="10000000.00"
                         android:textAppearance="?textAppearanceDisplayMedium"
                         android:textColor="@color/success"
                         android:textStyle="bold"
                         app:drawableStartCompat="@drawable/float_add"
                         app:drawableTint="@color/success"
                         android:padding="@dimen/one_padding"
-
+                        tools:text="10000000.00"
                         />
 
                     <net.ankio.auto.ui.componets.IconView
@@ -85,8 +85,8 @@
                         android:layout_weight="1"
                         app:iconSrc="@drawable/float_fee"
                         app:iconTintEnabled="true"
-                        app:text="-0.01"
-                        app:textColor="?attr/colorError" />
+                        tools:text="-0.01"
+                        tools:textColor="?attr/colorSecondary" />
 
                     <com.google.android.material.button.MaterialButtonToggleGroup
                         android:id="@+id/radioContainer"
@@ -136,8 +136,8 @@
                             android:layout_height="wrap_content"
                             app:iconSrc="@mipmap/ic_launcher_round"
                             app:iconTintEnabled="false"
-                            app:text="微信零钱"
-                            app:textColor="?attr/colorOnSurface" />
+                            tools:text="微信零钱"
+                            tools:textColor="?attr/colorOnSurface" />
 
 
                         <View
@@ -162,8 +162,8 @@
                             android:layout_weight="1"
                             app:iconSrc="@mipmap/ic_launcher_round"
                             app:iconTintEnabled="false"
-                            app:text="微信零钱"
-                            app:textColor="?attr/colorOnSurface" />
+                            tools:text="微信零钱"
+                            tools:textColor="?attr/colorOnSurface" />
 
 
                         <TextView
@@ -182,8 +182,8 @@
                             android:layout_weight="1"
                             app:iconSrc="@mipmap/ic_launcher_round"
                             app:iconTintEnabled="false"
-                            app:text="微信零钱"
-                            app:textColor="?attr/colorOnSurface" />
+                            tools:text="微信零钱"
+                            tools:textColor="?attr/colorOnSurface" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -201,8 +201,8 @@
                             android:layout_weight="1"
                             app:iconSrc="@mipmap/ic_launcher_round"
                             app:iconTintEnabled="false"
-                            app:text="微信零钱"
-                            app:textColor="?attr/colorOnSurface" />
+                            tools:text="微信零钱"
+                            tools:textColor="?attr/colorOnSurface" />
 
 
                         <TextView
@@ -274,8 +274,8 @@
                             android:layout_weight="1"
                             app:iconSrc="@mipmap/ic_launcher_round"
                             app:iconTintEnabled="false"
-                            app:text="微信零钱"
-                            app:textColor="?attr/colorOnSurface" />
+                            tools:text="微信零钱"
+                            tools:textColor="?attr/colorOnSurface" />
 
 
                     </LinearLayout>
@@ -328,8 +328,8 @@
                         android:visibility="visible"
                         app:iconSrc="@drawable/default_cate"
                         app:iconTintEnabled="true"
-                        app:text="分类"
-                        app:textColor="?attr/colorOnSurface" />
+                        tools:text="分类"
+                        tools:textColor="?attr/colorOnSurface" />
 
                     <net.ankio.auto.ui.componets.IconView
                         android:id="@+id/moneyType"
@@ -339,8 +339,8 @@
                         android:padding="@dimen/float_padding"
                         app:iconSrc="@drawable/float_money"
                         app:iconTintEnabled="true"
-                        app:text="人民币"
-                        app:textColor="?attr/colorOnSurface" />
+                        tools:text="人民币"
+                        tools:textColor="?attr/colorOnSurface" />
 
 
                     <net.ankio.auto.ui.componets.IconView
@@ -350,8 +350,8 @@
                         android:padding="@dimen/float_padding"
                         app:iconSrc="@drawable/float_time"
                         app:iconTintEnabled="true"
-                        app:text="2023年12月21日 11:11:00"
-                        app:textColor="?attr/colorOnSurface" />
+                        tools:text="2023年12月21日 11:11:00"
+                        tools:textColor="?attr/colorOnSurface" />
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/textField"

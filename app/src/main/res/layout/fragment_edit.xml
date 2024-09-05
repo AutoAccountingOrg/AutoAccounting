@@ -50,7 +50,7 @@
             </net.ankio.auto.ui.componets.FlowLayoutManager>
         </com.google.android.material.card.MaterialCardView>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/saveItem"
             android:layout_width="match_parent"
             android:layout_height="@dimen/btn_height"

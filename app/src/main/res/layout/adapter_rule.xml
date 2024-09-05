@@ -62,7 +62,7 @@
                 android:layout_centerVertical="true"
                 app:tint="?attr/colorPrimary" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 style="?attr/materialIconButtonFilledStyle"
                 android:id="@+id/deleteData"
                 android:layout_width="wrap_content"
@@ -73,7 +73,7 @@
                 app:icon="@drawable/icon_delete"
                 tools:ignore="RelativeOverlap" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
 
                 style="?attr/materialIconButtonFilledTonalStyle"
                 app:icon="@drawable/icon_edit"
