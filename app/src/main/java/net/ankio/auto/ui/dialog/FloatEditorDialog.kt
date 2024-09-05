@@ -62,7 +62,7 @@ class FloatEditorDialog(
     private val autoAccountingConfig: AccountingConfig,
     private val float: Boolean = false,
     private val onlyShow: Boolean = false, // 是否仅展示
-    private val onCancelClick:((billInfoModel: BillInfoModel) -> Unit)? = null,
+    private val onCancelClick: ((billInfoModel: BillInfoModel) -> Unit)? = null,
 ) :
     BaseSheetDialog(context) {
     lateinit var binding: FloatEditorBinding
@@ -79,12 +79,14 @@ class FloatEditorDialog(
 
     override fun onCreateView(inflater: LayoutInflater): View {
 
-        broadcastReceiver = LocalBroadcastHelper.registerReceiver(LocalBroadcastHelper.ACTION_UPDATE_BILL) { action,bundle ->
-            Logger.d("接收到广播，更新账单")
-            billInfoModel = Gson().fromJson(bundle!!.getString("billInfoModel"), BillInfoModel::class.java)
-            rawBillInfo = billInfoModel.copy()
-            bindUI()
-        }
+        broadcastReceiver =
+            LocalBroadcastHelper.registerReceiver(LocalBroadcastHelper.ACTION_UPDATE_BILL) { action, bundle ->
+                Logger.d("接收到广播，更新账单")
+                billInfoModel =
+                    Gson().fromJson(bundle!!.getString("billInfoModel"), BillInfoModel::class.java)
+                rawBillInfo = billInfoModel.copy()
+                bindUI()
+            }
 
         binding = FloatEditorBinding.inflate(inflater)
         cardView = binding.editorCard
@@ -185,7 +187,7 @@ class FloatEditorDialog(
     override fun dismiss() {
         super.dismiss()
         if (::broadcastReceiver.isInitialized)
-        LocalBroadcastHelper.unregisterReceiver(broadcastReceiver)
+            LocalBroadcastHelper.unregisterReceiver(broadcastReceiver)
     }
 
     private fun bindingButtonsEvents() {
@@ -225,7 +227,7 @@ class FloatEditorDialog(
                     }
 
                 }.onFailure {
-                   Logger.e("记账失败", it)
+                    Logger.e("记账失败", it)
                 }
 
 
@@ -282,7 +284,9 @@ class FloatEditorDialog(
 
     private fun bindingBookNameUI() {
         lifecycleScope.launch {
-            ResourceUtils.getBookNameDrawable(billInfoModel.bookName, context, binding.bookImage)
+            ResourceUtils.getBookNameDrawable(billInfoModel.bookName, context).let {
+                binding.bookImage.setImageDrawable(it)
+            }
         }
     }
 
@@ -457,7 +461,7 @@ class FloatEditorDialog(
     // 是否为债务
     private fun isDebt(): Boolean {
         return billTypeLevel2 == BillType.ExpendLending || billTypeLevel2 == BillType.IncomeLending ||
-            billTypeLevel2 == BillType.ExpendRepayment || billTypeLevel2 == BillType.IncomeRepayment
+                billTypeLevel2 == BillType.ExpendRepayment || billTypeLevel2 == BillType.IncomeRepayment
     }
 
     // 是否为报销
@@ -570,7 +574,12 @@ class FloatEditorDialog(
             binding.category.visibility = View.VISIBLE
             lifecycleScope.launch {
                 val book = BookNameModel.getDefaultBook(billInfoModel.bookName)
-                ResourceUtils.getCategoryDrawableByName(billInfoModel.cateName,context, book.remoteId, billTypeLevel2.name ).let {
+                ResourceUtils.getCategoryDrawableByName(
+                    billInfoModel.cateName,
+                    context,
+                    book.remoteId,
+                    billTypeLevel2.name
+                ).let {
                     binding.category.setIcon(it, true)
                 }
             }
@@ -585,9 +594,14 @@ class FloatEditorDialog(
             lifecycleScope.launch {
                 val book = BookNameModel.getDefaultBook(billInfoModel.bookName)
                 withContext(Dispatchers.Main) {
-                    CategorySelectorDialog(context, book.remoteId, billTypeLevel1) { parent, child ->
-                        if (parent == null)return@CategorySelectorDialog
-                        billInfoModel.cateName = BillTool.getCateName( parent.name ?: "", child?.name)
+                    CategorySelectorDialog(
+                        context,
+                        book.remoteId,
+                        billTypeLevel1
+                    ) { parent, child ->
+                        if (parent == null) return@CategorySelectorDialog
+                        billInfoModel.cateName =
+                            BillTool.getCateName(parent.name ?: "", child?.name)
 
                         bindingCategoryUI()
                     }.show(float)
@@ -747,7 +761,7 @@ class FloatEditorDialog(
                 else -> R.drawable.float_minus
             }
 
-      val tintRes = BillTool.getColor(billType)
+        val tintRes = BillTool.getColor(billType)
 
         val drawable = AppCompatResources.getDrawable(context, drawableRes)
         val tint = ColorStateList.valueOf(ContextCompat.getColor(context, tintRes))
