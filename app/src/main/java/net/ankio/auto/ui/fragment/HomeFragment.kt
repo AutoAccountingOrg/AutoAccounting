@@ -51,6 +51,7 @@ import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.update.RuleUpdate
 import net.ankio.auto.utils.CustomTabsHelper
 import org.ezbook.server.db.model.CategoryModel
+import org.ezbook.server.db.model.SettingModel
 import rikka.html.text.toHtml
 
 /**
@@ -308,6 +309,9 @@ class HomeFragment : BaseFragment() {
                 Logger.d("选择的账本是：${book.name}")
                 // defaultBook
                 SpUtils.putString("defaultBook", book.name)
+                lifecycleScope.launch {
+                    SettingModel.set("setting_default_book_name", book.name)
+                }
                 refreshUI()
             }.show(cancel = true)
         }

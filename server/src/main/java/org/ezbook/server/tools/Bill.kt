@@ -124,4 +124,20 @@ object Bill {
             .replace("【来源】", billInfoModel.app)
             .replace("【渠道】", billInfoModel.channel)
     }
+
+    /**
+     * 设置默认账本
+     */
+    fun setBookName(billInfoModel: BillInfoModel) {
+        Server.isRunOnMainThread()
+        val name = billInfoModel.bookName
+        if (name.isEmpty()) {
+            billInfoModel.bookName = "默认账本"
+        }
+        val defaultBookName = Db.get().settingDao().query("setting_default_book_name")?.value ?: "默认账本"
+
+        if (name == "默认账本") {
+            billInfoModel.bookName = defaultBookName
+        }
+    }
 }

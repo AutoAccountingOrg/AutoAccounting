@@ -140,6 +140,8 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
 
         Bill.setRemark(billInfoModel, context)
         //  备注生成
+        //  设置默认账本
+        Bill.setBookName(billInfoModel)
 
         // 账单分组，用于检查重复账单
         val parent = Bill.groupBillInfo(billInfoModel,context)
