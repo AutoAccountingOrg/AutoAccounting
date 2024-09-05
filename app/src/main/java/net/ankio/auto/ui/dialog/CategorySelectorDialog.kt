@@ -29,6 +29,7 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.databinding.DialogCategorySelectBinding
 import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.ui.adapter.CategorySelectorAdapter
+import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.componets.StatusPage
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.CategoryModel

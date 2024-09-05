@@ -15,8 +15,6 @@
 
 package net.ankio.auto.ui.dialog
 
-import android.app.Activity
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
@@ -26,6 +24,7 @@ import net.ankio.auto.broadcast.LocalBroadcastHelper
 import net.ankio.auto.databinding.DialogAppBinding
 import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.ui.adapter.AppListAdapter
+import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.models.AutoApp
 
 /**

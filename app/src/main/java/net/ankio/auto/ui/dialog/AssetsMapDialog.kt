@@ -19,13 +19,10 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import androidx.lifecycle.lifecycleScope
-import com.hjq.toast.Toaster
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogMapBinding
-import net.ankio.auto.storage.ImageUtils
+import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.utils.ResourceUtils
 import net.ankio.auto.ui.utils.ToastUtils
 import org.ezbook.server.db.model.AssetsMapModel

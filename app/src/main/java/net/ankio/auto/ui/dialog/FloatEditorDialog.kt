@@ -30,7 +30,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.widget.TextViewCompat
 import androidx.lifecycle.lifecycleScope
 import com.google.gson.Gson
-import com.hjq.toast.Toaster
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -38,9 +37,9 @@ import net.ankio.auto.R
 import net.ankio.auto.broadcast.LocalBroadcastHelper
 import net.ankio.auto.common.AccountingConfig
 import net.ankio.auto.databinding.FloatEditorBinding
-import net.ankio.auto.exceptions.AutoServiceException
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.storage.SpUtils
+import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.componets.IconView
 import net.ankio.auto.ui.utils.ListPopupUtils
 import net.ankio.auto.ui.utils.ResourceUtils
@@ -49,10 +48,8 @@ import net.ankio.auto.utils.BillTool
 import net.ankio.auto.utils.DateUtils
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.constant.Currency
-import org.ezbook.server.db.model.AssetsMapModel
 import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.db.model.BookNameModel
-import org.ezbook.server.tools.Category
 import java.util.Calendar
 
 class FloatEditorDialog(
@@ -437,6 +434,8 @@ class FloatEditorDialog(
             binding.radioContainer.visibility = View.GONE
             return
         }
+
+
 
         if (!autoAccountingConfig.lending && !autoAccountingConfig.reimbursement) {
             binding.radioContainer.visibility = View.GONE

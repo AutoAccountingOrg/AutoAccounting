@@ -28,6 +28,7 @@ import net.ankio.auto.databinding.DialogBillSelectBinding
 import net.ankio.auto.exceptions.AutoServiceException
 import net.ankio.auto.models.BookBillModel
 import net.ankio.auto.storage.Logger
+import net.ankio.auto.ui.api.BaseSheetDialog
 import org.ezbook.server.constant.BillType
 
 class BillSelectorDialog(

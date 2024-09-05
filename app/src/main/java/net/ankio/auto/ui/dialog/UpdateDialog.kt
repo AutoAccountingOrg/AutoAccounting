@@ -22,6 +22,7 @@ import android.view.View
 import net.ankio.auto.R
 import net.ankio.auto.broadcast.LocalBroadcastHelper
 import net.ankio.auto.databinding.DialogUpdateBinding
+import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.update.BaseUpdate
 import net.ankio.auto.update.RuleUpdate
 import rikka.html.text.toHtml

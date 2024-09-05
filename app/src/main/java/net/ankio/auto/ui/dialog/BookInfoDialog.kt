@@ -23,6 +23,7 @@ import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogBookInfoBinding
 import net.ankio.auto.storage.ImageUtils
+import net.ankio.auto.ui.api.BaseSheetDialog
 import org.ezbook.server.db.model.BookNameModel
 import org.ezbook.server.constant.BillType
 

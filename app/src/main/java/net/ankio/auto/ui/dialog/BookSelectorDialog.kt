@@ -24,6 +24,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.launch
 import net.ankio.auto.databinding.DialogBookSelectBinding
 import net.ankio.auto.ui.adapter.BookSelectorAdapter
+import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.componets.StatusPage
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.BookNameModel

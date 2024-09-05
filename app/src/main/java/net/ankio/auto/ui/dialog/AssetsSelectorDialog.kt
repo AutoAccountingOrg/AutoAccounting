@@ -21,11 +21,10 @@ import android.view.View
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.launch
-import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogBookSelectBinding
 import net.ankio.auto.ui.adapter.AssetsSelectorAdapter
+import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.componets.StatusPage
-import net.ankio.auto.ui.utils.ToastUtils
 import org.ezbook.server.constant.AssetsType
 import org.ezbook.server.db.model.AssetsModel
 
