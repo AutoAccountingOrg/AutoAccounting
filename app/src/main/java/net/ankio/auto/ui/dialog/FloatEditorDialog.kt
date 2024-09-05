@@ -272,7 +272,11 @@ class FloatEditorDialog(
         if (!autoAccountingConfig.fee) {
             binding.fee.visibility = View.GONE
         } else {
-            binding.fee.visibility = View.VISIBLE
+            if (billInfoModel.fee == 0.0) {
+                binding.fee.visibility = View.GONE
+            }else {
+                binding.fee.visibility = View.VISIBLE
+            }
             binding.fee.setText(billInfoModel.fee.toString())
         }
     }
