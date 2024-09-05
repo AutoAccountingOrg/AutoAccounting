@@ -33,32 +33,30 @@
         android:layout_margin="@dimen/padding"
         android:orientation="vertical">
 
-        <TextView
+        <net.ankio.auto.ui.componets.IconView
             android:id="@+id/time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/border_side"
-            android:layout_marginBottom="@dimen/padding"
+            android:layout_marginLeft="@dimen/padding"
+            android:layout_marginRight="@dimen/padding"
+            android:layout_marginBottom="@dimen/one_padding"
+
             android:textAppearance="@style/TextAppearance.AppCompat.Small"
-            tools:text="2023-01-01 12:00"
+            tools:text="@tools:sample/date/ddmmyy"
+            app:iconSize="10dp"
+            app:iconSrc="@drawable/float_time" />
 
-            app:drawableLeftCompat="@drawable/float_time" />
-
-        <TextView
+        <net.ankio.auto.ui.componets.IconView
             android:id="@+id/rule"
-            style="@style/TextAppearance.AppCompat.Small"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/one_padding"
-            android:layout_marginEnd="@dimen/one_padding"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:drawableLeft="@drawable/"
-            android:paddingLeft="@dimen/padding"
-            android:paddingTop="@dimen/one_padding"
-            android:paddingRight="@dimen/padding"
-            android:paddingBottom="@dimen/one_padding"
-            tools:text="这是一个规则名嘻嘻嘻嘻嘻嘻嘻休息休息谢谢谢谢谢称"/>
+            android:layout_marginLeft="@dimen/padding"
+            android:layout_marginRight="@dimen/padding"
+            android:layout_marginBottom="@dimen/one_padding"
+            android:visibility="visible"
+            app:iconSize="10dp"
+            app:iconSrc="@drawable/home_rule"
+            tools:text="这是一个规则名嘻嘻嘻嘻嘻嘻嘻休息休息谢谢谢谢谢称" />
 
         <TextView
             android:id="@+id/content"

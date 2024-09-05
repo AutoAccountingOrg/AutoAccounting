@@ -180,9 +180,9 @@ class AppDataAdapter(private val list: MutableList<AppDataModel>,private val act
         }
 
 
-        binding.time.text = DateUtils.getTime(data.time)
+        binding.time.setText(DateUtils.getTime(data.time))
 
-        if (!data.match) {
+        if (!data.match || data.rule.isEmpty()) {
             binding.rule.visibility = View.GONE
             binding.uploadData.setIconResource(R.drawable.icon_upload)
         } else {
@@ -195,9 +195,9 @@ class AppDataAdapter(private val list: MutableList<AppDataModel>,private val act
         val matchResult = regex.find(rule)
         if (matchResult != null) {
             val (value) = matchResult.destructured
-            binding.rule.text = value
+            binding.rule.setText(value)
         } else {
-            binding.rule.text = data.rule
+            binding.rule.setText(data.rule)
         }
     }
 }
