@@ -162,8 +162,12 @@ class App : Application() {
         // 初始化调试模式
         debug = BuildConfig.DEBUG || SpUtils.getBoolean("debug", false)
 
-        // 设置全局异常
-        ExceptionHandler.init(this)
+        if (!BuildConfig.DEBUG){
+            // 设置全局异常
+            ExceptionHandler.init(this)
+        }
+
+
         // 初始化 Toast 框架
         ToastUtils.init(this)
     }
