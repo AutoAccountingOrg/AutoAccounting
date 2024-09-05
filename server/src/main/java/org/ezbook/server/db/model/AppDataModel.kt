@@ -102,4 +102,8 @@ class AppDataModel {
         }
     }
 
+    override fun toString(): String {
+        return "AppDataModel(id=$id, data='', type=$type, app='$app', time=$time, match=$match, rule='$rule', issue=$issue)"
+    }
+
 }
