@@ -31,6 +31,7 @@ import androidx.core.content.ContextCompat
 import com.google.gson.Gson
 import com.quickersilver.themeengine.ThemeEngine
 import kotlinx.coroutines.launch
+import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.broadcast.LocalBroadcastHelper
 import net.ankio.auto.common.AccountingConfig
@@ -60,12 +61,8 @@ class FloatingWindowService : Service() {
         super.onCreate()
         timeCount = runCatching { SpUtils.getString("setting_float_time", "10").toInt() }.getOrNull() ?: 0
         list.clear()
-        val defaultTheme = ContextThemeWrapper(applicationContext, R.style.AppTheme)
-        themedContext =
-            ContextThemeWrapper(
-                defaultTheme,
-                ThemeEngine.getInstance(applicationContext).getTheme(),
-            )
+        val appTheme = ContextThemeWrapper(App.app, R.style.AppTheme)
+        themedContext = App.getThemeContext(appTheme)
     }
 
 
