@@ -16,7 +16,7 @@
 package org.ezbook.server.routes
 
 
-import android.util.Log
+import android.app.ActivityOptions
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import org.ezbook.server.Server
@@ -142,15 +142,19 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
         //  备注生成
 
         // 账单分组，用于检查重复账单
-        Bill.groupBillInfo(billInfoModel,context)
+        val parent = Bill.groupBillInfo(billInfoModel,context)
 
         if (!fromAppData){
             // 切换到主线程
             Server.runOnMainThread {
-                startAutoPanel(billInfoModel)
+                startAutoPanel(billInfoModel,parent)
             }
             //存入数据库
             billInfoModel.id = Db.get().billInfoDao().insert(billInfoModel)
+            // 更新AppData
+            appDataModel.match = true
+            appDataModel.rule = billInfoModel.ruleName
+            Db.get().dataDao().update(appDataModel)
         }
 
         return Server.json(200, "OK", billInfoModel)
@@ -203,12 +207,18 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
     /**
      * 启动自动记账面板
      */
-    private fun startAutoPanel(billInfoModel: BillInfoModel) {
+    private fun startAutoPanel(billInfoModel: BillInfoModel,parent:BillInfoModel?) {
         val intent = android.content.Intent()
         intent.action = "org.ezbook.server.action.AUTO_PANEL"
         intent.putExtra("billInfo", Gson().toJson(billInfoModel))
+        if (parent != null){
+            intent.putExtra("parent", Gson().toJson(parent))
+        }
+
         intent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
-        context.startActivity(intent)
+        val options = ActivityOptions.makeBasic()
+
+        context.startActivity(intent, options.toBundle())
     }
 
     class CustomPrintFunction(private val output: StringBuilder) : BaseFunction() {
