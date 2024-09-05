@@ -77,6 +77,13 @@ class BookNameModel {
         }
 
 
+        suspend fun getFirstBook(): BookNameModel {
+            return list().firstOrNull() ?: BookNameModel().apply {
+                name = "默认账本"
+            }
+        }
+
+
        suspend fun put(bookList: ArrayList<BookNameModel>, md5: String) = withContext(Dispatchers.IO) {
            Server.request("book/put?md5=$md5", Gson().toJson(bookList))
         }

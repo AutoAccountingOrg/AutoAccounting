@@ -50,6 +50,7 @@ import net.ankio.auto.ui.models.ToolbarMenuItem
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.update.RuleUpdate
 import net.ankio.auto.utils.CustomTabsHelper
+import org.ezbook.server.db.model.BookNameModel
 import org.ezbook.server.db.model.CategoryModel
 import org.ezbook.server.db.model.SettingModel
 import rikka.html.text.toHtml
@@ -172,8 +173,17 @@ class HomeFragment : BaseFragment() {
                 }
             }
         }
-        SpUtils.getString("defaultBook", "默认账本").let {
-            binding.defaultBook.text = it
+
+        val bookName = SpUtils.getString("defaultBook", "")
+        if (bookName.isEmpty()){
+            lifecycleScope.launch {
+                val book = BookNameModel.getFirstBook()
+                SpUtils.putString("defaultBook", book.name)
+                SettingModel.set("setting_default_book_name", book.name)
+                binding.defaultBook.text =  book.name
+            }
+        }else{
+            binding.defaultBook.text = bookName
         }
     }
 
