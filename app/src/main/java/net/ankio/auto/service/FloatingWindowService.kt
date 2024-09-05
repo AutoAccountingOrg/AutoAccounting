@@ -41,7 +41,7 @@ import net.ankio.auto.ui.dialog.FloatEditorDialog
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.AppUtils
 import net.ankio.auto.utils.BillTool
-import org.ezbook.server.constant.FloatEvent
+import net.ankio.auto.constant.FloatEvent
 import org.ezbook.server.db.model.BillInfoModel
 
 class FloatingWindowService : Service() {
