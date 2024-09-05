@@ -39,7 +39,26 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/border_side"
             android:layout_marginBottom="@dimen/padding"
-            android:textAppearance="@style/TextAppearance.AppCompat.Small" />
+            android:textAppearance="@style/TextAppearance.AppCompat.Small"
+            tools:text="2023-01-01 12:00"
+
+            app:drawableLeftCompat="@drawable/float_time" />
+
+        <TextView
+            android:id="@+id/rule"
+            style="@style/TextAppearance.AppCompat.Small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/one_padding"
+            android:layout_marginEnd="@dimen/one_padding"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:drawableLeft="@drawable/"
+            android:paddingLeft="@dimen/padding"
+            android:paddingTop="@dimen/one_padding"
+            android:paddingRight="@dimen/padding"
+            android:paddingBottom="@dimen/one_padding"
+            tools:text="这是一个规则名嘻嘻嘻嘻嘻嘻嘻休息休息谢谢谢谢谢称"/>
 
         <TextView
             android:id="@+id/content"
@@ -47,6 +66,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:maxLines="3"
+            tools:text="这是一个规则内容"
             android:padding="@dimen/padding" />
         <RelativeLayout
             android:layout_width="wrap_content"
@@ -57,23 +77,6 @@
             >
 
             <TextView
-                android:id="@+id/rule"
-                style="@style/TextAppearance.AppCompat.Small"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_marginStart="@dimen/one_padding"
-                android:layout_marginEnd="@dimen/one_padding"
-                android:layout_toEndOf="@+id/issue"
-                android:background="@drawable/rounded_background"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:paddingLeft="@dimen/padding"
-                android:paddingTop="@dimen/one_padding"
-                android:paddingRight="@dimen/padding"
-                android:paddingBottom="@dimen/one_padding"
-                android:text="测试"
-                android:textColor="?attr/colorOnPrimary" /><TextView
                 android:id="@+id/issue"
                 style="@style/TextAppearance.AppCompat.Small"
                 android:layout_width="wrap_content"
