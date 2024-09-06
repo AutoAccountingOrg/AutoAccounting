@@ -36,6 +36,7 @@ import net.ankio.auto.core.ui.ColorUtils
 import net.ankio.auto.core.ui.ViewUtils
 import net.ankio.auto.databinding.MenuItemBinding
 import net.ankio.auto.hooks.qianji.tools.AssetsUtils
+import net.ankio.auto.hooks.qianji.tools.BaoXiaoUtils
 import net.ankio.auto.hooks.qianji.tools.BookUtils
 import net.ankio.auto.hooks.qianji.tools.CategoryUtils
 
@@ -178,6 +179,7 @@ class SideBarHooker : PartHooker{
             AssetsUtils(hookerManifest, context.classLoader).syncAssets()
             val books = BookUtils(hookerManifest, context.classLoader,context).syncBooks()
             CategoryUtils(hookerManifest, context.classLoader,books).syncCategory()
+            BaoXiaoUtils(hookerManifest, context.classLoader).syncBaoXiao()
         }
     }
 
