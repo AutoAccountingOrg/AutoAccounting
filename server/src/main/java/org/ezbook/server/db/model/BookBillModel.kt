@@ -31,6 +31,10 @@ import org.ezbook.server.constant.BillType
  */
 @Entity
 class BookBillModel {
+
+
+
+
     @PrimaryKey(autoGenerate = true)
     var id = 0L
     /**
@@ -50,6 +54,8 @@ class BookBillModel {
     var remoteId: String = ""
 
     var remoteBookId: String = ""
+
+    var category: String = ""
 
     companion object{
         suspend fun list(type: BillType) : List<BookNameModel> = withContext(

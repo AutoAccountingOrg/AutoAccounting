@@ -56,7 +56,7 @@ import org.ezbook.server.db.model.CategoryRuleModel
     CategoryRuleModel::class,
     BookBillModel::class
                ],
-    version = 1,
+    version = 2,
     exportSchema = false,
 )
 abstract class AppDatabase : RoomDatabase() {
