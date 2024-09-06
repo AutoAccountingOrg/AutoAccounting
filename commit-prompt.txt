@@ -7,7 +7,6 @@ Input:
 {diff}
 ```
 
-
 Instructions:
 1. Analyze the provided code diff and branch name.
 2. Consider the context from the recent commit history.
@@ -20,6 +19,7 @@ Instructions:
    - Use the imperative mood in the subject line (e.g., "Add feature" not "Added feature")
    - Explain what and why, not how
    - Reference relevant issue numbers if applicable
+   - Use emojis for clarity and visual appeal
 5. Avoid:
    - Generic messages like "Bug fix" or "Update file.txt"
    - Mentioning obvious details that can be seen in the diff
@@ -29,10 +29,12 @@ Output:
 - Provide only the commit message, without any additional explanation or commentary.
 
 Output Structure:
-<type>[optional scope]: <description>
+<type> ([optional scope]): <description>
 [optional body]
+
 Example:
    :sparkles: (api): add endpoint for user authentication
+
 Possible scopes (examples, infer from diff context):
 - api: app API-related code
 - ui: user interface changes
