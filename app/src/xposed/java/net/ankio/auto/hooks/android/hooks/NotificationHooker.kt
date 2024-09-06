@@ -106,10 +106,18 @@ class NotificationHooker:PartHooker {
      * 检查通知
      */
     private fun checkNotification(pkg: String,title:String,text:String,selectedApps: List<String>,hookerManifest: HookerManifest) {
+        if (title.isEmpty() || text.isEmpty()) {
+            hookerManifest.logD("Notification title or text is empty")
+            return
+        }
+
         if (!selectedApps.contains(pkg)) {
             hookerManifest.logD("Notification not in selected apps: $pkg, $selectedApps")
             return
         }
+
+
+
         val json = JsonObject()
         json.addProperty("title", title)
         json.addProperty("text", text)
