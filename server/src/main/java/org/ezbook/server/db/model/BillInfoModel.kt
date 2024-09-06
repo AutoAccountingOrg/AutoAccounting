@@ -30,7 +30,7 @@ class BillInfoModel {
     var id = 0L
 
     /**
-     * 账单类型 只有三种
+     * 账单类型
      */
     var type: BillType = BillType.Income
 

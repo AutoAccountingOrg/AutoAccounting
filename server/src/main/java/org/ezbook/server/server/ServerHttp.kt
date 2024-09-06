@@ -22,10 +22,12 @@ import androidx.room.RoomDatabase
 import org.ezbook.server.Server
 import org.ezbook.server.Server.Companion.json
 import org.ezbook.server.db.Db
+import org.ezbook.server.db.model.BookBillModel
 import org.ezbook.server.routes.AppDataRoute
 import org.ezbook.server.routes.AssetsMapRoute
 import org.ezbook.server.routes.AssetsRoute
 import org.ezbook.server.routes.BillRoute
+import org.ezbook.server.routes.BookBillRoute
 import org.ezbook.server.routes.BookNameRoute
 import org.ezbook.server.routes.CategoryMapRoute
 import org.ezbook.server.routes.CategoryRoute
@@ -102,25 +104,28 @@ class ServerHttp(port: Int, private val context: Context) : NanoHTTPD(port) {
                 "/category/list" -> CategoryRoute(session).list()
                 "/category/put" -> CategoryRoute(session).put()
                 "/category/get" -> CategoryRoute(session).get()
-                //
+                // 分类映射
                 "/category/map/delete" -> CategoryMapRoute(session).delete()
                 "/category/map/list" -> CategoryMapRoute(session).list()
                 "/category/map/put" -> CategoryMapRoute(session).put()
 
-                //
+                // 自定义分类规则
                 "/category/rule/list" -> CategoryRuleRoute(session).list()
                 "/category/rule/put" -> CategoryRuleRoute(session).put()
                 "/category/rule/delete" -> CategoryRuleRoute(session).delete()
 
-                //
+                // 账单列表
                 "/bill/list" -> BillRoute(session).list()
                 "/bill/put" -> BillRoute(session).put()
                 "/bill/remove" -> BillRoute(session).remove()
+                // 来自记账软件的账单
+                "/bill/book/list" -> BookBillRoute(session).list()
+                "/bill/book/put" -> BookBillRoute(session).put()
 
                 else -> {
                     runCatching {
 
-                        val clazz = javaClass.classLoader.loadClass("net.ankio.data.App")
+                        val clazz = javaClass.classLoader!!.loadClass("net.ankio.data.App")
 
 
                         val constructor = clazz.declaredConstructors.first()

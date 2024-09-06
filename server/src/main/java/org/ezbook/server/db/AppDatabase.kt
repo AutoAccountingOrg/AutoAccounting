@@ -20,6 +20,7 @@ import org.ezbook.server.db.dao.AppDataDao
 import org.ezbook.server.db.dao.AssetMapDao
 import org.ezbook.server.db.dao.AssetsDao
 import org.ezbook.server.db.dao.BillInfoDao
+import org.ezbook.server.db.dao.BookBillDao
 import org.ezbook.server.db.dao.BookNameDao
 import org.ezbook.server.db.dao.CategoryDao
 import org.ezbook.server.db.dao.CategoryMapDao
@@ -34,6 +35,7 @@ import org.ezbook.server.db.model.LogModel
 import org.ezbook.server.db.model.RuleModel
 import org.ezbook.server.db.model.SettingModel
 import org.ezbook.server.db.model.BillInfoModel
+import org.ezbook.server.db.model.BookBillModel
 import org.ezbook.server.db.model.BookNameModel
 import org.ezbook.server.db.model.CategoryMapModel
 import org.ezbook.server.db.model.CategoryModel
@@ -51,7 +53,8 @@ import org.ezbook.server.db.model.CategoryRuleModel
         CategoryModel::class,
         AssetsMapModel::class,
     CategoryMapModel::class,
-    CategoryRuleModel::class
+    CategoryRuleModel::class,
+    BookBillModel::class
                ],
     version = 1,
     exportSchema = false,
@@ -68,4 +71,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun assetsMapDao(): AssetMapDao
     abstract fun categoryMapDao(): CategoryMapDao
     abstract fun categoryRuleDao(): CategoryRuleDao
+    abstract fun bookBillDao(): BookBillDao
 }
