@@ -56,12 +56,14 @@ class FloatingWindowService : Service() {
 
     private var timeCount: Int = 0
 
+    private var lastTheme = ThemeEngine.getInstance(App.app).getTheme()
     override fun onCreate() {
         super.onCreate()
         timeCount = runCatching { SpUtils.getString("setting_float_time", "10").toInt() }.getOrNull() ?: 0
         list.clear()
         val appTheme = ContextThemeWrapper(App.app, R.style.AppTheme)
         themedContext = App.getThemeContext(appTheme)
+        lastTheme = ThemeEngine.getInstance(App.app).getTheme()
     }
 
 
@@ -70,6 +72,13 @@ class FloatingWindowService : Service() {
         flags: Int,
         startId: Int,
     ): Int {
+
+        if (lastTheme != ThemeEngine.getInstance(App.app).getTheme()) {
+            lastTheme = ThemeEngine.getInstance(App.app).getTheme()
+            val appTheme = ContextThemeWrapper(App.app, R.style.AppTheme)
+            themedContext = App.getThemeContext(appTheme)
+        }
+
         val billInfoModel = Gson().fromJson(intent.getStringExtra("billInfoModel"), BillInfoModel::class.java)
         val parent = runCatching { Gson().fromJson(intent.getStringExtra("parent"), BillInfoModel::class.java) }.getOrNull()
 

@@ -163,7 +163,7 @@
     <string name="float_choose_debt">请选择债务账单</string>
     <string name="float_none">常规</string>
     <string name="float_expend_debt">借款人</string>
-    <string name="float_income_debt">债权人</string>
+    <string name="float_income_debt">债主</string>
     <string name="float_income_tip">销账</string>
     <string name="restart_msg">无法连接到自动记账服务。</string>
     <string name="download_magisk">下载模块</string>
@@ -175,7 +175,7 @@
     <string name="active_root">通过Root启动</string>
     <string name="root_msg">请点击下面的按钮授予自动记账Root权限后，将自动启动自动记账服务，如果授权失败请重启自动记账后再试。</string>
     <string name="start">启动</string>
-    <string name="initializing">初始化中...</string>
+    <string name="initializing">初始化中…</string>
     <string name="title_command">服务启动中...</string>
     <string name="no_root_permission">没有root权限</string>
     <string name="unsupport_device">不支持该设备</string>
@@ -404,4 +404,10 @@
     <string name="input">请输入</string>
     <string name="category_map">将分类【%s】映射为</string>
     <string name="no_rule_hint">未命中任何规则</string>
+    <string name="reimbursement">报销</string>
+    <string name="lend">借出</string>
+    <string name="repayment">销账</string>
+    <string name="borrow">借入</string>
+    <string name="float_choose_bill">请选择账单</string>
+    <string name="select_date">选择日期</string>
 </resources>
