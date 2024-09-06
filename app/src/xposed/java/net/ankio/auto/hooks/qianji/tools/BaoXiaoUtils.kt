@@ -21,6 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.core.App
 import net.ankio.auto.core.api.HookerManifest
+import net.ankio.auto.core.xposed.Hooker
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.db.model.BookBillModel
@@ -136,6 +137,8 @@ class BaoXiaoUtils(
             return@withContext
         }
 
+        BookBillModel.put(bills, md5, BillType.ExpendRepayment)
+
     }
 
     suspend fun doBaoXiao(billModel: BillInfoModel) = withContext(Dispatchers.IO){
@@ -188,8 +191,10 @@ class BaoXiaoUtils(
         // com.mutangtech.qianji.data.model.AssetAccount r37,
         val asset = withContext(Dispatchers.Main){
             AssetsUtils( manifest,classLoader).getAssetsList()
-        }.filter { it!!.javaClass.declaredFields.first { item -> item.name == "name" }.get(it) == billModel.accountNameFrom }
+        }.filter { Hooker.field(it, "name") as String == billModel.accountNameFrom }
             .getOrNull(0) ?: throw RuntimeException("没有找到资产")
+
+
 
         // double r38,
         val money = billModel.money
@@ -235,9 +240,8 @@ class BaoXiaoUtils(
                         "bookId" -> bill.remoteBookId = (value as Long).toString()
 
                         "category" -> {
-                            val category =
-                                value.javaClass.declaredFields.filter { item -> item.name == "name" }
-                                    .getOrNull(0)?.get(value) as String
+                            val category = Hooker.field(value, "name") as String
+
                             bill.category = category
                         }
                     }

@@ -39,6 +39,7 @@ import net.ankio.auto.hooks.qianji.tools.AssetsUtils
 import net.ankio.auto.hooks.qianji.tools.BaoXiaoUtils
 import net.ankio.auto.hooks.qianji.tools.BookUtils
 import net.ankio.auto.hooks.qianji.tools.CategoryUtils
+import net.ankio.auto.hooks.qianji.tools.LoanUtils
 
 
 class SideBarHooker : PartHooker{
@@ -180,6 +181,7 @@ class SideBarHooker : PartHooker{
             val books = BookUtils(hookerManifest, context.classLoader,context).syncBooks()
             CategoryUtils(hookerManifest, context.classLoader,books).syncCategory()
             BaoXiaoUtils(hookerManifest, context.classLoader).syncBaoXiao()
+            LoanUtils(hookerManifest, context.classLoader).syncLoan()
         }
     }
 

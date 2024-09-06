@@ -66,5 +66,10 @@ class BookBillModel {
             runCatching { Gson().fromJson(json.getAsJsonArray("data"), Array<BookNameModel>::class.java).toList() }.getOrNull() ?: emptyList()
         }
 
+        //TODO
+        fun put(bills: ArrayList<BookBillModel>, md5: String, expendRepayment: BillType) {
+
+        }
+
     }
 }
