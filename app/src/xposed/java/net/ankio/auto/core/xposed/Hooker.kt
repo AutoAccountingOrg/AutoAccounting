@@ -22,15 +22,32 @@ import de.robv.android.xposed.XposedHelpers
 /**
  * Xposed hooker
  */
-object Hooker{
-    fun hookOnce(clazz: Class<*>, method: String, vararg parameterTypes: Class<*>, hook: (param: MethodHookParam) -> Unit) {
+object Hooker {
+    fun hookOnce(
+        clazz: Class<*>,
+        method: String,
+        vararg parameterTypes: Class<*>,
+        hook: (param: MethodHookParam) -> Unit
+    ) {
         var unhook: XC_MethodHook.Unhook? = null
         // 一次性hook
-        unhook =  XposedHelpers.findAndHookMethod(clazz, method, *parameterTypes, object : XC_MethodHook() {
-            override fun afterHookedMethod(param: MethodHookParam) {
-                hook(param)
-                unhook?.unhook()
-            }
-        })
+        unhook = XposedHelpers.findAndHookMethod(
+            clazz,
+            method,
+            *parameterTypes,
+            object : XC_MethodHook() {
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    hook(param)
+                    unhook?.unhook()
+                }
+            })
+    }
+
+    fun field(obj: Any?, name: String): Any? {
+        val field = obj!!.javaClass.declaredFields.filter { item -> item.name == name }.getOrNull(0)
+
+        field?.isAccessible = true
+        return field?.get(obj)
+
     }
 }
