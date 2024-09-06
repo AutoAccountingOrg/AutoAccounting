@@ -114,7 +114,7 @@ class NotificationHooker:PartHooker {
         json.addProperty("title", title)
         json.addProperty("text", text)
 
-        hookerManifest.analysisData(DataType.NOTICE, Gson().toJson(json))
+        hookerManifest.analysisData(DataType.NOTICE, Gson().toJson(json),pkg)
     }
 
 }

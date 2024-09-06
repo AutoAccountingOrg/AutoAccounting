@@ -130,9 +130,9 @@ abstract class HookerManifest {
     /**
      * 分析数据
      */
-    fun analysisData(type: DataType, data: String) {
+    fun analysisData(type: DataType, data: String,appPackage:String = packageName) {
         App.launch {
-           val result = request("js/analysis?type=${type.name}&app=$packageName&fromAppData=false", data)
+           val result = request("js/analysis?type=${type.name}&app=$appPackage&fromAppData=false", data)
             logD("analysisData: $result")
         }
     }
