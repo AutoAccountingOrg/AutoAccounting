@@ -46,7 +46,7 @@ class AssetsUtils(private val manifest: HookerManifest, private val classLoader:
     /**
      * 从钱迹获取资产列表
      */
-    private suspend fun getAssetsList(): List<*> = suspendCoroutine { continuation ->
+    suspend fun getAssetsList(): List<*> = suspendCoroutine { continuation ->
         var resumed = false
         // 获取所有构造函数
         val constructor = assetPreviewPresenterImplClazz.constructors.firstOrNull()
