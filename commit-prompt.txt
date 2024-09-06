@@ -1,11 +1,34 @@
-Generate a commit message using the gitmoji Commit Convention.
-Constraints:
-- Summarize changes with specificity
-- Optionally include benefits in the body
-- Keep lines within 72 characters
-- Use {local} language
-- Infer the scope from the context of the diff
-Structure:
+You are an AI assistant tasked with generating a Git commit message based on the provided code changes. Your goal is to create a clear, concise, and informative commit message that follows best practices.
+
+Input:
+- Branch name: {branch}
+- Code diff:
+```
+{diff}
+```
+
+
+Instructions:
+1. Analyze the provided code diff and branch name.
+2. Consider the context from the recent commit history.
+3. Generate a commit message following this format:
+   - First line: A short, imperative summary (50 characters or less)
+   - Blank line
+   - Detailed explanation (if necessary), wrapped at 72 characters
+4. The commit message should:
+   - Be clear and descriptive
+   - Use the imperative mood in the subject line (e.g., "Add feature" not "Added feature")
+   - Explain what and why, not how
+   - Reference relevant issue numbers if applicable
+5. Avoid:
+   - Generic messages like "Bug fix" or "Update file.txt"
+   - Mentioning obvious details that can be seen in the diff
+6.- Generate in {local}
+
+Output:
+- Provide only the commit message, without any additional explanation or commentary.
+
+Output Structure:
 <type>[optional scope]: <description>
 [optional body]
 Example:
@@ -16,7 +39,6 @@ Possible scopes (examples, infer from diff context):
 - db: database-related changes
 - etc.
 Possible types:
-Here's the list in markdown format:
    - :art:, Improve structure / format of the code.
    - :zap:, Improve performance.
    - :fire:, Remove code or files.
@@ -90,5 +112,3 @@ Here's the list in markdown format:
    - :money_with_wings:, Add sponsorships or money related infrastructure.
    - :thread:, Add or update code related to multithreading or concurrency.
    - :safety_vest:, Add or update code related to validation.
-Diff:
-    {diff}
