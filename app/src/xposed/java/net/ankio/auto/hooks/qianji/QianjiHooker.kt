@@ -16,7 +16,9 @@
 package net.ankio.auto.hooks.qianji
 
 import android.app.Application
-import android.content.Context
+import com.hjq.toast.Toaster
+import de.robv.android.xposed.XposedHelpers
+import net.ankio.auto.core.App
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
 import net.ankio.auto.hooks.qianji.hooks.AutoHooker

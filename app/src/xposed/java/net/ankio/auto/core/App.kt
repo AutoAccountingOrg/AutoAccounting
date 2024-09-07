@@ -24,6 +24,9 @@ import android.os.Looper
 import android.security.NetworkSecurityPolicy
 import android.widget.Toast
 import com.google.gson.Gson
+import com.hjq.toast.ToastParams
+import com.hjq.toast.Toaster
+import com.hjq.toast.style.CustomToastStyle
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.IXposedHookZygoteInit
 import de.robv.android.xposed.XC_MethodHook
@@ -52,13 +55,14 @@ class App: IXposedHookLoadPackage, IXposedHookZygoteInit  {
         val scope = CoroutineScope(Dispatchers.IO + job)
 
         fun launch(block: suspend CoroutineScope.() -> Unit){
-           runCatching {
-               scope.launch {
+            scope.launch {  runCatching {
+
                    block()
-               }
+
            }.onFailure {
                 Logger.logE(TAG,it)
            }
+            }
         }
 
 
@@ -109,8 +113,18 @@ class App: IXposedHookLoadPackage, IXposedHookZygoteInit  {
                 return
             }
             Logger.logD(TAG,"toast: $msg")
-            Toast.makeText(application, msg, Toast.LENGTH_LONG).show()
+
+            try {
+                Toaster.show(msg)
+            }catch (e:Throwable){
+                Toast.makeText(application, msg, Toast.LENGTH_LONG).show()
+            }
+
+
         }
+
+
+
 
         /**
          * 获取版本号
@@ -317,11 +331,23 @@ class App: IXposedHookLoadPackage, IXposedHookZygoteInit  {
 
         permissionCheck(app)
 
+        XposedHelpers.callMethod(
+            application!!.resources.assets,
+            "addAssetPath",
+            modulePath,
+        )
+
+        Toaster.init(application)
+
         app.hookLoadPackage(application,classLoader)
 
         app.partHookers.forEach {
             runCatching {
                 app.logD("PartHooker init: ${it.javaClass.simpleName}")
+                if(!it.findMethods(classLoader,app)){
+                    app.logD("PartHooker init failed: ${it.javaClass.simpleName}")
+                    return@runCatching
+                }
                 it.hook(app,application,classLoader)
                 app.logD("PartHooker init success: ${it.javaClass.simpleName}")
             }.onFailure {

@@ -18,10 +18,14 @@ package net.ankio.auto.hooks.qianji.sync
 import android.content.Context
 import android.content.Intent
 import com.google.gson.Gson
+import com.hjq.toast.Toaster
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import net.ankio.auto.core.App
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.hooks.qianji.tools.QianJiUri
+import net.ankio.auto.hooks.qianji.tools.UserUtils
+import net.ankio.auto.ui.utils.ToastUtils
 import org.ezbook.server.db.model.BillInfoModel
 
 class SyncBillUtils(
@@ -29,6 +33,10 @@ class SyncBillUtils(
     private val classLoader: ClassLoader
 )  {
     suspend fun sync(context:Context) = withContext(Dispatchers.IO) {
+        if (!UserUtils(manifest,classLoader).isLogin()) {
+           App.toast("未登录无法自动记账");
+            return@withContext
+        }
         val bills = BillInfoModel.sync()
         bills.forEach {
             val bill = QianJiUri.toQianJi(it)

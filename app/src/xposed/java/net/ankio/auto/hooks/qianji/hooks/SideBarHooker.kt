@@ -40,9 +40,42 @@ import net.ankio.auto.hooks.qianji.sync.BaoXiaoUtils
 import net.ankio.auto.hooks.qianji.sync.BookUtils
 import net.ankio.auto.hooks.qianji.sync.CategoryUtils
 import net.ankio.auto.hooks.qianji.sync.SyncBillUtils
+import net.ankio.dex.model.ClazzField
+import net.ankio.dex.model.ClazzMethod
 
 
-class SideBarHooker : PartHooker{
+class SideBarHooker : PartHooker(){
+
+    private val intentAct = "com.mutangtech.qianji.bill.auto.AddBillIntentAct"
+
+    private lateinit var intentActClazz : Class<*>
+    override val methodsRule: HashMap<String, ClazzMethod> =
+        hashMapOf(
+            "$intentAct#HandleIntent" to
+                    ClazzMethod(
+                        parameters =
+                        listOf(
+                            ClazzField(
+                                type = "android.content.Intent",
+                            ),
+                        ),
+                        regex = "^\\w{2}$",
+                    ),
+
+            "$intentAct#InsertAutoTask" to
+                    ClazzMethod(
+                        parameters =
+                        listOf(
+                            ClazzField(
+                                type = "com.mutangtech.qianji.data.model.AutoTaskLog",
+                            ),
+
+                            ),
+                        regex = "^\\w{2}$",
+                        modifiers = "private static final",
+                    ),
+        )
+
     override fun hook(
         hookerManifest: HookerManifest,
         application: Application?,
