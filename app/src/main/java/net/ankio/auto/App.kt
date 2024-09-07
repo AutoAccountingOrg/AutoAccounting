@@ -34,6 +34,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import net.ankio.auto.storage.Logger
 import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.utils.ToastUtils
@@ -195,8 +196,32 @@ class App : Application() {
             val packageName = SpUtils.getString("bookApp", "")
             val launchIntent = App.app.packageManager.getLaunchIntentForPackage(packageName)
             if (launchIntent != null) {
-                App.app.startActivity(launchIntent)
+                app.startActivity(launchIntent)
             }
+        }
+
+        /**
+         * 打印 Intent 的详细信息
+         */
+        fun printIntent(intent: Intent) {
+            // 输出 Intent 的基本信息
+            val sp = StringBuilder()
+            sp.append("Action: ${intent.action}")
+            sp.append("Data: ${intent.data}")
+            sp.append("Categories: ${intent.categories}")
+            sp.append("Type: ${intent.type}")
+            sp.append("Flags: ${intent.flags}")
+
+            // 输出所有 extras（键值对）
+            intent.extras?.let { extras ->
+                sp.append("Extras:")
+                for (key in extras.keySet()) {
+                    sp.append("$key: ${extras.get(key)}")
+                }
+            } ?: run {
+                sp.append("No extras")
+            }
+            Logger.i(sp.toString())
         }
     }
 

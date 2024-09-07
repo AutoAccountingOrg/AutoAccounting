@@ -79,8 +79,6 @@ class FloatingWindowService : Service() {
             themedContext = App.getThemeContext(appTheme)
         }
 
-        //输出intent传递的数据
-        printIntent(intent)
 
         val billInfoModel = Gson().fromJson(intent.getStringExtra("billInfoModel"), BillInfoModel::class.java)
         val parent = runCatching { Gson().fromJson(intent.getStringExtra("parent"), BillInfoModel::class.java) }.getOrNull()
@@ -102,24 +100,7 @@ class FloatingWindowService : Service() {
         return START_REDELIVER_INTENT
     }
 
-    fun printIntent(intent: Intent) {
-        // 输出 Intent 的基本信息
-        println("Action: ${intent.action}")
-        println("Data: ${intent.data}")
-        println("Categories: ${intent.categories}")
-        println("Type: ${intent.type}")
-        println("Flags: ${intent.flags}")
 
-        // 输出所有 extras（键值对）
-        intent.extras?.let { extras ->
-            println("Extras:")
-            for (key in extras.keySet()) {
-                println("$key: ${extras.get(key)}")
-            }
-        } ?: run {
-            println("No extras")
-        }
-    }
 
 
     private  fun processBillInfo(billInfoModel: BillInfoModel,showWaitTip:Boolean) {
