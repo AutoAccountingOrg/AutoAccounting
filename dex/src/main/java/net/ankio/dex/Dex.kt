@@ -187,6 +187,12 @@ object Dex {
         // 判断指定要求的字段是否在class里面
         val methods = clazz.declaredMethods
         for (method in methods) {
+            val condition1 =
+                if (clazzMethod.regex.isNotEmpty()) {
+                    Regex(clazzMethod.regex).matches(method.name)
+                } else {
+                    true
+                }
             val condition2 =
                 if (clazzMethod.returnType.isNotEmpty()) {
                     method.returnType.name == clazzMethod.returnType
@@ -215,7 +221,7 @@ object Dex {
                     true
                 }
 
-            if (condition2 && condition3 && condition4) {
+            if (condition1 && condition2 && condition3 && condition4) {
                 return method.name
             }
         }
