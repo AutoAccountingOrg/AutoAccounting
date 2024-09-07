@@ -16,8 +16,10 @@
 package net.ankio.auto.hooks.qianji
 
 import android.app.Application
+import android.content.Context
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
+import net.ankio.auto.hooks.qianji.hooks.AutoHooker
 import net.ankio.auto.hooks.qianji.hooks.SideBarHooker
 import net.ankio.dex.model.Clazz
 import net.ankio.dex.model.ClazzField
@@ -36,6 +38,7 @@ class QianjiHooker:HookerManifest() {
     override var partHookers: MutableList<PartHooker>
         get() = mutableListOf(
             SideBarHooker(),
+            AutoHooker(),
         )
         set(value) {}
     override var rules: MutableList<Clazz>
@@ -86,6 +89,28 @@ class QianjiHooker:HookerManifest() {
                                 type = "boolean",
                             ),
                         ),
+                    ),
+                ),
+            ),
+
+            ///////////////////////////UserManager//////////////////////////////////////
+            Clazz(
+                name = "UserManager",
+                nameRule = "^\\w{0,2}\\..+",
+                type = "class",
+                methods =
+                listOf(
+                    ClazzMethod(
+                        name = "isLogin",
+                        returnType = "boolean",
+                    ),
+                    ClazzMethod(
+                        name = "isVip",
+                        returnType = "boolean",
+                    ),
+                    ClazzMethod(
+                        name = "isSuperVIP",
+                        returnType = "boolean",
                     ),
                 ),
             ),

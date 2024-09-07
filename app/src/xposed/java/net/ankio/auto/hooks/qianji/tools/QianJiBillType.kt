@@ -15,86 +15,76 @@
 
 package net.ankio.auto.hooks.qianji.tools
 
-class QianJiBillType {
+import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import net.ankio.auto.core.App
+import org.ezbook.server.constant.AssetsType
+import org.ezbook.server.constant.BillType
+import org.ezbook.server.db.model.AssetsModel
+import org.ezbook.server.db.model.BillInfoModel
+
+enum class QianJiBillType(private val value: Int) {
+
+    Expend(0), // 支出
+    Income(1), // 收入
+    Transfer(2), // 转账
+    TransferCredit(3), // 信用卡还款
+    ExpendReimbursement(5), // 支出（记作报销）
+
+    // 以下是钱迹未实现的功能
+
+    ExpendLending(15), // 支出（借出）
+    ExpendRepayment(16), // 支出（还款销账）
+    IncomeLending(17), // 收入（借入）
+    IncomeRepayment(18), // 收入（还款销账）
+    IncomeReimbursement(19) ;// 收入（报销)
+
+
     companion object{
-        /**
-         * 投资币
-         */
-        const val STYPE_INVEST_COIN: Int = 46
+        suspend fun toQianJi(billInfoModel: BillInfoModel): Int = withContext(Dispatchers.IO) {
+            when (billInfoModel.type) {
+                BillType.Expend -> Expend.value
+                BillType.Income -> Income.value
+                BillType.Transfer -> {
+                    val sync = App.get("sync_assets")
+                    val assets = runCatching { Gson().fromJson(sync,Array<AssetsModel>::class.java) }.getOrElse { emptyArray() }
+                    val asset = assets.find { it.name == billInfoModel.accountNameTo }
+                    if (asset == null){
+                        return@withContext Transfer.value
+                    }
+                    if (asset.type == AssetsType.CREDIT){
+                        return@withContext TransferCredit.value
+                    }
+                    Transfer.value
+                }
+                BillType.ExpendReimbursement -> ExpendReimbursement.value
+                BillType.ExpendLending -> ExpendLending.value
+                BillType.ExpendRepayment -> ExpendRepayment.value
+                BillType.IncomeLending -> IncomeLending.value
+                BillType.IncomeReimbursement -> IncomeReimbursement.value
+                BillType.IncomeRepayment -> IncomeRepayment.value
+                else -> Expend.value
+            }
+        }
 
-        /**
-         * 投资基金
-         */
-        const val SType_Debt: Int = 51
 
-        /**
-         * 债权人
-         */
-        const val SType_Debt_Wrapper: Int = 61
-
-        /**
-         * 花呗
-         */
-        const val SType_HuaBei: Int = 22
-
-        /**
-         * 借款
-         */
-        const val SType_Loan: Int = 52
-
-        /**
-         * 借款人
-         */
-        const val SType_Loan_Wrapper: Int = 62
-
-        /**
-         * 支付宝
-         */
-        const val SType_Money_Alipay: Int = 13
-
-        /**
-         * 银行卡
-         */
-        const val SType_Money_Card: Int = 12
-
-        /**
-         * 微信
-         */
-        const val SType_Money_WeiXin: Int = 14
-
-        /**
-         * 余额宝
-         */
-        const val SType_Money_YEB: Int = 103
-
-        /**
-         * 信用卡
-         */
-        const val Type_Credit: Int = 2
-
-        /**
-         * 债务
-         */
-        const val Type_DebtLoan: Int = 5
-
-        /**
-         * 债务包装
-         */
-        const val Type_DebtLoan_Wrapper: Int = 6
-
-        /**
-         * 投资
-         */
-        const val Type_Invest: Int = 4
-
-        /**
-         * 现金
-         */
-        const val Type_Money: Int = 1
-
-        /**
-         * 充值
-         */
-        const val Type_Recharge: Int = 3
+        fun toAuto(type: Int): BillType {
+            return when (type) {
+                Expend.value -> BillType.Expend
+                Income.value -> BillType.Income
+                Transfer.value -> BillType.Transfer
+                TransferCredit.value -> BillType.Transfer
+                ExpendReimbursement.value -> BillType.ExpendReimbursement
+                ExpendLending.value -> BillType.ExpendLending
+                ExpendRepayment.value -> BillType.ExpendRepayment
+                IncomeLending.value -> BillType.IncomeLending
+                IncomeRepayment.value -> BillType.IncomeRepayment
+                IncomeReimbursement.value -> BillType.IncomeReimbursement
+                else -> BillType.Expend
+            }
+        }
     }
+
+
 }

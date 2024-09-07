@@ -43,11 +43,4 @@ object Hooker {
             })
     }
 
-    fun field(obj: Any?, name: String): Any? {
-        val field = obj!!.javaClass.declaredFields.filter { item -> item.name == name }.getOrNull(0)
-
-        field?.isAccessible = true
-        return field?.get(obj)
-
-    }
 }

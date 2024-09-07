@@ -118,6 +118,8 @@ class ServerHttp(port: Int, private val context: Context) : NanoHTTPD(port) {
                 "/bill/list" -> BillRoute(session).list()
                 "/bill/put" -> BillRoute(session).put()
                 "/bill/remove" -> BillRoute(session).remove()
+                // 同步未同步的账单
+                "/bill/sync/list" -> BillRoute(session).sync()
                 // 来自记账软件的账单
                 "/bill/book/list" -> BookBillRoute(session).list()
                 "/bill/book/put" -> BookBillRoute(session).put()

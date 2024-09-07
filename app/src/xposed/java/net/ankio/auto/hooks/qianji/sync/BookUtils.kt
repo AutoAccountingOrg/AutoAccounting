@@ -13,7 +13,7 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.hooks.qianji.tools
+package net.ankio.auto.hooks.qianji.sync
 
 import android.content.Context
 import com.google.gson.Gson
@@ -25,10 +25,10 @@ import net.ankio.auto.core.api.HookerManifest
 import org.ezbook.server.db.model.BookNameModel
 import org.ezbook.server.db.model.SettingModel
 
-class BookUtils(private val manifest: HookerManifest, private val classLoader: ClassLoader,private val context: Context) {
+class BookUtils(private val manifest: HookerManifest, private val classLoader: ClassLoader, private val context: Context) {
     private val bookManagerInstance by lazy {
         XposedHelpers.callStaticMethod(
-            manifest.clazz("BookManager",classLoader),
+            manifest.clazz("BookManager", classLoader),
             "getInstance",
         )
     }
@@ -39,8 +39,32 @@ class BookUtils(private val manifest: HookerManifest, private val classLoader: C
 
     suspend fun syncBooks():ArrayList<BookNameModel> =
         withContext(Dispatchers.IO) {
-            val list = XposedHelpers.callMethod(bookManagerInstance, "getAllBooks",context, true, 1) as List<*>
+            val list = XposedHelpers.callMethod(
+                bookManagerInstance,
+                "getAllBooks",
+                context,
+                true,
+                1
+            ) as List<*>
             val bookList = arrayListOf<BookNameModel>()
+
+            /**
+             * [
+             *     {
+             *         "bookId":-1,
+             *         "cover":"http://res.qianjiapp.com/headerimages2/daniela-cuevas-t7YycgAoVSw-unsplash20_9.jpg!headerimages2",
+             *         "createtimeInSec":0,
+             *         "expired":0,
+             *         "memberCount":1,
+             *         "name":"日常账本",
+             *         "sort":0,
+             *         "type":-1,
+             *         "updateTimeInSec":0,
+             *         "userid":"",
+             *         "visible":1
+             *     }
+             * ]
+             */
 
             /**
              * [
@@ -86,7 +110,7 @@ class BookUtils(private val manifest: HookerManifest, private val classLoader: C
             }
             manifest.log("同步账本信息:$sync")
             BookNameModel.put(bookList, md5)
-            withContext(Dispatchers.Main){
+            withContext(Dispatchers.Main) {
                 App.toast("已同步账本信息到自动记账")
             }
             bookList

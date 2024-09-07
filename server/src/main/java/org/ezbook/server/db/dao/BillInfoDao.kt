@@ -44,4 +44,8 @@ interface BillInfoDao {
     fun deleteGroup(groupId: Long)
     @Query("DELETE FROM BillInfoModel WHERE id =:id")
     fun deleteId(id: Long)
+
+    @Query("SELECT * FROM BillInfoModel WHERE syncFromApp = 0")
+    fun queryNoSync(): List<BillInfoModel>
+
 }

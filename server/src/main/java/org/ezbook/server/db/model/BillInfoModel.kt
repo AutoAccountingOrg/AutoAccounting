@@ -168,6 +168,11 @@ class BillInfoModel {
         }
 
 
+        suspend fun sync(): List<BillInfoModel> = withContext(Dispatchers.IO) {
+            val response = Server.request("bill/sync/list")
+            val json = Gson().fromJson(response, JsonObject::class.java)
+            runCatching { Gson().fromJson(json.getAsJsonArray("data"), Array<BillInfoModel>::class.java).toList() }.getOrNull() ?: emptyList()
+        }
 
     }
 

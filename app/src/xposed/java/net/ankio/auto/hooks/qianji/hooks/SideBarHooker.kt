@@ -35,11 +35,11 @@ import net.ankio.auto.core.api.PartHooker
 import net.ankio.auto.core.ui.ColorUtils
 import net.ankio.auto.core.ui.ViewUtils
 import net.ankio.auto.databinding.MenuItemBinding
-import net.ankio.auto.hooks.qianji.tools.AssetsUtils
-import net.ankio.auto.hooks.qianji.tools.BaoXiaoUtils
-import net.ankio.auto.hooks.qianji.tools.BookUtils
-import net.ankio.auto.hooks.qianji.tools.CategoryUtils
-import net.ankio.auto.hooks.qianji.tools.LoanUtils
+import net.ankio.auto.hooks.qianji.sync.AssetsUtils
+import net.ankio.auto.hooks.qianji.sync.BaoXiaoUtils
+import net.ankio.auto.hooks.qianji.sync.BookUtils
+import net.ankio.auto.hooks.qianji.sync.CategoryUtils
+import net.ankio.auto.hooks.qianji.sync.SyncBillUtils
 
 
 class SideBarHooker : PartHooker{
@@ -181,7 +181,8 @@ class SideBarHooker : PartHooker{
             val books = BookUtils(hookerManifest, context.classLoader,context).syncBooks()
             CategoryUtils(hookerManifest, context.classLoader,books).syncCategory()
             BaoXiaoUtils(hookerManifest, context.classLoader).syncBaoXiao()
-            LoanUtils(hookerManifest, context.classLoader).syncLoan()
+           // LoanUtils(hookerManifest, context.classLoader).syncLoan()
+            SyncBillUtils(hookerManifest, context.classLoader).sync(context)
         }
     }
 

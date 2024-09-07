@@ -13,7 +13,7 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.hooks.qianji.tools
+package net.ankio.auto.hooks.qianji.sync
 
 import com.google.gson.Gson
 import de.robv.android.xposed.XposedHelpers
@@ -130,6 +130,42 @@ class BaoXiaoUtils(
          *     "userid": "200104405e109647c18e9"
          * }*/
 
+        /**
+         * {
+         *     "_id": 11002,
+         *     "assetid": 1613058959055,
+         *     "billid": 1718199912441166031,
+         *     "bookId": -1,
+         *     "category": {
+         *         "bookId": -1,
+         *         "editable": 0,
+         *         "icon": "http://qianjires.xxoojoke.com/cateic_other.png",
+         *         "id": 6691047,
+         *         "level": 1,
+         *         "name": "其它",
+         *         "parentId": -1,
+         *         "sort": 10,
+         *         "type": 0,
+         *         "userId": "200104405e109647c18e9"
+         *     },
+         *     "categoryId": 6691047,
+         *     "createtimeInSec": 1718199912,
+         *     "descinfo": "支付宝-余额宝",
+         *     "fromact": "支付宝-余额宝",
+         *     "fromid": -1,
+         *     "importPackId": 0,
+         *     "money": 0.01,
+         *     "paytype": 0,
+         *     "platform": 0,
+         *     "remark": "长城基金管理有限公司 -222222",
+         *     "status": 1,
+         *     "targetid": -1,
+         *     "timeInSec": 1715020286,
+         *     "type": 5,
+         *     "updateTimeInSec": 0,
+         *     "userid": "200104405e109647c18e9"
+         * }*/
+
         manifest.logD("报销账单:${Gson().toJson(bxList)},数据总数：${bxList.size}")
         val bills = convert2Bill(bxList, BillType.ExpendRepayment)
         val sync = Gson().toJson(bills)
@@ -144,7 +180,7 @@ class BaoXiaoUtils(
 
     }
 
-    suspend fun doBaoXiao(billModel: BillInfoModel) = withContext(Dispatchers.IO){
+    suspend fun doBaoXiao(billModel: BillInfoModel) = withContext(Dispatchers.IO) {
 
         val list = billModel.extendData.split(", ")
 
@@ -155,7 +191,8 @@ class BaoXiaoUtils(
 
         val selectBills =
             billList.filter {
-                val billIdField = it!!.javaClass.declaredFields.first { item -> item.name == "billid" }
+                val billIdField =
+                    it!!.javaClass.declaredFields.first { item -> item.name == "billid" }
                 val billId = (billIdField.get(it) as Long).toString()
                 // 判断billId是否在list中
                 list.contains(billId)
@@ -174,29 +211,31 @@ class BaoXiaoUtils(
         ) { _, _, _ ->
 
         }
-        val baoXiaoInstance  = XposedHelpers.newInstance(baoXiaoImpl, param1Object)
+        val baoXiaoInstance = XposedHelpers.newInstance(baoXiaoImpl, param1Object)
 
         val doBaoXiaoMethod = baoXiaoImpl.declaredMethods.find { it.name == "doBaoXiao" }!!
-    //    public void doBaoXiao(
-    //    java.util.Set<? extends com.mutangtech.qianji.data.model.Bill> r36,
-    //    com.mutangtech.qianji.data.model.AssetAccount r37,
-    //    double r38,
-    //    java.util.Calendar r40,
-    //    com.mutangtech.qianji.data.model.CurrencyExtra r41,
-    //    java.lang.String r42,
+        //    public void doBaoXiao(
+        //    java.util.Set<? extends com.mutangtech.qianji.data.model.Bill> r36,
+        //    com.mutangtech.qianji.data.model.AssetAccount r37,
+        //    double r38,
+        //    java.util.Calendar r40,
+        //    com.mutangtech.qianji.data.model.CurrencyExtra r41,
+        //    java.lang.String r42,
         //    java.util.List<java.lang.String> r43,
-    //    java.util.List<? extends com.mutangtech.qianji.data.model.Tag> r44) {
+        //    java.util.List<? extends com.mutangtech.qianji.data.model.Tag> r44) {
 
 
         // java.util.Set<? extends com.mutangtech.qianji.data.model.Bill> r36,
         val set = HashSet<Any>(selectBills)
 
         // com.mutangtech.qianji.data.model.AssetAccount r37,
-        val asset = withContext(Dispatchers.Main){
-            AssetsUtils( manifest,classLoader).getAssetsList()
-        }.filter { Hooker.field(it, "name") as String == billModel.accountNameFrom }
-            .getOrNull(0) ?: throw RuntimeException("没有找到资产")
+        val asset = withContext(Dispatchers.Main) {
+            AssetsUtils(manifest, classLoader).getAssetsList()
+        }.filter {
 
+            XposedHelpers.getObjectField(it, "name") as String == billModel.accountNameTo }
+
+            .getOrNull(0) ?: throw RuntimeException("没有找到资产")
 
 
         // double r38,
@@ -207,7 +246,8 @@ class BaoXiaoUtils(
         calendar.timeInMillis = billModel.time
 
         //com.mutangtech.qianji.data.model.CurrencyExtra r41
-        val currencyExtraInstance = XposedHelpers.callMethod(selectBills.first(), "getCurrencyExtra")
+        val currencyExtraInstance =
+            XposedHelpers.callMethod(selectBills.first(), "getCurrencyExtra")
 
         //java.lang.String r42,
         val str = ""
@@ -219,7 +259,18 @@ class BaoXiaoUtils(
         // java.util.List<? extends com.mutangtech.qianji.data.model.Tag> r44
         val listTag = arrayListOf<Any>()
 
-        XposedHelpers.callMethod(baoXiaoInstance, "doBaoXiao", set, asset, money, calendar, currencyExtraInstance, str, listStr, listTag)
+        XposedHelpers.callMethod(
+            baoXiaoInstance,
+            "doBaoXiao",
+            set,
+            asset,
+            money,
+            calendar,
+            currencyExtraInstance,
+            str,
+            listStr,
+            listTag
+        )
 
     }
 
@@ -243,7 +294,7 @@ class BaoXiaoUtils(
                         "bookId" -> bill.remoteBookId = (value as Long).toString()
 
                         "category" -> {
-                            val category = Hooker.field(value, "name") as String
+                            val category = XposedHelpers.getObjectField(value, "name") as String
 
                             bill.category = category
                         }

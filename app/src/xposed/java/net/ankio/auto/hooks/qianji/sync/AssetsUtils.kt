@@ -13,7 +13,7 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.hooks.qianji.tools
+package net.ankio.auto.hooks.qianji.sync
 
 import com.google.gson.Gson
 import de.robv.android.xposed.XposedBridge
@@ -23,6 +23,9 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.core.App
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.xposed.Hooker
+import net.ankio.auto.hooks.qianji.tools.QianJiAssetType
+import net.ankio.auto.hooks.qianji.tools.QianJiBillType
+import org.ezbook.server.Server
 import org.ezbook.server.constant.AssetsType
 import org.ezbook.server.constant.Currency
 import org.ezbook.server.db.model.AssetsModel
@@ -50,6 +53,10 @@ class AssetsUtils(private val manifest: HookerManifest, private val classLoader:
         var resumed = false
         // 获取所有构造函数
         val constructor = assetPreviewPresenterImplClazz.constructors.firstOrNull()
+
+        /**
+         * 410_951 public AssetPreviewPresenterImpl(u7.b bVar, f8.c cVar)
+         */
 
         /**
          * 410_951 public AssetPreviewPresenterImpl(u7.b bVar, f8.c cVar)
@@ -125,12 +132,12 @@ class AssetsUtils(private val manifest: HookerManifest, private val classLoader:
             val type = typeField.get(asset) as Int
 
             model.type = when (type) {
-                QianJiBillType.Type_Money -> AssetsType.NORMAL
-                QianJiBillType.Type_Credit -> AssetsType.CREDIT
-                QianJiBillType.Type_Recharge -> AssetsType.VIRTUAL
-                QianJiBillType.Type_Invest -> AssetsType.FINANCIAL
-                QianJiBillType.Type_DebtLoan -> when (stype) {
-                    QianJiBillType.SType_Loan -> AssetsType.CREDITOR
+                QianJiAssetType.Type_Money -> AssetsType.NORMAL
+                QianJiAssetType.Type_Credit -> AssetsType.CREDIT
+                QianJiAssetType.Type_Recharge -> AssetsType.VIRTUAL
+                QianJiAssetType.Type_Invest -> AssetsType.FINANCIAL
+                QianJiAssetType.Type_DebtLoan -> when (stype) {
+                    QianJiAssetType.SType_Loan -> AssetsType.CREDITOR
                     else -> AssetsType.BORROWER
                 }
 
@@ -158,13 +165,14 @@ class AssetsUtils(private val manifest: HookerManifest, private val classLoader:
         val sync = Gson().toJson(assets)
         val md5 = App.md5(sync)
         val server = SettingModel.get("sync_assets_md5", "")
+        App.set("sync_assets",sync)
         if (server == md5 || assets.isEmpty()) { //资产为空也不同步
             manifest.log("资产信息未发生变化，无需同步, 服务端md5:${server} 本地md5:${md5}")
             return@withContext
         }
         manifest.log("同步账户信息:${Gson().toJson(assets)}")
         AssetsModel.put(assets, md5)
-        withContext(Dispatchers.Main){
+        withContext(Dispatchers.Main) {
             App.toast("已同步资产信息到自动记账")
         }
     }

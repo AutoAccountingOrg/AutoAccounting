@@ -57,4 +57,9 @@ class BillRoute(private val session: IHTTPSession) {
         return Server.json(200, "OK", 0)
     }
 
+    fun sync(): Response {
+        val result = Db.get().billInfoDao().queryNoSync()
+        return Server.json(200, "OK", result)
+    }
+
 }
