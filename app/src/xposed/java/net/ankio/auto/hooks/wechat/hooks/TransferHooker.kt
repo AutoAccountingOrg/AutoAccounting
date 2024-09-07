@@ -24,7 +24,7 @@ import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
 
 
-class TransferHooker  : PartHooker {
+class TransferHooker  : PartHooker() {
 
     override fun hook(hookerManifest: HookerManifest,application: Application?,classLoader: ClassLoader) {
 

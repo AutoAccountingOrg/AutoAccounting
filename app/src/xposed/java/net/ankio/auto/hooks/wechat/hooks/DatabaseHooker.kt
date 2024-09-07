@@ -28,7 +28,7 @@ import net.ankio.auto.core.App
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
 
-class DatabaseHooker : PartHooker {
+class DatabaseHooker : PartHooker() {
     fun xmlToJson(xml: String): String {
         val xmlToJson: XmlToJson = XmlToJson.Builder(xml).build()
         return xmlToJson.toString()

@@ -17,6 +17,7 @@ package org.ezbook.server.routes
 
 
 import android.app.ActivityOptions
+import android.content.Intent
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import org.ezbook.server.Server
@@ -210,14 +211,14 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
      * 启动自动记账面板
      */
     private fun startAutoPanel(billInfoModel: BillInfoModel,parent:BillInfoModel?) {
-        val intent = android.content.Intent()
+        val intent = Intent()
         intent.action = "org.ezbook.server.action.AUTO_PANEL"
         intent.putExtra("billInfo", Gson().toJson(billInfoModel))
         if (parent != null){
             intent.putExtra("parent", Gson().toJson(parent))
         }
 
-        intent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         val options = ActivityOptions.makeBasic()
 
         context.startActivity(intent, options.toBundle())

@@ -25,7 +25,7 @@ import org.ezbook.server.Server
 /**
  *
  */
-class ServiceHooker:PartHooker {
+class ServiceHooker:PartHooker() {
 
     override fun hook(
         hookerManifest: HookerManifest,

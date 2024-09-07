@@ -28,7 +28,7 @@ import net.ankio.auto.core.api.PartHooker
  * PermissionHooker
  * 授权
  */
-class PermissionHooker:PartHooker {
+class PermissionHooker:PartHooker() {
     /**
      * hook PermissionManagerService，并自动向特定的应用程序授予特定权限。
      * @param hookerManifest HookerManifest

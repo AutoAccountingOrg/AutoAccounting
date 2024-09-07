@@ -27,7 +27,7 @@ import org.ezbook.server.constant.DataType
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
 
-class WebViewHooker : PartHooker {
+class WebViewHooker : PartHooker() {
 
     companion object {
         const val WAIT_TIME = 200L

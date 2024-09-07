@@ -22,7 +22,7 @@ import net.ankio.auto.core.App
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
 
-class PayToolsHooker : PartHooker {
+class PayToolsHooker : PartHooker() {
 
     override fun hook(hookerManifest: HookerManifest,application: Application?,classLoader: ClassLoader) {
         XposedHelpers.findAndHookMethod(

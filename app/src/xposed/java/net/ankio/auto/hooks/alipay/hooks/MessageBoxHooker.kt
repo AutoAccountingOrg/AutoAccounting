@@ -24,7 +24,7 @@ import org.ezbook.server.constant.DataType
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
 
-class MessageBoxHooker: PartHooker {
+class MessageBoxHooker: PartHooker() {
 
 
     override fun hook(hookerManifest: HookerManifest, application: Application?,classLoader: ClassLoader) {

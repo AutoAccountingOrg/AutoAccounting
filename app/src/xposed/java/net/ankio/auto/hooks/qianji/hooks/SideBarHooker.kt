@@ -45,36 +45,7 @@ import net.ankio.dex.model.ClazzMethod
 
 
 class SideBarHooker : PartHooker(){
-
-    private val intentAct = "com.mutangtech.qianji.bill.auto.AddBillIntentAct"
-
-    private lateinit var intentActClazz : Class<*>
-    override val methodsRule: HashMap<String, ClazzMethod> =
-        hashMapOf(
-            "$intentAct#HandleIntent" to
-                    ClazzMethod(
-                        parameters =
-                        listOf(
-                            ClazzField(
-                                type = "android.content.Intent",
-                            ),
-                        ),
-                        regex = "^\\w{2}$",
-                    ),
-
-            "$intentAct#InsertAutoTask" to
-                    ClazzMethod(
-                        parameters =
-                        listOf(
-                            ClazzField(
-                                type = "com.mutangtech.qianji.data.model.AutoTaskLog",
-                            ),
-
-                            ),
-                        regex = "^\\w{2}$",
-                        modifiers = "private static final",
-                    ),
-        )
+    
 
     override fun hook(
         hookerManifest: HookerManifest,

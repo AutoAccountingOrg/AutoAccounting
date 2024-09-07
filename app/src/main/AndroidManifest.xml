@@ -34,11 +34,7 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="org.ezbook.server.action.AUTO_PANEL" />
-
                 <category android:name="android.intent.category.DEFAULT" />
-                <data
-                    android:path="/bill"
-                    android:scheme="autoaccounting" />
             </intent-filter>
         </activity>
         <activity

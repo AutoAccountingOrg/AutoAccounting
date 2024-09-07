@@ -32,7 +32,7 @@ import net.ankio.auto.core.api.PartHooker
 import org.ezbook.server.db.model.SettingModel
 
 
-class NotificationHooker:PartHooker {
+class NotificationHooker:PartHooker() {
     private var selectedApps = listOf<String>()
     private var lastTime = 0L
     override fun hook(

@@ -35,11 +35,9 @@ class FloatingWindowTriggerActivity : AppCompatActivity() {
                 requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
             }
             // 将数据传递给悬浮窗服务
-            val serviceIntent =
-                Intent(this, FloatingWindowService::class.java).apply {
-                    putExtra("parent", intent.getStringExtra("parent"))
-                    putExtra("billInfo", intent.getStringExtra("billInfo"))
-                }
+            val serviceIntent = Intent(this, FloatingWindowService::class.java).apply {
+                intent.extras?.let { putExtras(it) } // 直接传递所有 extras
+            }
             startService(serviceIntent)
             // 关闭 Activity
             exitActivity()

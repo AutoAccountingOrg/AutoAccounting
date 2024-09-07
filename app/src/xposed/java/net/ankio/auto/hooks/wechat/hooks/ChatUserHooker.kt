@@ -22,7 +22,7 @@ import net.ankio.auto.core.App
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
 
-class ChatUserHooker : PartHooker{
+class ChatUserHooker : PartHooker() {
 
     override fun hook(hookerManifest: HookerManifest,application: Application?,classLoader: ClassLoader) {
         val clazz = classLoader.loadClass("com.tencent.mm.ui.chatting.ChattingUIFragment")
