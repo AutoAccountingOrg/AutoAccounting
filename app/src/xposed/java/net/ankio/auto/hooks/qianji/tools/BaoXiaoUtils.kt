@@ -44,7 +44,7 @@ class BaoXiaoUtils(
 
     private suspend fun getBaoXiaoList(all: Boolean = false): List<*> =
         suspendCoroutine { continuation ->
-
+            var resumed = false
             val constructor = baoXiaoImpl.constructors.first()!!
             // public BxPresenterImpl(t8.b bVar) {
             val param1Clazz = constructor.parameterTypes.first()!!
@@ -53,8 +53,11 @@ class BaoXiaoUtils(
                 arrayOf(param1Clazz)
             ) { proxy, method, args ->
                 if (method.name == "onGetList") {
-                    val billList = args[0]
-                    continuation.resume(billList as List<*>)
+                    if (!resumed) {
+                        resumed = true
+                        val billList = args[0]
+                        continuation.resume(billList as List<*>)
+                    }
                 }
             }
             // public void refresh(t8.c cVar, BookFilter bookFilter, KeywordFilter keywordFilter) {

@@ -49,13 +49,18 @@ class CategoryUtils(private val manifest: HookerManifest, private val classLoade
      */
     private suspend fun getCategoryList(bookId: Long): HashMap<String, Any> =
         suspendCoroutine { continuation ->
+            var resumed = false
             val proxyInstance =
                 Proxy.newProxyInstance(classLoader, arrayOf(proxyOnGetCategoryListClazz)) { _, method, args ->
                     if (method.name == "onGetCategoryList") {
                         val list1 = args[0]
                         val list2 = args[1]
-                        runCatching {
-                            continuation.resume(hashMapOf("list1" to list1, "list2" to list2))
+
+                        if (!resumed) {
+                            resumed = true
+                            runCatching {
+                                continuation.resume(hashMapOf("list1" to list1, "list2" to list2))
+                            }
                         }
                     }
                     null
