@@ -24,7 +24,7 @@ import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.AssetsModel
 import org.ezbook.server.db.model.BillInfoModel
 
-enum class QianJiBillType(private val value: Int) {
+enum class QianJiBillType(val value: Int) {
 
     Expend(0), // 支出
     Income(1), // 收入

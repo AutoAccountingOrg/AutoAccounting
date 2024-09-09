@@ -180,7 +180,7 @@ class BaoXiaoUtils(
 
     }
 
-    suspend fun doBaoXiao(billModel: BillInfoModel) = withContext(Dispatchers.IO) {
+    suspend fun doBaoXiao(billModel: BillInfoModel) = withContext(Dispatchers.Main) {
 
         val list = billModel.extendData.split(", ")
 
@@ -213,7 +213,6 @@ class BaoXiaoUtils(
         }
         val baoXiaoInstance = XposedHelpers.newInstance(baoXiaoImpl, param1Object)
 
-        val doBaoXiaoMethod = baoXiaoImpl.declaredMethods.find { it.name == "doBaoXiao" }!!
         //    public void doBaoXiao(
         //    java.util.Set<? extends com.mutangtech.qianji.data.model.Bill> r36,
         //    com.mutangtech.qianji.data.model.AssetAccount r37,
@@ -229,9 +228,9 @@ class BaoXiaoUtils(
         val set = HashSet<Any>(selectBills)
 
         // com.mutangtech.qianji.data.model.AssetAccount r37,
-        val asset = withContext(Dispatchers.Main) {
+        val asset =
             AssetsUtils(manifest, classLoader).getAssetsList()
-        }.filter {
+        .filter {
 
             XposedHelpers.getObjectField(it, "name") as String == billModel.accountNameTo }
 

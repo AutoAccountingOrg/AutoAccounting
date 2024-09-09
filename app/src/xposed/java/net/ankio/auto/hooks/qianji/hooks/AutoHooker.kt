@@ -16,9 +16,18 @@
 package net.ankio.auto.hooks.qianji.hooks
 
 import android.app.Application
+import android.net.Uri
+import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XC_MethodReplacement
+import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
+import net.ankio.auto.App
+import net.ankio.auto.BuildConfig
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
+import net.ankio.auto.hooks.qianji.sync.BaoXiaoUtils
+import net.ankio.auto.hooks.qianji.tools.QianJiBillType
+import net.ankio.auto.hooks.qianji.tools.QianJiUri
 import net.ankio.dex.model.ClazzField
 import net.ankio.dex.model.ClazzMethod
 
@@ -38,7 +47,6 @@ class AutoHooker:PartHooker() {
                         ),
                     ),
                     regex = "^\\w{2}$",
-                    modifiers = "private static final",
                 ),
             )
         )
@@ -53,10 +61,107 @@ class AutoHooker:PartHooker() {
         hookTimeout(hookerManifest)
 
         hookTaskLog(hookerManifest,classLoader)
+
+        hookTaskLogStatus(hookerManifest,classLoader)
     }
 
     private fun hookTaskLog(hookerManifest: HookerManifest,classLoader: ClassLoader){
+        XposedHelpers.findAndHookMethod(
+            "com.mutangtech.qianji.bill.auto.AddBillIntentAct",
+            classLoader,
+            method("com.mutangtech.qianji.bill.auto.AddBillIntentAct","InsertAutoTask",classLoader),
+            "java.lang.String",
+            "com.mutangtech.qianji.data.model.AutoTaskLog",object : XC_MethodHook(){
+                override fun beforeHookedMethod(param: MethodHookParam) {
+                    super.beforeHookedMethod(param)
 
+                    val msg = param.args[0] as String
+                    hookerManifest.logD("hookTaskLog: $msg")
+
+                    val error = handleError(msg)
+                    val autoTaskLog = param.args[1] as Any
+                    if (error!==msg){
+                        XposedHelpers.callMethod(autoTaskLog,"setStatus",0)
+                        param.args[0] = error
+                        return
+                    }
+
+
+
+
+                    val value = XposedHelpers.getObjectField(autoTaskLog,"value") as String
+                    hookerManifest.logD("hookTaskLog: $value")
+
+
+
+                    XposedHelpers.setObjectField(autoTaskLog,"from",BuildConfig.APPLICATION_ID)
+
+                    val uri = Uri.parse(value)
+                    val billInfo = QianJiUri.toAuto(uri)
+
+                    hookerManifest.logD("hookTaskLog: $billInfo")
+
+                    when(uri.getQueryParameter("type")?.toInt() ?: 0){
+                        QianJiBillType.Expend.value -> {
+
+                            return
+                        }
+                        QianJiBillType.ExpendReimbursement.value -> {
+                            return
+                        }
+                        // 支出（借出）
+                        QianJiBillType.ExpendLending.value -> {
+
+                        }
+                        // 支出（还款销账）
+                        QianJiBillType.ExpendRepayment.value -> {
+
+                        }
+
+                        QianJiBillType.Income.value -> {
+                            return
+                        }
+                        // 收入（借入）
+                        QianJiBillType.IncomeLending.value -> {
+
+                        }
+                        // 收入（还款销账）
+                        QianJiBillType.IncomeRepayment.value -> {
+
+                        }
+                        // 收入（报销)
+                        QianJiBillType.IncomeReimbursement.value -> {
+                            App.launch {
+                               runCatching {
+                                   BaoXiaoUtils(hookerManifest,classLoader).doBaoXiao(billInfo)
+                               }.onSuccess {
+                                      hookerManifest.logD("报销成功")
+
+                               }.onFailure {
+                                   hookerManifest.logD("报销失败 ${it.message}")
+                                   hookerManifest.logE(it)
+                               }
+                            }
+                            param.args[0] = "报销成功"
+                            XposedHelpers.callMethod(autoTaskLog,"setStatus",1)
+                        }
+                        QianJiBillType.Transfer.value -> {
+                            return
+                        }
+                    }
+
+
+                }
+            }
+        )
+    }
+
+    private fun handleError(message: String):String{
+        if (message.contains("key=accountname;value=")){
+            val  assetName = message.split("value=")[1]
+            return "钱迹中找不到【${assetName}】资产账户，请先创建。"
+        }
+        return message
     }
 
     /*
@@ -67,6 +172,41 @@ class AutoHooker:PartHooker() {
         XposedHelpers.setStaticLongField(addBillIntentAct, "FREQUENCY_LIMIT_TIME", 0L)
 
         hookerManifest.logD("hookTimeout =${XposedHelpers.getStaticLongField(addBillIntentAct, "FREQUENCY_LIMIT_TIME")}")
+    }
+
+    private fun hookTaskLogStatus(hookerManifest: HookerManifest,classLoader: ClassLoader){
+        XposedHelpers.findAndHookMethod("com.mutangtech.qianji.data.model.AutoTaskLog",
+            classLoader,
+            "setStatus",
+            Int::class.java,
+            object : XC_MethodReplacement(){
+                override fun replaceHookedMethod(param: MethodHookParam?) {
+                    val status = param?.args?.get(0) as Int
+                    if (status == 1){
+                        //  // TODO 告知自动记账该账单同步成功
+                    }
+                    hookerManifest.logD("hookTaskLogStatus: $status")
+                    val raw = XposedHelpers.getIntField(param.thisObject,"status")
+                    hookerManifest.logD("hookTaskLogStatus: $raw")
+                    if (raw!=0){
+                        return
+                    }
+
+                    XposedHelpers.setIntField(param.thisObject,"status",status)
+                }
+            }
+        )
+
+        XposedHelpers.findAndHookMethod("com.mutangtech.qianji.data.model.AutoTaskLog",
+            classLoader,
+            "setFrom",
+            String::class.java,
+            object : XC_MethodReplacement(){
+                override fun replaceHookedMethod(param: MethodHookParam?) {
+                    XposedHelpers.setObjectField(param!!.thisObject,"from",BuildConfig.APPLICATION_ID)
+                }
+            }
+        )
     }
 
 

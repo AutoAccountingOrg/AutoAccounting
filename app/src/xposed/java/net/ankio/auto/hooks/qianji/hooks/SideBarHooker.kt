@@ -175,11 +175,15 @@ class SideBarHooker : PartHooker(){
         }
     }
 
+    private var last = 0L
     /**
      * 同步数据到自动记账
      */
     fun syncData2Auto(context: Activity){
-
+        if(System.currentTimeMillis() - last < 1000 * 30) {
+          return
+        }
+        last = System.currentTimeMillis()
         App.launch {
             AssetsUtils(hookerManifest, context.classLoader).syncAssets()
             val books = BookUtils(hookerManifest, context.classLoader,context).syncBooks()

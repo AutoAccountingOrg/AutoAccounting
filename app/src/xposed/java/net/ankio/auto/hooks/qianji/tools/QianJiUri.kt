@@ -24,9 +24,8 @@ import java.util.Date
 import java.util.Locale
 
 object QianJiUri {
-    private val uri = StringBuilder("qianji://publicapi/addbill")
-
    suspend fun toQianJi(billModel: BillInfoModel) :Uri = withContext(Dispatchers.IO){
+       val uri = StringBuilder("qianji://publicapi/addbill")
         uri.append("?type=${QianJiBillType.toQianJi(billModel)}")
         uri.append("&money=${billModel.money}")
         uri.append("&time=${formatTime(billModel.time)}")

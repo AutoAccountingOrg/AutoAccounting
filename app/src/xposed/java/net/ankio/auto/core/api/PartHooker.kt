@@ -56,7 +56,6 @@ abstract class PartHooker {
                 }
             }.onFailure {
                 App.get("methods_adaptation", "0")
-                hookerManifest.logE(it)
                 method.clear()
             }.onSuccess {
                 return true
