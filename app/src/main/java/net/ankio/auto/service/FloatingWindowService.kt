@@ -80,7 +80,7 @@ class FloatingWindowService : Service() {
         }
 
 
-        val billInfoModel = Gson().fromJson(intent.getStringExtra("billInfoModel"), BillInfoModel::class.java)
+        val billInfoModel = Gson().fromJson(intent.getStringExtra("billInfo"), BillInfoModel::class.java)
         val parent = runCatching { Gson().fromJson(intent.getStringExtra("parent"), BillInfoModel::class.java) }.getOrNull()
 
         val showWaitTip = intent.getBooleanExtra("showWaitTip", true)

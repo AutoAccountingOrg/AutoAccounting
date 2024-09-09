@@ -219,7 +219,7 @@ ${item.data}
                     val serviceIntent =
                         Intent(activity, FloatingWindowService::class.java).apply {
                             putExtra("parent", "")
-                            putExtra("billInfoModel", Gson().toJson(billModel))
+                            putExtra("billInfo", Gson().toJson(billModel))
                             putExtra("showWaitTip",false)
                         }
                     activity.startService(serviceIntent)
