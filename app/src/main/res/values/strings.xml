@@ -138,7 +138,7 @@
     <string name="auth_waiting">授权等待中</string>
     <string name="upload_sure">数据上传确认</string>
     <string name="upload_info">您即将上传数据到Github（AutoAccountingOrg/AutoRule），开发者可以根据您上传的数据进行规则适配。</string>
-    <string name="upload_success">数据上传成功，开发者将在3个工作日内完成适配。</string>
+    <string name="upload_success">数据上传成功，开发者将在15个工作日内完成适配。</string>
     <string name="no_match">所有规则均未命中该数据。</string>
     <string name="new_version">新版本%s</string>
     <string name="sure_update">更新</string>
@@ -410,4 +410,6 @@
     <string name="borrow">借入</string>
     <string name="float_choose_bill">请选择账单</string>
     <string name="select_date">选择日期</string>
+    <string name="issue_title">反馈内容</string>
+    <string name="disallow_empty">你好歹告诉我们这个数据有什么问题吧。</string>
 </resources>

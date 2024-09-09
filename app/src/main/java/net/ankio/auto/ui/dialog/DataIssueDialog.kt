@@ -23,55 +23,37 @@ import com.google.gson.JsonElement
 import com.hjq.toast.Toaster
 import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogDataEditorBinding
+import net.ankio.auto.databinding.DialogDataIssueBinding
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.utils.ToastUtils
 
-class DataEditorDialog(
+class DataIssueDialog(
     context: Context,
-    private val data: String,
     private val callback: (result: String) -> Unit,
 ) :
     BaseSheetDialog(context) {
-    private lateinit var binding: DialogDataEditorBinding
+    private lateinit var binding: DialogDataIssueBinding
 
     override fun onCreateView(inflater: LayoutInflater): View {
-        binding = DialogDataEditorBinding.inflate(inflater)
+        binding = DialogDataIssueBinding.inflate(inflater)
         cardView = binding.cardView
         cardViewInner = binding.cardViewInner
         binding.buttonSure.setOnClickListener {
             val data = binding.data.text.toString()
-            runCatching {
-                Gson().fromJson(data, JsonElement::class.java)
-            }.onFailure {
-                ToastUtils.info(R.string.json_error)
-            }.onSuccess {
-                callback(binding.data.text.toString())
-                dismiss()
+            if (data.isEmpty()) {
+                ToastUtils.error(R.string.disallow_empty)
+                return@setOnClickListener
             }
+            callback(binding.data.text.toString())
+            dismiss()
         }
 
         binding.buttonCancel.setOnClickListener {
             dismiss()
         }
 
-        binding.data.setText(data)
 
-        binding.btnReplace.setOnClickListener {
-            val keyword = binding.rawData.text.toString()
-            val replaceData = binding.replaceData.text.toString()
-            val editorData = binding.data.text.toString()
 
-            if (keyword.isEmpty() || replaceData.isEmpty()) {
-                ToastUtils.error(R.string.no_empty)
-                return@setOnClickListener
-            }
-
-            if (!editorData.contains(keyword)) {
-                ToastUtils.error(R.string.no_replace)
-                return@setOnClickListener
-            }
-            binding.data.setText(editorData.replace(keyword, replaceData))
-        }
 
         return binding.root
     }

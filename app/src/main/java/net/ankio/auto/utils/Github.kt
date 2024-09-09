@@ -80,7 +80,7 @@ object Github {
         title: String,
         body: String,
         repo: String = "AutoRule",
-    ): String =
+    ): Int =
         withContext(Dispatchers.IO) {
             val url = "https://api.github.com/repos/AutoAccountingOrg/$repo/issues"
 
@@ -100,6 +100,6 @@ object Github {
             }
             val jsonObject = JSONObject(String(result.byteArray))
             val id = jsonObject.getInt("number")
-            id.toString()
+            id
         }
 }

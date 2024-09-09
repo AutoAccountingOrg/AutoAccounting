@@ -30,15 +30,20 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterDataBinding
+import net.ankio.auto.databinding.SettingItemInputBinding
 import net.ankio.auto.service.FloatingWindowService
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
+import net.ankio.auto.ui.dialog.DataEditorDialog
+import net.ankio.auto.ui.dialog.DataIssueDialog
 import net.ankio.auto.ui.scope.autoDisposeScope
+import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.DateUtils
+import net.ankio.auto.utils.Github
 import org.ezbook.server.Server
 import org.ezbook.server.db.model.AppDataModel
 import org.ezbook.server.db.model.BillInfoModel
@@ -68,7 +73,7 @@ class AppDataAdapter(private val list: MutableList<AppDataModel>,private val act
         item.rule = billModel.ruleName
 
         Logger.d("tryAdaptUnmatchedItems Update: $item")
-        // TODO issue
+        item.issue = 0
 
 
         AppDataModel.put(item)
@@ -87,6 +92,106 @@ class AppDataAdapter(private val list: MutableList<AppDataModel>,private val act
             return@withContext null
         }
         return@withContext Gson().fromJson(data.getAsJsonObject("data"), BillInfoModel::class.java)
+    }
+
+
+    private fun buildUploadDialog(holder: BaseViewHolder<AdapterDataBinding, AppDataModel>){
+        val item = holder.item!!
+        DataEditorDialog(activity, item.data) {
+            val loading = LoadingUtils(activity)
+            loading.show(R.string.upload_waiting)
+            holder.binding.root.autoDisposeScope.launch {
+                val type = item.type.name
+                val title = "[Adaptation Request][$type]${item.app}"
+                val body = """
+```
+${item.data}
+```
+                """.trimIndent()
+             
+
+                runCatching {
+                    item.issue =  Github.createIssue(
+                        title,
+                        body,
+                        "AutoRule",
+                    )
+                }.onFailure {
+                    withContext(Dispatchers.Main){
+                       ToastUtils.error(it.message!!)
+                        CustomTabsHelper.launchUrl(
+                            activity,
+                            Uri.parse(Github.getLoginUrl()),
+                        )
+                        loading.close()
+                    }
+                }
+
+                withContext(Dispatchers.Main){
+                    loading.close()
+                    list[holder.positionIndex] = item
+                    notifyItemChanged(holder.positionIndex)
+                    ToastUtils.info(R.string.upload_success)
+                }
+            }
+        }.show(float = false)
+    }
+
+    private fun buildIssueDialog(holder: BaseViewHolder<AdapterDataBinding, AppDataModel>){
+        val item = holder.item!!
+
+        DataIssueDialog(activity) { issue ->
+            DataEditorDialog(activity, item.data) {
+                val loading = LoadingUtils(activity)
+                loading.show(R.string.upload_waiting)
+                holder.binding.root.autoDisposeScope.launch {
+                    val type = item.type.name
+                    val title =      "[Bug][Rule][$type]${item.app}"
+                    val body =   """
+## 规则
+${item.rule}
+## 说明
+$issue
+## 数据
+```
+${item.data}
+```
+                         
+                                            """.trimIndent()
+
+                    
+                    runCatching {
+                        item.issue =  Github.createIssue(
+                            title,
+                            body,
+                            "AutoAccounting",
+                        )
+                    }.onFailure {
+                       withContext(Dispatchers.Main){
+                          ToastUtils.error(it.message!!)
+                           CustomTabsHelper.launchUrl(
+                               activity,
+                               Uri.parse(Github.getLoginUrl()),
+                           )
+                           loading.close()
+                       }
+                        return@launch
+                    }
+                    
+                   
+
+                    withContext(Dispatchers.Main){
+                        loading.close()
+                        list[holder.positionIndex] = item
+                        notifyItemChanged(holder.positionIndex)
+                        ToastUtils.info(R.string.upload_success)
+                    }
+                }
+            }.show(float = false)
+
+        }.show(float = false)
+
+
     }
 
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterDataBinding, AppDataModel>) {
@@ -128,13 +233,24 @@ class AppDataAdapter(private val list: MutableList<AppDataModel>,private val act
                 .setPositiveButton(activity.getString(R.string.cancel_msg)) { _, _ -> }
                 .setNegativeButton(activity.getString(R.string.copy)) { _, _ ->
                     App.copyToClipboard(binding.content.text as String)
-                    Toaster.show(R.string.copy_command_success)
+                   ToastUtils.error(R.string.copy_command_success)
                 }
                 .show()
         }
 
         binding.uploadData.setOnClickListener {
-            //TODO 上传数据
+            val item = holder.item!!
+            if (item.issue != 0) {
+               ToastUtils.error(holder.context.getString(R.string.repeater_issue))
+                return@setOnClickListener
+            }
+         
+             if (!item.match) {
+                 buildUploadDialog(holder)
+                 return@setOnClickListener
+             }
+             buildIssueDialog(holder)
+         
         }
 
         binding.root.setOnLongClickListener {
