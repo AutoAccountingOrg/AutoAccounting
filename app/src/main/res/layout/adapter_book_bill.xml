@@ -6,15 +6,17 @@
     android:background="?selectableItemBackground"
     android:clickable="true"
     android:focusable="true"
+    android:gravity="center_vertical"
     android:minHeight="?attr/listPreferredItemHeight"
     android:paddingVertical="16dp"
     android:paddingStart="16dp"
-    android:paddingEnd="24dp">
+    android:paddingEnd="16dp">
 
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:gravity="center_vertical"
         android:orientation="vertical">
         <!-- 金额 TextView -->
         <net.ankio.auto.ui.componets.IconView
@@ -37,8 +39,6 @@
             android:layout_marginTop="5dp"
             android:textAppearance="?textAppearanceBodySmall"
             android:textColor="?colorOnSurfaceVariant"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
             tools:text="2022年12月23日 12:00" />
 
 
@@ -50,10 +50,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="10dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/category"
         android:textAppearance="?textAppearanceBodyLarge"
-        app:layout_constraintTop_toTopOf="parent"
         tools:text="- 200" />
 
     <com.google.android.material.checkbox.MaterialCheckBox
@@ -63,10 +60,7 @@
         android:layout_marginEnd="0dp"
         android:background="@android:color/transparent"
         android:clickable="false"
-        android:focusable="false"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:focusable="false" />
 
 
 </LinearLayout>

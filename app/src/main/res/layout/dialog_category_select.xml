@@ -38,7 +38,6 @@
                 android:id="@+id/statusPage"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:padding="@dimen/cardPadding"
                 android:layout_weight="1"
                 app:innerHeight="wrap_content"
                 />
@@ -50,6 +49,7 @@
                 android:layout_height="@dimen/btn_height_small"
                 android:gravity="center|center_horizontal"
                 android:text="@string/sure_msg"
+                android:layout_marginTop="@dimen/cardPadding"
                />
 
 

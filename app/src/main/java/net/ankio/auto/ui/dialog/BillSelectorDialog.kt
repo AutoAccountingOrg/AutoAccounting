@@ -51,6 +51,8 @@ class BillSelectorDialog(
 
         recyclerView.adapter = BillSelectorAdapter(dataItems,selectedBills)
 
+        recyclerView.setPadding(0, 0, 0, 0)
+
         binding.button.setOnClickListener {
             Log.d("BillSelectorDialog", "selectedBills: $selectedBills")
             callback.invoke(selectedBills)
