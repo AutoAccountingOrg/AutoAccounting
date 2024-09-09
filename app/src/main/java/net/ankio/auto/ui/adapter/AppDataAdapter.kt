@@ -201,7 +201,7 @@ ${item.data}
         binding.issue.setOnClickListener {
             val item = holder.item!!
             CustomTabsHelper.launchUrl(
-                App.app,
+                activity,
                 Uri.parse(
                     if (item.match) "https://github.com/AutoAccountingOrg/AutoAccounting/issues/${item.issue}" else "https://github.com/AutoAccountingOrg/AutoRule/issues/${item.issue}",
 
