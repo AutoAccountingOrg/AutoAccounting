@@ -130,6 +130,7 @@ ${item.data}
                 withContext(Dispatchers.Main){
                     loading.close()
                     list[holder.positionIndex] = item
+                    AppDataModel.put(item)
                     notifyItemChanged(holder.positionIndex)
                     ToastUtils.info(R.string.upload_success)
                 }
@@ -183,8 +184,9 @@ ${item.data}
                     withContext(Dispatchers.Main){
                         loading.close()
                         list[holder.positionIndex] = item
+                        AppDataModel.put(item)
                         notifyItemChanged(holder.positionIndex)
-                        ToastUtils.info(R.string.upload_success)
+                        ToastUtils.info(R.string.upload_success_issue)
                     }
                 }
             }.show(float = false)

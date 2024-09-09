@@ -57,6 +57,7 @@ object CustomTabsHelper {
     ): Boolean {
         return try {
             customTabsIntent.launchUrl(context, uri)
+            customTabsIntent.intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             true
         } catch (e: ActivityNotFoundException) {
             false
