@@ -166,8 +166,8 @@ class BaoXiaoUtils(
          *     "userid": "200104405e109647c18e9"
          * }*/
 
-        manifest.logD("报销账单:${Gson().toJson(bxList)},数据总数：${bxList.size}")
-        val bills = convert2Bill(bxList, BillType.ExpendRepayment)
+        manifest.logD("报销账单数据总数：${bxList.size}")
+        val bills = convert2Bill(bxList)
         val sync = Gson().toJson(bills)
         val md5 = App.md5(sync)
         val server = SettingModel.get("sync_bill_md5", "")
@@ -176,7 +176,7 @@ class BaoXiaoUtils(
             return@withContext
         }
 
-        BookBillModel.put(bills, md5, BillType.ExpendRepayment)
+        BookBillModel.put(bills, md5)
 
     }
 
@@ -274,11 +274,10 @@ class BaoXiaoUtils(
     }
 
     companion object {
-        fun convert2Bill(anyBills: List<*>, billType: BillType): ArrayList<BookBillModel> {
+        fun convert2Bill(anyBills: List<*>): ArrayList<BookBillModel> {
             val bills = arrayListOf<BookBillModel>()
             anyBills.forEach {
                 val bill = BookBillModel()
-                bill.type = billType
                 val fields = it!!.javaClass.declaredFields
                 for (field in fields) {
                     field.isAccessible = true

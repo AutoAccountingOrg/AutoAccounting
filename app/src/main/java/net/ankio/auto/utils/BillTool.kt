@@ -15,6 +15,8 @@
 
 package net.ankio.auto.utils
 
+import androidx.core.content.ContextCompat
+import com.google.android.material.textview.MaterialTextView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
@@ -36,6 +38,23 @@ object BillTool {
             BillType.Income -> if (payColor == 1) R.color.danger else R.color.success
             BillType.Transfer -> R.color.info
             else -> R.color.danger
+        }
+    }
+
+
+    fun setTextViewPrice(price: Double, type: BillType,view:MaterialTextView) {
+        val color = ContextCompat.getColor(view.context, getColor(type))
+        view.setTextColor(color)
+        when (type) {
+            BillType.Expend, BillType.ExpendReimbursement, BillType.ExpendLending, BillType.ExpendRepayment -> {
+                view.text = "- $price"
+            }
+            BillType.Income, BillType.IncomeLending, BillType.IncomeRepayment, BillType.IncomeReimbursement -> {
+                view.text = "+ $price"
+            }
+            else -> {
+                view.text = "$price"
+            }
         }
     }
 

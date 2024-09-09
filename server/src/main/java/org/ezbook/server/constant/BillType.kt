@@ -22,7 +22,6 @@ enum class BillType{
     ExpendLending,//支出（借出）
     ExpendRepayment,//支出（还款销账）
 
-
     Income,//收入
 
     IncomeLending,//收入（借入）

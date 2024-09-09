@@ -18,18 +18,14 @@ package org.ezbook.server.routes
 import com.google.gson.Gson
 import org.ezbook.server.Server
 import org.ezbook.server.db.Db
-import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.db.model.BookBillModel
-import org.ezbook.server.db.model.CategoryModel
 import org.nanohttpd.protocols.http.IHTTPSession
 import org.nanohttpd.protocols.http.response.Response
 
 class BookBillRoute(private val session: IHTTPSession) {
    
     fun list(): Response {
-        val params = session.parameters
-        val type = params["type"]?.firstOrNull()?:""
-        val data = Db.get().bookBillDao().list(type)
+        val data = Db.get().bookBillDao().list()
         return Server.json(200, "OK", data)
     }
 

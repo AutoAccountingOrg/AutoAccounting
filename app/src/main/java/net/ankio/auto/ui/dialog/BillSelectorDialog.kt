@@ -17,74 +17,69 @@ package net.ankio.auto.ui.dialog
 
 //import net.ankio.auto.ui.adapter.BillSelectorAdapter
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.hjq.toast.Toaster
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import net.ankio.auto.R
-import net.ankio.auto.databinding.DialogBillSelectBinding
-import net.ankio.auto.exceptions.AutoServiceException
-import net.ankio.auto.models.BookBillModel
-import net.ankio.auto.storage.Logger
+import kotlinx.coroutines.withContext
+import net.ankio.auto.databinding.DialogCategorySelectBinding
+import net.ankio.auto.ui.adapter.BillSelectorAdapter
 import net.ankio.auto.ui.api.BaseSheetDialog
-import org.ezbook.server.constant.BillType
+import net.ankio.auto.ui.componets.StatusPage
+import org.ezbook.server.db.model.BookBillModel
 
 class BillSelectorDialog(
     private val context: Context,
-    private val billType: BillType,
-    private val selectedBills: ArrayList<String> = ArrayList(),
-    private val callback: () -> Unit,
+    private val selectedBills: MutableList<String> = ArrayList(),
+    private val callback: (MutableList<String>) -> Unit,
 ) :
     BaseSheetDialog(context) {
-    private lateinit var binding: DialogBillSelectBinding
+    private lateinit var binding: DialogCategorySelectBinding
     private val dataItems = mutableListOf<BookBillModel>()
-  //  private val adapter = BillSelectorAdapter(dataItems, selectedBills)
-
+  private lateinit var statusPage: StatusPage
     override fun onCreateView(inflater: LayoutInflater): View {
-        binding = DialogBillSelectBinding.inflate(inflater)
+        binding = DialogCategorySelectBinding.inflate(inflater)
         val layoutManager = LinearLayoutManager(context)
-        binding.recyclerView.layoutManager = layoutManager
-
+        statusPage = binding.statusPage
         cardView = binding.cardView
-        cardViewInner = binding.innerView
+        cardViewInner = binding.cardViewInner
+        val recyclerView = statusPage.contentView!!
+        recyclerView.layoutManager = layoutManager
 
-        //binding.recyclerView.adapter = adapter
+        recyclerView.adapter = BillSelectorAdapter(dataItems,selectedBills)
 
-        binding.btn.setOnClickListener {
-            callback.invoke()
+        binding.button.setOnClickListener {
+            Log.d("BillSelectorDialog", "selectedBills: $selectedBills")
+            callback.invoke(selectedBills)
             dismiss()
         }
+
+        lifecycleScope.launch {
+            statusPage.showLoading()
+            loadData()
+        }
+
 
         return binding.root
     }
 
-    override fun show(
-        float: Boolean,
-        cancel: Boolean,
-    ) {
-        lifecycleScope.launch {
-            runCatching {
 
-             /*   val data = BookBillModel.get(500,billType)
-                if (data.isNullOrEmpty()) {
-                    dismiss()
-                    Toaster.show(R.string.no_bills)
-                    return@runCatching
-                }
-                super.show(float, cancel)
-                dataItems.addAll(data)
-*/
-             //   adapter.notifyDataSetChanged()
-            }.onFailure {
-                dismiss()
-                Toaster.show(R.string.no_bills)
-                Logger.e("get auto_bills ${billType.name} error", it)
-                if (it is AutoServiceException) {
-                  //  EventBus.post(AutoServiceErrorEvent(it))
-                }
+    private suspend fun loadData(){
+        val list = BookBillModel.list()
+        if (list.isEmpty()) {
+            withContext(Dispatchers.Main) {
+                statusPage.showEmpty()
             }
+            return
+        }
+        dataItems.addAll(list)
+        withContext(Dispatchers.Main) {
+            statusPage.showContent()
+            statusPage.contentView!!.adapter?.notifyItemRangeInserted(0, list.size)
         }
     }
+
 }

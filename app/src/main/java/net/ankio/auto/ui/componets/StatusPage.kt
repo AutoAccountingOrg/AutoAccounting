@@ -16,14 +16,12 @@
 package net.ankio.auto.ui.componets
 
 import android.content.Context
-import android.graphics.Color
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.RelativeLayout
-import androidx.annotation.Nullable
 import androidx.recyclerview.widget.RecyclerView
 import net.ankio.auto.R
 import net.ankio.auto.databinding.StatusPageBinding
@@ -75,8 +73,13 @@ class StatusPage : RelativeLayout {
             } finally {
                 recycle()
             }
+
         }
+
+
     }
+
+
 
 
     fun showLoading() {

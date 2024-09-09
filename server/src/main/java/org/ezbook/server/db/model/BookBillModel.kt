@@ -37,13 +37,6 @@ class BookBillModel {
 
     @PrimaryKey(autoGenerate = true)
     var id = 0L
-    /**
-     * 账单类型
-     * 1. 支出报销(BillType.ExpendRepayment)
-     * 2. 借出(BillType.ExpendLending)
-     * 3. 借入(BillType.IncomeLending)
-     */
-    var type: BillType = BillType.ExpendRepayment
 
     var money: Double = 0.00
 
@@ -58,17 +51,17 @@ class BookBillModel {
     var category: String = ""
 
     companion object{
-        suspend fun list(type: BillType) : List<BookNameModel> = withContext(
+        suspend fun list() : List<BookBillModel> = withContext(
             Dispatchers.IO) {
-            val response = Server.request("bill/book/list?type=${type.name}")
+            val response = Server.request("bill/book/list")
             val json = Gson().fromJson(response, JsonObject::class.java)
 
-            runCatching { Gson().fromJson(json.getAsJsonArray("data"), Array<BookNameModel>::class.java).toList() }.getOrNull() ?: emptyList()
+            runCatching { Gson().fromJson(json.getAsJsonArray("data"), Array<BookBillModel>::class.java).toList() }.getOrNull() ?: emptyList()
         }
 
-        //TODO
-        fun put(bills: ArrayList<BookBillModel>, md5: String, expendRepayment: BillType) {
-
+        suspend fun put(bills: ArrayList<BookBillModel>, md5: String) = withContext(Dispatchers.IO) {
+            val json = Gson().toJson(bills)
+            Server.request("bill/book/put?md5=$md5", json)
         }
 
     }

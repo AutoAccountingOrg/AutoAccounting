@@ -29,8 +29,6 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.core.widget.TextViewCompat
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.datepicker.MaterialDatePicker
-import com.google.android.material.elevation.SurfaceColors
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -514,7 +512,7 @@ class FloatEditorDialog(
             //还款销账
             BillType.ExpendRepayment -> {
                 binding.debtExpend.visibility = View.VISIBLE
-                binding.chooseBill.visibility = View.VISIBLE
+                //binding.chooseBill.visibility = View.VISIBLE
                 binding.debtExpendToLayout.setHint(R.string.float_income_debt)
                 setAssetItem(billInfoModel.accountNameFrom, binding.debtExpendFrom)
                 binding.debtExpendTo.setText(billInfoModel.shopName)
@@ -550,7 +548,7 @@ class FloatEditorDialog(
             //还款销账
             BillType.IncomeRepayment -> {
                 binding.debtIncome.visibility = View.VISIBLE
-                binding.chooseBill.visibility = View.VISIBLE
+                //binding.chooseBill.visibility = View.VISIBLE
                 binding.debtIncomeFromLayout.setHint(R.string.float_expend_debt)
                 binding.debtIncomeFrom.setText(billInfoModel.shopName)
                 setAssetItem(billInfoModel.accountNameFrom, binding.debtIncomeTo)
@@ -568,6 +566,8 @@ class FloatEditorDialog(
                 binding.payInfo.visibility = View.VISIBLE
                 setAssetItem(billInfoModel.accountNameFrom, binding.payFrom)
                 binding.category.visibility = View.VISIBLE
+                selectedBills.clear()
+                bindingSelectBillsUi()
             }
 
             BillType.Transfer -> return
@@ -664,10 +664,22 @@ class FloatEditorDialog(
         }
     }
 
+    private fun  bindingSelectBillsUi(){
+        if (selectedBills.isEmpty()){
+            binding.chooseBill.setText(R.string.float_choose_bill)
+        }else{
+            binding.chooseBill.text = context.getString(R.string.float_choose_bills,selectedBills.size)
+        }
+    }
 
     private fun bindingSelectBillsEvents() {
         binding.chooseBill.setOnClickListener {
-           //TODO 选择账单
+
+            // 收入对应的报销
+
+           BillSelectorDialog(context, selectedBills){
+               bindingSelectBillsUi()
+           }.show(float)
         }
     }
 
@@ -684,7 +696,7 @@ class FloatEditorDialog(
 
 
         bindChangeAssets()
-        bindingSelectBillsEvents()
+        bindingSelectBillsUi()
 
     }
 

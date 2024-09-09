@@ -26,8 +26,8 @@ interface BookBillDao {
     @Insert
     fun insert(bookBill: BookBillModel): Long
 
-    @Query("SELECT * FROM BookBillModel WHERE type = :type")
-    fun list(type: String): List<BookBillModel>
+    @Query("SELECT * FROM BookBillModel")
+    fun list(): List<BookBillModel>
 
     @Query("DELETE FROM BookBillModel")
     fun clear()

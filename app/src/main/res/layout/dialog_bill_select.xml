@@ -34,33 +34,6 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/padding"
-                android:layout_marginStart="@dimen/padding"
-                android:layout_marginEnd="@dimen/padding"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/textView3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/select_bill"
-                    />
-
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/sure_msg" />
-            </LinearLayout>
-
             <androidx.recyclerview.widget.RecyclerView
 
                 android:id="@+id/recycler_view"
@@ -71,6 +44,12 @@
                 android:orientation="vertical">
 
             </androidx.recyclerview.widget.RecyclerView>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/sure_msg" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 </LinearLayout>
