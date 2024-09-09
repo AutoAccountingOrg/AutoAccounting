@@ -30,26 +30,23 @@
             android:id="@+id/cardViewInner"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:padding="@dimen/cardPadding"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="@dimen/cardPadding">
 
-           <net.ankio.auto.ui.componets.StatusPage
-              android:id="@+id/statusPage"
-               android:layout_width="wrap_content"
-               android:layout_height="wrap_content"
-               app:innerHeight="wrap_content"
-               />
+            <net.ankio.auto.ui.componets.StatusPage
+                android:id="@+id/statusPage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:innerHeight="wrap_content" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/button"
                 style="@style/Widget.Material3.Button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                android:layout_marginEnd="@dimen/padding"
-                android:gravity="center_horizontal|center_vertical"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/btn_height_small"
+                android:layout_marginTop="@dimen/padding"
+                android:gravity="center|center_horizontal"
                 android:text="@string/sure_msg" />
-
 
 
         </LinearLayout>
