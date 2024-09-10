@@ -96,4 +96,10 @@ object Setting {
     // 系统语言
     const val SYSTEM_LANGUAGE = "setting_system_language"
 
+    // 是否自动识别资产
+    const val AUTO_IDENTIFY_ASSET = "setting_auto_identify_asset"
+
+    // 备注格式
+    const val NOTE_FORMAT = "setting_note_format"
+
 }

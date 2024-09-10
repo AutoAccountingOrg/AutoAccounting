@@ -18,6 +18,7 @@ package org.ezbook.server.tools
 import android.content.Context
 import org.ezbook.server.Server
 import org.ezbook.server.constant.Currency
+import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.BillInfoModel
 
@@ -89,7 +90,7 @@ object Bill {
         context: Context
     ):BillInfoModel? {
         Server.isRunOnMainThread()
-        val settingBillRepeat = Db.get().settingDao().query("setting_bill_repeat")?.value ?.toBoolean() ?: false
+        val settingBillRepeat = Db.get().settingDao().query(Setting.AUTO_GROUP)?.value ?.toBoolean() ?: false
         if (!settingBillRepeat) return null
         //第一要素，金钱一致，时间在5分钟以内
         val bills = Db.get().billInfoDao().query(billInfoModel.money,billInfoModel.time - 5 * 60 * 1000)
@@ -113,8 +114,8 @@ object Bill {
      */
     fun setRemark(billInfoModel: BillInfoModel, context: Context) {
         Server.isRunOnMainThread()
-        val settingBillRemark = Db.get().settingDao().query("setting_bill_remark")?.value?:"【商户名称】 - 【商品名称】"
-        settingBillRemark
+        val settingBillRemark = Db.get().settingDao().query(Setting.NOTE_FORMAT)?.value?:"【商户名称】 - 【商品名称】"
+        billInfoModel.remark  = settingBillRemark
             .replace("【商户名称】", billInfoModel.shopName)
             .replace("【商品名称】", billInfoModel.shopItem)
             .replace("【币种类型】", Currency.valueOf(billInfoModel.currency).name(context))
@@ -134,7 +135,7 @@ object Bill {
         if (name.isEmpty()) {
             billInfoModel.bookName = "默认账本"
         }
-        val defaultBookName = Db.get().settingDao().query("setting_default_book_name")?.value ?: "默认账本"
+        val defaultBookName = Db.get().settingDao().query(Setting.DEFAULT_BOOK_NAME)?.value ?: "默认账本"
 
         if (name == "默认账本") {
             billInfoModel.bookName = defaultBookName
