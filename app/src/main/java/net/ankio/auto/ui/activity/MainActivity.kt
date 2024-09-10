@@ -26,13 +26,13 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.hjq.toast.Toaster
 import com.zackratos.ultimatebarx.ultimatebarx.addNavigationBarBottomPadding
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.ActivityMainBinding
 import net.ankio.auto.storage.BackupUtils
 import net.ankio.auto.ui.api.BaseActivity
+import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.Github
 
 class MainActivity : BaseActivity() {
@@ -53,9 +53,9 @@ class MainActivity : BaseActivity() {
                 runCatching {
                     Github.parseAuthCode(code)
                 }.onFailure {
-                    Toaster.show(it.message)
+                    ToastUtils.error(it.message!!)
                 }.onSuccess {
-                    Toaster.show(R.string.auth_success)
+                    ToastUtils.info(R.string.auth_success)
                 }
             }
             hasLogin = true
@@ -103,6 +103,7 @@ class MainActivity : BaseActivity() {
         onViewCreated()
 
     }
+
 
     private fun onBottomViewInit() {
         binding = ActivityMainBinding.inflate(layoutInflater)

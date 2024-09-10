@@ -21,6 +21,7 @@ import android.app.Activity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.ScrollView
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.SearchView
 import androidx.core.graphics.drawable.DrawableCompat
@@ -108,9 +109,18 @@ abstract class BaseFragment : Fragment() {
                 animatorStart = false
             }
 
-            scrollView.addNavigationBarBottomPadding()
+            // 找到scrollView的第一个子视图
+            if (scrollView is ScrollView && (scrollView as ScrollView).childCount > 0) {
+                val view  = (scrollView as ScrollView).getChildAt(0)
+                view.addNavigationBarBottomPadding()
+            }
+
+
         }
     }
+
+
+
 
     protected var searchData = ""
 
@@ -160,6 +170,7 @@ abstract class BaseFragment : Fragment() {
 
 
     }
+
 
     /**
      * toolbar颜色渐变动画

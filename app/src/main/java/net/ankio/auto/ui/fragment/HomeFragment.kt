@@ -280,10 +280,10 @@ class HomeFragment : BaseFragment() {
      */
     override fun onDestroy() {
         super.onDestroy()
-        if (this::broadcastReceiver.isInitialized) {
+        if (::broadcastReceiver.isInitialized) {
             LocalBroadcastHelper.unregisterReceiver(broadcastReceiver)
         }
-        if (this::broadcastReceiverBook.isInitialized) {
+        if (::broadcastReceiverBook.isInitialized) {
             LocalBroadcastHelper.unregisterReceiver(broadcastReceiverBook)
         }
     }
