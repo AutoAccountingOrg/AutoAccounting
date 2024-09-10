@@ -58,6 +58,8 @@ object Setting {
 
     // 本地备份地址
     const val LOCAL_BACKUP_PATH = "setting_local_backup_path"
+    // 使用Webdav
+    const val USE_WEBDAV = "setting_use_webdav"
     // Webdav host
     const val WEBDAV_HOST = "setting_webdav_host"
     // webdav user
@@ -101,5 +103,18 @@ object Setting {
 
     // 备注格式
     const val NOTE_FORMAT = "setting_note_format"
+
+    // 使用系统皮肤
+    const val USE_SYSTEM_SKIN = "setting_use_system_skin"
+
+    // 检查更新类型
+    const val CHECK_UPDATE_TYPE = "setting_check_update_type"
+
+    //检查应用更新
+    const val CHECK_APP_UPDATE = "setting_check_app_update"
+
+    //检查规则更新
+    const val CHECK_RULE_UPDATE = "setting_check_rule_update"
+
 
 }

@@ -414,4 +414,7 @@
     <string name="disallow_empty">你好歹告诉我们这个数据有什么问题吧。</string>
     <string name="upload_success_issue">提交成功</string>
     <string name="float_choose_bills">已选择%d条账单</string>
+    <string name="version_stable">稳定版</string>
+    <string name="version_beta">测试版</string>
+    <string name="version_canary">金丝雀版</string>
 </resources>
