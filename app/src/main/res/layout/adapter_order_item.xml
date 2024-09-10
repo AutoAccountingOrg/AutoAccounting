@@ -91,35 +91,28 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/one_padding"
+        android:layout_height="48dp"
 
-        >
+        android:gravity="center_vertical">
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
 
         <ImageView
             android:id="@+id/sync"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:src="@drawable/ic_sync"
             app:tint="?colorPrimary" />
 
-        <View
-            android:layout_width="0dp"
-            android:layout_height="0dp" android:layout_weight="1" />
-        <com.google.android.material.button.MaterialButton
 
-            style="?attr/materialIconButtonFilledTonalStyle"
-            app:icon="@drawable/icon_edit"
-            android:id="@+id/editBill"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/moreBills"
+            style="?attr/materialIconButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
- />
-
-        <com.google.android.material.button.MaterialButton
-            style="?attr/materialIconButtonOutlinedStyle"
-            app:icon="@drawable/menu_item_more"
-            android:id="@+id/moreBills"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            app:icon="@drawable/menu_item_more" />
     </LinearLayout>
 </LinearLayout>

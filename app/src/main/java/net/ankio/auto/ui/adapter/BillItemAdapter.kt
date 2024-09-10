@@ -15,13 +15,19 @@
 
 package net.ankio.auto.ui.adapter
 
+import android.view.View
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
+import net.ankio.auto.common.AccountingConfig
 import net.ankio.auto.databinding.AdapterOrderItemBinding
+import net.ankio.auto.storage.Logger
+import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
+import net.ankio.auto.ui.dialog.FloatEditorDialog
 import net.ankio.auto.ui.scope.autoDisposeScope
 import net.ankio.auto.ui.utils.ResourceUtils
 import net.ankio.auto.utils.BillTool
@@ -29,9 +35,44 @@ import net.ankio.auto.utils.DateUtils
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.BillInfoModel
 
-class BillItemAdapter(list: MutableList<BillInfoModel>) : BaseAdapter<AdapterOrderItemBinding,BillInfoModel>(AdapterOrderItemBinding::class.java,list) {
+class BillItemAdapter(private  val list: MutableList<BillInfoModel>,private val showMore:Boolean = true) : BaseAdapter<AdapterOrderItemBinding,BillInfoModel>(AdapterOrderItemBinding::class.java,list) {
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterOrderItemBinding, BillInfoModel>) {
+        val binding = holder.binding
+        binding.root.setOnClickListener {
+            val item = holder.item!!
+            FloatEditorDialog(holder.context,item, AccountingConfig.get(),false,false){
+                list[holder.positionIndex] = it
 
+                notifyItemChanged(holder.positionIndex)
+
+                binding.root.autoDisposeScope.launch {
+                    BillInfoModel.put(it)
+                }
+            }.show(float = false)
+        }
+
+
+        binding.moreBills.setOnClickListener {
+
+        }
+
+        binding.root.setOnLongClickListener {
+            val index = holder.positionIndex
+            MaterialAlertDialogBuilder(holder.context)
+                .setTitle(R.string.delete_title)
+                .setMessage(R.string.delete_bill_message)
+                .setPositiveButton(R.string.sure_msg) { _, _ ->
+                    list.removeAt(index)
+                    notifyItemRemoved(index)
+                    binding.root.autoDisposeScope.launch {
+                        BillInfoModel.remove(holder.item!!.id)
+                    }
+
+                }
+                .setNegativeButton(R.string.cancel_msg) { _, _ -> }
+                .show()
+            true
+        }
     }
 
     override fun onBindViewHolder(
@@ -69,6 +110,24 @@ class BillItemAdapter(list: MutableList<BillInfoModel>) : BaseAdapter<AdapterOrd
         }else{
             binding.sync.setImageResource(R.drawable.ic_no_sync)
         }
+
+
+
+        if (!showMore){
+           binding.moreBills.visibility  = View.GONE
+            binding.sync.visibility  = View.GONE
+        }else{
+             binding.sync.visibility  = View.VISIBLE
+            if (SpUtils.getBoolean(SpUtils.BILL_AUTO_GROUP,false)){
+                binding.moreBills.visibility  = View.VISIBLE
+            }else{
+                binding.moreBills.visibility  = View.GONE
+            }
+
+
+        }
+
+
     }
 
 }

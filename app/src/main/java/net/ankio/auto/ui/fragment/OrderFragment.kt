@@ -27,8 +27,6 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentLogBinding
-import net.ankio.auto.databinding.FragmentOrderBinding
-import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.adapter.BillInfoAdapter
 import net.ankio.auto.ui.api.BasePageFragment
 import net.ankio.auto.ui.models.ToolbarMenuItem
@@ -38,7 +36,6 @@ import org.ezbook.server.db.model.BillInfoModel
 open class OrderFragment : BasePageFragment<Pair<String, List<BillInfoModel>>>() {
     override suspend fun loadData(callback: (resultData: List<Pair<String, List<BillInfoModel>>>) -> Unit) {
        val list =  BillInfoModel.list(page, pageSize)
-        Logger.i("list size: ${list.size}")
         list.forEach {
             val item = it
             val day = DateUtils.stampToDate(it.time,"yyyy-MM-dd")
@@ -125,31 +122,4 @@ open class OrderFragment : BasePageFragment<Pair<String, List<BillInfoModel>>>()
         loadDataInside()
     }
 
-  /*  private fun loadMoreData() {
-        val loading = LoadingUtils(requireActivity())
-        loading.show(R.string.loading)
-
-        lifecycleScope.launch {
-            withContext(Dispatchers.IO) {
-                val autoAccountingConfig = AppUtils.getService().config()
-                val list = BillInfo.getBillListGroup(500)
-                dataItems.clear()
-
-                list.forEach {
-                    dataItems.add(Pair(it.first, BillInfo.getBillByIds(it.second)))
-                }
-                adapter.notifyConfig(autoAccountingConfig)
-            }
-
-            adapter.notifyDataSetChanged()
-            binding.empty.root.visibility = if (dataItems.isEmpty()) View.VISIBLE else View.GONE
-            loading.close()
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        // 加载数据
-        loadMoreData()
-    }*/
 }
