@@ -42,6 +42,7 @@ import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.utils.LanguageUtils
+import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.SettingModel
 
 class SystemSettingFragment : BaseFragment() {
@@ -362,9 +363,9 @@ class SystemSettingFragment : BaseFragment() {
                 icon = R.drawable.setting2_icon_debug,
                 type = ItemType.SWITCH,
                 onSavedValue = { value, _ ->
-                    SpUtils.putBoolean("debug", value as Boolean)
+                    SpUtils.putBoolean(Setting.DEBUG_MODE, value as Boolean)
                     App.launch {
-                        SettingModel.set("debug", value.toString())
+                        SettingModel.set(Setting.DEBUG_MODE, value.toString())
                     }
                 },
                 default = false,

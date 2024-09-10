@@ -272,28 +272,6 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
         return Server.json(200, "OK", result)
     }
 
-    /**
-     * 设置
-     */
-    fun set(): Response {
-        val key = session.parameters["key"]?.firstOrNull()?.toString() ?: ""
-        if (key === "") {
-            return Server.json(400, "key is required")
-        }
 
-        val value = Server.reqData(session)
-
-        val model = SettingModel()
-        model.key = key
-        model.value = value
-
-        val data = Db.get().settingDao().query(key)
-        if (data != null) {
-            Db.get().settingDao().update(model)
-        } else {
-            Db.get().settingDao().insert(model)
-        }
-        return Server.json(200, "OK")
-    }
 
 }

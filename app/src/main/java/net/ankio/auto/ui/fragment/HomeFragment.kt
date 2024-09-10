@@ -50,6 +50,7 @@ import net.ankio.auto.ui.models.ToolbarMenuItem
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.update.RuleUpdate
 import net.ankio.auto.utils.CustomTabsHelper
+import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BookNameModel
 import org.ezbook.server.db.model.CategoryModel
 import org.ezbook.server.db.model.SettingModel
@@ -178,8 +179,8 @@ class HomeFragment : BaseFragment() {
         if (bookName.isEmpty()){
             lifecycleScope.launch {
                 val book = BookNameModel.getFirstBook()
-                SpUtils.putString("defaultBook", book.name)
-                SettingModel.set("setting_default_book_name", book.name)
+                SpUtils.putString(Setting.DEFAULT_BOOK_NAME, book.name)
+                SettingModel.set(Setting.DEFAULT_BOOK_NAME, book.name)
                 binding.defaultBook.text =  book.name
             }
         }else{
@@ -318,9 +319,9 @@ class HomeFragment : BaseFragment() {
             BookSelectorDialog(themeContext)  { book, _ ->
                 Logger.d("选择的账本是：${book.name}")
                 // defaultBook
-                SpUtils.putString("defaultBook", book.name)
+                SpUtils.putString(Setting.DEFAULT_BOOK_NAME, book.name)
                 lifecycleScope.launch {
-                    SettingModel.set("setting_default_book_name", book.name)
+                    SettingModel.set(Setting.DEFAULT_BOOK_NAME, book.name)
                 }
                 refreshUI()
             }.show(cancel = true)

@@ -22,6 +22,7 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.core.App
 import net.ankio.auto.core.api.HookerManifest
 import org.ezbook.server.constant.BillType
+import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BookNameModel
 import org.ezbook.server.db.model.CategoryModel
 import org.ezbook.server.db.model.SettingModel
@@ -95,7 +96,7 @@ class CategoryUtils(private val manifest: HookerManifest, private val classLoade
        }
        val sync = Gson().toJson(arrayList)
        val md5 = App.md5(sync)
-       val server = SettingModel.get("sync_category_md5", "")
+       val server = SettingModel.get(Setting.HASH_CATEGORY, "")
        if (server == md5) {
            manifest.log("分类信息未发生变化，无需同步, 服务端md5:${server} 本地md5:${md5}")
            return@withContext

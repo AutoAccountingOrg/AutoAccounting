@@ -23,6 +23,7 @@ import net.ankio.auto.core.App
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.xposed.Hooker
 import org.ezbook.server.constant.BillType
+import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.db.model.BookBillModel
 import org.ezbook.server.db.model.SettingModel
@@ -170,7 +171,7 @@ class BaoXiaoUtils(
         val bills = convert2Bill(bxList)
         val sync = Gson().toJson(bills)
         val md5 = App.md5(sync)
-        val server = SettingModel.get("sync_bill_md5", "")
+        val server = SettingModel.get(Setting.HASH_BILL, "")
         if (server == md5) {
             manifest.log("报销列表信息未发生变化，无需同步")
             return@withContext

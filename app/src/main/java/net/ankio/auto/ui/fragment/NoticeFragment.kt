@@ -33,6 +33,7 @@ import net.ankio.auto.ui.adapter.AppAdapter
 import net.ankio.auto.ui.api.BasePageFragment
 import net.ankio.auto.ui.models.AppInfo
 import net.ankio.auto.ui.models.ToolbarMenuItem
+import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.SettingModel
 
 
@@ -135,9 +136,9 @@ class NoticeFragment: BasePageFragment<AppInfo>() {
         //去重
         selectedApps = selectedApps.distinct()
         val str = selectedApps.joinToString(",")
-        SpUtils.putString("selectedApps", str)
+        SpUtils.putString(Setting.LISTENER_APP_LIST, str)
         App.launch {
-            SettingModel.set("selectedApps", str)
+            SettingModel.set(Setting.LISTENER_APP_LIST, str)
             Logger.d("selectedApps => $selectedApps")
         }
     }

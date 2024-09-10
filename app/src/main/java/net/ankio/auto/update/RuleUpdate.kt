@@ -30,6 +30,7 @@ import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.storage.Logger
 import org.ezbook.server.constant.DataType
+import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.CategoryMapModel
 import org.ezbook.server.db.model.RuleModel
 import org.ezbook.server.db.model.SettingModel
@@ -125,8 +126,8 @@ class RuleUpdate(private val context: Context) : BaseUpdate(context) {
 
                             }
 
-                            SettingModel.set("commonJs", root.resolve("common.js").readText())
-                            SettingModel.set("categoryJs", root.resolve("category.js").readText())
+                            SettingModel.set(Setting.JS_COMMON, root.resolve("common.js").readText())
+                            SettingModel.set(Setting.JS_CATEGORY, root.resolve("category.js").readText())
 
                             val systemRule = RuleModel.system()
                             // 系统规则和云端规则做对比，使用name作为唯一标识，获取云端没有的系统规则，执行删除

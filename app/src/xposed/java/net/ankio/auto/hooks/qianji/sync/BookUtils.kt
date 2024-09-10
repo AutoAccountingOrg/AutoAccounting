@@ -22,6 +22,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.core.App
 import net.ankio.auto.core.api.HookerManifest
+import org.ezbook.server.Server
+import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BookNameModel
 import org.ezbook.server.db.model.SettingModel
 
@@ -103,7 +105,7 @@ class BookUtils(private val manifest: HookerManifest, private val classLoader: C
 
             val sync = Gson().toJson(bookList)
             val md5 = App.md5(sync)
-            val server = SettingModel.get("sync_books_md5", "")
+            val server = SettingModel.get(Setting.HASH_BOOK, "")
             if (server == md5) {
                 manifest.log("账本信息未发生变化，无需同步, 服务端md5:${server} 本地md5:${md5}")
                 return@withContext bookList

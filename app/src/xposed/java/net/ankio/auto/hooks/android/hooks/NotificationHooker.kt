@@ -29,6 +29,7 @@ import org.ezbook.server.constant.DataType
 import net.ankio.auto.core.App
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
+import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.SettingModel
 
 
@@ -85,7 +86,7 @@ class NotificationHooker:PartHooker() {
                     }else{
                         lastTime = System.currentTimeMillis()
                         App.scope.launch {
-                            val data = SettingModel.get("selectedApps","")
+                            val data = SettingModel.get(Setting.LISTENER_APP_LIST,"")
                             selectedApps = data.split(",")
                             withContext(Dispatchers.Main){
                                 checkNotification(opkg,originalTitle,originalText,selectedApps,hookerManifest)

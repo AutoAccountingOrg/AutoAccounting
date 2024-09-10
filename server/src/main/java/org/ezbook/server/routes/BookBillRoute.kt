@@ -17,6 +17,7 @@ package org.ezbook.server.routes
 
 import com.google.gson.Gson
 import org.ezbook.server.Server
+import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.BookBillModel
 import org.nanohttpd.protocols.http.IHTTPSession
@@ -36,7 +37,7 @@ class BookBillRoute(private val session: IHTTPSession) {
         val data = Server.reqData(session)
         val json = Gson().fromJson(data, Array<BookBillModel>::class.java)
         val id = Db.get().bookBillDao().put(json.toList())
-        SettingRoute.setByInner("sync_bill_md5",md5)
+        SettingRoute.setByInner(Setting.HASH_BILL,md5)
         return Server.json(200, "OK", id)
     }
 

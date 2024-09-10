@@ -17,6 +17,7 @@ package org.ezbook.server.routes
 
 import com.google.gson.Gson
 import org.ezbook.server.Server
+import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.AssetsModel
 import org.nanohttpd.protocols.http.IHTTPSession
@@ -35,7 +36,7 @@ class AssetsRoute(private val session: IHTTPSession) {
         val data = Server.reqData(session)
         val json = Gson().fromJson(data, Array<AssetsModel>::class.java)
         val id = Db.get().assetsDao().put(json)
-        SettingRoute.setByInner("sync_assets_md5",md5)
+        SettingRoute.setByInner(Setting.HASH_ASSET,md5)
         return Server.json(200, "OK", id)
     }
 

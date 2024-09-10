@@ -28,6 +28,7 @@ import net.ankio.auto.hooks.qianji.tools.QianJiBillType
 import org.ezbook.server.Server
 import org.ezbook.server.constant.AssetsType
 import org.ezbook.server.constant.Currency
+import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.AssetsModel
 import org.ezbook.server.db.model.SettingModel
 import java.lang.reflect.Proxy
@@ -164,8 +165,8 @@ class AssetsUtils(private val manifest: HookerManifest, private val classLoader:
         }
         val sync = Gson().toJson(assets)
         val md5 = App.md5(sync)
-        val server = SettingModel.get("sync_assets_md5", "")
-        App.set("sync_assets",sync)
+        val server = SettingModel.get(Setting.HASH_ASSET, "")
+
         if (server == md5 || assets.isEmpty()) { //资产为空也不同步
             manifest.log("资产信息未发生变化，无需同步, 服务端md5:${server} 本地md5:${md5}")
             return@withContext

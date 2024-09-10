@@ -18,6 +18,7 @@ package org.ezbook.server.routes
 import android.util.Log
 import com.google.gson.Gson
 import org.ezbook.server.Server
+import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.CategoryModel
 import org.ezbook.server.db.model.SettingModel
@@ -54,7 +55,7 @@ class CategoryRoute(private val session: IHTTPSession) {
         val data = Server.reqData(session)
         val json = Gson().fromJson(data, Array<CategoryModel>::class.java)
         val id = Db.get().categoryDao().put(json)
-        SettingRoute.setByInner("sync_category_md5",md5)
+        SettingRoute.setByInner(Setting.HASH_CATEGORY,md5)
         return Server.json(200, "OK", id)
     }
 
