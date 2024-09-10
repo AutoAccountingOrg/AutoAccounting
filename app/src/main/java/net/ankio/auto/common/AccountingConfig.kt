@@ -17,6 +17,7 @@ package net.ankio.auto.common
 
 import com.google.gson.Gson
 import net.ankio.auto.storage.SpUtils
+import org.ezbook.server.constant.Setting
 
 data class AccountingConfig(
     var assetManagement: Boolean = true,//是否开启资产管理
@@ -33,12 +34,12 @@ data class AccountingConfig(
     companion object{
         fun get():AccountingConfig{
             return runCatching {
-                Gson().fromJson(SpUtils.getString("auto_config",""),AccountingConfig::class.java)
+                Gson().fromJson(SpUtils.getString(Setting.AUTO_CONFIG,""),AccountingConfig::class.java)
             }.getOrNull()?:AccountingConfig()
         }
 
         fun set(config: AccountingConfig){
-            SpUtils.putString("auto_config",Gson().toJson(config))
+            SpUtils.putString(Setting.AUTO_CONFIG,Gson().toJson(config))
         }
 
         fun setItem(key:String,value:Boolean){

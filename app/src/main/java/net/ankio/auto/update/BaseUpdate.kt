@@ -25,6 +25,7 @@ import net.ankio.auto.request.RequestsUtils
 import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.storage.Logger
+import org.ezbook.server.constant.Setting
 import org.markdownj.MarkdownProcessor
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -54,15 +55,15 @@ abstract class BaseUpdate(context: Context) {
     suspend fun check(showToast: Boolean = false): Boolean {
         // 判断是否在1小时之前检查过
         if (!App.debug && System.currentTimeMillis() - SpUtils.getLong(
-                "rule_update_time",
+                Setting.RULE_UPDATE_TIME,
                 0
             ) < 3600000
         ) {
             return false
         }
-        SpUtils.putLong("rule_update_time", System.currentTimeMillis()) // 记录检查时间
+        SpUtils.putLong(Setting.RULE_UPDATE_TIME, System.currentTimeMillis()) // 记录检查时间
 
-        val list = if (SpUtils.getString("update_channel", "github") == "github") {
+        val list = if (SpUtils.getString(Setting.UPDATE_CHANNEL, "github") == "github") {
             checkVersionFromGithub(ruleVersion())
         } else {
             checkVersionFromPan(ruleVersion())

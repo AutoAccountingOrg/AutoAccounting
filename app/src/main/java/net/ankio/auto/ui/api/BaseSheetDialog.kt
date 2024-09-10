@@ -27,6 +27,7 @@ import com.google.android.material.card.MaterialCardView
 import com.google.android.material.elevation.SurfaceColors
 import net.ankio.auto.R
 import net.ankio.auto.storage.SpUtils
+import org.ezbook.server.constant.Setting
 
 abstract class BaseSheetDialog(private val context: Context) :
     BottomSheetDialog(context, R.style.BottomSheetDialog) {
@@ -57,7 +58,7 @@ abstract class BaseSheetDialog(private val context: Context) :
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
         // 是否使用圆角风格
         val margin = dpToPx(context, 20f)
-        val round = SpUtils.getBoolean("setting_use_round_style", false)
+        val round = SpUtils.getBoolean(Setting.USE_ROUND_STYLE, false)
         if (::cardView.isInitialized) {
             val layoutParams =
                 if (cardView.layoutParams != null) {

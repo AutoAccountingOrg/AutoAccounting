@@ -50,6 +50,7 @@ import net.ankio.auto.utils.DateUtils
 import org.ezbook.server.constant.AssetsType
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.constant.Currency
+import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.AssetsModel
 import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.db.model.BookNameModel
@@ -202,7 +203,7 @@ class FloatEditorDialog(
             lifecycleScope.launch {
                 runCatching {
                     BillInfoModel.put(bill)
-                    if (SpUtils.getBoolean("setting_book_success", true)) {
+                    if (SpUtils.getBoolean(Setting.SHOW_SUCCESS_POPUP, true)) {
                         ToastUtils.info(
                             context.getString(
                                 R.string.auto_success,
@@ -213,7 +214,7 @@ class FloatEditorDialog(
 
                     if (rawBillInfo.cateName != bill.cateName &&
                         SpUtils.getBoolean(
-                            "setting_auto_create_category",
+                            Setting.AUTO_CREATE_CATEGORY,
                             false,
                         )
                     ) {

@@ -113,7 +113,7 @@ class NoticeFragment: BasePageFragment<AppInfo>() {
         val recyclerView = binding.statusPage.contentView!!
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         scrollView = recyclerView
-        selectedApps = SpUtils.getString("selectedApps", "").split(",")
+        selectedApps = SpUtils.getString(Setting.LISTENER_APP_LIST, "").split(",")
         Logger.d("selectedApps => $selectedApps")
         recyclerView.adapter = AppAdapter(pageData,requireActivity().packageManager){
             selectedApps = if (!it.isSelected) {

@@ -23,12 +23,6 @@ import net.ankio.auto.App
  */
 object SpUtils {
 
-    //所有设置相关的键
-    const val DEBUG = "debug_mode" //调试模式
-
-    const val BILL_AUTO_GROUP = "bill_auto_group" //账单自动分组(去重）
-
-
 
     val sp: SharedPreferences = App.app.getSharedPreferences("setting", 0)
 

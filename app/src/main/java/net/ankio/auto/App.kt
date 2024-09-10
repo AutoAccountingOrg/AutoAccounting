@@ -39,6 +39,7 @@ import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.ExceptionHandler
+import org.ezbook.server.constant.Setting
 import java.math.BigInteger
 import java.security.MessageDigest
 
@@ -193,7 +194,7 @@ class App : Application() {
          * 打开记账软件应用
          */
         fun startBookApp() {
-            val packageName = SpUtils.getString("bookApp", "")
+            val packageName = SpUtils.getString(Setting.BOOK_APP_ID, "")
             val launchIntent = App.app.packageManager.getLaunchIntentForPackage(packageName)
             if (launchIntent != null) {
                 app.startActivity(launchIntent)
@@ -232,7 +233,7 @@ class App : Application() {
         super.attachBaseContext(base)
         app = this
         // 初始化调试模式
-        debug = BuildConfig.DEBUG || SpUtils.getBoolean("debug", false)
+        debug = BuildConfig.DEBUG || SpUtils.getBoolean(Setting.DEBUG_MODE, false)
 
         if (!BuildConfig.DEBUG){
             // 设置全局异常

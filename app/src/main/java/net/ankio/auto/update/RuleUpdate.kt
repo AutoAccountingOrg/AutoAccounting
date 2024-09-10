@@ -47,12 +47,12 @@ class RuleUpdate(private val context: Context) : BaseUpdate(context) {
         if (BuildConfig.DEBUG){
             return ""
         }
-        return SpUtils.getString("rule_version", "")
+        return SpUtils.getString(Setting.RULE_VERSION, "")
     }
 
 
     override fun onCheckedUpdate() {
-        download = if (SpUtils.getString("update_channel", "github") == "github"){
+        download = if (SpUtils.getString(Setting.UPDATE_CHANNEL, "github") == "github"){
             "https://cors.isteed.cc/github.com/AutoAccountingOrg/$repo/releases/download/$version/$version.zip"
         }else{
             pan()+"/$version.zip"
@@ -185,7 +185,7 @@ class RuleUpdate(private val context: Context) : BaseUpdate(context) {
 
 
                             // 更新版本号
-                            SpUtils.putString("rule_version", version)
+                            SpUtils.putString(Setting.RULE_VERSION, version)
 
                             ToastUtils.info(R.string.update_success)
 

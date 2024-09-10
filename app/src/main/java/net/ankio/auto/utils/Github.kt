@@ -22,6 +22,7 @@ import net.ankio.auto.App
 import net.ankio.auto.exceptions.GithubException
 import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.request.RequestsUtils
+import org.ezbook.server.constant.Setting
 import org.json.JSONObject
 
 object Github {
@@ -58,7 +59,7 @@ object Github {
             for (param in params) {
                 val keyValue = param.split("=")
                 if (keyValue.size == 2 && keyValue[0] == "access_token") {
-                    SpUtils.putString("accessToken", keyValue[1])
+                    SpUtils.putString(Setting.GITHUB_ACCESS_TOKEN, keyValue[1])
                 }
             }
         }
@@ -69,7 +70,7 @@ object Github {
                 "Accept" to "application/vnd.github+json",
                 "X-GitHub-Api-Version" to "2022-11-28",
             )
-        val accessToken = SpUtils.getString("accessToken", "")
+        val accessToken = SpUtils.getString(Setting.GITHUB_ACCESS_TOKEN, "")
         if (accessToken.isNotEmpty()) {
             hashMap["Authorization"] = "Bearer $accessToken"
         }

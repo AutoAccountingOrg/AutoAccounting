@@ -22,6 +22,7 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.storage.SpUtils
 import org.ezbook.server.constant.BillType
+import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.CategoryModel
 import org.ezbook.server.db.model.SettingModel
 
@@ -31,7 +32,7 @@ object BillTool {
      * 获取页面显示颜色
      */
     fun getColor(type: BillType): Int {
-        val payColor = SpUtils.getInt("setting_pay_color_red", 0)
+        val payColor = SpUtils.getInt(Setting.EXPENSE_COLOR_RED, 0)
 
         return when (type) {
             BillType.Expend -> if (payColor == 0) R.color.danger else R.color.success
@@ -60,7 +61,7 @@ object BillTool {
 
     fun getCateName(category1: String, category2: String? = null): String {
 
-        val showParent = SpUtils.getBoolean("category_show_parent",false)
+        val showParent = SpUtils.getBoolean(Setting.CATEGORY_SHOW_PARENT,false)
         if (category2 === null) {
             return category1
         }

@@ -144,7 +144,7 @@ class HomeFragment : BaseFragment() {
      * 检查记账软件
      */
     private fun checkBookApp() {
-        if (SpUtils.getString("bookApp", "").isEmpty()) {
+        if (SpUtils.getString(Setting.BOOK_APP_ID, "").isEmpty()) {
             AppDialog(requireContext()).show(cancel = BuildConfig.DEBUG)
         }
     }
@@ -165,7 +165,7 @@ class HomeFragment : BaseFragment() {
         val config = AccountingConfig.get()
         binding.book.visibility = if (config.multiBooks) View.VISIBLE else View.GONE
         binding.assets.visibility = if (config.assetManagement) View.VISIBLE else View.GONE
-        SpUtils.getString("bookApp", "").apply {
+        SpUtils.getString(Setting.BOOK_APP_ID, "").apply {
             if (this.isEmpty()) {
                 binding.bookApp.text = getString(R.string.no_setting)
             } else {
@@ -175,7 +175,7 @@ class HomeFragment : BaseFragment() {
             }
         }
 
-        val bookName = SpUtils.getString("defaultBook", "")
+        val bookName = SpUtils.getString(Setting.DEFAULT_BOOK_NAME, "")
         if (bookName.isEmpty()){
             lifecycleScope.launch {
                 val book = BookNameModel.getFirstBook()
@@ -218,7 +218,7 @@ class HomeFragment : BaseFragment() {
      * 绑定规则部分的UI
      */
     private fun bindRuleUI() {
-        val ruleVersion = SpUtils.getString("rule_version", "None")
+        val ruleVersion = SpUtils.getString(Setting.RULE_VERSION, "None")
         binding.ruleVersion.text = ruleVersion
 
 
@@ -380,7 +380,7 @@ class HomeFragment : BaseFragment() {
      * 检查更新
      */
     private  fun checkUpdate(showResult: Boolean = false) {
-        if (SpUtils.getBoolean("setting_rule", true)) {
+        if (SpUtils.getBoolean(Setting.RULE_VERSION, true)) {
            lifecycleScope.launch {
                checkRuleUpdate(showResult)
            }

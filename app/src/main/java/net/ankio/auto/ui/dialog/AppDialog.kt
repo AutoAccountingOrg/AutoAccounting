@@ -26,6 +26,7 @@ import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.ui.adapter.AppListAdapter
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.models.AutoApp
+import org.ezbook.server.constant.Setting
 
 /**
  * 记账软件选择对话框
@@ -45,8 +46,8 @@ class AppDialog(private val context: Context) : BaseSheetDialog(context) {
 
         val recyclerView = binding.recyclerView
         recyclerView.layoutManager = LinearLayoutManager(context)
-        recyclerView.adapter = AppListAdapter(context,apps, SpUtils.getString("bookApp")) {
-            SpUtils.putString("bookApp", it.packageName)
+        recyclerView.adapter = AppListAdapter(context,apps, SpUtils.getString(Setting.BOOK_APP_ID)) {
+            SpUtils.putString(Setting.BOOK_APP_ID, it.packageName)
             LocalBroadcastHelper.sendBroadcast(LocalBroadcastHelper.ACTION_APP_CHANGED)
             dismiss()
         }

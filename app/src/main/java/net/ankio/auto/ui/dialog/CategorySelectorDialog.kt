@@ -32,6 +32,7 @@ import net.ankio.auto.ui.adapter.CategorySelectorAdapter
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.componets.StatusPage
 import org.ezbook.server.constant.BillType
+import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.CategoryModel
 
 /**
@@ -131,7 +132,7 @@ class CategorySelectorDialog(
 
         var leftDistanceWithMargin = location[0] + view.paddingLeft + params.leftMargin - view.width/2
 
-        if (SpUtils.getBoolean("setting_use_round_style",false)){
+        if (SpUtils.getBoolean(Setting.USE_ROUND_STYLE,false)){
             leftDistanceWithMargin-=view.width/2
         }
 

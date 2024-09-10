@@ -208,7 +208,7 @@ class SystemSettingFragment : BaseFragment() {
                 icon = R.drawable.setting2_icon_dir,
                 type = ItemType.TEXT,
                 onGetKeyValue = {
-                    val uri = SpUtils.getString("backup_uri", "")
+                    val uri = SpUtils.getString(Setting.LOCAL_BACKUP_PATH, "")
                     if (uri.isNotEmpty()) {
                         runCatching {
                             Uri.parse(uri).path

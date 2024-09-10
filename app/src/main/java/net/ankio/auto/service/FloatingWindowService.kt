@@ -42,6 +42,7 @@ import net.ankio.auto.ui.dialog.FloatEditorDialog
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.BillTool
 import net.ankio.auto.constant.FloatEvent
+import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BillInfoModel
 
 class FloatingWindowService : Service() {
@@ -59,7 +60,7 @@ class FloatingWindowService : Service() {
     private var lastTheme = ThemeEngine.getInstance(App.app).getTheme()
     override fun onCreate() {
         super.onCreate()
-        timeCount = runCatching { SpUtils.getString("setting_float_time", "10").toInt() }.getOrNull() ?: 0
+        timeCount = runCatching { SpUtils.getString(Setting.FLOAT_TIMEOUT_OFF, "10").toInt() }.getOrNull() ?: 0
         list.clear()
         val appTheme = ContextThemeWrapper(App.app, R.style.AppTheme)
         themedContext = App.getThemeContext(appTheme)
@@ -193,7 +194,7 @@ class FloatingWindowService : Service() {
             App.launch {
                 BillInfoModel.put(billInfoModel2)
             }
-            if (SpUtils.getBoolean("setting_book_success", true)) {
+            if (SpUtils.getBoolean(Setting.SHOW_SUCCESS_POPUP, true)) {
                 ToastUtils.info(
                     getString(
                         R.string.auto_success,

@@ -23,6 +23,7 @@ import net.ankio.auto.R
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.storage.SpUtils
 import net.ankio.utils.LangList
+import org.ezbook.server.constant.Setting
 import java.util.Locale
 
 object LanguageUtils {
@@ -35,11 +36,11 @@ object LanguageUtils {
     }
 
     fun getAppLang(): String {
-        return SpUtils.getString("setting_language", "SYSTEM")
+        return SpUtils.getString(Setting.SYSTEM_LANGUAGE, "SYSTEM")
     }
 
     fun setAppLanguage(language: String) {
-        SpUtils.putString("setting_language", language)
+        SpUtils.putString(Setting.SYSTEM_LANGUAGE, language)
     }
 
     fun getLangList(context: Context): HashMap<String, Any> {

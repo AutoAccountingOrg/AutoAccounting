@@ -40,6 +40,7 @@ import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.request.RequestsUtils
 import okhttp3.Credentials
+import org.ezbook.server.constant.Setting
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -52,7 +53,7 @@ import java.util.zip.ZipOutputStream
 class BackupUtils(private val context: Context) {
     private var filename = "auto_backup_${System.currentTimeMillis()}.$SUFFIX"
 
-    private val uri = Uri.parse(SpUtils.getString("backup_uri", ""))
+    private val uri = Uri.parse(SpUtils.getString(Setting.LOCAL_BACKUP_PATH, ""))
 
     companion object {
         const val SUFFIX = "pk"
@@ -66,7 +67,7 @@ class BackupUtils(private val context: Context) {
                         Intent.FLAG_GRANT_READ_URI_PERMISSION or
                             Intent.FLAG_GRANT_WRITE_URI_PERMISSION
                     activity.contentResolver.takePersistableUriPermission(uri, takeFlags)
-                    SpUtils.putString("backup_uri", uri.toString())
+                    SpUtils.putString(Setting.LOCAL_BACKUP_PATH, uri.toString())
                 }
             }
         }
@@ -119,7 +120,7 @@ class BackupUtils(private val context: Context) {
                 it.uri ==
                     Uri.parse(
                         SpUtils.getString(
-                            "backup_uri",
+                            Setting.LOCAL_BACKUP_PATH,
                             "",
                         ),
                     ) && it.isReadPermission && it.isWritePermission
@@ -388,9 +389,9 @@ class BackupUtils(private val context: Context) {
     }
 
     private fun getWebdavInfo(): Array<String> {
-        val url = SpUtils.getString("setting_webdav_host", "").trim('/')
-        val username = SpUtils.getString("setting_webdav_username", "")
-        val password = SpUtils.getString("setting_webdav_password", "")
+        val url = SpUtils.getString(Setting.WEBDAV_HOST, "").trim('/')
+        val username = SpUtils.getString(Setting.WEBDAV_USER, "")
+        val password = SpUtils.getString(Setting.WEBDAV_PASSWORD, "")
         return arrayOf(url, username, password)
     }
 

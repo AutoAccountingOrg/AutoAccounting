@@ -25,6 +25,7 @@ import net.ankio.auto.exceptions.AutoServiceException
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.ui.activity.ErrorActivity
+import org.ezbook.server.constant.Setting
 import kotlin.system.exitProcess
 
 class ExceptionHandler(private val context: Context) : Thread.UncaughtExceptionHandler {
@@ -59,7 +60,7 @@ class ExceptionHandler(private val context: Context) : Thread.UncaughtExceptionH
         }
         // return true
         // 调试模式不上传错误数据
-        return !App.debug && SpUtils.getBoolean("sendToAppCenter", true)
+        return !App.debug && SpUtils.getBoolean(Setting.SEND_ERROR_REPORT, true)
     }
 
     private fun getRootCause(e: Throwable): Throwable {

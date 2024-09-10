@@ -33,6 +33,7 @@ import net.ankio.auto.ui.utils.ResourceUtils
 import net.ankio.auto.utils.BillTool
 import net.ankio.auto.utils.DateUtils
 import org.ezbook.server.constant.BillType
+import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BillInfoModel
 
 class BillItemAdapter(private  val list: MutableList<BillInfoModel>,private val showMore:Boolean = true) : BaseAdapter<AdapterOrderItemBinding,BillInfoModel>(AdapterOrderItemBinding::class.java,list) {
@@ -118,7 +119,7 @@ class BillItemAdapter(private  val list: MutableList<BillInfoModel>,private val 
             binding.sync.visibility  = View.GONE
         }else{
              binding.sync.visibility  = View.VISIBLE
-            if (SpUtils.getBoolean(SpUtils.BILL_AUTO_GROUP,false)){
+            if (SpUtils.getBoolean(Setting.AUTO_GROUP,false)){
                 binding.moreBills.visibility  = View.VISIBLE
             }else{
                 binding.moreBills.visibility  = View.GONE
