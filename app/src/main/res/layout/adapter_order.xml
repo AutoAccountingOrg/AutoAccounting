@@ -40,7 +40,7 @@
            android:textColor="?colorPrimary"
            android:textStyle="bold"
            android:layout_marginStart="@dimen/padding"
-           style="@style/TextAppearance.Material3.TitleLarge"
+           style="@style/TextAppearance.Material3.TitleMedium"
            />
 
         <androidx.recyclerview.widget.RecyclerView

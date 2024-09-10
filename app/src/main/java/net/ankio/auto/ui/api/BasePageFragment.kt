@@ -69,7 +69,7 @@ abstract class BasePageFragment<T>: BaseFragment() {
     /**
      * 获取数据
      */
-    protected fun loadDataInside(callback: ((Boolean, Boolean) -> Unit)?=null){
+    protected open fun loadDataInside(callback: ((Boolean, Boolean) -> Unit)?=null){
         if (page == 1) {
           resetPage()
         }

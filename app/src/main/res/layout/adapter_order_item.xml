@@ -21,12 +21,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/one_padding"
-            app:text="理财收益"
+            tools:text="理财收益"
             app:iconSrc="@drawable/icon_map"
             app:iconTintEnabled="true"
             app:textColor="?colorPrimary"
-            app:textSize="@dimen/font_size"
-            app:iconSize="@dimen/mini_icon_size"
+            app:textSize="5sp"
+            app:iconSize="8sp"
             android:textColor="@color/black" />
 
         <TextView
@@ -36,53 +36,57 @@
             android:layout_marginEnd="@dimen/one_padding"
             android:text="11:00:22"
             android:textColor="?colorSecondary"
-            style="@style/TextAppearance.AppCompat.Medium"
+            android:textSize="15sp"
            />
 
         <View
             android:layout_width="0dp"
             android:layout_height="0dp" android:layout_weight="1" />
 
-        <net.ankio.auto.ui.componets.IconView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/money"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
 
-            app:text="4.0"
-            app:iconTintEnabled="true"
-            app:textColor="@color/danger"
-            app:textSize="@dimen/font_size"
-            app:iconSize="10dp"
+            tools:text="- 4.0"
+            android:textColor="@color/danger"
+            android:textSize="15sp"
          />
+
+
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="5dp"
         android:gravity="center_vertical">
 
-        <TextView
-
-            android:id="@+id/remark"
-            android:layout_width="wrap_content"
-            android:layout_weight="1"
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/one_padding"
-            android:text="余额宝-030222222222222222222222226余额宝收益"
-            android:textColor="?colorAccent"
-            style="@style/TextAppearance.AppCompat.Small" />
-
+            android:id="@+id/remark"
+            android:layout_weight="1"
+            tools:text="@tools:sample/lorem/random"
+            android:singleLine="true"
+            android:textColor="?colorOnBackground"
+            android:textSize="14sp"
+            />
 
         <net.ankio.auto.ui.componets.IconView
             android:id="@+id/payTools"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:text="4.88888880"
+            app:iconSize="10sp"
             app:iconTintEnabled="false"
-            app:textColor="?colorTertiary"
-            app:textSize="@dimen/font_size"
-            app:iconSize="@dimen/mini_icon_size" />
+            app:textColor="?colorOnBackground"
+            app:textSize="5sp"
+            tools:iconSrc="@drawable/default_asset"
+            tools:text="支付宝" />
+
+
     </LinearLayout>
 
     <LinearLayout
@@ -93,28 +97,11 @@
         >
 
         <ImageView
-            android:id="@+id/fromApp"
-            android:layout_width="@dimen/image_size_small"
-            android:layout_height="@dimen/image_size_small"
-            android:layout_gravity="center"
-            android:layout_marginStart="0dp"
-            android:layout_marginEnd="10dp"
-            tools:srcCompat="@tools:sample/avatars" />
-
-        <TextView
-            android:id="@+id/channel"
-            style="@style/TextAppearance.AppCompat.Small"
+            android:id="@+id/sync"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="?attr/colorOnPrimary"
-            android:paddingLeft="@dimen/padding"
-            android:paddingRight="@dimen/padding"
-            android:paddingTop="@dimen/one_padding"
-            android:paddingBottom="@dimen/one_padding"
-            android:text="测试"
-            android:background="@drawable/rounded_background"
-            />
-
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_sync"
+            app:tint="?colorPrimary" />
 
         <View
             android:layout_width="0dp"
@@ -124,9 +111,8 @@
             style="?attr/materialIconButtonFilledTonalStyle"
             app:icon="@drawable/icon_edit"
             android:id="@+id/editBill"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginEnd="15dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
  />
 
         <com.google.android.material.button.MaterialButton
