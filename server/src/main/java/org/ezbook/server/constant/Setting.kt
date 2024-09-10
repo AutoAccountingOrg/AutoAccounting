@@ -46,10 +46,15 @@ object Setting {
     /////////////////////////////////一些设置项///////////////////////
     //悬浮窗超时时间
     const val FLOAT_TIMEOUT_OFF = "setting_float_timeout_off"
+    //悬浮标签倒计时结束后的操作
+    const val FLOAT_TIMEOUT_ACTION = "setting_float_timeout_action"
+    //悬浮标签被点击
+    const val FLOAT_CLICK = "setting_float_click"
+    //悬浮标签被长按
+    const val FLOAT_LONG_CLICK = "setting_float_long_click"
+
     //是否显示记账成功的弹窗
     const val SHOW_SUCCESS_POPUP = "setting_show_success_popup"
-
-
 
     // 本地备份地址
     const val LOCAL_BACKUP_PATH = "setting_local_backup_path"

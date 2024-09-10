@@ -109,7 +109,7 @@ class FloatingWindowService : Service() {
 
 
         if (timeCount == 0 || !showWaitTip) {
-            callBillInfoEditor("setting_float_on_badge_timeout",billInfoModel)
+            callBillInfoEditor(Setting.FLOAT_TIMEOUT_ACTION,billInfoModel)
             // 显示编辑悬浮窗
             return
         }
@@ -133,7 +133,7 @@ class FloatingWindowService : Service() {
                 override fun onFinish() {
                     // 取消倒计时
                     removeTips(binding)
-                    callBillInfoEditor("setting_float_on_badge_timeout",billInfoModel)
+                    callBillInfoEditor(Setting.FLOAT_TIMEOUT_ACTION,billInfoModel)
                 }
             }
         countDownTimer.start()
@@ -141,14 +141,14 @@ class FloatingWindowService : Service() {
         binding.root.setOnClickListener {
             countDownTimer.cancel() // 定时器停止
             removeTips(binding)
-            callBillInfoEditor("setting_float_on_badge_click",billInfoModel)
+            callBillInfoEditor(Setting.FLOAT_CLICK,billInfoModel)
         }
 
         binding.root.setOnLongClickListener {
             countDownTimer.cancel() // 定时器停止
             removeTips(binding)
             // 不记录
-            callBillInfoEditor("setting_float_on_badge_long_click",billInfoModel)
+            callBillInfoEditor(Setting.FLOAT_LONG_CLICK,billInfoModel)
             true
         }
 
