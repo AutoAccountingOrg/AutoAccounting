@@ -48,4 +48,7 @@ interface BillInfoDao {
     @Query("SELECT * FROM BillInfoModel WHERE syncFromApp = 0")
     fun queryNoSync(): List<BillInfoModel>
 
+    @Query("UPDATE BillInfoModel SET syncFromApp = :status WHERE id = :id")
+     fun updateStatus(id: Long, status: Boolean)
+
 }

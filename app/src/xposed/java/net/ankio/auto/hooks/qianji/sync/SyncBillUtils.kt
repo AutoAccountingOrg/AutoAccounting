@@ -47,6 +47,8 @@ class SyncBillUtils(
             withContext(Dispatchers.Main){
                 context.startActivity(intent)
             }
+            // 现将指定的账单全部记录为成功，后续拦截到错误的时候再修改为失败
+            BillInfoModel.status(it.id, true)
         }
     }
 }

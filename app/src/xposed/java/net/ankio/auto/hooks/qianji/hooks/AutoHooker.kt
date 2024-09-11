@@ -29,6 +29,7 @@ import net.ankio.auto.hooks.qianji.tools.QianJiBillType
 import net.ankio.auto.hooks.qianji.tools.QianJiUri
 import net.ankio.dex.model.ClazzField
 import net.ankio.dex.model.ClazzMethod
+import org.ezbook.server.db.model.BillInfoModel
 
 class AutoHooker:PartHooker() {
     lateinit var  addBillIntentAct: Class<*>
@@ -79,26 +80,31 @@ class AutoHooker:PartHooker() {
 
                     val error = handleError(msg)
                     val autoTaskLog = param.args[1] as Any
-                    if (error!==msg){
-                        XposedHelpers.callMethod(autoTaskLog,"setStatus",0)
-                        param.args[0] = error
-                        return
-                    }
 
 
 
 
                     val value = XposedHelpers.getObjectField(autoTaskLog,"value") as String
-                    hookerManifest.logD("hookTaskLog: $value")
+                    val uri = Uri.parse(value)
+                    val billInfo = QianJiUri.toAuto(uri)
+
+                    if (billInfo.id < 0)return
+
+                    hookerManifest.logD("hookTaskLog BillInfo: $billInfo")
+
+                    if (error!==msg){
+                        XposedHelpers.callMethod(autoTaskLog,"setStatus",0)
+                        param.args[0] = error
+                        App.launch {
+                            BillInfoModel.status(billInfo.id, false)
+                        }
+                        return
+                    }
 
 
 
                     XposedHelpers.setObjectField(autoTaskLog,"from",BuildConfig.APPLICATION_ID)
 
-                    val uri = Uri.parse(value)
-                    val billInfo = QianJiUri.toAuto(uri)
-
-                    hookerManifest.logD("hookTaskLog: $billInfo")
 
                     when(uri.getQueryParameter("type")?.toInt() ?: 0){
                         QianJiBillType.Expend.value -> {
@@ -136,8 +142,8 @@ class AutoHooker:PartHooker() {
                                }.onSuccess {
                                       hookerManifest.logD("报销成功")
                                      App.toast("报销成功")
-
                                }.onFailure {
+                                   BillInfoModel.status(billInfo.id, false)
                                    hookerManifest.logD("报销失败 ${it.message}")
                                    App.toast("报销失败 ${handleError(it.message?:"")}")
                                    hookerManifest.logE(it)

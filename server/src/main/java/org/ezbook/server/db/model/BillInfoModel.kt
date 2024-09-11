@@ -174,6 +174,10 @@ class BillInfoModel {
             runCatching { Gson().fromJson(json.getAsJsonArray("data"), Array<BillInfoModel>::class.java).toList() }.getOrNull() ?: emptyList()
         }
 
+        suspend fun status(id: Long, sync: Boolean) = withContext(Dispatchers.IO) {
+            Server.request("bill/status?id=$id&sync=$sync")
+        }
+
     }
 
     override fun toString(): String {

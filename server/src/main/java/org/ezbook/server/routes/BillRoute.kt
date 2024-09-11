@@ -62,4 +62,12 @@ class BillRoute(private val session: IHTTPSession) {
         return Server.json(200, "OK", result)
     }
 
+    fun status(): Response {
+        val params = session.parameters
+        val id = params["id"]?.firstOrNull()?.toLong() ?: 0
+        val status = params["sync"]?.firstOrNull()?.toBoolean() ?: false
+        Db.get().billInfoDao().updateStatus(id, status)
+        return Server.json(200, "OK", 0)
+    }
+
 }
