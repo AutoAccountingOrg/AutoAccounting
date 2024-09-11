@@ -46,7 +46,6 @@ object Db {
         if (!this::db.isInitialized) {
             throw IllegalStateException("Database not initialized. Call init() first.")
         }
-        Log.d("Db", "db.isOpen: ${db.isOpen}")
         return db
     }
 
