@@ -16,20 +16,19 @@
 package net.ankio.auto.utils
 
 import com.google.gson.Gson
+import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.App
 import net.ankio.auto.exceptions.GithubException
-import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.request.RequestsUtils
+import net.ankio.auto.storage.ConfigUtils
 import org.ezbook.server.constant.Setting
-import org.json.JSONObject
 
 object Github {
     private const val CLIENT_ID = "1fc6754f52bdfaae24ff"
     private const val CLIENT_SECRET = "4b4417f52358526dcfc3370dc2c3bc87d83cbc6a"
     private const val REDIRECT_URI = "autoaccounting://github/auth"
-    private val requestsUtils = RequestsUtils(App.app)
 
     fun getLoginUrl(): String {
         return "https://github.com/login/oauth/authorize?client_id=$CLIENT_ID&redirect_uri=$REDIRECT_URI&scope=public_repo"
@@ -40,42 +39,31 @@ object Github {
             if (code == null) {
                 throw GithubException("授权代码为空")
             }
-            val data =
-                hashMapOf(
-                    "client_id" to CLIENT_ID,
-                    "client_secret" to CLIENT_SECRET,
-                    "code" to code,
-                    "redirect_uri" to REDIRECT_URI,
-                )
+            val data = JsonObject().apply {
+                addProperty("client_id", CLIENT_ID)
+                addProperty("client_secret", CLIENT_SECRET)
+                addProperty("code", code)
+                addProperty("redirect_uri", REDIRECT_URI)
+            }
 
+            val requestsUtils = RequestsUtils(App.app)
+            requestsUtils.addHeader("Accept", "application/vnd.github.v3+json")
+            requestsUtils.addHeader("X-GitHub-Api-Version", "2022-11-28")
             val result =
-                requestsUtils.post(
+                requestsUtils.json(
                     url = "https://github.com/login/oauth/access_token",
-                    data = hashMapOf("json" to Gson().toJson(data)),
-                    contentType = RequestsUtils.TYPE_JSON,
+                    body = data
                 )
 
-            val params = String(result.byteArray).split("&")
+            val params = result.second.split("&")
             for (param in params) {
                 val keyValue = param.split("=")
                 if (keyValue.size == 2 && keyValue[0] == "access_token") {
-                    SpUtils.putString(Setting.GITHUB_ACCESS_TOKEN, keyValue[1])
+                    ConfigUtils.putString(Setting.GITHUB_ACCESS_TOKEN, keyValue[1])
                 }
             }
         }
 
-    private fun getHeaders(): HashMap<String, String> {
-        val hashMap =
-            hashMapOf(
-                "Accept" to "application/vnd.github+json",
-                "X-GitHub-Api-Version" to "2022-11-28",
-            )
-        val accessToken = SpUtils.getString(Setting.GITHUB_ACCESS_TOKEN, "")
-        if (accessToken.isNotEmpty()) {
-            hashMap["Authorization"] = "Bearer $accessToken"
-        }
-        return hashMap
-    }
 
     suspend fun createIssue(
         title: String,
@@ -85,22 +73,22 @@ object Github {
         withContext(Dispatchers.IO) {
             val url = "https://api.github.com/repos/AutoAccountingOrg/$repo/issues"
 
-            val jsonRequest = JSONObject()
-            jsonRequest.put("title", title)
-            jsonRequest.put("body", body)
-
-            val result =
-                requestsUtils.post(
-                    url = url,
-                    data = hashMapOf("json" to jsonRequest.toString()),
-                    headers = getHeaders(),
-                    contentType = RequestsUtils.TYPE_JSON,
-                )
-            if (result.code != 201) {
+            val jsonRequest = JsonObject()
+            jsonRequest.addProperty("title", title)
+            jsonRequest.addProperty("body", body)
+            val requestsUtils = RequestsUtils(App.app)
+            requestsUtils.addHeader("Accept", "application/vnd.github.v3+json")
+            requestsUtils.addHeader("X-GitHub-Api-Version", "2022-11-28")
+            val accessToken = ConfigUtils.getString(Setting.GITHUB_ACCESS_TOKEN, "")
+            if (accessToken.isNotEmpty()) {
+                requestsUtils.addHeader("Authorization", "Bearer $accessToken")
+            }
+            val result = requestsUtils.json(url, jsonRequest)
+            if (result.first != 201) {
                 throw GithubException("创建Issue失败")
             }
-            val jsonObject = JSONObject(String(result.byteArray))
-            val id = jsonObject.getInt("number")
+            val jsonObject = Gson().fromJson(result.second, JsonObject::class.java)
+            val id = jsonObject.get("number").asInt
             id
         }
 }

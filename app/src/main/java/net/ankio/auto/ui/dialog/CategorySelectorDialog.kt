@@ -27,7 +27,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.databinding.DialogCategorySelectBinding
-import net.ankio.auto.storage.SpUtils
+import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.ui.adapter.CategorySelectorAdapter
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.componets.StatusPage
@@ -132,7 +132,7 @@ class CategorySelectorDialog(
 
         var leftDistanceWithMargin = location[0] + view.paddingLeft + params.leftMargin - view.width/2
 
-        if (SpUtils.getBoolean(Setting.USE_ROUND_STYLE,false)){
+        if (ConfigUtils.getBoolean(Setting.USE_ROUND_STYLE,false)){
             leftDistanceWithMargin-=view.width/2
         }
 

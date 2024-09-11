@@ -23,8 +23,7 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.common.AccountingConfig
 import net.ankio.auto.databinding.AdapterOrderItemBinding
-import net.ankio.auto.storage.Logger
-import net.ankio.auto.storage.SpUtils
+import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
 import net.ankio.auto.ui.dialog.FloatEditorDialog
@@ -119,7 +118,7 @@ class BillItemAdapter(private  val list: MutableList<BillInfoModel>,private val 
             binding.sync.visibility  = View.GONE
         }else{
              binding.sync.visibility  = View.VISIBLE
-            if (SpUtils.getBoolean(Setting.AUTO_GROUP,false)){
+            if (ConfigUtils.getBoolean(Setting.AUTO_GROUP,false)){
                 binding.moreBills.visibility  = View.VISIBLE
             }else{
                 binding.moreBills.visibility  = View.GONE

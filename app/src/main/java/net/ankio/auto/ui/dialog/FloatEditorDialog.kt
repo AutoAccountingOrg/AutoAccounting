@@ -38,7 +38,7 @@ import net.ankio.auto.broadcast.LocalBroadcastHelper
 import net.ankio.auto.common.AccountingConfig
 import net.ankio.auto.databinding.FloatEditorBinding
 import net.ankio.auto.storage.Logger
-import net.ankio.auto.storage.SpUtils
+import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.componets.IconView
 import net.ankio.auto.ui.scope.autoDisposeScope
@@ -203,7 +203,7 @@ class FloatEditorDialog(
             lifecycleScope.launch {
                 runCatching {
                     BillInfoModel.put(bill)
-                    if (SpUtils.getBoolean(Setting.SHOW_SUCCESS_POPUP, true)) {
+                    if (ConfigUtils.getBoolean(Setting.SHOW_SUCCESS_POPUP, true)) {
                         ToastUtils.info(
                             context.getString(
                                 R.string.auto_success,
@@ -213,7 +213,7 @@ class FloatEditorDialog(
                     }
 
                     if (rawBillInfo.cateName != bill.cateName &&
-                        SpUtils.getBoolean(
+                        ConfigUtils.getBoolean(
                             Setting.AUTO_CREATE_CATEGORY,
                             false,
                         )

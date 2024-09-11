@@ -35,7 +35,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import net.ankio.auto.storage.Logger
-import net.ankio.auto.storage.SpUtils
+import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.ExceptionHandler
@@ -50,6 +50,7 @@ class App : Application() {
          * 取消全局协程
          */
         job.cancel()
+        ConfigUtils.save(this)
     }
 
     companion object{
@@ -194,7 +195,7 @@ class App : Application() {
          * 打开记账软件应用
          */
         fun startBookApp() {
-            val packageName = SpUtils.getString(Setting.BOOK_APP_ID, "")
+            val packageName = ConfigUtils.getString(Setting.BOOK_APP_ID, "")
             val launchIntent = App.app.packageManager.getLaunchIntentForPackage(packageName)
             if (launchIntent != null) {
                 app.startActivity(launchIntent)
@@ -232,8 +233,9 @@ class App : Application() {
     override fun attachBaseContext(base: Context?) {
         super.attachBaseContext(base)
         app = this
+        ConfigUtils.init(this)
         // 初始化调试模式
-        debug = BuildConfig.DEBUG || SpUtils.getBoolean(Setting.DEBUG_MODE, false)
+        debug = BuildConfig.DEBUG || ConfigUtils.getBoolean(Setting.DEBUG_MODE, false)
 
         if (!BuildConfig.DEBUG){
             // 设置全局异常

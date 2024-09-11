@@ -21,7 +21,7 @@ import android.content.res.Resources
 import androidx.core.os.ConfigurationCompat
 import net.ankio.auto.R
 import net.ankio.auto.storage.Logger
-import net.ankio.auto.storage.SpUtils
+import net.ankio.auto.storage.ConfigUtils
 import net.ankio.utils.LangList
 import org.ezbook.server.constant.Setting
 import java.util.Locale
@@ -36,11 +36,11 @@ object LanguageUtils {
     }
 
     fun getAppLang(): String {
-        return SpUtils.getString(Setting.SYSTEM_LANGUAGE, "SYSTEM")
+        return ConfigUtils.getString(Setting.SYSTEM_LANGUAGE, "SYSTEM")
     }
 
     fun setAppLanguage(language: String) {
-        SpUtils.putString(Setting.SYSTEM_LANGUAGE, language)
+        ConfigUtils.putString(Setting.SYSTEM_LANGUAGE, language)
     }
 
     fun getLangList(context: Context): HashMap<String, Any> {

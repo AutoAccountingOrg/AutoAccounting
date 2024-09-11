@@ -16,7 +16,6 @@
 package net.ankio.auto.update
 
 import android.app.Activity
-import android.app.Application
 import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.JsonArray
@@ -24,7 +23,7 @@ import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.broadcast.LocalBroadcastHelper
-import net.ankio.auto.storage.SpUtils
+import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.ZipUtils
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.ToastUtils
@@ -47,12 +46,12 @@ class RuleUpdate(private val context: Context) : BaseUpdate(context) {
         if (BuildConfig.DEBUG){
             return ""
         }
-        return SpUtils.getString(Setting.RULE_VERSION, "")
+        return ConfigUtils.getString(Setting.RULE_VERSION, "")
     }
 
 
     override fun onCheckedUpdate() {
-        download = if (SpUtils.getString(Setting.UPDATE_CHANNEL, "github") == "github"){
+        download = if (ConfigUtils.getString(Setting.UPDATE_CHANNEL, "github") == "github"){
             "https://cors.isteed.cc/github.com/AutoAccountingOrg/$repo/releases/download/$version/$version.zip"
         }else{
             pan()+"/$version.zip"
@@ -67,17 +66,14 @@ class RuleUpdate(private val context: Context) : BaseUpdate(context) {
         loading.show(activity.getString(R.string.downloading))
         App.launch {
             try {
-                request.get(download).let { it ->
-                    if (it.code == 200) {
+                val file = context.cacheDir.resolve("rule.zip")
+
+                    if (request.download(download,file)) {
                         try {
-                            // 写入到缓存目录
-                            val file = context.cacheDir.resolve("rule.zip")
-                            file.writeBytes(it.byteArray)
                             // 解压
                             val zip = context.cacheDir.resolve("rule")
 
-                            val zipUtils = ZipUtils()
-                            zipUtils.unzip(file.absolutePath, zip.absolutePath) { filename ->
+                            ZipUtils.unzip(file.absolutePath, zip.absolutePath) { filename ->
                                 val name = filename.substringAfterLast("/")
                                 loading.setText(context.getString(R.string.unzip, name))
                             }
@@ -185,7 +181,7 @@ class RuleUpdate(private val context: Context) : BaseUpdate(context) {
 
 
                             // 更新版本号
-                            SpUtils.putString(Setting.RULE_VERSION, version)
+                            ConfigUtils.putString(Setting.RULE_VERSION, version)
 
                             ToastUtils.info(R.string.update_success)
 
@@ -201,7 +197,7 @@ class RuleUpdate(private val context: Context) : BaseUpdate(context) {
                     }
                     loading.close()
                     LocalBroadcastHelper.sendBroadcast(LocalBroadcastHelper.ACTION_UPDATE_FINISH)
-                }
+
             }catch (e:Exception){
                 Logger.e("Update error",e)
                 loading.close()

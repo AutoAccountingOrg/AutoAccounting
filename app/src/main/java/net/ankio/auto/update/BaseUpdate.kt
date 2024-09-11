@@ -22,7 +22,7 @@ import com.google.gson.JsonObject
 import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.request.RequestsUtils
-import net.ankio.auto.storage.SpUtils
+import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.storage.Logger
 import org.ezbook.server.constant.Setting
@@ -54,16 +54,16 @@ abstract class BaseUpdate(context: Context) {
 
     suspend fun check(showToast: Boolean = false): Boolean {
         // 判断是否在1小时之前检查过
-        if (!App.debug && System.currentTimeMillis() - SpUtils.getLong(
+        if (!App.debug && System.currentTimeMillis() - ConfigUtils.getLong(
                 Setting.RULE_UPDATE_TIME,
                 0
             ) < 3600000
         ) {
             return false
         }
-        SpUtils.putLong(Setting.RULE_UPDATE_TIME, System.currentTimeMillis()) // 记录检查时间
+        ConfigUtils.putLong(Setting.RULE_UPDATE_TIME, System.currentTimeMillis()) // 记录检查时间
 
-        val list = if (SpUtils.getString(Setting.UPDATE_CHANNEL, "github") == "github") {
+        val list = if (ConfigUtils.getString(Setting.UPDATE_CHANNEL, "github") == "github") {
             checkVersionFromGithub(ruleVersion())
         } else {
             checkVersionFromPan(ruleVersion())
@@ -90,7 +90,7 @@ abstract class BaseUpdate(context: Context) {
     private suspend fun checkVersionFromPan(localVersion: String): Array<String> {
         try {
             request.get("${pan()}/index.json").let {
-                val json = Gson().fromJson(String(it.byteArray), JsonObject::class.java)
+                val json = Gson().fromJson(it.second, JsonObject::class.java)
                 version = json.get("version").asString
                 log = json.get("log").asString
                 date = json.get("date").asString
@@ -117,7 +117,7 @@ abstract class BaseUpdate(context: Context) {
 
         try {
             request.get(github()).let {
-                val json = Gson().fromJson(String(it.byteArray), JsonObject::class.java)
+                val json = Gson().fromJson(it.second, JsonObject::class.java)
                 version = json.get("tag_name").asString
                 log = json.get("body").asString
                 date = json.get("published_at").asString

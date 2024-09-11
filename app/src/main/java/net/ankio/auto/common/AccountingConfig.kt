@@ -16,7 +16,7 @@
 package net.ankio.auto.common
 
 import com.google.gson.Gson
-import net.ankio.auto.storage.SpUtils
+import net.ankio.auto.storage.ConfigUtils
 import org.ezbook.server.constant.Setting
 
 data class AccountingConfig(
@@ -34,12 +34,12 @@ data class AccountingConfig(
     companion object{
         fun get():AccountingConfig{
             return runCatching {
-                Gson().fromJson(SpUtils.getString(Setting.AUTO_CONFIG,""),AccountingConfig::class.java)
+                Gson().fromJson(ConfigUtils.getString(Setting.AUTO_CONFIG,""),AccountingConfig::class.java)
             }.getOrNull()?:AccountingConfig()
         }
 
         fun set(config: AccountingConfig){
-            SpUtils.putString(Setting.AUTO_CONFIG,Gson().toJson(config))
+            ConfigUtils.putString(Setting.AUTO_CONFIG,Gson().toJson(config))
         }
 
         fun setItem(key:String,value:Boolean){

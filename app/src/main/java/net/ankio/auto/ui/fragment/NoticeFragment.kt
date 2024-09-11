@@ -28,7 +28,7 @@ import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentLogBinding
 import net.ankio.auto.storage.Logger
-import net.ankio.auto.storage.SpUtils
+import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.ui.adapter.AppAdapter
 import net.ankio.auto.ui.api.BasePageFragment
 import net.ankio.auto.ui.models.AppInfo
@@ -113,7 +113,7 @@ class NoticeFragment: BasePageFragment<AppInfo>() {
         val recyclerView = binding.statusPage.contentView!!
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         scrollView = recyclerView
-        selectedApps = SpUtils.getString(Setting.LISTENER_APP_LIST, "").split(",")
+        selectedApps = ConfigUtils.getString(Setting.LISTENER_APP_LIST, "").split(",")
         Logger.d("selectedApps => $selectedApps")
         recyclerView.adapter = AppAdapter(pageData,requireActivity().packageManager){
             selectedApps = if (!it.isSelected) {
@@ -136,7 +136,7 @@ class NoticeFragment: BasePageFragment<AppInfo>() {
         //去重
         selectedApps = selectedApps.distinct()
         val str = selectedApps.joinToString(",")
-        SpUtils.putString(Setting.LISTENER_APP_LIST, str)
+        ConfigUtils.putString(Setting.LISTENER_APP_LIST, str)
         App.launch {
             SettingModel.set(Setting.LISTENER_APP_LIST, str)
             Logger.d("selectedApps => $selectedApps")

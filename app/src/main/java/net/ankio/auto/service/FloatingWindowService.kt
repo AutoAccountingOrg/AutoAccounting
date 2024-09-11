@@ -30,14 +30,13 @@ import android.view.WindowManager
 import androidx.core.content.ContextCompat
 import com.google.gson.Gson
 import com.quickersilver.themeengine.ThemeEngine
-import kotlinx.coroutines.launch
 import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.broadcast.LocalBroadcastHelper
 import net.ankio.auto.common.AccountingConfig
 import net.ankio.auto.databinding.FloatTipBinding
 import net.ankio.auto.storage.Logger
-import net.ankio.auto.storage.SpUtils
+import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.ui.dialog.FloatEditorDialog
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.BillTool
@@ -60,7 +59,7 @@ class FloatingWindowService : Service() {
     private var lastTheme = ThemeEngine.getInstance(App.app).getTheme()
     override fun onCreate() {
         super.onCreate()
-        timeCount = runCatching { SpUtils.getString(Setting.FLOAT_TIMEOUT_OFF, "10").toInt() }.getOrNull() ?: 0
+        timeCount = runCatching { ConfigUtils.getString(Setting.FLOAT_TIMEOUT_OFF, "10").toInt() }.getOrNull() ?: 0
         list.clear()
         val appTheme = ContextThemeWrapper(App.app, R.style.AppTheme)
         themedContext = App.getThemeContext(appTheme)
@@ -194,7 +193,7 @@ class FloatingWindowService : Service() {
             App.launch {
                 BillInfoModel.put(billInfoModel2)
             }
-            if (SpUtils.getBoolean(Setting.SHOW_SUCCESS_POPUP, true)) {
+            if (ConfigUtils.getBoolean(Setting.SHOW_SUCCESS_POPUP, true)) {
                 ToastUtils.info(
                     getString(
                         R.string.auto_success,
@@ -208,7 +207,7 @@ class FloatingWindowService : Service() {
     }
 
     private fun callBillInfoEditor(key: String,billInfoModel: BillInfoModel) {
-        when (SpUtils.getInt(key, FloatEvent.POP_EDIT_WINDOW.ordinal)) {
+        when (ConfigUtils.getInt(key, FloatEvent.POP_EDIT_WINDOW.ordinal)) {
             FloatEvent.AUTO_ACCOUNT.ordinal -> {
                 // 记账
                 recordBillInfo(billInfoModel)

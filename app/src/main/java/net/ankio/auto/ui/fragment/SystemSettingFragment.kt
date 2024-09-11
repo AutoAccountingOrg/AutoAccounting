@@ -33,10 +33,10 @@ import net.ankio.auto.constant.ItemType
 import net.ankio.auto.databinding.FragmentSystemSettingBinding
 import net.ankio.auto.exceptions.PermissionException
 import net.ankio.auto.setting.SettingItem
-import net.ankio.auto.setting.SettingUtils
+import net.ankio.auto.setting.SettingUtils as SettingItemUtils
 import net.ankio.auto.storage.BackupUtils
 import net.ankio.auto.storage.Logger
-import net.ankio.auto.storage.SpUtils
+import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.api.BaseFragment
@@ -48,7 +48,7 @@ import org.ezbook.server.db.model.SettingModel
 class SystemSettingFragment : BaseFragment() {
     private lateinit var binding: FragmentSystemSettingBinding
 
-    private lateinit var settingRenderUtils: SettingUtils
+    private lateinit var settingRenderUtils: SettingItemUtils
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -58,7 +58,7 @@ class SystemSettingFragment : BaseFragment() {
         binding = FragmentSystemSettingBinding.inflate(layoutInflater)
         val settingItems = app(requireContext(), this)
         settingRenderUtils =
-            SettingUtils(
+            SettingItemUtils(
                 requireActivity() as BaseActivity,
                 binding.container,
                 layoutInflater,
@@ -208,7 +208,7 @@ class SystemSettingFragment : BaseFragment() {
                 icon = R.drawable.setting2_icon_dir,
                 type = ItemType.TEXT,
                 onGetKeyValue = {
-                    val uri = SpUtils.getString(Setting.LOCAL_BACKUP_PATH, "")
+                    val uri = ConfigUtils.getString(Setting.LOCAL_BACKUP_PATH, "")
                     if (uri.isNotEmpty()) {
                         runCatching {
                             Uri.parse(uri).path
@@ -238,6 +238,7 @@ class SystemSettingFragment : BaseFragment() {
                             Toaster.show(R.string.backup_success)
                             loading.close()
                         }.onFailure {
+                            Logger.e("备份失败", it)
                             // 失败请求权限
                             if (it is PermissionException) {
                                 BackupUtils.requestPermission(activity as MainActivity)
@@ -354,7 +355,7 @@ class SystemSettingFragment : BaseFragment() {
                 icon = R.drawable.setting2_icon_debug,
                 type = ItemType.SWITCH,
                 onSavedValue = { value, _ ->
-                    SpUtils.putBoolean(Setting.DEBUG_MODE, value as Boolean)
+                    ConfigUtils.putBoolean(Setting.DEBUG_MODE, value as Boolean)
                     App.launch {
                         SettingModel.set(Setting.DEBUG_MODE, value.toString())
                     }

@@ -39,7 +39,7 @@ import net.ankio.auto.common.ServerInfo
 import net.ankio.auto.databinding.AboutDialogBinding
 import net.ankio.auto.databinding.FragmentHomeBinding
 import net.ankio.auto.storage.Logger
-import net.ankio.auto.storage.SpUtils
+import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.dialog.AppDialog
 import net.ankio.auto.ui.dialog.AssetsSelectorDialog
@@ -144,7 +144,7 @@ class HomeFragment : BaseFragment() {
      * 检查记账软件
      */
     private fun checkBookApp() {
-        if (SpUtils.getString(Setting.BOOK_APP_ID, "").isEmpty()) {
+        if (ConfigUtils.getString(Setting.BOOK_APP_ID, "").isEmpty()) {
             AppDialog(requireContext()).show(cancel = BuildConfig.DEBUG)
         }
     }
@@ -165,7 +165,7 @@ class HomeFragment : BaseFragment() {
         val config = AccountingConfig.get()
         binding.book.visibility = if (config.multiBooks) View.VISIBLE else View.GONE
         binding.assets.visibility = if (config.assetManagement) View.VISIBLE else View.GONE
-        SpUtils.getString(Setting.BOOK_APP_ID, "").apply {
+        ConfigUtils.getString(Setting.BOOK_APP_ID, "").apply {
             if (this.isEmpty()) {
                 binding.bookApp.text = getString(R.string.no_setting)
             } else {
@@ -175,11 +175,11 @@ class HomeFragment : BaseFragment() {
             }
         }
 
-        val bookName = SpUtils.getString(Setting.DEFAULT_BOOK_NAME, "")
+        val bookName = ConfigUtils.getString(Setting.DEFAULT_BOOK_NAME, "")
         if (bookName.isEmpty()){
             lifecycleScope.launch {
                 val book = BookNameModel.getFirstBook()
-                SpUtils.putString(Setting.DEFAULT_BOOK_NAME, book.name)
+                ConfigUtils.putString(Setting.DEFAULT_BOOK_NAME, book.name)
                 SettingModel.set(Setting.DEFAULT_BOOK_NAME, book.name)
                 binding.defaultBook.text =  book.name
             }
@@ -218,7 +218,7 @@ class HomeFragment : BaseFragment() {
      * 绑定规则部分的UI
      */
     private fun bindRuleUI() {
-        val ruleVersion = SpUtils.getString(Setting.RULE_VERSION, "None")
+        val ruleVersion = ConfigUtils.getString(Setting.RULE_VERSION, "None")
         binding.ruleVersion.text = ruleVersion
 
 
@@ -319,7 +319,7 @@ class HomeFragment : BaseFragment() {
             BookSelectorDialog(themeContext)  { book, _ ->
                 Logger.d("选择的账本是：${book.name}")
                 // defaultBook
-                SpUtils.putString(Setting.DEFAULT_BOOK_NAME, book.name)
+                ConfigUtils.putString(Setting.DEFAULT_BOOK_NAME, book.name)
                 lifecycleScope.launch {
                     SettingModel.set(Setting.DEFAULT_BOOK_NAME, book.name)
                 }
@@ -380,7 +380,7 @@ class HomeFragment : BaseFragment() {
      * 检查更新
      */
     private  fun checkUpdate(showResult: Boolean = false) {
-        if (SpUtils.getBoolean(Setting.RULE_VERSION, true)) {
+        if (ConfigUtils.getBoolean(Setting.RULE_VERSION, true)) {
            lifecycleScope.launch {
                checkRuleUpdate(showResult)
            }

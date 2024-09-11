@@ -22,7 +22,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import net.ankio.auto.R
 import net.ankio.auto.broadcast.LocalBroadcastHelper
 import net.ankio.auto.databinding.DialogAppBinding
-import net.ankio.auto.storage.SpUtils
+import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.ui.adapter.AppListAdapter
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.models.AutoApp
@@ -46,8 +46,8 @@ class AppDialog(private val context: Context) : BaseSheetDialog(context) {
 
         val recyclerView = binding.recyclerView
         recyclerView.layoutManager = LinearLayoutManager(context)
-        recyclerView.adapter = AppListAdapter(context,apps, SpUtils.getString(Setting.BOOK_APP_ID)) {
-            SpUtils.putString(Setting.BOOK_APP_ID, it.packageName)
+        recyclerView.adapter = AppListAdapter(context,apps, ConfigUtils.getString(Setting.BOOK_APP_ID)) {
+            ConfigUtils.putString(Setting.BOOK_APP_ID, it.packageName)
             LocalBroadcastHelper.sendBroadcast(LocalBroadcastHelper.ACTION_APP_CHANGED)
             dismiss()
         }
