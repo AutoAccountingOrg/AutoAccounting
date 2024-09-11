@@ -33,7 +33,6 @@ import com.quickersilver.themeengine.ThemeEngine
 import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.broadcast.LocalBroadcastHelper
-import net.ankio.auto.common.AccountingConfig
 import net.ankio.auto.databinding.FloatTipBinding
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.storage.ConfigUtils
