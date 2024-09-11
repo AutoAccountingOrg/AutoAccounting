@@ -61,7 +61,6 @@ class FloatEditorDialog(
     private var billInfoModel: BillInfoModel,
     private val autoAccountingConfig: AccountingConfig,
     private val float: Boolean = false,
-    private val onlyShow: Boolean = false, // 是否仅展示
     private val onCancelClick: ((billInfoModel: BillInfoModel) -> Unit)? = null,
 ) :
     BaseSheetDialog(context) {
@@ -91,30 +90,13 @@ class FloatEditorDialog(
         cardView = binding.editorCard
 
         Logger.d("原始账单结果 => $rawBillInfo")
-        billTypeLevel1 = when(rawBillInfo.type){
-            BillType.Expend ,
-            BillType.ExpendReimbursement ,
-            BillType.ExpendLending ,
-            BillType.ExpendRepayment -> BillType.Expend
-            BillType.Income ,
-            BillType.IncomeLending ,
-            BillType.IncomeRepayment ,
-            BillType.IncomeReimbursement ->  BillType.Income
-            BillType.Transfer -> BillType.Transfer
-        }
+        billTypeLevel1 = BillTool.getType(rawBillInfo.type)
         billTypeLevel2 = rawBillInfo.type
+
 
         bindUI()
 
-        if (!onlyShow) {
-            bindEvents()
-        } else {
-            binding.sureButton.setOnClickListener {
-                dismiss()
-            }
-            binding.sureButton.text = context.getString(R.string.ok)
-            binding.cancelButton.visibility = View.GONE
-        }
+        bindEvents()
 
         return binding.root
     }
@@ -695,8 +677,12 @@ class FloatEditorDialog(
     }
 
     private fun bindUI() {
-        //   Logger.e("bindUI => $billInfo",Throwable())
         setBillType(billTypeLevel1)
+        if (billTypeLevel1 != rawBillInfo.type) {
+            setBillTypeLevel2(rawBillInfo.type)
+        }
+
+        selectedBills = billInfoModel.extendData.split(",").toMutableList()
         bindingBookNameUI()
         bindingTypePopupUI()
         bindingFeeUI()

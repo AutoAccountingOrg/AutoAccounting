@@ -215,7 +215,7 @@ class FloatingWindowService : Service() {
 
             FloatEvent.POP_EDIT_WINDOW.ordinal -> {
                 runCatching {
-                    FloatEditorDialog(themedContext, billInfoModel, AccountingConfig.get(), true, false, onCancelClick = {
+                    FloatEditorDialog(themedContext, billInfoModel, AccountingConfig.get(), true, onCancelClick = {
                         App.launch {
                            BillInfoModel.remove(billInfoModel.id)
                         }

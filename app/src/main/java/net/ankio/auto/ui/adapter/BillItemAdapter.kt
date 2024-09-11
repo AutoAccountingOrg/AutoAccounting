@@ -40,7 +40,7 @@ class BillItemAdapter(private  val list: MutableList<BillInfoModel>,private val 
         val binding = holder.binding
         binding.root.setOnClickListener {
             val item = holder.item!!
-            FloatEditorDialog(holder.context,item, AccountingConfig.get(),false,false){
+            FloatEditorDialog(holder.context,item, AccountingConfig.get(),false){
                 list[holder.positionIndex] = it
 
                 notifyItemChanged(holder.positionIndex)
@@ -96,7 +96,7 @@ class BillItemAdapter(private  val list: MutableList<BillInfoModel>,private val 
                 }
             }
         }
-        BillTool.setTextViewPrice(data.money, BillType.Expend, binding.money)
+        BillTool.setTextViewPrice(data.money, data.type, binding.money)
         binding.date.text = DateUtils.stampToDate(data.time, "HH:mm:ss")
 
         if (data.remark.isEmpty()) {

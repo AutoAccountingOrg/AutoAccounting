@@ -38,11 +38,24 @@ object BillTool {
         }
     }
 
+      fun getType(type: BillType): BillType {
+          return when (type) {
+              BillType.ExpendReimbursement -> BillType.Expend
+              BillType.ExpendLending -> BillType.Expend
+              BillType.ExpendRepayment -> BillType.Expend
+              BillType.IncomeLending -> BillType.Income
+              BillType.IncomeRepayment -> BillType.Income
+              BillType.IncomeReimbursement -> BillType.Income
+              else -> type
+          }
+    }
+
 
     fun setTextViewPrice(price: Double, type: BillType,view:MaterialTextView) {
-        val color = ContextCompat.getColor(view.context, getColor(type))
+        val t = getType(type)
+        val color = ContextCompat.getColor(view.context, getColor(t))
         view.setTextColor(color)
-        when (type) {
+        when (t) {
             BillType.Expend, BillType.ExpendReimbursement, BillType.ExpendLending, BillType.ExpendRepayment -> {
                 view.text = "- $price"
             }
