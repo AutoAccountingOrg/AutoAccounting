@@ -66,7 +66,7 @@ object ZipUtils {
         val buffer = ByteArray(8192)  // 优化缓冲区大小
         sourceFile.listFiles()?.forEach { file ->
             val zipPath = parentDirPath + file.name + if (file.isDirectory) File.separator else ""
-            Logger.i("Adding ${if (file.isDirectory) "Directory" else "file"}: $zipPath")
+            Logger.d("Adding ${if (file.isDirectory) "Directory" else "file"}: $zipPath")
 
             try {
                 zipOut.putNextEntry(ZipEntry(zipPath).apply {
