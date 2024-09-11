@@ -44,7 +44,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:background="?attr/colorErrorContainer"
+                android:background="?attr/colorPrimaryContainer"
                 android:clickable="true"
                 android:padding="@dimen/state_padding">
 
@@ -55,8 +55,8 @@
                     android:layout_alignParentStart="true"
                     android:layout_centerVertical="true"
                     android:layout_marginStart="@dimen/border_side"
-                    android:src="@drawable/home_active_error"
-                    app:tint="?colorOnErrorContainer" />
+                    android:src="@drawable/home_active_success"
+                    app:tint="?colorOnPrimaryContainer" />
 
                 <TextView
                     android:id="@+id/msg_label"
@@ -66,9 +66,9 @@
                     android:layout_marginStart="@dimen/border_side"
                     android:layout_marginEnd="@dimen/border_side"
                     android:layout_toEndOf="@+id/imageView"
-                    android:text="@string/active_error"
+                    tools:text="@string/active_error"
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                    android:textColor="?colorOnErrorContainer"
+                    android:textColor="?colorOnPrimaryContainer"
                     tools:ignore="RelativeOverlap" />
 
                 <TextView
@@ -177,7 +177,7 @@
                         android:ellipsize="end"
                         android:maxWidth="100dp"
                         android:singleLine="true"
-                        android:text="eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+                        tools:text="eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
                         android:textAppearance="@style/TextAppearance.AppCompat.Small" />
 
 
@@ -285,6 +285,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="@dimen/padding"
+                        android:layout_marginStart="@dimen/one_padding"
                         android:text="@string/rule_title"
                         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                         android:textColor="?attr/colorOnSurface"
@@ -354,7 +355,7 @@
                     android:orientation="horizontal">
                     <TextView
                         android:clickable="true"
-
+                        android:layout_marginStart="@dimen/one_padding"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
 
