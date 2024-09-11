@@ -206,7 +206,7 @@ class SettingFragment : BaseFragment() {
                 key = Setting.SETTING_ASSET_MANAGER,
                 type = ItemType.SWITCH,
                 default = true,
-                icon = R.drawable.setting_icon_map,
+                icon = R.drawable.home_app_assets,
             ),
             SettingItem(
                 variable = Setting.SETTING_CURRENCY_MANAGER,
@@ -214,7 +214,7 @@ class SettingFragment : BaseFragment() {
                 key = Setting.SETTING_CURRENCY_MANAGER,
                 type = ItemType.SWITCH,
                 default = false,
-                icon = R.drawable.setting_icon_map,
+                icon = R.drawable.setting2_icon_language,
             ),
             SettingItem(
                 variable = Setting.SETTING_REIMBURSEMENT,
@@ -222,7 +222,7 @@ class SettingFragment : BaseFragment() {
                 key = Setting.SETTING_REIMBURSEMENT,
                 type = ItemType.SWITCH,
                 default = true,
-                icon = R.drawable.setting_icon_map,
+                icon = R.drawable.setting_icon_reimbursement,
             ),
             SettingItem(
                 variable = Setting.SETTING_DEBT,
@@ -230,7 +230,7 @@ class SettingFragment : BaseFragment() {
                 key = Setting.SETTING_DEBT,
                 type = ItemType.SWITCH,
                 default = true,
-                icon = R.drawable.setting_icon_map,
+                icon = R.drawable.setting_icon_debt,
             ),
             SettingItem(
                 variable = Setting.SETTING_BOOK_MANAGER,
@@ -238,7 +238,7 @@ class SettingFragment : BaseFragment() {
                 key = Setting.SETTING_BOOK_MANAGER,
                 type = ItemType.SWITCH,
                 default = true,
-                icon = R.drawable.setting_icon_map,
+                icon = R.drawable.home_app_book_data,
             ),
             SettingItem(
                 variable = Setting.SETTING_FEE,
@@ -246,7 +246,7 @@ class SettingFragment : BaseFragment() {
                 key = Setting.SETTING_FEE,
                 type = ItemType.SWITCH,
                 default = true,
-                icon = R.drawable.setting_icon_map,
+                icon = R.drawable.setting_icon_fee,
             ),
             SettingItem(
                 variable = Setting.SETTING_TAG,
@@ -254,7 +254,7 @@ class SettingFragment : BaseFragment() {
                 key = Setting.SETTING_TAG,
                 type = ItemType.SWITCH,
                 default = true,
-                icon = R.drawable.setting_icon_map,
+                icon = R.drawable.setting_icon_tag,
             ),
         )
     }
