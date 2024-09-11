@@ -23,6 +23,7 @@ import android.content.Context
 import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import net.ankio.auto.App
 import net.ankio.auto.storage.CacheManager
 import okhttp3.FormBody
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
@@ -54,7 +55,8 @@ class RequestsUtils(context: Context,private val cacheTime: Int = 0) {
     }
 
     suspend fun image(url: String): Pair<Int,ByteArray> = withContext(Dispatchers.IO) {
-        val byte = cacheManager.readFromCache(url)
+        val md5 = App.md5(url)
+        val byte = cacheManager.readFromCache(md5)
         if (byte.isNotEmpty()) {
             return@withContext Pair(200, byte)
         }
@@ -63,7 +65,7 @@ class RequestsUtils(context: Context,private val cacheTime: Int = 0) {
         val response = client.newCall(request).execute()
         val body = response.body?.bytes()?:ByteArray(0)
         if (cacheTime > 0 && body.isNotEmpty()){
-            cacheManager.saveToCacheWithExpiry(url, body, cacheTime.toLong())
+            cacheManager.saveToCacheWithExpiry(md5, body, cacheTime.toLong())
         }
         Pair(response.code, body)
     }
