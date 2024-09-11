@@ -63,7 +63,9 @@ class LogModel {
             val response = Server.request("log/list?page=$page&limit=$limit")
            val json = Gson().fromJson(response, JsonObject::class.java)
 
-             Gson().fromJson(json.getAsJsonArray("data"), Array<LogModel>::class.java).toList()
+            runCatching {  Gson().fromJson(json.getAsJsonArray("data"), Array<LogModel>::class.java).toList() }.getOrDefault(
+                emptyList()
+            )
         }
 
         /**

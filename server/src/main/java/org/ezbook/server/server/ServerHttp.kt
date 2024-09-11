@@ -32,6 +32,7 @@ import org.ezbook.server.routes.BookNameRoute
 import org.ezbook.server.routes.CategoryMapRoute
 import org.ezbook.server.routes.CategoryRoute
 import org.ezbook.server.routes.CategoryRuleRoute
+import org.ezbook.server.routes.DatabaseRoute
 import org.ezbook.server.routes.JsRoute
 import org.ezbook.server.routes.LogRoute
 import org.ezbook.server.routes.RuleRoute
@@ -124,6 +125,10 @@ class ServerHttp(port: Int, private val context: Context) : NanoHTTPD(port) {
                 "/bill/book/list" -> BookBillRoute(session).list()
                 "/bill/book/put" -> BookBillRoute(session).put()
 
+                // 备份
+                "/db/export" -> DatabaseRoute(session, context).exportDb()
+                "/db/import" -> DatabaseRoute(session, context).importDb()
+
                 else -> {
                     runCatching {
 
@@ -134,13 +139,6 @@ class ServerHttp(port: Int, private val context: Context) : NanoHTTPD(port) {
 
 
                         val app = constructor.newInstance(Db.get())
-
-                        clazz.declaredMethods.forEach {
-                            println(it.name)
-                            it.parameters.forEach {
-                                println(it.type.name)
-                            }
-                        }
 
                         val method = clazz.declaredMethods.first()
                         method.invoke(app, session) as Response
@@ -154,7 +152,7 @@ class ServerHttp(port: Int, private val context: Context) : NanoHTTPD(port) {
             }
         }.getOrElse {
             it.printStackTrace()
-            json(500, "Internal Server Error")
+            json(500, "Internal Server Error: ${it.message}")
         }
     }
 }
