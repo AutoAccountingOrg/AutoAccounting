@@ -101,6 +101,9 @@ object Setting {
     // 是否自动识别资产
     const val AUTO_IDENTIFY_ASSET = "setting_auto_identify_asset"
 
+    // 自动进行资产映射
+    const val AUTO_ASSET = "setting_auto_asset"
+
     // 备注格式
     const val NOTE_FORMAT = "setting_note_format"
 
@@ -116,5 +119,24 @@ object Setting {
     //检查规则更新
     const val CHECK_RULE_UPDATE = "setting_check_rule_update"
 
+    // 资产管理
+    const val SETTING_ASSET_MANAGER = "setting_asset_manager"
 
+    // 多币种
+    const val SETTING_CURRENCY_MANAGER = "setting_multi_currency"
+
+    // 报销
+    const val SETTING_REIMBURSEMENT = "setting_reimbursement"
+
+    // 债务
+    const val SETTING_DEBT = "setting_debt"
+
+    // 多账本
+    const val SETTING_BOOK_MANAGER = "setting_book_manager"
+
+    // 手续费
+    const val SETTING_FEE = "setting_fee"
+
+    // 标签
+    const val SETTING_TAG = "setting_tag"
 }

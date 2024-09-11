@@ -20,6 +20,7 @@ import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import net.ankio.auto.App
+import org.ezbook.server.db.model.SettingModel
 import java.io.File
 import java.lang.reflect.Type
 
@@ -52,6 +53,12 @@ class ConfigUtils private constructor(context: Context) {
 
         fun save(context: Context) {
             getInstance(context).save()
+            // 同步远程数据库
+            App.launch {
+                getInstance(context).settings.forEach {
+                    SettingModel.set(it.key, it.value.toString())
+                }
+            }
         }
 
         fun getString(key: String, defaultValue: String = ""): String {

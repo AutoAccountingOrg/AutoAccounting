@@ -28,6 +28,7 @@ import net.ankio.auto.setting.SettingItem
 import net.ankio.auto.setting.SettingUtils
 import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.api.BaseFragment
+import org.ezbook.server.constant.Setting
 
 class SettingFragment : BaseFragment() {
     private lateinit var binding: FragmentSettingBinding
@@ -42,7 +43,12 @@ class SettingFragment : BaseFragment() {
         binding = FragmentSettingBinding.inflate(layoutInflater)
         val settingItems = setting(requireContext())
         settingRenderUtils =
-            SettingUtils(requireActivity() as BaseActivity, binding.container, layoutInflater, settingItems)
+            SettingUtils(
+                requireActivity() as BaseActivity,
+                binding.container,
+                layoutInflater,
+                settingItems
+            )
         settingRenderUtils.init()
         scrollView = binding.scrollView
         return binding.root
@@ -65,7 +71,7 @@ class SettingFragment : BaseFragment() {
             // 备注
             SettingItem(
                 title = R.string.setting_bill_remark,
-                key = "setting_bill_remark",
+                key = Setting.NOTE_FORMAT,
                 subTitle = R.string.setting_bill_remark_desc,
                 type = ItemType.INPUT,
                 default = "【商户名称】 - 【商品名称】",
@@ -75,7 +81,7 @@ class SettingFragment : BaseFragment() {
             SettingItem(
                 title = R.string.setting_bill_repeat,
                 subTitle = R.string.setting_bill_repeat_desc,
-                key = "setting_bill_repeat",
+                key = Setting.AUTO_GROUP,
                 type = ItemType.SWITCH,
                 default = true,
                 icon = R.drawable.setting_icon_repeat,
@@ -84,55 +90,55 @@ class SettingFragment : BaseFragment() {
             SettingItem(R.string.setting_float),
             SettingItem(
                 title = R.string.setting_float_time,
-                key = "setting_float_time",
+                key = Setting.FLOAT_TIMEOUT_OFF,
                 subTitle = R.string.setting_float_time_desc,
                 type = ItemType.INPUT,
                 default = 10,
             ),
             SettingItem(
                 title = R.string.setting_float_on_badge_click,
-                key = "setting_float_on_badge_click",
+                key = Setting.FLOAT_CLICK,
                 type = ItemType.TEXT,
                 default = FloatEvent.POP_EDIT_WINDOW.ordinal,
                 icon = R.drawable.setting_icon_click,
                 selectList =
-                    hashMapOf(
-                        context.getString(R.string.pop_edit_window) to FloatEvent.POP_EDIT_WINDOW.ordinal,
-                        context.getString(R.string.auto_account) to FloatEvent.AUTO_ACCOUNT.ordinal,
-                        context.getString(R.string.no_account) to FloatEvent.NO_ACCOUNT.ordinal,
-                    ),
+                hashMapOf(
+                    context.getString(R.string.pop_edit_window) to FloatEvent.POP_EDIT_WINDOW.ordinal,
+                    context.getString(R.string.auto_account) to FloatEvent.AUTO_ACCOUNT.ordinal,
+                    context.getString(R.string.no_account) to FloatEvent.NO_ACCOUNT.ordinal,
+                ),
             ),
             SettingItem(
                 title = R.string.setting_float_on_badge_long_click,
-                key = "setting_float_on_badge_long_click",
+                key = Setting.FLOAT_LONG_CLICK,
                 type = ItemType.TEXT,
                 default = FloatEvent.NO_ACCOUNT.ordinal,
                 icon = R.drawable.setting_icon_long_click,
                 selectList =
-                    hashMapOf(
-                        context.getString(R.string.pop_edit_window) to FloatEvent.POP_EDIT_WINDOW.ordinal,
-                        context.getString(R.string.auto_account) to FloatEvent.AUTO_ACCOUNT.ordinal,
-                        context.getString(R.string.no_account) to FloatEvent.NO_ACCOUNT.ordinal,
-                    ),
+                hashMapOf(
+                    context.getString(R.string.pop_edit_window) to FloatEvent.POP_EDIT_WINDOW.ordinal,
+                    context.getString(R.string.auto_account) to FloatEvent.AUTO_ACCOUNT.ordinal,
+                    context.getString(R.string.no_account) to FloatEvent.NO_ACCOUNT.ordinal,
+                ),
             ),
             SettingItem(
                 title = R.string.setting_float_on_badge_timeout,
-                key = "setting_float_on_badge_timeout",
+                key = Setting.FLOAT_TIMEOUT_ACTION,
                 type = ItemType.TEXT,
                 default = FloatEvent.POP_EDIT_WINDOW.ordinal,
                 icon = R.drawable.setting_icon_timeout,
                 selectList =
-                    hashMapOf(
-                        context.getString(R.string.pop_edit_window) to FloatEvent.POP_EDIT_WINDOW.ordinal,
-                        context.getString(R.string.auto_account) to FloatEvent.AUTO_ACCOUNT.ordinal,
-                        context.getString(R.string.no_account) to FloatEvent.NO_ACCOUNT.ordinal,
-                    ),
+                hashMapOf(
+                    context.getString(R.string.pop_edit_window) to FloatEvent.POP_EDIT_WINDOW.ordinal,
+                    context.getString(R.string.auto_account) to FloatEvent.AUTO_ACCOUNT.ordinal,
+                    context.getString(R.string.no_account) to FloatEvent.NO_ACCOUNT.ordinal,
+                ),
             ),
             // 分类
             SettingItem(R.string.setting_category),
             SettingItem(
                 title = R.string.setting_auto_create_category,
-                key = "setting_auto_create_category",
+                key = Setting.AUTO_CREATE_CATEGORY,
                 subTitle = R.string.setting_auto_create_category_desc,
                 type = ItemType.SWITCH,
                 default = false,
@@ -140,16 +146,19 @@ class SettingFragment : BaseFragment() {
             ),
             SettingItem(
                 title = R.string.setting_category_show_parent,
-                key = "setting_category_show_parent",
+                key = Setting.CATEGORY_SHOW_PARENT,
                 subTitle = R.string.setting_category_show_parent_desc,
                 type = ItemType.SWITCH,
                 default = false,
                 icon = R.drawable.setting_icon_parent,
             ),
-            SettingItem(R.string.setting_asset),
+            SettingItem(
+                R.string.setting_asset, regex = "${Setting.SETTING_ASSET_MANAGER}=true"
+            ),
             SettingItem(
                 title = R.string.setting_auto_asset,
-                key = "setting_auto_asset",
+                regex = "${Setting.SETTING_ASSET_MANAGER}=true",
+                key = Setting.AUTO_ASSET,
                 subTitle = R.string.setting_auto_asset_desc,
                 type = ItemType.SWITCH,
                 default = false,
@@ -157,7 +166,8 @@ class SettingFragment : BaseFragment() {
             ),
             SettingItem(
                 title = R.string.setting_auto_ai_asset,
-                key = "setting_auto_ai_asset",
+                regex = "${Setting.SETTING_ASSET_MANAGER}=true",
+                key = Setting.AUTO_IDENTIFY_ASSET,
                 subTitle = R.string.setting_auto_ai_asset_desc,
                 type = ItemType.SWITCH,
                 default = false,
@@ -166,20 +176,20 @@ class SettingFragment : BaseFragment() {
             SettingItem(R.string.setting_color),
             SettingItem(
                 title = R.string.setting_pay_color,
-                key = "setting_pay_color_red",
+                key = Setting.EXPENSE_COLOR_RED,
                 type = ItemType.TEXT,
                 default = 0,
                 icon = R.drawable.setting_icon_color,
                 selectList =
-                    hashMapOf(
-                        context.getString(R.string.setting_pay_color_red) to 0,
-                        context.getString(R.string.setting_pay_color_green) to 1,
-                    ),
+                hashMapOf(
+                    context.getString(R.string.setting_pay_color_red) to 0,
+                    context.getString(R.string.setting_pay_color_green) to 1,
+                ),
             ),
             SettingItem(R.string.setting_book),
             SettingItem(
                 title = R.string.setting_book_success,
-                key = "setting_book_success",
+                key = Setting.SHOW_SUCCESS_POPUP,
                 // subTitle = R.string.setting_category_show_parent_desc,
                 type = ItemType.SWITCH,
                 default = true,
@@ -188,9 +198,64 @@ class SettingFragment : BaseFragment() {
 
 
             SettingItem(R.string.setting_auto),
+            //  regex = "${Setting.USE_WEBDAV}=true",
 
-            // TODO 自动记账配置
-
+            SettingItem(
+                variable = Setting.SETTING_ASSET_MANAGER,
+                title = R.string.setting_asset_manager,
+                key = Setting.SETTING_ASSET_MANAGER,
+                type = ItemType.SWITCH,
+                default = true,
+                icon = R.drawable.setting_icon_map,
+            ),
+            SettingItem(
+                variable = Setting.SETTING_CURRENCY_MANAGER,
+                title = R.string.setting_currency_manager,
+                key = Setting.SETTING_CURRENCY_MANAGER,
+                type = ItemType.SWITCH,
+                default = false,
+                icon = R.drawable.setting_icon_map,
+            ),
+            SettingItem(
+                variable = Setting.SETTING_REIMBURSEMENT,
+                title = R.string.setting_reimbursement_manager,
+                key = Setting.SETTING_REIMBURSEMENT,
+                type = ItemType.SWITCH,
+                default = true,
+                icon = R.drawable.setting_icon_map,
+            ),
+            SettingItem(
+                variable = Setting.SETTING_DEBT,
+                title = R.string.setting_lending_manager,
+                key = Setting.SETTING_DEBT,
+                type = ItemType.SWITCH,
+                default = true,
+                icon = R.drawable.setting_icon_map,
+            ),
+            SettingItem(
+                variable = Setting.SETTING_BOOK_MANAGER,
+                title = R.string.setting_mutilbooks_manager,
+                key = Setting.SETTING_BOOK_MANAGER,
+                type = ItemType.SWITCH,
+                default = true,
+                icon = R.drawable.setting_icon_map,
+            ),
+            SettingItem(
+                variable = Setting.SETTING_FEE,
+                title = R.string.setting_fee_manager,
+                key = Setting.SETTING_FEE,
+                type = ItemType.SWITCH,
+                default = true,
+                icon = R.drawable.setting_icon_map,
+            ),
+            SettingItem(
+                variable = Setting.SETTING_TAG,
+                title = R.string.setting_tag_manager,
+                key = Setting.SETTING_TAG,
+                type = ItemType.SWITCH,
+                default = true,
+                icon = R.drawable.setting_icon_map,
+            ),
         )
     }
 }

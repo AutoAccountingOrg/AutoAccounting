@@ -420,4 +420,11 @@
     <string name="setting_update_channel">更新渠道</string>
     <string name="update_channel_github">Github加速</string>
     <string name="update_channel_cloud">自动记账网盘</string>
+    <string name="setting_asset_manager">资产管理功能</string>
+    <string name="setting_currency_manager">多币种管理</string>
+    <string name="setting_reimbursement_manager">报销功能</string>
+    <string name="setting_lending_manager">债务功能</string>
+    <string name="setting_mutilbooks_manager">多账本管理</string>
+    <string name="setting_fee_manager">手续费功能</string>
+    <string name="setting_tag_manager">标签功能</string>
 </resources>
