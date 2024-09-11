@@ -192,11 +192,9 @@ class BaoXiaoUtils(
 
         val selectBills =
             billList.filter {
-                val billIdField =
-                    it!!.javaClass.declaredFields.first { item -> item.name == "billid" }
-                val billId = (billIdField.get(it) as Long).toString()
+                val billId  = XposedHelpers.getObjectField(it, "billid") as Long
                 // 判断billId是否在list中
-                list.contains(billId)
+                list.contains(billId.toString())
             }
 
         if (selectBills.isEmpty()) {
@@ -233,9 +231,9 @@ class BaoXiaoUtils(
             AssetsUtils(manifest, classLoader).getAssetsList()
         .filter {
 
-            XposedHelpers.getObjectField(it, "name") as String == billModel.accountNameTo }
+            XposedHelpers.getObjectField(it, "name") as String == billModel.accountNameFrom }
 
-            .getOrNull(0) ?: throw RuntimeException("没有找到资产")
+            .getOrNull(0) ?: throw RuntimeException("找不到资产 key=accountname;value=${billModel.accountNameFrom}")
 
 
         // double r38,

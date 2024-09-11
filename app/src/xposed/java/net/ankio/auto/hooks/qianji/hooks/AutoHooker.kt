@@ -19,9 +19,8 @@ import android.app.Application
 import android.net.Uri
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XC_MethodReplacement
-import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
-import net.ankio.auto.App
+import net.ankio.auto.core.App
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
@@ -136,13 +135,15 @@ class AutoHooker:PartHooker() {
                                    BaoXiaoUtils(hookerManifest,classLoader).doBaoXiao(billInfo)
                                }.onSuccess {
                                       hookerManifest.logD("报销成功")
+                                     App.toast("报销成功")
 
                                }.onFailure {
                                    hookerManifest.logD("报销失败 ${it.message}")
+                                   App.toast("报销失败 ${handleError(it.message?:"")}")
                                    hookerManifest.logE(it)
                                }
                             }
-                            param.args[0] = "报销成功"
+                            param.args[0] = "自动记账正在报销中, 请稍候..."
                             XposedHelpers.callMethod(autoTaskLog,"setStatus",1)
                         }
                         QianJiBillType.Transfer.value -> {

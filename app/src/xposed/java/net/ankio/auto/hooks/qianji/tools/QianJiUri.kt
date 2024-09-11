@@ -56,6 +56,8 @@ object QianJiUri {
 
        if (AutoConfig.multiCurrency){
            uri.append("&currency=${billModel.currency}")
+       } else {
+           uri.append("&currency=CNY")
        }
 
         // 自动记账添加的拓展字段
