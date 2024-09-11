@@ -163,9 +163,8 @@ class HomeFragment : BaseFragment() {
      * 绑定记账软件数据部分的UI
      */
     private fun bindBookAppUI() {
-        val config = AccountingConfig.get()
-        binding.book.visibility = if (config.multiBooks) View.VISIBLE else View.GONE
-        binding.assets.visibility = if (config.assetManagement) View.VISIBLE else View.GONE
+        binding.book.visibility = if (ConfigUtils.getBoolean(Setting.SETTING_BOOK_MANAGER)) View.VISIBLE else View.GONE
+        binding.assets.visibility = if (ConfigUtils.getBoolean(Setting.SETTING_ASSET_MANAGER)) View.VISIBLE else View.GONE
         ConfigUtils.getString(Setting.BOOK_APP_ID, "").apply {
             if (this.isEmpty()) {
                 binding.bookApp.text = getString(R.string.no_setting)
@@ -175,6 +174,7 @@ class HomeFragment : BaseFragment() {
                 }
             }
         }
+
 
         val bookName = ConfigUtils.getString(Setting.DEFAULT_BOOK_NAME, "")
         if (bookName.isEmpty()){
