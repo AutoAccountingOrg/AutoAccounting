@@ -189,12 +189,7 @@ class AutoHooker:PartHooker() {
             object : XC_MethodReplacement(){
                 override fun replaceHookedMethod(param: MethodHookParam?) {
                     val status = param?.args?.get(0) as Int
-                    if (status == 1){
-                        //  // TODO 告知自动记账该账单同步成功
-                    }
-                    hookerManifest.logD("hookTaskLogStatus: $status")
                     val raw = XposedHelpers.getIntField(param.thisObject,"status")
-                    hookerManifest.logD("hookTaskLogStatus: $raw")
                     if (raw!=0){
                         return
                     }
