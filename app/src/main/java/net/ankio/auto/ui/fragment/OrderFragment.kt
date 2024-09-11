@@ -27,6 +27,7 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentLogBinding
+import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.adapter.BillInfoAdapter
 import net.ankio.auto.ui.api.BasePageFragment
 import net.ankio.auto.ui.models.ToolbarMenuItem
@@ -35,37 +36,45 @@ import org.ezbook.server.db.model.BillInfoModel
 
 open class OrderFragment : BasePageFragment<Pair<String, List<BillInfoModel>>>() {
     override suspend fun loadData(callback: (resultData: List<Pair<String, List<BillInfoModel>>>) -> Unit) {
-       val list =  BillInfoModel.list(page, pageSize)
-        list.forEach {
-            val item = it
-            val day = DateUtils.stampToDate(it.time,"yyyy-MM-dd")
-            val dayItem = pageData.find{ pair -> pair.first == day}
-            if (dayItem == null){
-                pageData.add(Pair(day, listOf(item)))
-                withContext(Dispatchers.Main){
-                    statusPage.contentView?.adapter?.notifyItemInserted(pageData.size - 1)
-                }
+        val list = BillInfoModel.list(page, pageSize)
+        Logger.i("list size: ${list.size}")
+
+        val newIndex = mutableListOf<Int>()
+        val updateIndex = mutableListOf<Int>()
+
+
+        list.forEach { item ->
+            val day = DateUtils.stampToDate(item.time, "yyyy-MM-dd")
+            val dayItem = pageData.find { pair -> pair.first == day }
+
+            if (dayItem == null) {
+                // 新的一天，插入一个新的 Pair
+                val pair = Pair(day, listOf(item))
+                pageData.add(pair)
+                newIndex.add(pageData.indexOf(pair))
             } else {
+                // 该天已存在，更新现有条目
                 val index = pageData.indexOf(dayItem)
                 val items = dayItem.second.toMutableList()
                 items.add(item)
-                pageData.remove(dayItem)
-                withContext(Dispatchers.Main){
-                    statusPage.contentView?.adapter?.notifyItemRemoved(index)
-                }
-                pageData.add(Pair(day, items))
-                withContext(Dispatchers.Main){
-                    statusPage.contentView?.adapter?.notifyItemInserted(pageData.size - 1)
-                }
+                pageData[index] = Pair(day, items) // 直接更新 pageData 而不是 remove 和 add
+                updateIndex.add(index)
             }
         }
 
-       withContext(Dispatchers.Main){
-           callback.invoke(if (list.isEmpty()) emptyList() else pageData)
-       }
+        withContext(Dispatchers.Main) {
+            // 统一更新 RecyclerView 的数据
+            newIndex.forEach { index ->
+                statusPage.contentView?.adapter?.notifyItemInserted(index)
+            }
+            updateIndex.forEach { index ->
+                statusPage.contentView?.adapter?.notifyItemChanged(index)
+            }
 
-
+            callback.invoke(if (list.isEmpty()) emptyList() else pageData)
+        }
     }
+
 
     override fun loadDataInside(callback: ((Boolean, Boolean) -> Unit)?){
         if (page == 1) {
