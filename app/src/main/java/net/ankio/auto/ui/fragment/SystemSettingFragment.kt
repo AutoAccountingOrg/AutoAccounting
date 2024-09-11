@@ -362,7 +362,7 @@ class SystemSettingFragment : BaseFragment() {
                         SettingModel.set(Setting.DEBUG_MODE, value.toString())
                     }
                 },
-                default = false,
+                default = BuildConfig.DEBUG,
             ),
         )
     }
