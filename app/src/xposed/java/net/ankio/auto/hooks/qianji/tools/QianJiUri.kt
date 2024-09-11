@@ -18,6 +18,7 @@ package net.ankio.auto.hooks.qianji.tools
 import android.net.Uri
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import net.ankio.auto.hooks.qianji.sync.AutoConfig
 import org.ezbook.server.db.model.BillInfoModel
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -38,16 +39,25 @@ object QianJiUri {
         uri.append("&catename=${Uri.encode(category)}")
         uri.append("&catechoose=0")
 
-       if (billModel.bookName != "默认账本" && billModel.bookName != "日常账本") {
+       if (billModel.bookName != "默认账本" && billModel.bookName != "日常账本" && AutoConfig.multiBooks) {
            uri.append("&bookname=${Uri.encode(billModel.bookName)}")
        }
 
-       uri.append("&accountname=${Uri.encode(billModel.accountNameFrom)}")
-       uri.append("&accountname2=${Uri.encode(billModel.accountNameTo)}")
+       if (AutoConfig.assetManagement){
+           uri.append("&accountname=${Uri.encode(billModel.accountNameFrom)}")
+           uri.append("&accountname2=${Uri.encode(billModel.accountNameTo)}")
+       }
 
-       uri.append("&fee=${billModel.fee}")
 
-       uri.append("&currency=${billModel.currency}")
+       if (AutoConfig.fee){
+           uri.append("&fee=${billModel.fee}")
+       }
+
+
+       if (AutoConfig.multiCurrency){
+           uri.append("&currency=${billModel.currency}")
+       }
+
         // 自动记账添加的拓展字段
         uri.append("&extendData=${billModel.extendData}")
 

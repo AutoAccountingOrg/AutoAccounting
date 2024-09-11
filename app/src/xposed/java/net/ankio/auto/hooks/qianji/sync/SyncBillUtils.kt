@@ -27,6 +27,7 @@ import net.ankio.auto.hooks.qianji.tools.QianJiUri
 import net.ankio.auto.hooks.qianji.tools.UserUtils
 import net.ankio.auto.ui.utils.ToastUtils
 import org.ezbook.server.db.model.BillInfoModel
+import org.ezbook.server.db.model.SettingModel
 
 class SyncBillUtils(
     private val manifest: HookerManifest,
@@ -34,10 +35,11 @@ class SyncBillUtils(
 )  {
     suspend fun sync(context:Context) = withContext(Dispatchers.IO) {
         if (!UserUtils(manifest,classLoader).isLogin()) {
-           App.toast("未登录无法自动记账");
+           App.toast("未登录无法自动记账")
             return@withContext
         }
         val bills = BillInfoModel.sync()
+        val conf = AutoConfig.load()
         bills.forEach {
             val bill = QianJiUri.toQianJi(it)
             val intent = Intent(Intent.ACTION_VIEW, bill)
