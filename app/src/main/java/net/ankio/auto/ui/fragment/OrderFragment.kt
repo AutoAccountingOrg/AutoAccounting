@@ -37,7 +37,6 @@ import org.ezbook.server.db.model.BillInfoModel
 open class OrderFragment : BasePageFragment<Pair<String, List<BillInfoModel>>>() {
     override suspend fun loadData(callback: (resultData: List<Pair<String, List<BillInfoModel>>>) -> Unit) {
         val list = BillInfoModel.list(page, pageSize)
-        Logger.i("list size: ${list.size}")
 
         val newIndex = mutableListOf<Int>()
         val updateIndex = mutableListOf<Int>()
