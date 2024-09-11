@@ -91,7 +91,17 @@ class FloatEditorDialog(
         cardView = binding.editorCard
 
         Logger.d("原始账单结果 => $rawBillInfo")
-        billTypeLevel1 = rawBillInfo.type
+        billTypeLevel1 = when(rawBillInfo.type){
+            BillType.Expend ,
+            BillType.ExpendReimbursement ,
+            BillType.ExpendLending ,
+            BillType.ExpendRepayment -> BillType.Expend
+            BillType.Income ,
+            BillType.IncomeLending ,
+            BillType.IncomeRepayment ,
+            BillType.IncomeReimbursement ->  BillType.Income
+            BillType.Transfer -> BillType.Transfer
+        }
         billTypeLevel2 = rawBillInfo.type
 
         bindUI()
