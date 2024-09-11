@@ -2,101 +2,95 @@ package net.ankio.auto.storage
 
 import java.io.*
 import java.nio.charset.Charset
+import java.nio.file.Files
+import java.nio.file.Paths
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 
-class ZipUtils {
+object ZipUtils {
 
     //========================解压===START===================================
     /**
      * 解压文件
-     * 目前支持范围：无文件夹压缩包和带文件夹压缩包
+     * 支持无文件夹和带文件夹的压缩包
      */
     fun unzip(zipFilePath: String, desDirectory: String, callback: ((String) -> Unit)? = null) {
         val desDir = File(desDirectory)
-        if (!desDir.exists()) {
-            val mkdirSuccess = desDir.mkdirs()
-            if (!mkdirSuccess) {
-                Logger.e("创建文件夹失败:$desDirectory")
-                return
-            }
+        if (!desDir.exists() && !desDir.mkdirs()) {
+            Logger.e("创建文件夹失败: $desDirectory")
+            return
         }
-        ZipInputStream(FileInputStream(zipFilePath), Charset.defaultCharset()).use { zipInputStream ->
-            var zipEntry: ZipEntry? = zipInputStream.nextEntry
-            while (zipEntry != null) {
-                val unzipFilePath = desDirectory + File.separator + zipEntry.name
-                callback?.invoke(zipEntry.name)
-                if (zipEntry.isDirectory) {
-                    mkdir(File(unzipFilePath))
-                } else {
-                    val file = File(unzipFilePath)
-                    mkdir(file.parentFile!!)
-                    BufferedOutputStream(FileOutputStream(unzipFilePath)).use { bufferedOutputStream ->
-                        val bytes = ByteArray(1024)
-                        var readLen: Int
-                        while (zipInputStream.read(bytes).also { readLen = it } > 0) {
-                            bufferedOutputStream.write(bytes, 0, readLen)
+        try {
+            ZipInputStream(FileInputStream(zipFilePath), Charset.defaultCharset()).use { zipInputStream ->
+                var zipEntry: ZipEntry? = zipInputStream.nextEntry
+                while (zipEntry != null) {
+                    val unzipFilePath = Paths.get(desDirectory, zipEntry.name).toString()
+                    callback?.invoke(zipEntry.name)
+
+                    if (zipEntry.isDirectory) {
+                        Files.createDirectories(Paths.get(unzipFilePath))
+                    } else {
+                        val file = File(unzipFilePath)
+                        Files.createDirectories(file.parentFile.toPath())
+                        BufferedOutputStream(FileOutputStream(file)).use { bufferedOutputStream ->
+                            val buffer = ByteArray(8192)  // 优化缓冲区大小
+                            var readLen: Int
+                            while (zipInputStream.read(buffer).also { readLen = it } > 0) {
+                                bufferedOutputStream.write(buffer, 0, readLen)
+                            }
                         }
                     }
+                    zipInputStream.closeEntry()
+                    zipEntry = zipInputStream.nextEntry
                 }
-                zipInputStream.closeEntry()
-                zipEntry = zipInputStream.nextEntry
             }
-        }
-    }
-
-    /**
-     * 创建文件夹
-     */
-    private fun mkdir(file: File) {
-        if (!file.exists()) {
-            file.mkdirs()
+        } catch (e: IOException) {
+            Logger.e("解压失败: ${e.message}")
         }
     }
     //========================解压===END===================================
 
     //========================压缩===START=================================
-    private fun zipAll(directory: String, zipFile: String) {
-        val sourceFile = File(directory)
-        ZipOutputStream(BufferedOutputStream(FileOutputStream(zipFile))).use {
-            zipFiles(it, sourceFile, "")
+    fun zipAll(sourceFile: File, zipFile: String) {
+        try {
+            ZipOutputStream(BufferedOutputStream(FileOutputStream(zipFile))).use { zipOut ->
+                zipFiles(zipOut, sourceFile, "")
+            }
+        } catch (e: IOException) {
+            Logger.e("压缩失败: ${e.message}")
         }
     }
 
     private fun zipFiles(zipOut: ZipOutputStream, sourceFile: File, parentDirPath: String) {
-        val data = ByteArray(2048)
-        for (f in sourceFile.listFiles()!!) {
-            if (f.isDirectory) {
-                val path = parentDirPath + f.name + File.separator
-                val entry = ZipEntry(path)
-                entry.time = f.lastModified()
-                entry.size = f.length()
-                Logger.i("Adding Directory: $path")
-                zipOut.putNextEntry(entry)
-                zipFiles(zipOut, f, path)
-            } else {
-                if (!f.name.contains(".zip")) {
-                    FileInputStream(f).use { fi ->
+        val buffer = ByteArray(8192)  // 优化缓冲区大小
+        sourceFile.listFiles()?.forEach { file ->
+            val zipPath = parentDirPath + file.name + if (file.isDirectory) File.separator else ""
+            Logger.i("Adding ${if (file.isDirectory) "Directory" else "file"}: $zipPath")
+
+            try {
+                zipOut.putNextEntry(ZipEntry(zipPath).apply {
+                    time = file.lastModified()
+                    size = if (file.isFile) file.length() else 0
+                })
+
+                if (file.isDirectory) {
+                    zipFiles(zipOut, file, zipPath)
+                } else {
+                    FileInputStream(file).use { fi ->
                         BufferedInputStream(fi).use { origin ->
-                            val path = parentDirPath + f.name
-                            Logger.i("Adding file: $path")
-                            val entry = ZipEntry(path)
-                            entry.time = f.lastModified()
-                            entry.size = f.length()
-                            zipOut.putNextEntry(entry)
-                            while (true) {
-                                val readBytes = origin.read(data)
-                                if (readBytes == -1) {
-                                    break
-                                }
-                                zipOut.write(data, 0, readBytes)
+                            var readLen: Int
+                            while (origin.read(buffer).also { readLen = it } != -1) {
+                                zipOut.write(buffer, 0, readLen)
                             }
                         }
                     }
                 }
+                zipOut.closeEntry()
+            } catch (e: IOException) {
+                Logger.e("压缩文件失败: ${e.message}")
             }
         }
     }
-    //========================压缩===END=================================
+    //========================压缩===END===================================
 }
