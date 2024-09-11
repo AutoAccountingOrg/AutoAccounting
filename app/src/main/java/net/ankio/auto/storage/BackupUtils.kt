@@ -281,7 +281,7 @@ class BackupUtils(private val context: Context) {
             }
 
             val (url, username, password) = getWebdavInfo()
-
+            Logger.i("url:$url,username:$username,password:$password")
             runCatching {
                 requestUtils.addHeader("Authorization",Credentials.basic(username, password))
                 val result =
@@ -333,6 +333,7 @@ class BackupUtils(private val context: Context) {
     }
 
     private fun showWebDavMsg(code: Int) {
+        Logger.i("webdav code:$code")
         when (code) {
             100 -> ToastUtils.error(R.string.net_error_msg)
             200 -> ToastUtils.info(R.string.backup_success)

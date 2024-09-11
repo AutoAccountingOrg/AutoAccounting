@@ -19,6 +19,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.widget.addTextChangedListener
 import androidx.viewbinding.ViewBinding
 import net.ankio.auto.constant.ItemType
 import net.ankio.auto.databinding.SettingItemColorBinding
@@ -238,6 +239,20 @@ class SettingUtils(
                     )
                 }
             }
+
+            binding.input.addTextChangedListener(afterTextChanged = {
+                val result = binding.input.text.toString()
+                settingItem.key?.let {
+                    ConfigUtils.putString(
+                        settingItem.key,
+                        result,
+                    )
+                }?: run {
+                    settingItem.onSavedValue?.invoke(result, context)
+                }
+            })
+
+
         }
         destroy[settingItem] = {
             val result = binding.input.text.toString()
