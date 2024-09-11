@@ -59,12 +59,8 @@ object ImageUtils {
     ): Drawable? =
         withContext(Dispatchers.IO) {
             runCatching {
-                val result =
-                    RequestsUtils(context).get(
-                        url = uriString,
-                        cacheTime = 60 * 24 * 180, // 图片缓存180天
-                    )
-                val bitmap = BitmapFactory.decodeStream(result.byteArray.inputStream())
+                val result = RequestsUtils(context, 3600 * 24 * 180).image(url = uriString)
+                val bitmap = BitmapFactory.decodeStream(result.second.inputStream())
                 BitmapDrawable(null, bitmap)
             }.onFailure {
                 Logger.e("加载图片失败：${it.message}", it)
