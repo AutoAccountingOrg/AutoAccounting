@@ -111,6 +111,7 @@ class BillItemAdapter(private  val list: MutableList<BillInfoModel>,private val 
             binding.sync.setImageResource(R.drawable.ic_no_sync)
         }
 
+        binding.payTools.visibility = if (ConfigUtils.getBoolean(Setting.SETTING_ASSET_MANAGER)) View.VISIBLE else View.GONE
 
 
         if (!showMore){
