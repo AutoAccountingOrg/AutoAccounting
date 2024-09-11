@@ -59,7 +59,6 @@ import java.util.Calendar
 class FloatEditorDialog(
     private val context: Context,
     private var billInfoModel: BillInfoModel,
-    private val autoAccountingConfig: AccountingConfig,
     private val float: Boolean = false,
     private val onCancelClick: ((billInfoModel: BillInfoModel) -> Unit)? = null,
 ) :
@@ -231,11 +230,14 @@ class FloatEditorDialog(
     }
 
     private fun bindingTypePopupEvents() {
-        val stringList: HashMap<String, Any> =
+        val stringList: HashMap<String, Any> = if (ConfigUtils.getBoolean(Setting.SETTING_ASSET_MANAGER))
             hashMapOf(
                 context.getString(R.string.float_expend) to BillType.Expend,
                 context.getString(R.string.float_income) to BillType.Income,
                 context.getString(R.string.float_transfer) to BillType.Transfer,
+            ) else hashMapOf(
+                context.getString(R.string.float_expend) to BillType.Expend,
+                context.getString(R.string.float_income) to BillType.Income,
             )
 
         val popupUtils =
@@ -258,7 +260,12 @@ class FloatEditorDialog(
         /*
         * 如果是转账，或者没有手续费，或者没有开启手续费，那么就不显示手续费
         * */
-        if (billInfoModel.fee == 0.0){
+
+        if (
+            !ConfigUtils.getBoolean(Setting.SETTING_FEE) ||
+            billTypeLevel1!=BillType.Transfer ||
+            billInfoModel.fee == 0.0
+            ){
             binding.fee.visibility = View.GONE
             return
         }
@@ -286,7 +293,7 @@ class FloatEditorDialog(
      */
     private fun bindingBookNameEvents() {
         binding.bookImageClick.setOnClickListener {
-            if (!autoAccountingConfig.multiBooks) return@setOnClickListener
+            if (!ConfigUtils.getBoolean(Setting.SETTING_BOOK_MANAGER)) return@setOnClickListener
             BookSelectorDialog(context) { book, _ ->
                 billInfoModel.bookName = book.name
                 bindingBookNameUI()
@@ -367,7 +374,7 @@ class FloatEditorDialog(
     }
 
     private fun bindingMoneyTypeUI() {
-        if (!autoAccountingConfig.multiCurrency) {
+        if (!ConfigUtils.getBoolean(Setting.SETTING_CURRENCY_MANAGER)) {
             binding.moneyType.visibility = View.GONE
             return
         }
@@ -377,7 +384,7 @@ class FloatEditorDialog(
     }
 
     private fun bindingMoneyTypeEvents() {
-        if (!autoAccountingConfig.multiCurrency) return
+        if (!ConfigUtils.getBoolean(Setting.SETTING_CURRENCY_MANAGER)) return
         binding.moneyType.setOnClickListener {
             val hashMap = Currency.getCurrencyMap(context)
             val popupUtils =
@@ -621,7 +628,33 @@ class FloatEditorDialog(
             BillType.IncomeRepayment -> return
             BillType.IncomeReimbursement -> return
         }
-        
+
+
+        if (!ConfigUtils.getBoolean(Setting.SETTING_ASSET_MANAGER)){
+            binding.chipLend.visibility = View.GONE
+            binding.chipBorrow.visibility = View.GONE
+            binding.chipRepayment.visibility = View.GONE
+            binding.payInfo.visibility = View.GONE
+            binding.transferInfo.visibility = View.GONE
+            binding.debtExpend.visibility = View.GONE
+            binding.debtIncome.visibility = View.GONE
+        }
+
+        if (!ConfigUtils.getBoolean(Setting.SETTING_DEBT)){
+            binding.chipLend.visibility = View.GONE
+            binding.chipBorrow.visibility = View.GONE
+            binding.chipRepayment.visibility = View.GONE
+        }else{
+            binding.chipRepayment.visibility = View.VISIBLE
+            binding.chipLend.visibility = View.VISIBLE
+            binding.chipBorrow.visibility = View.VISIBLE
+        }
+
+        if (!ConfigUtils.getBoolean(Setting.SETTING_REIMBURSEMENT)){
+            binding.chipReimbursement.visibility = View.GONE
+        }else{
+            binding.chipReimbursement.visibility = View.VISIBLE
+        }
     }
 
     private fun bindingChipGroupEvents() {

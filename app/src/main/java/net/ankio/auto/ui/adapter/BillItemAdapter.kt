@@ -40,7 +40,7 @@ class BillItemAdapter(private  val list: MutableList<BillInfoModel>,private val 
         val binding = holder.binding
         binding.root.setOnClickListener {
             val item = holder.item!!
-            FloatEditorDialog(holder.context,item, AccountingConfig.get(),false){
+            FloatEditorDialog(holder.context,item, false){
                 list[holder.positionIndex] = it
 
                 notifyItemChanged(holder.positionIndex)
