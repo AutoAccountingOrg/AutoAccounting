@@ -248,9 +248,9 @@
     <string name="backup_loading">备份中...</string>
     <string name="restore_loading">正在恢复中...</string>
     <string name="unsupport_backup">不支持恢复【%s】版本的数据，请将App降级到该版本后再试。</string>
-    <string name="backup_error">恢复失败。</string>
+    <string name="backup_error">数据库备份失败。</string>
     <string name="unspport_package">不支持使用该数据包进行恢复</string>
-    <string name="restore_success">恢复成功，3秒后重新启动应用。</string>
+    <string name="restore_success">恢复成功</string>
     <string name="unspport_package_backup">不支持使用不同架构的数据包进行恢复。</string>
     <string name="setting_backup_2_webdav_desc">需要提前设置Webdav的账号和密码信息</string>
     <string name="backup_error_msg">备份失败</string>

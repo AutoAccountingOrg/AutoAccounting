@@ -25,7 +25,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.lifecycleScope
 import com.google.gson.Gson
-import com.hjq.toast.Toaster
+import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -35,25 +35,22 @@ import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.exceptions.PermissionException
 import net.ankio.auto.exceptions.RestoreBackupException
-import net.ankio.auto.ui.api.BaseActivity
-import net.ankio.auto.ui.activity.MainActivity
-import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.request.RequestsUtils
+import net.ankio.auto.ui.activity.MainActivity
+import net.ankio.auto.ui.api.BaseActivity
+import net.ankio.auto.ui.utils.LoadingUtils
+import net.ankio.auto.ui.utils.ToastUtils
 import okhttp3.Credentials
 import org.ezbook.server.constant.Setting
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
-import java.io.InputStream
 import java.io.OutputStream
-import java.util.zip.ZipEntry
-import java.util.zip.ZipInputStream
-import java.util.zip.ZipOutputStream
 
 class BackupUtils(private val context: Context) {
     private var filename = "auto_backup_${System.currentTimeMillis()}.$SUFFIX"
 
-    private val uri = Uri.parse(SpUtils.getString(Setting.LOCAL_BACKUP_PATH, ""))
+    private val uri = Uri.parse(ConfigUtils.getString(Setting.LOCAL_BACKUP_PATH, ""))
 
     companion object {
         const val SUFFIX = "pk"
@@ -67,7 +64,7 @@ class BackupUtils(private val context: Context) {
                         Intent.FLAG_GRANT_READ_URI_PERMISSION or
                             Intent.FLAG_GRANT_WRITE_URI_PERMISSION
                     activity.contentResolver.takePersistableUriPermission(uri, takeFlags)
-                    SpUtils.putString(Setting.LOCAL_BACKUP_PATH, uri.toString())
+                    ConfigUtils.putString(Setting.LOCAL_BACKUP_PATH, uri.toString())
                 }
             }
         }
@@ -81,7 +78,7 @@ class BackupUtils(private val context: Context) {
 
                     if (!SUFFIX.equals(fileExtension, true)) {
                         Logger.i("fileExtension:$fileExtension")
-                        Toaster.show(R.string.backup_error)
+                        ToastUtils.info(R.string.backup_error)
                         return@let
                     }
 
@@ -94,14 +91,14 @@ class BackupUtils(private val context: Context) {
                         }.onFailure { it2 ->
                             loadingUtils.close()
                             if (it2 is RestoreBackupException) {
-                                Toaster.show(it2.message)
+                                ToastUtils.error(it2.message!!)
                             } else {
-                                Toaster.show(R.string.backup_error)
+                                ToastUtils.info(R.string.backup_error)
                                 Logger.e(it2.message ?: "", it2)
                             }
                         }.onSuccess {
                             loadingUtils.close()
-                            Toaster.show(R.string.restore_success)
+                            ToastUtils.info(R.string.restore_success)
                             delay(3000)
                             App.restart()
                         }
@@ -119,7 +116,7 @@ class BackupUtils(private val context: Context) {
             return persistedUriPermissions.any {
                 it.uri ==
                     Uri.parse(
-                        SpUtils.getString(
+                        ConfigUtils.getString(
                             Setting.LOCAL_BACKUP_PATH,
                             "",
                         ),
@@ -131,12 +128,33 @@ class BackupUtils(private val context: Context) {
     /**
      * 打包数据文件
      */
-    private suspend fun packData(outputStream: OutputStream) =
+    private suspend fun packData(filename: String) =
         withContext(Dispatchers.IO) {
-            val dataDir = context.filesDir // Getting the application's internal storage folder
-            val cacheDir = context.cacheDir // Getting the application's cache folder
-            val externalCacheDir =
-                context.externalCacheDir // Getting the application's external cache folder
+
+            // 构建备份数据包
+
+            // auto.db , 数据库文件
+            // shared_prefs , SharedPreferences文件夹
+
+            val backupDir = File(context.filesDir, "backup")
+
+            if (backupDir.exists()) {
+               backupDir.deleteRecursively()
+            }
+            backupDir.mkdirs()
+
+            val settingFile = File(backupDir, "settings.json")
+            ConfigUtils.copyTo(context, settingFile)
+
+            // 使用okhttp实现文件下载
+            val requestUtils = RequestsUtils(context)
+            val dbFile = File(backupDir, "auto.db")
+            val result = requestUtils.download("http://127.0.0.1:52045/db/export", dbFile)
+            Logger.i("downaload result:$result")
+
+            if (!result){
+                throw RestoreBackupException(context.getString(R.string.backup_error))
+            }
 
             val json =
                 Gson().toJson(
@@ -148,133 +166,67 @@ class BackupUtils(private val context: Context) {
                     ),
                 )
 
-            ZipOutputStream(outputStream).use { zos ->
-                // 将json写入压缩包
-                zos.putNextEntry(ZipEntry("auto.index"))
-                zos.write(json.toByteArray())
-                addToZip(zos, dataDir, "data")
-                addToZip(zos, cacheDir, "cache")
-                if (externalCacheDir != null) {
-                    addToZip(zos, externalCacheDir, "external_cache")
-                }
-            }
+            // json写入备份文件夹
+            val outputStream = FileOutputStream(File(backupDir, "auto.index"))
+            outputStream.write(json.toByteArray())
+            outputStream.close()
+
+
+            ZipUtils.zipAll(backupDir, filename)
         }
+
 
     /**
-     * 添加文件到压缩内容中
+     * 解压备份文件
      */
-    private fun addToZip(
-        zos: ZipOutputStream,
-        file: File,
-        basePath: String,
-    ) {
-        if (file.isDirectory) {
-            // 如果是文件夹，则递归地添加其内容
-            file.listFiles()?.forEach { child ->
-                addToZip(zos, child, "$basePath/${child.name}")
-            }
-        } else {
-            // 如果是文件，则直接添加到ZIP文件中
-            // 检查文件名，如果是备份文件，则跳过
-            if (file.name != filename) {
-                FileInputStream(file).use { fis ->
-                    val zipEntry = ZipEntry(basePath)
-                    zos.putNextEntry(zipEntry)
-                    fis.copyTo(zos)
-                    zos.closeEntry()
-                }
-            }
+    private suspend fun unpackData(file: File) = withContext(Dispatchers.IO) {
+
+        val backupDir = File(context.filesDir, "backup")
+        if (backupDir.exists()) {
+            backupDir.deleteRecursively()
         }
+        backupDir.mkdirs()
+
+        ZipUtils.unzip(file.absolutePath, backupDir.absolutePath) {
+            Logger.i("解压文件:$it")
+        }
+        file.delete()
+        val indexFile = File(backupDir, "auto.index")
+        val json = indexFile.readText()
+        indexFile.delete()
+        val map = Gson().fromJson(json, JsonObject::class.java)
+        Logger.i("备份恢复包的数据信息:$map")
+        val version = map.get("version").asInt
+        if (version < SUPPORT_VERSION) {
+            throw RestoreBackupException(
+                context.getString(
+                    R.string.unsupport_backup,
+                    map["versionName"],
+                ),
+            )
+        }
+        val pack = map["packageName"].asString
+        if (pack != BuildConfig.APPLICATION_ID) {
+            throw RestoreBackupException(context.getString(R.string.unspport_package_backup))
+        }
+        val settingFile = File(backupDir, "settings.json")
+        ConfigUtils.copyFrom(context, settingFile)
+        val dbFile = File(backupDir, "auto.db")
+
+        val requestUtils = RequestsUtils(context)
+        val result = requestUtils.upload("http://127.0.0.1:52045/db/import", dbFile)
+        Logger.i("upload result:$result")
     }
-
-    private suspend fun checkUseful(inputStream: InputStream) =
-        withContext(Dispatchers.IO) {
-            ZipInputStream(inputStream).use { zis ->
-                var entry: ZipEntry?
-                var useful = false
-                while (zis.nextEntry.also { entry = it } != null) {
-                    if (entry!!.name == "auto.index") {
-                        val json =
-                            zis.bufferedReader().use {
-                                it.readText()
-                            }
-                        Gson().fromJson(json, Map::class.java).let { map ->
-                            Logger.i("备份恢复包的数据信息:$map")
-                            val version = (map["version"] as Double).toInt()
-                            if (version < SUPPORT_VERSION) {
-                                throw RestoreBackupException(
-                                    context.getString(
-                                        R.string.unsupport_backup,
-                                        map["versionName"] as String,
-                                    ),
-                                )
-                            }
-                            val pack = map["packageName"] as String
-                            if (pack != BuildConfig.APPLICATION_ID) {
-                                throw RestoreBackupException(context.getString(R.string.unspport_package_backup))
-                            }
-                        }
-                        useful = true
-                        break
-                    }
-                    zis.closeEntry()
-                }
-                zis.close()
-                if (!useful) {
-                    throw RestoreBackupException(context.getString(R.string.unspport_package))
-                }
-            }
-        }
-
-    private suspend fun unpackData(
-        inputStream: InputStream,
-        name: String,
-    ) = withContext(Dispatchers.IO) {
-        ZipInputStream(inputStream).use { zis ->
-
-            var entry: ZipEntry?
-
-            while (zis.nextEntry.also { entry = it } != null) {
-                if (entry!!.name != name) {
-                    val outputFile =
-                        when {
-                            entry!!.name.startsWith("data/") ->
-                                File(
-                                    context.filesDir,
-                                    entry!!.name.removePrefix("data/"),
-                                )
-
-                            entry!!.name.startsWith("cache/") ->
-                                File(
-                                    context.cacheDir,
-                                    entry!!.name.removePrefix("cache/"),
-                                )
-
-                            entry!!.name.startsWith("external_cache/") ->
-                                File(
-                                    context.externalCacheDir,
-                                    entry!!.name.removePrefix("external_cache/"),
-                                )
-
-                            else -> continue
-                        }
-                    FileOutputStream(outputFile).use { fos ->
-                        zis.copyTo(fos)
-                    }
-                }
-                zis.closeEntry()
-            }
-        }
-    }
-
+    /**
+     * 从本地获取备份
+     */
     private suspend fun getLocalBackup(uri: Uri) =
         withContext(Dispatchers.IO) {
             val contentResolver: ContentResolver = context.contentResolver
             contentResolver.openInputStream(uri)?.use { inputStream ->
-                checkUseful(inputStream)
-            }
-            contentResolver.openInputStream(uri)?.use { inputStream ->
-                unpackData(inputStream, uri.lastPathSegment ?: "")
+                val file = File(context.cacheDir, filename)
+                file.writeBytes(inputStream.readBytes())
+                unpackData(file)
             }
         }
 
@@ -304,7 +256,11 @@ class BackupUtils(private val context: Context) {
                     context.contentResolver.openOutputStream(it)
                 }
             outputStream?.apply {
-                packData(this)
+                val file = File(context.cacheDir, filename)
+                packData(file.absolutePath)
+                FileInputStream(file).use { fis ->
+                    fis.copyTo(this)
+                }
                 this.close()
             }
         }
@@ -314,11 +270,10 @@ class BackupUtils(private val context: Context) {
             filename = "auto_backup.$SUFFIX"
             val file = File(context.cacheDir, filename)
             val loadingUtils = LoadingUtils(mainActivity)
-            val outputStream = FileOutputStream(file)
             withContext(Dispatchers.Main) {
                 loadingUtils.show(R.string.backup_pack)
             }
-            packData(outputStream)
+            packData(file.absolutePath)
             // 使用requestUtils上传
             val requestUtils = RequestsUtils(context)
             withContext(Dispatchers.Main) {
@@ -328,18 +283,13 @@ class BackupUtils(private val context: Context) {
             val (url, username, password) = getWebdavInfo()
 
             runCatching {
+                requestUtils.addHeader("Authorization",Credentials.basic(username, password))
                 val result =
-                    requestUtils.mkcol(
-                        "$url/AutoAccounting",
-                        headers =
-                            hashMapOf(
-                                "Authorization" to Credentials.basic(username, password),
-                            ),
-                    )
-                if (result.code == 201) {
-                    uploadFile(requestUtils, url, username, password, file, loadingUtils)
+                    requestUtils.mkcol("$url/AutoAccounting")
+                if (result == 201) {
+                    uploadFile(requestUtils, url,file, loadingUtils)
                 } else {
-                    showWebDavMsg(result.code)
+                    showWebDavMsg(result)
                     withContext(Dispatchers.Main) {
                         loadingUtils.close()
                     }
@@ -356,26 +306,13 @@ class BackupUtils(private val context: Context) {
     private suspend fun uploadFile(
         requestUtils: RequestsUtils,
         url: String,
-        username: String,
-        password: String,
         file: File,
         loadingUtils: LoadingUtils,
     ) {
         runCatching {
             val result =
-                requestUtils.put(
-                    "$url/AutoAccounting/$filename",
-                    data =
-                        hashMapOf(
-                            "raw" to file.path.toString(),
-                        ),
-                    contentType = RequestsUtils.TYPE_RAW,
-                    headers =
-                        hashMapOf(
-                            "Authorization" to Credentials.basic(username, password),
-                        ),
-                )
-            showWebDavMsg(result.code)
+                requestUtils.put("$url/AutoAccounting/$filename",file)
+            showWebDavMsg(result.first)
             withContext(Dispatchers.Main) {
                 loadingUtils.close()
             }
@@ -389,23 +326,23 @@ class BackupUtils(private val context: Context) {
     }
 
     private fun getWebdavInfo(): Array<String> {
-        val url = SpUtils.getString(Setting.WEBDAV_HOST, "").trim('/')
-        val username = SpUtils.getString(Setting.WEBDAV_USER, "")
-        val password = SpUtils.getString(Setting.WEBDAV_PASSWORD, "")
+        val url = ConfigUtils.getString(Setting.WEBDAV_HOST, "").trim('/')
+        val username = ConfigUtils.getString(Setting.WEBDAV_USER, "")
+        val password = ConfigUtils.getString(Setting.WEBDAV_PASSWORD, "")
         return arrayOf(url, username, password)
     }
 
     private fun showWebDavMsg(code: Int) {
         when (code) {
-            100 -> Toaster.show(R.string.net_error_msg)
-            200 -> Toaster.show(R.string.backup_success)
-            201 -> Toaster.show(R.string.backup_success)
-            204 -> Toaster.show(R.string.backup_success)
-            401 -> Toaster.show(R.string.backup_auth)
-            403 -> Toaster.show(R.string.backup_auth)
-            404 -> Toaster.show(R.string.backup_not_found)
-            409 -> Toaster.show(R.string.backup_not_found)
-            else -> Toaster.show(R.string.backup_unknown)
+            100 -> ToastUtils.error(R.string.net_error_msg)
+            200 -> ToastUtils.info(R.string.backup_success)
+            201 -> ToastUtils.info(R.string.backup_success)
+            204 -> ToastUtils.info(R.string.backup_success)
+            401 -> ToastUtils.error(R.string.backup_auth)
+            403 -> ToastUtils.error(R.string.backup_auth)
+            404 -> ToastUtils.error(R.string.backup_not_found)
+            409 -> ToastUtils.error(R.string.backup_not_found)
+            else -> ToastUtils.error(R.string.backup_unknown)
         }
     }
 
@@ -421,30 +358,22 @@ class BackupUtils(private val context: Context) {
                 loadingUtils.show(R.string.restore_webdav)
             }
             runCatching {
-                val result =
-                    requestUtils.get(
-                        "$url/AutoAccounting/$filename",
-                        headers =
-                            hashMapOf(
-                                "Authorization" to Credentials.basic(username, password),
-                            ),
-                    )
+                requestUtils.addHeader("Authorization",Credentials.basic(username, password))
+                val result = requestUtils.download("$url/AutoAccounting/$filename",file)
 
-                if (result.code == 200) {
+                if (result) {
                     withContext(Dispatchers.Main) {
                         loadingUtils.setText(R.string.restore_loading)
                     }
-                    file.writeBytes(result.byteArray)
-                    unpackData(file.inputStream(), filename)
+                    unpackData(file)
                     withContext(Dispatchers.Main) {
                         loadingUtils.close()
-                        Toaster.show(R.string.restore_success)
-                        delay(3000)
-                        App.restart()
+                        ToastUtils.info(R.string.restore_success)
+
                     }
                 } else {
                     withContext(Dispatchers.Main) {
-                        showWebDavMsg(result.code)
+                        showWebDavMsg(404)
                         loadingUtils.close()
                     }
                 }
