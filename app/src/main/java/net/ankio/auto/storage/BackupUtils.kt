@@ -281,7 +281,7 @@ class BackupUtils(private val context: Context) {
             }
 
             val (url, username, password) = getWebdavInfo()
-            Logger.i("url:$url,username:$username,password:$password")
+           // Logger.i("url:$url,username:$username,password:$password")
             runCatching {
                 requestUtils.addHeader("Authorization",Credentials.basic(username, password))
                 val result =
