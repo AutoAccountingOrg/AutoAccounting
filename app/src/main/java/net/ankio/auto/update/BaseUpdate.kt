@@ -53,17 +53,19 @@ abstract class BaseUpdate(context: Context) {
     abstract fun onCheckedUpdate()
 
     suspend fun check(showToast: Boolean = false): Boolean {
+        Logger.i("Checking for updates")
         // 判断是否在1小时之前检查过
         if (!App.debug && System.currentTimeMillis() - ConfigUtils.getLong(
                 Setting.RULE_UPDATE_TIME,
                 0
             ) < 3600000
         ) {
+            Logger.i("Checked within the last hour")
             return false
         }
         ConfigUtils.putLong(Setting.RULE_UPDATE_TIME, System.currentTimeMillis()) // 记录检查时间
 
-        val list = if (ConfigUtils.getString(Setting.UPDATE_CHANNEL, "github") == "github") {
+        val list = if (ConfigUtils.getString(Setting.UPDATE_CHANNEL, UpdateChannel.Github.name) == UpdateChannel.Github.name) {
             checkVersionFromGithub(ruleVersion())
         } else {
             checkVersionFromPan(ruleVersion())
@@ -72,6 +74,11 @@ abstract class BaseUpdate(context: Context) {
         version = list[0]
         log = list[1]
         date = list[2]
+
+        Logger.i("Version: $version")
+        Logger.i("Log: $log")
+        Logger.i("Date: $date")
+
         return if (version != "") {
             onCheckedUpdate()
             true
@@ -96,6 +103,7 @@ abstract class BaseUpdate(context: Context) {
                 date = json.get("date").asString
                 date = date(date)
                 if (version != localVersion) {
+                    Logger.i("New version found")
                     return arrayOf(
                         version,
                         log,
@@ -131,7 +139,10 @@ abstract class BaseUpdate(context: Context) {
                 // 转换 Markdown 为 HTML
                 log = processor.markdown(log)
 
+                Logger.i("LocalVersion: $localVersion,Version: $version")
+
                 if (version != localVersion) {
+                    Logger.i("New version found")
                     return arrayOf(
                         version,
                         log,

@@ -115,4 +115,9 @@ open class BaseActivity : AppCompatActivity() {
             recreate()
         }
     }
+
+    override fun onStop() {
+        super.onStop()
+        App.pageStopOrDestroy()
+    }
 }

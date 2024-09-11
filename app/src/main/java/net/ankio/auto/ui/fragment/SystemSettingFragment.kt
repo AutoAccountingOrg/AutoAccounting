@@ -42,6 +42,7 @@ import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.utils.LoadingUtils
+import net.ankio.auto.update.UpdateChannel
 import net.ankio.auto.update.UpdateType
 import net.ankio.auto.utils.LanguageUtils
 import org.ezbook.server.constant.Setting
@@ -322,11 +323,22 @@ class SystemSettingFragment : BaseFragment() {
             // 更新
             SettingItem(R.string.setting_update),
             SettingItem(
+                title = R.string.setting_update_channel,
+                key = Setting.UPDATE_CHANNEL,
+                icon = R.drawable.setting2_icon_update_channel,
+                type = ItemType.TEXT,
+                default = UpdateChannel.Github.name,
+                selectList = hashMapOf(
+                    context.getString(R.string.update_channel_github) to UpdateChannel.Github.name,
+                    context.getString(R.string.update_channel_cloud) to UpdateChannel.Cloud.name,
+                ),
+            ),
+            SettingItem(
                 title = R.string.setting_update_type,
                 key = Setting.CHECK_UPDATE_TYPE,
                 icon = R.drawable.setting2_icon_update,
                 type = ItemType.TEXT,
-                default = switchDefaultUpdate(),
+                default = UpdateType.switchDefaultUpdate(),
                 selectList =
                 hashMapOf(
                     context.getString(R.string.version_stable) to UpdateType.Stable.name,
@@ -365,16 +377,5 @@ class SystemSettingFragment : BaseFragment() {
                 default = BuildConfig.DEBUG,
             ),
         )
-    }
-
-    private fun switchDefaultUpdate():String{
-        val version = BuildConfig.VERSION_NAME
-        return if (version.contains("beta")){
-            UpdateType.Beta.name
-        } else if (version.contains("canary")){
-            UpdateType.Canary.name
-        } else {
-            UpdateType.Stable.name
-        }
     }
 }

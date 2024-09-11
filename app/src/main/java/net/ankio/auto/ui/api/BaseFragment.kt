@@ -189,4 +189,10 @@ abstract class BaseFragment : Fragment() {
         colorAnimator.duration = duration
         colorAnimator.start()
     }
+
+
+    override fun onStop() {
+        super.onStop()
+        App.pageStopOrDestroy()
+    }
 }

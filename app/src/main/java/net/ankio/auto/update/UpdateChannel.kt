@@ -15,24 +15,7 @@
 
 package net.ankio.auto.update
 
-import net.ankio.auto.BuildConfig
-
-enum class UpdateType {
-    Canary,
-    Beta,
-    Stable;
-
-
-    companion object {
-        fun switchDefaultUpdate():String{
-            val version = BuildConfig.VERSION_NAME
-            return if (version.contains("beta")){
-                Beta.name
-            } else if (version.contains("canary")){
-                Canary.name
-            } else {
-                Stable.name
-            }
-        }
-    }
+enum class UpdateChannel {
+    Github,
+    Cloud
 }

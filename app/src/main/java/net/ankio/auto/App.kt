@@ -44,14 +44,7 @@ import java.math.BigInteger
 import java.security.MessageDigest
 
 class App : Application() {
-    override fun onTerminate() {
-        super.onTerminate()
-        /**
-         * 取消全局协程
-         */
-        job.cancel()
-        ConfigUtils.save(this)
-    }
+
 
     companion object{
         /* App实例 */
@@ -63,6 +56,10 @@ class App : Application() {
         /* 全局协程 */
         private val job = Job()
         private val scope = CoroutineScope(Dispatchers.IO + job)
+
+        fun pageStopOrDestroy() {
+            ConfigUtils.save(app)
+        }
 
         /**
          * 获取全局协程
@@ -196,7 +193,7 @@ class App : Application() {
          */
         fun startBookApp() {
             val packageName = ConfigUtils.getString(Setting.BOOK_APP_ID, "")
-            val launchIntent = App.app.packageManager.getLaunchIntentForPackage(packageName)
+            val launchIntent = app.packageManager.getLaunchIntentForPackage(packageName)
             if (launchIntent != null) {
                 app.startActivity(launchIntent)
             }

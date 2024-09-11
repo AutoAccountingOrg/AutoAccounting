@@ -16,6 +16,7 @@
 package net.ankio.auto.storage
 
 import android.content.Context
+import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import net.ankio.auto.App

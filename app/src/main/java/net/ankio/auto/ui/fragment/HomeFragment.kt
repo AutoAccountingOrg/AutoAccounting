@@ -48,6 +48,7 @@ import net.ankio.auto.ui.dialog.CategorySelectorDialog
 import net.ankio.auto.ui.dialog.UpdateDialog
 import net.ankio.auto.ui.models.ToolbarMenuItem
 import net.ankio.auto.ui.utils.ToastUtils
+import net.ankio.auto.update.AppUpdate
 import net.ankio.auto.update.RuleUpdate
 import net.ankio.auto.utils.CustomTabsHelper
 import org.ezbook.server.constant.Setting
@@ -119,7 +120,7 @@ class HomeFragment : BaseFragment() {
         checkAutoService()
 
         // 检查软件和规则更新
-        if (!BuildConfig.DEBUG) checkUpdate()
+        checkUpdate()
 
         return binding.root
     }
@@ -220,12 +221,6 @@ class HomeFragment : BaseFragment() {
     private fun bindRuleUI() {
         val ruleVersion = ConfigUtils.getString(Setting.RULE_VERSION, "None")
         binding.ruleVersion.text = ruleVersion
-
-
-            // TODO 这里的规则需要重写入口
-
-
-
     }
 
     /**
@@ -274,6 +269,15 @@ class HomeFragment : BaseFragment() {
         }
     }
 
+    /**
+     * 检查应用更新
+     */
+    private suspend fun checkAppUpdate() {
+        val appUpdate = AppUpdate(requireContext())
+        if (appUpdate.check(false)) {
+            UpdateDialog(requireActivity(), appUpdate).show(cancel = true)
+        }
+    }
 
     /**
      * 销毁时注销广播
@@ -380,10 +384,15 @@ class HomeFragment : BaseFragment() {
      * 检查更新
      */
     private  fun checkUpdate(showResult: Boolean = false) {
-        if (ConfigUtils.getBoolean(Setting.RULE_VERSION, true)) {
+        if (ConfigUtils.getBoolean(Setting.CHECK_RULE_UPDATE, true)) {
            lifecycleScope.launch {
                checkRuleUpdate(showResult)
            }
+        }
+        if (ConfigUtils.getBoolean(Setting.CHECK_APP_UPDATE, true)) {
+            lifecycleScope.launch {
+                checkAppUpdate()
+            }
         }
     }
     /**
