@@ -21,15 +21,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.core.App
 import net.ankio.auto.core.api.HookerManifest
-import net.ankio.auto.core.xposed.Hooker
-import org.ezbook.server.constant.BillType
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.db.model.BookBillModel
 import org.ezbook.server.db.model.SettingModel
 import java.lang.reflect.Proxy
 import java.util.Calendar
-import java.util.HashSet
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -192,7 +189,7 @@ class BaoXiaoUtils(
 
         val selectBills =
             billList.filter {
-                val billId  = XposedHelpers.getObjectField(it, "billid") as Long
+                val billId = XposedHelpers.getObjectField(it, "billid") as Long
                 // 判断billId是否在list中
                 list.contains(billId.toString())
             }
@@ -229,11 +226,13 @@ class BaoXiaoUtils(
         // com.mutangtech.qianji.data.model.AssetAccount r37,
         val asset =
             AssetsUtils(manifest, classLoader).getAssetsList()
-        .filter {
+                .filter {
 
-            XposedHelpers.getObjectField(it, "name") as String == billModel.accountNameFrom }
+                    XposedHelpers.getObjectField(it, "name") as String == billModel.accountNameFrom
+                }
 
-            .getOrNull(0) ?: throw RuntimeException("找不到资产 key=accountname;value=${billModel.accountNameFrom}")
+                .getOrNull(0)
+                ?: throw RuntimeException("找不到资产 key=accountname;value=${billModel.accountNameFrom}")
 
 
         // double r38,

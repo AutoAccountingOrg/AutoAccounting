@@ -17,7 +17,6 @@
 package net.ankio.auto.ui.adapter
 
 import android.app.Activity
-import android.os.Bundle
 import android.view.View
 import androidx.core.view.size
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -38,7 +37,7 @@ class CategoryRuleAdapter(
     val dataItems: MutableList<CategoryRuleModel>,
     val activity: Activity,
     val onClickEdit: (CategoryRuleModel, Int) -> Unit = { _, _ -> }
-) : BaseAdapter<AdapterRuleBinding,CategoryRuleModel>(AdapterRuleBinding::class.java,dataItems) {
+) : BaseAdapter<AdapterRuleBinding, CategoryRuleModel>(AdapterRuleBinding::class.java, dataItems) {
 
 
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterRuleBinding, CategoryRuleModel>) {
@@ -79,12 +78,13 @@ class CategoryRuleAdapter(
         val binding = holder.binding
 
         binding.type.visibility = if (data.creator == "user") {
-           View.GONE
+            View.GONE
         } else {
             View.VISIBLE
         }
         val listType = object : TypeToken<MutableList<HashMap<String, Any>>>() {}.type
-        val list: MutableList<HashMap<String, Any>> = Gson().fromJson(data.element, listType) ?: return
+        val list: MutableList<HashMap<String, Any>> =
+            Gson().fromJson(data.element, listType) ?: return
 
         val lastElement = list.removeLast()
         val flexboxLayout = binding.flexboxLayout

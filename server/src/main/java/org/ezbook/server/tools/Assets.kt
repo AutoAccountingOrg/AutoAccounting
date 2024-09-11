@@ -15,8 +15,6 @@
 
 package org.ezbook.server.tools
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import org.ezbook.server.Server
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.Db
@@ -178,7 +176,7 @@ object Assets {
                 })
             }
             return autoAssetName
-        }else{
+        } else {
             //将映射结果保存到映射表
             Db.get().assetsMapDao().insert(AssetsMapModel().apply {
                 name = account

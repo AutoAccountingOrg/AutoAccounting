@@ -29,7 +29,7 @@ interface LogDao {
 
 
     @Insert
-    fun insert(log:LogModel): Long
+    fun insert(log: LogModel): Long
 
     @Query("DELETE FROM LogModel")
     fun clear()

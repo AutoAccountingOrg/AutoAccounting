@@ -48,23 +48,27 @@ class UpdateDialog(
             baseUpdate.update(context)
         }
 
-      //  EventBus.register(UpdateFinishEvent::class.java, listener)
+        //  EventBus.register(UpdateFinishEvent::class.java, listener)
 
         return binding.root
     }
 
     lateinit var broadcastReceiver: BroadcastReceiver
+
     //监听更新完成广播
     override fun show(float: Boolean, cancel: Boolean) {
         super.show(float, cancel)
-        broadcastReceiver = LocalBroadcastHelper.registerReceiver(LocalBroadcastHelper.ACTION_UPDATE_FINISH) { _, _ ->
-            dismiss()
-        }
+        broadcastReceiver =
+            LocalBroadcastHelper.registerReceiver(LocalBroadcastHelper.ACTION_UPDATE_FINISH) { _, _ ->
+                dismiss()
+            }
     }
 
     override fun dismiss() {
         super.dismiss()
-        if (this::broadcastReceiver.isInitialized) LocalBroadcastHelper.unregisterReceiver(broadcastReceiver)
+        if (this::broadcastReceiver.isInitialized) LocalBroadcastHelper.unregisterReceiver(
+            broadcastReceiver
+        )
     }
 
 }

@@ -22,7 +22,6 @@ import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.StateListDrawable
 
 
-
 class Builder {
     var defaultColor = Color.TRANSPARENT
     var pressedColor = -0x1a1a1b
@@ -30,7 +29,7 @@ class Builder {
     fun create(): Drawable {
         val statesDrawable = StateListDrawable()
         statesDrawable.addState(
-            intArrayOf( android.R.attr.state_pressed),
+            intArrayOf(android.R.attr.state_pressed),
             if (round > 0) roundDrawable(round, pressedColor) else ColorDrawable(pressedColor)
         )
         statesDrawable.addState(

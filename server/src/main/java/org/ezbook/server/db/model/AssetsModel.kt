@@ -46,15 +46,21 @@ class AssetsModel {
          * 根据条件查询
          * @return 规则列表
          */
-        suspend fun list() : List<AssetsModel> = withContext(
-            Dispatchers.IO) {
+        suspend fun list(): List<AssetsModel> = withContext(
+            Dispatchers.IO
+        ) {
             val response = Server.request("assets/list")
             val json = Gson().fromJson(response, JsonObject::class.java)
 
-            runCatching { Gson().fromJson(json.getAsJsonArray("data"), Array<AssetsModel>::class.java).toList() }.getOrNull() ?: emptyList()
+            runCatching {
+                Gson().fromJson(
+                    json.getAsJsonArray("data"),
+                    Array<AssetsModel>::class.java
+                ).toList()
+            }.getOrNull() ?: emptyList()
         }
 
-        suspend fun put(data: ArrayList<AssetsModel>,md5:String) {
+        suspend fun put(data: ArrayList<AssetsModel>, md5: String) {
             val json = Gson().toJson(data)
             Server.request("assets/put?md5=$md5", json)
         }
@@ -62,7 +68,12 @@ class AssetsModel {
         suspend fun getByName(name: String): AssetsModel? {
             val response = Server.request("assets/get?name=${Uri.encode(name)}")
             val json = Gson().fromJson(response, JsonObject::class.java)
-            return runCatching { Gson().fromJson(json.getAsJsonObject("data"), AssetsModel::class.java) }.getOrNull()
+            return runCatching {
+                Gson().fromJson(
+                    json.getAsJsonObject("data"),
+                    AssetsModel::class.java
+                )
+            }.getOrNull()
         }
     }
 }

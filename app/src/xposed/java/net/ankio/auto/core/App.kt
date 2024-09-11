@@ -24,13 +24,10 @@ import android.os.Looper
 import android.security.NetworkSecurityPolicy
 import android.widget.Toast
 import com.google.gson.Gson
-import com.hjq.toast.ToastParams
 import com.hjq.toast.Toaster
-import com.hjq.toast.style.CustomToastStyle
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.IXposedHookZygoteInit
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 import kotlinx.coroutines.CoroutineScope
@@ -45,23 +42,24 @@ import java.math.BigInteger
 import java.security.MessageDigest
 
 
-class App: IXposedHookLoadPackage, IXposedHookZygoteInit  {
+class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
 
-    companion object{
+    companion object {
         const val TAG = "HookerEnvironment"
         var modulePath = ""
         var application: Application? = null
-        private val job  = Job()
+        private val job = Job()
         val scope = CoroutineScope(Dispatchers.IO + job)
 
-        fun launch(block: suspend CoroutineScope.() -> Unit){
-            scope.launch {  runCatching {
+        fun launch(block: suspend CoroutineScope.() -> Unit) {
+            scope.launch {
+                runCatching {
 
-                   block()
+                    block()
 
-           }.onFailure {
-                Logger.logE(TAG,it)
-           }
+                }.onFailure {
+                    Logger.logE(TAG, it)
+                }
             }
         }
 
@@ -71,27 +69,28 @@ class App: IXposedHookLoadPackage, IXposedHookZygoteInit  {
          * @param key String
          * @param value String
          */
-        fun set(key:String,value:String){
-            if (application == null){
+        fun set(key: String, value: String) {
+            if (application == null) {
                 return
             }
-            Logger.logD(TAG,"set: $key -> $value")
+            Logger.logD(TAG, "set: $key -> $value")
             val sharedPreferences: SharedPreferences =
                 application!!.getSharedPreferences(TAG, Context.MODE_PRIVATE) // 私有数据
             val editor = sharedPreferences.edit() // 获取编辑器
             editor.putString(key, value)
             editor.apply() // 提交修改
         }
+
         /**
          * 读取数据
          * @param key String
          * @return String
          */
-        fun get(key:String,def:String = ""):String{
-            if (application == null){
+        fun get(key: String, def: String = ""): String {
+            if (application == null) {
                 return def
             }
-            Logger.logD(TAG,"get: $key")
+            Logger.logD(TAG, "get: $key")
             val sharedPreferences: SharedPreferences =
                 application!!.getSharedPreferences(TAG, Context.MODE_PRIVATE) // 私有数据
             return sharedPreferences.getString(key, def) ?: def
@@ -104,26 +103,25 @@ class App: IXposedHookLoadPackage, IXposedHookZygoteInit  {
             val md = MessageDigest.getInstance("MD5")
             return BigInteger(1, md.digest(data.toByteArray())).toString(16).padStart(32, '0')
         }
+
         /**
          * 弹出提示
          * @param msg String
          */
         fun toast(msg: String) {
-            if (application == null){
+            if (application == null) {
                 return
             }
-            Logger.logD(TAG,"toast: $msg")
+            Logger.logD(TAG, "toast: $msg")
 
             try {
                 Toaster.show(msg)
-            }catch (e:Throwable){
+            } catch (e: Throwable) {
                 Toast.makeText(application, msg, Toast.LENGTH_LONG).show()
             }
 
 
         }
-
-
 
 
         /**
@@ -132,7 +130,10 @@ class App: IXposedHookLoadPackage, IXposedHookZygoteInit  {
          */
         fun getVersionCode(): Int {
             return runCatching {
-                application!!.packageManager.getPackageInfo( application!!.packageName, 0).longVersionCode.toInt()
+                application!!.packageManager.getPackageInfo(
+                    application!!.packageName,
+                    0
+                ).longVersionCode.toInt()
             }.getOrElse {
                 0
             }
@@ -158,10 +159,14 @@ class App: IXposedHookLoadPackage, IXposedHookZygoteInit  {
          *     回调函数，返回Application对象
          *     如果hook失败，返回null
          */
-        fun hookAppContext(applicationName:String, classLoader: ClassLoader, callback: (Application?)->Unit){
+        fun hookAppContext(
+            applicationName: String,
+            classLoader: ClassLoader,
+            callback: (Application?) -> Unit
+        ) {
             var hookStatus = false
-            if (applicationName.isEmpty()){
-                Logger.logD(TAG,"applicationName is empty")
+            if (applicationName.isEmpty()) {
+                Logger.logD(TAG, "applicationName is empty")
                 callback(null)
                 return
             }
@@ -171,8 +176,8 @@ class App: IXposedHookLoadPackage, IXposedHookZygoteInit  {
                 runCatching {
                     callback(application)
                 }.onFailure {
-                    Logger.log(TAG,"Hook error: ${it.message}")
-                    Logger.logE(TAG,it)
+                    Logger.log(TAG, "Hook error: ${it.message}")
+                    Logger.logE(TAG, it)
                 }
             }
 
@@ -234,13 +239,13 @@ class App: IXposedHookLoadPackage, IXposedHookZygoteInit  {
         val pkg = lpparam.packageName
         val processName = lpparam.processName
 
-        Logger.logD(TAG,"handleLoadPackage: $pkg，processName: $processName")
+        Logger.logD(TAG, "handleLoadPackage: $pkg，processName: $processName")
 
-        for (app in Apps.get()){
-            if (app.packageName == pkg && app.packageName == processName){
+        for (app in Apps.get()) {
+            if (app.packageName == pkg && app.packageName == processName) {
                 networkError()
-                hookAppContext(app.applicationName, lpparam.classLoader){
-                    initHooker(app,it,lpparam.classLoader)
+                hookAppContext(app.applicationName, lpparam.classLoader) {
+                    initHooker(app, it, lpparam.classLoader)
                 }
                 return
             }
@@ -251,21 +256,21 @@ class App: IXposedHookLoadPackage, IXposedHookZygoteInit  {
     /**
      * 自动适配hook
      */
-    private fun ruleHook(app:HookerManifest): Boolean {
+    private fun ruleHook(app: HookerManifest): Boolean {
         val code = getVersionCode()
         if (app.rules.size == 0) {
             return true
         }
 
-        val adaptationVersion = get("adaptation","").toIntOrNull() ?: 0
+        val adaptationVersion = get("adaptation", "").toIntOrNull() ?: 0
 
-        Logger.logD(TAG,"adaptationVersion: $adaptationVersion")
+        Logger.logD(TAG, "adaptationVersion: $adaptationVersion")
 
         if (adaptationVersion == code) {
             runCatching {
                 app.clazz =
                     Gson().fromJson(
-                        get("clazz",""),
+                        get("clazz", ""),
                         HashMap::class.java,
                     ) as HashMap<String, String>
                 if (app.clazz.size != app.rules.size) {
@@ -273,7 +278,7 @@ class App: IXposedHookLoadPackage, IXposedHookZygoteInit  {
                 }
             }.onFailure {
                 set("adaptation", "0")
-                Logger.logE(TAG,it)
+                Logger.logE(TAG, it)
             }.onSuccess {
                 return true
             }
@@ -294,8 +299,8 @@ class App: IXposedHookLoadPackage, IXposedHookZygoteInit  {
         } else {
             app.logD(" 适配失败:$hashMap")
 
-            for (clazz in app.rules){
-                if (!hashMap.containsKey(clazz.name)){
+            for (clazz in app.rules) {
+                if (!hashMap.containsKey(clazz.name)) {
                     app.logD(" 适配失败:${clazz.name}")
                 }
             }
@@ -312,20 +317,28 @@ class App: IXposedHookLoadPackage, IXposedHookZygoteInit  {
      * @param classLoader ClassLoader
      * @return Boolean
      */
-    private fun initHooker(app:HookerManifest,application: Application?,classLoader: ClassLoader){
-        Logger.log(TAG,"initHooker: ${app.appName}")
+    private fun initHooker(
+        app: HookerManifest,
+        application: Application?,
+        classLoader: ClassLoader
+    ) {
+        Logger.log(TAG, "initHooker: ${app.appName}")
         App.application = application
 
         val code = getVersionCode()
 
-        if (app.minVersion!=0 && code < app.minVersion){
-            Logger.log(TAG,"autoAdaption failed , ${app.appName}(${code}) version is too low")
-            Toast.makeText(application,"${app.appName}版本过低，无法适配，请升级到最新版本后再试。",Toast.LENGTH_LONG).show()
+        if (app.minVersion != 0 && code < app.minVersion) {
+            Logger.log(TAG, "autoAdaption failed , ${app.appName}(${code}) version is too low")
+            Toast.makeText(
+                application,
+                "${app.appName}版本过低，无法适配，请升级到最新版本后再试。",
+                Toast.LENGTH_LONG
+            ).show()
             return
         }
 
-        if (!ruleHook(app)){
-            Logger.log(TAG,"autoAdaption failed , ${app.appName}(${code}) will not be hooked")
+        if (!ruleHook(app)) {
+            Logger.log(TAG, "autoAdaption failed , ${app.appName}(${code}) will not be hooked")
             return
         }
 
@@ -339,20 +352,20 @@ class App: IXposedHookLoadPackage, IXposedHookZygoteInit  {
 
         Toaster.init(application)
 
-        app.hookLoadPackage(application,classLoader)
+        app.hookLoadPackage(application, classLoader)
 
         app.partHookers.forEach {
             runCatching {
                 app.logD("PartHooker init: ${it.javaClass.simpleName}")
-                if(!it.findMethods(classLoader,app)){
+                if (!it.findMethods(classLoader, app)) {
                     app.logD("PartHooker init failed: ${it.javaClass.simpleName}")
                     return@runCatching
                 }
-                it.hook(app,application,classLoader)
+                it.hook(app, application, classLoader)
                 app.logD("PartHooker init success: ${it.javaClass.simpleName}")
             }.onFailure {
-               app.logD("PartHooker error: ${it.message}")
-               app.logE(it)
+                app.logD("PartHooker error: ${it.message}")
+                app.logE(it)
             }
         }
 
@@ -363,17 +376,17 @@ class App: IXposedHookLoadPackage, IXposedHookZygoteInit  {
      * 权限检查
      * 确保已经成功授权
      */
-    private fun permissionCheck(app: HookerManifest){
+    private fun permissionCheck(app: HookerManifest) {
         val permissions = app.permissions
-        if (permissions.isEmpty()){
+        if (permissions.isEmpty()) {
             app.logD("${app.appName} No permission required")
             return
         }
         val context = application ?: return
         permissions.forEach {
-            if (context.checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED){
+            if (context.checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED) {
                 app.logD("${app.appName} Permission denied: $it")
-            } else{
+            } else {
                 app.logD("${app.appName} Permission granted: $it")
             }
         }
@@ -383,8 +396,8 @@ class App: IXposedHookLoadPackage, IXposedHookZygoteInit  {
      * 网络错误修复
      * 修复Android9及以上版本的网络错误
      */
-    private fun networkError(){
-        Logger.logD(TAG,"networkError Fix")
+    private fun networkError() {
+        Logger.logD(TAG, "networkError Fix")
         val policy = NetworkSecurityPolicy.getInstance()
         if (policy != null && !policy.isCleartextTrafficPermitted) {
             // 允许明文流量
@@ -394,11 +407,9 @@ class App: IXposedHookLoadPackage, IXposedHookZygoteInit  {
     }
 
 
-
     override fun initZygote(startupParam: IXposedHookZygoteInit.StartupParam?) {
         modulePath = startupParam?.modulePath ?: ""
     }
-
 
 
 }

@@ -15,7 +15,7 @@
 
 package org.ezbook.server.constant
 
-enum class BillType{
+enum class BillType {
     Expend,//支出
 
     ExpendReimbursement,//支出（记作报销）

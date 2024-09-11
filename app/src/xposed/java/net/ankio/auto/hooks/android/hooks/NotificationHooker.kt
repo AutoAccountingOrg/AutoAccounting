@@ -25,15 +25,15 @@ import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.ezbook.server.constant.DataType
 import net.ankio.auto.core.App
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
+import org.ezbook.server.constant.DataType
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.SettingModel
 
 
-class NotificationHooker:PartHooker() {
+class NotificationHooker : PartHooker() {
     private var selectedApps = listOf<String>()
     private var lastTime = 0L
     override fun hook(
@@ -70,8 +70,9 @@ class NotificationHooker:PartHooker() {
                     }
 
 
-                    val originalTitle = notification.extras.getString(Notification.EXTRA_TITLE)?:""
-                    val originalText = notification.extras.getString(Notification.EXTRA_TEXT)?:""
+                    val originalTitle =
+                        notification.extras.getString(Notification.EXTRA_TITLE) ?: ""
+                    val originalText = notification.extras.getString(Notification.EXTRA_TEXT) ?: ""
 
 
                     hookerManifest.logD("Notification App: $opkg")
@@ -80,22 +81,31 @@ class NotificationHooker:PartHooker() {
                     hookerManifest.logD("Notification Content: $originalText")
 
 
-                   // 1分钟内不重复请求数据，加快识别速度
-                    if (System.currentTimeMillis() - lastTime < 1000 * 60){
-                        checkNotification(opkg,originalTitle,originalText,selectedApps,hookerManifest)
-                    }else{
+                    // 1分钟内不重复请求数据，加快识别速度
+                    if (System.currentTimeMillis() - lastTime < 1000 * 60) {
+                        checkNotification(
+                            opkg,
+                            originalTitle,
+                            originalText,
+                            selectedApps,
+                            hookerManifest
+                        )
+                    } else {
                         lastTime = System.currentTimeMillis()
                         App.scope.launch {
-                            val data = SettingModel.get(Setting.LISTENER_APP_LIST,"")
+                            val data = SettingModel.get(Setting.LISTENER_APP_LIST, "")
                             selectedApps = data.split(",")
-                            withContext(Dispatchers.Main){
-                                checkNotification(opkg,originalTitle,originalText,selectedApps,hookerManifest)
+                            withContext(Dispatchers.Main) {
+                                checkNotification(
+                                    opkg,
+                                    originalTitle,
+                                    originalText,
+                                    selectedApps,
+                                    hookerManifest
+                                )
                             }
                         }
                     }
-
-
-
 
 
                 }
@@ -106,7 +116,13 @@ class NotificationHooker:PartHooker() {
     /**
      * 检查通知
      */
-    private fun checkNotification(pkg: String,title:String,text:String,selectedApps: List<String>,hookerManifest: HookerManifest) {
+    private fun checkNotification(
+        pkg: String,
+        title: String,
+        text: String,
+        selectedApps: List<String>,
+        hookerManifest: HookerManifest
+    ) {
         if (title.isEmpty() || text.isEmpty()) {
             hookerManifest.logD("Notification title or text is empty")
             return
@@ -118,12 +134,11 @@ class NotificationHooker:PartHooker() {
         }
 
 
-
         val json = JsonObject()
         json.addProperty("title", title)
         json.addProperty("text", text)
 
-        hookerManifest.analysisData(DataType.NOTICE, Gson().toJson(json),pkg)
+        hookerManifest.analysisData(DataType.NOTICE, Gson().toJson(json), pkg)
     }
 
 }

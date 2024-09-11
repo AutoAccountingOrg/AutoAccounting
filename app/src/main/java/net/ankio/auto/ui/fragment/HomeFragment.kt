@@ -37,8 +37,8 @@ import net.ankio.auto.common.ActiveInfo
 import net.ankio.auto.common.ServerInfo
 import net.ankio.auto.databinding.AboutDialogBinding
 import net.ankio.auto.databinding.FragmentHomeBinding
-import net.ankio.auto.storage.Logger
 import net.ankio.auto.storage.ConfigUtils
+import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.dialog.AppDialog
 import net.ankio.auto.ui.dialog.AssetsSelectorDialog
@@ -103,10 +103,10 @@ class HomeFragment : BaseFragment() {
         // 卡片部分颜色设置
 
         val cards = listOf(
-                binding.infoCard,
-                binding.groupCard,
-                binding.ruleCard,
-            )
+            binding.infoCard,
+            binding.groupCard,
+            binding.ruleCard,
+        )
         val color = SurfaceColors.SURFACE_1.getColor(requireContext())
         cards.forEach { it.setCardBackgroundColor(color) }
 
@@ -127,10 +127,10 @@ class HomeFragment : BaseFragment() {
     /**
      * 检查自动记账服务
      */
-    private fun checkAutoService(){
+    private fun checkAutoService() {
 
         lifecycleScope.launch {
-            if (!ServerInfo.isServerStart()){
+            if (!ServerInfo.isServerStart()) {
                 MaterialAlertDialogBuilder(requireContext())
                     .setTitle(R.string.title_cant_connect_service)
                     .setMessage(ServerInfo.getServerErrorMsg(requireContext()))
@@ -162,8 +162,10 @@ class HomeFragment : BaseFragment() {
      * 绑定记账软件数据部分的UI
      */
     private fun bindBookAppUI() {
-        binding.book.visibility = if (ConfigUtils.getBoolean(Setting.SETTING_BOOK_MANAGER)) View.VISIBLE else View.GONE
-        binding.assets.visibility = if (ConfigUtils.getBoolean(Setting.SETTING_ASSET_MANAGER)) View.VISIBLE else View.GONE
+        binding.book.visibility =
+            if (ConfigUtils.getBoolean(Setting.SETTING_BOOK_MANAGER)) View.VISIBLE else View.GONE
+        binding.assets.visibility =
+            if (ConfigUtils.getBoolean(Setting.SETTING_ASSET_MANAGER)) View.VISIBLE else View.GONE
         ConfigUtils.getString(Setting.BOOK_APP_ID, "").apply {
             if (this.isEmpty()) {
                 binding.bookApp.text = getString(R.string.no_setting)
@@ -176,14 +178,14 @@ class HomeFragment : BaseFragment() {
 
 
         val bookName = ConfigUtils.getString(Setting.DEFAULT_BOOK_NAME, "")
-        if (bookName.isEmpty()){
+        if (bookName.isEmpty()) {
             lifecycleScope.launch {
                 val book = BookNameModel.getFirstBook()
                 ConfigUtils.putString(Setting.DEFAULT_BOOK_NAME, book.name)
                 SettingModel.set(Setting.DEFAULT_BOOK_NAME, book.name)
-                binding.defaultBook.text =  book.name
+                binding.defaultBook.text = book.name
             }
-        }else{
+        } else {
             binding.defaultBook.text = bookName
         }
     }
@@ -213,7 +215,6 @@ class HomeFragment : BaseFragment() {
     }
 
 
-
     /**
      * 绑定规则部分的UI
      */
@@ -232,9 +233,10 @@ class HomeFragment : BaseFragment() {
      */
     private fun bindRuleEvents() {
 
-        broadcastReceiver = LocalBroadcastHelper.registerReceiver(LocalBroadcastHelper.ACTION_UPDATE_FINISH) {a,b->
-            refreshUI()
-        }
+        broadcastReceiver =
+            LocalBroadcastHelper.registerReceiver(LocalBroadcastHelper.ACTION_UPDATE_FINISH) { a, b ->
+                refreshUI()
+            }
 
         binding.categoryMap.setOnClickListener {
             findNavController().navigate(R.id.categoryMapFragment)
@@ -261,9 +263,9 @@ class HomeFragment : BaseFragment() {
     /**
      * 检查规则更新
      */
-    private suspend fun checkRuleUpdate( showResult: Boolean) {
+    private suspend fun checkRuleUpdate(showResult: Boolean) {
         val ruleUpdate = RuleUpdate(requireContext())
-        if (ruleUpdate.check(showResult)){
+        if (ruleUpdate.check(showResult)) {
             UpdateDialog(requireActivity(), ruleUpdate).show(false)
         }
     }
@@ -292,6 +294,7 @@ class HomeFragment : BaseFragment() {
     }
 
     private lateinit var broadcastReceiverBook: BroadcastReceiver
+
     /**
      * 绑定记账软件数据部分的事件
      */
@@ -300,9 +303,10 @@ class HomeFragment : BaseFragment() {
          * 获取主题Context，部分弹窗样式不含M3主题
          */
         val themeContext = App.getThemeContext(requireContext())
-        broadcastReceiverBook = LocalBroadcastHelper.registerReceiver(LocalBroadcastHelper.ACTION_APP_CHANGED) { a, b ->
-            bindBookAppUI()
-        }
+        broadcastReceiverBook =
+            LocalBroadcastHelper.registerReceiver(LocalBroadcastHelper.ACTION_APP_CHANGED) { a, b ->
+                bindBookAppUI()
+            }
         binding.bookAppContainer.setOnClickListener {
             AppDialog(requireContext()).show(false)
         }
@@ -319,7 +323,7 @@ class HomeFragment : BaseFragment() {
         }
         // 账本数据（只读）
         binding.book.setOnClickListener {
-            BookSelectorDialog(themeContext)  { book, _ ->
+            BookSelectorDialog(themeContext) { book, _ ->
                 Logger.d("选择的账本是：${book.name}")
                 // defaultBook
                 ConfigUtils.putString(Setting.DEFAULT_BOOK_NAME, book.name)
@@ -331,8 +335,12 @@ class HomeFragment : BaseFragment() {
         }
         // 分类数据（只读）
         binding.readCategory.setOnClickListener {
-            BookSelectorDialog(themeContext,true)  { book, type ->
-                CategorySelectorDialog(themeContext, book.remoteId, type) { categoryModel1: CategoryModel?, categoryModel2: CategoryModel? ->
+            BookSelectorDialog(themeContext, true) { book, type ->
+                CategorySelectorDialog(
+                    themeContext,
+                    book.remoteId,
+                    type
+                ) { categoryModel1: CategoryModel?, categoryModel2: CategoryModel? ->
                     Logger.d("选择的分类是：${categoryModel1?.name ?: ""} - ${categoryModel2?.name ?: ""}")
                 }.show(cancel = true)
             }.show(cancel = true)
@@ -347,7 +355,7 @@ class HomeFragment : BaseFragment() {
         binding.active.setOnClickListener {
 
             if (!ActiveInfo.isModuleActive()) {
-              //TODO 跳转帮助文档
+                //TODO 跳转帮助文档
             }
 
             //  findNavController().navigate(R.id.serviceFragment)
@@ -382,11 +390,11 @@ class HomeFragment : BaseFragment() {
     /**
      * 检查更新
      */
-    private  fun checkUpdate(showResult: Boolean = false) {
+    private fun checkUpdate(showResult: Boolean = false) {
         if (ConfigUtils.getBoolean(Setting.CHECK_RULE_UPDATE, true)) {
-           lifecycleScope.launch {
-               checkRuleUpdate(showResult)
-           }
+            lifecycleScope.launch {
+                checkRuleUpdate(showResult)
+            }
         }
         if (ConfigUtils.getBoolean(Setting.CHECK_APP_UPDATE, true)) {
             lifecycleScope.launch {
@@ -394,6 +402,7 @@ class HomeFragment : BaseFragment() {
             }
         }
     }
+
     /**
      * 设置激活状态
      */

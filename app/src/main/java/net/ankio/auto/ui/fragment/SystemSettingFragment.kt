@@ -34,10 +34,9 @@ import net.ankio.auto.constant.ItemType
 import net.ankio.auto.databinding.FragmentSystemSettingBinding
 import net.ankio.auto.exceptions.PermissionException
 import net.ankio.auto.setting.SettingItem
-import net.ankio.auto.setting.SettingUtils as SettingItemUtils
 import net.ankio.auto.storage.BackupUtils
-import net.ankio.auto.storage.Logger
 import net.ankio.auto.storage.ConfigUtils
+import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.api.BaseFragment
@@ -47,6 +46,7 @@ import net.ankio.auto.update.UpdateType
 import net.ankio.auto.utils.LanguageUtils
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.SettingModel
+import net.ankio.auto.setting.SettingUtils as SettingItemUtils
 
 class SystemSettingFragment : BaseFragment() {
     private lateinit var binding: FragmentSystemSettingBinding
@@ -81,7 +81,6 @@ class SystemSettingFragment : BaseFragment() {
         super.onDestroy()
         settingRenderUtils.onDestroy()
     }
-
 
 
     /**

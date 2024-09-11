@@ -29,6 +29,7 @@ import org.ezbook.server.constant.DataType
 class AppDataModel {
     @PrimaryKey(autoGenerate = true)
     var id = 0L
+
     /**
      * 对于App数据，就是Hook得到的数据一般是Json：{} 具体情况具体分析
      * 对于短信数据获取到的是短信内容 {msg:xxx,body:''}
@@ -67,7 +68,7 @@ class AppDataModel {
      */
     var issue: Int = 0
 
-    companion object{
+    companion object {
         /**
          * 根据条件查询
          * @param app 应用
@@ -76,22 +77,37 @@ class AppDataModel {
          * @param limit 每页数量
          * @return 规则列表
          */
-        suspend fun list(app: String, type: String, page: Int, limit: Int, search:String) : List<AppDataModel> = withContext(Dispatchers.IO) {
-            val response = Server.request("data/list?page=$page&limit=$limit&app=$app&type=$type&search=${Uri.encode(search)}")
+        suspend fun list(
+            app: String,
+            type: String,
+            page: Int,
+            limit: Int,
+            search: String
+        ): List<AppDataModel> = withContext(Dispatchers.IO) {
+            val response = Server.request(
+                "data/list?page=$page&limit=$limit&app=$app&type=$type&search=${
+                    Uri.encode(search)
+                }"
+            )
             val json = Gson().fromJson(response, JsonObject::class.java)
 
-            runCatching { Gson().fromJson(json.getAsJsonArray("data"), Array<AppDataModel>::class.java).toList() }.getOrNull() ?: emptyList()
+            runCatching {
+                Gson().fromJson(
+                    json.getAsJsonArray("data"),
+                    Array<AppDataModel>::class.java
+                ).toList()
+            }.getOrNull() ?: emptyList()
         }
 
-        suspend fun clear() = withContext(Dispatchers.IO){
+        suspend fun clear() = withContext(Dispatchers.IO) {
             Server.request("data/clear")
         }
 
-        suspend fun put(data: AppDataModel) = withContext(Dispatchers.IO){
+        suspend fun put(data: AppDataModel) = withContext(Dispatchers.IO) {
             Server.request("data/put", Gson().toJson(data))
         }
 
-        suspend fun delete(id: Long) = withContext(Dispatchers.IO){
+        suspend fun delete(id: Long) = withContext(Dispatchers.IO) {
             Server.request("data/delete?id=$id")
         }
 

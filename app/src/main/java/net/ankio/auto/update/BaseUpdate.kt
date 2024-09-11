@@ -23,8 +23,8 @@ import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.request.RequestsUtils
 import net.ankio.auto.storage.ConfigUtils
-import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.storage.Logger
+import net.ankio.auto.ui.utils.ToastUtils
 import org.ezbook.server.constant.Setting
 import org.markdownj.MarkdownProcessor
 import java.text.SimpleDateFormat
@@ -65,7 +65,11 @@ abstract class BaseUpdate(context: Context) {
         }
         ConfigUtils.putLong(Setting.RULE_UPDATE_TIME, System.currentTimeMillis()) // 记录检查时间
 
-        val list = if (ConfigUtils.getString(Setting.UPDATE_CHANNEL, UpdateChannel.Github.name) == UpdateChannel.Github.name) {
+        val list = if (ConfigUtils.getString(
+                Setting.UPDATE_CHANNEL,
+                UpdateChannel.Github.name
+            ) == UpdateChannel.Github.name
+        ) {
             checkVersionFromGithub(ruleVersion())
         } else {
             checkVersionFromPan(ruleVersion())
@@ -84,7 +88,7 @@ abstract class BaseUpdate(context: Context) {
             true
         } else {
             if (showToast) {
-               ToastUtils.info(R.string.no_need_to_update)
+                ToastUtils.info(R.string.no_need_to_update)
             }
             false
         }
@@ -160,7 +164,7 @@ abstract class BaseUpdate(context: Context) {
     abstract fun update(activity: Activity)
 
 
-    fun date(date:String): String {
+    fun date(date: String): String {
         //转换日期
         val t = date.replace("T", " ").replace("Z", "")
         //将当前的时间+8小时

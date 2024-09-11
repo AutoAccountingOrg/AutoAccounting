@@ -22,26 +22,31 @@ import net.ankio.dex.Dex
 import net.ankio.dex.model.ClazzMethod
 
 abstract class PartHooker {
-   abstract fun hook(hookerManifest: HookerManifest,application: Application?,classLoader: ClassLoader)
-    open val methodsRule = mutableListOf<Triple<String,String,ClazzMethod>>()
-    open var method = mutableListOf<Triple<String,String,String>>()
+    abstract fun hook(
+        hookerManifest: HookerManifest,
+        application: Application?,
+        classLoader: ClassLoader
+    )
+
+    open val methodsRule = mutableListOf<Triple<String, String, ClazzMethod>>()
+    open var method = mutableListOf<Triple<String, String, String>>()
 
     private val cache = HashMap<String, Class<*>>()
 
-    fun method(clazzName:String,methodName:String,classLoader: ClassLoader):String{
+    fun method(clazzName: String, methodName: String, classLoader: ClassLoader): String {
         var clazz = cache[clazzName]
-        if (clazz == null){
+        if (clazz == null) {
             clazz = classLoader.loadClass(clazzName)
             cache[clazzName] = clazz
         }
         method.find { it.first == clazzName && it.second == methodName }?.let {
-           return it.third
+            return it.third
         }
 
         return ""
     }
 
-    fun findMethods(clazzLoader: ClassLoader,hookerManifest: HookerManifest): Boolean {
+    fun findMethods(clazzLoader: ClassLoader, hookerManifest: HookerManifest): Boolean {
         val code = App.getVersionCode()
         val adaptationVersion = App.get("methods_adaptation").toIntOrNull() ?: 0
         if (adaptationVersion == code) {
@@ -62,7 +67,7 @@ abstract class PartHooker {
             }
         }
         methodsRule.forEach {
-            val (clazz, methodName,methodClazz) = it
+            val (clazz, methodName, methodClazz) = it
             var loadClazz = cache[clazz]
             if (loadClazz == null) {
                 loadClazz = clazzLoader.loadClass(clazz)

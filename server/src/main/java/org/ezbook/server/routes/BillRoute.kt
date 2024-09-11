@@ -23,7 +23,7 @@ import org.nanohttpd.protocols.http.IHTTPSession
 import org.nanohttpd.protocols.http.response.Response
 
 class BillRoute(private val session: IHTTPSession) {
-   
+
     fun list(): Response {
         //删除一年之前的账单数据
         Db.get().billInfoDao().clearOld(System.currentTimeMillis() - 365L * 24 * 60 * 60 * 1000)
@@ -43,7 +43,7 @@ class BillRoute(private val session: IHTTPSession) {
         if (query != null) {
             Db.get().billInfoDao().update(json)
             return Server.json(200, "OK", json.id)
-        }else{
+        } else {
             val id = Db.get().billInfoDao().insert(json)
             return Server.json(200, "OK", id)
         }

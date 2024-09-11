@@ -30,16 +30,18 @@ import net.ankio.auto.ui.scope.autoDisposeScope
 import net.ankio.auto.ui.utils.ResourceUtils
 import net.ankio.auto.utils.BillTool
 import net.ankio.auto.utils.DateUtils
-import org.ezbook.server.constant.BillType
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BillInfoModel
 
-class BillItemAdapter(private  val list: MutableList<BillInfoModel>,private val showMore:Boolean = true) : BaseAdapter<AdapterOrderItemBinding,BillInfoModel>(AdapterOrderItemBinding::class.java,list) {
+class OrderItemAdapter(
+    private val list: MutableList<BillInfoModel>,
+    private val showMore: Boolean = true
+) : BaseAdapter<AdapterOrderItemBinding, BillInfoModel>(AdapterOrderItemBinding::class.java, list) {
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterOrderItemBinding, BillInfoModel>) {
         val binding = holder.binding
         binding.root.setOnClickListener {
             val item = holder.item!!
-            FloatEditorDialog(holder.context,item, false){
+            FloatEditorDialog(holder.context, item, false) {
                 list[holder.positionIndex] = it
 
                 notifyItemChanged(holder.positionIndex)
@@ -83,14 +85,14 @@ class BillItemAdapter(private  val list: MutableList<BillInfoModel>,private val 
         binding.category.setText(data.cateName)
         binding.payTools.setText(data.accountNameFrom)
         holder.binding.root.autoDisposeScope.launch {
-            ResourceUtils.getCategoryDrawableByName(data.cateName,holder.context).let {
-                withContext(Dispatchers.Main){
-                    binding.category.setIcon(it,true)
+            ResourceUtils.getCategoryDrawableByName(data.cateName, holder.context).let {
+                withContext(Dispatchers.Main) {
+                    binding.category.setIcon(it, true)
                 }
             }
 
             ResourceUtils.getAssetDrawableFromName(data.accountNameFrom).let {
-                withContext(Dispatchers.Main){
+                withContext(Dispatchers.Main) {
                     binding.payTools.setIcon(it)
                 }
             }
@@ -104,24 +106,25 @@ class BillItemAdapter(private  val list: MutableList<BillInfoModel>,private val 
             binding.remark.text = data.remark
         }
 
-        if (data.syncFromApp){
+        if (data.syncFromApp) {
             binding.sync.setImageResource(R.drawable.ic_sync)
-        }else{
+        } else {
             binding.sync.setImageResource(R.drawable.ic_no_sync)
         }
 
-        binding.payTools.visibility = if (ConfigUtils.getBoolean(Setting.SETTING_ASSET_MANAGER)) View.VISIBLE else View.GONE
+        binding.payTools.visibility =
+            if (ConfigUtils.getBoolean(Setting.SETTING_ASSET_MANAGER)) View.VISIBLE else View.GONE
 
 
-        if (!showMore){
-           binding.moreBills.visibility  = View.GONE
-            binding.sync.visibility  = View.GONE
-        }else{
-             binding.sync.visibility  = View.VISIBLE
-            if (ConfigUtils.getBoolean(Setting.AUTO_GROUP,false)){
-                binding.moreBills.visibility  = View.VISIBLE
-            }else{
-                binding.moreBills.visibility  = View.GONE
+        if (!showMore) {
+            binding.moreBills.visibility = View.GONE
+            binding.sync.visibility = View.GONE
+        } else {
+            binding.sync.visibility = View.VISIBLE
+            if (ConfigUtils.getBoolean(Setting.AUTO_GROUP, false)) {
+                binding.moreBills.visibility = View.VISIBLE
+            } else {
+                binding.moreBills.visibility = View.GONE
             }
 
 

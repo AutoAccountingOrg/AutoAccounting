@@ -33,7 +33,11 @@ import kotlin.coroutines.suspendCoroutine
 /**
  * 将钱迹的资产数据同步给自动记账
  */
-class CategoryUtils(private val manifest: HookerManifest, private val classLoader: ClassLoader, private val books: List<BookNameModel>) {
+class CategoryUtils(
+    private val manifest: HookerManifest,
+    private val classLoader: ClassLoader,
+    private val books: List<BookNameModel>
+) {
 
     private var cateInitPresenterImplClazz: Class<*> =
         classLoader.loadClass(
@@ -41,7 +45,7 @@ class CategoryUtils(private val manifest: HookerManifest, private val classLoade
         )
 
     private val proxyOnGetCategoryListClazz by lazy {
-        manifest.clazz("onGetCategoryList",classLoader)
+        manifest.clazz("onGetCategoryList", classLoader)
     }
 
 
@@ -73,41 +77,41 @@ class CategoryUtils(private val manifest: HookerManifest, private val classLoade
             XposedHelpers.callMethod(obj, "loadCategoryList", bookId, false)
         }
 
-   suspend fun syncCategory() = withContext(Dispatchers.IO) {
-       val arrayList = arrayListOf<CategoryModel>()
-       for (book in books) {
-           val hashMap =
-               withContext(Dispatchers.Main) {
-                   getCategoryList(book.remoteId.toLong())
-               }
+    suspend fun syncCategory() = withContext(Dispatchers.IO) {
+        val arrayList = arrayListOf<CategoryModel>()
+        for (book in books) {
+            val hashMap =
+                withContext(Dispatchers.Main) {
+                    getCategoryList(book.remoteId.toLong())
+                }
 
-           convertCategoryToModel(
-               hashMap["list1"] as List<Any>,
-               BillType.Expend, // 支出
-           ).let {
-               arrayList.addAll(it)
-           }
-           convertCategoryToModel(
-               hashMap["list2"] as List<Any>,
-               BillType.Income, // 收入
-           ).let {
-               arrayList.addAll(it)
-           }
-       }
-       val sync = Gson().toJson(arrayList)
-       val md5 = App.md5(sync)
-       val server = SettingModel.get(Setting.HASH_CATEGORY, "")
-       if (server == md5) {
-           manifest.log("分类信息未发生变化，无需同步, 服务端md5:${server} 本地md5:${md5}")
-           return@withContext
-       }
-       manifest.log("同步分类信息:$sync")
-       CategoryModel.put(arrayList, md5)
-       withContext(Dispatchers.Main) {
-           App.toast("已同步分类信息到自动记账")
-       }
+            convertCategoryToModel(
+                hashMap["list1"] as List<Any>,
+                BillType.Expend, // 支出
+            ).let {
+                arrayList.addAll(it)
+            }
+            convertCategoryToModel(
+                hashMap["list2"] as List<Any>,
+                BillType.Income, // 收入
+            ).let {
+                arrayList.addAll(it)
+            }
+        }
+        val sync = Gson().toJson(arrayList)
+        val md5 = App.md5(sync)
+        val server = SettingModel.get(Setting.HASH_CATEGORY, "")
+        if (server == md5) {
+            manifest.log("分类信息未发生变化，无需同步, 服务端md5:${server} 本地md5:${md5}")
+            return@withContext
+        }
+        manifest.log("同步分类信息:$sync")
+        CategoryModel.put(arrayList, md5)
+        withContext(Dispatchers.Main) {
+            App.toast("已同步分类信息到自动记账")
+        }
 
-   }
+    }
 
     /**
      * 将分类转为自动记账的分类模型
@@ -215,7 +219,7 @@ class CategoryUtils(private val manifest: HookerManifest, private val classLoade
                             categories.addAll(convertCategoryToModel(subList, type))
                         }
                     }
-                }catch (e:Exception){
+                } catch (e: Exception) {
                     manifest.log("分类转换异常:${e.message}")
                     manifest.logE(e)
                 }

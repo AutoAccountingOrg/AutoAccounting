@@ -24,7 +24,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.ezbook.server.Server
 import org.ezbook.server.constant.BillType
-import org.ezbook.server.constant.DataType
 
 @Entity
 class CategoryModel {
@@ -46,7 +45,7 @@ class CategoryModel {
      */
     var remoteId: String = ""
     var remoteBookId: String = ""
-    var remoteParentId:String = ""
+    var remoteParentId: String = ""
 
 
     /**
@@ -68,22 +67,23 @@ class CategoryModel {
     companion object {
 
 
-
         suspend fun list(
             bookID: String,
             type: BillType,
             parent: String,
-        ): List<CategoryModel>  = withContext(Dispatchers.IO) {
+        ): List<CategoryModel> = withContext(Dispatchers.IO) {
             val response = Server.request("category/list?book=$bookID&type=$type&parent=$parent")
 
             val json = Gson().fromJson(response, JsonObject::class.java)
 
-            runCatching { Gson().fromJson(json.getAsJsonArray("data"), Array<CategoryModel>::class.java).toList() }.getOrNull() ?: emptyList()
+            runCatching {
+                Gson().fromJson(
+                    json.getAsJsonArray("data"),
+                    Array<CategoryModel>::class.java
+                ).toList()
+            }.getOrNull() ?: emptyList()
 
         }
-
-
-
 
 
         suspend fun getByName(
@@ -91,9 +91,15 @@ class CategoryModel {
             bookID: String = "",
             type: String = ""
         ): CategoryModel? = withContext(Dispatchers.IO) {
-            val response = Server.request("category/get?name=${Uri.encode(name)}&book=$bookID&type=$type")
+            val response =
+                Server.request("category/get?name=${Uri.encode(name)}&book=$bookID&type=$type")
             val json = Gson().fromJson(response, JsonObject::class.java)
-            runCatching { Gson().fromJson(json.getAsJsonObject("data"), CategoryModel::class.java) }.getOrNull()
+            runCatching {
+                Gson().fromJson(
+                    json.getAsJsonObject("data"),
+                    CategoryModel::class.java
+                )
+            }.getOrNull()
         }
 
         suspend fun put(data: ArrayList<CategoryModel>, md5: String) = withContext(Dispatchers.IO) {
@@ -111,6 +117,6 @@ class CategoryModel {
     }
 
     override fun toString(): String {
-       return "CategoryModel(id=$id, name=$name, icon=$icon, remoteId='$remoteId', remoteBookId='$remoteBookId', remoteParentId='$remoteParentId', book=$book, sort=$sort, type=$type)"
+        return "CategoryModel(id=$id, name=$name, icon=$icon, remoteId='$remoteId', remoteBookId='$remoteBookId', remoteParentId='$remoteParentId', book=$book, sort=$sort, type=$type)"
     }
 }

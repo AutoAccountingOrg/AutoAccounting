@@ -36,17 +36,15 @@ import net.ankio.auto.ui.api.BasePageFragment
 import net.ankio.auto.ui.componets.CustomNavigationRail
 import net.ankio.auto.ui.models.RailMenuItem
 import net.ankio.auto.ui.models.ToolbarMenuItem
-import net.ankio.auto.ui.scope.autoDisposeScope
 import org.ezbook.server.constant.DataType
 import org.ezbook.server.db.model.AppDataModel
-import org.ezbook.server.db.model.CategoryRuleModel
 
 class DataFragment : BasePageFragment<AppDataModel>() {
     private lateinit var binding: FragmentDataRuleBinding
-    var app:String = ""
-    var type:String = ""
+    var app: String = ""
+    var type: String = ""
     override suspend fun loadData(callback: (resultData: List<AppDataModel>) -> Unit) {
-        AppDataModel.list(app, type, page,pageSize,searchData).let { result ->
+        AppDataModel.list(app, type, page, pageSize, searchData).let { result ->
             withContext(Dispatchers.Main) {
                 callback(result)
             }
@@ -92,13 +90,14 @@ class DataFragment : BasePageFragment<AppDataModel>() {
         chipEvent()
         return binding.root
     }
+
     private var leftData = JsonObject()
-    private fun loadLeftData(leftList: CustomNavigationRail){
+    private fun loadLeftData(leftList: CustomNavigationRail) {
         lifecycleScope.launch {
             AppDataModel.apps().let { result ->
                 leftData = result
                 var i = 0
-                for (key in result.keySet()){
+                for (key in result.keySet()) {
                     i++
                     val app = App.getAppInfoFromPackageName(key) ?: continue
                     leftList.addMenuItem(
@@ -106,7 +105,7 @@ class DataFragment : BasePageFragment<AppDataModel>() {
                     )
 
                 }
-                if (!leftList.triggerFirstItem()){
+                if (!leftList.triggerFirstItem()) {
                     statusPage.showEmpty()
                 }
             }
@@ -120,20 +119,23 @@ class DataFragment : BasePageFragment<AppDataModel>() {
             loadDataInside()
         }
     }
+
     /**
      * Chip事件
      */
-    private fun chipEvent(){
+    private fun chipEvent() {
         binding.chipGroup.setOnCheckedStateChangeListener { group, checkedId ->
             val chipId = checkedId.firstOrNull() ?: R.id.chip_all
 
-            when(chipId){
+            when (chipId) {
                 R.id.chip_all -> {
                     type = ""
                 }
+
                 R.id.chip_notify -> {
                     type = DataType.NOTICE.name
                 }
+
                 R.id.chip_data -> {
                     type = DataType.DATA.name
                 }
@@ -141,7 +143,6 @@ class DataFragment : BasePageFragment<AppDataModel>() {
             loadDataInside()
         }
     }
-
 
 
 }

@@ -22,18 +22,25 @@ import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.utils.CustomTabsHelper
 import org.ezbook.server.constant.Setting
 
-class AppUpdate(context: Context) :BaseUpdate(context) {
+class AppUpdate(context: Context) : BaseUpdate(context) {
     override val repo: String
         get() = "AutoAccounting"
     override val dir: String
-        get() = "版本更新/" + ConfigUtils.getString(Setting.CHECK_UPDATE_TYPE,UpdateType.Stable.name)
+        get() = "版本更新/" + ConfigUtils.getString(
+            Setting.CHECK_UPDATE_TYPE,
+            UpdateType.Stable.name
+        )
 
     override fun ruleVersion(): String {
         return BuildConfig.VERSION_NAME
     }
 
     override fun onCheckedUpdate() {
-        download = if (ConfigUtils.getString(Setting.UPDATE_CHANNEL, UpdateChannel.Github.name) == UpdateChannel.Github.name)  {
+        download = if (ConfigUtils.getString(
+                Setting.UPDATE_CHANNEL,
+                UpdateChannel.Github.name
+            ) == UpdateChannel.Github.name
+        ) {
             /* "https://cors.isteed.cc/github.com/AutoAccountingOrg/$repo/releases/download/$version/$version.apk"*/
             pan() + "/$version.apk"
         } else {

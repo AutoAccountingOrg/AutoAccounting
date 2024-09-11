@@ -27,26 +27,27 @@ object ToastUtils {
         //这里进行主题包装
         Toaster.init(application)
     }
-    fun info(int: Int){
+
+    fun info(int: Int) {
         info(App.app.getString(int))
     }
 
-    fun error(int: Int){
+    fun error(int: Int) {
         error(App.app.getString(int))
     }
 
-    fun info(msg: String){
-     /* val params = ToastParams()
-        params.text = msg
-        params.style = CustomToastStyle(R.layout.toast_info)
-        Toaster.show(params)*/
+    fun info(msg: String) {
+        /* val params = ToastParams()
+           params.text = msg
+           params.style = CustomToastStyle(R.layout.toast_info)
+           Toaster.show(params)*/
         Toaster.show(msg)
     }
 
-    fun error(msg: String){
-      /*  val params = ToastParams()
-        params.text = msg
-        params.style = CustomToastStyle(R.layout.toast_error)*/
+    fun error(msg: String) {
+        /*  val params = ToastParams()
+          params.text = msg
+          params.style = CustomToastStyle(R.layout.toast_error)*/
         Toaster.show(msg)
     }
 }

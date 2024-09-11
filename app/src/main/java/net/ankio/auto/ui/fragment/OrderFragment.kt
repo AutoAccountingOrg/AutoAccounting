@@ -27,8 +27,7 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentLogBinding
-import net.ankio.auto.storage.Logger
-import net.ankio.auto.ui.adapter.BillInfoAdapter
+import net.ankio.auto.ui.adapter.OrderAdapter
 import net.ankio.auto.ui.api.BasePageFragment
 import net.ankio.auto.ui.models.ToolbarMenuItem
 import net.ankio.auto.utils.DateUtils
@@ -75,12 +74,12 @@ open class OrderFragment : BasePageFragment<Pair<String, List<BillInfoModel>>>()
     }
 
 
-    override fun loadDataInside(callback: ((Boolean, Boolean) -> Unit)?){
+    override fun loadDataInside(callback: ((Boolean, Boolean) -> Unit)?) {
         if (page == 1) {
             resetPage()
         }
         lifecycleScope.launch {
-            withContext(Dispatchers.IO){
+            withContext(Dispatchers.IO) {
                 loadData { resultData ->
                     if (pageData.isEmpty()) {
                         statusPage.showEmpty()
@@ -116,7 +115,7 @@ open class OrderFragment : BasePageFragment<Pair<String, List<BillInfoModel>>>()
         val recyclerView = binding.statusPage.contentView!!
         val layoutManager = LinearLayoutManager(requireContext())
         recyclerView.layoutManager = layoutManager
-        recyclerView.adapter = BillInfoAdapter(pageData)
+        recyclerView.adapter = OrderAdapter(pageData)
         scrollView = recyclerView
 
         loadDataEvent(binding.refreshLayout)

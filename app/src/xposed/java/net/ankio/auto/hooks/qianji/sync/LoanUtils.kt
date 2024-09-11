@@ -183,21 +183,22 @@ class LoanUtils(
      */
 
     //增加借出账单
-    fun addExpand(billModel: BookBillModel){
+    fun addExpand(billModel: BookBillModel) {
         // Arguments com.mutangtech.qianji.asset.loanpay.LoanPayAct.a1(_id=null;billid=1725681101123196413;userid=200104405e109647c18e9;bookid=-1;timeInSec=1725681093;type=7;remark=;money=999.0;status=2;categoryId=0;platform=0;assetId=1711369641078;fromId=-1;targetId=-1;extra=null, (none))
     }
+
     // 借出收款
-    fun expandRepayment(billModel: BookBillModel){
+    fun expandRepayment(billModel: BookBillModel) {
         // Arguments com.mutangtech.qianji.asset.loanpay.LoanPayAct.a1(_id=null;billid=1725681101123196413;userid=200104405e109647c18e9;bookid=-1;timeInSec=1725681093;type=7;remark=;money=999.0;status=2;categoryId=0;platform=0;assetId=1711369641078;fromId=-1;targetId=-1;extra=null, (none))
     }
 
     //增加借款账单
-    fun addLoanBill(billModel: BookBillModel){
+    fun addLoanBill(billModel: BookBillModel) {
         // Arguments com.mutangtech.qianji.asset.loanpay.LoanPayAct.a1(_id=null;billid=1725680887791133088;userid=200104405e109647c18e9;bookid=-1;timeInSec=1725680883;type=6;remark=;money=888.0;status=2;categoryId=0;platform=0;assetId=1725641271342;fromId=-1;targetId=-1;extra=null, (none))
     }
 
     // 借款还款
-    fun loanRepayment(billModel: BookBillModel){
+    fun loanRepayment(billModel: BookBillModel) {
         // Arguments com.mutangtech.qianji.asset.loanpay.LoanPayAct.a1(_id=null;billid=1725680857977193424;userid=200104405e109647c18e9;bookid=-1;timeInSec=1725680855;type=9;remark=;money=133.0;status=2;categoryId=0;platform=0;assetId=1725641271342;fromId=-1;targetId=-1;extra=null, (none))
     }
 
@@ -214,7 +215,7 @@ class LoanUtils(
      *
      */
 
-    fun buildBill(billModel: BookBillModel){
+    fun buildBill(billModel: BookBillModel) {
 
     }
 

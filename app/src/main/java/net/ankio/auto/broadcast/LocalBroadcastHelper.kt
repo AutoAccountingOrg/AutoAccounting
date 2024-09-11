@@ -18,7 +18,6 @@ object LocalBroadcastHelper {
     const val ACTION_UPDATE_FINISH = "update_finish" // 应用更新完成广播
 
 
-
     /**
      * 发送应用内广播
      *
@@ -46,8 +45,8 @@ object LocalBroadcastHelper {
         }
         val filter = IntentFilter(action)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            App.app.registerReceiver(receiver, filter,Context.RECEIVER_NOT_EXPORTED)
-        }else{
+            App.app.registerReceiver(receiver, filter, Context.RECEIVER_NOT_EXPORTED)
+        } else {
             App.app.registerReceiver(receiver, filter)
         }
 

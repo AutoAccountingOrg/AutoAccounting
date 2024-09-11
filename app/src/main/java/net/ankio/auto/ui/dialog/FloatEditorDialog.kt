@@ -36,8 +36,8 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.broadcast.LocalBroadcastHelper
 import net.ankio.auto.databinding.FloatEditorBinding
-import net.ankio.auto.storage.Logger
 import net.ankio.auto.storage.ConfigUtils
+import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.componets.IconView
 import net.ankio.auto.ui.scope.autoDisposeScope
@@ -65,10 +65,13 @@ class FloatEditorDialog(
     lateinit var binding: FloatEditorBinding
     private var billTypeLevel1 = BillType.Expend
     private var billTypeLevel2 = BillType.Expend
+
     // 原始的账单数据
     private var rawBillInfo = billInfoModel.copy()
+
     // 选择的账单ID
     private var selectedBills = mutableListOf<String>()
+
     // 广播接收器
     private lateinit var broadcastReceiver: BroadcastReceiver
 
@@ -229,12 +232,13 @@ class FloatEditorDialog(
     }
 
     private fun bindingTypePopupEvents() {
-        val stringList: HashMap<String, Any> = if (ConfigUtils.getBoolean(Setting.SETTING_ASSET_MANAGER))
-            hashMapOf(
-                context.getString(R.string.float_expend) to BillType.Expend,
-                context.getString(R.string.float_income) to BillType.Income,
-                context.getString(R.string.float_transfer) to BillType.Transfer,
-            ) else hashMapOf(
+        val stringList: HashMap<String, Any> =
+            if (ConfigUtils.getBoolean(Setting.SETTING_ASSET_MANAGER))
+                hashMapOf(
+                    context.getString(R.string.float_expend) to BillType.Expend,
+                    context.getString(R.string.float_income) to BillType.Income,
+                    context.getString(R.string.float_transfer) to BillType.Transfer,
+                ) else hashMapOf(
                 context.getString(R.string.float_expend) to BillType.Expend,
                 context.getString(R.string.float_income) to BillType.Income,
             )
@@ -262,9 +266,9 @@ class FloatEditorDialog(
 
         if (
             !ConfigUtils.getBoolean(Setting.SETTING_FEE) ||
-            billTypeLevel1!=BillType.Transfer ||
+            billTypeLevel1 != BillType.Transfer ||
             billInfoModel.fee == 0.0
-            ){
+        ) {
             binding.fee.visibility = View.GONE
             return
         }
@@ -330,7 +334,7 @@ class FloatEditorDialog(
             }
         }
     }
-    
+
     private fun bindingCategoryUI() {
         if (billTypeLevel2 == BillType.Income || billTypeLevel2 == BillType.Expend || billTypeLevel2 == BillType.ExpendReimbursement) {
             binding.category.visibility = View.VISIBLE
@@ -457,7 +461,7 @@ class FloatEditorDialog(
         if (float) {
             datePickerDialog.window!!.setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY)
         }
-      //  datePickerDialog.datePicker.setBackgroundColor(surfaceColor)
+        //  datePickerDialog.datePicker.setBackgroundColor(surfaceColor)
         datePickerDialog.show()
     }
 
@@ -479,9 +483,9 @@ class FloatEditorDialog(
         binding.debtIncome.visibility = View.GONE
         binding.chooseBill.visibility = View.GONE
         binding.category.visibility = View.GONE
-        billTypeLevel2  = billType
+        billTypeLevel2 = billType
 
-        when(billType){
+        when (billType) {
             BillType.Expend -> {
                 binding.payInfo.visibility = View.VISIBLE
                 setAssetItem(billInfoModel.accountNameFrom, binding.payFrom)
@@ -496,11 +500,11 @@ class FloatEditorDialog(
             //借出
             BillType.ExpendLending -> {
                 binding.debtExpend.visibility = View.VISIBLE
-                 binding.debtExpendToLayout.setHint(R.string.float_expend_debt)
+                binding.debtExpendToLayout.setHint(R.string.float_expend_debt)
                 setAssetItem(billInfoModel.accountNameFrom, binding.debtExpendFrom)
                 binding.debtExpendTo.setText(billInfoModel.shopName)
                 binding.debtExpendTo.autoDisposeScope.launch {
-                    AssetsModel.list().filter { it.type == AssetsType.BORROWER}.let { assets ->
+                    AssetsModel.list().filter { it.type == AssetsType.BORROWER }.let { assets ->
                         withContext(Dispatchers.Main) {
                             binding.debtExpendTo.setSimpleItems(assets.map { it.name }
                                 .toTypedArray())
@@ -516,7 +520,7 @@ class FloatEditorDialog(
                 setAssetItem(billInfoModel.accountNameFrom, binding.debtExpendFrom)
                 binding.debtExpendTo.setText(billInfoModel.shopName)
                 binding.debtExpendTo.autoDisposeScope.launch {
-                    AssetsModel.list().filter { it.type == AssetsType.CREDITOR}.let { assets ->
+                    AssetsModel.list().filter { it.type == AssetsType.CREDITOR }.let { assets ->
                         withContext(Dispatchers.Main) {
                             binding.debtExpendTo.setSimpleItems(assets.map { it.name }
                                 .toTypedArray())
@@ -524,6 +528,7 @@ class FloatEditorDialog(
                     }
                 }
             }
+
             BillType.Income -> {
                 binding.payInfo.visibility = View.VISIBLE
                 setAssetItem(billInfoModel.accountNameFrom, binding.payFrom)
@@ -536,7 +541,7 @@ class FloatEditorDialog(
                 binding.debtIncomeFrom.setText(billInfoModel.shopName)
                 setAssetItem(billInfoModel.accountNameFrom, binding.debtIncomeTo)
                 binding.debtIncomeFrom.autoDisposeScope.launch {
-                    AssetsModel.list().filter { it.type == AssetsType.CREDITOR}.let { assets ->
+                    AssetsModel.list().filter { it.type == AssetsType.CREDITOR }.let { assets ->
                         withContext(Dispatchers.Main) {
                             binding.debtIncomeFrom.setSimpleItems(assets.map { it.name }
                                 .toTypedArray())
@@ -552,10 +557,11 @@ class FloatEditorDialog(
                 binding.debtIncomeFrom.setText(billInfoModel.shopName)
                 setAssetItem(billInfoModel.accountNameFrom, binding.debtIncomeTo)
                 binding.debtIncomeFrom.autoDisposeScope.launch {
-                    AssetsModel.list().filter { it.type == AssetsType.BORROWER}.let { assets ->
-                       withContext(Dispatchers.Main){
-                           binding.debtIncomeFrom.setSimpleItems(assets.map { it.name }.toTypedArray())
-                       }
+                    AssetsModel.list().filter { it.type == AssetsType.BORROWER }.let { assets ->
+                        withContext(Dispatchers.Main) {
+                            binding.debtIncomeFrom.setSimpleItems(assets.map { it.name }
+                                .toTypedArray())
+                        }
                     }
                 }
             }
@@ -572,8 +578,8 @@ class FloatEditorDialog(
             BillType.Transfer -> return
         }
     }
-    
-    private fun setBillType( billType: BillType) {
+
+    private fun setBillType(billType: BillType) {
         setPriceColor(billType)
         billTypeLevel1 = billType
         billTypeLevel2 = billType
@@ -602,24 +608,27 @@ class FloatEditorDialog(
         setAssetItem("", binding.debtIncomeTo)
         selectedBills.clear()
         binding.category.visibility = View.GONE
-        when(billType){
+        when (billType) {
             BillType.Expend -> {
                 binding.chipGroup.visibility = View.VISIBLE
                 binding.chipLend.visibility = View.VISIBLE
                 binding.category.visibility = View.VISIBLE
                 setBillTypeLevel2(billType)
             }
+
             BillType.Income -> {
                 binding.chipGroup.visibility = View.VISIBLE
                 binding.chipBorrow.visibility = View.VISIBLE
                 binding.category.visibility = View.VISIBLE
                 setBillTypeLevel2(billType)
             }
+
             BillType.Transfer -> {
                 binding.transferInfo.visibility = View.VISIBLE
                 setAssetItem(billInfoModel.accountNameFrom, binding.transferFrom)
                 setAssetItem(billInfoModel.accountNameTo, binding.transferTo)
             }
+
             BillType.ExpendReimbursement -> return
             BillType.ExpendLending -> return
             BillType.ExpendRepayment -> return
@@ -629,7 +638,7 @@ class FloatEditorDialog(
         }
 
 
-        if (!ConfigUtils.getBoolean(Setting.SETTING_ASSET_MANAGER)){
+        if (!ConfigUtils.getBoolean(Setting.SETTING_ASSET_MANAGER)) {
             binding.chipLend.visibility = View.GONE
             binding.chipBorrow.visibility = View.GONE
             binding.chipRepayment.visibility = View.GONE
@@ -639,31 +648,31 @@ class FloatEditorDialog(
             binding.debtIncome.visibility = View.GONE
         }
 
-        if (!ConfigUtils.getBoolean(Setting.SETTING_DEBT)){
+        if (!ConfigUtils.getBoolean(Setting.SETTING_DEBT)) {
             binding.chipLend.visibility = View.GONE
             binding.chipBorrow.visibility = View.GONE
             binding.chipRepayment.visibility = View.GONE
-        }else{
+        } else {
             binding.chipRepayment.visibility = View.VISIBLE
             binding.chipLend.visibility = View.VISIBLE
             binding.chipBorrow.visibility = View.VISIBLE
         }
 
-        if (!ConfigUtils.getBoolean(Setting.SETTING_REIMBURSEMENT)){
+        if (!ConfigUtils.getBoolean(Setting.SETTING_REIMBURSEMENT)) {
             binding.chipReimbursement.visibility = View.GONE
-        }else{
+        } else {
             binding.chipReimbursement.visibility = View.VISIBLE
         }
     }
 
     private fun bindingChipGroupEvents() {
-        binding.chipGroup.setOnCheckedStateChangeListener { group,checkedIds ->
-            val check  = checkedIds.firstOrNull()
+        binding.chipGroup.setOnCheckedStateChangeListener { group, checkedIds ->
+            val check = checkedIds.firstOrNull()
             if (check == null) {
                 setBillTypeLevel2(billTypeLevel1)
                 return@setOnCheckedStateChangeListener
             }
-            when(check){
+            when (check) {
                 R.id.chipReimbursement -> {
                     if (billTypeLevel1 == BillType.Expend) {
                         setBillTypeLevel2(BillType.ExpendReimbursement)
@@ -672,28 +681,32 @@ class FloatEditorDialog(
                     }
 
                 }
+
                 R.id.chipLend -> {
                     setBillTypeLevel2(BillType.ExpendLending)
                 }
+
                 R.id.chipBorrow -> {
                     setBillTypeLevel2(BillType.IncomeLending)
                 }
+
                 R.id.chipRepayment -> {
-                   if (billTypeLevel1 == BillType.Expend) {
-                       setBillTypeLevel2(BillType.ExpendRepayment)
-                   } else {
-                       setBillTypeLevel2(BillType.IncomeRepayment)
-                   }
+                    if (billTypeLevel1 == BillType.Expend) {
+                        setBillTypeLevel2(BillType.ExpendRepayment)
+                    } else {
+                        setBillTypeLevel2(BillType.IncomeRepayment)
+                    }
                 }
             }
         }
     }
 
-    private fun  bindingSelectBillsUi(){
-        if (selectedBills.isEmpty()){
+    private fun bindingSelectBillsUi() {
+        if (selectedBills.isEmpty()) {
             binding.chooseBill.setText(R.string.float_choose_bill)
-        }else{
-            binding.chooseBill.text = context.getString(R.string.float_choose_bills,selectedBills.size)
+        } else {
+            binding.chooseBill.text =
+                context.getString(R.string.float_choose_bills, selectedBills.size)
         }
     }
 
@@ -702,9 +715,9 @@ class FloatEditorDialog(
 
             // 收入对应的报销
 
-           BillSelectorDialog(context, selectedBills){
-               bindingSelectBillsUi()
-           }.show(float)
+            BillSelectorDialog(context, selectedBills) {
+                bindingSelectBillsUi()
+            }.show(float)
         }
     }
 
@@ -729,33 +742,33 @@ class FloatEditorDialog(
 
     }
 
-    private fun bindChangeAssets(){
+    private fun bindChangeAssets() {
         binding.payFrom.setOnClickListener {
-            AssetsSelectorDialog(context){ model ->
-                setAssetItem(model.name, model.icon,binding.payFrom)
+            AssetsSelectorDialog(context) { model ->
+                setAssetItem(model.name, model.icon, binding.payFrom)
             }.show(float = float)
         }
         binding.transferFrom.setOnClickListener {
-            AssetsSelectorDialog(context){ model ->
-                setAssetItem(model.name, model.icon,binding.transferFrom)
+            AssetsSelectorDialog(context) { model ->
+                setAssetItem(model.name, model.icon, binding.transferFrom)
             }.show(float = float)
         }
 
         binding.transferTo.setOnClickListener {
-            AssetsSelectorDialog(context){ model ->
-                setAssetItem(model.name, model.icon,binding.transferTo)
+            AssetsSelectorDialog(context) { model ->
+                setAssetItem(model.name, model.icon, binding.transferTo)
             }.show(float = float)
         }
 
         binding.debtExpendFrom.setOnClickListener {
-            AssetsSelectorDialog(context){ model ->
-                setAssetItem(model.name, model.icon,binding.debtExpendFrom)
+            AssetsSelectorDialog(context) { model ->
+                setAssetItem(model.name, model.icon, binding.debtExpendFrom)
             }.show(float = float)
         }
 
         binding.debtIncomeTo.setOnClickListener {
-            AssetsSelectorDialog(context){ model ->
-                setAssetItem(model.name, model.icon,binding.debtIncomeTo)
+            AssetsSelectorDialog(context) { model ->
+                setAssetItem(model.name, model.icon, binding.debtIncomeTo)
             }.show(float = float)
         }
     }

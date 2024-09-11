@@ -31,8 +31,8 @@ import net.ankio.auto.databinding.FragmentLogBinding
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.adapter.LogAdapter
 import net.ankio.auto.ui.api.BasePageFragment
-import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.models.ToolbarMenuItem
+import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.utils.DateUtils
 import org.ezbook.server.db.model.LogModel
 import java.io.File
@@ -81,11 +81,19 @@ class LogFragment : BasePageFragment<LogModel>() {
                             )
                             putExtra(Intent.EXTRA_STREAM, fileUri)
                             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                            putExtra(Intent.EXTRA_SUBJECT, getString(R.string.share_file)) // 添加可选的文本标题
+                            putExtra(
+                                Intent.EXTRA_SUBJECT,
+                                getString(R.string.share_file)
+                            ) // 添加可选的文本标题
                         }
 
                         // 启动分享意图
-                        requireContext().startActivity(Intent.createChooser(shareIntent, getString(R.string.share_file)))
+                        requireContext().startActivity(
+                            Intent.createChooser(
+                                shareIntent,
+                                getString(R.string.share_file)
+                            )
+                        )
                     }
                 }.onFailure {
                     Logger.e("日志分享失败", it)

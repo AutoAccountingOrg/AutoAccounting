@@ -18,11 +18,7 @@ package net.ankio.auto.ui.dialog
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
-import com.google.gson.Gson
-import com.google.gson.JsonElement
-import com.hjq.toast.Toaster
 import net.ankio.auto.R
-import net.ankio.auto.databinding.DialogDataEditorBinding
 import net.ankio.auto.databinding.DialogDataIssueBinding
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.utils.ToastUtils

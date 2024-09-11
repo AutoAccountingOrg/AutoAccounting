@@ -28,32 +28,35 @@ import net.ankio.auto.ui.componets.StatusPage
 import org.ezbook.server.constant.AssetsType
 import org.ezbook.server.db.model.AssetsModel
 
-class AssetsSelectorDialog(private val context: Context, private val callback: (AssetsModel) -> Unit) :
+class AssetsSelectorDialog(
+    private val context: Context,
+    private val callback: (AssetsModel) -> Unit
+) :
     BaseSheetDialog(context) {
     private lateinit var binding: DialogBookSelectBinding
     private val dataItems = mutableListOf<AssetsModel>()
 
     private lateinit var statusPage: StatusPage
-    
+
     override fun onCreateView(inflater: LayoutInflater): View {
         binding = DialogBookSelectBinding.inflate(inflater)
         statusPage = binding.statusPage
-        val recyclerView =  statusPage.contentView!!
+        val recyclerView = statusPage.contentView!!
         statusPage.contentView!!.layoutManager = LinearLayoutManager(context)
 
         cardView = binding.cardView
-        cardViewInner =  statusPage
+        cardViewInner = statusPage
 
-       recyclerView.adapter = AssetsSelectorAdapter(dataItems) { item ->
-           callback(item)
-           dismiss()
-       }
+        recyclerView.adapter = AssetsSelectorAdapter(dataItems) { item ->
+            callback(item)
+            dismiss()
+        }
         loadData()
         return binding.root
     }
 
 
-    private fun loadData(){
+    private fun loadData() {
         statusPage.showLoading()
         lifecycleScope.launch {
             dataItems.clear()

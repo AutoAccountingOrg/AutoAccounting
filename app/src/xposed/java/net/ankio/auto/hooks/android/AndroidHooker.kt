@@ -18,12 +18,12 @@ package net.ankio.auto.hooks.android
 import android.app.Application
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
-import net.ankio.auto.hooks.android.hooks.ServiceHooker
 import net.ankio.auto.hooks.android.hooks.NotificationHooker
 import net.ankio.auto.hooks.android.hooks.PermissionHooker
+import net.ankio.auto.hooks.android.hooks.ServiceHooker
 import net.ankio.dex.model.Clazz
 
-class AndroidHooker:HookerManifest(){
+class AndroidHooker : HookerManifest() {
     override val packageName: String
         get() = "android"
     override val appName: String
@@ -32,8 +32,8 @@ class AndroidHooker:HookerManifest(){
 
     override var applicationName: String = "android.app.Application"
 
-    override fun hookLoadPackage(application: Application?,classLoader: ClassLoader) {
-        PermissionHooker().hook(this,application,classLoader)
+    override fun hookLoadPackage(application: Application?, classLoader: ClassLoader) {
+        PermissionHooker().hook(this, application, classLoader)
 
     }
 

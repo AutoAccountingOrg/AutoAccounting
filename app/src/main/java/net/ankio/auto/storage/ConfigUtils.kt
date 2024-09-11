@@ -16,7 +16,6 @@
 package net.ankio.auto.storage
 
 import android.content.Context
-import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import net.ankio.auto.App
@@ -117,18 +116,18 @@ class ConfigUtils private constructor(context: Context) {
             getInstance(App.app).clear()
         }
 
-        fun copyTo(context: Context,file: File){
+        fun copyTo(context: Context, file: File) {
             getInstance(App.app).save()
             val settingsFile = File(context.filesDir, "settings.json")
             settingsFile.copyTo(file, true)
         }
 
-        fun copyFrom(context: Context,file: File){
+        fun copyFrom(context: Context, file: File) {
             file.copyTo(File(context.filesDir, "settings.json"), true)
             getInstance(App.app).init()
         }
 
-        fun reload(context: Context){
+        fun reload(context: Context) {
             getInstance(context).init()
         }
     }

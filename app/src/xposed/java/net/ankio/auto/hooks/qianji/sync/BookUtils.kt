@@ -22,12 +22,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.core.App
 import net.ankio.auto.core.api.HookerManifest
-import org.ezbook.server.Server
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BookNameModel
 import org.ezbook.server.db.model.SettingModel
 
-class BookUtils(private val manifest: HookerManifest, private val classLoader: ClassLoader, private val context: Context) {
+class BookUtils(
+    private val manifest: HookerManifest,
+    private val classLoader: ClassLoader,
+    private val context: Context
+) {
     private val bookManagerInstance by lazy {
         XposedHelpers.callStaticMethod(
             manifest.clazz("BookManager", classLoader),
@@ -39,7 +42,7 @@ class BookUtils(private val manifest: HookerManifest, private val classLoader: C
         classLoader.loadClass("com.mutangtech.qianji.data.model.Book")
     }
 
-    suspend fun syncBooks():ArrayList<BookNameModel> =
+    suspend fun syncBooks(): ArrayList<BookNameModel> =
         withContext(Dispatchers.IO) {
             val list = XposedHelpers.callMethod(
                 bookManagerInstance,

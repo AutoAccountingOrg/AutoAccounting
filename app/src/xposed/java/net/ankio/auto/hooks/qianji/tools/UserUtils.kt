@@ -18,13 +18,15 @@ package net.ankio.auto.hooks.qianji.tools
 import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.core.api.HookerManifest
 
-class UserUtils(private val manifest: HookerManifest,
-                private val classLoader: ClassLoader) {
-    private val userManagerClazz  by lazy {
+class UserUtils(
+    private val manifest: HookerManifest,
+    private val classLoader: ClassLoader
+) {
+    private val userManagerClazz by lazy {
         manifest.clazz("UserManager", classLoader)
     }
 
-    fun getInstance():Any{
+    fun getInstance(): Any {
         return XposedHelpers.callStaticMethod(userManagerClazz, "getInstance")
     }
 
@@ -32,11 +34,11 @@ class UserUtils(private val manifest: HookerManifest,
         return XposedHelpers.callMethod(getInstance(), "isLogin") as Boolean
     }
 
-    fun getLoginUserID():String{
+    fun getLoginUserID(): String {
         return XposedHelpers.callMethod(getInstance(), "getLoginUserID") as String
     }
 
-    fun isVip():Boolean{
+    fun isVip(): Boolean {
         return XposedHelpers.callMethod(getInstance(), "isVip") as Boolean
     }
 }

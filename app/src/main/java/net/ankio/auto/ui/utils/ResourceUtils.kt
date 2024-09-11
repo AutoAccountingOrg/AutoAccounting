@@ -30,50 +30,60 @@ import org.ezbook.server.db.model.CategoryModel
 
 object ResourceUtils {
     //   BookNameModel.getDrawable(billInfoModel.bookName, context, binding.bookImage)
-    suspend fun getBookNameDrawable(name:String,context:Context):Drawable = withContext(Dispatchers.IO){
-        val book = BookNameModel.getByName(name)
-        val image = book.icon
-        ImageUtils.get(context, image, R.drawable.default_book)
-    }
-    suspend fun getBookNameDrawable(name:String,context:Context,view:View) = withContext(Dispatchers.IO){
-        getBookNameDrawable(name,context).let {
-            withContext(Dispatchers.Main){
-                view.background = it
+    suspend fun getBookNameDrawable(name: String, context: Context): Drawable =
+        withContext(Dispatchers.IO) {
+            val book = BookNameModel.getByName(name)
+            val image = book.icon
+            ImageUtils.get(context, image, R.drawable.default_book)
+        }
+
+    suspend fun getBookNameDrawable(name: String, context: Context, view: View) =
+        withContext(Dispatchers.IO) {
+            getBookNameDrawable(name, context).let {
+                withContext(Dispatchers.Main) {
+                    view.background = it
+                }
             }
         }
-    }
 
-    suspend fun getCategoryDrawable(data: CategoryModel,image:ImageView) = withContext(Dispatchers.IO) {
-        val icon = data.icon?:""
-        ImageUtils.get(image.context, icon, R.drawable.default_cate).let {
-            withContext(Dispatchers.Main){
-                image.setImageDrawable(it)
+    suspend fun getCategoryDrawable(data: CategoryModel, image: ImageView) =
+        withContext(Dispatchers.IO) {
+            val icon = data.icon ?: ""
+            ImageUtils.get(image.context, icon, R.drawable.default_cate).let {
+                withContext(Dispatchers.Main) {
+                    image.setImageDrawable(it)
+                }
             }
         }
-    }
 
-    suspend fun getCategoryDrawableByName(name: String,context: Context,bookId:String ="",type:String = ""):Drawable = withContext(Dispatchers.IO) {
-        val item = CategoryModel.getByName(name,bookId,type)
-        val icon = item?.icon?:""
+    suspend fun getCategoryDrawableByName(
+        name: String,
+        context: Context,
+        bookId: String = "",
+        type: String = ""
+    ): Drawable = withContext(Dispatchers.IO) {
+        val item = CategoryModel.getByName(name, bookId, type)
+        val icon = item?.icon ?: ""
         ImageUtils.get(context, icon, R.drawable.default_cate)
     }
 
-    suspend fun getAssetDrawable(item:AssetsModel,image:ImageView) = withContext(Dispatchers.IO){
-        val icon = item.icon
-        ImageUtils.get(image.context, icon, R.drawable.default_asset).let {
-            withContext(Dispatchers.Main){
-                image.setImageDrawable(it)
+    suspend fun getAssetDrawable(item: AssetsModel, image: ImageView) =
+        withContext(Dispatchers.IO) {
+            val icon = item.icon
+            ImageUtils.get(image.context, icon, R.drawable.default_asset).let {
+                withContext(Dispatchers.Main) {
+                    image.setImageDrawable(it)
+                }
             }
         }
-    }
 
-    suspend fun getAssetDrawable(name: String):Drawable = withContext(Dispatchers.IO){
+    suspend fun getAssetDrawable(name: String): Drawable = withContext(Dispatchers.IO) {
         ImageUtils.get(App.app, name, R.drawable.default_asset)
     }
 
-    suspend fun getAssetDrawableFromName(name: String):Drawable = withContext(Dispatchers.IO){
+    suspend fun getAssetDrawableFromName(name: String): Drawable = withContext(Dispatchers.IO) {
         val asset = AssetsModel.getByName(name)
-        val icon = asset?.icon?:""
+        val icon = asset?.icon ?: ""
         getAssetDrawable(icon)
     }
 }

@@ -33,7 +33,7 @@ import org.ezbook.server.db.model.AssetsMapModel
 class AssetsMapAdapter(
     val dataItems: MutableList<AssetsMapModel>,
     val activity: Activity
-) : BaseAdapter<AdapterMapBinding,AssetsMapModel>(AdapterMapBinding::class.java,dataItems) {
+) : BaseAdapter<AdapterMapBinding, AssetsMapModel>(AdapterMapBinding::class.java, dataItems) {
 
 
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterMapBinding, AssetsMapModel>) {
@@ -80,7 +80,7 @@ class AssetsMapAdapter(
         val binding = holder.binding
         binding.root.autoDisposeScope.launch {
             val drawable = ResourceUtils.getAssetDrawableFromName(data.mapName)
-            withContext(Dispatchers.Main){
+            withContext(Dispatchers.Main) {
                 binding.target.setIcon(drawable)
             }
         }

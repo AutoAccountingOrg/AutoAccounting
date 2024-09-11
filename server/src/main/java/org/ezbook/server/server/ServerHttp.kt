@@ -18,11 +18,9 @@ package org.ezbook.server.server
 import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.room.RoomDatabase
 import org.ezbook.server.Server
 import org.ezbook.server.Server.Companion.json
 import org.ezbook.server.db.Db
-import org.ezbook.server.db.model.BookBillModel
 import org.ezbook.server.routes.AppDataRoute
 import org.ezbook.server.routes.AssetsMapRoute
 import org.ezbook.server.routes.AssetsRoute
@@ -49,7 +47,7 @@ class ServerHttp(port: Int, private val context: Context) : NanoHTTPD(port) {
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun handle(session: IHTTPSession?): Response {
-        return  runCatching {
+        return runCatching {
             val uri = session!!.uri.replace("//", "/")
             when (uri) {
                 "/" -> json(200, "hello,欢迎使用自动记账", Server.versionCode)
@@ -147,7 +145,7 @@ class ServerHttp(port: Int, private val context: Context) : NanoHTTPD(port) {
 
                     }.getOrElse {
                         it.printStackTrace()
-                        json(404, it.message?: "Not Found", null)
+                        json(404, it.message ?: "Not Found", null)
                     }
 
                 }

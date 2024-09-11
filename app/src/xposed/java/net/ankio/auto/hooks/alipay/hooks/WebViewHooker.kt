@@ -16,16 +16,14 @@
 package net.ankio.auto.hooks.alipay.hooks
 
 import android.app.Application
-import android.content.Context
 import android.webkit.ValueCallback
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import net.ankio.auto.core.App
-import org.ezbook.server.constant.DataType
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
+import org.ezbook.server.constant.DataType
 
 class WebViewHooker : PartHooker() {
 
@@ -34,7 +32,11 @@ class WebViewHooker : PartHooker() {
         const val MAX_CHECK_COUNT = 500
     }
 
-    override fun hook(hookerManifest: HookerManifest, application: Application?,classLoader: ClassLoader)  {
+    override fun hook(
+        hookerManifest: HookerManifest,
+        application: Application?,
+        classLoader: ClassLoader
+    ) {
         val webViewClazz = " com.alipay.mobile.nebulacore.web.H5WebView"
 
         val webView = XposedHelpers.findClass(webViewClazz, classLoader)
@@ -52,7 +54,7 @@ class WebViewHooker : PartHooker() {
 
                     val urlObj = XposedHelpers.callMethod(obj, "getUrl") ?: return
                     val url = urlObj as String
-                    if (!url.contains("tradeNo="))return
+                    if (!url.contains("tradeNo=")) return
                     if (script.contains("AlipayJSBridge.call(\"setStartParam\"")) {
                         val js =
                             """
@@ -85,7 +87,7 @@ class WebViewHooker : PartHooker() {
 
                         val resultCallback =
                             ValueCallback<String> { result ->
-                                if (result.isNullOrEmpty() || result.equals("{}" ) || result.equals("null")) {
+                                if (result.isNullOrEmpty() || result.equals("{}") || result.equals("null")) {
                                     return@ValueCallback
                                 }
 

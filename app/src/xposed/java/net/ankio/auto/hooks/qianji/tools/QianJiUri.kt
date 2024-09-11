@@ -25,8 +25,8 @@ import java.util.Date
 import java.util.Locale
 
 object QianJiUri {
-   suspend fun toQianJi(billModel: BillInfoModel) :Uri = withContext(Dispatchers.IO){
-       val uri = StringBuilder("qianji://publicapi/addbill")
+    suspend fun toQianJi(billModel: BillInfoModel): Uri = withContext(Dispatchers.IO) {
+        val uri = StringBuilder("qianji://publicapi/addbill")
         uri.append("?type=${QianJiBillType.toQianJi(billModel)}")
         uri.append("&money=${billModel.money}")
         uri.append("&time=${formatTime(billModel.time)}")
@@ -39,26 +39,26 @@ object QianJiUri {
         uri.append("&catename=${Uri.encode(category)}")
         uri.append("&catechoose=0")
 
-       if (billModel.bookName != "默认账本" && billModel.bookName != "日常账本" && AutoConfig.multiBooks) {
-           uri.append("&bookname=${Uri.encode(billModel.bookName)}")
-       }
+        if (billModel.bookName != "默认账本" && billModel.bookName != "日常账本" && AutoConfig.multiBooks) {
+            uri.append("&bookname=${Uri.encode(billModel.bookName)}")
+        }
 
-       if (AutoConfig.assetManagement){
-           uri.append("&accountname=${Uri.encode(billModel.accountNameFrom)}")
-           uri.append("&accountname2=${Uri.encode(billModel.accountNameTo)}")
-       }
-
-
-       if (AutoConfig.fee){
-           uri.append("&fee=${billModel.fee}")
-       }
+        if (AutoConfig.assetManagement) {
+            uri.append("&accountname=${Uri.encode(billModel.accountNameFrom)}")
+            uri.append("&accountname2=${Uri.encode(billModel.accountNameTo)}")
+        }
 
 
-       if (AutoConfig.multiCurrency){
-           uri.append("&currency=${billModel.currency}")
-       } else {
-           uri.append("&currency=CNY")
-       }
+        if (AutoConfig.fee) {
+            uri.append("&fee=${billModel.fee}")
+        }
+
+
+        if (AutoConfig.multiCurrency) {
+            uri.append("&currency=${billModel.currency}")
+        } else {
+            uri.append("&currency=CNY")
+        }
 
         // 自动记账添加的拓展字段
         uri.append("&extendData=${billModel.extendData}")
@@ -67,59 +67,58 @@ object QianJiUri {
 
         uri.append("&id=").append(billModel.id)
 
-       Uri.parse(uri.toString())
-    }
-    
-
-        private fun dateToStamp(
-            time: String,
-            format: String,
-        ): Long {
-            val simpleDateFormat = SimpleDateFormat(format, Locale.getDefault())
-            try {
-                val date: Date = checkNotNull(simpleDateFormat.parse(time))
-                return date.time
-            } catch (e: Throwable) {
-                return 0
-            }
-        }
-
-        fun toAuto(uri: Uri): BillInfoModel {
-            val type = uri.getQueryParameter("type")?.toInt() ?: 0
-            val amount = uri.getQueryParameter("money")?.toDouble() ?: 0.00
-            val time = dateToStamp(uri.getQueryParameter("time")!!, "yyyy-MM-dd HH:mm:ss")
-            val remark = uri.getQueryParameter("remark") ?: ""
-            val cateName = uri.getQueryParameter("catename") ?: ""
-            val bookName = uri.getQueryParameter("bookname") ?: "日常生活"
-            val accountNameFrom = uri.getQueryParameter("accountname") ?: ""
-            val accountNameTo = uri.getQueryParameter("accountname2") ?: ""
-            val fee = uri.getQueryParameter("fee")?.toDouble() ?: 0.00
-            val extendData = uri.getQueryParameter("extendData") ?: ""
-            val id = uri.getQueryParameter("id")?.toLong() ?: 0L
-            val currency = uri.getQueryParameter("currency")?:"CNY"
-            val billInfo = BillInfoModel()
-            billInfo.type = QianJiBillType.toAuto(type)
-            billInfo.money = amount
-            billInfo.time = time
-            billInfo.remark = remark
-            billInfo.cateName = cateName
-            billInfo.bookName = bookName
-            billInfo.accountNameFrom = accountNameFrom
-            billInfo.accountNameTo = accountNameTo
-            billInfo.fee = fee
-            billInfo.extendData = extendData
-            billInfo.id = id
-            billInfo.currency = currency
-            return billInfo
-        }
+        Uri.parse(uri.toString())
     }
 
 
+    private fun dateToStamp(
+        time: String,
+        format: String,
+    ): Long {
+        val simpleDateFormat = SimpleDateFormat(format, Locale.getDefault())
+        try {
+            val date: Date = checkNotNull(simpleDateFormat.parse(time))
+            return date.time
+        } catch (e: Throwable) {
+            return 0
+        }
+    }
 
-    private fun formatTime(time: Long): String {
-        // 时间格式为yyyy-MM-dd HH:mm:ss
-        val date = Date(time)
-        val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-        return sdf.format(date)
+    fun toAuto(uri: Uri): BillInfoModel {
+        val type = uri.getQueryParameter("type")?.toInt() ?: 0
+        val amount = uri.getQueryParameter("money")?.toDouble() ?: 0.00
+        val time = dateToStamp(uri.getQueryParameter("time")!!, "yyyy-MM-dd HH:mm:ss")
+        val remark = uri.getQueryParameter("remark") ?: ""
+        val cateName = uri.getQueryParameter("catename") ?: ""
+        val bookName = uri.getQueryParameter("bookname") ?: "日常生活"
+        val accountNameFrom = uri.getQueryParameter("accountname") ?: ""
+        val accountNameTo = uri.getQueryParameter("accountname2") ?: ""
+        val fee = uri.getQueryParameter("fee")?.toDouble() ?: 0.00
+        val extendData = uri.getQueryParameter("extendData") ?: ""
+        val id = uri.getQueryParameter("id")?.toLong() ?: 0L
+        val currency = uri.getQueryParameter("currency") ?: "CNY"
+        val billInfo = BillInfoModel()
+        billInfo.type = QianJiBillType.toAuto(type)
+        billInfo.money = amount
+        billInfo.time = time
+        billInfo.remark = remark
+        billInfo.cateName = cateName
+        billInfo.bookName = bookName
+        billInfo.accountNameFrom = accountNameFrom
+        billInfo.accountNameTo = accountNameTo
+        billInfo.fee = fee
+        billInfo.extendData = extendData
+        billInfo.id = id
+        billInfo.currency = currency
+        return billInfo
+    }
+}
+
+
+private fun formatTime(time: Long): String {
+    // 时间格式为yyyy-MM-dd HH:mm:ss
+    val date = Date(time)
+    val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+    return sdf.format(date)
 
 }

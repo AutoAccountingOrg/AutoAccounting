@@ -20,14 +20,18 @@ import com.google.gson.Gson
 import com.google.gson.JsonArray
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
-import org.ezbook.server.constant.DataType
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
+import org.ezbook.server.constant.DataType
 
-class MessageBoxHooker: PartHooker() {
+class MessageBoxHooker : PartHooker() {
 
 
-    override fun hook(hookerManifest: HookerManifest, application: Application?,classLoader: ClassLoader) {
+    override fun hook(
+        hookerManifest: HookerManifest,
+        application: Application?,
+        classLoader: ClassLoader
+    ) {
         val msgboxInfoServiceImpl =
             XposedHelpers.findClass(
                 "com.alipay.android.phone.messageboxstatic.biz.sync.d",

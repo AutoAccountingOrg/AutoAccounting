@@ -21,7 +21,11 @@ import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
 import org.ezbook.server.db.model.BillInfoModel
 
-class BillInfoAdapter(resultData: MutableList<Pair<String, List<BillInfoModel>>>):BaseAdapter<AdapterOrderBinding,Pair<String, List<BillInfoModel>>>(AdapterOrderBinding::class.java,resultData) {
+class OrderAdapter(resultData: MutableList<Pair<String, List<BillInfoModel>>>) :
+    BaseAdapter<AdapterOrderBinding, Pair<String, List<BillInfoModel>>>(
+        AdapterOrderBinding::class.java,
+        resultData
+    ) {
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterOrderBinding, Pair<String, List<BillInfoModel>>>) {
 
     }
@@ -31,7 +35,7 @@ class BillInfoAdapter(resultData: MutableList<Pair<String, List<BillInfoModel>>>
         data: Pair<String, List<BillInfoModel>>,
         position: Int
     ) {
-       val binding = holder.binding
+        val binding = holder.binding
         val layoutManager: LinearLayoutManager =
             object : LinearLayoutManager(holder.context) {
                 override fun canScrollVertically(): Boolean {
@@ -40,7 +44,7 @@ class BillInfoAdapter(resultData: MutableList<Pair<String, List<BillInfoModel>>>
             }
         binding.recyclerView.layoutManager = layoutManager
 
-        val adapter = BillItemAdapter(data.second.toMutableList())
+        val adapter = OrderItemAdapter(data.second.toMutableList())
 
         binding.recyclerView.adapter = adapter
 

@@ -25,7 +25,6 @@ import android.widget.FrameLayout
 import android.widget.ListAdapter
 import android.widget.ListPopupWindow
 import net.ankio.auto.R
-import net.ankio.auto.storage.Logger
 
 class ListPopupUtils(
     val context: Context,

@@ -24,7 +24,11 @@ import net.ankio.auto.core.api.PartHooker
 
 class ChatUserHooker : PartHooker() {
 
-    override fun hook(hookerManifest: HookerManifest,application: Application?,classLoader: ClassLoader) {
+    override fun hook(
+        hookerManifest: HookerManifest,
+        application: Application?,
+        classLoader: ClassLoader
+    ) {
         val clazz = classLoader.loadClass("com.tencent.mm.ui.chatting.ChattingUIFragment")
 
         XposedHelpers.findAndHookMethod(
@@ -35,7 +39,7 @@ class ChatUserHooker : PartHooker() {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     val username = param.args[0] as String
                     hookerManifest.logD("用户页面hook: $username")
-                    App.set("hookerUser",username)
+                    App.set("hookerUser", username)
                 }
             }
         )

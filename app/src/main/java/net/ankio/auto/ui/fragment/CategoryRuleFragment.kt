@@ -29,12 +29,12 @@ import net.ankio.auto.ui.adapter.CategoryRuleAdapter
 import net.ankio.auto.ui.api.BasePageFragment
 import org.ezbook.server.db.model.CategoryRuleModel
 
-class CategoryRuleFragment:BasePageFragment<CategoryRuleModel>() {
+class CategoryRuleFragment : BasePageFragment<CategoryRuleModel>() {
     private lateinit var binding: FragmentMapBinding
 
     override suspend fun loadData(callback: (resultData: List<CategoryRuleModel>) -> Unit) {
         lifecycleScope.launch {
-            val newData = CategoryRuleModel.list(page,pageSize)
+            val newData = CategoryRuleModel.list(page, pageSize)
             callback(newData)
         }
     }
@@ -48,11 +48,11 @@ class CategoryRuleFragment:BasePageFragment<CategoryRuleModel>() {
         statusPage = binding.statusPage
         val recyclerView = statusPage.contentView!!
         recyclerView.layoutManager = LinearLayoutManager(context)
-        recyclerView.adapter = CategoryRuleAdapter(pageData,requireActivity()){ item, position ->
-           val bundle = Bundle().apply {
+        recyclerView.adapter = CategoryRuleAdapter(pageData, requireActivity()) { item, position ->
+            val bundle = Bundle().apply {
                 putString("data", item.toJson())
             }
-           findNavController().navigate(R.id.categoryEditFragment, bundle)
+            findNavController().navigate(R.id.categoryEditFragment, bundle)
         }
         scrollView = recyclerView
 

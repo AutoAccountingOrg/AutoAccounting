@@ -20,7 +20,6 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
-import org.ezbook.server.db.model.AppDataModel
 import org.ezbook.server.db.model.CategoryRuleModel
 
 
@@ -47,6 +46,7 @@ interface CategoryRuleDao {
             insert(it)
         }
     }
+
     @Query("DELETE FROM CategoryRuleModel WHERE id = :id")
     fun delete(id: Long)
 }

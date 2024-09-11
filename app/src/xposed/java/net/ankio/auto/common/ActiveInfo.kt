@@ -16,11 +16,11 @@
 package net.ankio.auto.common
 
 object ActiveInfo {
-    fun getFramework():String{
+    fun getFramework(): String {
         return "Xposed"
     }
 
-    fun isModuleActive():Boolean{
+    fun isModuleActive(): Boolean {
         return false
     }
 }

@@ -27,7 +27,7 @@ interface AssetMapDao {
 
     //根据条件查询
     @Query("SELECT * FROM AssetsMapModel ORDER BY id DESC limit :limit offset :offset")
-    fun load(limit:Int,offset:Int): List<AssetsMapModel>
+    fun load(limit: Int, offset: Int): List<AssetsMapModel>
 
     @Insert
     fun insert(log: AssetsMapModel): Long

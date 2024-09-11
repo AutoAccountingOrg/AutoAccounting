@@ -24,10 +24,10 @@ import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.broadcast.LocalBroadcastHelper
 import net.ankio.auto.storage.ConfigUtils
+import net.ankio.auto.storage.Logger
 import net.ankio.auto.storage.ZipUtils
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.ToastUtils
-import net.ankio.auto.storage.Logger
 import org.ezbook.server.constant.DataType
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.CategoryMapModel
@@ -48,7 +48,11 @@ class RuleUpdate(private val context: Context) : BaseUpdate(context) {
 
 
     override fun onCheckedUpdate() {
-        download = if (ConfigUtils.getString(Setting.UPDATE_CHANNEL, UpdateChannel.Github.name) == UpdateChannel.Github.name) {
+        download = if (ConfigUtils.getString(
+                Setting.UPDATE_CHANNEL,
+                UpdateChannel.Github.name
+            ) == UpdateChannel.Github.name
+        ) {
             "https://cors.isteed.cc/github.com/AutoAccountingOrg/$repo/releases/download/$version/$version.zip"
         } else {
             pan() + "/$version.zip"

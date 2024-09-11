@@ -17,7 +17,6 @@ package net.ankio.auto.ui.api
 
 import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
-import android.app.Activity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -52,7 +51,8 @@ abstract class BaseFragment : Fragment() {
     /**
      * 获取activity的binding
      */
-    private lateinit var  activityBinding: WeakReference<ActivityMainBinding>
+    private lateinit var activityBinding: WeakReference<ActivityMainBinding>
+
     /**
      * 滚动视图
      */
@@ -111,15 +111,13 @@ abstract class BaseFragment : Fragment() {
 
             // 找到scrollView的第一个子视图
             if (scrollView is ScrollView && (scrollView as ScrollView).childCount > 0) {
-                val view  = (scrollView as ScrollView).getChildAt(0)
+                val view = (scrollView as ScrollView).getChildAt(0)
                 view.addNavigationBarBottomPadding()
             }
 
 
         }
     }
-
-
 
 
     protected var searchData = ""
@@ -140,7 +138,7 @@ abstract class BaseFragment : Fragment() {
             )
         }
 
-        if (menuItemObject.search){
+        if (menuItemObject.search) {
             menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM or MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW)
 
             val searchView = SearchView(requireContext())
@@ -161,7 +159,7 @@ abstract class BaseFragment : Fragment() {
                 }
             })
 
-        }else{
+        } else {
             menuItem.setOnMenuItemClickListener {
                 menuItemObject.callback.invoke((activity as MainActivity).getNavController())
                 true

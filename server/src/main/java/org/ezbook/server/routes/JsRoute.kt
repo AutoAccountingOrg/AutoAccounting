@@ -25,7 +25,6 @@ import org.ezbook.server.constant.DataType
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.AppDataModel
 import org.ezbook.server.db.model.BillInfoModel
-import org.ezbook.server.db.model.SettingModel
 import org.ezbook.server.engine.RuleGenerator
 import org.ezbook.server.tools.Assets
 import org.ezbook.server.tools.Bill
@@ -71,14 +70,14 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
 
         val t = System.currentTimeMillis()
 
-        val js = RuleGenerator.data( app, dataType)
+        val js = RuleGenerator.data(app, dataType)
 
 
         if (js === "") {
             return Server.json(404, "js not Found")
         }
 
-        val result = runJS(js,data)
+        val result = runJS(js, data)
 
         if (result === "") {
             return Server.json(404, "analysis result is nothing")
@@ -114,7 +113,7 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
         win.addProperty("money", billInfoModel.money)
         win.addProperty("shopName", billInfoModel.shopName)
         win.addProperty("shopItem", billInfoModel.shopItem)
-        win.addProperty("time",time)
+        win.addProperty("time", time)
 
         var categoryResult = runJS(categoryJS, Gson().toJson(win))
 
@@ -145,12 +144,12 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
         Bill.setBookName(billInfoModel)
 
         // 账单分组，用于检查重复账单
-        val parent = Bill.groupBillInfo(billInfoModel,context)
+        val parent = Bill.groupBillInfo(billInfoModel, context)
 
-        if (!fromAppData){
+        if (!fromAppData) {
             // 切换到主线程
             Server.runOnMainThread {
-                startAutoPanel(billInfoModel,parent)
+                startAutoPanel(billInfoModel, parent)
             }
             //存入数据库
             billInfoModel.id = Db.get().billInfoDao().insert(billInfoModel)
@@ -210,11 +209,11 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
     /**
      * 启动自动记账面板
      */
-    private fun startAutoPanel(billInfoModel: BillInfoModel,parent:BillInfoModel?) {
+    private fun startAutoPanel(billInfoModel: BillInfoModel, parent: BillInfoModel?) {
         val intent = Intent()
         intent.action = "org.ezbook.server.action.AUTO_PANEL"
         intent.putExtra("billInfo", Gson().toJson(billInfoModel))
-        if (parent != null){
+        if (parent != null) {
             intent.putExtra("parent", Gson().toJson(parent))
         }
 
@@ -241,7 +240,7 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
     /**
      * 运行js代码
      */
-    private fun runJS(jsCode: String,data:String): String {
+    private fun runJS(jsCode: String, data: String): String {
         Server.log(jsCode)
 
         val rhino: Context = Context.enter()
@@ -268,10 +267,9 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
 
     fun run(): Response {
         val js = Server.reqData(session)
-        val result = runJS(js,"")
+        val result = runJS(js, "")
         return Server.json(200, "OK", result)
     }
-
 
 
 }

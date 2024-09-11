@@ -24,7 +24,7 @@ import kotlinx.coroutines.withContext
 import org.ezbook.server.Server
 
 @Entity
-class CategoryRuleModel  {
+class CategoryRuleModel {
     fun toJson(): String {
         return Gson().toJson(this)
     }
@@ -37,26 +37,37 @@ class CategoryRuleModel  {
     var creator = "user" // system为系统创建, user为用户创建
 
     var js = "" // js代码
-   // var text = ""
+    // var text = ""
 
     var element: String = "" //数据json
 
     companion object {
-        suspend fun list(page: Int = 1, limit: Int = 10) : List<CategoryRuleModel> = withContext(
-            Dispatchers.IO) {
+        suspend fun list(page: Int = 1, limit: Int = 10): List<CategoryRuleModel> = withContext(
+            Dispatchers.IO
+        ) {
             val response = Server.request("category/rule/list?page=$page&limit=$limit")
             val json = Gson().fromJson(response, JsonObject::class.java)
-            runCatching { Gson().fromJson(json.getAsJsonArray("data"), Array<CategoryRuleModel>::class.java).toList() }.getOrNull() ?: emptyList()
+            runCatching {
+                Gson().fromJson(
+                    json.getAsJsonArray("data"),
+                    Array<CategoryRuleModel>::class.java
+                ).toList()
+            }.getOrNull() ?: emptyList()
         }
 
-        suspend fun put(model: CategoryRuleModel): JsonObject = withContext(Dispatchers.IO){
+        suspend fun put(model: CategoryRuleModel): JsonObject = withContext(Dispatchers.IO) {
             val response = Server.request("category/rule/put", Gson().toJson(model))
             val json = Gson().fromJson(response, JsonObject::class.java)
 
-            runCatching { Gson().fromJson(json.getAsJsonArray("data"), JsonObject::class.java) }.getOrNull() ?: JsonObject()
+            runCatching {
+                Gson().fromJson(
+                    json.getAsJsonArray("data"),
+                    JsonObject::class.java
+                )
+            }.getOrNull() ?: JsonObject()
         }
 
-        suspend fun remove(id: Long)= withContext(Dispatchers.IO) {
+        suspend fun remove(id: Long) = withContext(Dispatchers.IO) {
             Server.request("category/rule/delete?id=$id")
         }
 

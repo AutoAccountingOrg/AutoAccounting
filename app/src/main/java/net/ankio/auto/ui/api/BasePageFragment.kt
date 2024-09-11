@@ -15,9 +15,7 @@
 
 package net.ankio.auto.ui.api
 
-import android.health.connect.datatypes.units.Length
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.RecyclerView
 import com.scwang.smart.refresh.footer.ClassicsFooter
 import com.scwang.smart.refresh.header.ClassicsHeader
 import com.scwang.smart.refresh.layout.api.RefreshLayout
@@ -29,7 +27,7 @@ import net.ankio.auto.ui.componets.StatusPage
 /**
  * 基础的BasePageFragment
  */
-abstract class BasePageFragment<T>: BaseFragment() {
+abstract class BasePageFragment<T> : BaseFragment() {
     /**
      * 初始化View
      */
@@ -38,17 +36,17 @@ abstract class BasePageFragment<T>: BaseFragment() {
     /**
      * 当前页码
      */
-     var page = 1
+    var page = 1
 
     /**
      * 每页数据大小
-      */
+     */
     val pageSize = 20
 
     /**
      * 数据列表
      */
-     val pageData = mutableListOf<T>()
+    val pageData = mutableListOf<T>()
 
     /**
      * 需要实现加载数据的逻辑
@@ -58,7 +56,7 @@ abstract class BasePageFragment<T>: BaseFragment() {
     /**
      * 重置页面
      */
-    protected fun resetPage(){
+    protected fun resetPage() {
         page = 1
         val total = pageData.size
         pageData.clear()
@@ -66,15 +64,16 @@ abstract class BasePageFragment<T>: BaseFragment() {
             statusPage.contentView?.adapter?.notifyItemRangeRemoved(0, total)
         }
     }
+
     /**
      * 获取数据
      */
-    protected open fun loadDataInside(callback: ((Boolean, Boolean) -> Unit)?=null){
+    protected open fun loadDataInside(callback: ((Boolean, Boolean) -> Unit)? = null) {
         if (page == 1) {
-          resetPage()
+            resetPage()
         }
         lifecycleScope.launch {
-            withContext(Dispatchers.IO){
+            withContext(Dispatchers.IO) {
                 loadData { resultData ->
                     if (resultData.isEmpty()) {
                         if (pageData.isEmpty()) {

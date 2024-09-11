@@ -16,9 +16,6 @@
 package net.ankio.auto.hooks.qianji
 
 import android.app.Application
-import com.hjq.toast.Toaster
-import de.robv.android.xposed.XposedHelpers
-import net.ankio.auto.core.App
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
 import net.ankio.auto.hooks.qianji.hooks.AutoHooker
@@ -27,7 +24,7 @@ import net.ankio.dex.model.Clazz
 import net.ankio.dex.model.ClazzField
 import net.ankio.dex.model.ClazzMethod
 
-class QianjiHooker:HookerManifest() {
+class QianjiHooker : HookerManifest() {
     override val packageName: String
         get() = "com.mutangtech.qianji"
     override val appName: String
@@ -118,7 +115,6 @@ class QianjiHooker:HookerManifest() {
             ),
         )
         set(value) {}
-
 
 
 }

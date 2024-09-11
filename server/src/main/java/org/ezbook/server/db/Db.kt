@@ -15,10 +15,7 @@
 package org.ezbook.server.db
 
 import android.content.Context
-import android.util.Log
 import androidx.room.Room.databaseBuilder
-import org.ezbook.server.constant.LogLevel
-import org.ezbook.server.db.model.LogModel
 import java.io.File
 import java.io.IOException
 

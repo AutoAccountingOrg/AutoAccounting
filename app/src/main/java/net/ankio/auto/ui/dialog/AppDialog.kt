@@ -35,7 +35,13 @@ class AppDialog(private val context: Context) : BaseSheetDialog(context) {
     private lateinit var binding: DialogAppBinding
 
     private var apps = mutableListOf(
-        AutoApp("钱迹", R.drawable.app_qianji, "com.mutangtech.qianji", "https://qianjiapp.com/", "钱迹，一款简洁纯粹的记账 App，是一个 “无广告、无开屏、无理财” 的 “三无” 产品，力求极简，专注个人记账，将每一笔收支都清晰记录，消费及资产随时了然于心。"),
+        AutoApp(
+            "钱迹",
+            R.drawable.app_qianji,
+            "com.mutangtech.qianji",
+            "https://qianjiapp.com/",
+            "钱迹，一款简洁纯粹的记账 App，是一个 “无广告、无开屏、无理财” 的 “三无” 产品，力求极简，专注个人记账，将每一笔收支都清晰记录，消费及资产随时了然于心。"
+        ),
     )
 
     override fun onCreateView(inflater: LayoutInflater): View {
@@ -46,11 +52,12 @@ class AppDialog(private val context: Context) : BaseSheetDialog(context) {
 
         val recyclerView = binding.recyclerView
         recyclerView.layoutManager = LinearLayoutManager(context)
-        recyclerView.adapter = AppListAdapter(context,apps, ConfigUtils.getString(Setting.BOOK_APP_ID)) {
-            ConfigUtils.putString(Setting.BOOK_APP_ID, it.packageName)
-            LocalBroadcastHelper.sendBroadcast(LocalBroadcastHelper.ACTION_APP_CHANGED)
-            dismiss()
-        }
+        recyclerView.adapter =
+            AppListAdapter(context, apps, ConfigUtils.getString(Setting.BOOK_APP_ID)) {
+                ConfigUtils.putString(Setting.BOOK_APP_ID, it.packageName)
+                LocalBroadcastHelper.sendBroadcast(LocalBroadcastHelper.ACTION_APP_CHANGED)
+                dismiss()
+            }
 
 
         return binding.root

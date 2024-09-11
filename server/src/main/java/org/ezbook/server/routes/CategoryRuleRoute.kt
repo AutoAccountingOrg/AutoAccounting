@@ -28,17 +28,17 @@ class CategoryRuleRoute(private val session: IHTTPSession) {
         val page = params["page"]?.firstOrNull()?.toInt() ?: 1
         val limit = params["limit"]?.firstOrNull()?.toInt() ?: 10
         val offset = (page - 1) * limit
-        val logs =  Db.get().categoryRuleDao().load(limit, offset)
+        val logs = Db.get().categoryRuleDao().load(limit, offset)
         return Server.json(200, "OK", logs)
     }
 
     fun put(): Response {
         val data = Server.reqData(session)
         val model = Gson().fromJson(data, CategoryRuleModel::class.java)
-        
-        if (model.id == 0L){
-            model.id  = Db.get().categoryRuleDao().insert(model)
-        }else{
+
+        if (model.id == 0L) {
+            model.id = Db.get().categoryRuleDao().insert(model)
+        } else {
             Db.get().categoryRuleDao().update(model)
         }
         return Server.json(200, "OK", model.id)
@@ -46,7 +46,7 @@ class CategoryRuleRoute(private val session: IHTTPSession) {
 
     fun delete(): Response {
         val params = session.parameters
-        val id = ( params["id"]?.firstOrNull()?:"0").toLong()
+        val id = (params["id"]?.firstOrNull() ?: "0").toLong()
         Db.get().categoryRuleDao().delete(id)
         return Server.json(200, "OK", id)
     }

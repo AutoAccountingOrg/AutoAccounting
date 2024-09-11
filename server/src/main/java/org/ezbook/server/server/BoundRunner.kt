@@ -22,7 +22,7 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 
- class BoundRunner : IAsyncRunner {
+class BoundRunner : IAsyncRunner {
     private val executorService: ExecutorService = Executors.newCachedThreadPool()
 
     override fun exec(clientHandler: ClientHandler?) {

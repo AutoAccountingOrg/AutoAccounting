@@ -14,16 +14,18 @@
  */
 
 package net.ankio.auto.ui.scope
+
 import android.view.View
 import kotlinx.coroutines.CompletionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import net.ankio.auto.R
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.CoroutineContext
-import net.ankio.auto.R
+
 private class ViewStateListener(
     private val view: View,
     private val job: Job
@@ -40,6 +42,7 @@ private class ViewStateListener(
         job.cancel()
     }
 }
+
 private class ViewAutoDisposeInterceptor(
     private val view: View
 ) : ContinuationInterceptor {
@@ -54,6 +57,7 @@ private class ViewAutoDisposeInterceptor(
         return continuation
     }
 }
+
 val View.autoDisposeScope: CoroutineScope
     get() {
         val exist = getTag(R.string.auto_dispose_scope) as? CoroutineScope

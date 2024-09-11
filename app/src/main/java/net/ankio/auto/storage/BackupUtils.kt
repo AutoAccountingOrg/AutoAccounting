@@ -62,7 +62,7 @@ class BackupUtils(private val context: Context) {
                     // 请求持久化权限
                     val takeFlags: Int =
                         Intent.FLAG_GRANT_READ_URI_PERMISSION or
-                            Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                                Intent.FLAG_GRANT_WRITE_URI_PERMISSION
                     activity.contentResolver.takePersistableUriPermission(uri, takeFlags)
                     ConfigUtils.putString(Setting.LOCAL_BACKUP_PATH, uri.toString())
                 }
@@ -115,12 +115,12 @@ class BackupUtils(private val context: Context) {
             val persistedUriPermissions = context.contentResolver.persistedUriPermissions
             return persistedUriPermissions.any {
                 it.uri ==
-                    Uri.parse(
-                        ConfigUtils.getString(
-                            Setting.LOCAL_BACKUP_PATH,
-                            "",
-                        ),
-                    ) && it.isReadPermission && it.isWritePermission
+                        Uri.parse(
+                            ConfigUtils.getString(
+                                Setting.LOCAL_BACKUP_PATH,
+                                "",
+                            ),
+                        ) && it.isReadPermission && it.isWritePermission
             }
         }
     }
@@ -139,7 +139,7 @@ class BackupUtils(private val context: Context) {
             val backupDir = File(context.filesDir, "backup")
 
             if (backupDir.exists()) {
-               backupDir.deleteRecursively()
+                backupDir.deleteRecursively()
             }
             backupDir.mkdirs()
 
@@ -152,7 +152,7 @@ class BackupUtils(private val context: Context) {
             val result = requestUtils.download("http://127.0.0.1:52045/db/export", dbFile)
             Logger.i("downaload result:$result")
 
-            if (!result){
+            if (!result) {
                 throw RestoreBackupException(context.getString(R.string.backup_error))
             }
 
@@ -217,6 +217,7 @@ class BackupUtils(private val context: Context) {
         val result = requestUtils.upload("http://127.0.0.1:52045/db/import", dbFile)
         Logger.i("upload result:$result")
     }
+
     /**
      * 从本地获取备份
      */
@@ -281,13 +282,13 @@ class BackupUtils(private val context: Context) {
             }
 
             val (url, username, password) = getWebdavInfo()
-           // Logger.i("url:$url,username:$username,password:$password")
+            // Logger.i("url:$url,username:$username,password:$password")
             runCatching {
-                requestUtils.addHeader("Authorization",Credentials.basic(username, password))
+                requestUtils.addHeader("Authorization", Credentials.basic(username, password))
                 val result =
                     requestUtils.mkcol("$url/AutoAccounting")
                 if (result == 201) {
-                    uploadFile(requestUtils, url,file, loadingUtils)
+                    uploadFile(requestUtils, url, file, loadingUtils)
                 } else {
                     showWebDavMsg(result)
                     withContext(Dispatchers.Main) {
@@ -311,7 +312,7 @@ class BackupUtils(private val context: Context) {
     ) {
         runCatching {
             val result =
-                requestUtils.put("$url/AutoAccounting/$filename",file)
+                requestUtils.put("$url/AutoAccounting/$filename", file)
             showWebDavMsg(result.first)
             withContext(Dispatchers.Main) {
                 loadingUtils.close()
@@ -359,8 +360,8 @@ class BackupUtils(private val context: Context) {
                 loadingUtils.show(R.string.restore_webdav)
             }
             runCatching {
-                requestUtils.addHeader("Authorization",Credentials.basic(username, password))
-                val result = requestUtils.download("$url/AutoAccounting/$filename",file)
+                requestUtils.addHeader("Authorization", Credentials.basic(username, password))
+                val result = requestUtils.download("$url/AutoAccounting/$filename", file)
 
                 if (result) {
                     withContext(Dispatchers.Main) {

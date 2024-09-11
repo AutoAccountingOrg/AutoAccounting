@@ -27,10 +27,10 @@ import net.ankio.auto.databinding.SettingItemInputBinding
 import net.ankio.auto.databinding.SettingItemSwitchBinding
 import net.ankio.auto.databinding.SettingItemTextBinding
 import net.ankio.auto.databinding.SettingItemTitleBinding
-import net.ankio.auto.ui.api.BaseActivity
-import net.ankio.auto.utils.CustomTabsHelper
-import net.ankio.auto.ui.utils.ListPopupUtils
 import net.ankio.auto.storage.ConfigUtils
+import net.ankio.auto.ui.api.BaseActivity
+import net.ankio.auto.ui.utils.ListPopupUtils
+import net.ankio.auto.utils.CustomTabsHelper
 
 class SettingUtils(
     private val context: BaseActivity,
@@ -198,10 +198,11 @@ class SettingUtils(
                     ListPopupUtils(context, binding.title, it, savedValue) { pos, key, value ->
                         binding.subTitle.text = key
 
-                        settingItem.onItemClick?.invoke(value, context) ?: settingItem.key?.let { item ->
-                            ConfigUtils.putString(item, value.toString())
-                            saveToSp(item, value)
-                        }
+                        settingItem.onItemClick?.invoke(value, context)
+                            ?: settingItem.key?.let { item ->
+                                ConfigUtils.putString(item, value.toString())
+                                saveToSp(item, value)
+                            }
 
                         settingItem.onSavedValue?.invoke(value, context)
                         setValue(value)
@@ -247,7 +248,7 @@ class SettingUtils(
                         settingItem.key,
                         result,
                     )
-                }?: run {
+                } ?: run {
                     settingItem.onSavedValue?.invoke(result, context)
                 }
             })

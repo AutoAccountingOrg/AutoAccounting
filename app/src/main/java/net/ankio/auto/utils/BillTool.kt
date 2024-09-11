@@ -38,20 +38,20 @@ object BillTool {
         }
     }
 
-      fun getType(type: BillType): BillType {
-          return when (type) {
-              BillType.ExpendReimbursement -> BillType.Expend
-              BillType.ExpendLending -> BillType.Expend
-              BillType.ExpendRepayment -> BillType.Expend
-              BillType.IncomeLending -> BillType.Income
-              BillType.IncomeRepayment -> BillType.Income
-              BillType.IncomeReimbursement -> BillType.Income
-              else -> type
-          }
+    fun getType(type: BillType): BillType {
+        return when (type) {
+            BillType.ExpendReimbursement -> BillType.Expend
+            BillType.ExpendLending -> BillType.Expend
+            BillType.ExpendRepayment -> BillType.Expend
+            BillType.IncomeLending -> BillType.Income
+            BillType.IncomeRepayment -> BillType.Income
+            BillType.IncomeReimbursement -> BillType.Income
+            else -> type
+        }
     }
 
 
-    fun setTextViewPrice(price: Double, type: BillType,view:MaterialTextView) {
+    fun setTextViewPrice(price: Double, type: BillType, view: MaterialTextView) {
         val t = getType(type)
         val color = ContextCompat.getColor(view.context, getColor(t))
         view.setTextColor(color)
@@ -59,9 +59,11 @@ object BillTool {
             BillType.Expend, BillType.ExpendReimbursement, BillType.ExpendLending, BillType.ExpendRepayment -> {
                 view.text = "- $price"
             }
+
             BillType.Income, BillType.IncomeLending, BillType.IncomeRepayment, BillType.IncomeReimbursement -> {
                 view.text = "+ $price"
             }
+
             else -> {
                 view.text = "$price"
             }
@@ -70,7 +72,7 @@ object BillTool {
 
     fun getCateName(category1: String, category2: String? = null): String {
 
-        val showParent = ConfigUtils.getBoolean(Setting.CATEGORY_SHOW_PARENT,false)
+        val showParent = ConfigUtils.getBoolean(Setting.CATEGORY_SHOW_PARENT, false)
         if (category2 === null) {
             return category1
         }

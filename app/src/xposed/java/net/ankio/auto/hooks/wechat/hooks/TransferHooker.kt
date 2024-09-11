@@ -18,18 +18,22 @@ package net.ankio.auto.hooks.wechat.hooks
 import android.app.Application
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
-import org.ezbook.server.constant.DataType
 import net.ankio.auto.core.App
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
+import org.ezbook.server.constant.DataType
 
 
-class TransferHooker  : PartHooker() {
+class TransferHooker : PartHooker() {
 
-    override fun hook(hookerManifest: HookerManifest,application: Application?,classLoader: ClassLoader) {
+    override fun hook(
+        hookerManifest: HookerManifest,
+        application: Application?,
+        classLoader: ClassLoader
+    ) {
 
         val model = hookerManifest.clazz["remittance.model"]
-        XposedHelpers.findAndHookMethod(model,classLoader, "onGYNetEnd",
+        XposedHelpers.findAndHookMethod(model, classLoader, "onGYNetEnd",
             Int::class.java,
             String::class.java,
             org.json.JSONObject::class.java, object : XC_MethodHook() {

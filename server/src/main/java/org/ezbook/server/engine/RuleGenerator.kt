@@ -15,7 +15,6 @@
 
 package org.ezbook.server.engine
 
-import android.util.Log
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import org.ezbook.server.constant.DataType
@@ -26,7 +25,7 @@ import org.ezbook.server.db.Db
  */
 object RuleGenerator {
     // 生成 hook的 js代码
-    fun data(app:String,type:DataType):String {
+    fun data(app: String, type: DataType): String {
         val rules = Db.get().ruleDao().loadAllEnabled(app, type.name)
         val js = StringBuilder()
 
@@ -89,13 +88,13 @@ object RuleGenerator {
         return js.toString()
     }
 
-    fun category():String{
+    fun category(): String {
         val categoryCustom = Db.get().settingDao().query("categoryCustom")?.value ?: ""
         val category = Db.get().settingDao().query("categoryJs")?.value ?: ""
         return "var window = JSON.parse(data);" +
-                    "function getCategory(money,type,shopName,shopItem,time){ $categoryCustom return null;};" +
-                    "var categoryInfo = getCategory(window.money,window.type,window.shopName,window.shopItem,window.time);" +
-                    "if(categoryInfo !== null) { print(JSON.stringify(categoryInfo));  } else { $category" +
+                "function getCategory(money,type,shopName,shopItem,time){ $categoryCustom return null;};" +
+                "var categoryInfo = getCategory(window.money,window.type,window.shopName,window.shopItem,window.time);" +
+                "if(categoryInfo !== null) { print(JSON.stringify(categoryInfo));  } else { $category" +
                 "print(JSON.stringify(category.get(window.money, window.type, window.shopName, window.shopItem, window.time))); " +
                 "}"
     }

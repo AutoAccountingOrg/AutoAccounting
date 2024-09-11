@@ -28,13 +28,17 @@ import net.ankio.auto.core.api.PartHooker
  * PermissionHooker
  * 授权
  */
-class PermissionHooker:PartHooker() {
+class PermissionHooker : PartHooker() {
     /**
      * hook PermissionManagerService，并自动向特定的应用程序授予特定权限。
      * @param hookerManifest HookerManifest
      * @param application Application
      */
-    override fun hook(hookerManifest: HookerManifest,application: Application?,classLoader: ClassLoader) {
+    override fun hook(
+        hookerManifest: HookerManifest,
+        application: Application?,
+        classLoader: ClassLoader
+    ) {
         val sdk: Int = Build.VERSION.SDK_INT
         try {
             // 根据SDK版本，找到PermissionManagerService类
@@ -64,7 +68,6 @@ class PermissionHooker:PartHooker() {
                     "com.android.server.pm.permission.PermissionManagerService\$PermissionCallback",
                 classLoader
             )
-
 
 
             // Hook PermissionManagerService(Impl) - restorePermissionState 方法
@@ -111,11 +114,12 @@ class PermissionHooker:PartHooker() {
                         // 获取字段
                         val mState = XposedHelpers.getObjectField(param.thisObject, "mState")
                         val mRegistry = XposedHelpers.getObjectField(param.thisObject, "mRegistry")
-                        val mPackageManagerInt = XposedHelpers.getObjectField(param.thisObject, "mPackageManagerInt")
+                        val mPackageManagerInt =
+                            XposedHelpers.getObjectField(param.thisObject, "mPackageManagerInt")
 
                         val packageName = XposedHelpers.callMethod(pkg, "getPackageName") as String
 
-                     //   XposedBridge.log("PermissionHooker: $packageName")
+                        //   XposedBridge.log("PermissionHooker: $packageName")
 
                         val ps = XposedHelpers.callMethod(
                             mPackageManagerInt,
@@ -144,20 +148,29 @@ class PermissionHooker:PartHooker() {
 
                         // 对每个用户ID进行处理
                         for (userId in userIds) {
-                            val userState = XposedHelpers.callMethod(mState, "getOrCreateUserState", userId)
+                            val userState =
+                                XposedHelpers.callMethod(mState, "getOrCreateUserState", userId)
                             val appId = XposedHelpers.callMethod(ps, "getAppId") as Int
-                            val uidState = XposedHelpers.callMethod(userState, "getOrCreateUidState", appId)
+                            val uidState =
+                                XposedHelpers.callMethod(userState, "getOrCreateUidState", appId)
                             // 遍历所有应用程序, 如果是指定的应用程序，则授予指定的权限
-                            for (app in Apps.get()){
+                            for (app in Apps.get()) {
 
-                               // XposedBridge.log("PermissionHooker: $packageName [$permissions]")
-                                if (packageName == app.packageName){
-                                    val permissions = XposedHelpers.callMethod(pkg,"getRequestedPermissions") as List<String>
-                                    for (permission in app.permissions){
-                                        if (!permissions.contains(permission)){
+                                // XposedBridge.log("PermissionHooker: $packageName [$permissions]")
+                                if (packageName == app.packageName) {
+                                    val permissions = XposedHelpers.callMethod(
+                                        pkg,
+                                        "getRequestedPermissions"
+                                    ) as List<String>
+                                    for (permission in app.permissions) {
+                                        if (!permissions.contains(permission)) {
                                             val result = XposedHelpers.callMethod(
                                                 uidState, "grantPermission",
-                                                XposedHelpers.callMethod(mRegistry, "getPermission", permission)
+                                                XposedHelpers.callMethod(
+                                                    mRegistry,
+                                                    "getPermission",
+                                                    permission
+                                                )
                                             )
                                             XposedBridge.log("PermissionHooker: grantPermission $packageName [$permission]: $result")
                                         }

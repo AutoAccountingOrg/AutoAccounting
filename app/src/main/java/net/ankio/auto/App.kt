@@ -34,8 +34,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import net.ankio.auto.storage.Logger
 import net.ankio.auto.storage.ConfigUtils
+import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.ExceptionHandler
@@ -46,13 +46,15 @@ import java.security.MessageDigest
 class App : Application() {
 
 
-    companion object{
+    companion object {
         /* App实例 */
         lateinit var app: Application
+
         /**
          * 是否是调试模式
          */
-        var debug:Boolean = false
+        var debug: Boolean = false
+
         /* 全局协程 */
         private val job = Job()
         private val scope = CoroutineScope(Dispatchers.IO + job)
@@ -64,9 +66,10 @@ class App : Application() {
         /**
          * 获取全局协程
          */
-         fun launch(block: suspend CoroutineScope.() -> Unit) {
+        fun launch(block: suspend CoroutineScope.() -> Unit) {
             scope.launch(block = block)
         }
+
         /**
          * 获取App应用信息
          * @param packageName 应用包名
@@ -77,7 +80,10 @@ class App : Application() {
                 val packageManager: PackageManager = app.packageManager
 
                 val appInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    packageManager.getApplicationInfo(packageName, PackageManager.ApplicationInfoFlags.of(0))
+                    packageManager.getApplicationInfo(
+                        packageName,
+                        PackageManager.ApplicationInfoFlags.of(0)
+                    )
                 } else {
                     packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA)
                 }
@@ -92,7 +98,10 @@ class App : Application() {
                 }
 
                 val packageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    packageManager.getPackageInfo(packageName, PackageManager.PackageInfoFlags.of(0))
+                    packageManager.getPackageInfo(
+                        packageName,
+                        PackageManager.PackageInfoFlags.of(0)
+                    )
                 } else {
                     packageManager.getPackageInfo(packageName, PackageManager.GET_META_DATA)
                 }
@@ -150,6 +159,7 @@ class App : Application() {
                 false
             }
         }
+
         /**
          * 复制到剪切板
          */
@@ -234,7 +244,7 @@ class App : Application() {
         // 初始化调试模式
         debug = BuildConfig.DEBUG || ConfigUtils.getBoolean(Setting.DEBUG_MODE, false)
 
-        if (!BuildConfig.DEBUG){
+        if (!BuildConfig.DEBUG) {
             // 设置全局异常
             ExceptionHandler.init(this)
         }
@@ -243,7 +253,6 @@ class App : Application() {
         // 初始化 Toast 框架
         ToastUtils.init(this)
     }
-
 
 
 }

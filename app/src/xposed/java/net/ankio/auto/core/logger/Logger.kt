@@ -37,19 +37,20 @@ object Logger {
     private fun getTag(): String {
         return Throwable().stackTrace[2].className.substringBefore('$').substringAfterLast(".")
     }
+
     /**
      * 打印日志
      */
-    fun log(app:String,msg: String) {
-       XposedBridge.log(msg)
+    fun log(app: String, msg: String) {
+        XposedBridge.log(msg)
         Log.i("自动记账", msg)
-       //写入自动记账日志
+        //写入自动记账日志
         App.scope.launch {
-           runCatching {
-               LogModel.add(LogLevel.INFO,app, getTag(),msg)
-           }.onFailure {
-               Log.d("自动记账", msg)
-           }
+            runCatching {
+                LogModel.add(LogLevel.INFO, app, getTag(), msg)
+            }.onFailure {
+                Log.d("自动记账", msg)
+            }
         }
 
     }
@@ -57,20 +58,20 @@ object Logger {
     /**
      * 只在调试模式输出日志
      */
-    fun logD(app:String,msg: String) {
+    fun logD(app: String, msg: String) {
         if (debug) {
-           this.log(app,msg)
+            this.log(app, msg)
         }
     }
 
     /**
      * 打印错误日志
      */
-    fun logE(app:String,e: Throwable) {
+    fun logE(app: String, e: Throwable) {
         XposedBridge.log(e)
-        Log.e("自动记账", e.message?:"")
+        Log.e("自动记账", e.message ?: "")
         App.scope.launch {
-            LogModel.add(LogLevel.ERROR,app, getTag(),e.message?:"")
+            LogModel.add(LogLevel.ERROR, app, getTag(), e.message ?: "")
         }
     }
 }

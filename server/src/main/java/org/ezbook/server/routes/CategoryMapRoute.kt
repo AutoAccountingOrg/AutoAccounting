@@ -30,14 +30,14 @@ class CategoryMapRoute(private val session: IHTTPSession) {
 
 
 
-        if (limit == 0){
-            return Server.json(200, "OK",  Db.get().categoryMapDao().loadWithoutLimit())
+        if (limit == 0) {
+            return Server.json(200, "OK", Db.get().categoryMapDao().loadWithoutLimit())
         }
         val page = params["page"]?.firstOrNull()?.toInt() ?: 1
         val offset = (page - 1) * limit
-        var search:String? = params["search"]?.firstOrNull()?:""
-        if (search == "")  search = null
-        val logs =  Db.get().categoryMapDao().loadWithLimit(limit, offset,search)
+        var search: String? = params["search"]?.firstOrNull() ?: ""
+        if (search == "") search = null
+        val logs = Db.get().categoryMapDao().loadWithLimit(limit, offset, search)
 
 
         return Server.json(200, "OK", logs)
@@ -47,11 +47,11 @@ class CategoryMapRoute(private val session: IHTTPSession) {
         val data = Server.reqData(session)
         val model = Gson().fromJson(data, CategoryMapModel::class.java)
 
-       val name = model.name
+        val name = model.name
         val modelItem = Db.get().categoryMapDao().query(name)
-        if (modelItem == null){
-            model.id  = Db.get().categoryMapDao().insert(model)
-        }else{
+        if (modelItem == null) {
+            model.id = Db.get().categoryMapDao().insert(model)
+        } else {
             model.id = modelItem.id
             Db.get().categoryMapDao().update(model)
         }
@@ -60,7 +60,7 @@ class CategoryMapRoute(private val session: IHTTPSession) {
 
     fun delete(): Response {
         val params = session.parameters
-        val id = ( params["id"]?.firstOrNull()?:"0").toLong()
+        val id = (params["id"]?.firstOrNull() ?: "0").toLong()
         Db.get().categoryMapDao().delete(id)
         return Server.json(200, "OK", id)
     }

@@ -29,7 +29,7 @@ import net.ankio.auto.ui.api.BasePageFragment
 import net.ankio.auto.ui.models.ToolbarMenuItem
 import org.ezbook.server.db.model.CategoryMapModel
 
-class CategoryMapFragment: BasePageFragment<CategoryMapModel>() {
+class CategoryMapFragment : BasePageFragment<CategoryMapModel>() {
     private lateinit var binding: FragmentMapBinding
 
     override val menuList: ArrayList<ToolbarMenuItem>
@@ -42,7 +42,7 @@ class CategoryMapFragment: BasePageFragment<CategoryMapModel>() {
 
     override suspend fun loadData(callback: (resultData: List<CategoryMapModel>) -> Unit) {
         lifecycleScope.launch {
-            val newData = CategoryMapModel.list(page,pageSize,searchData)
+            val newData = CategoryMapModel.list(page, pageSize, searchData)
             callback(newData)
         }
     }
@@ -56,9 +56,9 @@ class CategoryMapFragment: BasePageFragment<CategoryMapModel>() {
         statusPage = binding.statusPage
         val recyclerView = statusPage.contentView!!
         recyclerView.layoutManager = LinearLayoutManager(context)
-        recyclerView.adapter = CategoryMapAdapter(pageData,requireActivity())
+        recyclerView.adapter = CategoryMapAdapter(pageData, requireActivity())
         scrollView = recyclerView
-        binding.addButton.visibility  = View.GONE
+        binding.addButton.visibility = View.GONE
         loadDataEvent(binding.refreshLayout)
         return binding.root
     }

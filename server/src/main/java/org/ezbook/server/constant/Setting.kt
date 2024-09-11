@@ -18,38 +18,49 @@ package org.ezbook.server.constant
 object Setting {
     //自动记账配置
     const val AUTO_CONFIG = "setting_auto_config"
+
     //自动记账对应的记账软件
     const val BOOK_APP_ID = "setting_book_app_id"
+
     //默认账本
     const val DEFAULT_BOOK_NAME = "setting_default_book_name"
+
     //监听的App列表
     const val LISTENER_APP_LIST = "setting_listener_app_list"
+
     // 调试模式
     const val DEBUG_MODE = "setting_debug_mode"
+
     // js: 通用
     const val JS_COMMON = "setting_js_common"
+
     // js 分类
     const val JS_CATEGORY = "setting_js_category"
 
 
     // 同步的资产的md5
     const val HASH_ASSET = "setting_hash_asset"
+
     // 同步的账单的md5
     const val HASH_BILL = "setting_hash_bill"
+
     // 同步的账本的md5
     const val HASH_BOOK = "setting_hash_book"
+
     // 同步的分类的md5
     const val HASH_CATEGORY = "setting_hash_category"
-
 
 
     /////////////////////////////////一些设置项///////////////////////
     //悬浮窗超时时间
     const val FLOAT_TIMEOUT_OFF = "setting_float_timeout_off"
+
     //悬浮标签倒计时结束后的操作
     const val FLOAT_TIMEOUT_ACTION = "setting_float_timeout_action"
+
     //悬浮标签被点击
     const val FLOAT_CLICK = "setting_float_click"
+
     //悬浮标签被长按
     const val FLOAT_LONG_CLICK = "setting_float_long_click"
 
@@ -58,12 +69,16 @@ object Setting {
 
     // 本地备份地址
     const val LOCAL_BACKUP_PATH = "setting_local_backup_path"
+
     // 使用Webdav
     const val USE_WEBDAV = "setting_use_webdav"
+
     // Webdav host
     const val WEBDAV_HOST = "setting_webdav_host"
+
     // webdav user
     const val WEBDAV_USER = "setting_webdav_user"
+
     // webdav password
     const val WEBDAV_PASSWORD = "setting_webdav_password"
 
@@ -78,14 +93,17 @@ object Setting {
 
     // 规则版本
     const val RULE_VERSION = "setting_rule_version"
+
     // 规则更新时间
     const val RULE_UPDATE_TIME = "setting_rule_update_time"
+
     // 更新渠道
     const val UPDATE_CHANNEL = "setting_update_channel"
 
 
     //分类是否展示父类
     const val CATEGORY_SHOW_PARENT = "setting_category_show_parent"
+
     // 支出的颜色为红色
     const val EXPENSE_COLOR_RED = "setting_expense_color_red"
 

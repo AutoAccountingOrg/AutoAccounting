@@ -14,6 +14,7 @@
  */
 
 package net.ankio.auto.ui.adapter
+
 import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterLogBinding
@@ -23,17 +24,22 @@ import net.ankio.auto.utils.DateUtils
 import org.ezbook.server.constant.LogLevel
 import org.ezbook.server.db.model.LogModel
 
-class LogAdapter(private val list: MutableList<LogModel>): BaseAdapter<AdapterLogBinding, LogModel>(AdapterLogBinding::class.java, list) {
-    override fun onInitViewHolder(holder: BaseViewHolder<AdapterLogBinding,LogModel>) {
+class LogAdapter(private val list: MutableList<LogModel>) :
+    BaseAdapter<AdapterLogBinding, LogModel>(AdapterLogBinding::class.java, list) {
+    override fun onInitViewHolder(holder: BaseViewHolder<AdapterLogBinding, LogModel>) {
         holder.binding.root.setOnClickListener {
             val item = holder.item!!
             App.copyToClipboard(item.message)
         }
     }
 
-    private val cachedApp = HashMap<String,String>()
+    private val cachedApp = HashMap<String, String>()
 
-    override fun onBindViewHolder(holder: BaseViewHolder<AdapterLogBinding,LogModel>,data:LogModel, position: Int) {
+    override fun onBindViewHolder(
+        holder: BaseViewHolder<AdapterLogBinding, LogModel>,
+        data: LogModel,
+        position: Int
+    ) {
         val binding = holder.binding
         val level = data.level
 

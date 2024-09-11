@@ -14,9 +14,8 @@
  */
 
 package net.ankio.auto.ui.adapter
-import android.app.Activity
+
 import android.content.Context
-import android.content.res.Resources
 import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
 import android.graphics.drawable.Drawable
@@ -29,16 +28,18 @@ import net.ankio.auto.ui.api.BaseViewHolder
 import net.ankio.auto.ui.models.AutoApp
 import net.ankio.auto.utils.CustomTabsHelper
 
-class AppListAdapter(private val context: Context, private val list: MutableList<AutoApp>,
-                     private val selectApp :String, private val callback: (AutoApp) -> Unit): BaseAdapter<AdapterAutoAppBinding, AutoApp>(AdapterAutoAppBinding::class.java, list) {
-    override fun onInitViewHolder(holder: BaseViewHolder<AdapterAutoAppBinding,AutoApp>) {
+class AppListAdapter(
+    private val context: Context, private val list: MutableList<AutoApp>,
+    private val selectApp: String, private val callback: (AutoApp) -> Unit
+) : BaseAdapter<AdapterAutoAppBinding, AutoApp>(AdapterAutoAppBinding::class.java, list) {
+    override fun onInitViewHolder(holder: BaseViewHolder<AdapterAutoAppBinding, AutoApp>) {
         val binding = holder.binding
         binding.root.setOnClickListener {
             val app = holder.item ?: return@setOnClickListener
             val installedApp = App.isAppInstalled(app.packageName)
-            if (!installedApp){
+            if (!installedApp) {
                 CustomTabsHelper.launchUrlOrCopy(context, app.url)
-            }else{
+            } else {
                 binding.checkbox.isChecked = true
                 callback(app)
             }
@@ -46,9 +47,13 @@ class AppListAdapter(private val context: Context, private val list: MutableList
     }
 
 
-    override fun onBindViewHolder(holder: BaseViewHolder<AdapterAutoAppBinding,AutoApp>,data:AutoApp, position: Int) {
+    override fun onBindViewHolder(
+        holder: BaseViewHolder<AdapterAutoAppBinding, AutoApp>,
+        data: AutoApp,
+        position: Int
+    ) {
         val binding = holder.binding
-        val drawable  = ResourcesCompat.getDrawable(context.resources, data.icon, null)
+        val drawable = ResourcesCompat.getDrawable(context.resources, data.icon, null)
         val installedApp = App.isAppInstalled(data.packageName)
         binding.appIcon.setImageDrawable(if (installedApp) drawable else toGrayscale(drawable!!))
         binding.appName.text = data.name

@@ -43,7 +43,7 @@ class BillMoreDialog(
         cardView = binding.cardView
         cardViewInner = binding.innerView
 
-   //     binding.recyclerView.adapter = adapter
+        //     binding.recyclerView.adapter = adapter
 
         return binding.root
     }
@@ -54,13 +54,13 @@ class BillMoreDialog(
     ) {
         super.show(float, cancel)
         lifecycleScope.launch {
-         //   val config = AppUtils.getService().config()
-          /*  BillInfo.getBillByGroup(billInfo.id).apply {
-                adapter.notifyConfig(config)
-                dataItems.clear()
-                dataItems.addAll(this)
-                adapter.notifyDataSetChanged()
-            }*/
+            //   val config = AppUtils.getService().config()
+            /*  BillInfo.getBillByGroup(billInfo.id).apply {
+                  adapter.notifyConfig(config)
+                  dataItems.clear()
+                  dataItems.addAll(this)
+                  adapter.notifyDataSetChanged()
+              }*/
         }
     }
 }

@@ -18,24 +18,21 @@ package net.ankio.auto.hooks.qianji.sync
 import android.content.Context
 import android.content.Intent
 import com.google.gson.Gson
-import com.hjq.toast.Toaster
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.core.App
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.hooks.qianji.tools.QianJiUri
 import net.ankio.auto.hooks.qianji.tools.UserUtils
-import net.ankio.auto.ui.utils.ToastUtils
 import org.ezbook.server.db.model.BillInfoModel
-import org.ezbook.server.db.model.SettingModel
 
 class SyncBillUtils(
     private val manifest: HookerManifest,
     private val classLoader: ClassLoader
-)  {
-    suspend fun sync(context:Context) = withContext(Dispatchers.IO) {
-        if (!UserUtils(manifest,classLoader).isLogin()) {
-           App.toast("未登录无法自动记账")
+) {
+    suspend fun sync(context: Context) = withContext(Dispatchers.IO) {
+        if (!UserUtils(manifest, classLoader).isLogin()) {
+            App.toast("未登录无法自动记账")
             return@withContext
         }
         val bills = BillInfoModel.sync()
@@ -43,8 +40,8 @@ class SyncBillUtils(
         bills.forEach {
             val bill = QianJiUri.toQianJi(it)
             val intent = Intent(Intent.ACTION_VIEW, bill)
-            intent.putExtra("billInfo",Gson().toJson(it))
-            withContext(Dispatchers.Main){
+            intent.putExtra("billInfo", Gson().toJson(it))
+            withContext(Dispatchers.Main) {
                 context.startActivity(intent)
             }
             // 现将指定的账单全部记录为成功，后续拦截到错误的时候再修改为失败

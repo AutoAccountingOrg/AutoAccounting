@@ -36,16 +36,18 @@ class CustomNavigationRail @JvmOverloads constructor(
 
     private val menuItems = mutableListOf<RailMenuItem>()
     private var onItemSelectedListener: ((RailMenuItem) -> Unit)? = null
-    fun triggerFirstItem():Boolean {
+    fun triggerFirstItem(): Boolean {
         if (childCount > 0) {
             getChildAt(0).performClick()
             return true
         }
         return false
     }
+
     fun addMenuItem(menuItem: RailMenuItem) {
         menuItems.add(menuItem)
-        val view = LayoutInflater.from(context).inflate(R.layout.custom_navigation_rail_item, this, false)
+        val view =
+            LayoutInflater.from(context).inflate(R.layout.custom_navigation_rail_item, this, false)
         val iconView: AppCompatImageView = view.findViewById(R.id.iconView)
         val textView: TextView = view.findViewById(R.id.textView)
 
@@ -55,7 +57,8 @@ class CustomNavigationRail @JvmOverloads constructor(
         val textColor = App.getThemeAttrColor(com.google.android.material.R.attr.colorOnBackground)
         textView.setTextColor(textColor)
 
-        val selectColor  = App.getThemeAttrColor(com.google.android.material.R.attr.colorOnSecondaryContainer)
+        val selectColor =
+            App.getThemeAttrColor(com.google.android.material.R.attr.colorOnSecondaryContainer)
 
         view.setOnClickListener {
             onItemSelectedListener?.invoke(menuItem)

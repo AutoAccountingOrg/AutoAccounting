@@ -29,37 +29,37 @@ import org.ezbook.server.db.model.BookNameModel
 class BookSelectorAdapter(
     val dataItems: MutableList<BookNameModel>,
     private val showSelect: Boolean = false,
-    private val onClick: (item: BookNameModel,type:BillType) -> Unit,
-) : BaseAdapter<AdapterBookBinding,BookNameModel>(AdapterBookBinding::class.java, dataItems) {
-
+    private val onClick: (item: BookNameModel, type: BillType) -> Unit,
+) : BaseAdapter<AdapterBookBinding, BookNameModel>(AdapterBookBinding::class.java, dataItems) {
 
 
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterBookBinding, BookNameModel>) {
         val binding = holder.binding
 
-        binding.selectContainer.visibility = if (showSelect) android.view.View.VISIBLE else android.view.View.GONE
+        binding.selectContainer.visibility =
+            if (showSelect) android.view.View.VISIBLE else android.view.View.GONE
 
         val itemValue = binding.itemValue
 
-        val layoutParams =  itemValue.layoutParams as ConstraintLayout.LayoutParams
+        val layoutParams = itemValue.layoutParams as ConstraintLayout.LayoutParams
 
         // 修改垂直偏移量
         layoutParams.verticalBias = if (showSelect) 0.33f else 0.5f
 
         itemValue.layoutParams = layoutParams
 
-        if (showSelect){
+        if (showSelect) {
 
-            binding.income.setOnClickListener{
-                onClick(holder.item!!,BillType.Income)
+            binding.income.setOnClickListener {
+                onClick(holder.item!!, BillType.Income)
             }
-            binding.expend.setOnClickListener{
-                onClick(holder.item!!,BillType.Expend)
+            binding.expend.setOnClickListener {
+                onClick(holder.item!!, BillType.Expend)
             }
 
-        }else{
+        } else {
             binding.root.setOnClickListener {
-                onClick(holder.item!!,BillType.Income)
+                onClick(holder.item!!, BillType.Income)
             }
         }
 
@@ -72,7 +72,7 @@ class BookSelectorAdapter(
     ) {
         val binding = holder.binding
         binding.root.autoDisposeScope.launch {
-            ResourceUtils.getBookNameDrawable(data.name,holder.context,binding.book)
+            ResourceUtils.getBookNameDrawable(data.name, holder.context, binding.book)
         }
         binding.itemValue.text = data.name
     }

@@ -39,7 +39,7 @@ class BillSelectorDialog(
     BaseSheetDialog(context) {
     private lateinit var binding: DialogCategorySelectBinding
     private val dataItems = mutableListOf<BookBillModel>()
-  private lateinit var statusPage: StatusPage
+    private lateinit var statusPage: StatusPage
     override fun onCreateView(inflater: LayoutInflater): View {
         binding = DialogCategorySelectBinding.inflate(inflater)
         val layoutManager = LinearLayoutManager(context)
@@ -49,7 +49,7 @@ class BillSelectorDialog(
         val recyclerView = statusPage.contentView!!
         recyclerView.layoutManager = layoutManager
 
-        recyclerView.adapter = BillSelectorAdapter(dataItems,selectedBills)
+        recyclerView.adapter = BillSelectorAdapter(dataItems, selectedBills)
 
         recyclerView.setPadding(0, 0, 0, 0)
 
@@ -69,7 +69,7 @@ class BillSelectorDialog(
     }
 
 
-    private suspend fun loadData(){
+    private suspend fun loadData() {
         val list = BookBillModel.list()
         if (list.isEmpty()) {
             withContext(Dispatchers.Main) {

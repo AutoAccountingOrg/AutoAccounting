@@ -22,7 +22,6 @@ import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.ezbook.server.Server
-import org.ezbook.server.constant.BillType
 
 
 /**
@@ -31,8 +30,6 @@ import org.ezbook.server.constant.BillType
  */
 @Entity
 class BookBillModel {
-
-
 
 
     @PrimaryKey(autoGenerate = true)
@@ -50,19 +47,26 @@ class BookBillModel {
 
     var category: String = ""
 
-    companion object{
-        suspend fun list() : List<BookBillModel> = withContext(
-            Dispatchers.IO) {
+    companion object {
+        suspend fun list(): List<BookBillModel> = withContext(
+            Dispatchers.IO
+        ) {
             val response = Server.request("bill/book/list")
             val json = Gson().fromJson(response, JsonObject::class.java)
 
-            runCatching { Gson().fromJson(json.getAsJsonArray("data"), Array<BookBillModel>::class.java).toList() }.getOrNull() ?: emptyList()
+            runCatching {
+                Gson().fromJson(
+                    json.getAsJsonArray("data"),
+                    Array<BookBillModel>::class.java
+                ).toList()
+            }.getOrNull() ?: emptyList()
         }
 
-        suspend fun put(bills: ArrayList<BookBillModel>, md5: String) = withContext(Dispatchers.IO) {
-            val json = Gson().toJson(bills)
-            Server.request("bill/book/put?md5=$md5", json)
-        }
+        suspend fun put(bills: ArrayList<BookBillModel>, md5: String) =
+            withContext(Dispatchers.IO) {
+                val json = Gson().toJson(bills)
+                Server.request("bill/book/put?md5=$md5", json)
+            }
 
     }
 }

@@ -34,7 +34,7 @@ abstract class BaseAdapter<T : ViewBinding, E>(
         )
         val binding = method.invoke(null, LayoutInflater.from(parent.context), parent, false) as T
 
-        val viewHolder = BaseViewHolder<T,E>(binding)
+        val viewHolder = BaseViewHolder<T, E>(binding)
 
         onInitViewHolder(viewHolder)
 
@@ -52,7 +52,7 @@ abstract class BaseAdapter<T : ViewBinding, E>(
         val data = list[position]
         holder.item = data
         holder.positionIndex = position
-        onBindViewHolder(holder, data,position)
+        onBindViewHolder(holder, data, position)
     }
 
     abstract fun onBindViewHolder(holder: BaseViewHolder<T, E>, data: E, position: Int)

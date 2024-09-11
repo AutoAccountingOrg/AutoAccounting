@@ -24,7 +24,8 @@ import org.ezbook.server.db.model.RuleModel
 @Dao
 interface RuleDao {
 
-    @Query("""
+    @Query(
+        """
     SELECT * FROM RuleModel 
     WHERE app = :app 
     AND (:type IS NULL OR type = :type)
@@ -32,7 +33,8 @@ interface RuleDao {
     ORDER BY id DESC 
     LIMIT :limit 
     OFFSET :offset
-""")
+"""
+    )
     fun loadByAppAndFilters(
         limit: Int,
         offset: Int,
@@ -46,23 +48,22 @@ interface RuleDao {
     fun loadAllEnabled(app: String, type: String): List<RuleModel>
 
 
-
     @Insert
-    fun insert(rule:RuleModel): Long
+    fun insert(rule: RuleModel): Long
 
     @Update
-    fun update(rule:RuleModel)
+    fun update(rule: RuleModel)
 
     @Query("DELETE FROM RuleModel WHERE id = :id")
     fun delete(id: Int)
 
     @Query("SELECT app FROM RuleModel")
-    fun queryApps():List<String>
+    fun queryApps(): List<String>
 
     @Query("SELECT * FROM RuleModel WHERE creator = 'system'")
-     fun loadAllSystem():List<RuleModel>
+    fun loadAllSystem(): List<RuleModel>
 
 
     @Query("SELECT * FROM RuleModel WHERE app = :app AND type = :type AND name = :name limit 1")
-    fun query(type: String,app:String,name:String):RuleModel?
+    fun query(type: String, app: String, name: String): RuleModel?
 }

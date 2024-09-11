@@ -33,7 +33,7 @@ class AssetMapFragment : BasePageFragment<AssetsMapModel>() {
 
     override suspend fun loadData(callback: (resultData: List<AssetsMapModel>) -> Unit) {
         lifecycleScope.launch {
-            val newData = AssetsMapModel.list(page,pageSize)
+            val newData = AssetsMapModel.list(page, pageSize)
             callback(newData)
         }
     }
@@ -47,7 +47,7 @@ class AssetMapFragment : BasePageFragment<AssetsMapModel>() {
         statusPage = binding.statusPage
         val recyclerView = statusPage.contentView!!
         recyclerView.layoutManager = LinearLayoutManager(context)
-        recyclerView.adapter = AssetsMapAdapter(pageData,requireActivity())
+        recyclerView.adapter = AssetsMapAdapter(pageData, requireActivity())
         scrollView = recyclerView
 
         binding.addButton.setOnClickListener {

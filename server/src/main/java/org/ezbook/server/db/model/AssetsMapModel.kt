@@ -44,22 +44,33 @@ class AssetsMapModel {
     var mapName: String = "" // 映射账户名
 
     companion object {
-        suspend fun list(page: Int, pageSize: Int) : List<AssetsMapModel> = withContext(
-            Dispatchers.IO) {
+        suspend fun list(page: Int, pageSize: Int): List<AssetsMapModel> = withContext(
+            Dispatchers.IO
+        ) {
             val response = Server.request("assets/map/list?page=$page&limit=$pageSize")
             val json = Gson().fromJson(response, JsonObject::class.java)
 
-            runCatching { Gson().fromJson(json.getAsJsonArray("data"), Array<AssetsMapModel>::class.java).toList() }.getOrNull() ?: emptyList()
+            runCatching {
+                Gson().fromJson(
+                    json.getAsJsonArray("data"),
+                    Array<AssetsMapModel>::class.java
+                ).toList()
+            }.getOrNull() ?: emptyList()
         }
 
-        suspend fun put(model: AssetsMapModel): JsonObject = withContext(Dispatchers.IO){
-            val response = Server.request("assets/map/put",Gson().toJson(model))
+        suspend fun put(model: AssetsMapModel): JsonObject = withContext(Dispatchers.IO) {
+            val response = Server.request("assets/map/put", Gson().toJson(model))
             val json = Gson().fromJson(response, JsonObject::class.java)
 
-            runCatching { Gson().fromJson(json.getAsJsonArray("data"), JsonObject::class.java) }.getOrNull() ?: JsonObject()
+            runCatching {
+                Gson().fromJson(
+                    json.getAsJsonArray("data"),
+                    JsonObject::class.java
+                )
+            }.getOrNull() ?: JsonObject()
         }
 
-        suspend fun remove(id: Long)= withContext(Dispatchers.IO) {
+        suspend fun remove(id: Long) = withContext(Dispatchers.IO) {
             Server.request("assets/map/delete?id=$id")
         }
     }

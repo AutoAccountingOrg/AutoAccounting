@@ -24,7 +24,11 @@ import net.ankio.auto.core.api.PartHooker
 
 class PayToolsHooker : PartHooker() {
 
-    override fun hook(hookerManifest: HookerManifest,application: Application?,classLoader: ClassLoader) {
+    override fun hook(
+        hookerManifest: HookerManifest,
+        application: Application?,
+        classLoader: ClassLoader
+    ) {
         XposedHelpers.findAndHookMethod(
             "com.tencent.kinda.framework.widget.base.MMKRichText",
             classLoader,
@@ -39,10 +43,12 @@ class PayToolsHooker : PartHooker() {
                             hookerManifest.logD("支付方式Hook: $text")
                             App.set("cachedPayTools", text)
                         }
+
                         text.contains("￥") || text.contains("$") -> {
                             hookerManifest.logD("支付金额Hook: $text")
                             App.set("cachedPayMoney", text)
                         }
+
                         text.contains("转账") || text.contains("红包") || text.contains("付款给") -> {
                             hookerManifest.logD("支付对象hook: $text")
                             App.set("cachedPayShop", text)

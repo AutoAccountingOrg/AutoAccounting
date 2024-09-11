@@ -24,11 +24,11 @@ enum class UpdateType {
 
 
     companion object {
-        fun switchDefaultUpdate():String{
+        fun switchDefaultUpdate(): String {
             val version = BuildConfig.VERSION_NAME
-            return if (version.contains("beta")){
+            return if (version.contains("beta")) {
                 Beta.name
-            } else if (version.contains("canary")){
+            } else if (version.contains("canary")) {
                 Canary.name
             } else {
                 Stable.name

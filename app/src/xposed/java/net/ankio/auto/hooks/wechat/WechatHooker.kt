@@ -16,7 +16,6 @@
 package net.ankio.auto.hooks.wechat
 
 import android.app.Application
-import android.content.Context
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
 import net.ankio.auto.hooks.wechat.hooks.ChatUserHooker
@@ -28,15 +27,15 @@ import net.ankio.dex.model.ClazzField
 import net.ankio.dex.model.ClazzMethod
 
 
-class WechatHooker: HookerManifest(){
+class WechatHooker : HookerManifest() {
     override val packageName: String
         get() = "com.tencent.mm"
     override val appName: String = "微信"
-    override fun hookLoadPackage(application: Application?,classLoader: ClassLoader) {
+    override fun hookLoadPackage(application: Application?, classLoader: ClassLoader) {
 
     }
 
-    override var applicationName  = "com.tencent.mm.app.Application"
+    override var applicationName = "com.tencent.mm.app.Application"
     override var partHookers: MutableList<PartHooker> = mutableListOf(
         DatabaseHooker(),
         TransferHooker(),
@@ -94,7 +93,6 @@ class WechatHooker: HookerManifest(){
     override var clazz = hashMapOf(
         "remittance.model" to "" //8.0.48 com.tencent.mm.plugin.remittance.model.c1.onGYNetEnd
     )
-
 
 
 }

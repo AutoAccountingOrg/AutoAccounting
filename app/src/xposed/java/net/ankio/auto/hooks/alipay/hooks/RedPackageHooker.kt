@@ -18,15 +18,19 @@ package net.ankio.auto.hooks.alipay.hooks
 import android.app.Application
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
-import org.ezbook.server.constant.DataType
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
+import org.ezbook.server.constant.DataType
 
 
 class RedPackageHooker : PartHooker() {
 
 
-    override fun hook(hookerManifest: HookerManifest, application: Application?,classLoader: ClassLoader) {
+    override fun hook(
+        hookerManifest: HookerManifest,
+        application: Application?,
+        classLoader: ClassLoader
+    ) {
         val proguard =
             XposedHelpers.findClass("com.alipay.mobile.redenvelope.proguard.c.b", classLoader)
         val syncMessage = XposedHelpers.findClass(
@@ -48,7 +52,7 @@ class RedPackageHooker : PartHooker() {
                     getDataMethod?.let {
                         val result = it.invoke(syncMessageObject) as String
                         hookerManifest.logD("红包数据： $result")
-                        hookerManifest.analysisData(DataType.DATA,result)
+                        hookerManifest.analysisData(DataType.DATA, result)
                     }
                 }
             })

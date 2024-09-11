@@ -40,22 +40,33 @@ class CategoryMapModel {
     var mapName: String = "" // 映射账户名
 
     companion object {
-        suspend fun list(page: Int, pageSize: Int,search: String = "") : List<CategoryMapModel> = withContext(
-            Dispatchers.IO) {
-            val response = Server.request("category/map/list?page=$page&limit=$pageSize&search=${Uri.encode(
-                search
-            )}")
-            val json = Gson().fromJson(response, JsonObject::class.java)
+        suspend fun list(page: Int, pageSize: Int, search: String = ""): List<CategoryMapModel> =
+            withContext(
+                Dispatchers.IO
+            ) {
+                val response = Server.request(
+                    "category/map/list?page=$page&limit=$pageSize&search=${
+                        Uri.encode(
+                            search
+                        )
+                    }"
+                )
+                val json = Gson().fromJson(response, JsonObject::class.java)
 
-            runCatching { Gson().fromJson(json.getAsJsonArray("data"), Array<CategoryMapModel>::class.java).toList() }.getOrNull() ?: emptyList()
+                runCatching {
+                    Gson().fromJson(
+                        json.getAsJsonArray("data"),
+                        Array<CategoryMapModel>::class.java
+                    ).toList()
+                }.getOrNull() ?: emptyList()
+            }
+
+        suspend fun put(model: CategoryMapModel) = withContext(Dispatchers.IO) {
+            val response = Server.request("category/map/put", Gson().toJson(model))
+            val json = Gson().fromJson(response, JsonObject::class.java)
         }
 
-        suspend fun put(model: CategoryMapModel) = withContext(Dispatchers.IO){
-            val response = Server.request("category/map/put",Gson().toJson(model))
-            val json = Gson().fromJson(response, JsonObject::class.java)
-        }
-
-        suspend fun remove(id: Long)= withContext(Dispatchers.IO) {
+        suspend fun remove(id: Long) = withContext(Dispatchers.IO) {
             Server.request("category/map/delete?id=$id")
         }
     }

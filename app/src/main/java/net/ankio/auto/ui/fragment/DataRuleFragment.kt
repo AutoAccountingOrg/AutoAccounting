@@ -40,7 +40,7 @@ import org.ezbook.server.db.model.RuleModel
 /**
  * 数据规则Fragment
  */
-class DataRuleFragment: BasePageFragment<RuleModel>()  {
+class DataRuleFragment : BasePageFragment<RuleModel>() {
     private lateinit var binding: FragmentDataRuleBinding
     override val menuList: ArrayList<ToolbarMenuItem>
         get() =
@@ -97,15 +97,16 @@ class DataRuleFragment: BasePageFragment<RuleModel>()  {
      * 左侧数据
      */
     private var leftData = JsonObject()
+
     /**
      * 加载左侧数据
      */
-    private fun loadLeftData(leftList: CustomNavigationRail){
+    private fun loadLeftData(leftList: CustomNavigationRail) {
         lifecycleScope.launch {
             RuleModel.apps().let { result ->
                 leftData = result
                 var i = 0
-                for (key in result.keySet()){
+                for (key in result.keySet()) {
                     i++
                     val app = App.getAppInfoFromPackageName(key) ?: continue
                     leftList.addMenuItem(
@@ -113,7 +114,7 @@ class DataRuleFragment: BasePageFragment<RuleModel>()  {
                     )
 
                 }
-                if (!leftList.triggerFirstItem()){
+                if (!leftList.triggerFirstItem()) {
                     statusPage.showEmpty()
                 }
             }
@@ -132,17 +133,19 @@ class DataRuleFragment: BasePageFragment<RuleModel>()  {
     /**
      * Chip事件
      */
-    private fun chipEvent(){
+    private fun chipEvent() {
         binding.chipGroup.setOnCheckedStateChangeListener { group, checkedId ->
             val chipId = checkedId.firstOrNull() ?: R.id.chip_all
 
-            when(chipId){
+            when (chipId) {
                 R.id.chip_all -> {
                     type = ""
                 }
+
                 R.id.chip_notify -> {
                     type = DataType.NOTICE.name
                 }
+
                 R.id.chip_data -> {
                     type = DataType.DATA.name
                 }

@@ -22,12 +22,12 @@ import org.ezbook.server.Server
 
 object ServerInfo {
 
-    suspend fun isServerStart():Boolean = withContext(Dispatchers.IO){
-         Server.request("/") !== null
+    suspend fun isServerStart(): Boolean = withContext(Dispatchers.IO) {
+        Server.request("/") !== null
     }
 
 
-    fun getServerErrorMsg(context: Context):String{
-        return  context.getString(net.ankio.auto.R.string.server_error)
+    fun getServerErrorMsg(context: Context): String {
+        return context.getString(net.ankio.auto.R.string.server_error)
     }
 }

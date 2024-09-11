@@ -37,15 +37,15 @@ class AppDataRoute(private val session: IHTTPSession) {
         val limit = params["limit"]?.firstOrNull()?.toInt() ?: 10
 
         val app = params["app"]?.firstOrNull() ?: ""
-        var type : String? = params["type"]?.firstOrNull() ?: ""
-        var search : String? = params["search"]?.firstOrNull() ?: ""
-        if (type == "")  type = null
+        var type: String? = params["type"]?.firstOrNull() ?: ""
+        var search: String? = params["search"]?.firstOrNull() ?: ""
+        if (type == "") type = null
 
-        if (search == "")  search = null
+        if (search == "") search = null
 
         val offset = (page - 1) * limit
 
-        val logs = Db.get().dataDao().load(limit, offset,app,type,search)
+        val logs = Db.get().dataDao().load(limit, offset, app, type, search)
         return Server.json(200, "OK", logs)
     }
 
@@ -56,12 +56,13 @@ class AppDataRoute(private val session: IHTTPSession) {
         Db.get().dataDao().clear()
         return Server.json(200, "OK")
     }
+
     /**
      * 获取app列表
      */
     fun apps(): Response {
         val apps = Db.get().dataDao().queryApps()
-        val map = hashMapOf<String,Int>()
+        val map = hashMapOf<String, Int>()
         apps.forEach {
             if (it !in map) {
                 map[it] = 1
@@ -73,7 +74,7 @@ class AppDataRoute(private val session: IHTTPSession) {
     }
 
     fun put(): Response {
-        val data = Gson().fromJson( Server.reqData(session), AppDataModel::class.java)
+        val data = Gson().fromJson(Server.reqData(session), AppDataModel::class.java)
         if (data.id == 0L) {
             Db.get().dataDao().insert(data)
         } else {

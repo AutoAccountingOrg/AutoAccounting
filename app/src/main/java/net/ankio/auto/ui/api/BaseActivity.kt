@@ -82,7 +82,6 @@ open class BaseActivity : AppCompatActivity() {
     }
 
 
-
     /**
      * 获取主题色
      */
@@ -99,6 +98,7 @@ open class BaseActivity : AppCompatActivity() {
         val intent = Intent(this, T::class.java)
         startActivity(intent)
     }
+
     /**
      * 切换activity
      */
@@ -107,6 +107,7 @@ open class BaseActivity : AppCompatActivity() {
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         startActivity(intent)
     }
+
     /**
      * 重新创建activity
      */

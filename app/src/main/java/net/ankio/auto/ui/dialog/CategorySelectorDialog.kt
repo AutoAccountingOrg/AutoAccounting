@@ -130,10 +130,11 @@ class CategorySelectorDialog(
         view.getLocationOnScreen(location)
         val params = view.layoutParams as MarginLayoutParams
 
-        var leftDistanceWithMargin = location[0] + view.paddingLeft + params.leftMargin - view.width/2
+        var leftDistanceWithMargin =
+            location[0] + view.paddingLeft + params.leftMargin - view.width / 2
 
-        if (ConfigUtils.getBoolean(Setting.USE_ROUND_STYLE,false)){
-            leftDistanceWithMargin-=view.width/2
+        if (ConfigUtils.getBoolean(Setting.USE_ROUND_STYLE, false)) {
+            leftDistanceWithMargin -= view.width / 2
         }
 
         categoryModel.id = leftDistanceWithMargin.toLong()

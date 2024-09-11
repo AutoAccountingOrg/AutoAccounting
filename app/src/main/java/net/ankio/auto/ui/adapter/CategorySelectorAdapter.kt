@@ -43,35 +43,42 @@ class CategorySelectorAdapter(
     val dataItems: MutableList<CategoryModel>,
     private val onItemClick: (item: CategoryModel, pos: Int, hasChild: Boolean, view: View) -> Unit,
     private val onItemChildClick: (item: CategoryModel, pos: Int) -> Unit,
-) : BaseAdapter<AdapterCategoryListBinding,CategoryModel>( AdapterCategoryListBinding::class.java,dataItems) {
+) : BaseAdapter<AdapterCategoryListBinding, CategoryModel>(
+    AdapterCategoryListBinding::class.java,
+    dataItems
+) {
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterCategoryListBinding, CategoryModel>) {
     }
 
     /**
      * 二级分类缓存
      */
-    private val level2 = hashMapOf<Long,MutableList<CategoryModel>>()
+    private val level2 = hashMapOf<Long, MutableList<CategoryModel>>()
 
     /**
      * 当前面板对应的Item
      */
-    private var panelItem :CategoryModel? = null
+    private var panelItem: CategoryModel? = null
 
     /**
      * 加载二级分类的数据
      */
-    private fun loadData(data:CategoryModel,binding: AdapterCategoryListBinding,callback: (MutableList<CategoryModel>) -> Unit){
+    private fun loadData(
+        data: CategoryModel,
+        binding: AdapterCategoryListBinding,
+        callback: (MutableList<CategoryModel>) -> Unit
+    ) {
         if (!level2.containsKey(data.id)) {
             //获取二级菜单
             binding.root.autoDisposeScope.launch {
                 val list = CategoryModel.list(data.remoteBookId, data.type, data.remoteId)
                 val items = list.toMutableList()
-                level2[data.id]  = items
+                level2[data.id] = items
                 withContext(Dispatchers.Main) {
-                   callback(items)
+                    callback(items)
                 }
             }
-        }else{
+        } else {
             callback(level2[data.id]!!)
         }
     }
@@ -81,20 +88,24 @@ class CategorySelectorAdapter(
         data: CategoryModel,
         position: Int
     ) {
-       val binding = holder.binding
-        setActive(binding,false)
-       if (data.isPanel()){
-           renderPanel(binding,data,holder.context)
-       } else {
-           renderCategory(binding,data,position)
-       }
+        val binding = holder.binding
+        setActive(binding, false)
+        if (data.isPanel()) {
+            renderPanel(binding, data, holder.context)
+        } else {
+            renderCategory(binding, data, position)
+        }
 
     }
 
     /**
      * 渲染面板
      */
-    private fun renderPanel(binding: AdapterCategoryListBinding, data: CategoryModel,context: Context){
+    private fun renderPanel(
+        binding: AdapterCategoryListBinding,
+        data: CategoryModel,
+        context: Context
+    ) {
         binding.icon.visibility = View.GONE
         binding.container.visibility = View.VISIBLE
         binding.recyclerView.layoutManager = GridLayoutManager(context, 5)
@@ -104,11 +115,11 @@ class CategorySelectorAdapter(
         }, { _, _ ->
             // 因为二级分类下面不会再有子类，所以子类点击直接忽略。
         })
-        binding.recyclerView.adapter  = adapter
+        binding.recyclerView.adapter = adapter
 
         // 面板没有子类，所以无法渲染~
 
-        loadData(panelItem!!,binding){
+        loadData(panelItem!!, binding) {
             categories.clear()
             categories.addAll(it)
             adapter.notifyDataSetChanged()
@@ -118,42 +129,47 @@ class CategorySelectorAdapter(
         }
     }
 
-    private var prevBinding:AdapterCategoryListBinding? = null
+    private var prevBinding: AdapterCategoryListBinding? = null
+
     /**
      * 渲染分类图标
      */
-    private fun renderCategory(binding: AdapterCategoryListBinding, data: CategoryModel,position:Int){
+    private fun renderCategory(
+        binding: AdapterCategoryListBinding,
+        data: CategoryModel,
+        position: Int
+    ) {
 
         binding.icon.visibility = View.VISIBLE
         binding.container.visibility = View.GONE
         binding.root.autoDisposeScope.launch {
-            ResourceUtils.getCategoryDrawable(data,binding.itemImageIcon)
+            ResourceUtils.getCategoryDrawable(data, binding.itemImageIcon)
         }
         binding.itemText.text = data.name
 
         binding.root.setOnClickListener {
-            if (data.isPanel())return@setOnClickListener
+            if (data.isPanel()) return@setOnClickListener
             val hasChild = binding.ivMore.visibility == View.VISIBLE
-            if (prevBinding!=null){
-                setActive(prevBinding!!,false)
+            if (prevBinding != null) {
+                setActive(prevBinding!!, false)
             }
             prevBinding = binding
             setActive(binding, true)
             panelItem = data
-            onItemClick(data,position,hasChild,binding.itemImageIcon)
+            onItemClick(data, position, hasChild, binding.itemImageIcon)
         }
         // 本身就是二级菜单，无需继续获取二级菜单
         if (data.isChild()) {
-            renderMoreItem(binding,false)
+            renderMoreItem(binding, false)
             return
         }
-        loadData(data,binding){
-            renderMoreItem(binding,it.isNotEmpty())
+        loadData(data, binding) {
+            renderMoreItem(binding, it.isNotEmpty())
         }
 
     }
 
-    private fun renderMoreItem(binding: AdapterCategoryListBinding, hasChild: Boolean){
+    private fun renderMoreItem(binding: AdapterCategoryListBinding, hasChild: Boolean) {
         binding.ivMore.visibility = if (hasChild) View.VISIBLE else View.GONE
 
     }

@@ -33,7 +33,7 @@ class SettingRoute(private val session: IHTTPSession) {
         }
         val data = Db.get().settingDao().query(key)
 
-        return Server.json(200, "OK", data?.value?:"")
+        return Server.json(200, "OK", data?.value ?: "")
     }
 
     /**
@@ -45,9 +45,9 @@ class SettingRoute(private val session: IHTTPSession) {
             return Server.json(400, "key is required")
         }
 
-       val value = Server.reqData(session)
+        val value = Server.reqData(session)
 
-      setByInner(key,value)
+        setByInner(key, value)
         return Server.json(200, "OK")
 
     }
@@ -56,8 +56,8 @@ class SettingRoute(private val session: IHTTPSession) {
         return Server.json(200, "OK", Db.get().settingDao().load())
     }
 
-    companion object{
-        fun setByInner(key:String,value:String){
+    companion object {
+        fun setByInner(key: String, value: String) {
             val model = SettingModel()
             model.key = key
             model.value = value

@@ -24,17 +24,16 @@ import net.ankio.auto.core.api.PartHooker
 import net.ankio.auto.hooks.android.hooks.ServiceHooker
 import net.ankio.auto.hooks.auto.hooks.ActiveHooker
 import net.ankio.dex.model.Clazz
-import org.ezbook.server.Server
 
 
-class AutoHooker: HookerManifest(){
+class AutoHooker : HookerManifest() {
     override var minVersion: Int = 212
     override val packageName: String
         get() = "net.ankio.auto.xposed"
     override val appName: String = "自动记账"
-    override fun hookLoadPackage(application: Application?,classLoader: ClassLoader) {
-        if (BuildConfig.DEBUG){ // 调试模式下，在自动记账里面启动服务，方便调试。
-            ServiceHooker.startServer(this,application)
+    override fun hookLoadPackage(application: Application?, classLoader: ClassLoader) {
+        if (BuildConfig.DEBUG) { // 调试模式下，在自动记账里面启动服务，方便调试。
+            ServiceHooker.startServer(this, application)
         }
     }
 
@@ -45,25 +44,26 @@ class AutoHooker: HookerManifest(){
         get() = mutableListOf()
         set(value) {}
 
-    override var permissions: MutableList<String> = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-        mutableListOf(
-            //网络权限
-            Manifest.permission.INTERNET,
-            //读取网络状态
-            Manifest.permission.ACCESS_NETWORK_STATE,
-            //悬浮窗权限
-            Manifest.permission.SYSTEM_ALERT_WINDOW,
-            // Query all packages
-            Manifest.permission.QUERY_ALL_PACKAGES,
-        )
-    } else {
-        mutableListOf(
-            //网络权限
-            Manifest.permission.INTERNET,
-            //读取网络状态
-            Manifest.permission.ACCESS_NETWORK_STATE,
-            //悬浮窗权限
-            Manifest.permission.SYSTEM_ALERT_WINDOW,
-        )
-    }
+    override var permissions: MutableList<String> =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            mutableListOf(
+                //网络权限
+                Manifest.permission.INTERNET,
+                //读取网络状态
+                Manifest.permission.ACCESS_NETWORK_STATE,
+                //悬浮窗权限
+                Manifest.permission.SYSTEM_ALERT_WINDOW,
+                // Query all packages
+                Manifest.permission.QUERY_ALL_PACKAGES,
+            )
+        } else {
+            mutableListOf(
+                //网络权限
+                Manifest.permission.INTERNET,
+                //读取网络状态
+                Manifest.permission.ACCESS_NETWORK_STATE,
+                //悬浮窗权限
+                Manifest.permission.SYSTEM_ALERT_WINDOW,
+            )
+        }
 }

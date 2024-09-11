@@ -20,7 +20,7 @@ import org.nanohttpd.protocols.http.response.Response
 import org.nanohttpd.protocols.http.response.Status
 
 class UIRoute(session: IHTTPSession) {
-    fun index(path: String):Response {
+    fun index(path: String): Response {
         var file = path
         if (path == "/" || path == "" || path.isEmpty()) {
             file = "/index.html"
@@ -28,7 +28,11 @@ class UIRoute(session: IHTTPSession) {
 
         //读取resources文件夹
         val inputStream = javaClass.getResourceAsStream(file)
-            ?: return Response.newFixedLengthResponse(Status.NOT_FOUND, "text/html", "file not found: $file")
+            ?: return Response.newFixedLengthResponse(
+                Status.NOT_FOUND,
+                "text/html",
+                "file not found: $file"
+            )
 
         val mimeType = when (path.substringAfterLast('.')) {
             "html" -> "text/html"

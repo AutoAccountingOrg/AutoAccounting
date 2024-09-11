@@ -30,7 +30,6 @@ import com.zackratos.ultimatebarx.ultimatebarx.addNavigationBarBottomPadding
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.ActivityMainBinding
-import net.ankio.auto.setting.SettingUtils
 import net.ankio.auto.storage.BackupUtils
 import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.utils.ToastUtils
@@ -45,7 +44,7 @@ class MainActivity : BaseActivity() {
 
     private var hasLogin = false
     private fun onLogin() {
-        if(hasLogin)return
+        if (hasLogin) return
         val uri = intent.data
         if (uri != null) {
             // val dialog = DialogUtil.createLoadingDialog(this, getString(R.string.auth_waiting))
@@ -83,7 +82,8 @@ class MainActivity : BaseActivity() {
             arrayListOf(
                 R.id.dataRuleFragment,
                 R.drawable.bottom_select_rule,
-                R.drawable.bottom_unselect_rule),
+                R.drawable.bottom_unselect_rule
+            ),
             arrayListOf(
                 R.id.orderFragment,
                 R.drawable.bottom_select_order,

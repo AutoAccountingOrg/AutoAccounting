@@ -38,26 +38,32 @@ enum class QianJiBillType(val value: Int) {
     ExpendRepayment(16), // 支出（还款销账）
     IncomeLending(17), // 收入（借入）
     IncomeRepayment(18), // 收入（还款销账）
-    IncomeReimbursement(19) ;// 收入（报销)
+    IncomeReimbursement(19);// 收入（报销)
 
 
-    companion object{
+    companion object {
         suspend fun toQianJi(billInfoModel: BillInfoModel): Int = withContext(Dispatchers.IO) {
             when (billInfoModel.type) {
                 BillType.Expend -> Expend.value
                 BillType.Income -> Income.value
                 BillType.Transfer -> {
                     val sync = App.get("sync_assets")
-                    val assets = runCatching { Gson().fromJson(sync,Array<AssetsModel>::class.java) }.getOrElse { emptyArray() }
+                    val assets = runCatching {
+                        Gson().fromJson(
+                            sync,
+                            Array<AssetsModel>::class.java
+                        )
+                    }.getOrElse { emptyArray() }
                     val asset = assets.find { it.name == billInfoModel.accountNameTo }
-                    if (asset == null){
+                    if (asset == null) {
                         return@withContext Transfer.value
                     }
-                    if (asset.type == AssetsType.CREDIT){
+                    if (asset.type == AssetsType.CREDIT) {
                         return@withContext TransferCredit.value
                     }
                     Transfer.value
                 }
+
                 BillType.ExpendReimbursement -> ExpendReimbursement.value
                 BillType.ExpendLending -> ExpendLending.value
                 BillType.ExpendRepayment -> ExpendRepayment.value

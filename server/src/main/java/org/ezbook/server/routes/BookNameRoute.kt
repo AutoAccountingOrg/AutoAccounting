@@ -20,7 +20,6 @@ import org.ezbook.server.Server
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.BookNameModel
-import org.ezbook.server.db.model.SettingModel
 import org.nanohttpd.protocols.http.IHTTPSession
 import org.nanohttpd.protocols.http.response.Response
 
@@ -31,11 +30,11 @@ class BookNameRoute(private val session: IHTTPSession) {
 
     fun put(): Response {
         val params = session.parameters
-        val md5 = params["md5"]?.firstOrNull()?:""
+        val md5 = params["md5"]?.firstOrNull() ?: ""
         val data = Server.reqData(session)
         val json = Gson().fromJson(data, Array<BookNameModel>::class.java)
         val id = Db.get().bookNameDao().put(json)
-        SettingRoute.setByInner(Setting.HASH_BOOK,md5)
+        SettingRoute.setByInner(Setting.HASH_BOOK, md5)
         return Server.json(200, "OK", id)
     }
 }

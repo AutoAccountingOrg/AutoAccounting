@@ -25,21 +25,23 @@ import org.ezbook.server.Server
 /**
  *
  */
-class ServiceHooker:PartHooker() {
+class ServiceHooker : PartHooker() {
 
     override fun hook(
         hookerManifest: HookerManifest,
         application: Application?,
         classLoader: ClassLoader
     ) {
-        if (BuildConfig.DEBUG)return
+        if (BuildConfig.DEBUG) return
         // 调试模式下，不启动服务，使用自动记账本体启动服务。
-        startServer(hookerManifest,application)
+        startServer(hookerManifest, application)
     }
 
-    companion object{
-        fun startServer( hookerManifest: HookerManifest,
-                         application: Application?){
+    companion object {
+        fun startServer(
+            hookerManifest: HookerManifest,
+            application: Application?
+        ) {
             try {
                 hookerManifest.logD("try start server...")
                 Server(application!!).startServer()

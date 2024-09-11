@@ -36,7 +36,7 @@ class StatusPage : RelativeLayout {
 
 
     constructor(context: Context) : super(context) {
-       init(context, null)
+        init(context, null)
     }
 
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
@@ -48,17 +48,19 @@ class StatusPage : RelativeLayout {
         attrs: AttributeSet?,
         defStyleAttr: Int
     ) : super(context, attrs, defStyleAttr) {
-       init(context, attrs)
+        init(context, attrs)
     }
 
-    fun init( context: Context,
-              attrs: AttributeSet?){
+    fun init(
+        context: Context,
+        attrs: AttributeSet?
+    ) {
         val binding = StatusPageBinding.inflate(LayoutInflater.from(context), this, true)
         loadingView = binding.loadingView
         emptyView = binding.emptyView
         errorView = binding.errorView
         contentView = binding.contentView
-        val  root = binding.rootView
+        val root = binding.rootView
         context.theme.obtainStyledAttributes(
             attrs,
             R.styleable.StatusPage,
@@ -68,7 +70,8 @@ class StatusPage : RelativeLayout {
             try {
                 val height = getString(R.styleable.StatusPage_innerHeight)
                 val layoutParams = root.layoutParams
-                layoutParams.height = if (height.equals("wrap_content")) ViewGroup.LayoutParams.WRAP_CONTENT else ViewGroup.LayoutParams.MATCH_PARENT
+                layoutParams.height =
+                    if (height.equals("wrap_content")) ViewGroup.LayoutParams.WRAP_CONTENT else ViewGroup.LayoutParams.MATCH_PARENT
                 root.layoutParams = layoutParams
             } finally {
                 recycle()
@@ -78,8 +81,6 @@ class StatusPage : RelativeLayout {
 
 
     }
-
-
 
 
     fun showLoading() {

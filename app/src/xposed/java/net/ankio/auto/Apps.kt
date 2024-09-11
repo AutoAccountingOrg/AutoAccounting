@@ -20,10 +20,9 @@ import net.ankio.auto.hooks.alipay.AliPayHooker
 import net.ankio.auto.hooks.android.AndroidHooker
 import net.ankio.auto.hooks.auto.AutoHooker
 import net.ankio.auto.hooks.qianji.QianjiHooker
-import net.ankio.auto.hooks.wechat.WechatHooker
 
 object Apps {
-    fun get() : MutableList<HookerManifest>{
+    fun get(): MutableList<HookerManifest> {
         return mutableListOf(
             AndroidHooker(), // Android
             AutoHooker(), // Auto
@@ -32,7 +31,7 @@ object Apps {
             ////////////////////////////
             QianjiHooker(),
 
-         //   WechatHooker(), // Wechat
+            //   WechatHooker(), // Wechat
             AliPayHooker() // AliPay
             ////////////////////////////
         )

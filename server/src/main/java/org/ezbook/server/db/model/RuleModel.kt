@@ -16,7 +16,6 @@
 package org.ezbook.server.db.model
 
 import android.net.Uri
-import android.util.Log
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.Gson
@@ -24,31 +23,40 @@ import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.ezbook.server.Server
-import java.net.URI
 
 @Entity
 class RuleModel {
     @PrimaryKey(autoGenerate = true)
     var id = 0
+
     // 是哪个App
     var app = ""
+
     // 规则类型 通知还是数据
     var type = ""
+
     // 规则内容
     var js = ""
+
     // 规则名称
     var name = ""
+
     // 系统里面的规则名称
     var systemRuleName = ""
+
     // 创建人
     var creator = "" // system或者user，system是系统创建的，user是用户创建的，用户创建的可以删除，系统创建的不可以删除和修改
+
     // 结构数组
     var struct = "" // 类似于3.0版本的自定义规则一样，存储数据结构规则，如果是system，这个字段为空
+
     // 这个规则是否自动记录
-    var autoRecord  = false
+    var autoRecord = false
+
     // 这个规则是否启用
     var enabled = true
-    companion object{
+
+    companion object {
         /**
          * 根据条件查询
          * @param app 应用
@@ -57,26 +65,40 @@ class RuleModel {
          * @param limit 每页数量
          * @return 规则列表
          */
-        suspend fun list(app: String, type: String, page: Int, limit: Int,search:String = "") : List<RuleModel> = withContext(Dispatchers.IO) {
-            val response = Server.request("rule/list?page=$page&limit=$limit&app=$app&type=$type&search=${Uri.encode(search)}")
+        suspend fun list(
+            app: String,
+            type: String,
+            page: Int,
+            limit: Int,
+            search: String = ""
+        ): List<RuleModel> = withContext(Dispatchers.IO) {
+            val response = Server.request(
+                "rule/list?page=$page&limit=$limit&app=$app&type=$type&search=${
+                    Uri.encode(search)
+                }"
+            )
             val json = Gson().fromJson(response, JsonObject::class.java)
-             runCatching { Gson().fromJson(json.getAsJsonArray("data"), Array<RuleModel>::class.java).toList() }.getOrNull() ?: emptyList()
+            runCatching {
+                Gson().fromJson(json.getAsJsonArray("data"), Array<RuleModel>::class.java).toList()
+            }.getOrNull() ?: emptyList()
         }
 
         /**
          * 获取所有系统规则
          */
-        suspend fun system() : List<RuleModel> = withContext(Dispatchers.IO) {
+        suspend fun system(): List<RuleModel> = withContext(Dispatchers.IO) {
             val response = Server.request("rule/system")
             val json = Gson().fromJson(response, JsonObject::class.java)
 
-            runCatching { Gson().fromJson(json.getAsJsonArray("data"), Array<RuleModel>::class.java).toList() }.getOrNull() ?: emptyList()
+            runCatching {
+                Gson().fromJson(json.getAsJsonArray("data"), Array<RuleModel>::class.java).toList()
+            }.getOrNull() ?: emptyList()
         }
 
         /**
          * 添加规则
          */
-        suspend fun add(rule: RuleModel): Int  = withContext(Dispatchers.IO){
+        suspend fun add(rule: RuleModel): Int = withContext(Dispatchers.IO) {
             val response = Server.request("rule/add", Gson().toJson(rule))
             val json = Gson().fromJson(response, JsonObject::class.java)
             json.get("data").asInt
@@ -85,14 +107,14 @@ class RuleModel {
         /**
          * 更新规则
          */
-        suspend fun update(rule: RuleModel) = withContext(Dispatchers.IO){
+        suspend fun update(rule: RuleModel) = withContext(Dispatchers.IO) {
             Server.request("rule/update", Gson().toJson(rule))
         }
 
         /**
          * 删除规则
          */
-        suspend fun delete(id:Int) = withContext(Dispatchers.IO) {
+        suspend fun delete(id: Int) = withContext(Dispatchers.IO) {
             Server.request("rule/delete?id=$id")
         }
 
@@ -102,7 +124,7 @@ class RuleModel {
         suspend fun apps(): JsonObject = withContext(Dispatchers.IO) {
             val response = Server.request("rule/apps")
             val json = Gson().fromJson(response, JsonObject::class.java)
-           runCatching { json.getAsJsonObject("data") }.getOrNull() ?: JsonObject()
+            runCatching { json.getAsJsonObject("data") }.getOrNull() ?: JsonObject()
         }
 
     }

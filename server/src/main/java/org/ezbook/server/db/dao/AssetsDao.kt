@@ -37,6 +37,7 @@ interface AssetsDao {
     // 统计总数
     @Query("SELECT COUNT(*) FROM AssetsModel")
     fun count(): Int
+
     @Insert
     fun insert(log: AssetsModel): Long
 
@@ -50,6 +51,7 @@ interface AssetsDao {
             insert(it)
         }
     }
+
     @Query("SELECT * FROM AssetsModel WHERE name = :name limit 1")
     fun query(name: String): AssetsModel?
 }

@@ -33,13 +33,13 @@ import com.quickersilver.themeengine.ThemeEngine
 import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.broadcast.LocalBroadcastHelper
+import net.ankio.auto.constant.FloatEvent
 import net.ankio.auto.databinding.FloatTipBinding
-import net.ankio.auto.storage.Logger
 import net.ankio.auto.storage.ConfigUtils
+import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.dialog.FloatEditorDialog
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.BillTool
-import net.ankio.auto.constant.FloatEvent
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BillInfoModel
 
@@ -58,7 +58,9 @@ class FloatingWindowService : Service() {
     private var lastTheme = ThemeEngine.getInstance(App.app).getTheme()
     override fun onCreate() {
         super.onCreate()
-        timeCount = runCatching { ConfigUtils.getString(Setting.FLOAT_TIMEOUT_OFF, "10").toInt() }.getOrNull() ?: 0
+        timeCount = runCatching {
+            ConfigUtils.getString(Setting.FLOAT_TIMEOUT_OFF, "10").toInt()
+        }.getOrNull() ?: 0
         list.clear()
         val appTheme = ContextThemeWrapper(App.app, R.style.AppTheme)
         themedContext = App.getThemeContext(appTheme)
@@ -79,35 +81,41 @@ class FloatingWindowService : Service() {
         }
 
 
-        val billInfoModel = Gson().fromJson(intent.getStringExtra("billInfo"), BillInfoModel::class.java)
-        val parent = runCatching { Gson().fromJson(intent.getStringExtra("parent"), BillInfoModel::class.java) }.getOrNull()
+        val billInfoModel =
+            Gson().fromJson(intent.getStringExtra("billInfo"), BillInfoModel::class.java)
+        val parent = runCatching {
+            Gson().fromJson(
+                intent.getStringExtra("parent"),
+                BillInfoModel::class.java
+            )
+        }.getOrNull()
 
         val showWaitTip = intent.getBooleanExtra("showWaitTip", true)
 
-        if (parent!=null){
+        if (parent != null) {
             //说明是重复账单
             ToastUtils.info("检测到重复账单，已自动合并。")
             //发送广播，告知UI更新
-            LocalBroadcastHelper.sendBroadcast(LocalBroadcastHelper.ACTION_UPDATE_BILL,Bundle().apply {
-                putString("billInfo",Gson().toJson(parent))
-            })
+            LocalBroadcastHelper.sendBroadcast(
+                LocalBroadcastHelper.ACTION_UPDATE_BILL,
+                Bundle().apply {
+                    putString("billInfo", Gson().toJson(parent))
+                })
             return START_REDELIVER_INTENT
         }
 
-        processBillInfo(billInfoModel,showWaitTip)
+        processBillInfo(billInfoModel, showWaitTip)
 
         return START_REDELIVER_INTENT
     }
 
 
-
-
-    private  fun processBillInfo(billInfoModel: BillInfoModel,showWaitTip:Boolean) {
+    private fun processBillInfo(billInfoModel: BillInfoModel, showWaitTip: Boolean) {
         Logger.d("timeCount:$timeCount")
 
 
         if (timeCount == 0 || !showWaitTip) {
-            callBillInfoEditor(Setting.FLOAT_TIMEOUT_ACTION,billInfoModel)
+            callBillInfoEditor(Setting.FLOAT_TIMEOUT_ACTION, billInfoModel)
             // 显示编辑悬浮窗
             return
         }
@@ -117,7 +125,7 @@ class FloatingWindowService : Service() {
         binding.root.visibility = View.INVISIBLE
         binding.money.text = billInfoModel.money.toString()
 
-       val colorRes = BillTool.getColor(billInfoModel.type)
+        val colorRes = BillTool.getColor(billInfoModel.type)
         val color = ContextCompat.getColor(themedContext, colorRes)
         binding.money.setTextColor(color)
         binding.time.text = String.format("%ss", timeCount.toString())
@@ -125,13 +133,14 @@ class FloatingWindowService : Service() {
         val countDownTimer =
             object : CountDownTimer(timeCount * 1000L, 1000) {
                 override fun onTick(millisUntilFinished: Long) {
-                    binding.time.text = String.format("%ss", (millisUntilFinished / 1000).toString())
+                    binding.time.text =
+                        String.format("%ss", (millisUntilFinished / 1000).toString())
                 }
 
                 override fun onFinish() {
                     // 取消倒计时
                     removeTips(binding)
-                    callBillInfoEditor(Setting.FLOAT_TIMEOUT_ACTION,billInfoModel)
+                    callBillInfoEditor(Setting.FLOAT_TIMEOUT_ACTION, billInfoModel)
                 }
             }
         countDownTimer.start()
@@ -139,14 +148,14 @@ class FloatingWindowService : Service() {
         binding.root.setOnClickListener {
             countDownTimer.cancel() // 定时器停止
             removeTips(binding)
-            callBillInfoEditor(Setting.FLOAT_CLICK,billInfoModel)
+            callBillInfoEditor(Setting.FLOAT_CLICK, billInfoModel)
         }
 
         binding.root.setOnLongClickListener {
             countDownTimer.cancel() // 定时器停止
             removeTips(binding)
             // 不记录
-            callBillInfoEditor(Setting.FLOAT_LONG_CLICK,billInfoModel)
+            callBillInfoEditor(Setting.FLOAT_LONG_CLICK, billInfoModel)
             true
         }
 
@@ -205,7 +214,7 @@ class FloatingWindowService : Service() {
         }
     }
 
-    private fun callBillInfoEditor(key: String,billInfoModel: BillInfoModel) {
+    private fun callBillInfoEditor(key: String, billInfoModel: BillInfoModel) {
         when (ConfigUtils.getInt(key, FloatEvent.POP_EDIT_WINDOW.ordinal)) {
             FloatEvent.AUTO_ACCOUNT.ordinal -> {
                 // 记账
@@ -214,9 +223,9 @@ class FloatingWindowService : Service() {
 
             FloatEvent.POP_EDIT_WINDOW.ordinal -> {
                 runCatching {
-                    FloatEditorDialog(themedContext, billInfoModel,true, onCancelClick = {
+                    FloatEditorDialog(themedContext, billInfoModel, true, onCancelClick = {
                         App.launch {
-                           BillInfoModel.remove(billInfoModel.id)
+                            BillInfoModel.remove(billInfoModel.id)
                         }
                     }).show(true)
                 }.onFailure {

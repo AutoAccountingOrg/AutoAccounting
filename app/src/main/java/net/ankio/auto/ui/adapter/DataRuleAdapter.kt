@@ -14,6 +14,7 @@
  */
 
 package net.ankio.auto.ui.adapter
+
 import android.view.View
 import kotlinx.coroutines.launch
 import net.ankio.auto.databinding.AdapterDataRuleBinding
@@ -23,15 +24,16 @@ import net.ankio.auto.ui.scope.autoDisposeScope
 import net.ankio.auto.ui.utils.ToastUtils
 import org.ezbook.server.db.model.RuleModel
 
-class DataRuleAdapter(private val list: MutableList<RuleModel>):BaseAdapter<AdapterDataRuleBinding,RuleModel>(AdapterDataRuleBinding::class.java,list) {
-    override fun onInitViewHolder(holder: BaseViewHolder<AdapterDataRuleBinding,RuleModel>) {
+class DataRuleAdapter(private val list: MutableList<RuleModel>) :
+    BaseAdapter<AdapterDataRuleBinding, RuleModel>(AdapterDataRuleBinding::class.java, list) {
+    override fun onInitViewHolder(holder: BaseViewHolder<AdapterDataRuleBinding, RuleModel>) {
         val binding = holder.binding
         binding.enable.setOnCheckedChangeListener { buttonView, isChecked ->
             val item = holder.item!!
             item.enabled = isChecked
-           binding.root.autoDisposeScope.launch {
-               RuleModel.update(item)
-           }
+            binding.root.autoDisposeScope.launch {
+                RuleModel.update(item)
+            }
         }
         binding.autoRecord.setOnCheckedChangeListener { buttonView, isChecked ->
             val item = holder.item!!
@@ -53,8 +55,11 @@ class DataRuleAdapter(private val list: MutableList<RuleModel>):BaseAdapter<Adap
         }
     }
 
-    override fun onBindViewHolder(holder: BaseViewHolder<AdapterDataRuleBinding,RuleModel>,data:RuleModel, position: Int) {
-
+    override fun onBindViewHolder(
+        holder: BaseViewHolder<AdapterDataRuleBinding, RuleModel>,
+        data: RuleModel,
+        position: Int
+    ) {
 
 
         val system = data.creator == "system"

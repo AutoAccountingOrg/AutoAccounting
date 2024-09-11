@@ -1,11 +1,8 @@
 package net.ankio.auto.ui.adapter
 
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterAssetsBinding
-import net.ankio.auto.storage.ImageUtils
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
 import net.ankio.auto.ui.scope.autoDisposeScope
@@ -13,8 +10,12 @@ import net.ankio.auto.ui.utils.ResourceUtils
 import org.ezbook.server.constant.AssetsType
 import org.ezbook.server.db.model.AssetsModel
 
-class AssetsSelectorAdapter(private val list: MutableList<AssetsModel>,private val callback:(AssetsModel)->Unit): BaseAdapter<AdapterAssetsBinding, AssetsModel>(
-    AdapterAssetsBinding::class.java, list) {
+class AssetsSelectorAdapter(
+    private val list: MutableList<AssetsModel>,
+    private val callback: (AssetsModel) -> Unit
+) : BaseAdapter<AdapterAssetsBinding, AssetsModel>(
+    AdapterAssetsBinding::class.java, list
+) {
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterAssetsBinding, AssetsModel>) {
         holder.binding.root.setOnClickListener {
             callback(holder.item!!)
@@ -28,7 +29,7 @@ class AssetsSelectorAdapter(private val list: MutableList<AssetsModel>,private v
     ) {
         val binding = holder.binding
         binding.assetName.text = data.name
-        binding.assetsType.text = when(data.type){
+        binding.assetsType.text = when (data.type) {
             AssetsType.CREDIT -> holder.context.getString(R.string.type_credit)
             AssetsType.NORMAL -> holder.context.getString(R.string.type_normal)
             AssetsType.VIRTUAL -> holder.context.getString(R.string.type_virtual)
@@ -37,7 +38,7 @@ class AssetsSelectorAdapter(private val list: MutableList<AssetsModel>,private v
             AssetsType.CREDITOR -> holder.context.getString(R.string.type_creditor)
         }
         holder.binding.root.autoDisposeScope.launch {
-            ResourceUtils.getAssetDrawable(data,binding.assetIcon)
+            ResourceUtils.getAssetDrawable(data, binding.assetIcon)
         }
 
 

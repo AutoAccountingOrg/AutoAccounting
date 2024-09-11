@@ -17,20 +17,17 @@ package net.ankio.auto.ui.adapter
 
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import android.view.View
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.elevation.SurfaceColors
 import com.google.gson.Gson
 import com.google.gson.JsonObject
-import com.hjq.toast.Toaster
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterDataBinding
-import net.ankio.auto.databinding.SettingItemInputBinding
 import net.ankio.auto.service.FloatingWindowService
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseActivity
@@ -48,8 +45,10 @@ import org.ezbook.server.Server
 import org.ezbook.server.db.model.AppDataModel
 import org.ezbook.server.db.model.BillInfoModel
 
-class AppDataAdapter(private val list: MutableList<AppDataModel>,private val activity: BaseActivity): BaseAdapter<AdapterDataBinding,AppDataModel>(AdapterDataBinding::class.java, list) {
-
+class AppDataAdapter(
+    private val list: MutableList<AppDataModel>,
+    private val activity: BaseActivity
+) : BaseAdapter<AdapterDataBinding, AppDataModel>(AdapterDataBinding::class.java, list) {
 
 
     private val hashMap = HashMap<AppDataModel, Long>()
@@ -83,8 +82,11 @@ class AppDataAdapter(private val list: MutableList<AppDataModel>,private val act
         }
     }
 
-    private suspend fun testRule(item: AppDataModel) : BillInfoModel? = withContext(Dispatchers.IO) {
-        val result = Server.request("js/analysis?type=${item.type.name}&app=${item.app}&fromAppData=true", item.data)
+    private suspend fun testRule(item: AppDataModel): BillInfoModel? = withContext(Dispatchers.IO) {
+        val result = Server.request(
+            "js/analysis?type=${item.type.name}&app=${item.app}&fromAppData=true",
+            item.data
+        )
             ?: return@withContext null
         val data = Gson().fromJson(result, JsonObject::class.java)
         if (data.get("code").asInt != 200) {
@@ -95,7 +97,7 @@ class AppDataAdapter(private val list: MutableList<AppDataModel>,private val act
     }
 
 
-    private fun buildUploadDialog(holder: BaseViewHolder<AdapterDataBinding, AppDataModel>){
+    private fun buildUploadDialog(holder: BaseViewHolder<AdapterDataBinding, AppDataModel>) {
         val item = holder.item!!
         DataEditorDialog(activity, item.data) {
             val loading = LoadingUtils(activity)
@@ -108,17 +110,17 @@ class AppDataAdapter(private val list: MutableList<AppDataModel>,private val act
 ${item.data}
 ```
                 """.trimIndent()
-             
+
 
                 runCatching {
-                    item.issue =  Github.createIssue(
+                    item.issue = Github.createIssue(
                         title,
                         body,
                         "AutoRule",
                     )
                 }.onFailure {
-                    withContext(Dispatchers.Main){
-                       ToastUtils.error(it.message!!)
+                    withContext(Dispatchers.Main) {
+                        ToastUtils.error(it.message!!)
                         CustomTabsHelper.launchUrl(
                             activity,
                             Uri.parse(Github.getLoginUrl()),
@@ -127,7 +129,7 @@ ${item.data}
                     }
                 }
 
-                withContext(Dispatchers.Main){
+                withContext(Dispatchers.Main) {
                     loading.close()
                     list[holder.positionIndex] = item
                     AppDataModel.put(item)
@@ -138,7 +140,7 @@ ${item.data}
         }.show(float = false)
     }
 
-    private fun buildIssueDialog(holder: BaseViewHolder<AdapterDataBinding, AppDataModel>){
+    private fun buildIssueDialog(holder: BaseViewHolder<AdapterDataBinding, AppDataModel>) {
         val item = holder.item!!
 
         DataIssueDialog(activity) { issue ->
@@ -147,8 +149,8 @@ ${item.data}
                 loading.show(R.string.upload_waiting)
                 holder.binding.root.autoDisposeScope.launch {
                     val type = item.type.name
-                    val title =      "[Bug][Rule][$type]${item.app}"
-                    val body =   """
+                    val title = "[Bug][Rule][$type]${item.app}"
+                    val body = """
 ## 规则
 ${item.rule}
 ## 说明
@@ -160,28 +162,28 @@ ${item.data}
                          
                                             """.trimIndent()
 
-                    
+
                     runCatching {
-                        item.issue =  Github.createIssue(
+                        item.issue = Github.createIssue(
                             title,
                             body,
                             "AutoAccounting",
                         )
                     }.onFailure {
-                       withContext(Dispatchers.Main){
-                          ToastUtils.error(it.message!!)
-                           CustomTabsHelper.launchUrl(
-                               activity,
-                               Uri.parse(Github.getLoginUrl()),
-                           )
-                           loading.close()
-                       }
+                        withContext(Dispatchers.Main) {
+                            ToastUtils.error(it.message!!)
+                            CustomTabsHelper.launchUrl(
+                                activity,
+                                Uri.parse(Github.getLoginUrl()),
+                            )
+                            loading.close()
+                        }
                         return@launch
                     }
-                    
-                   
 
-                    withContext(Dispatchers.Main){
+
+
+                    withContext(Dispatchers.Main) {
                         loading.close()
                         list[holder.positionIndex] = item
                         AppDataModel.put(item)
@@ -205,7 +207,8 @@ ${item.data}
                 Uri.parse(
                     if (item.match) "https://github.com/AutoAccountingOrg/AutoAccounting/issues/${item.issue}" else "https://github.com/AutoAccountingOrg/AutoRule/issues/${item.issue}",
 
-           ))
+                    )
+            )
         }
 
 
@@ -220,7 +223,7 @@ ${item.data}
                         Intent(activity, FloatingWindowService::class.java).apply {
                             putExtra("parent", "")
                             putExtra("billInfo", Gson().toJson(billModel))
-                            putExtra("showWaitTip",false)
+                            putExtra("showWaitTip", false)
                         }
                     activity.startService(serviceIntent)
                 }
@@ -235,7 +238,7 @@ ${item.data}
                 .setPositiveButton(activity.getString(R.string.cancel_msg)) { _, _ -> }
                 .setNegativeButton(activity.getString(R.string.copy)) { _, _ ->
                     App.copyToClipboard(binding.content.text as String)
-                   ToastUtils.error(R.string.copy_command_success)
+                    ToastUtils.error(R.string.copy_command_success)
                 }
                 .show()
         }
@@ -243,16 +246,16 @@ ${item.data}
         binding.uploadData.setOnClickListener {
             val item = holder.item!!
             if (item.issue != 0) {
-               ToastUtils.error(holder.context.getString(R.string.repeater_issue))
+                ToastUtils.error(holder.context.getString(R.string.repeater_issue))
                 return@setOnClickListener
             }
-         
-             if (!item.match) {
-                 buildUploadDialog(holder)
-                 return@setOnClickListener
-             }
-             buildIssueDialog(holder)
-         
+
+            if (!item.match) {
+                buildUploadDialog(holder)
+                return@setOnClickListener
+            }
+            buildIssueDialog(holder)
+
         }
 
         binding.root.setOnLongClickListener {

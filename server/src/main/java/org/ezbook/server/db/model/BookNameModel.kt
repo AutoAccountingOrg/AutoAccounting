@@ -44,14 +44,19 @@ class BookNameModel {
 
     companion object {
 
-        suspend fun list() : List<BookNameModel> = withContext(
-            Dispatchers.IO) {
+        suspend fun list(): List<BookNameModel> = withContext(
+            Dispatchers.IO
+        ) {
             val response = Server.request("book/list")
             val json = Gson().fromJson(response, JsonObject::class.java)
 
-            runCatching { Gson().fromJson(json.getAsJsonArray("data"), Array<BookNameModel>::class.java).toList() }.getOrNull() ?: emptyList()
+            runCatching {
+                Gson().fromJson(
+                    json.getAsJsonArray("data"),
+                    Array<BookNameModel>::class.java
+                ).toList()
+            }.getOrNull() ?: emptyList()
         }
-
 
 
         suspend fun getByName(name: String): BookNameModel {
@@ -60,7 +65,6 @@ class BookNameModel {
             }
             return BookNameModel().apply { this.name = name }
         }
-
 
 
         suspend fun getDefaultBook(bookName: String): BookNameModel {
@@ -84,8 +88,9 @@ class BookNameModel {
         }
 
 
-       suspend fun put(bookList: ArrayList<BookNameModel>, md5: String) = withContext(Dispatchers.IO) {
-           Server.request("book/put?md5=$md5", Gson().toJson(bookList))
-        }
+        suspend fun put(bookList: ArrayList<BookNameModel>, md5: String) =
+            withContext(Dispatchers.IO) {
+                Server.request("book/put?md5=$md5", Gson().toJson(bookList))
+            }
     }
 }

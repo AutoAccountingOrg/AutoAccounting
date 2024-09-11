@@ -51,7 +51,7 @@ object Logger {
      * @param tag 日志标签
      * @param message 日志内容
      */
-    private  fun printLog(
+    private fun printLog(
         type: Int,
         tag: String,
         message: String,
@@ -119,7 +119,7 @@ object Logger {
      * 调试日志
      */
     fun d(message: String) {
-        if (!App.debug)return
+        if (!App.debug) return
         printLog(Log.DEBUG, getTag(), message)
     }
 

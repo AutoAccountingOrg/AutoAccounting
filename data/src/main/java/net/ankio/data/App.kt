@@ -23,8 +23,8 @@ import org.nanohttpd.protocols.http.response.Response
 class App(db: RoomDatabase) {
     fun route(session: IHTTPSession): Response {
         val uri = session.uri.replace("//", "/")
-        if (uri.startsWith("/ui")){
-            return  UIRoute(session).index(uri.replace("/ui", ""))
+        if (uri.startsWith("/ui")) {
+            return UIRoute(session).index(uri.replace("/ui", ""))
         }
         return Response.newFixedLengthResponse("404")
     }

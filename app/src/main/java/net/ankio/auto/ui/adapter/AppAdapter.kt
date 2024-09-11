@@ -14,13 +14,18 @@
  */
 
 package net.ankio.auto.ui.adapter
+
 import android.content.pm.PackageManager
 import net.ankio.auto.databinding.AdapterAppBinding
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
 import net.ankio.auto.ui.models.AppInfo
 
-class AppAdapter(private val list: MutableList<AppInfo>, private val pkg : PackageManager, private val callback: (AppInfo) -> Unit): BaseAdapter<AdapterAppBinding, AppInfo>(AdapterAppBinding::class.java, list) {
+class AppAdapter(
+    private val list: MutableList<AppInfo>,
+    private val pkg: PackageManager,
+    private val callback: (AppInfo) -> Unit
+) : BaseAdapter<AdapterAppBinding, AppInfo>(AdapterAppBinding::class.java, list) {
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterAppBinding, AppInfo>) {
         val binding = holder.binding
         binding.root.setOnClickListener {
@@ -31,12 +36,16 @@ class AppAdapter(private val list: MutableList<AppInfo>, private val pkg : Packa
     }
 
 
-    override fun onBindViewHolder(holder: BaseViewHolder<AdapterAppBinding, AppInfo>, data: AppInfo, position: Int) {
+    override fun onBindViewHolder(
+        holder: BaseViewHolder<AdapterAppBinding, AppInfo>,
+        data: AppInfo,
+        position: Int
+    ) {
         val binding = holder.binding
         binding.appIcon.setImageDrawable(pkg.getApplicationIcon(data.packageName))
         if (data.appName.isNotEmpty()) {
             binding.appName.text = data.appName
-        } else{
+        } else {
             binding.appName.text = pkg.getApplicationLabel(data.pkg).toString()
         }
 
@@ -45,7 +54,6 @@ class AppAdapter(private val list: MutableList<AppInfo>, private val pkg : Packa
         binding.checkbox.isChecked = data.isSelected
 
     }
-
 
 
 }

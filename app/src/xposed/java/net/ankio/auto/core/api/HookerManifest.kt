@@ -18,7 +18,6 @@ package net.ankio.auto.core.api
 import android.app.Application
 import android.content.Context
 import de.robv.android.xposed.XposedHelpers
-import kotlinx.coroutines.launch
 import net.ankio.auto.core.App
 import net.ankio.auto.core.logger.Logger
 import net.ankio.dex.model.Clazz
@@ -130,14 +129,15 @@ abstract class HookerManifest {
     /**
      * 分析数据
      */
-    fun analysisData(type: DataType, data: String,appPackage:String = packageName) {
+    fun analysisData(type: DataType, data: String, appPackage: String = packageName) {
         App.launch {
-           val result = request("js/analysis?type=${type.name}&app=$appPackage&fromAppData=false", data)
+            val result =
+                request("js/analysis?type=${type.name}&app=$appPackage&fromAppData=false", data)
             logD("analysisData: $result")
         }
     }
 
-    suspend fun request(path:String,json:String = ""):String?{
+    suspend fun request(path: String, json: String = ""): String? {
         return runCatching {
             val uri = "http://localhost:52045/$path"
             // 创建一个OkHttpClient对象
@@ -156,7 +156,7 @@ abstract class HookerManifest {
         }.getOrNull()
     }
 
-    fun clazz(name:String,classLoader: ClassLoader):Class<*>{
+    fun clazz(name: String, classLoader: ClassLoader): Class<*> {
         return clazz[name]?.let {
             try {
                 classLoader.loadClass(it)

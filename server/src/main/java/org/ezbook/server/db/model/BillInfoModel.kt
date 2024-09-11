@@ -94,6 +94,7 @@ class BillInfoModel {
      * 这笔账单的来源,例如是微信还是支付宝
      */
     var app = ""
+
     /**
      * 分组id，这个id是指将短时间内捕获到的同等金额进行合并的分组id
      */
@@ -117,12 +118,12 @@ class BillInfoModel {
     /**
      * 是否为自动记录的账单
      */
-    var auto:Boolean = false
+    var auto: Boolean = false
 
     /**
      * 规则名称
      */
-    var ruleName:String = ""
+    var ruleName: String = ""
 
     fun copy(): BillInfoModel {
         val billInfoModel = BillInfoModel()
@@ -149,29 +150,39 @@ class BillInfoModel {
     }
 
 
-
     companion object {
-        suspend  fun put(billInfoModel: BillInfoModel) = withContext(Dispatchers.IO) {
+        suspend fun put(billInfoModel: BillInfoModel) = withContext(Dispatchers.IO) {
             Server.request("bill/put", Gson().toJson(billInfoModel))
         }
 
-        suspend fun remove(id: Long)  = withContext(Dispatchers.IO) {
+        suspend fun remove(id: Long) = withContext(Dispatchers.IO) {
             Server.request("bill/remove?id=$id")
         }
 
 
-        suspend fun list(page: Int, pageSize: Int) : List<BillInfoModel> = withContext(Dispatchers.IO) {
-            val response = Server.request("bill/list?page=$page&limit=$pageSize")
-            val json = Gson().fromJson(response, JsonObject::class.java)
+        suspend fun list(page: Int, pageSize: Int): List<BillInfoModel> =
+            withContext(Dispatchers.IO) {
+                val response = Server.request("bill/list?page=$page&limit=$pageSize")
+                val json = Gson().fromJson(response, JsonObject::class.java)
 
-            runCatching { Gson().fromJson(json.getAsJsonArray("data"), Array<BillInfoModel>::class.java).toList() }.getOrNull() ?: emptyList()
-        }
+                runCatching {
+                    Gson().fromJson(
+                        json.getAsJsonArray("data"),
+                        Array<BillInfoModel>::class.java
+                    ).toList()
+                }.getOrNull() ?: emptyList()
+            }
 
 
         suspend fun sync(): List<BillInfoModel> = withContext(Dispatchers.IO) {
             val response = Server.request("bill/sync/list")
             val json = Gson().fromJson(response, JsonObject::class.java)
-            runCatching { Gson().fromJson(json.getAsJsonArray("data"), Array<BillInfoModel>::class.java).toList() }.getOrNull() ?: emptyList()
+            runCatching {
+                Gson().fromJson(
+                    json.getAsJsonArray("data"),
+                    Array<BillInfoModel>::class.java
+                ).toList()
+            }.getOrNull() ?: emptyList()
         }
 
         suspend fun status(id: Long, sync: Boolean) = withContext(Dispatchers.IO) {

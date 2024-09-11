@@ -21,7 +21,6 @@ import org.ezbook.server.Server
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.CategoryModel
-import org.ezbook.server.db.model.SettingModel
 import org.nanohttpd.protocols.http.IHTTPSession
 import org.nanohttpd.protocols.http.response.Response
 
@@ -31,16 +30,16 @@ class CategoryRoute(private val session: IHTTPSession) {
      */
     fun list(): Response {
         val params = session.parameters
-        val book = params["book"]?.firstOrNull()?:""
+        val book = params["book"]?.firstOrNull() ?: ""
         if (book.isEmpty()) {
             return Server.json(400, "book is empty")
         }
-        val type = params["type"]?.firstOrNull()?:""
+        val type = params["type"]?.firstOrNull() ?: ""
         if (type.isEmpty()) {
             return Server.json(400, "type is empty")
         }
 
-        val parent = params["parent"]?.firstOrNull()?:"-1"
+        val parent = params["parent"]?.firstOrNull() ?: "-1"
 
 
         return Server.json(200, "OK", Db.get().categoryDao().load(book, type, parent))
@@ -51,26 +50,26 @@ class CategoryRoute(private val session: IHTTPSession) {
      */
     fun put(): Response {
         val params = session.parameters
-        val md5 = params["md5"]?.firstOrNull()?:""
+        val md5 = params["md5"]?.firstOrNull() ?: ""
         val data = Server.reqData(session)
         val json = Gson().fromJson(data, Array<CategoryModel>::class.java)
         val id = Db.get().categoryDao().put(json)
-        SettingRoute.setByInner(Setting.HASH_CATEGORY,md5)
+        SettingRoute.setByInner(Setting.HASH_CATEGORY, md5)
         return Server.json(200, "OK", id)
     }
 
 
     fun get(): Response {
         val params = session.parameters
-        var book:String? = params["book"]?.firstOrNull()?:""
-        if(book == ""){
+        var book: String? = params["book"]?.firstOrNull() ?: ""
+        if (book == "") {
             book = null
         }
-        var type:String? = params["type"]?.firstOrNull()?:""
-        if(type == ""){
+        var type: String? = params["type"]?.firstOrNull() ?: ""
+        if (type == "") {
             type = null
         }
-        val name = params["name"]?.firstOrNull()?:""
+        val name = params["name"]?.firstOrNull() ?: ""
         if (name.isEmpty()) {
             return Server.json(400, "name is empty")
         }

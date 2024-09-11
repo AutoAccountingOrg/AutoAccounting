@@ -32,16 +32,16 @@ class RuleRoute(private val session: IHTTPSession) {
         val limit = params["limit"]?.firstOrNull()?.toInt() ?: 10
 
         val app = params["app"]?.firstOrNull() ?: ""
-        var type: String? = params["type"]?.firstOrNull()?:""
-        var search: String? = params["search"]?.firstOrNull()?:""
+        var type: String? = params["type"]?.firstOrNull() ?: ""
+        var search: String? = params["search"]?.firstOrNull() ?: ""
 
         val offset = (page - 1) * limit
 
-        if (type == "")  type = null
+        if (type == "") type = null
 
-        if (search == "")  search = null
+        if (search == "") search = null
 
-        val logs =  Db.get().ruleDao().loadByAppAndFilters(limit, offset,app,type,search)
+        val logs = Db.get().ruleDao().loadByAppAndFilters(limit, offset, app, type, search)
 
 
         return Server.json(200, "OK", logs)
@@ -82,7 +82,7 @@ class RuleRoute(private val session: IHTTPSession) {
      */
     fun apps(): Response {
         val apps = Db.get().ruleDao().queryApps()
-        val map = hashMapOf<String,Int>()
+        val map = hashMapOf<String, Int>()
         apps.forEach {
             if (it !in map) {
                 map[it] = 1

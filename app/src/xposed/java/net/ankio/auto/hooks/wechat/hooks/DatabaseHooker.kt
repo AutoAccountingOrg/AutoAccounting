@@ -17,16 +17,15 @@ package net.ankio.auto.hooks.wechat.hooks
 
 import android.app.Application
 import android.content.ContentValues
-import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import fr.arnaudguyon.xmltojsonlib.XmlToJson
-import org.ezbook.server.constant.DataType
 import net.ankio.auto.core.App
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
+import org.ezbook.server.constant.DataType
 
 class DatabaseHooker : PartHooker() {
     fun xmlToJson(xml: String): String {
@@ -34,13 +33,18 @@ class DatabaseHooker : PartHooker() {
         return xmlToJson.toString()
     }
 
-    override fun hook(hookerManifest: HookerManifest, application: Application?,classLoader: ClassLoader) {
+    override fun hook(
+        hookerManifest: HookerManifest,
+        application: Application?,
+        classLoader: ClassLoader
+    ) {
         val mAppClassLoader: ClassLoader = classLoader
         val mContext = application!!
 
         // 分析版本 8.0.43
 
-        val database = XposedHelpers.findClass("com.tencent.wcdb.database.SQLiteDatabase", mAppClassLoader)
+        val database =
+            XposedHelpers.findClass("com.tencent.wcdb.database.SQLiteDatabase", mAppClassLoader)
         XposedHelpers.findAndHookMethod(
             database,
             "insert",
@@ -52,7 +56,7 @@ class DatabaseHooker : PartHooker() {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     val contentValues = param.args[2] as ContentValues
                     val tableName = param.args[0] as String
-                    val arg = if (param.args[1] != null)param.args[1] as String else ""
+                    val arg = if (param.args[1] != null) param.args[1] as String else ""
 
                     hookerManifest.logD("微信数据：${Gson().toJson(contentValues)} table:$tableName arg:$arg")
 
@@ -67,7 +71,7 @@ class DatabaseHooker : PartHooker() {
                         } else if (type == 318767153) {
                             // 这是消息盒子
                             val content = contentValues.get("content").toString()
-                            if (!content.contains("CDATA[微信支付"))return // 只对微信支付特殊处理
+                            if (!content.contains("CDATA[微信支付")) return // 只对微信支付特殊处理
                             val json = Gson().fromJson(xmlToJson(content), JsonObject::class.java)
                             val tpl =
                                 Gson().fromJson(
