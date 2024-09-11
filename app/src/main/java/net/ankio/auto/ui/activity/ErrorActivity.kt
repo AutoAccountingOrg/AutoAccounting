@@ -40,7 +40,7 @@ class ErrorActivity : BaseActivity() {
 
         val msg = intent.getStringExtra("msg")
         binding.errorMsg.text = msg
-        binding.errorRestart.setOnClickListener {
+        binding.errorRestartButton.setOnClickListener {
             App.restart()
         }
         onViewCreated()

@@ -1,22 +1,24 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
     android:id="@+id/main"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="@dimen/padding">
 
     <ScrollView
         android:id="@+id/scrollview"
-        android:padding="@dimen/padding"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
 
         <LinearLayout
-            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
+            <!-- Error Card -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/errorCard"
                 style="?attr/materialCardViewElevatedStyle"
@@ -31,7 +33,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
-                    <TextView
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/errorText"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_margin="@dimen/padding"
@@ -42,24 +45,25 @@
                         android:textAppearance="@style/TextAppearance.AppCompat.Title"
                         app:drawableLeftCompat="@drawable/ic_warning"
                         app:drawableTint="?attr/colorError"
-                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="1.0"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"/>
+                        app:layout_constraintTop_toTopOf="parent" />
 
                     <ImageView
-                        android:id="@+id/imageView2"
+                        android:id="@+id/errorImage"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         app:srcCompat="@drawable/ic_net_error"
-                        app:layout_constraintTop_toBottomOf="@id/textView"
                         app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"/>
 
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/errorRestart"
+                        android:id="@+id/errorRestartButton"
                         style="@style/Widget.Material3.Button.Icon"
                         android:layout_width="wrap_content"
-                        android:layout_height="@dimen/btn_height_small"
+                        android:layout_height="wrap_content"
                         android:layout_marginEnd="20dp"
                         android:layout_marginBottom="20dp"
                         android:text="@string/restart"
@@ -69,6 +73,7 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- ADB Card -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/adbCard"
                 style="?attr/materialCardViewElevatedStyle"
@@ -80,7 +85,7 @@
                 app:cardElevation="0dp">
 
                 <TextView
-                    android:id="@+id/error_msg"
+                    android:id="@+id/errorMsg"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="@dimen/one_padding"
@@ -89,4 +94,5 @@
             </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
     </ScrollView>
+
 </LinearLayout>
