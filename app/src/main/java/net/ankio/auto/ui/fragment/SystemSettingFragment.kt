@@ -28,6 +28,7 @@ import com.quickersilver.themeengine.ThemeEngine
 import com.quickersilver.themeengine.ThemeMode
 import kotlinx.coroutines.launch
 import net.ankio.auto.App
+import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.constant.ItemType
 import net.ankio.auto.databinding.FragmentSystemSettingBinding
@@ -41,6 +42,7 @@ import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.utils.LoadingUtils
+import net.ankio.auto.update.UpdateType
 import net.ankio.auto.utils.LanguageUtils
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.SettingModel
@@ -324,12 +326,12 @@ class SystemSettingFragment : BaseFragment() {
                 key = Setting.CHECK_UPDATE_TYPE,
                 icon = R.drawable.setting2_icon_update,
                 type = ItemType.TEXT,
-                default = 1,
+                default = switchDefaultUpdate(),
                 selectList =
                 hashMapOf(
-                    context.getString(R.string.version_stable) to 0,
-                    context.getString(R.string.version_beta) to 1,
-                    context.getString(R.string.version_canary) to 2,
+                    context.getString(R.string.version_stable) to UpdateType.Stable.name,
+                    context.getString(R.string.version_beta) to UpdateType.Beta.name,
+                    context.getString(R.string.version_canary) to UpdateType.Canary.name,
                 ),
             ),
             SettingItem(
@@ -363,5 +365,16 @@ class SystemSettingFragment : BaseFragment() {
                 default = false,
             ),
         )
+    }
+
+    private fun switchDefaultUpdate():String{
+        val version = BuildConfig.VERSION_NAME
+        return if (version.contains("beta")){
+            UpdateType.Beta.name
+        } else if (version.contains("canary")){
+            UpdateType.Canary.name
+        } else {
+            UpdateType.Stable.name
+        }
     }
 }
