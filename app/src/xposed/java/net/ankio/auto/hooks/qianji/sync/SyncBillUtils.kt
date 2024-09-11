@@ -39,7 +39,7 @@ class SyncBillUtils(
             return@withContext
         }
         val bills = BillInfoModel.sync()
-        val conf = AutoConfig.load()
+        AutoConfig.load()
         bills.forEach {
             val bill = QianJiUri.toQianJi(it)
             val intent = Intent(Intent.ACTION_VIEW, bill)
