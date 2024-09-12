@@ -60,7 +60,7 @@ class AutoHooker : PartHooker() {
 
         addBillIntentAct = classLoader.loadClass("com.mutangtech.qianji.bill.auto.AddBillIntentAct")
 
-        hookTimeout(hookerManifest)
+        hookTimeout(hookerManifest,classLoader)
 
         hookTaskLog(hookerManifest, classLoader)
 
@@ -180,18 +180,23 @@ class AutoHooker : PartHooker() {
     /*
     * hookTimeout
      */
-    private fun hookTimeout(hookerManifest: HookerManifest) {
+    private fun hookTimeout(hookerManifest: HookerManifest,classLoader: ClassLoader) {
 
-        XposedHelpers.setStaticLongField(addBillIntentAct, "FREQUENCY_LIMIT_TIME", 0L)
+         val clazz by lazy {
+             hookerManifest.clazz("TimeoutApp", classLoader)
+        }
+        XposedHelpers.findAndHookMethod(clazz,"timeoutApp",String::class.java,Long::class.java,object :XC_MethodHook(){
+            override fun afterHookedMethod(param: MethodHookParam?) {
+                val prop = param?.args?.get(0) as String
+                val timeout = param.args[1] as Long
+                if (prop == "auto_task_last_time"){
+                    hookerManifest.logD("hookTimeout: $prop $timeout")
+                    param.result = true
+                }
 
-        hookerManifest.logD(
-            "hookTimeout =${
-                XposedHelpers.getStaticLongField(
-                    addBillIntentAct,
-                    "FREQUENCY_LIMIT_TIME"
-                )
-            }"
-        )
+
+            }
+        })
     }
 
     private fun hookTaskLogStatus(hookerManifest: HookerManifest, classLoader: ClassLoader) {

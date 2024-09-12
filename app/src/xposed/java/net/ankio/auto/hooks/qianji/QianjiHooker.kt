@@ -113,6 +113,27 @@ class QianjiHooker : HookerManifest() {
                     ),
                 ),
             ),
+            ///////////////////////////Timeout//////////////////////////////////////
+            Clazz(
+                name = "TimeoutApp",
+                nameRule = "^\\w{0,2}\\..+",
+                type = "class",
+                methods =
+                listOf(
+                    ClazzMethod(
+                        name = "timeoutApp",
+                        returnType = "boolean",
+                    ),
+                    ClazzMethod(
+                        name = "timeoutUser",
+                        returnType = "boolean",
+                    ),
+                    ClazzMethod(
+                        name = "setTimeOutApp",
+                        returnType = "boolean",
+                    ),
+                ),
+            ),
         )
         set(value) {}
 
