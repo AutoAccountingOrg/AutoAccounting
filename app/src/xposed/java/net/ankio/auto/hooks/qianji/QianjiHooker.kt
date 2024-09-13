@@ -137,7 +137,7 @@ class QianjiHooker : HookerManifest() {
             ///////////////////////////AssetInsert//////////////////////////////////////
             Clazz(
                 name = "AssetDbHelper",
-                nameRule = "^\\w{0,2}\\..+",
+                nameRule = "com.mutangtech.qianji.data.db.convert.\\w+",
                 type = "class",
                 methods =
                 listOf(
@@ -157,7 +157,7 @@ class QianjiHooker : HookerManifest() {
             ),
             Clazz(
                 name = "BillDbHelper",
-                nameRule = "^\\w{0,2}\\..+",
+                nameRule = "com.mutangtech.qianji.data.db.dbhelper.\\w+",
                 type = "class",
                 methods =
                 listOf(
