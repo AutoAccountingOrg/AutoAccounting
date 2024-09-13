@@ -93,20 +93,26 @@ class LoanUtils(
 
             XposedHelpers.callMethod(loan,"setStartdate",DateUtils.getTime("yyyy-MM-dd",billModel.time))
             XposedHelpers.callMethod(loan,"setEnddate","")
-            XposedHelpers.callMethod(loan,"setTotalMoney",0.00)
-            XposedHelpers.callMethod(loan,"setTotalpay",0.00)
+            XposedHelpers.callMethod(loan,"setTotalMoney",0.00) // 总借款金额
+            XposedHelpers.callMethod(loan,"setTotalpay",0.00) // 已收金额
         }
         val total = XposedHelpers.callMethod(loan,"getTotalMoney") as Double
 
         val totalpay = XposedHelpers.callMethod(loan,"getTotalpay") as Double
-        // 已收账单金额
-
-        if (billModel.type == BillType.ExpendRepayment || billModel.type == BillType.IncomeRepayment){
+        val assetsMoney = XposedHelpers.getDoubleField(account,"money")
+        // 借出                                               借入
+        if (billModel.type == BillType.ExpendLending || billModel.type == BillType.IncomeLending){
+            XposedHelpers.callMethod(loan,"setTotalMoney",total + billModel.money)
+            XposedHelpers.setObjectField(account,"money",assetsMoney + billModel.money)
+            // 收款                                               还款
+        } else if (billModel.type == BillType.IncomeRepayment || billModel.type == BillType.ExpendRepayment){
+            // 剩余金额
+            var remain = assetsMoney - billModel.money
+            remain = if (remain < 0) 0.0 else remain
+            XposedHelpers.setObjectField(account,"money",remain)
             XposedHelpers.callMethod(loan,"setTotalpay",totalpay + billModel.money)
+
         }
-
-
-        XposedHelpers.callMethod(loan,"setTotalMoney",total + billModel.money)
 
         XposedHelpers.setObjectField(account,"loanInfo",loan)
 
@@ -115,9 +121,8 @@ class LoanUtils(
 
         var retAccount  = account
 
-        val assetsMoney = XposedHelpers.getDoubleField(account,"money")
 
-        XposedHelpers.setObjectField(account,"money",assetsMoney + billModel.money)
+
 
         val createtime = XposedHelpers.getLongField(account,"createtime")
 
@@ -203,8 +208,12 @@ class LoanUtils(
         // 关联资产
 
         // com.mutangtech.qianji.data.db.dbhelper.k.saveOrUpdateBill(_id=null;billid=1726209168629173349;userid=200104405e109647c18e9;bookid=-1;timeInSec=1726209156;type=7;remark=;money=28.0;status=2;categoryId=0;platform=0;assetId=1726208819255;fromId=1711425821791;targetId=-1;extra=null)
-
-        XposedHelpers.setObjectField(bill,"assetid", XposedHelpers.callMethod(assetId,"longValue"))
+        val assetLongId = XposedHelpers.callMethod(assetId,"longValue")
+        if (billModel.type == BillType.ExpendLending || billModel.type == BillType.IncomeLending){
+            XposedHelpers.setObjectField(bill,"assetId", assetLongId)
+        } else if (billModel.type == BillType.IncomeRepayment || billModel.type == BillType.ExpendRepayment){
+            XposedHelpers.setObjectField(bill,"fromId", assetLongId)
+        }
 
         // 关联bookid
         val bookId = XposedHelpers.getObjectField(book,"bookId")
@@ -246,32 +255,70 @@ class LoanUtils(
         val bill = buildBill(billModel,7, id,book)
 
 
-        saveBillAndPush(bill)
+        saveBill(bill)
+
+        pushBill()
     }
 
     /**
      * 保存账单并推送
      * @param bill 钱迹账单类
      */
-    private fun saveBillAndPush(bill:Any){
+    private fun saveBill(bill:Any){
         val billHelpers = XposedHelpers.newInstance(billHelpersClazz)
-
         XposedHelpers.callMethod(billHelpers,"saveOrUpdateBill",bill)
-      //billToolsClazz
-
-       val companion = XposedHelpers.getStaticObjectField(billToolsClazz,"Companion")
-        val billTools = XposedHelpers.callMethod(companion,"getInstance")
-        XposedHelpers.callMethod(billTools,"startPush",context)
-
     }
 
+    private fun pushBill(){
+        val companion = XposedHelpers.getStaticObjectField(billToolsClazz,"Companion")
+        val billTools = XposedHelpers.callMethod(companion,"getInstance")
+        XposedHelpers.callMethod(billTools,"startPush",context)
+    }
+
+    /**
+     * 收款账单
+     */
+    suspend fun doIncomeRepayment(billModel: BillInfoModel) = withContext(Dispatchers.IO) {
+
+        val book = BookUtils(manifest, classLoader, context).getBookByName(billModel.bookName)
 
 
+        var accountFrom = assetsUtils.getAssetByName(billModel.accountNameFrom)?:throw RuntimeException("欠债人不存在 key=accountname;value=${billModel.accountNameFrom}")
+
+        var bill2 = billModel
+        //账单拆分，超过需要还款的部分记作利息
+
+        val assetMoney = XposedHelpers.getDoubleField(accountFrom,"money")
+
+        val assetId = XposedHelpers.getObjectField(accountFrom,"id")
+
+        if (assetMoney < billModel.money){ //还入的钱大于需要还的钱，记作利息
+            val interest = billModel.money - assetMoney
+            // 实际需要记录的账单
+            bill2 = billModel.copy().apply {
+                money = assetMoney
+            }
+            // 利息账单
+            val interestBill = billModel.copy().apply {
+                money = interest
+                remark = "债务利息"
+            }
+
+            // _id=null;billid=1726240048328133877;userid=200104405e109647c18e9;bookid=-1;timeInSec=1726240037;type=11;remark=债务利息;mon08.0;status=2;categoryId=0;platform=0;assetId=-1;fromId=1726240094257;targetId=-1;extra=null
+            saveBill(buildBill(interestBill,11, assetId,book))
+        }
 
 
-    // 借出收款
-    fun expandRepayment(billModel: BookBillModel) {
-        // Arguments com.mutangtech.qianji.asset.loanpay.LoanPayAct.a1(_id=null;billid=1725681101123196413;userid=200104405e109647c18e9;bookid=-1;timeInSec=1725681093;type=7;remark=;money=999.0;status=2;categoryId=0;platform=0;assetId=1711369641078;fromId=-1;targetId=-1;extra=null, (none))
+        accountFrom = processLoan(accountFrom,billModel,book)
+        // 划扣账户 com.mutangtech.qianji.data.db.convert.a.insertOrReplace({"color":"E06966","createtime":1726240094,"icon":"null","id":1726240094257,"incount":1,"lastPayTime":0,"loan":{"accountId":0,"startdate":"2024-09-13","enddate":"","money":12.0,"totalpay":12.0},"money":0.0,"name":"ceshi","sort":0,"status":0,"stype":52,"type":5,"usecount":0,"userid":"200104405e109647c18e9"}, (none))
+
+        val accountTo = assetsUtils.getAssetByName(billModel.accountNameTo)?:throw RuntimeException("收款账户不存在 key=accountname;value=${billModel.accountNameTo}")
+
+        processAccount(accountTo,bill2.money)
+
+        saveBill(buildBill(bill2,4, assetId,book))
+
+        pushBill()
     }
 
     //增加借款账单

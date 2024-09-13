@@ -137,15 +137,14 @@ class AutoHooker : PartHooker() {
                                     hookerManifest.logE(it)
                                 }
                             }
-                            param.args[0] = "自动记账正在处理中, 请稍候..."
+                            param.args[0] = "自动记账正在处理中(借出), 请稍候..."
                             XposedHelpers.callMethod(autoTaskLog, "setStatus", 1)
 
 
                         }
                         // 支出（还款）
                         QianJiBillType.ExpendRepayment.value -> {
-
-                        }
+                            }
 
                         QianJiBillType.Income.value -> {
                             return
@@ -156,6 +155,22 @@ class AutoHooker : PartHooker() {
                         }
                         // 收入（收款）
                         QianJiBillType.IncomeRepayment.value -> {
+                            App.launch {
+                                runCatching {
+                                    LoanUtils(hookerManifest, classLoader, context).doIncomeRepayment(billInfo)
+                                }.onSuccess {
+                                    hookerManifest.logD("收款成功")
+                                    App.toast("收款成功")
+                                }.onFailure {
+                                    hookerManifest.logE(it)
+                                    BillInfoModel.status(billInfo.id, false)
+                                    hookerManifest.logD("收款失败 ${it.message}")
+                                    App.toast("收款失败 ${handleError(it.message ?: "")}")
+                                    hookerManifest.logE(it)
+                                }
+                            }
+                            param.args[0] = "自动记账正在处理中(收款), 请稍候..."
+                            XposedHelpers.callMethod(autoTaskLog, "setStatus", 1)
 
                         }
                         // 收入（报销)
