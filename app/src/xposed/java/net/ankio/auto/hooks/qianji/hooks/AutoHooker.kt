@@ -62,14 +62,18 @@ class AutoHooker : PartHooker() {
 
         addBillIntentAct = classLoader.loadClass("com.mutangtech.qianji.bill.auto.AddBillIntentAct")
 
-        hookTimeout(hookerManifest,classLoader)
+        hookTimeout(hookerManifest, classLoader)
 
-        hookTaskLog(hookerManifest, classLoader,application!!)
+        hookTaskLog(hookerManifest, classLoader, application!!)
 
         hookTaskLogStatus(hookerManifest, classLoader)
     }
 
-    private fun hookTaskLog(hookerManifest: HookerManifest, classLoader: ClassLoader,context: Context) {
+    private fun hookTaskLog(
+        hookerManifest: HookerManifest,
+        classLoader: ClassLoader,
+        context: Context
+    ) {
         XposedHelpers.findAndHookMethod(
             "com.mutangtech.qianji.bill.auto.AddBillIntentAct",
             classLoader,
@@ -125,7 +129,9 @@ class AutoHooker : PartHooker() {
                         QianJiBillType.ExpendLending.value -> {
                             App.launch {
                                 runCatching {
-                                    LoanUtils(hookerManifest, classLoader, context).doExpendLending(billInfo)
+                                    LoanUtils(hookerManifest, classLoader, context).doExpendLending(
+                                        billInfo
+                                    )
                                 }.onSuccess {
                                     hookerManifest.logD("借出成功")
                                     App.toast("借出成功")
@@ -144,20 +150,63 @@ class AutoHooker : PartHooker() {
                         }
                         // 支出（还款）
                         QianJiBillType.ExpendRepayment.value -> {
+                            App.launch {
+                                runCatching {
+                                    LoanUtils(
+                                        hookerManifest,
+                                        classLoader,
+                                        context
+                                    ).doExpendRepayment(billInfo)
+                                }.onSuccess {
+                                    hookerManifest.logD("还款成功")
+                                    App.toast("还款成功")
+                                }.onFailure {
+                                    hookerManifest.logE(it)
+                                    BillInfoModel.status(billInfo.id, false)
+                                    hookerManifest.logD("还款失败 ${it.message}")
+                                    App.toast("还款失败 ${handleError(it.message ?: "")}")
+                                    hookerManifest.logE(it)
+                                }
                             }
+                            param.args[0] = "自动记账正在处理中(还款), 请稍候..."
+                            XposedHelpers.callMethod(autoTaskLog, "setStatus", 1)
+
+                        }
 
                         QianJiBillType.Income.value -> {
                             return
                         }
                         // 收入（借入）
                         QianJiBillType.IncomeLending.value -> {
+                            App.launch {
+                                runCatching {
+                                    LoanUtils(hookerManifest, classLoader, context).doIncomeLending(
+                                        billInfo
+                                    )
+                                }.onSuccess {
+                                    hookerManifest.logD("借入成功")
+                                    App.toast("借入成功")
+                                }.onFailure {
+                                    hookerManifest.logE(it)
+                                    BillInfoModel.status(billInfo.id, false)
+                                    hookerManifest.logD("借入失败 ${it.message}")
+                                    App.toast("借入失败 ${handleError(it.message ?: "")}")
+                                    hookerManifest.logE(it)
+                                }
+                            }
+                            param.args[0] = "自动记账正在处理中(借入), 请稍候..."
+                            XposedHelpers.callMethod(autoTaskLog, "setStatus", 1)
 
                         }
                         // 收入（收款）
                         QianJiBillType.IncomeRepayment.value -> {
                             App.launch {
                                 runCatching {
-                                    LoanUtils(hookerManifest, classLoader, context).doIncomeRepayment(billInfo)
+                                    LoanUtils(
+                                        hookerManifest,
+                                        classLoader,
+                                        context
+                                    ).doIncomeRepayment(billInfo)
                                 }.onSuccess {
                                     hookerManifest.logD("收款成功")
                                     App.toast("收款成功")
@@ -214,23 +263,28 @@ class AutoHooker : PartHooker() {
     /*
     * hookTimeout
      */
-    private fun hookTimeout(hookerManifest: HookerManifest,classLoader: ClassLoader) {
+    private fun hookTimeout(hookerManifest: HookerManifest, classLoader: ClassLoader) {
 
-         val clazz by lazy {
-             hookerManifest.clazz("TimeoutApp", classLoader)
+        val clazz by lazy {
+            hookerManifest.clazz("TimeoutApp", classLoader)
         }
-        XposedHelpers.findAndHookMethod(clazz,"timeoutApp",String::class.java,Long::class.java,object :XC_MethodHook(){
-            override fun afterHookedMethod(param: MethodHookParam?) {
-                val prop = param?.args?.get(0) as String
-                val timeout = param.args[1] as Long
-                if (prop == "auto_task_last_time"){
-                    hookerManifest.logD("hookTimeout: $prop $timeout")
-                    param.result = true
+        XposedHelpers.findAndHookMethod(
+            clazz,
+            "timeoutApp",
+            String::class.java,
+            Long::class.java,
+            object : XC_MethodHook() {
+                override fun afterHookedMethod(param: MethodHookParam?) {
+                    val prop = param?.args?.get(0) as String
+                    val timeout = param.args[1] as Long
+                    if (prop == "auto_task_last_time") {
+                        hookerManifest.logD("hookTimeout: $prop $timeout")
+                        param.result = true
+                    }
+
+
                 }
-
-
-            }
-        })
+            })
     }
 
     private fun hookTaskLogStatus(hookerManifest: HookerManifest, classLoader: ClassLoader) {

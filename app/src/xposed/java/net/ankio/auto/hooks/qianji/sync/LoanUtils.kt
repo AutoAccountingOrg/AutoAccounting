@@ -321,17 +321,76 @@ class LoanUtils(
         pushBill()
     }
 
-    //增加借款账单
-    fun addLoanBill(billModel: BookBillModel) {
-        // Arguments com.mutangtech.qianji.asset.loanpay.LoanPayAct.a1(_id=null;billid=1725680887791133088;userid=200104405e109647c18e9;bookid=-1;timeInSec=1725680883;type=6;remark=;money=888.0;status=2;categoryId=0;platform=0;assetId=1725641271342;fromId=-1;targetId=-1;extra=null, (none))
+    /**
+     * 借入
+     */
+    suspend fun doIncomeLending(billModel: BillInfoModel) = withContext(Dispatchers.IO) {
+        val book = BookUtils(manifest, classLoader, context).getBookByName(billModel.bookName)
+
+        // {"color":"E06966","createtime":1726243722,"icon":"null","id":1726243722013,"incount":1,"lastPayTime":0,"loan":{"accountId":0,"startdate":"2024-09-14","enddate":"","money":-12.0,"totalpay":0.0},"money":-12.0,"name":"dwdw","sort":0,"status":0,"stype":51,"type":5,"usecount":0,"userid":"200104405e109647c18e9"})
+
+        var accountFrom = assetsUtils.getOrCreateAssetByName(billModel.accountNameFrom,5,51)!!
+
+        accountFrom = processLoan(accountFrom,billModel,book)
+
+        val accountTo = assetsUtils.getAssetByName(billModel.accountNameTo)?:throw RuntimeException("找不到资产 key=accountname;value=${billModel.accountNameTo}")
+
+        processAccount(accountTo,billModel.money)
+
+        val id = XposedHelpers.getObjectField(accountFrom,"id")
+
+        val bill = buildBill(billModel,6, id,book)
+
+        saveBill(bill)
+
+        pushBill()
     }
 
-    // 借款还款
-    fun loanRepayment(billModel: BookBillModel) {
-        // Arguments com.mutangtech.qianji.asset.loanpay.LoanPayAct.a1(_id=null;billid=1725680857977193424;userid=200104405e109647c18e9;bookid=-1;timeInSec=1725680855;type=9;remark=;money=133.0;status=2;categoryId=0;platform=0;assetId=1725641271342;fromId=-1;targetId=-1;extra=null, (none))
+    /**
+     * 还款账单
+     */
+    suspend fun doExpendRepayment(billModel: BillInfoModel) = withContext(Dispatchers.IO) {
+
+        val book = BookUtils(manifest, classLoader, context).getBookByName(billModel.bookName)
+
+
+        var accountFrom = assetsUtils.getAssetByName(billModel.accountNameFrom)?:throw RuntimeException("债主不存在 key=accountname;value=${billModel.accountNameFrom}")
+
+        var bill2 = billModel
+        //账单拆分，超过需要还款的部分记作利息
+
+        val assetMoney = XposedHelpers.getDoubleField(accountFrom,"money")
+
+        val assetId = XposedHelpers.getObjectField(accountFrom,"id")
+
+        if (assetMoney < billModel.money){ //还入的钱大于需要还的钱，记作利息
+            val interest = billModel.money - assetMoney
+            // 实际需要记录的账单
+            bill2 = billModel.copy().apply {
+                money = assetMoney
+            }
+            // 利息账单
+            val interestBill = billModel.copy().apply {
+                money = interest
+                remark = "债务利息"
+            }
+
+            // _id=null;billid=1726240048328133877;userid=200104405e109647c18e9;bookid=-1;timeInSec=1726240037;type=11;remark=债务利息;mon08.0;status=2;categoryId=0;platform=0;assetId=-1;fromId=1726240094257;targetId=-1;extra=null
+            saveBill(buildBill(interestBill,10, assetId,book))
+        }
+
+
+        accountFrom = processLoan(accountFrom,billModel,book)
+        // 划扣账户 com.mutangtech.qianji.data.db.convert.a.insertOrReplace({"color":"E06966","createtime":1726240094,"icon":"null","id":1726240094257,"incount":1,"lastPayTime":0,"loan":{"accountId":0,"startdate":"2024-09-13","enddate":"","money":12.0,"totalpay":12.0},"money":0.0,"name":"ceshi","sort":0,"status":0,"stype":52,"type":5,"usecount":0,"userid":"200104405e109647c18e9"}, (none))
+
+        val accountTo = assetsUtils.getAssetByName(billModel.accountNameTo)?:throw RuntimeException("还款账户不存在 key=accountname;value=${billModel.accountNameTo}")
+
+        processAccount(accountTo,bill2.money)
+
+        saveBill(buildBill(bill2,9, assetId,book))
+
+        pushBill()
     }
-
-
 
 
 }
