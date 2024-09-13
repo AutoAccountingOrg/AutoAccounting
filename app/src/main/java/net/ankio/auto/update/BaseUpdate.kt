@@ -55,7 +55,7 @@ abstract class BaseUpdate(context: Context) {
     suspend fun check(showToast: Boolean = false): Boolean {
         Logger.i("Checking for updates")
         // 判断是否在1小时之前检查过
-        if (!App.debug && System.currentTimeMillis() - ConfigUtils.getLong(
+        if (ruleVersion() != "None" && !App.debug && System.currentTimeMillis() - ConfigUtils.getLong(
                 Setting.RULE_UPDATE_TIME,
                 0
             ) < 3600000
