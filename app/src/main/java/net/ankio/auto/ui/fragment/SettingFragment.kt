@@ -209,6 +209,7 @@ class SettingFragment : BaseFragment() {
                 icon = R.drawable.home_app_assets,
             ),
             SettingItem(
+                regex = "${Setting.SETTING_ASSET_MANAGER}=true",
                 variable = Setting.SETTING_CURRENCY_MANAGER,
                 title = R.string.setting_currency_manager,
                 key = Setting.SETTING_CURRENCY_MANAGER,
@@ -225,6 +226,7 @@ class SettingFragment : BaseFragment() {
                 icon = R.drawable.setting_icon_reimbursement,
             ),
             SettingItem(
+                regex = "${Setting.SETTING_ASSET_MANAGER}=true",
                 variable = Setting.SETTING_DEBT,
                 title = R.string.setting_lending_manager,
                 key = Setting.SETTING_DEBT,
@@ -248,14 +250,14 @@ class SettingFragment : BaseFragment() {
                 default = true,
                 icon = R.drawable.setting_icon_fee,
             ),
-            SettingItem(
+          /*TODO  SettingItem(
                 variable = Setting.SETTING_TAG,
                 title = R.string.setting_tag_manager,
                 key = Setting.SETTING_TAG,
                 type = ItemType.SWITCH,
                 default = true,
                 icon = R.drawable.setting_icon_tag,
-            ),
+            ),*/
         )
     }
 }

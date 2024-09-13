@@ -36,6 +36,7 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.broadcast.LocalBroadcastHelper
 import net.ankio.auto.databinding.FloatEditorBinding
+import net.ankio.auto.hooks.qianji.sync.AutoConfig
 import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseSheetDialog
@@ -652,16 +653,10 @@ class FloatEditorDialog(
             binding.chipLend.visibility = View.GONE
             binding.chipBorrow.visibility = View.GONE
             binding.chipRepayment.visibility = View.GONE
-        } else {
-            binding.chipRepayment.visibility = View.VISIBLE
-            binding.chipLend.visibility = View.VISIBLE
-            binding.chipBorrow.visibility = View.VISIBLE
         }
 
         if (!ConfigUtils.getBoolean(Setting.SETTING_REIMBURSEMENT)) {
             binding.chipReimbursement.visibility = View.GONE
-        } else {
-            binding.chipReimbursement.visibility = View.VISIBLE
         }
     }
 
