@@ -21,6 +21,7 @@ import android.content.Intent
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import org.ezbook.server.Server
+import org.ezbook.server.constant.BillType
 import org.ezbook.server.constant.DataType
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.AppDataModel
@@ -182,14 +183,14 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
         val time = json.get("time")?.asLong ?: System.currentTimeMillis()
         val channel = json.get("channel")?.asString ?: ""
         val ruleName = json.get("ruleName")?.asString ?: ""
-
+        val type = json.get("type")?.asString ?: "Expend"
         // 根据ruleName判断是否需要自动记录
         val rule = Db.get().ruleDao().query(app, dataType.name, ruleName)
         val autoRecord = rule != null && rule.autoRecord
 
 
         val billInfoModel = BillInfoModel()
-
+        billInfoModel.type = BillType.valueOf(type)
         billInfoModel.app = app
         billInfoModel.time = time
         billInfoModel.money = money

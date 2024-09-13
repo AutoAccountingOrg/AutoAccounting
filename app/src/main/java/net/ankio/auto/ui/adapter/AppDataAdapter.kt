@@ -88,6 +88,7 @@ class AppDataAdapter(
             item.data
         )
             ?: return@withContext null
+        Logger.d("testRule: $result")
         val data = Gson().fromJson(result, JsonObject::class.java)
         if (data.get("code").asInt != 200) {
             Logger.e("testRule: ${data.get("msg").asString}")
