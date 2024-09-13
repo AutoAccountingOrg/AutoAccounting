@@ -75,8 +75,8 @@ class RequestsUtils(context: Context, private val cacheTime: Int = 0) {
      */
     suspend fun get(url: String, query: HashMap<String, String>? = null): Pair<Int, String> =
         withContext(Dispatchers.IO) {
-
-            val byte = cacheManager.readFromCache(url)
+            val md5 = App.md5(url)
+            val byte = cacheManager.readFromCache(md5)
             if (byte.isNotEmpty()) {
                 return@withContext Pair(200, String(byte))
             }
@@ -111,7 +111,7 @@ class RequestsUtils(context: Context, private val cacheTime: Int = 0) {
 
             val body = response.body?.string() ?: ""
             if (cacheTime > 0 && body.isNotEmpty()) {
-                cacheManager.saveToCacheWithExpiry(url, body.toByteArray(), cacheTime.toLong())
+                cacheManager.saveToCacheWithExpiry(md5, body.toByteArray(), cacheTime.toLong())
 
             }
 
