@@ -48,21 +48,13 @@ abstract class BaseUpdate(context: Context) {
     var version = ""
     var log = ""
     var date = ""
-    protected val request = RequestsUtils(context)
+    protected val request = RequestsUtils(context,3600)
     abstract fun ruleVersion(): String
     abstract fun onCheckedUpdate()
 
     suspend fun check(showToast: Boolean = false): Boolean {
-        Logger.i("Checking for updates")
-        // 判断是否在1小时之前检查过
-        if (ruleVersion() != "None" && !App.debug && System.currentTimeMillis() - ConfigUtils.getLong(
-                Setting.RULE_UPDATE_TIME,
-                0
-            ) < 3600000
-        ) {
-            Logger.i("Checked within the last hour")
-            return false
-        }
+        Logger.d("Checking for updates")
+
         ConfigUtils.putLong(Setting.RULE_UPDATE_TIME, System.currentTimeMillis()) // 记录检查时间
 
         val list = if (ConfigUtils.getString(
