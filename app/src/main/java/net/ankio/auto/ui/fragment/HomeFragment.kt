@@ -252,11 +252,15 @@ class HomeFragment : BaseFragment() {
                 checkRuleUpdate(true)
             }
         }
-
-        binding.ruleLibrary.setOnClickListener {
-            findNavController().navigate(R.id.dataRuleFragment)
+        //长按强制更新
+        binding.checkRuleUpdate.setOnLongClickListener {
+            ConfigUtils.putString(Setting.RULE_VERSION, "")
+            ToastUtils.info(R.string.check_update)
+            lifecycleScope.launch {
+                checkRuleUpdate(true)
+            }
+            true
         }
-
 
     }
 

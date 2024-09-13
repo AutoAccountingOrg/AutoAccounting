@@ -49,4 +49,7 @@ interface CategoryRuleDao {
 
     @Query("DELETE FROM CategoryRuleModel WHERE id = :id")
     fun delete(id: Long)
+
+    @Query("SELECT * FROM CategoryRuleModel")
+     fun loadAll(): List<CategoryRuleModel>
 }

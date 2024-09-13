@@ -18,6 +18,7 @@ package org.ezbook.server.engine
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import org.ezbook.server.constant.DataType
+import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.Db
 
 /**
@@ -30,7 +31,7 @@ object RuleGenerator {
         val js = StringBuilder()
 
         //注入common.js
-        val commonJs = Db.get().settingDao().query("commonJs")?.value ?: ""
+        val commonJs = Db.get().settingDao().query(Setting.JS_COMMON)?.value ?: ""
         js.append(commonJs)
         // 注入规则
         val jsonArray = JsonArray()
@@ -89,8 +90,10 @@ object RuleGenerator {
     }
 
     fun category(): String {
-        val categoryCustom = Db.get().settingDao().query("categoryCustom")?.value ?: ""
-        val category = Db.get().settingDao().query("categoryJs")?.value ?: ""
+        val categoryCustom = Db.get().categoryRuleDao().loadAll().joinToString("\n") {
+            it.js
+        }
+        val category = Db.get().settingDao().query(Setting.JS_CATEGORY)?.value ?: ""
         return "var window = JSON.parse(data);" +
                 "function getCategory(money,type,shopName,shopItem,time){ $categoryCustom return null;};" +
                 "var categoryInfo = getCategory(window.money,window.type,window.shopName,window.shopItem,window.time);" +

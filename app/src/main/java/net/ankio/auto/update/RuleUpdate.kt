@@ -201,7 +201,6 @@ class RuleUpdate(private val context: Context) : BaseUpdate(context) {
 
                     } catch (e: Exception) {
                         Logger.e("Update error", e)
-                        loading.close()
                         ToastUtils.error(R.string.update_error)
                     }
 
@@ -209,13 +208,13 @@ class RuleUpdate(private val context: Context) : BaseUpdate(context) {
                 } else {
                     ToastUtils.error(context.getString(R.string.net_error_msg))
                 }
-                loading.close()
-                LocalBroadcastHelper.sendBroadcast(LocalBroadcastHelper.ACTION_UPDATE_FINISH)
 
             } catch (e: Exception) {
                 Logger.e("Update error", e)
-                loading.close()
                 ToastUtils.error(R.string.update_error)
+            }finally {
+                loading.close()
+                LocalBroadcastHelper.sendBroadcast(LocalBroadcastHelper.ACTION_UPDATE_FINISH)
             }
         }
 
