@@ -102,6 +102,7 @@ class AssetsUtils(private val manifest: HookerManifest, private val classLoader:
                 resumed = true
                 continuation.resume(accountList)
             }
+            true
         }
 
         //触发加载资产列表
@@ -237,20 +238,18 @@ class AssetsUtils(private val manifest: HookerManifest, private val classLoader:
              *     "userid": "200104405e109647c18e9"
              * }
              */
-            val id = System.currentTimeMillis()
-            XposedHelpers.setObjectField(asset, "id", id)
-            XposedHelpers.setObjectField(asset, "stype", sType)
-            XposedHelpers.setObjectField(asset, "type", type)
-            XposedHelpers.setObjectField(asset, "sort", 0)
-            XposedHelpers.setObjectField(asset, "status", 0)
-            XposedHelpers.setObjectField(asset, "usecount", 0)
+            XposedHelpers.setObjectField(asset, "createtime", 0)
+            XposedHelpers.setObjectField(asset, "id", -1L)
             XposedHelpers.setObjectField(asset, "incount", 1)
             XposedHelpers.setObjectField(asset, "lastPayTime", 0)
-            XposedHelpers.setObjectField(asset, "createtime", System.currentTimeMillis() / 1000)
-            XposedHelpers.setObjectField(asset, "userid", UserUtils(manifest,classLoader).getLoginUserID())
-            XposedHelpers.setObjectField(asset, "color", "E06966")
-            XposedHelpers.setObjectField(asset, "icon", "null")
-            XposedHelpers.setObjectField(asset, "extras", "{}")
+            XposedHelpers.setObjectField(asset, "money", 0.0)
+            XposedHelpers.setObjectField(asset, "stype", sType)
+            XposedHelpers.setObjectField(asset, "type", type)
+            XposedHelpers.setObjectField(asset, "usecount", 0)
+
+            XposedHelpers.setObjectField(asset, "sort", 0)
+            XposedHelpers.setObjectField(asset, "status", 0)
+
 
         }
         return@withContext asset
@@ -270,5 +269,6 @@ class AssetsUtils(private val manifest: HookerManifest, private val classLoader:
         val assetSqlHelper = XposedHelpers.newInstance(assetSqlHelperClazz)
         XposedHelpers.callMethod(assetSqlHelper, "insertOrReplace", asset, false)
     }
+
 
 }

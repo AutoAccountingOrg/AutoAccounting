@@ -130,6 +130,7 @@ class AutoHooker : PartHooker() {
                                     hookerManifest.logD("借出成功")
                                     App.toast("借出成功")
                                 }.onFailure {
+                                    hookerManifest.logE(it)
                                     BillInfoModel.status(billInfo.id, false)
                                     hookerManifest.logD("借出失败 ${it.message}")
                                     App.toast("借出失败 ${handleError(it.message ?: "")}")

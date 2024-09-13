@@ -27,7 +27,7 @@ object Hooker {
         clazz: Class<*>,
         method: String,
         vararg parameterTypes: Class<*>,
-        hook: (param: MethodHookParam) -> Unit
+        hook: (param: MethodHookParam) -> Boolean
     ) {
         var unhook: XC_MethodHook.Unhook? = null
         // 一次性hook
@@ -37,8 +37,9 @@ object Hooker {
             *parameterTypes,
             object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
-                    hook(param)
-                    unhook?.unhook()
+                    if (hook(param)) {
+                        unhook?.unhook()
+                    }
                 }
             })
     }

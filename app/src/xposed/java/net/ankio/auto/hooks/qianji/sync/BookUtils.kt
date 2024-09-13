@@ -53,12 +53,12 @@ class BookUtils(
     }
 
 
-    suspend fun getBookIdByName(name: String): Long {
+    suspend fun getBookByName(name: String): Any {
         val list = getBooks()
         list.find { XposedHelpers.getObjectField(it, "name") == name }?.let {
-            return XposedHelpers.getLongField(it, "bookId")
+            return it
         }
-        return -1
+        return list.first()!!
     }
 
     suspend fun syncBooks(): ArrayList<BookNameModel> =

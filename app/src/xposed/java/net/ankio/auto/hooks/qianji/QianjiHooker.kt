@@ -171,6 +171,59 @@ class QianjiHooker : HookerManifest() {
                     ),
                 ),
             ),
+            //////////////////////钱迹BillTools////////////////////////////////////////
+            Clazz(
+                name = "BillTools",
+                nameRule = "^\\w{0,2}\\..+",
+                type = "class",
+                methods =
+                listOf(
+                    ClazzMethod(
+                        name = "deleteBook",
+                        returnType = "void",
+                    ),
+                    ClazzMethod(
+                        name = "getUnPushCount",
+                    ),
+                ),
+            ),
+            //////////////////////钱迹RequestInterface////////////////////////////////////////
+            Clazz(
+                name = "RequestInterface",
+                nameRule = "^\\w{0,2}\\..+",
+                type = "class",
+                methods =
+                listOf(
+                    ClazzMethod(
+                        name = "onExecuteRequest",
+                        returnType = "void",
+                    ),
+                    ClazzMethod(
+                        name = "onFinish",
+                    ),
+                    ClazzMethod(
+                        name = "onToastMsg",
+                    ),
+                    ClazzMethod(
+                        name = "onError",
+                    ),
+                ),
+            ),
+            Clazz(
+                name = "AssetsInterface",
+                nameRule = "com.mutangtech.qianji.network.api.asset.\\w+",
+                type = "class",
+                methods =
+                listOf(
+                    ClazzMethod(
+                        name = "getBindBill",
+                    ),
+                    ClazzMethod(
+                        name = "setBindBill",
+                    ),
+                ),
+            ),
+
         )
         set(value) {}
 
