@@ -226,13 +226,7 @@ class BaoXiaoUtils(
 
         // com.mutangtech.qianji.data.model.AssetAccount r37,
         val asset =
-            AssetsUtils(manifest, classLoader).getAssetsList()
-                .filter {
-
-                    XposedHelpers.getObjectField(it, "name") as String == billModel.accountNameFrom
-                }
-
-                .getOrNull(0)
+            AssetsUtils(manifest, classLoader).getAssetByName(billModel.accountNameFrom)
                 ?: throw RuntimeException("找不到资产 key=accountname;value=${billModel.accountNameFrom}")
 
 

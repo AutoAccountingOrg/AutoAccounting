@@ -24,6 +24,7 @@ import net.ankio.auto.core.App
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.xposed.Hooker
 import net.ankio.auto.hooks.qianji.tools.QianJiAssetType
+import net.ankio.auto.hooks.qianji.tools.UserUtils
 import org.ezbook.server.constant.AssetsType
 import org.ezbook.server.constant.Currency
 import org.ezbook.server.constant.Setting
@@ -43,6 +44,10 @@ class AssetsUtils(private val manifest: HookerManifest, private val classLoader:
             "com.mutangtech.qianji.asset.account.mvp.AssetPreviewPresenterImpl",
             classLoader
         )
+    }
+
+    private val assetSqlHelperClazz by lazy {
+        manifest.clazz("AssetDbHelper",classLoader)
     }
 
     /**
@@ -175,4 +180,95 @@ class AssetsUtils(private val manifest: HookerManifest, private val classLoader:
             App.toast("已同步资产信息到自动记账")
         }
     }
+
+    private var assets: List<*>? = null
+
+    suspend fun getAssetByName(name: String): Any? = withContext(Dispatchers.IO) {
+        if (assets == null) {
+            assets = withContext(Dispatchers.Main){
+                getAssetsList()
+            }
+        }
+        return@withContext assets?.find {  XposedHelpers.getObjectField(it, "name") as String == name }
+    }
+
+    val assetClazz  by lazy {
+        XposedHelpers.findClass(
+            "com.mutangtech.qianji.data.model.AssetAccount",
+            classLoader
+        )
+    }
+
+    //   public static AssetAccount newInstance(int v, int v1) {
+    //        AssetAccount assetAccount0 = new AssetAccount();
+    //        assetAccount0.type = v;
+    //        assetAccount0.stype = v1;
+    //        return assetAccount0;
+    //    }
+
+    suspend fun getOrCreateAssetByName(name: String,type:Int,sType:Int): Any? = withContext(Dispatchers.IO) {
+        var asset = getAssetByName(name)
+        if (asset == null) {
+            asset = XposedHelpers.callStaticMethod(assetClazz, "newInstance", type, sType)
+            XposedHelpers.setObjectField(asset, "name", name)
+
+            /**
+             * {
+             *     "color": "E06966",
+             *     "createtime": 1726152536,
+             *     "icon": "null",
+             *     "id": 1726152536966,
+             *     "incount": 1,
+             *     "lastPayTime": 0,
+             *     "loan": {
+             *         "accountId": 0,
+             *         "startdate": "2024-09-12",
+             *         "enddate": "",
+             *         "money": 12,
+             *         "totalpay": 0
+             *     },
+             *     "money": 12,
+             *     "name": "12",
+             *     "sort": 0,
+             *     "status": 0,
+             *     "stype": 52,
+             *     "type": 5,
+             *     "usecount": 0,
+             *     "userid": "200104405e109647c18e9"
+             * }
+             */
+            val id = System.currentTimeMillis()
+            XposedHelpers.setObjectField(asset, "id", id)
+            XposedHelpers.setObjectField(asset, "stype", sType)
+            XposedHelpers.setObjectField(asset, "type", type)
+            XposedHelpers.setObjectField(asset, "sort", 0)
+            XposedHelpers.setObjectField(asset, "status", 0)
+            XposedHelpers.setObjectField(asset, "usecount", 0)
+            XposedHelpers.setObjectField(asset, "incount", 1)
+            XposedHelpers.setObjectField(asset, "lastPayTime", 0)
+            XposedHelpers.setObjectField(asset, "createtime", System.currentTimeMillis() / 1000)
+            XposedHelpers.setObjectField(asset, "userid", UserUtils(manifest,classLoader).getLoginUserID())
+            XposedHelpers.setObjectField(asset, "color", "E06966")
+            XposedHelpers.setObjectField(asset, "icon", "null")
+            XposedHelpers.setObjectField(asset, "extras", "{}")
+
+        }
+        return@withContext asset
+    }
+
+    /**
+     * 更新资产
+     * asset: 资产对象
+     */
+    suspend fun updateAsset(asset: Any) = withContext(Dispatchers.IO) {
+        // assetSqlHelperClazz
+        //   com.mutangtech.qianji.data.db.convert.a aVar = new com.mutangtech.qianji.data.db.convert.a();
+        //                AssetAccount assetAccount = this.AssetAccountName2222;
+        //                if (assetAccount != null) {
+        //                    aVar.insertOrReplace(assetAccount, false);
+        //                }
+        val assetSqlHelper = XposedHelpers.newInstance(assetSqlHelperClazz)
+        XposedHelpers.callMethod(assetSqlHelper, "insertOrReplace", asset, false)
+    }
+
 }

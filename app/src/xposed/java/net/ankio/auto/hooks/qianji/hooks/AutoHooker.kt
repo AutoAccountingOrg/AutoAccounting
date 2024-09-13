@@ -16,6 +16,7 @@
 package net.ankio.auto.hooks.qianji.hooks
 
 import android.app.Application
+import android.content.Context
 import android.net.Uri
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XC_MethodReplacement
@@ -25,6 +26,7 @@ import net.ankio.auto.core.App
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
 import net.ankio.auto.hooks.qianji.sync.BaoXiaoUtils
+import net.ankio.auto.hooks.qianji.sync.LoanUtils
 import net.ankio.auto.hooks.qianji.tools.QianJiBillType
 import net.ankio.auto.hooks.qianji.tools.QianJiUri
 import net.ankio.dex.model.ClazzField
@@ -62,12 +64,12 @@ class AutoHooker : PartHooker() {
 
         hookTimeout(hookerManifest,classLoader)
 
-        hookTaskLog(hookerManifest, classLoader)
+        hookTaskLog(hookerManifest, classLoader,application!!)
 
         hookTaskLogStatus(hookerManifest, classLoader)
     }
 
-    private fun hookTaskLog(hookerManifest: HookerManifest, classLoader: ClassLoader) {
+    private fun hookTaskLog(hookerManifest: HookerManifest, classLoader: ClassLoader,context: Context) {
         XposedHelpers.findAndHookMethod(
             "com.mutangtech.qianji.bill.auto.AddBillIntentAct",
             classLoader,
@@ -121,9 +123,25 @@ class AutoHooker : PartHooker() {
                         }
                         // 支出（借出）
                         QianJiBillType.ExpendLending.value -> {
+                            App.launch {
+                                runCatching {
+                                    LoanUtils(hookerManifest, classLoader, context).doExpendLending(billInfo)
+                                }.onSuccess {
+                                    hookerManifest.logD("借出成功")
+                                    App.toast("借出成功")
+                                }.onFailure {
+                                    BillInfoModel.status(billInfo.id, false)
+                                    hookerManifest.logD("借出失败 ${it.message}")
+                                    App.toast("借出失败 ${handleError(it.message ?: "")}")
+                                    hookerManifest.logE(it)
+                                }
+                            }
+                            param.args[0] = "自动记账正在处理中, 请稍候..."
+                            XposedHelpers.callMethod(autoTaskLog, "setStatus", 1)
+
 
                         }
-                        // 支出（还款销账）
+                        // 支出（还款）
                         QianJiBillType.ExpendRepayment.value -> {
 
                         }
@@ -135,7 +153,7 @@ class AutoHooker : PartHooker() {
                         QianJiBillType.IncomeLending.value -> {
 
                         }
-                        // 收入（还款销账）
+                        // 收入（收款）
                         QianJiBillType.IncomeRepayment.value -> {
 
                         }

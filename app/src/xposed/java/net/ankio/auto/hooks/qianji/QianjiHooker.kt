@@ -134,6 +134,43 @@ class QianjiHooker : HookerManifest() {
                     ),
                 ),
             ),
+            ///////////////////////////AssetInsert//////////////////////////////////////
+            Clazz(
+                name = "AssetDbHelper",
+                nameRule = "^\\w{0,2}\\..+",
+                type = "class",
+                methods =
+                listOf(
+                    ClazzMethod(
+                        name = "insertOrReplace",
+                        returnType = "boolean",
+                    ),
+                    ClazzMethod(
+                        name = "saveLoanList",
+                        returnType = "boolean",
+                    ),
+                    ClazzMethod(
+                        name = "updateOrders",
+                        returnType = "boolean",
+                    ),
+                ),
+            ),
+            Clazz(
+                name = "BillDbHelper",
+                nameRule = "^\\w{0,2}\\..+",
+                type = "class",
+                methods =
+                listOf(
+                    ClazzMethod(
+                        name = "saveOrUpdateBill",
+                        returnType = "boolean",
+                    ),
+                    ClazzMethod(
+                        name = "saveSyncedResult",
+                        returnType = "void",
+                    ),
+                ),
+            ),
         )
         set(value) {}
 

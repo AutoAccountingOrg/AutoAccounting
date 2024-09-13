@@ -42,34 +42,31 @@ class BookUtils(
         classLoader.loadClass("com.mutangtech.qianji.data.model.Book")
     }
 
+    suspend fun getBooks(): List<*> = withContext(Dispatchers.IO) {
+        XposedHelpers.callMethod(
+            bookManagerInstance,
+            "getAllBooks",
+            context,
+            true,
+            1
+        ) as List<*>
+    }
+
+
+    suspend fun getBookIdByName(name: String): Long {
+        val list = getBooks()
+        list.find { XposedHelpers.getObjectField(it, "name") == name }?.let {
+            return XposedHelpers.getLongField(it, "bookId")
+        }
+        return -1
+    }
+
     suspend fun syncBooks(): ArrayList<BookNameModel> =
         withContext(Dispatchers.IO) {
-            val list = XposedHelpers.callMethod(
-                bookManagerInstance,
-                "getAllBooks",
-                context,
-                true,
-                1
-            ) as List<*>
+            val list = getBooks()
             val bookList = arrayListOf<BookNameModel>()
 
-            /**
-             * [
-             *     {
-             *         "bookId":-1,
-             *         "cover":"http://res.qianjiapp.com/headerimages2/daniela-cuevas-t7YycgAoVSw-unsplash20_9.jpg!headerimages2",
-             *         "createtimeInSec":0,
-             *         "expired":0,
-             *         "memberCount":1,
-             *         "name":"日常账本",
-             *         "sort":0,
-             *         "type":-1,
-             *         "updateTimeInSec":0,
-             *         "userid":"",
-             *         "visible":1
-             *     }
-             * ]
-             */
+
 
             /**
              * [

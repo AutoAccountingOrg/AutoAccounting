@@ -41,6 +41,8 @@ enum class QianJiBillType(val value: Int) {
     IncomeReimbursement(19);// 收入（报销)
 
 
+
+
     companion object {
         suspend fun toQianJi(billInfoModel: BillInfoModel): Int = withContext(Dispatchers.IO) {
             when (billInfoModel.type) {

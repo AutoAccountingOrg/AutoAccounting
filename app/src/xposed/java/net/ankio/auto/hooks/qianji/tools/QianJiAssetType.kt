@@ -72,12 +72,12 @@ object QianJiAssetType {
     const val Type_Credit: Int = 2
 
     /**
-     * 债务
+     * 债务，收款、还款
      */
     const val Type_DebtLoan: Int = 5
 
     /**
-     * 债务包装
+     * 是否是借款类型（借入、借出）
      */
     const val Type_DebtLoan_Wrapper: Int = 6
 
