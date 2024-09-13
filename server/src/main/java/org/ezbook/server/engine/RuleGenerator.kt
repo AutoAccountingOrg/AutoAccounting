@@ -32,6 +32,7 @@ object RuleGenerator {
 
         //注入common.js
         val commonJs = Db.get().settingDao().query(Setting.JS_COMMON)?.value ?: ""
+
         js.append(commonJs)
         // 注入规则
         val jsonArray = JsonArray()
@@ -101,4 +102,5 @@ object RuleGenerator {
                 "print(JSON.stringify(category.get(window.money, window.type, window.shopName, window.shopItem, window.time))); " +
                 "}"
     }
+
 }

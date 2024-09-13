@@ -76,12 +76,33 @@ class Server(context: Context) {
          */
         fun reqData(session: IHTTPSession): String {
             val contentLength: Int = session.headers["content-length"]?.toInt() ?: 0
-            val buffer = ByteArray(contentLength)
-            session.inputStream.read(buffer, 0, contentLength)
-            // 将字节数组转换为字符串
-            return String(buffer)
 
+            // 限制请求体的最大长度，防止恶意请求
+            val maxContentLength = 10 * 1024 * 1024 // 10 MB
+            if (contentLength > maxContentLength) {
+                throw IllegalArgumentException("Request body is too large")
+            }
+
+            val buffer = ByteArray(contentLength)
+            var totalBytesRead = 0
+
+            while (totalBytesRead < contentLength) {
+                val bytesRead = session.inputStream.read(buffer, totalBytesRead, contentLength - totalBytesRead)
+                if (bytesRead == -1) {
+                    // 如果流结束但数据不完整，抛出异常
+                    throw IllegalArgumentException("Content-Length mismatch: expected $contentLength, but got $totalBytesRead")
+                }
+                totalBytesRead += bytesRead
+            }
+
+            // 再次检查实际读取的字节数是否匹配 Content-Length
+            if (totalBytesRead != contentLength) {
+                throw IllegalArgumentException("Content-Length mismatch: expected $contentLength, but got $totalBytesRead")
+            }
+
+            return String(buffer, 0, totalBytesRead)
         }
+
 
         /**
          * 返回json
