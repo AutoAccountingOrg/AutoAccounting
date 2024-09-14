@@ -1,0 +1,28 @@
+name: ❓ 问题自选
+description: 你有什么问题？
+labels: ['question']
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        > 注意:请确保已经先阅读过文档中的[常见问题](https://www.ez-book.org)部分。
+
+
+  - type: textarea
+    id: description_function
+    attributes:
+      label: 问题
+      description: 清楚简洁地说明你的问题
+      placeholder: ...
+    validations:
+      required: true
+
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: 这不是重复的 issue
+      options:
+        - label: 我已经搜索了[现有 issue](https://github.com/AutoAccountingOrg/AutoAccounting/issues)，以确保该问题尚未被报告。
+          required: true
