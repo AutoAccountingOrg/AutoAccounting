@@ -140,19 +140,18 @@ def sign_apk(absolute_path,workspace):
     ], check=True)
     print(f"APK 文件已签名: {sign_apk_file}")
 
-def create_tag(tag,channel,repo):
+def create_tag(tag,channel):
     tag_name = f"{channel}.{tag}"
     result = subprocess.run(
-        ['git', 'tag', '-a', tag_name, '-m', tag],
+        ['git', 'tag',  tag_name],
         check=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True
     )
     print(result.stdout)  # 打印标准输出
-    print(f"Pushing tag {tag} to remote {repo}...")
     result = subprocess.run(
-        ['git', 'push', f"https://github.com/{repo}", tag_name],
+        ['git', 'push', "master", tag_name],
         check=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
@@ -299,7 +298,7 @@ def main(repo):
     logs = build_logs(commits,workspace)
     write_logs(logs,workspace,channel,tagVersionName,repo)
     build_apk(workspace)
-    create_tag(tagVersionName,channel,repo)
+    create_tag(tagVersionName,channel)
     publish_apk(repo, tagVersionName,workspace,logs,channel)
     notify(tagVersionName,logs,channel)
 
