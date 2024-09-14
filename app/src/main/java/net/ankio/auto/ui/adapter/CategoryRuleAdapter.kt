@@ -56,7 +56,9 @@ class CategoryRuleAdapter(
                             CategoryRuleModel.remove(item.id)
                         }
                         dataItems.removeAt(position)
-                        notifyItemRemoved(position)
+                        withContext(Dispatchers.Main) {
+                            notifyItemRemoved(position)
+                        }
                     }
                 }
                 .setPositiveButton(activity.getString(R.string.cancel_msg)) { _, _ -> }

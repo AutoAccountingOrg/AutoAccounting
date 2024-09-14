@@ -51,6 +51,7 @@ import org.ezbook.server.constant.AssetsType
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.constant.Currency
 import org.ezbook.server.constant.Setting
+import org.ezbook.server.db.model.AssetsMapModel
 import org.ezbook.server.db.model.AssetsModel
 import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.db.model.BookNameModel
@@ -213,6 +214,12 @@ class FloatEditorDialog(
                         BillCategoryDialog(context, bill).show(float)
                     }
 
+                    if (ConfigUtils.getBoolean(Setting.AUTO_ASSET, false)) {
+                        val assets = AssetsModel.list()
+                        setAccountMap(assets, bill.accountNameFrom, bill.accountNameFrom)
+                        setAccountMap(assets, bill.accountNameTo, bill.accountNameTo)
+                    }
+
                 }.onFailure {
                     Logger.e("记账失败", it)
                 }
@@ -224,6 +231,20 @@ class FloatEditorDialog(
             }
             //   dismiss()
         }
+    }
+
+
+    private suspend fun setAccountMap(assets: List<AssetsModel>, accountName:String, eqAccountName:String)= withContext(Dispatchers.IO){
+        if (assets.isEmpty()) return@withContext
+        if (accountName.isEmpty()) return@withContext
+        if (accountName == eqAccountName) return@withContext
+        val find = assets.find { it.name == accountName }
+        if (find!=null) return@withContext
+        // 只有不在资产列表里面的才需要映射
+        AssetsMapModel.put(AssetsMapModel().apply {
+            this.name = accountName
+            this.mapName = eqAccountName
+        })
     }
 
     private fun bindingTypePopupUI() {
