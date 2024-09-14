@@ -24,7 +24,7 @@ jobs:
           distribution: 'adopt'
       - name: 编译安卓
         run: |
-          sh ./.github/workflows/build.sh canary
+          bash ./.github/workflows/build.sh canary
           # 检查编译是否成功
           if [ $? -eq 0 ]; then
             git tag "CanaryBuild-${tagVersionName}"
@@ -95,7 +95,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Add Changelog to Summary
         run: |
-          sh package/.github/changelog.sh Canary
+          bash package/.github/changelog.sh Canary
       - name: Upload Changelog as Artifact
         uses: actions/upload-artifact@v3
         with:
