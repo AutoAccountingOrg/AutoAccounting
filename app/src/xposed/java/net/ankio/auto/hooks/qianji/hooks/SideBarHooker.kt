@@ -162,15 +162,11 @@ class SideBarHooker : PartHooker() {
 
         itemMenuBinding.version.text = BuildConfig.VERSION_NAME.replace(" - Xposed", "")
         itemMenuBinding.version.setTextColor(subColor)
-
         itemMenuBinding.root.setOnClickListener {
-            //打开自动记账
-            val intent =
-                context.packageManager.getLaunchIntentForPackage(BuildConfig.APPLICATION_ID)
-            if (intent != null) {
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                context.startActivity(intent)
-            }
+            App.toast("强制同步数据中...")
+            //强制同步
+            last = 0L
+            syncData2Auto(context)
         }
 
         linearLayout.addView(itemMenuBinding.root)
