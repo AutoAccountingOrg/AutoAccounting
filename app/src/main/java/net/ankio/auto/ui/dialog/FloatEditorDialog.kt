@@ -85,6 +85,8 @@ class FloatEditorDialog(
                 billInfoModel =
                     Gson().fromJson(bundle!!.getString("billInfoModel"), BillInfoModel::class.java)
                 rawBillInfo = billInfoModel.copy()
+                billTypeLevel1 = BillTool.getType(rawBillInfo.type)
+                billTypeLevel2 = rawBillInfo.type
                 bindUI()
             }
 
@@ -94,7 +96,6 @@ class FloatEditorDialog(
         Logger.d("原始账单结果 => $rawBillInfo")
         billTypeLevel1 = BillTool.getType(rawBillInfo.type)
         billTypeLevel2 = rawBillInfo.type
-
 
         bindUI()
 
@@ -140,26 +141,18 @@ class FloatEditorDialog(
                     this.accountNameFrom = binding.payFrom.getText()
                     this.extendData = selectedBills.joinToString { it }
                 }
-
-                BillType.ExpendLending -> {
+                // 借出,还款
+                BillType.ExpendLending,BillType.ExpendRepayment -> {
                     this.accountNameFrom = binding.debtExpendFrom.getText()
                     this.accountNameTo = binding.debtExpendTo.getText().toString()
                 }
 
-                BillType.ExpendRepayment -> {
-                    this.accountNameFrom = binding.payFrom.getText()
-                    this.extendData = selectedBills.joinToString { it }
-                }
-
-                BillType.IncomeLending -> {
+                // 借入,收款
+                BillType.IncomeLending, BillType.IncomeRepayment -> {
                     this.accountNameFrom = binding.debtIncomeFrom.getText().toString()
                     this.accountNameTo = binding.debtIncomeTo.getText()
                 }
 
-                BillType.IncomeRepayment -> {
-                    this.accountNameFrom = binding.payFrom.getText()
-                    this.extendData = selectedBills.joinToString { it }
-                }
             }
 
             this.shopName = billInfoModel.shopName
@@ -234,7 +227,7 @@ class FloatEditorDialog(
 
     private fun bindingTypePopupEvents() {
         val stringList: HashMap<String, Any> =
-            if (ConfigUtils.getBoolean(Setting.SETTING_ASSET_MANAGER))
+            if (ConfigUtils.getBoolean(Setting.SETTING_ASSET_MANAGER,true))
                 hashMapOf(
                     context.getString(R.string.float_expend) to BillType.Expend,
                     context.getString(R.string.float_income) to BillType.Income,
@@ -251,8 +244,8 @@ class FloatEditorDialog(
                 stringList,
                 billTypeLevel1,
             ) { pos, key, value ->
-                billInfoModel.type = value as BillType
-                setBillType(billInfoModel.type)
+                billTypeLevel1 = value as BillType
+                billTypeLevel2 = billTypeLevel1
                 bindUI()
             }
 
@@ -266,7 +259,7 @@ class FloatEditorDialog(
         * */
 
         if (
-            !ConfigUtils.getBoolean(Setting.SETTING_FEE) ||
+            !ConfigUtils.getBoolean(Setting.SETTING_FEE,false) ||
             billTypeLevel1 != BillType.Transfer ||
             billInfoModel.fee == 0.0
         ) {
@@ -297,7 +290,7 @@ class FloatEditorDialog(
      */
     private fun bindingBookNameEvents() {
         binding.bookImageClick.setOnClickListener {
-            if (!ConfigUtils.getBoolean(Setting.SETTING_BOOK_MANAGER)) return@setOnClickListener
+            if (!ConfigUtils.getBoolean(Setting.SETTING_BOOK_MANAGER,true)) return@setOnClickListener
             BookSelectorDialog(context) { book, _ ->
                 billInfoModel.bookName = book.name
                 bindingBookNameUI()
@@ -378,7 +371,7 @@ class FloatEditorDialog(
     }
 
     private fun bindingMoneyTypeUI() {
-        if (!ConfigUtils.getBoolean(Setting.SETTING_CURRENCY_MANAGER)) {
+        if (!ConfigUtils.getBoolean(Setting.SETTING_CURRENCY_MANAGER,false)) {
             binding.moneyType.visibility = View.GONE
             return
         }
@@ -388,7 +381,7 @@ class FloatEditorDialog(
     }
 
     private fun bindingMoneyTypeEvents() {
-        if (!ConfigUtils.getBoolean(Setting.SETTING_CURRENCY_MANAGER)) return
+        if (!ConfigUtils.getBoolean(Setting.SETTING_CURRENCY_MANAGER,false)) return
         binding.moneyType.setOnClickListener {
             val hashMap = Currency.getCurrencyMap(context)
             val popupUtils =
@@ -503,7 +496,7 @@ class FloatEditorDialog(
                 binding.debtExpend.visibility = View.VISIBLE
                 binding.debtExpendToLayout.setHint(R.string.float_expend_debt)
                 setAssetItem(billInfoModel.accountNameFrom, binding.debtExpendFrom)
-                binding.debtExpendTo.setText(billInfoModel.shopName)
+                binding.debtExpendTo.setText(billInfoModel.accountNameTo.ifEmpty { billInfoModel.shopName })
                 binding.debtExpendTo.autoDisposeScope.launch {
                     AssetsModel.list().filter { it.type == AssetsType.BORROWER }.let { assets ->
                         withContext(Dispatchers.Main) {
@@ -513,7 +506,7 @@ class FloatEditorDialog(
                     }
                 }
             }
-            //还款销账
+            //还款
             BillType.ExpendRepayment -> {
                 binding.debtExpend.visibility = View.VISIBLE
                 //binding.chooseBill.visibility = View.VISIBLE
@@ -550,7 +543,7 @@ class FloatEditorDialog(
                     }
                 }
             }
-            //还款销账
+            //收款
             BillType.IncomeRepayment -> {
                 binding.debtIncome.visibility = View.VISIBLE
                 //binding.chooseBill.visibility = View.VISIBLE
@@ -611,6 +604,7 @@ class FloatEditorDialog(
         binding.category.visibility = View.GONE
         when (billType) {
             BillType.Expend -> {
+                binding.chipRepayment.text = context.getString(R.string.expend_repayment)
                 binding.chipGroup.visibility = View.VISIBLE
                 binding.chipLend.visibility = View.VISIBLE
                 binding.category.visibility = View.VISIBLE
@@ -618,6 +612,7 @@ class FloatEditorDialog(
             }
 
             BillType.Income -> {
+                binding.chipRepayment.text = context.getString(R.string.income_repayment)
                 binding.chipGroup.visibility = View.VISIBLE
                 binding.chipBorrow.visibility = View.VISIBLE
                 binding.category.visibility = View.VISIBLE
@@ -639,7 +634,7 @@ class FloatEditorDialog(
         }
 
 
-        if (!ConfigUtils.getBoolean(Setting.SETTING_ASSET_MANAGER)) {
+        if (!ConfigUtils.getBoolean(Setting.SETTING_ASSET_MANAGER,true)) {
             binding.chipLend.visibility = View.GONE
             binding.chipBorrow.visibility = View.GONE
             binding.chipRepayment.visibility = View.GONE
@@ -649,13 +644,13 @@ class FloatEditorDialog(
             binding.debtIncome.visibility = View.GONE
         }
 
-        if (!ConfigUtils.getBoolean(Setting.SETTING_DEBT)) {
+        if (!ConfigUtils.getBoolean(Setting.SETTING_DEBT,true)) {
             binding.chipLend.visibility = View.GONE
             binding.chipBorrow.visibility = View.GONE
             binding.chipRepayment.visibility = View.GONE
         }
 
-        if (!ConfigUtils.getBoolean(Setting.SETTING_REIMBURSEMENT)) {
+        if (!ConfigUtils.getBoolean(Setting.SETTING_REIMBURSEMENT,true)) {
             binding.chipReimbursement.visibility = View.GONE
         }
     }
@@ -717,8 +712,19 @@ class FloatEditorDialog(
     }
 
     private fun bindUI() {
+
         setBillType(billTypeLevel1)
+        binding.chipGroup.clearCheck()
         if (billTypeLevel1 != rawBillInfo.type) {
+            binding.chipGroup.check(when (rawBillInfo.type) {
+                BillType.ExpendReimbursement -> R.id.chipReimbursement
+                BillType.ExpendLending -> R.id.chipLend
+                BillType.ExpendRepayment -> R.id.chipRepayment
+                BillType.IncomeLending -> R.id.chipBorrow
+                BillType.IncomeRepayment -> R.id.chipRepayment
+                BillType.IncomeReimbursement -> R.id.chipReimbursement
+                else -> -1
+            })
             setBillTypeLevel2(rawBillInfo.type)
         }
 
