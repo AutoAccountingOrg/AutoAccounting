@@ -65,7 +65,6 @@ class NotificationHooker : PartHooker() {
                     }
 
                     if (notification == null) {
-                        XposedBridge.log("unknown notification")
                         return
                     }
 

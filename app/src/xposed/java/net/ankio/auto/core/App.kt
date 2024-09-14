@@ -38,6 +38,8 @@ import net.ankio.auto.Apps
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.logger.Logger
 import net.ankio.dex.Dex
+import org.ezbook.server.constant.Setting
+import org.ezbook.server.db.model.SettingModel
 import java.math.BigInteger
 import java.security.MessageDigest
 
@@ -239,7 +241,7 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         val pkg = lpparam.packageName
         val processName = lpparam.processName
 
-        Logger.logD(TAG, "handleLoadPackage: $pkg，processName: $processName")
+       // Logger.logD(TAG, "handleLoadPackage: $pkg，processName: $processName")
 
         for (app in Apps.get()) {
             if (app.packageName == pkg && app.packageName == processName) {
@@ -310,6 +312,12 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         }
     }
 
+    private fun  setLogger(){
+        launch {
+            Logger.debug = SettingModel.get(Setting.DEBUG_MODE, "false").toBoolean()
+        }
+    }
+
     /**
      * 初始化Hooker
      * @param app HookerManifest
@@ -322,6 +330,7 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         application: Application?,
         classLoader: ClassLoader
     ) {
+        setLogger()
         Logger.log(TAG, "initHooker: ${app.appName}")
         App.application = application
 
@@ -397,7 +406,7 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
      * 修复Android9及以上版本的网络错误
      */
     private fun networkError() {
-        Logger.logD(TAG, "networkError Fix")
+        //Logger.logD(TAG, "networkError Fix")
         val policy = NetworkSecurityPolicy.getInstance()
         if (policy != null && !policy.isCleartextTrafficPermitted) {
             // 允许明文流量
