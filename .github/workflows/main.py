@@ -151,7 +151,7 @@ def create_tag(tag,channel):
     )
     print(result.stdout)  # 打印标准输出
     result = subprocess.run(
-        ['git', 'push', "master", tag_name],
+        ['git', 'push', "origin", tag_name],
         check=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
