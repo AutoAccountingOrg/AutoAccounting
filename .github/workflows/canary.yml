@@ -1,6 +1,8 @@
 name: Canary Build
 
 on:
+  workflow_dispatch:
+
   schedule:
     # 每天的18:00 UTC，即北京时间次日2:00
     - cron: '0 18 * * *'
