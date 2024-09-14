@@ -98,7 +98,7 @@ class CategoryEditFragment : BaseFragment() {
         // 最后一个是数据
         val lastElement = list.removeLast()
         // fix #7 因为存储的时候使用的是hashmap<String,Any>，反向识别的时候可能会将Int类型识别为Double
-        remoteBookId = lastElement["id"] as String
+        remoteBookId = lastElement["id"].toString()
         bookName = lastElement["book"] as String
         category = lastElement["category"] as String
 

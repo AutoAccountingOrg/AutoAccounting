@@ -71,6 +71,8 @@ class FloatEditorDialog(
     // 原始的账单数据
     private var rawBillInfo = billInfoModel.copy()
 
+    private var convertBillInfo = billInfoModel.copy()
+
     // 选择的账单ID
     private var selectedBills = mutableListOf<String>()
 
@@ -179,14 +181,14 @@ class FloatEditorDialog(
         // 关闭按钮
         binding.cancelButton.setOnClickListener {
             dismiss()
-            onCancelClick?.invoke(rawBillInfo)
+            onCancelClick?.invoke(convertBillInfo)
         }
         // 确定按钮
         binding.sureButton.setOnClickListener {
             val bill = getBillData()
 
-            rawBillInfo = bill.copy()
-            rawBillInfo.syncFromApp = false
+            convertBillInfo = bill.copy()
+            convertBillInfo.syncFromApp = false
             Logger.d("最终账单结果 => $bill")
 
             lifecycleScope.launch {
@@ -201,7 +203,7 @@ class FloatEditorDialog(
                         )
                     }
 
-                    if (rawBillInfo.cateName != bill.cateName &&
+                    if (rawBillInfo.cateName != convertBillInfo.cateName &&
                         ConfigUtils.getBoolean(
                             Setting.AUTO_CREATE_CATEGORY,
                             false,
@@ -218,7 +220,7 @@ class FloatEditorDialog(
 
 
                 dismiss()
-                onConfirmClick?.invoke(rawBillInfo)
+                onConfirmClick?.invoke(convertBillInfo)
             }
             //   dismiss()
         }

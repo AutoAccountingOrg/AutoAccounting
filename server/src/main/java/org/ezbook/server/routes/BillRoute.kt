@@ -26,7 +26,7 @@ class BillRoute(private val session: IHTTPSession) {
 
     fun list(): Response {
         //删除一年之前的账单数据
-        Db.get().billInfoDao().clearOld(System.currentTimeMillis() - 365L * 24 * 60 * 60 * 1000)
+     //TODO   Db.get().billInfoDao().clearOld(System.currentTimeMillis() - 365L * 24 * 60 * 60 * 1000)
         //获取分页数据
         val params = session.parameters
         val page = params["page"]?.firstOrNull()?.toInt() ?: 1
