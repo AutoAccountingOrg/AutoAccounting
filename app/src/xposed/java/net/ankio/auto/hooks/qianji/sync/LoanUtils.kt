@@ -210,9 +210,9 @@ class LoanUtils(
         // com.mutangtech.qianji.data.db.dbhelper.k.saveOrUpdateBill(_id=null;billid=1726209168629173349;userid=200104405e109647c18e9;bookid=-1;timeInSec=1726209156;type=7;remark=;money=28.0;status=2;categoryId=0;platform=0;assetId=1726208819255;fromId=1711425821791;targetId=-1;extra=null)
         val assetLongId = XposedHelpers.callMethod(assetId,"longValue")
         if (billModel.type == BillType.ExpendLending || billModel.type == BillType.IncomeLending){
-            XposedHelpers.setObjectField(bill,"assetId", assetLongId)
+            XposedHelpers.setObjectField(bill,"assetid", assetLongId)
         } else if (billModel.type == BillType.IncomeRepayment || billModel.type == BillType.ExpendRepayment){
-            XposedHelpers.setObjectField(bill,"fromId", assetLongId)
+            XposedHelpers.setObjectField(bill,"fromid", assetLongId)
         }
 
         // 关联bookid

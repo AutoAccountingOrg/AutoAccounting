@@ -86,11 +86,19 @@ class OrderItemAdapter(
         } else {
             binding.remark.text = data.remark
         }
+        var showAccount = data.accountNameFrom
+
         when (data.type) {
             BillType.Expend -> {}
             BillType.ExpendReimbursement -> {}
-            BillType.ExpendLending -> { binding.category.setText(context.getText(R.string.expend_lending)) }
-            BillType.ExpendRepayment -> { binding.category.setText(context.getText(R.string.expend_repayment_info)) }
+            BillType.ExpendLending -> {
+                binding.category.setText(context.getText(R.string.expend_lending))
+                showAccount = data.accountNameTo
+            }
+            BillType.ExpendRepayment -> {
+                binding.category.setText(context.getText(R.string.expend_repayment_info))
+                showAccount = data.accountNameTo
+            }
             BillType.Income -> {}
             BillType.IncomeLending ->  { binding.category.setText(context.getText(R.string.income_lending)) }
             BillType.IncomeRepayment ->  { binding.category.setText(context.getText(R.string.income_repayment_info)) }
@@ -98,7 +106,7 @@ class OrderItemAdapter(
             BillType.Transfer -> { binding.category.setText(context.getText(R.string.float_transfer)) }
         }
 
-        binding.payTools.setText(data.accountNameFrom)
+
         holder.binding.root.autoDisposeScope.launch {
             ResourceUtils.getCategoryDrawableByName(data.cateName, holder.context).let {
                 withContext(Dispatchers.Main) {
@@ -106,7 +114,7 @@ class OrderItemAdapter(
                 }
             }
 
-            ResourceUtils.getAssetDrawableFromName(data.accountNameFrom).let {
+            ResourceUtils.getAssetDrawableFromName(showAccount).let {
                 withContext(Dispatchers.Main) {
                     binding.payTools.setIcon(it)
                 }
@@ -114,7 +122,7 @@ class OrderItemAdapter(
         }
         BillTool.setTextViewPrice(data.money, data.type, binding.money)
         binding.date.text = DateUtils.stampToDate(data.time, "HH:mm:ss")
-
+        binding.payTools.setText(showAccount)
 
 
         if (data.syncFromApp) {
