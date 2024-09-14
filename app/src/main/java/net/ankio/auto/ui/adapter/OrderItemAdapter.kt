@@ -113,7 +113,7 @@ class OrderItemAdapter(
         }
 
         binding.payTools.visibility =
-            if (ConfigUtils.getBoolean(Setting.SETTING_ASSET_MANAGER)) View.VISIBLE else View.GONE
+            if (ConfigUtils.getBoolean(Setting.SETTING_ASSET_MANAGER,true)) View.VISIBLE else View.GONE
 
 
         if (!showMore) {

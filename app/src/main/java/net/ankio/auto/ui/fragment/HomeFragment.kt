@@ -163,9 +163,9 @@ class HomeFragment : BaseFragment() {
      */
     private fun bindBookAppUI() {
         binding.book.visibility =
-            if (ConfigUtils.getBoolean(Setting.SETTING_BOOK_MANAGER)) View.VISIBLE else View.GONE
+            if (ConfigUtils.getBoolean(Setting.SETTING_BOOK_MANAGER,true)) View.VISIBLE else View.GONE
         binding.assets.visibility =
-            if (ConfigUtils.getBoolean(Setting.SETTING_ASSET_MANAGER)) View.VISIBLE else View.GONE
+            if (ConfigUtils.getBoolean(Setting.SETTING_ASSET_MANAGER,true)) View.VISIBLE else View.GONE
         ConfigUtils.getString(Setting.BOOK_APP_ID, "").apply {
             if (this.isEmpty()) {
                 binding.bookApp.text = getString(R.string.no_setting)

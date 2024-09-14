@@ -427,4 +427,6 @@
     <string name="setting_mutilbooks_manager">多账本管理</string>
     <string name="setting_fee_manager">手续费功能</string>
     <string name="setting_tag_manager">标签功能</string>
+    <string name="expend_repayment">还款</string>
+    <string name="income_repayment">收款</string>
 </resources>
