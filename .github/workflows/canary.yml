@@ -1,10 +1,10 @@
 name: Canary Build
 
 on:
+  # 手动触发
   workflow_dispatch:
-
+  # 定时触发
   schedule:
-    # 每天的18:00 UTC，即北京时间次日2:00
     - cron: '0 18 * * *'
 
 permissions: write-all
@@ -24,100 +24,18 @@ jobs:
           distribution: 'adopt'
       - name: 编译安卓
         run: |
-          bash ./.github/workflows/build.sh canary
-      - name: 上传 APK 到 artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: temp-apk
-          path: ${{github.workspace}}/release/
-      - name: 打包脚本
-        uses: actions/upload-artifact@v3
-        with:
-          name: package
-          path: |
-            ${{github.workspace}}/tagVersionName.txt
-            ${{github.workspace}}/versionCode.txt
-            ${{github.workspace}}/.github/workflows/upload.py
-            ${{github.workspace}}/.github/workflows/configuration.json
-            ${{github.workspace}}/.github/workflows/changelog.sh
-
-  sign:
-    needs: setup
-    runs-on: ubuntu-latest
-    steps:
-      - name: 下载 APK
-        uses: actions/download-artifact@v3
-        with:
-          name: temp-apk
-          path: release/
-      - uses: ilharp/sign-android-release@v1
-        name: 签名
-        id: sign_app
-        with:
-          releaseDir: release
-          signingKey: ${{ secrets.SIGNING_KEY }}
-          keyAlias: ${{ secrets.ALIAS }}
-          keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
-          keyPassword: ${{ secrets.KEY_PASSWORD }}
-          buildToolsVersion: 34.0.0
-      - name: 上传 APK 到 artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: signed-app-apk
-          path: ${{steps.sign_app.outputs.signedFile}}
-
-
-
-  log:
-    needs: sign
-    runs-on: ubuntu-latest
-    steps:
-      - name: 下载脚本
-        uses: actions/download-artifact@v3
-        with:
-          name: package
-          path: package/
-      - name: 生成构建日志
-        id: github_release
-        uses: mikepenz/release-changelog-builder-action@v3
-        with:
-          commitMode: true
-          configuration: "package/.github/workflows/configuration.json"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Add Changelog to Summary
-        run: |
-          bash package/.github/workflows/changelog.sh Canary
-      - name: Upload Changelog as Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: Changelog
-          path: changelog.txt
-
-  upload-apk:
-    needs: log
-    runs-on: ubuntu-latest
-    steps:
-      - name: 下载签名后的 APK
-        uses: actions/download-artifact@v3
-        with:
-          name: signed-app-apk
-          path: release/
-      - name: 下载脚本
-        uses: actions/download-artifact@v3
-        with:
-          name: package
-          path: package/
-      - name: 下载日志
-        uses: actions/download-artifact@v3
-        with:
-          name: Changelog
-          path: log/
-      - name: 上传 APK
-        run: pip install requests markdown && python package/.github/workflows/upload.py
+          pip install requests  && python package/.github/workflows/main.py
         env:
           GITHUB_WORKSPACE: ${{ env.GITHUB_WORKSPACE }}
           ALIST_TOKEN: ${{ secrets.ALIST_TOKEN }}
           FORUMS_API_KEY: ${{ secrets.FORUMS_API_KEY }}
-          CHANNEL_ID: Canary
+          BUILD_TOOLS_VERSION: 34.0.0
+          SIGN_ALIAS: ${{ secrets.SIGN_ALIAS }}
+          SIGN_PASSWORD: ${{ secrets.SIGN_PASSWORD }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CHANNEL: Canary
+
+
+
+
 
