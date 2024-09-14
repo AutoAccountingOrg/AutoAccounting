@@ -163,7 +163,7 @@ def create_tag(tag,channel):
 发布 APK
 """
 def publish_apk(repo, tag_name,workspace,log,channel):
-    publish_to_github(repo, tag_name,  tag_name, log,f"{workspace}/app-xposed-signed.apk",False if channel == 'Stable' else True)
+    publish_to_github(repo, tag_name,  tag_name, log,f"{workspace}/dist/app-xposed-signed.apk",False if channel == 'Stable' else True)
     publish_to_pan(workspace,tag_name,channel)
     pass
 
