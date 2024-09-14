@@ -42,15 +42,10 @@ class OrderItemAdapter(
         val binding = holder.binding
         binding.root.setOnClickListener {
             val item = holder.item!!
-            FloatEditorDialog(holder.context, item, false) {
+            FloatEditorDialog(holder.context, item, false, onConfirmClick =  {
                 list[holder.positionIndex] = it
-
                 notifyItemChanged(holder.positionIndex)
-
-                binding.root.autoDisposeScope.launch {
-                    BillInfoModel.put(it)
-                }
-            }.show(float = false)
+            }).show(float = false)
         }
 
 

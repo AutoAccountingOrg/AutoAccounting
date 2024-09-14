@@ -61,6 +61,7 @@ class FloatEditorDialog(
     private var billInfoModel: BillInfoModel,
     private val float: Boolean = false,
     private val onCancelClick: ((billInfoModel: BillInfoModel) -> Unit)? = null,
+    private val onConfirmClick: ((billInfoModel: BillInfoModel) -> Unit)? = null,
 ) :
     BaseSheetDialog(context) {
     lateinit var binding: FloatEditorBinding
@@ -169,6 +170,7 @@ class FloatEditorDialog(
 
     override fun dismiss() {
         super.dismiss()
+
         if (::broadcastReceiver.isInitialized)
             LocalBroadcastHelper.unregisterReceiver(broadcastReceiver)
     }
@@ -216,6 +218,7 @@ class FloatEditorDialog(
 
 
                 dismiss()
+                onConfirmClick?.invoke(rawBillInfo)
             }
             //   dismiss()
         }
@@ -512,7 +515,7 @@ class FloatEditorDialog(
                 //binding.chooseBill.visibility = View.VISIBLE
                 binding.debtExpendToLayout.setHint(R.string.float_income_debt)
                 setAssetItem(billInfoModel.accountNameFrom, binding.debtExpendFrom)
-                binding.debtExpendTo.setText(billInfoModel.shopName)
+                binding.debtExpendTo.setText(billInfoModel.accountNameTo.ifEmpty { billInfoModel.shopName })
                 binding.debtExpendTo.autoDisposeScope.launch {
                     AssetsModel.list().filter { it.type == AssetsType.CREDITOR }.let { assets ->
                         withContext(Dispatchers.Main) {
@@ -532,8 +535,8 @@ class FloatEditorDialog(
             BillType.IncomeLending -> {
                 binding.debtIncome.visibility = View.VISIBLE
                 binding.debtIncomeFromLayout.setHint(R.string.float_income_debt)
-                binding.debtIncomeFrom.setText(billInfoModel.shopName)
-                setAssetItem(billInfoModel.accountNameFrom, binding.debtIncomeTo)
+                binding.debtIncomeFrom.setText(billInfoModel.accountNameFrom.ifEmpty { billInfoModel.shopName })
+                setAssetItem(billInfoModel.accountNameTo, binding.debtIncomeTo)
                 binding.debtIncomeFrom.autoDisposeScope.launch {
                     AssetsModel.list().filter { it.type == AssetsType.CREDITOR }.let { assets ->
                         withContext(Dispatchers.Main) {
@@ -548,8 +551,8 @@ class FloatEditorDialog(
                 binding.debtIncome.visibility = View.VISIBLE
                 //binding.chooseBill.visibility = View.VISIBLE
                 binding.debtIncomeFromLayout.setHint(R.string.float_expend_debt)
-                binding.debtIncomeFrom.setText(billInfoModel.shopName)
-                setAssetItem(billInfoModel.accountNameFrom, binding.debtIncomeTo)
+                binding.debtIncomeFrom.setText(billInfoModel.accountNameFrom.ifEmpty { billInfoModel.shopName })
+                setAssetItem(billInfoModel.accountNameTo, binding.debtIncomeTo)
                 binding.debtIncomeFrom.autoDisposeScope.launch {
                     AssetsModel.list().filter { it.type == AssetsType.BORROWER }.let { assets ->
                         withContext(Dispatchers.Main) {
