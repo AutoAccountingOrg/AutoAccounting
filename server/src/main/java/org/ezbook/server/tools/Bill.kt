@@ -78,6 +78,8 @@ object Bill {
             bill2.shopItem = bill2.extendData
         }
 
+
+
         //最后重新生成备注
         setRemark(bill2, context)
     }

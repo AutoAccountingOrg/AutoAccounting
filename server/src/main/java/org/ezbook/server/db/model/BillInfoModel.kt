@@ -23,11 +23,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.ezbook.server.Server
 import org.ezbook.server.constant.BillType
+import org.nanohttpd.util.IFactory
 
 @Entity
 class BillInfoModel {
     @PrimaryKey(autoGenerate = true)
-    var id = 0L
+    var id = -1L
 
     /**
      * 账单类型
@@ -156,6 +157,7 @@ class BillInfoModel {
         }
 
         suspend fun remove(id: Long) = withContext(Dispatchers.IO) {
+            if (id < 0) return@withContext
             Server.request("bill/remove?id=$id")
         }
 
