@@ -47,8 +47,6 @@ chmod +x "${rootDir}/gradlew"
 # 创建 release 目录
 mkdir -p "${rootDir}/release/"
 
-# 构建二进制文件
-"${rootDir}/gradlew" server:buildCMakeRelWithDebInfo
 
 # 优先构建 xposed 版本
 for flavor in xposed ; do
