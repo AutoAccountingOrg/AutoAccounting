@@ -24,7 +24,7 @@ jobs:
           distribution: 'adopt'
       - name: 编译安卓
         run: |
-          pip install requests  && python package/.github/workflows/main.py
+          pip install requests  && python .github/workflows/main.py
         env:
           GITHUB_WORKSPACE: ${{ env.GITHUB_WORKSPACE }}
           ALIST_TOKEN: ${{ secrets.ALIST_TOKEN }}
