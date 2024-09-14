@@ -55,12 +55,4 @@ for flavor in xposed ; do
 done
 
 
-# 检查编译是否成功
-if [ $? -eq 0 ]; then
-  git tag "ActionBuild-${tagVersionName}"
-  git push origin "ActionBuild-${tagVersionName}"
-else
-  echo "编译失败，退出..."
-  exit 1
-fi
 
