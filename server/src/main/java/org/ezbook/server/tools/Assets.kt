@@ -167,7 +167,7 @@ object Assets {
         //命中算法
         if (autoAsset) {
             val autoAssetName = getAssetsByAlgorithm(assets, account)
-            if (autoAssetName != account) {
+            if (autoAssetName != account && autoAssetName.isNotEmpty()) {
                 //将映射结果保存到映射表
                 Db.get().assetsMapDao().insert(AssetsMapModel().apply {
                     name = account
@@ -178,11 +178,13 @@ object Assets {
             return autoAssetName
         } else {
             //将映射结果保存到映射表
-            Db.get().assetsMapDao().insert(AssetsMapModel().apply {
-                name = account
-                mapName = account
-                regex = false
-            })
+            if (account.isNotEmpty()){
+                Db.get().assetsMapDao().insert(AssetsMapModel().apply {
+                    name = account
+                    mapName = account
+                    regex = false
+                })
+            }
         }
         return account
     }
