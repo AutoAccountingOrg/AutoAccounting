@@ -54,3 +54,13 @@ for flavor in xposed ; do
   cp "${rootDir}/app/build/outputs/apk/${flavor}/release/app.apk" "${rootDir}/release/app-${flavor}.apk"
 done
 
+
+# 检查编译是否成功
+if [ $? -eq 0 ]; then
+  git tag "CanaryBuild-${tagVersionName}"
+  git push origin "CanaryBuild-${tagVersionName}"
+else
+  echo "编译失败，退出..."
+  exit 1
+fi
+
