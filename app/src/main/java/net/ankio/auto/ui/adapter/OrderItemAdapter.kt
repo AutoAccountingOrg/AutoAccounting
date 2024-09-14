@@ -30,6 +30,7 @@ import net.ankio.auto.ui.scope.autoDisposeScope
 import net.ankio.auto.ui.utils.ResourceUtils
 import net.ankio.auto.utils.BillTool
 import net.ankio.auto.utils.DateUtils
+import org.ezbook.server.constant.BillType
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BillInfoModel
 
@@ -83,6 +84,25 @@ class OrderItemAdapter(
     ) {
         val binding = holder.binding
         binding.category.setText(data.cateName)
+
+        val context= holder.context
+        if (data.remark.isEmpty()) {
+            binding.remark.text = "无备注"
+        } else {
+            binding.remark.text = data.remark
+        }
+        when (data.type) {
+            BillType.Expend -> {}
+            BillType.ExpendReimbursement -> {}
+            BillType.ExpendLending -> { binding.category.setText(context.getText(R.string.expend_lending)) }
+            BillType.ExpendRepayment -> { binding.category.setText(context.getText(R.string.expend_repayment_info)) }
+            BillType.Income -> {}
+            BillType.IncomeLending ->  { binding.category.setText(context.getText(R.string.income_lending)) }
+            BillType.IncomeRepayment ->  { binding.category.setText(context.getText(R.string.income_repayment_info)) }
+            BillType.IncomeReimbursement -> {}
+            BillType.Transfer -> { binding.category.setText(context.getText(R.string.float_transfer)) }
+        }
+
         binding.payTools.setText(data.accountNameFrom)
         holder.binding.root.autoDisposeScope.launch {
             ResourceUtils.getCategoryDrawableByName(data.cateName, holder.context).let {
@@ -100,11 +120,7 @@ class OrderItemAdapter(
         BillTool.setTextViewPrice(data.money, data.type, binding.money)
         binding.date.text = DateUtils.stampToDate(data.time, "HH:mm:ss")
 
-        if (data.remark.isEmpty()) {
-            binding.remark.text = "无备注"
-        } else {
-            binding.remark.text = data.remark
-        }
+
 
         if (data.syncFromApp) {
             binding.sync.setImageResource(R.drawable.ic_sync)

@@ -429,4 +429,8 @@
     <string name="setting_tag_manager">标签功能</string>
     <string name="expend_repayment">还款</string>
     <string name="income_repayment">收款</string>
+    <string name="expend_lending">债务 - 借出</string>
+    <string name="expend_repayment_info">债务 - 还款</string>
+    <string name="income_lending">债务 - 借入</string>
+    <string name="income_repayment_info">债务 - 收款</string>
 </resources>
