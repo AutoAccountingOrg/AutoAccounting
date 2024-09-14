@@ -80,8 +80,8 @@ class NotificationHooker : PartHooker() {
                     hookerManifest.logD("Notification Content: $originalText")
 
 
-                    // 1分钟内不重复请求数据，加快识别速度
-                    if (System.currentTimeMillis() - lastTime < 1000 * 60) {
+                    // 5分钟内不重复请求数据，加快识别速度
+                    if (System.currentTimeMillis() - lastTime < 1000 * 60 * 5) {
                         checkNotification(
                             opkg,
                             originalTitle,
