@@ -6,79 +6,120 @@ import json
 import time
 import os
 import re
-# 登录
-username = os.getenv('USERNAME_ENV_VAR')
-password = os.getenv('PASSWORD_ENV_VAR')
-import hashlib
-
-hash_salt = "https://github.com/alist-org/alist"
-to_hash = f"{password}-{hash_salt}"
-hashed_password = hashlib.sha256(to_hash.encode()).hexdigest()
-
-# host
-host = os.getenv('HOST_ENV_VAR')
-headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
-                  'Chrome/58.0.3029.110 Safari/537.3'
-}
-url = host + '/api/auth/login/hash'
-
-d = {'Username': username, 'Password': hashed_password}
-r = requests.post(url, data=d, headers=headers)
-
-# 对登录后返回的数据进行解析
-data = json.loads(r.text)
-
-token = data.get('data').get('token')
 
 
-def upload(filename, filename_new, auth):
+"""
+提取字符串中的第一个整数
+"""
+def extract_int(s):
+    # 使用正则表达式匹配字符串中的第一个连续数字序列
+    match = re.search(r'\d+', s.replace(".", ""))
+    if match:
+        # 如果找到数字，将其转换为整数
+        return int(match.group())
+    else:
+        # 如果没有找到数字，返回 None 或抛出异常
+        return 0
+
+"""
+使用alist的API上传文件
+"""
+def upload(filename, filename_new,channel):
     # 上传文件
-    url2 = host + "/api/fs/put"
-    filename_new = quote('/阿里云盘/自动记账/版本更新/持续构建版/' + filename_new, 'utf-8')  # 对文件名进行URL编码
+    url2 =   "https://cloud.ankio.net/api/fs/put"
+    #
+    filename_new = quote('/自动记账/自动记账/版本更新/'+channel +"/" + filename_new, 'utf-8')  # 对文件名进行URL编码
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
                       'Chrome/58.0.3029.110 Safari/537.3',
-        'Authorization': auth,
-        'As-Task':"true",
+        'Authorization': os.getenv("ALIST_TOKEN"),
         'file-path': filename_new
     }
-    dir = os.getenv("GITHUB_WORKSPACE")
     # 读取文件内容
-    with open(dir+filename, 'rb') as file:
+    with open(filename, 'rb') as file:
         file_data = file.read()
     res = requests.put(url=url2, data=file_data, headers=headers)
     print(res.text)
 
+"""
+将数据写入文件
+"""
+def put_file():
+    # 写入版本文件
+    with open('log/changelog.txt', 'r', encoding='utf-8') as file:
+        log = file.read()
+    with open('package/versionCode.txt', 'r', encoding='utf-8') as file:
+        code = file.read()
+    with open('package/tagVersionName.txt', 'r', encoding='utf-8') as file:
+        name = file.read()
+    t = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    # 版本文件
+    data = {
+        "version": name,
+        "code": code,
+        "log": "\n".join(log.splitlines()[5:]),
+        "date": t
+    }
+    json_str = json.dumps(data, indent=4)
+    with open(os.getenv("GITHUB_WORKSPACE") + "/index.json", 'w') as file:
+        file.writelines(json_str)
+    # 日志README
+    with open(os.getenv("GITHUB_WORKSPACE") + "/README.md", 'w') as file:
+        file.writelines(markdown_log)
+    return name, t, html
 
-with open(os.getenv("GITHUB_WORKSPACE")+"/package/tagVersionName.txt", 'r') as file:
-    name = file.read().replace("+", "-")
-with open(os.getenv("GITHUB_WORKSPACE")+"/package/versionCode.txt", 'r') as file:
-    code = file.read()
-with open(os.getenv("GITHUB_WORKSPACE")+"/log/changelog.txt", 'r') as file:
-    changeLog = file.read()
-html = markdown.markdown(changeLog)
+"""
+上传到网盘
+"""
+def upload_pan(name,channel):
+    # 获取GITHUB_WORKSPACE环境变量并拼接dist目录
+    dir = os.getenv("GITHUB_WORKSPACE")
 
-t = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-name = name.replace("\n", "").replace("\\n","")
-data= {
-    "version": name,
-    "code": code,
-    "log": html,
-    "date": t,
-    "file": name+".apk"
-}
+    # 获取目录长度，后面用于生成相对路径
 
-json_str = json.dumps(data, indent=4)
+    upload(dir + "/index.json", "/index.json",channel)
 
-with open(os.getenv("GITHUB_WORKSPACE")+"/release/index.json", 'w') as file:
-    file.writelines(json_str)
+    upload(dir + "/README.md", "/README.md",channel)
 
-with open(os.getenv("GITHUB_WORKSPACE")+"/release/README.md", 'w') as file:
-    file.writelines("# 更新日志\n - 时间："+t+"\n - 版本："+name+"\n"+changeLog)
+    upload(os.getenv("GITHUB_WORKSPACE") + "/release/app-xposed-signed.apk", name+".apk",channel)
+
+"""
+调用机器人发送消息
+"""
+def send_bot():
+    pass
+
+"""
+在社区发帖
+"""
+def send_forums(api_key,title,content,channel):
+    url = "https://forum.ez-book.org/posts.json"
+    headers = {
+        "Content-Type": "application/json",
+        "Api-Key": api_key,
+        "Api-Username": "system"
+    }
+    data = {
+        "title": title,
+        "raw": content,
+        "category": 8,
+        "tags": ["版本发布",channel]
+    }
+    response = requests.post(url, headers=headers, json=data)
+    print(response.json())
+
+"""
+通知用户
+"""
+def send_notify(title,content):
+    # 在社区发帖
+    send_forums(os.getenv("FORUMS_API_KEY"),title,content)
+    # 在群里通知
+    send_bot()
 
 
-upload("/release/README.md", "README.md", token)
-upload("/release/index.json", "index.json", token)
-upload("/release/app-xposed-signed.apk", name+".apk", token)
-# TODO 除了上传文件到服务器以外，还需要通过bot通知到自动记账群的用户。
+if __name__ == '__main__':
+    channel = os.getenv("CHANNEL_ID")
+    name, t, log = put_file()
+    upload_pan(name,channel)
+    send_notify(name,log,channel)
