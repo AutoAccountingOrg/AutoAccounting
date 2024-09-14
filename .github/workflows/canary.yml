@@ -1,4 +1,4 @@
-name: Build and Publish Android Pre-Release APKs
+name: Canary Build
 
 on:
   schedule:
