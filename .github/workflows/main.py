@@ -96,7 +96,7 @@ def write_logs(logs,workspace,channel,tag,repo):
         file.write(" - 版本：" + tag + "\n")
         file.write(" - 发布时间：" + t + "\n")
         file.write(log_data)
-
+    return log_data
 def run_command_live(command):
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
     for line in process.stdout:
@@ -164,7 +164,7 @@ def create_tag(tag,channel):
 """
 def publish_apk(repo, tag_name,workspace,log,channel):
     publish_to_github(repo, tag_name,  tag_name, log,f"{workspace}/app-xposed-signed.apk",False if channel == 'Stable' else True)
-    publish_to_pan(workspace)
+    publish_to_pan(workspace,tag_name,channel)
     pass
 
 def upload(filename, filename_new, channel):
@@ -296,10 +296,10 @@ def main(repo):
     tagVersionName = get_and_set_version(channel,workspace)
     print(f"新的版本号: {tagVersionName}")
     logs = build_logs(commits,workspace)
-    write_logs(logs,workspace,channel,tagVersionName,repo)
+    log_data = write_logs(logs,workspace,channel,tagVersionName,repo)
     build_apk(workspace)
     create_tag(tagVersionName,channel)
-    publish_apk(repo, tagVersionName,workspace,logs,channel)
-    notify(tagVersionName,logs,channel)
+    publish_apk(repo, tagVersionName,workspace,log_data,channel)
+    notify(tagVersionName,log_data,channel)
 
 main("AutoAccountingOrg/AutoAccounting")
