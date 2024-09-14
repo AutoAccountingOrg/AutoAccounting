@@ -123,7 +123,7 @@ class AssetsUtils(private val manifest: HookerManifest, private val classLoader:
         accounts.forEach {
             val asset = it!!
             val model = AssetsModel()
-            XposedBridge.log("账户信息:${Gson().toJson(asset)}")
+            manifest.logD("账户信息:${Gson().toJson(asset)}")
 
             val fields = asset::class.java.declaredFields
 
@@ -142,8 +142,8 @@ class AssetsUtils(private val manifest: HookerManifest, private val classLoader:
                 QianJiAssetType.Type_Recharge -> AssetsType.VIRTUAL
                 QianJiAssetType.Type_Invest -> AssetsType.FINANCIAL
                 QianJiAssetType.Type_DebtLoan -> when (stype) {
-                    QianJiAssetType.SType_Loan -> AssetsType.CREDITOR
-                    else -> AssetsType.BORROWER
+                    QianJiAssetType.SType_Loan -> AssetsType.BORROWER
+                    else -> AssetsType.CREDITOR
                 }
 
                 else -> AssetsType.NORMAL
