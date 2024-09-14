@@ -193,4 +193,10 @@ abstract class BaseFragment : Fragment() {
         super.onStop()
         App.pageStopOrDestroy()
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        App.pageStopOrDestroy()
+    }
+
 }
