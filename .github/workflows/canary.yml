@@ -95,7 +95,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Add Changelog to Summary
         run: |
-          bash package/.github/changelog.sh Canary
+          bash package/changelog.sh Canary
       - name: Upload Changelog as Artifact
         uses: actions/upload-artifact@v3
         with:
