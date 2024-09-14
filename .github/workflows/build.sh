@@ -1,7 +1,6 @@
-#
+#!/bin/bash
 # Copyright (C) 2024 ankio(ankio@ankio.net)
 # Licensed under the Apache License, Version 3.0 (the "License");
-# you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
 #         http://www.apache.org/licenses/LICENSE-3.0
@@ -16,6 +15,17 @@
 # 获取当前目录路径
 rootDir=$(pwd)
 
+# 获取最近的 tag
+latestTag=$(git describe --tags --abbrev=0)
+
+# 检查从最近的 tag 到当前是否有新的提交
+if [[ -z $(git log ${latestTag}..HEAD --oneline) ]]; then
+  echo "没有从最近的 tag ${latestTag} 到当前的提交，终止编译。"
+  exit 0
+fi
+
+echo "检测到从最近的 tag ${latestTag} 到当前的提交，继续编译..."
+
 # 构建渠道
 channel=$1
 
@@ -28,8 +38,8 @@ tagVersionName="${versionName}-${channel}.$(date +'%Y%m%d%H%M%S')"
 
 # 输出结果到 GitHub Actions 环境
 echo "tag_version_name=v${tagVersionName}" >> $GITHUB_OUTPUT
-echo "初啼 ${tagVersionName}" >> ${{github.workspace}}/tagVersionName.txt
-echo "${versionCode}" >> ${{github.workspace}}/versionCode.txt
+echo "${tagVersionName}" >> "${GITHUB_WORKSPACE}/tagVersionName.txt"
+echo "${versionCode}" >> "${GITHUB_WORKSPACE}/versionCode.txt"
 
 # 配置运行权限
 chmod +x "${rootDir}/gradlew"
@@ -45,3 +55,4 @@ for flavor in xposed ; do
   "${rootDir}/gradlew" "assemble${flavor^}Release"
   cp "${rootDir}/app/build/outputs/apk/${flavor}/release/app.apk" "${rootDir}/release/app-${flavor}.apk"
 done
+

@@ -23,6 +23,14 @@ jobs:
       - name: 编译安卓
         run: |
           sh ./.github/workflows/build.sh canary
+          # 检查编译是否成功
+          if [ $? -eq 0 ]; then
+            git tag "CanaryBuild-${tagVersionName}"
+            git push origin "CanaryBuild-${tagVersionName}"
+          else
+            echo "编译失败，退出..."
+            exit 1
+          fi
       - name: 上传 APK 到 artifact
         uses: actions/upload-artifact@v3
         with:
