@@ -1,12 +1,7 @@
 *.iml
 .gradle
 /local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
+/.idea/*
 .DS_Store
 /build
 /captures
@@ -14,4 +9,5 @@
 .cxx
 local.properties
 /.github/workflows/env.json
+/.github/workflows/.idea
 /app/xposed/release/*
