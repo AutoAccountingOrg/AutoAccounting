@@ -71,7 +71,12 @@ object Logger {
         XposedBridge.log(e)
         Log.e("自动记账", e.message ?: "")
         App.scope.launch {
-            LogModel.add(LogLevel.ERROR, app, getTag(), e.message ?: "")
+            val log = StringBuilder()
+            log.append(e.message).append("\n")
+            e.stackTrace.forEach {
+                log.append(it.toString()).append("\n")
+            }
+            LogModel.add(LogLevel.ERROR, app, getTag(), log.toString())
         }
     }
 }
