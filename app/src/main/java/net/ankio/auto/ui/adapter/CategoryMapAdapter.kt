@@ -70,7 +70,7 @@ class CategoryMapAdapter(
         binding.root.autoDisposeScope.launch {
             ResourceUtils.getCategoryDrawableByName(data.mapName, activity).let {
                 withContext(Dispatchers.Main) {
-                    binding.target.setIcon(it)
+                    binding.target.setIcon(it,true)
                 }
             }
         }
