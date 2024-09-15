@@ -49,7 +49,6 @@ class BookNameModel {
         ) {
             val response = Server.request("book/list")
 
-
             runCatching {
                 val json = Gson().fromJson(response, JsonObject::class.java)
                 Gson().fromJson(

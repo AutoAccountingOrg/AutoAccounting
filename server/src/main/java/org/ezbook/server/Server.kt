@@ -154,11 +154,13 @@ class Server(context: Context) {
          * 日志
          */
         fun log(msg: String) {
-            Db.get().logDao().insert(LogModel().apply {
-                level = LogLevel.INFO
-                app = TAG
-                message = msg
-            })
+            runCatching {
+                Db.get().logDao().insert(LogModel().apply {
+                    level = LogLevel.INFO
+                    app = TAG
+                    message = msg
+                })
+            }
             Log.d("Server", msg)
         }
 
@@ -167,11 +169,13 @@ class Server(context: Context) {
          */
         fun log(e: Throwable) {
 
-            Db.get().logDao().insert(LogModel().apply {
-                level = LogLevel.ERROR
-                app = TAG
-                message = e.message ?: ""
-            })
+           runCatching {
+               Db.get().logDao().insert(LogModel().apply {
+                   level = LogLevel.ERROR
+                   app = TAG
+                   message = e.message ?: ""
+               })
+           }
 
             e.printStackTrace()
         }
