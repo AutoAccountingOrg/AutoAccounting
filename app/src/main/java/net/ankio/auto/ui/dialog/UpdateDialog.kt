@@ -53,7 +53,7 @@ class UpdateDialog(
         return binding.root
     }
 
-    lateinit var broadcastReceiver: BroadcastReceiver
+    private lateinit var broadcastReceiver: BroadcastReceiver
 
     //监听更新完成广播
     override fun show(float: Boolean, cancel: Boolean) {

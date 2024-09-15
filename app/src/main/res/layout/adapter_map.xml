@@ -21,9 +21,11 @@
     android:id="@+id/item"
     android:clickable="true"
     android:background="@drawable/ripple_effect"
+    android:weightSum="3"
     >
 
     <TextView
+        android:layout_weight="1"
         android:ellipsize="end"
         android:maxLines="1"
         android:id="@+id/raw"
@@ -52,5 +54,6 @@
         android:layout_height="wrap_content"
         app:textColor="?colorOnBackground"
         app:text="原始"
+        android:layout_weight="1"
         />
 </LinearLayout>

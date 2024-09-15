@@ -271,7 +271,7 @@ class HomeFragment : BaseFragment() {
     private suspend fun checkRuleUpdate(showResult: Boolean) {
         val ruleUpdate = RuleUpdate(requireContext())
         if (ruleUpdate.check(showResult)) {
-            UpdateDialog(requireActivity(), ruleUpdate).show(false)
+            UpdateDialog(requireActivity(), ruleUpdate).show(cancel = true)
         }
     }
 
