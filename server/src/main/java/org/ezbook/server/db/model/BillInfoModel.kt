@@ -27,7 +27,7 @@ import org.ezbook.server.constant.BillType
 @Entity
 class BillInfoModel {
     @PrimaryKey(autoGenerate = true)
-    var id = -1L
+    var id = 0L
 
     /**
      * 账单类型
@@ -98,7 +98,7 @@ class BillInfoModel {
     /**
      * 分组id，这个id是指将短时间内捕获到的同等金额进行合并的分组id
      */
-    var groupId: Int = 0
+    var groupId: Int = -1
 
     /**
      * 数据渠道，这里指的是更具体的渠道，例如【建设银行】微信公众号，用户【xxxx】这种

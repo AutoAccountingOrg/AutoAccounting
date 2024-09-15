@@ -26,7 +26,7 @@ interface BillInfoDao {
     @Insert
     fun insert(billInfo: BillInfoModel): Long
 
-    @Query("SELECT * FROM BillInfoModel WHERE money = :money AND time > :time and groupId = 0")
+    @Query("SELECT * FROM BillInfoModel WHERE money = :money AND time > :time and groupId = -1")
     fun query(money: Double, time: Long): List<BillInfoModel>
 
     @Query("SELECT * FROM BillInfoModel WHERE id = :id")
@@ -39,7 +39,7 @@ interface BillInfoDao {
     @Query("DELETE FROM BillInfoModel WHERE time < :time")
     fun clearOld(time: Long)
 
-    @Query("SELECT * FROM BillInfoModel WHERE groupId=0 ORDER BY time DESC LIMIT :limit OFFSET :offset")
+    @Query("SELECT * FROM BillInfoModel WHERE groupId=-1 ORDER BY time DESC LIMIT :limit OFFSET :offset")
     fun loadPage(limit: Int, offset: Int): List<BillInfoModel>
 
     @Query("DELETE FROM BillInfoModel WHERE groupId = :groupId")
