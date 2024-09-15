@@ -156,7 +156,6 @@ class BillInfoModel {
         }
 
         suspend fun remove(id: Long) = withContext(Dispatchers.IO) {
-            if (id <= 0) return@withContext
             Server.request("bill/remove?id=$id")
         }
 
