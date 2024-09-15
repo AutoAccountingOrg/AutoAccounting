@@ -15,6 +15,7 @@
 
 package org.ezbook.server.db.model
 
+import android.util.Log
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.Gson
@@ -55,8 +56,6 @@ class BookNameModel {
                     json.getAsJsonArray("data"),
                     Array<BookNameModel>::class.java
                 ).toList()
-            }.onFailure {
-                Server.log(it)
             }.getOrNull() ?: emptyList()
         }
 
