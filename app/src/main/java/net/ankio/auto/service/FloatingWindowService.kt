@@ -225,7 +225,7 @@ class FloatingWindowService : Service() {
                 runCatching {
                     FloatEditorDialog(themedContext, billInfoModel, true, onCancelClick = {
                         App.launch {
-                            BillInfoModel.remove(billInfoModel.id)
+                            BillInfoModel.remove(it.id)
                         }
                     }).show(true)
                 }.onFailure {
