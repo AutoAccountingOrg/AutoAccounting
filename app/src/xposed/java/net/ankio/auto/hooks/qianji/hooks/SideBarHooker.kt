@@ -17,7 +17,6 @@ package net.ankio.auto.hooks.qianji.hooks
 
 import android.app.Activity
 import android.app.Application
-import android.content.Intent
 import android.view.LayoutInflater
 import android.widget.FrameLayout
 import android.widget.LinearLayout

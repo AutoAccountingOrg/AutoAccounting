@@ -17,7 +17,6 @@ package net.ankio.auto.ui.api
 
 import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
-import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -26,7 +25,6 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.SearchView
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.R
 import com.zackratos.ultimatebarx.ultimatebarx.addNavigationBarBottomPadding

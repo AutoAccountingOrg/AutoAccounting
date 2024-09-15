@@ -19,7 +19,6 @@ import android.app.Activity
 import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.JsonObject
-import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.request.RequestsUtils
 import net.ankio.auto.storage.ConfigUtils

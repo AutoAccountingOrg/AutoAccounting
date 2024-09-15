@@ -36,7 +36,6 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.broadcast.LocalBroadcastHelper
 import net.ankio.auto.databinding.FloatEditorBinding
-import net.ankio.auto.hooks.qianji.sync.AutoConfig
 import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseSheetDialog

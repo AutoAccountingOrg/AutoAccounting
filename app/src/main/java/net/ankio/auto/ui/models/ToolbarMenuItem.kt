@@ -17,7 +17,6 @@ package net.ankio.auto.ui.models
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.navigation.NavController
 
 data class ToolbarMenuItem(
     @StringRes val title: Int,

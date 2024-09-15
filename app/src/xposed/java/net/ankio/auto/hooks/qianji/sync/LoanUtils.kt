@@ -24,7 +24,6 @@ import net.ankio.auto.core.xposed.Hooker
 import net.ankio.auto.utils.DateUtils
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.BillInfoModel
-import org.ezbook.server.db.model.BookBillModel
 import org.json.JSONObject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine

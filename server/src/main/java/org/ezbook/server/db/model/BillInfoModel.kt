@@ -23,7 +23,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.ezbook.server.Server
 import org.ezbook.server.constant.BillType
-import org.nanohttpd.util.IFactory
 
 @Entity
 class BillInfoModel {

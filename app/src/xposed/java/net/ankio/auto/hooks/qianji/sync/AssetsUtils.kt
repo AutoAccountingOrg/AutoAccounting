@@ -16,7 +16,6 @@
 package net.ankio.auto.hooks.qianji.sync
 
 import com.google.gson.Gson
-import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -24,7 +23,6 @@ import net.ankio.auto.core.App
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.xposed.Hooker
 import net.ankio.auto.hooks.qianji.tools.QianJiAssetType
-import net.ankio.auto.hooks.qianji.tools.UserUtils
 import org.ezbook.server.constant.AssetsType
 import org.ezbook.server.constant.Currency
 import org.ezbook.server.constant.Setting
