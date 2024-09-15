@@ -17,6 +17,8 @@ package net.ankio.auto.update
 
 import android.app.Activity
 import android.content.Context
+import com.google.gson.Gson
+import com.google.gson.JsonObject
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.utils.CustomTabsHelper
@@ -25,6 +27,8 @@ import org.ezbook.server.constant.Setting
 class AppUpdate(context: Context) : BaseUpdate(context) {
     override val repo: String
         get() = "AutoAccounting"
+
+
     override val dir: String
         get() = "版本更新/" + ConfigUtils.getString(
             Setting.CHECK_UPDATE_TYPE,
@@ -46,6 +50,23 @@ class AppUpdate(context: Context) : BaseUpdate(context) {
         } else {
             pan() + "/$version.apk"
         }
+    }
+
+    override suspend fun checkVersionFromGithub(localVersion: String): Array<String> {
+       val json = request.get("https://api.github.com/repos/AutoAccountingOrg/$repo/releases")
+        val data =  Gson().fromJson(json.second, Array<JsonObject>::class.java)
+        val channel = ConfigUtils.getString(
+            Setting.CHECK_UPDATE_TYPE,
+            UpdateType.Stable.name
+        )
+        for (i in data) {
+            val tag = i["tag_name"].asString
+            if (tag.contains(channel)){
+                github = i["url"].asString
+                return super.checkVersionFromGithub(localVersion)
+            }
+        }
+        return arrayOf("", "", "")
     }
 
     override fun update(activity: Activity) {

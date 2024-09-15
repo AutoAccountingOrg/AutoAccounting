@@ -46,6 +46,7 @@ class RuleUpdate(private val context: Context) : BaseUpdate(context) {
         return ConfigUtils.getString(Setting.RULE_VERSION, "None")
     }
 
+    override var github = "https://api.github.com/repos/AutoAccountingOrg/${repo}/releases/latest"
 
     override fun onCheckedUpdate() {
         download = if (ConfigUtils.getString(

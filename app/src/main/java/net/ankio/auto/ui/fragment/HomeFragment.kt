@@ -278,9 +278,9 @@ class HomeFragment : BaseFragment() {
     /**
      * 检查应用更新
      */
-    private suspend fun checkAppUpdate() {
+    private suspend fun checkAppUpdate(showResult: Boolean = false) {
         val appUpdate = AppUpdate(requireContext())
-        if (appUpdate.check(false)) {
+        if (appUpdate.check(showResult)) {
             UpdateDialog(requireActivity(), appUpdate).show(cancel = true)
         }
     }
@@ -358,12 +358,9 @@ class HomeFragment : BaseFragment() {
      */
     private fun bindingActiveEvents() {
         binding.active.setOnClickListener {
-
-            if (!ActiveInfo.isModuleActive()) {
-                //TODO 跳转帮助文档
-            }
-
-            //  findNavController().navigate(R.id.serviceFragment)
+           lifecycleScope.launch {
+               checkAppUpdate(true)
+           }
         }
     }
 

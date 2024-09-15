@@ -33,9 +33,7 @@ abstract class BaseUpdate(context: Context) {
     protected val url = "https://dl.ez-book.org/自动记账"
     abstract val repo: String
     var download = ""
-    fun github(): String {
-        return "https://api.github.com/repos/AutoAccountingOrg/$repo/releases/latest"
-    }
+    open var github  = ""
 
 
     abstract val dir: String
@@ -116,10 +114,10 @@ abstract class BaseUpdate(context: Context) {
     /**
      * 从github检查版本
      */
-    private suspend fun checkVersionFromGithub(localVersion: String): Array<String> {
+    open suspend fun checkVersionFromGithub(localVersion: String): Array<String> {
 
         try {
-            request.get(github()).let {
+            request.get(github).let {
                 val json = Gson().fromJson(it.second, JsonObject::class.java)
                 version = json.get("tag_name").asString
                 log = json.get("body").asString
