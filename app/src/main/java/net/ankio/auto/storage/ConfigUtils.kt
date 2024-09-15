@@ -52,9 +52,10 @@ class ConfigUtils private constructor(context: Context) {
 
         fun save(context: Context) {
             getInstance(context).save()
+            val settings = getInstance(context).settings.toMutableMap()
             // 同步远程数据库
             App.launch {
-                getInstance(context).settings.forEach {
+                settings.forEach {
                     SettingModel.set(it.key, it.value.toString())
                 }
             }
