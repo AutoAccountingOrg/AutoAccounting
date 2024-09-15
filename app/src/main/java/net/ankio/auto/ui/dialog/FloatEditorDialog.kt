@@ -174,8 +174,11 @@ class FloatEditorDialog(
     override fun dismiss() {
         super.dismiss()
 
-        if (::broadcastReceiver.isInitialized)
-            LocalBroadcastHelper.unregisterReceiver(broadcastReceiver)
+        if (::broadcastReceiver.isInitialized){
+            runCatching {
+                LocalBroadcastHelper.unregisterReceiver(broadcastReceiver)
+            }
+        }
     }
 
     private fun bindingButtonsEvents() {
