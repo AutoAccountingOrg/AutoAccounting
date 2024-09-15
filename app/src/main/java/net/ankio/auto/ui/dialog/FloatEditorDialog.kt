@@ -114,7 +114,6 @@ class FloatEditorDialog(
             this.channel = billInfoModel.channel
             this.app = billInfoModel.app
             this.money = billInfoModel.money
-            this.type = billInfoModel.type
             this.fee = billInfoModel.fee
             this.bookName = billInfoModel.bookName
             this.type = billTypeLevel2
@@ -358,23 +357,18 @@ class FloatEditorDialog(
     }
 
     private fun bindingCategoryUI() {
-        if (billTypeLevel2 == BillType.Income || billTypeLevel2 == BillType.Expend || billTypeLevel2 == BillType.ExpendReimbursement) {
-            binding.category.visibility = View.VISIBLE
-            lifecycleScope.launch {
-                val book = BookNameModel.getDefaultBook(billInfoModel.bookName)
-                ResourceUtils.getCategoryDrawableByName(
-                    billInfoModel.cateName,
-                    context,
-                    book.remoteId,
-                    billTypeLevel2.name
-                ).let {
-                    binding.category.setIcon(it, true)
-                }
+        lifecycleScope.launch {
+            val book = BookNameModel.getDefaultBook(billInfoModel.bookName)
+            ResourceUtils.getCategoryDrawableByName(
+                billInfoModel.cateName,
+                context,
+                book.remoteId,
+                billTypeLevel2.name
+            ).let {
+                binding.category.setIcon(it, true)
             }
-            binding.category.setText(billInfoModel.cateName)
-        } else {
-            binding.category.visibility = View.GONE
         }
+        binding.category.setText(billInfoModel.cateName)
     }
 
     private fun bindingCategoryEvents() {
@@ -743,7 +737,7 @@ class FloatEditorDialog(
 
         setBillType(billTypeLevel1)
         binding.chipGroup.clearCheck()
-        if (billTypeLevel1 != rawBillInfo.type) {
+        if (billTypeLevel1!=BillType.Transfer && billTypeLevel1 != rawBillInfo.type) {
             binding.chipGroup.check(when (rawBillInfo.type) {
                 BillType.ExpendReimbursement -> R.id.chipReimbursement
                 BillType.ExpendLending -> R.id.chipLend
