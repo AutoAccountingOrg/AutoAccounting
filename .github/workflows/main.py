@@ -225,22 +225,20 @@ def publish_to_github(repo, tag_name, release_name, release_body, file_path, pre
         release_id = release_info['id']
         release_url = release_info['html_url']
         print(f"Release created successfully: {release_url}")
-
+        with open(file_path, 'rb') as file:
+            file_data = file.read()  # 读取文件的二进制内容
         # 上传文件
         upload_url = release_info['upload_url'].split('{')[0]  # 去掉 URL 中的占位符
         file_name = os.path.basename(file_path)
-        with open(file_path, 'rb') as file:
-            files = {
-                'file': (file_name, file, 'application/octet-stream')
-            }
-            upload_response = requests.post(
-                upload_url + f"?name={file_name}",
-                headers={
-                    "Authorization": f"token {token}",
-                    "Accept": "application/vnd.github.v3+json"
-                },
-                files=files
-            )
+        upload_response = requests.post(
+            upload_url + f"?name={file_name}",
+            headers={
+                "Authorization": f"token {token}",
+                "Accept": "application/vnd.github.v3+json",
+                "Content-Type": "application/octet-stream"  # 明确指定上传内容类型
+            },
+            data=file_data  # 使用 data 参数传递文件的二进制内容
+        )
 
         if upload_response.status_code == 201:
             print(f"File uploaded successfully: {upload_response.json()['browser_download_url']}")
