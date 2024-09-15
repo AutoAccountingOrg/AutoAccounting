@@ -92,7 +92,7 @@ class AutoHooker : PartHooker() {
 
                     val error = handleError(msg)
                     val autoTaskLog = param.args[1] as Any
-
+                    hookerManifest.logD("钱迹自动记账失败：$error")
 
                     val value = XposedHelpers.getObjectField(autoTaskLog, "value") as String
                     val uri = Uri.parse(value)
