@@ -48,9 +48,10 @@ class BookNameModel {
             Dispatchers.IO
         ) {
             val response = Server.request("book/list")
-            val json = Gson().fromJson(response, JsonObject::class.java)
+
 
             runCatching {
+                val json = Gson().fromJson(response, JsonObject::class.java)
                 Gson().fromJson(
                     json.getAsJsonArray("data"),
                     Array<BookNameModel>::class.java
