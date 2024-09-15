@@ -36,7 +36,8 @@ class AppUpdate(context: Context) : BaseUpdate(context) {
         )
 
     override fun ruleVersion(): String {
-        return BuildConfig.VERSION_NAME
+        val names = BuildConfig.VERSION_NAME.split(" - ")
+        return names[0].trim()
     }
 
     override fun onCheckedUpdate() {
