@@ -42,9 +42,10 @@ class OrderItemAdapter(
         val binding = holder.binding
         binding.root.setOnClickListener {
             val item = holder.item!!
+            val position = indexOf(item)
             FloatEditorDialog(holder.context, item, false, onConfirmClick =  {
-                list[holder.positionIndex] = it
-                notifyItemChanged(holder.positionIndex)
+                list[position] = it
+                notifyItemChanged(position)
             }).show(float = false)
         }
 
@@ -54,13 +55,14 @@ class OrderItemAdapter(
         }
 
         binding.root.setOnLongClickListener {
-            val index = holder.positionIndex
+            val item = holder.item!!
+            val position = indexOf(item)
             MaterialAlertDialogBuilder(holder.context)
                 .setTitle(R.string.delete_title)
                 .setMessage(R.string.delete_bill_message)
                 .setPositiveButton(R.string.sure_msg) { _, _ ->
-                    list.removeAt(index)
-                    notifyItemRemoved(index)
+                    list.removeAt(position)
+                    notifyItemRemoved(position)
                     binding.root.autoDisposeScope.launch {
                         BillInfoModel.remove(holder.item!!.id)
                     }

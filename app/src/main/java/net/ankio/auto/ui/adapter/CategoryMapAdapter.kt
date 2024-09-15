@@ -40,7 +40,7 @@ class CategoryMapAdapter(
         val binding = holder.binding
         binding.root.setOnClickListener {
             val item = holder.item!!
-            val position = holder.positionIndex
+            val position = indexOf(item)
 
             BookSelectorDialog(activity, true) { book, type ->
                 CategorySelectorDialog(activity, book.remoteId, type) { category1, category2 ->

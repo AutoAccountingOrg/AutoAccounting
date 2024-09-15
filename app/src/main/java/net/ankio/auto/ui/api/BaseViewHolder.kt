@@ -23,6 +23,5 @@ open class BaseViewHolder<T : ViewBinding, E>(val binding: T) :
     RecyclerView.ViewHolder(binding.root) {
 
     var item: E? = null
-    var positionIndex: Int = 0
     var context: Context = binding.root.context
 }

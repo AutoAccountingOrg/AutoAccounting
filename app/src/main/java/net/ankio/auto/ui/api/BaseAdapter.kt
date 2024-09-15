@@ -47,11 +47,14 @@ abstract class BaseAdapter<T : ViewBinding, E>(
         return list.size
     }
 
+    fun indexOf(element: E): Int {
+        return list.indexOf(element)
+    }
+
     override fun onBindViewHolder(holder: BaseViewHolder<T, E>, position: Int) {
         // 绑定数据到视图
         val data = list[position]
         holder.item = data
-        holder.positionIndex = position
         onBindViewHolder(holder, data, position)
     }
 

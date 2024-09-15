@@ -74,11 +74,12 @@ class AppDataAdapter(
         Logger.d("tryAdaptUnmatchedItems Update: $item")
         item.issue = 0
 
+        val position = indexOf(item)
 
         AppDataModel.put(item)
         withContext(Dispatchers.Main) {
-            list[holder.positionIndex] = item
-            notifyItemChanged(holder.positionIndex)
+            list[position] = item
+            notifyItemChanged(position)
         }
     }
 
@@ -132,9 +133,10 @@ ${item.data}
 
                 withContext(Dispatchers.Main) {
                     loading.close()
-                    list[holder.positionIndex] = item
+                    val position = indexOf(item)
+                    list[position] = item
                     AppDataModel.put(item)
-                    notifyItemChanged(holder.positionIndex)
+                    notifyItemChanged(position)
                     ToastUtils.info(R.string.upload_success)
                 }
             }
@@ -186,9 +188,10 @@ ${item.data}
 
                     withContext(Dispatchers.Main) {
                         loading.close()
-                        list[holder.positionIndex] = item
+                        val position = indexOf(item)
+                        list[position] = item
                         AppDataModel.put(item)
-                        notifyItemChanged(holder.positionIndex)
+                        notifyItemChanged(position)
                         ToastUtils.info(R.string.upload_success_issue)
                     }
                 }
@@ -264,8 +267,13 @@ ${item.data}
                 .setTitle(R.string.delete_title)
                 .setMessage(R.string.delete_data_message)
                 .setPositiveButton(R.string.sure_msg) { _, _ ->
-                    list.removeAt(holder.positionIndex)
-                    notifyItemRemoved(holder.positionIndex)
+                    val item = holder.item!!
+                    val position = indexOf(item)
+                    list.removeAt(position)
+                    notifyItemRemoved(position)
+                    binding.root.autoDisposeScope.launch {
+                        AppDataModel.delete(item.id)
+                    }
                 }
                 .setNegativeButton(R.string.cancel_msg) { _, _ -> }
                 .show()

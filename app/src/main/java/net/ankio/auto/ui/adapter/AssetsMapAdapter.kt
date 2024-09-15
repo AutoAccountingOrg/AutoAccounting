@@ -41,7 +41,7 @@ class AssetsMapAdapter(
         // 单击编辑
         binding.item.setOnClickListener {
             val item = holder.item!!
-            val position = holder.positionIndex
+            val position = indexOf(item)
             AssetsMapDialog(activity, item) { changedAssetsMap ->
                 dataItems[position] = changedAssetsMap
                 notifyItemChanged(position)

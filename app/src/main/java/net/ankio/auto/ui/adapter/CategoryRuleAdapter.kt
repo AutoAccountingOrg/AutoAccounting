@@ -46,7 +46,7 @@ class CategoryRuleAdapter(
         binding.groupCard.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(activity))
         binding.deleteData.setOnClickListener {
             val item = holder.item!!
-            val position = holder.positionIndex
+            val position = indexOf(item)
             MaterialAlertDialogBuilder(activity)
                 .setTitle(activity.getString(R.string.delete_data))
                 .setMessage(activity.getString(R.string.delete_msg))
@@ -67,7 +67,7 @@ class CategoryRuleAdapter(
         }
         binding.editRule.setOnClickListener {
             val item = holder.item!!
-            val position = holder.positionIndex
+            val position = indexOf(item)
             onClickEdit(item, position)
         }
     }
