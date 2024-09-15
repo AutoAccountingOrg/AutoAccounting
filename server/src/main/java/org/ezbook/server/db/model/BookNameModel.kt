@@ -56,6 +56,8 @@ class BookNameModel {
                     json.getAsJsonArray("data"),
                     Array<BookNameModel>::class.java
                 ).toList()
+            }.onFailure {
+                Server.log(it)
             }.getOrNull() ?: emptyList()
         }
 
