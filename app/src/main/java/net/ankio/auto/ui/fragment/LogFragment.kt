@@ -36,6 +36,7 @@ import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.utils.DateUtils
 import org.ezbook.server.db.model.LogModel
 import java.io.File
+import java.lang.ref.WeakReference
 
 
 /**
@@ -137,7 +138,7 @@ class LogFragment : BasePageFragment<LogModel>() {
         val recyclerView = binding.statusPage.contentView
         recyclerView?.layoutManager = LinearLayoutManager(requireContext())
         recyclerView?.adapter = LogAdapter(pageData)
-        scrollView = recyclerView!!
+        scrollView = WeakReference(recyclerView!!)
         loadDataEvent(binding.refreshLayout)
         return binding.root
     }

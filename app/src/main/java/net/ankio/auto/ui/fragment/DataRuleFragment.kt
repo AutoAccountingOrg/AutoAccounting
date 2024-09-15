@@ -36,6 +36,7 @@ import net.ankio.auto.ui.models.RailMenuItem
 import net.ankio.auto.ui.models.ToolbarMenuItem
 import org.ezbook.server.constant.DataType
 import org.ezbook.server.db.model.RuleModel
+import java.lang.ref.WeakReference
 
 /**
  * 数据规则Fragment
@@ -66,6 +67,7 @@ class DataRuleFragment : BasePageFragment<RuleModel>() {
         val recyclerView = binding.statusPage.contentView!!
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = DataRuleAdapter(pageData)
+        scrollView = WeakReference(recyclerView)
         loadDataEvent(binding.refreshLayout)
         loadLeftData(binding.leftList)
         chipEvent()

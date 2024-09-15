@@ -55,6 +55,7 @@ import org.ezbook.server.db.model.BookNameModel
 import org.ezbook.server.db.model.CategoryModel
 import org.ezbook.server.db.model.SettingModel
 import rikka.html.text.toHtml
+import java.lang.ref.WeakReference
 
 /**
  * 主页
@@ -110,7 +111,7 @@ class HomeFragment : BaseFragment() {
         val color = SurfaceColors.SURFACE_1.getColor(requireContext())
         cards.forEach { it.setCardBackgroundColor(color) }
 
-        scrollView = binding.scrollView
+        scrollView = WeakReference(binding.scrollView)
 
         // 检查记账软件
         checkBookApp()

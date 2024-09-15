@@ -27,6 +27,7 @@ import net.ankio.auto.ui.adapter.AssetsMapAdapter
 import net.ankio.auto.ui.api.BasePageFragment
 import net.ankio.auto.ui.dialog.AssetsMapDialog
 import org.ezbook.server.db.model.AssetsMapModel
+import java.lang.ref.WeakReference
 
 class AssetMapFragment : BasePageFragment<AssetsMapModel>() {
     private lateinit var binding: FragmentMapBinding
@@ -48,7 +49,7 @@ class AssetMapFragment : BasePageFragment<AssetsMapModel>() {
         val recyclerView = statusPage.contentView!!
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = AssetsMapAdapter(pageData, requireActivity())
-        scrollView = recyclerView
+        scrollView = WeakReference(recyclerView)
 
         binding.addButton.setOnClickListener {
             AssetsMapDialog(requireContext()) { model ->

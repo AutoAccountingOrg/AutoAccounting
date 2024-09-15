@@ -38,6 +38,7 @@ import net.ankio.auto.ui.models.RailMenuItem
 import net.ankio.auto.ui.models.ToolbarMenuItem
 import org.ezbook.server.constant.DataType
 import org.ezbook.server.db.model.AppDataModel
+import java.lang.ref.WeakReference
 
 class DataFragment : BasePageFragment<AppDataModel>() {
     private lateinit var binding: FragmentDataRuleBinding
@@ -82,7 +83,7 @@ class DataFragment : BasePageFragment<AppDataModel>() {
         statusPage = binding.statusPage
         val recyclerView = binding.statusPage.contentView!!
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        scrollView = recyclerView
+        scrollView = WeakReference(recyclerView)
 
         recyclerView.adapter = AppDataAdapter(pageData, requireActivity() as BaseActivity)
         loadDataEvent(binding.refreshLayout)

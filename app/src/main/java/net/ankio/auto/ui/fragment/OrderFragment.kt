@@ -32,6 +32,7 @@ import net.ankio.auto.ui.api.BasePageFragment
 import net.ankio.auto.ui.models.ToolbarMenuItem
 import net.ankio.auto.utils.DateUtils
 import org.ezbook.server.db.model.BillInfoModel
+import java.lang.ref.WeakReference
 
 open class OrderFragment : BasePageFragment<Pair<String, List<BillInfoModel>>>() {
     override suspend fun loadData(callback: (resultData: List<Pair<String, List<BillInfoModel>>>) -> Unit) {
@@ -116,7 +117,7 @@ open class OrderFragment : BasePageFragment<Pair<String, List<BillInfoModel>>>()
         val layoutManager = LinearLayoutManager(requireContext())
         recyclerView.layoutManager = layoutManager
         recyclerView.adapter = OrderAdapter(pageData)
-        scrollView = recyclerView
+        scrollView = WeakReference(recyclerView)
 
         loadDataEvent(binding.refreshLayout)
 

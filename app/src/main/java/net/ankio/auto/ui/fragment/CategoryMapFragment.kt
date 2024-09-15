@@ -28,6 +28,7 @@ import net.ankio.auto.ui.adapter.CategoryMapAdapter
 import net.ankio.auto.ui.api.BasePageFragment
 import net.ankio.auto.ui.models.ToolbarMenuItem
 import org.ezbook.server.db.model.CategoryMapModel
+import java.lang.ref.WeakReference
 
 class CategoryMapFragment : BasePageFragment<CategoryMapModel>() {
     private lateinit var binding: FragmentMapBinding
@@ -57,7 +58,7 @@ class CategoryMapFragment : BasePageFragment<CategoryMapModel>() {
         val recyclerView = statusPage.contentView!!
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = CategoryMapAdapter(pageData, requireActivity())
-        scrollView = recyclerView
+        scrollView = WeakReference(recyclerView)
         binding.addButton.visibility = View.GONE
         loadDataEvent(binding.refreshLayout)
         return binding.root

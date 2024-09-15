@@ -17,6 +17,7 @@ package net.ankio.auto.ui.api
 
 import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
+import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -25,6 +26,7 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.SearchView
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.R
 import com.zackratos.ultimatebarx.ultimatebarx.addNavigationBarBottomPadding
@@ -56,7 +58,7 @@ abstract class BaseFragment : Fragment() {
     /**
      * 滚动视图
      */
-    lateinit var scrollView: View
+    lateinit var scrollView:  WeakReference<View>
 
     override fun onResume() {
         super.onResume()
@@ -76,11 +78,11 @@ abstract class BaseFragment : Fragment() {
         if (mainActivity.toolbarLayout != null && ::scrollView.isInitialized) {
             var animatorStart = false
             // 滚动页面调整toolbar颜色
-            scrollView.setOnScrollChangeListener { _, _, scrollY, _, _ ->
+            scrollView.get()!!.setOnScrollChangeListener { _, _, scrollY, _, _ ->
                 var scrollYs = scrollY // 获取宽度
-                if (scrollView is RecyclerView) {
+                if (scrollView.get()!! is RecyclerView) {
                     // RecyclerView获取真实高度
-                    scrollYs = (scrollView as RecyclerView).computeVerticalScrollOffset()
+                    scrollYs = (scrollView.get()!! as RecyclerView).computeVerticalScrollOffset()
                 }
 
                 if (animatorStart) return@setOnScrollChangeListener
@@ -110,8 +112,8 @@ abstract class BaseFragment : Fragment() {
             }
 
             // 找到scrollView的第一个子视图
-            if (scrollView is ScrollView && (scrollView as ScrollView).childCount > 0) {
-                val view = (scrollView as ScrollView).getChildAt(0)
+            if (scrollView.get()!! is ScrollView && (scrollView.get()!! as ScrollView).childCount > 0) {
+                val view = (scrollView.get()!! as ScrollView).getChildAt(0)
                 view.addNavigationBarBottomPadding()
             }
 
@@ -148,20 +150,20 @@ abstract class BaseFragment : Fragment() {
             searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String?): Boolean {
                     searchData = query.toString()
-                    menuItemObject.callback.invoke((activity as MainActivity).getNavController())
+                    menuItemObject.callback.invoke()
                     return true
                 }
 
                 override fun onQueryTextChange(newText: String?): Boolean {
                     searchData = newText.toString()
-                    menuItemObject.callback.invoke((activity as MainActivity).getNavController())
+                    menuItemObject.callback.invoke()
                     return false
                 }
             })
 
         } else {
             menuItem.setOnMenuItemClickListener {
-                menuItemObject.callback.invoke((activity as MainActivity).getNavController())
+                menuItemObject.callback.invoke()
                 true
             }
         }

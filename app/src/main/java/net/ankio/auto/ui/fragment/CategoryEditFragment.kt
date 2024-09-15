@@ -43,6 +43,7 @@ import net.ankio.auto.ui.dialog.CategorySelectorDialog
 import net.ankio.auto.ui.utils.ListPopupUtils
 import net.ankio.auto.utils.BillTool
 import org.ezbook.server.db.model.CategoryRuleModel
+import java.lang.ref.WeakReference
 import java.util.Calendar
 
 class CategoryEditFragment : BaseFragment() {
@@ -169,6 +170,7 @@ class CategoryEditFragment : BaseFragment() {
             }.getOrDefault(CategoryRuleModel())
         }
         buildUI()
+
 
         return binding.root
     }

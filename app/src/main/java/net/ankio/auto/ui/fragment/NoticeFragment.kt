@@ -35,6 +35,7 @@ import net.ankio.auto.ui.models.AppInfo
 import net.ankio.auto.ui.models.ToolbarMenuItem
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.SettingModel
+import java.lang.ref.WeakReference
 
 
 class NoticeFragment : BasePageFragment<AppInfo>() {
@@ -112,7 +113,7 @@ class NoticeFragment : BasePageFragment<AppInfo>() {
         statusPage = binding.statusPage
         val recyclerView = binding.statusPage.contentView!!
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        scrollView = recyclerView
+        scrollView = WeakReference(recyclerView)
         selectedApps = ConfigUtils.getString(Setting.LISTENER_APP_LIST, "").split(",")
         Logger.d("selectedApps => $selectedApps")
         recyclerView.adapter = AppAdapter(pageData, requireActivity().packageManager) {

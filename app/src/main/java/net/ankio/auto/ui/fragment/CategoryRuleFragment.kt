@@ -28,6 +28,7 @@ import net.ankio.auto.databinding.FragmentMapBinding
 import net.ankio.auto.ui.adapter.CategoryRuleAdapter
 import net.ankio.auto.ui.api.BasePageFragment
 import org.ezbook.server.db.model.CategoryRuleModel
+import java.lang.ref.WeakReference
 
 class CategoryRuleFragment : BasePageFragment<CategoryRuleModel>() {
     private lateinit var binding: FragmentMapBinding
@@ -54,7 +55,7 @@ class CategoryRuleFragment : BasePageFragment<CategoryRuleModel>() {
             }
             findNavController().navigate(R.id.categoryEditFragment, bundle)
         }
-        scrollView = recyclerView
+        scrollView = WeakReference(recyclerView)
 
         binding.addButton.setOnClickListener {
             findNavController().navigate(R.id.categoryEditFragment)

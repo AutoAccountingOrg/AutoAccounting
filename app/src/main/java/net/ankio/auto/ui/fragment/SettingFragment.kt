@@ -29,6 +29,7 @@ import net.ankio.auto.setting.SettingUtils
 import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.api.BaseFragment
 import org.ezbook.server.constant.Setting
+import java.lang.ref.WeakReference
 
 class SettingFragment : BaseFragment() {
     private lateinit var binding: FragmentSettingBinding
@@ -50,7 +51,7 @@ class SettingFragment : BaseFragment() {
                 settingItems
             )
         settingRenderUtils.init()
-        scrollView = binding.scrollView
+        scrollView = WeakReference(binding.scrollView)
         return binding.root
     }
 
