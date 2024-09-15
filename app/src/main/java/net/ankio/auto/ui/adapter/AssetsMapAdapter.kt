@@ -50,7 +50,6 @@ class AssetsMapAdapter(
         // 长按删除
         binding.item.setOnLongClickListener {
             val item = holder.item!!
-            val position = holder.positionIndex
             MaterialAlertDialogBuilder(activity)
                 .setTitle(R.string.delete_title)
                 .setMessage(activity.getString(R.string.delete_message, item.name))
@@ -64,7 +63,8 @@ class AssetsMapAdapter(
                         AssetsMapModel.remove(item.id)
                     }
 
-                    dataItems.removeAt(position)
+                    val position = dataItems.indexOf(item)
+                    dataItems.remove(item)
                     notifyItemRemoved(position)
                 }
                 .show()
