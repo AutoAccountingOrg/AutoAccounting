@@ -135,6 +135,7 @@ class FloatingWindowService : Service() {
                 override fun onTick(millisUntilFinished: Long) {
                     binding.time.text =
                         String.format("%ss", (millisUntilFinished / 1000).toString())
+                    Logger.d("onTick => ${millisUntilFinished / 1000}")
                 }
 
                 override fun onFinish() {
