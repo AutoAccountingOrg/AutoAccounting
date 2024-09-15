@@ -50,12 +50,7 @@ enum class QianJiBillType(val value: Int) {
                 BillType.Income -> Income.value
                 BillType.Transfer -> {
                     val sync = App.get("sync_assets")
-                    val assets = runCatching {
-                        Gson().fromJson(
-                            sync,
-                            Array<AssetsModel>::class.java
-                        )
-                    }.getOrElse { emptyArray() }
+                    val assets = Gson().fromJson(sync, Array<AssetsModel>::class.java).toList()
                     val asset = assets.find { it.name == billInfoModel.accountNameTo }
                     if (asset == null) {
                         return@withContext Transfer.value
