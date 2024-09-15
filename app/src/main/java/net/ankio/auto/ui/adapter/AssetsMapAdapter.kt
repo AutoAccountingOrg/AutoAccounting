@@ -45,6 +45,9 @@ class AssetsMapAdapter(
             AssetsMapDialog(activity, item) { changedAssetsMap ->
                 dataItems[position] = changedAssetsMap
                 notifyItemChanged(position)
+                binding.root.autoDisposeScope.launch {
+                    AssetsMapModel.put(changedAssetsMap)
+                }
             }.show(cancel = true)
         }
         // 长按删除
