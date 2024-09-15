@@ -27,6 +27,7 @@ import com.google.android.material.card.MaterialCardView
 import com.google.android.material.elevation.SurfaceColors
 import net.ankio.auto.R
 import net.ankio.auto.storage.ConfigUtils
+import net.ankio.auto.storage.Logger
 import org.ezbook.server.constant.Setting
 
 abstract class BaseSheetDialog(private val context: Context) :
@@ -94,6 +95,13 @@ abstract class BaseSheetDialog(private val context: Context) :
         }
 
         show()
+    }
+
+    override fun dismiss() {
+        runCatching { super.dismiss() }.onFailure {
+            it.printStackTrace()
+            Logger.e(it.message!!, it)
+        }
     }
 
     private fun dpToPx(
