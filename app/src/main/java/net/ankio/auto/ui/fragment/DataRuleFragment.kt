@@ -21,6 +21,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
@@ -50,7 +51,7 @@ class DataRuleFragment : BasePageFragment<RuleModel>() {
                     loadDataInside()
                 },
                 ToolbarMenuItem(R.string.item_notice, R.drawable.menu_item_notice) {
-                    it.navigate(R.id.noticeFragment)
+                    findNavController().navigate(R.id.noticeFragment)
                 },
             )
 
