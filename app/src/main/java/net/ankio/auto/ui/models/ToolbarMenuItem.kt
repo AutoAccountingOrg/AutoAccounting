@@ -23,6 +23,6 @@ data class ToolbarMenuItem(
     @StringRes val title: Int,
     @DrawableRes val drawable: Int,
     var search: Boolean = false,
-    val callback: (NavController) -> Unit,
+    val callback: () -> Unit,
 
     )

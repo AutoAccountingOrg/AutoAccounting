@@ -65,10 +65,10 @@ class HomeFragment : BaseFragment() {
     override val menuList: ArrayList<ToolbarMenuItem> =
         arrayListOf(
             ToolbarMenuItem(R.string.title_log, R.drawable.menu_item_log) {
-                it.navigate(R.id.logFragment)
+                findNavController().navigate(R.id.logFragment)
             },
             ToolbarMenuItem(R.string.title_setting, R.drawable.menu_item_setting) {
-                it.navigate(R.id.systemSettingFragment)
+                findNavController().navigate(R.id.systemSettingFragment)
             },
             ToolbarMenuItem(R.string.title_more, R.drawable.menu_item_more) {
                 val binding =
