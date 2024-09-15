@@ -133,7 +133,6 @@ class BillCategoryDialog(
             //  text += "，则账本为【${billInfoModel.bookName}】，分类为【${billInfoModel.cateName}】。"
 
             lifecycleScope.launch {
-                Logger.i("condition:$condition")
                 val book = BookNameModel.getByName(billInfoModel.bookName)
                 val id = book.id
                 val otherData =
