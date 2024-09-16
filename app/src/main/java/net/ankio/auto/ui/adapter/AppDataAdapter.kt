@@ -129,16 +129,18 @@ ${item.data}
                         )
                         loading.close()
                     }
+                }.onSuccess {
+                    withContext(Dispatchers.Main) {
+                        loading.close()
+                        val position = indexOf(item)
+                        list[position] = item
+                        AppDataModel.put(item)
+                        notifyItemChanged(position)
+                        ToastUtils.info(R.string.upload_success)
+                    }
                 }
 
-                withContext(Dispatchers.Main) {
-                    loading.close()
-                    val position = indexOf(item)
-                    list[position] = item
-                    AppDataModel.put(item)
-                    notifyItemChanged(position)
-                    ToastUtils.info(R.string.upload_success)
-                }
+
             }
         }.show(float = false)
     }
@@ -182,18 +184,20 @@ ${item.data}
                             loading.close()
                         }
                         return@launch
+                    }.onSuccess {
+                        withContext(Dispatchers.Main) {
+                            loading.close()
+                            val position = indexOf(item)
+                            list[position] = item
+                            AppDataModel.put(item)
+                            notifyItemChanged(position)
+                            ToastUtils.info(R.string.upload_success_issue)
+                        }
                     }
 
 
 
-                    withContext(Dispatchers.Main) {
-                        loading.close()
-                        val position = indexOf(item)
-                        list[position] = item
-                        AppDataModel.put(item)
-                        notifyItemChanged(position)
-                        ToastUtils.info(R.string.upload_success_issue)
-                    }
+
                 }
             }.show(float = false)
 
