@@ -122,7 +122,12 @@ abstract class BaseDebt(
             false
         }
     }
-
+    /**
+     * 是否为新账单
+     */
+    suspend fun isNewAssets(account: AssetAccount): Boolean = withContext(Dispatchers.IO) {
+        return@withContext account.getId() == -1L
+    }
     fun saveBill(bill:Any){
         val billHelpers = XposedHelpers.newInstance(billHelpersClazz)
         XposedHelpers.callMethod(billHelpers,"saveOrUpdateBill",bill)

@@ -27,6 +27,7 @@ import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
 import net.ankio.auto.hooks.qianji.sync.BaoXiaoUtils
 import net.ankio.auto.hooks.qianji.sync.LoanUtils
+import net.ankio.auto.hooks.qianji.sync.debt.ExpendLendingUtils
 import net.ankio.auto.hooks.qianji.sync.debt.IncomeLendingUtils
 import net.ankio.auto.hooks.qianji.tools.QianJiBillType
 import net.ankio.auto.hooks.qianji.tools.QianJiUri
@@ -130,9 +131,7 @@ class AutoHooker : PartHooker() {
                         QianJiBillType.ExpendLending.value -> {
                             App.launch {
                                 runCatching {
-                                   /* LoanUtils(hookerManifest, classLoader, context).doExpendLending(
-                                        billInfo
-                                    )*/
+                                   ExpendLendingUtils(hookerManifest, classLoader, context).sync(billInfo)
                                 }.onSuccess {
                                     hookerManifest.logD("借出成功")
                                     App.toast("借出成功")

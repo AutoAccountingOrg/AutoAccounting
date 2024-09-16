@@ -218,6 +218,7 @@ class AssetsUtils(private val manifest: HookerManifest, private val classLoader:
         asset.setStype(sType)
         asset.setName(name)
         asset.setIncount(1)
+        asset.setIcon("null")
         return@withContext asset
     }
 
