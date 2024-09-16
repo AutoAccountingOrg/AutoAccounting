@@ -30,6 +30,8 @@ class QianjiHooker : HookerManifest() {
     override val appName: String
         get() = "钱迹"
     override var minVersion: Int = 951
+
+    override var applicationName = "com.mutangtech.qianji.app.CoreApp"
     override fun hookLoadPackage(application: Application?, classLoader: ClassLoader) {
 
     }

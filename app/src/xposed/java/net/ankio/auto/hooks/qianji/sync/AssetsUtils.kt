@@ -22,6 +22,7 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.core.App
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.xposed.Hooker
+import net.ankio.auto.hooks.qianji.tools.AssetAccount
 import net.ankio.auto.hooks.qianji.tools.QianJiAssetType
 import org.ezbook.server.constant.AssetsType
 import org.ezbook.server.constant.Currency
@@ -205,51 +206,18 @@ class AssetsUtils(private val manifest: HookerManifest, private val classLoader:
     //        return assetAccount0;
     //    }
 
-    suspend fun getOrCreateAssetByName(name: String,type:Int,sType:Int): Any? = withContext(Dispatchers.IO) {
-        var asset = getAssetByName(name)
-        if (asset == null) {
-            asset = XposedHelpers.callStaticMethod(assetClazz, "newInstance", type, sType)
-            XposedHelpers.setObjectField(asset, "name", name)
+    suspend fun getAssetByNameWrap(name: String):AssetAccount? = withContext(Dispatchers.IO){
+        val item = getAssetByName(name)?:return@withContext null
+        val asset = AssetAccount(classLoader,item)
+        return@withContext asset
+    }
 
-            /**
-             * {
-             *     "color": "E06966",
-             *     "createtime": 1726152536,
-             *     "icon": "null",
-             *     "id": 1726152536966,
-             *     "incount": 1,
-             *     "lastPayTime": 0,
-             *     "loan": {
-             *         "accountId": 0,
-             *         "startdate": "2024-09-12",
-             *         "enddate": "",
-             *         "money": 12,
-             *         "totalpay": 0
-             *     },
-             *     "money": 12,
-             *     "name": "12",
-             *     "sort": 0,
-             *     "status": 0,
-             *     "stype": 52,
-             *     "type": 5,
-             *     "usecount": 0,
-             *     "userid": "200104405e109647c18e9"
-             * }
-             */
-            XposedHelpers.setObjectField(asset, "createtime", 0)
-            XposedHelpers.setObjectField(asset, "id", -1L)
-            XposedHelpers.setObjectField(asset, "incount", 1)
-            XposedHelpers.setObjectField(asset, "lastPayTime", 0)
-            XposedHelpers.setObjectField(asset, "money", 0.0)
-            XposedHelpers.setObjectField(asset, "stype", sType)
-            XposedHelpers.setObjectField(asset, "type", type)
-            XposedHelpers.setObjectField(asset, "usecount", 0)
-
-            XposedHelpers.setObjectField(asset, "sort", 0)
-            XposedHelpers.setObjectField(asset, "status", 0)
-
-
-        }
+    suspend fun getOrCreateAssetByNameWrap(name: String,type:Int,sType:Int): AssetAccount = withContext(Dispatchers.IO) {
+        val asset = AssetAccount(classLoader,getAssetByName(name))
+        asset.setType(type)
+        asset.setStype(sType)
+        asset.setName(name)
+        asset.setIncount(1)
         return@withContext asset
     }
 

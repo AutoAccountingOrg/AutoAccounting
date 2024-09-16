@@ -27,6 +27,7 @@ import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
 import net.ankio.auto.hooks.qianji.sync.BaoXiaoUtils
 import net.ankio.auto.hooks.qianji.sync.LoanUtils
+import net.ankio.auto.hooks.qianji.sync.debt.IncomeLendingUtils
 import net.ankio.auto.hooks.qianji.tools.QianJiBillType
 import net.ankio.auto.hooks.qianji.tools.QianJiUri
 import net.ankio.dex.model.ClazzField
@@ -88,19 +89,19 @@ class AutoHooker : PartHooker() {
                     super.beforeHookedMethod(param)
 
                     val msg = param.args[0] as String
-                    hookerManifest.logD("hookTaskLog: $msg")
+                    hookerManifest.log("hookTaskLog: $msg")
 
                     val error = handleError(msg)
                     val autoTaskLog = param.args[1] as Any
-                    hookerManifest.logD("钱迹自动记账失败：$error")
+                    hookerManifest.log("钱迹自动记账失败：$error")
 
                     val value = XposedHelpers.getObjectField(autoTaskLog, "value") as String
                     val uri = Uri.parse(value)
                     val billInfo = QianJiUri.toAuto(uri)
-
+                    hookerManifest.logD("处理失败的账单: $billInfo")
                     if (billInfo.id < 0) return
 
-                    hookerManifest.logD("hookTaskLog BillInfo: $billInfo")
+
 
                     if (error !== msg) {
                         XposedHelpers.callMethod(autoTaskLog, "setStatus", 0)
@@ -129,9 +130,9 @@ class AutoHooker : PartHooker() {
                         QianJiBillType.ExpendLending.value -> {
                             App.launch {
                                 runCatching {
-                                    LoanUtils(hookerManifest, classLoader, context).doExpendLending(
+                                   /* LoanUtils(hookerManifest, classLoader, context).doExpendLending(
                                         billInfo
-                                    )
+                                    )*/
                                 }.onSuccess {
                                     hookerManifest.logD("借出成功")
                                     App.toast("借出成功")
@@ -152,11 +153,11 @@ class AutoHooker : PartHooker() {
                         QianJiBillType.ExpendRepayment.value -> {
                             App.launch {
                                 runCatching {
-                                    LoanUtils(
+                                   /* LoanUtils(
                                         hookerManifest,
                                         classLoader,
                                         context
-                                    ).doExpendRepayment(billInfo)
+                                    ).doExpendRepayment(billInfo)*/
                                 }.onSuccess {
                                     hookerManifest.logD("还款成功")
                                     App.toast("还款成功")
@@ -180,9 +181,7 @@ class AutoHooker : PartHooker() {
                         QianJiBillType.IncomeLending.value -> {
                             App.launch {
                                 runCatching {
-                                    LoanUtils(hookerManifest, classLoader, context).doIncomeLending(
-                                        billInfo
-                                    )
+                                    IncomeLendingUtils(hookerManifest, classLoader, context).sync(billInfo)
                                 }.onSuccess {
                                     hookerManifest.logD("借入成功")
                                     App.toast("借入成功")
@@ -202,11 +201,11 @@ class AutoHooker : PartHooker() {
                         QianJiBillType.IncomeRepayment.value -> {
                             App.launch {
                                 runCatching {
-                                    LoanUtils(
+                                  /*  LoanUtils(
                                         hookerManifest,
                                         classLoader,
                                         context
-                                    ).doIncomeRepayment(billInfo)
+                                    ).doIncomeRepayment(billInfo)*/
                                 }.onSuccess {
                                     hookerManifest.logD("收款成功")
                                     App.toast("收款成功")
