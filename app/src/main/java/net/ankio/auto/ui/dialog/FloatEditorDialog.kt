@@ -212,7 +212,7 @@ class FloatEditorDialog(
                         )
                     ) {
                         // 弹出询问框
-                        BillCategoryDialog(context, bill).show(float)
+                        BillCategoryDialog(context, bill).show(float,cancel = true)
                     }
 
                     if (ConfigUtils.getBoolean(Setting.AUTO_ASSET, false)) {
@@ -321,7 +321,7 @@ class FloatEditorDialog(
             BookSelectorDialog(context) { book, _ ->
                 billInfoModel.bookName = book.name
                 bindingBookNameUI()
-            }.show(float)
+            }.show(float,cancel = true)
         }
     }
 
@@ -386,7 +386,7 @@ class FloatEditorDialog(
                             BillTool.getCateName(parent.name ?: "", child?.name)
 
                         bindingCategoryUI()
-                    }.show(float)
+                    }.show(float,cancel = true)
                 }
             }
         }
@@ -729,7 +729,7 @@ class FloatEditorDialog(
 
             BillSelectorDialog(context, selectedBills) {
                 bindingSelectBillsUi()
-            }.show(float)
+            }.show(float,cancel = true)
         }
     }
 
@@ -769,30 +769,30 @@ class FloatEditorDialog(
         binding.payFrom.setOnClickListener {
             AssetsSelectorDialog(context) { model ->
                 setAssetItem(model.name, model.icon, binding.payFrom)
-            }.show(float = float)
+            }.show(float = float,cancel = true)
         }
         binding.transferFrom.setOnClickListener {
             AssetsSelectorDialog(context) { model ->
                 setAssetItem(model.name, model.icon, binding.transferFrom)
-            }.show(float = float)
+            }.show(float = float,cancel = true)
         }
 
         binding.transferTo.setOnClickListener {
             AssetsSelectorDialog(context) { model ->
                 setAssetItem(model.name, model.icon, binding.transferTo)
-            }.show(float = float)
+            }.show(float = float,cancel = true)
         }
 
         binding.debtExpendFrom.setOnClickListener {
             AssetsSelectorDialog(context) { model ->
                 setAssetItem(model.name, model.icon, binding.debtExpendFrom)
-            }.show(float = float)
+            }.show(float = float,cancel = true)
         }
 
         binding.debtIncomeTo.setOnClickListener {
             AssetsSelectorDialog(context) { model ->
                 setAssetItem(model.name, model.icon, binding.debtIncomeTo)
-            }.show(float = float)
+            }.show(float = float,cancel = true)
         }
     }
 
