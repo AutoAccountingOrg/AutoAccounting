@@ -26,9 +26,10 @@ import net.ankio.auto.core.App
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
 import net.ankio.auto.hooks.qianji.sync.BaoXiaoUtils
-import net.ankio.auto.hooks.qianji.sync.LoanUtils
 import net.ankio.auto.hooks.qianji.sync.debt.ExpendLendingUtils
+import net.ankio.auto.hooks.qianji.sync.debt.ExpendRepaymentUtils
 import net.ankio.auto.hooks.qianji.sync.debt.IncomeLendingUtils
+import net.ankio.auto.hooks.qianji.sync.debt.IncomeRepaymentUtils
 import net.ankio.auto.hooks.qianji.tools.QianJiBillType
 import net.ankio.auto.hooks.qianji.tools.QianJiUri
 import net.ankio.dex.model.ClazzField
@@ -152,11 +153,7 @@ class AutoHooker : PartHooker() {
                         QianJiBillType.ExpendRepayment.value -> {
                             App.launch {
                                 runCatching {
-                                   /* LoanUtils(
-                                        hookerManifest,
-                                        classLoader,
-                                        context
-                                    ).doExpendRepayment(billInfo)*/
+                                  ExpendRepaymentUtils(hookerManifest, classLoader, context).sync(billInfo)
                                 }.onSuccess {
                                     hookerManifest.logD("还款成功")
                                     App.toast("还款成功")
@@ -200,11 +197,7 @@ class AutoHooker : PartHooker() {
                         QianJiBillType.IncomeRepayment.value -> {
                             App.launch {
                                 runCatching {
-                                  /*  LoanUtils(
-                                        hookerManifest,
-                                        classLoader,
-                                        context
-                                    ).doIncomeRepayment(billInfo)*/
+                                    IncomeRepaymentUtils(hookerManifest, classLoader, context).sync(billInfo)
                                 }.onSuccess {
                                     hookerManifest.logD("收款成功")
                                     App.toast("收款成功")

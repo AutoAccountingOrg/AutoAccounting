@@ -25,62 +25,88 @@ import net.ankio.auto.hooks.qianji.tools.AssetAccount
 import org.ezbook.server.db.model.BillInfoModel
 
 /**
- * 借出
+ * 收款
  */
-class ExpendLendingUtils(private val manifest: HookerManifest, private val classLoader: ClassLoader, private val context: Context) :
+class IncomeRepaymentUtils(private val manifest: HookerManifest, private val classLoader: ClassLoader, private val context: Context) :
     BaseDebt(manifest, classLoader, context) {
     override suspend fun sync(billModel: BillInfoModel) = withContext(Dispatchers.IO) {
-        // 借出账户
-        var accountFrom = getAccountFrom(billModel)
-        // 借给谁
-        var accountTo = getAccountTo(billModel)
-        // 是否是新创建的资产
-        val isNewAssets = isNewAssets(accountTo)
+        // 谁付钱
+        val accountFrom = getAccountFrom(billModel)
+        // 资产
+        val accountTo = getAccountTo(billModel)
+
         val book = BookUtils(manifest, classLoader, context).getBookByName(billModel.bookName)
 
-        manifest.logD("借出: ${billModel.money} ${billModel.accountNameFrom} -> ${billModel.accountNameTo}, isNewAssets=$isNewAssets")
+        manifest.logD("收款: ${billModel.money} ${billModel.accountNameFrom} -> ${billModel.accountNameTo}")
 
-        // 更新loan
-        updateLoan(billModel,accountTo,isNewAssets)
-        // 更新资产
-        accountTo = updateAsset(accountFrom,accountTo,book,billModel,isNewAssets)
+        //拆分账单
 
-        if (!isNewAssets){
-            // 构建账单
-            val bill = updateBill(billModel,7,book,accountFrom,accountTo)
+        val (bill1,bill2) = splitBill(billModel,accountFrom)
+
+        if (bill2!= null){
+            val bill = updateBill(bill2,11,book,accountFrom,accountTo)
             saveBill(bill)
         }
 
+        // 更新loan
+        updateLoan(bill1!!, accountFrom)
+        // 更新资产
+        updateAsset(accountFrom,accountTo,bill1)
+
+        if (bill1.money > 0) {
+            // 构建账单
+            val bill = updateBill(bill1,4,book,accountFrom,accountTo)
+            saveBill(bill)
+        }
+
+
+
        pushBill()
+    }
+
+    private suspend fun splitBill(billModel: BillInfoModel, accountFrom: AssetAccount): List<BillInfoModel?> = withContext(Dispatchers.IO) {
+        val assetMoney = accountFrom.getMoney()
+        if (assetMoney < billModel.money) {
+            val interest = billModel.money - assetMoney
+            val bill1 = billModel.copy().apply {
+                money = assetMoney
+            }
+            val bill2 = billModel.copy().apply {
+                money = interest
+                remark = "债务利息"
+            }
+            return@withContext listOf(bill1,bill2)
+        }
+        return@withContext listOf(billModel,null)
     }
 
     /**
      * 获取借入账户
      */
     private suspend fun getAccountTo(billModel: BillInfoModel): AssetAccount = withContext(Dispatchers.IO) {
-        return@withContext assetsUtils.getOrCreateAssetByNameWrap(billModel.accountNameTo,5,52)
+        return@withContext assetsUtils.getAssetByNameWrap(billModel.accountNameTo)?:throw RuntimeException("收款账户不存在 key=accountname;value=${billModel.accountNameTo}")
     }
 
     /**
      * 获取借款账户
      */
     private suspend fun getAccountFrom(billModel: BillInfoModel): AssetAccount = withContext(Dispatchers.IO) {
-        return@withContext assetsUtils.getAssetByNameWrap(billModel.accountNameFrom)?:throw RuntimeException("找不到资产 key=accountname;value=${billModel.accountNameFrom}")
+        return@withContext assetsUtils.getAssetByNameWrap(billModel.accountNameFrom)?:throw RuntimeException("欠款人不存在 key=accountname;value=${billModel.accountNameFrom}")
     }
 
 
     /**
      * 更新债务
      */
-    private suspend fun updateLoan(billModel: BillInfoModel,accountTo: AssetAccount,isNewAssets:Boolean) = withContext(Dispatchers.IO){
+    private suspend fun updateLoan(billModel: BillInfoModel, accountTo: AssetAccount) = withContext(Dispatchers.IO){
         // 债务
-        val loan = if (isNewAssets) createLoan(billModel.time) else accountTo.getLoanInfo()
+        val loan = accountTo.getLoanInfo()
 
         // {"a":0,"b":"2024-07-17","c":"","e":-12.0,"f":0.0}
         // f=TotalPay 已还金额
         // e=money 待还金额
         //
-        loan.setTotalMoney( billModel.money)
+        loan.setTotalpay( billModel.money)
 
         accountTo.setLoanInfo(loan)
         accountTo.addMoney(  billModel.money)
@@ -91,26 +117,13 @@ class ExpendLendingUtils(private val manifest: HookerManifest, private val class
     private suspend fun updateAsset(
         accountFrom: AssetAccount,
         accountTo:AssetAccount,
-        book:Any,
         billModel: BillInfoModel,
-        isNewAssets:Boolean
-    ):AssetAccount = withContext(Dispatchers.IO) {
-        val bookId = XposedHelpers.getObjectField(book,"bookId")
-        var ret = accountTo
-        if (isNewAssets){
-            ret = submitAsset(accountTo,book, mapOf(
-                "bookId" to bookId,
-                "accountId" to accountFrom.getId(),
-                "remark" to billModel.remark,
-            ))
-        }
+    ) = withContext(Dispatchers.IO) {
 
-        accountFrom.addMoney(-billModel.money)
+        accountTo.addMoney(billModel.money)
 
-        assetsUtils.updateAsset(accountFrom.get)
         assetsUtils.updateAsset(accountTo.get)
-
-        return@withContext ret
+        assetsUtils.updateAsset(accountFrom.get)
     }
 
     /**
@@ -134,15 +147,22 @@ class ExpendLendingUtils(private val manifest: HookerManifest, private val class
         //    bill2 = Bill.newInstance(i12, trim, d12, timeInMillis, imageUrls);
         val bill = XposedHelpers.callStaticMethod(billClazz, "newInstance", type, remark, money, time, imageList)
 
-        // (agent) [385693] Arguments com.mutangtech.qianji.data.db.dbhelper.k.saveOrUpdateBill(_id=null;billid=17264840101334980;userid=200104405e109647c18e9;bookid=-1;timeInSec=1726484010;type=7;remark=;money=2.0;status=2;categoryId=0;platform=0;assetId=1726484010133;fromId=1716722805908;targetId=-1;extra=null)
-        // (agent) [385693] Arguments com.mutangtech.qianji.data.db.dbhelper.k.saveOrUpdateBill(_id=null;billid=1726483978004140450;userid=200104405e109647c18e9;bookid=-1;timeInSec=1721215710;type=7;remark=从前慢(**江) ;money=962.0;status=2;categoryId=0;platform=0;assetId=1584352987097;fromId=-1;targetId=1726484010133;extra=null)
+
+        // _id=null;billid=1726484778608150253;userid=200104405e109647c18e9;bookid=-1;timeInSec=1726484773;type=11;remark=债务利息;money=12.0;status=2egoryId=0;platform=0;assetId=-1;fromId=1726484010133;targetId=-1;extra=null
+
+        // _id=null;billid=1726485028243184123;userid=200104405e109647c18e9;bookid=-1;timeInSec=1726485025;type=4;remark=;money=19.0;status=2;categoryId=0;platform=0;assetId=1726484010133;fromId=-1;targetId=-1;extra=null
 
 
         val fromLongId = XposedHelpers.callMethod(accountFrom.getId(),"longValue")
         val toLongId = XposedHelpers.callMethod(accountTo.getId(),"longValue")
 
-        XposedHelpers.setObjectField(bill,"assetid", toLongId)
-        XposedHelpers.setObjectField(bill,"fromid", fromLongId)
+        if (billModel.remark.contains("利息")){
+            XposedHelpers.setObjectField(bill,"fromid", fromLongId)
+        }else{
+            XposedHelpers.setObjectField(bill,"assetid", fromLongId)
+        }
+
+
 
         val bookId = XposedHelpers.getObjectField(book,"bookId")
         XposedHelpers.setObjectField(bill,"bookId", XposedHelpers.callMethod(bookId,"longValue"))

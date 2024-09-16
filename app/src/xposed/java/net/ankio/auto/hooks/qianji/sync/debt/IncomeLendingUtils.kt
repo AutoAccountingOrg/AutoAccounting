@@ -48,6 +48,9 @@ class IncomeLendingUtils(private val manifest: HookerManifest,private val classL
         if (!isNewAssets){
             // 构建账单
             val bill = updateBill(billModel,6,book,accountFrom,accountTo)
+
+            manifest.logD("bill: $bill")
+
             saveBill(bill)
         }
 
@@ -134,11 +137,12 @@ class IncomeLendingUtils(private val manifest: HookerManifest,private val classL
         //    bill2 = Bill.newInstance(i12, trim, d12, timeInMillis, imageUrls);
         val bill = XposedHelpers.callStaticMethod(billClazz, "newInstance", type, remark, money, time, imageList)
 
-        val assetLongId = XposedHelpers.callMethod(accountFrom.getId(),"longValue")
-        val targetLongId = XposedHelpers.callMethod(accountTo.getId(),"longValue")
+        val fromLongId = XposedHelpers.callMethod(accountFrom.getId(),"longValue")
+        val toLongId = XposedHelpers.callMethod(accountTo.getId(),"longValue")
 
-        XposedHelpers.setObjectField(bill,"assetid", assetLongId)
-        XposedHelpers.setObjectField(bill,"targetid", targetLongId)
+        //  Arguments com.mutangtech.qianji.data.db.dbhelper.k.saveOrUpdateBill(_id=null;billid=1726484445302133106;userid=200104405e109647c18e9;bookid=-1;timeInSec=1726484437;type=6;remark=;money=12.0;status=2;categoryId=0;platform=0;assetId=1726474557467;fromId=-1;targetId=1584352475380;extra=null)
+        XposedHelpers.setObjectField(bill,"assetid", fromLongId)
+        XposedHelpers.setObjectField(bill,"targetid", toLongId)
 
         val bookId = XposedHelpers.getObjectField(book,"bookId")
         XposedHelpers.setObjectField(bill,"bookId", XposedHelpers.callMethod(bookId,"longValue"))
