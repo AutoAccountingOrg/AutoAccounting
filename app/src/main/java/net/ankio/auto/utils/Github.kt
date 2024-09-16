@@ -23,6 +23,7 @@ import net.ankio.auto.App
 import net.ankio.auto.exceptions.GithubException
 import net.ankio.auto.request.RequestsUtils
 import net.ankio.auto.storage.ConfigUtils
+import net.ankio.auto.storage.Logger
 import org.ezbook.server.constant.Setting
 
 object Github {
@@ -55,13 +56,10 @@ object Github {
                     body = data
                 )
 
-            val params = result.second.split("&")
-            for (param in params) {
-                val keyValue = param.split("=")
-                if (keyValue.size == 2 && keyValue[0] == "access_token") {
-                    ConfigUtils.putString(Setting.GITHUB_ACCESS_TOKEN, keyValue[1])
-                }
-            }
+
+            val json = Gson().fromJson(result.second, JsonObject::class.java)
+
+            ConfigUtils.putString(Setting.GITHUB_ACCESS_TOKEN, json.get("access_token").asString)
         }
 
 
@@ -77,14 +75,16 @@ object Github {
             jsonRequest.addProperty("title", title)
             jsonRequest.addProperty("body", body)
             val requestsUtils = RequestsUtils(App.app)
-            requestsUtils.addHeader("Accept", "application/vnd.github.v3+json")
+            requestsUtils.addHeader("Accept", "application/vnd.github+json")
             requestsUtils.addHeader("X-GitHub-Api-Version", "2022-11-28")
             val accessToken = ConfigUtils.getString(Setting.GITHUB_ACCESS_TOKEN, "")
-            if (accessToken.isNotEmpty()) {
-                requestsUtils.addHeader("Authorization", "Bearer $accessToken")
+            if (accessToken.isEmpty()){
+                throw GithubException("创建Issue失败, token = null")
             }
+            requestsUtils.addHeader("Authorization", "Bearer $accessToken")
             val result = requestsUtils.json(url, jsonRequest)
             if (result.first != 201) {
+                Logger.e("创建Issue失败: ${result.second}")
                 throw GithubException("创建Issue失败")
             }
             val jsonObject = Gson().fromJson(result.second, JsonObject::class.java)

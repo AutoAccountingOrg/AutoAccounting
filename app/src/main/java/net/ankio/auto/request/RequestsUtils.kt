@@ -145,7 +145,7 @@ class RequestsUtils(context: Context, private val cacheTime: Int = 0) {
             // 执行请求
             val response = client.newCall(request).execute()
 
-            Pair(response.code, response.body.toString())
+            Pair(response.code, response.body?.string()?:"")
         }
 
     /**
@@ -170,11 +170,13 @@ class RequestsUtils(context: Context, private val cacheTime: Int = 0) {
             // 设置 POST 方法和请求体
             val request = requestBuilder.post(requestBody).build()
 
+
+
             // 执行请求并获取响应
             val response = client.newCall(request).execute()
 
             // 返回响应结果
-            Pair(response.code, response.body.toString())
+            Pair(response.code, response.body?.string()?:"")
         }
 
     /**
@@ -209,7 +211,7 @@ class RequestsUtils(context: Context, private val cacheTime: Int = 0) {
         val response = client.newCall(request).execute()
 
         // 返回响应结果
-        Pair(response.code, response.body.toString())
+        Pair(response.code, response.body?.string()?:"")
     }
 
     /**
