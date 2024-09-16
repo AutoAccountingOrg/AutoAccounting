@@ -95,7 +95,7 @@ abstract class BaseUpdate(context: Context) {
                 log = json.get("log").asString
                 date = json.get("date").asString
                 date = date(date)
-                if (version != localVersion) {
+                if (checkVersionLarge(version,localVersion)>0) {
                     Logger.i("New version found")
                     return arrayOf(
                         version,
@@ -134,7 +134,7 @@ abstract class BaseUpdate(context: Context) {
 
                 Logger.i("LocalVersion: $localVersion,Version: $version")
 
-                if (version != localVersion) {
+                if (checkVersionLarge(version,localVersion)>0) {
                     Logger.i("New version found")
                     return arrayOf(
                         version,
@@ -164,4 +164,35 @@ abstract class BaseUpdate(context: Context) {
         c.add(Calendar.HOUR_OF_DAY, 8)
         return sdf.format(c.time)
     }
+
+    /**
+     * 检查两个版本号哪个大
+     * @param localVersion 本地版本号
+     * @param cloudVersion 云端版本号
+     * @return 返回 1 表示 localVersion 大于 cloudVersion，-1 表示 cloudVersion 大于 localVersion，0 表示两者相等
+     */
+    fun checkVersionLarge(localVersion: String, cloudVersion: String): Int {
+        val channel = ConfigUtils.getString(
+            Setting.CHECK_UPDATE_TYPE,
+            UpdateType.Stable.name
+        )
+        val localParts = localVersion.replace("-${channel}","").split(".")
+        val cloudParts = cloudVersion.replace("-${channel}","").split(".")
+
+        // 找出较长的版本号长度，补齐较短版本号的空位
+        val maxLength = maxOf(localParts.size, cloudParts.size)
+
+        for (i in 0 until maxLength) {
+            val localPart = localParts.getOrNull(i)?.toIntOrNull() ?: 0  // 如果某个部分不存在，默认视为0
+            val cloudPart = cloudParts.getOrNull(i)?.toIntOrNull() ?: 0
+
+            when {
+                localPart > cloudPart -> return 1
+                localPart < cloudPart -> return -1
+            }
+        }
+        return 0 // 如果所有部分都相等，返回 0
+    }
+
+
 }
