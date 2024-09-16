@@ -270,8 +270,12 @@ class HomeFragment : BaseFragment() {
      */
     private suspend fun checkRuleUpdate(showResult: Boolean) {
         val ruleUpdate = RuleUpdate(requireContext())
-        if (ruleUpdate.check(showResult)) {
-            UpdateDialog(requireActivity(), ruleUpdate).show(cancel = true)
+        runCatching {
+            if (ruleUpdate.check(showResult)) {
+                UpdateDialog(requireActivity(), ruleUpdate).show(cancel = true)
+            }
+        }.onFailure {
+            Logger.e("checkRuleUpdate", it)
         }
     }
 
@@ -280,8 +284,12 @@ class HomeFragment : BaseFragment() {
      */
     private suspend fun checkAppUpdate(showResult: Boolean = false) {
         val appUpdate = AppUpdate(requireContext())
-        if (appUpdate.check(showResult)) {
-            UpdateDialog(requireActivity(), appUpdate).show(cancel = true)
+        runCatching {
+            if (appUpdate.check(showResult)) {
+                UpdateDialog(requireActivity(), appUpdate).show(cancel = true)
+            }
+        }.onFailure {
+            Logger.e("checkAppUpdate", it)
         }
     }
 
