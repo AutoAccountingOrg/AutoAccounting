@@ -28,6 +28,7 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.core.App
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
+import net.ankio.auto.hooks.android.utils.MD5HashTable
 import org.ezbook.server.constant.DataType
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.SettingModel
@@ -45,6 +46,8 @@ class NotificationHooker : PartHooker() {
             "com.android.server.notification.NotificationManagerService",
             classLoader
         )
+        val hashTable = MD5HashTable()
+
         XposedBridge.hookAllMethods(
             notificationManagerService,
             "enqueueNotificationInternal",
@@ -73,6 +76,11 @@ class NotificationHooker : PartHooker() {
                         notification.extras.getString(Notification.EXTRA_TITLE) ?: ""
                     val originalText = notification.extras.getString(Notification.EXTRA_TEXT) ?: ""
 
+                    val hash = hashTable.md5("$app$originalTitle$originalText")
+                    if (hashTable.contains(hash)){
+                        return
+                    }
+                    hashTable.add(hash)
 
                     hookerManifest.logD("Notification App: $opkg")
                     hookerManifest.logD("Notification App2: $app")
@@ -139,5 +147,7 @@ class NotificationHooker : PartHooker() {
 
         hookerManifest.analysisData(DataType.NOTICE, Gson().toJson(json), pkg)
     }
+
+
 
 }
