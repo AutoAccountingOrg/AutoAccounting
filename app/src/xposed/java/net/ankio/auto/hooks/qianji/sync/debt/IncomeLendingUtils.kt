@@ -80,21 +80,15 @@ class IncomeLendingUtils(private val manifest: HookerManifest,private val classL
     private suspend fun updateLoan(billModel: BillInfoModel,accountFrom: AssetAccount,isNewAssets:Boolean) = withContext(Dispatchers.IO){
         // 债务
         val loan = if (isNewAssets) createLoan(billModel.time) else accountFrom.getLoanInfo()
-
+        manifest.logD("LoanInfo: ${loan.get}")
         // {"a":0,"b":"2024-07-17","c":"","e":-12.0,"f":0.0}
         // f=TotalPay 已还金额
         // e=money 待还金额
-        val totalMoney = loan.getTotalMoney()
         //
-        loan.setTotalMoney(totalMoney - billModel.money)
-
-        manifest.logD("LoanInfo: ${loan.get}")
+        loan.setTotalMoney(- billModel.money)
 
         accountFrom.setLoanInfo(loan)
-
-        val money = accountFrom.getMoney()
-
-        accountFrom.addMoney(money - billModel.money)
+        accountFrom.addMoney( - billModel.money)
     }
     /**
      * 保存账单
@@ -119,7 +113,6 @@ class IncomeLendingUtils(private val manifest: HookerManifest,private val classL
         }
 
         accountTo.addMoney(billModel.money)
-
         assetsUtils.updateAsset(accountTo.get)
 
         return@withContext ret
@@ -154,6 +147,9 @@ class IncomeLendingUtils(private val manifest: HookerManifest,private val classL
 
         val bookId = XposedHelpers.getObjectField(book,"bookId")
         XposedHelpers.setObjectField(bill,"bookId", XposedHelpers.callMethod(bookId,"longValue"))
+
+
+        XposedHelpers.setObjectField(bill,"descinfo", "${accountFrom.getName()}->${accountTo.getName()}")
 
         bill
 
