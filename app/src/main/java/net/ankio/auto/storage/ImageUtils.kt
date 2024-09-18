@@ -59,7 +59,7 @@ object ImageUtils {
     ): Drawable? =
         withContext(Dispatchers.IO) {
             runCatching {
-                val result = RequestsUtils(context, 3600 * 24 * 180).image(url = uriString)
+                val result = RequestsUtils(context, 60 * 24 * 180).image(url = uriString)
                 val bitmap = BitmapFactory.decodeStream(result.second.inputStream())
                 BitmapDrawable(null, bitmap)
             }.onFailure {

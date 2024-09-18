@@ -45,7 +45,7 @@ abstract class BaseUpdate(context: Context) {
     var version = ""
     var log = ""
     var date = ""
-    protected val request = RequestsUtils(context,3600)
+    protected val request = RequestsUtils(context,5)
     abstract fun ruleVersion(): String
     abstract fun onCheckedUpdate()
 
