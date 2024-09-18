@@ -1,98 +1,87 @@
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_marginTop="60dp"
     android:orientation="vertical"
     android:padding="@dimen/padding">
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/errorRestartButton"
+        style="@style/Widget.Material3.Button.Icon"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/btn_height"
+        android:layout_alignParentBottom="true"
+        android:layout_centerInParent="true"
+        android:layout_centerVertical="false"
+        android:layout_marginBottom="32dp"
+        android:text="@string/restart"
+        app:icon="@drawable/icon_restart"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
     <ScrollView
         android:id="@+id/scrollview"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_height="wrap_content">
 
-        <LinearLayout
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/errorCard"
+            style="?attr/materialCardViewElevatedStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_marginBottom="@dimen/padding"
+            app:cardBackgroundColor="?attr/colorErrorContainer"
+            app:cardCornerRadius="@dimen/radius"
+            app:cardElevation="0dp">
 
-            <!-- Error Card -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/errorCard"
-                style="?attr/materialCardViewElevatedStyle"
+
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/errorText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/padding"
+                android:layout_marginTop="16dp"
+                android:drawablePadding="8dp"
+                android:gravity="center_vertical"
+                android:padding="@dimen/padding"
+                android:text="@string/app_error_msg"
+                android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                app:drawableLeftCompat="@drawable/ic_warning"
+                app:drawableTint="?attr/colorError"
+          />
+
+
+
+
+        </com.google.android.material.card.MaterialCardView>
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/adbCard"
+            style="?attr/materialCardViewElevatedStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/padding"
+            app:cardBackgroundColor="?attr/colorSurfaceContainer"
+            app:cardCornerRadius="@dimen/radius"
+            app:cardElevation="0dp">
+            <TextView
+                android:id="@+id/errorMsg"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/padding"
-                app:cardBackgroundColor="?attr/colorErrorContainer"
-                app:cardCornerRadius="@dimen/radius"
-                app:cardElevation="0dp">
+                android:layout_margin="@dimen/padding"
+                android:text=""
+                android:textSize="18sp"
+                tools:text="xxxxxxxxxxxxxxxxxxxx" />
+        </com.google.android.material.card.MaterialCardView>
 
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:id="@+id/errorText"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="@dimen/padding"
-                        android:drawablePadding="8dp"
-                        android:gravity="center_vertical"
-                        android:padding="@dimen/padding"
-                        android:text="@string/app_error_msg"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
-                        app:drawableLeftCompat="@drawable/ic_warning"
-                        app:drawableTint="?attr/colorError"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintHorizontal_bias="1.0"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <ImageView
-                        android:id="@+id/errorImage"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        app:srcCompat="@drawable/ic_net_error"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"/>
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/errorRestartButton"
-                        style="@style/Widget.Material3.Button.Icon"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="20dp"
-                        android:layout_marginBottom="20dp"
-                        android:text="@string/restart"
-                        app:icon="@drawable/icon_restart"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"/>
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- ADB Card -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/adbCard"
-                style="?attr/materialCardViewElevatedStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/padding"
-                app:cardBackgroundColor="?attr/colorSurfaceContainer"
-                app:cardCornerRadius="@dimen/radius"
-                app:cardElevation="0dp">
-
-                <TextView
-                    android:id="@+id/errorMsg"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="@dimen/one_padding"
-                    android:textSize="18sp"
-                    android:text=""/>
-            </com.google.android.material.card.MaterialCardView>
-        </LinearLayout>
+    </LinearLayout>
     </ScrollView>
 
-</LinearLayout>
+</RelativeLayout>
