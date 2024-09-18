@@ -18,8 +18,10 @@ package org.ezbook.server.db.dao
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import org.ezbook.server.db.model.AssetsMapModel
+import org.ezbook.server.db.model.CategoryModel
 
 
 @Dao
@@ -43,4 +45,13 @@ interface AssetMapDao {
 
     @Query("DELETE FROM AssetsMapModel WHERE id = :id")
     fun delete(id: Long)
+
+    @Transaction
+    fun put(data:AssetsMapModel) {
+        if (query(data.name) == null) {
+            insert(data)
+        } else {
+            update(data)
+        }
+    }
 }
