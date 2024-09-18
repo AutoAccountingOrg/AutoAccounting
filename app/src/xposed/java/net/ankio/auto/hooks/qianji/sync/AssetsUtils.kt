@@ -162,6 +162,12 @@ class AssetsUtils(private val manifest: HookerManifest, private val classLoader:
                             model.extras = Gson().toJson(value)
                         }
                     }
+                    "status" -> {
+                       val status = value as Int
+                        if(status == 1){ // 隐藏的资产不同步
+                            continue
+                        }
+                    }
                 }
             }
             assets.add(model)
