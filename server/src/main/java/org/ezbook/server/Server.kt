@@ -126,7 +126,7 @@ class Server(context: Context) {
         suspend fun request(path: String, json: String = ""): String? =
             withContext(Dispatchers.IO) {
                 runCatching {
-                    val uri = "http://localhost:52045/$path"
+                    val uri = "http://127.0.0.1:52045/$path"
                     // 创建一个OkHttpClient对象
                     val client = OkHttpClient()
                     // set as json post
