@@ -16,6 +16,7 @@
 package net.ankio.auto.hooks.android.hooks
 
 import android.app.Application
+import de.robv.android.xposed.XposedBridge
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
@@ -47,8 +48,9 @@ class ServiceHooker : PartHooker() {
                 Server(application!!).startServer()
                 hookerManifest.logD(" server hook success")
             } catch (e: Exception) {
-                hookerManifest.logE(e)
-                hookerManifest.logD(" server onInit error: ${e.message}")
+                XposedBridge.log("server hook failed")
+                XposedBridge.log(e)
+
             }
         }
     }
