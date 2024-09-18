@@ -162,6 +162,7 @@ class PermissionHooker : PartHooker() {
                                         pkg,
                                         "getRequestedPermissions"
                                     ) as List<String>
+                                    // TODO 挺玄学的，在某些设备上需要加一行日志才可以授权成功, 有的设备不需要日志也能成功...
                                     XposedBridge.log("PermissionHooker: $packageName $permissions")
                                     for (permission in app.permissions) {
                                         if (!permissions.contains(permission)) {
