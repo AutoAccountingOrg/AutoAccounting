@@ -45,25 +45,15 @@ class AutoHooker : HookerManifest() {
         set(value) {}
 
     override var permissions: MutableList<String> =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            mutableListOf(
-                //网络权限
-                Manifest.permission.INTERNET,
-                //读取网络状态
-                Manifest.permission.ACCESS_NETWORK_STATE,
-                //悬浮窗权限
-                Manifest.permission.SYSTEM_ALERT_WINDOW,
-                // Query all packages
-                Manifest.permission.QUERY_ALL_PACKAGES,
-            )
-        } else {
-            mutableListOf(
-                //网络权限
-                Manifest.permission.INTERNET,
-                //读取网络状态
-                Manifest.permission.ACCESS_NETWORK_STATE,
-                //悬浮窗权限
-                Manifest.permission.SYSTEM_ALERT_WINDOW,
-            )
-        }
+        mutableListOf(
+            //网络权限
+            Manifest.permission.INTERNET,
+            //读取网络状态
+            Manifest.permission.ACCESS_NETWORK_STATE,
+            //悬浮窗权限
+            Manifest.permission.SYSTEM_ALERT_WINDOW,
+          //  "android.permission.SYSTEM_OVERLAY_WINDOW",
+            // Query all packages
+            Manifest.permission.QUERY_ALL_PACKAGES,
+        )
 }

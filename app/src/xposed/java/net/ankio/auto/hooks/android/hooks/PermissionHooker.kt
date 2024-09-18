@@ -162,6 +162,7 @@ class PermissionHooker : PartHooker() {
                                         pkg,
                                         "getRequestedPermissions"
                                     ) as List<String>
+                                    XposedBridge.log("PermissionHooker: $packageName $permissions")
                                     for (permission in app.permissions) {
                                         if (!permissions.contains(permission)) {
                                             val result = XposedHelpers.callMethod(
