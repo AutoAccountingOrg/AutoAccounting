@@ -453,15 +453,19 @@ class CategoryEditFragment : BaseFragment() {
     }
 
     private fun saveItem() {
-        val map = binding.flexboxLayout.getViewMap()
+        var map = binding.flexboxLayout.getViewMap()
         var condition = ""
         //   var text = "若满足"
         list = mutableListOf()
 
         var findFirstJs = false
-        map.forEach {  flowElement ->
-            //对不规则的进行优化
+        val mapList = map.filter { flowElement ->
             if (flowElement.data.containsKey("js")) {
+                // 移除无效数据
+                if (flowElement.data.containsKey("content") && flowElement.data["content"].toString().isEmpty()) {
+                    return@filter false // 过滤掉该元素
+                }
+
                 if (!findFirstJs) {
                     findFirstJs = true
                     flowElement.data.remove("jsPre")
@@ -471,20 +475,21 @@ class CategoryEditFragment : BaseFragment() {
                     }
                 }
             }
+            true // 保留该元素
         }
 
-        for (flowElement in map) {
-            if (flowElement.data.containsKey("js")) {
-                list!!.add(flowElement.data)
-                //    val t = flowElement.data["text"] as String
 
-                if (flowElement.data.containsKey("jsPre")) {
-                    val pre = flowElement.data["jsPre"]
-                    condition += pre
-                    //      text += if (pre == "or") " 或 " else " 且 "
+        for (flowElement in mapList) {
+            flowElement.data["js"]?.let { js ->
+                list!!.add(flowElement.data)
+
+                // 如果存在 "jsPre"，则追加到 condition 中
+                flowElement.data["jsPre"]?.let { pre ->
+                    condition+=pre
                 }
-                condition += flowElement.data["js"]
-                //  text += t
+
+                // 追加 "js" 到 condition 中
+                condition+=js
             }
         }
         //text += "，则账本为【$bookName】，分类为【$category】。"

@@ -96,16 +96,9 @@ class BillCategoryDialog(
             }
 
             if (shopItem.isNotEmpty()) {
+                var jsPre = false
                 if (shopName.isNotEmpty()) {
-                    val innerData: HashMap<String, Any> =
-                        hashMapOf(
-                            "jsPre" to "and",
-                            "text" to " 且 ",
-                            "js" to " && ",
-                        )
-                    condition += " && "
-                    //    text += " 且 "
-                    list.add(innerData)
+                    jsPre = true
                 }
                 val select = 0
                 val content = shopItem
@@ -125,10 +118,16 @@ class BillCategoryDialog(
                         "js" to js,
                         "text" to msg,
                     )
+                if (jsPre){
+                    condition += " && "
+                    data["jsPre"] = " and "
+                }
                 condition += js
                 //  text += msg
                 list.add(data)
             }
+
+            Logger.i("list=$list")
 
             //  text += "，则账本为【${billInfoModel.bookName}】，分类为【${billInfoModel.cateName}】。"
 
