@@ -24,7 +24,7 @@ import net.ankio.auto.utils.DateUtils
 import org.ezbook.server.constant.LogLevel
 import org.ezbook.server.db.model.LogModel
 
-class LogAdapter(private val list: MutableList<LogModel>) :
+class LogAdapter(list: MutableList<LogModel>) :
     BaseAdapter<AdapterLogBinding, LogModel>(AdapterLogBinding::class.java, list) {
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterLogBinding, LogModel>) {
         holder.binding.root.setOnClickListener {
