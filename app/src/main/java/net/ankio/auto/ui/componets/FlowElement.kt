@@ -199,7 +199,7 @@ class FlowElement(
         textView.setTextAppearance(flowLayoutManager.textAppearance)
         textView.setTextColor(
             App.getThemeAttrColor(
-                com.google.android.material.R.attr.colorOnSecondaryFixed,
+                com.google.android.material.R.attr.colorOnSecondaryContainer,
             ),
         )
         textView.isClickable = true
