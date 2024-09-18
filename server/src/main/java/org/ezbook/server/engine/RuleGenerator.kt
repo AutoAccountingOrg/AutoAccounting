@@ -95,12 +95,17 @@ object RuleGenerator {
             it.js
         }
         val category = Db.get().settingDao().query(Setting.JS_CATEGORY)?.value ?: ""
-        return "var window = JSON.parse(data);" +
-                "function getCategory(money,type,shopName,shopItem,time){ $categoryCustom return null;};" +
-                "var categoryInfo = getCategory(window.money,window.type,window.shopName,window.shopItem,window.time);" +
-                "if(categoryInfo !== null) { print(JSON.stringify(categoryInfo));  } else { $category" +
-                "print(JSON.stringify(category.get(window.money, window.type, window.shopName, window.shopItem, window.time))); " +
-                "}"
+        return """
+            var window = JSON.parse(data);
+            function getCategory(money,type,shopName,shopItem,time){ $categoryCustom return null;};
+            var categoryInfo = getCategory(window.money,window.type,window.shopName,window.shopItem,window.time);
+            if(categoryInfo !== null) { 
+                print(JSON.stringify(categoryInfo));  
+            } else {
+                $category
+                print(JSON.stringify(category.get(window.money, window.type, window.shopName, window.shopItem, window.time)));
+            }
+        """.trimIndent()
     }
 
 }
