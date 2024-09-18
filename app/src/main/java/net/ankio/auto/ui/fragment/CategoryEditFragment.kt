@@ -35,6 +35,7 @@ import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogRegexInputBinding
 import net.ankio.auto.databinding.DialogRegexMoneyBinding
 import net.ankio.auto.databinding.FragmentEditBinding
+import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.componets.FlowElement
 import net.ankio.auto.ui.componets.FlowLayoutManager
@@ -456,6 +457,23 @@ class CategoryEditFragment : BaseFragment() {
         var condition = ""
         //   var text = "若满足"
         list = mutableListOf()
+
+        var findFirstJs = false
+        map.forEach {  flowElement ->
+            //对不规则的进行优化
+            if (flowElement.data.containsKey("js")) {
+                if (!findFirstJs) {
+                    findFirstJs = true
+                    flowElement.data.remove("jsPre")
+                } else {
+                    if (!flowElement.data.containsKey("jsPre")) {
+                        flowElement.data["jsPre"] = " and "
+                    }
+                }
+
+                Logger.i("data=>${flowElement.data}")
+            }
+        }
 
         for (flowElement in map) {
             if (flowElement.data.containsKey("js")) {
