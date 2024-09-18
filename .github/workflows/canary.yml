@@ -33,6 +33,7 @@ jobs:
           SIGN_ALIAS: ${{ secrets.SIGN_ALIAS }}
           SIGN_PASSWORD: ${{ secrets.SIGN_PASSWORD }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           CHANNEL: Canary
 
 
