@@ -154,6 +154,9 @@ object Assets {
         assets: List<AssetsModel>,
         autoAsset: Boolean
     ): String {
+        if (account.isEmpty()) {
+            return account
+        }
         //直接命中原始资产表
         val asset = assets.find { it.name == account }
         if (asset != null) {
