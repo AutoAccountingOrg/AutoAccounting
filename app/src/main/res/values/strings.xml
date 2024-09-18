@@ -215,7 +215,7 @@
     <string name="title_map">资产映射</string>
     <string name="item_add_map">新增映射</string>
     <string name="map_input_raw">请输入原始资产</string>
-    <string name="map_regex">正则表达式</string>
+    <string name="map_regex">包含关系</string>
     <string name="map_no_target">请选择目标资产</string>
     <string name="map_empty">资产名称或者映射资产不能为空</string>
     <string name="delete_title">删除确认</string>
