@@ -276,7 +276,7 @@ def send_apk_with_changelog(workspace):
     # 数据部分，包含 Channel ID 和更新日志作为 caption
     data = {
         "chat_id": channel_id,
-        "caption": content,  # 更新日志
+        "caption": content.replace("#",""),  # 更新日志
         "parse_mode": "Markdown"  # 可选：使用 Markdown 格式化日志内容
     }
 
