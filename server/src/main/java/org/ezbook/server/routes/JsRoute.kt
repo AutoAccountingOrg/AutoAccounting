@@ -75,13 +75,13 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
 
 
         if (js === "") {
-            return Server.json(404, "js not Found")
+            return Server.json(404, "JS无效，请更新规则。")
         }
 
         val result = runJS(js, data)
 
         if (result === "") {
-            return Server.json(404, "analysis result is nothing")
+            return Server.json(404, "$data => 未分析到有效账单。")
         }
 
         /**
@@ -115,9 +115,7 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
         win.addProperty("shopName", billInfoModel.shopName)
         win.addProperty("shopItem", billInfoModel.shopItem)
         win.addProperty("time", time)
-
         var categoryResult = runJS(categoryJS, Gson().toJson(win))
-
         // { book: '默认账本', category: '早茶' }
         if (categoryResult == "") {
             categoryResult = "{ book: '默认账本', category: '其他' }"
@@ -131,7 +129,7 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
 
         val total = System.currentTimeMillis() - t
         // 识别用时
-        Server.log("analysis time: $total ms")
+        Server.log("分析耗时: $total ms")
 
         //  资产映射
         Assets.setAssetsMap(billInfoModel)
@@ -260,7 +258,7 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
             result = e.message
         } finally {
             Context.exit()
-            Server.log("result: $result")
+            Server.log("规则识别结果: $result")
         }
         if (result != null) return result.toString()
         return ""
