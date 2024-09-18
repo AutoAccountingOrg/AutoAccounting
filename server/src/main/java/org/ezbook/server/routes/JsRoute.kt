@@ -147,8 +147,10 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
 
         if (!fromAppData) {
             // 切换到主线程
-            Server.runOnMainThread {
-                startAutoPanel(billInfoModel, parent)
+            if(!billInfoModel.auto){
+                Server.runOnMainThread {
+                    startAutoPanel(billInfoModel, parent)
+                }
             }
             //存入数据库
             billInfoModel.id = Db.get().billInfoDao().insert(billInfoModel)
