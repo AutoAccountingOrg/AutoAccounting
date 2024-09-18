@@ -19,6 +19,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
 import net.ankio.auto.App
@@ -30,15 +31,36 @@ class CustomNavigationRail @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : LinearLayout(context, attrs, defStyleAttr) {
 
+    // ScrollView 包裹 LinearLayout
+    private val scrollView: ScrollView
+
     init {
         orientation = VERTICAL
+
+        // 创建一个 ScrollView
+        scrollView = ScrollView(context).apply {
+            layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+        }
+
+        // 创建一个内部的 LinearLayout，作为 ScrollView 的子视图
+        val internalLayout = LinearLayout(context).apply {
+            orientation = VERTICAL
+            layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
+        }
+
+        // 将内部的 LinearLayout 添加到 ScrollView 中
+        scrollView.addView(internalLayout)
+
+        // 将 ScrollView 添加到 CustomNavigationRail
+        addView(scrollView)
     }
 
     private val menuItems = mutableListOf<RailMenuItem>()
     private var onItemSelectedListener: ((RailMenuItem) -> Unit)? = null
+
     fun triggerFirstItem(): Boolean {
-        if (childCount > 0) {
-            getChildAt(0).performClick()
+        if (scrollView.getChildAt(0) is LinearLayout && (scrollView.getChildAt(0) as LinearLayout).childCount > 0) {
+            (scrollView.getChildAt(0) as LinearLayout).getChildAt(0).performClick()
             return true
         }
         return false
@@ -46,8 +68,7 @@ class CustomNavigationRail @JvmOverloads constructor(
 
     fun addMenuItem(menuItem: RailMenuItem) {
         menuItems.add(menuItem)
-        val view =
-            LayoutInflater.from(context).inflate(R.layout.custom_navigation_rail_item, this, false)
+        val view = LayoutInflater.from(context).inflate(R.layout.custom_navigation_rail_item, this, false)
         val iconView: AppCompatImageView = view.findViewById(R.id.iconView)
         val textView: TextView = view.findViewById(R.id.textView)
 
@@ -57,22 +78,23 @@ class CustomNavigationRail @JvmOverloads constructor(
         val textColor = App.getThemeAttrColor(com.google.android.material.R.attr.colorOnBackground)
         textView.setTextColor(textColor)
 
-        val selectColor =
-            App.getThemeAttrColor(com.google.android.material.R.attr.colorOnSecondaryContainer)
+        val selectColor = App.getThemeAttrColor(com.google.android.material.R.attr.colorOnSecondaryContainer)
 
         view.setOnClickListener {
             onItemSelectedListener?.invoke(menuItem)
             // 移除其他项目的背景色
-            for (i in 0 until childCount) {
-                getChildAt(i).background = null
-                getChildAt(i).findViewById<TextView>(R.id.textView).setTextColor(textColor)
+            for (i in 0 until (scrollView.getChildAt(0) as LinearLayout).childCount) {
+                (scrollView.getChildAt(0) as LinearLayout).getChildAt(i).background = null
+                (scrollView.getChildAt(0) as LinearLayout).getChildAt(i)
+                    .findViewById<TextView>(R.id.textView).setTextColor(textColor)
             }
             // 设置选中项目的背景色
             view.setBackgroundResource(R.drawable.navigation_rail_item_background)
-            textView.findViewById<TextView>(R.id.textView).setTextColor(selectColor)
+            textView.setTextColor(selectColor)
         }
 
-        addView(view)
+        // 添加菜单项到内部的 LinearLayout 中
+        (scrollView.getChildAt(0) as LinearLayout).addView(view)
     }
 
     fun setOnItemSelectedListener(listener: (RailMenuItem) -> Unit) {
