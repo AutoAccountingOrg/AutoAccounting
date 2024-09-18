@@ -394,7 +394,7 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         val context = application ?: return
         permissions.forEach {
             if (context.checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED) {
-                app.logD("${app.appName} Permission denied: $it")
+                app.logE(Throwable("${app.appName} Permission denied: $it"))
             } else {
                 app.logD("${app.appName} Permission granted: $it")
             }
