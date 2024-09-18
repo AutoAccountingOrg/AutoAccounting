@@ -191,7 +191,7 @@ class BillInfoModel {
         }
 
         suspend fun getBillByGroup(id: Long): List<BillInfoModel> = withContext(Dispatchers.IO) {
-            val response = Server.request("bill/group/list?id=$id")
+            val response = Server.request("bill/group?id=$id")
             val json = Gson().fromJson(response, JsonObject::class.java)
             runCatching {
                 Gson().fromJson(

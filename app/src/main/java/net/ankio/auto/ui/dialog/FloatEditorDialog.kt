@@ -110,14 +110,7 @@ class FloatEditorDialog(
     // 综合以上内容，应用到billInfo对象上
 
     private fun getBillData(): BillInfoModel {
-        return BillInfoModel().apply {
-            this.channel = billInfoModel.channel
-            this.app = billInfoModel.app
-            this.money = billInfoModel.money
-            this.fee = billInfoModel.fee
-            this.bookName = billInfoModel.bookName
-            this.type = billTypeLevel2
-            this.id = billInfoModel.id
+       return billInfoModel.copy().apply {
             when (billTypeLevel2) {
                 BillType.Expend -> {
                     this.accountNameFrom = binding.payFrom.getText()
@@ -156,15 +149,6 @@ class FloatEditorDialog(
                 }
 
             }
-
-            this.shopName = billInfoModel.shopName
-            this.shopItem = billInfoModel.shopItem
-
-            this.cateName = billInfoModel.cateName
-
-            this.currency = billInfoModel.currency
-
-            this.time = billInfoModel.time
             this.remark = binding.remark.text.toString()
         }
     }
@@ -187,15 +171,14 @@ class FloatEditorDialog(
         }
         // 确定按钮
         binding.sureButton.setOnClickListener {
-            val bill = getBillData()
 
-            convertBillInfo = bill.copy()
+            convertBillInfo = getBillData()
             convertBillInfo.syncFromApp = false
-            Logger.d("最终账单结果 => $bill")
+            Logger.d("最终账单结果 => $convertBillInfo")
 
             lifecycleScope.launch {
                 runCatching {
-                    BillInfoModel.put(bill)
+                    BillInfoModel.put(convertBillInfo)
                     if (ConfigUtils.getBoolean(Setting.SHOW_SUCCESS_POPUP, true)) {
                         ToastUtils.info(
                             context.getString(
@@ -212,13 +195,13 @@ class FloatEditorDialog(
                         )
                     ) {
                         // 弹出询问框
-                        BillCategoryDialog(context, bill).show(float,cancel = true)
+                        BillCategoryDialog(context, convertBillInfo).show(float,cancel = true)
                     }
 
                     if (ConfigUtils.getBoolean(Setting.AUTO_ASSET, false)) {
                         val assets = AssetsModel.list()
-                        setAccountMap(assets, bill.accountNameFrom, bill.accountNameFrom)
-                        setAccountMap(assets, bill.accountNameTo, bill.accountNameTo)
+                        setAccountMap(assets, convertBillInfo.accountNameFrom, convertBillInfo.accountNameFrom)
+                        setAccountMap(assets, convertBillInfo.accountNameTo, convertBillInfo.accountNameTo)
                     }
 
                 }.onFailure {

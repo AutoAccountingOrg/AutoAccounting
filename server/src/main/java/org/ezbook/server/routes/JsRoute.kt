@@ -144,7 +144,6 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
 
         // 账单分组，用于检查重复账单
         val parent = Bill.groupBillInfo(billInfoModel, context)
-
         if (!fromAppData) {
             // 切换到主线程
             if(!billInfoModel.auto){
@@ -159,7 +158,6 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
             appDataModel.rule = billInfoModel.ruleName
             Db.get().dataDao().update(appDataModel)
         }
-
         return Server.json(200, "OK", billInfoModel)
     }
 

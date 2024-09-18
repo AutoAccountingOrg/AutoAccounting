@@ -16,6 +16,7 @@
 package org.ezbook.server.tools
 
 import android.content.Context
+import android.util.Log
 import org.ezbook.server.Server
 import org.ezbook.server.constant.Currency
 import org.ezbook.server.constant.Setting
@@ -29,14 +30,14 @@ object Bill {
      * @param bill2 账单2
      */
     private fun checkRepeat(bill: BillInfoModel, bill2: BillInfoModel): Boolean {
-        Server.log("重复性比较")
-        Server.log("bill:$bill")
-        Server.log("bill2:$bill2")
+        Server.log("账单分组")
+        Server.log("账单分组bill:$bill")
+        Server.log("账单分组bill2:$bill2")
 
-        Server.log("bill2.time == bill.time => ${bill2.time == bill.time}")
-        Server.log("bill.money == bill2.money => ${bill.money == bill2.money}")
-        Server.log("bill.type == bill2.type => ${bill.type == bill2.type}")
-        Server.log("bill2.channel != bill.channel => ${bill2.channel != bill.channel}")
+        Server.log("账单分组bill2.time == bill.time => ${bill2.time == bill.time}")
+        Server.log("账单分组bill.money == bill2.money => ${bill.money == bill2.money}")
+        Server.log("账单分组bill.type == bill2.type => ${bill.type == bill2.type}")
+        Server.log("账单分组bill2.channel != bill.channel => ${bill2.channel != bill.channel}")
 
         if (bill.type == bill2.type) {
             if (bill2.time == bill.time) return true //时间一致，一定是同一笔交易
@@ -100,7 +101,7 @@ object Bill {
             Db.get().billInfoDao().query(billInfoModel.money, billInfoModel.time - 5 * 60 * 1000)
         bills.forEach {
             if (checkRepeat(billInfoModel, it)) {
-                billInfoModel.groupId = it.groupId
+                billInfoModel.groupId = it.id
                 mergeRepeatBill(billInfoModel, it, context)
                 //更新到数据库
                 Db.get().billInfoDao().update(it)
