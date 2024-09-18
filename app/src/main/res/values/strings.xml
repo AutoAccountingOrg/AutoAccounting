@@ -433,4 +433,5 @@
     <string name="expend_repayment_info">债务 - 还款</string>
     <string name="income_lending">债务 - 借入</string>
     <string name="income_repayment_info">债务 - 收款</string>
+    <string name="dialog_error_msg">记账失败，弹窗出错，请报告该错误，并上传日志说明手机环境</string>
 </resources>

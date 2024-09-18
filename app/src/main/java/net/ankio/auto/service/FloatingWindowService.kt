@@ -104,7 +104,13 @@ class FloatingWindowService : Service() {
             return START_REDELIVER_INTENT
         }
 
-        processBillInfo(billInfoModel, showWaitTip)
+        runCatching {
+            processBillInfo(billInfoModel, showWaitTip)
+        }.onFailure {
+            // 提醒用户报告错误
+            Logger.e("记账失败", it)
+            ToastUtils.error(R.string.dialog_error_msg)
+        }
 
         return START_REDELIVER_INTENT
     }
