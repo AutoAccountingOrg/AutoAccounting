@@ -163,9 +163,10 @@ class BillInfoModel {
         suspend fun list(page: Int, pageSize: Int): List<BillInfoModel> =
             withContext(Dispatchers.IO) {
                 val response = Server.request("bill/list?page=$page&limit=$pageSize")
-                val json = Gson().fromJson(response, JsonObject::class.java)
+
 
                 runCatching {
+                    val json = Gson().fromJson(response, JsonObject::class.java)
                     Gson().fromJson(
                         json.getAsJsonArray("data"),
                         Array<BillInfoModel>::class.java

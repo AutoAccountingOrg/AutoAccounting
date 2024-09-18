@@ -52,9 +52,10 @@ class BookBillModel {
             Dispatchers.IO
         ) {
             val response = Server.request("bill/book/list")
-            val json = Gson().fromJson(response, JsonObject::class.java)
+
 
             runCatching {
+                val json = Gson().fromJson(response, JsonObject::class.java)
                 Gson().fromJson(
                     json.getAsJsonArray("data"),
                     Array<BookBillModel>::class.java
