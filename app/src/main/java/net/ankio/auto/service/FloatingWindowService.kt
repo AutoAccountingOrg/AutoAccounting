@@ -31,12 +31,14 @@ import androidx.core.content.ContextCompat
 import com.google.gson.Gson
 import com.quickersilver.themeengine.ThemeEngine
 import net.ankio.auto.App
+import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.broadcast.LocalBroadcastHelper
 import net.ankio.auto.constant.FloatEvent
 import net.ankio.auto.databinding.FloatTipBinding
 import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Logger
+import net.ankio.auto.ui.activity.ErrorActivity
 import net.ankio.auto.ui.dialog.FloatEditorDialog
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.BillTool
@@ -109,7 +111,18 @@ class FloatingWindowService : Service() {
         }.onFailure {
             // 提醒用户报告错误
             Logger.e("记账失败", it)
-            ToastUtils.error(R.string.dialog_error_msg)
+            // 跳转错误页面
+            val intent2 = Intent(App.app, ErrorActivity::class.java)
+            intent2.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            val sb = StringBuilder()
+            sb.append("自动记账未获取到悬浮窗权限，记账失败！\n")
+            sb.append("请在Github报告该问题，并说明手机操作系统及安卓版本\n")
+            it.stackTrace.forEach { message ->
+                sb.append(message.toString())
+                sb.append("\n")
+            }
+            intent2.putExtra("msg", sb.toString())
+            startActivity(intent2)
         }
 
         return START_REDELIVER_INTENT
