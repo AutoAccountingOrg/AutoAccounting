@@ -36,33 +36,6 @@
 
             <include android:id="@+id/adapter_book" layout="@layout/adapter_book" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_marginStart="@dimen/one_padding"
-                android:layout_marginEnd="@dimen/one_padding"
-                android:layout_height="@dimen/btn_height"
-                android:gravity="center"
-                android:padding="@dimen/float_padding"
-              >
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/income"
-                    style="@style/Widget.Material3.Button.TonalButton"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_marginEnd="@dimen/one_padding"
-                    android:layout_weight="1"
-                    android:text="@string/float_income"
-                    />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/expend"
-                    style="@style/Widget.Material3.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:text="@string/float_expend" />
-            </LinearLayout>
         </LinearLayout>
 
 

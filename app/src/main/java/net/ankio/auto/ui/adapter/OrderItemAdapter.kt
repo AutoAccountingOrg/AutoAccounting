@@ -25,6 +25,7 @@ import net.ankio.auto.databinding.AdapterOrderItemBinding
 import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
+import net.ankio.auto.ui.dialog.BillMoreDialog
 import net.ankio.auto.ui.dialog.FloatEditorDialog
 import net.ankio.auto.ui.scope.autoDisposeScope
 import net.ankio.auto.ui.utils.ResourceUtils
@@ -51,7 +52,8 @@ class OrderItemAdapter(
 
 
         binding.moreBills.setOnClickListener {
-
+            val item = holder.item!!
+            BillMoreDialog(holder.context, item).show(float = false, cancel = true)
         }
 
         binding.root.setOnLongClickListener {

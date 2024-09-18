@@ -20,8 +20,11 @@ import android.view.LayoutInflater
 import android.view.View
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.ankio.auto.databinding.DialogBillMoreBinding
+import net.ankio.auto.ui.adapter.OrderItemAdapter
 import net.ankio.auto.ui.api.BaseSheetDialog
 //import net.ankio.auto.ui.adapter.OrderItemAdapter
 import org.ezbook.server.db.model.BillInfoModel
@@ -33,18 +36,34 @@ class BillMoreDialog(
     BaseSheetDialog(context) {
     private lateinit var binding: DialogBillMoreBinding
     private val dataItems = mutableListOf<BillInfoModel>()
-    //private val adapter = OrderItemAdapter(dataItems, null, null,context)
+    private val adapter = OrderItemAdapter(dataItems, false)
 
     override fun onCreateView(inflater: LayoutInflater): View {
         binding = DialogBillMoreBinding.inflate(inflater)
+        val statusPage = binding.statusPage
+        val recyclerView = statusPage.contentView!!
         val layoutManager = LinearLayoutManager(context)
-        binding.recyclerView.layoutManager = layoutManager
+        recyclerView.layoutManager = layoutManager
 
         cardView = binding.cardView
         cardViewInner = binding.innerView
-
-        //     binding.recyclerView.adapter = adapter
-
+        recyclerView.adapter = adapter
+        dataItems.clear()
+        statusPage.showLoading()
+        lifecycleScope.launch {
+           val bills =  BillInfoModel.getBillByGroup(billInfoModel.id)
+            if (bills.isEmpty()) {
+                withContext(Dispatchers.Main) {
+                    statusPage.showEmpty()
+                }
+                return@launch
+            }
+            dataItems.addAll(bills)
+            withContext(Dispatchers.Main){
+                adapter.notifyItemRangeInserted(0, bills.size)
+                statusPage.showContent()
+            }
+        }
         return binding.root
     }
 

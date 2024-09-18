@@ -54,4 +54,6 @@ interface BillInfoDao {
     @Query("UPDATE BillInfoModel SET syncFromApp = :status WHERE id = :id")
     fun updateStatus(id: Long, status: Boolean)
 
+    @Query("SELECT * FROM BillInfoModel WHERE groupId = :groupId")
+    fun queryGroup(groupId: Long): List<BillInfoModel>
 }

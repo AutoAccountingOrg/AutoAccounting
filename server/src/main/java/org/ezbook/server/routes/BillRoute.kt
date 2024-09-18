@@ -71,4 +71,11 @@ class BillRoute(private val session: IHTTPSession) {
         return Server.json(200, "OK", 0)
     }
 
+    fun group(): Response {
+        val params = session.parameters
+        val id = params["id"]?.firstOrNull()?.toLong() ?: 0
+        val result = Db.get().billInfoDao().queryGroup(id)
+        return Server.json(200, "OK", result)
+    }
+
 }

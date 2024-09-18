@@ -115,6 +115,7 @@ class ServerHttp(port: Int, private val context: Context) : NanoHTTPD(port) {
 
                 // 账单列表
                 "/bill/list" -> BillRoute(session).list()
+                "/bill/group" -> BillRoute(session).group()
                 "/bill/put" -> BillRoute(session).put()
                 "/bill/remove" -> BillRoute(session).remove()
                 // 同步未同步的账单
@@ -129,26 +130,7 @@ class ServerHttp(port: Int, private val context: Context) : NanoHTTPD(port) {
                 "/db/export" -> DatabaseRoute(session, context).exportDb()
                 "/db/import" -> DatabaseRoute(session, context).importDb()
 
-                else -> {
-                    runCatching {
-
-                        val clazz = javaClass.classLoader!!.loadClass("net.ankio.data.App")
-
-
-                        val constructor = clazz.declaredConstructors.first()
-
-
-                        val app = constructor.newInstance(Db.get())
-
-                        val method = clazz.declaredMethods.first()
-                        method.invoke(app, session) as Response
-
-                    }.getOrElse {
-                        it.printStackTrace()
-                        json(404, it.message ?: "Not Found", null)
-                    }
-
-                }
+                else ->  json(404, "Not Found", null)
             }
         }.getOrElse {
             it.printStackTrace()

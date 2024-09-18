@@ -137,8 +137,11 @@ class Server(context: Context) {
                         .addHeader("Content-Type", "application/json").build()
                     // 发送请求获取响应
                     val response = client.newCall(request).execute()
+                    val bodyString = response.body?.string()
                     // 如果请求成功
-                    response.body?.string()
+                    Log.d("Server", "response code: ${response.code}")
+                    Log.d("Server", "response body: ${bodyString}")
+                    bodyString
 
                 }.onFailure {
                     if (it !is ConnectException) {
