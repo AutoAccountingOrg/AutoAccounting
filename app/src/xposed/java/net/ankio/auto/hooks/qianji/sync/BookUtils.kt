@@ -92,7 +92,7 @@ class BookUtils(
                     val fields = bookClazz.declaredFields
                     for (field in fields) {
                         field.isAccessible = true
-                        val value = field.get(book)
+                        val value = field.get(book) ?: continue
                         when (field.name) {
                             "name" -> bookModel.name = value as String
                             "cover" -> bookModel.icon = value as String
