@@ -176,7 +176,8 @@ def upload(filename, filename_new, channel):
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
                       'Chrome/58.0.3029.110 Safari/537.3',
         'Authorization': os.getenv("ALIST_TOKEN"),
-        'file-path': filename_new
+        'file-path': filename_new,
+        'As-Task': 'true'
     }
     # 读取文件内容
     with open(filename, 'rb') as file:
@@ -259,14 +260,36 @@ def publish_to_pan(workspace,tag,channel):
 
     upload(workspace + "/dist/app-xposed-signed.apk", tag + ".apk", channel)
 
+def send_apk_with_changelog(workspace):
+    with open(workspace + '/dist/README.md', 'r', encoding='utf-8') as file:
+        content = file.read()
+    apk_path = workspace + '/dist/app-xposed-signed.apk'
+    token = os.getenv("TELEGRAM_BOT_TOKEN")
+    channel_id = "@qianji_auto"
+    url = f"https://api.telegram.org/bot{token}/sendDocument"
 
-"""
-通知
-"""
-def notify(title, content,channel):
-    send_forums( title, content,channel)
-def send_forums( title, content, channel):
+    # 打开 APK 文件
+    files = {
+        "document": open(apk_path, "rb")
+    }
+
+    # 数据部分，包含 Channel ID 和更新日志作为 caption
+    data = {
+        "chat_id": channel_id,
+        "caption": content,  # 更新日志
+        "parse_mode": "Markdown"  # 可选：使用 Markdown 格式化日志内容
+    }
+
+    response = requests.post(url, files=files, data=data)
+
+    if response.status_code == 200:
+        print("APK 及更新日志发送成功")
+    else:
+        print(f"发送失败: {response.text}")
+def send_forums( title, channel,workspace):
     url = "https://forum.ez-book.org/posts.json"
+    with open(workspace + '/dist/README.md', 'r', encoding='utf-8') as file:
+        content = file.read()
     headers = {
         "Content-Type": "application/json",
         "Api-Key": os.getenv("FORUMS_API_KEY"),
@@ -280,6 +303,14 @@ def send_forums( title, content, channel):
     }
     response = requests.post(url, headers=headers, json=data)
     print(response.json())
+"""
+通知
+"""
+def notify(title,channel,workspace):
+    send_forums( title,channel,workspace)
+    send_apk_with_changelog( workspace)
+
+
 def main(repo):
     channel = os.getenv('CHANNEL') or 'Stable'
     print(f"渠道: {channel}")
@@ -298,6 +329,6 @@ def main(repo):
     build_apk(workspace)
     create_tag(tagVersionName,channel)
     publish_apk(repo, tagVersionName,workspace,log_data,channel)
-    notify(tagVersionName,log_data,channel)
+    notify(tagVersionName,channel,workspace)
 
 main("AutoAccountingOrg/AutoAccounting")
