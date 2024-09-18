@@ -58,7 +58,7 @@ class AppDataAdapter(
     ) = withContext(Dispatchers.IO) {
         val item = holder.item!!
 
-        Logger.d("tryAdaptUnmatchedItems: $item")
+        Logger.d("尝试匹配中: $item")
 
         val t = System.currentTimeMillis() / 1000
         if (hashMap.containsKey(item) && t - hashMap[item]!! < 60) { // 30秒内不重复匹配
@@ -71,7 +71,7 @@ class AppDataAdapter(
         item.match = true
         item.rule = billModel.ruleName
 
-        Logger.d("tryAdaptUnmatchedItems Update: $item")
+        Logger.d("匹配成功: $item")
         item.issue = 0
 
         val position = indexOf(item)
@@ -89,10 +89,10 @@ class AppDataAdapter(
             item.data
         )
             ?: return@withContext null
-        Logger.d("testRule: $result")
+        Logger.d("测试结果: $result")
         val data = Gson().fromJson(result, JsonObject::class.java)
         if (data.get("code").asInt != 200) {
-            Logger.e("testRule: ${data.get("msg").asString}")
+            Logger.w("测试错误: ${data.get("msg").asString}")
             return@withContext null
         }
         return@withContext Gson().fromJson(data.getAsJsonObject("data"), BillInfoModel::class.java)
