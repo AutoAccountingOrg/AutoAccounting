@@ -56,5 +56,4 @@ dependencies {
     // rhino
     implementation 'org.mozilla:rhino:1.7.13'
 
-    debugImplementation project(":data")
 }
