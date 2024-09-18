@@ -470,8 +470,6 @@ class CategoryEditFragment : BaseFragment() {
                         flowElement.data["jsPre"] = " and "
                     }
                 }
-
-                Logger.i("data=>${flowElement.data}")
             }
         }
 
