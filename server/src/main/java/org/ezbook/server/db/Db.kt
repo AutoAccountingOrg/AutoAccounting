@@ -32,7 +32,7 @@ object Db {
                 it,
                 AppDatabase::class.java,
                 DATABASE_NAME
-            )
+            ).fallbackToDestructiveMigrationFrom(1)
                 .addMigrations(MIGRATION_2_3) // 注册迁移
                 .addMigrations(MIGRATION_3_4) // 注册迁移
                 .build()
