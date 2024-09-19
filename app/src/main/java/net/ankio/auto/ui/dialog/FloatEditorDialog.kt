@@ -111,6 +111,7 @@ class FloatEditorDialog(
 
     private fun getBillData(): BillInfoModel {
        return billInfoModel.copy().apply {
+            this.type = billTypeLevel2
             when (billTypeLevel2) {
                 BillType.Expend -> {
                     this.accountNameFrom = binding.payFrom.getText()
