@@ -15,7 +15,9 @@
 
 package net.ankio.auto.ui.fragment
 
+import android.Manifest
 import android.content.BroadcastReceiver
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
@@ -113,14 +115,22 @@ class HomeFragment : BaseFragment() {
 
         scrollView = WeakReference(binding.scrollView)
 
-        // 检查记账软件
-        checkBookApp()
+        lifecycleScope.launch {
+            // app启动时检查自动记账服务的连通性
+            checkAutoService() &&
+            //悬浮窗权限
+           checkFloatPermission() &&
+                    // 检查记账软件
+            checkBookApp() &&
+            // 检查软件和规则更新
+            checkUpdate()
 
-        // app启动时检查自动记账服务的连通性
-        checkAutoService()
+        }
 
-        // 检查软件和规则更新
-        checkUpdate()
+
+
+
+
 
         return binding.root
     }
@@ -128,26 +138,40 @@ class HomeFragment : BaseFragment() {
     /**
      * 检查自动记账服务
      */
-    private fun checkAutoService() {
+    private suspend fun checkAutoService():Boolean {
 
-        lifecycleScope.launch {
-            if (!ServerInfo.isServerStart()) {
-                MaterialAlertDialogBuilder(requireContext())
-                    .setTitle(R.string.title_cant_connect_service)
-                    .setMessage(ServerInfo.getServerErrorMsg(requireContext()))
-                    .show()
-            }
+        if (!ServerInfo.isServerStart()) {
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.title_cant_connect_service)
+                .setMessage(ServerInfo.getServerErrorMsg(requireContext()))
+                .show()
+            return false
         }
+        return true
+    }
+
+
+    private suspend fun checkFloatPermission():Boolean{
+        if (requireContext().checkSelfPermission(Manifest.permission.SYSTEM_ALERT_WINDOW) != PackageManager.PERMISSION_GRANTED){
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.title_no_permission)
+                .setMessage(R.string.no_permission_float_window)
+                .show()
+            return false
+        }
+        return true
     }
 
 
     /**
      * 检查记账软件
      */
-    private fun checkBookApp() {
+    private  fun checkBookApp():Boolean {
         if (ConfigUtils.getString(Setting.BOOK_APP_ID, "").isEmpty()) {
             AppDialog(requireContext()).show(cancel = BuildConfig.DEBUG)
+            return false
         }
+        return true
     }
 
     /**
@@ -400,17 +424,15 @@ class HomeFragment : BaseFragment() {
     /**
      * 检查更新
      */
-    private fun checkUpdate(showResult: Boolean = false) {
+    private suspend fun checkUpdate(showResult: Boolean = false): Boolean {
         if (ConfigUtils.getBoolean(Setting.CHECK_RULE_UPDATE, true)) {
-            lifecycleScope.launch {
-                checkRuleUpdate(showResult)
-            }
+            checkRuleUpdate(showResult)
         }
         if (ConfigUtils.getBoolean(Setting.CHECK_APP_UPDATE, true)) {
-            lifecycleScope.launch {
-                checkAppUpdate()
-            }
+            checkAppUpdate()
         }
+
+        return true
     }
 
     /**

@@ -434,4 +434,6 @@
     <string name="income_lending">债务 - 借入</string>
     <string name="income_repayment_info">债务 - 收款</string>
     <string name="dialog_error_msg">记账失败，弹窗出错，请报告该错误，并上传日志说明手机环境</string>
+    <string name="title_no_permission">未授权悬浮窗权限</string>
+    <string name="no_permission_float_window">自动记账需要悬浮窗权限来显示编辑窗口，请到自动记账设置中进行授权。</string>
 </resources>
