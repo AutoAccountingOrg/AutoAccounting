@@ -17,7 +17,9 @@ package org.ezbook.server.routes
 
 
 import android.app.ActivityOptions
+import android.content.ComponentName
 import android.content.Intent
+import android.os.Build
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import org.ezbook.server.Server
@@ -216,17 +218,22 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
      */
     private fun startAutoPanel(billInfoModel: BillInfoModel, parent: BillInfoModel?) {
         val intent = Intent()
-        intent.action = "org.ezbook.server.action.AUTO_PANEL"
         intent.putExtra("billInfo", Gson().toJson(billInfoModel))
         intent.putExtra("id", billInfoModel.id)
         if (parent != null) {
             intent.putExtra("parent", Gson().toJson(parent))
         }
-
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        val options = ActivityOptions.makeBasic()
-
-        context.startActivity(intent, options.toBundle())
+        intent.setComponent(
+            ComponentName(
+                "net.ankio.auto.xposed",
+                "net.ankio.auto.service.FloatingWindowService"
+            )
+        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(intent)
+        } else {
+            context.startService(intent)
+        }
     }
 
     class CustomPrintFunction(private val output: StringBuilder) : BaseFunction() {

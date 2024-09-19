@@ -15,11 +15,13 @@
 
 package net.ankio.auto.service
 
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.graphics.PixelFormat
-import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.IBinder
 import android.view.ContextThemeWrapper
@@ -30,9 +32,10 @@ import android.view.WindowManager
 import androidx.core.content.ContextCompat
 import com.google.gson.Gson
 import com.quickersilver.themeengine.ThemeEngine
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import net.ankio.auto.App
 import net.ankio.auto.R
-import net.ankio.auto.broadcast.LocalBroadcastHelper
 import net.ankio.auto.constant.FloatEvent
 import net.ankio.auto.databinding.FloatTipBinding
 import net.ankio.auto.storage.ConfigUtils
@@ -44,6 +47,7 @@ import net.ankio.auto.utils.BillTool
 import org.ezbook.server.constant.BillState
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BillInfoModel
+
 
 class FloatingWindowService : Service() {
     private val windowManager: WindowManager by lazy { getSystemService(WINDOW_SERVICE) as WindowManager }
@@ -58,8 +62,34 @@ class FloatingWindowService : Service() {
     private var timeCount: Int = 0
 
     private var lastTheme = ThemeEngine.getInstance(App.app).getTheme()
+
+    private fun notifyToolBar() {
+        val CHANNEL_ID = "FloatingWindowServiceChannel"
+
+        // Create a notification channel with low importance
+        val channel = NotificationChannel(
+            CHANNEL_ID,
+            "Floating Window Service Channel",
+            NotificationManager.IMPORTANCE_MIN  // 设置为最小重要性，静默处理
+        )
+        val manager = getSystemService(NotificationManager::class.java)
+        manager.createNotificationChannel(channel)
+
+        // Create a minimal notification
+        val notification: Notification = Notification.Builder(this, CHANNEL_ID)
+            .setContentTitle("")  // 省略标题
+            .setContentText("自动记账悬浮窗服务")  // 简短通知内容
+            .setSmallIcon(R.mipmap.ic_launcher_foreground)  // 图标
+            .build()
+
+        // Start the service in foreground with optimized notification
+        startForeground(1, notification)
+    }
+
+
     override fun onCreate() {
         super.onCreate()
+        notifyToolBar()
         timeCount = runCatching {
             ConfigUtils.getString(Setting.FLOAT_TIMEOUT_OFF, "10").toInt()
         }.getOrNull() ?: 0
@@ -223,6 +253,7 @@ class FloatingWindowService : Service() {
                     ),
                 )
             }
+
         }.onFailure {
 
         }
@@ -240,6 +271,7 @@ class FloatingWindowService : Service() {
                     FloatEditorDialog(themedContext, billInfoModel, true, onCancelClick = {
                         App.launch {
                             BillInfoModel.remove(it.id)
+                            closeService()
                         }
                     }).show(true)
                 }.onFailure {
@@ -253,6 +285,12 @@ class FloatingWindowService : Service() {
                     BillInfoModel.remove(billInfoModel.id)
                 }
             }
+        }
+    }
+
+    private suspend fun closeService() {
+        withContext(Dispatchers.Main) {
+            stopSelf() // 停止服务
         }
     }
 
