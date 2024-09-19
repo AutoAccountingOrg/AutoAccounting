@@ -116,7 +116,8 @@ class FloatingWindowService : Service() {
             intent2.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             val sb = StringBuilder()
             sb.append("自动记账未获取到悬浮窗权限，记账失败！\n")
-            sb.append("请在Github报告该问题，并说明手机操作系统及安卓版本\n")
+            sb.append("请在设置中手动授予该权限！\n")
+            sb.append(it.message).append("\n")
             it.stackTrace.forEach { message ->
                 sb.append(message.toString())
                 sb.append("\n")
