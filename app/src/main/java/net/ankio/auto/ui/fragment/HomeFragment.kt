@@ -89,6 +89,7 @@ class HomeFragment : BaseFragment() {
             },
         )
 
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -261,6 +262,7 @@ class HomeFragment : BaseFragment() {
 
         broadcastReceiver =
             LocalBroadcastHelper.registerReceiver(LocalBroadcastHelper.ACTION_UPDATE_FINISH) { a, b ->
+                if (context == null)return@registerReceiver
                 refreshUI()
             }
 
@@ -343,6 +345,7 @@ class HomeFragment : BaseFragment() {
         val themeContext = App.getThemeContext(requireContext())
         broadcastReceiverBook =
             LocalBroadcastHelper.registerReceiver(LocalBroadcastHelper.ACTION_APP_CHANGED) { a, b ->
+                if (context == null)return@registerReceiver
                 bindBookAppUI()
             }
         binding.bookAppContainer.setOnClickListener {
