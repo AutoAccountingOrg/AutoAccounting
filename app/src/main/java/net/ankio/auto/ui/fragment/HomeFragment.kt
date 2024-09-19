@@ -63,7 +63,8 @@ import java.lang.ref.WeakReference
  * 主页
  */
 class HomeFragment : BaseFragment() {
-    private lateinit var binding: FragmentHomeBinding
+    private var _binding: FragmentHomeBinding? = null
+    private val binding get() = _binding!!
     override val menuList: ArrayList<ToolbarMenuItem> =
         arrayListOf(
             ToolbarMenuItem(R.string.title_log, R.drawable.menu_item_log) {
@@ -93,7 +94,7 @@ class HomeFragment : BaseFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
-        binding = FragmentHomeBinding.inflate(layoutInflater)
+        _binding = FragmentHomeBinding.inflate(layoutInflater)
 
         bindingActiveEvents()
 
@@ -457,5 +458,10 @@ class HomeFragment : BaseFragment() {
         binding.imageView.setColorFilter(textColor)
         binding.msgLabel.setTextColor(textColor)
         binding.msgLabel2.setTextColor(textColor)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
