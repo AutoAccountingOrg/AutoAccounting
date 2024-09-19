@@ -53,7 +53,6 @@ class FloatingWindowService : Service() {
     private val windowManager: WindowManager by lazy { getSystemService(WINDOW_SERVICE) as WindowManager }
     private val floatingViews = mutableListOf<FloatTipBinding>()
     private lateinit var themedContext: Context
-    private val list = ArrayDeque<BillInfoModel>()
 
     override fun onBind(intent: Intent): IBinder? {
         return null
@@ -93,7 +92,7 @@ class FloatingWindowService : Service() {
         timeCount = runCatching {
             ConfigUtils.getString(Setting.FLOAT_TIMEOUT_OFF, "10").toInt()
         }.getOrNull() ?: 0
-        list.clear()
+
         val appTheme = ContextThemeWrapper(App.app, R.style.AppTheme)
         themedContext = App.getThemeContext(appTheme)
         lastTheme = ThemeEngine.getInstance(App.app).getTheme()
@@ -271,7 +270,6 @@ class FloatingWindowService : Service() {
                     FloatEditorDialog(themedContext, billInfoModel, true, onCancelClick = {
                         App.launch {
                             BillInfoModel.remove(it.id)
-                            closeService()
                         }
                     }).show(true)
                 }.onFailure {
@@ -288,11 +286,6 @@ class FloatingWindowService : Service() {
         }
     }
 
-    private suspend fun closeService() {
-        withContext(Dispatchers.Main) {
-            stopSelf() // 停止服务
-        }
-    }
 
     override fun onDestroy() {
         // 清理所有悬浮窗

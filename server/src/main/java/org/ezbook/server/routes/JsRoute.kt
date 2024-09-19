@@ -153,14 +153,15 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
             billInfoModel.state = BillState.Wait2Edit
         }
         if (!fromAppData) {
+            //存入数据库
+            billInfoModel.id = Db.get().billInfoDao().insert(billInfoModel)
             // 切换到主线程
             if(!billInfoModel.auto){
                 Server.runOnMainThread {
                     startAutoPanel(billInfoModel, parent)
                 }
             }
-            //存入数据库
-            billInfoModel.id = Db.get().billInfoDao().insert(billInfoModel)
+
             // 更新AppData
             appDataModel.match = true
             appDataModel.rule = billInfoModel.ruleName
