@@ -55,28 +55,34 @@ object Bill {
      */
     private fun mergeRepeatBill(bill: BillInfoModel, bill2: BillInfoModel, context: Context) {
         //合并支付方式
-        if (bill2.accountNameFrom.length < bill.accountNameFrom.length) {
+        if (bill2.accountNameFrom.isEmpty() &&  bill.accountNameFrom.isNotEmpty()) {
             bill2.accountNameFrom = bill.accountNameFrom
         }
-        if (bill2.accountNameTo.length < bill.accountNameTo.length) {
+        if (bill2.accountNameTo.isEmpty() &&  bill.accountNameTo.isNotEmpty()) {
             bill2.accountNameTo = bill.accountNameTo
         }
         //合并商户信息
-        if (bill2.shopName.length < bill.shopName.length) {
+        if (bill2.shopName.isEmpty() && bill.shopName.isNotEmpty()) {
             bill2.shopName = bill.shopName
         }
+        if (!bill2.shopName.contains(bill.shopName)) {
+            bill2.shopName = bill2.shopName + " " + bill.shopName
+        }
         //合并商品信息
-        if (bill2.shopItem.length < bill.shopItem.length) {
+        if (bill2.shopItem.isEmpty() && bill.shopItem.isNotEmpty()) {
             bill2.shopItem = bill.shopItem
         }
-
-        //合并商品信息
-        if (bill2.extendData.length < bill.extendData.length) {
-            bill2.extendData = bill.extendData
+        if (!bill2.shopItem.contains(bill.shopItem)) {
+            bill2.shopItem = bill2.shopItem + " " + bill.shopItem
         }
+
 
         if (bill2.shopItem.isEmpty()) {
             bill2.shopItem = bill2.extendData
+        }
+
+        if (bill.cateName!="其他"){
+            bill2.cateName = bill.cateName
         }
 
 
