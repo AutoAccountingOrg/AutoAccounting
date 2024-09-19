@@ -62,9 +62,10 @@ class LogModel {
         suspend fun list(page: Int = 1, limit: Int = 10): List<LogModel> =
             withContext(Dispatchers.IO) {
                 val response = Server.request("log/list?page=$page&limit=$limit")
-                val json = Gson().fromJson(response, JsonObject::class.java)
+
 
                 runCatching {
+                    val json = Gson().fromJson(response, JsonObject::class.java)
                     Gson().fromJson(
                         json.getAsJsonArray("data"),
                         Array<LogModel>::class.java

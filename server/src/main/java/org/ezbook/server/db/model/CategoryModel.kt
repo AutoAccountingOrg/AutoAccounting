@@ -74,9 +74,10 @@ class CategoryModel {
         ): List<CategoryModel> = withContext(Dispatchers.IO) {
             val response = Server.request("category/list?book=$bookID&type=$type&parent=$parent")
 
-            val json = Gson().fromJson(response, JsonObject::class.java)
+
 
             runCatching {
+                val json = Gson().fromJson(response, JsonObject::class.java)
                 Gson().fromJson(
                     json.getAsJsonArray("data"),
                     Array<CategoryModel>::class.java
@@ -93,8 +94,9 @@ class CategoryModel {
         ): CategoryModel? = withContext(Dispatchers.IO) {
             val response =
                 Server.request("category/get?name=${Uri.encode(name)}&book=$bookID&type=$type")
-            val json = Gson().fromJson(response, JsonObject::class.java)
+
             runCatching {
+                val json = Gson().fromJson(response, JsonObject::class.java)
                 Gson().fromJson(
                     json.getAsJsonObject("data"),
                     CategoryModel::class.java

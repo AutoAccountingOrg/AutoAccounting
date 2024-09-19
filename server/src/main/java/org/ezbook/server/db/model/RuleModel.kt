@@ -77,8 +77,9 @@ class RuleModel {
                     Uri.encode(search)
                 }"
             )
-            val json = Gson().fromJson(response, JsonObject::class.java)
+
             runCatching {
+                val json = Gson().fromJson(response, JsonObject::class.java)
                 Gson().fromJson(json.getAsJsonArray("data"), Array<RuleModel>::class.java).toList()
             }.getOrNull() ?: emptyList()
         }
@@ -88,9 +89,10 @@ class RuleModel {
          */
         suspend fun system(): List<RuleModel> = withContext(Dispatchers.IO) {
             val response = Server.request("rule/system")
-            val json = Gson().fromJson(response, JsonObject::class.java)
+
 
             runCatching {
+                val json = Gson().fromJson(response, JsonObject::class.java)
                 Gson().fromJson(json.getAsJsonArray("data"), Array<RuleModel>::class.java).toList()
             }.getOrNull() ?: emptyList()
         }
@@ -100,8 +102,10 @@ class RuleModel {
          */
         suspend fun add(rule: RuleModel): Int = withContext(Dispatchers.IO) {
             val response = Server.request("rule/add", Gson().toJson(rule))
-            val json = Gson().fromJson(response, JsonObject::class.java)
-            json.get("data").asInt
+            runCatching {
+                val json = Gson().fromJson(response, JsonObject::class.java)
+                json.get("data").asInt
+            }.getOrDefault(0)
         }
 
         /**
@@ -123,8 +127,11 @@ class RuleModel {
          */
         suspend fun apps(): JsonObject = withContext(Dispatchers.IO) {
             val response = Server.request("rule/apps")
-            val json = Gson().fromJson(response, JsonObject::class.java)
-            runCatching { json.getAsJsonObject("data") }.getOrNull() ?: JsonObject()
+
+            runCatching {
+                val json = Gson().fromJson(response, JsonObject::class.java)
+                json.getAsJsonObject("data")
+            }.getOrNull() ?: JsonObject()
         }
 
     }

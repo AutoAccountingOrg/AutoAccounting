@@ -51,9 +51,10 @@ class CategoryMapModel {
                         )
                     }"
                 )
-                val json = Gson().fromJson(response, JsonObject::class.java)
+
 
                 runCatching {
+                    val json = Gson().fromJson(response, JsonObject::class.java)
                     Gson().fromJson(
                         json.getAsJsonArray("data"),
                         Array<CategoryMapModel>::class.java
@@ -62,8 +63,7 @@ class CategoryMapModel {
             }
 
         suspend fun put(model: CategoryMapModel) = withContext(Dispatchers.IO) {
-            val response = Server.request("category/map/put", Gson().toJson(model))
-            val json = Gson().fromJson(response, JsonObject::class.java)
+            Server.request("category/map/put", Gson().toJson(model))
         }
 
         suspend fun remove(id: Long) = withContext(Dispatchers.IO) {

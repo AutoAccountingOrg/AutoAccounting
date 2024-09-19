@@ -177,7 +177,6 @@ class BillInfoModel {
             withContext(Dispatchers.IO) {
                 val response = Server.request("bill/list?page=$page&limit=$pageSize")
 
-
                 runCatching {
                     val json = Gson().fromJson(response, JsonObject::class.java)
                     Gson().fromJson(
@@ -190,8 +189,9 @@ class BillInfoModel {
 
         suspend fun sync(): List<BillInfoModel> = withContext(Dispatchers.IO) {
             val response = Server.request("bill/sync/list")
-            val json = Gson().fromJson(response, JsonObject::class.java)
+
             runCatching {
+                val json = Gson().fromJson(response, JsonObject::class.java)
                 Gson().fromJson(
                     json.getAsJsonArray("data"),
                     Array<BillInfoModel>::class.java
@@ -205,8 +205,9 @@ class BillInfoModel {
 
         suspend fun getBillByGroup(id: Long): List<BillInfoModel> = withContext(Dispatchers.IO) {
             val response = Server.request("bill/group?id=$id")
-            val json = Gson().fromJson(response, JsonObject::class.java)
+
             runCatching {
+                val json = Gson().fromJson(response, JsonObject::class.java)
                 Gson().fromJson(
                     json.getAsJsonArray("data"),
                     Array<BillInfoModel>::class.java

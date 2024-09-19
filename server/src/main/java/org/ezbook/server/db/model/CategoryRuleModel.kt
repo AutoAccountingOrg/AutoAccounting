@@ -46,8 +46,9 @@ class CategoryRuleModel {
             Dispatchers.IO
         ) {
             val response = Server.request("category/rule/list?page=$page&limit=$limit")
-            val json = Gson().fromJson(response, JsonObject::class.java)
+
             runCatching {
+                val json = Gson().fromJson(response, JsonObject::class.java)
                 Gson().fromJson(
                     json.getAsJsonArray("data"),
                     Array<CategoryRuleModel>::class.java
@@ -57,9 +58,10 @@ class CategoryRuleModel {
 
         suspend fun put(model: CategoryRuleModel): JsonObject = withContext(Dispatchers.IO) {
             val response = Server.request("category/rule/put", Gson().toJson(model))
-            val json = Gson().fromJson(response, JsonObject::class.java)
+
 
             runCatching {
+                val json = Gson().fromJson(response, JsonObject::class.java)
                 Gson().fromJson(
                     json.getAsJsonArray("data"),
                     JsonObject::class.java

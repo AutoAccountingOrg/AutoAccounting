@@ -50,9 +50,10 @@ class AssetsModel {
             Dispatchers.IO
         ) {
             val response = Server.request("assets/list")
-            val json = Gson().fromJson(response, JsonObject::class.java)
+
 
             runCatching {
+                val json = Gson().fromJson(response, JsonObject::class.java)
                 Gson().fromJson(
                     json.getAsJsonArray("data"),
                     Array<AssetsModel>::class.java
@@ -67,8 +68,9 @@ class AssetsModel {
 
         suspend fun getByName(name: String): AssetsModel? {
             val response = Server.request("assets/get?name=${Uri.encode(name)}")
-            val json = Gson().fromJson(response, JsonObject::class.java)
+
             return runCatching {
+                val json = Gson().fromJson(response, JsonObject::class.java)
                 Gson().fromJson(
                     json.getAsJsonObject("data"),
                     AssetsModel::class.java

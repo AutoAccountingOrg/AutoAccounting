@@ -89,9 +89,10 @@ class AppDataModel {
                     Uri.encode(search)
                 }"
             )
-            val json = Gson().fromJson(response, JsonObject::class.java)
+
 
             runCatching {
+                val json = Gson().fromJson(response, JsonObject::class.java)
                 Gson().fromJson(
                     json.getAsJsonArray("data"),
                     Array<AppDataModel>::class.java
@@ -113,8 +114,11 @@ class AppDataModel {
 
         suspend fun apps(): JsonObject = withContext(Dispatchers.IO) {
             val response = Server.request("data/apps")
-            val json = Gson().fromJson(response, JsonObject::class.java)
-            runCatching { json.getAsJsonObject("data") }.getOrNull() ?: JsonObject()
+
+            runCatching {
+                val json = Gson().fromJson(response, JsonObject::class.java)
+                json.getAsJsonObject("data")
+            }.getOrNull() ?: JsonObject()
         }
     }
 

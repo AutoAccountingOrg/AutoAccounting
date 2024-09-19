@@ -36,8 +36,11 @@ class SettingModel {
          */
         suspend fun get(key: String, default: String): String = withContext(Dispatchers.IO) {
             val response = Server.request("setting/get?key=$key")
-            val json = Gson().fromJson(response, JsonObject::class.java)
-            runCatching { json.get("data").asString }.getOrNull() ?: default
+
+            runCatching {
+                val json = Gson().fromJson(response, JsonObject::class.java)
+                json.get("data").asString
+            }.getOrNull() ?: default
         }
 
         /**

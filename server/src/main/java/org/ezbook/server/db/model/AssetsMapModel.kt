@@ -48,9 +48,10 @@ class AssetsMapModel {
             Dispatchers.IO
         ) {
             val response = Server.request("assets/map/list?page=$page&limit=$pageSize")
-            val json = Gson().fromJson(response, JsonObject::class.java)
+
 
             runCatching {
+                val json = Gson().fromJson(response, JsonObject::class.java)
                 Gson().fromJson(
                     json.getAsJsonArray("data"),
                     Array<AssetsMapModel>::class.java
@@ -60,9 +61,10 @@ class AssetsMapModel {
 
         suspend fun put(model: AssetsMapModel): JsonObject = withContext(Dispatchers.IO) {
             val response = Server.request("assets/map/put", Gson().toJson(model))
-            val json = Gson().fromJson(response, JsonObject::class.java)
+
 
             runCatching {
+                val json = Gson().fromJson(response, JsonObject::class.java)
                 Gson().fromJson(
                     json.getAsJsonArray("data"),
                     JsonObject::class.java
