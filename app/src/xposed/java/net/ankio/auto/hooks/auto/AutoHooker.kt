@@ -52,5 +52,7 @@ class AutoHooker : HookerManifest() {
           //  "android.permission.SYSTEM_OVERLAY_WINDOW",
             // Query all packages
             Manifest.permission.QUERY_ALL_PACKAGES,
+
+            Manifest.permission.FOREGROUND_SERVICE
         )
 }
