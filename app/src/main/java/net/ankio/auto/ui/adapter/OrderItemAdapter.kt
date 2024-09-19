@@ -112,7 +112,11 @@ class OrderItemAdapter(
 
 
         holder.binding.root.autoDisposeScope.launch {
-            ResourceUtils.getCategoryDrawableByName(data.cateName, holder.context).let {
+            var name = data.cateName
+            if (name.contains("-")) {
+                name = name.split("-")[1].trim()
+            }
+            ResourceUtils.getCategoryDrawableByName(name, holder.context).let {
                 withContext(Dispatchers.Main) {
                     binding.category.setIcon(it, true)
                 }
