@@ -41,7 +41,7 @@ object Bill {
 
         if (bill.type == bill2.type) {
             if (bill2.time == bill.time) return true //时间一致，一定是同一笔交易
-            if (bill2.channel != bill.channel) return true //渠道不一致，一定是不同的交易
+            if (bill2.channel != bill.channel) return false //渠道不一致，一定是不同的交易
             if (bill2.accountNameFrom == bill.accountNameFrom) return true //来源账户一致，一定是同一笔交易
             if (bill2.shopItem == bill.shopItem && bill.shopName == bill2.shopName) return true //商品名称和商户名称一致，一定是同一笔交易
         }
@@ -103,8 +103,10 @@ object Bill {
             Db.get().settingDao().query(Setting.AUTO_GROUP)?.value?.toBoolean() ?: true
         if (!settingBillRepeat) return null
         //第一要素，金钱一致，时间在5分钟以内
+        val startTime = billInfoModel.time - 5 * 60 * 1000
         val bills =
-            Db.get().billInfoDao().query(billInfoModel.money, billInfoModel.time - 5 * 60 * 1000)
+            Db.get().billInfoDao().query(billInfoModel.money, startTime, billInfoModel.time)
+        Server.log("账单分组bills:$bills, startTime:$startTime, endTime:${billInfoModel.time}")
         bills.forEach {
             if (checkRepeat(billInfoModel, it)) {
                 billInfoModel.groupId = it.id

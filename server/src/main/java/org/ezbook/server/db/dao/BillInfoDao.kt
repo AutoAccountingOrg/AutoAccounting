@@ -27,8 +27,8 @@ interface BillInfoDao {
     @Insert
     fun insert(billInfo: BillInfoModel): Long
 
-    @Query("SELECT * FROM BillInfoModel WHERE money = :money AND time > :time and groupId = -1")
-    fun query(money: Double, time: Long): List<BillInfoModel>
+    @Query("SELECT * FROM BillInfoModel WHERE money = :money AND time >= :startTime AND time <= :endTime AND groupId = -1")
+    fun query(money: Double, startTime: Long, endTime: Long): List<BillInfoModel>
 
     @Query("SELECT * FROM BillInfoModel WHERE id = :id")
     fun queryId(id: Long): BillInfoModel?

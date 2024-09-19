@@ -28,7 +28,7 @@ object Apps {
      */
     fun getServerRunInApp():String{
         // 或者运行于com.tencent.mm
-      //  if (BuildConfig.DEBUG) return "net.ankio.auto.xposed"
+       if (BuildConfig.DEBUG) return "net.ankio.auto.xposed"
         return  "android"
     }
 
