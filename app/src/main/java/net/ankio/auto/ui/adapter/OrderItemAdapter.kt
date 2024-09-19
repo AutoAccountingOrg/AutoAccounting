@@ -31,6 +31,7 @@ import net.ankio.auto.ui.scope.autoDisposeScope
 import net.ankio.auto.ui.utils.ResourceUtils
 import net.ankio.auto.utils.BillTool
 import net.ankio.auto.utils.DateUtils
+import org.ezbook.server.constant.BillState
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BillInfoModel
@@ -112,11 +113,8 @@ class OrderItemAdapter(
 
 
         holder.binding.root.autoDisposeScope.launch {
-            var name = data.cateName
-            if (name.contains("-")) {
-                name = name.split("-")[1].trim()
-            }
-            ResourceUtils.getCategoryDrawableByName(name, holder.context).let {
+
+            ResourceUtils.getCategoryDrawableByName(data.cateName, holder.context).let {
                 withContext(Dispatchers.Main) {
                     binding.category.setIcon(it, true)
                 }
@@ -133,7 +131,7 @@ class OrderItemAdapter(
         binding.payTools.setText(showAccount)
 
 
-        if (data.syncFromApp) {
+        if (data.state == BillState.Synced) {
             binding.sync.setImageResource(R.drawable.ic_sync)
         } else {
             binding.sync.setImageResource(R.drawable.ic_no_sync)

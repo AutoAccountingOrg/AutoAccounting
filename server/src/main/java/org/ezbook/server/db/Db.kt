@@ -34,6 +34,7 @@ object Db {
                 DATABASE_NAME
             )
                 .addMigrations(MIGRATION_2_3) // 注册迁移
+                .addMigrations(MIGRATION_3_4) // 注册迁移
                 .build()
         }
     }

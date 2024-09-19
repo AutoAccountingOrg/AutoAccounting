@@ -22,6 +22,7 @@ import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.ezbook.server.Server
+import org.ezbook.server.constant.BillState
 import org.ezbook.server.constant.BillType
 
 @Entity
@@ -105,10 +106,11 @@ class BillInfoModel {
      */
     var channel: String = ""
 
+
     /**
-     * 是否已从App同步
+     * 订单状态
      */
-    var syncFromApp: Boolean = false
+    var state : BillState = BillState.Wait2Edit
 
     /**
      * 备注信息
@@ -143,7 +145,7 @@ class BillInfoModel {
         billInfoModel.app = app
         billInfoModel.groupId = groupId
         billInfoModel.channel = channel
-        billInfoModel.syncFromApp = syncFromApp
+        billInfoModel.state = state
         billInfoModel.remark = remark
         billInfoModel.auto = auto
         return billInfoModel
@@ -157,6 +159,17 @@ class BillInfoModel {
 
         suspend fun remove(id: Long) = withContext(Dispatchers.IO) {
             Server.request("bill/remove?id=$id")
+        }
+
+        suspend fun get(id: Long):BillInfoModel? = withContext(Dispatchers.IO) {
+            val response =  Server.request("bill/get?id=$id")
+            runCatching {
+                val json = Gson().fromJson(response, JsonObject::class.java)
+                Gson().fromJson(
+                    json.getAsJsonArray("data"),
+                    BillInfoModel::class.java
+                )
+            }.getOrNull()
         }
 
 
@@ -204,6 +217,6 @@ class BillInfoModel {
     }
 
     override fun toString(): String {
-        return "BillInfoModel(id=$id, type=$type, currency='$currency', money=$money, fee=$fee, time=$time, shopName='$shopName', shopItem='$shopItem', cateName='$cateName', extendData='$extendData', bookName='$bookName', accountNameFrom='$accountNameFrom', accountNameTo='$accountNameTo', app='$app', groupId=$groupId, channel='$channel', syncFromApp=$syncFromApp, remark='$remark', auto=$auto, ruleName='$ruleName')"
+        return "BillInfoModel(id=$id, type=$type, currency='$currency', money=$money, fee=$fee, time=$time, shopName='$shopName', shopItem='$shopItem', cateName='$cateName', extendData='$extendData', bookName='$bookName', accountNameFrom='$accountNameFrom', accountNameTo='$accountNameTo', app='$app', groupId=$groupId, channel='$channel', state=$state, remark='$remark', auto=$auto, ruleName='$ruleName')"
     }
 }

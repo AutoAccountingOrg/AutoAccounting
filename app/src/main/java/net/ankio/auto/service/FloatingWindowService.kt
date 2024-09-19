@@ -41,6 +41,7 @@ import net.ankio.auto.ui.activity.ErrorActivity
 import net.ankio.auto.ui.dialog.FloatEditorDialog
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.BillTool
+import org.ezbook.server.constant.BillState
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BillInfoModel
 
@@ -210,7 +211,7 @@ class FloatingWindowService : Service() {
 
     private fun recordBillInfo(billInfoModel2: BillInfoModel) {
         runCatching {
-            billInfoModel2.syncFromApp = false
+            billInfoModel2.state = BillState.Edited
             App.launch {
                 BillInfoModel.put(billInfoModel2)
             }

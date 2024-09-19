@@ -17,6 +17,7 @@ package org.ezbook.server.routes
 
 import com.google.gson.Gson
 import org.ezbook.server.Server
+import org.ezbook.server.constant.BillState
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.BillInfoModel
 import org.nanohttpd.protocols.http.IHTTPSession
@@ -67,7 +68,7 @@ class BillRoute(private val session: IHTTPSession) {
         val params = session.parameters
         val id = params["id"]?.firstOrNull()?.toLong() ?: 0
         val status = params["sync"]?.firstOrNull()?.toBoolean() ?: false
-        Db.get().billInfoDao().updateStatus(id, status)
+        Db.get().billInfoDao().updateStatus(id, if (status) BillState.Synced else BillState.Edited)
         return Server.json(200, "OK", 0)
     }
 
@@ -75,6 +76,13 @@ class BillRoute(private val session: IHTTPSession) {
         val params = session.parameters
         val id = params["id"]?.firstOrNull()?.toLong() ?: 0
         val result = Db.get().billInfoDao().queryGroup(id)
+        return Server.json(200, "OK", result)
+    }
+
+    fun get(): Response {
+        val params = session.parameters
+        val id = params["id"]?.firstOrNull()?.toLong() ?: 0
+        val result = Db.get().billInfoDao().queryId(id)
         return Server.json(200, "OK", result)
     }
 

@@ -20,8 +20,12 @@ import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import net.ankio.auto.service.FloatingWindowService
 import net.ankio.auto.storage.Logger
+import org.ezbook.server.constant.BillState
+import org.ezbook.server.db.model.BillInfoModel
 
 
 class FloatingWindowTriggerActivity : AppCompatActivity() {
@@ -34,13 +38,26 @@ class FloatingWindowTriggerActivity : AppCompatActivity() {
                 //横屏切换为竖屏
                 requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
             }
-            // 将数据传递给悬浮窗服务
-            val serviceIntent = Intent(this, FloatingWindowService::class.java).apply {
-                intent.extras?.let { putExtras(it) } // 直接传递所有 extras
+
+            lifecycleScope.launch {
+                // 获取 Intent 数据
+                val id = intent.getLongExtra("id",0L)
+                if (id != 0L) {
+                   val billInfo = BillInfoModel.get(id)?:return@launch
+                   if (billInfo.state!==BillState.Wait2Edit) {
+                       return@launch
+                   }
+                }
+                // 将数据传递给悬浮窗服务
+                val serviceIntent = Intent(this@FloatingWindowTriggerActivity, FloatingWindowService::class.java).apply {
+                    intent.extras?.let { putExtras(it) } // 直接传递所有 extras
+                }
+                startService(serviceIntent)
+                // 关闭 Activity
+                exitActivity()
             }
-            startService(serviceIntent)
-            // 关闭 Activity
-            exitActivity()
+
+
         }.onFailure {
             Logger.e("解析数据失败", it)
             exitActivity()

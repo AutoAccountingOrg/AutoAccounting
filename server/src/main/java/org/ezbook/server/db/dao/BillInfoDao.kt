@@ -19,6 +19,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
+import org.ezbook.server.constant.BillState
 import org.ezbook.server.db.model.BillInfoModel
 
 @Dao
@@ -48,11 +49,11 @@ interface BillInfoDao {
     @Query("DELETE FROM BillInfoModel WHERE id =:id")
     fun deleteId(id: Long)
 
-    @Query("SELECT * FROM BillInfoModel WHERE syncFromApp = 0")
+    @Query("SELECT * FROM BillInfoModel WHERE state = 'Edited' and groupId = -1")
     fun queryNoSync(): List<BillInfoModel>
 
-    @Query("UPDATE BillInfoModel SET syncFromApp = :status WHERE id = :id")
-    fun updateStatus(id: Long, status: Boolean)
+    @Query("UPDATE BillInfoModel SET state = :status WHERE id = :id")
+    fun updateStatus(id: Long, status: BillState)
 
     @Query("SELECT * FROM BillInfoModel WHERE groupId = :groupId")
     fun queryGroup(groupId: Long): List<BillInfoModel>

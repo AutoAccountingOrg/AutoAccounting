@@ -21,6 +21,7 @@ import android.content.Intent
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import org.ezbook.server.Server
+import org.ezbook.server.constant.BillState
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.constant.DataType
 import org.ezbook.server.db.Db
@@ -144,6 +145,11 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
 
         // 账单分组，用于检查重复账单
         val parent = Bill.groupBillInfo(billInfoModel, context)
+        if (parent == null){
+            billInfoModel.state = BillState.Edited
+        }else{
+            billInfoModel.state = BillState.Wait2Edit
+        }
         if (!fromAppData) {
             // 切换到主线程
             if(!billInfoModel.auto){
@@ -212,6 +218,7 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
         val intent = Intent()
         intent.action = "org.ezbook.server.action.AUTO_PANEL"
         intent.putExtra("billInfo", Gson().toJson(billInfoModel))
+        intent.putExtra("id", billInfoModel.id)
         if (parent != null) {
             intent.putExtra("parent", Gson().toJson(parent))
         }

@@ -47,6 +47,7 @@ import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.BillTool
 import net.ankio.auto.utils.DateUtils
 import org.ezbook.server.constant.AssetsType
+import org.ezbook.server.constant.BillState
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.constant.Currency
 import org.ezbook.server.constant.Setting
@@ -152,7 +153,7 @@ class FloatEditorDialog(
         binding.sureButton.setOnClickListener {
 
             convertBillInfo = getBillData()
-            convertBillInfo.syncFromApp = false
+            convertBillInfo.state = BillState.Edited
             Logger.d("最终账单结果 => $convertBillInfo")
 
             lifecycleScope.launch {

@@ -58,7 +58,7 @@ import org.ezbook.server.db.model.SettingModel
         CategoryRuleModel::class,
         BookBillModel::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -77,5 +77,53 @@ abstract class AppDatabase : RoomDatabase() {
 }
 val MIGRATION_2_3 = object : Migration(2, 3) {
     override fun migrate(database: SupportSQLiteDatabase) {
+    }
+}
+val MIGRATION_3_4 = object : Migration(3, 4) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        // 1. 创建新的表 BillInfoModel_new，其中不包含 syncFromApp 字段，替换为 state 字段
+        database.execSQL("""
+            CREATE TABLE BillInfoModel_new (
+                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                type TEXT NOT NULL,
+                currency TEXT NOT NULL,
+                money REAL NOT NULL,
+                fee REAL NOT NULL,
+                time INTEGER NOT NULL,
+                shopName TEXT NOT NULL,
+                shopItem TEXT NOT NULL,
+                cateName TEXT NOT NULL,
+                extendData TEXT NOT NULL,
+                bookName TEXT NOT NULL,
+                accountNameFrom TEXT NOT NULL,
+                accountNameTo TEXT NOT NULL,
+                app TEXT NOT NULL,
+                groupId INTEGER NOT NULL,
+                channel TEXT NOT NULL,
+                state TEXT NOT NULL,    -- 新增的 state 字段
+                remark TEXT NOT NULL,
+                auto INTEGER NOT NULL,
+                ruleName TEXT NOT NULL
+            )
+        """)
+
+        // 2. 将旧表的数据迁移到新表，同时根据 syncFromApp 设置 state 字段
+        database.execSQL("""
+            INSERT INTO BillInfoModel_new (id, type, currency, money, fee, time, shopName, shopItem, cateName, extendData, bookName, accountNameFrom, accountNameTo, app, groupId, channel, state, remark, auto, ruleName)
+            SELECT id, type, currency, money, fee, time, shopName, shopItem, cateName, extendData, bookName, accountNameFrom, accountNameTo, app, groupId, channel,
+                CASE
+                    WHEN syncFromApp = 1 THEN 'Synced'
+                    ELSE 'Edited'
+                END as state,
+                remark, auto, ruleName
+            FROM BillInfoModel
+        """)
+
+        // 3. 删除旧表
+        database.execSQL("DROP TABLE BillInfoModel")
+
+        // 4. 将新表重命名为旧表名
+        database.execSQL("ALTER TABLE BillInfoModel_new RENAME TO BillInfoModel")
+
     }
 }

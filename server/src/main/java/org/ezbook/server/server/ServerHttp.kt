@@ -125,7 +125,8 @@ class ServerHttp(port: Int, private val context: Context) : NanoHTTPD(port) {
                 // 来自记账软件的账单
                 "/bill/book/list" -> BookBillRoute(session).list()
                 "/bill/book/put" -> BookBillRoute(session).put()
-
+                // 根据id获取账单
+                "/bill/get" -> BillRoute(session).get()
                 // 备份
                 "/db/export" -> DatabaseRoute(session, context).exportDb()
                 "/db/import" -> DatabaseRoute(session, context).importDb()
