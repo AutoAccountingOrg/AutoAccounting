@@ -3,9 +3,10 @@ name: Canary Build
 on:
   # 手动触发
   workflow_dispatch:
-  # 定时触发
+  # 每隔3小时触发构建，以便快速发版，验证错误
   schedule:
-    - cron: '0 18 * * *'
+    - cron: '0 */3 * * *'
+
 
 permissions: write-all
 

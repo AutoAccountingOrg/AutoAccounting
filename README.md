@@ -63,7 +63,7 @@ git clone https://github.com/AutoAccountingOrg/AutoAccounting
 
 ## ⬇️ 下载
 
-- [Canary](https://cloud.ankio.net/%E8%87%AA%E5%8A%A8%E8%AE%B0%E8%B4%A6/%E8%87%AA%E5%8A%A8%E8%AE%B0%E8%B4%A6/%E7%89%88%E6%9C%AC%E6%9B%B4%E6%96%B0/Canary)：每天夜里自动构建，可能会有新功能或者bug修复，不保证可用性。
+- [Canary](https://cloud.ankio.net/%E8%87%AA%E5%8A%A8%E8%AE%B0%E8%B4%A6/%E8%87%AA%E5%8A%A8%E8%AE%B0%E8%B4%A6/%E7%89%88%E6%9C%AC%E6%9B%B4%E6%96%B0/Canary)：每隔3小时自动构建，可能会有新功能或者bug修复，不保证可用性。
 - [Beta](https://cloud.ankio.net/%E8%87%AA%E5%8A%A8%E8%AE%B0%E8%B4%A6/%E8%87%AA%E5%8A%A8%E8%AE%B0%E8%B4%A6/%E7%89%88%E6%9C%AC%E6%9B%B4%E6%96%B0/Beta): 稳定版发布前的测试版本，已通过小规模测试，具备高可用性，但是仍可能存在BUG。
 - [Stable](https://cloud.ankio.net/%E8%87%AA%E5%8A%A8%E8%AE%B0%E8%B4%A6/%E8%87%AA%E5%8A%A8%E8%AE%B0%E8%B4%A6/%E7%89%88%E6%9C%AC%E6%9B%B4%E6%96%B0/Stable): 稳定版本，不会有新功能，只会修复bug。
 
