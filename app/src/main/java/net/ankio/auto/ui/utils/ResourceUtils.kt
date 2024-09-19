@@ -62,7 +62,11 @@ object ResourceUtils {
         bookId: String = "",
         type: String = ""
     ): Drawable = withContext(Dispatchers.IO) {
-        val item = CategoryModel.getByName(name, bookId, type)
+        var cateName =name
+        if (cateName.contains("-")) {
+            cateName = cateName.split("-")[1].trim()
+        }
+        val item = CategoryModel.getByName(cateName, bookId, type)
         val icon = item?.icon ?: ""
         ImageUtils.get(context, icon, R.drawable.default_cate)
     }
