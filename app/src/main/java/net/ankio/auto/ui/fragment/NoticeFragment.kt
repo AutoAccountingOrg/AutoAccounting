@@ -52,7 +52,6 @@ class NoticeFragment : BasePageFragment<AppInfo>() {
     )
 
     override suspend fun loadData(callback: (resultData: List<AppInfo>) -> Unit) {
-        if(!isAdded) return
         if (page > 1) {
             withContext(Dispatchers.Main) {
                 callback(emptyList())

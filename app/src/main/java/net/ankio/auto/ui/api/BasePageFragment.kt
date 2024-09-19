@@ -69,6 +69,8 @@ abstract class BasePageFragment<T> : BaseFragment() {
      * 获取数据
      */
     protected open fun loadDataInside(callback: ((Boolean, Boolean) -> Unit)? = null) {
+        // 没有附加到Activity上，不加载数据
+        if (activity == null) return
         if (page == 1) {
             resetPage()
         }
