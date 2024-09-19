@@ -31,7 +31,6 @@ import androidx.core.content.ContextCompat
 import com.google.gson.Gson
 import com.quickersilver.themeengine.ThemeEngine
 import net.ankio.auto.App
-import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.broadcast.LocalBroadcastHelper
 import net.ankio.auto.constant.FloatEvent
@@ -97,13 +96,7 @@ class FloatingWindowService : Service() {
         if (parent != null) {
             //说明是重复账单
             ToastUtils.info("检测到重复账单，已自动合并。")
-            //发送广播，告知UI更新
-            LocalBroadcastHelper.sendBroadcast(
-                LocalBroadcastHelper.ACTION_UPDATE_BILL,
-                Bundle().apply {
-                    putString("billInfo", Gson().toJson(parent))
-                })
-            return START_REDELIVER_INTENT
+           return START_REDELIVER_INTENT
         }
 
         runCatching {
@@ -155,7 +148,6 @@ class FloatingWindowService : Service() {
                 override fun onTick(millisUntilFinished: Long) {
                     binding.time.text =
                         String.format("%ss", (millisUntilFinished / 1000).toString())
-                    Logger.d("onTick => ${millisUntilFinished / 1000}")
                 }
 
                 override fun onFinish() {

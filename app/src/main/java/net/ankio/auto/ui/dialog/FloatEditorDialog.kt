@@ -76,23 +76,7 @@ class FloatEditorDialog(
     // 选择的账单ID
     private var selectedBills = mutableListOf<String>()
 
-    // 广播接收器
-    private lateinit var broadcastReceiver: BroadcastReceiver
-
-
     override fun onCreateView(inflater: LayoutInflater): View {
-
-        broadcastReceiver =
-            LocalBroadcastHelper.registerReceiver(LocalBroadcastHelper.ACTION_UPDATE_BILL) { action, bundle ->
-                Logger.d("接收到广播，更新账单")
-                billInfoModel =
-                    Gson().fromJson(bundle!!.getString("billInfoModel"), BillInfoModel::class.java)
-                rawBillInfo = billInfoModel.copy()
-                billTypeLevel1 = BillTool.getType(rawBillInfo.type)
-                billTypeLevel2 = rawBillInfo.type
-                bindUI()
-            }
-
         binding = FloatEditorBinding.inflate(inflater)
         cardView = binding.editorCard
 
@@ -156,12 +140,6 @@ class FloatEditorDialog(
 
     override fun dismiss() {
         super.dismiss()
-
-        if (::broadcastReceiver.isInitialized){
-            runCatching {
-                LocalBroadcastHelper.unregisterReceiver(broadcastReceiver)
-            }
-        }
     }
 
     private fun bindingButtonsEvents() {
