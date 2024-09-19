@@ -101,7 +101,7 @@ class AppDataAdapter(
 
     private fun buildUploadDialog(holder: BaseViewHolder<AdapterDataBinding, AppDataModel>) {
         val item = holder.item!!
-        DataEditorDialog(activity, item.data) {
+        DataEditorDialog(activity, item.data) { result ->
             val loading = LoadingUtils(activity)
             loading.show(R.string.upload_waiting)
             holder.binding.root.autoDisposeScope.launch {
@@ -109,7 +109,7 @@ class AppDataAdapter(
                 val title = "[Adaptation Request][$type]${item.app}"
                 val body = """
 ```
-${item.data}
+${result}
 ```
                 """.trimIndent()
 
@@ -149,7 +149,7 @@ ${item.data}
         val item = holder.item!!
 
         DataIssueDialog(activity) { issue ->
-            DataEditorDialog(activity, item.data) {
+            DataEditorDialog(activity, item.data) { result ->
                 val loading = LoadingUtils(activity)
                 loading.show(R.string.upload_waiting)
                 holder.binding.root.autoDisposeScope.launch {
@@ -157,7 +157,7 @@ ${item.data}
                     val title = "[Bug][Rule][$type]${item.app}"
                     val body = """
 ## 规则
-${item.rule}
+${result}
 ## 说明
 $issue
 ## 数据
