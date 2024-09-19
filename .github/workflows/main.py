@@ -17,6 +17,23 @@ def get_latest_tag_with_prefix(prefix):
         return get_latest_tag_with_prefix('v')
     return tags[-1]
 
+
+def get_changed_files_since_tag(tag):
+    # 执行 git diff 命令获取自指定 tag 以来的变更文件
+    result = subprocess.run(
+        ['git', 'diff', '--name-only', f'{tag}..HEAD'],
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+    )
+
+    # 将输出的文件路径按行分割
+    changed_files = result.stdout.strip().split('\n')
+
+    # 判断是否有文件路径以 'server' 开头
+    for file in changed_files:
+        if file.startswith('server') or file.startswith('app/src/xposed/java/net/ankio/auto/hooks/android'):
+            return True
+
+    return False
 def get_commits_since_tag(tag):
     result = subprocess.run(['git', 'log', f'{tag}..HEAD', '--oneline'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     commits = result.stdout.strip().split('\n')
@@ -68,7 +85,7 @@ def build_logs(commits,workspace):
                     logs[cate['title']].append(commit['message'])
     return logs
 
-def write_logs(logs,workspace,channel,tag,repo):
+def write_logs(logs,workspace,channel,tag,repo,restart):
     # 创建dist目录
     os.makedirs(workspace + '/dist', exist_ok=True)
     log_data = ""
@@ -92,6 +109,9 @@ def write_logs(logs,workspace,channel,tag,repo):
         # 对tag进行编码
         file.write(f" - [Github](https://github.com/{repo}/releases/tag/{tag})\n")
         file.write(f" - [网盘](https://cloud.ankio.net/%E8%87%AA%E5%8A%A8%E8%AE%B0%E8%B4%A6/%E8%87%AA%E5%8A%A8%E8%AE%B0%E8%B4%A6/%E7%89%88%E6%9C%AC%E6%9B%B4%E6%96%B0/{channel}/{tag}.apk)\n")
+        if restart:
+            file.write("# 重启提示\n")
+            file.write(" - 由于修改了Android Framework部分，需要重新启动生效。\n")
         file.write("# 更新日志\n")
         file.write(" - 版本：" + tag + "\n")
         file.write(" - 发布时间：" + t + "\n")
@@ -324,7 +344,8 @@ def main(repo):
         sys.exit(1)
     tagVersionName = get_and_set_version(channel,workspace)
     print(f"新的版本号: {tagVersionName}")
-    logs = build_logs(commits,workspace)
+    restart = get_changed_files_since_tag(tag)
+    logs = build_logs(commits,workspace,restart)
     log_data = write_logs(logs,workspace,channel,tagVersionName,repo)
     build_apk(workspace)
     create_tag(tagVersionName,channel)
