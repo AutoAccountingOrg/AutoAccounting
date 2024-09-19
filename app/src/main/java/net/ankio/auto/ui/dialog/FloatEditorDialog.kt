@@ -296,6 +296,7 @@ class FloatEditorDialog(
         view: IconView,
     ) {
         view.setText(name)
+        Logger.d("资产名称 => $name")
         lifecycleScope.launch {
             ResourceUtils.getAssetDrawableFromName(name).let {
                 view.setIcon(it)

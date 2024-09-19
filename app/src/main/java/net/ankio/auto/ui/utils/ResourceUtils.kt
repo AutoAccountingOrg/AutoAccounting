@@ -24,6 +24,7 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.storage.ImageUtils
+import net.ankio.auto.storage.Logger
 import org.ezbook.server.db.model.AssetsModel
 import org.ezbook.server.db.model.BookNameModel
 import org.ezbook.server.db.model.CategoryModel
@@ -81,12 +82,13 @@ object ResourceUtils {
             }
         }
 
-    suspend fun getAssetDrawable(name: String): Drawable = withContext(Dispatchers.IO) {
-        ImageUtils.get(App.app, name, R.drawable.default_asset)
+    suspend fun getAssetDrawable(uri: String): Drawable = withContext(Dispatchers.IO) {
+        ImageUtils.get(App.app, uri, R.drawable.default_asset)
     }
 
     suspend fun getAssetDrawableFromName(name: String): Drawable = withContext(Dispatchers.IO) {
         val asset = AssetsModel.getByName(name)
+        Logger.d("资产 => $asset")
         val icon = asset?.icon ?: ""
         getAssetDrawable(icon)
     }
