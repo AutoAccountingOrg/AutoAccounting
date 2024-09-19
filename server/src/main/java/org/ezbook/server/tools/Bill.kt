@@ -94,7 +94,7 @@ object Bill {
     ): BillInfoModel? {
         Server.isRunOnMainThread()
         val settingBillRepeat =
-            Db.get().settingDao().query(Setting.AUTO_GROUP)?.value?.toBoolean() ?: false
+            Db.get().settingDao().query(Setting.AUTO_GROUP)?.value?.toBoolean() ?: true
         if (!settingBillRepeat) return null
         //第一要素，金钱一致，时间在5分钟以内
         val bills =
