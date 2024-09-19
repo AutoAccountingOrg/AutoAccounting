@@ -46,7 +46,8 @@ class AppUpdate(context: Context) : BaseUpdate(context) {
                 UpdateChannel.Github.name
             ) == UpdateChannel.Github.name
         ) {
-           "https://cors.isteed.cc/github.com/AutoAccountingOrg/$repo/releases/download/$version/app-xposed-signed.apk"
+            // https://dl.ghpig.top/https://github.com/AutoAccountingOrg/AutoAccounting/releases/download/4.0.0-Canary.20240919031326/app-xposed-signed.apk
+           "https://dl.ghpig.top/https://github.com/AutoAccountingOrg/$repo/releases/download/$version/app-xposed-signed.apk"
         } else {
             pan() + "/$version.apk"
         }
