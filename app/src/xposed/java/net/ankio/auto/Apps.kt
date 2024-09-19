@@ -23,6 +23,14 @@ import net.ankio.auto.hooks.qianji.QianjiHooker
 import net.ankio.auto.hooks.wechat.WechatHooker
 
 object Apps {
+    /**
+     * 虚拟框架无法hook到模块环境
+     */
+    fun getServerRunInApp():String{
+        // 或者运行于com.tencent.mm
+        return  "android"
+    }
+
     fun get(): MutableList<HookerManifest> {
         return mutableListOf(
             AndroidHooker(), // Android

@@ -28,6 +28,7 @@ import com.hjq.toast.Toaster
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.IXposedHookZygoteInit
 import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 import kotlinx.coroutines.CoroutineScope
@@ -35,9 +36,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import net.ankio.auto.Apps
+import net.ankio.auto.BuildConfig
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.logger.Logger
 import net.ankio.dex.Dex
+import org.ezbook.server.Server
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.SettingModel
 import java.math.BigInteger
@@ -236,7 +239,6 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
      * 加载包时的回调
      */
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
-        Logger.debug = true
         //判断是否为调试模式
         val pkg = lpparam.packageName
         val processName = lpparam.processName
@@ -245,7 +247,6 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
 
         for (app in Apps.get()) {
             if (app.packageName == pkg && app.packageName == processName) {
-                networkError()
                 hookAppContext(app.applicationName, lpparam.classLoader) {
                     initHooker(app, it, lpparam.classLoader)
                 }
@@ -314,7 +315,7 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
 
     private fun  setLogger(){
         launch {
-            Logger.debug = SettingModel.get(Setting.DEBUG_MODE, "false").toBoolean()
+            Logger.debug = SettingModel.get(Setting.DEBUG_MODE, "true").toBoolean()
         }
     }
 
@@ -330,14 +331,18 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         application: Application?,
         classLoader: ClassLoader
     ) {
+        // 添加http访问支持
+        networkError()
+        // 日志初始化
         setLogger()
-        Logger.log(TAG, "initHooker: ${app.appName}")
+        Logger.log(TAG, "InitHooker: ${app.appName}, AutoVersion: ${BuildConfig.VERSION_NAME}")
         App.application = application
 
         val code = getVersionCode()
 
+        // 检查App版本是否过低，过低无法使用
         if (app.minVersion != 0 && code < app.minVersion) {
-            Logger.log(TAG, "autoAdaption failed , ${app.appName}(${code}) version is too low")
+            Logger.log(TAG, "auto adaption failed , ${app.appName}(${code}) version is too low")
             Toast.makeText(
                 application,
                 "${app.appName}版本过低，无法适配，请升级到最新版本后再试。",
@@ -346,23 +351,48 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
             return
         }
 
-        if (!ruleHook(app)) {
-            Logger.log(TAG, "autoAdaption failed , ${app.appName}(${code}) will not be hooked")
+        // 自动适配
+        runCatching {
+            if (!ruleHook(app)) {
+                Logger.log(TAG, "auto adaption failed , ${app.appName}(${code}) will not be hooked")
+                return
+            }
+        }.onFailure {
+            Logger.logE(TAG, it)
+            Toast.makeText(
+                application,
+                "自动适配失败！",
+                Toast.LENGTH_LONG
+            ).show()
             return
         }
-
+        // 检查所需的权限
         permissionCheck(app)
 
+        // 将自动记账的资源路径加入到查找路径中
         XposedHelpers.callMethod(
             application!!.resources.assets,
             "addAssetPath",
             modulePath,
         )
 
+        //吐司框架初始化
         Toaster.init(application)
 
-        app.hookLoadPackage(application, classLoader)
+        // 启动自动记账服务
+        if (app.packageName === Apps.getServerRunInApp()){
+            startServer(app,application)
+        }
 
+        // hook初始化
+        runCatching {
+            app.hookLoadPackage(application, classLoader)
+        }.onFailure {
+            // 核心初始化失败
+            app.logE(it)
+        }
+
+        // 区域hook初始化
         app.partHookers.forEach {
             runCatching {
                 app.logD("PartHooker init: ${it.javaClass.simpleName}")
@@ -398,6 +428,23 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
             } else {
                 app.logD("${app.appName} Permission granted: $it")
             }
+        }
+    }
+
+    /**
+     * 启动自动记账服务
+     */
+    private fun startServer(
+        hookerManifest: HookerManifest,
+        application: Application?
+    ) {
+        try {
+            hookerManifest.logD("try start server...")
+            Server(application!!).startServer()
+            hookerManifest.logD(" server hook success")
+        } catch (e: Exception) {
+            XposedBridge.log("server hook failed")
+            XposedBridge.log(e)
         }
     }
 

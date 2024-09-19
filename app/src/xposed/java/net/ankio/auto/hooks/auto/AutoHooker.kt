@@ -21,7 +21,6 @@ import android.os.Build
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
-import net.ankio.auto.hooks.android.hooks.ServiceHooker
 import net.ankio.auto.hooks.auto.hooks.ActiveHooker
 import net.ankio.dex.model.Clazz
 
@@ -32,9 +31,7 @@ class AutoHooker : HookerManifest() {
         get() = "net.ankio.auto.xposed"
     override val appName: String = "自动记账"
     override fun hookLoadPackage(application: Application?, classLoader: ClassLoader) {
-        if (BuildConfig.DEBUG) { // 调试模式下，在自动记账里面启动服务，方便调试。
-            ServiceHooker.startServer(this, application)
-        }
+
     }
 
     override var partHookers: MutableList<PartHooker> = mutableListOf(

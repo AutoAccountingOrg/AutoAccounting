@@ -32,7 +32,7 @@ object Logger {
     /**
      * 是否为调试模式
      */
-    var debug = false
+    var debug = true
 
     private fun getTag(): String {
         return Throwable().stackTrace[2].className.substringBefore('$').substringAfterLast(".")
