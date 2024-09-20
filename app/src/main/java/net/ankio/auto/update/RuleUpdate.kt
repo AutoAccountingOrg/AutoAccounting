@@ -19,6 +19,8 @@ import android.app.Activity
 import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.JsonArray
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
@@ -61,11 +63,11 @@ class RuleUpdate(private val context: Context) : BaseUpdate(context) {
     }
 
 
-    override fun update(activity: Activity) {
+    override suspend fun update(activity: Activity) {
         if (version.isEmpty()) return
         val loading = LoadingUtils(activity)
         loading.show(activity.getString(R.string.downloading))
-        App.launch {
+        withContext(Dispatchers.IO) {
             try {
                 val file = context.cacheDir.resolve("rule.zip")
 

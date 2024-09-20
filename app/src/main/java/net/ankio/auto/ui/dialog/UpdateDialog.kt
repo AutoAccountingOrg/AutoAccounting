@@ -19,6 +19,8 @@ import android.app.Activity
 import android.content.BroadcastReceiver
 import android.view.LayoutInflater
 import android.view.View
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.broadcast.LocalBroadcastHelper
 import net.ankio.auto.databinding.DialogUpdateBinding
@@ -45,7 +47,9 @@ class UpdateDialog(
         binding.name.text =
             if (baseUpdate is RuleUpdate) context.getString(R.string.rule) else context.getString(R.string.app)
         binding.update.setOnClickListener {
-            baseUpdate.update(context)
+            lifecycleScope.launch {
+                baseUpdate.update(context)
+            }
         }
 
         //  EventBus.register(UpdateFinishEvent::class.java, listener)

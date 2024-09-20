@@ -70,7 +70,7 @@ class AppUpdate(context: Context) : BaseUpdate(context) {
         return arrayOf("", "", "")
     }
 
-    override fun update(activity: Activity) {
+    override suspend fun update(activity: Activity) {
         if (version.isEmpty()) return
 
         CustomTabsHelper.launchUrlOrCopy(activity, download)
