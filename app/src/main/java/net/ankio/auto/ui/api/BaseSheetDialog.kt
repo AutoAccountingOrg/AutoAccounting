@@ -46,7 +46,19 @@ abstract class BaseSheetDialog(private val context: Context) :
         this.setContentView(root)
         this.setCancelable(cancel)
         if (float) {
-            this.window?.setType((WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY))
+            window?.let {
+                // 获取当前的窗口参数
+                val params = it.attributes
+
+                // 设置为悬浮窗口类型
+                params.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+
+                // 添加 FLAG_NOT_FOCUSABLE 标志
+                params.flags = params.flags or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+
+                // 应用更新的窗口参数
+                it.attributes = params
+            }
         }
         val bottomSheet: View = root.parent as View
 
