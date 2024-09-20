@@ -34,7 +34,7 @@ object QianJiUri {
         var category = billModel.cateName
         if (billModel.cateName.contains("-")) {
             val categoryNames = billModel.cateName.split("-")
-            category = "${categoryNames[0]}/::/${categoryNames[1]}"
+            category = "${categoryNames[0].trim()}/::/${categoryNames[1].trim()}"
         }
         uri.append("&catename=${Uri.encode(category)}")
         uri.append("&catechoose=0")
