@@ -139,8 +139,6 @@ class Server(context: Context) {
                     val response = client.newCall(request).execute()
                     val bodyString = response.body?.string()
                     // 如果请求成功
-                    Log.d("Server", "response code: ${response.code}")
-                    Log.d("Server", "response body: ${bodyString}")
                     bodyString
 
                 }.onFailure {
