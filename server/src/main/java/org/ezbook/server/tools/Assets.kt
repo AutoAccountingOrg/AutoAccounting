@@ -100,7 +100,7 @@ object Assets {
                         listOf(
                             "储蓄",
                             "借记",
-                            "信用",
+                       //     "信用",
                         )
 
                     var newName2 = newName
@@ -179,13 +179,6 @@ object Assets {
                 })
             }
             return autoAssetName
-        } else {
-            //将映射结果保存到映射表
-            Db.get().assetsMapDao().put(AssetsMapModel().apply {
-                name = account
-                mapName = account
-                regex = false
-            })
         }
         return account
     }
