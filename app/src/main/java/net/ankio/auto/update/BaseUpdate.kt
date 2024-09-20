@@ -177,16 +177,12 @@ abstract class BaseUpdate(context: Context) {
         )
         val localParts = localVersion.replace("-${channel}","").split(".")
         val cloudParts = cloudVersion.replace("-${channel}","").split(".")
-        Logger.i("localParts: $localParts, cloudParts: $cloudParts")
         // 找出较长的版本号长度，补齐较短版本号的空位
         val maxLength = maxOf(localParts.size, cloudParts.size)
 
         for (i in 0 until maxLength) {
             val localPart = localParts.getOrNull(i)?.toLongOrNull() ?: 0  // 如果某个部分不存在，默认视为0
             val cloudPart = cloudParts.getOrNull(i)?.toLongOrNull() ?: 0
-
-            Logger.i("localPart: $localPart, cloudPart: $cloudPart")
-
            if (cloudPart > localPart) {
                return true
            }
