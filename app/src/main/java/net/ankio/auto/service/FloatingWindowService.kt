@@ -65,25 +65,26 @@ class FloatingWindowService : Service() {
     private fun notifyToolBar() {
         val CHANNEL_ID = "FloatingWindowServiceChannel"
 
-        // Create a notification channel with low importance
+        // 创建一个通知通道
         val channel = NotificationChannel(
             CHANNEL_ID,
             "Floating Window Service Channel",
-            NotificationManager.IMPORTANCE_MIN  // 设置为最小重要性，静默处理
+            NotificationManager.IMPORTANCE_MIN // 设置为最小重要性
         )
         val manager = getSystemService(NotificationManager::class.java)
         manager.createNotificationChannel(channel)
 
-        // Create a minimal notification
+        // 创建最小化通知
         val notification: Notification = Notification.Builder(this, CHANNEL_ID)
-            .setContentTitle("")  // 省略标题
-            .setContentText("自动记账悬浮窗服务")  // 简短通知内容
-            .setSmallIcon(R.mipmap.ic_launcher_foreground)  // 图标
+            .setContentTitle("")  // 无标题
+            .setContentText("自动记账悬浮窗服务")
+            .setSmallIcon(R.mipmap.ic_launcher_foreground)  // 小图标
             .build()
 
-        // Start the service in foreground with optimized notification
+        // 启动前台服务
         startForeground(1, notification)
     }
+
 
 
     override fun onCreate() {
@@ -104,7 +105,7 @@ class FloatingWindowService : Service() {
         flags: Int,
         startId: Int,
     ): Int {
-
+        notifyToolBar()
         if (lastTheme != ThemeEngine.getInstance(App.app).getTheme()) {
             lastTheme = ThemeEngine.getInstance(App.app).getTheme()
             val appTheme = ContextThemeWrapper(App.app, R.style.AppTheme)
