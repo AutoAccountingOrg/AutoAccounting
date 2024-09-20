@@ -93,20 +93,20 @@ class FlowElement(
             if (connector) {
                 var content = context.getString(R.string.and)
                 if (data.containsKey("jsPre")) {
-                    if ((data["jsPre"] as String).contains("or")) {
+                    if ((data["jsPre"] as String).contains("||")) {
                         content = context.getString(R.string.or)
                     }
                 } else {
-                    data["jsPre"] = " and "
+                    data["jsPre"] = " && "
                 }
 
                 setAsButton(content) { _, view ->
                     view.text =
                         if (view.text == context.getString(R.string.or)) {
-                            data["jsPre"] = " and "
+                            data["jsPre"] = " && "
                             context.getString(R.string.and)
                         } else {
-                            data["jsPre"] = " or "
+                            data["jsPre"] = " || "
                             context.getString(
                                 R.string.or,
                             )

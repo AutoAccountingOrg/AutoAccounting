@@ -120,7 +120,7 @@ class BillCategoryDialog(
                     )
                 if (jsPre){
                     condition += " && "
-                    data["jsPre"] = " and "
+                    data["jsPre"] = " && "
                 }
                 condition += js
                 //  text += msg

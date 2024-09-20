@@ -98,7 +98,7 @@ class CategoryRuleAdapter(
         for (hashMap in list) {
             if (hashMap.containsKey("jsPre")) {
                 flexboxLayout.appendButton(
-                    if ((hashMap["jsPre"] as String).contains("and")) {
+                    if ((hashMap["jsPre"] as String).contains("&&")) {
                         activity.getString(
                             R.string.and,
                         )

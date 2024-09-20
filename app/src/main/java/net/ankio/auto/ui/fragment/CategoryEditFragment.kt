@@ -471,7 +471,7 @@ class CategoryEditFragment : BaseFragment() {
                     flowElement.data.remove("jsPre")
                 } else {
                     if (!flowElement.data.containsKey("jsPre")) {
-                        flowElement.data["jsPre"] = " and "
+                        flowElement.data["jsPre"] = " && "
                     }
                 }
             }
