@@ -140,7 +140,7 @@ object Assets {
             return
         }
         val autoAsset =
-            Db.get().settingDao().query(Setting.AUTO_IDENTIFY_ASSET)?.value?.toBoolean() ?: false
+            Db.get().settingDao().query(Setting.AUTO_IDENTIFY_ASSET)?.value=="true"
         billInfoModel.accountNameFrom = processAssets(rawAccountNameFrom, maps, assets, autoAsset)
         billInfoModel.accountNameTo = processAssets(rawAccountNameTo, maps, assets, autoAsset)
     }

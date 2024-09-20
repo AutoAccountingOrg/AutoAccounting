@@ -52,13 +52,6 @@ class ConfigUtils private constructor(context: Context) {
 
         fun save(context: Context) {
             getInstance(context).save()
-            val settings = getInstance(context).settings.toMutableMap()
-            // 同步远程数据库
-            App.launch {
-                settings.forEach {
-                    SettingModel.set(it.key, it.value.toString())
-                }
-            }
         }
 
         fun getString(key: String, defaultValue: String = ""): String {
@@ -67,6 +60,9 @@ class ConfigUtils private constructor(context: Context) {
 
         fun putString(key: String, value: String) {
             getInstance(App.app).putString(key, value)
+            App.launch {
+                SettingModel.set(key, value)
+            }
         }
 
         fun getBoolean(key: String, defaultValue: Boolean = false): Boolean {
@@ -75,6 +71,9 @@ class ConfigUtils private constructor(context: Context) {
 
         fun putBoolean(key: String, value: Boolean) {
             getInstance(App.app).putBoolean(key, value)
+            App.launch {
+                SettingModel.set(key, value.toString())
+            }
         }
 
         fun getInt(key: String, defaultValue: Int = 0): Int {
@@ -83,6 +82,9 @@ class ConfigUtils private constructor(context: Context) {
 
         fun putInt(key: String, value: Int) {
             getInstance(App.app).putInt(key, value)
+            App.launch {
+                SettingModel.set(key, value.toString())
+            }
         }
 
         fun getLong(key: String, defaultValue: Long = 0L): Long {
@@ -91,6 +93,9 @@ class ConfigUtils private constructor(context: Context) {
 
         fun putLong(key: String, value: Long) {
             getInstance(App.app).putLong(key, value)
+            App.launch {
+                SettingModel.set(key, value.toString())
+            }
         }
 
         fun getFloat(key: String, defaultValue: Float = 0f): Float {
@@ -99,6 +104,9 @@ class ConfigUtils private constructor(context: Context) {
 
         fun putFloat(key: String, value: Float) {
             getInstance(App.app).putFloat(key, value)
+            App.launch {
+                SettingModel.set(key, value.toString())
+            }
         }
 
         fun getDouble(key: String, defaultValue: Double = 0.0): Double {
@@ -107,14 +115,16 @@ class ConfigUtils private constructor(context: Context) {
 
         fun putDouble(key: String, value: Double) {
             getInstance(App.app).putDouble(key, value)
+            App.launch {
+                SettingModel.set(key, value.toString())
+            }
         }
 
         fun remove(key: String) {
             getInstance(App.app).remove(key)
-        }
-
-        fun clear() {
-            getInstance(App.app).clear()
+            App.launch {
+                SettingModel.set(key, "")
+            }
         }
 
         fun copyTo(context: Context, file: File) {
@@ -218,8 +228,4 @@ class ConfigUtils private constructor(context: Context) {
         settings.remove(key)
     }
 
-    // 清除所有设置
-    fun clear() {
-        settings.clear()
-    }
 }

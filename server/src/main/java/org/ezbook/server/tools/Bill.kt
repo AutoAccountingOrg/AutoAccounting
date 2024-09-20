@@ -100,7 +100,7 @@ object Bill {
     ): BillInfoModel? {
         Server.isRunOnMainThread()
         val settingBillRepeat =
-            Db.get().settingDao().query(Setting.AUTO_GROUP)?.value?.toBoolean() ?: true
+            Db.get().settingDao().query(Setting.AUTO_GROUP)?.value != "false"
         if (!settingBillRepeat) return null
         //第一要素，金钱一致，时间在5分钟以内
         val startTime = billInfoModel.time - 5 * 60 * 1000
