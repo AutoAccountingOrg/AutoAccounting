@@ -21,7 +21,6 @@ import com.bugsnag.android.Bugsnag
 import com.bugsnag.android.Event
 import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
-import net.ankio.auto.exceptions.AutoServiceException
 import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.activity.ErrorActivity
@@ -53,10 +52,7 @@ class ExceptionHandler(private val context: Context) : Thread.UncaughtExceptionH
             Logger.e("发生内容为NULL的异常 => $msg")
             return false
         }
-        val root = getRootCause(error)
-        if (root is AutoServiceException) {
-            return false
-        }
+
         // return true
         // 调试模式不上传错误数据
         return !App.debug && ConfigUtils.getBoolean(Setting.SEND_ERROR_REPORT, true)
