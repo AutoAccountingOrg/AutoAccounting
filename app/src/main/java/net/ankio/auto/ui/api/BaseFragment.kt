@@ -17,19 +17,25 @@ package net.ankio.auto.ui.api
 
 import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
+import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
 import android.widget.ScrollView
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.appcompat.widget.ContentFrameLayout
 import androidx.appcompat.widget.SearchView
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentContainerView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.R
 import net.ankio.auto.App
 import net.ankio.auto.databinding.ActivityMainBinding
+import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.activity.MainActivity
+import net.ankio.auto.ui.componets.StatusPage
 import net.ankio.auto.ui.models.ToolbarMenuItem
 import java.lang.ref.WeakReference
 
@@ -47,39 +53,40 @@ abstract class BaseFragment : Fragment() {
         return this.javaClass.simpleName
     }
 
-    /**
-     * 获取activity的binding
-     */
-    private lateinit var activityBinding: WeakReference<ActivityMainBinding>
 
-    /**
-     * 滚动视图
-     */
-    lateinit var scrollView:  WeakReference<View>
+    private var scrollView : View? = null
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        Logger.d("view:$view")
+        scrollView = getScrollView(view as ViewGroup)
+        Logger.d("scrollView:$scrollView")
+    }
 
     override fun onResume() {
         super.onResume()
+        if (activity == null || activity !is MainActivity) return
+
         val mainActivity = activity as MainActivity
-        if (!this::activityBinding.isInitialized) {
-            activityBinding = WeakReference(mainActivity.getBinding())
-        }
 
 
-        activityBinding.get()!!.toolbar.visibility = View.VISIBLE
+
+        mainActivity.binding.toolbar.visibility = View.VISIBLE
         // 重置顶部导航栏图标
-        activityBinding.get()!!.toolbar.menu.clear()
+        mainActivity.binding.toolbar.menu.clear()
         // 添加菜单
         menuList.forEach {
-            addMenuItem(it)
+            addMenuItem(it,mainActivity)
         }
-        if (mainActivity.toolbarLayout != null && ::scrollView.isInitialized) {
+
+        if (scrollView!=null) {
             var animatorStart = false
             // 滚动页面调整toolbar颜色
-            scrollView.get()!!.setOnScrollChangeListener { _, _, scrollY, _, _ ->
+            scrollView!!.setOnScrollChangeListener { _, _, scrollY, _, _ ->
                 var scrollYs = scrollY // 获取宽度
-                if (scrollView.get()!! is RecyclerView) {
+                if (scrollView is RecyclerView) {
                     // RecyclerView获取真实高度
-                    scrollYs = (scrollView.get()!! as RecyclerView).computeVerticalScrollOffset()
+                    scrollYs = (scrollView as RecyclerView).computeVerticalScrollOffset()
                 }
 
                 if (animatorStart) return@setOnScrollChangeListener
@@ -112,14 +119,51 @@ abstract class BaseFragment : Fragment() {
         }
     }
 
+    private fun isScrollView(view: View): View ? {
+        return when (view) {
+            is ScrollView, is RecyclerView -> {
+                return view
+            }
+
+            is StatusPage -> {
+                return view.contentView!!
+            }
+
+            else -> null
+        }
+    }
+
+    private fun getScrollView(view: ViewGroup, depth: Int = 0): View? {
+        val root = isScrollView(view)
+        if (root != null) {
+            return view
+        }
+        if (depth > 4) return null
+        for (i in 0 until view.childCount) {
+            val child = view.getChildAt(i)
+            when (child) {
+                is ViewGroup -> {
+                    val scrollView = getScrollView(child,depth+1)
+                    return scrollView
+                }else -> {
+                    val scrollView = isScrollView(child)
+                    if (scrollView != null) {
+                        return scrollView
+                    }
+                }
+            }
+        }
+        return null
+    }
+
 
     protected var searchData = ""
 
     /**
      * 添加菜单
      */
-    private fun addMenuItem(menuItemObject: ToolbarMenuItem) {
-        val menu = activityBinding.get()!!.toolbar.menu
+    private fun addMenuItem(menuItemObject: ToolbarMenuItem,mainActivity:MainActivity) {
+        val menu = mainActivity.binding.toolbar.menu
         val menuItem = menu.add(Menu.NONE, Menu.NONE, Menu.NONE, getString(menuItemObject.title))
         menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
         val icon = AppCompatResources.getDrawable(requireActivity(), menuItemObject.drawable)

@@ -83,7 +83,7 @@ class DataFragment : BasePageFragment<AppDataModel>() {
         statusPage = binding.statusPage
         val recyclerView = binding.statusPage.contentView!!
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        scrollView = WeakReference(recyclerView)
+        //scrollView = WeakReference(recyclerView)
 
         recyclerView.adapter = AppDataAdapter(pageData, requireActivity() as BaseActivity)
         loadDataEvent(binding.refreshLayout)

@@ -58,7 +58,7 @@ class CategoryMapFragment : BasePageFragment<CategoryMapModel>() {
         val recyclerView = statusPage.contentView!!
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = CategoryMapAdapter(pageData, requireActivity())
-        scrollView = WeakReference(recyclerView)
+        //scrollView = WeakReference(recyclerView)
         binding.addButton.visibility = View.GONE
         loadDataEvent(binding.refreshLayout)
         return binding.root

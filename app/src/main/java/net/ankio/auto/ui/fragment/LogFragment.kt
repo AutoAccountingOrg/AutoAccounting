@@ -138,7 +138,7 @@ class LogFragment : BasePageFragment<LogModel>() {
         val recyclerView = binding.statusPage.contentView
         recyclerView?.layoutManager = LinearLayoutManager(requireContext())
         recyclerView?.adapter = LogAdapter(pageData)
-        scrollView = WeakReference(recyclerView!!)
+        //scrollView = WeakReference(recyclerView!!)
         loadDataEvent(binding.refreshLayout)
         return binding.root
     }

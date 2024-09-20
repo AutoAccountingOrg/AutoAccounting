@@ -38,7 +38,7 @@ import net.ankio.auto.utils.Github
 
 class MainActivity : BaseActivity() {
     // 视图绑定
-    private lateinit var binding: ActivityMainBinding
+     lateinit var binding: ActivityMainBinding
     private lateinit var fragmentContainerView: FragmentContainerView
     private lateinit var bottomNavigationView: BottomNavigationView
     private lateinit var navHostFragment: NavHostFragment
@@ -101,8 +101,6 @@ class MainActivity : BaseActivity() {
         onBackup()
         // 初始化底部导航栏
         onBottomViewInit()
-
-        onViewCreated()
     }
 
 
@@ -163,9 +161,6 @@ class MainActivity : BaseActivity() {
         }
     }
 
-    fun getBinding(): ActivityMainBinding {
-        return binding
-    }
 
 
 }

@@ -42,6 +42,5 @@ class ErrorActivity : BaseActivity() {
         binding.errorRestartButton.setOnClickListener {
             App.restart()
         }
-        onViewCreated()
     }
 }

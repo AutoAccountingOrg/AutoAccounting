@@ -61,6 +61,11 @@ open class BaseActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         // 主题初始化
         ThemeEngine.applyToActivity(this@BaseActivity)
+
+        // 等待view创建完成
+        window.decorView.post {
+            onViewCreated()
+        }
     }
 
     var mStatusBarColor: Int? = null
@@ -71,7 +76,7 @@ open class BaseActivity : AppCompatActivity() {
     /**
      * 在子activity手动调用该方法
      */
-    open fun onViewCreated() {
+    fun onViewCreated() {
         // 主题初始化
         val themeMode = ThemeEngine.getInstance(this@BaseActivity).themeMode
 

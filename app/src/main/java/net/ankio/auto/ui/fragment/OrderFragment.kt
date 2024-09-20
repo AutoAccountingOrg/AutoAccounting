@@ -117,7 +117,7 @@ open class OrderFragment : BasePageFragment<Pair<String, List<BillInfoModel>>>()
         val layoutManager = LinearLayoutManager(requireContext())
         recyclerView.layoutManager = layoutManager
         recyclerView.adapter = OrderAdapter(pageData)
-        scrollView = WeakReference(recyclerView)
+       // scrollView = WeakReference(recyclerView)
 
         loadDataEvent(binding.refreshLayout)
 

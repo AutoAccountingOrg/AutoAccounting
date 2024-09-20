@@ -55,7 +55,7 @@ class CategoryRuleFragment : BasePageFragment<CategoryRuleModel>() {
             }
             findNavController().navigate(R.id.categoryEditFragment, bundle)
         }
-        scrollView = WeakReference(recyclerView)
+        //scrollView = WeakReference(recyclerView)
 
         binding.addButton.setOnClickListener {
             findNavController().navigate(R.id.categoryEditFragment)

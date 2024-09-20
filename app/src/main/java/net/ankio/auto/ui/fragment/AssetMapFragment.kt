@@ -49,7 +49,7 @@ class AssetMapFragment : BasePageFragment<AssetsMapModel>() {
         val recyclerView = statusPage.contentView!!
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = AssetsMapAdapter(pageData, requireActivity())
-        scrollView = WeakReference(recyclerView)
+       // scrollView = WeakReference(recyclerView)
 
         binding.addButton.setOnClickListener {
             AssetsMapDialog(requireContext()) { model ->

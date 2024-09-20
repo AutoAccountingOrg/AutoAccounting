@@ -51,7 +51,7 @@ class SettingFragment : BaseFragment() {
                 settingItems
             )
         settingRenderUtils.init()
-        scrollView = WeakReference(binding.scrollView)
+        //scrollView = WeakReference(binding.scrollView)
         return binding.root
     }
 

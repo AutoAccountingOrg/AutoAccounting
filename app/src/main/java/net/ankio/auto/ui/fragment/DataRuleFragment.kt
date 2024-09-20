@@ -68,7 +68,7 @@ class DataRuleFragment : BasePageFragment<RuleModel>() {
         val recyclerView = binding.statusPage.contentView!!
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = DataRuleAdapter(pageData)
-        scrollView = WeakReference(recyclerView)
+        //scrollView = WeakReference(recyclerView)
         loadDataEvent(binding.refreshLayout)
         loadLeftData(binding.leftList)
         chipEvent()
