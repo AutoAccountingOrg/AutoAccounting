@@ -15,22 +15,29 @@
 
 package net.ankio.auto.ui.api
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
+import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
+import android.view.View
+import android.view.ViewGroup
+import android.view.WindowInsets
 import androidx.annotation.AttrRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.WindowCompat
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.elevation.SurfaceColors
 import com.quickersilver.themeengine.ThemeEngine
 import com.quickersilver.themeengine.ThemeMode
-import com.zackratos.ultimatebarx.ultimatebarx.addStatusBarTopPadding
-import com.zackratos.ultimatebarx.ultimatebarx.navigationBar
-import com.zackratos.ultimatebarx.ultimatebarx.statusBar
 import net.ankio.auto.App
+import net.ankio.auto.storage.Logger
 import net.ankio.auto.utils.LanguageUtils
+
 
 /**
  * 基础的BaseActivity
@@ -60,6 +67,7 @@ open class BaseActivity : AppCompatActivity() {
     var mStatusBarColor2: Int? = null
     var last = mStatusBarColor
 
+
     /**
      * 在子activity手动调用该方法
      */
@@ -68,18 +76,75 @@ open class BaseActivity : AppCompatActivity() {
         val themeMode = ThemeEngine.getInstance(this@BaseActivity).themeMode
 
         val currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
-        statusBar {
-            fitWindow = false
-            background.transparent()
-            light =
-                !(themeMode == ThemeMode.DARK || (themeMode == ThemeMode.AUTO && currentNightMode == Configuration.UI_MODE_NIGHT_YES))
-        }
-        // 根据主题设置statusBar
-        navigationBar { transparent() }
-        toolbarLayout?.addStatusBarTopPadding()
+        val  light =
+            !(themeMode == ThemeMode.DARK || (themeMode == ThemeMode.AUTO && currentNightMode == Configuration.UI_MODE_NIGHT_YES))
         mStatusBarColor = getThemeAttrColor(android.R.attr.colorBackground)
         mStatusBarColor2 = SurfaceColors.SURFACE_4.getColor(this@BaseActivity)
+        enableImmersiveMode(light)
+
     }
+
+    private fun enableImmersiveMode(light: Boolean) {
+        //状态栏
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        window.statusBarColor = Color.TRANSPARENT
+        //导航栏
+        //当背景透明时去掉灰色蒙层
+        window.isNavigationBarContrastEnforced = false
+        //导航栏背景颜色透明
+        window.navigationBarColor =  Color.TRANSPARENT
+        WindowCompat.getInsetsController(window,window.decorView).isAppearanceLightStatusBars = light
+        WindowCompat.getInsetsController(window,window.decorView).isAppearanceLightNavigationBars = light
+
+        // 获取根布局
+        val rootView = findViewById<View>(android.R.id.content)  as ViewGroup
+
+        rootView.setOnApplyWindowInsetsListener { v, insets ->
+            val statusBarHeight = getStatusBarHeight(insets)
+            val navigationBarHeight = getNavigationBarHeight(insets)
+            // 找到第一个子view
+            val mainGroup = rootView.getChildAt(0) as ViewGroup
+            val firstView = mainGroup.getChildAt(0)
+            val lastView = mainGroup.getChildAt(rootView.childCount - 1)
+
+            if (firstView is ViewGroup){
+                val firstViewGroup = firstView as ViewGroup
+                val firstViewGroupChild = firstViewGroup.getChildAt(0)
+                val params = firstViewGroupChild.layoutParams as ViewGroup.MarginLayoutParams
+                params.topMargin = statusBarHeight
+                params.height = statusBarHeight
+               // firstViewGroupChild.layoutParams = params
+            }else{
+                // 设置padding
+                firstView.setPadding(0, statusBarHeight, 0, 0)
+            }
+
+            lastView.setPadding(0, 0, 0, navigationBarHeight)
+            // 返回未消费的 insets
+            v.onApplyWindowInsets(insets)
+        }
+    }
+
+    @SuppressLint("InternalInsetResource")
+    private fun getStatusBarHeight(insets: WindowInsets): Int {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            insets.getInsets(WindowInsets.Type.statusBars()).top
+        } else {
+            val resourceId = resources.getIdentifier("status_bar_height", "dimen", "android")
+            if (resourceId > 0) resources.getDimensionPixelSize(resourceId) else 0
+        }
+    }
+    @SuppressLint("InternalInsetResource")
+    private fun getNavigationBarHeight(insets: WindowInsets): Int {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            insets.getInsets(WindowInsets.Type.navigationBars()).bottom
+        } else {
+            val resourceId = resources.getIdentifier("navigation_bar_height", "dimen", "android")
+            if (resourceId > 0) resources.getDimensionPixelSize(resourceId) else 0
+        }
+    }
+
+
 
 
     /**

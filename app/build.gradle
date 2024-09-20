@@ -122,8 +122,6 @@ dependencies {
 
     //主题库
     implementation libs.themeEngine
-    //状态栏
-    implementation libs.ultimateBarX
     //Html转换
     implementation libs.html.ktx
     //gson

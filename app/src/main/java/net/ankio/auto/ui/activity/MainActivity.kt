@@ -15,8 +15,10 @@
 
 package net.ankio.auto.ui.activity
 
+import android.content.Context
 import android.net.Uri
 import android.os.Bundle
+import android.util.AttributeSet
 import android.view.View
 import androidx.activity.result.ActivityResultLauncher
 import androidx.fragment.app.FragmentContainerView
@@ -26,7 +28,6 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.zackratos.ultimatebarx.ultimatebarx.addNavigationBarBottomPadding
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.ActivityMainBinding
@@ -102,7 +103,6 @@ class MainActivity : BaseActivity() {
         onBottomViewInit()
 
         onViewCreated()
-
     }
 
 
@@ -115,7 +115,6 @@ class MainActivity : BaseActivity() {
 
         toolbarLayout = binding.toolbarLayout
         toolbar = binding.toolbar
-        bottomNavigationView.addNavigationBarBottomPadding()
 
         navHostFragment =
             (supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment?)!!
@@ -168,8 +167,5 @@ class MainActivity : BaseActivity() {
         return binding
     }
 
-    fun getNavController(): NavController {
-        return navHostFragment.navController
-    }
 
 }

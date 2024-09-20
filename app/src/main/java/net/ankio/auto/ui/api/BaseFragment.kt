@@ -27,7 +27,6 @@ import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.R
-import com.zackratos.ultimatebarx.ultimatebarx.addNavigationBarBottomPadding
 import net.ankio.auto.App
 import net.ankio.auto.databinding.ActivityMainBinding
 import net.ankio.auto.ui.activity.MainActivity
@@ -107,12 +106,6 @@ abstract class BaseFragment : Fragment() {
                     }
                 }
                 animatorStart = false
-            }
-
-            // 找到scrollView的第一个子视图
-            if (scrollView.get()!! is ScrollView && (scrollView.get()!! as ScrollView).childCount > 0) {
-                val view = (scrollView.get()!! as ScrollView).getChildAt(0)
-                view.addNavigationBarBottomPadding()
             }
 
 
