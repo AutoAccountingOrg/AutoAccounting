@@ -221,6 +221,7 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
         val intent = Intent()
         intent.putExtra("billInfo", Gson().toJson(billInfoModel))
         intent.putExtra("id", billInfoModel.id)
+        intent.putExtra("showWaitTip", true)
         if (parent != null) {
             intent.putExtra("parent", Gson().toJson(parent))
         }

@@ -92,7 +92,7 @@ class FloatingWindowService : Service() {
         notifyToolBar()
         timeCount = runCatching {
             ConfigUtils.getString(Setting.FLOAT_TIMEOUT_OFF, "10").toInt()
-        }.getOrNull() ?: 0
+        }.getOrNull() ?: 10
 
         val appTheme = ContextThemeWrapper(App.app, R.style.AppTheme)
         themedContext = App.getThemeContext(appTheme)
