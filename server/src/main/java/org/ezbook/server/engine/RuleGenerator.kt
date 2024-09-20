@@ -95,8 +95,11 @@ object RuleGenerator {
             it.js
         }
         val category = Db.get().settingDao().query(Setting.JS_CATEGORY)?.value ?: ""
+        //注入common.js
+        val commonJs = Db.get().settingDao().query(Setting.JS_COMMON)?.value ?: ""
         return """
             var window = JSON.parse(data);
+            $commonJs
             function getCategory(money,type,shopName,shopItem,time){ $categoryCustom return null;};
             var categoryInfo = getCategory(window.money,window.type,window.shopName,window.shopItem,window.time);
             if(categoryInfo !== null) { 
