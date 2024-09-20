@@ -81,11 +81,11 @@ class NotificationHooker : PartHooker() {
                         return
                     }
                     hashTable.add(hash)
-
+/*
                     hookerManifest.logD("Notification App: $opkg")
                     hookerManifest.logD("Notification App2: $app")
                     hookerManifest.logD("Notification Title: $originalTitle")
-                    hookerManifest.logD("Notification Content: $originalText")
+                    hookerManifest.logD("Notification Content: $originalText")*/
 
 
                     // 5分钟内不重复请求数据，加快识别速度
