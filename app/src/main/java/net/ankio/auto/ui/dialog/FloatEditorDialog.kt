@@ -17,6 +17,7 @@ package net.ankio.auto.ui.dialog
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.res.ColorStateList
 import android.view.LayoutInflater
@@ -28,10 +29,12 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.core.widget.TextViewCompat
 import androidx.lifecycle.lifecycleScope
+import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
+import net.ankio.auto.broadcast.LocalBroadcastHelper
 import net.ankio.auto.databinding.FloatEditorBinding
 import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Logger
@@ -73,7 +76,24 @@ class FloatEditorDialog(
     // 选择的账单ID
     private var selectedBills = mutableListOf<String>()
 
+    private lateinit var broadcastReceiver: BroadcastReceiver
+
     override fun onCreateView(inflater: LayoutInflater): View {
+        broadcastReceiver = LocalBroadcastHelper.registerReceiver(LocalBroadcastHelper.ACTION_UPDATE_BILL) { action, bundle ->
+        runCatching {
+            val bill = bundle?.getString("billInfo")
+            if (bill != null) {
+                val billInfoModel = Gson().fromJson(bill, BillInfoModel::class.java)
+                rawBillInfo = billInfoModel.copy()
+                convertBillInfo = billInfoModel.copy()
+                billTypeLevel1 = BillTool.getType(rawBillInfo.type)
+                billTypeLevel2 = rawBillInfo.type
+
+                bindUI()
+
+            }
+        }
+        }
         binding = FloatEditorBinding.inflate(inflater)
         cardView = binding.editorCard
 
@@ -136,6 +156,9 @@ class FloatEditorDialog(
     }
 
     override fun dismiss() {
+        if (::broadcastReceiver.isInitialized){
+            LocalBroadcastHelper.unregisterReceiver(broadcastReceiver)
+        }
         super.dismiss()
     }
 

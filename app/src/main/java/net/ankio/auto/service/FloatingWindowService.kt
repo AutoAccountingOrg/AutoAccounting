@@ -22,6 +22,7 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.graphics.PixelFormat
+import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.IBinder
 import android.view.ContextThemeWrapper
@@ -36,6 +37,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.App
 import net.ankio.auto.R
+import net.ankio.auto.broadcast.LocalBroadcastHelper
 import net.ankio.auto.constant.FloatEvent
 import net.ankio.auto.databinding.FloatTipBinding
 import net.ankio.auto.storage.ConfigUtils
@@ -127,6 +129,9 @@ class FloatingWindowService : Service() {
         if (parent != null) {
             //说明是重复账单
             ToastUtils.info("检测到重复账单，已自动合并。")
+            LocalBroadcastHelper.sendBroadcast(LocalBroadcastHelper.ACTION_UPDATE_BILL, Bundle().apply {
+               putString("billInfo", Gson().toJson(parent))
+            })
            return START_REDELIVER_INTENT
         }
 
