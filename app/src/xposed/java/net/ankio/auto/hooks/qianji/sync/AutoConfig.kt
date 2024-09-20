@@ -28,11 +28,11 @@ object AutoConfig {
     var multiBooks: Boolean = true//是否开启多账本
     var fee: Boolean = true//是否开启手续费
     suspend fun load() = withContext(Dispatchers.IO) {
-        assetManagement = SettingModel.get(Setting.SETTING_ASSET_MANAGER, "true").toBoolean()
-        multiCurrency = SettingModel.get(Setting.SETTING_CURRENCY_MANAGER, "true").toBoolean()
-        reimbursement = SettingModel.get(Setting.SETTING_REIMBURSEMENT, "true").toBoolean()
-        lending = SettingModel.get(Setting.SETTING_DEBT, "true").toBoolean()
-        multiBooks = SettingModel.get(Setting.SETTING_BOOK_MANAGER, "true").toBoolean()
-        fee = SettingModel.get(Setting.SETTING_FEE, "true").toBoolean()
+        assetManagement = SettingModel.get(Setting.SETTING_ASSET_MANAGER, "true")!= "false"
+        multiCurrency = SettingModel.get(Setting.SETTING_CURRENCY_MANAGER, "true")!= "false"
+        reimbursement = SettingModel.get(Setting.SETTING_REIMBURSEMENT, "true")!= "false"
+        lending = SettingModel.get(Setting.SETTING_DEBT, "true")!= "false"
+        multiBooks = SettingModel.get(Setting.SETTING_BOOK_MANAGER, "true")!= "false"
+        fee = SettingModel.get(Setting.SETTING_FEE, "true")!= "false"
     }
 }
