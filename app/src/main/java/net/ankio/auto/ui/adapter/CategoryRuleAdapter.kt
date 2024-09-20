@@ -24,13 +24,11 @@ import com.google.android.material.elevation.SurfaceColors
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterRuleBinding
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
-import net.ankio.auto.ui.scope.autoDisposeScope
 import org.ezbook.server.db.model.CategoryRuleModel
 
 class CategoryRuleAdapter(
@@ -51,7 +49,7 @@ class CategoryRuleAdapter(
                 .setTitle(activity.getString(R.string.delete_data))
                 .setMessage(activity.getString(R.string.delete_msg))
                 .setNegativeButton(activity.getString(R.string.sure_msg)) { _, _ ->
-                    binding.root.autoDisposeScope.launch {
+                    holder.launch {
                         withContext(Dispatchers.IO) {
                             CategoryRuleModel.remove(item.id)
                         }

@@ -28,7 +28,6 @@ import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterCategoryListBinding
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
-import net.ankio.auto.ui.scope.autoDisposeScope
 import net.ankio.auto.ui.utils.ResourceUtils
 import org.ezbook.server.db.model.CategoryModel
 
@@ -65,12 +64,12 @@ class CategorySelectorAdapter(
      */
     private fun loadData(
         data: CategoryModel,
-        binding: AdapterCategoryListBinding,
+        holder: BaseViewHolder<AdapterCategoryListBinding, CategoryModel>,
         callback: (MutableList<CategoryModel>) -> Unit
     ) {
         if (!level2.containsKey(data.id)) {
             //获取二级菜单
-            binding.root.autoDisposeScope.launch {
+            holder.launch {
                 val list = CategoryModel.list(data.remoteBookId, data.type, data.remoteId)
                 val items = list.toMutableList()
                 level2[data.id] = items
@@ -91,9 +90,9 @@ class CategorySelectorAdapter(
         val binding = holder.binding
         setActive(binding, false)
         if (data.isPanel()) {
-            renderPanel(binding, data, holder.context)
+            renderPanel(holder, data, holder.context)
         } else {
-            renderCategory(binding, data, position)
+            renderCategory(holder, data, position)
         }
 
     }
@@ -102,10 +101,11 @@ class CategorySelectorAdapter(
      * 渲染面板
      */
     private fun renderPanel(
-        binding: AdapterCategoryListBinding,
+        holder:  BaseViewHolder<AdapterCategoryListBinding, CategoryModel>,
         data: CategoryModel,
         context: Context
     ) {
+        val binding = holder.binding
         binding.icon.visibility = View.GONE
         binding.container.visibility = View.VISIBLE
         binding.recyclerView.layoutManager = GridLayoutManager(context, 5)
@@ -119,7 +119,7 @@ class CategorySelectorAdapter(
 
         // 面板没有子类，所以无法渲染~
 
-        loadData(panelItem!!, binding) {
+        loadData(panelItem!!, holder) {
             categories.clear()
             categories.addAll(it)
             adapter.notifyDataSetChanged()
@@ -135,14 +135,14 @@ class CategorySelectorAdapter(
      * 渲染分类图标
      */
     private fun renderCategory(
-        binding: AdapterCategoryListBinding,
+        holder:  BaseViewHolder<AdapterCategoryListBinding, CategoryModel>,
         data: CategoryModel,
         position: Int
     ) {
-
+        val binding = holder.binding
         binding.icon.visibility = View.VISIBLE
         binding.container.visibility = View.GONE
-        binding.root.autoDisposeScope.launch {
+        holder.launch {
             ResourceUtils.getCategoryDrawable(data, binding.itemImageIcon)
         }
         binding.itemText.text = data.name
@@ -163,7 +163,7 @@ class CategorySelectorAdapter(
             renderMoreItem(binding, false)
             return
         }
-        loadData(data, binding) {
+        loadData(data, holder) {
             renderMoreItem(binding, it.isNotEmpty())
         }
 

@@ -18,14 +18,12 @@ package net.ankio.auto.ui.adapter
 
 import android.app.Activity
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.databinding.AdapterMapBinding
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
 import net.ankio.auto.ui.dialog.BookSelectorDialog
 import net.ankio.auto.ui.dialog.CategorySelectorDialog
-import net.ankio.auto.ui.scope.autoDisposeScope
 import net.ankio.auto.ui.utils.ResourceUtils
 import net.ankio.auto.utils.BillTool
 import org.ezbook.server.db.model.CategoryMapModel
@@ -44,7 +42,7 @@ class CategoryMapAdapter(
 
             BookSelectorDialog(activity, true) { book, type ->
                 CategorySelectorDialog(activity, book.remoteId, type) { category1, category2 ->
-                    binding.root.autoDisposeScope.launch {
+                    holder.launch {
                         item.mapName = BillTool.getCateName(category1?.name!!, category2?.name)
                         CategoryMapModel.put(item)
                         withContext(Dispatchers.Main) {
@@ -67,7 +65,7 @@ class CategoryMapAdapter(
         binding.raw.text = data.name
         binding.target.setText(data.mapName)
 
-        binding.root.autoDisposeScope.launch {
+        holder.launch {
             ResourceUtils.getCategoryDrawableByName(data.mapName, activity).let {
                 withContext(Dispatchers.Main) {
                     binding.target.setIcon(it,true)

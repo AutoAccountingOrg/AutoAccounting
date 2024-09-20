@@ -59,4 +59,9 @@ abstract class BaseAdapter<T : ViewBinding, E>(
     }
 
     abstract fun onBindViewHolder(holder: BaseViewHolder<T, E>, data: E, position: Int)
+
+    override fun onViewRecycled(holder: BaseViewHolder<T, E>) {
+        super.onViewRecycled(holder)
+        holder.cancelScope()
+    }
 }

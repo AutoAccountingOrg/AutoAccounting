@@ -19,14 +19,12 @@ package net.ankio.auto.ui.adapter
 import android.app.Activity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterMapBinding
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
 import net.ankio.auto.ui.dialog.AssetsMapDialog
-import net.ankio.auto.ui.scope.autoDisposeScope
 import net.ankio.auto.ui.utils.ResourceUtils
 import org.ezbook.server.db.model.AssetsMapModel
 
@@ -45,7 +43,7 @@ class AssetsMapAdapter(
             AssetsMapDialog(activity, item) { changedAssetsMap ->
                 dataItems[position] = changedAssetsMap
                 notifyItemChanged(position)
-                binding.root.autoDisposeScope.launch {
+                holder.launch {
                     AssetsMapModel.put(changedAssetsMap)
                 }
             }.show(cancel = true)
@@ -62,7 +60,7 @@ class AssetsMapAdapter(
                 }
                 .setPositiveButton(R.string.delete) { _, _ ->
                     // 用户点击了删除按钮，执行删除操作
-                    binding.root.autoDisposeScope.launch {
+                    holder.launch {
                         AssetsMapModel.remove(item.id)
                     }
 
@@ -81,7 +79,7 @@ class AssetsMapAdapter(
         position: Int
     ) {
         val binding = holder.binding
-        binding.root.autoDisposeScope.launch {
+        holder.launch {
             val drawable = ResourceUtils.getAssetDrawableFromName(data.mapName)
             withContext(Dispatchers.Main) {
                 binding.target.setIcon(drawable)

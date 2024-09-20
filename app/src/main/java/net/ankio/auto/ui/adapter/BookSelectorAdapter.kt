@@ -17,11 +17,9 @@
 package net.ankio.auto.ui.adapter
 
 import androidx.constraintlayout.widget.ConstraintLayout
-import kotlinx.coroutines.launch
 import net.ankio.auto.databinding.AdapterBookBinding
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
-import net.ankio.auto.ui.scope.autoDisposeScope
 import net.ankio.auto.ui.utils.ResourceUtils
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.BookNameModel
@@ -71,7 +69,7 @@ class BookSelectorAdapter(
         position: Int
     ) {
         val binding = holder.binding
-        binding.root.autoDisposeScope.launch {
+        holder.launch {
             ResourceUtils.getBookNameDrawable(data.name, holder.context, binding.book)
         }
         binding.itemValue.text = data.name

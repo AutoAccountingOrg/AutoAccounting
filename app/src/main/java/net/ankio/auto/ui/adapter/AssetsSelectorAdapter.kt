@@ -1,11 +1,9 @@
 package net.ankio.auto.ui.adapter
 
-import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterAssetsBinding
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
-import net.ankio.auto.ui.scope.autoDisposeScope
 import net.ankio.auto.ui.utils.ResourceUtils
 import org.ezbook.server.constant.AssetsType
 import org.ezbook.server.db.model.AssetsModel
@@ -37,7 +35,7 @@ class AssetsSelectorAdapter(
             AssetsType.BORROWER -> holder.context.getString(R.string.type_borrower)
             AssetsType.CREDITOR -> holder.context.getString(R.string.type_creditor)
         }
-        holder.binding.root.autoDisposeScope.launch {
+        holder.launch {
             ResourceUtils.getAssetDrawable(data, binding.assetIcon)
         }
 

@@ -23,7 +23,6 @@ import com.google.android.material.elevation.SurfaceColors
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.App
 import net.ankio.auto.R
@@ -35,7 +34,6 @@ import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
 import net.ankio.auto.ui.dialog.DataEditorDialog
 import net.ankio.auto.ui.dialog.DataIssueDialog
-import net.ankio.auto.ui.scope.autoDisposeScope
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.CustomTabsHelper
@@ -104,7 +102,7 @@ class AppDataAdapter(
         DataEditorDialog(activity, item.data) { result ->
             val loading = LoadingUtils(activity)
             loading.show(R.string.upload_waiting)
-            holder.binding.root.autoDisposeScope.launch {
+            holder.launch {
                 val type = item.type.name
                 val title = "[Adaptation Request][$type]${item.app}"
                 val body = """
@@ -152,7 +150,7 @@ ${result}
             DataEditorDialog(activity, item.data) { result ->
                 val loading = LoadingUtils(activity)
                 loading.show(R.string.upload_waiting)
-                holder.binding.root.autoDisposeScope.launch {
+                holder.launch {
                     val type = item.type.name
                     val title = "[Bug][Rule][$type]${item.app}"
                     val body = """
@@ -222,7 +220,7 @@ ${item.data}
 
         binding.testRule.setOnClickListener {
             val item = holder.item!!
-            holder.binding.root.autoDisposeScope.launch {
+            holder.launch {
                 val billModel = testRule(item)
                 if (billModel == null) {
                     ToastUtils.error(R.string.no_rule_hint)
@@ -275,7 +273,7 @@ ${item.data}
                     val position = indexOf(item)
                     list.removeAt(position)
                     notifyItemRemoved(position)
-                    binding.root.autoDisposeScope.launch {
+                    holder.launch {
                         AppDataModel.delete(item.id)
                     }
                 }
@@ -307,7 +305,7 @@ ${item.data}
         }
 
         if (!data.match || data.rule.isEmpty()) {
-            holder.binding.root.autoDisposeScope.launch {
+            holder.launch {
                 tryAdaptUnmatchedItems(holder)
             }
         }

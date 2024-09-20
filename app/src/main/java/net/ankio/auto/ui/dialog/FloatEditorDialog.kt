@@ -17,7 +17,6 @@ package net.ankio.auto.ui.dialog
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.res.ColorStateList
 import android.view.LayoutInflater
@@ -29,18 +28,15 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.core.widget.TextViewCompat
 import androidx.lifecycle.lifecycleScope
-import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
-import net.ankio.auto.broadcast.LocalBroadcastHelper
 import net.ankio.auto.databinding.FloatEditorBinding
 import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.componets.IconView
-import net.ankio.auto.ui.scope.autoDisposeScope
 import net.ankio.auto.ui.utils.ListPopupUtils
 import net.ankio.auto.ui.utils.ResourceUtils
 import net.ankio.auto.ui.utils.ToastUtils
@@ -483,7 +479,7 @@ class FloatEditorDialog(
                 binding.debtExpendToLayout.setHint(R.string.float_expend_debt)
                 setAssetItem(billInfoModel.accountNameFrom, binding.debtExpendFrom)
                 binding.debtExpendTo.setText(billInfoModel.accountNameTo.ifEmpty { billInfoModel.shopName })
-                binding.debtExpendTo.autoDisposeScope.launch {
+                lifecycleScope.launch {
                     AssetsModel.list().filter { it.type == AssetsType.BORROWER }.let { assets ->
                         withContext(Dispatchers.Main) {
                             binding.debtExpendTo.setSimpleItems(assets.map { it.name }
@@ -499,7 +495,7 @@ class FloatEditorDialog(
                 binding.debtExpendToLayout.setHint(R.string.float_income_debt)
                 setAssetItem(billInfoModel.accountNameFrom, binding.debtExpendFrom)
                 binding.debtExpendTo.setText(billInfoModel.accountNameTo.ifEmpty { billInfoModel.shopName })
-                binding.debtExpendTo.autoDisposeScope.launch {
+                lifecycleScope.launch {
                     AssetsModel.list().filter { it.type == AssetsType.CREDITOR }.let { assets ->
                         withContext(Dispatchers.Main) {
                             binding.debtExpendTo.setSimpleItems(assets.map { it.name }
@@ -520,7 +516,7 @@ class FloatEditorDialog(
                 binding.debtIncomeFromLayout.setHint(R.string.float_income_debt)
                 binding.debtIncomeFrom.setText(billInfoModel.accountNameFrom.ifEmpty { billInfoModel.shopName })
                 setAssetItem(billInfoModel.accountNameTo, binding.debtIncomeTo)
-                binding.debtIncomeFrom.autoDisposeScope.launch {
+                lifecycleScope.launch {
                     AssetsModel.list().filter { it.type == AssetsType.CREDITOR }.let { assets ->
                         withContext(Dispatchers.Main) {
                             binding.debtIncomeFrom.setSimpleItems(assets.map { it.name }
@@ -536,7 +532,7 @@ class FloatEditorDialog(
                 binding.debtIncomeFromLayout.setHint(R.string.float_expend_debt)
                 binding.debtIncomeFrom.setText(billInfoModel.accountNameFrom.ifEmpty { billInfoModel.shopName })
                 setAssetItem(billInfoModel.accountNameTo, binding.debtIncomeTo)
-                binding.debtIncomeFrom.autoDisposeScope.launch {
+                lifecycleScope.launch {
                     AssetsModel.list().filter { it.type == AssetsType.BORROWER }.let { assets ->
                         withContext(Dispatchers.Main) {
                             binding.debtIncomeFrom.setSimpleItems(assets.map { it.name }

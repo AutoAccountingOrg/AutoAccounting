@@ -16,11 +16,9 @@
 package net.ankio.auto.ui.adapter
 
 import android.view.View
-import kotlinx.coroutines.launch
 import net.ankio.auto.databinding.AdapterDataRuleBinding
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
-import net.ankio.auto.ui.scope.autoDisposeScope
 import net.ankio.auto.ui.utils.ToastUtils
 import org.ezbook.server.db.model.RuleModel
 
@@ -31,14 +29,14 @@ class DataRuleAdapter(private val list: MutableList<RuleModel>) :
         binding.enable.setOnCheckedChangeListener { buttonView, isChecked ->
             val item = holder.item!!
             item.enabled = isChecked
-            binding.root.autoDisposeScope.launch {
+            holder.launch {
                 RuleModel.update(item)
             }
         }
         binding.autoRecord.setOnCheckedChangeListener { buttonView, isChecked ->
             val item = holder.item!!
             item.autoRecord = isChecked
-            binding.root.autoDisposeScope.launch {
+            holder.launch {
                 RuleModel.update(item)
             }
         }

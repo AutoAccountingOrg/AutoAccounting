@@ -2,12 +2,10 @@ package net.ankio.auto.ui.adapter
 
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.databinding.AdapterBookBillBinding
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
-import net.ankio.auto.ui.scope.autoDisposeScope
 import net.ankio.auto.ui.utils.ResourceUtils
 import net.ankio.auto.utils.BillTool
 import net.ankio.auto.utils.DateUtils
@@ -44,7 +42,7 @@ class BillSelectorAdapter(
         val binding = holder.binding
         binding.category.setText(data.category)
         BillTool.setTextViewPrice(data.money, BillType.Expend, binding.money)
-        holder.binding.root.autoDisposeScope.launch {
+        holder.launch {
             ResourceUtils.getCategoryDrawableByName(data.category, holder.context).let {
                 withContext(Dispatchers.Main) {
                     binding.category.setIcon(it)

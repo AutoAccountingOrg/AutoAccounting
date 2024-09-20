@@ -18,10 +18,39 @@ package net.ankio.auto.ui.api
 import android.content.Context
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlin.coroutines.cancellation.CancellationException
 
 open class BaseViewHolder<T : ViewBinding, E>(val binding: T) :
     RecyclerView.ViewHolder(binding.root) {
 
     var item: E? = null
     var context: Context = binding.root.context
+    lateinit var job : Job
+    lateinit var scope : CoroutineScope
+    init {
+        initScope()
+    }
+    private fun initScope(){
+        job = Job()
+        scope = CoroutineScope(Dispatchers.Main + job)
+    }
+
+    fun launch(block : suspend CoroutineScope.() -> Unit){
+        scope.launch {
+          try {
+              block()
+          }catch (e:CancellationException){
+            //ignore, job is cancelled
+          }
+        }
+    }
+
+    fun cancelScope(){
+        job.cancel()
+        initScope()
+    }
 }

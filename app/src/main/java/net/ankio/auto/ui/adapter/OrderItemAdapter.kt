@@ -18,7 +18,6 @@ package net.ankio.auto.ui.adapter
 import android.view.View
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterOrderItemBinding
@@ -27,7 +26,6 @@ import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
 import net.ankio.auto.ui.dialog.BillMoreDialog
 import net.ankio.auto.ui.dialog.FloatEditorDialog
-import net.ankio.auto.ui.scope.autoDisposeScope
 import net.ankio.auto.ui.utils.ResourceUtils
 import net.ankio.auto.utils.BillTool
 import net.ankio.auto.utils.DateUtils
@@ -66,7 +64,7 @@ class OrderItemAdapter(
                 .setPositiveButton(R.string.sure_msg) { _, _ ->
                     list.removeAt(position)
                     notifyItemRemoved(position)
-                    binding.root.autoDisposeScope.launch {
+                    holder.launch {
                         BillInfoModel.remove(holder.item!!.id)
                     }
 
@@ -112,7 +110,7 @@ class OrderItemAdapter(
         }
 
 
-        holder.binding.root.autoDisposeScope.launch {
+        holder.launch {
 
             ResourceUtils.getCategoryDrawableByName(data.cateName, holder.context).let {
                 withContext(Dispatchers.Main) {
