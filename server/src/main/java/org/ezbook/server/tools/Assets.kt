@@ -179,6 +179,12 @@ object Assets {
                 })
             }
             return autoAssetName
+        }else{
+            Db.get().assetsMapDao().put(AssetsMapModel().apply {
+                name = account
+                mapName = account
+                regex = false
+            })
         }
         return account
     }
