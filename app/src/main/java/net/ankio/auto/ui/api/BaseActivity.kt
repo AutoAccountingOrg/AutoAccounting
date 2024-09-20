@@ -117,7 +117,7 @@ open class BaseActivity : AppCompatActivity() {
                 val firstViewGroupChild = firstViewGroup.getChildAt(0)
                 val params = firstViewGroupChild.layoutParams as ViewGroup.MarginLayoutParams
                 params.topMargin = statusBarHeight
-                params.height = statusBarHeight
+             //   params.height = statusBarHeight
                // firstViewGroupChild.layoutParams = params
             }else{
                 // 设置padding
