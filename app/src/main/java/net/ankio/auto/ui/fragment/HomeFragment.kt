@@ -310,6 +310,7 @@ class HomeFragment : BaseFragment() {
      * 检查应用更新
      */
     private suspend fun checkAppUpdate(showResult: Boolean = false) {
+        if (context == null) return // 防止空指针
         val appUpdate = AppUpdate(requireContext())
         runCatching {
             if (appUpdate.check(showResult)) {
