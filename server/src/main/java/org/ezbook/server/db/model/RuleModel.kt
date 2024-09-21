@@ -56,7 +56,10 @@ class RuleModel {
     // 这个规则是否启用
     var enabled = true
 
-    companion object {
+    // 规则更新时间
+    var updateAt: Long = System.currentTimeMillis()
+
+        companion object {
         /**
          * 根据条件查询
          * @param app 应用
@@ -87,14 +90,21 @@ class RuleModel {
         /**
          * 获取所有系统规则
          */
-        suspend fun system(): List<RuleModel> = withContext(Dispatchers.IO) {
-            val response = Server.request("rule/system")
-
+        suspend fun system(name:String): RuleModel? = withContext(Dispatchers.IO) {
+            val response = Server.request("rule/system?name=${Uri.encode(name)}")
 
             runCatching {
                 val json = Gson().fromJson(response, JsonObject::class.java)
-                Gson().fromJson(json.getAsJsonArray("data"), Array<RuleModel>::class.java).toList()
-            }.getOrNull() ?: emptyList()
+                Gson().fromJson(json.getAsJsonObject("data"), RuleModel::class.java)
+            }.getOrNull()
+        }
+
+        suspend fun deleteSystemRule() = withContext(Dispatchers.IO) {
+            Server.request("rule/deleteSystemRule")
+        }
+
+       suspend fun put(rule: RuleModel) = withContext(Dispatchers.IO) {
+            Server.request("rule/put", Gson().toJson(rule))
         }
 
         /**

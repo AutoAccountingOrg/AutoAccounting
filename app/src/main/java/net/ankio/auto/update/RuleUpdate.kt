@@ -89,9 +89,13 @@ class RuleUpdate(private val context: Context) : BaseUpdate(context) {
                         // 读取rules.json
                         val rules = root.resolve("rules.json")
                         val arrays = Gson().fromJson(rules.readText(), JsonArray::class.java)
-
+                        // 更新common.js和category.js
+                        SettingModel.set(Setting.JS_COMMON, root.resolve("common.js").readText())
+                        SettingModel.set(
+                            Setting.JS_CATEGORY,
+                            root.resolve("category.js").readText()
+                        )
                         // 这是所有规则的元数据
-                        val models = mutableListOf<RuleModel>()
                         val isXposed = BuildConfig.APPLICATION_ID.endsWith("xposed")
                         // 读取每个规则的json文件
                         arrays.forEach { json ->
@@ -108,6 +112,7 @@ class RuleUpdate(private val context: Context) : BaseUpdate(context) {
 
                             val ruleModel = RuleModel()
                             ruleModel.name = json.asJsonObject.get("ruleChineseName").asString
+
                             ruleModel.systemRuleName = json.asJsonObject.get("ruleName").asString
                             ruleModel.app = app
 
@@ -117,50 +122,37 @@ class RuleUpdate(private val context: Context) : BaseUpdate(context) {
                                 "notice" -> DataType.NOTICE.name
                                 else -> ""
                             }
+
+
+                            // 将所有js读入内存不合适吧
+
                             ruleModel.js =
                                 root.resolve(json.asJsonObject.get("path").asString).readText()
                             ruleModel.creator = "system"
 
-                            models.add(ruleModel)
+                            val rule = RuleModel.system(ruleModel.name)
 
+                            if (rule!=null){
+                                ruleModel.id = rule.id
+                                ruleModel.autoRecord = rule.autoRecord
+                                ruleModel.enabled = rule.enabled
+                            }
+
+                            ruleModel.updateAt = System.currentTimeMillis()
+                            if (ruleModel.id == 0) {
+                                loading.setText(context.getString(R.string.add_rule, ruleModel.name))
+                            } else {
+                                loading.setText(context.getString(R.string.update_rule, ruleModel.name))
+                            }
+                           RuleModel.put(ruleModel)
                         }
-
-                        SettingModel.set(Setting.JS_COMMON, root.resolve("common.js").readText())
-                        SettingModel.set(
-                            Setting.JS_CATEGORY,
-                            root.resolve("category.js").readText()
+                        loading.setText(
+                            context.getString(
+                                R.string.delete_rule
+                            )
                         )
+                        RuleModel.deleteSystemRule()
 
-                        val systemRule = RuleModel.system()
-                        // 系统规则和云端规则做对比，使用name作为唯一标识，获取云端没有的系统规则，执行删除
-                        systemRule.forEach { systemRuleModel ->
-                            val find = models.find { it.name == systemRuleModel.name }
-                            if (find == null) {
-                                RuleModel.delete(systemRuleModel.id)
-                                loading.setText(
-                                    context.getString(
-                                        R.string.delete_rule,
-                                        systemRuleModel.name
-                                    )
-                                )
-                            } else {
-                                // 更新models中的数据
-                                find.id = systemRuleModel.id
-                                find.autoRecord = systemRuleModel.autoRecord
-                                find.enabled = systemRuleModel.enabled
-                            }
-                        }
-
-                        // 导入云端规则
-                        models.forEach {
-                            if (it.id == 0) {
-                                RuleModel.add(it)
-                                loading.setText(context.getString(R.string.add_rule, it.name))
-                            } else {
-                                RuleModel.update(it)
-                                loading.setText(context.getString(R.string.update_rule, it.name))
-                            }
-                        }
 
 
                         // 更新分类映射

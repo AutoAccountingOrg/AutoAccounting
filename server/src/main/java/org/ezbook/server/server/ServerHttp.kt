@@ -70,6 +70,12 @@ class ServerHttp(port: Int, private val context: Context) : NanoHTTPD(port) {
                 "/rule/apps" -> RuleRoute(session).apps()
                 // system
                 "/rule/system" -> RuleRoute(session).system()
+                // deleteSystemRule
+                "/rule/deleteSystemRule" -> RuleRoute(session).deleteTimeoutSystem()
+                // put
+                "/rule/put" -> RuleRoute(session).put()
+                //--------------------------------------------
+
                 //-------------------------------
                 // 设置列表
                 "/setting/get" -> SettingRoute(session).get()

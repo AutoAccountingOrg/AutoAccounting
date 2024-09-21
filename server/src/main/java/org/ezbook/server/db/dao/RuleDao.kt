@@ -66,4 +66,9 @@ interface RuleDao {
 
     @Query("SELECT * FROM RuleModel WHERE app = :app AND type = :type AND name = :name limit 1")
     fun query(type: String, app: String, name: String): RuleModel?
+
+    @Query("SELECT * FROM RuleModel WHERE name = :name AND creator = 'system' limit 1")
+    fun loadSystemRule(name: String): RuleModel?
+    @Query("DELETE FROM RuleModel WHERE creator = 'system' AND updateAt < :time")
+    fun deleteSystemRule(time:Long)
 }

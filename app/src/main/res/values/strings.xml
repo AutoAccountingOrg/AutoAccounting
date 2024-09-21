@@ -360,7 +360,7 @@
     <string name="title_data_rule">数据规则</string>
     <string name="downloading">规则下载中...</string>
     <string name="update_error">更新失败</string>
-    <string name="delete_rule">移除无效规则：%s</string>
+    <string name="delete_rule">移除无效规则...</string>
     <string name="add_rule">新增规则：%s</string>
     <string name="unzip_finish">解压完成</string>
     <string name="unzip">解压：%s</string>

@@ -94,10 +94,36 @@ class RuleRoute(private val session: IHTTPSession) {
     }
 
     /**
-     * 获取所有的系统规则
+     * 根据名称获取其中一个规则
      */
     fun system(): Response {
-        val rules = Db.get().ruleDao().loadAllSystem()
+        val params = session.parameters
+        val name = params["name"]?.firstOrNull()?.toString() ?: ""
+        val rules = Db.get().ruleDao().loadSystemRule(name)
         return Server.json(200, "OK", rules)
+    }
+
+    /**
+     * 删除超时未更新的系统规则
+     */
+    fun deleteTimeoutSystem(): Response {
+        // 删除5分钟前的系统规则
+        Db.get().ruleDao().deleteSystemRule(System.currentTimeMillis() - 300)
+        return Server.json(200, "OK")
+    }
+
+    /**
+     * 更新规则
+     */
+    fun put(): Response {
+        val data = Server.reqData(session)
+        val json = Gson().fromJson(data, RuleModel::class.java)
+        if (json.id == 0) {
+            val id = Db.get().ruleDao().insert(json)
+            return Server.json(200, "OK", id)
+        } else {
+            val id = Db.get().ruleDao().update(json)
+            return Server.json(200, "OK", id)
+        }
     }
 }
