@@ -263,7 +263,9 @@ class HomeFragment : BaseFragment() {
         broadcastReceiver =
             LocalBroadcastHelper.registerReceiver(LocalBroadcastHelper.ACTION_UPDATE_FINISH) { a, b ->
                 if (context == null)return@registerReceiver
-                refreshUI()
+                runCatching {
+                    refreshUI()
+                }
             }
 
         binding.categoryMap.setOnClickListener {
