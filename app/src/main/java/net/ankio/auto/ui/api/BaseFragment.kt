@@ -31,6 +31,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentContainerView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.R
+import com.google.android.material.elevation.SurfaceColors
 import net.ankio.auto.App
 import net.ankio.auto.databinding.ActivityMainBinding
 import net.ankio.auto.storage.Logger
@@ -60,7 +61,6 @@ abstract class BaseFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 //        Logger.d("view:$view")
         scrollView = getScrollView(view as ViewGroup)
-  //      Logger.d("scrollView:$scrollView")
     }
 
     override fun onResume() {
@@ -78,7 +78,11 @@ abstract class BaseFragment : Fragment() {
         menuList.forEach {
             addMenuItem(it,mainActivity)
         }
-
+        
+       val mStatusBarColor = App.getThemeAttrColor(android.R.attr.colorBackground)
+       val  mStatusBarColor2 = SurfaceColors.SURFACE_4.getColor(requireActivity())
+        var last  = mStatusBarColor
+        mainActivity.toolbarLayout?.setBackgroundColor(mStatusBarColor)
         if (scrollView!=null) {
             var animatorStart = false
             // 滚动页面调整toolbar颜色
@@ -92,24 +96,24 @@ abstract class BaseFragment : Fragment() {
                 if (animatorStart) return@setOnScrollChangeListener
 
                 if (scrollYs.toFloat() > 0) {
-                    if (mainActivity.last != mainActivity.mStatusBarColor2) {
+                    if (last != mStatusBarColor2) {
                         animatorStart = true
                         viewBackgroundGradientAnimation(
                             mainActivity.toolbarLayout!!,
-                            mainActivity.mStatusBarColor!!,
-                            mainActivity.mStatusBarColor2!!,
+                            mStatusBarColor,
+                            mStatusBarColor2,
                         )
-                        mainActivity.last = mainActivity.mStatusBarColor2
+                        last = mStatusBarColor2
                     }
                 } else {
-                    if (mainActivity.last != mainActivity.mStatusBarColor) {
+                    if (last!= mainActivity.mStatusBarColor) {
                         animatorStart = true
                         viewBackgroundGradientAnimation(
                             mainActivity.toolbarLayout!!,
-                            mainActivity.mStatusBarColor2!!,
-                            mainActivity.mStatusBarColor!!,
+                            mStatusBarColor2,
+                            mStatusBarColor,
                         )
-                        mainActivity.last = mainActivity.mStatusBarColor
+                        last = mStatusBarColor
                     }
                 }
                 animatorStart = false
