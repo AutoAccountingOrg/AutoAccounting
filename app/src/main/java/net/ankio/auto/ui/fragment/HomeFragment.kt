@@ -19,6 +19,7 @@ import android.Manifest
 import android.content.BroadcastReceiver
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.provider.Settings
 import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.View
@@ -154,7 +155,8 @@ class HomeFragment : BaseFragment() {
 
 
     private suspend fun checkFloatPermission():Boolean{
-        if (requireContext().checkSelfPermission(Manifest.permission.SYSTEM_ALERT_WINDOW) != PackageManager.PERMISSION_GRANTED){
+
+        if(!Settings.canDrawOverlays(context)){
             MaterialAlertDialogBuilder(requireContext())
                 .setTitle(R.string.title_no_permission)
                 .setMessage(R.string.no_permission_float_window)

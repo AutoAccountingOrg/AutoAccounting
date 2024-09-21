@@ -58,9 +58,9 @@ abstract class BaseFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Logger.d("view:$view")
+//        Logger.d("view:$view")
         scrollView = getScrollView(view as ViewGroup)
-        Logger.d("scrollView:$scrollView")
+  //      Logger.d("scrollView:$scrollView")
     }
 
     override fun onResume() {
@@ -138,7 +138,7 @@ abstract class BaseFragment : Fragment() {
         if (root != null) {
             return view
         }
-        if (depth > 4) return null
+        if (depth > 10) return null
         for (i in 0 until view.childCount) {
             val child = view.getChildAt(i)
             when (child) {
