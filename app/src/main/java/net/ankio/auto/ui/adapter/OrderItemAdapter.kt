@@ -144,7 +144,7 @@ class OrderItemAdapter(
             binding.sync.visibility = View.GONE
         } else {
             binding.sync.visibility = View.VISIBLE
-            if (ConfigUtils.getBoolean(Setting.AUTO_GROUP, false)) {
+            if (ConfigUtils.getBoolean(Setting.AUTO_GROUP, true)) {
                 binding.moreBills.visibility = View.VISIBLE
             } else {
                 binding.moreBills.visibility = View.GONE
