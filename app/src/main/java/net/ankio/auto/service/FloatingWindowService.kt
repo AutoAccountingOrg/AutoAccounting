@@ -99,6 +99,10 @@ class FloatingWindowService : Service() {
         val appTheme = ContextThemeWrapper(App.app, R.style.AppTheme)
         themedContext = App.getThemeContext(appTheme)
         lastTheme = ThemeEngine.getInstance(App.app).getTheme()
+
+
+        Logger.d("自动记账服务启动，悬浮窗超时时间：$timeCount 秒")
+
     }
 
 
@@ -117,6 +121,10 @@ class FloatingWindowService : Service() {
 
         val billInfoModel =
             Gson().fromJson(intent.getStringExtra("billInfo"), BillInfoModel::class.java)
+
+        Logger.d("服务请求 => $intent")
+        Logger.d("服务请求 => 账单信息：$billInfoModel")
+
         val parent = runCatching {
             Gson().fromJson(
                 intent.getStringExtra("parent"),
@@ -160,9 +168,6 @@ class FloatingWindowService : Service() {
 
 
     private fun processBillInfo(billInfoModel: BillInfoModel, showWaitTip: Boolean) {
-        Logger.d("timeCount:$timeCount")
-
-
         if (timeCount == 0 || !showWaitTip) {
             callBillInfoEditor(Setting.FLOAT_TIMEOUT_ACTION, billInfoModel)
             // 显示编辑悬浮窗
