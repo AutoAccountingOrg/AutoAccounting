@@ -68,10 +68,6 @@ open class BaseActivity : AppCompatActivity() {
         }
     }
 
-    var mStatusBarColor: Int? = null
-    var mStatusBarColor2: Int? = null
-    var last = mStatusBarColor
-
 
     /**
      * 在子activity手动调用该方法
@@ -83,8 +79,6 @@ open class BaseActivity : AppCompatActivity() {
         val currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
         val  light =
             !(themeMode == ThemeMode.DARK || (themeMode == ThemeMode.AUTO && currentNightMode == Configuration.UI_MODE_NIGHT_YES))
-        mStatusBarColor = getThemeAttrColor(android.R.attr.colorBackground)
-        mStatusBarColor2 = SurfaceColors.SURFACE_4.getColor(this@BaseActivity)
         enableImmersiveMode(light)
 
     }
