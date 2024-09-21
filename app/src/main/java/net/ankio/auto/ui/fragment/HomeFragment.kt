@@ -116,8 +116,6 @@ class HomeFragment : BaseFragment() {
         val color = SurfaceColors.SURFACE_1.getColor(requireContext())
         cards.forEach { it.setCardBackgroundColor(color) }
 
-        //scrollView = WeakReference(binding.scrollView)
-
         lifecycleScope.launch {
             // app启动时检查自动记账服务的连通性
             checkAutoService() &&
