@@ -198,9 +198,10 @@ class FloatEditorDialog(
                     }
 
                     if (ConfigUtils.getBoolean(Setting.AUTO_ASSET, false)) {
+                        Logger.d("自动进行资产映射...")
                         val assets = AssetsModel.list()
-                        setAccountMap(assets, convertBillInfo.accountNameFrom, convertBillInfo.accountNameFrom)
-                        setAccountMap(assets, convertBillInfo.accountNameTo, convertBillInfo.accountNameTo)
+                        setAccountMap(assets, rawBillInfo.accountNameFrom, convertBillInfo.accountNameFrom)
+                        setAccountMap(assets, rawBillInfo.accountNameTo, convertBillInfo.accountNameTo)
                     }
 
                 }.onFailure {
@@ -218,16 +219,18 @@ class FloatEditorDialog(
 
 
     private suspend fun setAccountMap(assets: List<AssetsModel>, accountName:String, eqAccountName:String)= withContext(Dispatchers.IO){
-        if (assets.isEmpty()) return@withContext
+        Logger.d("自动映射资产 => $accountName -> $eqAccountName")
         if (accountName.isEmpty()) return@withContext
         if (accountName == eqAccountName) return@withContext
+        //非标准资产需要映射
         val find = assets.find { it.name == accountName }
-        if (find!=null) return@withContext
-        // 只有不在资产列表里面的才需要映射
+        if (find == null)return@withContext
         AssetsMapModel.put(AssetsMapModel().apply {
             this.name = accountName
             this.mapName = eqAccountName
         })
+
+
     }
 
     private fun bindingTypePopupUI() {
@@ -315,7 +318,6 @@ class FloatEditorDialog(
         view: IconView,
     ) {
         view.setText(name)
-        Logger.d("资产名称 => $name")
         lifecycleScope.launch {
             ResourceUtils.getAssetDrawableFromName(name).let {
                 view.setIcon(it)
