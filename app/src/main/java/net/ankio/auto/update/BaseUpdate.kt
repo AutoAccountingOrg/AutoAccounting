@@ -68,11 +68,12 @@ abstract class BaseUpdate(context: Context) {
         log = list[1]
         date = list[2]
 
-        Logger.i("Version: $version")
-        Logger.i("Log: $log")
-        Logger.i("Date: $date")
 
         return if (version != "") {
+
+            Logger.i("Version: $version")
+            Logger.i("Log: $log")
+            Logger.i("Date: $date")
             onCheckedUpdate()
             true
         } else {
