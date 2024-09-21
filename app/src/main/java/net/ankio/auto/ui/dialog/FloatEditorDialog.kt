@@ -36,6 +36,7 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.broadcast.LocalBroadcastHelper
 import net.ankio.auto.databinding.FloatEditorBinding
+import net.ankio.auto.exceptions.BillException
 import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseSheetDialog
@@ -117,37 +118,70 @@ class FloatEditorDialog(
                 BillType.Expend -> {
                     this.accountNameFrom = binding.payFrom.getText()
                     this.accountNameTo = ""
+                    if(this.accountNameFrom.isEmpty()){
+                        throw BillException("支出账户不能为空")
+                    }
                 }
 
                 BillType.Income -> {
                     this.accountNameFrom = binding.payFrom.getText()
                     this.accountNameTo = ""
+                    if(this.accountNameFrom.isEmpty()){
+                        throw BillException("收入账户不能为空")
+                    }
                 }
 
                 BillType.Transfer -> {
                     this.accountNameFrom = binding.transferFrom.getText()
                     this.accountNameTo = binding.transferTo.getText()
+                    if(this.accountNameFrom.isEmpty()){
+                        throw BillException("转出账户不能为空")
+                    }
+                    if(this.accountNameTo.isEmpty()){
+                        throw BillException("转入（信用）账户不能为空")
+                    }
                 }
 
                 BillType.ExpendReimbursement -> {
                     this.accountNameFrom = binding.payFrom.getText()
                     this.accountNameTo = ""
+                    if(this.accountNameFrom.isEmpty()){
+                        throw BillException("报销（支出）账户不能为空")
+                    }
                 }
 
                 BillType.IncomeReimbursement -> {
                     this.accountNameFrom = binding.payFrom.getText()
                     this.extendData = selectedBills.joinToString { it }
+                    if(this.accountNameFrom.isEmpty()){
+                        throw BillException("报销（收入）账户不能为空")
+                    }
+                    if (selectedBills.isEmpty()){
+                        throw BillException("至少需要选择一个账单才能进行报销")
+                    }
                 }
                 // 借出,还款
                 BillType.ExpendLending,BillType.ExpendRepayment -> {
                     this.accountNameFrom = binding.debtExpendFrom.getText()
                     this.accountNameTo = binding.debtExpendTo.getText().toString()
+                    if(this.accountNameFrom.isEmpty()){
+                        throw BillException(if(BillType.ExpendLending==billTypeLevel2) "借出账户不能为空" else "债主不能为空")
+                    }
+                    if(this.accountNameTo.isEmpty()){
+                        throw BillException(if(BillType.ExpendLending==billTypeLevel2) "欠债人不能为空" else "还债账户不能为空")
+                    }
                 }
 
                 // 借入,收款
                 BillType.IncomeLending, BillType.IncomeRepayment -> {
                     this.accountNameFrom = binding.debtIncomeFrom.getText().toString()
                     this.accountNameTo = binding.debtIncomeTo.getText()
+                    if(this.accountNameFrom.isEmpty()){
+                        throw BillException(if(BillType.IncomeLending==billTypeLevel2) "债主不能为空" else "收款账户不能为空")
+                    }
+                    if(this.accountNameTo.isEmpty()){
+                        throw BillException(if(BillType.IncomeLending==billTypeLevel2) "借入账户不能为空" else "还债不能为空")
+                    }
                 }
 
             }
@@ -171,7 +205,14 @@ class FloatEditorDialog(
         // 确定按钮
         binding.sureButton.setOnClickListener {
 
-            convertBillInfo = getBillData()
+            try{
+                convertBillInfo = getBillData()
+            }catch (e:BillException){
+                ToastUtils.error(e.message?:"未知错误")
+                Logger.e("获取账单数据失败",e)
+                return@setOnClickListener
+            }
+
             convertBillInfo.state = BillState.Edited
             Logger.d("最终账单结果 => $convertBillInfo")
 
