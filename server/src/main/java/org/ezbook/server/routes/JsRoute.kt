@@ -150,9 +150,9 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
         // 账单分组，用于检查重复账单
         val parent = Bill.groupBillInfo(billInfoModel, context)
         if (parent == null){
-            billInfoModel.state = BillState.Edited
-        }else{
             billInfoModel.state = BillState.Wait2Edit
+        }else{
+            billInfoModel.state = BillState.Edited
         }
         if (!fromAppData) {
             //存入数据库
@@ -227,6 +227,7 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
         if (parent != null) {
             intent.putExtra("parent", Gson().toJson(parent))
         }
+        intent.putExtra("from","JsRoute")
         intent.setComponent(
             ComponentName(
                 "net.ankio.auto.xposed",

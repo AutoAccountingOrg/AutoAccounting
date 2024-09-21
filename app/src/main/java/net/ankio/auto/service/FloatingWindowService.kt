@@ -33,8 +33,6 @@ import android.view.WindowManager
 import androidx.core.content.ContextCompat
 import com.google.gson.Gson
 import com.quickersilver.themeengine.ThemeEngine
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.broadcast.LocalBroadcastHelper
@@ -121,9 +119,14 @@ class FloatingWindowService : Service() {
 
         val billInfoModel =
             Gson().fromJson(intent.getStringExtra("billInfo"), BillInfoModel::class.java)
-
-        Logger.d("服务请求 => $intent")
+        val from = intent.getStringExtra("from")?:"Unknown"
+        Logger.d("服务请求 => $intent, From = $from")
         Logger.d("服务请求 => 账单信息：$billInfoModel")
+
+        if(billInfoModel.state == BillState.Edited){
+            // 已编辑过
+            return START_REDELIVER_INTENT
+        }
 
         val parent = runCatching {
             Gson().fromJson(

@@ -230,6 +230,7 @@ ${item.data}
                             putExtra("parent", "")
                             putExtra("billInfo", Gson().toJson(billModel))
                             putExtra("showWaitTip", false)
+                            putExtra("from","AppData")
                         }
                     activity.startService(serviceIntent)
                 }
