@@ -84,7 +84,7 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
         val result = runJS(js, data)
 
         if (result === "") {
-            return Server.json(404, "$data => 未分析到有效账单。")
+            return Server.json(404, "未分析到有效账单。")
         }
 
         /**
@@ -124,7 +124,9 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
             categoryResult = "{ book: '默认账本', category: '其他' }"
         }
 
-        val categoryJson = Gson().fromJson(categoryResult, JsonObject::class.java)
+        val categoryJson = runCatching {
+            Gson().fromJson(categoryResult, JsonObject::class.java)
+        }.getOrNull()?:return Server.json(500, "分类解析失败，可以先删除所有自定义分类后再试：$categoryResult")
 
         billInfoModel.bookName = categoryJson.get("book")?.asString ?: "默认账本"
         billInfoModel.cateName = categoryJson.get("category")?.asString ?: "其他"
@@ -231,6 +233,9 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
                 "net.ankio.auto.service.FloatingWindowService"
             )
         )
+
+        Server.log("拉起自动记账服务：$intent")
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             context.startForegroundService(intent)
         } else {
@@ -256,8 +261,6 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
      * 运行js代码
      */
     private fun runJS(jsCode: String, data: String): String {
-        Server.log(jsCode)
-
         val rhino: Context = Context.enter()
         rhino.setOptimizationLevel(-1)
         val outputBuilder = StringBuilder()
