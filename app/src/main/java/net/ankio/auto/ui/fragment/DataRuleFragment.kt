@@ -15,11 +15,14 @@
 
 package net.ankio.auto.ui.fragment
 
+import android.content.res.Resources
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.drawable.DrawableCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -111,7 +114,18 @@ class DataRuleFragment : BasePageFragment<RuleModel>() {
                 var i = 0
                 for (key in result.keySet()) {
                     i++
-                    val app = App.getAppInfoFromPackageName(key) ?: continue
+                    var app = App.getAppInfoFromPackageName(key)
+
+                    if (app == null){
+                        //  arrayOf(appName, appIcon, appVersion)
+                        if (App.debug){
+                            app = arrayOf(key, ResourcesCompat.getDrawable(App.app.resources,R.drawable.default_asset,null),"")
+                        }else{
+                            continue
+                        }
+
+                    }
+
                     leftList.addMenuItem(
                         RailMenuItem(i, app[1] as Drawable, app[0] as String)
                     )
