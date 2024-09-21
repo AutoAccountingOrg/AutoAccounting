@@ -106,7 +106,7 @@ abstract class BaseFragment : Fragment() {
                         last = mStatusBarColor2
                     }
                 } else {
-                    if (last!= mainActivity.mStatusBarColor) {
+                    if (last!= mStatusBarColor) {
                         animatorStart = true
                         viewBackgroundGradientAnimation(
                             mainActivity.toolbarLayout!!,
