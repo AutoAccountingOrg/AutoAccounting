@@ -123,11 +123,6 @@ class FloatingWindowService : Service() {
         Logger.d("服务请求 => $intent, From = $from")
         Logger.d("服务请求 => 账单信息：$billInfoModel")
 
-        if(billInfoModel.state == BillState.Edited){
-            // 已编辑过
-            return START_REDELIVER_INTENT
-        }
-
         val parent = runCatching {
             Gson().fromJson(
                 intent.getStringExtra("parent"),
