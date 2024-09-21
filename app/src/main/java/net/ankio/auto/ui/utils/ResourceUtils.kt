@@ -88,7 +88,6 @@ object ResourceUtils {
 
     suspend fun getAssetDrawableFromName(name: String): Drawable = withContext(Dispatchers.IO) {
         val asset = AssetsModel.getByName(name)
-        Logger.d("资产 => $asset")
         val icon = asset?.icon ?: ""
         getAssetDrawable(icon)
     }
