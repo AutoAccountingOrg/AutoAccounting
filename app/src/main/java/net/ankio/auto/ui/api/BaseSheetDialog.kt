@@ -54,7 +54,7 @@ abstract class BaseSheetDialog(private val context: Context) :
                 params.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
 
                 // 添加 FLAG_NOT_FOCUSABLE 标志
-                params.flags = params.flags or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+              //  params.flags = params.flags or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
 
                 // 应用更新的窗口参数
                 it.attributes = params
