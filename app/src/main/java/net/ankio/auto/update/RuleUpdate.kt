@@ -20,6 +20,7 @@ import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.JsonArray
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
@@ -96,19 +97,11 @@ class RuleUpdate(private val context: Context) : BaseUpdate(context) {
                             root.resolve("category.js").readText()
                         )
                         // 这是所有规则的元数据
-                        val isXposed = BuildConfig.APPLICATION_ID.endsWith("xposed")
                         // 读取每个规则的json文件
                         arrays.forEach { json ->
                             val type = json.asJsonObject.get("ruleType").asString
                             val app = json.asJsonObject.get("ruleApp").asString
-                            //Xposed模式不同步无障碍数据
-                            if (isXposed && type == "helper") {
-                                return@forEach
-                            }
-                            //无障碍模式不同步Xposed数据，短信除外
-                            if (!isXposed && type == "app" && app !== "com.android.phone") {
-                                return@forEach
-                            }
+
 
                             val ruleModel = RuleModel()
                             ruleModel.name = json.asJsonObject.get("ruleChineseName").asString

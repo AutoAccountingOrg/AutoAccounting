@@ -108,7 +108,7 @@ class RuleRoute(private val session: IHTTPSession) {
      */
     fun deleteTimeoutSystem(): Response {
         // 删除5分钟前的系统规则
-        Db.get().ruleDao().deleteSystemRule(System.currentTimeMillis() - 300)
+        Db.get().ruleDao().deleteSystemRule(System.currentTimeMillis() - 300 * 1000)
         return Server.json(200, "OK")
     }
 

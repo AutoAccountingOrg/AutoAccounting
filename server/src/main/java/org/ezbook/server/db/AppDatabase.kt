@@ -132,7 +132,7 @@ val MIGRATION_3_4 = object : Migration(3, 4) {
 val MIGRATION_4_5 = object : Migration(4, 5) {
     override fun migrate(database: SupportSQLiteDatabase) {
         // 创建临时表
-        database.execSQL("CREATE TABLE new_RuleModel (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, app TEXT NOT NULL, type TEXT NOT NULL, js TEXT NOT NULL, name TEXT NOT NULL, systemRuleName TEXT NOT NULL, creator TEXT NOT NULL, struct TEXT NOT NULL, autoRecord INTEGER NOT NULL, enabled INTEGER NOT NULL, createdAt INTEGER NOT NULL DEFAULT CURRENT_TIMESTAMP)")
+        database.execSQL("CREATE TABLE new_RuleModel (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, app TEXT NOT NULL, type TEXT NOT NULL, js TEXT NOT NULL, name TEXT NOT NULL, systemRuleName TEXT NOT NULL, creator TEXT NOT NULL, struct TEXT NOT NULL, autoRecord INTEGER NOT NULL, enabled INTEGER NOT NULL, updateAt INTEGER NOT NULL DEFAULT 0)")
 
         // 将旧数据迁移到新表
         database.execSQL("INSERT INTO new_RuleModel (id, app, type, js, name, systemRuleName, creator, struct, autoRecord, enabled) SELECT id, app, type, js, name, systemRuleName, creator, struct, autoRecord, enabled FROM RuleModel")
