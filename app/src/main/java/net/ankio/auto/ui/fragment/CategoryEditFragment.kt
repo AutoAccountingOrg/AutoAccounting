@@ -421,7 +421,7 @@ class CategoryEditFragment : BaseFragment() {
                 }
 
                 if (minAmount > 0 && maxAmount > 0 && maxAmount > minAmount) {
-                    js = "money < $maxAmount and money > $minAmount"
+                    js = "money < $maxAmount && money > $minAmount"
                     input =
                         getString(
                             R.string.money_range_info,
