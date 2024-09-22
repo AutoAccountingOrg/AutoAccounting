@@ -120,12 +120,4 @@ abstract class BasePageFragment<T> : BaseFragment() {
         }
     }
 
-    /**
-     * 加载数据
-     */
-    override fun onResume() {
-        super.onResume()
-
-    }
-
 }

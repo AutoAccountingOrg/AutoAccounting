@@ -26,6 +26,7 @@ import android.content.res.Resources
 import android.graphics.Color
 import android.os.Build
 import android.os.Process
+import android.util.TypedValue
 import androidx.annotation.AttrRes
 import androidx.appcompat.view.ContextThemeWrapper
 import com.google.android.material.color.MaterialColors
@@ -194,9 +195,14 @@ class App : Application() {
         }
 
         fun dp2px(dp: Float): Int {
-            val scale = Resources.getSystem().displayMetrics.density
-            return (dp * scale + 0.5f).toInt()
+            return TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                dp,
+                app.resources.displayMetrics,
+            ).toInt()
         }
+
+
 
         /**
          * 打开记账软件应用

@@ -25,6 +25,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.elevation.SurfaceColors
+import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Logger
@@ -70,7 +71,7 @@ abstract class BaseSheetDialog(private val context: Context) :
         bottomSheetBehavior.skipCollapsed = true
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
         // 是否使用圆角风格
-        val margin = dpToPx(context, 20f)
+        val margin = App.dp2px( 20f)
         val round = ConfigUtils.getBoolean(Setting.USE_ROUND_STYLE, false)
         if (::cardView.isInitialized) {
             val layoutParams =
@@ -112,18 +113,8 @@ abstract class BaseSheetDialog(private val context: Context) :
     override fun dismiss() {
         runCatching { super.dismiss() }.onFailure {
             it.printStackTrace()
-            Logger.e(it.message!!, it)
+            Logger.e("Dismiss error", it)
         }
     }
 
-    private fun dpToPx(
-        context: Context,
-        dp: Float,
-    ): Int {
-        return TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
-            dp,
-            context.resources.displayMetrics,
-        ).toInt()
-    }
 }
