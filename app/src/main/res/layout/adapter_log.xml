@@ -9,7 +9,7 @@
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/date"
-        android:layout_width="65dp"
+        android:layout_width="75dp"
         android:layout_height="wrap_content"
         android:gravity="end"
         android:paddingTop="0dp"
