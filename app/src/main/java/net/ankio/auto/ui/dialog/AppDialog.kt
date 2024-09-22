@@ -62,14 +62,4 @@ class AppDialog(private val context: Context) : BaseSheetDialog(context) {
 
         return binding.root
     }
-
-    //监听更新完成广播
-    override fun show(float: Boolean, cancel: Boolean) {
-        super.show(float, cancel)
-    }
-
-    override fun dismiss() {
-        super.dismiss()
-    }
-
 }

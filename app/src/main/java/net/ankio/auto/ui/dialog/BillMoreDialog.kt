@@ -67,19 +67,4 @@ class BillMoreDialog(
         return binding.root
     }
 
-    override fun show(
-        float: Boolean,
-        cancel: Boolean,
-    ) {
-        super.show(float, cancel)
-        lifecycleScope.launch {
-            //   val config = AppUtils.getService().config()
-            /*  BillInfo.getBillByGroup(billInfo.id).apply {
-                  adapter.notifyConfig(config)
-                  dataItems.clear()
-                  dataItems.addAll(this)
-                  adapter.notifyDataSetChanged()
-              }*/
-        }
-    }
 }

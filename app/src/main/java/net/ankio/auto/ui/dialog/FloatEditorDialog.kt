@@ -119,7 +119,7 @@ class FloatEditorDialog(
                     this.accountNameFrom = binding.payFrom.getText()
                     this.accountNameTo = ""
                     if(this.accountNameFrom.isEmpty()){
-                        throw BillException("支出账户不能为空")
+                        throw BillException(context.getString(R.string.expend_account_empty))
                     }
                 }
 
@@ -127,7 +127,7 @@ class FloatEditorDialog(
                     this.accountNameFrom = binding.payFrom.getText()
                     this.accountNameTo = ""
                     if(this.accountNameFrom.isEmpty()){
-                        throw BillException("收入账户不能为空")
+                        throw BillException(context.getString(R.string.income_account_empty))
                     }
                 }
 
@@ -135,10 +135,10 @@ class FloatEditorDialog(
                     this.accountNameFrom = binding.transferFrom.getText()
                     this.accountNameTo = binding.transferTo.getText()
                     if(this.accountNameFrom.isEmpty()){
-                        throw BillException("转出账户不能为空")
+                        throw BillException(context.getString(R.string.transfer_from_empty))
                     }
                     if(this.accountNameTo.isEmpty()){
-                        throw BillException("转入（信用）账户不能为空")
+                        throw BillException(context.getString(R.string.transfer_to_empty))
                     }
                 }
 
@@ -146,7 +146,7 @@ class FloatEditorDialog(
                     this.accountNameFrom = binding.payFrom.getText()
                     this.accountNameTo = ""
                     if(this.accountNameFrom.isEmpty()){
-                        throw BillException("报销（支出）账户不能为空")
+                        throw BillException(context.getString(R.string.reimbursement_account_empty))
                     }
                 }
 
@@ -154,10 +154,10 @@ class FloatEditorDialog(
                     this.accountNameFrom = binding.payFrom.getText()
                     this.extendData = selectedBills.joinToString { it }
                     if(this.accountNameFrom.isEmpty()){
-                        throw BillException("报销（收入）账户不能为空")
+                        throw BillException(context.getString(R.string.reimbursement_income_account_empty))
                     }
                     if (selectedBills.isEmpty()){
-                        throw BillException("至少需要选择一个账单才能进行报销")
+                        throw BillException(context.getString(R.string.reimbursement_bill_empty))
                     }
                 }
                 // 借出,还款
@@ -165,10 +165,10 @@ class FloatEditorDialog(
                     this.accountNameFrom = binding.debtExpendFrom.getText()
                     this.accountNameTo = binding.debtExpendTo.getText().toString()
                     if(this.accountNameFrom.isEmpty()){
-                        throw BillException(if(BillType.ExpendLending==billTypeLevel2) "借出账户不能为空" else "债主不能为空")
+                        throw BillException(if(BillType.ExpendLending==billTypeLevel2) context.getString(R.string.expend_debt_empty) else context.getString(R.string.repayment_account_empty))
                     }
                     if(this.accountNameTo.isEmpty()){
-                        throw BillException(if(BillType.ExpendLending==billTypeLevel2) "欠债人不能为空" else "还债账户不能为空")
+                        throw BillException(if(BillType.ExpendLending==billTypeLevel2) context.getString(R.string.debt_account_empty) else context.getString(R.string.repayment_account2_empty))
                     }
                 }
 
@@ -177,10 +177,10 @@ class FloatEditorDialog(
                     this.accountNameFrom = binding.debtIncomeFrom.getText().toString()
                     this.accountNameTo = binding.debtIncomeTo.getText()
                     if(this.accountNameFrom.isEmpty()){
-                        throw BillException(if(BillType.IncomeLending==billTypeLevel2) "债主不能为空" else "收款账户不能为空")
+                        throw BillException(if(BillType.IncomeLending==billTypeLevel2) context.getString(R.string.income_debt_empty) else context.getString(R.string.income_lending_account_empty))
                     }
                     if(this.accountNameTo.isEmpty()){
-                        throw BillException(if(BillType.IncomeLending==billTypeLevel2) "借入账户不能为空" else "还债不能为空")
+                        throw BillException(if(BillType.IncomeLending==billTypeLevel2) context.getString(R.string.income_lending_account2_empty) else context.getString(R.string.income_repayment_account_empty))
                     }
                 }
 
@@ -209,12 +209,12 @@ class FloatEditorDialog(
                 convertBillInfo = getBillData()
             }catch (e:BillException){
                 ToastUtils.error(e.message?:"未知错误")
-                Logger.e("获取账单数据失败",e)
+                Logger.e("Failed to get bill data",e)
                 return@setOnClickListener
             }
 
             convertBillInfo.state = BillState.Edited
-            Logger.d("最终账单结果 => $convertBillInfo")
+            Logger.d("Save Bill => $convertBillInfo")
 
             lifecycleScope.launch {
                 runCatching {
@@ -239,14 +239,13 @@ class FloatEditorDialog(
                     }
 
                     if (ConfigUtils.getBoolean(Setting.AUTO_ASSET, false)) {
-                        Logger.d("自动进行资产映射...")
                         val assets = AssetsModel.list()
                         setAccountMap(assets, rawBillInfo.accountNameFrom, convertBillInfo.accountNameFrom)
                         setAccountMap(assets, rawBillInfo.accountNameTo, convertBillInfo.accountNameTo)
                     }
 
                 }.onFailure {
-                    Logger.e("记账失败", it)
+                    Logger.e("Failed to record bill", it)
                 }
 
 
@@ -260,12 +259,13 @@ class FloatEditorDialog(
 
 
     private suspend fun setAccountMap(assets: List<AssetsModel>, accountName:String, eqAccountName:String)= withContext(Dispatchers.IO){
-        Logger.d("自动映射资产 => $accountName -> $eqAccountName")
+
         if (accountName.isEmpty()) return@withContext
         if (accountName == eqAccountName) return@withContext
         //非标准资产需要映射
         val find = assets.find { it.name == accountName }
         if (find == null)return@withContext
+        Logger.d("Create new asset map => $accountName -> $eqAccountName")
         AssetsMapModel.put(AssetsMapModel().apply {
             this.name = accountName
             this.mapName = eqAccountName

@@ -16,7 +16,6 @@
 package net.ankio.auto.ui.api
 
 import android.content.Context
-import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -115,6 +114,10 @@ abstract class BaseSheetDialog(private val context: Context) :
             it.printStackTrace()
             Logger.e("Dismiss error", it)
         }
+    }
+    //重写默认的show方法
+    override fun show() {
+        show(float = false,cancel = true)
     }
 
 }

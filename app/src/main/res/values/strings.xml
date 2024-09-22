@@ -436,4 +436,19 @@
     <string name="dialog_error_msg">记账失败，弹窗出错，请报告该错误，并上传日志说明手机环境</string>
     <string name="title_no_permission">未授权悬浮窗权限</string>
     <string name="no_permission_float_window">自动记账需要悬浮窗权限来显示编辑窗口，请到自动记账设置中进行授权。</string>
+    <string name="expend_account_empty">支出账户不能为空</string>
+    <string name="income_account_empty">收入账户不能为空</string>
+    <string name="transfer_from_empty">转出账户不能为空</string>
+    <string name="transfer_to_empty">转入（信用）账户不能为空</string>
+    <string name="reimbursement_account_empty">报销（支出）账户不能为空</string>
+    <string name="reimbursement_income_account_empty">报销（收入）账户不能为空</string>
+    <string name="reimbursement_bill_empty">至少需要选择一个账单才能进行报销</string>
+    <string name="expend_debt_empty">借出账户不能为空</string>
+    <string name="repayment_account_empty">债主不能为空</string>
+    <string name="debt_account_empty">欠债人不能为空</string>
+    <string name="repayment_account2_empty">还债账户不能为空</string>
+    <string name="income_debt_empty">债主不能为空</string>
+    <string name="income_lending_account_empty">收款账户不能为空</string>
+    <string name="income_lending_account2_empty">借入账户不能为空</string>
+    <string name="income_repayment_account_empty">还债不能为空</string>
 </resources>

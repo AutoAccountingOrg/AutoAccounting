@@ -22,6 +22,7 @@ import com.google.gson.Gson
 import com.google.gson.JsonElement
 import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogDataEditorBinding
+import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.utils.ToastUtils
 
@@ -42,6 +43,7 @@ class DataEditorDialog(
             runCatching {
                 Gson().fromJson(data, JsonElement::class.java)
             }.onFailure {
+                Logger.e("DataEditorError", it)
                 ToastUtils.info(R.string.json_error)
             }.onSuccess {
                 callback(binding.data.text.toString())

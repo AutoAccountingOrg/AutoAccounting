@@ -152,6 +152,7 @@ class BillCategoryDialog(
                 /*   customRuleModel.auto = true
                    customRuleModel.use = true*/
                 CategoryRuleModel.put(categoryRuleModel)
+                Logger.d("Create Category Rule: ${categoryRuleModel.js}")
                 dismiss()
             }
         }

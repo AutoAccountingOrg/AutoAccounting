@@ -13,7 +13,7 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.storage
+package net.ankio.auto.ui.utils
 
 import android.content.Context
 import android.graphics.BitmapFactory
@@ -23,6 +23,7 @@ import androidx.core.content.res.ResourcesCompat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.request.RequestsUtils
+import net.ankio.auto.storage.Logger
 
 object ImageUtils {
     suspend fun get(
@@ -39,7 +40,6 @@ object ImageUtils {
                 } else {
                     null
                 }
-            Logger.d("加载图片结果：$uriString($default) => $result")
             (result ?: ResourcesCompat.getDrawable(context.resources, default, context.theme))!!
         }
 
@@ -63,7 +63,7 @@ object ImageUtils {
                 val bitmap = BitmapFactory.decodeStream(result.second.inputStream())
                 BitmapDrawable(null, bitmap)
             }.onFailure {
-                Logger.e("加载图片失败：${it.message}", it)
+                Logger.e("Failed to load image from web：${it.message}", it)
             }.getOrNull()
         }
 }

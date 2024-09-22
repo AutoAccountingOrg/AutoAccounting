@@ -26,6 +26,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.databinding.DialogCategorySelectBinding
+import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.adapter.BillSelectorAdapter
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.componets.StatusPage
@@ -54,7 +55,6 @@ class BillSelectorDialog(
         recyclerView.setPadding(0, 0, 0, 0)
 
         binding.button.setOnClickListener {
-            Log.d("BillSelectorDialog", "selectedBills: $selectedBills")
             callback.invoke(selectedBills)
             dismiss()
         }

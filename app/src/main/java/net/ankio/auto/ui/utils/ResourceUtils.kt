@@ -23,8 +23,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.App
 import net.ankio.auto.R
-import net.ankio.auto.storage.ImageUtils
-import net.ankio.auto.storage.Logger
 import org.ezbook.server.db.model.AssetsModel
 import org.ezbook.server.db.model.BookNameModel
 import org.ezbook.server.db.model.CategoryModel
