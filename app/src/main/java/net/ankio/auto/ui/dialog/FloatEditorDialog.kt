@@ -112,76 +112,98 @@ class FloatEditorDialog(
     // 综合以上内容，应用到billInfo对象上
 
     private fun getBillData(): BillInfoModel {
+        val assetManager = ConfigUtils.getBoolean(Setting.SETTING_ASSET_MANAGER,true)
+        Logger.d("Get Bill Data, type=> $billTypeLevel2, type1=> $billTypeLevel1")
        return billInfoModel.copy().apply {
             this.type = billTypeLevel2
             when (billTypeLevel2) {
                 BillType.Expend -> {
                     this.accountNameFrom = binding.payFrom.getText()
                     this.accountNameTo = ""
-                    if(this.accountNameFrom.isEmpty()){
-                        throw BillException(context.getString(R.string.expend_account_empty))
+                    if (assetManager){
+                        if(this.accountNameFrom.isEmpty()){
+                            throw BillException(context.getString(R.string.expend_account_empty))
+                        }
                     }
+
                 }
 
                 BillType.Income -> {
                     this.accountNameFrom = binding.payFrom.getText()
                     this.accountNameTo = ""
-                    if(this.accountNameFrom.isEmpty()){
-                        throw BillException(context.getString(R.string.income_account_empty))
+                    if (assetManager){
+                        if(this.accountNameFrom.isEmpty()){
+                            throw BillException(context.getString(R.string.income_account_empty))
+                        }
                     }
+
                 }
 
                 BillType.Transfer -> {
                     this.accountNameFrom = binding.transferFrom.getText()
                     this.accountNameTo = binding.transferTo.getText()
-                    if(this.accountNameFrom.isEmpty()){
-                        throw BillException(context.getString(R.string.transfer_from_empty))
-                    }
-                    if(this.accountNameTo.isEmpty()){
-                        throw BillException(context.getString(R.string.transfer_to_empty))
+                    if (assetManager){
+                        if(this.accountNameFrom.isEmpty()){
+                            throw BillException(context.getString(R.string.transfer_from_empty))
+                        }
+                        if(this.accountNameTo.isEmpty()){
+                            throw BillException(context.getString(R.string.transfer_to_empty))
+                        }
                     }
                 }
 
                 BillType.ExpendReimbursement -> {
                     this.accountNameFrom = binding.payFrom.getText()
                     this.accountNameTo = ""
-                    if(this.accountNameFrom.isEmpty()){
-                        throw BillException(context.getString(R.string.reimbursement_account_empty))
+                    if (assetManager){
+                        if(this.accountNameFrom.isEmpty()){
+                            throw BillException(context.getString(R.string.reimbursement_account_empty))
+                        }
                     }
+
                 }
 
                 BillType.IncomeReimbursement -> {
                     this.accountNameFrom = binding.payFrom.getText()
                     this.extendData = selectedBills.joinToString { it }
-                    if(this.accountNameFrom.isEmpty()){
-                        throw BillException(context.getString(R.string.reimbursement_income_account_empty))
+                    if (assetManager){
+                        if(this.accountNameFrom.isEmpty()){
+                            throw BillException(context.getString(R.string.reimbursement_income_account_empty))
+                        }
+                        if (selectedBills.isEmpty()){
+                            throw BillException(context.getString(R.string.reimbursement_bill_empty))
+                        }
                     }
-                    if (selectedBills.isEmpty()){
-                        throw BillException(context.getString(R.string.reimbursement_bill_empty))
-                    }
+
                 }
                 // 借出,还款
                 BillType.ExpendLending,BillType.ExpendRepayment -> {
                     this.accountNameFrom = binding.debtExpendFrom.getText()
                     this.accountNameTo = binding.debtExpendTo.getText().toString()
-                    if(this.accountNameFrom.isEmpty()){
-                        throw BillException(if(BillType.ExpendLending==billTypeLevel2) context.getString(R.string.expend_debt_empty) else context.getString(R.string.repayment_account_empty))
+                    if (assetManager){
+                        if(this.accountNameFrom.isEmpty()){
+                            throw BillException(if(BillType.ExpendLending==billTypeLevel2) context.getString(R.string.expend_debt_empty) else context.getString(R.string.repayment_account_empty))
+                        }
+                        if(this.accountNameTo.isEmpty()){
+                            throw BillException(if(BillType.ExpendLending==billTypeLevel2) context.getString(R.string.debt_account_empty) else context.getString(R.string.repayment_account2_empty))
+                        }
                     }
-                    if(this.accountNameTo.isEmpty()){
-                        throw BillException(if(BillType.ExpendLending==billTypeLevel2) context.getString(R.string.debt_account_empty) else context.getString(R.string.repayment_account2_empty))
-                    }
+
                 }
 
                 // 借入,收款
                 BillType.IncomeLending, BillType.IncomeRepayment -> {
                     this.accountNameFrom = binding.debtIncomeFrom.getText().toString()
                     this.accountNameTo = binding.debtIncomeTo.getText()
-                    if(this.accountNameFrom.isEmpty()){
-                        throw BillException(if(BillType.IncomeLending==billTypeLevel2) context.getString(R.string.income_debt_empty) else context.getString(R.string.income_lending_account_empty))
+                    if (assetManager){
+                        if(this.accountNameFrom.isEmpty()){
+                            throw BillException(if(BillType.IncomeLending==billTypeLevel2) context.getString(R.string.income_debt_empty) else context.getString(R.string.income_lending_account_empty))
+                        }
+                        if(this.accountNameTo.isEmpty()){
+                            throw BillException(if(BillType.IncomeLending==billTypeLevel2) context.getString(R.string.income_lending_account2_empty) else context.getString(R.string.income_repayment_account_empty))
+                        }
                     }
-                    if(this.accountNameTo.isEmpty()){
-                        throw BillException(if(BillType.IncomeLending==billTypeLevel2) context.getString(R.string.income_lending_account2_empty) else context.getString(R.string.income_repayment_account_empty))
-                    }
+
                 }
 
             }
@@ -299,6 +321,7 @@ class FloatEditorDialog(
             ) { pos, key, value ->
                 billTypeLevel1 = value as BillType
                 billTypeLevel2 = billTypeLevel1
+                rawBillInfo.type = billTypeLevel1
                 bindUI()
             }
 

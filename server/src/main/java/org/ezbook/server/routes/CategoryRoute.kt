@@ -74,7 +74,6 @@ class CategoryRoute(private val session: IHTTPSession) {
             return Server.json(400, "name is empty")
         }
 
-        Log.d("CategoryRoute", "get: $book $type $name")
 
         return Server.json(200, "OK", Db.get().categoryDao().getByName(book, type, name))
     }
