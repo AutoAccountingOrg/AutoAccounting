@@ -57,7 +57,7 @@ abstract class PartHooker {
                         List::class.java,
                     ) as MutableList<Triple<String, String, String>>
                 if (method.size != methodsRule.size) {
-                    throw Exception("适配失败")
+                    throw Exception("需要重新适配！")
                 }
             }.onFailure {
                 App.get("methods_adaptation", "0")

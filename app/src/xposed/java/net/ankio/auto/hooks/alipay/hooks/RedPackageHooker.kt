@@ -45,15 +45,12 @@ class RedPackageHooker : PartHooker() {
             object : XC_MethodHook() {
                 @Throws(Throwable::class)
                 override fun beforeHookedMethod(param: MethodHookParam) {
-                    hookerManifest.logD("支付宝收到红包数据hook成功。")
                     super.beforeHookedMethod(param)
                     val syncMessageObject = param.args[0]
-                    val getDataMethod = syncMessage.methods.find { it.name == "getData" }
-                    getDataMethod?.let {
-                        val result = it.invoke(syncMessageObject) as String
-                        hookerManifest.logD("红包数据： $result")
-                        hookerManifest.analysisData(DataType.DATA, result)
-                    }
+
+                    val result = XposedHelpers.callMethod(syncMessageObject, "getData") as String
+                    hookerManifest.logD("Hooked WeChat RedPackage： $result")
+                    hookerManifest.analysisData(DataType.DATA, result)
                 }
             })
     }

@@ -107,10 +107,10 @@ class BookUtils(
             val md5 = App.md5(sync)
             val server = SettingModel.get(Setting.HASH_BOOK, "")
             if (server == md5) {
-                manifest.log("账本信息未发生变化，无需同步, 服务端md5:${server} 本地md5:${md5}")
+                manifest.log("No need to Sync Books, Server md5:${server} local md5:${md5}")
                 return@withContext bookList
             }
-            manifest.log("同步账本信息:$sync")
+            manifest.log("Sync Books:$sync")
             BookNameModel.put(bookList, md5)
             withContext(Dispatchers.Main) {
                 App.toast("已同步账本信息到自动记账")

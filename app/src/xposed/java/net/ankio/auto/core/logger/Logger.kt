@@ -15,7 +15,6 @@
 
 package net.ankio.auto.core.logger
 
-import android.util.Log
 import de.robv.android.xposed.XposedBridge
 import kotlinx.coroutines.launch
 import net.ankio.auto.core.App
@@ -35,22 +34,17 @@ object Logger {
     var debug = true
 
     private fun getTag(): String {
-        return Throwable().stackTrace[2].className.substringBefore('$').substringAfterLast(".")
+        return Throwable().stackTrace[3].className.substringBefore('$').substringAfterLast(".")
     }
 
     /**
      * 打印日志
      */
     fun log(app: String, msg: String) {
-        XposedBridge.log(msg)
-        Log.i("自动记账", msg)
+        XposedBridge.log("[自动记账][$app]$msg")
         //写入自动记账日志
         App.scope.launch {
-            runCatching {
-                LogModel.add(LogLevel.INFO, app, getTag(), msg)
-            }.onFailure {
-                Log.d("自动记账", msg)
-            }
+            LogModel.add(LogLevel.INFO, app, getTag(), msg)
         }
 
     }
@@ -68,8 +62,8 @@ object Logger {
      * 打印错误日志
      */
     fun logE(app: String, e: Throwable) {
+        XposedBridge.log("[自动记账][$app]${e.message?:""}")
         XposedBridge.log(e)
-        Log.e("自动记账", e.message ?: "")
         App.scope.launch {
             val log = StringBuilder()
             log.append(e.message).append("\n")

@@ -33,6 +33,7 @@ import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
 import net.ankio.auto.core.ui.ColorUtils
 import net.ankio.auto.core.ui.ViewUtils
+import net.ankio.auto.core.xposed.Hooker
 import net.ankio.auto.databinding.MenuItemBinding
 import net.ankio.auto.hooks.qianji.sync.AssetsUtils
 import net.ankio.auto.hooks.qianji.sync.BaoXiaoUtils
@@ -90,36 +91,27 @@ class SideBarHooker : PartHooker() {
         if (!::hookerManifest.isInitialized) {
             return
         }
-        var hooked = false
         val clazz = classLoader!!.loadClass("com.mutangtech.qianji.ui.maindrawer.MainDrawerLayout")
-        XposedHelpers.findAndHookMethod(
-            clazz,
-            "refreshAccount",
-            object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam?) {
-                    super.afterHookedMethod(param)
-                    // 只hook一次
-                    val obj = param!!.thisObject as FrameLayout
-                    if (hooked) return
-                    hooked = true
-                    // 调用 findViewById 并转换为 TextView
-                    val linearLayout =
-                        ViewUtils.getViewById(
-                            "com.mutangtech.qianji.R\$id",
-                            obj,
-                            classLoader,
-                            "main_drawer_content_layout"
-                        ) as LinearLayout
-                    runCatching {
-                        hookerManifest.attachResource(activity)
-                        // 找到了obj里面的name字段
-                        addSettingMenu(linearLayout, activity)
-                    }.onFailure {
-                        hookerManifest.logE(it)
-                    }
-                }
-            },
-        )
+        Hooker.hookOnce(clazz, "refreshAccount") {
+            // 只hook一次
+            val obj = it.thisObject as FrameLayout
+            // 调用 findViewById 并转换为 TextView
+            val linearLayout =
+                ViewUtils.getViewById(
+                    "com.mutangtech.qianji.R\$id",
+                    obj,
+                    classLoader,
+                    "main_drawer_content_layout"
+                ) as LinearLayout
+            runCatching {
+                hookerManifest.attachResource(activity)
+                // 找到了obj里面的name字段
+                addSettingMenu(linearLayout, activity)
+            }.onFailure {
+                hookerManifest.logE(it)
+            }
+            true
+        }
     }
 
 
@@ -181,7 +173,8 @@ class SideBarHooker : PartHooker() {
      * 同步数据到自动记账
      */
     fun syncData2Auto(context: Activity) {
-        if (System.currentTimeMillis() - last < 1000 * 30) {
+        // 最快3秒同步一次
+        if (System.currentTimeMillis() - last < 1000 * 3) {
             return
         }
         last = System.currentTimeMillis()

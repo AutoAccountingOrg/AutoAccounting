@@ -89,18 +89,13 @@ class AutoHooker : PartHooker() {
             "com.mutangtech.qianji.data.model.AutoTaskLog", object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam) {
                     super.beforeHookedMethod(param)
-
                     val msg = param.args[0] as String
-                    hookerManifest.log("hookTaskLog: $msg")
-
                     val error = handleError(msg)
                     val autoTaskLog = param.args[1] as Any
-                    hookerManifest.log("钱迹自动记账失败：$error")
 
                     val value = XposedHelpers.getObjectField(autoTaskLog, "value") as String
                     val uri = Uri.parse(value)
                     val billInfo = QianJiUri.toAuto(uri)
-                    hookerManifest.logD("处理失败的账单: $billInfo")
                     if (billInfo.id < 0) return
 
 
@@ -111,6 +106,7 @@ class AutoHooker : PartHooker() {
                         App.launch {
                             BillInfoModel.status(billInfo.id, false)
                         }
+                        hookerManifest.log("Qianji Error: $msg")
                         return
                     }
 
@@ -120,26 +116,26 @@ class AutoHooker : PartHooker() {
 
 
                     when (uri.getQueryParameter("type")?.toInt() ?: 0) {
-                        QianJiBillType.Expend.value -> {
-
+                        QianJiBillType.Expend.value,
+                        QianJiBillType.Transfer.value,
+                        QianJiBillType.Income.value,
+                        QianJiBillType.ExpendReimbursement.value
+                        -> {
+                            hookerManifest.log("Qianji Error: $msg")
                             return
                         }
 
-                        QianJiBillType.ExpendReimbursement.value -> {
-                            return
-                        }
                         // 支出（借出）
                         QianJiBillType.ExpendLending.value -> {
                             App.launch {
                                 runCatching {
                                    ExpendLendingUtils(hookerManifest, classLoader, context).sync(billInfo)
                                 }.onSuccess {
-                                    hookerManifest.logD("借出成功")
                                     App.toast("借出成功")
                                 }.onFailure {
-                                    hookerManifest.logE(it)
                                     BillInfoModel.status(billInfo.id, false)
                                     hookerManifest.logD("借出失败 ${it.message}")
+                                    hookerManifest.logE(it)
                                     App.toast("借出失败 ${handleError(it.message ?: "")}")
                                     hookerManifest.logE(it)
                                 }
@@ -155,7 +151,6 @@ class AutoHooker : PartHooker() {
                                 runCatching {
                                   ExpendRepaymentUtils(hookerManifest, classLoader, context).sync(billInfo)
                                 }.onSuccess {
-                                    hookerManifest.logD("还款成功")
                                     App.toast("还款成功")
                                 }.onFailure {
                                     hookerManifest.logE(it)
@@ -170,16 +165,12 @@ class AutoHooker : PartHooker() {
 
                         }
 
-                        QianJiBillType.Income.value -> {
-                            return
-                        }
                         // 收入（借入）
                         QianJiBillType.IncomeLending.value -> {
                             App.launch {
                                 runCatching {
                                     IncomeLendingUtils(hookerManifest, classLoader, context).sync(billInfo)
                                 }.onSuccess {
-                                    hookerManifest.logD("借入成功")
                                     App.toast("借入成功")
                                 }.onFailure {
                                     hookerManifest.logE(it)
@@ -199,7 +190,6 @@ class AutoHooker : PartHooker() {
                                 runCatching {
                                     IncomeRepaymentUtils(hookerManifest, classLoader, context).sync(billInfo)
                                 }.onSuccess {
-                                    hookerManifest.logD("收款成功")
                                     App.toast("收款成功")
                                 }.onFailure {
                                     hookerManifest.logE(it)
@@ -219,7 +209,6 @@ class AutoHooker : PartHooker() {
                                 runCatching {
                                     BaoXiaoUtils(hookerManifest, classLoader).doBaoXiao(billInfo)
                                 }.onSuccess {
-                                    hookerManifest.logD("报销成功")
                                     App.toast("报销成功")
                                 }.onFailure {
                                     BillInfoModel.status(billInfo.id, false)
@@ -232,9 +221,6 @@ class AutoHooker : PartHooker() {
                             XposedHelpers.callMethod(autoTaskLog, "setStatus", 1)
                         }
 
-                        QianJiBillType.Transfer.value -> {
-                            return
-                        }
                     }
 
 

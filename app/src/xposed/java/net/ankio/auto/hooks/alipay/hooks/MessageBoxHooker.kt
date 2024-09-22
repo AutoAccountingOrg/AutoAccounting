@@ -49,24 +49,21 @@ class MessageBoxHooker : PartHooker() {
             object : XC_MethodHook() {
                 @Throws(Throwable::class)
                 override fun beforeHookedMethod(param: MethodHookParam) {
-                    hookerManifest.logD("支付宝消息盒子页面hook成功")
+
                     super.beforeHookedMethod(param)
                     val syncMessageObject = param.args[0]
-                    val getDataMethod = syncMessage.methods.find { it.name == "getData" }
-                    getDataMethod?.let {
-                        val result = it.invoke(syncMessageObject) as String
-                        // 收到的是数组，拆分
-                        Gson().fromJson(result, JsonArray::class.java).forEach { jsonObject ->
+                    val result = XposedHelpers.callMethod(syncMessageObject, "getData") as String
+                    // 收到的是数组，拆分
+                    Gson().fromJson(result, JsonArray::class.java).forEach { jsonObject ->
 
-                            val jsonArray =
-                                JsonArray().apply {
-                                    add(jsonObject)
-                                }
+                        val jsonArray =
+                            JsonArray().apply {
+                                add(jsonObject)
+                            }
 
-                            hookerManifest.logD("支付宝消息盒子页面收到数据：$jsonArray")
-                            // 调用分析服务进行数据分析
-                            hookerManifest.analysisData(DataType.DATA, Gson().toJson(jsonArray))
-                        }
+                        hookerManifest.logD("Hooked Alipay Message Box：$jsonArray")
+                        // 调用分析服务进行数据分析
+                        hookerManifest.analysisData(DataType.DATA, Gson().toJson(jsonArray))
                     }
                 }
             },

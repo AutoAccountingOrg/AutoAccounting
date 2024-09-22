@@ -122,8 +122,6 @@ class AssetsUtils(private val manifest: HookerManifest, private val classLoader:
         accounts.forEach {
             val asset = it!!
             val model = AssetsModel()
-            manifest.logD("账户信息:${Gson().toJson(asset)}")
-
             val fields = asset::class.java.declaredFields
 
             val stypeField = fields.filter { field -> field.name == "stype" }.getOrNull(0)
@@ -177,10 +175,10 @@ class AssetsUtils(private val manifest: HookerManifest, private val classLoader:
         val server = SettingModel.get(Setting.HASH_ASSET, "")
         App.set("sync_assets", Gson().toJson(assets))
         if (server == md5 || assets.isEmpty()) { //资产为空也不同步
-            manifest.log("资产信息未发生变化，无需同步, 服务端md5:${server} 本地md5:${md5}")
+            manifest.log("No need to sync Assets, server md5:${server} local md5:${md5}")
             return@withContext
         }
-        manifest.log("同步账户信息:${Gson().toJson(assets)}")
+        manifest.log("Sync Assets:${Gson().toJson(assets)}")
         AssetsModel.put(assets, md5)
         withContext(Dispatchers.Main) {
             App.toast("已同步资产信息到自动记账")
@@ -198,12 +196,6 @@ class AssetsUtils(private val manifest: HookerManifest, private val classLoader:
         return@withContext assets?.find {  XposedHelpers.getObjectField(it, "name") as String == name }
     }
 
-    val assetClazz  by lazy {
-        XposedHelpers.findClass(
-            "com.mutangtech.qianji.data.model.AssetAccount",
-            classLoader
-        )
-    }
 
     //   public static AssetAccount newInstance(int v, int v1) {
     //        AssetAccount assetAccount0 = new AssetAccount();

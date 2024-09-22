@@ -44,7 +44,7 @@ class TransferHooker : PartHooker() {
 
                     json.put("hookUser", App.get("hookerUser"))
 
-                    hookerManifest.logD("微信转账页面数据： $json")
+                    hookerManifest.logD("Wechat Transfer hook： $json")
                     hookerManifest.analysisData(DataType.DATA, json.toString())
                 }
             })

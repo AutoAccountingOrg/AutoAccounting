@@ -82,19 +82,6 @@ abstract class HookerManifest {
     open var clazz = HashMap<String, String>()
 
     /**
-     * 已经成功获取到的class
-     */
-    fun getClass(name: String): Class<*>? {
-        return clazz[name]?.let {
-            try {
-                Class.forName(it)
-            } catch (e: ClassNotFoundException) {
-                null
-            }
-        }
-    }
-
-    /**
      * 写日志
      */
     fun log(string: String) {
@@ -133,13 +120,13 @@ abstract class HookerManifest {
         App.launch {
             val result =
                 request("js/analysis?type=${type.name}&app=$appPackage&fromAppData=false", data)
-            logD("analysisData: $result")
+            logD("Analysis Result: $result")
         }
     }
 
     suspend fun request(path: String, json: String = ""): String? {
         return runCatching {
-            val uri = "http://localhost:52045/$path"
+            val uri = "http://127.0.0.1:52045/$path"
             // 创建一个OkHttpClient对象
             val client = OkHttpClient()
             // set as json post

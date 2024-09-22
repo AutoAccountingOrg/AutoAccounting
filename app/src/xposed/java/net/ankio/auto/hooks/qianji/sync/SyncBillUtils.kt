@@ -19,6 +19,7 @@ import android.content.Context
 import android.content.Intent
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import net.ankio.auto.core.App
 import net.ankio.auto.core.api.HookerManifest
@@ -46,6 +47,10 @@ class SyncBillUtils(
             }
             // 现将指定的账单全部记录为成功，后续拦截到错误的时候再修改为失败
             BillInfoModel.status(it.id, true)
+            delay(5) // 延迟5毫秒
+        }
+        withContext(Dispatchers.Main) {
+            App.toast("已将所有账单同步完成！")
         }
     }
 }

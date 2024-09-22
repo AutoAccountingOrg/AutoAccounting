@@ -101,7 +101,7 @@ abstract class BaseDebt(
        ){
               val code = it.args[0] as Int
                 val msg = it.args[1] as String
-                manifest.log("提交资产失败=>${code}:${msg}")
+                manifest.log("Push Asset => ${code}:${msg}")
            true
        }
        Hooker.hookOnce(
@@ -114,7 +114,7 @@ abstract class BaseDebt(
                 // 提交成功
 
                 val assetsItem = XposedHelpers.callMethod(assetsInstance,"getData")
-                manifest.log("提交资产成功=>${assetsItem}")
+                manifest.log("Push Asset Success => ${assetsItem}")
                 continuation.resume(AssetAccount(classLoader,assetsItem))
 
                 return@hookOnce true

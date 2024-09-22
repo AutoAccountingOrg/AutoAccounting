@@ -37,6 +37,7 @@ import org.ezbook.server.db.model.SettingModel
 class NotificationHooker : PartHooker() {
     private var selectedApps = listOf<String>()
     private var lastTime = 0L
+    private val hashTable = MD5HashTable()
     override fun hook(
         hookerManifest: HookerManifest,
         application: Application?,
@@ -46,7 +47,7 @@ class NotificationHooker : PartHooker() {
             "com.android.server.notification.NotificationManagerService",
             classLoader
         )
-        val hashTable = MD5HashTable()
+
 
         XposedBridge.hookAllMethods(
             notificationManagerService,
@@ -76,16 +77,12 @@ class NotificationHooker : PartHooker() {
                         notification.extras.getString(Notification.EXTRA_TITLE) ?: ""
                     val originalText = notification.extras.getString(Notification.EXTRA_TEXT) ?: ""
 
+
                     val hash = hashTable.md5("$app$originalTitle$originalText")
                     if (hashTable.contains(hash)){
                         return
                     }
                     hashTable.add(hash)
-/*
-                    hookerManifest.logD("Notification App: $opkg")
-                    hookerManifest.logD("Notification App2: $app")
-                    hookerManifest.logD("Notification Title: $originalTitle")
-                    hookerManifest.logD("Notification Content: $originalText")*/
 
 
                     // 5分钟内不重复请求数据，加快识别速度
@@ -130,13 +127,14 @@ class NotificationHooker : PartHooker() {
         selectedApps: List<String>,
         hookerManifest: HookerManifest
     ) {
+
+
+
         if (title.isEmpty() || text.isEmpty()) {
-            hookerManifest.logD("Notification title or text is empty")
             return
         }
 
         if (!selectedApps.contains(pkg)) {
-            hookerManifest.logD("Notification not in selected apps: $pkg, $selectedApps")
             return
         }
 
@@ -144,6 +142,10 @@ class NotificationHooker : PartHooker() {
         val json = JsonObject()
         json.addProperty("title", title)
         json.addProperty("text", text)
+
+
+
+        hookerManifest.logD("NotificationHooker: $json")
 
         hookerManifest.analysisData(DataType.NOTICE, Gson().toJson(json), pkg)
     }

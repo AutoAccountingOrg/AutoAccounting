@@ -20,7 +20,6 @@ import android.app.Application
 import android.content.Context
 import android.content.pm.PackageManager
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.core.api.HookerManifest
@@ -32,6 +31,16 @@ class PermissionCheckHooker:PartHooker() {
         application: Application?,
         classLoader: ClassLoader
     ) {
+
+        hookCheckPermission(hookerManifest,classLoader)
+
+
+        //////////AppOpsManager的权限设置拦截不成功不知道为什么，换用下面的方法直接授权
+        setOverlaysAllowed(BuildConfig.APPLICATION_ID,application!!.baseContext)
+
+    }
+
+    private fun hookCheckPermission(hookerManifest: HookerManifest, classLoader: ClassLoader) {
         XposedHelpers.findAndHookMethod(
             "android.app.ContextImpl",
             classLoader,
@@ -47,7 +56,7 @@ class PermissionCheckHooker:PartHooker() {
                     val uid = param.args[2] as Int
                     val packageManager =  XposedHelpers.callMethod(param.thisObject, "getPackageManager")
                     val packages: Array<String> = runCatching {
-                            XposedHelpers.callMethod(packageManager, "getPackagesForUid", uid) as Array<String>
+                        XposedHelpers.callMethod(packageManager, "getPackagesForUid", uid) as Array<String>
                     }.getOrNull()?:return
 
                     if (packages.isEmpty()) return
@@ -58,86 +67,13 @@ class PermissionCheckHooker:PartHooker() {
                     // 允许自动记账的所有权限
                     if (packageName == BuildConfig.APPLICATION_ID) {
                         param.result = PackageManager.PERMISSION_GRANTED
+
+                        hookerManifest.log("return checkPermission($permission): $permission, $pid, $uid, $packageName,${param.result}")
                     }
 
                 }
             }
         )
-
-
-        //////////AppOpsManager的权限设置拦截不成功不知道为什么，换用下面的方法直接授权
-
-     /*   // public int noteOpNoThrow(int op, int uid, @Nullable String packageName,
-        //            @Nullable String attributionTag, @Nullable String message) {
-
-        XposedHelpers.findAndHookMethod("android.app.AppOpsManager", classLoader, "noteOpNoThrow",
-            Int::class.javaPrimitiveType,
-            Int::class.javaPrimitiveType,
-            String::class.java, String::class.java, String::class.java, object : XC_MethodHook() {
-            @Throws(Throwable::class)
-            override fun afterHookedMethod(param: MethodHookParam) {
-                val op = param.args[0] as Int
-                val uid = param.args[1] as Int
-                val packageName = param.args[2] as String
-                if (packageName == BuildConfig.APPLICATION_ID) {
-                    hookerManifest.log("noteOpNoThrow($op):  $packageName,${param.result}")
-                    // 允许悬浮窗权限
-                    param.result = AppOpsManager.MODE_ALLOWED
-
-                    hookerManifest.log("return noteOpNoThrow($op): $op, $uid, $packageName,${param.result}")
-
-                    XposedBridge.log(Throwable())
-                }
-            }
-        })
-
-        //android.app.AppOpsManager
-         //public int checkOpNoThrow(int op, int uid, String packageName) {
-        XposedHelpers.findAndHookMethod("android.app.AppOpsManager", classLoader, "checkOpNoThrow", Int::class.javaPrimitiveType, Int::class.javaPrimitiveType, String::class.java, object : XC_MethodHook() {
-            @Throws(Throwable::class)
-            override fun afterHookedMethod(param: MethodHookParam) {
-                val op = param.args[0] as Int
-                val uid = param.args[1] as Int
-                val packageName = param.args[2] as String
-
-
-                if (packageName == BuildConfig.APPLICATION_ID) {
-                    hookerManifest.log("checkOpNoThrow($op):  $packageName,${param.result}")
-                    // 允许悬浮窗权限
-                    param.result = AppOpsManager.MODE_ALLOWED
-
-                    hookerManifest.log("return checkOpNoThrow($op): $op, $uid, $packageName,${param.result}")
-
-                    XposedBridge.log(Throwable())
-                }
-            }
-        })
-        //android.provider.Settings
-        //public static boolean isCallingPackageAllowedToPerformAppOpsProtectedOperation(Context context,
-        //            int uid, String callingPackage, String callingAttributionTag, boolean throwException,
-        //            int appOpsOpCode, String[] permissions, boolean makeNote) {
-        XposedHelpers.findAndHookMethod("android.provider.Settings", classLoader, "isCallingPackageAllowedToPerformAppOpsProtectedOperation", Context::class.java,
-            Int::class.javaPrimitiveType, String::class.java, String::class.java, Boolean::class.javaPrimitiveType,
-            Int::class.javaPrimitiveType, Array<String>::class.java, Boolean::class.javaPrimitiveType, object : XC_MethodHook() {
-            @Throws(Throwable::class)
-            override fun afterHookedMethod(param: MethodHookParam) {
-                val uid = param.args[1] as Int
-                val callingPackage = param.args[2] as String
-                if (callingPackage == BuildConfig.APPLICATION_ID) {
-                    hookerManifest.log("isCallingPackageAllowedToPerformAppOpsProtectedOperation:  $callingPackage,${param.result}")
-                    // 允许悬浮窗权限
-                    param.result = true
-
-                    hookerManifest.log("return isCallingPackageAllowedToPerformAppOpsProtectedOperation: $uid, $callingPackage,${param.result}")
-
-                    XposedBridge.log(Throwable())
-                }
-            }
-        })
-
-*/
-        setOverlaysAllowed(BuildConfig.APPLICATION_ID,application!!.baseContext)
-
     }
     // 授权悬浮窗权限给自动记账
     private fun setOverlaysAllowed(packageName:String,mContext: Context) {
@@ -147,6 +83,7 @@ class PermissionCheckHooker:PartHooker() {
         val alertWindow = XposedHelpers.getStaticIntField(AppOpsManager::class.java, "OP_SYSTEM_ALERT_WINDOW")
         XposedHelpers.callMethod(appOpsManager, "setMode", alertWindow,
             packageInfo.applicationInfo.uid, packageName, AppOpsManager.MODE_ALLOWED)
+
 
     }
 }

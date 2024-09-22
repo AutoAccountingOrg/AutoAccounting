@@ -92,7 +92,7 @@ class WebViewHooker : PartHooker() {
                                 }
 
                                 needWait = false
-                                hookerManifest.logD("支付宝WebView页面hook成功，获取到数据：$result")
+                                hookerManifest.logD("Hooked Alipay Bill List Data：$result")
                                 hookerManifest.analysisData(DataType.DATA, result)
                             }
 
@@ -113,20 +113,5 @@ class WebViewHooker : PartHooker() {
             },
         )
 
-        XposedHelpers.findAndHookMethod(
-            webView, // 目标类名
-            "addJavascriptInterface", // 目标方法名
-            Object::class.java,
-            String::class.java, // 方法参数类型
-            object : XC_MethodHook() {
-                override fun beforeHookedMethod(param: MethodHookParam) {
-                    // 在方法执行前拦截
-                    val obj = param.args[0] // 第一个参数是Object obj
-                    val str = param.args[1] as String // 第二个参数是String str
-                    // 可以在这里修改参数或者进行其他操作
-                    hookerManifest.logD("加载obj: $obj  加载名称：$str")
-                }
-            },
-        )
     }
 }

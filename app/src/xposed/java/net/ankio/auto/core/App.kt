@@ -78,7 +78,6 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
             if (application == null) {
                 return
             }
-            Logger.logD(TAG, "set: $key -> $value")
             val sharedPreferences: SharedPreferences =
                 application!!.getSharedPreferences(TAG, Context.MODE_PRIVATE) // 私有数据
             val editor = sharedPreferences.edit() // 获取编辑器
@@ -95,7 +94,6 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
             if (application == null) {
                 return def
             }
-            Logger.logD(TAG, "get: $key")
             val sharedPreferences: SharedPreferences =
                 application!!.getSharedPreferences(TAG, Context.MODE_PRIVATE) // 私有数据
             return sharedPreferences.getString(key, def) ?: def
@@ -117,8 +115,6 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
             if (application == null) {
                 return
             }
-            Logger.logD(TAG, "toast: $msg")
-
             try {
                 Toaster.show(msg)
             } catch (e: Throwable) {
@@ -171,7 +167,7 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         ) {
             var hookStatus = false
             if (applicationName.isEmpty()) {
-                Logger.logD(TAG, "applicationName is empty")
+                Logger.logD(TAG, "Application name is empty")
                 callback(null)
                 return
             }
@@ -267,7 +263,7 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
 
         val adaptationVersion = get("adaptation", "").toIntOrNull() ?: 0
 
-        Logger.logD(TAG, "adaptationVersion: $adaptationVersion")
+        Logger.logD(TAG, "AdaptationVersion: $adaptationVersion")
 
         if (adaptationVersion == code) {
             runCatching {
@@ -277,7 +273,7 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
                         HashMap::class.java,
                     ) as HashMap<String, String>
                 if (app.clazz.size != app.rules.size) {
-                    throw Exception("适配失败")
+                    throw Exception("需要重新适配...")
                 }
             }.onFailure {
                 set("adaptation", "0")
@@ -296,15 +292,13 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
             set("adaptation", code.toString())
             app.clazz = hashMap
             set("clazz", Gson().toJson(app.clazz))
-            app.logD(" 适配成功:$hashMap")
+            app.log("Adaptation success:$hashMap")
             toast("适配成功")
             return true
         } else {
-            app.logD(" 适配失败:$hashMap")
-
             for (clazz in app.rules) {
                 if (!hashMap.containsKey(clazz.name)) {
-                    app.logD(" 适配失败:${clazz.name}")
+                    app.logD("Failed to adapt:${clazz.name}")
                 }
             }
 
@@ -335,39 +329,37 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         networkError()
         // 日志初始化
         setLogger()
+        //吐司框架初始化
+        Toaster.init(application)
+        // 检查所需的权限
+        permissionCheck(app)
+
         Logger.log(TAG, "InitHooker: ${app.appName}, AutoVersion: ${BuildConfig.VERSION_NAME}")
         App.application = application
+
+
 
         val code = getVersionCode()
 
         // 检查App版本是否过低，过低无法使用
         if (app.minVersion != 0 && code < app.minVersion) {
-            Logger.log(TAG, "auto adaption failed , ${app.appName}(${code}) version is too low")
-            Toast.makeText(
-                application,
-                "${app.appName}版本过低，无法适配，请升级到最新版本后再试。",
-                Toast.LENGTH_LONG
-            ).show()
+            Logger.log(TAG, "Auto adaption failed , ${app.appName}(${code}) version is too low")
+            toast("${app.appName}版本过低，无法适配，请升级到最新版本后再试。")
             return
         }
 
         // 自动适配
         runCatching {
             if (!ruleHook(app)) {
-                Logger.log(TAG, "auto adaption failed , ${app.appName}(${code}) will not be hooked")
+                Logger.log(TAG, "Auto adaption failed , ${app.appName}(${code}) will not be hooked")
                 return
             }
         }.onFailure {
             Logger.logE(TAG, it)
-            Toast.makeText(
-                application,
-                "自动适配失败！",
-                Toast.LENGTH_LONG
-            ).show()
+            toast("自动适配失败！")
             return
         }
-        // 检查所需的权限
-        permissionCheck(app)
+
 
         // 将自动记账的资源路径加入到查找路径中
         XposedHelpers.callMethod(
@@ -376,8 +368,7 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
             modulePath,
         )
 
-        //吐司框架初始化
-        Toaster.init(application)
+
 
         // 启动自动记账服务
         if (app.packageName === Apps.getServerRunInApp()){
@@ -418,15 +409,12 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
     private fun permissionCheck(app: HookerManifest) {
         val permissions = app.permissions
         if (permissions.isEmpty()) {
-            app.logD("${app.appName} No permission required")
             return
         }
         val context = application ?: return
         permissions.forEach {
             if (context.checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED) {
-                app.logE(Throwable("${app.appName} Permission denied: $it"))
-            } else {
-                app.logD("${app.appName} Permission granted: $it")
+                app.logE(Throwable("${app.appName} Permission denied: $it , this hook may not work as expected"))
             }
         }
     }
@@ -439,11 +427,11 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         application: Application?
     ) {
         try {
-            hookerManifest.logD("try start server...")
+            hookerManifest.logD("Try start server...")
             Server(application!!).startServer()
-            hookerManifest.logD(" server hook success")
+            hookerManifest.logD("Server start success")
         } catch (e: Exception) {
-            XposedBridge.log("server hook failed")
+            XposedBridge.log("Server start failed")
             XposedBridge.log(e)
         }
     }
@@ -453,12 +441,10 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
      * 修复Android9及以上版本的网络错误
      */
     private fun networkError() {
-        //Logger.logD(TAG, "networkError Fix")
         val policy = NetworkSecurityPolicy.getInstance()
         if (policy != null && !policy.isCleartextTrafficPermitted) {
             // 允许明文流量
             XposedHelpers.callMethod(policy, "setCleartextTrafficPermitted", true)
-            Logger.log(TAG, "allow CleartextTraffic:" + policy.isCleartextTrafficPermitted)
         }
     }
 

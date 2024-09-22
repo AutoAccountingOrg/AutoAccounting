@@ -47,17 +47,11 @@ class MD5HashTable(private val expirationTime: Long = 60) {
     // 判断某个MD5是否存在并未过期
     fun contains(md5: String): Boolean {
         removeExpiredEntries()
-        val timestamp = hashTable[md5] ?: return false
-        if (isExpired(timestamp)) {
-            hashTable.remove(md5)
-            return false
-        }
-        return true
+        return hashTable[md5] != null
     }
 
     // 自动删除过期的哈希数据
-    fun removeExpiredEntries() {
-        val currentTime = getCurrentTime()
+    private fun removeExpiredEntries() {
         val iterator = hashTable.entries.iterator()
         while (iterator.hasNext()) {
             val entry = iterator.next()

@@ -102,10 +102,10 @@ class CategoryUtils(
         val md5 = App.md5(sync)
         val server = SettingModel.get(Setting.HASH_CATEGORY, "")
         if (server == md5) {
-            manifest.log("分类信息未发生变化，无需同步, 服务端md5:${server} 本地md5:${md5}")
+            manifest.log("No need to sync categories, Server md5:${server} local md5:${md5}")
             return@withContext
         }
-        manifest.log("同步分类信息:$sync")
+        manifest.log("Sync categories:$sync")
         CategoryModel.put(arrayList, md5)
         withContext(Dispatchers.Main) {
             App.toast("已同步分类信息到自动记账")
@@ -220,7 +220,7 @@ class CategoryUtils(
                         }
                     }
                 } catch (e: Exception) {
-                    manifest.log("分类转换异常:${e.message}")
+                    manifest.log("Convert Category Error:${e.message}")
                     manifest.logE(e)
                 }
             }

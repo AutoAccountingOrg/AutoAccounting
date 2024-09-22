@@ -165,18 +165,19 @@ class BaoXiaoUtils(
          *     "userid": "200104405e109647c18e9"
          * }*/
 
-        manifest.logD("报销账单数据总数：${bxList.size}")
         val bills = convert2Bill(bxList)
         val sync = Gson().toJson(bills)
         val md5 = App.md5(sync)
         val server = SettingModel.get(Setting.HASH_BILL, "")
         if (server == md5) {
-            manifest.log("报销列表信息未发生变化，无需同步")
+            manifest.log("No need to sync BaoXiao, server md5:${server} local md5:${md5}")
             return@withContext
         }
 
         BookBillModel.put(bills, md5)
-
+        withContext(Dispatchers.Main) {
+            App.toast("已同步报销账单到自动记账")
+        }
     }
 
     suspend fun doBaoXiao(billModel: BillInfoModel) = withContext(Dispatchers.Main) {

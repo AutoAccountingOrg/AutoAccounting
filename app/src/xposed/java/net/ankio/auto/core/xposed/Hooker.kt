@@ -26,7 +26,8 @@ object Hooker {
     fun hookOnce(
         clazz: Class<*>,
         method: String,
-        vararg parameterTypes: Class<*>,
+        vararg parameterTypes: Class<*> = emptyArray(),
+        // 如果返回true就卸载hook
         hook: (param: MethodHookParam) -> Boolean
     ) {
         var unhook: XC_MethodHook.Unhook? = null
