@@ -62,7 +62,9 @@ class FloatingWindowService : Service() {
 
     private var lastTheme = ThemeEngine.getInstance(App.app).getTheme()
 
-    private fun notifyToolBar() {
+    private lateinit var notification: Notification
+
+    private fun  initNotify(){
         val CHANNEL_ID = "FloatingWindowServiceChannel"
 
         // 创建一个通知通道
@@ -75,21 +77,18 @@ class FloatingWindowService : Service() {
         manager.createNotificationChannel(channel)
 
         // 创建最小化通知
-        val notification: Notification = Notification.Builder(this, CHANNEL_ID)
+        notification = Notification.Builder(this, CHANNEL_ID)
             .setContentTitle("")  // 无标题
             .setContentText("自动记账悬浮窗服务")
             .setSmallIcon(R.mipmap.ic_launcher_foreground)  // 小图标
             .build()
-
-        // 启动前台服务
-        startForeground(1, notification)
     }
 
 
 
     override fun onCreate() {
         super.onCreate()
-        notifyToolBar()
+        initNotify()
         timeCount = runCatching {
             ConfigUtils.getString(Setting.FLOAT_TIMEOUT_OFF, "10").toInt()
         }.getOrNull() ?: 10
@@ -109,7 +108,9 @@ class FloatingWindowService : Service() {
         flags: Int,
         startId: Int,
     ): Int {
-        notifyToolBar()
+
+        // 启动前台服务
+        startForeground(1, notification)
         if (lastTheme != ThemeEngine.getInstance(App.app).getTheme()) {
             lastTheme = ThemeEngine.getInstance(App.app).getTheme()
             val appTheme = ContextThemeWrapper(App.app, R.style.AppTheme)
