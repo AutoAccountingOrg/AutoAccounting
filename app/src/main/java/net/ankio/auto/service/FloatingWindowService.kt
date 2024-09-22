@@ -139,7 +139,7 @@ class FloatingWindowService : Service() {
             LocalBroadcastHelper.sendBroadcast(LocalBroadcastHelper.ACTION_UPDATE_BILL, Bundle().apply {
                putString("billInfo", Gson().toJson(parent))
             })
-           return START_REDELIVER_INTENT
+           return START_NOT_STICKY
         }
 
         runCatching {
@@ -162,7 +162,7 @@ class FloatingWindowService : Service() {
             startActivity(intent2)
         }
 
-        return START_REDELIVER_INTENT
+        return START_NOT_STICKY
     }
 
 
