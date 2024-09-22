@@ -44,7 +44,7 @@ class CategoryRuleAdapter(
         binding.groupCard.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(activity))
         binding.deleteData.setOnClickListener {
             val item = holder.item!!
-            val position = indexOf(item)
+
             MaterialAlertDialogBuilder(activity)
                 .setTitle(activity.getString(R.string.delete_data))
                 .setMessage(activity.getString(R.string.delete_msg))
@@ -53,6 +53,7 @@ class CategoryRuleAdapter(
                         withContext(Dispatchers.IO) {
                             CategoryRuleModel.remove(item.id)
                         }
+                        val position = indexOf(item)
                         dataItems.removeAt(position)
                         withContext(Dispatchers.Main) {
                             notifyItemRemoved(position)
