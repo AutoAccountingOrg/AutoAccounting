@@ -61,14 +61,14 @@ class DataFragment : BasePageFragment<AppDataModel>() {
                 MaterialAlertDialogBuilder(requireActivity())
                     .setTitle(requireActivity().getString(R.string.delete_data))
                     .setMessage(requireActivity().getString(R.string.delete_msg))
-                    .setNegativeButton(requireActivity().getString(R.string.sure_msg)) { _, _ ->
+                    .setPositiveButton(requireActivity().getString(R.string.sure_msg)) { _, _ ->
                         lifecycleScope.launch {
                             AppDataModel.clear()
                             page = 1
                             loadDataInside()
                         }
                     }
-                    .setPositiveButton(requireActivity().getString(R.string.cancel_msg)) { _, _ -> }
+                    .setNegativeButton(requireActivity().getString(R.string.cancel_msg)) { _, _ -> }
                     .show()
 
             },

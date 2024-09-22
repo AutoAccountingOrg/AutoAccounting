@@ -246,8 +246,8 @@ ${item.data}
             MaterialAlertDialogBuilder(activity)
                 .setTitle(activity.getString(R.string.content_title))
                 .setMessage(binding.content.text as String)
-                .setPositiveButton(activity.getString(R.string.cancel_msg)) { _, _ -> }
-                .setNegativeButton(activity.getString(R.string.copy)) { _, _ ->
+                .setNegativeButton(activity.getString(R.string.cancel_msg)) { _, _ -> }
+                .setPositiveButton(activity.getString(R.string.copy)) { _, _ ->
                     App.copyToClipboard(binding.content.text as String)
                     ToastUtils.error(R.string.copy_command_success)
                 }

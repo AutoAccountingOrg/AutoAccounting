@@ -48,7 +48,7 @@ class CategoryRuleAdapter(
             MaterialAlertDialogBuilder(activity)
                 .setTitle(activity.getString(R.string.delete_data))
                 .setMessage(activity.getString(R.string.delete_msg))
-                .setNegativeButton(activity.getString(R.string.sure_msg)) { _, _ ->
+                .setPositiveButton(activity.getString(R.string.sure_msg)) { _, _ ->
                     holder.launch {
                         withContext(Dispatchers.IO) {
                             CategoryRuleModel.remove(item.id)
@@ -60,7 +60,7 @@ class CategoryRuleAdapter(
                         }
                     }
                 }
-                .setPositiveButton(activity.getString(R.string.cancel_msg)) { _, _ -> }
+                .setNegativeButton(activity.getString(R.string.cancel_msg)) { _, _ -> }
                 .show()
 
         }
