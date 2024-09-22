@@ -28,6 +28,7 @@ import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterDataBinding
 import net.ankio.auto.service.FloatingWindowService
+import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.api.BaseAdapter
@@ -40,6 +41,7 @@ import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.DateUtils
 import net.ankio.auto.utils.Github
 import org.ezbook.server.Server
+import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.AppDataModel
 import org.ezbook.server.db.model.BillInfoModel
 
@@ -49,32 +51,27 @@ class AppDataAdapter(
 ) : BaseAdapter<AdapterDataBinding, AppDataModel>(AdapterDataBinding::class.java, list) {
 
 
-    private val hashMap = HashMap<AppDataModel, Long>()
+    private val version = ConfigUtils.getString(Setting.RULE_VERSION, "0")
 
     private suspend fun tryAdaptUnmatchedItems(
         holder: BaseViewHolder<AdapterDataBinding, AppDataModel>
     ) = withContext(Dispatchers.IO) {
         val item = holder.item!!
 
-        Logger.d(": $item")
-
-        val t = System.currentTimeMillis() / 1000
-        if (hashMap.containsKey(item) && t - hashMap[item]!! < 60) { // 30秒内不重复匹配
+        val billModel = testRule(item)
+        if(billModel == null){
+            // update version
+            item.version  = version
+            AppDataModel.put(item)
             return@withContext
         }
-        hashMap[item] = t
-
-        val billModel = testRule(item) ?: return@withContext
-
         item.match = true
         item.rule = billModel.ruleName
-
-        Logger.d("匹配成功: $item")
         item.issue = 0
-
+        item.version  = version
         val position = indexOf(item)
-
         AppDataModel.put(item)
+        Logger.d("Identification successful！${item.data}")
         withContext(Dispatchers.Main) {
             list[position] = item
             notifyItemChanged(position)
@@ -87,10 +84,10 @@ class AppDataAdapter(
             item.data
         )
             ?: return@withContext null
-        Logger.d("测试结果: $result")
+        Logger.d("Test Result: $result")
         val data = Gson().fromJson(result, JsonObject::class.java)
         if (data.get("code").asInt != 200) {
-            Logger.w("测试错误: ${data.get("msg").asString}")
+            Logger.w("Test Error Info: ${data.get("msg").asString}")
             return@withContext null
         }
         return@withContext Gson().fromJson(data.getAsJsonObject("data"), BillInfoModel::class.java)
@@ -155,7 +152,7 @@ ${result}
                     val title = "[Bug][Rule][$type]${item.app}"
                     val body = """
 ## 规则
-${result}
+${item.rule}
 ## 说明
 $issue
 ## 数据
@@ -306,8 +303,10 @@ ${item.data}
         }
 
         if (!data.match || data.rule.isEmpty()) {
-            holder.launch {
-                tryAdaptUnmatchedItems(holder)
+            if (version != data.version) {
+                holder.launch {
+                    tryAdaptUnmatchedItems(holder)
+                }
             }
         }
 
