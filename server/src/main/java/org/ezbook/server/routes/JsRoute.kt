@@ -57,7 +57,7 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
         try {
             dataType = DataType.valueOf(type)
         } catch (e: IllegalArgumentException) {
-            return Server.json(400, "type exception: $type")
+            return Server.json(400, "Type exception: $type")
         }
 
         val appDataModel = AppDataModel()
@@ -68,7 +68,7 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
 
 
         // 判断是否需要插入AppData
-        Server.log("fromAppData: $fromAppData")
+        Server.log("isFromAppData: $fromAppData")
         if (!fromAppData) {
             appDataModel.id = Db.get().dataDao().insert(appDataModel)
         }
@@ -127,15 +127,17 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
 
         val categoryJson = runCatching {
             Gson().fromJson(categoryResult, JsonObject::class.java)
-        }.getOrNull()?:return Server.json(500, "分类解析失败，可以先删除所有自定义分类后再试：$categoryResult")
+        }.onFailure {
+            Server.logW("Failed to analyze categories：$categoryResult")
+        }.getOrNull()
 
-        billInfoModel.bookName = categoryJson.get("book")?.asString ?: "默认账本"
-        billInfoModel.cateName = categoryJson.get("category")?.asString ?: "其他"
+        billInfoModel.bookName = categoryJson?.get("book")?.asString ?: "默认账本"
+        billInfoModel.cateName = categoryJson?.get("category")?.asString ?: "其他"
 
 
         val total = System.currentTimeMillis() - t
         // 识别用时
-        Server.log("分析耗时: $total ms")
+        Server.log("Time Usage: $total ms")
 
         //  资产映射
         Assets.setAssetsMap(billInfoModel)
@@ -237,7 +239,7 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
             )
         )
 
-        Server.log("拉起自动记账服务：$intent")
+        Server.log("Calling auto server：$intent")
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             context.startForegroundService(intent)
@@ -269,6 +271,7 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
         val outputBuilder = StringBuilder()
         var result: Any? = null
         try {
+            Server.log("RunJs: $jsCode")
             val scope: Scriptable = rhino.initStandardObjects()
             val printFunction = CustomPrintFunction(outputBuilder)
             ScriptableObject.putProperty(scope, "print", printFunction)
@@ -280,7 +283,7 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
             result = e.message
         } finally {
             Context.exit()
-            Server.log("规则识别结果: $result")
+            Server.log("RuleData: $result")
         }
         if (result != null) return result.toString()
         return ""

@@ -50,7 +50,7 @@ class ServerHttp(port: Int, private val context: Context) : NanoHTTPD(port) {
         return runCatching {
             val uri = session!!.uri.replace("//", "/")
             when (uri) {
-                "/" -> json(200, "hello,欢迎使用自动记账", Server.versionCode)
+                "/" -> json(200, "hello，欢迎使用自动记账", Server.versionCode)
                 // 日志列表
                 "/log/list" -> LogRoute(session).list()
                 // 添加日志

@@ -30,15 +30,6 @@ object Bill {
      * @param bill2 账单2
      */
     private fun checkRepeat(bill: BillInfoModel, bill2: BillInfoModel): Boolean {
-        Server.log("账单分组")
-        Server.log("账单分组bill:$bill")
-        Server.log("账单分组bill2:$bill2")
-
-        Server.log("账单分组bill2.time == bill.time => ${bill2.time == bill.time}")
-        Server.log("账单分组bill.money == bill2.money => ${bill.money == bill2.money}")
-        Server.log("账单分组bill.type == bill2.type => ${bill.type == bill2.type}")
-        Server.log("账单分组bill2.channel != bill.channel => ${bill2.channel != bill.channel}")
-
         if (bill.type == bill2.type) {
             if (bill2.time == bill.time) return true //时间一致，一定是同一笔交易
             if (bill2.channel != bill.channel) return false //渠道不一致，一定是不同的交易

@@ -162,7 +162,21 @@ class Server(context: Context) {
                     message = msg
                 })
             }
-            Log.d("Server", msg)
+            Log.i("Server", msg)
+        }
+
+        /**
+         * 日志
+         */
+        fun logW(msg: String) {
+            runCatching {
+                Db.get().logDao().insert(LogModel().apply {
+                    level = LogLevel.WARN
+                    app = TAG
+                    message = msg
+                })
+            }
+            Log.w("Server", msg)
         }
 
         /**
@@ -178,7 +192,7 @@ class Server(context: Context) {
                })
            }
 
-            e.printStackTrace()
+            Log.e("Server", e.message ?: "",e)
         }
 
         fun runOnMainThread(function: () -> Unit) {
