@@ -115,13 +115,15 @@ class NoticeFragment : BasePageFragment<AppInfo>() {
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
        // scrollView = WeakReference(recyclerView)
         selectedApps = ConfigUtils.getString(Setting.LISTENER_APP_LIST, "").split(",")
-        Logger.d("selectedApps => $selectedApps")
         recyclerView.adapter = AppAdapter(pageData, requireActivity().packageManager) {
             selectedApps = if (!it.isSelected) {
                 selectedApps.filter { packageName -> packageName != it.packageName }
             } else {
                 selectedApps + it.packageName
             }
+            selectedApps = selectedApps.distinct()
+            val str = selectedApps.joinToString(",")
+            ConfigUtils.putString(Setting.LISTENER_APP_LIST, str)
             Logger.d("selectedApps => $selectedApps")
         }
 
@@ -131,21 +133,10 @@ class NoticeFragment : BasePageFragment<AppInfo>() {
     }
 
 
-    override fun onPause() {
-        super.onPause()
-        //去重
-        selectedApps = selectedApps.distinct()
-        val str = selectedApps.joinToString(",")
-        ConfigUtils.putString(Setting.LISTENER_APP_LIST, str)
-        App.launch {
-            SettingModel.set(Setting.LISTENER_APP_LIST, str)
-            Logger.d("selectedApps => $selectedApps")
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         statusPage.showLoading()
         loadDataInside()
     }
+
 }

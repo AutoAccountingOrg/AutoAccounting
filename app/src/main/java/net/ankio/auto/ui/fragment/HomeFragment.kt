@@ -15,9 +15,7 @@
 
 package net.ankio.auto.ui.fragment
 
-import android.Manifest
 import android.content.BroadcastReceiver
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.provider.Settings
 import android.text.method.LinkMovementMethod
@@ -56,9 +54,7 @@ import net.ankio.auto.utils.CustomTabsHelper
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BookNameModel
 import org.ezbook.server.db.model.CategoryModel
-import org.ezbook.server.db.model.SettingModel
 import rikka.html.text.toHtml
-import java.lang.ref.WeakReference
 
 /**
  * 主页
@@ -116,24 +112,25 @@ class HomeFragment : BaseFragment() {
         val color = SurfaceColors.SURFACE_1.getColor(requireContext())
         cards.forEach { it.setCardBackgroundColor(color) }
 
+
+        return binding.root
+    }
+
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         lifecycleScope.launch {
             // app启动时检查自动记账服务的连通性
             checkAutoService() &&
-            //悬浮窗权限
-           checkFloatPermission() &&
+                    //悬浮窗权限
+                    checkFloatPermission() &&
                     // 检查记账软件
-            checkBookApp() &&
-            // 检查软件和规则更新
-            checkUpdate()
+                    checkBookApp() &&
+                    // 检查软件和规则更新
+                    checkUpdate()
 
         }
-
-
-
-
-
-
-        return binding.root
+        refreshUI()
     }
 
     /**
@@ -170,7 +167,7 @@ class HomeFragment : BaseFragment() {
      */
     private  fun checkBookApp():Boolean {
         if (ConfigUtils.getString(Setting.BOOK_APP_ID, "").isEmpty()) {
-            AppDialog(requireContext()).show(cancel = BuildConfig.DEBUG)
+            AppDialog(requireContext()).show(cancel = true)
             return false
         }
         return true
@@ -209,7 +206,6 @@ class HomeFragment : BaseFragment() {
             lifecycleScope.launch {
                 val book = BookNameModel.getFirstBook()
                 ConfigUtils.putString(Setting.DEFAULT_BOOK_NAME, book.name)
-                SettingModel.set(Setting.DEFAULT_BOOK_NAME, book.name)
                 binding.defaultBook.text = book.name
             }
         } else {
@@ -312,6 +308,7 @@ class HomeFragment : BaseFragment() {
      * 检查应用更新
      */
     private suspend fun checkAppUpdate(showResult: Boolean = false) {
+        Logger.d("checkAppUpdate, showResult: $showResult")
         if (context == null) return // 防止空指针
         val appUpdate = AppUpdate(requireContext())
         runCatching {
@@ -348,7 +345,6 @@ class HomeFragment : BaseFragment() {
         val themeContext = App.getThemeContext(requireContext())
         broadcastReceiverBook =
             LocalBroadcastHelper.registerReceiver(LocalBroadcastHelper.ACTION_APP_CHANGED) { a, b ->
-                if (context == null)return@registerReceiver
                 bindBookAppUI()
             }
         binding.bookAppContainer.setOnClickListener {
@@ -362,18 +358,15 @@ class HomeFragment : BaseFragment() {
         // 资产管理（只读）
         binding.readAssets.setOnClickListener {
             AssetsSelectorDialog(themeContext) {
-                Logger.d("选择的资产是：${it.name}")
+                Logger.d("Choose Asset: ${it.name}")
             }.show(cancel = true)
         }
         // 账本数据（只读）
         binding.book.setOnClickListener {
             BookSelectorDialog(themeContext) { book, _ ->
-                Logger.d("选择的账本是：${book.name}")
+                Logger.d("Choose Book: ${book.name}")
                 // defaultBook
                 ConfigUtils.putString(Setting.DEFAULT_BOOK_NAME, book.name)
-                lifecycleScope.launch {
-                    SettingModel.set(Setting.DEFAULT_BOOK_NAME, book.name)
-                }
                 refreshUI()
             }.show(cancel = true)
         }
@@ -385,7 +378,7 @@ class HomeFragment : BaseFragment() {
                     book.remoteId,
                     type
                 ) { categoryModel1: CategoryModel?, categoryModel2: CategoryModel? ->
-                    Logger.d("选择的分类是：${categoryModel1?.name ?: ""} - ${categoryModel2?.name ?: ""}")
+                    Logger.d("Book: ${book.name}, Type: $type, Choose Category：${categoryModel1?.name ?: ""} - ${categoryModel2?.name ?: ""}")
                 }.show(cancel = true)
             }.show(cancel = true)
         }
@@ -420,13 +413,6 @@ class HomeFragment : BaseFragment() {
         }
     }
 
-    /**
-     * onResume时刷新UI
-     */
-    override fun onResume() {
-        super.onResume()
-        refreshUI()
-    }
 
     /**
      * 检查更新

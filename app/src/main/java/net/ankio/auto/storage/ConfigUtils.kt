@@ -48,6 +48,7 @@ class ConfigUtils private constructor(context: Context) {
         // 静态函数调用
         fun init(context: Context) {
             getInstance(context).init()
+            Logger.d("Config Init: ${getInstance(context).settings}")
         }
 
         fun save(context: Context) {

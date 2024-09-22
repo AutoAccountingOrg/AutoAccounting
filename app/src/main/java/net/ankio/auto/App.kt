@@ -230,7 +230,7 @@ class App : Application() {
             } ?: run {
                 sp.append("No extras")
             }
-            Logger.i(sp.toString())
+            Logger.d(sp.toString())
         }
     }
 
@@ -239,16 +239,16 @@ class App : Application() {
      */
     override fun attachBaseContext(base: Context?) {
         super.attachBaseContext(base)
+        Logger.i("App init")
         app = this
         ConfigUtils.init(this)
         // 初始化调试模式
         debug = BuildConfig.DEBUG || ConfigUtils.getBoolean(Setting.DEBUG_MODE, false)
-
+        Logger.i("Debug Mode: $debug")
         if (!BuildConfig.DEBUG) {
             // 设置全局异常
             ExceptionHandler.init(this)
         }
-
 
         // 初始化 Toast 框架
         ToastUtils.init(this)

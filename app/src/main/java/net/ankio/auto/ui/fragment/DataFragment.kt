@@ -94,6 +94,19 @@ class DataFragment : BasePageFragment<AppDataModel>() {
 
     private var leftData = JsonObject()
     private fun loadLeftData(leftList: CustomNavigationRail) {
+
+        leftList.setOnItemSelectedListener {
+            val id = it.id
+            page = 1
+            app = leftData.keySet().elementAt(id - 1)
+            statusPage.showLoading()
+            loadDataInside()
+        }
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val leftList = binding.leftList
         lifecycleScope.launch {
             AppDataModel.apps().let { result ->
                 leftData = result
@@ -112,13 +125,6 @@ class DataFragment : BasePageFragment<AppDataModel>() {
             }
         }
 
-        leftList.setOnItemSelectedListener {
-            val id = it.id
-            page = 1
-            app = leftData.keySet().elementAt(id - 1)
-            statusPage.showLoading()
-            loadDataInside()
-        }
     }
 
     /**

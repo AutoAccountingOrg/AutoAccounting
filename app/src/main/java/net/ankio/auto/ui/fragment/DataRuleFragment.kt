@@ -104,10 +104,10 @@ class DataRuleFragment : BasePageFragment<RuleModel>() {
      */
     private var leftData = JsonObject()
 
-    /**
-     * 加载左侧数据
-     */
-    private fun loadLeftData(leftList: CustomNavigationRail) {
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val leftList = binding.leftList
         lifecycleScope.launch {
             RuleModel.apps().let { result ->
                 leftData = result
@@ -136,6 +136,13 @@ class DataRuleFragment : BasePageFragment<RuleModel>() {
                 }
             }
         }
+    }
+
+    /**
+     * 加载左侧数据
+     */
+    private fun loadLeftData(leftList: CustomNavigationRail) {
+
 
         leftList.setOnItemSelectedListener {
             val id = it.id

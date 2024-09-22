@@ -22,7 +22,6 @@ import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowInsets
@@ -31,7 +30,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.MaterialToolbar
-import com.google.android.material.elevation.SurfaceColors
 import com.quickersilver.themeengine.ThemeEngine
 import com.quickersilver.themeengine.ThemeMode
 import net.ankio.auto.App
@@ -61,7 +59,6 @@ open class BaseActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         // 主题初始化
         ThemeEngine.applyToActivity(this@BaseActivity)
-
         // 等待view创建完成
         window.decorView.post {
             onViewCreated()
@@ -72,7 +69,7 @@ open class BaseActivity : AppCompatActivity() {
     /**
      * 在子activity手动调用该方法
      */
-    fun onViewCreated() {
+    private fun onViewCreated() {
         // 主题初始化
         val themeMode = ThemeEngine.getInstance(this@BaseActivity).themeMode
 
@@ -83,6 +80,9 @@ open class BaseActivity : AppCompatActivity() {
 
     }
 
+    /**
+     * 沉浸式模式
+     */
     private fun enableImmersiveMode(light: Boolean) {
         //状态栏
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -144,17 +144,6 @@ open class BaseActivity : AppCompatActivity() {
     }
 
 
-
-
-    /**
-     * 获取主题色
-     */
-    fun getThemeAttrColor(
-        @AttrRes attrResId: Int,
-    ): Int {
-        return App.getThemeAttrColor(attrResId)
-    }
-
     /**
      * 切换activity
      */
@@ -180,6 +169,7 @@ open class BaseActivity : AppCompatActivity() {
             recreate()
         }
     }
+
 
     override fun onStop() {
         super.onStop()

@@ -62,7 +62,7 @@ class LogFragment : BasePageFragment<LogModel>() {
                         file.createNewFile()
 
                         // 循环20页日志，每页100条
-                        for (i in 1..20) {
+                        for (i in 1..200) {
                             val list = LogModel.list(i, 100)
                             if (list.isEmpty()) {
                                 break
@@ -98,7 +98,7 @@ class LogFragment : BasePageFragment<LogModel>() {
                         )
                     }
                 }.onFailure {
-                    Logger.e("日志分享失败", it)
+                    Logger.e("Share Log Error", it)
                 }
             },
             ToolbarMenuItem(R.string.item_clear, R.drawable.menu_icon_clear) {
@@ -109,7 +109,7 @@ class LogFragment : BasePageFragment<LogModel>() {
                         loadDataInside()
                     }
                 }.onFailure {
-                    Logger.e("清除失败", it)
+                    Logger.e("Clear Log Error", it)
                 }
             },
         )
@@ -145,9 +145,8 @@ class LogFragment : BasePageFragment<LogModel>() {
         return binding.root
     }
 
-
-    override fun onResume() {
-        super.onResume()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         statusPage.showLoading()
         loadDataInside()
     }

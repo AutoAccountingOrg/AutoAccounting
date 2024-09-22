@@ -56,7 +56,7 @@ class AppDataAdapter(
     ) = withContext(Dispatchers.IO) {
         val item = holder.item!!
 
-        Logger.d("尝试匹配中: $item")
+        Logger.d(": $item")
 
         val t = System.currentTimeMillis() / 1000
         if (hashMap.containsKey(item) && t - hashMap[item]!! < 60) { // 30秒内不重复匹配

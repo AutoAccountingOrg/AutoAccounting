@@ -124,10 +124,11 @@ open class OrderFragment : BasePageFragment<Pair<String, List<BillInfoModel>>>()
         return binding.root
     }
 
-    override fun onResume() {
-        super.onResume()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         statusPage.showLoading()
         loadDataInside()
     }
+
 
 }

@@ -32,6 +32,7 @@ import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.ActivityMainBinding
 import net.ankio.auto.storage.BackupUtils
+import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.Github
@@ -47,6 +48,7 @@ class MainActivity : BaseActivity() {
     private fun onLogin() {
         if (hasLogin) return
         val uri = intent.data
+        Logger.d("Login From Github: $uri")
         if (uri != null) {
             // val dialog = DialogUtil.createLoadingDialog(this, getString(R.string.auth_waiting))
             val code = uri.getQueryParameter("code")
@@ -54,6 +56,7 @@ class MainActivity : BaseActivity() {
                 runCatching {
                     Github.parseAuthCode(code)
                 }.onFailure {
+                    Logger.e("Error on login", it)
                     ToastUtils.error(it.message!!)
                 }.onSuccess {
                     ToastUtils.info(R.string.auth_success)

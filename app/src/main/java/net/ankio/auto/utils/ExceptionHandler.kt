@@ -17,6 +17,7 @@ package net.ankio.auto.utils
 
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import com.bugsnag.android.Bugsnag
 import com.bugsnag.android.Event
 import net.ankio.auto.App
@@ -39,7 +40,6 @@ class ExceptionHandler(private val context: Context) : Thread.UncaughtExceptionH
         Bugsnag.start(context)
         Bugsnag.addOnError { event ->
             val result = handleException(event) // 发送此异常
-            Logger.i("是否发送异常到AppCenter => $result")
             result
         }
     }
@@ -49,7 +49,7 @@ class ExceptionHandler(private val context: Context) : Thread.UncaughtExceptionH
         val error = events.originalError
         if (error == null) {
             val msg = events.errors[0].errorMessage ?: ""
-            Logger.e("发生内容为NULL的异常 => $msg")
+            Logger.e("Exception is null", Throwable(msg))
             return false
         }
 
@@ -77,7 +77,7 @@ class ExceptionHandler(private val context: Context) : Thread.UncaughtExceptionH
         e: Throwable,
     ) {
         val root = getRootCause(e)
-        Logger.e("发生未处理的异常", root)
+        Logger.e("Handler UncaughtException", root)
 
         // 将异常拼成字符串
         val sb = StringBuilder()
