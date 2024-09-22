@@ -57,7 +57,6 @@ class LoadingUtils(private val activity: Activity) {
     }
 
     fun setText(text: String?) {
-        Logger.d("setText: $text")
         activity.runOnUiThread {
             if (dialog.isShowing) {
                 binding.loadingText.text = text
