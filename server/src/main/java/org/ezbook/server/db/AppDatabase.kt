@@ -152,7 +152,7 @@ val MIGRATION_5_6 = object : Migration(5, 6) {
             CREATE TABLE new_AppDataModel (
                 id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                 data TEXT NOT NULL,
-                type INTEGER NOT NULL,
+                type TEXT NOT NULL,
                 app TEXT NOT NULL,
                 time INTEGER NOT NULL,
                 `match` INTEGER NOT NULL,
