@@ -106,7 +106,7 @@ abstract class BaseSheetDialog(private val context: Context) :
             )
         }
 
-        show()
+        super.show()
     }
 
     override fun dismiss() {

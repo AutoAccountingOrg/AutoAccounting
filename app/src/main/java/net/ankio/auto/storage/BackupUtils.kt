@@ -77,7 +77,6 @@ class BackupUtils(private val context: Context) {
                             ?.let { MimeTypeMap.getSingleton().getExtensionFromMimeType(it) }
 
                     if (!SUFFIX.equals(fileExtension, true)) {
-                        Logger.i("fileExtension:$fileExtension")
                         ToastUtils.info(R.string.backup_error)
                         return@let
                     }
@@ -90,11 +89,12 @@ class BackupUtils(private val context: Context) {
                             backupUtils.getLocalBackup(it)
                         }.onFailure { it2 ->
                             loadingUtils.close()
+                            Logger.e(it2.message ?: "", it2)
                             if (it2 is RestoreBackupException) {
                                 ToastUtils.error(it2.message!!)
                             } else {
                                 ToastUtils.info(R.string.backup_error)
-                                Logger.e(it2.message ?: "", it2)
+
                             }
                         }.onSuccess {
                             loadingUtils.close()
@@ -150,7 +150,7 @@ class BackupUtils(private val context: Context) {
             val requestUtils = RequestsUtils(context)
             val dbFile = File(backupDir, "auto.db")
             val result = requestUtils.download("http://127.0.0.1:52045/db/export", dbFile)
-            Logger.i("downaload result:$result")
+            Logger.i("Download database: $result")
 
             if (!result) {
                 throw RestoreBackupException(context.getString(R.string.backup_error))
@@ -188,14 +188,14 @@ class BackupUtils(private val context: Context) {
         backupDir.mkdirs()
 
         ZipUtils.unzip(file.absolutePath, backupDir.absolutePath) {
-            Logger.i("解压文件:$it")
+            Logger.i("Unzip progress:$it")
         }
         file.delete()
         val indexFile = File(backupDir, "auto.index")
         val json = indexFile.readText()
         indexFile.delete()
         val map = Gson().fromJson(json, JsonObject::class.java)
-        Logger.i("备份恢复包的数据信息:$map")
+        Logger.i("Backup Data:$map")
         val version = map.get("version").asInt
         if (version < SUPPORT_VERSION) {
             throw RestoreBackupException(
@@ -215,7 +215,7 @@ class BackupUtils(private val context: Context) {
 
         val requestUtils = RequestsUtils(context)
         val result = requestUtils.upload("http://127.0.0.1:52045/db/import", dbFile)
-        Logger.i("upload result:$result")
+        Logger.i("Upload result:$result")
     }
 
     /**
@@ -296,7 +296,7 @@ class BackupUtils(private val context: Context) {
                     }
                 }
             }.onFailure {
-                Logger.e("创建目录失败:$it")
+                Logger.e("Failed to create backup:$it")
                 showWebDavMsg(100)
                 withContext(Dispatchers.Main) {
                     loadingUtils.close()
@@ -318,7 +318,7 @@ class BackupUtils(private val context: Context) {
                 loadingUtils.close()
             }
         }.onFailure {
-            Logger.e("上传失败:$it", it)
+            Logger.e("Upload Failed:$it", it)
             showWebDavMsg(100)
             withContext(Dispatchers.Main) {
                 loadingUtils.close()
@@ -334,7 +334,7 @@ class BackupUtils(private val context: Context) {
     }
 
     private fun showWebDavMsg(code: Int) {
-        Logger.i("webdav code:$code")
+        Logger.i("Webdav Error code:$code")
         when (code) {
             100 -> ToastUtils.error(R.string.net_error_msg)
             200 -> ToastUtils.info(R.string.backup_success)
@@ -380,7 +380,7 @@ class BackupUtils(private val context: Context) {
                     }
                 }
             }.onFailure {
-                Logger.e("下载失败$it")
+                Logger.e("Download Error: $it")
                 withContext(Dispatchers.Main) {
                     loadingUtils.close()
                 }

@@ -38,6 +38,7 @@ object Github {
     suspend fun parseAuthCode(code: String?) =
         withContext(Dispatchers.IO) {
             if (code == null) {
+                Logger.e("Failed to parse auth code: code is null")
                 throw GithubException("授权代码为空")
             }
             val data = JsonObject().apply {
@@ -79,12 +80,13 @@ object Github {
             requestsUtils.addHeader("X-GitHub-Api-Version", "2022-11-28")
             val accessToken = ConfigUtils.getString(Setting.GITHUB_ACCESS_TOKEN, "")
             if (accessToken.isEmpty()){
+                Logger.e("Failed to create issue: accessToken is null")
                 throw GithubException("创建Issue失败, token = null")
             }
             requestsUtils.addHeader("Authorization", "Bearer $accessToken")
             val result = requestsUtils.json(url, jsonRequest)
             if (result.first != 201) {
-                Logger.e("创建Issue失败: ${result.second}")
+                Logger.e("Failed to create issue: ${result.second}")
                 throw GithubException("创建Issue失败")
             }
             val jsonObject = Gson().fromJson(result.second, JsonObject::class.java)

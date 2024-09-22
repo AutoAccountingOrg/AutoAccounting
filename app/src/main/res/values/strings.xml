@@ -451,4 +451,5 @@
     <string name="income_lending_account_empty">收款账户不能为空</string>
     <string name="income_lending_account2_empty">借入账户不能为空</string>
     <string name="income_repayment_account_empty">还债不能为空</string>
+    <string name="repeat_bill">检测到重复账单，已自动合并。</string>
 </resources>

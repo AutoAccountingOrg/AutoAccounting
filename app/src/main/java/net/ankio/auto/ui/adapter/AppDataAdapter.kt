@@ -27,6 +27,7 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterDataBinding
+import net.ankio.auto.exceptions.GithubException
 import net.ankio.auto.service.FloatingWindowService
 import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Logger
@@ -109,29 +110,34 @@ ${result}
                 """.trimIndent()
 
 
-                runCatching {
+                try {
                     item.issue = Github.createIssue(
                         title,
                         body,
                         "AutoRule",
                     )
-                }.onFailure {
                     withContext(Dispatchers.Main) {
-                        ToastUtils.error(it.message!!)
+                        val position = indexOf(item)
+                        list[position] = item
+                        AppDataModel.put(item)
+                        notifyItemChanged(position)
+                        ToastUtils.info(R.string.upload_success)
+                    }
+
+                }catch (e:GithubException){
+                    withContext(Dispatchers.Main) {
+                        ToastUtils.error(e.message!!)
                         CustomTabsHelper.launchUrl(
                             activity,
                             Uri.parse(Github.getLoginUrl()),
                         )
                         loading.close()
                     }
-                }.onSuccess {
+                }catch (e:Exception){
+                    ToastUtils.error(e.message!!)
+                }finally {
                     withContext(Dispatchers.Main) {
                         loading.close()
-                        val position = indexOf(item)
-                        list[position] = item
-                        AppDataModel.put(item)
-                        notifyItemChanged(position)
-                        ToastUtils.info(R.string.upload_success)
                     }
                 }
 
@@ -163,36 +169,36 @@ ${item.data}
                                             """.trimIndent()
 
 
-                    runCatching {
+                    try {
                         item.issue = Github.createIssue(
                             title,
                             body,
                             "AutoAccounting",
                         )
-                    }.onFailure {
                         withContext(Dispatchers.Main) {
-                            ToastUtils.error(it.message!!)
-                            CustomTabsHelper.launchUrl(
-                                activity,
-                                Uri.parse(Github.getLoginUrl()),
-                            )
-                            loading.close()
-                        }
-                        return@launch
-                    }.onSuccess {
-                        withContext(Dispatchers.Main) {
-                            loading.close()
                             val position = indexOf(item)
                             list[position] = item
                             AppDataModel.put(item)
                             notifyItemChanged(position)
                             ToastUtils.info(R.string.upload_success_issue)
                         }
+                    }catch (e: GithubException){
+                        withContext(Dispatchers.Main) {
+                            ToastUtils.error(e.message!!)
+                            CustomTabsHelper.launchUrl(
+                                activity,
+                                Uri.parse(Github.getLoginUrl()),
+                            )
+                        }
+                    }catch (e: Exception){
+                        withContext(Dispatchers.Main) {
+                            ToastUtils.error(e.message!!)
+                        }
+                    }finally {
+                        withContext(Dispatchers.Main) {
+                            loading.close()
+                        }
                     }
-
-
-
-
                 }
             }.show(float = false)
 
@@ -229,6 +235,7 @@ ${item.data}
                             putExtra("showWaitTip", false)
                             putExtra("from","AppData")
                         }
+                    Logger.d("Start FloatingWindowService")
                     activity.startService(serviceIntent)
                 }
             }

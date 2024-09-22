@@ -30,7 +30,7 @@ object LanguageUtils {
     fun initAppLanguage(context: Context): Context {
         val language = getAppLang()
         val locale = getLocale(language)
-        Logger.i("App语言：$language 实际获取的语言：${locale.language}")
+        Logger.i("App Language: $language => ${locale.language}")
         Locale.setDefault(locale)
         return updateResourcesLocale(context, locale)
     }

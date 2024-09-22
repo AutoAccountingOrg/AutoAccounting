@@ -98,7 +98,7 @@ class FloatEditorDialog(
         binding = FloatEditorBinding.inflate(inflater)
         cardView = binding.editorCard
 
-        Logger.d("原始账单结果 => $rawBillInfo")
+        Logger.d("Raw BillInfo => $rawBillInfo")
         billTypeLevel1 = BillTool.getType(rawBillInfo.type)
         billTypeLevel2 = rawBillInfo.type
 

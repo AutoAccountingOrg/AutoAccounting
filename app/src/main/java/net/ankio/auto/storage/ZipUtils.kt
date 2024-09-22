@@ -23,7 +23,7 @@ object ZipUtils {
     fun unzip(zipFilePath: String, desDirectory: String, callback: ((String) -> Unit)? = null) {
         val desDir = File(desDirectory)
         if (!desDir.exists() && !desDir.mkdirs()) {
-            Logger.e("创建文件夹失败: $desDirectory")
+            Logger.e("Failed to create directory: $desDirectory")
             return
         }
         try {
@@ -54,7 +54,7 @@ object ZipUtils {
                 }
             }
         } catch (e: IOException) {
-            Logger.e("解压失败: ${e.message}")
+            Logger.e("Unzip failed: ${e.message}")
         }
     }
     //========================解压===END===================================
@@ -66,7 +66,7 @@ object ZipUtils {
                 zipFiles(zipOut, sourceFile, "")
             }
         } catch (e: IOException) {
-            Logger.e("压缩失败: ${e.message}")
+            Logger.e("Zip failed: ${e.message}")
         }
     }
 
@@ -96,7 +96,7 @@ object ZipUtils {
                 }
                 zipOut.closeEntry()
             } catch (e: IOException) {
-                Logger.e("压缩文件失败: ${e.message}")
+                Logger.e("Zip failed: ${e.message}")
             }
         }
     }

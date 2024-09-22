@@ -12,15 +12,9 @@ import net.ankio.auto.R
 import net.ankio.auto.storage.Logger
 import rikka.html.text.HtmlCompat
 
-/**
- * Created by fytho on 2017/12/15.
- */
-object CustomTabsHelper {
-    private var sOnCreateIntentBuilderListener: OnCreateIntentBuilderListener? = null
 
-    fun setOnCreateIntentBuilderListener(onCreateIntentBuilderListener: OnCreateIntentBuilderListener?) {
-        sOnCreateIntentBuilderListener = onCreateIntentBuilderListener
-    }
+object CustomTabsHelper {
+
 
     private fun createBuilder(): CustomTabsIntent.Builder {
         val builder: CustomTabsIntent.Builder = CustomTabsIntent.Builder()
@@ -33,9 +27,6 @@ object CustomTabsHelper {
         uri: Uri,
     ): Boolean {
         val builder: CustomTabsIntent.Builder = createBuilder()
-        if (sOnCreateIntentBuilderListener != null) {
-            sOnCreateIntentBuilderListener!!.onCreateHelpIntentBuilder(context, builder)
-        }
         val uriBuilder = uri.buildUpon()
         if (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_YES > 0) {
             uriBuilder.appendQueryParameter("night", "1")
@@ -74,7 +65,7 @@ object CustomTabsHelper {
             try {
                 context.startActivity(intent)
             } catch (tr: Throwable) {
-                Logger.e("打开默认浏览器失败", tr)
+                Logger.e("Failed to open default browser", tr)
                 try {
                     App.copyToClipboard(url)
                     MaterialAlertDialogBuilder(context)
@@ -95,10 +86,5 @@ object CustomTabsHelper {
         }
     }
 
-    interface OnCreateIntentBuilderListener {
-        fun onCreateHelpIntentBuilder(
-            context: Context?,
-            builder: CustomTabsIntent.Builder?,
-        )
-    }
+
 }

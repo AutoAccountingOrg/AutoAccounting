@@ -67,21 +67,31 @@ class FloatingWindowService : Service() {
     private fun  initNotify(){
         val CHANNEL_ID = "FloatingWindowServiceChannel"
 
-        // 创建一个通知通道
+// 创建一个通知通道
         val channel = NotificationChannel(
             CHANNEL_ID,
-            "Floating Window Service Channel",
-            NotificationManager.IMPORTANCE_MIN // 设置为最小重要性
-        )
+            "自动记账悬浮窗服务", // 通道名称
+            NotificationManager.IMPORTANCE_NONE // 设置为完全不显示通知
+        ).apply {
+            setShowBadge(false) // 不显示图标徽章
+            enableLights(false) // 禁用通知灯光
+            enableVibration(false) // 禁用震动
+            lockscreenVisibility = Notification.VISIBILITY_SECRET // 在锁屏时不可见
+            setSound(null, null) // 不播放声音
+        }
+
+// 获取通知管理器
         val manager = getSystemService(NotificationManager::class.java)
         manager.createNotificationChannel(channel)
 
-        // 创建最小化通知
+// 创建最小化通知
         notification = Notification.Builder(this, CHANNEL_ID)
             .setContentTitle("")  // 无标题
-            .setContentText("自动记账悬浮窗服务")
+            .setContentText("") // 通知内容
             .setSmallIcon(R.mipmap.ic_launcher_foreground)  // 小图标
+            .setAutoCancel(true) // 通知可被用户取消
             .build()
+
     }
 
 
@@ -98,7 +108,7 @@ class FloatingWindowService : Service() {
         lastTheme = ThemeEngine.getInstance(App.app).getTheme()
 
 
-        Logger.d("自动记账服务启动，悬浮窗超时时间：$timeCount 秒")
+        Logger.d("FloatingWindowService Start，Timeout：$timeCount s")
 
     }
 
@@ -121,8 +131,8 @@ class FloatingWindowService : Service() {
         val billInfoModel =
             Gson().fromJson(intent.getStringExtra("billInfo"), BillInfoModel::class.java)
         val from = intent.getStringExtra("from")?:"Unknown"
-        Logger.d("服务请求 => $intent, From = $from")
-        Logger.d("服务请求 => 账单信息：$billInfoModel")
+        Logger.d("Server start => $intent, From = $from")
+        Logger.d("BillInfo：$billInfoModel")
 
         val parent = runCatching {
             Gson().fromJson(
@@ -135,18 +145,19 @@ class FloatingWindowService : Service() {
 
         if (parent != null) {
             //说明是重复账单
-            ToastUtils.info("检测到重复账单，已自动合并。")
+            ToastUtils.info(getString(R.string.repeat_bill))
             LocalBroadcastHelper.sendBroadcast(LocalBroadcastHelper.ACTION_UPDATE_BILL, Bundle().apply {
                putString("billInfo", Gson().toJson(parent))
             })
+            Logger.i("Repeat Bill, Parent: $parent")
            return START_NOT_STICKY
         }
 
         runCatching {
             processBillInfo(billInfoModel, showWaitTip)
-        }.onFailure {
+        }.onFailure  {
             // 提醒用户报告错误
-            Logger.e("记账失败", it)
+            Logger.e("Failed to record bill", it)
             // 跳转错误页面
             val intent2 = Intent(App.app, ErrorActivity::class.java)
             intent2.flags = Intent.FLAG_ACTIVITY_NEW_TASK
@@ -249,22 +260,17 @@ class FloatingWindowService : Service() {
     }
 
     private fun recordBillInfo(billInfoModel2: BillInfoModel) {
-        runCatching {
-            billInfoModel2.state = BillState.Edited
-            App.launch {
-                BillInfoModel.put(billInfoModel2)
-            }
-            if (ConfigUtils.getBoolean(Setting.SHOW_SUCCESS_POPUP, true)) {
-                ToastUtils.info(
-                    getString(
-                        R.string.auto_success,
-                        billInfoModel2.money.toString(),
-                    ),
-                )
-            }
-
-        }.onFailure {
-
+        billInfoModel2.state = BillState.Edited
+        App.launch {
+            BillInfoModel.put(billInfoModel2)
+        }
+        if (ConfigUtils.getBoolean(Setting.SHOW_SUCCESS_POPUP, true)) {
+            ToastUtils.info(
+                getString(
+                    R.string.auto_success,
+                    billInfoModel2.money.toString(),
+                ),
+            )
         }
     }
 
@@ -283,7 +289,7 @@ class FloatingWindowService : Service() {
                         }
                     }).show(true)
                 }.onFailure {
-                    Logger.e("记账失败", it)
+                    Logger.e("Failed to show editor", it)
                 }
 
             }
@@ -306,3 +312,4 @@ class FloatingWindowService : Service() {
         super.onDestroy()
     }
 }
+
