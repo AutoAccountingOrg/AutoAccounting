@@ -1,12 +1,49 @@
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/log"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:text=""
-    android:maxLines="5"
-    android:ellipsize="end"
-    android:paddingLeft="@dimen/padding"
-    android:paddingRight="@dimen/padding"
-    android:paddingTop="0dp"
-    android:paddingBottom="0dp"
-    android:textSize="14sp" />
+    android:paddingTop="1dp"
+    android:paddingBottom="1dp"
+    android:orientation="horizontal">
+
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/date"
+        android:layout_width="65dp"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:paddingTop="0dp"
+        android:paddingBottom="0dp"
+        android:text=""
+        android:textSize="12sp"
+        tools:text="2024-09-12\n12:34:56" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:paddingLeft="@dimen/one_padding"
+        android:orientation="vertical">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/app"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="0dp"
+            android:paddingBottom="0dp"
+            android:text=""
+            android:textSize="10sp"
+            tools:text="自动谢谢谢谢谢记账 AppKit.kt(123)" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/log"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="0dp"
+            android:paddingBottom="0dp"
+            android:text=""
+            android:textSize="12sp"
+            tools:text="这是一个这是一个非常详细的日志这是一个非常详细的日志这是一个非常详细的日志这是一个非常详细的日志这是一个非常详细的日志这是一个非常详细的日志这是一个非常详细的日志这是一个非常详细的日志这是一个非常详细的日志这是一个非常详细的日志这是一个非常详细的日志这是一个非常详细的日志这是一个非常详细的日志这是一个非常详细的日志这是一个非常详细的日志这是一个非常详细的日志这是一个非常详细的日志这是一个非常详细的日志这是一个非常详细的日志这是一个非常详细的日志这是一个非常详细的日志非常详细的日志" />
+    </LinearLayout>
+
+</LinearLayout>

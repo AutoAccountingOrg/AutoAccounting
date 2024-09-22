@@ -43,37 +43,39 @@ class LogAdapter(list: MutableList<LogModel>) :
         val binding = holder.binding
         val level = data.level
 
-        val sb = StringBuilder()
-        sb.append("[ ")
-        sb.append(DateUtils.getTime(data.time))
-        sb.append(" ] [ ")
+
+        binding.date.text = DateUtils.getTime("yyyy-MM-dd\nHH:mm:ss",data.time)
 
 
-        var appName = data.app
-
-        if (cachedApp.containsKey(data.app)) {
-            appName = cachedApp[data.app]!!
-        } else {
+        var appName = cachedApp[data.app] ?: run {
             val array = App.getAppInfoFromPackageName(data.app)
-            if (array !== null) {
-                cachedApp[data.app] = array[0] as String
-                appName = cachedApp[data.app]!!
-            }
+            val app = array?.get(0)?.toString()?:data.app
+            cachedApp[data.app] = app
+            app
         }
 
-        sb.append(appName)
-        sb.append(" ] [ ")
-        sb.append(data.location)
-        sb.append(" ] ")
-        sb.append(data.message)
-        binding.log.text = sb.toString()
-        when (level) {
-            LogLevel.DEBUG -> binding.log.setTextColor(holder.context.getColor(R.color.success))
-            LogLevel.INFO -> binding.log.setTextColor(holder.context.getColor(R.color.info))
-            LogLevel.WARN -> binding.log.setTextColor(holder.context.getColor(R.color.warning))
-            LogLevel.ERROR -> binding.log.setTextColor(holder.context.getColor(R.color.danger))
-            else -> binding.log.setTextColor(holder.context.getColor(R.color.info))
+
+        if (data.location.isNotEmpty()) {
+            appName+=" "+data.location
         }
+
+
+        binding.app.text = appName
+
+
+
+        binding.log.text = data.message
+
+        when (level) {
+            LogLevel.DEBUG -> binding.log.setTextColor(holder.context.getColor(R.color.log_debug))
+            LogLevel.INFO -> binding.log.setTextColor(holder.context.getColor(R.color.log_info))
+            LogLevel.WARN -> binding.log.setTextColor(holder.context.getColor(R.color.log_warning))
+            LogLevel.ERROR -> binding.log.setTextColor(holder.context.getColor(R.color.log_error))
+          //  LogLevel.SUCCESS -> binding.log.setTextColor(holder.context.getColor(R.color.log_success))
+            else -> binding.log.setTextColor(holder.context.getColor(R.color.log_info))
+        }
+
+
     }
 
 }

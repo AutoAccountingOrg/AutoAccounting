@@ -22,6 +22,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -67,7 +68,7 @@ class LogFragment : BasePageFragment<LogModel>() {
                                 break
                             }
                             file.appendText(list.joinToString("\n") {
-                                "[${DateUtils.getTime(it.time)}] [ ${it.app} ] [ ${it.location} ] [ ${it.level} ] ${it.message}"
+                                "${DateUtils.getTime(it.time)}  ${it.app}  [${it.level}][${it.location}]${it.message}"
                             })
                         }
 
@@ -138,6 +139,7 @@ class LogFragment : BasePageFragment<LogModel>() {
         val recyclerView = binding.statusPage.contentView
         recyclerView?.layoutManager = LinearLayoutManager(requireContext())
         recyclerView?.adapter = LogAdapter(pageData)
+        recyclerView?.addItemDecoration(DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
         //scrollView = WeakReference(recyclerView!!)
         loadDataEvent(binding.refreshLayout)
         return binding.root
