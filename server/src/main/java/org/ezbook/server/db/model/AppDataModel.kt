@@ -68,6 +68,11 @@ class AppDataModel {
      */
     var issue: Int = 0
 
+    /**
+     * 使用的规则版本
+     */
+    var version: String = ""
+
     companion object {
         /**
          * 根据条件查询

@@ -26,6 +26,7 @@ import org.ezbook.server.Server
 import org.ezbook.server.constant.BillState
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.constant.DataType
+import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.AppDataModel
 import org.ezbook.server.db.model.BillInfoModel
@@ -167,6 +168,7 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
             // 更新AppData
             appDataModel.match = true
             appDataModel.rule = billInfoModel.ruleName
+            appDataModel.version = Db.get().settingDao().query(Setting.RULE_VERSION)?.value ?: ""
             Db.get().dataDao().update(appDataModel)
         }
         return Server.json(200, "OK", billInfoModel)

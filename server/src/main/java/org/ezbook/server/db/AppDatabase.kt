@@ -58,7 +58,7 @@ import org.ezbook.server.db.model.SettingModel
         CategoryRuleModel::class,
         BookBillModel::class
     ],
-    version = 5,
+    version = 6,
     exportSchema = false,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -142,5 +142,36 @@ val MIGRATION_4_5 = object : Migration(4, 5) {
 
         // 将新表重命名为旧表
         database.execSQL("ALTER TABLE new_RuleModel RENAME TO RuleModel")
+    }
+}
+
+val MIGRATION_5_6 = object : Migration(5, 6) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        // 1. 创建一个新的临时表
+        database.execSQL("""
+            CREATE TABLE new_AppDataModel (
+                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                data TEXT NOT NULL,
+                type INTEGER NOT NULL,
+                app TEXT NOT NULL,
+                time INTEGER NOT NULL,
+                `match` INTEGER NOT NULL,
+                rule TEXT NOT NULL,
+                issue INTEGER NOT NULL,
+                version TEXT NOT NULL DEFAULT ''
+            )
+        """.trimIndent())
+
+        // 2. 将旧表中的数据迁移到新表
+        database.execSQL("""
+            INSERT INTO new_AppDataModel (id, data, type, app, time, `match`, rule, issue)
+            SELECT id, data, type, app, time, `match`, rule, issue FROM AppDataModel
+        """.trimIndent())
+
+        // 3. 删除旧表
+        database.execSQL("DROP TABLE AppDataModel")
+
+        // 4. 将临时表重命名为旧表名
+        database.execSQL("ALTER TABLE new_AppDataModel RENAME TO AppDataModel")
     }
 }
