@@ -114,7 +114,7 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
         val categoryJS = RuleGenerator.category()
 
         val win = JsonObject()
-        win.addProperty("type", dataType.name)
+        win.addProperty("type", billInfoModel.type.name)
         win.addProperty("money", billInfoModel.money)
         win.addProperty("shopName", billInfoModel.shopName)
         win.addProperty("shopItem", billInfoModel.shopItem)
@@ -272,6 +272,7 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
         var result: Any? = null
         try {
             Server.log("RunJs: $jsCode")
+            Server.log("RunData: $data")
             val scope: Scriptable = rhino.initStandardObjects()
             val printFunction = CustomPrintFunction(outputBuilder)
             ScriptableObject.putProperty(scope, "print", printFunction)
