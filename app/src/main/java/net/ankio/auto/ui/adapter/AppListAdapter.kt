@@ -61,8 +61,6 @@ class AppListAdapter(
         binding.appPackageName.text = data.packageName
         binding.checkbox.isChecked = data.packageName == selectApp
 
-        Logger.d("installedApp:$installedApp,packageName:${data.packageName},selectApp:$selectApp")
-
         binding.checkbox.isEnabled = installedApp
 
     }

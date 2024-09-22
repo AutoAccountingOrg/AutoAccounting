@@ -1,6 +1,5 @@
 package net.ankio.auto.ui.adapter
 
-import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.databinding.AdapterBookBillBinding
@@ -30,7 +29,6 @@ class BillSelectorAdapter(
                 selectApp.add(item.remoteId)
                 binding.checkbox.isChecked = true
             }
-            Log.d("BillSelectorDialog", "selectedBills: $selectApp")
         }
     }
 

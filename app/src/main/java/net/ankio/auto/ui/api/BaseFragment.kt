@@ -24,21 +24,17 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ScrollView
 import androidx.appcompat.content.res.AppCompatResources
-import androidx.appcompat.widget.ContentFrameLayout
 import androidx.appcompat.widget.SearchView
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentContainerView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.R
 import com.google.android.material.elevation.SurfaceColors
 import net.ankio.auto.App
-import net.ankio.auto.databinding.ActivityMainBinding
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.componets.StatusPage
 import net.ankio.auto.ui.models.ToolbarMenuItem
-import java.lang.ref.WeakReference
 
 
 /**
@@ -55,12 +51,13 @@ abstract class BaseFragment : Fragment() {
     }
 
 
-    private var scrollView : View? = null
+    private var scrollView: View? = null
+    private var maxScrollViewLength = 0
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 //        Logger.d("view:$view")
-        scrollView = getScrollView(view as ViewGroup)
+        getScrollView(view as ViewGroup)
     }
 
     override fun onResume() {
@@ -76,14 +73,14 @@ abstract class BaseFragment : Fragment() {
         mainActivity.binding.toolbar.menu.clear()
         // 添加菜单
         menuList.forEach {
-            addMenuItem(it,mainActivity)
+            addMenuItem(it, mainActivity)
         }
-        
-       val mStatusBarColor = App.getThemeAttrColor(android.R.attr.colorBackground)
-       val  mStatusBarColor2 = SurfaceColors.SURFACE_4.getColor(requireActivity())
-        var last  = mStatusBarColor
+
+        val mStatusBarColor = App.getThemeAttrColor(android.R.attr.colorBackground)
+        val mStatusBarColor2 = SurfaceColors.SURFACE_4.getColor(requireActivity())
+        var last = mStatusBarColor
         mainActivity.toolbarLayout?.setBackgroundColor(mStatusBarColor)
-        if (scrollView!=null) {
+        if (scrollView != null) {
             var animatorStart = false
             // 滚动页面调整toolbar颜色
             scrollView!!.setOnScrollChangeListener { _, _, scrollY, _, _ ->
@@ -106,7 +103,7 @@ abstract class BaseFragment : Fragment() {
                         last = mStatusBarColor2
                     }
                 } else {
-                    if (last!= mStatusBarColor) {
+                    if (last != mStatusBarColor) {
                         animatorStart = true
                         viewBackgroundGradientAnimation(
                             mainActivity.toolbarLayout!!,
@@ -123,41 +120,34 @@ abstract class BaseFragment : Fragment() {
         }
     }
 
-    private fun isScrollView(view: View): View ? {
-        return when (view) {
-            is ScrollView, is RecyclerView -> {
-                return view
-            }
 
-            is StatusPage -> {
-                return view.contentView!!
-            }
 
+    private fun findScrollView(view: View) {
+        val scrollViewInner = when (view) {
+            is ScrollView, is RecyclerView -> view
+            is StatusPage -> view.contentView!!
             else -> null
+        }
+        scrollViewInner?.let {
+            val length = it.height
+            if (length >= maxScrollViewLength) {
+                scrollView = it
+                maxScrollViewLength = length
+            }
         }
     }
 
-    private fun getScrollView(view: ViewGroup, depth: Int = 0): View? {
-        val root = isScrollView(view)
-        if (root != null) {
-            return view
-        }
-        if (depth > 10) return null
+    private fun getScrollView(view: ViewGroup, depth: Int = 0) {
+        if (depth > 10) return
+        findScrollView(view)
         for (i in 0 until view.childCount) {
             val child = view.getChildAt(i)
-            when (child) {
-                is ViewGroup -> {
-                    val scrollView = getScrollView(child,depth+1)
-                    return scrollView
-                }else -> {
-                    val scrollView = isScrollView(child)
-                    if (scrollView != null) {
-                        return scrollView
-                    }
-                }
+            if (child is ViewGroup) {
+                getScrollView(child, depth + 1)
+            } else {
+                findScrollView(child)
             }
         }
-        return null
     }
 
 
@@ -166,7 +156,7 @@ abstract class BaseFragment : Fragment() {
     /**
      * 添加菜单
      */
-    private fun addMenuItem(menuItemObject: ToolbarMenuItem,mainActivity:MainActivity) {
+    private fun addMenuItem(menuItemObject: ToolbarMenuItem, mainActivity: MainActivity) {
         val menu = mainActivity.binding.toolbar.menu
         val menuItem = menu.add(Menu.NONE, Menu.NONE, Menu.NONE, getString(menuItemObject.title))
         menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
