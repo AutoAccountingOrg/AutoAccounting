@@ -200,7 +200,7 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
         val ruleName = json.get("ruleName")?.asString ?: ""
         val type = json.get("type")?.asString ?: "Expend"
         // 根据ruleName判断是否需要自动记录
-        val rule = Db.get().ruleDao().query(app, dataType.name, ruleName)
+        val rule = Db.get().ruleDao().query( dataType.name,app, ruleName)
         val autoRecord = rule != null && rule.autoRecord
 
 
