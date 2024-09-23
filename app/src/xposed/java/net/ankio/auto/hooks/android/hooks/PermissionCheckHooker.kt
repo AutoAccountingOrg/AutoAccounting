@@ -33,11 +33,21 @@ class PermissionCheckHooker:PartHooker() {
         classLoader: ClassLoader
     ) {
 
-        hookCheckPermission(hookerManifest,classLoader)
+       runCatching {
+           hookCheckPermission(hookerManifest,classLoader)
+       }.onFailure {
+           hookerManifest.log("hook hookCheckPermission error:${it.message}")
+           hookerManifest.logE(it)
+       }
 
 
         //////////AppOpsManager的权限设置拦截不成功不知道为什么，换用下面的方法直接授权
-        setOverlaysAllowed(BuildConfig.APPLICATION_ID,application!!.baseContext)
+        runCatching {
+            setOverlaysAllowed(BuildConfig.APPLICATION_ID,application!!.baseContext)
+        }.onFailure {
+            hookerManifest.log("hook setOverlaysAllowed error:${it.message}")
+            hookerManifest.logE(it)
+        }
 
     }
 
