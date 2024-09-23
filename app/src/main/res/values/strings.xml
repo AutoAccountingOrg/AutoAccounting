@@ -452,4 +452,7 @@
     <string name="income_lending_account2_empty">借入账户不能为空</string>
     <string name="income_repayment_account_empty">还债不能为空</string>
     <string name="repeat_bill">检测到重复账单，已自动合并。</string>
+    <string name="transfer_same_account">转账的两个账户不允许一致</string>
+    <string name="lending_same_account">两个债务账户不允许一致</string>
+    <string name="expend_account_not_exist">资产账户【%s】不存在，请选择资产后再保存</string>
 </resources>

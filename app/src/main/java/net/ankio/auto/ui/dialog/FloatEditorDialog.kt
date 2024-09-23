@@ -111,7 +111,7 @@ class FloatEditorDialog(
 
     // 综合以上内容，应用到billInfo对象上
 
-    private fun getBillData(): BillInfoModel {
+    private fun getBillData(assets :List<AssetsModel>): BillInfoModel {
         val assetManager = ConfigUtils.getBoolean(Setting.SETTING_ASSET_MANAGER,true)
         Logger.d("Get Bill Data, type=> $billTypeLevel2, type1=> $billTypeLevel1")
        return billInfoModel.copy().apply {
@@ -124,6 +124,10 @@ class FloatEditorDialog(
                         if(this.accountNameFrom.isEmpty()){
                             throw BillException(context.getString(R.string.expend_account_empty))
                         }
+
+                        if(assets.find { it.name == this.accountNameFrom } == null){
+                            throw BillException(context.getString(R.string.expend_account_not_exist,this.accountNameFrom))
+                        }
                     }
 
                 }
@@ -134,6 +138,9 @@ class FloatEditorDialog(
                     if (assetManager){
                         if(this.accountNameFrom.isEmpty()){
                             throw BillException(context.getString(R.string.income_account_empty))
+                        }
+                        if(assets.find { it.name == this.accountNameFrom } == null){
+                            throw BillException(context.getString(R.string.expend_account_not_exist,this.accountNameFrom))
                         }
                     }
 
@@ -149,6 +156,19 @@ class FloatEditorDialog(
                         if(this.accountNameTo.isEmpty()){
                             throw BillException(context.getString(R.string.transfer_to_empty))
                         }
+
+                        if (this.accountNameFrom == this.accountNameTo){
+                            throw BillException(context.getString(R.string.transfer_same_account))
+                        }
+
+                        if(assets.find { it.name == this.accountNameFrom } == null){
+                            throw BillException(context.getString(R.string.expend_account_not_exist,this.accountNameFrom))
+                        }
+
+                        if(assets.find { it.name == this.accountNameTo } == null){
+                            throw BillException(context.getString(R.string.expend_account_not_exist,this.accountNameTo))
+                        }
+
                     }
                 }
 
@@ -159,6 +179,10 @@ class FloatEditorDialog(
                         if(this.accountNameFrom.isEmpty()){
                             throw BillException(context.getString(R.string.reimbursement_account_empty))
                         }
+                        if(assets.find { it.name == this.accountNameFrom } == null){
+                            throw BillException(context.getString(R.string.expend_account_not_exist,this.accountNameFrom))
+                        }
+
                     }
 
                 }
@@ -173,6 +197,10 @@ class FloatEditorDialog(
                         if (selectedBills.isEmpty()){
                             throw BillException(context.getString(R.string.reimbursement_bill_empty))
                         }
+                        if(assets.find { it.name == this.accountNameFrom } == null){
+                            throw BillException(context.getString(R.string.expend_account_not_exist,this.accountNameFrom))
+                        }
+
                     }
 
                 }
@@ -187,6 +215,11 @@ class FloatEditorDialog(
                         if(this.accountNameTo.isEmpty()){
                             throw BillException(if(BillType.ExpendLending==billTypeLevel2) context.getString(R.string.debt_account_empty) else context.getString(R.string.repayment_account2_empty))
                         }
+                        if (this.accountNameFrom == this.accountNameTo){
+                            throw BillException(context.getString(R.string.lending_same_account))
+                        }
+
+
                     }
 
                 }
@@ -202,6 +235,10 @@ class FloatEditorDialog(
                         if(this.accountNameTo.isEmpty()){
                             throw BillException(if(BillType.IncomeLending==billTypeLevel2) context.getString(R.string.income_lending_account2_empty) else context.getString(R.string.income_repayment_account_empty))
                         }
+                        if (this.accountNameFrom == this.accountNameTo){
+                            throw BillException(context.getString(R.string.lending_same_account))
+                        }
+
                     }
 
                 }
@@ -227,18 +264,19 @@ class FloatEditorDialog(
         // 确定按钮
         binding.sureButton.setOnClickListener {
 
-            try{
-                convertBillInfo = getBillData()
-            }catch (e:BillException){
-                ToastUtils.error(e.message?:"未知错误")
-                Logger.e("Failed to get bill data",e)
-                return@setOnClickListener
-            }
-
-            convertBillInfo.state = BillState.Edited
-            Logger.d("Save Bill => $convertBillInfo")
 
             lifecycleScope.launch {
+                val assets = AssetsModel.list()
+                try{
+                    convertBillInfo = getBillData(assets)
+                }catch (e:BillException){
+                    ToastUtils.error(e.message?:"未知错误")
+                    Logger.e("Failed to get bill data",e)
+                    return@launch
+                }
+
+                convertBillInfo.state = BillState.Edited
+                Logger.d("Save Bill => $convertBillInfo")
                 runCatching {
                     BillInfoModel.put(convertBillInfo)
                     if (ConfigUtils.getBoolean(Setting.SHOW_SUCCESS_POPUP, true)) {
@@ -261,7 +299,7 @@ class FloatEditorDialog(
                     }
 
                     if (ConfigUtils.getBoolean(Setting.AUTO_ASSET, false)) {
-                        val assets = AssetsModel.list()
+
                         setAccountMap(assets, rawBillInfo.accountNameFrom, convertBillInfo.accountNameFrom)
                         setAccountMap(assets, rawBillInfo.accountNameTo, convertBillInfo.accountNameTo)
                     }
