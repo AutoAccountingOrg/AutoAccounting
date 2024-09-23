@@ -149,7 +149,11 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
         //  备注生成
         //  设置默认账本
         Bill.setBookName(billInfoModel)
-
+        // app数据里面识别的数据不着急插入数据库，等用户选择，其他情况下先插入数据库，再判断是否需要去重
+        if (!fromAppData) {
+            //存入数据库
+            billInfoModel.id = Db.get().billInfoDao().insert(billInfoModel)
+        }
         // 账单分组，用于检查重复账单
         val parent = Bill.groupBillInfo(billInfoModel, context)
         if (parent == null){
@@ -158,8 +162,6 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
             billInfoModel.state = BillState.Edited
         }
         if (!fromAppData) {
-            //存入数据库
-            billInfoModel.id = Db.get().billInfoDao().insert(billInfoModel)
             // 切换到主线程
             if(!billInfoModel.auto){
                 Server.runOnMainThread {
