@@ -186,6 +186,7 @@ class HomeFragment : BaseFragment() {
      * 绑定记账软件数据部分的UI
      */
     private fun bindBookAppUI() {
+        if (context == null || _binding == null) return
         binding.book.visibility =
             if (ConfigUtils.getBoolean(Setting.SETTING_BOOK_MANAGER,true)) View.VISIBLE else View.GONE
         binding.assets.visibility =
