@@ -279,6 +279,7 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
                 set("adaptation", "0")
                 Logger.logE(TAG, it)
             }.onSuccess {
+                app.log("Adaptation Info:${app.clazz}")
                 return true
             }
         }
