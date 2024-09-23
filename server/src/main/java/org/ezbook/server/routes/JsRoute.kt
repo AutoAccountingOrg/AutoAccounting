@@ -161,6 +161,9 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
         }else{
             billInfoModel.state = BillState.Edited
         }
+        if (billInfoModel.auto){
+            billInfoModel.state =  BillState.Edited
+        }
         Db.get().billInfoDao().update(billInfoModel)
         Server.log("BillInfoModel: $billInfoModel")
         if (!fromAppData) {
