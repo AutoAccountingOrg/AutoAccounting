@@ -22,6 +22,7 @@ import android.content.pm.PackageManager
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.BuildConfig
+import net.ankio.auto.Manifest
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
 
@@ -66,9 +67,11 @@ class PermissionCheckHooker:PartHooker() {
 
                     // 允许自动记账的所有权限
                     if (packageName == BuildConfig.APPLICATION_ID) {
-                        param.result = PackageManager.PERMISSION_GRANTED
+                        if (permission!="android.permission.POST_NOTIFICATIONS"){
+                            param.result = PackageManager.PERMISSION_GRANTED
 
-                        hookerManifest.log("return checkPermission($permission): $permission, $pid, $uid, $packageName,${param.result}")
+                        }
+
                     }
 
                 }
