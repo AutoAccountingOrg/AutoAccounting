@@ -71,7 +71,7 @@ class AutoServiceHooker : PartHooker() {
             Boolean::class.java,
             //boolean allowInstant, ForegroundServiceDelegationOptions fgsDelegateOptions,
             Boolean::class.java,
-            "com.android.server.am.ForegroundServiceDelegationOptions",
+            "android.app.ForegroundServiceDelegationOptions",
             //boolean inSharedIsolatedProcess
             Boolean::class.java,
             object : XC_MethodHook() {
