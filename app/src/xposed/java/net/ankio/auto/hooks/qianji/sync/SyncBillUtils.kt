@@ -37,6 +37,11 @@ class SyncBillUtils(
             return@withContext
         }
         val bills = BillInfoModel.sync()
+        if (bills.isEmpty()) {
+            manifest.log("No bills need to sync")
+            return@withContext
+        }
+        manifest.log("Sync ${bills.size} bills")
         AutoConfig.load()
         bills.forEach {
             val bill = QianJiUri.toQianJi(it)
