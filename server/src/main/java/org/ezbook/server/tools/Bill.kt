@@ -97,7 +97,7 @@ object Bill {
         val startTime = billInfoModel.time - 5 * 60 * 1000
         val bills =
             Db.get().billInfoDao().query(billInfoModel.money, startTime, billInfoModel.time)
-        Server.log("账单分组bills:$bills, startTime:$startTime, endTime:${billInfoModel.time}")
+        Server.log("Bill Group:$bills, startTime:$startTime, endTime:${billInfoModel.time}")
         bills.forEach {
             if (it.id == billInfoModel.id) return@forEach
             if (checkRepeat(billInfoModel, it)) {

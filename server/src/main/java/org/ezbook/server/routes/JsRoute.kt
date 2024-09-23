@@ -161,9 +161,12 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
         }else{
             billInfoModel.state = BillState.Edited
         }
+        Db.get().billInfoDao().update(billInfoModel)
+        Server.log("BillInfoModel: $billInfoModel")
         if (!fromAppData) {
             // 切换到主线程
             if(!billInfoModel.auto){
+                Server.log("Auto record is off: $billInfoModel")
                 Server.runOnMainThread {
                     startAutoPanel(billInfoModel, parent)
                 }
