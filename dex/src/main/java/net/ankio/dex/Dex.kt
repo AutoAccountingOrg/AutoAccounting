@@ -6,6 +6,7 @@ import net.ankio.dex.model.ClazzMethod
 import org.jf.dexlib2.dexbacked.DexBackedDexFile
 import org.jf.dexlib2.iface.DexFile
 import java.io.BufferedInputStream
+import java.lang.reflect.Constructor
 import java.lang.reflect.Field
 import java.lang.reflect.Modifier
 import java.util.zip.ZipFile
@@ -39,7 +40,6 @@ object Dex {
 
         getAllDexFiles(path).forEach { dexFile ->
             if (results.size == rules.size) return@forEach  // 所有需要查找的元素全部找到
-
             dexFile.classes.forEach { classDef ->
                 if (results.size == rules.size) return@forEach  // 所有需要查找的元素全部找到
 
@@ -153,7 +153,7 @@ object Dex {
         clazzMethod: ClazzMethod
     ): String {
         return runCatching {
-            clazz.declaredMethods.firstOrNull { method ->
+           clazz.declaredMethods.firstOrNull { method ->
                 val matchName = clazzMethod.regex.isEmpty() || Regex(clazzMethod.regex).matches(method.name)
                 val matchReturnType = clazzMethod.returnType.isEmpty() || method.returnType.name == clazzMethod.returnType
                 val matchModifiers = clazzMethod.modifiers.isEmpty() || method.modifiers.toString() == clazzMethod.modifiers
@@ -165,7 +165,9 @@ object Dex {
                         )
 
                 matchName && matchReturnType && matchModifiers && matchParameters
-            }?.name.orEmpty()  // 如果找不到符合条件的方法，返回空字符串
+            }?.name.orEmpty()
+
+
         }.getOrElse { "" }  // 如果反射调用失败，返回空字符串
     }
 
@@ -183,7 +185,7 @@ object Dex {
         }
 
         return runCatching {
-            clazz.methods.any { method ->
+          val result =  clazz.methods.any { method ->
                 val matchName = clazzMethod.name.isEmpty() || method.name == clazzMethod.name
                 val matchReturnType = clazzMethod.returnType.isEmpty() || method.returnType.name == clazzMethod.returnType
                 val matchModifiers = clazzMethod.modifiers.isEmpty() || method.modifiers.toString() == clazzMethod.modifiers
@@ -194,7 +196,20 @@ object Dex {
                                 }.all { it }
                         )
 
+
                 matchName && matchReturnType && matchModifiers && matchParameters
+            }
+            if (result) return true
+
+            clazz.declaredConstructors.any {method ->
+                println("method.name = ${method.name}")
+                println("method.parameters = ${method.parameters}")
+                println("clazzMethod.parameters = ${clazzMethod.parameters}")
+
+                method.parameters.size == clazzMethod.parameters.size &&
+                        method.parameters.mapIndexed { index, param ->
+                            param.type.name == clazzMethod.parameters[index].type
+                        }.all { it }
             }
         }.getOrElse { false }  // 如果反射调用失败，返回 false
     }
