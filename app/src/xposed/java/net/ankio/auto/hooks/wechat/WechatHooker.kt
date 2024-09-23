@@ -16,6 +16,7 @@
 package net.ankio.auto.hooks.wechat
 
 import android.app.Application
+import net.ankio.auto.core.App
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
 import net.ankio.auto.hooks.wechat.hooks.ChatUserHooker
@@ -32,8 +33,11 @@ class WechatHooker : HookerManifest() {
         get() = "com.tencent.mm"
     override val appName: String = "微信"
     override fun hookLoadPackage(application: Application?, classLoader: ClassLoader) {
-
     }
+
+    override var minVersion: Int
+        get() = 0
+        set(value) {}
 
     override var applicationName = "com.tencent.mm.app.Application"
     override var partHookers: MutableList<PartHooker> = mutableListOf(
@@ -47,28 +51,30 @@ class WechatHooker : HookerManifest() {
             Clazz(
                 type = "class",
                 name = "remittance.model",
-                nameRule = "^com.tencent.mm.plugin.remittance.model\\..+",
+                nameRule = "com.tencent.mm.plugin.remittance.model.\\w+",
                 methods = arrayListOf(
                     ClazzMethod(
-                        name = "getTenpayCgicmd",
-                        returnType = "int",
-                    ),
-                    ClazzMethod(
-                        name = "getUri",
-                        returnType = "java.lang.String",
-                    ),
-                    ClazzMethod(
-                        name = "getFuncId",
-                        returnType = "int",
-                    ),
-                    ClazzMethod(
-                        returnType = "java.util.ArrayList",
                         parameters = arrayListOf(
+                            // int v, String s, String s1, int v1, String s2
                             ClazzField(
-                                type = "org.json.JSONArray"
-                            )
+                                type = "int"
+                            ),
+                            ClazzField(
+                                type = "java.lang.String"
+                            ),
+                            ClazzField(
+                                type = "java.lang.String"
+                            ),
+                            ClazzField(
+                                type = "int"
+                            ),
+                            ClazzField(
+                                type = "java.lang.String"
+                            ),
                         )
-                    ),
+                    )
+                    ,
+
                     ClazzMethod(
                         name = "onGYNetEnd",
                         returnType = "void",
