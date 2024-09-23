@@ -316,11 +316,7 @@ class FloatingWindowService : Service() {
 
 
     private fun stopNotify(){
-        if (floatingViews.isNotEmpty()) {
-            return
-        }
-        stopForeground(STOP_FOREGROUND_REMOVE)
-        stopSelf()
+       // TODO 应该在合适的时机停止
     }
 
 
