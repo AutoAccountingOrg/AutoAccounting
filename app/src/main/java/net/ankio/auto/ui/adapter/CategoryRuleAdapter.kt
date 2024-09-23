@@ -54,6 +54,7 @@ class CategoryRuleAdapter(
                             CategoryRuleModel.remove(item.id)
                         }
                         val position = indexOf(item)
+                        if (position == -1) return@launch
                         dataItems.removeAt(position)
                         withContext(Dispatchers.Main) {
                             notifyItemRemoved(position)
