@@ -175,6 +175,7 @@ class SideBarHooker : PartHooker() {
     fun syncData2Auto(context: Activity) {
         // 最快3秒同步一次
         if (System.currentTimeMillis() - last < 1000 * 3) {
+            hookerManifest.log("Sync too fast, ignore")
             return
         }
         last = System.currentTimeMillis()
