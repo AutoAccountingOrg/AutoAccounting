@@ -33,6 +33,8 @@ import android.view.WindowManager
 import androidx.core.content.ContextCompat
 import com.google.gson.Gson
 import com.quickersilver.themeengine.ThemeEngine
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.broadcast.LocalBroadcastHelper
@@ -86,7 +88,7 @@ class FloatingWindowService : Service() {
 
 // 创建最小化通知
         notification = Notification.Builder(this, CHANNEL_ID)
-            .setContentTitle("")  // 无标题
+            .setContentTitle("自动记账悬浮窗服务")  // 无标题
             .setContentText("") // 通知内容
             .setSmallIcon(R.mipmap.ic_launcher_foreground)  // 小图标
             .setAutoCancel(true) // 通知可被用户取消
@@ -279,6 +281,7 @@ class FloatingWindowService : Service() {
             FloatEvent.AUTO_ACCOUNT.ordinal -> {
                 // 记账
                 recordBillInfo(billInfoModel)
+                stopNotify()
             }
 
             FloatEvent.POP_EDIT_WINDOW.ordinal -> {
@@ -286,7 +289,12 @@ class FloatingWindowService : Service() {
                     FloatEditorDialog(themedContext, billInfoModel, true, onCancelClick = {
                         App.launch {
                             BillInfoModel.remove(it.id)
+                            withContext(Dispatchers.Main) {
+                                stopNotify()
+                            }
                         }
+                    }, onConfirmClick = {
+                        stopNotify()
                     }).show(true)
                 }.onFailure {
                     Logger.e("Failed to show editor", it)
@@ -297,9 +305,22 @@ class FloatingWindowService : Service() {
             FloatEvent.NO_ACCOUNT.ordinal -> {
                 App.launch {
                     BillInfoModel.remove(billInfoModel.id)
+                    withContext(Dispatchers.Main) {
+                        stopNotify()
+                    }
                 }
             }
         }
+    }
+
+
+
+    private fun stopNotify(){
+        if (floatingViews.isNotEmpty()) {
+            return
+        }
+        stopForeground(STOP_FOREGROUND_REMOVE)
+        stopSelf()
     }
 
 
