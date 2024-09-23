@@ -397,6 +397,7 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
             }.onFailure {
                 app.logD("PartHooker error: ${it.message}")
                 app.logE(it)
+                set("adaptation", "0")
             }
         }
 
