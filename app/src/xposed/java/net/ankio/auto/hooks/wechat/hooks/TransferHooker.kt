@@ -25,15 +25,14 @@ import org.ezbook.server.constant.DataType
 
 
 class TransferHooker : PartHooker() {
-
     override fun hook(
         hookerManifest: HookerManifest,
         application: Application?,
         classLoader: ClassLoader
     ) {
 
-        val model = hookerManifest.clazz["remittance.model"]
-        XposedHelpers.findAndHookMethod(model, classLoader, "onGYNetEnd",
+        val model = hookerManifest.clazz("remittance.model",classLoader)
+        XposedHelpers.findAndHookMethod(model, "onGYNetEnd",
             Int::class.java,
             String::class.java,
             org.json.JSONObject::class.java, object : XC_MethodHook() {
