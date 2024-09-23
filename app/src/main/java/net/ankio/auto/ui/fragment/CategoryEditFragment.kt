@@ -369,7 +369,7 @@ class CategoryEditFragment : BaseFragment() {
             minTime = it1
             showTimer(maxTime, getString(R.string.select_time_higher)) {
                 maxTime = it
-                val js = "timeRange('$minTime','$maxTime')"
+                val js = "common.isTimeInRange('$minTime','$maxTime')"
                 val input = getString(R.string.time_range, minTime, maxTime)
                 element.data["js"] = js
                 element.data["minTime"] = minTime
