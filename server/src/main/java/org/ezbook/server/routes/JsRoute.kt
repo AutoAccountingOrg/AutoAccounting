@@ -279,6 +279,7 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
             val printFunction = CustomPrintFunction(outputBuilder)
             ScriptableObject.putProperty(scope, "print", printFunction)
             ScriptableObject.putProperty(scope, "data", data)
+            ScriptableObject.putProperty(scope, "currentTime", android.text.format.DateFormat.format("HH:mm", System.currentTimeMillis()).toString())
             rhino.evaluateString(scope, jsCode, "JavaScript", 1, null)
             result = outputBuilder.toString()
         } catch (e: Throwable) {
