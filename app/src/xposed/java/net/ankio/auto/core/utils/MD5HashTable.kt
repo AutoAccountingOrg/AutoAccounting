@@ -13,7 +13,7 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.hooks.android.utils
+package net.ankio.auto.core.utils
 
 import java.security.MessageDigest
 import java.util.concurrent.ConcurrentHashMap

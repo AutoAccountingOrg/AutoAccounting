@@ -20,6 +20,7 @@ import net.ankio.auto.hooks.alipay.AliPayHooker
 import net.ankio.auto.hooks.android.AndroidHooker
 import net.ankio.auto.hooks.auto.AutoHooker
 import net.ankio.auto.hooks.qianji.QianjiHooker
+import net.ankio.auto.hooks.sms.SmsHooker
 import net.ankio.auto.hooks.wechat.WechatHooker
 
 object Apps {
@@ -44,7 +45,8 @@ object Apps {
             // 哪些App可能发送记账账单？
             ////////////////////////////
             WechatHooker(), // Wechat
-            AliPayHooker() // AliPay
+            AliPayHooker(), // AliPay
+            SmsHooker() // Sms
             ////////////////////////////
         )
     }
