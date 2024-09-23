@@ -32,6 +32,7 @@ import org.ezbook.server.constant.LogLevel
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.LogModel
 import org.ezbook.server.server.ServerHttp
+import org.ezbook.server.task.BillProcessor
 import org.nanohttpd.protocols.http.IHTTPSession
 import org.nanohttpd.protocols.http.NanoHTTPD
 import org.nanohttpd.protocols.http.NanoHTTPD.SOCKET_READ_TIMEOUT
@@ -50,26 +51,28 @@ class Server(context: Context) {
         Db.init(context)
     }
 
+
     /**
      * 启动服务
      */
     fun startServer() {
         server.start(SOCKET_READ_TIMEOUT, false)
         println("Server started on port $port")
-
+        billProcessor = BillProcessor()
 
     }
 
 
     fun stopServer() {
         server.stop()
+        billProcessor.shutdown()
     }
 
 
     companion object {
 
         const val versionCode = 1
-
+        lateinit var billProcessor: BillProcessor
 
         /**
          * 获取请求数据

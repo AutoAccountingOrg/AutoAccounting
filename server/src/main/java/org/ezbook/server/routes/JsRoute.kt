@@ -104,7 +104,7 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
          *     }
          */
 
-        val billInfoModel = parseBillInfo(result, app, dataType)
+        var billInfoModel = parseBillInfo(result, app, dataType)
 
 
         //将time从时间戳，转换为h:i的格式
@@ -155,7 +155,8 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
             billInfoModel.id = Db.get().billInfoDao().insert(billInfoModel)
         }
         // 账单分组，用于检查重复账单
-        val parent = Bill.groupBillInfo(billInfoModel, context)
+        val task = Server.billProcessor.addTask(billInfoModel, context)
+        val parent = task.result
         if (parent == null){
             billInfoModel.state = BillState.Wait2Edit
         }else{

@@ -16,9 +16,7 @@
 package org.ezbook.server.tools
 
 import android.content.Context
-import android.util.Log
 import org.ezbook.server.Server
-import org.ezbook.server.constant.Currency
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.BillInfoModel
@@ -46,10 +44,10 @@ object Bill {
      */
     private fun mergeRepeatBill(bill: BillInfoModel, bill2: BillInfoModel, context: Context) {
         //合并支付方式
-        if (bill2.accountNameFrom.isEmpty() &&  bill.accountNameFrom.isNotEmpty()) {
+        if (bill2.accountNameFrom.isEmpty() && bill.accountNameFrom.isNotEmpty()) {
             bill2.accountNameFrom = bill.accountNameFrom
         }
-        if (bill2.accountNameTo.isEmpty() &&  bill.accountNameTo.isNotEmpty()) {
+        if (bill2.accountNameTo.isEmpty() && bill.accountNameTo.isNotEmpty()) {
             bill2.accountNameTo = bill.accountNameTo
         }
         //合并商户信息
@@ -72,10 +70,9 @@ object Bill {
             bill2.shopItem = bill2.extendData
         }
 
-        if (bill.cateName!="其他"){
+        if (bill.cateName != "其他") {
             bill2.cateName = bill.cateName
         }
-
 
 
         //最后重新生成备注
@@ -95,20 +92,18 @@ object Bill {
         if (!settingBillRepeat) return null
         //第一要素，金钱一致，时间在5分钟以内
         val startTime = billInfoModel.time - 5 * 60 * 1000
-        val bills =
-            Db.get().billInfoDao().query(billInfoModel.money, startTime, billInfoModel.time)
-        Server.log("Bill Group:$bills, startTime:$startTime, endTime:${billInfoModel.time}")
-        bills.forEach {
-            if (it.id == billInfoModel.id) return@forEach
-            if (checkRepeat(billInfoModel, it)) {
-                billInfoModel.groupId = it.id
-                mergeRepeatBill(billInfoModel, it, context)
-                //更新到数据库
-                Db.get().billInfoDao().update(it)
-                return it
-            }
-        }
-        return null
+        val bills = Db.get().billInfoDao().query(billInfoModel.money, startTime, billInfoModel.time)
+        val parentBill = bills.find { billInfoModel.id!=it.id && checkRepeat(billInfoModel, it)  }
+        if (parentBill == null)return null
+
+        Server.log("Parent=$parentBill, Bill=$billInfoModel, startTime:$startTime, endTime:${billInfoModel.time}")
+        billInfoModel.groupId = parentBill.id
+        mergeRepeatBill(billInfoModel, parentBill, context)
+        //更新到数据库
+        Db.get().billInfoDao().update(parentBill)
+        Db.get().billInfoDao().update(billInfoModel)
+        Server.log("Convert Parent=$parentBill, Bill=$billInfoModel, startTime:$startTime, endTime:${billInfoModel.time}")
+        return parentBill
     }
 
 
@@ -124,7 +119,7 @@ object Bill {
         billInfoModel.remark = settingBillRemark
             .replace("【商户名称】", billInfoModel.shopName)
             .replace("【商品名称】", billInfoModel.shopItem)
-          //  .replace("【币种类型】", Currency.valueOf(billInfoModel.currency).name(context))
+            //  .replace("【币种类型】", Currency.valueOf(billInfoModel.currency).name(context))
             .replace("【金额】", billInfoModel.money.toString())
             .replace("【分类】", billInfoModel.cateName)
             .replace("【账本】", billInfoModel.bookName)
