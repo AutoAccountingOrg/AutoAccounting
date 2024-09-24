@@ -172,7 +172,11 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
             if(!billInfoModel.auto){
                 Server.log("Auto record is off: $billInfoModel")
                 Server.runOnMainThread {
-                    startAutoPanel(billInfoModel, parent)
+                    runCatching {
+                        startAutoPanel(billInfoModel, parent)
+                    }.onFailure {
+                        Server.log(it)
+                    }
                 }
             }
 
@@ -233,13 +237,19 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
      * 启动自动记账面板
      */
     private fun startAutoPanel(billInfoModel: BillInfoModel, parent: BillInfoModel?) {
+        Server.log("Try to start autoServer: $billInfoModel , parent: $parent")
         val intent = Intent()
         intent.putExtra("billInfo", Gson().toJson(billInfoModel))
+        Server.log("BillInfo: $billInfoModel")
         intent.putExtra("id", billInfoModel.id)
+        Server.log("BillInfoId: ${billInfoModel.id}")
         intent.putExtra("showWaitTip", true)
+        Server.log("ShowWaitTip: true")
         if (parent != null) {
             intent.putExtra("parent", Gson().toJson(parent))
+            Server.log("Parent: $parent")
         }
+        Server.log("AutoServerIntent: $intent")
         intent.putExtra("from","JsRoute")
         intent.setComponent(
             ComponentName(
