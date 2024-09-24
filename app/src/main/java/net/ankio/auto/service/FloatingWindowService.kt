@@ -110,7 +110,7 @@ class FloatingWindowService : Service() {
         lastTheme = ThemeEngine.getInstance(App.app).getTheme()
 
 
-        Logger.d("FloatingWindowService Start，Timeout：$timeCount s")
+        Logger.i("FloatingWindowService Start，Timeout：$timeCount s")
 
     }
 
@@ -133,8 +133,8 @@ class FloatingWindowService : Service() {
         val billInfoModel =
             Gson().fromJson(intent.getStringExtra("billInfo"), BillInfoModel::class.java)
         val from = intent.getStringExtra("from")?:"Unknown"
-        Logger.d("Server start => $intent, From = $from")
-        Logger.d("BillInfo：$billInfoModel")
+        Logger.i("Server start => $intent, From = $from")
+        Logger.i("BillInfo：$billInfoModel")
 
         val parent = runCatching {
             Gson().fromJson(
