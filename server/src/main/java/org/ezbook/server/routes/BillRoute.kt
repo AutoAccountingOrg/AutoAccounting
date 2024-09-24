@@ -26,6 +26,7 @@ import org.nanohttpd.protocols.http.response.Response
 class BillRoute(private val session: IHTTPSession) {
 
     fun list(): Response {
+        Db.get().billInfoDao().deleteNoGroup()
         //删除一年之前的账单数据
         Db.get().billInfoDao().clearOld(System.currentTimeMillis() - 365L * 24 * 60 * 60 * 1000)
         //获取分页数据

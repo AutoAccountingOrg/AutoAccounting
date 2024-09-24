@@ -45,6 +45,8 @@ interface BillInfoDao {
 
     @Query("DELETE FROM BillInfoModel WHERE groupId = :groupId")
     fun deleteGroup(groupId: Long)
+    @Query("DELETE FROM BillInfoModel WHERE groupId != -1 AND id NOT IN (SELECT id FROM BillInfoModel)")
+    fun deleteNoGroup()
 
     @Query("DELETE FROM BillInfoModel WHERE id =:id")
     fun deleteId(id: Long)
