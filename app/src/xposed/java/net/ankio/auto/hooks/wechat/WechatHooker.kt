@@ -54,6 +54,7 @@ class WechatHooker : HookerManifest() {
                 nameRule = "com.tencent.mm.plugin.remittance.model.\\w+",
                 methods = arrayListOf(
                     ClazzMethod(
+                        name = "constructor",
                         parameters = arrayListOf(
                             // int v, String s, String s1, int v1, String s2
                             ClazzField(
