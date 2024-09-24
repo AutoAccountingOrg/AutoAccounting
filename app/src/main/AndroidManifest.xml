@@ -3,9 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+   <!-- <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />-->
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" tools:ignore="QueryAllPackagesPermission" />
     <application
         android:name=".App"
@@ -20,6 +20,10 @@
         android:theme="@style/AppTheme"
         android:requestLegacyExternalStorage="true"
         tools:targetApi="31">
+        <activity android:name=".ui.activity.FloatingWindowTriggerActivity"
+            android:exported="true"
+            android:theme="@style/TransparentActivityTheme"
+            />
         <activity
             android:name=".ui.activity.MainActivity"
             android:windowSoftInputMode="adjustPan"
@@ -46,7 +50,7 @@
         <service
             android:name=".service.FloatingWindowService"
             android:exported="true"
-            android:foregroundServiceType="specialUse"/>
+            />
 
         <provider
             android:name="androidx.core.content.FileProvider"

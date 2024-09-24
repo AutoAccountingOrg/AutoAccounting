@@ -131,6 +131,8 @@ class OrderItemAdapter(
 
         if (data.state == BillState.Synced) {
             binding.sync.setImageResource(R.drawable.ic_sync)
+        } else if (data.state == BillState.Wait2Edit){
+            binding.sync.setImageResource(R.drawable.icon_edit)
         } else {
             binding.sync.setImageResource(R.drawable.ic_no_sync)
         }

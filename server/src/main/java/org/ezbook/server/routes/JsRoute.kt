@@ -156,8 +156,8 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
         }
         // 账单分组，用于检查重复账单
         val task = Server.billProcessor.addTask(billInfoModel, context)
-        val parent = task.result
-        if (parent == null){
+        task.await()
+        if (task.result == null){
             billInfoModel.state = BillState.Wait2Edit
         }else{
             billInfoModel.state = BillState.Edited
@@ -173,7 +173,7 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
                 Server.log("Auto record is off: $billInfoModel")
                 Server.runOnMainThread {
                     runCatching {
-                        startAutoPanel(billInfoModel, parent)
+                        startAutoPanel(billInfoModel, task.result)
                     }.onFailure {
                         Server.log(it)
                     }
@@ -237,34 +237,28 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
      * 启动自动记账面板
      */
     private fun startAutoPanel(billInfoModel: BillInfoModel, parent: BillInfoModel?) {
-        Server.log("Try to start autoServer: $billInfoModel , parent: $parent")
         val intent = Intent()
         intent.putExtra("billInfo", Gson().toJson(billInfoModel))
-        Server.log("BillInfo: $billInfoModel")
         intent.putExtra("id", billInfoModel.id)
-        Server.log("BillInfoId: ${billInfoModel.id}")
         intent.putExtra("showWaitTip", true)
-        Server.log("ShowWaitTip: true")
         if (parent != null) {
             intent.putExtra("parent", Gson().toJson(parent))
-            Server.log("Parent: $parent")
         }
-        Server.log("AutoServerIntent: $intent")
         intent.putExtra("from","JsRoute")
         intent.setComponent(
             ComponentName(
                 "net.ankio.auto.xposed",
-                "net.ankio.auto.service.FloatingWindowService"
+                "net.ankio.auto.ui.activity.FloatingWindowTriggerActivity"
             )
         )
-
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         Server.log("Calling auto server：$intent")
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        context.startActivity(intent)
+       /* if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             context.startForegroundService(intent)
         } else {
             context.startService(intent)
-        }
+        }*/
     }
 
     class CustomPrintFunction(private val output: StringBuilder) : BaseFunction() {

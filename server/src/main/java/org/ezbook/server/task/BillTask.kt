@@ -17,9 +17,21 @@ package org.ezbook.server.task
 
 import android.content.Context
 import org.ezbook.server.db.model.BillInfoModel
+import java.util.concurrent.CountDownLatch
 
 
-class BillTask(val billInfoModel: BillInfoModel,  val context: Context) {
-    var result: BillInfoModel? = null // 用于保存结果
+data class BillTask(
+    val billInfoModel: BillInfoModel,
+    val context: Context,
+    var result: BillInfoModel? = null // 根据需要的返回类型进行更改
+) {
+    private val latch = CountDownLatch(1)
 
+    fun await() {
+        latch.await() // 阻塞当前线程，直到任务完成
+    }
+
+    fun complete() {
+        latch.countDown() // 任务完成，释放等待的线程
+    }
 }

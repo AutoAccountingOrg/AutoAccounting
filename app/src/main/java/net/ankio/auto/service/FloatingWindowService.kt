@@ -64,43 +64,11 @@ class FloatingWindowService : Service() {
 
     private var lastTheme = ThemeEngine.getInstance(App.app).getTheme()
 
-    private lateinit var notification: Notification
-
-    private fun  initNotify(){
-        val CHANNEL_ID = "FloatingWindowServiceChannel"
-
-// 创建一个通知通道
-        val channel = NotificationChannel(
-            CHANNEL_ID,
-            "自动记账悬浮窗服务", // 通道名称
-            NotificationManager.IMPORTANCE_NONE // 设置为完全不显示通知
-        ).apply {
-            setShowBadge(false) // 不显示图标徽章
-            enableLights(false) // 禁用通知灯光
-            enableVibration(false) // 禁用震动
-            lockscreenVisibility = Notification.VISIBILITY_SECRET // 在锁屏时不可见
-            setSound(null, null) // 不播放声音
-        }
-
-// 获取通知管理器
-        val manager = getSystemService(NotificationManager::class.java)
-        manager.createNotificationChannel(channel)
-
-// 创建最小化通知
-        notification = Notification.Builder(this, CHANNEL_ID)
-            .setContentTitle("自动记账悬浮窗服务")  // 无标题
-            .setContentText("") // 通知内容
-            .setSmallIcon(R.mipmap.ic_launcher_foreground)  // 小图标
-            .setAutoCancel(true) // 通知可被用户取消
-            .build()
-
-    }
-
 
 
     override fun onCreate() {
         super.onCreate()
-        initNotify()
+
         timeCount = runCatching {
             ConfigUtils.getString(Setting.FLOAT_TIMEOUT_OFF, "10").toInt()
         }.getOrNull() ?: 10
@@ -121,8 +89,6 @@ class FloatingWindowService : Service() {
         startId: Int,
     ): Int {
 
-        // 启动前台服务
-        startForeground(1, notification)
         if (lastTheme != ThemeEngine.getInstance(App.app).getTheme()) {
             lastTheme = ThemeEngine.getInstance(App.app).getTheme()
             val appTheme = ContextThemeWrapper(App.app, R.style.AppTheme)
@@ -142,7 +108,7 @@ class FloatingWindowService : Service() {
                 BillInfoModel::class.java
             )
         }.getOrNull()
-
+        Logger.i("parent：$parent")
         val showWaitTip = intent.getBooleanExtra("showWaitTip", true)
 
         if (parent != null) {
@@ -316,7 +282,7 @@ class FloatingWindowService : Service() {
 
 
     private fun stopNotify(){
-       // TODO 应该在合适的时机停止
+
     }
 
 
