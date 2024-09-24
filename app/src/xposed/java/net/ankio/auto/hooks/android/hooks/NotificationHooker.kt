@@ -54,63 +54,65 @@ class NotificationHooker : PartHooker() {
             "enqueueNotificationInternal",
             object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam) {
+                    runCatching {
+                        val app = param.args[0] as String
+                        val opkg = param.args[1] as String
 
+                        var notification: Notification? = null
 
-                    val app = param.args[0] as String
-                    val opkg = param.args[1] as String
-
-                    var notification: Notification? = null
-
-                    for (i in 0 until param.args.size) {
-                        if (param.args[i] is Notification) {
-                            notification = param.args[i] as Notification
-                            break
-                        }
-                    }
-
-                    if (notification == null) {
-                        return
-                    }
-
-
-                    val originalTitle =
-                        notification.extras.getString(Notification.EXTRA_TITLE) ?: ""
-                    val originalText = notification.extras.getString(Notification.EXTRA_TEXT) ?: ""
-
-
-                    val hash = hashTable.md5("$app$originalTitle$originalText")
-                    if (hashTable.contains(hash)){
-                        return
-                    }
-                    hashTable.add(hash)
-
-
-                    // 5分钟内不重复请求数据，加快识别速度
-                    if (System.currentTimeMillis() - lastTime < 1000 * 60 * 5) {
-                        checkNotification(
-                            app,
-                            originalTitle,
-                            originalText,
-                            selectedApps,
-                            hookerManifest
-                        )
-                    } else {
-                        lastTime = System.currentTimeMillis()
-                        App.scope.launch {
-                            val data = SettingModel.get(Setting.LISTENER_APP_LIST, "")
-                            selectedApps = data.split(",")
-                            withContext(Dispatchers.Main) {
-                                checkNotification(
-                                    app,
-                                    originalTitle,
-                                    originalText,
-                                    selectedApps,
-                                    hookerManifest
-                                )
+                        for (i in 0 until param.args.size) {
+                            if (param.args[i] is Notification) {
+                                notification = param.args[i] as Notification
+                                break
                             }
                         }
-                    }
 
+                        if (notification == null) {
+                            return
+                        }
+
+
+                        val originalTitle = runCatching { notification.extras.getString(Notification.EXTRA_TITLE) ?: "" }.getOrElse { "" }
+                        val originalText = runCatching { notification.extras.getString(Notification.EXTRA_TEXT) ?: ""}.getOrElse { "" }
+
+
+                        val hash = hashTable.md5("$app$originalTitle$originalText")
+                        if (hashTable.contains(hash)){
+                            return
+                        }
+                        hashTable.add(hash)
+
+
+                        // 5分钟内不重复请求数据，加快识别速度
+                        if (System.currentTimeMillis() - lastTime < 1000 * 60 * 5) {
+                            checkNotification(
+                                app,
+                                originalTitle,
+                                originalText,
+                                selectedApps,
+                                hookerManifest
+                            )
+                        } else {
+                            lastTime = System.currentTimeMillis()
+                            App.scope.launch {
+                                val data = SettingModel.get(Setting.LISTENER_APP_LIST, "")
+                                selectedApps = data.split(",")
+                                withContext(Dispatchers.Main) {
+                                    checkNotification(
+                                        app,
+                                        originalTitle,
+                                        originalText,
+                                        selectedApps,
+                                        hookerManifest
+                                    )
+                                }
+                            }
+                        }
+
+
+                    }.onFailure {
+                        hookerManifest.logE(it)
+                    }
 
                 }
             }
