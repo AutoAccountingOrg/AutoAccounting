@@ -20,6 +20,7 @@ import android.content.ContentValues
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import fr.arnaudguyon.xmltojsonlib.XmlToJson
 import net.ankio.auto.core.App
@@ -47,18 +48,26 @@ class DatabaseHooker : PartHooker() {
             XposedHelpers.findClass("com.tencent.wcdb.database.SQLiteDatabase", mAppClassLoader)
         XposedHelpers.findAndHookMethod(
             database,
-            "insert",
+            "insertWithOnConflict",
             String::class.java,
             String::class.java,
             ContentValues::class.java,
+            Int::class.javaPrimitiveType,
             object : XC_MethodHook() {
                 @Throws(Throwable::class)
                 override fun afterHookedMethod(param: MethodHookParam) {
                     val contentValues = param.args[2] as ContentValues
                     val tableName = param.args[0] as String
                     val arg = if (param.args[1] != null) param.args[1] as String else ""
+                    //无效数据表
+                    val usefulTable = listOf(
+                        "message",
+                        "AppMessage",
+                    )
 
-                    hookerManifest.logD("微信数据：${Gson().toJson(contentValues)} table:$tableName arg:$arg")
+                    if (!usefulTable.contains(tableName)) return
+
+                    XposedBridge.log("微信数据：${Gson().toJson(contentValues)} table:$tableName arg:$arg")
 
                     val type = contentValues.getAsInteger("type") ?: return
                     // 补充数据
