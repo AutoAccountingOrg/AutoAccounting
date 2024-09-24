@@ -16,6 +16,8 @@
 package org.ezbook.server.constant
 
 object Setting {
+    const val  SHOW_RULE_NAME = "setting_show_rule_name"
+
     //自动记账配置
     const val AUTO_CONFIG = "setting_auto_config"
 

@@ -838,6 +838,14 @@ class FloatEditorDialog(
         }
 
         selectedBills = billInfoModel.extendData.split(",").toMutableList()
+
+        if (ConfigUtils.getBoolean(Setting.SHOW_RULE_NAME, true)) {
+            binding.ruleName.visibility = View.VISIBLE
+            binding.ruleName.setText(billInfoModel.ruleName)
+        } else {
+            binding.ruleName.visibility = View.GONE
+        }
+
         bindingBookNameUI()
         bindingTypePopupUI()
         bindingFeeUI()

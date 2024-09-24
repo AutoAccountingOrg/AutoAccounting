@@ -87,6 +87,14 @@ class SettingFragment : BaseFragment() {
                 default = true,
                 icon = R.drawable.setting_icon_repeat,
             ),
+            // 规则显示
+            SettingItem(
+                title = R.string.setting_bill_show_rule,
+                key = Setting.SHOW_RULE_NAME,
+                type = ItemType.SWITCH,
+                default = true,
+                icon = R.drawable.setting2_icon_rule,
+            ),
             // 悬浮窗
             SettingItem(R.string.setting_float),
             SettingItem(

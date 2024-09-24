@@ -76,15 +76,36 @@
                         tools:text="10000000.00"
                         />
 
-                    <net.ankio.auto.ui.componets.IconView
-                        android:id="@+id/fee"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
                         android:padding="@dimen/one_padding"
-                        android:layout_gravity="end"
-                        android:layout_weight="1"
-                        tools:text="-0.01"
-                        app:textColor="?attr/colorError" />
+                        android:orientation="horizontal">
+
+                        <net.ankio.auto.ui.componets.IconView
+                            android:id="@+id/ruleName"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:layout_weight="1"
+                            android:ellipsize="end"
+                            android:gravity="center_vertical"
+                            android:maxLines="1"
+                            app:textColor="?attr/colorPrimary"
+                            app:iconSrc="@drawable/home_rule"
+                            tools:text="这是一条规则名这是一条规则名称这是一条规则名称这是一条规则名称这是一条规则名称这是一条规则名称这是一条规则名称这是一条规则名称这是一条规则名称这是一条规则名称这是一条规则名称这是一条规则名称这是一条规则名称这是一条规则名称这是一条规则名称这是一条规则名称称"
+                         />
+
+
+                        <net.ankio.auto.ui.componets.IconView
+                            android:id="@+id/fee"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical|end"
+
+                            app:textColor="?attr/colorError"
+                            tools:text="-0.01" />
+                    </LinearLayout>
 
                     <com.google.android.material.chip.ChipGroup
                         android:id="@+id/chipGroup"

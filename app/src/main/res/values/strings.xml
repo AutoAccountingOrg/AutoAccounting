@@ -455,4 +455,5 @@
     <string name="transfer_same_account">转账的两个账户不允许一致</string>
     <string name="lending_same_account">两个债务账户不允许一致</string>
     <string name="expend_account_not_exist">资产账户【%s】不存在，请选择资产后再保存</string>
+    <string name="setting_bill_show_rule">账单页面显示识别规则</string>
 </resources>
