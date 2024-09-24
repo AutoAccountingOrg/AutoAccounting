@@ -69,7 +69,7 @@ object Dex {
                     // 尝试加载类
                     val clazz = runCatching { classLoader.loadClass(className) }.getOrNull()
                         ?: return@rules
-                    println("[DEX] Class $className load success. ")
+                    //println("[DEX] Class $className load success. ")
                     // 判断类的类型条件
                     val matchType = clazzRule.type.isEmpty() || when (clazzRule.type) {
                         "interface" -> clazz.isInterface
@@ -78,10 +78,14 @@ object Dex {
                         else -> true
                     }
 
+                    if (!matchType) {
+                        return@rules
+                    } // 类型不匹配，跳过
+
 
 
                     // 处理枚举类型的匹配
-                    if (clazzRule.type == "enum" && clazz.isEnum && matchType) {
+                    if (clazzRule.type == "enum" && clazz.isEnum) {
                         val matchEnumFields = clazzRule.fields.all { field ->
                             clazz.enumConstants.any { enumConstant ->
                                 (enumConstant as Enum<*>).name == field.name
@@ -99,6 +103,10 @@ object Dex {
                         findFieldIsExist(clazz, field)
                     }
 
+                    if (!matchFields) {
+                        return@rules
+                    } // 字段不匹配，跳过
+
                //     println("[DEX] Class $className Fields is match: $matchFields. ")
 
                     // 检查方法
@@ -106,15 +114,15 @@ object Dex {
                         clazzRule.methods.isEmpty() || clazzRule.methods.all { method ->
                             findMethodIsExist(clazz, method)
                         }
-                  //  println("[DEX] Class $className Methods is match: $matchFields. ")
-                    // 如果字段和方法都匹配，则将结果添加到结果集中
-                    if (matchType && matchFields && matchMethods) {
-                        results[clazzRule.name] = className
-                  //      println("[DEX] Class $className found success. ")
-                    }
+                    if (!matchMethods) {
+                        return@rules
+                    } // 方法不匹配，跳过
+                    results[clazzRule.name] = className
                 }
             }
         }
+
+        println("[DEX] Found classes: $results")
 
         return results
     }
@@ -214,29 +222,40 @@ object Dex {
         }
 
         return runCatching {
-            val result = clazz.methods.any { method ->
-                val matchName = clazzMethod.name.isEmpty() || method.name == clazzMethod.name || clazzMethod.name != "constructor"
-
-                val matchReturnType =
-                    clazzMethod.returnType.isEmpty() || method.returnType.name == clazzMethod.returnType
-                val matchModifiers =
-                    clazzMethod.modifiers.isEmpty() || method.modifiers.toString() == clazzMethod.modifiers
+            if ( clazzMethod.name == "constructor") {
+                return clazz.declaredConstructors.any { method ->
+                    method.parameters.size == clazzMethod.parameters.size &&
+                            method.parameters.mapIndexed { index, param ->
+                                param.type.name == clazzMethod.parameters[index].type
+                            }.all { it }
+                }
+            }
+           clazz.methods.any { method ->
+                val matchName = clazzMethod.name.isEmpty() || method.name == clazzMethod.name
+                if (!matchName) return@any false
+              //  println("[DEX] Method Name ${clazz.name}.${method.name} => ${clazzMethod.name} ")
+                val matchReturnType = clazzMethod.returnType.isEmpty() || method.returnType.name == clazzMethod.returnType
+                if (!matchReturnType) return@any false
+              //  println("[DEX] Method matchReturnType ${clazz.name}.${method.returnType.name} => ${clazzMethod.returnType} ")
+                val matchModifiers = clazzMethod.modifiers.isEmpty() || method.modifiers.toString() == clazzMethod.modifiers
+                if (!matchModifiers) return@any false
+             //   println("[DEX] Method matchModifiers ${clazz.name}.${method.modifiers} => ${clazzMethod.modifiers} ")
                 val matchParameters = clazzMethod.parameters.isEmpty() || (
                         method.parameters.size == clazzMethod.parameters.size &&
                                 method.parameters.mapIndexed { index, param ->
-                                    param.type.name == clazzMethod.parameters[index].type
+                                 //   if (
+                                        param.type.name == clazzMethod.parameters[index].type
+                        //)
+                             //       println("[DEX] Method matchParameters ${clazz.name}.${clazzMethod.parameters} => ${clazzMethod.parameters}")
+                                 //   false
                                 }.all { it }
                         )
 
 
-                matchName && matchReturnType && matchModifiers && matchParameters
-            }
-            if (result && clazzMethod.name!="constructor") return true
-            clazz.declaredConstructors.any { method ->
-                method.parameters.size == clazzMethod.parameters.size &&
-                        method.parameters.mapIndexed { index, param ->
-                            param.type.name == clazzMethod.parameters[index].type
-                        }.all { it }
+
+                if (!matchParameters) return@any false
+
+                true
             }
         }.getOrElse { false }  // 如果反射调用失败，返回 false
     }

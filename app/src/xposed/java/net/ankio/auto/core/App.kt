@@ -297,6 +297,7 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
             toast("适配成功")
             return true
         } else {
+            app.logD("Adaptation failed: $hashMap")
             for (clazz in app.rules) {
                 if (!hashMap.containsKey(clazz.name)) {
                     app.logD("Failed to adapt:${clazz.name}")
