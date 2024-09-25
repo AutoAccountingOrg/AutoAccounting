@@ -27,6 +27,8 @@ interface AppDataDao {
     //根据条件查询
     @Query(
         "SELECT * FROM AppDataModel WHERE app = :app " +
+                "AND `match` = :match "+
+                "AND (:type IS NULL OR type = :type)" +
                 "AND (:type IS NULL OR type = :type)" +
                 "AND (:search IS NULL OR data LIKE '%' || :search || '%')" +
                 "ORDER BY id DESC LIMIT :limit OFFSET :offset"
@@ -35,7 +37,9 @@ interface AppDataDao {
         limit: Int,
         offset: Int,
         app: String,
+        match: Boolean,
         type: String?,
+
         search: String?
     ): List<AppDataModel>
 

@@ -38,6 +38,7 @@ class AppDataRoute(private val session: IHTTPSession) {
 
         val app = params["app"]?.firstOrNull() ?: ""
         var type: String? = params["type"]?.firstOrNull() ?: ""
+        val match = params["match"]?.firstOrNull()?.toBoolean() ?: false
         var search: String? = params["search"]?.firstOrNull() ?: ""
         if (type == "") type = null
 
@@ -45,7 +46,7 @@ class AppDataRoute(private val session: IHTTPSession) {
 
         val offset = (page - 1) * limit
 
-        val logs = Db.get().dataDao().load(limit, offset, app, type, search)
+        val logs = Db.get().dataDao().load(limit, offset, app, match,type, search)
         return Server.json(200, "OK", logs)
     }
 

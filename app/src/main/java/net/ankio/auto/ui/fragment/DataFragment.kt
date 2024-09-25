@@ -44,8 +44,9 @@ class DataFragment : BasePageFragment<AppDataModel>() {
     private lateinit var binding: FragmentDataRuleBinding
     var app: String = ""
     var type: String = ""
+    var match = false
     override suspend fun loadData(callback: (resultData: List<AppDataModel>) -> Unit) {
-        AppDataModel.list(app, type, page, pageSize, searchData).let { result ->
+        AppDataModel.list(app, type,match, page, pageSize, searchData).let { result ->
             withContext(Dispatchers.Main) {
                 callback(result)
             }
@@ -132,21 +133,27 @@ class DataFragment : BasePageFragment<AppDataModel>() {
      */
     private fun chipEvent() {
         binding.chipGroup.setOnCheckedStateChangeListener { group, checkedId ->
-            val chipId = checkedId.firstOrNull() ?: R.id.chip_all
 
-            when (chipId) {
-                R.id.chip_all -> {
-                    type = ""
-                }
+            match = false
+            type = ""
 
-                R.id.chip_notify -> {
-                    type = DataType.NOTICE.name
-                }
-
-                R.id.chip_data -> {
-                    type = DataType.DATA.name
-                }
+            if (R.id.chip_match in checkedId) {
+                match = true
             }
+
+            if (R.id.chip_notify in checkedId) {
+                type = DataType.NOTICE.name
+            }
+
+            if (R.id.chip_data in checkedId) {
+                type = DataType.DATA.name
+            }
+
+            if (R.id.chip_notify in checkedId && R.id.chip_data in checkedId) {
+                type = ""
+            }
+
+
             loadDataInside()
         }
     }

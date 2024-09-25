@@ -85,12 +85,13 @@ class AppDataModel {
         suspend fun list(
             app: String,
             type: String,
+            match:Boolean,
             page: Int,
             limit: Int,
             search: String
         ): List<AppDataModel> = withContext(Dispatchers.IO) {
             val response = Server.request(
-                "data/list?page=$page&limit=$limit&app=$app&type=$type&search=${
+                "data/list?page=$page&limit=$limit&app=$app&type=$type&match=${match}&search=${
                     Uri.encode(search)
                 }"
             )

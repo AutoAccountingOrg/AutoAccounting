@@ -158,6 +158,12 @@ class DataRuleFragment : BasePageFragment<RuleModel>() {
      * Chip事件
      */
     private fun chipEvent() {
+        binding.chipGroup.isSingleSelection = true
+        binding.chipAll.visibility = View.VISIBLE
+        binding.chipAll.isChecked = true
+        binding.chipNotify.isChecked = false
+        binding.chipData.isChecked = false
+        binding.chipMatch.visibility = View.GONE
         binding.chipGroup.setOnCheckedStateChangeListener { group, checkedId ->
             val chipId = checkedId.firstOrNull() ?: R.id.chip_all
 

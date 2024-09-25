@@ -44,10 +44,11 @@
             android:padding="10dp"
             app:chipSpacingHorizontal="10dp"
             app:selectionRequired="true"
-            app:singleSelection="true">
+            app:singleSelection="false">
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chip_all"
+                android:visibility="gone"
                 style="@style/Widget.Material3.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -59,6 +60,7 @@
                 style="@style/Widget.Material3.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:checked="true"
                 android:text="@string/chip_data" />
 
             <com.google.android.material.chip.Chip
@@ -66,7 +68,17 @@
                 style="@style/Widget.Material3.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:checked="true"
                 android:text="@string/chip_notify" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_match"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="false"
+                android:text="@string/chip_pair" />
+
             <!-- Chips can be declared here, or added dynamically. -->
 
         </com.google.android.material.chip.ChipGroup>
