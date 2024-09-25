@@ -27,6 +27,7 @@ import org.ezbook.server.constant.BillState
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.constant.DataType
 import org.ezbook.server.constant.Setting
+import org.ezbook.server.constant.SyncType
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.AppDataModel
 import org.ezbook.server.db.model.BillInfoModel
@@ -178,6 +179,9 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
                         Server.log(it)
                     }
                 }
+            }else{
+                // try
+                sync2Book(context)
             }
 
             // 更新AppData
@@ -187,6 +191,31 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
             Db.get().dataDao().update(appDataModel)
         }
         return Server.json(200, "OK", billInfoModel)
+    }
+    private fun sync2Book(context: android.content.Context){
+        Server.isRunOnMainThread()
+        val packageName = Db.get().settingDao().query(Setting.BOOK_APP_ID)?.value?:return
+        val syncType =
+            Db.get().settingDao().query(Setting.SYNC_TYPE)?.value?:SyncType.WhenOpenApp.name
+
+        if (syncType == SyncType.WhenOpenApp.name) {
+            return
+        }
+
+        val wait = Db.get().billInfoDao().queryNoSync()
+
+        if (wait.isEmpty()) {
+            Server.log("No need to sync")
+            return
+        }
+
+        if ((syncType == SyncType.BillsLimit10.name && wait.size >= 10) || (syncType == SyncType.BillsLimit5.name && wait.size >= 5)) {
+            val launchIntent = context.packageManager.getLaunchIntentForPackage(packageName)
+            if (launchIntent != null) {
+                context.startActivity(launchIntent)
+            }
+        }
+
     }
 
     /**

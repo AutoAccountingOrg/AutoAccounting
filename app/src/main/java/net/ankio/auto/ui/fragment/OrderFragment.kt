@@ -38,7 +38,7 @@ import org.ezbook.server.db.model.BillInfoModel
 import java.lang.ref.WeakReference
 
 open class OrderFragment : BasePageFragment<Pair<String, List<BillInfoModel>>>() {
-    var state:String = "${BillState.Edited},${BillState.Synced},${BillState.Wait2Edit}"
+    private var state:String = "${BillState.Edited},${BillState.Synced},${BillState.Wait2Edit}"
     override suspend fun loadData(callback: (resultData: List<Pair<String, List<BillInfoModel>>>) -> Unit) {
         val list = BillInfoModel.list(page, pageSize,state)
 

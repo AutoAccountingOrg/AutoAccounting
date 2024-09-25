@@ -33,10 +33,12 @@ import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.broadcast.LocalBroadcastHelper
 import net.ankio.auto.databinding.FloatEditorBinding
 import net.ankio.auto.exceptions.BillException
+import net.ankio.auto.hooks.qianji.sync.SyncBillUtils
 import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseSheetDialog
@@ -51,6 +53,7 @@ import org.ezbook.server.constant.BillState
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.constant.Currency
 import org.ezbook.server.constant.Setting
+import org.ezbook.server.constant.SyncType
 import org.ezbook.server.db.model.AssetsMapModel
 import org.ezbook.server.db.model.AssetsModel
 import org.ezbook.server.db.model.BillInfoModel
@@ -302,6 +305,14 @@ class FloatEditorDialog(
 
                         setAccountMap(assets, rawBillInfo.accountNameFrom, convertBillInfo.accountNameFrom)
                         setAccountMap(assets, rawBillInfo.accountNameTo, convertBillInfo.accountNameTo)
+                    }
+
+                    val syncType = ConfigUtils.getString(Setting.SYNC_TYPE, SyncType.WhenOpenApp.name)
+                    if (syncType != SyncType.WhenOpenApp.name) {
+                       val bills = BillInfoModel.sync()
+                        if ((syncType == SyncType.BillsLimit10.name && bills.size >= 10) || (syncType == SyncType.BillsLimit5.name && bills.size >= 5)) {
+                            App.startBookApp()
+                        }
                     }
 
                 }.onFailure {

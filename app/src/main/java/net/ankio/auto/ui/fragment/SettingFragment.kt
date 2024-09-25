@@ -29,6 +29,7 @@ import net.ankio.auto.setting.SettingUtils
 import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.api.BaseFragment
 import org.ezbook.server.constant.Setting
+import org.ezbook.server.constant.SyncType
 import java.lang.ref.WeakReference
 
 class SettingFragment : BaseFragment() {
@@ -94,6 +95,19 @@ class SettingFragment : BaseFragment() {
                 type = ItemType.SWITCH,
                 default = true,
                 icon = R.drawable.setting2_icon_rule,
+            ),
+            SettingItem(
+                title = R.string.setting_bill_sync_type,
+                key = Setting.SYNC_TYPE,
+                type = ItemType.TEXT,
+                default = SyncType.WhenOpenApp,
+                icon = R.drawable.ic_sync,
+                selectList =
+                hashMapOf(
+                    context.getString(R.string.when_open_app) to SyncType.WhenOpenApp.ordinal,
+                    context.getString(R.string.bills_limit5) to SyncType.BillsLimit5.ordinal,
+                    context.getString(R.string.bills_limit10) to SyncType.BillsLimit10.ordinal,
+                ),
             ),
             // 悬浮窗
             SettingItem(R.string.setting_float),

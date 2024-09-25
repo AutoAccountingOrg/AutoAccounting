@@ -16,10 +16,10 @@
 package org.ezbook.server.constant
 
 object Setting {
+    // 同步类型
+    const val SYNC_TYPE = "setting_sync_type"
+    // 展示规则名称
     const val  SHOW_RULE_NAME = "setting_show_rule_name"
-
-    //自动记账配置
-    const val AUTO_CONFIG = "setting_auto_config"
 
     //自动记账对应的记账软件
     const val BOOK_APP_ID = "setting_book_app_id"

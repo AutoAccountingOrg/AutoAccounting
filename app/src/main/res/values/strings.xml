@@ -461,4 +461,9 @@
     <string name="chip_edit">需要编辑</string>
     <string name="chip_sync">已同步</string>
     <string name="chip_no_sync">未同步</string>
+    <string name="setting_bill_sync">账单同步策略</string>
+    <string name="setting_bill_sync_type">同步方式</string>
+    <string name="when_open_app">打开记账软件时同步</string>
+    <string name="bills_limit5">未同步账单达到5条时自动同步</string>
+    <string name="bills_limit10">未同步账单达到5条时自动同步</string>
 </resources>
