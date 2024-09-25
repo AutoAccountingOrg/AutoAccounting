@@ -25,6 +25,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.App
 import net.ankio.auto.storage.CacheManager
+import net.ankio.auto.storage.Logger
 import okhttp3.FormBody
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -55,19 +56,24 @@ class RequestsUtils(context: Context, private val cacheTime: Int = 0) {
     }
 
     suspend fun image(url: String): Pair<Int, ByteArray> = withContext(Dispatchers.IO) {
-        val md5 = App.md5(url)
-        val byte = cacheManager.readFromCache(md5)
-        if (byte.isNotEmpty()) {
-            return@withContext Pair(200, byte)
+        runCatching {
+            val md5 = App.md5(url)
+            val byte = cacheManager.readFromCache(md5)
+            if (byte.isNotEmpty()) {
+                return@withContext Pair(200, byte)
+            }
+            val client = OkHttpClient.Builder().build()
+            val request = Request.Builder().url(url).build()
+            val response = client.newCall(request).execute()
+            val body = response.body?.bytes() ?: ByteArray(0)
+            if (cacheTime > 0 && body.isNotEmpty()) {
+                cacheManager.saveToCacheWithExpiry(md5, body, cacheTime.toLong())
+            }
+            Pair(response.code, body)
+        }.getOrElse {
+            Logger.e("Exception: ${it.message}", it)
+            Pair(500, ByteArray(0))
         }
-        val client = OkHttpClient.Builder().build()
-        val request = Request.Builder().url(url).build()
-        val response = client.newCall(request).execute()
-        val body = response.body?.bytes() ?: ByteArray(0)
-        if (cacheTime > 0 && body.isNotEmpty()) {
-            cacheManager.saveToCacheWithExpiry(md5, body, cacheTime.toLong())
-        }
-        Pair(response.code, body)
     }
 
     /**
@@ -75,47 +81,52 @@ class RequestsUtils(context: Context, private val cacheTime: Int = 0) {
      */
     suspend fun get(url: String, query: HashMap<String, String>? = null): Pair<Int, String> =
         withContext(Dispatchers.IO) {
-            val md5 = App.md5(url)
-            val byte = cacheManager.readFromCache(md5)
-            if (byte.isNotEmpty()) {
-                return@withContext Pair(200, String(byte))
-            }
+            runCatching {
+                val md5 = App.md5(url)
+                val byte = cacheManager.readFromCache(md5)
+                if (byte.isNotEmpty()) {
+                    return@withContext Pair(200, String(byte))
+                }
 
 // OkHttpClient 实例
-            val client = OkHttpClient.Builder()
-                .build()
+                val client = OkHttpClient.Builder()
+                    .build()
 
-            // 构建查询参数
-            val httpUrlBuilder = url.toHttpUrlOrNull()?.newBuilder()
-            query?.forEach { (key, value) ->
-                httpUrlBuilder?.addQueryParameter(key, value)
+                // 构建查询参数
+                val httpUrlBuilder = url.toHttpUrlOrNull()?.newBuilder()
+                query?.forEach { (key, value) ->
+                    httpUrlBuilder?.addQueryParameter(key, value)
+                }
+
+                // 构建完整URL
+                val fullUrl = httpUrlBuilder?.build()?.toString() ?: url
+
+                // 构建请求
+                val requestBuilder = Request.Builder()
+                    .url(fullUrl)
+
+                // 添加请求头
+                headers.forEach { (key, value) ->
+                    requestBuilder.addHeader(key, value)
+                }
+
+                // 构建最终请求
+                val request = requestBuilder.build()
+
+                // 执行请求
+                val response = client.newCall(request).execute()
+
+                val body = response.body?.string() ?: ""
+                if (cacheTime > 0 && body.isNotEmpty()) {
+                    cacheManager.saveToCacheWithExpiry(md5, body.toByteArray(), cacheTime.toLong())
+
+                }
+
+                Pair(response.code, body)
+            }.getOrElse {
+                Logger.e("Exception: ${it.message}", it)
+                Pair(500, "")
             }
-
-            // 构建完整URL
-            val fullUrl = httpUrlBuilder?.build()?.toString() ?: url
-
-            // 构建请求
-            val requestBuilder = Request.Builder()
-                .url(fullUrl)
-
-            // 添加请求头
-            headers.forEach { (key, value) ->
-                requestBuilder.addHeader(key, value)
-            }
-
-            // 构建最终请求
-            val request = requestBuilder.build()
-
-            // 执行请求
-            val response = client.newCall(request).execute()
-
-            val body = response.body?.string() ?: ""
-            if (cacheTime > 0 && body.isNotEmpty()) {
-                cacheManager.saveToCacheWithExpiry(md5, body.toByteArray(), cacheTime.toLong())
-
-            }
-
-            Pair(response.code, body)
         }
 
 
@@ -124,28 +135,33 @@ class RequestsUtils(context: Context, private val cacheTime: Int = 0) {
      */
     suspend fun form(url: String, body: HashMap<String, String>? = null): Pair<Int, String> =
         withContext(Dispatchers.IO) {
-            val client = OkHttpClient.Builder().build()
-            val requestBuilder = Request.Builder().url(url)
+            runCatching {
+                val client = OkHttpClient.Builder().build()
+                val requestBuilder = Request.Builder().url(url)
 
-            // 添加请求头
-            headers.forEach { (key, value) ->
-                requestBuilder.addHeader(key, value)
+                // 添加请求头
+                headers.forEach { (key, value) ->
+                    requestBuilder.addHeader(key, value)
+                }
+
+                // 构建表单请求体
+                val formBuilder = FormBody.Builder()
+                body?.forEach { (key, value) ->
+                    formBuilder.add(key, value)
+                }
+                val requestBody = formBuilder.build()
+
+                // 设置 POST 方法和请求体
+                val request = requestBuilder.post(requestBody).build()
+
+                // 执行请求
+                val response = client.newCall(request).execute()
+
+                Pair(response.code, response.body?.string() ?: "")
+            }.getOrElse {
+                Logger.e("Exception: ${it.message}", it)
+                Pair(500, "")
             }
-
-            // 构建表单请求体
-            val formBuilder = FormBody.Builder()
-            body?.forEach { (key, value) ->
-                formBuilder.add(key, value)
-            }
-            val requestBody = formBuilder.build()
-
-            // 设置 POST 方法和请求体
-            val request = requestBuilder.post(requestBody).build()
-
-            // 执行请求
-            val response = client.newCall(request).execute()
-
-            Pair(response.code, response.body?.string()?:"")
         }
 
     /**
@@ -153,71 +169,81 @@ class RequestsUtils(context: Context, private val cacheTime: Int = 0) {
      */
     suspend fun json(url: String, body: JsonObject): Pair<Int, String> =
         withContext(Dispatchers.IO) {
-            val client = OkHttpClient.Builder().build()
-            val requestBuilder = Request.Builder().url(url)
+            runCatching {
+                val client = OkHttpClient.Builder().build()
+                val requestBuilder = Request.Builder().url(url)
 
-            // 添加请求头
-            headers.forEach { (key, value) ->
-                requestBuilder.addHeader(key, value)
+                // 添加请求头
+                headers.forEach { (key, value) ->
+                    requestBuilder.addHeader(key, value)
+                }
+
+                // 构建 JSON 请求体
+                val requestBody = RequestBody.create(
+                    "application/json; charset=utf-8".toMediaTypeOrNull(),
+                    body.toString() // 将 JsonObject 转换为字符串
+                )
+
+                // 设置 POST 方法和请求体
+                val request = requestBuilder.post(requestBody).build()
+
+
+                // 执行请求并获取响应
+                val response = client.newCall(request).execute()
+
+                // 返回响应结果
+                Pair(response.code, response.body?.string() ?: "")
+            }.getOrElse {
+                Logger.e("Exception: ${it.message}", it)
+                Pair(500, "")
             }
-
-            // 构建 JSON 请求体
-            val requestBody = RequestBody.create(
-                "application/json; charset=utf-8".toMediaTypeOrNull(),
-                body.toString() // 将 JsonObject 转换为字符串
-            )
-
-            // 设置 POST 方法和请求体
-            val request = requestBuilder.post(requestBody).build()
-
-
-
-            // 执行请求并获取响应
-            val response = client.newCall(request).execute()
-
-            // 返回响应结果
-            Pair(response.code, response.body?.string()?:"")
         }
 
     /**
      * 执行文件上传
      */
     suspend fun upload(url: String, file: File): Pair<Int, String> = withContext(Dispatchers.IO) {
-        val client = OkHttpClient.Builder().build()
+        runCatching {
+            val client = OkHttpClient.Builder().build()
 
-        // 构建 MultipartBody
-        val requestBody = MultipartBody.Builder()
-            .setType(MultipartBody.FORM) // 设置表单类型
-            .addFormDataPart(
-                "file",
-                file.name,
-                RequestBody.create("application/octet-stream".toMediaTypeOrNull(), file)
-            )
-            .build()
+            // 构建 MultipartBody
+            val requestBody = MultipartBody.Builder()
+                .setType(MultipartBody.FORM) // 设置表单类型
+                .addFormDataPart(
+                    "file",
+                    file.name,
+                    RequestBody.create("application/octet-stream".toMediaTypeOrNull(), file)
+                )
+                .build()
 
-        // 构建请求
-        val request = Request.Builder()
-            .url(url)
-            .post(requestBody) // 使用 POST 请求
-            .apply {
-                // 添加请求头（如果需要）
-                headers.forEach { (key, value) ->
-                    addHeader(key, value)
+            // 构建请求
+            val request = Request.Builder()
+                .url(url)
+                .post(requestBody) // 使用 POST 请求
+                .apply {
+                    // 添加请求头（如果需要）
+                    headers.forEach { (key, value) ->
+                        addHeader(key, value)
+                    }
                 }
-            }
-            .build()
+                .build()
 
-        // 执行请求
-        val response = client.newCall(request).execute()
+            // 执行请求
+            val response = client.newCall(request).execute()
 
-        // 返回响应结果
-        Pair(response.code, response.body?.string()?:"")
+            // 返回响应结果
+            Pair(response.code, response.body?.string() ?: "")
+        }.getOrElse {
+            Logger.e("Exception: ${it.message}", it)
+            Pair(500, "")
+        }
     }
 
     /**
      * 下载文件
      */
     suspend fun download(url: String, file: File): Boolean = withContext(Dispatchers.IO) {
+
         val client = OkHttpClient.Builder().build()
         val requestBuilder = Request.Builder().url(url)
 
@@ -248,6 +274,7 @@ class RequestsUtils(context: Context, private val cacheTime: Int = 0) {
         } catch (e: IOException) {
             // 捕捉异常并返回 false
             e.printStackTrace()
+            Logger.e("Exception: ${e.message}", e)
             false
         }
     }
@@ -255,55 +282,49 @@ class RequestsUtils(context: Context, private val cacheTime: Int = 0) {
 
     // PUT 请求，上传文件并返回响应的字符串形式
     suspend fun put(url: String, file: File): Pair<Int, String> = withContext(Dispatchers.IO) {
-        val client = OkHttpClient.Builder().build()
-        val fileRequestBody = file.asRequestBody() // 根据文件自动推断 MIME 类型
+        runCatching {
+            val client = OkHttpClient.Builder().build()
+            val fileRequestBody = file.asRequestBody() // 根据文件自动推断 MIME 类型
 
 
-        val requestBuilder = Request.Builder().url(url).put(fileRequestBody)
+            val requestBuilder = Request.Builder().url(url).put(fileRequestBody)
 
-        // 添加请求头
-        headers.forEach { (key, value) ->
-            requestBuilder.addHeader(key, value)
-        }
-        val request = requestBuilder.build()
+            // 添加请求头
+            headers.forEach { (key, value) ->
+                requestBuilder.addHeader(key, value)
+            }
+            val request = requestBuilder.build()
 
-        client.newCall(request).execute().use { response ->
-            val body = response.body?.string() ?: "No response body" // 将响应转换为字符串
-            Pair(response.code, body)
-        }
-    }
-
-    // DELETE 请求并返回响应的字符串形式
-    suspend fun delete(url: String): String = withContext(Dispatchers.IO) {
-        val client = OkHttpClient.Builder().build()
-
-        val requestBuilder = Request.Builder().url(url).delete()
-
-        // 添加请求头
-        headers.forEach { (key, value) ->
-            requestBuilder.addHeader(key, value)
-        }
-        val request = requestBuilder.build()
-
-        client.newCall(request).execute().use { response ->
-            response.body?.string() ?: "No response body" // 将响应转换为字符串
+            client.newCall(request).execute().use { response ->
+                val body = response.body?.string() ?: "No response body" // 将响应转换为字符串
+                Pair(response.code, body)
+            }
+        }.getOrElse {
+            Logger.e("Exception: ${it.message}", it)
+            Pair(500, "")
         }
     }
+
 
     // MKCOL 请求并返回响应的字符串形式
     suspend fun mkcol(url: String): Int = withContext(Dispatchers.IO) {
-        val client = OkHttpClient.Builder().build()
-        val requestBuilder = Request.Builder().url(url).method("MKCOL", null) // MKCOL 请求不需要请求体
+        runCatching {
+            val client = OkHttpClient.Builder().build()
+            val requestBuilder = Request.Builder().url(url).method("MKCOL", null) // MKCOL 请求不需要请求体
 
-        // 添加请求头
-        headers.forEach { (key, value) ->
-            requestBuilder.addHeader(key, value)
-        }
-        val request = requestBuilder.build()
+            // 添加请求头
+            headers.forEach { (key, value) ->
+                requestBuilder.addHeader(key, value)
+            }
+            val request = requestBuilder.build()
 
-        client.newCall(request).execute().use { response ->
-            response.body?.close()
-            response.code // 返回响应码
+            client.newCall(request).execute().use { response ->
+                response.body?.close()
+                response.code // 返回响应码
+            }
+        }.getOrElse {
+            Logger.e("Exception: ${it.message}", it)
+            500
         }
     }
 
