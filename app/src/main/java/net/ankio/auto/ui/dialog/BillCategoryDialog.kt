@@ -148,7 +148,7 @@ class BillCategoryDialog(
                 categoryRuleModel.js = js
                 // categoryRuleModel.text = text
                 categoryRuleModel.element = Gson().toJson(list)
-                categoryRuleModel.creator = "user"
+                categoryRuleModel.creator = "system"
                 /*   customRuleModel.auto = true
                    customRuleModel.use = true*/
                 CategoryRuleModel.put(categoryRuleModel)
