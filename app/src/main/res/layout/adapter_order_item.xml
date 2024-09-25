@@ -90,11 +90,20 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/status_bar"
         android:layout_width="match_parent"
         android:layout_height="48dp"
 
         android:gravity="center_vertical">
-
+        <com.google.android.material.chip.Chip
+            android:id="@+id/auto_record"
+            style="@style/Widget.Material3.Chip.Filter.Elevated"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/auto_record"
+            android:checked="true"
+            android:enabled="false"
+            app:ensureMinTouchTargetSize="true"/>
         <View
             android:layout_width="0dp"
             android:layout_height="0dp"
