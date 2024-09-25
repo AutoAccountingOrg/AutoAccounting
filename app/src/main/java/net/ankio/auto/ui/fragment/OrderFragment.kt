@@ -38,12 +38,12 @@ import org.ezbook.server.db.model.BillInfoModel
 import java.lang.ref.WeakReference
 
 open class OrderFragment : BasePageFragment<Pair<String, List<BillInfoModel>>>() {
-    private var state:String = "${BillState.Edited},${BillState.Synced},${BillState.Wait2Edit}"
     override suspend fun loadData(callback: (resultData: List<Pair<String, List<BillInfoModel>>>) -> Unit) {
-        val list = BillInfoModel.list(page, pageSize,state)
+        val list = BillInfoModel.list(page, pageSize)
 
         val newIndex = mutableListOf<Int>()
         val updateIndex = mutableListOf<Int>()
+
 
         list.forEach { item ->
             val day = DateUtils.stampToDate(item.time, "yyyy-MM-dd")
@@ -77,40 +77,14 @@ open class OrderFragment : BasePageFragment<Pair<String, List<BillInfoModel>>>()
         }
     }
 
-    private fun setIsLoading(isLoading: Boolean) {
-       binding.chipGroup.isEnabled = !isLoading
-    }
-
-    private fun chipEvent() {
-        binding.chipGroup.setOnCheckedStateChangeListener { group, checkedId ->
-
-            state = ""
-
-            if (R.id.chip_edit in checkedId) {
-                state+= BillState.Wait2Edit.name+","
-            }
-
-            if (R.id.chip_sync in checkedId) {
-                state+= BillState.Synced.name+","
-            }
-            if (R.id.chip_no_sync in checkedId) {
-                state+= BillState.Edited.name+","
-            }
-
-
-            loadDataInside()
-        }
-    }
 
     override fun loadDataInside(callback: ((Boolean, Boolean) -> Unit)?) {
-        setIsLoading(true)
         if (page == 1) {
             resetPage()
         }
         lifecycleScope.launch {
             withContext(Dispatchers.IO) {
                 loadData { resultData ->
-                    setIsLoading(false)
                     if (pageData.isEmpty()) {
                         statusPage.showEmpty()
                         callback?.invoke(true, false)
@@ -146,10 +120,10 @@ open class OrderFragment : BasePageFragment<Pair<String, List<BillInfoModel>>>()
         val layoutManager = LinearLayoutManager(requireContext())
         recyclerView.layoutManager = layoutManager
         recyclerView.adapter = OrderAdapter(pageData)
-       // scrollView = WeakReference(recyclerView)
+        // scrollView = WeakReference(recyclerView)
 
         loadDataEvent(binding.refreshLayout)
-        chipEvent()
+
         return binding.root
     }
 

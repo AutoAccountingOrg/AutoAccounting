@@ -33,9 +33,8 @@ class BillRoute(private val session: IHTTPSession) {
         val params = session.parameters
         val page = params["page"]?.firstOrNull()?.toInt() ?: 1
         val limit = params["limit"]?.firstOrNull()?.toInt() ?: 10
-        val state = params["state"]?.firstOrNull() ?: ""
         val offset = (page - 1) * limit
-        val logs = Db.get().billInfoDao().loadPage(limit, offset,state.split(",").filter { it.isNotEmpty() })
+        val logs = Db.get().billInfoDao().loadPage(limit, offset)
         return Server.json(200, "OK", logs)
     }
 
