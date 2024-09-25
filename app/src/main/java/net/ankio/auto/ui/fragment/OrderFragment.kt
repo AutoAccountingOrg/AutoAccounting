@@ -27,16 +27,20 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentLogBinding
+import net.ankio.auto.databinding.FragmentOrderBinding
 import net.ankio.auto.ui.adapter.OrderAdapter
 import net.ankio.auto.ui.api.BasePageFragment
 import net.ankio.auto.ui.models.ToolbarMenuItem
 import net.ankio.auto.utils.DateUtils
+import org.ezbook.server.constant.BillState
+import org.ezbook.server.constant.DataType
 import org.ezbook.server.db.model.BillInfoModel
 import java.lang.ref.WeakReference
 
 open class OrderFragment : BasePageFragment<Pair<String, List<BillInfoModel>>>() {
+    var state:String = "${BillState.Edited},${BillState.Synced},${BillState.Wait2Edit}"
     override suspend fun loadData(callback: (resultData: List<Pair<String, List<BillInfoModel>>>) -> Unit) {
-        val list = BillInfoModel.list(page, pageSize)
+        val list = BillInfoModel.list(page, pageSize,state)
 
         val newIndex = mutableListOf<Int>()
         val updateIndex = mutableListOf<Int>()
@@ -74,6 +78,26 @@ open class OrderFragment : BasePageFragment<Pair<String, List<BillInfoModel>>>()
         }
     }
 
+    private fun chipEvent() {
+        binding.chipGroup.setOnCheckedStateChangeListener { group, checkedId ->
+
+            state = ""
+
+            if (R.id.chip_edit in checkedId) {
+                state+= BillState.Wait2Edit.name+","
+            }
+
+            if (R.id.chip_sync in checkedId) {
+                state+= BillState.Synced.name+","
+            }
+            if (R.id.chip_no_sync in checkedId) {
+                state+= BillState.Edited.name+","
+            }
+
+
+            loadDataInside()
+        }
+    }
 
     override fun loadDataInside(callback: ((Boolean, Boolean) -> Unit)?) {
         if (page == 1) {
@@ -104,14 +128,14 @@ open class OrderFragment : BasePageFragment<Pair<String, List<BillInfoModel>>>()
                     App.startBookApp()
                 },
             )
-    private lateinit var binding: FragmentLogBinding
+    private lateinit var binding: FragmentOrderBinding
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
-        binding = FragmentLogBinding.inflate(layoutInflater)
+        binding = FragmentOrderBinding.inflate(layoutInflater)
         statusPage = binding.statusPage
         val recyclerView = binding.statusPage.contentView!!
         val layoutManager = LinearLayoutManager(requireContext())
@@ -120,7 +144,7 @@ open class OrderFragment : BasePageFragment<Pair<String, List<BillInfoModel>>>()
        // scrollView = WeakReference(recyclerView)
 
         loadDataEvent(binding.refreshLayout)
-
+        chipEvent()
         return binding.root
     }
 

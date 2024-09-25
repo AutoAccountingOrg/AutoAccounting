@@ -458,4 +458,7 @@
     <string name="setting_bill_show_rule">账单页面显示识别规则</string>
     <string name="auto_create">自动生成</string>
     <string name="chip_pair">已匹配</string>
+    <string name="chip_edit">需要编辑</string>
+    <string name="chip_sync">已同步</string>
+    <string name="chip_no_sync">未同步</string>
 </resources>

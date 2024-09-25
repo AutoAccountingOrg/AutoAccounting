@@ -40,8 +40,8 @@ interface BillInfoDao {
     @Query("DELETE FROM BillInfoModel WHERE time < :time")
     fun clearOld(time: Long)
 
-    @Query("SELECT * FROM BillInfoModel WHERE groupId=-1 ORDER BY time DESC LIMIT :limit OFFSET :offset")
-    fun loadPage(limit: Int, offset: Int): List<BillInfoModel>
+    @Query("SELECT * FROM BillInfoModel WHERE groupId=-1 AND state IN (:states) ORDER BY time DESC LIMIT :limit OFFSET :offset")
+    fun loadPage(limit: Int, offset: Int, states: List<String>): List<BillInfoModel>
 
     @Query("DELETE FROM BillInfoModel WHERE groupId = :groupId")
     fun deleteGroup(groupId: Long)

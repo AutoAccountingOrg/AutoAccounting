@@ -15,6 +15,7 @@
 
 package org.ezbook.server.db.model
 
+import android.net.Uri
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.Gson
@@ -173,9 +174,9 @@ class BillInfoModel {
         }
 
 
-        suspend fun list(page: Int, pageSize: Int): List<BillInfoModel> =
+        suspend fun list(page: Int, pageSize: Int,state:String): List<BillInfoModel> =
             withContext(Dispatchers.IO) {
-                val response = Server.request("bill/list?page=$page&limit=$pageSize")
+                val response = Server.request("bill/list?page=$page&limit=$pageSize&state=${Uri.encode(state)}")
 
                 runCatching {
                     val json = Gson().fromJson(response, JsonObject::class.java)
