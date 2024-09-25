@@ -45,7 +45,6 @@ open class OrderFragment : BasePageFragment<Pair<String, List<BillInfoModel>>>()
         val newIndex = mutableListOf<Int>()
         val updateIndex = mutableListOf<Int>()
 
-
         list.forEach { item ->
             val day = DateUtils.stampToDate(item.time, "yyyy-MM-dd")
             val dayItem = pageData.find { pair -> pair.first == day }
@@ -78,6 +77,10 @@ open class OrderFragment : BasePageFragment<Pair<String, List<BillInfoModel>>>()
         }
     }
 
+    private fun setIsLoading(isLoading: Boolean) {
+       binding.chipGroup.isEnabled = !isLoading
+    }
+
     private fun chipEvent() {
         binding.chipGroup.setOnCheckedStateChangeListener { group, checkedId ->
 
@@ -100,12 +103,14 @@ open class OrderFragment : BasePageFragment<Pair<String, List<BillInfoModel>>>()
     }
 
     override fun loadDataInside(callback: ((Boolean, Boolean) -> Unit)?) {
+        setIsLoading(true)
         if (page == 1) {
             resetPage()
         }
         lifecycleScope.launch {
             withContext(Dispatchers.IO) {
                 loadData { resultData ->
+                    setIsLoading(false)
                     if (pageData.isEmpty()) {
                         statusPage.showEmpty()
                         callback?.invoke(true, false)
