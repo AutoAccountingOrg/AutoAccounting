@@ -100,13 +100,13 @@ class SettingFragment : BaseFragment() {
                 title = R.string.setting_bill_sync_type,
                 key = Setting.SYNC_TYPE,
                 type = ItemType.TEXT,
-                default = SyncType.WhenOpenApp,
+                default = SyncType.WhenOpenApp.name,
                 icon = R.drawable.ic_sync,
                 selectList =
                 hashMapOf(
-                    context.getString(R.string.when_open_app) to SyncType.WhenOpenApp.ordinal,
-                    context.getString(R.string.bills_limit5) to SyncType.BillsLimit5.ordinal,
-                    context.getString(R.string.bills_limit10) to SyncType.BillsLimit10.ordinal,
+                    context.getString(R.string.when_open_app) to SyncType.WhenOpenApp.name,
+                    context.getString(R.string.bills_limit5) to SyncType.BillsLimit5.name,
+                    context.getString(R.string.bills_limit10) to SyncType.BillsLimit10.name,
                 ),
             ),
             // 悬浮窗
