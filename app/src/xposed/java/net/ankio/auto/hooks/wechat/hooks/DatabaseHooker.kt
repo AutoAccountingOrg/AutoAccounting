@@ -140,10 +140,6 @@ class DatabaseHooker : PartHooker() {
                                 contentValues.put("cachedPayShop", App.get("cachedPayShop"))
                             }
                         }
-                    } else if (tableName == "bizchatmessage") {
-                        // 好像是小程序消息
-                        if (type == 49) { // 没啥有用的数据好像
-                        }
                     }
                 }
             },
