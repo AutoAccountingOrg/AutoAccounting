@@ -21,6 +21,7 @@ import android.content.Intent
 import android.provider.Telephony
 import android.telephony.SmsMessage
 import com.google.gson.Gson
+import com.google.gson.JsonObject
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
@@ -81,9 +82,9 @@ class SmsIntentHooker:PartHooker() {
                 var body: String = SmsMessageUtils.getMessageBody(smsMessageParts)
                 sender = Normalizer.normalize(sender, Normalizer.Form.NFC)
                 body = Normalizer.normalize(body, Normalizer.Form.NFC)
-               val json = JSONObject().apply {
-                     put("sender",sender)
-                     put("body",body)
+               val json = JsonObject().apply {
+                     addProperty("sender",sender)
+                   addProperty("body",body)
                 }
 
                 hookerManifest.analysisData(DataType.DATA, Gson().toJson(json))
