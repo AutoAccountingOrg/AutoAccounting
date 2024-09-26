@@ -67,12 +67,12 @@ class DatabaseHooker : PartHooker() {
 
                     if (!usefulTable.contains(tableName)) return
 
-                    XposedBridge.log("微信数据：${Gson().toJson(contentValues)} table:$tableName arg:$arg")
-
                     val type = contentValues.getAsInteger("type") ?: return
                     // 补充数据
                     contentValues.put("tableName", tableName)
                     contentValues.put("arg", arg)
+                    //由于微信的数据经常没有时间，所以我们为他添加默认时间
+                    contentValues.put("t",System.currentTimeMillis())
 
                     if (tableName == "message") {
                         if (type == 1) {
