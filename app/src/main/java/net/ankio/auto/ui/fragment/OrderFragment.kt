@@ -27,15 +27,11 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentLogBinding
-import net.ankio.auto.databinding.FragmentOrderBinding
 import net.ankio.auto.ui.adapter.OrderAdapter
 import net.ankio.auto.ui.api.BasePageFragment
 import net.ankio.auto.ui.models.ToolbarMenuItem
 import net.ankio.auto.utils.DateUtils
-import org.ezbook.server.constant.BillState
-import org.ezbook.server.constant.DataType
 import org.ezbook.server.db.model.BillInfoModel
-import java.lang.ref.WeakReference
 
 open class OrderFragment : BasePageFragment<Pair<String, List<BillInfoModel>>>() {
     override suspend fun loadData(callback: (resultData: List<Pair<String, List<BillInfoModel>>>) -> Unit) {
@@ -107,14 +103,14 @@ open class OrderFragment : BasePageFragment<Pair<String, List<BillInfoModel>>>()
                     App.startBookApp()
                 },
             )
-    private lateinit var binding: FragmentOrderBinding
+    private lateinit var binding: FragmentLogBinding
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
-        binding = FragmentOrderBinding.inflate(layoutInflater)
+        binding = FragmentLogBinding.inflate(layoutInflater)
         statusPage = binding.statusPage
         val recyclerView = binding.statusPage.contentView!!
         val layoutManager = LinearLayoutManager(requireContext())
