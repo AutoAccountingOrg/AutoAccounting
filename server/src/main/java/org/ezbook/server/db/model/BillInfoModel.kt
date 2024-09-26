@@ -148,6 +148,7 @@ class BillInfoModel {
         billInfoModel.state = state
         billInfoModel.remark = remark
         billInfoModel.auto = auto
+        billInfoModel.ruleName = ruleName
         return billInfoModel
     }
 
