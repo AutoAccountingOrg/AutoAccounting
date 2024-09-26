@@ -39,7 +39,13 @@ class PayToolsHooker : PartHooker() {
                     val text = param.args[0] as String
                     hookerManifest.logD("Text: $text")
                     when {
-                        text.contains("卡(") || text.contains("零钱") -> {
+
+                        text.contains(Regex("\\d{4}")) -> {
+                            hookerManifest.logD("卡号Hook: $text")
+                            App.set("cachedPayToolsNumber", text)
+                        }
+
+                        text.contains("卡") || text.contains("零钱") -> {
                             hookerManifest.logD("支付方式Hook: $text")
                             App.set("cachedPayTools", text)
                         }
