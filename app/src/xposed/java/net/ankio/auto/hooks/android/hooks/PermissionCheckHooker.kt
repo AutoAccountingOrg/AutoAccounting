@@ -76,11 +76,7 @@ class PermissionCheckHooker:PartHooker() {
 
                     // 允许自动记账的所有权限
                     if (packageName == BuildConfig.APPLICATION_ID) {
-                        if (permission!="android.permission.POST_NOTIFICATIONS"){
-                            param.result = PackageManager.PERMISSION_GRANTED
-
-                        }
-
+                        param.result = PackageManager.PERMISSION_GRANTED
                     }
 
                 }

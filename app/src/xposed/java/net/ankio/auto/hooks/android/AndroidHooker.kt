@@ -18,7 +18,6 @@ package net.ankio.auto.hooks.android
 import android.app.Application
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
-import net.ankio.auto.hooks.android.hooks.AutoServiceHooker
 import net.ankio.auto.hooks.android.hooks.NotificationHooker
 import net.ankio.auto.hooks.android.hooks.PermissionCheckHooker
 import net.ankio.auto.hooks.android.hooks.PermissionHooker
@@ -41,7 +40,6 @@ class AndroidHooker : HookerManifest() {
     override var partHookers: MutableList<PartHooker>
         get() = mutableListOf(
             NotificationHooker(),
-            AutoServiceHooker(),
             PermissionCheckHooker()
         )
         set(value) {}
