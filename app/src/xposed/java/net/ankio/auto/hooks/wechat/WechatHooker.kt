@@ -74,8 +74,7 @@ class WechatHooker : HookerManifest() {
                                 type = "java.lang.String"
                             ),
                         )
-                    )
-                    ,
+                    ),
 
                     ClazzMethod(
                         name = "onGYNetEnd",
@@ -95,55 +94,54 @@ class WechatHooker : HookerManifest() {
                     )
                 )
             ),
-                    Clazz(
-                    type = "class",
-            name = "luckymoney.model",
-            nameRule = "com.tencent.mm.plugin.luckymoney.model.\\w+",
-            methods = arrayListOf(
-                ClazzMethod(
-                    name = "constructor",
-                    parameters = arrayListOf(
-                        //  public n5(int v, int v1, String s, String s1, int v2, String s2) {
-                        ClazzField(
-                            type = "int"
-                        ),
-                        ClazzField(
-                            type = "int"
-                        ),
-                        ClazzField(
-                            type = "java.lang.String"
-                        ),
-                        ClazzField(
-                            type = "java.lang.String"
-                        ),
-                        ClazzField(
-                            type = "int"
-                        ),
-                        ClazzField(
-                            type = "java.lang.String"
-                        ),
-                    )
-                )
-                ,
+            Clazz(
+                type = "class",
+                name = "luckymoney.model",
+                nameRule = "com.tencent.mm.plugin.luckymoney.model.\\w+",
+                methods = arrayListOf(
+                    ClazzMethod(
+                        name = "constructor",
+                        parameters = arrayListOf(
+                            //  public n5(int v, int v1, String s, String s1, int v2, String s2) {
+                            ClazzField(
+                                type = "int"
+                            ),
+                            ClazzField(
+                                type = "int"
+                            ),
+                            ClazzField(
+                                type = "java.lang.String"
+                            ),
+                            ClazzField(
+                                type = "java.lang.String"
+                            ),
+                            ClazzField(
+                                type = "int"
+                            ),
+                            ClazzField(
+                                type = "java.lang.String"
+                            ),
+                        )
+                    ),
 
-                ClazzMethod(
-                    name = "onGYNetEnd",
-                    returnType = "void",
-                    parameters = arrayListOf(
-                        ClazzField(
-                            type = "int"
-                        ),
-                        ClazzField(
-                            type = "java.lang.String"
-                        ),
-                        ClazzField(
-                            type = "org.json.JSONObject"
-                        ),
-                    )
+                    ClazzMethod(
+                        name = "onGYNetEnd",
+                        returnType = "void",
+                        parameters = arrayListOf(
+                            ClazzField(
+                                type = "int"
+                            ),
+                            ClazzField(
+                                type = "java.lang.String"
+                            ),
+                            ClazzField(
+                                type = "org.json.JSONObject"
+                            ),
+                        )
 
+                    )
                 )
             )
-        )
         )
         set(value) {}
 
