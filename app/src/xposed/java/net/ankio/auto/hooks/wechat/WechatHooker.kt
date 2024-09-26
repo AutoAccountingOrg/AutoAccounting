@@ -16,12 +16,12 @@
 package net.ankio.auto.hooks.wechat
 
 import android.app.Application
-import net.ankio.auto.core.App
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
 import net.ankio.auto.hooks.wechat.hooks.ChatUserHooker
 import net.ankio.auto.hooks.wechat.hooks.DatabaseHooker
 import net.ankio.auto.hooks.wechat.hooks.PayToolsHooker
+import net.ankio.auto.hooks.wechat.hooks.RedPackageHooker
 import net.ankio.auto.hooks.wechat.hooks.TransferHooker
 import net.ankio.dex.model.Clazz
 import net.ankio.dex.model.ClazzField
@@ -43,6 +43,7 @@ class WechatHooker : HookerManifest() {
     override var partHookers: MutableList<PartHooker> = mutableListOf(
         DatabaseHooker(),
         TransferHooker(),
+        RedPackageHooker(),
         ChatUserHooker(),
         PayToolsHooker()
     )
@@ -93,7 +94,56 @@ class WechatHooker : HookerManifest() {
 
                     )
                 )
+            ),
+                    Clazz(
+                    type = "class",
+            name = "luckymoney.model",
+            nameRule = "com.tencent.mm.plugin.luckymoney.model.\\w+",
+            methods = arrayListOf(
+                ClazzMethod(
+                    name = "constructor",
+                    parameters = arrayListOf(
+                        //  public n5(int v, int v1, String s, String s1, int v2, String s2) {
+                        ClazzField(
+                            type = "int"
+                        ),
+                        ClazzField(
+                            type = "int"
+                        ),
+                        ClazzField(
+                            type = "java.lang.String"
+                        ),
+                        ClazzField(
+                            type = "java.lang.String"
+                        ),
+                        ClazzField(
+                            type = "int"
+                        ),
+                        ClazzField(
+                            type = "java.lang.String"
+                        ),
+                    )
+                )
+                ,
+
+                ClazzMethod(
+                    name = "onGYNetEnd",
+                    returnType = "void",
+                    parameters = arrayListOf(
+                        ClazzField(
+                            type = "int"
+                        ),
+                        ClazzField(
+                            type = "java.lang.String"
+                        ),
+                        ClazzField(
+                            type = "org.json.JSONObject"
+                        ),
+                    )
+
+                )
             )
+        )
         )
         set(value) {}
 
