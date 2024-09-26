@@ -271,7 +271,7 @@
     <string name="setting_bill_remark_desc">支持使用如下中文变量：【商户名称】、【商品名称】、【币种类型】、【金额】、【分类】、【账本】、【来源】</string>
     <string name="setting_float">悬浮角标</string>
     <string name="setting_float_time">倒计时时长（单位：秒）</string>
-    <string name="setting_float_time_desc">设置倒计时为0则不显示悬浮窗口</string>
+    <string name="setting_float_time_desc">当倒计时为0则触发超时事件</string>
     <string name="setting_float_on_badge_click">悬浮角标被单击时</string>
     <string name="pop_edit_window">弹出记账编辑面板</string>
     <string name="auto_account">直接记录账单</string>
