@@ -16,6 +16,7 @@
 package net.ankio.auto.hooks.wechat
 
 import android.app.Application
+import net.ankio.auto.core.App
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
 import net.ankio.auto.hooks.wechat.hooks.ChatUserHooker
@@ -33,6 +34,7 @@ class WechatHooker : HookerManifest() {
         get() = "com.tencent.mm"
     override val appName: String = "微信"
     override fun hookLoadPackage(application: Application?, classLoader: ClassLoader) {
+       // App.set("adaptation","")
     }
 
     override var minVersion: Int
@@ -102,7 +104,8 @@ class WechatHooker : HookerManifest() {
                     ClazzMethod(
                         name = "constructor",
                         parameters = arrayListOf(
-                            //  public n5(int v, int v1, String s, String s1, int v2, String s2) {
+                            // public n5(int v, int v1, String s, String s1, String s2, String s3, String s4, String s5, String s6, String s7) {
+                            //
                             ClazzField(
                                 type = "int"
                             ),
@@ -116,7 +119,19 @@ class WechatHooker : HookerManifest() {
                                 type = "java.lang.String"
                             ),
                             ClazzField(
-                                type = "int"
+                                type = "java.lang.String"
+                            ),
+                            ClazzField(
+                                type = "java.lang.String"
+                            ),
+                            ClazzField(
+                                type = "java.lang.String"
+                            ),
+                            ClazzField(
+                                type = "java.lang.String"
+                            ),
+                            ClazzField(
+                                type = "java.lang.String"
                             ),
                             ClazzField(
                                 type = "java.lang.String"

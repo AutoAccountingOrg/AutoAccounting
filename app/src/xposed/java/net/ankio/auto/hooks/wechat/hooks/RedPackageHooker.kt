@@ -18,6 +18,7 @@ package net.ankio.auto.hooks.wechat.hooks
 import android.app.Application
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
+import net.ankio.auto.core.App
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.api.PartHooker
 import org.ezbook.server.constant.DataType
@@ -41,7 +42,8 @@ class RedPackageHooker:PartHooker() {
         XposedHelpers.findAndHookMethod(clazz,"onGYNetEnd",Int::class.javaPrimitiveType,String::class.java,JSONObject::class.java,object :XC_MethodHook(){
             override fun beforeHookedMethod(param: MethodHookParam?) {
                 val json = param!!.args[2] as JSONObject
-                hookerManifest.log("hookd red package: $json")
+                hookerManifest.logD("hooked red package: $json")
+                json.put("hookerUser", App.get("hookerUser",""))
                 hookerManifest.analysisData(DataType.DATA,json.toString())
             }
         })
