@@ -27,11 +27,13 @@
             tools:srcCompat="@tools:sample/backgrounds/scenic" />
 
         <com.google.android.material.textview.MaterialTextView
+            android:textColor="?colorSurfaceInverse"
             android:id="@+id/app_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
-            android:ellipsize="marquee"
+            android:ellipsize="end"
+            android:maxLines="1"
             android:scrollbars="none"
             android:textAppearance="?android:attr/textAppearanceListItem"
             android:textIsSelectable="false"

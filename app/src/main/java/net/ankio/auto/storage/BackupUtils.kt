@@ -38,6 +38,7 @@ import net.ankio.auto.exceptions.RestoreBackupException
 import net.ankio.auto.request.RequestsUtils
 import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.api.BaseActivity
+import net.ankio.auto.ui.dialog.BackupSelectorDialog
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.ToastUtils
 import okhttp3.Credentials
@@ -48,13 +49,14 @@ import java.io.FileOutputStream
 import java.io.OutputStream
 
 class BackupUtils(private val context: Context) {
-    private var filename = "auto_backup_${System.currentTimeMillis()}.$SUFFIX"
+    private var filename =
+        "backup_${BuildConfig.VERSION_NAME}(${SUPPORT_VERSION})_${System.currentTimeMillis()}.$SUFFIX"
 
     private val uri = Uri.parse(ConfigUtils.getString(Setting.LOCAL_BACKUP_PATH, ""))
 
     companion object {
         const val SUFFIX = "pk"
-        const val SUPPORT_VERSION = 201 // 支持恢复数据的版本号
+        const val SUPPORT_VERSION = 202 // 支持恢复数据的版本号
 
         fun registerBackupLauncher(activity: BaseActivity): ActivityResultLauncher<Uri?> {
             return activity.registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
@@ -268,7 +270,6 @@ class BackupUtils(private val context: Context) {
 
     suspend fun putWebdavBackup(mainActivity: MainActivity) =
         withContext(Dispatchers.IO) {
-            filename = "auto_backup.$SUFFIX"
             val file = File(context.cacheDir, filename)
             val loadingUtils = LoadingUtils(mainActivity)
             withContext(Dispatchers.Main) {
@@ -334,7 +335,7 @@ class BackupUtils(private val context: Context) {
     }
 
     private fun showWebDavMsg(code: Int) {
-        Logger.i("Webdav Error code:$code")
+        Logger.i("Webdav Return code:$code")
         when (code) {
             100 -> ToastUtils.error(R.string.net_error_msg)
             200 -> ToastUtils.info(R.string.backup_success)
@@ -344,46 +345,75 @@ class BackupUtils(private val context: Context) {
             403 -> ToastUtils.error(R.string.backup_auth)
             404 -> ToastUtils.error(R.string.backup_not_found)
             409 -> ToastUtils.error(R.string.backup_not_found)
-            else -> ToastUtils.error(R.string.backup_unknown)
+            else -> {
+
+            }
+        }
+    }
+
+    private suspend fun downFromWebDav(
+        url: String,
+        requestUtils: RequestsUtils,
+        mainActivity: MainActivity
+    ) = withContext(Dispatchers.IO) {
+        val loadingUtils = LoadingUtils(mainActivity)
+        withContext(Dispatchers.Main){
+
+            loadingUtils.show(R.string.restore_webdav)
+        }
+        runCatching {
+            filename = "auto_backup.$SUFFIX"
+            val file = File(context.cacheDir, filename)
+            val result = requestUtils.download(url, file)
+
+            if (result) {
+                withContext(Dispatchers.Main) {
+                    loadingUtils.setText(R.string.restore_loading)
+                }
+                unpackData(file)
+                withContext(Dispatchers.Main) {
+                    loadingUtils.close()
+                    ToastUtils.info(R.string.restore_success)
+
+                }
+            } else {
+                withContext(Dispatchers.Main) {
+                    showWebDavMsg(404)
+                    loadingUtils.close()
+                }
+            }
+        }.onFailure {
+            Logger.e("Download Error: $it")
+            withContext(Dispatchers.Main) {
+                loadingUtils.close()
+            }
+            showWebDavMsg(100)
         }
     }
 
     suspend fun getWebdavBackup(mainActivity: MainActivity) =
-        withContext(Dispatchers.IO) {
+        withContext(Dispatchers.Main) {
             val requestUtils = RequestsUtils(context)
             val (url, username, password) = getWebdavInfo()
 
-            filename = "auto_backup.$SUFFIX"
-            val file = File(context.cacheDir, filename)
-            val loadingUtils = LoadingUtils(mainActivity)
-            withContext(Dispatchers.Main) {
-                loadingUtils.show(R.string.restore_webdav)
-            }
+
             runCatching {
                 requestUtils.addHeader("Authorization", Credentials.basic(username, password))
-                val result = requestUtils.download("$url/AutoAccounting/$filename", file)
 
-                if (result) {
-                    withContext(Dispatchers.Main) {
-                        loadingUtils.setText(R.string.restore_loading)
-                    }
-                    unpackData(file)
-                    withContext(Dispatchers.Main) {
-                        loadingUtils.close()
-                        ToastUtils.info(R.string.restore_success)
+                val dialog = BackupSelectorDialog(mainActivity, {
+                    if (it.isEmpty()) return@BackupSelectorDialog
+
+                    mainActivity.lifecycleScope.launch {
+                        downFromWebDav("$url/AutoAccounting/${Uri.encode(it)}", requestUtils, mainActivity)
 
                     }
-                } else {
-                    withContext(Dispatchers.Main) {
-                        showWebDavMsg(404)
-                        loadingUtils.close()
-                    }
-                }
+
+                }, requestUtils, "$url/AutoAccounting/")
+                dialog.show()
+
+
             }.onFailure {
                 Logger.e("Download Error: $it")
-                withContext(Dispatchers.Main) {
-                    loadingUtils.close()
-                }
                 showWebDavMsg(100)
             }
         }

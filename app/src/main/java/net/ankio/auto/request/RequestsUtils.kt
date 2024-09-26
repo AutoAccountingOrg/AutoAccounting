@@ -20,6 +20,7 @@ package net.ankio.auto.request
  * 请求工具
  */
 import android.content.Context
+import android.net.Uri
 import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -34,9 +35,17 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import org.w3c.dom.Element
+import org.w3c.dom.NodeList
+import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.io.InputStream
+import java.nio.charset.StandardCharsets
+import javax.xml.parsers.DocumentBuilderFactory
+
 
 /**
  * @param context 上下文
@@ -327,5 +336,62 @@ class RequestsUtils(context: Context, private val cacheTime: Int = 0) {
             500
         }
     }
+
+    suspend fun dir(url: String): Pair<Int, List<String>> = withContext(Dispatchers.IO){
+        runCatching {
+            val client = OkHttpClient.Builder().build()
+            val requestBuilder = Request.Builder()
+                .url(url)
+                .method("PROPFIND", "".toRequestBody())
+                .header("Depth", "1")
+            // 添加请求头
+            headers.forEach { (key, value) ->
+                requestBuilder.addHeader(key, value)
+            }
+            val request = requestBuilder.build()
+
+            client.newCall(request).execute().use { response ->
+                val body = response.body?.string() ?: "<xml></xml>" // 将响应转换为字符串
+                Pair(response.code, parseResponse(body))
+            }
+        }.getOrElse {
+            Logger.e("Exception: ${it.message}", it)
+            Pair(500, emptyList())
+        }
+    }
+
+    private fun parseResponse(xml: String): List<String> {
+
+        val fileList = mutableListOf<String>()
+        try {
+            val factory = DocumentBuilderFactory.newInstance()
+            val builder = factory.newDocumentBuilder()
+            val `is`: InputStream = ByteArrayInputStream(xml.toByteArray(StandardCharsets.UTF_8))
+            val document = builder.parse(`is`)
+            document.documentElement.normalize()
+
+            val fileNodes: NodeList = document.getElementsByTagName("d:response")
+
+
+            for (i in 0 until fileNodes.length) {
+                val fileElement = fileNodes.item(i) as Element
+                val href: String =
+                    fileElement.getElementsByTagName("d:href").item(0).textContent
+                val displayName = Uri.decode(href.substring(href.lastIndexOf("/") + 1))
+
+                if (displayName.isNotEmpty()){
+                    fileList.add(displayName)
+                }
+
+
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Logger.e(e.message?:"Unknown Exception",e)
+        }
+        fileList.reverse()
+        return fileList
+    }
+
 
 }
