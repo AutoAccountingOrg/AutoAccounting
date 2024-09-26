@@ -39,6 +39,7 @@ import net.ankio.auto.broadcast.LocalBroadcastHelper
 import net.ankio.auto.databinding.FloatEditorBinding
 import net.ankio.auto.exceptions.BillException
 import net.ankio.auto.hooks.qianji.sync.SyncBillUtils
+import net.ankio.auto.service.FloatingWindowService
 import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseSheetDialog
@@ -82,31 +83,33 @@ class FloatEditorDialog(
 
     private lateinit var broadcastReceiver: BroadcastReceiver
 
+    private fun checkUpdateBills():Boolean{
+      val bill =   FloatingWindowService.updateBills.find { rawBillInfo.id == it.id }
+      if (bill == null)return false
+      FloatingWindowService.updateBills.remove(bill)
+        billInfoModel = bill.copy()
+        rawBillInfo = bill.copy()
+        convertBillInfo = bill.copy()
+        billTypeLevel1 = BillTool.getType(rawBillInfo.type)
+        billTypeLevel2 = rawBillInfo.type
+        bindUI()
+        return true
+    }
     override fun onCreateView(inflater: LayoutInflater): View {
         broadcastReceiver = LocalBroadcastHelper.registerReceiver(LocalBroadcastHelper.ACTION_UPDATE_BILL) { action, bundle ->
-        runCatching {
-            val bill = bundle?.getString("billInfo")
-            if (bill != null) {
-                val billInfoModel = Gson().fromJson(bill, BillInfoModel::class.java)
-                rawBillInfo = billInfoModel.copy()
-                convertBillInfo = billInfoModel.copy()
-                billTypeLevel1 = BillTool.getType(rawBillInfo.type)
-                billTypeLevel2 = rawBillInfo.type
-
-                bindUI()
-
-            }
-        }
+           Logger.i("更新账单")
+            checkUpdateBills()
         }
         binding = FloatEditorBinding.inflate(inflater)
         cardView = binding.editorCard
 
-        Logger.d("Raw BillInfo => $rawBillInfo")
-        billTypeLevel1 = BillTool.getType(rawBillInfo.type)
-        billTypeLevel2 = rawBillInfo.type
+        if (!checkUpdateBills()){
+            Logger.d("Raw BillInfo => $rawBillInfo")
+            billTypeLevel1 = BillTool.getType(rawBillInfo.type)
+            billTypeLevel2 = rawBillInfo.type
+            bindUI()
 
-        bindUI()
-
+        }
         bindEvents()
 
         return binding.root

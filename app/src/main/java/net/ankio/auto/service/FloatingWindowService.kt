@@ -83,6 +83,10 @@ class FloatingWindowService : Service() {
     }
 
 
+    companion object{
+        val updateBills = mutableListOf<BillInfoModel>()
+    }
+
     override fun onStartCommand(
         intent: Intent,
         flags: Int,
@@ -114,9 +118,8 @@ class FloatingWindowService : Service() {
         if (parent != null) {
             //说明是重复账单
             ToastUtils.info(getString(R.string.repeat_bill))
-            LocalBroadcastHelper.sendBroadcast(LocalBroadcastHelper.ACTION_UPDATE_BILL, Bundle().apply {
-               putString("billInfo", Gson().toJson(parent))
-            })
+            updateBills.add(parent)
+            LocalBroadcastHelper.sendBroadcast(LocalBroadcastHelper.ACTION_UPDATE_BILL)
             Logger.i("Repeat Bill, Parent: $parent")
            return START_NOT_STICKY
         }
@@ -151,6 +154,7 @@ class FloatingWindowService : Service() {
             // 显示编辑悬浮窗
             return
         }
+
 
         // 使用 ViewBinding 初始化悬浮窗视图
         val binding = FloatTipBinding.inflate(LayoutInflater.from(themedContext))
