@@ -21,6 +21,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -32,6 +33,7 @@ import net.ankio.auto.ui.api.BasePageFragment
 import net.ankio.auto.ui.models.ToolbarMenuItem
 import net.ankio.auto.utils.DateUtils
 import org.ezbook.server.db.model.BillInfoModel
+import org.ezbook.server.db.model.LogModel
 
 open class OrderFragment : BasePageFragment<Pair<String, List<BillInfoModel>>>() {
     override suspend fun loadData(callback: (resultData: List<Pair<String, List<BillInfoModel>>>) -> Unit) {
@@ -101,6 +103,20 @@ open class OrderFragment : BasePageFragment<Pair<String, List<BillInfoModel>>>()
                 ToolbarMenuItem(R.string.item_sync, R.drawable.float_round) {
                     // 同步账单
                     App.startBookApp()
+                },
+                ToolbarMenuItem(R.string.item_clear, R.drawable.menu_icon_clear) {
+                    MaterialAlertDialogBuilder(requireActivity())
+                        .setTitle(requireActivity().getString(R.string.delete_data))
+                        .setMessage(requireActivity().getString(R.string.delete_msg))
+                        .setPositiveButton(requireActivity().getString(R.string.sure_msg)) { _, _ ->
+                            lifecycleScope.launch {
+                                BillInfoModel.clear()
+                                page = 1
+                                loadDataInside()
+                            }
+                        }
+                        .setNegativeButton(requireActivity().getString(R.string.cancel_msg)) { _, _ -> }
+                        .show()
                 },
             )
     private lateinit var binding: FragmentLogBinding

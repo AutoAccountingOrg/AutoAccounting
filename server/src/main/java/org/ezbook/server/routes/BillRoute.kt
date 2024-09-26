@@ -87,4 +87,9 @@ class BillRoute(private val session: IHTTPSession) {
         return Server.json(200, "OK", result)
     }
 
+    fun clear(): Response {
+        Db.get().billInfoDao().clearOld(System.currentTimeMillis())
+        return Server.json(200,"OK")
+    }
+
 }

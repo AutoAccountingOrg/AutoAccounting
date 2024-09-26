@@ -216,6 +216,10 @@ class BillInfoModel {
             }.getOrNull() ?: emptyList()
         }
 
+        suspend fun clear() = withContext(Dispatchers.IO){
+            Server.request("bill/clear")
+        }
+
     }
 
     override fun toString(): String {

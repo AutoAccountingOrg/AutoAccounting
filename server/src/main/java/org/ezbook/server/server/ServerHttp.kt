@@ -133,6 +133,7 @@ class ServerHttp(port: Int, private val context: Context) : NanoHTTPD(port) {
                 "/bill/book/put" -> BookBillRoute(session).put()
                 // 根据id获取账单
                 "/bill/get" -> BillRoute(session).get()
+                "/bill/clear" -> BillRoute(session).clear()
                 // 备份
                 "/db/export" -> DatabaseRoute(session, context).exportDb()
                 "/db/import" -> DatabaseRoute(session, context).importDb()
