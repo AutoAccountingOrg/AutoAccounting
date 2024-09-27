@@ -45,4 +45,6 @@ interface CategoryDao {
             insert(it)
         }
     }
+    @Query("SELECT * FROM CategoryModel")
+    fun all(): List<CategoryModel>
 }

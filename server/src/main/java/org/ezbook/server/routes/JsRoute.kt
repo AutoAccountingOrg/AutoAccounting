@@ -23,6 +23,8 @@ import android.os.Build
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import org.ezbook.server.Server
+import org.ezbook.server.ai.Gemini
+import org.ezbook.server.constant.AIModel
 import org.ezbook.server.constant.BillState
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.constant.DataType
@@ -52,6 +54,7 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
         val app = params["app"]?.firstOrNull()?.toString() ?: ""
         val type = params["type"]?.firstOrNull()?.toString() ?: ""
         val fromAppData = params["fromAppData"]?.firstOrNull()?.toBoolean() ?: false
+        val ai = params["ai"]?.firstOrNull() == "true"
         val data = Server.reqData(session)
         //将string转换为枚举类型
         val dataType: DataType
@@ -76,18 +79,30 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
 
         val t = System.currentTimeMillis()
 
-        val js = RuleGenerator.data(app, dataType)
+        var billInfoModel:BillInfoModel? = null
+
+        if (!ai){
+            val js = RuleGenerator.data(app, dataType)
 
 
-        if (js === "") {
-            return Server.json(404, "JS无效，请更新规则。")
+            if (js === "") {
+                return Server.json(404, "JS无效，请更新规则。")
+            }
+
+            val result = runJS(js, data)
+
+            if (result == "") {
+                  return Server.json(404, "未分析到有效账单。")
+            }else{
+                billInfoModel = parseBillInfo(result, app, dataType)
+            }
+        }else{
+            billInfoModel = parseBillInfoFromAi(app, data)
+            if (billInfoModel == null) {
+                return Server.json(404, "未分析到有效账单。")
+            }
         }
 
-        val result = runJS(js, data)
-
-        if (result === "") {
-            return Server.json(404, "未分析到有效账单。")
-        }
 
         /**
          *  {
@@ -105,7 +120,6 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
          *     }
          */
 
-        var billInfoModel = parseBillInfo(result, app, dataType)
 
 
         //将time从时间戳，转换为h:i的格式
@@ -192,6 +206,22 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
         }
         return Server.json(200, "OK", billInfoModel)
     }
+
+    private fun parseBillInfoFromAi(app:String,data:String):BillInfoModel?{
+        val aiModel = Db.get().settingDao().query(Setting.AI_MODEL)?.value
+        val billInfoModel:BillInfoModel? =  when(aiModel){
+            AIModel.Gemini.name ->  Gemini().request(data)
+            else -> {
+                null
+            }
+        }
+        Server.log("AI Return Info: ${billInfoModel}")
+        if (billInfoModel == null)return null
+        if (billInfoModel.money <=0 )return null
+        billInfoModel.app = app
+        return billInfoModel
+    }
+
     private fun sync2Book(context: android.content.Context){
         Server.isRunOnMainThread()
         val packageName = Db.get().settingDao().query(Setting.BOOK_APP_ID)?.value?:return

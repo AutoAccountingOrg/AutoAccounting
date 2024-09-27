@@ -46,7 +46,6 @@ import net.ankio.auto.update.UpdateType
 import net.ankio.auto.utils.LanguageUtils
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.SettingModel
-import java.lang.ref.WeakReference
 import net.ankio.auto.setting.SettingUtils as SettingItemUtils
 
 class SystemSettingFragment : BaseFragment() {
@@ -93,19 +92,22 @@ class SystemSettingFragment : BaseFragment() {
     ): ArrayList<SettingItem> {
         return arrayListOf(
             // 隐私
-            SettingItem(R.string.setting_privacy),
+            SettingItem(R.string.setting_privacy, refresh = true),
             SettingItem(
                 title = R.string.setting_analysis,
-                subTitle = R.string.setting_analysis_desc,
                 key = Setting.SEND_ERROR_REPORT,
+                icon = R.drawable.setting2_icon_anonymous,
+                subTitle = R.string.setting_analysis_desc,
                 type = ItemType.SWITCH,
                 default = true,
-                icon = R.drawable.setting2_icon_anonymous,
+                refresh = true,
             ),
             // 语言
-            SettingItem(R.string.setting_lang),
+            SettingItem(R.string.setting_lang, refresh = true),
             SettingItem(
                 title = R.string.setting_lang,
+                icon = R.drawable.setting2_icon_translate,
+                type = ItemType.TEXT,
                 selectList = LanguageUtils.getLangList(context),
                 onGetKeyValue = {
                     LanguageUtils.getAppLang()
@@ -114,16 +116,15 @@ class SystemSettingFragment : BaseFragment() {
                     LanguageUtils.setAppLanguage(value as String)
                     activity.recreateActivity()
                 },
-                type = ItemType.TEXT,
-                icon = R.drawable.setting2_icon_translate,
+                refresh = true,
             ),
             // 皮肤
-            SettingItem(R.string.setting_skin),
+            SettingItem(R.string.setting_skin, refresh = true),
             SettingItem(
-                regex = "${Setting.USE_SYSTEM_SKIN}=false",
                 title = R.string.setting_theme,
-                type = ItemType.COLOR,
+                regex = "${Setting.USE_SYSTEM_SKIN}=false",
                 icon = R.drawable.setting2_icon_theme,
+                type = ItemType.COLOR,
                 onGetKeyValue = {
                     ThemeEngine.getInstance(context).staticTheme.primaryColor
                 },
@@ -143,18 +144,19 @@ class SystemSettingFragment : BaseFragment() {
                         .create()
                         .show()
                 },
+                refresh = true,
             ),
             SettingItem(
                 title = R.string.setting_dark_theme,
-                type = ItemType.TEXT,
                 icon = R.drawable.setting2_icon_dark_theme,
-                default = ThemeMode.AUTO,
+                type = ItemType.TEXT,
                 selectList =
                 hashMapOf(
                     context.getString(R.string.always_off) to ThemeMode.LIGHT,
                     context.getString(R.string.always_on) to ThemeMode.DARK,
                     context.getString(R.string.lang_follow_system) to ThemeMode.AUTO,
                 ),
+                default = ThemeMode.AUTO,
                 onGetKeyValue = {
                     ThemeEngine.getInstance(context).themeMode
                 },
@@ -162,11 +164,12 @@ class SystemSettingFragment : BaseFragment() {
                     ThemeEngine.getInstance(context).themeMode = value as Int
                     activity.recreateActivity()
                 },
+                refresh = true,
             ),
             SettingItem(
                 title = R.string.setting_use_dark_theme,
-                type = ItemType.SWITCH,
                 icon = R.drawable.setting2_icon_dark_true_theme,
+                type = ItemType.SWITCH,
                 onGetKeyValue = {
                     ThemeEngine.getInstance(context).isTrueBlack
                 },
@@ -174,12 +177,13 @@ class SystemSettingFragment : BaseFragment() {
                     ThemeEngine.getInstance(context).isTrueBlack = value as Boolean
                     activity.recreateActivity()
                 },
+                refresh = true,
             ),
             SettingItem(
-                variable = Setting.USE_SYSTEM_SKIN,
                 title = R.string.setting_use_system_theme,
-                type = ItemType.SWITCH,
+                variable = Setting.USE_SYSTEM_SKIN,
                 icon = R.drawable.setting2_icon_system_theme,
+                type = ItemType.SWITCH,
                 onGetKeyValue = {
                     ThemeEngine.getInstance(context).isDynamicTheme
                 },
@@ -187,27 +191,30 @@ class SystemSettingFragment : BaseFragment() {
                     ThemeEngine.getInstance(context).isDynamicTheme = value as Boolean
                     activity.recreateActivity()
                 },
+                refresh = true,
             ),
             SettingItem(
                 title = R.string.setting_use_round_style,
                 key = Setting.USE_ROUND_STYLE,
                 icon = R.drawable.setting2_icon_round_theme,
                 type = ItemType.SWITCH,
+                refresh = true,
             ),
             // 备份
-            SettingItem(R.string.setting_backup),
+            SettingItem(R.string.setting_backup, refresh = true),
             // 备份方式二选一，本地或者Webdav
             SettingItem(
-                variable = Setting.USE_WEBDAV,
                 title = R.string.setting_use_webdav,
-                icon = R.drawable.setting2_icon_backup,
+                variable = Setting.USE_WEBDAV,
                 key = Setting.USE_WEBDAV,
-                default = false,
+                icon = R.drawable.setting2_icon_backup,
                 type = ItemType.SWITCH,
+                default = false,
+                refresh = true,
             ),
             SettingItem(
-                regex = "${Setting.USE_WEBDAV}=false",
                 title = R.string.setting_backup_path,
+                regex = "${Setting.USE_WEBDAV}=false",
                 icon = R.drawable.setting2_icon_dir,
                 type = ItemType.TEXT,
                 onGetKeyValue = {
@@ -223,13 +230,14 @@ class SystemSettingFragment : BaseFragment() {
                 onItemClick = { _, activity ->
                     BackupUtils.requestPermission(activity as MainActivity)
                 },
+                refresh = true,
             ),
             SettingItem(
-                regex = "${Setting.USE_WEBDAV}=false",
                 title = R.string.setting_backup_2_local,
+                regex = "${Setting.USE_WEBDAV}=false",
                 //    subTitle = R.string.setting_backup_2_local_desc,
-                type = ItemType.TEXT,
                 icon = R.drawable.setting2_icon_to_local,
+                type = ItemType.TEXT,
                 onItemClick = { _, activity ->
                     systemSettingFragment.lifecycleScope.launch {
                         val loading = LoadingUtils(activity)
@@ -251,42 +259,47 @@ class SystemSettingFragment : BaseFragment() {
                         }
                     }
                 },
+                refresh = true,
             ),
             SettingItem(
-                regex = "${Setting.USE_WEBDAV}=false",
                 title = R.string.setting_restore_2_local,
+                regex = "${Setting.USE_WEBDAV}=false",
                 icon = R.drawable.setting2_icon_from_local,
                 //  subTitle = R.string.setting_restore_2_local_desc,
                 type = ItemType.TEXT,
                 onItemClick = { _, activity ->
                     (activity as MainActivity).restoreLauncher.launch(arrayOf("*/*"))
                 },
+                refresh = true,
             ),
             SettingItem(
-                regex = "${Setting.USE_WEBDAV}=true",
                 title = R.string.setting_webdav_host,
+                regex = "${Setting.USE_WEBDAV}=true",
                 key = Setting.WEBDAV_HOST,
+                type = ItemType.INPUT,
                 default = "https://dav.jianguoyun.com/dav/",
-                type = ItemType.INPUT,
+                refresh = true,
             ),
             SettingItem(
-                regex = "${Setting.USE_WEBDAV}=true",
                 title = R.string.setting_webdav_username,
+                regex = "${Setting.USE_WEBDAV}=true",
                 key = Setting.WEBDAV_USER,
-                default = "",
                 type = ItemType.INPUT,
+                default = "",
+                refresh = true,
             ),
             SettingItem(
-                regex = "${Setting.USE_WEBDAV}=true",
                 title = R.string.setting_webdav_password,
-                subTitle = R.string.setting_webdav_password_desc,
+                regex = "${Setting.USE_WEBDAV}=true",
                 key = Setting.WEBDAV_PASSWORD,
-                default = "",
+                subTitle = R.string.setting_webdav_password_desc,
                 type = ItemType.INPUT,
+                default = "",
+                refresh = true,
             ),
             SettingItem(
-                regex = "${Setting.USE_WEBDAV}=true",
                 title = R.string.setting_backup_2_webdav,
+                regex = "${Setting.USE_WEBDAV}=true",
                 icon = R.drawable.setting2_icon_webdav_upload,
                 //     subTitle = R.string.setting_backup_2_webdav_desc,
                 type = ItemType.TEXT,
@@ -301,10 +314,11 @@ class SystemSettingFragment : BaseFragment() {
                         }
                     }
                 },
+                refresh = true,
             ),
             SettingItem(
-                regex = "${Setting.USE_WEBDAV}=true",
                 title = R.string.setting_restore_2_webdav,
+                regex = "${Setting.USE_WEBDAV}=true",
                 icon = R.drawable.setting2_icon_webdav_download,
                 //     subTitle = R.string.setting_backup_2_webdav_desc,
                 type = ItemType.TEXT,
@@ -319,62 +333,68 @@ class SystemSettingFragment : BaseFragment() {
                         }
                     }
                 },
+                refresh = true,
             ),
             // 更新
-            SettingItem(R.string.setting_update),
+            SettingItem(R.string.setting_update, refresh = true),
             SettingItem(
                 title = R.string.setting_update_channel,
                 key = Setting.UPDATE_CHANNEL,
                 icon = R.drawable.setting2_icon_update_channel,
                 type = ItemType.TEXT,
-                default = UpdateChannel.Github.name,
                 selectList = hashMapOf(
                     context.getString(R.string.update_channel_github) to UpdateChannel.Github.name,
                     context.getString(R.string.update_channel_cloud) to UpdateChannel.Cloud.name,
                 ),
+                default = UpdateChannel.Github.name,
+                refresh = true,
             ),
             SettingItem(
                 title = R.string.setting_update_type,
                 key = Setting.CHECK_UPDATE_TYPE,
                 icon = R.drawable.setting2_icon_update,
                 type = ItemType.TEXT,
-                default = UpdateType.switchDefaultUpdate(),
                 selectList =
                 hashMapOf(
                     context.getString(R.string.version_stable) to UpdateType.Stable.name,
                     context.getString(R.string.version_beta) to UpdateType.Beta.name,
                     context.getString(R.string.version_canary) to UpdateType.Canary.name,
                 ),
+                default = UpdateType.switchDefaultUpdate(),
+                refresh = true,
             ),
             SettingItem(
                 title = R.string.setting_app,
                 key = Setting.CHECK_APP_UPDATE,
-                default = true,
                 icon = R.drawable.setting2_icon_rule,
                 type = ItemType.SWITCH,
+                default = true,
+                refresh = true,
             ),
             SettingItem(
                 title = R.string.setting_rule,
                 key = Setting.CHECK_RULE_UPDATE,
-                default = true,
                 icon = R.drawable.setting2_icon_category,
                 type = ItemType.SWITCH,
+                default = true,
+                refresh = true,
             ),
             // 其他
-            SettingItem(R.string.setting_others),
+            SettingItem(R.string.setting_others, refresh = true),
             SettingItem(
                 title = R.string.setting_debug,
-                subTitle = R.string.debug_msg,
                 key = Setting.DEBUG_MODE,
                 icon = R.drawable.setting2_icon_debug,
+                subTitle = R.string.debug_msg,
                 type = ItemType.SWITCH,
+                default = BuildConfig.DEBUG,
                 onSavedValue = { value, _ ->
                     ConfigUtils.putBoolean(Setting.DEBUG_MODE, value as Boolean)
                     App.launch {
                         SettingModel.set(Setting.DEBUG_MODE, value.toString())
                     }
                 },
-                default = BuildConfig.DEBUG,
+                refresh = true,
             ),
         )
     }

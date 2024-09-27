@@ -70,29 +70,28 @@
             android:maxLines="3"
             tools:text="这是一个规则内容"
             android:padding="@dimen/padding" />
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/padding"
             android:layout_marginLeft="@dimen/padding"
             android:layout_marginRight="@dimen/padding"
+            
             >
 
-            <TextView
-                android:id="@+id/issue"
-                style="@style/TextAppearance.AppCompat.Small"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:background="@drawable/rounded_background_primary"
-                android:paddingLeft="@dimen/padding"
-                android:paddingTop="@dimen/one_padding"
-                android:paddingRight="@dimen/padding"
-                android:paddingBottom="@dimen/one_padding"
-                android:text="#1"
-                android:textColor="?attr/colorOnPrimary" />
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp" android:layout_weight="1" />
 
+            <com.google.android.material.button.MaterialButton
 
+                android:id="@+id/uploadData"
+                style="?attr/materialIconButtonOutlinedStyle"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                app:icon="@drawable/icon_upload"
+
+                />
 
             <com.google.android.material.button.MaterialButton
 
@@ -101,23 +100,18 @@
                 android:id="@+id/testRule"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:layout_alignParentEnd="true"
+                 />
 
-                tools:ignore="RelativeOverlap" />
             <com.google.android.material.button.MaterialButton
 
-                style="?attr/materialIconButtonOutlinedStyle"
-                app:icon="@drawable/icon_upload"
-                android:id="@+id/uploadData"
+                android:id="@+id/testRuleAi"
+                style="?attr/materialIconButtonFilledTonalStyle"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:layout_marginEnd="15dp"
-                android:layout_toStartOf="@+id/testRule"
-
-                tools:ignore="RelativeOverlap" />
+                app:icon="@drawable/ic_ai" />
 
 
-        </RelativeLayout>
+        </LinearLayout>
 
     </LinearLayout>
 

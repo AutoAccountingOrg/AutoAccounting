@@ -16,6 +16,12 @@
 package org.ezbook.server.constant
 
 object Setting {
+    // 所用的AI模型
+    const val AI_MODEL = "ai_model"
+    // 是否使用AI辅助识别
+    const val USE_AI = "use_ai"
+    // API_KEY
+    const val API_KEY = "api_key"
     // 同步类型
     const val SYNC_TYPE = "setting_sync_type"
     // 展示规则名称
@@ -111,9 +117,6 @@ object Setting {
 
     // 发送错误报告
     const val SEND_ERROR_REPORT = "setting_send_error_report"
-
-    // Github的AccessToken
-    const val GITHUB_ACCESS_TOKEN = "setting_github_access_token"
 
     // 系统语言
     const val SYSTEM_LANGUAGE = "setting_system_language"

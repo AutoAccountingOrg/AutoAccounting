@@ -67,7 +67,6 @@ class AppDataAdapter(
         }
         item.match = true
         item.rule = billModel.ruleName
-        item.issue = 0
         item.version  = version
         val position = indexOf(item)
         AppDataModel.put(item)
@@ -78,9 +77,9 @@ class AppDataAdapter(
         }
     }
 
-    private suspend fun testRule(item: AppDataModel): BillInfoModel? = withContext(Dispatchers.IO) {
+    private suspend fun testRule(item: AppDataModel,ai: Boolean = false): BillInfoModel? = withContext(Dispatchers.IO) {
         val result = Server.request(
-            "js/analysis?type=${item.type.name}&app=${item.app}&fromAppData=true",
+            "js/analysis?type=${item.type.name}&app=${item.app}&fromAppData=true&ai=${ai}",
             item.data
         )
             ?: return@withContext null
@@ -168,37 +167,45 @@ $issue
     private val githubAutoAccounting = "https://github.com/AutoAccountingOrg/AutoAccounting/issues"
     private val githubAutoRule = "https://github.com/AutoAccountingOrg/AutoRule/issues"
 
+
+    private suspend fun runTest(ai:Boolean = false,item: AppDataModel){
+        val loadingUtils = LoadingUtils(activity)
+        if (ai){
+            loadingUtils.show(activity.getString(R.string.ai_loading,ConfigUtils.getString(Setting.AI_MODEL)))
+        }
+        val billModel = testRule(item,ai)
+        if (ai){
+            loadingUtils.close()
+        }
+        if (billModel == null) {
+            ToastUtils.error(R.string.no_rule_hint)
+        } else {
+            val serviceIntent =
+                Intent(activity, FloatingWindowService::class.java).apply {
+                    putExtra("parent", "")
+                    putExtra("billInfo", Gson().toJson(billModel))
+                    putExtra("showWaitTip", false)
+                    putExtra("from","AppData")
+                }
+            Logger.d("Start FloatingWindowService")
+            activity.startService(serviceIntent)
+        }
+    }
+
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterDataBinding, AppDataModel>) {
         val binding = holder.binding
-        binding.issue.setOnClickListener {
+
+        binding.testRuleAi.setOnClickListener{
             val item = holder.item!!
-            CustomTabsHelper.launchUrl(
-                activity,
-                Uri.parse(
-                    if (item.match) "$githubAutoAccounting/${item.issue}" else "$githubAutoRule/${item.issue}",
-
-                    )
-            )
+            holder.launch {
+                runTest(true,item)
+            }
         }
-
 
         binding.testRule.setOnClickListener {
             val item = holder.item!!
             holder.launch {
-                val billModel = testRule(item)
-                if (billModel == null) {
-                    ToastUtils.error(R.string.no_rule_hint)
-                } else {
-                    val serviceIntent =
-                        Intent(activity, FloatingWindowService::class.java).apply {
-                            putExtra("parent", "")
-                            putExtra("billInfo", Gson().toJson(billModel))
-                            putExtra("showWaitTip", false)
-                            putExtra("from","AppData")
-                        }
-                    Logger.d("Start FloatingWindowService")
-                    activity.startService(serviceIntent)
-                }
+               runTest(false,item)
             }
 
         }
@@ -217,10 +224,6 @@ $issue
 
         binding.uploadData.setOnClickListener {
             val item = holder.item!!
-            if (item.issue != 0) {
-                ToastUtils.error(holder.context.getString(R.string.repeater_issue))
-                return@setOnClickListener
-            }
 
             if (!item.match) {
                 buildUploadDialog(holder)
@@ -260,15 +263,9 @@ $issue
     ) {
         val binding = holder.binding
         binding.content.text = data.data
-        binding.issue.visibility = View.VISIBLE
         binding.uploadData.visibility = View.VISIBLE
 
-        if (data.issue == 0) {
-            binding.issue.visibility = View.GONE
-        } else {
-            binding.uploadData.visibility = View.GONE
-            binding.issue.text = "# ${data.issue}"
-        }
+        binding.testRuleAi.visibility = if (ConfigUtils.getBoolean(Setting.USE_AI,false)) View.VISIBLE else View.GONE
 
         if (!data.match || data.rule.isEmpty()) {
             if (version != data.version) {
