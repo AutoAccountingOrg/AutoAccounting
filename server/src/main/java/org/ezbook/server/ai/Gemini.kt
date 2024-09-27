@@ -24,6 +24,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.ezbook.server.Server
 import org.ezbook.server.constant.AIModel
 import org.ezbook.server.db.model.BillInfoModel
+import java.util.concurrent.TimeUnit
 
 class Gemini : BaseAi() {
     override var aiName = AIModel.Gemini.name
@@ -37,7 +38,8 @@ class Gemini : BaseAi() {
         val url =
             "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=$apiKey"
 
-        val client = OkHttpClient()
+        val client = OkHttpClient.Builder().readTimeout(60, TimeUnit.SECONDS).build()
+
         val json =
             Gson().toJson(
                 mapOf(
@@ -79,7 +81,9 @@ class Gemini : BaseAi() {
                 val content = firstCandidate.getAsJsonObject("content")
                 val parts = content.getAsJsonArray("parts")
                 val text = parts[0].asJsonObject.get("text").asString.replace("```json","").replace("```","").trim()
-                Gson().fromJson(text, BillInfoModel::class.java)
+                val billInfoModel = Gson().fromJson(text, BillInfoModel::class.java)
+                billInfoModel.ruleName = "$aiName 识别"
+                billInfoModel
             }.onFailure {
                 Server.log(it)
             }.getOrNull()

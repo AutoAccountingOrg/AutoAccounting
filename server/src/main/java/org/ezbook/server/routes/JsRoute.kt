@@ -23,6 +23,7 @@ import android.os.Build
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import org.ezbook.server.Server
+import org.ezbook.server.ai.DeepSeek
 import org.ezbook.server.ai.Gemini
 import org.ezbook.server.ai.QWen
 import org.ezbook.server.constant.AIModel
@@ -217,6 +218,7 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
             when(aiModel){
                 AIModel.Gemini.name ->  Gemini().request(data)
                 AIModel.QWen.name -> QWen().request(data)
+                AIModel.DeepSeek.name -> DeepSeek().request(data)
                 else -> {
                     null
                 }

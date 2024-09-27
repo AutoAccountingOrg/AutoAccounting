@@ -25,38 +25,33 @@ import org.ezbook.server.Server
 import org.ezbook.server.db.model.BillInfoModel
 import java.util.concurrent.TimeUnit
 
-class QWen : BaseAi(){
+class DeepSeek:BaseAi() {
     override fun createApiKeyUri(): String {
-       return "https://help.aliyun.com/zh/model-studio/developer-reference/get-api-key?spm=a2c4g.11186623.0.0.74b04823nZ57nT"
+        return "https://platform.deepseek.com/api_keys"
     }
 
     override fun request(data: String): BillInfoModel? {
         val (system,user) = getConversations(data)
-        //curl -X POST https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions \
-        //-H "Authorization: Bearer $DASHSCOPE_API_KEY" \
-        //-H "Content-Type: application/json" \
-        //-d '{
-        //    "model": "qwen-plus",
-        //    "messages": [
-        //        {
-        //            "role": "system",
-        //            "content": "You are a helpful assistant."
-        //        },
-        //        {
-        //            "role": "user",
-        //            "content": "你是谁？"
-        //        }
-        //    ]
-        //}'
+        //curl https://api.deepseek.com/chat/completions \
+        //  -H "Content-Type: application/json" \
+        //  -H "Authorization: Bearer <DeepSeek API Key>" \
+        //  -d '{
+        //        "model": "deepseek-chat",
+        //        "messages": [
+        //          {"role": "system", "content": "You are a helpful assistant."},
+        //          {"role": "user", "content": "Hello!"}
+        //        ],
+        //        "stream": false
+        //      }'
         val url =
-            "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
+            "https://api.deepseek.com/chat/completions"
 
         val client = OkHttpClient.Builder().readTimeout(60, TimeUnit.SECONDS).build()
 
         val json =
             Gson().toJson(
                 mapOf(
-                    "model" to "qwen-turbo",
+                    "model" to "deepseek-chat",
                     "messages" to listOf(
                         mapOf(
                             "role" to "system",
@@ -66,7 +61,8 @@ class QWen : BaseAi(){
                             "role" to "user",
                             "content" to "$user",
                         ),
-                    )
+                    ),
+                    "stream" to false
                 )
             )
 
@@ -89,27 +85,29 @@ class QWen : BaseAi(){
             return runCatching {
                 /**
                  * {
-                 *   "choices": [
-                 *     {
-                 *       "message": {
-                 *         "role": "assistant",
-                 *         "content": "我是通义千问，由阿里云开发的AI助手。我被设计用来回答各种问题、提供信息和与用户进行对话。有什么我可以帮助你的吗？"
-                 *       },
-                 *       "finish_reason": "stop",
-                 *       "index": 0,
-                 *       "logprobs": null
-                 *     }
-                 *   ],
-                 *   "object": "chat.completion",
-                 *   "usage": {
-                 *     "prompt_tokens": 22,
-                 *     "completion_tokens": 36,
-                 *     "total_tokens": 58
-                 *   },
-                 *   "created": 1721044596,
-                 *   "system_fingerprint": null,
-                 *   "model": "qwen-plus",
-                 *   "id": "chatcmpl-94149c5a-137f-9b87-b2c8-61235e85f540"
+                 *     "id": "cb34e519-bfb0-4705-8470-a05ee3321dc0",
+                 *     "object": "chat.completion",
+                 *     "created": 1727459706,
+                 *     "model": "deepseek-chat",
+                 *     "choices": [
+                 *         {
+                 *             "index": 0,
+                 *             "message": {
+                 *                 "role": "assistant",
+                 *                 "content": "Hello! How can I assist you today?"
+                 *             },
+                 *             "logprobs": null,
+                 *             "finish_reason": "stop"
+                 *         }
+                 *     ],
+                 *     "usage": {
+                 *         "prompt_tokens": 11,
+                 *         "completion_tokens": 9,
+                 *         "total_tokens": 20,
+                 *         "prompt_cache_hit_tokens": 0,
+                 *         "prompt_cache_miss_tokens": 11
+                 *     },
+                 *     "system_fingerprint": "fp_1c141eb703"
                  * }
                  */
 
