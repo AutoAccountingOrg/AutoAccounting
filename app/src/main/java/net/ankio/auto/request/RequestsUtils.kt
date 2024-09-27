@@ -188,10 +188,8 @@ class RequestsUtils(context: Context, private val cacheTime: Int = 0) {
                 }
 
                 // 构建 JSON 请求体
-                val requestBody = RequestBody.create(
-                    "application/json; charset=utf-8".toMediaTypeOrNull(),
-                    body.toString() // 将 JsonObject 转换为字符串
-                )
+                val requestBody = body.toString() // 将 JsonObject 转换为字符串
+                    .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
 
                 // 设置 POST 方法和请求体
                 val request = requestBuilder.post(requestBody).build()
@@ -221,7 +219,7 @@ class RequestsUtils(context: Context, private val cacheTime: Int = 0) {
                 .addFormDataPart(
                     "file",
                     file.name,
-                    RequestBody.create("application/octet-stream".toMediaTypeOrNull(), file)
+                    file.asRequestBody("application/octet-stream".toMediaTypeOrNull())
                 )
                 .build()
 
