@@ -522,7 +522,7 @@ class FloatEditorDialog(
     }
 
     private fun bindingTimeUI() {
-        binding.time.setText(DateUtils.getTime(billInfoModel.time))
+        binding.time.setText(DateUtils.stampToDate(billInfoModel.time))
     }
 
     private fun showDateTimePicker(defaultTimestamp: Long) {

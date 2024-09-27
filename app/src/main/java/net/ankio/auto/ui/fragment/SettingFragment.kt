@@ -28,6 +28,7 @@ import net.ankio.auto.setting.SettingItem
 import net.ankio.auto.setting.SettingUtils
 import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.api.BaseFragment
+import org.ezbook.server.constant.AIModel
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.constant.SyncType
 import java.lang.ref.WeakReference
@@ -108,6 +109,33 @@ class SettingFragment : BaseFragment() {
                     context.getString(R.string.bills_limit5) to SyncType.BillsLimit5.name,
                     context.getString(R.string.bills_limit10) to SyncType.BillsLimit10.name,
                 ),
+            ),
+            // AI
+            SettingItem(R.string.setting_ai),
+            SettingItem(
+                title = R.string.setting_bill_ai,
+                subTitle = R.string.setting_bill_ai_desc,
+                key = Setting.USE_AI,
+                type = ItemType.SWITCH,
+                default = false,
+                icon = R.drawable.setting_icon_repeat,
+            ),
+            SettingItem(
+                title = R.string.setting_bill_ai_type,
+                key = Setting.AI_MODEL,
+                type = ItemType.TEXT,
+                default = AIModel.Gemini,
+                icon = R.drawable.ic_sync,
+                selectList =
+                hashMapOf(
+                    context.getString(R.string.gemini) to AIModel.Gemini,
+                ),
+            ),
+            SettingItem(
+                title = R.string.setting_bill_ai_key,
+                key = Setting.API_KEY,
+                type = ItemType.INPUT,
+                default = "",
             ),
             // 悬浮窗
             SettingItem(R.string.setting_float),

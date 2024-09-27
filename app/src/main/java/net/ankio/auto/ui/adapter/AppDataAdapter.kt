@@ -318,7 +318,7 @@ ${item.data}
         }
 
 
-        binding.time.setText(DateUtils.getTime(data.time))
+        binding.time.setText(DateUtils.stampToDate(data.time))
 
         if (!data.match || data.rule.isEmpty()) {
             binding.rule.visibility = View.GONE

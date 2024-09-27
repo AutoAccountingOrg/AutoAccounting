@@ -45,7 +45,7 @@ class LogAdapter(list: MutableList<LogModel>) :
         val level = data.level
 
 
-        binding.date.text = DateUtils.getTime("yyyy-MM-dd\nHH:mm:ss",data.time)
+        binding.date.text = DateUtils.stampToDate(data.time,"yyyy-MM-dd\nHH:mm:ss")
 
 
         var appName = cachedApp[data.app] ?: run {

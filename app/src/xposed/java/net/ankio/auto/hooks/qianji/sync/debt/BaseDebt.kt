@@ -77,7 +77,7 @@ abstract class BaseDebt(
 
     fun createLoan(time:Long):LoanInfo{
         val loan = LoanInfo(classLoader)
-        loan.setStartdate(DateUtils.getTime("yyyy-MM-dd",time))
+        loan.setStartdate(DateUtils.stampToDate(time, "yyyy-MM-dd"))
         return loan
     }
 

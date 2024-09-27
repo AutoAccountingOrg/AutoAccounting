@@ -70,7 +70,7 @@ class LogFragment : BasePageFragment<LogModel>() {
                                 break
                             }
                             file.appendText(list.joinToString("\n") {
-                                "${DateUtils.getTime(it.time)}  ${it.app}  [${it.level}][${it.location}]${it.message}"
+                                "${DateUtils.stampToDate(it.time)}  ${it.app}  [${it.level}][${it.location}]${it.message}"
                             })
                         }
 

@@ -16,8 +16,10 @@
 package net.ankio.auto.utils
 
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 
 /**
  * 格式化时间工具类
@@ -25,11 +27,16 @@ import java.util.Locale
 object DateUtils {
 
 
-    fun getTime(format: String, time: Long): String {
-        val adjustedTime = if (time.toString().length == 10) time * 1000 else time
-        return SimpleDateFormat(format, Locale.getDefault()).format(Date(adjustedTime))
+    fun dateToStamp(dateString: String, format: String): Long{
+        return try {
+            val simpleDateFormat = SimpleDateFormat(format, Locale.getDefault())
+            simpleDateFormat.timeZone = TimeZone.getDefault()
+            val date = simpleDateFormat.parse(dateString)
+            date?.time?:System.currentTimeMillis()
+        } catch (e: Exception) {
+            System.currentTimeMillis()
+        }
     }
-
 
 
     fun stampToDate(
@@ -41,10 +48,15 @@ object DateUtils {
         return simpleDateFormat.format(date)
     }
 
+    fun stampToDate(time: Long):String{
+        return stampToDate(time,"yyyy-MM-dd HH:mm:ss")
+    }
 
-
-    fun getTime(t: Long): String {
-        return getTime("yyyy-MM-dd HH:mm:ss", t)
+    fun twoMonthsLater(): Long {
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = System.currentTimeMillis()
+        calendar.add(Calendar.MONTH, 2) // 增加两个月
+        return calendar.timeInMillis
     }
 
 }

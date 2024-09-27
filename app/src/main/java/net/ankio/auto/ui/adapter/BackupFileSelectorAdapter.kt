@@ -70,7 +70,7 @@ class BackupFileSelectorAdapter(
                 // binding.appIcon.setImageDrawable(icon)
             }
             binding.appName.text = "$versionName($supportVersion)"
-            binding.appDesc.text = DateUtils.getTime(timestamp)
+            binding.appDesc.text = DateUtils.stampToDate(timestamp)
         } else {
            binding.appName.text = "Unsupport Backup File"
            binding.appDesc.text = data
