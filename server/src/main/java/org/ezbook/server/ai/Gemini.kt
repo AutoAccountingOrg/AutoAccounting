@@ -81,9 +81,7 @@ class Gemini : BaseAi() {
                 val content = firstCandidate.getAsJsonObject("content")
                 val parts = content.getAsJsonArray("parts")
                 val text = parts[0].asJsonObject.get("text").asString.replace("```json","").replace("```","").trim()
-                val billInfoModel = Gson().fromJson(text, BillInfoModel::class.java)
-                billInfoModel.ruleName = "$aiName 识别"
-                billInfoModel
+               Gson().fromJson(text, BillInfoModel::class.java)
             }.onFailure {
                 Server.log(it)
             }.getOrNull()

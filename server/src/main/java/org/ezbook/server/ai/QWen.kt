@@ -22,10 +22,15 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.ezbook.server.Server
+import org.ezbook.server.constant.AIModel
 import org.ezbook.server.db.model.BillInfoModel
 import java.util.concurrent.TimeUnit
 
 class QWen : BaseAi(){
+
+    override var aiName: String
+        get() = AIModel.QWen.name
+        set(value) {}
     override fun createApiKeyUri(): String {
        return "https://help.aliyun.com/zh/model-studio/developer-reference/get-api-key?spm=a2c4g.11186623.0.0.74b04823nZ57nT"
     }
@@ -121,9 +126,7 @@ class QWen : BaseAi(){
                 Server.logW("AI Finish Reason: $reason")
                 val message = firstChoice.getAsJsonObject("message")
                 val content = message.get("content").asString.replace("```json","").replace("```","").trim()
-                val billInfoModel = Gson().fromJson(content, BillInfoModel::class.java)
-                billInfoModel.ruleName = "$aiName 识别"
-                billInfoModel
+                Gson().fromJson(content, BillInfoModel::class.java)
             }.onFailure {
                 Server.log(it)
             }.getOrNull()
