@@ -15,27 +15,19 @@
 
 package net.ankio.auto.ui.activity
 
-import android.content.Context
 import android.net.Uri
 import android.os.Bundle
-import android.util.AttributeSet
 import android.view.View
 import androidx.activity.result.ActivityResultLauncher
 import androidx.fragment.app.FragmentContainerView
-import androidx.lifecycle.lifecycleScope
-import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.ActivityMainBinding
 import net.ankio.auto.storage.BackupUtils
-import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseActivity
-import net.ankio.auto.ui.utils.ToastUtils
-import net.ankio.auto.utils.Github
 
 class MainActivity : BaseActivity() {
     // 视图绑定
@@ -44,27 +36,6 @@ class MainActivity : BaseActivity() {
     private lateinit var bottomNavigationView: BottomNavigationView
     private lateinit var navHostFragment: NavHostFragment
 
-    private var hasLogin = false
-    private fun onLogin() {
-        if (hasLogin) return
-        val uri = intent.data
-        Logger.d("Login From Github: $uri")
-        if (uri != null) {
-            // val dialog = DialogUtil.createLoadingDialog(this, getString(R.string.auth_waiting))
-            val code = uri.getQueryParameter("code")
-            lifecycleScope.launch {
-                runCatching {
-                    Github.parseAuthCode(code)
-                }.onFailure {
-                    Logger.e("Error on login", it)
-                    ToastUtils.error(it.message!!)
-                }.onSuccess {
-                    ToastUtils.info(R.string.auth_success)
-                }
-            }
-            hasLogin = true
-        }
-    }
 
     private val barList =
         arrayListOf(
@@ -97,9 +68,6 @@ class MainActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // Github登录
-        onLogin()
         // 备份注册
         onBackup()
         // 初始化底部导航栏

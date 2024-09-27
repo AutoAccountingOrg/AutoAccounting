@@ -27,7 +27,7 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterDataBinding
-import net.ankio.auto.exceptions.GithubException
+import net.ankio.auto.request.Pastebin
 import net.ankio.auto.service.FloatingWindowService
 import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Logger
@@ -40,7 +40,6 @@ import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.DateUtils
-import net.ankio.auto.utils.Github
 import org.ezbook.server.Server
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.AppDataModel
@@ -103,45 +102,24 @@ class AppDataAdapter(
             holder.launch {
                 val type = item.type.name
                 val title = "[Adaptation Request][$type]${item.app}"
-                val body = """
-```
-${result}
-```
+                runCatching {
+                    val (url,timeout) = Pastebin.add(result,holder.context)
+                    val body = """
+## 数据链接                        
+[数据过期时间：${timeout}](${url})
+## 其他信息
+
                 """.trimIndent()
-
-
-                try {
-                    item.issue = Github.createIssue(
-                        title,
-                        body,
-                        "AutoRule",
+                    CustomTabsHelper.launchUrl(
+                        activity,
+                        Uri.parse("$githubAutoRule/new?title=${Uri.encode(title)}&body=${Uri.encode(body)}"),
                     )
-                    withContext(Dispatchers.Main) {
-                        val position = indexOf(item)
-                        list[position] = item
-                        AppDataModel.put(item)
-                        notifyItemChanged(position)
-                        ToastUtils.info(R.string.upload_success)
-                    }
-
-                }catch (e:GithubException){
-                    withContext(Dispatchers.Main) {
-                        ToastUtils.error(e.message!!)
-                        CustomTabsHelper.launchUrl(
-                            activity,
-                            Uri.parse(Github.getLoginUrl()),
-                        )
-                        loading.close()
-                    }
-                }catch (e:Exception){
-                    ToastUtils.error(e.message!!)
-                }finally {
-                    withContext(Dispatchers.Main) {
-                        loading.close()
-                    }
+                    loading.close()
+                }.onFailure {
+                    ToastUtils.error(it.message!!)
+                    loading.close()
+                    return@launch
                 }
-
-
             }
         }.show(float = false)
     }
@@ -156,49 +134,29 @@ ${result}
                 holder.launch {
                     val type = item.type.name
                     val title = "[Bug][Rule][$type]${item.app}"
-                    val body = """
+                    runCatching {
+                        val (url,timeout) = Pastebin.add(result,holder.context)
+                        val body = """
 ## 规则
 ${item.rule}
 ## 说明
 $issue
 ## 数据
-```
-${item.data}
-```
+[数据过期时间：${timeout}](${url})
                          
                                             """.trimIndent()
 
-
-                    try {
-                        item.issue = Github.createIssue(
-                            title,
-                            body,
-                            "AutoAccounting",
+                        CustomTabsHelper.launchUrl(
+                            activity,
+                            Uri.parse("$githubAutoAccounting/new?title=${Uri.encode(title)}&body=${Uri.encode(body)}"),
                         )
-                        withContext(Dispatchers.Main) {
-                            val position = indexOf(item)
-                            list[position] = item
-                            AppDataModel.put(item)
-                            notifyItemChanged(position)
-                            ToastUtils.info(R.string.upload_success_issue)
-                        }
-                    }catch (e: GithubException){
-                        withContext(Dispatchers.Main) {
-                            ToastUtils.error(e.message!!)
-                            CustomTabsHelper.launchUrl(
-                                activity,
-                                Uri.parse(Github.getLoginUrl()),
-                            )
-                        }
-                    }catch (e: Exception){
-                        withContext(Dispatchers.Main) {
-                            ToastUtils.error(e.message!!)
-                        }
-                    }finally {
-                        withContext(Dispatchers.Main) {
-                            loading.close()
-                        }
+                        loading.close()
+                    }.onFailure {
+                        ToastUtils.error(it.message!!)
+                        loading.close()
+                        return@launch
                     }
+
                 }
             }.show(float = false)
 
@@ -207,6 +165,9 @@ ${item.data}
 
     }
 
+    private val githubAutoAccounting = "https://github.com/AutoAccountingOrg/AutoAccounting/issues"
+    private val githubAutoRule = "https://github.com/AutoAccountingOrg/AutoRule/issues"
+
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterDataBinding, AppDataModel>) {
         val binding = holder.binding
         binding.issue.setOnClickListener {
@@ -214,7 +175,7 @@ ${item.data}
             CustomTabsHelper.launchUrl(
                 activity,
                 Uri.parse(
-                    if (item.match) "https://github.com/AutoAccountingOrg/AutoAccounting/issues/${item.issue}" else "https://github.com/AutoAccountingOrg/AutoRule/issues/${item.issue}",
+                    if (item.match) "$githubAutoAccounting/${item.issue}" else "$githubAutoRule/${item.issue}",
 
                     )
             )

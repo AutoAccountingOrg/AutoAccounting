@@ -33,18 +33,6 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <category android:name="android.intent.category.APP_BROWSER" />
-
-                <data
-                    android:host="github"
-                    android:path="/auth"
-                    android:scheme="autoaccounting" />
-            </intent-filter>
         </activity>
         <activity android:name=".ui.activity.ErrorActivity" android:exported="false" />
         <service
