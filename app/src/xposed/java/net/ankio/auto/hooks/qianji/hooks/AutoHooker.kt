@@ -97,15 +97,13 @@ class AutoHooker : PartHooker() {
                     val uri = Uri.parse(value)
                     val billInfo = QianJiUri.toAuto(uri)
                     if (billInfo.id < 0) return
-
-
+                    App.launch {
+                        BillInfoModel.status(billInfo.id, false)
+                    }
 
                     if (error !== msg) {
                         XposedHelpers.callMethod(autoTaskLog, "setStatus", 0)
                         param.args[0] = error
-                        App.launch {
-                            BillInfoModel.status(billInfo.id, false)
-                        }
                         hookerManifest.log("Qianji Error: $msg")
                         return
                     }
@@ -132,8 +130,9 @@ class AutoHooker : PartHooker() {
                                    ExpendLendingUtils(hookerManifest, classLoader, context).sync(billInfo)
                                 }.onSuccess {
                                     App.toast("借出成功")
+                                    BillInfoModel.status(billInfo.id, true)
                                 }.onFailure {
-                                    BillInfoModel.status(billInfo.id, false)
+
                                     hookerManifest.logD("借出失败 ${it.message}")
                                     hookerManifest.logE(it)
                                     App.toast("借出失败 ${handleError(it.message ?: "")}")
@@ -152,9 +151,9 @@ class AutoHooker : PartHooker() {
                                   ExpendRepaymentUtils(hookerManifest, classLoader, context).sync(billInfo)
                                 }.onSuccess {
                                     App.toast("还款成功")
+                                    BillInfoModel.status(billInfo.id, true)
                                 }.onFailure {
                                     hookerManifest.logE(it)
-                                    BillInfoModel.status(billInfo.id, false)
                                     hookerManifest.logD("还款失败 ${it.message}")
                                     App.toast("还款失败 ${handleError(it.message ?: "")}")
                                     hookerManifest.logE(it)
@@ -172,9 +171,9 @@ class AutoHooker : PartHooker() {
                                     IncomeLendingUtils(hookerManifest, classLoader, context).sync(billInfo)
                                 }.onSuccess {
                                     App.toast("借入成功")
+                                    BillInfoModel.status(billInfo.id, true)
                                 }.onFailure {
                                     hookerManifest.logE(it)
-                                    BillInfoModel.status(billInfo.id, false)
                                     hookerManifest.logD("借入失败 ${it.message}")
                                     App.toast("借入失败 ${handleError(it.message ?: "")}")
                                     hookerManifest.logE(it)
@@ -191,9 +190,9 @@ class AutoHooker : PartHooker() {
                                     IncomeRepaymentUtils(hookerManifest, classLoader, context).sync(billInfo)
                                 }.onSuccess {
                                     App.toast("收款成功")
+                                    BillInfoModel.status(billInfo.id, true)
                                 }.onFailure {
                                     hookerManifest.logE(it)
-                                    BillInfoModel.status(billInfo.id, false)
                                     hookerManifest.logD("收款失败 ${it.message}")
                                     App.toast("收款失败 ${handleError(it.message ?: "")}")
                                     hookerManifest.logE(it)
@@ -210,8 +209,8 @@ class AutoHooker : PartHooker() {
                                     BaoXiaoUtils(hookerManifest, classLoader).doBaoXiao(billInfo)
                                 }.onSuccess {
                                     App.toast("报销成功")
+                                    BillInfoModel.status(billInfo.id, true)
                                 }.onFailure {
-                                    BillInfoModel.status(billInfo.id, false)
                                     hookerManifest.logD("报销失败 ${it.message}")
                                     App.toast("报销失败 ${handleError(it.message ?: "")}")
                                     hookerManifest.logE(it)
