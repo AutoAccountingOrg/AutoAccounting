@@ -92,7 +92,7 @@ class SystemSettingFragment : BaseFragment() {
     ): ArrayList<SettingItem> {
         return arrayListOf(
             // 隐私
-            SettingItem(R.string.setting_privacy, refresh = true),
+            SettingItem(R.string.setting_privacy),
             SettingItem(
                 title = R.string.setting_analysis,
                 key = Setting.SEND_ERROR_REPORT,
@@ -100,10 +100,10 @@ class SystemSettingFragment : BaseFragment() {
                 subTitle = R.string.setting_analysis_desc,
                 type = ItemType.SWITCH,
                 default = true,
-                refresh = true,
+                
             ),
             // 语言
-            SettingItem(R.string.setting_lang, refresh = true),
+            SettingItem(R.string.setting_lang),
             SettingItem(
                 title = R.string.setting_lang,
                 icon = R.drawable.setting2_icon_translate,
@@ -116,10 +116,10 @@ class SystemSettingFragment : BaseFragment() {
                     LanguageUtils.setAppLanguage(value as String)
                     activity.recreateActivity()
                 },
-                refresh = true,
+                
             ),
             // 皮肤
-            SettingItem(R.string.setting_skin, refresh = true),
+            SettingItem(R.string.setting_skin),
             SettingItem(
                 title = R.string.setting_theme,
                 regex = "${Setting.USE_SYSTEM_SKIN}=false",
@@ -144,7 +144,7 @@ class SystemSettingFragment : BaseFragment() {
                         .create()
                         .show()
                 },
-                refresh = true,
+                
             ),
             SettingItem(
                 title = R.string.setting_dark_theme,
@@ -164,7 +164,7 @@ class SystemSettingFragment : BaseFragment() {
                     ThemeEngine.getInstance(context).themeMode = value as Int
                     activity.recreateActivity()
                 },
-                refresh = true,
+                
             ),
             SettingItem(
                 title = R.string.setting_use_dark_theme,
@@ -177,7 +177,7 @@ class SystemSettingFragment : BaseFragment() {
                     ThemeEngine.getInstance(context).isTrueBlack = value as Boolean
                     activity.recreateActivity()
                 },
-                refresh = true,
+                
             ),
             SettingItem(
                 title = R.string.setting_use_system_theme,
@@ -191,17 +191,17 @@ class SystemSettingFragment : BaseFragment() {
                     ThemeEngine.getInstance(context).isDynamicTheme = value as Boolean
                     activity.recreateActivity()
                 },
-                refresh = true,
+                
             ),
             SettingItem(
                 title = R.string.setting_use_round_style,
                 key = Setting.USE_ROUND_STYLE,
                 icon = R.drawable.setting2_icon_round_theme,
                 type = ItemType.SWITCH,
-                refresh = true,
+                
             ),
             // 备份
-            SettingItem(R.string.setting_backup, refresh = true),
+            SettingItem(R.string.setting_backup),
             // 备份方式二选一，本地或者Webdav
             SettingItem(
                 title = R.string.setting_use_webdav,
@@ -210,7 +210,7 @@ class SystemSettingFragment : BaseFragment() {
                 icon = R.drawable.setting2_icon_backup,
                 type = ItemType.SWITCH,
                 default = false,
-                refresh = true,
+                
             ),
             SettingItem(
                 title = R.string.setting_backup_path,
@@ -230,7 +230,7 @@ class SystemSettingFragment : BaseFragment() {
                 onItemClick = { _, activity ->
                     BackupUtils.requestPermission(activity as MainActivity)
                 },
-                refresh = true,
+                
             ),
             SettingItem(
                 title = R.string.setting_backup_2_local,
@@ -259,7 +259,7 @@ class SystemSettingFragment : BaseFragment() {
                         }
                     }
                 },
-                refresh = true,
+                
             ),
             SettingItem(
                 title = R.string.setting_restore_2_local,
@@ -270,7 +270,7 @@ class SystemSettingFragment : BaseFragment() {
                 onItemClick = { _, activity ->
                     (activity as MainActivity).restoreLauncher.launch(arrayOf("*/*"))
                 },
-                refresh = true,
+                
             ),
             SettingItem(
                 title = R.string.setting_webdav_host,
@@ -278,7 +278,7 @@ class SystemSettingFragment : BaseFragment() {
                 key = Setting.WEBDAV_HOST,
                 type = ItemType.INPUT,
                 default = "https://dav.jianguoyun.com/dav/",
-                refresh = true,
+                
             ),
             SettingItem(
                 title = R.string.setting_webdav_username,
@@ -286,7 +286,7 @@ class SystemSettingFragment : BaseFragment() {
                 key = Setting.WEBDAV_USER,
                 type = ItemType.INPUT,
                 default = "",
-                refresh = true,
+                
             ),
             SettingItem(
                 title = R.string.setting_webdav_password,
@@ -295,7 +295,7 @@ class SystemSettingFragment : BaseFragment() {
                 subTitle = R.string.setting_webdav_password_desc,
                 type = ItemType.INPUT,
                 default = "",
-                refresh = true,
+                
             ),
             SettingItem(
                 title = R.string.setting_backup_2_webdav,
@@ -314,7 +314,7 @@ class SystemSettingFragment : BaseFragment() {
                         }
                     }
                 },
-                refresh = true,
+                
             ),
             SettingItem(
                 title = R.string.setting_restore_2_webdav,
@@ -333,10 +333,10 @@ class SystemSettingFragment : BaseFragment() {
                         }
                     }
                 },
-                refresh = true,
+                
             ),
             // 更新
-            SettingItem(R.string.setting_update, refresh = true),
+            SettingItem(R.string.setting_update),
             SettingItem(
                 title = R.string.setting_update_channel,
                 key = Setting.UPDATE_CHANNEL,
@@ -347,7 +347,7 @@ class SystemSettingFragment : BaseFragment() {
                     context.getString(R.string.update_channel_cloud) to UpdateChannel.Cloud.name,
                 ),
                 default = UpdateChannel.Github.name,
-                refresh = true,
+                
             ),
             SettingItem(
                 title = R.string.setting_update_type,
@@ -361,7 +361,7 @@ class SystemSettingFragment : BaseFragment() {
                     context.getString(R.string.version_canary) to UpdateType.Canary.name,
                 ),
                 default = UpdateType.switchDefaultUpdate(),
-                refresh = true,
+                
             ),
             SettingItem(
                 title = R.string.setting_app,
@@ -369,7 +369,7 @@ class SystemSettingFragment : BaseFragment() {
                 icon = R.drawable.setting2_icon_rule,
                 type = ItemType.SWITCH,
                 default = true,
-                refresh = true,
+                
             ),
             SettingItem(
                 title = R.string.setting_rule,
@@ -377,10 +377,10 @@ class SystemSettingFragment : BaseFragment() {
                 icon = R.drawable.setting2_icon_category,
                 type = ItemType.SWITCH,
                 default = true,
-                refresh = true,
+                
             ),
             // 其他
-            SettingItem(R.string.setting_others, refresh = true),
+            SettingItem(R.string.setting_others),
             SettingItem(
                 title = R.string.setting_debug,
                 key = Setting.DEBUG_MODE,
@@ -394,7 +394,7 @@ class SystemSettingFragment : BaseFragment() {
                         SettingModel.set(Setting.DEBUG_MODE, value.toString())
                     }
                 },
-                refresh = true,
+                
             ),
         )
     }

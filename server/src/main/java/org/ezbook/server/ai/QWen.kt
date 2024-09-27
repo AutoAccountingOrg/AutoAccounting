@@ -13,11 +13,7 @@
  *   limitations under the License.
  */
 
-package org.ezbook.server.constant
+package org.ezbook.server.ai
 
-enum class AIModel {
-    Gemini,
-    DeepSeek,
-    QWen,
-
+class QWen {
 }

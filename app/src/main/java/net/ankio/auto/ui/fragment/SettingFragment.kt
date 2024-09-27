@@ -119,7 +119,7 @@ class SettingFragment : BaseFragment() {
             SettingItem(
                 title = R.string.setting_bill_ai,
                 key = Setting.USE_AI,
-                icon = R.drawable.setting_icon_repeat,
+                icon = R.drawable.ic_ai,
                 subTitle = R.string.setting_bill_ai_desc,
                 type = ItemType.SWITCH,
                 default = false,
@@ -131,11 +131,12 @@ class SettingFragment : BaseFragment() {
                 key = Setting.AI_MODEL,
                 type = ItemType.TEXT,
                 default = AIModel.Gemini,
-                icon = R.drawable.ic_sync,
+                icon = R.drawable.ic_support,
                 selectList =
                 hashMapOf(
                     context.getString(R.string.gemini) to AIModel.Gemini,
-                    context.getString(R.string.chatgpt) to AIModel.ChatGPT,
+                    context.getString(R.string.qwen) to AIModel.QWen,
+                    context.getString(R.string.deepseek) to AIModel.DeepSeek,
                 ),
             ),
             SettingItem(

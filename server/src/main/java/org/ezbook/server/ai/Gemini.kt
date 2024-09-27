@@ -23,6 +23,7 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.ezbook.server.Server
 import org.ezbook.server.constant.AIModel
+import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.BillInfoModel
 
 class Gemini : BaseAi() {
@@ -31,12 +32,9 @@ class Gemini : BaseAi() {
         return "https://aistudio.google.com/app/apikey"
     }
 
+
     override  fun request(data: String): BillInfoModel? {
-        val prompt = getPrompt(data)
-        if (apiKey.isEmpty()) {
-            Server.log(Throwable("Api key is empty"))
-            return null
-        }
+        val (system,user) = getConversations(data)
         val url =
             "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=$apiKey"
 
@@ -48,9 +46,11 @@ class Gemini : BaseAi() {
                         mapOf(
                             "parts" to
                                     listOf(
-                                        mapOf("text" to prompt)
+                                        mapOf(
+                                            "text" to "$user \n\n $system",
+                                        )
                                     )
-                        )
+                        ),
                     )
                 )
             )
@@ -73,7 +73,10 @@ class Gemini : BaseAi() {
            return runCatching {
                 val jsonObject = JsonParser.parseString(responseBody).asJsonObject
                 val candidates = jsonObject.getAsJsonArray("candidates")
+
                 val firstCandidate = candidates[0].asJsonObject
+               val reason = firstCandidate.get("finishReason").asString
+               Server.logW("AI Finish Reason: $reason")
                 val content = firstCandidate.getAsJsonObject("content")
                 val parts = content.getAsJsonArray("parts")
                 val text = parts[0].asJsonObject.get("text").asString.replace("```json","").replace("```","").trim()

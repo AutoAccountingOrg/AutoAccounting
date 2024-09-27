@@ -20,21 +20,12 @@ import org.ezbook.server.Server
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.BillInfoModel
+import org.ezbook.server.db.model.RuleModel
 
 abstract class BaseAi {
     open var aiName = ""
     val prompt = """
 You are an AI assistant tasked with generating a bill info JSON based on the provided raw data. Your goal is to create a clear, concise, and informative bill info JSON that follows best practices.
-
-Input:
-- Raw Data: 
-  ```
-  {data}
-  ```
-- Category JSON:
-  ```json
-  {category}
-  ```
 
 Instructions:
 1. Analyze the provided raw data.
@@ -45,7 +36,7 @@ Instructions:
        "accountNameTo": "",
        "app": "",
        "auto": false,
-       "bookName": "",
+       "bookName": "默认账本",
        "cateName": "",
        "channel": "",
        "currency": "",
@@ -59,13 +50,13 @@ Instructions:
        "shopItem": "",
        "shopName": "",
        "state": "",
-       "time": 0,
+       "time": {time},
        "type": ""
    }
    ```
 3. Explanation of JSON Fields:
    - type: Must be a string; one of `Transfer`, `Income`, or `Expend`.
-   - time: Must be a 13-digit integer (milliseconds since epoch). Default to local timestamp if invalid.
+   - time: Extract from raw data; Must be a 13-digit integer (milliseconds since epoch); Don't change it if extraction fails.
    - state: Always set to `Wait2Edit`.
    - shopName/shopItem: Extract from raw data; set to empty string if extraction fails.
    - ruleName: Set to `{aiName} 识别`.
@@ -86,7 +77,7 @@ Example:
     "accountNameTo": "",
     "app": "",
     "auto": false,
-    "bookName": "",
+    "bookName": "默认账本",
     "cateName": "",
     "channel": "",
     "currency": "",
@@ -105,6 +96,17 @@ Example:
 }
     """.trimIndent()
 
+    val input = """
+Input:
+- Raw Data: 
+  ```
+  {data}
+  ```
+- Category JSON:
+  ```json
+  {category}
+  ```
+    """.trimIndent()
 
     var apiKey = ""
 
@@ -112,14 +114,18 @@ Example:
     abstract  fun createApiKeyUri(): String
 
 
-     fun getPrompt(data: String): String  {
+     fun getConversations(data: String): Pair<String,String>  {
          Server.isRunOnMainThread()
         val category = Db.get().categoryDao().all().map {
             Pair(it.name, it.type)
         }
-        apiKey = Db.get().settingDao().query("${Setting.API_KEY}")?.value ?: ""
+        apiKey = Db.get().settingDao().query(Setting.API_KEY)?.value ?: ""
 
-        return prompt.replace("{data}", data).replace("{category}", Gson().toJson(category)).replace("{aiName}",aiName)
+      if (apiKey.isEmpty()) throw RuntimeException("api key is empty")
+
+     return Pair(
+         prompt.replace("{aiName}",aiName).replace("{time}",System.currentTimeMillis().toString()),
+         input.replace("{data}", data).replace("{category}", Gson().toJson(category)))
     }
 
     abstract  fun request(data: String): BillInfoModel?

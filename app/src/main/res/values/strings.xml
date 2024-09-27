@@ -473,5 +473,6 @@
     <string name="setting_bill_ai_type">大模型服务商</string>
     <string name="setting_bill_ai_key">API Key</string>
     <string name="ai_loading">正在调用 %s 识别中...</string>
-    <string name="chatgpt">ChatGPT（魔法）</string>
+    <string name="qwen">通义千问</string>
+    <string name="deepseek">DeepSeek</string>
 </resources>

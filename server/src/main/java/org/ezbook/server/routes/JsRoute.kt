@@ -121,33 +121,36 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
          */
 
 
+        if (billInfoModel.cateName.isEmpty() || billInfoModel.cateName == "其它"){
+            //将time从时间戳，转换为h:i的格式
+            val time = android.text.format.DateFormat.format("HH:mm", billInfoModel.time).toString()
 
-        //将time从时间戳，转换为h:i的格式
-        val time = android.text.format.DateFormat.format("HH:mm", billInfoModel.time).toString()
 
+            val categoryJS = RuleGenerator.category()
 
-        val categoryJS = RuleGenerator.category()
+            val win = JsonObject()
+            win.addProperty("type", billInfoModel.type.name)
+            win.addProperty("money", billInfoModel.money)
+            win.addProperty("shopName", billInfoModel.shopName)
+            win.addProperty("shopItem", billInfoModel.shopItem)
+            win.addProperty("time", time)
+            var categoryResult = runJS(categoryJS, Gson().toJson(win))
+            // { book: '默认账本', category: '早茶' }
+            if (categoryResult == "") {
+                categoryResult = "{ book: '默认账本', category: '其他' }"
+            }
 
-        val win = JsonObject()
-        win.addProperty("type", billInfoModel.type.name)
-        win.addProperty("money", billInfoModel.money)
-        win.addProperty("shopName", billInfoModel.shopName)
-        win.addProperty("shopItem", billInfoModel.shopItem)
-        win.addProperty("time", time)
-        var categoryResult = runJS(categoryJS, Gson().toJson(win))
-        // { book: '默认账本', category: '早茶' }
-        if (categoryResult == "") {
-            categoryResult = "{ book: '默认账本', category: '其他' }"
+            val categoryJson = runCatching {
+                Gson().fromJson(categoryResult, JsonObject::class.java)
+            }.onFailure {
+                Server.logW("Failed to analyze categories：$categoryResult")
+            }.getOrNull()
+
+            billInfoModel.bookName = categoryJson?.get("book")?.asString ?: "默认账本"
+            billInfoModel.cateName = categoryJson?.get("category")?.asString ?: "其他"
         }
 
-        val categoryJson = runCatching {
-            Gson().fromJson(categoryResult, JsonObject::class.java)
-        }.onFailure {
-            Server.logW("Failed to analyze categories：$categoryResult")
-        }.getOrNull()
 
-        billInfoModel.bookName = categoryJson?.get("book")?.asString ?: "默认账本"
-        billInfoModel.cateName = categoryJson?.get("category")?.asString ?: "其他"
 
 
         val total = System.currentTimeMillis() - t
@@ -208,14 +211,18 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
     }
 
     private fun parseBillInfoFromAi(app:String,data:String):BillInfoModel?{
-        val aiModel = Db.get().settingDao().query(Setting.AI_MODEL)?.value
-        val billInfoModel:BillInfoModel? =  when(aiModel){
-            AIModel.Gemini.name ->  Gemini().request(data)
-            else -> {
-                null
+        val aiModel = Db.get().settingDao().query(Setting.AI_MODEL)?.value?:AIModel.Gemini
+        val billInfoModel:BillInfoModel? =  runCatching {
+            when(aiModel){
+                AIModel.Gemini.name ->  Gemini().request(data)
+                else -> {
+                    null
+                }
             }
-        }
-        Server.log("AI Return Info: ${billInfoModel}")
+        }.onFailure {
+            Server.log(it)
+        }.getOrNull()
+        Server.log("AI($aiModel) Return Info: ${billInfoModel}")
         if (billInfoModel == null)return null
         if (billInfoModel.money <=0 )return null
         billInfoModel.app = app
