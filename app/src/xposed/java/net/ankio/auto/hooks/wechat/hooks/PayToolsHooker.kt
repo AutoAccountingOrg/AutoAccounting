@@ -40,11 +40,6 @@ class PayToolsHooker : PartHooker() {
                     hookerManifest.logD("Text: $text")
                     when {
 
-                        text.contains(Regex("\\d{4}")) -> {
-                            hookerManifest.logD("卡号Hook: $text")
-                            App.set("cachedPayToolsNumber", text)
-                        }
-
                         text.contains("卡") || text.contains("零钱") -> {
                             hookerManifest.logD("支付方式Hook: $text")
                             App.set("cachedPayTools", text)
