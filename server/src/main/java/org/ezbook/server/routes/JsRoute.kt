@@ -24,6 +24,7 @@ import com.google.gson.Gson
 import com.google.gson.JsonObject
 import org.ezbook.server.Server
 import org.ezbook.server.ai.Gemini
+import org.ezbook.server.ai.QWen
 import org.ezbook.server.constant.AIModel
 import org.ezbook.server.constant.BillState
 import org.ezbook.server.constant.BillType
@@ -215,6 +216,7 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
         val billInfoModel:BillInfoModel? =  runCatching {
             when(aiModel){
                 AIModel.Gemini.name ->  Gemini().request(data)
+                AIModel.QWen.name -> QWen().request(data)
                 else -> {
                     null
                 }

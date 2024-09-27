@@ -23,7 +23,6 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.ezbook.server.Server
 import org.ezbook.server.constant.AIModel
-import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.BillInfoModel
 
 class Gemini : BaseAi() {
@@ -64,13 +63,13 @@ class Gemini : BaseAi() {
             .build()
 
         val response = client.newCall(request).execute()
+        val responseBody = response.body?.string()?:""
+        Server.log("Request Body: $responseBody")
         if (!response.isSuccessful) {
             Server.log(Throwable("Unexpected response code: ${response.code}"))
             response.close()
         } else {
-            val responseBody = response.body!!.string()
-            Server.log("Request Body: $responseBody")
-           return runCatching {
+            return runCatching {
                 val jsonObject = JsonParser.parseString(responseBody).asJsonObject
                 val candidates = jsonObject.getAsJsonArray("candidates")
 

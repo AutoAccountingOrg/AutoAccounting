@@ -46,7 +46,7 @@ Instructions:
        "id": 0,
        "money": 0.00,
        "remark": "",
-       "ruleName": "",
+       "ruleName": "{aiName} 识别",
        "shopItem": "",
        "shopName": "",
        "state": "",
@@ -59,13 +59,13 @@ Instructions:
    - time: Extract from raw data; Must be a 13-digit integer (milliseconds since epoch); Don't change it if extraction fails.
    - state: Always set to `Wait2Edit`.
    - shopName/shopItem: Extract from raw data; set to empty string if extraction fails.
-   - ruleName: Set to `{aiName} 识别`.
    - remark: Always an empty string.
+   - ruleName: Don't change it.
    - money/fee: Double-precision number; set to 0 if extraction fails.
    - currency: Extract from raw data; set to `CNY` if extraction fails.
    - cateName: Choose from Category JSON, distinguishing between income and expenses.
    - accountNameFrom/To: Extract for Transfer type; set to empty string if extraction fails.
-   - Fields not to modify: `id`, `groupId`, `extendData`, `channel`, `bookName`, `auto`, `app`.
+   - Fields not to modify: `id`, `groupId`, `extendData`, `channel`, `bookName`, `auto`, `app` , `ruleName`.
 4. If you can't analyze anything, export an empty JSON object: `{}`
 
 Output:
