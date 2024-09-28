@@ -59,7 +59,9 @@ object LocalBroadcastHelper {
      * @param receiver 广播接收器
      */
     fun unregisterReceiver(receiver: BroadcastReceiver) {
-        App.app.unregisterReceiver(receiver)
+       runCatching {
+           App.app.unregisterReceiver(receiver)
+       }
     }
 
     /**
