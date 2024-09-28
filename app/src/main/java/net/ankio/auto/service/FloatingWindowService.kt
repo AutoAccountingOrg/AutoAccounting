@@ -179,7 +179,7 @@ class FloatingWindowService : Service() {
                     callBillInfoEditor(Setting.FLOAT_TIMEOUT_ACTION, billInfoModel)
                 }
             }
-        countDownTimer.start()
+
 
         binding.root.setOnClickListener {
             countDownTimer.cancel() // 定时器停止
@@ -220,6 +220,7 @@ class FloatingWindowService : Service() {
             // 应用新的布局参数
             windowManager.updateViewLayout(binding.root, params)
             binding.root.visibility = View.VISIBLE
+            countDownTimer.start()
         }
 
         // 将绑定添加到列表中以便管理
