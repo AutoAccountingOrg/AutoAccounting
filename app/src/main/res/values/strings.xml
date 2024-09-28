@@ -479,5 +479,5 @@
     <string name="oneapi">OneAPI</string>
     <string name="setting_bill_one_api_uri">接口地址</string>
     <string name="setting_bill_one_api_model">模型选择</string>
-    <string name="setting_bill_auto_record">自动记录的账单不显示提示</string>
+    <string name="setting_bill_auto_record">自动记录的账单显示提示</string>
 </resources>
