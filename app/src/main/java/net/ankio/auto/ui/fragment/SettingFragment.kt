@@ -139,6 +139,7 @@ class SettingFragment : BaseFragment() {
                     context.getString(R.string.deepseek) to AIModel.DeepSeek.name,
                     context.getString(R.string.chatgpt) to AIModel.ChatGPT.name,
                     context.getString(R.string.oneapi) to AIModel.OneAPI.name,
+                    context.getString(R.string.spark) to AIModel.Spark.name,
                 ),
             ),
             SettingItem(
@@ -167,6 +168,13 @@ class SettingFragment : BaseFragment() {
                 title = R.string.setting_bill_ai_key,
                 regex = "${Setting.USE_AI}=true,${Setting.AI_MODEL}_${AIModel.ChatGPT.name}=true",
                 key = "${Setting.API_KEY}_${AIModel.ChatGPT.name}",
+                type = ItemType.INPUT_PASSWORD,
+                default = "",
+            ),
+            SettingItem(
+                title = R.string.setting_bill_ai_key,
+                regex = "${Setting.USE_AI}=true,${Setting.AI_MODEL}_${AIModel.Spark.name}=true",
+                key = "${Setting.API_KEY}_${AIModel.Spark.name}",
                 type = ItemType.INPUT_PASSWORD,
                 default = "",
             ),

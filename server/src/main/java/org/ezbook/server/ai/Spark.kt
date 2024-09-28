@@ -13,13 +13,21 @@
  *   limitations under the License.
  */
 
-package org.ezbook.server.constant
+package org.ezbook.server.ai
 
-enum class AIModel {
-    Gemini,
-    DeepSeek,
-    QWen,
-    ChatGPT,
-    OneAPI,
-    Spark;
+import org.ezbook.server.constant.AIModel
+
+class Spark:BaseAi() {
+    override var api: String
+        get() = "https://spark-api-open.xf-yun.com/v1/chat/completions"
+        set(value) {}
+    override var model: String
+        get() = "general"
+        set(value) {}
+    override var name: String
+        get() = AIModel.Spark.name
+        set(value) {}
+    override var createKeyUri: String
+        get() = "https://console.xfyun.cn/services/cbm"
+        set(value) {}
 }

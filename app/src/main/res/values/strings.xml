@@ -469,7 +469,7 @@
     <string name="setting_ai">AI功能</string>
     <string name="setting_bill_ai">使用AI大模型辅助识别账单</string>
     <string name="setting_bill_ai_desc">隐私提醒：仅支持手动调用AI大模型进行识别，你的App数据、分类数据将会被上传至对应的大模型进行识别（与自动记账无关）。</string>
-    <string name="gemini">Gemini（魔法）</string>
+    <string name="gemini">Google Gemini</string>
     <string name="setting_bill_ai_type">大模型服务商</string>
     <string name="setting_bill_ai_key">API Key</string>
     <string name="ai_loading">正在调用 %s 识别中...</string>
@@ -479,4 +479,5 @@
     <string name="oneapi">OneAPI</string>
     <string name="setting_bill_one_api_uri">接口地址</string>
     <string name="setting_bill_one_api_model">模型选择</string>
+    <string name="spark">讯飞星火</string>
 </resources>
