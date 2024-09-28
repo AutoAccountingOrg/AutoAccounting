@@ -13,12 +13,18 @@
  *   limitations under the License.
  */
 
-package org.ezbook.server.constant
+package org.ezbook.server.ai
 
-enum class AIModel {
-    Gemini,
-    DeepSeek,
-    QWen,
-    ChatGPT,
-    OneAPI
+import org.ezbook.server.constant.AIModel
+
+class OneAPI(
+    override var api: String,
+    override var model: String
+):BaseAi() {
+    override var name: String
+        get() = AIModel.OneAPI.name
+        set(value) {}
+    override var createKeyUri: String
+        get() = "https://github.com/songquanpeng/one-api"
+        set(value) {}
 }

@@ -15,12 +15,14 @@
 
 package net.ankio.auto.setting
 
+import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.widget.addTextChangedListener
 import androidx.viewbinding.ViewBinding
+import com.google.android.material.textfield.TextInputLayout
 import net.ankio.auto.constant.ItemType
 import net.ankio.auto.databinding.SettingItemColorBinding
 import net.ankio.auto.databinding.SettingItemInputBinding
@@ -28,6 +30,7 @@ import net.ankio.auto.databinding.SettingItemSwitchBinding
 import net.ankio.auto.databinding.SettingItemTextBinding
 import net.ankio.auto.databinding.SettingItemTitleBinding
 import net.ankio.auto.storage.ConfigUtils
+import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.utils.ListPopupUtils
 import net.ankio.auto.utils.CustomTabsHelper
@@ -48,8 +51,8 @@ class SettingUtils(
                 when (it.type) {
                     ItemType.SWITCH -> renderSwitch(it)
                     ItemType.TITLE -> renderTitle(it)
-                    ItemType.TEXT -> renderText(it)
-                    ItemType.INPUT -> renderInput(it)
+                    ItemType.TEXT  -> renderText(it)
+                    ItemType.INPUT, ItemType.INPUT_PASSWORD -> renderInput(it)
                     ItemType.COLOR -> renderColor(it)
                 }
             viewBinding[it] = binding
@@ -80,20 +83,31 @@ class SettingUtils(
         return binding
     }
 
-    private fun setVisibility(
-        variable: String,
-        variableBoolean: Boolean,
-    ) {
-        val trueKey = "$variable=true"
-        val falseKey = "$variable=false"
+    private val variables = HashMap<String,Boolean>()
+
+    private fun setVisibility() {
         viewBinding.forEach { (item, binding) ->
-            if (item.regex == trueKey) {
-                binding.root.visibility = if (variableBoolean) View.VISIBLE else View.GONE
-            } else if (item.regex == falseKey) {
-                binding.root.visibility = if (variableBoolean) View.GONE else View.VISIBLE
-            }
+            val regexList = item.regex?.split(",") ?: return@forEach
+            val isVisible = regexList.all { isConditionMet(it) }
+            // 根据isVisible设置binding.root的可见性
+            binding.root.visibility = if (isVisible) View.VISIBLE else View.GONE
         }
     }
+
+
+    private fun isConditionMet(condition: String): Boolean {
+        val splitBoolean = condition.split("=")
+        if (splitBoolean.size != 2) return false
+
+        val key = splitBoolean[0]
+        if (!variables.contains(key)) return false
+
+        val expectedValue = splitBoolean[1].toBoolean()
+        return expectedValue == variables[key]
+    }
+
+
+
 
     private fun renderSwitch(settingItem: SettingItem): SettingItemSwitchBinding {
         val binding = SettingItemSwitchBinding.inflate(inflater, container, false)
@@ -105,8 +119,9 @@ class SettingUtils(
         }
 
         fun setLinkVisibility(isChecked: Boolean) {
-            settingItem.variable?.apply {
-                setVisibility(this, isChecked)
+            settingItem.key?.let {
+                variables[it] = isChecked
+                setVisibility()
             }
         }
 
@@ -184,12 +199,16 @@ class SettingUtils(
             settingItem.selectList?.let {
                 fun setValue(savedValue: Any) {
                     for ((key, value) in it) {
+                        val itemKey = "${settingItem.key}_$value"
                         if (value == savedValue) {
                             binding.subTitle.text = key
                             binding.subTitle.visibility = View.VISIBLE
-                            break
+                            variables[itemKey] = true
+                        }else{
+                            variables[itemKey] = false
                         }
                     }
+                    setVisibility()
                 }
 
                 setValue(savedValue)
@@ -227,6 +246,13 @@ class SettingUtils(
 
     private fun renderInput(settingItem: SettingItem): SettingItemInputBinding {
         val binding = SettingItemInputBinding.inflate(inflater, container, false)
+
+        if (settingItem.type == ItemType.INPUT_PASSWORD){
+            binding.inputLayout.endIconMode = TextInputLayout.END_ICON_PASSWORD_TOGGLE
+            binding.input.setInputType(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD)
+        }
+
+
         resume[settingItem] = {
             settingItem.onGetKeyValue?.invoke()?.let {
                 binding.input.setText(it.toString())

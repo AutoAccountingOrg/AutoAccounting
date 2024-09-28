@@ -16,6 +16,10 @@
 package org.ezbook.server.constant
 
 object Setting {
+    // one api需要提供地址和模型
+    const val AI_ONE_API_URI = "ai_one_api_uri"
+    const val AI_ONE_API_MODEL = "ai_one_api_model"
+
     // 所用的AI模型
     const val AI_MODEL = "ai_model"
     // 是否使用AI辅助识别

@@ -22,7 +22,6 @@ import net.ankio.auto.ui.api.BaseActivity
 
 data class SettingItem(
     @StringRes val title: Int, // 标题
-    val variable: String? = null, // 显示或者隐藏的关联名称
     val regex: String? = null, // 关联表达式
     val key: String? = null, // key，存储专用
     @DrawableRes val icon: Int? = null, // 图标

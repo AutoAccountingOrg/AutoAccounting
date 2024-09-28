@@ -181,7 +181,7 @@ class SystemSettingFragment : BaseFragment() {
             ),
             SettingItem(
                 title = R.string.setting_use_system_theme,
-                variable = Setting.USE_SYSTEM_SKIN,
+                key = Setting.USE_SYSTEM_SKIN,
                 icon = R.drawable.setting2_icon_system_theme,
                 type = ItemType.SWITCH,
                 onGetKeyValue = {
@@ -205,7 +205,6 @@ class SystemSettingFragment : BaseFragment() {
             // 备份方式二选一，本地或者Webdav
             SettingItem(
                 title = R.string.setting_use_webdav,
-                variable = Setting.USE_WEBDAV,
                 key = Setting.USE_WEBDAV,
                 icon = R.drawable.setting2_icon_backup,
                 type = ItemType.SWITCH,

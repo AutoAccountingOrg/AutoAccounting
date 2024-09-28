@@ -16,15 +16,19 @@
 package org.ezbook.server.ai
 
 import com.google.gson.Gson
+import com.google.gson.JsonParser
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.ezbook.server.Server
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.BillInfoModel
-import org.ezbook.server.db.model.RuleModel
+import java.util.concurrent.TimeUnit
 
 abstract class BaseAi {
-    open var aiName = ""
-    val prompt = """
+    private val prompt = """
 You are an AI assistant tasked with generating a bill info JSON based on the provided raw data. Your goal is to create a clear, concise, and informative bill info JSON that follows best practices.
 
 Instructions:
@@ -108,27 +112,101 @@ Input:
   ```
     """.trimIndent()
 
+    /**
+     * API Key
+     */
     var apiKey = ""
 
+    /**
+     * API地址
+     */
+    abstract var api:String
 
-    abstract  fun createApiKeyUri(): String
+    /**
+     * 所用的模型
+     */
+    abstract var model:String
 
+    /**
+     * AI名称
+     */
+    abstract var name:String
 
-     fun getConversations(data: String): Pair<String,String>  {
+    /**
+     * 申请Key的地址
+     */
+    abstract var createKeyUri:String
+
+    fun getConversations(data: String): Pair<String,String>  {
          Server.isRunOnMainThread()
         val category = Db.get().categoryDao().all().map {
             Pair(it.name, it.type)
         }
-        apiKey = Db.get().settingDao().query(Setting.API_KEY)?.value ?: ""
+        apiKey = Db.get().settingDao().query("${Setting.API_KEY}_$name")?.value ?: ""
 
       if (apiKey.isEmpty()) throw RuntimeException("api key is empty")
 
      return Pair(
-         prompt.replace("{aiName}",aiName).replace("{time}",System.currentTimeMillis().toString()),
+         prompt.replace("{aiName}",name).replace("{time}",System.currentTimeMillis().toString()),
          input.replace("{data}", data).replace("{category}", Gson().toJson(category)))
     }
 
-    abstract  fun request(data: String): BillInfoModel?
+    open fun request(data: String): BillInfoModel?{
+        val (system,user) = getConversations(data)
+        val url = api
+
+        val client = OkHttpClient.Builder().readTimeout(60, TimeUnit.SECONDS).build()
+
+        val json =
+            Gson().toJson(
+                mapOf(
+                    "model" to model,
+                    "messages" to listOf(
+                        mapOf(
+                            "role" to "system",
+                            "content" to system,
+                        ),
+                        mapOf(
+                            "role" to "user",
+                            "content" to user,
+                        ),
+                    ),
+                    "stream" to false
+                )
+            )
+
+        Server.log("Request Data: $json")
+
+
+        val request = Request.Builder()
+            .url(url)
+            .header("Authorization","Bearer $apiKey")
+            .post(json.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull()))
+            .build()
+
+        val response = client.newCall(request).execute()
+        val responseBody = response.body?.string()?:""
+        Server.log("Request Body: $responseBody")
+        if (!response.isSuccessful) {
+            Server.log(Throwable("Unexpected response code: ${response.code}"))
+            response.close()
+        } else {
+            return runCatching {
+                val jsonObject = JsonParser.parseString(responseBody).asJsonObject
+                val choices = jsonObject.getAsJsonArray("choices")
+
+                val firstChoice = choices[0].asJsonObject
+                val reason = firstChoice.get("finish_reason").asString
+                Server.logW("AI Finish Reason: $reason")
+                val message = firstChoice.getAsJsonObject("message")
+                val content = message.get("content").asString.replace("```json","").replace("```","").trim()
+                Gson().fromJson(content, BillInfoModel::class.java)
+            }.onFailure {
+                Server.log(it)
+            }.getOrNull()
+        }
+        return null
+    }
 
 
 }

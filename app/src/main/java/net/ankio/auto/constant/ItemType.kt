@@ -20,5 +20,6 @@ enum class ItemType {
     SWITCH,
     TEXT,
     INPUT,
+    INPUT_PASSWORD,
     COLOR,
 }

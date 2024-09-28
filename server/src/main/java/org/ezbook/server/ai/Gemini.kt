@@ -27,16 +27,24 @@ import org.ezbook.server.db.model.BillInfoModel
 import java.util.concurrent.TimeUnit
 
 class Gemini : BaseAi() {
-    override var aiName = AIModel.Gemini.name
-    override  fun createApiKeyUri(): String {
-        return "https://aistudio.google.com/app/apikey"
-    }
+
+    override var api: String
+        get() = ""
+        set(value) {}
+    override var model: String
+        get() = ""
+        set(value) {}
+    override var name: String
+        get() = AIModel.Gemini.name
+        set(value) {}
+    override var createKeyUri: String
+        get() = "https://aistudio.google.com/app/apikey"
+        set(value) {}
 
 
     override  fun request(data: String): BillInfoModel? {
         val (system,user) = getConversations(data)
-        val url =
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=$apiKey"
+        val url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=$apiKey"
 
         val client = OkHttpClient.Builder().readTimeout(60, TimeUnit.SECONDS).build()
 

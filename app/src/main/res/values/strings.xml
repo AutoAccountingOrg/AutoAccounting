@@ -475,4 +475,8 @@
     <string name="ai_loading">正在调用 %s 识别中...</string>
     <string name="qwen">通义千问</string>
     <string name="deepseek">DeepSeek</string>
+    <string name="chatgpt">ChatGPT</string>
+    <string name="oneapi">OneAPI</string>
+    <string name="setting_bill_one_api_uri">接口地址</string>
+    <string name="setting_bill_one_api_model">模型选择</string>
 </resources>

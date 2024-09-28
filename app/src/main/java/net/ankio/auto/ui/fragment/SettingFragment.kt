@@ -130,19 +130,64 @@ class SettingFragment : BaseFragment() {
                 title = R.string.setting_bill_ai_type,
                 key = Setting.AI_MODEL,
                 type = ItemType.TEXT,
-                default = AIModel.Gemini,
+                default = AIModel.Gemini.name,
                 icon = R.drawable.ic_support,
                 selectList =
                 hashMapOf(
-                    context.getString(R.string.gemini) to AIModel.Gemini,
-                    context.getString(R.string.qwen) to AIModel.QWen,
-                    context.getString(R.string.deepseek) to AIModel.DeepSeek,
+                    context.getString(R.string.gemini) to AIModel.Gemini.name,
+                    context.getString(R.string.qwen) to AIModel.QWen.name,
+                    context.getString(R.string.deepseek) to AIModel.DeepSeek.name,
+                    context.getString(R.string.chatgpt) to AIModel.ChatGPT.name,
+                    context.getString(R.string.oneapi) to AIModel.OneAPI.name,
                 ),
             ),
             SettingItem(
                 title = R.string.setting_bill_ai_key,
-                regex = "${Setting.USE_AI}=true",
-                key = Setting.API_KEY,
+                regex = "${Setting.USE_AI}=true,${Setting.AI_MODEL}_${AIModel.Gemini.name}=true",
+                key = "${Setting.API_KEY}_${AIModel.Gemini.name}",
+                type = ItemType.INPUT_PASSWORD,
+                default = "",
+            ),
+            SettingItem(
+                title = R.string.setting_bill_ai_key,
+                regex = "${Setting.USE_AI}=true,${Setting.AI_MODEL}_${AIModel.QWen.name}=true",
+                key = "${Setting.API_KEY}_${AIModel.QWen.name}",
+                type = ItemType.INPUT_PASSWORD,
+                default = "",
+            ),
+
+            SettingItem(
+                title = R.string.setting_bill_ai_key,
+                regex = "${Setting.USE_AI}=true,${Setting.AI_MODEL}_${AIModel.DeepSeek.name}=true",
+                key = "${Setting.API_KEY}_${AIModel.DeepSeek.name}",
+                type = ItemType.INPUT_PASSWORD,
+                default = "",
+            ),
+            SettingItem(
+                title = R.string.setting_bill_ai_key,
+                regex = "${Setting.USE_AI}=true,${Setting.AI_MODEL}_${AIModel.ChatGPT.name}=true",
+                key = "${Setting.API_KEY}_${AIModel.ChatGPT.name}",
+                type = ItemType.INPUT_PASSWORD,
+                default = "",
+            ),
+            SettingItem(
+                title = R.string.setting_bill_ai_key,
+                regex = "${Setting.USE_AI}=true,${Setting.AI_MODEL}_${AIModel.OneAPI.name}=true",
+                key = "${Setting.API_KEY}_${AIModel.OneAPI.name}",
+                type = ItemType.INPUT_PASSWORD,
+                default = "",
+            ),
+            SettingItem(
+                title = R.string.setting_bill_one_api_uri,
+                regex = "${Setting.USE_AI}=true,${Setting.AI_MODEL}_${AIModel.OneAPI.name}=true",
+                key = Setting.AI_ONE_API_URI,
+                type = ItemType.INPUT,
+                default = "",
+            ),
+            SettingItem(
+                title = R.string.setting_bill_one_api_model,
+                regex = "${Setting.USE_AI}=true,${Setting.AI_MODEL}_${AIModel.OneAPI.name}=true",
+                key = Setting.AI_ONE_API_MODEL,
                 type = ItemType.INPUT,
                 default = "",
             ),
@@ -272,7 +317,6 @@ class SettingFragment : BaseFragment() {
 
             SettingItem(
                 title = R.string.setting_asset_manager,
-                variable = Setting.SETTING_ASSET_MANAGER,
                 key = Setting.SETTING_ASSET_MANAGER,
                 icon = R.drawable.home_app_assets,
                 type = ItemType.SWITCH,
@@ -281,7 +325,6 @@ class SettingFragment : BaseFragment() {
             ),
             SettingItem(
                 title = R.string.setting_currency_manager,
-                variable = Setting.SETTING_CURRENCY_MANAGER,
                 regex = "${Setting.SETTING_ASSET_MANAGER}=true",
                 key = Setting.SETTING_CURRENCY_MANAGER,
                 icon = R.drawable.setting2_icon_language,
@@ -291,7 +334,6 @@ class SettingFragment : BaseFragment() {
             ),
             SettingItem(
                 title = R.string.setting_reimbursement_manager,
-                variable = Setting.SETTING_REIMBURSEMENT,
                 key = Setting.SETTING_REIMBURSEMENT,
                 icon = R.drawable.setting_icon_reimbursement,
                 type = ItemType.SWITCH,
@@ -300,7 +342,6 @@ class SettingFragment : BaseFragment() {
             ),
             SettingItem(
                 title = R.string.setting_lending_manager,
-                variable = Setting.SETTING_DEBT,
                 regex = "${Setting.SETTING_ASSET_MANAGER}=true",
                 key = Setting.SETTING_DEBT,
                 icon = R.drawable.setting_icon_debt,
@@ -310,7 +351,6 @@ class SettingFragment : BaseFragment() {
             ),
             SettingItem(
                 title = R.string.setting_mutilbooks_manager,
-                variable = Setting.SETTING_BOOK_MANAGER,
                 key = Setting.SETTING_BOOK_MANAGER,
                 icon = R.drawable.home_app_book_data,
                 type = ItemType.SWITCH,
@@ -319,7 +359,6 @@ class SettingFragment : BaseFragment() {
             ),
             SettingItem(
                 title = R.string.setting_fee_manager,
-                variable = Setting.SETTING_FEE,
                 key = Setting.SETTING_FEE,
                 icon = R.drawable.setting_icon_fee,
                 type = ItemType.SWITCH,

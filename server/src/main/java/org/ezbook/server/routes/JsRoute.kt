@@ -23,8 +23,10 @@ import android.os.Build
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import org.ezbook.server.Server
+import org.ezbook.server.ai.ChatGPT
 import org.ezbook.server.ai.DeepSeek
 import org.ezbook.server.ai.Gemini
+import org.ezbook.server.ai.OneAPI
 import org.ezbook.server.ai.QWen
 import org.ezbook.server.constant.AIModel
 import org.ezbook.server.constant.BillState
@@ -219,6 +221,12 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
                 AIModel.Gemini.name ->  Gemini().request(data)
                 AIModel.QWen.name -> QWen().request(data)
                 AIModel.DeepSeek.name -> DeepSeek().request(data)
+                AIModel.ChatGPT.name -> ChatGPT().request(data)
+                AIModel.OneAPI.name -> {
+                    val uri = Db.get().settingDao().query(Setting.AI_ONE_API_URI)?.value?:""
+                    val model = Db.get().settingDao().query(Setting.AI_ONE_API_MODEL)?.value?:""
+                    OneAPI(uri,model).request(data)
+                }
                 else -> {
                     null
                 }
