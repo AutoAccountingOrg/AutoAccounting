@@ -16,10 +16,8 @@
 package org.ezbook.server.routes
 
 
-import android.app.ActivityOptions
 import android.content.ComponentName
 import android.content.Intent
-import android.os.Build
 import android.widget.Toast
 import com.google.gson.Gson
 import com.google.gson.JsonObject
@@ -29,7 +27,6 @@ import org.ezbook.server.ai.DeepSeek
 import org.ezbook.server.ai.Gemini
 import org.ezbook.server.ai.OneAPI
 import org.ezbook.server.ai.QWen
-import org.ezbook.server.ai.Spark
 import org.ezbook.server.constant.AIModel
 import org.ezbook.server.constant.BillState
 import org.ezbook.server.constant.BillType
@@ -228,7 +225,6 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
                 AIModel.QWen.name -> QWen().request(data)
                 AIModel.DeepSeek.name -> DeepSeek().request(data)
                 AIModel.ChatGPT.name -> ChatGPT().request(data)
-                AIModel.Spark.name -> Spark().request(data)
                 AIModel.OneAPI.name -> {
                     val uri = Db.get().settingDao().query(Setting.AI_ONE_API_URI)?.value?:""
                     val model = Db.get().settingDao().query(Setting.AI_ONE_API_MODEL)?.value?:""

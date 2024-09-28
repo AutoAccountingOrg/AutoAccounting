@@ -20,6 +20,5 @@ enum class AIModel {
     DeepSeek,
     QWen,
     ChatGPT,
-    OneAPI,
-    Spark;
+    OneAPI
 }
