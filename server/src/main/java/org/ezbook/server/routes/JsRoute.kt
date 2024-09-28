@@ -20,6 +20,7 @@ import android.app.ActivityOptions
 import android.content.ComponentName
 import android.content.Intent
 import android.os.Build
+import android.widget.Toast
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import org.ezbook.server.Server
@@ -204,6 +205,10 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
             }else{
                 // try
                 sync2Book(context)
+                val showTip = Db.get().settingDao().query(Setting.SHOW_AUTO_BILL_TIP)?.value == "true"
+                if (showTip){
+                    Toast.makeText(context,"已自动记录账单，金额：${billInfoModel.money}",Toast.LENGTH_SHORT).show()
+                }
             }
 
             // 更新AppData

@@ -16,6 +16,8 @@
 package org.ezbook.server.constant
 
 object Setting {
+    const val SHOW_AUTO_BILL_TIP = "show_auto_bill_tip"
+
     // one api需要提供地址和模型
     const val AI_ONE_API_URI = "ai_one_api_uri"
     const val AI_ONE_API_MODEL = "ai_one_api_model"

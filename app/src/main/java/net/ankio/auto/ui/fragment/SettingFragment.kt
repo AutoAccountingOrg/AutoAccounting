@@ -101,6 +101,13 @@ class SettingFragment : BaseFragment() {
                 
             ),
             SettingItem(
+                title = R.string.setting_bill_auto_record,
+                key = Setting.SHOW_AUTO_BILL_TIP,
+                icon = R.drawable.ic_tip,
+                type = ItemType.SWITCH,
+                default = false,
+                ),
+            SettingItem(
                 title = R.string.setting_bill_sync_type,
                 key = Setting.SYNC_TYPE,
                 icon = R.drawable.ic_sync,
