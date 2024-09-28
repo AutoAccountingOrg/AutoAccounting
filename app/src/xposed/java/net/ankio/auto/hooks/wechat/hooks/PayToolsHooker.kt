@@ -38,19 +38,17 @@ class PayToolsHooker : PartHooker() {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     val text = param.args[0] as String
                     hookerManifest.logD("Text: $text")
-                    when {
 
-                        text.contains("卡") || text.contains("零钱") -> {
+                    when {
+                        Regex(".*(卡|零钱).*").matches(text) -> {
                             hookerManifest.logD("支付方式Hook: $text")
                             App.set("cachedPayTools", text)
                         }
-
-                        text.contains("￥") || text.contains("$") -> {
+                        Regex(".*([￥$]).*").matches(text) -> {
                             hookerManifest.logD("支付金额Hook: $text")
                             App.set("cachedPayMoney", text)
                         }
-
-                        text.contains("转账") || text.contains("红包") || text.contains("付款给") -> {
+                        Regex(".*(转账|红包|付款给).*").matches(text) -> {
                             hookerManifest.logD("支付对象hook: $text")
                             App.set("cachedPayShop", text)
                         }
@@ -59,4 +57,5 @@ class PayToolsHooker : PartHooker() {
             },
         )
     }
+
 }
