@@ -126,7 +126,7 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
          */
 
 
-        if (billInfoModel.cateName.isEmpty() || billInfoModel.cateName == "其它"){
+        if (billInfoModel.cateName.isEmpty() || billInfoModel.cateName == "其它" || billInfoModel.cateName == "其他"){
             //将time从时间戳，转换为h:i的格式
             val time = android.text.format.DateFormat.format("HH:mm", billInfoModel.time).toString()
 

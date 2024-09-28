@@ -69,7 +69,7 @@ class BillInfoModel {
     /**
      * 分类名称
      */
-    var cateName: String = "其他"
+    var cateName: String = ""
 
     /**
      * 拓展数据域，如果是报销或者销账，会对应账单ID
