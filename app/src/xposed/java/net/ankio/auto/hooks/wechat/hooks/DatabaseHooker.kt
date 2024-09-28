@@ -59,6 +59,7 @@ class DatabaseHooker : PartHooker() {
                     val contentValues = param.args[2] as ContentValues
                     val tableName = param.args[0] as String
                     val arg = if (param.args[1] != null) param.args[1] as String else ""
+                    hookerManifest.logD("table:$tableName, contentValues:$contentValues")
                     //无效数据表
                     val usefulTable = listOf(
                         "message",
