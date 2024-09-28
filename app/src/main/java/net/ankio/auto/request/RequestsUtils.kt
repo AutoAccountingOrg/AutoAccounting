@@ -44,6 +44,7 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.nio.charset.StandardCharsets
+import java.util.Locale
 import javax.xml.parsers.DocumentBuilderFactory
 
 
@@ -350,7 +351,8 @@ class RequestsUtils(context: Context, private val cacheTime: Int = 0) {
 
             client.newCall(request).execute().use { response ->
                 val body = response.body?.string() ?: "<xml></xml>" // 将响应转换为字符串
-                Pair(response.code, parseResponse(body))
+                Logger.i("body: $body")
+                Pair(response.code, parseResponse(body.lowercase(Locale.getDefault())))
             }
         }.getOrElse {
             Logger.e("Exception: ${it.message}", it)
@@ -376,7 +378,6 @@ class RequestsUtils(context: Context, private val cacheTime: Int = 0) {
                 val href: String =
                     fileElement.getElementsByTagName("d:href").item(0).textContent
                 val displayName = Uri.decode(href.substring(href.lastIndexOf("/") + 1))
-
                 if (displayName.isNotEmpty()){
                     fileList.add(displayName)
                 }
