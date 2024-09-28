@@ -97,14 +97,14 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
             val result = runJS(js, data)
 
             if (result == "") {
-                  return Server.json(404, "未分析到有效账单。")
+                  return Server.json(404, "未分析到有效账单（可以试试用大模型识别）。")
             }else{
                 billInfoModel = parseBillInfo(result, app, dataType)
             }
         }else{
             billInfoModel = parseBillInfoFromAi(app, data)
             if (billInfoModel == null) {
-                return Server.json(404, "未分析到有效账单。")
+                return Server.json(404, "未分析到有效账单（大模型也识别不到）。")
             }
         }
 
