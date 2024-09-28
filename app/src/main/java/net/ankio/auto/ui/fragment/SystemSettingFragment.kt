@@ -292,7 +292,7 @@ class SystemSettingFragment : BaseFragment() {
                 regex = "${Setting.USE_WEBDAV}=true",
                 key = Setting.WEBDAV_PASSWORD,
                 subTitle = R.string.setting_webdav_password_desc,
-                type = ItemType.INPUT,
+                type = ItemType.INPUT_PASSWORD,
                 default = "",
                 
             ),
