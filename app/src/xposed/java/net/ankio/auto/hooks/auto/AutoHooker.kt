@@ -48,9 +48,7 @@ class AutoHooker : HookerManifest() {
             //读取网络状态
             Manifest.permission.ACCESS_NETWORK_STATE,
             //悬浮窗权限
-            Manifest.permission.SYSTEM_ALERT_WINDOW,
-
-            Manifest.permission.FOREGROUND_SERVICE
+            Manifest.permission.SYSTEM_ALERT_WINDOW
         )
     init {
 
@@ -59,10 +57,6 @@ class AutoHooker : HookerManifest() {
             permissions.add(Manifest.permission.QUERY_ALL_PACKAGES)
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            // Android 14 (API 34) 需要特殊的前台服务权限
-            permissions.add(Manifest.permission.FOREGROUND_SERVICE_SPECIAL_USE)
-        }
 
     }
 }
