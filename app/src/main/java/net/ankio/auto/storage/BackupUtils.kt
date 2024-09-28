@@ -286,16 +286,8 @@ class BackupUtils(private val context: Context) {
             // Logger.i("url:$url,username:$username,password:$password")
             runCatching {
                 requestUtils.addHeader("Authorization", Credentials.basic(username, password))
-                val result =
-                    requestUtils.mkcol("$url/AutoAccounting")
-                if (result == 201) {
-                    uploadFile(requestUtils, url, file, loadingUtils)
-                } else {
-                    showWebDavMsg(result)
-                    withContext(Dispatchers.Main) {
-                        loadingUtils.close()
-                    }
-                }
+                requestUtils.mkcol("$url/AutoAccounting")
+                uploadFile(requestUtils, url, file, loadingUtils)
             }.onFailure {
                 Logger.e("Failed to create backup:$it")
                 showWebDavMsg(100)
@@ -357,7 +349,7 @@ class BackupUtils(private val context: Context) {
         mainActivity: MainActivity
     ) = withContext(Dispatchers.IO) {
         val loadingUtils = LoadingUtils(mainActivity)
-        withContext(Dispatchers.Main){
+        withContext(Dispatchers.Main) {
 
             loadingUtils.show(R.string.restore_webdav)
         }
@@ -404,7 +396,11 @@ class BackupUtils(private val context: Context) {
                     if (it.isEmpty()) return@BackupSelectorDialog
 
                     mainActivity.lifecycleScope.launch {
-                        downFromWebDav("$url/AutoAccounting/${Uri.encode(it)}", requestUtils, mainActivity)
+                        downFromWebDav(
+                            "$url/AutoAccounting/${Uri.encode(it)}",
+                            requestUtils,
+                            mainActivity
+                        )
 
                     }
 
