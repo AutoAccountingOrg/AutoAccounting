@@ -76,6 +76,8 @@ class NotificationHooker : PartHooker() {
                         val originalText = runCatching { notification.extras.getString(Notification.EXTRA_TEXT) ?: ""}.getOrElse { "" }
 
 
+                        hookerManifest.logD("app: $app, opkg: $opkg, originalTitle: $originalTitle, originalText: $originalText")
+
                         val hash = hashTable.md5("$app$originalTitle$originalText")
                         if (hashTable.contains(hash)){
                             return
