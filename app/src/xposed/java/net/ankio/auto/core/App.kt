@@ -285,7 +285,8 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         }
 
         toast("自动记账开始适配中...")
-        val path = application!!.packageResourcePath
+        val appInfo = application!!.applicationInfo
+        val path = appInfo.sourceDir
         app.logD("App Package Path: $path")
         val total = app.rules.size
         val hashMap = Dex.findClazz(path, application!!.classLoader, app.rules)
