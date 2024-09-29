@@ -146,6 +146,7 @@ class NotificationHooker : PartHooker() {
         val json = JsonObject()
         json.addProperty("title", title)
         json.addProperty("text", text)
+        json.addProperty("t",System.currentTimeMillis())
 
 
 

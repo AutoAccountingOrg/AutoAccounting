@@ -85,6 +85,7 @@ class SmsIntentHooker:PartHooker() {
                val json = JsonObject().apply {
                      addProperty("sender",sender)
                    addProperty("body",body)
+                   addProperty("t",System.currentTimeMillis())
                 }
 
                 hookerManifest.analysisData(DataType.DATA, Gson().toJson(json))
