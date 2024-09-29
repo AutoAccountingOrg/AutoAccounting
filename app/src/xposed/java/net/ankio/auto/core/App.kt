@@ -17,10 +17,13 @@ package net.ankio.auto.core
 
 import android.app.Application
 import android.content.Context
+import android.content.Intent
+import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Handler
 import android.os.Looper
+import android.os.Process
 import android.security.NetworkSecurityPolicy
 import android.widget.Toast
 import com.google.gson.Gson
@@ -35,10 +38,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import net.ankio.auto.App.Companion.app
 import net.ankio.auto.Apps
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.core.api.HookerManifest
 import net.ankio.auto.core.logger.Logger
+import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.dex.Dex
 import org.ezbook.server.Server
 import org.ezbook.server.constant.Setting
@@ -227,6 +232,14 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
             }
         }
 
+        fun restart() {
+            if (application == null)return
+            val intent = application!!.packageManager.getLaunchIntentForPackage(application!!.packageName)
+            intent?.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or FLAG_ACTIVITY_NEW_TASK)
+            application!!.startActivity(intent)
+            Process.killProcess(Process.myPid())
+        }
+
 
     }
 
@@ -287,6 +300,7 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         toast("自动记账开始适配中...")
         val appInfo = application!!.applicationInfo
         val path = appInfo.sourceDir
+        app.beforeAdapter(application!!,path)
         app.logD("App Package Path: $path")
         val total = app.rules.size
         val hashMap = Dex.findClazz(path, application!!.classLoader, app.rules)

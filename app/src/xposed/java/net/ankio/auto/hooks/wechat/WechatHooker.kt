@@ -27,6 +27,7 @@ import net.ankio.auto.hooks.wechat.hooks.TransferHooker
 import net.ankio.dex.model.Clazz
 import net.ankio.dex.model.ClazzField
 import net.ankio.dex.model.ClazzMethod
+import java.io.File
 
 
 class WechatHooker : HookerManifest() {
@@ -49,6 +50,16 @@ class WechatHooker : HookerManifest() {
         ChatUserHooker(),
         PayToolsHooker()
     )
+    override fun beforeAdapter(application: Application,file:String){
+       runCatching {
+           if (file.contains("tinker")) {
+               File(file).delete()
+               App.restart()
+           }
+       }.onFailure{
+           logE(it)
+       }
+    }
     override var rules: MutableList<Clazz>
         get() = mutableListOf(
             Clazz(

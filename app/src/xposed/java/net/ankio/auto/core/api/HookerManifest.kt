@@ -152,4 +152,8 @@ abstract class HookerManifest {
             }
         }!!
     }
+
+    open fun beforeAdapter(application: Application, file:String){
+
+    }
 }
