@@ -30,7 +30,7 @@ interface RuleDao {
     WHERE app = :app 
     AND (:type IS NULL OR type = :type)
     AND (:searchTerm IS NULL OR name LIKE '%' || :searchTerm || '%')
-    ORDER BY id DESC 
+    ORDER BY enabled DESC,id DESC 
     LIMIT :limit 
     OFFSET :offset
 """
