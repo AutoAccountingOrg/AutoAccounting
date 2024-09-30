@@ -42,7 +42,9 @@ class TransferHooker : PartHooker() {
                     val json = param.args[2] as org.json.JSONObject
 
                     json.put("hookUser", App.get("hookerUser"))
-
+                    json.put("cachedPayTools", App.get("cachedPayTools"))
+                    json.put("cachedPayMoney", App.get("cachedPayMoney"))
+                    json.put("cachedPayShop", App.get("cachedPayShop"))
                     hookerManifest.logD("Wechat Transfer hook： $json")
                     hookerManifest.analysisData(DataType.DATA, json.toString())
                 }
