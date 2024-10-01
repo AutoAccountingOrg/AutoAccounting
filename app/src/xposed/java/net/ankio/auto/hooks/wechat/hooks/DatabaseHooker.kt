@@ -112,6 +112,7 @@ class DatabaseHooker : PartHooker() {
                             tpl.addProperty("cachedPayTools", App.get("cachedPayTools"))
                             tpl.addProperty("cachedPayMoney", App.get("cachedPayMoney"))
                             tpl.addProperty("cachedPayShop", App.get("cachedPayShop"))
+                            tpl.addProperty("t",System.currentTimeMillis())
                             val result = JsonObject()
                             result.add("mMap", tpl)
 
