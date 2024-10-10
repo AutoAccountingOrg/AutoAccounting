@@ -42,9 +42,10 @@ object Logger {
      */
     fun log(app: String, msg: String) {
         XposedBridge.log("[自动记账][$app]$msg")
+        val tag = getTag()
         //写入自动记账日志
         App.scope.launch {
-            LogModel.add(LogLevel.INFO, app, getTag(), msg)
+            LogModel.add(LogLevel.INFO, app, tag, msg)
         }
 
     }
@@ -64,13 +65,14 @@ object Logger {
     fun logE(app: String, e: Throwable) {
         XposedBridge.log("[自动记账][$app]${e.message?:""}")
         XposedBridge.log(e)
+        val tag = getTag()
         App.scope.launch {
             val log = StringBuilder()
             log.append(e.message).append("\n")
             e.stackTrace.forEach {
                 log.append(it.toString()).append("\n")
             }
-            LogModel.add(LogLevel.ERROR, app, getTag(), log.toString())
+            LogModel.add(LogLevel.ERROR, app, tag, log.toString())
         }
     }
 }
