@@ -35,7 +35,23 @@ class WechatHooker : HookerManifest() {
         get() = "com.tencent.mm"
     override val appName: String = "微信"
     override fun hookLoadPackage(application: Application?, classLoader: ClassLoader) {
-       // App.set("adaptation","")
+        if (application == null) {
+            return
+        }
+       // 腾讯tinker热更新框架在加载后会导致hook无效，最简单的办法是删掉
+        // 判断目录/data/data/com.tencent.mm/tinker/下是否有patch-开头的文件夹，如果有就删除
+        val tinkerDir = File(application.dataDir, "tinker")
+        log("tinkerDir: ${tinkerDir.absolutePath}")
+        if (tinkerDir.exists()) {
+            tinkerDir.listFiles()?.forEach {
+                if (it.isDirectory && it.name.startsWith("patch-")) {
+                    log("find tinker patch dir: ${it.absolutePath}, delete it")
+                    it.deleteRecursively()
+                }
+            }
+        }
+
+
     }
 
     override var minVersion: Int

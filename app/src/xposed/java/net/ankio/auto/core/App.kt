@@ -124,6 +124,8 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
                 Toaster.show(msg)
             } catch (e: Throwable) {
                 Toast.makeText(application, msg, Toast.LENGTH_LONG).show()
+            }finally {
+                Logger.log(TAG, msg)
             }
 
 
@@ -351,7 +353,7 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         // 检查所需的权限
         permissionCheck(app)
 
-        Logger.log(TAG, "InitHooker: ${app.appName}, AutoVersion: ${BuildConfig.VERSION_NAME}")
+        Logger.log(TAG, "InitHooker: ${app.appName}, AutoVersion: ${BuildConfig.VERSION_NAME}, Application: ${application?.applicationInfo?.sourceDir}")
         App.application = application
 
 

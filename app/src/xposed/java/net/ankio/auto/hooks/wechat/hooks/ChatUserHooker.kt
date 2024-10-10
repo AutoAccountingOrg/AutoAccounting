@@ -38,6 +38,7 @@ class ChatUserHooker : PartHooker() {
             object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     val username = param.args[0] as String
+                    hookerManifest.logD("ChatUserHooker: $username")
                     App.set("hookerUser", username)
                 }
             }

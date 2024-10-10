@@ -32,6 +32,7 @@ class ActiveHooker : PartHooker() {
         classLoader: ClassLoader
     ) {
         val activeUtils = XposedHelpers.findClass("net.ankio.auto.common.ActiveInfo", classLoader)
+        hookerManifest.logD("ActiveHooker: $activeUtils")
         // hook激活方法
         XposedHelpers.findAndHookMethod(
             activeUtils,
