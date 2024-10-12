@@ -24,6 +24,7 @@ Instructions:
    - Generic messages like "Bug fix" or "Update file.txt"
    - Mentioning obvious details that can be seen in the diff
 6.- Generate in {local}
+7.- The final result should be given in {language}
 
 Output:
 - Provide only the commit message, without any additional explanation or commentary.

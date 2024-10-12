@@ -55,7 +55,17 @@ class AppListAdapter(
         val binding = holder.binding
         val drawable = ResourcesCompat.getDrawable(context.resources, data.icon, null)
         val installedApp = App.isAppInstalled(data.packageName)
-        binding.appIcon.setImageDrawable(if (installedApp) drawable else toGrayscale(drawable!!))
+        // 获取应用图标
+        val appIcon = if (installedApp) {
+            getAppIcon(data.packageName) ?: ResourcesCompat.getDrawable(
+                context.resources,
+                data.icon,
+                null
+            )
+        } else {
+            drawable
+        }
+        binding.appIcon.setImageDrawable(if (installedApp) appIcon else toGrayscale(appIcon!!))
         binding.appName.text = data.name
         binding.appDesc.text = data.desc
         binding.appPackageName.text = data.packageName
@@ -75,5 +85,12 @@ class AppListAdapter(
         return drawable
     }
 
-
+    private fun getAppIcon(packageName: String): Drawable? {
+        return try {
+            context.packageManager.getApplicationIcon(packageName)
+        } catch (e: Exception) {
+            Logger.e("获取应用图标失败", e)
+            null
+        }
+    }
 }
