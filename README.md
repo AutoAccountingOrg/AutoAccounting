@@ -1,16 +1,9 @@
-<p align="center">
-<img src="https://cdn.jsdelivr.net/gh/dreamncn/picBed@master/uPic/2022_01_02_21_04_42_1641128682_1641128682216_WVHsgT.png" width=120 style="text-align:center">
- <h1 align="center">自动记账</h1>
- <h3 align="center">🚀 你的每一笔账单都值得记录！</h3>
-<p align="center">
-<img src="https://img.shields.io/static/v1?label=framework&message=Xposed%2F%E6%97%A0%E9%9A%9C%E7%A2%8D&color=success&style=for-the-badge"/>
- <img src="https://img.shields.io/static/v1?label=licenes&message=GPL3.0&color=important&style=for-the-badge"/>
- <img src="https://img.shields.io/github/stars/AutoAccountingOrg/AutoAccounting.svg?style=for-the-badge"/>
-</p>
-</p>
+![AutoAccounting](https://socialify.git.ci/AutoAccountingOrg/AutoAccounting/image?description=1&font=Bitter&forks=1&issues=1&logo=https%3A%2F%2Fs21.ax1x.com%2F2024%2F10%2F14%2FpAtnhcD.png&name=1&pattern=Circuit%20Board&pulls=1&stargazers=1&theme=Light)
 
 > [!IMPORTANT]
 > 由于自动记账正在快速迭代，请不要自行编译RELEASE版本，因为RELEASE版本会发送错误信息到Bugsug，会导致我们排查问题存在困扰。
+
+![Framework](https://img.shields.io/static/v1?label=framework&message=Xposed%2F%E6%97%A0%E9%9A%9C%E7%A2%8D&color=success&style=for-the-badge) ![License](https://img.shields.io/static/v1?label=licenes&message=GPL3.0&color=important&style=for-the-badge)
 
 ## 💸 支持的记账软件
 
@@ -66,6 +59,10 @@ git clone https://github.com/AutoAccountingOrg/AutoAccounting
 - [Canary](https://cloud.ankio.net/%E8%87%AA%E5%8A%A8%E8%AE%B0%E8%B4%A6/%E8%87%AA%E5%8A%A8%E8%AE%B0%E8%B4%A6/%E7%89%88%E6%9C%AC%E6%9B%B4%E6%96%B0/Canary)：每隔3小时自动构建，可能会有新功能或者bug修复，不保证可用性。
 - [Beta](https://cloud.ankio.net/%E8%87%AA%E5%8A%A8%E8%AE%B0%E8%B4%A6/%E8%87%AA%E5%8A%A8%E8%AE%B0%E8%B4%A6/%E7%89%88%E6%9C%AC%E6%9B%B4%E6%96%B0/Beta): 稳定版发布前的测试版本，已通过小规模测试，具备高可用性，但是仍可能存在BUG。
 - [Stable](https://cloud.ankio.net/%E8%87%AA%E5%8A%A8%E8%AE%B0%E8%B4%A6/%E8%87%AA%E5%8A%A8%E8%AE%B0%E8%B4%A6/%E7%89%88%E6%9C%AC%E6%9B%B4%E6%96%B0/Stable): 稳定版本，不会有新功能，只会修复bug。
+
+
+## ❤️ 支持赞助
+[![](https://img.shields.io/badge/-%E7%88%B1%E5%8F%91%E7%94%B5-%23977ce4?style=for-the-badge&logo=buymeacoffee&logoColor=%23ffffff)](https://afdian.com/a/ankio/) 
 
 
 ## 📝 License
