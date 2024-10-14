@@ -15,9 +15,9 @@
   ~
   -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="@dimen/btn_height_small"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@drawable/bg_layout_tip"
     android:paddingStart="15dp"
     android:paddingEnd="15dp">
@@ -46,31 +46,32 @@
     <View
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        />
+        android:layout_weight="1" />
 
     <TextView
         android:id="@+id/money"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_marginEnd="10dp"
-        android:gravity="center_vertical"
+        android:layout_marginStart="10dp"
+        android:gravity="center"
 
         android:text="0.00"
         android:textColor="?attr/colorOnSecondaryContainer"
-        android:textSize="20sp" />
+        android:textSize="20sp"
+        android:typeface="monospace" />
 
     <TextView
         android:id="@+id/time"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_marginEnd="1dp"
-        android:gravity="center_vertical"
+        android:gravity="center_vertical|end"
+        android:minEms="2"
 
         android:text="0s"
         android:textColor="?attr/colorError"
         android:textSize="14sp"
-        />
+        android:typeface="monospace" />
 
 
 </LinearLayout>
