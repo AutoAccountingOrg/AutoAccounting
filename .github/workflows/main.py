@@ -327,7 +327,7 @@ def send_forums( title, channel,workspace):
 通知
 """
 def notify(title,channel,workspace):
-    send_forums( title,channel,workspace)
+    # send_forums( title,channel,workspace)
     send_apk_with_changelog( workspace)
 
 
