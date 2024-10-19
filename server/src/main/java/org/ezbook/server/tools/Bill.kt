@@ -35,8 +35,8 @@ object Bill {
             if (bill2.time == bill.time) return true //时间一致，一定是同一笔交易
             Server.log("CheckRepeat: bill2.ruleName != bill.ruleName => ${bill2.ruleName != bill.ruleName}")
             if (bill2.ruleName != bill.ruleName) return true //匹配规则不一致，一定是不同的交易
-            Server.log("CheckRepeat: bill2.channel != bill.channel => ${bill2.channel != bill.channel}")
-            if (bill2.channel != bill.channel) return true //渠道不一致，一定是不同的交易
+            Server.log("CheckRepeat: bill2.channel == bill.channel => ${bill2.channel == bill.channel}")
+            if (bill2.channel == bill.channel) return true //渠道一致，一定是不同的交易
             Server.log("CheckRepeat: bill2.accountNameFrom == bill.accountNameFrom => ${bill2.accountNameFrom == bill.accountNameFrom}")
             if (bill2.accountNameFrom == bill.accountNameFrom) return true //来源账户一致，一定是同一笔交易
             Server.log("CheckRepeat: bill2.shopItem == bill.shopItem => ${bill2.shopItem == bill.shopItem}")
