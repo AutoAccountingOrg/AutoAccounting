@@ -41,6 +41,7 @@ import org.nanohttpd.protocols.http.response.Response.newFixedLengthResponse
 import org.nanohttpd.protocols.http.response.Status
 import java.net.ConnectException
 import java.util.concurrent.TimeUnit
+import java.net.Proxy
 
 
 class Server(context: Context) {
@@ -131,8 +132,11 @@ class Server(context: Context) {
             withContext(Dispatchers.IO) {
                 runCatching {
                     val uri = "http://127.0.0.1:52045/$path"
-                    // 创建一个OkHttpClient对象
-                    val client = OkHttpClient.Builder().readTimeout(60,TimeUnit.SECONDS).build()
+                    // 创建一个OkHttpClient对象，禁用代理
+                    val client = OkHttpClient.Builder()
+                        .readTimeout(60, TimeUnit.SECONDS)
+                        .proxy(Proxy.NO_PROXY)
+                        .build()
                     // set as json post
                     val body: RequestBody = json
                         .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
