@@ -20,16 +20,16 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         flavorDimensions += "version"
         productFlavors {
-            create("xposed") {
+            create("lsposed") {
                 dimension = "version"
                 applicationIdSuffix = ".xposed"
                 versionNameSuffix = " - Xposed"
             }
-           /* create("helper") {
+            create("lspatch") {
                 dimension = "version"
-                applicationIdSuffix = ".helper"
-                versionNameSuffix = " - 无障碍"
-            }*/
+                applicationIdSuffix = ".lspatch"
+                versionNameSuffix = " - LSPatch"
+            }
         }
         externalNativeBuild {
             cmake {

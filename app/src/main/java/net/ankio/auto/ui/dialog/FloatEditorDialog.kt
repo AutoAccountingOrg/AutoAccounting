@@ -29,7 +29,6 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.core.widget.TextViewCompat
 import androidx.lifecycle.lifecycleScope
-import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -38,7 +37,6 @@ import net.ankio.auto.R
 import net.ankio.auto.broadcast.LocalBroadcastHelper
 import net.ankio.auto.databinding.FloatEditorBinding
 import net.ankio.auto.exceptions.BillException
-import net.ankio.auto.hooks.qianji.sync.SyncBillUtils
 import net.ankio.auto.service.FloatingWindowService
 import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Logger

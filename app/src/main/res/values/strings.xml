@@ -23,7 +23,7 @@
     <string name="title_setting">设置</string>
     <string name="nav_about">关于</string>
     <string name="active_error">未激活</string>
-    <string name="description">基于规则和机器学习的自动记账模块。</string>
+    <string name="description">基于本地规则的自动记账模块。</string>
     <string name="communication_title">交流讨论</string>
     <string name="msg_telegram">Telegram</string>
     <string name="msg_telegram_number">AutoAccounting</string>
@@ -367,7 +367,7 @@
     <string name="auto_record">自动记录</string>
     <string name="msg_geekbar">GeekBar（推荐）</string>
     <string name="msg_geekbar_number">forum.ez-book.org</string>
-    <string name="geekbar_uri">https://forum.ez-book.org/c/ez-book/4</string>
+    <string name="geekbar_uri">https://forum.ez-book.org/t/ezbook</string>
 
     <string name="srl_header_pulling">下拉可以刷新</string>
     <string name="srl_header_refreshing">正在刷新…</string>
@@ -480,4 +480,5 @@
     <string name="setting_bill_one_api_uri">接口地址</string>
     <string name="setting_bill_one_api_model">模型选择</string>
     <string name="setting_bill_auto_record">自动记录的账单显示提示</string>
+    <string name="server_error">无法连接到自动记账服务，请重启手机再试。</string>
 </resources>

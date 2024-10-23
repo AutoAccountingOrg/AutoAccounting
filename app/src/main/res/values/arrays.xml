@@ -15,20 +15,16 @@
   -->
 
 <resources>
+    <string-array name="xposed_scope">
+        <item>android</item>
+        <item>net.ankio.auto.xposed</item><!-- 模块自己 -->
+        <item>com.mutangtech.qianji</item><!-- 钱迹 -->
 
-    <string-array name="rule_condition">
-        <item>包含</item>
-        <item>等于</item>
-        <item>正则</item>
-    </string-array>
-    <string-array name="select_condition">
-        <item>金额</item>
-        <item>时间</item>
-        <item>交易类型</item>
-        <item>商户名称</item>
-        <item>商品名称</item>
-    </string-array>
-    <string-array name="apps">
-        <item>com.mutangtech.qianji</item>
+        <item>com.android.phone</item><!-- 短信 -->
+        <item>com.tencent.mm</item><!-- 微信 -->
+        <item>com.tencent.mobileqq</item><!-- qq -->
+        <item>com.eg.android.AlipayGphone</item><!-- 支付宝 -->
+
+        <item>com.synjones.xuepay.sdu</item><!-- 山大v卡通APP（山东大学） -->
     </string-array>
 </resources>
