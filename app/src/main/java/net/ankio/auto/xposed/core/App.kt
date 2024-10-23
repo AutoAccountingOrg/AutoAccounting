@@ -31,6 +31,7 @@ import com.hjq.toast.Toaster
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.IXposedHookZygoteInit
 import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XSharedPreferences
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
@@ -100,6 +101,26 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
             val sharedPreferences: SharedPreferences =
                 application!!.getSharedPreferences(TAG, Context.MODE_PRIVATE) // 私有数据
             return sharedPreferences.getString(key, def) ?: def
+        }
+
+        /**
+         * 读取配置
+         * @param key String
+         * @return String
+         */
+        fun configString(key: String,def: String = ""): String {
+            val pref = XSharedPreferences(BuildConfig.APPLICATION_ID, "AutoConfig")
+            return if (pref.file.canRead()) pref.getString(key, def)?:def else def
+        }
+
+        /**
+         * 读取配置
+         * @param key String
+         * @return String
+         */
+        fun configBoolean(key: String,def: Boolean = false): Boolean {
+            val pref = XSharedPreferences(BuildConfig.APPLICATION_ID, "AutoConfig")
+            return if (pref.file.canRead()) pref.getBoolean(key, def) else def
         }
 
         /**
@@ -251,11 +272,13 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         //判断是否为调试模式
         val pkg = lpparam.packageName
         val processName = lpparam.processName
+        Logger.debug = configBoolean(Setting.DEBUG_MODE, false) || BuildConfig.DEBUG
 
-       // Logger.logD(TAG, "handleLoadPackage: $pkg，processName: $processName")
+        Logger.logD(TAG, "handleLoadPackage: $pkg，processName: $processName")
 
         for (app in Apps.get()) {
             if (app.packageName == pkg && app.packageName == processName) {
+                XposedBridge.log("Hooker: ${app.appName}(${app.packageName}) Run in ${if(Logger.debug) "debug" else "production"} Mode")
                 hookAppContext(app.applicationName, lpparam.classLoader) {
                     initHooker(app, it, lpparam.classLoader)
                 }

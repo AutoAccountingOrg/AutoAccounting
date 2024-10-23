@@ -37,6 +37,7 @@ import net.ankio.auto.setting.SettingItem
 import net.ankio.auto.storage.BackupUtils
 import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Logger
+import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.api.BaseFragment
@@ -392,6 +393,7 @@ class SystemSettingFragment : BaseFragment() {
                     App.launch {
                         SettingModel.set(Setting.DEBUG_MODE, value.toString())
                     }
+                    SpUtils.putBoolean(Setting.DEBUG_MODE, value as Boolean)
                 },
                 
             ),
