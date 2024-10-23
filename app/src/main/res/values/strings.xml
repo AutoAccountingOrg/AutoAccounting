@@ -480,5 +480,5 @@
     <string name="setting_bill_one_api_uri">接口地址</string>
     <string name="setting_bill_one_api_model">模型选择</string>
     <string name="setting_bill_auto_record">自动记录的账单显示提示</string>
-    <string name="server_error">无法连接到自动记账服务，请重启手机再试。</string>
+
 </resources>
