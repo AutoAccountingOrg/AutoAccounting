@@ -17,6 +17,12 @@
 > 2. 在`res/values/arrays.xml` 添加对应需要hook的App的包名及注释；
 > 3. 最后，请更新`hooks`文件夹中的`README.md`文件，简要说明每个hook的功能。
 
+### Hook
+
+所有Hook相关的操作建议使用`net/ankio/auto/xposed/core/hook/Hooker.kt`内的方法处理（包括loadClass)。
+
+和字段/属性/反射相关的操作建议使用`XposedHelper`处理，在`net/ankio/auto/xposed/core/hook/HookHelper.kt`中拓展了`XposedHelper`的方法。
+
 ### 日志
 
 日志建议使用 `HookerManifest` 中的 `log` 方法，这样可以避免添加`TAG`。
@@ -24,10 +30,6 @@
 ## utils文件夹
 
 工具类
-
-## common文件夹
-
-Xposed模式下的公共类
 
 ## Apps
 
