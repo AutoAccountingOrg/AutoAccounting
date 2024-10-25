@@ -23,6 +23,7 @@ import org.ezbook.server.db.model.BillInfoModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import net.ankio.auto.xposed.hooks.qianji.tools.formatTime
 
 object QianJiUri {
     suspend fun toQianJi(billModel: BillInfoModel): Uri = withContext(Dispatchers.IO) {

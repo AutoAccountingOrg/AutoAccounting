@@ -29,6 +29,7 @@ import net.ankio.auto.xposed.core.App
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.utils.MD5HashTable
+import net.ankio.auto.xposed.core.utils.ThreadUtils
 import org.ezbook.server.constant.DataType
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.SettingModel
@@ -78,7 +79,7 @@ class NotificationHooker : PartHooker() {
 
                         hookerManifest.logD("app: $app, opkg: $opkg, originalTitle: $originalTitle, originalText: $originalText")
 
-                        val hash = hashTable.md5("$app$originalTitle$originalText")
+                        val hash = MD5HashTable.md5("$app$originalTitle$originalText")
                         if (hashTable.contains(hash)){
                             return
                         }
@@ -96,7 +97,7 @@ class NotificationHooker : PartHooker() {
                             )
                         } else {
                             lastTime = System.currentTimeMillis()
-                            App.scope.launch {
+                            ThreadUtils.launch {
                                 val data = SettingModel.get(Setting.LISTENER_APP_LIST, "")
                                 selectedApps = data.split(",")
                                 withContext(Dispatchers.Main) {

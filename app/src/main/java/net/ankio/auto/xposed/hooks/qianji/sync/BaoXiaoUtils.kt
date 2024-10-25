@@ -19,8 +19,9 @@ import com.google.gson.Gson
 import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.ankio.auto.xposed.core.App
 import net.ankio.auto.xposed.core.api.HookerManifest
+import net.ankio.auto.xposed.core.utils.MD5HashTable
+import net.ankio.auto.xposed.core.utils.MessageUtils
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.db.model.BookBillModel
@@ -167,7 +168,7 @@ class BaoXiaoUtils(
 
         val bills = convert2Bill(bxList)
         val sync = Gson().toJson(bills)
-        val md5 = App.md5(sync)
+        val md5 = MD5HashTable.md5(sync)
         val server = SettingModel.get(Setting.HASH_BILL, "")
         if (server == md5) {
             manifest.log("No need to sync BaoXiao, server md5:${server} local md5:${md5}")
@@ -176,7 +177,7 @@ class BaoXiaoUtils(
 
         BookBillModel.put(bills, md5)
         withContext(Dispatchers.Main) {
-            App.toast("已同步报销账单到自动记账")
+            MessageUtils.toast("已同步报销账单到自动记账")
         }
     }
 
@@ -227,7 +228,7 @@ class BaoXiaoUtils(
 
         // com.mutangtech.qianji.data.model.AssetAccount r37,
         val asset =
-            AssetsUtils(manifest, classLoader).getAssetByName(billModel.accountNameFrom)
+            net.ankio.auto.xposed.hooks.qianji.sync.AssetsUtils(manifest, classLoader).getAssetByName(billModel.accountNameFrom)
                 ?: throw RuntimeException("找不到资产 key=accountname;value=${billModel.accountNameFrom}")
 
 

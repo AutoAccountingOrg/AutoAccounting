@@ -22,6 +22,9 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.xposed.core.App
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.hook.Hooker
+import net.ankio.auto.xposed.core.utils.DataUtils
+import net.ankio.auto.xposed.core.utils.MD5HashTable
+import net.ankio.auto.xposed.core.utils.MessageUtils
 import net.ankio.auto.xposed.hooks.qianji.tools.AssetAccount
 import net.ankio.auto.xposed.hooks.qianji.tools.QianJiAssetType
 import org.ezbook.server.constant.AssetsType
@@ -86,7 +89,7 @@ class AssetsUtils(private val manifest: HookerManifest, private val classLoader:
             XposedHelpers.newInstance(assetPreviewPresenterImplClazz, param1Object, param2Object)
 
         //  f8.c.setAccountList(java.util.List, boolean, boolean, boolean, java.util.HashMap, int)
-        Hooker.once(
+        Hooker.onceAfter(
             parameterTypes[1],
             "setAccountList",
             List::class.java,
@@ -171,9 +174,9 @@ class AssetsUtils(private val manifest: HookerManifest, private val classLoader:
             assets.add(model)
         }
         val sync = Gson().toJson(assets)
-        val md5 = App.md5(sync)
+        val md5 = MD5HashTable.md5(sync)
         val server = SettingModel.get(Setting.HASH_ASSET, "")
-        App.set("sync_assets", Gson().toJson(assets))
+        DataUtils.set("sync_assets", Gson().toJson(assets))
         if (server == md5 || assets.isEmpty()) { //资产为空也不同步
             manifest.log("No need to sync Assets, server md5:${server} local md5:${md5}")
             return@withContext
@@ -181,7 +184,7 @@ class AssetsUtils(private val manifest: HookerManifest, private val classLoader:
         manifest.log("Sync Assets:${Gson().toJson(assets)}")
         AssetsModel.put(assets, md5)
         withContext(Dispatchers.Main) {
-            App.toast("已同步资产信息到自动记账")
+            MessageUtils.toast("已同步资产信息到自动记账")
         }
     }
 

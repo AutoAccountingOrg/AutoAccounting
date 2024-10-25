@@ -23,6 +23,7 @@ import kotlinx.coroutines.delay
 import net.ankio.auto.xposed.core.App
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
+import net.ankio.auto.xposed.core.utils.ThreadUtils
 import org.ezbook.server.constant.DataType
 
 class WebViewHooker : PartHooker() {
@@ -96,7 +97,7 @@ class WebViewHooker : PartHooker() {
                                 hookerManifest.analysisData(DataType.DATA, result)
                             }
 
-                        App.launch {
+                        ThreadUtils.launch {
                             while (needWait && count > 0) {
                                 count--
                                 XposedHelpers.callMethod(

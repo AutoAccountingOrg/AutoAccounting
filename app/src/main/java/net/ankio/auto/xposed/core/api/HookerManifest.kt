@@ -20,6 +20,7 @@ import android.content.Context
 import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.xposed.core.App
 import net.ankio.auto.xposed.core.logger.Logger
+import net.ankio.auto.xposed.core.utils.ThreadUtils
 import net.ankio.dex.model.Clazz
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
@@ -117,7 +118,7 @@ abstract class HookerManifest {
      * 分析数据
      */
     fun analysisData(type: DataType, data: String, appPackage: String = packageName) {
-        App.launch {
+        ThreadUtils.launch {
             val result =
                 request("js/analysis?type=${type.name}&app=$appPackage&fromAppData=false", data)
             logD("Analysis Result: $result")

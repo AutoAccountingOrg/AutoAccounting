@@ -93,7 +93,7 @@ abstract class BaseDebt(
        manifest.log("提交资产=>${asset},${book},${json}")
         //提交数据给钱迹
         XposedHelpers.callMethod(presenter,"submitAsset",book,asset,json,null)
-       Hooker.once(
+       Hooker.onceAfter(
            requestInterface,
            "onError",
            Int::class.javaPrimitiveType!!,
@@ -104,7 +104,7 @@ abstract class BaseDebt(
                 manifest.log("Push Asset => ${code}:${msg}")
            true
        }
-       Hooker.once(
+       Hooker.onceAfter(
             requestInterface,
             "onFinish",
             Object::class.java
@@ -117,7 +117,7 @@ abstract class BaseDebt(
                 manifest.log("Push Asset Success => ${assetsItem}")
                 continuation.resume(AssetAccount(classLoader,assetsItem))
 
-                return@once true
+                return@onceAfter true
             }
             false
         }

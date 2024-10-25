@@ -21,6 +21,7 @@ import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.xposed.core.App
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
+import net.ankio.auto.xposed.core.utils.DataUtils
 import org.ezbook.server.constant.DataType
 import org.json.JSONObject
 
@@ -43,7 +44,7 @@ class RedPackageHooker: PartHooker() {
             override fun beforeHookedMethod(param: MethodHookParam?) {
                 val json = param!!.args[2] as JSONObject
                 hookerManifest.logD("hooked red package: $json")
-                json.put("hookerUser", App.get("hookerUser",""))
+                json.put("hookerUser", DataUtils.get("hookerUser",""))
                 hookerManifest.analysisData(DataType.DATA,json.toString())
             }
         })

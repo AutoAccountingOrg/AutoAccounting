@@ -17,38 +17,29 @@ package net.ankio.auto.xposed.core
 
 import android.app.Application
 import android.content.Context
-import android.content.Intent
-import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
-import android.content.SharedPreferences
 import android.content.pm.PackageManager
-import android.os.Handler
-import android.os.Looper
-import android.os.Process
 import android.security.NetworkSecurityPolicy
-import android.widget.Toast
 import com.google.gson.Gson
 import com.hjq.toast.Toaster
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.IXposedHookZygoteInit
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XSharedPreferences
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
-import net.ankio.auto.xposed.Apps
 import net.ankio.auto.BuildConfig
+import net.ankio.auto.xposed.Apps
 import net.ankio.auto.xposed.core.api.HookerManifest
+import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.logger.Logger
+import net.ankio.auto.xposed.core.utils.AppUtils.getVersionCode
+import net.ankio.auto.xposed.core.utils.AppUtils.getVersionName
+import net.ankio.auto.xposed.core.utils.DataUtils
+import net.ankio.auto.xposed.core.utils.DataUtils.get
+import net.ankio.auto.xposed.core.utils.DataUtils.set
+import net.ankio.auto.xposed.core.utils.MessageUtils.toast
 import net.ankio.dex.Dex
 import org.ezbook.server.Server
 import org.ezbook.server.constant.Setting
-import org.ezbook.server.db.model.SettingModel
-import java.math.BigInteger
-import java.security.MessageDigest
 
 
 class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
@@ -57,213 +48,64 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         const val TAG = "HookerEnvironment"
         var modulePath = ""
         var application: Application? = null
-        private val job = Job()
-        val scope = CoroutineScope(Dispatchers.IO + job)
-
-        fun launch(block: suspend CoroutineScope.() -> Unit) {
-            scope.launch {
-                runCatching {
-
-                    block()
-
-                }.onFailure {
-                    Logger.logE(TAG, it)
-                }
-            }
-        }
-
-
-        /**
-         * 保存数据
-         * @param key String
-         * @param value String
-         */
-        fun set(key: String, value: String) {
-            if (application == null) {
-                return
-            }
-            val sharedPreferences: SharedPreferences =
-                application!!.getSharedPreferences(TAG, Context.MODE_PRIVATE) // 私有数据
-            val editor = sharedPreferences.edit() // 获取编辑器
-            editor.putString(key, value)
-            editor.apply() // 提交修改
-        }
-
-        /**
-         * 读取数据
-         * @param key String
-         * @return String
-         */
-        fun get(key: String, def: String = ""): String {
-            if (application == null) {
-                return def
-            }
-            val sharedPreferences: SharedPreferences =
-                application!!.getSharedPreferences(TAG, Context.MODE_PRIVATE) // 私有数据
-            return sharedPreferences.getString(key, def) ?: def
-        }
-
-        /**
-         * 读取配置
-         * @param key String
-         * @return String
-         */
-        fun configString(key: String,def: String = ""): String {
-            val pref = XSharedPreferences(BuildConfig.APPLICATION_ID, "AutoConfig")
-            return if (pref.file.canRead()) pref.getString(key, def)?:def else def
-        }
-
-        /**
-         * 读取配置
-         * @param key String
-         * @return String
-         */
-        fun configBoolean(key: String,def: Boolean = false): Boolean {
-            val pref = XSharedPreferences(BuildConfig.APPLICATION_ID, "AutoConfig")
-            return if (pref.file.canRead()) pref.getBoolean(key, def) else def
-        }
-
-        /**
-         * md5哈希
-         */
-        fun md5(data: String): String {
-            val md = MessageDigest.getInstance("MD5")
-            return BigInteger(1, md.digest(data.toByteArray())).toString(16).padStart(32, '0')
-        }
-
-        /**
-         * 弹出提示
-         * @param msg String
-         */
-        fun toast(msg: String) {
-            if (application == null) {
-                return
-            }
-            try {
-                Toaster.show(msg)
-            } catch (e: Throwable) {
-                Toast.makeText(application, msg, Toast.LENGTH_LONG).show()
-            }finally {
-                Logger.log(TAG, msg)
-            }
-
-
-        }
-
-
-        /**
-         * 获取版本号
-         * @return Int
-         */
-        fun getVersionCode(): Int {
-            return runCatching {
-                application!!.packageManager.getPackageInfo(
-                    application!!.packageName,
-                    0
-                ).longVersionCode.toInt()
-            }.getOrElse {
-                0
-            }
-        }
-
-        /**
-         * 在主线程运行
-         * @param function Function0<Unit>
-         */
-        fun runOnUiThread(function: () -> Unit) {
-            if (Looper.getMainLooper().thread != Thread.currentThread()) {
-                Handler(Looper.getMainLooper()).post { function() }
-            } else {
-                function()
-            }
-        }
-
-        /**
-         * hook Application Context
-         * @param applicationName String
-         * @param classLoader ClassLoader
-         * @param callback Function1<Application?, Unit>
-         *     回调函数，返回Application对象
-         *     如果hook失败，返回null
-         */
-        fun hookAppContext(
-            applicationName: String,
-            classLoader: ClassLoader,
-            callback: (Application?) -> Unit
-        ) {
-            var hookStatus = false
-            if (applicationName.isEmpty()) {
-                Logger.logD(TAG, "Application name is empty")
-                callback(null)
-                return
-            }
-
-            fun onCachedApplication(application: Application) {
-                hookStatus = true
-                runCatching {
-                    callback(application)
-                }.onFailure {
-                    Logger.log(TAG, "Hook error: ${it.message}")
-                    Logger.logE(TAG, it)
-                }
-            }
-
-            runCatching {
-                XposedHelpers.findAndHookMethod(
-                    applicationName,
-                    classLoader,
-                    "attach",
-                    Context::class.java,
-                    object : XC_MethodHook() {
-                        @Throws(Throwable::class)
-                        override fun afterHookedMethod(param: MethodHookParam) {
-                            super.afterHookedMethod(param)
-                            if (hookStatus) {
-                                return
-                            }
-
-                            val context = param.thisObject as Application
-
-                            onCachedApplication(context)
-                        }
-                    },
-                )
-            }.onFailure {
-                runCatching {
-                    XposedHelpers.findAndHookMethod(
-                        applicationName,
-                        classLoader,
-                        "attachBaseContext",
-                        Context::class.java,
-                        object : XC_MethodHook() {
-                            @Throws(Throwable::class)
-                            override fun afterHookedMethod(param: MethodHookParam) {
-                                super.afterHookedMethod(param)
-                                if (hookStatus) {
-                                    return
-                                }
-
-                                val context = param.thisObject as Application
-
-                                onCachedApplication(context)
-                            }
-                        },
-                    )
-                }
-            }
-        }
-
-        fun restart() {
-            if (application == null)return
-            val intent = application!!.packageManager.getLaunchIntentForPackage(application!!.packageName)
-            intent?.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or FLAG_ACTIVITY_NEW_TASK)
-            application!!.startActivity(intent)
-            Process.killProcess(Process.myPid())
-        }
-
+        var name  = ""
 
     }
+    /**
+     * hook Application Context
+     * @param applicationName String
+     * @param classLoader ClassLoader
+     * @param callback Function1<Application?, Unit>
+     *     回调函数，返回Application对象
+     *     如果hook失败，返回null
+     */
+    private fun hookAppContext(
+        applicationName: String,
+        classLoader: ClassLoader,
+        callback: (Application?) -> Unit
+    ) {
+        var hookStatus = false
+        if (applicationName.isEmpty()) {
+            Logger.logD(TAG, "Application name is empty")
+            callback(null)
+            return
+        }
 
+        fun onCachedApplication(application: Application, method: String) {
+            if (hookStatus) {
+                return
+            }
+            hookStatus = true
+            runCatching {
+                Logger.logD(TAG, "Hook success: $applicationName.$method -> $application")
+                callback(application)
+            }.onFailure {
+                Logger.log(TAG, "Hook error: ${it.message}")
+                Logger.logE(TAG, it)
+            }
+        }
+
+
+        fun hookApplication(method:String){
+            try {
+                Hooker.after(
+                    applicationName,
+                    method,
+                    Context::class.java
+                ){
+                    val context = it.thisObject as Application
+                    onCachedApplication(context,method)
+                }
+
+            }catch (e:NoSuchMethodError){
+             //   Logger.logE(TAG,e)
+            }
+        }
+
+        for (method in arrayOf("attachBaseContext", "attach")) {
+            hookApplication(method)
+        }
+    }
 
     /**
      * 加载包时的回调
@@ -272,13 +114,14 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         //判断是否为调试模式
         val pkg = lpparam.packageName
         val processName = lpparam.processName
-        Logger.debug = configBoolean(Setting.DEBUG_MODE, false) || BuildConfig.DEBUG
-
+        Logger.debug = DataUtils.configBoolean(Setting.DEBUG_MODE, false) || BuildConfig.DEBUG
         Logger.logD(TAG, "handleLoadPackage: $pkg，processName: $processName")
 
         for (app in Apps.get()) {
             if (app.packageName == pkg && app.packageName == processName) {
-                XposedBridge.log("Hooker: ${app.appName}(${app.packageName}) Run in ${if(Logger.debug) "debug" else "production"} Mode")
+                Hooker.setClassLoader(lpparam.classLoader)
+                Logger.logD(TAG,"Hooker: ${app.appName}(${app.packageName}) Run in ${if(Logger.debug) "debug" else "production"} Mode")
+                name = app.appName
                 hookAppContext(app.applicationName, lpparam.classLoader) {
                     initHooker(app, it, lpparam.classLoader)
                 }
@@ -292,7 +135,7 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
      * 自动适配hook
      */
     private fun ruleHook(app: HookerManifest): Boolean {
-        val code = getVersionCode()
+
         if (app.rules.size == 0) {
             return true
         }
@@ -300,7 +143,7 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         val adaptationVersion = get("adaptation", "").toIntOrNull() ?: 0
 
         Logger.logD(TAG, "AdaptationVersion: $adaptationVersion")
-
+        val code = getVersionCode()
         if (adaptationVersion == code) {
             runCatching {
                 app.clazz =
@@ -309,7 +152,7 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
                         HashMap::class.java,
                     ) as HashMap<String, String>
                 if (app.clazz.size != app.rules.size) {
-                    throw Exception("需要重新适配...")
+                    throw Exception("Adaptation failed")
                 }
             }.onFailure {
                 set("adaptation", "0")
@@ -347,12 +190,6 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         }
     }
 
-    private fun  setLogger(){
-        launch {
-            Logger.debug = SettingModel.get(Setting.DEBUG_MODE, "true").toBoolean()
-        }
-    }
-
     /**
      * 初始化Hooker
      * @param app HookerManifest
@@ -365,21 +202,27 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         application: Application?,
         classLoader: ClassLoader
     ) {
+        Hooker.setClassLoader(classLoader)
         // 添加http访问支持
+        Logger.log(TAG, "InitHooker: ${app.appName}, AutoVersion: ${BuildConfig.VERSION_NAME}, Application: ${application?.applicationInfo?.sourceDir}")
         networkError()
-        // 日志初始化
-        setLogger()
+        Logger.logD(TAG,"Allow Cleartext Traffic")
         //吐司框架初始化
         Toaster.init(application)
+        Logger.logD(TAG,"Toaster init success")
         // 检查所需的权限
         permissionCheck(app)
+        Logger.logD(TAG,"Permission check success")
 
-        Logger.log(TAG, "InitHooker: ${app.appName}, AutoVersion: ${BuildConfig.VERSION_NAME}, Application: ${application?.applicationInfo?.sourceDir}")
         Companion.application = application
 
 
 
         val code = getVersionCode()
+
+        val name = getVersionName()
+
+        Logger.log(TAG, "App VersionCode: $code, VersionName: $name")
 
         // 检查App版本是否过低，过低无法使用
         if (app.minVersion != 0 && code < app.minVersion) {
@@ -399,15 +242,6 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
             toast("自动适配失败！")
             return
         }
-
-
-        // 将自动记账的资源路径加入到查找路径中
-        XposedHelpers.callMethod(
-            application!!.resources.assets,
-            "addAssetPath",
-            modulePath,
-        )
-
 
 
         // 启动自动记账服务

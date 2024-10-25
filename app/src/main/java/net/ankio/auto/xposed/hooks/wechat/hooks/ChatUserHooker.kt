@@ -21,6 +21,7 @@ import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.xposed.core.App
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
+import net.ankio.auto.xposed.core.utils.DataUtils
 
 class ChatUserHooker : PartHooker() {
 
@@ -39,7 +40,7 @@ class ChatUserHooker : PartHooker() {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     val username = param.args[0] as String
                     hookerManifest.logD("ChatUserHooker: $username")
-                    App.set("hookerUser", username)
+                    DataUtils.set("hookerUser", username)
                 }
             }
         )

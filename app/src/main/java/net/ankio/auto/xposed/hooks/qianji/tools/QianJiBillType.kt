@@ -19,6 +19,7 @@ import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.xposed.core.App
+import net.ankio.auto.xposed.core.utils.DataUtils
 import org.ezbook.server.constant.AssetsType
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.AssetsModel
@@ -49,7 +50,7 @@ enum class QianJiBillType(val value: Int) {
                 BillType.Expend -> Expend.value
                 BillType.Income -> Income.value
                 BillType.Transfer -> {
-                    val sync = App.get("sync_assets")
+                    val sync = DataUtils.get("sync_assets")
                     val assets = Gson().fromJson(sync, Array<AssetsModel>::class.java).toList()
                     val asset = assets.find { it.name == billInfoModel.accountNameTo }
                     if (asset == null) {

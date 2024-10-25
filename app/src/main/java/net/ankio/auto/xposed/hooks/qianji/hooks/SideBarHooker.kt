@@ -35,6 +35,8 @@ import net.ankio.auto.xposed.core.ui.ColorUtils
 import net.ankio.auto.xposed.core.ui.ViewUtils
 import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.databinding.MenuItemBinding
+import net.ankio.auto.xposed.core.utils.MessageUtils
+import net.ankio.auto.xposed.core.utils.ThreadUtils
 import net.ankio.auto.xposed.hooks.qianji.sync.AssetsUtils
 import net.ankio.auto.xposed.hooks.qianji.sync.BaoXiaoUtils
 import net.ankio.auto.xposed.hooks.qianji.sync.BookUtils
@@ -72,7 +74,7 @@ class SideBarHooker : PartHooker() {
                     val activity = param.thisObject as Activity
                     runCatching {
                         hookerManifest.attachResource(activity)
-                        App.launch {
+                        ThreadUtils.launch {
                             checkServerStatus(activity)
                         }
                         syncData2Auto(activity)
@@ -92,7 +94,7 @@ class SideBarHooker : PartHooker() {
             return
         }
         val clazz = classLoader!!.loadClass("com.mutangtech.qianji.ui.maindrawer.MainDrawerLayout")
-        Hooker.once(clazz, "refreshAccount") {
+        Hooker.onceAfter(clazz, "refreshAccount") {
             // 只hook一次
             val obj = it.thisObject as FrameLayout
             // 调用 findViewById 并转换为 TextView
@@ -154,7 +156,7 @@ class SideBarHooker : PartHooker() {
         itemMenuBinding.version.text = BuildConfig.VERSION_NAME.replace(" - Xposed", "")
         itemMenuBinding.version.setTextColor(subColor)
         itemMenuBinding.root.setOnClickListener {
-            App.toast("强制同步数据中...")
+            MessageUtils.toast("强制同步数据中...")
             //强制同步
             last = 0L
             syncData2Auto(context)
@@ -162,7 +164,7 @@ class SideBarHooker : PartHooker() {
 
         linearLayout.addView(itemMenuBinding.root)
 
-        App.launch {
+        ThreadUtils.launch {
             checkServerStatus(context)
         }
     }
@@ -179,7 +181,7 @@ class SideBarHooker : PartHooker() {
             return
         }
         last = System.currentTimeMillis()
-        App.launch {
+        ThreadUtils.launch {
             AssetsUtils(hookerManifest, context.classLoader).syncAssets()
             val books = BookUtils(hookerManifest, context.classLoader, context).syncBooks()
             CategoryUtils(hookerManifest, context.classLoader, books).syncCategory()

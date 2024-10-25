@@ -32,11 +32,13 @@ class MD5HashTable(private val expirationTime: Long = 60) {
         return getCurrentTime() - timestamp > expirationTime
     }
 
-    // 生成MD5哈希值
-    fun md5(data: String): String {
-        val md = MessageDigest.getInstance("MD5")
-        val bytes = md.digest(data.toByteArray())
-        return bytes.joinToString("") { "%02x".format(it) }
+    companion object{
+        // 生成MD5哈希值
+        fun md5(data: String): String {
+            val md = MessageDigest.getInstance("MD5")
+            val bytes = md.digest(data.toByteArray())
+            return bytes.joinToString("") { "%02x".format(it) }
+        }
     }
 
     // 添加数据到哈希表

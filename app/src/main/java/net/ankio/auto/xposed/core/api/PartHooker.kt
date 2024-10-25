@@ -16,8 +16,11 @@
 package net.ankio.auto.xposed.core.api
 
 import android.app.Application
+import android.content.Context
 import com.google.gson.Gson
 import net.ankio.auto.xposed.core.App
+import net.ankio.auto.xposed.core.utils.AppUtils
+import net.ankio.auto.xposed.core.utils.DataUtils
 import net.ankio.dex.Dex
 import net.ankio.dex.model.ClazzMethod
 
@@ -27,6 +30,7 @@ abstract class PartHooker {
         application: Application?,
         classLoader: ClassLoader
     )
+
 
     open val methodsRule = mutableListOf<Triple<String, String, ClazzMethod>>()
     open var method = mutableListOf<Triple<String, String, String>>()
@@ -47,20 +51,20 @@ abstract class PartHooker {
     }
 
     fun findMethods(clazzLoader: ClassLoader, hookerManifest: HookerManifest): Boolean {
-        val code = App.getVersionCode()
-        val adaptationVersion = App.get("methods_adaptation").toIntOrNull() ?: 0
+        val code = AppUtils.getVersionCode()
+        val adaptationVersion = DataUtils.get("methods_adaptation").toIntOrNull() ?: 0
         if (adaptationVersion == code) {
             runCatching {
                 method =
                     Gson().fromJson(
-                        App.get("clazz_method"),
+                        DataUtils.get("clazz_method"),
                         List::class.java,
                     ) as MutableList<Triple<String, String, String>>
                 if (method.size != methodsRule.size) {
                     throw Exception("需要重新适配！")
                 }
             }.onFailure {
-                App.get("methods_adaptation", "0")
+                DataUtils.get("methods_adaptation", "0")
                 method.clear()
             }.onSuccess {
                 return true
@@ -84,8 +88,8 @@ abstract class PartHooker {
             method.add(Triple(clazz, methodName, findMethod))
         }
         if (method.size != methodsRule.size) return false
-        App.set("methods_adaptation", code.toString())
-        App.set("clazz_method", Gson().toJson(method))
+        DataUtils.set("methods_adaptation", code.toString())
+        DataUtils.set("clazz_method", Gson().toJson(method))
         return true
     }
 }

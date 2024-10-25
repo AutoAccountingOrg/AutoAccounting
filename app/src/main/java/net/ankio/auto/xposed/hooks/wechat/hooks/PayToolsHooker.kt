@@ -21,6 +21,7 @@ import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.xposed.core.App
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
+import net.ankio.auto.xposed.core.utils.DataUtils
 
 class PayToolsHooker : PartHooker() {
 
@@ -42,15 +43,15 @@ class PayToolsHooker : PartHooker() {
                     when {
                         Regex(".*(卡|零钱).*").matches(text) -> {
                             hookerManifest.logD("支付方式Hook: $text")
-                            App.set("cachedPayTools", text)
+                            DataUtils.set("cachedPayTools", text)
                         }
                         Regex(".*([￥$]).*").matches(text) -> {
                             hookerManifest.logD("支付金额Hook: $text")
-                            App.set("cachedPayMoney", text)
+                            DataUtils.set("cachedPayMoney", text)
                         }
                         Regex(".*(转账|红包|付款给).*").matches(text) -> {
                             hookerManifest.logD("支付对象hook: $text")
-                            App.set("cachedPayShop", text)
+                            DataUtils.set("cachedPayShop", text)
                         }
                     }
                 }

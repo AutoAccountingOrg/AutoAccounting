@@ -22,6 +22,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.xposed.core.App
 import net.ankio.auto.xposed.core.api.HookerManifest
+import net.ankio.auto.xposed.core.utils.MD5HashTable
+import net.ankio.auto.xposed.core.utils.MessageUtils
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BookNameModel
 import org.ezbook.server.db.model.SettingModel
@@ -104,7 +106,7 @@ class BookUtils(
             }
 
             val sync = Gson().toJson(bookList)
-            val md5 = App.md5(sync)
+            val md5 = MD5HashTable.md5(sync)
             val server = SettingModel.get(Setting.HASH_BOOK, "")
             if (server == md5) {
                 manifest.log("No need to Sync Books, Server md5:${server} local md5:${md5}")
@@ -113,7 +115,7 @@ class BookUtils(
             manifest.log("Sync Books:$sync")
             BookNameModel.put(bookList, md5)
             withContext(Dispatchers.Main) {
-                App.toast("已同步账本信息到自动记账")
+                MessageUtils.toast("已同步账本信息到自动记账")
             }
             bookList
         }

@@ -25,6 +25,7 @@ import fr.arnaudguyon.xmltojsonlib.XmlToJson
 import net.ankio.auto.xposed.core.App
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
+import net.ankio.auto.xposed.core.utils.DataUtils
 import org.ezbook.server.constant.DataType
 
 class DatabaseHooker : PartHooker() {
@@ -108,9 +109,9 @@ class DatabaseHooker : PartHooker() {
                                     .asJsonObject.get("template_header")
                                     .asJsonObject.get("display_name").asString,
                             )
-                            tpl.addProperty("cachedPayTools", App.get("cachedPayTools"))
-                            tpl.addProperty("cachedPayMoney", App.get("cachedPayMoney"))
-                            tpl.addProperty("cachedPayShop", App.get("cachedPayShop"))
+                            tpl.addProperty("cachedPayTools", DataUtils.get("cachedPayTools"))
+                            tpl.addProperty("cachedPayMoney", DataUtils.get("cachedPayMoney"))
+                            tpl.addProperty("cachedPayShop", DataUtils.get("cachedPayShop"))
                             tpl.addProperty("t",System.currentTimeMillis())
                             val result = JsonObject()
                             result.add("mMap", tpl)
@@ -130,15 +131,15 @@ class DatabaseHooker : PartHooker() {
                             return
                         } else if (type == 2000) {
                             // 补充用户数据
-                            contentValues.put("hookUser", App.get("hookerUser"))
+                            contentValues.put("hookUser", DataUtils.get("hookerUser"))
                             // 这个应该是微信转账给别人
                             val xml = contentValues.get("xml")
 
                             if (xml != null) {
                                 contentValues.put("xml", xmlToJson(xml as String))
-                                contentValues.put("cachedPayTools", App.get("cachedPayTools"))
-                                contentValues.put("cachedPayMoney", App.get("cachedPayMoney"))
-                                contentValues.put("cachedPayShop", App.get("cachedPayShop"))
+                                contentValues.put("cachedPayTools", DataUtils.get("cachedPayTools"))
+                                contentValues.put("cachedPayMoney", DataUtils.get("cachedPayMoney"))
+                                contentValues.put("cachedPayShop", DataUtils.get("cachedPayShop"))
                             }
                         }
                     }

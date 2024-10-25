@@ -21,6 +21,7 @@ import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.xposed.core.App
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
+import net.ankio.auto.xposed.core.utils.DataUtils
 import org.ezbook.server.constant.DataType
 
 
@@ -41,10 +42,10 @@ class TransferHooker : PartHooker() {
 
                     val json = param.args[2] as org.json.JSONObject
 
-                    json.put("hookUser", App.get("hookerUser"))
-                    json.put("cachedPayTools", App.get("cachedPayTools"))
-                    json.put("cachedPayMoney", App.get("cachedPayMoney"))
-                    json.put("cachedPayShop", App.get("cachedPayShop"))
+                    json.put("hookUser", DataUtils.get("hookerUser"))
+                    json.put("cachedPayTools", DataUtils.get("cachedPayTools"))
+                    json.put("cachedPayMoney", DataUtils.get("cachedPayMoney"))
+                    json.put("cachedPayShop", DataUtils.get("cachedPayShop"))
                     hookerManifest.logD("Wechat Transfer hook： $json")
                     hookerManifest.analysisData(DataType.DATA, json.toString())
                 }

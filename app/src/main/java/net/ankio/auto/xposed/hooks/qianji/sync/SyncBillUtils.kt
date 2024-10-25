@@ -23,6 +23,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import net.ankio.auto.xposed.core.App
 import net.ankio.auto.xposed.core.api.HookerManifest
+import net.ankio.auto.xposed.core.utils.MessageUtils
 import net.ankio.auto.xposed.hooks.qianji.tools.QianJiUri
 import net.ankio.auto.xposed.hooks.qianji.tools.UserUtils
 import org.ezbook.server.db.model.BillInfoModel
@@ -33,7 +34,7 @@ class SyncBillUtils(
 ) {
     suspend fun sync(context: Context) = withContext(Dispatchers.IO) {
         if (!UserUtils(manifest, classLoader).isLogin()) {
-            App.toast("未登录无法自动记账")
+            MessageUtils.toast("未登录无法自动记账")
             return@withContext
         }
         val bills = BillInfoModel.sync()
@@ -55,7 +56,7 @@ class SyncBillUtils(
             delay(5) // 延迟5毫秒
         }
         withContext(Dispatchers.Main) {
-            App.toast("已将所有账单同步完成！")
+            MessageUtils.toast("已将所有账单同步完成！")
         }
     }
 }
