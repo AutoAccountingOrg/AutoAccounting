@@ -22,6 +22,7 @@ import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
+import net.ankio.auto.xposed.core.hook.Hooker
 import java.lang.reflect.Field
 
 class ActiveHooker : PartHooker() {
@@ -31,27 +32,25 @@ class ActiveHooker : PartHooker() {
         application: Application?,
         classLoader: ClassLoader
     ) {
-        val activeUtils = XposedHelpers.findClass("net.ankio.auto.xposed.common.ActiveInfo", classLoader)
-        hookerManifest.logD("ActiveHooker: $activeUtils")
-        // hook激活方法
-        XposedHelpers.findAndHookMethod(
+        val activeUtils = Hooker.loader("net.ankio.auto.xposed.common.ActiveUtils")
+        Hooker.replaceReturn(
             activeUtils,
             "isModuleActive",
-            XC_MethodReplacement.returnConstant(true),
+            true
         )
-        XposedHelpers.findAndHookMethod(
+        // hook激活方法
+
+
+        Hooker.after(
             activeUtils,
-            "getFramework",
-            object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    // 获取TAG字段
-                    val tagField: Field = XposedBridge::class.java.getDeclaredField("TAG")
-                    // 设置字段可访问
-                    tagField.isAccessible = true
-                    // 获取TAG字段的值
-                    param.result = (tagField.get(null) as String).replace("-Bridge", "")
-                }
-            },
-        )
+            "getFramework"
+        ){
+            // 获取TAG字段
+            val tagField: Field = XposedBridge::class.java.getDeclaredField("TAG")
+            // 设置字段可访问
+            tagField.isAccessible = true
+            // 获取TAG字段的值
+            it.result = (tagField.get(null) as String).replace("-Bridge", "")
+        }
     }
 }
