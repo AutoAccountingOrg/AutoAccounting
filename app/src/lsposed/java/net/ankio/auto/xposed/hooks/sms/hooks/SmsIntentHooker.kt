@@ -26,6 +26,7 @@ import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
+import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.hooks.sms.utils.SmsMessageUtils
 import org.ezbook.server.constant.DataType
 import java.lang.reflect.Method
@@ -41,53 +42,32 @@ class SmsIntentHooker: PartHooker() {
         application: Application?,
         classLoader: ClassLoader
     ) {
+        val inboundSmsHandlerClass = Hooker.loader(SMS_HANDLER_CLASS)
 
-        // 实际上这是一个通用的方式，不再使用精确匹配来找到对应的 Method，而使用模糊搜索的方式
-        // 但是之前分 API 匹配的逻辑在以往 Android 版本的系统之中已经验证通过，故而保留原有逻辑
-        val inboundSmsHandlerClass = XposedHelpers.findClass(SMS_HANDLER_CLASS, classLoader)
-        if (inboundSmsHandlerClass == null) {
-            hookerManifest.logE(Throwable("Class $SMS_HANDLER_CLASS not found"))
-            return
-        }
+        Hooker.before(
+            inboundSmsHandlerClass,
+            "dispatchIntent",
+        ){ param ->
+            val intent = param.args[0] as Intent
+            val action = intent.action
 
-        val methods = inboundSmsHandlerClass.declaredMethods
-        var exactMethod: Method? = null
-        val DISPATCH_INTENT = "dispatchIntent"
-        for (method in methods) {
-            val methodName = method.name
-            if (DISPATCH_INTENT == methodName) {
-                exactMethod = method
+            if (Telephony.Sms.Intents.SMS_DELIVER_ACTION != action) {
+                return@before
             }
-        }
-
-
-        if (exactMethod == null) {
-            hookerManifest.logE(Throwable("Method $SMS_HANDLER_CLASS for Class $DISPATCH_INTENT cannot found"))
-            return
-        }
-        XposedBridge.hookMethod(exactMethod, object : XC_MethodHook() {
-            @Throws(Throwable::class)
-            override fun beforeHookedMethod(param: MethodHookParam) {
-                val intent = param.args[0] as Intent
-                val action = intent.action
-
-                if (Telephony.Sms.Intents.SMS_DELIVER_ACTION != action) {
-                    return
-                }
-                val smsMessageParts: Array<SmsMessage> = SmsMessageUtils.fromIntent(intent)
-                var sender: String = smsMessageParts[0].displayOriginatingAddress
-                var body: String = SmsMessageUtils.getMessageBody(smsMessageParts)
-                sender = Normalizer.normalize(sender, Normalizer.Form.NFC)
-                body = Normalizer.normalize(body, Normalizer.Form.NFC)
-               val json = JsonObject().apply {
-                     addProperty("sender",sender)
-                   addProperty("body",body)
-                   addProperty("t",System.currentTimeMillis())
-                }
-
-                hookerManifest.analysisData(DataType.DATA, Gson().toJson(json))
-                return
+            val smsMessageParts: Array<SmsMessage> = SmsMessageUtils.fromIntent(intent)
+            var sender: String = smsMessageParts[0].displayOriginatingAddress
+            var body: String = SmsMessageUtils.getMessageBody(smsMessageParts)
+            sender = Normalizer.normalize(sender, Normalizer.Form.NFC)
+            body = Normalizer.normalize(body, Normalizer.Form.NFC)
+            val json = JsonObject().apply {
+                addProperty("sender",sender)
+                addProperty("body",body)
+                addProperty("t",System.currentTimeMillis())
             }
-        })
+
+            hookerManifest.analysisData(DataType.DATA, Gson().toJson(json))
+            return@before
+        }
+
     }
 }
