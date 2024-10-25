@@ -94,7 +94,7 @@ object Hooker {
     fun after(
         clazz: Class<*>,
         method: String,
-        vararg parameterTypes: Class<*> = emptyArray(),
+        vararg parameterTypes: Class<*>? = emptyArray(),
         hook: (XC_MethodHook.MethodHookParam) -> Unit
     ) {
         try {
@@ -142,7 +142,7 @@ object Hooker {
     fun before(
         clazz: Class<*>,
         method: String,
-        vararg parameterTypes: Class<*> = emptyArray(),
+        vararg parameterTypes: Class<*>? = emptyArray(),
         hook: (XC_MethodHook.MethodHookParam) -> Unit
     ) {
         try {

@@ -21,42 +21,47 @@ import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.xposed.core.App
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
+import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.utils.DataUtils
 
 class PayToolsHooker : PartHooker() {
+
+    companion object{
+        const val PAY_TOOLS = "cachedPayTools"
+        const val PAY_MONEY = "cachedPayMoney"
+        const val PAY_SHOP = "cachedPayShop"
+    }
 
     override fun hook(
         hookerManifest: HookerManifest,
         application: Application?,
         classLoader: ClassLoader
     ) {
-        XposedHelpers.findAndHookMethod(
+
+
+        Hooker.after(
             "com.tencent.kinda.framework.widget.base.MMKRichText",
-            classLoader,
             "appendText",
             String::class.java,
-            object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    val text = param.args[0] as String
-                    hookerManifest.logD("Text: $text")
+        ){ param ->
+            val text = param.args[0] as String
+            hookerManifest.logD("Text: $text")
 
-                    when {
-                        Regex(".*(卡|零钱).*").matches(text) -> {
-                            hookerManifest.logD("支付方式Hook: $text")
-                            DataUtils.set("cachedPayTools", text)
-                        }
-                        Regex(".*([￥$]).*").matches(text) -> {
-                            hookerManifest.logD("支付金额Hook: $text")
-                            DataUtils.set("cachedPayMoney", text)
-                        }
-                        Regex(".*(转账|红包|付款给).*").matches(text) -> {
-                            hookerManifest.logD("支付对象hook: $text")
-                            DataUtils.set("cachedPayShop", text)
-                        }
-                    }
+            when {
+                Regex(".*(卡|零钱).*").matches(text) -> {
+                    hookerManifest.logD("支付方式Hook: $text")
+                    DataUtils.set(PAY_TOOLS, text)
                 }
-            },
-        )
+                Regex(".*([￥$]).*").matches(text) -> {
+                    hookerManifest.logD("支付金额Hook: $text")
+                    DataUtils.set(PAY_MONEY, text)
+                }
+                Regex(".*(转账|红包|付款给).*").matches(text) -> {
+                    hookerManifest.logD("支付对象hook: $text")
+                    DataUtils.set(PAY_SHOP, text)
+                }
+            }
+        }
     }
 
 }

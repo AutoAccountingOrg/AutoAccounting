@@ -19,12 +19,10 @@ import android.app.Application
 import android.content.ContentValues
 import com.google.gson.Gson
 import com.google.gson.JsonObject
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedHelpers
 import fr.arnaudguyon.xmltojsonlib.XmlToJson
-import net.ankio.auto.xposed.core.App
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
+import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.utils.DataUtils
 import org.ezbook.server.constant.DataType
 
@@ -44,48 +42,43 @@ class DatabaseHooker : PartHooker() {
 
         // 分析版本 8.0.43
 
-        val database =
-            XposedHelpers.findClass("com.tencent.wcdb.database.SQLiteDatabase", mAppClassLoader)
-        XposedHelpers.findAndHookMethod(
+        val database = Hooker.loader("com.tencent.wcdb.database.SQLiteDatabase")
+        Hooker.after(
             database,
             "insertWithOnConflict",
             String::class.java,
             String::class.java,
             ContentValues::class.java,
             Int::class.javaPrimitiveType,
-            object : XC_MethodHook() {
-                @Throws(Throwable::class)
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    val contentValues = param.args[2] as ContentValues
-                    val tableName = param.args[0] as String
-                    val arg = if (param.args[1] != null) param.args[1] as String else ""
-                    hookerManifest.logD("table:$tableName, contentValues:$contentValues")
-                    //无效数据表
-                    val usefulTable = listOf(
-                        "message",
-                        "AppMessage",
-                    )
+        ) { param ->
+            val contentValues = param.args[2] as ContentValues
+            val tableName = param.args[0] as String
+            val arg = if (param.args[1] != null) param.args[1] as String else ""
+            hookerManifest.logD("table:$tableName, contentValues:$contentValues")
+            //无效数据表
+            val usefulTable = listOf(
+                "message",
+                "AppMessage",
+            )
 
-                    if (!usefulTable.contains(tableName)) return
+            if (!usefulTable.contains(tableName)) return@after
 
-                    val type = contentValues.getAsInteger("type") ?: return
-                    // 补充数据
-                    contentValues.put("tableName", tableName)
-                    contentValues.put("arg", arg)
-                    //由于微信的数据经常没有时间，所以我们为他添加默认时间
-                    contentValues.put("t",System.currentTimeMillis())
+            val type = contentValues.getAsInteger("type") ?: return@after
+            // 补充数据
+            contentValues.put("tableName", tableName)
+            contentValues.put("arg", arg)
+            //由于微信的数据经常没有时间，所以我们为他添加默认时间
+            contentValues.put("t", System.currentTimeMillis())
 
-                    if (tableName == "message") {
-                        if (type == 1) {
-                            // 这是聊天消息，content就是对话内容
-                        } else if (type == 318767153) {
-                            // 这是消息盒子
-                            val content = contentValues.get("content").toString()
-                            if (!content.contains("CDATA[微信支付")) return // 只对微信支付特殊处理
-                            val json = Gson().fromJson(xmlToJson(content), JsonObject::class.java)
-                            val tpl =
-                                Gson().fromJson(
-                                    """
+            if (tableName == "message") {
+                if (type == 318767153) {
+                    // 这是消息盒子
+                    val content = contentValues.get("content").toString()
+                    if (!content.contains("CDATA[微信支付")) return@after // 只对微信支付特殊处理
+                    val json = Gson().fromJson(xmlToJson(content), JsonObject::class.java)
+                    val tpl =
+                        Gson().fromJson(
+                            """
                                     {
                                       "description": "",
                                             "source": "微信支付",
@@ -95,57 +88,75 @@ class DatabaseHooker : PartHooker() {
                                             "title": ""
                                     }
                                     """.trimIndent(),
-                                    JsonObject::class.java,
-                                )
+                            JsonObject::class.java,
+                        )
 
-                            //   logD("微信支付数据JSON：$json")
+                    //   logD("微信支付数据JSON：$json")
 
-                            val msg = json.get("msg").asJsonObject.get("appmsg").asJsonObject
-                            tpl.addProperty("description", msg.get("des").asString)
-                            tpl.addProperty("title", msg.get("title").asString)
-                            tpl.addProperty(
-                                "display_name",
-                                msg.get("mmreader")
-                                    .asJsonObject.get("template_header")
-                                    .asJsonObject.get("display_name").asString,
-                            )
-                            tpl.addProperty("cachedPayTools", DataUtils.get("cachedPayTools"))
-                            tpl.addProperty("cachedPayMoney", DataUtils.get("cachedPayMoney"))
-                            tpl.addProperty("cachedPayShop", DataUtils.get("cachedPayShop"))
-                            tpl.addProperty("t",System.currentTimeMillis())
-                            val result = JsonObject()
-                            result.add("mMap", tpl)
+                    val msg = json.get("msg").asJsonObject.get("appmsg").asJsonObject
+                    tpl.addProperty("description", msg.get("des").asString)
+                    tpl.addProperty("title", msg.get("title").asString)
+                    tpl.addProperty(
+                        "display_name",
+                        msg.get("mmreader")
+                            .asJsonObject.get("template_header")
+                            .asJsonObject.get("display_name").asString,
+                    )
+                    putCache(tpl)
+                    val result = JsonObject()
+                    result.add("mMap", tpl)
 
-                            hookerManifest.logD("微信支付数据：$result")
+                    hookerManifest.logD("微信支付数据：$result")
 
-                            hookerManifest.analysisData(DataType.DATA, result.toString())
-                        }
-                    } else if (tableName == "AppMessage") {
-                        if (type == 5) {
-                            if (contentValues.get("source").equals("微信支付")) {
-                                // 微信支付
-                                return
-                            }
-                            // 这个应该是公众号推送
-                            hookerManifest.analysisData(DataType.DATA, Gson().toJson(contentValues))
-                            return
-                        } else if (type == 2000) {
-                            // 补充用户数据
-                            contentValues.put("hookUser", DataUtils.get("hookerUser"))
-                            // 这个应该是微信转账给别人
-                            val xml = contentValues.get("xml")
+                    hookerManifest.analysisData(DataType.DATA, result.toString())
+                } else if (type == 419430449) {
+                    //微信转账消息
+                    val content = contentValues.get("content").toString()
+                    val json = JsonObject()
+                    json.addProperty("type", "transfer")
+                    json.addProperty("content", xmlToJson(content))
+                    putCache(json)
+                    hookerManifest.analysisData(DataType.DATA, json.toString())
+                } else if (type == 10000){
+                    // 微信支付群收款
+                    val json = JsonObject()
+                    json.add("content", Gson().toJsonTree(contentValues))
+                    putCache(json)
+                    hookerManifest.analysisData(DataType.DATA, json.toString())
 
-                            if (xml != null) {
-                                contentValues.put("xml", xmlToJson(xml as String))
-                                contentValues.put("cachedPayTools", DataUtils.get("cachedPayTools"))
-                                contentValues.put("cachedPayMoney", DataUtils.get("cachedPayMoney"))
-                                contentValues.put("cachedPayShop", DataUtils.get("cachedPayShop"))
-                            }
-                        }
-                    }
                 }
-            },
-        )
+            } else if (tableName == "AppMessage") {
+                if (type == 5) {
+                    if (contentValues.get("source").equals("微信支付")) {
+                        // 微信支付
+                        return@after
+                    }
+                    // 这个应该是公众号推送
+                    hookerManifest.analysisData(DataType.DATA, Gson().toJson(contentValues))
+                } else if (type == 2000) {
+                    // 这个应该是微信转账给别人
+                    val xml = contentValues.get("xml")
+                    val json = JsonObject()
+                    json.addProperty("type", "transfer")
+
+                    if (xml != null) {
+                        json.addProperty("content", xmlToJson(xml as String))
+                    }
+
+                    putCache(json)
+                    hookerManifest.analysisData(DataType.DATA, json.toString())
+                }
+            }
+        }
+    }
+
+
+    private fun putCache(json: JsonObject) {
+        json.addProperty(ChatUserHooker.CHAT_USER, DataUtils.get(ChatUserHooker.CHAT_USER))
+        json.addProperty(PayToolsHooker.PAY_TOOLS, DataUtils.get(PayToolsHooker.PAY_TOOLS))
+        json.addProperty(PayToolsHooker.PAY_MONEY, DataUtils.get(PayToolsHooker.PAY_MONEY))
+        json.addProperty(PayToolsHooker.PAY_SHOP, DataUtils.get(PayToolsHooker.PAY_SHOP))
+        json.addProperty("t", System.currentTimeMillis())
     }
 
 

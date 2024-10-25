@@ -21,6 +21,7 @@ import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.xposed.core.App
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
+import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.utils.DataUtils
 import org.ezbook.server.constant.DataType
 
@@ -33,24 +34,21 @@ class TransferHooker : PartHooker() {
     ) {
 
         val model = hookerManifest.clazz("remittance.model",classLoader)
-        XposedHelpers.findAndHookMethod(model, "onGYNetEnd",
+        Hooker.after(
+            model,
+            "onGYNetEnd",
             Int::class.java,
             String::class.java,
-            org.json.JSONObject::class.java, object : XC_MethodHook() {
-                @Throws(Throwable::class)
-                override fun afterHookedMethod(param: MethodHookParam) {
-
-                    val json = param.args[2] as org.json.JSONObject
-
-                    json.put("hookUser", DataUtils.get("hookerUser"))
-                    json.put("cachedPayTools", DataUtils.get("cachedPayTools"))
-                    json.put("cachedPayMoney", DataUtils.get("cachedPayMoney"))
-                    json.put("cachedPayShop", DataUtils.get("cachedPayShop"))
-                    hookerManifest.logD("Wechat Transfer hook： $json")
-                    hookerManifest.analysisData(DataType.DATA, json.toString())
-                }
-            })
-
+            org.json.JSONObject::class.java
+        ){
+            val json = it.args[2] as org.json.JSONObject
+            json.put("hookUser", DataUtils.get("hookerUser"))
+            json.put("cachedPayTools", DataUtils.get("cachedPayTools"))
+            json.put("cachedPayMoney", DataUtils.get("cachedPayMoney"))
+            json.put("cachedPayShop", DataUtils.get("cachedPayShop"))
+            hookerManifest.logD("Wechat Transfer hook： $json")
+            hookerManifest.analysisData(DataType.DATA, json.toString())
+        }
     }
 
 
