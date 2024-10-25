@@ -32,7 +32,7 @@ class ActiveHooker : PartHooker() {
         application: Application?,
         classLoader: ClassLoader
     ) {
-        val activeUtils = Hooker.loader("net.ankio.auto.xposed.common.ActiveUtils")
+        val activeUtils = Hooker.loader("net.ankio.auto.xposed.common.ActiveInfo")
         Hooker.replaceReturn(
             activeUtils,
             "isModuleActive",

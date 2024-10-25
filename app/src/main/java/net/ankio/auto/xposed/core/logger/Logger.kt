@@ -40,7 +40,7 @@ object Logger {
      * 打印日志
      */
     fun log(app: String, msg: String) {
-        XposedBridge.log("[自动记账][$app]$msg")
+        XposedBridge.log("[ 自动记账 ] ( $app ) $msg")
         val tag = getTag()
         //写入自动记账日志
         ThreadUtils.launch {
@@ -62,7 +62,7 @@ object Logger {
      * 打印错误日志
      */
     fun logE(app: String, e: Throwable) {
-        XposedBridge.log("[自动记账][$app]${e.message?:""}")
+        XposedBridge.log("[ 自动记账 ] ( $app ) ${e.message?:""}")
         XposedBridge.log(e)
         val tag = getTag()
         ThreadUtils.launch {
