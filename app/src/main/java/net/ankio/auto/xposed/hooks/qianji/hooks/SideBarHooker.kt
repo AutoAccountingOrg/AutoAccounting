@@ -53,37 +53,33 @@ class SideBarHooker : PartHooker() {
         classLoader: ClassLoader
     ) {
         this.hookerManifest = hookerManifest
-        val clazz = classLoader.loadClass("com.mutangtech.qianji.ui.main.MainActivity")
-        XposedHelpers.findAndHookMethod(
+        val clazz = Hooker.loader("com.mutangtech.qianji.ui.main.MainActivity")
+
+        Hooker.after(
             clazz,
             "onCreate",
-            android.os.Bundle::class.java,
-            object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    val activity = param.thisObject as Activity
-                    hookMenu(activity, classLoader)
-                }
-            }
-        )
+            android.os.Bundle::class.java
+        ){ param ->
+            val activity = param.thisObject as Activity
+            hookMenu(activity, classLoader)
+        }
 
-        XposedHelpers.findAndHookMethod(
+        Hooker.after(
             clazz,
-            "onResume",
-            object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    val activity = param.thisObject as Activity
-                    runCatching {
-                        hookerManifest.attachResource(activity)
-                        ThreadUtils.launch {
-                            checkServerStatus(activity)
-                        }
-                        syncData2Auto(activity)
-                    }.onFailure {
-                        hookerManifest.logE(it)
-                    }
+            "onResume"
+        ){ param ->
+            val activity = param.thisObject as Activity
+            runCatching {
+                hookerManifest.attachResource(activity)
+                ThreadUtils.launch {
+                    checkServerStatus(activity)
                 }
+                syncData2Auto(activity)
+            }.onFailure {
+                hookerManifest.logE(it)
             }
-        )
+        }
+
     }
 
     private fun hookMenu(
@@ -174,7 +170,7 @@ class SideBarHooker : PartHooker() {
     /**
      * 同步数据到自动记账
      */
-    fun syncData2Auto(context: Activity) {
+    private fun syncData2Auto(context: Activity) {
         // 最快3秒同步一次
         if (System.currentTimeMillis() - last < 1000 * 3) {
             hookerManifest.log("Sync too fast, ignore")
