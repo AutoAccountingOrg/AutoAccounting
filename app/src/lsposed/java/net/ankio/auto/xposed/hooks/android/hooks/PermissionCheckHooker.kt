@@ -57,8 +57,8 @@ class PermissionCheckHooker: PartHooker() {
             "android.app.ContextImpl",
             "checkPermission",
             String::class.java,
-            Int::class.javaPrimitiveType,//pid
-            Int::class.javaPrimitiveType//uid
+            Int::class.javaPrimitiveType!!,//pid
+            Int::class.javaPrimitiveType!!//uid
         ){ param ->
             val permission = param.args[0] as String
             val pid = param.args[1] as Int

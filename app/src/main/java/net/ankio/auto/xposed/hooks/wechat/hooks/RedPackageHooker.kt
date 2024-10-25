@@ -43,7 +43,7 @@ class RedPackageHooker: PartHooker() {
         //  public void onGYNetEnd(int v, String s, JSONObject jSONObject0) {
         Hooker.before(clazz,
             "onGYNetEnd",
-            Int::class.javaPrimitiveType,
+            Int::class.javaPrimitiveType!!,
             String::class.java,
             JSONObject::class.java
         ){ param ->

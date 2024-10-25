@@ -49,7 +49,7 @@ class DatabaseHooker : PartHooker() {
             String::class.java,
             String::class.java,
             ContentValues::class.java,
-            Int::class.javaPrimitiveType,
+            Int::class.javaPrimitiveType!!,
         ) { param ->
             val contentValues = param.args[2] as ContentValues
             val tableName = param.args[0] as String
