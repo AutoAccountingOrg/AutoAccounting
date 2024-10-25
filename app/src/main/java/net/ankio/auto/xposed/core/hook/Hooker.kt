@@ -68,7 +68,7 @@ object Hooker {
     fun after(
         clazz: String,
         method: String,
-        vararg parameterTypes: Any = emptyArray(),
+        vararg parameterTypes: Any? = emptyArray(),
         hook: (XC_MethodHook.MethodHookParam) -> Unit
     ) {
         try {
