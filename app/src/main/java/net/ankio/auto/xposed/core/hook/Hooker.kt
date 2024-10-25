@@ -35,7 +35,7 @@ object Hooker {
     /**
      * 加载类
      */
-    private fun loader(clazz: String, classloader: ClassLoader?): Class<*> {
+    fun loader(clazz: String, classloader: ClassLoader? = null): Class<*> {
         return classloader?.loadClass(clazz)?:this.classloader.loadClass(clazz)
     }
 

@@ -36,7 +36,7 @@ class AliPayHooker : HookerManifest() {
     override var partHookers: MutableList<PartHooker> = mutableListOf(
         MessageBoxHooker(),//支付消息盒子
         RedPackageHooker(),//支付宝红包
-       WebViewHooker(),//支付宝webview
+        WebViewHooker(),//支付宝webview
         SecurityHooker()//支付宝安全
     )
     override var rules: MutableList<Clazz>

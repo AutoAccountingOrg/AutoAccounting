@@ -20,6 +20,7 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
+import net.ankio.auto.xposed.core.hook.Hooker
 import org.ezbook.server.constant.DataType
 
 
@@ -31,27 +32,14 @@ class RedPackageHooker : PartHooker() {
         application: Application?,
         classLoader: ClassLoader
     ) {
-        val proguard =
-            XposedHelpers.findClass("com.alipay.mobile.redenvelope.proguard.c.b", classLoader)
-        val syncMessage = XposedHelpers.findClass(
-            "com.alipay.mobile.rome.longlinkservice.syncmodel.SyncMessage",
-            classLoader
-        )
+        val proguard = Hooker.loader("com.alipay.mobile.redenvelope.proguard.c.b")
+        val syncMessage = Hooker.loader("com.alipay.mobile.rome.longlinkservice.syncmodel.SyncMessage")
 
-        XposedHelpers.findAndHookMethod(
-            proguard,
-            "onReceiveMessage",
-            syncMessage,
-            object : XC_MethodHook() {
-                @Throws(Throwable::class)
-                override fun beforeHookedMethod(param: MethodHookParam) {
-                    super.beforeHookedMethod(param)
-                    val syncMessageObject = param.args[0]
-
-                    val result = XposedHelpers.callMethod(syncMessageObject, "getData") as String
-                    hookerManifest.logD("Hooked WeChat RedPackage： $result")
-                    hookerManifest.analysisData(DataType.DATA, result)
-                }
-            })
+        Hooker.before(proguard, "onReceiveMessage", syncMessage) { param ->
+            val syncMessageObject = param.args[0]
+            val result = XposedHelpers.callMethod(syncMessageObject, "getData") as String
+            hookerManifest.logD("Hooked Alipay RedPackage： $result")
+            hookerManifest.analysisData(DataType.DATA, result)
+        }
     }
 }
