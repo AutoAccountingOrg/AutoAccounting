@@ -28,6 +28,8 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.xposed.core.App
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
+import net.ankio.auto.xposed.core.hook.Hooker
+import net.ankio.auto.xposed.core.utils.DataUtils
 import net.ankio.auto.xposed.core.utils.MD5HashTable
 import net.ankio.auto.xposed.core.utils.ThreadUtils
 import org.ezbook.server.constant.DataType
@@ -44,82 +46,56 @@ class NotificationHooker : PartHooker() {
         application: Application?,
         classLoader: ClassLoader
     ) {
-        val notificationManagerService = XposedHelpers.findClass(
-            "com.android.server.notification.NotificationManagerService",
-            classLoader
-        )
-
-
-        XposedBridge.hookAllMethods(
-            notificationManagerService,
+        Hooker.allMethodsEqBefore(
+            Hooker.loader("com.android.server.notification.NotificationManagerService"),
             "enqueueNotificationInternal",
-            object : XC_MethodHook() {
-                override fun beforeHookedMethod(param: MethodHookParam) {
-                    runCatching {
-                        val app = param.args[0] as String
-                        val opkg = param.args[1] as String
+        ) { param ->
+            val app = param.args[0] as String
+            val opkg = param.args[1] as String
 
-                        var notification: Notification? = null
+            var notification: Notification? = null
 
-                        for (i in 0 until param.args.size) {
-                            if (param.args[i] is Notification) {
-                                notification = param.args[i] as Notification
-                                break
-                            }
-                        }
-
-                        if (notification == null) {
-                            return
-                        }
-
-
-                        val originalTitle = runCatching { notification.extras.getString(Notification.EXTRA_TITLE) ?: "" }.getOrElse { "" }
-                        val originalText = runCatching { notification.extras.getString(Notification.EXTRA_TEXT) ?: ""}.getOrElse { "" }
-
-
-                        hookerManifest.logD("app: $app, opkg: $opkg, originalTitle: $originalTitle, originalText: $originalText")
-
-                        val hash = MD5HashTable.md5("$app$originalTitle$originalText")
-                        if (hashTable.contains(hash)){
-                            return
-                        }
-                        hashTable.add(hash)
-
-
-                        // 5分钟内不重复请求数据，加快识别速度
-                        if (System.currentTimeMillis() - lastTime < 1000 * 60 * 5) {
-                            checkNotification(
-                                app,
-                                originalTitle,
-                                originalText,
-                                selectedApps,
-                                hookerManifest
-                            )
-                        } else {
-                            lastTime = System.currentTimeMillis()
-                            ThreadUtils.launch {
-                                val data = SettingModel.get(Setting.LISTENER_APP_LIST, "")
-                                selectedApps = data.split(",")
-                                withContext(Dispatchers.Main) {
-                                    checkNotification(
-                                        app,
-                                        originalTitle,
-                                        originalText,
-                                        selectedApps,
-                                        hookerManifest
-                                    )
-                                }
-                            }
-                        }
-
-
-                    }.onFailure {
-                        hookerManifest.logE(it)
-                    }
-
+            for (i in 0 until param.args.size) {
+                if (param.args[i] is Notification) {
+                    notification = param.args[i] as Notification
+                    break
                 }
             }
-        )
+
+            if (notification == null) {
+                return@allMethodsEqBefore null
+            }
+
+
+            val originalTitle = runCatching {
+                notification.extras.getString(Notification.EXTRA_TITLE) ?: ""
+            }.getOrElse { "" }
+            val originalText = runCatching {
+                notification.extras.getString(Notification.EXTRA_TEXT) ?: ""
+            }.getOrElse { "" }
+
+
+            hookerManifest.logD("app: $app, opkg: $opkg, originalTitle: $originalTitle, originalText: $originalText")
+
+            val hash = MD5HashTable.md5("$app$originalTitle$originalText")
+            if (hashTable.contains(hash)) {
+                hookerManifest.logD("hashTable contains $hash, $originalTitle, $originalText")
+                return@allMethodsEqBefore null
+            }
+            hashTable.add(hash)
+
+
+            val data = DataUtils.configString(Setting.LISTENER_APP_LIST, "")
+            selectedApps = data.split(",")
+            checkNotification(
+                app,
+                originalTitle,
+                originalText,
+                selectedApps,
+                hookerManifest
+            )
+
+        }
     }
 
     /**
@@ -132,10 +108,7 @@ class NotificationHooker : PartHooker() {
         selectedApps: List<String>,
         hookerManifest: HookerManifest
     ) {
-
-
-
-        if (title.isEmpty() || text.isEmpty()) {
+        if (title.isEmpty() && text.isEmpty()) {
             return
         }
 
@@ -148,8 +121,6 @@ class NotificationHooker : PartHooker() {
         json.addProperty("title", title)
         json.addProperty("text", text)
         json.addProperty("t",System.currentTimeMillis())
-
-
 
         hookerManifest.logD("NotificationHooker: $json")
 
