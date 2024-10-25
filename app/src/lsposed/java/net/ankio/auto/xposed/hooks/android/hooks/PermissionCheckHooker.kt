@@ -24,6 +24,7 @@ import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
+import net.ankio.auto.xposed.core.hook.Hooker
 
 class PermissionCheckHooker: PartHooker() {
     override fun hook(
@@ -51,37 +52,33 @@ class PermissionCheckHooker: PartHooker() {
     }
 
     private fun hookCheckPermission(hookerManifest: HookerManifest, classLoader: ClassLoader) {
-        XposedHelpers.findAndHookMethod(
+
+        Hooker.after(
             "android.app.ContextImpl",
-            classLoader,
             "checkPermission",
             String::class.java,
             Int::class.javaPrimitiveType,//pid
-            Int::class.javaPrimitiveType,//uid
-            object : XC_MethodHook() {
-                @Throws(Throwable::class)
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    val permission = param.args[0] as String
-                    val pid = param.args[1] as Int
-                    val uid = param.args[2] as Int
-                    val packageManager =  XposedHelpers.callMethod(param.thisObject, "getPackageManager")
-                    val packages: Array<String> = runCatching {
-                        XposedHelpers.callMethod(packageManager, "getPackagesForUid", uid) as Array<String>
-                    }.getOrNull()?:return
+            Int::class.javaPrimitiveType//uid
+        ){ param ->
+            val permission = param.args[0] as String
+            val pid = param.args[1] as Int
+            val uid = param.args[2] as Int
+            val packageManager =  XposedHelpers.callMethod(param.thisObject, "getPackageManager")
+            val packages: Array<String> = runCatching {
+                XposedHelpers.callMethod(packageManager, "getPackagesForUid", uid) as Array<String>
+            }.getOrNull()?: return@after
 
-                    if (packages.isEmpty()) return
+            if (packages.isEmpty()) return@after
 
 
-                    val packageName = packages[0]
+            val packageName = packages[0]
 
-                    // 允许自动记账的所有权限
-                    if (packageName == BuildConfig.APPLICATION_ID) {
-                        param.result = PackageManager.PERMISSION_GRANTED
-                    }
-
-                }
+            // 允许自动记账的所有权限
+            if (packageName == BuildConfig.APPLICATION_ID) {
+                param.result = PackageManager.PERMISSION_GRANTED
             }
-        )
+        }
+
     }
     // 授权悬浮窗权限给自动记账
     private fun setOverlaysAllowed(packageName:String,mContext: Context) {

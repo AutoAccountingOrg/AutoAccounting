@@ -21,7 +21,6 @@ import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.hooks.android.hooks.NotificationHooker
 import net.ankio.auto.xposed.hooks.android.hooks.PermissionCheckHooker
 import net.ankio.auto.xposed.hooks.android.hooks.PermissionHooker
-import net.ankio.auto.xposed.hooks.android.hooks.ServiceHooker
 import net.ankio.dex.model.Clazz
 
 class AndroidHooker : HookerManifest() {
@@ -42,7 +41,6 @@ class AndroidHooker : HookerManifest() {
         get() = mutableListOf(
             NotificationHooker(),
             PermissionCheckHooker(),
-            ServiceHooker()
         )
         set(value) {}
     override var rules: MutableList<Clazz>
