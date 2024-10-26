@@ -351,8 +351,8 @@ class RequestsUtils(context: Context, private val cacheTime: Int = 0) {
 
             client.newCall(request).execute().use { response ->
                 val body = response.body?.string() ?: "<xml></xml>" // 将响应转换为字符串
-                Logger.i("body: $body")
-                Pair(response.code, parseResponse(body.lowercase(Locale.getDefault())))
+                Logger.d("body: $body")
+                Pair(response.code, parseResponse(body))
             }
         }.getOrElse {
             Logger.e("Exception: ${it.message}", it)
@@ -362,11 +362,12 @@ class RequestsUtils(context: Context, private val cacheTime: Int = 0) {
 
     private fun parseResponse(xml: String): List<String> {
 
+        val data = xml.replace("D:response","d:response").replace("D:href","d:href")
         val fileList = mutableListOf<String>()
         try {
             val factory = DocumentBuilderFactory.newInstance()
             val builder = factory.newDocumentBuilder()
-            val `is`: InputStream = ByteArrayInputStream(xml.toByteArray(StandardCharsets.UTF_8))
+            val `is`: InputStream = ByteArrayInputStream(data.toByteArray(StandardCharsets.UTF_8))
             val document = builder.parse(`is`)
             document.documentElement.normalize()
 

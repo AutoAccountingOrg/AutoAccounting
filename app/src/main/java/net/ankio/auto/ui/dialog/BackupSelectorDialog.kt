@@ -70,7 +70,7 @@ class BackupSelectorDialog(
 
     private suspend fun loadData() {
         val (code,list) = requestsUtils.dir(uri)
-        Logger.i("code:$code, list:$list")
+        Logger.d("code:$code, list:$list")
         if (list.isEmpty()){
             withContext(Dispatchers.Main) {
                 statusPage.showEmpty()

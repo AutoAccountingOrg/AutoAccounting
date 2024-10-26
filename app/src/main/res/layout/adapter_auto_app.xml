@@ -28,23 +28,20 @@
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/app_name"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
-            android:ellipsize="end"
-            android:maxLines="1"
+            android:ellipsize="marquee"
             android:scrollbars="none"
             android:textAppearance="?android:attr/textAppearanceListItem"
-            android:textColor="?colorSurfaceInverse"
             android:textIsSelectable="false"
             android:textSize="16sp"
             app:layout_constrainedWidth="true"
             app:layout_constraintBottom_toTopOf="@id/app_Package_Name"
-            app:layout_constraintEnd_toStartOf="@+id/checkbox"
             app:layout_constraintStart_toEndOf="@id/app_icon"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintWidth_max="wrap"
-            tools:text="LSPosed Manager ManagerManagerManagerManagerMana Manager" />
+            tools:text="LSPosed Manager" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/app_Package_Name"

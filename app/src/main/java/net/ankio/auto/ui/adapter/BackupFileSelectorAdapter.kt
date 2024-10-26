@@ -11,6 +11,7 @@ import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterAppBinding
 import net.ankio.auto.databinding.AdapterAutoAppBinding
+import net.ankio.auto.databinding.AdapterBackupBinding
 import net.ankio.auto.databinding.AdapterBookBillBinding
 import net.ankio.auto.storage.BackupUtils.Companion.SUFFIX
 import net.ankio.auto.storage.BackupUtils.Companion.SUPPORT_VERSION
@@ -27,10 +28,10 @@ import org.ezbook.server.db.model.BookBillModel
 class BackupFileSelectorAdapter(
     private val list: MutableList<String>,
     private val callback: (uri:String)->Unit
-) : BaseAdapter<AdapterAutoAppBinding, String>(
-    AdapterAutoAppBinding::class.java, list
+) : BaseAdapter<AdapterBackupBinding, String>(
+    AdapterBackupBinding::class.java, list
 ) {
-    override fun onInitViewHolder(holder: BaseViewHolder<AdapterAutoAppBinding, String>) {
+    override fun onInitViewHolder(holder: BaseViewHolder<AdapterBackupBinding, String>) {
         val binding = holder.binding
         binding.root.setOnClickListener {
             val file = holder.item ?: return@setOnClickListener
@@ -41,7 +42,7 @@ class BackupFileSelectorAdapter(
     }
 
     override fun onBindViewHolder(
-        holder: BaseViewHolder<AdapterAutoAppBinding,String>,
+        holder: BaseViewHolder<AdapterBackupBinding,String>,
         data: String,
         position: Int
     ) {
@@ -49,9 +50,7 @@ class BackupFileSelectorAdapter(
 
         val regex = Regex("backup_(.*)\\((\\d+)\\)_(\\d{10,13}).$SUFFIX")
         val matchResult = regex.matchEntire(data)
-        binding.appPackageName.visibility = View.GONE
         binding.checkbox.isEnabled = false
-        binding.appIcon.visibility = View.GONE
         if (matchResult != null) {
             val versionName = matchResult.groups[1]?.value?:""
             val supportVersion = matchResult.groups[2]?.value?.toIntOrNull()?:0
