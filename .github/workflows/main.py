@@ -124,7 +124,7 @@ def run_command_live(command):
     process.wait()
     if process.returncode != 0:
         print(f"命令执行失败: {' '.join(command)}")
-        sys.exit(1)
+        sys.exit(1 )
 
 def build_apk(workspace):
     print("开始构建 APK")
@@ -341,7 +341,7 @@ def main(repo):
     commits = get_commits_since_tag(tag)
     if len(commits) == 0:
         print("没有新的提交，无需构建")
-        sys.exit(1)
+        sys.exit(0)
     tagVersionName = get_and_set_version(channel,workspace)
     print(f"新的版本号: {tagVersionName}")
     restart = get_changed_files_since_tag(tag)
