@@ -69,6 +69,10 @@ class WechatHooker : HookerManifest() {
     )
     override fun beforeAdapter(application: Application,file:String){
        runCatching {
+
+           //TODO 删除tinker会导致微信冷启动变慢，主要原因是删除后微信加载tinker补丁失败，会启动另一套启动流程，甚至还会频繁触发微信闪退错误页面。
+           //TODO 这里需要重新优化Xposed hook，应该hook微信加载tinker之后的application，而不是简单粗暴的删除tinker补丁。
+
            if (file.contains("tinker")) {
                File(file).delete()
                AppUtils.restart()
