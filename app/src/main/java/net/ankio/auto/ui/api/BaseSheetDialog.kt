@@ -110,7 +110,11 @@ abstract class BaseSheetDialog(private val context: Context) :
     }
 
     override fun dismiss() {
-        runCatching { super.dismiss() }.onFailure {
+        runCatching {
+            if (this.isShowing) {
+                super.dismiss()
+            }
+        }.onFailure {
             it.printStackTrace()
             Logger.e("Dismiss error", it)
         }
