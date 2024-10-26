@@ -44,7 +44,7 @@ class SmsIntentHooker: PartHooker() {
     ) {
         val inboundSmsHandlerClass = Hooker.loader(SMS_HANDLER_CLASS)
 
-        Hooker.before(
+        Hooker.allMethodsEqBefore(
             inboundSmsHandlerClass,
             "dispatchIntent",
         ){ param ->
@@ -52,7 +52,7 @@ class SmsIntentHooker: PartHooker() {
             val action = intent.action
 
             if (Telephony.Sms.Intents.SMS_DELIVER_ACTION != action) {
-                return@before
+                return@allMethodsEqBefore null
             }
             val smsMessageParts: Array<SmsMessage> = SmsMessageUtils.fromIntent(intent)
             var sender: String = smsMessageParts[0].displayOriginatingAddress
@@ -66,7 +66,7 @@ class SmsIntentHooker: PartHooker() {
             }
 
             hookerManifest.analysisData(DataType.DATA, Gson().toJson(json))
-            return@before
+            return@allMethodsEqBefore null
         }
 
     }
