@@ -50,5 +50,7 @@ class OrderAdapter(resultData: MutableList<Pair<String, List<BillInfoModel>>>) :
 
         binding.title.text = data.first
 
+        // 确保在数据变化后通知适配器
+        adapter.notifyDataSetChanged()
     }
 }
