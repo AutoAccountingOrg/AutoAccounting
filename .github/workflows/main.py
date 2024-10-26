@@ -130,7 +130,7 @@ def build_apk(workspace):
     print("开始构建 APK")
     gradlew_path = os.path.join(workspace, 'gradlew')
     # 构建 APK
-    for flavor in ['xposed']:
+    for flavor in ['lsposed']:
         assemble_task = f"assemble{flavor.capitalize()}Release"
         print(f"开始构建 {flavor} 版本: {assemble_task}")
         run_command_live([gradlew_path, assemble_task])
