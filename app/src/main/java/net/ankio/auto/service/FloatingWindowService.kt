@@ -228,8 +228,10 @@ class FloatingWindowService : Service() {
     }
 
     private fun removeTips(binding: FloatTipBinding) {
-        if (binding.root.isAttachedToWindow) windowManager.removeView(binding.root)
-        floatingViews.remove(binding)
+        if (binding.root.isAttachedToWindow && !binding.root.isHardwareAccelerated) {
+            windowManager.removeView(binding.root)
+            floatingViews.remove(binding)
+        }
     }
 
     private fun recordBillInfo(billInfoModel2: BillInfoModel) {
@@ -300,4 +302,3 @@ class FloatingWindowService : Service() {
         super.onDestroy()
     }
 }
-
