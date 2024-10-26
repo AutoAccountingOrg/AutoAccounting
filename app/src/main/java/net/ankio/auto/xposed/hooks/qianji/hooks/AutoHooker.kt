@@ -264,7 +264,7 @@ class AutoHooker : PartHooker() {
 
 
         Hooker.replace(
-            hookerManifest.clazz("AutoTaskLog", classLoader),
+            "com.mutangtech.qianji.data.model.AutoTaskLog",
             "setStatus",
             Int::class.java
         ) { param ->
@@ -278,7 +278,7 @@ class AutoHooker : PartHooker() {
 
 
         Hooker.replace(
-            hookerManifest.clazz("AutoTaskLog", classLoader),
+            "com.mutangtech.qianji.data.model.AutoTaskLog",
             "setFrom",
             String::class.java
         ) { param ->
