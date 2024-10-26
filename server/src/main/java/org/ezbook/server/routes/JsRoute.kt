@@ -332,7 +332,10 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
                 "net.ankio.auto.ui.activity.FloatingWindowTriggerActivity"
             )
         )
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+        intent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
         Server.log("Calling auto server：$intent")
         context.startActivity(intent)
        /* if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
