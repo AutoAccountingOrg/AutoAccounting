@@ -18,9 +18,7 @@ class ChatUserHooker : PartHooker() {
         classLoader: ClassLoader
     ) {
         val clazz = Hooker.loader("com.tencent.mm.ui.chatting.ChattingUIFragment")
-
-        // Hook into the setMMTitle method to capture the chat username
-        Hooker.after(clazz, "setMMTitle") { param ->
+        Hooker.after(clazz, "setMMTitle", String::class.java) { param ->
             val username = param.args[0] as? String
             if (username != null) {
                 hookerManifest.logD("ChatUserHooker: $username")
