@@ -7,6 +7,7 @@ import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
 import net.ankio.auto.App
+import net.ankio.auto.storage.Logger
 
 /**
  * 本地广播助手类
@@ -31,6 +32,8 @@ object LocalBroadcastHelper {
         App.app.sendBroadcast(intent)
     }
 
+    private val registeredReceivers = mutableMapOf<BroadcastReceiver, Boolean>()
+
     /**
      * 注册广播接收器
      *
@@ -49,7 +52,7 @@ object LocalBroadcastHelper {
         } else {
             App.app.registerReceiver(receiver, filter)
         }
-
+        registeredReceivers[receiver] = true
         return receiver
     }
 
@@ -59,9 +62,17 @@ object LocalBroadcastHelper {
      * @param receiver 广播接收器
      */
     fun unregisterReceiver(receiver: BroadcastReceiver) {
-       runCatching {
-           App.app.unregisterReceiver(receiver)
-       }
+        registeredReceivers[receiver]?.let {
+            if (it) {
+                runCatching {
+                    App.app.unregisterReceiver(receiver)
+                }.onSuccess {
+                    registeredReceivers[receiver] = false
+                }.onFailure {
+                    Logger.e("Failed to unregister receiver: $receiver", it)
+                }
+            }
+        } ?: Logger.w("Receiver not registered: $receiver")
     }
 
     /**
