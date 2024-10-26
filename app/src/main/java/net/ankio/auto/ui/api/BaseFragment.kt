@@ -62,11 +62,8 @@ abstract class BaseFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        if (activity == null || activity !is MainActivity) return
-
-        val mainActivity = activity as MainActivity
-
-
+        val mainActivity = activity
+        if (mainActivity !is MainActivity) return
 
         mainActivity.binding.toolbar.visibility = View.VISIBLE
         // 重置顶部导航栏图标
