@@ -15,30 +15,55 @@
 
 package net.ankio.auto.ui.activity
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
+import android.view.Gravity
+import android.view.WindowManager
 import net.ankio.auto.R
 import net.ankio.auto.service.FloatingWindowService
+import net.ankio.auto.storage.Logger
 
 
-class FloatingWindowTriggerActivity : AppCompatActivity() {
+class FloatingWindowTriggerActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        createOnePxWindow()
         setTheme(R.style.TransparentActivityTheme)
-        setContentView(R.layout.activity_transparent)
+    }
+
+    private fun createOnePxWindow() {
+        val window = window
+        window.setGravity(Gravity.START or Gravity.TOP)
+        val layoutParams = window.attributes
+        layoutParams.x = 0
+        layoutParams.y = 0
+        layoutParams.width = 1
+        layoutParams.height = 1
+        layoutParams.type = WindowManager.LayoutParams.TYPE_PHONE
+        layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+        window.attributes = layoutParams
+    }
+
+    override fun onStart() {
+        super.onStart()
+        startFloatService(intent)
+    }
+
+    private fun startFloatService(intent: Intent){
         // 启动服务,传递intent
-        val intent = intent
         val serviceIntent = Intent(this, FloatingWindowService::class.java).apply {
             intent.extras?.let { putExtras(it) } // 直接传递所有 extras
         }
-        startService(serviceIntent)
+        try {
+            startService(serviceIntent)
+        }catch (e: Exception){
+            e.printStackTrace()
+            Logger.e("startFloatService error: ${e.message}",e)
+        }
         // 关闭 Activity
         exitActivity()
     }
-
-
-
 
     private fun exitActivity() {
         finishAffinity()

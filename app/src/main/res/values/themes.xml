@@ -23,6 +23,20 @@
         <item name="android:backgroundDimAmount">0.5</item>
         <item name="android:windowLightStatusBar" tools:ignore="NewApi">true</item>
     </style>
+
+    <style name="TransparentActivityTheme">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowCloseOnTouchOutside">true</item>
+        <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:windowDisablePreview">true</item>
+        <item name="android:windowNoDisplay">false</item>
+        <item name="android:backgroundDimEnabled">false</item><!--activity不变暗-->
+    </style>
     <style name="TextViewLine">
         <item name="android:ellipsize">end</item>
         <item name="android:maxLines">1</item>
@@ -94,10 +108,5 @@
         <item name="cardCornerRadius">@dimen/radius</item>
         <item name="cardElevation">0dp</item>
         <item name="cardBackgroundColor">?attr/colorSurfaceVariant</item>
-    </style>
-    <style name="TransparentActivityTheme" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="android:windowBackground">@color/gray30</item>
-        <item name="android:windowIsTranslucent">true</item>
-        <item name="android:windowNoTitle">true</item>
     </style>
 </resources>

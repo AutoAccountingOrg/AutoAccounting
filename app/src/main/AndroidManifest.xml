@@ -23,7 +23,8 @@
         <activity android:name=".ui.activity.FloatingWindowTriggerActivity"
             android:exported="true"
             android:theme="@style/TransparentActivityTheme"
-            />
+            android:excludeFromRecents="true"
+        />
         <activity
             android:name=".ui.activity.MainActivity"
             android:windowSoftInputMode="adjustPan"
