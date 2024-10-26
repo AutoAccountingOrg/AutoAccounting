@@ -30,7 +30,7 @@ def get_changed_files_since_tag(tag):
 
     # 判断是否有文件路径以 'server' 开头
     for file in changed_files:
-        if file.startswith('server') or file.startswith('app/src/xposed/java/net/ankio/auto/hooks/android'):
+        if file.startswith('server') or file.startswith('app/src/lsposed/java/net/ankio/auto/hooks/android'):
             return True
 
     return False
@@ -183,7 +183,7 @@ def create_tag(tag,channel):
 发布 APK
 """
 def publish_apk(repo, tag_name,workspace,log,channel):
-    publish_to_github(repo, tag_name,  tag_name, log,f"{workspace}/dist/app-xposed-signed.apk",False if channel == 'Stable' else True)
+    publish_to_github(repo, tag_name,  tag_name, log,f"{workspace}/dist/app-lsposed-signed.apk",False if channel == 'Stable' else True)
     publish_to_pan(workspace,tag_name,channel)
     pass
 
@@ -278,12 +278,12 @@ def publish_to_pan(workspace,tag,channel):
 
     upload(workspace + "/dist/README.md", "/README.md", channel)
 
-    upload(workspace + "/dist/app-xposed-signed.apk", tag + ".apk", channel)
+    upload(workspace + "/dist/app-lsposed-signed.apk", tag + ".apk", channel)
 
 def send_apk_with_changelog(workspace):
     with open(workspace + '/dist/README.md', 'r', encoding='utf-8') as file:
         content = file.read()
-    apk_path = workspace + '/dist/app-xposed-signed.apk'
+    apk_path = workspace + '/dist/app-lsposed-signed.apk'
     token = os.getenv("TELEGRAM_BOT_TOKEN")
     channel_id = "@qianji_auto"
     url = f"https://api.telegram.org/bot{token}/sendDocument"
