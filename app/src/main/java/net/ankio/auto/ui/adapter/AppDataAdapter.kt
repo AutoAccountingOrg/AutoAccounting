@@ -59,21 +59,25 @@ class AppDataAdapter(
         val item = holder.item!!
 
         val billModel = testRule(item)
-        if(billModel == null){
+        if (billModel == null) {
             // update version
-            item.version  = version
+            item.version = version
             AppDataModel.put(item)
             return@withContext
         }
         item.match = true
         item.rule = billModel.ruleName
-        item.version  = version
+        item.version = version
         val position = indexOf(item)
-        AppDataModel.put(item)
-        Logger.d("Identification successful！${item.data}")
-        withContext(Dispatchers.Main) {
-            list[position] = item
-            notifyItemChanged(position)
+        if (position != -1 && position < list.size) {
+            AppDataModel.put(item)
+            Logger.d("Identification successful！${item.data}")
+            withContext(Dispatchers.Main) {
+                list[position] = item
+                notifyItemChanged(position)
+            }
+        } else {
+            Logger.d("Invalid position: $position")
         }
     }
 
