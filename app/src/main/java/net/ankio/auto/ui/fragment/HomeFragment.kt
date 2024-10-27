@@ -438,13 +438,13 @@ class HomeFragment : BaseFragment() {
      * 检查更新
      */
     private suspend fun checkUpdate(showResult: Boolean = false): Boolean {
+        if (!isAdded) return true
         if (ConfigUtils.getBoolean(Setting.CHECK_RULE_UPDATE, true)) {
             checkRuleUpdate(showResult)
         }
         if (ConfigUtils.getBoolean(Setting.CHECK_APP_UPDATE, true)) {
             checkAppUpdate()
         }
-
         return true
     }
 
