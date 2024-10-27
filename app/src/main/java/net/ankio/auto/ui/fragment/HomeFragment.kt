@@ -227,6 +227,7 @@ class HomeFragment : BaseFragment() {
      * 绑定激活部分的UI
      */
     private fun bindActiveUI() {
+        if (_binding == null) return
         val colorPrimary =
             App.getThemeAttrColor(com.google.android.material.R.attr.colorPrimary)
 
@@ -252,6 +253,7 @@ class HomeFragment : BaseFragment() {
      * 绑定规则部分的UI
      */
     private fun bindRuleUI() {
+        if (_binding == null) return
         val ruleVersion = ConfigUtils.getString(Setting.RULE_VERSION, "None")
         binding.ruleVersion.text = ruleVersion
     }
@@ -260,7 +262,7 @@ class HomeFragment : BaseFragment() {
      * 绑定规则部分的事件
      */
     private fun bindRuleEvents() {
-
+        if (_binding == null) return
         binding.categoryMap.setOnClickListener {
             findNavController().navigate(R.id.categoryMapFragment)
         }
