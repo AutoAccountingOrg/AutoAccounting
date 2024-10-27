@@ -41,6 +41,7 @@ abstract class BaseSheetDialog(private val context: Context) :
         float: Boolean = false,
         cancel: Boolean = false,
     ) {
+
         val inflater = LayoutInflater.from(context)
         val root = this.onCreateView(inflater)
         this.setContentView(root)
@@ -105,7 +106,6 @@ abstract class BaseSheetDialog(private val context: Context) :
                 if (round) margin else margin * 2,
             )
         }
-
         super.show()
     }
 

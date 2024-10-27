@@ -31,7 +31,8 @@ import rikka.html.text.toHtml
 
 class UpdateDialog(
     private val context: Activity,
-    private val baseUpdate: BaseUpdate
+    private val baseUpdate: BaseUpdate,
+    private val finish: () -> Unit
 ) : BaseSheetDialog(context) {
     private lateinit var binding: DialogUpdateBinding
 
@@ -48,7 +49,9 @@ class UpdateDialog(
             if (baseUpdate is RuleUpdate) context.getString(R.string.rule) else context.getString(R.string.app)
         binding.update.setOnClickListener {
             lifecycleScope.launch {
-                baseUpdate.update(context)
+                baseUpdate.update(context){
+                    dismiss()
+                }
             }
         }
 
@@ -57,22 +60,10 @@ class UpdateDialog(
         return binding.root
     }
 
-    private lateinit var broadcastReceiver: BroadcastReceiver
-
-    //监听更新完成广播
-    override fun show(float: Boolean, cancel: Boolean) {
-        super.show(float, cancel)
-        broadcastReceiver =
-            LocalBroadcastHelper.registerReceiver(LocalBroadcastHelper.ACTION_UPDATE_FINISH) { _, _ ->
-                dismiss()
-            }
-    }
 
     override fun dismiss() {
+        finish()
         super.dismiss()
-        if (this::broadcastReceiver.isInitialized) LocalBroadcastHelper.unregisterReceiver(
-            broadcastReceiver
-        )
     }
 
 }

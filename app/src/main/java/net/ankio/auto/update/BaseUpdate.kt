@@ -151,7 +151,7 @@ abstract class BaseUpdate(context: Context) {
         return arrayOf("", "", "")
     }
 
-    abstract suspend fun update(activity: Activity)
+    abstract suspend fun update(activity: Activity,finish: () -> Unit)
 
 
     fun date(date: String): String {

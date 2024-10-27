@@ -27,6 +27,7 @@ import androidx.annotation.DrawableRes
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.elevation.SurfaceColors
 import kotlinx.coroutines.launch
@@ -41,6 +42,7 @@ import net.ankio.auto.databinding.FragmentHomeBinding
 import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseFragment
+import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.dialog.AppDialog
 import net.ankio.auto.ui.dialog.AssetsSelectorDialog
 import net.ankio.auto.ui.dialog.BookSelectorDialog
@@ -62,6 +64,7 @@ import rikka.html.text.toHtml
 class HomeFragment : BaseFragment() {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
+    private val dialogs = mutableListOf<BaseSheetDialog>()
     override val menuList: ArrayList<ToolbarMenuItem> =
         arrayListOf(
             ToolbarMenuItem(R.string.title_log, R.drawable.menu_item_log) {
@@ -167,7 +170,11 @@ class HomeFragment : BaseFragment() {
      */
     private  fun checkBookApp():Boolean {
         if (ConfigUtils.getString(Setting.BOOK_APP_ID, "").isEmpty()) {
-            AppDialog(requireContext()).show(cancel = true)
+            val appDialog = AppDialog(requireContext()){
+                bindBookAppUI()
+            }
+            appDialog.show(cancel = true)
+            dialogs.add(appDialog)
             return false
         }
         return true
@@ -248,22 +255,9 @@ class HomeFragment : BaseFragment() {
     }
 
     /**
-     * 本地广播
-     */
-    private lateinit var broadcastReceiver: BroadcastReceiver
-
-    /**
      * 绑定规则部分的事件
      */
     private fun bindRuleEvents() {
-
-        broadcastReceiver =
-            LocalBroadcastHelper.registerReceiver(LocalBroadcastHelper.ACTION_UPDATE_FINISH) { a, b ->
-                if (context == null)return@registerReceiver
-                runCatching {
-                    refreshUI()
-                }
-            }
 
         binding.categoryMap.setOnClickListener {
             findNavController().navigate(R.id.categoryMapFragment)
@@ -298,7 +292,11 @@ class HomeFragment : BaseFragment() {
         val ruleUpdate = RuleUpdate(requireContext())
         runCatching {
             if (ruleUpdate.check(showResult)) {
-                UpdateDialog(requireActivity(), ruleUpdate).show(cancel = true)
+                val updateDialog = UpdateDialog(requireActivity(), ruleUpdate) {
+                    bindRuleUI()
+                }
+                updateDialog.show(cancel = true)
+                dialogs.add(updateDialog)
             }
         }.onFailure {
             Logger.e("checkRuleUpdate", it)
@@ -309,12 +307,15 @@ class HomeFragment : BaseFragment() {
      * 检查应用更新
      */
     private suspend fun checkAppUpdate(showResult: Boolean = false) {
-        Logger.d("checkAppUpdate, showResult: $showResult")
-        if (context == null) return // 防止空指针
+        if (context == null) return
         val appUpdate = AppUpdate(requireContext())
         runCatching {
             if (appUpdate.check(showResult)) {
-                UpdateDialog(requireActivity(), appUpdate).show(cancel = true)
+                val updateDialog = UpdateDialog(requireActivity(), appUpdate) {
+                    bindRuleUI()
+                }
+                updateDialog.show(cancel = true)
+                dialogs.add(updateDialog)
             }
         }.onFailure {
             Logger.e("checkAppUpdate", it)
@@ -326,15 +327,12 @@ class HomeFragment : BaseFragment() {
      */
     override fun onDestroy() {
         super.onDestroy()
-        if (::broadcastReceiver.isInitialized) {
-            LocalBroadcastHelper.unregisterReceiver(broadcastReceiver)
-        }
-        if (::broadcastReceiverBook.isInitialized) {
-            LocalBroadcastHelper.unregisterReceiver(broadcastReceiverBook)
-        }
-    }
 
-    private lateinit var broadcastReceiverBook: BroadcastReceiver
+        dialogs.forEach {
+            it.dismiss()
+        }
+        dialogs.clear()
+    }
 
     /**
      * 绑定记账软件数据部分的事件
@@ -344,12 +342,12 @@ class HomeFragment : BaseFragment() {
          * 获取主题Context，部分弹窗样式不含M3主题
          */
         val themeContext = App.getThemeContext(requireContext())
-        broadcastReceiverBook =
-            LocalBroadcastHelper.registerReceiver(LocalBroadcastHelper.ACTION_APP_CHANGED) { a, b ->
+        binding.bookAppContainer.setOnClickListener {
+            val appDialog = AppDialog(requireContext()){
                 bindBookAppUI()
             }
-        binding.bookAppContainer.setOnClickListener {
-            AppDialog(requireContext()).show(false)
+            appDialog.show(false)
+            dialogs.add(appDialog)
         }
         // 资产映射
         binding.map.setOnClickListener {
@@ -358,30 +356,37 @@ class HomeFragment : BaseFragment() {
         }
         // 资产管理（只读）
         binding.readAssets.setOnClickListener {
-            AssetsSelectorDialog(themeContext) {
+            val assetsDialog = AssetsSelectorDialog(themeContext) {
                 Logger.d("Choose Asset: ${it.name}")
-            }.show(cancel = true)
+            }
+            assetsDialog.show(cancel = true)
+            dialogs.add(assetsDialog)
         }
         // 账本数据（只读）
         binding.book.setOnClickListener {
-            BookSelectorDialog(themeContext) { book, _ ->
+            val bookDialog = BookSelectorDialog(themeContext) { book, _ ->
                 Logger.d("Choose Book: ${book.name}")
-                // defaultBook
                 ConfigUtils.putString(Setting.DEFAULT_BOOK_NAME, book.name)
-                refreshUI()
-            }.show(cancel = true)
+                bindBookAppUI()
+            }
+            bookDialog.show(cancel = true) 
+            dialogs.add(bookDialog)
         }
         // 分类数据（只读）
         binding.readCategory.setOnClickListener {
-            BookSelectorDialog(themeContext, true) { book, type ->
-                CategorySelectorDialog(
+            val bookDialog = BookSelectorDialog(themeContext, true) { book, type ->
+                val categoryDialog = CategorySelectorDialog(
                     themeContext,
                     book.remoteId,
                     type
                 ) { categoryModel1: CategoryModel?, categoryModel2: CategoryModel? ->
                     Logger.d("Book: ${book.name}, Type: $type, Choose Category：${categoryModel1?.name ?: ""} - ${categoryModel2?.name ?: ""}")
-                }.show(cancel = true)
-            }.show(cancel = true)
+                }
+                categoryDialog.show(cancel = true)
+                dialogs.add(categoryDialog)
+            }
+            bookDialog.show(cancel = true)
+            dialogs.add(bookDialog)
         }
 
     }
@@ -454,7 +459,17 @@ class HomeFragment : BaseFragment() {
     }
 
     override fun onDestroyView() {
-        super.onDestroyView()
+        // 关闭所有对话框
+        dialogs.forEach { dialog ->
+            try {
+                dialog.dismiss()
+            } catch (e: Exception) {
+                Logger.e("Failed to dismiss dialog", e)
+            }
+        }
+        dialogs.clear()
+        
         _binding = null
+        super.onDestroyView()
     }
 }

@@ -66,7 +66,7 @@ class RuleUpdate(private val context: Context) : BaseUpdate(context) {
     }
 
 
-    override suspend fun update(activity: Activity) {
+    override suspend fun update(activity: Activity, finish: () -> Unit) {
         if (version.isEmpty()) return
         val loading = LoadingUtils(activity)
         loading.show(activity.getString(R.string.downloading))
@@ -204,7 +204,7 @@ class RuleUpdate(private val context: Context) : BaseUpdate(context) {
                 ToastUtils.error(R.string.update_error)
             }finally {
                 loading.close()
-                LocalBroadcastHelper.sendBroadcast(LocalBroadcastHelper.ACTION_UPDATE_FINISH)
+               finish()
             }
         }
 

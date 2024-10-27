@@ -31,7 +31,7 @@ import org.ezbook.server.constant.Setting
 /**
  * 记账软件选择对话框
  */
-class AppDialog(private val context: Context) : BaseSheetDialog(context) {
+class AppDialog(private val context: Context,private val finish:()->Unit) : BaseSheetDialog(context) {
     private lateinit var binding: DialogAppBinding
 
     private var apps = mutableListOf(
@@ -55,11 +55,15 @@ class AppDialog(private val context: Context) : BaseSheetDialog(context) {
         recyclerView.adapter =
             AppListAdapter(context, apps, ConfigUtils.getString(Setting.BOOK_APP_ID)) {
                 ConfigUtils.putString(Setting.BOOK_APP_ID, it.packageName)
-                LocalBroadcastHelper.sendBroadcast(LocalBroadcastHelper.ACTION_APP_CHANGED)
                 dismiss()
             }
 
 
         return binding.root
+    }
+
+    override fun dismiss() {
+        finish()
+        super.dismiss()
     }
 }
