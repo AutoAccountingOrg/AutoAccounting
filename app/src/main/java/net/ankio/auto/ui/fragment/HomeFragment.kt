@@ -171,7 +171,9 @@ class HomeFragment : BaseFragment() {
     private  fun checkBookApp():Boolean {
         if (ConfigUtils.getString(Setting.BOOK_APP_ID, "").isEmpty()) {
             val appDialog = AppDialog(requireContext()){
-                bindBookAppUI()
+               App.runOnUiThread {
+                   bindBookAppUI()
+               }
             }
             appDialog.show(cancel = true)
             dialogs.add(appDialog)
@@ -293,7 +295,9 @@ class HomeFragment : BaseFragment() {
         runCatching {
             if (ruleUpdate.check(showResult)) {
                 val updateDialog = UpdateDialog(requireActivity(), ruleUpdate) {
-                    bindRuleUI()
+                    App.runOnUiThread {
+                        bindRuleUI()
+                    }
                 }
                 updateDialog.show(cancel = true)
                 dialogs.add(updateDialog)
@@ -312,7 +316,9 @@ class HomeFragment : BaseFragment() {
         runCatching {
             if (appUpdate.check(showResult)) {
                 val updateDialog = UpdateDialog(requireActivity(), appUpdate) {
-                    bindRuleUI()
+                    App.runOnUiThread {
+                        bindRuleUI()
+                    }
                 }
                 updateDialog.show(cancel = true)
                 dialogs.add(updateDialog)
@@ -344,7 +350,9 @@ class HomeFragment : BaseFragment() {
         val themeContext = App.getThemeContext(requireContext())
         binding.bookAppContainer.setOnClickListener {
             val appDialog = AppDialog(requireContext()){
-                bindBookAppUI()
+                App.runOnUiThread {
+                    bindBookAppUI()
+                }
             }
             appDialog.show(false)
             dialogs.add(appDialog)
@@ -367,7 +375,9 @@ class HomeFragment : BaseFragment() {
             val bookDialog = BookSelectorDialog(themeContext) { book, _ ->
                 Logger.d("Choose Book: ${book.name}")
                 ConfigUtils.putString(Setting.DEFAULT_BOOK_NAME, book.name)
-                bindBookAppUI()
+                App.runOnUiThread {
+                    bindBookAppUI()
+                }
             }
             bookDialog.show(cancel = true) 
             dialogs.add(bookDialog)
