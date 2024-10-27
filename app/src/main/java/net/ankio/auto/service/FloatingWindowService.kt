@@ -228,9 +228,11 @@ class FloatingWindowService : Service() {
     }
 
     private fun removeTips(binding: FloatTipBinding) {
-        if (binding.root.isAttachedToWindow && !binding.root.isHardwareAccelerated) {
+        runCatching {
             windowManager.removeView(binding.root)
             floatingViews.remove(binding)
+        }.onFailure {
+            Logger.e("Failed to remove tips", it)
         }
     }
 
