@@ -293,9 +293,11 @@ class HomeFragment : BaseFragment() {
      * 检查规则更新
      */
     private suspend fun checkRuleUpdate(showResult: Boolean) {
+        if (!isAdded) return
         val ruleUpdate = RuleUpdate(requireContext())
         runCatching {
             if (ruleUpdate.check(showResult)) {
+
                 val updateDialog = UpdateDialog(requireActivity(), ruleUpdate) {
                     App.runOnUiThread {
                         bindRuleUI()
