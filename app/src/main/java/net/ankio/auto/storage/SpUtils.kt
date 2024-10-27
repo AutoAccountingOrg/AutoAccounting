@@ -21,7 +21,11 @@ import net.ankio.auto.App
 
 object SpUtils {
     private fun getPref():SharedPreferences.Editor{
-        val pref = App.app.getSharedPreferences("AutoConfig", Context.MODE_WORLD_READABLE)
+        //getSharedPreferences
+        val pref = runCatching {
+            App.app.getSharedPreferences("AutoConfig", Context.MODE_WORLD_READABLE)
+        }.getOrNull()?:App.app.getSharedPreferences("AutoConfig", Context.MODE_PRIVATE)
+
         val editor = pref.edit()
 
         return editor
