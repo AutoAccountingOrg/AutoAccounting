@@ -51,6 +51,7 @@ class LogFragment : BasePageFragment<LogModel>() {
         arrayListOf(
             ToolbarMenuItem(R.string.item_share, R.drawable.menu_icon_share) {
                 runCatching {
+                    if (!isAdded) return@ToolbarMenuItem  
                     val loadingUtils = LoadingUtils(requireActivity())
                     loadingUtils.show(R.string.loading_logs)
 
@@ -104,6 +105,8 @@ class LogFragment : BasePageFragment<LogModel>() {
                 }
             },
             ToolbarMenuItem(R.string.item_clear, R.drawable.menu_icon_clear) {
+                if (!isAdded) return@ToolbarMenuItem  // 添加检查
+                
                 MaterialAlertDialogBuilder(requireActivity())
                     .setTitle(requireActivity().getString(R.string.delete_data))
                     .setMessage(requireActivity().getString(R.string.delete_msg))
