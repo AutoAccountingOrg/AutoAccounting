@@ -228,7 +228,7 @@ class BaoXiaoUtils(
 
         // com.mutangtech.qianji.data.model.AssetAccount r37,
         val asset =
-            net.ankio.auto.xposed.hooks.qianji.sync.AssetsUtils(manifest, classLoader).getAssetByName(billModel.accountNameFrom)
+            AssetsUtils(manifest, classLoader).getAssetByName(billModel.accountNameFrom)
                 ?: throw RuntimeException("找不到资产 key=accountname;value=${billModel.accountNameFrom}")
 
 

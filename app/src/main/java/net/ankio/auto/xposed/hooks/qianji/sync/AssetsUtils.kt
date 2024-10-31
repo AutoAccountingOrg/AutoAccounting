@@ -190,13 +190,20 @@ class AssetsUtils(private val manifest: HookerManifest, private val classLoader:
 
     private var assets: List<*>? = null
 
-    suspend fun getAssetByName(name: String): Any? = withContext(Dispatchers.IO) {
+    suspend fun getAssetByName(name: String,sType: Int=-1): Any? = withContext(Dispatchers.IO) {
         if (assets == null) {
             assets = withContext(Dispatchers.Main){
                 getAssetsList()
             }
         }
-        return@withContext assets?.find {  XposedHelpers.getObjectField(it, "name") as String == name }
+        val asset  = assets!!.filter {
+            XposedHelpers.getObjectField(it, "name") as String == name
+        }
+        if (sType == -1 || asset.isEmpty()) return@withContext asset.firstOrNull()
+        // 债务分类单独处理
+        return@withContext asset.firstOrNull {
+            XposedHelpers.getObjectField(it, "stype") as Int == sType
+        }
     }
 
 
@@ -214,7 +221,7 @@ class AssetsUtils(private val manifest: HookerManifest, private val classLoader:
     }
 
     suspend fun getOrCreateAssetByNameWrap(name: String,type:Int,sType:Int): AssetAccount = withContext(Dispatchers.IO) {
-        val asset = AssetAccount(classLoader,getAssetByName(name))
+        val asset = AssetAccount(classLoader,getAssetByName(name,sType))
         asset.setType(type)
         asset.setStype(sType)
         asset.setName(name)
