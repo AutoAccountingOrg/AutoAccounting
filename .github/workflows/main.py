@@ -280,7 +280,7 @@ def publish_to_pan(workspace,tag,channel):
 
     upload(workspace + "/dist/app-lsposed-signed.apk", tag + ".apk", channel)
 
-def send_apk_with_changelog(workspace):
+def send_apk_with_changelog(workspace,title):
     with open(workspace + '/dist/README.md', 'r', encoding='utf-8') as file:
         content = file.read()
     apk_path = workspace + '/dist/app-lsposed-signed.apk'
@@ -290,7 +290,7 @@ def send_apk_with_changelog(workspace):
 
     # 打开 APK 文件
     files = {
-        "document": open(apk_path, "rb")
+        "document": (title + ".apk", open(apk_path, "rb"))
     }
 
     # 数据部分，包含 Channel ID 和更新日志作为 caption
@@ -328,7 +328,7 @@ def send_forums( title, channel,workspace):
 """
 def notify(title,channel,workspace):
     # send_forums( title,channel,workspace)
-    send_apk_with_changelog( workspace)
+    send_apk_with_changelog( workspace,title)
 
 
 def main(repo):
