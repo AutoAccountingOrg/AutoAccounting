@@ -186,6 +186,12 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
         if (billInfoModel.auto){
             billInfoModel.state =  BillState.Edited
         }
+
+        // 时间容错：部分规则可能识别的时间准确，需要容错，小于2000年之前的时间认为是错误的
+        if (billInfoModel.time < 946656000000){
+            billInfoModel.time = System.currentTimeMillis()
+        }
+
         Db.get().billInfoDao().update(billInfoModel)
         Server.log("BillInfoModel: $billInfoModel")
         if (!fromAppData) {
