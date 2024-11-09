@@ -66,7 +66,7 @@ class FloatingWindowTriggerActivity : Activity() {
     }
 
     private fun exitActivity() {
-        finishAffinity()
+        finish()
         overridePendingTransition(0, 0)
         window.setWindowAnimations(0)
     }
