@@ -15,7 +15,6 @@
 
 package net.ankio.auto.ui.fragment
 
-import android.content.BroadcastReceiver
 import android.os.Bundle
 import android.provider.Settings
 import android.text.method.LinkMovementMethod
@@ -27,16 +26,12 @@ import androidx.annotation.DrawableRes
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.elevation.SurfaceColors
 import kotlinx.coroutines.launch
 import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
-import net.ankio.auto.broadcast.LocalBroadcastHelper
-import net.ankio.auto.xposed.common.ActiveInfo
-import net.ankio.auto.xposed.common.ServerInfo
 import net.ankio.auto.databinding.AboutDialogBinding
 import net.ankio.auto.databinding.FragmentHomeBinding
 import net.ankio.auto.storage.ConfigUtils
@@ -53,6 +48,8 @@ import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.update.AppUpdate
 import net.ankio.auto.update.RuleUpdate
 import net.ankio.auto.utils.CustomTabsHelper
+import net.ankio.auto.xposed.common.ActiveInfo
+import net.ankio.auto.xposed.common.ServerInfo
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BookNameModel
 import org.ezbook.server.db.model.CategoryModel
