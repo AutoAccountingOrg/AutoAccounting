@@ -17,6 +17,7 @@ package net.ankio.auto.ui.activity
 
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.view.Gravity
 import android.view.WindowManager
@@ -30,6 +31,11 @@ class FloatingWindowTriggerActivity : Activity() {
         super.onCreate(savedInstanceState)
         createOnePxWindow()
         setTheme(R.style.TransparentActivityTheme)
+        setVerticalScreen()
+    }
+
+    private fun setVerticalScreen(){
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
     }
 
     private fun createOnePxWindow() {
