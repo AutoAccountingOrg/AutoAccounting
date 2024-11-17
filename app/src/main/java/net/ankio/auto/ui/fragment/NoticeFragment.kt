@@ -81,9 +81,9 @@ class NoticeFragment : BasePageFragment<AppInfo>() {
                 if (!appName.contains(searchData, true)) continue
             }
 
-            val isSystemApp = (applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
+        //    val isSystemApp = (applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
 
-            if (isSystemApp) continue
+           // if (isSystemApp) continue
 
             var isSelected = false
             if (selectedApps.contains(packageName)) {
