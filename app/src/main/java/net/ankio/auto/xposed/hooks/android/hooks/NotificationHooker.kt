@@ -39,7 +39,6 @@ import org.ezbook.server.db.model.SettingModel
 
 class NotificationHooker : PartHooker() {
     private var selectedApps = listOf<String>()
-    private var lastTime = 0L
     private val hashTable = MD5HashTable()
     override fun hook(
         hookerManifest: HookerManifest,
