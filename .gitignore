@@ -11,3 +11,8 @@ local.properties
 /.github/workflows/env.json
 /.github/workflows/.idea
 /app/xposed/release/*
+/.vscode/settings.json
+/app/lsposed/release/baselineProfiles/0/app.dm
+/app/lsposed/release/baselineProfiles/1/app.dm
+/app/lsposed/release/app.apk
+/app/lsposed/release/output-metadata.json
