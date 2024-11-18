@@ -15,16 +15,12 @@
 
 package org.ezbook.server.routes
 
-import com.google.gson.Gson
 import io.ktor.application.ApplicationCall
 import io.ktor.http.Parameters
 import io.ktor.request.receive
-import org.ezbook.server.Server
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.AppDataModel
 import org.ezbook.server.models.ResultModel
-import org.nanohttpd.protocols.http.IHTTPSession
-import org.nanohttpd.protocols.http.response.Response
 
 class AppDataRoute(private val session: ApplicationCall) {
     private val params: Parameters = session.request.queryParameters

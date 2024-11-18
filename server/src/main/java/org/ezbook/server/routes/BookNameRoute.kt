@@ -15,7 +15,6 @@
 
 package org.ezbook.server.routes
 
-import com.google.gson.Gson
 import io.ktor.application.ApplicationCall
 import io.ktor.http.Parameters
 import io.ktor.request.receive

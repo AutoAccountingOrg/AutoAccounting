@@ -18,11 +18,9 @@ package org.ezbook.server.routes
 import io.ktor.application.ApplicationCall
 import io.ktor.http.Parameters
 import io.ktor.request.receiveText
-import org.ezbook.server.Server
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.SettingModel
 import org.ezbook.server.models.ResultModel
-import org.nanohttpd.protocols.http.response.Response
 
 class SettingRoute(private val session: ApplicationCall) {
     private val params: Parameters = session.request.queryParameters

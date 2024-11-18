@@ -16,27 +16,14 @@
 package org.ezbook.server.routes
 
 import io.ktor.application.ApplicationCall
-import io.ktor.http.Parameters
 import io.ktor.http.content.PartData
 import io.ktor.http.content.forEachPart
 import io.ktor.http.content.streamProvider
 import io.ktor.request.receiveMultipart
 import io.ktor.response.respond
 import io.ktor.response.respondFile
-import org.ezbook.server.Server
 import org.ezbook.server.db.Db
 import org.ezbook.server.models.ResultModel
-import org.nanohttpd.protocols.http.IHTTPSession
-import org.nanohttpd.protocols.http.NanoHTTPD.MIME_PLAINTEXT
-import org.nanohttpd.protocols.http.NanoHTTPD.ResponseException
-import org.nanohttpd.protocols.http.request.Method
-import org.nanohttpd.protocols.http.response.Response
-import org.nanohttpd.protocols.http.response.Response.newChunkedResponse
-import org.nanohttpd.protocols.http.response.Response.newFixedLengthResponse
-import org.nanohttpd.protocols.http.response.Status
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
 import java.io.IOException
 
 

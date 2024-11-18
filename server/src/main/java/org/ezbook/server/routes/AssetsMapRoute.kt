@@ -18,7 +18,6 @@ package org.ezbook.server.routes
 import io.ktor.application.ApplicationCall
 import io.ktor.http.Parameters
 import io.ktor.request.receive
-import org.ezbook.server.Server
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.AssetsMapModel
 import org.ezbook.server.models.ResultModel
