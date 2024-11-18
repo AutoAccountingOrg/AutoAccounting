@@ -15,81 +15,81 @@
 
 package org.ezbook.server.routes
 
-import com.google.gson.Gson
+import io.ktor.application.ApplicationCall
+import io.ktor.http.Parameters
+import io.ktor.request.receive
 import org.ezbook.server.Server
 import org.ezbook.server.constant.BillState
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.BillInfoModel
-import org.nanohttpd.protocols.http.IHTTPSession
-import org.nanohttpd.protocols.http.response.Response
+import org.ezbook.server.models.ResultModel
 
-class BillRoute(private val session: IHTTPSession) {
-
-    fun list(): Response {
+class BillRoute(private val session: ApplicationCall) {
+    private val params: Parameters = session.request.queryParameters
+    fun list(): ResultModel {
         Db.get().billInfoDao().deleteNoGroup()
         //删除一年之前的账单数据
         Db.get().billInfoDao().clearOld(System.currentTimeMillis() - 365L * 24 * 60 * 60 * 1000)
         //获取分页数据
-        val params = session.parameters
-        val page = params["page"]?.firstOrNull()?.toInt() ?: 1
-        val limit = params["limit"]?.firstOrNull()?.toInt() ?: 10
+        val page = params["page"]?.toInt() ?: 1
+        val limit = params["limit"]?.toInt() ?: 10
         val offset = (page - 1) * limit
         val logs = Db.get().billInfoDao().loadPage(limit, offset)
-        return Server.json(200, "OK", logs)
+        return ResultModel(200, "OK", logs)
     }
 
 
-    fun put(): Response {
-        val json = Gson().fromJson(Server.reqData(session), BillInfoModel::class.java)
+    suspend fun put(): ResultModel {
+        val json = session.receive(BillInfoModel::class)
         val query = Db.get().billInfoDao().queryId(json.id)
         if (query != null) {
             Db.get().billInfoDao().update(json)
-            return Server.json(200, "OK", json.id)
+            return ResultModel(200, "OK", json.id)
         } else {
             val id = Db.get().billInfoDao().insert(json)
-            return Server.json(200, "OK", id)
+            return ResultModel(200, "OK", id)
         }
     }
 
-    fun remove(): Response {
+    fun remove(): ResultModel {
         val params = session.parameters
-        val id = params["id"]?.firstOrNull()?.toLong() ?: 0
+        val id = params["id"]?.toLong() ?: 0
         Server.log("删除账单:$id")
         Db.get().billInfoDao().deleteId(id)
         Db.get().billInfoDao().deleteGroup(id)
-        return Server.json(200, "OK", 0)
+        return ResultModel(200, "OK", 0)
     }
 
-    fun sync(): Response {
+    fun sync(): ResultModel {
         val result = Db.get().billInfoDao().queryNoSync()
-        return Server.json(200, "OK", result)
+        return ResultModel(200, "OK", result)
     }
 
-    fun status(): Response {
+    fun status(): ResultModel {
         val params = session.parameters
-        val id = params["id"]?.firstOrNull()?.toLong() ?: 0
-        val status = params["sync"]?.firstOrNull()?.toBoolean() ?: false
+        val id = params["id"]?.toLong() ?: 0
+        val status = params["sync"]?.toBoolean() ?: false
         Db.get().billInfoDao().updateStatus(id, if (status) BillState.Synced else BillState.Edited)
-        return Server.json(200, "OK", 0)
+        return ResultModel(200, "OK", 0)
     }
 
-    fun group(): Response {
+    fun group(): ResultModel {
         val params = session.parameters
-        val id = params["id"]?.firstOrNull()?.toLong() ?: 0
+        val id = params["id"]?.toLong() ?: 0
         val result = Db.get().billInfoDao().queryGroup(id)
-        return Server.json(200, "OK", result)
+        return ResultModel(200, "OK", result)
     }
 
-    fun get(): Response {
+    fun get(): ResultModel {
         val params = session.parameters
-        val id = params["id"]?.firstOrNull()?.toLong() ?: 0
+        val id = params["id"]?.toLong() ?: 0
         val result = Db.get().billInfoDao().queryId(id)
-        return Server.json(200, "OK", result)
+        return ResultModel(200, "OK", result)
     }
 
-    fun clear(): Response {
+    fun clear(): ResultModel {
         Db.get().billInfoDao().clearOld(System.currentTimeMillis())
-        return Server.json(200,"OK")
+        return ResultModel(200,"OK")
     }
 
 }

@@ -16,30 +16,33 @@
 package org.ezbook.server.routes
 
 import com.google.gson.Gson
+import io.ktor.application.ApplicationCall
+import io.ktor.http.Parameters
+import io.ktor.request.receive
 import org.ezbook.server.Server
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.AppDataModel
+import org.ezbook.server.models.ResultModel
 import org.nanohttpd.protocols.http.IHTTPSession
 import org.nanohttpd.protocols.http.response.Response
 
-class AppDataRoute(private val session: IHTTPSession) {
+class AppDataRoute(private val session: ApplicationCall) {
+    private val params: Parameters = session.request.queryParameters
     /**
      * 获取规则列表
      */
-    fun list(): Response {
+    fun list(): ResultModel {
 
         // 清理过期数据
         Db.get().dataDao().clearOld()
+        
+        val page = params["page"]?.toInt() ?: 1
+        val limit = params["limit"]?.toInt() ?: 10
 
-
-        val params = session.parameters
-        val page = params["page"]?.firstOrNull()?.toInt() ?: 1
-        val limit = params["limit"]?.firstOrNull()?.toInt() ?: 10
-
-        val app = params["app"]?.firstOrNull() ?: ""
-        var type: String? = params["type"]?.firstOrNull() ?: ""
-        val match = params["match"]?.firstOrNull()?.toBoolean() ?: false
-        var search: String? = params["search"]?.firstOrNull() ?: ""
+        val app = params["app"] ?: ""
+        var type: String? = params["type"] ?: ""
+        val match = params["match"]?.toBoolean() ?: false
+        var search: String? = params["search"] ?: ""
         if (type == "") type = null
 
         if (search == "") search = null
@@ -47,21 +50,21 @@ class AppDataRoute(private val session: IHTTPSession) {
         val offset = (page - 1) * limit
 
         val logs = Db.get().dataDao().load(limit, offset, app, match,type, search)
-        return Server.json(200, "OK", logs)
+        return ResultModel(200, "OK", logs)
     }
 
     /**
      * 添加规则，
      */
-    fun clear(): Response {
+    fun clear(): ResultModel {
         Db.get().dataDao().clear()
-        return Server.json(200, "OK")
+        return ResultModel(200, "OK")
     }
 
     /**
      * 获取app列表
      */
-    fun apps(): Response {
+    fun apps(): ResultModel {
         val apps = Db.get().dataDao().queryApps()
         val map = hashMapOf<String, Int>()
         apps.forEach {
@@ -71,23 +74,23 @@ class AppDataRoute(private val session: IHTTPSession) {
                 map[it] = map[it]!! + 1
             }
         }
-        return Server.json(200, "OK", map)
+        return ResultModel(200, "OK", map)
     }
 
-    fun put(): Response {
-        val data = Gson().fromJson(Server.reqData(session), AppDataModel::class.java)
+    suspend fun put(): ResultModel {
+        val data = session.receive(AppDataModel::class)
         if (data.id == 0L) {
             Db.get().dataDao().insert(data)
         } else {
             Db.get().dataDao().update(data)
         }
-        return Server.json(200, "OK")
+        return ResultModel(200, "OK")
     }
 
-    fun delete(): Response {
-        val id = session.parameters["id"]?.firstOrNull()?.toLong() ?: 0
+    fun delete(): ResultModel {
+        val id = params["id"]?.toLong() ?: 0
         Db.get().dataDao().delete(id)
-        return Server.json(200, "OK")
+        return ResultModel(200, "OK")
     }
 
 }

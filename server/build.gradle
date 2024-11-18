@@ -49,8 +49,7 @@ dependencies {
     testImplementation libs.junit
     androidTestImplementation libs.androidx.test.ext.junit
     androidTestImplementation libs.espresso.core
-    //http
-    implementation 'com.gitee.l0km:nanohttpd:2.3.3'
+
     //gson
     implementation libs.gson
     //sqlite

@@ -15,45 +15,45 @@
 
 package org.ezbook.server.routes
 
+import io.ktor.application.ApplicationCall
+import io.ktor.http.Parameters
+import io.ktor.request.receiveText
 import org.ezbook.server.Server
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.SettingModel
-import org.nanohttpd.protocols.http.IHTTPSession
+import org.ezbook.server.models.ResultModel
 import org.nanohttpd.protocols.http.response.Response
 
-class SettingRoute(private val session: IHTTPSession) {
+class SettingRoute(private val session: ApplicationCall) {
+    private val params: Parameters = session.request.queryParameters
     /**
      * 获取设置
      */
-    fun get(): Response {
-        val params = session.parameters
-        val key = params["key"]?.firstOrNull()?.toString() ?: ""
+    fun get(): ResultModel {
+        val key = params["key"] ?: ""
         if (key === "") {
-            return Server.json(400, "key is required")
+            return ResultModel(400, "key is required")
         }
         val data = Db.get().settingDao().query(key)
 
-        return Server.json(200, "OK", data?.value ?: "")
+        return ResultModel(200, "OK", data?.value ?: "")
     }
 
     /**
      * 设置
      */
-    fun set(): Response {
-        val key = session.parameters["key"]?.firstOrNull()?.toString() ?: ""
+    suspend fun set():ResultModel {
+        val key = params["key"] ?: ""
         if (key === "") {
-            return Server.json(400, "key is required")
+            return ResultModel(400, "key is required")
         }
-
-        val value = Server.reqData(session)
-
+        val value = session.receiveText()
         setByInner(key, value)
-        return Server.json(200, "OK")
-
+        return ResultModel(200, "OK")
     }
 
-    fun list(): Response {
-        return Server.json(200, "OK", Db.get().settingDao().load())
+    fun list():ResultModel {
+        return ResultModel(200, "OK", Db.get().settingDao().load())
     }
 
     companion object {

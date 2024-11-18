@@ -15,66 +15,64 @@
 
 package org.ezbook.server.routes
 
-import android.util.Log
-import com.google.gson.Gson
-import org.ezbook.server.Server
+import io.ktor.application.ApplicationCall
+import io.ktor.http.Parameters
+import io.ktor.request.receive
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.CategoryModel
-import org.nanohttpd.protocols.http.IHTTPSession
-import org.nanohttpd.protocols.http.response.Response
+import org.ezbook.server.models.ResultModel
 
-class CategoryRoute(private val session: IHTTPSession) {
+class CategoryRoute(private val session: ApplicationCall) {
+    private val params: Parameters = session.request.queryParameters
     /**
      * 获取分类
      */
-    fun list(): Response {
-        val params = session.parameters
-        val book = params["book"]?.firstOrNull() ?: ""
+    fun list(): ResultModel {
+        
+        val book = params["book"]?: ""
         if (book.isEmpty()) {
-            return Server.json(400, "book is empty")
+            return ResultModel(400, "book is empty")
         }
-        val type = params["type"]?.firstOrNull() ?: ""
+        val type = params["type"]?: ""
         if (type.isEmpty()) {
-            return Server.json(400, "type is empty")
+            return ResultModel(400, "type is empty")
         }
 
-        val parent = params["parent"]?.firstOrNull() ?: "-1"
+        val parent = params["parent"]?: "-1"
 
 
-        return Server.json(200, "OK", Db.get().categoryDao().load(book, type, parent))
+        return ResultModel(200, "OK", Db.get().categoryDao().load(book, type, parent))
     }
 
     /**
      * 设置分类
      */
-    fun put(): Response {
-        val params = session.parameters
-        val md5 = params["md5"]?.firstOrNull() ?: ""
-        val data = Server.reqData(session)
-        val json = Gson().fromJson(data, Array<CategoryModel>::class.java)
+    suspend fun put(): ResultModel {
+        val md5 = params["md5"]?: ""
+        val json = session.receive( Array<CategoryModel>::class)
         val id = Db.get().categoryDao().put(json)
         SettingRoute.setByInner(Setting.HASH_CATEGORY, md5)
-        return Server.json(200, "OK", id)
+        return ResultModel(200, "OK", id)
     }
 
 
-    fun get(): Response {
-        val params = session.parameters
-        var book: String? = params["book"]?.firstOrNull() ?: ""
+    fun get(): ResultModel {
+        
+        var book: String? = params["book"]?: ""
         if (book == "") {
             book = null
         }
-        var type: String? = params["type"]?.firstOrNull() ?: ""
+        var type: String? = params["type"]?: ""
         if (type == "") {
             type = null
         }
-        val name = params["name"]?.firstOrNull() ?: ""
+        val name = params["name"]?: ""
         if (name.isEmpty()) {
-            return Server.json(400, "name is empty")
+            return ResultModel(400, "name is empty")
         }
 
 
-        return Server.json(200, "OK", Db.get().categoryDao().getByName(book, type, name))
+        return ResultModel(200, "OK", Db.get().categoryDao().getByName(book, type, name))
     }
 }

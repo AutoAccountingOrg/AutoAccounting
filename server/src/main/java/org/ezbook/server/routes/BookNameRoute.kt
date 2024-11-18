@@ -16,24 +16,25 @@
 package org.ezbook.server.routes
 
 import com.google.gson.Gson
+import io.ktor.application.ApplicationCall
+import io.ktor.http.Parameters
+import io.ktor.request.receive
 import org.ezbook.server.Server
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.BookNameModel
-import org.nanohttpd.protocols.http.IHTTPSession
 import org.nanohttpd.protocols.http.response.Response
 
-class BookNameRoute(private val session: IHTTPSession) {
+class BookNameRoute(private val session: ApplicationCall) {
+    private val params: Parameters = session.request.queryParameters
     fun list(): Response {
         return Server.json(200, "OK", Db.get().bookNameDao().load())
     }
 
-    fun put(): Response {
-        val params = session.parameters
-        val md5 = params["md5"]?.firstOrNull() ?: ""
-        val data = Server.reqData(session)
-        val json = Gson().fromJson(data, Array<BookNameModel>::class.java)
-        val id = Db.get().bookNameDao().put(json)
+    suspend fun put(): Response {
+        val md5 = params["md5"] ?: ""
+        val data =  session.receive(Array<BookNameModel>::class)
+        val id = Db.get().bookNameDao().put(data)
         SettingRoute.setByInner(Setting.HASH_BOOK, md5)
         return Server.json(200, "OK", id)
     }

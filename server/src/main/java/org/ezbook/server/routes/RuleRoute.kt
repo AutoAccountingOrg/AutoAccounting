@@ -15,25 +15,25 @@
 
 package org.ezbook.server.routes
 
-import com.google.gson.Gson
-import org.ezbook.server.Server
+import io.ktor.application.ApplicationCall
+import io.ktor.http.Parameters
+import io.ktor.request.receive
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.RuleModel
-import org.nanohttpd.protocols.http.IHTTPSession
-import org.nanohttpd.protocols.http.response.Response
+import org.ezbook.server.models.ResultModel
 
-class RuleRoute(private val session: IHTTPSession) {
+class RuleRoute(private val session: ApplicationCall) {
+    private val params: Parameters = session.request.queryParameters
     /**
      * 获取规则列表
      */
-    fun list(): Response {
-        val params = session.parameters
-        val page = params["page"]?.firstOrNull()?.toInt() ?: 1
-        val limit = params["limit"]?.firstOrNull()?.toInt() ?: 10
+    fun list(): ResultModel {
+        val page = params["page"]?.toInt() ?: 1
+        val limit = params["limit"]?.toInt() ?: 10
 
-        val app = params["app"]?.firstOrNull() ?: ""
-        var type: String? = params["type"]?.firstOrNull() ?: ""
-        var search: String? = params["search"]?.firstOrNull() ?: ""
+        val app = params["app"] ?: ""
+        var type: String? = params["type"]?: ""
+        var search: String? = params["search"]?: ""
 
         val offset = (page - 1) * limit
 
@@ -42,45 +42,41 @@ class RuleRoute(private val session: IHTTPSession) {
         if (search == "") search = null
 
         val logs = Db.get().ruleDao().loadByAppAndFilters(limit, offset, app, type, search)
-
-
-        return Server.json(200, "OK", logs)
+        
+        return ResultModel(200, "OK", logs)
     }
 
     /**
      * 添加规则，
      */
-    fun add(): Response {
-        val data = Server.reqData(session)
-        val json = Gson().fromJson(data, RuleModel::class.java)
-        val id = Db.get().ruleDao().insert(json)
-        return Server.json(200, "OK", id)
+    suspend fun add(): ResultModel {
+        val data = session.receive(RuleModel::class)
+        val id = Db.get().ruleDao().insert(data)
+        return ResultModel(200, "OK", id)
     }
 
     /**
      * 更新规则
      */
-    fun update(): Response {
-        val data = Server.reqData(session)
-        val json = Gson().fromJson(data, RuleModel::class.java)
-        val id = Db.get().ruleDao().update(json)
-        return Server.json(200, "OK", id)
+    suspend fun update(): ResultModel {
+        val data = session.receive(RuleModel::class)
+        val id = Db.get().ruleDao().update(data)
+        return ResultModel(200, "OK", id)
     }
 
     /**
      * 删除规则
      */
-    fun delete(): Response {
-        val params = session.parameters
-        val id = params["id"]?.firstOrNull()?.toInt() ?: 0
+    fun delete(): ResultModel {
+        val id = params["id"]?.toInt() ?: 0
         Db.get().ruleDao().delete(id)
-        return Server.json(200, "OK")
+        return ResultModel(200, "OK")
     }
 
     /**
      * 获取app列表
      */
-    fun apps(): Response {
+    fun apps(): ResultModel {
         val apps = Db.get().ruleDao().queryApps()
         val map = hashMapOf<String, Int>()
         apps.forEach {
@@ -90,40 +86,38 @@ class RuleRoute(private val session: IHTTPSession) {
                 map[it] = map[it]!! + 1
             }
         }
-        return Server.json(200, "OK", map)
+        return ResultModel(200, "OK", map)
     }
 
     /**
      * 根据名称获取其中一个规则
      */
-    fun system(): Response {
-        val params = session.parameters
-        val name = params["name"]?.firstOrNull()?.toString() ?: ""
+    fun system(): ResultModel {
+        val name = params["name"] ?: ""
         val rules = Db.get().ruleDao().loadSystemRule(name)
-        return Server.json(200, "OK", rules)
+        return ResultModel(200, "OK", rules)
     }
 
     /**
      * 删除超时未更新的系统规则
      */
-    fun deleteTimeoutSystem(): Response {
+    fun deleteTimeoutSystem(): ResultModel {
         // 删除5分钟前的系统规则
         Db.get().ruleDao().deleteSystemRule(System.currentTimeMillis() - 300 * 1000)
-        return Server.json(200, "OK")
+        return ResultModel(200, "OK")
     }
 
     /**
      * 更新规则
      */
-    fun put(): Response {
-        val data = Server.reqData(session)
-        val json = Gson().fromJson(data, RuleModel::class.java)
-        if (json.id == 0) {
-            val id = Db.get().ruleDao().insert(json)
-            return Server.json(200, "OK", id)
+    suspend fun put(): ResultModel {
+        val data = session.receive(RuleModel::class)
+        if (data.id == 0) {
+            val id = Db.get().ruleDao().insert(data)
+            return ResultModel(200, "OK", id)
         } else {
-            val id = Db.get().ruleDao().update(json)
-            return Server.json(200, "OK", id)
+            val id = Db.get().ruleDao().update(data)
+            return ResultModel(200, "OK", id)
         }
     }
 }

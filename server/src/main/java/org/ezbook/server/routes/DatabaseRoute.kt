@@ -15,8 +15,17 @@
 
 package org.ezbook.server.routes
 
+import io.ktor.application.ApplicationCall
+import io.ktor.http.Parameters
+import io.ktor.http.content.PartData
+import io.ktor.http.content.forEachPart
+import io.ktor.http.content.streamProvider
+import io.ktor.request.receiveMultipart
+import io.ktor.response.respond
+import io.ktor.response.respondFile
 import org.ezbook.server.Server
 import org.ezbook.server.db.Db
+import org.ezbook.server.models.ResultModel
 import org.nanohttpd.protocols.http.IHTTPSession
 import org.nanohttpd.protocols.http.NanoHTTPD.MIME_PLAINTEXT
 import org.nanohttpd.protocols.http.NanoHTTPD.ResponseException
@@ -32,76 +41,43 @@ import java.io.IOException
 
 
 class DatabaseRoute(
-    private val session: IHTTPSession,
+    private val session: ApplicationCall,
     private val context: android.content.Context
 ) {
-
-    fun exportDb(): Response {
+    suspend fun exportDb() {
         val file = Db.copy(context)
         try {
-            // 使用FileInputStream流式读取文件
-            val fis = FileInputStream(file)
-            // 返回流式传输的响应，确保文件不会完全加载到内存
-            val response = newChunkedResponse(Status.OK, "application/octet-stream", fis)
-
-            response.addHeader("Content-Disposition", "attachment; filename=\"auto.db\"")
-
-            return response
-
+            session.respondFile(file, file.name)
         } catch (e: IOException) {
             e.printStackTrace()
-            return newFixedLengthResponse(
-                Status.INTERNAL_ERROR,
-                MIME_PLAINTEXT,
-                "Error Reading File"
-            )
         }
     }
 
-    fun importDb(): Response {
-        if (Method.POST == session.method) {
-            try {
-                // 文件上传请求的表单数据会存储在 files Map 中
-                val files: Map<String, String> = HashMap()
-                // 获取请求的参数，并将上传的文件存储到临时文件
-                session.parseBody(files)
-                // 获取表单中的其他参数
+    suspend fun importDb() {
+        // 检查请求是否是multipart类型
+        val multipart = session.receiveMultipart()
 
-                val filename = files["file"]!! // 表单中文件字段的名称应为 "file"
-                val uploadedFile = File(filename)
-
-                val targetFile = context.getDatabasePath("db_backup.db")
-
-                FileInputStream(uploadedFile).use { `in` ->
-                    FileOutputStream(targetFile).use { out ->
-                        val buffer = ByteArray(1024)
-                        var length: Int
-                        while ((`in`.read(buffer).also { length = it }) > 0) {
-                            out.write(buffer, 0, length)
+        // 遍历接收到的各部分
+        multipart.forEachPart { part ->
+            when (part) {
+                is PartData.FileItem -> {
+                    val targetFile = context.getDatabasePath("db_backup.db")
+                    // 保存文件
+                    part.streamProvider().use { input ->
+                        targetFile.outputStream().buffered().use { output ->
+                            input.copyTo(output)
                         }
                     }
+                    Db.import(context, targetFile)
+                    session.respond(ResultModel(200, "File uploaded successfully"))
+                    return@forEachPart
                 }
-
-                Db.import(context, targetFile)
-
-                // 返回响应
-                return Server.json(200, "File uploaded successfully")
-            } catch (e: IOException) {
-                e.printStackTrace()
-                return Server.json(500, "File upload failed")
-            } catch (e: ResponseException) {
-                e.printStackTrace()
-                return Server.json(500, "File upload failed")
+                else -> {
+                    // 忽略其他部分
+                }
             }
-        } else {
-            // 返回上传文件的 HTML 表单页面
-            val htmlForm = "<html><body>" +
-                    "<form method='post' enctype='multipart/form-data'>" +
-                    "Select a file: <input type='file' name='file'/>" +
-                    "<input type='submit' value='Upload'/>" +
-                    "</form>" +
-                    "</body></html>"
-            return newFixedLengthResponse(htmlForm)
+            part.dispose()
         }
+
     }
 }

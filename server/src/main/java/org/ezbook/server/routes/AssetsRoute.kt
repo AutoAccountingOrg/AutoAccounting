@@ -16,34 +16,34 @@
 package org.ezbook.server.routes
 
 import com.google.gson.Gson
+import io.ktor.application.ApplicationCall
+import io.ktor.http.Parameters
+import io.ktor.request.receive
 import org.ezbook.server.Server
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.AssetsModel
-import org.nanohttpd.protocols.http.IHTTPSession
-import org.nanohttpd.protocols.http.response.Response
+import org.ezbook.server.models.ResultModel
 
-class AssetsRoute(private val session: IHTTPSession) {
-    fun list(): Response {
+class AssetsRoute(private val session: ApplicationCall) {
+    private val params: Parameters = session.request.queryParameters
+    fun list(): ResultModel {
         val logs = Db.get().assetsDao().load(90000, 0)
 
-        return Server.json(200, "OK", logs)
+        return ResultModel(200, "OK", logs)
     }
 
-    fun put(): Response {
-        val params = session.parameters
-        val md5 = params["md5"]?.firstOrNull() ?: ""
-        val data = Server.reqData(session)
-        val json = Gson().fromJson(data, Array<AssetsModel>::class.java)
+    suspend fun put(): ResultModel {
+        val md5 = params["md5"] ?: ""
+        val json = session.receive(Array<AssetsModel>::class)
         val id = Db.get().assetsDao().put(json)
         SettingRoute.setByInner(Setting.HASH_ASSET, md5)
-        return Server.json(200, "OK", id)
+        return ResultModel(200, "OK", id)
     }
 
-    fun get(): Response {
-        val params = session.parameters
-        val name = params["name"]?.firstOrNull() ?: ""
+    fun get(): ResultModel {
+        val name = params["name"] ?: ""
         val data = Db.get().assetsDao().query(name)
-        return Server.json(200, "OK", data)
+        return ResultModel(200, "OK", data)
     }
 }

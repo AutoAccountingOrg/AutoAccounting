@@ -16,37 +16,37 @@
 package org.ezbook.server.routes
 
 import com.google.gson.Gson
+import io.ktor.application.ApplicationCall
+import io.ktor.http.Parameters
+import io.ktor.request.receive
 import org.ezbook.server.Server
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.CategoryMapModel
-import org.nanohttpd.protocols.http.IHTTPSession
-import org.nanohttpd.protocols.http.response.Response
+import org.ezbook.server.models.ResultModel
 
-class CategoryMapRoute(private val session: IHTTPSession) {
-    fun list(): Response {
-        val params = session.parameters
-
-        val limit = params["limit"]?.firstOrNull()?.toInt() ?: 10
+class CategoryMapRoute(private val session: ApplicationCall) {
+    private val params: Parameters = session.request.queryParameters
+    fun list(): ResultModel {
+      
+        val limit = params["limit"]?.toInt() ?: 10
 
 
 
         if (limit == 0) {
-            return Server.json(200, "OK", Db.get().categoryMapDao().loadWithoutLimit())
+            return ResultModel(200, "OK", Db.get().categoryMapDao().loadWithoutLimit())
         }
-        val page = params["page"]?.firstOrNull()?.toInt() ?: 1
+        val page = params["page"]?.toInt() ?: 1
         val offset = (page - 1) * limit
-        var search: String? = params["search"]?.firstOrNull() ?: ""
+        var search: String? = params["search"] ?: ""
         if (search == "") search = null
         val logs = Db.get().categoryMapDao().loadWithLimit(limit, offset, search)
 
 
-        return Server.json(200, "OK", logs)
+        return ResultModel(200, "OK", logs)
     }
 
-    fun put(): Response {
-        val data = Server.reqData(session)
-        val model = Gson().fromJson(data, CategoryMapModel::class.java)
-
+    suspend fun put(): ResultModel {
+        val model = session.receive( CategoryMapModel::class)
         val name = model.name
         val modelItem = Db.get().categoryMapDao().query(name)
         if (modelItem == null) {
@@ -55,13 +55,12 @@ class CategoryMapRoute(private val session: IHTTPSession) {
             model.id = modelItem.id
             Db.get().categoryMapDao().update(model)
         }
-        return Server.json(200, "OK", model.id)
+        return ResultModel(200, "OK", model.id)
     }
 
-    fun delete(): Response {
-        val params = session.parameters
-        val id = (params["id"]?.firstOrNull() ?: "0").toLong()
+    fun delete(): ResultModel {
+        val id = (params["id"] ?: "0").toLong()
         Db.get().categoryMapDao().delete(id)
-        return Server.json(200, "OK", id)
+        return ResultModel(200, "OK", id)
     }
 }

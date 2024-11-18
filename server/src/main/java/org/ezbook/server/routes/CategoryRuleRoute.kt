@@ -15,39 +15,38 @@
 
 package org.ezbook.server.routes
 
-import com.google.gson.Gson
-import org.ezbook.server.Server
+import io.ktor.application.ApplicationCall
+import io.ktor.http.Parameters
+import io.ktor.request.receive
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.CategoryRuleModel
-import org.nanohttpd.protocols.http.IHTTPSession
-import org.nanohttpd.protocols.http.response.Response
+import org.ezbook.server.models.ResultModel
 
-class CategoryRuleRoute(private val session: IHTTPSession) {
-    fun list(): Response {
-        val params = session.parameters
-        val page = params["page"]?.firstOrNull()?.toInt() ?: 1
-        val limit = params["limit"]?.firstOrNull()?.toInt() ?: 10
+class CategoryRuleRoute(private val session: ApplicationCall) {
+    private val params: Parameters = session.request.queryParameters
+    fun list(): ResultModel {
+        
+        val page = params["page"]?.toInt() ?: 1
+        val limit = params["limit"]?.toInt() ?: 10
         val offset = (page - 1) * limit
         val logs = Db.get().categoryRuleDao().load(limit, offset)
-        return Server.json(200, "OK", logs)
+        return ResultModel(200, "OK", logs)
     }
 
-    fun put(): Response {
-        val data = Server.reqData(session)
-        val model = Gson().fromJson(data, CategoryRuleModel::class.java)
+    suspend fun put(): ResultModel {
+        val model = session.receive(CategoryRuleModel::class)
 
         if (model.id == 0L) {
             model.id = Db.get().categoryRuleDao().insert(model)
         } else {
             Db.get().categoryRuleDao().update(model)
         }
-        return Server.json(200, "OK", model.id)
+        return ResultModel(200, "OK", model.id)
     }
 
-    fun delete(): Response {
-        val params = session.parameters
-        val id = (params["id"]?.firstOrNull() ?: "0").toLong()
+    fun delete(): ResultModel {
+        val id = (params["id"]?: "0").toLong()
         Db.get().categoryRuleDao().delete(id)
-        return Server.json(200, "OK", id)
+        return ResultModel(200, "OK", id)
     }
 }

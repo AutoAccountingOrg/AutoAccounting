@@ -21,7 +21,6 @@ import android.os.Looper
 import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.JsonObject
-import io.ktor.application.Application
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.server.netty.NettyApplicationEngine
@@ -35,21 +34,19 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.ezbook.server.constant.LogLevel
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.LogModel
-import org.ezbook.server.server.ServerHttp
 import org.ezbook.server.server.module
 import org.ezbook.server.task.BillProcessor
 import org.nanohttpd.protocols.http.IHTTPSession
 import org.nanohttpd.protocols.http.NanoHTTPD
-import org.nanohttpd.protocols.http.NanoHTTPD.SOCKET_READ_TIMEOUT
 import org.nanohttpd.protocols.http.response.Response
 import org.nanohttpd.protocols.http.response.Response.newFixedLengthResponse
 import org.nanohttpd.protocols.http.response.Status
 import java.net.ConnectException
-import java.util.concurrent.TimeUnit
 import java.net.Proxy
+import java.util.concurrent.TimeUnit
 
 
-class Server(context: Context) {
+class Server(private val context: Context) {
 
     private val port = 52045
 
@@ -63,7 +60,9 @@ class Server(context: Context) {
      * 启动服务
      */
     fun startServer() {
-        server = embeddedServer(Netty, port = port, module = Application::module)
+        server = embeddedServer(Netty, port = port) {
+            module(context)
+        }
         server.start()
         println("Server started on port $port")
         billProcessor = BillProcessor()

@@ -23,6 +23,9 @@ import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.shiqi.quickjs.JSString
 import com.shiqi.quickjs.QuickJS
+import io.ktor.application.ApplicationCall
+import io.ktor.http.Parameters
+import io.ktor.request.receiveText
 import org.ezbook.server.Server
 import org.ezbook.server.ai.ChatGPT
 import org.ezbook.server.ai.DeepSeek
@@ -39,30 +42,30 @@ import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.AppDataModel
 import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.engine.RuleGenerator
+import org.ezbook.server.models.ResultModel
 import org.ezbook.server.tools.Assets
 import org.ezbook.server.tools.Bill
 import org.ezbook.server.tools.Category
-import org.nanohttpd.protocols.http.IHTTPSession
-import org.nanohttpd.protocols.http.response.Response
 
 
-class JsRoute(private val session: IHTTPSession, private val context: android.content.Context) {
+class JsRoute(private val session: ApplicationCall, private val context: android.content.Context) {
+    private val params: Parameters = session.request.queryParameters
     /**
      * 获取设置
      */
-    fun analysis(): Response {
-        val params = session.parameters
-        val app = params["app"]?.firstOrNull()?.toString() ?: ""
-        val type = params["type"]?.firstOrNull()?.toString() ?: ""
-        val fromAppData = params["fromAppData"]?.firstOrNull()?.toBoolean() ?: false
-        val ai = params["ai"]?.firstOrNull() == "true"
-        val data = Server.reqData(session)
+    suspend fun analysis(): ResultModel {
+        
+        val app = params["app"] ?: ""
+        val type = params["type"] ?: ""
+        val fromAppData = params["fromAppData"]?.toBoolean() ?: false
+        val ai = params["ai"] == "true"
+        val data = session.receiveText()
         //将string转换为枚举类型
         val dataType: DataType
         try {
             dataType = DataType.valueOf(type)
         } catch (e: IllegalArgumentException) {
-            return Server.json(400, "Type exception: $type")
+            return ResultModel(400, "Type exception: $type")
         }
 
         val appDataModel = AppDataModel()
@@ -87,20 +90,20 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
 
 
             if (js === "") {
-                return Server.json(404, "JS无效，请更新规则。")
+                return ResultModel(404, "JS无效，请更新规则。")
             }
 
             val result = runJS(js, data)
 
             if (result == "") {
-                  return Server.json(404, "未分析到有效账单（可以试试用大模型识别）。")
+                  return ResultModel(404, "未分析到有效账单（可以试试用大模型识别）。")
             }else{
                 billInfoModel = parseBillInfo(result, app, dataType)
             }
         }else{
             billInfoModel = parseBillInfoFromAi(app, data)
             if (billInfoModel == null) {
-                return Server.json(404, "未分析到有效账单（大模型也识别不到）。")
+                return ResultModel(404, "未分析到有效账单（大模型也识别不到）。")
             }
         }
 
@@ -218,7 +221,7 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
             appDataModel.version = Db.get().settingDao().query(Setting.RULE_VERSION)?.value ?: ""
             Db.get().dataDao().update(appDataModel)
         }
-        return Server.json(200, "OK", billInfoModel)
+        return ResultModel(200, "OK", billInfoModel)
     }
 
     private fun parseBillInfoFromAi(app:String,data:String):BillInfoModel?{
@@ -341,7 +344,12 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
         intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
         intent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
         Server.log("Calling auto server：$intent")
-        context.startActivity(intent)
+        try {
+            context.startActivity(intent)
+        }catch (t:Throwable){
+            Server.log("Failed to start auto server：$t")
+            Server.log(t)
+        }
        /* if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             context.startForegroundService(intent)
         } else {
@@ -386,10 +394,10 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
        }
     }
 
-    fun run(): Response {
-        val js = Server.reqData(session)
+    suspend fun run(): ResultModel {
+        val js = session.receiveText()
         val result = runJS(js, "")
-        return Server.json(200, "OK", result)
+        return ResultModel(200, "OK", result)
     }
 
 
