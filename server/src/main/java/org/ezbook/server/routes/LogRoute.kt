@@ -15,43 +15,42 @@
 
 package org.ezbook.server.routes
 
-import com.google.gson.Gson
-import org.ezbook.server.Server
+import io.ktor.application.ApplicationCall
+import io.ktor.http.Parameters
+import io.ktor.request.receive
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.LogModel
-import org.nanohttpd.protocols.http.IHTTPSession
-import org.nanohttpd.protocols.http.response.Response
+import org.ezbook.server.models.ResultModel
 
-class LogRoute(private val session: IHTTPSession) {
+class LogRoute(private val session: ApplicationCall) {
+    private val params: Parameters = session.request.queryParameters
     /**
      * 获取日志列表
      */
-    fun list(): Response {
+    fun list(): ResultModel {
         //remove expired data
         Db.get().logDao().clearOld()
-
-        val params = session.parameters
-        val page = params["page"]?.firstOrNull()?.toInt() ?: 1
-        val limit = params["limit"]?.firstOrNull()?.toInt() ?: 10
+        val page = params["page"]?.toInt() ?: 1
+        val limit = params["limit"]?.toInt() ?: 10
         val offset = (page - 1) * limit
         val logs = Db.get().logDao().loadPage(limit, offset)
-        return Server.json(200, "OK", logs)
+        return ResultModel(200, "OK", logs)
     }
 
     /**
      * 添加日志
      */
-    fun add(): Response {
-        val json = Gson().fromJson(Server.reqData(session), LogModel::class.java)
-        val id = Db.get().logDao().insert(json)
-        return Server.json(200, "OK", id)
+    suspend fun add(): ResultModel {
+        val log = session.receive(LogModel::class)
+        val id = Db.get().logDao().insert(log)
+        return ResultModel(200, "OK",id)
     }
 
     /**
      * 清空日志
      */
-    fun clear(): Response {
+    fun clear(): ResultModel {
         Db.get().logDao().clear()
-        return Server.json(200, "OK")
+        return ResultModel(200, "OK",null)
     }
 }

@@ -21,6 +21,10 @@ import android.os.Looper
 import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.JsonObject
+import io.ktor.application.Application
+import io.ktor.server.engine.embeddedServer
+import io.ktor.server.netty.Netty
+import io.ktor.server.netty.NettyApplicationEngine
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -32,6 +36,7 @@ import org.ezbook.server.constant.LogLevel
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.LogModel
 import org.ezbook.server.server.ServerHttp
+import org.ezbook.server.server.module
 import org.ezbook.server.task.BillProcessor
 import org.nanohttpd.protocols.http.IHTTPSession
 import org.nanohttpd.protocols.http.NanoHTTPD
@@ -47,26 +52,30 @@ import java.net.Proxy
 class Server(context: Context) {
 
     private val port = 52045
-    private val server = ServerHttp(port, context)
+
 
     init {
         Db.init(context)
     }
-
+    private lateinit var server: NettyApplicationEngine
 
     /**
      * 启动服务
      */
     fun startServer() {
-        server.start(SOCKET_READ_TIMEOUT, false)
+        server = embeddedServer(Netty, port = port, module = Application::module)
+        server.start()
         println("Server started on port $port")
         billProcessor = BillProcessor()
-
     }
 
+    fun restartServer() {
+        stopServer()
+        startServer()
+    }
 
     fun stopServer() {
-        server.stop()
+        server.stop(0,0)
         billProcessor.shutdown()
     }
 

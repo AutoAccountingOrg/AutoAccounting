@@ -28,6 +28,17 @@ android {
     kotlinOptions {
         jvmTarget = '17'
     }
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/notice.txt'
+        exclude 'META-INF/ASL2.0'
+        exclude 'META-INF/INDEX.LIST'
+    }
 }
 
 dependencies {
@@ -54,4 +65,10 @@ dependencies {
     implementation libs.okhttp
     // quickjs-android-release.aar
     implementation 'com.github.AutoAccountingOrg:quickjs-android:35726a9d28'
+
+    //
+    def ktor_version = "1.6.4"
+    implementation "io.ktor:ktor-server-netty:$ktor_version"
+    implementation "io.ktor:ktor-server-core:$ktor_version"
+    implementation "io.ktor:ktor-gson:$ktor_version"
 }

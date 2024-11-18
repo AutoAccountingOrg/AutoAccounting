@@ -84,6 +84,8 @@ android {
         exclude 'META-INF/gson/FieldAttributes.txt'
         exclude 'META-INF/gson/LongSerializationPolicy.txt'
         exclude 'META-INF/gson/annotations.txt'
+        exclude 'META-INF/INDEX.LIST'
+        exclude 'META-INF/io.netty.versions.properties'
     }
 
     testOptions {

@@ -52,11 +52,11 @@ class ServerHttp(port: Int, private val context: Context) : NanoHTTPD(port) {
             when (uri) {
                 "/" -> json(200, "hello，欢迎使用自动记账", Server.versionCode)
                 // 日志列表
-                "/log/list" -> LogRoute(session).list()
+            /*    "/log/list" -> LogRoute(session).list()
                 // 添加日志
                 "/log/add" -> LogRoute(session).add()
                 // 清空日志
-                "/log/clear" -> LogRoute(session).clear()
+                "/log/clear" -> LogRoute(session).clear()*/
                 //--------------------------------------------
                 //规则列表
                 "/rule/list" -> RuleRoute(session).list()
