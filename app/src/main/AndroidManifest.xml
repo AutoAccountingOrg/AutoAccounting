@@ -39,7 +39,7 @@
         <activity android:name=".ui.activity.ErrorActivity" android:exported="false" />
         <service
             android:name=".service.FloatingWindowService"
-            android:exported="true"
+            android:exported="false"
             />
 
         <provider
