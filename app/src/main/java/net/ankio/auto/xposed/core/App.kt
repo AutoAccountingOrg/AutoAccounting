@@ -18,6 +18,7 @@ package net.ankio.auto.xposed.core
 import android.app.Application
 import android.content.Context
 import android.content.pm.PackageManager
+import android.os.Build
 import android.security.NetworkSecurityPolicy
 import com.google.gson.Gson
 import com.hjq.toast.Toaster
@@ -302,12 +303,44 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         application: Application?
     ) {
         try {
+            initJsEngine()
             hookerManifest.logD("Try start server...")
             Server(application!!).startServer()
             hookerManifest.logD("Server start success")
         } catch (e: Exception) {
             XposedBridge.log("Server start failed")
             XposedBridge.log(e)
+        }
+    }
+
+    /**
+     * 初始化Js引擎
+     */
+    private fun initJsEngine() {
+        // 判断当前手机的架构并选择相应的库
+        val framework = when {
+            Build.SUPPORTED_64_BIT_ABIS.contains("arm64-v8a") -> "arm64"
+            Build.SUPPORTED_64_BIT_ABIS.contains("x86_64") -> "x86_64"
+            Build.SUPPORTED_32_BIT_ABIS.contains("armeabi-v7a") -> "arm"
+            Build.SUPPORTED_32_BIT_ABIS.contains("x86") -> "x86"
+            else -> "unsupported"
+        }
+
+        // 如果架构不支持，则记录日志并返回
+        if (framework == "unsupported") {
+            Server.log("Unsupported architecture")
+            return
+        }
+
+        val libquickjs = modulePath.replace("/base.apk", "") + "/lib/$framework/libquickjs-android.so"
+        val libmimalloc = modulePath.replace("/base.apk", "") + "/lib/$framework/libmimalloc.so"
+        try {
+            System.load(libmimalloc)
+            System.load(libquickjs)
+            Server.log("Loaded JS engine for $framework")
+        } catch (e: Exception) {
+            Server.log("Load quickjs-android failed for $framework")
+            Server.log(e)
         }
     }
 

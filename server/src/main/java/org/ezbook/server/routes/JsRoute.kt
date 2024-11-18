@@ -21,6 +21,8 @@ import android.content.Intent
 import android.widget.Toast
 import com.google.gson.Gson
 import com.google.gson.JsonObject
+import com.shiqi.quickjs.JSString
+import com.shiqi.quickjs.QuickJS
 import org.ezbook.server.Server
 import org.ezbook.server.ai.ChatGPT
 import org.ezbook.server.ai.DeepSeek
@@ -40,10 +42,6 @@ import org.ezbook.server.engine.RuleGenerator
 import org.ezbook.server.tools.Assets
 import org.ezbook.server.tools.Bill
 import org.ezbook.server.tools.Category
-import org.mozilla.javascript.BaseFunction
-import org.mozilla.javascript.Context
-import org.mozilla.javascript.Scriptable
-import org.mozilla.javascript.ScriptableObject
 import org.nanohttpd.protocols.http.IHTTPSession
 import org.nanohttpd.protocols.http.response.Response
 
@@ -351,47 +349,41 @@ class JsRoute(private val session: IHTTPSession, private val context: android.co
         }*/
     }
 
-    class CustomPrintFunction(private val output: StringBuilder) : BaseFunction() {
-        override fun call(
-            cx: Context,
-            scope: Scriptable,
-            thisObj: Scriptable,
-            args: Array<Any>
-        ): Any {
-            args.forEach { arg ->
-                output.append(Context.toString(arg)).append("\n")
-            }
-            return Context.getUndefinedValue()
-        }
-    }
 
     /**
      * 运行js代码
      */
     private fun runJS(jsCode: String, data: String): String {
-        val rhino: Context = Context.enter()
-        rhino.setOptimizationLevel(-1)
-        val outputBuilder = StringBuilder()
-        var result: Any? = null
-        try {
-            Server.log("RunJs: $jsCode")
-            Server.log("RunData: $data")
-            val scope: Scriptable = rhino.initStandardObjects()
-            val printFunction = CustomPrintFunction(outputBuilder)
-            ScriptableObject.putProperty(scope, "print", printFunction)
-            ScriptableObject.putProperty(scope, "data", data)
-            ScriptableObject.putProperty(scope, "currentTime", android.text.format.DateFormat.format("HH:mm", System.currentTimeMillis()).toString())
-            rhino.evaluateString(scope, jsCode, "JavaScript", 1, null)
-            result = outputBuilder.toString()
-        } catch (e: Throwable) {
-            Server.log(e)
-            result = e.message
-        } finally {
-            Context.exit()
-            Server.log("RuleData: $result")
-        }
-        if (result != null) return result.toString()
-        return ""
+       try {
+           val quickJS = QuickJS.Builder().build()
+           val runtime = quickJS.createJSRuntime()
+           val context = runtime.createJSContext()
+
+           val stringBuilder = StringBuilder()
+           val print = context.createJSFunction { itemContext, args ->
+               for (i in args.indices) {
+                   val arg = args[i].cast(JSString::class.java).string
+                   stringBuilder.append(arg).append(" ")
+               }
+               itemContext.createJSUndefined()
+           }
+           Server.log("RunJs: $jsCode")
+           Server.log("RunData: $data")
+           context.globalObject.setProperty("print", print)
+           context.globalObject.setProperty("data", context.createJSString(data))
+           context.globalObject.setProperty("currentTime", context.createJSString(android.text.format.DateFormat.format("HH:mm", System.currentTimeMillis()).toString()))
+           var result = context.evaluate(jsCode, "fibonacci.js",String::class.java)
+           if (stringBuilder.isNotEmpty()){
+               result = stringBuilder.toString()
+           }
+           Server.log("RunResult:$result")
+           context.close()
+           runtime.close()
+           return result
+       }catch (e:Throwable){
+          Server.log(e)
+          return ""
+       }
     }
 
     fun run(): Response {

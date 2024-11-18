@@ -52,8 +52,6 @@ dependencies {
 
     //okhttp
     implementation libs.okhttp
-
-    // rhino
-    implementation 'org.mozilla:rhino:1.7.13'
-
+    // quickjs-android-release.aar
+    implementation fileTree(dir: 'libs', include: ['*.aar'])
 }

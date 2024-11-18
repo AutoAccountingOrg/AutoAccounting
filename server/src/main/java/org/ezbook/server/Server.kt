@@ -170,7 +170,7 @@ class Server(context: Context) {
                     message = msg
                 })
             }
-            Log.i("Server", msg)
+            Log.i("AutoServer", msg)
         }
 
         /**
@@ -184,7 +184,7 @@ class Server(context: Context) {
                     message = msg
                 })
             }
-            Log.w("Server", msg)
+            Log.w("AutoServer", msg)
         }
 
         /**
@@ -200,7 +200,7 @@ class Server(context: Context) {
                })
            }
 
-            Log.e("Server", e.message ?: "",e)
+            Log.e("AutoServer", e.message ?: "",e)
         }
 
         fun runOnMainThread(function: () -> Unit) {

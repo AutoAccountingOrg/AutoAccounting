@@ -19,6 +19,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:requestLegacyExternalStorage="true"
+        android:extractNativeLibs="true"
         tools:targetApi="31">
         <activity android:name=".ui.activity.FloatingWindowTriggerActivity"
             android:exported="true"
