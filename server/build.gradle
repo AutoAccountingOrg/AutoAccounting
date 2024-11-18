@@ -53,5 +53,5 @@ dependencies {
     //okhttp
     implementation libs.okhttp
     // quickjs-android-release.aar
-    implementation fileTree(dir: 'libs', include: ['*.aar'])
+    implementation 'com.github.AutoAccountingOrg:quickjs-android:35726a9d28'
 }
