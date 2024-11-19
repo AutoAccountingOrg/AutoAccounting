@@ -21,7 +21,6 @@ import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.AssetsMapModel
 import org.ezbook.server.db.model.AssetsModel
 import org.ezbook.server.db.model.BillInfoModel
-import java.lang.Integer.min
 
 object Assets {
     /**
