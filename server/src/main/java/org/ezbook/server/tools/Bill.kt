@@ -217,19 +217,31 @@ object Bill {
     }
 
     /**
-     * 设置默认账本
+     * 设置账单的账本名称
+     * 如果账本名称为空或为"默认账本"，则使用系统设置的默认账本名称
      */
     fun setBookName(billInfoModel: BillInfoModel) {
         Server.isRunOnMainThread()
-        val name = billInfoModel.bookName
-        if (name.isEmpty()) {
-            billInfoModel.bookName = "默认账本"
+        
+        // 获取系统设置的默认账本名称
+        val defaultBookName = getDefaultBookName()
+        
+        // 更新账本名称
+        billInfoModel.bookName = when (billInfoModel.bookName) {
+            "" -> defaultBookName         // 空名称使用默认账本
+            "默认账本" -> defaultBookName  // "默认账本"替换为系统设置的默认账本
+            else -> billInfoModel.bookName // 其他情况保持不变
         }
-        val defaultBookName =
-            Db.get().settingDao().query(Setting.DEFAULT_BOOK_NAME)?.value ?: "默认账本"
+    }
 
-        if (name == "默认账本") {
-            billInfoModel.bookName = defaultBookName
-        }
+    /**
+     * 获取系统设置的默认账本名称
+     * 如果未设置，返回"默认账本"
+     */
+    private fun getDefaultBookName(): String {
+        return Db.get().settingDao()
+            .query(Setting.DEFAULT_BOOK_NAME)
+            ?.value
+            ?: "默认账本"
     }
 }
