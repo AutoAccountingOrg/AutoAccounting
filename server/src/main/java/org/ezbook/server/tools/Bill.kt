@@ -35,9 +35,6 @@ object Bill {
             return false
         }
 
-        if (bill.accountNameFrom != bill2.accountNameFrom){
-            return false
-        }
         // 时间完全相同，是同一笔交易
         if (bill.time == bill2.time) {
             return true
