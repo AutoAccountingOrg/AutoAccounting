@@ -73,30 +73,31 @@ object Assets {
 
         // 2. 如果卡号匹配失败，进行文本相似度匹配
         Server.log("未通过卡号找到数据，开始使用文本匹配查找。")
-        
+
         // 预处理输入文本
         val cleanInput = raw.cleanText(number)
-        
+
         // 记录最佳匹配结果
         var bestMatch = BestMatch(raw)
-        
+
         list.forEach { asset ->
             val cleanAssetName = asset.name.cleanText()
             Server.log("尝试匹配: $cleanInput => $cleanAssetName")
-            
+
             val similarity = calculateConsecutiveSimilarity(cleanAssetName, cleanInput)
 
-            
-            if (similarity >= bestMatch.similarity) {
-                val length = asset.name.length
+
+            if (similarity >= bestMatch.similarity && similarity > 0) {
+                val length = cleanAssetName.length
                 val diff = length - similarity
                 Server.log("相似度（$cleanInput,${asset.name}）：$similarity，差异：$diff")
-                if (similarity > bestMatch.similarity ||diff < bestMatch.diff) {
+                if (diff < bestMatch.diff) {
+                    if (similarity == 2 && cleanInput.startsWith("中国")) return@forEach
                     bestMatch = BestMatch(asset.name, similarity, diff)
                 }
             }
         }
-        
+
         return bestMatch.assetName
     }
 
@@ -126,31 +127,31 @@ object Assets {
      */
     fun setAssetsMap(billInfoModel: BillInfoModel) {
         Server.isRunOnMainThread()
-        
+
         // 提前获取账户名称
-        val (accountFrom, accountTo) = billInfoModel.run { 
-            accountNameFrom to accountNameTo 
+        val (accountFrom, accountTo) = billInfoModel.run {
+            accountNameFrom to accountNameTo
         }
-        
+
         // 如果两个账户都为空，直接返回
         if (accountFrom.isEmpty() && accountTo.isEmpty()) {
             return
         }
-        
+
         // 批量加载所需数据
         val assets = Db.get().assetsDao().load(9000, 0)
-        
+
         // 检查是否都已存在于资产表中
         if (assets.any { it.name == accountFrom } && assets.any { it.name == accountTo }) {
             return
         }
-        
+
         // 懒加载其他数据
         val maps by lazy { Db.get().assetsMapDao().load(9000, 0) }
-        val autoAsset by lazy { 
-            Db.get().settingDao().query(Setting.AUTO_IDENTIFY_ASSET)?.value == "true" 
+        val autoAsset by lazy {
+            Db.get().settingDao().query(Setting.AUTO_IDENTIFY_ASSET)?.value == "true"
         }
-        
+
         // 处理并更新账户名称
         billInfoModel.apply {
             accountNameFrom = processAssets(accountFrom, maps, assets, autoAsset)
@@ -168,14 +169,14 @@ object Assets {
         autoAsset: Boolean
     ): String {
         if (account.isEmpty()) return account
-        
+
         // 1. 检查原始资产表
         assets.find { it.name == account }?.let { return it.name }
-        
+
         // 2. 检查映射表
         maps.find { it.name == account || (it.regex && account.contains(it.name)) }
             ?.let { return it.mapName }
-        
+
         // 3. 使用算法匹配或创建新映射
         return if (autoAsset) {
             getAssetsByAlgorithm(assets, account).also { autoAssetName ->
