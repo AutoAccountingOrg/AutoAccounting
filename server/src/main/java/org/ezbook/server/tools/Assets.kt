@@ -21,6 +21,7 @@ import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.AssetsMapModel
 import org.ezbook.server.db.model.AssetsModel
 import org.ezbook.server.db.model.BillInfoModel
+import java.lang.Integer.min
 
 object Assets {
     /**
@@ -61,67 +62,63 @@ object Assets {
         list: List<AssetsModel>,
         raw: String,
     ): String {
-        // 提取raw出数字部分
-        val regex = Regex("\\d+")
-        val number = regex.find(raw)?.value ?: ""
+        // 1. 首先尝试通过卡号匹配
+        val number = Regex("\\d+").find(raw)?.value ?: ""
         Server.log("识别到卡号：$number")
         if (number.isNotEmpty()) {
-            val find = list.find { it.name.contains(number.trim()) }
-            // 包含卡号的一定是对应的数据
-            if (find != null) {
-                Server.log("找到对应数据：${find.name}")
-                return find.name
+            list.find { it.name.contains(number.trim()) }?.let { asset ->
+                Server.log("找到对应数据：${asset.name}")
+                return asset.name
             }
         }
 
+        // 2. 如果卡号匹配失败，进行文本相似度匹配
         Server.log("未通过卡号找到数据，开始使用文本匹配查找。")
-        // 去掉所有的括号
-        val noNumber = raw.replace(number, "")
-        val cleanData = Regex("\\([^(（【】）)]*\\)").replace(noNumber, "").trim()
-        var nowSimilarity = 0
-        var nowAssets = raw
-        list.forEach {
-            val wait =
-                listOf(
-                    "卡",
-                    "银行",
-                )
-            var newName = Regex("\\([^(（【】）)]*\\)").replace(it.name, "").trim()
-            var newCleanData = cleanData
-            wait.forEach { item ->
-                newName = newName.replace(item, "")
-                newCleanData = newCleanData.replace(item, "")
-            }
-            Server.log("尝试匹配:$newCleanData => $newName ")
-            calculateConsecutiveSimilarity(newName, newCleanData).let { similarity ->
-                Server.log("相似度（$cleanData,${it.name}）：$similarity")
-                if (similarity >= nowSimilarity) {
-                    val useless =
-                        listOf(
-                            "储蓄",
-                            "借记",
-                       //     "信用",
-                        )
+        
+        // 预处理输入文本
+        val cleanInput = raw.cleanText(number)
+        
+        // 记录最佳匹配结果
+        var bestMatch = BestMatch(raw)
+        
+        list.forEach { asset ->
+            val cleanAssetName = asset.name.cleanText()
+            Server.log("尝试匹配: $cleanInput => $cleanAssetName")
+            
+            val similarity = calculateConsecutiveSimilarity(cleanAssetName, cleanInput)
 
-                    var newName2 = newName
-                    var newCleanData2 = newCleanData
-
-                    useless.forEach { item ->
-                        newName2 = newName.replace(item, "")
-                        newCleanData2 = newCleanData.replace(item, "")
-                    }
-
-                    calculateConsecutiveSimilarity(newName2, newCleanData2).let { similarity2 ->
-                        Server.log("二次验证相似度（$newName2,$newCleanData2）：$similarity2")
-                        if (similarity2 >= 1) {
-                            nowSimilarity = similarity
-                            nowAssets = it.name
-                        }
-                    }
+            
+            if (similarity >= bestMatch.similarity) {
+                val length = asset.name.length
+                val diff = length - similarity
+                Server.log("相似度（$cleanInput,${asset.name}）：$similarity，差异：$diff")
+                if (similarity > bestMatch.similarity ||diff < bestMatch.diff) {
+                    bestMatch = BestMatch(asset.name, similarity, diff)
                 }
             }
         }
-        return nowAssets
+        
+        return bestMatch.assetName
+    }
+
+    /**
+     * 用于存储最佳匹配结果的数据类
+     */
+    private data class BestMatch(
+        val assetName: String,
+        val similarity: Int = 0,
+        val diff: Int = Int.MAX_VALUE
+    )
+
+    /**
+     * 字符串清理扩展函数
+     */
+    private fun String.cleanText(numberToRemove: String = ""): String {
+        return this
+            .replace(numberToRemove, "")
+            .replace(Regex("\\([^(（【】）)]*\\)"), "")
+            .replace(Regex("[卡银行储蓄借记]"), "")
+            .trim()
     }
 
     /**
