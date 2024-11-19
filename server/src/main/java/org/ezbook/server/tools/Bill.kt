@@ -23,69 +23,103 @@ import org.ezbook.server.db.model.BillInfoModel
 
 object Bill {
     /**
-     * 检查重复性
+     * 检查账单是否重复
      * @param bill 账单1
      * @param bill2 账单2
+     * @return true 表示是重复账单，false 表示不是重复账单
      */
     private fun checkRepeat(bill: BillInfoModel, bill2: BillInfoModel): Boolean {
-        Server.log("CheckRepeat:$bill, $bill2")
-        Server.log("CheckRepeat: bill.type == bill2.type => ${bill.type == bill2.type}")
-        if (bill.type == bill2.type) {
-            Server.log("CheckRepeat: bill2.time == bill.time => ${bill2.time == bill.time}")
-            if (bill2.time == bill.time) return true //时间一致，一定是同一笔交易
-            Server.log("CheckRepeat: bill2.ruleName != bill.ruleName => ${bill2.ruleName != bill.ruleName}")
-            if (bill2.ruleName != bill.ruleName) return true //匹配规则不一致，一定是不同的交易
-            Server.log("CheckRepeat: bill2.channel == bill.channel => ${bill2.channel == bill.channel}")
-            if (bill2.channel == bill.channel) return true //渠道一致，一定是不同的交易
-            Server.log("CheckRepeat: bill2.accountNameFrom == bill.accountNameFrom => ${bill2.accountNameFrom == bill.accountNameFrom}")
-            if (bill2.accountNameFrom == bill.accountNameFrom) return true //来源账户一致，一定是同一笔交易
-            Server.log("CheckRepeat: bill2.shopItem == bill.shopItem => ${bill2.shopItem == bill.shopItem}")
-            Server.log("CheckRepeat: bill.shopName == bill2.shopName => ${bill.shopName == bill2.shopName}")
-            if (bill2.shopItem == bill.shopItem && bill.shopName == bill2.shopName) return true //商品名称和商户名称一致，一定是同一笔交易
+        // 前提，上下5分钟，金额相同
+        // 首先检查基础条件：类型必须相同
+        if (bill.type != bill2.type) {
+            return false
         }
+
+        if (bill.accountNameFrom != bill2.accountNameFrom){
+            return false
+        }
+        // 时间完全相同，是同一笔交易
+        if (bill.time == bill2.time) {
+            return true
+        }
+
+        if (bill.ruleName == bill2.ruleName){
+            return false
+        }
+
+
+        if (bill.channel != bill2.channel){
+            return true
+        }
+
+
         return false
     }
 
     /**
      * 合并重复账单,将bill1的信息合并到bill2
-     * @param bill 账单1
-     * @param bill2 账单2
+     * @param bill 源账单
+     * @param bill2 目标账单（将被更新）
      */
     private fun mergeRepeatBill(bill: BillInfoModel, bill2: BillInfoModel, context: Context) {
-        //合并支付方式
-        if (bill2.accountNameFrom.isEmpty() && bill.accountNameFrom.isNotEmpty()) {
-            bill2.accountNameFrom = bill.accountNameFrom
+        bill2.apply {
+            // 1. 合并账户信息
+            mergeAccountInfo(bill, this)
+            
+            // 2. 合并商户和商品信息
+            mergeShopInfo(bill, this)
+            
+            // 3. 合并分类信息
+            mergeCategoryInfo(bill, this)
+            
+            // 4. 更新备注
+            setRemark(this, context)
         }
-        if (bill2.accountNameTo.isEmpty() && bill.accountNameTo.isNotEmpty()) {
-            bill2.accountNameTo = bill.accountNameTo
-        }
-        //合并商户信息
-        if (bill2.shopName.isEmpty() && bill.shopName.isNotEmpty()) {
-            bill2.shopName = bill.shopName
-        }
-        if (!bill2.shopName.contains(bill.shopName)) {
-            bill2.shopName = bill2.shopName + " " + bill.shopName
-        }
-        //合并商品信息
-        if (bill2.shopItem.isEmpty() && bill.shopItem.isNotEmpty()) {
-            bill2.shopItem = bill.shopItem
-        }
-        if (!bill2.shopItem.contains(bill.shopItem)) {
-            bill2.shopItem = bill2.shopItem + " " + bill.shopItem
-        }
+    }
 
-
-        if (bill2.shopItem.isEmpty()) {
-            bill2.shopItem = bill2.extendData
+    /**
+     * 合并账户信息
+     */
+    private fun mergeAccountInfo(source: BillInfoModel, target: BillInfoModel) {
+        // 只在目标账户为空时合并
+        if (target.accountNameFrom.isEmpty() && source.accountNameFrom.isNotEmpty()) {
+            target.accountNameFrom = source.accountNameFrom
         }
-
-        if (bill.cateName != "其他") {
-            bill2.cateName = bill.cateName
+        if (target.accountNameTo.isEmpty() && source.accountNameTo.isNotEmpty()) {
+            target.accountNameTo = source.accountNameTo
         }
+    }
 
+    /**
+     * 合并商户和商品信息
+     */
+    private fun mergeShopInfo(source: BillInfoModel, target: BillInfoModel) {
+        // 合并商户信息
+        target.shopName = when {
+            target.shopName.isEmpty() -> source.shopName
+            source.shopName.isEmpty() -> target.shopName
+            target.shopName.contains(source.shopName) -> target.shopName
+            else -> "${target.shopName} ${source.shopName}".trim()
+        }
+        
+        // 合并商品信息
+        target.shopItem = when {
+            target.shopItem.isEmpty() && source.shopItem.isNotEmpty() -> source.shopItem
+            target.shopItem.isEmpty() -> target.extendData
+            source.shopItem.isEmpty() -> target.shopItem
+            target.shopItem.contains(source.shopItem) -> target.shopItem
+            else -> "${target.shopItem} ${source.shopItem}".trim()
+        }
+    }
 
-        //最后重新生成备注
-        setRemark(bill2, context)
+    /**
+     * 合并分类信息
+     */
+    private fun mergeCategoryInfo(source: BillInfoModel, target: BillInfoModel) {
+        // 如果源账单的分类不是"其他"，则使用源账单的分类
+        if (source.cateName != "其他") {
+            target.cateName = source.cateName
+        }
     }
 
     /**
