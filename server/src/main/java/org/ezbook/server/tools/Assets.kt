@@ -126,20 +126,37 @@ object Assets {
      * 必须运行在IO线程，不允许在主线程运行
      */
     fun setAssetsMap(billInfoModel: BillInfoModel) {
-        //检查是否在主线程
         Server.isRunOnMainThread()
-        val maps = Db.get().assetsMapDao().load(9000, 0)
-        val rawAccountNameFrom = billInfoModel.accountNameFrom
-        val rawAccountNameTo = billInfoModel.accountNameTo
-        val assets = Db.get().assetsDao().load(9000, 0)
-        //直接命中映射表
-        if (assets.find { it.name == rawAccountNameFrom } != null && assets.find { it.name == rawAccountNameTo } != null) {
+        
+        // 提前获取账户名称
+        val (accountFrom, accountTo) = billInfoModel.run { 
+            accountNameFrom to accountNameTo 
+        }
+        
+        // 如果两个账户都为空，直接返回
+        if (accountFrom.isEmpty() && accountTo.isEmpty()) {
             return
         }
-        val autoAsset =
-            Db.get().settingDao().query(Setting.AUTO_IDENTIFY_ASSET)?.value=="true"
-        billInfoModel.accountNameFrom = processAssets(rawAccountNameFrom, maps, assets, autoAsset)
-        billInfoModel.accountNameTo = processAssets(rawAccountNameTo, maps, assets, autoAsset)
+        
+        // 批量加载所需数据
+        val assets = Db.get().assetsDao().load(9000, 0)
+        
+        // 检查是否都已存在于资产表中
+        if (assets.any { it.name == accountFrom } && assets.any { it.name == accountTo }) {
+            return
+        }
+        
+        // 懒加载其他数据
+        val maps by lazy { Db.get().assetsMapDao().load(9000, 0) }
+        val autoAsset by lazy { 
+            Db.get().settingDao().query(Setting.AUTO_IDENTIFY_ASSET)?.value == "true" 
+        }
+        
+        // 处理并更新账户名称
+        billInfoModel.apply {
+            accountNameFrom = processAssets(accountFrom, maps, assets, autoAsset)
+            accountNameTo = processAssets(accountTo, maps, assets, autoAsset)
+        }
     }
 
     /**
@@ -151,38 +168,36 @@ object Assets {
         assets: List<AssetsModel>,
         autoAsset: Boolean
     ): String {
-        if (account.isEmpty()) {
-            return account
-        }
-        //直接命中原始资产表
-        val asset = assets.find { it.name == account }
-        if (asset != null) {
-            return asset.name
-        }
-        //命中映射表
-        val map = maps.find { it.name == account || it.regex && account.contains(it.name) }
-        if (map != null) {
-            return map.mapName
-        }
-        //命中算法
-        if (autoAsset) {
-            val autoAssetName = getAssetsByAlgorithm(assets, account)
-            if (autoAssetName != account && autoAssetName.isNotEmpty()) {
-                //将映射结果保存到映射表
-                Db.get().assetsMapDao().put(AssetsMapModel().apply {
-                    name = account
-                    mapName = autoAssetName
-                    regex = false
-                })
+        if (account.isEmpty()) return account
+        
+        // 1. 检查原始资产表
+        assets.find { it.name == account }?.let { return it.name }
+        
+        // 2. 检查映射表
+        maps.find { it.name == account || (it.regex && account.contains(it.name)) }
+            ?.let { return it.mapName }
+        
+        // 3. 使用算法匹配或创建新映射
+        return if (autoAsset) {
+            getAssetsByAlgorithm(assets, account).also { autoAssetName ->
+                // 只在找到不同的匹配结果时才保存映射
+                if (autoAssetName != account && autoAssetName.isNotEmpty()) {
+                    saveAssetsMap(account, autoAssetName)
+                }
             }
-            return autoAssetName
-        }else{
-            Db.get().assetsMapDao().put(AssetsMapModel().apply {
-                name = account
-                mapName = account
-                regex = false
-            })
+        } else {
+            account.also { saveAssetsMap(account, account) }
         }
-        return account
+    }
+
+    /**
+     * 保存资产映射
+     */
+    private fun saveAssetsMap(name: String, mapName: String) {
+        Db.get().assetsMapDao().put(AssetsMapModel().apply {
+            this.name = name
+            this.mapName = mapName
+            this.regex = false
+        })
     }
 }
