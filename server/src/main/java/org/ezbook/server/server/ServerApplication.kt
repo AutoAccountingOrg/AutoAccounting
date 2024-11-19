@@ -73,12 +73,12 @@ fun Application.module(context:Context) {
 
         get("/") {
             call.respond(
-                ResultModel(200,"欢迎使用自动记账",Server.versionCode)
+                ResultModel(200,"欢迎使用自动记账",Server.versionName)
             )
         }
         post("/") {
             call.respond(
-                ResultModel(200,"欢迎使用自动记账",Server.versionCode)
+                ResultModel(200,"欢迎使用自动记账",Server.versionName)
             )
         }
         route("/log"){

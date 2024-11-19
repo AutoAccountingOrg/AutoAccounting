@@ -191,6 +191,8 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         }
     }
 
+
+
     /**
      * 初始化Hooker
      * @param app HookerManifest
@@ -244,6 +246,8 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
             return
         }
 
+        //注入版本信息
+        Server.versionName = BuildConfig.VERSION_NAME
 
         // 启动自动记账服务
         if (app.packageName === Apps.getServerRunInApp()){

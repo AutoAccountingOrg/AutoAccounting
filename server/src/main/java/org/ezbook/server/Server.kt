@@ -16,8 +16,6 @@
 package org.ezbook.server
 
 import android.content.Context
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
@@ -75,7 +73,7 @@ class Server(private val context: Context) {
 
     companion object {
 
-        const val versionCode = 1
+        var versionName = "1.0.0"
         lateinit var billProcessor: BillProcessor
 
         /**
