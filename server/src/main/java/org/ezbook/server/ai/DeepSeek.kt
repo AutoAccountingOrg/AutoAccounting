@@ -22,7 +22,7 @@ class DeepSeek:BaseAi() {
         get() = "https://api.deepseek.com/chat/completions"
         set(value) {}
     override var model: String
-        get() = "deepseek-chat"
+        get() = "deepseek-coder"
         set(value) {}
     override var name: String
         get() = AIModel.DeepSeek.name

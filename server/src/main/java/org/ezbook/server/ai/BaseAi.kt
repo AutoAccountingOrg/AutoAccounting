@@ -130,10 +130,7 @@ Input:
 
     open fun request(data: String): BillInfoModel?{
         val (system,user) = getConversations(data)
-        var url = api
-        if(!url.contains("v1/chat/completions")){
-            url = "$api/v1/chat/completions"
-        }
+        val url = api
         val client = OkHttpClient.Builder().readTimeout(60, TimeUnit.SECONDS).build()
 
         val json =

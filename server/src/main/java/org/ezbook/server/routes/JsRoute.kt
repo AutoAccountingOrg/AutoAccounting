@@ -233,7 +233,10 @@ class JsRoute(private val session: ApplicationCall, private val context: android
                 AIModel.DeepSeek.name -> DeepSeek().request(data)
                 AIModel.ChatGPT.name -> ChatGPT().request(data)
                 AIModel.OneAPI.name -> {
-                    val uri = Db.get().settingDao().query(Setting.AI_ONE_API_URI)?.value?:""
+                    var uri = Db.get().settingDao().query(Setting.AI_ONE_API_URI)?.value?:""
+                    if(!uri.contains("v1/chat/completions")){
+                        uri = "$uri/v1/chat/completions"
+                    }
                     val model = Db.get().settingDao().query(Setting.AI_ONE_API_MODEL)?.value?:""
                     OneAPI(uri,model).request(data)
                 }
