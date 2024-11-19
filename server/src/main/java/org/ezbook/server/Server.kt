@@ -19,31 +19,25 @@ import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import com.google.gson.Gson
-import com.google.gson.JsonObject
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.request.post
+import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.readText
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
+import io.ktor.http.withCharset
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.server.netty.NettyApplicationEngine
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
 import org.ezbook.server.constant.LogLevel
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.LogModel
 import org.ezbook.server.server.module
 import org.ezbook.server.task.BillProcessor
-import org.nanohttpd.protocols.http.IHTTPSession
-import org.nanohttpd.protocols.http.NanoHTTPD
-import org.nanohttpd.protocols.http.response.Response
-import org.nanohttpd.protocols.http.response.Response.newFixedLengthResponse
-import org.nanohttpd.protocols.http.response.Status
-import java.net.ConnectException
-import java.net.Proxy
-import java.util.concurrent.TimeUnit
 
 
 class Server(private val context: Context) {
@@ -85,84 +79,36 @@ class Server(private val context: Context) {
         lateinit var billProcessor: BillProcessor
 
         /**
-         * 获取请求数据
-         */
-        fun reqData(session: IHTTPSession): String {
-            val contentLength: Int = session.headers["content-length"]?.toInt() ?: 0
-
-            // 限制请求体的最大长度，防止恶意请求
-            val maxContentLength = 10 * 1024 * 1024 // 10 MB
-            if (contentLength > maxContentLength) {
-                throw IllegalArgumentException("Request body is too large")
-            }
-
-            val buffer = ByteArray(contentLength)
-            var totalBytesRead = 0
-
-            while (totalBytesRead < contentLength) {
-                val bytesRead = session.inputStream.read(buffer, totalBytesRead, contentLength - totalBytesRead)
-                if (bytesRead == -1) {
-                    // 如果流结束但数据不完整，抛出异常
-                    throw IllegalArgumentException("Content-Length mismatch: expected $contentLength, but got $totalBytesRead")
-                }
-                totalBytesRead += bytesRead
-            }
-
-            // 再次检查实际读取的字节数是否匹配 Content-Length
-            if (totalBytesRead != contentLength) {
-                throw IllegalArgumentException("Content-Length mismatch: expected $contentLength, but got $totalBytesRead")
-            }
-
-            return String(buffer, 0, totalBytesRead)
-        }
-
-
-        /**
-         * 返回json
-         */
-        fun json(code: Int = 200, msg: String = "OK", data: Any? = null): Response {
-            val jsonObject = JsonObject()
-            jsonObject.addProperty("code", code)
-            jsonObject.addProperty("msg", msg)
-            jsonObject.add("data", Gson().toJsonTree(data))
-            return newFixedLengthResponse(
-                Status.OK,
-                NanoHTTPD.MIME_PLAINTEXT,
-                jsonObject.toString()
-            )
-        }
-
-
-        /**
          * 发送请求
          */
         suspend fun request(path: String, json: String = ""): String? =
             withContext(Dispatchers.IO) {
+                val client = HttpClient(CIO)
                 runCatching {
-                    val uri = "http://127.0.0.1:52045/$path"
-                    // 创建一个OkHttpClient对象，禁用代理
-                    val client = OkHttpClient.Builder()
-                        .readTimeout(60, TimeUnit.SECONDS)
-                        .proxy(Proxy.NO_PROXY)
-                        .build()
-                    // set as json post
-                    val body: RequestBody = json
-                        .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
-                    // 创建一个Request
-                    val request = Request.Builder().url(uri).post(body)
-                        .addHeader("Content-Type", "application/json").build()
-                    // 发送请求获取响应
-                    val response = client.newCall(request).execute()
-                    val bodyString = response.body?.string()
-                    // 如果请求成功
-                    bodyString
-
-                }.onFailure {
-                    if (it !is ConnectException) {
-                        it.printStackTrace()
+                    // 基础 URI
+                    val baseUri = "http://127.0.0.1:52045"
+                    // 清理路径，避免双斜杠，除了协议部分
+                    val cleanedPath = path.replace(Regex("/+"), "/").let {
+                        if (it.startsWith("/")) it else "/$it"
                     }
-
-                }.getOrNull()
+                    val uri = "$baseUri$cleanedPath"
+                    // 发送 POST 请求并获取响应
+                    client.post<HttpResponse>(uri) {
+                        contentType(ContentType.Application.Json.withCharset(Charsets.UTF_8))
+                        body = json
+                    }.let { response ->
+                        // 检查响应状态并读取响应体
+                        if (response.status == HttpStatusCode.OK) {
+                            response.readText()
+                        } else {
+                            null // 或者处理错误状态
+                        }
+                    }
+                }.onFailure {
+                    it.printStackTrace() // 打印异常信息
+                }.getOrNull().also {
+                    client.close() // 确保关闭客户端以释放资源
+                }
             }
 
         private const val TAG = "auto_server"

@@ -76,6 +76,11 @@ fun Application.module(context:Context) {
                 ResultModel(200,"欢迎使用自动记账",Server.versionCode)
             )
         }
+        post("/") {
+            call.respond(
+                ResultModel(200,"欢迎使用自动记账",Server.versionCode)
+            )
+        }
         route("/log"){
             post("/list") {
                 call.respond(LogRoute(call).list())

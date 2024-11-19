@@ -18,23 +18,22 @@ package org.ezbook.server.routes
 import io.ktor.application.ApplicationCall
 import io.ktor.http.Parameters
 import io.ktor.request.receive
-import org.ezbook.server.Server
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.BookNameModel
-import org.nanohttpd.protocols.http.response.Response
+import org.ezbook.server.models.ResultModel
 
 class BookNameRoute(private val session: ApplicationCall) {
     private val params: Parameters = session.request.queryParameters
-    fun list(): Response {
-        return Server.json(200, "OK", Db.get().bookNameDao().load())
+    fun list(): ResultModel {
+        return ResultModel(200, "OK", Db.get().bookNameDao().load())
     }
 
-    suspend fun put(): Response {
+    suspend fun put(): ResultModel {
         val md5 = params["md5"] ?: ""
         val data =  session.receive(Array<BookNameModel>::class)
         val id = Db.get().bookNameDao().put(data)
         SettingRoute.setByInner(Setting.HASH_BOOK, md5)
-        return Server.json(200, "OK", id)
+        return ResultModel(200, "OK", id)
     }
 }
