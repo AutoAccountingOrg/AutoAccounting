@@ -25,38 +25,38 @@ import org.ezbook.server.db.model.BillInfoModel
 @Dao
 interface BillInfoDao {
     @Insert
-    fun insert(billInfo: BillInfoModel): Long
+    suspend fun insert(billInfo: BillInfoModel): Long
 
     @Query("SELECT * FROM BillInfoModel WHERE money = :money AND time >= :startTime AND time <= :endTime AND groupId = -1")
-    fun query(money: Double, startTime: Long, endTime: Long): List<BillInfoModel>
+    suspend fun query(money: Double, startTime: Long, endTime: Long): List<BillInfoModel>
 
     @Query("SELECT * FROM BillInfoModel WHERE id = :id")
-    fun queryId(id: Long): BillInfoModel?
+    suspend fun queryId(id: Long): BillInfoModel?
 
     @Update
-    fun update(billInfo: BillInfoModel)
+    suspend fun update(billInfo: BillInfoModel)
 
     // 删除策略，365天以前的所有数据（无论是否同步）
     @Query("DELETE FROM BillInfoModel WHERE time < :time")
-    fun clearOld(time: Long)
+    suspend fun clearOld(time: Long)
 
     @Query("SELECT * FROM BillInfoModel WHERE groupId=-1 ORDER BY time DESC LIMIT :limit OFFSET :offset")
-    fun loadPage(limit: Int, offset: Int): List<BillInfoModel>
+    suspend fun loadPage(limit: Int, offset: Int): List<BillInfoModel>
 
     @Query("DELETE FROM BillInfoModel WHERE groupId = :groupId")
-    fun deleteGroup(groupId: Long)
+    suspend fun deleteGroup(groupId: Long)
     @Query("DELETE FROM BillInfoModel WHERE groupId != -1 AND id NOT IN (SELECT id FROM BillInfoModel)")
-    fun deleteNoGroup()
+    suspend fun deleteNoGroup()
 
     @Query("DELETE FROM BillInfoModel WHERE id =:id")
-    fun deleteId(id: Long)
+    suspend  fun deleteId(id: Long)
 
     @Query("SELECT * FROM BillInfoModel WHERE state = 'Edited' and groupId = -1")
-    fun queryNoSync(): List<BillInfoModel>
+    suspend fun queryNoSync(): List<BillInfoModel>
 
     @Query("UPDATE BillInfoModel SET state = :status WHERE id = :id")
-    fun updateStatus(id: Long, status: BillState)
+    suspend fun updateStatus(id: Long, status: BillState)
 
     @Query("SELECT * FROM BillInfoModel WHERE groupId = :groupId")
-    fun queryGroup(groupId: Long): List<BillInfoModel>
+    suspend fun queryGroup(groupId: Long): List<BillInfoModel>
 }

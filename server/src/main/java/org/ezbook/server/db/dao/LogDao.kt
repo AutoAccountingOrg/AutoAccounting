@@ -25,16 +25,16 @@ interface LogDao {
 
     // change page
     @Query("SELECT * FROM LogModel ORDER BY id DESC LIMIT :limit OFFSET :offset")
-    fun loadPage(limit: Int, offset: Int): List<LogModel>
+    suspend fun loadPage(limit: Int, offset: Int): List<LogModel>
 
 
     @Insert
-    fun insert(log: LogModel): Long
+    suspend fun insert(log: LogModel): Long
 
     @Query("DELETE FROM LogModel")
-    fun clear()
+    suspend fun clear()
 
     // only keep the latest 10000 records
     @Query("DELETE FROM LogModel WHERE id NOT IN (SELECT id FROM LogModel ORDER BY id DESC LIMIT 10000)")
-    fun clearOld()
+    suspend fun clearOld()
 }

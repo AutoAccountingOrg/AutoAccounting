@@ -28,7 +28,7 @@ class CategoryRoute(private val session: ApplicationCall) {
     /**
      * 获取分类
      */
-    fun list(): ResultModel {
+    suspend fun list(): ResultModel {
         
         val book = params["book"]?: ""
         if (book.isEmpty()) {
@@ -57,7 +57,7 @@ class CategoryRoute(private val session: ApplicationCall) {
     }
 
 
-    fun get(): ResultModel {
+    suspend fun get(): ResultModel {
         
         var book: String? = params["book"]?: ""
         if (book == "") {

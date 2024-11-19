@@ -58,7 +58,7 @@ object Bill {
      * @param bill 源账单
      * @param bill2 目标账单（将被更新）
      */
-    private fun mergeRepeatBill(bill: BillInfoModel, bill2: BillInfoModel, context: Context) {
+    private suspend fun mergeRepeatBill(bill: BillInfoModel, bill2: BillInfoModel, context: Context) {
         bill2.apply {
             // 1. 合并账户信息
             mergeAccountInfo(bill, this)
@@ -123,11 +123,11 @@ object Bill {
      * 账单分组，用于检查重复账单
      * @return 返回匹配到的父账单，如果没有匹配则返回null
      */
-    fun groupBillInfo(
+    suspend  fun groupBillInfo(
         billInfoModel: BillInfoModel,
         context: Context
     ): BillInfoModel? {
-        Server.isRunOnMainThread()
+
         
         // 1. 检查是否启用自动分组
         if (!isAutoGroupEnabled()) {
@@ -150,7 +150,7 @@ object Bill {
     /**
      * 检查是否启用自动分组功能
      */
-    private fun isAutoGroupEnabled(): Boolean {
+    private suspend fun isAutoGroupEnabled(): Boolean {
         val setting = Db.get().settingDao().query(Setting.AUTO_GROUP)?.value
         val enabled = setting != "false"
         Server.log("自动分组功能状态: $enabled")
@@ -160,7 +160,7 @@ object Bill {
     /**
      * 查找指定时间范围和金额的潜在重复账单
      */
-    private fun findPotentialDuplicates(bill: BillInfoModel): List<BillInfoModel> {
+    private suspend fun findPotentialDuplicates(bill: BillInfoModel): List<BillInfoModel> {
         val timeWindow = 5 * 60 * 1000L // 5分钟
         val startTime = bill.time - timeWindow
         val endTime = bill.time + timeWindow
@@ -171,7 +171,7 @@ object Bill {
     /**
      * 处理重复账单
      */
-    private fun handleDuplicateBill(
+    private suspend fun handleDuplicateBill(
         currentBill: BillInfoModel,
         parentBill: BillInfoModel,
         context: Context
@@ -198,8 +198,7 @@ object Bill {
      * @param billInfoModel 账单信息
      * @param context 上下文
      */
-    fun setRemark(billInfoModel: BillInfoModel, context: Context) {
-        Server.isRunOnMainThread()
+    suspend fun setRemark(billInfoModel: BillInfoModel, context: Context) {
         val settingBillRemark =
             Db.get().settingDao().query(Setting.NOTE_FORMAT)?.value ?: "【商户名称】 - 【商品名称】"
         billInfoModel.remark = settingBillRemark
@@ -217,8 +216,7 @@ object Bill {
      * 设置账单的账本名称
      * 如果账本名称为空或为"默认账本"，则使用系统设置的默认账本名称
      */
-    fun setBookName(billInfoModel: BillInfoModel) {
-        Server.isRunOnMainThread()
+    suspend fun setBookName(billInfoModel: BillInfoModel) {
         
         // 获取系统设置的默认账本名称
         val defaultBookName = getDefaultBookName()
@@ -235,7 +233,7 @@ object Bill {
      * 获取系统设置的默认账本名称
      * 如果未设置，返回"默认账本"
      */
-    private fun getDefaultBookName(): String {
+    private suspend fun getDefaultBookName(): String {
         return Db.get().settingDao()
             .query(Setting.DEFAULT_BOOK_NAME)
             ?.value

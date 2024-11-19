@@ -24,17 +24,17 @@ import org.ezbook.server.db.model.BookBillModel
 @Dao
 interface BookBillDao {
     @Insert
-    fun insert(bookBill: BookBillModel): Long
+    suspend fun insert(bookBill: BookBillModel): Long
 
     @Query("SELECT * FROM BookBillModel")
-    fun list(): List<BookBillModel>
+    suspend fun list(): List<BookBillModel>
 
     @Query("DELETE FROM BookBillModel")
-    fun clear()
+    suspend fun clear()
 
 
     @Transaction
-    fun put(list: List<BookBillModel>) {
+    suspend fun put(list: List<BookBillModel>) {
         clear()
         list.forEach {
             insert(it)

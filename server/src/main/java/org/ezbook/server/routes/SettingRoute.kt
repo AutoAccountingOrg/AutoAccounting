@@ -27,7 +27,7 @@ class SettingRoute(private val session: ApplicationCall) {
     /**
      * 获取设置
      */
-    fun get(): ResultModel {
+    suspend  fun get(): ResultModel {
         val key = params["key"] ?: ""
         if (key === "") {
             return ResultModel(400, "key is required")
@@ -50,12 +50,12 @@ class SettingRoute(private val session: ApplicationCall) {
         return ResultModel(200, "OK")
     }
 
-    fun list():ResultModel {
+    suspend fun list():ResultModel {
         return ResultModel(200, "OK", Db.get().settingDao().load())
     }
 
     companion object {
-        fun setByInner(key: String, value: String) {
+        suspend  fun setByInner(key: String, value: String) {
             val model = SettingModel()
             model.key = key
             model.value = value

@@ -26,25 +26,25 @@ import org.ezbook.server.db.model.CategoryModel
 interface CategoryDao {
     //根据条件查询
     @Query("SELECT * FROM CategoryModel WHERE remoteBookId=:book AND type = :type AND remoteParentId=:parent ORDER BY id ")
-    fun load(book: String, type: String, parent: String): List<CategoryModel>
+    suspend fun load(book: String, type: String, parent: String): List<CategoryModel>
 
     @Query("SELECT * FROM CategoryModel WHERE name =:name AND (:book IS NULL OR  remoteBookId = :book) AND (:type IS NULL OR  type = :type) ORDER BY id DESC LIMIT 1")
-    fun getByName(book: String?, type: String?, name: String): CategoryModel?
+    suspend fun getByName(book: String?, type: String?, name: String): CategoryModel?
 
 
     @Insert
-    fun insert(log: CategoryModel): Long
+    suspend fun insert(log: CategoryModel): Long
 
     @Query("DELETE FROM CategoryModel")
-    fun clear()
+    suspend fun clear()
 
     @Transaction
-    fun put(data: Array<CategoryModel>) {
+    suspend fun put(data: Array<CategoryModel>) {
         clear()
         data.forEach {
             insert(it)
         }
     }
     @Query("SELECT * FROM CategoryModel")
-    fun all(): List<CategoryModel>
+    suspend fun all(): List<CategoryModel>
 }

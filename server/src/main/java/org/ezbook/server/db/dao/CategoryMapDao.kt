@@ -26,23 +26,23 @@ import org.ezbook.server.db.model.CategoryMapModel
 interface CategoryMapDao {
 
     @Query("SELECT * FROM CategoryMapModel WHERE  (:searchTerm IS NULL OR name LIKE '%' || :searchTerm || '%') ORDER BY id DESC LIMIT :limit OFFSET :offset")
-    fun loadWithLimit(limit: Int, offset: Int, searchTerm: String?): List<CategoryMapModel>
+    suspend fun loadWithLimit(limit: Int, offset: Int, searchTerm: String?): List<CategoryMapModel>
 
     @Query("SELECT * FROM CategoryMapModel ORDER BY id DESC")
-    fun loadWithoutLimit(): List<CategoryMapModel>
+    suspend fun loadWithoutLimit(): List<CategoryMapModel>
 
     @Insert
-    fun insert(log: CategoryMapModel): Long
+    suspend fun insert(log: CategoryMapModel): Long
 
     @Update
-    fun update(log: CategoryMapModel)
+    suspend fun update(log: CategoryMapModel)
 
     @Query("DELETE FROM CategoryMapModel")
-    fun clear()
+    suspend fun clear()
 
     @Query("SELECT * FROM CategoryMapModel WHERE name = :name limit 1")
-    fun query(name: String): CategoryMapModel?
+    suspend fun query(name: String): CategoryMapModel?
 
     @Query("DELETE FROM CategoryMapModel WHERE id = :id")
-    fun delete(id: Long)
+    suspend fun delete(id: Long)
 }

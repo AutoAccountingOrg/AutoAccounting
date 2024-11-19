@@ -33,7 +33,7 @@ interface AppDataDao {
                 "AND (:search IS NULL OR data LIKE '%' || :search || '%')" +
                 "ORDER BY id DESC LIMIT :limit OFFSET :offset"
     )
-    fun load(
+    suspend fun load(
         limit: Int,
         offset: Int,
         app: String,
@@ -45,22 +45,22 @@ interface AppDataDao {
 
 
     @Insert
-    fun insert(log: AppDataModel): Long
+    suspend fun insert(log: AppDataModel): Long
 
     @Query("DELETE FROM AppDataModel")
-    fun clear()
+    suspend fun clear()
 
     //只保留最近的2000条数据
     @Query("DELETE FROM AppDataModel WHERE id NOT IN (SELECT id FROM AppDataModel ORDER BY id DESC LIMIT 2000)")
-    fun clearOld()
+    suspend fun clearOld()
 
     //查询所有app
     @Query("SELECT app FROM AppDataModel")
-    fun queryApps(): List<String>
+    suspend fun queryApps(): List<String>
 
     @Update
-    fun update(log: AppDataModel)
+    suspend fun update(log: AppDataModel)
 
     @Query("DELETE FROM AppDataModel WHERE id = :id")
-    fun delete(id: Long)
+    suspend fun delete(id: Long)
 }

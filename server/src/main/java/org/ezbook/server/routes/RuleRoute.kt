@@ -27,7 +27,7 @@ class RuleRoute(private val session: ApplicationCall) {
     /**
      * 获取规则列表
      */
-    fun list(): ResultModel {
+    suspend  fun list(): ResultModel {
         val page = params["page"]?.toInt() ?: 1
         val limit = params["limit"]?.toInt() ?: 10
 
@@ -67,7 +67,7 @@ class RuleRoute(private val session: ApplicationCall) {
     /**
      * 删除规则
      */
-    fun delete(): ResultModel {
+    suspend  fun delete(): ResultModel {
         val id = params["id"]?.toInt() ?: 0
         Db.get().ruleDao().delete(id)
         return ResultModel(200, "OK")
@@ -76,7 +76,7 @@ class RuleRoute(private val session: ApplicationCall) {
     /**
      * 获取app列表
      */
-    fun apps(): ResultModel {
+    suspend fun apps(): ResultModel {
         val apps = Db.get().ruleDao().queryApps()
         val map = hashMapOf<String, Int>()
         apps.forEach {
@@ -92,7 +92,7 @@ class RuleRoute(private val session: ApplicationCall) {
     /**
      * 根据名称获取其中一个规则
      */
-    fun system(): ResultModel {
+    suspend fun system(): ResultModel {
         val name = params["name"] ?: ""
         val rules = Db.get().ruleDao().loadSystemRule(name)
         return ResultModel(200, "OK", rules)
@@ -101,7 +101,7 @@ class RuleRoute(private val session: ApplicationCall) {
     /**
      * 删除超时未更新的系统规则
      */
-    fun deleteTimeoutSystem(): ResultModel {
+    suspend fun deleteTimeoutSystem(): ResultModel {
         // 删除5分钟前的系统规则
         Db.get().ruleDao().deleteSystemRule(System.currentTimeMillis() - 300 * 1000)
         return ResultModel(200, "OK")

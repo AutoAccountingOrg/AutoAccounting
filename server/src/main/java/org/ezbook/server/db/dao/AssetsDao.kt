@@ -27,25 +27,25 @@ interface AssetsDao {
 
     //根据条件查询
     @Query("SELECT * FROM AssetsModel ORDER BY id DESC LIMIT :limit OFFSET :offset")
-    fun load(limit: Int, offset: Int): List<AssetsModel>
+    suspend fun load(limit: Int, offset: Int): List<AssetsModel>
 
     //根据条件查询
     @Query("SELECT * FROM AssetsModel WHERE type = :type ORDER BY id DESC LIMIT :limit OFFSET :offset")
-    fun load(limit: Int, offset: Int, type: String): List<AssetsModel>
+    suspend fun load(limit: Int, offset: Int, type: String): List<AssetsModel>
 
 
     // 统计总数
     @Query("SELECT COUNT(*) FROM AssetsModel")
-    fun count(): Int
+    suspend fun count(): Int
 
     @Insert
-    fun insert(log: AssetsModel): Long
+    suspend fun insert(log: AssetsModel): Long
 
     @Query("DELETE FROM AssetsModel")
-    fun clear()
+    suspend fun clear()
 
     @Transaction
-    fun put(data: Array<AssetsModel>) {
+    suspend fun put(data: Array<AssetsModel>) {
         clear()
         data.forEach {
             insert(it)
@@ -53,5 +53,5 @@ interface AssetsDao {
     }
 
     @Query("SELECT * FROM AssetsModel WHERE name = :name limit 1")
-    fun query(name: String): AssetsModel?
+    suspend fun query(name: String): AssetsModel?
 }

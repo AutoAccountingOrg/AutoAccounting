@@ -27,16 +27,16 @@ interface BookNameDao {
 
     //根据条件查询
     @Query("SELECT * FROM BookNameModel ORDER BY id DESC")
-    fun load(): List<BookNameModel>
+    suspend fun load(): List<BookNameModel>
 
     @Insert
-    fun insert(log: BookNameModel): Long
+    suspend fun insert(log: BookNameModel): Long
 
     @Query("DELETE FROM BookNameModel")
-    fun clear()
+    suspend  fun clear()
 
     @Transaction
-    fun put(data: Array<BookNameModel>) {
+    suspend fun put(data: Array<BookNameModel>) {
         clear()
         data.forEach {
             insert(it)

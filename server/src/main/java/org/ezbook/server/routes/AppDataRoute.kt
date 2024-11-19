@@ -27,7 +27,7 @@ class AppDataRoute(private val session: ApplicationCall) {
     /**
      * 获取规则列表
      */
-    fun list(): ResultModel {
+    suspend fun list(): ResultModel {
 
         // 清理过期数据
         Db.get().dataDao().clearOld()
@@ -52,7 +52,7 @@ class AppDataRoute(private val session: ApplicationCall) {
     /**
      * 添加规则，
      */
-    fun clear(): ResultModel {
+    suspend fun clear(): ResultModel {
         Db.get().dataDao().clear()
         return ResultModel(200, "OK")
     }
@@ -60,7 +60,7 @@ class AppDataRoute(private val session: ApplicationCall) {
     /**
      * 获取app列表
      */
-    fun apps(): ResultModel {
+    suspend fun apps(): ResultModel {
         val apps = Db.get().dataDao().queryApps()
         val map = hashMapOf<String, Int>()
         apps.forEach {
@@ -83,7 +83,7 @@ class AppDataRoute(private val session: ApplicationCall) {
         return ResultModel(200, "OK")
     }
 
-    fun delete(): ResultModel {
+    suspend fun delete(): ResultModel {
         val id = params["id"]?.toLong() ?: 0
         Db.get().dataDao().delete(id)
         return ResultModel(200, "OK")

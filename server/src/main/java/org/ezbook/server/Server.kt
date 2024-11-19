@@ -116,7 +116,7 @@ class Server(private val context: Context) {
         /**
          * 日志
          */
-        fun log(msg: String) {
+        suspend  fun log(msg: String)  = withContext(Dispatchers.IO){
             runCatching {
                 Db.get().logDao().insert(LogModel().apply {
                     level = LogLevel.INFO
@@ -130,7 +130,7 @@ class Server(private val context: Context) {
         /**
          * 日志
          */
-        fun logW(msg: String) {
+        suspend  fun logW(msg: String)  = withContext(Dispatchers.IO){
             runCatching {
                 Db.get().logDao().insert(LogModel().apply {
                     level = LogLevel.WARN
@@ -144,7 +144,7 @@ class Server(private val context: Context) {
         /**
          * 错误日志
          */
-        fun log(e: Throwable) {
+        suspend fun log(e: Throwable)  = withContext(Dispatchers.IO){
 
            runCatching {
                Db.get().logDao().insert(LogModel().apply {
@@ -157,17 +157,6 @@ class Server(private val context: Context) {
             Log.e("AutoServer", e.message ?: "",e)
         }
 
-        fun runOnMainThread(function: () -> Unit) {
-            val handler = Handler(Looper.getMainLooper())
-            handler.post {
-                function()
-            }
-        }
 
-        fun isRunOnMainThread() {
-            if (Thread.currentThread().name == "main") {
-                throw RuntimeException("不允许在主线程运行")
-            }
-        }
     }
 }

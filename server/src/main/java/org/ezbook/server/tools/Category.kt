@@ -23,8 +23,7 @@ object Category {
 
 
     //只允许在io线程
-    fun setCategoryMap(billInfoModel: BillInfoModel) {
-        Server.isRunOnMainThread()
+    suspend fun setCategoryMap(billInfoModel: BillInfoModel) {
         val category = billInfoModel.cateName
         Db.get().categoryMapDao().query(category)?.let {
             billInfoModel.cateName = it.mapName

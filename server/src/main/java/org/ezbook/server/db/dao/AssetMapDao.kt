@@ -29,25 +29,25 @@ interface AssetMapDao {
 
     //根据条件查询
     @Query("SELECT * FROM AssetsMapModel ORDER BY id DESC limit :limit offset :offset")
-    fun load(limit: Int, offset: Int): List<AssetsMapModel>
+    suspend fun load(limit: Int, offset: Int): List<AssetsMapModel>
 
     @Insert
-    fun insert(log: AssetsMapModel): Long
+    suspend fun insert(log: AssetsMapModel): Long
 
     @Update
-    fun update(log: AssetsMapModel)
+    suspend fun update(log: AssetsMapModel)
 
     @Query("DELETE FROM AssetsMapModel")
-    fun clear()
+    suspend fun clear()
 
     @Query("SELECT * FROM AssetsMapModel WHERE name = :name limit 1")
-    fun query(name: String): AssetsMapModel?
+    suspend fun query(name: String): AssetsMapModel?
 
     @Query("DELETE FROM AssetsMapModel WHERE id = :id")
-    fun delete(id: Long)
+    suspend fun delete(id: Long)
 
     @Transaction
-    fun put(data:AssetsMapModel) {
+    suspend fun put(data:AssetsMapModel) {
         if (query(data.name) == null) {
             insert(data)
         } else {

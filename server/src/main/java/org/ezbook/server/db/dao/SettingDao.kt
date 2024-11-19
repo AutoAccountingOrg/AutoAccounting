@@ -24,15 +24,15 @@ import org.ezbook.server.db.model.SettingModel
 @Dao
 interface SettingDao {
     @Insert
-    fun insert(setting: SettingModel)
+    suspend  fun insert(setting: SettingModel)
 
     @Update
-    fun update(setting: SettingModel)
+    suspend  fun update(setting: SettingModel)
 
     @Query("SELECT * FROM SettingModel WHERE `key` = :key limit 1")
-    fun query(key: String): SettingModel?
+    suspend  fun query(key: String): SettingModel?
 
     @Query("SELECT * FROM SettingModel")
-    fun load(): List<SettingModel>
+    suspend fun load(): List<SettingModel>
 
 }

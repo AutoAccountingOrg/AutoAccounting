@@ -25,7 +25,7 @@ import org.ezbook.server.models.ResultModel
 
 class AssetsRoute(private val session: ApplicationCall) {
     private val params: Parameters = session.request.queryParameters
-    fun list(): ResultModel {
+    suspend fun list(): ResultModel {
         val logs = Db.get().assetsDao().load(90000, 0)
 
         return ResultModel(200, "OK", logs)
@@ -39,7 +39,7 @@ class AssetsRoute(private val session: ApplicationCall) {
         return ResultModel(200, "OK", id)
     }
 
-    fun get(): ResultModel {
+    suspend fun get(): ResultModel {
         val name = params["name"] ?: ""
         val data = Db.get().assetsDao().query(name)
         return ResultModel(200, "OK", data)

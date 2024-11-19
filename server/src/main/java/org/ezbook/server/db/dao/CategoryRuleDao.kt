@@ -27,20 +27,20 @@ import org.ezbook.server.db.model.CategoryRuleModel
 interface CategoryRuleDao {
     //根据条件查询
     @Query("SELECT * FROM CategoryRuleModel  ORDER BY id DESC LIMIT :limit OFFSET :offset")
-    fun load(limit: Int, offset: Int): List<CategoryRuleModel>
+    suspend  fun load(limit: Int, offset: Int): List<CategoryRuleModel>
 
 
     @Update
-    fun update(log: CategoryRuleModel): Int
+    suspend  fun update(log: CategoryRuleModel): Int
 
     @Insert
-    fun insert(log: CategoryRuleModel): Long
+    suspend fun insert(log: CategoryRuleModel): Long
 
     @Query("DELETE FROM CategoryRuleModel")
-    fun clear()
+    suspend fun clear()
 
     @Transaction
-    fun put(data: Array<CategoryRuleModel>) {
+    suspend fun put(data: Array<CategoryRuleModel>) {
         clear()
         data.forEach {
             insert(it)
@@ -48,8 +48,8 @@ interface CategoryRuleDao {
     }
 
     @Query("DELETE FROM CategoryRuleModel WHERE id = :id")
-    fun delete(id: Long)
+    suspend fun delete(id: Long)
 
     @Query("SELECT * FROM CategoryRuleModel")
-     fun loadAll(): List<CategoryRuleModel>
+    suspend fun loadAll(): List<CategoryRuleModel>
 }

@@ -26,7 +26,7 @@ import org.ezbook.server.models.ResultModel
 
 class BillRoute(private val session: ApplicationCall) {
     private val params: Parameters = session.request.queryParameters
-    fun list(): ResultModel {
+    suspend fun list(): ResultModel {
         Db.get().billInfoDao().deleteNoGroup()
         //删除一年之前的账单数据
         Db.get().billInfoDao().clearOld(System.currentTimeMillis() - 365L * 24 * 60 * 60 * 1000)
@@ -51,7 +51,7 @@ class BillRoute(private val session: ApplicationCall) {
         }
     }
 
-    fun remove(): ResultModel {
+    suspend fun remove(): ResultModel {
         val params = session.parameters
         val id = params["id"]?.toLong() ?: 0
         Server.log("删除账单:$id")
@@ -60,12 +60,12 @@ class BillRoute(private val session: ApplicationCall) {
         return ResultModel(200, "OK", 0)
     }
 
-    fun sync(): ResultModel {
+    suspend fun sync(): ResultModel {
         val result = Db.get().billInfoDao().queryNoSync()
         return ResultModel(200, "OK", result)
     }
 
-    fun status(): ResultModel {
+    suspend  fun status(): ResultModel {
         val params = session.parameters
         val id = params["id"]?.toLong() ?: 0
         val status = params["sync"]?.toBoolean() ?: false
@@ -73,21 +73,21 @@ class BillRoute(private val session: ApplicationCall) {
         return ResultModel(200, "OK", 0)
     }
 
-    fun group(): ResultModel {
+    suspend fun group(): ResultModel {
         val params = session.parameters
         val id = params["id"]?.toLong() ?: 0
         val result = Db.get().billInfoDao().queryGroup(id)
         return ResultModel(200, "OK", result)
     }
 
-    fun get(): ResultModel {
+    suspend  fun get(): ResultModel {
         val params = session.parameters
         val id = params["id"]?.toLong() ?: 0
         val result = Db.get().billInfoDao().queryId(id)
         return ResultModel(200, "OK", result)
     }
 
-    fun clear(): ResultModel {
+    suspend  fun clear(): ResultModel {
         Db.get().billInfoDao().clearOld(System.currentTimeMillis())
         return ResultModel(200,"OK")
     }

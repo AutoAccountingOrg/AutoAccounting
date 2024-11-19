@@ -26,7 +26,7 @@ import org.ezbook.server.models.ResultModel
 class BookBillRoute(private val session: ApplicationCall) {
     private val params: Parameters = session.request.queryParameters
 
-    fun list(): ResultModel {
+    suspend fun list(): ResultModel {
         val data = Db.get().bookBillDao().list()
         return ResultModel(200, "OK", data)
     }

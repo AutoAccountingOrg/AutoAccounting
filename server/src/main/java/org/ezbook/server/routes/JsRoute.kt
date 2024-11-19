@@ -26,6 +26,8 @@ import com.shiqi.quickjs.QuickJS
 import io.ktor.application.ApplicationCall
 import io.ktor.http.Parameters
 import io.ktor.request.receiveText
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.ezbook.server.Server
 import org.ezbook.server.ai.ChatGPT
 import org.ezbook.server.ai.DeepSeek
@@ -199,7 +201,7 @@ class JsRoute(private val session: ApplicationCall, private val context: android
             // 切换到主线程
             if(!billInfoModel.auto){
                 Server.log("Auto record is off: $billInfoModel")
-                Server.runOnMainThread {
+                withContext(Dispatchers.Main) {
                     runCatching {
                         startAutoPanel(billInfoModel, task.result)
                     }.onFailure {
@@ -224,7 +226,7 @@ class JsRoute(private val session: ApplicationCall, private val context: android
         return ResultModel(200, "OK", billInfoModel)
     }
 
-    private fun parseBillInfoFromAi(app:String,data:String):BillInfoModel?{
+    private suspend fun parseBillInfoFromAi(app:String, data:String):BillInfoModel?{
         val aiModel = Db.get().settingDao().query(Setting.AI_MODEL)?.value?:AIModel.Gemini
         val billInfoModel:BillInfoModel? =  runCatching {
             when(aiModel){
@@ -261,8 +263,7 @@ class JsRoute(private val session: ApplicationCall, private val context: android
         return billInfoModel
     }
 
-    private fun sync2Book(context: android.content.Context){
-        Server.isRunOnMainThread()
+    private suspend fun sync2Book(context: android.content.Context){
         val packageName = Db.get().settingDao().query(Setting.BOOK_APP_ID)?.value?:return
         val syncType =
             Db.get().settingDao().query(Setting.SYNC_TYPE)?.value?:SyncType.WhenOpenApp.name
@@ -294,7 +295,7 @@ class JsRoute(private val session: ApplicationCall, private val context: android
      * @param dataType 数据类型
      * @return 账单信息
      */
-    private fun parseBillInfo(result: String, app: String, dataType: DataType): BillInfoModel {
+    private suspend fun parseBillInfo(result: String, app: String, dataType: DataType): BillInfoModel {
         val json = Gson().fromJson(result, JsonObject::class.java)
 
         val money = json.get("money")?.asDouble ?: 0.0

@@ -27,7 +27,7 @@ class LogRoute(private val session: ApplicationCall) {
     /**
      * 获取日志列表
      */
-    fun list(): ResultModel {
+    suspend fun list(): ResultModel {
         //remove expired data
         Db.get().logDao().clearOld()
         val page = params["page"]?.toInt() ?: 1
@@ -49,7 +49,7 @@ class LogRoute(private val session: ApplicationCall) {
     /**
      * 清空日志
      */
-    fun clear(): ResultModel {
+    suspend fun clear(): ResultModel {
         Db.get().logDao().clear()
         return ResultModel(200, "OK",null)
     }

@@ -114,8 +114,7 @@ Input:
      */
     abstract var createKeyUri:String
 
-    fun getConversations(data: String): Pair<String,String>  {
-         Server.isRunOnMainThread()
+    suspend fun getConversations(data: String): Pair<String,String>  {
         val category = Db.get().categoryDao().all().map {
             Pair(it.name, it.type)
         }
@@ -128,7 +127,7 @@ Input:
          input.replace("{data}", data).replace("{category}", Gson().toJson(category)))
     }
 
-    open fun request(data: String): BillInfoModel?{
+    open suspend fun request(data: String): BillInfoModel?{
         val (system,user) = getConversations(data)
         val url = api
         val client = OkHttpClient.Builder().readTimeout(60, TimeUnit.SECONDS).build()

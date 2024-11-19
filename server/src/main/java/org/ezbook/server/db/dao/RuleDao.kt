@@ -35,7 +35,7 @@ interface RuleDao {
     OFFSET :offset
 """
     )
-    fun loadByAppAndFilters(
+    suspend fun loadByAppAndFilters(
         limit: Int,
         offset: Int,
         app: String,
@@ -45,30 +45,30 @@ interface RuleDao {
 
     //查询所有启用的规则，用于JS执行
     @Query("SELECT * FROM RuleModel WHERE app = :app AND type = :type AND enabled = 1")
-    fun loadAllEnabled(app: String, type: String): List<RuleModel>
+    suspend fun loadAllEnabled(app: String, type: String): List<RuleModel>
 
 
     @Insert
-    fun insert(rule: RuleModel): Long
+    suspend  fun insert(rule: RuleModel): Long
 
     @Update
-    fun update(rule: RuleModel)
+    suspend fun update(rule: RuleModel)
 
     @Query("DELETE FROM RuleModel WHERE id = :id")
-    fun delete(id: Int)
+    suspend  fun delete(id: Int)
 
     @Query("SELECT app FROM RuleModel")
-    fun queryApps(): List<String>
+    suspend fun queryApps(): List<String>
 
     @Query("SELECT * FROM RuleModel WHERE creator = 'system'")
-    fun loadAllSystem(): List<RuleModel>
+    suspend  fun loadAllSystem(): List<RuleModel>
 
 
     @Query("SELECT * FROM RuleModel WHERE app = :app AND type = :type AND name = :name limit 1")
-    fun query(type: String, app: String, name: String): RuleModel?
+    suspend fun query(type: String, app: String, name: String): RuleModel?
 
     @Query("SELECT * FROM RuleModel WHERE name = :name AND creator = 'system' limit 1")
-    fun loadSystemRule(name: String): RuleModel?
+    suspend fun loadSystemRule(name: String): RuleModel?
     @Query("DELETE FROM RuleModel WHERE creator = 'system' AND updateAt < :time")
-    fun deleteSystemRule(time:Long)
+    suspend fun deleteSystemRule(time:Long)
 }

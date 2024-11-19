@@ -24,7 +24,7 @@ import org.ezbook.server.models.ResultModel
 
 class AssetsMapRoute(private val session: ApplicationCall) {
     private val params: Parameters = session.request.queryParameters
-    fun list(): ResultModel {
+    suspend fun list(): ResultModel {
         val page = params["page"]?.toInt() ?: 1
         val limit = params["limit"]?.toInt() ?: 10
         val offset = (page - 1) * limit
@@ -46,7 +46,7 @@ class AssetsMapRoute(private val session: ApplicationCall) {
         return ResultModel(200, "OK", model.id)
     }
 
-    fun delete(): ResultModel {
+    suspend fun delete(): ResultModel {
        
         val id = (params["id"] ?: "0").toLong()
         Db.get().assetsMapDao().delete(id)

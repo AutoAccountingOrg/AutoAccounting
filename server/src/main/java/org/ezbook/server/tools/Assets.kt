@@ -125,8 +125,8 @@ object Assets {
      * 获取资产映射
      * 必须运行在IO线程，不允许在主线程运行
      */
-    fun setAssetsMap(billInfoModel: BillInfoModel) {
-        Server.isRunOnMainThread()
+    suspend fun setAssetsMap(billInfoModel: BillInfoModel) {
+
 
         // 提前获取账户名称
         val (accountFrom, accountTo) = billInfoModel.run {
@@ -147,10 +147,9 @@ object Assets {
         }
 
         // 懒加载其他数据
-        val maps by lazy { Db.get().assetsMapDao().load(9000, 0) }
-        val autoAsset by lazy {
-            Db.get().settingDao().query(Setting.AUTO_IDENTIFY_ASSET)?.value == "true"
-        }
+        val maps = Db.get().assetsMapDao().load(9000, 0)
+        val autoAsset = Db.get().settingDao().query(Setting.AUTO_IDENTIFY_ASSET)?.value == "true"
+
 
         // 处理并更新账户名称
         billInfoModel.apply {
@@ -162,7 +161,7 @@ object Assets {
     /**
      * 处理资产
      */
-    private fun processAssets(
+    private suspend fun processAssets(
         account: String,
         maps: List<AssetsMapModel>,
         assets: List<AssetsModel>,
@@ -193,7 +192,7 @@ object Assets {
     /**
      * 保存资产映射
      */
-    private fun saveAssetsMap(name: String, mapName: String) {
+    private suspend fun saveAssetsMap(name: String, mapName: String) {
         Db.get().assetsMapDao().put(AssetsMapModel().apply {
             this.name = name
             this.mapName = mapName
