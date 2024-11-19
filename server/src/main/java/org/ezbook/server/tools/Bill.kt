@@ -124,33 +124,77 @@ object Bill {
 
     /**
      * 账单分组，用于检查重复账单
+     * @return 返回匹配到的父账单，如果没有匹配则返回null
      */
     fun groupBillInfo(
         billInfoModel: BillInfoModel,
         context: Context
     ): BillInfoModel? {
         Server.isRunOnMainThread()
-        val settingBillRepeat =
-            Db.get().settingDao().query(Setting.AUTO_GROUP)?.value != "false"
-        Server.log("settingBillRepeat=$settingBillRepeat")
-        if (!settingBillRepeat) return null
-        //第一要素，金钱一致，时间在5分钟以内
-        val startTime = billInfoModel.time - 5 * 60 * 1000
-        val endTime = billInfoModel.time + 5 * 60 * 1000
-        val bills = Db.get().billInfoDao().query(billInfoModel.money, startTime, endTime)
-        val parentBill = bills.find { billInfoModel.id!=it.id && checkRepeat(billInfoModel, it)  }
-        if (parentBill == null)return null
-
-        Server.log("Parent=$parentBill, Bill=$billInfoModel, startTime:$startTime, endTime:${billInfoModel.time}")
-        billInfoModel.groupId = parentBill.id
-        mergeRepeatBill(billInfoModel, parentBill, context)
-        //更新到数据库
-        Db.get().billInfoDao().update(parentBill)
-        Db.get().billInfoDao().update(billInfoModel)
-        Server.log("Convert Parent=$parentBill, Bill=$billInfoModel, startTime:$startTime, endTime:${billInfoModel.time}")
-        return parentBill
+        
+        // 1. 检查是否启用自动分组
+        if (!isAutoGroupEnabled()) {
+            return null
+        }
+        
+        // 2. 查找可能重复的账单
+        val potentialDuplicates = findPotentialDuplicates(billInfoModel)
+        
+        // 3. 查找并处理重复账单
+        return potentialDuplicates
+            .find { bill -> 
+                bill.id != billInfoModel.id && checkRepeat(billInfoModel, bill) 
+            }
+            ?.also { parentBill ->
+                handleDuplicateBill(billInfoModel, parentBill, context)
+            }
     }
 
+    /**
+     * 检查是否启用自动分组功能
+     */
+    private fun isAutoGroupEnabled(): Boolean {
+        val setting = Db.get().settingDao().query(Setting.AUTO_GROUP)?.value
+        val enabled = setting != "false"
+        Server.log("自动分组功能状态: $enabled")
+        return enabled
+    }
+
+    /**
+     * 查找指定时间范围和金额的潜在重复账单
+     */
+    private fun findPotentialDuplicates(bill: BillInfoModel): List<BillInfoModel> {
+        val timeWindow = 5 * 60 * 1000L // 5分钟
+        val startTime = bill.time - timeWindow
+        val endTime = bill.time + timeWindow
+        
+        return Db.get().billInfoDao().query(bill.money, startTime, endTime)
+    }
+
+    /**
+     * 处理重复账单
+     */
+    private fun handleDuplicateBill(
+        currentBill: BillInfoModel,
+        parentBill: BillInfoModel,
+        context: Context
+    ) {
+        Server.log("发现重复账单 - 父账单: $parentBill, 当前账单: $currentBill")
+        
+        // 1. 设置分组ID
+        currentBill.groupId = parentBill.id
+        
+        // 2. 合并账单信息
+        mergeRepeatBill(currentBill, parentBill, context)
+        
+        // 3. 更新数据库
+        Db.get().billInfoDao().apply {
+            update(parentBill)
+            update(currentBill)
+        }
+        
+        Server.log("账单合并完成 - 父账单: $parentBill, 当前账单: $currentBill")
+    }
 
     /**
      * 获取备注
