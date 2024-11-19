@@ -38,38 +38,25 @@ Instructions:
    {
        "accountNameFrom": "",
        "accountNameTo": "",
-       "app": "",
-       "auto": false,
-       "bookName": "默认账本",
        "cateName": "",
-       "channel": "",
-       "currency": "",
-       "extendData": "",
+       "currency": "",   
        "fee": 0,
-       "groupId": -1,
-       "id": 0,
-       "money": 0.00,
-       "remark": "",
-       "ruleName": "{aiName} 识别",
+       "money": 0.00,  
        "shopItem": "",
        "shopName": "",
-       "state": "",
+       "type": "",
        "time": {time},
-       "type": ""
    }
    ```
 3. Explanation of JSON Fields:
    - type: Must be a string; one of `Transfer`, `Income`, or `Expend`.
    - time: Extract from raw data; Must be a 13-digit integer (milliseconds since epoch); Don't change it if extraction fails.
-   - state: Always set to `Wait2Edit`.
    - shopName/shopItem: Extract from raw data; set to empty string if extraction fails.
    - remark: Always an empty string.
-   - ruleName: Don't change it.
    - money/fee: Double-precision number; set to 0 if extraction fails.
    - currency: Extract from raw data; set to `CNY` if extraction fails.
    - cateName: Choose from Category JSON, distinguishing between income and expenses.
    - accountNameFrom/To: Extract for Transfer type; set to empty string if extraction fails.
-   - Fields not to modify: `id`, `groupId`, `extendData`, `channel`, `bookName`, `auto`, `app` , `ruleName`.
 4. If you can't analyze anything, export an empty JSON object: `{}`
 
 Output:
@@ -77,26 +64,16 @@ Output:
 
 Example:
 {
-    "accountNameFrom": "",
-    "accountNameTo": "",
-    "app": "",
-    "auto": false,
-    "bookName": "默认账本",
-    "cateName": "",
-    "channel": "",
-    "currency": "",
-    "extendData": "",
-    "fee": 0,
-    "groupId": -1,
-    "id": 0,
-    "money": 0.00,
-    "remark": "",
-    "ruleName": "",
-    "shopItem": "",
-    "shopName": "",
-    "state": "",
-    "time": 0,
-    "type": ""
+       "accountNameFrom": "支付宝余额",
+       "accountNameTo": "",
+       "cateName": "购物",
+       "currency": "CNY",   
+       "fee": 0,
+       "money": 10.00,  
+       "shopItem": "上好佳薯片",
+       "shopName": "钱塘江超市",
+       "type": "Expend",
+       "time": 1630512000000,
 }
     """.trimIndent()
 
@@ -153,8 +130,10 @@ Input:
 
     open fun request(data: String): BillInfoModel?{
         val (system,user) = getConversations(data)
-        val url = api
-
+        var url = api
+        if(!url.contains("v1/chat/completions")){
+            url = "$api/v1/chat/completions"
+        }
         val client = OkHttpClient.Builder().readTimeout(60, TimeUnit.SECONDS).build()
 
         val json =
