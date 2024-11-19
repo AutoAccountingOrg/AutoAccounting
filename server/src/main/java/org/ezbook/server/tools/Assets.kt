@@ -57,7 +57,7 @@ object Assets {
     /**
      * 通过算法获取资产
      */
-    private fun getAssetsByAlgorithm(
+    private suspend fun getAssetsByAlgorithm(
         list: List<AssetsModel>,
         raw: String,
     ): String {

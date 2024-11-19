@@ -42,7 +42,7 @@ class Gemini : BaseAi() {
         set(value) {}
 
 
-    override  fun request(data: String): BillInfoModel? {
+    override suspend  fun request(data: String): BillInfoModel? {
         val (system,user) = getConversations(data)
         val url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=$apiKey"
 

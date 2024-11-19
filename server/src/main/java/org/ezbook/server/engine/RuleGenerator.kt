@@ -26,7 +26,7 @@ import org.ezbook.server.db.Db
  */
 object RuleGenerator {
     // 生成 hook的 js代码
-    fun data(app: String, type: DataType): String {
+    suspend fun data(app: String, type: DataType): String {
         val rules = Db.get().ruleDao().loadAllEnabled(app, type.name)
         val js = StringBuilder()
 
@@ -90,7 +90,7 @@ object RuleGenerator {
         return js.toString()
     }
 
-    fun category(): String {
+    suspend   fun category(): String {
         val categoryCustom = Db.get().categoryRuleDao().loadAll().joinToString("\n") {
             it.js
         }

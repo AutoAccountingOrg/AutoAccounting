@@ -25,7 +25,7 @@ import org.ezbook.server.models.ResultModel
 
 class BookNameRoute(private val session: ApplicationCall) {
     private val params: Parameters = session.request.queryParameters
-    fun list(): ResultModel {
+    suspend fun list(): ResultModel {
         return ResultModel(200, "OK", Db.get().bookNameDao().load())
     }
 

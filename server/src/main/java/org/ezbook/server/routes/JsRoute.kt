@@ -335,7 +335,7 @@ class JsRoute(private val session: ApplicationCall, private val context: android
     /**
      * 启动自动记账面板
      */
-    private fun startAutoPanel(billInfoModel: BillInfoModel, parent: BillInfoModel?) {
+    private suspend fun startAutoPanel(billInfoModel: BillInfoModel, parent: BillInfoModel?) {
         val intent = Intent()
         intent.putExtra("billInfo", Gson().toJson(billInfoModel))
         intent.putExtra("id", billInfoModel.id)
@@ -372,7 +372,7 @@ class JsRoute(private val session: ApplicationCall, private val context: android
     /**
      * 运行js代码
      */
-    private fun runJS(jsCode: String, data: String): String {
+    private suspend fun runJS(jsCode: String, data: String): String {
        try {
            val quickJS = QuickJS.Builder().build()
            val runtime = quickJS.createJSRuntime()

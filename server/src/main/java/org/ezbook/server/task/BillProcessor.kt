@@ -1,37 +1,90 @@
 package org.ezbook.server.task
 
 import android.content.Context
+import android.util.Log
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import org.ezbook.server.Server
 import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.tools.Bill
-import java.util.concurrent.BlockingQueue
-import java.util.concurrent.LinkedBlockingQueue
 
 class BillProcessor {
-    private val queue: BlockingQueue<BillTask> = LinkedBlockingQueue()
-    private val worker = Thread {
-        while (true) {
-            try {
-                val task: BillTask = queue.take() // 阻塞，直到有任务可处理
-                task.result = Bill.groupBillInfo(task.billInfoModel, task.context)
-                task.complete() // 通知任务已完成
-            } catch (e: InterruptedException) {
-                Thread.currentThread().interrupt() // 处理线程中断
-                break
+    private val scope = CoroutineScope(
+        Dispatchers.IO + SupervisorJob() + 
+        CoroutineExceptionHandler { _, throwable ->
+           throwable.printStackTrace()
+           Log.e("BillProcessor", "Coroutine error: ${throwable.message}", throwable)
+        }
+    )
+    
+    private val taskChannel = Channel<BillTask>(Channel.UNLIMITED)
+    
+    // 用于通知任务完成状态
+    private val _taskCompletionFlow = MutableSharedFlow<BillTask>()
+    val taskCompletionFlow = _taskCompletionFlow.asSharedFlow()
+    
+    init {
+        startProcessor()
+    }
+    
+    private fun startProcessor() {
+        scope.launch {
+            for (task in taskChannel) {
+                try {
+                    processTask(task)
+                } catch (e: Exception) {
+                    Server.log("处理任务失败: ${e.message}")
+                    task.result = null
+                } finally {
+                    _taskCompletionFlow.emit(task)
+                }
             }
         }
     }
-
-    init {
-        worker.start() // 启动工作线程
+    
+    private suspend fun processTask(task: BillTask) {
+        withContext(Dispatchers.IO) {
+            task.result = Bill.groupBillInfo(task.billInfoModel, task.context)
+        }
     }
-
-    fun addTask(billInfoModel: BillInfoModel, context: Context): BillTask {
-        val task = BillTask(billInfoModel, context)
-        queue.add(task) // 将任务添加到队列
-        return task // 返回任务对象
+    
+    /**
+     * 添加新任务
+     * @return 任务对象，可用于跟踪任务状态
+     */
+    suspend fun addTask(billInfoModel: BillInfoModel, context: Context): BillTask {
+        return BillTask(billInfoModel, context).also {
+            taskChannel.send(it)
+        }
     }
-
+    
+    /**
+     * 添加新任务（非挂起版本）
+     */
+    fun addTaskAsync(billInfoModel: BillInfoModel, context: Context): BillTask {
+        return BillTask(billInfoModel, context).also {
+            scope.launch {
+                taskChannel.send(it)
+            }
+        }
+    }
+    
+    /**
+     * 优雅关闭处理器
+     */
     fun shutdown() {
-        worker.interrupt() // 中断工作线程
+        taskChannel.close() // 关闭通道，不再接受新任务
+        scope.coroutineContext.cancelChildren() // 取消所有子协程
+        scope.cancel() // 取消作用域
+    }
+    
+    /**
+     * 等待所有任务完成
+     */
+    suspend fun awaitCompletion() {
+        taskChannel.close()
+        scope.coroutineContext.job.children.forEach { it.join() }
     }
 }

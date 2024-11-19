@@ -328,7 +328,7 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
 
         // 如果架构不支持，则记录日志并返回
         if (framework == "unsupported") {
-            Server.log("Unsupported architecture")
+            Logger.logD(TAG,"Unsupported architecture")
             return
         }
 
@@ -337,10 +337,10 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         try {
             System.load(libmimalloc)
             System.load(libquickjs)
-            Server.log("Loaded JS engine for $framework")
+            Logger.logD(TAG,"Loaded JS engine for $framework")
         } catch (e: Exception) {
-            Server.log("Load quickjs-android failed for $framework")
-            Server.log(e)
+            Logger.logD(TAG,"Load quickjs-android failed for $framework")
+            Logger.logE(TAG,e)
         }
     }
 

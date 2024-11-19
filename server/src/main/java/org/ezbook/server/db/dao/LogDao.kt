@@ -22,11 +22,9 @@ import org.ezbook.server.db.model.LogModel
 
 @Dao
 interface LogDao {
-
     // change page
     @Query("SELECT * FROM LogModel ORDER BY id DESC LIMIT :limit OFFSET :offset")
     suspend fun loadPage(limit: Int, offset: Int): List<LogModel>
-
 
     @Insert
     suspend fun insert(log: LogModel): Long
