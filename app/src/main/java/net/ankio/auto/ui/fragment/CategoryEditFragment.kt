@@ -55,6 +55,7 @@ class CategoryEditFragment : BaseFragment() {
     private var list: MutableList<HashMap<String, Any>>? = mutableListOf()
 
     private fun buildUI() {
+
         val flexboxLayout = binding.flexboxLayout
         // 监听器取消
         for (i in 0 until binding.flexboxLayout.childCount) {
@@ -209,6 +210,7 @@ class CategoryEditFragment : BaseFragment() {
         view: View,
         element: FlowElement,
     ) {
+        if (!isAdded)return
         val menuItems: HashMap<String, Any> =
             hashMapOf(
                 getString(R.string.type_money) to 0,
@@ -234,6 +236,7 @@ class CategoryEditFragment : BaseFragment() {
         element: FlowElement,
         view: View,
     ) {
+        if (!isAdded)return
         val menuItems: HashMap<String, Any> =
             hashMapOf(
                 getString(R.string.type_for_pay) to 0,
@@ -292,6 +295,7 @@ class CategoryEditFragment : BaseFragment() {
         item: String,
         name: String,
     ) {
+        if (!isAdded)return
         val inputBinding = DialogRegexInputBinding.inflate(LayoutInflater.from(requireContext()))
         var select: Int =
             when (val selectValue = element.data.getOrDefault("select", 0)) {
@@ -341,6 +345,7 @@ class CategoryEditFragment : BaseFragment() {
         title: String,
         callback: (String) -> Unit,
     ) {
+        if (!isAdded)return
         val result = time.split(":")
         val picker =
             MaterialTimePicker.Builder()
@@ -360,6 +365,7 @@ class CategoryEditFragment : BaseFragment() {
         flexboxLayout: FlowLayoutManager,
         element: FlowElement,
     ) {
+        if (!isAdded)return
         val currentTime = Calendar.getInstance()
         val hour = currentTime.get(Calendar.HOUR_OF_DAY)
         val minute = currentTime.get(Calendar.MINUTE)
@@ -387,6 +393,7 @@ class CategoryEditFragment : BaseFragment() {
         flexboxLayout: FlowLayoutManager,
         element: FlowElement,
     ) {
+        if (!isAdded)return
         val moneyRangeBinding =
             DialogRegexMoneyBinding.inflate(LayoutInflater.from(requireContext()))
         moneyRangeBinding.lower.setText(element.data.getOrDefault("minAmount", "").toString())
