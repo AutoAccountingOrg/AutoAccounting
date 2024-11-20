@@ -20,6 +20,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -114,7 +115,17 @@ class DataFragment : BasePageFragment<AppDataModel>() {
                 var i = 0
                 for (key in result.keySet()) {
                     i++
-                    val app = App.getAppInfoFromPackageName(key) ?: continue
+                    var app = App.getAppInfoFromPackageName(key)
+
+                    if (app == null){
+                        if (App.debug){
+                            app = arrayOf(key, ResourcesCompat.getDrawable(App.app.resources,R.drawable.default_asset,null),"")
+                        }else{
+                            continue
+                        }
+
+                    }
+
                     leftList.addMenuItem(
                         RailMenuItem(i, app[1] as Drawable, app[0] as String)
                     )

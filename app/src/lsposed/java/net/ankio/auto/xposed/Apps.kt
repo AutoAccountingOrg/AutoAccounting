@@ -15,6 +15,7 @@
 
 package net.ankio.auto.xposed
 
+import net.ankio.auto.BuildConfig
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.hooks.alipay.AliPayHooker
 import net.ankio.auto.xposed.hooks.android.AndroidHooker
@@ -30,7 +31,7 @@ object Apps {
      */
     fun getServerRunInApp():String{
         // 或者运行于com.tencent.mm
-      // if (BuildConfig.DEBUG) return BuildConfig.APPLICATION_ID
+       if (BuildConfig.DEBUG) return BuildConfig.APPLICATION_ID
         return  "com.android.phone"
     }
 
