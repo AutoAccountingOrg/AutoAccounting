@@ -156,7 +156,7 @@ class AssetsUtils(private val manifest: HookerManifest, private val classLoader:
                     "name" -> model.name = value as String
                     "icon" -> model.icon = value as String
                     "sort" -> model.sort = value as Int
-                    "currency" -> model.currency = Currency.valueOf(value as String)
+                    "currency" -> model.currency = runCatching { Currency.valueOf(value as String) }.getOrDefault(Currency.CNY)
                     "loanInfo" -> model.extras = Gson().toJson(value)
                     "extra" -> {
                         if (model.extras == "{}") {

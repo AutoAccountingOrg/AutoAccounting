@@ -496,7 +496,7 @@ class FloatEditorDialog(
             binding.moneyType.visibility = View.GONE
             return
         }
-        val currency = Currency.valueOf(billInfoModel.currency)
+        val currency = runCatching { Currency.valueOf(billInfoModel.currency) }.getOrDefault(Currency.CNY)
         binding.moneyType.setText(currency.name(context))
         binding.moneyType.setIcon(currency.icon(context))
     }
