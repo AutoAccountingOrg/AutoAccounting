@@ -22,6 +22,7 @@ import net.ankio.auto.xposed.hooks.android.AndroidHooker
 import net.ankio.auto.xposed.hooks.auto.AutoHooker
 import net.ankio.auto.xposed.hooks.qianji.QianjiHooker
 import net.ankio.auto.xposed.hooks.sms.SmsHooker
+import net.ankio.auto.xposed.hooks.sysui.SystemUiHooker
 import net.ankio.auto.xposed.hooks.wechat.WechatHooker
 
 
@@ -31,13 +32,14 @@ object Apps {
      */
     fun getServerRunInApp():String{
         // 或者运行于com.tencent.mm
-       if (BuildConfig.DEBUG) return BuildConfig.APPLICATION_ID
-        return  "android"
+      // if (BuildConfig.DEBUG) return BuildConfig.APPLICATION_ID
+        return  "com.android.phone"
     }
 
     fun get(): MutableList<HookerManifest> {
         return mutableListOf(
             AndroidHooker(), // Android
+            SystemUiHooker(), // SystemUI
             AutoHooker(), // Auto
             ////////////////////////////
             // 记账App hook

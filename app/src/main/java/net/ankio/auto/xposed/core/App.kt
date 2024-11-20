@@ -15,6 +15,7 @@
 
 package net.ankio.auto.xposed.core
 
+import android.app.AndroidAppHelper
 import android.app.Application
 import android.content.Context
 import android.content.pm.PackageManager
@@ -41,7 +42,6 @@ import net.ankio.auto.xposed.core.utils.MessageUtils.toast
 import net.ankio.dex.Dex
 import org.ezbook.server.Server
 import org.ezbook.server.constant.Setting
-import java.io.File
 
 
 class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
@@ -69,7 +69,7 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         var hookStatus = false
         if (applicationName.isEmpty()) {
             Logger.logD(TAG, "Application name is empty")
-            callback(null)
+            callback(AndroidAppHelper.currentApplication())
             return
         }
 
@@ -307,8 +307,9 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         hookerManifest: HookerManifest,
         application: Application?
     ) {
+        Logger.logD(TAG, "Start server...: ${AndroidAppHelper.currentPackageName()}")
         try {
-            initJsEngine(application!!)
+            initJsEngine()
             hookerManifest.logD("Try start server...")
             Server(application!!).startServer()
             hookerManifest.logD("Server start success")
@@ -321,18 +322,29 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
     /**
      * 初始化Js引擎
      */
-    private fun initJsEngine(application: Application) {
+    private fun initJsEngine() {
+        // 判断当前手机的架构并选择相应的库
+        val framework = when {
+            Build.SUPPORTED_64_BIT_ABIS.contains("arm64-v8a") -> "arm64"
+            Build.SUPPORTED_64_BIT_ABIS.contains("x86_64") -> "x86_64"
+            Build.SUPPORTED_32_BIT_ABIS.contains("armeabi-v7a") -> "arm"
+            Build.SUPPORTED_32_BIT_ABIS.contains("x86") -> "x86"
+            else -> "unsupported"
+        }
 
-        val packageManager = application.packageManager
-        val applicationInfo = packageManager.getApplicationInfo(BuildConfig.APPLICATION_ID, 0)
-         val file = File(applicationInfo.nativeLibraryDir)
-        Logger.logD(TAG,"NativeLibraryDir: ${file.absolutePath}")
-        val quickjs = "quickjs-android"
-        val mimalloc = "mimalloc"
+        // 如果架构不支持，则记录日志并返回
+        if (framework == "unsupported") {
+            Logger.logD(TAG,"Unsupported architecture")
+            return
+        }
+        val libquickjs = modulePath.replace("/base.apk", "") + "/lib/$framework/libquickjs-android.so"
+        val libmimalloc = modulePath.replace("/base.apk", "") + "/lib/$framework/libmimalloc.so"
+
         try {
-            System.load(file.resolve("lib$mimalloc.so").absolutePath)
-            System.load(file.resolve("lib$quickjs.so").absolutePath)
-        } catch (e: Exception) {
+            System.load(libmimalloc)
+            System.load(libquickjs)
+            Logger.logD(TAG,"Load quickjs-android success")
+        } catch (e: Throwable) {
             Logger.logD(TAG,"Load quickjs-android failed : $e")
             Logger.logE(TAG,e)
         }
