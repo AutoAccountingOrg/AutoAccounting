@@ -265,9 +265,6 @@ fun Application.module(context:Context) {
             get("/export") {
                 DatabaseRoute(call,context).exportDb()
             }
-            post("/export") {
-                DatabaseRoute(call,context).exportDb()
-            }
             post("/import"){
                 DatabaseRoute(call,context).importDb()
             }

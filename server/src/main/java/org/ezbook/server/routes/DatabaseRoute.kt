@@ -34,7 +34,7 @@ class DatabaseRoute(
     suspend fun exportDb() {
         val file = Db.copy(context)
         try {
-            session.respondFile(file, file.name)
+            session.respondFile(file.parentFile!!, file.name)
         } catch (e: IOException) {
             e.printStackTrace()
         }
