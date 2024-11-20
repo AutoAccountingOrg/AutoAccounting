@@ -169,7 +169,7 @@ class JsRoute(private val session: ApplicationCall, private val context: android
         // 分类映射
         Category.setCategoryMap(billInfoModel)
 
-        Bill.setRemark(billInfoModel, context)
+        billInfoModel.remark =  Bill.getRemark(billInfoModel, context)
         //  备注生成
         //  设置默认账本
         Bill.setBookName(billInfoModel)
