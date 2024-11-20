@@ -2,10 +2,16 @@ package org.ezbook.server.task
 
 import android.content.Context
 import android.util.Log
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.ezbook.server.Server
 import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.tools.Bill
@@ -22,8 +28,6 @@ class BillProcessor {
     private val taskChannel = Channel<BillTask>(Channel.UNLIMITED)
     
     // 用于通知任务完成状态
-    private val _taskCompletionFlow = MutableSharedFlow<BillTask>()
-    val taskCompletionFlow = _taskCompletionFlow.asSharedFlow()
     
     init {
         startProcessor()
@@ -34,11 +38,11 @@ class BillProcessor {
             for (task in taskChannel) {
                 try {
                     processTask(task)
-                } catch (e: Exception) {
+                } catch (e: Throwable) {
                     Server.log("处理任务失败: ${e.message}")
                     task.result = null
                 } finally {
-                    _taskCompletionFlow.emit(task)
+                    task.complete()
                 }
             }
         }
