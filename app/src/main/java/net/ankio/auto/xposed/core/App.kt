@@ -41,6 +41,7 @@ import net.ankio.auto.xposed.core.utils.MessageUtils.toast
 import net.ankio.dex.Dex
 import org.ezbook.server.Server
 import org.ezbook.server.constant.Setting
+import java.io.File
 
 
 class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
@@ -307,7 +308,7 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         application: Application?
     ) {
         try {
-            initJsEngine()
+            initJsEngine(application!!)
             hookerManifest.logD("Try start server...")
             Server(application!!).startServer()
             hookerManifest.logD("Server start success")
@@ -320,30 +321,19 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
     /**
      * 初始化Js引擎
      */
-    private fun initJsEngine() {
-        // 判断当前手机的架构并选择相应的库
-        val framework = when {
-            Build.SUPPORTED_64_BIT_ABIS.contains("arm64-v8a") -> "arm64"
-            Build.SUPPORTED_64_BIT_ABIS.contains("x86_64") -> "x86_64"
-            Build.SUPPORTED_32_BIT_ABIS.contains("armeabi-v7a") -> "arm"
-            Build.SUPPORTED_32_BIT_ABIS.contains("x86") -> "x86"
-            else -> "unsupported"
-        }
+    private fun initJsEngine(application: Application) {
 
-        // 如果架构不支持，则记录日志并返回
-        if (framework == "unsupported") {
-            Logger.logD(TAG,"Unsupported architecture")
-            return
-        }
-
-        val libquickjs = modulePath.replace("/base.apk", "") + "/lib/$framework/libquickjs-android.so"
-        val libmimalloc = modulePath.replace("/base.apk", "") + "/lib/$framework/libmimalloc.so"
+        val packageManager = application.packageManager
+        val applicationInfo = packageManager.getApplicationInfo(BuildConfig.APPLICATION_ID, 0)
+         val file = File(applicationInfo.nativeLibraryDir)
+        Logger.logD(TAG,"NativeLibraryDir: ${file.absolutePath}")
+        val quickjs = "quickjs-android"
+        val mimalloc = "mimalloc"
         try {
-            System.load(libmimalloc)
-            System.load(libquickjs)
-            Logger.logD(TAG,"Loaded JS engine for $framework")
+            System.load(file.resolve("lib$mimalloc.so").absolutePath)
+            System.load(file.resolve("lib$quickjs.so").absolutePath)
         } catch (e: Exception) {
-            Logger.logD(TAG,"Load quickjs-android failed for $framework")
+            Logger.logD(TAG,"Load quickjs-android failed : $e")
             Logger.logE(TAG,e)
         }
     }
