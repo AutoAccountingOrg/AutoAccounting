@@ -62,15 +62,19 @@ object Bill {
         bill2.apply {
             // 1. 合并账户信息
             mergeAccountInfo(bill, this)
-            
+
             // 2. 合并商户和商品信息
             mergeShopInfo(bill, this)
             
             // 3. 合并分类信息
             mergeCategoryInfo(bill, this)
-            
-            // 4. 更新备注
-            setRemark(this, context)
+
+            val target = bill2.remark
+            if (target!= getRemark(bill2, context)){
+                // 4. 更新备注
+                this.remark = getRemark(this, context)
+            }
+
         }
     }
 
@@ -198,10 +202,10 @@ object Bill {
      * @param billInfoModel 账单信息
      * @param context 上下文
      */
-    suspend fun setRemark(billInfoModel: BillInfoModel, context: Context) {
+    suspend fun getRemark(billInfoModel: BillInfoModel, context: Context): String {
         val settingBillRemark =
             Db.get().settingDao().query(Setting.NOTE_FORMAT)?.value ?: "【商户名称】 - 【商品名称】"
-        billInfoModel.remark = settingBillRemark
+        return  settingBillRemark
             .replace("【商户名称】", billInfoModel.shopName)
             .replace("【商品名称】", billInfoModel.shopItem)
             //  .replace("【币种类型】", Currency.valueOf(billInfoModel.currency).name(context))
