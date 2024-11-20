@@ -26,9 +26,15 @@ class OrderAdapter(resultData: MutableList<Pair<String, List<BillInfoModel>>>) :
         AdapterOrderBinding::class.java,
         resultData
     ) {
-    override fun onInitViewHolder(holder: BaseViewHolder<AdapterOrderBinding, Pair<String, List<BillInfoModel>>>) {
 
+    private val adaptersCache = mutableMapOf<Int, OrderItemAdapter>()
+
+    override fun onInitViewHolder(holder: BaseViewHolder<AdapterOrderBinding, Pair<String, List<BillInfoModel>>>) {
+        val layoutManager = LinearLayoutManager(holder.context)
+        layoutManager.isSmoothScrollbarEnabled = true
+        holder.binding.recyclerView.layoutManager = layoutManager
     }
+
 
     override fun onBindViewHolder(
         holder: BaseViewHolder<AdapterOrderBinding, Pair<String, List<BillInfoModel>>>,
@@ -36,21 +42,14 @@ class OrderAdapter(resultData: MutableList<Pair<String, List<BillInfoModel>>>) :
         position: Int
     ) {
         val binding = holder.binding
-        val layoutManager: LinearLayoutManager =
-            object : LinearLayoutManager(holder.context) {
-                override fun canScrollVertically(): Boolean {
-                    return false
-                }
-            }
-        binding.recyclerView.layoutManager = layoutManager
-
-        val adapter = OrderItemAdapter(data.second.toMutableList())
-
+        // 如果适配器已经存在则重用，否则创建新的适配器
+        val adapter = adaptersCache.getOrPut(position) { OrderItemAdapter(data.second.toMutableList()) }
         binding.recyclerView.adapter = adapter
 
         binding.title.text = data.first
 
-        // 确保在数据变化后通知适配器
+        // 仅在数据发生变化时调用
         adapter.notifyDataSetChanged()
     }
 }
+
