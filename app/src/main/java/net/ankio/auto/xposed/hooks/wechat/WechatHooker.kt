@@ -58,7 +58,7 @@ class WechatHooker : HookerManifest() {
             "setTinkerDisableWithSharedPreferences",
             application
         )*/
-        val tinkerDir = File(application.dataDir, "tinker")
+       /* val tinkerDir = File(application.dataDir, "tinker")
 
         if (tinkerDir.exists()) {
             log("tinkerDir: ${tinkerDir.absolutePath}")
@@ -68,7 +68,7 @@ class WechatHooker : HookerManifest() {
                     it.deleteRecursively()
                 }
             }
-        }
+        }*/
 
 
     }
@@ -79,7 +79,7 @@ class WechatHooker : HookerManifest() {
         get() = 0
         set(value) {}
 
-    override var applicationName = "com.tencent.mm.app.Application"
+    override var applicationName = "com.tencent.tinker.loader.app.TinkerApplication"
     override var partHookers: MutableList<PartHooker> = mutableListOf(
         DatabaseHooker(),
         TransferHooker(),
@@ -88,7 +88,7 @@ class WechatHooker : HookerManifest() {
         PayToolsHooker()
     )
     override fun beforeAdapter(application: Application,file:String){
-       runCatching {
+      /* runCatching {
 
            //TODO 删除tinker会导致微信冷启动变慢，主要原因是删除后微信加载tinker补丁失败，会启动另一套启动流程，甚至还会频繁触发微信闪退错误页面。
            //TODO 这里需要重新优化Xposed hook，应该hook微信加载tinker之后的application，而不是简单粗暴的删除tinker补丁。
@@ -99,7 +99,7 @@ class WechatHooker : HookerManifest() {
            }
        }.onFailure{
            logE(it)
-       }
+       }*/
     }
     override var rules: MutableList<Clazz>
         get() = mutableListOf(
