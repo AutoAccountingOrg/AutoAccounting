@@ -56,7 +56,7 @@ class JsRoute(private val session: ApplicationCall, private val context: android
      * 获取设置
      */
     suspend fun analysis(): ResultModel {
-        
+        Server.log("Analysis: init")
         val app = params["app"] ?: ""
         val type = params["type"] ?: ""
         val fromAppData = params["fromAppData"]?.toBoolean() ?: false
@@ -70,6 +70,7 @@ class JsRoute(private val session: ApplicationCall, private val context: android
             return ResultModel(400, "Type exception: $type")
         }
 
+        Server.log("Analysis: $app $type $fromAppData $ai")
         val appDataModel = AppDataModel()
         appDataModel.app = app
         appDataModel.data = data
@@ -398,7 +399,7 @@ class JsRoute(private val session: ApplicationCall, private val context: android
            Server.log("执行结果:$result")
            context.close()
            runtime.close()
-           return result
+           return result?:""
        }catch (e:Throwable){
           Server.log(e)
           return ""
