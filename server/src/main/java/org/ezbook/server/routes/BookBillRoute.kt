@@ -34,7 +34,7 @@ class BookBillRoute(private val session: ApplicationCall) {
 
     suspend fun put(): ResultModel {
         val md5 = params["md5"] ?: ""
-        val json = session.receive(Array<BookBillModel>::class)
+        val json = session.receive<Array<BookBillModel>>()
         val id = Db.get().bookBillDao().put(json.toList())
         SettingRoute.setByInner(Setting.HASH_BILL, md5)
         return ResultModel(200, "OK", id)

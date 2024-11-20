@@ -33,7 +33,7 @@ class AssetsRoute(private val session: ApplicationCall) {
 
     suspend fun put(): ResultModel {
         val md5 = params["md5"] ?: ""
-        val json = session.receive(Array<AssetsModel>::class)
+        val json = session.receive<Array<AssetsModel>>() as Array<AssetsModel>
         val id = Db.get().assetsDao().put(json)
         SettingRoute.setByInner(Setting.HASH_ASSET, md5)
         return ResultModel(200, "OK", id)

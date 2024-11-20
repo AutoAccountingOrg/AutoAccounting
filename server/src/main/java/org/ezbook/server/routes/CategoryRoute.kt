@@ -50,7 +50,7 @@ class CategoryRoute(private val session: ApplicationCall) {
      */
     suspend fun put(): ResultModel {
         val md5 = params["md5"]?: ""
-        val json = session.receive( Array<CategoryModel>::class)
+        val json = session.receive<Array<CategoryModel>>()
         val id = Db.get().categoryDao().put(json)
         SettingRoute.setByInner(Setting.HASH_CATEGORY, md5)
         return ResultModel(200, "OK", id)
