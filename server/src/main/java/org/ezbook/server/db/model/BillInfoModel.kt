@@ -220,6 +220,18 @@ class BillInfoModel {
             Server.request("bill/clear")
         }
 
+
+        suspend fun edit(): List<BillInfoModel> = withContext(Dispatchers.IO){
+           runCatching {
+                val response = Server.request("bill/edit")
+                val json = Gson().fromJson(response, JsonObject::class.java)
+                Gson().fromJson(
+                    json.getAsJsonArray("data"),
+                    Array<BillInfoModel>::class.java
+                ).toList()
+            }.getOrNull() ?: emptyList()
+        }
+
     }
 
     override fun toString(): String {

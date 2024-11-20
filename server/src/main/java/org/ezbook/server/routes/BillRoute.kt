@@ -92,4 +92,10 @@ class BillRoute(private val session: ApplicationCall) {
         return ResultModel(200,"OK")
     }
 
+
+    suspend fun edit(): ResultModel {
+        val logs = Db.get().billInfoDao().loadWaitEdit()
+        return ResultModel(200, "OK", logs)
+    }
+
 }

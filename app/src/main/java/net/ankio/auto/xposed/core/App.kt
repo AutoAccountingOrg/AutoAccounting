@@ -17,7 +17,11 @@ package net.ankio.auto.xposed.core
 
 import android.app.AndroidAppHelper
 import android.app.Application
+import android.content.BroadcastReceiver
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Build
 import android.security.NetworkSecurityPolicy
@@ -28,6 +32,8 @@ import de.robv.android.xposed.IXposedHookZygoteInit
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
+import kotlinx.coroutines.delay
+import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.xposed.Apps
 import net.ankio.auto.xposed.core.api.HookerManifest
@@ -42,6 +48,7 @@ import net.ankio.auto.xposed.core.utils.MessageUtils.toast
 import net.ankio.dex.Dex
 import org.ezbook.server.Server
 import org.ezbook.server.constant.Setting
+import org.ezbook.server.db.model.BillInfoModel
 
 
 class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
@@ -310,13 +317,58 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         Logger.logD(TAG, "Start server...: ${AndroidAppHelper.currentPackageName()}")
         try {
             initJsEngine()
+            hookUnLockScreen(application!!)
             hookerManifest.logD("Try start server...")
-            Server(application!!).startServer()
+            Server(application).startServer()
             hookerManifest.logD("Server start success")
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             XposedBridge.log("Server start failed")
             XposedBridge.log(e)
         }
+    }
+
+    private fun hookUnLockScreen(context: Context){
+        val filter = IntentFilter()
+        filter.addAction(Intent.ACTION_USER_PRESENT)
+
+        val receiver: BroadcastReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                if (intent.action == Intent.ACTION_USER_PRESENT) {
+                    // 用户解锁了设备
+                    Logger.logD(TAG,"User unlocked the device and entered the home screen.")
+                    App.launch {
+                        val list = BillInfoModel.edit()
+                        Logger.logD(TAG,"BillInfoModel.edit()：$list")
+                        list.forEach { billInfoModel ->
+                            delay(1000)
+                            val panelIntent = Intent()
+                            panelIntent.putExtra("billInfo", Gson().toJson(billInfoModel))
+                            panelIntent.putExtra("id", billInfoModel.id)
+                            panelIntent.putExtra("showWaitTip", true)
+                            panelIntent.putExtra("from","JsRoute")
+                            panelIntent.setComponent(
+                                ComponentName(
+                                    "net.ankio.auto.xposed",
+                                    "net.ankio.auto.ui.activity.FloatingWindowTriggerActivity"
+                                )
+                            )
+                            panelIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            panelIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+                            panelIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                            panelIntent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
+                            Logger.logD(TAG,"Calling auto server：$intent")
+                            try {
+                                context.startActivity(panelIntent)
+                            }catch (t:Throwable){
+                                Logger.logD(TAG,"Failed to start auto server：$t")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        context.registerReceiver(receiver, filter)
     }
 
     /**

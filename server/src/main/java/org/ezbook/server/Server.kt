@@ -99,17 +99,22 @@ class Server(private val context: Context) {
                         if (response.status == HttpStatusCode.OK) {
                             response.readText()
                         } else {
+                            logW("Request failed: $uri")
+                            logW("Response: ${response.status}, ${response.readText()}")
                             null // 或者处理错误状态
                         }
                     }
                 }.onFailure {
                     it.printStackTrace() // 打印异常信息
+                    logW("Request failed")
+                    log(it)
                 }.getOrNull().also {
+
                     client.close() // 确保关闭客户端以释放资源
                 }
             }
 
-        private const val TAG = "auto_server"
+        private const val TAG = "AutoServer"
 
         /**
          * 日志
@@ -122,7 +127,7 @@ class Server(private val context: Context) {
                     message = msg
                 })
             }
-            Log.i("AutoServer", msg)
+            Log.i(TAG, msg)
         }
 
         /**
@@ -136,7 +141,7 @@ class Server(private val context: Context) {
                     message = msg
                 })
             }
-            Log.w("AutoServer", msg)
+            Log.w(TAG, msg)
         }
 
         /**
@@ -151,8 +156,7 @@ class Server(private val context: Context) {
                    message = e.message ?: ""
                })
            }
-
-            Log.e("AutoServer", e.message ?: "",e)
+            Log.e(TAG, e.message ?: "",e)
         }
 
 

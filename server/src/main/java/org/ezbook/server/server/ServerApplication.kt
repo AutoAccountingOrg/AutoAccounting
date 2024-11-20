@@ -249,6 +249,10 @@ fun Application.module(context:Context) {
                 call.respond(BillRoute(call).get())
             }
 
+            post("/edit") {
+                call.respond(BillRoute(call).edit())
+            }
+
             post("/book/list") {
                 call.respond(BookBillRoute(call).list())
             }
@@ -258,6 +262,9 @@ fun Application.module(context:Context) {
         }
 
         route("/db"){
+            get("/export") {
+                DatabaseRoute(call,context).exportDb()
+            }
             post("/export") {
                 DatabaseRoute(call,context).exportDb()
             }
