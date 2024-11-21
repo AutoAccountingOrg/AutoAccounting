@@ -2,6 +2,13 @@
 
 > [!IMPORTANT]
 > 由于自动记账正在快速迭代，请不要自行编译RELEASE版本，因为RELEASE版本会发送错误信息到Bugsug，会导致我们排查问题存在困扰。
+> 测试版更新频繁，也不保证可用性和数据完整性，随时可能有重大bug，建议希望正常用的用户不要频繁更新（能用就别动）。
+> 遇到问题自查四部曲：
+> 1. 检查数据里面是否有相关的支付数据（没有可能是bug)。
+> 2. 支付数据如果没有被规则匹配上可以检查规则页面是否有对应规则（没有规则长按首页更新按钮强制更新）。 
+> 3. 如果有对应规则还没匹配上，检查日志是否报错（有报错反馈github bug)。
+> 4. 如果一切都没问题还是不能识别账单，点数据页面的上传按钮上传数据到云端等适配。
+
 
 ![Framework](https://img.shields.io/static/v1?label=framework&message=Xposed%2F%E6%97%A0%E9%9A%9C%E7%A2%8D&color=success&style=for-the-badge) ![License](https://img.shields.io/static/v1?label=licenes&message=GPL3.0&color=important&style=for-the-badge)
 
