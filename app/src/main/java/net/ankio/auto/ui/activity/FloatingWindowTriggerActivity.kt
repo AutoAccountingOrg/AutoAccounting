@@ -21,6 +21,7 @@ import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.view.Gravity
 import android.view.WindowManager
+import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.service.FloatingWindowService
 import net.ankio.auto.storage.Logger
@@ -31,7 +32,7 @@ class FloatingWindowTriggerActivity : Activity() {
         super.onCreate(savedInstanceState)
         createOnePxWindow()
         setTheme(R.style.TransparentActivityTheme)
-        setVerticalScreen()
+       setVerticalScreen()
     }
 
     private fun setVerticalScreen(){
@@ -72,7 +73,7 @@ class FloatingWindowTriggerActivity : Activity() {
     }
 
     private fun exitActivity() {
-        finish()
+        finishAffinity()
         overridePendingTransition(0, 0)
         window.setWindowAnimations(0)
     }
