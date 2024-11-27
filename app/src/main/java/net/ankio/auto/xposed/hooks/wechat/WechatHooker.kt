@@ -218,7 +218,7 @@ class WechatHooker : HookerManifest() {
 
 
     private fun closeTinker(classLoader: ClassLoader){
-        val tinkerManager = XposedHelpers.findClass("com.tencent.tinker.lib.tinker.TinkerApplicationHelper",classLoader)
+        val tinkerManager = runCatching { XposedHelpers.findClass("com.tencent.tinker.lib.tinker.TinkerApplicationHelper",classLoader) }.getOrNull()?:return
         val applicationLike = XposedHelpers.callStaticMethod(tinkerManager,"getTinkerApplicationLike") as Class<*>
         val shareTinkerInternals = XposedHelpers.findClass("com.tencent.tinker.loader.shareutil.ShareTinkerInternals", classLoader)
         //关闭其他进程
