@@ -78,32 +78,37 @@ class Server(private val context: Context) {
         /**
          * 发送请求
          */
-        suspend  fun request(path: String, json: String = ""): String? =
+        suspend fun request(path: String, json: String = ""): String? =
             withContext(Dispatchers.IO) {
                 runCatching {
                     val uri = "http://127.0.0.1:52045/$path"
                     // 创建一个OkHttpClient对象，禁用代理
                     val client = OkHttpClient.Builder()
                         .readTimeout(60, TimeUnit.SECONDS)
-                        .proxy(Proxy.NO_PROXY)
+                        .proxy(Proxy.NO_PROXY) // 确保不使用代理
                         .build()
+
                     // set as json post
-                    val body: RequestBody = json
-                        .toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
+                    val body: RequestBody = json.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
+
                     // 创建一个Request
-                    val request = Request.Builder().url(uri).post(body)
-                        .addHeader("Content-Type", "application/json").build()
+                    val request = Request.Builder()
+                        .url(uri)
+                        .post(body)
+                        .addHeader("Content-Type", "application/json")
+                        .build()
+
                     // 发送请求获取响应
-                    val response = client.newCall(request).execute()
-                    val bodyString = response.body?.string()
-                    // 如果请求成功
-                    bodyString
+                    client.newCall(request).execute().use { response -> // 使用use确保响应正常关闭
+                        if (!response.isSuccessful) throw Exception("Unexpected code $response")
+                        response.body?.string() // 读取响应体
+                    }
 
                 }.onFailure {
+                    // 处理异常
                     if (it !is ConnectException) {
                         it.printStackTrace()
                     }
-
                 }.getOrNull()
             }
 
