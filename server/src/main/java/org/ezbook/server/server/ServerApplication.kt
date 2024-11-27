@@ -223,6 +223,9 @@ fun Application.module(context:Context) {
             post("/put") {
                 call.respond(CategoryRuleRoute(call).put())
             }
+            post("/delete") {
+                call.respond(CategoryRuleRoute(call).delete())
+            }
         }
 
         route("/bill"){
@@ -238,9 +241,13 @@ fun Application.module(context:Context) {
             post("/remove") {
                 call.respond(BillRoute(call).remove())
             }
+            post("/clear") {
+                call.respond(BillRoute(call).clear())
+            }
             post("/sync/list") {
                 call.respond(BillRoute(call).sync())
             }
+
             post("/status") {
                 call.respond(BillRoute(call).status())
             }
