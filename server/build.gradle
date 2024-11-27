@@ -52,6 +52,7 @@ dependencies {
 
     //gson
     implementation libs.gson
+    implementation libs.okhttp
     //sqlite
     def room_version = "2.6.1" // 请使用最新版本
 
@@ -60,18 +61,13 @@ dependencies {
     kapt "androidx.room:room-compiler:$room_version"
     implementation("androidx.room:room-ktx:$room_version")
 
-
     //okhttp
-    implementation libs.okhttp
+   // implementation libs.okhttp
     // quickjs-android-release.aar
     implementation 'com.github.AutoAccountingOrg:quickjs-android:35726a9d28'
-
     //
     def ktor_version = "1.6.4"
     implementation "io.ktor:ktor-server-netty:$ktor_version"
     implementation "io.ktor:ktor-server-core:$ktor_version"
     implementation "io.ktor:ktor-gson:$ktor_version"
-
-    implementation "io.ktor:ktor-client-core:$ktor_version"
-    implementation "io.ktor:ktor-client-cio:$ktor_version"
 }
