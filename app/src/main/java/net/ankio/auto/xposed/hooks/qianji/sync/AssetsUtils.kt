@@ -22,6 +22,7 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.xposed.core.App
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.hook.Hooker
+import net.ankio.auto.xposed.core.logger.Logger
 import net.ankio.auto.xposed.core.utils.DataUtils
 import net.ankio.auto.xposed.core.utils.MD5HashTable
 import net.ankio.auto.xposed.core.utils.MessageUtils
@@ -124,6 +125,12 @@ class AssetsUtils(private val manifest: HookerManifest, private val classLoader:
 
         accounts.forEach {
             val asset = it!!
+
+            val status = XposedHelpers.getIntField(asset,"status")
+            if( status != 0) return@forEach
+
+         //   Logger.log("xx"," [ 自动记账 ]  Asset:${Gson().toJson(asset)}")
+
             val model = AssetsModel()
             val fields = asset::class.java.declaredFields
 
