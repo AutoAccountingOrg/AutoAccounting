@@ -111,7 +111,8 @@ abstract class BaseSheetDialog(private val context: Context) :
 
     override fun dismiss() {
         runCatching {
-            if (this.isShowing) {
+            // 检查window是否还存在且已附加
+            if (this.isShowing && window?.decorView?.isAttachedToWindow == true) {
                 super.dismiss()
             }
         }.onFailure {
