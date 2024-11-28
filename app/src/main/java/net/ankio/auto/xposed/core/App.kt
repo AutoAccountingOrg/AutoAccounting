@@ -17,13 +17,8 @@ package net.ankio.auto.xposed.core
 
 import android.app.AndroidAppHelper
 import android.app.Application
-import android.content.BroadcastReceiver
-import android.content.ComponentName
 import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.PackageManager
-import android.os.Build
 import android.security.NetworkSecurityPolicy
 import com.google.gson.Gson
 import com.hjq.toast.Toaster
@@ -32,8 +27,6 @@ import de.robv.android.xposed.IXposedHookZygoteInit
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
-import kotlinx.coroutines.delay
-import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.xposed.Apps
 import net.ankio.auto.xposed.core.api.HookerManifest
@@ -45,10 +38,11 @@ import net.ankio.auto.xposed.core.utils.DataUtils
 import net.ankio.auto.xposed.core.utils.DataUtils.get
 import net.ankio.auto.xposed.core.utils.DataUtils.set
 import net.ankio.auto.xposed.core.utils.MessageUtils.toast
+import net.ankio.auto.xposed.hooks.common.JsEngine
+import net.ankio.auto.xposed.hooks.common.UnLockScreen
 import net.ankio.dex.Dex
 import org.ezbook.server.Server
 import org.ezbook.server.constant.Setting
-import org.ezbook.server.db.model.BillInfoModel
 
 
 class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
@@ -259,7 +253,7 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
 
         // 启动自动记账服务
         if (app.packageName === Apps.getServerRunInApp()){
-            startServer(app,application)
+            startServer(application)
         }
 
         // hook初始化
@@ -311,96 +305,23 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
      * 启动自动记账服务
      */
     private fun startServer(
-        hookerManifest: HookerManifest,
         application: Application?
     ) {
         Logger.logD(TAG, "Start server...: ${AndroidAppHelper.currentPackageName()}")
         try {
-            initJsEngine()
-            hookUnLockScreen(application!!)
-            hookerManifest.logD("Try start server...")
+            JsEngine.init()
+            UnLockScreen.init(application!!)
             Server(application).startServer()
-            hookerManifest.logD("Server start success")
+            Logger.logD(TAG, "Server start success")
         } catch (e: Throwable) {
             XposedBridge.log("Server start failed")
             XposedBridge.log(e)
+            Logger.logD(TAG,e.message?:"")
         }
     }
 
-    private fun hookUnLockScreen(context: Context){
-        val filter = IntentFilter()
-        filter.addAction(Intent.ACTION_USER_PRESENT)
 
-        val receiver: BroadcastReceiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context, intent: Intent) {
-                if (intent.action == Intent.ACTION_USER_PRESENT) {
-                    // 用户解锁了设备
-                    Logger.logD(TAG,"User unlocked the device and entered the home screen.")
-                    App.launch {
-                        val list = BillInfoModel.edit()
-                        Logger.logD(TAG,"BillInfoModel.edit()：$list")
-                        list.forEach { billInfoModel ->
-                            delay(1000)
-                            val panelIntent = Intent()
-                            panelIntent.putExtra("billInfo", Gson().toJson(billInfoModel))
-                            panelIntent.putExtra("id", billInfoModel.id)
-                            panelIntent.putExtra("showWaitTip", true)
-                            panelIntent.putExtra("from","JsRoute")
-                            panelIntent.setComponent(
-                                ComponentName(
-                                    "net.ankio.auto.xposed",
-                                    "net.ankio.auto.ui.activity.FloatingWindowTriggerActivity"
-                                )
-                            )
-                            panelIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                            panelIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
-                            panelIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-                            panelIntent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
-                            Logger.logD(TAG,"Calling auto server：$intent")
-                            try {
-                                context.startActivity(panelIntent)
-                            }catch (t:Throwable){
-                                Logger.logD(TAG,"Failed to start auto server：$t")
-                            }
-                        }
-                    }
-                }
-            }
-        }
 
-        context.registerReceiver(receiver, filter)
-    }
-
-    /**
-     * 初始化Js引擎
-     */
-    private fun initJsEngine() {
-        // 判断当前手机的架构并选择相应的库
-        val framework = when {
-            Build.SUPPORTED_64_BIT_ABIS.contains("arm64-v8a") -> "arm64"
-            Build.SUPPORTED_64_BIT_ABIS.contains("x86_64") -> "x86_64"
-            Build.SUPPORTED_32_BIT_ABIS.contains("armeabi-v7a") -> "arm"
-            Build.SUPPORTED_32_BIT_ABIS.contains("x86") -> "x86"
-            else -> "unsupported"
-        }
-
-        // 如果架构不支持，则记录日志并返回
-        if (framework == "unsupported") {
-            Logger.logD(TAG,"Unsupported architecture")
-            return
-        }
-        val libquickjs = modulePath.replace("/base.apk", "") + "/lib/$framework/libquickjs-android.so"
-        val libmimalloc = modulePath.replace("/base.apk", "") + "/lib/$framework/libmimalloc.so"
-
-        try {
-            System.load(libmimalloc)
-            System.load(libquickjs)
-            Logger.logD(TAG,"Load quickjs-android success")
-        } catch (e: Throwable) {
-            Logger.logD(TAG,"Load quickjs-android failed : $e")
-            Logger.logE(TAG,e)
-        }
-    }
 
     /**
      * 网络错误修复
