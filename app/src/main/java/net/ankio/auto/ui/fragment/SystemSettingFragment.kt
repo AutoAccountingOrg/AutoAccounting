@@ -210,8 +210,15 @@ class SystemSettingFragment : BaseFragment() {
                 icon = R.drawable.setting2_icon_backup,
                 type = ItemType.SWITCH,
                 default = false,
-                
+
             ),
+            SettingItem(
+                title = R.string.setting_auto_backup,
+                key = Setting.AUTO_BACKUP,
+                icon = R.drawable.icon_auto,
+                type = ItemType.SWITCH,
+                default = false,
+                ),
             SettingItem(
                 title = R.string.setting_backup_path,
                 regex = "${Setting.USE_WEBDAV}=false",

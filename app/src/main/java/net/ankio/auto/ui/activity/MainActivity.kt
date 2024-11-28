@@ -20,14 +20,20 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.result.ActivityResultLauncher
 import androidx.fragment.app.FragmentContainerView
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.ActivityMainBinding
 import net.ankio.auto.storage.BackupUtils
+import net.ankio.auto.storage.ConfigUtils
+import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseActivity
+import net.ankio.auto.ui.utils.ToastUtils
+import org.ezbook.server.constant.Setting
 
 class MainActivity : BaseActivity() {
     // 视图绑定
@@ -132,6 +138,28 @@ class MainActivity : BaseActivity() {
         }
     }
 
+
+    override fun onStop() {
+        super.onStop()
+        if (ConfigUtils.getBoolean(Setting.AUTO_BACKUP)){
+            ToastUtils.info(R.string.backup_loading)
+            lifecycleScope.launch {
+                val backupUtils = BackupUtils(this@MainActivity)
+                runCatching {
+                    if (ConfigUtils.getBoolean(Setting.USE_WEBDAV)) {
+                        backupUtils.putWebdavBackup(this@MainActivity)
+                    } else {
+                        backupUtils.putLocalBackup()
+                    }
+                }.onFailure {
+                    Logger.e("自动备份失败",it)
+                    ToastUtils.error(R.string.backup_error)
+                }.onSuccess {
+                    ToastUtils.info(R.string.backup_success)
+                }
+            }
+        }
+    }
 
 
 }
