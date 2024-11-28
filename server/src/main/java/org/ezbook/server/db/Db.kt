@@ -92,4 +92,19 @@ object Db {
         }
 
     }
+
+    fun clear(context: Context) {
+        db.close()
+        val dbFile = context.getDatabasePath(DATABASE_NAME)
+        try {
+            // 删除数据库文件
+            dbFile.delete()
+            println("Database cleared")
+        } catch (e: IOException) {
+            e.printStackTrace()
+            println("Error clearing database: ${e.message}")
+        } finally {
+            init(context)
+        }
+    }
 }

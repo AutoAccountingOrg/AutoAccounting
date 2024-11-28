@@ -42,6 +42,7 @@ import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.utils.LoadingUtils
+import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.update.UpdateChannel
 import net.ankio.auto.update.UpdateType
 import net.ankio.auto.utils.LanguageUtils
@@ -403,6 +404,20 @@ class SystemSettingFragment : BaseFragment() {
                     SpUtils.putBoolean(Setting.DEBUG_MODE, value as Boolean)
                 },
                 
+            ),
+            SettingItem(
+                title = R.string.setting_clear_database,
+                key = Setting.DEBUG_MODE,
+                icon = R.drawable.icon_delete,
+                subTitle = R.string.clear_db_desc,
+                type = ItemType.TEXT,
+                onItemClick = { value, activity ->
+                    ToastUtils.info(R.string.clear_db_msg)
+                    App.launch {
+                        SettingModel.clearDatabase()
+                        ToastUtils.info(R.string.clear_success)
+                    }
+                }
             ),
         )
     }

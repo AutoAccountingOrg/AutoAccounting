@@ -480,5 +480,9 @@
     <string name="setting_bill_one_api_uri">接口地址</string>
     <string name="setting_bill_one_api_model">模型选择</string>
     <string name="setting_bill_auto_record">自动记录的账单显示提示</string>
+    <string name="setting_clear_database">清空数据库</string>
+    <string name="clear_db_desc">不可撤销的操作，仅在需要卸载自动记账的时候使用。</string>
+    <string name="clear_db_msg">正在清空数据库</string>
+    <string name="clear_success">清除成功</string>
 
 </resources>

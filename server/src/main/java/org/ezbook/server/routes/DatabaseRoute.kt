@@ -67,4 +67,9 @@ class DatabaseRoute(
         }
 
     }
+
+   suspend fun clearDb() {
+        Db.clear(context)
+        session.respond(ResultModel(200, "Database cleared"))
+    }
 }

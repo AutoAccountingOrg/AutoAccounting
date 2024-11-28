@@ -275,6 +275,9 @@ fun Application.module(context:Context) {
             post("/import"){
                 DatabaseRoute(call,context).importDb()
             }
+            post("/clear"){
+                DatabaseRoute(call,context).clearDb()
+            }
         }
     }
 }
