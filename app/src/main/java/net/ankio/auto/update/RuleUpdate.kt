@@ -190,7 +190,7 @@ class RuleUpdate(private val context: Context) : BaseUpdate(context) {
                         ToastUtils.info(R.string.update_success)
 
                     } catch (e: Exception) {
-                        Logger.e("Update error", e)
+                        Logger.e("更新规则错误", e)
                         ToastUtils.error(R.string.update_error)
                     }
 
@@ -200,7 +200,7 @@ class RuleUpdate(private val context: Context) : BaseUpdate(context) {
                 }
 
             } catch (e: Exception) {
-                Logger.e("Update error", e)
+                Logger.e("更新规则错误", e)
                 ToastUtils.error(R.string.update_error)
             }finally {
                 loading.close()

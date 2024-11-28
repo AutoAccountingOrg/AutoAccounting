@@ -50,7 +50,7 @@ abstract class BaseUpdate(context: Context) {
     abstract fun onCheckedUpdate()
 
     suspend fun check(showToast: Boolean = false): Boolean {
-        Logger.d("Checking for updates")
+        Logger.d("检查更新中")
 
         ConfigUtils.putLong(Setting.RULE_UPDATE_TIME, System.currentTimeMillis()) // 记录检查时间
 
@@ -107,7 +107,7 @@ abstract class BaseUpdate(context: Context) {
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            Logger.e("checkVersionFromPan", e)
+            Logger.e("从网盘检查更新失败", e)
         }
         return arrayOf("", "", "")
     }
@@ -133,10 +133,9 @@ abstract class BaseUpdate(context: Context) {
                 // 转换 Markdown 为 HTML
                 log = processor.markdown(log)
 
-                Logger.i("LocalVersion: $localVersion,Version: $version")
+                Logger.i("本地版本: $localVersion,云端版本: $version")
 
                 if (checkVersionLarge(localVersion,version)) {
-                    Logger.i("New version found")
                     return arrayOf(
                         version,
                         log,
@@ -146,7 +145,7 @@ abstract class BaseUpdate(context: Context) {
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            Logger.e("checkVersionFromGithub", e)
+            Logger.e("从Github检查更新失败", e)
         }
         return arrayOf("", "", "")
     }
