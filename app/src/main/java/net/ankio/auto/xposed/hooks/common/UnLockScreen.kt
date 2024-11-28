@@ -34,36 +34,40 @@ object UnLockScreen {
 
         val receiver: BroadcastReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
-                if (intent.action == Intent.ACTION_USER_PRESENT) {
-                    // 用户解锁了设备
-                    Logger.logD(TAG,"User unlocked the device and entered the home screen.")
-                    App.launch {
-                        val list = BillInfoModel.edit()
-                        Logger.logD(TAG,"BillInfoModel.edit()：$list")
-                        list.forEach { billInfoModel ->
-                            delay(1000)
-                            val panelIntent = Intent()
-                            panelIntent.putExtra("billInfo", Gson().toJson(billInfoModel))
-                            panelIntent.putExtra("id", billInfoModel.id)
-                            panelIntent.putExtra("showWaitTip", true)
-                            panelIntent.putExtra("from","JsRoute")
-                            panelIntent.setComponent(
-                                ComponentName(
-                                    "net.ankio.auto.xposed",
-                                    "net.ankio.auto.ui.activity.FloatingWindowTriggerActivity"
+                val pendingResult = goAsync()
+                App.launch {
+                    try {
+                        if (intent.action == Intent.ACTION_USER_PRESENT) {
+                            Logger.logD(TAG,"User unlocked the device and entered the home screen.")
+                            val list = BillInfoModel.edit()
+                            Logger.logD(TAG,"BillInfoModel.edit()：$list")
+                            list.forEach { billInfoModel ->
+                                delay(1000)
+                                val panelIntent = Intent()
+                                panelIntent.putExtra("billInfo", Gson().toJson(billInfoModel))
+                                panelIntent.putExtra("id", billInfoModel.id)
+                                panelIntent.putExtra("showWaitTip", true)
+                                panelIntent.putExtra("from","JsRoute")
+                                panelIntent.setComponent(
+                                    ComponentName(
+                                        "net.ankio.auto.xposed",
+                                        "net.ankio.auto.ui.activity.FloatingWindowTriggerActivity"
+                                    )
                                 )
-                            )
-                            panelIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                            panelIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
-                            panelIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-                            panelIntent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
-                            Logger.logD(TAG,"Calling auto server：$intent")
-                            try {
-                                context.startActivity(panelIntent)
-                            }catch (t:Throwable){
-                                Logger.logD(TAG,"Failed to start auto server：$t")
+                                panelIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                panelIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+                                panelIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                                panelIntent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
+                                Logger.logD(TAG,"Calling auto server：$intent")
+                                try {
+                                    context.startActivity(panelIntent)
+                                }catch (t:Throwable){
+                                    Logger.logD(TAG,"Failed to start auto server：$t")
+                                }
                             }
                         }
+                    } finally {
+                        pendingResult.finish()
                     }
                 }
             }
