@@ -53,6 +53,7 @@ import net.ankio.auto.xposed.common.ServerInfo
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BookNameModel
 import org.ezbook.server.db.model.CategoryModel
+import org.ezbook.server.db.model.SettingModel
 import rikka.html.text.toHtml
 
 /**
@@ -252,8 +253,11 @@ class HomeFragment : BaseFragment() {
      */
     private fun bindRuleUI() {
         if (_binding == null) return
-        val ruleVersion = ConfigUtils.getString(Setting.RULE_VERSION, "None")
-        binding.ruleVersion.text = ruleVersion
+        lifecycleScope.launch {
+            SettingModel.get(Setting.RULE_VERSION, "None").let {
+                binding.ruleVersion.text = it
+            }
+        }
     }
 
     /**
