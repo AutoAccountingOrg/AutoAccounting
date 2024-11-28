@@ -207,13 +207,14 @@ class HomeFragment : BaseFragment() {
             }
         }
 
-
         val bookName = ConfigUtils.getString(Setting.DEFAULT_BOOK_NAME, "")
         if (bookName.isEmpty()) {
             lifecycleScope.launch {
                 val book = BookNameModel.getFirstBook()
-                ConfigUtils.putString(Setting.DEFAULT_BOOK_NAME, book.name)
-                binding.defaultBook.text = book.name
+                if (isAdded && _binding != null) {
+                    ConfigUtils.putString(Setting.DEFAULT_BOOK_NAME, book.name)
+                    binding.defaultBook.text = book.name
+                }
             }
         } else {
             binding.defaultBook.text = bookName
