@@ -18,6 +18,7 @@ package net.ankio.auto.xposed.core.api
 import android.app.Application
 import android.content.Context
 import de.robv.android.xposed.XposedHelpers
+import kotlinx.coroutines.delay
 import net.ankio.auto.xposed.core.App
 import net.ankio.auto.xposed.core.logger.Logger
 import net.ankio.auto.xposed.core.utils.ThreadUtils
@@ -119,9 +120,25 @@ abstract class HookerManifest {
      */
     fun analysisData(type: DataType, data: String, appPackage: String = packageName) {
         ThreadUtils.launch {
-            val result =
-                request("js/analysis?type=${type.name}&app=$appPackage&fromAppData=false", data)
-            logD("Analysis Result: $result")
+            var retryCount = 0
+            var result: String? = null
+            
+            while (result == null && retryCount < 10) {
+                result = request("js/analysis?type=${type.name}&app=$appPackage&fromAppData=false", data)
+                
+                if (result == null) {
+                    retryCount++
+                    val delaySeconds = (1L shl (retryCount - 1)) * 10  // 10, 20, 40, 80, 160...
+                    logD("Analysis attempt $retryCount failed, retrying in $delaySeconds seconds...")
+                    delay(delaySeconds * 1000L)
+                }
+            }
+            
+            if (result != null) {
+                logD("Analysis Result: $result")
+            } else {
+                logD("Analysis failed after 20 attempts")
+            }
         }
     }
 
