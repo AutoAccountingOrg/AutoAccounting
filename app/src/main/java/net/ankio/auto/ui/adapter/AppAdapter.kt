@@ -41,18 +41,24 @@ class AppAdapter(
         data: AppInfo,
         position: Int
     ) {
-        val binding = holder.binding
-        binding.appIcon.setImageDrawable(pkg.getApplicationIcon(data.packageName))
-        if (data.appName.isNotEmpty()) {
-            binding.appName.text = data.appName
-        } else {
-            binding.appName.text = pkg.getApplicationLabel(data.pkg).toString()
+        if (position < 0 || position >= list.size) {
+            return
         }
-
-        binding.appVersionName.text = pkg.getPackageInfo(data.packageName, 0).versionName
-        binding.appPackageName.text = data.packageName
-        binding.checkbox.isChecked = data.isSelected
-
+        
+        val binding = holder.binding
+        try {
+            binding.appIcon.setImageDrawable(pkg.getApplicationIcon(data.packageName))
+            if (data.appName.isNotEmpty()) {
+                binding.appName.text = data.appName
+            } else {
+                binding.appName.text = pkg.getApplicationLabel(data.pkg).toString()
+            }
+            binding.appVersionName.text = pkg.getPackageInfo(data.packageName, 0).versionName
+            binding.appPackageName.text = data.packageName
+            binding.checkbox.isChecked = data.isSelected
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
 
