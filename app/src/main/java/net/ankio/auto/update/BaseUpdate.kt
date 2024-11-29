@@ -47,7 +47,7 @@ abstract class BaseUpdate(context: Context) {
             UpdateChannel.GithubRaw.name
         ).let {
             return when(it){
-                UpdateChannel.GithubRaw.name -> "https://$uri"
+                UpdateChannel.GithubRaw.name,UpdateChannel.Github.name -> "https://$uri"
                 // https://ghproxy.net/https://github.com/AutoAccountingOrg/AutoRule/releases/download/v0.3.9/v0.3.9.zip
                 UpdateChannel.GithubProxy.name -> "https://ghproxy.net/https://github.com/$uri"
                 // https://cf.ghproxy.cc/https://github.com/AutoAccountingOrg/AutoRule/releases/download/v0.3.9/v0.3.9.zip
