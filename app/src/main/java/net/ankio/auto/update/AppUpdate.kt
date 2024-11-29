@@ -43,11 +43,11 @@ class AppUpdate(context: Context) : BaseUpdate(context) {
     override fun onCheckedUpdate() {
         download = if (ConfigUtils.getString(
                 Setting.UPDATE_CHANNEL,
-                UpdateChannel.Github.name
-            ) == UpdateChannel.Github.name
+                UpdateChannel.GithubRaw.name
+            ) == UpdateChannel.Cloud.name
         ) {
             // https://dl.ghpig.top/https://github.com/AutoAccountingOrg/AutoAccounting/releases/download/4.0.0-Canary.20240919031326/app-xposed-signed.apk
-           "https://github.com/AutoAccountingOrg/$repo/releases/download/$version/app-${BuildConfig.FLAVOR}-signed.apk"
+           switchGithub("AutoAccountingOrg/$repo/releases/download/$version/app-${BuildConfig.FLAVOR}-signed.apk")
         } else {
             pan() + "/$version-${BuildConfig.FLAVOR}.apk"
         }

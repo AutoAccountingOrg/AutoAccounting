@@ -418,7 +418,12 @@
     <string name="version_beta">测试版</string>
     <string name="version_canary">金丝雀版</string>
     <string name="setting_update_channel">更新渠道</string>
-    <string name="update_channel_github">Github</string>
+    <string name="update_channel_github_raw">Github(Raw)</string>
+    <string name="update_channel_github_proxy">Github(ghproxy.net)</string>
+    <string name="update_channel_github_proxy2">Github(ghproxy.cc)</string>
+    <string name="update_channel_github_mirror">Github(gitmirror.com)</string>
+    <string name="update_channel_github_d">Github(dgithub.xyz)</string>
+    <string name="update_channel_github_kk">Github(kkgithub.com)</string>
     <string name="update_channel_cloud">自动记账网盘</string>
     <string name="setting_asset_manager">资产管理功能</string>
     <string name="setting_currency_manager">多币种管理</string>

@@ -54,12 +54,10 @@ class RuleUpdate(private val context: Context) : BaseUpdate(context) {
     override fun onCheckedUpdate() {
         download = if (ConfigUtils.getString(
                 Setting.UPDATE_CHANNEL,
-                UpdateChannel.Github.name
-            ) == UpdateChannel.Github.name
+                UpdateChannel.GithubRaw.name
+            ) != UpdateChannel.Cloud.name
         ) {
-            //https://cf.ghproxy.cc/https://github.com/AutoAccountingOrg/AutoRule/releases/download/v0.3.6/v0.3.6.zip
-            // https://ghp.ci/https://github.com/AutoAccountingOrg/AutoRule/releases/download/v0.3.6/v0.3.6.zip
-            "https://github.com/AutoAccountingOrg/$repo/releases/download/$version/$version.zip"
+            switchGithub("AutoAccountingOrg/$repo/releases/download/$version/$version.zip")
         } else {
             pan() + "/$version.zip"
         }

@@ -351,10 +351,15 @@ class SystemSettingFragment : BaseFragment() {
                 icon = R.drawable.setting2_icon_update_channel,
                 type = ItemType.TEXT,
                 selectList = hashMapOf(
-                    context.getString(R.string.update_channel_github) to UpdateChannel.Github.name,
+                    context.getString(R.string.update_channel_github_raw) to UpdateChannel.GithubRaw.name,
                     context.getString(R.string.update_channel_cloud) to UpdateChannel.Cloud.name,
+                    context.getString(R.string.update_channel_github_proxy) to UpdateChannel.GithubProxy.name,
+                    context.getString(R.string.update_channel_github_proxy2) to UpdateChannel.GithubProxy2.name,
+                    context.getString(R.string.update_channel_github_mirror) to UpdateChannel.GithubMirror.name,
+                    context.getString(R.string.update_channel_github_d) to UpdateChannel.GithubD.name,
+                    context.getString(R.string.update_channel_github_kk) to UpdateChannel.GithubKK.name,
                 ),
-                default = UpdateChannel.Github.name,
+                default = UpdateChannel.GithubRaw.name,
                 
             ),
             SettingItem(

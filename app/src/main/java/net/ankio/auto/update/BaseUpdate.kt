@@ -41,6 +41,28 @@ abstract class BaseUpdate(context: Context) {
     fun pan(): String {
         return "$url/$dir"
     }
+    protected fun switchGithub(uri:String):String{
+        ConfigUtils.getString(
+            Setting.UPDATE_CHANNEL,
+            UpdateChannel.GithubRaw.name
+        ).let {
+            return when(it){
+                UpdateChannel.GithubRaw.name -> "https://$uri"
+                // https://ghproxy.net/https://github.com/AutoAccountingOrg/AutoRule/releases/download/v0.3.9/v0.3.9.zip
+                UpdateChannel.GithubProxy.name -> "https://ghproxy.net/https://github.com/$uri"
+                // https://cf.ghproxy.cc/https://github.com/AutoAccountingOrg/AutoRule/releases/download/v0.3.9/v0.3.9.zip
+                UpdateChannel.GithubProxy2.name -> " https://cf.ghproxy.cc/https://github.com/$uri"
+                //https://hub.gitmirror.com/https://github.com/AutoAccountingOrg/AutoRule/releases/download/v0.3.9/v0.3.9.zip
+                UpdateChannel.GithubMirror.name -> "https://hub.gitmirror.com/https://github.com/$uri"
+               //https://dl.ghpig.top/https://github.com/AutoAccountingOrg/AutoRule/releases/download/v0.3.9/v0.3.9.zip
+               //https://dgithub.xyz/AutoAccountingOrg/AutoRule/releases/download/v0.3.9/v0.3.9.zip
+                UpdateChannel.GithubD.name -> "https://dgithub.xyz/$uri"
+               //https://kkgithub.com/AutoAccountingOrg/AutoRule/releases/download/v0.3.9/v0.3.9.zip
+                UpdateChannel.GithubKK.name -> "https://kkgithub.com/$uri"
+                else -> uri
+            }
+        }
+    }
 
     var version = ""
     var log = ""
@@ -56,8 +78,8 @@ abstract class BaseUpdate(context: Context) {
 
         val list = if (ConfigUtils.getString(
                 Setting.UPDATE_CHANNEL,
-                UpdateChannel.Github.name
-            ) == UpdateChannel.Github.name
+                UpdateChannel.GithubRaw.name
+            ) !== UpdateChannel.Cloud.name
         ) {
             checkVersionFromGithub(ruleVersion())
         } else {
