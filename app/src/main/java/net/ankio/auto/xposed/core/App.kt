@@ -17,6 +17,7 @@ package net.ankio.auto.xposed.core
 
 import android.app.AndroidAppHelper
 import android.app.Application
+import android.app.Instrumentation
 import android.content.Context
 import android.os.Build
 import com.hjq.toast.Toaster
@@ -40,6 +41,7 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
     companion object {
         const val TAG = "HookerEnvironment"
     }
+
     /**
      * hook Application Context
      * @param applicationName String
@@ -72,25 +74,34 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
             }
         }
 
-        fun hookApplication(method:String){
+        Hooker.after(
+            Instrumentation::class.java.name,
+            "callApplicationOnCreate",
+            Application::class.java.name
+        ) {
+            val context = it.args[0] as Application
+            onCachedApplication(context, "callApplicationOnCreate")
+        }
+
+       /* fun hookApplication(method: String) {
             try {
                 Hooker.after(
                     applicationName,
                     method,
                     Context::class.java
-                ){
+                ) {
                     val context = it.thisObject as Application
-                    onCachedApplication(context,method)
+                    onCachedApplication(context, method)
                 }
 
-            }catch (e:NoSuchMethodError){
-             //   Logger.logE(TAG,e)
+            } catch (e: NoSuchMethodError) {
+                //   Logger.logE(TAG,e)
             }
         }
 
         for (method in arrayOf("attachBaseContext", "attach")) {
-            hookApplication(method)
-        }
+            // hookApplication(method)
+        }*/
     }
 
     /**
@@ -105,14 +116,17 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
 
         for (app in Apps.get()) {
             if (app.packageName == pkg && app.packageName == processName) {
-               AppRuntime.classLoader = lpparam.classLoader
-                Logger.logD(TAG,"Hooker: ${app.appName}(${app.packageName}) Run in ${if(Logger.debug) "debug" else "production"} Mode")
+                AppRuntime.classLoader = lpparam.classLoader
+                Logger.logD(
+                    TAG,
+                    "Hooker: ${app.appName}(${app.packageName}) Run in ${if (Logger.debug) "debug" else "production"} Mode"
+                )
                 AppRuntime.name = app.appName
                 AppRuntime.manifest = app
                 hookAppContext(app.applicationName) {
                     AppRuntime.application = it
                     if (it !== null) {
-                       AppRuntime.classLoader = it.classLoader
+                        AppRuntime.classLoader = it.classLoader
                     }
                     initHooker()
                 }
@@ -123,9 +137,6 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
     }
 
 
-
-
-
     /**
      * 初始化Hooker
      * @param app HookerManifest
@@ -133,21 +144,27 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
      */
     private fun initHooker() {
         // 添加http访问支持
-        Logger.log(TAG, "InitHooker: ${AppRuntime.name}, AutoVersion: ${BuildConfig.VERSION_NAME}, Application: ${AppRuntime.application?.applicationInfo?.sourceDir}")
+        Logger.log(
+            TAG,
+            "InitHooker: ${AppRuntime.name}, AutoVersion: ${BuildConfig.VERSION_NAME}, Application: ${AppRuntime.application?.applicationInfo?.sourceDir}"
+        )
         AppRuntime.manifest.networkError()
-        Logger.logD(TAG,"Allow Cleartext Traffic")
+        Logger.logD(TAG, "Allow Cleartext Traffic")
         //吐司框架初始化
         Toaster.init(AppRuntime.application)
-        Logger.logD(TAG,"Toaster init success")
+        Logger.logD(TAG, "Toaster init success")
         // 检查所需的权限
         AppRuntime.manifest.permissionCheck()
-        Logger.logD(TAG,"Permission check success")
+        Logger.logD(TAG, "Permission check success")
 
         if (!AppRuntime.manifest.versionCheck()) {
             return
         }
-        if (!AppRuntime.manifest.autoAdaption()){
-            Logger.log(TAG, "Auto adaption failed , ${AppRuntime.manifest.appName} will not be hooked")
+        if (!AppRuntime.manifest.autoAdaption()) {
+            Logger.log(
+                TAG,
+                "Auto adaption failed , ${AppRuntime.manifest.appName} will not be hooked"
+            )
             return
         }
 
@@ -155,7 +172,7 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         Server.versionName = BuildConfig.VERSION_NAME
 
         // 启动自动记账服务
-        if (AppRuntime.manifest.packageName === Apps.getServerRunInApp()){
+        if (AppRuntime.manifest.packageName === Apps.getServerRunInApp()) {
             CommonHooker.init()
         }
 
@@ -177,7 +194,7 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
      *
      * 该方法在初始化过程中捕获并处理所有可能的异常，以确保应用程序的稳定性。
      */
-    private fun initHookers(){
+    private fun initHookers() {
         // hook初始化
         runCatching {
             AppRuntime.manifest.hookLoadPackage()
@@ -206,15 +223,12 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
     }
 
 
-
-
-
     override fun initZygote(startupParam: IXposedHookZygoteInit.StartupParam?) {
         AppRuntime.modulePath = startupParam?.modulePath ?: ""
         initSoDir()
     }
 
-    private fun initSoDir(){
+    private fun initSoDir() {
         val framework = when {
             Build.SUPPORTED_64_BIT_ABIS.contains("arm64-v8a") -> "arm64"
             Build.SUPPORTED_64_BIT_ABIS.contains("x86_64") -> "x86_64"
@@ -225,10 +239,11 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
 
         // 如果架构不支持，则记录日志并返回
         if (framework == "unsupported") {
-            Logger.logD(TAG,"Unsupported architecture")
+            Logger.logD(TAG, "Unsupported architecture")
             return
         }
-       AppRuntime.moduleSoPath = AppRuntime.modulePath.replace("/base.apk", "") + "/lib/$framework/"
+        AppRuntime.moduleSoPath =
+            AppRuntime.modulePath.replace("/base.apk", "") + "/lib/$framework/"
     }
 
 

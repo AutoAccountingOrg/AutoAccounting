@@ -13,16 +13,8 @@ import net.ankio.auto.xposed.core.utils.AppRuntime
 object Hooker {
 
     private val hookMap = HashMap<String, XC_MethodHook.Unhook>()
-
-    private lateinit var classloader:ClassLoader
-
-    /**
-     * 设置类加载器
-     * @param classLoader 类加载器实例
-     */
-    fun setClassLoader(classLoader: ClassLoader){
-        classloader = classLoader
-    }
+    
+    
 
     /**
      * 记录日志
@@ -36,7 +28,7 @@ object Hooker {
      * 加载类
      */
     fun loader(clazz: String, classloader: ClassLoader? = null): Class<*> {
-        return classloader?.loadClass(clazz)?:this.classloader.loadClass(clazz)
+        return classloader?.loadClass(clazz)?:AppRuntime.classLoader.loadClass(clazz)
     }
 
     /**
@@ -48,7 +40,7 @@ object Hooker {
                 is Class<*> -> it
                 is String -> {
                     try {
-                        loader(it, classloader)
+                        loader(it, AppRuntime.classLoader)
                     } catch (e: ClassNotFoundException) {
                         throw IllegalArgumentException("Invalid parameter type: $it", e)
                     }
@@ -72,7 +64,7 @@ object Hooker {
         hook: (XC_MethodHook.MethodHookParam) -> Unit
     ) {
         try {
-            val loadedClass =   loader(clazz, classloader)
+            val loadedClass =   loader(clazz, AppRuntime.classLoader)
             val types = buildParameterTypes(*parameterTypes)
             after(loadedClass, method, *types,  hook =  hook)
         } catch (e: ClassNotFoundException) {
@@ -122,7 +114,7 @@ object Hooker {
         hook: (XC_MethodHook.MethodHookParam) -> Unit
     ) {
         try {
-            val loadedClass = loader(clazz, classloader)
+            val loadedClass = loader(clazz, AppRuntime.classLoader)
             val types = buildParameterTypes(*parameterTypes)
             before(loadedClass, method, *types,hook = hook)
         } catch (e: ClassNotFoundException) {
@@ -330,7 +322,7 @@ object Hooker {
         hook: (XC_MethodHook.MethodHookParam) -> Any?
     ) {
         try {
-            val loadedClass = loader(clazz, classloader)
+            val loadedClass = loader(clazz, AppRuntime.classLoader)
             val types = buildParameterTypes(*parameterTypes)
             replace(loadedClass, method, *types, hook = hook)
         } catch (e: ClassNotFoundException) {
@@ -381,7 +373,7 @@ object Hooker {
         vararg parameterTypes: Any
     ) {
         try {
-            val loadedClass = loader(clazz, classloader)
+            val loadedClass = loader(clazz, AppRuntime.classLoader)
             val types = buildParameterTypes(*parameterTypes)
             replaceReturn(loadedClass, method, value, *types)
         } catch (e: ClassNotFoundException) {
