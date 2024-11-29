@@ -24,6 +24,7 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
+import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.core.utils.ThreadUtils
 import org.ezbook.server.constant.DataType
 
@@ -34,11 +35,7 @@ class WebViewHooker : PartHooker() {
         const val MAX_CHECK_COUNT = 600
     }
 
-    override fun hook(
-        hookerManifest: HookerManifest,
-        application: Application?,
-        classLoader: ClassLoader
-    ) {
+    override fun hook() {
 
         val webView = Hooker.loader("com.alipay.mobile.nebulacore.web.H5WebView")
 
@@ -90,8 +87,8 @@ class WebViewHooker : PartHooker() {
                         }
 
                         needWait = false
-                        hookerManifest.logD("Hooked Alipay Bill List Data：$result")
-                        hookerManifest.analysisData(DataType.DATA, result)
+                        AppRuntime.manifest.logD("Hooked Alipay Bill List Data：$result")
+                        AppRuntime.manifest.analysisData(DataType.DATA, result)
                     }
 
                 ThreadUtils.launch {

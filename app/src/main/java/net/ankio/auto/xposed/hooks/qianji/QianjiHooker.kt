@@ -15,7 +15,6 @@
 
 package net.ankio.auto.xposed.hooks.qianji
 
-import android.app.Application
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.hooks.qianji.hooks.AutoHooker
@@ -32,7 +31,7 @@ class QianjiHooker : HookerManifest() {
     override var minVersion: Int = 951
 
     override var applicationName = "com.mutangtech.qianji.app.CoreApp"
-    override fun hookLoadPackage(application: Application?, classLoader: ClassLoader) {
+    override fun hookLoadPackage() {
 
     }
 

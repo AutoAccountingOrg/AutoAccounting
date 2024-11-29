@@ -5,7 +5,6 @@ import android.content.SharedPreferences
 import de.robv.android.xposed.XSharedPreferences
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.xposed.core.App.Companion.TAG
-import net.ankio.auto.xposed.core.App.Companion.application
 
 object DataUtils{
 
@@ -16,11 +15,11 @@ object DataUtils{
      * @param value String
      */
     fun set(key: String, value: String) {
-        if (application == null) {
+        if (AppRuntime.application == null) {
             return
         }
         val sharedPreferences: SharedPreferences =
-            application!!.getSharedPreferences(TAG, Context.MODE_PRIVATE) // 私有数据
+            AppRuntime.application !!.getSharedPreferences(TAG, Context.MODE_PRIVATE) // 私有数据
         val editor = sharedPreferences.edit() // 获取编辑器
         editor.putString(key, value)
         editor.apply() // 提交修改
@@ -32,11 +31,11 @@ object DataUtils{
      * @return String
      */
     fun get(key: String, def: String = ""): String {
-        if (application == null) {
+        if (AppRuntime.application  == null) {
             return def
         }
         val sharedPreferences: SharedPreferences =
-            application!!.getSharedPreferences(TAG, Context.MODE_PRIVATE) // 私有数据
+            AppRuntime.application !!.getSharedPreferences(TAG, Context.MODE_PRIVATE) // 私有数据
         return sharedPreferences.getString(key, def) ?: def
     }
 

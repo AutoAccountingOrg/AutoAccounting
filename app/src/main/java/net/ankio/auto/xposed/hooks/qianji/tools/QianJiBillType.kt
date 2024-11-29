@@ -18,7 +18,6 @@ package net.ankio.auto.xposed.hooks.qianji.tools
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.ankio.auto.xposed.core.App
 import net.ankio.auto.xposed.core.utils.DataUtils
 import org.ezbook.server.constant.AssetsType
 import org.ezbook.server.constant.BillType

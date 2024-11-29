@@ -27,11 +27,7 @@ import java.lang.reflect.Field
 
 class ActiveHooker : PartHooker() {
 
-    override fun hook(
-        hookerManifest: HookerManifest,
-        application: Application?,
-        classLoader: ClassLoader
-    ) {
+    override fun hook() {
         val activeUtils = Hooker.loader("net.ankio.auto.xposed.common.ActiveInfo")
         Hooker.replaceReturn(
             activeUtils,

@@ -23,14 +23,11 @@ import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
+import net.ankio.auto.xposed.core.utils.AppRuntime
 import org.ezbook.server.constant.DataType
 
 class MessageBoxHooker : PartHooker() {
-    override fun hook(
-        hookerManifest: HookerManifest,
-        application: Application?,
-        classLoader: ClassLoader
-    ) {
+    override fun hook() {
         val msgboxInfoServiceImpl = Hooker.loader("com.alipay.android.phone.messageboxstatic.biz.sync.d")
         val syncMessage = Hooker.loader("com.alipay.mobile.rome.longlinkservice.syncmodel.SyncMessage")
         Hooker.before(
@@ -48,9 +45,9 @@ class MessageBoxHooker : PartHooker() {
                         add(jsonObject)
                     }
 
-                hookerManifest.logD("Hooked Alipay Message Box：$jsonArray")
+                AppRuntime.manifest.logD("Hooked Alipay Message Box：$jsonArray")
                 // 调用分析服务进行数据分析
-                hookerManifest.analysisData(DataType.DATA, Gson().toJson(jsonArray))
+                AppRuntime.manifest.analysisData(DataType.DATA, Gson().toJson(jsonArray))
             }
         }
     }

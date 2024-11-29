@@ -18,14 +18,14 @@ package net.ankio.auto.xposed.hooks.qianji.hooks
 import android.app.Application
 import android.content.Context
 import android.net.Uri
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XC_MethodReplacement
 import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.BuildConfig
-import net.ankio.auto.xposed.core.App
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
+import net.ankio.auto.xposed.core.utils.AppRuntime.application
+import net.ankio.auto.xposed.core.utils.AppRuntime.classLoader
+import net.ankio.auto.xposed.core.utils.AppRuntime.manifest
 import net.ankio.auto.xposed.core.utils.MessageUtils
 import net.ankio.auto.xposed.core.utils.ThreadUtils
 import net.ankio.auto.xposed.hooks.qianji.sync.BaoXiaoUtils
@@ -60,19 +60,15 @@ class AutoHooker : PartHooker() {
             )
         )
 
-    override fun hook(
-        hookerManifest: HookerManifest,
-        application: Application?,
-        classLoader: ClassLoader
-    ) {
+    override fun hook() {
 
         addBillIntentAct = classLoader.loadClass("com.mutangtech.qianji.bill.auto.AddBillIntentAct")
 
-        hookTimeout(hookerManifest, classLoader)
+        hookTimeout(manifest, classLoader)
 
-        hookTaskLog(hookerManifest, classLoader, application!!)
+        hookTaskLog(manifest, classLoader, application!!)
 
-        hookTaskLogStatus(hookerManifest, classLoader)
+        hookTaskLogStatus(manifest, classLoader)
     }
 
     private fun hookTaskLog(

@@ -15,13 +15,19 @@
 
 package net.ankio.auto.xposed.core.api
 
-import android.app.Application
 import android.content.Context
+import android.content.pm.PackageManager
+import android.security.NetworkSecurityPolicy
+import com.google.gson.Gson
 import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.delay
-import net.ankio.auto.xposed.core.App
 import net.ankio.auto.xposed.core.logger.Logger
+import net.ankio.auto.xposed.core.utils.AppRuntime
+import net.ankio.auto.xposed.core.utils.DataUtils.get
+import net.ankio.auto.xposed.core.utils.DataUtils.set
+import net.ankio.auto.xposed.core.utils.MessageUtils.toast
 import net.ankio.auto.xposed.core.utils.ThreadUtils
+import net.ankio.dex.Dex
 import net.ankio.dex.model.Clazz
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
@@ -49,7 +55,7 @@ abstract class HookerManifest {
      * hook入口，用于执行全局的hook操作
      * @param application Application
      */
-    abstract fun hookLoadPackage(application: Application?, classLoader: ClassLoader)
+    abstract fun hookLoadPackage()
 
     /**
      * 需要hook的功能，一个功能一个hooker，方便进行错误捕获
@@ -111,8 +117,137 @@ abstract class HookerManifest {
         XposedHelpers.callMethod(
             context.resources.assets,
             "addAssetPath",
-            App.modulePath,
+            AppRuntime.modulePath,
         )
+    }
+
+    /**
+     * 权限检查
+     */
+    fun permissionCheck(){
+        if (permissions.isEmpty()) {
+            return
+        }
+        val context = AppRuntime.application ?: return
+        permissions.forEach {
+            if (context.checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED) {
+                logE(Throwable("$appName Permission denied: $it , this hook may not work as expected"))
+            }
+        }
+    }
+
+    /**
+     * 检查应用程序的版本是否满足最低要求。
+     *
+     * 该方法首先获取当前应用程序的版本号和版本名称，并记录这些信息。
+     * 然后，它会检查当前版本号是否低于设定的最低版本号。
+     * 如果版本过低，方法会记录错误日志并显示一个提示消息，告知用户需要升级应用程序。
+     *
+     * @return 如果当前版本满足最低要求，则返回 `true`；否则返回 `false`。
+     */
+    fun versionCheck():Boolean{
+        val code = AppRuntime.versionCode
+        val name = AppRuntime.versionName
+        log( "App VersionCode: $code, VersionName: $name")
+
+        // 检查App版本是否过低，过低无法使用
+        if (minVersion != 0 && code < minVersion) {
+            logE(Throwable( "Auto adaption failed , ${AppRuntime.manifest.appName}(${code}) version is too low"))
+            toast("${AppRuntime.manifest.appName}版本过低，无法适配，请升级到最新版本后再试。")
+            return false
+        }
+        return true
+    }
+
+    /**
+     * 自动适配方法，用于根据预定义的规则进行应用的自动适配。
+     *
+     * 该方法首先检查是否存在适配规则。如果没有适配规则，则直接返回成功。
+     * 如果有适配规则，则检查当前应用的版本号是否与上次适配的版本号一致。
+     * 如果一致，则尝试从缓存中加载适配信息，并验证适配信息的完整性。
+     * 如果适配信息完整，则返回成功；否则，清除缓存并返回失败。
+     *
+     * 如果当前版本号与上次适配的版本号不一致，则开始自动适配过程。
+     * 该过程包括解析应用的DEX文件，根据规则查找类信息，并将适配结果保存到缓存中。
+     * 如果适配成功，则更新适配版本号并返回成功；否则，返回失败。
+     *
+     * @return 返回一个布尔值，表示适配是否成功。如果适配成功，返回 `true`；否则，返回 `false`。
+     */
+    fun autoAdaption(): Boolean {
+        if (rules.isEmpty()) {
+            return true
+        }
+
+        // 计算当前rules的哈希值
+        val currentRulesHash = rules.joinToString(",") { 
+            "${it.name}:${it.methods.joinToString("|") { m -> m.toString() }}" 
+        }.hashCode().toString()
+        
+        val code = AppRuntime.versionCode
+        val savedVersion = get("adaptation_version", "").toIntOrNull() ?: 0
+        val savedRulesHash = get("adaptation_rules_hash", "")
+        
+        logD("AdaptationVersion: $savedVersion, RulesHash: $savedRulesHash")
+        
+        // 版本号相同且规则哈希值相同时，尝试加载缓存的适配结果
+        if (savedVersion == code && savedRulesHash == currentRulesHash) {
+            runCatching {
+                clazz = Gson().fromJson(
+                    get("clazz", ""),
+                    HashMap::class.java
+                ) as HashMap<String, String>
+                
+                if (clazz.size != rules.size) {
+                    throw Exception("Adaptation failed: cache size mismatch")
+                }
+            }.onFailure {
+                // 加载失败时清除所有缓存
+                set("adaptation_version", "0")
+                set("adaptation_rules_hash", "")
+                set("clazz", "")
+                logE(it)
+            }.onSuccess {
+                log("从缓存加载适配信息: $clazz")
+                return true
+            }
+        }
+
+        // 需要重新适配
+        return runCatching {
+            toast("自动记账开始适配中...")
+            val appInfo = AppRuntime.application!!.applicationInfo
+            val path = appInfo.sourceDir
+            logD("App Package Path: $path")
+            
+            val hashMap = Dex.findClazz(path, AppRuntime.application!!.classLoader, rules)
+            if (hashMap.size == rules.size) {
+                // 保存新的适配结果
+                set("adaptation_version", code.toString())
+                set("adaptation_rules_hash", currentRulesHash)
+                clazz = hashMap
+                set("clazz", Gson().toJson(clazz))
+                log("适配成功: $hashMap")
+                toast("适配成功")
+                true
+            } else {
+                logD("适配失败: $hashMap")
+                rules.forEach { rule ->
+                    if (!hashMap.containsKey(rule.name)) {
+                        logD("未能适配规则: ${rule.name}")
+                    }
+                }
+                toast("适配失败")
+                false
+            }
+        }.getOrElse { false }
+    }
+
+    fun networkError() {
+        val policy = NetworkSecurityPolicy.getInstance()
+        if (policy != null && !policy.isCleartextTrafficPermitted) {
+            // 允许明文流量
+            XposedHelpers.callMethod(policy, "setCleartextTrafficPermitted", true)
+        }
     }
 
     /**
@@ -171,7 +306,7 @@ abstract class HookerManifest {
         }!!
     }
 
-    open fun beforeAdapter(application: Application, file:String){
+    open fun beforeInitHook(){
 
     }
 }

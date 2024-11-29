@@ -23,6 +23,7 @@ import fr.arnaudguyon.xmltojsonlib.XmlToJson
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
+import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.core.utils.DataUtils
 import org.ezbook.server.constant.DataType
 
@@ -32,13 +33,8 @@ class DatabaseHooker : PartHooker() {
         return xmlToJson.toString()
     }
 
-    override fun hook(
-        hookerManifest: HookerManifest,
-        application: Application?,
-        classLoader: ClassLoader
-    ) {
-        val mAppClassLoader: ClassLoader = classLoader
-        val mContext = application!!
+    override fun hook() {
+       
 
         // 分析版本 8.0.43
 
@@ -54,7 +50,7 @@ class DatabaseHooker : PartHooker() {
             val contentValues = param.args[2] as ContentValues
             val tableName = param.args[0] as String
             val arg = if (param.args[1] != null) param.args[1] as String else ""
-            hookerManifest.logD("table:$tableName, contentValues:$contentValues")
+            AppRuntime.manifest.logD("table:$tableName, contentValues:$contentValues")
             //无效数据表
             val usefulTable = listOf(
                 "message",
@@ -106,9 +102,9 @@ class DatabaseHooker : PartHooker() {
                     val result = JsonObject()
                     result.add("mMap", tpl)
 
-                    hookerManifest.logD("微信支付数据：$result")
+                    AppRuntime.manifest.logD("微信支付数据：$result")
 
-                    hookerManifest.analysisData(DataType.DATA, result.toString())
+                    AppRuntime.manifest.analysisData(DataType.DATA, result.toString())
                 } else if (type == 419430449) {
                     //微信转账消息
                     val content = contentValues.get("content").toString()
@@ -116,13 +112,13 @@ class DatabaseHooker : PartHooker() {
                     json.addProperty("type", "transfer")
                     json.addProperty("content", xmlToJson(content))
                     putCache(json)
-                    hookerManifest.analysisData(DataType.DATA, json.toString())
+                    AppRuntime.manifest.analysisData(DataType.DATA, json.toString())
                 } else if (type == 10000){
                     // 微信支付群收款
                     val json = JsonObject()
                     json.add("content", Gson().toJsonTree(contentValues))
                     putCache(json)
-                    hookerManifest.analysisData(DataType.DATA, json.toString())
+                    AppRuntime.manifest.analysisData(DataType.DATA, json.toString())
 
                 }
             } else if (tableName == "AppMessage") {
@@ -132,7 +128,7 @@ class DatabaseHooker : PartHooker() {
                         return@after
                     }
                     // 这个应该是公众号推送
-                    hookerManifest.analysisData(DataType.DATA, Gson().toJson(contentValues))
+                    AppRuntime.manifest.analysisData(DataType.DATA, Gson().toJson(contentValues))
                 } else if (type == 2000) {
                     // 这个应该是微信转账给别人
                     val xml = contentValues.get("xml")
@@ -144,7 +140,7 @@ class DatabaseHooker : PartHooker() {
                     }
 
                     putCache(json)
-                    hookerManifest.analysisData(DataType.DATA, json.toString())
+                    AppRuntime.manifest.analysisData(DataType.DATA, json.toString())
                 }
             }
         }

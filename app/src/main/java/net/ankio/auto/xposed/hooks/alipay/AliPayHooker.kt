@@ -28,7 +28,7 @@ class AliPayHooker : HookerManifest() {
     override val packageName: String
         get() = "com.eg.android.AlipayGphone"
     override val appName: String = "支付宝"
-    override fun hookLoadPackage(application: Application?, classLoader: ClassLoader) {
+    override fun hookLoadPackage() {
 
     }
 

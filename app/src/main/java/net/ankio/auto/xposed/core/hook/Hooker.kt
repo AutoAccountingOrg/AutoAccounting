@@ -4,8 +4,8 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XC_MethodReplacement
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
-import net.ankio.auto.xposed.core.App
 import net.ankio.auto.xposed.core.logger.Logger
+import net.ankio.auto.xposed.core.utils.AppRuntime
 
 /**
  * Xposed hooker utility for streamlined hooking operations.
@@ -28,8 +28,8 @@ object Hooker {
      * 记录日志
      */
     private fun log(message: String, e: Throwable) {
-       Logger.log(App.name, message)
-       Logger.logE(App.name, e)
+       Logger.log(AppRuntime.name, message)
+       Logger.logE(AppRuntime.name, e)
     }
 
     /**

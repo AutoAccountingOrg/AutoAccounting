@@ -15,21 +15,16 @@
 
 package net.ankio.auto.xposed.hooks.sms.hooks
 
-import android.app.Application
 import android.content.Intent
 import android.provider.Telephony
 import android.telephony.SmsMessage
 import com.google.gson.Gson
 import com.google.gson.JsonObject
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
-import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
+import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.hooks.sms.utils.SmsMessageUtils
 import org.ezbook.server.constant.DataType
-import java.lang.reflect.Method
 import java.text.Normalizer
 
 
@@ -37,11 +32,7 @@ class SmsIntentHooker: PartHooker() {
    // private val hashTable = MD5HashTable()
     private val TELEPHONY_PACKAGE: String = "com.android.internal.telephony"
     private val SMS_HANDLER_CLASS: String = "$TELEPHONY_PACKAGE.InboundSmsHandler"
-    override fun hook(
-        hookerManifest: HookerManifest,
-        application: Application?,
-        classLoader: ClassLoader
-    ) {
+    override fun hook() {
         val inboundSmsHandlerClass = Hooker.loader(SMS_HANDLER_CLASS)
 
         Hooker.allMethodsEqBefore(
@@ -65,7 +56,7 @@ class SmsIntentHooker: PartHooker() {
                 addProperty("t",System.currentTimeMillis())
             }
 
-            hookerManifest.analysisData(DataType.DATA, Gson().toJson(json))
+            AppRuntime.manifest.analysisData(DataType.DATA, Gson().toJson(json))
             return@allMethodsEqBefore null
         }
 

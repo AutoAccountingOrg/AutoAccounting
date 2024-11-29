@@ -21,25 +21,22 @@ import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
+import net.ankio.auto.xposed.core.utils.AppRuntime
 import org.ezbook.server.constant.DataType
 
 
 class RedPackageHooker : PartHooker() {
 
 
-    override fun hook(
-        hookerManifest: HookerManifest,
-        application: Application?,
-        classLoader: ClassLoader
-    ) {
+    override fun hook() {
         val proguard = Hooker.loader("com.alipay.mobile.redenvelope.proguard.c.b")
         val syncMessage = Hooker.loader("com.alipay.mobile.rome.longlinkservice.syncmodel.SyncMessage")
 
         Hooker.before(proguard, "onReceiveMessage", syncMessage) { param ->
             val syncMessageObject = param.args[0]
             val result = XposedHelpers.callMethod(syncMessageObject, "getData") as String
-            hookerManifest.logD("Hooked Alipay RedPackage： $result")
-            hookerManifest.analysisData(DataType.DATA, result)
+            AppRuntime.manifest.logD("Hooked Alipay RedPackage： $result")
+            AppRuntime.manifest.analysisData(DataType.DATA, result)
         }
     }
 }

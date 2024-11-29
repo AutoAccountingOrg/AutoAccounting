@@ -29,7 +29,7 @@ class AutoHooker : HookerManifest() {
     override val packageName: String
         get() = "net.ankio.auto.xposed"
     override val appName: String = "自动记账"
-    override fun hookLoadPackage(application: Application?, classLoader: ClassLoader) {
+    override fun hookLoadPackage() {
 
     }
 

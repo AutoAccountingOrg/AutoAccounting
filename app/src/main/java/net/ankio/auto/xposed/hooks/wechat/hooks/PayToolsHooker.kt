@@ -16,12 +16,10 @@
 package net.ankio.auto.xposed.hooks.wechat.hooks
 
 import android.app.Application
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedHelpers
-import net.ankio.auto.xposed.core.App
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
+import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.core.utils.DataUtils
 
 class PayToolsHooker : PartHooker() {
@@ -32,11 +30,7 @@ class PayToolsHooker : PartHooker() {
         const val PAY_SHOP = "cachedPayShop"
     }
 
-    override fun hook(
-        hookerManifest: HookerManifest,
-        application: Application?,
-        classLoader: ClassLoader
-    ) {
+    override fun hook() {
 
 
         Hooker.after(
@@ -45,19 +39,19 @@ class PayToolsHooker : PartHooker() {
             String::class.java,
         ){ param ->
             val text = param.args[0] as String
-            hookerManifest.logD("Text: $text")
+            AppRuntime.manifest.logD("Text: $text")
 
             when {
                 Regex(".*(卡|零钱).*").matches(text) -> {
-                    hookerManifest.logD("支付方式Hook: $text")
+                    AppRuntime.manifest.logD("支付方式Hook: $text")
                     DataUtils.set(PAY_TOOLS, text)
                 }
                 Regex(".*([￥$]).*").matches(text) -> {
-                    hookerManifest.logD("支付金额Hook: $text")
+                    AppRuntime.manifest.logD("支付金额Hook: $text")
                     DataUtils.set(PAY_MONEY, text)
                 }
                 Regex(".*(转账|红包|付款给).*").matches(text) -> {
-                    hookerManifest.logD("支付对象hook: $text")
+                    AppRuntime.manifest.logD("支付对象hook: $text")
                     DataUtils.set(PAY_SHOP, text)
                 }
             }

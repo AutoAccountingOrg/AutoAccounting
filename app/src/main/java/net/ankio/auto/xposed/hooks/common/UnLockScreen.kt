@@ -25,10 +25,11 @@ import kotlinx.coroutines.delay
 import net.ankio.auto.App
 import net.ankio.auto.xposed.core.App.Companion.TAG
 import net.ankio.auto.xposed.core.logger.Logger
+import net.ankio.auto.xposed.core.utils.AppRuntime
 import org.ezbook.server.db.model.BillInfoModel
 
 object UnLockScreen {
-    fun init(context: Context){
+    fun init(){
         val filter = IntentFilter()
         filter.addAction(Intent.ACTION_USER_PRESENT)
 
@@ -73,6 +74,7 @@ object UnLockScreen {
             }
         }
 
-        context.registerReceiver(receiver, filter)
+
+        AppRuntime.application!!.baseContext.registerReceiver(receiver, filter)
     }
 }

@@ -21,6 +21,8 @@ import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.logger.Logger
+import net.ankio.auto.xposed.core.utils.AppRuntime.application
+import net.ankio.auto.xposed.core.utils.AppRuntime.classLoader
 import net.ankio.auto.xposed.hooks.wechat.hooks.ChatUserHooker
 import net.ankio.auto.xposed.hooks.wechat.hooks.DatabaseHooker
 import net.ankio.auto.xposed.hooks.wechat.hooks.PayToolsHooker
@@ -37,7 +39,7 @@ class WechatHooker : HookerManifest() {
         get() = "com.tencent.mm"
     override val appName: String = "微信"
 
-    override fun hookLoadPackage(application: Application?, classLoader: ClassLoader) {
+    override fun hookLoadPackage() {
         if (application == null) {
             return
         }
@@ -54,7 +56,7 @@ class WechatHooker : HookerManifest() {
 
         // 腾讯tinker热更新框架在加载后会导致hook无效，最简单的办法是删掉
         // 判断目录/data/data/com.tencent.mm/tinker/下是否有patch-开头的文件夹，如果有就删除
-        val tinkerDir = File(application.dataDir, "tinker")
+        val tinkerDir = File(application!!.dataDir, "tinker")
 
         if (tinkerDir.exists()) {
             log("tinkerDir: ${tinkerDir.absolutePath}")

@@ -32,8 +32,8 @@ class AndroidHooker : HookerManifest() {
 
     override var applicationName: String = "android.app.Application"
 
-    override fun hookLoadPackage(application: Application?, classLoader: ClassLoader) {
-        PermissionHooker().hook(this, application, classLoader)
+    override fun hookLoadPackage() {
+        PermissionHooker().hook()
 
     }
 

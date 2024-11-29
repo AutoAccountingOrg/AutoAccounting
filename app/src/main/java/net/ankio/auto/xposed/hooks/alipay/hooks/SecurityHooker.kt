@@ -21,18 +21,15 @@ import de.robv.android.xposed.XposedBridge
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
+import net.ankio.auto.xposed.core.utils.AppRuntime
 
 
 /**
  * 支付宝安全检测bypass
  */
 class SecurityHooker:PartHooker() {
-    override fun hook(
-        hookerManifest: HookerManifest,
-        application: Application?,
-        classLoader: ClassLoader
-    ) {
-        val clazz = classLoader.loadClass("com.alipay.apmobilesecuritysdk.scanattack.common.ScanAttack")
+    override fun hook() {
+        val clazz = AppRuntime.classLoader.loadClass("com.alipay.apmobilesecuritysdk.scanattack.common.ScanAttack")
 
         // 这个bypass只能过掉在xposed、root环境隐藏不好的情况，即弹出登录异常、环境不安全这些提示
         Hooker.allMethodsAfter(clazz){

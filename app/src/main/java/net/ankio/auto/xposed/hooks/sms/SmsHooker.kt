@@ -27,7 +27,7 @@ class SmsHooker: HookerManifest() {
     override val appName: String
         get() = "短信"
 
-    override fun hookLoadPackage(application: Application?, classLoader: ClassLoader) {
+    override fun hookLoadPackage() {
 
     }
 

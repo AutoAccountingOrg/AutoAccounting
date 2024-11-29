@@ -15,38 +15,12 @@
 
 package net.ankio.auto.xposed.hooks.common
 
-import android.os.Build
-import net.ankio.auto.xposed.core.App.Companion.TAG
-import net.ankio.auto.xposed.core.App.Companion.modulePath
-import net.ankio.auto.xposed.core.logger.Logger
+import net.ankio.auto.xposed.core.utils.AppRuntime
+
 
 object JsEngine {
     fun init() {
-        // JsEngine
-        // 判断当前手机的架构并选择相应的库
-        val framework = when {
-            Build.SUPPORTED_64_BIT_ABIS.contains("arm64-v8a") -> "arm64"
-            Build.SUPPORTED_64_BIT_ABIS.contains("x86_64") -> "x86_64"
-            Build.SUPPORTED_32_BIT_ABIS.contains("armeabi-v7a") -> "arm"
-            Build.SUPPORTED_32_BIT_ABIS.contains("x86") -> "x86"
-            else -> "unsupported"
-        }
-
-        // 如果架构不支持，则记录日志并返回
-        if (framework == "unsupported") {
-            Logger.logD(TAG,"Unsupported architecture")
-            return
-        }
-        val libquickjs = modulePath.replace("/base.apk", "") + "/lib/$framework/libquickjs-android.so"
-        val libmimalloc = modulePath.replace("/base.apk", "") + "/lib/$framework/libmimalloc.so"
-
-        try {
-            System.load(libmimalloc)
-            System.load(libquickjs)
-            Logger.logD(TAG,"Load quickjs-android success")
-        } catch (e: Throwable) {
-            Logger.logD(TAG,"Load quickjs-android failed : $e")
-            Logger.logE(TAG,e)
-        }
+        AppRuntime.load("mimalloc")
+        AppRuntime.load("quickjs-android")
     }
 }

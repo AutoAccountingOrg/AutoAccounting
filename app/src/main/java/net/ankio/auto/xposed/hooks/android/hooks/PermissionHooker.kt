@@ -19,6 +19,7 @@ import android.app.Application
 import android.os.Build
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
+import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.hooks.android.hooks.permission.PermissionHooker29
 import net.ankio.auto.xposed.hooks.android.hooks.permission.PermissionHooker30
 import net.ankio.auto.xposed.hooks.android.hooks.permission.PermissionHooker31
@@ -32,29 +33,23 @@ import net.ankio.auto.xposed.hooks.android.hooks.permission.PermissionHooker34
 class PermissionHooker : PartHooker() {
     /**
      * hook PermissionManagerService，并自动向特定的应用程序授予特定权限。
-     * @param hookerManifest HookerManifest
-     * @param application Application
      */
-    override fun hook(
-        hookerManifest: HookerManifest,
-        application: Application?,
-        classLoader: ClassLoader
-    ) {
+    override fun hook() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE){ //14
-            hookerManifest.log("PermissionHooker34")
-            PermissionHooker34(hookerManifest, classLoader).startHook()
+            AppRuntime.manifest.log("PermissionHooker34")
+            PermissionHooker34(AppRuntime.manifest, AppRuntime.classLoader).startHook()
         }else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){ //13
-            hookerManifest.log("PermissionHooker33")
-            PermissionHooker33(hookerManifest, classLoader).startHook()
+            AppRuntime.manifest.log("PermissionHooker33")
+            PermissionHooker33(AppRuntime.manifest, AppRuntime.classLoader).startHook()
         }else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S){ //12 - 12L
-            hookerManifest.log("PermissionHooker31")
-            PermissionHooker31(hookerManifest, classLoader).startHook()
+            AppRuntime.manifest.log("PermissionHooker31")
+            PermissionHooker31(AppRuntime.manifest, AppRuntime.classLoader).startHook()
         }else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R){ //11
-            hookerManifest.log("PermissionHooker30")
-            PermissionHooker30(hookerManifest, classLoader).startHook()
+            AppRuntime.manifest.log("PermissionHooker30")
+            PermissionHooker30(AppRuntime.manifest, AppRuntime.classLoader).startHook()
         }else{
-            hookerManifest.log("PermissionHooker29") // 10
-            PermissionHooker29(hookerManifest, classLoader).startHook()
+            AppRuntime.manifest.log("PermissionHooker29") // 10
+            PermissionHooker29(AppRuntime.manifest, AppRuntime.classLoader).startHook()
         }
 
 

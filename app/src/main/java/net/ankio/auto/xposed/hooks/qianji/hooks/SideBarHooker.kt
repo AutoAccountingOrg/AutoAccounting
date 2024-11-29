@@ -21,20 +21,19 @@ import android.view.LayoutInflater
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.appcompat.content.res.AppCompatResources
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.xposed.common.ServerInfo
-import net.ankio.auto.xposed.core.App
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.ui.ColorUtils
 import net.ankio.auto.xposed.core.ui.ViewUtils
 import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.databinding.MenuItemBinding
+import net.ankio.auto.xposed.core.utils.AppRuntime
+import net.ankio.auto.xposed.core.utils.AppRuntime.classLoader
 import net.ankio.auto.xposed.core.utils.MessageUtils
 import net.ankio.auto.xposed.core.utils.ThreadUtils
 import net.ankio.auto.xposed.hooks.qianji.sync.AssetsUtils
@@ -47,12 +46,8 @@ import net.ankio.auto.xposed.hooks.qianji.sync.SyncBillUtils
 class SideBarHooker : PartHooker() {
 
 
-    override fun hook(
-        hookerManifest: HookerManifest,
-        application: Application?,
-        classLoader: ClassLoader
-    ) {
-        this.hookerManifest = hookerManifest
+    override fun hook() {
+        this.hookerManifest = AppRuntime.manifest
         val clazz = Hooker.loader("com.mutangtech.qianji.ui.main.MainActivity")
 
         Hooker.after(
@@ -125,7 +120,6 @@ class SideBarHooker : PartHooker() {
         }
         val background =
             if (ServerInfo.isServerStart()) R.drawable.status_running else R.drawable.status_stopped
-
         withContext(Dispatchers.Main) {
             itemMenuBinding.serviceStatus.background =
                 AppCompatResources.getDrawable(activity, background)

@@ -19,32 +19,20 @@ import android.app.Application
 import android.app.Notification
 import com.google.gson.Gson
 import com.google.gson.JsonObject
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import net.ankio.auto.xposed.core.App
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
+import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.core.utils.DataUtils
 import net.ankio.auto.xposed.core.utils.MD5HashTable
-import net.ankio.auto.xposed.core.utils.ThreadUtils
 import org.ezbook.server.constant.DataType
 import org.ezbook.server.constant.Setting
-import org.ezbook.server.db.model.SettingModel
 
 
 class NotificationHooker : PartHooker() {
     private var selectedApps = listOf<String>()
     private val hashTable = MD5HashTable()
-    override fun hook(
-        hookerManifest: HookerManifest,
-        application: Application?,
-        classLoader: ClassLoader
-    ) {
+    override fun hook() {
         Hooker.allMethodsEqBefore(
             Hooker.loader("com.android.server.notification.NotificationManagerService"),
             "enqueueNotificationInternal",
@@ -74,11 +62,11 @@ class NotificationHooker : PartHooker() {
             }.getOrElse { "" }
 
 
-            hookerManifest.logD("app: $app, opkg: $opkg, originalTitle: $originalTitle, originalText: $originalText")
+            AppRuntime.manifest.logD("app: $app, opkg: $opkg, originalTitle: $originalTitle, originalText: $originalText")
 
             val hash = MD5HashTable.md5("$app$originalTitle$originalText")
             if (hashTable.contains(hash)) {
-                hookerManifest.logD("hashTable contains $hash, $originalTitle, $originalText")
+                AppRuntime.manifest.logD("hashTable contains $hash, $originalTitle, $originalText")
                 return@allMethodsEqBefore null
             }
             hashTable.add(hash)
@@ -90,8 +78,7 @@ class NotificationHooker : PartHooker() {
                 app,
                 originalTitle,
                 originalText,
-                selectedApps,
-                hookerManifest
+                selectedApps
             )
 
         }
@@ -105,7 +92,6 @@ class NotificationHooker : PartHooker() {
         title: String,
         text: String,
         selectedApps: List<String>,
-        hookerManifest: HookerManifest
     ) {
         if (title.isEmpty() && text.isEmpty()) {
             return
@@ -121,9 +107,9 @@ class NotificationHooker : PartHooker() {
         json.addProperty("text", text)
         json.addProperty("t",System.currentTimeMillis())
 
-        hookerManifest.logD("NotificationHooker: $json")
+        AppRuntime.manifest.logD("NotificationHooker: $json")
 
-        hookerManifest.analysisData(DataType.NOTICE, Gson().toJson(json), pkg)
+        AppRuntime.manifest.analysisData(DataType.NOTICE, Gson().toJson(json), pkg)
     }
 
 

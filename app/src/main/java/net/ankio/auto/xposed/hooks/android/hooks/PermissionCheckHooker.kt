@@ -16,42 +16,36 @@
 package net.ankio.auto.xposed.hooks.android.hooks
 
 import android.app.AppOpsManager
-import android.app.Application
 import android.content.Context
 import android.content.pm.PackageManager
-import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.BuildConfig
-import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
+import net.ankio.auto.xposed.core.utils.AppRuntime
 
 class PermissionCheckHooker: PartHooker() {
-    override fun hook(
-        hookerManifest: HookerManifest,
-        application: Application?,
-        classLoader: ClassLoader
-    ) {
+    override fun hook() {
 
        runCatching {
-           hookCheckPermission(hookerManifest,classLoader)
+           hookCheckPermission()
        }.onFailure {
-           hookerManifest.log("hook hookCheckPermission error:${it.message}")
-           hookerManifest.logE(it)
+           AppRuntime.manifest.log("hook hookCheckPermission error:${it.message}")
+           AppRuntime.manifest.logE(it)
        }
 
 
         //////////AppOpsManager的权限设置拦截不成功不知道为什么，换用下面的方法直接授权
         runCatching {
-            setOverlaysAllowed(BuildConfig.APPLICATION_ID,application!!.baseContext)
+            setOverlaysAllowed(BuildConfig.APPLICATION_ID)
         }.onFailure {
-            hookerManifest.log("hook setOverlaysAllowed error:${it.message}")
-            hookerManifest.logE(it)
+            AppRuntime.manifest.log("hook setOverlaysAllowed error:${it.message}")
+            AppRuntime.manifest.logE(it)
         }
 
     }
 
-    private fun hookCheckPermission(hookerManifest: HookerManifest, classLoader: ClassLoader) {
+    private fun hookCheckPermission() {
 
         Hooker.after(
             "android.app.ContextImpl",
@@ -81,14 +75,12 @@ class PermissionCheckHooker: PartHooker() {
 
     }
     // 授权悬浮窗权限给自动记账
-    private fun setOverlaysAllowed(packageName:String,mContext: Context) {
-        val appOpsManager = mContext.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
-        val pm = mContext.packageManager
+    private fun setOverlaysAllowed(packageName:String) {
+        val appOpsManager =   AppRuntime.application!!.baseContext.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
+        val pm = AppRuntime.application!!.baseContext.packageManager
         val packageInfo = pm.getPackageInfo(packageName, PackageManager.GET_PERMISSIONS)
         val alertWindow = XposedHelpers.getStaticIntField(AppOpsManager::class.java, "OP_SYSTEM_ALERT_WINDOW")
         XposedHelpers.callMethod(appOpsManager, "setMode", alertWindow,
             packageInfo.applicationInfo.uid, packageName, AppOpsManager.MODE_ALLOWED)
-
-
     }
 }

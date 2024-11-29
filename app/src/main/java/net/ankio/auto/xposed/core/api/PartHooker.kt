@@ -15,21 +15,14 @@
 
 package net.ankio.auto.xposed.core.api
 
-import android.app.Application
-import android.content.Context
 import com.google.gson.Gson
-import net.ankio.auto.xposed.core.App
-import net.ankio.auto.xposed.core.utils.AppUtils
+import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.core.utils.DataUtils
 import net.ankio.dex.Dex
 import net.ankio.dex.model.ClazzMethod
 
 abstract class PartHooker {
-    abstract fun hook(
-        hookerManifest: HookerManifest,
-        application: Application?,
-        classLoader: ClassLoader
-    )
+    abstract fun hook()
 
 
     open val methodsRule = mutableListOf<Triple<String, String, ClazzMethod>>()
@@ -50,8 +43,8 @@ abstract class PartHooker {
         return ""
     }
 
-    fun findMethods(clazzLoader: ClassLoader, hookerManifest: HookerManifest): Boolean {
-        val code = AppUtils.getVersionCode()
+    fun findMethods(): Boolean {
+        val code = AppRuntime.versionCode
         val adaptationVersion = DataUtils.get("methods_adaptation").toIntOrNull() ?: 0
         if (adaptationVersion == code) {
             runCatching {
@@ -74,7 +67,7 @@ abstract class PartHooker {
             val (clazz, methodName, methodClazz) = it
             var loadClazz = cache[clazz]
             if (loadClazz == null) {
-                loadClazz = clazzLoader.loadClass(clazz)
+                loadClazz = AppRuntime.classLoader.loadClass(clazz)
                 cache[clazz] = loadClazz
             }
             val findMethod =

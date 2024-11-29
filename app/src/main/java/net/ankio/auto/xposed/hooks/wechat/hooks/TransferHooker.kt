@@ -16,24 +16,19 @@
 package net.ankio.auto.xposed.hooks.wechat.hooks
 
 import android.app.Application
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedHelpers
-import net.ankio.auto.xposed.core.App
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
+import net.ankio.auto.xposed.core.utils.AppRuntime
+import net.ankio.auto.xposed.core.utils.AppRuntime.classLoader
 import net.ankio.auto.xposed.core.utils.DataUtils
 import org.ezbook.server.constant.DataType
 
 
 class TransferHooker : PartHooker() {
-    override fun hook(
-        hookerManifest: HookerManifest,
-        application: Application?,
-        classLoader: ClassLoader
-    ) {
+    override fun hook() {
 
-        val model = hookerManifest.clazz("remittance.model",classLoader)
+        val model = AppRuntime.manifest.clazz("remittance.model",classLoader)
         Hooker.after(
             model,
             "onGYNetEnd",
@@ -46,8 +41,8 @@ class TransferHooker : PartHooker() {
             json.put("cachedPayTools", DataUtils.get("cachedPayTools"))
             json.put("cachedPayMoney", DataUtils.get("cachedPayMoney"))
             json.put("cachedPayShop", DataUtils.get("cachedPayShop"))
-            hookerManifest.logD("Wechat Transfer hook： $json")
-            hookerManifest.analysisData(DataType.DATA, json.toString())
+            AppRuntime.manifest.logD("Wechat Transfer hook： $json")
+            AppRuntime.manifest.analysisData(DataType.DATA, json.toString())
         }
     }
 
