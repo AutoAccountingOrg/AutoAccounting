@@ -73,7 +73,8 @@ class NotificationHooker : PartHooker() {
 
 
             val data = DataUtils.configString(Setting.LISTENER_APP_LIST, "")
-            selectedApps = data.split(",")
+            AppRuntime.manifest.logD("data: $data")
+            selectedApps = data.split(",").filter { it.isNotEmpty() }
             checkNotification(
                 app,
                 originalTitle,
