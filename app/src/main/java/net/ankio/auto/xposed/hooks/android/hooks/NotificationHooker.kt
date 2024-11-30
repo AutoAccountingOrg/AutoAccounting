@@ -25,13 +25,16 @@ import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.core.utils.DataUtils
 import net.ankio.auto.xposed.core.utils.MD5HashTable
+import net.ankio.auto.xposed.core.utils.ThreadUtils
 import org.ezbook.server.constant.DataType
 import org.ezbook.server.constant.Setting
+import org.ezbook.server.db.model.SettingModel
 
 
 class NotificationHooker : PartHooker() {
-    private var selectedApps = listOf<String>()
     private val hashTable = MD5HashTable()
+    private var apps = mutableListOf<String>()
+    private var t = 0L
     override fun hook() {
         Hooker.allMethodsEqBefore(
             Hooker.loader("com.android.server.notification.NotificationManagerService"),
@@ -62,25 +65,30 @@ class NotificationHooker : PartHooker() {
             }.getOrElse { "" }
 
 
-            AppRuntime.manifest.logD("app: $app, opkg: $opkg, originalTitle: $originalTitle, originalText: $originalText")
-
+          //  AppRuntime.manifest.logD("app: $app, opkg: $opkg, originalTitle: $originalTitle, originalText: $originalText")
             val hash = MD5HashTable.md5("$app$originalTitle$originalText")
             if (hashTable.contains(hash)) {
-                AppRuntime.manifest.logD("hashTable contains $hash, $originalTitle, $originalText")
+                //AppRuntime.manifest.logD("hashTable contains $hash, $originalTitle, $originalText")
                 return@allMethodsEqBefore null
             }
             hashTable.add(hash)
 
+            ThreadUtils.launch {
+                if (t == 0L || t < System.currentTimeMillis() - 1000 * 60) {
+                    t = System.currentTimeMillis()
+                    apps = SettingModel.get(Setting.LISTENER_APP_LIST, "").split(",").toMutableList()
 
-            val data = DataUtils.configString(Setting.LISTENER_APP_LIST, "")
-            AppRuntime.manifest.logD("data: $data")
-            selectedApps = data.split(",").filter { it.isNotEmpty() }
-            checkNotification(
-                app,
-                originalTitle,
-                originalText,
-                selectedApps
-            )
+                }
+                AppRuntime.manifest.logD("data: $apps")
+                checkNotification(
+                    app,
+                    originalTitle,
+                    originalText,
+                )
+
+            }
+
+
 
         }
     }
@@ -92,13 +100,12 @@ class NotificationHooker : PartHooker() {
         pkg: String,
         title: String,
         text: String,
-        selectedApps: List<String>,
     ) {
         if (title.isEmpty() && text.isEmpty()) {
             return
         }
 
-        if (!selectedApps.contains(pkg)) {
+        if (!apps.contains(pkg)) {
             return
         }
 
