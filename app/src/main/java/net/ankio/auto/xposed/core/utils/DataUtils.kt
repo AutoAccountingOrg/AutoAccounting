@@ -15,6 +15,11 @@ object DataUtils{
      * @param value String
      */
     fun set(key: String, value: String) {
+
+        if (AppRuntime.manifest.packageName == "android"){
+            return
+        }
+
         if (AppRuntime.application == null) {
             return
         }
@@ -31,6 +36,9 @@ object DataUtils{
      * @return String
      */
     fun get(key: String, def: String = ""): String {
+        if (AppRuntime.manifest.packageName == "android"){
+            return def
+        }
         if (AppRuntime.application  == null) {
             return def
         }
