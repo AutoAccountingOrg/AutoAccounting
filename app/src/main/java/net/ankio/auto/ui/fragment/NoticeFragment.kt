@@ -59,45 +59,41 @@ class NoticeFragment : BasePageFragment<AppInfo>() {
             }
             return
         }
-        // 获取PackageManager实例
+        
         val packageManager: PackageManager = requireActivity().packageManager
-        // 获取所有已安装的应用程序
         val packageInfos = packageManager.getInstalledPackages(0)
-
-        // 创建列表用于存储应用程序信息
         val appInfos: MutableList<AppInfo> = ArrayList()
 
-
-        // 遍历应用程序列表并填充数据类
         for (packageInfo in packageInfos) {
             val applicationInfo = packageInfo.applicationInfo
-
             val packageName = packageInfo.packageName
             var appName = ""
 
-            //忽略大小写
-            if (searchData !== "") {
+            if (searchData.isNotEmpty()) {
                 appName = packageManager.getApplicationLabel(applicationInfo).toString()
                 if (!appName.contains(searchData, true)) continue
             }
 
-        //    val isSystemApp = (applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
+            (applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
+            val isSelected = selectedApps.contains(packageName)
 
-           // if (isSystemApp) continue
-
-            var isSelected = false
-            if (selectedApps.contains(packageName)) {
-                isSelected = true // 默认未选择
-            }
-
-            // 创建AppInfo对象并添加到列表
             val appInfo = AppInfo(packageName, appName, applicationInfo, isSelected)
             appInfos.add(appInfo)
         }
 
-        // 按是否已选择和应用名称排序
-        appInfos.sortWith(compareBy<AppInfo> { !it.isSelected }.thenBy { it.appName })
-
+        // 优化排序逻辑：已选择 > 用户应用 > 系统应用
+        appInfos.sortWith(
+            compareByDescending<AppInfo> { it.isSelected }
+                .thenByDescending { 
+                    (it.pkg.flags and ApplicationInfo.FLAG_SYSTEM) == 0
+                }
+                .thenBy {
+                    it.appName.ifEmpty {
+                        requireActivity().packageManager.getApplicationLabel(it.pkg)
+                            .toString()
+                    }
+                }
+        )
 
         withContext(Dispatchers.Main) {
             callback(appInfos)
