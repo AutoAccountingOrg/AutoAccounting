@@ -138,12 +138,26 @@ class MainActivity : BaseActivity() {
         }
     }
 
+    private fun shouldBackup(): Boolean {
+        val lastBackupTime = ConfigUtils.getLong(Setting.LAST_BACKUP_TIME, 0L)
+        val currentTime = System.currentTimeMillis()
+        val fiveMinutesInMillis = 5 * 60 * 1000L
+        return (currentTime - lastBackupTime) >= fiveMinutesInMillis
+    }
 
     override fun onStop() {
         super.onStop()
-        if (ConfigUtils.getBoolean(Setting.AUTO_BACKUP)){
-            ToastUtils.info(R.string.backup_loading)
+        if (ConfigUtils.getBoolean(Setting.AUTO_BACKUP)) {
             lifecycleScope.launch {
+                if (!shouldBackup()) {
+                  //  ToastUtils.info(R.string.backup_too_frequent)
+                    return@launch
+                }
+
+                ConfigUtils.putLong(Setting.LAST_BACKUP_TIME, System.currentTimeMillis())
+
+
+                ToastUtils.info(R.string.backup_loading)
                 val backupUtils = BackupUtils(this@MainActivity)
                 runCatching {
                     if (ConfigUtils.getBoolean(Setting.USE_WEBDAV)) {
@@ -152,9 +166,10 @@ class MainActivity : BaseActivity() {
                         backupUtils.putLocalBackup()
                     }
                 }.onFailure {
-                    Logger.e("自动备份失败",it)
+                    Logger.e("自动备份失败", it)
                     ToastUtils.error(R.string.backup_error)
                 }.onSuccess {
+                    ConfigUtils.putLong("last_backup_time", System.currentTimeMillis())
                     ToastUtils.info(R.string.backup_success)
                 }
             }
