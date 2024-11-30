@@ -30,7 +30,7 @@ class AndroidHooker : HookerManifest() {
         get() = "Android"
 
 
-    override var applicationName: String = "android.app.Application"
+    override var applicationName: String = ""
 
     override fun hookLoadPackage() {
         PermissionHooker().hook()

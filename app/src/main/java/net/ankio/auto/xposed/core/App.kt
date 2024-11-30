@@ -54,6 +54,14 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         callback: (Application?) -> Unit
     ) {
         var hookStatus = false
+        if (AppRuntime.manifest.packageName == "android") {
+            Hooker.allMethodsEqAfter(Hooker.loader("com.android.server.SystemServer"), "startOtherServices") {
+                if (hookStatus)return@allMethodsEqAfter null
+                hookStatus = true
+                callback(AndroidAppHelper.currentApplication())
+            }
+            return
+        }
         if (applicationName.isEmpty()) {
             Logger.logD(TAG, "Application name is empty")
             callback(AndroidAppHelper.currentApplication())
