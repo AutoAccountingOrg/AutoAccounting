@@ -89,7 +89,7 @@ class NoticeFragment : BasePageFragment<AppInfo>() {
                 }
                 .thenBy {
                     it.appName.ifEmpty {
-                        requireActivity().packageManager.getApplicationLabel(it.pkg)
+                        App.app.packageManager.getApplicationLabel(it.pkg)
                             .toString()
                     }
                 }
