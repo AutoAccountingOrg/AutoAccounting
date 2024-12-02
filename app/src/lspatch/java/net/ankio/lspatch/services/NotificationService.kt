@@ -16,15 +16,21 @@
 package net.ankio.lspatch.services
 
 import android.app.Notification
+import android.content.ComponentName
+import android.content.Intent
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
+import androidx.core.app.NotificationManagerCompat
 import com.google.gson.Gson
 import com.google.gson.JsonObject
+import net.ankio.auto.App
+import net.ankio.auto.BuildConfig
 import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Logger
 import net.ankio.lspatch.js.Analyze
 import org.ezbook.server.constant.DataType
 import org.ezbook.server.constant.Setting
+
 
 class NotificationService : NotificationListenerService() {
     private var apps = mutableListOf<String>()
@@ -46,6 +52,18 @@ class NotificationService : NotificationListenerService() {
        }
     }
 
+    /**
+     * 监听断开
+     */
+    override fun onListenerDisconnected() {
+        // 通知侦听器断开连接 - 请求重新绑定
+        requestRebind(
+            ComponentName(
+                this,
+                NotificationListenerService::class.java
+            )
+        )
+    }
     private fun checkNotification(
         pkg: String,
         title: String,
@@ -68,5 +86,27 @@ class NotificationService : NotificationListenerService() {
         Logger.i("NotificationHooker: $json")
 
         Analyze.start(DataType.NOTICE, Gson().toJson(json), pkg)
+    }
+
+    companion object{
+        /**
+         * 是否启用通知监听服务
+         * @return
+         */
+        private fun isNLServiceEnabled(): Boolean {
+            val packageNames = NotificationManagerCompat.getEnabledListenerPackages(App.app)
+            return packageNames.contains(BuildConfig.APPLICATION_ID)
+        }
+        fun checkAndRequestPermission(){
+            //检查是否有权限
+            if (!isNLServiceEnabled()) {
+                //请求权限
+                App.app.startActivity(
+                    Intent(
+                        "android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"
+                    ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                )
+            }
+        }
     }
 }
