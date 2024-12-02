@@ -76,7 +76,9 @@ class NotificationHooker : PartHooker() {
             ThreadUtils.launch {
                 if (t == 0L || t < System.currentTimeMillis() - 1000 * 60) {
                     t = System.currentTimeMillis()
-                    apps = SettingModel.get(Setting.LISTENER_APP_LIST, "").split(",").toMutableList()
+                    apps = runCatching {
+                        SettingModel.get(Setting.LISTENER_APP_LIST, "").split(",").toMutableList()
+                    }.getOrElse { mutableListOf() }
 
                 }
                 AppRuntime.manifest.logD("data: $apps")
