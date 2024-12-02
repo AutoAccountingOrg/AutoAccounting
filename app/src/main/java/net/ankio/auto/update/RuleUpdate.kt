@@ -194,7 +194,7 @@ class RuleUpdate(private val context: Context) : BaseUpdate(context) {
 
 
                 } else {
-                    ToastUtils.error(context.getString(R.string.net_error_msg))
+                    ToastUtils.error(context.getString(R.string.net_error_msg_rule))
                 }
 
             } catch (e: Exception) {
