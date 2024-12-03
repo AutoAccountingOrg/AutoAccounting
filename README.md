@@ -1,4 +1,4 @@
-![AutoAccounting](https://socialify.git.ci/AutoAccountingOrg/AutoAccounting/image?description=1&font=Bitter&forks=1&issues=1&logo=https%3A%2F%2Fs21.ax1x.com%2F2024%2F10%2F14%2FpAtnhcD.png&name=1&pattern=Circuit%20Board&pulls=1&stargazers=1&theme=Light)
+![AutoAccounting](https://socialify.git.ci/AutoAccountingOrg/AutoAccounting/image?description=1&font=Bitter&forks=1&issues=1&logo=https%3A%2F%2Fpic.dreamn.cn%2FuPic%2Fapple-touch-icon.png&name=1&owner=1&pattern=Circuit%20Board&pulls=1&stargazers=1&theme=Auto)
 
 > [!IMPORTANT]
 > 由于自动记账正在快速迭代，请不要自行编译RELEASE版本，因为RELEASE版本会发送错误信息到Bugsug，会导致我们排查问题存在困扰。
