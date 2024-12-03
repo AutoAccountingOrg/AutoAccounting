@@ -20,12 +20,16 @@ import de.robv.android.xposed.XposedBridge
 import net.ankio.auto.xposed.core.App.Companion.TAG
 import net.ankio.auto.xposed.core.logger.Logger
 import net.ankio.auto.xposed.core.utils.AppRuntime
+import net.ankio.auto.xposed.core.utils.ThreadUtils
 import org.ezbook.server.Server
 
 object CommonHooker {
     fun init(){
         Logger.logD(TAG, "Start server...: ${AndroidAppHelper.currentPackageName()}")
         try {
+            ThreadUtils.launch {
+                XposedFramework.init()
+            }
             /**
              * js引擎
              */

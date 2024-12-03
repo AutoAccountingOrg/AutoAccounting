@@ -41,6 +41,7 @@ import net.ankio.auto.xposed.hooks.qianji.sync.BaoXiaoUtils
 import net.ankio.auto.xposed.hooks.qianji.sync.BookUtils
 import net.ankio.auto.xposed.hooks.qianji.sync.CategoryUtils
 import net.ankio.auto.xposed.hooks.qianji.sync.SyncBillUtils
+import org.ezbook.server.Server
 
 
 class SideBarHooker : PartHooker() {
@@ -119,7 +120,7 @@ class SideBarHooker : PartHooker() {
             return@withContext
         }
         val background =
-            if (ServerInfo.isServerStart()) R.drawable.status_running else R.drawable.status_stopped
+            if (Server.request("/")!==null) R.drawable.status_running else R.drawable.status_stopped
         withContext(Dispatchers.Main) {
             itemMenuBinding.serviceStatus.background =
                 AppCompatResources.getDrawable(activity, background)

@@ -23,6 +23,7 @@ import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
+import net.ankio.auto.xposed.hooks.common.XposedFramework
 import java.lang.reflect.Field
 
 class ActiveHooker : PartHooker() {
@@ -41,12 +42,8 @@ class ActiveHooker : PartHooker() {
             activeUtils,
             "getFramework"
         ){
-            // 获取TAG字段
-            val tagField: Field = XposedBridge::class.java.getDeclaredField("TAG")
-            // 设置字段可访问
-            tagField.isAccessible = true
             // 获取TAG字段的值
-            it.result = (tagField.get(null) as String).replace("-Bridge", "")
+            it.result = XposedFramework.framework()
         }
     }
 }

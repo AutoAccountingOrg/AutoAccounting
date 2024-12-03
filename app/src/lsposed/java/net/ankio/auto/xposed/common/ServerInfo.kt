@@ -16,19 +16,46 @@
 package net.ankio.auto.xposed.common
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
+import com.google.gson.Gson
+import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
+import net.ankio.auto.exceptions.ServiceCheckException
 import org.ezbook.server.Server
 
 object ServerInfo {
 
-    suspend fun isServerStart(): Boolean = withContext(Dispatchers.IO) {
-        Server.request("/") !== null
+    suspend fun isServerStart(context: Context) = withContext(Dispatchers.IO) {
+        checkServer(context)
     }
 
+private suspend fun checkServer(context: Context) {
+    val data = Server.request("/");
+    if (data === null){
+        throw ServiceCheckException(
+            context.getString(R.string.server_error_title),
+            context.getString(R.string.server_error),
+            context.getString(R.string.server_error_btn)
+        ) { activity ->
 
-    fun getServerErrorMsg(context: Context): String {
-        return context.getString(R.string.server_error)
+        }
+    }else{
+        val json = Gson().fromJson(data, JsonObject::class.java)
+        if (json.get("data").asString != BuildConfig.VERSION_NAME){
+            throw ServiceCheckException(
+                context.getString(R.string.server_error_version_title),
+                context.getString(R.string.server_error_version),
+                context.getString(R.string.server_error_btn)
+            ) { activity ->
+
+            }
+        }
     }
+}
+
 }

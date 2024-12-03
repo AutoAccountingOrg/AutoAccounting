@@ -15,6 +15,7 @@
 
 package net.ankio.auto.ui.fragment
 
+import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
 import android.text.method.LinkMovementMethod
@@ -34,6 +35,7 @@ import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.databinding.AboutDialogBinding
 import net.ankio.auto.databinding.FragmentHomeBinding
+import net.ankio.auto.exceptions.ServiceCheckException
 import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseFragment
@@ -121,70 +123,80 @@ class HomeFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         lifecycleScope.launch {
-            // app启动时检查自动记账服务的连通性
-            checkAutoService() &&
-                    //悬浮窗权限
-                    checkFloatPermission() &&
-                    // 检查记账软件
-                    checkBookApp() &&
-                    // 检查软件和规则更新
-                    checkUpdate()
+            try {
+                checkServices()
+            } catch (e: ServiceCheckException) {
+                Logger.e("checkServices", e)
+                if (!isAdded) return@launch
+                MaterialAlertDialogBuilder(requireContext())
+                    .setTitle(e.title)
+                    .setMessage(e.message)
+                    .setPositiveButton(e.btn) { _, _ ->
+                        if (!isAdded) return@setPositiveButton
+                        lifecycleScope.launch {
+                            e.doAction(requireActivity())
+                        }
+                    }
+                    .show()
+            }
 
         }
         refreshUI()
     }
 
     /**
-     * 检查自动记账服务
+     * 检查服务
      */
-    private suspend fun checkAutoService():Boolean {
-
-        if (!ServerInfo.isServerStart()) {
-            MaterialAlertDialogBuilder(requireContext())
-                .setTitle(R.string.title_cant_connect_service)
-                .setMessage(ServerInfo.getServerErrorMsg(requireContext()))
-                .show()
-            return false
-        }
-        return true
+    private suspend fun checkServices(){
+        if (!isAdded) return
+        ServerInfo.isServerStart(requireContext())
+        //悬浮窗权限
+        checkFloatPermission()
+        // 检查记账软件
+        checkBookApp()
+        // 检查软件和规则更新
+        checkUpdate()
     }
 
 
-    private suspend fun checkFloatPermission():Boolean{
 
+    private fun checkFloatPermission(){
         if(!Settings.canDrawOverlays(context)){
-            MaterialAlertDialogBuilder(requireContext())
-                .setTitle(R.string.title_no_permission)
-                .setMessage(R.string.no_permission_float_window)
-                .show()
-            return false
+            throw ServiceCheckException(
+                getString(R.string.title_no_permission),
+                getString(R.string.no_permission_float_window),
+                getString(R.string.btn_set_permission)){
+                startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION))
+            }
         }
-        return true
     }
 
 
     /**
      * 检查记账软件
      */
-    private  fun checkBookApp():Boolean {
+    private  fun checkBookApp() {
         if (ConfigUtils.getString(Setting.BOOK_APP_ID, "").isEmpty()) {
-            val appDialog = AppDialog(requireContext()){
-               App.runOnUiThread {
-                   bindBookAppUI()
-               }
+            throw ServiceCheckException(
+                getString(R.string.title_no_book_app),
+                getString(R.string.no_book_app),
+                getString(R.string.btn_set_book_app)){
+                val appDialog = AppDialog(requireContext()){
+                    bindBookAppUI()
+                }
+                appDialog.show(cancel = true)
+                dialogs.add(appDialog)
             }
-            appDialog.show(cancel = true)
-            dialogs.add(appDialog)
-            return false
         }
-        return true
     }
 
     /**
      * 刷新UI
      */
     private fun refreshUI() {
-        bindActiveUI()
+        lifecycleScope.launch {
+            bindActiveUI()
+        }
         bindBookAppUI()
         bindRuleUI()
     }
@@ -225,7 +237,7 @@ class HomeFragment : BaseFragment() {
     /**
      * 绑定激活部分的UI
      */
-    private fun bindActiveUI() {
+    private suspend fun bindActiveUI() {
         if (_binding == null) return
         val colorPrimary =
             App.getThemeAttrColor(com.google.android.material.R.attr.colorPrimary)
@@ -468,7 +480,11 @@ class HomeFragment : BaseFragment() {
         val versionName = BuildConfig.VERSION_NAME
         val names = versionName.split(" - ")
         binding.msgLabel.text = names[0].trim()
-        binding.msgLabel2.text = ActiveInfo.getFramework()
+        lifecycleScope.launch {
+            ActiveInfo.getFramework().let {
+                binding.msgLabel2.text = it
+            }
+        }
         binding.imageView.setColorFilter(textColor)
         binding.msgLabel.setTextColor(textColor)
         binding.msgLabel2.setTextColor(textColor)

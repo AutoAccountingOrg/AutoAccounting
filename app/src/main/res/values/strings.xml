@@ -490,5 +490,13 @@
     <string name="clear_db_desc">不可撤销的操作，仅在需要卸载自动记账的时候使用。</string>
     <string name="clear_db_msg">正在清空数据库</string>
     <string name="clear_success">清除成功</string>
+    <string name="btn_set_permission">授予权限</string>
+    <string name="title_no_book_app">未设置记账软件</string>
+    <string name="no_book_app">自动记账仅负责捕获账单，更专业的统计和分析应该由专业的记账软件提供支持。</string>
+    <string name="btn_set_book_app">设置记账软件</string>
+
+    <string name="server_error_version_title">服务端版本不匹配</string>
+    <string name="server_error_btn">好的</string>
+
 
 </resources>
