@@ -15,25 +15,21 @@
 
 package net.ankio.auto.service
 
-import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.graphics.PixelFormat
-import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.IBinder
-import android.view.ContextThemeWrapper
-import android.view.Gravity
-import android.view.LayoutInflater
-import android.view.View
-import android.view.WindowManager
+import android.view.*
 import androidx.core.content.ContextCompat
 import com.google.gson.Gson
 import com.quickersilver.themeengine.ThemeEngine
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.withContext
 import net.ankio.auto.App
 import net.ankio.auto.R
@@ -49,6 +45,7 @@ import net.ankio.auto.utils.BillTool
 import org.ezbook.server.constant.BillState
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BillInfoModel
+import java.util.concurrent.Executors
 
 
 class FloatingWindowService : Service() {
@@ -63,8 +60,8 @@ class FloatingWindowService : Service() {
     private var timeCount: Int = 0
 
     private var lastTheme = ThemeEngine.getInstance(App.app).getTheme()
-
-
+    private val billChannel = Channel<Array<Any>>() // array 是 processBillInfo 的参数
+    private val stopMsg = Channel<Unit>(capacity = 1, BufferOverflow.DROP_LATEST)
 
     override fun onCreate() {
         super.onCreate()
@@ -80,10 +77,38 @@ class FloatingWindowService : Service() {
 
         Logger.i("FloatingWindowService Start，Timeout：$timeCount s")
 
+        App.launch(Dispatchers.Main) {
+            for (args in billChannel) {
+                runCatching {
+                    val billInfoModel = args[0] as BillInfoModel
+                    val showWaitTip = args[1] as Boolean
+
+                    processBillInfo(billInfoModel, showWaitTip)
+                }.onFailure {
+                    // 提醒用户报告错误
+                    Logger.e("Failed to record bill", it)
+                    // 跳转错误页面
+                    val intent2 = Intent(App.app, ErrorActivity::class.java)
+                    intent2.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    val sb = StringBuilder()
+                    sb.append("自动记账未获取到悬浮窗权限，记账失败！\n")
+                    sb.append("请在设置中手动授予该权限！\n")
+                    sb.append(it.message).append("\n")
+                    it.stackTrace.forEach { message ->
+                        sb.append(message.toString())
+                        sb.append("\n")
+                    }
+                    intent2.putExtra("msg", sb.toString())
+                    startActivity(intent2)
+                }.onSuccess {
+                    stopMsg.receive()
+                }
+            }
+        }
     }
 
 
-    companion object{
+    companion object {
         val updateBills = mutableListOf<BillInfoModel>()
     }
 
@@ -100,16 +125,14 @@ class FloatingWindowService : Service() {
         }
 
 
-        val billInfoModel =
-            Gson().fromJson(intent.getStringExtra("billInfo"), BillInfoModel::class.java)
-        val from = intent.getStringExtra("from")?:"Unknown"
+        val billInfoModel = Gson().fromJson(intent.getStringExtra("billInfo"), BillInfoModel::class.java)
+        val from = intent.getStringExtra("from") ?: "Unknown"
         Logger.i("Server start => $intent, From = $from")
         Logger.i("BillInfo：$billInfoModel")
 
         val parent = runCatching {
             Gson().fromJson(
-                intent.getStringExtra("parent"),
-                BillInfoModel::class.java
+                intent.getStringExtra("parent"), BillInfoModel::class.java
             )
         }.getOrNull()
         Logger.i("parent：$parent")
@@ -121,27 +144,12 @@ class FloatingWindowService : Service() {
             updateBills.add(parent)
             LocalBroadcastHelper.sendBroadcast(LocalBroadcastHelper.ACTION_UPDATE_BILL)
             Logger.i("Repeat Bill, Parent: $parent")
-           return START_NOT_STICKY
+            return START_NOT_STICKY
         }
 
-        runCatching {
-            processBillInfo(billInfoModel, showWaitTip)
-        }.onFailure  {
-            // 提醒用户报告错误
-            Logger.e("Failed to record bill", it)
-            // 跳转错误页面
-            val intent2 = Intent(App.app, ErrorActivity::class.java)
-            intent2.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-            val sb = StringBuilder()
-            sb.append("自动记账未获取到悬浮窗权限，记账失败！\n")
-            sb.append("请在设置中手动授予该权限！\n")
-            sb.append(it.message).append("\n")
-            it.stackTrace.forEach { message ->
-                sb.append(message.toString())
-                sb.append("\n")
-            }
-            intent2.putExtra("msg", sb.toString())
-            startActivity(intent2)
+        App.launch {
+            Logger.i("send to billChannel, ${billChannel.isEmpty}")
+            billChannel.send(arrayOf(billInfoModel, showWaitTip))
         }
 
         return START_NOT_STICKY
@@ -166,19 +174,17 @@ class FloatingWindowService : Service() {
         binding.money.setTextColor(color)
         binding.time.text = String.format("%ss", timeCount.toString())
 
-        val countDownTimer =
-            object : CountDownTimer(timeCount * 1000L, 1000) {
-                override fun onTick(millisUntilFinished: Long) {
-                    binding.time.text =
-                        String.format("%ss", (millisUntilFinished / 1000).toString())
-                }
-
-                override fun onFinish() {
-                    // 取消倒计时
-                    removeTips(binding)
-                    callBillInfoEditor(Setting.FLOAT_TIMEOUT_ACTION, billInfoModel)
-                }
+        val countDownTimer = object : CountDownTimer(timeCount * 1000L, 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                binding.time.text = String.format("%ss", (millisUntilFinished / 1000).toString())
             }
+
+            override fun onFinish() {
+                // 取消倒计时
+                removeTips(binding)
+                callBillInfoEditor(Setting.FLOAT_TIMEOUT_ACTION, billInfoModel)
+            }
+        }
 
 
         binding.root.setOnClickListener {
@@ -196,24 +202,22 @@ class FloatingWindowService : Service() {
         }
 
         // 设置 WindowManager.LayoutParams
-        val params =
-            WindowManager.LayoutParams(
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-                PixelFormat.TRANSLUCENT,
-            ).apply {
-                x = 0 // 居中
-                y = -120 // 居中偏上
-                gravity = Gravity.CENTER or Gravity.END
-            }
+        val params = WindowManager.LayoutParams(
+            WindowManager.LayoutParams.WRAP_CONTENT,
+            WindowManager.LayoutParams.WRAP_CONTENT,
+            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+            PixelFormat.TRANSLUCENT,
+        ).apply {
+            x = 0 // 居中
+            y = -120 // 居中偏上
+            gravity = Gravity.CENTER or Gravity.END
+        }
 
         // 将视图添加到 WindowManager
         windowManager.addView(binding.root, params)
         binding.root.post {
-            val widthInner =
-                binding.logo.width + binding.money.width + binding.time.width + 150 // logo间隔
+            val widthInner = binding.logo.width + binding.money.width + binding.time.width + 150 // logo间隔
             // 更新悬浮窗的宽度和高度
             params.width = widthInner // 新宽度，单位：像素
             params.height = binding.logo.height + 60 // 新高度，单位：像素
@@ -289,9 +293,10 @@ class FloatingWindowService : Service() {
     }
 
 
-
-    private fun stopNotify(){
-
+    private fun stopNotify() {
+        App.launch {
+            stopMsg.send(Unit)
+        }
     }
 
 

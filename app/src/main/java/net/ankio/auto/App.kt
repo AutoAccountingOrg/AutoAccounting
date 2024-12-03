@@ -22,7 +22,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.pm.PackageManager
-import android.content.res.Resources
 import android.graphics.Color
 import android.os.Build
 import android.os.Process
@@ -43,6 +42,8 @@ import net.ankio.auto.utils.ExceptionHandler
 import org.ezbook.server.constant.Setting
 import java.math.BigInteger
 import java.security.MessageDigest
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 
 class App : Application() {
 
@@ -67,8 +68,8 @@ class App : Application() {
         /**
          * 获取全局协程
          */
-        fun launch(block: suspend CoroutineScope.() -> Unit) {
-            scope.launch(block = block)
+        fun launch(context: CoroutineContext = EmptyCoroutineContext, block: suspend CoroutineScope.() -> Unit) {
+            scope.launch(context = context, block = block)
         }
 
         /**
@@ -201,7 +202,6 @@ class App : Application() {
                 app.resources.displayMetrics,
             ).toInt()
         }
-
 
 
         /**
