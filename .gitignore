@@ -10,9 +10,9 @@
 local.properties
 /.github/workflows/env.json
 /.github/workflows/.idea
-/app/xposed/release/*
 /.vscode/settings.json
 /app/lsposed/release/*
 /app/lsposed/base.apk
 /dex/bin/*
 /app/lspatch/release/*
+/app/lspatch/base.apk
