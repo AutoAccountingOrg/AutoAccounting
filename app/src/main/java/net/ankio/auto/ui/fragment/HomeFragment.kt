@@ -130,7 +130,7 @@ class HomeFragment : BaseFragment() {
                 if (!isAdded) return@launch
                 MaterialAlertDialogBuilder(requireContext())
                     .setTitle(e.title)
-                    .setMessage(e.message)
+                    .setMessage(e.msg)
                     .setPositiveButton(e.btn) { _, _ ->
                         if (!isAdded) return@setPositiveButton
                         lifecycleScope.launch {
