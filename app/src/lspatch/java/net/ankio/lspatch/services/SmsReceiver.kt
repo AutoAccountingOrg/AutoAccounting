@@ -15,15 +15,21 @@
 
 package net.ankio.lspatch.services
 
+import android.Manifest
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.telephony.SmsMessage
 import android.util.Log
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.google.gson.Gson
 import com.google.gson.JsonObject
+import net.ankio.auto.R
+import net.ankio.auto.exceptions.ServiceCheckException
 import net.ankio.lspatch.js.Analyze
 import org.ezbook.server.constant.DataType
 
@@ -57,5 +63,19 @@ class SmsReceiver : BroadcastReceiver() {
             Analyze.start(DataType.DATA, Gson().toJson(json), "com.android.phone")
         }
     }
-
+    companion object{
+        fun checkPermission(context: Context){
+            val result = ContextCompat.checkSelfPermission(context, Manifest.permission.RECEIVE_SMS)
+            if (result != PackageManager.PERMISSION_GRANTED) {
+                throw ServiceCheckException(
+                    context.getString(R.string.permission_not_granted_sms),
+                    context.getString(R.string.permission_not_granted_sms_desc),
+                    context.getString(R.string.permission_not_granted_sms_btn)
+                ){ activity ->
+                    val SMS_PERMISSION_CODE = 100
+                    ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.RECEIVE_SMS), SMS_PERMISSION_CODE);
+                }
+            }
+        }
+    }
 }

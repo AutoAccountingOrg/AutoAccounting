@@ -25,6 +25,8 @@ import com.google.gson.Gson
 import com.google.gson.JsonObject
 import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
+import net.ankio.auto.R
+import net.ankio.auto.exceptions.ServiceCheckException
 import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Logger
 import net.ankio.lspatch.js.Analyze
@@ -88,7 +90,7 @@ class NotificationService : NotificationListenerService() {
         Analyze.start(DataType.NOTICE, Gson().toJson(json), pkg)
     }
 
-    companion object{
+    companion object {
         /**
          * 是否启用通知监听服务
          * @return
@@ -97,15 +99,22 @@ class NotificationService : NotificationListenerService() {
             val packageNames = NotificationManagerCompat.getEnabledListenerPackages(App.app)
             return packageNames.contains(BuildConfig.APPLICATION_ID)
         }
-        fun checkAndRequestPermission(){
+
+        fun checkPermission() {
             //检查是否有权限
             if (!isNLServiceEnabled()) {
-                //请求权限
-                App.app.startActivity(
-                    Intent(
-                        "android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"
-                    ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                )
+                throw ServiceCheckException(
+                    App.app.getString(R.string.permission_not_granted_notification),
+                    App.app.getString(R.string.permission_not_granted_notification_desc),
+                    App.app.getString(R.string.permission_not_granted_notification_btn)
+                ) {
+                    //请求权限
+                    it.startActivity(
+                        Intent(
+                            "android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"
+                        ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    )
+                }
             }
         }
     }
