@@ -47,17 +47,13 @@ import net.ankio.auto.ui.utils.ResourceUtils
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.BillTool
 import net.ankio.auto.utils.DateUtils
-import org.ezbook.server.constant.AssetsType
-import org.ezbook.server.constant.BillState
-import org.ezbook.server.constant.BillType
+import org.ezbook.server.constant.*
 import org.ezbook.server.constant.Currency
-import org.ezbook.server.constant.Setting
-import org.ezbook.server.constant.SyncType
 import org.ezbook.server.db.model.AssetsMapModel
 import org.ezbook.server.db.model.AssetsModel
 import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.db.model.BookNameModel
-import java.util.Calendar
+import java.util.*
 
 class FloatEditorDialog(
     private val context: Context,
@@ -81,10 +77,10 @@ class FloatEditorDialog(
 
     private lateinit var broadcastReceiver: BroadcastReceiver
 
-    private fun checkUpdateBills():Boolean{
-      val bill =   FloatingWindowService.updateBills.find { rawBillInfo.id == it.id }
-      if (bill == null)return false
-      FloatingWindowService.updateBills.remove(bill)
+    private fun checkUpdateBills(): Boolean {
+        val bill = FloatingWindowService.updateBills.find { rawBillInfo.id == it.id }
+        if (bill == null) return false
+        FloatingWindowService.updateBills.remove(bill)
         billInfoModel = bill.copy()
         rawBillInfo = bill.copy()
         convertBillInfo = bill.copy()
@@ -93,15 +89,17 @@ class FloatEditorDialog(
         bindUI()
         return true
     }
+
     override fun onCreateView(inflater: LayoutInflater): View {
-        broadcastReceiver = LocalBroadcastHelper.registerReceiver(LocalBroadcastHelper.ACTION_UPDATE_BILL) { action, bundle ->
-           Logger.i("更新账单")
-            checkUpdateBills()
-        }
+        broadcastReceiver =
+            LocalBroadcastHelper.registerReceiver(LocalBroadcastHelper.ACTION_UPDATE_BILL) { action, bundle ->
+                Logger.i("更新账单")
+                checkUpdateBills()
+            }
         binding = FloatEditorBinding.inflate(inflater)
         cardView = binding.editorCard
 
-        if (!checkUpdateBills()){
+        if (!checkUpdateBills()) {
             Logger.d("Raw BillInfo => $rawBillInfo")
             billTypeLevel1 = BillTool.getType(rawBillInfo.type)
             billTypeLevel2 = rawBillInfo.type
@@ -115,22 +113,27 @@ class FloatEditorDialog(
 
     // 综合以上内容，应用到billInfo对象上
 
-    private fun getBillData(assets :List<AssetsModel>): BillInfoModel {
-        val assetManager = ConfigUtils.getBoolean(Setting.SETTING_ASSET_MANAGER,true)
+    private fun getBillData(assets: List<AssetsModel>): BillInfoModel {
+        val assetManager = ConfigUtils.getBoolean(Setting.SETTING_ASSET_MANAGER, true)
         Logger.d("Get Bill Data, type=> $billTypeLevel2, type1=> $billTypeLevel1")
-       return billInfoModel.copy().apply {
+        return billInfoModel.copy().apply {
             this.type = billTypeLevel2
             when (billTypeLevel2) {
                 BillType.Expend -> {
                     this.accountNameFrom = binding.payFrom.getText()
                     this.accountNameTo = ""
-                    if (assetManager){
-                        if(this.accountNameFrom.isEmpty()){
+                    if (assetManager) {
+                        if (this.accountNameFrom.isEmpty()) {
                             throw BillException(context.getString(R.string.expend_account_empty))
                         }
 
-                        if(assets.find { it.name == this.accountNameFrom } == null){
-                            throw BillException(context.getString(R.string.expend_account_not_exist,this.accountNameFrom))
+                        if (assets.find { it.name == this.accountNameFrom } == null) {
+                            throw BillException(
+                                context.getString(
+                                    R.string.expend_account_not_exist,
+                                    this.accountNameFrom
+                                )
+                            )
                         }
                     }
 
@@ -139,12 +142,17 @@ class FloatEditorDialog(
                 BillType.Income -> {
                     this.accountNameFrom = binding.payFrom.getText()
                     this.accountNameTo = ""
-                    if (assetManager){
-                        if(this.accountNameFrom.isEmpty()){
+                    if (assetManager) {
+                        if (this.accountNameFrom.isEmpty()) {
                             throw BillException(context.getString(R.string.income_account_empty))
                         }
-                        if(assets.find { it.name == this.accountNameFrom } == null){
-                            throw BillException(context.getString(R.string.expend_account_not_exist,this.accountNameFrom))
+                        if (assets.find { it.name == this.accountNameFrom } == null) {
+                            throw BillException(
+                                context.getString(
+                                    R.string.expend_account_not_exist,
+                                    this.accountNameFrom
+                                )
+                            )
                         }
                     }
 
@@ -153,24 +161,34 @@ class FloatEditorDialog(
                 BillType.Transfer -> {
                     this.accountNameFrom = binding.transferFrom.getText()
                     this.accountNameTo = binding.transferTo.getText()
-                    if (assetManager){
-                        if(this.accountNameFrom.isEmpty()){
+                    if (assetManager) {
+                        if (this.accountNameFrom.isEmpty()) {
                             throw BillException(context.getString(R.string.transfer_from_empty))
                         }
-                        if(this.accountNameTo.isEmpty()){
+                        if (this.accountNameTo.isEmpty()) {
                             throw BillException(context.getString(R.string.transfer_to_empty))
                         }
 
-                        if (this.accountNameFrom == this.accountNameTo){
+                        if (this.accountNameFrom == this.accountNameTo) {
                             throw BillException(context.getString(R.string.transfer_same_account))
                         }
 
-                        if(assets.find { it.name == this.accountNameFrom } == null){
-                            throw BillException(context.getString(R.string.expend_account_not_exist,this.accountNameFrom))
+                        if (assets.find { it.name == this.accountNameFrom } == null) {
+                            throw BillException(
+                                context.getString(
+                                    R.string.expend_account_not_exist,
+                                    this.accountNameFrom
+                                )
+                            )
                         }
 
-                        if(assets.find { it.name == this.accountNameTo } == null){
-                            throw BillException(context.getString(R.string.expend_account_not_exist,this.accountNameTo))
+                        if (assets.find { it.name == this.accountNameTo } == null) {
+                            throw BillException(
+                                context.getString(
+                                    R.string.expend_account_not_exist,
+                                    this.accountNameTo
+                                )
+                            )
                         }
 
                     }
@@ -179,12 +197,17 @@ class FloatEditorDialog(
                 BillType.ExpendReimbursement -> {
                     this.accountNameFrom = binding.payFrom.getText()
                     this.accountNameTo = ""
-                    if (assetManager){
-                        if(this.accountNameFrom.isEmpty()){
+                    if (assetManager) {
+                        if (this.accountNameFrom.isEmpty()) {
                             throw BillException(context.getString(R.string.reimbursement_account_empty))
                         }
-                        if(assets.find { it.name == this.accountNameFrom } == null){
-                            throw BillException(context.getString(R.string.expend_account_not_exist,this.accountNameFrom))
+                        if (assets.find { it.name == this.accountNameFrom } == null) {
+                            throw BillException(
+                                context.getString(
+                                    R.string.expend_account_not_exist,
+                                    this.accountNameFrom
+                                )
+                            )
                         }
 
                     }
@@ -194,32 +217,45 @@ class FloatEditorDialog(
                 BillType.IncomeReimbursement -> {
                     this.accountNameFrom = binding.payFrom.getText()
                     this.extendData = selectedBills.joinToString { it }
-                    if (assetManager){
-                        if(this.accountNameFrom.isEmpty()){
+                    if (assetManager) {
+                        if (this.accountNameFrom.isEmpty()) {
                             throw BillException(context.getString(R.string.reimbursement_income_account_empty))
                         }
-                        if (selectedBills.isEmpty()){
+                        if (selectedBills.isEmpty()) {
                             throw BillException(context.getString(R.string.reimbursement_bill_empty))
                         }
-                        if(assets.find { it.name == this.accountNameFrom } == null){
-                            throw BillException(context.getString(R.string.expend_account_not_exist,this.accountNameFrom))
+                        if (assets.find { it.name == this.accountNameFrom } == null) {
+                            throw BillException(
+                                context.getString(
+                                    R.string.expend_account_not_exist,
+                                    this.accountNameFrom
+                                )
+                            )
                         }
 
                     }
 
                 }
                 // 借出,还款
-                BillType.ExpendLending,BillType.ExpendRepayment -> {
+                BillType.ExpendLending, BillType.ExpendRepayment -> {
                     this.accountNameFrom = binding.debtExpendFrom.getText()
                     this.accountNameTo = binding.debtExpendTo.getText().toString()
-                    if (assetManager){
-                        if(this.accountNameFrom.isEmpty()){
-                            throw BillException(if(BillType.ExpendLending==billTypeLevel2) context.getString(R.string.expend_debt_empty) else context.getString(R.string.repayment_account_empty))
+                    if (assetManager) {
+                        if (this.accountNameFrom.isEmpty()) {
+                            throw BillException(
+                                if (BillType.ExpendLending == billTypeLevel2) context.getString(R.string.expend_debt_empty) else context.getString(
+                                    R.string.repayment_account_empty
+                                )
+                            )
                         }
-                        if(this.accountNameTo.isEmpty()){
-                            throw BillException(if(BillType.ExpendLending==billTypeLevel2) context.getString(R.string.debt_account_empty) else context.getString(R.string.repayment_account2_empty))
+                        if (this.accountNameTo.isEmpty()) {
+                            throw BillException(
+                                if (BillType.ExpendLending == billTypeLevel2) context.getString(R.string.debt_account_empty) else context.getString(
+                                    R.string.repayment_account2_empty
+                                )
+                            )
                         }
-                        if (this.accountNameFrom == this.accountNameTo){
+                        if (this.accountNameFrom == this.accountNameTo) {
                             throw BillException(context.getString(R.string.lending_same_account))
                         }
 
@@ -232,14 +268,22 @@ class FloatEditorDialog(
                 BillType.IncomeLending, BillType.IncomeRepayment -> {
                     this.accountNameFrom = binding.debtIncomeFrom.getText().toString()
                     this.accountNameTo = binding.debtIncomeTo.getText()
-                    if (assetManager){
-                        if(this.accountNameFrom.isEmpty()){
-                            throw BillException(if(BillType.IncomeLending==billTypeLevel2) context.getString(R.string.income_debt_empty) else context.getString(R.string.income_lending_account_empty))
+                    if (assetManager) {
+                        if (this.accountNameFrom.isEmpty()) {
+                            throw BillException(
+                                if (BillType.IncomeLending == billTypeLevel2) context.getString(R.string.income_debt_empty) else context.getString(
+                                    R.string.income_lending_account_empty
+                                )
+                            )
                         }
-                        if(this.accountNameTo.isEmpty()){
-                            throw BillException(if(BillType.IncomeLending==billTypeLevel2) context.getString(R.string.income_lending_account2_empty) else context.getString(R.string.income_repayment_account_empty))
+                        if (this.accountNameTo.isEmpty()) {
+                            throw BillException(
+                                if (BillType.IncomeLending == billTypeLevel2) context.getString(R.string.income_lending_account2_empty) else context.getString(
+                                    R.string.income_repayment_account_empty
+                                )
+                            )
                         }
-                        if (this.accountNameFrom == this.accountNameTo){
+                        if (this.accountNameFrom == this.accountNameTo) {
                             throw BillException(context.getString(R.string.lending_same_account))
                         }
 
@@ -253,7 +297,7 @@ class FloatEditorDialog(
     }
 
     override fun dismiss() {
-        if (::broadcastReceiver.isInitialized){
+        if (::broadcastReceiver.isInitialized) {
             LocalBroadcastHelper.unregisterReceiver(broadcastReceiver)
         }
         super.dismiss()
@@ -271,11 +315,11 @@ class FloatEditorDialog(
 
             lifecycleScope.launch {
                 val assets = AssetsModel.list()
-                try{
+                try {
                     convertBillInfo = getBillData(assets)
-                }catch (e:BillException){
-                    ToastUtils.error(e.message?:"未知错误")
-                    Logger.e("Failed to get bill data",e)
+                } catch (e: BillException) {
+                    ToastUtils.error(e.message ?: "未知错误")
+                    Logger.e("Failed to get bill data", e)
                     return@launch
                 }
 
@@ -299,7 +343,7 @@ class FloatEditorDialog(
                         )
                     ) {
                         // 弹出询问框
-                        BillCategoryDialog(context, convertBillInfo).show(float,cancel = true)
+                        BillCategoryDialog(context, convertBillInfo).show(float, cancel = true)
                     }
 
                     if (ConfigUtils.getBoolean(Setting.AUTO_ASSET, false)) {
@@ -310,7 +354,7 @@ class FloatEditorDialog(
 
                     val syncType = ConfigUtils.getString(Setting.SYNC_TYPE, SyncType.WhenOpenApp.name)
                     if (syncType != SyncType.WhenOpenApp.name) {
-                       val bills = BillInfoModel.sync()
+                        val bills = BillInfoModel.sync()
                         if ((syncType == SyncType.BillsLimit10.name && bills.size >= 10) || (syncType == SyncType.BillsLimit5.name && bills.size >= 5)) {
                             App.startBookApp()
                         }
@@ -330,21 +374,22 @@ class FloatEditorDialog(
     }
 
 
-    private suspend fun setAccountMap(assets: List<AssetsModel>, accountName:String, eqAccountName:String)= withContext(Dispatchers.IO){
+    private suspend fun setAccountMap(assets: List<AssetsModel>, accountName: String, eqAccountName: String) =
+        withContext(Dispatchers.IO) {
 
-        if (accountName.isEmpty()) return@withContext
-        if (accountName == eqAccountName) return@withContext
-        //非标准资产需要映射
-        val find = assets.find { it.name == accountName }
-        if (find == null)return@withContext
-        Logger.d("Create new asset map => $accountName -> $eqAccountName")
-        AssetsMapModel.put(AssetsMapModel().apply {
-            this.name = accountName
-            this.mapName = eqAccountName
-        })
+            if (accountName.isEmpty()) return@withContext
+            if (accountName == eqAccountName) return@withContext
+            //非标准资产需要映射
+            val find = assets.find { it.name == accountName }
+            if (find == null) return@withContext
+            Logger.d("Create new asset map => $accountName -> $eqAccountName")
+            AssetsMapModel.put(AssetsMapModel().apply {
+                this.name = accountName
+                this.mapName = eqAccountName
+            })
 
 
-    }
+        }
 
     private fun bindingTypePopupUI() {
         binding.priceContainer.text = billInfoModel.money.toString()
@@ -352,7 +397,7 @@ class FloatEditorDialog(
 
     private fun bindingTypePopupEvents() {
         val stringList: HashMap<String, Any> =
-            if (ConfigUtils.getBoolean(Setting.SETTING_ASSET_MANAGER,true))
+            if (ConfigUtils.getBoolean(Setting.SETTING_ASSET_MANAGER, true))
                 hashMapOf(
                     context.getString(R.string.float_expend) to BillType.Expend,
                     context.getString(R.string.float_income) to BillType.Income,
@@ -385,7 +430,7 @@ class FloatEditorDialog(
         * */
 
         if (
-            !ConfigUtils.getBoolean(Setting.SETTING_FEE,false) ||
+            !ConfigUtils.getBoolean(Setting.SETTING_FEE, false) ||
             billTypeLevel1 != BillType.Transfer ||
             billInfoModel.fee == 0.0
         ) {
@@ -416,11 +461,11 @@ class FloatEditorDialog(
      */
     private fun bindingBookNameEvents() {
         binding.bookImageClick.setOnClickListener {
-            if (!ConfigUtils.getBoolean(Setting.SETTING_BOOK_MANAGER,true)) return@setOnClickListener
+            if (!ConfigUtils.getBoolean(Setting.SETTING_BOOK_MANAGER, true)) return@setOnClickListener
             BookSelectorDialog(context) { book, _ ->
                 billInfoModel.bookName = book.name
                 bindingBookNameUI()
-            }.show(float,cancel = true)
+            }.show(float, cancel = true)
         }
     }
 
@@ -485,14 +530,14 @@ class FloatEditorDialog(
                             BillTool.getCateName(parent.name ?: "", child?.name)
 
                         bindingCategoryUI()
-                    }.show(float,cancel = true)
+                    }.show(float, cancel = true)
                 }
             }
         }
     }
 
     private fun bindingMoneyTypeUI() {
-        if (!ConfigUtils.getBoolean(Setting.SETTING_CURRENCY_MANAGER,false)) {
+        if (!ConfigUtils.getBoolean(Setting.SETTING_CURRENCY_MANAGER, false)) {
             binding.moneyType.visibility = View.GONE
             return
         }
@@ -502,7 +547,7 @@ class FloatEditorDialog(
     }
 
     private fun bindingMoneyTypeEvents() {
-        if (!ConfigUtils.getBoolean(Setting.SETTING_CURRENCY_MANAGER,false)) return
+        if (!ConfigUtils.getBoolean(Setting.SETTING_CURRENCY_MANAGER, false)) return
         binding.moneyType.setOnClickListener {
             val hashMap = Currency.getCurrencyMap(context)
             val popupUtils =
@@ -755,7 +800,7 @@ class FloatEditorDialog(
         }
 
 
-        if (!ConfigUtils.getBoolean(Setting.SETTING_ASSET_MANAGER,true)) {
+        if (!ConfigUtils.getBoolean(Setting.SETTING_ASSET_MANAGER, true)) {
             binding.chipLend.visibility = View.GONE
             binding.chipBorrow.visibility = View.GONE
             binding.chipRepayment.visibility = View.GONE
@@ -765,13 +810,13 @@ class FloatEditorDialog(
             binding.debtIncome.visibility = View.GONE
         }
 
-        if (!ConfigUtils.getBoolean(Setting.SETTING_DEBT,true)) {
+        if (!ConfigUtils.getBoolean(Setting.SETTING_DEBT, true)) {
             binding.chipLend.visibility = View.GONE
             binding.chipBorrow.visibility = View.GONE
             binding.chipRepayment.visibility = View.GONE
         }
 
-        if (!ConfigUtils.getBoolean(Setting.SETTING_REIMBURSEMENT,true)) {
+        if (!ConfigUtils.getBoolean(Setting.SETTING_REIMBURSEMENT, true)) {
             binding.chipReimbursement.visibility = View.GONE
         }
     }
@@ -828,7 +873,7 @@ class FloatEditorDialog(
 
             BillSelectorDialog(context, selectedBills) {
                 bindingSelectBillsUi()
-            }.show(float,cancel = true)
+            }.show(float, cancel = true)
         }
     }
 
@@ -836,16 +881,18 @@ class FloatEditorDialog(
 
         setBillType(billTypeLevel1)
         binding.chipGroup.clearCheck()
-        if (billTypeLevel1!=BillType.Transfer && billTypeLevel1 != rawBillInfo.type) {
-            binding.chipGroup.check(when (rawBillInfo.type) {
-                BillType.ExpendReimbursement -> R.id.chipReimbursement
-                BillType.ExpendLending -> R.id.chipLend
-                BillType.ExpendRepayment -> R.id.chipRepayment
-                BillType.IncomeLending -> R.id.chipBorrow
-                BillType.IncomeRepayment -> R.id.chipRepayment
-                BillType.IncomeReimbursement -> R.id.chipReimbursement
-                else -> -1
-            })
+        if (billTypeLevel1 != BillType.Transfer && billTypeLevel1 != rawBillInfo.type) {
+            binding.chipGroup.check(
+                when (rawBillInfo.type) {
+                    BillType.ExpendReimbursement -> R.id.chipReimbursement
+                    BillType.ExpendLending -> R.id.chipLend
+                    BillType.ExpendRepayment -> R.id.chipRepayment
+                    BillType.IncomeLending -> R.id.chipBorrow
+                    BillType.IncomeRepayment -> R.id.chipRepayment
+                    BillType.IncomeReimbursement -> R.id.chipReimbursement
+                    else -> -1
+                }
+            )
             setBillTypeLevel2(rawBillInfo.type)
         }
 
@@ -876,30 +923,30 @@ class FloatEditorDialog(
         binding.payFrom.setOnClickListener {
             AssetsSelectorDialog(context) { model ->
                 setAssetItem(model.name, model.icon, binding.payFrom)
-            }.show(float = float,cancel = true)
+            }.show(float = float, cancel = true)
         }
         binding.transferFrom.setOnClickListener {
             AssetsSelectorDialog(context) { model ->
                 setAssetItem(model.name, model.icon, binding.transferFrom)
-            }.show(float = float,cancel = true)
+            }.show(float = float, cancel = true)
         }
 
         binding.transferTo.setOnClickListener {
             AssetsSelectorDialog(context) { model ->
                 setAssetItem(model.name, model.icon, binding.transferTo)
-            }.show(float = float,cancel = true)
+            }.show(float = float, cancel = true)
         }
 
         binding.debtExpendFrom.setOnClickListener {
             AssetsSelectorDialog(context) { model ->
                 setAssetItem(model.name, model.icon, binding.debtExpendFrom)
-            }.show(float = float,cancel = true)
+            }.show(float = float, cancel = true)
         }
 
         binding.debtIncomeTo.setOnClickListener {
             AssetsSelectorDialog(context) { model ->
                 setAssetItem(model.name, model.icon, binding.debtIncomeTo)
-            }.show(float = float,cancel = true)
+            }.show(float = float, cancel = true)
         }
     }
 
