@@ -413,6 +413,6 @@ def main(repo):
     build_apk(workspace)
     publish_apk(repo, tagVersionName,workspace,log_data,channel)
     notify(tagVersionName, channel, workspace)
-    create_tag(tagVersionName, channel)
+    #create_tag(tagVersionName, channel)
 
 main("AutoAccountingOrg/AutoAccounting")
