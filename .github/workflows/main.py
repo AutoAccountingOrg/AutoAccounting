@@ -338,10 +338,12 @@ def truncate_content(content):
     content = replace_list_with_blockquote(content)
 
     content = replace_first_level_heading(content)
+
+    content = content.replace(".", "\.")
     # 检查字符串的长度
     if len(content) > 4000:
         # 截取前 4000 个字符并在末尾加上省略号
-        return content[:4000] + "..."
+        return content[:4000] + "\.\.\."
     else:
         # 如果长度不超过 4000，返回原字符串
         return content
