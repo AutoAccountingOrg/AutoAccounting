@@ -16,3 +16,4 @@ local.properties
 /dex/bin/*
 /app/lspatch/release/*
 /app/lspatch/base.apk
+/.github/workflows/test.py
