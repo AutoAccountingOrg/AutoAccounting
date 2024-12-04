@@ -11,21 +11,31 @@ import requests
 
 flavors = ['lsposed', 'lspatch']
 
-def get_latest_tag_with_prefix(prefix):
-    print(f"获取最新的 tag: {prefix}")
-    #  git for-each-ref --sort=taggerdate --format '%(refname:short) %(taggerdate)' refs/tags
+def get_latest_tag_with_prefix(prefix, channel):
+    print(f"获取最新的 tag: {prefix}, channel: {channel}")
 
-    result = subprocess.run(['git', 'for-each-ref', '--sort=taggerdate','--format', "%(refname:short)",'refs/tags'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    # 获取所有标签，按照日期排序
+    result = subprocess.run(
+        ['git', 'for-each-ref', '--sort=taggerdate', '--format', "%(refname:short)", 'refs/tags'],
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+    )
     tags = result.stdout.strip().split('\n')
 
+    # 根据 channel 设置正则表达式
+    if channel == 'Stable':
+        pattern = r"^v\d+\.\d+\.\d+$"  # 用于匹配 v2.0.0 形式的标签
+    else:
+        pattern = rf"\d+\.\d+\.\d+-{re.escape(prefix)}\.\d{{8}}_\d{{4}}"
+
+    # 逆序查找匹配的标签
     for tag in reversed(tags):
         tag = tag.split(' ')[0]
-        pattern =rf"\d+\.\d+\.\d+-{re.escape(prefix)}\.\d{{8}}_\d{{4}}"
-        # 使用 re.match() 来匹配字符串
         match = re.match(pattern, tag)
         if match:
             return tag
-    return tags[-1]
+
+    # 如果没有找到匹配的标签，则返回最后一个标签
+    return tags[-1] if tags else None
 
 
 def get_changed_files_since_tag(tag):
