@@ -9,9 +9,11 @@ from urllib.parse import quote
 
 import requests
 
+flavors = ['lsposed', 'lspatch']
+
 def get_latest_tag_with_prefix(prefix):
     print(f"获取最新的 tag: {prefix}")
-    result = subprocess.run(['git', 'tag', '--list','--sort=v:refname', f'{prefix}*'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    result = subprocess.run(['git', 'tag', '--list','--sort=v:refname', f'*-{prefix}.*'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     tags = result.stdout.strip().split('\n')
     if not tags or tags[-1] == "":
         return get_latest_tag_with_prefix('v')
@@ -64,7 +66,7 @@ def get_and_set_version(channel,workspace):
     print(f"versionName: {versionName}")
     # 新的版本号
     # tagVersionName="${versionName}-${channel}.$(date +'%Y%m%d%H%M%S')"
-    tagVersionName = f"{versionName}-{channel}.{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}"
+    tagVersionName = f"{versionName}-{channel}.{datetime.datetime.now().strftime('%Y%m%d_%H%M')}"
     # 替换 versionName
     content = re.sub(r'versionName "(.*)"', f'versionName "{tagVersionName}"', content)
     with open(workspace+'/app/build.gradle', 'w') as file:
@@ -108,7 +110,8 @@ def write_logs(logs,workspace,channel,tag,repo,restart):
         file.write("# 下载地址\n")
         # 对tag进行编码
         file.write(f" - [Github](https://github.com/{repo}/releases/tag/{tag})\n")
-        file.write(f" - [网盘](https://cloud.ankio.net/%E8%87%AA%E5%8A%A8%E8%AE%B0%E8%B4%A6/%E8%87%AA%E5%8A%A8%E8%AE%B0%E8%B4%A6/%E7%89%88%E6%9C%AC%E6%9B%B4%E6%96%B0/{channel}/{tag}.apk)\n")
+        for flavor in flavors:
+            file.write(f" - [网盘 {flavor}](https://cloud.ankio.net/%E8%87%AA%E5%8A%A8%E8%AE%B0%E8%B4%A6/%E8%87%AA%E5%8A%A8%E8%AE%B0%E8%B4%A6/%E7%89%88%E6%9C%AC%E6%9B%B4%E6%96%B0/{channel}/{tag}-{flavor}.apk)\n")
         if restart:
             file.write("# 重启提示\n")
             file.write(" - 由于修改了Android Framework部分，需要重新启动生效。\n")
@@ -130,7 +133,7 @@ def build_apk(workspace):
     print("开始构建 APK")
     gradlew_path = os.path.join(workspace, 'gradlew')
     # 构建 APK
-    for flavor in ['lsposed']:
+    for flavor in flavors:
         assemble_task = f"assemble{flavor.capitalize()}Release"
         print(f"开始构建 {flavor} 版本: {assemble_task}")
         run_command_live([gradlew_path, assemble_task])
@@ -183,7 +186,7 @@ def create_tag(tag,channel):
 发布 APK
 """
 def publish_apk(repo, tag_name,workspace,log,channel):
-    publish_to_github(repo, tag_name,  tag_name, log,f"{workspace}/dist/app-lsposed-signed.apk",False if channel == 'Stable' else True)
+    publish_to_github(repo, tag_name,  tag_name, log,f"{workspace}/dist/",False if channel == 'Stable' else True)
     publish_to_pan(workspace,tag_name,channel)
     pass
 
@@ -202,7 +205,7 @@ def upload(filename, filename_new, channel):
     # 读取文件内容
     with open(filename, 'rb') as file:
         file_data = file.read()
-    res = requests.put(url=url2, data=file_data, headers=headers)
+    res = requests.put(url=url2, data=file_data, headers=headers,timeout=120)
     print(res.text)
 
 
@@ -246,25 +249,29 @@ def publish_to_github(repo, tag_name, release_name, release_body, file_path, pre
         release_id = release_info['id']
         release_url = release_info['html_url']
         print(f"Release created successfully: {release_url}")
-        with open(file_path, 'rb') as file:
-            file_data = file.read()  # 读取文件的二进制内容
-        # 上传文件
-        upload_url = release_info['upload_url'].split('{')[0]  # 去掉 URL 中的占位符
-        file_name = os.path.basename(file_path)
-        upload_response = requests.post(
-            upload_url + f"?name={file_name}",
-            headers={
-                "Authorization": f"token {token}",
-                "Accept": "application/vnd.github.v3+json",
-                "Content-Type": "application/octet-stream"  # 明确指定上传内容类型
-            },
-            data=file_data  # 使用 data 参数传递文件的二进制内容
-        )
+        for favor in flavors:
+            #app-lsposed-signed.apk
+            file_path = file_path + f"app-{favor}-signed.apk"
+            # 读取文件内容
+            with open(file_path, 'rb') as file:
+                file_data = file.read()  # 读取文件的二进制内容
+            # 上传文件
+            upload_url = release_info['upload_url'].split('{')[0]  # 去掉 URL 中的占位符
+            file_name = os.path.basename(file_path)
+            upload_response = requests.post(
+                upload_url + f"?name={file_name}",
+                headers={
+                    "Authorization": f"token {token}",
+                    "Accept": "application/vnd.github.v3+json",
+                    "Content-Type": "application/octet-stream"  # 明确指定上传内容类型
+                },
+                data=file_data  # 使用 data 参数传递文件的二进制内容
+            )
 
-        if upload_response.status_code == 201:
-            print(f"File uploaded successfully: {upload_response.json()['browser_download_url']}")
-        else:
-            print(f"Failed to upload file: {upload_response.status_code}, {upload_response.text}")
+            if upload_response.status_code == 201:
+                print(f"File uploaded successfully: {upload_response.json()['browser_download_url']}")
+            else:
+                print(f"Failed to upload file: {upload_response.status_code}, {upload_response.text}")
     else:
         print(f"Failed to create release: {response.status_code}, {response.text}")
 
@@ -275,59 +282,75 @@ def publish_to_github(repo, tag_name, release_name, release_body, file_path, pre
 """
 def publish_to_pan(workspace,tag,channel):
     upload(workspace + "/dist/index.json", "/index.json", channel)
-
     upload(workspace + "/dist/README.md", "/README.md", channel)
-
-    upload(workspace + "/dist/app-lsposed-signed.apk", tag + ".apk", channel)
+    for flavor in flavors:
+        upload(workspace + f"/dist/app-{flavor}-signed.apk", f"/{tag}-{flavor}.apk", channel)
 
 def send_apk_with_changelog(workspace,title):
     with open(workspace + '/dist/README.md', 'r', encoding='utf-8') as file:
         content = file.read()
-    apk_path = workspace + '/dist/app-lsposed-signed.apk'
+    apk_path = workspace + '/dist/'
     token = os.getenv("TELEGRAM_BOT_TOKEN")
     channel_id = "@qianji_auto"
-    url = f"https://api.telegram.org/bot{token}/sendDocument"
+    url = f"https://api.telegram.org/bot{token}/sendMediaGroup"
 
-    # 打开 APK 文件
-    files = {
-        "document": (title + ".apk", open(apk_path, "rb"))
-    }
-
-    # 数据部分，包含 Channel ID 和更新日志作为 caption
-    data = {
-        "chat_id": channel_id,
-        "caption": content.replace("#",""),  # 更新日志
-        "parse_mode": "Markdown"  # 可选：使用 Markdown 格式化日志内容
-    }
-
-    response = requests.post(url, files=files, data=data)
+    files = {}
+    media = []
+    for favor in flavors:
+        name = f"app-{favor}-signed.apk"
+        file_path = apk_path + name
+        new_name = f"{title}-{favor}.apk"
+        files[new_name] = open(file_path, 'rb')
+        media.append(dict(type='document', media=f'attach://{new_name}'))
+    media[0]['caption'] = content,
+    media[0]['parse_mode'] = 'MarkdownV2'
+    response =  requests.post(url, data={
+        'chat_id': channel_id,
+        'media': json.dumps(media),
+    }, files=files)
 
     if response.status_code == 200:
         print("APK 及更新日志发送成功")
     else:
         print(f"发送失败: {response.text}")
 def send_forums( title, channel,workspace):
-    url = "https://forum.ez-book.org/posts.json"
+    if channel != 'Stable':
+        print("非正式版，不发送到论坛")
+        return
     with open(workspace + '/dist/README.md', 'r', encoding='utf-8') as file:
         content = file.read()
+    url = "https://forum.ez-book.org/api/discussions"
     headers = {
         "Content-Type": "application/json",
-        "Api-Key": os.getenv("FORUMS_API_KEY"),
-        "Api-Username": "system"
+        "Authorization": "Token " + os.getenv("FORUMS_API_TOKEN"),
     }
+
     data = {
-        "title": title,
-        "raw": content,
-        "category": 8,
-        "tags": ["版本发布", channel]
+        "data": {
+            "type": "discussions",
+            "attributes": {
+                "title": title,
+                "content": content
+            },
+            "relationships": {
+                "tags": {
+                    "data": [
+                        {
+                            "type": "tags",
+                            "id": "5"
+                        }
+                    ]
+                }
+            }
+        }
     }
-    response = requests.post(url, headers=headers, json=data)
+    response = requests.post(url, headers=headers, data=json.dumps(data))
     print(response.json())
 """
 通知
 """
 def notify(title,channel,workspace):
-    # send_forums( title,channel,workspace)
+    send_forums( title,channel,workspace)
     send_apk_with_changelog( workspace,title)
 
 
@@ -348,8 +371,8 @@ def main(repo):
     logs = build_logs(commits,workspace)
     log_data = write_logs(logs,workspace,channel,tagVersionName,repo,restart)
     build_apk(workspace)
-    create_tag(tagVersionName,channel)
     publish_apk(repo, tagVersionName,workspace,log_data,channel)
-    notify(tagVersionName,channel,workspace)
+    notify(tagVersionName, channel, workspace)
+    create_tag(tagVersionName, channel)
 
 main("AutoAccountingOrg/AutoAccounting")
