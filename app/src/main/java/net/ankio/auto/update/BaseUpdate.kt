@@ -115,7 +115,7 @@ abstract class BaseUpdate(context: Context) {
             request.get("${pan()}/index.json").let {
                 val json = Gson().fromJson(it.second, JsonObject::class.java)
                 version = json.get("version").asString
-                log = json.get("log").asString
+                log = MarkdownProcessor().markdown(json.get("log").asString)
                 date = json.get("date").asString
                 date = date(date)
                 if (checkVersionLarge(localVersion,version)) {
