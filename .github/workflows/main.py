@@ -13,10 +13,18 @@ flavors = ['lsposed', 'lspatch']
 
 def get_latest_tag_with_prefix(prefix):
     print(f"获取最新的 tag: {prefix}")
-    result = subprocess.run(['git', 'tag', '--list','--sort=v:refname', f'*-{prefix}.*'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    #  git for-each-ref --sort=taggerdate --format '%(refname:short) %(taggerdate)' refs/tags
+
+    result = subprocess.run(['git', 'for-each-ref', '--sort=taggerdate','--format', "%(refname:short)",'refs/tags'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     tags = result.stdout.strip().split('\n')
-    if not tags or tags[-1] == "":
-        return get_latest_tag_with_prefix('v')
+
+    for tag in reversed(tags):
+        tag = tag.split(' ')[0]
+        pattern =rf"\d+\.\d+\.\d+-{re.escape(prefix)}\.\d{{8}}_\d{{4}}"
+        # 使用 re.match() 来匹配字符串
+        match = re.match(pattern, tag)
+        if match:
+            return tag
     return tags[-1]
 
 
