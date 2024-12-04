@@ -11,8 +11,8 @@ import requests
 
 flavors = ['lsposed', 'lspatch']
 
-def get_latest_tag_with_prefix(prefix, channel):
-    print(f"获取最新的 tag: {prefix}, channel: {channel}")
+def get_latest_tag_with_prefix(prefix):
+    print(f"获取最新的 tag: {prefix}")
 
     # 获取所有标签，按照日期排序
     result = subprocess.run(
@@ -22,7 +22,7 @@ def get_latest_tag_with_prefix(prefix, channel):
     tags = result.stdout.strip().split('\n')
 
     # 根据 channel 设置正则表达式
-    if channel == 'Stable':
+    if prefix == 'Stable':
         pattern = r"^v\d+\.\d+\.\d+$"  # 用于匹配 v2.0.0 形式的标签
     else:
         pattern = rf"\d+\.\d+\.\d+-{re.escape(prefix)}\.\d{{8}}_\d{{4}}"
