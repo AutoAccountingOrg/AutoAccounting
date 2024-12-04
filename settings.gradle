@@ -29,4 +29,3 @@ rootProject.name = "AutoAccounting"
 include ':app'
 include ':dex'
 include ':server'
-include ':xposed'
