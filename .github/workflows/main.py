@@ -293,7 +293,14 @@ def publish_to_pan(workspace,tag,channel):
     upload(workspace + "/dist/README.md", "/README.md", channel)
     for flavor in flavors:
         upload(workspace + f"/dist/app-{flavor}-signed.apk", f"/{tag}-{flavor}.apk", channel)
-
+def truncate_content(content):
+    # 检查字符串的长度
+    if len(content) > 4000:
+        # 截取前 4000 个字符并在末尾加上省略号
+        return content[:4000] + "..."
+    else:
+        # 如果长度不超过 4000，返回原字符串
+        return content
 def send_apk_with_changelog(workspace,title):
     with open(workspace + '/dist/README.md', 'r', encoding='utf-8') as file:
         content = file.read()
@@ -310,7 +317,7 @@ def send_apk_with_changelog(workspace,title):
         new_name = f"{title}-{favor}.apk"
         files[new_name] = open(file_path, 'rb')
         media.append(dict(type='document', media=f'attach://{new_name}'))
-    media[0]['caption'] = content,
+    media[0]['caption'] = truncate_content(content),
     media[0]['parse_mode'] = 'MarkdownV2'
     response =  requests.post(url, data={
         'chat_id': channel_id,
