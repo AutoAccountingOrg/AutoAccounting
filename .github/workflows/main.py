@@ -319,6 +319,8 @@ def truncate_content(content):
     content = replace_second_level_heading_with_bold(content)
     # 正则替换，将 - 替换好
     content = replace_list_with_blockquote(content)
+
+    content = re.sub(r"#", "\\#", content)
     # 检查字符串的长度
     if len(content) > 4000:
         # 截取前 4000 个字符并在末尾加上省略号
@@ -334,7 +336,8 @@ def send_apk_with_changelog(workspace,title):
     channel_id = "@qianji_auto"
     """ 电报限制文件大小在50M以内，而自动记账两个文件合并起来超过50M，所以分开发送 """
     url = f"https://api.telegram.org/bot{token}/sendDocument"
-
+    content = truncate_content(content)
+    print(f"发送更新日志到电报频道: {channel_id}", content)
     for favor in flavors:
         name = f"app-{favor}-signed.apk"
         file_path = apk_path + name
@@ -346,7 +349,7 @@ def send_apk_with_changelog(workspace,title):
         # 数据部分，包含 Channel ID 和更新日志作为 caption
         data = {
             "chat_id": channel_id,
-            "caption": truncate_content(content),  # 更新日志
+            "caption": content,  # 更新日志
             "parse_mode": "MarkdownV2"  # 可选：使用 Markdown 格式化日志内容
         }
         response = requests.post(url, files=files, data=data)
