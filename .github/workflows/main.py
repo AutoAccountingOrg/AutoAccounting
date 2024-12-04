@@ -251,13 +251,13 @@ def publish_to_github(repo, tag_name, release_name, release_body, file_path, pre
         print(f"Release created successfully: {release_url}")
         for favor in flavors:
             #app-lsposed-signed.apk
-            file_path = file_path + f"app-{favor}-signed.apk"
+            path = file_path + f"app-{favor}-signed.apk"
             # 读取文件内容
-            with open(file_path, 'rb') as file:
+            with open(path, 'rb') as file:
                 file_data = file.read()  # 读取文件的二进制内容
             # 上传文件
             upload_url = release_info['upload_url'].split('{')[0]  # 去掉 URL 中的占位符
-            file_name = os.path.basename(file_path)
+            file_name = os.path.basename(path)
             upload_response = requests.post(
                 upload_url + f"?name={file_name}",
                 headers={
