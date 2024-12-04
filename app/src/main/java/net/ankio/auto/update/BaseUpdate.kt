@@ -197,8 +197,8 @@ abstract class BaseUpdate(context: Context) {
             Setting.CHECK_UPDATE_TYPE,
             UpdateType.Stable.name
         )
-        val localParts = localVersion.replace("-${channel}","").split(".")
-        val cloudParts = cloudVersion.replace("-${channel}","").split(".")
+        val localParts = localVersion.replace("-${channel}","").replace("_","").split(".")
+        val cloudParts = cloudVersion.replace("-${channel}","").replace("_","").split(".")
         // 找出较长的版本号长度，补齐较短版本号的空位
         val maxLength = maxOf(localParts.size, cloudParts.size)
 
