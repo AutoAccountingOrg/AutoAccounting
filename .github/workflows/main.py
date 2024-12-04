@@ -296,10 +296,17 @@ def publish_to_pan(workspace,tag,channel):
         upload(workspace + f"/dist/app-{flavor}-signed.apk", f"/{tag}-{flavor}.apk", channel)
 
 
+def replace_first_level_heading(text):
+    # 定义正则表达式模式，匹配以 '#' 开头的行
+    pattern = r"^#\s*(.+)$"
+
+    # 使用 re.sub 进行替换，把 '#' 开头替换成加粗下划线的格式
+    replaced_text = re.sub(pattern, r"**_\1_**", text, flags=re.MULTILINE)
+
+    return replaced_text
 def replace_second_level_heading_with_bold(text):
     # 定义正则表达式模式，匹配二级标题
     pattern = r"^##\s*(.+)$"
-
     # 替换匹配的二级标题为加粗格式
     replaced_text = re.sub(pattern, r"**\1**", text, flags=re.MULTILINE)
 
@@ -308,7 +315,7 @@ def replace_second_level_heading_with_bold(text):
 
 def replace_list_with_blockquote(text):
     # 定义正则表达式模式，匹配以 '-' 开始的行
-    pattern = r"^- (.*)$"
+    pattern = r"^(\s+)?- (.*)$"
 
     # 使用 re.sub 进行替换，把 '-' 开头替换成 '>'
     replaced_text = re.sub(pattern, r"> \1", text, flags=re.MULTILINE)
@@ -320,7 +327,7 @@ def truncate_content(content):
     # 正则替换，将 - 替换好
     content = replace_list_with_blockquote(content)
 
-    content = re.sub(r"#", "\\#", content)
+    content = replace_first_level_heading(content)
     # 检查字符串的长度
     if len(content) > 4000:
         # 截取前 4000 个字符并在末尾加上省略号
