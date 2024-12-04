@@ -318,7 +318,7 @@ def replace_list_with_blockquote(text):
     pattern = r"^(\s+)?- (.*)$"
 
     # 使用 re.sub 进行替换，把 '-' 开头替换成 '>'
-    replaced_text = re.sub(pattern, r"> \1", text, flags=re.MULTILINE)
+    replaced_text = re.sub(pattern, r"> \2", text, flags=re.MULTILINE)
 
     return replaced_text
 def truncate_content(content):
