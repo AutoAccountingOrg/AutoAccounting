@@ -108,6 +108,11 @@ class AppDataAdapter(
                 runCatching {
                     val (url,timeout) = Pastebin.add(result,holder.context)
                     val body = """
+<!------ 
+ 1. 请不要手动复制数据，下面的链接中已包含数据；
+ 2. 您可以新增信息，但是不要删除本页任何内容；
+ 3. 一般情况下，您直接划到底部点击submit即可。
+ ------>                        
 ## 数据链接                        
 [数据过期时间：${timeout}](${url})
 ## 其他信息
@@ -140,6 +145,11 @@ class AppDataAdapter(
                     runCatching {
                         val (url,timeout) = Pastebin.add(result,holder.context)
                         val body = """
+<!------ 
+ 1. 请不要手动复制数据，下面的链接中已包含数据；
+ 2. 该功能是反馈规则识别错误的，请勿写其他无关内容；
+ 3. 一般情况下，您直接划到底部点击submit即可。
+ ------>  
 ## 规则
 ${item.rule}
 ## 说明
