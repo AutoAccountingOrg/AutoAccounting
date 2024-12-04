@@ -14,6 +14,10 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     steps:
+      - name: set beijing timezone
+        uses: szenius/set-timezone@v2 # 设置虚拟环境的时区，可更改时区
+        with:
+          timezoneLinux: "Asia/Shanghai"
       - name: 下载代码
         uses: actions/checkout@v2
         with:

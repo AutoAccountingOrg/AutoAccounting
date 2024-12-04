@@ -117,8 +117,9 @@ def write_logs(logs,workspace,channel,tag,repo,restart):
     with open(workspace + '/dist/README.md', 'w', encoding='utf-8') as file:
         file.write("# 下载地址\n")
         # 对tag进行编码
-        file.write(f" - [Github](https://github.com/{repo}/releases/tag/{tag})\n")
         for flavor in flavors:
+            # https://github.com/AutoAccountingOrg/AutoAccounting/releases/download/4.0.0-Canary.20241204_0420/app-lspatch-signed.apk
+            file.write(f" - [Github {flavor}](https://github.com/{repo}/releases/download/{tag}/app-{flavor}-signed.apk)\n")
             file.write(f" - [网盘 {flavor}](https://cloud.ankio.net/%E8%87%AA%E5%8A%A8%E8%AE%B0%E8%B4%A6/%E8%87%AA%E5%8A%A8%E8%AE%B0%E8%B4%A6/%E7%89%88%E6%9C%AC%E6%9B%B4%E6%96%B0/{channel}/{tag}-{flavor}.apk)\n")
         if restart:
             file.write("# 重启提示\n")
@@ -293,7 +294,31 @@ def publish_to_pan(workspace,tag,channel):
     upload(workspace + "/dist/README.md", "/README.md", channel)
     for flavor in flavors:
         upload(workspace + f"/dist/app-{flavor}-signed.apk", f"/{tag}-{flavor}.apk", channel)
+
+
+def replace_second_level_heading_with_bold(text):
+    # 定义正则表达式模式，匹配二级标题
+    pattern = r"^##\s*(.+)$"
+
+    # 替换匹配的二级标题为加粗格式
+    replaced_text = re.sub(pattern, r"**\1**", text, flags=re.MULTILINE)
+
+    return replaced_text
+
+
+def replace_list_with_blockquote(text):
+    # 定义正则表达式模式，匹配以 '-' 开始的行
+    pattern = r"^- (.*)$"
+
+    # 使用 re.sub 进行替换，把 '-' 开头替换成 '>'
+    replaced_text = re.sub(pattern, r"> \1", text, flags=re.MULTILINE)
+
+    return replaced_text
 def truncate_content(content):
+    # 正则替换，将 ## 替换好
+    content = replace_second_level_heading_with_bold(content)
+    # 正则替换，将 - 替换好
+    content = replace_list_with_blockquote(content)
     # 检查字符串的长度
     if len(content) > 4000:
         # 截取前 4000 个字符并在末尾加上省略号
@@ -307,27 +332,27 @@ def send_apk_with_changelog(workspace,title):
     apk_path = workspace + '/dist/'
     token = os.getenv("TELEGRAM_BOT_TOKEN")
     channel_id = "@qianji_auto"
-    url = f"https://api.telegram.org/bot{token}/sendMediaGroup"
+    """ 电报限制文件大小在50M以内，而自动记账两个文件合并起来超过50M，所以分开发送 """
+    url = f"https://api.telegram.org/bot{token}/sendDocument"
 
-    files = {}
-    media = []
     for favor in flavors:
         name = f"app-{favor}-signed.apk"
         file_path = apk_path + name
         new_name = f"{title}-{favor}.apk"
-        files[new_name] = open(file_path, 'rb')
-        media.append(dict(type='document', media=f'attach://{new_name}'))
-    media[0]['caption'] = truncate_content(content),
-    media[0]['parse_mode'] = 'MarkdownV2'
-    response =  requests.post(url, data={
-        'chat_id': channel_id,
-        'media': json.dumps(media),
-    }, files=files)
+        # 打开 APK 文件
+        files = {
+            "document": (new_name, open(file_path, "rb"))
+        }
+        # 数据部分，包含 Channel ID 和更新日志作为 caption
+        data = {
+            "chat_id": channel_id,
+            "caption": truncate_content(content),  # 更新日志
+            "parse_mode": "MarkdownV2"  # 可选：使用 Markdown 格式化日志内容
+        }
+        response = requests.post(url, files=files, data=data)
+        print(response.json())
 
-    if response.status_code == 200:
-        print("APK 及更新日志发送成功")
-    else:
-        print(f"发送失败: {response.text}")
+
 def send_forums( title, channel,workspace):
     if channel != 'Stable':
         print("非正式版，不发送到论坛")
