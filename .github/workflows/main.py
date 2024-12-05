@@ -309,9 +309,9 @@ def truncate_content(content):
     # 正则替换，将 ## 替换好
     content = md2tgmd.escape(content)
     # 检查字符串的长度
-    if len(content) > 4000:
+    if len(content) > 1024:
         # 截取前 4000 个字符并在末尾加上省略号
-        return content[:4000] + "\.\.\."
+        return content[:1024] + "\.\.\."
     else:
         # 如果长度不超过 4000，返回原字符串
         return content
