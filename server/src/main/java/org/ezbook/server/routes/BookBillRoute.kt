@@ -15,9 +15,11 @@
 
 package org.ezbook.server.routes
 
+import com.google.gson.Gson
 import io.ktor.application.ApplicationCall
 import io.ktor.http.Parameters
 import io.ktor.request.receive
+import org.ezbook.server.Server
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.BookBillModel
@@ -35,9 +37,9 @@ class BookBillRoute(private val session: ApplicationCall) {
     suspend fun put(): ResultModel {
         val md5 = params["md5"] ?: ""
         val json = session.receive<Array<BookBillModel>>()
-        val id = Db.get().bookBillDao().put(json.toList())
+        Db.get().bookBillDao().put(json.toList())
         SettingRoute.setByInner(Setting.HASH_BILL, md5)
-        return ResultModel(200, "OK", id)
+        return ResultModel(200, "OK")
     }
 
 }

@@ -21,6 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.hook.Hooker
+import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.core.utils.DataUtils
 import net.ankio.auto.xposed.core.utils.MD5HashTable
 import net.ankio.auto.xposed.core.utils.MessageUtils
@@ -182,11 +183,11 @@ class AssetsUtils(private val manifest: HookerManifest, private val classLoader:
         val md5 = MD5HashTable.md5(sync)
         val server = SettingModel.get(Setting.HASH_ASSET, "")
         DataUtils.set("sync_assets", Gson().toJson(assets))
-        if (server == md5 || assets.isEmpty()) { //资产为空也不同步
+        if (server == md5  && !AppRuntime.debug || assets.isEmpty() ) { //资产为空也不同步
             manifest.log("No need to sync Assets, server md5:${server} local md5:${md5}")
             return@withContext
         }
-        manifest.log("Sync Assets:${Gson().toJson(assets)}")
+        manifest.logD("Sync Assets:${Gson().toJson(assets)}")
         AssetsModel.put(assets, md5)
         withContext(Dispatchers.Main) {
             MessageUtils.toast("已同步资产信息到自动记账")

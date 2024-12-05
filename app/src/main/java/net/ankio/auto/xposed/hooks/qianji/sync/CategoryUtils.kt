@@ -20,6 +20,7 @@ import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.xposed.core.api.HookerManifest
+import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.core.utils.MD5HashTable
 import net.ankio.auto.xposed.core.utils.MessageUtils
 import org.ezbook.server.constant.BillType
@@ -102,11 +103,11 @@ class CategoryUtils(
         val sync = Gson().toJson(arrayList)
         val md5 = MD5HashTable.md5(sync)
         val server = SettingModel.get(Setting.HASH_CATEGORY, "")
-        if (server == md5) {
+        if (server == md5 && !AppRuntime.debug) {
             manifest.log("No need to sync categories, Server md5:${server} local md5:${md5}")
             return@withContext
         }
-        manifest.log("Sync categories:$sync")
+        manifest.logD("Sync categories:$sync")
         CategoryModel.put(arrayList, md5)
         withContext(Dispatchers.Main) {
             MessageUtils.toast("已同步分类信息到自动记账")
