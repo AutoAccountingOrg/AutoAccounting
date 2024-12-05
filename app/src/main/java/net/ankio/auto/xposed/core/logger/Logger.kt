@@ -16,6 +16,7 @@
 package net.ankio.auto.xposed.core.logger
 
 import de.robv.android.xposed.XposedBridge
+import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.core.utils.ThreadUtils
 import org.ezbook.server.constant.LogLevel
 import org.ezbook.server.db.model.LogModel
@@ -27,10 +28,6 @@ import org.ezbook.server.db.model.LogModel
 object Logger {
 
 
-    /**
-     * 是否为调试模式
-     */
-    var debug = true
 
     private fun getTag(): String {
         return Throwable().stackTrace[3].className.substringBefore('$').substringAfterLast(".")
@@ -40,7 +37,9 @@ object Logger {
      * 打印日志
      */
     fun log(app: String, msg: String) {
-        XposedBridge.log("[ 自动记账 ] ( $app ) $msg")
+        if (AppRuntime.debug) {
+            XposedBridge.log("[ 自动记账 ] ( $app ) $msg")
+        }
         val tag = getTag()
         //写入自动记账日志
         ThreadUtils.launch {
@@ -53,7 +52,7 @@ object Logger {
      * 只在调试模式输出日志
      */
     fun logD(app: String, msg: String) {
-        if (debug) {
+        if (AppRuntime.debug) {
             log(app, msg)
         }
     }
