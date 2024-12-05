@@ -15,12 +15,11 @@
 
 package net.ankio.auto.xposed.hooks.wechat
 
-import android.app.Application
 import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
-import net.ankio.auto.xposed.core.logger.Logger
+import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.core.utils.AppRuntime.application
 import net.ankio.auto.xposed.core.utils.AppRuntime.classLoader
 import net.ankio.auto.xposed.hooks.wechat.hooks.ChatUserHooker
@@ -45,7 +44,7 @@ class WechatHooker : HookerManifest() {
         }
 
 
-        if (Logger.debug) {
+        if (AppRuntime.debug) {
             Hooker.allMethodsBefore(Hooker.loader("com.tencent.tinker.loader.shareutil.ShareTinkerLog")) { param ->
                 val method = param.method
                 val args = param.args

@@ -127,7 +127,7 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
                 AppRuntime.classLoader = lpparam.classLoader
                 Logger.logD(
                     TAG,
-                    "Hooker: ${app.appName}(${app.packageName}) Run in ${if (Logger.debug) "debug" else "production"} Mode"
+                    "Hooker: ${app.appName}(${app.packageName}) Run in ${if (AppRuntime.debug) "debug" else "production"} Mode"
                 )
                 AppRuntime.name = app.appName
                 AppRuntime.manifest = app
