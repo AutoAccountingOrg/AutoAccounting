@@ -15,9 +15,11 @@
 
 package org.ezbook.server.routes
 
+import com.google.gson.Gson
 import io.ktor.application.ApplicationCall
 import io.ktor.http.Parameters
 import io.ktor.request.receive
+import org.ezbook.server.Server
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.AssetsMapModel
 import org.ezbook.server.models.ResultModel
@@ -34,13 +36,9 @@ class AssetsMapRoute(private val session: ApplicationCall) {
 
     suspend fun put(): ResultModel {
         val model = session.receive(AssetsMapModel::class)
-
-        val name = model.name
-        val modelItem = Db.get().assetsMapDao().query(name)
-        if (modelItem == null) {
+        if (model.id <= 0) {
             model.id = Db.get().assetsMapDao().insert(model)
         } else {
-            model.id = modelItem.id
             Db.get().assetsMapDao().update(model)
         }
         return ResultModel(200, "OK", model.id)
