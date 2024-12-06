@@ -87,12 +87,7 @@ class FloatEditorDialog(
     }
 
     override fun onCreateView(inflater: LayoutInflater): View {
-        if (floatingWindowService != null) {
-            App.launch(Dispatchers.Main) {
-                val billInfo = floatingWindowService.bills.receive()
-                checkUpdateBills(billInfo)
-            }
-        }
+
 
         binding = FloatEditorBinding.inflate(inflater)
         cardView = binding.editorCard
@@ -102,6 +97,15 @@ class FloatEditorDialog(
         billTypeLevel2 = rawBillInfo.type
         bindUI()
         bindEvents()
+
+        if (floatingWindowService != null) {
+            App.launch(Dispatchers.Main) {
+                val billInfo = floatingWindowService.bills.receive()
+                if (::binding.isInitialized) {
+                    checkUpdateBills(billInfo)
+                }
+            }
+        }
 
         return binding.root
     }
