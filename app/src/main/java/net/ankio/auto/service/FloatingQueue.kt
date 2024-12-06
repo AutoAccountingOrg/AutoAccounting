@@ -97,12 +97,17 @@ class FloatingQueue(private val callback:(FloatingIntent,FloatingQueue)->Unit) {
         }
     }
 
+    private var isProcessing = true
     /**
      * 关闭队列
      */
     fun shutdown() {
+        if (!isProcessing) {
+            return
+        }
+        isProcessing = false
         pendingIntents.clear()
-        channel.close()
-        stopChannel.close()
+        runCatching { channel.close() }
+        runCatching { stopChannel.close() }
     }
 }

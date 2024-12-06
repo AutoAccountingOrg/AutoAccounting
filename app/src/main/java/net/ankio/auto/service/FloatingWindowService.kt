@@ -43,10 +43,9 @@ class FloatingWindowService : Service() {
         super.onCreate()
         floatingQueue = FloatingQueue { intent, floatingQueue ->
             //单独处理
-            FloatingWindowManager(this,intent, floatingQueue).process()
+            FloatingWindowManager(this, intent, floatingQueue).process()
         }
     }
-
 
 
     override fun onStartCommand(
@@ -60,7 +59,7 @@ class FloatingWindowService : Service() {
             //说明是重复账单
             ToastUtils.info(getString(R.string.repeat_bill))
             App.launch(Dispatchers.Main) {
-                bills.send(parent)
+                bills.trySend(parent)
             }
             Logger.i("Repeat Bill, Parent: $parent")
             return START_NOT_STICKY
@@ -71,11 +70,10 @@ class FloatingWindowService : Service() {
     }
 
 
-
-
     override fun onDestroy() {
+
         floatingQueue.shutdown()
-        bills.close()
+        runCatching { !bills.isClosedForSend && bills.close() }
         super.onDestroy()
     }
 }
