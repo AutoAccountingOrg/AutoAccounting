@@ -110,13 +110,25 @@ class DatabaseHooker : PartHooker() {
                     val content = contentValues.get("content").toString()
                     val json = JsonObject()
                     json.addProperty("type", "transfer")
+                    json.addProperty("isSend",contentValues.getAsInteger("isSend"))
                     json.addProperty("content", xmlToJson(content))
                     putCache(json)
                     AppRuntime.manifest.analysisData(DataType.DATA, json.toString())
                 } else if (type == 10000){
                     // 微信支付群收款
                     val json = JsonObject()
+                    json.addProperty("type", "groupCollection")
                     json.add("content", Gson().toJsonTree(contentValues))
+                    putCache(json)
+                    AppRuntime.manifest.analysisData(DataType.DATA, json.toString())
+
+                }else if (type == 436207665){ //微信红包
+                    val json = JsonObject()
+                    val content = contentValues.get("content").toString()
+                    json.addProperty("type", "redPackage")
+                    json.addProperty("content", xmlToJson(content))
+                    json.addProperty("isSend",contentValues.getAsInteger("isSend"))
+
                     putCache(json)
                     AppRuntime.manifest.analysisData(DataType.DATA, json.toString())
 
