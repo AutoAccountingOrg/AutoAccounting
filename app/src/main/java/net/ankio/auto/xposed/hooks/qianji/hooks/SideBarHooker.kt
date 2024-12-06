@@ -48,7 +48,6 @@ class SideBarHooker : PartHooker() {
 
 
     override fun hook() {
-        this.hookerManifest = AppRuntime.manifest
         val clazz = Hooker.loader("com.mutangtech.qianji.ui.main.MainActivity")
 
         Hooker.after(
@@ -66,13 +65,13 @@ class SideBarHooker : PartHooker() {
         ){ param ->
             val activity = param.thisObject as Activity
             runCatching {
-                hookerManifest.attachResource(activity)
+                AppRuntime.manifest.attachResource(activity)
                 ThreadUtils.launch {
                     checkServerStatus(activity)
                 }
                 syncData2Auto(activity)
             }.onFailure {
-                hookerManifest.logE(it)
+                AppRuntime.manifest.logE(it)
             }
         }
 
@@ -82,9 +81,6 @@ class SideBarHooker : PartHooker() {
         activity: Activity,
         classLoader: ClassLoader?
     ) {
-        if (!::hookerManifest.isInitialized) {
-            return
-        }
         val clazz = classLoader!!.loadClass("com.mutangtech.qianji.ui.maindrawer.MainDrawerLayout")
         Hooker.onceAfter(clazz, "refreshAccount") {
             // 只hook一次
@@ -98,25 +94,24 @@ class SideBarHooker : PartHooker() {
                     "main_drawer_content_layout"
                 ) as LinearLayout
             runCatching {
-                hookerManifest.attachResource(activity)
+                AppRuntime.manifest.attachResource(activity)
                 // 找到了obj里面的name字段
                 addSettingMenu(linearLayout, activity)
             }.onFailure {
-                hookerManifest.logE(it)
+                AppRuntime.manifest.logE(it)
             }
             true
         }
     }
 
 
-    lateinit var hookerManifest: HookerManifest
     lateinit var itemMenuBinding: MenuItemBinding
 
     /**
      * 检查服务状态
      */
     private suspend fun checkServerStatus(activity: Activity) = withContext(Dispatchers.IO) {
-        if (!::hookerManifest.isInitialized || !::itemMenuBinding.isInitialized) {
+        if ( !::itemMenuBinding.isInitialized) {
             return@withContext
         }
         val background =
@@ -131,9 +126,6 @@ class SideBarHooker : PartHooker() {
         linearLayout: LinearLayout,
         context: Activity,
     ) {
-        if (!::hookerManifest.isInitialized) {
-            return
-        }
         val mainColor = ColorUtils.getMainColor(context)
         val subColor = ColorUtils.getSubColor(context)
         val backgroundColor = ColorUtils.getBackgroundColor(context)
@@ -168,17 +160,17 @@ class SideBarHooker : PartHooker() {
     private fun syncData2Auto(context: Activity) {
         // 最快3秒同步一次
         if (System.currentTimeMillis() - last < 1000 * 3) {
-            hookerManifest.log("Sync too fast, ignore")
+            AppRuntime.manifest.log("Sync too fast, ignore")
             return
         }
         last = System.currentTimeMillis()
         ThreadUtils.launch {
-            AssetsUtils(hookerManifest, context.classLoader).syncAssets()
-            val books = BookUtils(hookerManifest, context.classLoader, context).syncBooks()
-            CategoryUtils(hookerManifest, context.classLoader, books).syncCategory()
-            BaoXiaoUtils(hookerManifest, context.classLoader).syncBaoXiao()
-            // LoanUtils(hookerManifest, context.classLoader).syncLoan()
-            SyncBillUtils(hookerManifest, context.classLoader).sync(context)
+            AssetsUtils(AppRuntime.manifest, context.classLoader).syncAssets()
+            val books = BookUtils(AppRuntime.manifest, context.classLoader, context).syncBooks()
+            CategoryUtils(AppRuntime.manifest, context.classLoader, books).syncCategory()
+            BaoXiaoUtils(AppRuntime.manifest, context.classLoader).syncBaoXiao()
+            // LoanUtils(AppRuntime.manifest, context.classLoader).syncLoan()
+            SyncBillUtils(AppRuntime.manifest, context.classLoader).sync(context)
         }
     }
 
