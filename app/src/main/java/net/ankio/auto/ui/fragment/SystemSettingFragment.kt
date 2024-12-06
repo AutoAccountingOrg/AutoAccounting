@@ -395,6 +395,22 @@ class SystemSettingFragment : BaseFragment() {
             // 其他
             SettingItem(R.string.setting_others),
             SettingItem(
+                title = R.string.setting_load_success,
+                key = Setting.LOAD_SUCCESS,
+                icon = R.drawable.setting_icon_success,
+                subTitle = R.string.load_msg,
+                type = ItemType.SWITCH,
+                default = true,
+                onSavedValue = { value, _ ->
+                    ConfigUtils.putBoolean(Setting.LOAD_SUCCESS, value as Boolean)
+                    App.launch {
+                        SettingModel.set(Setting.LOAD_SUCCESS, value.toString())
+                    }
+                    SpUtils.putBoolean(Setting.LOAD_SUCCESS, value as Boolean)
+                },
+
+                ),
+            SettingItem(
                 title = R.string.setting_debug,
                 key = Setting.DEBUG_MODE,
                 icon = R.drawable.setting2_icon_debug,

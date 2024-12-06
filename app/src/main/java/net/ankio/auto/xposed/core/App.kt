@@ -31,6 +31,7 @@ import net.ankio.auto.xposed.core.logger.Logger
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.core.utils.DataUtils
 import net.ankio.auto.xposed.core.utils.DataUtils.set
+import net.ankio.auto.xposed.core.utils.MessageUtils
 import net.ankio.auto.xposed.hooks.common.CommonHooker
 import org.ezbook.server.Server
 import org.ezbook.server.constant.Setting
@@ -160,6 +161,7 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         Logger.logD(TAG, "Allow Cleartext Traffic")
         //吐司框架初始化
         Toaster.init(AppRuntime.application)
+
         Logger.logD(TAG, "Toaster init success")
         // 检查所需的权限
         AppRuntime.manifest.permissionCheck()
@@ -187,6 +189,10 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         initHookers()
 
         AppRuntime.manifest.logD("Hooker init success, ${AppRuntime.manifest.appName}(${AppRuntime.versionCode})")
+
+        if (!AppRuntime.manifest.systemApp && AppRuntime.manifest.packageName!==BuildConfig.APPLICATION_ID){
+            MessageUtils.toast("自动记账加载成功")
+        }
     }
 
     /**

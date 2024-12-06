@@ -58,6 +58,11 @@ abstract class HookerManifest {
     abstract fun hookLoadPackage()
 
     /**
+     * 是否为系统应用
+     */
+    open val systemApp:Boolean = false
+
+    /**
      * 需要hook的功能，一个功能一个hooker，方便进行错误捕获
      * @return MutableList<PartHooker>
      */

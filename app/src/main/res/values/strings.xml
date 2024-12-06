@@ -497,6 +497,8 @@
 
     <string name="server_error_version_title">服务端版本不匹配</string>
     <string name="server_error_btn">好的</string>
+    <string name="setting_load_success">成功加载自动记账后弹出提示</string>
+    <string name="load_msg">按需开启</string>
 
 
 </resources>

@@ -28,6 +28,8 @@ class AndroidHooker : HookerManifest() {
         get() = "android"
     override val appName: String
         get() = "Android"
+    override val systemApp: Boolean
+        get() = true
 
 
     override var applicationName: String = ""

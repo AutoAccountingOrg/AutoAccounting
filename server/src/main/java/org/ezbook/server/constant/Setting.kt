@@ -16,6 +16,7 @@
 package org.ezbook.server.constant
 
 object Setting {
+    const val LOAD_SUCCESS: String = "load_success"
     const val KEY_FRAMEWORK: String = "framework"
     const val LAST_BACKUP_TIME: String = "last_backup_time"
     const val SHOW_AUTO_BILL_TIP = "show_auto_bill_tip"
