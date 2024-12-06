@@ -17,22 +17,32 @@ package net.ankio.auto.xposed.core.ui
 
 import android.content.Context
 import android.content.res.Configuration
+import android.graphics.Color
 
-object ColorUtils {
-    private fun isDarkMode(context: Context): Boolean {
+open class ColorUtils {
+    open fun isDarkMode(context: Context): Boolean {
         return Configuration.UI_MODE_NIGHT_YES == (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK)
     }
 
-    fun getMainColor(context: Context): Int {
-        return if (isDarkMode(context)) -0x2c2c2d else -0xcacacb
+
+    open val mainColorLight = "#353535"
+    open val subColorLight = "#999999"
+    open val backgroundColorLight = "#ffffff"
+
+    open val mainColorDark = "#d3d3d3"
+    open val subColorDark = "#656565"
+    open val backgroundColorDark = "#2e2e2e"
+
+    open fun getMainColor(context: Context): Int {
+        return  Color.parseColor(if (isDarkMode(context)) mainColorDark else mainColorLight)
     }
 
-    fun getSubColor(context: Context): Int {
-        return if (isDarkMode(context)) -0x9a9a9b else -0x666667
+    open  fun getSubColor(context: Context): Int {
+        return Color.parseColor(if (isDarkMode(context)) subColorDark else subColorLight)
     }
 
-    fun getBackgroundColor(context: Context): Int {
-        return if (isDarkMode(context)) -0xd1d1d2 else -0x1
+    open fun getBackgroundColor(context: Context): Int {
+        return Color.parseColor(if (isDarkMode(context)) backgroundColorDark else backgroundColorLight)
     }
 
 }

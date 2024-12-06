@@ -41,6 +41,7 @@ import net.ankio.auto.xposed.hooks.qianji.sync.BaoXiaoUtils
 import net.ankio.auto.xposed.hooks.qianji.sync.BookUtils
 import net.ankio.auto.xposed.hooks.qianji.sync.CategoryUtils
 import net.ankio.auto.xposed.hooks.qianji.sync.SyncBillUtils
+import net.ankio.auto.xposed.hooks.qianji.tools.QianJiUi
 import org.ezbook.server.Server
 
 
@@ -105,6 +106,7 @@ class SideBarHooker : PartHooker() {
     }
 
 
+
     lateinit var itemMenuBinding: MenuItemBinding
 
     /**
@@ -122,13 +124,15 @@ class SideBarHooker : PartHooker() {
         }
     }
 
+    private val colorUtils = QianJiUi()
+
     private fun addSettingMenu(
         linearLayout: LinearLayout,
         context: Activity,
     ) {
-        val mainColor = ColorUtils.getMainColor(context)
-        val subColor = ColorUtils.getSubColor(context)
-        val backgroundColor = ColorUtils.getBackgroundColor(context)
+        val mainColor = colorUtils.getMainColor(context)
+        val subColor = colorUtils.getSubColor(context)
+        val backgroundColor = colorUtils.getBackgroundColor(context)
 
         itemMenuBinding = MenuItemBinding.inflate(LayoutInflater.from(context))
         itemMenuBinding.root.setBackgroundColor(backgroundColor)
