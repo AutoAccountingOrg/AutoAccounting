@@ -21,4 +21,6 @@ class QianJiUi: ColorUtils() {
 
     override val backgroundColorDark: String
         get() = "#1a1a1a"
+    override val mainColorDark: String
+        get() = "#b0b0b0"
 }
