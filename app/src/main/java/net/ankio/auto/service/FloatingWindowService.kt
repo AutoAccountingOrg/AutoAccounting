@@ -59,7 +59,7 @@ class FloatingWindowService : Service() {
             //说明是重复账单
             ToastUtils.info(getString(R.string.repeat_bill))
             App.launch(Dispatchers.Main) {
-                bills.trySend(parent)
+                bills.send(parent)
             }
             Logger.i("Repeat Bill, Parent: $parent")
             return START_NOT_STICKY
@@ -71,7 +71,6 @@ class FloatingWindowService : Service() {
 
 
     override fun onDestroy() {
-
         floatingQueue.shutdown()
         runCatching { !bills.isClosedForSend && bills.close() }
         super.onDestroy()

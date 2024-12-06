@@ -100,9 +100,11 @@ class FloatEditorDialog(
 
         if (floatingWindowService != null) {
             App.launch(Dispatchers.Main) {
-                val billInfo = floatingWindowService.bills.receive()
-                if (::binding.isInitialized) {
-                    checkUpdateBills(billInfo)
+                runCatching {
+                    val billInfo = floatingWindowService.bills.receive()
+                    if (::binding.isInitialized) {
+                        checkUpdateBills(billInfo)
+                    }
                 }
             }
         }
