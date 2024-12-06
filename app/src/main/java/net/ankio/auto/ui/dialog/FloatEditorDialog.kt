@@ -88,7 +88,7 @@ class FloatEditorDialog(
 
     override fun onCreateView(inflater: LayoutInflater): View {
         if (floatingWindowService != null) {
-            App.launch {
+            App.launch(Dispatchers.Main) {
                 val billInfo = floatingWindowService.bills.receive()
                 checkUpdateBills(billInfo)
             }
