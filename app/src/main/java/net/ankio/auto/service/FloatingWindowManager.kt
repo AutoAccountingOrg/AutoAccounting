@@ -333,7 +333,7 @@ class FloatingWindowManager(
                         stopProcess()
                     }, onConfirmClick = {
                         stopProcess()
-                    }).show(true)
+                    }, floatingWindowService = context).show(true)
                 }.onFailure {
                     stopProcess()
                     Logger.e("Failed to show editor", it)
