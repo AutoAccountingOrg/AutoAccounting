@@ -347,7 +347,7 @@ class JsRoute(private val session: ApplicationCall, private val context: android
         intent.putExtra("from","JsRoute")
         intent.setComponent(
             ComponentName(
-                "net.ankio.auto.xposed",
+                Server.packageName,
                 "net.ankio.auto.ui.activity.FloatingWindowTriggerActivity"
             )
         )

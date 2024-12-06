@@ -180,6 +180,8 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
 
         //注入版本信息
         Server.versionName = BuildConfig.VERSION_NAME
+        //注入包名
+        Server.packageName = BuildConfig.APPLICATION_ID
 
         // 启动自动记账服务
         if (AppRuntime.manifest.packageName === Apps.getServerRunInApp()) {

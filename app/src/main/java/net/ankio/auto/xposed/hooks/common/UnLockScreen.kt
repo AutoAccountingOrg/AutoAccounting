@@ -23,6 +23,7 @@ import android.content.IntentFilter
 import com.google.gson.Gson
 import kotlinx.coroutines.delay
 import net.ankio.auto.App
+import net.ankio.auto.BuildConfig
 import net.ankio.auto.xposed.core.App.Companion.TAG
 import net.ankio.auto.xposed.core.logger.Logger
 import net.ankio.auto.xposed.core.utils.AppRuntime
@@ -51,7 +52,7 @@ object UnLockScreen {
                                 panelIntent.putExtra("from","JsRoute")
                                 panelIntent.setComponent(
                                     ComponentName(
-                                        "net.ankio.auto.xposed",
+                                        BuildConfig.APPLICATION_ID,
                                         "net.ankio.auto.ui.activity.FloatingWindowTriggerActivity"
                                     )
                                 )
