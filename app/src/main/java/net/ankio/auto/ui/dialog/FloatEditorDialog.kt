@@ -17,7 +17,6 @@ package net.ankio.auto.ui.dialog
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.res.ColorStateList
 import android.view.LayoutInflater
@@ -61,6 +60,7 @@ class FloatEditorDialog(
     private val float: Boolean = false,
     private val onCancelClick: ((billInfoModel: BillInfoModel) -> Unit)? = null,
     private val onConfirmClick: ((billInfoModel: BillInfoModel) -> Unit)? = null,
+    private val floatingWindowService: FloatingWindowService? = null,
 ) :
     BaseSheetDialog(context) {
     lateinit var binding: FloatEditorBinding
@@ -75,12 +75,8 @@ class FloatEditorDialog(
     // 选择的账单ID
     private var selectedBills = mutableListOf<String>()
 
-    private lateinit var broadcastReceiver: BroadcastReceiver
 
-    private fun checkUpdateBills(): Boolean {
-        val bill = FloatingWindowService.updateBills.find { rawBillInfo.id == it.id }
-        if (bill == null) return false
-        FloatingWindowService.updateBills.remove(bill)
+    private fun checkUpdateBills(bill: BillInfoModel): Boolean {
         billInfoModel = bill.copy()
         rawBillInfo = bill.copy()
         convertBillInfo = bill.copy()
@@ -91,21 +87,20 @@ class FloatEditorDialog(
     }
 
     override fun onCreateView(inflater: LayoutInflater): View {
-        broadcastReceiver =
-            LocalBroadcastHelper.registerReceiver(LocalBroadcastHelper.ACTION_UPDATE_BILL) { action, bundle ->
-                Logger.i("更新账单")
-                checkUpdateBills()
+        if (floatingWindowService != null) {
+            App.launch {
+                val billInfo = floatingWindowService.bills.receive()
+                checkUpdateBills(billInfo)
             }
+        }
+
         binding = FloatEditorBinding.inflate(inflater)
         cardView = binding.editorCard
 
-        if (!checkUpdateBills()) {
-            Logger.d("Raw BillInfo => $rawBillInfo")
-            billTypeLevel1 = BillTool.getType(rawBillInfo.type)
-            billTypeLevel2 = rawBillInfo.type
-            bindUI()
-
-        }
+        Logger.d("Raw BillInfo => $rawBillInfo")
+        billTypeLevel1 = BillTool.getType(rawBillInfo.type)
+        billTypeLevel2 = rawBillInfo.type
+        bindUI()
         bindEvents()
 
         return binding.root
@@ -297,9 +292,6 @@ class FloatEditorDialog(
     }
 
     override fun dismiss() {
-        if (::broadcastReceiver.isInitialized) {
-            LocalBroadcastHelper.unregisterReceiver(broadcastReceiver)
-        }
         super.dismiss()
     }
 

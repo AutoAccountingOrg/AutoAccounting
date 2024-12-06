@@ -48,6 +48,7 @@ import org.ezbook.server.models.ResultModel
 import org.ezbook.server.tools.Assets
 import org.ezbook.server.tools.Bill
 import org.ezbook.server.tools.Category
+import org.ezbook.server.tools.FloatingIntent
 
 
 class JsRoute(private val session: ApplicationCall, private val context: android.content.Context) {
@@ -337,24 +338,7 @@ class JsRoute(private val session: ApplicationCall, private val context: android
      * 启动自动记账面板
      */
     private suspend fun startAutoPanel(billInfoModel: BillInfoModel, parent: BillInfoModel?) {
-        val intent = Intent()
-        intent.putExtra("billInfo", Gson().toJson(billInfoModel))
-        intent.putExtra("id", billInfoModel.id)
-        intent.putExtra("showWaitTip", true)
-        if (parent != null) {
-            intent.putExtra("parent", Gson().toJson(parent))
-        }
-        intent.putExtra("from","JsRoute")
-        intent.setComponent(
-            ComponentName(
-                Server.packageName,
-                "net.ankio.auto.ui.activity.FloatingWindowTriggerActivity"
-            )
-        )
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-        intent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
+        val intent = FloatingIntent(billInfoModel, true, "JsRoute", parent).toIntent()
         Server.log("拉起自动记账悬浮窗口：$intent")
         try {
             context.startActivity(intent)
