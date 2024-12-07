@@ -52,7 +52,9 @@ class FloatingQueue(private val callback:(FloatingIntent,FloatingQueue)->Unit) {
      * 停止处理队列中的Intent
      */
     suspend fun processStop(){
-        stopChannel.send(Unit)
+       runCatching {
+           stopChannel.send(Unit)
+       }
     }
     /**
      * 发送新的悬浮窗Intent到队列中
