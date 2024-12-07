@@ -343,7 +343,7 @@
     <string name="setting_auto_ai_asset">智能识别资产</string>
     <string name="setting_auto_ai_asset_desc">自动记账将尝试使用内置的识别算法自动映射正确的资产</string>
     <string name="loading_logs">正在打包日志中...</string>
-    <string name="no_need_to_update">无需更新</string>
+    <string name="no_need_to_update">无需更新，长按强制更新</string>
     <string name="check_update_error">检查更新出错，详细请查看日志。</string>
     <string name="check_update">检查更新中...</string>
     <string name="delete_bill_message">您确认要删除这笔账单吗？</string>
