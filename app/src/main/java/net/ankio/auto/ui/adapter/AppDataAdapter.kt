@@ -227,10 +227,10 @@ $issue
         binding.content.setOnClickListener {
             MaterialAlertDialogBuilder(activity)
                 .setTitle(activity.getString(R.string.content_title))
-                .setMessage(binding.content.text as String)
+                .setMessage(binding.content.text.toString())
                 .setNegativeButton(activity.getString(R.string.cancel_msg)) { _, _ -> }
                 .setPositiveButton(activity.getString(R.string.copy)) { _, _ ->
-                    App.copyToClipboard(binding.content.text as String)
+                    App.copyToClipboard(binding.content.text.toString())
                     ToastUtils.error(R.string.copy_command_success)
                 }
                 .show()
