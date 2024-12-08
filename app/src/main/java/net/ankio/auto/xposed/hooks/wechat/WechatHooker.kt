@@ -27,6 +27,7 @@ import net.ankio.auto.xposed.hooks.wechat.hooks.DatabaseHooker
 import net.ankio.auto.xposed.hooks.wechat.hooks.PayToolsHooker
 import net.ankio.auto.xposed.hooks.wechat.hooks.RedPackageHooker
 import net.ankio.auto.xposed.hooks.wechat.hooks.TransferHooker
+import net.ankio.auto.xposed.hooks.wechat.hooks.WebViewHooker
 import net.ankio.dex.model.Clazz
 import net.ankio.dex.model.ClazzField
 import net.ankio.dex.model.ClazzMethod
@@ -76,7 +77,8 @@ class WechatHooker : HookerManifest() {
         TransferHooker(),
         RedPackageHooker(),
         ChatUserHooker(),
-        PayToolsHooker()
+        PayToolsHooker(),
+        WebViewHooker()
     )
 
     override var rules: MutableList<Clazz>
