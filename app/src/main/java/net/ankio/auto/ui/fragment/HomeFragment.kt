@@ -62,8 +62,7 @@ import rikka.html.text.toHtml
  * 主页
  */
 class HomeFragment : BaseFragment() {
-    private var _binding: FragmentHomeBinding? = null
-    private val binding get() = _binding!!
+    private lateinit var binding: FragmentHomeBinding
     private val dialogs = mutableListOf<BaseSheetDialog>()
     override val menuList: ArrayList<ToolbarMenuItem> =
         arrayListOf(
@@ -95,7 +94,7 @@ class HomeFragment : BaseFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
-        _binding = FragmentHomeBinding.inflate(layoutInflater)
+        binding = FragmentHomeBinding.inflate(layoutInflater)
 
         bindingActiveEvents()
 
@@ -127,7 +126,7 @@ class HomeFragment : BaseFragment() {
                 checkServices()
             } catch (e: ServiceCheckException) {
                 Logger.e("checkServices", e)
-                if (!isAdded) return@launch
+                if (!isUiReady()) return@launch
                 MaterialAlertDialogBuilder(requireContext())
                     .setTitle(e.title)
                     .setMessage(e.msg)
@@ -144,11 +143,13 @@ class HomeFragment : BaseFragment() {
         refreshUI()
     }
 
+    private fun isUiReady() = isAdded && ::binding.isInitialized
+
     /**
      * 检查服务
      */
     private suspend fun checkServices(){
-        if (!isAdded) return
+        if (!isUiReady()) return
         ServerInfo.isServerStart(requireContext())
         //悬浮窗权限
         checkFloatPermission()
@@ -194,6 +195,7 @@ class HomeFragment : BaseFragment() {
      * 刷新UI
      */
     private fun refreshUI() {
+        if (!isUiReady()) return
         lifecycleScope.launch {
             bindActiveUI()
         }
@@ -205,7 +207,7 @@ class HomeFragment : BaseFragment() {
      * 绑定记账软件数据部分的UI
      */
     private fun bindBookAppUI() {
-        if (context == null || _binding == null) return
+        if (!isUiReady()) return
         binding.book.visibility =
             if (ConfigUtils.getBoolean(Setting.SETTING_BOOK_MANAGER,true)) View.VISIBLE else View.GONE
         binding.assets.visibility =
@@ -224,10 +226,9 @@ class HomeFragment : BaseFragment() {
         if (bookName.isEmpty()) {
             lifecycleScope.launch {
                 val book = BookNameModel.getFirstBook()
-                if (isAdded && _binding != null) {
+                if (!isUiReady()) return@launch
                     ConfigUtils.putString(Setting.DEFAULT_BOOK_NAME, book.name)
                     binding.defaultBook.text = book.name
-                }
             }
         } else {
             binding.defaultBook.text = bookName
@@ -238,7 +239,7 @@ class HomeFragment : BaseFragment() {
      * 绑定激活部分的UI
      */
     private suspend fun bindActiveUI() {
-        if (_binding == null) return
+        if (!isUiReady()) return
         val colorPrimary =
             App.getThemeAttrColor(com.google.android.material.R.attr.colorPrimary)
 
@@ -264,9 +265,10 @@ class HomeFragment : BaseFragment() {
      * 绑定规则部分的UI
      */
     private fun bindRuleUI() {
-        if (_binding == null) return
+        if (!isUiReady()) return
         lifecycleScope.launch {
             SettingModel.get(Setting.RULE_VERSION, "None").let {
+                if (!isUiReady()) return@launch
                 binding.ruleVersion.text = it
             }
         }
@@ -276,7 +278,7 @@ class HomeFragment : BaseFragment() {
      * 绑定规则部分的事件
      */
     private fun bindRuleEvents() {
-        if (_binding == null) return
+        if (!isUiReady()) return
         binding.categoryMap.setOnClickListener {
             findNavController().navigate(R.id.categoryMapFragment)
         }
@@ -307,7 +309,7 @@ class HomeFragment : BaseFragment() {
      * 检查规则更新
      */
     private suspend fun checkRuleUpdate(showResult: Boolean) {
-        if (!isAdded) return
+        if (!isUiReady()) return
         val ruleUpdate = RuleUpdate(requireContext())
         runCatching {
             if (ruleUpdate.check(showResult)) {
@@ -329,7 +331,7 @@ class HomeFragment : BaseFragment() {
      * 检查应用更新
      */
     private suspend fun checkAppUpdate(showResult: Boolean = false) {
-        if (context == null) return
+        if (!isUiReady()) return
         val appUpdate = AppUpdate(requireContext())
         runCatching {
             if (appUpdate.check(showResult)) {
@@ -500,8 +502,6 @@ class HomeFragment : BaseFragment() {
             }
         }
         dialogs.clear()
-        
-        _binding = null
         super.onDestroyView()
     }
 }
