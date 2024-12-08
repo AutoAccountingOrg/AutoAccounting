@@ -192,7 +192,7 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
 
         AppRuntime.manifest.logD("Hooker init success, ${AppRuntime.manifest.appName}(${AppRuntime.versionCode})")
 
-        if (!AppRuntime.manifest.systemApp && AppRuntime.manifest.packageName!==BuildConfig.APPLICATION_ID){
+        if (!AppRuntime.manifest.systemApp && AppRuntime.manifest.packageName!==BuildConfig.APPLICATION_ID && DataUtils.configBoolean(Setting.LOAD_SUCCESS, true)) {
             MessageUtils.toast("自动记账加载成功")
         }
     }
