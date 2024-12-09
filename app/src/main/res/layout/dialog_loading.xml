@@ -20,7 +20,7 @@
     android:orientation="vertical"
     android:gravity="center"
     android:padding="20dp"
-    android:background="@drawable/loading_background">
+    android:background="@color/transparent">
 
     <com.google.android.material.progressindicator.CircularProgressIndicator
         android:layout_width="@dimen/image_size_large"

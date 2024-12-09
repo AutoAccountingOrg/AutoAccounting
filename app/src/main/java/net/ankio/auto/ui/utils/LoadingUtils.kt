@@ -19,8 +19,8 @@ import android.app.Activity
 import android.app.Dialog
 import android.view.View
 import androidx.annotation.StringRes
+import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogLoadingBinding
-import net.ankio.auto.storage.Logger
 
 class LoadingUtils(private val activity: Activity) {
     private lateinit var dialog: Dialog
@@ -37,8 +37,9 @@ class LoadingUtils(private val activity: Activity) {
             return
         }
 
-        dialog = Dialog(activity, android.R.style.Theme_Translucent_NoTitleBar_Fullscreen)
+        dialog = Dialog(activity, R.style.CustomDialogTheme)
         dialog.setCancelable(false)
+
 
         binding = DialogLoadingBinding.inflate(activity.layoutInflater)
         if (text.isNullOrEmpty()) {

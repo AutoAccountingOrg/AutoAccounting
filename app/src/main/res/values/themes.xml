@@ -109,4 +109,12 @@
         <item name="cardElevation">0dp</item>
         <item name="cardBackgroundColor">?attr/colorSurfaceVariant</item>
     </style>
+    <style name="CustomDialogTheme" parent="Theme.AppCompat.Dialog">
+        <!-- 设置对话框背景 -->
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <!-- 设置外部区域的透明度 -->
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:backgroundDimAmount">0.8</item> <!-- 0 = 完全透明，1 = 完全不透明 -->
+        <!-- 可添加其他样式属性 -->
+    </style>
 </resources>

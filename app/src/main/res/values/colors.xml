@@ -30,7 +30,7 @@
     <color name="gray30">#30000000</color>
     <color name="black">#FF000000</color>
     <color name="gray40">#90000000</color>
-
+    <color name="transparent">#00000000</color>
     <color name="background9F">#9FFFFFFF</color>
     <color name="ic_launcher_background">#DDE1EC</color>
 </resources>
