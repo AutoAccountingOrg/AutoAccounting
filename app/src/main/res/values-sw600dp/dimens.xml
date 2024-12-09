@@ -1,0 +1,9 @@
+<resources>
+    <!-- 平板屏幕边距 -->
+    <dimen name="screen_horizontal_margin">24dp</dimen>
+    <dimen name="screen_vertical_margin">24dp</dimen>
+    
+    <!-- 平板卡片间距 -->
+    <dimen name="card_horizontal_spacing">24dp</dimen>
+    <dimen name="card_vertical_spacing">24dp</dimen>
+</resources> 
