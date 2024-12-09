@@ -30,8 +30,8 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@android:color/transparent"
-            app:layout_scrollFlags="scroll|enterAlways|snap"
             app:menu="@menu/home_menu"
+            
             app:title="@string/app_name" />
     </com.google.android.material.appbar.AppBarLayout>
 

@@ -33,95 +33,20 @@ import net.ankio.auto.databinding.FragmentLogBinding
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.adapter.LogAdapter
 import net.ankio.auto.ui.api.BasePageFragment
-import net.ankio.auto.ui.models.ToolbarMenuItem
 import net.ankio.auto.ui.utils.LoadingUtils
+import net.ankio.auto.ui.utils.viewBinding
 import net.ankio.auto.utils.DateUtils
-import org.ezbook.server.db.model.AppDataModel
 import org.ezbook.server.db.model.LogModel
+import java.io.BufferedWriter
 import java.io.File
-import java.lang.ref.WeakReference
+import java.io.FileWriter
 
 
 /**
  * 日志页面
  */
 class LogFragment : BasePageFragment<LogModel>() {
-    private lateinit var binding: FragmentLogBinding
-    override val menuList: ArrayList<ToolbarMenuItem> =
-        arrayListOf(
-            ToolbarMenuItem(R.string.item_share, R.drawable.menu_icon_share) {
-                runCatching {
-                    if (!isAdded) return@ToolbarMenuItem  
-                    val loadingUtils = LoadingUtils(requireActivity())
-                    loadingUtils.show(R.string.loading_logs)
-
-                    lifecycleScope.launch {
-                        val cacheDir = requireContext().cacheDir
-                        val file = File(cacheDir, "log.txt") // 确保这里路径是正确的，不要包含前置的 "/"
-
-                        if (file.exists()) {
-                            file.delete()
-                        }
-                        file.createNewFile()
-
-                        // 循环20页日志，每页100条
-                        for (i in 1..200) {
-                            val list = LogModel.list(i, 100)
-                            if (list.isEmpty()) {
-                                break
-                            }
-                            file.appendText(list.joinToString("\n") {
-                                "${DateUtils.stampToDate(it.time)}  ${it.app}  [${it.level}][${it.location}]${it.message}"
-                            })
-                        }
-
-                        loadingUtils.close()
-
-                        val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                            type = "application/octet-stream"
-                            val fileUri: Uri = FileProvider.getUriForFile(
-                                requireContext(),
-                                "${requireContext().packageName}.provider", // 使用动态获取包名
-                                file
-                            )
-                            putExtra(Intent.EXTRA_STREAM, fileUri)
-                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                            putExtra(
-                                Intent.EXTRA_SUBJECT,
-                                getString(R.string.share_file)
-                            ) // 添加可选的文本标题
-                        }
-
-                        // 启动分享意图
-                        requireContext().startActivity(
-                            Intent.createChooser(
-                                shareIntent,
-                                getString(R.string.share_file)
-                            )
-                        )
-                    }
-                }.onFailure {
-                    Logger.e("Share Log Error", it)
-                }
-            },
-            ToolbarMenuItem(R.string.item_clear, R.drawable.menu_icon_clear) {
-                if (!isAdded) return@ToolbarMenuItem  // 添加检查
-                
-                MaterialAlertDialogBuilder(requireActivity())
-                    .setTitle(requireActivity().getString(R.string.delete_data))
-                    .setMessage(requireActivity().getString(R.string.delete_msg))
-                    .setPositiveButton(requireActivity().getString(R.string.sure_msg)) { _, _ ->
-                        lifecycleScope.launch {
-                            LogModel.clear()
-                            page = 1
-                            loadDataInside()
-                        }
-                    }
-                    .setNegativeButton(requireActivity().getString(R.string.cancel_msg)) { _, _ -> }
-                    .show()
-            },
-        )
-
+    override val binding: FragmentLogBinding by viewBinding(FragmentLogBinding::inflate)
 
     /**
      * 加载数据
@@ -134,6 +59,13 @@ class LogFragment : BasePageFragment<LogModel>() {
         }
     }
 
+    override fun onCreateAdapter() {
+        val recyclerView = binding.statusPage.contentView
+        recyclerView?.layoutManager = LinearLayoutManager(requireContext())
+        recyclerView?.adapter = LogAdapter(pageData)
+        recyclerView?.addItemDecoration(DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
+
+    }
     /**
      * 创建视图
      */
@@ -141,22 +73,92 @@ class LogFragment : BasePageFragment<LogModel>() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View {
-        binding = FragmentLogBinding.inflate(layoutInflater)
-        statusPage = binding.statusPage
-        val recyclerView = binding.statusPage.contentView
-        recyclerView?.layoutManager = LinearLayoutManager(requireContext())
-        recyclerView?.adapter = LogAdapter(pageData)
-        recyclerView?.addItemDecoration(DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
-        //scrollView = WeakReference(recyclerView!!)
-        loadDataEvent(binding.refreshLayout)
-        return binding.root
-    }
+    ): View = binding.root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        statusPage.showLoading()
-        loadDataInside()
+        binding.topAppBar.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.item_share -> {
+                    val loadingUtils = LoadingUtils(requireActivity())
+                    loadingUtils.show(R.string.loading_logs)
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        try {
+                            val logFile = prepareLogFile()
+                            writeLogsToFile(logFile)
+                            withContext(Dispatchers.Main) {
+                                loadingUtils.close()
+                                shareLogFile(logFile)
+                            }
+                        } catch (e: Exception) {
+                            withContext(Dispatchers.Main) {
+                                loadingUtils.close()
+                                Logger.e("Share Log Error", e)
+                            }
+                        }
+                    }
+                    true
+                }
+                R.id.item_clear -> {
+                    MaterialAlertDialogBuilder(requireActivity())
+                        .setTitle(requireActivity().getString(R.string.delete_data))
+                        .setMessage(requireActivity().getString(R.string.delete_msg))
+                        .setPositiveButton(requireActivity().getString(R.string.sure_msg)) { _, _ ->
+                            lifecycleScope.launch {
+                                LogModel.clear()
+                                page = 1
+                                loadDataInside()
+                            }
+                        }
+                        .setNegativeButton(requireActivity().getString(R.string.cancel_msg)) { _, _ -> }
+                        .show()
+                    true
+                }
+                else -> false
+            }
+        }
+    }
+
+    private fun prepareLogFile(): File {
+        val cacheDir = requireContext().cacheDir
+        return File(cacheDir, "log.txt").apply {
+            if (exists()) delete()
+            createNewFile()
+        }
+    }
+
+    private suspend fun writeLogsToFile(file: File) = withContext(Dispatchers.IO) {
+        BufferedWriter(FileWriter(file)).use { writer ->
+            for (i in 1..20) {
+                val list = LogModel.list(i, 100)
+                if (list.isEmpty()) break
+                val logText = list.joinToString("\n") {
+                    "${DateUtils.stampToDate(it.time)}  ${it.app}  [${it.level}][${it.location}]${it.message}"
+                }
+                writer.write(logText)
+                writer.newLine()  // Ensure each log entry starts on a new line
+            }
+        }
+    }
+
+    private fun shareLogFile(file: File) {
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "application/octet-stream"
+            val fileUri: Uri = FileProvider.getUriForFile(
+                requireContext(),
+                "${requireContext().packageName}.provider",
+                file
+            )
+            putExtra(Intent.EXTRA_STREAM, fileUri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            putExtra(Intent.EXTRA_SUBJECT, getString(R.string.share_file))
+        }
+        startActivity(Intent.createChooser(shareIntent, getString(R.string.share_file)))
+    }
+
+    override fun beforeViewBindingDestroy() {
+        super.beforeViewBindingDestroy()
+        binding.topAppBar.setOnMenuItemClickListener(null)
     }
 
 }

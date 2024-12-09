@@ -48,7 +48,7 @@ import net.ankio.auto.ui.dialog.BookSelectorDialog
 import net.ankio.auto.ui.dialog.CategorySelectorDialog
 import net.ankio.auto.ui.dialog.UpdateDialog
 import net.ankio.auto.ui.utils.ToastUtils
-import net.ankio.auto.ui.utils.ViewFactory.createBinding
+import net.ankio.auto.ui.utils.viewBinding
 import net.ankio.auto.update.AppUpdate
 import net.ankio.auto.update.RuleUpdate
 import net.ankio.auto.utils.CustomTabsHelper
@@ -64,7 +64,7 @@ import rikka.html.text.toHtml
  * 主页
  */
 class HomeFragment : BaseFragment() {
-    override val binding: FragmentHomeBinding by createBinding(FragmentHomeBinding::inflate)
+    override val binding: FragmentHomeBinding by viewBinding(FragmentHomeBinding::inflate)
     /**
      * 关于对话框
      */
@@ -438,7 +438,7 @@ class HomeFragment : BaseFragment() {
     /**
      * 绑定激活部分的UI
      */
-    private suspend fun bindActiveUI() {
+    private fun bindActiveUI() {
       //  if (!isUiReady()) return
         val colorPrimary =
             App.getThemeAttrColor(com.google.android.material.R.attr.colorPrimary)
@@ -472,37 +472,6 @@ class HomeFragment : BaseFragment() {
                 binding.ruleVersion.text = it
             }
         }
-    }
-
-    /**
-     * 绑定规则部分的事件
-     */
-    private fun bindRuleEvents() {
-        //if (!isUiReady()) return
-        binding.categoryMap.setOnClickListener {
-            findNavController().navigate(R.id.categoryMapFragment)
-        }
-
-        binding.categoryEdit.setOnClickListener {
-            findNavController().navigate(R.id.categoryRuleFragment)
-        }
-
-        binding.checkRuleUpdate.setOnClickListener {
-            ToastUtils.info(R.string.check_update)
-            lifecycleScope.launch {
-                checkRuleUpdate(true)
-            }
-        }
-        //长按强制更新
-        binding.checkRuleUpdate.setOnLongClickListener {
-            ConfigUtils.putString(Setting.RULE_VERSION, "")
-            ToastUtils.info(R.string.check_update)
-            lifecycleScope.launch {
-                checkRuleUpdate(true)
-            }
-            true
-        }
-
     }
 
     /**
@@ -549,15 +518,6 @@ class HomeFragment : BaseFragment() {
     }
 
     /**
-     * 销毁时注销广播
-     */
-    override fun onDestroy() {
-        super.onDestroy()
-
-
-    }
-
-    /**
      * 设置激活状态
      */
     private fun setActive(
@@ -583,6 +543,10 @@ class HomeFragment : BaseFragment() {
         binding.imageView.setColorFilter(textColor)
         binding.msgLabel.setTextColor(textColor)
         binding.msgLabel2.setTextColor(textColor)
+    }
+
+    override fun beforeViewBindingDestroy(){
+        binding.toolbar.setOnMenuItemClickListener(null)
     }
 
     override fun onDestroyView() {
