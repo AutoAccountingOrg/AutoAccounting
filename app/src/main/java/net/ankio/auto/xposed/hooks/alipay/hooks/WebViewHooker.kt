@@ -95,12 +95,14 @@ class WebViewHooker : PartHooker() {
                     withContext(Dispatchers.IO) {
                         while (needWait && count > 0) {
                             count--
-                            XposedHelpers.callMethod(
-                                obj,
-                                "evaluateJavascript",
-                                "javascript:window.ankioResults",
-                                resultCallback,
-                            )
+                            withContext(Dispatchers.Main){
+                                XposedHelpers.callMethod(
+                                    obj,
+                                    "evaluateJavascript",
+                                    "javascript:window.ankioResults",
+                                    resultCallback,
+                                )
+                            }
                             delay(WAIT_TIME)
                         }
                     }
