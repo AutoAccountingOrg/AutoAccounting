@@ -67,71 +67,77 @@ class DatabaseHooker : PartHooker() {
             contentValues.put("t", System.currentTimeMillis())
 
             if (tableName == "message") {
-                if (type == 318767153) {
-                    // 这是消息盒子
-                    val content = contentValues.get("content").toString()
-                    if (!content.contains("CDATA[微信支付")) return@after // 只对微信支付特殊处理
-                    val json = Gson().fromJson(xmlToJson(content), JsonObject::class.java)
-                    val tpl =
-                        Gson().fromJson(
-                            """
-                                    {
-                                      "description": "",
-                                            "source": "微信支付",
-                                            "type": 5,
-                                            "appId": "",
-                                            "msgId": 99064,
-                                            "title": ""
-                                    }
-                                    """.trimIndent(),
-                            JsonObject::class.java,
+
+                when (type) {
+                    318767153 -> {
+                        // 这是消息盒子
+                        val content = contentValues.get("content").toString()
+                    //    if (!content.contains("CDATA[微信支付")) return@after // 只对微信支付特殊处理
+                        val json = Gson().fromJson(xmlToJson(content), JsonObject::class.java)
+                        val tpl =
+                            Gson().fromJson(
+                                """
+                                                {
+                                                  "description": "",
+                                                        "source": "微信支付",
+                                                        "type": 5,
+                                                        "appId": "",
+                                                        "msgId": 99064,
+                                                        "title": ""
+                                                }
+                                                """.trimIndent(),
+                                JsonObject::class.java,
+                            )
+
+                        //   logD("微信支付数据JSON：$json")
+
+                        val msg = json.get("msg").asJsonObject.get("appmsg").asJsonObject
+                        tpl.addProperty("description", msg.get("des").asString)
+                        tpl.addProperty("title", msg.get("title").asString)
+                        tpl.addProperty(
+                            "display_name",
+                            msg.get("mmreader")
+                                .asJsonObject.get("template_header")
+                                .asJsonObject.get("display_name").asString,
                         )
+                        putCache(tpl)
+                        val result = JsonObject()
+                        result.add("mMap", tpl)
 
-                    //   logD("微信支付数据JSON：$json")
+                        AppRuntime.manifest.logD("微信支付数据：$result")
 
-                    val msg = json.get("msg").asJsonObject.get("appmsg").asJsonObject
-                    tpl.addProperty("description", msg.get("des").asString)
-                    tpl.addProperty("title", msg.get("title").asString)
-                    tpl.addProperty(
-                        "display_name",
-                        msg.get("mmreader")
-                            .asJsonObject.get("template_header")
-                            .asJsonObject.get("display_name").asString,
-                    )
-                    putCache(tpl)
-                    val result = JsonObject()
-                    result.add("mMap", tpl)
+                        AppRuntime.manifest.analysisData(DataType.DATA, result.toString())
+                    }
+                    419430449 -> {
+                        //微信转账消息
+                        val content = contentValues.get("content").toString()
+                        val json = JsonObject()
+                        json.addProperty("type", "transfer")
+                        json.addProperty("isSend",contentValues.getAsInteger("isSend"))
+                        json.addProperty("content", xmlToJson(content))
+                        putCache(json)
+                        AppRuntime.manifest.analysisData(DataType.DATA, json.toString())
+                    }
+                    10000 -> {
+                        // 微信支付群收款
+                        val json = JsonObject()
+                        json.addProperty("type", "groupCollection")
+                        json.add("content", Gson().toJsonTree(contentValues))
+                        putCache(json)
+                        AppRuntime.manifest.analysisData(DataType.DATA, json.toString())
 
-                    AppRuntime.manifest.logD("微信支付数据：$result")
+                    }
+                    436207665 -> { //微信红包
+                        val json = JsonObject()
+                        val content = contentValues.get("content").toString()
+                        json.addProperty("type", "redPackage")
+                        json.addProperty("content", xmlToJson(content))
+                        json.addProperty("isSend",contentValues.getAsInteger("isSend"))
 
-                    AppRuntime.manifest.analysisData(DataType.DATA, result.toString())
-                } else if (type == 419430449) {
-                    //微信转账消息
-                    val content = contentValues.get("content").toString()
-                    val json = JsonObject()
-                    json.addProperty("type", "transfer")
-                    json.addProperty("isSend",contentValues.getAsInteger("isSend"))
-                    json.addProperty("content", xmlToJson(content))
-                    putCache(json)
-                    AppRuntime.manifest.analysisData(DataType.DATA, json.toString())
-                } else if (type == 10000){
-                    // 微信支付群收款
-                    val json = JsonObject()
-                    json.addProperty("type", "groupCollection")
-                    json.add("content", Gson().toJsonTree(contentValues))
-                    putCache(json)
-                    AppRuntime.manifest.analysisData(DataType.DATA, json.toString())
+                        putCache(json)
+                        AppRuntime.manifest.analysisData(DataType.DATA, json.toString())
 
-                }else if (type == 436207665){ //微信红包
-                    val json = JsonObject()
-                    val content = contentValues.get("content").toString()
-                    json.addProperty("type", "redPackage")
-                    json.addProperty("content", xmlToJson(content))
-                    json.addProperty("isSend",contentValues.getAsInteger("isSend"))
-
-                    putCache(json)
-                    AppRuntime.manifest.analysisData(DataType.DATA, json.toString())
-
+                    }
                 }
             } else if (tableName == "AppMessage") {
                 if (type == 5) {
