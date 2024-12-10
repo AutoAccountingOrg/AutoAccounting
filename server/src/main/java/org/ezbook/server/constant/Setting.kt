@@ -16,6 +16,7 @@
 package org.ezbook.server.constant
 
 object Setting {
+    const val DONATE_TIME: String = "donate_time"
     const val LOAD_SUCCESS: String = "load_success"
     const val KEY_FRAMEWORK: String = "framework"
     const val LAST_BACKUP_TIME: String = "last_backup_time"
