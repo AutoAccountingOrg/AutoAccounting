@@ -39,4 +39,11 @@
     <dimen name="font_size_normal">12sp</dimen>
     <dimen name="btn_height">80dp</dimen>
     <dimen name="btn_height_small">60dp</dimen>
+    <dimen name="screen_horizontal_margin">16dp</dimen>
+    <dimen name="screen_vertical_margin">16dp</dimen>
+    <dimen name="card_horizontal_spacing">16dp</dimen>
+    <dimen name="card_vertical_spacing">16dp</dimen>
+    <dimen name="max_card_width">600dp</dimen>
+    <dimen name="max_content_width">1200dp</dimen>
+    <dimen name="card_horizontal_spacing_half">8dp</dimen>
 </resources>

@@ -499,6 +499,18 @@
     <string name="server_error_btn">好的</string>
     <string name="setting_load_success">成功加载自动记账后弹出提示</string>
     <string name="load_msg">按需开启</string>
+    <string name="donate_title">支持我们的开源项目</string>
+    <string name="donate_description">感谢您使用自动记账！您的支持是我们持续改进的动力。喜欢我们的应用？请考虑捐赠支持，谢谢您的支持！</string>
+    <string name="donate_alipay">支付宝</string>
+    <string name="donate_wechat">微信</string>
+    <string name="copy_donate_qr">请截图保存后使用微信扫一扫</string>
+    <string name="resource_title">相关资源</string>
+    <string name="msg_doc">用户文档</string>
+    <string name="msg_doc_number">www.ez-book.org</string>
+    <string name="msg_pan">网盘</string>
+    <string name="msg_pan_number">cloud.ankio.net</string>
+    <string name="msg_doc_url">https://www.ez-book.org</string>
+    <string name="msg_pan_url">https://cloud.ankio.net</string>
 
 
 </resources>
