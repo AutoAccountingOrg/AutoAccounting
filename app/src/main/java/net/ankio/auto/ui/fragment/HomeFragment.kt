@@ -65,6 +65,7 @@ import rikka.html.text.toHtml
  */
 class HomeFragment : BaseFragment() {
     override val binding: FragmentHomeBinding by viewBinding(FragmentHomeBinding::inflate)
+
     /**
      * 关于对话框
      */
@@ -91,7 +92,7 @@ class HomeFragment : BaseFragment() {
 
     private fun setupCards() {
         val surfaceColor = SurfaceColors.SURFACE_1.getColor(requireContext())
-        listOf(binding.infoCard, binding.groupCard, binding.ruleCard,binding.donateCard)
+        listOf(binding.infoCard, binding.groupCard, binding.ruleCard, binding.donateCard)
             .forEach { it.setCardBackgroundColor(surfaceColor) }
     }
 
@@ -102,16 +103,27 @@ class HomeFragment : BaseFragment() {
         setupRuleEvents()
         setupCommunicationEvents()
         setupDonateEvents()
+        setupResourceEvents()
+    }
+
+    private fun setupResourceEvents() {
+        binding.msgDocButton.setOnClickListener {
+            CustomTabsHelper.launchUrlOrCopy(requireContext(), getString(R.string.msg_doc_url))
+        }
+        binding.msgPanButton.setOnClickListener {
+            CustomTabsHelper.launchUrlOrCopy(requireContext(), getString(R.string.msg_pan_url))
+        }
     }
 
     private fun setupDonateEvents() {
         binding.closeDonate.setOnClickListener {
-            ConfigUtils.putBoolean(Setting.DONATE_CLOSE, true)
+            ConfigUtils.putLong(Setting.DONATE_TIME, System.currentTimeMillis())
             bindDonateUI()
         }
 
         binding.donateWechat.setOnClickListener {
-            val uri = "https://pic.dreamn.cn/uPic/2023_04_23_00_41_49_1682181709_1682181709722_KGWAI6.jpg"
+            val uri =
+                "https://pic.dreamn.cn/uPic/2023_04_23_00_41_49_1682181709_1682181709722_KGWAI6.jpg"
             CustomTabsHelper.launchUrlOrCopy(requireContext(), uri)
             ToastUtils.info(R.string.copy_donate_qr)
         }
@@ -127,13 +139,13 @@ class HomeFragment : BaseFragment() {
 
     private fun checkInitialServices() {
         lifecycleScope.launch {
-            runCatching { 
-                checkServices() 
+            runCatching {
+                checkServices()
             }.onFailure { e ->
                 if (e is ServiceCheckException) {
                     showServiceErrorDialog(e)
-                }else{
-                    Logger.e("Error in check service",e)
+                } else {
+                    Logger.e("Error in check service", e)
                 }
             }
         }
@@ -151,7 +163,7 @@ class HomeFragment : BaseFragment() {
                     }
                 }
             }
-            //.show()
+        //.show()
         if (error.dismissBtn != null) {
             builder.setNegativeButton(error.dismissBtn) { _, _ ->
                 if (isAdded) {
@@ -166,15 +178,17 @@ class HomeFragment : BaseFragment() {
 
     private fun setupMenuEvents() {
         binding.toolbar.setOnMenuItemClickListener { menuItem ->
-            when(menuItem.itemId) {
+            when (menuItem.itemId) {
                 R.id.title_log -> {
                     findNavController().navigate(R.id.logFragment)
                     true
                 }
+
                 R.id.title_more -> {
                     showAboutDialog()
                     true
                 }
+
                 else -> false
             }
         }
@@ -182,7 +196,7 @@ class HomeFragment : BaseFragment() {
 
     private fun showAboutDialog() {
         aboutDialog?.dismiss()
-        
+
         val dialogBinding = AboutDialogBinding.inflate(LayoutInflater.from(requireContext()))
         with(dialogBinding) {
             sourceCode.apply {
@@ -194,7 +208,7 @@ class HomeFragment : BaseFragment() {
             }
             versionName.text = BuildConfig.VERSION_NAME
         }
-        
+
         aboutDialog = MaterialAlertDialogBuilder(requireContext())
             .setView(dialogBinding.root)
             .create()
@@ -211,24 +225,24 @@ class HomeFragment : BaseFragment() {
 
     private fun setupBookAppEvents() {
         val themeContext = App.getThemeContext(requireContext())
-        
+
         with(binding) {
             bookAppContainer.setOnClickListener {
                 showAppDialog()
             }
-            
+
             map.setOnClickListener {
                 findNavController().navigate(R.id.assetMapFragment)
             }
-            
+
             readAssets.setOnClickListener {
                 showAssetsDialog(themeContext)
             }
-            
+
             book.setOnClickListener {
                 showBookDialog(themeContext)
             }
-            
+
             readCategory.setOnClickListener {
                 showCategoryDialog(themeContext)
             }
@@ -285,7 +299,7 @@ class HomeFragment : BaseFragment() {
                 setOnClickListener {
                     checkRuleUpdateWithToast()
                 }
-                
+
                 setOnLongClickListener {
                     forceCheckRuleUpdate()
                     true
@@ -329,7 +343,7 @@ class HomeFragment : BaseFragment() {
     /**
      * 检查服务
      */
-    private suspend fun checkServices(){
+    private suspend fun checkServices() {
         //if (!isUiReady()) return
         ServerInfo.isServerStart(requireContext())
         //悬浮窗权限
@@ -349,14 +363,14 @@ class HomeFragment : BaseFragment() {
         }
     }
 
-    private fun checkFloatPermission(){
-        if(!Settings.canDrawOverlays(context)){
+    private fun checkFloatPermission() {
+        if (!Settings.canDrawOverlays(context)) {
             throw ServiceCheckException(
                 getString(R.string.title_no_permission),
                 getString(R.string.no_permission_float_window),
                 getString(R.string.btn_set_permission), action = {
-                startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION))
-            })
+                    startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION))
+                })
         }
     }
 
@@ -364,17 +378,17 @@ class HomeFragment : BaseFragment() {
     /**
      * 检查记账软件
      */
-    private  fun checkBookApp() {
+    private fun checkBookApp() {
         if (ConfigUtils.getString(Setting.BOOK_APP_ID, "").isEmpty()) {
             throw ServiceCheckException(
                 getString(R.string.title_no_book_app),
                 getString(R.string.no_book_app),
                 getString(R.string.btn_set_book_app), action = {
-                    val appDialog = AppDialog(requireContext()){
-                    bindBookAppUI()
-                }
-                appDialog.showInFragment(this, cancel = true)
-            })
+                    val appDialog = AppDialog(requireContext()) {
+                        bindBookAppUI()
+                    }
+                    appDialog.showInFragment(this, cancel = true)
+                })
         }
     }
 
@@ -382,7 +396,7 @@ class HomeFragment : BaseFragment() {
      * 刷新UI
      */
     private fun refreshUI() {
-     //   if (!isUiReady()) return
+        //   if (!isUiReady()) return
         lifecycleScope.launch {
             bindActiveUI()
         }
@@ -390,16 +404,17 @@ class HomeFragment : BaseFragment() {
         bindRuleUI()
         bindDonateUI()
     }
+
     private fun bindDonateUI() {
         val donateTime = ConfigUtils.getLong(Setting.DONATE_TIME, 0)
-        val donateClose = ConfigUtils.getBoolean(Setting.DONATE_CLOSE, false)
         val oneYearInMillis = 365L * 24 * 60 * 60 * 1000 // 每年的毫秒数
         val now = System.currentTimeMillis()
 
-        // 检查条件：donateClose为false 且 (首次显示或上次显示时间超过一年)
-        val shouldShowDonate = !donateClose && (donateTime == 0L || now - donateTime > oneYearInMillis)
+        // 检查条件：首次显示，或者已经过了一年
+        val shouldShowDonate = donateTime == 0L || now - donateTime > oneYearInMillis
 
         binding.donateCard.visibility = if (shouldShowDonate) View.VISIBLE else View.GONE
+
     }
 
 
@@ -407,11 +422,18 @@ class HomeFragment : BaseFragment() {
      * 绑定记账软件数据部分的UI
      */
     private fun bindBookAppUI() {
-      //  if (!isUiReady()) return
         binding.book.visibility =
-            if (ConfigUtils.getBoolean(Setting.SETTING_BOOK_MANAGER,true)) View.VISIBLE else View.GONE
+            if (ConfigUtils.getBoolean(
+                    Setting.SETTING_BOOK_MANAGER,
+                    true
+                )
+            ) View.VISIBLE else View.GONE
         binding.assets.visibility =
-            if (ConfigUtils.getBoolean(Setting.SETTING_ASSET_MANAGER,true)) View.VISIBLE else View.GONE
+            if (ConfigUtils.getBoolean(
+                    Setting.SETTING_ASSET_MANAGER,
+                    true
+                )
+            ) View.VISIBLE else View.GONE
         ConfigUtils.getString(Setting.BOOK_APP_ID, "").apply {
             if (this.isEmpty()) {
                 binding.bookApp.text = getString(R.string.no_setting)
@@ -426,9 +448,9 @@ class HomeFragment : BaseFragment() {
         if (bookName.isEmpty()) {
             lifecycleScope.launch {
                 val book = BookNameModel.getFirstBook()
-               // if (!isUiReady()) return@launch
-                    ConfigUtils.putString(Setting.DEFAULT_BOOK_NAME, book.name)
-                    binding.defaultBook.text = book.name
+                // if (!isUiReady()) return@launch
+                ConfigUtils.putString(Setting.DEFAULT_BOOK_NAME, book.name)
+                binding.defaultBook.text = book.name
             }
         } else {
             binding.defaultBook.text = bookName
@@ -439,7 +461,7 @@ class HomeFragment : BaseFragment() {
      * 绑定激活部分的UI
      */
     private fun bindActiveUI() {
-      //  if (!isUiReady()) return
+        //  if (!isUiReady()) return
         val colorPrimary =
             App.getThemeAttrColor(com.google.android.material.R.attr.colorPrimary)
 
@@ -465,7 +487,7 @@ class HomeFragment : BaseFragment() {
      * 绑定规则部分的UI
      */
     private fun bindRuleUI() {
-       // if (!isUiReady()) return
+        // if (!isUiReady()) return
         lifecycleScope.launch {
             SettingModel.get(Setting.RULE_VERSION, "None").let {
                 //if (!isUiReady()) return@launch
@@ -478,7 +500,7 @@ class HomeFragment : BaseFragment() {
      * 检查规则更新
      */
     private suspend fun checkRuleUpdate(showResult: Boolean) {
-     //   if (!isUiReady()) return
+        //   if (!isUiReady()) return
         val ruleUpdate = RuleUpdate(requireContext())
         runCatching {
             if (ruleUpdate.check(showResult)) {
@@ -489,7 +511,7 @@ class HomeFragment : BaseFragment() {
                     }
                 }
                 updateDialog.showInFragment(this, cancel = true)
-           //     dialogs.add(updateDialog)
+                //     dialogs.add(updateDialog)
             }
         }.onFailure {
             Logger.e("checkRuleUpdate", it)
@@ -500,7 +522,7 @@ class HomeFragment : BaseFragment() {
      * 检查应用更新
      */
     private suspend fun checkAppUpdate(showResult: Boolean = false) {
-    //    if (!isUiReady()) return
+        //    if (!isUiReady()) return
         val appUpdate = AppUpdate(requireContext())
         runCatching {
             if (appUpdate.check(showResult)) {
@@ -510,7 +532,7 @@ class HomeFragment : BaseFragment() {
                     }
                 }
                 updateDialog.showInFragment(this, cancel = true)
-          //      dialogs.add(updateDialog)
+                //      dialogs.add(updateDialog)
             }
         }.onFailure {
             Logger.e("checkAppUpdate", it)
@@ -545,7 +567,7 @@ class HomeFragment : BaseFragment() {
         binding.msgLabel2.setTextColor(textColor)
     }
 
-    override fun beforeViewBindingDestroy(){
+    override fun beforeViewBindingDestroy() {
         binding.toolbar.setOnMenuItemClickListener(null)
     }
 

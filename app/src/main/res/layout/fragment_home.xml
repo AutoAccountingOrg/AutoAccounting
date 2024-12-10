@@ -212,7 +212,8 @@
                     app:flow_horizontalStyle="packed"
                     app:flow_maxElementsWrap="@integer/cards_per_row"
                     app:flow_horizontalAlign="start"
-                    app:constraint_referenced_ids="info_card,rule_card,group_card"/>
+                    app:flow_verticalAlign="top"
+                    app:constraint_referenced_ids="info_card,rule_card,group_card,group_resource"/>
 
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/info_card"
@@ -678,6 +679,115 @@
                                 app:layout_constraintTop_toBottomOf="@id/msg_qq" />
                         </androidx.constraintlayout.widget.ConstraintLayout>
 
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/group_resource"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    style="@style/HomeCard">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="@dimen/padding"
+                        android:orientation="vertical">
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:padding="@dimen/padding"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/resource_title"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textStyle="bold" />
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:id="@+id/msg_doc_button"
+                            style="@style/CardLine"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:animateLayoutChanges="true">
+
+                            <ImageView
+                                android:id="@+id/image_doc"
+                                android:layout_width="@dimen/image_size"
+                                android:layout_height="@dimen/image_size"
+                                android:src="@drawable/bottom_select_data"
+                                app:tint="?colorOnSurface"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintBottom_toBottomOf="parent" />
+
+                            <com.google.android.material.textview.MaterialTextView
+                                android:id="@+id/msg_doc"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="@dimen/border_side"
+                                android:layout_marginEnd="@dimen/border_side"
+                                android:text="@string/msg_doc"
+                                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                                android:textColor="?colorOnSurface"
+                                app:layout_constraintStart_toEndOf="@id/image_doc"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+
+                            <com.google.android.material.textview.MaterialTextView
+                                android:id="@+id/msg_doc_number"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="@dimen/border_side"
+                                android:text="@string/msg_doc_number"
+                                android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                                app:layout_constraintStart_toEndOf="@id/image_doc"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintTop_toBottomOf="@id/msg_doc" />
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:id="@+id/msg_pan_button"
+                            style="@style/CardLine"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:clickable="true">
+
+                            <ImageView
+                                android:id="@+id/image_pan"
+                                android:layout_width="@dimen/image_size"
+                                android:layout_height="wrap_content"
+                                android:src="@drawable/ic_cloud"
+                                app:tint="?colorOnSurface"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintBottom_toBottomOf="parent" />
+
+                            <com.google.android.material.textview.MaterialTextView
+                                android:id="@+id/msg_pan"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="@dimen/border_side"
+                                android:layout_marginEnd="@dimen/border_side"
+                                android:text="@string/msg_pan"
+                                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                                android:textColor="?colorOnSurface"
+                                app:layout_constraintStart_toEndOf="@id/image_pan"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+
+                            <com.google.android.material.textview.MaterialTextView
+                                android:id="@+id/msg_pan_number"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="@dimen/border_side"
+                                android:text="@string/msg_pan_number"
+                                android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                                app:layout_constraintStart_toEndOf="@id/image_pan"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintTop_toBottomOf="@id/msg_pan" />
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    
                     </LinearLayout>
 
                 </com.google.android.material.card.MaterialCardView>
