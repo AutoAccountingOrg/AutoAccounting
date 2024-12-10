@@ -1,0 +1,17 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/title_log"
+        android:title="@string/title_log"
+        android:icon="@drawable/menu_item_log"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/title_more"
+        android:icon="@drawable/menu_item_more"
+        android:title="@string/title_more"
+        app:showAsAction="ifRoom" />
+
+
+</menu>

@@ -22,6 +22,8 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.viewbinding.ViewBinding
+import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.appbar.MaterialToolbar
 import net.ankio.auto.ui.api.BaseFragment
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
@@ -39,8 +41,17 @@ class FragmentViewBindingDelegate<T : ViewBinding>(
                 fragment.viewLifecycleOwnerLiveData.observe(fragment) { viewLifecycleOwner ->
                     viewLifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
                         override fun onDestroy(owner: LifecycleOwner) {
-                            fragment.beforeViewBindingDestroy()
-                            binding = null
+                            // 查找所有的MaterialToolbar
+                            if (binding != null) {
+                                val appToolbar = ViewUtils.findView(binding!!.root, 0, 5, MaterialToolbar::class.java)
+                                if (appToolbar != null) {
+                                    appToolbar.setOnMenuItemClickListener(null)
+                                    appToolbar.setNavigationOnClickListener(null)
+                                }
+                                fragment.beforeViewBindingDestroy()
+                                binding = null
+                            }
+
                         }
                     })
                 }

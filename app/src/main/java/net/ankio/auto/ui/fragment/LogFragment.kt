@@ -22,6 +22,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -77,6 +78,9 @@ class LogFragment : BasePageFragment<LogModel>() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.topAppBar.setNavigationOnClickListener {
+            findNavController().navigateUp()
+        }
         binding.topAppBar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.item_share -> {
@@ -156,9 +160,6 @@ class LogFragment : BasePageFragment<LogModel>() {
         startActivity(Intent.createChooser(shareIntent, getString(R.string.share_file)))
     }
 
-    override fun beforeViewBindingDestroy() {
-        super.beforeViewBindingDestroy()
-        binding.topAppBar.setOnMenuItemClickListener(null)
-    }
+
 
 }

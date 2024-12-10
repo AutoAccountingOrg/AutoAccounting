@@ -511,6 +511,7 @@
     <string name="msg_pan_number">cloud.ankio.net</string>
     <string name="msg_doc_url">https://www.ez-book.org</string>
     <string name="msg_pan_url">https://cloud.ankio.net</string>
+    <string name="btn_not_remind">不再提醒</string>
 
 
 </resources>

@@ -180,7 +180,7 @@ class HomeFragment : BaseFragment() {
         binding.toolbar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.title_log -> {
-                    findNavController().navigate(R.id.logFragment)
+                    findNavController().navigate(R.id.action_homeFragment_to_logFragment)
                     true
                 }
 
@@ -379,6 +379,9 @@ class HomeFragment : BaseFragment() {
      * 检查记账软件
      */
     private fun checkBookApp() {
+        if (!ConfigUtils.getBoolean(Setting.SETTING_REMIND_BOOK, true)){
+            return
+        }
         if (ConfigUtils.getString(Setting.BOOK_APP_ID, "").isEmpty()) {
             throw ServiceCheckException(
                 getString(R.string.title_no_book_app),
@@ -388,7 +391,9 @@ class HomeFragment : BaseFragment() {
                         bindBookAppUI()
                     }
                     appDialog.showInFragment(this, cancel = true)
-                })
+                },getString(R.string.btn_not_remind)){
+                ConfigUtils.putBoolean(Setting.SETTING_REMIND_BOOK, false)
+            }
         }
     }
 
@@ -567,9 +572,7 @@ class HomeFragment : BaseFragment() {
         binding.msgLabel2.setTextColor(textColor)
     }
 
-    override fun beforeViewBindingDestroy() {
-        binding.toolbar.setOnMenuItemClickListener(null)
-    }
+
 
     override fun onDestroyView() {
         aboutDialog?.dismiss()
