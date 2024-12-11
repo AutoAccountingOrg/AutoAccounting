@@ -34,6 +34,9 @@ abstract class BaseAdapter<T : ViewBinding, E>(
         Boolean::class.javaPrimitiveType
     )
 
+    fun indexOf(item: E): Int {
+        return items.indexOf(item)
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<T, E> {
         return try {

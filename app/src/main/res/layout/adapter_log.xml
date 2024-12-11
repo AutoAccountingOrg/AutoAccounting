@@ -1,49 +1,43 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingTop="1dp"
-    android:paddingBottom="1dp"
-    android:orientation="horizontal">
-
+    android:paddingStart="5dp"
+    android:paddingEnd="5dp"
+    android:paddingBottom="1dp">
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/date"
         android:layout_width="75dp"
         android:layout_height="wrap_content"
         android:gravity="end"
-        android:paddingTop="0dp"
-        android:paddingBottom="0dp"
-        android:text=""
         android:textSize="12sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         tools:text="2024-09-12\n12:34:56" />
 
-    <LinearLayout
-        android:layout_width="wrap_content"
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/app"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/one_padding"
+        android:textSize="10sp"
+        app:layout_constraintStart_toEndOf="@id/date"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="自动谢谢谢谢谢记账 AppKit.kt(123)" />
 
-        android:paddingLeft="@dimen/one_padding"
-        android:orientation="vertical">
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/log"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/one_padding"
+        android:textSize="12sp"
+        app:layout_constraintStart_toEndOf="@id/date"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/app"
+        tools:text="这是一个这是一个非常详细的日志...这是一个这是一个非常详细的日志这是一个这是一个非常详细的日志这是一个这是一个非常详细的日志这是一个这是一个非常详细的日志这是一个这是一个非常详细的日志这是一个这是一个非常详细的日志这是一个这是一个非常详细的日志这是一个这是一个非常详细的日志这是一个这是一个非常详细的日志这是一个这是一个非常详细的日志" />
 
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/app"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="0dp"
-            android:paddingBottom="0dp"
-            android:text=""
-            android:textSize="10sp"
-            tools:text="自动谢谢谢谢谢记账 AppKit.kt(123)" />
-
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/log"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="0dp"
-            android:paddingBottom="0dp"
-            android:text=""
-            android:textSize="12sp"
-            tools:text="这是一个这是一个非常详细的日志这是一个非常详细的日志这是一个非常详细的日志这是一个非常详细的日志这是一个非常详细的日志这是一个非常详细的日志这是一个非常详细的日志这是一个非常详细的日志这是一个非常详细的日志这是一个非常详细的日志这是一个非常详细的日志这是一个非常详细的日志这是一个非常详细的日志这是一个非常详细的日志这是一个非常详细的日志这是一个非常详细的日志这是一个非常详细的日志这是一个非常详细的日志这是一个非常详细的日志这是一个非常详细的日志这是一个非常详细的日志非常详细的日志" />
-    </LinearLayout>
-
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
