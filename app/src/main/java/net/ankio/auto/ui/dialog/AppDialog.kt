@@ -20,7 +20,6 @@ import android.view.LayoutInflater
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import net.ankio.auto.R
-import net.ankio.auto.broadcast.LocalBroadcastHelper
 import net.ankio.auto.databinding.DialogAppBinding
 import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.ui.adapter.AppListAdapter
@@ -46,9 +45,6 @@ class AppDialog(private val context: Context,private val finish:()->Unit) : Base
 
     override fun onCreateView(inflater: LayoutInflater): View {
         binding = DialogAppBinding.inflate(inflater)
-
-        cardView = binding.cardView
-        cardViewInner = binding.innerView
 
         val recyclerView = binding.recyclerView
         recyclerView.layoutManager = LinearLayoutManager(context)
