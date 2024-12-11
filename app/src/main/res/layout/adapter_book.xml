@@ -1,7 +1,6 @@
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_margin="@dimen/one_padding"
-    app:cardCornerRadius="@dimen/radius"
     app:cardElevation="0dp"
     app:strokeColor="?attr/colorSurfaceContainerHighest"
     app:strokeWidth="0dp"
@@ -34,12 +33,12 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/item_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:text="测xxxxx试"
+            tools:text="测xxxxx试"
             android:textAppearance="@style/TextAppearance.AppCompat.Display1"
             android:textColor="?colorOnPrimary"
             android:textStyle="bold"
@@ -54,12 +53,12 @@
            android:id="@+id/selectContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/one_padding"
             android:gravity="center_horizontal"
             android:visibility="visible"
             android:weightSum="2"
             app:layout_constraintBottom_toBottomOf="@+id/view2"
             app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginBottom="-4dp"
             app:layout_constraintStart_toStartOf="parent">
 
             <com.google.android.material.button.MaterialButton
@@ -69,15 +68,19 @@
                 android:layout_weight="1"
                 android:text="@string/float_income"
                 android:id="@+id/income"
+                app:cornerRadius="0dp"
+                android:alpha="0.6"
                 />
 
             <com.google.android.material.button.MaterialButton
                 style="@style/Widget.Material3.Button.ElevatedButton"
                 android:layout_width="wrap_content"
+                app:cornerRadius="0dp"
                 android:layout_height="60dp"
                 android:layout_weight="1"
                 android:text="@string/float_expend"
                 android:id="@+id/expend"
+                android:alpha="0.6"
                 />
 
         </com.google.android.material.button.MaterialButtonToggleGroup>
