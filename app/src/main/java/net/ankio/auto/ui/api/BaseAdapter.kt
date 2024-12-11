@@ -17,43 +17,54 @@ package net.ankio.auto.ui.api
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
+import java.util.*
 
 abstract class BaseAdapter<T : ViewBinding, E>(
-    private val bindingClass: Class<T>,
-    private val list: MutableList<E>
+    bindingClass: Class<T>,
+    private val items: MutableList<E> = mutableListOf()
 ) : RecyclerView.Adapter<BaseViewHolder<T, E>>() {
 
+    private val inflateMethod = bindingClass.getMethod(
+        "inflate",
+        LayoutInflater::class.java,
+        ViewGroup::class.java,
+        Boolean::class.javaPrimitiveType
+    )
+
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<T, E> {
-        val method = bindingClass.getMethod(
-            "inflate",
-            LayoutInflater::class.java,
-            ViewGroup::class.java,
-            Boolean::class.javaPrimitiveType
-        )
-        val binding = method.invoke(null, LayoutInflater.from(parent.context), parent, false) as T
-
-        val viewHolder = BaseViewHolder<T, E>(binding)
-
-        onInitViewHolder(viewHolder)
-
-        return viewHolder
+        return try {
+            val binding = inflateMethod.invoke(
+                null,
+                LayoutInflater.from(parent.context),
+                parent,
+                false
+            ) as T
+            BaseViewHolder<T, E>(binding).also { holder ->
+                onInitViewHolder(holder)
+            }
+        } catch (e: Exception) {
+            throw IllegalStateException("ViewBinding inflation failed", e)
+        }
     }
+
+
+    fun getItems(): List<E> = items.toList()
+
 
     abstract fun onInitViewHolder(holder: BaseViewHolder<T, E>)
 
     override fun getItemCount(): Int {
-        return list.size
+        return items.size
     }
 
-    fun indexOf(element: E): Int {
-        return list.indexOf(element)
-    }
 
     override fun onBindViewHolder(holder: BaseViewHolder<T, E>, position: Int) {
         // 绑定数据到视图
-        val data = list[position]
+        val data = items[position]
         holder.item = data
         onBindViewHolder(holder, data, position)
     }
@@ -62,6 +73,13 @@ abstract class BaseAdapter<T : ViewBinding, E>(
 
     override fun onViewRecycled(holder: BaseViewHolder<T, E>) {
         super.onViewRecycled(holder)
-        holder.cancelScope()
+        holder.clear()
     }
+
+
+    override fun onFailedToRecycleView(holder: BaseViewHolder<T, E>): Boolean {
+        holder.clear()
+        return super.onFailedToRecycleView(holder)
+    }
+
 }

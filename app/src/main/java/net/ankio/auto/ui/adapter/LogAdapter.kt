@@ -26,6 +26,21 @@ import org.ezbook.server.db.model.LogModel
 
 class LogAdapter(list: MutableList<LogModel>) :
     BaseAdapter<AdapterLogBinding, LogModel>(AdapterLogBinding::class.java, list) {
+    
+    companion object {
+        private const val DATE_FORMAT = "yyyy-MM-dd\nHH:mm:ss"
+        
+        // 将日志级别与颜色资源ID映射
+        private val LOG_LEVEL_COLORS = mapOf(
+            LogLevel.DEBUG to R.color.log_debug,
+            LogLevel.INFO to R.color.log_info,
+            LogLevel.WARN to R.color.log_warning,
+            LogLevel.ERROR to R.color.log_error
+        )
+    }
+
+    private val cachedApp = mutableMapOf<String, String>()
+
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterLogBinding, LogModel>) {
         holder.binding.root.setOnLongClickListener {
             val item = holder.item!!
@@ -34,49 +49,32 @@ class LogAdapter(list: MutableList<LogModel>) :
         }
     }
 
-    private val cachedApp = HashMap<String, String>()
-
     override fun onBindViewHolder(
         holder: BaseViewHolder<AdapterLogBinding, LogModel>,
         data: LogModel,
         position: Int
     ) {
         val binding = holder.binding
-        val level = data.level
-
-
-        binding.date.text = DateUtils.stampToDate(data.time,"yyyy-MM-dd\nHH:mm:ss")
-
-
-        var appName = cachedApp[data.app] ?: run {
-            val array = App.getAppInfoFromPackageName(data.app)
-            val app = array?.get(0)?.toString()?:data.app
-            cachedApp[data.app] = app
-            app
+        
+        binding.date.text = DateUtils.stampToDate(data.time, DATE_FORMAT)
+        
+        val appName = cachedApp.getOrPut(data.app) {
+            App.getAppInfoFromPackageName(data.app)
+                ?.firstOrNull()
+                ?.toString()
+                ?: data.app
         }
-
-
-        if (data.location.isNotEmpty()) {
-            appName+=" "+data.location
+        
+        binding.app.text = if (data.location.isNotEmpty()) {
+            "$appName ${data.location}"
+        } else {
+            appName
         }
-
-
-        binding.app.text = appName
-
-
-
+        
         binding.log.text = data.message
-
-        when (level) {
-            LogLevel.DEBUG -> binding.log.setTextColor(holder.context.getColor(R.color.log_debug))
-            LogLevel.INFO -> binding.log.setTextColor(holder.context.getColor(R.color.log_info))
-            LogLevel.WARN -> binding.log.setTextColor(holder.context.getColor(R.color.log_warning))
-            LogLevel.ERROR -> binding.log.setTextColor(holder.context.getColor(R.color.log_error))
-          //  LogLevel.SUCCESS -> binding.log.setTextColor(holder.context.getColor(R.color.log_success))
-            else -> binding.log.setTextColor(holder.context.getColor(R.color.log_info))
-        }
-
-
+        
+        // 使用映射获取颜色
+        val colorResId = LOG_LEVEL_COLORS[data.level] ?: R.color.log_info
+        binding.log.setTextColor(holder.context.getColor(colorResId))
     }
-
 }

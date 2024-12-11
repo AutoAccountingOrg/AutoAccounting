@@ -20,7 +20,8 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -29,28 +30,20 @@ open class BaseViewHolder<T : ViewBinding, E>(val binding: T) :
 
     var item: E? = null
     var context: Context = binding.root.context
-    lateinit var job : Job
-    lateinit var scope : CoroutineScope
-    init {
-        initScope()
-    }
-    private fun initScope(){
-        job = Job()
-        scope = CoroutineScope(Dispatchers.Main + job)
+
+    private val viewHolderScope by lazy {
+        CoroutineScope(Dispatchers.Main + SupervisorJob())
     }
 
-    fun launch(block : suspend CoroutineScope.() -> Unit){
-        scope.launch {
-          try {
-              block()
-          }catch (e:CancellationException){
-            //ignore, job is cancelled
-          }
+    fun launch(block: suspend CoroutineScope.() -> Unit) = viewHolderScope.launch {
+        try {
+            block()
+        } catch (e: CancellationException) {
+            // 可以添加日志
         }
     }
 
-    fun cancelScope(){
-        job.cancel()
-        initScope()
+    fun clear() {
+        viewHolderScope.coroutineContext.cancelChildren()
     }
 }
