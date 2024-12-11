@@ -21,8 +21,12 @@
 -->    </style>
     <style name="BottomSheetDialog" parent="Theme.Material3.DayNight.BottomSheetDialog">
         <item name="bottomSheetStyle">@android:color/transparent</item>
+        <item name="enableEdgeToEdge">true</item>
         <item name="android:backgroundDimAmount">0.5</item>
         <item name="android:windowLightStatusBar" tools:ignore="NewApi">true</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 
     <style name="TransparentActivityTheme">
@@ -117,5 +121,8 @@
         <item name="android:backgroundDimEnabled">true</item>
         <item name="android:backgroundDimAmount">0.8</item> <!-- 0 = 完全透明，1 = 完全不透明 -->
         <!-- 可添加其他样式属性 -->
+    </style>
+    <style name="CustomBottomSheetDialog" parent="Theme.Design.BottomSheetDialog">
+
     </style>
 </resources>
