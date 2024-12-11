@@ -16,10 +16,28 @@
 package net.ankio.auto.ui.api
 
 import android.content.Context
+import android.content.ContextWrapper
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.WindowManager
+import android.widget.FrameLayout
+import android.widget.LinearLayout
+import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
+import androidx.core.view.setMargins
+import androidx.core.view.setPadding
+import androidx.core.view.updateLayoutParams
+import androidx.core.view.updatePadding
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.card.MaterialCardView
@@ -28,23 +46,134 @@ import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Logger
+import net.ankio.auto.ui.utils.DisplayUtils
+import net.ankio.auto.ui.utils.ViewUtils
 import org.ezbook.server.constant.Setting
 
 abstract class BaseSheetDialog(private val context: Context) :
     BottomSheetDialog(context, R.style.BottomSheetDialog) {
-    lateinit var cardView: MaterialCardView
-    lateinit var cardViewInner: ViewGroup
+    private var lifecycleOwner: LifecycleOwner? = null
+    private val lifecycleObserver = LifecycleEventObserver { _, event ->
+        if (event == Lifecycle.Event.ON_DESTROY) {
+            dismiss()
+        }
+    }
+
+    // 添加绑定生命周期的方法
+    private fun bindToLifecycle(owner: LifecycleOwner) {
+        lifecycleOwner?.lifecycle?.removeObserver(lifecycleObserver)
+        lifecycleOwner = owner
+        owner.lifecycle.addObserver(lifecycleObserver)
+    }
+
 
     abstract fun onCreateView(inflater: LayoutInflater): View
+
+    private fun prepareBaseView(): MaterialCardView {
+        val maxWidthPx =  if (DisplayUtils.isTabletOrFoldable(context)) {
+            // 平板或折叠屏模式：固定500px宽度
+            App.dp2px(400f)
+        } else {
+            // 手机模式：占满屏幕宽度
+            DisplayUtils.getRealScreenSize(context).x
+        }
+        // 创建cardView
+        val round = ConfigUtils.getBoolean(Setting.USE_ROUND_STYLE, false)
+        val margin = App.dp2px(20f)
+        val cardView = MaterialCardView(context).apply {
+       //     id = R.id.cardView // 这里需要提供一个有效的 ID
+
+            layoutParams = if (round) {
+                LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
+                    setMargins(margin, margin, margin, margin + App.navigationBarHeight)
+                    width = maxWidthPx
+                }
+            } else {
+
+                LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
+                    width = maxWidthPx
+                }
+
+            }
+
+            cardElevation = 0f
+            strokeColor = App.getThemeAttrColor(com.google.android.material.R.attr.colorSurfaceContainerHighest)
+            strokeWidth = 0
+            setCardBackgroundColor(ContextCompat.getColor(context, R.color.transparent))
+            radius = 0f
+        }
+
+        val backgroundView = LinearLayout(context).apply {
+           // id = R.id.backgroundView // 设置 ID
+            layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+            orientation = LinearLayout.VERTICAL
+            setPadding(0,0,0,0) // 设置内边距
+
+            val drawable = if (round) {
+                ContextCompat.getDrawable(context, R.drawable.rounded_all)?.mutate() // 使用 mutate() 创建一个可变的 Drawable
+            } else {
+                ContextCompat.getDrawable(context, R.drawable.rounded_top)?.mutate()
+            }
+            val color = SurfaceColors.SURFACE_3.getColor(context)
+            drawable?.setTint(color)
+
+            // 设置 Drawable 背景
+            background = drawable
+
+            if (!round) {
+                updatePadding(
+                    bottom =  App.navigationBarHeight,
+                )
+            }
+        }
+
+        val innerView = LinearLayout(context).apply {
+            id = R.id.innerView // 设置 ID
+            layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+            orientation = LinearLayout.VERTICAL
+            setPadding(resources.getDimensionPixelSize(R.dimen.cardPadding),
+                resources.getDimensionPixelSize(R.dimen.cardPadding),
+                resources.getDimensionPixelSize(R.dimen.cardPadding),
+                resources.getDimensionPixelSize(R.dimen.cardPadding)) // 设置内边距
+        }
+        backgroundView.addView(innerView)
+        cardView.addView(backgroundView)
+        // 设置子元素水平居中
+        return cardView
+    }
+
 
     open fun show(
         float: Boolean = false,
         cancel: Boolean = false,
     ) {
+        // 自动检测和绑定生命周期
+        when (context) {
+            is LifecycleOwner -> bindToLifecycle(context)
+            is ContextWrapper -> {
+                val baseContext = context.baseContext
+                if (baseContext is LifecycleOwner) {
+                    bindToLifecycle(baseContext)
+                }
+            }
+        }
 
+        val cardView = prepareBaseView()
         val inflater = LayoutInflater.from(context)
         val root = this.onCreateView(inflater)
-        this.setContentView(root)
+        cardView.findViewById<LinearLayout>(R.id.innerView).addView(root)
+        setContentView(cardView)
+
+        val layoutParams = cardView.layoutParams as FrameLayout.LayoutParams
+        layoutParams.gravity = Gravity.CENTER_HORIZONTAL
+        cardView.layoutParams = layoutParams
+        // 想上找，找到最顶层的LinearLayout
+       /* val rootView = (cardView.rootView as ViewGroup).getChildAt(0)
+        Logger.d("rootView: $rootView")
+        // 设置margin = 0
+        val layoutParamsRoot = rootView.layoutParams as  FrameLayout.LayoutParams
+        layoutParamsRoot.bottomMargin = 0
+        rootView.layoutParams = layoutParamsRoot*/
         this.setCancelable(cancel)
         if (float) {
             window?.let {
@@ -61,7 +190,43 @@ abstract class BaseSheetDialog(private val context: Context) :
                 it.attributes = params
             }
         }
-        val bottomSheet: View = root.parent as View
+
+
+        // 动态调整边距
+        //val margin = App.dp2px(20f)
+     //   val round = ConfigUtils.getBoolean(Setting.USE_ROUND_STYLE, false)
+       // val cardView = ViewUtils.findView(root,0,5,MaterialCardView::class.java)?: return
+    //    val cardViewInner = if (cardView.childCount > 0 )  cardView.getChildAt(0) else return
+     //   val layoutParams = cardView.layoutParams as LinearLayout.LayoutParams
+    //    if (round) {
+    //        layoutParams.setMargins(margin, margin, margin, margin)
+    //    } else {
+    //        layoutParams.setMargins(0, 0, 0, -App.navigationBarHeight)
+     //   }
+   //     layoutParams.width = maxWidth
+   //     cardView.layoutParams = layoutParams
+    //    val color = SurfaceColors.SURFACE_3.getColor(context)
+   //     cardView.setCardBackgroundColor(color)
+
+    /*    cardViewInner.setPadding(
+            margin,
+            margin,
+            margin,
+            if (round) margin else margin + App.navigationBarHeight,
+        )*/
+     //   val parent = cardView.parent as LinearLayout
+        // 设置子元素水平居中
+   //   parent.gravity = Gravity.CENTER_HORIZONTAL
+
+       // parent.setHorizontalGravity(LinearLayout.HORIZONTAL)
+
+
+        val bottomSheet: View = cardView.parent as View
+        // 设置子元素水平居中
+
+      //  val lay = bottomSheet.layoutParams as ViewGroup.MarginLayoutParams
+    //    lay.bottomMargin = - App.navigationBarHeight
+     //   bottomSheet.layoutParams = lay
 
         val bottomSheetBehavior: BottomSheetBehavior<*> = BottomSheetBehavior.from(bottomSheet)
 
@@ -70,48 +235,14 @@ abstract class BaseSheetDialog(private val context: Context) :
         // 设置BottomSheetDialog展开到全屏高度
         bottomSheetBehavior.skipCollapsed = true
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-        // 是否使用圆角风格
-        val margin = App.dp2px( 20f)
-        val round = ConfigUtils.getBoolean(Setting.USE_ROUND_STYLE, false)
-        if (::cardView.isInitialized) {
-            val layoutParams =
-                if (cardView.layoutParams != null) {
-                    cardView.layoutParams as ViewGroup.MarginLayoutParams
-                } else {
-                    // 如果 RadiusCardView 还没有布局参数，则创建新的参数
-                    ViewGroup.MarginLayoutParams(
-                        ViewGroup.LayoutParams.WRAP_CONTENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT,
-                    )
-                }
 
-            if (round) {
-                layoutParams.setMargins(margin, margin, margin, margin)
-                cardView.layoutParams = layoutParams
-                // 使用圆角风格
-            } else {
-                layoutParams.setMargins(0, 0, 0, -margin)
-                cardView.layoutParams = layoutParams
-            }
-
-            val color = SurfaceColors.SURFACE_3.getColor(context)
-            cardView.setCardBackgroundColor(color)
-        }
-
-        if (::cardViewInner.isInitialized) {
-            cardViewInner.setPadding(
-                margin,
-                margin,
-                margin,
-                if (round) margin else margin * 2,
-            )
-        }
         super.show()
     }
 
     override fun dismiss() {
+        lifecycleOwner?.lifecycle?.removeObserver(lifecycleObserver)
+        lifecycleOwner = null
         runCatching {
-            // 检查window是否还存在且已附加
             if (this.isShowing && window?.decorView?.isAttachedToWindow == true) {
                 super.dismiss()
             }
@@ -120,9 +251,16 @@ abstract class BaseSheetDialog(private val context: Context) :
             Logger.e("Dismiss error", it)
         }
     }
+
     //重写默认的show方法
     override fun show() {
         show(float = false,cancel = true)
+    }
+
+    // 添加Fragment专用的show方法
+    fun showInFragment(fragment: Fragment, float: Boolean = false, cancel: Boolean = false) {
+        bindToLifecycle(fragment.viewLifecycleOwner)
+        show(float, cancel)
     }
 
 }

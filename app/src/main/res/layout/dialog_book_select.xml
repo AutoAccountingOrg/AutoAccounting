@@ -18,20 +18,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:cardCornerRadius="@dimen/radius"
-        app:cardElevation="0dp"
-        app:strokeColor="?attr/colorSurfaceContainerHighest"
-        app:strokeWidth="0dp">
-        <net.ankio.auto.ui.componets.StatusPage
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:innerHeight = "wrap_content"
-            android:id="@+id/status_page"
-            />
-    </com.google.android.material.card.MaterialCardView>
+    <net.ankio.auto.ui.componets.StatusPage
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:innerHeight = "wrap_content"
+    android:id="@+id/status_page"
+    />
 </LinearLayout>
 

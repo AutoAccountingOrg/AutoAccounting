@@ -139,7 +139,7 @@ object DisplayUtils {
     /**
      * 获取窗口尺寸，不关注设备状态，只关注窗口状态
      */
-    private fun getScreenSize(context: Context): Point {
+     fun getScreenSize(context: Context): Point {
         val point = Point()
         val displayMetrics = context.resources.displayMetrics
         val density = displayMetrics.density
@@ -155,6 +155,7 @@ object DisplayUtils {
         Logger.d("getScreenSize: x=${point.x}, y=${point.y}")
         return point
     }
+
     /**
      * 平行窗口模式（华为、小米）
      */
@@ -202,5 +203,12 @@ object DisplayUtils {
             windowManager.defaultDisplay.getRealSize(point)
         }
         return point
+    }
+
+    fun isTabletOrFoldable(context: Context): Boolean {
+        val displayMetrics = context.resources.displayMetrics
+        val screenWidth = displayMetrics.widthPixels
+        val screenHeight = displayMetrics.heightPixels
+        return screenWidth > screenHeight || screenWidth / displayMetrics.density > 600
     }
 }
