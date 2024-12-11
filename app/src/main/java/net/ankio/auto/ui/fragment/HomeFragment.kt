@@ -254,7 +254,7 @@ class HomeFragment : BaseFragment() {
             App.runOnUiThread {
                 bindBookAppUI()
             }
-        }.show(false)
+        }.showInFragment(this,false, true)
     }
 
     private fun showAssetsDialog(themeContext: Context) {
