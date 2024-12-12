@@ -17,7 +17,7 @@
             android:minHeight="?attr/actionBarSize"
 
             app:menu="@menu/log_menu"
-            app:navigationIcon="@drawable/icon_back"
+            app:navigationIcon="@drawable/abc_ic_ab_back_material"
             app:title="@string/title_log"
             />
 

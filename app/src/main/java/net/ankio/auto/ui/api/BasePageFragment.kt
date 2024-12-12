@@ -15,13 +15,17 @@
 
 package net.ankio.auto.ui.api
 
+import android.os.Bundle
+import android.view.View
 import androidx.lifecycle.lifecycleScope
-import com.scwang.smart.refresh.footer.ClassicsFooter
-import com.scwang.smart.refresh.header.ClassicsHeader
-import com.scwang.smart.refresh.layout.api.RefreshLayout
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import androidx.viewbinding.ViewBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import net.ankio.auto.R
 import net.ankio.auto.ui.componets.StatusPage
 
 /**
@@ -32,6 +36,7 @@ abstract class BasePageFragment<T> : BaseFragment() {
      * 初始化View
      */
     lateinit var statusPage: StatusPage
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
     /**
      * 当前页码
@@ -53,6 +58,7 @@ abstract class BasePageFragment<T> : BaseFragment() {
      */
     abstract suspend fun loadData(callback: (resultData: List<T>) -> Unit)
 
+    abstract fun onCreateAdapter()
     /**
      * 重置页面
      */
@@ -70,7 +76,7 @@ abstract class BasePageFragment<T> : BaseFragment() {
      */
     protected open fun loadDataInside(callback: ((Boolean, Boolean) -> Unit)? = null) {
         // 没有附加到Activity上，不加载数据
-        if (activity == null) return
+        if (activity == null || !isAdded) return
         if (page == 1) {
             resetPage()
         }
@@ -91,33 +97,64 @@ abstract class BasePageFragment<T> : BaseFragment() {
 
                     val total = page * pageSize
 
-                    if (callback != null) callback(true, total > pageData.size)
+                    if (callback != null && isAdded) callback(true, total > pageData.size)
                 }
             }
         }
     }
 
 
-    /**
-     * 加载数据事件
-     */
-    protected fun loadDataEvent(refreshLayout: RefreshLayout) {
-        refreshLayout.setRefreshHeader(ClassicsHeader(requireContext()))
-        refreshLayout.setRefreshFooter(ClassicsFooter(requireContext()))
-        refreshLayout.setOnRefreshListener {
+    private fun bindLoadDataEvent() {
+        swipeRefreshLayout.setOnRefreshListener {
             page = 1
             loadDataInside { success, hasMore ->
+                swipeRefreshLayout.isRefreshing = false
+            }
+        }
+    }
 
-                it.resetNoMoreData()
-                it.finishRefresh(0, success, hasMore) //传入false表示刷新失败
+   private fun loadMoreDataEvent(){
+        statusPage.contentView?.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            var loading = false // 防抖标志
+
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+                val totalItemCount = layoutManager.itemCount
+                val lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition()
+
+                // 计算是否达到80%的位置
+                if (!loading && lastVisibleItemPosition >= totalItemCount * 0.8) {
+                    loading = true // 设置防抖标志
+                    page++
+                    loadDataInside { success, hasMore ->
+                        if (!success) {
+                            page--
+                        }
+                        loading = false // 重置防抖标志
+                    }
+                }
             }
-        }
-        refreshLayout.setOnLoadMoreListener {
-            page++
-            loadDataInside { success, hasMore ->
-                it.finishLoadMore(0, success, hasMore) //传入false表示加载失败
-            }
-        }
+        })
+   }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        statusPage = view.findViewById(R.id.status_page)
+        statusPage.showLoading()
+        swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout)
+        onCreateAdapter()
+        bindLoadDataEvent()
+        loadMoreDataEvent()
+        reload()
+    }
+
+
+
+    fun reload(){
+        resetPage()
+        statusPage.showLoading()
+        loadDataInside()
     }
 
 }

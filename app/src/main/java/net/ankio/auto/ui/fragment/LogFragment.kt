@@ -78,9 +78,6 @@ class LogFragment : BasePageFragment<LogModel>() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.topAppBar.setNavigationOnClickListener {
-            findNavController().navigateUp()
-        }
         binding.topAppBar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.item_share -> {
