@@ -15,22 +15,13 @@
 
 package net.ankio.auto.ui.api
 
-import android.animation.ArgbEvaluator
-import android.animation.ValueAnimator
-import android.content.Context
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.View
-import android.widget.ScrollView
-import androidx.core.content.ContextCompat
-import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
-import com.google.android.material.elevation.SurfaceColors
 import net.ankio.auto.App
-import net.ankio.auto.R
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.utils.ViewUtils
 
@@ -64,21 +55,13 @@ abstract class BaseFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val materialToolbar = ViewUtils.findMaterialToolbar(view) ?: return
-        if (materialToolbar.navigationIcon != null) {
-            val backIcon = androidx.appcompat.R.drawable.abc_ic_ab_back_material
-            if (compareDrawables(materialToolbar.navigationIcon, requireContext(), backIcon)) {
-                materialToolbar.setNavigationOnClickListener {
-                    findNavController().navigateUp()
-                }
+        
+        // 通过tag判断是否是返回按钮
+        if (materialToolbar.tag == "back_button") {
+            materialToolbar.setNavigationOnClickListener {
+                findNavController().navigateUp()
             }
         }
-    }
-
-
-    private fun compareDrawables(drawable1: Drawable?, context: Context, resId: Int): Boolean {
-        if (drawable1 == null) return false
-        val drawable2 = ContextCompat.getDrawable(context, resId)
-        return drawable1.constantState == drawable2?.constantState
     }
 
 }

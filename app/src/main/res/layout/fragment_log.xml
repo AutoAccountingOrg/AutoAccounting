@@ -19,6 +19,7 @@
             app:menu="@menu/log_menu"
             app:navigationIcon="@drawable/abc_ic_ab_back_material"
             app:title="@string/title_log"
+            android:tag="back_button"
             />
 
     </com.google.android.material.appbar.AppBarLayout>
