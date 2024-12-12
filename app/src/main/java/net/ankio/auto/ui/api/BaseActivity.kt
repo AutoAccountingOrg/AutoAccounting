@@ -25,15 +25,14 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowInsets
-import androidx.annotation.AttrRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
-import com.google.android.material.appbar.AppBarLayout
-import com.google.android.material.appbar.MaterialToolbar
 import com.quickersilver.themeengine.ThemeEngine
 import com.quickersilver.themeengine.ThemeMode
 import net.ankio.auto.App
 import net.ankio.auto.storage.Logger
+import net.ankio.auto.ui.utils.DisplayUtils
+import net.ankio.auto.ui.utils.ViewUtils
 import net.ankio.auto.utils.LanguageUtils
 
 
@@ -41,9 +40,6 @@ import net.ankio.auto.utils.LanguageUtils
  * 基础的BaseActivity
  */
 open class BaseActivity : AppCompatActivity() {
-    open var toolbarLayout: AppBarLayout? = null
-    open var toolbar: MaterialToolbar? = null
-
     /**
      * 重构context
      */
@@ -57,6 +53,7 @@ open class BaseActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        DisplayUtils.setCustomDensity(this)
         // 主题初始化
         ThemeEngine.applyToActivity(this@BaseActivity)
         // 等待view创建完成
@@ -79,7 +76,6 @@ open class BaseActivity : AppCompatActivity() {
         enableImmersiveMode(light)
 
     }
-
     /**
      * 沉浸式模式
      */
@@ -97,28 +93,37 @@ open class BaseActivity : AppCompatActivity() {
 
         // 获取根布局
         val rootView = findViewById<View>(android.R.id.content)  as ViewGroup
-
-        rootView.setOnApplyWindowInsetsListener { v, insets ->
+        val rootLayout = rootView.getChildAt(0) as ViewGroup
+        rootLayout.setOnApplyWindowInsetsListener { v, insets ->
             val statusBarHeight = getStatusBarHeight(insets)
             val navigationBarHeight = getNavigationBarHeight(insets)
+            App.statusBarHeight = statusBarHeight
+            App.navigationBarHeight = navigationBarHeight
             // 找到第一个子view
-            val mainGroup = rootView.getChildAt(0) as ViewGroup
-            val firstView = mainGroup.getChildAt(0)
-            val lastView = mainGroup.getChildAt(rootView.childCount - 1)
-
+            val fragmentContainerView = ViewUtils.findFragmentContainerView(rootLayout)?:return@setOnApplyWindowInsetsListener insets
+            var firstView = fragmentContainerView.getChildAt(0)
+            val appBarLayout = ViewUtils.findAppBarLayout(fragmentContainerView)
+            if (appBarLayout != null){
+                firstView = appBarLayout
+            }
             if (firstView is ViewGroup){
-                val firstViewGroup = firstView as ViewGroup
-                val firstViewGroupChild = firstViewGroup.getChildAt(0)
+                val firstViewGroupChild = firstView.getChildAt(0)
                 val params = firstViewGroupChild.layoutParams as ViewGroup.MarginLayoutParams
                 params.topMargin = statusBarHeight
-             //   params.height = statusBarHeight
-               // firstViewGroupChild.layoutParams = params
+                firstViewGroupChild.layoutParams = params
             }else{
                 // 设置padding
                 firstView.setPadding(0, statusBarHeight, 0, 0)
             }
+            val lastView = fragmentContainerView.getChildAt(fragmentContainerView.childCount - 1)
+            val navigation = rootLayout.getChildAt(rootLayout.childCount - 1)
+            //Logger.d("navigation:$navigation,visibility:${navigation?.visibility}")
+            if (navigation == null || navigation.visibility == View.GONE){
+                lastView.setPadding(0, 0, 0, navigationBarHeight)
+            }else {
+                lastView.setPadding(0, 0, 0, 0)
+            }
 
-            lastView.setPadding(0, 0, 0, navigationBarHeight)
             // 返回未消费的 insets
             v.onApplyWindowInsets(insets)
         }
@@ -142,6 +147,7 @@ open class BaseActivity : AppCompatActivity() {
             if (resourceId > 0) resources.getDimensionPixelSize(resourceId) else 0
         }
     }
+
 
 
     /**
