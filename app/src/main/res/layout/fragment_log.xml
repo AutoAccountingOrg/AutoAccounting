@@ -1,37 +1,40 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="match_parent">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="?attr/colorSurface"
+        app:liftOnScrollTargetViewId="@id/content_view"
+        app:liftOnScroll="true">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/topAppBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:minHeight="?attr/actionBarSize"
-            app:liftOnScrollTargetViewId="@id/swipe_refresh_layout"
-            app:title="@string/title_log"
+
             app:menu="@menu/log_menu"
-            app:navigationIcon="@drawable/icon_back" />
+            app:navigationIcon="@drawable/icon_back"
+            app:title="@string/title_log"
+            />
 
     </com.google.android.material.appbar.AppBarLayout>
+
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipe_refresh_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
-    <net.ankio.auto.ui.componets.StatusPage
-        android:id="@+id/status_page"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recycler_view"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
-    </net.ankio.auto.ui.componets.StatusPage>
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        >
+
+        <net.ankio.auto.ui.componets.StatusPage
+            android:id="@+id/status_page"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+        </net.ankio.auto.ui.componets.StatusPage>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 

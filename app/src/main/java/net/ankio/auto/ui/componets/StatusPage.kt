@@ -18,20 +18,27 @@ package net.ankio.auto.ui.componets
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.RelativeLayout
+import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.progressindicator.CircularProgressIndicator
 import net.ankio.auto.R
 import net.ankio.auto.databinding.StatusPageBinding
 
 
-class StatusPage : RelativeLayout {
+class StatusPage : ConstraintLayout {
 
-    private var loadingView: ProgressBar? = null
-    private var emptyView: LinearLayout? = null
-    private var errorView: LinearLayout? = null
+    private var loadingView: CircularProgressIndicator? = null
+    private var emptyIcon: ImageView? = null
+    private var emptyText: TextView? = null
+    private var errorIcon: ImageView? = null
+    private var errorText: TextView? = null
     var contentView: RecyclerView? = null
 
 
@@ -57,8 +64,10 @@ class StatusPage : RelativeLayout {
     ) {
         val binding = StatusPageBinding.inflate(LayoutInflater.from(context), this, true)
         loadingView = binding.loadingView
-        emptyView = binding.emptyView
-        errorView = binding.errorView
+        emptyIcon = binding.emptyIcon
+        emptyText = binding.emptyText
+        errorIcon = binding.errorIcon
+        errorText = binding.errorText
         contentView = binding.contentView
         val root = binding.rootView
         context.theme.obtainStyledAttributes(
@@ -84,25 +93,35 @@ class StatusPage : RelativeLayout {
 
 
     fun showLoading() {
-        setVisibility(VISIBLE, GONE, GONE, GONE)
+        setVisibility(loading = true)
     }
 
     fun showEmpty() {
-        setVisibility(GONE, VISIBLE, GONE, GONE)
+        setVisibility(empty = true)
     }
 
     fun showError() {
-        setVisibility(GONE, GONE, VISIBLE, GONE)
+        setVisibility(error = true)
     }
 
     fun showContent() {
-        setVisibility(GONE, GONE, GONE, VISIBLE)
+        setVisibility(content = true)
     }
 
-    private fun setVisibility(loading: Int, empty: Int, error: Int, content: Int) {
-        loadingView!!.visibility = loading
-        emptyView!!.visibility = empty
-        errorView!!.visibility = error
-        contentView!!.visibility = content
+    private fun setVisibility(
+        loading: Boolean = false,
+        empty: Boolean = false,
+        error: Boolean = false,
+        content: Boolean = false
+    ) {
+        loadingView?.visibility = if (loading) View.VISIBLE else View.GONE
+        
+        emptyIcon?.visibility = if (empty) View.VISIBLE else View.GONE
+        emptyText?.visibility = if (empty) View.VISIBLE else View.GONE
+        
+        errorIcon?.visibility = if (error) View.VISIBLE else View.GONE
+        errorText?.visibility = if (error) View.VISIBLE else View.GONE
+        
+        contentView?.visibility = if (content) View.VISIBLE else View.GONE
     }
 }
