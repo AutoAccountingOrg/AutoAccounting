@@ -20,92 +20,100 @@ import android.graphics.Color
 import android.graphics.PorterDuff
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
-import android.view.Gravity
 import android.view.LayoutInflater
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import net.ankio.auto.R
+import net.ankio.auto.databinding.IconViewLayoutBinding
 
-class IconView
-@JvmOverloads
-constructor(
-    context: Context,
-    attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0,
-) : LinearLayout(context, attrs, defStyleAttr) {
-    private var imageView: ImageView
-    private var textView: TextView
-    private var color: Int = 0
-
-    init {
-        orientation = HORIZONTAL
-        gravity = Gravity.CENTER_VERTICAL
-
-        val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        inflater.inflate(R.layout.icon_view_layout, this, true)
-
-        imageView = findViewById(R.id.icon_view_image)
-        textView = findViewById(R.id.icon_view_text)
-
-        context.theme.obtainStyledAttributes(
-            attrs,
-            R.styleable.IconView,
-            0,
-            0,
-        ).apply {
+class IconView : ConstraintLayout {
+    private val binding: IconViewLayoutBinding
+    private var color: Int = Color.BLACK
+    
+    constructor(context: Context) : this(context, null)
+    
+    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
+    
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
+        // 使用 ViewBinding 加载布局
+        binding = IconViewLayoutBinding.inflate(LayoutInflater.from(context), this, true)
+        
+        attrs?.let { initAttributes(it) }
+    }
+    
+    private fun initAttributes(attrs: AttributeSet) {
+        context.obtainStyledAttributes(attrs, R.styleable.IconView).apply {
             try {
                 val iconTintEnabled = getBoolean(R.styleable.IconView_iconTintEnabled, true)
-                val icon = getDrawable(R.styleable.IconView_iconSrc)
-                val text = getString(R.styleable.IconView_text)
-
-                val textSize = getDimension(R.styleable.IconView_textSize, 14f)
-                val iconSize = getDimensionPixelSize(R.styleable.IconView_iconSize, 32) * 2
-
-                setTextSize(textSize)
-                setIconSize(iconSize)
+                getDrawable(R.styleable.IconView_iconSrc)?.let { icon ->
+                    setIcon(icon, iconTintEnabled)
+                }
+                getString(R.styleable.IconView_text)?.let { text ->
+                    setText(text)
+                }
+                
+                setTextSize(getDimension(R.styleable.IconView_textSize, 14f))
+                setIconSize(getDimensionPixelSize(R.styleable.IconView_iconSize, 32))
                 setColor(getColor(R.styleable.IconView_textColor, Color.BLACK))
-
-                setIcon(icon, iconTintEnabled)
-                setText(text)
             } finally {
                 recycle()
             }
         }
     }
-
-    fun setIcon(
-        icon: Drawable?,
-        tintEnabled: Boolean = false,
-    ) {
-        imageView.setImageDrawable(icon)
-        if (!tintEnabled) {
-            imageView.clearColorFilter()
-        } else {
-            imageView.setColorFilter(color, PorterDuff.Mode.SRC_IN)
+    
+    fun setIcon(icon: Drawable?, tintEnabled: Boolean = true) {
+        binding.iconViewImage.setImageDrawable(icon)
+        when {
+            !tintEnabled -> binding.iconViewImage.clearColorFilter()
+            else -> binding.iconViewImage.setColorFilter(color, PorterDuff.Mode.SRC_IN)
         }
     }
-
+    
     fun setText(text: CharSequence?) {
-        textView.setTextColor(color)
-        textView.text = text
+        binding.iconViewText.apply {
+            setTextColor(color)
+            this.text = text
+        }
     }
-
-    fun getText(): String {
-        return textView.text.toString()
-    }
-
+    
+    fun getText(): String = binding.iconViewText.text.toString()
+    
     fun setColor(col: Int) {
         color = col
+        binding.apply {
+            iconViewText.setTextColor(col)
+            iconViewImage.setColorFilter(col, PorterDuff.Mode.SRC_IN)
+        }
     }
-
+    
+    /**
+     * 设置文字大小
+     * @param size 文字大小，单位 sp
+     */
     fun setTextSize(size: Float) {
-        textView.textSize = size
+        // 保持 sp 单位，因为 textSize 属性默认就是 sp
+        binding.iconViewText.textSize = size
     }
-
-    fun setIconSize(size: Int) {
-        imageView.layoutParams.width = size
-        imageView.layoutParams.height = size
-        imageView.requestLayout()
+    
+    /**
+     * 设置图标大小
+     * @param sizeDp 图标大小，单位 dp
+     */
+    fun setIconSize(sizeDp: Int) {
+        // 将 dp 转换为 px
+        val sizePx = (sizeDp * resources.displayMetrics.density).toInt()
+        binding.iconViewImage.layoutParams = binding.iconViewImage.layoutParams.apply {
+            width = sizePx
+            height = sizePx
+        }
+        binding.iconViewImage.requestLayout()
+    }
+    
+    // 可选：添加工具方法
+    private fun Float.spToPx(): Float {
+        return this * resources.displayMetrics.scaledDensity
+    }
+    
+    private fun Int.dpToPx(): Int {
+        return (this * resources.displayMetrics.density).toInt()
     }
 }
