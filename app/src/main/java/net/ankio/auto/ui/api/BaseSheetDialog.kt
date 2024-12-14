@@ -26,6 +26,8 @@ import android.view.WindowManager
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
@@ -161,74 +163,55 @@ abstract class BaseSheetDialog(private val context: Context) :
         val layoutParams = cardView.layoutParams as FrameLayout.LayoutParams
         layoutParams.gravity = Gravity.CENTER_HORIZONTAL
         cardView.layoutParams = layoutParams
-        // 想上找，找到最顶层的LinearLayout
-       /* val rootView = (cardView.rootView as ViewGroup).getChildAt(0)
-        Logger.d("rootView: $rootView")
-        // 设置margin = 0
-        val layoutParamsRoot = rootView.layoutParams as  FrameLayout.LayoutParams
-        layoutParamsRoot.bottomMargin = 0
-        rootView.layoutParams = layoutParamsRoot*/
         this.setCancelable(cancel)
-        if (float) {
-            window?.let {
-                // 获取当前的窗口参数
-                val params = it.attributes
+        window?.let {
+            // 获取当前的窗口参数
+            val params = it.attributes
 
-                // 设置为悬浮窗口类型
+            // 设置为悬浮窗口类型
+            if (float) {
                 params.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
-
-                // 添加 FLAG_NOT_FOCUSABLE 标志
-              //  params.flags = params.flags or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-
-                // 应用更新的窗口参数
-                it.attributes = params
             }
+         //   params.softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE;
+
+            // 添加 FLAG_NOT_FOCUSABLE 标志
+            //  params.flags = params.flags or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+
+            // 应用更新的窗口参数
+            it.attributes = params
         }
 
 
-        // 动态调整边距
-        //val margin = App.dp2px(20f)
-     //   val round = ConfigUtils.getBoolean(Setting.USE_ROUND_STYLE, false)
-       // val cardView = ViewUtils.findView(root,0,5,MaterialCardView::class.java)?: return
-    //    val cardViewInner = if (cardView.childCount > 0 )  cardView.getChildAt(0) else return
-     //   val layoutParams = cardView.layoutParams as LinearLayout.LayoutParams
-    //    if (round) {
-    //        layoutParams.setMargins(margin, margin, margin, margin)
-    //    } else {
-    //        layoutParams.setMargins(0, 0, 0, -App.navigationBarHeight)
-     //   }
-   //     layoutParams.width = maxWidth
-   //     cardView.layoutParams = layoutParams
-    //    val color = SurfaceColors.SURFACE_3.getColor(context)
-   //     cardView.setCardBackgroundColor(color)
 
-    /*    cardViewInner.setPadding(
-            margin,
-            margin,
-            margin,
-            if (round) margin else margin + App.navigationBarHeight,
-        )*/
-     //   val parent = cardView.parent as LinearLayout
-        // 设置子元素水平居中
-   //   parent.gravity = Gravity.CENTER_HORIZONTAL
-
-       // parent.setHorizontalGravity(LinearLayout.HORIZONTAL)
 
 
         val bottomSheet: View = cardView.parent as View
-        // 设置子元素水平居中
 
-      //  val lay = bottomSheet.layoutParams as ViewGroup.MarginLayoutParams
-    //    lay.bottomMargin = - App.navigationBarHeight
-     //   bottomSheet.layoutParams = lay
 
         val bottomSheetBehavior: BottomSheetBehavior<*> = BottomSheetBehavior.from(bottomSheet)
+// 键盘监听并调整高度
+
 
         // 禁用向下滑动关闭行为
         bottomSheetBehavior.isDraggable = false
         // 设置BottomSheetDialog展开到全屏高度
         bottomSheetBehavior.skipCollapsed = true
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+
+
+        // 避让键盘
+        ViewCompat.setOnApplyWindowInsetsListener(bottomSheet) { v, insets ->
+            val imeVisible = insets.isVisible(WindowInsetsCompat.Type.ime())
+            val imeHeight = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
+            if (imeVisible) {
+                // 键盘打开时调整布局
+                bottomSheet.updatePadding(bottom = imeHeight - App.navigationBarHeight)
+            } else {
+                // 键盘关闭时恢复布局
+                bottomSheet.updatePadding(bottom = 0)
+            }
+            insets
+        }
 
         super.show()
     }
