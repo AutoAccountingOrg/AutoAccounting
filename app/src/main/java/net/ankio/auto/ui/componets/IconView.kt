@@ -20,10 +20,12 @@ import android.graphics.Color
 import android.graphics.PorterDuff
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
+import android.util.TypedValue
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import net.ankio.auto.R
 import net.ankio.auto.databinding.IconViewLayoutBinding
+import net.ankio.auto.storage.Logger
 
 class IconView : ConstraintLayout {
     private val binding: IconViewLayoutBinding
@@ -69,9 +71,11 @@ class IconView : ConstraintLayout {
     }
     
     fun setText(text: CharSequence?) {
+        Logger.d("setText: $text")
+
         binding.iconViewText.apply {
             setTextColor(color)
-            this.text = text
+           setText(text)
         }
     }
     
@@ -90,8 +94,8 @@ class IconView : ConstraintLayout {
      * @param size 文字大小，单位 sp
      */
     fun setTextSize(size: Float) {
-        // 保持 sp 单位，因为 textSize 属性默认就是 sp
-        binding.iconViewText.textSize = size
+        // 使用 TypedValue.COMPLEX_UNIT_SP 明确指定单位为 SP
+        binding.iconViewText.setTextSize(TypedValue.COMPLEX_UNIT_SP, size)
     }
     
     /**

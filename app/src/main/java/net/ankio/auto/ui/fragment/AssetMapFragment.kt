@@ -26,11 +26,12 @@ import net.ankio.auto.databinding.FragmentMapBinding
 import net.ankio.auto.ui.adapter.AssetsMapAdapter
 import net.ankio.auto.ui.api.BasePageFragment
 import net.ankio.auto.ui.dialog.AssetsMapDialog
+import net.ankio.auto.ui.utils.viewBinding
 import org.ezbook.server.db.model.AssetsMapModel
-import java.lang.ref.WeakReference
 
 class AssetMapFragment : BasePageFragment<AssetsMapModel>() {
-    private lateinit var binding: FragmentMapBinding
+
+    override val binding: FragmentMapBinding by viewBinding(FragmentMapBinding::inflate)
 
     override suspend fun loadData(callback: (resultData: List<AssetsMapModel>) -> Unit) {
         lifecycleScope.launch {
@@ -43,33 +44,24 @@ class AssetMapFragment : BasePageFragment<AssetsMapModel>() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View {
-        binding = FragmentMapBinding.inflate(layoutInflater)
-        statusPage = binding.statusPage
+    ): View  = binding.root
+
+    override fun onCreateAdapter() {
         val recyclerView = statusPage.contentView!!
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = AssetsMapAdapter(pageData, requireActivity())
-       // scrollView = WeakReference(recyclerView)
-
-        binding.addButton.setOnClickListener {
-            AssetsMapDialog(requireContext()) { model ->
-                lifecycleScope.launch {
-                    AssetsMapModel.put(model)
-                    statusPage.showLoading()
-                    loadDataInside()
-                }
-            }.show(cancel = true)
-        }
-
-        loadDataEvent(binding.refreshLayout)
-
-        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        statusPage.showLoading()
-        loadDataInside()
+        binding.addButton.setOnClickListener {
+            AssetsMapDialog(requireContext()) { model ->
+                lifecycleScope.launch {
+                    AssetsMapModel.put(model)
+                    reload()
+                }
+            }.showInFragment(this,false,true)
+        }
     }
 
 }
