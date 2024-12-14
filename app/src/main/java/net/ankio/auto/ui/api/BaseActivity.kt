@@ -117,12 +117,15 @@ open class BaseActivity : AppCompatActivity() {
             }
             val lastView = fragmentContainerView.getChildAt(fragmentContainerView.childCount - 1)
             val navigation = rootLayout.getChildAt(rootLayout.childCount - 1)
-            //Logger.d("navigation:$navigation,visibility:${navigation?.visibility}")
-            if (navigation == null || navigation.visibility == View.GONE){
-                lastView.setPadding(0, 0, 0, navigationBarHeight)
-            }else {
-                lastView.setPadding(0, 0, 0, 0)
-            }
+           // Logger.d("navigation:$navigation,visibility:${navigation?.visibility}")
+
+            lastView.postDelayed({
+                if (navigation == null || navigation.visibility == View.GONE) {
+                    lastView.setPadding(0, 0, 0, navigationBarHeight)
+                } else {
+                    lastView.setPadding(0, 0, 0, 0)
+                }
+            }, 300)
 
             // 返回未消费的 insets
             v.onApplyWindowInsets(insets)

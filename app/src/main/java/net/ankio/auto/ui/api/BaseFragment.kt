@@ -18,9 +18,14 @@ package net.ankio.auto.ui.api
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.View
+import androidx.annotation.IdRes
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.viewbinding.ViewBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.ankio.auto.App
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.utils.ViewUtils
@@ -47,6 +52,19 @@ abstract class BaseFragment : Fragment() {
 
     }
 
+    open fun navigate(@IdRes resId: Int) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                // 使用协程的 withContext 确保在主线程执行
+                withContext(Dispatchers.Main) {
+                    findNavController().navigate(resId)
+                }
+            } catch (e: Exception) {
+                Logger.w("Navigation failed: ${e.message}")
+            }
+        }
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         App.pageStopOrDestroy()
@@ -54,6 +72,10 @@ abstract class BaseFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        view.visibility = View.INVISIBLE
+        view.postDelayed({
+            view.visibility = View.VISIBLE
+        }, 300)
         val materialToolbar = ViewUtils.findMaterialToolbar(view) ?: return
         
         // 通过tag判断是否是返回按钮

@@ -20,19 +20,12 @@ import android.content.ContextWrapper
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.WindowManager
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
-import androidx.core.view.setMargins
-import androidx.core.view.setPadding
-import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
@@ -47,12 +40,11 @@ import net.ankio.auto.R
 import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.utils.DisplayUtils
-import net.ankio.auto.ui.utils.ViewUtils
 import org.ezbook.server.constant.Setting
 
 abstract class BaseSheetDialog(private val context: Context) :
     BottomSheetDialog(context, R.style.BottomSheetDialog) {
-    private var lifecycleOwner: LifecycleOwner? = null
+    var lifecycleOwner: LifecycleOwner? = null
     private val lifecycleObserver = LifecycleEventObserver { _, event ->
         if (event == Lifecycle.Event.ON_DESTROY) {
             dismiss()
@@ -60,7 +52,7 @@ abstract class BaseSheetDialog(private val context: Context) :
     }
 
     // 添加绑定生命周期的方法
-    private fun bindToLifecycle(owner: LifecycleOwner) {
+     fun bindToLifecycle(owner: LifecycleOwner) {
         lifecycleOwner?.lifecycle?.removeObserver(lifecycleObserver)
         lifecycleOwner = owner
         owner.lifecycle.addObserver(lifecycleObserver)
@@ -141,7 +133,9 @@ abstract class BaseSheetDialog(private val context: Context) :
         // 设置子元素水平居中
         return cardView
     }
-
+    open fun onViewCreated(view: View) {
+        // 空实现
+    }
 
     open fun show(
         float: Boolean = false,
@@ -163,7 +157,7 @@ abstract class BaseSheetDialog(private val context: Context) :
         val root = this.onCreateView(inflater)
         cardView.findViewById<LinearLayout>(R.id.innerView).addView(root)
         setContentView(cardView)
-
+        onViewCreated(root)
         val layoutParams = cardView.layoutParams as FrameLayout.LayoutParams
         layoutParams.gravity = Gravity.CENTER_HORIZONTAL
         cardView.layoutParams = layoutParams
