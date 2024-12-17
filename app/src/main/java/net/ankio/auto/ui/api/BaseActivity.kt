@@ -93,8 +93,9 @@ open class BaseActivity : AppCompatActivity() {
 
         // 获取根布局
         val rootView = findViewById<View>(android.R.id.content)  as ViewGroup
-        val rootLayout = rootView.getChildAt(0) as ViewGroup
-        rootLayout.setOnApplyWindowInsetsListener { v, insets ->
+
+        rootView.setOnApplyWindowInsetsListener { v, insets ->
+            val rootLayout = rootView.getChildAt(0) as ViewGroup
             val statusBarHeight = getStatusBarHeight(insets)
             val navigationBarHeight = getNavigationBarHeight(insets)
             App.statusBarHeight = statusBarHeight
