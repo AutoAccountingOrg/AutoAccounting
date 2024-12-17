@@ -16,6 +16,11 @@
 package org.ezbook.server.constant
 
 object Setting {
+    const val HOOK_WECHAT: String = "hook_wechat"
+    const val HOOK_AUTO_SERVER: String = "hook_auto_server"
+
+    //提醒用户记账软件设置
+    const val SETTING_REMIND_BOOK: String = "setting_remind_book"
     const val DONATE_TIME: String = "donate_time"
     const val LOAD_SUCCESS: String = "load_success"
     const val KEY_FRAMEWORK: String = "framework"
