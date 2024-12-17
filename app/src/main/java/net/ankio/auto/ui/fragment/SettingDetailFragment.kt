@@ -366,6 +366,7 @@ class SettingDetailFragment:BaseFragment() {
                 },
                 onSavedValue = { value, activity ->
                     ThemeEngine.getInstance(requireContext()).themeMode = value as Int
+
                     activity.recreateActivity()
                 },
 
@@ -378,6 +379,7 @@ class SettingDetailFragment:BaseFragment() {
                 },
                 onSavedValue = { value, activity ->
                     ThemeEngine.getInstance(requireContext()).isTrueBlack = value as Boolean
+
                     activity.recreateActivity()
                 },
 

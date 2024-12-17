@@ -210,8 +210,13 @@ class SettingUtils(
                 switchWidget.isChecked = !switchWidget.isChecked
                // updateSwitch(switchWidget.isChecked)
             }
+            var firstSwitchBinding = true
 
             switchWidget.setOnCheckedChangeListener { _, isChecked ->
+                if (firstSwitchBinding) {
+                    firstSwitchBinding = false
+                    return@setOnCheckedChangeListener
+                }
                 updateSwitch(isChecked)
             }
 
