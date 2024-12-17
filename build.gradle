@@ -9,8 +9,6 @@ plugins {
     alias(libs.plugins.kotlinAndroid) apply false
     alias(libs.plugins.androidLibrary) apply false
 
-    id 'dev.rikka.tools.autoresconfig' version '1.2.2' apply false
-
 }
 
 

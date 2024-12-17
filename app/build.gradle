@@ -5,7 +5,6 @@ plugins {
     alias(libs.plugins.kotlinAndroid)
     id 'com.google.devtools.ksp' version "1.9.21-1.0.15"
     id "com.bugsnag.android.gradle"
-    id 'dev.rikka.tools.autoresconfig'
 }
 
 android {
@@ -64,14 +63,7 @@ android {
     kotlinOptions {
         jvmTarget = '17'
     }
-    autoResConfig {
-        generateClass = true
-        generatedClassFullName = "net.ankio.utils.LangList"
-        generateRes = true
-        generatedResPrefix = null
-        generatedArrayFirstItem = "SYSTEM"
-        generateLocaleConfig = true
-    }
+
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES'
         exclude 'META-INF/LICENSE'
@@ -100,6 +92,7 @@ android {
 
 
 dependencies {
+    implementation libs.androidx.swiperefreshlayout
 
 
     ////测试依赖
@@ -121,7 +114,7 @@ dependencies {
     implementation libs.androidx.browser
     implementation libs.androidx.activity
     implementation libs.androidx.constraintlayout
-
+    implementation libs.androidx.lifecycle.runtime.ktx
     //主题库
     implementation libs.themeEngine
     //Html转换
