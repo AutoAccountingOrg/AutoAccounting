@@ -197,8 +197,7 @@ abstract class BaseSheetDialog(private val context: Context) :
         // 设置BottomSheetDialog展开到全屏高度
         bottomSheetBehavior.skipCollapsed = true
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-
-
+        bottomSheetBehavior.maxHeight = DisplayUtils.getRealScreenSize(context).y -  App.statusBarHeight
         // 避让键盘
         ViewCompat.setOnApplyWindowInsetsListener(bottomSheet) { v, insets ->
             val imeVisible = insets.isVisible(WindowInsetsCompat.Type.ime())
