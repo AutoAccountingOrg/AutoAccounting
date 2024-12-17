@@ -20,6 +20,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.hjq.toast.Toaster
@@ -27,6 +28,8 @@ import com.quickersilver.themeengine.ThemeChooserDialogBuilder
 import com.quickersilver.themeengine.ThemeEngine
 import com.quickersilver.themeengine.ThemeMode
 import kotlinx.coroutines.launch
+import net.ankio.auto.App
+import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.constant.FloatEvent
 import net.ankio.auto.databinding.FragmentSettingDetailBinding
@@ -36,17 +39,24 @@ import net.ankio.auto.setting.SettingUtils
 import net.ankio.auto.storage.BackupUtils
 import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Logger
+import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.api.BaseFragment
+import net.ankio.auto.ui.dialog.AppsDialog
+import net.ankio.auto.ui.utils.AppUtils
+import net.ankio.auto.ui.utils.DonateUtils
 import net.ankio.auto.ui.utils.LoadingUtils
+import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.ui.utils.viewBinding
 import net.ankio.auto.update.UpdateChannel
 import net.ankio.auto.update.UpdateType
 import net.ankio.auto.utils.LanguageUtils
+import net.ankio.auto.xposed.Apps
 import org.ezbook.server.constant.AIModel
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.constant.SyncType
+import org.ezbook.server.db.model.SettingModel
 
 class SettingDetailFragment:BaseFragment() {
     override val binding: FragmentSettingDetailBinding by viewBinding(FragmentSettingDetailBinding::inflate)
@@ -94,8 +104,7 @@ class SettingDetailFragment:BaseFragment() {
             R.id.setting_appearance-> renderAppearance()
             R.id.setting_experimental-> renderExperimental()
             R.id.setting_backup-> renderBackup()
-            R.id.setting_about-> renderBillFragment()
-            R.id.setting_danger-> renderBillFragment()
+            R.id.setting_others-> renderOthers()
             else -> arrayListOf()
         }
         settingUtils =
@@ -533,7 +542,7 @@ class SettingDetailFragment:BaseFragment() {
                         requireContext().getString(R.string.setting_backup_path_desc)
                     }
                 },
-                onItemClick = {activity ->
+                onItemClick = { activity,binding ->
                     BackupUtils.requestPermission(activity as MainActivity)
                 },
 
@@ -544,7 +553,7 @@ class SettingDetailFragment:BaseFragment() {
                 //    subTitle = R.string.setting_backup_2_local_desc,
                 icon = R.drawable.setting2_icon_to_local,
                 
-                onItemClick = {  activity ->
+                onItemClick = { activity,binding ->
                     lifecycleScope.launch {
                         val loading = LoadingUtils(activity)
                         runCatching {
@@ -573,7 +582,7 @@ class SettingDetailFragment:BaseFragment() {
                 icon = R.drawable.setting2_icon_from_local,
                 //  subTitle = R.string.setting_restore_2_local_desc,
                 
-                onItemClick = {activity ->
+                onItemClick = { activity,binding ->
                     BackupUtils.requestRestore(activity as MainActivity)
                 },
 
@@ -609,7 +618,7 @@ class SettingDetailFragment:BaseFragment() {
                 icon = R.drawable.setting2_icon_webdav_upload,
                 //     subTitle = R.string.setting_backup_2_webdav_desc,
                // 
-                onItemClick = {activity ->
+                onItemClick = { activity,binding ->
                     lifecycleScope.launch {
                         runCatching {
                             val backupUtils = BackupUtils(activity)
@@ -628,7 +637,7 @@ class SettingDetailFragment:BaseFragment() {
                 icon = R.drawable.setting2_icon_webdav_download,
                 //     subTitle = R.string.setting_backup_2_webdav_desc,
                // 
-                onItemClick = {activity ->
+                onItemClick = { activity,binding ->
                     lifecycleScope.launch {
                         runCatching {
                             val backupUtils = BackupUtils(activity)
@@ -691,6 +700,121 @@ class SettingDetailFragment:BaseFragment() {
                 ),
             // 其他
         );
+    }
+
+    private fun renderOthers():ArrayList<SettingItem>{
+        return arrayListOf(
+            SettingItem.Title(R.string.setting_privacy),
+            SettingItem.Switch(
+                title = R.string.setting_analysis,
+                key = Setting.SEND_ERROR_REPORT,
+                icon = R.drawable.setting2_icon_anonymous,
+                subTitle = R.string.setting_analysis_desc,
+                default = true,
+
+                ),
+            SettingItem.Title(R.string.setting_others),
+            SettingItem.Switch(
+                title = R.string.setting_load_success,
+                key = Setting.LOAD_SUCCESS,
+                icon = R.drawable.setting_icon_success,
+                subTitle = R.string.load_msg,
+                default = true,
+                onSavedValue = { value, _ ->
+                    ConfigUtils.putBoolean(Setting.LOAD_SUCCESS, value)
+                    App.launch {
+                        SettingModel.set(Setting.LOAD_SUCCESS, value.toString())
+                    }
+                    SpUtils.putBoolean(Setting.LOAD_SUCCESS, value)
+                },
+
+                ),
+            SettingItem.Switch(
+                title = R.string.setting_debug,
+                key = Setting.DEBUG_MODE,
+                icon = R.drawable.setting2_icon_debug,
+                subTitle = R.string.debug_msg,
+                default = BuildConfig.DEBUG,
+                onSavedValue = { value, _ ->
+                    ConfigUtils.putBoolean(Setting.DEBUG_MODE, value)
+                    App.launch {
+                        SettingModel.set(Setting.DEBUG_MODE, value.toString())
+                    }
+                    SpUtils.putBoolean(Setting.DEBUG_MODE, value)
+                },
+
+                ),
+            SettingItem.Text(
+                title = R.string.setting_clear_database,
+                icon = R.drawable.icon_delete,
+                subTitle = R.string.clear_db_desc,
+                onItemClick = { activity,binding ->
+                    ToastUtils.info(R.string.clear_db_msg)
+                    App.launch {
+                        SettingModel.clearDatabase()
+                        ToastUtils.info(R.string.clear_success)
+                    }
+                }
+            ),
+            SettingItem.Title(R.string.setting_hooks),
+            SettingItem.Card(R.string.setting_hooks_msg),
+            SettingItem.Text(
+                title = R.string.setting_hook_auto,
+                drawable = {
+                    val pkg = SpUtils.getString(Setting.HOOK_AUTO_SERVER, Apps.getServerRunInApp())
+                    val info = AppUtils.get(pkg)
+                    info?.icon
+                },
+                onGetKeyValue = {
+                    SpUtils.getString(Setting.HOOK_AUTO_SERVER, Apps.getServerRunInApp())
+                },
+                onItemClick = { activity,binding ->
+                    AppsDialog(requireContext()) {
+                        SpUtils.putString(Setting.HOOK_AUTO_SERVER, it.packageName)
+                        binding.icon.setImageDrawable(it.icon)
+                        binding.subTitle.text = it.packageName
+                    }.showInFragment(this,false,true)
+                }
+            ),
+            SettingItem.Text(
+                title = R.string.setting_hook_wechat,
+                drawable = {
+                    val pkg = SpUtils.getString(Setting.HOOK_WECHAT, "mm.tencent.com")
+                    val info = AppUtils.get(pkg)
+                    info?.icon
+                },
+                onGetKeyValue = {
+                    SpUtils.getString(Setting.HOOK_WECHAT, "mm.tencent.com")
+                },
+                onItemClick = { activity,binding ->
+                    AppsDialog(requireContext()) {
+                        SpUtils.putString(Setting.HOOK_WECHAT, it.packageName)
+                        binding.icon.setImageDrawable(it.icon)
+                        binding.icon.imageTintList = null
+                        binding.subTitle.text = it.packageName
+                    }.showInFragment(this,false,true)
+                }
+            ),
+            SettingItem.Title(R.string.setting_donate),
+            SettingItem.Text(
+                title = R.string.donate_alipay,
+                drawable = {
+                    AppCompatResources.getDrawable(requireContext(),R.drawable.alipay)
+                },
+                onItemClick = { activity,binding ->
+                    DonateUtils.alipay(activity)
+                }
+            ),
+            SettingItem.Text(
+                title = R.string.donate_wechat,
+                drawable = {
+                    AppCompatResources.getDrawable(requireContext(),R.drawable.wechat)
+                },
+                onItemClick = { activity,binding ->
+                  DonateUtils.wechat(activity)
+                }
+            ),
+        )
     }
 
 }
