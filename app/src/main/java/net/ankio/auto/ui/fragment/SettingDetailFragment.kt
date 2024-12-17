@@ -252,13 +252,7 @@ class SettingDetailFragment:BaseFragment() {
                 default = FloatEvent.POP_EDIT_WINDOW.ordinal,
 
                 ),
-            SettingItem.Title(R.string.setting_popup_style),
-            SettingItem.Switch(
-                title = R.string.setting_use_round_style,
-                key = Setting.USE_ROUND_STYLE,
-                icon = R.drawable.setting2_icon_round_theme,
-                default = false,
-            ),
+
         )
     }
 
@@ -397,6 +391,13 @@ class SettingDetailFragment:BaseFragment() {
                 },
 
                 ),
+            SettingItem.Title(R.string.setting_popup_style),
+            SettingItem.Switch(
+                title = R.string.setting_use_round_style,
+                key = Setting.USE_ROUND_STYLE,
+                icon = R.drawable.setting2_icon_round_theme,
+                default = false,
+            ),
         )
     }
 
