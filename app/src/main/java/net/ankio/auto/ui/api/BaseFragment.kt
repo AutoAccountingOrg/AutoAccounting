@@ -52,12 +52,12 @@ abstract class BaseFragment : Fragment() {
 
     }
 
-    open fun navigate(@IdRes resId: Int) {
+    open fun navigate(@IdRes resId: Int,bundle: Bundle? = null) {
         viewLifecycleOwner.lifecycleScope.launch {
             try {
                 // 使用协程的 withContext 确保在主线程执行
                 withContext(Dispatchers.Main) {
-                    findNavController().navigate(resId)
+                    findNavController().navigate(resId,bundle)
                 }
             } catch (e: Exception) {
                 Logger.w("Navigation failed: ${e.message}")
