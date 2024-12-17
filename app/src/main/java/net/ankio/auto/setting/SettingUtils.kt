@@ -15,6 +15,7 @@
 
 package net.ankio.auto.setting
 
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.text.InputType
 import android.util.SparseArray
@@ -142,9 +143,19 @@ class SettingUtils(
                 binding.title.setText(item.title)
                 when (item) {
                     is SettingItem.Text -> {
+                        var setImage = false;
                         (item as? SettingItem.Text)?.icon?.let {
+                            setImage = true
                             binding.icon.setImageDrawable(AppCompatResources.getDrawable(context, it))
-                        } ?: run {
+                        }
+                        (item as? SettingItem.Text)?.drawable?.let {
+                            setImage = true
+                            it.invoke()?.let { drawable ->
+                                binding.icon.setImageDrawable(drawable)
+                                binding.icon.imageTintList = null
+                            }
+                        }
+                        if (!setImage) {
                             binding.icon.visibility = View.GONE
                         }
                     }
@@ -225,6 +236,7 @@ class SettingUtils(
 
     private fun renderText(item: SettingItem.Text): SettingItemTextBinding {
         return SettingItemTextBinding.inflate(inflater, container, false).apply {
+
             bindCommonViews(this, item)
 
 
@@ -254,7 +266,7 @@ class SettingUtils(
                 item.link?.let { link ->
                     CustomTabsHelper.launchUrl(context, Uri.parse(link))
                 }
-                item.onItemClick?.invoke(context)
+                item.onItemClick?.invoke(context,this)
             }
         }
     }
