@@ -40,8 +40,8 @@ class BillCategoryDialog(
     override fun onCreateView(inflater: LayoutInflater): View {
         binding = DialogBillCategoryBinding.inflate(inflater)
 
-        cardView = binding.cardView
-        cardViewInner = binding.innerView
+        //cardView = binding.cardView
+       // cardViewInner = binding.innerView
 
         binding.cancelButton.setOnClickListener {
             dismiss()

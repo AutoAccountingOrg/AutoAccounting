@@ -45,8 +45,8 @@ class BackupSelectorDialog(
         binding = DialogBookSelectBinding.inflate(inflater)
         val layoutManager = LinearLayoutManager(context)
         statusPage = binding.statusPage
-        cardView = binding.cardView
-        cardViewInner = binding.statusPage
+        //cardView = binding.cardView
+       // cardViewInner = binding.statusPage
         val recyclerView = statusPage.contentView!!
         recyclerView.layoutManager = layoutManager
 

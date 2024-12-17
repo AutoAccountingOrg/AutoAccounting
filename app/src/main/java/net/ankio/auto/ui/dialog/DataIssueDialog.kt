@@ -32,8 +32,8 @@ class DataIssueDialog(
 
     override fun onCreateView(inflater: LayoutInflater): View {
         binding = DialogDataIssueBinding.inflate(inflater)
-        cardView = binding.cardView
-        cardViewInner = binding.cardViewInner
+        //cardView = binding.cardView
+        //cardViewInner = binding.cardViewInner
         binding.buttonSure.setOnClickListener {
             val data = binding.data.text.toString()
             if (data.isEmpty()) {

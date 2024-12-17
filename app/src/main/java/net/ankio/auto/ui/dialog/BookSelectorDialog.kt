@@ -45,8 +45,8 @@ class BookSelectorDialog(
         statusPage = binding.statusPage
         val recyclerView = statusPage.contentView!!
         recyclerView.layoutManager = LinearLayoutManager(context)
-        cardView = binding.cardView
-        cardViewInner = recyclerView
+        //cardView = binding.cardView
+        //cardViewInner = recyclerView
         recyclerView.adapter =
             BookSelectorAdapter(dataItems, showSelect) { item, type ->
                 callback(item, type)

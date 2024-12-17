@@ -45,8 +45,8 @@ class BillSelectorDialog(
         binding = DialogCategorySelectBinding.inflate(inflater)
         val layoutManager = LinearLayoutManager(context)
         statusPage = binding.statusPage
-        cardView = binding.cardView
-        cardViewInner = binding.cardViewInner
+        //cardView = binding.cardView
+        //cardViewInner = binding.cardViewInner
         val recyclerView = statusPage.contentView!!
         recyclerView.layoutManager = layoutManager
 

@@ -45,8 +45,8 @@ class BillMoreDialog(
         val layoutManager = LinearLayoutManager(context)
         recyclerView.layoutManager = layoutManager
 
-        cardView = binding.cardView
-        cardViewInner = binding.innerView
+        //cardView = binding.cardView
+        //cardViewInner = binding.innerView
         recyclerView.adapter = adapter
         dataItems.clear()
         statusPage.showLoading()

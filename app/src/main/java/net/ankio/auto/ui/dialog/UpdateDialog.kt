@@ -15,14 +15,12 @@
 
 package net.ankio.auto.ui.dialog
 
-import android.app.Activity
-import android.content.BroadcastReceiver
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
-import net.ankio.auto.broadcast.LocalBroadcastHelper
 import net.ankio.auto.databinding.DialogUpdateBinding
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.update.BaseUpdate
@@ -30,7 +28,7 @@ import net.ankio.auto.update.RuleUpdate
 import rikka.html.text.toHtml
 
 class UpdateDialog(
-    private val context: Activity,
+    private val context: Context,
     private val baseUpdate: BaseUpdate,
     private val finish: () -> Unit
 ) : BaseSheetDialog(context) {
@@ -39,8 +37,8 @@ class UpdateDialog(
     override fun onCreateView(inflater: LayoutInflater): View {
         binding = DialogUpdateBinding.inflate(inflater)
 
-        cardView = binding.cardView
-        cardViewInner = binding.cardViewInner
+        //cardView = binding.cardView
+        //cardViewInner = binding.cardViewInner
 
         binding.version.text = baseUpdate.version
         binding.updateInfo.text = baseUpdate.log.toHtml()

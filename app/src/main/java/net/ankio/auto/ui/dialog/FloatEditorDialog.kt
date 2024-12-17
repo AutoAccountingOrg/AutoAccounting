@@ -33,7 +33,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.App
 import net.ankio.auto.R
-import net.ankio.auto.broadcast.LocalBroadcastHelper
 import net.ankio.auto.databinding.FloatEditorBinding
 import net.ankio.auto.exceptions.BillException
 import net.ankio.auto.service.FloatingWindowService
@@ -46,13 +45,17 @@ import net.ankio.auto.ui.utils.ResourceUtils
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.BillTool
 import net.ankio.auto.utils.DateUtils
-import org.ezbook.server.constant.*
+import org.ezbook.server.constant.AssetsType
+import org.ezbook.server.constant.BillState
+import org.ezbook.server.constant.BillType
 import org.ezbook.server.constant.Currency
+import org.ezbook.server.constant.Setting
+import org.ezbook.server.constant.SyncType
 import org.ezbook.server.db.model.AssetsMapModel
 import org.ezbook.server.db.model.AssetsModel
 import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.db.model.BookNameModel
-import java.util.*
+import java.util.Calendar
 
 class FloatEditorDialog(
     private val context: Context,
@@ -90,7 +93,7 @@ class FloatEditorDialog(
 
 
         binding = FloatEditorBinding.inflate(inflater)
-        cardView = binding.editorCard
+        //cardView = binding.editorCard
 
         Logger.d("Raw BillInfo => $rawBillInfo")
         billTypeLevel1 = BillTool.getType(rawBillInfo.type)

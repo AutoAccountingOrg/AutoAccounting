@@ -44,8 +44,8 @@ class AssetsSelectorDialog(
         val recyclerView = statusPage.contentView!!
         statusPage.contentView!!.layoutManager = LinearLayoutManager(context)
 
-        cardView = binding.cardView
-        cardViewInner = statusPage
+        //cardView = binding.cardView
+       // cardViewInner = statusPage
 
         recyclerView.adapter = AssetsSelectorAdapter(dataItems) { item ->
             callback(item)

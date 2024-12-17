@@ -36,8 +36,8 @@ class DataEditorDialog(
 
     override fun onCreateView(inflater: LayoutInflater): View {
         binding = DialogDataEditorBinding.inflate(inflater)
-        cardView = binding.cardView
-        cardViewInner = binding.cardViewInner
+        //cardView = binding.cardView
+        //cardViewInner = binding.cardViewInner
         binding.buttonSure.setOnClickListener {
             val data = binding.data.text.toString()
             runCatching {
