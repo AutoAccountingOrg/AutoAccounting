@@ -80,12 +80,16 @@ abstract class BaseSheetDialog(private val context: Context) :
             layoutParams = if (round) {
                 LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
                     setMargins(margin, margin, margin, margin + App.navigationBarHeight)
-                    width = maxWidthPx
+                    if (DisplayUtils.isTabletOrFoldable(context)){
+                        width = maxWidthPx
+                    }
                 }
             } else {
 
                 LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
-                    width = maxWidthPx
+                    if (DisplayUtils.isTabletOrFoldable(context)){
+                        width = maxWidthPx
+                    }
                 }
 
             }
