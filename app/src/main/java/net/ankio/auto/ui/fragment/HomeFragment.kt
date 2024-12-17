@@ -29,7 +29,6 @@ import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.elevation.SurfaceColors
 import kotlinx.coroutines.launch
@@ -47,6 +46,7 @@ import net.ankio.auto.ui.dialog.AssetsSelectorDialog
 import net.ankio.auto.ui.dialog.BookSelectorDialog
 import net.ankio.auto.ui.dialog.CategorySelectorDialog
 import net.ankio.auto.ui.dialog.UpdateDialog
+import net.ankio.auto.ui.utils.DonateUtils
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.ui.utils.viewBinding
 import net.ankio.auto.update.AppUpdate
@@ -92,7 +92,7 @@ class HomeFragment : BaseFragment() {
 
     private fun setupCards() {
         val surfaceColor = SurfaceColors.SURFACE_1.getColor(requireContext())
-        listOf(binding.infoCard, binding.groupCard, binding.ruleCard, binding.donateCard)
+        listOf(binding.infoCard, binding.groupCard, binding.ruleCard, binding.donateCard, binding.groupResource)
             .forEach { it.setCardBackgroundColor(surfaceColor) }
     }
 
@@ -122,18 +122,11 @@ class HomeFragment : BaseFragment() {
         }
 
         binding.donateWechat.setOnClickListener {
-            val uri =
-                "https://pic.dreamn.cn/uPic/2023_04_23_00_41_49_1682181709_1682181709722_KGWAI6.jpg"
-            CustomTabsHelper.launchUrlOrCopy(requireContext(), uri)
-            ToastUtils.info(R.string.copy_donate_qr)
+            DonateUtils.wechat(requireContext())
         }
 
         binding.donateAlipay.setOnClickListener {
-            val intent = Intent(Intent.ACTION_VIEW).apply {
-                data = Uri.parse("https://qr.alipay.com/fkx15657xcegbz5k9zxnd30")
-            }
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            startActivity(intent)
+            DonateUtils.alipay(requireContext())
         }
     }
 
@@ -180,7 +173,7 @@ class HomeFragment : BaseFragment() {
         binding.toolbar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.title_log -> {
-                    findNavController().navigate(R.id.action_homeFragment_to_logFragment)
+                    navigate(R.id.action_homeFragment_to_logFragment)
                     true
                 }
 
@@ -232,7 +225,7 @@ class HomeFragment : BaseFragment() {
             }
 
             map.setOnClickListener {
-                findNavController().navigate(R.id.assetMapFragment)
+                navigate(R.id.action_homeFragment_to_assetMapFragment)
             }
 
             readAssets.setOnClickListener {
@@ -288,11 +281,11 @@ class HomeFragment : BaseFragment() {
     private fun setupRuleEvents() {
         with(binding) {
             categoryMap.setOnClickListener {
-                findNavController().navigate(R.id.categoryMapFragment)
+                navigate(R.id.action_homeFragment_to_assetMapFragment)
             }
 
             categoryEdit.setOnClickListener {
-                findNavController().navigate(R.id.categoryRuleFragment)
+                navigate(R.id.categoryRuleFragment)
             }
 
             checkRuleUpdate.apply {
