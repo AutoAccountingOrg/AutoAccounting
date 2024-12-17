@@ -45,6 +45,7 @@
 
             <!-- 高级版信息卡片 -->
             <com.google.android.material.card.MaterialCardView
+                android:visibility="gone"
                 android:id="@+id/pro_card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -154,21 +155,14 @@
                 app:settingTitle="@string/setting_title_backup"
                 app:settingDesc="@string/setting_desc_backup" />
 
-            <!-- 信息与危险操作 -->
+
+
             <net.ankio.auto.ui.componets.SettingItemView
-                android:id="@+id/setting_about"
+                android:id="@+id/setting_others"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:settingIcon="@drawable/ic_info"
-                app:settingTitle="@string/setting_title_about"
-                app:settingDesc="@string/setting_desc_about" />
-
-            <net.ankio.auto.ui.componets.SettingItemView
-                android:id="@+id/setting_danger"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:settingIcon="@drawable/ic_warning"
-                app:settingTitle="@string/setting_title_danger"
+                app:settingTitle="@string/setting_title_others"
                 app:settingDesc="@string/setting_desc_danger" />
 
         </LinearLayout>
