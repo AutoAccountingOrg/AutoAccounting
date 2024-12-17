@@ -14,46 +14,52 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/item"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="@dimen/padding"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/item"
-    android:clickable="true"
     android:background="@drawable/ripple_effect"
-    android:weightSum="3"
-    >
+    android:clickable="true"
+    android:focusable="true"
+    android:minHeight="?listPreferredItemHeight"
+    android:orientation="horizontal"
+    android:padding="@dimen/padding">
 
+    <!-- 左侧文本 -->
     <TextView
+        android:id="@+id/raw"
+        style="@style/TextAppearance.AppCompat.Medium"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
         android:layout_weight="1"
         android:ellipsize="end"
-        android:maxLines="1"
-        android:id="@+id/raw"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="原始"
-        style="@style/TextAppearance.AppCompat.Medium"
-        />
+        android:maxLines="2"
+        tools:text="映射文本很长很映射文本很长很长很长映射文本很长很长很长映射文本很长很长很长映射文本很长很长很长长很长" />
 
-
+    <!-- 中间固定宽度的箭头图标 -->
     <ImageView
-        android:layout_weight="1"
         android:id="@+id/icon_header"
-        android:layout_width="0dp"
+        android:layout_width="@dimen/image_size_small"
         android:layout_height="@dimen/image_size_small"
-        android:layout_marginStart="@dimen/one_padding"
-        android:layout_marginEnd="@dimen/one_padding"
-        android:src="@drawable/icon_map_right"
-        />
+        android:layout_gravity="center_vertical"
+        android:layout_marginHorizontal="@dimen/one_padding"
+        android:contentDescription=""
+        android:importantForAccessibility="no"
+        android:scaleType="centerInside"
+        android:src="@drawable/icon_map_right" />
 
-
+    <!-- 右侧文本 -->
     <net.ankio.auto.ui.componets.IconView
-
         android:id="@+id/target"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:textColor="?colorOnBackground"
-        app:text="原始"
+        android:layout_gravity="center_vertical"
         android:layout_weight="1"
-        />
+        app:textColor="?colorOnBackground"
+        app:textSize="@dimen/abc_text_size_medium_material"
+        app:maxLines="2"
+        tools:text="映射文本很长很长映射文本很长很长很长映射文本很长很长很长映射文本很长很长很长映射文本很长很长很长映射文本很长很长很长很长" />
+
 </LinearLayout>
