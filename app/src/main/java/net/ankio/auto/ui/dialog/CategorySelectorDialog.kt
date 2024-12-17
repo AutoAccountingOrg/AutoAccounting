@@ -156,8 +156,8 @@ class CategorySelectorDialog(
         binding = DialogCategorySelectBinding.inflate(inflater)
 
         // 设置卡片视图
-        this.cardView = binding.cardView
-        cardViewInner = binding.cardViewInner
+       // this.cardView = binding.cardView
+       // cardViewInner = binding.cardViewInner
         statusPage = binding.statusPage
         // 为RecyclerView设置布局管理器
         val layoutManager = GridLayoutManager(context, line)
