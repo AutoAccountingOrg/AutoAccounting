@@ -17,7 +17,14 @@ package net.ankio.auto.exceptions
 
 import androidx.fragment.app.FragmentActivity
 
-class ServiceCheckException(val title: String, val msg: String,val btn:String, val action: (activity: FragmentActivity) -> Unit) :
+class ServiceCheckException(
+    val title: String,
+    val msg: String,
+    val btn:String,
+    val action: (activity: FragmentActivity) -> Unit,
+    val dismissBtn:String? = null,
+    val dismissAction: ((activity: FragmentActivity) -> Unit)? = null
+) :
     Exception(title) {
     fun doAction(activity: FragmentActivity) {
         action(activity)
