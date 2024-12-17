@@ -70,8 +70,9 @@ class MainActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        // 初始化底部导航栏
+        // 初始化底���导航栏
         onBottomViewInit()
+        BackupUtils.initRequestPermission(this)
     }
     /**
      * 导航栏初始化

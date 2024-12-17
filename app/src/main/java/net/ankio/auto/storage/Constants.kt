@@ -13,13 +13,9 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.constant
+package net.ankio.auto.storage
 
-enum class ItemType {
-    TITLE,
-    SWITCH,
-    TEXT,
-    INPUT,
-    INPUT_PASSWORD,
-    COLOR,
+object Constants {
+    // 10分钟
+    val BACKUP_TIME = 10 * 60 * 1000L
 }

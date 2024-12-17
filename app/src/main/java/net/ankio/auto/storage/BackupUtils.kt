@@ -58,21 +58,22 @@ class BackupUtils(private val context: Context) {
         const val SUFFIX = "pk"
         const val SUPPORT_VERSION = 202 // 支持恢复数据的版本号
 
-        fun registerBackupLauncher(activity: BaseActivity): ActivityResultLauncher<Uri?> {
-            return activity.registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+        private var backupLauncher: ActivityResultLauncher<Uri?>? = null
+        private var restoreLauncher: ActivityResultLauncher<Array<String>>? = null
+
+        fun initRequestPermission(activity: MainActivity) {
+            // 初始化backup launcher
+            backupLauncher = activity.registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
                 uri?.let {
-                    // 请求持久化权限
-                    val takeFlags: Int =
-                        Intent.FLAG_GRANT_READ_URI_PERMISSION or
-                                Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                    val takeFlags: Int = Intent.FLAG_GRANT_READ_URI_PERMISSION or 
+                            Intent.FLAG_GRANT_WRITE_URI_PERMISSION
                     activity.contentResolver.takePersistableUriPermission(uri, takeFlags)
                     ConfigUtils.putString(Setting.LOCAL_BACKUP_PATH, uri.toString())
                 }
             }
-        }
 
-        fun registerRestoreLauncher(activity: BaseActivity): ActivityResultLauncher<Array<String>> {
-            return activity.registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+            // 初始化restore launcher
+            restoreLauncher = activity.registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
                 uri?.let {
                     val fileExtension =
                         activity.contentResolver.getType(uri)
@@ -96,7 +97,6 @@ class BackupUtils(private val context: Context) {
                                 ToastUtils.error(it2.message!!)
                             } else {
                                 ToastUtils.info(R.string.backup_error)
-
                             }
                         }.onSuccess {
                             loadingUtils.close()
@@ -110,7 +110,11 @@ class BackupUtils(private val context: Context) {
         }
 
         fun requestPermission(activity: MainActivity) {
-            activity.backupLauncher.launch(null)
+            backupLauncher?.launch(null)
+        }
+
+        fun requestRestore(activity: MainActivity) {
+            restoreLauncher?.launch(arrayOf("*/*"))
         }
 
         fun hasAccessPermission(context: Context): Boolean {
@@ -123,6 +127,38 @@ class BackupUtils(private val context: Context) {
                                 "",
                             ),
                         ) && it.isReadPermission && it.isWritePermission
+            }
+        }
+
+       suspend fun autoBackup(context: MainActivity){
+
+           fun shouldBackup(): Boolean {
+               val lastBackupTime = ConfigUtils.getLong(Setting.LAST_BACKUP_TIME, 0L)
+               val currentTime = System.currentTimeMillis()
+               return (currentTime - lastBackupTime) >= Constants.BACKUP_TIME
+           }
+
+            if (ConfigUtils.getBoolean(Setting.AUTO_BACKUP)) {
+                    if (!shouldBackup()) return
+
+                    ConfigUtils.putLong(Setting.LAST_BACKUP_TIME, System.currentTimeMillis())
+
+                    ToastUtils.info(R.string.backup_loading)
+                    val backupUtils = BackupUtils(context)
+                    runCatching {
+                        if (ConfigUtils.getBoolean(Setting.USE_WEBDAV)) {
+                            backupUtils.putWebdavBackup(context)
+                        } else {
+                            backupUtils.putLocalBackup()
+                        }
+                    }.onFailure {
+                        Logger.e("自动备份失败", it)
+                        ToastUtils.error(R.string.backup_error)
+                    }.onSuccess {
+                        ConfigUtils.putLong("last_backup_time", System.currentTimeMillis())
+                        ToastUtils.info(R.string.backup_success)
+                    }
+
             }
         }
     }
