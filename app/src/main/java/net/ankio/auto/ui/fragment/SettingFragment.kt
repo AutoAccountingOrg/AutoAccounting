@@ -15,26 +15,17 @@
 
 package net.ankio.auto.ui.fragment
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import net.ankio.auto.R
-import net.ankio.auto.constant.FloatEvent
-import net.ankio.auto.constant.ItemType
 import net.ankio.auto.databinding.FragmentSettingBinding
-import net.ankio.auto.setting.SettingItem
-import net.ankio.auto.setting.SettingUtils
-import net.ankio.auto.storage.ConfigUtils
-import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.api.BaseFragment
-import org.ezbook.server.constant.AIModel
-import org.ezbook.server.constant.Setting
-import org.ezbook.server.constant.SyncType
+import net.ankio.auto.ui.utils.viewBinding
 
-class SettingFragment : BaseFragment() {
-    private lateinit var binding: FragmentSettingBinding
+class SettingFragment : BaseFragment(), View.OnClickListener {
+    /*private lateinit var binding: FragmentSettingBinding
 
     private lateinit var settingRenderUtils: SettingUtils
 
@@ -200,56 +191,7 @@ class SettingFragment : BaseFragment() {
             ),
             // 悬浮窗
             SettingItem(R.string.setting_float),
-            SettingItem(
-                title = R.string.setting_float_time,
-                key = Setting.FLOAT_TIMEOUT_OFF,
-                subTitle = R.string.setting_float_time_desc,
-                type = ItemType.INPUT,
-                default = 10,
-                
-            ),
-            SettingItem(
-                title = R.string.setting_float_on_badge_click,
-                key = Setting.FLOAT_CLICK,
-                icon = R.drawable.setting_icon_click,
-                type = ItemType.TEXT,
-                selectList =
-                hashMapOf(
-                    context.getString(R.string.pop_edit_window) to FloatEvent.POP_EDIT_WINDOW.ordinal,
-                    context.getString(R.string.auto_account) to FloatEvent.AUTO_ACCOUNT.ordinal,
-                    context.getString(R.string.no_account) to FloatEvent.NO_ACCOUNT.ordinal,
-                ),
-                default = FloatEvent.POP_EDIT_WINDOW.ordinal,
-                
-            ),
-            SettingItem(
-                title = R.string.setting_float_on_badge_long_click,
-                key = Setting.FLOAT_LONG_CLICK,
-                icon = R.drawable.setting_icon_long_click,
-                type = ItemType.TEXT,
-                selectList =
-                hashMapOf(
-                    context.getString(R.string.pop_edit_window) to FloatEvent.POP_EDIT_WINDOW.ordinal,
-                    context.getString(R.string.auto_account) to FloatEvent.AUTO_ACCOUNT.ordinal,
-                    context.getString(R.string.no_account) to FloatEvent.NO_ACCOUNT.ordinal,
-                ),
-                default = FloatEvent.NO_ACCOUNT.ordinal,
-                
-            ),
-            SettingItem(
-                title = R.string.setting_float_on_badge_timeout,
-                key = Setting.FLOAT_TIMEOUT_ACTION,
-                icon = R.drawable.setting_icon_timeout,
-                type = ItemType.TEXT,
-                selectList =
-                hashMapOf(
-                    context.getString(R.string.pop_edit_window) to FloatEvent.POP_EDIT_WINDOW.ordinal,
-                    context.getString(R.string.auto_account) to FloatEvent.AUTO_ACCOUNT.ordinal,
-                    context.getString(R.string.no_account) to FloatEvent.NO_ACCOUNT.ordinal,
-                ),
-                default = FloatEvent.POP_EDIT_WINDOW.ordinal,
-                
-            ),
+
             // 分类
             SettingItem(R.string.setting_category),
             SettingItem(
@@ -372,14 +314,88 @@ class SettingFragment : BaseFragment() {
                 default = true,
                 
             ),
-          /*TODO  SettingItem(
+          *//*TODO  SettingItem(
                 variable = Setting.SETTING_TAG,
                 title = R.string.setting_tag_manager,
                 key = Setting.SETTING_TAG,
                 type = ItemType.SWITCH,
                 default = true,
                 icon = R.drawable.setting_icon_tag,
-            ),*/
+            ),*//*
         )
+    }*/
+    override val binding: FragmentSettingBinding by viewBinding(FragmentSettingBinding::inflate)
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ) = binding.root
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.settingBill.setOnClickListener(this)
+        binding.settingPopup.setOnClickListener(this)
+        binding.settingFeatures.setOnClickListener(this)
+        binding.settingAppearance.setOnClickListener(this)
+        binding.settingExperimental.setOnClickListener(this)
+        binding.settingBackup.setOnClickListener(this)
+        binding.settingAbout.setOnClickListener(this)
+        binding.settingDanger.setOnClickListener(this)
+    }
+
+    override fun onClick(v: View?) {
+        if (v == null) return
+        when (v.id) {
+            R.id.setting_bill-> {
+                navigate(R.id.action_settingFragment_to_settingDetailFragment,Bundle().apply {
+                    putString("title",getString(R.string.setting_title_bill))
+                    putInt("id",R.id.setting_bill)
+                })
+            }
+            R.id.setting_popup-> {
+                navigate(R.id.action_settingFragment_to_settingDetailFragment,Bundle().apply {
+                    putString("title",getString(R.string.setting_title_popup))
+                    putInt("id",R.id.setting_popup)
+                })
+            }
+            R.id.setting_features-> {
+                navigate(R.id.action_settingFragment_to_settingDetailFragment,Bundle().apply {
+                    putString("title",getString(R.string.setting_title_features))
+                    putInt("id",R.id.setting_features)
+                })
+            }
+            R.id.setting_appearance-> {
+                navigate(R.id.action_settingFragment_to_settingDetailFragment,Bundle().apply {
+                    putString("title",getString(R.string.setting_title_appearance))
+                    putInt("id",R.id.setting_appearance)
+                })
+            }
+            R.id.setting_experimental-> {
+                navigate(R.id.action_settingFragment_to_settingDetailFragment,Bundle().apply {
+                    putString("title",getString(R.string.setting_title_experimental))
+                    putInt("id",R.id.setting_experimental)
+                })
+            }
+            R.id.setting_backup-> {
+                navigate(R.id.action_settingFragment_to_settingDetailFragment,Bundle().apply {
+                    putString("title",getString(R.string.setting_title_backup))
+                    putInt("id",R.id.setting_backup)
+                })
+            }
+            R.id.setting_about-> {
+                navigate(R.id.action_settingFragment_to_settingDetailFragment,Bundle().apply {
+                    putString("title",getString(R.string.setting_title_about))
+                    putInt("id",R.id.setting_about)
+                })
+            }
+            R.id.setting_danger-> {
+                navigate(R.id.action_settingFragment_to_settingDetailFragment,Bundle().apply {
+                    putString("title",getString(R.string.setting_title_danger))
+                    putInt("id",R.id.setting_danger)
+                })
+            }
+
+        }
     }
 }
