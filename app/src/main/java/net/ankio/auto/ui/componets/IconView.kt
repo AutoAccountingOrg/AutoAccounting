@@ -41,7 +41,10 @@ class IconView : ConstraintLayout {
         
         attrs?.let { initAttributes(it) }
     }
-    
+    fun getSpFromPx(px: Float, context: Context): Float {
+        val scaledDensity = context.resources.displayMetrics.scaledDensity
+        return px / scaledDensity
+    }
     private fun initAttributes(attrs: AttributeSet) {
         context.obtainStyledAttributes(attrs, R.styleable.IconView).apply {
             try {
@@ -52,10 +55,19 @@ class IconView : ConstraintLayout {
                 getString(R.styleable.IconView_text)?.let { text ->
                     setText(text)
                 }
-                
-                setTextSize(getDimension(R.styleable.IconView_textSize, 14f))
+                var size  = getDimension(R.styleable.IconView_textSize,0f)
+                if (size == 0f){
+                    size = 14f
+                }else{
+                    size = getSpFromPx(size,context)
+                }
+                setTextSize(size)
                 setIconSize(getDimensionPixelSize(R.styleable.IconView_iconSize, 32))
                 setColor(getColor(R.styleable.IconView_textColor, Color.BLACK))
+
+                val maxLines = getInt(R.styleable.IconView_maxLines, 1)  // 默认值为 1
+                setMaxLines(maxLines)
+
             } finally {
                 recycle()
             }
@@ -71,7 +83,6 @@ class IconView : ConstraintLayout {
     }
     
     fun setText(text: CharSequence?) {
-        Logger.d("setText: $text")
 
         binding.iconViewText.apply {
             setTextColor(color)
@@ -119,5 +130,13 @@ class IconView : ConstraintLayout {
     
     private fun Int.dpToPx(): Int {
         return (this * resources.displayMetrics.density).toInt()
+    }
+    
+    /**
+     * 设置文本的最大行数
+     * @param maxLines 最大行数
+     */
+    fun setMaxLines(maxLines: Int) {
+        binding.iconViewText.maxLines = maxLines
     }
 }
