@@ -67,6 +67,8 @@
                 android:layout_height="60dp"
                 android:layout_weight="1"
                 android:text="@string/float_income"
+                android:textColor="?colorOnPrimaryContainer"
+                android:backgroundTint="?colorPrimaryContainer"
                 android:id="@+id/income"
                 app:cornerRadius="0dp"
                 android:alpha="0.6"
@@ -80,6 +82,9 @@
                 android:layout_weight="1"
                 android:text="@string/float_expend"
                 android:id="@+id/expend"
+                android:textColor="?colorOnPrimaryContainer"
+                android:backgroundTint="?colorPrimaryContainer"
+
                 android:alpha="0.6"
                 />
 
