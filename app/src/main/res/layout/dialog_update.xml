@@ -1,102 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="@dimen/padding">
 
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardView"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/one_padding"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textColor="?colorPrimary"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@+id/version"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="App" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/version"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/one_padding"
+            android:layout_marginEnd="@dimen/one_padding"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textColor="?colorPrimary"
+            app:layout_constraintStart_toEndOf="@+id/name"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="1.0.2" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/date"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/one_padding"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small"
+            android:textColor="?colorOutline"
+            app:layout_constraintStart_toStartOf="@+id/name"
+            app:layout_constraintTop_toBottomOf="@+id/name"
+            tools:text="2023年2月1日 12:23" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/update"
+            style="@style/Widget.Material3.Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/one_padding"
+            android:text="@string/sure_update"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="-20dp"
-        app:cardCornerRadius="@dimen/radius"
-        app:cardElevation="0dp"
-        app:strokeColor="?attr/colorSurfaceContainerHighest"
-        app:strokeWidth="0dp">
+        android:layout_marginTop="@dimen/one_padding"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/date">
 
-        <LinearLayout
-            android:id="@+id/cardViewInner"
+        <TextView
+            android:id="@+id/updateInfo"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:padding="@dimen/cardPadding"
-            android:paddingBottom="40dp">
+            android:layout_height="wrap_content"
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent">
-
-                        <TextView
-                            android:id="@+id/name"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginEnd="@dimen/one_padding"
-                            android:ellipsize="end"
-                            android:maxLines="1"
-                            android:text="App"
-                            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                            android:textColor="?colorPrimary"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:id="@+id/version"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:ellipsize="end"
-                            android:maxLines="1"
-                            android:text="xxx更新"
-                            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                            android:textColor="?colorPrimary" />
-                    </LinearLayout>
-
-                    <TextView
-                        android:id="@+id/date"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:ellipsize="end"
-                        android:maxLines="1"
-                        android:text="2023年2月1日 12:23"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                        android:textColor="?colorOutline" />
-
-                </LinearLayout>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/update"
-                    style="@style/Widget.Material3.Button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="@string/sure_update" />
-            </LinearLayout>
-
-            <ScrollView
-
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <TextView
-                    android:id="@+id/updateInfo"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="@dimen/padding"
-                    android:paddingBottom="@dimen/padding"
-                    android:text="xxxxx更新日志" />
-            </ScrollView>
-        </LinearLayout>
-
-
-    </com.google.android.material.card.MaterialCardView>
+            tools:text="xxxxx更新日志xxxxxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志xxxxx更新日志" />
+    </ScrollView>
 
 </LinearLayout>
