@@ -30,12 +30,11 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:tint="?colorPrimary" />
 
-    <TextView
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:ellipsize="end"
-        android:maxLines="1"
+        android:singleLine="false"
         android:text="@string/setting_theme"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         app:layout_constraintStart_toEndOf="@+id/icon"
