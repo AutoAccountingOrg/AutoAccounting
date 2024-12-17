@@ -16,11 +16,13 @@
 package net.ankio.auto.ui.models
 
 import android.content.pm.ApplicationInfo
+import android.graphics.drawable.Drawable
 
 class AppInfo // 构造函数
     (// Getter和Setter
     val packageName: String,
     val appName: String,
     val pkg: ApplicationInfo,
-    var isSelected: Boolean
+    var icon:Drawable? = null,
+    var isSelected: Boolean = false
 )
