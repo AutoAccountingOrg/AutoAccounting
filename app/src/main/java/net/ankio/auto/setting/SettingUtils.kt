@@ -15,15 +15,18 @@
 
 package net.ankio.auto.setting
 
+import android.net.Uri
 import android.text.InputType
+import android.util.SparseArray
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.util.forEach
 import androidx.core.widget.addTextChangedListener
 import androidx.viewbinding.ViewBinding
 import com.google.android.material.textfield.TextInputLayout
-import net.ankio.auto.constant.ItemType
+import net.ankio.auto.databinding.SettingItemCardBinding
 import net.ankio.auto.databinding.SettingItemColorBinding
 import net.ankio.auto.databinding.SettingItemInputBinding
 import net.ankio.auto.databinding.SettingItemSwitchBinding
@@ -35,290 +38,300 @@ import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.utils.ListPopupUtils
 import net.ankio.auto.utils.CustomTabsHelper
 
+/**
+ * 设置项工具类，用于管理和渲染设置界面的各个项目
+ * @param context 基础Activity上下文
+ * @param container 容器视图组
+ * @param inflater 布局填充器
+ * @param settingItems 设置项列表
+ */
 class SettingUtils(
     private val context: BaseActivity,
     private val container: ViewGroup,
     private val inflater: LayoutInflater,
-    private val settingItems: ArrayList<SettingItem>,
+    private val settingItems: List<SettingItem>
 ) {
-    private val viewBinding = HashMap<SettingItem, ViewBinding>()
-    private val resume = HashMap<SettingItem, () -> Unit>()
-    private val destroy = HashMap<SettingItem, () -> Unit>()
+    private val viewBindings = SparseArray<ViewBinding>()
+    private val resumeCallbacks = HashMap<SettingItem, () -> Unit>()
+    private val destroyCallbacks = HashMap<SettingItem, () -> Unit>()
+    private val visibilityConditions = HashMap<String, Boolean>()
+
 
     fun init() {
-        settingItems.forEach {
-            val binding =
-                when (it.type) {
-                    ItemType.SWITCH -> renderSwitch(it)
-                    ItemType.TITLE -> renderTitle(it)
-                    ItemType.TEXT  -> renderText(it)
-                    ItemType.INPUT, ItemType.INPUT_PASSWORD -> renderInput(it)
-                    ItemType.COLOR -> renderColor(it)
+        settingItems.forEach { item ->
+            try {
+                val binding = when (item) {
+                    is SettingItem.Switch -> renderSwitch(item)
+                    is SettingItem.Title -> renderTitle(item)
+                    is SettingItem.Text -> renderText(item)
+                    is SettingItem.Input -> renderInput(item)
+                    is SettingItem.Select -> renderSelect(item)
+                    is SettingItem.Color -> renderColor(item)
+                    is SettingItem.Card -> renderCard(item)
                 }
-            viewBinding[it] = binding
-            container.addView(binding.root)
+                viewBindings.put(item.hashCode(), binding)
+                container.addView(binding.root)
+            } catch (e: Exception) {
+                Logger.e("Failed to render setting item: ${item.title}", e)
+            }
+        }
+    }
+
+    private fun renderCard(item: SettingItem): ViewBinding {
+        return SettingItemCardBinding.inflate(inflater, container, false).apply {
+            title.setText(item.title)
         }
     }
 
     fun onResume() {
-        resume.forEach {
-            val resume = it.value
-            resume.invoke()
-        }
+        resumeCallbacks.forEach { it.value.invoke() }
     }
 
     fun onDestroy() {
-        destroy.forEach {
-            val destroy = it.value
-            destroy.invoke()
+        destroyCallbacks.forEach { it.value.invoke() }
+        viewBindings.clear()
+        resumeCallbacks.clear()
+        destroyCallbacks.clear()
+        visibilityConditions.clear()
+    }
+    private fun updateVisibility() {
+        viewBindings.forEach { _, binding ->
+            val item = settingItems.find { viewBindings[it.hashCode()] == binding }
+            item?.let {
+                val regex = when (it) {
+                    is SettingItem.Switch -> it.regex
+                    is SettingItem.Text -> it.regex
+                    is SettingItem.Input -> it.regex
+                    is SettingItem.Select -> it.regex
+                    is SettingItem.Color -> it.regex
+                    is SettingItem.Title -> it.regex
+                    is SettingItem.Card -> it.regex
+                }
+
+                regex?.let { conditions ->
+                    val isVisible = conditions.split(",").all { condition ->
+                        isConditionMet(condition.trim())
+                    }
+                    binding.root.visibility = if (isVisible) View.VISIBLE else View.GONE
+                }
+            }
         }
-        viewBinding.clear()
-        resume.clear()
-        destroy.clear()
     }
-
-    private fun renderTitle(settingItem: SettingItem): SettingItemTitleBinding {
-        val binding = SettingItemTitleBinding.inflate(inflater, container, false)
-        binding.title.setText(settingItem.title)
-        return binding
-    }
-
-    private val variables = HashMap<String,Boolean>()
-
-    private fun setVisibility() {
-        viewBinding.forEach { (item, binding) ->
-            val regexList = item.regex?.split(",") ?: return@forEach
-            val isVisible = regexList.all { isConditionMet(it) }
-            // 根据isVisible设置binding.root的可见性
-            binding.root.visibility = if (isVisible) View.VISIBLE else View.GONE
-        }
-    }
-
 
     private fun isConditionMet(condition: String): Boolean {
-        val splitBoolean = condition.split("=")
-        if (splitBoolean.size != 2) return false
-
-        val key = splitBoolean[0]
-        if (!variables.contains(key)) return false
-
-        val expectedValue = splitBoolean[1].toBoolean()
-        return expectedValue == variables[key]
+        return try {
+            val (key, expectedValue) = condition.split("=")
+            val actualValue = visibilityConditions[key] ?: false
+            actualValue.toString() == expectedValue
+        } catch (e: Exception) {
+            Logger.e("Invalid condition format: $condition", e)
+            false
+        }
     }
-
-
-
-
-    private fun renderSwitch(settingItem: SettingItem): SettingItemSwitchBinding {
-        val binding = SettingItemSwitchBinding.inflate(inflater, container, false)
-        binding.title.setText(settingItem.title)
-        settingItem.subTitle?.let {
-            binding.subTitle.setText(it)
-        } ?: run {
-            binding.subTitle.visibility = View.GONE
-        }
-
-        fun setLinkVisibility(isChecked: Boolean) {
-            settingItem.key?.let {
-                variables[it] = isChecked
-                setVisibility()
+    private fun bindCommonViews(binding: ViewBinding, item: SettingItem) {
+        when (binding) {
+            is SettingItemSwitchBinding -> {
+                binding.title.setText(item.title)
+                (item as? SettingItem.Switch)?.icon?.let {
+                    binding.icon.setImageDrawable(AppCompatResources.getDrawable(context, it))
+                } ?: run {
+                    binding.icon.visibility = View.GONE
+                }
             }
-        }
-
-        settingItem.icon?.let {
-            binding.icon.setImageDrawable(AppCompatResources.getDrawable(context, it))
-        } ?: run {
-            binding.icon.visibility = View.GONE
-        }
-
-        fun onClickSwitch() {
-            val isChecked = binding.switchWidget.isChecked
-            setLinkVisibility(isChecked)
-            settingItem.onItemClick?.invoke(isChecked, context) ?: settingItem.key?.let {
-                ConfigUtils.putBoolean(
-                    it,
-                    isChecked,
-                )
-            }
-            settingItem.onSavedValue?.invoke(isChecked, context)
-        }
-
-        binding.root.setOnClickListener {
-            binding.switchWidget.isChecked = !binding.switchWidget.isChecked
-            onClickSwitch()
-        }
-
-        binding.switchWidget.setOnClickListener {
-            onClickSwitch()
-        }
-
-        resume[settingItem] = {
-            binding.switchWidget.isChecked = settingItem.onGetKeyValue?.invoke()?.let {
-                it as Boolean
-            } ?: settingItem.key?.let {
-                getFromSp(it, (settingItem.default ?: false)) as Boolean
-            } ?: false
-            setLinkVisibility(binding.switchWidget.isChecked)
-        }
-
-        return binding
-    }
-
-    private fun renderText(settingItem: SettingItem): SettingItemTextBinding {
-        val binding = SettingItemTextBinding.inflate(inflater, container, false)
-        binding.title.setText(settingItem.title)
-        settingItem.subTitle?.let {
-            binding.subTitle.setText(it)
-        } ?: run {
-            binding.subTitle.visibility = View.GONE
-        }
-
-        settingItem.icon?.let {
-            binding.icon.setImageDrawable(AppCompatResources.getDrawable(context, it))
-        } ?: run {
-            binding.icon.visibility = View.GONE
-        }
-
-        settingItem.link?.apply {
-            binding.root.setOnClickListener {
-                CustomTabsHelper.launchUrlOrCopy(context, this)
-            }
-        } ?: run {
-            binding.root.setOnClickListener {
-                settingItem.onItemClick?.invoke("", context)
-            }
-        }
-
-        resume[settingItem] = {
-            val savedValue =
-                settingItem.onGetKeyValue?.invoke() ?: getFromSp(
-                    settingItem.key ?: "",
-                    settingItem.default ?: "",
-                )
-
-            settingItem.selectList?.let {
-                fun setValue(savedValue: Any) {
-                    for ((key, value) in it) {
-                        val itemKey = "${settingItem.key}_$value"
-                        if (value == savedValue) {
-                            binding.subTitle.text = key
-                            binding.subTitle.visibility = View.VISIBLE
-                            variables[itemKey] = true
-                        }else{
-                            variables[itemKey] = false
+            is SettingItemTextBinding -> {
+                binding.title.setText(item.title)
+                when (item) {
+                    is SettingItem.Text -> {
+                        (item as? SettingItem.Text)?.icon?.let {
+                            binding.icon.setImageDrawable(AppCompatResources.getDrawable(context, it))
+                        } ?: run {
+                            binding.icon.visibility = View.GONE
                         }
                     }
-                    setVisibility()
-                }
 
-                setValue(savedValue)
-
-                val listPopupUtils =
-                    ListPopupUtils(context, binding.title, it, savedValue) { pos, key, value ->
-                        binding.subTitle.text = key
-
-                        settingItem.onItemClick?.invoke(value, context)
-                            ?: settingItem.key?.let { item ->
-                                ConfigUtils.putString(item, value.toString())
-                                saveToSp(item, value)
-                            }
-
-                        settingItem.onSavedValue?.invoke(value, context)
-                        setValue(value)
+                    is SettingItem.Select -> {
+                        (item as? SettingItem.Select)?.icon?.let {
+                            binding.icon.setImageDrawable(AppCompatResources.getDrawable(context, it))
+                        } ?: run {
+                            binding.icon.visibility = View.GONE
+                        }
                     }
 
-                binding.root.setOnClickListener {
-                    listPopupUtils.toggle()
+                    else -> {
+                        binding.icon.visibility = View.GONE
+                    }
                 }
-            } ?: run {
-                val savedValueString = savedValue.toString()
-                if (savedValueString.isNotEmpty()) {
-                    binding.subTitle.text = savedValueString
-                    binding.subTitle.visibility = View.VISIBLE
+
+            }
+            is SettingItemColorBinding -> {
+                binding.title.setText(item.title)
+                (item as? SettingItem.Color)?.icon?.let {
+                    binding.icon.setImageDrawable(AppCompatResources.getDrawable(context, it))
+                } ?: run {
+                    binding.icon.visibility = View.GONE
                 }
             }
         }
-
-        //    setCenterItem(binding.title,binding.subTitle)
-
-        return binding
     }
 
-    private fun renderInput(settingItem: SettingItem): SettingItemInputBinding {
-        val binding = SettingItemInputBinding.inflate(inflater, container, false)
-
-        if (settingItem.type == ItemType.INPUT_PASSWORD){
-            binding.inputLayout.endIconMode = TextInputLayout.END_ICON_PASSWORD_TOGGLE
-            binding.input.setInputType(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD)
-        }
-
-
-        resume[settingItem] = {
-            settingItem.onGetKeyValue?.invoke()?.let {
-                binding.input.setText(it.toString())
+    private fun renderSwitch(item: SettingItem.Switch): SettingItemSwitchBinding {
+        return SettingItemSwitchBinding.inflate(inflater, container, false).apply {
+            bindCommonViews(this, item)
+            
+            item.subTitle?.let {
+                subTitle.setText(it)
             } ?: run {
-                settingItem.key?.apply {
-                    binding.input.setText(
-                        ConfigUtils.getString(
-                            settingItem.key,
-                            (settingItem.default ?: "").toString(),
-                        ),
-                    )
+                subTitle.visibility = View.GONE
+            }
+
+            val updateSwitch = { isChecked: Boolean ->
+                item.onItemClick?.invoke(isChecked, context) 
+                    ?: item.key?.let { ConfigUtils.putBoolean(it, isChecked) }
+                item.onSavedValue?.invoke(isChecked, context)
+                item.key?.let { key ->
+                    visibilityConditions[key] = isChecked
+                    updateVisibility()
                 }
             }
 
-            binding.input.addTextChangedListener(afterTextChanged = {
-                val result = binding.input.text.toString()
-                settingItem.key?.let {
-                    ConfigUtils.putString(
-                        settingItem.key,
-                        result,
-                    )
-                } ?: run {
-                    settingItem.onSavedValue?.invoke(result, context)
+            root.setOnClickListener {
+                switchWidget.isChecked = !switchWidget.isChecked
+                updateSwitch(switchWidget.isChecked)
+            }
+
+            switchWidget.setOnClickListener {
+                updateSwitch(switchWidget.isChecked)
+            }
+
+            resumeCallbacks[item] = {
+                val savedValue = item.onGetKeyValue?.invoke() 
+                    ?: item.key?.let { ConfigUtils.getBoolean(it, item.default) }?: item.default
+                
+                switchWidget.isChecked = savedValue
+                item.key?.let { key ->
+                    visibilityConditions[key] = savedValue
+                    updateVisibility()
                 }
+            }
+        }
+    }
+
+    private fun renderTitle(item: SettingItem.Title): SettingItemTitleBinding {
+        return SettingItemTitleBinding.inflate(inflater, container, false).apply {
+            title.setText(item.title)
+        }
+    }
+
+    private fun renderText(item: SettingItem.Text): SettingItemTextBinding {
+        return SettingItemTextBinding.inflate(inflater, container, false).apply {
+            bindCommonViews(this, item)
+
+            item.subTitle?.let {
+                subTitle.setText(it)
+                subTitle.visibility = View.VISIBLE
+            }
+
+            root.setOnClickListener {
+                item.link?.let { link ->
+                    CustomTabsHelper.launchUrl(context, Uri.parse(link))
+                }
+                item.onItemClick?.invoke(context)
+            }
+        }
+    }
+
+    private fun renderSelect(item: SettingItem.Select): SettingItemTextBinding {
+        return SettingItemTextBinding.inflate(inflater, container, false).apply {
+            bindCommonViews(this, item)
+
+            val setData = { value:Any ->
+                subTitle.text = item.selectList.entries.find { it.value == value }?.key
+                subTitle.visibility = View.VISIBLE
+                item.selectList.entries.forEach {
+                    visibilityConditions["${item.key}_${it.value}"] = false
+                }
+                if (item.key != null && value is String) {
+                    visibilityConditions["${item.key}_$value"] = true
+                    updateVisibility()
+                }
+            }
+            val updateValue = { value: Any ->
+                item.onSavedValue?.invoke(value, context)
+                if (item.key != null) saveToSp(item.key, value)
+                setData(value)
+            }
+
+            fun getData() = item.onGetKeyValue?.invoke()
+                ?: item.key?.let { getFromSp(it, item.default) }?: item.default
+
+            resumeCallbacks[item] = {
+                val data = getData()
+                setData(data)
+            }
+
+            root.setOnClickListener {
+                ListPopupUtils(
+                    context,
+                    title,
+                    item.selectList,
+                    getData()
+                ) { _, _, value ->
+                    updateValue(value)
+                }.toggle()
+            }
+        }
+    }
+
+    private fun renderInput(item: SettingItem.Input): SettingItemInputBinding {
+        return SettingItemInputBinding.inflate(inflater, container, false).apply {
+            inputLayout.setHint(item.title)
+            
+            if (item.isPassword) {
+                inputLayout.endIconMode = TextInputLayout.END_ICON_PASSWORD_TOGGLE
+                input.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+            }
+
+            item.subTitle?.let {
+                inputLayout.helperText = context.getString(it)
+            }
+
+            resumeCallbacks[item] = {
+                val savedValue = item.onGetKeyValue?.invoke()
+                    ?: getFromSp(item.key, item.default)
+                input.setText(savedValue.toString())
+            }
+
+            input.addTextChangedListener(afterTextChanged = { editable ->
+                val text = editable.toString()
+                saveToSp(item.key, text)
+                item.onSavedValue?.invoke(text, context)
             })
 
-
+            destroyCallbacks[item] = {
+                val text = input.text.toString()
+                item.onItemClick?.invoke(text, context)
+            }
         }
-        destroy[settingItem] = {
-            val result = binding.input.text.toString()
-            settingItem.onItemClick?.invoke(result, context)
-                ?: settingItem.key?.let {
-                    ConfigUtils.putString(
-                        it,
-                        result,
-                    )
-                }
-            settingItem.onSavedValue?.invoke(result, context)
-        }
-
-        binding.inputLayout.setHint(settingItem.title)
-        settingItem.subTitle?.let {
-            binding.inputLayout.helperText = context.getString(it)
-        }
-        return binding
     }
 
-    private fun renderColor(settingItem: SettingItem): SettingItemColorBinding {
-        val binding = SettingItemColorBinding.inflate(inflater, container, false)
-        binding.title.setText(settingItem.title)
-        settingItem.icon?.let {
-            binding.icon.setImageDrawable(AppCompatResources.getDrawable(context, it))
-        } ?: run {
-            binding.icon.visibility = View.GONE
-        }
-        resume[settingItem] = {
-            val color = context.getColor(settingItem.onGetKeyValue?.invoke() as Int)
-            binding.colorView.setCardBackgroundColor(color)
-        }
+    private fun renderColor(item: SettingItem.Color): SettingItemColorBinding {
+        return SettingItemColorBinding.inflate(inflater, container, false).apply {
+            bindCommonViews(this, item)
 
-        binding.root.setOnClickListener {
-            settingItem.onItemClick?.invoke("", context)
+            val updateColor = { color: Int ->
+                colorView.setCardBackgroundColor(context.getColor(color))
+            }
+
+            resumeCallbacks[item] = {
+                val savedColor = item.onGetKeyValue.invoke()
+                updateColor(savedColor)
+            }
+
+            root.setOnClickListener {
+                item.onItemClick?.invoke(item.onGetKeyValue.invoke(), context)
+            }
         }
-        return binding
     }
-
     private fun getFromSp(
         key: String,
         default: Any,
@@ -341,4 +354,6 @@ class SettingUtils(
             is Int -> ConfigUtils.putInt(key, value)
         }
     }
+
+    
 }

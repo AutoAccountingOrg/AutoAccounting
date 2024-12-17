@@ -13,24 +13,101 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.setting
+ package net.ankio.auto.setting
 
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
-import net.ankio.auto.constant.ItemType
-import net.ankio.auto.ui.api.BaseActivity
+ import androidx.annotation.DrawableRes
+ import androidx.annotation.StringRes
+ import net.ankio.auto.ui.api.BaseActivity
+ 
+ /**
+  * 设置项数据类，用于定义设置界面中的各个配置项
+  */
+ sealed class SettingItem(
+     @StringRes open val title: Int,
+     open val regex: String? = null,
+ ) {
+     /**
+      * 开关类型的设置项
+      */
+     data class Switch(
+         @StringRes override val title: Int,
+         val key: String? = null,
+         @DrawableRes val icon: Int? = null,
+         @StringRes val subTitle: Int? = null,
+         val default: Boolean = false,
+         val onGetKeyValue: (() -> Boolean)? = null,
+         val onItemClick: ((value: Boolean, activity: BaseActivity) -> Unit)? = null,
+         val onSavedValue: ((value: Boolean, activity: BaseActivity) -> Unit)? = null,
+         override val regex: String? = null,
+     ) : SettingItem(title,regex)
+ 
+     /**
+      * 文本类型的设置项
+      */
+     data class Text(
+         @StringRes override val title: Int,
+         @DrawableRes val icon: Int? = null,
+         @StringRes val subTitle: Int? = null,
+         val link: String? = null,
+         val onItemClick: ((activity: BaseActivity) -> Unit)? = null,
+         override val regex: String? = null,
+     ) : SettingItem(title,regex)
 
-data class SettingItem(
-    @StringRes val title: Int, // 标题
-    val regex: String? = null, // 关联表达式
-    val key: String? = null, // key，存储专用
-    @DrawableRes val icon: Int? = null, // 图标
-    @StringRes val subTitle: Int? = null, // 副标题
-    val type: ItemType = ItemType.TITLE, // 类型
-    val selectList: HashMap<String, Any>? = null, // 如果为switch类型，需要提供选项
-    val link: String? = null, // 如果为link类型，需要提供链接
-    val default: Any? = null, // 默认值
-    val onGetKeyValue: (() -> Any?)? = null,
-    val onItemClick: ((value: Any, activity: BaseActivity) -> Unit)? = null, // 点击事件
-    val onSavedValue: ((value: Any, activity: BaseActivity) -> Unit)? = null, // 保存事件
-)
+     data class Card(
+            @StringRes override val title: Int,
+            override val regex: String? = null,
+     ) : SettingItem(title,regex)
+
+     /**
+      * 输入框类型的设置项
+      */
+     data class Input(
+         @StringRes override val title: Int,
+         val key: String,
+         @DrawableRes val icon: Int? = null,
+         @StringRes val subTitle: Int? = null,
+         val default: Any = "",
+         val isPassword: Boolean = false,
+         val onGetKeyValue: (() -> Any)? = null,
+         val onItemClick: ((value: Any, activity: BaseActivity) -> Unit)? = null,
+         val onSavedValue: ((value: Any, activity: BaseActivity) -> Unit)? = null,
+         override val regex: String? = null,
+     ) : SettingItem(title,regex)
+ 
+     /**
+      * 选择类型的设置项
+      */
+     data class Select(
+         @StringRes override val title: Int,
+         val key: String? = null,
+         val selectList: HashMap<String, Any>,
+         @DrawableRes val icon: Int? = null,
+         @StringRes val subTitle: Int? = null,
+         val default: Any = "",
+         val onGetKeyValue: (() -> Any)? = null,
+         val onSavedValue: ((value: Any, activity: BaseActivity) -> Unit)? = null,
+         override val regex: String? = null,
+     ) : SettingItem(title,regex)
+ 
+     /**
+      * 颜色选择类型的设置项
+      */
+     data class Color(
+         @StringRes override val title: Int,
+         @DrawableRes val icon: Int? = null,
+         @StringRes val subTitle: Int? = null,
+         val onGetKeyValue: (() -> Int),
+         val onItemClick: ((value: Int, activity: BaseActivity) -> Unit)? = null,
+         val onSavedValue: ((value: Int, activity: BaseActivity) -> Unit)? = null,
+         override val regex: String? = null,
+     ) : SettingItem(title,regex)
+ 
+     /**
+      * 标题类型的设置项
+      */
+     data class Title(
+         @StringRes override val title: Int,
+         override val regex: String? = null,
+     ) : SettingItem(title,regex)
+
+ }
