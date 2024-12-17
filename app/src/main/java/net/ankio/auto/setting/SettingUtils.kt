@@ -185,8 +185,8 @@ class SettingUtils(
             }
 
             val updateSwitch = { isChecked: Boolean ->
-                item.onItemClick?.invoke(isChecked, context) 
-                    ?: item.key?.let { ConfigUtils.putBoolean(it, isChecked) }
+                item.key?.let { ConfigUtils.putBoolean(it, isChecked) }
+                item.onItemClick?.invoke(isChecked, context)
                 item.onSavedValue?.invoke(isChecked, context)
                 item.key?.let { key ->
                     visibilityConditions[key] = isChecked
@@ -194,13 +194,14 @@ class SettingUtils(
                 }
             }
 
+
             root.setOnClickListener {
                 switchWidget.isChecked = !switchWidget.isChecked
-                updateSwitch(switchWidget.isChecked)
+               // updateSwitch(switchWidget.isChecked)
             }
 
-            switchWidget.setOnClickListener {
-                updateSwitch(switchWidget.isChecked)
+            switchWidget.setOnCheckedChangeListener { _, isChecked ->
+                updateSwitch(isChecked)
             }
 
             resumeCallbacks[item] = {
@@ -226,10 +227,28 @@ class SettingUtils(
         return SettingItemTextBinding.inflate(inflater, container, false).apply {
             bindCommonViews(this, item)
 
-            item.subTitle?.let {
-                subTitle.setText(it)
-                subTitle.visibility = View.VISIBLE
+
+            val setData = {
+                if ( item.subTitle == null) {
+                    if (item.onGetKeyValue != null) {
+                        val savedValue = item.onGetKeyValue.invoke()
+                        if (!savedValue.isNullOrEmpty()) {
+                            subTitle.visibility = View.VISIBLE
+                            subTitle.text = savedValue
+                        }
+
+                    }
+                }else {
+                    subTitle.setText(item.subTitle)
+                    subTitle.visibility = View.VISIBLE
+                }
             }
+
+            resumeCallbacks[item] = {
+                setData()
+            }
+
+
 
             root.setOnClickListener {
                 item.link?.let { link ->

@@ -50,6 +50,7 @@
          @StringRes val subTitle: Int? = null,
          val link: String? = null,
          val onItemClick: ((activity: BaseActivity) -> Unit)? = null,
+         val onGetKeyValue: (() -> String?)? = null,
          override val regex: String? = null,
      ) : SettingItem(title,regex)
 
