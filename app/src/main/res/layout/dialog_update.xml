@@ -11,58 +11,55 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/one_padding"
             android:ellipsize="end"
             android:maxLines="1"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
             android:textColor="?colorPrimary"
             android:textStyle="bold"
-            app:layout_constraintEnd_toStartOf="@+id/version"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="App" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/version"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/one_padding"
-            android:layout_marginEnd="@dimen/one_padding"
             android:ellipsize="end"
             android:maxLines="1"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
             android:textColor="?colorPrimary"
             app:layout_constraintStart_toEndOf="@+id/name"
+            app:layout_constraintEnd_toStartOf="@+id/update"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="1.0.2" />
-
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/date"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/one_padding"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textAppearance="@style/TextAppearance.AppCompat.Small"
-            android:textColor="?colorOutline"
-            app:layout_constraintStart_toStartOf="@+id/name"
-            app:layout_constraintTop_toBottomOf="@+id/name"
-            tools:text="2023年2月1日 12:23" />
+            tools:text="1.0.2 long version name  long version name  long version name long version name long version name long version name long version name long version name" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/update"
             style="@style/Widget.Material3.Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/one_padding"
             android:text="@string/sure_update"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/one_padding"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small"
+            android:textColor="?colorOutline"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/name"
+            tools:text="2023年2月1日 12:23" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <ScrollView
