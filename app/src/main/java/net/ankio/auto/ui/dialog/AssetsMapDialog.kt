@@ -63,7 +63,7 @@ class AssetsMapDialog(
         
         lifecycleScope.launch {
             ResourceUtils.getAssetDrawableFromName(assetsMapModel.mapName)
-                .let { target.setIcon(it) }
+                .let { target.setIcon(it,false) }
         }
     }
 
