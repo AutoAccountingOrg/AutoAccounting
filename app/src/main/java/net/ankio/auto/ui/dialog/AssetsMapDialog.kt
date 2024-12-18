@@ -100,7 +100,7 @@ class AssetsMapDialog(
 
             lifecycleScope.launch {
                 ResourceUtils.getAssetDrawable(asset.icon)
-                    .let { binding.target.setIcon(it) }
+                    .let { binding.target.setIcon(it,false) }
             }
         }
         if (lifecycleOwner != null) {
