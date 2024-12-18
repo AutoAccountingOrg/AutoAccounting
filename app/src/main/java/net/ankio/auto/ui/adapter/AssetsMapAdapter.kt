@@ -82,7 +82,7 @@ class AssetsMapAdapter(
         holder.launch {
             val drawable = ResourceUtils.getAssetDrawableFromName(data.mapName)
             withContext(Dispatchers.Main) {
-                binding.target.setIcon(drawable)
+                binding.target.setIcon(drawable,false)
             }
         }
 

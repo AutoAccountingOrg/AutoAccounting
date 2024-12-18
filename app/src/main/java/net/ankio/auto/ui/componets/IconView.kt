@@ -56,14 +56,14 @@ class IconView : ConstraintLayout {
                     setText(text)
                 }
                 var size  = getDimension(R.styleable.IconView_textSize,0f)
-                if (size == 0f){
-                    size = 14f
+                size = if (size == 0f){
+                    14f
                 }else{
-                    size = getSpFromPx(size,context)
+                    getSpFromPx(size,context)
                 }
                 setTextSize(size)
                 setIconSize(getDimensionPixelSize(R.styleable.IconView_iconSize, 32))
-                setColor(getColor(R.styleable.IconView_textColor, Color.BLACK))
+                setColor(getColor(R.styleable.IconView_textColor, Color.BLACK),iconTintEnabled)
 
                 val maxLines = getInt(R.styleable.IconView_maxLines, 1)  // 默认值为 1
                 setMaxLines(maxLines)
@@ -76,10 +76,7 @@ class IconView : ConstraintLayout {
     
     fun setIcon(icon: Drawable?, tintEnabled: Boolean = true) {
         binding.iconViewImage.setImageDrawable(icon)
-        when {
-            !tintEnabled -> binding.iconViewImage.clearColorFilter()
-            else -> binding.iconViewImage.setColorFilter(color, PorterDuff.Mode.SRC_IN)
-        }
+       setImageColorFilter(color, tintEnabled)
     }
     
     fun setText(text: CharSequence?) {
@@ -91,12 +88,19 @@ class IconView : ConstraintLayout {
     }
     
     fun getText(): String = binding.iconViewText.text.toString()
-    
-    fun setColor(col: Int) {
+
+    private fun setImageColorFilter(color: Int, tintEnabled: Boolean = true) {
+        when {
+            !tintEnabled -> binding.iconViewImage.clearColorFilter()
+            else -> binding.iconViewImage.setColorFilter(color, PorterDuff.Mode.SRC_IN)
+        }
+    }
+
+    fun setColor(col: Int, tintEnabled: Boolean = true) {
         color = col
         binding.apply {
             iconViewText.setTextColor(col)
-            iconViewImage.setColorFilter(col, PorterDuff.Mode.SRC_IN)
+            setImageColorFilter(col, tintEnabled)
         }
     }
     

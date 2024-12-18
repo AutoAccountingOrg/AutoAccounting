@@ -36,6 +36,7 @@
         android:clickable="true"
         android:focusable="true"
         android:padding="@dimen/padding"
+        app:iconTintEnabled="false"
         app:layout_constraintBottom_toBottomOf="@id/regex"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/regex"

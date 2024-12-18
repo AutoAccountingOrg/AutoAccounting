@@ -60,6 +60,7 @@
         app:textColor="?colorOnBackground"
         app:textSize="@dimen/abc_text_size_medium_material"
         app:maxLines="2"
+        app:iconTintEnabled="false"
         tools:text="映射文本很长很长映射文本很长很长很长映射文本很长很长很长映射文本很长很长很长映射文本很长很长很长映射文本很长很长很长很长" />
 
 </LinearLayout>
