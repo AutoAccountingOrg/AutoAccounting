@@ -2,9 +2,10 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
 
-    android:padding="16dp">
+    android:padding="@dimen/one_padding">
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/iconView"
@@ -13,7 +14,7 @@
         android:layout_gravity="center_horizontal"
         android:contentDescription="@null" />
 
-    <TextView
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/textView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -21,9 +22,8 @@
         android:layout_weight="1"
         android:ellipsize="end"
         android:gravity="center"
-        android:maxLines="1"
-        android:singleLine="true"
-        android:text="@string/app_name"
+        android:maxLines="2"
+        tools:text="这是自动记账这是自动记账这是自动记账这是自动记账这是自动记账这是自动记账这是自动记账这是自动记账这是自动记账这是自动记账这是自动记账"
         android:textColor="?colorOnBackground"
         android:textSize="12sp" />
 </LinearLayout>
