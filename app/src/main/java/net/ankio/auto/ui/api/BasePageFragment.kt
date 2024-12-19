@@ -91,9 +91,11 @@ abstract class BasePageFragment<T> : BaseFragment() {
                     }
 
                     pageData.addAll(resultData)
-                    statusPage.showContent()
-                    statusPage.contentView?.adapter?.notifyItemInserted(pageData.size - pageSize)
+                    lifecycleScope.launch {
+                      statusPage.showContent()
+                      statusPage.contentView?.adapter?.notifyItemInserted(pageData.size - pageSize)
 
+                  }
                     val total = page * pageSize
 
                     if (callback != null && isAdded) callback(true, total > pageData.size)

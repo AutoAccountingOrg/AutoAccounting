@@ -34,10 +34,20 @@
         <action
             android:id="@+id/action_homeFragment_to_logFragment"
             app:destination="@id/logFragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+            />
+        <action
+            android:id="@+id/action_homeFragment_to_assetMapFragment"
+            app:destination="@id/assetMapFragment"
+          
+            />
+        <action
+            android:id="@+id/action_homeFragment_to_categoryMapFragment"
+            app:destination="@id/categoryMapFragment"
+
+            />
+        <action
+            android:id="@+id/action_homeFragment_to_categoryRuleFragment"
+            app:destination="@id/categoryRuleFragment" />
     </fragment>
 
     <fragment
@@ -72,23 +82,22 @@
         android:label="@string/title_setting"
         tools:layout="@layout/fragment_setting">
 
-    </fragment>
-
-    <fragment
-        android:id="@+id/systemSettingFragment"
-        android:name="net.ankio.auto.ui.fragment.SystemSettingFragment"
-        android:label="@string/title_setting2"
-        tools:layout="@layout/fragment_system_setting">
-
+        <action
+            android:id="@+id/action_settingFragment_to_settingDetailFragment"
+            app:destination="@id/settingDetailFragment"
+            />
     </fragment>
 
 
     <fragment
         android:id="@+id/categoryRuleFragment"
         android:name="net.ankio.auto.ui.fragment.CategoryRuleFragment"
-        android:label="@string/title_category"
-        tools:layout="@layout/fragment_map">
+        android:label="@string/title_category_rule"
+        tools:layout="@layout/fragment_category_rule">
 
+        <action
+            android:id="@+id/action_categoryRuleFragment_to_categoryEditFragment"
+            app:destination="@id/categoryEditFragment" />
     </fragment>
 
 
@@ -128,7 +137,11 @@
         android:id="@+id/categoryMapFragment"
         android:name="net.ankio.auto.ui.fragment.CategoryMapFragment"
         android:label="@string/title_category_map"
-        tools:layout="@layout/fragment_log">
+        tools:layout="@layout/fragment_category">
     </fragment>
+    <fragment
+        android:id="@+id/settingDetailFragment"
+        android:name="net.ankio.auto.ui.fragment.SettingDetailFragment"
+        android:label="SettingDetailFragment" />
 
 </navigation>

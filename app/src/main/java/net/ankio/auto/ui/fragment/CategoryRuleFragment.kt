@@ -19,56 +19,46 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import kotlinx.coroutines.launch
 import net.ankio.auto.R
-import net.ankio.auto.databinding.FragmentMapBinding
+import net.ankio.auto.databinding.FragmentCategoryRuleBinding
 import net.ankio.auto.ui.adapter.CategoryRuleAdapter
 import net.ankio.auto.ui.api.BasePageFragment
+import net.ankio.auto.ui.utils.viewBinding
 import org.ezbook.server.db.model.CategoryRuleModel
-import java.lang.ref.WeakReference
 
 class CategoryRuleFragment : BasePageFragment<CategoryRuleModel>() {
-    private lateinit var binding: FragmentMapBinding
-
     override suspend fun loadData(callback: (resultData: List<CategoryRuleModel>) -> Unit) {
-        lifecycleScope.launch {
-            val newData = CategoryRuleModel.list(page, pageSize)
-            callback(newData)
-        }
+        val newData = CategoryRuleModel.list(page, pageSize)
+        callback(newData)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View {
-        binding = FragmentMapBinding.inflate(layoutInflater)
-        statusPage = binding.statusPage
+    override fun onCreateAdapter() {
         val recyclerView = statusPage.contentView!!
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = CategoryRuleAdapter(pageData, requireActivity()) { item, position ->
             val bundle = Bundle().apply {
                 putString("data", item.toJson())
             }
-            findNavController().navigate(R.id.categoryEditFragment, bundle)
+            navigate(R.id.action_categoryRuleFragment_to_categoryEditFragment, bundle)
         }
-        //scrollView = WeakReference(recyclerView)
-
-        binding.addButton.setOnClickListener {
-            findNavController().navigate(R.id.categoryEditFragment)
-        }
-        loadDataEvent(binding.refreshLayout)
-        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        statusPage.showLoading()
-        loadDataInside()
-
+        binding.addButton.setOnClickListener {
+            navigate(R.id.action_categoryRuleFragment_to_categoryEditFragment)
+        }
     }
+
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View = binding.root
+
+    override val binding: FragmentCategoryRuleBinding by viewBinding(FragmentCategoryRuleBinding::inflate)
+
 
 }
