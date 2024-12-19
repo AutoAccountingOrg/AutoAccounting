@@ -55,14 +55,11 @@ class IconView : ConstraintLayout {
                 getString(R.styleable.IconView_text)?.let { text ->
                     setText(text)
                 }
-                var size  = getDimension(R.styleable.IconView_textSize,0f)
-                size = if (size == 0f){
-                    14f
-                }else{
-                    getSpFromPx(size,context)
-                }
-                setTextSize(size)
-                setIconSize(getDimensionPixelSize(R.styleable.IconView_iconSize, 32))
+                val textSizePx = getDimension(R.styleable.IconView_textSize, 14f.spToPx())
+                binding.iconViewText.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSizePx)
+                val iconSizePx = getDimensionPixelSize(R.styleable.IconView_iconSize, 24.dpToPx())
+                val iconSizeDp = (iconSizePx / resources.displayMetrics.density).toInt()
+                setIconSize(iconSizeDp)
                 setColor(getColor(R.styleable.IconView_textColor, Color.BLACK),iconTintEnabled)
 
                 val maxLines = getInt(R.styleable.IconView_maxLines, 1)  // 默认值为 1
