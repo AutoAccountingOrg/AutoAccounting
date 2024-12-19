@@ -88,7 +88,7 @@ class CategoryRuleAdapter(
         val list: MutableList<HashMap<String, Any>> =
             Gson().fromJson(data.element, listType) ?: return
 
-        val lastElement = list.removeLast()
+        val lastElement = list.removeAt(list.lastIndex)
         val flexboxLayout = binding.flexboxLayout
         flexboxLayout.removedAllElement()
         flexboxLayout.textAppearance =
