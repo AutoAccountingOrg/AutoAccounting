@@ -39,8 +39,7 @@ class MaterialSearchView @JvmOverloads constructor(
         // 获取搜索输入框并设置样式
         val searchEditText = findViewById<EditText>(androidx.appcompat.R.id.search_src_text)
         searchEditText?.apply {
-            hint = "Search here..."
-            setHintTextColor(App.getThemeAttrColor(com.google.android.material.R.attr.colorOnSurfaceInverse))
+            setHintTextColor(App.getThemeAttrColor(com.google.android.material.R.attr.colorOnSurfaceVariant))
             setTextColor(App.getThemeAttrColor(com.google.android.material.R.attr.colorOnSurface))
             setBackgroundColor(Color.TRANSPARENT)
         }
