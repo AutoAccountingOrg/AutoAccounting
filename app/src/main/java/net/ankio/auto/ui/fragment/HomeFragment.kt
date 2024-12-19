@@ -39,6 +39,7 @@ import net.ankio.auto.databinding.AboutDialogBinding
 import net.ankio.auto.databinding.FragmentHomeBinding
 import net.ankio.auto.exceptions.ServiceCheckException
 import net.ankio.auto.storage.ConfigUtils
+import net.ankio.auto.storage.Constants
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.dialog.AppDialog
@@ -281,7 +282,7 @@ class HomeFragment : BaseFragment() {
     private fun setupRuleEvents() {
         with(binding) {
             categoryMap.setOnClickListener {
-                navigate(R.id.action_homeFragment_to_assetMapFragment)
+                navigate(R.id.action_homeFragment_to_categoryMapFragment)
             }
 
             categoryEdit.setOnClickListener {
@@ -348,11 +349,21 @@ class HomeFragment : BaseFragment() {
     }
 
     private suspend fun checkUpdate(showResult: Boolean = false) {
-        if (ConfigUtils.getBoolean(Setting.CHECK_RULE_UPDATE, true)) {
-            checkRuleUpdate(showResult)
-        }
-        if (ConfigUtils.getBoolean(Setting.CHECK_APP_UPDATE, true)) {
-            checkAppUpdate()
+        // 获取上次检查时间
+        val lastCheckTime = ConfigUtils.getLong(Setting.LAST_UPDATE_CHECK_TIME, 0L)
+        val currentTime = System.currentTimeMillis()
+
+        // 如果是强制显示结果或者超过检查间隔，则进行检查
+        if (showResult || currentTime - lastCheckTime > Constants.CHECK_INTERVAL) {
+            if (ConfigUtils.getBoolean(Setting.CHECK_RULE_UPDATE, true)) {
+                checkRuleUpdate(showResult)
+            }
+            if (ConfigUtils.getBoolean(Setting.CHECK_APP_UPDATE, true)) {
+                checkAppUpdate()
+            }
+            
+            // 更新最后检查时间
+            ConfigUtils.putLong(Setting.LAST_UPDATE_CHECK_TIME, currentTime)
         }
     }
 

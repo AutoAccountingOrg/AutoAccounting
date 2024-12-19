@@ -16,6 +16,10 @@
 package org.ezbook.server.constant
 
 object Setting {
+    // 检查间隔
+    const val LAST_UPDATE_CHECK_TIME: String = "last_update_check_time"
+
+    // 是否开启自动记账
     const val HOOK_WECHAT: String = "hook_wechat"
     const val HOOK_AUTO_SERVER: String = "hook_auto_server"
 
