@@ -18,8 +18,11 @@ package net.ankio.auto.ui.fragment
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.SearchView
+import androidx.appcompat.widget.Toolbar
 import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -30,84 +33,52 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.App
 import net.ankio.auto.R
+import net.ankio.auto.databinding.FragmentDataBinding
 import net.ankio.auto.databinding.FragmentDataRuleBinding
+import net.ankio.auto.databinding.FragmentLogBinding
 import net.ankio.auto.ui.adapter.AppDataAdapter
 import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.api.BasePageFragment
 import net.ankio.auto.ui.componets.CustomNavigationRail
+import net.ankio.auto.ui.componets.MaterialSearchView
 import net.ankio.auto.ui.models.RailMenuItem
 import net.ankio.auto.ui.models.ToolbarMenuItem
+import net.ankio.auto.ui.utils.ViewFactory.createBinding
+import net.ankio.auto.ui.utils.viewBinding
 import org.ezbook.server.constant.DataType
 import org.ezbook.server.db.model.AppDataModel
 import java.lang.ref.WeakReference
 
-class DataFragment : BasePageFragment<AppDataModel>() {
-    private lateinit var binding: FragmentDataRuleBinding
+class DataFragment : BasePageFragment<AppDataModel>(), Toolbar.OnMenuItemClickListener {
     var app: String = ""
     var type: String = ""
     var match = false
+    var searchData = ""
     override suspend fun loadData(callback: (resultData: List<AppDataModel>) -> Unit) {
         AppDataModel.list(app, type,match, page, pageSize, searchData).let { result ->
-            withContext(Dispatchers.Main) {
-                callback(result)
-            }
+            callback(result)
         }
     }
 
-    override val menuList: ArrayList<ToolbarMenuItem> =
-        arrayListOf(
-            ToolbarMenuItem(R.string.item_search, R.drawable.menu_icon_search, true) {
-                loadDataInside()
-            },
-            ToolbarMenuItem(R.string.item_clear, R.drawable.menu_icon_clear) {
-                MaterialAlertDialogBuilder(requireActivity())
-                    .setTitle(requireActivity().getString(R.string.delete_data))
-                    .setMessage(requireActivity().getString(R.string.delete_msg))
-                    .setPositiveButton(requireActivity().getString(R.string.sure_msg)) { _, _ ->
-                        lifecycleScope.launch {
-                            AppDataModel.clear()
-                            page = 1
-                            loadDataInside()
-                        }
-                    }
-                    .setNegativeButton(requireActivity().getString(R.string.cancel_msg)) { _, _ -> }
-                    .show()
+    override fun onCreateAdapter() {
+        val recyclerView = binding.statusPage.contentView!!
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        recyclerView.adapter = AppDataAdapter(pageData, requireActivity() as BaseActivity)
 
-            },
-        )
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View {
-        binding = FragmentDataRuleBinding.inflate(layoutInflater)
-        statusPage = binding.statusPage
-        val recyclerView = binding.statusPage.contentView!!
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        //scrollView = WeakReference(recyclerView)
+        savedInstanceState: Bundle?
+    ) = binding.root
 
-        recyclerView.adapter = AppDataAdapter(pageData, requireActivity() as BaseActivity)
-        loadDataEvent(binding.refreshLayout)
-        loadLeftData(binding.leftList)
-        chipEvent()
-        return binding.root
-    }
-
-    private var leftData = JsonObject()
-    private fun loadLeftData(leftList: CustomNavigationRail) {
-
-        leftList.setOnItemSelectedListener {
-            val id = it.id
-            page = 1
-            app = leftData.keySet().elementAt(id - 1)
-            statusPage.showLoading()
-            loadDataInside()
-        }
-    }
+    override val binding: FragmentDataBinding by viewBinding(FragmentDataBinding::inflate)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        loadLeftData(binding.leftList)
+        setupChipEvent()
         val leftList = binding.leftList
         lifecycleScope.launch {
             AppDataModel.apps().let { result ->
@@ -137,12 +108,21 @@ class DataFragment : BasePageFragment<AppDataModel>() {
             }
         }
 
+        binding.toolbar.setOnMenuItemClickListener(this)
+        setUpSearch()
     }
+    private var leftData = JsonObject()
+    private fun loadLeftData(leftList: CustomNavigationRail) {
 
-    /**
-     * Chip事件
-     */
-    private fun chipEvent() {
+        leftList.setOnItemSelectedListener {
+            val id = it.id
+            page = 1
+            app = leftData.keySet().elementAt(id - 1)
+            statusPage.showLoading()
+            loadDataInside()
+        }
+    }
+    private fun setupChipEvent() {
         binding.chipGroup.setOnCheckedStateChangeListener { group, checkedId ->
 
             match = false
@@ -169,5 +149,45 @@ class DataFragment : BasePageFragment<AppDataModel>() {
         }
     }
 
+    private fun setUpSearch(){
+        val searchItem = binding.toolbar.menu.findItem(R.id.action_search)
+        if(searchItem != null){
+            val searchView = searchItem.actionView as MaterialSearchView
+            searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    return true
+                }
 
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    searchData = newText ?: ""
+                    reload()
+                    return true
+                }
+
+            })
+        }
+    }
+
+    override fun onMenuItemClick(item: MenuItem?): Boolean {
+        when(item?.itemId){
+            R.id.item_clear -> {
+                MaterialAlertDialogBuilder(requireActivity())
+                    .setTitle(requireActivity().getString(R.string.delete_data))
+                    .setMessage(requireActivity().getString(R.string.delete_msg))
+                    .setPositiveButton(requireActivity().getString(R.string.sure_msg)) { _, _ ->
+                        lifecycleScope.launch {
+                            AppDataModel.clear()
+                            page = 1
+                            loadDataInside()
+                        }
+                    }
+                    .setNegativeButton(requireActivity().getString(R.string.cancel_msg)) { _, _ -> }
+                    .show()
+                return true
+            }
+            else -> {
+               return false
+            }
+        }
+    }
 }
