@@ -84,7 +84,9 @@ abstract class BasePageFragment<T> : BaseFragment() {
                 loadData { resultData ->
                     if (resultData.isEmpty()) {
                         if (pageData.isEmpty()) {
-                            statusPage.showEmpty()
+                           lifecycleScope.launch {
+                               statusPage.showEmpty()
+                           }
                         }
                         callback?.invoke(true, false)
                         return@loadData
