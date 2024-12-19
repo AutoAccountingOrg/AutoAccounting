@@ -16,15 +16,22 @@
 package net.ankio.auto.update
 
 import android.app.Activity
+import android.app.DownloadManager
 import android.content.Context
+import android.net.Uri
+import android.os.Environment
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import net.ankio.auto.BuildConfig
+import net.ankio.auto.R
 import net.ankio.auto.storage.ConfigUtils
+import net.ankio.auto.storage.Logger
+import net.ankio.auto.ui.activity.MainActivity
+import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.CustomTabsHelper
 import org.ezbook.server.constant.Setting
 
-class AppUpdate(context: Context) : BaseUpdate(context) {
+class AppUpdate(private val context: Activity) : BaseUpdate(context) {
     override val repo: String
         get() = "AutoAccounting"
 
@@ -70,10 +77,12 @@ class AppUpdate(context: Context) : BaseUpdate(context) {
         return arrayOf("", "", "")
     }
 
-    override suspend fun update(activity: Activity,finish: () -> Unit) {
+    override suspend fun update(finish: () -> Unit) {
         if (version.isEmpty()) return
 
-        CustomTabsHelper.launchUrlOrCopy(activity, download)
+        CustomTabsHelper.launchUrlOrCopy(context, download)
+        
         finish()
     }
+
 }

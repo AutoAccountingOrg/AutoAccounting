@@ -23,13 +23,17 @@ import net.ankio.auto.R
 import net.ankio.auto.request.RequestsUtils
 import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Logger
+import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.utils.ToastUtils
 import org.ezbook.server.constant.Setting
 import org.markdownj.MarkdownProcessor
+import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Locale
+import java.util.TimeZone
 
-abstract class BaseUpdate(context: Context) {
+abstract class BaseUpdate(context: Activity) {
     protected val url = "https://dl.ez-book.org/自动记账"
     abstract val repo: String
     var download = ""
@@ -74,8 +78,6 @@ abstract class BaseUpdate(context: Context) {
     suspend fun check(showToast: Boolean = false): Boolean {
         Logger.d("检查更新中")
 
-        ConfigUtils.putLong(Setting.RULE_UPDATE_TIME, System.currentTimeMillis()) // 记录检查时间
-
         val list = if (ConfigUtils.getString(
                 Setting.UPDATE_CHANNEL,
                 UpdateChannel.GithubRaw.name
@@ -93,9 +95,9 @@ abstract class BaseUpdate(context: Context) {
 
         return if (version != "") {
 
-            Logger.i("Version: $version")
-            Logger.i("Log: $log")
-            Logger.i("Date: $date")
+            Logger.i("版本: $version")
+            Logger.i("日志: $log")
+            Logger.i("更新时间: $date")
             onCheckedUpdate()
             true
         } else {
@@ -119,7 +121,6 @@ abstract class BaseUpdate(context: Context) {
                 date = json.get("date").asString
                 date = date(date)
                 if (checkVersionLarge(localVersion,version)) {
-                    Logger.i("New version found")
                     return arrayOf(
                         version,
                         log,
@@ -155,7 +156,7 @@ abstract class BaseUpdate(context: Context) {
                 // 转换 Markdown 为 HTML
                 log = processor.markdown(log)
 
-                Logger.i("本地版本: $localVersion,云端版本: $version")
+                Logger.d("本地版本: $localVersion,云端版本: $version")
 
                 if (checkVersionLarge(localVersion,version)) {
                     return arrayOf(
@@ -172,19 +173,32 @@ abstract class BaseUpdate(context: Context) {
         return arrayOf("", "", "")
     }
 
-    abstract suspend fun update(activity: Activity,finish: () -> Unit)
+    abstract suspend fun update(finish: () -> Unit)
 
 
     fun date(date: String): String {
-        //转换日期
-        val t = date.replace("T", " ").replace("Z", "")
-        //将当前的时间+8小时
-        val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-        val d = sdf.parse(t)
-        val c = Calendar.getInstance()
-        c.time = d
-        c.add(Calendar.HOUR_OF_DAY, 8)
-        return sdf.format(c.time)
+        return try {
+            val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US).apply {
+                timeZone = TimeZone.getTimeZone("UTC")
+            }
+            val outputFormatter = DateFormat.getDateTimeInstance(
+                DateFormat.DEFAULT,
+                DateFormat.DEFAULT,
+                Locale.getDefault()
+            ).apply {
+                timeZone = TimeZone.getDefault()
+            }
+            
+            val parsedDate = formatter.parse(date)
+            if (parsedDate != null) {
+                outputFormatter.format(parsedDate)
+            }else{
+                date
+            }
+        } catch (e: Exception) {
+            Logger.e("日期转换失败", e)
+            date
+        }
     }
 
     /**

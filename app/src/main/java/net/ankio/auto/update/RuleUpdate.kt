@@ -16,19 +16,15 @@
 package net.ankio.auto.update
 
 import android.app.Activity
-import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.JsonArray
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
-import net.ankio.auto.App
-import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
-import net.ankio.auto.broadcast.LocalBroadcastHelper
 import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.storage.ZipUtils
+import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.ToastUtils
 import org.ezbook.server.constant.DataType
@@ -37,7 +33,7 @@ import org.ezbook.server.db.model.CategoryMapModel
 import org.ezbook.server.db.model.RuleModel
 import org.ezbook.server.db.model.SettingModel
 
-class RuleUpdate(private val context: Context) : BaseUpdate(context) {
+class RuleUpdate(private val context: Activity) : BaseUpdate(context) {
 
     override val repo: String
         get() = "AutoRule"
@@ -64,10 +60,10 @@ class RuleUpdate(private val context: Context) : BaseUpdate(context) {
     }
 
 
-    override suspend fun update(activity: Activity, finish: () -> Unit) {
+    override suspend fun update(finish: () -> Unit) {
         if (version.isEmpty()) return
-        val loading = LoadingUtils(activity)
-        loading.show(activity.getString(R.string.downloading))
+        val loading = LoadingUtils(context)
+        loading.show(context.getString(R.string.downloading))
         withContext(Dispatchers.IO) {
             try {
                 val file = context.cacheDir.resolve("rule.zip")
@@ -125,7 +121,7 @@ class RuleUpdate(private val context: Context) : BaseUpdate(context) {
 
                             val rule = RuleModel.system(ruleModel.name)
 
-                            if (rule!=null){
+                            if (rule != null) {
                                 ruleModel.id = rule.id
                                 ruleModel.autoRecord = rule.autoRecord
                                 ruleModel.enabled = rule.enabled
@@ -133,11 +129,21 @@ class RuleUpdate(private val context: Context) : BaseUpdate(context) {
 
                             ruleModel.updateAt = System.currentTimeMillis()
                             if (ruleModel.id == 0) {
-                                loading.setText(context.getString(R.string.add_rule, ruleModel.name))
+                                loading.setText(
+                                    context.getString(
+                                        R.string.add_rule,
+                                        ruleModel.name
+                                    )
+                                )
                             } else {
-                                loading.setText(context.getString(R.string.update_rule, ruleModel.name))
+                                loading.setText(
+                                    context.getString(
+                                        R.string.update_rule,
+                                        ruleModel.name
+                                    )
+                                )
                             }
-                           RuleModel.put(ruleModel)
+                            RuleModel.put(ruleModel)
                         }
                         loading.setText(
                             context.getString(
@@ -145,7 +151,6 @@ class RuleUpdate(private val context: Context) : BaseUpdate(context) {
                             )
                         )
                         RuleModel.deleteSystemRule()
-
 
 
                         // 更新分类映射
@@ -200,9 +205,13 @@ class RuleUpdate(private val context: Context) : BaseUpdate(context) {
             } catch (e: Exception) {
                 Logger.e("更新规则错误", e)
                 ToastUtils.error(R.string.update_error)
-            }finally {
-                loading.close()
-               finish()
+            } finally {
+
+                withContext(Dispatchers.Main) {
+                    loading.close()
+                    finish()
+                }
+
             }
         }
 

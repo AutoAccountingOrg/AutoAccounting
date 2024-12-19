@@ -41,6 +41,7 @@ import net.ankio.auto.exceptions.ServiceCheckException
 import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Constants
 import net.ankio.auto.storage.Logger
+import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.dialog.AppDialog
 import net.ankio.auto.ui.dialog.AssetsSelectorDialog
@@ -105,6 +106,7 @@ class HomeFragment : BaseFragment() {
         setupCommunicationEvents()
         setupDonateEvents()
         setupResourceEvents()
+
     }
 
     private fun setupResourceEvents() {
@@ -491,6 +493,7 @@ class HomeFragment : BaseFragment() {
     }
 
 
+
     /**
      * 绑定规则部分的UI
      */
@@ -509,11 +512,11 @@ class HomeFragment : BaseFragment() {
      */
     private suspend fun checkRuleUpdate(showResult: Boolean) {
         //   if (!isUiReady()) return
-        val ruleUpdate = RuleUpdate(requireContext())
+        val ruleUpdate = RuleUpdate(requireActivity())
         runCatching {
             if (ruleUpdate.check(showResult)) {
 
-                val updateDialog = UpdateDialog(requireContext(), ruleUpdate) {
+                val updateDialog = UpdateDialog(requireActivity(), ruleUpdate) {
                     App.runOnUiThread {
                         bindRuleUI()
                     }
@@ -531,10 +534,10 @@ class HomeFragment : BaseFragment() {
      */
     private suspend fun checkAppUpdate(showResult: Boolean = false) {
         //    if (!isUiReady()) return
-        val appUpdate = AppUpdate(requireContext())
+        val appUpdate = AppUpdate(requireActivity())
         runCatching {
             if (appUpdate.check(showResult)) {
-                val updateDialog = UpdateDialog(requireContext(), appUpdate) {
+                val updateDialog = UpdateDialog(requireActivity(), appUpdate) {
                     App.runOnUiThread {
                         bindRuleUI()
                     }
