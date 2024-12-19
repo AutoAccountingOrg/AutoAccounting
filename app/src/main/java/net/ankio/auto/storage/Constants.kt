@@ -20,4 +20,6 @@ object Constants {
     val BACKUP_TIME = 10 * 60 * 1000L
     // 6小时
     val CHECK_INTERVAL = 6 * 60 * 60 * 1000L
+
+    val DONATE_INTERVAL = 365L * 24 * 60 * 60 * 1000
 }

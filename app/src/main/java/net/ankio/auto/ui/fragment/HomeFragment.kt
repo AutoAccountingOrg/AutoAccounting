@@ -416,11 +416,10 @@ class HomeFragment : BaseFragment() {
 
     private fun bindDonateUI() {
         val donateTime = ConfigUtils.getLong(Setting.DONATE_TIME, 0)
-        val oneYearInMillis = 365L * 24 * 60 * 60 * 1000 // 每年的毫秒数
         val now = System.currentTimeMillis()
 
         // 检查条件：首次显示，或者已经过了一年
-        val shouldShowDonate = donateTime == 0L || now - donateTime > oneYearInMillis
+        val shouldShowDonate = donateTime == 0L || now - donateTime > Constants.DONATE_INTERVAL
 
         binding.donateCard.visibility = if (shouldShowDonate) View.VISIBLE else View.GONE
 
