@@ -19,28 +19,21 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
-import net.ankio.auto.databinding.FragmentMapBinding
+import net.ankio.auto.databinding.FragmentCategoryBinding
 import net.ankio.auto.ui.adapter.CategoryMapAdapter
 import net.ankio.auto.ui.api.BasePageFragment
-import net.ankio.auto.ui.models.ToolbarMenuItem
+import net.ankio.auto.ui.componets.MaterialSearchView
+import net.ankio.auto.ui.utils.viewBinding
 import org.ezbook.server.db.model.CategoryMapModel
-import java.lang.ref.WeakReference
 
 class CategoryMapFragment : BasePageFragment<CategoryMapModel>() {
-    private lateinit var binding: FragmentMapBinding
-
-    override val menuList: ArrayList<ToolbarMenuItem>
-        get() =
-            arrayListOf(
-                ToolbarMenuItem(R.string.item_search, R.drawable.menu_icon_search, true) {
-                    loadDataInside()
-                },
-            )
-
+    override val binding: FragmentCategoryBinding by viewBinding(FragmentCategoryBinding::inflate)
+    var searchData: String = ""
     override suspend fun loadData(callback: (resultData: List<CategoryMapModel>) -> Unit) {
         lifecycleScope.launch {
             val newData = CategoryMapModel.list(page, pageSize, searchData)
@@ -48,25 +41,38 @@ class CategoryMapFragment : BasePageFragment<CategoryMapModel>() {
         }
     }
 
+    override fun onCreateAdapter() {
+        val recyclerView = statusPage.contentView!!
+        recyclerView.layoutManager = LinearLayoutManager(context)
+        recyclerView.adapter = CategoryMapAdapter(pageData, requireActivity())
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View {
-        binding = FragmentMapBinding.inflate(layoutInflater)
-        statusPage = binding.statusPage
-        val recyclerView = statusPage.contentView!!
-        recyclerView.layoutManager = LinearLayoutManager(context)
-        recyclerView.adapter = CategoryMapAdapter(pageData, requireActivity())
-        //scrollView = WeakReference(recyclerView)
-        binding.addButton.visibility = View.GONE
-        loadDataEvent(binding.refreshLayout)
-        return binding.root
-    }
+    ): View  = binding.root
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        statusPage.showLoading()
-        loadDataInside()
+
+        val searchItem = binding.topAppBar.menu.findItem(R.id.action_search)
+
+        if(searchItem != null){
+            val searchView = searchItem.actionView as MaterialSearchView
+            searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    return true
+                }
+
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    searchData = newText ?: ""
+                    reload()
+                    return true
+                }
+
+            })
+        }
     }
 }
