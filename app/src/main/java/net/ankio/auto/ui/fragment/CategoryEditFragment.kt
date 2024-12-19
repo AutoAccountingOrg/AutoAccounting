@@ -34,20 +34,21 @@ import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogRegexInputBinding
 import net.ankio.auto.databinding.DialogRegexMoneyBinding
-import net.ankio.auto.databinding.FragmentEditBinding
-import net.ankio.auto.storage.Logger
+import net.ankio.auto.databinding.FragmentCategoryEditBinding
 import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.componets.FlowElement
 import net.ankio.auto.ui.componets.FlowLayoutManager
 import net.ankio.auto.ui.dialog.BookSelectorDialog
 import net.ankio.auto.ui.dialog.CategorySelectorDialog
 import net.ankio.auto.ui.utils.ListPopupUtils
+import net.ankio.auto.ui.utils.viewBinding
 import net.ankio.auto.utils.BillTool
 import org.ezbook.server.db.model.CategoryRuleModel
 import java.util.Calendar
 
 class CategoryEditFragment : BaseFragment() {
-    private lateinit var binding: FragmentEditBinding
+    override val binding: FragmentCategoryEditBinding by viewBinding(FragmentCategoryEditBinding::inflate)
+
     private var categoryRuleModel: CategoryRuleModel = CategoryRuleModel()
     private var remoteBookId: String = "-1" // -1是默认账本
     private var bookName: String = ""
@@ -98,7 +99,7 @@ class CategoryEditFragment : BaseFragment() {
             return
         }
         // 最后一个是数据
-        val lastElement = list.removeLast()
+        val lastElement = list.removeAt(list.lastIndex)
         // fix #7 因为存储的时候使用的是hashmap<String,Any>，反向识别的时候可能会将Int类型识别为Double
         remoteBookId = lastElement["id"].toString()
         bookName = lastElement["book"] as String
@@ -149,13 +150,8 @@ class CategoryEditFragment : BaseFragment() {
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View {
-        binding = FragmentEditBinding.inflate(layoutInflater)
-
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         binding.ruleCard.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(requireContext()))
 
         binding.saveItem.setOnClickListener {
@@ -171,10 +167,13 @@ class CategoryEditFragment : BaseFragment() {
             }.getOrDefault(CategoryRuleModel())
         }
         buildUI()
-
-
-        return binding.root
     }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View = binding.root
 
     private fun onClickBook(it2: FlowElement) {
         BookSelectorDialog(requireContext()) { bookItem, _ ->
@@ -460,7 +459,7 @@ class CategoryEditFragment : BaseFragment() {
     }
 
     private fun saveItem() {
-        var map = binding.flexboxLayout.getViewMap()
+        val map = binding.flexboxLayout.getViewMap()
         var condition = ""
         //   var text = "若满足"
         list = mutableListOf()
@@ -514,7 +513,7 @@ class CategoryEditFragment : BaseFragment() {
         // categoryRuleModel.text = text
         categoryRuleModel.element = Gson().toJson(list)
 
-        /*   categoryRuleModel.use = true*/
+
 
         if (categoryRuleModel.js.contains("if()")) {
             Toaster.show(R.string.useless_condition)
