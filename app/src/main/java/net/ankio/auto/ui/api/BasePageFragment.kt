@@ -34,8 +34,7 @@ abstract class BasePageFragment<T> : BaseFragment() {
     /**
      * 初始化View
      */
-    lateinit var statusPage: StatusPage
-    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
+
 
     /**
      * 当前页码
@@ -141,17 +140,27 @@ abstract class BasePageFragment<T> : BaseFragment() {
         })
    }
 
+    private var _statusPage: StatusPage? = null
+    private var _swipeRefreshLayout: SwipeRefreshLayout? = null
+
+     val statusPage get() = _statusPage!!
+        val swipeRefreshLayout get() = _swipeRefreshLayout!!
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        statusPage = view.findViewById(R.id.status_page)
+        _statusPage = view.findViewById(R.id.status_page)
         statusPage.showLoading()
-        swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout)
+        _swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout)
         onCreateAdapter()
         bindLoadDataEvent()
         loadMoreDataEvent()
         reload()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        _statusPage = null
+        _swipeRefreshLayout = null
+    }
 
 
     fun reload(){
