@@ -21,97 +21,75 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.SearchView
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import net.ankio.auto.App
 import net.ankio.auto.R
-import net.ankio.auto.databinding.FragmentLogBinding
+import net.ankio.auto.databinding.FragmentNoticeBinding
 import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.ui.adapter.AppAdapter
 import net.ankio.auto.ui.api.BasePageFragment
+import net.ankio.auto.ui.componets.MaterialSearchView
 import net.ankio.auto.ui.models.AppInfo
-import net.ankio.auto.ui.models.ToolbarMenuItem
+import net.ankio.auto.ui.utils.viewBinding
+import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
-import org.ezbook.server.db.model.SettingModel
-import java.lang.ref.WeakReference
 
 
 class NoticeFragment : BasePageFragment<AppInfo>() {
-
-
-    //TODO 需要根据已有规则支持显示推荐勾选、一键勾选推荐应用
-
-    private var selectedApps: List<String> = emptyList()
-
-    override val menuList: ArrayList<ToolbarMenuItem> = arrayListOf(
-        ToolbarMenuItem(R.string.item_search, R.drawable.menu_icon_search, true) {
-            loadDataInside()
-        }
-    )
-
+    private var query = ""
     override suspend fun loadData(callback: (resultData: List<AppInfo>) -> Unit) {
-        if (page > 1) {
-            withContext(Dispatchers.Main) {
-                callback(emptyList())
-            }
+        if (appsList.isEmpty()) {
+            loadApps()
+        }
+        if (query.isEmpty()) {
+            filtered.clear()
+            filtered.addAll(appsList)
+            callback(filtered)
             return
         }
-        
-        val packageManager: PackageManager = requireActivity().packageManager
-        val packageInfos = packageManager.getInstalledPackages(0)
-        val appInfos: MutableList<AppInfo> = ArrayList()
 
-        for (packageInfo in packageInfos) {
-            val applicationInfo = packageInfo.applicationInfo
-            val packageName = packageInfo.packageName
-            var appName = ""
+        filtered = appsList.filter {
+            it.appName.contains(query, ignoreCase = true) ||
+                    it.packageName.contains(query, ignoreCase = true)
+        }.toMutableList()
+        sorApps(filtered)
+        callback(filtered)
+    }
 
-            if (searchData.isNotEmpty()) {
-                appName = packageManager.getApplicationLabel(applicationInfo).toString()
-                if (!appName.contains(searchData, true)) continue
-            }
-
-            (applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
-            val isSelected = selectedApps.contains(packageName)
-
-            val appInfo = AppInfo(packageName, appName, applicationInfo, isSelected)
-            appInfos.add(appInfo)
+    private fun sorApps(mutableList: MutableList<AppInfo>) {
+        val financialKeywords = listOf("bank", "finance", "wallet","pay")
+        mutableList.map {
+            it.isSelected = selectedApps.contains(it.packageName)
         }
-
-        // 优化排序逻辑：已选择 > 用户应用 > 系统应用
-        appInfos.sortWith(
+        mutableList.sortWith(
             compareByDescending<AppInfo> { it.isSelected }
-                .thenByDescending { 
+                .thenByDescending { app -> 
+                    // 检查是否是金融类应用
+                    financialKeywords.any { keyword -> 
+                        app.pkg.packageName.contains(keyword, ignoreCase = true)
+                    }
+                }
+                .thenByDescending {
                     (it.pkg.flags and ApplicationInfo.FLAG_SYSTEM) == 0
                 }
                 .thenBy {
-                    it.appName.ifEmpty {
-                        App.app.packageManager.getApplicationLabel(it.pkg)
-                            .toString()
-                    }
+                    it.appName
                 }
         )
-
-        withContext(Dispatchers.Main) {
-            callback(appInfos)
-        }
+        Logger.d("sorted apps: $mutableList")
     }
 
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View {
-        val binding = FragmentLogBinding.inflate(layoutInflater)
-        statusPage = binding.statusPage
+    override fun onCreateAdapter() {
+       selectedApps = ConfigUtils.getString(Setting.LISTENER_APP_LIST, DefaultData.NOTICE_FILTER).split(",").filter { it.isNotEmpty() }
+        Logger.d("selected apps: $selectedApps")
         val recyclerView = binding.statusPage.contentView!!
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
-       // scrollView = WeakReference(recyclerView)
-        selectedApps = ConfigUtils.getString(Setting.LISTENER_APP_LIST, "").split(",")
         recyclerView.adapter = AppAdapter(pageData, requireActivity().packageManager) {
             selectedApps = if (!it.isSelected) {
                 selectedApps.filter { packageName -> packageName != it.packageName }
@@ -119,22 +97,73 @@ class NoticeFragment : BasePageFragment<AppInfo>() {
                 selectedApps + it.packageName
             }
             selectedApps = selectedApps.distinct()
-            val str = selectedApps.joinToString(",")
-            ConfigUtils.putString(Setting.LISTENER_APP_LIST, str)
-            SpUtils.putString(Setting.LISTENER_APP_LIST, str)
-            Logger.d("selectedApps => $selectedApps")
+
         }
-
-        loadDataEvent(binding.refreshLayout)
-
-        return binding.root
     }
 
+    override fun onStop() {
+        super.onStop()
+        val str = selectedApps.joinToString(",")
+        ConfigUtils.putString(Setting.LISTENER_APP_LIST, str)
+        SpUtils.putString(Setting.LISTENER_APP_LIST, str)
+    }
+    private var selectedApps: List<String> = emptyList()
+    private val appsList = mutableListOf<AppInfo>()
+    private var filtered = mutableListOf<AppInfo>()
+    override val binding: FragmentNoticeBinding by viewBinding(FragmentNoticeBinding::inflate)
+
+    private suspend fun loadApps() = withContext(Dispatchers.IO) {
+            val pm = requireContext().packageManager
+            val apps = pm.getInstalledApplications(PackageManager.GET_META_DATA)
+               // .filter { pm.getLaunchIntentForPackage(it.packageName) != null }
+                .map {
+                    AppInfo(
+                        appName = it.loadLabel(pm).toString(),
+                        packageName = it.packageName,
+                        icon = it.loadIcon(pm),
+                        pkg = it
+                    )
+                }
+
+
+            withContext(Dispatchers.Main) {
+                appsList.clear()
+                appsList.addAll(apps)
+                sorApps(appsList)
+                filtered.clear()
+                filtered.addAll(appsList)
+        }
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ) = binding.root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        statusPage.showLoading()
-        loadDataInside()
+        setUpSearch()
+
+    }
+
+    private fun setUpSearch(){
+        val searchItem = binding.topAppBar.menu.findItem(R.id.action_search)
+        if(searchItem != null){
+            val searchView = searchItem.actionView as MaterialSearchView
+            searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    return true
+                }
+
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    query = newText ?: ""
+                    reload()
+                    return true
+                }
+
+            })
+        }
     }
 
 }

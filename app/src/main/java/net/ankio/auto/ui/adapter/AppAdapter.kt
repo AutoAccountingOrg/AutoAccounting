@@ -61,5 +61,11 @@ class AppAdapter(
         }
     }
 
+    fun updateData(filtered: MutableList<AppInfo>) {
+        list.clear()
+        list.addAll(filtered)
+        notifyDataSetChanged()
+    }
+
 
 }
