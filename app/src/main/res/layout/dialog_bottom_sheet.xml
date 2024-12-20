@@ -14,11 +14,12 @@
   ~   limitations under the License.
 -->
 
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <!-- 标题 -->
     <com.google.android.material.textview.MaterialTextView
@@ -27,33 +28,30 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/float_padding"
-        android:singleLine="true"
         android:lines="1"
-        tools:text="这是个标题"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:singleLine="true"
+        tools:text="这是个标题" />
 
     <!-- 描述文本 -->
-    <LinearLayout
-        android:id="@+id/container"
-        style="@style/TextAppearance.Material3.BodyMedium"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+
         android:layout_margin="@dimen/float_padding"
-        android:orientation="horizontal"
-        android:text="@string/auto_category"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/title" >
-    </LinearLayout>
+        android:id="@+id/container"
+        android:fillViewport="true">
+
+
+    </ScrollView>
 
     <!-- 按钮区域 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/btn_height_small"
         android:layout_marginTop="@dimen/float_padding"
-        android:orientation="horizontal"
         android:gravity="center"
-        app:layout_constraintTop_toBottomOf="@id/container">
+        android:orientation="horizontal">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/negativeButton"
@@ -74,4 +72,4 @@
             android:text="@string/ok" />
     </LinearLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

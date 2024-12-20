@@ -19,6 +19,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
+import android.widget.TextView
 import net.ankio.auto.databinding.DialogBottomSheetBinding
 import net.ankio.auto.ui.api.BaseSheetDialog
 
@@ -116,4 +117,12 @@ class BottomSheetDialogBuilder(context: Context) : BaseSheetDialog(context) {
     }
 
     override fun onCreateView(inflater: LayoutInflater) = binding.root
+    fun setMessage(string: String): BottomSheetDialogBuilder {
+        val textView = TextView(context)
+        textView.text = string
+        textView.setPadding(0, 0, 0, 0)
+        textView.textSize = 16f
+        setView(textView)
+        return this
+    }
 }
