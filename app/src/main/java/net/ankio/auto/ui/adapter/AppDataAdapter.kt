@@ -101,7 +101,7 @@ class AppDataAdapter(
             binding.rule.setText(data.rule)
         }
 
-        binding.edit.visibility = if (data.match) View.GONE else View.VISIBLE
+        binding.edit.visibility =  View.GONE
     }
 
     private var onItemLongClick: (AppDataModel) -> Unit = {}
