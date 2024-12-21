@@ -1,127 +1,106 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:fillViewport="true">
 
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardView"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:cardCornerRadius="@dimen/radius"
-        app:cardElevation="0dp"
-        app:strokeColor="?attr/colorSurfaceContainerHighest"
-        app:strokeWidth="0dp">
+        android:layout_height="wrap_content">
 
-        <LinearLayout
-            android:id="@+id/cardViewInner"
+        <TextView
+            android:id="@+id/textView2"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:padding="@dimen/cardPadding">
+            android:layout_height="wrap_content"
+            android:text="@string/str_replace"
+            android:textColor="?colorPrimary"
+            app:layout_constraintTop_toTopOf="parent" />
 
-            <TextView
-                android:id="@+id/textView2"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/rawDataLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/one_padding"
+            android:hint="@string/rawData"
+            app:layout_constraintEnd_toStartOf="@+id/replaceDataLayout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView2">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/rawData"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/str_replace"
-                android:textColor="?colorPrimary" />
+                android:layout_height="wrap_content" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-            <LinearLayout
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/replaceDataLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/one_padding"
+            android:hint="@string/replaceData"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/rawDataLayout"
+            app:layout_constraintTop_toBottomOf="@+id/textView2">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/replaceData"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                >
+                android:layout_height="wrap_content" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                 android:layout_margin="@dimen/one_padding"
-                    android:layout_weight="1"
-                    android:hint="@string/rawData">
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnReplace"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/btn_height_small"
+            android:layout_margin="10dp"
+            android:text="@string/btn_replace"
+            app:layout_constraintTop_toBottomOf="@+id/rawDataLayout" />
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/rawData"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/contentLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/str_content"
+            android:textColor="?colorPrimary"
+            app:layout_constraintTop_toBottomOf="@+id/btnReplace" />
 
-                </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/dataLayout"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_margin="@dimen/one_padding"
+            app:layout_constraintTop_toBottomOf="@+id/contentLabel">
 
-
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/padding"
-                    android:layout_weight="1"
-                    android:layout_margin="@dimen/one_padding"
-                    android:hint="@string/replaceData">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/replaceData"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
-
-                </com.google.android.material.textfield.TextInputLayout>
-
-            </LinearLayout>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnReplace"
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/data"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/btn_height_small"
-                android:layout_gravity="end"
-                android:layout_weight="1"
-                android:layout_margin="10dp"
-                android:text="@string/btn_replace" />
+                android:layout_height="match_parent" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/str_content"
-                android:textColor="?colorPrimary" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonCancel"
+            style="@style/Widget.Material3.Button.TonalButton"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/btn_height_small"
+            android:layout_marginEnd="@dimen/one_padding"
+            android:layout_marginTop="@dimen/one_padding"
+            android:text="@string/cancel_msg"
+            app:layout_constraintEnd_toStartOf="@+id/buttonSure"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/dataLayout" />
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:layout_margin="@dimen/one_padding"
-                android:layout_marginTop="@dimen/padding"
-                android:layout_weight="1">
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonSure"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/btn_height_small"
+            android:layout_marginStart="@dimen/one_padding"
+            android:layout_marginTop="@dimen/one_padding"
+            android:text="@string/sure_msg"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/buttonCancel"
+            app:layout_constraintTop_toBottomOf="@+id/dataLayout" />
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/data"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_marginTop="@dimen/one_padding"
-                android:orientation="horizontal"
-                android:layout_height="@dimen/btn_height"
-                android:gravity="center"
-                android:padding="@dimen/float_padding">
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/buttonCancel"
-                    style="@style/Widget.Material3.Button.TonalButton"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_marginEnd="@dimen/one_padding"
-                    android:layout_weight="1"
-                    android:text="@string/cancel_msg" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/buttonSure"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_marginStart="@dimen/one_padding"
-                    android:layout_weight="1"
-                    android:text="@string/sure_msg" />
-
-            </LinearLayout>
-
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
-</LinearLayout>
+</ScrollView>
