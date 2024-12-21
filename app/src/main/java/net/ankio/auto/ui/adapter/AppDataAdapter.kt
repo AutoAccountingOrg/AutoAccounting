@@ -40,11 +40,11 @@ class AppDataAdapter(
         val binding = holder.binding
 
         binding.testRuleAi.setOnClickListener {
-            onItemTestRuleClick(holder.item!!)
+            onItemTestRuleAiClick(holder.item!!)
         }
 
         binding.testRule.setOnClickListener {
-            onItemTestRuleAiClick(holder.item!!)
+            onItemTestRuleClick(holder.item!!)
 
         }
 
