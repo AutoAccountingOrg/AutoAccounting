@@ -189,21 +189,27 @@ object DisplayUtils {
         val scale = context.resources.displayMetrics.density
         return (pxValue / scale + 0.5f).toInt()
     }
-
     /**
      * 获取屏幕真实尺寸（包含刘海区域）
      */
     fun getRealScreenSize(context: Context): Point {
-        val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
         val point = Point()
+        val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            context.display?.getRealSize(point)
+            // 使用 WindowMetrics 获取屏幕尺寸
+            val metrics = windowManager.currentWindowMetrics
+            val bounds = metrics.bounds
+            point.x = bounds.width()
+            point.y = bounds.height()
         } else {
             @Suppress("DEPRECATION")
             windowManager.defaultDisplay.getRealSize(point)
         }
+
         return point
     }
+
 
     fun isTabletOrFoldable(context: Context): Boolean {
         val displayMetrics = context.resources.displayMetrics
