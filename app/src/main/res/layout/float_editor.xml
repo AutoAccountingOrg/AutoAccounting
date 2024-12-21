@@ -13,405 +13,386 @@
   ~   limitations under the License.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    tools:ignore="MissingDefaultResource">
+    android:orientation="vertical">
     <!--这里再嵌套一层是为了使用另一个UI的时候方便修改圆角-->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/editorCard"
-        style="?attr/materialCardViewElevatedStyle"
+    <net.ankio.auto.ui.componets.GradientImageView
+        android:id="@+id/book_image"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/cardPadding"
-        app:cardCornerRadius="@dimen/radius"
-        app:cardElevation="0dp"
-        app:strokeWidth="0dp"
-        >
+        android:layout_height="170dp"
+        android:layout_gravity="top"
+        android:clickable="true"
+        android:focusable="true"
+        android:scaleType="centerCrop"
+        android:src="@drawable/default_book"
+        app:cornerRadiusTopLeft="@dimen/padding"
+        app:cornerRadiusTopRight="@dimen/padding"
+        />
 
-        <RelativeLayout
-            android:id="@+id/cardViewInner"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+    <ScrollView
 
-            <net.ankio.auto.ui.componets.GradientImageView
-                android:id="@+id/book_image"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="60dp"
+            android:orientation="vertical"
+            android:padding="@dimen/padding">
+
+
+            <TextView
+                android:id="@+id/priceContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_weight="1"
+                android:maxLines="1"
+                android:padding="@dimen/one_padding"
+                android:textAppearance="?textAppearanceDisplayMedium"
+                android:textColor="@color/success"
+                android:textStyle="bold"
+                app:drawableStartCompat="@drawable/float_add"
+                app:drawableTint="@color/success"
+                tools:text="10000000.00" />
+
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="170dp"
-                android:layout_gravity="top"
-                android:clickable="true"
-                android:focusable="true"
-                android:scaleType="centerCrop"
-                android:src="@drawable/default_book" />
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:padding="@dimen/one_padding">
+
+                <net.ankio.auto.ui.componets.IconView
+                    android:id="@+id/ruleName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:gravity="center_vertical"
+                    android:maxLines="1"
+                    app:iconSrc="@drawable/home_rule"
+                    app:textColor="?attr/colorPrimary"
+                    tools:text="这是一条规则名这是一条规则名称这是一条规则名称这是一条规则名称这是一条规则名称这是一条规则名称这是一条规则名称这是一条规则名称这是一条规则名称这是一条规则名称这是一条规则名称这是一条规则名称这是一条规则名称这是一条规则名称这是一条规则名称这是一条规则名称称" />
 
 
+                <net.ankio.auto.ui.componets.IconView
+                    android:id="@+id/fee"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical|end"
 
-            <ScrollView
+                    app:textColor="?attr/colorError"
+                    tools:text="-0.01" />
+            </LinearLayout>
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroup"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
 
-                <LinearLayout
+                android:layout_height="wrap_content"
+                android:padding="@dimen/padding"
+                app:singleSelection="true">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipReimbursement"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="@string/reimbursement" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipLend"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="false"
+                    android:text="@string/lend" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipRepayment"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="false"
+                    android:text="@string/repayment" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipBorrow"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="false"
+                    android:text="@string/borrow" />
+                <!-- Chips can be declared here, or added dynamically. -->
+
+            </com.google.android.material.chip.ChipGroup>
+
+            <LinearLayout
+                android:id="@+id/payInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:padding="@dimen/float_padding"
+                android:visibility="visible">
+
+                <net.ankio.auto.ui.componets.IconView
+                    android:id="@+id/payFrom"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:iconSrc="@mipmap/ic_launcher_round"
+                    app:iconTintEnabled="false"
+                    app:textColor="?attr/colorOnSurface"
+                    tools:text="微信零钱" />
+
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/transferInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="@dimen/float_padding"
+                android:visibility="visible">
+
+                <net.ankio.auto.ui.componets.IconView
+                    android:id="@+id/transferFrom"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    app:iconSrc="@mipmap/ic_launcher_round"
+                    app:iconTintEnabled="false"
+                    app:textColor="?attr/colorOnSurface"
+                    tools:text="微信零钱" />
+
+
+                <TextView
+                    android:layout_width="@dimen/padding"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/one_padding"
+                    android:layout_marginEnd="@dimen/one_padding"
+                    android:layout_weight="0"
+                    android:gravity="center"
+                    android:text="➜" />
+
+                <net.ankio.auto.ui.componets.IconView
+                    android:id="@+id/transferTo"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    app:iconSrc="@mipmap/ic_launcher_round"
+                    app:iconTintEnabled="false"
+                    app:textColor="?attr/colorOnSurface"
+                    tools:text="微信零钱" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/debtExpend"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:padding="@dimen/float_padding"
+                android:visibility="visible">
+
+                <net.ankio.auto.ui.componets.IconView
+                    android:id="@+id/debtExpendFrom"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    app:iconSrc="@mipmap/ic_launcher_round"
+                    app:iconTintEnabled="false"
+                    app:textColor="?attr/colorOnSurface"
+                    tools:text="微信零钱" />
+
+
+                <TextView
+                    android:layout_width="@dimen/padding"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/one_padding"
+                    android:layout_marginEnd="@dimen/one_padding"
+                    android:layout_weight="0"
+                    android:gravity="center"
+                    android:text="➜" />
+
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/debtExpendToLayout"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="@string/float_income_debt"
+                    android:maxWidth="200dp">
+
+                    <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                        android:id="@+id/debtExpendTo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text"
+                        tools:simpleItems="" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/debtIncome"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:padding="@dimen/float_padding"
+                android:visibility="visible">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/debtIncomeFromLayout"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="@string/float_income_debt"
+                    android:maxWidth="200dp">
+
+                    <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                        android:id="@+id/debtIncomeFrom"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text"
+                        tools:simpleItems="" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="@dimen/padding"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/one_padding"
+                    android:layout_marginEnd="@dimen/one_padding"
+                    android:layout_weight="0"
+                    android:gravity="center"
+                    android:text="➜" />
+
+                <net.ankio.auto.ui.componets.IconView
+                    android:id="@+id/debtIncomeTo"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    app:iconSrc="@mipmap/ic_launcher_round"
+                    app:iconTintEnabled="false"
+                    app:textColor="?attr/colorOnSurface"
+                    tools:text="微信零钱" />
+
+
+            </LinearLayout>
+
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/chooseBill"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/float_choose_bill"
+                android:visibility="visible" />
+
+            <net.ankio.auto.ui.componets.IconView
+                android:id="@+id/category"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:padding="@dimen/float_padding"
+                android:visibility="visible"
+                app:iconSrc="@drawable/default_cate"
+                app:iconTintEnabled="true"
+                app:textColor="?attr/colorOnSurface"
+                tools:text="分类" />
+
+            <net.ankio.auto.ui.componets.IconView
+                android:id="@+id/moneyType"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:padding="@dimen/float_padding"
+                app:iconSrc="@drawable/float_money"
+                app:iconTintEnabled="true"
+                app:textColor="?attr/colorOnSurface"
+                tools:text="人民币" />
+
+
+            <net.ankio.auto.ui.componets.IconView
+                android:id="@+id/time"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/float_padding"
+                app:iconSrc="@drawable/float_time"
+                app:iconTintEnabled="true"
+                app:textColor="?attr/colorOnSurface"
+                tools:text="2023年12月21日 11:11:00" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/textField"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/float_remark"
+                android:padding="@dimen/float_padding">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/remark"
+                    style="@style/TextAppearance.AppCompat.Medium"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="60dp"
-                    android:orientation="vertical"
-                    android:padding="@dimen/padding">
+                    android:text="xxxxxxxx" />
+
+            </com.google.android.material.textfield.TextInputLayout>
 
 
-                    <TextView
-                        android:id="@+id/priceContainer"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="end"
-                        android:layout_weight="1"
-                        android:maxLines="1"
-                        android:textAppearance="?textAppearanceDisplayMedium"
-                        android:textColor="@color/success"
-                        android:textStyle="bold"
-                        app:drawableStartCompat="@drawable/float_add"
-                        app:drawableTint="@color/success"
-                        android:padding="@dimen/one_padding"
-                        tools:text="10000000.00"
-                        />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:padding="@dimen/one_padding"
-                        android:orientation="horizontal">
-
-                        <net.ankio.auto.ui.componets.IconView
-                            android:id="@+id/ruleName"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center_vertical"
-                            android:layout_weight="1"
-                            android:ellipsize="end"
-                            android:gravity="center_vertical"
-                            android:maxLines="1"
-                            app:textColor="?attr/colorPrimary"
-                            app:iconSrc="@drawable/home_rule"
-                            tools:text="这是一条规则名这是一条规则名称这是一条规则名称这是一条规则名称这是一条规则名称这是一条规则名称这是一条规则名称这是一条规则名称这是一条规则名称这是一条规则名称这是一条规则名称这是一条规则名称这是一条规则名称这是一条规则名称这是一条规则名称这是一条规则名称称"
-                         />
-
-
-                        <net.ankio.auto.ui.componets.IconView
-                            android:id="@+id/fee"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center_vertical|end"
-
-                            app:textColor="?attr/colorError"
-                            tools:text="-0.01" />
-                    </LinearLayout>
-
-                    <com.google.android.material.chip.ChipGroup
-                        android:id="@+id/chipGroup"
-                        android:layout_width="match_parent"
-
-                        android:layout_height="wrap_content"
-                        android:padding="@dimen/padding"
-                        app:singleSelection="true">
-
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/chipReimbursement"
-                            style="@style/Widget.Material3.Chip.Filter"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:checked="true"
-                            android:text="@string/reimbursement" />
-
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/chipLend"
-                            style="@style/Widget.Material3.Chip.Filter"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:checked="false"
-                            android:text="@string/lend" />
-
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/chipRepayment"
-                            style="@style/Widget.Material3.Chip.Filter"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:checked="false"
-                            android:text="@string/repayment" />
-
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/chipBorrow"
-                            style="@style/Widget.Material3.Chip.Filter"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:checked="false"
-                            android:text="@string/borrow" />
-                        <!-- Chips can be declared here, or added dynamically. -->
-
-                    </com.google.android.material.chip.ChipGroup>
-
-                    <LinearLayout
-                        android:id="@+id/payInfo"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:padding="@dimen/float_padding"
-                        android:visibility="visible">
-
-                        <net.ankio.auto.ui.componets.IconView
-                            android:id="@+id/payFrom"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            app:iconSrc="@mipmap/ic_launcher_round"
-                            app:iconTintEnabled="false"
-                            tools:text="微信零钱"
-                            app:textColor="?attr/colorOnSurface" />
-
-
-                        <View
-                            android:layout_width="0dp"
-                            android:layout_height="0dp"
-                            android:layout_weight="1" />
-
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:id="@+id/transferInfo"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:padding="@dimen/float_padding"
-                        android:visibility="visible">
-
-                        <net.ankio.auto.ui.componets.IconView
-                            android:id="@+id/transferFrom"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            app:iconSrc="@mipmap/ic_launcher_round"
-                            app:iconTintEnabled="false"
-                            tools:text="微信零钱"
-                            app:textColor="?attr/colorOnSurface" />
-
-
-                        <TextView
-                            android:layout_width="@dimen/padding"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="@dimen/one_padding"
-                            android:layout_marginEnd="@dimen/one_padding"
-                            android:layout_weight="0"
-                            android:gravity="center"
-                            android:text="➜" />
-
-                        <net.ankio.auto.ui.componets.IconView
-                            android:id="@+id/transferTo"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            app:iconSrc="@mipmap/ic_launcher_round"
-                            app:iconTintEnabled="false"
-                            tools:text="微信零钱"
-                            app:textColor="?attr/colorOnSurface" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:id="@+id/debtExpend"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:padding="@dimen/float_padding"
-                        android:visibility="visible">
-
-                        <net.ankio.auto.ui.componets.IconView
-                            android:id="@+id/debtExpendFrom"
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            app:iconSrc="@mipmap/ic_launcher_round"
-                            app:iconTintEnabled="false"
-                            tools:text="微信零钱"
-                            app:textColor="?attr/colorOnSurface" />
-
-
-                        <TextView
-                            android:layout_width="@dimen/padding"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="@dimen/one_padding"
-                            android:layout_marginEnd="@dimen/one_padding"
-                            android:layout_weight="0"
-                            android:gravity="center"
-                            android:text="➜" />
-
-
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/debtExpendToLayout"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:maxWidth="200dp"
-                            android:hint="@string/float_income_debt"
-                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                            >
-                            <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                                android:id="@+id/debtExpendTo"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:inputType="text"
-                                tools:simpleItems=""
-                                />
-
-                        </com.google.android.material.textfield.TextInputLayout>
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:id="@+id/debtIncome"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:padding="@dimen/float_padding"
-                        android:visibility="visible">
-
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/debtIncomeFromLayout"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:hint="@string/float_income_debt"
-                            android:maxWidth="200dp"  style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                            >
-                            <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                                android:id="@+id/debtIncomeFrom"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:inputType="text"
-                                tools:simpleItems=""
-                                />
-
-                        </com.google.android.material.textfield.TextInputLayout>
-
-
-                        <com.google.android.material.textview.MaterialTextView
-                            android:layout_width="@dimen/padding"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="@dimen/one_padding"
-                            android:layout_marginEnd="@dimen/one_padding"
-                            android:layout_weight="0"
-                            android:gravity="center"
-                            android:text="➜" />
-
-                        <net.ankio.auto.ui.componets.IconView
-                            android:id="@+id/debtIncomeTo"
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            app:iconSrc="@mipmap/ic_launcher_round"
-                            app:iconTintEnabled="false"
-                            tools:text="微信零钱"
-                            app:textColor="?attr/colorOnSurface" />
-
-
-                    </LinearLayout>
-
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/chooseBill"
-                        style="@style/Widget.Material3.Button.TextButton"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/float_choose_bill"
-                        android:visibility="visible" />
-
-                    <net.ankio.auto.ui.componets.IconView
-                        android:id="@+id/category"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:padding="@dimen/float_padding"
-                        android:visibility="visible"
-                        app:iconSrc="@drawable/default_cate"
-                        app:iconTintEnabled="true"
-                        tools:text="分类"
-                        app:textColor="?attr/colorOnSurface" />
-
-                    <net.ankio.auto.ui.componets.IconView
-                        android:id="@+id/moneyType"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:padding="@dimen/float_padding"
-                        app:iconSrc="@drawable/float_money"
-                        app:iconTintEnabled="true"
-                        tools:text="人民币"
-                        app:textColor="?attr/colorOnSurface" />
-
-
-                    <net.ankio.auto.ui.componets.IconView
-                        android:id="@+id/time"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:padding="@dimen/float_padding"
-                        app:iconSrc="@drawable/float_time"
-                        app:iconTintEnabled="true"
-                        tools:text="2023年12月21日 11:11:00"
-                        app:textColor="?attr/colorOnSurface" />
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/textField"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="@string/float_remark"
-                        android:padding="@dimen/float_padding">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/remark"
-                            style="@style/TextAppearance.AppCompat.Medium"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="xxxxxxxx" />
-
-                    </com.google.android.material.textfield.TextInputLayout>
-
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/btn_height"
-                        android:gravity="center"
-                        android:padding="@dimen/float_padding"><!-- 左侧的LinearLayout，用于垂直居中左侧按钮 -->
-
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/cancel_button"
-
-                            style="@style/Widget.Material3.Button.TonalButton"
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_marginEnd="@dimen/one_padding"
-                            android:layout_weight="1"
-                            android:text="@string/btn_cancel" />
-
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/sure_button"
-                            style="@style/Widget.Material3.Button"
-
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_marginStart="@dimen/one_padding"
-                            android:layout_weight="1"
-                            android:text="@string/btn_save" />
-
-
-                    </LinearLayout>
-
-
-                </LinearLayout>
-            </ScrollView>
-            <View
-                android:id="@+id/book_image_click"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="80dp" />
-        </RelativeLayout>
+                android:layout_height="@dimen/btn_height"
+                android:gravity="center"
+                android:padding="@dimen/float_padding"><!-- 左侧的LinearLayout，用于垂直居中左侧按钮 -->
 
 
-    </com.google.android.material.card.MaterialCardView>
-</LinearLayout>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/cancel_button"
+
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="@dimen/one_padding"
+                    android:layout_weight="1"
+                    android:text="@string/btn_cancel" />
+
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/sure_button"
+                    style="@style/Widget.Material3.Button"
+
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="@dimen/one_padding"
+                    android:layout_weight="1"
+                    android:text="@string/btn_save" />
+
+
+            </LinearLayout>
+
+
+        </LinearLayout>
+    </ScrollView>
+
+    <View
+        android:id="@+id/book_image_click"
+        android:layout_width="match_parent"
+        android:layout_height="80dp" />
+
+</RelativeLayout>
