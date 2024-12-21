@@ -107,14 +107,15 @@ class NotificationService : NotificationListenerService() {
                     App.app.getString(R.string.permission_not_granted_notification),
                     App.app.getString(R.string.permission_not_granted_notification_desc),
                     App.app.getString(R.string.permission_not_granted_notification_btn)
-                ) {
+                    ,
+                    action = {
                     //请求权限
                     it.startActivity(
                         Intent(
                             "android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"
                         ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     )
-                }
+                })
             }
         }
     }

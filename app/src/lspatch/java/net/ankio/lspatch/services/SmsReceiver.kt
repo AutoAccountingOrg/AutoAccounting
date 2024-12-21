@@ -71,10 +71,11 @@ class SmsReceiver : BroadcastReceiver() {
                     context.getString(R.string.permission_not_granted_sms),
                     context.getString(R.string.permission_not_granted_sms_desc),
                     context.getString(R.string.permission_not_granted_sms_btn)
-                ){ activity ->
+                    ,
+                    action = {activity ->
                     val SMS_PERMISSION_CODE = 100
                     ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.RECEIVE_SMS), SMS_PERMISSION_CODE);
-                }
+                })
             }
         }
     }
