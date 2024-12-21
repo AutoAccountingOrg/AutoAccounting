@@ -13,96 +13,105 @@
   ~   limitations under the License.
   -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".ui.fragment.DataRuleFragment">
 
-
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/toolbarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:liftOnScrollTargetViewId="@id/content_view"
+        app:liftOnScroll="true">
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@android:color/transparent"
+            app:menu="@menu/rule_menu"
+            app:title="@string/title_rule" />
+    </com.google.android.material.appbar.AppBarLayout>
     <net.ankio.auto.ui.componets.CustomNavigationRail
         android:id="@+id/leftList"
         android:layout_width="70dp"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         android:background="?colorSurfaceContainerLow"
         android:paddingLeft="0dp"
         android:paddingTop="40dp"
         android:paddingRight="0dp"
-        android:paddingBottom="40dp" />
+        android:paddingBottom="40dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbarLayout"
+        app:layout_constraintBottom_toBottomOf="parent" />
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/chipGroup"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        app:chipSpacingHorizontal="10dp"
+        app:selectionRequired="true"
+        app:singleSelection="false"
+        app:layout_constraintStart_toEndOf="@id/leftList"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbarLayout">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginStart="70dp"
-        android:orientation="vertical">
-
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/chipGroup"
-            android:layout_width="match_parent"
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chip_all"
+            android:visibility="gone"
+            style="@style/Widget.Material3.Chip.Filter"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="10dp"
-            app:chipSpacingHorizontal="10dp"
-            app:selectionRequired="true"
-            app:singleSelection="false">
+            android:checked="true"
+            android:text="@string/chip_all" />
 
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_all"
-                android:visibility="gone"
-                style="@style/Widget.Material3.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checked="true"
-                android:text="@string/chip_all" />
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chip_data"
+            style="@style/Widget.Material3.Chip.Filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/chip_data" />
 
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_data"
-                style="@style/Widget.Material3.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checked="true"
-                android:text="@string/chip_data" />
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chip_notify"
+            style="@style/Widget.Material3.Chip.Filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/chip_notify" />
 
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_notify"
-                style="@style/Widget.Material3.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checked="true"
-                android:text="@string/chip_notify" />
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chip_match"
+            style="@style/Widget.Material3.Chip.Filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="false"
+            android:text="@string/chip_pair" />
 
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_match"
-                style="@style/Widget.Material3.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checked="false"
-                android:text="@string/chip_pair" />
+        <!-- Chips can be declared here, or added dynamically. -->
 
-            <!-- Chips can be declared here, or added dynamically. -->
+    </com.google.android.material.chip.ChipGroup>
 
-        </com.google.android.material.chip.ChipGroup>
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh_layout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintStart_toEndOf="@id/leftList"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/chipGroup"
+        app:layout_constraintBottom_toBottomOf="parent">
 
-        <com.scwang.smart.refresh.layout.SmartRefreshLayout
-            android:id="@+id/refreshLayout"
+        <net.ankio.auto.ui.componets.StatusPage
+            android:id="@+id/status_page"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <com.scwang.smart.refresh.header.ClassicsHeader
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+            android:layout_height="match_parent" />
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 
-            <net.ankio.auto.ui.componets.StatusPage
-                android:id="@+id/status_page"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-
-            <com.scwang.smart.refresh.footer.ClassicsFooter
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        </com.scwang.smart.refresh.layout.SmartRefreshLayout>
-    </LinearLayout>
-
-
-</FrameLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

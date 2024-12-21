@@ -15,95 +15,60 @@
 
 package net.ankio.auto.ui.fragment
 
-import android.content.res.Resources
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.SearchView
+import androidx.appcompat.widget.Toolbar
 import androidx.core.content.res.ResourcesCompat
-import androidx.core.graphics.drawable.DrawableCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.JsonObject
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentDataRuleBinding
 import net.ankio.auto.ui.adapter.DataRuleAdapter
 import net.ankio.auto.ui.api.BasePageFragment
 import net.ankio.auto.ui.componets.CustomNavigationRail
+import net.ankio.auto.ui.componets.MaterialSearchView
 import net.ankio.auto.ui.models.RailMenuItem
-import net.ankio.auto.ui.models.ToolbarMenuItem
+import net.ankio.auto.ui.utils.viewBinding
 import org.ezbook.server.constant.DataType
 import org.ezbook.server.db.model.RuleModel
-import java.lang.ref.WeakReference
 
 /**
  * 数据规则Fragment
  */
-class DataRuleFragment : BasePageFragment<RuleModel>() {
-    private lateinit var binding: FragmentDataRuleBinding
-    override val menuList: ArrayList<ToolbarMenuItem>
-        get() =
-            arrayListOf(
-                ToolbarMenuItem(R.string.item_search, R.drawable.menu_icon_search, true) {
-                    loadDataInside()
-                },
-                ToolbarMenuItem(R.string.item_notice, R.drawable.menu_item_notice) {
-                    findNavController().navigate(R.id.noticeFragment)
-                },
-            )
-
-    /**
-     * 初始化View
-     */
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View {
-        binding = FragmentDataRuleBinding.inflate(layoutInflater)
-        statusPage = binding.statusPage
-        val recyclerView = binding.statusPage.contentView!!
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        recyclerView.adapter = DataRuleAdapter(pageData)
-        //scrollView = WeakReference(recyclerView)
-        loadDataEvent(binding.refreshLayout)
-        loadLeftData(binding.leftList)
-        chipEvent()
-        return binding.root
-    }
-
-    /**
-     * App
-     */
+class DataRuleFragment : BasePageFragment<RuleModel>(), Toolbar.OnMenuItemClickListener {
+    private var searchData = ""
     private var app = ""
-
-    /**
-     * 类型
-     */
     private var type = ""
-
-    /**
-     * 加载数据
-     */
     override suspend fun loadData(callback: (resultData: List<RuleModel>) -> Unit) {
         RuleModel.list(app, type, page, pageSize, searchData).let { result ->
-            withContext(Dispatchers.Main) {
-                callback(result)
-            }
+            callback(result)
         }
     }
 
-    /**
-     * 左侧数据
-     */
+    override fun onCreateAdapter() {
+        val recyclerView = binding.statusPage.contentView!!
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        recyclerView.adapter = DataRuleAdapter(pageData)
+    }
+
+    override val binding: FragmentDataRuleBinding by viewBinding(FragmentDataRuleBinding::inflate)
+
     private var leftData = JsonObject()
 
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ) = binding.root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -136,14 +101,12 @@ class DataRuleFragment : BasePageFragment<RuleModel>() {
                 }
             }
         }
+        loadLeftData(binding.leftList)
+        chipEvent()
+        binding.toolbar.setOnMenuItemClickListener(this)
+        setUpSearch()
     }
-
-    /**
-     * 加载左侧数据
-     */
     private fun loadLeftData(leftList: CustomNavigationRail) {
-
-
         leftList.setOnItemSelectedListener {
             val id = it.id
             page = 1
@@ -154,9 +117,9 @@ class DataRuleFragment : BasePageFragment<RuleModel>() {
     }
 
 
-    /**
-     * Chip事件
-     */
+
+
+
     private fun chipEvent() {
         binding.chipGroup.isSingleSelection = true
         binding.chipAll.visibility = View.VISIBLE
@@ -184,5 +147,34 @@ class DataRuleFragment : BasePageFragment<RuleModel>() {
         }
     }
 
+    private fun setUpSearch(){
+        val searchItem = binding.toolbar.menu.findItem(R.id.action_search)
+        if(searchItem != null){
+            val searchView = searchItem.actionView as MaterialSearchView
+            searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    return true
+                }
 
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    searchData = newText ?: ""
+                    reload()
+                    return true
+                }
+
+            })
+        }
+    }
+    override fun onMenuItemClick(item: MenuItem?): Boolean {
+       when (item?.itemId) {
+
+            R.id.item_notice -> {
+              navigate(R.id.action_dataRuleFragment_to_noticeFragment)
+            }
+           R.id.item_sms -> {
+              navigate(R.id.action_dataRuleFragment_to_smsFragment)
+           }
+        }
+        return true
+    }
 }
