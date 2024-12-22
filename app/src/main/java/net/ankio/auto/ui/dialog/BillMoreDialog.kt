@@ -38,8 +38,9 @@ class BillMoreDialog(
     private val dataItems = mutableListOf<BillInfoModel>()
     private val adapter = OrderItemAdapter(dataItems, false)
 
-    override fun onCreateView(inflater: LayoutInflater): View {
-        binding = DialogBillMoreBinding.inflate(inflater)
+
+    override fun onViewCreated(view: View) {
+        super.onViewCreated(view)
         val statusPage = binding.statusPage
         val recyclerView = statusPage.contentView!!
         val layoutManager = LinearLayoutManager(context)
@@ -51,7 +52,7 @@ class BillMoreDialog(
         dataItems.clear()
         statusPage.showLoading()
         lifecycleScope.launch {
-           val bills =  BillInfoModel.getBillByGroup(billInfoModel.id)
+            val bills =  BillInfoModel.getBillByGroup(billInfoModel.id)
             if (bills.isEmpty()) {
                 withContext(Dispatchers.Main) {
                     statusPage.showEmpty()
@@ -60,10 +61,14 @@ class BillMoreDialog(
             }
             dataItems.addAll(bills)
             withContext(Dispatchers.Main){
-                adapter.notifyItemRangeInserted(0, bills.size)
+                adapter.notifyDataSetChanged()
                 statusPage.showContent()
             }
         }
+    }
+
+    override fun onCreateView(inflater: LayoutInflater): View {
+        binding = DialogBillMoreBinding.inflate(inflater)
         return binding.root
     }
 
