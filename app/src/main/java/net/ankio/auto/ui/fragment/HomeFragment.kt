@@ -470,7 +470,7 @@ class HomeFragment : BaseFragment() {
     /**
      * 绑定激活部分的UI
      */
-    private fun bindActiveUI() {
+   suspend  fun bindActiveUI() {
         //  if (!isUiReady()) return
         val colorPrimary =
             App.getThemeAttrColor(com.google.android.material.R.attr.colorPrimary)
