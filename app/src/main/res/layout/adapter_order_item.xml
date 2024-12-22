@@ -27,7 +27,7 @@
             app:textColor="?colorPrimary"
             tools:text="理财收益" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -68,7 +68,8 @@
             android:id="@+id/remark"
             android:layout_weight="1"
             tools:text="@tools:sample/lorem/random"
-            android:singleLine="true"
+            android:maxLines="2"
+            android:ellipsize="end"
             android:textColor="?colorOnBackground"
             android:textSize="14sp"
             />
