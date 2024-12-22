@@ -3,6 +3,7 @@ agp = "8.5.0"
 bugsnagAndroid = "6.2.0"
 flexbox = "3.0.0"
 kotlinxCoroutinesAndroid = "1.8.0"
+lifecycleRuntimeKtx = "2.8.7"
 okhttp = "4.12.0"
 robolectric = "4.11.1"
 round = "1.1.2"
@@ -18,14 +19,14 @@ androidx-test-ext-junit = "1.1.5"
 espresso-core = "3.5.1"
 appcompat = "1.6.1"
 themeEngine = "-SNAPSHOT"
-ultimateBarX = "dev-SNAPSHOT"
 navigationFragment = "2.7.7"
 browser = "1.8.0"
 activity = "1.8.2"
 constraintlayout = "2.1.4"
 dexlib2 = "2.5.2"
-jetbrainsKotlinJvm = "1.9.21"
+swiperefreshlayout = "1.1.0"
 [libraries]
+androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-navigation-fragment-ktx = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigationFragment" }
 androidx-navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigationFragment" }
 bugsnag-android = { module = "com.bugsnag:bugsnag-android", version.ref = "bugsnagAndroid" }
@@ -44,18 +45,17 @@ junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-test-ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidx-test-ext-junit" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espresso-core" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
-material = { group = "com.google.android.material", name = "material", version = "1.12.0-alpha03" }
+material = { group = "com.google.android.material", name = "material", version = "1.12.0" }
 themeEngine = { module = "com.github.AnkioTomas:ThemeEngine", version.ref = "themeEngine" }
-ultimateBarX = { module = "com.github.zackratos:UltimateBarX", version.ref = "ultimateBarX" }
 androidx-browser = { group = "androidx.browser", name = "browser", version.ref = "browser" }
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 dexlib2 = { module = "org.smali:dexlib2", version.ref = "dexlib2" }
+androidx-swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "swiperefreshlayout", version.ref = "swiperefreshlayout" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
-jetbrainsKotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
 
 
