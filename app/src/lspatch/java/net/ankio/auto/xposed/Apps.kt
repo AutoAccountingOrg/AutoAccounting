@@ -29,7 +29,7 @@ object Apps {
      */
     fun getServerRunInApp():String{
         // 或者运行于com.tencent.mm
-       if (BuildConfig.DEBUG) return BuildConfig.APPLICATION_ID
+     //  if (BuildConfig.DEBUG) return BuildConfig.APPLICATION_ID
         return  "com.tencent.mm"
     }
 
