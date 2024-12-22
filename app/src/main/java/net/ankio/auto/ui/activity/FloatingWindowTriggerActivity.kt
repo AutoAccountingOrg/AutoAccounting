@@ -21,7 +21,6 @@ import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.view.Gravity
 import android.view.WindowManager
-import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.service.FloatingWindowService
 import net.ankio.auto.storage.Logger

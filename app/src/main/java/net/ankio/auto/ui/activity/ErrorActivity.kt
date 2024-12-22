@@ -19,19 +19,13 @@ import android.os.Bundle
 import net.ankio.auto.App
 import net.ankio.auto.databinding.ActivityErrorBinding
 import net.ankio.auto.ui.api.BaseActivity
+import net.ankio.auto.ui.utils.ViewFactory.createBinding
 
 class ErrorActivity : BaseActivity() {
-    private lateinit var binding: ActivityErrorBinding
-
-
-    override fun onCreate(savedInstanceState: Bundle?) {
+   override fun onCreate(savedInstanceState: Bundle?) {
+        val binding = ActivityErrorBinding.inflate(layoutInflater)
         super.onCreate(savedInstanceState)
-
-        binding = ActivityErrorBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        val intent = intent
-
         if (intent == null) {
             App.restart()
             return
