@@ -21,21 +21,22 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.App
 import net.ankio.auto.R
-import net.ankio.auto.databinding.FragmentLogBinding
+import net.ankio.auto.databinding.FragmentBillBinding
 import net.ankio.auto.ui.adapter.OrderAdapter
 import net.ankio.auto.ui.api.BasePageFragment
-import net.ankio.auto.ui.models.ToolbarMenuItem
+import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
+import net.ankio.auto.ui.utils.viewBinding
 import net.ankio.auto.utils.DateUtils
 import org.ezbook.server.db.model.BillInfoModel
-import org.ezbook.server.db.model.LogModel
 
 open class OrderFragment : BasePageFragment<Pair<String, List<BillInfoModel>>>() {
+    override val binding: FragmentBillBinding by viewBinding(FragmentBillBinding::inflate)
+
     override suspend fun loadData(callback: (resultData: List<Pair<String, List<BillInfoModel>>>) -> Unit) {
         val list = BillInfoModel.list(page, pageSize)
 
@@ -75,37 +76,30 @@ open class OrderFragment : BasePageFragment<Pair<String, List<BillInfoModel>>>()
         }
     }
 
-
-    override fun loadDataInside(callback: ((Boolean, Boolean) -> Unit)?) {
-        if (page == 1) {
-            resetPage()
-        }
-        lifecycleScope.launch {
-            withContext(Dispatchers.IO) {
-                loadData { resultData ->
-                    if (pageData.isEmpty()) {
-                        statusPage.showEmpty()
-                        callback?.invoke(true, false)
-                        return@loadData
-                    }
-                    statusPage.showContent()
-
-
-                    if (callback != null) callback(true, resultData.isNotEmpty())
-                }
-            }
-        }
+    override fun onCreateAdapter() {
+        val recyclerView = binding.statusPage.contentView!!
+        val layoutManager = LinearLayoutManager(requireContext())
+        recyclerView.layoutManager = layoutManager
+        recyclerView.adapter = OrderAdapter(pageData)
     }
 
-    override val menuList: ArrayList<ToolbarMenuItem>
-        get() =
-            arrayListOf(
-                ToolbarMenuItem(R.string.item_sync, R.drawable.float_round) {
-                    // 同步账单
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ) = binding.root
+
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.topAppBar.setOnMenuItemClickListener{
+            when(it.itemId){
+                R.id.item_sync -> {
                     App.startBookApp()
-                },
-                ToolbarMenuItem(R.string.item_clear, R.drawable.menu_icon_clear) {
-                    MaterialAlertDialogBuilder(requireActivity())
+                    true
+                }
+                R.id.item_clear -> {
+                    BottomSheetDialogBuilder(requireActivity())
                         .setTitle(requireActivity().getString(R.string.delete_data))
                         .setMessage(requireActivity().getString(R.string.delete_msg))
                         .setPositiveButton(requireActivity().getString(R.string.sure_msg)) { _, _ ->
@@ -116,34 +110,122 @@ open class OrderFragment : BasePageFragment<Pair<String, List<BillInfoModel>>>()
                             }
                         }
                         .setNegativeButton(requireActivity().getString(R.string.cancel_msg)) { _, _ -> }
-                        .show()
-                },
-            )
-    private lateinit var binding: FragmentLogBinding
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View {
-        binding = FragmentLogBinding.inflate(layoutInflater)
-        statusPage = binding.statusPage
-        val recyclerView = binding.statusPage.contentView!!
-        val layoutManager = LinearLayoutManager(requireContext())
-        recyclerView.layoutManager = layoutManager
-        recyclerView.adapter = OrderAdapter(pageData)
-        // scrollView = WeakReference(recyclerView)
-
-        loadDataEvent(binding.refreshLayout)
-
-        return binding.root
+                        .showInFragment(this,false,true)
+                    true
+                }
+                else -> false
+            }
+        }
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        statusPage.showLoading()
-        loadDataInside()
-    }
+    /* override suspend fun loadData(callback: (resultData: List<Pair<String, List<BillInfoModel>>>) -> Unit) {
+         val list = BillInfoModel.list(page, pageSize)
+
+         val newIndex = mutableListOf<Int>()
+         val updateIndex = mutableListOf<Int>()
+
+
+         list.forEach { item ->
+             val day = DateUtils.stampToDate(item.time, "yyyy-MM-dd")
+             val dayItem = pageData.find { pair -> pair.first == day }
+
+             if (dayItem == null) {
+                 // 新的一天，插入一个新的 Pair
+                 val pair = Pair(day, listOf(item))
+                 pageData.add(pair)
+                 newIndex.add(pageData.indexOf(pair))
+             } else {
+                 // 该天已存在，更新现有条目
+                 val index = pageData.indexOf(dayItem)
+                 val items = dayItem.second.toMutableList()
+                 items.add(item)
+                 pageData[index] = Pair(day, items) // 直接更新 pageData 而不是 remove 和 add
+                 updateIndex.add(index)
+             }
+         }
+
+         withContext(Dispatchers.Main) {
+             // 统一更新 RecyclerView 的数据
+             newIndex.forEach { index ->
+                 statusPage.contentView?.adapter?.notifyItemInserted(index)
+             }
+             updateIndex.forEach { index ->
+                 statusPage.contentView?.adapter?.notifyItemChanged(index)
+             }
+
+             callback.invoke(if (list.isEmpty()) emptyList() else pageData)
+         }
+     }
+
+
+     override fun loadDataInside(callback: ((Boolean, Boolean) -> Unit)?) {
+         if (page == 1) {
+             resetPage()
+         }
+         lifecycleScope.launch {
+             withContext(Dispatchers.IO) {
+                 loadData { resultData ->
+                     if (pageData.isEmpty()) {
+                         statusPage.showEmpty()
+                         callback?.invoke(true, false)
+                         return@loadData
+                     }
+                     statusPage.showContent()
+
+
+                     if (callback != null) callback(true, resultData.isNotEmpty())
+                 }
+             }
+         }
+     }
+
+     override val menuList: ArrayList<ToolbarMenuItem>
+         get() =
+             arrayListOf(
+                 ToolbarMenuItem(R.string.item_sync, R.drawable.float_round) {
+                     // 同步账单
+                     App.startBookApp()
+                 },
+                 ToolbarMenuItem(R.string.item_clear, R.drawable.menu_icon_clear) {
+                     MaterialAlertDialogBuilder(requireActivity())
+                         .setTitle(requireActivity().getString(R.string.delete_data))
+                         .setMessage(requireActivity().getString(R.string.delete_msg))
+                         .setPositiveButton(requireActivity().getString(R.string.sure_msg)) { _, _ ->
+                             lifecycleScope.launch {
+                                 BillInfoModel.clear()
+                                 page = 1
+                                 loadDataInside()
+                             }
+                         }
+                         .setNegativeButton(requireActivity().getString(R.string.cancel_msg)) { _, _ -> }
+                         .show()
+                 },
+             )
+     private lateinit var binding: FragmentLogBinding
+
+     override fun onCreateView(
+         inflater: LayoutInflater,
+         container: ViewGroup?,
+         savedInstanceState: Bundle?,
+     ): View {
+         binding = FragmentLogBinding.inflate(layoutInflater)
+         statusPage = binding.statusPage
+         val recyclerView = binding.statusPage.contentView!!
+         val layoutManager = LinearLayoutManager(requireContext())
+         recyclerView.layoutManager = layoutManager
+         recyclerView.adapter = OrderAdapter(pageData)
+         // scrollView = WeakReference(recyclerView)
+
+         loadDataEvent(binding.refreshLayout)
+
+         return binding.root
+     }
+
+     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+         super.onViewCreated(view, savedInstanceState)
+         statusPage.showLoading()
+         loadDataInside()
+     }*/
 
 
 }

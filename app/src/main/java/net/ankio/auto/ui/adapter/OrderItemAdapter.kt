@@ -25,6 +25,7 @@ import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
 import net.ankio.auto.ui.dialog.BillMoreDialog
+import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
 import net.ankio.auto.ui.dialog.FloatEditorDialog
 import net.ankio.auto.ui.utils.ResourceUtils
 import net.ankio.auto.utils.BillTool
@@ -58,8 +59,8 @@ class OrderItemAdapter(
         binding.root.setOnLongClickListener {
             val item = holder.item!!
             val position = indexOf(item)
-            MaterialAlertDialogBuilder(holder.context)
-                .setTitle(R.string.delete_title)
+            BottomSheetDialogBuilder(holder.context)
+                .setTitleInt(R.string.delete_title)
                 .setMessage(R.string.delete_bill_message)
                 .setPositiveButton(R.string.sure_msg) { _, _ ->
                     list.removeAt(position)
@@ -120,7 +121,7 @@ class OrderItemAdapter(
 
             ResourceUtils.getAssetDrawableFromName(showAccount).let {
                 withContext(Dispatchers.Main) {
-                    binding.payTools.setIcon(it)
+                    binding.payTools.setIcon(it,false)
                 }
             }
         }

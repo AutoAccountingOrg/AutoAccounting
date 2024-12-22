@@ -21,20 +21,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/one_padding"
-            tools:text="理财收益"
+            android:textColor="@color/black"
             app:iconSrc="@drawable/icon_map"
             app:iconTintEnabled="true"
             app:textColor="?colorPrimary"
-            app:textSize="5sp"
-            app:iconSize="8sp"
-            android:textColor="@color/black" />
+            tools:text="理财收益" />
 
         <TextView
             android:id="@+id/date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/one_padding"
-            android:text="11:00:22"
+            tools:text="11:00:22"
             android:textColor="?colorSecondary"
             android:textSize="15sp"
            />
@@ -79,10 +77,8 @@
             android:id="@+id/payTools"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:iconSize="10sp"
             app:iconTintEnabled="false"
             app:textColor="?colorOnBackground"
-            app:textSize="5sp"
             tools:iconSrc="@drawable/default_asset"
             tools:text="支付宝" />
 
