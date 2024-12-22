@@ -16,7 +16,6 @@
 package net.ankio.auto.ui.adapter
 
 import android.view.View
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
@@ -130,12 +129,16 @@ class OrderItemAdapter(
         binding.payTools.setText(showAccount)
 
 
-        if (data.state == BillState.Synced) {
-            binding.sync.setImageResource(R.drawable.ic_sync)
-        } else if (data.state == BillState.Wait2Edit){
-            binding.sync.setImageResource(R.drawable.icon_edit)
-        } else {
-            binding.sync.setImageResource(R.drawable.ic_no_sync)
+        when (data.state) {
+            BillState.Synced -> {
+                binding.sync.setImageResource(R.drawable.ic_sync)
+            }
+            BillState.Wait2Edit -> {
+                binding.sync.setImageResource(R.drawable.icon_edit)
+            }
+            else -> {
+                binding.sync.setImageResource(R.drawable.ic_no_sync)
+            }
         }
 
         binding.payTools.visibility =

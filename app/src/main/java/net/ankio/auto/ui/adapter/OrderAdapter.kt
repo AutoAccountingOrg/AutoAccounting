@@ -51,5 +51,6 @@ class OrderAdapter(resultData: MutableList<Pair<String, List<BillInfoModel>>>) :
         // 仅在数据发生变化时调用
         adapter.notifyDataSetChanged()
     }
+
 }
 
