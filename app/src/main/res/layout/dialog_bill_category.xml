@@ -13,66 +13,50 @@
   ~   limitations under the License.
   -->
 
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardView"
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/textView3"
+        style="@style/TextAppearance.AppCompat.Medium"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:cardCornerRadius="@dimen/radius"
-        app:cardElevation="0dp"
-        app:strokeColor="?attr/colorSurfaceContainerHighest"
-        app:strokeWidth="0dp">
+        android:paddingTop="@dimen/float_padding"
+        android:text="@string/auto_category" />
 
-        <LinearLayout
-            android:id="@+id/innerView"
-            android:layout_width="match_parent"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/btn_height"
+        android:gravity="center"
+        android:padding="@dimen/float_padding"><!-- 左侧的LinearLayout，用于垂直居中左侧按钮 -->
+
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/cancel_button"
+
+            style="@style/Widget.Material3.Button.TonalButton"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:padding="@dimen/cardPadding">
-
-            <TextView
-                android:id="@+id/textView3"
-                style="@style/TextAppearance.AppCompat.Medium"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/auto_category" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/btn_height"
-                android:gravity="center"
-                android:padding="@dimen/float_padding"><!-- 左侧的LinearLayout，用于垂直居中左侧按钮 -->
+            android:layout_marginEnd="@dimen/one_padding"
+            android:layout_weight="1"
+            android:text="@string/btn_cancel" />
 
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/cancel_button"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/sure_button"
+            style="@style/Widget.Material3.Button"
 
-                    style="@style/Widget.Material3.Button.TonalButton"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_marginEnd="@dimen/one_padding"
-                    android:layout_weight="1"
-                    android:text="@string/btn_cancel" />
-
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/sure_button"
-                    style="@style/Widget.Material3.Button"
-
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_marginStart="@dimen/one_padding"
-                    android:layout_weight="1"
-                    android:text="@string/ok" />
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="@dimen/one_padding"
+            android:layout_weight="1"
+            android:text="@string/ok" />
 
 
-            </LinearLayout>
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
+
 </LinearLayout>
 

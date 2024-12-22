@@ -13,51 +13,18 @@
   ~   limitations under the License.
   -->
 
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardView"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <net.ankio.auto.ui.componets.StatusPage
+        android:id="@+id/statusPage"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        app:innerHeight="wrap_content" />
 
-        app:cardCornerRadius="@dimen/radius"
-        app:cardElevation="0dp"
-        app:strokeColor="?attr/colorSurfaceContainerHighest"
-        app:strokeWidth="0dp">
-
-        <LinearLayout
-            android:id="@+id/innerView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:padding="@dimen/cardPadding"
-            android:orientation="vertical">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/padding"
-                android:layout_marginStart="@dimen/padding"
-                android:layout_marginEnd="@dimen/padding"
-                android:orientation="horizontal">
-
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1" />
-
-            </LinearLayout>
-
-            <net.ankio.auto.ui.componets.StatusPage
-                android:id="@+id/statusPage"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                app:innerHeight="wrap_content"
-                />
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
 </LinearLayout>
 
