@@ -244,7 +244,7 @@ class BackupUtils(private val context: Context) {
             )
         }
         val pack = map["packageName"].asString
-        if (pack != BuildConfig.APPLICATION_ID) {
+        if (pack != BuildConfig.APPLICATION_ID && !BuildConfig.DEBUG) {
             throw RestoreBackupException(context.getString(R.string.unspport_package_backup))
         }
         val settingFile = File(backupDir, "settings.json")
