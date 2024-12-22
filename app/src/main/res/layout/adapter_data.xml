@@ -31,34 +31,27 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/padding"
+        android:paddingStart="@dimen/padding"
+android:paddingEnd="@dimen/padding"
         android:orientation="vertical">
 
         <net.ankio.auto.ui.componets.IconView
             android:id="@+id/time"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/padding"
-            android:layout_marginRight="@dimen/padding"
-            android:layout_marginBottom="@dimen/one_padding"
-
             android:textAppearance="@style/TextAppearance.AppCompat.Small"
-            tools:text="@tools:sample/date/ddmmyy"
-            app:iconSize="10dp"
-            app:textColor="?colorOnSurface"
+            app:iconSrc="@drawable/float_time"
             app:iconTintEnabled="true"
-            app:iconSrc="@drawable/float_time" />
+            app:textColor="?colorOnSurface"
+            tools:text="@tools:sample/date/ddmmyy" />
 
         <net.ankio.auto.ui.componets.IconView
             android:id="@+id/rule"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/padding"
-            android:layout_marginRight="@dimen/padding"
-            android:layout_marginBottom="@dimen/one_padding"
             android:visibility="visible"
             app:textColor="?colorOnSurface"
             app:iconTintEnabled="true"
-            app:iconSize="10dp"
             app:iconSrc="@drawable/home_rule"
             tools:text="这是一个规则名嘻嘻嘻嘻嘻嘻嘻休息休息谢谢谢谢谢称" />
 
@@ -73,9 +66,7 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/padding"
-            android:layout_marginLeft="@dimen/padding"
-            android:layout_marginRight="@dimen/padding"
+
             
             >
 
@@ -109,6 +100,14 @@
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 app:icon="@drawable/ic_ai" />
+
+            <com.google.android.material.button.MaterialButton
+
+                android:id="@+id/edit"
+                style="?attr/materialIconButtonFilledStyle"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                app:icon="@drawable/icon_edit" />
 
 
         </LinearLayout>
