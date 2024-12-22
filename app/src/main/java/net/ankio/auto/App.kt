@@ -49,6 +49,9 @@ class App : Application() {
 
 
     companion object {
+        var navigationBarHeight: Int = 0
+        var statusBarHeight: Int = 0
+
         /* App实例 */
         lateinit var app: Application
 
@@ -56,6 +59,7 @@ class App : Application() {
          * 是否是调试模式
          */
         var debug: Boolean = false
+
 
         /* 全局协程 */
         private val job = Job()
@@ -259,6 +263,5 @@ class App : Application() {
         // 初始化 Toast 框架
         ToastUtils.init(this)
     }
-
 
 }

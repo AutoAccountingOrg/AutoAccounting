@@ -17,6 +17,7 @@ package net.ankio.auto.ui.utils
 
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.FragmentContainerView
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.navigation.NavigationView
@@ -49,5 +50,9 @@ object ViewUtils {
     }
     fun findNavigation(view: View, currentDepth: Int = 0, maxDepth: Int = 5): NavigationView? {
         return findView(view, currentDepth, maxDepth, NavigationView::class.java)
+    }
+
+    fun findFragmentContainerView(view: View, currentDepth: Int = 0, maxDepth: Int = 5): FragmentContainerView? {
+        return findView(view, currentDepth, maxDepth, FragmentContainerView::class.java)
     }
 }
