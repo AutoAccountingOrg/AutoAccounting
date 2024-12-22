@@ -98,7 +98,11 @@ abstract class BaseSheetDialog(private val context: Context) :
             strokeColor = App.getThemeAttrColor(com.google.android.material.R.attr.colorSurfaceContainerHighest)
             strokeWidth = 0
             setCardBackgroundColor(ContextCompat.getColor(context, R.color.transparent))
-            radius = 0f
+            radius = if (round) {
+                App.dp2px(16f).toFloat()
+            } else {
+                0f
+            }
         }
 
         val backgroundView = LinearLayout(context).apply {
