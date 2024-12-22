@@ -115,6 +115,12 @@ class FloatEditorDialog(
         return binding.root
     }
 
+    override fun onViewCreated(view: View) {
+        super.onViewCreated(view)
+        val parent = view.parent as View
+        parent.setPadding(0,0,0,0)
+    }
+
     // 综合以上内容，应用到billInfo对象上
 
     private fun getBillData(assets: List<AssetsModel>): BillInfoModel {
@@ -480,7 +486,7 @@ class FloatEditorDialog(
         view.setText(name)
         lifecycleScope.launch {
             ResourceUtils.getAssetDrawableFromName(name).let {
-                view.setIcon(it)
+                view.setIcon(it,false)
             }
         }
     }
@@ -496,7 +502,7 @@ class FloatEditorDialog(
         view.setText(name)
         lifecycleScope.launch {
             ResourceUtils.getAssetDrawable(icon).let {
-                view.setIcon(it)
+                view.setIcon(it,false)
             }
         }
     }
@@ -544,7 +550,7 @@ class FloatEditorDialog(
         }
         val currency = runCatching { Currency.valueOf(billInfoModel.currency) }.getOrDefault(Currency.CNY)
         binding.moneyType.setText(currency.name(context))
-        binding.moneyType.setIcon(currency.icon(context))
+        binding.moneyType.setIcon(currency.icon(context),false)
     }
 
     private fun bindingMoneyTypeEvents() {
@@ -570,6 +576,9 @@ class FloatEditorDialog(
     }
 
     private fun showDateTimePicker(defaultTimestamp: Long) {
+
+        val dialog = DateTimePickerDialog.withCurrentTime(context, false, context.getString(R.string.float_time))
+
         val calendar =
             Calendar.getInstance().apply {
                 timeInMillis = defaultTimestamp
@@ -580,50 +589,21 @@ class FloatEditorDialog(
         val hour = calendar.get(Calendar.HOUR_OF_DAY)
         val minute = calendar.get(Calendar.MINUTE)
 
+        dialog.setDateTime(year, month, day, hour, minute)
 
-        // 创建并显示日期选择器
-        val datePickerDialog =
-            DatePickerDialog(
-                context,//R.style.CustomDatePickerDialogTheme,
-                { _: DatePicker, selectedYear: Int, selectedMonth: Int, selectedDay: Int ->
-                    // 更新日历对象的日期
-                    calendar.set(Calendar.YEAR, selectedYear)
-                    calendar.set(Calendar.MONTH, selectedMonth)
-                    calendar.set(Calendar.DAY_OF_MONTH, selectedDay)
-
-                    // 创建并显示时间选择器
-                    val timePickerDialog =
-                        TimePickerDialog(
-                            context,
-                            { _: TimePicker, selectedHour: Int, selectedMinute: Int ->
-                                // 更新日历对象的时间
-                                calendar.set(Calendar.HOUR_OF_DAY, selectedHour)
-                                calendar.set(Calendar.MINUTE, selectedMinute)
-
-                                // 最终的日期和时间结果
-                                billInfoModel.time = calendar.timeInMillis
-                                bindingTimeUI()
-                                // 处理最终的时间戳
-                            },
-                            hour,
-                            minute,
-                            true,
-                        )
-                    if (float) {
-                        timePickerDialog.window!!.setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY)
-                    }
-
-                    timePickerDialog.show()
-                },
-                year,
-                month,
-                day,
-            )
-        if (float) {
-            datePickerDialog.window!!.setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY)
+        dialog.setOnDateTimeSelectedListener { year, month, day, hour, minute ->
+            calendar.set(Calendar.YEAR, year)
+            calendar.set(Calendar.MONTH, month - 1)
+            calendar.set(Calendar.DAY_OF_MONTH, day)
+            calendar.set(Calendar.HOUR_OF_DAY, hour)
+            calendar.set(Calendar.MINUTE, minute)
+            billInfoModel.time = calendar.timeInMillis
+            bindingTimeUI()
         }
-        //  datePickerDialog.datePicker.setBackgroundColor(surfaceColor)
-        datePickerDialog.show()
+
+        dialog.bindToLifecycle(this)
+
+        dialog.show(float,true)
     }
 
     private fun bindingTimeEvents() {
