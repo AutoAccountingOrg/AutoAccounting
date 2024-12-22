@@ -20,11 +20,6 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/homeFragment">
 
-    <activity
-        android:id="@+id/mainActivity"
-        android:name="net.ankio.auto.ui.activity.MainActivity"
-        android:label="MainActivity" />
-
     <fragment
         android:id="@+id/homeFragment"
         android:name="net.ankio.auto.ui.fragment.HomeFragment"
@@ -57,7 +52,8 @@
         tools:layout="@layout/fragment_data">
 
 
-    </fragment>
+
+           </fragment>
 
     <fragment
         android:id="@+id/categoryEditFragment"
@@ -123,6 +119,12 @@
         android:name="net.ankio.auto.ui.fragment.DataRuleFragment"
         android:label="@string/title_data_rule"
         tools:layout="@layout/fragment_data_rule">
+        <action
+            android:id="@+id/action_dataRuleFragment_to_noticeFragment"
+            app:destination="@id/noticeFragment" />
+        <action
+            android:id="@+id/action_dataRuleFragment_to_smsFragment"
+            app:destination="@id/smsFragment" />
     </fragment>
 
     <fragment
@@ -142,6 +144,35 @@
     <fragment
         android:id="@+id/settingDetailFragment"
         android:name="net.ankio.auto.ui.fragment.SettingDetailFragment"
-        android:label="SettingDetailFragment" />
+        android:label="SettingDetailFragment"
+        tools:layout="@layout/fragment_setting_detail"/>
+    <navigation android:id="@+id/navigation"
+        app:startDestination="@id/mainActivity">
+        <activity
+            android:id="@+id/mainActivity"
+            android:name="net.ankio.auto.ui.activity.MainActivity"
+            android:label="MainActivity" />
+        <action
+            android:id="@+id/action_global_dataRuleFragment"
+            app:destination="@id/dataRuleFragment" />
+        <action
+            android:id="@+id/action_global_orderFragment"
+            app:destination="@id/orderFragment" />
+        <action
+            android:id="@+id/action_global_dataFragment"
+            app:destination="@id/dataFragment" />
+        <action
+            android:id="@+id/action_global_homeFragment"
+            app:destination="@id/homeFragment" />
+        <action
+            android:id="@+id/action_global_settingFragment"
+            app:destination="@id/settingFragment" />
+    </navigation>
+    <fragment
+        android:id="@+id/smsFragment"
+        android:name="net.ankio.auto.ui.fragment.SmsFragment"
+        android:label="SmsFragment"
+        tools:layout="@layout/fragment_sms_edit"
+        />
 
 </navigation>
