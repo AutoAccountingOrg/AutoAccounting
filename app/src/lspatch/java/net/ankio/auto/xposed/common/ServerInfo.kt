@@ -45,14 +45,14 @@ object ServerInfo {
             throw ServiceCheckException(
                 context.getString(R.string.server_error_title),
                 context.getString(R.string.server_error),
-                context.getString(R.string.server_error_btn)
-            ) { activity ->
+                context.getString(R.string.server_error_btn),
+                        action = { activity ->
                 //跳转微信设置页面
                 val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
                 val uri = Uri.fromParts("package", "com.tencent.mm", null)
                 intent.setData(uri)
                 activity.startActivity(intent)
-            }
+            })
         }else{
             val json = Gson().fromJson(data,JsonObject::class.java)
             if (json.get("data").asString != BuildConfig.VERSION_NAME){
@@ -60,13 +60,14 @@ object ServerInfo {
                     context.getString(R.string.server_error_version_title),
                     context.getString(R.string.server_error_version),
                     context.getString(R.string.server_error_btn)
-                ) { activity ->
+                    ,
+                    action = { activity ->
                     //跳转微信设置页面
                     val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
                     val uri = Uri.fromParts("package", "com.tencent.mm", null)
                     intent.setData(uri)
                     activity.startActivity(intent)
-                }
+                })
             }
         }
     }
