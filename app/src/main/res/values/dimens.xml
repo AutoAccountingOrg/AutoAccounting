@@ -17,7 +17,6 @@
 <resources>
     <dimen name="padding">16dp</dimen>
     <dimen name="cardPadding">20dp</dimen>
-    <dimen name="marginTop">32dp</dimen>
     <dimen name="one_padding">8dp</dimen>
     <dimen name="float_padding">10dp</dimen>
     <dimen name="switch_width">48dp</dimen>
@@ -27,15 +26,11 @@
     <dimen name="image_size_small_min">18dp</dimen>
     <dimen name="image_size_small">28dp</dimen>
     <dimen name="image_size_large">48dp</dimen>
-    <dimen name="image_size_large2">128dp</dimen>
     <dimen name="state_padding">28dp</dimen>
     <dimen name="radius">24dp</dimen>
     <dimen name="icon_size">30dp</dimen>
     <dimen name="float_icon_size">25dp</dimen>
     <dimen name="save_size">20sp</dimen>
-    <dimen name="float_icon_book_size">18dp</dimen>
-    <dimen name="font_size">4sp</dimen>
-    <dimen name="mini_icon_size">12dp</dimen>
     <dimen name="font_size_normal">12sp</dimen>
     <dimen name="btn_height">80dp</dimen>
     <dimen name="btn_height_small">60dp</dimen>
@@ -43,7 +38,5 @@
     <dimen name="screen_vertical_margin">16dp</dimen>
     <dimen name="card_horizontal_spacing">16dp</dimen>
     <dimen name="card_vertical_spacing">16dp</dimen>
-    <dimen name="max_card_width">600dp</dimen>
     <dimen name="max_content_width">1200dp</dimen>
-    <dimen name="card_horizontal_spacing_half">8dp</dimen>
 </resources>

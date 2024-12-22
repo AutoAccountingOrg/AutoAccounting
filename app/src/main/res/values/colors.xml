@@ -17,20 +17,15 @@
 <resources>
 
     <color name="white">#FFFFFFFF</color>
-    <color name="white2">#CACACA</color>
     <color name="info">#155FDA</color>
     <color name="danger">#E52544</color>
-    <color name="warning">#CE7E0A</color>
     <color name="success">#189D4C</color>
-    <color name="log_success">#28A745</color> <!-- 成功 -->
+    <!-- 成功 -->
     <color name="log_info">#007BFF</color> <!-- 信息 -->
     <color name="log_warning">#FFC107</color> <!-- 警告 -->
     <color name="log_error">#DC3545</color> <!-- 错误 -->
     <color name="log_debug">#6C757D</color> <!-- 调试 -->
-    <color name="gray30">#30000000</color>
     <color name="black">#FF000000</color>
     <color name="gray40">#90000000</color>
     <color name="transparent">#00000000</color>
-    <color name="background9F">#9FFFFFFF</color>
-    <color name="ic_launcher_background">#DDE1EC</color>
 </resources>

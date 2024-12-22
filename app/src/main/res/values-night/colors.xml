@@ -16,14 +16,11 @@
 <resources>
     <color name="info">#3B71CA</color>
     <color name="danger">#DC4C64</color>
-    <color name="warning">#E4A11B</color>
     <color name="success">#14A44D</color>
-    <color name="log_success">#A5D6A7</color> <!-- 浅成功 -->
     <color name="log_info">#90CAF9</color> <!-- 浅信息 -->
     <color name="log_warning">#FFCC80</color> <!-- 浅警告 -->
     <color name="log_error">#EF9A9A</color> <!-- 浅错误 -->
     <color name="log_debug">#B0BEC5</color> <!-- 浅调试 -->
-    <color name="background9F">#9F000000</color>
     <color name="black">#000</color>
     <color name="gray40">#90A0A0A0</color>
 </resources>

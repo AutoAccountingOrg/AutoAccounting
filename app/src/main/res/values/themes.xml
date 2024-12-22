@@ -23,6 +23,7 @@
         <item name="bottomSheetStyle">@android:color/transparent</item>
         <item name="enableEdgeToEdge">true</item>
         <item name="android:backgroundDimAmount">0.5</item>
+        <item name="android:windowSoftInputMode">adjustResize</item>
         <item name="android:windowLightStatusBar" tools:ignore="NewApi">true</item>
         <item name="android:windowIsFloating">false</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
@@ -42,28 +43,10 @@
         <item name="android:windowNoDisplay">false</item>
         <item name="android:backgroundDimEnabled">false</item><!--activity不变暗-->
     </style>
-    <style name="TextViewLine">
-        <item name="android:ellipsize">end</item>
-        <item name="android:maxLines">1</item>
-        <item name="android:textColor">?attr/colorOnSurface</item>
-        <item name="android:paddingBottom">@dimen/one_padding</item>
-        <item name="android:paddingTop">@dimen/one_padding</item>
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
 
-        <item name="android:textAppearance">@style/TextAppearance.AppCompat.Small</item>
-    </style>
-    <style name="TextViewLineSetting" parent="TextViewLine">
-        <item name="android:textColor">?attr/colorPrimary</item>
-        <item name="android:paddingStart">@dimen/padding_side</item>
-        <item name="android:paddingEnd">@dimen/padding_side</item>
-
-    </style>
     <style name="SettingLine">
         <item name="android:layout_marginTop">5dp</item>
         <item name="android:layout_marginBottom">5dp</item>
-        <item name="android:paddingStart">@dimen/padding_side</item>
-        <item name="android:paddingEnd">@dimen/padding_side</item>
         <item name="android:background">@drawable/ripple_effect</item>
         <item name="android:clickable">true</item>
         <item name="android:minHeight">56dp</item>
@@ -74,33 +57,6 @@
         <item name="android:paddingTop">14dp</item>
         <item name="android:paddingEnd">28dp</item>
         <item name="android:paddingBottom">14dp</item>
-        <item name="android:clickable">true</item>
-        <item name="android:focusable">true</item>
-        <item name="android:background">@drawable/ripple_effect</item>
-    </style>
-
-    <style name="TextLine">
-        <item name="android:paddingTop">8dp</item>
-        <item name="android:paddingBottom">8dp</item>
-        <item name="android:textAppearance">@style/TextAppearance.AppCompat.Small</item>
-    </style>
-
-    <style name="RuleLine">
-        <item name="android:textAppearance">@style/TextAppearance.AppCompat.Display1</item>
-       <item name="android:paddingStart">5dp</item>
-    <item name="android:paddingEnd">5dp</item>
-    </style>
-
-    <style name="SymbolLine" parent="RuleLine">
-        <item name="android:layout_width">35dp</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:background">@drawable/rounded_background</item>
-        <item name="android:gravity">center_horizontal</item>
-        <item name="android:paddingStart">5dp</item>
-        <item name="android:paddingEnd">5dp</item>
-    </style>
-
-    <style name="WaveRuleLine" parent="RuleLine">
         <item name="android:clickable">true</item>
         <item name="android:focusable">true</item>
         <item name="android:background">@drawable/ripple_effect</item>
@@ -121,8 +77,5 @@
         <item name="android:backgroundDimEnabled">true</item>
         <item name="android:backgroundDimAmount">0.8</item> <!-- 0 = 完全透明，1 = 完全不透明 -->
         <!-- 可添加其他样式属性 -->
-    </style>
-    <style name="CustomBottomSheetDialog" parent="Theme.Design.BottomSheetDialog">
-
     </style>
 </resources>
