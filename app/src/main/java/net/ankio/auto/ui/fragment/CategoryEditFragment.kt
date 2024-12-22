@@ -40,6 +40,7 @@ import net.ankio.auto.ui.componets.FlowElement
 import net.ankio.auto.ui.componets.FlowLayoutManager
 import net.ankio.auto.ui.dialog.BookSelectorDialog
 import net.ankio.auto.ui.dialog.CategorySelectorDialog
+import net.ankio.auto.ui.dialog.DateTimePickerDialog
 import net.ankio.auto.ui.utils.ListPopupUtils
 import net.ankio.auto.ui.utils.viewBinding
 import net.ankio.auto.utils.BillTool
@@ -346,18 +347,12 @@ class CategoryEditFragment : BaseFragment() {
     ) {
         if (!isAdded)return
         val result = time.split(":")
-        val picker =
-            MaterialTimePicker.Builder()
-                .setTimeFormat(TimeFormat.CLOCK_24H)
-                .setHour(result[0].toInt())
-                .setMinute(result[1].toInt())
-                .setTitleText(title)
-                .build()
-        picker.show(requireActivity().supportFragmentManager, "time_picker")
-        picker.addOnPositiveButtonClickListener {
-            val selectedTime = "${picker.hour}:${picker.minute}"
-            callback(selectedTime)
+        val dialog = DateTimePickerDialog.withCurrentTime(requireContext(), true, title)
+        dialog.setDateTime(0, 0, 0, result[0].toInt(), result[1].toInt())
+        dialog.setOnDateTimeSelectedListener { year, month, day, hour, minute ->
+            callback("$hour:$minute")
         }
+        dialog.showInFragment(this,false,true)
     }
 
     private fun inputTimeRange(
