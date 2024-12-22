@@ -1,4 +1,0 @@
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="#14A44D" /> <!-- 背景填充颜色 -->
-    <corners android:radius="30dp" /> <!-- 圆角半径 -->
-</shape>
