@@ -29,11 +29,29 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatImageView
+import android.graphics.Path
+import android.graphics.RectF
+import net.ankio.auto.R
 
 class GradientImageView : AppCompatImageView {
     constructor(context: Context?) : super(context!!)
 
-    constructor(context: Context?, attrs: AttributeSet?) : super(context!!, attrs)
+    constructor(context: Context?, attrs: AttributeSet?) : super(context!!, attrs) {
+        context.theme?.obtainStyledAttributes(
+            attrs,
+            R.styleable.GradientImageView,
+            0, 0
+        )?.apply {
+            try {
+                cornerRadiusTopLeft = getDimension(R.styleable.GradientImageView_cornerRadiusTopLeft, 0f)
+                cornerRadiusTopRight = getDimension(R.styleable.GradientImageView_cornerRadiusTopRight, 0f)
+                cornerRadiusBottomRight = getDimension(R.styleable.GradientImageView_cornerRadiusBottomRight, 0f)
+                cornerRadiusBottomLeft = getDimension(R.styleable.GradientImageView_cornerRadiusBottomLeft, 0f)
+            } finally {
+                recycle()
+            }
+        }
+    }
     constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(
         context!!,
         attrs,
@@ -48,6 +66,11 @@ class GradientImageView : AppCompatImageView {
 
     private var shader: BitmapShader? = null
     private var composeShader: ComposeShader? = null
+
+    private var cornerRadiusTopLeft: Float = 0f
+    private var cornerRadiusTopRight: Float = 0f
+    private var cornerRadiusBottomRight: Float = 0f
+    private var cornerRadiusBottomLeft: Float = 0f
 
     override fun onDraw(canvas: Canvas) {
         val bitmap = drawableToBitmap(drawable)
@@ -77,6 +100,18 @@ class GradientImageView : AppCompatImageView {
         }
 
         paint.shader = composeShader
+
+        // Use Path and Canvas to draw rounded corners
+        val path = Path()
+        val rect = RectF(0f, 0f, width.toFloat(), height.toFloat())
+        val radii = floatArrayOf(
+            cornerRadiusTopLeft, cornerRadiusTopLeft,
+            cornerRadiusTopRight, cornerRadiusTopRight,
+            cornerRadiusBottomRight, cornerRadiusBottomRight,
+            cornerRadiusBottomLeft, cornerRadiusBottomLeft
+        )
+        path.addRoundRect(rect, radii, Path.Direction.CW)
+        canvas.clipPath(path)
 
         canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)
     }
