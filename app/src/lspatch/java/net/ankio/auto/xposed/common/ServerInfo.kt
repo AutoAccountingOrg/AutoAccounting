@@ -57,8 +57,14 @@ object ServerInfo {
             val json = Gson().fromJson(data,JsonObject::class.java)
             if (json.get("data").asString != BuildConfig.VERSION_NAME){
                 throw ServiceCheckException(
-                    context.getString(R.string.server_error_version_title),
-                    context.getString(R.string.server_error_version),
+                    context.getString(
+                        R.string.server_error_version_title
+                    ),
+                    context.getString(
+                        R.string.server_error_version,
+                        json.get("data").asString,
+                        BuildConfig.VERSION_NAME
+                    ),
                     context.getString(R.string.server_error_btn)
                     ,
                     action = { activity ->

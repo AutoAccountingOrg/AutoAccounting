@@ -15,26 +15,31 @@
 
 package net.ankio.auto.xposed
 
-import net.ankio.auto.BuildConfig
 import net.ankio.auto.xposed.core.api.HookerManifest
+import net.ankio.auto.xposed.core.utils.DataUtils
 import net.ankio.auto.xposed.hooks.alipay.AliPayHooker
 import net.ankio.auto.xposed.hooks.auto.AutoHooker
+import net.ankio.auto.xposed.hooks.common.ServerHooker
 import net.ankio.auto.xposed.hooks.qianji.QianjiHooker
 import net.ankio.auto.xposed.hooks.wechat.WechatHooker
+import org.ezbook.server.constant.Setting
 
 
 object Apps {
     /**
      * 虚拟框架无法hook到模块环境
      */
-    fun getServerRunInApp():String{
+    fun getServerRunInApp():Pair<String,String>{
         // 或者运行于com.tencent.mm
      //  if (BuildConfig.DEBUG) return BuildConfig.APPLICATION_ID
-        return  "com.tencent.mm"
+        val wechat = DataUtils.configString(Setting.HOOK_WECHAT, "com.tencent.mm")
+        return  Pair(wechat,"${wechat}:push")
     }
+
 
     fun get(): MutableList<HookerManifest> {
         return mutableListOf(
+            ServerHooker(), // Server
            // AndroidHooker(), // Android
             AutoHooker(), // Auto
             ////////////////////////////

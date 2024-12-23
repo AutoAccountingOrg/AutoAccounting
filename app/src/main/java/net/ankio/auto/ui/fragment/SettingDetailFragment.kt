@@ -767,24 +767,6 @@ class SettingDetailFragment : BaseFragment() {
             SettingItem.Title(R.string.setting_hooks),
             SettingItem.Card(R.string.setting_hooks_msg),
             SettingItem.Text(
-                title = R.string.setting_hook_auto,
-                drawable = {
-                    val pkg = SpUtils.getString(Setting.HOOK_AUTO_SERVER, Apps.getServerRunInApp())
-                    val info = AppUtils.get(pkg)
-                    info?.icon
-                },
-                onGetKeyValue = {
-                    SpUtils.getString(Setting.HOOK_AUTO_SERVER, Apps.getServerRunInApp())
-                },
-                onItemClick = { activity, binding ->
-                    AppsDialog(requireContext()) {
-                        SpUtils.putString(Setting.HOOK_AUTO_SERVER, it.packageName)
-                        binding.icon.setImageDrawable(it.icon)
-                        binding.subTitle.text = it.packageName
-                    }.showInFragment(this, false, true)
-                }
-            ),
-            SettingItem.Text(
                 title = R.string.setting_hook_wechat,
                 drawable = {
                     val pkg = SpUtils.getString(Setting.HOOK_WECHAT, "mm.tencent.com")
