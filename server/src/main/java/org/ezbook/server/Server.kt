@@ -21,6 +21,7 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.server.netty.NettyApplicationEngine
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
@@ -79,38 +80,58 @@ class Server(private val context: Context) {
         /**
          * 发送请求
          */
-        suspend fun request(path: String, json: String = ""): String? =
+        suspend fun request(path: String, json: String = "", maxRetries: Int = 10): String? =
             withContext(Dispatchers.IO) {
-                runCatching {
-                    val uri = "http://127.0.0.1:52045/$path"
-                    // 创建一个OkHttpClient对象，禁用代理
-                    val client = OkHttpClient.Builder()
-                        .readTimeout(60, TimeUnit.SECONDS)
-                        .proxy(Proxy.NO_PROXY) // 确保不使用代理
-                        .build()
+                var retryCount = 0
+                var lastException: Throwable? = null
 
-                    // set as json post
-                    val body: RequestBody = json.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
+                while (retryCount < maxRetries) {
+                    val result = runCatching {
+                        val uri = "http://127.0.0.1:52045/$path"
+                        // 创建一个OkHttpClient对象，禁用代理
+                        val client = OkHttpClient.Builder()
+                            .readTimeout(60, TimeUnit.SECONDS)
+                            .proxy(Proxy.NO_PROXY)
+                            .build()
 
-                    // 创建一个Request
-                    val request = Request.Builder()
-                        .url(uri)
-                        .post(body)
-                        .addHeader("Content-Type", "application/json")
-                        .build()
+                        val body: RequestBody = json.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
 
-                    // 发送请求获取响应
-                    client.newCall(request).execute().use { response -> // 使用use确保响应正常关闭
-                        if (!response.isSuccessful) throw Exception("Unexpected code $response")
-                        response.body?.string() // 读取响应体
+                        val request = Request.Builder()
+                            .url(uri)
+                            .post(body)
+                            .addHeader("Content-Type", "application/json")
+                            .build()
+
+                        client.newCall(request).execute().use { response ->
+                            if (!response.isSuccessful) throw Exception("Unexpected code $response")
+                            response.body?.string()
+                        }
+                    }.onFailure {
+                        lastException = it
+                        if (it !is ConnectException) {
+                            it.printStackTrace()
+                        }
+                        
+                        if (retryCount < maxRetries - 1) {  // 如果不是最后一次重试
+                            val delayTime = (retryCount + 1) * 2000L  // 递增延迟时间
+                            log("请求失败，正在进行第${retryCount + 1}次重试，延迟${delayTime}ms")
+                            delay(delayTime)  // 延迟后重试
+                        }
+                    }.getOrNull()
+
+                    if (result != null) {
+                        return@withContext result  // 如果成功就直接返回
                     }
 
-                }.onFailure {
-                    // 处理异常
-                    if (it !is ConnectException) {
-                        it.printStackTrace()
-                    }
-                }.getOrNull()
+                    retryCount++
+                }
+
+                // 所有重试都失败后记录最后的错误
+                lastException?.let { 
+                    log("请求最终失败，重试${maxRetries}次后放弃: ${it.message}")
+                }
+                
+                null  // 所有重试都失败后返回null
             }
 
         private const val TAG = "AutoServer"
