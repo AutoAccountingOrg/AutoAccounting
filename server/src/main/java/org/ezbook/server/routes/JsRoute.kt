@@ -102,7 +102,7 @@ class JsRoute(private val session: ApplicationCall, private val context: android
                 val useAi =
                     (Db.get().settingDao().query(Setting.AI_AUXILIARY)?.value ?: "false") == "true"
 
-                if (useAi) {
+                if (useAi && !fromAppData) {
                     billInfoModel = parseBillInfoFromAi(app, data)
                     if (billInfoModel == null) {
                         return ResultModel(404, "未分析到有效账单（大模型也识别不到）。")
