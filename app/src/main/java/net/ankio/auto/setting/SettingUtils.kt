@@ -210,19 +210,19 @@ class SettingUtils(
                 switchWidget.isChecked = !switchWidget.isChecked
                // updateSwitch(switchWidget.isChecked)
             }
-            var firstSwitchBinding = true
 
-            switchWidget.setOnCheckedChangeListener { _, isChecked ->
-                if (firstSwitchBinding) {
-                    firstSwitchBinding = false
+            fun getData() = item.onGetKeyValue?.invoke()
+                ?: item.key?.let { ConfigUtils.getBoolean(it, item.default) }?: item.default
+
+            switchWidget.setOnCheckedChangeListener { view, isChecked ->
+                if (getData() == isChecked) {
                     return@setOnCheckedChangeListener
                 }
                 updateSwitch(isChecked)
             }
 
             resumeCallbacks[item] = {
-                val savedValue = item.onGetKeyValue?.invoke() 
-                    ?: item.key?.let { ConfigUtils.getBoolean(it, item.default) }?: item.default
+                val savedValue = getData()
                 
                 switchWidget.isChecked = savedValue
                 item.key?.let { key ->
