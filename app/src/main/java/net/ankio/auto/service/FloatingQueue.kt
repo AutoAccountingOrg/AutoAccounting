@@ -42,8 +42,6 @@ import java.util.*
 class FloatingQueue(private val callback:(FloatingIntent,FloatingQueue)->Unit) {
     private val channel = Channel<FloatingIntent>(Channel.BUFFERED)
     // 用于追踪当前队列中的Intent
-    private val pendingIntents = Collections.synchronizedSet(mutableSetOf<String>())
-
     private val stopChannel = Channel<Unit>(capacity = 1, BufferOverflow.DROP_LATEST)
     init {
         startProcessing()
@@ -64,18 +62,13 @@ class FloatingQueue(private val callback:(FloatingIntent,FloatingQueue)->Unit) {
     fun send(rawIntent: Intent) {
         val intent = FloatingIntent.parse(rawIntent)
         val key = intent.getUniqueKey() //
-        if (pendingIntents.add(key)) { // 如果添加成功，说明之前不存在
-            App.launch(Dispatchers.Main) {
-                try {
-                    channel.send(intent)
-                } catch (e: Exception) {
-                    // 发送失败时需要移除key
-                    pendingIntents.remove(key)
-                    Logger.e("发送悬浮窗Intent失败", e)
-                }
+        App.launch(Dispatchers.Main) {
+            try {
+                channel.send(intent)
+            } catch (e: Exception) {
+                // 发送失败时需要移除key
+                Logger.e("发送悬浮窗Intent失败", e)
             }
-        } else {
-            Logger.d("跳过重复的悬浮窗Intent: ${intent.billInfoModel}")
         }
     }
     
@@ -90,7 +83,6 @@ class FloatingQueue(private val callback:(FloatingIntent,FloatingQueue)->Unit) {
                         callback(intent,this@FloatingQueue)
                         stopChannel.receive()
                     } finally {
-                        pendingIntents.remove(intent.getUniqueKey())
                     }
                 }
             } catch (e: Exception) {
@@ -108,7 +100,6 @@ class FloatingQueue(private val callback:(FloatingIntent,FloatingQueue)->Unit) {
             return
         }
         isProcessing = false
-        pendingIntents.clear()
         runCatching { channel.close() }
         runCatching { stopChannel.close() }
     }

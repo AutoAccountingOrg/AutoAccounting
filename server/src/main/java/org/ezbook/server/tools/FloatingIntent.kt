@@ -21,7 +21,12 @@ import com.google.gson.Gson
 import org.ezbook.server.Server
 import org.ezbook.server.db.model.BillInfoModel
 
-data class FloatingIntent(val billInfoModel: BillInfoModel, val showTip:Boolean, val from:String, val parent:BillInfoModel? = null) {
+data class FloatingIntent(
+    val billInfoModel: BillInfoModel,
+    val showTip:Boolean,
+    val from:String,
+    val parent:BillInfoModel? = null
+) {
 
     companion object{
         fun parse(intent: Intent): FloatingIntent {
@@ -45,6 +50,7 @@ data class FloatingIntent(val billInfoModel: BillInfoModel, val showTip:Boolean,
         intent.putExtra("billInfo", Gson().toJson(billInfoModel))
         intent.putExtra("id", billInfoModel.id)
         intent.putExtra("showWaitTip", showTip)
+        intent.putExtra("t", System.currentTimeMillis())
         if (parent != null) {
             intent.putExtra("parent", Gson().toJson(parent))
         }
