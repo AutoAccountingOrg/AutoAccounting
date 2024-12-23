@@ -61,7 +61,7 @@ abstract class BaseFragment : Fragment() {
     }
 
     fun isUiReady(): Boolean {
-        return isAdded && view != null &&  requireView().isAttachedToWindow && !isDestroyed
+        return isAdded && view != null && !isDestroyed
     }
 
     open fun navigate(@IdRes resId: Int,bundle: Bundle? = null) {
