@@ -180,7 +180,7 @@ object Assets {
         return if (autoAsset) {
             getAssetsByAlgorithm(assets, account).also { autoAssetName ->
                 // 只在找到不同的匹配结果时才保存映射
-                if (autoAssetName != account && autoAssetName.isNotEmpty()) {
+                if (autoAssetName != account) {
                     saveAssetsMap(account, autoAssetName)
                 }
             }
@@ -193,6 +193,7 @@ object Assets {
      * 保存资产映射
      */
     private suspend fun saveAssetsMap(name: String, mapName: String) {
+        if (name.isEmpty() || mapName.isEmpty()) return
         Db.get().assetsMapDao().put(AssetsMapModel().apply {
             this.name = name
             this.mapName = mapName
