@@ -15,8 +15,10 @@
 
 package net.ankio.auto.xposed.core.api
 
+import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.provider.Settings
 import android.security.NetworkSecurityPolicy
 import com.google.gson.Gson
 import de.robv.android.xposed.XposedHelpers
@@ -38,6 +40,7 @@ import org.ezbook.server.constant.DataType
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.SettingModel
+import java.security.Permissions
 
 /**
  * HookerManifest
@@ -138,9 +141,15 @@ abstract class HookerManifest {
         }
         val context = AppRuntime.application ?: return
         permissions.forEach {
-            if (context.checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED) {
-                logE(Throwable("$appName Permission denied: $it , this hook may not work as expected"))
+            if (it === Manifest.permission.SYSTEM_ALERT_WINDOW){
+                if(Settings.canDrawOverlays(context)){
+                    return@forEach
+                }
             }
+            if (context.checkSelfPermission(it) == PackageManager.PERMISSION_GRANTED) {
+                return@forEach
+            }
+            logE(Throwable("$appName Permission denied: $it , this hook may not work as expected"))
         }
     }
 
