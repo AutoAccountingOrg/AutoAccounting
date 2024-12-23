@@ -30,48 +30,34 @@ import net.ankio.auto.databinding.FragmentBillBinding
 import net.ankio.auto.ui.adapter.OrderAdapter
 import net.ankio.auto.ui.api.BasePageFragment
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
+import net.ankio.auto.ui.models.OrderGroup
 import net.ankio.auto.ui.utils.viewBinding
 import net.ankio.auto.utils.DateUtils
 import org.ezbook.server.db.model.BillInfoModel
 
-open class OrderFragment : BasePageFragment<Pair<String, List<BillInfoModel>>>() {
+
+open class OrderFragment : BasePageFragment<OrderGroup>() {
     override val binding: FragmentBillBinding by viewBinding(FragmentBillBinding::inflate)
 
-    override suspend fun loadData(callback: (resultData: List<Pair<String, List<BillInfoModel>>>) -> Unit) {
+    override suspend fun loadData(callback: (resultData: List<OrderGroup>) -> Unit) {
         val list = BillInfoModel.list(page, pageSize)
 
-        val newIndex = mutableListOf<Int>()
-        val updateIndex = mutableListOf<Int>()
-
-
-        list.forEach { item ->
-            val day = DateUtils.stampToDate(item.time, "yyyy-MM-dd")
-            val dayItem = pageData.find { pair -> pair.first == day }
-
-            if (dayItem == null) {
-                // 新的一天，插入一个新的 Pair
-                val pair = Pair(day, listOf(item))
-                pageData.add(pair)
-                newIndex.add(pageData.indexOf(pair))
-            } else {
-                // 该天已存在，更新现有条目
-                val index = pageData.indexOf(dayItem)
-                val items = dayItem.second.toMutableList()
-                items.add(item)
-                pageData[index] = Pair(day, items) // 直接更新 pageData 而不是 remove 和 add
-                updateIndex.add(index)
-            }
+        val groupedData = list.groupBy { 
+            DateUtils.stampToDate(it.time, "yyyy-MM-dd")
+        }.map { (date, bills) ->
+            OrderGroup(date, bills)
         }
 
-        withContext(Dispatchers.Main) {
-            // 统一更新 RecyclerView 的数据
-            newIndex.forEach { index ->
-                statusPage.contentView?.adapter?.notifyItemInserted(index)
-            }
-            updateIndex.forEach { index ->
-                statusPage.contentView?.adapter?.notifyItemChanged(index)
-            }
+        val oldSize = pageData.size
+        pageData.addAll(groupedData)
 
+        withContext(Dispatchers.Main) {
+            if (oldSize == 0) {
+                statusPage.contentView?.adapter?.notifyDataSetChanged()
+            } else {
+                statusPage.contentView?.adapter?.notifyItemRangeInserted(oldSize, groupedData.size)
+            }
+            
             callback.invoke(if (list.isEmpty()) emptyList() else pageData)
         }
     }
