@@ -80,7 +80,7 @@ class Server(private val context: Context) {
         /**
          * 发送请求
          */
-        suspend fun request(path: String, json: String = "", maxRetries: Int = 10): String? =
+        suspend fun request(path: String, json: String = "", maxRetries: Int = 5): String? =
             withContext(Dispatchers.IO) {
                 var retryCount = 0
                 var lastException: Throwable? = null
@@ -113,7 +113,7 @@ class Server(private val context: Context) {
                         }
                         
                         if (retryCount < maxRetries - 1) {  // 如果不是最后一次重试
-                            val delayTime = (retryCount + 1) * 2000L  // 递增延迟时间
+                            val delayTime = (retryCount + 1) * 1000L  // 递增延迟时间
                             log("请求失败，正在进行第${retryCount + 1}次重试，延迟${delayTime}ms")
                             delay(delayTime)  // 延迟后重试
                         }
