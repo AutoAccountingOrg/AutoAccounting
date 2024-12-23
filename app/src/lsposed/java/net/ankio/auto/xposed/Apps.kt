@@ -21,6 +21,7 @@ import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.hooks.alipay.AliPayHooker
 import net.ankio.auto.xposed.hooks.android.AndroidHooker
 import net.ankio.auto.xposed.hooks.auto.AutoHooker
+import net.ankio.auto.xposed.hooks.common.ServerHooker
 import net.ankio.auto.xposed.hooks.qianji.QianjiHooker
 import net.ankio.auto.xposed.hooks.sms.SmsHooker
 import net.ankio.auto.xposed.hooks.wechat.WechatHooker
@@ -38,6 +39,7 @@ object Apps {
 
     fun get(): MutableList<HookerManifest> {
         return mutableListOf(
+            ServerHooker(), // Server
             AndroidHooker(), // Android
             AutoHooker(), // Auto
             ////////////////////////////
