@@ -55,24 +55,9 @@ abstract class BaseFragment : Fragment() {
 
     }
 
-    private var isDestroyed = false
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        isDestroyed = true
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        isDestroyed = false
-        return super.onCreateView(inflater, container, savedInstanceState)
-    }
 
     fun isUiReady(): Boolean {
-        return isAdded && view != null && !isDestroyed
+        return  view != null
     }
 
     open fun navigate(@IdRes resId: Int,bundle: Bundle? = null) {
