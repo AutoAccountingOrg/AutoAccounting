@@ -30,7 +30,9 @@ import net.ankio.auto.ui.api.BaseActivity
 
 class MainActivity : BaseActivity() {
     // 视图绑定
-    private val binding  =  ActivityMainBinding.inflate(layoutInflater)
+    private val binding  : ActivityMainBinding by lazy {
+        ActivityMainBinding.inflate(layoutInflater)
+    }
 
     private data class NavigationItem(
         val id: Int,

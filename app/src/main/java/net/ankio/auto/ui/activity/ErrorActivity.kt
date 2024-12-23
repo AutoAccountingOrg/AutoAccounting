@@ -19,7 +19,6 @@ import android.os.Bundle
 import net.ankio.auto.App
 import net.ankio.auto.databinding.ActivityErrorBinding
 import net.ankio.auto.ui.api.BaseActivity
-import net.ankio.auto.ui.utils.ViewFactory.createBinding
 
 class ErrorActivity : BaseActivity() {
    override fun onCreate(savedInstanceState: Bundle?) {
