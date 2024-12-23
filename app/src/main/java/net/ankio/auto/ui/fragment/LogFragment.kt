@@ -34,6 +34,7 @@ import net.ankio.auto.databinding.FragmentLogBinding
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.adapter.LogAdapter
 import net.ankio.auto.ui.api.BasePageFragment
+import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.viewBinding
 import net.ankio.auto.utils.DateUtils
@@ -101,7 +102,7 @@ class LogFragment : BasePageFragment<LogModel>() {
                     true
                 }
                 R.id.item_clear -> {
-                    MaterialAlertDialogBuilder(requireActivity())
+                    BottomSheetDialogBuilder(requireActivity())
                         .setTitle(requireActivity().getString(R.string.delete_data))
                         .setMessage(requireActivity().getString(R.string.delete_msg))
                         .setPositiveButton(requireActivity().getString(R.string.sure_msg)) { _, _ ->
@@ -112,7 +113,7 @@ class LogFragment : BasePageFragment<LogModel>() {
                             }
                         }
                         .setNegativeButton(requireActivity().getString(R.string.cancel_msg)) { _, _ -> }
-                        .show()
+                        .showInFragment(this,false,true)
                     true
                 }
                 else -> false

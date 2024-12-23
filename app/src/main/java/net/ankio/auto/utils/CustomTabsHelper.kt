@@ -6,11 +6,10 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.net.Uri
 import androidx.browser.customtabs.CustomTabsIntent
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.storage.Logger
-import rikka.html.text.HtmlCompat
+import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
 
 
 object CustomTabsHelper {
@@ -68,14 +67,12 @@ object CustomTabsHelper {
                 Logger.e("Failed to open default browser", tr)
                 try {
                     App.copyToClipboard(url)
-                    MaterialAlertDialogBuilder(context)
-                        .setTitle(R.string.dialog_cannot_open_browser_title)
+                    BottomSheetDialogBuilder(context)
+                        .setTitleInt(R.string.dialog_cannot_open_browser_title)
                         .setMessage(
-                            HtmlCompat.fromHtml(
-                                context.getString(
-                                    R.string.toast_copied_to_clipboard_with_text,
-                                    url,
-                                ),
+                            context.getString(
+                                R.string.toast_copied_to_clipboard_with_text,
+                                url,
                             ),
                         )
                         .setPositiveButton(R.string.ok, null)

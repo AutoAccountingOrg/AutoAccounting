@@ -28,7 +28,6 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
@@ -37,8 +36,6 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentDataBinding
-import net.ankio.auto.databinding.FragmentDataRuleBinding
-import net.ankio.auto.databinding.FragmentLogBinding
 import net.ankio.auto.request.Pastebin
 import net.ankio.auto.service.FloatingWindowService
 import net.ankio.auto.storage.ConfigUtils
@@ -51,10 +48,8 @@ import net.ankio.auto.ui.componets.MaterialSearchView
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
 import net.ankio.auto.ui.dialog.DataEditorDialog
 import net.ankio.auto.ui.models.RailMenuItem
-import net.ankio.auto.ui.models.ToolbarMenuItem
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.ToastUtils
-import net.ankio.auto.ui.utils.ViewFactory.createBinding
 import net.ankio.auto.ui.utils.viewBinding
 import net.ankio.auto.utils.CustomTabsHelper
 import org.ezbook.server.Server
@@ -62,7 +57,6 @@ import org.ezbook.server.constant.DataType
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.AppDataModel
 import org.ezbook.server.db.model.BillInfoModel
-import java.lang.ref.WeakReference
 
 class DataFragment : BasePageFragment<AppDataModel>(), Toolbar.OnMenuItemClickListener {
     var app: String = ""

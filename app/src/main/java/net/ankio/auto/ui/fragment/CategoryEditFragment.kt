@@ -39,6 +39,7 @@ import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.componets.FlowElement
 import net.ankio.auto.ui.componets.FlowLayoutManager
 import net.ankio.auto.ui.dialog.BookSelectorDialog
+import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
 import net.ankio.auto.ui.dialog.CategorySelectorDialog
 import net.ankio.auto.ui.dialog.DateTimePickerDialog
 import net.ankio.auto.ui.utils.ListPopupUtils
@@ -313,8 +314,8 @@ class CategoryEditFragment : BaseFragment() {
         inputBinding.spinner.setSelection(select)
         inputBinding.content.setText(content)
 
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle(title)
+        BottomSheetDialogBuilder(requireContext())
+            .setTitleInt(title)
             .setView(inputBinding.root)
             .setPositiveButton(R.string.sure_msg) { dialog, which ->
                 select = options.indexOf(inputBinding.spinner.selectedItem)
@@ -337,7 +338,7 @@ class CategoryEditFragment : BaseFragment() {
                 }
             }
             .setNegativeButton(R.string.cancel_msg, null)
-            .show()
+            .showInFragment(this,false,true)
     }
 
     private fun showTimer(
@@ -392,8 +393,8 @@ class CategoryEditFragment : BaseFragment() {
             DialogRegexMoneyBinding.inflate(LayoutInflater.from(requireContext()))
         moneyRangeBinding.lower.setText(element.data.getOrDefault("minAmount", "").toString())
         moneyRangeBinding.higher.setText(element.data.getOrDefault("maxAmount", "").toString())
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle(R.string.money_range)
+        BottomSheetDialogBuilder(requireContext())
+            .setTitleInt(R.string.money_range)
             .setView(moneyRangeBinding.root)
             .setPositiveButton(R.string.sure_msg) { _, _ ->
                 // 处理用户输入的金额范围
@@ -450,7 +451,7 @@ class CategoryEditFragment : BaseFragment() {
                 }
             }
             .setNegativeButton(R.string.cancel_msg, null)
-            .show()
+            .showInFragment(this,false,true)
     }
 
     private fun saveItem() {

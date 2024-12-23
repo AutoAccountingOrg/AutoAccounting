@@ -46,6 +46,7 @@ import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.dialog.AppDialog
 import net.ankio.auto.ui.dialog.AssetsSelectorDialog
 import net.ankio.auto.ui.dialog.BookSelectorDialog
+import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
 import net.ankio.auto.ui.dialog.CategorySelectorDialog
 import net.ankio.auto.ui.dialog.UpdateDialog
 import net.ankio.auto.ui.utils.DonateUtils
@@ -148,8 +149,7 @@ class HomeFragment : BaseFragment() {
     }
 
     private fun showServiceErrorDialog(error: ServiceCheckException) {
-        aboutDialog?.dismiss()
-        val builder = MaterialAlertDialogBuilder(requireContext())
+        val builder = BottomSheetDialogBuilder(requireContext())
             .setTitle(error.title)
             .setMessage(error.msg)
             .setPositiveButton(error.btn) { _, _ ->
@@ -169,7 +169,7 @@ class HomeFragment : BaseFragment() {
                 }
             }
         }
-        aboutDialog = builder.show()
+        builder.showInFragment(this,false,true)
     }
 
     private fun setupMenuEvents() {

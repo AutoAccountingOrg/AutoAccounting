@@ -25,6 +25,7 @@ import net.ankio.auto.databinding.AdapterMapBinding
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
 import net.ankio.auto.ui.dialog.AssetsMapDialog
+import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
 import net.ankio.auto.ui.utils.ResourceUtils
 import org.ezbook.server.db.model.AssetsMapModel
 
@@ -51,8 +52,8 @@ class AssetsMapAdapter(
         // 长按删除
         binding.item.setOnLongClickListener {
             val item = holder.item!!
-            MaterialAlertDialogBuilder(activity)
-                .setTitle(R.string.delete_title)
+            BottomSheetDialogBuilder(activity)
+                .setTitleInt(R.string.delete_title)
                 .setMessage(activity.getString(R.string.delete_message, item.name))
                 .setNegativeButton(R.string.cancel) { dialog, which ->
                     // 用户点击了取消按钮，不做任何操作

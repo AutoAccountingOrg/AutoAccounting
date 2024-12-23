@@ -29,6 +29,7 @@ import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterRuleBinding
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
+import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
 import org.ezbook.server.db.model.CategoryRuleModel
 
 class CategoryRuleAdapter(
@@ -45,7 +46,7 @@ class CategoryRuleAdapter(
         binding.deleteData.setOnClickListener {
             val item = holder.item!!
 
-            MaterialAlertDialogBuilder(activity)
+            BottomSheetDialogBuilder(activity)
                 .setTitle(activity.getString(R.string.delete_data))
                 .setMessage(activity.getString(R.string.delete_msg))
                 .setPositiveButton(activity.getString(R.string.sure_msg)) { _, _ ->
