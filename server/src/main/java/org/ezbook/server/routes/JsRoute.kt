@@ -16,8 +16,6 @@
 package org.ezbook.server.routes
 
 
-import android.content.ComponentName
-import android.content.Intent
 import android.widget.Toast
 import com.google.gson.Gson
 import com.google.gson.JsonObject
@@ -53,6 +51,7 @@ import org.ezbook.server.tools.FloatingIntent
 
 class JsRoute(private val session: ApplicationCall, private val context: android.content.Context) {
     private val params: Parameters = session.request.queryParameters
+
     /**
      * 获取设置
      */
@@ -87,11 +86,10 @@ class JsRoute(private val session: ApplicationCall, private val context: android
 
         val t = System.currentTimeMillis()
 
-        var billInfoModel:BillInfoModel? = null
+        var billInfoModel: BillInfoModel? = null
 
-        if (!ai){
+        if (!ai) {
             val js = RuleGenerator.data(app, dataType)
-
 
             if (js === "") {
                 return ResultModel(404, "JS无效，请更新规则。")
@@ -100,11 +98,20 @@ class JsRoute(private val session: ApplicationCall, private val context: android
             val result = runJS(js, data)
 
             if (result == "") {
-                  return ResultModel(404, "未分析到有效账单（可以试试用大模型识别）。")
-            }else{
+
+                val useAi =
+                    (Db.get().settingDao().query(Setting.AI_AUXILIARY)?.value ?: "false") == "true"
+
+                if (useAi) {
+                    billInfoModel = parseBillInfoFromAi(app, data)
+                    if (billInfoModel == null) {
+                        return ResultModel(404, "未分析到有效账单（大模型也识别不到）。")
+                    }
+                }else return ResultModel(404, "未分析到有效账单（可以试试用大模型识别）。")
+            } else {
                 billInfoModel = parseBillInfo(result, app, dataType)
             }
-        }else{
+        } else {
             billInfoModel = parseBillInfoFromAi(app, data)
             if (billInfoModel == null) {
                 return ResultModel(404, "未分析到有效账单（大模型也识别不到）。")
@@ -129,7 +136,7 @@ class JsRoute(private val session: ApplicationCall, private val context: android
          */
 
 
-        if (billInfoModel.cateName.isEmpty() || billInfoModel.cateName == "其它" || billInfoModel.cateName == "其他"){
+        if (billInfoModel.cateName.isEmpty() || billInfoModel.cateName == "其它" || billInfoModel.cateName == "其他") {
             //将time从时间戳，转换为h:i的格式
             val time = android.text.format.DateFormat.format("HH:mm", billInfoModel.time).toString()
 
@@ -159,8 +166,6 @@ class JsRoute(private val session: ApplicationCall, private val context: android
         }
 
 
-
-
         val total = System.currentTimeMillis() - t
         // 识别用时
         Server.log("识别用时: $total ms")
@@ -171,7 +176,7 @@ class JsRoute(private val session: ApplicationCall, private val context: android
         // 分类映射
         Category.setCategoryMap(billInfoModel)
 
-        billInfoModel.remark =  Bill.getRemark(billInfoModel, context)
+        billInfoModel.remark = Bill.getRemark(billInfoModel, context)
         //  备注生成
         //  设置默认账本
         Bill.setBookName(billInfoModel)
@@ -183,17 +188,17 @@ class JsRoute(private val session: ApplicationCall, private val context: android
         // 账单分组，用于检查重复账单
         val task = Server.billProcessor.addTask(billInfoModel, context)
         task.await()
-        if (task.result == null){
+        if (task.result == null) {
             billInfoModel.state = BillState.Wait2Edit
-        }else{
+        } else {
             billInfoModel.state = BillState.Edited
         }
-        if (billInfoModel.auto){
-            billInfoModel.state =  BillState.Edited
+        if (billInfoModel.auto) {
+            billInfoModel.state = BillState.Edited
         }
 
         // 时间容错：部分规则可能识别的时间准确，需要容错，小于2000年之前的时间认为是错误的
-        if (billInfoModel.time < 946656000000){
+        if (billInfoModel.time < 946656000000) {
             billInfoModel.time = System.currentTimeMillis()
         }
 
@@ -201,7 +206,7 @@ class JsRoute(private val session: ApplicationCall, private val context: android
         Server.log("账单: $billInfoModel")
         if (!fromAppData) {
             // 切换到主线程
-            if(!billInfoModel.auto){
+            if (!billInfoModel.auto) {
                 Server.log("自动记录 - 关闭: $billInfoModel")
                 withContext(Dispatchers.Main) {
                     runCatching {
@@ -210,12 +215,17 @@ class JsRoute(private val session: ApplicationCall, private val context: android
                         Server.log(it)
                     }
                 }
-            }else{
+            } else {
                 // try
                 sync2Book(context)
-                val showTip = Db.get().settingDao().query(Setting.SHOW_AUTO_BILL_TIP)?.value == "true"
-                if (showTip){
-                    Toast.makeText(context,"已自动记录账单，金额：${billInfoModel.money}",Toast.LENGTH_SHORT).show()
+                val showTip =
+                    Db.get().settingDao().query(Setting.SHOW_AUTO_BILL_TIP)?.value == "true"
+                if (showTip) {
+                    Toast.makeText(
+                        context,
+                        "已自动记录账单，金额：${billInfoModel.money}",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
 
@@ -228,22 +238,24 @@ class JsRoute(private val session: ApplicationCall, private val context: android
         return ResultModel(200, "OK", billInfoModel)
     }
 
-    private suspend fun parseBillInfoFromAi(app:String, data:String):BillInfoModel?{
-        val aiModel = Db.get().settingDao().query(Setting.AI_MODEL)?.value?:AIModel.Gemini
-        val billInfoModel:BillInfoModel? =  runCatching {
-            when(aiModel){
-                AIModel.Gemini.name ->  Gemini().request(data)
+
+    private suspend fun parseBillInfoFromAi(app: String, data: String): BillInfoModel? {
+        val aiModel = Db.get().settingDao().query(Setting.AI_MODEL)?.value ?: AIModel.Gemini
+        val billInfoModel: BillInfoModel? = runCatching {
+            when (aiModel) {
+                AIModel.Gemini.name -> Gemini().request(data)
                 AIModel.QWen.name -> QWen().request(data)
                 AIModel.DeepSeek.name -> DeepSeek().request(data)
                 AIModel.ChatGPT.name -> ChatGPT().request(data)
                 AIModel.OneAPI.name -> {
-                    var uri = Db.get().settingDao().query(Setting.AI_ONE_API_URI)?.value?:""
-                    if(!uri.contains("v1/chat/completions")){
+                    var uri = Db.get().settingDao().query(Setting.AI_ONE_API_URI)?.value ?: ""
+                    if (!uri.contains("v1/chat/completions")) {
                         uri = "$uri/v1/chat/completions"
                     }
-                    val model = Db.get().settingDao().query(Setting.AI_ONE_API_MODEL)?.value?:""
-                    OneAPI(uri,model).request(data)
+                    val model = Db.get().settingDao().query(Setting.AI_ONE_API_MODEL)?.value ?: ""
+                    OneAPI(uri, model).request(data)
                 }
+
                 else -> {
                     null
                 }
@@ -252,12 +264,12 @@ class JsRoute(private val session: ApplicationCall, private val context: android
             Server.log(it)
         }.getOrNull()
         Server.log("AI($aiModel) 响应: ${billInfoModel}")
-        if (billInfoModel == null)return null
-        if (billInfoModel.money == 0.0){
+        if (billInfoModel == null) return null
+        if (billInfoModel.money == 0.0) {
             return null
         }
-        if (billInfoModel.money < 0 ) {
-           billInfoModel.money = -billInfoModel.money
+        if (billInfoModel.money < 0) {
+            billInfoModel.money = -billInfoModel.money
         }
         billInfoModel.ruleName = "$aiModel 生成"
         billInfoModel.state = BillState.Wait2Edit
@@ -265,10 +277,10 @@ class JsRoute(private val session: ApplicationCall, private val context: android
         return billInfoModel
     }
 
-    private suspend fun sync2Book(context: android.content.Context){
-        val packageName = Db.get().settingDao().query(Setting.BOOK_APP_ID)?.value?:return
+    private suspend fun sync2Book(context: android.content.Context) {
+        val packageName = Db.get().settingDao().query(Setting.BOOK_APP_ID)?.value ?: return
         val syncType =
-            Db.get().settingDao().query(Setting.SYNC_TYPE)?.value?:SyncType.WhenOpenApp.name
+            Db.get().settingDao().query(Setting.SYNC_TYPE)?.value ?: SyncType.WhenOpenApp.name
 
         if (syncType == SyncType.WhenOpenApp.name) {
             return
@@ -297,7 +309,11 @@ class JsRoute(private val session: ApplicationCall, private val context: android
      * @param dataType 数据类型
      * @return 账单信息
      */
-    private suspend fun parseBillInfo(result: String, app: String, dataType: DataType): BillInfoModel {
+    private suspend fun parseBillInfo(
+        result: String,
+        app: String,
+        dataType: DataType
+    ): BillInfoModel {
         val json = Gson().fromJson(result, JsonObject::class.java)
 
         val money = json.get("money")?.asDouble ?: 0.0
@@ -312,7 +328,7 @@ class JsRoute(private val session: ApplicationCall, private val context: android
         val ruleName = json.get("ruleName")?.asString ?: ""
         val type = json.get("type")?.asString ?: "Expend"
         // 根据ruleName判断是否需要自动记录
-        val rule = Db.get().ruleDao().query( dataType.name,app, ruleName)
+        val rule = Db.get().ruleDao().query(dataType.name, app, ruleName)
         val autoRecord = rule != null && rule.autoRecord
 
 
@@ -342,15 +358,15 @@ class JsRoute(private val session: ApplicationCall, private val context: android
         Server.log("拉起自动记账悬浮窗口：$intent")
         try {
             context.startActivity(intent)
-        }catch (t:Throwable){
+        } catch (t: Throwable) {
             Server.log("自动记账悬浮窗拉起失败：$t")
             Server.log(t)
         }
-       /* if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            context.startForegroundService(intent)
-        } else {
-            context.startService(intent)
-        }*/
+        /* if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+             context.startForegroundService(intent)
+         } else {
+             context.startService(intent)
+         }*/
     }
 
 
@@ -358,36 +374,44 @@ class JsRoute(private val session: ApplicationCall, private val context: android
      * 运行js代码
      */
     private suspend fun runJS(jsCode: String, data: String): String {
-       try {
-           val quickJS = QuickJS.Builder().build()
-           val runtime = quickJS.createJSRuntime()
-           val context = runtime.createJSContext()
+        try {
+            val quickJS = QuickJS.Builder().build()
+            val runtime = quickJS.createJSRuntime()
+            val context = runtime.createJSContext()
 
-           val stringBuilder = StringBuilder()
-           val print = context.createJSFunction { itemContext, args ->
-               for (i in args.indices) {
-                   val arg = args[i].cast(JSString::class.java).string
-                   stringBuilder.append(arg).append(" ")
-               }
-               itemContext.createJSUndefined()
-           }
-           Server.log("执行Js: $jsCode")
-           Server.log("执行数据: $data")
-           context.globalObject.setProperty("print", print)
-           context.globalObject.setProperty("data", context.createJSString(data))
-           context.globalObject.setProperty("currentTime", context.createJSString(android.text.format.DateFormat.format("HH:mm", System.currentTimeMillis()).toString()))
-           var result = context.evaluate(jsCode, "fibonacci.js",String::class.java)
-           if (stringBuilder.isNotEmpty()){
-               result = stringBuilder.toString()
-           }
-           Server.log("执行结果:$result")
-           context.close()
-           runtime.close()
-           return result?:""
-       }catch (e:Throwable){
-          Server.log(e)
-          return ""
-       }
+            val stringBuilder = StringBuilder()
+            val print = context.createJSFunction { itemContext, args ->
+                for (i in args.indices) {
+                    val arg = args[i].cast(JSString::class.java).string
+                    stringBuilder.append(arg).append(" ")
+                }
+                itemContext.createJSUndefined()
+            }
+            Server.log("执行Js: $jsCode")
+            Server.log("执行数据: $data")
+            context.globalObject.setProperty("print", print)
+            context.globalObject.setProperty("data", context.createJSString(data))
+            context.globalObject.setProperty(
+                "currentTime",
+                context.createJSString(
+                    android.text.format.DateFormat.format(
+                        "HH:mm",
+                        System.currentTimeMillis()
+                    ).toString()
+                )
+            )
+            var result = context.evaluate(jsCode, "fibonacci.js", String::class.java)
+            if (stringBuilder.isNotEmpty()) {
+                result = stringBuilder.toString()
+            }
+            Server.log("执行结果:$result")
+            context.close()
+            runtime.close()
+            return result ?: ""
+        } catch (e: Throwable) {
+            Server.log(e)
+            return ""
+        }
     }
 
     suspend fun run(): ResultModel {
