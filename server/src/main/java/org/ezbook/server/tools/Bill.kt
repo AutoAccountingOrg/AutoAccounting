@@ -17,9 +17,12 @@ package org.ezbook.server.tools
 
 import android.content.Context
 import org.ezbook.server.Server
+import org.ezbook.server.constant.Currency
+import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.BillInfoModel
+import org.slf4j.Logger
 
 object Bill {
     /**
@@ -118,7 +121,7 @@ object Bill {
      */
     private fun mergeCategoryInfo(source: BillInfoModel, target: BillInfoModel) {
         // 如果源账单的分类不是"其他"，则使用源账单的分类
-        if (source.cateName != "其他") {
+        if (target.cateName == "其他" || target.cateName == "其它") {
             target.cateName = source.cateName
         }
     }
@@ -204,16 +207,29 @@ object Bill {
      */
     suspend fun getRemark(billInfoModel: BillInfoModel, context: Context): String {
         val settingBillRemark =
-            Db.get().settingDao().query(Setting.NOTE_FORMAT)?.value ?: "【商户名称】 - 【商品名称】"
+            Db.get().settingDao().query(Setting.NOTE_FORMAT)?.value ?: DefaultData.NOTE_FORMAT
         return  settingBillRemark
             .replace("【商户名称】", billInfoModel.shopName)
             .replace("【商品名称】", billInfoModel.shopItem)
-            //  .replace("【币种类型】", Currency.valueOf(billInfoModel.currency).name(context))
+             .replace("【币种类型】", Currency.valueOf(billInfoModel.currency).name(context))
             .replace("【金额】", billInfoModel.money.toString())
             .replace("【分类】", billInfoModel.cateName)
             .replace("【账本】", billInfoModel.bookName)
-            .replace("【来源】", billInfoModel.app)
+            .replace("【来源】", pkgName(billInfoModel.app,context))
+            .replace("【原始资产】", billInfoModel.accountNameFrom)
             .replace("【渠道】", billInfoModel.channel)
+    }
+
+
+    private fun pkgName(pkg:String,context: Context):String{
+       return runCatching {
+           val packageManager = context.packageManager
+           val applicationInfo = packageManager.getApplicationInfo(pkg, 0)
+           packageManager.getApplicationLabel(applicationInfo).toString()
+       }.onFailure {
+              it.printStackTrace()
+       }.getOrNull()?:pkg
+
     }
 
     /**

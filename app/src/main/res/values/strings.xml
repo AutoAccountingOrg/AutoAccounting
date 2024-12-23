@@ -171,7 +171,7 @@
     <string name="setting_bill_remark">备注格式</string>
     <string name="setting_bill_repeat">账单去重</string>
     <string name="setting_bill_repeat_desc">账单去重功能会使用内置的去重算法对当前识别到的账单进行去重（该功能只在账单未同步到记账软件时有效）</string>
-    <string name="setting_bill_remark_desc">支持使用如下中文变量：【商户名称】、【商品名称】、【币种类型】、【金额】、【分类】、【账本】、【来源】</string>
+    <string name="setting_bill_remark_desc">支持使用如下中文变量：【商户名称】、【商品名称】、【币种类型】、【金额】、【分类】、【账本】、【来源】、【原始资产】、【渠道】</string>
     <string name="setting_float_time">倒计时时长（单位：秒）</string>
     <string name="setting_float_time_desc">当倒计时为0则触发超时事件</string>
     <string name="setting_float_on_badge_click">悬浮角标被单击时</string>
