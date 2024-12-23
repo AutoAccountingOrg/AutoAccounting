@@ -36,7 +36,6 @@ import org.ezbook.server.constant.Setting
 
 
 class NotificationService : NotificationListenerService() {
-    private var apps = mutableListOf<String>()
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         super.onNotificationPosted(sbn)
         //获取用户通知
@@ -45,12 +44,8 @@ class NotificationService : NotificationListenerService() {
             val app = sbn?.packageName
             val title = notification?.extras?.getString(Notification.EXTRA_TITLE) ?: ""
             val text = notification?.extras?.getString(Notification.EXTRA_TEXT) ?: ""
-            //处理通知
-            apps = runCatching {
-                ConfigUtils.getString(Setting.LISTENER_APP_LIST, DefaultData.NOTICE_FILTER)
-                    .split(",").toMutableList()
-            }.getOrElse { mutableListOf() }
 
+            Logger.d("NotificationService: $app $title $text")
             checkNotification(app!!, title, text)
         }.onFailure {
             Logger.e("NotificationService: ${it.message}", it)
@@ -75,11 +70,26 @@ class NotificationService : NotificationListenerService() {
         title: String,
         text: String,
     ) {
+
+        val  apps = runCatching {
+            ConfigUtils.getString(Setting.LISTENER_APP_LIST, DefaultData.NOTICE_FILTER)
+                .split(",").toMutableList()
+        }.getOrElse { mutableListOf() }
+
         if (title.isEmpty() && text.isEmpty()) {
             return
         }
 
         if (!apps.contains(pkg)) {
+            return
+        }
+
+        val filter = ConfigUtils.getString(Setting.SMS_FILTER, DefaultData.SMS_FILTER).split(",")
+
+        val data = "$title $text"
+
+        if (filter.all { !data.contains(it) }) {
+            Logger.d("all filter not contains: $data, $filter")
             return
         }
 

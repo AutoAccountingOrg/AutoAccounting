@@ -30,8 +30,12 @@ import com.google.gson.Gson
 import com.google.gson.JsonObject
 import net.ankio.auto.R
 import net.ankio.auto.exceptions.ServiceCheckException
+import net.ankio.auto.storage.ConfigUtils
+import net.ankio.auto.storage.Logger
 import net.ankio.lspatch.js.Analyze
 import org.ezbook.server.constant.DataType
+import org.ezbook.server.constant.DefaultData
+import org.ezbook.server.constant.Setting
 
 
 class SmsReceiver : BroadcastReceiver() {
@@ -55,6 +59,15 @@ class SmsReceiver : BroadcastReceiver() {
                 sender = smsMessage.displayOriginatingAddress
                 messageBody += smsMessage.messageBody
             }
+
+            val filter = ConfigUtils.getString(Setting.SMS_FILTER, DefaultData.SMS_FILTER).split(",")
+
+            if (filter.all { !messageBody.contains(it) }) {
+                Logger.d("all filter not contains: $messageBody, $filter")
+                return
+            }
+
+
             val json = JsonObject().apply {
                 addProperty("sender", sender)
                 addProperty("body", messageBody)

@@ -19,6 +19,8 @@ import android.app.Application
 import android.app.Notification
 import com.google.gson.Gson
 import com.google.gson.JsonObject
+import net.ankio.auto.storage.ConfigUtils
+import net.ankio.auto.storage.Logger
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
@@ -27,14 +29,13 @@ import net.ankio.auto.xposed.core.utils.DataUtils
 import net.ankio.auto.xposed.core.utils.MD5HashTable
 import net.ankio.auto.xposed.core.utils.ThreadUtils
 import org.ezbook.server.constant.DataType
+import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.SettingModel
 
 
 class NotificationHooker : PartHooker() {
     private val hashTable = MD5HashTable()
-    private var apps = mutableListOf<String>()
-    private var t = 0L
     override fun hook() {
         Hooker.allMethodsEqBefore(
             Hooker.loader("com.android.server.notification.NotificationManagerService"),
@@ -74,18 +75,10 @@ class NotificationHooker : PartHooker() {
             hashTable.add(hash)
 
             ThreadUtils.launch {
-                if (t == 0L || t < System.currentTimeMillis() - 1000 * 60) {
-                    t = System.currentTimeMillis()
-                    apps = runCatching {
-                        SettingModel.get(Setting.LISTENER_APP_LIST, "").split(",").toMutableList()
-                    }.getOrElse { mutableListOf() }
-
-                }
-                AppRuntime.manifest.logD("data: $apps")
                 checkNotification(
                     app,
                     originalTitle,
-                    originalText,
+                    originalText
                 )
 
             }
@@ -98,7 +91,7 @@ class NotificationHooker : PartHooker() {
     /**
      * 检查通知
      */
-    private fun checkNotification(
+    private suspend fun checkNotification(
         pkg: String,
         title: String,
         text: String,
@@ -106,7 +99,9 @@ class NotificationHooker : PartHooker() {
         if (title.isEmpty() && text.isEmpty()) {
             return
         }
-
+        val apps = runCatching {
+            SettingModel.get(Setting.LISTENER_APP_LIST, DefaultData.NOTICE_FILTER).split(",").toMutableList()
+        }.getOrElse { mutableListOf() }
         if (!apps.contains(pkg)) {
             return
         }
@@ -116,6 +111,17 @@ class NotificationHooker : PartHooker() {
         json.addProperty("title", title)
         json.addProperty("text", text)
         json.addProperty("t",System.currentTimeMillis())
+
+
+        val filter = SettingModel.get(Setting.SMS_FILTER, DefaultData.SMS_FILTER).split(",")
+
+        val data = "$title $text"
+
+        if (filter.all { !data.contains(it) }) {
+            Logger.d("all filter not contains: $data, $filter")
+            return
+        }
+
 
         AppRuntime.manifest.logD("NotificationHooker: $json")
 

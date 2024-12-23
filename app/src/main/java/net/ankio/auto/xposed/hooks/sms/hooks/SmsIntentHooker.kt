@@ -20,11 +20,18 @@ import android.provider.Telephony
 import android.telephony.SmsMessage
 import com.google.gson.Gson
 import com.google.gson.JsonObject
+import net.ankio.auto.storage.ConfigUtils
+import net.ankio.auto.storage.Logger
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.utils.AppRuntime
+import net.ankio.auto.xposed.core.utils.DataUtils
+import net.ankio.auto.xposed.core.utils.ThreadUtils
 import net.ankio.auto.xposed.hooks.sms.utils.SmsMessageUtils
 import org.ezbook.server.constant.DataType
+import org.ezbook.server.constant.DefaultData
+import org.ezbook.server.constant.Setting
+import org.ezbook.server.db.model.SettingModel
 import java.text.Normalizer
 
 
@@ -56,7 +63,16 @@ class SmsIntentHooker: PartHooker() {
                 addProperty("t",System.currentTimeMillis())
             }
 
-            AppRuntime.manifest.analysisData(DataType.DATA, Gson().toJson(json))
+            ThreadUtils.launch {
+                val filter = SettingModel.get(Setting.SMS_FILTER, DefaultData.SMS_FILTER).split(",")
+
+                if (filter.all { !body.contains(it) }) {
+                    Logger.d("all filter not contains: $body, $filter")
+                    return@launch
+                }
+
+                AppRuntime.manifest.analysisData(DataType.DATA, Gson().toJson(json))
+            }
             return@allMethodsEqBefore null
         }
 
