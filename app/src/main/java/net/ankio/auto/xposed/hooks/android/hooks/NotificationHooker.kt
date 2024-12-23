@@ -113,16 +113,6 @@ class NotificationHooker : PartHooker() {
         json.addProperty("t",System.currentTimeMillis())
 
 
-        val filter = SettingModel.get(Setting.SMS_FILTER, DefaultData.SMS_FILTER).split(",")
-
-        val data = "$title $text"
-
-        if (filter.all { !data.contains(it) }) {
-            Logger.d("all filter not contains: $data, $filter")
-            return
-        }
-
-
         AppRuntime.manifest.logD("NotificationHooker: $json")
 
         AppRuntime.manifest.analysisData(DataType.NOTICE, Gson().toJson(json), pkg)

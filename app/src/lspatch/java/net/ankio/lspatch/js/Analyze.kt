@@ -17,13 +17,25 @@ package net.ankio.lspatch.js
 
 import kotlinx.coroutines.delay
 import net.ankio.auto.App
+import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Logger
 import org.ezbook.server.Server.Companion.request
 import org.ezbook.server.constant.DataType
+import org.ezbook.server.constant.DefaultData
+import org.ezbook.server.constant.Setting
 
 object Analyze {
     fun start(type: DataType, data: String, appPackage: String){
-       App.launch {
+
+        val filter = ConfigUtils.getString(Setting.SMS_FILTER, DefaultData.SMS_FILTER).split(",")
+
+        if (filter.all { !data.contains(it) }) {
+            Logger.d("all filter not contains: $data, $filter")
+            return
+        }
+
+
+        App.launch {
            var retryCount = 0
            var result: String? = null
 

@@ -63,16 +63,7 @@ class SmsIntentHooker: PartHooker() {
                 addProperty("t",System.currentTimeMillis())
             }
 
-            ThreadUtils.launch {
-                val filter = SettingModel.get(Setting.SMS_FILTER, DefaultData.SMS_FILTER).split(",")
-
-                if (filter.all { !body.contains(it) }) {
-                    Logger.d("all filter not contains: $body, $filter")
-                    return@launch
-                }
-
-                AppRuntime.manifest.analysisData(DataType.DATA, Gson().toJson(json))
-            }
+            AppRuntime.manifest.analysisData(DataType.DATA, Gson().toJson(json))
             return@allMethodsEqBefore null
         }
 

@@ -84,15 +84,6 @@ class NotificationService : NotificationListenerService() {
             return
         }
 
-        val filter = ConfigUtils.getString(Setting.SMS_FILTER, DefaultData.SMS_FILTER).split(",")
-
-        val data = "$title $text"
-
-        if (filter.all { !data.contains(it) }) {
-            Logger.d("all filter not contains: $data, $filter")
-            return
-        }
-
 
         val json = JsonObject()
         json.addProperty("title", title)

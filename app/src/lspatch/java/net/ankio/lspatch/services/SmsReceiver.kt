@@ -61,14 +61,6 @@ class SmsReceiver : BroadcastReceiver() {
                 messageBody += smsMessage.messageBody
             }
 
-            val filter = ConfigUtils.getString(Setting.SMS_FILTER, DefaultData.SMS_FILTER).split(",")
-
-            if (filter.all { !messageBody.contains(it) }) {
-                Logger.d("all filter not contains: $messageBody, $filter")
-                return
-            }
-
-
             val json = JsonObject().apply {
                 addProperty("sender", sender)
                 addProperty("body", messageBody)

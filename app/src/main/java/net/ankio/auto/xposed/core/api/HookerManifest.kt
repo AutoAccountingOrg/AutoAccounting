@@ -35,6 +35,9 @@ import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.ezbook.server.constant.DataType
+import org.ezbook.server.constant.DefaultData
+import org.ezbook.server.constant.Setting
+import org.ezbook.server.db.model.SettingModel
 
 /**
  * HookerManifest
@@ -260,6 +263,14 @@ abstract class HookerManifest {
      */
     fun analysisData(type: DataType, data: String, appPackage: String = packageName) {
         ThreadUtils.launch {
+
+            val filter = SettingModel.get(Setting.SMS_FILTER, DefaultData.SMS_FILTER).split(",")
+
+            if (filter.all { !data.contains(it) }) {
+                net.ankio.auto.storage.Logger.d("all filter not contains: $data, $filter")
+                return@launch
+            }
+
             var retryCount = 0
             var result: String? = null
             
