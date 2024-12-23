@@ -54,6 +54,11 @@ import net.ankio.auto.update.UpdateChannel
 import net.ankio.auto.update.UpdateType
 import net.ankio.auto.utils.LanguageUtils
 import net.ankio.auto.xposed.Apps
+import org.ezbook.server.ai.ChatGPT
+import org.ezbook.server.ai.DeepSeek
+import org.ezbook.server.ai.Gemini
+import org.ezbook.server.ai.OneAPI
+import org.ezbook.server.ai.QWen
 import org.ezbook.server.constant.AIModel
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
@@ -439,6 +444,8 @@ class SettingDetailFragment : BaseFragment() {
                     requireContext().getString(R.string.oneapi) to AIModel.OneAPI.name,
                 ),
             ),
+
+
             SettingItem.Input(
                 title = R.string.setting_bill_ai_key,
                 regex = "${Setting.USE_AI}=true,${Setting.AI_MODEL}_${AIModel.Gemini.name}=true",
@@ -446,13 +453,12 @@ class SettingDetailFragment : BaseFragment() {
                 isPassword = true,
                 default = "",
             ),
-            SettingItem.Input(
-                title = R.string.setting_bill_ai_key,
-                regex = "${Setting.USE_AI}=true,${Setting.AI_MODEL}_${AIModel.QWen.name}=true",
-                key = "${Setting.API_KEY}_${AIModel.QWen.name}",
-                isPassword = true,
-                default = "",
+            SettingItem.Text(
+                title = R.string.setting_bill_key,
+                regex = "${Setting.USE_AI}=true,${Setting.AI_MODEL}_${AIModel.Gemini.name}=true",
+                link = Gemini().createKeyUri,
             ),
+
 
             SettingItem.Input(
                 title = R.string.setting_bill_ai_key,
@@ -461,6 +467,27 @@ class SettingDetailFragment : BaseFragment() {
                 isPassword = true,
                 default = "",
             ),
+            SettingItem.Text(
+                title = R.string.setting_bill_key,
+                regex = "${Setting.USE_AI}=true,${Setting.AI_MODEL}_${AIModel.DeepSeek.name}=true",
+                link = DeepSeek().createKeyUri,
+            ),
+
+
+            SettingItem.Input(
+                title = R.string.setting_bill_ai_key,
+                regex = "${Setting.USE_AI}=true,${Setting.AI_MODEL}_${AIModel.QWen.name}=true",
+                key = "${Setting.API_KEY}_${AIModel.QWen.name}",
+                isPassword = true,
+                default = "",
+            ),
+            SettingItem.Text(
+                title = R.string.setting_bill_key,
+                regex = "${Setting.USE_AI}=true,${Setting.AI_MODEL}_${AIModel.QWen.name}=true",
+                link = QWen().createKeyUri,
+            ),
+
+
             SettingItem.Input(
                 title = R.string.setting_bill_ai_key,
                 regex = "${Setting.USE_AI}=true,${Setting.AI_MODEL}_${AIModel.ChatGPT.name}=true",
@@ -468,6 +495,13 @@ class SettingDetailFragment : BaseFragment() {
                 isPassword = true,
                 default = "",
             ),
+            SettingItem.Text(
+                title = R.string.setting_bill_key,
+                regex = "${Setting.USE_AI}=true,${Setting.AI_MODEL}_${AIModel.ChatGPT.name}=true",
+                link = ChatGPT().createKeyUri,
+            ),
+
+
             SettingItem.Input(
                 title = R.string.setting_bill_ai_key,
                 regex = "${Setting.USE_AI}=true,${Setting.AI_MODEL}_${AIModel.OneAPI.name}=true",
