@@ -455,6 +455,7 @@ class HomeFragment : BaseFragment() {
                 binding.bookApp.text = getString(R.string.no_setting)
             } else {
                 App.getAppInfoFromPackageName(this)?.apply {
+                    if (!isUiReady()) return
                     binding.bookApp.text = this[0] as String
                 }
             }
@@ -465,7 +466,7 @@ class HomeFragment : BaseFragment() {
         if (bookName.isEmpty()) {
             lifecycleScope.launch {
                 val book = BookNameModel.getFirstBook()
-                // if (!isUiReady()) return@launch
+                 if (!isUiReady()) return@launch
                 ConfigUtils.putString(Setting.DEFAULT_BOOK_NAME, book.name)
                 binding.defaultBook.text = book.name
             }
@@ -507,7 +508,7 @@ class HomeFragment : BaseFragment() {
         // if (!isUiReady()) return
         lifecycleScope.launch {
             SettingModel.get(Setting.RULE_VERSION, "None").let {
-                //if (!isUiReady()) return@launch
+                if (!isUiReady()) return@launch
                 binding.ruleVersion.text = it
             }
         }
@@ -564,6 +565,7 @@ class HomeFragment : BaseFragment() {
         @ColorInt textColor: Int,
         @DrawableRes drawable: Int,
     ) {
+        if (!isUiReady()) return
         binding.active.setBackgroundColor(backgroundColor)
         binding.imageView.setImageDrawable(
             AppCompatResources.getDrawable(
@@ -576,6 +578,7 @@ class HomeFragment : BaseFragment() {
         binding.msgLabel.text = names[0].trim()
         lifecycleScope.launch {
             ActiveInfo.getFramework().let {
+                if (!isUiReady()) return@launch
                 binding.msgLabel2.text = it
             }
         }

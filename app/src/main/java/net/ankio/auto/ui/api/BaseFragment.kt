@@ -53,6 +53,17 @@ abstract class BaseFragment : Fragment() {
 
     }
 
+    private var isDestroyed = false
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        isDestroyed = true
+    }
+
+    fun isUiReady(): Boolean {
+        return isAdded && view != null &&  requireView().isAttachedToWindow && !isDestroyed
+    }
+
     open fun navigate(@IdRes resId: Int,bundle: Bundle? = null) {
         viewLifecycleOwner.lifecycleScope.launch {
             try {
