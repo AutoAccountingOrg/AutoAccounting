@@ -15,9 +15,7 @@
 
 package net.ankio.auto.xposed.hooks.android.hooks
 
-import android.app.Application
 import android.os.Build
-import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.hooks.android.hooks.permission.PermissionHooker29

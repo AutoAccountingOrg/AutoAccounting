@@ -15,6 +15,7 @@
 
 package net.ankio.auto.xposed.hooks.android.hooks
 
+import android.app.AndroidAppHelper
 import android.app.AppOpsManager
 import android.content.Context
 import android.content.pm.PackageManager
@@ -26,13 +27,20 @@ import net.ankio.auto.xposed.core.utils.AppRuntime
 
 class PermissionCheckHooker: PartHooker() {
     override fun hook() {
+        Hooker.allMethodsEqAfter(Hooker.loader("com.android.server.SystemServer"), "startOtherServices") {
+            AppRuntime.application = AndroidAppHelper.currentApplication()
+            hookDelay()
+            null
+        }
+    }
 
-       runCatching {
-           hookCheckPermission()
-       }.onFailure {
-           AppRuntime.manifest.log("hook hookCheckPermission error:${it.message}")
-           AppRuntime.manifest.logE(it)
-       }
+    private fun hookDelay(){
+        runCatching {
+            hookCheckPermission()
+        }.onFailure {
+            AppRuntime.manifest.log("hook hookCheckPermission error:${it.message}")
+            AppRuntime.manifest.logE(it)
+        }
 
 
         //////////AppOpsManager的权限设置拦截不成功不知道为什么，换用下面的方法直接授权
@@ -42,7 +50,6 @@ class PermissionCheckHooker: PartHooker() {
             AppRuntime.manifest.log("hook setOverlaysAllowed error:${it.message}")
             AppRuntime.manifest.logE(it)
         }
-
     }
 
     private fun hookCheckPermission() {

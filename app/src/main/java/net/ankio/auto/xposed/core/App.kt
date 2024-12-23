@@ -56,8 +56,7 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
     ) {
         var hookStatus = false
         if (AppRuntime.manifest.packageName == "android") {
-            hookStatus = true
-            callback(AndroidAppHelper.currentApplication())
+            callback(null)
             return
         }
         if (applicationName.isEmpty()) {
