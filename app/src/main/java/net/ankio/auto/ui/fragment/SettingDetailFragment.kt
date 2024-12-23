@@ -130,7 +130,7 @@ class SettingDetailFragment : BaseFragment() {
                 key = Setting.NOTE_FORMAT,
                 icon = R.drawable.setting_icon_remark,
                 subTitle = R.string.setting_bill_remark_desc,
-                default = "【商户名称】【商品名称】",
+                default = DefaultData.NOTE_FORMAT,
             ),
 
             SettingItem.Title(R.string.setting_bill_repeat),
@@ -139,7 +139,7 @@ class SettingDetailFragment : BaseFragment() {
                 key = Setting.AUTO_GROUP,
                 icon = R.drawable.setting_icon_repeat,
                 subTitle = R.string.setting_bill_repeat_desc,
-                default = true,
+                default = DefaultData.AUTO_GROUP,
             ),
             SettingItem.Title(R.string.setting_bill_category),
             SettingItem.Switch(
@@ -147,7 +147,7 @@ class SettingDetailFragment : BaseFragment() {
                 key = Setting.CATEGORY_SHOW_PARENT,
                 icon = R.drawable.setting_icon_parent,
                 subTitle = R.string.setting_category_show_parent_desc,
-                default = false,
+                default = DefaultData.CATEGORY_SHOW_PARENT,
 
                 ),
             SettingItem.Title(R.string.setting_color),
@@ -160,7 +160,7 @@ class SettingDetailFragment : BaseFragment() {
                     requireContext().getString(R.string.setting_pay_color_red) to 0,
                     requireContext().getString(R.string.setting_pay_color_green) to 1,
                 ),
-                default = 0,
+                default = DefaultData.EXPENSE_COLOR_RED,
 
                 ),
             SettingItem.Title(R.string.setting_bill_tip),
@@ -168,20 +168,20 @@ class SettingDetailFragment : BaseFragment() {
                 title = R.string.setting_bill_show_rule,
                 key = Setting.SHOW_RULE_NAME,
                 icon = R.drawable.setting2_icon_rule,
-                default = true,
+                default = DefaultData.SHOW_RULE_NAME,
             ),
             SettingItem.Switch(
                 title = R.string.setting_bill_auto_record,
                 key = Setting.SHOW_AUTO_BILL_TIP,
                 icon = R.drawable.ic_tip,
-                default = false,
+                default = DefaultData.SHOW_AUTO_BILL_TIP,
             ),
             SettingItem.Switch(
                 title = R.string.setting_book_success,
                 key = Setting.SHOW_SUCCESS_POPUP,
                 // subTitle = R.string.setting_category_show_parent_desc,
                 icon = R.drawable.setting_icon_success,
-                default = true,
+                default = DefaultData.SHOW_SUCCESS_POPUP,
             ),
 
             SettingItem.Title(R.string.setting_bill_sync),
@@ -196,7 +196,7 @@ class SettingDetailFragment : BaseFragment() {
                     requireContext().getString(R.string.bills_limit5) to SyncType.BillsLimit5.name,
                     requireContext().getString(R.string.bills_limit10) to SyncType.BillsLimit10.name,
                 ),
-                default = SyncType.WhenOpenApp.name,
+                default = DefaultData.SYNC_TYPE,
 
                 ),
 
@@ -211,7 +211,7 @@ class SettingDetailFragment : BaseFragment() {
                 title = R.string.setting_float_time,
                 key = Setting.FLOAT_TIMEOUT_OFF,
                 subTitle = R.string.setting_float_time_desc,
-                default = 10,
+                default = DefaultData.FLOAT_TIMEOUT_OFF,
             ),
             SettingItem.Title(R.string.setting_popup_event),
             SettingItem.Select(
@@ -266,42 +266,42 @@ class SettingDetailFragment : BaseFragment() {
                 title = R.string.setting_asset_manager,
                 key = Setting.SETTING_ASSET_MANAGER,
                 icon = R.drawable.home_app_assets,
-                default = true,
+                default = DefaultData.SETTING_ASSET_MANAGER,
 
                 ),
             SettingItem.Switch(
                 title = R.string.setting_currency_manager,
                 key = Setting.SETTING_CURRENCY_MANAGER,
                 icon = R.drawable.setting2_icon_language,
-                default = false,
+                default = DefaultData.SETTING_CURRENCY_MANAGER,
 
                 ),
             SettingItem.Switch(
                 title = R.string.setting_reimbursement_manager,
                 key = Setting.SETTING_REIMBURSEMENT,
                 icon = R.drawable.setting_icon_reimbursement,
-                default = true,
+                default = DefaultData.SETTING_REIMBURSEMENT,
 
                 ),
             SettingItem.Switch(
                 title = R.string.setting_lending_manager,
                 key = Setting.SETTING_DEBT,
                 icon = R.drawable.setting_icon_debt,
-                default = true,
+                default = DefaultData.SETTING_DEBT,
 
                 ),
             SettingItem.Switch(
                 title = R.string.setting_mutilbooks_manager,
                 key = Setting.SETTING_BOOK_MANAGER,
                 icon = R.drawable.home_app_book_data,
-                default = true,
+                default = DefaultData.SETTING_BOOK_MANAGER,
 
                 ),
             SettingItem.Switch(
                 title = R.string.setting_fee_manager,
                 key = Setting.SETTING_FEE,
                 icon = R.drawable.setting_icon_fee,
-                default = true,
+                default = DefaultData.SETTING_FEE,
 
                 ),
         )
@@ -412,7 +412,7 @@ class SettingDetailFragment : BaseFragment() {
                 title = R.string.setting_bill_use_ai,
                 key = Setting.USE_AI,
                 icon = R.drawable.ic_ai,
-                 default = false,
+                 default = DefaultData.USE_AI,
 
                 ),
             SettingItem.Switch(
@@ -421,7 +421,7 @@ class SettingDetailFragment : BaseFragment() {
                 key = Setting.AI_AUXILIARY,
                 icon = R.drawable.ic_ai,
                 subTitle = R.string.setting_bill_ai_desc,
-                default = false,
+                default = DefaultData.AI_AUXILIARY,
 
                 ),
             SettingItem.Select(
@@ -504,7 +504,7 @@ class SettingDetailFragment : BaseFragment() {
                 key = Setting.AUTO_IDENTIFY_ASSET,
                 icon = R.drawable.setting_icon_ai_map,
                 subTitle = R.string.setting_auto_ai_asset_desc,
-                default = false,
+                default =  DefaultData.AUTO_IDENTIFY_ASSET,
 
                 ),
             SettingItem.Title(
@@ -515,7 +515,7 @@ class SettingDetailFragment : BaseFragment() {
                 key = Setting.AUTO_CREATE_CATEGORY,
                 icon = R.drawable.setting_icon_auto,
                 subTitle = R.string.setting_auto_create_category_desc,
-                default = false,
+                default = DefaultData.AUTO_CREATE_CATEGORY,
 
                 ),
         )
@@ -532,7 +532,7 @@ class SettingDetailFragment : BaseFragment() {
                 key = Setting.USE_WEBDAV,
                 icon = R.drawable.setting2_icon_backup,
                 // type = ItemType.SWITCH,
-                default = false,
+                default =  DefaultData.USE_WEBDAV,
 
                 ),
             SettingItem.Switch(
@@ -540,7 +540,7 @@ class SettingDetailFragment : BaseFragment() {
                 key = Setting.AUTO_BACKUP,
                 icon = R.drawable.icon_auto,
                 // type = ItemType.SWITCH,
-                default = false,
+                default = DefaultData.AUTO_BACKUP,
             ),
             SettingItem.Text(
                 title = R.string.setting_backup_path,
@@ -705,7 +705,7 @@ class SettingDetailFragment : BaseFragment() {
                 key = Setting.CHECK_APP_UPDATE,
                 icon = R.drawable.setting2_icon_rule,
                 //  type = ItemType.SWITCH,
-                default = true,
+                default =  DefaultData.CHECK_APP_UPDATE,
 
                 ),
             SettingItem.Switch(
@@ -713,7 +713,7 @@ class SettingDetailFragment : BaseFragment() {
                 key = Setting.CHECK_RULE_UPDATE,
                 icon = R.drawable.setting2_icon_category,
                 //  type = ItemType.SWITCH,
-                default = true,
+                default = DefaultData.CHECK_RULE_UPDATE,
 
                 ),
             // 其他
@@ -728,7 +728,7 @@ class SettingDetailFragment : BaseFragment() {
                 key = Setting.SEND_ERROR_REPORT,
                 icon = R.drawable.setting2_icon_anonymous,
                 subTitle = R.string.setting_analysis_desc,
-                default = true,
+                default = DefaultData.SEND_ERROR_REPORT,
 
                 ),
             SettingItem.Title(R.string.setting_others),
@@ -737,7 +737,7 @@ class SettingDetailFragment : BaseFragment() {
                 key = Setting.LOAD_SUCCESS,
                 icon = R.drawable.setting_icon_success,
                 subTitle = R.string.load_msg,
-                default = true,
+                default = DefaultData.LOAD_SUCCESS,
                 onSavedValue = { value, _ ->
                     ConfigUtils.putBoolean(Setting.LOAD_SUCCESS, value)
                     SpUtils.putBoolean(Setting.LOAD_SUCCESS, value)
