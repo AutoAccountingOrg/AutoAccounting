@@ -45,7 +45,7 @@ abstract class HookerManifest {
      * 包名
      */
     abstract val packageName: String
-
+    open var processName: String = ""
     /**
      * 应用名，显示在日志里面的名称
      */
@@ -98,21 +98,21 @@ abstract class HookerManifest {
      * 写日志
      */
     fun log(string: String) {
-        Logger.log(packageName, string)
+        Logger.log("$packageName $processName", string)
     }
 
     /**
      * 写调试日志
      */
     fun logD(string: String) {
-        Logger.logD(packageName, string)
+        Logger.logD("$packageName $processName", string)
     }
 
     /**
      * 写错误日志
      */
     fun logE(e: Throwable) {
-        Logger.logE(packageName, e)
+        Logger.logE("$packageName $processName", e)
     }
 
     /**
@@ -311,7 +311,4 @@ abstract class HookerManifest {
         }!!
     }
 
-    open fun beforeInitHook(){
-
-    }
 }

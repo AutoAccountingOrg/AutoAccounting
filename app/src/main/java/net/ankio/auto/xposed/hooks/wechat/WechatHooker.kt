@@ -22,6 +22,7 @@ import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.core.utils.AppRuntime.application
 import net.ankio.auto.xposed.core.utils.AppRuntime.classLoader
+import net.ankio.auto.xposed.core.utils.DataUtils
 import net.ankio.auto.xposed.hooks.wechat.hooks.ChatUserHooker
 import net.ankio.auto.xposed.hooks.wechat.hooks.DatabaseHooker
 import net.ankio.auto.xposed.hooks.wechat.hooks.PayToolsHooker
@@ -31,12 +32,13 @@ import net.ankio.auto.xposed.hooks.wechat.hooks.WebViewHooker
 import net.ankio.dex.model.Clazz
 import net.ankio.dex.model.ClazzField
 import net.ankio.dex.model.ClazzMethod
+import org.ezbook.server.constant.Setting
 import java.io.File
 
 
 class WechatHooker : HookerManifest() {
     override val packageName: String
-        get() = "com.tencent.mm"
+        get() =  DataUtils.configString(Setting.HOOK_WECHAT, "com.tencent.mm")
     override val appName: String = "微信"
 
     override fun hookLoadPackage() {

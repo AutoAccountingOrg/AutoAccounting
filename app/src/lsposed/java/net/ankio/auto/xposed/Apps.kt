@@ -15,6 +15,7 @@
 
 package net.ankio.auto.xposed
 
+import android.util.Pair
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.hooks.alipay.AliPayHooker
@@ -29,10 +30,10 @@ object Apps {
     /**
      * 虚拟框架无法hook到模块环境
      */
-    fun getServerRunInApp():String{
+    fun getServerRunInApp():Pair<String,String>{
         // 或者运行于com.tencent.mm
-       if (BuildConfig.DEBUG) return BuildConfig.APPLICATION_ID
-        return  "com.android.phone"
+       if (BuildConfig.DEBUG) return Pair<BuildConfig.APPLICATION_ID,BuildConfig.APPLICATION_ID>
+        return  Pair("com.android.phone","com.android.phone")
     }
 
     fun get(): MutableList<HookerManifest> {

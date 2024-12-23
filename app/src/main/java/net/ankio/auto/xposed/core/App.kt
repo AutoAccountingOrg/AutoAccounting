@@ -124,7 +124,12 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         Logger.logD(TAG, "handleLoadPackage: $pkg，processName: $processName")
 
         for (app in Apps.get()) {
-            if (app.packageName == pkg && app.packageName == processName) {
+
+            if (app.processName.isEmpty()){
+                app.processName = app.packageName
+            }
+            Logger.logD(TAG, "app.packageName(${app.packageName}) == pkg(${pkg}): ${app.packageName == pkg} app.processName(${app.processName}) == processName(${processName}): ${app.processName == processName}")
+            if (app.packageName == pkg &&  app.processName == processName) {
                 AppRuntime.classLoader = lpparam.classLoader
                 Logger.logD(
                     TAG,
@@ -182,11 +187,6 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         Server.versionName = BuildConfig.VERSION_NAME
         //注入包名
         Server.packageName = BuildConfig.APPLICATION_ID
-
-        // 启动自动记账服务
-        if (AppRuntime.manifest.packageName === Apps.getServerRunInApp()) {
-            CommonHooker.init()
-        }
 
         initHookers()
 
