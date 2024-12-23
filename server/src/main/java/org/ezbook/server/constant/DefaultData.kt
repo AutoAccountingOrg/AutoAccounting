@@ -16,6 +16,7 @@
 package org.ezbook.server.constant
 
 object DefaultData {
+    val WECHAT_PACKAGE: String = "com.tencent.mm"
     val SMS_FILTER = listOf(
         "银行", "信用卡", "借记卡", "公积金",
         "元", "￥", "¥", "人民币",

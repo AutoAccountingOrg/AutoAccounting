@@ -22,6 +22,7 @@ import net.ankio.auto.xposed.hooks.auto.AutoHooker
 import net.ankio.auto.xposed.hooks.common.ServerHooker
 import net.ankio.auto.xposed.hooks.qianji.QianjiHooker
 import net.ankio.auto.xposed.hooks.wechat.WechatHooker
+import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
 
 
@@ -32,7 +33,7 @@ object Apps {
     fun getServerRunInApp():Pair<String,String>{
         // 或者运行于com.tencent.mm
      //  if (BuildConfig.DEBUG) return BuildConfig.APPLICATION_ID
-        val wechat = DataUtils.configString(Setting.HOOK_WECHAT, "com.tencent.mm")
+        val wechat = DataUtils.configString(Setting.HOOK_WECHAT,  DefaultData.WECHAT_PACKAGE)
         return  Pair(wechat,"${wechat}:push")
     }
 

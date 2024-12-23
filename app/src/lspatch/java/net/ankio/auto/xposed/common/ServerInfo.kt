@@ -26,9 +26,12 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.exceptions.ServiceCheckException
+import net.ankio.auto.storage.SpUtils
 import net.ankio.lspatch.services.NotificationService
 import net.ankio.lspatch.services.SmsReceiver
 import org.ezbook.server.Server
+import org.ezbook.server.constant.DefaultData
+import org.ezbook.server.constant.Setting
 
 
 object ServerInfo {
@@ -49,7 +52,7 @@ object ServerInfo {
                         action = { activity ->
                 //跳转微信设置页面
                 val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                val uri = Uri.fromParts("package", "com.tencent.mm", null)
+                val uri = Uri.fromParts("package", SpUtils.getString(Setting.HOOK_WECHAT, DefaultData.WECHAT_PACKAGE), null)
                 intent.setData(uri)
                 activity.startActivity(intent)
             })
@@ -70,7 +73,7 @@ object ServerInfo {
                     action = { activity ->
                     //跳转微信设置页面
                     val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                    val uri = Uri.fromParts("package", "com.tencent.mm", null)
+                    val uri = Uri.fromParts("package",SpUtils.getString(Setting.HOOK_WECHAT, DefaultData.WECHAT_PACKAGE), null)
                     intent.setData(uri)
                     activity.startActivity(intent)
                 })

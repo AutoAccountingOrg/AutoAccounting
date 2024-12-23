@@ -32,13 +32,14 @@ import net.ankio.auto.xposed.hooks.wechat.hooks.WebViewHooker
 import net.ankio.dex.model.Clazz
 import net.ankio.dex.model.ClazzField
 import net.ankio.dex.model.ClazzMethod
+import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
 import java.io.File
 
 
 class WechatHooker : HookerManifest() {
     override val packageName: String
-        get() =  DataUtils.configString(Setting.HOOK_WECHAT, "com.tencent.mm")
+        get() =  DataUtils.configString(Setting.HOOK_WECHAT, DefaultData.WECHAT_PACKAGE)
     override val appName: String = "微信"
 
     override fun hookLoadPackage() {

@@ -769,12 +769,12 @@ class SettingDetailFragment : BaseFragment() {
             SettingItem.Text(
                 title = R.string.setting_hook_wechat,
                 drawable = {
-                    val pkg = SpUtils.getString(Setting.HOOK_WECHAT, "mm.tencent.com")
+                    val pkg = SpUtils.getString(Setting.HOOK_WECHAT, DefaultData.WECHAT_PACKAGE)
                     val info = AppUtils.get(pkg)
                     info?.icon
                 },
                 onGetKeyValue = {
-                    SpUtils.getString(Setting.HOOK_WECHAT, "mm.tencent.com")
+                    SpUtils.getString(Setting.HOOK_WECHAT, DefaultData.WECHAT_PACKAGE)
                 },
                 onItemClick = { activity, binding ->
                     AppsDialog(requireContext()) {
