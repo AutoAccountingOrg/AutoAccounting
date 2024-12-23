@@ -17,7 +17,9 @@ package net.ankio.auto.ui.api
 
 import android.R
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.annotation.IdRes
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -58,6 +60,15 @@ abstract class BaseFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         isDestroyed = true
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        isDestroyed = false
+        return super.onCreateView(inflater, container, savedInstanceState)
     }
 
     fun isUiReady(): Boolean {
