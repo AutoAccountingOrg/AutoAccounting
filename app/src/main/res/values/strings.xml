@@ -397,6 +397,7 @@
     <string name="date_time">时间</string>
     <string name="float_time">请选择日期和时间</string>
     <string name="title_bill">账单列表</string>
+    <string name="no_remind">不再提醒</string>
 
 
 </resources>

@@ -16,7 +16,9 @@
 package org.ezbook.server.constant
 
 object Setting {
-    val SMS_FILTER: String = "sms_filter"
+    const val SMS_PERMISSION: String = "sms_permission"
+    const val NOTIFICATION_PERMISSION: String = "notification_permission"
+    const val SMS_FILTER: String = "sms_filter"
 
     // 检查间隔
     const val LAST_UPDATE_CHECK_TIME: String = "last_update_check_time"

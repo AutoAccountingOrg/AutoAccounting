@@ -28,6 +28,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.gson.Gson
 import com.google.gson.JsonObject
+import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.exceptions.ServiceCheckException
 import net.ankio.auto.storage.ConfigUtils
@@ -78,6 +79,8 @@ class SmsReceiver : BroadcastReceiver() {
     }
     companion object{
         fun checkPermission(context: Context){
+            if (!ConfigUtils.getBoolean(Setting.SMS_PERMISSION, true))return
+
             val result = ContextCompat.checkSelfPermission(context, Manifest.permission.RECEIVE_SMS)
             if (result != PackageManager.PERMISSION_GRANTED) {
                 throw ServiceCheckException(
@@ -88,7 +91,12 @@ class SmsReceiver : BroadcastReceiver() {
                     action = {activity ->
                     val SMS_PERMISSION_CODE = 100
                     ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.RECEIVE_SMS), SMS_PERMISSION_CODE);
-                })
+                }, dismissBtn = App.app.getString(R.string.no_remind),
+                    dismissAction = {
+                        //不再提醒
+                        ConfigUtils.putBoolean(Setting.SMS_PERMISSION, false)
+                    }
+                )
             }
         }
     }

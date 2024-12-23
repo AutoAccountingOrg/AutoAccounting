@@ -115,6 +115,7 @@ class NotificationService : NotificationListenerService() {
         }
 
         fun checkPermission() {
+            if (!ConfigUtils.getBoolean(Setting.NOTIFICATION_PERMISSION, true))return
             //检查是否有权限
             if (!isNLServiceEnabled()) {
                 throw ServiceCheckException(
@@ -128,7 +129,13 @@ class NotificationService : NotificationListenerService() {
                                 "android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"
                             ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                         )
-                    })
+                    },
+                    dismissBtn = App.app.getString(R.string.no_remind),
+                    dismissAction = {
+                        //不再提醒
+                        ConfigUtils.putBoolean(Setting.NOTIFICATION_PERMISSION, false)
+                    }
+                    )
             }
         }
     }
