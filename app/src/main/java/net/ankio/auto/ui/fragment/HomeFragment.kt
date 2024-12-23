@@ -18,7 +18,6 @@ package net.ankio.auto.ui.fragment
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import android.text.method.LinkMovementMethod
@@ -41,7 +40,6 @@ import net.ankio.auto.exceptions.ServiceCheckException
 import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Constants
 import net.ankio.auto.storage.Logger
-import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.dialog.AppDialog
 import net.ankio.auto.ui.dialog.AssetsSelectorDialog
@@ -57,6 +55,7 @@ import net.ankio.auto.update.RuleUpdate
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.xposed.common.ActiveInfo
 import net.ankio.auto.xposed.common.ServerInfo
+import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BookNameModel
 import org.ezbook.server.db.model.SettingModel
@@ -95,7 +94,13 @@ class HomeFragment : BaseFragment() {
 
     private fun setupCards() {
         val surfaceColor = SurfaceColors.SURFACE_1.getColor(requireContext())
-        listOf(binding.infoCard, binding.groupCard, binding.ruleCard, binding.donateCard, binding.groupResource)
+        listOf(
+            binding.infoCard,
+            binding.groupCard,
+            binding.ruleCard,
+            binding.donateCard,
+            binding.groupResource
+        )
             .forEach { it.setCardBackgroundColor(surfaceColor) }
     }
 
@@ -169,7 +174,7 @@ class HomeFragment : BaseFragment() {
                 }
             }
         }
-        builder.showInFragment(this,false,true)
+        builder.showInFragment(this, false, true)
     }
 
     private fun setupMenuEvents() {
@@ -250,7 +255,7 @@ class HomeFragment : BaseFragment() {
             App.runOnUiThread {
                 bindBookAppUI()
             }
-        }.showInFragment(this,false, true)
+        }.showInFragment(this, false, true)
     }
 
     private fun showAssetsDialog(themeContext: Context) {
@@ -357,13 +362,13 @@ class HomeFragment : BaseFragment() {
 
         // 如果是强制显示结果或者超过检查间隔，则进行检查
         if (showResult || currentTime - lastCheckTime > Constants.CHECK_INTERVAL) {
-            if (ConfigUtils.getBoolean(Setting.CHECK_RULE_UPDATE, true)) {
+            if (ConfigUtils.getBoolean(Setting.CHECK_RULE_UPDATE, DefaultData.CHECK_RULE_UPDATE)) {
                 checkRuleUpdate(showResult)
             }
-            if (ConfigUtils.getBoolean(Setting.CHECK_APP_UPDATE, true)) {
+            if (ConfigUtils.getBoolean(Setting.CHECK_APP_UPDATE, DefaultData.CHECK_APP_UPDATE)) {
                 checkAppUpdate()
             }
-            
+
             // 更新最后检查时间
             ConfigUtils.putLong(Setting.LAST_UPDATE_CHECK_TIME, currentTime)
         }
@@ -385,10 +390,10 @@ class HomeFragment : BaseFragment() {
      * 检查记账软件
      */
     private fun checkBookApp() {
-        if (!ConfigUtils.getBoolean(Setting.SETTING_REMIND_BOOK, true)){
+        if (!ConfigUtils.getBoolean(Setting.SETTING_REMIND_BOOK, DefaultData.SETTING_REMIND_BOOK)) {
             return
         }
-        if (ConfigUtils.getString(Setting.BOOK_APP_ID, "").isEmpty()) {
+        if (ConfigUtils.getString(Setting.BOOK_APP_ID, DefaultData.BOOK_APP).isEmpty()) {
             throw ServiceCheckException(
                 getString(R.string.title_no_book_app),
                 getString(R.string.no_book_app),
@@ -397,7 +402,8 @@ class HomeFragment : BaseFragment() {
                         bindBookAppUI()
                     }
                     appDialog.showInFragment(this, cancel = true)
-                },getString(R.string.btn_not_remind)){
+                }, getString(R.string.btn_not_remind)
+            ) {
                 ConfigUtils.putBoolean(Setting.SETTING_REMIND_BOOK, false)
             }
         }
@@ -435,16 +441,16 @@ class HomeFragment : BaseFragment() {
         binding.book.visibility =
             if (ConfigUtils.getBoolean(
                     Setting.SETTING_BOOK_MANAGER,
-                    true
+                    DefaultData.SETTING_BOOK_MANAGER
                 )
             ) View.VISIBLE else View.GONE
         binding.assets.visibility =
             if (ConfigUtils.getBoolean(
                     Setting.SETTING_ASSET_MANAGER,
-                    true
+                    DefaultData.SETTING_ASSET_MANAGER
                 )
             ) View.VISIBLE else View.GONE
-        ConfigUtils.getString(Setting.BOOK_APP_ID, "").apply {
+        ConfigUtils.getString(Setting.BOOK_APP_ID, DefaultData.BOOK_APP).apply {
             if (this.isEmpty()) {
                 binding.bookApp.text = getString(R.string.no_setting)
             } else {
@@ -454,7 +460,8 @@ class HomeFragment : BaseFragment() {
             }
         }
 
-        val bookName = ConfigUtils.getString(Setting.DEFAULT_BOOK_NAME, "")
+        val bookName =
+            ConfigUtils.getString(Setting.DEFAULT_BOOK_NAME, DefaultData.DEFAULT_BOOK_NAME)
         if (bookName.isEmpty()) {
             lifecycleScope.launch {
                 val book = BookNameModel.getFirstBook()
@@ -470,7 +477,7 @@ class HomeFragment : BaseFragment() {
     /**
      * 绑定激活部分的UI
      */
-   suspend  fun bindActiveUI() {
+    suspend fun bindActiveUI() {
         //  if (!isUiReady()) return
         val colorPrimary =
             App.getThemeAttrColor(com.google.android.material.R.attr.colorPrimary)
@@ -491,7 +498,6 @@ class HomeFragment : BaseFragment() {
             )
         }
     }
-
 
 
     /**
@@ -577,7 +583,6 @@ class HomeFragment : BaseFragment() {
         binding.msgLabel.setTextColor(textColor)
         binding.msgLabel2.setTextColor(textColor)
     }
-
 
 
     override fun onDestroyView() {

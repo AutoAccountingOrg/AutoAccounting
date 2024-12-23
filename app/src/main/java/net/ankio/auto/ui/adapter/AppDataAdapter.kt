@@ -24,6 +24,7 @@ import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
 import net.ankio.auto.utils.DateUtils
+import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.AppDataModel
 
@@ -78,7 +79,11 @@ class AppDataAdapter(
         binding.uploadData.visibility = View.VISIBLE
 
         binding.testRuleAi.visibility =
-            if (ConfigUtils.getBoolean(Setting.USE_AI, false)) View.VISIBLE else View.GONE
+            if (ConfigUtils.getBoolean(
+                    Setting.USE_AI,
+                    DefaultData.USE_AI
+                )
+            ) View.VISIBLE else View.GONE
 
 
         binding.time.setText(DateUtils.stampToDate(data.time))
@@ -101,7 +106,7 @@ class AppDataAdapter(
             binding.rule.setText(data.rule)
         }
 
-        binding.edit.visibility =  View.GONE
+        binding.edit.visibility = View.GONE
     }
 
     private var onItemLongClick: (AppDataModel) -> Unit = {}

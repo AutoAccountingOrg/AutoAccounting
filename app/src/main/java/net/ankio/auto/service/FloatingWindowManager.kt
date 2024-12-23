@@ -38,6 +38,7 @@ import net.ankio.auto.ui.dialog.FloatEditorDialog
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.BillTool
 import org.ezbook.server.constant.BillState
+import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.tools.FloatingIntent
@@ -65,7 +66,7 @@ class FloatingWindowManager(
 
     init {
         timeCount = runCatching {
-            ConfigUtils.getString(Setting.FLOAT_TIMEOUT_OFF, "10").toInt()
+            ConfigUtils.getString(Setting.FLOAT_TIMEOUT_OFF, DefaultData.FLOAT_TIMEOUT_OFF).toInt()
         }.getOrDefault(10)
         Logger.i("FloatingWindowManager Start，Timeout：$timeCount s")
         val appTheme = ContextThemeWrapper(App.app, R.style.AppTheme)
@@ -118,6 +119,7 @@ class FloatingWindowManager(
             floatingQueue.processStop()
         }
     }
+
     /**
      * 处理账单信息。
      *
@@ -293,7 +295,7 @@ class FloatingWindowManager(
         App.launch {
             BillInfoModel.put(billInfoModel2)
         }
-        if (ConfigUtils.getBoolean(Setting.SHOW_SUCCESS_POPUP, true)) {
+        if (ConfigUtils.getBoolean(Setting.SHOW_SUCCESS_POPUP, DefaultData.SHOW_SUCCESS_POPUP)) {
             ToastUtils.info(
                 context.getString(
                     R.string.auto_success,

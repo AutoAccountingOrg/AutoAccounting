@@ -42,6 +42,7 @@ import net.ankio.auto.R
 import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.utils.DisplayUtils
+import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
 
 abstract class BaseSheetDialog(private val context: Context) :
@@ -54,7 +55,7 @@ abstract class BaseSheetDialog(private val context: Context) :
     }
 
     // 添加绑定生命周期的方法
-     fun bindToLifecycle(owner: LifecycleOwner) {
+    fun bindToLifecycle(owner: LifecycleOwner) {
         lifecycleOwner?.lifecycle?.removeObserver(lifecycleObserver)
         lifecycleOwner = owner
         owner.lifecycle.addObserver(lifecycleObserver)
@@ -64,7 +65,7 @@ abstract class BaseSheetDialog(private val context: Context) :
     abstract fun onCreateView(inflater: LayoutInflater): View
 
     private fun prepareBaseView(): MaterialCardView {
-        val maxWidthPx =  if (DisplayUtils.isTabletOrFoldable(context)) {
+        val maxWidthPx = if (DisplayUtils.isTabletOrFoldable(context)) {
             // 平板或折叠屏模式：固定500px宽度
             App.dp2px(400f)
         } else {
@@ -72,22 +73,22 @@ abstract class BaseSheetDialog(private val context: Context) :
             DisplayUtils.getRealScreenSize(context).x
         }
         // 创建cardView
-        val round = ConfigUtils.getBoolean(Setting.USE_ROUND_STYLE, false)
+        val round = ConfigUtils.getBoolean(Setting.USE_ROUND_STYLE, DefaultData.USE_ROUND_STYLE)
         val margin = App.dp2px(20f)
         val cardView = MaterialCardView(context).apply {
-       //     id = R.id.cardView // 这里需要提供一个有效的 ID
+            //     id = R.id.cardView // 这里需要提供一个有效的 ID
 
             layoutParams = if (round) {
                 LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
                     setMargins(margin, margin, margin, margin + App.navigationBarHeight)
-                    if (DisplayUtils.isTabletOrFoldable(context)){
+                    if (DisplayUtils.isTabletOrFoldable(context)) {
                         width = maxWidthPx
                     }
                 }
             } else {
 
                 LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
-                    if (DisplayUtils.isTabletOrFoldable(context)){
+                    if (DisplayUtils.isTabletOrFoldable(context)) {
                         width = maxWidthPx
                     }
                 }
@@ -95,7 +96,8 @@ abstract class BaseSheetDialog(private val context: Context) :
             }
 
             cardElevation = 0f
-            strokeColor = App.getThemeAttrColor(com.google.android.material.R.attr.colorSurfaceContainerHighest)
+            strokeColor =
+                App.getThemeAttrColor(com.google.android.material.R.attr.colorSurfaceContainerHighest)
             strokeWidth = 0
             setCardBackgroundColor(ContextCompat.getColor(context, R.color.transparent))
             radius = if (round) {
@@ -106,13 +108,14 @@ abstract class BaseSheetDialog(private val context: Context) :
         }
 
         val backgroundView = LinearLayout(context).apply {
-           // id = R.id.backgroundView // 设置 ID
+            // id = R.id.backgroundView // 设置 ID
             layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
             orientation = LinearLayout.VERTICAL
-            setPadding(0,0,0,0) // 设置内边距
+            setPadding(0, 0, 0, 0) // 设置内边距
 
             val drawable = if (round) {
-                ContextCompat.getDrawable(context, R.drawable.rounded_all)?.mutate() // 使用 mutate() 创建一个可变的 Drawable
+                ContextCompat.getDrawable(context, R.drawable.rounded_all)
+                    ?.mutate() // 使用 mutate() 创建一个可变的 Drawable
             } else {
                 ContextCompat.getDrawable(context, R.drawable.rounded_top)?.mutate()
             }
@@ -124,7 +127,7 @@ abstract class BaseSheetDialog(private val context: Context) :
 
             if (!round) {
                 updatePadding(
-                    bottom =  App.navigationBarHeight,
+                    bottom = App.navigationBarHeight,
                 )
             }
         }
@@ -133,16 +136,19 @@ abstract class BaseSheetDialog(private val context: Context) :
             id = R.id.innerView // 设置 ID
             layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
             orientation = LinearLayout.VERTICAL
-            setPadding(resources.getDimensionPixelSize(R.dimen.cardPadding),
+            setPadding(
                 resources.getDimensionPixelSize(R.dimen.cardPadding),
                 resources.getDimensionPixelSize(R.dimen.cardPadding),
-                resources.getDimensionPixelSize(R.dimen.cardPadding)) // 设置内边距
+                resources.getDimensionPixelSize(R.dimen.cardPadding),
+                resources.getDimensionPixelSize(R.dimen.cardPadding)
+            ) // 设置内边距
         }
         backgroundView.addView(innerView)
         cardView.addView(backgroundView)
         // 设置子元素水平居中
         return cardView
     }
+
     open fun onViewCreated(view: View) {
         // 空实现
     }
@@ -180,7 +186,7 @@ abstract class BaseSheetDialog(private val context: Context) :
             if (float) {
                 params.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
             }
-         //   params.softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE;
+            //   params.softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE;
 
             // 添加 FLAG_NOT_FOCUSABLE 标志
             //  params.flags = params.flags or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
@@ -188,9 +194,6 @@ abstract class BaseSheetDialog(private val context: Context) :
             // 应用更新的窗口参数
             it.attributes = params
         }
-
-
-
 
 
         val bottomSheet: View = cardView.parent as View
@@ -205,7 +208,8 @@ abstract class BaseSheetDialog(private val context: Context) :
         // 设置BottomSheetDialog展开到全屏高度
         bottomSheetBehavior.skipCollapsed = true
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-        bottomSheetBehavior.maxHeight = DisplayUtils.getRealScreenSize(context).y -  App.statusBarHeight
+        bottomSheetBehavior.maxHeight =
+            DisplayUtils.getRealScreenSize(context).y - App.statusBarHeight
         // 避让键盘
         ViewCompat.setOnApplyWindowInsetsListener(bottomSheet) { v, insets ->
             val imeVisible = insets.isVisible(WindowInsetsCompat.Type.ime())
@@ -238,7 +242,7 @@ abstract class BaseSheetDialog(private val context: Context) :
 
     //重写默认的show方法
     override fun show() {
-        show(float = false,cancel = true)
+        show(float = false, cancel = true)
     }
 
     // 添加Fragment专用的show方法

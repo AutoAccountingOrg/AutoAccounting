@@ -32,6 +32,7 @@ import net.ankio.auto.ui.adapter.CategorySelectorAdapter
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.componets.StatusPage
 import org.ezbook.server.constant.BillType
+import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.CategoryModel
 
@@ -133,7 +134,7 @@ class CategorySelectorDialog(
         var leftDistanceWithMargin =
             location[0] + view.paddingLeft + params.leftMargin - view.width / 2
 
-        if (ConfigUtils.getBoolean(Setting.USE_ROUND_STYLE, false)) {
+        if (ConfigUtils.getBoolean(Setting.USE_ROUND_STYLE, DefaultData.USE_ROUND_STYLE)) {
             leftDistanceWithMargin -= view.width / 2
         }
 
@@ -156,8 +157,8 @@ class CategorySelectorDialog(
         binding = DialogCategorySelectBinding.inflate(inflater)
 
         // 设置卡片视图
-       // this.cardView = binding.cardView
-       // cardViewInner = binding.cardViewInner
+        // this.cardView = binding.cardView
+        // cardViewInner = binding.cardViewInner
         statusPage = binding.statusPage
         // 为RecyclerView设置布局管理器
         val layoutManager = GridLayoutManager(context, line)

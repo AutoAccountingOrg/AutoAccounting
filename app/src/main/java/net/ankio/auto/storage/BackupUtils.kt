@@ -37,11 +37,11 @@ import net.ankio.auto.exceptions.PermissionException
 import net.ankio.auto.exceptions.RestoreBackupException
 import net.ankio.auto.request.RequestsUtils
 import net.ankio.auto.ui.activity.MainActivity
-import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.dialog.BackupSelectorDialog
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.ToastUtils
 import okhttp3.Credentials
+import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
 import java.io.File
 import java.io.FileInputStream
@@ -52,7 +52,8 @@ class BackupUtils(private val context: Context) {
     private var filename =
         "backup_${BuildConfig.VERSION_NAME}(${SUPPORT_VERSION})_${System.currentTimeMillis()}.$SUFFIX"
 
-    private val uri = Uri.parse(ConfigUtils.getString(Setting.LOCAL_BACKUP_PATH, ""))
+    private val uri =
+        Uri.parse(ConfigUtils.getString(Setting.LOCAL_BACKUP_PATH, DefaultData.LOCAL_BACKUP_PATH))
 
     companion object {
         const val SUFFIX = "pk"
@@ -63,50 +64,52 @@ class BackupUtils(private val context: Context) {
 
         fun initRequestPermission(activity: MainActivity) {
             // 初始化backup launcher
-            backupLauncher = activity.registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
-                uri?.let {
-                    val takeFlags: Int = Intent.FLAG_GRANT_READ_URI_PERMISSION or 
-                            Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                    activity.contentResolver.takePersistableUriPermission(uri, takeFlags)
-                    ConfigUtils.putString(Setting.LOCAL_BACKUP_PATH, uri.toString())
+            backupLauncher =
+                activity.registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+                    uri?.let {
+                        val takeFlags: Int = Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                                Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                        activity.contentResolver.takePersistableUriPermission(uri, takeFlags)
+                        ConfigUtils.putString(Setting.LOCAL_BACKUP_PATH, uri.toString())
+                    }
                 }
-            }
 
             // 初始化restore launcher
-            restoreLauncher = activity.registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-                uri?.let {
-                    val fileExtension =
-                        activity.contentResolver.getType(uri)
-                            ?.let { MimeTypeMap.getSingleton().getExtensionFromMimeType(it) }
+            restoreLauncher =
+                activity.registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+                    uri?.let {
+                        val fileExtension =
+                            activity.contentResolver.getType(uri)
+                                ?.let { MimeTypeMap.getSingleton().getExtensionFromMimeType(it) }
 
-                    if (!SUFFIX.equals(fileExtension, true)) {
-                        ToastUtils.info(R.string.backup_error)
-                        return@let
-                    }
+                        if (!SUFFIX.equals(fileExtension, true)) {
+                            ToastUtils.info(R.string.backup_error)
+                            return@let
+                        }
 
-                    activity.lifecycleScope.launch {
-                        val loadingUtils = LoadingUtils(activity)
-                        loadingUtils.show(R.string.restore_loading)
-                        runCatching {
-                            val backupUtils = BackupUtils(activity)
-                            backupUtils.getLocalBackup(it)
-                        }.onFailure { it2 ->
-                            loadingUtils.close()
-                            Logger.e(it2.message ?: "", it2)
-                            if (it2 is RestoreBackupException) {
-                                ToastUtils.error(it2.message!!)
-                            } else {
-                                ToastUtils.info(R.string.backup_error)
+                        activity.lifecycleScope.launch {
+                            val loadingUtils = LoadingUtils(activity)
+                            loadingUtils.show(R.string.restore_loading)
+                            runCatching {
+                                val backupUtils = BackupUtils(activity)
+                                backupUtils.getLocalBackup(it)
+                            }.onFailure { it2 ->
+                                loadingUtils.close()
+                                Logger.e(it2.message ?: "", it2)
+                                if (it2 is RestoreBackupException) {
+                                    ToastUtils.error(it2.message!!)
+                                } else {
+                                    ToastUtils.info(R.string.backup_error)
+                                }
+                            }.onSuccess {
+                                loadingUtils.close()
+                                ToastUtils.info(R.string.restore_success)
+                                delay(3000)
+                                App.restart()
                             }
-                        }.onSuccess {
-                            loadingUtils.close()
-                            ToastUtils.info(R.string.restore_success)
-                            delay(3000)
-                            App.restart()
                         }
                     }
                 }
-            }
         }
 
         fun requestPermission(activity: MainActivity) {
@@ -124,40 +127,41 @@ class BackupUtils(private val context: Context) {
                         Uri.parse(
                             ConfigUtils.getString(
                                 Setting.LOCAL_BACKUP_PATH,
-                                "",
+                                DefaultData.LOCAL_BACKUP_PATH,
                             ),
                         ) && it.isReadPermission && it.isWritePermission
             }
         }
 
-       suspend fun autoBackup(context: MainActivity){
+        suspend fun autoBackup(context: MainActivity) {
 
-           fun shouldBackup(): Boolean {
-               val lastBackupTime = ConfigUtils.getLong(Setting.LAST_BACKUP_TIME, 0L)
-               val currentTime = System.currentTimeMillis()
-               return (currentTime - lastBackupTime) >= Constants.BACKUP_TIME
-           }
+            fun shouldBackup(): Boolean {
+                val lastBackupTime =
+                    ConfigUtils.getLong(Setting.LAST_BACKUP_TIME, DefaultData.LAST_BACKUP_TIME)
+                val currentTime = System.currentTimeMillis()
+                return (currentTime - lastBackupTime) >= Constants.BACKUP_TIME
+            }
 
-            if (ConfigUtils.getBoolean(Setting.AUTO_BACKUP)) {
-                    if (!shouldBackup()) return
+            if (ConfigUtils.getBoolean(Setting.AUTO_BACKUP, DefaultData.AUTO_BACKUP)) {
+                if (!shouldBackup()) return
 
-                    ConfigUtils.putLong(Setting.LAST_BACKUP_TIME, System.currentTimeMillis())
+                ConfigUtils.putLong(Setting.LAST_BACKUP_TIME, System.currentTimeMillis())
 
-                    ToastUtils.info(R.string.backup_loading)
-                    val backupUtils = BackupUtils(context)
-                    runCatching {
-                        if (ConfigUtils.getBoolean(Setting.USE_WEBDAV)) {
-                            backupUtils.putWebdavBackup(context)
-                        } else {
-                            backupUtils.putLocalBackup()
-                        }
-                    }.onFailure {
-                        Logger.e("自动备份失败", it)
-                        ToastUtils.error(R.string.backup_error)
-                    }.onSuccess {
-                        ConfigUtils.putLong("last_backup_time", System.currentTimeMillis())
-                        ToastUtils.info(R.string.backup_success)
+                ToastUtils.info(R.string.backup_loading)
+                val backupUtils = BackupUtils(context)
+                runCatching {
+                    if (ConfigUtils.getBoolean(Setting.USE_WEBDAV, DefaultData.USE_WEBDAV)) {
+                        backupUtils.putWebdavBackup(context)
+                    } else {
+                        backupUtils.putLocalBackup()
                     }
+                }.onFailure {
+                    Logger.e("自动备份失败", it)
+                    ToastUtils.error(R.string.backup_error)
+                }.onSuccess {
+                    ConfigUtils.putLong("last_backup_time", System.currentTimeMillis())
+                    ToastUtils.info(R.string.backup_success)
+                }
 
             }
         }
@@ -356,9 +360,9 @@ class BackupUtils(private val context: Context) {
     }
 
     private fun getWebdavInfo(): Array<String> {
-        val url = ConfigUtils.getString(Setting.WEBDAV_HOST, "").trim('/')
-        val username = ConfigUtils.getString(Setting.WEBDAV_USER, "")
-        val password = ConfigUtils.getString(Setting.WEBDAV_PASSWORD, "")
+        val url = ConfigUtils.getString(Setting.WEBDAV_HOST, DefaultData.WEBDAV_HOST).trim('/')
+        val username = ConfigUtils.getString(Setting.WEBDAV_USER, DefaultData.WEBDAV_USER)
+        val password = ConfigUtils.getString(Setting.WEBDAV_PASSWORD, DefaultData.WEBDAV_PASSWORD)
         return arrayOf(url, username, password)
     }
 

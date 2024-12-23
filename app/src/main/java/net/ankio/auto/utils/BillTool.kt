@@ -20,6 +20,7 @@ import com.google.android.material.textview.MaterialTextView
 import net.ankio.auto.R
 import net.ankio.auto.storage.ConfigUtils
 import org.ezbook.server.constant.BillType
+import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
 
 object BillTool {
@@ -28,7 +29,7 @@ object BillTool {
      * 获取页面显示颜色
      */
     fun getColor(type: BillType): Int {
-        val payColor = ConfigUtils.getInt(Setting.EXPENSE_COLOR_RED, 0)
+        val payColor = ConfigUtils.getInt(Setting.EXPENSE_COLOR_RED, DefaultData.EXPENSE_COLOR_RED)
 
         return when (type) {
             BillType.Expend -> if (payColor == 0) R.color.danger else R.color.success
@@ -72,7 +73,8 @@ object BillTool {
 
     fun getCateName(category1: String, category2: String? = null): String {
 
-        val showParent = ConfigUtils.getBoolean(Setting.CATEGORY_SHOW_PARENT, false)
+        val showParent =
+            ConfigUtils.getBoolean(Setting.CATEGORY_SHOW_PARENT, DefaultData.CATEGORY_SHOW_PARENT)
         if (category2 === null) {
             return category1
         }

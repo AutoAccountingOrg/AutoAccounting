@@ -17,7 +17,6 @@ package net.ankio.auto.utils
 
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import com.bugsnag.android.Bugsnag
 import com.bugsnag.android.Event
 import net.ankio.auto.App
@@ -25,6 +24,7 @@ import net.ankio.auto.BuildConfig
 import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.activity.ErrorActivity
+import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
 import kotlin.system.exitProcess
 
@@ -55,7 +55,10 @@ class ExceptionHandler(private val context: Context) : Thread.UncaughtExceptionH
 
         // return true
         // 调试模式不上传错误数据
-        return !App.debug && ConfigUtils.getBoolean(Setting.SEND_ERROR_REPORT, true)
+        return !App.debug && ConfigUtils.getBoolean(
+            Setting.SEND_ERROR_REPORT,
+            DefaultData.SEND_ERROR_REPORT
+        )
     }
 
     private fun getRootCause(e: Throwable): Throwable {

@@ -25,12 +25,14 @@ import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.ui.adapter.AppListAdapter
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.models.AutoApp
+import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
 
 /**
  * 记账软件选择对话框
  */
-class AppDialog(private val context: Context,private val finish:()->Unit) : BaseSheetDialog(context) {
+class AppDialog(private val context: Context, private val finish: () -> Unit) :
+    BaseSheetDialog(context) {
     private lateinit var binding: DialogAppBinding
 
     private var apps = mutableListOf(
@@ -49,7 +51,11 @@ class AppDialog(private val context: Context,private val finish:()->Unit) : Base
         val recyclerView = binding.recyclerView
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter =
-            AppListAdapter(context, apps, ConfigUtils.getString(Setting.BOOK_APP_ID)) {
+            AppListAdapter(
+                context,
+                apps,
+                ConfigUtils.getString(Setting.BOOK_APP_ID, DefaultData.BOOK_APP)
+            ) {
                 ConfigUtils.putString(Setting.BOOK_APP_ID, it.packageName)
                 dismiss()
             }

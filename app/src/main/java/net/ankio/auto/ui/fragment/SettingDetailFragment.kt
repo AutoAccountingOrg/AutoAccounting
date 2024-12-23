@@ -54,11 +54,12 @@ import net.ankio.auto.update.UpdateType
 import net.ankio.auto.utils.LanguageUtils
 import net.ankio.auto.xposed.Apps
 import org.ezbook.server.constant.AIModel
+import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.constant.SyncType
 import org.ezbook.server.db.model.SettingModel
 
-class SettingDetailFragment:BaseFragment() {
+class SettingDetailFragment : BaseFragment() {
     override val binding: FragmentSettingDetailBinding by viewBinding(FragmentSettingDetailBinding::inflate)
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -70,7 +71,7 @@ class SettingDetailFragment:BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
         // 检查Bundle是否为空
         val bundle = arguments
-        if(bundle == null){
+        if (bundle == null) {
             findNavController().popBackStack()
             return
         }
@@ -96,15 +97,16 @@ class SettingDetailFragment:BaseFragment() {
             settingUtils.onDestroy()
         }
     }
+
     private fun switchFragment(id: Int) {
-        val settingItems =  when(id){
-            R.id.setting_bill-> renderBillFragment()
-            R.id.setting_popup->renderPopupFragment()
-            R.id.setting_features-> renderFeaturesFragment()
-            R.id.setting_appearance-> renderAppearance()
-            R.id.setting_experimental-> renderExperimental()
-            R.id.setting_backup-> renderBackup()
-            R.id.setting_others-> renderOthers()
+        val settingItems = when (id) {
+            R.id.setting_bill -> renderBillFragment()
+            R.id.setting_popup -> renderPopupFragment()
+            R.id.setting_features -> renderFeaturesFragment()
+            R.id.setting_appearance -> renderAppearance()
+            R.id.setting_experimental -> renderExperimental()
+            R.id.setting_backup -> renderBackup()
+            R.id.setting_others -> renderOthers()
             else -> arrayListOf()
         }
         settingUtils =
@@ -117,7 +119,7 @@ class SettingDetailFragment:BaseFragment() {
         settingUtils.init()
     }
 
-    private fun renderBillFragment(): ArrayList<SettingItem>{
+    private fun renderBillFragment(): ArrayList<SettingItem> {
         return arrayListOf(
 // 账单
             SettingItem.Title(R.string.setting_bill_remark),
@@ -128,7 +130,7 @@ class SettingDetailFragment:BaseFragment() {
                 icon = R.drawable.setting_icon_remark,
                 subTitle = R.string.setting_bill_remark_desc,
                 default = "【商户名称】【商品名称】",
-                ),
+            ),
 
             SettingItem.Title(R.string.setting_bill_repeat),
             SettingItem.Switch(
@@ -137,7 +139,7 @@ class SettingDetailFragment:BaseFragment() {
                 icon = R.drawable.setting_icon_repeat,
                 subTitle = R.string.setting_bill_repeat_desc,
                 default = true,
-                ),
+            ),
             SettingItem.Title(R.string.setting_bill_category),
             SettingItem.Switch(
                 title = R.string.setting_category_show_parent,
@@ -179,7 +181,7 @@ class SettingDetailFragment:BaseFragment() {
                 // subTitle = R.string.setting_category_show_parent_desc,
                 icon = R.drawable.setting_icon_success,
                 default = true,
-                ),
+            ),
 
             SettingItem.Title(R.string.setting_bill_sync),
 
@@ -201,7 +203,7 @@ class SettingDetailFragment:BaseFragment() {
         )
     }
 
-    private fun renderPopupFragment(): ArrayList<SettingItem>{
+    private fun renderPopupFragment(): ArrayList<SettingItem> {
         return arrayListOf(
             SettingItem.Title(R.string.setting_float_time),
             SettingItem.Input(
@@ -209,7 +211,7 @@ class SettingDetailFragment:BaseFragment() {
                 key = Setting.FLOAT_TIMEOUT_OFF,
                 subTitle = R.string.setting_float_time_desc,
                 default = 10,
-                ),
+            ),
             SettingItem.Title(R.string.setting_popup_event),
             SettingItem.Select(
                 title = R.string.setting_float_on_badge_click,
@@ -228,7 +230,7 @@ class SettingDetailFragment:BaseFragment() {
                 title = R.string.setting_float_on_badge_long_click,
                 key = Setting.FLOAT_LONG_CLICK,
                 icon = R.drawable.setting_icon_long_click,
-               
+
                 selectList =
                 hashMapOf(
                     requireContext().getString(R.string.pop_edit_window) to FloatEvent.POP_EDIT_WINDOW.ordinal,
@@ -242,7 +244,7 @@ class SettingDetailFragment:BaseFragment() {
                 title = R.string.setting_float_on_badge_timeout,
                 key = Setting.FLOAT_TIMEOUT_ACTION,
                 icon = R.drawable.setting_icon_timeout,
-               
+
                 selectList =
                 hashMapOf(
                     requireContext().getString(R.string.pop_edit_window) to FloatEvent.POP_EDIT_WINDOW.ordinal,
@@ -253,10 +255,10 @@ class SettingDetailFragment:BaseFragment() {
 
                 ),
 
-        )
+            )
     }
 
-    private fun renderFeaturesFragment(): ArrayList<SettingItem>{
+    private fun renderFeaturesFragment(): ArrayList<SettingItem> {
         return arrayListOf(
             SettingItem.Card(R.string.setting_features),
             SettingItem.Switch(
@@ -305,7 +307,7 @@ class SettingDetailFragment:BaseFragment() {
     }
 
 
-    private fun renderAppearance(): ArrayList<SettingItem>{
+    private fun renderAppearance(): ArrayList<SettingItem> {
         return arrayListOf(
             SettingItem.Title(R.string.setting_lang),
             SettingItem.Select(
@@ -332,12 +334,12 @@ class SettingDetailFragment:BaseFragment() {
                 onItemClick = { value, activity ->
                     ThemeChooserDialogBuilder(requireContext())
                         .setTitle(R.string.choose_theme)
-                        .setPositiveButton(requireContext().getString(R.string.ok)) {_,theme ->
+                        .setPositiveButton(requireContext().getString(R.string.ok)) { _, theme ->
                             ThemeEngine.getInstance(requireContext()).staticTheme = theme
                             activity.recreateActivity()
                         }
                         .setNegativeButton(requireContext().getString(R.string.close))
-                        .setNeutralButton(requireContext().getString(R.string.default_theme)) {_,_ ->
+                        .setNeutralButton(requireContext().getString(R.string.default_theme)) { _, _ ->
                             ThemeEngine.getInstance(requireContext()).resetTheme()
                             activity.recreateActivity()
                         }
@@ -401,7 +403,7 @@ class SettingDetailFragment:BaseFragment() {
         )
     }
 
-    private fun renderExperimental(): ArrayList<SettingItem>{
+    private fun renderExperimental(): ArrayList<SettingItem> {
         return arrayListOf(
             SettingItem.Title(R.string.setting_ai),
             SettingItem.Switch(
@@ -509,7 +511,7 @@ class SettingDetailFragment:BaseFragment() {
         )
     }
 
-    private fun renderBackup():ArrayList<SettingItem>{
+    private fun renderBackup(): ArrayList<SettingItem> {
         return arrayListOf(
 
             // 备份
@@ -519,7 +521,7 @@ class SettingDetailFragment:BaseFragment() {
                 title = R.string.setting_use_webdav,
                 key = Setting.USE_WEBDAV,
                 icon = R.drawable.setting2_icon_backup,
-               // type = ItemType.SWITCH,
+                // type = ItemType.SWITCH,
                 default = false,
 
                 ),
@@ -527,16 +529,19 @@ class SettingDetailFragment:BaseFragment() {
                 title = R.string.setting_auto_backup,
                 key = Setting.AUTO_BACKUP,
                 icon = R.drawable.icon_auto,
-               // type = ItemType.SWITCH,
+                // type = ItemType.SWITCH,
                 default = false,
             ),
             SettingItem.Text(
                 title = R.string.setting_backup_path,
                 regex = "${Setting.USE_WEBDAV}=false",
                 icon = R.drawable.setting2_icon_dir,
-                
+
                 onGetKeyValue = {
-                    val uri = ConfigUtils.getString(Setting.LOCAL_BACKUP_PATH, "")
+                    val uri = ConfigUtils.getString(
+                        Setting.LOCAL_BACKUP_PATH,
+                        DefaultData.LOCAL_BACKUP_PATH
+                    )
                     if (uri.isNotEmpty()) {
                         runCatching {
                             Uri.parse(uri).path
@@ -545,7 +550,7 @@ class SettingDetailFragment:BaseFragment() {
                         requireContext().getString(R.string.setting_backup_path_desc)
                     }
                 },
-                onItemClick = { activity,binding ->
+                onItemClick = { activity, binding ->
                     BackupUtils.requestPermission(activity as MainActivity)
                 },
 
@@ -555,8 +560,8 @@ class SettingDetailFragment:BaseFragment() {
                 regex = "${Setting.USE_WEBDAV}=false",
                 //    subTitle = R.string.setting_backup_2_local_desc,
                 icon = R.drawable.setting2_icon_to_local,
-                
-                onItemClick = { activity,binding ->
+
+                onItemClick = { activity, binding ->
                     lifecycleScope.launch {
                         val loading = LoadingUtils(activity)
                         runCatching {
@@ -584,8 +589,8 @@ class SettingDetailFragment:BaseFragment() {
                 regex = "${Setting.USE_WEBDAV}=false",
                 icon = R.drawable.setting2_icon_from_local,
                 //  subTitle = R.string.setting_restore_2_local_desc,
-                
-                onItemClick = { activity,binding ->
+
+                onItemClick = { activity, binding ->
                     BackupUtils.requestRestore(activity as MainActivity)
                 },
 
@@ -594,7 +599,7 @@ class SettingDetailFragment:BaseFragment() {
                 title = R.string.setting_webdav_host,
                 regex = "${Setting.USE_WEBDAV}=true",
                 key = Setting.WEBDAV_HOST,
-               // type = ItemType.INPUT,
+                // type = ItemType.INPUT,
                 default = "https://dav.jianguoyun.com/dav/",
 
                 ),
@@ -602,7 +607,7 @@ class SettingDetailFragment:BaseFragment() {
                 title = R.string.setting_webdav_username,
                 regex = "${Setting.USE_WEBDAV}=true",
                 key = Setting.WEBDAV_USER,
-              //  type = ItemType.INPUT,
+                //  type = ItemType.INPUT,
                 default = "",
 
                 ),
@@ -620,8 +625,8 @@ class SettingDetailFragment:BaseFragment() {
                 regex = "${Setting.USE_WEBDAV}=true",
                 icon = R.drawable.setting2_icon_webdav_upload,
                 //     subTitle = R.string.setting_backup_2_webdav_desc,
-               // 
-                onItemClick = { activity,binding ->
+                //
+                onItemClick = { activity, binding ->
                     lifecycleScope.launch {
                         runCatching {
                             val backupUtils = BackupUtils(activity)
@@ -639,8 +644,8 @@ class SettingDetailFragment:BaseFragment() {
                 regex = "${Setting.USE_WEBDAV}=true",
                 icon = R.drawable.setting2_icon_webdav_download,
                 //     subTitle = R.string.setting_backup_2_webdav_desc,
-               // 
-                onItemClick = { activity,binding ->
+                //
+                onItemClick = { activity, binding ->
                     lifecycleScope.launch {
                         runCatching {
                             val backupUtils = BackupUtils(activity)
@@ -689,7 +694,7 @@ class SettingDetailFragment:BaseFragment() {
                 title = R.string.setting_app,
                 key = Setting.CHECK_APP_UPDATE,
                 icon = R.drawable.setting2_icon_rule,
-              //  type = ItemType.SWITCH,
+                //  type = ItemType.SWITCH,
                 default = true,
 
                 ),
@@ -697,7 +702,7 @@ class SettingDetailFragment:BaseFragment() {
                 title = R.string.setting_rule,
                 key = Setting.CHECK_RULE_UPDATE,
                 icon = R.drawable.setting2_icon_category,
-              //  type = ItemType.SWITCH,
+                //  type = ItemType.SWITCH,
                 default = true,
 
                 ),
@@ -705,7 +710,7 @@ class SettingDetailFragment:BaseFragment() {
         );
     }
 
-    private fun renderOthers():ArrayList<SettingItem>{
+    private fun renderOthers(): ArrayList<SettingItem> {
         return arrayListOf(
             SettingItem.Title(R.string.setting_privacy),
             SettingItem.Switch(
@@ -751,7 +756,7 @@ class SettingDetailFragment:BaseFragment() {
                 title = R.string.setting_clear_database,
                 icon = R.drawable.icon_delete,
                 subTitle = R.string.clear_db_desc,
-                onItemClick = { activity,binding ->
+                onItemClick = { activity, binding ->
                     ToastUtils.info(R.string.clear_db_msg)
                     App.launch {
                         SettingModel.clearDatabase()
@@ -771,12 +776,12 @@ class SettingDetailFragment:BaseFragment() {
                 onGetKeyValue = {
                     SpUtils.getString(Setting.HOOK_AUTO_SERVER, Apps.getServerRunInApp())
                 },
-                onItemClick = { activity,binding ->
+                onItemClick = { activity, binding ->
                     AppsDialog(requireContext()) {
                         SpUtils.putString(Setting.HOOK_AUTO_SERVER, it.packageName)
                         binding.icon.setImageDrawable(it.icon)
                         binding.subTitle.text = it.packageName
-                    }.showInFragment(this,false,true)
+                    }.showInFragment(this, false, true)
                 }
             ),
             SettingItem.Text(
@@ -789,32 +794,32 @@ class SettingDetailFragment:BaseFragment() {
                 onGetKeyValue = {
                     SpUtils.getString(Setting.HOOK_WECHAT, "mm.tencent.com")
                 },
-                onItemClick = { activity,binding ->
+                onItemClick = { activity, binding ->
                     AppsDialog(requireContext()) {
                         SpUtils.putString(Setting.HOOK_WECHAT, it.packageName)
                         binding.icon.setImageDrawable(it.icon)
                         binding.icon.imageTintList = null
                         binding.subTitle.text = it.packageName
-                    }.showInFragment(this,false,true)
+                    }.showInFragment(this, false, true)
                 }
             ),
             SettingItem.Title(R.string.setting_donate),
             SettingItem.Text(
                 title = R.string.donate_alipay,
                 drawable = {
-                    AppCompatResources.getDrawable(requireContext(),R.drawable.alipay)
+                    AppCompatResources.getDrawable(requireContext(), R.drawable.alipay)
                 },
-                onItemClick = { activity,binding ->
+                onItemClick = { activity, binding ->
                     DonateUtils.alipay(activity)
                 }
             ),
             SettingItem.Text(
                 title = R.string.donate_wechat,
                 drawable = {
-                    AppCompatResources.getDrawable(requireContext(),R.drawable.wechat)
+                    AppCompatResources.getDrawable(requireContext(), R.drawable.wechat)
                 },
-                onItemClick = { activity,binding ->
-                  DonateUtils.wechat(activity)
+                onItemClick = { activity, binding ->
+                    DonateUtils.wechat(activity)
                 }
             ),
         )

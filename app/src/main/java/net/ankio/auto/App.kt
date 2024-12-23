@@ -39,6 +39,7 @@ import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.ExceptionHandler
+import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
 import java.math.BigInteger
 import java.security.MessageDigest
@@ -72,7 +73,10 @@ class App : Application() {
         /**
          * 获取全局协程
          */
-        fun launch(context: CoroutineContext = EmptyCoroutineContext, block: suspend CoroutineScope.() -> Unit) {
+        fun launch(
+            context: CoroutineContext = EmptyCoroutineContext,
+            block: suspend CoroutineScope.() -> Unit
+        ) {
             scope.launch(context = context, block = block)
         }
 
@@ -212,7 +216,7 @@ class App : Application() {
          * 打开记账软件应用
          */
         fun startBookApp() {
-            val packageName = ConfigUtils.getString(Setting.BOOK_APP_ID, "")
+            val packageName = ConfigUtils.getString(Setting.BOOK_APP_ID, DefaultData.BOOK_APP)
             val launchIntent = app.packageManager.getLaunchIntentForPackage(packageName)
             if (launchIntent != null) {
                 app.startActivity(launchIntent)
@@ -253,7 +257,8 @@ class App : Application() {
         app = this
         ConfigUtils.init(this)
         // 初始化调试模式
-        debug = BuildConfig.DEBUG || ConfigUtils.getBoolean(Setting.DEBUG_MODE, false)
+        debug =
+            BuildConfig.DEBUG || ConfigUtils.getBoolean(Setting.DEBUG_MODE, DefaultData.DEBUG_MODE)
         Logger.i("Debug Mode: $debug")
         if (!BuildConfig.DEBUG) {
             // 设置全局异常

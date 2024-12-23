@@ -15,15 +15,10 @@
 
 package net.ankio.auto.ui.dialog
 
-import android.app.DatePickerDialog
-import android.app.TimePickerDialog
 import android.content.Context
 import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.View
-import android.view.WindowManager
-import android.widget.DatePicker
-import android.widget.TimePicker
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.core.widget.TextViewCompat
@@ -49,6 +44,7 @@ import org.ezbook.server.constant.AssetsType
 import org.ezbook.server.constant.BillState
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.constant.Currency
+import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.constant.SyncType
 import org.ezbook.server.db.model.AssetsMapModel
@@ -118,13 +114,14 @@ class FloatEditorDialog(
     override fun onViewCreated(view: View) {
         super.onViewCreated(view)
         val parent = view.parent as View
-        parent.setPadding(0,0,0,0)
+        parent.setPadding(0, 0, 0, 0)
     }
 
     // 综合以上内容，应用到billInfo对象上
 
     private fun getBillData(assets: List<AssetsModel>): BillInfoModel {
-        val assetManager = ConfigUtils.getBoolean(Setting.SETTING_ASSET_MANAGER, true)
+        val assetManager =
+            ConfigUtils.getBoolean(Setting.SETTING_ASSET_MANAGER, DefaultData.SETTING_ASSET_MANAGER)
         Logger.d("Get Bill Data, type=> $billTypeLevel2, type1=> $billTypeLevel1")
         return billInfoModel.copy().apply {
             this.type = billTypeLevel2
@@ -334,7 +331,11 @@ class FloatEditorDialog(
                 Logger.d("Save Bill => $convertBillInfo")
                 runCatching {
                     BillInfoModel.put(convertBillInfo)
-                    if (ConfigUtils.getBoolean(Setting.SHOW_SUCCESS_POPUP, true)) {
+                    if (ConfigUtils.getBoolean(
+                            Setting.SHOW_SUCCESS_POPUP,
+                            DefaultData.SHOW_SUCCESS_POPUP
+                        )
+                    ) {
                         ToastUtils.info(
                             context.getString(
                                 R.string.auto_success,
@@ -346,20 +347,28 @@ class FloatEditorDialog(
                     if (rawBillInfo.cateName != convertBillInfo.cateName &&
                         ConfigUtils.getBoolean(
                             Setting.AUTO_CREATE_CATEGORY,
-                            false,
+                            DefaultData.AUTO_CREATE_CATEGORY,
                         )
                     ) {
                         // 弹出询问框
                         BillCategoryDialog(context, convertBillInfo).show(float, cancel = true)
                     }
 
-                    if (ConfigUtils.getBoolean(Setting.AUTO_ASSET, false)) {
+                    if (ConfigUtils.getBoolean(Setting.AUTO_ASSET, DefaultData.AUTO_ASSET)) {
 
-                        setAccountMap(assets, rawBillInfo.accountNameFrom, convertBillInfo.accountNameFrom)
-                        setAccountMap(assets, rawBillInfo.accountNameTo, convertBillInfo.accountNameTo)
+                        setAccountMap(
+                            assets,
+                            rawBillInfo.accountNameFrom,
+                            convertBillInfo.accountNameFrom
+                        )
+                        setAccountMap(
+                            assets,
+                            rawBillInfo.accountNameTo,
+                            convertBillInfo.accountNameTo
+                        )
                     }
 
-                    val syncType = ConfigUtils.getString(Setting.SYNC_TYPE, SyncType.WhenOpenApp.name)
+                    val syncType = ConfigUtils.getString(Setting.SYNC_TYPE, DefaultData.SYNC_TYPE)
                     if (syncType != SyncType.WhenOpenApp.name) {
                         val bills = BillInfoModel.sync()
                         if ((syncType == SyncType.BillsLimit10.name && bills.size >= 10) || (syncType == SyncType.BillsLimit5.name && bills.size >= 5)) {
@@ -381,7 +390,11 @@ class FloatEditorDialog(
     }
 
 
-    private suspend fun setAccountMap(assets: List<AssetsModel>, accountName: String, eqAccountName: String) =
+    private suspend fun setAccountMap(
+        assets: List<AssetsModel>,
+        accountName: String,
+        eqAccountName: String
+    ) =
         withContext(Dispatchers.IO) {
 
             if (accountName.isEmpty()) return@withContext
@@ -404,7 +417,11 @@ class FloatEditorDialog(
 
     private fun bindingTypePopupEvents() {
         val stringList: HashMap<String, Any> =
-            if (ConfigUtils.getBoolean(Setting.SETTING_ASSET_MANAGER, true))
+            if (ConfigUtils.getBoolean(
+                    Setting.SETTING_ASSET_MANAGER,
+                    DefaultData.SETTING_ASSET_MANAGER
+                )
+            )
                 hashMapOf(
                     context.getString(R.string.float_expend) to BillType.Expend,
                     context.getString(R.string.float_income) to BillType.Income,
@@ -437,7 +454,7 @@ class FloatEditorDialog(
         * */
 
         if (
-            !ConfigUtils.getBoolean(Setting.SETTING_FEE, false) ||
+            !ConfigUtils.getBoolean(Setting.SETTING_FEE, DefaultData.SETTING_FEE) ||
             billTypeLevel1 != BillType.Transfer ||
             billInfoModel.fee == 0.0
         ) {
@@ -468,7 +485,11 @@ class FloatEditorDialog(
      */
     private fun bindingBookNameEvents() {
         binding.bookImageClick.setOnClickListener {
-            if (!ConfigUtils.getBoolean(Setting.SETTING_BOOK_MANAGER, true)) return@setOnClickListener
+            if (!ConfigUtils.getBoolean(
+                    Setting.SETTING_BOOK_MANAGER,
+                    DefaultData.SETTING_BOOK_MANAGER
+                )
+            ) return@setOnClickListener
             BookSelectorDialog(context) { book, _ ->
                 billInfoModel.bookName = book.name
                 bindingBookNameUI()
@@ -486,7 +507,7 @@ class FloatEditorDialog(
         view.setText(name)
         lifecycleScope.launch {
             ResourceUtils.getAssetDrawableFromName(name).let {
-                view.setIcon(it,false)
+                view.setIcon(it, false)
             }
         }
     }
@@ -502,7 +523,7 @@ class FloatEditorDialog(
         view.setText(name)
         lifecycleScope.launch {
             ResourceUtils.getAssetDrawable(icon).let {
-                view.setIcon(it,false)
+                view.setIcon(it, false)
             }
         }
     }
@@ -544,17 +565,26 @@ class FloatEditorDialog(
     }
 
     private fun bindingMoneyTypeUI() {
-        if (!ConfigUtils.getBoolean(Setting.SETTING_CURRENCY_MANAGER, false)) {
+        if (!ConfigUtils.getBoolean(
+                Setting.SETTING_CURRENCY_MANAGER,
+                DefaultData.SETTING_CURRENCY_MANAGER
+            )
+        ) {
             binding.moneyType.visibility = View.GONE
             return
         }
-        val currency = runCatching { Currency.valueOf(billInfoModel.currency) }.getOrDefault(Currency.CNY)
+        val currency =
+            runCatching { Currency.valueOf(billInfoModel.currency) }.getOrDefault(Currency.CNY)
         binding.moneyType.setText(currency.name(context))
-        binding.moneyType.setIcon(currency.icon(context),false)
+        binding.moneyType.setIcon(currency.icon(context), false)
     }
 
     private fun bindingMoneyTypeEvents() {
-        if (!ConfigUtils.getBoolean(Setting.SETTING_CURRENCY_MANAGER, false)) return
+        if (!ConfigUtils.getBoolean(
+                Setting.SETTING_CURRENCY_MANAGER,
+                DefaultData.SETTING_CURRENCY_MANAGER
+            )
+        ) return
         binding.moneyType.setOnClickListener {
             val hashMap = Currency.getCurrencyMap(context)
             val popupUtils =
@@ -577,7 +607,11 @@ class FloatEditorDialog(
 
     private fun showDateTimePicker(defaultTimestamp: Long) {
 
-        val dialog = DateTimePickerDialog.withCurrentTime(context, false, context.getString(R.string.float_time))
+        val dialog = DateTimePickerDialog.withCurrentTime(
+            context,
+            false,
+            context.getString(R.string.float_time)
+        )
 
         val calendar =
             Calendar.getInstance().apply {
@@ -603,7 +637,7 @@ class FloatEditorDialog(
 
         dialog.bindToLifecycle(this)
 
-        dialog.show(float,true)
+        dialog.show(float, true)
     }
 
     private fun bindingTimeEvents() {
@@ -781,7 +815,11 @@ class FloatEditorDialog(
         }
 
 
-        if (!ConfigUtils.getBoolean(Setting.SETTING_ASSET_MANAGER, true)) {
+        if (!ConfigUtils.getBoolean(
+                Setting.SETTING_ASSET_MANAGER,
+                DefaultData.SETTING_ASSET_MANAGER
+            )
+        ) {
             binding.chipLend.visibility = View.GONE
             binding.chipBorrow.visibility = View.GONE
             binding.chipRepayment.visibility = View.GONE
@@ -791,13 +829,17 @@ class FloatEditorDialog(
             binding.debtIncome.visibility = View.GONE
         }
 
-        if (!ConfigUtils.getBoolean(Setting.SETTING_DEBT, true)) {
+        if (!ConfigUtils.getBoolean(Setting.SETTING_DEBT, DefaultData.SETTING_DEBT)) {
             binding.chipLend.visibility = View.GONE
             binding.chipBorrow.visibility = View.GONE
             binding.chipRepayment.visibility = View.GONE
         }
 
-        if (!ConfigUtils.getBoolean(Setting.SETTING_REIMBURSEMENT, true)) {
+        if (!ConfigUtils.getBoolean(
+                Setting.SETTING_REIMBURSEMENT,
+                DefaultData.SETTING_REIMBURSEMENT
+            )
+        ) {
             binding.chipReimbursement.visibility = View.GONE
         }
     }
@@ -879,7 +921,7 @@ class FloatEditorDialog(
 
         selectedBills = billInfoModel.extendData.split(",").toMutableList()
 
-        if (ConfigUtils.getBoolean(Setting.SHOW_RULE_NAME, true)) {
+        if (ConfigUtils.getBoolean(Setting.SHOW_RULE_NAME, DefaultData.SHOW_RULE_NAME)) {
             binding.ruleName.visibility = View.VISIBLE
             binding.ruleName.setText(billInfoModel.ruleName)
         } else {

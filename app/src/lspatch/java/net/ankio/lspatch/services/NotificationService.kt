@@ -31,6 +31,7 @@ import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Logger
 import net.ankio.lspatch.js.Analyze
 import org.ezbook.server.constant.DataType
+import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
 
 
@@ -40,18 +41,20 @@ class NotificationService : NotificationListenerService() {
         super.onNotificationPosted(sbn)
         //获取用户通知
         runCatching {
-           val notification = sbn?.notification
-           val app = sbn?.packageName
-           val title = notification?.extras?.getString(Notification.EXTRA_TITLE)?:""
-           val text = notification?.extras?.getString(Notification.EXTRA_TEXT)?:""
-           //处理通知
-           apps  = runCatching { ConfigUtils.getString(Setting.LISTENER_APP_LIST, "").split(",").toMutableList()
-           }.getOrElse { mutableListOf() }
+            val notification = sbn?.notification
+            val app = sbn?.packageName
+            val title = notification?.extras?.getString(Notification.EXTRA_TITLE) ?: ""
+            val text = notification?.extras?.getString(Notification.EXTRA_TEXT) ?: ""
+            //处理通知
+            apps = runCatching {
+                ConfigUtils.getString(Setting.LISTENER_APP_LIST, DefaultData.NOTICE_FILTER)
+                    .split(",").toMutableList()
+            }.getOrElse { mutableListOf() }
 
-           checkNotification(app!!, title, text)
-       }.onFailure {
-           Logger.e("NotificationService: ${it.message}", it)
-       }
+            checkNotification(app!!, title, text)
+        }.onFailure {
+            Logger.e("NotificationService: ${it.message}", it)
+        }
     }
 
     /**
@@ -66,6 +69,7 @@ class NotificationService : NotificationListenerService() {
             )
         )
     }
+
     private fun checkNotification(
         pkg: String,
         title: String,
@@ -83,7 +87,7 @@ class NotificationService : NotificationListenerService() {
         val json = JsonObject()
         json.addProperty("title", title)
         json.addProperty("text", text)
-        json.addProperty("t",System.currentTimeMillis())
+        json.addProperty("t", System.currentTimeMillis())
 
         Logger.i("NotificationHooker: $json")
 
@@ -106,16 +110,15 @@ class NotificationService : NotificationListenerService() {
                 throw ServiceCheckException(
                     App.app.getString(R.string.permission_not_granted_notification),
                     App.app.getString(R.string.permission_not_granted_notification_desc),
-                    App.app.getString(R.string.permission_not_granted_notification_btn)
-                    ,
+                    App.app.getString(R.string.permission_not_granted_notification_btn),
                     action = {
-                    //请求权限
-                    it.startActivity(
-                        Intent(
-                            "android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"
-                        ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    )
-                })
+                        //请求权限
+                        it.startActivity(
+                            Intent(
+                                "android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"
+                            ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        )
+                    })
             }
         }
     }
