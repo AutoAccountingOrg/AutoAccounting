@@ -32,7 +32,7 @@ object Apps {
      */
     fun getServerRunInApp():Pair<String,String>{
         // 或者运行于com.tencent.mm
-       if (BuildConfig.DEBUG) return Pair<BuildConfig.APPLICATION_ID,BuildConfig.APPLICATION_ID>
+       if (BuildConfig.DEBUG) return Pair(BuildConfig.APPLICATION_ID,BuildConfig.APPLICATION_ID)
         return  Pair("com.android.phone","com.android.phone")
     }
 
