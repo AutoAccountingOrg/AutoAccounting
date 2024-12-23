@@ -211,7 +211,7 @@ object Bill {
         return  settingBillRemark
             .replace("【商户名称】", billInfoModel.shopName)
             .replace("【商品名称】", billInfoModel.shopItem)
-             .replace("【币种类型】", Currency.valueOf(billInfoModel.currency).name(context))
+           //  .replace("【币种类型】", Currency.valueOf(billInfoModel.currency).name(context))
             .replace("【金额】", billInfoModel.money.toString())
             .replace("【分类】", billInfoModel.cateName)
             .replace("【账本】", billInfoModel.bookName)
