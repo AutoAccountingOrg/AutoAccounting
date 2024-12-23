@@ -325,7 +325,7 @@
     <string name="setting_bill_auto_record">自动记录的账单显示提示</string>
     <string name="setting_clear_database">清空数据库</string>
     <string name="clear_db_desc">不可撤销的操作，仅在需要卸载自动记账的时候使用。</string>
-    <string name="clear_db_msg">正在清空数据库</string>
+    <string name="clear_db_msg">您确定要清除数据库吗？清除数据库前请确保已经备份。</string>
     <string name="clear_success">清除成功</string>
     <string name="btn_set_permission">授予权限</string>
     <string name="title_no_book_app">未设置记账软件</string>
@@ -398,6 +398,7 @@
     <string name="float_time">请选择日期和时间</string>
     <string name="title_bill">账单列表</string>
     <string name="no_remind">不再提醒</string>
+    <string name="clear_db">完全删除数据库</string>
 
 
 </resources>

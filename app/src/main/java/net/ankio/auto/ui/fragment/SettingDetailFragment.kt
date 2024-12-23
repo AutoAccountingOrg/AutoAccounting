@@ -44,6 +44,7 @@ import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.dialog.AppsDialog
+import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
 import net.ankio.auto.ui.utils.AppUtils
 import net.ankio.auto.ui.utils.DonateUtils
 import net.ankio.auto.ui.utils.LoadingUtils
@@ -730,9 +731,6 @@ class SettingDetailFragment : BaseFragment() {
                 default = true,
                 onSavedValue = { value, _ ->
                     ConfigUtils.putBoolean(Setting.LOAD_SUCCESS, value)
-                    App.launch {
-                        SettingModel.set(Setting.LOAD_SUCCESS, value.toString())
-                    }
                     SpUtils.putBoolean(Setting.LOAD_SUCCESS, value)
                 },
 
@@ -745,9 +743,6 @@ class SettingDetailFragment : BaseFragment() {
                 default = BuildConfig.DEBUG,
                 onSavedValue = { value, _ ->
                     ConfigUtils.putBoolean(Setting.DEBUG_MODE, value)
-                    App.launch {
-                        SettingModel.set(Setting.DEBUG_MODE, value.toString())
-                    }
                     SpUtils.putBoolean(Setting.DEBUG_MODE, value)
                 },
 
@@ -757,11 +752,18 @@ class SettingDetailFragment : BaseFragment() {
                 icon = R.drawable.icon_delete,
                 subTitle = R.string.clear_db_desc,
                 onItemClick = { activity, binding ->
-                    ToastUtils.info(R.string.clear_db_msg)
-                    App.launch {
-                        SettingModel.clearDatabase()
-                        ToastUtils.info(R.string.clear_success)
-                    }
+                    BottomSheetDialogBuilder(activity)
+                        .setTitleInt(R.string.clear_db)
+                        .setMessage(R.string.clear_db_msg)
+                        .setPositiveButton(R.string.ok) { _,_ ->
+                            App.launch {
+                                SettingModel.clearDatabase()
+                                ToastUtils.info(R.string.clear_success)
+                            }
+                        }
+                        .setNegativeButton(R.string.cancel){ _,_ -> }
+                        .show()
+
                 }
             ),
             SettingItem.Title(R.string.setting_hooks),
