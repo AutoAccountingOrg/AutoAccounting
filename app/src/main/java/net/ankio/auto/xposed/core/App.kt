@@ -140,7 +140,6 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
                     }
                     initHooker()
                 }
-                return
             }
         }
 
