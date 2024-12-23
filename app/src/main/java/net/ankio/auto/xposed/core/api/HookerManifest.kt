@@ -98,21 +98,21 @@ abstract class HookerManifest {
      * 写日志
      */
     fun log(string: String) {
-        Logger.log("$packageName $processName", string)
+        Logger.log("$processName", string)
     }
 
     /**
      * 写调试日志
      */
     fun logD(string: String) {
-        Logger.logD("$packageName $processName", string)
+        Logger.logD("$processName", string)
     }
 
     /**
      * 写错误日志
      */
     fun logE(e: Throwable) {
-        Logger.logE("$packageName $processName", e)
+        Logger.logE("$processName", e)
     }
 
     /**
