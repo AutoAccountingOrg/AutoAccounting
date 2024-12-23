@@ -38,10 +38,12 @@ object CommonHooker {
             /**
              * 启动自动记账服务
              */
-            Server(AppRuntime.application!!).startServer()
+            val server = Server(AppRuntime.application!!)
+            server.startServer()
             ThreadUtils.launch {
                 XposedFramework.init()
             }
+            AppInstaller.init(AppRuntime.application!!,server)
             Logger.logD(TAG, "Server start success")
         } catch (e: Throwable) {
             XposedBridge.log("Server start failed")
