@@ -18,9 +18,12 @@ package net.ankio.auto.xposed.hooks.auto
 import android.Manifest
 import android.app.Application
 import android.os.Build
+import net.ankio.auto.BuildConfig
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
+import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.hooks.auto.hooks.ActiveHooker
+import net.ankio.auto.xposed.hooks.common.CommonHooker
 import net.ankio.dex.model.Clazz
 
 
@@ -30,7 +33,9 @@ class AutoHooker : HookerManifest() {
         get() = "net.ankio.auto.xposed"
     override val appName: String = "自动记账"
     override fun hookLoadPackage() {
-
+        if (BuildConfig.DEBUG){
+            CommonHooker.init()
+        }
     }
 
     override var partHookers: MutableList<PartHooker> = mutableListOf(

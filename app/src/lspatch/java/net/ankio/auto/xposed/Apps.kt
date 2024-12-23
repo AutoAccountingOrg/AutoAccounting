@@ -27,20 +27,10 @@ import org.ezbook.server.constant.Setting
 
 
 object Apps {
-    /**
-     * 虚拟框架无法hook到模块环境
-     */
-    fun getServerRunInApp():Pair<String,String>{
-        // 或者运行于com.tencent.mm
-     //  if (BuildConfig.DEBUG) return BuildConfig.APPLICATION_ID
-        val wechat = DataUtils.configString(Setting.HOOK_WECHAT,  DefaultData.WECHAT_PACKAGE)
-        return  Pair(wechat,"${wechat}:push")
-    }
-
 
     fun get(): MutableList<HookerManifest> {
         return mutableListOf(
-            ServerHooker(), // Server
+
            // AndroidHooker(), // Android
             AutoHooker(), // Auto
             ////////////////////////////
@@ -51,6 +41,7 @@ object Apps {
             // 哪些App可能发送记账账单？
             ////////////////////////////
             WechatHooker(), // Wechat
+            WechatPushHooker(), // Server
             AliPayHooker(), // AliPay
            // SmsHooker() // Sms
             ////////////////////////////

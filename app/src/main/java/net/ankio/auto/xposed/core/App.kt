@@ -18,7 +18,6 @@ package net.ankio.auto.xposed.core
 import android.app.AndroidAppHelper
 import android.app.Application
 import android.app.Instrumentation
-import android.content.Context
 import android.os.Build
 import com.hjq.toast.Toaster
 import de.robv.android.xposed.IXposedHookLoadPackage
@@ -32,7 +31,6 @@ import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.core.utils.DataUtils
 import net.ankio.auto.xposed.core.utils.DataUtils.set
 import net.ankio.auto.xposed.core.utils.MessageUtils
-import net.ankio.auto.xposed.hooks.common.CommonHooker
 import org.ezbook.server.Server
 import org.ezbook.server.constant.Setting
 
@@ -139,7 +137,9 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
                         AppRuntime.classLoader = it.classLoader
                     }
                     initHooker()
+
                 }
+                return
             }
         }
 

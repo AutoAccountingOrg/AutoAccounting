@@ -13,24 +13,33 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.xposed.hooks.common
+package net.ankio.auto.xposed.hooks.wechat
 
-import net.ankio.auto.xposed.Apps
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
+import net.ankio.auto.xposed.core.utils.DataUtils
+import net.ankio.auto.xposed.hooks.common.CommonHooker
 import net.ankio.dex.model.Clazz
+import org.ezbook.server.constant.DefaultData
+import org.ezbook.server.constant.Setting
 
-class ServerHooker: HookerManifest(){
+class WechatPushHooker:HookerManifest() {
+    val wechat = DataUtils.configString(Setting.HOOK_WECHAT,  DefaultData.WECHAT_PACKAGE)
     override val packageName: String
-        get() = Apps.getServerRunInApp().first
-
-    override var processName: String = Apps.getServerRunInApp().second
+        get() = wechat
 
     override val appName: String
-        get() = "自动记账 Server"
+        get() = "微信 Push"
+
+    override var processName: String
+        get() = "$wechat:push"
+        set(value) {}
+
+    override val systemApp: Boolean
+        get() = false
 
     override fun hookLoadPackage() {
-       CommonHooker.init()
+        CommonHooker.init()
     }
 
     override var partHookers: MutableList<PartHooker> = mutableListOf()
