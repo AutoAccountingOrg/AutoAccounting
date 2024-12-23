@@ -1,0 +1,25 @@
+<!--
+  ~ Copyright (C) 2024 ankio(ankio@ankio.net)
+  ~ Licensed under the Apache License, Version 3.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~         http://www.apache.org/licenses/LICENSE-3.0
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~   limitations under the License.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="960"
+    android:tint="?colorOnBackground"
+    android:viewportHeight="960">
+  <path
+      android:pathData="M440,840v-240h80v80h320v80L520,760v80h-80ZM120,760v-80h240v80L120,760ZM280,600v-80L120,520v-80h160v-80h80v240h-80ZM440,520v-80h400v80L440,520ZM600,360v-240h80v80h160v80L680,280v80h-80ZM120,280v-80h400v80L120,280Z"
+      android:fillColor="#000000"/>
+</vector>

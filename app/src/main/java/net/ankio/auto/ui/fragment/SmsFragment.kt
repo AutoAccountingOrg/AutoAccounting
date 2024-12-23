@@ -19,14 +19,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.viewbinding.ViewBinding
 import com.google.android.material.chip.Chip
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentSmsEditBinding
 import net.ankio.auto.databinding.SettingItemInputBinding
 import net.ankio.auto.storage.ConfigUtils
-import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
 import net.ankio.auto.ui.utils.viewBinding

@@ -385,8 +385,8 @@
     <string name="setting_hook_wechat">微信</string>
     <string name="setting_donate">捐赠</string>
     <string name="title_category_rule">自动分类规则</string>
-    <string name="item_sms">短信过滤</string>
-    <string name="title_sms_edit">编辑短信过滤条件</string>
+    <string name="item_sms">短信（通知）过滤</string>
+    <string name="title_sms_edit">编辑短信（通知）过滤条件</string>
     <string name="add_sms">添加过滤关键词</string>
     <string name="add_filter">过滤关键字</string>
     <string name="picker_year">年</string>

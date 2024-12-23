@@ -28,7 +28,7 @@
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/item_sms"
-        android:icon="@drawable/data_sms"
+        android:icon="@drawable/data_filter"
         android:title="@string/item_sms"
         app:showAsAction="ifRoom" />
 </menu>
