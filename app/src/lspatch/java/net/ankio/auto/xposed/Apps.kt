@@ -16,14 +16,11 @@
 package net.ankio.auto.xposed
 
 import net.ankio.auto.xposed.core.api.HookerManifest
-import net.ankio.auto.xposed.core.utils.DataUtils
 import net.ankio.auto.xposed.hooks.alipay.AliPayHooker
 import net.ankio.auto.xposed.hooks.auto.AutoHooker
-import net.ankio.auto.xposed.hooks.common.ServerHooker
 import net.ankio.auto.xposed.hooks.qianji.QianjiHooker
 import net.ankio.auto.xposed.hooks.wechat.WechatHooker
-import org.ezbook.server.constant.DefaultData
-import org.ezbook.server.constant.Setting
+import net.ankio.auto.xposed.hooks.wechat.WechatPushHooker
 
 
 object Apps {
