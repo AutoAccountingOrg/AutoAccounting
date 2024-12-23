@@ -51,7 +51,7 @@ abstract class BaseUpdate(context: Activity) {
             UpdateChannel.GithubRaw.name
         ).let {
             return when(it){
-                UpdateChannel.GithubRaw.name,UpdateChannel.Github.name -> "https://github.com/$uri"
+                //UpdateChannel.GithubRaw.name,UpdateChannel.Github.name -> "https://github.com/$uri"
                 // https://ghproxy.net/https://github.com/AutoAccountingOrg/AutoRule/releases/download/v0.3.9/v0.3.9.zip
                 UpdateChannel.GithubProxy.name -> "https://ghproxy.net/https://github.com/$uri"
                 // https://cf.ghproxy.cc/https://github.com/AutoAccountingOrg/AutoRule/releases/download/v0.3.9/v0.3.9.zip
@@ -63,7 +63,7 @@ abstract class BaseUpdate(context: Activity) {
                 UpdateChannel.GithubD.name -> "https://dgithub.xyz/$uri"
                //https://kkgithub.com/AutoAccountingOrg/AutoRule/releases/download/v0.3.9/v0.3.9.zip
                 UpdateChannel.GithubKK.name -> "https://kkgithub.com/$uri"
-                else -> uri
+                else -> "https://github.com/$uri"
             }
         }
     }
