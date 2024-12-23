@@ -72,10 +72,6 @@ abstract class BaseFragment : Fragment() {
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        App.pageStopOrDestroy()
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
