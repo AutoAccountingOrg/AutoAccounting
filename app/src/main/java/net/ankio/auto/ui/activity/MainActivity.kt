@@ -27,11 +27,10 @@ import net.ankio.auto.R
 import net.ankio.auto.databinding.ActivityMainBinding
 import net.ankio.auto.storage.BackupUtils
 import net.ankio.auto.ui.api.BaseActivity
-import net.ankio.auto.ui.utils.ViewFactory.createBinding
 
 class MainActivity : BaseActivity() {
     // 视图绑定
-    private val binding by createBinding(ActivityMainBinding::inflate)
+    private val binding  =  ActivityMainBinding.inflate(layoutInflater)
 
     private data class NavigationItem(
         val id: Int,
