@@ -27,9 +27,6 @@ object CommonHooker {
     fun init(){
         Logger.logD(TAG, "Start server...: ${AndroidAppHelper.currentPackageName()}")
         try {
-            ThreadUtils.launch {
-                XposedFramework.init()
-            }
             /**
              * js引擎
              */
@@ -42,6 +39,9 @@ object CommonHooker {
              * 启动自动记账服务
              */
             Server(AppRuntime.application!!).startServer()
+            ThreadUtils.launch {
+                XposedFramework.init()
+            }
             Logger.logD(TAG, "Server start success")
         } catch (e: Throwable) {
             XposedBridge.log("Server start failed")

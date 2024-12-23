@@ -29,6 +29,7 @@ object XposedFramework {
         return (tagField.get(null) as String).replace("-Bridge", "")
     }
     suspend fun init(){
-        SettingModel.set(Setting.KEY_FRAMEWORK, framework())
+        val framework = framework()
+        SettingModel.set(Setting.KEY_FRAMEWORK, framework)
     }
 }
