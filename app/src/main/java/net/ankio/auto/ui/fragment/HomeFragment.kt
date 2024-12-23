@@ -145,7 +145,11 @@ class HomeFragment : BaseFragment() {
                 checkServices()
             }.onFailure { e ->
                 if (e is ServiceCheckException) {
-                    showServiceErrorDialog(e)
+                    if (isUiReady()){
+                        showServiceErrorDialog(e)
+                    } else{
+                        Logger.e("Error in check service", e)
+                    }
                 } else {
                     Logger.e("Error in check service", e)
                 }
@@ -478,8 +482,8 @@ class HomeFragment : BaseFragment() {
     /**
      * 绑定激活部分的UI
      */
-    suspend fun bindActiveUI() {
-        //  if (!isUiReady()) return
+    private suspend fun bindActiveUI() {
+         if (!isUiReady()) return
         val colorPrimary =
             App.getThemeAttrColor(com.google.android.material.R.attr.colorPrimary)
 
