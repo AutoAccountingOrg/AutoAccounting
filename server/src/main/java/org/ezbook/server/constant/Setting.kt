@@ -16,6 +16,7 @@
 package org.ezbook.server.constant
 
 object Setting {
+    const val AI_AUXILIARY: String = "ai_auxiliary"
     const val SMS_PERMISSION: String = "sms_permission"
     const val NOTIFICATION_PERMISSION: String = "notification_permission"
     const val SMS_FILTER: String = "sms_filter"

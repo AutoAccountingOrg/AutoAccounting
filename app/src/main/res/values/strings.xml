@@ -311,7 +311,7 @@
     <string name="bills_limit10">未同步账单达到10条时自动同步</string>
     <string name="setting_ai">AI功能</string>
     <string name="setting_bill_ai">使用AI大模型辅助识别账单</string>
-    <string name="setting_bill_ai_desc">隐私提醒：仅支持手动调用AI大模型进行识别，你的App数据、分类数据将会被上传至对应的大模型进行识别（与自动记账无关）。</string>
+    <string name="setting_bill_ai_desc">所有未匹配到账单的数据，自动记账都将尝试使用大模型进行识别。</string>
     <string name="gemini">Google Gemini</string>
     <string name="setting_bill_ai_type">大模型服务商</string>
     <string name="setting_bill_ai_key">API Key</string>
@@ -399,6 +399,8 @@
     <string name="title_bill">账单列表</string>
     <string name="no_remind">不再提醒</string>
     <string name="clear_db">完全删除数据库</string>
+    <string name="setting_ai_desc">隐私提醒：启用AI功能，你的App数据、分类数据、资产数据，将会被上传至对应的大模型（第三方，与自动记账无关）进行识别。</string>
+    <string name="setting_bill_use_ai">使用AI功能</string>
 
 
 </resources>

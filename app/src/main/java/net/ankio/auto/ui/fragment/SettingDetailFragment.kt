@@ -407,9 +407,18 @@ class SettingDetailFragment : BaseFragment() {
     private fun renderExperimental(): ArrayList<SettingItem> {
         return arrayListOf(
             SettingItem.Title(R.string.setting_ai),
+            SettingItem.Card(R.string.setting_ai_desc),
             SettingItem.Switch(
-                title = R.string.setting_bill_ai,
+                title = R.string.setting_bill_use_ai,
                 key = Setting.USE_AI,
+                icon = R.drawable.ic_ai,
+                 default = false,
+
+                ),
+            SettingItem.Switch(
+                regex = "${Setting.USE_AI}=true",
+                title = R.string.setting_bill_ai,
+                key = Setting.AI_AUXILIARY,
                 icon = R.drawable.ic_ai,
                 subTitle = R.string.setting_bill_ai_desc,
                 default = false,
