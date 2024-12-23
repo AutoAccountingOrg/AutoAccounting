@@ -62,7 +62,9 @@ class NotificationHooker : PartHooker() {
                 notification.extras.getString(Notification.EXTRA_TITLE) ?: ""
             }.getOrElse { "" }
             val originalText = runCatching {
-                notification.extras.getString(Notification.EXTRA_TEXT) ?: ""
+                notification.extras.getString(Notification.EXTRA_BIG_TEXT)  // 首先尝试获取大文本
+                    ?: notification.extras.getString(Notification.EXTRA_TEXT)  // 如果没有大文本，则获取普通文本
+                    ?: ""  // 如果都没有，返回空字符串
             }.getOrElse { "" }
 
 
