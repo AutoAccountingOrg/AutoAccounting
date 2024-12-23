@@ -35,13 +35,12 @@ class AndroidHooker : HookerManifest() {
     override var applicationName: String = ""
 
     override fun hookLoadPackage() {
-        PermissionHooker().hook()
-
     }
 
     override var partHookers: MutableList<PartHooker>
         get() = mutableListOf(
             NotificationHooker(),
+            PermissionHooker(),
             PermissionCheckHooker(),
         )
         set(value) {}

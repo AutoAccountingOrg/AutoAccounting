@@ -56,11 +56,8 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
     ) {
         var hookStatus = false
         if (AppRuntime.manifest.packageName == "android") {
-            Hooker.allMethodsEqAfter(Hooker.loader("com.android.server.SystemServer"), "startOtherServices") {
-                if (hookStatus)return@allMethodsEqAfter null
-                hookStatus = true
-                callback(AndroidAppHelper.currentApplication())
-            }
+            hookStatus = true
+            callback(AndroidAppHelper.currentApplication())
             return
         }
         if (applicationName.isEmpty()) {
