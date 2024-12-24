@@ -32,6 +32,7 @@ import net.ankio.auto.xposed.core.utils.DataUtils
 import net.ankio.auto.xposed.core.utils.DataUtils.set
 import net.ankio.auto.xposed.core.utils.MessageUtils
 import org.ezbook.server.Server
+import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
 
 
@@ -187,7 +188,13 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
 
         AppRuntime.manifest.logD("Hooker init success, ${AppRuntime.manifest.appName}(${AppRuntime.versionCode})")
 
-        if (!AppRuntime.manifest.systemApp && AppRuntime.manifest.packageName!==BuildConfig.APPLICATION_ID && DataUtils.configBoolean(Setting.LOAD_SUCCESS, true)) {
+
+
+
+        if (
+            !AppRuntime.manifest.systemApp &&
+            AppRuntime.manifest.packageName!==BuildConfig.APPLICATION_ID &&
+            DataUtils.configBoolean(Setting.LOAD_SUCCESS, DefaultData.LOAD_SUCCESS)) {
             MessageUtils.toast("自动记账加载成功")
         }
     }

@@ -3,8 +3,10 @@ package net.ankio.auto.xposed.core.utils
 import android.content.Context
 import android.content.SharedPreferences
 import de.robv.android.xposed.XSharedPreferences
+import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.xposed.core.App.Companion.TAG
+import net.ankio.auto.xposed.core.logger.Logger
 
 object DataUtils{
 
@@ -46,15 +48,18 @@ object DataUtils{
             AppRuntime.application !!.getSharedPreferences(TAG, Context.MODE_PRIVATE) // 私有数据
         return sharedPreferences.getString(key, def) ?: def
     }
-
+    private val pref = XSharedPreferences(BuildConfig.APPLICATION_ID, PREF_NAME)
     /**
      * 读取配置
      * @param key String
      * @return String
      */
     fun configString(key: String,def: String = ""): String {
-        val pref = XSharedPreferences(BuildConfig.APPLICATION_ID, PREF_NAME)
-        return if (pref.file.canRead()) pref.getString(key, def)?:def else def
+        if (!pref.file.canRead()){
+            Logger.logE(TAG, Throwable("无法使用XSharedPreferences读取配置，一些设置可能无法按照预期工作"))
+            return def
+        }
+        return  pref.getString(key, def) ?: def
     }
 
     /**
@@ -63,7 +68,10 @@ object DataUtils{
      * @return String
      */
     fun configBoolean(key: String,def: Boolean = false): Boolean {
-        val pref = XSharedPreferences(BuildConfig.APPLICATION_ID, PREF_NAME)
-        return if (pref.file.canRead()) pref.getBoolean(key, def) else def
+        if (!pref.file.canRead()){
+            Logger.logE(TAG, Throwable("无法使用XSharedPreferences读取配置，一些设置可能无法按照预期工作"))
+            return def
+        }
+        return  pref.getBoolean(key,def)
     }
 }

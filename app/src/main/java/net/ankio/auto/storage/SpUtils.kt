@@ -27,7 +27,9 @@ object SpUtils {
         }.onFailure {
             it.printStackTrace()
             Logger.e("框架不支持MODE_WORLD_READABLE，部分设置可能不生效。")
-        }.getOrNull()?:App.app.getSharedPreferences("AutoConfig", Context.MODE_PRIVATE)
+        }.getOrElse {
+            App.app.getSharedPreferences("AutoConfig", Context.MODE_PRIVATE)
+        }
 
         val editor = pref.edit()
 
