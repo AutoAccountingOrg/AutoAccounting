@@ -768,10 +768,12 @@ class SettingDetailFragment : BaseFragment() {
             SettingItem.Title(R.string.setting_others),
             SettingItem.Switch(
                 title = R.string.setting_load_success,
-                key = Setting.LOAD_SUCCESS,
                 icon = R.drawable.setting_icon_success,
                 subTitle = R.string.load_msg,
                 default = DefaultData.LOAD_SUCCESS,
+                onGetKeyValue = {
+                    SpUtils.getBoolean(Setting.LOAD_SUCCESS, DefaultData.LOAD_SUCCESS)
+                },
                 onSavedValue = { value, _ ->
                     ConfigUtils.putBoolean(Setting.LOAD_SUCCESS, value)
                     SpUtils.putBoolean(Setting.LOAD_SUCCESS, value)
