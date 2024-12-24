@@ -19,6 +19,7 @@ import android.app.Application
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.os.Process
+import net.ankio.auto.BuildConfig
 import net.ankio.auto.xposed.core.App.Companion.TAG
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.logger.Logger
@@ -27,7 +28,7 @@ object AppRuntime {
     /**
      * 表示应用程序是否处于调试模式。
      */
-    var debug = false
+    var debug = BuildConfig.DEBUG
     /**
      * 表示应用程序的实例。
      */
