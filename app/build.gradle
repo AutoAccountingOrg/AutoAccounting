@@ -139,7 +139,6 @@ dependencies {
     // xml2json
     implementation libs.xmltojson
     implementation project(":server")
-    implementation 'org.markdownj:markdownj-core:0.4'
-
-    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.14'
+    implementation libs.markdownj.core
+    debugImplementation libs.leakcanary.android
 }
