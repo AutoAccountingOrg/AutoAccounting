@@ -20,54 +20,38 @@ import android.content.SharedPreferences
 import net.ankio.auto.App
 
 object SpUtils {
-    private fun getPref():SharedPreferences.Editor{
-        //getSharedPreferences
-        val pref = runCatching {
-            App.app.getSharedPreferences("AutoConfig", Context.MODE_WORLD_READABLE)
-        }.onFailure {
-            it.printStackTrace()
-            Logger.e("框架不支持MODE_WORLD_READABLE，部分设置可能不生效。")
-        }.getOrElse {
-            App.app.getSharedPreferences("AutoConfig", Context.MODE_PRIVATE)
-        }
-
-        val editor = pref.edit()
-
-        return editor
-
+    const val PREF_NAME = "AutoConfig"
+    const val PERF_AUTHORITY = "net.ankio.auto.preferences"
+    private fun getPref():SharedPreferences{
+        return App.app.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+    }
+    private fun getPrefRead():SharedPreferences{
+        return getPref()
     }
 
+    private fun getPrefWrite():SharedPreferences.Editor{
+      val pref = getPref()
+      return pref.edit()
+    }
     fun getString(key: String, defValue: String = ""): String {
-        val pref = App.app.getSharedPreferences("AutoConfig", Context.MODE_PRIVATE)
-        return pref.getString(key, defValue) ?: defValue
+        return getPrefRead().getString(key, defValue) ?: defValue
     }
 
     fun putString(key: String, value: String) {
-        val editor = getPref()
+        val editor = getPrefWrite()
         editor.putString(key, value)
         editor.apply()
     }
 
 
     fun getBoolean(key: String, defValue: Boolean = false): Boolean {
-        val pref = App.app.getSharedPreferences("AutoConfig", Context.MODE_PRIVATE)
-        return pref.getBoolean(key, defValue)
+        return getPrefRead().getBoolean(key, defValue)
     }
 
     fun putBoolean(key: String, value: Boolean) {
-        val editor = getPref()
+        val editor = getPrefWrite()
         editor.putBoolean(key, value)
         editor.apply()
     }
 
-    fun getInt(key: String, defValue: Int = 0): Int {
-        val pref = App.app.getSharedPreferences("AutoConfig", Context.MODE_PRIVATE)
-        return pref.getInt(key, defValue)
-    }
-
-    fun putInt(key: String, value: Int) {
-        val editor = getPref()
-        editor.putInt(key, value)
-        editor.apply()
-    }
 }
