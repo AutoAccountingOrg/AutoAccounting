@@ -19,12 +19,14 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Bundle
+import android.os.PersistableBundle
 import android.view.Gravity
 import android.view.WindowManager
 import net.ankio.auto.R
 import net.ankio.auto.service.FloatingWindowService
 import net.ankio.auto.storage.Constants
 import net.ankio.auto.storage.Logger
+import net.ankio.auto.ui.utils.DisplayUtils
 
 
 class FloatingWindowTriggerActivity : Activity() {
@@ -55,6 +57,12 @@ class FloatingWindowTriggerActivity : Activity() {
     override fun onStart() {
         super.onStart()
         startFloatService(intent)
+    }
+
+
+    override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
+        super.onCreate(savedInstanceState, persistentState)
+        DisplayUtils.setCustomDensity(this)
     }
 
     private fun startFloatService(intent: Intent){

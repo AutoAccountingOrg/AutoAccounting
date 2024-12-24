@@ -15,6 +15,7 @@
 
 package net.ankio.auto.ui.utils
 
+import android.app.Activity
 import android.content.ComponentCallbacks
 import android.content.Context
 import android.content.res.Configuration
@@ -49,7 +50,7 @@ object DisplayUtils {
     private var noCompatDensity: Float = 0f
     private var noCompatScaledDensity: Float = 0f
 
-    fun setCustomDensity(activity: BaseActivity) {
+    fun setCustomDensity(activity: Activity) {
         try {
             val appDisplayMetrics: DisplayMetrics = App.app.resources.displayMetrics
             val screenWidth = appDisplayMetrics.widthPixels / appDisplayMetrics.density
