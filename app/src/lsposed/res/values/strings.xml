@@ -16,5 +16,5 @@
 <resources>
     <string name="server_error_title">无法连接到自动记账服务</string>
     <string name="server_error">无法连接到自动记账服务，请检查作用域中是否勾选【电话服务】并重启后再试。</string>
-    <string name="server_error_version">当前自动记账的服务端版本和App版本不匹配，你是否更新过自动记账？如果您更新过自动记账，请重新启动手机后再试。</string>
+    <string name="server_error_version">当前自动记账的服务端版本（%s）和App版本（%s）不匹配，你是否更新过自动记账？如果您更新过自动记账，请重新启动手机后再试。</string>
 </resources>
