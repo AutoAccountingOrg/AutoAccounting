@@ -18,8 +18,6 @@ package net.ankio.auto.xposed.hooks.wechat
 import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
-import net.ankio.auto.xposed.core.hook.Hooker
-import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.core.utils.AppRuntime.application
 import net.ankio.auto.xposed.core.utils.AppRuntime.classLoader
 import net.ankio.auto.xposed.core.utils.DataUtils
@@ -38,22 +36,14 @@ import java.io.File
 
 
 class WechatHooker : HookerManifest() {
-    override val packageName: String
-        get() =  DataUtils.configString(Setting.HOOK_WECHAT, DefaultData.WECHAT_PACKAGE)
+    override val packageName: String  = DefaultData.WECHAT_PACKAGE
+    override var aliasPackageName: String  = DefaultData.WECHAT_PACKAGE_ALIAS
+
     override val appName: String = "微信"
 
     override fun hookLoadPackage() {
         if (application == null) {
             return
-        }
-
-
-        if (AppRuntime.debug) {
-            Hooker.allMethodsBefore(Hooker.loader("com.tencent.tinker.loader.shareutil.ShareTinkerLog")) { param ->
-                val method = param.method
-                val args = param.args
-                log("ShareTinkerLog: ${method.name} ${args.joinToString(" ")}")
-            }
         }
 
 
@@ -191,7 +181,36 @@ class WechatHooker : HookerManifest() {
 
                     )
                 )
-            )
+            ),
+            Clazz(
+                type = "class",
+                name = "wechat_user",
+                fields = arrayListOf(
+                    ClazzField(
+                        type = "java.lang.String",
+                        name = "field_conRemark"
+                    ),
+                    ClazzField(
+                        type = "java.lang.String",
+                        name = "field_nickname"
+                    ),
+                    ClazzField(
+                        type = "java.lang.String",
+                        name = "field_username"
+                    ),
+                ),
+                methods = arrayListOf(
+                    ClazzMethod(
+                        name = "convertFrom",
+                        parameters = arrayListOf(
+                            ClazzField(
+                                type = "android.database.Cursor"
+                            )
+                        )
+                    )
+                )
+            ),
+
         )
         set(value) {}
 

@@ -22,6 +22,7 @@ object DefaultData {
     const val SHOW_AUTO_BILL_TIP: Boolean = true
     const val NOTE_FORMAT: String = "【商户名称】【商品名称】"
     const val WECHAT_PACKAGE: String = "com.tencent.mm"
+    const val WECHAT_PACKAGE_ALIAS: String = "${WECHAT_PACKAGE}2"
     val SMS_FILTER = listOf(
         "银行", "信用卡", "借记卡", "公积金",
         "元", "￥", "¥", "人民币",

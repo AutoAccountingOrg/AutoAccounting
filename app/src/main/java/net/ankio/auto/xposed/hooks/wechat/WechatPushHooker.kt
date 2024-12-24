@@ -15,6 +15,7 @@
 
 package net.ankio.auto.xposed.hooks.wechat
 
+import android.app.AndroidAppHelper
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.utils.DataUtils
@@ -24,16 +25,14 @@ import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
 
 class WechatPushHooker:HookerManifest() {
-    val wechat = DataUtils.configString(Setting.HOOK_WECHAT,  DefaultData.WECHAT_PACKAGE)
-    override val packageName: String
-        get() = wechat
+
+    override val packageName: String  = DefaultData.WECHAT_PACKAGE
+    override var aliasPackageName: String  = DefaultData.WECHAT_PACKAGE_ALIAS
 
     override val appName: String
         get() = "微信 Push"
 
-    override var processName: String
-        get() = "$wechat:push"
-        set(value) {}
+    override var processName: String  = ":push"
 
     override val systemApp: Boolean
         get() = false

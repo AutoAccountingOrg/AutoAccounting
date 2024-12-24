@@ -51,6 +51,7 @@ abstract class HookerManifest {
      * 包名
      */
     abstract val packageName: String
+    open var aliasPackageName: String = ""
     open var processName: String = ""
     /**
      * 应用名，显示在日志里面的名称
@@ -59,7 +60,6 @@ abstract class HookerManifest {
 
     /**
      * hook入口，用于执行全局的hook操作
-     * @param application Application
      */
     abstract fun hookLoadPackage()
 
@@ -104,21 +104,21 @@ abstract class HookerManifest {
      * 写日志
      */
     fun log(string: String) {
-        Logger.log("$processName", string)
+        Logger.log("$packageName$processName", string)
     }
 
     /**
      * 写调试日志
      */
     fun logD(string: String) {
-        Logger.logD("$processName", string)
+        Logger.logD("$packageName$processName", string)
     }
 
     /**
      * 写错误日志
      */
     fun logE(e: Throwable) {
-        Logger.logE("$processName", e)
+        Logger.logE("$packageName$processName", e)
     }
 
     /**

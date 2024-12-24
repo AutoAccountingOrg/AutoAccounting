@@ -25,6 +25,7 @@ import de.robv.android.xposed.IXposedHookZygoteInit
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.xposed.Apps
+import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.logger.Logger
 import net.ankio.auto.xposed.core.utils.AppRuntime
@@ -108,6 +109,18 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         }*/
     }
 
+    private fun checkIsTargetApp(pkg: String,processName:String,manifest: HookerManifest):Boolean{
+        //原始的匹配
+        if (manifest.packageName == pkg && "${manifest.packageName}${manifest.processName}" == processName) {
+            return true
+        }
+        //别名的匹配
+        if (manifest.aliasPackageName.isNotEmpty() && manifest.aliasPackageName == pkg && "${manifest.aliasPackageName}${manifest.processName}" == processName) {
+            return true
+        }
+
+        return false
+    }
     /**
      * 加载包时的回调
      */
@@ -115,21 +128,10 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         //判断是否为调试模式
         val pkg = lpparam.packageName
         val processName = lpparam.processName
-        AppRuntime.debug = DataUtils.configBoolean(Setting.DEBUG_MODE, false) || BuildConfig.DEBUG
-        Logger.logD(TAG, "handleLoadPackage: $pkg，processName: $processName")
 
         for (app in Apps.get()) {
-
-            if (app.processName.isEmpty()){
-                app.processName = app.packageName
-            }
-            Logger.logD(TAG, "app.packageName(${app.packageName}) == pkg(${pkg}): ${app.packageName == pkg} app.processName(${app.processName}) == processName(${processName}): ${app.processName == processName}")
-            if (app.packageName == pkg &&  app.processName == processName) {
+            if (checkIsTargetApp(pkg,processName,app)) {
                 AppRuntime.classLoader = lpparam.classLoader
-                Logger.logD(
-                    TAG,
-                    "Hooker: ${app.appName}(${app.packageName}) Run in ${if (AppRuntime.debug) "debug" else "production"} Mode"
-                )
                 AppRuntime.name = app.appName
                 AppRuntime.manifest = app
                 hookAppContext(app.applicationName) {
@@ -137,8 +139,12 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
                     if (it !== null) {
                         AppRuntime.classLoader = it.classLoader
                     }
+                    AppRuntime.debug = DataUtils.configBoolean(Setting.DEBUG_MODE, false) || BuildConfig.DEBUG
+                    Logger.logD(
+                        TAG,
+                        "Hooker: ${app.appName}(${app.packageName}) Run in ${if (AppRuntime.debug) "debug" else "production"} Mode"
+                    )
                     initHooker()
-
                 }
                 return
             }
