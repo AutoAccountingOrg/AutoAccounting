@@ -40,8 +40,8 @@ class NotificationService : NotificationListenerService() {
         super.onNotificationPosted(sbn)
         //获取用户通知
         runCatching {
-            val notification = sbn?.notification
-            val app = sbn?.packageName
+            val notification = sbn?.notification!!
+            val app = sbn.packageName
             val title = runCatching {
                 notification.extras.getString(Notification.EXTRA_TITLE) ?: ""
             }.getOrElse { "" }
