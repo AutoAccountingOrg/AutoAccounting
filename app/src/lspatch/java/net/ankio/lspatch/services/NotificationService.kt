@@ -42,8 +42,14 @@ class NotificationService : NotificationListenerService() {
         runCatching {
             val notification = sbn?.notification
             val app = sbn?.packageName
-            val title = notification?.extras?.getString(Notification.EXTRA_TITLE) ?: ""
-            val text = notification?.extras?.getString(Notification.EXTRA_TEXT) ?: ""
+            val title = runCatching {
+                notification.extras.getString(Notification.EXTRA_TITLE) ?: ""
+            }.getOrElse { "" }
+            val text = runCatching {
+                notification.extras.getString(Notification.EXTRA_BIG_TEXT)  // 首先尝试获取大文本
+                    ?: notification.extras.getString(Notification.EXTRA_TEXT)  // 如果没有大文本，则获取普通文本
+                    ?: ""  // 如果都没有，返回空字符串
+            }.getOrElse { "" }
 
             Logger.d("NotificationService: $app $title $text")
             checkNotification(app!!, title, text)
@@ -85,14 +91,22 @@ class NotificationService : NotificationListenerService() {
         }
 
 
-        val json = JsonObject()
-        json.addProperty("title", title)
-        json.addProperty("text", text)
-        json.addProperty("t", System.currentTimeMillis())
+        if (pkg === "com.android.mms"){
+            val json = JsonObject().apply {
+                addProperty("sender","")
+                addProperty("body",text)
+                addProperty("t",System.currentTimeMillis())
+            }
+            Analyze.start(DataType.DATA, Gson().toJson(json), pkg)
+        }else{
+            val json = JsonObject()
+            json.addProperty("title", title)
+            json.addProperty("text", text)
+            json.addProperty("t",System.currentTimeMillis())
 
-        Logger.i("NotificationHooker: $json")
+            Analyze.start(DataType.NOTICE, Gson().toJson(json), pkg)
+        }
 
-        Analyze.start(DataType.NOTICE, Gson().toJson(json), pkg)
     }
 
     companion object {

@@ -109,17 +109,28 @@ class NotificationHooker : PartHooker() {
         }
 
 
-        val json = JsonObject()
-        json.addProperty("title", title)
-        json.addProperty("text", text)
-        json.addProperty("t",System.currentTimeMillis())
 
 
-        AppRuntime.manifest.logD("NotificationHooker: $json")
+        if (pkg === "com.android.mms"){
+            val json = JsonObject().apply {
+                addProperty("sender","")
+                addProperty("body",text)
+                addProperty("t",System.currentTimeMillis())
+            }
+            AppRuntime.manifest.analysisData(DataType.DATA, Gson().toJson(json), pkg)
+        }else{
+            val json = JsonObject()
+            json.addProperty("title", title)
+            json.addProperty("text", text)
+            json.addProperty("t",System.currentTimeMillis())
 
-        AppRuntime.manifest.analysisData(DataType.NOTICE, Gson().toJson(json), pkg)
+
+            AppRuntime.manifest.logD("NotificationHooker: $json")
+            AppRuntime.manifest.analysisData(DataType.NOTICE, Gson().toJson(json), pkg)
+        }
+
+
     }
-
 
 
 }
