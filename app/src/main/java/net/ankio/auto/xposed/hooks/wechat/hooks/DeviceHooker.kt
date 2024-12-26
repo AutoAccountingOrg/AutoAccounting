@@ -18,8 +18,10 @@ package net.ankio.auto.xposed.hooks.wechat.hooks
 import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
+import net.ankio.auto.xposed.core.logger.Logger
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import org.ezbook.server.constant.DefaultData
+import java.io.File
 
 class DeviceHooker : PartHooker() {
     override fun hook() {
@@ -31,15 +33,23 @@ class DeviceHooker : PartHooker() {
         hookBuild()
         hookAsSamsung()
         hookPref()
+        clearCache()
     }
-
+    private fun clearCache(){
+        val cache = AppRuntime.application!!.dataDir
+        val file = File(cache, ".auth_cache")
+        if (file.exists()){
+            file.deleteRecursively()
+        }
+    }
     private fun hookPref() {
         val clazz = AppRuntime.manifest.clazz("wechatPreference")
         val method = AppRuntime.manifest.method("wechatPreference", "setBoolean")
-        Hooker.before(clazz, method, Boolean::class.javaPrimitiveType!!) {
+        Hooker.before(clazz, method,String::class.java, Boolean::class.javaPrimitiveType!!) {
             val args = it.args
             val str = args[0] as String
-            val bool = args[1] as Boolean
+            val value = args[1] as Boolean
+            AppRuntime.manifest.log("hookPref: $str $value")
             if (str == "phone_and_pad") {
                 args[1] = false
             }
