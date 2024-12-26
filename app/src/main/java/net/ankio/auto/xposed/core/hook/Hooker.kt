@@ -6,6 +6,7 @@ import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.xposed.core.logger.Logger
 import net.ankio.auto.xposed.core.utils.AppRuntime
+import java.lang.reflect.Method
 
 /**
  * Xposed hooker utility for streamlined hooking operations.
@@ -244,6 +245,27 @@ object Hooker {
                 XposedBridge.hookMethod(method, object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
                         hook(param)
+                    }
+                })
+            } catch (e: Exception) {
+                log("Error hooking method after: ${method.name} - ${e.message}",e)
+            }
+        }
+    }
+    /**
+     * 将所有方法的执行后进行钩子操作。
+     * @param clazz 类对象。
+     * @param hook 钩子函数，用于在每个方法执行后进行调用。
+     */
+    fun allMethodsInAfter(
+        clazz: Class<*>,
+        hook: (XC_MethodHook.MethodHookParam,Method) -> Any?
+    ) {
+        clazz.declaredMethods.forEach { method ->
+            try {
+                XposedBridge.hookMethod(method, object : XC_MethodHook() {
+                    override fun afterHookedMethod(param: MethodHookParam) {
+                        hook(param,method)
                     }
                 })
             } catch (e: Exception) {
