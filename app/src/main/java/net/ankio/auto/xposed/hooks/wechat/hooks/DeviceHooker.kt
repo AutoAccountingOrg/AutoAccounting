@@ -15,34 +15,61 @@
 
 package net.ankio.auto.xposed.hooks.wechat.hooks
 
+import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.logger.Logger
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import org.ezbook.server.constant.DefaultData
+import java.io.File
 
 class DeviceHooker:PartHooker() {
     override fun hook() {
-
         val pkg = AppRuntime.application!!.packageName
         val alias = DefaultData.WECHAT_PACKAGE_ALIAS
-        Logger.logD("DeviceHooker", "hook $pkg, alias $alias")
         if (pkg != alias){
             return
         }
+        hookBuild()
         hookAsSamsung()
+       hookPref()
+    }
+
+    private fun hookPref(){
+        val clazz = AppRuntime.manifest.clazz("wechatPreference")
+        val method = AppRuntime.manifest.method("wechatPreference","setBoolean")
+        Hooker.before(clazz,method,Boolean::class.javaPrimitiveType!!){
+            val args = it.args
+            val str = args[0] as String
+            val bool = args[1] as Boolean
+            if (str == "phone_and_pad"){
+                args[1] = false
+            }
+        }
     }
 
     private fun hookAsSamsung(){
         val clazz = AppRuntime.manifest.clazz("wechatTablet")
         val method = AppRuntime.manifest.method("wechatTablet","isSamsungFoldableDevice")
-        Hooker.after(clazz,method){
-            val result = it.result as Boolean
-            Logger.log("DeviceHooker","Origin isSamsungFoldableDevice result: $result")
-            it.result = true
-            Logger.log("DeviceHooker","Change isSamsungFoldableDevice result: true")
-        }
+        Hooker.replaceReturn(clazz,method,true)
     }
-
+    private fun hookBuild(){
+        val build = Hooker.loader("android.os.Build")
+        XposedHelpers.setStaticObjectField(
+            build,
+            "MANUFACTURER",
+            "samsung"
+        )
+        XposedHelpers.setStaticObjectField(
+            build,
+            "BRAND",
+            "samsung"
+        )
+        XposedHelpers.setStaticObjectField(
+            build,
+            "MODEL",
+            "SM-F9560"
+        )
+    }
 
 }

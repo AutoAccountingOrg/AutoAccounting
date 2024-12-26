@@ -234,7 +234,36 @@ class WechatHooker : HookerManifest() {
                             "SM-W202",
                             "SM-W90"
                         )
+                    ),
+                    ClazzMethod(
+                        findName = "isTablet",
+                        returnType = "boolean",
+                        strings = arrayListOf(
+                            "lenovo",
+                            "Lenovo TB-9707F",
+                            "eebbk",
+                            "A2"
+                        )
                     )
+                )
+            ),
+            Clazz(
+                type = "class",
+                name = "wechatPreference",
+                nameRule = "com.tencent.mm.ui.base.preference.\\w+",
+                methods = arrayListOf(
+                    ClazzMethod(
+                        findName = "setBoolean",
+                        returnType = "com.tencent.mm.ui.base.preference.CheckBoxPreference",
+                        parameters = arrayListOf(
+                            ClazzField(
+                                type = "java.lang.String"
+                            ),
+                            ClazzField(
+                                type = "boolean"
+                            )
+                        )
+                    ),
                 )
             ),
 
