@@ -4,7 +4,6 @@ import net.ankio.dex.model.Clazz
 import net.ankio.dex.model.ClazzField
 import net.ankio.dex.model.ClazzMethod
 import net.ankio.dex.result.ClazzResult
-import net.ankio.dex.result.FieldResult
 import net.ankio.dex.result.MethodResult
 import org.jf.dexlib2.dexbacked.DexBackedClassDef
 import org.jf.dexlib2.dexbacked.DexBackedDexFile
