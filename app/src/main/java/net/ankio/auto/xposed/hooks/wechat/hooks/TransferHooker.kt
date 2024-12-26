@@ -28,7 +28,7 @@ import org.ezbook.server.constant.DataType
 class TransferHooker : PartHooker() {
     override fun hook() {
 
-        val model = AppRuntime.manifest.clazz("remittance.model",classLoader)
+        val model = AppRuntime.manifest.clazz("remittance.model")
         Hooker.after(
             model,
             "onGYNetEnd",

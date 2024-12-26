@@ -49,7 +49,7 @@ class AssetsUtils(private val manifest: HookerManifest, private val classLoader:
     }
 
     private val assetSqlHelperClazz by lazy {
-        manifest.clazz("AssetDbHelper",classLoader)
+        manifest.clazz("AssetDbHelper")
     }
 
     /**

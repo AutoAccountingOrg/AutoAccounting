@@ -21,6 +21,7 @@ import android.content.pm.PackageManager
 import android.provider.Settings
 import android.security.NetworkSecurityPolicy
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.delay
 import net.ankio.auto.xposed.core.logger.Logger
@@ -31,6 +32,8 @@ import net.ankio.auto.xposed.core.utils.MessageUtils.toast
 import net.ankio.auto.xposed.core.utils.ThreadUtils
 import net.ankio.dex.Dex
 import net.ankio.dex.model.Clazz
+import net.ankio.dex.result.ClazzResult
+import net.ankio.dex.result.MethodResult
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -59,7 +62,7 @@ abstract class HookerManifest {
     abstract val appName: String
 
     /**
-     * hook入口，用于执行全局的hook操作
+     * hook入口，用���执行全局的hook操作
      */
     abstract fun hookLoadPackage()
 
@@ -98,7 +101,7 @@ abstract class HookerManifest {
     /**
      * 保存已经成功获取到的class
      */
-    open var clazz = HashMap<String, String>()
+    open var clazz = HashMap<String, ClazzResult>()
 
     /**
      * 写日志
@@ -185,7 +188,7 @@ abstract class HookerManifest {
      * 如果适配信息完整，则返回成功；否则，清除缓存并返回失败。
      *
      * 如果当前版本号与上次适配的版本号不一致，则开始自动适配过程。
-     * 该过程包括解析应用的DEX文件，根据规则查找类信息，并将适配结果保存到缓存中。
+     * 该过程包括解析应用的DEX文件，根据规则查找类信息，并将适配结果保存到缓存��。
      * 如果适配成功，则更新适配版本号并返回成功；否则，返回失败。
      *
      * @return 返回一个布尔值，表示适配是否成功。如果适配成功，返回 `true`；否则，返回 `false`。
@@ -211,9 +214,8 @@ abstract class HookerManifest {
             runCatching {
                 clazz = Gson().fromJson(
                     get("clazz", ""),
-                    HashMap::class.java
-                ) as HashMap<String, String>
-                
+                    object : TypeToken<HashMap<String, ClazzResult>>() {}.type
+                )
                 if (clazz.size != rules.size) {
                     throw Exception("Adaptation failed: cache size mismatch")
                 }
@@ -314,7 +316,7 @@ abstract class HookerManifest {
             // 创建一个Request
             val request = Request.Builder().url(uri).post(body)
                 .addHeader("Content-Type", "application/json").build()
-            // 发送请求获取响应
+            // 发送请求获取��应
             val response = client.newCall(request).execute()
             // 如果请求成功
             response.body?.string()
@@ -322,14 +324,20 @@ abstract class HookerManifest {
         }.getOrNull()
     }
 
-    fun clazz(name: String, classLoader: ClassLoader): Class<*> {
+    fun clazz(name: String): Class<*> {
         return clazz[name]?.let {
             try {
-                classLoader.loadClass(it)
+                AppRuntime.classLoader.loadClass(it.clazzName)
             } catch (e: ClassNotFoundException) {
                 null
             }
         }!!
+    }
+
+    fun method(clazzName: String, methodName: String): String {
+       val clazzResult = clazz[clazzName] ?: return ""
+        val method = clazzResult.methodResults[methodName] ?: return ""
+        return method.methodName
     }
 
 }

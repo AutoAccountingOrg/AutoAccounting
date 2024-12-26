@@ -44,12 +44,12 @@ abstract class BaseDebt(
 
     val billHelpersClazz  by lazy {
         // BillDbHelper
-        manifest.clazz("BillDbHelper",classLoader)
+        manifest.clazz("BillDbHelper")
     }
 
     val billToolsClazz  by lazy {
         // BillTools
-        manifest.clazz("BillTools",classLoader)
+        manifest.clazz("BillTools")
     }
 
     var assetsUtils: AssetsUtils = AssetsUtils(manifest,classLoader)
@@ -59,11 +59,11 @@ abstract class BaseDebt(
     }
 
     val requestInterface by lazy {
-        manifest.clazz("RequestInterface",classLoader)
+        manifest.clazz("RequestInterface")
     }
 
     val assetsInterface by lazy {
-        manifest.clazz("AssetsInterface",classLoader)
+        manifest.clazz("AssetsInterface")
     }
 
     val billClazz  by lazy {

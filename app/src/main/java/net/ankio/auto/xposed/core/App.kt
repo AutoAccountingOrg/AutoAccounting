@@ -231,10 +231,6 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         AppRuntime.manifest.partHookers.forEach {
             runCatching {
                 AppRuntime.manifest.logD("PartHooker init: ${it.javaClass.simpleName}")
-                if (!it.findMethods()) {
-                    AppRuntime.manifest.logD("PartHooker init failed: ${it.javaClass.simpleName}")
-                    return@runCatching
-                }
                 it.hook()
                 AppRuntime.manifest.logD("PartHooker init success: ${it.javaClass.simpleName}")
             }.onFailure {

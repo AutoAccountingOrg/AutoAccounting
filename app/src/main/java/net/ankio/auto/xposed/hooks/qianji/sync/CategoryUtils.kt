@@ -47,7 +47,7 @@ class CategoryUtils(
         )
 
     private val proxyOnGetCategoryListClazz by lazy {
-        manifest.clazz("onGetCategoryList", classLoader)
+        manifest.clazz("onGetCategoryList")
     }
 
 

@@ -19,7 +19,7 @@ class ChatUserHooker : PartHooker() {
     override fun hook() {
 
 
-        val clazzUser  = AppRuntime.manifest.clazz("wechat_user",AppRuntime.classLoader)
+        val clazzUser  = AppRuntime.manifest.clazz("wechat_user")
 
         // public void convertFrom(Cursor cursor) {
         Hooker.after(clazzUser, "convertFrom",Hooker.loader("android.database.Cursor")) { param ->

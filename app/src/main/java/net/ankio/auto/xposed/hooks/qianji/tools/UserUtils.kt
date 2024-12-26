@@ -23,7 +23,7 @@ class UserUtils(
     private val classLoader: ClassLoader
 ) {
     private val userManagerClazz by lazy {
-        manifest.clazz("UserManager", classLoader)
+        manifest.clazz("UserManager")
     }
 
     fun getInstance(): Any {

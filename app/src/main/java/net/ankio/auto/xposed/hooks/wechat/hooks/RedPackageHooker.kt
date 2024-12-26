@@ -15,12 +15,9 @@
 
 package net.ankio.auto.xposed.hooks.wechat.hooks
 
-import android.app.Application
-import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.utils.AppRuntime
-import net.ankio.auto.xposed.core.utils.AppRuntime.classLoader
 import net.ankio.auto.xposed.core.utils.DataUtils
 import org.ezbook.server.constant.DataType
 import org.json.JSONObject
@@ -34,7 +31,7 @@ class RedPackageHooker: PartHooker() {
          *
          *
          */
-        val clazz = AppRuntime.manifest.clazz("luckymoney.model",classLoader)
+        val clazz = AppRuntime.manifest.clazz("luckymoney.model")
         //  public void onGYNetEnd(int v, String s, JSONObject jSONObject0) {
         Hooker.before(clazz,
             "onGYNetEnd",

@@ -35,7 +35,7 @@ class BookUtils(
 ) {
     private val bookManagerInstance by lazy {
         XposedHelpers.callStaticMethod(
-            manifest.clazz("BookManager", classLoader),
+            manifest.clazz("BookManager"),
             "getInstance",
         )
     }

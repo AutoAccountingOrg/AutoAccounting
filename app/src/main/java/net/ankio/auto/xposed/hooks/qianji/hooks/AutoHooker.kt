@@ -23,6 +23,7 @@ import net.ankio.auto.BuildConfig
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
+import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.core.utils.AppRuntime.application
 import net.ankio.auto.xposed.core.utils.AppRuntime.classLoader
 import net.ankio.auto.xposed.core.utils.AppRuntime.manifest
@@ -41,24 +42,6 @@ import org.ezbook.server.db.model.BillInfoModel
 
 class AutoHooker : PartHooker() {
     lateinit var addBillIntentAct: Class<*>
-    override val methodsRule: MutableList<Triple<String, String, ClazzMethod>>
-        get() = mutableListOf(
-            Triple(
-                "com.mutangtech.qianji.bill.auto.AddBillIntentAct", "InsertAutoTask",
-                ClazzMethod(
-                    parameters =
-                    listOf(
-                        ClazzField(
-                            type = "java.lang.String",
-                        ),
-                        ClazzField(
-                            type = "com.mutangtech.qianji.data.model.AutoTaskLog",
-                        ),
-                    ),
-                    regex = "^\\w{2}$",
-                ),
-            )
-        )
 
     override fun hook() {
 
@@ -78,12 +61,12 @@ class AutoHooker : PartHooker() {
     ) {
 
 
+
         Hooker.before(
             "com.mutangtech.qianji.bill.auto.AddBillIntentAct",
-            method(
-                "com.mutangtech.qianji.bill.auto.AddBillIntentAct",
+            manifest.method(
+                "AddBillIntentAct",
                 "InsertAutoTask",
-                classLoader
             ),
             "java.lang.String",
             "com.mutangtech.qianji.data.model.AutoTaskLog"
@@ -238,7 +221,7 @@ class AutoHooker : PartHooker() {
     private fun hookTimeout(hookerManifest: HookerManifest, classLoader: ClassLoader) {
 
         val clazz by lazy {
-            hookerManifest.clazz("TimeoutApp", classLoader)
+            hookerManifest.clazz("TimeoutApp")
         }
 
         Hooker.after(

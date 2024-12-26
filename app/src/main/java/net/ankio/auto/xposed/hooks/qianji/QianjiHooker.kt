@@ -224,6 +224,27 @@ class QianjiHooker : HookerManifest() {
                     ),
                 ),
             ),
+            Clazz(
+                name = "AddBillIntentAct",
+                nameRule = "com.mutangtech.qianji.bill.auto.AddBillIntentAct",
+                type = "class",
+                methods =
+                listOf(
+                    ClazzMethod(
+                        findName = "InsertAutoTask",
+                        parameters =
+                        listOf(
+                            ClazzField(
+                                type = "java.lang.String",
+                            ),
+                            ClazzField(
+                                type = "com.mutangtech.qianji.data.model.AutoTaskLog",
+                            ),
+                        ),
+                        regex = "^\\w{2}$",
+                    ),
+                ),
+            ),
 
         )
         set(value) {}
