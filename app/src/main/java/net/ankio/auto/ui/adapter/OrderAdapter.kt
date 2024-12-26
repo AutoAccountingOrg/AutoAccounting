@@ -27,8 +27,6 @@ class OrderAdapter(resultData: MutableList<OrderGroup>) :
         resultData
     ) {
 
-    private val adaptersCache = mutableMapOf<Int, OrderItemAdapter>()
-
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterOrderBinding, OrderGroup>) {
         val layoutManager = LinearLayoutManager(holder.context)
         layoutManager.isSmoothScrollbarEnabled = true
@@ -42,14 +40,10 @@ class OrderAdapter(resultData: MutableList<OrderGroup>) :
         position: Int
     ) {
         val binding = holder.binding
-        // 如果适配器已经存在则重用，否则创建新的适配器
-        val adapter = adaptersCache.getOrPut(position) { OrderItemAdapter(data.bills.toMutableList()) }
+        // 直接创建新的适配器，避免缓存导致的问题
+        val adapter = OrderItemAdapter(data.bills.toMutableList())
         binding.recyclerView.adapter = adapter
-
         binding.title.text = data.date
-
-        // 仅在数据发生变化时调用
-        adapter.notifyDataSetChanged()
     }
 
 }
