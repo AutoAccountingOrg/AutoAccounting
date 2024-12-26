@@ -48,8 +48,6 @@ class DeviceHooker : PartHooker() {
         Hooker.before(clazz, method,String::class.java, Boolean::class.javaPrimitiveType!!) {
             val args = it.args
             val str = args[0] as String
-            val value = args[1] as Boolean
-            AppRuntime.manifest.log("hookPref: $str $value")
             if (str == "phone_and_pad") {
                 args[1] = false
             }
