@@ -5,5 +5,6 @@ data class Clazz(
     val fields: List<ClazzField> = listOf(),
     val methods: List<ClazzMethod> = listOf(),
     val nameRule: String = "",
-    val type: String = ""
+    val type: String = "",
+    val strings: List<String> = listOf()
 )

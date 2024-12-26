@@ -11,7 +11,7 @@ import java.lang.reflect.Modifier
 import java.util.zip.ZipFile
 
 object Dex {
-    fun getAllDexFiles(file: String): List<DexFile> {
+    private fun getAllDexFiles(file: String): List<DexBackedDexFile> {
         val dexFiles = mutableListOf<DexBackedDexFile>()
         ZipFile(file).use { zipFile ->
             // Iterate over all entries in the ZIP file
@@ -48,6 +48,8 @@ object Dex {
                     return@dexPath
                 }// 所有需要查找的元素全部找到
 
+
+
                 val className =
                     classDef.type.substring(1, classDef.type.length - 1).replace('/', '.')
            //     println("[DEX] Class : $className")
@@ -65,6 +67,15 @@ object Dex {
                    //     println("[DEX] ClassName not match ${clazzRule.nameRule} ")
                         return@rules
                     } // 包名不匹配，跳过
+
+                    val matchString = clazzRule.strings.isEmpty() || clazzRule.strings.any { string ->
+                        classDef.getStrings().all { it.contains(string) }
+                    }
+
+                    if (!matchString) {
+                        //     println("[DEX] ClassName not match ${clazzRule.nameRule} ")
+                        return@rules
+                    } // 字符串不匹配，跳过
 
                     // 尝试加载类
                     val clazz = runCatching { classLoader.loadClass(className) }.getOrNull()
