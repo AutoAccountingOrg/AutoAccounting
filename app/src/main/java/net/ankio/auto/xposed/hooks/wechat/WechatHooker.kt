@@ -23,6 +23,7 @@ import net.ankio.auto.xposed.core.utils.AppRuntime.classLoader
 import net.ankio.auto.xposed.core.utils.DataUtils
 import net.ankio.auto.xposed.hooks.wechat.hooks.ChatUserHooker
 import net.ankio.auto.xposed.hooks.wechat.hooks.DatabaseHooker
+import net.ankio.auto.xposed.hooks.wechat.hooks.DeviceHooker
 import net.ankio.auto.xposed.hooks.wechat.hooks.PayToolsHooker
 import net.ankio.auto.xposed.hooks.wechat.hooks.RedPackageHooker
 import net.ankio.auto.xposed.hooks.wechat.hooks.TransferHooker
@@ -45,6 +46,8 @@ class WechatHooker : HookerManifest() {
         if (application == null) {
             return
         }
+
+        DeviceHooker().hook()
 
 
         // 腾讯tinker热更新框架在加载后会导致hook无效，最简单的办法是删掉
@@ -210,13 +213,35 @@ class WechatHooker : HookerManifest() {
                     )
                 )
             ),
+            Clazz(
+                type = "class",
+                name = "wechatTablet",
+                nameRule = "com.tencent.mm.ui.\\w+",
+                strings = arrayListOf(
+                    "oplus.hardware.type.tablet",
+                    "isSamsungFoldableDevice!!!",
+                    "SM-F9",
+                    "SM-W202",
+                    "SM-W90"
+                ),
+                methods = arrayListOf(
+                    ClazzMethod(
+                        findName = "isSamsungFoldableDevice",
+                        returnType = "boolean",
+                        strings = arrayListOf(
+                            "isSamsungFoldableDevice!!!",
+                            "SM-F9",
+                            "SM-W202",
+                            "SM-W90"
+                        )
+                    )
+                )
+            ),
 
         )
         set(value) {}
 
-    override var clazz = hashMapOf(
-        "remittance.model" to "" //8.0.48 com.tencent.mm.plugin.remittance.model.c1.onGYNetEnd
-    )
+
 
 
     private fun closeTinker(classLoader: ClassLoader) {
