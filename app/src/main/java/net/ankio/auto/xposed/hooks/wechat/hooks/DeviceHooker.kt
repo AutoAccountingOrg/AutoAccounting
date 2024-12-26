@@ -18,42 +18,41 @@ package net.ankio.auto.xposed.hooks.wechat.hooks
 import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
-import net.ankio.auto.xposed.core.logger.Logger
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import org.ezbook.server.constant.DefaultData
-import java.io.File
 
-class DeviceHooker:PartHooker() {
+class DeviceHooker : PartHooker() {
     override fun hook() {
         val pkg = AppRuntime.application!!.packageName
         val alias = DefaultData.WECHAT_PACKAGE_ALIAS
-        if (pkg != alias){
+        if (pkg != alias) {
             return
         }
         hookBuild()
         hookAsSamsung()
-       hookPref()
+        hookPref()
     }
 
-    private fun hookPref(){
+    private fun hookPref() {
         val clazz = AppRuntime.manifest.clazz("wechatPreference")
-        val method = AppRuntime.manifest.method("wechatPreference","setBoolean")
-        Hooker.before(clazz,method,Boolean::class.javaPrimitiveType!!){
+        val method = AppRuntime.manifest.method("wechatPreference", "setBoolean")
+        Hooker.before(clazz, method, Boolean::class.javaPrimitiveType!!) {
             val args = it.args
             val str = args[0] as String
             val bool = args[1] as Boolean
-            if (str == "phone_and_pad"){
+            if (str == "phone_and_pad") {
                 args[1] = false
             }
         }
     }
 
-    private fun hookAsSamsung(){
+    private fun hookAsSamsung() {
         val clazz = AppRuntime.manifest.clazz("wechatTablet")
-        val method = AppRuntime.manifest.method("wechatTablet","isSamsungFoldableDevice")
-        Hooker.replaceReturn(clazz,method,true)
+        val method = AppRuntime.manifest.method("wechatTablet", "isSamsungFoldableDevice")
+        Hooker.replaceReturn(clazz, method, true)
     }
-    private fun hookBuild(){
+
+    private fun hookBuild() {
         val build = Hooker.loader("android.os.Build")
         XposedHelpers.setStaticObjectField(
             build,
