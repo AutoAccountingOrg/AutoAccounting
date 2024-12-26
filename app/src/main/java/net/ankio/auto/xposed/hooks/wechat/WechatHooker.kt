@@ -249,22 +249,14 @@ class WechatHooker : HookerManifest() {
             ),
             Clazz(
                 type = "class",
-                name = "wechatPreference",
-                nameRule = "com.tencent.mm.ui.base.preference.\\w+",
-                methods = arrayListOf(
-                    ClazzMethod(
-                        findName = "setBoolean",
-                        returnType = "com.tencent.mm.ui.base.preference.CheckBoxPreference",
-                        parameters = arrayListOf(
-                            ClazzField(
-                                type = "java.lang.String"
-                            ),
-                            ClazzField(
-                                type = "boolean"
-                            )
-                        )
-                    ),
-                )
+                name = "wechatModelChild",
+                strings = arrayListOf(
+                    ".auth_cache/",
+                    "MicroMsg.DeviceInfo",
+                    "cacheFileCount is less or equal than zero.",
+                    "[-] Base dir does not exist, base cache will return defValue.",
+                    "[!] Cache missed, base cache will return defValue."
+                ),
             ),
 
         )

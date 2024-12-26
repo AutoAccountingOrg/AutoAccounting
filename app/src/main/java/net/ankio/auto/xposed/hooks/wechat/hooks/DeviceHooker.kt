@@ -15,13 +15,12 @@
 
 package net.ankio.auto.xposed.hooks.wechat.hooks
 
+import android.os.Build
 import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
-import net.ankio.auto.xposed.core.logger.Logger
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import org.ezbook.server.constant.DefaultData
-import java.io.File
 
 class DeviceHooker : PartHooker() {
     override fun hook() {
@@ -30,29 +29,42 @@ class DeviceHooker : PartHooker() {
         if (pkg != alias) {
             return
         }
+
+        hookModel()
         hookBuild()
         hookAsSamsung()
-        hookPref()
-        clearCache()
+
     }
-    private fun clearCache(){
-        val cache = AppRuntime.application!!.dataDir
-        val file = File(cache, ".auth_cache")
-        if (file.exists()){
-            file.deleteRecursively()
-        }
-    }
-    private fun hookPref() {
-        val clazz = AppRuntime.manifest.clazz("wechatPreference")
-        val method = AppRuntime.manifest.method("wechatPreference", "setBoolean")
-        Hooker.before(clazz, method,String::class.java, Boolean::class.javaPrimitiveType!!) {
-            val args = it.args
-            val str = args[0] as String
-            if (str == "phone_and_pad") {
-                args[1] = false
+    private fun hookModel() {
+        val defaultModel = Build.MODEL
+        val clazz = AppRuntime.manifest.clazz("wechatModelChild").superclass
+        Hooker.allMethodsInAfter(clazz) { it, method ->
+
+            if (method.parameters.size != 1) {
+                return@allMethodsInAfter null
             }
+
+            if (method.parameters[0].type != String::class.java) {
+                return@allMethodsInAfter null
+            }
+
+            if (method.returnType != String::class.java) {
+                return@allMethodsInAfter null
+            }
+
+          //AppRuntime.manifest.log("raw model: ${it.result}")
+
+            if ( it.result == defaultModel){
+                it.result = MODEL
+            }
+
+          //  AppRuntime.manifest.log("replace model: ${it.result}")
+            null
         }
     }
+
+    val MANUFACTURER  = "samsung"
+    val MODEL = "SM-F9560"
 
     private fun hookAsSamsung() {
         val clazz = AppRuntime.manifest.clazz("wechatTablet")
@@ -65,18 +77,37 @@ class DeviceHooker : PartHooker() {
         XposedHelpers.setStaticObjectField(
             build,
             "MANUFACTURER",
-            "samsung"
+            MANUFACTURER
         )
         XposedHelpers.setStaticObjectField(
             build,
             "BRAND",
-            "samsung"
+            MANUFACTURER
         )
         XposedHelpers.setStaticObjectField(
             build,
             "MODEL",
-            "SM-F9560"
+            MODEL
         )
+
+        Hooker.after("android.os.SystemProperties", "get", String::class.java) {
+            val args = it.args
+            val key = args[0] as String
+            if (key == "ro.product.model") {
+                it.result = MODEL
+            } else if (key == "ro.product.brand") {
+                it.result = MANUFACTURER
+            } else if (key == "ro.product.manufacturer") {
+                it.result = MANUFACTURER
+            } else if (key == "ro.build.fingerprint") {
+                it.result = "$MANUFACTURER/${MANUFACTURER}/${MODEL}:${Build.VERSION.RELEASE}/${Build.ID}/${Build.VERSION.INCREMENTAL}:user/release-keys"
+            } else if (key == "ro.build.characteristics") {
+                it.result = "tablet"
+            } else if (key == "ro.build.product") {
+                it.result = MODEL
+            }
+        }
+
     }
 
 }
