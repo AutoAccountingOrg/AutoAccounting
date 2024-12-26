@@ -254,6 +254,7 @@ abstract class HookerManifest {
                     }
                 }
                 toast("适配失败")
+                set("adaptation_version", "0")
                 false
             }
         }.getOrElse { false }
