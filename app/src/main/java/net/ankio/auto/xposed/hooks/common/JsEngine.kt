@@ -15,11 +15,48 @@
 
 package net.ankio.auto.xposed.hooks.common
 
+import android.os.Build
+import net.ankio.auto.BuildConfig
+import net.ankio.auto.xposed.core.App.Companion.TAG
+import net.ankio.auto.xposed.core.logger.Logger
 import net.ankio.auto.xposed.core.utils.AppRuntime
 
 
 object JsEngine {
+    private fun initSoDir() {
+        val framework = when {
+            Build.SUPPORTED_64_BIT_ABIS.contains("arm64-v8a") -> "arm64"
+            Build.SUPPORTED_64_BIT_ABIS.contains("x86_64") -> "x86_64"
+            Build.SUPPORTED_32_BIT_ABIS.contains("armeabi-v7a") -> "arm"
+            Build.SUPPORTED_32_BIT_ABIS.contains("x86") -> "x86"
+            else -> "unsupported"
+        }
+
+        // 如果架构不支持，则记录日志并返回
+        if (framework == "unsupported") {
+            Logger.logD(TAG, "Unsupported architecture")
+            return
+        }
+
+        if (AppRuntime.modulePath.contains("lspatch")) {
+            runCatching {
+                val pm = AppRuntime.application!!.packageManager
+                val appInfo = pm.getApplicationInfo(BuildConfig.APPLICATION_ID, 0)
+                // APK 文件路径
+                AppRuntime.moduleSoPath =  appInfo.sourceDir
+            }.onFailure {
+                Logger.logE(TAG, it)
+            }
+        }
+
+        AppRuntime.moduleSoPath =
+            AppRuntime.modulePath.replace("/base.apk", "") + "/lib/$framework/"
+
+        Logger.logD(TAG, "Module so path: ${AppRuntime.moduleSoPath}")
+    }
     fun init() {
+        initSoDir()
+
         AppRuntime.load("mimalloc")
         AppRuntime.load("quickjs-android")
     }

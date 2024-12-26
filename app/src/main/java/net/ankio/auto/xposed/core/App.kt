@@ -249,26 +249,9 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
 
     override fun initZygote(startupParam: IXposedHookZygoteInit.StartupParam?) {
         AppRuntime.modulePath = startupParam?.modulePath ?: ""
-        initSoDir()
     }
 
-    private fun initSoDir() {
-        val framework = when {
-            Build.SUPPORTED_64_BIT_ABIS.contains("arm64-v8a") -> "arm64"
-            Build.SUPPORTED_64_BIT_ABIS.contains("x86_64") -> "x86_64"
-            Build.SUPPORTED_32_BIT_ABIS.contains("armeabi-v7a") -> "arm"
-            Build.SUPPORTED_32_BIT_ABIS.contains("x86") -> "x86"
-            else -> "unsupported"
-        }
 
-        // 如果架构不支持，则记录日志并返回
-        if (framework == "unsupported") {
-            Logger.logD(TAG, "Unsupported architecture")
-            return
-        }
-        AppRuntime.moduleSoPath =
-            AppRuntime.modulePath.replace("/base.apk", "") + "/lib/$framework/"
-    }
 
 
 }
