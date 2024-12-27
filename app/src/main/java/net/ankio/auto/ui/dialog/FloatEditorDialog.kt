@@ -85,18 +85,24 @@ class FloatEditorDialog(
         return true
     }
 
+
+
     override fun onCreateView(inflater: LayoutInflater): View {
-
-
         binding = FloatEditorBinding.inflate(inflater)
-        //cardView = binding.editorCard
+        return binding.root
+    }
 
+    override fun onViewCreated(view: View) {
+        super.onViewCreated(view)
+        val parent = view.parent as View
+        parent.setPadding(0, 0, 0, 0)
+        // 初始化账单信息
         Logger.d("Raw BillInfo => $rawBillInfo")
         billTypeLevel1 = BillTool.getType(rawBillInfo.type)
         billTypeLevel2 = rawBillInfo.type
         bindUI()
         bindEvents()
-
+        // 处理来自记账服务的重复账单
         if (floatingWindowService != null) {
             App.launch(Dispatchers.Main) {
                 runCatching {
@@ -108,13 +114,6 @@ class FloatEditorDialog(
             }
         }
 
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View) {
-        super.onViewCreated(view)
-        val parent = view.parent as View
-        parent.setPadding(0, 0, 0, 0)
     }
 
     // 综合以上内容，应用到billInfo对象上
@@ -303,9 +302,6 @@ class FloatEditorDialog(
         }
     }
 
-    override fun dismiss() {
-        super.dismiss()
-    }
 
     private fun bindingButtonsEvents() {
         // 关闭按钮
@@ -392,23 +388,19 @@ class FloatEditorDialog(
 
     private suspend fun setAccountMap(
         assets: List<AssetsModel>,
-        accountName: String,
-        eqAccountName: String
+        rawAccountName: String,
+        changedAccountName: String
     ) =
         withContext(Dispatchers.IO) {
-
-            if (accountName.isEmpty()) return@withContext
-            if (accountName == eqAccountName) return@withContext
-            //非标准资产需要映射
-            val find = assets.find { it.name == accountName }
-            if (find == null) return@withContext
-            Logger.d("Create new asset map => $accountName -> $eqAccountName")
+            if (rawAccountName.isEmpty() || changedAccountName.isEmpty()) return@withContext
+            if (rawAccountName == changedAccountName) return@withContext
+            val find = assets.find { it.name == rawAccountName }
+            if (find != null) return@withContext
+            Logger.d("Create new asset map => $rawAccountName -> $changedAccountName")
             AssetsMapModel.put(AssetsMapModel().apply {
-                this.name = accountName
-                this.mapName = eqAccountName
+                this.name = rawAccountName
+                this.mapName = changedAccountName
             })
-
-
         }
 
     private fun bindingTypePopupUI() {
