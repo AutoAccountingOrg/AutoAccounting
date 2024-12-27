@@ -28,6 +28,7 @@ import net.ankio.auto.xposed.core.App.Companion.TAG
 import net.ankio.auto.xposed.core.logger.Logger
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import org.ezbook.server.db.model.BillInfoModel
+import org.ezbook.server.tools.FloatingIntent
 
 object UnLockScreen {
     fun init(){
@@ -45,22 +46,8 @@ object UnLockScreen {
                             Logger.logD(TAG,"BillInfoModel.edit()：$list")
                             list.forEach { billInfoModel ->
                                 delay(1000)
-                                val panelIntent = Intent()
-                                panelIntent.putExtra("billInfo", Gson().toJson(billInfoModel))
-                                panelIntent.putExtra("id", billInfoModel.id)
-                                panelIntent.putExtra("showWaitTip", true)
-                                panelIntent.putExtra("from","JsRoute")
-                                panelIntent.setComponent(
-                                    ComponentName(
-                                        BuildConfig.APPLICATION_ID,
-                                        "net.ankio.auto.ui.activity.FloatingWindowTriggerActivity"
-                                    )
-                                )
-                                panelIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                panelIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
-                                panelIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-                                panelIntent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
-                                Logger.logD(TAG,"Calling auto server：$intent")
+                                val floatIntent = FloatingIntent(billInfoModel,true,"JsRoute",null)
+                                val panelIntent = floatIntent.toIntent()
                                 try {
                                     context.startActivity(panelIntent)
                                 }catch (t:Throwable){
