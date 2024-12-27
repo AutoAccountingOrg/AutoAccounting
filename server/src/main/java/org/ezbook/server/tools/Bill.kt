@@ -17,6 +17,7 @@ package org.ezbook.server.tools
 
 import android.content.Context
 import org.ezbook.server.Server
+import org.ezbook.server.constant.BillType
 import org.ezbook.server.constant.Currency
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
@@ -33,21 +34,26 @@ object Bill {
      */
     private fun checkRepeat(bill: BillInfoModel, bill2: BillInfoModel): Boolean {
         // 前提，上下5分钟，金额相同
-        // 首先检查基础条件：类型必须相同
+        // 如果有一个是转账类型，另一个是收入或者支出，可能是重复账单
+
         if (bill.type != bill2.type) {
-            return false
+            if (bill.type == BillType.Income && bill2.type == BillType.Expend) {
+                return false
+            }
+            if (bill.type == BillType.Expend && bill2.type == BillType.Income) {
+                return false
+            }
         }
 
         // 时间完全相同，是同一笔交易
         if (bill.time == bill2.time) {
             return true
         }
-
+        // 规则相同，不是重复账单
         if (bill.ruleName == bill2.ruleName){
             return false
         }
-
-
+        // 渠道不同，是重复账单
         if (bill.channel != bill2.channel){
             return true
         }
@@ -76,6 +82,11 @@ object Bill {
             if (target!= getRemark(bill2, context)){
                 // 4. 更新备注
                 this.remark = getRemark(this, context)
+            }
+
+            // 5. 更新类型，如果有转账，以转账为准
+            if (bill.type == BillType.Transfer && accountNameTo.isNotEmpty()) {
+                this.type = BillType.Transfer
             }
 
         }
