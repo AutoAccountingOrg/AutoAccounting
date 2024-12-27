@@ -29,39 +29,39 @@ import java.util.concurrent.TimeUnit
 
 abstract class BaseAi {
     private val prompt = """
-You are an AI assistant tasked with generating a bill info JSON based on the provided raw data. Your goal is to create a clear, concise, and informative bill info JSON that follows best practices.
+You are an AI assistant that extracts specific bill information from raw data. Your task is to identify and extract ONLY the exact transaction details present in the raw data.
+
+CRITICAL REQUIREMENT:
+- The "accountNameFrom" field MUST be extracted from the raw data
+- If "accountNameFrom" cannot be identified, return {} to indicate parsing failure
 
 Instructions:
-1. Analyze the provided raw data.
-2. Generate a bill info JSON following this format:
-   ```json
+1. Extract ONLY information that is explicitly present in the raw data
+2. Do NOT generate or infer any information that isn't clearly stated
+3. Generate a bill info JSON with these exact fields:
    {
-       "accountNameFrom": "",
-       "accountNameTo": "",
-       "cateName": "",
-       "currency": "",   
-       "fee": 0,
-       "money": 0.00,  
-       "shopItem": "",
-       "shopName": "",
-       "type": "",
-       "time": {time},
+       "accountNameFrom": "",  // REQUIRED: Source account - must be extracted
+       "accountNameTo": "",    // Destination account for transfers
+       "cateName": "",        // Must match one from provided Category JSON
+       "currency": "",        // Use CNY if not specified
+       "fee": 0,             // Transaction fee if present
+       "money": 0.00,        // Transaction amount
+       "shopItem": "",       // Specific item purchased
+       "shopName": "",       // Merchant name
+       "type": "",          // Must be: "Transfer", "Income", or "Expend"
+       "time": {time}       // Original timestamp, 13-digit milliseconds
    }
-   ```
-3. Explanation of JSON Fields:
-   - type: Must be a string; one of `Transfer`, `Income`, or `Expend`.
-   - time: Extract from raw data; Must be a 13-digit integer (milliseconds since epoch); Don't change it if extraction fails.
-   - shopName/shopItem: Extract from raw data; set to empty string if extraction fails.
-   - money/fee: Double-precision number; set to 0 if extraction fails.
-   - currency: Extract from raw data; set to `CNY` if extraction fails.
-   - cateName: Choose from Category JSON, distinguishing between income and expenses.
-   - accountNameFrom/To: Extract for Transfer type; set to empty string if extraction fails.
-4. If you can't analyze anything, export an empty JSON object: `{}`
 
-Output:
-- Provide only the bill info JSON, without additional explanation or commentary.
+Important Rules:
+- If accountNameFrom cannot be extracted, return {} immediately
+- Leave other fields empty ("") if the information is not explicitly present
+- Do not attempt to guess or infer missing information
+- Only use category names that exactly match the provided Category JSON
 
-Example:
+Output Format:
+- Return ONLY the JSON object, no explanations or comments
+
+Output Example:
 {
        "accountNameFrom": "支付宝余额",
        "accountNameTo": "",
@@ -74,7 +74,7 @@ Example:
        "type": "Expend",
        "time": 1630512000000,
 }
-    """.trimIndent()
+"""".trimIndent()
 
     val input = """
 Input:
