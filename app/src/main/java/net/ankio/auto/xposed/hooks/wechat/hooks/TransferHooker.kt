@@ -15,19 +15,15 @@
 
 package net.ankio.auto.xposed.hooks.wechat.hooks
 
-import android.app.Application
-import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.utils.AppRuntime
-import net.ankio.auto.xposed.core.utils.AppRuntime.classLoader
 import net.ankio.auto.xposed.core.utils.DataUtils
 import org.ezbook.server.constant.DataType
 
 
 class TransferHooker : PartHooker() {
     override fun hook() {
-
         val model = AppRuntime.manifest.clazz("remittance.model")
         Hooker.after(
             model,
@@ -41,6 +37,7 @@ class TransferHooker : PartHooker() {
             json.put("cachedPayTools", DataUtils.get("cachedPayTools"))
             json.put("cachedPayMoney", DataUtils.get("cachedPayMoney"))
             json.put("cachedPayShop", DataUtils.get("cachedPayShop"))
+            json.put("t", System.currentTimeMillis())
             AppRuntime.manifest.logD("Wechat Transfer hook： $json")
             AppRuntime.manifest.analysisData(DataType.DATA, json.toString())
         }

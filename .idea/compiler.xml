@@ -3,6 +3,7 @@
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel target="17">
       <module name="AutoAccounting.layout" target="21" />
+      <module name="AutoAccounting.pref" target="21" />
       <module name="AutoAccounting.theme" target="21" />
     </bytecodeTargetLevel>
   </component>
