@@ -40,7 +40,7 @@ class NotificationHooker : PartHooker() {
         Hooker.allMethodsEqBefore(
             Hooker.loader("com.android.server.notification.NotificationManagerService"),
             "enqueueNotificationInternal",
-        ) { param ->
+        ) { param , method ->
             val app = param.args[0] as String
             val opkg = param.args[1] as String
 

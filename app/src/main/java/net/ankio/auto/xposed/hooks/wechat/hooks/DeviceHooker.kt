@@ -38,18 +38,18 @@ class DeviceHooker : PartHooker() {
     private fun hookModel() {
         val defaultModel = Build.MODEL
         val clazz = AppRuntime.manifest.clazz("wechatModelChild").superclass
-        Hooker.allMethodsInAfter(clazz) { it, method ->
+        Hooker.allMethodsAfter(clazz) { it, method ->
 
             if (method.parameters.size != 1) {
-                return@allMethodsInAfter null
+                return@allMethodsAfter null
             }
 
             if (method.parameters[0].type != String::class.java) {
-                return@allMethodsInAfter null
+                return@allMethodsAfter null
             }
 
             if (method.returnType != String::class.java) {
-                return@allMethodsInAfter null
+                return@allMethodsAfter null
             }
 
           //AppRuntime.manifest.log("raw model: ${it.result}")
@@ -63,8 +63,8 @@ class DeviceHooker : PartHooker() {
         }
     }
 
-    val MANUFACTURER  = "samsung"
-    val MODEL = "SM-F9560"
+    private val MANUFACTURER  = "samsung"
+    private val MODEL = "SM-F9560"
 
     private fun hookAsSamsung() {
         val clazz = AppRuntime.manifest.clazz("wechatTablet")

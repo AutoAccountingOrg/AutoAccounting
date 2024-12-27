@@ -27,7 +27,7 @@ import net.ankio.auto.xposed.core.utils.AppRuntime
 
 class PermissionCheckHooker: PartHooker() {
     override fun hook() {
-        Hooker.allMethodsEqAfter(Hooker.loader("com.android.server.SystemServer"), "startOtherServices") {
+        Hooker.allMethodsEqAfter(Hooker.loader("com.android.server.SystemServer"), "startOtherServices") { it,method ->
             AppRuntime.application = AndroidAppHelper.currentApplication()
             hookDelay()
             null

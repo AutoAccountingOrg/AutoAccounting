@@ -32,7 +32,7 @@ class SecurityHooker:PartHooker() {
         val clazz = AppRuntime.classLoader.loadClass("com.alipay.apmobilesecuritysdk.scanattack.common.ScanAttack")
 
         // 这个bypass只能过掉在xposed、root环境隐藏不好的情况，即弹出登录异常、环境不安全这些提示
-        Hooker.allMethodsAfter(clazz){
+        Hooker.allMethodsAfter(clazz){ it,_ ->
             val result = it.result
             // 所有检测的全部返回false
             if (result is Boolean){

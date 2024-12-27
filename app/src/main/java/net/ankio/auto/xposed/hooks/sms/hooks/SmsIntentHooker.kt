@@ -45,7 +45,7 @@ class SmsIntentHooker: PartHooker() {
         Hooker.allMethodsEqBefore(
             inboundSmsHandlerClass,
             "dispatchIntent",
-        ){ param ->
+        ){ param,method ->
             val intent = param.args[0] as Intent
             val action = intent.action
 
