@@ -53,18 +53,17 @@ class FloatingWindowService : Service() {
         flags: Int,
         startId: Int,
     ): Int {
+        Logger.d("FloatingWindowService onStartCommand")
         val parent = FloatingIntent.parse(intent).parent
-        Logger.i("parent：$parent")
         if (parent != null) {
             //说明是重复账单
             ToastUtils.info(getString(R.string.repeat_bill))
             App.launch(Dispatchers.Main) {
                 bills.send(parent)
             }
-            Logger.i("Repeat Bill, Parent: $parent")
+            Logger.d("Repeat Bill, Parent: $parent")
             return START_NOT_STICKY
         }
-
         floatingQueue.send(intent)
         return START_NOT_STICKY
     }

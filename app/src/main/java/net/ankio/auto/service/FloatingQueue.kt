@@ -61,7 +61,6 @@ class FloatingQueue(private val callback:(FloatingIntent,FloatingQueue)->Unit) {
      */
     fun send(rawIntent: Intent) {
         val intent = FloatingIntent.parse(rawIntent)
-        val key = intent.getUniqueKey() //
         App.launch(Dispatchers.Main) {
             try {
                 channel.send(intent)
