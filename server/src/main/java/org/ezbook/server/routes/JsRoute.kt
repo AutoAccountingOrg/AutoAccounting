@@ -265,7 +265,7 @@ class JsRoute(private val session: ApplicationCall, private val context: android
         }.getOrNull()
         Server.log("AI($aiModel) 响应: ${billInfoModel}")
         if (billInfoModel == null) return null
-        if (billInfoModel.money == 0.0) {
+        if (billInfoModel.money == 0.0 || billInfoModel.accountNameFrom.isEmpty()) {
             return null
         }
         if (billInfoModel.money < 0) {
