@@ -2,11 +2,8 @@ package net.ankio.auto.xposed.core.utils
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.crossbowffs.remotepreferences.RemotePreferences
 import kotlinx.coroutines.runBlocking
-import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.xposed.core.App.Companion.TAG
-import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.SettingModel
 
 
