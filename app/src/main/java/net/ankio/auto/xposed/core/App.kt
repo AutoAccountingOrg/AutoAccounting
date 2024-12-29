@@ -109,10 +109,13 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
     }
 
     private fun checkIsTargetApp(
-        pkg: String,
-        processName: String,
+        pkg: String?,
+        processName: String?,
         manifest: HookerManifest
     ): Boolean {
+        if(pkg == null || processName == null){
+            return false
+        }
         //原始的匹配
         if (manifest.packageName == pkg && "${manifest.packageName}${manifest.processName}" == processName) {
             return true
@@ -134,7 +137,10 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         val processName = lpparam.processName
 
         for (app in Apps.get()) {
-            if (checkIsTargetApp(pkg, processName, app)) {
+            if (checkIsTargetApp(
+                    pkg,
+                    processName,
+                    app)) {
                 AppRuntime.classLoader = lpparam.classLoader
                 AppRuntime.name = app.appName
                 AppRuntime.manifest = app

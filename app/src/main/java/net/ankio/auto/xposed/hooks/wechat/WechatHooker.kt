@@ -25,6 +25,7 @@ import net.ankio.auto.xposed.hooks.wechat.hooks.DatabaseHooker
 import net.ankio.auto.xposed.hooks.wechat.hooks.DeviceHooker
 import net.ankio.auto.xposed.hooks.wechat.hooks.PayToolsHooker
 import net.ankio.auto.xposed.hooks.wechat.hooks.RedPackageHooker
+import net.ankio.auto.xposed.hooks.wechat.hooks.TransferHooker
 import net.ankio.auto.xposed.hooks.wechat.hooks.WebViewHooker
 import net.ankio.dex.model.Clazz
 import net.ankio.dex.model.ClazzField
@@ -45,7 +46,6 @@ class WechatHooker : HookerManifest() {
         }
 
         // 检查是否使用便携模式
-
 
 
         DeviceHooker().hook()
@@ -70,6 +70,7 @@ class WechatHooker : HookerManifest() {
 
     override var applicationName = "com.tencent.tinker.loader.app.TinkerApplication"
     override var partHookers: MutableList<PartHooker> = mutableListOf(
+        TransferHooker(),
         DatabaseHooker(),
         RedPackageHooker(),
         ChatUserHooker(),
@@ -78,7 +79,7 @@ class WechatHooker : HookerManifest() {
     )
 
 
-    override fun beforeAdaption():MutableList<Clazz> {
+    override fun beforeAdaption(): MutableList<Clazz> {
         // 只在微信别名包下生效，避免老版本适配失败
         if (application!!.packageName == DefaultData.WECHAT_PACKAGE_ALIAS) {
             log("微信处于别名包下，添加对平板设备的适配")
@@ -137,97 +138,141 @@ class WechatHooker : HookerManifest() {
     }
 
     override var rules: MutableList<Clazz> = mutableListOf(
-            Clazz(
-                type = "class",
-                name = "luckymoney.model",
-                nameRule = "com.tencent.mm.plugin.luckymoney.model.\\w+",
-                methods = arrayListOf(
-                    ClazzMethod(
-                        name = "constructor",
-                        parameters = arrayListOf(
-                            // public n5(int v, int v1, String s, String s1, String s2, String s3, String s4, String s5, String s6, String s7) {
-                            //
-                            ClazzField(
-                                type = "int"
-                            ),
-                            ClazzField(
-                                type = "int"
-                            ),
-                            ClazzField(
-                                type = "java.lang.String"
-                            ),
-                            ClazzField(
-                                type = "java.lang.String"
-                            ),
-                            ClazzField(
-                                type = "java.lang.String"
-                            ),
-                            ClazzField(
-                                type = "java.lang.String"
-                            ),
-                            ClazzField(
-                                type = "java.lang.String"
-                            ),
-                            ClazzField(
-                                type = "java.lang.String"
-                            ),
-                            ClazzField(
-                                type = "java.lang.String"
-                            ),
-                            ClazzField(
-                                type = "java.lang.String"
-                            ),
-                        )
-                    ),
-
-                    ClazzMethod(
-                        name = "onGYNetEnd",
-                        returnType = "void",
-                        parameters = arrayListOf(
-                            ClazzField(
-                                type = "int"
-                            ),
-                            ClazzField(
-                                type = "java.lang.String"
-                            ),
-                            ClazzField(
-                                type = "org.json.JSONObject"
-                            ),
-                        )
-
+        Clazz(
+            type = "class",
+            name = "remittance.model",
+            nameRule = "com.tencent.mm.plugin.remittance.model.\\w+",
+            methods = arrayListOf(
+                ClazzMethod(
+                    name = "constructor",
+                    parameters = arrayListOf(
+                        // int v, String s, String s1, int v1, String s2
+                        ClazzField(
+                            type = "int"
+                        ),
+                        ClazzField(
+                            type = "java.lang.String"
+                        ),
+                        ClazzField(
+                            type = "java.lang.String"
+                        ),
+                        ClazzField(
+                            type = "int"
+                        ),
+                        ClazzField(
+                            type = "java.lang.String"
+                        ),
                     )
-                )
-            ),
-            Clazz(
-                type = "class",
-                name = "wechat_user",
-                fields = arrayListOf(
-                    ClazzField(
-                        type = "java.lang.String",
-                        name = "field_conRemark"
-                    ),
-                    ClazzField(
-                        type = "java.lang.String",
-                        name = "field_nickname"
-                    ),
-                    ClazzField(
-                        type = "java.lang.String",
-                        name = "field_username"
-                    ),
                 ),
-                methods = arrayListOf(
-                    ClazzMethod(
-                        name = "convertFrom",
-                        parameters = arrayListOf(
-                            ClazzField(
-                                type = "android.database.Cursor"
-                            )
+
+                ClazzMethod(
+                    name = "onGYNetEnd",
+                    returnType = "void",
+                    parameters = arrayListOf(
+                        ClazzField(
+                            type = "int"
+                        ),
+                        ClazzField(
+                            type = "java.lang.String"
+                        ),
+                        ClazzField(
+                            type = "org.json.JSONObject"
+                        ),
+                    )
+
+                )
+            )
+        ),
+        Clazz(
+            type = "class",
+            name = "luckymoney.model",
+            nameRule = "com.tencent.mm.plugin.luckymoney.model.\\w+",
+            methods = arrayListOf(
+                ClazzMethod(
+                    name = "constructor",
+                    parameters = arrayListOf(
+                        // public n5(int v, int v1, String s, String s1, String s2, String s3, String s4, String s5, String s6, String s7) {
+                        //
+                        ClazzField(
+                            type = "int"
+                        ),
+                        ClazzField(
+                            type = "int"
+                        ),
+                        ClazzField(
+                            type = "java.lang.String"
+                        ),
+                        ClazzField(
+                            type = "java.lang.String"
+                        ),
+                        ClazzField(
+                            type = "java.lang.String"
+                        ),
+                        ClazzField(
+                            type = "java.lang.String"
+                        ),
+                        ClazzField(
+                            type = "java.lang.String"
+                        ),
+                        ClazzField(
+                            type = "java.lang.String"
+                        ),
+                        ClazzField(
+                            type = "java.lang.String"
+                        ),
+                        ClazzField(
+                            type = "java.lang.String"
+                        ),
+                    )
+                ),
+
+                ClazzMethod(
+                    name = "onGYNetEnd",
+                    returnType = "void",
+                    parameters = arrayListOf(
+                        ClazzField(
+                            type = "int"
+                        ),
+                        ClazzField(
+                            type = "java.lang.String"
+                        ),
+                        ClazzField(
+                            type = "org.json.JSONObject"
+                        ),
+                    )
+
+                )
+            )
+        ),
+        Clazz(
+            type = "class",
+            name = "wechat_user",
+            fields = arrayListOf(
+                ClazzField(
+                    type = "java.lang.String",
+                    name = "field_conRemark"
+                ),
+                ClazzField(
+                    type = "java.lang.String",
+                    name = "field_nickname"
+                ),
+                ClazzField(
+                    type = "java.lang.String",
+                    name = "field_username"
+                ),
+            ),
+            methods = arrayListOf(
+                ClazzMethod(
+                    name = "convertFrom",
+                    parameters = arrayListOf(
+                        ClazzField(
+                            type = "android.database.Cursor"
                         )
                     )
                 )
-            ),
-        )
-
+            )
+        ),
+    )
 
 
     private fun closeTinker(classLoader: ClassLoader) {
