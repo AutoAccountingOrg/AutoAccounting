@@ -115,6 +115,8 @@ class DatabaseHooker : PartHooker() {
                         json.addProperty("type", "transfer")
                         json.addProperty("isSend",contentValues.getAsInteger("isSend"))
                         json.addProperty("content", xmlToJson(content))
+                        json.addProperty(ChatUserHooker.CHAT_USER,ChatUserHooker.get(contentValues.get("talker").toString()))
+
                         putCache(json)
                         AppRuntime.manifest.analysisData(DataType.DATA, json.toString())
                     }
@@ -123,6 +125,8 @@ class DatabaseHooker : PartHooker() {
                         val json = JsonObject()
                         json.addProperty("type", "groupCollection")
                         json.add("content", Gson().toJsonTree(contentValues))
+                        json.addProperty("isSend",contentValues.getAsInteger("isSend"))
+                        json.addProperty(ChatUserHooker.CHAT_USER,ChatUserHooker.get(contentValues.get("talker").toString()))
                         putCache(json)
                         AppRuntime.manifest.analysisData(DataType.DATA, json.toString())
 
@@ -150,13 +154,10 @@ class DatabaseHooker : PartHooker() {
                 } else if (type == 2000) {
                     // 这个应该是微信转账给别人
                     val xml = contentValues.get("xml")
+                    if (xml === null) return@after
                     val json = JsonObject()
                     json.addProperty("type", "transfer")
-
-                    if (xml != null) {
-                        json.addProperty("content", xmlToJson(xml as String))
-                    }
-
+                    json.addProperty("content", xmlToJson(xml as String))
                     putCache(json)
                     AppRuntime.manifest.analysisData(DataType.DATA, json.toString())
                 }
@@ -166,7 +167,7 @@ class DatabaseHooker : PartHooker() {
 
 
     private fun putCache(json: JsonObject) {
-        json.addProperty(ChatUserHooker.CHAT_USER, DataUtils.get(ChatUserHooker.CHAT_USER))
+       // json.addProperty(ChatUserHooker.CHAT_USER, DataUtils.get(ChatUserHooker.CHAT_USER))
         json.addProperty(PayToolsHooker.PAY_TOOLS, DataUtils.get(PayToolsHooker.PAY_TOOLS))
         json.addProperty(PayToolsHooker.PAY_MONEY, DataUtils.get(PayToolsHooker.PAY_MONEY))
         json.addProperty(PayToolsHooker.PAY_SHOP, DataUtils.get(PayToolsHooker.PAY_SHOP))

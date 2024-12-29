@@ -1,20 +1,24 @@
 package net.ankio.auto.xposed.hooks.wechat.hooks
 
-import android.app.Application
-import android.content.Intent
 import de.robv.android.xposed.XposedHelpers
-import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
-import net.ankio.auto.xposed.core.logger.Logger
 import net.ankio.auto.xposed.core.utils.AppRuntime
-import net.ankio.auto.xposed.core.utils.DataUtils
 
 class ChatUserHooker : PartHooker() {
 
     companion object {
         const val CHAT_USER = "hookerUser"
+        // 内存缓存用户数据
+        val users = hashMapOf<String,String>()
+
+        fun get(wx: String): String {
+            return users[wx]?:""
+        }
     }
+
+
+
 
     override fun hook() {
 
@@ -31,16 +35,20 @@ class ChatUserHooker : PartHooker() {
 
             val field_nickname = XposedHelpers.getObjectField(obj, "field_nickname") as? String
 
-          //  val field_username = XposedHelpers.getObjectField(obj, "field_username") as? String
+            val field_username = XposedHelpers.getObjectField(obj, "field_username") as? String
 
            // AppRuntime.manifest.logD("ChatUserHooker: $field_conRemark $field_username $field_nickname")
+
+            if(field_username.isNullOrEmpty()) return@after
 
             val username = if (field_conRemark.isNullOrEmpty()) {
                 field_nickname
             } else {
                 field_conRemark
             }?:return@after
-            DataUtils.set(CHAT_USER, username)
+            users[field_username] = username
+
+         //   DataUtils.set(CHAT_USER, username)
 
         }
 
