@@ -182,7 +182,8 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         if (!AppRuntime.manifest.versionCheck()) {
             return
         }
-        if (!AppRuntime.manifest.autoAdaption()) {
+       val rules =  AppRuntime.manifest.beforeAdaption()
+        if (!AppRuntime.manifest.autoAdaption(rules)) {
             Logger.log(
                 TAG,
                 "Auto adaption failed , ${AppRuntime.manifest.appName} will not be hooked"

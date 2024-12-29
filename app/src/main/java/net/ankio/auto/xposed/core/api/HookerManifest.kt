@@ -177,6 +177,12 @@ abstract class HookerManifest {
         }
         return true
     }
+    /**
+     * 在适配之前的操作
+     */
+    open  fun beforeAdaption():MutableList<Clazz>{
+       return rules
+    }
 
     /**
      * 自动适配方法，用于根据预定义的规则进行应用的自动适配。
@@ -192,7 +198,7 @@ abstract class HookerManifest {
      *
      * @return 返回一个布尔值，表示适配是否成功。如果适配成功，返回 `true`；否则，返回 `false`。
      */
-    fun autoAdaption(): Boolean {
+    fun autoAdaption(rules:MutableList<Clazz>): Boolean {
         if (rules.isEmpty()) {
             return true
         }
@@ -248,10 +254,10 @@ abstract class HookerManifest {
                 toast("适配成功")
                 true
             } else {
-                logD("适配失败: $hashMap")
+                log("适配失败: $hashMap")
                 rules.forEach { rule ->
                     if (!hashMap.containsKey(rule.name)) {
-                        logD("未能适配规则: ${rule.name}")
+                        log("未能适配规则: ${rule.name}")
                     }
                 }
                 toast("适配失败")
