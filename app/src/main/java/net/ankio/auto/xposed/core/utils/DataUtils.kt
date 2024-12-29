@@ -3,8 +3,11 @@ package net.ankio.auto.xposed.core.utils
 import android.content.Context
 import android.content.SharedPreferences
 import com.crossbowffs.remotepreferences.RemotePreferences
+import kotlinx.coroutines.runBlocking
 import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.xposed.core.App.Companion.TAG
+import org.ezbook.server.constant.Setting
+import org.ezbook.server.db.model.SettingModel
 
 
 object DataUtils {
@@ -48,31 +51,15 @@ object DataUtils {
         return sharedPreferences.getString(key, def) ?: def
     }
 
-    private fun getPref(): SharedPreferences? {
-        if (AppRuntime.application == null) {
-            AppRuntime.manifest.log("getPref: application is null")
-            return null
-        }
-        return runCatching {
-            RemotePreferences(
-                AppRuntime.application,
-                SpUtils.PERF_AUTHORITY,
-                SpUtils.PREF_NAME,
-                true
-            )
-        }.onFailure {
-            AppRuntime.manifest.log("getPref: ${it.message}")
-            AppRuntime.manifest.logE(it)
-        }.getOrNull()
-    }
-
     /**
      * 读取配置
      * @param key String
      * @return String
      */
     fun configString(key: String, def: String = ""): String {
-        return getPref()?.getString(key, def) ?: def
+        return runBlocking {
+            SettingModel.get(key, def)
+        }
     }
 
     /**
@@ -81,6 +68,8 @@ object DataUtils {
      * @return String
      */
     fun configBoolean(key: String, def: Boolean = false): Boolean {
-        return getPref()?.getBoolean(key, def) ?: def
+        return runBlocking {
+            SettingModel.get(key, def.toString()).toBoolean()
+        }
     }
 }
