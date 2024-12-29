@@ -142,5 +142,4 @@ dependencies {
     implementation libs.markdownj.core
     debugImplementation libs.leakcanary.android
 
-    implementation 'com.crossbowffs.remotepreferences:remotepreferences:0.8'
 }

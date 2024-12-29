@@ -51,10 +51,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
-        <provider
-            android:name=".storage.XposedProvider"
-            android:authorities="net.ankio.auto.preferences"
-            android:exported="true"/>
         <meta-data
             android:name="com.bugsnag.android.API_KEY"
             android:value="9658e87e8ef9ebadc43135ff80243696" />
