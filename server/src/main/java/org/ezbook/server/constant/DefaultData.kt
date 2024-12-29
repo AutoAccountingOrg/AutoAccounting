@@ -16,7 +16,7 @@
 package org.ezbook.server.constant
 
 object DefaultData {
-    const val LOAD_SUCCESS: Boolean = true
+    const val LOAD_SUCCESS: Boolean = false
     const val AUTO_IDENTIFY_ASSET: Boolean = false
     const val AI_AUXILIARY: Boolean = false
     const val SHOW_AUTO_BILL_TIP: Boolean = true
