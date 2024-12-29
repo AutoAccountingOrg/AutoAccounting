@@ -157,6 +157,7 @@ object Bill {
         // 2. 查找可能重复的账单
         val potentialDuplicates = findPotentialDuplicates(billInfoModel)
 
+        Server.log("潜在重复账单数量: ${potentialDuplicates.size}")
         // 3. 查找并处理重复账单
         return potentialDuplicates
             .find { bill ->
@@ -184,6 +185,8 @@ object Bill {
         val timeWindow = 5 * 60 * 1000L // 5分钟
         val startTime = bill.time - timeWindow
         val endTime = bill.time + timeWindow
+
+        Server.log("查找潜在重复账单 - 金额: ${bill.money}, 时间范围: $startTime - $endTime")
 
         return Db.get().billInfoDao().query(bill.money, startTime, endTime)
     }
