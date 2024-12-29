@@ -47,10 +47,7 @@ object Bill {
         if (bill.time == bill2.time) {
             return true
         }
-        // 规则相同，不是重复账单
-        if (bill.ruleName == bill2.ruleName) {
-            return false
-        }
+
         // 渠道不同，是重复账单
         if (bill.channel != bill2.channel) {
             return true
