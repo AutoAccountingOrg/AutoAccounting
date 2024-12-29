@@ -49,19 +49,19 @@ interface RuleDao {
 
 
     @Insert
-    suspend  fun insert(rule: RuleModel): Long
+    suspend fun insert(rule: RuleModel): Long
 
     @Update
     suspend fun update(rule: RuleModel)
 
     @Query("DELETE FROM RuleModel WHERE id = :id")
-    suspend  fun delete(id: Int)
+    suspend fun delete(id: Int)
 
     @Query("SELECT app FROM RuleModel")
     suspend fun queryApps(): List<String>
 
     @Query("SELECT * FROM RuleModel WHERE creator = 'system'")
-    suspend  fun loadAllSystem(): List<RuleModel>
+    suspend fun loadAllSystem(): List<RuleModel>
 
 
     @Query("SELECT * FROM RuleModel WHERE app = :app AND type = :type AND name = :name limit 1")
@@ -69,6 +69,7 @@ interface RuleDao {
 
     @Query("SELECT * FROM RuleModel WHERE name = :name AND creator = 'system' limit 1")
     suspend fun loadSystemRule(name: String): RuleModel?
+
     @Query("DELETE FROM RuleModel WHERE creator = 'system' AND updateAt < :time")
-    suspend fun deleteSystemRule(time:Long)
+    suspend fun deleteSystemRule(time: Long)
 }

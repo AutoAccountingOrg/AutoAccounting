@@ -31,7 +31,7 @@ class BookNameRoute(private val session: ApplicationCall) {
 
     suspend fun put(): ResultModel {
         val md5 = params["md5"] ?: ""
-        val data =  session.receive<Array<BookNameModel>>()
+        val data = session.receive<Array<BookNameModel>>()
         val id = Db.get().bookNameDao().put(data)
         SettingRoute.setByInner(Setting.HASH_BOOK, md5)
         return ResultModel(200, "OK", id)

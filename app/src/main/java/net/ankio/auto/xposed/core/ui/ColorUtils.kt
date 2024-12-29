@@ -34,10 +34,10 @@ open class ColorUtils {
     open val backgroundColorDark = "#2e2e2e"
 
     open fun getMainColor(context: Context): Int {
-        return  Color.parseColor(if (isDarkMode(context)) mainColorDark else mainColorLight)
+        return Color.parseColor(if (isDarkMode(context)) mainColorDark else mainColorLight)
     }
 
-    open  fun getSubColor(context: Context): Int {
+    open fun getSubColor(context: Context): Int {
         return Color.parseColor(if (isDarkMode(context)) subColorDark else subColorLight)
     }
 

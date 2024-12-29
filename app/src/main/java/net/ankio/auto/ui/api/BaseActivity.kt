@@ -30,7 +30,6 @@ import androidx.core.view.WindowCompat
 import com.quickersilver.themeengine.ThemeEngine
 import com.quickersilver.themeengine.ThemeMode
 import net.ankio.auto.App
-import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.utils.DisplayUtils
 import net.ankio.auto.ui.utils.ViewUtils
 import net.ankio.auto.utils.LanguageUtils
@@ -71,11 +70,12 @@ open class BaseActivity : AppCompatActivity() {
         val themeMode = ThemeEngine.getInstance(this@BaseActivity).themeMode
 
         val currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
-        val  light =
+        val light =
             !(themeMode == ThemeMode.DARK || (themeMode == ThemeMode.AUTO && currentNightMode == Configuration.UI_MODE_NIGHT_YES))
         enableImmersiveMode(light)
 
     }
+
     /**
      * 沉浸式模式
      */
@@ -87,12 +87,14 @@ open class BaseActivity : AppCompatActivity() {
         //当背景透明时去掉灰色蒙层
         window.isNavigationBarContrastEnforced = false
         //导航栏背景颜色透明
-        window.navigationBarColor =  Color.TRANSPARENT
-        WindowCompat.getInsetsController(window,window.decorView).isAppearanceLightStatusBars = light
-        WindowCompat.getInsetsController(window,window.decorView).isAppearanceLightNavigationBars = light
+        window.navigationBarColor = Color.TRANSPARENT
+        WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars =
+            light
+        WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightNavigationBars =
+            light
 
         // 获取根布局
-        val rootView = findViewById<View>(android.R.id.content)  as ViewGroup
+        val rootView = findViewById<View>(android.R.id.content) as ViewGroup
 
         rootView.setOnApplyWindowInsetsListener { v, insets ->
             val rootLayout = rootView.getChildAt(0) as ViewGroup
@@ -101,24 +103,25 @@ open class BaseActivity : AppCompatActivity() {
             App.statusBarHeight = statusBarHeight
             App.navigationBarHeight = navigationBarHeight
             // 找到第一个子view
-            val fragmentContainerView = ViewUtils.findFragmentContainerView(rootLayout)?:return@setOnApplyWindowInsetsListener insets
+            val fragmentContainerView = ViewUtils.findFragmentContainerView(rootLayout)
+                ?: return@setOnApplyWindowInsetsListener insets
             var firstView = fragmentContainerView.getChildAt(0)
             val appBarLayout = ViewUtils.findAppBarLayout(fragmentContainerView)
-            if (appBarLayout != null){
+            if (appBarLayout != null) {
                 firstView = appBarLayout
             }
-            if (firstView is ViewGroup){
+            if (firstView is ViewGroup) {
                 val firstViewGroupChild = firstView.getChildAt(0)
                 val params = firstViewGroupChild.layoutParams as ViewGroup.MarginLayoutParams
                 params.topMargin = statusBarHeight
                 firstViewGroupChild.layoutParams = params
-            }else{
+            } else {
                 // 设置padding
                 firstView.setPadding(0, statusBarHeight, 0, 0)
             }
             val lastView = fragmentContainerView.getChildAt(fragmentContainerView.childCount - 1)
             val navigation = rootLayout.getChildAt(rootLayout.childCount - 1)
-           // Logger.d("navigation:$navigation,visibility:${navigation?.visibility}")
+            // Logger.d("navigation:$navigation,visibility:${navigation?.visibility}")
 
             lastView.postDelayed({
                 if (navigation == null || navigation.visibility == View.GONE) {
@@ -142,6 +145,7 @@ open class BaseActivity : AppCompatActivity() {
             if (resourceId > 0) resources.getDimensionPixelSize(resourceId) else 0
         }
     }
+
     @SuppressLint("InternalInsetResource")
     private fun getNavigationBarHeight(insets: WindowInsets): Int {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -151,7 +155,6 @@ open class BaseActivity : AppCompatActivity() {
             if (resourceId > 0) resources.getDimensionPixelSize(resourceId) else 0
         }
     }
-
 
 
     /**

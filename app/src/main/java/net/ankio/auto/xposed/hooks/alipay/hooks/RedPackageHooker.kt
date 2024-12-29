@@ -15,10 +15,7 @@
 
 package net.ankio.auto.xposed.hooks.alipay.hooks
 
-import android.app.Application
-import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
-import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.utils.AppRuntime
@@ -30,7 +27,8 @@ class RedPackageHooker : PartHooker() {
 
     override fun hook() {
         val proguard = Hooker.loader("com.alipay.mobile.redenvelope.proguard.c.b")
-        val syncMessage = Hooker.loader("com.alipay.mobile.rome.longlinkservice.syncmodel.SyncMessage")
+        val syncMessage =
+            Hooker.loader("com.alipay.mobile.rome.longlinkservice.syncmodel.SyncMessage")
 
         Hooker.before(proguard, "onReceiveMessage", syncMessage) { param ->
             val syncMessageObject = param.args[0]

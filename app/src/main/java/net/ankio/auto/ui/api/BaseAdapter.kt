@@ -17,10 +17,8 @@ package net.ankio.auto.ui.api
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
-import java.util.*
 
 abstract class BaseAdapter<T : ViewBinding, E>(
     bindingClass: Class<T>,

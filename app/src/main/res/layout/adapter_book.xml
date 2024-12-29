@@ -1,12 +1,13 @@
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:layout_height="wrap_content"
     android:layout_margin="@dimen/one_padding"
     app:cardElevation="0dp"
     app:strokeColor="?attr/colorSurfaceContainerHighest"
-    app:strokeWidth="0dp"
-    android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    app:strokeWidth="0dp">
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="180dp">
@@ -16,10 +17,10 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:scaleType="centerCrop"
-            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             tools:srcCompat="@tools:sample/avatars" />
 
         <View
@@ -38,7 +39,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            tools:text="测xxxxx试"
             android:textAppearance="@style/TextAppearance.AppCompat.Display1"
             android:textColor="?colorOnPrimary"
             android:textStyle="bold"
@@ -47,46 +47,45 @@
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.5" />
+            app:layout_constraintVertical_bias="0.5"
+            tools:text="测xxxxx试" />
 
         <com.google.android.material.button.MaterialButtonToggleGroup
-           android:id="@+id/selectContainer"
+            android:id="@+id/selectContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="-4dp"
             android:gravity="center_horizontal"
             android:visibility="visible"
             android:weightSum="2"
             app:layout_constraintBottom_toBottomOf="@+id/view2"
             app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginBottom="-4dp"
             app:layout_constraintStart_toStartOf="parent">
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/income"
                 style="@style/Widget.Material3.Button.ElevatedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="60dp"
                 android:layout_weight="1"
+                android:alpha="0.6"
+                android:backgroundTint="?colorPrimaryContainer"
                 android:text="@string/float_income"
                 android:textColor="?colorOnPrimaryContainer"
-                android:backgroundTint="?colorPrimaryContainer"
-                android:id="@+id/income"
-                app:cornerRadius="0dp"
-                android:alpha="0.6"
-                />
+                app:cornerRadius="0dp" />
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/expend"
                 style="@style/Widget.Material3.Button.ElevatedButton"
                 android:layout_width="wrap_content"
-                app:cornerRadius="0dp"
                 android:layout_height="60dp"
                 android:layout_weight="1"
-                android:text="@string/float_expend"
-                android:id="@+id/expend"
-                android:textColor="?colorOnPrimaryContainer"
-                android:backgroundTint="?colorPrimaryContainer"
-
                 android:alpha="0.6"
-                />
+                android:backgroundTint="?colorPrimaryContainer"
+                android:text="@string/float_expend"
+                android:textColor="?colorOnPrimaryContainer"
+
+                app:cornerRadius="0dp" />
 
         </com.google.android.material.button.MaterialButtonToggleGroup>
 

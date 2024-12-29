@@ -31,7 +31,7 @@ object AppUtils {
                 pkg = applicationInfo
             )
         } catch (e: Exception) {
-            Logger.e("Failed to get pkg info: $pkg",e)
+            Logger.e("Failed to get pkg info: $pkg", e)
             return null
         }
     }

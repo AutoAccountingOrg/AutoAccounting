@@ -3,8 +3,8 @@
 
     <item
         android:id="@+id/item_share"
-        android:title="@string/item_share"
         android:icon="@drawable/menu_icon_share"
+        android:title="@string/item_share"
         app:showAsAction="ifRoom" />
 
     <item

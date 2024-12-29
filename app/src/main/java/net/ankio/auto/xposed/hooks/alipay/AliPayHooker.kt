@@ -15,7 +15,6 @@
 
 package net.ankio.auto.xposed.hooks.alipay
 
-import android.app.Application
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.hooks.alipay.hooks.MessageBoxHooker

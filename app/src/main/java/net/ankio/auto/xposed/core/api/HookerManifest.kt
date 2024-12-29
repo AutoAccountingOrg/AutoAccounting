@@ -33,7 +33,6 @@ import net.ankio.auto.xposed.core.utils.ThreadUtils
 import net.ankio.dex.Dex
 import net.ankio.dex.model.Clazz
 import net.ankio.dex.result.ClazzResult
-import net.ankio.dex.result.MethodResult
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -43,7 +42,6 @@ import org.ezbook.server.constant.DataType
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.SettingModel
-import java.security.Permissions
 
 /**
  * HookerManifest
@@ -56,6 +54,7 @@ abstract class HookerManifest {
     abstract val packageName: String
     open var aliasPackageName: String = ""
     open var processName: String = ""
+
     /**
      * 应用名，显示在日志里面的名称
      */
@@ -69,7 +68,7 @@ abstract class HookerManifest {
     /**
      * 是否为系统应用
      */
-    open val systemApp:Boolean = false
+    open val systemApp: Boolean = false
 
     /**
      * 需要hook的功能，一个功能一个hooker，方便进行错误捕获
@@ -138,14 +137,14 @@ abstract class HookerManifest {
     /**
      * 权限检查
      */
-    fun permissionCheck(){
+    fun permissionCheck() {
         if (permissions.isEmpty()) {
             return
         }
         val context = AppRuntime.application ?: return
         permissions.forEach {
-            if (it === Manifest.permission.SYSTEM_ALERT_WINDOW){
-                if(Settings.canDrawOverlays(context)){
+            if (it === Manifest.permission.SYSTEM_ALERT_WINDOW) {
+                if (Settings.canDrawOverlays(context)) {
                     return@forEach
                 }
             }
@@ -165,14 +164,14 @@ abstract class HookerManifest {
      *
      * @return 如果当前版本满足最低要求，则返回 `true`；否则返回 `false`。
      */
-    fun versionCheck():Boolean{
+    fun versionCheck(): Boolean {
         val code = AppRuntime.versionCode
         val name = AppRuntime.versionName
-        log( "App VersionCode: $code, VersionName: $name")
+        log("App VersionCode: $code, VersionName: $name")
 
         // 检查App版本是否过低，过低无法使用
         if (minVersion != 0 && code < minVersion) {
-            logE(Throwable( "Auto adaption failed , ${AppRuntime.manifest.appName}(${code}) version is too low"))
+            logE(Throwable("Auto adaption failed , ${AppRuntime.manifest.appName}(${code}) version is too low"))
             toast("${AppRuntime.manifest.appName}版本过低，无法适配，请升级到最新版本后再试。")
             return false
         }
@@ -199,16 +198,16 @@ abstract class HookerManifest {
         }
 
         // 计算当前rules的哈希值
-        val currentRulesHash = rules.joinToString(",") { 
-            "${it.name}:${it.methods.joinToString("|") { m -> m.toString() }}" 
+        val currentRulesHash = rules.joinToString(",") {
+            "${it.name}:${it.methods.joinToString("|") { m -> m.toString() }}"
         }.hashCode().toString()
-        
+
         val code = AppRuntime.versionCode
         val savedVersion = get("adaptation_version", "").toIntOrNull() ?: 0
         val savedRulesHash = get("adaptation_rules_hash", "")
-        
+
         logD("AdaptationVersion: $savedVersion, RulesHash: $savedRulesHash")
-        
+
         // 版本号相同且规则哈希值相同时，尝试加载缓存的适配结果
         if (savedVersion == code && savedRulesHash == currentRulesHash) {
             runCatching {
@@ -237,7 +236,7 @@ abstract class HookerManifest {
             val appInfo = AppRuntime.application!!.applicationInfo
             val path = appInfo.sourceDir
             logD("App Package Path: $path")
-            
+
             val hashMap = Dex.findClazz(path, AppRuntime.application!!.classLoader, rules)
             if (hashMap.size == rules.size) {
                 // 保存新的适配结果
@@ -285,10 +284,11 @@ abstract class HookerManifest {
 
             var retryCount = 0
             var result: String? = null
-            
+
             while (result == null && retryCount < 10) {
-                result = request("js/analysis?type=${type.name}&app=$appPackage&fromAppData=false", data)
-                
+                result =
+                    request("js/analysis?type=${type.name}&app=$appPackage&fromAppData=false", data)
+
                 if (result == null) {
                     retryCount++
                     val delaySeconds = (1L shl (retryCount - 1)) * 10  // 10, 20, 40, 80, 160...
@@ -296,7 +296,7 @@ abstract class HookerManifest {
                     delay(delaySeconds * 1000L)
                 }
             }
-            
+
             if (result != null) {
                 logD("Analysis Result: $result")
             } else {
@@ -335,7 +335,7 @@ abstract class HookerManifest {
     }
 
     fun method(clazzName: String, methodName: String): String {
-       val clazzResult = clazz[clazzName] ?: return ""
+        val clazzResult = clazz[clazzName] ?: return ""
         val method = clazzResult.methodResults[methodName] ?: return ""
         return method.methodName
     }

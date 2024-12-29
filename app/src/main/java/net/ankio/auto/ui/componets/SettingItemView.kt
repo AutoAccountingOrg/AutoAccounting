@@ -35,12 +35,11 @@ class SettingItemView @JvmOverloads constructor(
                 // 设置描述
                 binding.settingDesc.text = getString(R.styleable.SettingItemView_settingDesc)
 
-            }finally {
+            } finally {
                 recycle()
             }
         }
     }
-
 
 
     fun setTitle(title: String) {

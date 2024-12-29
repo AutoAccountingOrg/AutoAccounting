@@ -32,7 +32,7 @@ class MD5HashTable(private val expirationTime: Long = 60) {
         return getCurrentTime() - timestamp > expirationTime
     }
 
-    companion object{
+    companion object {
         // 生成MD5哈希值
         fun md5(data: String): String {
             val md = MessageDigest.getInstance("MD5")

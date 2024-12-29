@@ -12,11 +12,11 @@
         android:layout_height="wrap_content"
         android:indeterminate="true"
         android:visibility="gone"
-        app:layout_constraintVertical_bias="0.5"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.5" />
 
     <!-- Empty State -->
     <ImageView
@@ -25,11 +25,11 @@
         android:layout_height="200dp"
         android:src="@drawable/ic_empty"
         android:visibility="gone"
-        app:layout_constraintVertical_bias="0.5"
         app:layout_constraintBottom_toTopOf="@id/empty_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.5"
         app:layout_constraintVertical_chainStyle="packed" />
 
     <com.google.android.material.textview.MaterialTextView
@@ -52,11 +52,11 @@
         android:layout_height="200dp"
         android:src="@drawable/ic_net_error"
         android:visibility="gone"
-        app:layout_constraintVertical_bias="0.5"
         app:layout_constraintBottom_toTopOf="@id/error_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.5"
         app:layout_constraintVertical_chainStyle="packed" />
 
     <TextView

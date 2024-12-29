@@ -18,7 +18,6 @@ package net.ankio.auto.xposed.core
 import android.app.AndroidAppHelper
 import android.app.Application
 import android.app.Instrumentation
-import android.os.Build
 import com.hjq.toast.Toaster
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.IXposedHookZygoteInit
@@ -88,28 +87,32 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
             onCachedApplication(context, "callApplicationOnCreate")
         }
 
-       /* fun hookApplication(method: String) {
-            try {
-                Hooker.after(
-                    applicationName,
-                    method,
-                    Context::class.java
-                ) {
-                    val context = it.thisObject as Application
-                    onCachedApplication(context, method)
-                }
+        /* fun hookApplication(method: String) {
+             try {
+                 Hooker.after(
+                     applicationName,
+                     method,
+                     Context::class.java
+                 ) {
+                     val context = it.thisObject as Application
+                     onCachedApplication(context, method)
+                 }
 
-            } catch (e: NoSuchMethodError) {
-                //   Logger.logE(TAG,e)
-            }
-        }
+             } catch (e: NoSuchMethodError) {
+                 //   Logger.logE(TAG,e)
+             }
+         }
 
-        for (method in arrayOf("attachBaseContext", "attach")) {
-            // hookApplication(method)
-        }*/
+         for (method in arrayOf("attachBaseContext", "attach")) {
+             // hookApplication(method)
+         }*/
     }
 
-    private fun checkIsTargetApp(pkg: String,processName:String,manifest: HookerManifest):Boolean{
+    private fun checkIsTargetApp(
+        pkg: String,
+        processName: String,
+        manifest: HookerManifest
+    ): Boolean {
         //原始的匹配
         if (manifest.packageName == pkg && "${manifest.packageName}${manifest.processName}" == processName) {
             return true
@@ -121,6 +124,7 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
 
         return false
     }
+
     /**
      * 加载包时的回调
      */
@@ -130,7 +134,7 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         val processName = lpparam.processName
 
         for (app in Apps.get()) {
-            if (checkIsTargetApp(pkg,processName,app)) {
+            if (checkIsTargetApp(pkg, processName, app)) {
                 AppRuntime.classLoader = lpparam.classLoader
                 AppRuntime.name = app.appName
                 AppRuntime.manifest = app
@@ -139,7 +143,8 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
                     if (it !== null) {
                         AppRuntime.classLoader = it.classLoader
                     }
-                    AppRuntime.debug = DataUtils.configBoolean(Setting.DEBUG_MODE, false) || BuildConfig.DEBUG
+                    AppRuntime.debug =
+                        DataUtils.configBoolean(Setting.DEBUG_MODE, false) || BuildConfig.DEBUG
                     Logger.logD(
                         TAG,
                         "Hooker: ${app.appName}(${app.packageName}) Run in ${if (AppRuntime.debug) "debug" else "production"} Mode"
@@ -199,8 +204,9 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
 
         if (
             !AppRuntime.manifest.systemApp &&
-            AppRuntime.manifest.packageName!==BuildConfig.APPLICATION_ID &&
-            DataUtils.configBoolean(Setting.LOAD_SUCCESS, DefaultData.LOAD_SUCCESS)) {
+            AppRuntime.manifest.packageName !== BuildConfig.APPLICATION_ID &&
+            DataUtils.configBoolean(Setting.LOAD_SUCCESS, DefaultData.LOAD_SUCCESS)
+        ) {
             MessageUtils.toast("自动记账加载成功")
         }
     }
@@ -246,8 +252,6 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
     override fun initZygote(startupParam: IXposedHookZygoteInit.StartupParam?) {
         AppRuntime.modulePath = startupParam?.modulePath ?: ""
     }
-
-
 
 
 }

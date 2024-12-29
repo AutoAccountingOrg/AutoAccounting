@@ -34,10 +34,10 @@ class FloatingWindowTriggerActivity : Activity() {
         super.onCreate(savedInstanceState)
         createOnePxWindow()
         setTheme(R.style.TransparentActivityTheme)
-       setVerticalScreen()
+        setVerticalScreen()
     }
 
-    private fun setVerticalScreen(){
+    private fun setVerticalScreen() {
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
     }
 
@@ -65,10 +65,10 @@ class FloatingWindowTriggerActivity : Activity() {
         DisplayUtils.setCustomDensity(this)
     }
 
-    private fun startFloatService(intent: Intent){
-        val t = intent.getLongExtra("t",0L)
+    private fun startFloatService(intent: Intent) {
+        val t = intent.getLongExtra("t", 0L)
         // 如果是1分钟之后才收到的intent,则不启动服务
-        if (t < System.currentTimeMillis() - Constants.INTENT_TIMEOUT){
+        if (t < System.currentTimeMillis() - Constants.INTENT_TIMEOUT) {
             Logger.e("startFloatService error: t = $t is invalid")
             exitActivity()
             return
@@ -80,9 +80,9 @@ class FloatingWindowTriggerActivity : Activity() {
         }
         try {
             startService(serviceIntent)
-        }catch (e: Exception){
+        } catch (e: Exception) {
             e.printStackTrace()
-            Logger.e("startFloatService error: ${e.message}",e)
+            Logger.e("startFloatService error: ${e.message}", e)
         }
         // 关闭 Activity
         exitActivity()

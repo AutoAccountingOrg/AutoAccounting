@@ -22,10 +22,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -65,9 +63,15 @@ class LogFragment : BasePageFragment<LogModel>() {
         val recyclerView = binding.statusPage.contentView
         recyclerView?.layoutManager = LinearLayoutManager(requireContext())
         recyclerView?.adapter = LogAdapter(pageData)
-        recyclerView?.addItemDecoration(DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
+        recyclerView?.addItemDecoration(
+            DividerItemDecoration(
+                requireContext(),
+                DividerItemDecoration.VERTICAL
+            )
+        )
 
     }
+
     /**
      * 创建视图
      */
@@ -101,6 +105,7 @@ class LogFragment : BasePageFragment<LogModel>() {
                     }
                     true
                 }
+
                 R.id.item_clear -> {
                     BottomSheetDialogBuilder(requireActivity())
                         .setTitle(requireActivity().getString(R.string.delete_data))
@@ -113,9 +118,10 @@ class LogFragment : BasePageFragment<LogModel>() {
                             }
                         }
                         .setNegativeButton(requireActivity().getString(R.string.cancel_msg)) { _, _ -> }
-                        .showInFragment(this,false,true)
+                        .showInFragment(this, false, true)
                     true
                 }
+
                 else -> false
             }
         }
@@ -157,7 +163,6 @@ class LogFragment : BasePageFragment<LogModel>() {
         }
         startActivity(Intent.createChooser(shareIntent, getString(R.string.share_file)))
     }
-
 
 
 }

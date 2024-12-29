@@ -90,7 +90,7 @@ object RuleGenerator {
         return js.toString()
     }
 
-    suspend   fun category(): String {
+    suspend fun category(): String {
         val categoryCustom = Db.get().categoryRuleDao().loadAll().joinToString("\n") {
             it.js
         }

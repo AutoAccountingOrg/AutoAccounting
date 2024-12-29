@@ -28,7 +28,6 @@ import org.ezbook.server.db.model.LogModel
 object Logger {
 
 
-
     private fun getTag(): String {
         return Throwable().stackTrace[3].className.substringBefore('$').substringAfterLast(".")
     }
@@ -61,7 +60,7 @@ object Logger {
      * 打印错误日志
      */
     fun logE(app: String, e: Throwable) {
-        XposedBridge.log("[ 自动记账 ] ( $app ) ${e.message?:""}")
+        XposedBridge.log("[ 自动记账 ] ( $app ) ${e.message ?: ""}")
         XposedBridge.log(e)
         val tag = getTag()
         ThreadUtils.launch {

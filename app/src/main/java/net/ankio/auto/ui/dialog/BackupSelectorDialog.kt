@@ -33,9 +33,9 @@ import net.ankio.auto.ui.componets.StatusPage
 
 class BackupSelectorDialog(
     private val context: Context,
-    private val callback: (filename:String) -> Unit,
+    private val callback: (filename: String) -> Unit,
     private val requestsUtils: RequestsUtils,
-    private val uri:String
+    private val uri: String
 ) :
     BaseSheetDialog(context) {
     private lateinit var binding: DialogBookSelectBinding
@@ -46,11 +46,11 @@ class BackupSelectorDialog(
         val layoutManager = LinearLayoutManager(context)
         statusPage = binding.statusPage
         //cardView = binding.cardView
-       // cardViewInner = binding.statusPage
+        // cardViewInner = binding.statusPage
         val recyclerView = statusPage.contentView!!
         recyclerView.layoutManager = layoutManager
 
-        recyclerView.adapter = BackupFileSelectorAdapter(dataItems){
+        recyclerView.adapter = BackupFileSelectorAdapter(dataItems) {
             callback.invoke(it)
             dismiss()
         }
@@ -69,9 +69,9 @@ class BackupSelectorDialog(
 
 
     private suspend fun loadData() {
-        val (code,list) = requestsUtils.dir(uri)
+        val (code, list) = requestsUtils.dir(uri)
         Logger.d("code:$code, list:$list")
-        if (list.isEmpty()){
+        if (list.isEmpty()) {
             withContext(Dispatchers.Main) {
                 statusPage.showEmpty()
             }

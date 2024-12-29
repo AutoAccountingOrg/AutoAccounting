@@ -24,11 +24,12 @@
         android:id="@+id/toolbarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:liftOnScrollTargetViewId="@id/content_view"
-        app:liftOnScroll="true">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:liftOnScroll="true"
+        app:liftOnScrollTargetViewId="@id/content_view">
+
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
@@ -37,6 +38,7 @@
             app:menu="@menu/rule_menu"
             app:title="@string/title_rule" />
     </com.google.android.material.appbar.AppBarLayout>
+
     <net.ankio.auto.ui.componets.CustomNavigationRail
         android:id="@+id/leftList"
         android:layout_width="70dp"
@@ -46,29 +48,30 @@
         android:paddingTop="40dp"
         android:paddingRight="0dp"
         android:paddingBottom="40dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbarLayout"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/toolbarLayout" />
+
     <com.google.android.material.chip.ChipGroup
         android:id="@+id/chipGroup"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:padding="10dp"
         app:chipSpacingHorizontal="10dp"
-        app:selectionRequired="true"
-        app:singleSelection="false"
-        app:layout_constraintStart_toEndOf="@id/leftList"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbarLayout">
+        app:layout_constraintStart_toEndOf="@id/leftList"
+        app:layout_constraintTop_toBottomOf="@id/toolbarLayout"
+        app:selectionRequired="true"
+        app:singleSelection="false">
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chip_all"
-            android:visibility="gone"
             style="@style/Widget.Material3.Chip.Filter"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="true"
-            android:text="@string/chip_all" />
+            android:text="@string/chip_all"
+            android:visibility="gone" />
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chip_data"
@@ -102,10 +105,10 @@
         android:id="@+id/swipe_refresh_layout"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintStart_toEndOf="@id/leftList"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/chipGroup"
-        app:layout_constraintBottom_toBottomOf="parent">
+        app:layout_constraintStart_toEndOf="@id/leftList"
+        app:layout_constraintTop_toBottomOf="@id/chipGroup">
 
         <net.ankio.auto.ui.componets.StatusPage
             android:id="@+id/status_page"

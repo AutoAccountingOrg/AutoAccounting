@@ -14,7 +14,6 @@
   -->
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -45,12 +44,12 @@
 
             <!-- 高级版信息卡片 -->
             <com.google.android.material.card.MaterialCardView
-                android:visibility="gone"
                 android:id="@+id/pro_card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/padding"
                 android:layout_marginTop="@dimen/padding"
+                android:layout_marginBottom="@dimen/padding"
+                android:visibility="gone"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="4dp">
 
@@ -65,9 +64,9 @@
                         android:layout_width="28dp"
                         android:layout_height="28dp"
                         android:src="@drawable/ic_verified"
-                        app:tint="?colorOnPrimary"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:tint="?colorOnPrimary" />
 
                     <TextView
                         android:id="@+id/pro_title"
@@ -78,9 +77,9 @@
                         android:textColor="?colorOnPrimary"
                         android:textSize="22sp"
                         android:textStyle="bold"
+                        app:layout_constraintBottom_toBottomOf="@id/pro_icon"
                         app:layout_constraintStart_toEndOf="@id/pro_icon"
-                        app:layout_constraintTop_toTopOf="@id/pro_icon"
-                        app:layout_constraintBottom_toBottomOf="@id/pro_icon" />
+                        app:layout_constraintTop_toTopOf="@id/pro_icon" />
 
                     <TextView
                         android:id="@+id/pro_user_number"
@@ -97,9 +96,9 @@
                         android:layout_width="72dp"
                         android:layout_height="72dp"
                         android:src="@mipmap/ic_launcher_foreground"
+                        app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintBottom_toBottomOf="parent" />
+                        app:layout_constraintTop_toTopOf="parent" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -110,60 +109,59 @@
                 android:id="@+id/setting_bill"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                app:settingDesc="@string/setting_desc_bill"
                 app:settingIcon="@drawable/ic_receipt_long"
-                app:settingTitle="@string/setting_title_bill"
-                app:settingDesc="@string/setting_desc_bill" />
+                app:settingTitle="@string/setting_title_bill" />
 
             <net.ankio.auto.ui.componets.SettingItemView
                 android:id="@+id/setting_popup"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                app:settingDesc="@string/setting_desc_popup"
                 app:settingIcon="@drawable/ic_open_in_new"
-                app:settingTitle="@string/setting_title_popup"
-                app:settingDesc="@string/setting_desc_popup" />
+                app:settingTitle="@string/setting_title_popup" />
 
             <net.ankio.auto.ui.componets.SettingItemView
                 android:id="@+id/setting_features"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                app:settingDesc="@string/setting_desc_features"
                 app:settingIcon="@drawable/ic_payments"
-                app:settingTitle="@string/setting_title_features"
-                app:settingDesc="@string/setting_desc_features" />
+                app:settingTitle="@string/setting_title_features" />
 
             <!-- 个性设置 -->
             <net.ankio.auto.ui.componets.SettingItemView
                 android:id="@+id/setting_appearance"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                app:settingDesc="@string/setting_desc_appearance"
                 app:settingIcon="@drawable/ic_palette"
-                app:settingTitle="@string/setting_title_appearance"
-                app:settingDesc="@string/setting_desc_appearance" />
+                app:settingTitle="@string/setting_title_appearance" />
 
             <net.ankio.auto.ui.componets.SettingItemView
                 android:id="@+id/setting_experimental"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                app:settingDesc="@string/setting_desc_experimental"
                 app:settingIcon="@drawable/ic_science"
-                app:settingTitle="@string/setting_title_experimental"
-                app:settingDesc="@string/setting_desc_experimental" />
+                app:settingTitle="@string/setting_title_experimental" />
 
             <net.ankio.auto.ui.componets.SettingItemView
                 android:id="@+id/setting_backup"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                app:settingDesc="@string/setting_desc_backup"
                 app:settingIcon="@drawable/ic_backup"
-                app:settingTitle="@string/setting_title_backup"
-                app:settingDesc="@string/setting_desc_backup" />
-
+                app:settingTitle="@string/setting_title_backup" />
 
 
             <net.ankio.auto.ui.componets.SettingItemView
                 android:id="@+id/setting_others"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                app:settingDesc="@string/setting_desc_danger"
                 app:settingIcon="@drawable/ic_info"
-                app:settingTitle="@string/setting_title_others"
-                app:settingDesc="@string/setting_desc_danger" />
+                app:settingTitle="@string/setting_title_others" />
 
         </LinearLayout>
 

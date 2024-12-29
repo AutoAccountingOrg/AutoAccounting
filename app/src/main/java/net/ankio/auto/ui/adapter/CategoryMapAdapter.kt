@@ -68,7 +68,7 @@ class CategoryMapAdapter(
         holder.launch {
             ResourceUtils.getCategoryDrawableByName(data.mapName, activity).let {
                 withContext(Dispatchers.Main) {
-                    binding.target.setIcon(it,true)
+                    binding.target.setIcon(it, true)
                 }
             }
         }

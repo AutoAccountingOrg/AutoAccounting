@@ -4,9 +4,9 @@
         <!-- 正三角 -->
         <rotate
             android:fromDegrees="45"
-            android:toDegrees="45"
             android:pivotX="-40%"
-            android:pivotY="87%">
+            android:pivotY="87%"
+            android:toDegrees="45">
             <shape android:shape="rectangle">
                 <solid android:color="?colorSurfaceContainer" />
             </shape>

@@ -43,7 +43,7 @@ object JsEngine {
                 val pm = AppRuntime.application!!.packageManager
                 val appInfo = pm.getApplicationInfo(BuildConfig.APPLICATION_ID, 0)
                 // APK 文件路径
-                AppRuntime.moduleSoPath =  appInfo.sourceDir
+                AppRuntime.moduleSoPath = appInfo.sourceDir
             }.onFailure {
                 Logger.logE(TAG, it)
             }
@@ -54,6 +54,7 @@ object JsEngine {
 
         Logger.logD(TAG, "Module so path: ${AppRuntime.moduleSoPath}")
     }
+
     fun init() {
         initSoDir()
 

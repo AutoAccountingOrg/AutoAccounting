@@ -52,7 +52,7 @@ class BillMoreDialog(
         dataItems.clear()
         statusPage.showLoading()
         lifecycleScope.launch {
-            val bills =  BillInfoModel.getBillByGroup(billInfoModel.id)
+            val bills = BillInfoModel.getBillByGroup(billInfoModel.id)
             if (bills.isEmpty()) {
                 withContext(Dispatchers.Main) {
                     statusPage.showEmpty()
@@ -60,7 +60,7 @@ class BillMoreDialog(
                 return@launch
             }
             dataItems.addAll(bills)
-            withContext(Dispatchers.Main){
+            withContext(Dispatchers.Main) {
                 adapter.notifyDataSetChanged()
                 statusPage.showContent()
             }

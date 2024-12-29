@@ -20,7 +20,7 @@ import org.ezbook.server.constant.AIModel
 class OneAPI(
     override var api: String,
     override var model: String
-):BaseAi() {
+) : BaseAi() {
     override var name: String
         get() = AIModel.OneAPI.name
         set(value) {}

@@ -23,6 +23,6 @@ class AppInfo // 构造函数
     val packageName: String,
     val appName: String,
     val pkg: ApplicationInfo,
-    var icon:Drawable? = null,
+    var icon: Drawable? = null,
     var isSelected: Boolean = false
 )

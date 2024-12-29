@@ -21,14 +21,15 @@ import org.ezbook.server.db.model.SettingModel
 import java.lang.reflect.Field
 
 object XposedFramework {
-    fun framework():String {
+    fun framework(): String {
         val tagField: Field = XposedBridge::class.java.getDeclaredField("TAG")
         // 设置字段可访问
         tagField.isAccessible = true
         // 获取TAG字段的值
         return (tagField.get(null) as String).replace("-Bridge", "")
     }
-    suspend fun init(){
+
+    suspend fun init() {
         val framework = framework()
         SettingModel.set(Setting.KEY_FRAMEWORK, framework)
     }

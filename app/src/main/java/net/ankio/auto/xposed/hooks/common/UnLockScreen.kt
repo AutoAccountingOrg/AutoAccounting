@@ -16,14 +16,11 @@
 package net.ankio.auto.xposed.hooks.common
 
 import android.content.BroadcastReceiver
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import com.google.gson.Gson
 import kotlinx.coroutines.delay
 import net.ankio.auto.App
-import net.ankio.auto.BuildConfig
 import net.ankio.auto.xposed.core.App.Companion.TAG
 import net.ankio.auto.xposed.core.logger.Logger
 import net.ankio.auto.xposed.core.utils.AppRuntime
@@ -31,7 +28,7 @@ import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.tools.FloatingIntent
 
 object UnLockScreen {
-    fun init(){
+    fun init() {
         val filter = IntentFilter()
         filter.addAction(Intent.ACTION_USER_PRESENT)
 
@@ -41,17 +38,21 @@ object UnLockScreen {
                 App.launch {
                     try {
                         if (intent.action == Intent.ACTION_USER_PRESENT) {
-                            Logger.logD(TAG,"User unlocked the device and entered the home screen.")
+                            Logger.logD(
+                                TAG,
+                                "User unlocked the device and entered the home screen."
+                            )
                             val list = BillInfoModel.edit()
-                            Logger.logD(TAG,"BillInfoModel.edit()：$list")
+                            Logger.logD(TAG, "BillInfoModel.edit()：$list")
                             list.forEach { billInfoModel ->
                                 delay(1000)
-                                val floatIntent = FloatingIntent(billInfoModel,true,"JsRoute",null)
+                                val floatIntent =
+                                    FloatingIntent(billInfoModel, true, "JsRoute", null)
                                 val panelIntent = floatIntent.toIntent()
                                 try {
                                     context.startActivity(panelIntent)
-                                }catch (t:Throwable){
-                                    Logger.logD(TAG,"Failed to start auto server：$t")
+                                } catch (t: Throwable) {
+                                    Logger.logD(TAG, "Failed to start auto server：$t")
                                 }
                             }
                         }

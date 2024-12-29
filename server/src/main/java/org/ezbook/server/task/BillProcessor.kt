@@ -18,21 +18,21 @@ import org.ezbook.server.tools.Bill
 
 class BillProcessor {
     private val scope = CoroutineScope(
-        Dispatchers.IO + SupervisorJob() + 
-        CoroutineExceptionHandler { _, throwable ->
-           throwable.printStackTrace()
-           Log.e("BillProcessor", "Coroutine error: ${throwable.message}", throwable)
-        }
+        Dispatchers.IO + SupervisorJob() +
+                CoroutineExceptionHandler { _, throwable ->
+                    throwable.printStackTrace()
+                    Log.e("BillProcessor", "Coroutine error: ${throwable.message}", throwable)
+                }
     )
-    
+
     private val taskChannel = Channel<BillTask>(Channel.UNLIMITED)
-    
+
     // 用于通知任务完成状态
-    
+
     init {
         startProcessor()
     }
-    
+
     private fun startProcessor() {
         scope.launch {
             for (task in taskChannel) {
@@ -47,13 +47,13 @@ class BillProcessor {
             }
         }
     }
-    
+
     private suspend fun processTask(task: BillTask) {
         withContext(Dispatchers.IO) {
             task.result = Bill.groupBillInfo(task.billInfoModel, task.context)
         }
     }
-    
+
     /**
      * 添加新任务
      * @return 任务对象，可用于跟踪任务状态
@@ -63,7 +63,7 @@ class BillProcessor {
             taskChannel.send(it)
         }
     }
-    
+
     /**
      * 添加新任务（非挂起版本）
      */
@@ -74,7 +74,7 @@ class BillProcessor {
             }
         }
     }
-    
+
     /**
      * 优雅关闭处理器
      */
@@ -83,7 +83,7 @@ class BillProcessor {
         scope.coroutineContext.cancelChildren() // 取消所有子协程
         scope.cancel() // 取消作用域
     }
-    
+
     /**
      * 等待所有任务完成
      */

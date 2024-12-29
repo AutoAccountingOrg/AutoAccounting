@@ -16,7 +16,7 @@
 package net.ankio.auto.update
 
 enum class UpdateChannel {
-                         Github,
+    Github,
     GithubRaw,
     GithubProxy,
     GithubProxy2,

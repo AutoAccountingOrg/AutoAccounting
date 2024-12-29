@@ -75,6 +75,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun categoryRuleDao(): CategoryRuleDao
     abstract fun bookBillDao(): BookBillDao
 }
+
 val MIGRATION_2_3 = object : Migration(2, 3) {
     override fun migrate(database: SupportSQLiteDatabase) {
     }
@@ -82,7 +83,8 @@ val MIGRATION_2_3 = object : Migration(2, 3) {
 val MIGRATION_3_4 = object : Migration(3, 4) {
     override fun migrate(database: SupportSQLiteDatabase) {
         // 1. 创建新的表 BillInfoModel_new，其中不包含 syncFromApp 字段，替换为 state 字段
-        database.execSQL("""
+        database.execSQL(
+            """
             CREATE TABLE BillInfoModel_new (
                 id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                 type TEXT NOT NULL,
@@ -105,10 +107,12 @@ val MIGRATION_3_4 = object : Migration(3, 4) {
                 auto INTEGER NOT NULL,
                 ruleName TEXT NOT NULL
             )
-        """)
+        """
+        )
 
         // 2. 将旧表的数据迁移到新表，同时根据 syncFromApp 设置 state 字段
-        database.execSQL("""
+        database.execSQL(
+            """
             INSERT INTO BillInfoModel_new (id, type, currency, money, fee, time, shopName, shopItem, cateName, extendData, bookName, accountNameFrom, accountNameTo, app, groupId, channel, state, remark, auto, ruleName)
             SELECT id, type, currency, money, fee, time, shopName, shopItem, cateName, extendData, bookName, accountNameFrom, accountNameTo, app, groupId, channel,
                 CASE
@@ -117,7 +121,8 @@ val MIGRATION_3_4 = object : Migration(3, 4) {
                 END as state,
                 remark, auto, ruleName
             FROM BillInfoModel
-        """)
+        """
+        )
 
         // 3. 删除旧表
         database.execSQL("DROP TABLE BillInfoModel")
@@ -148,7 +153,8 @@ val MIGRATION_4_5 = object : Migration(4, 5) {
 val MIGRATION_5_6 = object : Migration(5, 6) {
     override fun migrate(database: SupportSQLiteDatabase) {
         // 1. 创建一个新的临时表
-        database.execSQL("""
+        database.execSQL(
+            """
             CREATE TABLE new_AppDataModel (
                 id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                 data TEXT NOT NULL,
@@ -160,13 +166,16 @@ val MIGRATION_5_6 = object : Migration(5, 6) {
                 issue INTEGER NOT NULL,
                 version TEXT NOT NULL DEFAULT ''
             )
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         // 2. 将旧表中的数据迁移到新表
-        database.execSQL("""
+        database.execSQL(
+            """
             INSERT INTO new_AppDataModel (id, data, type, app, time, `match`, rule, issue)
             SELECT id, data, type, app, time, `match`, rule, issue FROM AppDataModel
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         // 3. 删除旧表
         database.execSQL("DROP TABLE AppDataModel")

@@ -42,9 +42,10 @@ class Gemini : BaseAi() {
         set(value) {}
 
 
-    override suspend  fun request(data: String): BillInfoModel? {
-        val (system,user) = getConversations(data)
-        val url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=$apiKey"
+    override suspend fun request(data: String): BillInfoModel? {
+        val (system, user) = getConversations(data)
+        val url =
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=$apiKey"
 
         val client = OkHttpClient.Builder().readTimeout(60, TimeUnit.SECONDS).build()
 
@@ -73,7 +74,7 @@ class Gemini : BaseAi() {
             .build()
 
         val response = client.newCall(request).execute()
-        val responseBody = response.body?.string()?:""
+        val responseBody = response.body?.string() ?: ""
         Server.log("Request Body: $responseBody")
         if (!response.isSuccessful) {
             Server.log(Throwable("Unexpected response code: ${response.code}"))
@@ -84,12 +85,13 @@ class Gemini : BaseAi() {
                 val candidates = jsonObject.getAsJsonArray("candidates")
 
                 val firstCandidate = candidates[0].asJsonObject
-               val reason = firstCandidate.get("finishReason").asString
-               Server.logW("AI Finish Reason: $reason")
+                val reason = firstCandidate.get("finishReason").asString
+                Server.logW("AI Finish Reason: $reason")
                 val content = firstCandidate.getAsJsonObject("content")
                 val parts = content.getAsJsonArray("parts")
-                val text = parts[0].asJsonObject.get("text").asString.replace("```json","").replace("```","").trim()
-               Gson().fromJson(text, BillInfoModel::class.java)
+                val text = parts[0].asJsonObject.get("text").asString.replace("```json", "")
+                    .replace("```", "").trim()
+                Gson().fromJson(text, BillInfoModel::class.java)
             }.onFailure {
                 Server.log(it)
             }.getOrNull()

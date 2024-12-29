@@ -48,11 +48,12 @@ interface BillInfoDao {
 
     @Query("DELETE FROM BillInfoModel WHERE groupId = :groupId")
     suspend fun deleteGroup(groupId: Long)
+
     @Query("DELETE FROM BillInfoModel WHERE groupId != -1 AND id NOT IN (SELECT id FROM BillInfoModel)")
     suspend fun deleteNoGroup()
 
     @Query("DELETE FROM BillInfoModel WHERE id =:id")
-    suspend  fun deleteId(id: Long)
+    suspend fun deleteId(id: Long)
 
     @Query("SELECT * FROM BillInfoModel WHERE state = 'Edited' and groupId = -1")
     suspend fun queryNoSync(): List<BillInfoModel>

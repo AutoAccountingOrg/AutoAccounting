@@ -27,7 +27,11 @@ import org.ezbook.server.db.model.BillInfoModel
 /**
  * 借款
  */
-class IncomeLendingUtils(private val manifest: HookerManifest, private val classLoader: ClassLoader, private val context: Context) :
+class IncomeLendingUtils(
+    private val manifest: HookerManifest,
+    private val classLoader: ClassLoader,
+    private val context: Context
+) :
     BaseDebt(manifest, classLoader, context) {
     override suspend fun sync(billModel: BillInfoModel) = withContext(Dispatchers.IO) {
         // 借入账户
@@ -41,41 +45,52 @@ class IncomeLendingUtils(private val manifest: HookerManifest, private val class
         manifest.logD("借入: ${billModel.money} ${billModel.accountNameFrom} -> ${billModel.accountNameTo}, isNewAssets=$isNewAssets")
 
         // 更新loan
-        updateLoan(billModel,accountFrom,isNewAssets)
+        updateLoan(billModel, accountFrom, isNewAssets)
         // 更新资产
-        accountFrom = updateAsset(accountFrom,accountTo,book,billModel,isNewAssets)
+        accountFrom = updateAsset(accountFrom, accountTo, book, billModel, isNewAssets)
 
-        if (!isNewAssets){
+        if (!isNewAssets) {
             // 构建账单
-            val bill = updateBill(billModel,6,book,accountFrom,accountTo)
+            val bill = updateBill(billModel, 6, book, accountFrom, accountTo)
 
             manifest.logD("bill: $bill")
 
             saveBill(bill)
         }
 
-       pushBill()
+        pushBill()
     }
 
     /**
      * 获取借入账户
      */
-    private suspend fun getAccountTo(billModel: BillInfoModel): AssetAccount = withContext(Dispatchers.IO) {
-        return@withContext assetsUtils.getAssetByNameWrap(billModel.accountNameTo)?:throw RuntimeException("找不到资产 key=accountname;value=${billModel.accountNameTo}")
-    }
+    private suspend fun getAccountTo(billModel: BillInfoModel): AssetAccount =
+        withContext(Dispatchers.IO) {
+            return@withContext assetsUtils.getAssetByNameWrap(billModel.accountNameTo)
+                ?: throw RuntimeException("找不到资产 key=accountname;value=${billModel.accountNameTo}")
+        }
 
     /**
      * 获取借款账户
      */
-    private suspend fun getAccountFrom(billModel: BillInfoModel): AssetAccount = withContext(Dispatchers.IO) {
-        return@withContext assetsUtils.getOrCreateAssetByNameWrap(billModel.accountNameFrom,5,51)
-    }
+    private suspend fun getAccountFrom(billModel: BillInfoModel): AssetAccount =
+        withContext(Dispatchers.IO) {
+            return@withContext assetsUtils.getOrCreateAssetByNameWrap(
+                billModel.accountNameFrom,
+                5,
+                51
+            )
+        }
 
 
     /**
      * 更新债务
      */
-    private suspend fun updateLoan(billModel: BillInfoModel, accountFrom: AssetAccount, isNewAssets:Boolean) = withContext(Dispatchers.IO){
+    private suspend fun updateLoan(
+        billModel: BillInfoModel,
+        accountFrom: AssetAccount,
+        isNewAssets: Boolean
+    ) = withContext(Dispatchers.IO) {
         // 债务
         val loan = if (isNewAssets) createLoan(billModel.time) else accountFrom.getLoanInfo()
         manifest.logD("LoanInfo: ${loan.get}")
@@ -83,31 +98,34 @@ class IncomeLendingUtils(private val manifest: HookerManifest, private val class
         // f=TotalPay 已还金额
         // e=money 待还金额
         //
-        loan.setTotalMoney(- billModel.money)
+        loan.setTotalMoney(-billModel.money)
 
         accountFrom.setLoanInfo(loan)
-        accountFrom.addMoney( - billModel.money)
+        accountFrom.addMoney(-billModel.money)
     }
+
     /**
      * 保存账单
      */
     private suspend fun updateAsset(
         accountFrom: AssetAccount,
         accountTo: AssetAccount,
-        book:Any,
+        book: Any,
         billModel: BillInfoModel,
-        isNewAssets:Boolean
+        isNewAssets: Boolean
     ): AssetAccount = withContext(Dispatchers.IO) {
-        val bookId = XposedHelpers.getObjectField(book,"bookId")
+        val bookId = XposedHelpers.getObjectField(book, "bookId")
         var ret = accountFrom
-        if (isNewAssets){
+        if (isNewAssets) {
 
 
-            ret = submitAsset(accountFrom,book, mapOf(
-                "bookId" to bookId,
-                "accountId" to accountTo.getId(),
-                "remark" to billModel.remark,
-            ))
+            ret = submitAsset(
+                accountFrom, book, mapOf(
+                    "bookId" to bookId,
+                    "accountId" to accountTo.getId(),
+                    "remark" to billModel.remark,
+                )
+            )
         }
 
         accountTo.addMoney(billModel.money)
@@ -121,8 +139,8 @@ class IncomeLendingUtils(private val manifest: HookerManifest, private val class
      */
     private suspend fun updateBill(
         billModel: BillInfoModel,
-        type:Int,
-        book:Any,
+        type: Int,
+        book: Any,
         accountFrom: AssetAccount,
         accountTo: AssetAccount
     ) = withContext(Dispatchers.IO) {
@@ -135,20 +153,32 @@ class IncomeLendingUtils(private val manifest: HookerManifest, private val class
         val imageList = ArrayList<String>()
 
         //    bill2 = Bill.newInstance(i12, trim, d12, timeInMillis, imageUrls);
-        val bill = XposedHelpers.callStaticMethod(billClazz, "newInstance", type, remark, money, time, imageList)
+        val bill = XposedHelpers.callStaticMethod(
+            billClazz,
+            "newInstance",
+            type,
+            remark,
+            money,
+            time,
+            imageList
+        )
 
-        val fromLongId = XposedHelpers.callMethod(accountFrom.getId(),"longValue")
-        val toLongId = XposedHelpers.callMethod(accountTo.getId(),"longValue")
+        val fromLongId = XposedHelpers.callMethod(accountFrom.getId(), "longValue")
+        val toLongId = XposedHelpers.callMethod(accountTo.getId(), "longValue")
 
         //  Arguments com.mutangtech.qianji.data.db.dbhelper.k.saveOrUpdateBill(_id=null;billid=1726484445302133106;userid=200104405e109647c18e9;bookid=-1;timeInSec=1726484437;type=6;remark=;money=12.0;status=2;categoryId=0;platform=0;assetId=1726474557467;fromId=-1;targetId=1584352475380;extra=null)
-        XposedHelpers.setObjectField(bill,"assetid", fromLongId)
-        XposedHelpers.setObjectField(bill,"targetid", toLongId)
+        XposedHelpers.setObjectField(bill, "assetid", fromLongId)
+        XposedHelpers.setObjectField(bill, "targetid", toLongId)
 
-        val bookId = XposedHelpers.getObjectField(book,"bookId")
-        XposedHelpers.setObjectField(bill,"bookId", XposedHelpers.callMethod(bookId,"longValue"))
+        val bookId = XposedHelpers.getObjectField(book, "bookId")
+        XposedHelpers.setObjectField(bill, "bookId", XposedHelpers.callMethod(bookId, "longValue"))
 
 
-        XposedHelpers.setObjectField(bill,"descinfo", "${accountFrom.getName()}->${accountTo.getName()}")
+        XposedHelpers.setObjectField(
+            bill,
+            "descinfo",
+            "${accountFrom.getName()}->${accountTo.getName()}"
+        )
 
         bill
 

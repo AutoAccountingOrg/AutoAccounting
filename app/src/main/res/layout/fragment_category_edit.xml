@@ -14,24 +14,25 @@
   -->
 
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     tools:context=".ui.fragment.CategoryEditFragment">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/toolbarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@android:color/transparent"
+            android:tag="back_button"
             app:navigationIcon="@drawable/abc_ic_ab_back_material"
-            app:title="@string/title_category_edit"
-            android:tag="back_button" />
+            app:title="@string/title_category_edit" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
@@ -43,8 +44,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="@dimen/padding"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="@dimen/padding">
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/ruleCard"
@@ -71,12 +72,11 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/saveItem"
+                style="@style/Widget.Material3.Button"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/btn_height_small"
                 android:text="@string/save_rule"
-                android:textSize="@dimen/save_size"
-                style="@style/Widget.Material3.Button"
-                />
+                android:textSize="@dimen/save_size" />
 
         </LinearLayout>
 

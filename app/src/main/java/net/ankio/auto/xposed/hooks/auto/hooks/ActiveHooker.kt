@@ -15,16 +15,9 @@
 
 package net.ankio.auto.xposed.hooks.auto.hooks
 
-import android.app.Application
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XC_MethodReplacement
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
-import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.hooks.common.XposedFramework
-import java.lang.reflect.Field
 
 class ActiveHooker : PartHooker() {
 
@@ -41,7 +34,7 @@ class ActiveHooker : PartHooker() {
         Hooker.after(
             activeUtils,
             "getFramework"
-        ){
+        ) {
             // 获取TAG字段的值
             it.result = XposedFramework.framework()
         }

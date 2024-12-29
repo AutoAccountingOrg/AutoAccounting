@@ -17,7 +17,7 @@ package org.ezbook.server.ai
 
 import org.ezbook.server.constant.AIModel
 
-class DeepSeek:BaseAi() {
+class DeepSeek : BaseAi() {
     override var api: String
         get() = "https://api.deepseek.com/chat/completions"
         set(value) {}

@@ -53,11 +53,9 @@ import net.ankio.auto.ui.utils.viewBinding
 import net.ankio.auto.update.UpdateChannel
 import net.ankio.auto.update.UpdateType
 import net.ankio.auto.utils.LanguageUtils
-import net.ankio.auto.xposed.Apps
 import org.ezbook.server.ai.ChatGPT
 import org.ezbook.server.ai.DeepSeek
 import org.ezbook.server.ai.Gemini
-import org.ezbook.server.ai.OneAPI
 import org.ezbook.server.ai.QWen
 import org.ezbook.server.constant.AIModel
 import org.ezbook.server.constant.DefaultData
@@ -417,7 +415,7 @@ class SettingDetailFragment : BaseFragment() {
                 title = R.string.setting_bill_use_ai,
                 key = Setting.USE_AI,
                 icon = R.drawable.ic_ai,
-                 default = DefaultData.USE_AI,
+                default = DefaultData.USE_AI,
 
                 ),
             SettingItem.Switch(
@@ -538,7 +536,7 @@ class SettingDetailFragment : BaseFragment() {
                 key = Setting.AUTO_IDENTIFY_ASSET,
                 icon = R.drawable.setting_icon_ai_map,
                 subTitle = R.string.setting_auto_ai_asset_desc,
-                default =  DefaultData.AUTO_IDENTIFY_ASSET,
+                default = DefaultData.AUTO_IDENTIFY_ASSET,
 
                 ),
             SettingItem.Title(
@@ -566,7 +564,7 @@ class SettingDetailFragment : BaseFragment() {
                 key = Setting.USE_WEBDAV,
                 icon = R.drawable.setting2_icon_backup,
                 // type = ItemType.SWITCH,
-                default =  DefaultData.USE_WEBDAV,
+                default = DefaultData.USE_WEBDAV,
 
                 ),
             SettingItem.Switch(
@@ -739,7 +737,7 @@ class SettingDetailFragment : BaseFragment() {
                 key = Setting.CHECK_APP_UPDATE,
                 icon = R.drawable.setting2_icon_rule,
                 //  type = ItemType.SWITCH,
-                default =  DefaultData.CHECK_APP_UPDATE,
+                default = DefaultData.CHECK_APP_UPDATE,
 
                 ),
             SettingItem.Switch(
@@ -800,13 +798,13 @@ class SettingDetailFragment : BaseFragment() {
                     BottomSheetDialogBuilder(activity)
                         .setTitleInt(R.string.clear_db)
                         .setMessage(R.string.clear_db_msg)
-                        .setPositiveButton(R.string.ok) { _,_ ->
+                        .setPositiveButton(R.string.ok) { _, _ ->
                             App.launch {
                                 SettingModel.clearDatabase()
                                 ToastUtils.info(R.string.clear_success)
                             }
                         }
-                        .setNegativeButton(R.string.cancel){ _,_ -> }
+                        .setNegativeButton(R.string.cancel) { _, _ -> }
                         .show()
 
                 }

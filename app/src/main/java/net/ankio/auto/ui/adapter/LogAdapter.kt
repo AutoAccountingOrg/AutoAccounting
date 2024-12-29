@@ -26,10 +26,10 @@ import org.ezbook.server.db.model.LogModel
 
 class LogAdapter(list: MutableList<LogModel>) :
     BaseAdapter<AdapterLogBinding, LogModel>(AdapterLogBinding::class.java, list) {
-    
+
     companion object {
         private const val DATE_FORMAT = "yyyy-MM-dd\nHH:mm:ss"
-        
+
         // 将日志级别与颜色资源ID映射
         private val LOG_LEVEL_COLORS = mapOf(
             LogLevel.DEBUG to R.color.log_debug,
@@ -55,24 +55,24 @@ class LogAdapter(list: MutableList<LogModel>) :
         position: Int
     ) {
         val binding = holder.binding
-        
+
         binding.date.text = DateUtils.stampToDate(data.time, DATE_FORMAT)
-        
+
         val appName = cachedApp.getOrPut(data.app) {
             App.getAppInfoFromPackageName(data.app)
                 ?.firstOrNull()
                 ?.toString()
                 ?: data.app
         }
-        
+
         binding.app.text = if (data.location.isNotEmpty()) {
             "$appName ${data.location}"
         } else {
             appName
         }
-        
+
         binding.log.text = data.message
-        
+
         // 使用映射获取颜色
         val colorResId = LOG_LEVEL_COLORS[data.level] ?: R.color.log_info
         binding.log.setTextColor(holder.context.getColor(colorResId))

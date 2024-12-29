@@ -15,15 +15,15 @@
 
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/groupCard"
     style="?attr/materialCardViewElevatedStyle"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:id="@+id/groupCard"
-    android:layout_marginBottom="@dimen/padding"
-    android:layout_marginEnd="@dimen/padding"
     android:layout_marginStart="@dimen/padding"
-    app:cardCornerRadius="@dimen/radius"
+    android:layout_marginEnd="@dimen/padding"
+    android:layout_marginBottom="@dimen/padding"
     app:cardBackgroundColor="?attr/colorSurfaceContainer"
+    app:cardCornerRadius="@dimen/radius"
     app:cardElevation="0dp">
 
     <LinearLayout
@@ -32,22 +32,20 @@
         android:layout_margin="@dimen/padding"
         android:orientation="vertical">
 
-       <TextView
-           android:id="@+id/title"
-           android:layout_width="match_parent"
-           android:layout_height="wrap_content"
-           android:text="1月12日"
-           android:textColor="?colorPrimary"
-           android:textStyle="bold"
-           android:layout_marginStart="@dimen/padding"
-           style="@style/TextAppearance.Material3.TitleMedium"
-           />
+        <TextView
+            android:id="@+id/title"
+            style="@style/TextAppearance.Material3.TitleMedium"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/padding"
+            android:text="1月12日"
+            android:textColor="?colorPrimary"
+            android:textStyle="bold" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            />
+            android:layout_height="match_parent" />
     </LinearLayout>
 
 </com.google.android.material.card.MaterialCardView>

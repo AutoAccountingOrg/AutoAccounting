@@ -23,7 +23,12 @@ import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.navigation.NavigationView
 
 object ViewUtils {
-    fun <T : View> findView(view: View, currentDepth: Int = 0, maxDepth: Int = 5, clazz: Class<T>): T? {
+    fun <T : View> findView(
+        view: View,
+        currentDepth: Int = 0,
+        maxDepth: Int = 5,
+        clazz: Class<T>
+    ): T? {
         // 检查当前视图是否是目标类型
         if (clazz.isInstance(view)) return view as T
 
@@ -41,18 +46,27 @@ object ViewUtils {
         return null
     }
 
-    fun findMaterialToolbar(view: View, currentDepth: Int = 0, maxDepth: Int = 5): MaterialToolbar? {
+    fun findMaterialToolbar(
+        view: View,
+        currentDepth: Int = 0,
+        maxDepth: Int = 5
+    ): MaterialToolbar? {
         return findView(view, currentDepth, maxDepth, MaterialToolbar::class.java)
     }
 
     fun findAppBarLayout(view: View, currentDepth: Int = 0, maxDepth: Int = 5): AppBarLayout? {
         return findView(view, currentDepth, maxDepth, AppBarLayout::class.java)
     }
+
     fun findNavigation(view: View, currentDepth: Int = 0, maxDepth: Int = 5): NavigationView? {
         return findView(view, currentDepth, maxDepth, NavigationView::class.java)
     }
 
-    fun findFragmentContainerView(view: View, currentDepth: Int = 0, maxDepth: Int = 5): FragmentContainerView? {
+    fun findFragmentContainerView(
+        view: View,
+        currentDepth: Int = 0,
+        maxDepth: Int = 5
+    ): FragmentContainerView? {
         return findView(view, currentDepth, maxDepth, FragmentContainerView::class.java)
     }
 }

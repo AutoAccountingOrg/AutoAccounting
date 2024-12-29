@@ -15,15 +15,17 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"  android:gravity="center"
-    android:padding="@dimen/padding"
-    android:orientation="horizontal">
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="horizontal"
+    android:padding="@dimen/padding">
 
     <com.google.android.material.textfield.TextInputLayout
 
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:hint="@string/lower_money"  android:layout_weight="1">
+        android:layout_weight="1"
+        android:hint="@string/lower_money">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/lower"
@@ -36,14 +38,16 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text=" ~ "  android:layout_margin="@dimen/border_side"/>
+        android:layout_margin="@dimen/border_side"
+        android:text=" ~ " />
 
     <com.google.android.material.textfield.TextInputLayout
 
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_weight="1"
         android:hint="@string/higher_money"
-        android:orientation="vertical"  android:layout_weight="1">
+        android:orientation="vertical">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/higher"

@@ -18,12 +18,10 @@ package org.ezbook.server.tools
 import android.content.Context
 import org.ezbook.server.Server
 import org.ezbook.server.constant.BillType
-import org.ezbook.server.constant.Currency
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.BillInfoModel
-import org.slf4j.Logger
 
 object Bill {
     /**
@@ -50,11 +48,11 @@ object Bill {
             return true
         }
         // 规则相同，不是重复账单
-        if (bill.ruleName == bill2.ruleName){
+        if (bill.ruleName == bill2.ruleName) {
             return false
         }
         // 渠道不同，是重复账单
-        if (bill.channel != bill2.channel){
+        if (bill.channel != bill2.channel) {
             return true
         }
 
@@ -67,19 +65,23 @@ object Bill {
      * @param bill 源账单
      * @param bill2 目标账单（将被更新）
      */
-    private suspend fun mergeRepeatBill(bill: BillInfoModel, bill2: BillInfoModel, context: Context) {
+    private suspend fun mergeRepeatBill(
+        bill: BillInfoModel,
+        bill2: BillInfoModel,
+        context: Context
+    ) {
         bill2.apply {
             // 1. 合并账户信息
             mergeAccountInfo(bill, this)
 
             // 2. 合并商户和商品信息
             mergeShopInfo(bill, this)
-            
+
             // 3. 合并分类信息
             mergeCategoryInfo(bill, this)
 
             val target = bill2.remark
-            if (target!= getRemark(bill2, context)){
+            if (target != getRemark(bill2, context)) {
                 // 4. 更新备注
                 this.remark = getRemark(this, context)
             }
@@ -116,7 +118,7 @@ object Bill {
             target.shopName.contains(source.shopName) -> target.shopName
             else -> "${target.shopName} ${source.shopName}".trim()
         }
-        
+
         // 合并商品信息
         target.shopItem = when {
             target.shopItem.isEmpty() && source.shopItem.isNotEmpty() -> source.shopItem
@@ -141,24 +143,24 @@ object Bill {
      * 账单分组，用于检查重复账单
      * @return 返回匹配到的父账单，如果没有匹配则返回null
      */
-    suspend  fun groupBillInfo(
+    suspend fun groupBillInfo(
         billInfoModel: BillInfoModel,
         context: Context
     ): BillInfoModel? {
 
-        
+
         // 1. 检查是否启用自动分组
         if (!isAutoGroupEnabled()) {
             return null
         }
-        
+
         // 2. 查找可能重复的账单
         val potentialDuplicates = findPotentialDuplicates(billInfoModel)
-        
+
         // 3. 查找并处理重复账单
         return potentialDuplicates
-            .find { bill -> 
-                bill.id != billInfoModel.id && checkRepeat(billInfoModel, bill) 
+            .find { bill ->
+                bill.id != billInfoModel.id && checkRepeat(billInfoModel, bill)
             }
             ?.also { parentBill ->
                 handleDuplicateBill(billInfoModel, parentBill, context)
@@ -182,7 +184,7 @@ object Bill {
         val timeWindow = 5 * 60 * 1000L // 5分钟
         val startTime = bill.time - timeWindow
         val endTime = bill.time + timeWindow
-        
+
         return Db.get().billInfoDao().query(bill.money, startTime, endTime)
     }
 
@@ -195,19 +197,19 @@ object Bill {
         context: Context
     ) {
         Server.log("发现重复账单 - 父账单: $parentBill, 当前账单: $currentBill")
-        
+
         // 1. 设置分组ID
         currentBill.groupId = parentBill.id
-        
+
         // 2. 合并账单信息
         mergeRepeatBill(currentBill, parentBill, context)
-        
+
         // 3. 更新数据库
         Db.get().billInfoDao().apply {
             update(parentBill)
             update(currentBill)
         }
-        
+
         Server.log("账单合并完成 - 父账单: $parentBill, 当前账单: $currentBill")
     }
 
@@ -219,27 +221,27 @@ object Bill {
     suspend fun getRemark(billInfoModel: BillInfoModel, context: Context): String {
         val settingBillRemark =
             Db.get().settingDao().query(Setting.NOTE_FORMAT)?.value ?: DefaultData.NOTE_FORMAT
-        return  settingBillRemark
+        return settingBillRemark
             .replace("【商户名称】", billInfoModel.shopName)
             .replace("【商品名称】", billInfoModel.shopItem)
-           //  .replace("【币种类型】", Currency.valueOf(billInfoModel.currency).name(context))
+            //  .replace("【币种类型】", Currency.valueOf(billInfoModel.currency).name(context))
             .replace("【金额】", billInfoModel.money.toString())
             .replace("【分类】", billInfoModel.cateName)
             .replace("【账本】", billInfoModel.bookName)
-            .replace("【来源】", pkgName(billInfoModel.app,context))
+            .replace("【来源】", pkgName(billInfoModel.app, context))
             .replace("【原始资产】", billInfoModel.accountNameFrom)
             .replace("【渠道】", billInfoModel.channel)
     }
 
 
-    private fun pkgName(pkg:String,context: Context):String{
-       return runCatching {
-           val packageManager = context.packageManager
-           val applicationInfo = packageManager.getApplicationInfo(pkg, 0)
-           packageManager.getApplicationLabel(applicationInfo).toString()
-       }.onFailure {
-              it.printStackTrace()
-       }.getOrNull()?:pkg
+    private fun pkgName(pkg: String, context: Context): String {
+        return runCatching {
+            val packageManager = context.packageManager
+            val applicationInfo = packageManager.getApplicationInfo(pkg, 0)
+            packageManager.getApplicationLabel(applicationInfo).toString()
+        }.onFailure {
+            it.printStackTrace()
+        }.getOrNull() ?: pkg
 
     }
 
@@ -248,10 +250,10 @@ object Bill {
      * 如果账本名称为空或为"默认账本"，则使用系统设置的默认账本名称
      */
     suspend fun setBookName(billInfoModel: BillInfoModel) {
-        
+
         // 获取系统设置的默认账本名称
         val defaultBookName = getDefaultBookName()
-        
+
         // 更新账本名称
         billInfoModel.bookName = when (billInfoModel.bookName) {
             "" -> defaultBookName         // 空名称使用默认账本

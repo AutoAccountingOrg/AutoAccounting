@@ -15,17 +15,16 @@
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/groupCard"
     style="?attr/materialCardViewElevatedStyle"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:id="@+id/groupCard"
-    android:layout_marginBottom="@dimen/padding"
-    android:layout_marginEnd="@dimen/padding"
     android:layout_marginStart="@dimen/padding"
-    app:cardCornerRadius="@dimen/radius"
+    android:layout_marginEnd="@dimen/padding"
+    android:layout_marginBottom="@dimen/padding"
     app:cardBackgroundColor="?attr/colorSurfaceContainer"
+    app:cardCornerRadius="@dimen/radius"
     app:cardElevation="0dp">
-
 
 
     <LinearLayout
@@ -43,84 +42,80 @@
                 android:id="@+id/icon"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                app:srcCompat="@drawable/ic_cloud"
                 android:layout_marginEnd="8dp"
                 android:contentDescription=""
-                app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_cloud" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/ruleName"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
                 android:ellipsize="end"
                 android:maxLines="4"
                 android:textAppearance="?attr/textAppearanceBodyMedium"
-                tools:text="Sample text for testing long content here"
-                app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@id/icon"
                 app:layout_constraintEnd_toStartOf="@id/enable"
-                android:layout_marginStart="10dp"
-                app:layout_constraintHorizontal_bias="0" />
+                app:layout_constraintHorizontal_bias="0"
+                app:layout_constraintStart_toEndOf="@id/icon"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Sample text for testing long content here" />
 
             <com.google.android.material.materialswitch.MaterialSwitch
                 android:id="@+id/enable"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
                 android:checked="true"
-                app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/ruleName"
-                android:layout_marginStart="8dp" />
+                app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-
 
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingStart="20dp"
-            android:paddingEnd="20dp"
-            >
+            android:paddingEnd="20dp">
 
             <View
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"/>
-
-
+                android:layout_weight="1" />
 
 
             <com.google.android.material.button.MaterialButton
-                android:layout_marginEnd="10dp"
                 android:id="@+id/editRule"
                 style="?attr/materialIconButtonFilledTonalStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
                 app:icon="@drawable/icon_edit"
 
                 />
 
             <com.google.android.material.button.MaterialButton
-                android:layout_marginEnd="10dp"
                 android:id="@+id/deleteData"
                 style="?attr/materialIconButtonFilledStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
 
                 app:icon="@drawable/icon_delete" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/autoRecord"
+                style="@style/Widget.Material3.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                style="@style/Widget.Material3.Chip.Filter"
                 android:checked="true"
-                android:text="@string/auto_record"/>
+                android:text="@string/auto_record" />
 
         </LinearLayout>
 

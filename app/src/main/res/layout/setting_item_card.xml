@@ -22,12 +22,12 @@
     android:layout_marginTop="@dimen/one_padding"
     android:layout_marginBottom="@dimen/one_padding"
 
- >
+    >
+
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:text="some card info"
         android:padding="@dimen/padding"
-        />
+        tools:text="some card info" />
 </com.google.android.material.card.MaterialCardView>

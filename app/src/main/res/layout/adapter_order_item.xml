@@ -1,19 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:padding="@dimen/padding">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
         android:layout_marginBottom="@dimen/one_padding"
-        >
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
 
 
         <net.ankio.auto.ui.componets.IconView
@@ -32,24 +31,23 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/one_padding"
-            tools:text="11:00:22"
             android:textColor="?colorSecondary"
             android:textSize="15sp"
-           />
+            tools:text="11:00:22" />
 
         <View
             android:layout_width="0dp"
-            android:layout_height="0dp" android:layout_weight="1" />
+            android:layout_height="0dp"
+            android:layout_weight="1" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/money"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
 
-            tools:text="- 4.0"
             android:textColor="@color/danger"
             android:textSize="15sp"
-         />
+            tools:text="- 4.0" />
 
 
     </LinearLayout>
@@ -57,22 +55,21 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:layout_marginTop="4dp"
         android:layout_marginBottom="5dp"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
 
         <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/remark"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:id="@+id/remark"
             android:layout_weight="1"
-            tools:text="@tools:sample/lorem/random"
-            android:maxLines="2"
             android:ellipsize="end"
+            android:maxLines="2"
             android:textColor="?colorOnBackground"
             android:textSize="14sp"
-            />
+            tools:text="@tools:sample/lorem/random" />
 
         <net.ankio.auto.ui.componets.IconView
             android:id="@+id/payTools"
@@ -92,15 +89,17 @@
         android:layout_height="48dp"
 
         android:gravity="center_vertical">
+
         <com.google.android.material.chip.Chip
             android:id="@+id/auto_record"
             style="@style/Widget.Material3.Chip.Filter.Elevated"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/auto_record"
             android:checked="true"
             android:enabled="false"
-            app:ensureMinTouchTargetSize="true"/>
+            android:text="@string/auto_record"
+            app:ensureMinTouchTargetSize="true" />
+
         <View
             android:layout_width="0dp"
             android:layout_height="0dp"

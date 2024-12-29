@@ -55,6 +55,7 @@ object LanguageUtils {
         }
         return hashMap
     }
+
     private fun getAllLangList(context: Context): Array<String> {
         val langList = mutableListOf<String>()
 
@@ -68,7 +69,10 @@ object LanguageUtils {
             while (eventType != XmlResourceParser.END_DOCUMENT) {
                 if (eventType == XmlResourceParser.START_TAG && parser.name == "locale") {
                     // 获取 android:name 属性值
-                    val name = parser.getAttributeValue("http://schemas.android.com/apk/res/android", "name")
+                    val name = parser.getAttributeValue(
+                        "http://schemas.android.com/apk/res/android",
+                        "name"
+                    )
                     if (name != null) {
                         langList.add(name)
                     }

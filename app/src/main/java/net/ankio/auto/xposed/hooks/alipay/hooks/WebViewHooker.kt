@@ -15,13 +15,11 @@
 
 package net.ankio.auto.xposed.hooks.alipay.hooks
 
-import android.app.Application
 import android.webkit.ValueCallback
 import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
-import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.utils.AppRuntime
@@ -44,7 +42,7 @@ class WebViewHooker : PartHooker() {
             "evaluateJavascript",
             String::class.java,
             ValueCallback::class.java,
-        ){ param ->
+        ) { param ->
             val script = param.args[0] as String
             val obj = param.thisObject
             val urlObj = XposedHelpers.callMethod(obj, "getUrl") ?: return@after
@@ -95,7 +93,7 @@ class WebViewHooker : PartHooker() {
                     withContext(Dispatchers.IO) {
                         while (needWait && count > 0) {
                             count--
-                            withContext(Dispatchers.Main){
+                            withContext(Dispatchers.Main) {
                                 XposedHelpers.callMethod(
                                     obj,
                                     "evaluateJavascript",

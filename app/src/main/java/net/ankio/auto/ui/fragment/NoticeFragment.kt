@@ -22,10 +22,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentNoticeBinding
@@ -63,15 +61,15 @@ class NoticeFragment : BasePageFragment<AppInfo>() {
     }
 
     private fun sorApps(mutableList: MutableList<AppInfo>) {
-        val financialKeywords = listOf("bank", "finance", "wallet","pay")
+        val financialKeywords = listOf("bank", "finance", "wallet", "pay")
         mutableList.map {
             it.isSelected = selectedApps.contains(it.packageName)
         }
         mutableList.sortWith(
             compareByDescending<AppInfo> { it.isSelected }
-                .thenByDescending { app -> 
+                .thenByDescending { app ->
                     // 检查是否是金融类应用
-                    financialKeywords.any { keyword -> 
+                    financialKeywords.any { keyword ->
                         app.pkg.packageName.contains(keyword, ignoreCase = true)
                     }
                 }
@@ -86,7 +84,9 @@ class NoticeFragment : BasePageFragment<AppInfo>() {
     }
 
     override fun onCreateAdapter() {
-       selectedApps = ConfigUtils.getString(Setting.LISTENER_APP_LIST, DefaultData.NOTICE_FILTER).split(",").filter { it.isNotEmpty() }
+        selectedApps =
+            ConfigUtils.getString(Setting.LISTENER_APP_LIST, DefaultData.NOTICE_FILTER).split(",")
+                .filter { it.isNotEmpty() }
         Logger.d("selected apps: $selectedApps")
         val recyclerView = binding.statusPage.contentView!!
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
@@ -107,31 +107,32 @@ class NoticeFragment : BasePageFragment<AppInfo>() {
         ConfigUtils.putString(Setting.LISTENER_APP_LIST, str)
         SpUtils.putString(Setting.LISTENER_APP_LIST, str)
     }
+
     private var selectedApps: List<String> = emptyList()
     private val appsList = mutableListOf<AppInfo>()
     private var filtered = mutableListOf<AppInfo>()
     override val binding: FragmentNoticeBinding by viewBinding(FragmentNoticeBinding::inflate)
 
     private suspend fun loadApps() = withContext(Dispatchers.IO) {
-            val pm = requireContext().packageManager
-            val apps = pm.getInstalledApplications(PackageManager.GET_META_DATA)
-               // .filter { pm.getLaunchIntentForPackage(it.packageName) != null }
-                .map {
-                    AppInfo(
-                        appName = it.loadLabel(pm).toString(),
-                        packageName = it.packageName,
-                        icon = it.loadIcon(pm),
-                        pkg = it
-                    )
-                }
+        val pm = requireContext().packageManager
+        val apps = pm.getInstalledApplications(PackageManager.GET_META_DATA)
+            // .filter { pm.getLaunchIntentForPackage(it.packageName) != null }
+            .map {
+                AppInfo(
+                    appName = it.loadLabel(pm).toString(),
+                    packageName = it.packageName,
+                    icon = it.loadIcon(pm),
+                    pkg = it
+                )
+            }
 
 
-            withContext(Dispatchers.Main) {
-                appsList.clear()
-                appsList.addAll(apps)
-                sorApps(appsList)
-                filtered.clear()
-                filtered.addAll(appsList)
+        withContext(Dispatchers.Main) {
+            appsList.clear()
+            appsList.addAll(apps)
+            sorApps(appsList)
+            filtered.clear()
+            filtered.addAll(appsList)
         }
     }
 
@@ -147,11 +148,11 @@ class NoticeFragment : BasePageFragment<AppInfo>() {
 
     }
 
-    private fun setUpSearch(){
+    private fun setUpSearch() {
         val searchItem = binding.topAppBar.menu.findItem(R.id.action_search)
-        if(searchItem != null){
+        if (searchItem != null) {
             val searchView = searchItem.actionView as MaterialSearchView
-            searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
+            searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String?): Boolean {
                     return true
                 }

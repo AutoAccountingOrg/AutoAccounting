@@ -33,8 +33,8 @@
             android:maxLines="1"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
             android:textColor="?colorPrimary"
-            app:layout_constraintStart_toEndOf="@+id/name"
             app:layout_constraintEnd_toStartOf="@+id/update"
+            app:layout_constraintStart_toEndOf="@+id/name"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="1.0.2 long version name  long version name  long version name long version name long version name long version name long version name long version name" />
 

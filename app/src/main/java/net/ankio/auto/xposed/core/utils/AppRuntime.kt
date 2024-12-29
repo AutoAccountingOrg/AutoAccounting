@@ -29,30 +29,37 @@ object AppRuntime {
      * 表示应用程序是否处于调试模式。
      */
     var debug = BuildConfig.DEBUG
+
     /**
      * 表示应用程序的实例。
      */
     var application: Application? = null
+
     /**
      * 表示应用程序的类加载器。
      */
     lateinit var classLoader: ClassLoader
+
     /**
      * 表示应用程序的模块路径。
      */
     var modulePath: String = ""
+
     /**
      * 表示应用程序的模块so路径。
      */
     var moduleSoPath: String = ""
+
     /**
      * 表示应用程序的模块名称。
      */
-    var name:String = ""
+    var name: String = ""
+
     /**
      *
      */
-    lateinit var manifest:HookerManifest
+    lateinit var manifest: HookerManifest
+
     /**
      * 表示应用程序的版本代码。
      *
@@ -62,7 +69,7 @@ object AppRuntime {
      * 版本代码是一个整数值，通常用于标识应用程序的不同版本。较高的版本代码表示较新的版本。
      */
     public val versionCode by lazy {
-         runCatching {
+        runCatching {
             application!!.packageManager.getPackageInfo(
                 application!!.packageName,
                 0
@@ -87,10 +94,10 @@ object AppRuntime {
     }
 
 
-
     fun restart() {
-        if (application == null)return
-        val intent = application!!.packageManager.getLaunchIntentForPackage(application!!.packageName)
+        if (application == null) return
+        val intent =
+            application!!.packageManager.getLaunchIntentForPackage(application!!.packageName)
         intent?.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or FLAG_ACTIVITY_NEW_TASK)
         application!!.startActivity(intent)
         Process.killProcess(Process.myPid())
@@ -99,14 +106,14 @@ object AppRuntime {
     /**
      * 加载so库
      */
-    fun load(name:String){
+    fun load(name: String) {
         try {
-            val file = moduleSoPath+"lib$name.so"
+            val file = moduleSoPath + "lib$name.so"
             System.load(file)
-            Logger.logD(TAG,"Load $name success")
+            Logger.logD(TAG, "Load $name success")
         } catch (e: Throwable) {
-            Logger.logD(TAG,"Load $name failed : $e")
-            Logger.logE(TAG,e)
+            Logger.logD(TAG, "Load $name failed : $e")
+            Logger.logE(TAG, e)
         }
     }
 

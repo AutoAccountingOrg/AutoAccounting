@@ -3,11 +3,8 @@ package net.ankio.auto.xposed.core.utils
 import android.content.Context
 import android.content.SharedPreferences
 import com.crossbowffs.remotepreferences.RemotePreferences
-import de.robv.android.xposed.XSharedPreferences
 import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.xposed.core.App.Companion.TAG
-import net.ankio.auto.xposed.core.hook.Hooker
-import net.ankio.auto.xposed.core.logger.Logger
 
 
 object DataUtils {
@@ -53,18 +50,18 @@ object DataUtils {
 
     private fun getPref(): SharedPreferences? {
         if (AppRuntime.application == null) {
-            AppRuntime.manifest.log( "getPref: application is null")
+            AppRuntime.manifest.log("getPref: application is null")
             return null
         }
         return runCatching {
-             RemotePreferences(
+            RemotePreferences(
                 AppRuntime.application,
                 SpUtils.PERF_AUTHORITY,
                 SpUtils.PREF_NAME,
                 true
             )
         }.onFailure {
-            AppRuntime.manifest.log( "getPref: ${it.message}")
+            AppRuntime.manifest.log("getPref: ${it.message}")
             AppRuntime.manifest.logE(it)
         }.getOrNull()
     }
@@ -75,7 +72,7 @@ object DataUtils {
      * @return String
      */
     fun configString(key: String, def: String = ""): String {
-        return getPref() ?.getString(key, def) ?: def
+        return getPref()?.getString(key, def) ?: def
     }
 
     /**
@@ -84,6 +81,6 @@ object DataUtils {
      * @return String
      */
     fun configBoolean(key: String, def: Boolean = false): Boolean {
-        return getPref() ?.getBoolean(key, def) ?: def
+        return getPref()?.getBoolean(key, def) ?: def
     }
 }

@@ -16,18 +16,10 @@
 package net.ankio.auto.update
 
 import android.app.Activity
-import android.app.DownloadManager
-import android.content.Context
-import android.net.Uri
-import android.os.Environment
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import net.ankio.auto.BuildConfig
-import net.ankio.auto.R
 import net.ankio.auto.storage.ConfigUtils
-import net.ankio.auto.storage.Logger
-import net.ankio.auto.ui.activity.MainActivity
-import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.CustomTabsHelper
 import org.ezbook.server.constant.Setting
 
@@ -54,22 +46,22 @@ class AppUpdate(private val context: Activity) : BaseUpdate(context) {
             ) == UpdateChannel.Cloud.name
         ) {
             // https://dl.ghpig.top/https://github.com/AutoAccountingOrg/AutoAccounting/releases/download/4.0.0-Canary.20240919031326/app-xposed-signed.apk
-           switchGithub("AutoAccountingOrg/$repo/releases/download/$version/app-${BuildConfig.FLAVOR}-signed.apk")
+            switchGithub("AutoAccountingOrg/$repo/releases/download/$version/app-${BuildConfig.FLAVOR}-signed.apk")
         } else {
             pan() + "/$version-${BuildConfig.FLAVOR}.apk"
         }
     }
 
     override suspend fun checkVersionFromGithub(localVersion: String): Array<String> {
-       val json = request.get("https://api.github.com/repos/AutoAccountingOrg/$repo/releases")
-        val data =  Gson().fromJson(json.second, Array<JsonObject>::class.java)
+        val json = request.get("https://api.github.com/repos/AutoAccountingOrg/$repo/releases")
+        val data = Gson().fromJson(json.second, Array<JsonObject>::class.java)
         val channel = ConfigUtils.getString(
             Setting.CHECK_UPDATE_TYPE,
             UpdateType.Stable.name
         )
         for (i in data) {
             val tag = i["tag_name"].asString
-            if (tag.contains(channel)){
+            if (tag.contains(channel)) {
                 github = i["url"].asString
                 return super.checkVersionFromGithub(localVersion)
             }
@@ -81,7 +73,7 @@ class AppUpdate(private val context: Activity) : BaseUpdate(context) {
         if (version.isEmpty()) return
 
         CustomTabsHelper.launchUrlOrCopy(context, download)
-        
+
         finish()
     }
 

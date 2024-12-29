@@ -16,15 +16,15 @@
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/groupCard"
     style="?attr/materialCardViewElevatedStyle"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:id="@+id/groupCard"
-    android:layout_marginBottom="@dimen/padding"
-    android:layout_marginEnd="@dimen/padding"
     android:layout_marginStart="@dimen/padding"
-    app:cardCornerRadius="@dimen/radius"
+    android:layout_marginEnd="@dimen/padding"
+    android:layout_marginBottom="@dimen/padding"
     app:cardBackgroundColor="?attr/colorSurfaceContainer"
+    app:cardCornerRadius="@dimen/radius"
     app:cardElevation="0dp">
 
     <LinearLayout
@@ -52,15 +52,17 @@
             android:layout_marginRight="@dimen/padding"
 
             android:gravity="center_vertical">
+
             <com.google.android.material.chip.Chip
                 android:id="@+id/auto_create"
                 style="@style/Widget.Material3.Chip.Filter.Elevated"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/auto_create"
                 android:checked="true"
                 android:enabled="false"
-                app:ensureMinTouchTargetSize="true"/>
+                android:text="@string/auto_create"
+                app:ensureMinTouchTargetSize="true" />
+
             <View
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -68,20 +70,20 @@
 
             <com.google.android.material.button.MaterialButton
 
-                style="?attr/materialIconButtonFilledTonalStyle"
-                app:icon="@drawable/icon_edit"
                 android:id="@+id/editRule"
+                style="?attr/materialIconButtonFilledTonalStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                app:icon="@drawable/icon_edit"
 
                 tools:ignore="RelativeOverlap" />
 
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/deleteData"
+                style="?attr/materialIconButtonFilledStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                style="?attr/materialIconButtonFilledStyle"
 
                 app:icon="@drawable/icon_delete" />
         </LinearLayout>

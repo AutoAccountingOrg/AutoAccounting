@@ -16,16 +16,12 @@
 package net.ankio.auto.ui.dialog
 
 import android.app.Activity
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogUpdateBinding
-import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.update.BaseUpdate
 import net.ankio.auto.update.RuleUpdate
@@ -51,7 +47,7 @@ class UpdateDialog(
             if (baseUpdate is RuleUpdate) context.getString(R.string.rule) else context.getString(R.string.app)
         binding.update.setOnClickListener {
             lifecycleScope.launch {
-                baseUpdate.update{
+                baseUpdate.update {
                     dismiss()
                 }
             }

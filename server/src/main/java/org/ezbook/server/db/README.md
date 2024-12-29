@@ -2,11 +2,14 @@
 
 数据库使用安卓Room实现，不同模式下数据库存储路径不同：
 
-- 在无障碍模式下，数据库存储于`自动记账App`的私有数据目录：`/data/data/net.ankio.auto.helper/database/`。
-- 在Xposed模式下，数据库存储于`安卓系统`的私有数据目录：`/data/data/andriod/database/`，如果是`Debug`版本（从AS直接运行），则存储于`自动记账App`的私有数据目录。
+- 在无障碍模式下，数据库存储于`自动记账App`的私有数据目录：
+  `/data/data/net.ankio.auto.helper/database/`。
+- 在Xposed模式下，数据库存储于`安卓系统`的私有数据目录：`/data/data/andriod/database/`，如果是`Debug`
+  版本（从AS直接运行），则存储于`自动记账App`的私有数据目录。
 
 > [!IMPORTANT]
-> 如果你修改了数据库结构，请务必编写迁移代码，详细参考[迁移 Room 数据库](https://developer.android.com/training/data-storage/room/migrating-db-versions?hl=zh-cn)
+>
+如果你修改了数据库结构，请务必编写迁移代码，详细参考[迁移 Room 数据库](https://developer.android.com/training/data-storage/room/migrating-db-versions?hl=zh-cn)
 
 # 数据库调用
 

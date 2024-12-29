@@ -16,27 +16,27 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/homeFragment"
-        android:icon="@drawable/bottom_unselect_home"
         android:enabled="true"
+        android:icon="@drawable/bottom_unselect_home"
         android:title="@string/title_home" />
     <item
         android:id="@+id/dataFragment"
-        android:icon="@drawable/bottom_unselect_data"
         android:enabled="true"
+        android:icon="@drawable/bottom_unselect_data"
         android:title="@string/title_data" />
     <item
         android:id="@+id/dataRuleFragment"
-        android:icon="@drawable/bottom_unselect_rule"
         android:enabled="true"
+        android:icon="@drawable/bottom_unselect_rule"
         android:title="@string/title_rule" />
     <item
         android:id="@+id/orderFragment"
-        android:icon="@drawable/bottom_unselect_order"
         android:enabled="true"
+        android:icon="@drawable/bottom_unselect_order"
         android:title="@string/title_order" />
     <item
         android:id="@+id/settingFragment"
-        android:icon="@drawable/bottom_unselect_setting"
         android:enabled="true"
+        android:icon="@drawable/bottom_unselect_setting"
         android:title="@string/title_setting" />
 </menu>

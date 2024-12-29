@@ -25,7 +25,7 @@ import org.ezbook.server.models.ResultModel
 class CategoryRuleRoute(private val session: ApplicationCall) {
     private val params: Parameters = session.request.queryParameters
     suspend fun list(): ResultModel {
-        
+
         val page = params["page"]?.toInt() ?: 1
         val limit = params["limit"]?.toInt() ?: 10
         val offset = (page - 1) * limit
@@ -45,7 +45,7 @@ class CategoryRuleRoute(private val session: ApplicationCall) {
     }
 
     suspend fun delete(): ResultModel {
-        val id = (params["id"]?: "0").toLong()
+        val id = (params["id"] ?: "0").toLong()
         Db.get().categoryRuleDao().delete(id)
         return ResultModel(200, "OK", id)
     }

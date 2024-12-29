@@ -46,6 +46,7 @@ class Server(private val context: Context) {
     init {
         Db.init(context)
     }
+
     private lateinit var server: NettyApplicationEngine
 
     /**
@@ -66,7 +67,7 @@ class Server(private val context: Context) {
     }
 
     fun stopServer() {
-        server.stop(0,0)
+        server.stop(0, 0)
         billProcessor.shutdown()
     }
 
@@ -94,7 +95,8 @@ class Server(private val context: Context) {
                             .proxy(Proxy.NO_PROXY)
                             .build()
 
-                        val body: RequestBody = json.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
+                        val body: RequestBody =
+                            json.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
 
                         val request = Request.Builder()
                             .url(uri)
@@ -111,7 +113,7 @@ class Server(private val context: Context) {
                         if (it !is ConnectException) {
                             it.printStackTrace()
                         }
-                        
+
                         if (retryCount < maxRetries - 1) {  // 如果不是最后一次重试
                             val delayTime = (retryCount + 1) * 2000L  // 递增延迟时间
                             log("请求失败，正在进行第${retryCount + 1}次重试，延迟${delayTime}ms")
@@ -127,10 +129,10 @@ class Server(private val context: Context) {
                 }
 
                 // 所有重试都失败后记录最后的错误
-                lastException?.let { 
+                lastException?.let {
                     log("请求最终失败，重试${maxRetries}次后放弃: ${it.message}")
                 }
-                
+
                 null  // 所有重试都失败后返回null
             }
 
@@ -139,7 +141,7 @@ class Server(private val context: Context) {
         /**
          * 日志
          */
-        suspend  fun log(msg: String)  = withContext(Dispatchers.IO){
+        suspend fun log(msg: String) = withContext(Dispatchers.IO) {
             runCatching {
                 Db.get().logDao().insert(LogModel().apply {
                     level = LogLevel.INFO
@@ -153,7 +155,7 @@ class Server(private val context: Context) {
         /**
          * 日志
          */
-        suspend  fun logW(msg: String)  = withContext(Dispatchers.IO){
+        suspend fun logW(msg: String) = withContext(Dispatchers.IO) {
             runCatching {
                 Db.get().logDao().insert(LogModel().apply {
                     level = LogLevel.WARN
@@ -167,16 +169,16 @@ class Server(private val context: Context) {
         /**
          * 错误日志
          */
-        suspend fun log(e: Throwable)  = withContext(Dispatchers.IO){
+        suspend fun log(e: Throwable) = withContext(Dispatchers.IO) {
 
-           runCatching {
-               Db.get().logDao().insert(LogModel().apply {
-                   level = LogLevel.ERROR
-                   app = TAG
-                   message = e.message ?: ""
-               })
-           }
-            Log.e(TAG, e.message ?: "",e)
+            runCatching {
+                Db.get().logDao().insert(LogModel().apply {
+                    level = LogLevel.ERROR
+                    app = TAG
+                    message = e.message ?: ""
+                })
+            }
+            Log.e(TAG, e.message ?: "", e)
         }
 
 

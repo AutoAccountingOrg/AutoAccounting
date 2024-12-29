@@ -17,7 +17,7 @@ package org.ezbook.server.ai
 
 import org.ezbook.server.constant.AIModel
 
-class ChatGPT:BaseAi() {
+class ChatGPT : BaseAi() {
     override var api: String
         get() = "https://api.openai.com/v1/chat/completions"
         set(value) {}

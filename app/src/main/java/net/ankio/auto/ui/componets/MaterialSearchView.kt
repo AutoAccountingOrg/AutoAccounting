@@ -14,13 +14,13 @@
  */
 
 package net.ankio.auto.ui.componets
+
 import android.content.Context
 import android.graphics.Color
 import android.util.AttributeSet
 import android.widget.EditText
 import android.widget.ImageView
 import androidx.appcompat.widget.SearchView
-import androidx.core.view.ViewCompat
 import net.ankio.auto.App
 
 class MaterialSearchView @JvmOverloads constructor(

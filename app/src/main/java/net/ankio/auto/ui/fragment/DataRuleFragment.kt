@@ -25,7 +25,6 @@ import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.JsonObject
 import kotlinx.coroutines.launch
@@ -81,11 +80,19 @@ class DataRuleFragment : BasePageFragment<RuleModel>(), Toolbar.OnMenuItemClickL
                     i++
                     var app = App.getAppInfoFromPackageName(key)
 
-                    if (app == null){
+                    if (app == null) {
                         //  arrayOf(appName, appIcon, appVersion)
-                        if (App.debug){
-                            app = arrayOf(key, ResourcesCompat.getDrawable(App.app.resources,R.drawable.default_asset,null),"")
-                        }else{
+                        if (App.debug) {
+                            app = arrayOf(
+                                key,
+                                ResourcesCompat.getDrawable(
+                                    App.app.resources,
+                                    R.drawable.default_asset,
+                                    null
+                                ),
+                                ""
+                            )
+                        } else {
                             continue
                         }
 
@@ -106,6 +113,7 @@ class DataRuleFragment : BasePageFragment<RuleModel>(), Toolbar.OnMenuItemClickL
         binding.toolbar.setOnMenuItemClickListener(this)
         setUpSearch()
     }
+
     private fun loadLeftData(leftList: CustomNavigationRail) {
         leftList.setOnItemSelectedListener {
             val id = it.id
@@ -115,9 +123,6 @@ class DataRuleFragment : BasePageFragment<RuleModel>(), Toolbar.OnMenuItemClickL
             loadDataInside()
         }
     }
-
-
-
 
 
     private fun chipEvent() {
@@ -147,11 +152,11 @@ class DataRuleFragment : BasePageFragment<RuleModel>(), Toolbar.OnMenuItemClickL
         }
     }
 
-    private fun setUpSearch(){
+    private fun setUpSearch() {
         val searchItem = binding.toolbar.menu.findItem(R.id.action_search)
-        if(searchItem != null){
+        if (searchItem != null) {
             val searchView = searchItem.actionView as MaterialSearchView
-            searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
+            searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String?): Boolean {
                     return true
                 }
@@ -165,15 +170,17 @@ class DataRuleFragment : BasePageFragment<RuleModel>(), Toolbar.OnMenuItemClickL
             })
         }
     }
+
     override fun onMenuItemClick(item: MenuItem?): Boolean {
-       when (item?.itemId) {
+        when (item?.itemId) {
 
             R.id.item_notice -> {
-              navigate(R.id.action_dataRuleFragment_to_noticeFragment)
+                navigate(R.id.action_dataRuleFragment_to_noticeFragment)
             }
-           R.id.item_sms -> {
-              navigate(R.id.action_dataRuleFragment_to_smsFragment)
-           }
+
+            R.id.item_sms -> {
+                navigate(R.id.action_dataRuleFragment_to_smsFragment)
+            }
         }
         return true
     }

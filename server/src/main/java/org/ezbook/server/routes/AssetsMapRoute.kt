@@ -15,11 +15,9 @@
 
 package org.ezbook.server.routes
 
-import com.google.gson.Gson
 import io.ktor.application.ApplicationCall
 import io.ktor.http.Parameters
 import io.ktor.request.receive
-import org.ezbook.server.Server
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.AssetsMapModel
 import org.ezbook.server.models.ResultModel
@@ -45,7 +43,7 @@ class AssetsMapRoute(private val session: ApplicationCall) {
     }
 
     suspend fun delete(): ResultModel {
-       
+
         val id = (params["id"] ?: "0").toLong()
         Db.get().assetsMapDao().delete(id)
         return ResultModel(200, "OK", id)

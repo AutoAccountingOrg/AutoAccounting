@@ -41,7 +41,7 @@ class BillCategoryDialog(
         binding = DialogBillCategoryBinding.inflate(inflater)
 
         //cardView = binding.cardView
-       // cardViewInner = binding.innerView
+        // cardViewInner = binding.innerView
 
         binding.cancelButton.setOnClickListener {
             dismiss()
@@ -118,7 +118,7 @@ class BillCategoryDialog(
                         "js" to js,
                         "text" to msg,
                     )
-                if (jsPre){
+                if (jsPre) {
                     condition += " && "
                     data["jsPre"] = " && "
                 }

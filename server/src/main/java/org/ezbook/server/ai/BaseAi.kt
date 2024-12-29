@@ -97,38 +97,40 @@ Input:
     /**
      * API地址
      */
-    abstract var api:String
+    abstract var api: String
 
     /**
      * 所用的模型
      */
-    abstract var model:String
+    abstract var model: String
 
     /**
      * AI名称
      */
-    abstract var name:String
+    abstract var name: String
 
     /**
      * 申请Key的地址
      */
-    abstract var createKeyUri:String
+    abstract var createKeyUri: String
 
-    suspend fun getConversations(data: String): Pair<String,String>  {
+    suspend fun getConversations(data: String): Pair<String, String> {
         val category = Db.get().categoryDao().all().map {
             Pair(it.name, it.type)
         }
         apiKey = Db.get().settingDao().query("${Setting.API_KEY}_$name")?.value ?: ""
 
-      if (apiKey.isEmpty()) throw RuntimeException("api key is empty")
+        if (apiKey.isEmpty()) throw RuntimeException("api key is empty")
 
-     return Pair(
-         prompt.replace("{aiName}",name).replace("{time}",System.currentTimeMillis().toString()),
-         input.replace("{data}", data).replace("{category}", Gson().toJson(category)))
+        return Pair(
+            prompt.replace("{aiName}", name)
+                .replace("{time}", System.currentTimeMillis().toString()),
+            input.replace("{data}", data).replace("{category}", Gson().toJson(category))
+        )
     }
 
-    open suspend fun request(data: String): BillInfoModel?{
-        val (system,user) = getConversations(data)
+    open suspend fun request(data: String): BillInfoModel? {
+        val (system, user) = getConversations(data)
         val url = api
         val client = OkHttpClient.Builder().readTimeout(60, TimeUnit.SECONDS).build()
 
@@ -155,12 +157,12 @@ Input:
 
         val request = Request.Builder()
             .url(url)
-            .header("Authorization","Bearer $apiKey")
+            .header("Authorization", "Bearer $apiKey")
             .post(json.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull()))
             .build()
 
         val response = client.newCall(request).execute()
-        val responseBody = response.body?.string()?:""
+        val responseBody = response.body?.string() ?: ""
         Server.log("Request Body: $responseBody")
         if (!response.isSuccessful) {
             Server.log(Throwable("Unexpected response code: ${response.code}"))
@@ -174,7 +176,8 @@ Input:
                 val reason = firstChoice.get("finish_reason").asString
                 Server.logW("AI Finish Reason: $reason")
                 val message = firstChoice.getAsJsonObject("message")
-                val content = message.get("content").asString.replace("```json","").replace("```","").trim()
+                val content =
+                    message.get("content").asString.replace("```json", "").replace("```", "").trim()
                 Gson().fromJson(content, BillInfoModel::class.java)
             }.onFailure {
                 Server.log(it)

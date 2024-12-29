@@ -16,20 +16,17 @@
 package net.ankio.auto.update
 
 import android.app.Activity
-import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import net.ankio.auto.R
 import net.ankio.auto.request.RequestsUtils
 import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Logger
-import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.utils.ToastUtils
 import org.ezbook.server.constant.Setting
 import org.markdownj.MarkdownProcessor
 import java.text.DateFormat
 import java.text.SimpleDateFormat
-import java.util.Calendar
 import java.util.Locale
 import java.util.TimeZone
 
@@ -37,7 +34,7 @@ abstract class BaseUpdate(context: Activity) {
     protected val url = "https://dl.ez-book.org/自动记账"
     abstract val repo: String
     var download = ""
-    open var github  = ""
+    open var github = ""
 
 
     abstract val dir: String
@@ -45,12 +42,13 @@ abstract class BaseUpdate(context: Activity) {
     fun pan(): String {
         return "$url/$dir"
     }
-    protected fun switchGithub(uri:String):String{
+
+    protected fun switchGithub(uri: String): String {
         ConfigUtils.getString(
             Setting.UPDATE_CHANNEL,
             UpdateChannel.GithubRaw.name
         ).let {
-            return when(it){
+            return when (it) {
                 //UpdateChannel.GithubRaw.name,UpdateChannel.Github.name -> "https://github.com/$uri"
                 // https://ghproxy.net/https://github.com/AutoAccountingOrg/AutoRule/releases/download/v0.3.9/v0.3.9.zip
                 UpdateChannel.GithubProxy.name -> "https://ghproxy.net/https://github.com/$uri"
@@ -58,10 +56,10 @@ abstract class BaseUpdate(context: Activity) {
                 UpdateChannel.GithubProxy2.name -> " https://cf.ghproxy.cc/https://github.com/$uri"
                 //https://hub.gitmirror.com/https://github.com/AutoAccountingOrg/AutoRule/releases/download/v0.3.9/v0.3.9.zip
                 UpdateChannel.GithubMirror.name -> "https://hub.gitmirror.com/https://github.com/$uri"
-               //https://dl.ghpig.top/https://github.com/AutoAccountingOrg/AutoRule/releases/download/v0.3.9/v0.3.9.zip
-               //https://dgithub.xyz/AutoAccountingOrg/AutoRule/releases/download/v0.3.9/v0.3.9.zip
+                //https://dl.ghpig.top/https://github.com/AutoAccountingOrg/AutoRule/releases/download/v0.3.9/v0.3.9.zip
+                //https://dgithub.xyz/AutoAccountingOrg/AutoRule/releases/download/v0.3.9/v0.3.9.zip
                 UpdateChannel.GithubD.name -> "https://dgithub.xyz/$uri"
-               //https://kkgithub.com/AutoAccountingOrg/AutoRule/releases/download/v0.3.9/v0.3.9.zip
+                //https://kkgithub.com/AutoAccountingOrg/AutoRule/releases/download/v0.3.9/v0.3.9.zip
                 UpdateChannel.GithubKK.name -> "https://kkgithub.com/$uri"
                 else -> "https://github.com/$uri"
             }
@@ -71,7 +69,7 @@ abstract class BaseUpdate(context: Activity) {
     var version = ""
     var log = ""
     var date = ""
-    protected val request = RequestsUtils(context,5)
+    protected val request = RequestsUtils(context, 5)
     abstract fun ruleVersion(): String
     abstract fun onCheckedUpdate()
 
@@ -120,7 +118,7 @@ abstract class BaseUpdate(context: Activity) {
                 log = MarkdownProcessor().markdown(json.get("log").asString)
                 date = json.get("date").asString
                 date = date(date)
-                if (checkVersionLarge(localVersion,version)) {
+                if (checkVersionLarge(localVersion, version)) {
                     return arrayOf(
                         version,
                         log,
@@ -158,7 +156,7 @@ abstract class BaseUpdate(context: Activity) {
 
                 Logger.d("本地版本: $localVersion,云端版本: $version")
 
-                if (checkVersionLarge(localVersion,version)) {
+                if (checkVersionLarge(localVersion, version)) {
                     return arrayOf(
                         version,
                         log,
@@ -188,11 +186,11 @@ abstract class BaseUpdate(context: Activity) {
             ).apply {
                 timeZone = TimeZone.getDefault()
             }
-            
+
             val parsedDate = formatter.parse(date)
             if (parsedDate != null) {
                 outputFormatter.format(parsedDate)
-            }else{
+            } else {
                 date
             }
         } catch (e: Exception) {
@@ -211,17 +209,17 @@ abstract class BaseUpdate(context: Activity) {
             Setting.CHECK_UPDATE_TYPE,
             UpdateType.Stable.name
         )
-        val localParts = localVersion.replace("-${channel}","").replace("_","").split(".")
-        val cloudParts = cloudVersion.replace("-${channel}","").replace("_","").split(".")
+        val localParts = localVersion.replace("-${channel}", "").replace("_", "").split(".")
+        val cloudParts = cloudVersion.replace("-${channel}", "").replace("_", "").split(".")
         // 找出较长的版本号长度，补齐较短版本号的空位
         val maxLength = maxOf(localParts.size, cloudParts.size)
 
         for (i in 0 until maxLength) {
             val localPart = localParts.getOrNull(i)?.toLongOrNull() ?: 0  // 如果某个部分不存在，默认视为0
             val cloudPart = cloudParts.getOrNull(i)?.toLongOrNull() ?: 0
-           if (cloudPart > localPart) {
-               return true
-           }
+            if (cloudPart > localPart) {
+                return true
+            }
         }
         return false
     }

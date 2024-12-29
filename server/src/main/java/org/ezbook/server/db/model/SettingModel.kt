@@ -50,7 +50,7 @@ class SettingModel {
             Server.request("setting/set?key=$key", value)
         }
 
-       suspend fun clearDatabase() = withContext(Dispatchers.IO) {
+        suspend fun clearDatabase() = withContext(Dispatchers.IO) {
             Server.request("db/clear")
         }
     }

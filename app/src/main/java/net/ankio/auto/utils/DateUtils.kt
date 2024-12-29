@@ -27,12 +27,12 @@ import java.util.TimeZone
 object DateUtils {
 
 
-    fun dateToStamp(dateString: String, format: String): Long{
+    fun dateToStamp(dateString: String, format: String): Long {
         return try {
             val simpleDateFormat = SimpleDateFormat(format, Locale.getDefault())
             simpleDateFormat.timeZone = TimeZone.getDefault()
             val date = simpleDateFormat.parse(dateString)
-            date?.time?:System.currentTimeMillis()
+            date?.time ?: System.currentTimeMillis()
         } catch (e: Exception) {
             System.currentTimeMillis()
         }
@@ -48,8 +48,8 @@ object DateUtils {
         return simpleDateFormat.format(date)
     }
 
-    fun stampToDate(time: Long):String{
-        return stampToDate(time,"yyyy-MM-dd HH:mm:ss")
+    fun stampToDate(time: Long): String {
+        return stampToDate(time, "yyyy-MM-dd HH:mm:ss")
     }
 
     fun twoMonthsLater(): Long {

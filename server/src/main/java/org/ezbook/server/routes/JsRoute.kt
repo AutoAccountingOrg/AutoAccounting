@@ -107,7 +107,7 @@ class JsRoute(private val session: ApplicationCall, private val context: android
                     if (billInfoModel == null) {
                         return ResultModel(404, "未分析到有效账单（大模型也识别不到）。")
                     }
-                }else return ResultModel(404, "未分析到有效账单（可以试试用大模型识别）。")
+                } else return ResultModel(404, "未分析到有效账单（可以试试用大模型识别）。")
             } else {
                 billInfoModel = parseBillInfo(result, app, dataType)
             }

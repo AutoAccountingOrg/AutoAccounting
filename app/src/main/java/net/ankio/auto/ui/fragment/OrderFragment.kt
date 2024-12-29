@@ -42,7 +42,7 @@ open class OrderFragment : BasePageFragment<OrderGroup>() {
     override suspend fun loadData(callback: (resultData: List<OrderGroup>) -> Unit) {
         val list = BillInfoModel.list(page, pageSize)
 
-        val groupedData = list.groupBy { 
+        val groupedData = list.groupBy {
             DateUtils.stampToDate(it.time, "yyyy-MM-dd")
         }.map { (date, bills) ->
             OrderGroup(date, bills)
@@ -57,7 +57,7 @@ open class OrderFragment : BasePageFragment<OrderGroup>() {
             } else {
                 statusPage.contentView?.adapter?.notifyItemRangeInserted(oldSize, groupedData.size)
             }
-            
+
             callback.invoke(if (list.isEmpty()) emptyList() else pageData)
         }
     }
@@ -78,12 +78,13 @@ open class OrderFragment : BasePageFragment<OrderGroup>() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.topAppBar.setOnMenuItemClickListener{
-            when(it.itemId){
+        binding.topAppBar.setOnMenuItemClickListener {
+            when (it.itemId) {
                 R.id.item_sync -> {
                     App.startBookApp()
                     true
                 }
+
                 R.id.item_clear -> {
                     BottomSheetDialogBuilder(requireActivity())
                         .setTitle(requireActivity().getString(R.string.delete_data))
@@ -96,9 +97,10 @@ open class OrderFragment : BasePageFragment<OrderGroup>() {
                             }
                         }
                         .setNegativeButton(requireActivity().getString(R.string.cancel_msg)) { _, _ -> }
-                        .showInFragment(this,false,true)
+                        .showInFragment(this, false, true)
                     true
                 }
+
                 else -> false
             }
         }

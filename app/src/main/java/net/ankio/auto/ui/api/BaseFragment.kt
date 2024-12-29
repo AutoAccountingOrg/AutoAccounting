@@ -17,9 +17,7 @@ package net.ankio.auto.ui.api
 
 import android.R
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.annotation.IdRes
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -57,10 +55,10 @@ abstract class BaseFragment : Fragment() {
 
 
     fun isUiReady(): Boolean {
-        return  view != null
+        return view != null
     }
 
-    open fun navigate(@IdRes resId: Int,bundle: Bundle? = null) {
+    open fun navigate(@IdRes resId: Int, bundle: Bundle? = null) {
         viewLifecycleOwner.lifecycleScope.launch {
             try {
                 val options = NavOptions.Builder()
@@ -71,7 +69,7 @@ abstract class BaseFragment : Fragment() {
                     .build()
                 // 使用协程的 withContext 确保在主线程执行
                 withContext(Dispatchers.Main) {
-                    findNavController().navigate(resId,bundle,options)
+                    findNavController().navigate(resId, bundle, options)
                 }
             } catch (e: Exception) {
                 Logger.w("Navigation failed: ${e.message}")
@@ -87,7 +85,7 @@ abstract class BaseFragment : Fragment() {
             view.visibility = View.VISIBLE
         }, 300)
         val materialToolbar = ViewUtils.findMaterialToolbar(view) ?: return
-        
+
         // 通过tag判断是否是返回按钮
         if (materialToolbar.tag == "back_button") {
             materialToolbar.setNavigationOnClickListener {

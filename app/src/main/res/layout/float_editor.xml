@@ -30,8 +30,7 @@
         android:scaleType="centerCrop"
         android:src="@drawable/default_book"
         app:cornerRadiusTopLeft="@dimen/padding"
-        app:cornerRadiusTopRight="@dimen/padding"
-        />
+        app:cornerRadiusTopRight="@dimen/padding" />
 
     <ScrollView
 

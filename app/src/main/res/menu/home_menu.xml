@@ -3,8 +3,8 @@
 
     <item
         android:id="@+id/title_log"
-        android:title="@string/title_log"
         android:icon="@drawable/menu_item_log"
+        android:title="@string/title_log"
         app:showAsAction="ifRoom" />
 
     <item

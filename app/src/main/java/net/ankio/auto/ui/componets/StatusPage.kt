@@ -21,9 +21,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.ProgressBar
-import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
@@ -115,13 +112,13 @@ class StatusPage : ConstraintLayout {
         content: Boolean = false
     ) {
         loadingView?.visibility = if (loading) View.VISIBLE else View.GONE
-        
+
         emptyIcon?.visibility = if (empty) View.VISIBLE else View.GONE
         emptyText?.visibility = if (empty) View.VISIBLE else View.GONE
-        
+
         errorIcon?.visibility = if (error) View.VISIBLE else View.GONE
         errorText?.visibility = if (error) View.VISIBLE else View.GONE
-        
+
         contentView?.visibility = if (content) View.VISIBLE else View.GONE
     }
 }

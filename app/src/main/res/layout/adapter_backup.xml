@@ -7,8 +7,8 @@
     android:clickable="true"
     android:focusable="true"
     android:minHeight="?attr/listPreferredItemHeight"
-    android:paddingVertical="16dp"
-    android:paddingHorizontal="16dp">
+    android:paddingHorizontal="16dp"
+    android:paddingVertical="16dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/item_root"

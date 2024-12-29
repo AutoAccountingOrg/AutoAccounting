@@ -25,7 +25,7 @@ import org.ezbook.server.models.ResultModel
 class CategoryMapRoute(private val session: ApplicationCall) {
     private val params: Parameters = session.request.queryParameters
     suspend fun list(): ResultModel {
-      
+
         val limit = params["limit"]?.toInt() ?: 10
 
 
@@ -44,7 +44,7 @@ class CategoryMapRoute(private val session: ApplicationCall) {
     }
 
     suspend fun put(): ResultModel {
-        val model = session.receive( CategoryMapModel::class)
+        val model = session.receive(CategoryMapModel::class)
         val name = model.name
         val modelItem = Db.get().categoryMapDao().query(name)
         if (modelItem == null) {

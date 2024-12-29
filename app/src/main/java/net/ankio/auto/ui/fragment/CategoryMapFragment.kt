@@ -51,7 +51,7 @@ class CategoryMapFragment : BasePageFragment<CategoryMapModel>() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View  = binding.root
+    ): View = binding.root
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -59,9 +59,9 @@ class CategoryMapFragment : BasePageFragment<CategoryMapModel>() {
 
         val searchItem = binding.topAppBar.menu.findItem(R.id.action_search)
 
-        if(searchItem != null){
+        if (searchItem != null) {
             val searchView = searchItem.actionView as MaterialSearchView
-            searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
+            searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String?): Boolean {
                     return true
                 }

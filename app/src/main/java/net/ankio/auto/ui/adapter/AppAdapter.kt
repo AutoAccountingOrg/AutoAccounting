@@ -44,7 +44,7 @@ class AppAdapter(
         if (position < 0 || position >= list.size) {
             return
         }
-        
+
         val binding = holder.binding
         try {
             binding.appIcon.setImageDrawable(pkg.getApplicationIcon(data.packageName))

@@ -35,6 +35,7 @@ object Setting {
     const val KEY_FRAMEWORK: String = "framework"
     const val LAST_BACKUP_TIME: String = "last_backup_time"
     const val SHOW_AUTO_BILL_TIP = "show_auto_bill_tip"
+
     //自动备份
     const val AUTO_BACKUP = "auto_backup"
 
@@ -44,14 +45,18 @@ object Setting {
 
     // 所用的AI模型
     const val AI_MODEL = "ai_model"
+
     // 是否使用AI辅助识别
     const val USE_AI = "use_ai"
+
     // API_KEY
     const val API_KEY = "api_key"
+
     // 同步类型
     const val SYNC_TYPE = "setting_sync_type"
+
     // 展示规则名称
-    const val  SHOW_RULE_NAME = "setting_show_rule_name"
+    const val SHOW_RULE_NAME = "setting_show_rule_name"
 
     //自动记账对应的记账软件
     const val BOOK_APP_ID = "setting_book_app_id"

@@ -20,23 +20,16 @@ import android.provider.Telephony
 import android.telephony.SmsMessage
 import com.google.gson.Gson
 import com.google.gson.JsonObject
-import net.ankio.auto.storage.ConfigUtils
-import net.ankio.auto.storage.Logger
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.utils.AppRuntime
-import net.ankio.auto.xposed.core.utils.DataUtils
-import net.ankio.auto.xposed.core.utils.ThreadUtils
 import net.ankio.auto.xposed.hooks.sms.utils.SmsMessageUtils
 import org.ezbook.server.constant.DataType
-import org.ezbook.server.constant.DefaultData
-import org.ezbook.server.constant.Setting
-import org.ezbook.server.db.model.SettingModel
 import java.text.Normalizer
 
 
-class SmsIntentHooker: PartHooker() {
-   // private val hashTable = MD5HashTable()
+class SmsIntentHooker : PartHooker() {
+    // private val hashTable = MD5HashTable()
     private val TELEPHONY_PACKAGE: String = "com.android.internal.telephony"
     private val SMS_HANDLER_CLASS: String = "$TELEPHONY_PACKAGE.InboundSmsHandler"
     override fun hook() {
@@ -45,7 +38,7 @@ class SmsIntentHooker: PartHooker() {
         Hooker.allMethodsEqBefore(
             inboundSmsHandlerClass,
             "dispatchIntent",
-        ){ param,method ->
+        ) { param, method ->
             val intent = param.args[0] as Intent
             val action = intent.action
 
@@ -58,9 +51,9 @@ class SmsIntentHooker: PartHooker() {
             sender = Normalizer.normalize(sender, Normalizer.Form.NFC)
             body = Normalizer.normalize(body, Normalizer.Form.NFC)
             val json = JsonObject().apply {
-                addProperty("sender",sender)
-                addProperty("body",body)
-                addProperty("t",System.currentTimeMillis())
+                addProperty("sender", sender)
+                addProperty("body", body)
+                addProperty("t", System.currentTimeMillis())
             }
 
             AppRuntime.manifest.analysisData(DataType.DATA, Gson().toJson(json))

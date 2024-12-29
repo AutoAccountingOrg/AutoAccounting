@@ -17,8 +17,6 @@ package net.ankio.auto.ui.dialog
 
 import android.content.Context
 import android.content.pm.PackageManager
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import androidx.core.widget.addTextChangedListener
@@ -28,12 +26,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.databinding.DialogAppsBinding
-import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.adapter.AppsAdapter
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.models.AppInfo
 
-class AppsDialog(private val context: Context,private val callback:(AppInfo)->Unit) : BaseSheetDialog(context) {
+class AppsDialog(private val context: Context, private val callback: (AppInfo) -> Unit) :
+    BaseSheetDialog(context) {
     private lateinit var binding: DialogAppsBinding
     private lateinit var appsAdapter: AppsAdapter
     private val appsList = mutableListOf<AppInfo>()
@@ -44,7 +42,7 @@ class AppsDialog(private val context: Context,private val callback:(AppInfo)->Un
         setupRecyclerView()
         setupSearch()
         loadApps()
-        
+
         return binding.root
     }
 
@@ -74,7 +72,7 @@ class AppsDialog(private val context: Context,private val callback:(AppInfo)->Un
             val pm = context.packageManager
             val apps = pm.getInstalledApplications(PackageManager.GET_META_DATA)
                 .filter { pm.getLaunchIntentForPackage(it.packageName) != null }
-                .map { 
+                .map {
                     AppInfo(
                         appName = it.loadLabel(pm).toString(),
                         packageName = it.packageName,
@@ -83,7 +81,7 @@ class AppsDialog(private val context: Context,private val callback:(AppInfo)->Un
                     )
                 }
                 .sortedBy { it.appName }
-            
+
             withContext(Dispatchers.Main) {
                 if (apps.isEmpty()) {
                     binding.status.showEmpty()
@@ -104,10 +102,10 @@ class AppsDialog(private val context: Context,private val callback:(AppInfo)->Un
             appsAdapter.updateData(appsList)
             return
         }
-        
+
         filtered = appsList.filter {
             it.appName.contains(query, ignoreCase = true) ||
-            it.packageName.contains(query, ignoreCase = true)
+                    it.packageName.contains(query, ignoreCase = true)
         }.toMutableList()
         appsAdapter.updateData(filtered)
     }

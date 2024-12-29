@@ -62,9 +62,11 @@ class ThreadUtils {
         fun launch(block: suspend CoroutineScope.() -> Unit) {
             instance.launch(block)
         }
+
         fun cancel() {
             instance.cancel()
         }
+
         fun runOnUiThread(function: () -> Unit) {
             instance.runOnUiThread(function)
         }

@@ -44,7 +44,7 @@ class AssetMapFragment : BasePageFragment<AssetsMapModel>() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View  = binding.root
+    ): View = binding.root
 
     override fun onCreateAdapter() {
         val recyclerView = statusPage.contentView!!
@@ -60,7 +60,7 @@ class AssetMapFragment : BasePageFragment<AssetsMapModel>() {
                     AssetsMapModel.put(model)
                     reload()
                 }
-            }.showInFragment(this,false,true)
+            }.showInFragment(this, false, true)
         }
     }
 

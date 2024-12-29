@@ -24,7 +24,6 @@ import net.ankio.auto.R
 import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.storage.ZipUtils
-import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.ToastUtils
 import org.ezbook.server.constant.DataType

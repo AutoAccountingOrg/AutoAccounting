@@ -15,7 +15,7 @@
 
 <com.google.android.material.textview.MaterialTextView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/title"
-    android:textColor="?colorPrimary"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:text="@string/setting_privacy" />
+    android:text="@string/setting_privacy"
+    android:textColor="?colorPrimary" />

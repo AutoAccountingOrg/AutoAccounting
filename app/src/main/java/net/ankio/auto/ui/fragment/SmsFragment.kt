@@ -30,13 +30,13 @@ import net.ankio.auto.ui.utils.viewBinding
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
 
-class SmsFragment: BaseFragment() {
+class SmsFragment : BaseFragment() {
     override val binding: FragmentSmsEditBinding by viewBinding(FragmentSmsEditBinding::inflate)
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    )= binding.root
+    ) = binding.root
 
     private var chipData = mutableListOf<String>()
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -44,13 +44,15 @@ class SmsFragment: BaseFragment() {
         binding.addChip.setOnClickListener {
             showInput("")
         }
-        chipData = ConfigUtils.getString(Setting.SMS_FILTER,DefaultData.SMS_FILTER).split(",").filter { it.isNotEmpty() }.toMutableList()
+        chipData = ConfigUtils.getString(Setting.SMS_FILTER, DefaultData.SMS_FILTER).split(",")
+            .filter { it.isNotEmpty() }.toMutableList()
         chipData.forEach {
             addChip(it)
         }
 
     }
-    private fun setChip(oldText: String,newText: String) {
+
+    private fun setChip(oldText: String, newText: String) {
         val index = chipData.indexOf(oldText)
         if (index != -1) {
             chipData[index] = newText
@@ -61,12 +63,14 @@ class SmsFragment: BaseFragment() {
         super.onStop()
         ConfigUtils.putString(Setting.SMS_FILTER, chipData.joinToString(","))
     }
+
     private fun addChipData(text: String) {
         chipData.add(text)
     }
-    private fun showInput(text: String,chip: Chip? = null) {
+
+    private fun showInput(text: String, chip: Chip? = null) {
         val inputBinding = SettingItemInputBinding.inflate(layoutInflater)
-        inputBinding.root.setPadding(16,16,16,16)
+        inputBinding.root.setPadding(16, 16, 16, 16)
         inputBinding.input.setText(text)
         inputBinding.inputLayout.hint = ""
 
@@ -79,17 +83,18 @@ class SmsFragment: BaseFragment() {
                 if (input.isNotEmpty()) {
                     if (chip != null) {
                         chip.text = input
-                        setChip(text,input)
+                        setChip(text, input)
                     } else {
-                        addChip(input,true)
+                        addChip(input, true)
                     }
                 }
             }
             .setNegativeButton(R.string.cancel_msg, null)
-            .showInFragment(this,false,true)
+            .showInFragment(this, false, true)
     }
+
     // 添加Chip
-    private fun addChip(text: String,saveToData:Boolean = false) {
+    private fun addChip(text: String, saveToData: Boolean = false) {
         val chip = Chip(context)
         chip.text = text
         chip.chipStrokeWidth = 0f
@@ -100,7 +105,7 @@ class SmsFragment: BaseFragment() {
             chipData.remove(text)
         }
         chip.setOnClickListener {
-            showInput(text,chip)
+            showInput(text, chip)
         }
         binding.chipGroup.addView(chip)
         if (saveToData) {

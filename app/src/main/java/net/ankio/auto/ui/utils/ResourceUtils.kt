@@ -61,7 +61,7 @@ object ResourceUtils {
         bookId: String = "",
         type: String = ""
     ): Drawable = withContext(Dispatchers.IO) {
-        var cateName =name
+        var cateName = name
         if (cateName.contains("-")) {
             cateName = cateName.split("-")[1].trim()
         }

@@ -110,7 +110,7 @@ class BillInfoModel {
     /**
      * 订单状态
      */
-    var state : BillState = BillState.Wait2Edit
+    var state: BillState = BillState.Wait2Edit
 
     /**
      * 备注信息
@@ -162,8 +162,8 @@ class BillInfoModel {
             Server.request("bill/remove?id=$id")
         }
 
-        suspend fun get(id: Long):BillInfoModel? = withContext(Dispatchers.IO) {
-            val response =  Server.request("bill/get?id=$id")
+        suspend fun get(id: Long): BillInfoModel? = withContext(Dispatchers.IO) {
+            val response = Server.request("bill/get?id=$id")
             runCatching {
                 val json = Gson().fromJson(response, JsonObject::class.java)
                 Gson().fromJson(
@@ -216,13 +216,13 @@ class BillInfoModel {
             }.getOrNull() ?: emptyList()
         }
 
-        suspend fun clear() = withContext(Dispatchers.IO){
+        suspend fun clear() = withContext(Dispatchers.IO) {
             Server.request("bill/clear")
         }
 
 
-        suspend fun edit(): List<BillInfoModel> = withContext(Dispatchers.IO){
-           runCatching {
+        suspend fun edit(): List<BillInfoModel> = withContext(Dispatchers.IO) {
+            runCatching {
                 val response = Server.request("bill/edit")
                 val json = Gson().fromJson(response, JsonObject::class.java)
                 Gson().fromJson(

@@ -14,22 +14,21 @@ import java.lang.reflect.Method
 object Hooker {
 
     private val hookMap = HashMap<String, XC_MethodHook.Unhook>()
-    
-    
+
 
     /**
      * 记录日志
      */
     private fun log(message: String, e: Throwable) {
-       Logger.log(AppRuntime.name, message)
-       Logger.logE(AppRuntime.name, e)
+        Logger.log(AppRuntime.name, message)
+        Logger.logE(AppRuntime.name, e)
     }
 
     /**
      * 加载类
      */
     fun loader(clazz: String, classloader: ClassLoader? = null): Class<*> {
-        return classloader?.loadClass(clazz)?:AppRuntime.classLoader.loadClass(clazz)
+        return classloader?.loadClass(clazz) ?: AppRuntime.classLoader.loadClass(clazz)
     }
 
     /**
@@ -46,6 +45,7 @@ object Hooker {
                         throw IllegalArgumentException("Invalid parameter type: $it", e)
                     }
                 }
+
                 else -> throw IllegalArgumentException("Invalid parameter type: $it")
             }
         }.toTypedArray()
@@ -65,9 +65,9 @@ object Hooker {
         hook: (XC_MethodHook.MethodHookParam) -> Unit
     ) {
         try {
-            val loadedClass =   loader(clazz, AppRuntime.classLoader)
+            val loadedClass = loader(clazz, AppRuntime.classLoader)
             val types = buildParameterTypes(*parameterTypes)
-            after(loadedClass, method, *types,  hook =  hook)
+            after(loadedClass, method, *types, hook = hook)
         } catch (e: ClassNotFoundException) {
             log("Class not found: $clazz", e)
         } catch (e: IllegalArgumentException) {
@@ -91,13 +91,17 @@ object Hooker {
         hook: (XC_MethodHook.MethodHookParam) -> Unit
     ) {
         try {
-            XposedHelpers.findAndHookMethod(clazz, method, *parameterTypes, object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    hook(param)
-                }
-            })
+            XposedHelpers.findAndHookMethod(
+                clazz,
+                method,
+                *parameterTypes,
+                object : XC_MethodHook() {
+                    override fun afterHookedMethod(param: MethodHookParam) {
+                        hook(param)
+                    }
+                })
         } catch (e: Exception) {
-            log("Error hooking method before: $clazz.$method - ${e.message}",e)
+            log("Error hooking method before: $clazz.$method - ${e.message}", e)
         }
     }
 
@@ -117,11 +121,11 @@ object Hooker {
         try {
             val loadedClass = loader(clazz, AppRuntime.classLoader)
             val types = buildParameterTypes(*parameterTypes)
-            before(loadedClass, method, *types,hook = hook)
+            before(loadedClass, method, *types, hook = hook)
         } catch (e: ClassNotFoundException) {
-            log("Class not found: $clazz",e)
+            log("Class not found: $clazz", e)
         } catch (e: Exception) {
-            log("Error hooking method before: $clazz.$method - ${e.message}",e)
+            log("Error hooking method before: $clazz.$method - ${e.message}", e)
         }
     }
 
@@ -139,13 +143,17 @@ object Hooker {
         hook: (XC_MethodHook.MethodHookParam) -> Unit
     ) {
         try {
-            XposedHelpers.findAndHookMethod(clazz, method, *parameterTypes, object : XC_MethodHook() {
-                override fun beforeHookedMethod(param: MethodHookParam) {
-                    hook(param)
-                }
-            })
+            XposedHelpers.findAndHookMethod(
+                clazz,
+                method,
+                *parameterTypes,
+                object : XC_MethodHook() {
+                    override fun beforeHookedMethod(param: MethodHookParam) {
+                        hook(param)
+                    }
+                })
         } catch (e: Exception) {
-            log("Error hooking method before: $clazz.$method - ${e.message}",e)
+            log("Error hooking method before: $clazz.$method - ${e.message}", e)
         }
     }
 
@@ -164,18 +172,22 @@ object Hooker {
     ) {
         try {
             val hookKey = "$clazz-$method-${parameterTypes.joinToString()}"
-            val unhook = XposedHelpers.findAndHookMethod(clazz, method, *parameterTypes, object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    val result = hook(param)
-                    if (result) {
-                        hookMap[hookKey]?.unhook()
-                        hookMap.remove(hookKey)
+            val unhook = XposedHelpers.findAndHookMethod(
+                clazz,
+                method,
+                *parameterTypes,
+                object : XC_MethodHook() {
+                    override fun afterHookedMethod(param: MethodHookParam) {
+                        val result = hook(param)
+                        if (result) {
+                            hookMap[hookKey]?.unhook()
+                            hookMap.remove(hookKey)
+                        }
                     }
-                }
-            })
+                })
             hookMap[hookKey] = unhook
         } catch (e: Exception) {
-            log("Error hooking once method after: $clazz.$method - ${e.message}",e)
+            log("Error hooking once method after: $clazz.$method - ${e.message}", e)
         }
     }
 
@@ -194,18 +206,22 @@ object Hooker {
     ) {
         try {
             val hookKey = "$clazz-$method-${parameterTypes.joinToString()}"
-            val unhook = XposedHelpers.findAndHookMethod(clazz, method, *parameterTypes, object : XC_MethodHook() {
-                override fun beforeHookedMethod(param: MethodHookParam) {
-                    val result = hook(param)
-                    if (result) {
-                        hookMap[hookKey]?.unhook()
-                        hookMap.remove(hookKey)
+            val unhook = XposedHelpers.findAndHookMethod(
+                clazz,
+                method,
+                *parameterTypes,
+                object : XC_MethodHook() {
+                    override fun beforeHookedMethod(param: MethodHookParam) {
+                        val result = hook(param)
+                        if (result) {
+                            hookMap[hookKey]?.unhook()
+                            hookMap.remove(hookKey)
+                        }
                     }
-                }
-            })
+                })
             hookMap[hookKey] = unhook
         } catch (e: Exception) {
-            log("Error hooking once method before: $clazz.$method - ${e.message}",e)
+            log("Error hooking once method before: $clazz.$method - ${e.message}", e)
         }
     }
 
@@ -216,17 +232,17 @@ object Hooker {
      */
     fun allMethodsBefore(
         clazz: Class<*>,
-        hook: (XC_MethodHook.MethodHookParam,Method) -> Any?
+        hook: (XC_MethodHook.MethodHookParam, Method) -> Any?
     ) {
         clazz.declaredMethods.forEach { method ->
             try {
                 XposedBridge.hookMethod(method, object : XC_MethodHook() {
                     override fun beforeHookedMethod(param: MethodHookParam) {
-                        hook(param,method)
+                        hook(param, method)
                     }
                 })
             } catch (e: Exception) {
-                log("Error hooking method before: ${method.name} - ${e.message}",e)
+                log("Error hooking method before: ${method.name} - ${e.message}", e)
             }
         }
     }
@@ -238,17 +254,17 @@ object Hooker {
      */
     fun allMethodsAfter(
         clazz: Class<*>,
-        hook: (XC_MethodHook.MethodHookParam,Method) -> Any?
+        hook: (XC_MethodHook.MethodHookParam, Method) -> Any?
     ) {
         clazz.declaredMethods.forEach { method ->
             try {
                 XposedBridge.hookMethod(method, object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
-                        hook(param,method)
+                        hook(param, method)
                     }
                 })
             } catch (e: Exception) {
-                log("Error hooking method after: ${method.name} - ${e.message}",e)
+                log("Error hooking method after: ${method.name} - ${e.message}", e)
             }
         }
     }
@@ -262,12 +278,12 @@ object Hooker {
     fun allMethodsEqBefore(
         clazz: Class<*>,
         methodName: String,
-        hook: (XC_MethodHook.MethodHookParam,Method) -> Any?
+        hook: (XC_MethodHook.MethodHookParam, Method) -> Any?
     ) {
         clazz.declaredMethods.filter { it.name == methodName }.forEach { method ->
             XposedBridge.hookMethod(method, object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam) {
-                    hook(param,method)
+                    hook(param, method)
                 }
             })
         }
@@ -282,12 +298,12 @@ object Hooker {
     fun allMethodsEqAfter(
         clazz: Class<*>,
         methodName: String,
-        hook: (XC_MethodHook.MethodHookParam,Method) -> Any?
+        hook: (XC_MethodHook.MethodHookParam, Method) -> Any?
     ) {
         clazz.declaredMethods.filter { it.name == methodName }.forEach { method ->
             XposedBridge.hookMethod(method, object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
-                    hook(param,method)
+                    hook(param, method)
                 }
             })
         }
@@ -303,7 +319,11 @@ object Hooker {
             is Array<*> -> value.joinToString(prefix = "[", postfix = "]")
             is List<*> -> value.joinToString(prefix = "[", postfix = "]")
             is Set<*> -> value.joinToString(prefix = "{", postfix = "}")
-            is Map<*, *> -> value.entries.joinToString(prefix = "{", postfix = "}") { (k, v) -> "$k=$v" }
+            is Map<*, *> -> value.entries.joinToString(
+                prefix = "{",
+                postfix = "}"
+            ) { (k, v) -> "$k=$v" }
+
             null -> "null"
             else -> value.toString()
         }
@@ -327,11 +347,11 @@ object Hooker {
             val types = buildParameterTypes(*parameterTypes)
             replace(loadedClass, method, *types, hook = hook)
         } catch (e: ClassNotFoundException) {
-            log("Class not found: $clazz",e)
+            log("Class not found: $clazz", e)
         } catch (e: IllegalArgumentException) {
-            log("Invalid parameter type: ${e.message}",e)
+            log("Invalid parameter type: ${e.message}", e)
         } catch (e: Exception) {
-            log("Error replacing method: $clazz.$method - ${e.message}",e)
+            log("Error replacing method: $clazz.$method - ${e.message}", e)
         }
     }
 
@@ -378,11 +398,11 @@ object Hooker {
             val types = buildParameterTypes(*parameterTypes)
             replaceReturn(loadedClass, method, value, *types)
         } catch (e: ClassNotFoundException) {
-            log("Class not found: $clazz",e)
+            log("Class not found: $clazz", e)
         } catch (e: IllegalArgumentException) {
-            log("Invalid parameter type: ${e.message}",e)
+            log("Invalid parameter type: ${e.message}", e)
         } catch (e: Exception) {
-            log("Error replacing return value: $clazz.$method - ${e.message}",e)
+            log("Error replacing return value: $clazz.$method - ${e.message}", e)
         }
     }
 

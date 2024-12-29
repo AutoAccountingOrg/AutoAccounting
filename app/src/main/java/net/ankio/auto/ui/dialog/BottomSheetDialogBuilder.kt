@@ -125,7 +125,8 @@ class BottomSheetDialogBuilder(context: Context) : BaseSheetDialog(context) {
         setView(textView)
         return this
     }
+
     fun setMessage(string: Int): BottomSheetDialogBuilder {
-       return setMessage(context.getString(string))
+        return setMessage(context.getString(string))
     }
 }

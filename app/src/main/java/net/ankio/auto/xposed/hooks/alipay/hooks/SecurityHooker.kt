@@ -15,10 +15,7 @@
 
 package net.ankio.auto.xposed.hooks.alipay.hooks
 
-import android.app.Application
 import android.content.Context
-import de.robv.android.xposed.XposedBridge
-import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.utils.AppRuntime
@@ -27,15 +24,16 @@ import net.ankio.auto.xposed.core.utils.AppRuntime
 /**
  * 支付宝安全检测bypass
  */
-class SecurityHooker:PartHooker() {
+class SecurityHooker : PartHooker() {
     override fun hook() {
-        val clazz = AppRuntime.classLoader.loadClass("com.alipay.apmobilesecuritysdk.scanattack.common.ScanAttack")
+        val clazz =
+            AppRuntime.classLoader.loadClass("com.alipay.apmobilesecuritysdk.scanattack.common.ScanAttack")
 
         // 这个bypass只能过掉在xposed、root环境隐藏不好的情况，即弹出登录异常、环境不安全这些提示
-        Hooker.allMethodsAfter(clazz){ it,_ ->
+        Hooker.allMethodsAfter(clazz) { it, _ ->
             val result = it.result
             // 所有检测的全部返回false
-            if (result is Boolean){
+            if (result is Boolean) {
                 it.result = false
             }
         }
@@ -58,7 +56,8 @@ class SecurityHooker:PartHooker() {
         //    public static int MODE_DETAIL = 1;
         //    public static int MODE_SIMPLE;
 
-        Hooker.before(clazz,"getAD104",
+        Hooker.before(
+            clazz, "getAD104",
             Context::class.java,
             Int::class.java, // 检测模式
             Int::class.java, // 检测类型

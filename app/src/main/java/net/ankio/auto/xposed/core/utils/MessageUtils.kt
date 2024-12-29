@@ -27,14 +27,14 @@ object MessageUtils {
      * @param msg String
      */
     fun toast(msg: String) {
-        if (AppRuntime.application  == null) {
+        if (AppRuntime.application == null) {
             return
         }
         try {
             Toaster.show(msg)
         } catch (e: Throwable) {
-            Toast.makeText(AppRuntime.application , msg, Toast.LENGTH_LONG).show()
-        }finally {
+            Toast.makeText(AppRuntime.application, msg, Toast.LENGTH_LONG).show()
+        } finally {
             Logger.log(TAG, msg)
         }
 

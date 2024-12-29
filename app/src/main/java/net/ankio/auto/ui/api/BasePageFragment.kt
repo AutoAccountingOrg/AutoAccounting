@@ -57,6 +57,7 @@ abstract class BasePageFragment<T> : BaseFragment() {
     abstract suspend fun loadData(callback: (resultData: List<T>) -> Unit)
 
     abstract fun onCreateAdapter()
+
     /**
      * 重置页面
      */
@@ -83,9 +84,9 @@ abstract class BasePageFragment<T> : BaseFragment() {
                 loadData { resultData ->
                     if (resultData.isEmpty()) {
                         if (pageData.isEmpty()) {
-                           lifecycleScope.launch {
-                               statusPage.showEmpty()
-                           }
+                            lifecycleScope.launch {
+                                statusPage.showEmpty()
+                            }
                         }
                         callback?.invoke(true, false)
                         return@loadData
@@ -93,10 +94,10 @@ abstract class BasePageFragment<T> : BaseFragment() {
 
                     pageData.addAll(resultData)
                     lifecycleScope.launch {
-                      statusPage.showContent()
-                      statusPage.contentView?.adapter?.notifyItemInserted(pageData.size - pageSize)
+                        statusPage.showContent()
+                        statusPage.contentView?.adapter?.notifyItemInserted(pageData.size - pageSize)
 
-                  }
+                    }
                     val total = page * pageSize
 
                     if (callback != null && isAdded) callback(true, total > pageData.size)
@@ -115,7 +116,7 @@ abstract class BasePageFragment<T> : BaseFragment() {
         }
     }
 
-   private fun loadMoreDataEvent(){
+    private fun loadMoreDataEvent() {
         statusPage.contentView?.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             var loading = false // 防抖标志
 
@@ -138,13 +139,13 @@ abstract class BasePageFragment<T> : BaseFragment() {
                 }
             }
         })
-   }
+    }
 
     private var _statusPage: StatusPage? = null
     private var _swipeRefreshLayout: SwipeRefreshLayout? = null
 
-     val statusPage get() = _statusPage!!
-        val swipeRefreshLayout get() = _swipeRefreshLayout!!
+    val statusPage get() = _statusPage!!
+    val swipeRefreshLayout get() = _swipeRefreshLayout!!
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _statusPage = view.findViewById(R.id.status_page)
@@ -163,7 +164,7 @@ abstract class BasePageFragment<T> : BaseFragment() {
     }
 
 
-    fun reload(){
+    fun reload() {
         resetPage()
         statusPage.showLoading()
         loadDataInside()

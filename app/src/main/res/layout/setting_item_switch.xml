@@ -23,10 +23,10 @@
         android:id="@+id/icon"
         android:layout_width="@dimen/image_size"
         android:layout_height="@dimen/image_size"
-        app:tint="?colorPrimary"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        app:tint="?colorPrimary" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/innerConstraintLayout"
@@ -68,8 +68,8 @@
         android:layout_height="wrap_content"
         android:checked="true"
         android:text=""
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

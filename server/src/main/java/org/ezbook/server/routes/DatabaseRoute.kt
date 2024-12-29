@@ -59,6 +59,7 @@ class DatabaseRoute(
                     session.respond(ResultModel(200, "File uploaded successfully"))
                     return@forEachPart
                 }
+
                 else -> {
                     // 忽略其他部分
                 }
@@ -68,7 +69,7 @@ class DatabaseRoute(
 
     }
 
-   suspend fun clearDb() {
+    suspend fun clearDb() {
         Db.clear(context)
         session.respond(ResultModel(200, "Database cleared"))
     }

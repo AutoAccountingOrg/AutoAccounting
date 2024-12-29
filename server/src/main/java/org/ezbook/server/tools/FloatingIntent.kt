@@ -23,24 +23,35 @@ import org.ezbook.server.db.model.BillInfoModel
 
 data class FloatingIntent(
     val billInfoModel: BillInfoModel,
-    val showTip:Boolean,
-    val from:String,
-    val parent:BillInfoModel? = null
+    val showTip: Boolean,
+    val from: String,
+    val parent: BillInfoModel? = null
 ) {
 
-    companion object{
+    companion object {
         fun parse(intent: Intent): FloatingIntent {
-            val billInfo = runCatching { Gson().fromJson(intent.getStringExtra("billInfo"), BillInfoModel::class.java) }.getOrDefault(BillInfoModel())
+            val billInfo = runCatching {
+                Gson().fromJson(
+                    intent.getStringExtra("billInfo"),
+                    BillInfoModel::class.java
+                )
+            }.getOrDefault(BillInfoModel())
             val showTip = intent.getBooleanExtra("showWaitTip", false)
             val from = intent.getStringExtra("from") ?: ""
             val parent = if (intent.hasExtra("parent")) {
-                runCatching { Gson().fromJson(intent.getStringExtra("parent"), BillInfoModel::class.java) }.getOrNull()
+                runCatching {
+                    Gson().fromJson(
+                        intent.getStringExtra("parent"),
+                        BillInfoModel::class.java
+                    )
+                }.getOrNull()
             } else {
                 null
             }
             return FloatingIntent(billInfo, showTip, from, parent)
         }
     }
+
     fun getUniqueKey(): String {
         return billInfoModel.id.toString()
     }
@@ -54,7 +65,7 @@ data class FloatingIntent(
         if (parent != null) {
             intent.putExtra("parent", Gson().toJson(parent))
         }
-        intent.putExtra("from",from)
+        intent.putExtra("from", from)
         intent.setComponent(
             ComponentName(
                 Server.packageName,

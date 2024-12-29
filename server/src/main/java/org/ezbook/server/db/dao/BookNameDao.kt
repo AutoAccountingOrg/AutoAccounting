@@ -33,7 +33,7 @@ interface BookNameDao {
     suspend fun insert(log: BookNameModel): Long
 
     @Query("DELETE FROM BookNameModel")
-    suspend  fun clear()
+    suspend fun clear()
 
     @Transaction
     suspend fun put(data: Array<BookNameModel>) {

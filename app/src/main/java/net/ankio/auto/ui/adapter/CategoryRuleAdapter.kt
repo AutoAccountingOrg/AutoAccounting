@@ -19,7 +19,6 @@ package net.ankio.auto.ui.adapter
 import android.app.Activity
 import android.view.View
 import androidx.core.view.size
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.elevation.SurfaceColors
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken

@@ -35,10 +35,10 @@
             android:scrollbars="none"
             android:textAppearance="?textAppearanceTitleMedium"
             android:textIsSelectable="false"
-            app:layout_constraintStart_toEndOf="@id/asset_icon"
-            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/assets_type"
+            app:layout_constraintStart_toEndOf="@id/asset_icon"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintWidth_max="0dp"
             tools:text="支付宝" />
 
@@ -51,10 +51,10 @@
             android:scrollbars="none"
             android:textAppearance="?textAppearanceLabelMedium"
             android:visibility="visible"
-            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/asset_name"
+            app:layout_constraintTop_toTopOf="parent"
             tools:text="普通资产" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

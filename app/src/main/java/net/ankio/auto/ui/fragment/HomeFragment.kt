@@ -145,9 +145,9 @@ class HomeFragment : BaseFragment() {
                 checkServices()
             }.onFailure { e ->
                 if (e is ServiceCheckException) {
-                    if (isUiReady()){
+                    if (isUiReady()) {
                         showServiceErrorDialog(e)
-                    } else{
+                    } else {
                         Logger.e("Error in check service", e)
                     }
                 } else {
@@ -470,7 +470,7 @@ class HomeFragment : BaseFragment() {
         if (bookName.isEmpty()) {
             lifecycleScope.launch {
                 val book = BookNameModel.getFirstBook()
-                 if (!isUiReady()) return@launch
+                if (!isUiReady()) return@launch
                 ConfigUtils.putString(Setting.DEFAULT_BOOK_NAME, book.name)
                 binding.defaultBook.text = book.name
             }
@@ -483,7 +483,7 @@ class HomeFragment : BaseFragment() {
      * 绑定激活部分的UI
      */
     private suspend fun bindActiveUI() {
-         if (!isUiReady()) return
+        if (!isUiReady()) return
         val colorPrimary =
             App.getThemeAttrColor(com.google.android.material.R.attr.colorPrimary)
 

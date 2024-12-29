@@ -24,10 +24,11 @@ import org.ezbook.server.models.ResultModel
 
 class SettingRoute(private val session: ApplicationCall) {
     private val params: Parameters = session.request.queryParameters
+
     /**
      * 获取设置
      */
-    suspend  fun get(): ResultModel {
+    suspend fun get(): ResultModel {
         val key = params["key"] ?: ""
         if (key === "") {
             return ResultModel(400, "key is required")
@@ -40,7 +41,7 @@ class SettingRoute(private val session: ApplicationCall) {
     /**
      * 设置
      */
-    suspend fun set():ResultModel {
+    suspend fun set(): ResultModel {
         val key = params["key"] ?: ""
         if (key === "") {
             return ResultModel(400, "key is required")
@@ -50,12 +51,12 @@ class SettingRoute(private val session: ApplicationCall) {
         return ResultModel(200, "OK")
     }
 
-    suspend fun list():ResultModel {
+    suspend fun list(): ResultModel {
         return ResultModel(200, "OK", Db.get().settingDao().load())
     }
 
     companion object {
-        suspend  fun setByInner(key: String, value: String) {
+        suspend fun setByInner(key: String, value: String) {
             val model = SettingModel()
             model.key = key
             model.value = value

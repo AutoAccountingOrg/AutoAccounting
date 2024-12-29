@@ -17,11 +17,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/item_sync"
-        android:title="@string/item_sync"
         android:icon="@drawable/ic_sync2"
         android:iconTint="?colorOnBackground"
-        app:showAsAction="ifRoom"
-        />
+        android:title="@string/item_sync"
+        app:showAsAction="ifRoom" />
     <item
         android:id="@+id/item_clear"
         android:icon="@drawable/menu_icon_clear"

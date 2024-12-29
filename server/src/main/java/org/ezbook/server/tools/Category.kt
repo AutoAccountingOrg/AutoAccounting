@@ -15,7 +15,6 @@
 
 package org.ezbook.server.tools
 
-import org.ezbook.server.Server
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.BillInfoModel
 

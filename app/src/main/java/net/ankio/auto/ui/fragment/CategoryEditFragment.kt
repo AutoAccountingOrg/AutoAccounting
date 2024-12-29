@@ -23,10 +23,7 @@ import android.widget.ArrayAdapter
 import androidx.core.view.size
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.elevation.SurfaceColors
-import com.google.android.material.timepicker.MaterialTimePicker
-import com.google.android.material.timepicker.TimeFormat
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.hjq.toast.Toaster
@@ -211,7 +208,7 @@ class CategoryEditFragment : BaseFragment() {
         view: View,
         element: FlowElement,
     ) {
-        if (!isAdded)return
+        if (!isAdded) return
         val menuItems: HashMap<String, Any> =
             hashMapOf(
                 getString(R.string.type_money) to 0,
@@ -237,7 +234,7 @@ class CategoryEditFragment : BaseFragment() {
         element: FlowElement,
         view: View,
     ) {
-        if (!isAdded)return
+        if (!isAdded) return
         val menuItems: HashMap<String, Any> =
             hashMapOf(
                 getString(R.string.type_for_pay) to 0,
@@ -296,7 +293,7 @@ class CategoryEditFragment : BaseFragment() {
         item: String,
         name: String,
     ) {
-        if (!isAdded)return
+        if (!isAdded) return
         val inputBinding = DialogRegexInputBinding.inflate(LayoutInflater.from(requireContext()))
         var select: Int =
             when (val selectValue = element.data.getOrDefault("select", 0)) {
@@ -338,7 +335,7 @@ class CategoryEditFragment : BaseFragment() {
                 }
             }
             .setNegativeButton(R.string.cancel_msg, null)
-            .showInFragment(this,false,true)
+            .showInFragment(this, false, true)
     }
 
     private fun showTimer(
@@ -346,21 +343,21 @@ class CategoryEditFragment : BaseFragment() {
         title: String,
         callback: (String) -> Unit,
     ) {
-        if (!isAdded)return
+        if (!isAdded) return
         val result = time.split(":")
         val dialog = DateTimePickerDialog.withCurrentTime(requireContext(), true, title)
         dialog.setDateTime(0, 0, 0, result[0].toInt(), result[1].toInt())
         dialog.setOnDateTimeSelectedListener { year, month, day, hour, minute ->
             callback("$hour:$minute")
         }
-        dialog.showInFragment(this,false,true)
+        dialog.showInFragment(this, false, true)
     }
 
     private fun inputTimeRange(
         flexboxLayout: FlowLayoutManager,
         element: FlowElement,
     ) {
-        if (!isAdded)return
+        if (!isAdded) return
         val currentTime = Calendar.getInstance()
         val hour = currentTime.get(Calendar.HOUR_OF_DAY)
         val minute = currentTime.get(Calendar.MINUTE)
@@ -388,7 +385,7 @@ class CategoryEditFragment : BaseFragment() {
         flexboxLayout: FlowLayoutManager,
         element: FlowElement,
     ) {
-        if (!isAdded)return
+        if (!isAdded) return
         val moneyRangeBinding =
             DialogRegexMoneyBinding.inflate(LayoutInflater.from(requireContext()))
         moneyRangeBinding.lower.setText(element.data.getOrDefault("minAmount", "").toString())
@@ -451,7 +448,7 @@ class CategoryEditFragment : BaseFragment() {
                 }
             }
             .setNegativeButton(R.string.cancel_msg, null)
-            .showInFragment(this,false,true)
+            .showInFragment(this, false, true)
     }
 
     private fun saveItem() {
@@ -464,7 +461,9 @@ class CategoryEditFragment : BaseFragment() {
         val mapList = map.filter { flowElement ->
             if (flowElement.data.containsKey("js")) {
                 // 移除无效数据
-                if (flowElement.data.containsKey("content") && flowElement.data["content"].toString().isEmpty()) {
+                if (flowElement.data.containsKey("content") && flowElement.data["content"].toString()
+                        .isEmpty()
+                ) {
                     return@filter false // 过滤掉该元素
                 }
 
@@ -487,11 +486,11 @@ class CategoryEditFragment : BaseFragment() {
 
                 // 如果存在 "jsPre"，则追加到 condition 中
                 flowElement.data["jsPre"]?.let { pre ->
-                    condition+=pre
+                    condition += pre
                 }
 
                 // 追加 "js" 到 condition 中
-                condition+=js
+                condition += js
             }
         }
         //text += "，则账本为【$bookName】，分类为【$category】。"

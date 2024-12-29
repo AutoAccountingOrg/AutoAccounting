@@ -17,7 +17,6 @@ package net.ankio.auto.ui.dialog
 
 //import net.ankio.auto.ui.adapter.BillSelectorAdapter
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import androidx.lifecycle.lifecycleScope
@@ -26,7 +25,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.databinding.DialogCategorySelectBinding
-import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.adapter.BillSelectorAdapter
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.componets.StatusPage

@@ -23,11 +23,9 @@ import android.graphics.Point
 import android.os.Build
 import android.util.DisplayMetrics
 import android.util.TypedValue
-import android.view.Display
 import android.view.WindowManager
 import net.ankio.auto.App
 import net.ankio.auto.storage.Logger
-import net.ankio.auto.ui.api.BaseActivity
 
 
 /**
@@ -54,15 +52,15 @@ object DisplayUtils {
         try {
             val appDisplayMetrics: DisplayMetrics = App.app.resources.displayMetrics
             val screenWidth = appDisplayMetrics.widthPixels / appDisplayMetrics.density
-            
+
             // 只在屏幕宽度小于360dp或大于1080dp时进行缩放
             if (screenWidth in 360f..1080f) return
-            
+
             // 首次初始化
             if (noCompatDensity == 0f) {
                 noCompatDensity = appDisplayMetrics.density
                 noCompatScaledDensity = appDisplayMetrics.scaledDensity
-                
+
                 // 监听字体大小变化
                 App.app.registerComponentCallbacks(object : ComponentCallbacks {
                     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -83,7 +81,7 @@ object DisplayUtils {
                 screenWidth > 1080f -> appDisplayMetrics.widthPixels / 1080f  // 大屏幕适配
                 else -> appDisplayMetrics.density  // 正常屏幕保持原始密度
             }
-            
+
             // 使用字体缩放因子调整文字大小
             val fontScale = App.app.resources.configuration.fontScale
             val baseScaleDensity = noCompatScaledDensity * fontScale
@@ -93,7 +91,7 @@ object DisplayUtils {
             } else {
                 baseScaleDensity
             }
-            
+
             // 计算DPI
             val targetDensityDpi = (160 * targetDensity).toInt()
 
@@ -114,6 +112,7 @@ object DisplayUtils {
             e.printStackTrace()
         }
     }
+
     /**
      * 是否是超小屏幕
      */
@@ -121,6 +120,7 @@ object DisplayUtils {
         val point = getScreenSize(context)
         return point.x < MINI_SCREEN_WIDTH || point.y < MINI_SCREEN_HEIGHT
     }
+
     /**
      * 是否是小屏幕
      */
@@ -128,6 +128,7 @@ object DisplayUtils {
         val point = getScreenSize(context)
         return point.x < SMALL_SCREEN_WIDTH || point.y < SMALL_SCREEN_HEIGHT
     }
+
     /**
      * 是否是中等屏幕
      */
@@ -140,7 +141,7 @@ object DisplayUtils {
     /**
      * 获取窗口尺寸，不关注设备状态，只关注窗口状态
      */
-     fun getScreenSize(context: Context): Point {
+    fun getScreenSize(context: Context): Point {
         val point = Point()
         val displayMetrics = context.resources.displayMetrics
         val density = displayMetrics.density
@@ -162,8 +163,11 @@ object DisplayUtils {
      */
     fun inMagicWindow(context: Context): Boolean {
         val config: String = context.resources.configuration.toString()
-        return config.contains("hwMultiwindow-magic") || config.contains("miui-magic-windows") || config.contains("hw-magic-windows")
+        return config.contains("hwMultiwindow-magic") || config.contains("miui-magic-windows") || config.contains(
+            "hw-magic-windows"
+        )
     }
+
     /**
      * 窗口是横屏，不关注设备状态，只关注窗口态
      */
@@ -190,6 +194,7 @@ object DisplayUtils {
         val scale = context.resources.displayMetrics.density
         return (pxValue / scale + 0.5f).toInt()
     }
+
     /**
      * 获取屏幕真实尺寸（包含刘海区域）
      */

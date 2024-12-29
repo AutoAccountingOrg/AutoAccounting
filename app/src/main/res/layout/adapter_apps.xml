@@ -17,8 +17,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:ellipsize="end"
-        android:maxLines="1"
         android:gravity="center"
+        android:maxLines="1"
         android:textSize="12sp" />
 
 </LinearLayout> 

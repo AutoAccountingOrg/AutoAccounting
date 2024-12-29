@@ -15,12 +15,9 @@
 
 package net.ankio.auto.xposed.hooks.alipay.hooks
 
-import android.app.Application
 import com.google.gson.Gson
 import com.google.gson.JsonArray
-import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
-import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.utils.AppRuntime
@@ -28,8 +25,10 @@ import org.ezbook.server.constant.DataType
 
 class MessageBoxHooker : PartHooker() {
     override fun hook() {
-        val msgboxInfoServiceImpl = Hooker.loader("com.alipay.android.phone.messageboxstatic.biz.sync.d")
-        val syncMessage = Hooker.loader("com.alipay.mobile.rome.longlinkservice.syncmodel.SyncMessage")
+        val msgboxInfoServiceImpl =
+            Hooker.loader("com.alipay.android.phone.messageboxstatic.biz.sync.d")
+        val syncMessage =
+            Hooker.loader("com.alipay.mobile.rome.longlinkservice.syncmodel.SyncMessage")
         Hooker.before(
             msgboxInfoServiceImpl,
             "onReceiveMessage",

@@ -64,7 +64,7 @@ class DataFragment : BasePageFragment<AppDataModel>(), Toolbar.OnMenuItemClickLi
     var match = false
     var searchData = ""
     override suspend fun loadData(callback: (resultData: List<AppDataModel>) -> Unit) {
-        AppDataModel.list(app, type,match, page, pageSize, searchData).let { result ->
+        AppDataModel.list(app, type, match, page, pageSize, searchData).let { result ->
             callback(result)
         }
     }
@@ -92,11 +92,11 @@ class DataFragment : BasePageFragment<AppDataModel>(), Toolbar.OnMenuItemClickLi
                 App.copyToClipboard(item.data)
                 ToastUtils.error(R.string.copy_command_success)
             }
-            .showInFragment(this,false,true)
+            .showInFragment(this, false, true)
     }
 
-     fun onEditClick(item: AppDataModel) {
-         // 跳转编辑页
+    fun onEditClick(item: AppDataModel) {
+        // 跳转编辑页
     }
 
     fun onLongClick(item: AppDataModel) {
@@ -112,7 +112,7 @@ class DataFragment : BasePageFragment<AppDataModel>(), Toolbar.OnMenuItemClickLi
                 }
             }
             .setNegativeButton(requireActivity().getString(R.string.cancel_msg)) { _, _ -> }
-            .showInFragment(this,false,true)
+            .showInFragment(this, false, true)
     }
 
     fun onUploadClick(item: AppDataModel) {
@@ -127,7 +127,7 @@ class DataFragment : BasePageFragment<AppDataModel>(), Toolbar.OnMenuItemClickLi
                     "[Bug][Rule][$type]${item.app}"
                 }
                 runCatching {
-                    val (url,timeout) = Pastebin.add(result,requireContext())
+                    val (url, timeout) = Pastebin.add(result, requireContext())
                     val body = if (!item.match) {
                         """
 <!------ 
@@ -140,7 +140,7 @@ class DataFragment : BasePageFragment<AppDataModel>(), Toolbar.OnMenuItemClickLi
 ## 其他信息
 
                 """.trimIndent()
-                    }else{
+                    } else {
                         """
 <!------ 
  1. 请不要手动复制数据，下面的链接中已包含数据；
@@ -172,42 +172,51 @@ ${item.rule}
                     return@launch
                 }
             }
-        }.showInFragment(this,false,true)
+        }.showInFragment(this, false, true)
     }
 
     fun onTestRuleClick(item: AppDataModel) {
         lifecycleScope.launch {
-            runTest(false,item)
+            runTest(false, item)
         }
     }
 
     fun onAITestRuleClick(item: AppDataModel) {
         lifecycleScope.launch {
-            runTest(true,item)
+            runTest(true, item)
         }
     }
 
-    private suspend fun testRule(item: AppDataModel,ai: Boolean = false): BillInfoModel? = withContext(Dispatchers.IO) {
-        val result = Server.request(
-            "js/analysis?type=${item.type.name}&app=${item.app}&fromAppData=true&ai=${ai}",
-            item.data
-        ) ?: return@withContext null
-        Logger.d("Test Result: $result")
-        val data = Gson().fromJson(result, JsonObject::class.java)
-        if (data.get("code").asInt != 200) {
-            Logger.w("Test Error Info: ${data.get("msg").asString}")
-            return@withContext null
+    private suspend fun testRule(item: AppDataModel, ai: Boolean = false): BillInfoModel? =
+        withContext(Dispatchers.IO) {
+            val result = Server.request(
+                "js/analysis?type=${item.type.name}&app=${item.app}&fromAppData=true&ai=${ai}",
+                item.data
+            ) ?: return@withContext null
+            Logger.d("Test Result: $result")
+            val data = Gson().fromJson(result, JsonObject::class.java)
+            if (data.get("code").asInt != 200) {
+                Logger.w("Test Error Info: ${data.get("msg").asString}")
+                return@withContext null
+            }
+            return@withContext Gson().fromJson(
+                data.getAsJsonObject("data"),
+                BillInfoModel::class.java
+            )
         }
-        return@withContext Gson().fromJson(data.getAsJsonObject("data"), BillInfoModel::class.java)
-    }
 
-    private suspend fun runTest(ai:Boolean = false,item: AppDataModel){
+    private suspend fun runTest(ai: Boolean = false, item: AppDataModel) {
         val loadingUtils = LoadingUtils(requireActivity())
-        if (ai){
-            loadingUtils.show(requireActivity().getString(R.string.ai_loading, ConfigUtils.getString(Setting.AI_MODEL)))
+        if (ai) {
+            loadingUtils.show(
+                requireActivity().getString(
+                    R.string.ai_loading,
+                    ConfigUtils.getString(Setting.AI_MODEL)
+                )
+            )
         }
-        val billModel = testRule(item,ai)
-        if (ai){
+        val billModel = testRule(item, ai)
+        if (ai) {
             loadingUtils.close()
         }
         if (billModel == null) {
@@ -218,14 +227,12 @@ ${item.rule}
                     putExtra("parent", "")
                     putExtra("billInfo", Gson().toJson(billModel))
                     putExtra("showWaitTip", false)
-                    putExtra("from","AppData")
+                    putExtra("from", "AppData")
                 }
             Logger.d("Start FloatingWindowService")
             requireActivity().startService(serviceIntent)
         }
     }
-
-
 
 
     override fun onCreateView(
@@ -249,10 +256,18 @@ ${item.rule}
                     i++
                     var app = App.getAppInfoFromPackageName(key)
 
-                    if (app == null){
-                        if (App.debug){
-                            app = arrayOf(key, ResourcesCompat.getDrawable(App.app.resources,R.drawable.default_asset,null),"")
-                        }else{
+                    if (app == null) {
+                        if (App.debug) {
+                            app = arrayOf(
+                                key,
+                                ResourcesCompat.getDrawable(
+                                    App.app.resources,
+                                    R.drawable.default_asset,
+                                    null
+                                ),
+                                ""
+                            )
+                        } else {
                             continue
                         }
 
@@ -284,6 +299,7 @@ ${item.rule}
             loadDataInside()
         }
     }
+
     private fun setupChipEvent() {
         binding.chipGroup.setOnCheckedStateChangeListener { group, checkedId ->
 
@@ -311,11 +327,11 @@ ${item.rule}
         }
     }
 
-    private fun setUpSearch(){
+    private fun setUpSearch() {
         val searchItem = binding.toolbar.menu.findItem(R.id.action_search)
-        if(searchItem != null){
+        if (searchItem != null) {
             val searchView = searchItem.actionView as MaterialSearchView
-            searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
+            searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String?): Boolean {
                     return true
                 }
@@ -331,7 +347,7 @@ ${item.rule}
     }
 
     override fun onMenuItemClick(item: MenuItem?): Boolean {
-        when(item?.itemId){
+        when (item?.itemId) {
             R.id.item_clear -> {
                 BottomSheetDialogBuilder(requireActivity())
                     .setTitle(requireActivity().getString(R.string.delete_data))
@@ -344,11 +360,12 @@ ${item.rule}
                         }
                     }
                     .setNegativeButton(requireActivity().getString(R.string.cancel_msg)) { _, _ -> }
-                    .showInFragment(this,false,true)
+                    .showInFragment(this, false, true)
                 return true
             }
+
             else -> {
-               return false
+                return false
             }
         }
     }

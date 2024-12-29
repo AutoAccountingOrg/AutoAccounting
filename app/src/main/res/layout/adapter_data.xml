@@ -16,24 +16,24 @@
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/groupCard"
     style="?attr/materialCardViewElevatedStyle"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:id="@+id/groupCard"
-    android:layout_marginBottom="@dimen/padding"
-    android:layout_marginEnd="@dimen/padding"
     android:layout_marginStart="@dimen/padding"
-    app:cardCornerRadius="@dimen/radius"
+    android:layout_marginEnd="@dimen/padding"
+    android:layout_marginBottom="@dimen/padding"
     app:cardBackgroundColor="?attr/colorSurfaceContainer"
+    app:cardCornerRadius="@dimen/radius"
     app:cardElevation="0dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/padding"
+        android:orientation="vertical"
         android:paddingStart="@dimen/padding"
-android:paddingEnd="@dimen/padding"
-        android:orientation="vertical">
+        android:paddingEnd="@dimen/padding">
 
         <net.ankio.auto.ui.componets.IconView
             android:id="@+id/time"
@@ -50,9 +50,9 @@ android:paddingEnd="@dimen/padding"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:visibility="visible"
-            app:textColor="?colorOnSurface"
-            app:iconTintEnabled="true"
             app:iconSrc="@drawable/home_rule"
+            app:iconTintEnabled="true"
+            app:textColor="?colorOnSurface"
             tools:text="这是一个规则名嘻嘻嘻嘻嘻嘻嘻休息休息谢谢谢谢谢称" />
 
         <TextView
@@ -61,18 +61,20 @@ android:paddingEnd="@dimen/padding"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:maxLines="3"
-            tools:text="这是一个规则内容"
-            android:padding="@dimen/padding" />
+            android:padding="@dimen/padding"
+            tools:text="这是一个规则内容" />
+
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
 
-            
+
             >
 
             <View
                 android:layout_width="0dp"
-                android:layout_height="0dp" android:layout_weight="1" />
+                android:layout_height="0dp"
+                android:layout_weight="1" />
 
             <com.google.android.material.button.MaterialButton
 
@@ -86,12 +88,11 @@ android:paddingEnd="@dimen/padding"
 
             <com.google.android.material.button.MaterialButton
 
-                style="?attr/materialIconButtonFilledTonalStyle"
-                app:icon="@drawable/icon_test"
                 android:id="@+id/testRule"
+                style="?attr/materialIconButtonFilledTonalStyle"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                 />
+                app:icon="@drawable/icon_test" />
 
             <com.google.android.material.button.MaterialButton
 

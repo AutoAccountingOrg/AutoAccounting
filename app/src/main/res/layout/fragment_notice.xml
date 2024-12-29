@@ -7,8 +7,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/colorSurface"
-        app:liftOnScrollTargetViewId="@id/content_view"
-        app:liftOnScroll="true">
+        app:liftOnScroll="true"
+        app:liftOnScrollTargetViewId="@id/content_view">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/topAppBar"
@@ -16,11 +16,10 @@
             android:layout_height="wrap_content"
             android:minHeight="?attr/actionBarSize"
 
+            android:tag="back_button"
             app:menu="@menu/notice_menu"
             app:navigationIcon="@drawable/abc_ic_ab_back_material"
-            app:title="@string/title_notice"
-            android:tag="back_button"
-            />
+            app:title="@string/title_notice" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -28,14 +27,12 @@
         android:id="@+id/swipe_refresh_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        >
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <net.ankio.auto.ui.componets.StatusPage
             android:id="@+id/status_page"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-        </net.ankio.auto.ui.componets.StatusPage>
+            android:layout_height="match_parent"></net.ankio.auto.ui.componets.StatusPage>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 

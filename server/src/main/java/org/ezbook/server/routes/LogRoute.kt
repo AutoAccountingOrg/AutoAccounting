@@ -24,6 +24,7 @@ import org.ezbook.server.models.ResultModel
 
 class LogRoute(private val session: ApplicationCall) {
     private val params: Parameters = session.request.queryParameters
+
     /**
      * 获取日志列表
      */
@@ -43,7 +44,7 @@ class LogRoute(private val session: ApplicationCall) {
     suspend fun add(): ResultModel {
         val log = session.receive(LogModel::class)
         val id = Db.get().logDao().insert(log)
-        return ResultModel(200, "OK",id)
+        return ResultModel(200, "OK", id)
     }
 
     /**
@@ -51,6 +52,6 @@ class LogRoute(private val session: ApplicationCall) {
      */
     suspend fun clear(): ResultModel {
         Db.get().logDao().clear()
-        return ResultModel(200, "OK",null)
+        return ResultModel(200, "OK", null)
     }
 }

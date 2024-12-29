@@ -29,8 +29,9 @@ class DateTimePickerDialog(
     private val title: String? = null
 ) : BaseSheetDialog(context) {
     lateinit var binding: CustomDateTimePickerBinding
-    private var onDateTimeSelectedListener: ((year: Int, month: Int, day: Int, hour: Int, minute: Int) -> Unit)? = null
-    
+    private var onDateTimeSelectedListener: ((year: Int, month: Int, day: Int, hour: Int, minute: Int) -> Unit)? =
+        null
+
     // 当前选中的日期时间
     private var currentYear = Calendar.getInstance().get(Calendar.YEAR)
     private var currentMonth = Calendar.getInstance().get(Calendar.MONTH) + 1
@@ -45,7 +46,7 @@ class DateTimePickerDialog(
 
     override fun onViewCreated(view: View) {
         super.onViewCreated(view)
-        
+
         // 设置标题
         title?.let {
             binding.dialogTitle.text = it
@@ -53,12 +54,12 @@ class DateTimePickerDialog(
         } ?: run {
             binding.dialogTitle.visibility = View.GONE
         }
-        
+
         if (timeOnly) {
             binding.llDate.visibility = View.GONE
             binding.llDateTitle.visibility = View.GONE
         }
-        
+
         initializePickers()
         setupListeners()
     }
@@ -130,7 +131,7 @@ class DateTimePickerDialog(
         val calendar = Calendar.getInstance()
         calendar.set(Calendar.YEAR, currentYear)
         calendar.set(Calendar.MONTH, currentMonth - 1)
-        
+
         val maxDays = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
         binding.npDay.apply {
             minValue = 1
@@ -151,7 +152,7 @@ class DateTimePickerDialog(
         currentDay = day
         currentHour = hour
         currentMinute = minute
-        
+
         if (::binding.isInitialized) {
             binding.npYear.value = year
             binding.npMonth.value = month
@@ -164,7 +165,7 @@ class DateTimePickerDialog(
     companion object {
         // 创建当前时间的对话框
         fun withCurrentTime(
-            context: Context, 
+            context: Context,
             timeOnly: Boolean = false,
             title: String? = null
         ): DateTimePickerDialog {

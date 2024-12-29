@@ -24,6 +24,7 @@ import org.ezbook.server.models.ResultModel
 
 class AppDataRoute(private val session: ApplicationCall) {
     private val params: Parameters = session.request.queryParameters
+
     /**
      * 获取规则列表
      */
@@ -31,7 +32,7 @@ class AppDataRoute(private val session: ApplicationCall) {
 
         // 清理过期数据
         Db.get().dataDao().clearOld()
-        
+
         val page = params["page"]?.toInt() ?: 1
         val limit = params["limit"]?.toInt() ?: 10
 
@@ -45,7 +46,7 @@ class AppDataRoute(private val session: ApplicationCall) {
 
         val offset = (page - 1) * limit
 
-        val logs = Db.get().dataDao().load(limit, offset, app, match,type, search)
+        val logs = Db.get().dataDao().load(limit, offset, app, match, type, search)
         return ResultModel(200, "OK", logs)
     }
 

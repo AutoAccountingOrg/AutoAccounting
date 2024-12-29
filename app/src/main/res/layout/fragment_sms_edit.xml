@@ -14,24 +14,25 @@
   -->
 
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     tools:context=".ui.fragment.CategoryEditFragment">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/toolbarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@android:color/transparent"
+            android:tag="back_button"
             app:navigationIcon="@drawable/abc_ic_ab_back_material"
-            app:title="@string/title_sms_edit"
-            android:tag="back_button" />
+            app:title="@string/title_sms_edit" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
@@ -43,8 +44,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="@dimen/padding"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="@dimen/padding">
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/ruleCard"
@@ -56,31 +57,31 @@
                 app:cardBackgroundColor="?attr/colorSurfaceVariant"
                 app:cardCornerRadius="@dimen/radius"
                 app:cardElevation="0dp">
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="@dimen/padding">
 
-                   <com.google.android.material.chip.ChipGroup
-                       android:layout_width="match_parent"
-                       android:layout_height="wrap_content"
-                       android:id="@+id/chipGroup"
+                    <com.google.android.material.chip.ChipGroup
+                        android:id="@+id/chipGroup"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
 
-                       >
+                        >
 
-                   </com.google.android.material.chip.ChipGroup>
+                    </com.google.android.material.chip.ChipGroup>
                 </LinearLayout>
 
             </com.google.android.material.card.MaterialCardView>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/addChip"
+                style="@style/Widget.Material3.Button"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/btn_height_small"
                 android:text="@string/add_sms"
-                android:textSize="@dimen/save_size"
-                style="@style/Widget.Material3.Button"
-                />
+                android:textSize="@dimen/save_size" />
 
         </LinearLayout>
 

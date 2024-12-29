@@ -30,7 +30,7 @@ import net.ankio.auto.ui.api.BaseActivity
 
 class MainActivity : BaseActivity() {
     // 视图绑定
-    private val binding  : ActivityMainBinding by lazy {
+    private val binding: ActivityMainBinding by lazy {
         ActivityMainBinding.inflate(layoutInflater)
     }
 
@@ -75,6 +75,7 @@ class MainActivity : BaseActivity() {
         onBottomViewInit()
         BackupUtils.initRequestPermission(this)
     }
+
     /**
      * 导航栏初始化
      */
@@ -93,7 +94,7 @@ class MainActivity : BaseActivity() {
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment?
             ?: throw IllegalStateException("NavHostFragment not found")
 
-       // binding.navHostFragment.setPadding(0,0,0,0)
+        // binding.navHostFragment.setPadding(0,0,0,0)
 
         val navController = navHostFragment.navController
         NavigationUI.setupWithNavController(bottomNavigationView, navController)
@@ -108,6 +109,7 @@ class MainActivity : BaseActivity() {
             updateBottomNavigationVisibility(destination.id)
         }
     }
+
     /**
      * 更新导航图标
      */
@@ -124,7 +126,7 @@ class MainActivity : BaseActivity() {
      */
     private fun updateBottomNavigationVisibility(destinationId: Int) {
         val shouldShow = barList.any { it.id == destinationId }
-        
+
         if (shouldShow && bottomNavigationView.visibility == View.GONE) {
             // 显示动画
             bottomNavigationView.apply {

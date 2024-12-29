@@ -64,9 +64,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:singleLine="true"
             android:ellipsize="end"
             android:gravity="center"
+            android:singleLine="true"
             android:text="哈哈哈"
             android:textColor="?attr/colorPrimary"
             android:textSize="@dimen/font_size_normal" />

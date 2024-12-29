@@ -24,16 +24,17 @@ import org.ezbook.server.models.ResultModel
 
 class RuleRoute(private val session: ApplicationCall) {
     private val params: Parameters = session.request.queryParameters
+
     /**
      * 获取规则列表
      */
-    suspend  fun list(): ResultModel {
+    suspend fun list(): ResultModel {
         val page = params["page"]?.toInt() ?: 1
         val limit = params["limit"]?.toInt() ?: 10
 
         val app = params["app"] ?: ""
-        var type: String? = params["type"]?: ""
-        var search: String? = params["search"]?: ""
+        var type: String? = params["type"] ?: ""
+        var search: String? = params["search"] ?: ""
 
         val offset = (page - 1) * limit
 
@@ -42,7 +43,7 @@ class RuleRoute(private val session: ApplicationCall) {
         if (search == "") search = null
 
         val logs = Db.get().ruleDao().loadByAppAndFilters(limit, offset, app, type, search)
-        
+
         return ResultModel(200, "OK", logs)
     }
 
@@ -67,7 +68,7 @@ class RuleRoute(private val session: ApplicationCall) {
     /**
      * 删除规则
      */
-    suspend  fun delete(): ResultModel {
+    suspend fun delete(): ResultModel {
         val id = params["id"]?.toInt() ?: 0
         Db.get().ruleDao().delete(id)
         return ResultModel(200, "OK")

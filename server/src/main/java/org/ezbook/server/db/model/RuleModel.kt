@@ -59,7 +59,7 @@ class RuleModel {
     // 规则更新时间
     var updateAt: Long = System.currentTimeMillis()
 
-        companion object {
+    companion object {
         /**
          * 根据条件查询
          * @param app 应用
@@ -90,7 +90,7 @@ class RuleModel {
         /**
          * 获取所有系统规则
          */
-        suspend fun system(name:String): RuleModel? = withContext(Dispatchers.IO) {
+        suspend fun system(name: String): RuleModel? = withContext(Dispatchers.IO) {
             val response = Server.request("rule/system?name=${Uri.encode(name)}")
 
             runCatching {
@@ -103,7 +103,7 @@ class RuleModel {
             Server.request("rule/deleteSystemRule")
         }
 
-       suspend fun put(rule: RuleModel) = withContext(Dispatchers.IO) {
+        suspend fun put(rule: RuleModel) = withContext(Dispatchers.IO) {
             Server.request("rule/put", Gson().toJson(rule))
         }
 

@@ -28,6 +28,7 @@ object DonateUtils {
         CustomTabsHelper.launchUrlOrCopy(context, uri)
         ToastUtils.info(R.string.copy_donate_qr)
     }
+
     fun alipay(context: Context) {
         val intent = Intent(Intent.ACTION_VIEW).apply {
             data = Uri.parse("https://qr.alipay.com/fkx15657xcegbz5k9zxnd30")

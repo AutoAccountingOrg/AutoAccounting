@@ -86,7 +86,6 @@ class FloatEditorDialog(
     }
 
 
-
     override fun onCreateView(inflater: LayoutInflater): View {
         binding = FloatEditorBinding.inflate(inflater)
         return binding.root

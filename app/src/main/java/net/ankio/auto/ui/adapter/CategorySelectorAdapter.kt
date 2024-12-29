@@ -21,7 +21,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.GridLayoutManager
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.App
 import net.ankio.auto.R
@@ -101,7 +100,7 @@ class CategorySelectorAdapter(
      * 渲染面板
      */
     private fun renderPanel(
-        holder:  BaseViewHolder<AdapterCategoryListBinding, CategoryModel>,
+        holder: BaseViewHolder<AdapterCategoryListBinding, CategoryModel>,
         data: CategoryModel,
         context: Context
     ) {
@@ -135,7 +134,7 @@ class CategorySelectorAdapter(
      * 渲染分类图标
      */
     private fun renderCategory(
-        holder:  BaseViewHolder<AdapterCategoryListBinding, CategoryModel>,
+        holder: BaseViewHolder<AdapterCategoryListBinding, CategoryModel>,
         data: CategoryModel,
         position: Int
     ) {

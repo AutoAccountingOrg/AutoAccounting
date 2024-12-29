@@ -24,7 +24,7 @@ import net.ankio.auto.xposed.core.utils.ThreadUtils
 import org.ezbook.server.Server
 
 object CommonHooker {
-    fun init(){
+    fun init() {
         Logger.logD(TAG, "Start server...: ${AndroidAppHelper.currentPackageName()}")
         try {
             /**
@@ -43,12 +43,12 @@ object CommonHooker {
             ThreadUtils.launch {
                 XposedFramework.init()
             }
-            AppInstaller.init(AppRuntime.application!!,server)
+            AppInstaller.init(AppRuntime.application!!, server)
             Logger.logD(TAG, "Server start success")
         } catch (e: Throwable) {
             XposedBridge.log("Server start failed")
             XposedBridge.log(e)
-            Logger.logD(TAG,e.message?:"")
+            Logger.logD(TAG, e.message ?: "")
         }
     }
 }

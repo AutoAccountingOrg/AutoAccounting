@@ -17,7 +17,6 @@
 package net.ankio.auto.ui.adapter
 
 import android.app.Activity
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
@@ -83,7 +82,7 @@ class AssetsMapAdapter(
         holder.launch {
             val drawable = ResourceUtils.getAssetDrawableFromName(data.mapName)
             withContext(Dispatchers.Main) {
-                binding.target.setIcon(drawable,false)
+                binding.target.setIcon(drawable, false)
             }
         }
 

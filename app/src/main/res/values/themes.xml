@@ -1,4 +1,3 @@
-
 <!--
   ~ Copyright (C) 2023 ankio(ankio@ankio.net)
   ~ Licensed under the Apache License, Version 3.0 (the "License");
@@ -15,10 +14,13 @@
   -->
 
 <resources xmlns:tools="http://schemas.android.com/tools">
+
     <style name="AppTheme" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="android:statusBarColor">@android:color/transparent</item>
-       <!-- <item name="android:windowBackground">@mipmap/ic_launcher_background</item>
--->    </style>
+        <!-- <item name="android:windowBackground">@mipmap/ic_launcher_background</item>
+ -->
+    </style>
+
     <style name="BottomSheetDialog" parent="Theme.Material3.DayNight.BottomSheetDialog">
         <item name="bottomSheetStyle">@android:color/transparent</item>
         <item name="enableEdgeToEdge">true</item>
@@ -70,6 +72,7 @@
         <item name="cardElevation">0dp</item>
         <item name="cardBackgroundColor">?attr/colorSurfaceVariant</item>
     </style>
+
     <style name="CustomDialogTheme" parent="Theme.AppCompat.Dialog">
         <!-- 设置对话框背景 -->
         <item name="android:windowBackground">@android:color/transparent</item>

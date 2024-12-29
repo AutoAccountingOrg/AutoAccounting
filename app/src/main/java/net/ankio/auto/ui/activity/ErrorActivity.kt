@@ -21,7 +21,7 @@ import net.ankio.auto.databinding.ActivityErrorBinding
 import net.ankio.auto.ui.api.BaseActivity
 
 class ErrorActivity : BaseActivity() {
-   override fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreate(savedInstanceState: Bundle?) {
         val binding = ActivityErrorBinding.inflate(layoutInflater)
         super.onCreate(savedInstanceState)
         setContentView(binding.root)

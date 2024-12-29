@@ -65,7 +65,7 @@ class BillRoute(private val session: ApplicationCall) {
         return ResultModel(200, "OK", result)
     }
 
-    suspend  fun status(): ResultModel {
+    suspend fun status(): ResultModel {
         val params = session.parameters
         val id = params["id"]?.toLong() ?: 0
         val status = params["sync"]?.toBoolean() ?: false
@@ -80,16 +80,16 @@ class BillRoute(private val session: ApplicationCall) {
         return ResultModel(200, "OK", result)
     }
 
-    suspend  fun get(): ResultModel {
+    suspend fun get(): ResultModel {
         val params = session.parameters
         val id = params["id"]?.toLong() ?: 0
         val result = Db.get().billInfoDao().queryId(id)
         return ResultModel(200, "OK", result)
     }
 
-    suspend  fun clear(): ResultModel {
+    suspend fun clear(): ResultModel {
         Db.get().billInfoDao().clearOld(System.currentTimeMillis())
-        return ResultModel(200,"OK")
+        return ResultModel(200, "OK")
     }
 
 

@@ -19,7 +19,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import de.robv.android.xposed.XposedBridge
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.xposed.core.logger.Logger
 import net.ankio.auto.xposed.core.utils.AppRuntime
@@ -62,7 +61,7 @@ object AppInstaller {
                 addAction(Intent.ACTION_PACKAGE_REPLACED)
                 addDataScheme("package")
             }
-            
+
             context.registerReceiver(receiver, filter)
         } catch (e: Exception) {
             Logger.logE("AppInstaller", e)

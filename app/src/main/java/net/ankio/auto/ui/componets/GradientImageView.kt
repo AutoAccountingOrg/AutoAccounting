@@ -23,14 +23,14 @@ import android.graphics.ComposeShader
 import android.graphics.LinearGradient
 import android.graphics.Matrix
 import android.graphics.Paint
+import android.graphics.Path
 import android.graphics.PorterDuff
+import android.graphics.RectF
 import android.graphics.Shader
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatImageView
-import android.graphics.Path
-import android.graphics.RectF
 import net.ankio.auto.R
 
 class GradientImageView : AppCompatImageView {
@@ -43,15 +43,20 @@ class GradientImageView : AppCompatImageView {
             0, 0
         )?.apply {
             try {
-                cornerRadiusTopLeft = getDimension(R.styleable.GradientImageView_cornerRadiusTopLeft, 0f)
-                cornerRadiusTopRight = getDimension(R.styleable.GradientImageView_cornerRadiusTopRight, 0f)
-                cornerRadiusBottomRight = getDimension(R.styleable.GradientImageView_cornerRadiusBottomRight, 0f)
-                cornerRadiusBottomLeft = getDimension(R.styleable.GradientImageView_cornerRadiusBottomLeft, 0f)
+                cornerRadiusTopLeft =
+                    getDimension(R.styleable.GradientImageView_cornerRadiusTopLeft, 0f)
+                cornerRadiusTopRight =
+                    getDimension(R.styleable.GradientImageView_cornerRadiusTopRight, 0f)
+                cornerRadiusBottomRight =
+                    getDimension(R.styleable.GradientImageView_cornerRadiusBottomRight, 0f)
+                cornerRadiusBottomLeft =
+                    getDimension(R.styleable.GradientImageView_cornerRadiusBottomLeft, 0f)
             } finally {
                 recycle()
             }
         }
     }
+
     constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(
         context!!,
         attrs,

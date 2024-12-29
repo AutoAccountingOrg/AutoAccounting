@@ -22,7 +22,6 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogMapBinding
-import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.utils.ResourceUtils
 import net.ankio.auto.ui.utils.ToastUtils
@@ -54,16 +53,16 @@ class AssetsMapDialog(
 
     private fun setBindingData() = with(binding) {
         raw.setText(assetsMapModel.name)
-        if(assetsMapModel.mapName.isEmpty()) {
+        if (assetsMapModel.mapName.isEmpty()) {
             target.setText(context.getString(R.string.map_target))
         } else {
             target.setText(assetsMapModel.mapName)
         }
         regex.isChecked = assetsMapModel.regex
-        
+
         lifecycleScope.launch {
             ResourceUtils.getAssetDrawableFromName(assetsMapModel.mapName)
-                .let { target.setIcon(it,false) }
+                .let { target.setIcon(it, false) }
         }
     }
 
@@ -76,10 +75,10 @@ class AssetsMapDialog(
     private fun handleSaveAction() = with(binding) {
         val name = raw.text.toString()
         val mapName = target.getText()
-        
+
         if (name.isEmpty() || mapName == context.getString(R.string.map_target)) {
             ToastUtils.error(context.getString(R.string.map_empty))
-        } else{
+        } else {
             assetsMapModel.apply {
                 this.name = name
                 this.mapName = mapName
@@ -94,13 +93,13 @@ class AssetsMapDialog(
     }
 
     private fun showAssetSelector() {
-       val dialog = AssetsSelectorDialog(context) { asset ->
+        val dialog = AssetsSelectorDialog(context) { asset ->
             assetsMapModel.mapName = asset.name
             binding.target.setText(asset.name)
 
             lifecycleScope.launch {
                 ResourceUtils.getAssetDrawable(asset.icon)
-                    .let { binding.target.setIcon(it,false) }
+                    .let { binding.target.setIcon(it, false) }
             }
         }
         if (lifecycleOwner != null) {

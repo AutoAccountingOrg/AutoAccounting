@@ -7,17 +7,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/colorSurface"
-        app:liftOnScrollTargetViewId="@id/content_view"
-        app:liftOnScroll="true">
+        app:liftOnScroll="true"
+        app:liftOnScrollTargetViewId="@id/content_view">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/topAppBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:minHeight="?attr/actionBarSize"
-            app:navigationIcon="@drawable/abc_ic_ab_back_material"
             android:tag="back_button"
-            />
+            app:navigationIcon="@drawable/abc_ic_ab_back_material" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -28,12 +27,13 @@
         android:clipToPadding="false"
 
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
         <LinearLayout
             android:id="@+id/container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_margin="@dimen/padding"
             android:orientation="vertical"
-           android:layout_margin="@dimen/padding"
             android:padding="@dimen/padding">
 
         </LinearLayout>

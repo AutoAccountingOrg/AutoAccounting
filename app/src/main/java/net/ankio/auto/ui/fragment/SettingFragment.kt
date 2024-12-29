@@ -47,46 +47,52 @@ class SettingFragment : BaseFragment(), View.OnClickListener {
     override fun onClick(v: View?) {
         if (v == null) return
         when (v.id) {
-            R.id.setting_bill-> {
-                navigate(R.id.action_settingFragment_to_settingDetailFragment,Bundle().apply {
-                    putString("title",getString(R.string.setting_title_bill))
-                    putInt("id",R.id.setting_bill)
+            R.id.setting_bill -> {
+                navigate(R.id.action_settingFragment_to_settingDetailFragment, Bundle().apply {
+                    putString("title", getString(R.string.setting_title_bill))
+                    putInt("id", R.id.setting_bill)
                 })
             }
-            R.id.setting_popup-> {
-                navigate(R.id.action_settingFragment_to_settingDetailFragment,Bundle().apply {
-                    putString("title",getString(R.string.setting_title_popup))
-                    putInt("id",R.id.setting_popup)
+
+            R.id.setting_popup -> {
+                navigate(R.id.action_settingFragment_to_settingDetailFragment, Bundle().apply {
+                    putString("title", getString(R.string.setting_title_popup))
+                    putInt("id", R.id.setting_popup)
                 })
             }
-            R.id.setting_features-> {
-                navigate(R.id.action_settingFragment_to_settingDetailFragment,Bundle().apply {
-                    putString("title",getString(R.string.setting_title_features))
-                    putInt("id",R.id.setting_features)
+
+            R.id.setting_features -> {
+                navigate(R.id.action_settingFragment_to_settingDetailFragment, Bundle().apply {
+                    putString("title", getString(R.string.setting_title_features))
+                    putInt("id", R.id.setting_features)
                 })
             }
-            R.id.setting_appearance-> {
-                navigate(R.id.action_settingFragment_to_settingDetailFragment,Bundle().apply {
-                    putString("title",getString(R.string.setting_title_appearance))
-                    putInt("id",R.id.setting_appearance)
+
+            R.id.setting_appearance -> {
+                navigate(R.id.action_settingFragment_to_settingDetailFragment, Bundle().apply {
+                    putString("title", getString(R.string.setting_title_appearance))
+                    putInt("id", R.id.setting_appearance)
                 })
             }
-            R.id.setting_experimental-> {
-                navigate(R.id.action_settingFragment_to_settingDetailFragment,Bundle().apply {
-                    putString("title",getString(R.string.setting_title_experimental))
-                    putInt("id",R.id.setting_experimental)
+
+            R.id.setting_experimental -> {
+                navigate(R.id.action_settingFragment_to_settingDetailFragment, Bundle().apply {
+                    putString("title", getString(R.string.setting_title_experimental))
+                    putInt("id", R.id.setting_experimental)
                 })
             }
-            R.id.setting_backup-> {
-                navigate(R.id.action_settingFragment_to_settingDetailFragment,Bundle().apply {
-                    putString("title",getString(R.string.setting_title_backup))
-                    putInt("id",R.id.setting_backup)
+
+            R.id.setting_backup -> {
+                navigate(R.id.action_settingFragment_to_settingDetailFragment, Bundle().apply {
+                    putString("title", getString(R.string.setting_title_backup))
+                    putInt("id", R.id.setting_backup)
                 })
             }
-            R.id.setting_others-> {
-                navigate(R.id.action_settingFragment_to_settingDetailFragment,Bundle().apply {
-                    putString("title",getString(R.string.setting_title_others))
-                    putInt("id",R.id.setting_others)
+
+            R.id.setting_others -> {
+                navigate(R.id.action_settingFragment_to_settingDetailFragment, Bundle().apply {
+                    putString("title", getString(R.string.setting_title_others))
+                    putInt("id", R.id.setting_others)
                 })
             }
 

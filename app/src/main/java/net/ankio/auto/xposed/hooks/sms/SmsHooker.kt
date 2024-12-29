@@ -18,12 +18,11 @@ package net.ankio.auto.xposed.hooks.sms
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
-import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.hooks.common.CommonHooker
 import net.ankio.auto.xposed.hooks.sms.hooks.SmsIntentHooker
 import net.ankio.dex.model.Clazz
 
-class SmsHooker: HookerManifest() {
+class SmsHooker : HookerManifest() {
     override val packageName: String
         get() = "com.android.phone"
     override val appName: String

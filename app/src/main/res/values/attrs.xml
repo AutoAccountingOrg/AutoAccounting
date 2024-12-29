@@ -22,27 +22,27 @@
         <attr name="waveBottomPadding" format="float" />
     </declare-styleable>
     <declare-styleable name="IconView">
-        <attr name="iconSrc" format="reference"/>
-        <attr name="iconTintEnabled" format="boolean"/>
-        <attr name="text" format="string"/>
-        <attr name="textColor" format="color"/>
-        <attr name="textSize" format="dimension"/>
-        <attr name="iconSize" format="dimension"/>
+        <attr name="iconSrc" format="reference" />
+        <attr name="iconTintEnabled" format="boolean" />
+        <attr name="text" format="string" />
+        <attr name="textColor" format="color" />
+        <attr name="textSize" format="dimension" />
+        <attr name="iconSize" format="dimension" />
         <attr name="maxLines" format="integer" />
     </declare-styleable>
     <declare-styleable name="StatusPage">
-        <attr name="innerHeight" format="string"/>
+        <attr name="innerHeight" format="string" />
     </declare-styleable>
     <declare-styleable name="SettingItemView">
         <attr name="settingIcon" format="reference" />
         <attr name="settingTitle" format="string" />
         <attr name="settingDesc" format="string" />
     </declare-styleable>
-     <declare-styleable name="GradientImageView">
-        <attr name="cornerRadiusTopLeft" format="dimension"/>
-        <attr name="cornerRadiusTopRight" format="dimension"/>
-        <attr name="cornerRadiusBottomLeft" format="dimension"/>
-        <attr name="cornerRadiusBottomRight" format="dimension"/>
-        <attr name="cornerRadius" format="dimension"/>
+    <declare-styleable name="GradientImageView">
+        <attr name="cornerRadiusTopLeft" format="dimension" />
+        <attr name="cornerRadiusTopRight" format="dimension" />
+        <attr name="cornerRadiusBottomLeft" format="dimension" />
+        <attr name="cornerRadiusBottomRight" format="dimension" />
+        <attr name="cornerRadius" format="dimension" />
     </declare-styleable>
 </resources>

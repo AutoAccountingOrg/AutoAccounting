@@ -17,7 +17,7 @@ package org.ezbook.server.ai
 
 import org.ezbook.server.constant.AIModel
 
-class QWen : BaseAi(){
+class QWen : BaseAi() {
 
     override var api: String
         get() = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"

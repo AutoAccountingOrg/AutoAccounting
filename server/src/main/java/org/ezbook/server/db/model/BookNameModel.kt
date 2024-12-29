@@ -15,7 +15,6 @@
 
 package org.ezbook.server.db.model
 
-import android.util.Log
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.Gson
@@ -70,27 +69,27 @@ class BookNameModel {
 
         suspend fun getDefaultBook(bookName: String): BookNameModel {
             val books = list()
-            
+
             // 如果列表为空，创建新账本
             if (books.isEmpty()) {
-                return BookNameModel().apply { 
-                    name = bookName 
+                return BookNameModel().apply {
+                    name = bookName
                 }
             }
-            
+
             // 先尝试查找指定名称的账本
             books.firstOrNull { it.name == bookName }?.let {
                 return it
             }
-            
+
             // 如果是请求"默认账本"但未找到，返回列表第一个账本
             if (bookName == "默认账本") {
                 return books.first()
             }
-            
+
             // 其他情况创建新账本
-            return BookNameModel().apply { 
-                name = bookName 
+            return BookNameModel().apply {
+                name = bookName
             }
         }
 

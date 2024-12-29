@@ -18,20 +18,20 @@ package net.ankio.auto.xposed.core.hook
 import de.robv.android.xposed.XposedHelpers
 
 
-fun XposedHelpers.mapFields(obj:Any,callback:(key:String,value:Any?)->Unit){
+fun XposedHelpers.mapFields(obj: Any, callback: (key: String, value: Any?) -> Unit) {
     val fields = obj.javaClass.declaredFields
     for (field in fields) {
         field.isAccessible = true
         val value = field.get(obj)
-        callback(field.name,value)
+        callback(field.name, value)
     }
 }
 
-fun XposedHelpers.mapStaticFields(clazz:Class<*>,callback:(key:String,value:Any?)->Unit){
+fun XposedHelpers.mapStaticFields(clazz: Class<*>, callback: (key: String, value: Any?) -> Unit) {
     val fields = clazz.declaredFields
     for (field in fields) {
         field.isAccessible = true
-        val value = XposedHelpers.getStaticObjectField(clazz,field.name)
-        callback(field.name,value)
+        val value = XposedHelpers.getStaticObjectField(clazz, field.name)
+        callback(field.name, value)
     }
 }

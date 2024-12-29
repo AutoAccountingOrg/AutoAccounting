@@ -27,11 +27,11 @@ import org.ezbook.server.db.model.CategoryRuleModel
 interface CategoryRuleDao {
     //根据条件查询
     @Query("SELECT * FROM CategoryRuleModel  ORDER BY id DESC LIMIT :limit OFFSET :offset")
-    suspend  fun load(limit: Int, offset: Int): List<CategoryRuleModel>
+    suspend fun load(limit: Int, offset: Int): List<CategoryRuleModel>
 
 
     @Update
-    suspend  fun update(log: CategoryRuleModel): Int
+    suspend fun update(log: CategoryRuleModel): Int
 
     @Insert
     suspend fun insert(log: CategoryRuleModel): Long

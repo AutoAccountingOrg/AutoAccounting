@@ -25,26 +25,31 @@ import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import net.ankio.auto.R
 import net.ankio.auto.databinding.IconViewLayoutBinding
-import net.ankio.auto.storage.Logger
 
 class IconView : ConstraintLayout {
     private val binding: IconViewLayoutBinding
     private var color: Int = Color.BLACK
-    
+
     constructor(context: Context) : this(context, null)
-    
+
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
-    
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
+
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
+        context,
+        attrs,
+        defStyleAttr
+    ) {
         // 使用 ViewBinding 加载布局
         binding = IconViewLayoutBinding.inflate(LayoutInflater.from(context), this, true)
-        
+
         attrs?.let { initAttributes(it) }
     }
+
     fun getSpFromPx(px: Float, context: Context): Float {
         val scaledDensity = context.resources.displayMetrics.scaledDensity
         return px / scaledDensity
     }
+
     private fun initAttributes(attrs: AttributeSet) {
         context.obtainStyledAttributes(attrs, R.styleable.IconView).apply {
             try {
@@ -60,7 +65,7 @@ class IconView : ConstraintLayout {
                 val iconSizePx = getDimensionPixelSize(R.styleable.IconView_iconSize, 24.dpToPx())
                 val iconSizeDp = (iconSizePx / resources.displayMetrics.density).toInt()
                 setIconSize(iconSizeDp)
-                setColor(getColor(R.styleable.IconView_textColor, Color.BLACK),iconTintEnabled)
+                setColor(getColor(R.styleable.IconView_textColor, Color.BLACK), iconTintEnabled)
 
                 val maxLines = getInt(R.styleable.IconView_maxLines, 1)  // 默认值为 1
                 setMaxLines(maxLines)
@@ -70,20 +75,20 @@ class IconView : ConstraintLayout {
             }
         }
     }
-    
+
     fun setIcon(icon: Drawable?, tintEnabled: Boolean = true) {
         binding.iconViewImage.setImageDrawable(icon)
-       setImageColorFilter(color, tintEnabled)
+        setImageColorFilter(color, tintEnabled)
     }
-    
+
     fun setText(text: CharSequence?) {
 
         binding.iconViewText.apply {
             setTextColor(color)
-           setText(text)
+            setText(text)
         }
     }
-    
+
     fun getText(): String = binding.iconViewText.text.toString()
 
     private fun setImageColorFilter(color: Int, tintEnabled: Boolean = true) {
@@ -100,7 +105,7 @@ class IconView : ConstraintLayout {
             setImageColorFilter(col, tintEnabled)
         }
     }
-    
+
     /**
      * 设置文字大小
      * @param size 文字大小，单位 sp
@@ -109,7 +114,7 @@ class IconView : ConstraintLayout {
         // 使用 TypedValue.COMPLEX_UNIT_SP 明确指定单位为 SP
         binding.iconViewText.setTextSize(TypedValue.COMPLEX_UNIT_SP, size)
     }
-    
+
     /**
      * 设置图标大小
      * @param sizeDp 图标大小，单位 dp
@@ -123,16 +128,16 @@ class IconView : ConstraintLayout {
         }
         binding.iconViewImage.requestLayout()
     }
-    
+
     // 可选：添加工具方法
     private fun Float.spToPx(): Float {
         return this * resources.displayMetrics.scaledDensity
     }
-    
+
     private fun Int.dpToPx(): Int {
         return (this * resources.displayMetrics.density).toInt()
     }
-    
+
     /**
      * 设置文本的最大行数
      * @param maxLines 最大行数

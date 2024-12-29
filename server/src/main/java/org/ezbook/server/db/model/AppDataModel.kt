@@ -85,7 +85,7 @@ class AppDataModel {
         suspend fun list(
             app: String,
             type: String,
-            match:Boolean,
+            match: Boolean,
             page: Int,
             limit: Int,
             search: String

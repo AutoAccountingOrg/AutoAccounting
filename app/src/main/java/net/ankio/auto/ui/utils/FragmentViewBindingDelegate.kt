@@ -17,12 +17,10 @@ package net.ankio.auto.ui.utils
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.viewbinding.ViewBinding
-import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.MaterialToolbar
 import net.ankio.auto.ui.api.BaseFragment
 import kotlin.properties.ReadOnlyProperty
@@ -43,7 +41,12 @@ class FragmentViewBindingDelegate<T : ViewBinding>(
                         override fun onDestroy(owner: LifecycleOwner) {
                             // 查找所有的MaterialToolbar
                             if (binding != null) {
-                                val appToolbar = ViewUtils.findView(binding!!.root, 0, 5, MaterialToolbar::class.java)
+                                val appToolbar = ViewUtils.findView(
+                                    binding!!.root,
+                                    0,
+                                    5,
+                                    MaterialToolbar::class.java
+                                )
                                 if (appToolbar != null) {
                                     appToolbar.setOnMenuItemClickListener(null)
                                     appToolbar.setNavigationOnClickListener(null)
@@ -70,7 +73,8 @@ class FragmentViewBindingDelegate<T : ViewBinding>(
             throw IllegalStateException("Should not attempt to get bindings when Fragment views are destroyed.")
         }
 
-        return bindingInflater.invoke(thisRef.layoutInflater, null, false).also { this.binding = it }
+        return bindingInflater.invoke(thisRef.layoutInflater, null, false)
+            .also { this.binding = it }
     }
 }
 

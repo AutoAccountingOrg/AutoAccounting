@@ -25,21 +25,22 @@ import org.ezbook.server.models.ResultModel
 
 class CategoryRoute(private val session: ApplicationCall) {
     private val params: Parameters = session.request.queryParameters
+
     /**
      * 获取分类
      */
     suspend fun list(): ResultModel {
-        
-        val book = params["book"]?: ""
+
+        val book = params["book"] ?: ""
         if (book.isEmpty()) {
             return ResultModel(400, "book is empty")
         }
-        val type = params["type"]?: ""
+        val type = params["type"] ?: ""
         if (type.isEmpty()) {
             return ResultModel(400, "type is empty")
         }
 
-        val parent = params["parent"]?: "-1"
+        val parent = params["parent"] ?: "-1"
 
 
         return ResultModel(200, "OK", Db.get().categoryDao().load(book, type, parent))
@@ -49,7 +50,7 @@ class CategoryRoute(private val session: ApplicationCall) {
      * 设置分类
      */
     suspend fun put(): ResultModel {
-        val md5 = params["md5"]?: ""
+        val md5 = params["md5"] ?: ""
         val json = session.receive<Array<CategoryModel>>()
         val id = Db.get().categoryDao().put(json)
         SettingRoute.setByInner(Setting.HASH_CATEGORY, md5)
@@ -58,16 +59,16 @@ class CategoryRoute(private val session: ApplicationCall) {
 
 
     suspend fun get(): ResultModel {
-        
-        var book: String? = params["book"]?: ""
+
+        var book: String? = params["book"] ?: ""
         if (book == "") {
             book = null
         }
-        var type: String? = params["type"]?: ""
+        var type: String? = params["type"] ?: ""
         if (type == "") {
             type = null
         }
-        val name = params["name"]?: ""
+        val name = params["name"] ?: ""
         if (name.isEmpty()) {
             return ResultModel(400, "name is empty")
         }

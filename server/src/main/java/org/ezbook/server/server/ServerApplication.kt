@@ -16,7 +16,6 @@
 package org.ezbook.server.server
 
 import android.content.Context
-import com.google.gson.Gson
 import io.ktor.application.Application
 import io.ktor.application.call
 import io.ktor.application.install
@@ -24,7 +23,6 @@ import io.ktor.features.ContentNegotiation
 import io.ktor.features.StatusPages
 import io.ktor.gson.gson
 import io.ktor.http.HttpStatusCode
-import io.ktor.response.respond
 import io.ktor.response.respond
 import io.ktor.routing.get
 import io.ktor.routing.post
@@ -47,14 +45,14 @@ import org.ezbook.server.routes.LogRoute
 import org.ezbook.server.routes.RuleRoute
 import org.ezbook.server.routes.SettingRoute
 
-fun Application.module(context:Context) {
+fun Application.module(context: Context) {
     install(StatusPages) {
         exception<Throwable> { cause ->
             call.respond(
                 HttpStatusCode.InternalServerError,
-                ResultModel(500, cause.message?:"")
+                ResultModel(500, cause.message ?: "")
             )
-            Server.log(cause.message?:"")
+            Server.log(cause.message ?: "")
             Server.log(cause)
         }
         status(HttpStatusCode.NotFound) {
@@ -73,15 +71,15 @@ fun Application.module(context:Context) {
 
         get("/") {
             call.respond(
-                ResultModel(200,"欢迎使用自动记账",Server.versionName)
+                ResultModel(200, "欢迎使用自动记账", Server.versionName)
             )
         }
         post("/") {
             call.respond(
-                ResultModel(200,"欢迎使用自动记账",Server.versionName)
+                ResultModel(200, "欢迎使用自动记账", Server.versionName)
             )
         }
-        route("/log"){
+        route("/log") {
             post("/list") {
                 call.respond(LogRoute(call).list())
             }
@@ -93,7 +91,7 @@ fun Application.module(context:Context) {
             }
         }
 
-       route("/rule"){
+        route("/rule") {
             post("/list") {
                 call.respond(RuleRoute(call).list())
             }
@@ -120,7 +118,7 @@ fun Application.module(context:Context) {
             }
         }
 
-        route("/setting"){
+        route("/setting") {
             post("/get") {
                 call.respond(SettingRoute(call).get())
             }
@@ -132,16 +130,16 @@ fun Application.module(context:Context) {
             }
         }
 
-        route("/js"){
+        route("/js") {
             post("/analysis") {
-                call.respond(JsRoute(call,context).analysis())
+                call.respond(JsRoute(call, context).analysis())
             }
             post("/run") {
-                call.respond(JsRoute(call,context).run())
+                call.respond(JsRoute(call, context).run())
             }
         }
 
-        route("/data"){
+        route("/data") {
             post("/list") {
                 call.respond(AppDataRoute(call).list())
             }
@@ -159,7 +157,7 @@ fun Application.module(context:Context) {
             }
         }
 
-        route("/assets"){
+        route("/assets") {
             post("/list") {
                 call.respond(AssetsRoute(call).list())
             }
@@ -171,7 +169,7 @@ fun Application.module(context:Context) {
             }
         }
 
-        route("/assets/map"){
+        route("/assets/map") {
             post("/list") {
                 call.respond(AssetsMapRoute(call).list())
             }
@@ -183,7 +181,7 @@ fun Application.module(context:Context) {
             }
         }
 
-        route("/book"){
+        route("/book") {
             post("/list") {
                 call.respond(BookNameRoute(call).list())
             }
@@ -192,7 +190,7 @@ fun Application.module(context:Context) {
             }
         }
 
-        route("/category"){
+        route("/category") {
             post("/list") {
                 call.respond(CategoryRoute(call).list())
             }
@@ -204,7 +202,7 @@ fun Application.module(context:Context) {
             }
         }
 
-        route("/category/map"){
+        route("/category/map") {
             post("/delete") {
                 call.respond(CategoryMapRoute(call).delete())
             }
@@ -216,7 +214,7 @@ fun Application.module(context:Context) {
             }
         }
 
-        route("/category/rule"){
+        route("/category/rule") {
             post("/list") {
                 call.respond(CategoryRuleRoute(call).list())
             }
@@ -228,7 +226,7 @@ fun Application.module(context:Context) {
             }
         }
 
-        route("/bill"){
+        route("/bill") {
             post("/list") {
                 call.respond(BillRoute(call).list())
             }
@@ -268,15 +266,15 @@ fun Application.module(context:Context) {
             }
         }
 
-        route("/db"){
+        route("/db") {
             get("/export") {
-                DatabaseRoute(call,context).exportDb()
+                DatabaseRoute(call, context).exportDb()
             }
-            post("/import"){
-                DatabaseRoute(call,context).importDb()
+            post("/import") {
+                DatabaseRoute(call, context).importDb()
             }
-            post("/clear"){
-                DatabaseRoute(call,context).clearDb()
+            post("/clear") {
+                DatabaseRoute(call, context).clearDb()
             }
         }
     }

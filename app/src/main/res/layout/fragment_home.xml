@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (C) 2023 ankio(ankio@ankio.net)
   ~ Licensed under the Apache License, Version 3.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -13,8 +12,7 @@
   ~  See the License for the specific language governing permissions and
   ~   limitations under the License.
   -->
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -31,7 +29,7 @@
             android:layout_height="?attr/actionBarSize"
             android:background="@android:color/transparent"
             app:menu="@menu/home_menu"
-            
+
             app:title="@string/app_name" />
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -50,19 +48,19 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                app:layout_constraintWidth_max="@dimen/max_content_width"
-                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintWidth_max="@dimen/max_content_width">
 
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/active_card"
+                    style="?attr/materialCardViewFilledStyle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    style="?attr/materialCardViewFilledStyle">
+                    app:layout_constraintTop_toTopOf="parent">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/active"
@@ -79,10 +77,10 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="@dimen/border_side"
                             android:src="@drawable/home_active_success"
-                            app:tint="?colorOnPrimaryContainer"
+                            app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
-                            app:layout_constraintBottom_toBottomOf="parent" />
+                            app:tint="?colorOnPrimaryContainer" />
 
                         <com.google.android.material.textview.MaterialTextView
                             android:id="@+id/msg_label"
@@ -90,12 +88,12 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="@dimen/border_side"
                             android:layout_marginEnd="@dimen/border_side"
-                            tools:text="@string/active_error"
                             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                             android:textColor="?colorOnPrimaryContainer"
-                            app:layout_constraintStart_toEndOf="@id/imageView"
                             app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
+                            app:layout_constraintStart_toEndOf="@id/imageView"
+                            app:layout_constraintTop_toTopOf="parent"
+                            tools:text="@string/active_error" />
 
                         <com.google.android.material.textview.MaterialTextView
                             android:id="@+id/msg_label2"
@@ -104,8 +102,8 @@
                             android:layout_marginStart="@dimen/border_side"
                             android:layout_marginEnd="@dimen/border_side"
                             android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                            app:layout_constraintStart_toEndOf="@id/imageView"
                             app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toEndOf="@id/imageView"
                             app:layout_constraintTop_toBottomOf="@id/msg_label" />
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -114,13 +112,13 @@
 
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/donate_card"
+                    style="@style/HomeCard"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    app:layout_constraintTop_toBottomOf="@id/active_card"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
                     android:layout_marginTop="@dimen/card_vertical_spacing"
-                    style="@style/HomeCard">
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/active_card">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -136,15 +134,15 @@
                             <com.google.android.material.textview.MaterialTextView
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
+                                android:layout_marginEnd="@dimen/padding"
                                 android:text="@string/donate_title"
                                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                                 android:textColor="?attr/colorOnSurface"
                                 android:textStyle="bold"
-                                android:layout_marginEnd="@dimen/padding"
-                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintEnd_toStartOf="@id/close_donate"
-                                app:layout_constraintTop_toTopOf="parent"
-                                app:layout_constraintBottom_toBottomOf="parent" />
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
 
                             <com.google.android.material.button.MaterialButton
                                 android:id="@+id/close_donate"
@@ -154,9 +152,9 @@
                                 android:minWidth="48dp"
                                 android:minHeight="48dp"
                                 app:icon="@drawable/home_active_error"
+                                app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintEnd_toEndOf="parent"
-                                app:layout_constraintTop_toTopOf="parent"
-                                app:layout_constraintBottom_toBottomOf="parent" />
+                                app:layout_constraintTop_toTopOf="parent" />
                         </androidx.constraintlayout.widget.ConstraintLayout>
 
                         <com.google.android.material.textview.MaterialTextView
@@ -170,29 +168,29 @@
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:gravity="center"
                             android:orientation="horizontal"
-                            android:padding="@dimen/padding"
-                            android:gravity="center">
+                            android:padding="@dimen/padding">
 
                             <com.google.android.material.button.MaterialButton
                                 android:id="@+id/donate_alipay"
+                                style="@style/Widget.Material3.Button.OutlinedButton"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginEnd="@dimen/padding"
                                 android:text="@string/donate_alipay"
                                 app:icon="@drawable/alipay"
-                                app:iconTint="@null"
-                                style="@style/Widget.Material3.Button.OutlinedButton" />
+                                app:iconTint="@null" />
 
                             <com.google.android.material.button.MaterialButton
                                 android:id="@+id/donate_wechat"
+                                style="@style/Widget.Material3.Button.OutlinedButton"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="@dimen/padding"
                                 android:text="@string/donate_wechat"
                                 app:icon="@drawable/wechat"
-                                app:iconTint="@null"
-                                style="@style/Widget.Material3.Button.OutlinedButton" />
+                                app:iconTint="@null" />
                         </LinearLayout>
 
                     </LinearLayout>
@@ -203,35 +201,35 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/card_vertical_spacing"
-                    app:layout_constraintTop_toBottomOf="@id/donate_card"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
+                    app:constraint_referenced_ids="info_card,rule_card,group_card,group_resource"
+                    app:flow_horizontalAlign="start"
                     app:flow_horizontalGap="@dimen/card_horizontal_spacing"
-                    app:flow_verticalGap="@dimen/card_vertical_spacing"
-                    app:flow_wrapMode="chain"
                     app:flow_horizontalStyle="packed"
                     app:flow_maxElementsWrap="@integer/cards_per_row"
-                    app:flow_horizontalAlign="start"
                     app:flow_verticalAlign="top"
-                    app:constraint_referenced_ids="info_card,rule_card,group_card,group_resource"/>
+                    app:flow_verticalGap="@dimen/card_vertical_spacing"
+                    app:flow_wrapMode="chain"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/donate_card" />
 
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/info_card"
+                    style="@style/HomeCard"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    style="@style/HomeCard">
+                    android:layout_height="wrap_content">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
                         android:layout_margin="@dimen/padding"
-                        >
+                        android:orientation="vertical">
+
                         <com.google.android.material.textview.MaterialTextView
-                            android:padding="@dimen/padding"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="@dimen/padding"
+                            android:padding="@dimen/padding"
                             android:text="@string/data_title"
                             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                             android:textColor="?attr/colorOnSurface"
@@ -279,9 +277,9 @@
                             android:id="@+id/book"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:clickable="true"
                             android:background="@drawable/ripple_effect"
+                            android:clickable="true"
+                            android:orientation="horizontal"
                             android:padding="@dimen/padding">
 
                             <com.google.android.material.textview.MaterialTextView
@@ -310,8 +308,8 @@
                                 android:ellipsize="end"
                                 android:maxWidth="100dp"
                                 android:singleLine="true"
-                                tools:text="eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
-                                android:textAppearance="@style/TextAppearance.AppCompat.Small" />
+                                android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                                tools:text="eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee" />
 
 
                         </LinearLayout>
@@ -320,40 +318,40 @@
                             android:id="@+id/assets"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:padding="@dimen/padding"
-                            android:orientation="horizontal">
+                            android:orientation="horizontal"
+                            android:padding="@dimen/padding">
+
                             <com.google.android.material.textview.MaterialTextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="@dimen/one_padding"
                                 android:layout_marginEnd="@dimen/one_padding"
+                                android:drawablePadding="@dimen/one_padding"
                                 android:text="@string/title_assets"
                                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                                 android:textColor="?attr/colorOnSurface"
                                 android:textStyle="bold"
                                 app:drawableLeftCompat="@drawable/home_app_assets"
-                                app:drawableTint="?attr/colorOnSurface"
-                                android:drawablePadding="@dimen/one_padding"
-                                />
+                                app:drawableTint="?attr/colorOnSurface" />
+
                             <View
                                 android:layout_width="0dp"
                                 android:layout_height="0dp"
-                                android:layout_weight="1"
-                                />
+                                android:layout_weight="1" />
+
                             <com.google.android.material.button.MaterialButton
                                 android:id="@+id/map"
                                 style="?attr/materialIconButtonFilledTonalStyle"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                app:icon="@drawable/icon_map"
-                               />
+                                app:icon="@drawable/icon_map" />
+
                             <com.google.android.material.button.MaterialButton
                                 android:id="@+id/readAssets"
                                 style="?attr/materialIconButtonFilledStyle"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                app:icon="@drawable/icon_eye"
-                               />
+                                app:icon="@drawable/icon_eye" />
 
                         </LinearLayout>
 
@@ -361,33 +359,33 @@
                             android:id="@+id/category"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:padding="@dimen/padding"
-                            android:orientation="horizontal">
+                            android:orientation="horizontal"
+                            android:padding="@dimen/padding">
+
                             <com.google.android.material.textview.MaterialTextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="@dimen/one_padding"
                                 android:layout_marginEnd="@dimen/one_padding"
+                                android:drawablePadding="@dimen/one_padding"
                                 android:text="@string/title_category"
                                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                                 android:textColor="?attr/colorOnSurface"
                                 android:textStyle="bold"
                                 app:drawableLeftCompat="@drawable/home_app_category"
-                                app:drawableTint="?attr/colorOnSurface"
-                                android:drawablePadding="@dimen/one_padding"
-                                />
+                                app:drawableTint="?attr/colorOnSurface" />
+
                             <View
                                 android:layout_width="0dp"
                                 android:layout_height="0dp"
-                                android:layout_weight="1"
-                                />
+                                android:layout_weight="1" />
+
                             <com.google.android.material.button.MaterialButton
                                 android:id="@+id/readCategory"
                                 style="?attr/materialIconButtonFilledStyle"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                app:icon="@drawable/icon_eye"
-                               />
+                                app:icon="@drawable/icon_eye" />
 
 
                         </LinearLayout>
@@ -400,47 +398,46 @@
 
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/rule_card"
+                    style="@style/HomeCard"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    style="@style/HomeCard">
+                    android:layout_height="wrap_content">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
                         android:layout_margin="@dimen/padding"
-                        >
+                        android:orientation="vertical">
 
                         <LinearLayout
                             android:id="@+id/ruleLayout"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:padding="@dimen/padding"
-                            android:orientation="horizontal">
+                            android:orientation="horizontal"
+                            android:padding="@dimen/padding">
+
                             <com.google.android.material.textview.MaterialTextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginEnd="@dimen/padding"
                                 android:layout_marginStart="@dimen/one_padding"
+                                android:layout_marginEnd="@dimen/padding"
+                                android:drawablePadding="@dimen/one_padding"
                                 android:text="@string/rule_title"
                                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                                 android:textColor="?attr/colorOnSurface"
-                                app:drawableTint="?attr/colorOnSurface"
-                                android:drawablePadding="@dimen/one_padding"
                                 android:textStyle="bold"
-                                />
+                                app:drawableTint="?attr/colorOnSurface" />
+
                             <View
                                 android:layout_width="0dp"
                                 android:layout_height="0dp"
-                                android:layout_weight="1"
-                                />
+                                android:layout_weight="1" />
+
                             <com.google.android.material.button.MaterialButton
                                 android:id="@+id/checkRuleUpdate"
                                 style="?attr/materialIconButtonFilledStyle"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                app:icon="@drawable/icon_restart"
-                               />
+                                app:icon="@drawable/icon_restart" />
 
 
                         </LinearLayout>
@@ -484,46 +481,47 @@
 
 
                         </LinearLayout>
+
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:padding="@dimen/padding"
-                            android:orientation="horizontal">
+                            android:orientation="horizontal"
+                            android:padding="@dimen/padding">
+
                             <com.google.android.material.textview.MaterialTextView
-                                android:clickable="true"
-                                android:layout_marginStart="@dimen/one_padding"
+                                android:id="@+id/customCategory"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginStart="@dimen/one_padding"
 
+                                android:background="@drawable/ripple_effect"
+                                android:clickable="true"
+                                android:drawablePadding="@dimen/one_padding"
                                 android:text="@string/title_rule_category"
                                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                                 android:textColor="?attr/colorOnSurface"
                                 android:textStyle="bold"
                                 app:drawableLeftCompat="@drawable/home_app_category"
-                                app:drawableTint="?attr/colorOnSurface"
-                                android:drawablePadding="@dimen/one_padding"
-                                android:background="@drawable/ripple_effect"
-                                android:id="@+id/customCategory"
-                                />
+                                app:drawableTint="?attr/colorOnSurface" />
+
                             <View
                                 android:layout_width="0dp"
                                 android:layout_height="0dp"
-                                android:layout_weight="1"
-                                />
+                                android:layout_weight="1" />
+
                             <com.google.android.material.button.MaterialButton
                                 android:id="@+id/categoryMap"
                                 style="?attr/materialIconButtonFilledTonalStyle"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                app:icon="@drawable/icon_map"
-                               />
+                                app:icon="@drawable/icon_map" />
+
                             <com.google.android.material.button.MaterialButton
                                 android:id="@+id/categoryEdit"
                                 style="?attr/materialIconButtonFilledStyle"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                app:icon="@drawable/icon_edit"
-                               />
+                                app:icon="@drawable/icon_edit" />
 
                         </LinearLayout>
 
@@ -534,9 +532,9 @@
 
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/group_card"
+                    style="@style/HomeCard"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    style="@style/HomeCard">
+                    android:layout_height="wrap_content">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -545,9 +543,9 @@
                         android:orientation="vertical">
 
                         <com.google.android.material.textview.MaterialTextView
-                            android:padding="@dimen/padding"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:padding="@dimen/padding"
                             android:text="@string/communication_title"
                             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                             android:textColor="?attr/colorOnSurface"
@@ -565,10 +563,10 @@
                                 android:layout_width="@dimen/image_size"
                                 android:layout_height="@dimen/image_size"
                                 android:src="@drawable/img_geekbar"
-                                app:tint="?colorOnSurface"
+                                app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toTopOf="parent"
-                                app:layout_constraintBottom_toBottomOf="parent" />
+                                app:tint="?colorOnSurface" />
 
                             <com.google.android.material.textview.MaterialTextView
                                 android:id="@+id/msg_geekbar"
@@ -579,8 +577,8 @@
                                 android:text="@string/msg_geekbar"
                                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                                 android:textColor="?colorOnSurface"
-                                app:layout_constraintStart_toEndOf="@id/image_git"
                                 app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toEndOf="@id/image_git"
                                 app:layout_constraintTop_toTopOf="parent" />
 
                             <com.google.android.material.textview.MaterialTextView
@@ -590,8 +588,8 @@
                                 android:layout_marginStart="@dimen/border_side"
                                 android:text="@string/msg_geekbar_number"
                                 android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                                app:layout_constraintStart_toEndOf="@id/image_git"
                                 app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toEndOf="@id/image_git"
                                 app:layout_constraintTop_toBottomOf="@id/msg_geekbar" />
                         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -607,10 +605,10 @@
                                 android:layout_width="@dimen/image_size"
                                 android:layout_height="wrap_content"
                                 android:src="@drawable/home_msg_telegram"
-                                app:tint="?colorOnSurface"
+                                app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toTopOf="parent"
-                                app:layout_constraintBottom_toBottomOf="parent" />
+                                app:tint="?colorOnSurface" />
 
                             <com.google.android.material.textview.MaterialTextView
                                 android:id="@+id/msg_telegram"
@@ -621,8 +619,8 @@
                                 android:text="@string/msg_telegram"
                                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                                 android:textColor="?colorOnSurface"
-                                app:layout_constraintStart_toEndOf="@id/image_tg"
                                 app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toEndOf="@id/image_tg"
                                 app:layout_constraintTop_toTopOf="parent" />
 
                             <com.google.android.material.textview.MaterialTextView
@@ -632,8 +630,8 @@
                                 android:layout_marginStart="@dimen/border_side"
                                 android:text="@string/msg_telegram_number"
                                 android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                                app:layout_constraintStart_toEndOf="@id/image_tg"
                                 app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toEndOf="@id/image_tg"
                                 app:layout_constraintTop_toBottomOf="@id/msg_telegram" />
                         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -649,10 +647,10 @@
                                 android:layout_width="@dimen/image_size"
                                 android:layout_height="wrap_content"
                                 android:src="@drawable/home_msg_qq"
-                                app:tint="?colorOnSurface"
+                                app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toTopOf="parent"
-                                app:layout_constraintBottom_toBottomOf="parent" />
+                                app:tint="?colorOnSurface" />
 
                             <com.google.android.material.textview.MaterialTextView
                                 android:id="@+id/msg_qq"
@@ -663,8 +661,8 @@
                                 android:text="@string/msg_qq"
                                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                                 android:textColor="?colorOnSurface"
-                                app:layout_constraintStart_toEndOf="@id/image_qq"
                                 app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toEndOf="@id/image_qq"
                                 app:layout_constraintTop_toTopOf="parent" />
 
                             <com.google.android.material.textview.MaterialTextView
@@ -674,19 +672,20 @@
                                 android:layout_marginStart="@dimen/border_side"
                                 android:text="@string/msg_qq_number"
                                 android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                                app:layout_constraintStart_toEndOf="@id/image_qq"
                                 app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toEndOf="@id/image_qq"
                                 app:layout_constraintTop_toBottomOf="@id/msg_qq" />
                         </androidx.constraintlayout.widget.ConstraintLayout>
 
                     </LinearLayout>
 
                 </com.google.android.material.card.MaterialCardView>
+
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/group_resource"
+                    style="@style/HomeCard"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    style="@style/HomeCard">
+                    android:layout_height="wrap_content">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -695,9 +694,9 @@
                         android:orientation="vertical">
 
                         <com.google.android.material.textview.MaterialTextView
-                            android:padding="@dimen/padding"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:padding="@dimen/padding"
                             android:text="@string/resource_title"
                             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                             android:textColor="?attr/colorOnSurface"
@@ -715,10 +714,10 @@
                                 android:layout_width="@dimen/image_size"
                                 android:layout_height="@dimen/image_size"
                                 android:src="@drawable/bottom_select_data"
-                                app:tint="?colorOnSurface"
+                                app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toTopOf="parent"
-                                app:layout_constraintBottom_toBottomOf="parent" />
+                                app:tint="?colorOnSurface" />
 
                             <com.google.android.material.textview.MaterialTextView
                                 android:id="@+id/msg_doc"
@@ -729,8 +728,8 @@
                                 android:text="@string/msg_doc"
                                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                                 android:textColor="?colorOnSurface"
-                                app:layout_constraintStart_toEndOf="@id/image_doc"
                                 app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toEndOf="@id/image_doc"
                                 app:layout_constraintTop_toTopOf="parent" />
 
                             <com.google.android.material.textview.MaterialTextView
@@ -740,8 +739,8 @@
                                 android:layout_marginStart="@dimen/border_side"
                                 android:text="@string/msg_doc_number"
                                 android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                                app:layout_constraintStart_toEndOf="@id/image_doc"
                                 app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toEndOf="@id/image_doc"
                                 app:layout_constraintTop_toBottomOf="@id/msg_doc" />
                         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -757,10 +756,10 @@
                                 android:layout_width="@dimen/image_size"
                                 android:layout_height="wrap_content"
                                 android:src="@drawable/ic_cloud"
-                                app:tint="?colorOnSurface"
+                                app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toTopOf="parent"
-                                app:layout_constraintBottom_toBottomOf="parent" />
+                                app:tint="?colorOnSurface" />
 
                             <com.google.android.material.textview.MaterialTextView
                                 android:id="@+id/msg_pan"
@@ -771,8 +770,8 @@
                                 android:text="@string/msg_pan"
                                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                                 android:textColor="?colorOnSurface"
-                                app:layout_constraintStart_toEndOf="@id/image_pan"
                                 app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toEndOf="@id/image_pan"
                                 app:layout_constraintTop_toTopOf="parent" />
 
                             <com.google.android.material.textview.MaterialTextView
@@ -782,12 +781,12 @@
                                 android:layout_marginStart="@dimen/border_side"
                                 android:text="@string/msg_pan_number"
                                 android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                                app:layout_constraintStart_toEndOf="@id/image_pan"
                                 app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toEndOf="@id/image_pan"
                                 app:layout_constraintTop_toBottomOf="@id/msg_pan" />
                         </androidx.constraintlayout.widget.ConstraintLayout>
 
-                    
+
                     </LinearLayout>
 
                 </com.google.android.material.card.MaterialCardView>
