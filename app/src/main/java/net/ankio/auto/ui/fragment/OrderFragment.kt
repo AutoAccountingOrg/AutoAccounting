@@ -48,10 +48,14 @@ open class OrderFragment : BasePageFragment<OrderGroup>() {
             OrderGroup(date, bills)
         }
 
-        val oldSize = pageData.size
-        pageData.addAll(groupedData)
-
         withContext(Dispatchers.Main) {
+            val newPageData = pageData.toMutableList()
+            newPageData.addAll(groupedData)
+
+            val oldSize = pageData.size
+            pageData.clear()
+            pageData.addAll(newPageData)
+
             if (oldSize == 0) {
                 statusPage.contentView?.adapter?.notifyDataSetChanged()
             } else {
@@ -62,10 +66,10 @@ open class OrderFragment : BasePageFragment<OrderGroup>() {
         }
     }
 
+
     override fun onCreateAdapter() {
         val recyclerView = binding.statusPage.contentView!!
-        val layoutManager = LinearLayoutManager(requireContext())
-        recyclerView.layoutManager = layoutManager
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = OrderAdapter(pageData)
     }
 
@@ -75,9 +79,10 @@ open class OrderFragment : BasePageFragment<OrderGroup>() {
         savedInstanceState: Bundle?
     ) = binding.root
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // 顶部菜单事件监听
         binding.topAppBar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.item_sync -> {
@@ -86,18 +91,7 @@ open class OrderFragment : BasePageFragment<OrderGroup>() {
                 }
 
                 R.id.item_clear -> {
-                    BottomSheetDialogBuilder(requireActivity())
-                        .setTitle(requireActivity().getString(R.string.delete_data))
-                        .setMessage(requireActivity().getString(R.string.delete_msg))
-                        .setPositiveButton(requireActivity().getString(R.string.sure_msg)) { _, _ ->
-                            lifecycleScope.launch {
-                                BillInfoModel.clear()
-                                page = 1
-                                loadDataInside()
-                            }
-                        }
-                        .setNegativeButton(requireActivity().getString(R.string.cancel_msg)) { _, _ -> }
-                        .showInFragment(this, false, true)
+                    showClearDataDialog()
                     true
                 }
 
@@ -106,4 +100,20 @@ open class OrderFragment : BasePageFragment<OrderGroup>() {
         }
     }
 
+    // 抽取删除数据的逻辑
+    private fun showClearDataDialog() {
+        BottomSheetDialogBuilder(requireActivity())
+            .setTitle(requireActivity().getString(R.string.delete_data))
+            .setMessage(requireActivity().getString(R.string.delete_msg))
+            .setPositiveButton(requireActivity().getString(R.string.sure_msg)) { _, _ ->
+                lifecycleScope.launch {
+                    BillInfoModel.clear()
+                    page = 1
+                    loadDataInside()
+                }
+            }
+            .setNegativeButton(requireActivity().getString(R.string.cancel_msg)) { _, _ -> }
+            .showInFragment(this, false, true)
+    }
 }
+
