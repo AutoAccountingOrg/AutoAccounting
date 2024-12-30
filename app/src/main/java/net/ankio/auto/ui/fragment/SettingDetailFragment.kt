@@ -257,6 +257,13 @@ class SettingDetailFragment : BaseFragment() {
                 default = FloatEvent.POP_EDIT_WINDOW.ordinal,
 
                 ),
+            SettingItem.Title(R.string.setting_others),
+            SettingItem.Switch(
+                title = R.string.setting_landscape_dnd,
+                key = Setting.LANDSCAPE_DND,
+                icon = R.drawable.setting_landscape_dnd,
+                default = DefaultData.LANDSCAPE_DND,
+                ),
 
             )
     }

@@ -398,6 +398,7 @@
     <string name="setting_ai_desc">隐私提醒：启用AI功能，你的App数据、分类数据、资产数据，将会被上传至对应的大模型（第三方，与自动记账无关）进行识别。</string>
     <string name="setting_bill_use_ai">使用AI功能</string>
     <string name="setting_bill_key">获取API Key</string>
+    <string name="setting_landscape_dnd">横屏勿扰</string>
 
 
 </resources>

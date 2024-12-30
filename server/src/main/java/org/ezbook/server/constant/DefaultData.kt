@@ -16,6 +16,7 @@
 package org.ezbook.server.constant
 
 object DefaultData {
+    const val LANDSCAPE_DND: Boolean = true
     const val LOAD_SUCCESS: Boolean = false
     const val AUTO_IDENTIFY_ASSET: Boolean = false
     const val AI_AUXILIARY: Boolean = false

@@ -208,9 +208,11 @@ class JsRoute(private val session: ApplicationCall, private val context: android
             // 切换到主线程
             if (!billInfoModel.auto) {
                 Server.log("自动记录 - 关闭: $billInfoModel")
+                val showInLandScape =
+                    Db.get().settingDao().query(Setting.LANDSCAPE_DND)?.value != "false"
                 withContext(Dispatchers.Main) {
                     runCatching {
-                        startAutoPanel(billInfoModel, task.result)
+                        startAutoPanel(billInfoModel, task.result,showInLandScape)
                     }.onFailure {
                         Server.log(it)
                     }
@@ -221,11 +223,13 @@ class JsRoute(private val session: ApplicationCall, private val context: android
                 val showTip =
                     Db.get().settingDao().query(Setting.SHOW_AUTO_BILL_TIP)?.value == "true"
                 if (showTip) {
-                    Toast.makeText(
-                        context,
-                        "已自动记录账单，金额：${billInfoModel.money}",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(
+                            context,
+                            "已自动记录账单，可在账单列表中查看。",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 }
             }
 
@@ -353,7 +357,14 @@ class JsRoute(private val session: ApplicationCall, private val context: android
     /**
      * 启动自动记账面板
      */
-    private suspend fun startAutoPanel(billInfoModel: BillInfoModel, parent: BillInfoModel?) {
+    private suspend fun startAutoPanel(billInfoModel: BillInfoModel, parent: BillInfoModel?, showInLandScape: Boolean = false) {
+
+        // 判断当前手机是否为横屏状态
+        if (!showInLandScape && context.resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) {
+           Toast.makeText(context, "账单金额：${billInfoModel.money}，横屏状态下为您自动暂存。", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         val intent = FloatingIntent(billInfoModel, true, "JsRoute", parent).toIntent()
         Server.log("拉起自动记账悬浮窗口：$intent")
         try {
