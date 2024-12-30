@@ -210,6 +210,7 @@ class AutoHooker : PartHooker() {
     private fun handleError(message: String): String {
         if (message.contains("key=accountname;value=")) {
             val assetName = message.split("value=")[1]
+            if (assetName.isEmpty()) return message
             return "钱迹中找不到【${assetName}】资产账户，请先创建。"
         }
         return message

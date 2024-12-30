@@ -25,6 +25,7 @@ import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.utils.MessageUtils
 import net.ankio.auto.xposed.hooks.qianji.tools.QianJiUri
 import net.ankio.auto.xposed.hooks.qianji.tools.UserUtils
+import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.BillInfoModel
 
 class SyncBillUtils(
@@ -44,6 +45,22 @@ class SyncBillUtils(
         manifest.log("Sync ${bills.size} bills")
         AutoConfig.load()
         bills.forEach {
+
+            if (!AutoConfig.assetManagement){
+                if (it.type === BillType.Transfer){
+                    //没开启资产管理不同步转账类型
+                    return@forEach
+                }
+            }
+
+            if (!AutoConfig.lending){
+                if (it.type === BillType.ExpendLending || it.type === BillType.IncomeLending ||
+                    it.type === BillType.ExpendRepayment || it.type === BillType.IncomeRepayment){
+                    //没开启债务不同步报销类型
+                    return@forEach
+                }
+            }
+
             val bill = QianJiUri.toQianJi(it)
             val intent = Intent(Intent.ACTION_VIEW, bill)
             intent.putExtra("billInfo", Gson().toJson(it))
