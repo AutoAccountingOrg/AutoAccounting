@@ -44,7 +44,7 @@ abstract class BasePageFragment<T> : BaseFragment() {
     /**
      * 每页数据大小
      */
-    val pageSize = 20
+    val pageSize = 100
 
     /**
      * 数据列表
