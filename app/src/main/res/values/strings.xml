@@ -378,11 +378,7 @@
     <string name="setting_popup_event">弹窗事件</string>
     <string name="setting_features">自动记账的功能配置必须和记账软件中的功能配置保持一致。</string>
     <string name="setting_bill_one_api_uri_desc">"必须填写完整调用地址，包含后缀：v1/chat/completions "</string>
-    <string name="setting_hooks">Hook应用配置</string>
-    <string name="setting_hooks_msg">如果你不懂这是什么意思，请勿修改，乱改会导致自动记账功能异常。\n修改后请在Lsposed或Lspatch中修改作用域。</string>
-    <string name="setting_hook_auto">自动记账服务</string>
     <string name="setting_title_others">其他</string>
-    <string name="setting_hook_wechat">微信</string>
     <string name="setting_donate">捐赠</string>
     <string name="title_category_rule">自动分类规则</string>
     <string name="item_sms">数据过滤</string>

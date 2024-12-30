@@ -43,7 +43,6 @@ import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.api.BaseFragment
-import net.ankio.auto.ui.dialog.AppsDialog
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
 import net.ankio.auto.ui.utils.AppUtils
 import net.ankio.auto.ui.utils.DonateUtils
@@ -807,27 +806,6 @@ class SettingDetailFragment : BaseFragment() {
                         .setNegativeButton(R.string.cancel) { _, _ -> }
                         .show()
 
-                }
-            ),
-            SettingItem.Title(R.string.setting_hooks),
-            SettingItem.Card(R.string.setting_hooks_msg),
-            SettingItem.Text(
-                title = R.string.setting_hook_wechat,
-                drawable = {
-                    val pkg = SpUtils.getString(Setting.HOOK_WECHAT, DefaultData.WECHAT_PACKAGE)
-                    val info = AppUtils.get(pkg)
-                    info?.icon
-                },
-                onGetKeyValue = {
-                    SpUtils.getString(Setting.HOOK_WECHAT, DefaultData.WECHAT_PACKAGE)
-                },
-                onItemClick = { activity, binding ->
-                    AppsDialog(requireContext()) {
-                        SpUtils.putString(Setting.HOOK_WECHAT, it.packageName)
-                        binding.icon.setImageDrawable(it.icon)
-                        binding.icon.imageTintList = null
-                        binding.subTitle.text = it.packageName
-                    }.showInFragment(this, false, true)
                 }
             ),
             SettingItem.Title(R.string.setting_donate),
