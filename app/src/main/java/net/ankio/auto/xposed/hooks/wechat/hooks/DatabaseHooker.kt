@@ -123,6 +123,9 @@ class DatabaseHooker : PartHooker() {
                     10000 -> {
                         // 微信支付群收款
                         val json = JsonObject()
+                        val content = contentValues.get("content").toString()
+                        // 排除不是群收款的
+                        if (!content.contains("群收款")) return@after
                         json.addProperty("type", "groupCollection")
                         json.add("content", Gson().toJsonTree(contentValues))
                         json.addProperty("isSend",contentValues.getAsInteger("isSend"))
