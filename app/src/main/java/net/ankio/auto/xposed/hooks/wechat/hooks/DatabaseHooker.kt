@@ -137,7 +137,7 @@ class DatabaseHooker : PartHooker() {
                         json.addProperty("type", "redPackage")
                         json.addProperty("content", xmlToJson(content))
                         json.addProperty("isSend",contentValues.getAsInteger("isSend"))
-
+                        json.addProperty(ChatUserHooker.CHAT_USER,ChatUserHooker.get(contentValues.get("talker").toString()))
                         putCache(json)
                         AppRuntime.manifest.analysisData(DataType.DATA, json.toString())
 
@@ -145,10 +145,6 @@ class DatabaseHooker : PartHooker() {
                 }
             } else if (tableName == "AppMessage") {
                 if (type == 5) {
-                    if (contentValues.get("source").equals("微信支付")) {
-                        // 微信支付
-                        return@after
-                    }
                     // 这个应该是公众号推送
                     AppRuntime.manifest.analysisData(DataType.DATA, Gson().toJson(contentValues))
                 } else if (type == 2000) {

@@ -4,6 +4,7 @@ import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.utils.AppRuntime
+import net.ankio.auto.xposed.core.utils.DataUtils
 
 class ChatUserHooker : PartHooker() {
 
@@ -13,7 +14,7 @@ class ChatUserHooker : PartHooker() {
         val users = hashMapOf<String,String>()
 
         fun get(wx: String): String {
-            return users[wx]?:""
+            return users[wx]?:DataUtils.get(CHAT_USER)
         }
     }
 
@@ -47,8 +48,9 @@ class ChatUserHooker : PartHooker() {
                 field_conRemark
             }?:return@after
             users[field_username] = username
+            if (field_nickname != null) users[field_nickname] = username
 
-         //   DataUtils.set(CHAT_USER, username)
+            DataUtils.set(CHAT_USER, username)
 
         }
 

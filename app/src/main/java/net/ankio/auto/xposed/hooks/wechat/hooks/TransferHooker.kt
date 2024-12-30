@@ -33,7 +33,10 @@ class TransferHooker : PartHooker() {
             org.json.JSONObject::class.java
         ){
             val json = it.args[2] as org.json.JSONObject
-            json.put("hookUser", DataUtils.get("hookerUser"))
+            //payer_name
+            val nameKey = if (json.getBoolean("is_payer")) "payer_name" else "receiver_name"
+            val nameValue = json.getString(nameKey)
+            json.put(ChatUserHooker.CHAT_USER, ChatUserHooker.get(nameValue))
             json.put("cachedPayTools", DataUtils.get("cachedPayTools"))
             json.put("cachedPayMoney", DataUtils.get("cachedPayMoney"))
             json.put("cachedPayShop", DataUtils.get("cachedPayShop"))
