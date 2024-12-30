@@ -55,6 +55,7 @@ import net.ankio.auto.update.RuleUpdate
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.xposed.common.ActiveInfo
 import net.ankio.auto.xposed.common.ServerInfo
+import net.ankio.auto.xposed.hooks.common.UnLockScreen
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BookNameModel
@@ -85,6 +86,15 @@ class HomeFragment : BaseFragment() {
         setupUI()
         setupEvents()
         checkInitialServices()
+        launchBills()
+    }
+
+    private fun launchBills(){
+        lifecycleScope.launch {
+            runCatching {
+                UnLockScreen.launchUnEditedBills()
+            }
+        }
     }
 
     private fun setupUI() {

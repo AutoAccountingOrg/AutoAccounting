@@ -28,6 +28,21 @@ import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.tools.FloatingIntent
 
 object UnLockScreen {
+    suspend fun launchUnEditedBills(){
+        val list = BillInfoModel.edit()
+        Logger.logD(TAG, "BillInfoModel.edit()：$list")
+        list.forEach { billInfoModel ->
+            delay(1000)
+            val floatIntent =
+                FloatingIntent(billInfoModel, true, "JsRoute", null)
+            val panelIntent = floatIntent.toIntent()
+            try {
+                AppRuntime.application!!.baseContext.startActivity(panelIntent)
+            } catch (t: Throwable) {
+                Logger.logD(TAG, "Failed to start auto server：$t")
+            }
+        }
+    }
     fun init() {
         val filter = IntentFilter()
         filter.addAction(Intent.ACTION_USER_PRESENT)
@@ -42,19 +57,7 @@ object UnLockScreen {
                                 TAG,
                                 "User unlocked the device and entered the home screen."
                             )
-                            val list = BillInfoModel.edit()
-                            Logger.logD(TAG, "BillInfoModel.edit()：$list")
-                            list.forEach { billInfoModel ->
-                                delay(1000)
-                                val floatIntent =
-                                    FloatingIntent(billInfoModel, true, "JsRoute", null)
-                                val panelIntent = floatIntent.toIntent()
-                                try {
-                                    context.startActivity(panelIntent)
-                                } catch (t: Throwable) {
-                                    Logger.logD(TAG, "Failed to start auto server：$t")
-                                }
-                            }
+                            launchUnEditedBills()
                         }
                     } finally {
                         pendingResult.finish()
