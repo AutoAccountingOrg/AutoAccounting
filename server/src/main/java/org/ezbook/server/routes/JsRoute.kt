@@ -223,6 +223,7 @@ class JsRoute(private val session: ApplicationCall, private val context: android
                 } else {
                     billInfoModel.state = BillState.Edited
                 }
+                sync2Book(context)
                 val showTip =
                     Db.get().settingDao().query(Setting.SHOW_AUTO_BILL_TIP)?.value == "true"
                 if (showTip) {
@@ -241,7 +242,7 @@ class JsRoute(private val session: ApplicationCall, private val context: android
             appDataModel.rule = billInfoModel.ruleName
             appDataModel.version = Db.get().settingDao().query(Setting.RULE_VERSION)?.value ?: ""
             Db.get().dataDao().update(appDataModel)
-            sync2Book(context)
+
         }
         return ResultModel(200, "OK", billInfoModel)
     }
