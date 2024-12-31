@@ -233,6 +233,9 @@ fun Application.module(context: Context) {
             post("/group") {
                 call.respond(BillRoute(call).group())
             }
+            post("/unGroup") {
+                call.respond(BillRoute(call).unGroup())
+            }
             post("/put") {
                 call.respond(BillRoute(call).put())
             }

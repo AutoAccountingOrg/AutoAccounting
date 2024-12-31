@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogBillMoreBinding
 import net.ankio.auto.ui.adapter.OrderItemAdapter
 import net.ankio.auto.ui.api.BaseSheetDialog
@@ -32,6 +33,7 @@ import org.ezbook.server.db.model.BillInfoModel
 class BillMoreDialog(
     private val context: Context,
     private val billInfoModel: BillInfoModel,
+    private val onReload: (BillMoreDialog) -> Unit
 ) :
     BaseSheetDialog(context) {
     private lateinit var binding: DialogBillMoreBinding
@@ -46,8 +48,26 @@ class BillMoreDialog(
         val layoutManager = LinearLayoutManager(context)
         recyclerView.layoutManager = layoutManager
 
-        //cardView = binding.cardView
-        //cardViewInner = binding.innerView
+        adapter.setOnItemClickListener { item, position ->
+            FloatEditorDialog(context, item, false, onConfirmClick = {
+                adapter.updateItem(position, it)
+            }).show()
+        }
+
+// 设置长按事件
+        adapter.setOnItemLongClickListener { item, position ->
+            BottomSheetDialogBuilder(context)
+                .setTitleInt(R.string.un_group_title)
+                .setMessage(R.string.un_group_message)
+                .setPositiveButton(R.string.sure_msg) { _, _ ->
+                    lifecycleScope.launch {
+                        BillInfoModel.unGroup(item.id)
+                        onReload(this@BillMoreDialog)
+                    }
+                }
+                .setNegativeButton(R.string.cancel_msg) { _, _ -> }
+                .show()
+        }
         recyclerView.adapter = adapter
         dataItems.clear()
         statusPage.showLoading()

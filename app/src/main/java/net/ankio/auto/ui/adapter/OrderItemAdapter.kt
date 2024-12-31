@@ -23,9 +23,6 @@ import net.ankio.auto.databinding.AdapterOrderItemBinding
 import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
-import net.ankio.auto.ui.dialog.BillMoreDialog
-import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
-import net.ankio.auto.ui.dialog.FloatEditorDialog
 import net.ankio.auto.ui.utils.ResourceUtils
 import net.ankio.auto.utils.BillTool
 import net.ankio.auto.utils.DateUtils
@@ -39,39 +36,41 @@ class OrderItemAdapter(
     private val list: MutableList<BillInfoModel>,
     private val showMore: Boolean = true
 ) : BaseAdapter<AdapterOrderItemBinding, BillInfoModel>(AdapterOrderItemBinding::class.java, list) {
+
+    private var onItemClickListener: ((BillInfoModel, Int) -> Unit)? = null
+    private var onItemLongClickListener: ((BillInfoModel, Int) -> Unit)? = null
+    private var onMoreClickListener: ((BillInfoModel) -> Unit)? = null
+
+    fun setOnItemClickListener(listener: (BillInfoModel, Int) -> Unit) {
+        onItemClickListener = listener
+    }
+
+    fun setOnItemLongClickListener(listener: (BillInfoModel, Int) -> Unit) {
+        onItemLongClickListener = listener
+    }
+
+    fun setOnMoreClickListener(listener: (BillInfoModel) -> Unit) {
+        onMoreClickListener = listener
+    }
+
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterOrderItemBinding, BillInfoModel>) {
         val binding = holder.binding
+
         binding.root.setOnClickListener {
             val item = holder.item!!
             val position = indexOf(item)
-            FloatEditorDialog(holder.context, item, false, onConfirmClick = {
-                list[position] = it
-                notifyItemChanged(position)
-            }).show(float = false)
+            onItemClickListener?.invoke(item, position)
         }
-
 
         binding.moreBills.setOnClickListener {
             val item = holder.item!!
-            BillMoreDialog(holder.context, item).show(float = false, cancel = true)
+            onMoreClickListener?.invoke(item)
         }
 
         binding.root.setOnLongClickListener {
             val item = holder.item!!
             val position = indexOf(item)
-            BottomSheetDialogBuilder(holder.context)
-                .setTitleInt(R.string.delete_title)
-                .setMessage(R.string.delete_bill_message)
-                .setPositiveButton(R.string.sure_msg) { _, _ ->
-                    list.removeAt(position)
-                    notifyItemRemoved(position)
-                    holder.launch {
-                        BillInfoModel.remove(holder.item!!.id)
-                    }
-
-                }
-                .setNegativeButton(R.string.cancel_msg) { _, _ -> }
-                .show()
+            onItemLongClickListener?.invoke(item, position)
             true
         }
     }

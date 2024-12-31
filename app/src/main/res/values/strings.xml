@@ -400,6 +400,8 @@
     <string name="setting_bill_key">获取API Key</string>
     <string name="setting_landscape_dnd">横屏勿扰</string>
     <string name="setting_landscape_dnd_desc">当您处于横屏模式时（例如游戏、观影），不弹窗记录账单，避免影响使用体验。</string>
+    <string name="un_group_title">拆分为独立订单</string>
+    <string name="un_group_message">您确定要将这笔订单从当前订单中拆分为独立订单吗？</string>
 
 
 </resources>

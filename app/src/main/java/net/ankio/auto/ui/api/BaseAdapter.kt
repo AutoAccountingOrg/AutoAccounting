@@ -32,6 +32,22 @@ abstract class BaseAdapter<T : ViewBinding, E>(
         Boolean::class.javaPrimitiveType
     )
 
+    fun updateItem(index: Int, item: E) {
+        if (index < 0 || index >= items.size) {
+            return
+        }
+        items[index] = item
+        notifyItemChanged(index)
+    }
+
+    fun removeItem(index: Int) {
+        if (index < 0 || index >= items.size) {
+            return
+        }
+        items.removeAt(index)
+        notifyItemRemoved(index)
+    }
+
     fun indexOf(item: E): Int {
         return items.indexOf(item)
     }

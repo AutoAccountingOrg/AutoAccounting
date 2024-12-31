@@ -51,6 +51,13 @@ class BillRoute(private val session: ApplicationCall) {
         }
     }
 
+    suspend fun unGroup(): ResultModel {
+        val params = session.parameters
+        val id = params["id"]?.toLong() ?: 0
+        Db.get().billInfoDao().unGroup(id)
+        return ResultModel(200, "OK", 0)
+    }
+
     suspend fun remove(): ResultModel {
         val params = session.parameters
         val id = params["id"]?.toLong() ?: 0

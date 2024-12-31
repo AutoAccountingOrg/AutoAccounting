@@ -29,7 +29,9 @@ import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentBillBinding
 import net.ankio.auto.ui.adapter.OrderAdapter
 import net.ankio.auto.ui.api.BasePageFragment
+import net.ankio.auto.ui.dialog.BillMoreDialog
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
+import net.ankio.auto.ui.dialog.FloatEditorDialog
 import net.ankio.auto.ui.models.OrderGroup
 import net.ankio.auto.ui.utils.viewBinding
 import net.ankio.auto.utils.DateUtils
@@ -70,7 +72,36 @@ open class OrderFragment : BasePageFragment<OrderGroup>() {
     override fun onCreateAdapter() {
         val recyclerView = binding.statusPage.contentView!!
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        recyclerView.adapter = OrderAdapter(pageData)
+        val adapter = OrderAdapter(pageData)
+        adapter.setOnItemClickListener { item, position, itemAdapter ->
+            FloatEditorDialog(requireContext(), item, false, onConfirmClick = {
+                itemAdapter.updateItem(position, it)
+            }).showInFragment(this, false, true)
+        }
+
+// 设置长按事件
+        adapter.setOnItemLongClickListener { item, position, itemAdapter ->
+            BottomSheetDialogBuilder(requireContext())
+                .setTitleInt(R.string.delete_title)
+                .setMessage(R.string.delete_bill_message)
+                .setPositiveButton(R.string.sure_msg) { _, _ ->
+                    itemAdapter.removeItem(position)
+                    lifecycleScope.launch {
+                        BillInfoModel.remove(item.id)
+                    }
+                }
+                .setNegativeButton(R.string.cancel_msg) { _, _ -> }
+                .showInFragment(this, false, true)
+        }
+
+// 设置更多按钮点击事件
+        adapter.setOnMoreClickListener { item, itemAdapter ->
+            BillMoreDialog(requireContext(), item, onReload = {
+                it.dismiss()
+                reload()
+            }).showInFragment(this, false, true)
+        }
+        recyclerView.adapter = adapter
     }
 
     override fun onCreateView(

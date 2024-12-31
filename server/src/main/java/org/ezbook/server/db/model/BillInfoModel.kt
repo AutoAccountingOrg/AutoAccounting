@@ -232,6 +232,10 @@ class BillInfoModel {
             }.getOrNull() ?: emptyList()
         }
 
+        suspend fun unGroup(id: Long) = withContext(Dispatchers.IO) {
+            Server.request("bill/unGroup?id=$id")
+        }
+
     }
 
     override fun toString(): String {

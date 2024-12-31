@@ -20,6 +20,7 @@ import net.ankio.auto.databinding.AdapterOrderBinding
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
 import net.ankio.auto.ui.models.OrderGroup
+import org.ezbook.server.db.model.BillInfoModel
 
 class OrderAdapter(resultData: MutableList<OrderGroup>) :
     BaseAdapter<AdapterOrderBinding, OrderGroup>(
@@ -42,8 +43,34 @@ class OrderAdapter(resultData: MutableList<OrderGroup>) :
         val binding = holder.binding
         // 直接创建新的适配器，避免缓存导致的问题
         val adapter = OrderItemAdapter(data.bills.toMutableList())
+        adapter.setOnItemClickListener { billInfoModel, pos ->
+            onItemClickListener?.invoke(billInfoModel, pos, adapter)
+        }
+        adapter.setOnItemLongClickListener { billInfoModel, pos ->
+            onItemLongClickListener?.invoke(billInfoModel, pos, adapter)
+        }
+        adapter.setOnMoreClickListener {
+            onMoreClickListener?.invoke(it, adapter)
+        }
         binding.recyclerView.adapter = adapter
         binding.title.text = data.date
+
+    }
+
+    private var onItemClickListener: ((BillInfoModel, Int, OrderItemAdapter) -> Unit)? = null
+    private var onItemLongClickListener: ((BillInfoModel, Int, OrderItemAdapter) -> Unit)? = null
+    private var onMoreClickListener: ((BillInfoModel, OrderItemAdapter) -> Unit)? = null
+
+    fun setOnItemClickListener(listener: (BillInfoModel, Int, OrderItemAdapter) -> Unit) {
+        onItemClickListener = listener
+    }
+
+    fun setOnItemLongClickListener(listener: (BillInfoModel, Int, OrderItemAdapter) -> Unit) {
+        onItemLongClickListener = listener
+    }
+
+    fun setOnMoreClickListener(listener: (BillInfoModel, OrderItemAdapter) -> Unit) {
+        onMoreClickListener = listener
     }
 
 }
