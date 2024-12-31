@@ -23,8 +23,7 @@ import net.ankio.auto.BuildConfig
 import net.ankio.auto.xposed.core.logger.Logger
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import org.ezbook.server.Server
-import kotlin.system.exitProcess
-
+import android.os.Process
 object AppInstaller {
     private const val TARGET_PACKAGE = BuildConfig.APPLICATION_ID
 
@@ -46,7 +45,7 @@ object AppInstaller {
                                         AppRuntime.restart()
                                     }.onFailure { e ->
                                         Logger.logE("AppInstaller", e)
-                                        exitProcess(0)
+                                        Process.killProcess(Process.myPid())
                                     }
                                 }
                             }
