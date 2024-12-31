@@ -52,6 +52,12 @@ Waiting...
 
 [贡献指南](CONTRIBUTING.md)
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=AutoAccountingOrg/AutoAccounting&type=Date&theme=dark" />
+  <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=AutoAccountingOrg/AutoAccounting&type=Date" />
+  <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=AutoAccountingOrg/AutoAccounting&type=Date" />
+</picture>
+
 ## 🛠️ 编译步骤
 
 - 下载源代码到本地
