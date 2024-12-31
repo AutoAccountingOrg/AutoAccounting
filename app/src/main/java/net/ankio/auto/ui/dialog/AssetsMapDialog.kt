@@ -58,7 +58,7 @@ class AssetsMapDialog(
         } else {
             target.setText(assetsMapModel.mapName)
         }
-        regex.isChecked = assetsMapModel.regex
+        //  regex.isChecked = assetsMapModel.regex
 
         lifecycleScope.launch {
             ResourceUtils.getAssetDrawableFromName(assetsMapModel.mapName)
@@ -82,7 +82,7 @@ class AssetsMapDialog(
             assetsMapModel.apply {
                 this.name = name
                 this.mapName = mapName
-                this.regex = binding.regex.isChecked
+                //this.regex = binding.regex.isChecked
             }
             lifecycleScope.launch {
                 onClose(assetsMapModel)
