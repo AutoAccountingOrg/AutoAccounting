@@ -50,13 +50,13 @@ open class OrderFragment : BasePageFragment<OrderGroup>() {
             OrderGroup(date, bills)
         }
 
+
+
+
         withContext(Dispatchers.Main) {
-            val newPageData = pageData.toMutableList()
-            newPageData.addAll(groupedData)
 
             val oldSize = pageData.size
-            pageData.clear()
-            pageData.addAll(newPageData)
+
 
             if (oldSize == 0) {
                 statusPage.contentView?.adapter?.notifyDataSetChanged()
@@ -64,7 +64,7 @@ open class OrderFragment : BasePageFragment<OrderGroup>() {
                 statusPage.contentView?.adapter?.notifyItemRangeInserted(oldSize, groupedData.size)
             }
 
-            callback.invoke(if (list.isEmpty()) emptyList() else pageData)
+            callback.invoke(if (list.isEmpty()) emptyList() else groupedData)
         }
     }
 
