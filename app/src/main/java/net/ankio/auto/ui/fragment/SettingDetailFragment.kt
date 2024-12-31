@@ -263,6 +263,7 @@ class SettingDetailFragment : BaseFragment() {
                 key = Setting.LANDSCAPE_DND,
                 icon = R.drawable.setting_landscape_dnd,
                 default = DefaultData.LANDSCAPE_DND,
+                subTitle = R.string.setting_landscape_dnd_desc,
                 ),
 
             )
