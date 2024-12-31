@@ -185,6 +185,10 @@ class JsRoute(private val session: ApplicationCall, private val context: android
             //存入数据库
             billInfoModel.id = Db.get().billInfoDao().insert(billInfoModel)
         }
+        // 时间容错：部分规则可能识别的时间准确，需要容错，小于2000年之前的时间认为是错误的
+        if (billInfoModel.time < 946656000000) {
+            billInfoModel.time = System.currentTimeMillis()
+        }
         // 账单分组，用于检查重复账单
         val task = Server.billProcessor.addTask(billInfoModel, context)
         task.await()
@@ -197,10 +201,7 @@ class JsRoute(private val session: ApplicationCall, private val context: android
             billInfoModel.state = BillState.Edited
         }
 
-        // 时间容错：部分规则可能识别的时间准确，需要容错，小于2000年之前的时间认为是错误的
-        if (billInfoModel.time < 946656000000) {
-            billInfoModel.time = System.currentTimeMillis()
-        }
+
 
         Db.get().billInfoDao().update(billInfoModel)
         Server.log("账单: $billInfoModel")
