@@ -399,7 +399,7 @@ class JsRoute(private val session: ApplicationCall, private val context: android
                 }
                 itemContext.createJSUndefined()
             }
-            Server.log("执行Js: $jsCode")
+            Server.logD("执行Js: $jsCode")
             Server.log("执行数据: $data")
             context.globalObject.setProperty("print", print)
             context.globalObject.setProperty("data", context.createJSString(data))

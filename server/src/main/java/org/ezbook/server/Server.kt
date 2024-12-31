@@ -29,6 +29,7 @@ import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.ezbook.server.constant.LogLevel
+import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.LogModel
 import org.ezbook.server.server.module
@@ -154,6 +155,20 @@ class Server(private val context: Context) {
                 })
             }
             Log.e(TAG, e.message ?: "", e)
+        }
+
+        suspend fun logD(s: String) = withContext(Dispatchers.IO) {
+            runCatching {
+               val debug = Db.get().settingDao().query(Setting.DEBUG_MODE)?.value?.toBoolean() ?: false
+                if (debug) {
+                    Db.get().logDao().insert(LogModel().apply {
+                        level = LogLevel.DEBUG
+                        app = TAG
+                        message = s
+                    })
+                }
+                Log.d(TAG, s)
+            }
         }
 
 
