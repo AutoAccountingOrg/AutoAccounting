@@ -44,7 +44,6 @@ import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
-import net.ankio.auto.ui.utils.AppUtils
 import net.ankio.auto.ui.utils.DonateUtils
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.ToastUtils
@@ -527,25 +526,6 @@ class SettingDetailFragment : BaseFragment() {
                 key = Setting.AI_ONE_API_MODEL,
                 default = "",
             ),
-            SettingItem.Title(
-                R.string.setting_asset,
-            ),
-            SettingItem.Switch(
-                title = R.string.setting_auto_asset,
-                key = Setting.AUTO_ASSET,
-                icon = R.drawable.setting_icon_map,
-                subTitle = R.string.setting_auto_asset_desc,
-                default = false,
-
-                ),
-            SettingItem.Switch(
-                title = R.string.setting_auto_ai_asset,
-                key = Setting.AUTO_IDENTIFY_ASSET,
-                icon = R.drawable.setting_icon_ai_map,
-                subTitle = R.string.setting_auto_ai_asset_desc,
-                default = DefaultData.AUTO_IDENTIFY_ASSET,
-
-                ),
             SettingItem.Title(
                 R.string.setting_category,
             ),

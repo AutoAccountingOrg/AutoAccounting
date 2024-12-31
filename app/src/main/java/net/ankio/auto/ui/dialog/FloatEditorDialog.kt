@@ -47,7 +47,6 @@ import org.ezbook.server.constant.Currency
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.constant.SyncType
-import org.ezbook.server.db.model.AssetsMapModel
 import org.ezbook.server.db.model.AssetsModel
 import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.db.model.BookNameModel
@@ -349,20 +348,6 @@ class FloatEditorDialog(
                         BillCategoryDialog(context, convertBillInfo).show(float, cancel = true)
                     }
 
-                    if (ConfigUtils.getBoolean(Setting.AUTO_ASSET, DefaultData.AUTO_ASSET)) {
-
-                        setAccountMap(
-                            assets,
-                            rawBillInfo.accountNameFrom,
-                            convertBillInfo.accountNameFrom
-                        )
-                        setAccountMap(
-                            assets,
-                            rawBillInfo.accountNameTo,
-                            convertBillInfo.accountNameTo
-                        )
-                    }
-
                     val syncType = ConfigUtils.getString(Setting.SYNC_TYPE, DefaultData.SYNC_TYPE)
                     if (syncType != SyncType.WhenOpenApp.name) {
                         val bills = BillInfoModel.sync()
@@ -384,23 +369,6 @@ class FloatEditorDialog(
         }
     }
 
-
-    private suspend fun setAccountMap(
-        assets: List<AssetsModel>,
-        rawAccountName: String,
-        changedAccountName: String
-    ) =
-        withContext(Dispatchers.IO) {
-            if (rawAccountName.isEmpty() || changedAccountName.isEmpty()) return@withContext
-            if (rawAccountName == changedAccountName) return@withContext
-            val find = assets.find { it.name == rawAccountName }
-            if (find != null) return@withContext
-            Logger.d("Create new asset map => $rawAccountName -> $changedAccountName")
-            AssetsMapModel.put(AssetsMapModel().apply {
-                this.name = rawAccountName
-                this.mapName = changedAccountName
-            })
-        }
 
     private fun bindingTypePopupUI() {
         binding.priceContainer.text = billInfoModel.money.toString()

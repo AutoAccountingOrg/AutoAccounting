@@ -18,7 +18,6 @@ package org.ezbook.server.constant
 object DefaultData {
     const val LANDSCAPE_DND: Boolean = true
     const val LOAD_SUCCESS: Boolean = false
-    const val AUTO_IDENTIFY_ASSET: Boolean = false
     const val AI_AUXILIARY: Boolean = false
     const val SHOW_AUTO_BILL_TIP: Boolean = true
     const val NOTE_FORMAT: String = "【商户名称】【商品名称】"
@@ -82,7 +81,6 @@ object DefaultData {
     val AUTO_GROUP = true
     val USE_ROUND_STYLE = false
     val SHOW_SUCCESS_POPUP = true
-    val AUTO_ASSET = false
     val AUTO_CREATE_CATEGORY = false
     val SYNC_TYPE = SyncType.WhenOpenApp.name
 
