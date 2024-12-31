@@ -63,8 +63,8 @@ object Bill {
         if (bill.channel != bill2.channel) {
 
             if (
-                bill.channel.contains("转账") && bill2.channel.contains("红包")
-                || bill.channel.contains("红包") && bill2.channel.contains("转账")){
+                bill.channel.contains("转账") && !bill2.channel.contains("转账")
+                || bill.channel.contains("红包") && !bill2.channel.contains("红包")){
                 Server.logD("重复账单判据：渠道为转账和红包，一定不是重复账单")
                 return false
             }
