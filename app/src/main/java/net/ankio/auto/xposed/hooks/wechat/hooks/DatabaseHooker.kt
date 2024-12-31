@@ -15,12 +15,10 @@
 
 package net.ankio.auto.xposed.hooks.wechat.hooks
 
-import android.app.Application
 import android.content.ContentValues
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import fr.arnaudguyon.xmltojsonlib.XmlToJson
-import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.utils.AppRuntime
@@ -148,6 +146,10 @@ class DatabaseHooker : PartHooker() {
                 }
             } else if (tableName == "AppMessage") {
                 if (type == 5) {
+                    if (contentValues.get("source").equals("微信支付")) {
+                        // 微信支付
+                        return@after
+                    }
                     // 这个应该是公众号推送
                     AppRuntime.manifest.analysisData(DataType.DATA, Gson().toJson(contentValues))
                 } else if (type == 2000) {
