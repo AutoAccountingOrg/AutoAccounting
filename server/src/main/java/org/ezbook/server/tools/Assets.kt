@@ -118,6 +118,7 @@ object Assets {
             .replace(numberToRemove, "")
             .replace(Regex("\\([^(（【】）)]*\\)"), "")
             .replace(Regex("[卡银行储蓄借记]"), "")
+            .replace("支付", "")
             .trim()
     }
 
