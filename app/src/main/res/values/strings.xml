@@ -402,6 +402,9 @@
     <string name="setting_landscape_dnd_desc">当您处于横屏模式时（例如游戏、观影），不弹窗记录账单，避免影响使用体验。</string>
     <string name="un_group_title">拆分为独立订单</string>
     <string name="un_group_message">您确定要将这笔订单从当前订单中拆分为独立订单吗？</string>
+    <string name="assets_map_title">发现未识别的资产</string>
+    <string name="assets_map_description">记账应用无法处理未识别的资产，请对以下资产进行映射，以确保资产名称正确。</string>
+    <string name="map_source_not_exist">映射的资产不存在</string>
 
 
 </resources>

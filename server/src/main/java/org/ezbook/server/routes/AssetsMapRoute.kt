@@ -48,4 +48,10 @@ class AssetsMapRoute(private val session: ApplicationCall) {
         Db.get().assetsMapDao().delete(id)
         return ResultModel(200, "OK", id)
     }
+
+    suspend fun get(): ResultModel {
+        val name = params["name"] ?: ""
+        val data = Db.get().assetsMapDao().query(name)
+        return ResultModel(200, "OK", data)
+    }
 }

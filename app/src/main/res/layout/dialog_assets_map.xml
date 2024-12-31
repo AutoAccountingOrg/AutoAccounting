@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/titleText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="?attr/colorOnSurface"
+        android:text="@string/assets_map_title"
+        style="@style/TextAppearance.Material3.TitleLarge"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/descriptionText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/padding"
+        android:layout_marginBottom="@dimen/padding"
+        style="@style/TextAppearance.Material3.BodyMedium"
+        android:text="@string/assets_map_description"
+        app:layout_constraintTop_toBottomOf="@id/titleText" />
+
+    <include
+
+        android:id="@+id/accountFrom"
+        layout="@layout/adapter_map"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/descriptionText" />
+
+    <include
+        android:id="@+id/accountTo"
+        layout="@layout/adapter_map"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/padding"
+        app:layout_constraintTop_toBottomOf="@id/accountFrom" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/buttonSure"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/btn_height_small"
+        android:layout_marginTop="@dimen/padding"
+        android:text="@string/sure_msg"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/accountTo" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

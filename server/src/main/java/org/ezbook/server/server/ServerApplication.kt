@@ -179,6 +179,9 @@ fun Application.module(context: Context) {
             post("/delete") {
                 call.respond(AssetsMapRoute(call).delete())
             }
+            post("/get") {
+                call.respond(AssetsMapRoute(call).get())
+            }
         }
 
         route("/book") {

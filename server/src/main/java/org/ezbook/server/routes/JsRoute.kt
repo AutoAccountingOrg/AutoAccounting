@@ -171,7 +171,7 @@ class JsRoute(private val session: ApplicationCall, private val context: android
         Server.log("识别用时: $total ms")
 
         //  资产映射
-        Assets.setAssetsMap(billInfoModel)
+        val shouldMap = Assets.setAssetsMap(billInfoModel)
 
         // 分类映射
         Category.setCategoryMap(billInfoModel)
@@ -197,9 +197,7 @@ class JsRoute(private val session: ApplicationCall, private val context: android
         } else {
             billInfoModel.state = BillState.Edited
         }
-        if (billInfoModel.auto) {
-            billInfoModel.state = BillState.Edited
-        }
+
 
 
 
@@ -220,7 +218,11 @@ class JsRoute(private val session: ApplicationCall, private val context: android
                 }
             } else {
                 // try
-                sync2Book(context)
+                if (shouldMap) {
+                    billInfoModel.state = BillState.Wait2Edit
+                } else {
+                    billInfoModel.state = BillState.Edited
+                }
                 val showTip =
                     Db.get().settingDao().query(Setting.SHOW_AUTO_BILL_TIP)?.value == "true"
                 if (showTip) {
@@ -239,6 +241,7 @@ class JsRoute(private val session: ApplicationCall, private val context: android
             appDataModel.rule = billInfoModel.ruleName
             appDataModel.version = Db.get().settingDao().query(Setting.RULE_VERSION)?.value ?: ""
             Db.get().dataDao().update(appDataModel)
+            sync2Book(context)
         }
         return ResultModel(200, "OK", billInfoModel)
     }

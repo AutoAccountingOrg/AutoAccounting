@@ -15,6 +15,7 @@
 
 package org.ezbook.server.db.model
 
+import android.net.Uri
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.Gson
@@ -74,6 +75,18 @@ class AssetsMapModel {
 
         suspend fun remove(id: Long) = withContext(Dispatchers.IO) {
             Server.request("assets/map/delete?id=$id")
+        }
+
+        suspend fun getByName(account: String): AssetsMapModel? = withContext(Dispatchers.IO) {
+            val response = Server.request("assets/map/get?name=${Uri.encode(account)}")
+
+            runCatching {
+                val json = Gson().fromJson(response, JsonObject::class.java)
+                Gson().fromJson(
+                    json.getAsJsonObject("data"),
+                    AssetsMapModel::class.java
+                )
+            }.getOrNull()
         }
     }
 }

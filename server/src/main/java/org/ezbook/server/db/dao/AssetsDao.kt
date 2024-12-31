@@ -26,12 +26,12 @@ import org.ezbook.server.db.model.AssetsModel
 interface AssetsDao {
 
     //根据条件查询
-    @Query("SELECT * FROM AssetsModel ORDER BY id DESC LIMIT :limit OFFSET :offset")
-    suspend fun load(limit: Int, offset: Int): List<AssetsModel>
+    @Query("SELECT * FROM AssetsModel ORDER BY id DESC ")
+    suspend fun load(): List<AssetsModel>
 
     //根据条件查询
-    @Query("SELECT * FROM AssetsModel WHERE type = :type ORDER BY id DESC LIMIT :limit OFFSET :offset")
-    suspend fun load(limit: Int, offset: Int, type: String): List<AssetsModel>
+    @Query("SELECT * FROM AssetsModel WHERE type = :type ORDER BY id DESC")
+    suspend fun load(type: String): List<AssetsModel>
 
 
     // 统计总数
