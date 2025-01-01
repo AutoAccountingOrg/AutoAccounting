@@ -9,10 +9,9 @@ import org.ezbook.server.constant.AssetsType
 import org.ezbook.server.db.model.AssetsModel
 
 class AssetsSelectorAdapter(
-    private val list: MutableList<AssetsModel>,
     private val callback: (AssetsModel) -> Unit
 ) : BaseAdapter<AdapterAssetsBinding, AssetsModel>(
-    AdapterAssetsBinding::class.java, list
+    AdapterAssetsBinding::class.java
 ) {
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterAssetsBinding, AssetsModel>) {
         holder.binding.root.setOnClickListener {
@@ -40,6 +39,14 @@ class AssetsSelectorAdapter(
         }
 
 
+    }
+
+    override fun areItemsSame(oldItem: AssetsModel, newItem: AssetsModel): Boolean {
+        return oldItem.id == newItem.id
+    }
+
+    override fun areContentsSame(oldItem: AssetsModel, newItem: AssetsModel): Boolean {
+        return oldItem == newItem
     }
 
 }

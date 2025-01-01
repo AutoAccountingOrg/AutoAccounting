@@ -29,10 +29,8 @@ import net.ankio.auto.ui.utils.ResourceUtils
 import org.ezbook.server.db.model.AssetsMapModel
 
 class AssetsMapAdapter(
-    val dataItems: MutableList<AssetsMapModel>,
     val activity: Activity
-) : BaseAdapter<AdapterMapBinding, AssetsMapModel>(AdapterMapBinding::class.java, dataItems) {
-
+) : BaseAdapter<AdapterMapBinding, AssetsMapModel>(AdapterMapBinding::class.java) {
 
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterMapBinding, AssetsMapModel>) {
         val binding = holder.binding
@@ -41,8 +39,7 @@ class AssetsMapAdapter(
             val item = holder.item!!
             val position = indexOf(item)
             AssetsMapDialog(activity, item) { changedAssetsMap ->
-                dataItems[position] = changedAssetsMap
-                notifyItemChanged(position)
+                updateItem(position, changedAssetsMap)
                 holder.launch {
                     AssetsMapModel.put(changedAssetsMap)
                 }
@@ -64,9 +61,7 @@ class AssetsMapAdapter(
                         AssetsMapModel.remove(item.id)
                     }
 
-                    val position = dataItems.indexOf(item)
-                    dataItems.remove(item)
-                    notifyItemRemoved(position)
+                    removeItem(item)
                 }
                 .show()
             true
@@ -88,6 +83,14 @@ class AssetsMapAdapter(
 
         binding.raw.text = data.name
         binding.target.setText(data.mapName)
+    }
+
+    override fun areItemsSame(oldItem: AssetsMapModel, newItem: AssetsMapModel): Boolean {
+        return oldItem.id == newItem.id
+    }
+
+    override fun areContentsSame(oldItem: AssetsMapModel, newItem: AssetsMapModel): Boolean {
+        return oldItem == newItem
     }
 }
 

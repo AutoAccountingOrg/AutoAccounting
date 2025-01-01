@@ -12,10 +12,9 @@ import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.BookBillModel
 
 class BillSelectorAdapter(
-    list: MutableList<BookBillModel>,
     private val selectApp: MutableList<String>
 ) : BaseAdapter<AdapterBookBillBinding, BookBillModel>(
-    AdapterBookBillBinding::class.java, list
+    AdapterBookBillBinding::class.java
 ) {
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterBookBillBinding, BookBillModel>) {
         val binding = holder.binding
@@ -52,6 +51,14 @@ class BillSelectorAdapter(
         binding.date.text = DateUtils.stampToDate(data.time, "yyyy-MM-dd HH:mm")
 
 
+    }
+
+    override fun areItemsSame(oldItem: BookBillModel, newItem: BookBillModel): Boolean {
+        return oldItem.remoteId == newItem.remoteId
+    }
+
+    override fun areContentsSame(oldItem: BookBillModel, newItem: BookBillModel): Boolean {
+        return oldItem == newItem
     }
 
 }

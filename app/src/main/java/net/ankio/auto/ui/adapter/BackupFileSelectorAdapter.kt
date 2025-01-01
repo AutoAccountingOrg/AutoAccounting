@@ -9,10 +9,9 @@ import net.ankio.auto.ui.api.BaseViewHolder
 import net.ankio.auto.utils.DateUtils
 
 class BackupFileSelectorAdapter(
-    private val list: MutableList<String>,
     private val callback: (uri: String) -> Unit
 ) : BaseAdapter<AdapterBackupBinding, String>(
-    AdapterBackupBinding::class.java, list
+    AdapterBackupBinding::class.java
 ) {
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterBackupBinding, String>) {
         val binding = holder.binding
@@ -62,6 +61,14 @@ class BackupFileSelectorAdapter(
             //  binding.appIcon.setImageDrawable(toGrayscale(icon))
         }
 
+    }
+
+    override fun areItemsSame(oldItem: String, newItem: String): Boolean {
+        return oldItem == newItem
+    }
+
+    override fun areContentsSame(oldItem: String, newItem: String): Boolean {
+        return oldItem == newItem
     }
 
 }

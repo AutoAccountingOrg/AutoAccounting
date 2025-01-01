@@ -21,13 +21,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentCategoryBinding
 import net.ankio.auto.ui.adapter.CategoryMapAdapter
 import net.ankio.auto.ui.api.BasePageFragment
 import net.ankio.auto.ui.componets.MaterialSearchView
+import net.ankio.auto.ui.componets.WrapContentLinearLayoutManager
 import net.ankio.auto.ui.utils.viewBinding
 import org.ezbook.server.db.model.CategoryMapModel
 
@@ -43,8 +43,8 @@ class CategoryMapFragment : BasePageFragment<CategoryMapModel>() {
 
     override fun onCreateAdapter() {
         val recyclerView = statusPage.contentView!!
-        recyclerView.layoutManager = LinearLayoutManager(context)
-        recyclerView.adapter = CategoryMapAdapter(pageData, requireActivity())
+        recyclerView.layoutManager = WrapContentLinearLayoutManager(context)
+        recyclerView.adapter = CategoryMapAdapter(requireActivity())
     }
 
     override fun onCreateView(

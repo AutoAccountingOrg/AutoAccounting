@@ -29,13 +29,8 @@ import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.AppDataModel
 
 class AppDataAdapter(
-    private val list: MutableList<AppDataModel>,
     private val activity: BaseActivity
-) : BaseAdapter<AdapterDataBinding, AppDataModel>(AdapterDataBinding::class.java, list) {
-
-
-    private val version = ConfigUtils.getString(Setting.RULE_VERSION, "0")
-
+) : BaseAdapter<AdapterDataBinding, AppDataModel>(AdapterDataBinding::class.java) {
 
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterDataBinding, AppDataModel>) {
         val binding = holder.binding
@@ -143,5 +138,13 @@ class AppDataAdapter(
     fun setOnContentClick(onContentClick: (AppDataModel) -> Unit): AppDataAdapter {
         this.onContentClick = onContentClick
         return this
+    }
+
+    override fun areItemsSame(oldItem: AppDataModel, newItem: AppDataModel): Boolean {
+        return oldItem.id == newItem.id
+    }
+
+    override fun areContentsSame(oldItem: AppDataModel, newItem: AppDataModel): Boolean {
+        return oldItem == newItem
     }
 }

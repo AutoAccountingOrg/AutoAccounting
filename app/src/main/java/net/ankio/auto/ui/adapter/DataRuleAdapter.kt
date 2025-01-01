@@ -22,8 +22,8 @@ import net.ankio.auto.ui.api.BaseViewHolder
 import net.ankio.auto.ui.utils.ToastUtils
 import org.ezbook.server.db.model.RuleModel
 
-class DataRuleAdapter(private val list: MutableList<RuleModel>) :
-    BaseAdapter<AdapterDataRuleBinding, RuleModel>(AdapterDataRuleBinding::class.java, list) {
+class DataRuleAdapter :
+    BaseAdapter<AdapterDataRuleBinding, RuleModel>(AdapterDataRuleBinding::class.java) {
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterDataRuleBinding, RuleModel>) {
         val binding = holder.binding
         binding.enable.setOnCheckedChangeListener { buttonView, isChecked ->
@@ -71,6 +71,14 @@ class DataRuleAdapter(private val list: MutableList<RuleModel>) :
         holder.binding.enable.isChecked = data.enabled
 
         holder.binding.autoRecord.isChecked = data.autoRecord
+    }
+
+    override fun areItemsSame(oldItem: RuleModel, newItem: RuleModel): Boolean {
+        return oldItem.id == newItem.id
+    }
+
+    override fun areContentsSame(oldItem: RuleModel, newItem: RuleModel): Boolean {
+        return oldItem == newItem
     }
 
 

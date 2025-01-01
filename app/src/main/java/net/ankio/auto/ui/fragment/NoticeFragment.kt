@@ -22,7 +22,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
-import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
@@ -33,6 +32,7 @@ import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.ui.adapter.AppAdapter
 import net.ankio.auto.ui.api.BasePageFragment
 import net.ankio.auto.ui.componets.MaterialSearchView
+import net.ankio.auto.ui.componets.WrapContentLinearLayoutManager
 import net.ankio.auto.ui.models.AppInfo
 import net.ankio.auto.ui.utils.viewBinding
 import org.ezbook.server.constant.DefaultData
@@ -89,8 +89,8 @@ class NoticeFragment : BasePageFragment<AppInfo>() {
                 .filter { it.isNotEmpty() }
         Logger.d("selected apps: $selectedApps")
         val recyclerView = binding.statusPage.contentView!!
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        recyclerView.adapter = AppAdapter(pageData, requireActivity().packageManager) {
+        recyclerView.layoutManager = WrapContentLinearLayoutManager(requireContext())
+        recyclerView.adapter = AppAdapter(requireActivity().packageManager) {
             selectedApps = if (!it.isSelected) {
                 selectedApps.filter { packageName -> packageName != it.packageName }
             } else {

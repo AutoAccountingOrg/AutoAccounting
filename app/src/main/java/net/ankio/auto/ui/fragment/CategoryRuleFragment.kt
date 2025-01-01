@@ -19,11 +19,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.recyclerview.widget.LinearLayoutManager
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentCategoryRuleBinding
 import net.ankio.auto.ui.adapter.CategoryRuleAdapter
 import net.ankio.auto.ui.api.BasePageFragment
+import net.ankio.auto.ui.componets.WrapContentLinearLayoutManager
 import net.ankio.auto.ui.utils.viewBinding
 import org.ezbook.server.db.model.CategoryRuleModel
 
@@ -35,8 +35,8 @@ class CategoryRuleFragment : BasePageFragment<CategoryRuleModel>() {
 
     override fun onCreateAdapter() {
         val recyclerView = statusPage.contentView!!
-        recyclerView.layoutManager = LinearLayoutManager(context)
-        recyclerView.adapter = CategoryRuleAdapter(pageData, requireActivity()) { item, position ->
+        recyclerView.layoutManager = WrapContentLinearLayoutManager(context)
+        recyclerView.adapter = CategoryRuleAdapter(requireActivity()) { item, position ->
             val bundle = Bundle().apply {
                 putString("data", item.toJson())
             }

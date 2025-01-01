@@ -15,21 +15,20 @@
 
 package net.ankio.auto.ui.adapter
 
-import androidx.recyclerview.widget.LinearLayoutManager
 import net.ankio.auto.databinding.AdapterOrderBinding
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
+import net.ankio.auto.ui.componets.WrapContentLinearLayoutManager
 import net.ankio.auto.ui.models.OrderGroup
 import org.ezbook.server.db.model.BillInfoModel
 
-class OrderAdapter(resultData: MutableList<OrderGroup>) :
+class OrderAdapter :
     BaseAdapter<AdapterOrderBinding, OrderGroup>(
-        AdapterOrderBinding::class.java,
-        resultData
+        AdapterOrderBinding::class.java
     ) {
 
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterOrderBinding, OrderGroup>) {
-        val layoutManager = LinearLayoutManager(holder.context)
+        val layoutManager = WrapContentLinearLayoutManager(holder.context)
         layoutManager.isSmoothScrollbarEnabled = true
         holder.binding.recyclerView.layoutManager = layoutManager
     }
@@ -42,7 +41,7 @@ class OrderAdapter(resultData: MutableList<OrderGroup>) :
     ) {
         val binding = holder.binding
         // 直接创建新的适配器，避免缓存导致的问题
-        val adapter = OrderItemAdapter(data.bills.toMutableList())
+        val adapter = OrderItemAdapter()
         adapter.setOnItemClickListener { billInfoModel, pos ->
             onItemClickListener?.invoke(billInfoModel, pos, adapter)
         }
@@ -52,6 +51,7 @@ class OrderAdapter(resultData: MutableList<OrderGroup>) :
         adapter.setOnMoreClickListener {
             onMoreClickListener?.invoke(it, adapter)
         }
+        adapter.updateItems(data.bills)
         binding.recyclerView.adapter = adapter
         binding.title.text = data.date
 
@@ -71,6 +71,14 @@ class OrderAdapter(resultData: MutableList<OrderGroup>) :
 
     fun setOnMoreClickListener(listener: (BillInfoModel, OrderItemAdapter) -> Unit) {
         onMoreClickListener = listener
+    }
+
+    override fun areItemsSame(oldItem: OrderGroup, newItem: OrderGroup): Boolean {
+        return oldItem.date == newItem.date && oldItem.bills == newItem.bills
+    }
+
+    override fun areContentsSame(oldItem: OrderGroup, newItem: OrderGroup): Boolean {
+        return oldItem == newItem
     }
 
 }

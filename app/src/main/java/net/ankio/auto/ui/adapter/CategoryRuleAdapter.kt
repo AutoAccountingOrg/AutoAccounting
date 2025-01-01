@@ -32,10 +32,9 @@ import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
 import org.ezbook.server.db.model.CategoryRuleModel
 
 class CategoryRuleAdapter(
-    val dataItems: MutableList<CategoryRuleModel>,
     val activity: Activity,
     val onClickEdit: (CategoryRuleModel, Int) -> Unit = { _, _ -> }
-) : BaseAdapter<AdapterRuleBinding, CategoryRuleModel>(AdapterRuleBinding::class.java, dataItems) {
+) : BaseAdapter<AdapterRuleBinding, CategoryRuleModel>(AdapterRuleBinding::class.java) {
 
 
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterRuleBinding, CategoryRuleModel>) {
@@ -53,11 +52,8 @@ class CategoryRuleAdapter(
                         withContext(Dispatchers.IO) {
                             CategoryRuleModel.remove(item.id)
                         }
-                        val position = indexOf(item)
-                        if (position == -1) return@launch
-                        dataItems.removeAt(position)
                         withContext(Dispatchers.Main) {
-                            notifyItemRemoved(position)
+                            removeItem(item)
                         }
                     }
                 }
@@ -116,6 +112,14 @@ class CategoryRuleAdapter(
         flexboxLayout.appendWaveTextview(lastElement["book"] as String) { _, _ -> }
         flexboxLayout.appendTextView(activity.getString(R.string.condition_result_category))
         flexboxLayout.appendWaveTextview(lastElement["category"] as String) { _, _ -> }
+    }
+
+    override fun areItemsSame(oldItem: CategoryRuleModel, newItem: CategoryRuleModel): Boolean {
+        return oldItem.id == newItem.id
+    }
+
+    override fun areContentsSame(oldItem: CategoryRuleModel, newItem: CategoryRuleModel): Boolean {
+        return oldItem == newItem
     }
 }
 

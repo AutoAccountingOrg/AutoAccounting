@@ -18,12 +18,12 @@ package net.ankio.auto.ui.dialog
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
-import androidx.recyclerview.widget.LinearLayoutManager
 import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogAppBinding
 import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.ui.adapter.AppListAdapter
 import net.ankio.auto.ui.api.BaseSheetDialog
+import net.ankio.auto.ui.componets.WrapContentLinearLayoutManager
 import net.ankio.auto.ui.models.AutoApp
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
@@ -49,18 +49,17 @@ class AppDialog(private val context: Context, private val finish: () -> Unit) :
         binding = DialogAppBinding.inflate(inflater)
 
         val recyclerView = binding.recyclerView
-        recyclerView.layoutManager = LinearLayoutManager(context)
-        recyclerView.adapter =
-            AppListAdapter(
-                context,
-                apps,
-                ConfigUtils.getString(Setting.BOOK_APP_ID, DefaultData.BOOK_APP)
-            ) {
-                ConfigUtils.putString(Setting.BOOK_APP_ID, it.packageName)
-                dismiss()
-            }
+        recyclerView.layoutManager = WrapContentLinearLayoutManager(context)
+        val adapter = AppListAdapter(
+            context,
+            ConfigUtils.getString(Setting.BOOK_APP_ID, DefaultData.BOOK_APP)
+        ) {
+            ConfigUtils.putString(Setting.BOOK_APP_ID, it.packageName)
+            dismiss()
+        }
+        recyclerView.adapter = adapter
 
-
+        adapter.updateItems(apps)
         return binding.root
     }
 

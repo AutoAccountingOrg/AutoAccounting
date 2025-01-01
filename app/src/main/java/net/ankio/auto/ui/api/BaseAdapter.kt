@@ -17,13 +17,15 @@ package net.ankio.auto.ui.api
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 
 abstract class BaseAdapter<T : ViewBinding, E>(
-    bindingClass: Class<T>,
-    private val items: MutableList<E> = mutableListOf()
+    bindingClass: Class<T>
 ) : RecyclerView.Adapter<BaseViewHolder<T, E>>() {
+
+    private val items = mutableListOf<E>()
 
     private val inflateMethod = bindingClass.getMethod(
         "inflate",
@@ -40,8 +42,21 @@ abstract class BaseAdapter<T : ViewBinding, E>(
         notifyItemChanged(index)
     }
 
+    fun size(): Int {
+        return items.size
+    }
+
     fun removeItem(index: Int) {
         if (index < 0 || index >= items.size) {
+            return
+        }
+        items.removeAt(index)
+        notifyItemRemoved(index)
+    }
+
+    fun removeItem(item: E) {
+        val index = items.indexOf(item)
+        if (index < 0) {
             return
         }
         items.removeAt(index)
@@ -98,5 +113,32 @@ abstract class BaseAdapter<T : ViewBinding, E>(
         holder.clear()
         return super.onFailedToRecycleView(holder)
     }
+
+    fun updateItems(newItems: List<E>) {
+        val diffCallback = object : DiffUtil.Callback() {
+            override fun getOldListSize(): Int = items.size
+            override fun getNewListSize(): Int = newItems.size
+
+            override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                return areItemsSame(items[oldItemPosition], newItems[newItemPosition])
+            }
+
+            override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                return areContentsSame(items[oldItemPosition], newItems[newItemPosition])
+            }
+        }
+
+        val diffResult = DiffUtil.calculateDiff(diffCallback)
+        items.clear()
+        items.addAll(newItems)
+        //Logger.d("updateItems: ${items.size},diffResult:$diffResult")
+        diffResult.dispatchUpdatesTo(this)
+    }
+
+    // 需要在子类中实现的方法，用于判断两个项目是否是同一个项目
+    protected abstract fun areItemsSame(oldItem: E, newItem: E): Boolean
+
+    // 需要在子类中实现的方法，用于判断两个项目的内容是否相同
+    protected abstract fun areContentsSame(oldItem: E, newItem: E): Boolean
 
 }

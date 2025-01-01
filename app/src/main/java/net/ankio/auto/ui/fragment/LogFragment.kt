@@ -23,7 +23,6 @@ import android.view.ViewGroup
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -32,6 +31,7 @@ import net.ankio.auto.databinding.FragmentLogBinding
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.adapter.LogAdapter
 import net.ankio.auto.ui.api.BasePageFragment
+import net.ankio.auto.ui.componets.WrapContentLinearLayoutManager
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.viewBinding
@@ -61,8 +61,8 @@ class LogFragment : BasePageFragment<LogModel>() {
 
     override fun onCreateAdapter() {
         val recyclerView = binding.statusPage.contentView
-        recyclerView?.layoutManager = LinearLayoutManager(requireContext())
-        recyclerView?.adapter = LogAdapter(pageData)
+        recyclerView?.layoutManager = WrapContentLinearLayoutManager(requireContext())
+        recyclerView?.adapter = LogAdapter()
         recyclerView?.addItemDecoration(
             DividerItemDecoration(
                 requireContext(),

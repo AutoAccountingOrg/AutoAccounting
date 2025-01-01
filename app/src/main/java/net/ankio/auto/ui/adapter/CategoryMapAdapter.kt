@@ -29,9 +29,8 @@ import net.ankio.auto.utils.BillTool
 import org.ezbook.server.db.model.CategoryMapModel
 
 class CategoryMapAdapter(
-    val dataItems: MutableList<CategoryMapModel>,
     val activity: Activity
-) : BaseAdapter<AdapterMapBinding, CategoryMapModel>(AdapterMapBinding::class.java, dataItems) {
+) : BaseAdapter<AdapterMapBinding, CategoryMapModel>(AdapterMapBinding::class.java) {
 
 
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterMapBinding, CategoryMapModel>) {
@@ -72,6 +71,14 @@ class CategoryMapAdapter(
                 }
             }
         }
+    }
+
+    override fun areItemsSame(oldItem: CategoryMapModel, newItem: CategoryMapModel): Boolean {
+        return oldItem.id == newItem.id
+    }
+
+    override fun areContentsSame(oldItem: CategoryMapModel, newItem: CategoryMapModel): Boolean {
+        return oldItem == newItem
     }
 }
 

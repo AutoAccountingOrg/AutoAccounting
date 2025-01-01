@@ -27,7 +27,6 @@ import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
@@ -45,6 +44,7 @@ import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.api.BasePageFragment
 import net.ankio.auto.ui.componets.CustomNavigationRail
 import net.ankio.auto.ui.componets.MaterialSearchView
+import net.ankio.auto.ui.componets.WrapContentLinearLayoutManager
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
 import net.ankio.auto.ui.dialog.DataEditorDialog
 import net.ankio.auto.ui.models.RailMenuItem
@@ -71,8 +71,8 @@ class DataFragment : BasePageFragment<AppDataModel>(), Toolbar.OnMenuItemClickLi
 
     override fun onCreateAdapter() {
         val recyclerView = binding.statusPage.contentView!!
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        val adapter = AppDataAdapter(pageData, requireActivity() as BaseActivity)
+        recyclerView.layoutManager = WrapContentLinearLayoutManager(requireContext())
+        val adapter = AppDataAdapter(requireActivity() as BaseActivity)
         adapter
             .setOnEditClick(::onEditClick)
             .setOnLongClick(::onLongClick)

@@ -33,9 +33,8 @@ import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BillInfoModel
 
 class OrderItemAdapter(
-    private val list: MutableList<BillInfoModel>,
     private val showMore: Boolean = true
-) : BaseAdapter<AdapterOrderItemBinding, BillInfoModel>(AdapterOrderItemBinding::class.java, list) {
+) : BaseAdapter<AdapterOrderItemBinding, BillInfoModel>(AdapterOrderItemBinding::class.java) {
 
     private var onItemClickListener: ((BillInfoModel, Int) -> Unit)? = null
     private var onItemLongClickListener: ((BillInfoModel, Int) -> Unit)? = null
@@ -176,6 +175,14 @@ class OrderItemAdapter(
         }
 
 
+    }
+
+    override fun areItemsSame(oldItem: BillInfoModel, newItem: BillInfoModel): Boolean {
+        return oldItem.id == newItem.id
+    }
+
+    override fun areContentsSame(oldItem: BillInfoModel, newItem: BillInfoModel): Boolean {
+        return oldItem == newItem
     }
 
 }

@@ -20,7 +20,6 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -28,6 +27,7 @@ import net.ankio.auto.databinding.DialogCategorySelectBinding
 import net.ankio.auto.ui.adapter.BillSelectorAdapter
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.componets.StatusPage
+import net.ankio.auto.ui.componets.WrapContentLinearLayoutManager
 import org.ezbook.server.db.model.BookBillModel
 
 class BillSelectorDialog(
@@ -37,18 +37,18 @@ class BillSelectorDialog(
 ) :
     BaseSheetDialog(context) {
     private lateinit var binding: DialogCategorySelectBinding
-    private val dataItems = mutableListOf<BookBillModel>()
     private lateinit var statusPage: StatusPage
+    private lateinit var adapter: BillSelectorAdapter
     override fun onCreateView(inflater: LayoutInflater): View {
         binding = DialogCategorySelectBinding.inflate(inflater)
-        val layoutManager = LinearLayoutManager(context)
+        val layoutManager = WrapContentLinearLayoutManager(context)
         statusPage = binding.statusPage
         //cardView = binding.cardView
         //cardViewInner = binding.cardViewInner
         val recyclerView = statusPage.contentView!!
         recyclerView.layoutManager = layoutManager
-
-        recyclerView.adapter = BillSelectorAdapter(dataItems, selectedBills)
+        adapter = BillSelectorAdapter(selectedBills)
+        recyclerView.adapter = adapter
 
         recyclerView.setPadding(0, 0, 0, 0)
 
@@ -75,10 +75,9 @@ class BillSelectorDialog(
             }
             return
         }
-        dataItems.addAll(list)
         withContext(Dispatchers.Main) {
             statusPage.showContent()
-            statusPage.contentView!!.adapter?.notifyItemRangeInserted(0, list.size)
+            adapter.updateItems(list)
         }
     }
 

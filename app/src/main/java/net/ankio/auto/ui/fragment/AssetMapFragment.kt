@@ -20,11 +20,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.launch
 import net.ankio.auto.databinding.FragmentMapBinding
 import net.ankio.auto.ui.adapter.AssetsMapAdapter
 import net.ankio.auto.ui.api.BasePageFragment
+import net.ankio.auto.ui.componets.WrapContentLinearLayoutManager
 import net.ankio.auto.ui.dialog.AssetsMapDialog
 import net.ankio.auto.ui.utils.viewBinding
 import org.ezbook.server.db.model.AssetsMapModel
@@ -48,8 +48,8 @@ class AssetMapFragment : BasePageFragment<AssetsMapModel>() {
 
     override fun onCreateAdapter() {
         val recyclerView = statusPage.contentView!!
-        recyclerView.layoutManager = LinearLayoutManager(context)
-        recyclerView.adapter = AssetsMapAdapter(pageData, requireActivity())
+        recyclerView.layoutManager = WrapContentLinearLayoutManager(context)
+        recyclerView.adapter = AssetsMapAdapter(requireActivity())
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

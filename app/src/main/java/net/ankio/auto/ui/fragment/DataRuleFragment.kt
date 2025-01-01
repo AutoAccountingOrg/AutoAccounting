@@ -25,7 +25,6 @@ import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.JsonObject
 import kotlinx.coroutines.launch
 import net.ankio.auto.App
@@ -35,6 +34,7 @@ import net.ankio.auto.ui.adapter.DataRuleAdapter
 import net.ankio.auto.ui.api.BasePageFragment
 import net.ankio.auto.ui.componets.CustomNavigationRail
 import net.ankio.auto.ui.componets.MaterialSearchView
+import net.ankio.auto.ui.componets.WrapContentLinearLayoutManager
 import net.ankio.auto.ui.models.RailMenuItem
 import net.ankio.auto.ui.utils.viewBinding
 import org.ezbook.server.constant.DataType
@@ -55,8 +55,8 @@ class DataRuleFragment : BasePageFragment<RuleModel>(), Toolbar.OnMenuItemClickL
 
     override fun onCreateAdapter() {
         val recyclerView = binding.statusPage.contentView!!
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        recyclerView.adapter = DataRuleAdapter(pageData)
+        recyclerView.layoutManager = WrapContentLinearLayoutManager(requireContext())
+        recyclerView.adapter = DataRuleAdapter()
     }
 
     override val binding: FragmentDataRuleBinding by viewBinding(FragmentDataRuleBinding::inflate)

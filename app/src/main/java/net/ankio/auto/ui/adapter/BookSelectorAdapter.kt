@@ -25,10 +25,9 @@ import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.BookNameModel
 
 class BookSelectorAdapter(
-    val dataItems: MutableList<BookNameModel>,
     private val showSelect: Boolean = false,
     private val onClick: (item: BookNameModel, type: BillType) -> Unit,
-) : BaseAdapter<AdapterBookBinding, BookNameModel>(AdapterBookBinding::class.java, dataItems) {
+) : BaseAdapter<AdapterBookBinding, BookNameModel>(AdapterBookBinding::class.java) {
 
 
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterBookBinding, BookNameModel>) {
@@ -73,6 +72,14 @@ class BookSelectorAdapter(
             ResourceUtils.getBookNameDrawable(data.name, holder.context, binding.book)
         }
         binding.itemValue.text = data.name
+    }
+
+    override fun areItemsSame(oldItem: BookNameModel, newItem: BookNameModel): Boolean {
+        return oldItem.id == newItem.id
+    }
+
+    override fun areContentsSame(oldItem: BookNameModel, newItem: BookNameModel): Boolean {
+        return oldItem == newItem
     }
 }
 

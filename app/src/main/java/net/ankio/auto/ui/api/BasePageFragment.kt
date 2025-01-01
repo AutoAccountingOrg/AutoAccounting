@@ -63,10 +63,10 @@ abstract class BasePageFragment<T> : BaseFragment() {
      */
     protected fun resetPage() {
         page = 1
-        val total = pageData.size
         pageData.clear()
         lifecycleScope.launch {
-            statusPage.contentView?.adapter?.notifyItemRangeRemoved(0, total)
+            val adapter = statusPage.contentView?.adapter as? BaseAdapter<*, T>
+            adapter?.updateItems(pageData.toList())
         }
     }
 
@@ -95,7 +95,8 @@ abstract class BasePageFragment<T> : BaseFragment() {
                     pageData.addAll(resultData)
                     lifecycleScope.launch {
                         statusPage.showContent()
-                        statusPage.contentView?.adapter?.notifyItemInserted(pageData.size - pageSize)
+                        val adapter = statusPage.contentView?.adapter as? BaseAdapter<*, T>
+                        adapter?.updateItems(pageData.toList())
 
                     }
                     val total = page * pageSize

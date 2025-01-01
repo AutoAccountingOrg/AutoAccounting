@@ -20,12 +20,12 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.launch
 import net.ankio.auto.databinding.DialogBookSelectBinding
 import net.ankio.auto.ui.adapter.BookSelectorAdapter
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.componets.StatusPage
+import net.ankio.auto.ui.componets.WrapContentLinearLayoutManager
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.BookNameModel
 
@@ -39,19 +39,19 @@ class BookSelectorDialog(
     private val dataItems = mutableListOf<BookNameModel>()
 
     private lateinit var statusPage: StatusPage
-
+    private lateinit var adapter: BookSelectorAdapter
     override fun onCreateView(inflater: LayoutInflater): View {
         binding = DialogBookSelectBinding.inflate(inflater)
         statusPage = binding.statusPage
         val recyclerView = statusPage.contentView!!
-        recyclerView.layoutManager = LinearLayoutManager(context)
+        recyclerView.layoutManager = WrapContentLinearLayoutManager(context)
         //cardView = binding.cardView
         //cardViewInner = recyclerView
-        recyclerView.adapter =
-            BookSelectorAdapter(dataItems, showSelect) { item, type ->
-                callback(item, type)
-                this@BookSelectorDialog.dismiss()
-            }
+        adapter = BookSelectorAdapter(showSelect) { item, type ->
+            callback(item, type)
+            this.dismiss()
+        }
+        recyclerView.adapter = adapter
 
 
         loadData()
@@ -72,8 +72,7 @@ class BookSelectorDialog(
                 })
             }
             dataItems.addAll(newData)
-
-            statusPage.contentView!!.adapter?.notifyItemInserted(0)
+            adapter.updateItems(dataItems)
             statusPage.showContent()
         }
     }

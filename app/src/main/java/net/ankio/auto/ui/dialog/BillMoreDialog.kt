@@ -15,11 +15,11 @@
 
 package net.ankio.auto.ui.dialog
 
+//import net.ankio.auto.ui.adapter.OrderItemAdapter
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -27,7 +27,7 @@ import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogBillMoreBinding
 import net.ankio.auto.ui.adapter.OrderItemAdapter
 import net.ankio.auto.ui.api.BaseSheetDialog
-//import net.ankio.auto.ui.adapter.OrderItemAdapter
+import net.ankio.auto.ui.componets.WrapContentLinearLayoutManager
 import org.ezbook.server.db.model.BillInfoModel
 
 class BillMoreDialog(
@@ -38,14 +38,14 @@ class BillMoreDialog(
     BaseSheetDialog(context) {
     private lateinit var binding: DialogBillMoreBinding
     private val dataItems = mutableListOf<BillInfoModel>()
-    private val adapter = OrderItemAdapter(dataItems, false)
+    private val adapter = OrderItemAdapter(false)
 
 
     override fun onViewCreated(view: View) {
         super.onViewCreated(view)
         val statusPage = binding.statusPage
         val recyclerView = statusPage.contentView!!
-        val layoutManager = LinearLayoutManager(context)
+        val layoutManager = WrapContentLinearLayoutManager(context)
         recyclerView.layoutManager = layoutManager
 
         adapter.setOnItemClickListener { item, position ->
@@ -69,7 +69,6 @@ class BillMoreDialog(
                 .show()
         }
         recyclerView.adapter = adapter
-        dataItems.clear()
         statusPage.showLoading()
         lifecycleScope.launch {
             val bills = BillInfoModel.getBillByGroup(billInfoModel.id)
@@ -79,9 +78,8 @@ class BillMoreDialog(
                 }
                 return@launch
             }
-            dataItems.addAll(bills)
             withContext(Dispatchers.Main) {
-                adapter.notifyDataSetChanged()
+                adapter.updateItems(bills)
                 statusPage.showContent()
             }
         }

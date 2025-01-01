@@ -20,7 +20,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -29,6 +28,7 @@ import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentBillBinding
 import net.ankio.auto.ui.adapter.OrderAdapter
 import net.ankio.auto.ui.api.BasePageFragment
+import net.ankio.auto.ui.componets.WrapContentLinearLayoutManager
 import net.ankio.auto.ui.dialog.BillMoreDialog
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
 import net.ankio.auto.ui.dialog.FloatEditorDialog
@@ -71,8 +71,8 @@ open class OrderFragment : BasePageFragment<OrderGroup>() {
 
     override fun onCreateAdapter() {
         val recyclerView = binding.statusPage.contentView!!
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        val adapter = OrderAdapter(pageData)
+        recyclerView.layoutManager = WrapContentLinearLayoutManager(requireContext())
+        val adapter = OrderAdapter()
         adapter.setOnItemClickListener { item, position, itemAdapter ->
             FloatEditorDialog(requireContext(), item, false, onConfirmClick = {
                 itemAdapter.updateItem(position, it)

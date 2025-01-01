@@ -19,12 +19,12 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.launch
 import net.ankio.auto.databinding.DialogBookSelectBinding
 import net.ankio.auto.ui.adapter.AssetsSelectorAdapter
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.componets.StatusPage
+import net.ankio.auto.ui.componets.WrapContentLinearLayoutManager
 import org.ezbook.server.constant.AssetsType
 import org.ezbook.server.db.model.AssetsModel
 
@@ -38,19 +38,21 @@ class AssetsSelectorDialog(
 
     private lateinit var statusPage: StatusPage
 
+    private lateinit var adapter: AssetsSelectorAdapter
+
     override fun onCreateView(inflater: LayoutInflater): View {
         binding = DialogBookSelectBinding.inflate(inflater)
         statusPage = binding.statusPage
         val recyclerView = statusPage.contentView!!
-        statusPage.contentView!!.layoutManager = LinearLayoutManager(context)
+        statusPage.contentView!!.layoutManager = WrapContentLinearLayoutManager(context)
 
         //cardView = binding.cardView
         // cardViewInner = statusPage
-
-        recyclerView.adapter = AssetsSelectorAdapter(dataItems) { item ->
+        adapter = AssetsSelectorAdapter { item ->
             callback(item)
             dismiss()
         }
+        recyclerView.adapter = adapter
         loadData()
         return binding.root
     }
@@ -82,7 +84,7 @@ class AssetsSelectorDialog(
             }
             )
 
-            statusPage.contentView!!.adapter?.notifyItemInserted(0)
+            adapter.updateItems(dataItems)
             statusPage.showContent()
         }
     }

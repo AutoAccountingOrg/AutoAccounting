@@ -38,12 +38,10 @@ import org.ezbook.server.db.model.CategoryModel
  */
 
 class CategorySelectorAdapter(
-    val dataItems: MutableList<CategoryModel>,
     private val onItemClick: (item: CategoryModel, pos: Int, hasChild: Boolean, view: View) -> Unit,
     private val onItemChildClick: (item: CategoryModel, pos: Int) -> Unit,
 ) : BaseAdapter<AdapterCategoryListBinding, CategoryModel>(
     AdapterCategoryListBinding::class.java,
-    dataItems
 ) {
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterCategoryListBinding, CategoryModel>) {
     }
@@ -108,8 +106,7 @@ class CategorySelectorAdapter(
         binding.icon.visibility = View.GONE
         binding.container.visibility = View.VISIBLE
         binding.recyclerView.layoutManager = GridLayoutManager(context, 5)
-        val categories = mutableListOf<CategoryModel>()
-        val adapter = CategorySelectorAdapter(categories, { childItem, pos, _, _ ->
+        val adapter = CategorySelectorAdapter({ childItem, pos, _, _ ->
             onItemChildClick(childItem, pos)
         }, { _, _ ->
             // 因为二级分类下面不会再有子类，所以子类点击直接忽略。
@@ -119,9 +116,7 @@ class CategorySelectorAdapter(
         // 面板没有子类，所以无法渲染~
 
         loadData(panelItem!!, holder) {
-            categories.clear()
-            categories.addAll(it)
-            adapter.notifyDataSetChanged()
+            adapter.updateItems(it)
             val leftDistanceView2: Int = data.id.toInt()
             val layoutParams = binding.imageView.layoutParams as ViewGroup.MarginLayoutParams
             layoutParams.leftMargin = leftDistanceView2 // 设置左边距
@@ -201,6 +196,14 @@ class CategorySelectorAdapter(
             setBackgroundResource(imageBackground)
             setColorFilter(imageColorFilter)
         }
+    }
+
+    override fun areItemsSame(oldItem: CategoryModel, newItem: CategoryModel): Boolean {
+        return oldItem.id == newItem.id
+    }
+
+    override fun areContentsSame(oldItem: CategoryModel, newItem: CategoryModel): Boolean {
+        return oldItem == newItem
     }
 
 }

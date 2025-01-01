@@ -170,7 +170,6 @@ class CategorySelectorDialog(
         // 为RecyclerView设置适配器
         adapter =
             CategorySelectorAdapter(
-                items,
                 onItemClick = { item, pos, hasChild, view ->
                     categoryModel1 = item
                     val panelPosition = getPanelIndex(pos) // 在当前位置，面板应该插入到哪里。
@@ -232,6 +231,7 @@ class CategorySelectorDialog(
                     categoryModel2 = item
                 },
             )
+        adapter.updateItems(items)
 
         // 为RecyclerView设置适配器
         recyclerView.adapter = adapter

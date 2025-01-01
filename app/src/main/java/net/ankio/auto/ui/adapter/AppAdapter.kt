@@ -22,10 +22,9 @@ import net.ankio.auto.ui.api.BaseViewHolder
 import net.ankio.auto.ui.models.AppInfo
 
 class AppAdapter(
-    private val list: MutableList<AppInfo>,
     private val pkg: PackageManager,
     private val callback: (AppInfo) -> Unit
-) : BaseAdapter<AdapterAppBinding, AppInfo>(AdapterAppBinding::class.java, list) {
+) : BaseAdapter<AdapterAppBinding, AppInfo>(AdapterAppBinding::class.java) {
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterAppBinding, AppInfo>) {
         val binding = holder.binding
         binding.root.setOnClickListener {
@@ -41,7 +40,7 @@ class AppAdapter(
         data: AppInfo,
         position: Int
     ) {
-        if (position < 0 || position >= list.size) {
+        if (position < 0 || position >= size()) {
             return
         }
 
@@ -61,10 +60,12 @@ class AppAdapter(
         }
     }
 
-    fun updateData(filtered: MutableList<AppInfo>) {
-        list.clear()
-        list.addAll(filtered)
-        notifyDataSetChanged()
+    override fun areItemsSame(oldItem: AppInfo, newItem: AppInfo): Boolean {
+        return oldItem.packageName == newItem.packageName
+    }
+
+    override fun areContentsSame(oldItem: AppInfo, newItem: AppInfo): Boolean {
+        return oldItem == newItem
     }
 
 

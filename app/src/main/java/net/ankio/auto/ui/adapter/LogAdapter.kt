@@ -24,8 +24,8 @@ import net.ankio.auto.utils.DateUtils
 import org.ezbook.server.constant.LogLevel
 import org.ezbook.server.db.model.LogModel
 
-class LogAdapter(list: MutableList<LogModel>) :
-    BaseAdapter<AdapterLogBinding, LogModel>(AdapterLogBinding::class.java, list) {
+class LogAdapter :
+    BaseAdapter<AdapterLogBinding, LogModel>(AdapterLogBinding::class.java) {
 
     companion object {
         private const val DATE_FORMAT = "yyyy-MM-dd\nHH:mm:ss"
@@ -76,5 +76,13 @@ class LogAdapter(list: MutableList<LogModel>) :
         // 使用映射获取颜色
         val colorResId = LOG_LEVEL_COLORS[data.level] ?: R.color.log_info
         binding.log.setTextColor(holder.context.getColor(colorResId))
+    }
+
+    override fun areItemsSame(oldItem: LogModel, newItem: LogModel): Boolean {
+        return oldItem.id == newItem.id
+    }
+
+    override fun areContentsSame(oldItem: LogModel, newItem: LogModel): Boolean {
+        return oldItem == newItem
     }
 }

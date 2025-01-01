@@ -29,9 +29,9 @@ import net.ankio.auto.ui.models.AutoApp
 import net.ankio.auto.utils.CustomTabsHelper
 
 class AppListAdapter(
-    private val context: Context, private val list: MutableList<AutoApp>,
+    private val context: Context,
     private val selectApp: String, private val callback: (AutoApp) -> Unit
-) : BaseAdapter<AdapterAutoAppBinding, AutoApp>(AdapterAutoAppBinding::class.java, list) {
+) : BaseAdapter<AdapterAutoAppBinding, AutoApp>(AdapterAutoAppBinding::class.java) {
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterAutoAppBinding, AutoApp>) {
         val binding = holder.binding
         binding.root.setOnClickListener {
@@ -92,5 +92,13 @@ class AppListAdapter(
             Logger.e("获取应用图标失败", e)
             null
         }
+    }
+
+    override fun areItemsSame(oldItem: AutoApp, newItem: AutoApp): Boolean {
+        return oldItem.packageName == newItem.packageName
+    }
+
+    override fun areContentsSame(oldItem: AutoApp, newItem: AutoApp): Boolean {
+        return oldItem == newItem
     }
 }

@@ -20,7 +20,6 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -30,6 +29,7 @@ import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.adapter.BackupFileSelectorAdapter
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.componets.StatusPage
+import net.ankio.auto.ui.componets.WrapContentLinearLayoutManager
 
 class BackupSelectorDialog(
     private val context: Context,
@@ -39,21 +39,23 @@ class BackupSelectorDialog(
 ) :
     BaseSheetDialog(context) {
     private lateinit var binding: DialogBookSelectBinding
-    private val dataItems = mutableListOf<String>()
     private lateinit var statusPage: StatusPage
+    private lateinit var adapter: BackupFileSelectorAdapter
     override fun onCreateView(inflater: LayoutInflater): View {
         binding = DialogBookSelectBinding.inflate(inflater)
-        val layoutManager = LinearLayoutManager(context)
+        val layoutManager = WrapContentLinearLayoutManager(context)
         statusPage = binding.statusPage
         //cardView = binding.cardView
         // cardViewInner = binding.statusPage
         val recyclerView = statusPage.contentView!!
         recyclerView.layoutManager = layoutManager
 
-        recyclerView.adapter = BackupFileSelectorAdapter(dataItems) {
+        adapter = BackupFileSelectorAdapter {
             callback.invoke(it)
             dismiss()
         }
+
+        recyclerView.adapter = adapter
 
         recyclerView.setPadding(0, 0, 0, 0)
 
@@ -77,11 +79,9 @@ class BackupSelectorDialog(
             }
             return
         }
-
-        dataItems.addAll(list)
         withContext(Dispatchers.Main) {
             statusPage.showContent()
-            statusPage.contentView!!.adapter?.notifyItemRangeInserted(0, list.size)
+            adapter.updateItems(list)
         }
     }
 
