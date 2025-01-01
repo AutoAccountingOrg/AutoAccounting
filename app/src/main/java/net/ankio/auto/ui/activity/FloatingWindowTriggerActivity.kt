@@ -67,6 +67,7 @@ class FloatingWindowTriggerActivity : Activity() {
 
     private fun startFloatService(intent: Intent) {
         val t = intent.getLongExtra("t", 0L)
+        Logger.i("startFloatService: t = $t")
         // 如果是1分钟之后才收到的intent,则不启动服务
         if (t < System.currentTimeMillis() - Constants.INTENT_TIMEOUT) {
             Logger.e("startFloatService error: t = $t is invalid")
