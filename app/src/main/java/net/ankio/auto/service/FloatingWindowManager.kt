@@ -140,9 +140,12 @@ class FloatingWindowManager(
         val from = intent.from
         Logger.i("Server start => $intent, From = $from")
         Logger.i("BillInfo：$billInfoModel")
-
         runCatching {
             processBillInfo()
+            billInfoModel.state = BillState.Edited
+            App.launch { //提前更新，防止重复，到了这个函数表示已经在准备拉起悬浮窗了
+                BillInfoModel.put(billInfoModel)
+            }
         }.onFailure {
             // 提醒用户报告错误
             Logger.e("Failed to record bill", it)
