@@ -208,7 +208,7 @@
                 <net.ankio.auto.ui.componets.IconView
                     android:id="@+id/debtExpendFrom"
                     android:layout_width="0dp"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
                     app:iconSrc="@mipmap/ic_launcher_round"
                     app:iconTintEnabled="false"
@@ -284,7 +284,7 @@
                 <net.ankio.auto.ui.componets.IconView
                     android:id="@+id/debtIncomeTo"
                     android:layout_width="0dp"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
                     app:iconSrc="@mipmap/ic_launcher_round"
                     app:iconTintEnabled="false"
