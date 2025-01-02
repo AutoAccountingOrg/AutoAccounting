@@ -94,6 +94,7 @@ class CategorySelectorAdapter(
 
     }
 
+
     /**
      * 渲染面板
      */
@@ -199,7 +200,7 @@ class CategorySelectorAdapter(
     }
 
     override fun areItemsSame(oldItem: CategoryModel, newItem: CategoryModel): Boolean {
-        return oldItem.id == newItem.id
+        return oldItem.id == newItem.id && oldItem.isPanel() == newItem.isPanel() && oldItem.isChild() == newItem.isChild()
     }
 
     override fun areContentsSame(oldItem: CategoryModel, newItem: CategoryModel): Boolean {

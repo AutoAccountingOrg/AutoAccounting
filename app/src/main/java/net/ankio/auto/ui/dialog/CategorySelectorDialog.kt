@@ -181,7 +181,7 @@ class CategorySelectorDialog(
                             // 点击两次，说明需要删除
                             items.removeAt(panelPosition)
                             // 计算位置的面板删除
-                            adapter.notifyItemRemoved(panelPosition)
+                            adapter.updateItems(items)
                             lastPosition = -1 // 归位
                             expand = false
                             categoryModel2 = null
@@ -196,17 +196,17 @@ class CategorySelectorDialog(
                         if (hasChild) {
                             if (expand) {
                                 items[panelPosition] = category
-                                adapter.notifyItemChanged(panelPosition, category)
+                                adapter.updateItems(items)
                             } else {
                                 items.add(panelPosition, category)
-                                adapter.notifyItemInserted(panelPosition)
+                                adapter.updateItems(items)
                                 expand = true
                             }
                         } else {
                             // 没有就移除
                             if (lastPosition != -1 && expand) {
                                 items.removeAt(lastPanelPosition)
-                                adapter.notifyItemRemoved(lastPanelPosition)
+                                adapter.updateItems(items)
                                 lastPosition = -1 // 归位
                                 expand = false
                                 return@CategorySelectorAdapter
@@ -216,12 +216,12 @@ class CategorySelectorDialog(
                         // 不同行的需要先删除
                         if (lastPosition != -1 && expand) {
                             items.removeAt(lastPanelPosition)
-                            adapter.notifyItemRemoved(lastPanelPosition)
+                            adapter.updateItems(items)
                             expand = false
                         }
                         if (hasChild) {
                             items.add(panelPosition, category)
-                            adapter.notifyItemInserted(panelPosition)
+                            adapter.updateItems(items)
                             expand = true
                         }
                     }
@@ -231,7 +231,7 @@ class CategorySelectorDialog(
                     categoryModel2 = item
                 },
             )
-        adapter.updateItems(items)
+
 
         // 为RecyclerView设置适配器
         recyclerView.adapter = adapter
@@ -263,7 +263,7 @@ class CategorySelectorDialog(
         withContext(Dispatchers.Main) {
             items.addAll(collection)
             // 在主线程更新 UI
-            adapter.notifyItemInserted(0)
+            adapter.updateItems(items)
             statusPage.showContent()
         }
     }
