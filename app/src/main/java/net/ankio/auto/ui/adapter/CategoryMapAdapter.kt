@@ -45,7 +45,7 @@ class CategoryMapAdapter(
                         item.mapName = BillTool.getCateName(category1?.name!!, category2?.name)
                         CategoryMapModel.put(item)
                         withContext(Dispatchers.Main) {
-                            notifyItemChanged(position)
+                            updateItem(position, item)
                         }
                     }
                 }.show(cancel = true)

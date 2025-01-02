@@ -55,24 +55,18 @@ open class OrderFragment : BasePageFragment<OrderGroup>() {
 
         withContext(Dispatchers.Main) {
 
-            val oldSize = pageData.size
-
-
-            if (oldSize == 0) {
-                statusPage.contentView?.adapter?.notifyDataSetChanged()
-            } else {
-                statusPage.contentView?.adapter?.notifyItemRangeInserted(oldSize, groupedData.size)
-            }
+            //    adapter.updateItems(groupedData, page == 1)
 
             callback.invoke(if (list.isEmpty()) emptyList() else groupedData)
         }
     }
 
+    val adapter = OrderAdapter()
 
     override fun onCreateAdapter() {
         val recyclerView = binding.statusPage.contentView!!
         recyclerView.layoutManager = WrapContentLinearLayoutManager(requireContext())
-        val adapter = OrderAdapter()
+
         adapter.setOnItemClickListener { item, position, itemAdapter ->
             FloatEditorDialog(requireContext(), item, false, onConfirmClick = {
                 itemAdapter.updateItem(position, it)

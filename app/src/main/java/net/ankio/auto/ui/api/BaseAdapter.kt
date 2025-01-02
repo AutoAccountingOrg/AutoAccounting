@@ -39,7 +39,7 @@ abstract class BaseAdapter<T : ViewBinding, E>(
             return
         }
         items[index] = item
-        notifyItemChanged(index)
+        updateItems(items)
     }
 
     fun size(): Int {
@@ -51,7 +51,7 @@ abstract class BaseAdapter<T : ViewBinding, E>(
             return
         }
         items.removeAt(index)
-        notifyItemRemoved(index)
+        updateItems(items)
     }
 
     fun removeItem(item: E) {
@@ -60,7 +60,7 @@ abstract class BaseAdapter<T : ViewBinding, E>(
             return
         }
         items.removeAt(index)
-        notifyItemRemoved(index)
+        updateItems(items)
     }
 
     fun indexOf(item: E): Int {

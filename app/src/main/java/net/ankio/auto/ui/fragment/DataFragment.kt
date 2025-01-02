@@ -69,10 +69,11 @@ class DataFragment : BasePageFragment<AppDataModel>(), Toolbar.OnMenuItemClickLi
         }
     }
 
+    private var adapter = AppDataAdapter(requireActivity() as BaseActivity)
+
     override fun onCreateAdapter() {
         val recyclerView = binding.statusPage.contentView!!
         recyclerView.layoutManager = WrapContentLinearLayoutManager(requireContext())
-        val adapter = AppDataAdapter(requireActivity() as BaseActivity)
         adapter
             .setOnEditClick(::onEditClick)
             .setOnLongClick(::onLongClick)
@@ -104,9 +105,8 @@ class DataFragment : BasePageFragment<AppDataModel>(), Toolbar.OnMenuItemClickLi
             .setTitle(requireActivity().getString(R.string.delete_title))
             .setMessage(requireActivity().getString(R.string.delete_data_message))
             .setPositiveButton(requireActivity().getString(R.string.sure_msg)) { _, _ ->
-                val position = pageData.indexOf(item)
                 pageData.remove(item)
-                binding.statusPage.contentView?.adapter?.notifyItemRemoved(position)
+                adapter.updateItems(pageData)
                 lifecycleScope.launch {
                     AppDataModel.delete(item.id)
                 }
