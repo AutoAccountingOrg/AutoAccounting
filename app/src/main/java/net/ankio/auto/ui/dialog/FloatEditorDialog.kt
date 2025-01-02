@@ -433,7 +433,10 @@ class FloatEditorDialog(
      */
     private fun bindingBookNameUI() {
         lifecycleScope.launch {
-            ResourceUtils.getBookNameDrawable(billInfoModel.bookName, context).let {
+            Logger.d("BookName => ${billInfoModel.bookName}")
+            val book = BookNameModel.getDefaultBook(billInfoModel.bookName)
+            Logger.d("Book => ${book.name}")
+            ResourceUtils.getBookNameDrawable(book.name, context).let {
                 binding.bookImage.setImageDrawable(it)
             }
         }

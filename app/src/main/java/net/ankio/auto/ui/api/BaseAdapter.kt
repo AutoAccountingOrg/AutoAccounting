@@ -35,11 +35,13 @@ abstract class BaseAdapter<T : ViewBinding, E>(
     )
 
     fun updateItem(index: Int, item: E) {
-        if (index < 0 || index >= items.size) {
+        val newItems = items.toMutableList()
+        if (index < 0 || index >= newItems.size) {
             return
         }
-        items[index] = item
-        updateItems(items)
+
+        newItems[index] = item
+        updateItems(newItems)
     }
 
     fun size(): Int {
@@ -47,20 +49,19 @@ abstract class BaseAdapter<T : ViewBinding, E>(
     }
 
     fun removeItem(index: Int) {
-        if (index < 0 || index >= items.size) {
+        val newItems = items.toMutableList()
+        if (index < 0 || index >= newItems.size) {
             return
         }
-        items.removeAt(index)
-        updateItems(items)
+        newItems.removeAt(index)
+        updateItems(newItems)
     }
 
     fun removeItem(item: E) {
-        val index = items.indexOf(item)
-        if (index < 0) {
-            return
+        val newItems = items.toMutableList()
+        if (newItems.remove(item)) {
+            updateItems(newItems)
         }
-        items.removeAt(index)
-        updateItems(items)
     }
 
     fun indexOf(item: E): Int {

@@ -79,7 +79,7 @@ open class OrderFragment : BasePageFragment<OrderGroup>() {
                 .setTitleInt(R.string.delete_title)
                 .setMessage(R.string.delete_bill_message)
                 .setPositiveButton(R.string.sure_msg) { _, _ ->
-                    itemAdapter.removeItem(position)
+                    itemAdapter.removeItem(item)
                     lifecycleScope.launch {
                         BillInfoModel.remove(item.id)
                     }
