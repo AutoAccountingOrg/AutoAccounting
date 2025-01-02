@@ -69,11 +69,12 @@ class DataFragment : BasePageFragment<AppDataModel>(), Toolbar.OnMenuItemClickLi
         }
     }
 
-    private var adapter = AppDataAdapter(requireActivity() as BaseActivity)
+    private lateinit var adapter: AppDataAdapter
 
     override fun onCreateAdapter() {
         val recyclerView = binding.statusPage.contentView!!
         recyclerView.layoutManager = WrapContentLinearLayoutManager(requireContext())
+        adapter = AppDataAdapter(requireActivity() as BaseActivity)
         adapter
             .setOnEditClick(::onEditClick)
             .setOnLongClick(::onLongClick)
