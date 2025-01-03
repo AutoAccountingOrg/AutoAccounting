@@ -140,8 +140,10 @@ class FloatingWindowManager(
         runCatching {
             processBillInfo()
             billInfoModel.state = BillState.Edited
-            App.launch { //提前更新，防止重复，到了这个函数表示已经在准备拉起悬浮窗了
-                BillInfoModel.put(billInfoModel)
+            if (billInfoModel.id > 0) {
+                App.launch {
+                    BillInfoModel.put(billInfoModel)
+                }
             }
         }.onFailure {
             // 提醒用户报告错误
