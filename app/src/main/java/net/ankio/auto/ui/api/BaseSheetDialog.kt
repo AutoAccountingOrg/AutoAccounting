@@ -217,6 +217,7 @@ abstract class BaseSheetDialog(private val context: Context) :
             if (imeVisible) {
                 // 键盘打开时调整布局
                 bottomSheet.updatePadding(bottom = imeHeight - App.navigationBarHeight)
+                onImeVisible()
             } else {
                 // 键盘关闭时恢复布局
                 bottomSheet.updatePadding(bottom = 0)
@@ -225,6 +226,10 @@ abstract class BaseSheetDialog(private val context: Context) :
         }
 
         super.show()
+    }
+
+    open fun onImeVisible() {
+
     }
 
     override fun dismiss() {

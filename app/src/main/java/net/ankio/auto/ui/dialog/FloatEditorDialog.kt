@@ -407,6 +407,13 @@ class FloatEditorDialog(
         binding.priceContainer.setOnClickListener { popupUtils.toggle() }
     }
 
+    override fun onImeVisible() {
+        //滚动到底部
+        binding.scrollView.post {
+            binding.scrollView.fullScroll(View.FOCUS_DOWN)
+        }
+    }
+
     private fun bindingFeeUI() {
         /*
         * 如果是转账，或者没有手续费，或者没有开启手续费，那么就不显示手续费
