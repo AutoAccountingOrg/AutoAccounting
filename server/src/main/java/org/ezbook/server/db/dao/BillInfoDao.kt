@@ -40,6 +40,9 @@ interface BillInfoDao {
     @Query("DELETE FROM BillInfoModel WHERE time < :time")
     suspend fun clearOld(time: Long)
 
+    @Query("DELETE FROM BillInfoModel")
+    suspend fun clear()
+
     @Query("SELECT * FROM BillInfoModel WHERE state = 'Wait2Edit' and groupId = -1")
     suspend fun loadWaitEdit(): List<BillInfoModel>
 

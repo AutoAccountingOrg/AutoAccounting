@@ -95,7 +95,7 @@ class BillRoute(private val session: ApplicationCall) {
     }
 
     suspend fun clear(): ResultModel {
-        Db.get().billInfoDao().clearOld(System.currentTimeMillis())
+        Db.get().billInfoDao().clear()
         return ResultModel(200, "OK")
     }
 
