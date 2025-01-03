@@ -107,9 +107,8 @@ class IncomeRepaymentUtils(private val manifest: HookerManifest, private val cla
         // e=money 待还金额
         //
         loan.setTotalpay( billModel.money)
-
         accountTo.setLoanInfo(loan)
-        accountTo.addMoney(  billModel.money)
+        accountTo.addMoney(billModel.money)
     }
     /**
      * 保存账单

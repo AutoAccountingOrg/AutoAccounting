@@ -23,8 +23,11 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import net.ankio.auto.App
 import net.ankio.auto.R
+import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.utils.ToastUtils
+import org.ezbook.server.constant.DefaultData
+import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.tools.FloatingIntent
 
@@ -56,8 +59,14 @@ class FloatingWindowService : Service() {
         Logger.d("FloatingWindowService onStartCommand")
         val parent = FloatingIntent.parse(intent).parent
         if (parent != null) {
-            //说明是重复账单
-            ToastUtils.info(getString(R.string.repeat_bill))
+            if (ConfigUtils.getBoolean(
+                    Setting.SHOW_DUPLICATED_POPUP,
+                    DefaultData.SHOW_DUPLICATED_POPUP
+                )
+            ) {
+                //说明是重复账单
+                ToastUtils.info(getString(R.string.repeat_bill))
+            }
             App.launch(Dispatchers.Main) {
                 bills.send(parent)
             }

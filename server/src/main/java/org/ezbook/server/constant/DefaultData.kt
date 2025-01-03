@@ -16,6 +16,7 @@
 package org.ezbook.server.constant
 
 object DefaultData {
+    const val SHOW_DUPLICATED_POPUP: Boolean = true
     const val LANDSCAPE_DND: Boolean = true
     const val LOAD_SUCCESS: Boolean = false
     const val AI_AUXILIARY: Boolean = false

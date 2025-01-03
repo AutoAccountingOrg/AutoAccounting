@@ -184,6 +184,13 @@ class SettingDetailFragment : BaseFragment() {
                 icon = R.drawable.setting_icon_success,
                 default = DefaultData.SHOW_SUCCESS_POPUP,
             ),
+            SettingItem.Switch(
+                title = R.string.setting_duplicated,
+                key = Setting.SHOW_DUPLICATED_POPUP,
+                // subTitle = R.string.setting_category_show_parent_desc,
+                icon = R.drawable.setting_duplicated,
+                default = DefaultData.SHOW_DUPLICATED_POPUP,
+            ),
 
             SettingItem.Title(R.string.setting_bill_sync),
 

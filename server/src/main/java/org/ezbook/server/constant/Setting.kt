@@ -16,6 +16,7 @@
 package org.ezbook.server.constant
 
 object Setting {
+    const val SHOW_DUPLICATED_POPUP: String = "show_duplicated_popup"
     const val LANDSCAPE_DND: String = "landscape_dnd"
     const val AI_AUXILIARY: String = "ai_auxiliary"
     const val SMS_PERMISSION: String = "sms_permission"
