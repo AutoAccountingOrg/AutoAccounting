@@ -35,13 +35,12 @@ abstract class BaseAdapter<T : ViewBinding, E>(
     )
 
     fun updateItem(index: Int, item: E) {
-        val newItems = items.toMutableList()
-        if (index < 0 || index >= newItems.size) {
+        if (index < 0 || index >= items.size) {
             return
         }
 
-        newItems[index] = item
-        updateItems(newItems)
+        items[index] = item
+        notifyItemChanged(index)
     }
 
     fun size(): Int {
@@ -49,19 +48,16 @@ abstract class BaseAdapter<T : ViewBinding, E>(
     }
 
     fun removeItem(index: Int) {
-        val newItems = items.toMutableList()
-        if (index < 0 || index >= newItems.size) {
+        if (index < 0 || index >= items.size) {
             return
         }
-        newItems.removeAt(index)
-        updateItems(newItems)
+        items.removeAt(index)
+        notifyItemRemoved(index)
     }
 
     fun removeItem(item: E) {
-        val newItems = items.toMutableList()
-        if (newItems.remove(item)) {
-            updateItems(newItems)
-        }
+        val position = items.indexOf(item)
+        removeItem(position)
     }
 
     fun indexOf(item: E): Int {
@@ -132,7 +128,6 @@ abstract class BaseAdapter<T : ViewBinding, E>(
         val diffResult = DiffUtil.calculateDiff(diffCallback)
         items.clear()
         items.addAll(newItems)
-        //Logger.d("updateItems: ${items.size},diffResult:$diffResult")
         diffResult.dispatchUpdatesTo(this)
     }
 

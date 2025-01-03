@@ -45,6 +45,9 @@ interface AssetMapDao {
     @Query("DELETE FROM AssetsMapModel WHERE id = :id")
     suspend fun delete(id: Long)
 
+    @Query("SELECT * FROM AssetsMapModel WHERE mapName is null or mapName = ''")
+    suspend fun empty(): List<AssetsMapModel>
+
     @Transaction
     suspend fun put(data: AssetsMapModel) {
         if (query(data.name) == null) {

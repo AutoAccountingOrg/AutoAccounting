@@ -33,6 +33,7 @@ import net.ankio.auto.ui.dialog.BillMoreDialog
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
 import net.ankio.auto.ui.dialog.FloatEditorDialog
 import net.ankio.auto.ui.models.OrderGroup
+import net.ankio.auto.ui.utils.AssetsUtils
 import net.ankio.auto.ui.utils.viewBinding
 import net.ankio.auto.utils.DateUtils
 import org.ezbook.server.db.model.BillInfoModel
@@ -68,9 +69,14 @@ open class OrderFragment : BasePageFragment<OrderGroup>() {
         recyclerView.layoutManager = WrapContentLinearLayoutManager(requireContext())
 
         adapter.setOnItemClickListener { item, position, itemAdapter ->
-            FloatEditorDialog(requireContext(), item, false, onConfirmClick = {
-                itemAdapter.updateItem(position, it)
-            }).showInFragment(this, false, true)
+            lifecycleScope.launch {
+                AssetsUtils.setMapAssets(requireContext(), false, item) {
+                    FloatEditorDialog(requireContext(), item, false, onConfirmClick = {
+                        itemAdapter.updateItem(position, it)
+                    }).showInFragment(this@OrderFragment, false, true)
+                }
+            }
+
         }
 
 // 设置长按事件
@@ -133,8 +139,7 @@ open class OrderFragment : BasePageFragment<OrderGroup>() {
             .setPositiveButton(requireActivity().getString(R.string.sure_msg)) { _, _ ->
                 lifecycleScope.launch {
                     BillInfoModel.clear()
-                    page = 1
-                    loadDataInside()
+                    reload()
                 }
             }
             .setNegativeButton(requireActivity().getString(R.string.cancel_msg)) { _, _ -> }

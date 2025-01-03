@@ -32,6 +32,11 @@ class AssetsMapRoute(private val session: ApplicationCall) {
         return ResultModel(200, "OK", logs)
     }
 
+    suspend fun empty(): ResultModel {
+        val logs = Db.get().assetsMapDao().empty()
+        return ResultModel(200, "OK", logs)
+    }
+
     suspend fun put(): ResultModel {
         val model = session.receive(AssetsMapModel::class)
         if (model.id <= 0) {

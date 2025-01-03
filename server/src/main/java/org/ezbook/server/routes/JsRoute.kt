@@ -171,7 +171,7 @@ class JsRoute(private val session: ApplicationCall, private val context: android
         Server.log("识别用时: $total ms")
 
         //  资产映射
-        val shouldMap = Assets.setAssetsMap(billInfoModel)
+        val needUserAction = Assets.setAssetsMap(billInfoModel)
 
         // 分类映射
         Category.setCategoryMap(billInfoModel)
@@ -218,7 +218,7 @@ class JsRoute(private val session: ApplicationCall, private val context: android
                 }
             } else {
                 // try
-                if (shouldMap) {
+                if (needUserAction) {
                     billInfoModel.state = BillState.Wait2Edit
                 } else {
                     billInfoModel.state = BillState.Edited

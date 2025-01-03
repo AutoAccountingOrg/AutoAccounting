@@ -15,8 +15,12 @@
 
 package net.ankio.auto.ui.utils
 
+import android.content.Context
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Logger
+import net.ankio.auto.ui.dialog.BillAssetsMapDialog
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
@@ -25,6 +29,36 @@ import org.ezbook.server.db.model.AssetsModel
 import org.ezbook.server.db.model.BillInfoModel
 
 object AssetsUtils {
+    suspend fun setMapAssets(
+        context: Context,
+        float: Boolean,
+        billInfoModel: BillInfoModel,
+        callback: () -> Unit
+    ) =
+        withContext(Dispatchers.Main) {
+            val empty = AssetsMapModel.empty()
+            if (empty.isEmpty()) {
+                callback()
+                return@withContext
+            }
+            val assetItems = AssetsModel.list()
+            BillAssetsMapDialog(context, float, empty.toMutableList(), assetItems) { items ->
+                runCatching {
+
+                    items.first { billInfoModel.accountNameFrom.isNotEmpty() && billInfoModel.accountNameFrom == it.name }
+                        .let {
+                            billInfoModel.accountNameFrom = it.mapName
+                        }
+                }
+                runCatching {
+                    items.first { billInfoModel.accountNameTo.isNotEmpty() && billInfoModel.accountNameTo == it.name }
+                        .let {
+                            billInfoModel.accountNameTo = it.mapName
+                        }
+                }
+                callback()
+            }.show(float = float)
+        }
     /**
      * 计算两个字符串的最长连续相似子串
      */

@@ -18,25 +18,24 @@ package net.ankio.auto.ui.dialog
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogAssetsMapBinding
+import net.ankio.auto.ui.adapter.BillAssetsMapAdapter
 import net.ankio.auto.ui.api.BaseSheetDialog
-import net.ankio.auto.ui.componets.IconView
+import net.ankio.auto.ui.componets.WrapContentLinearLayoutManager
 import net.ankio.auto.ui.utils.AssetsUtils
-import net.ankio.auto.ui.utils.ResourceUtils
 import net.ankio.auto.ui.utils.ToastUtils
 import org.ezbook.server.db.model.AssetsMapModel
 import org.ezbook.server.db.model.AssetsModel
 
 class BillAssetsMapDialog(
     private val context: Context,
-    private val assets: MutableList<String>,
-    assetsItems: List<AssetsModel>,
     private val float: Boolean,
-    private val onClose: (String, String) -> Unit
+    private val items: MutableList<AssetsMapModel>,
+    private val assetsItems: List<AssetsModel>,
+    private val onClose: (MutableList<AssetsMapModel>) -> Unit
 ) : BaseSheetDialog(context) {
     lateinit var binding: DialogAssetsMapBinding
     override fun onCreateView(inflater: LayoutInflater): View {
@@ -44,107 +43,49 @@ class BillAssetsMapDialog(
         return binding.root
     }
 
-    private var accountFromMap = AssetsUtils.getAssetsByAlgorithm(assetsItems, assets[0])
-    private var accountToMap = if (assets.size > 1) {
-        AssetsUtils.getAssetsByAlgorithm(assetsItems, assets[1])
-    } else {
-        ""
-    }
 
 
     override fun onViewCreated(view: View) {
         super.onViewCreated(view)
-
-        // 设置第一个账户（必须存在）
-        setupAccountMapping(
-            rawView = binding.accountFrom.raw,
-            targetView = binding.accountFrom.target,
-            accountName = assets[0],
-            onAssetSelected = { asset -> accountFromMap = asset.name }
-        )
-
-        // 设置第二个账户（如果存在）
-        if (assets.size > 1) {
-            setupAccountMapping(
-                rawView = binding.accountTo.raw,
-                targetView = binding.accountTo.target,
-                accountName = assets[1],
-                onAssetSelected = { asset -> accountToMap = asset.name }
-            )
-        } else {
-            binding.accountTo.root.visibility = View.GONE
+        items.forEach {
+            it.mapName = AssetsUtils.getAssetsByAlgorithm(assetsItems, it.mapName)
         }
 
+        val adapter = BillAssetsMapAdapter(context)
+        adapter.updateItems(items)
+        adapter.setOnClickListener {
+            AssetsSelectorDialog(context) { asset ->
+                val position = items.indexOf(it)
+                it.mapName = asset.name
+                adapter.updateItem(position, it)
+            }.show(float = float)
+        }
+
+        binding.statusPage.contentView!!.layoutManager = WrapContentLinearLayoutManager(context)
+        binding.statusPage.contentView!!.adapter = adapter
+        binding.statusPage.showContent()
         binding.buttonSure.setOnClickListener {
             lifecycleScope.launch {
                 if (!validateAndSaveMapping()) return@launch
-                onClose(accountFromMap, accountToMap)
+                onClose(items)
                 dismiss()
             }
         }
     }
 
-    private fun setupAccountMapping(
-        rawView: TextView,
-        targetView: IconView,
-        accountName: String,
-        onAssetSelected: (AssetsModel) -> Unit
-    ) {
-        rawView.text = accountName
-        setTargetAccount(targetView, "")  // 初始化为空
-
-        targetView.setOnClickListener {
-            AssetsSelectorDialog(context) { asset ->
-                setTargetAccount(targetView, asset.name)
-                onAssetSelected(asset)
-            }.show(float = float)
-        }
-    }
 
     private suspend fun validateAndSaveMapping(): Boolean {
-        // 验证源账户
-        if (AssetsModel.getByName(accountFromMap) == null) {
-            ToastUtils.error(R.string.map_source_not_exist)
-            return false
-        }
-
-        // 验证目标账户（如果存在）
-        if (assets.size > 1 && AssetsModel.getByName(accountToMap) == null) {
-            ToastUtils.error(R.string.map_source_not_exist)
-            return false
-        }
-
-        // 保存映射
-        saveMapping(assets[0], accountFromMap)
-        if (assets.size > 1) {
-            saveMapping(assets[1], accountToMap)
+        items.forEach {
+            if (AssetsModel.getByName(it.mapName) == null) {
+                ToastUtils.error(R.string.map_source_not_exist)
+                return false
+            }
+            AssetsMapModel.put(it)
         }
 
         return true
     }
 
-    private suspend fun saveMapping(originalName: String, mappedName: String) {
-        if (AssetsMapModel.getByName(mappedName) == null) {
-            AssetsMapModel().apply {
-                name = originalName
-                mapName = mappedName
-                AssetsMapModel.put(this)
-            }
-        }
-    }
-
-    private fun setTargetAccount(target: IconView, assetsTarget: String) {
-        if (assetsTarget.isEmpty()) {
-            target.setText(context.getString(R.string.map_target))
-        } else {
-            target.setText(assetsTarget)
-        }
-
-        lifecycleScope.launch {
-            ResourceUtils.getAssetDrawableFromName(assetsTarget)
-                .let { target.setIcon(it, false) }
-        }
-    }
 
 
 }

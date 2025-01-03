@@ -182,6 +182,9 @@ fun Application.module(context: Context) {
             post("/get") {
                 call.respond(AssetsMapRoute(call).get())
             }
+            post("/empty") {
+                call.respond(AssetsMapRoute(call).empty())
+            }
         }
 
         route("/book") {

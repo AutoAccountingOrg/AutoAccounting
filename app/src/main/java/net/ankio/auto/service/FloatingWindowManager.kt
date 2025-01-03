@@ -27,7 +27,6 @@ import android.view.WindowManager
 import androidx.core.content.ContextCompat
 import com.quickersilver.themeengine.ThemeEngine
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.constant.FloatEvent
@@ -35,7 +34,6 @@ import net.ankio.auto.databinding.FloatTipBinding
 import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.activity.ErrorActivity
-import net.ankio.auto.ui.dialog.BillAssetsMapDialog
 import net.ankio.auto.ui.dialog.FloatEditorDialog
 import net.ankio.auto.ui.utils.AssetsUtils
 import net.ankio.auto.ui.utils.ToastUtils
@@ -43,7 +41,6 @@ import net.ankio.auto.utils.BillTool
 import org.ezbook.server.constant.BillState
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
-import org.ezbook.server.db.model.AssetsModel
 import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.tools.FloatingIntent
 import java.util.Locale
@@ -328,8 +325,8 @@ class FloatingWindowManager(
      * @param billInfoModel 账单信息模型，包含需要编辑或处理的账单信息。
      */
     private fun callBillInfoEditor(key: String, billInfoModel: BillInfoModel) {
-        App.launch {
-            setMapAssets(billInfoModel) {
+        App.launch(Dispatchers.Main) {
+            AssetsUtils.setMapAssets(themedContext, true, billInfoModel) {
                 if (billInfoModel.auto) {
                     recordBillInfo(billInfoModel)
                     stopProcess()
@@ -371,19 +368,5 @@ class FloatingWindowManager(
     }
 
 
-    private suspend fun setMapAssets(billInfoModel: BillInfoModel, callback: () -> Unit) =
-        withContext(Dispatchers.Main) {
-            val assets = AssetsUtils.setMapAssets(billInfoModel)
-            if (assets.isEmpty()) {
-                callback()
-                return@withContext
-            }
-            val assetItems = AssetsModel.list()
-            BillAssetsMapDialog(themedContext, assets, assetItems, true) { asset1, asset2 ->
-                billInfoModel.accountNameFrom = asset1
-                billInfoModel.accountNameTo = asset2
-                callback()
-            }.show(float = true)
-    }
 
 }

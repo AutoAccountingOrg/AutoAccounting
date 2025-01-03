@@ -60,6 +60,17 @@ class AssetsMapModel {
             }.getOrNull() ?: emptyList()
         }
 
+        suspend fun empty(): List<AssetsMapModel> = withContext(Dispatchers.IO) {
+            val response = Server.request("assets/map/empty")
+            runCatching {
+                val json = Gson().fromJson(response, JsonObject::class.java)
+                Gson().fromJson(
+                    json.getAsJsonArray("data"),
+                    Array<AssetsMapModel>::class.java
+                ).toList()
+            }.getOrNull() ?: emptyList()
+        }
+
         suspend fun put(model: AssetsMapModel): JsonObject = withContext(Dispatchers.IO) {
             val response = Server.request("assets/map/put", Gson().toJson(model))
 
@@ -88,5 +99,11 @@ class AssetsMapModel {
                 )
             }.getOrNull()
         }
+
+
+    }
+
+    override fun toString(): String {
+        return "AssetsMapModel(id=$id, regex=$regex, name='$name', mapName='$mapName')"
     }
 }
