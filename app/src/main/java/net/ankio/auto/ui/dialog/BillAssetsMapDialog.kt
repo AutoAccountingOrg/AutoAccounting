@@ -48,7 +48,7 @@ class BillAssetsMapDialog(
     override fun onViewCreated(view: View) {
         super.onViewCreated(view)
         items.forEach {
-            it.mapName = AssetsUtils.getAssetsByAlgorithm(assetsItems, it.mapName)
+            it.mapName = AssetsUtils.getAssetsByAlgorithm(assetsItems, it.name)
         }
 
         val adapter = BillAssetsMapAdapter(context)
