@@ -18,7 +18,6 @@ package net.ankio.auto.xposed.hooks.qianji.models
 import android.content.Context
 import de.robv.android.xposed.XposedHelpers
 import net.ankio.auto.xposed.core.hook.Hooker
-import net.ankio.auto.xposed.core.utils.AppRuntime
 
 class Book {
     private var bookObj: Any? = null
@@ -34,9 +33,8 @@ class Book {
         val bookClazz = Hooker.loader(CLAZZ)
 
         fun fromObject(obj: Any): Book {
-            AppRuntime.log("obj::class.java.name = ${obj::class.java.name}")
             if (obj::class.java.name != CLAZZ) {
-                throw IllegalArgumentException("obj is not a Book object")
+                throw IllegalArgumentException("${obj::class.java.name} is not a Book object")
             }
 
             val book = Book()
