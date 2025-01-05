@@ -20,28 +20,20 @@ import com.google.gson.Gson
 import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.core.utils.MD5HashTable
 import net.ankio.auto.xposed.core.utils.MessageUtils
+import net.ankio.auto.xposed.hooks.qianji.models.Book
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BookNameModel
 import org.ezbook.server.db.model.SettingModel
 
-class BookUtils(
-    private val manifest: HookerManifest,
-    private val classLoader: ClassLoader,
-    private val context: Context
-) {
+class BookUtils(private val context: Context) {
     private val bookManagerInstance by lazy {
         XposedHelpers.callStaticMethod(
-            manifest.clazz("BookManager"),
+            AppRuntime.manifest.clazz("BookManager"),
             "getInstance",
         )
-    }
-
-    private val bookClazz by lazy {
-        classLoader.loadClass("com.mutangtech.qianji.data.model.Book")
     }
 
     suspend fun getBooks(): List<*> = withContext(Dispatchers.IO) {
@@ -87,32 +79,24 @@ class BookUtils(
              *     }
              * ]
              */
-            list.forEach { book ->
-                if (bookClazz.isInstance(book)) {
-                    val bookModel = BookNameModel()
-                    // Get all fields of the Book class
-                    val fields = bookClazz.declaredFields
-                    for (field in fields) {
-                        field.isAccessible = true
-                        val value = field.get(book) ?: continue
-                        when (field.name) {
-                            "name" -> bookModel.name = value as String
-                            "cover" -> bookModel.icon = value as String
-                            "bookId" -> bookModel.remoteId = (value as Long).toString()
-                        }
-                    }
-                    bookList.add(bookModel)
-                }
+            list.forEach {
+                if (it == null) return@forEach
+                val book = Book.fromObject(it)
+                bookList.add(BookNameModel().apply {
+                    name = book.getName()
+                    icon = book.getCover()
+                    remoteId = book.getBookId().toString()
+                })
             }
 
             val sync = Gson().toJson(bookList)
             val md5 = MD5HashTable.md5(sync)
             val server = SettingModel.get(Setting.HASH_BOOK, "")
             if (server == md5 && !AppRuntime.debug) {
-                manifest.log("No need to Sync Books, Server md5:${server} local md5:${md5}")
+                AppRuntime.log("No need to Sync Books, Server md5:${server} local md5:${md5}")
                 return@withContext bookList
             }
-            manifest.logD("Sync Books:$sync")
+            AppRuntime.logD("Sync Books:$sync")
             BookNameModel.put(bookList, md5)
             withContext(Dispatchers.Main) {
                 MessageUtils.toast("已同步账本信息到自动记账")
