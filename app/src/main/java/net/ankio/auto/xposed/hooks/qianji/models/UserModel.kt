@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 ankio(ankio@ankio.net)
+ * Copyright (C) 2025 ankio(ankio@ankio.net)
  * Licensed under the Apache License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,20 +13,17 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.xposed.hooks.qianji.tools
+package net.ankio.auto.xposed.hooks.qianji.models
 
 import de.robv.android.xposed.XposedHelpers
-import net.ankio.auto.xposed.core.api.HookerManifest
+import net.ankio.auto.xposed.core.utils.AppRuntime
 
-class UserUtils(
-    private val manifest: HookerManifest,
-    private val classLoader: ClassLoader
-) {
+object UserModel {
     private val userManagerClazz by lazy {
-        manifest.clazz("UserManager")
+        AppRuntime.clazz("UserManager")
     }
 
-    fun getInstance(): Any {
+    private fun getInstance(): Any {
         return XposedHelpers.callStaticMethod(userManagerClazz, "getInstance")
     }
 
