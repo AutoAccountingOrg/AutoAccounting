@@ -117,5 +117,20 @@ object AppRuntime {
         }
     }
 
+    fun log(s: String) {
+        manifest.log(s)
+    }
+
+    fun logD(s: String) {
+        manifest.logD(s)
+    }
+
+    fun logE(e: Throwable) {
+        manifest.logE(e)
+    }
+
+    fun clazz(name: String): Class<*> {
+        return manifest.clazz(name)
+    }
 
 }
