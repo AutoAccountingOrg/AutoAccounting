@@ -169,12 +169,12 @@ class SideBarHooker : PartHooker() {
         }
         last = System.currentTimeMillis()
         ThreadUtils.launch {
-            AssetsUtils(AppRuntime.manifest, context.classLoader).syncAssets()
-            val books = BookUtils(AppRuntime.manifest, context.classLoader, context).syncBooks()
-            CategoryUtils(AppRuntime.manifest, context.classLoader, books).syncCategory()
-            BaoXiaoUtils(AppRuntime.manifest, context.classLoader).syncBaoXiao()
-            // LoanUtils(AppRuntime.manifest, context.classLoader).syncLoan()
-            SyncBillUtils(AppRuntime.manifest, context.classLoader).sync(context)
+            AssetsUtils().syncAssets()
+            val books = BookUtils(context).syncBooks()
+            CategoryUtils(books).syncCategory()
+            BaoXiaoUtils().syncBaoXiao()
+            // LoanUtils().syncLoan()
+            SyncBillUtils().sync(context)
         }
     }
 
