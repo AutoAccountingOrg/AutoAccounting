@@ -21,28 +21,25 @@ import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
-import net.ankio.auto.xposed.core.api.HookerManifest
+import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.core.utils.MessageUtils
+import net.ankio.auto.xposed.hooks.qianji.models.UserModel
 import net.ankio.auto.xposed.hooks.qianji.tools.QianJiUri
-import net.ankio.auto.xposed.hooks.qianji.tools.UserUtils
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.BillInfoModel
 
-class SyncBillUtils(
-    private val manifest: HookerManifest,
-    private val classLoader: ClassLoader
-) {
+class SyncBillUtils {
     suspend fun sync(context: Context) = withContext(Dispatchers.IO) {
-        if (!UserUtils(manifest, classLoader).isLogin()) {
+        if (!UserModel.isLogin()) {
             MessageUtils.toast("未登录无法自动记账")
             return@withContext
         }
         val bills = BillInfoModel.sync()
         if (bills.isEmpty()) {
-            manifest.log("No bills need to sync")
+            AppRuntime.log("No bills need to sync")
             return@withContext
         }
-        manifest.log("Sync ${bills.size} bills")
+        AppRuntime.log("Sync ${bills.size} bills")
         AutoConfig.load()
         bills.forEach {
 

@@ -19,27 +19,24 @@ import com.google.gson.Gson
 import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.ankio.auto.xposed.core.api.HookerManifest
+import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.core.utils.MD5HashTable
 import net.ankio.auto.xposed.core.utils.MessageUtils
+import net.ankio.auto.xposed.hooks.qianji.models.Bill
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.db.model.BookBillModel
 import org.ezbook.server.db.model.SettingModel
 import java.lang.reflect.Proxy
 import java.util.Calendar
-import java.util.HashSet
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-class BaoXiaoUtils(
-    private val manifest: HookerManifest,
-    private val classLoader: ClassLoader
-) {
+class BaoXiaoUtils {
 
     val baoXiaoImpl by lazy {
-        XposedHelpers.findClass("com.mutangtech.qianji.bill.baoxiao.BxPresenterImpl", classLoader)
+        Hooker.loader("com.mutangtech.qianji.bill.baoxiao.BxPresenterImpl")
     }
 
 
@@ -50,7 +47,7 @@ class BaoXiaoUtils(
             // public BxPresenterImpl(t8.b bVar) {
             val param1Clazz = constructor.parameterTypes.first()!!
             val param1Object = Proxy.newProxyInstance(
-                classLoader,
+                AppRuntime.classLoader,
                 arrayOf(param1Clazz)
             ) { proxy, method, args ->
                 if (method.name == "onGetList") {
@@ -172,10 +169,10 @@ class BaoXiaoUtils(
         val md5 = MD5HashTable.md5(sync)
         val server = SettingModel.get(Setting.HASH_BILL, "")
         if (server == md5 && !AppRuntime.debug) {
-            manifest.log("No need to sync BaoXiao, server md5:${server} local md5:${md5}")
+            AppRuntime.log("No need to sync BaoXiao, server md5:${server} local md5:${md5}")
             return@withContext
         }
-        manifest.logD("Sync BaoXiao:$sync")
+        AppRuntime.logD("Sync BaoXiao:$sync")
         BookBillModel.put(bills, md5)
         withContext(Dispatchers.Main) {
             MessageUtils.toast("已同步报销账单到自动记账")
@@ -206,7 +203,7 @@ class BaoXiaoUtils(
         // public BxPresenterImpl(t8.b bVar) {
         val param1Clazz = constructor.parameterTypes.first()!!
         val param1Object = Proxy.newProxyInstance(
-            classLoader,
+            AppRuntime.classLoader,
             arrayOf(param1Clazz)
         ) { _, _, _ ->
 
@@ -229,7 +226,7 @@ class BaoXiaoUtils(
 
         // com.mutangtech.qianji.data.model.AssetAccount r37,
         val asset =
-            AssetsUtils(manifest, classLoader).getAssetByName(billModel.accountNameFrom)
+            AssetsUtils().getAssetByName(billModel.accountNameFrom)
                 ?: throw RuntimeException("找不到资产 key=accountname;value=${billModel.accountNameFrom}")
 
 
@@ -273,27 +270,17 @@ class BaoXiaoUtils(
         fun convert2Bill(anyBills: List<*>): ArrayList<BookBillModel> {
             val bills = arrayListOf<BookBillModel>()
             anyBills.forEach {
-                val bill = BookBillModel()
-                val fields = it!!.javaClass.declaredFields
-                for (field in fields) {
-                    field.isAccessible = true
-                    val value = field.get(it)
-                    when (field.name) {
-                        "money" -> bill.money = value as Double
-                        "billid" -> bill.remoteId = (value as Long).toString()
-                        "remark" -> bill.remark = (value as String?) ?: ""
-                        "createtimeInSec" -> bill.time = (value as Long) * 1000
-                        // "fromact" -> bill.accountFrom = (value as String?) ?: ""
-                        //  "descinfo" -> bill.accountTo = (value as String?) ?: ""
-                        "bookId" -> bill.remoteBookId = (value as Long).toString()
-
-                        "category" -> {
-                            val category = XposedHelpers.getObjectField(value, "name") as String
-
-                            bill.category = category
-                        }
-                    }
+                if (it == null) {
+                    return@forEach
                 }
+                val bill = BookBillModel()
+                val billModel = Bill.fromObject(it)
+                bill.money = billModel.getMoney()
+                bill.remoteId = billModel.get_id().toString()
+                bill.remark = billModel.getRemark() ?: ""
+                bill.time = billModel.getTimeInSec() * 1000
+                bill.remoteBookId = billModel.getBookId().toString()
+                bill.category = billModel.getCategory()?.getName() ?: ""
                 bills.add(bill)
 
                 // 债务账单

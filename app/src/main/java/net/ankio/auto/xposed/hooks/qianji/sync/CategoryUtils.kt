@@ -19,10 +19,11 @@ import com.google.gson.Gson
 import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.ankio.auto.xposed.core.api.HookerManifest
+import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.core.utils.MD5HashTable
 import net.ankio.auto.xposed.core.utils.MessageUtils
+import net.ankio.auto.xposed.hooks.qianji.models.Category
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BookNameModel
@@ -36,18 +37,16 @@ import kotlin.coroutines.suspendCoroutine
  * 将钱迹的资产数据同步给自动记账
  */
 class CategoryUtils(
-    private val manifest: HookerManifest,
-    private val classLoader: ClassLoader,
     private val books: List<BookNameModel>
 ) {
 
     private var cateInitPresenterImplClazz: Class<*> =
-        classLoader.loadClass(
+        Hooker.loader(
             "com.mutangtech.qianji.bill.add.category.CateInitPresenterImpl",
         )
 
     private val proxyOnGetCategoryListClazz by lazy {
-        manifest.clazz("onGetCategoryList")
+        AppRuntime.clazz("onGetCategoryList")
     }
 
 
@@ -59,7 +58,7 @@ class CategoryUtils(
             var resumed = false
             val proxyInstance =
                 Proxy.newProxyInstance(
-                    classLoader,
+                    AppRuntime.classLoader,
                     arrayOf(proxyOnGetCategoryListClazz)
                 ) { _, method, args ->
                     if (method.name == "onGetCategoryList") {
@@ -88,13 +87,13 @@ class CategoryUtils(
                 }
 
             convertCategoryToModel(
-                hashMap["list1"] as List<Any>,
+                hashMap["list1"] as List<*>,
                 BillType.Expend, // 支出
             ).let {
                 arrayList.addAll(it)
             }
             convertCategoryToModel(
-                hashMap["list2"] as List<Any>,
+                hashMap["list2"] as List<*>,
                 BillType.Income, // 收入
             ).let {
                 arrayList.addAll(it)
@@ -104,10 +103,10 @@ class CategoryUtils(
         val md5 = MD5HashTable.md5(sync)
         val server = SettingModel.get(Setting.HASH_CATEGORY, "")
         if (server == md5 && !AppRuntime.debug) {
-            manifest.log("No need to sync categories, Server md5:${server} local md5:${md5}")
+            AppRuntime.log("No need to sync categories, Server md5:${server} local md5:${md5}")
             return@withContext
         }
-        manifest.logD("Sync categories:$sync")
+        AppRuntime.logD("Sync categories:$sync")
         CategoryModel.put(arrayList, md5)
         withContext(Dispatchers.Main) {
             MessageUtils.toast("已同步分类信息到自动记账")
@@ -125,107 +124,20 @@ class CategoryUtils(
         val categories = arrayListOf<CategoryModel>()
         list.forEach {
             if (it == null) return@forEach
-            val category = it
+            val category = Category.fromObject(it)
             val model = CategoryModel()
             model.type = type
-            val fields = category::class.java.declaredFields
-            for (field in fields) {
-                field.isAccessible = true
-                val value = field.get(category) ?: continue
-                /**
-                 * [
-                 *     {
-                 *         "bookId": -1,
-                 *         "editable": 1,
-                 *         "icon": "http://res3.qianjiapp.com/cateic_gongzi.png",
-                 *         "id": 20001,
-                 *         "level": 1,
-                 *         "name": "工资",
-                 *         "parentId": -1,
-                 *         "sort": 0,
-                 *         "type": 1,
-                 *         "userId": "u10001"
-                 *     },
-                 *     {
-                 *         "bookId": -1,
-                 *         "editable": 1,
-                 *         "icon": "http://res3.qianjiapp.com/cateic_shenghuofei.png",
-                 *         "id": 20002,
-                 *         "level": 1,
-                 *         "name": "生活费",
-                 *         "parentId": -1,
-                 *         "sort": 0,
-                 *         "type": 1,
-                 *         "userId": "u10001"
-                 *     },
-                 *     {
-                 *         "bookId": -1,
-                 *         "editable": 1,
-                 *         "icon": "http://res3.qianjiapp.com/cateic_hongbao.png",
-                 *         "id": 20003,
-                 *         "level": 1,
-                 *         "name": "收红包",
-                 *         "parentId": -1,
-                 *         "sort": 0,
-                 *         "type": 1,
-                 *         "userId": "u10001"
-                 *     },
-                 *     {
-                 *         "bookId": -1,
-                 *         "editable": 1,
-                 *         "icon": "http://res3.qianjiapp.com/cateic_waikuai.png",
-                 *         "id": 20004,
-                 *         "level": 1,
-                 *         "name": "外快",
-                 *         "parentId": -1,
-                 *         "sort": 0,
-                 *         "type": 1,
-                 *         "userId": "u10001"
-                 *     },
-                 *     {
-                 *         "bookId": -1,
-                 *         "editable": 1,
-                 *         "icon": "http://res3.qianjiapp.com/cateic_gupiao.png",
-                 *         "id": 20005,
-                 *         "level": 1,
-                 *         "name": "股票基金",
-                 *         "parentId": -1,
-                 *         "sort": 0,
-                 *         "type": 1,
-                 *         "userId": "u10001"
-                 *     },
-                 *     {
-                 *         "bookId": -1,
-                 *         "editable": 0,
-                 *         "icon": "http://res3.qianjiapp.com/cateic_other.png",
-                 *         "id": 20006,
-                 *         "level": 1,
-                 *         "name": "其它",
-                 *         "parentId": -1,
-                 *         "sort": 0,
-                 *         "type": 1,
-                 *         "userId": "u10001"
-                 *     }
-                 * ]
-                 */
-                try {
-                    when (field.name) {
-                        "name" -> model.name = value as String
-                        "icon" -> model.icon = value as String
-                        "id" -> model.remoteId = (value as Long).toString()
-                        "parentId" -> model.remoteParentId = (value as Long).toString()
-                        "bookId" -> model.remoteBookId = (value as Long).toString()
-                        "sort" -> model.sort = value as Int
-                        "subList" -> {
-                            val subList = value as List<*>
-                            categories.addAll(convertCategoryToModel(subList, type))
-                        }
-                    }
-                } catch (e: Exception) {
-                    manifest.log("Convert Category Error:${e.message}")
-                    manifest.logE(e)
-                }
+            model.name = category.getName()
+            model.icon = category.getIcon()
+            model.remoteId = category.getId().toString()
+            model.remoteParentId = category.getParentId().toString()
+            model.remoteBookId = category.getBookId().toString()
+            model.sort = category.getSort()
+            val subList = category.getSubList()
+            if (!subList.isNullOrEmpty()) {
+                categories.addAll(convertCategoryToModel(subList, type))
             }
+
             categories.add(model)
         }
         return categories
