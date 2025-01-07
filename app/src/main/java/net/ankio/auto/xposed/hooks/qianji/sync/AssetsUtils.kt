@@ -19,13 +19,12 @@ import com.google.gson.Gson
 import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.core.utils.DataUtils
 import net.ankio.auto.xposed.core.utils.MD5HashTable
 import net.ankio.auto.xposed.core.utils.MessageUtils
-import net.ankio.auto.xposed.hooks.qianji.tools.AssetAccount
+import net.ankio.auto.xposed.hooks.qianji.models.AssetAccount
 import net.ankio.auto.xposed.hooks.qianji.tools.QianJiAssetType
 import org.ezbook.server.constant.AssetsType
 import org.ezbook.server.constant.Currency
@@ -39,17 +38,14 @@ import kotlin.coroutines.suspendCoroutine
 /**
  * 将钱迹的资产数据同步给自动记账
  */
-class AssetsUtils(private val manifest: HookerManifest, private val classLoader: ClassLoader) {
+class AssetsUtils {
 
     private val assetPreviewPresenterImplClazz by lazy {
-        XposedHelpers.findClass(
-            "com.mutangtech.qianji.asset.account.mvp.AssetPreviewPresenterImpl",
-            classLoader
-        )
+        Hooker.loader("com.mutangtech.qianji.asset.account.mvp.AssetPreviewPresenterImpl")
     }
 
     private val assetSqlHelperClazz by lazy {
-        manifest.clazz("AssetDbHelper")
+        AppRuntime.clazz("AssetDbHelper")
     }
 
     /**
@@ -79,7 +75,7 @@ class AssetsUtils(private val manifest: HookerManifest, private val classLoader:
 
 
         val param1Object = Proxy.newProxyInstance(
-            classLoader,
+            AppRuntime.classLoader,
             arrayOf(param1Clazz)
         ) { _, _, _ ->
             null
@@ -123,25 +119,16 @@ class AssetsUtils(private val manifest: HookerManifest, private val classLoader:
         val assets = arrayListOf<AssetsModel>()
 
         accounts.forEach {
-            val asset = it!!
-
-            val status = XposedHelpers.getIntField(asset,"status")
-            if( status != 0) return@forEach
-
-         //   Logger.log("xx"," [ 自动记账 ]  Asset:${Gson().toJson(asset)}")
+            if (it == null) return@forEach
+            val assetAccount = AssetAccount.fromObject(it)
+            if (!assetAccount.isVisible()) {
+                AppRuntime.logD("隐藏的资产不同步:${assetAccount.getName()}")
+                return@forEach
+            }
 
             val model = AssetsModel()
-            val fields = asset::class.java.declaredFields
-
-            val stypeField = fields.filter { field -> field.name == "stype" }.getOrNull(0)
-            val typeField = fields.filter { field -> field.name == "type" }.getOrNull(0)
-            if (typeField == null || stypeField == null) return@forEach
-            stypeField.isAccessible = true
-            val stype = stypeField.get(asset) as Int
-
-            typeField.isAccessible = true
-            val type = typeField.get(asset) as Int
-
+            val stype = assetAccount.getStype()
+            val type = assetAccount.getType()
             model.type = when (type) {
                 QianJiAssetType.Type_Money -> AssetsType.NORMAL
                 QianJiAssetType.Type_Credit -> AssetsType.CREDIT
@@ -154,29 +141,12 @@ class AssetsUtils(private val manifest: HookerManifest, private val classLoader:
 
                 else -> AssetsType.NORMAL
             }
+            model.name = assetAccount.getName()
+            model.icon = assetAccount.getIcon()
+            model.sort = assetAccount.getSort()
+            model.currency =
+                runCatching { Currency.valueOf(assetAccount.getCurrency()) }.getOrDefault(Currency.CNY)
 
-            for (field in fields) {
-                field.isAccessible = true
-                val value = field.get(asset) ?: continue
-                when (field.name) {
-                    "name" -> model.name = value as String
-                    "icon" -> model.icon = value as String
-                    "sort" -> model.sort = value as Int
-                    "currency" -> model.currency = runCatching { Currency.valueOf(value as String) }.getOrDefault(Currency.CNY)
-                    "loanInfo" -> model.extras = Gson().toJson(value)
-                    "extra" -> {
-                        if (model.extras == "{}") {
-                            model.extras = Gson().toJson(value)
-                        }
-                    }
-                    "status" -> {
-                       val status = value as Int
-                        if(status == 1){ // 隐藏的资产不同步
-                            continue
-                        }
-                    }
-                }
-            }
             assets.add(model)
         }
         val sync = Gson().toJson(assets)
@@ -184,10 +154,10 @@ class AssetsUtils(private val manifest: HookerManifest, private val classLoader:
         val server = SettingModel.get(Setting.HASH_ASSET, "")
         DataUtils.set("sync_assets", Gson().toJson(assets))
         if (server == md5  && !AppRuntime.debug || assets.isEmpty() ) { //资产为空也不同步
-            manifest.log("No need to sync Assets, server md5:${server} local md5:${md5}")
+            AppRuntime.log("No need to sync Assets, server md5:${server} local md5:${md5}")
             return@withContext
         }
-        manifest.logD("Sync Assets:${Gson().toJson(assets)}")
+        AppRuntime.logD("Sync Assets:${Gson().toJson(assets)}")
         AssetsModel.put(assets, md5)
         withContext(Dispatchers.Main) {
             MessageUtils.toast("已同步资产信息到自动记账")
@@ -196,60 +166,25 @@ class AssetsUtils(private val manifest: HookerManifest, private val classLoader:
 
     private var assets: List<*>? = null
 
-    suspend fun getAssetByName(name: String,sType: Int=-1): Any? = withContext(Dispatchers.IO) {
+    suspend fun getAssetByName(name: String, sType: Int = -1): AssetAccount? =
+        withContext(Dispatchers.IO) {
         if (assets == null) {
             assets = withContext(Dispatchers.Main){
                 getAssetsList()
             }
         }
-        val asset  = assets!!.filter {
-            XposedHelpers.getObjectField(it, "name") as String == name
+            val account = assets!!.firstOrNull {
+                val assetAccount = AssetAccount.fromObject(it!!)
+                assetAccount.getName() == name && (sType == -1 || assetAccount.getStype() == sType)
         }
-        if (sType == -1 || asset.isEmpty()) return@withContext asset.firstOrNull()
-        // 债务分类单独处理
-        return@withContext asset.firstOrNull {
-            XposedHelpers.getObjectField(it, "stype") as Int == sType
+            if (account == null) {
+                AppRuntime.logD("未找到资产:$name")
+                return@withContext null
+            } else {
+                return@withContext AssetAccount.fromObject(account)
         }
     }
 
-
-    //   public static AssetAccount newInstance(int v, int v1) {
-    //        AssetAccount assetAccount0 = new AssetAccount();
-    //        assetAccount0.type = v;
-    //        assetAccount0.stype = v1;
-    //        return assetAccount0;
-    //    }
-
-    suspend fun getAssetByNameWrap(name: String): AssetAccount? = withContext(Dispatchers.IO){
-        val item = getAssetByName(name)?:return@withContext null
-        val asset = AssetAccount(classLoader,item)
-        return@withContext asset
-    }
-
-    suspend fun getOrCreateAssetByNameWrap(name: String,type:Int,sType:Int): AssetAccount = withContext(Dispatchers.IO) {
-        val asset = AssetAccount(classLoader,getAssetByName(name,sType))
-        asset.setType(type)
-        asset.setStype(sType)
-        asset.setName(name)
-        asset.setIncount(1)
-        asset.setIcon("null")
-        return@withContext asset
-    }
-
-    /**
-     * 更新资产
-     * asset: 资产对象
-     */
-    suspend fun updateAsset(asset: Any) = withContext(Dispatchers.IO) {
-        // assetSqlHelperClazz
-        //   com.mutangtech.qianji.data.db.convert.a aVar = new com.mutangtech.qianji.data.db.convert.a();
-        //                AssetAccount assetAccount = this.AssetAccountName2222;
-        //                if (assetAccount != null) {
-        //                    aVar.insertOrReplace(assetAccount, false);
-        //                }
-        val assetSqlHelper = XposedHelpers.newInstance(assetSqlHelperClazz)
-        XposedHelpers.callMethod(assetSqlHelper, "insertOrReplace", asset, false)
-    }
 
 
 }
