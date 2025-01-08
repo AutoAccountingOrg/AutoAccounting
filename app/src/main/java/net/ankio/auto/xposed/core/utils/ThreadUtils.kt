@@ -17,6 +17,7 @@ package net.ankio.auto.xposed.core.utils
 
 import android.os.Handler
 import android.os.Looper
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -27,6 +28,16 @@ import net.ankio.auto.xposed.core.logger.Logger
 class ThreadUtils {
     private val job = Job()
     private val scope = CoroutineScope(Dispatchers.IO + job)
+
+    fun launch(dispatcher: CoroutineDispatcher, block: suspend CoroutineScope.() -> Unit) {
+        scope.launch(dispatcher) {
+            runCatching {
+                block()
+            }.onFailure {
+                Logger.logE(TAG, it)
+            }
+        }
+    }
 
     fun launch(block: suspend CoroutineScope.() -> Unit) {
         scope.launch {
@@ -61,6 +72,10 @@ class ThreadUtils {
         private val instance by lazy { ThreadUtils() }
         fun launch(block: suspend CoroutineScope.() -> Unit) {
             instance.launch(block)
+        }
+
+        fun launch(dispatcher: CoroutineDispatcher, block: suspend CoroutineScope.() -> Unit) {
+            instance.launch(dispatcher, block)
         }
 
         fun cancel() {
