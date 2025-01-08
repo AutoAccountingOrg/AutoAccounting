@@ -15,8 +15,11 @@
 
 package net.ankio.auto.xposed.hooks.qianji
 
+import android.content.Intent
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
+import net.ankio.auto.xposed.core.hook.Hooker
+import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.hooks.qianji.hooks.AutoHooker
 import net.ankio.auto.xposed.hooks.qianji.hooks.SideBarHooker
 import net.ankio.dex.model.Clazz
@@ -32,7 +35,13 @@ class QianjiHooker : HookerManifest() {
 
     override var applicationName = "com.mutangtech.qianji.app.CoreApp"
     override fun hookLoadPackage() {
+        Hooker.allMethodsAfter(Hooker.loader("com.mutangtech.qianji.data.model.AssetAccount")) { it, method ->
+            AppRuntime.manifest.logD("AssetAccount: ${method.name}( ${it.args.joinToString { it.toString() }} ) -> ${it.result}")
+        }
 
+        Hooker.allMethodsAfter(Hooker.loader("com.mutangtech.qianji.data.model.Bill")) { it, method ->
+            AppRuntime.manifest.logD("BillInfo: ${method.name}( ${it.args.joinToString { it.toString() }} ) -> ${it.result}")
+        }
     }
 
     override var partHookers: MutableList<PartHooker>
@@ -243,7 +252,23 @@ class QianjiHooker : HookerManifest() {
                         ),
                         regex = "^\\w{2}$",
                     ),
+                    ClazzMethod(
+                        findName = "doIntent",
+                        parameters =
+                        listOf(
+                            ClazzField(
+                                type = Intent::class.java.name,
+                            ),
+                        ),
+                        regex = "^\\w{2}$",
+                        strings = listOf(
+                            "intent-data:",
+                            "auto_task_last_time",
+                            "getString(...)",
+                        ),
+                    ),
                 ),
+
             ),
 
         )
