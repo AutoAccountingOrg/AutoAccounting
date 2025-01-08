@@ -27,16 +27,18 @@ class BookBillRoute(private val session: ApplicationCall) {
     private val params: Parameters = session.request.queryParameters
 
     suspend fun list(): ResultModel {
-        val data = Db.get().bookBillDao().list()
+        val type = params["type"] ?: ""
+        val data = Db.get().bookBillDao().list(type)
         return ResultModel(200, "OK", data)
     }
 
 
     suspend fun put(): ResultModel {
         val md5 = params["md5"] ?: ""
+        val type = params["type"] ?: ""
         val json = session.receive<Array<BookBillModel>>()
-        Db.get().bookBillDao().put(json.toList())
-        SettingRoute.setByInner(Setting.HASH_BILL, md5)
+        Db.get().bookBillDao().put(json.toList(), type)
+        SettingRoute.setByInner(type, md5)
         return ResultModel(200, "OK")
     }
 

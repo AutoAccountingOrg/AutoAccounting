@@ -58,7 +58,7 @@ import org.ezbook.server.db.model.SettingModel
         CategoryRuleModel::class,
         BookBillModel::class
     ],
-    version = 6,
+    version = 7,
     exportSchema = false,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -182,5 +182,12 @@ val MIGRATION_5_6 = object : Migration(5, 6) {
 
         // 4. 将临时表重命名为旧表名
         database.execSQL("ALTER TABLE new_AppDataModel RENAME TO AppDataModel")
+    }
+}
+
+val MIGRATION_6_7 = object : Migration(6, 7) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        // BookBill表添加type字段
+        database.execSQL("ALTER TABLE BookBillModel ADD COLUMN type TEXT NOT NULL DEFAULT ''")
     }
 }

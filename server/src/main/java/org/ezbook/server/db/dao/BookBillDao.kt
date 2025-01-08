@@ -26,16 +26,16 @@ interface BookBillDao {
     @Insert
     suspend fun insert(bookBill: BookBillModel): Long
 
-    @Query("SELECT * FROM BookBillModel")
-    suspend fun list(): List<BookBillModel>
+    @Query("SELECT * FROM BookBillModel WHERE type = :type")
+    suspend fun list(type: String): List<BookBillModel>
 
-    @Query("DELETE FROM BookBillModel")
-    suspend fun clear()
+    @Query("DELETE FROM BookBillModel WHERE type = :type")
+    suspend fun clear(type: String)
 
 
     @Transaction
-    suspend fun put(list: List<BookBillModel>) {
-        clear()
+    suspend fun put(list: List<BookBillModel>, type: String) {
+        clear(type)
         list.forEach {
             insert(it)
         }

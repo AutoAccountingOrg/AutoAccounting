@@ -46,12 +46,13 @@ class BookBillModel {
     var remoteBookId: String = ""
 
     var category: String = ""
+    var type: String = ""
 
     companion object {
-        suspend fun list(): List<BookBillModel> = withContext(
+        suspend fun list(typeName: String): List<BookBillModel> = withContext(
             Dispatchers.IO
         ) {
-            val response = Server.request("bill/book/list")
+            val response = Server.request("bill/book/list?type=${typeName}")
 
 
             runCatching {
@@ -63,10 +64,10 @@ class BookBillModel {
             }.getOrNull() ?: emptyList()
         }
 
-        suspend fun put(bills: ArrayList<BookBillModel>, md5: String) =
+        suspend fun put(bills: ArrayList<BookBillModel>, md5: String, typeName: String) =
             withContext(Dispatchers.IO) {
                 val json = Gson().toJson(bills)
-                Server.request("bill/book/put?md5=$md5", json)
+                Server.request("bill/book/put?md5=$md5&type=${typeName}", json)
             }
 
     }
