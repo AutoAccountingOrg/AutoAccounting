@@ -38,7 +38,8 @@ enum class QianJiBillType(val value: Int) {
     ExpendRepayment(16), // 支出（还款销账）
     IncomeLending(17), // 收入（借入）
     IncomeRepayment(18), // 收入（还款销账）
-    IncomeReimbursement(19);// 收入（报销)
+    IncomeReimbursement(19),// 收入（报销)
+    IncomeRefund(20);// 收入（退款)
 
 
 
@@ -67,6 +68,7 @@ enum class QianJiBillType(val value: Int) {
                 BillType.IncomeLending -> IncomeLending.value
                 BillType.IncomeReimbursement -> IncomeReimbursement.value
                 BillType.IncomeRepayment -> IncomeRepayment.value
+                BillType.IncomeRefund -> IncomeRefund.value
                 else -> Expend.value
             }
         }
