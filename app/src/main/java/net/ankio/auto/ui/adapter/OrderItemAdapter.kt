@@ -116,6 +116,8 @@ class OrderItemAdapter(
             BillType.Transfer -> {
                 binding.category.setText(context.getText(R.string.float_transfer))
             }
+
+            BillType.IncomeRefund -> TODO()
         }
 
 

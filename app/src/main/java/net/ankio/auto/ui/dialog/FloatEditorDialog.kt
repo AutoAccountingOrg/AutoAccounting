@@ -295,6 +295,9 @@ class FloatEditorDialog(
 
                 }
 
+                BillType.IncomeRefund -> {
+
+                }
             }
             this.remark = binding.remark.text.toString()
         }
@@ -720,6 +723,7 @@ class FloatEditorDialog(
             }
 
             BillType.Transfer -> return
+            BillType.IncomeRefund -> TODO()
         }
     }
 
@@ -781,6 +785,7 @@ class FloatEditorDialog(
             BillType.IncomeLending -> return
             BillType.IncomeRepayment -> return
             BillType.IncomeReimbursement -> return
+            BillType.IncomeRefund -> TODO()
         }
 
 
@@ -863,7 +868,7 @@ class FloatEditorDialog(
 
             // 收入对应的报销
 
-            BillSelectorDialog(context, selectedBills) {
+            BillSelectorDialog(context, selectedBills, Setting.HASH_BAOXIAO_BILL) {
                 bindingSelectBillsUi()
             }.show(float, cancel = true)
         }

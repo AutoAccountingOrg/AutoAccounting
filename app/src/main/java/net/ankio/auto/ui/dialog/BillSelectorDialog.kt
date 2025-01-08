@@ -33,6 +33,7 @@ import org.ezbook.server.db.model.BookBillModel
 class BillSelectorDialog(
     private val context: Context,
     private val selectedBills: MutableList<String> = ArrayList(),
+    private val type: String,
     private val callback: (MutableList<String>) -> Unit,
 ) :
     BaseSheetDialog(context) {
@@ -68,7 +69,7 @@ class BillSelectorDialog(
 
 
     private suspend fun loadData() {
-        val list = BookBillModel.list()
+        val list = BookBillModel.list(type)
         if (list.isEmpty()) {
             withContext(Dispatchers.Main) {
                 statusPage.showEmpty()
