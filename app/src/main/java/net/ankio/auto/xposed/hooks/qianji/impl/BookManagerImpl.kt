@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 ankio(ankio@ankio.net)
+ * Copyright (C) 2025 ankio(ankio@ankio.net)
  * Licensed under the Apache License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,9 +13,8 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.xposed.hooks.qianji.sync
+package net.ankio.auto.xposed.hooks.qianji.impl
 
-import android.content.Context
 import com.google.gson.Gson
 import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.Dispatchers
@@ -28,10 +27,10 @@ import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BookNameModel
 import org.ezbook.server.db.model.SettingModel
 
-class BookUtils(private val context: Context) {
+object BookManagerImpl {
     private val bookManagerInstance by lazy {
         XposedHelpers.callStaticMethod(
-            AppRuntime.manifest.clazz("BookManager"),
+            AppRuntime.clazz("BookManager"),
             "getInstance",
         )
     }
@@ -40,25 +39,44 @@ class BookUtils(private val context: Context) {
         XposedHelpers.callMethod(
             bookManagerInstance,
             "getAllBooks",
-            context,
+            AppRuntime.application!!,
             true,
             1
         ) as List<*>
     }
 
 
-    suspend fun getBookByName(name: String): Any {
+    suspend fun getBookByName(name: String): Book {
         val list = getBooks()
         list.find { XposedHelpers.getObjectField(it, "name") == name }?.let {
-            return it
+            return Book.fromObject(it)
         }
-        return list.first()!!
+        return Book.fromObject(list.first()!!)
     }
 
     suspend fun syncBooks(): ArrayList<BookNameModel> =
         withContext(Dispatchers.IO) {
             val list = getBooks()
             val bookList = arrayListOf<BookNameModel>()
+
+
+            /**
+             * [
+             *     {
+             *         "bookId":-1,
+             *         "cover":"http://res.qianjiapp.com/headerimages2/daniela-cuevas-t7YycgAoVSw-unsplash20_9.jpg!headerimages2",
+             *         "createtimeInSec":0,
+             *         "expired":0,
+             *         "memberCount":1,
+             *         "name":"日常账本",
+             *         "sort":0,
+             *         "type":-1,
+             *         "updateTimeInSec":0,
+             *         "userid":"",
+             *         "visible":1
+             *     }
+             * ]
+             */
 
 
 

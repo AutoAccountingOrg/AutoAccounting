@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 ankio(ankio@ankio.net)
+ * Copyright (C) 2025 ankio(ankio@ankio.net)
  * Licensed under the Apache License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,7 +13,7 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.xposed.hooks.qianji.sync
+package net.ankio.auto.xposed.hooks.qianji.impl
 
 import com.google.gson.Gson
 import de.robv.android.xposed.XposedHelpers
@@ -33,13 +33,7 @@ import java.lang.reflect.Proxy
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-/**
- * 将钱迹的资产数据同步给自动记账
- */
-class CategoryUtils(
-    private val books: List<BookNameModel>
-) {
-
+object CateInitPresenterImpl {
     private var cateInitPresenterImplClazz: Class<*> =
         Hooker.loader(
             "com.mutangtech.qianji.bill.add.category.CateInitPresenterImpl",
@@ -78,7 +72,7 @@ class CategoryUtils(
             XposedHelpers.callMethod(obj, "loadCategoryList", bookId, false)
         }
 
-    suspend fun syncCategory() = withContext(Dispatchers.IO) {
+    suspend fun syncCategory(books: ArrayList<BookNameModel>) = withContext(Dispatchers.IO) {
         val arrayList = arrayListOf<CategoryModel>()
         for (book in books) {
             val hashMap =
@@ -142,6 +136,4 @@ class CategoryUtils(
         }
         return categories
     }
-
-
 }

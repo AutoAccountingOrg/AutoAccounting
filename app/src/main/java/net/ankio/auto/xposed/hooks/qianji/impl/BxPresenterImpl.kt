@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 ankio(ankio@ankio.net)
+ * Copyright (C) 2025 ankio(ankio@ankio.net)
  * Licensed under the Apache License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,7 +13,7 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.xposed.hooks.qianji.sync
+package net.ankio.auto.xposed.hooks.qianji.impl
 
 import com.google.gson.Gson
 import de.robv.android.xposed.XposedHelpers
@@ -34,8 +34,7 @@ import java.util.HashSet
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-class BaoXiaoUtils {
-
+object BxPresenterImpl {
     val baoXiaoImpl by lazy {
         Hooker.loader("com.mutangtech.qianji.bill.baoxiao.BxPresenterImpl")
     }
@@ -93,88 +92,16 @@ class BaoXiaoUtils {
                 getBaoXiaoList()
             }
 
-        /**
-         * {
-         *     "_id": 11002,
-         *     "assetid": 1613058959055,
-         *     "billid": 1718199912441166031,
-         *     "bookId": -1,
-         *     "category": {
-         *         "bookId": -1,
-         *         "editable": 0,
-         *         "icon": "http://qianjires.xxoojoke.com/cateic_other.png",
-         *         "id": 6691047,
-         *         "level": 1,
-         *         "name": "其它",
-         *         "parentId": -1,
-         *         "sort": 10,
-         *         "type": 0,
-         *         "userId": "200104405e109647c18e9"
-         *     },
-         *     "categoryId": 6691047,
-         *     "createtimeInSec": 1718199912,
-         *     "descinfo": "支付宝-余额宝",
-         *     "fromact": "支付宝-余额宝",
-         *     "fromid": -1,
-         *     "importPackId": 0,
-         *     "money": 0.01,
-         *     "paytype": 0,
-         *     "platform": 0,
-         *     "remark": "长城基金管理有限公司 -222222",
-         *     "status": 1,
-         *     "targetid": -1,
-         *     "timeInSec": 1715020286,
-         *     "type": 5,
-         *     "updateTimeInSec": 0,
-         *     "userid": "200104405e109647c18e9"
-         * }*/
-
-        /**
-         * {
-         *     "_id": 11002,
-         *     "assetid": 1613058959055,
-         *     "billid": 1718199912441166031,
-         *     "bookId": -1,
-         *     "category": {
-         *         "bookId": -1,
-         *         "editable": 0,
-         *         "icon": "http://qianjires.xxoojoke.com/cateic_other.png",
-         *         "id": 6691047,
-         *         "level": 1,
-         *         "name": "其它",
-         *         "parentId": -1,
-         *         "sort": 10,
-         *         "type": 0,
-         *         "userId": "200104405e109647c18e9"
-         *     },
-         *     "categoryId": 6691047,
-         *     "createtimeInSec": 1718199912,
-         *     "descinfo": "支付宝-余额宝",
-         *     "fromact": "支付宝-余额宝",
-         *     "fromid": -1,
-         *     "importPackId": 0,
-         *     "money": 0.01,
-         *     "paytype": 0,
-         *     "platform": 0,
-         *     "remark": "长城基金管理有限公司 -222222",
-         *     "status": 1,
-         *     "targetid": -1,
-         *     "timeInSec": 1715020286,
-         *     "type": 5,
-         *     "updateTimeInSec": 0,
-         *     "userid": "200104405e109647c18e9"
-         * }*/
-
-        val bills = convert2Bill(bxList)
+        val bills = convert2Bill(bxList, Setting.HASH_BAOXIAO_BILL)
         val sync = Gson().toJson(bills)
         val md5 = MD5HashTable.md5(sync)
-        val server = SettingModel.get(Setting.HASH_BILL, "")
+        val server = SettingModel.get(Setting.HASH_BAOXIAO_BILL, "")
         if (server == md5 && !AppRuntime.debug) {
             AppRuntime.log("No need to sync BaoXiao, server md5:${server} local md5:${md5}")
             return@withContext
         }
         AppRuntime.logD("Sync BaoXiao:$sync")
-        BookBillModel.put(bills, md5)
+        BookBillModel.put(bills, md5, Setting.HASH_BAOXIAO_BILL)
         withContext(Dispatchers.Main) {
             MessageUtils.toast("已同步报销账单到自动记账")
         }
@@ -227,7 +154,7 @@ class BaoXiaoUtils {
 
         // com.mutangtech.qianji.data.model.AssetAccount r37,
         val asset =
-            AssetsUtils().getAssetByName(billModel.accountNameFrom)
+            AssetPreviewPresenterImpl.getAssetByName(billModel.accountNameFrom)
                 ?: throw RuntimeException("找不到资产 key=accountname;value=${billModel.accountNameFrom}")
 
 
@@ -267,26 +194,25 @@ class BaoXiaoUtils {
 
     }
 
-    companion object {
-        fun convert2Bill(anyBills: List<*>): ArrayList<BookBillModel> {
-            val bills = arrayListOf<BookBillModel>()
-            anyBills.forEach {
-                if (it == null) {
-                    return@forEach
-                }
-                val bill = BookBillModel()
-                val billModel = Bill.fromObject(it)
-                bill.money = billModel.getMoney()
-                bill.remoteId = billModel.get_id().toString()
-                bill.remark = billModel.getRemark() ?: ""
-                bill.time = billModel.getTimeInSec() * 1000
-                bill.remoteBookId = billModel.getBookId().toString()
-                bill.category = billModel.getCategory()?.getName() ?: ""
-                bills.add(bill)
-
-                // 债务账单
+    fun convert2Bill(anyBills: List<*>, type: String): ArrayList<BookBillModel> {
+        val bills = arrayListOf<BookBillModel>()
+        anyBills.forEach {
+            if (it == null) {
+                return@forEach
             }
-            return bills
+            val bill = BookBillModel()
+            val billModel = Bill.fromObject(it)
+            bill.money = billModel.getMoney()
+            bill.remoteId = billModel.get_id().toString()
+            bill.remark = billModel.getRemark() ?: ""
+            bill.time = billModel.getTimeInSec() * 1000
+            bill.remoteBookId = billModel.getBookId().toString()
+            bill.category = billModel.getCategory()?.getName() ?: ""
+            bill.type = type
+            bills.add(bill)
+
+            // 债务账单
         }
+        return bills
     }
 }

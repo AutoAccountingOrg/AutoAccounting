@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 ankio(ankio@ankio.net)
+ * Copyright (C) 2025 ankio(ankio@ankio.net)
  * Licensed under the Apache License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,7 +13,7 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.xposed.hooks.qianji.sync
+package net.ankio.auto.xposed.hooks.qianji.impl
 
 import com.google.gson.Gson
 import de.robv.android.xposed.XposedHelpers
@@ -35,19 +35,13 @@ import java.lang.reflect.Proxy
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-/**
- * 将钱迹的资产数据同步给自动记账
- */
-class AssetsUtils {
+object AssetPreviewPresenterImpl {
 
-    private val assetPreviewPresenterImplClazz by lazy {
-        Hooker.loader("com.mutangtech.qianji.asset.account.mvp.AssetPreviewPresenterImpl")
+    const val CLAZZ = "com.mutangtech.qianji.asset.account.mvp.AssetPreviewPresenterImpl"
+    val assetPreviewPresenterImplClazz by lazy {
+        Hooker.loader(CLAZZ)
     }
-
-    private val assetSqlHelperClazz by lazy {
-        AppRuntime.clazz("AssetDbHelper")
-    }
-
+    private var assets: List<*>? = null
     /**
      * 从钱迹获取资产列表
      */
@@ -55,10 +49,6 @@ class AssetsUtils {
         var resumed = false
         // 获取所有构造函数
         val constructor = assetPreviewPresenterImplClazz.constructors.firstOrNull()
-
-        /**
-         * 410_951 public AssetPreviewPresenterImpl(u7.b bVar, f8.c cVar)
-         */
 
         /**
          * 410_951 public AssetPreviewPresenterImpl(u7.b bVar, f8.c cVar)
@@ -107,7 +97,6 @@ class AssetsUtils {
         XposedHelpers.callMethod(assetPreviewPresenterImplObj, "loadAssets", true, false)
 
     }
-
     /**
      * 同步资产列表
      */
@@ -164,27 +153,62 @@ class AssetsUtils {
         }
     }
 
-    private var assets: List<*>? = null
-
+    /**
+     * 通过资产名称获取资产
+     */
     suspend fun getAssetByName(name: String, sType: Int = -1): AssetAccount? =
         withContext(Dispatchers.IO) {
-        if (assets == null) {
-            assets = withContext(Dispatchers.Main){
-                getAssetsList()
+            if (assets == null) {
+                assets = withContext(Dispatchers.Main) {
+                    getAssetsList()
+                }
             }
-        }
             val account = assets!!.firstOrNull {
                 val assetAccount = AssetAccount.fromObject(it!!)
                 assetAccount.getName() == name && (sType == -1 || assetAccount.getStype() == sType)
-        }
+            }
             if (account == null) {
                 AppRuntime.logD("未找到资产:$name")
                 return@withContext null
             } else {
                 return@withContext AssetAccount.fromObject(account)
+            }
         }
-    }
+
+    suspend fun getOrCreateAssetByName(name: String, type: Int, sType: Int): AssetAccount =
+        withContext(Dispatchers.IO) {
+            val account = getAssetByName(name, sType)
+            if (account != null) {
+                return@withContext account
+            }
+            val asset = AssetAccount()
+            asset.setType(type)
+            asset.setStype(sType)
+            asset.setName(name)
+            asset.setIncount(1)
+            asset.setIcon("null")
+            return@withContext asset
+        }
 
 
-
+    // 修改资产余额： public final void R0(AssetAccount p0,double p1,boolean p2){
+    //       double[] uodoubleArra;
+    //       if (p0 == null) {
+    //          return;
+    //       }
+    //       double money = p0.getMoney();
+    //       if (p2) {
+    //          uodoubleArra = new double[]{p1};
+    //          p1 = m.plus(money, uodoubleArra);
+    //       }else {
+    //          uodoubleArra = new double[]{p1};
+    //          p1 = m.subtract(money, uodoubleArra);
+    //       }
+    //       p0.changeMoney(p1);
+    //       new a().insertOrReplace(p0, 0);
+    //       Intent intent = new Intent("com.free2017.broadcast.asset.changed_single");
+    //       intent.putExtra("data", p0);
+    //       b.b(intent);
+    //       return;
+    //    }
 }
