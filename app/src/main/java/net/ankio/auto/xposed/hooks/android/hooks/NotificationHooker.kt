@@ -15,17 +15,12 @@
 
 package net.ankio.auto.xposed.hooks.android.hooks
 
-import android.app.Application
 import android.app.Notification
 import com.google.gson.Gson
 import com.google.gson.JsonObject
-import net.ankio.auto.storage.ConfigUtils
-import net.ankio.auto.storage.Logger
-import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.utils.AppRuntime
-import net.ankio.auto.xposed.core.utils.DataUtils
 import net.ankio.auto.xposed.core.utils.MD5HashTable
 import net.ankio.auto.xposed.core.utils.ThreadUtils
 import org.ezbook.server.constant.DataType
