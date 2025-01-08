@@ -15,26 +15,21 @@
 
 package net.ankio.auto.xposed.hooks.qianji.sync.debt
 
-import android.content.Context
 import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.utils.DateUtils
-import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.hook.Hooker
-import net.ankio.auto.xposed.hooks.qianji.sync.AssetsUtils
-import net.ankio.auto.xposed.hooks.qianji.tools.AssetAccount
-import net.ankio.auto.xposed.hooks.qianji.tools.LoanInfo
+import net.ankio.auto.xposed.core.utils.AppRuntime
+import net.ankio.auto.xposed.hooks.qianji.models.AssetAccount
+import net.ankio.auto.xposed.hooks.qianji.models.Bill
+import net.ankio.auto.xposed.hooks.qianji.models.LoanInfo
 import org.ezbook.server.db.model.BillInfoModel
 import org.json.JSONObject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-abstract class BaseDebt(
-    private val manifest: HookerManifest,
-    private val classLoader: ClassLoader,
-    private val context: Context
-) {
+abstract class BaseDebt {
     /**
      * 账单类
      */
@@ -42,42 +37,39 @@ abstract class BaseDebt(
 
     val billHelpersClazz by lazy {
         // BillDbHelper
-        manifest.clazz("BillDbHelper")
+        AppRuntime.clazz("BillDbHelper")
     }
 
     val billToolsClazz by lazy {
         // BillTools
-        manifest.clazz("BillTools")
+        AppRuntime.clazz("BillTools")
     }
 
-    var assetsUtils: AssetsUtils = AssetsUtils(manifest, classLoader)
 
     val baseSubmitAssetPresenterImpl by lazy {
-        XposedHelpers.findClass(
-            "com.mutangtech.qianji.asset.submit.mvp.BaseSubmitAssetPresenterImpl",
-            classLoader
+        Hooker.loader(
+            "com.mutangtech.qianji.asset.submit.mvp.BaseSubmitAssetPresenterImpl"
         )
     }
 
     val requestInterface by lazy {
-        manifest.clazz("RequestInterface")
+        AppRuntime.clazz("RequestInterface")
     }
 
     val assetsInterface by lazy {
-        manifest.clazz("AssetsInterface")
+        AppRuntime.clazz("AssetsInterface")
     }
 
     val billClazz by lazy {
-        XposedHelpers.findClass(
-            "com.mutangtech.qianji.data.model.Bill",
-            classLoader
+        Hooker.loader(
+            "com.mutangtech.qianji.data.model.Bill"
         )
     }
 
     abstract suspend fun sync(billModel: BillInfoModel)
 
     fun createLoan(time: Long): LoanInfo {
-        val loan = LoanInfo(classLoader)
+        val loan = LoanInfo()
         loan.setStartdate(DateUtils.stampToDate(time, "yyyy-MM-dd"))
         return loan
     }
@@ -91,10 +83,9 @@ abstract class BaseDebt(
         // 构建账本数据
         val json = JSONObject(billModel)
 
+        val asset = assetAccount.assetObj
 
-        val asset = assetAccount.get
-
-        manifest.log("提交资产=>${asset},${book},${json}")
+        AppRuntime.log("提交资产=>${asset},${book},${json}")
         //提交数据给钱迹
         XposedHelpers.callMethod(presenter, "submitAsset", book, asset, json, null)
         Hooker.onceAfter(
@@ -105,7 +96,7 @@ abstract class BaseDebt(
         ) {
             val code = it.args[0] as Int
             val msg = it.args[1] as String
-            manifest.log("Push Asset => ${code}:${msg}")
+            AppRuntime.log("Push Asset => ${code}:${msg}")
             true
         }
         Hooker.onceAfter(
@@ -116,16 +107,16 @@ abstract class BaseDebt(
             val assetsInstance = it.args[0]
             if (assetsInstance.javaClass == assetsInterface) {
                 // 提交成功
-
                 val assetsItem = XposedHelpers.callMethod(assetsInstance, "getData")
-                manifest.log("Push Asset Success => ${assetsItem}")
-                continuation.resume(AssetAccount(classLoader, assetsItem))
+                AppRuntime.log("Push Asset Success => ${assetsItem}")
+                continuation.resume(AssetAccount.fromObject(assetsItem))
 
                 return@onceAfter true
             }
             false
         }
     }
+
 
     /**
      * 是否为新账单
@@ -134,14 +125,24 @@ abstract class BaseDebt(
         return@withContext account.getId() == -1L
     }
 
-    fun saveBill(bill: Any) {
+    fun saveBill(bill: Bill) {
         val billHelpers = XposedHelpers.newInstance(billHelpersClazz)
-        XposedHelpers.callMethod(billHelpers, "saveOrUpdateBill", bill)
+        XposedHelpers.callMethod(billHelpers, "saveOrUpdateBill", bill.toObject())
+    }
+
+
+    private val assetSqlHelperClazz by lazy {
+        AppRuntime.clazz("AssetDbHelper")
+    }
+
+    fun updateAssets(assetAccount: AssetAccount) {
+        val assetSqlHelper = XposedHelpers.newInstance(assetSqlHelperClazz)
+        XposedHelpers.callMethod(assetSqlHelper, "insertOrReplace", assetAccount.toObject(), false)
     }
 
     fun pushBill() {
         val companion = XposedHelpers.getStaticObjectField(billToolsClazz, "Companion")
         val billTools = XposedHelpers.callMethod(companion, "getInstance")
-        XposedHelpers.callMethod(billTools, "startPush", context)
+        XposedHelpers.callMethod(billTools, "startPush", AppRuntime.application!!)
     }
 }

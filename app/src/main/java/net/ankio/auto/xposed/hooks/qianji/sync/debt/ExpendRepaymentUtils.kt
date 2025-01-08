@@ -15,33 +15,31 @@
 
 package net.ankio.auto.xposed.hooks.qianji.sync.debt
 
-import android.content.Context
 import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.ankio.auto.xposed.core.api.HookerManifest
-import net.ankio.auto.xposed.hooks.qianji.sync.BookUtils
-import net.ankio.auto.xposed.hooks.qianji.tools.AssetAccount
+import net.ankio.auto.xposed.core.utils.AppRuntime
+import net.ankio.auto.xposed.hooks.qianji.impl.AssetPreviewPresenterImpl
+import net.ankio.auto.xposed.hooks.qianji.impl.BookManagerImpl
+import net.ankio.auto.xposed.hooks.qianji.models.AssetAccount
+import net.ankio.auto.xposed.hooks.qianji.models.Bill
+import net.ankio.auto.xposed.hooks.qianji.models.Book
 import org.ezbook.server.db.model.BillInfoModel
 
 /**
  * 还款
  */
-class ExpendRepaymentUtils(
-    private val manifest: HookerManifest,
-    private val classLoader: ClassLoader,
-    private val context: Context
-) :
-    BaseDebt(manifest, classLoader, context) {
+class ExpendRepaymentUtils :
+    BaseDebt() {
     override suspend fun sync(billModel: BillInfoModel) = withContext(Dispatchers.IO) {
         // 谁付钱
         val accountFrom = getAccountFrom(billModel)
         // 资产
         val accountTo = getAccountTo(billModel)
 
-        val book = BookUtils(manifest, classLoader, context).getBookByName(billModel.bookName)
+        val book = BookManagerImpl.getBookByName(billModel.bookName)
 
-        manifest.logD("收款: ${billModel.money} ${billModel.accountNameFrom} -> ${billModel.accountNameTo}")
+        AppRuntime.logD("收款: ${billModel.money} ${billModel.accountNameFrom} -> ${billModel.accountNameTo}")
 
         //拆分账单
 
@@ -92,7 +90,7 @@ class ExpendRepaymentUtils(
      */
     private suspend fun getAccountTo(billModel: BillInfoModel): AssetAccount =
         withContext(Dispatchers.IO) {
-            return@withContext assetsUtils.getAssetByNameWrap(billModel.accountNameTo)
+            return@withContext AssetPreviewPresenterImpl.getAssetByName(billModel.accountNameTo)
                 ?: throw RuntimeException("债主不存在 key=accountname;value=${billModel.accountNameTo}")
         }
 
@@ -101,7 +99,7 @@ class ExpendRepaymentUtils(
      */
     private suspend fun getAccountFrom(billModel: BillInfoModel): AssetAccount =
         withContext(Dispatchers.IO) {
-            return@withContext assetsUtils.getAssetByNameWrap(billModel.accountNameFrom)
+            return@withContext AssetPreviewPresenterImpl.getAssetByName(billModel.accountNameFrom)
                 ?: throw RuntimeException("收款账户不存在 key=accountname;value=${billModel.accountNameFrom}")
         }
 
@@ -135,7 +133,8 @@ class ExpendRepaymentUtils(
 
         accountTo.addMoney(billModel.money)
 
-        assetsUtils.updateAsset(accountTo.get)
+        updateAssets(accountTo)
+
     }
 
     /**
@@ -144,10 +143,10 @@ class ExpendRepaymentUtils(
     private suspend fun updateBill(
         billModel: BillInfoModel,
         type: Int,
-        book: Any,
+        book: Book,
         accountFrom: AssetAccount,
         accountTo: AssetAccount
-    ) = withContext(Dispatchers.IO) {
+    ): Bill = withContext(Dispatchers.IO) {
         val money = billModel.money
 
         val remark = billModel.remark
@@ -157,9 +156,7 @@ class ExpendRepaymentUtils(
         val imageList = ArrayList<String>()
 
         //    bill2 = Bill.newInstance(i12, trim, d12, timeInMillis, imageUrls);
-        val bill = XposedHelpers.callStaticMethod(
-            billClazz,
-            "newInstance",
+        val bill = Bill.newInstance(
             type,
             remark,
             money,
@@ -167,31 +164,22 @@ class ExpendRepaymentUtils(
             imageList
         )
 
-
         //  Arguments com.mutangtech.qianji.data.db.dbhelper.k.saveOrUpdateBill(_id=null;billid=1726485242560127574;userid=200104405e109647c18e9;bookid=-1;timeInSec=1726485230;type=10;remark=债务利息;money=10.0;status=2egoryId=0;platform=0;assetId=1716722720363;fromId=1726474557467;targetId=-1;extra=null)
 
         //(agent) [195824] Arguments com.mutangtech.qianji.data.db.dbhelper.k.saveOrUpdateBill(_id=null;billid=1726485242551107424;userid=200104405e109647c18e9;bookid=-1;timeInSec=1726485230;type=9;remark=;money=974.0;status=2;categoryId=0;platform=0;assetId=1726474557467;fromId=1716722720363;targetId=-1;extra=null)
 
 
-        val fromLongId = XposedHelpers.callMethod(accountFrom.getId(), "longValue")
-        val toLongId = XposedHelpers.callMethod(accountTo.getId(), "longValue")
-
         if (billModel.remark.contains("利息")) {
-            XposedHelpers.setObjectField(bill, "fromid", toLongId)
-            XposedHelpers.setObjectField(bill, "assetid", fromLongId)
+            Bill.setZhaiwuCurrentAsset(bill, accountTo)
+            Bill.setZhaiwuAboutAsset(bill, accountFrom)
         } else {
-            XposedHelpers.setObjectField(bill, "assetid", toLongId)
-            XposedHelpers.setObjectField(bill, "fromid", fromLongId)
+            Bill.setZhaiwuCurrentAsset(bill, accountFrom)
+            Bill.setZhaiwuAboutAsset(bill, accountTo)
         }
 
 
-        val bookId = XposedHelpers.getObjectField(book, "bookId")
-        XposedHelpers.setObjectField(bill, "bookId", XposedHelpers.callMethod(bookId, "longValue"))
-        XposedHelpers.setObjectField(
-            bill,
-            "descinfo",
-            "${accountFrom.getName()}->${accountTo.getName()}"
-        )
+        bill.setBook(book)
+        bill.setDescinfo("${accountFrom.getName()}->${accountTo.getName()}")
 
         bill
 

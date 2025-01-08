@@ -20,19 +20,19 @@ import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.xposed.core.api.HookerManifest
-import net.ankio.auto.xposed.hooks.qianji.sync.BookUtils
-import net.ankio.auto.xposed.hooks.qianji.tools.AssetAccount
+import net.ankio.auto.xposed.core.utils.AppRuntime
+import net.ankio.auto.xposed.hooks.qianji.impl.AssetPreviewPresenterImpl
+import net.ankio.auto.xposed.hooks.qianji.impl.BookManagerImpl
+import net.ankio.auto.xposed.hooks.qianji.models.AssetAccount
+import net.ankio.auto.xposed.hooks.qianji.models.Bill
+import net.ankio.auto.xposed.hooks.qianji.models.Book
 import org.ezbook.server.db.model.BillInfoModel
 
 /**
  * 借款
  */
-class IncomeLendingUtils(
-    private val manifest: HookerManifest,
-    private val classLoader: ClassLoader,
-    private val context: Context
-) :
-    BaseDebt(manifest, classLoader, context) {
+class IncomeLendingUtils :
+    BaseDebt() {
     override suspend fun sync(billModel: BillInfoModel) = withContext(Dispatchers.IO) {
         // 借入账户
         val accountTo = getAccountTo(billModel)
@@ -40,9 +40,9 @@ class IncomeLendingUtils(
         var accountFrom = getAccountFrom(billModel)
         // 是否是新创建的资产
         val isNewAssets = isNewAssets(accountFrom)
-        val book = BookUtils(manifest, classLoader, context).getBookByName(billModel.bookName)
+        val book = BookManagerImpl.getBookByName(billModel.bookName)
 
-        manifest.logD("借入: ${billModel.money} ${billModel.accountNameFrom} -> ${billModel.accountNameTo}, isNewAssets=$isNewAssets")
+        AppRuntime.logD("借入: ${billModel.money} ${billModel.accountNameFrom} -> ${billModel.accountNameTo}, isNewAssets=$isNewAssets")
 
         // 更新loan
         updateLoan(billModel, accountFrom, isNewAssets)
@@ -53,7 +53,7 @@ class IncomeLendingUtils(
             // 构建账单
             val bill = updateBill(billModel, 6, book, accountFrom, accountTo)
 
-            manifest.logD("bill: $bill")
+            AppRuntime.logD("bill: $bill")
 
             saveBill(bill)
         }
@@ -66,7 +66,7 @@ class IncomeLendingUtils(
      */
     private suspend fun getAccountTo(billModel: BillInfoModel): AssetAccount =
         withContext(Dispatchers.IO) {
-            return@withContext assetsUtils.getAssetByNameWrap(billModel.accountNameTo)
+            return@withContext AssetPreviewPresenterImpl.getAssetByName(billModel.accountNameTo)
                 ?: throw RuntimeException("找不到资产 key=accountname;value=${billModel.accountNameTo}")
         }
 
@@ -75,7 +75,7 @@ class IncomeLendingUtils(
      */
     private suspend fun getAccountFrom(billModel: BillInfoModel): AssetAccount =
         withContext(Dispatchers.IO) {
-            return@withContext assetsUtils.getOrCreateAssetByNameWrap(
+            return@withContext AssetPreviewPresenterImpl.getOrCreateAssetByName(
                 billModel.accountNameFrom,
                 5,
                 51
@@ -93,7 +93,7 @@ class IncomeLendingUtils(
     ) = withContext(Dispatchers.IO) {
         // 债务
         val loan = if (isNewAssets) createLoan(billModel.time) else accountFrom.getLoanInfo()
-        manifest.logD("LoanInfo: ${loan.get}")
+        AppRuntime.logD("LoanInfo: ${loan}")
         // {"a":0,"b":"2024-07-17","c":"","e":-12.0,"f":0.0}
         // f=TotalPay 已还金额
         // e=money 待还金额
@@ -129,7 +129,7 @@ class IncomeLendingUtils(
         }
 
         accountTo.addMoney(billModel.money)
-        assetsUtils.updateAsset(accountTo.get)
+        updateAssets(accountTo)
 
         return@withContext ret
     }
@@ -140,10 +140,10 @@ class IncomeLendingUtils(
     private suspend fun updateBill(
         billModel: BillInfoModel,
         type: Int,
-        book: Any,
+        book: Book,
         accountFrom: AssetAccount,
         accountTo: AssetAccount
-    ) = withContext(Dispatchers.IO) {
+    ): Bill = withContext(Dispatchers.IO) {
         val money = billModel.money
 
         val remark = billModel.remark
@@ -152,33 +152,18 @@ class IncomeLendingUtils(
 
         val imageList = ArrayList<String>()
 
-        //    bill2 = Bill.newInstance(i12, trim, d12, timeInMillis, imageUrls);
-        val bill = XposedHelpers.callStaticMethod(
-            billClazz,
-            "newInstance",
+        val bill = Bill.newInstance(
             type,
             remark,
             money,
             time,
             imageList
         )
+        Bill.setZhaiwuCurrentAsset(bill, accountFrom)
+        Bill.setZhaiwuAboutAsset(bill, accountTo)
 
-        val fromLongId = XposedHelpers.callMethod(accountFrom.getId(), "longValue")
-        val toLongId = XposedHelpers.callMethod(accountTo.getId(), "longValue")
-
-        //  Arguments com.mutangtech.qianji.data.db.dbhelper.k.saveOrUpdateBill(_id=null;billid=1726484445302133106;userid=200104405e109647c18e9;bookid=-1;timeInSec=1726484437;type=6;remark=;money=12.0;status=2;categoryId=0;platform=0;assetId=1726474557467;fromId=-1;targetId=1584352475380;extra=null)
-        XposedHelpers.setObjectField(bill, "assetid", fromLongId)
-        XposedHelpers.setObjectField(bill, "targetid", toLongId)
-
-        val bookId = XposedHelpers.getObjectField(book, "bookId")
-        XposedHelpers.setObjectField(bill, "bookId", XposedHelpers.callMethod(bookId, "longValue"))
-
-
-        XposedHelpers.setObjectField(
-            bill,
-            "descinfo",
-            "${accountFrom.getName()}->${accountTo.getName()}"
-        )
+        bill.setBook(book)
+        bill.setDescinfo("${accountFrom.getName()}->${accountTo.getName()}")
 
         bill
 
