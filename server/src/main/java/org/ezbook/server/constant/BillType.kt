@@ -27,7 +27,10 @@ enum class BillType {
     IncomeLending,//收入（借入）
     IncomeRepayment,//收入（收款）
     IncomeReimbursement,//收入（报销）
+    IncomeRefund, //收入（退款）
 
-    Transfer;//转账
+    Transfer//转账
+    ,
+
 
 }
