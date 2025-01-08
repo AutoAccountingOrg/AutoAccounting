@@ -31,7 +31,7 @@ class Bill {
 
     companion object {
         // 钱迹App中账单信息类的完整类名
-        private val CLAZZ = "com.mutangtech.qianji.data.model.Bill"
+        val CLAZZ = "com.mutangtech.qianji.data.model.Bill"
 
         // 加载钱迹账单信息类
         private val billClazz = Hooker.loader(CLAZZ)
@@ -280,17 +280,7 @@ class Bill {
             ) as String
         }
 
-        /**
-         * 从货币获取值
-         */
-        fun getValueFromCurrency(str: String?, currencyExtra: CurrencyExtra?): Double? {
-            return XposedHelpers.callStaticMethod(
-                billClazz,
-                "getValueFromCurrency",
-                str,
-                currencyExtra?.toObject()
-            ) as Double?
-        }
+
 
         /**
          * 获取债务相关资产ID
@@ -408,18 +398,6 @@ class Bill {
 
     fun toObject(): Any? = billObj
 
-    // 实例方法
-    /**
-     * 复制货币额外信息
-     * @param currencyExtra 货币额外信息对象
-     */
-    private fun copyCurrencyExtra(currencyExtra: CurrencyExtra?) {
-        XposedHelpers.callMethod(
-            billObj,
-            "copyCurrencyExtra",
-            currencyExtra?.toObject()
-        )
-    }
 
     /**
      * 添加打包账单
@@ -576,15 +554,6 @@ class Bill {
         ) as Long
     }
 
-    /**
-     * 获取货币额外信息
-     */
-    fun getCurrencyExtra(): CurrencyExtra? {
-        return XposedHelpers.callMethod(
-            billObj,
-            "getCurrencyExtra"
-        )?.let { CurrencyExtra.fromObject(it) }
-    }
 
     /**
      * 获取描述信息
@@ -1320,16 +1289,6 @@ class Bill {
         )
     }
 
-    /**
-     * 设置货币额外信息
-     */
-    fun setCurrencyExtra(currencyExtra: CurrencyExtra?) {
-        XposedHelpers.callMethod(
-            billObj,
-            "setCurrencyExtra",
-            currencyExtra?.toObject()
-        )
-    }
 
     /**
      * 设置描述信息
@@ -1597,4 +1556,10 @@ class Bill {
             "undoBaoxiao"
         )
     }
+
+    fun setZhaiwuCurrentAsset(bill: Bill, accountFrom: AssetAccount) {
+
+    }
+
+
 }

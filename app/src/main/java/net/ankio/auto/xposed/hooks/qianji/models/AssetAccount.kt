@@ -502,4 +502,6 @@ class AssetAccount {
      * 如果当前可见则设为隐藏，如果当前隐藏则设为可见
      */
     fun toggleVisible() = XposedHelpers.callMethod(assetObj, "toggleVisible")
+
+
 }
