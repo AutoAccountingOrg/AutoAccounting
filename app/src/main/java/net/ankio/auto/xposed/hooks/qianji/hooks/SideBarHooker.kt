@@ -16,7 +16,6 @@
 package net.ankio.auto.xposed.hooks.qianji.hooks
 
 import android.app.Activity
-import android.app.Application
 import android.view.LayoutInflater
 import android.widget.FrameLayout
 import android.widget.LinearLayout
@@ -25,21 +24,18 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
-import net.ankio.auto.xposed.common.ServerInfo
-import net.ankio.auto.xposed.core.api.HookerManifest
-import net.ankio.auto.xposed.core.api.PartHooker
-import net.ankio.auto.xposed.core.ui.ColorUtils
-import net.ankio.auto.xposed.core.ui.ViewUtils
-import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.databinding.MenuItemBinding
+import net.ankio.auto.xposed.core.api.PartHooker
+import net.ankio.auto.xposed.core.hook.Hooker
+import net.ankio.auto.xposed.core.ui.ViewUtils
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.core.utils.AppRuntime.classLoader
 import net.ankio.auto.xposed.core.utils.MessageUtils
 import net.ankio.auto.xposed.core.utils.ThreadUtils
-import net.ankio.auto.xposed.hooks.qianji.sync.AssetsUtils
-import net.ankio.auto.xposed.hooks.qianji.sync.BaoXiaoUtils
-import net.ankio.auto.xposed.hooks.qianji.sync.BookUtils
-import net.ankio.auto.xposed.hooks.qianji.sync.CategoryUtils
+import net.ankio.auto.xposed.hooks.qianji.impl.AssetPreviewPresenterImpl
+import net.ankio.auto.xposed.hooks.qianji.impl.BookManagerImpl
+import net.ankio.auto.xposed.hooks.qianji.impl.BxPresenterImpl
+import net.ankio.auto.xposed.hooks.qianji.impl.CateInitPresenterImpl
 import net.ankio.auto.xposed.hooks.qianji.sync.SyncBillUtils
 import net.ankio.auto.xposed.hooks.qianji.tools.QianJiUi
 import org.ezbook.server.Server
@@ -169,10 +165,10 @@ class SideBarHooker : PartHooker() {
         }
         last = System.currentTimeMillis()
         ThreadUtils.launch {
-            AssetsUtils().syncAssets()
-            val books = BookUtils(context).syncBooks()
-            CategoryUtils(books).syncCategory()
-            BaoXiaoUtils().syncBaoXiao()
+            AssetPreviewPresenterImpl.syncAssets()
+            val books = BookManagerImpl.syncBooks()
+            CateInitPresenterImpl.syncCategory(books)
+            BxPresenterImpl.syncBaoXiao()
             // LoanUtils().syncLoan()
             SyncBillUtils().sync(context)
         }
