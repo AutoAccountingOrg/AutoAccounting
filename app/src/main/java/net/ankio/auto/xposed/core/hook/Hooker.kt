@@ -172,6 +172,7 @@ object Hooker {
     ) {
         try {
             val hookKey = "$clazz-$method-${parameterTypes.joinToString()}"
+            hookMap[hookKey]?.unhook()
             val unhook = XposedHelpers.findAndHookMethod(
                 clazz,
                 method,
@@ -206,6 +207,7 @@ object Hooker {
     ) {
         try {
             val hookKey = "$clazz-$method-${parameterTypes.joinToString()}"
+            hookMap[hookKey]?.unhook()
             val unhook = XposedHelpers.findAndHookMethod(
                 clazz,
                 method,
@@ -340,7 +342,7 @@ object Hooker {
         clazz: String,
         method: String,
         vararg parameterTypes: Any,
-        hook: (XC_MethodHook.MethodHookParam) -> Any?
+        hook: (XC_MethodHook.MethodHookParam) -> Unit
     ) {
         try {
             val loadedClass = loader(clazz, AppRuntime.classLoader)
@@ -366,15 +368,15 @@ object Hooker {
         clazz: Class<*>,
         method: String,
         vararg parameterTypes: Class<*>,
-        hook: (XC_MethodHook.MethodHookParam) -> Any?
+        hook: (XC_MethodHook.MethodHookParam) -> Unit
     ) {
         XposedHelpers.findAndHookMethod(
             clazz,
             method,
             *parameterTypes,
             object : XC_MethodReplacement() {
-                override fun replaceHookedMethod(param: MethodHookParam): Any? {
-                    return hook(param)
+                override fun replaceHookedMethod(param: MethodHookParam) {
+                    hook(param)
                 }
             }
         )
@@ -425,6 +427,14 @@ object Hooker {
             *parameterTypes,
             XC_MethodReplacement.returnConstant(value)
         )
+    }
+
+    /**
+     * 调用原始方法执行，只有在replace里面可能需要。
+     * 一般情况下使用 before函数并使用it.setResult(null)来阻止方法执行。
+     */
+    fun XC_MethodHook.MethodHookParam.callOriginalMethod(): Any? {
+        return XposedBridge.invokeOriginalMethod(this.method, this.thisObject, this.args)
     }
 
 }
