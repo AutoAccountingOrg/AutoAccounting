@@ -72,7 +72,6 @@ class AutoHooker : PartHooker() {
     }
 
     private fun hookDoIntent() {
-        val method = manifest.method("AddBillIntentAct", "doIntent")
         Hooker.before(
             addBillIntentAct,
             manifest.method("AddBillIntentAct", "doIntent"),
@@ -138,7 +137,7 @@ class AutoHooker : PartHooker() {
             AppRuntime.log("hookTaskLog: $value")
             val billInfo = QianJiUri.toAuto(uri)
             if (billInfo.id < 0) return@before
-            param.result = null
+
             ThreadUtils.launch {
                 BillInfoModel.status(billInfo.id, false)
             }
@@ -156,6 +155,7 @@ class AutoHooker : PartHooker() {
 
                 // 支出（借出）
                 QianJiBillType.ExpendLending.value -> {
+                    param.result = null
                     ThreadUtils.launch {
                         runCatching {
                             ExpendLendingUtils().sync(billInfo)
@@ -171,11 +171,10 @@ class AutoHooker : PartHooker() {
                         }
                     }
 
-                    param.result = null
-
                 }
                 // 支出（还款）
                 QianJiBillType.ExpendRepayment.value -> {
+                    param.result = null
                     ThreadUtils.launch {
                         runCatching {
                             ExpendRepaymentUtils().sync(billInfo)
@@ -189,13 +188,11 @@ class AutoHooker : PartHooker() {
                             manifest.logE(it)
                         }
                     }
-                    param.args[0] = "自动记账正在处理中(还款), 请稍候..."
-                    XposedHelpers.callMethod(autoTaskLog, "setStatus", 1)
-                    param.result = null
                 }
 
-                // 收入（借入）
+                // 收入（借入）,OK
                 QianJiBillType.IncomeLending.value -> {
+                    param.result = null
                     ThreadUtils.launch {
                         runCatching {
                             IncomeLendingUtils().sync(billInfo)
@@ -211,8 +208,9 @@ class AutoHooker : PartHooker() {
                     }
 
                 }
-                // 收入（收款）
+                // 收入（收款）,OK
                 QianJiBillType.IncomeRepayment.value -> {
+                    param.result = null
                     ThreadUtils.launch {
                         runCatching {
                             IncomeRepaymentUtils().sync(billInfo)
@@ -226,12 +224,10 @@ class AutoHooker : PartHooker() {
                             manifest.logE(it)
                         }
                     }
-                    param.args[0] = "自动记账正在处理中(收款), 请稍候..."
-                    XposedHelpers.callMethod(autoTaskLog, "setStatus", 1)
-                    param.result = null
                 }
                 // 收入（报销)
                 QianJiBillType.IncomeReimbursement.value -> {
+                    param.result = null
                     ThreadUtils.launch {
                         runCatching {
                             BxPresenterImpl.doBaoXiao(billInfo)
@@ -244,8 +240,6 @@ class AutoHooker : PartHooker() {
                             manifest.logE(it)
                         }
                     }
-                    param.args[0] = "自动记账正在报销中, 请稍候..."
-                    param.result = null
                 }
 
                 QianJiBillType.IncomeRefund.value -> {
