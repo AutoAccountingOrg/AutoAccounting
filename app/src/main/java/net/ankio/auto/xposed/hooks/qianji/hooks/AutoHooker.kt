@@ -115,6 +115,10 @@ class AutoHooker : PartHooker() {
         }
     }
 
+    private suspend fun finishInUi() = withContext(Dispatchers.Main) {
+        finish()
+    }
+
 
     private fun hookTaskLog() {
 
@@ -169,6 +173,7 @@ class AutoHooker : PartHooker() {
                             MessageUtils.toast("借出失败 ${handleError(it.message ?: "")}")
                             manifest.logE(it)
                         }
+                        finishInUi()
                     }
 
                 }
@@ -187,6 +192,7 @@ class AutoHooker : PartHooker() {
                             MessageUtils.toast("还款失败 ${handleError(it.message ?: "")}")
                             manifest.logE(it)
                         }
+                        finishInUi()
                     }
                 }
 
@@ -205,6 +211,7 @@ class AutoHooker : PartHooker() {
                             MessageUtils.toast("借入失败 ${handleError(it.message ?: "")}")
                             manifest.logE(it)
                         }
+                        finishInUi()
                     }
 
                 }
@@ -223,6 +230,7 @@ class AutoHooker : PartHooker() {
                             MessageUtils.toast("收款失败 ${handleError(it.message ?: "")}")
                             manifest.logE(it)
                         }
+                        finishInUi()
                     }
                 }
                 // 收入（报销)
@@ -239,9 +247,10 @@ class AutoHooker : PartHooker() {
                             MessageUtils.toast("报销失败 ${handleError(it.message ?: "")}")
                             manifest.logE(it)
                         }
+                        finishInUi()
                     }
                 }
-
+                // 收入（退款)
                 QianJiBillType.IncomeRefund.value -> {
                     // 退款
                 }

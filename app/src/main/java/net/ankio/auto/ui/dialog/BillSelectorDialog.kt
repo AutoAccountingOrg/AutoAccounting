@@ -24,6 +24,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.databinding.DialogCategorySelectBinding
+import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.adapter.BillSelectorAdapter
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.componets.StatusPage
@@ -70,6 +71,7 @@ class BillSelectorDialog(
 
     private suspend fun loadData() {
         val list = BookBillModel.list(type)
+        Logger.d("list: $list")
         if (list.isEmpty()) {
             withContext(Dispatchers.Main) {
                 statusPage.showEmpty()

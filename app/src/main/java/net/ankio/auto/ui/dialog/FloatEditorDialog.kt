@@ -893,7 +893,12 @@ class FloatEditorDialog(
             setBillTypeLevel2(rawBillInfo.type)
         }
 
-        selectedBills = billInfoModel.extendData.split(",").toMutableList()
+        selectedBills = billInfoModel.extendData
+            .split(", ")
+            .map { it.trim() }
+            .distinct()
+            .toMutableList()
+
 
         if (ConfigUtils.getBoolean(Setting.SHOW_RULE_NAME, DefaultData.SHOW_RULE_NAME)) {
             binding.ruleName.visibility = View.VISIBLE

@@ -110,6 +110,9 @@ object BxPresenterImpl {
     suspend fun doBaoXiao(billModel: BillInfoModel) = withContext(Dispatchers.Main) {
 
         val list = billModel.extendData.split(", ")
+            .map { it.trim() }
+            .distinct()
+            .toMutableList()
 
         val billList =
             withContext(Dispatchers.Main) {
@@ -118,7 +121,9 @@ object BxPresenterImpl {
 
         val selectBills =
             billList.filter {
-                val billId = XposedHelpers.getObjectField(it, "billid") as Long
+                val bill = Bill.fromObject(it!!)
+                val billId = bill.getBillid()
+                AppRuntime.logD("billId:$billId")
                 // 判断billId是否在list中
                 list.contains(billId.toString())
             }
@@ -183,7 +188,7 @@ object BxPresenterImpl {
             baoXiaoInstance,
             "doBaoXiao",
             set,
-            asset,
+            asset.toObject(),
             money,
             calendar,
             currencyExtraInstance,
@@ -203,7 +208,7 @@ object BxPresenterImpl {
             val bill = BookBillModel()
             val billModel = Bill.fromObject(it)
             bill.money = billModel.getMoney()
-            bill.remoteId = billModel.get_id().toString()
+            bill.remoteId = billModel.getBillid().toString()
             bill.remark = billModel.getRemark() ?: ""
             bill.time = billModel.getTimeInSec() * 1000
             bill.remoteBookId = billModel.getBookId().toString()

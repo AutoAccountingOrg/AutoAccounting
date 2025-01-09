@@ -53,8 +53,6 @@ class BookBillModel {
             Dispatchers.IO
         ) {
             val response = Server.request("bill/book/list?type=${typeName}")
-
-
             runCatching {
                 val json = Gson().fromJson(response, JsonObject::class.java)
                 Gson().fromJson(
@@ -70,5 +68,9 @@ class BookBillModel {
                 Server.request("bill/book/put?md5=$md5&type=${typeName}", json)
             }
 
+    }
+
+    override fun toString(): String {
+        return "BookBillModel(id=$id, money=$money, time=$time, remark='$remark', remoteId='$remoteId', remoteBookId='$remoteBookId', category='$category', type='$type')"
     }
 }
