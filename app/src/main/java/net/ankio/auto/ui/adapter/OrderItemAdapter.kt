@@ -23,6 +23,7 @@ import net.ankio.auto.databinding.AdapterOrderItemBinding
 import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
+import net.ankio.auto.ui.componets.IconView
 import net.ankio.auto.ui.utils.ResourceUtils
 import net.ankio.auto.utils.BillTool
 import net.ankio.auto.utils.DateUtils
@@ -80,7 +81,7 @@ class OrderItemAdapter(
         position: Int
     ) {
         val binding = holder.binding
-        binding.category.setText(data.cateName)
+
 
         val context = holder.context
         if (data.remark.isEmpty()) {
@@ -88,56 +89,128 @@ class OrderItemAdapter(
         } else {
             binding.remark.text = data.remark
         }
-        var showAccount = data.accountNameFrom
+
+
+        fun loadCategoryIcon(name: String) {
+            binding.category.setText(name)
+            holder.launch {
+                ResourceUtils.getCategoryDrawableByName(name, holder.context).let {
+                    withContext(Dispatchers.Main) {
+                        binding.category.setIcon(it, true)
+                    }
+                }
+            }
+        }
+
+        fun loadAssetIcon(view: IconView, name: String) {
+            view.setText(name)
+            holder.launch {
+                ResourceUtils.getAssetDrawableFromName(name).let {
+                    withContext(Dispatchers.Main) {
+                        view.setIcon(it, false)
+                    }
+                }
+            }
+        }
+
+        fun visibility(): Int {
+            return if (ConfigUtils.getBoolean(
+                    Setting.SETTING_ASSET_MANAGER,
+                    DefaultData.SETTING_ASSET_MANAGER
+                )
+            ) View.VISIBLE else View.GONE
+        }
+
+        val visibility = visibility()
+
+        binding.payTools1.visibility = visibility
+        binding.payTools2.visibility = visibility
+        binding.iconHeader.visibility = visibility
+
+        fun notShowAccount() {
+            binding.payTools2.visibility = View.GONE
+            binding.iconHeader.visibility = View.GONE
+        }
 
         when (data.type) {
-            BillType.Expend -> {}
-            BillType.ExpendReimbursement -> {}
+            BillType.Expend -> {
+                loadCategoryIcon(data.cateName)
+                loadAssetIcon(binding.payTools1, data.accountNameFrom)
+                notShowAccount()
+            }
+
+            BillType.ExpendReimbursement -> {
+                loadCategoryIcon(data.cateName)
+                binding.category.setText(
+                    context.getString(
+                        R.string.income_reimbursement_info,
+                        data.cateName
+                    )
+                )
+                loadAssetIcon(binding.payTools1, data.accountNameFrom)
+                notShowAccount()
+            }
             BillType.ExpendLending -> {
-                binding.category.setText(context.getText(R.string.expend_lending))
-                showAccount = data.accountNameTo
+                binding.category.setText(context.getString(R.string.expend_lending))
+                loadAssetIcon(binding.payTools1, data.accountNameFrom)
+                loadAssetIcon(binding.payTools2, data.accountNameTo)
             }
 
             BillType.ExpendRepayment -> {
-                binding.category.setText(context.getText(R.string.expend_repayment_info))
-                showAccount = data.accountNameTo
+                binding.category.setText(context.getString(R.string.expend_repayment_info))
+                loadAssetIcon(binding.payTools1, data.accountNameFrom)
+                loadAssetIcon(binding.payTools2, data.accountNameTo)
             }
 
-            BillType.Income -> {}
+            BillType.Income -> {
+                loadCategoryIcon(data.cateName)
+                loadAssetIcon(binding.payTools1, data.accountNameFrom)
+                notShowAccount()
+            }
             BillType.IncomeLending -> {
-                binding.category.setText(context.getText(R.string.income_lending))
+                binding.category.setText(context.getString(R.string.income_lending))
+                loadAssetIcon(binding.payTools1, data.accountNameFrom)
+                loadAssetIcon(binding.payTools2, data.accountNameTo)
             }
 
             BillType.IncomeRepayment -> {
-                binding.category.setText(context.getText(R.string.income_repayment_info))
+                binding.category.setText(context.getString(R.string.income_repayment_info))
+                loadAssetIcon(binding.payTools1, data.accountNameFrom)
+                loadAssetIcon(binding.payTools2, data.accountNameTo)
             }
 
-            BillType.IncomeReimbursement -> {}
+            BillType.IncomeReimbursement -> {
+                loadCategoryIcon(data.cateName)
+                binding.category.setText(
+                    context.getString(
+                        R.string.income_reimbursement_info,
+                        data.cateName
+                    )
+                )
+                loadAssetIcon(binding.payTools1, data.accountNameFrom)
+                notShowAccount()
+            }
             BillType.Transfer -> {
                 binding.category.setText(context.getText(R.string.float_transfer))
+                loadAssetIcon(binding.payTools1, data.accountNameFrom)
+                loadAssetIcon(binding.payTools2, data.accountNameTo)
             }
 
-            BillType.IncomeRefund -> TODO()
-        }
-
-
-        holder.launch {
-
-            ResourceUtils.getCategoryDrawableByName(data.cateName, holder.context).let {
-                withContext(Dispatchers.Main) {
-                    binding.category.setIcon(it, true)
-                }
-            }
-
-            ResourceUtils.getAssetDrawableFromName(showAccount).let {
-                withContext(Dispatchers.Main) {
-                    binding.payTools.setIcon(it, false)
-                }
+            BillType.IncomeRefund -> {
+                binding.category.setText(
+                    context.getString(
+                        R.string.income_refund_info,
+                        data.cateName
+                    )
+                )
+                loadAssetIcon(binding.payTools1, data.accountNameFrom)
+                notShowAccount()
             }
         }
+
+
         BillTool.setTextViewPrice(data.money, data.type, binding.money)
         binding.date.text = DateUtils.stampToDate(data.time, "HH:mm:ss")
-        binding.payTools.setText(showAccount)
 
 
         when (data.state) {
@@ -154,12 +227,9 @@ class OrderItemAdapter(
             }
         }
 
-        binding.payTools.visibility =
-            if (ConfigUtils.getBoolean(
-                    Setting.SETTING_ASSET_MANAGER,
-                    DefaultData.SETTING_ASSET_MANAGER
-                )
-            ) View.VISIBLE else View.GONE
+
+
+
 
 
         if (!showMore) {
@@ -172,8 +242,6 @@ class OrderItemAdapter(
                 binding.moreBills.visibility = View.GONE
             }
             binding.autoRecord.visibility = if (data.auto) View.VISIBLE else View.GONE
-
-
         }
 
 

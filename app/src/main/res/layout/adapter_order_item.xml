@@ -21,7 +21,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/one_padding"
             android:textColor="@color/black"
-            app:iconSrc="@drawable/icon_map"
+            app:iconSrc="@drawable/default_cate"
             app:iconTintEnabled="true"
             app:textColor="?colorPrimary"
             tools:text="理财收益" />
@@ -72,7 +72,26 @@
             tools:text="@tools:sample/lorem/random" />
 
         <net.ankio.auto.ui.componets.IconView
-            android:id="@+id/payTools"
+            android:id="@+id/payTools1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:iconTintEnabled="false"
+            app:textColor="?colorOnBackground"
+            tools:iconSrc="@drawable/default_asset"
+            tools:text="支付宝" />
+
+        <ImageView
+            android:id="@+id/icon_header"
+            android:layout_width="@dimen/image_size_small"
+            android:layout_height="@dimen/image_size_small"
+            android:layout_gravity="center_vertical"
+            android:layout_marginHorizontal="@dimen/one_padding"
+            android:contentDescription=""
+            android:importantForAccessibility="no"
+            android:scaleType="centerInside"
+            android:src="@drawable/icon_map_right" />
+        <net.ankio.auto.ui.componets.IconView
+            android:id="@+id/payTools2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:iconTintEnabled="false"

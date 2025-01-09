@@ -106,7 +106,7 @@
     <string name="float_remark">备注</string>
     <string name="float_income">收入</string>
     <string name="float_expend">支出</string>
-    <string name="float_transfer">转账</string>
+    <string name="float_transfer">转账（信用还款）</string>
     <string name="float_expend_debt">借款人</string>
     <string name="float_income_debt">债主</string>
     <string name="restart">重新启动自动记账</string>
@@ -406,6 +406,8 @@
     <string name="assets_map_description">记账应用无法处理未识别的资产，请对以下资产进行映射，以确保资产名称正确。</string>
     <string name="map_source_not_exist">映射的资产不存在</string>
     <string name="setting_duplicated">重复账单合并显示提示</string>
+    <string name="income_reimbursement_info">报销 - %s</string>
+    <string name="income_refund_info">退款 - %s</string>
 
 
 </resources>
