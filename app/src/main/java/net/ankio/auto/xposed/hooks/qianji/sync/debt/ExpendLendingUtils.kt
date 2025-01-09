@@ -105,11 +105,11 @@ class ExpendLendingUtils :
     private suspend fun updateAsset(
         accountFrom: AssetAccount,
         accountTo: AssetAccount,
-        book: Any,
+        book: Book,
         billModel: BillInfoModel,
         isNewAssets: Boolean
     ): AssetAccount = withContext(Dispatchers.IO) {
-        val bookId = XposedHelpers.getObjectField(book, "bookId")
+        val bookId = book.getBookId()
         var ret = accountTo
         if (isNewAssets) {
             ret = submitAsset(

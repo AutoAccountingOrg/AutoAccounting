@@ -19,9 +19,11 @@ import android.content.Intent
 import android.net.Uri
 import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
+import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.core.utils.AppRuntime.application
 import net.ankio.auto.xposed.core.utils.AppRuntime.manifest
 import net.ankio.auto.xposed.core.utils.MessageUtils
@@ -51,27 +53,18 @@ class AutoHooker : PartHooker() {
 
     override fun hook() {
 
-        addBillIntentAct = Hooker.loader(className)
+        addBillIntentAct = manifest.clazz("AddBillIntentAct")
         // 拦截intent
         hookDoIntent()
         // 超时调用pass
         hookTimeout()
 
-        hookCheckBillType()
 
         hookTaskLog()
 
     }
 
-    private fun hookCheckBillType() {
-        Hooker.before(
-            addBillIntentAct,
-            manifest.method(className, "checkBillType"),
-            Intent::class.java
-        ) {
 
-        }
-    }
 
 
     private fun finish() {
@@ -79,9 +72,10 @@ class AutoHooker : PartHooker() {
     }
 
     private fun hookDoIntent() {
+        val method = manifest.method("AddBillIntentAct", "doIntent")
         Hooker.before(
             addBillIntentAct,
-            manifest.method(className, "doIntent"),
+            manifest.method("AddBillIntentAct", "doIntent"),
             Intent::class.java
         ) {
             val intent = it.args[0] as Intent
@@ -138,11 +132,13 @@ class AutoHooker : PartHooker() {
             val msg = param.args[0] as String
             val autoTaskLog = AutoTaskLog.fromObject(param.args[1])
             autoTaskLog.setFrom(BuildConfig.APPLICATION_ID)
+            param.args[1] = autoTaskLog.toObject()
             val value = autoTaskLog.getValue() ?: return@before
             val uri = Uri.parse(value)
-
+            AppRuntime.log("hookTaskLog: $value")
             val billInfo = QianJiUri.toAuto(uri)
             if (billInfo.id < 0) return@before
+            param.result = null
             ThreadUtils.launch {
                 BillInfoModel.status(billInfo.id, false)
             }
@@ -174,8 +170,7 @@ class AutoHooker : PartHooker() {
                             manifest.logE(it)
                         }
                     }
-                    param.args[0] = "自动记账正在处理中(借出), 请稍候..."
-                    XposedHelpers.callMethod(autoTaskLog, "setStatus", 1)
+
                     param.result = null
 
                 }
@@ -214,9 +209,7 @@ class AutoHooker : PartHooker() {
                             manifest.logE(it)
                         }
                     }
-                    param.args[0] = "自动记账正在处理中(借入), 请稍候..."
-                    XposedHelpers.callMethod(autoTaskLog, "setStatus", 1)
-                    param.result = null
+
                 }
                 // 收入（收款）
                 QianJiBillType.IncomeRepayment.value -> {

@@ -181,10 +181,7 @@ object AssetPreviewPresenterImpl {
             if (account != null) {
                 return@withContext account
             }
-            val asset = AssetAccount()
-            asset.setType(type)
-            asset.setStype(sType)
-            asset.setName(name)
+            val asset = AssetAccount.newInstance(type, sType, name)
             asset.setIncount(1)
             asset.setIcon("null")
             return@withContext asset

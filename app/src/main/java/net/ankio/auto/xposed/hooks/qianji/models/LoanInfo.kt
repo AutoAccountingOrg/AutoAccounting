@@ -46,6 +46,7 @@ class LoanInfo {
 
         fun newInstance(): LoanInfo {
             val loanInfo = LoanInfo()
+            loanInfo.loanInfoObj = XposedHelpers.newInstance(loanInfo.loanInfoClazz)
             return loanInfo
         }
     }

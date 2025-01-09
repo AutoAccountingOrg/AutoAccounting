@@ -23,6 +23,7 @@ import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.hooks.qianji.models.AssetAccount
 import net.ankio.auto.xposed.hooks.qianji.models.Bill
+import net.ankio.auto.xposed.hooks.qianji.models.Book
 import net.ankio.auto.xposed.hooks.qianji.models.LoanInfo
 import org.ezbook.server.db.model.BillInfoModel
 import org.json.JSONObject
@@ -69,25 +70,31 @@ abstract class BaseDebt {
     abstract suspend fun sync(billModel: BillInfoModel)
 
     fun createLoan(time: Long): LoanInfo {
-        val loan = LoanInfo()
+        val loan = LoanInfo.newInstance()
         loan.setStartdate(DateUtils.stampToDate(time, "yyyy-MM-dd"))
         return loan
     }
 
     suspend fun submitAsset(
         assetAccount: AssetAccount,
-        book: Any,
+        book: Book,
         billModel: Map<String, Any>
     ): AssetAccount = suspendCoroutine { continuation ->
         val presenter = XposedHelpers.newInstance(baseSubmitAssetPresenterImpl)
         // 构建账本数据
         val json = JSONObject(billModel)
 
-        val asset = assetAccount.assetObj
 
-        AppRuntime.log("提交资产=>${asset},${book},${json}")
+        AppRuntime.log("提交资产=>${assetAccount},${book},${json}")
         //提交数据给钱迹
-        XposedHelpers.callMethod(presenter, "submitAsset", book, asset, json, null)
+        XposedHelpers.callMethod(
+            presenter,
+            "submitAsset",
+            book.toObject(),
+            assetAccount.toObject(),
+            json,
+            null
+        )
         Hooker.onceAfter(
             requestInterface,
             "onError",

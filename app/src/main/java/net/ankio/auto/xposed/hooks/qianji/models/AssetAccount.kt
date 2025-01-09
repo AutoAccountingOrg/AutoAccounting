@@ -83,7 +83,8 @@ class AssetAccount {
             //    }
 
             val assetAccount = AssetAccount()
-            assetAccount.assetObj = XposedHelpers.newInstance(assetClazz, type, stype)
+            assetAccount.assetObj =
+                XposedHelpers.callStaticMethod(assetClazz, "newInstance", type, stype)
             assetAccount.setName(name)
             return assetAccount
         }
@@ -441,7 +442,8 @@ class AssetAccount {
      * 设置借贷信息
      * @param loanInfo 借贷信息对象
      */
-    fun setLoanInfo(loanInfo: Any) = XposedHelpers.callMethod(assetObj, "setLoanInfo", loanInfo)
+    fun setLoanInfo(loanInfo: LoanInfo) =
+        XposedHelpers.callMethod(assetObj, "setLoanInfo", loanInfo.toObject())
 
     /**
      * 设置账户金额
