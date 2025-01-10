@@ -18,6 +18,7 @@ package net.ankio.auto.xposed.hooks.qianji.impl
 import com.google.gson.Gson
 import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.utils.AppRuntime
@@ -78,68 +79,82 @@ object SearchPresenterImpl {
             // ) {
             val refreshMethod = searchImpl.declaredMethods.find { it.name == "searchLocal" }!!
 
-            val str = ""
-            //BookFilter
-            val bookFilter = XposedHelpers.newInstance(refreshMethod.parameters[1].type)
+            // 确保至少有12个参数
+            if (refreshMethod.parameterTypes.size < 12) {
+                throw IllegalStateException("searchLocal method must have at least 12 parameters")
+            }
 
+            // 基础参数准备
+            val params = mutableListOf<Any?>().apply {
+                // 0. 搜索字符串
+                add("")
 
-            //dateFilter
+                // 1. BookFilter
+                val bookFilter = XposedHelpers.newInstance(refreshMethod.parameterTypes[1])
+                runBlocking {
+                    BookManagerImpl.getBooks().forEach {
+                        XposedHelpers.callMethod(bookFilter, "add", it)
+                    }
+                }
+                add(bookFilter)
 
+                // 2. DateFilter
+                val dateFilter = XposedHelpers.newInstance(refreshMethod.parameterTypes[2])
+                val fromCalendar = Calendar.getInstance().apply {
+                    add(Calendar.DAY_OF_MONTH, -10)
+                }
+                val toCalendar = Calendar.getInstance()
+                XposedHelpers.callMethod(
+                    dateFilter,
+                    "setTimeRangeFilter",
+                    fromCalendar,
+                    toCalendar,
+                    103
+                )
+                add(dateFilter)
 
-            val dateFilter = XposedHelpers.newInstance(refreshMethod.parameters[2].type)
+                // 4-7. 各种Filter
+                // TypesFilter typesFilter, 3
+                // MoneyFilter moneyFilter, 4
+                // ImageFilter imageFilter, 5
+                // PlatformFilter platformFilter, 6
+                // 3 typesFilter
+                val typesFilter = XposedHelpers.newInstance(refreshMethod.parameterTypes[3])
+                XposedHelpers.callMethod(typesFilter, "add", 0)
+                add(typesFilter)
+                // 4 moneyFilter
+                add(null)
+                // 5 imageFilter
+                add(null)
+                // 6 platformFilter
+                add(null)
+                // 8-9. 布尔值参数
+                add(false) // z10
+                add(false) // z11
+                add(true)  // z12
 
-            // 获取当前时间
-            val fromCalendar = Calendar.getInstance()
-            // 获取结束时间(当前时间)
-            val toCalendar = Calendar.getInstance()
-            // 设置开始时间为10天前
-            fromCalendar.add(Calendar.DAY_OF_MONTH, -10)
-            // 调用原方法设置时间范围过滤
-            XposedHelpers.callMethod(
-                dateFilter,
-                "setTimeRangeFilter",
-                fromCalendar,
-                toCalendar,
-                103
-            )
+                // 10. SortFilter
+                add(XposedHelpers.newInstance(refreshMethod.parameterTypes[10], 0, false))
 
+                // 11. BillFlagFilter
+                add(null)
 
-            //TypesFilter
-            val typesFilter = XposedHelpers.newInstance(refreshMethod.parameters[3].type)
-            //MoneyFilter
-            val moneyFilter = XposedHelpers.newInstance(refreshMethod.parameters[4].type)
-            //ImageFilter
-            val imageFilter = XposedHelpers.newInstance(refreshMethod.parameters[5].type)
-            //PlatformFilter
-            val platformFilter = XposedHelpers.newInstance(refreshMethod.parameters[6].type)
-            //SortFilter
-            val sortFilter = XposedHelpers.newInstance(refreshMethod.parameters[10].type, 0, false)
-            //BillFlagFilter
-            val billFlagFilter = XposedHelpers.newInstance(refreshMethod.parameters[11].type, 0)
-            //AssetsFilter
-            val assetsFilter = XposedHelpers.newInstance(refreshMethod.parameters[12].type)
-            //TagsFilter
-            val tagsFilter = XposedHelpers.newInstance(refreshMethod.parameters[13].type, null)
+                // 12. AssetsFilter
+                if (refreshMethod.parameterTypes.size > 12) {
+                    add(null)
+                }
 
+                // 13. TagsFilter (如果存在)
+                if (refreshMethod.parameterTypes.size > 13) {
+                    add(null)
+                }
+            }
 
-            //触发搜索
+            // 触发搜索
             XposedHelpers.callMethod(
                 XposedHelpers.newInstance(searchImpl, param1Object),
                 "searchLocal",
-                str,
-                bookFilter,
-                dateFilter,
-                typesFilter,
-                moneyFilter,
-                imageFilter,
-                platformFilter,
-                false,
-                false,
-                true,
-                sortFilter,
-                billFlagFilter,
-                assetsFilter,
-                tagsFilter
+                *params.toTypedArray()
             )
 
         }
@@ -162,7 +177,7 @@ object SearchPresenterImpl {
         AppRuntime.logD("Sync bills:$sync")
         BookBillModel.put(bills, md5, Setting.HASH_BILL)
         withContext(Dispatchers.Main) {
-            MessageUtils.toast("已同步报销账单到自动记账")
+            MessageUtils.toast("已同步支出账单到自动记账")
         }
     }
 }
