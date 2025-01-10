@@ -50,6 +50,12 @@ class BillSelectorAdapter(
 
         binding.date.text = DateUtils.stampToDate(data.time, "yyyy-MM-dd HH:mm")
 
+        if (data.remark.isEmpty()) {
+            binding.remark.visibility = android.view.View.GONE
+        } else {
+            binding.remark.visibility = android.view.View.VISIBLE
+            binding.remark.text = data.remark
+        }
 
     }
 

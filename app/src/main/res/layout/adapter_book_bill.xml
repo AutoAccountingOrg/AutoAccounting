@@ -40,6 +40,20 @@
             android:textColor="?colorOnSurfaceVariant"
             tools:text="2022年12月23日 12:00" />
 
+        <!-- 添加备注 TextView -->
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/remark"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="0dp"
+            android:layout_marginTop="5dp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textAppearance="?textAppearanceBodySmall"
+            android:textColor="?colorOnSurfaceVariant"
+            android:visibility="gone"
+            tools:text="这是一条备注XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            tools:visibility="visible" />
 
     </LinearLayout>
 
