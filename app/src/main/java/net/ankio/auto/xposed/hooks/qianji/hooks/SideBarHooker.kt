@@ -25,6 +25,7 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.databinding.MenuItemBinding
+import net.ankio.auto.storage.Constants
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.ui.ViewUtils
@@ -184,7 +185,7 @@ class SideBarHooker : PartHooker() {
         }
         if (force) last = 0
         // 最快30秒同步一次
-        if (System.currentTimeMillis() - last < 1000 * 30) {
+        if (System.currentTimeMillis() - last < Constants.SYNC_INTERVAL) {
             AppRuntime.manifest.log("Sync too fast, ignore")
             return
         }
