@@ -784,6 +784,17 @@ class SettingDetailFragment : BaseFragment() {
                 },
 
                 ),
+            SettingItem.Switch(
+                title = R.string.setting_proactively,
+                key = Setting.PROACTIVELY_MODEL,
+                icon = R.drawable.setting2_icon_debug,
+                subTitle = R.string.proactive_msg,
+                default = DefaultData.PROACTIVELY_MODEL,
+                onSavedValue = { value, _ ->
+                    ConfigUtils.putBoolean(Setting.PROACTIVELY_MODEL, value)
+                },
+
+                ),
             SettingItem.Text(
                 title = R.string.setting_clear_database,
                 icon = R.drawable.icon_delete,

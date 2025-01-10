@@ -16,6 +16,8 @@
 package org.ezbook.server.constant
 
 object Setting {
+    val PROACTIVELY_MODEL: String = "proactively_model"
+    val BOOK_APP_ACTIVITY: String = "book_app_activity"
     const val HASH_BAOXIAO_BILL: String = "hash_baoxiao_bill"
     const val SHOW_DUPLICATED_POPUP: String = "show_duplicated_popup"
     const val LANDSCAPE_DND: String = "landscape_dnd"

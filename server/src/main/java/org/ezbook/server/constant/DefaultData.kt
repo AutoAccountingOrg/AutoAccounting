@@ -16,6 +16,8 @@
 package org.ezbook.server.constant
 
 object DefaultData {
+    val PROACTIVELY_MODEL: Boolean = true
+    val BOOK_APP_ACTIVITY: String = "com.mutangtech.qianji.bill.auto.AddBillIntentAct"
     const val SHOW_DUPLICATED_POPUP: Boolean = true
     const val LANDSCAPE_DND: Boolean = true
     const val LOAD_SUCCESS: Boolean = false

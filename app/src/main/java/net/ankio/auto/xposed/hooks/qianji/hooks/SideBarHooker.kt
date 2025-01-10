@@ -30,6 +30,7 @@ import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.ui.ViewUtils
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.core.utils.AppRuntime.classLoader
+import net.ankio.auto.xposed.core.utils.DataUtils
 import net.ankio.auto.xposed.core.utils.MessageUtils
 import net.ankio.auto.xposed.core.utils.ThreadUtils
 import net.ankio.auto.xposed.hooks.qianji.impl.AssetPreviewPresenterImpl
@@ -39,6 +40,8 @@ import net.ankio.auto.xposed.hooks.qianji.impl.CateInitPresenterImpl
 import net.ankio.auto.xposed.hooks.qianji.sync.SyncBillUtils
 import net.ankio.auto.xposed.hooks.qianji.tools.QianJiUi
 import org.ezbook.server.Server
+import org.ezbook.server.constant.DefaultData
+import org.ezbook.server.constant.Setting
 
 
 class SideBarHooker : PartHooker() {
@@ -158,8 +161,12 @@ class SideBarHooker : PartHooker() {
      * 同步数据到自动记账
      */
     private fun syncData2Auto(context: Activity) {
-        // 最快3秒同步一次
-        if (System.currentTimeMillis() - last < 1000 * 3) {
+        //主动调用就忽略自动打开
+        if (DataUtils.configBoolean(Setting.PROACTIVELY_MODEL, DefaultData.PROACTIVELY_MODEL)) {
+            return
+        }
+        // 最快30秒同步一次
+        if (System.currentTimeMillis() - last < 1000 * 30) {
             AppRuntime.manifest.log("Sync too fast, ignore")
             return
         }

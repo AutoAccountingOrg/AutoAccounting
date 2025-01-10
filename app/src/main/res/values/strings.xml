@@ -408,6 +408,9 @@
     <string name="setting_duplicated">重复账单合并显示提示</string>
     <string name="income_reimbursement_info">报销 - %s</string>
     <string name="income_refund_info">退款 - %s</string>
+    <string name="refund">退款</string>
+    <string name="setting_proactively">主动模式</string>
+    <string name="proactive_msg">指的是自动记账在同步数据的时候主动调用记账软件接口而不是和被动模式一样需要打开记账软件。</string>
 
 
 </resources>

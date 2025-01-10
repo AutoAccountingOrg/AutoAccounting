@@ -26,6 +26,7 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentBillBinding
+import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.ui.adapter.OrderAdapter
 import net.ankio.auto.ui.api.BasePageFragment
 import net.ankio.auto.ui.componets.WrapContentLinearLayoutManager
@@ -34,9 +35,14 @@ import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
 import net.ankio.auto.ui.dialog.FloatEditorDialog
 import net.ankio.auto.ui.models.OrderGroup
 import net.ankio.auto.ui.utils.AssetsUtils
+import net.ankio.auto.ui.utils.BookAppUtils
 import net.ankio.auto.ui.utils.viewBinding
 import net.ankio.auto.utils.DateUtils
+import net.ankio.auto.xposed.core.utils.DataUtils
+import org.ezbook.server.constant.DefaultData
+import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BillInfoModel
+import org.ezbook.server.db.model.SettingModel
 
 
 open class OrderFragment : BasePageFragment<OrderGroup>() {
@@ -117,7 +123,9 @@ open class OrderFragment : BasePageFragment<OrderGroup>() {
         binding.topAppBar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.item_sync -> {
-                    App.startBookApp()
+                    lifecycleScope.launch {
+                        BookAppUtils.syncData()
+                    }
                     true
                 }
 
