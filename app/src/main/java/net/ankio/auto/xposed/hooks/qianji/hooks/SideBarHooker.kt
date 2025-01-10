@@ -37,6 +37,7 @@ import net.ankio.auto.xposed.hooks.qianji.impl.AssetPreviewPresenterImpl
 import net.ankio.auto.xposed.hooks.qianji.impl.BookManagerImpl
 import net.ankio.auto.xposed.hooks.qianji.impl.BxPresenterImpl
 import net.ankio.auto.xposed.hooks.qianji.impl.CateInitPresenterImpl
+import net.ankio.auto.xposed.hooks.qianji.impl.SearchPresenterImpl
 import net.ankio.auto.xposed.hooks.qianji.sync.SyncBillUtils
 import net.ankio.auto.xposed.hooks.qianji.tools.QianJiUi
 import org.ezbook.server.Server
@@ -144,8 +145,7 @@ class SideBarHooker : PartHooker() {
         itemMenuBinding.root.setOnClickListener {
             MessageUtils.toast("强制同步数据中...")
             //强制同步
-            last = 0L
-            syncData2Auto(context)
+            syncData2Auto(context, true)
         }
 
         linearLayout.addView(itemMenuBinding.root)
@@ -160,25 +160,36 @@ class SideBarHooker : PartHooker() {
     /**
      * 同步数据到自动记账
      */
-    private fun syncData2Auto(context: Activity) {
+    private fun syncData2Auto(context: Activity, force: Boolean = false) {
+        fun syncData() {
+            ThreadUtils.launch {
+                //同步资产分类等信息
+                AssetPreviewPresenterImpl.syncAssets()
+                val books = BookManagerImpl.syncBooks()
+                CateInitPresenterImpl.syncCategory(books)
+                //同步报销账单
+                BxPresenterImpl.syncBaoXiao()
+                //同步支出账单
+                SearchPresenterImpl.syncBills()
+                //同步账单
+                SyncBillUtils().sync(context)
+            }
+        }
         //主动调用就忽略自动打开
         if (DataUtils.configBoolean(Setting.PROACTIVELY_MODEL, DefaultData.PROACTIVELY_MODEL)) {
+            if (force) {
+                syncData()
+            }
             return
         }
+        if (force) last = 0
         // 最快30秒同步一次
         if (System.currentTimeMillis() - last < 1000 * 30) {
             AppRuntime.manifest.log("Sync too fast, ignore")
             return
         }
         last = System.currentTimeMillis()
-        ThreadUtils.launch {
-            AssetPreviewPresenterImpl.syncAssets()
-            val books = BookManagerImpl.syncBooks()
-            CateInitPresenterImpl.syncCategory(books)
-            BxPresenterImpl.syncBaoXiao()
-            // LoanUtils().syncLoan()
-            SyncBillUtils().sync(context)
-        }
+        syncData()
     }
 
 }
