@@ -17,10 +17,12 @@ package net.ankio.auto.ui.dialog
 
 //import net.ankio.auto.ui.adapter.BillSelectorAdapter
 import android.content.Context
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.databinding.DialogCategorySelectBinding
@@ -29,6 +31,8 @@ import net.ankio.auto.ui.adapter.BillSelectorAdapter
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.componets.StatusPage
 import net.ankio.auto.ui.componets.WrapContentLinearLayoutManager
+import net.ankio.auto.ui.utils.BookAppUtils
+import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BookBillModel
 
 class BillSelectorDialog(
@@ -58,9 +62,14 @@ class BillSelectorDialog(
             callback.invoke(selectedBills)
             dismiss()
         }
+        statusPage.showLoading()
 
         lifecycleScope.launch {
-            statusPage.showLoading()
+            when (type) {
+                Setting.HASH_BAOXIAO_BILL -> BookAppUtils.syncReimburseBill() //先同步最近的报销账单
+                Setting.HASH_BILL -> BookAppUtils.syncRecentExpenseBill() //先同步最近的支付账单
+            }
+
             loadData()
         }
 
@@ -69,18 +78,29 @@ class BillSelectorDialog(
     }
 
 
-    private suspend fun loadData() {
-        val list = BookBillModel.list(type)
-        Logger.d("list: $list")
-        if (list.isEmpty()) {
-            withContext(Dispatchers.Main) {
-                statusPage.showEmpty()
+    private suspend fun loadData() = withContext(Dispatchers.IO) {
+        val startTime = System.currentTimeMillis()
+        val timeout = 10000 // 10秒超时
+
+        while (System.currentTimeMillis() - startTime < timeout) {
+            val list = BookBillModel.list(type)
+            Logger.d("list: $list")
+
+            if (list.isNotEmpty()) {
+                withContext(Dispatchers.Main) {
+                    statusPage.showContent()
+                    adapter.updateItems(list)
+                }
+                return@withContext
             }
-            return
+
+            // 等待500毫秒后重试
+            delay(500)
         }
+
+        // 超时后显示空状态
         withContext(Dispatchers.Main) {
-            statusPage.showContent()
-            adapter.updateItems(list)
+            statusPage.showEmpty()
         }
     }
 
