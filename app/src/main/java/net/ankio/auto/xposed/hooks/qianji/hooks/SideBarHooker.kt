@@ -162,27 +162,9 @@ class SideBarHooker : PartHooker() {
      * 同步数据到自动记账
      */
     private fun syncData2Auto(context: Activity, force: Boolean = false) {
-        fun syncData() {
-            ThreadUtils.launch {
-                //同步资产分类等信息
-                AssetPreviewPresenterImpl.syncAssets()
-                val books = BookManagerImpl.syncBooks()
-                CateInitPresenterImpl.syncCategory(books)
-                //同步报销账单
-                BxPresenterImpl.syncBaoXiao()
-                //同步支出账单
-                SearchPresenterImpl.syncBills()
-                //同步账单
-                SyncBillUtils().sync(context)
-            }
-        }
+
         //主动调用就忽略自动打开
-        if (DataUtils.configBoolean(Setting.PROACTIVELY_MODEL, DefaultData.PROACTIVELY_MODEL)) {
-            if (force) {
-                syncData()
-            }
-            return
-        }
+
         if (force) last = 0
         // 最快30秒同步一次
         if (System.currentTimeMillis() - last < Constants.SYNC_INTERVAL) {
@@ -190,7 +172,25 @@ class SideBarHooker : PartHooker() {
             return
         }
         last = System.currentTimeMillis()
-        syncData()
+        ThreadUtils.launch {
+            //同步资产分类等信息
+            AssetPreviewPresenterImpl.syncAssets()
+            val books = BookManagerImpl.syncBooks()
+            CateInitPresenterImpl.syncCategory(books)
+            if (!DataUtils.configBoolean(
+                    Setting.PROACTIVELY_MODEL,
+                    DefaultData.PROACTIVELY_MODEL
+                )
+            ) {
+                //同步报销账单
+                BxPresenterImpl.syncBaoXiao()
+                //同步支出账单
+                SearchPresenterImpl.syncBills()
+                //同步账单
+                SyncBillUtils().sync(context)
+            }
+
+        }
     }
 
 }
