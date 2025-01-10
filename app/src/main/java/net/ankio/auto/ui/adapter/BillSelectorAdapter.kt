@@ -12,7 +12,8 @@ import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.BookBillModel
 
 class BillSelectorAdapter(
-    private val selectApp: MutableList<String>
+    private val selectApp: MutableList<String>,
+    private val multipleSelect: Boolean
 ) : BaseAdapter<AdapterBookBillBinding, BookBillModel>(
     AdapterBookBillBinding::class.java
 ) {
@@ -25,6 +26,15 @@ class BillSelectorAdapter(
                 selectApp.remove(item.remoteId)
                 binding.checkbox.isChecked = false
             } else {
+                if (!multipleSelect && selectApp.isNotEmpty()) {
+                    val oldSelection = selectApp.first()
+                    selectApp.clear()
+                    getItems().forEachIndexed { index, bill ->
+                        if (bill.remoteId == oldSelection) {
+                            notifyItemChanged(index)
+                        }
+                    }
+                }
                 selectApp.add(item.remoteId)
                 binding.checkbox.isChecked = true
             }

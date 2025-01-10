@@ -56,7 +56,8 @@ class BillSelectorDialog(
         //cardViewInner = binding.cardViewInner
         val recyclerView = statusPage.contentView!!
         recyclerView.layoutManager = layoutManager
-        adapter = BillSelectorAdapter(selectedBills)
+        val multipleSelect = type == Setting.HASH_BAOXIAO_BILL // 报销账单支持多选
+        adapter = BillSelectorAdapter(selectedBills, multipleSelect)
         recyclerView.adapter = adapter
 
         recyclerView.setPadding(0, 0, 0, 0)
