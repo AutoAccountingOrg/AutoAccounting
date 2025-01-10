@@ -67,9 +67,7 @@ class AutoHooker : PartHooker() {
 
 
 
-    private fun finish() {
-        XposedHelpers.callMethod(addBillIntentAct, "finish")
-    }
+
 
     private fun hookDoIntent() {
         Hooker.before(
@@ -110,14 +108,11 @@ class AutoHooker : PartHooker() {
                 }
                 // 跳过原始方法执行
 
-                finish()
+                XposedHelpers.callMethod(it.thisObject, "finish")
             }
         }
     }
 
-    private suspend fun finishInUi() = withContext(Dispatchers.Main) {
-        finish()
-    }
 
 
     private fun hookTaskLog() {
@@ -173,7 +168,7 @@ class AutoHooker : PartHooker() {
                             MessageUtils.toast("借出失败 ${handleError(it.message ?: "")}")
                             manifest.logE(it)
                         }
-                        finishInUi()
+                        XposedHelpers.callMethod(param.thisObject, "finish")
                     }
 
                 }
@@ -192,7 +187,7 @@ class AutoHooker : PartHooker() {
                             MessageUtils.toast("还款失败 ${handleError(it.message ?: "")}")
                             manifest.logE(it)
                         }
-                        finishInUi()
+                        XposedHelpers.callMethod(param.thisObject, "finish")
                     }
                 }
 
@@ -211,7 +206,7 @@ class AutoHooker : PartHooker() {
                             MessageUtils.toast("借入失败 ${handleError(it.message ?: "")}")
                             manifest.logE(it)
                         }
-                        finishInUi()
+                        XposedHelpers.callMethod(param.thisObject, "finish")
                     }
 
                 }
@@ -230,7 +225,7 @@ class AutoHooker : PartHooker() {
                             MessageUtils.toast("收款失败 ${handleError(it.message ?: "")}")
                             manifest.logE(it)
                         }
-                        finishInUi()
+                        XposedHelpers.callMethod(param.thisObject, "finish")
                     }
                 }
                 // 收入（报销)
@@ -247,7 +242,7 @@ class AutoHooker : PartHooker() {
                             MessageUtils.toast("报销失败 ${handleError(it.message ?: "")}")
                             manifest.logE(it)
                         }
-                        finishInUi()
+                        XposedHelpers.callMethod(param.thisObject, "finish")
                     }
                 }
                 // 收入（退款)
