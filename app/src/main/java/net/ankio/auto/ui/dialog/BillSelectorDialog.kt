@@ -27,6 +27,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.databinding.DialogCategorySelectBinding
 import net.ankio.auto.storage.ConfigUtils
+import net.ankio.auto.storage.Constants
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.adapter.BillSelectorAdapter
 import net.ankio.auto.ui.api.BaseSheetDialog
@@ -70,10 +71,15 @@ class BillSelectorDialog(
             val proactively =
                 ConfigUtils.getBoolean(Setting.PROACTIVELY_MODEL, DefaultData.PROACTIVELY_MODEL)
             if (proactively) {
-                when (type) {
-                    Setting.HASH_BAOXIAO_BILL -> BookAppUtils.syncReimburseBill() //先同步最近的报销账单
-                    Setting.HASH_BILL -> BookAppUtils.syncRecentExpenseBill() //先同步最近的支付账单
+                val lastSyncTime = ConfigUtils.getLong(Setting.LAST_SYNC_TIME, 0)
+                if (System.currentTimeMillis() - lastSyncTime > Constants.SYNC_INTERVAL) {
+                    ConfigUtils.putLong(Setting.LAST_SYNC_TIME, System.currentTimeMillis())
+                    when (type) {
+                        Setting.HASH_BAOXIAO_BILL -> BookAppUtils.syncReimburseBill() //先同步最近的报销账单
+                        Setting.HASH_BILL -> BookAppUtils.syncRecentExpenseBill() //先同步最近的支付账单
+                    }
                 }
+
             }
 
 
