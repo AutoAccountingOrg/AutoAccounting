@@ -16,8 +16,8 @@
 package net.ankio.auto.storage
 
 object Constants {
-    // 30秒
-    val SYNC_INTERVAL = 30 * 1000L
+    // 15秒
+    val SYNC_INTERVAL = 15 * 1000L
 
     // 10分钟
     val BACKUP_TIME = 10 * 60 * 1000L
