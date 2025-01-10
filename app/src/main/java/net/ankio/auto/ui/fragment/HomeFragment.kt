@@ -47,6 +47,7 @@ import net.ankio.auto.ui.dialog.BookSelectorDialog
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
 import net.ankio.auto.ui.dialog.CategorySelectorDialog
 import net.ankio.auto.ui.dialog.UpdateDialog
+import net.ankio.auto.ui.utils.BookAppUtils
 import net.ankio.auto.ui.utils.DonateUtils
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.ui.utils.viewBinding
@@ -251,6 +252,17 @@ class HomeFragment : BaseFragment() {
 
             readCategory.setOnClickListener {
                 showCategoryDialog(themeContext)
+            }
+
+            if (ConfigUtils.getBoolean(Setting.PROACTIVELY_MODEL, DefaultData.PROACTIVELY_MODEL)) {
+                reSync.setOnClickListener {
+                    lifecycleScope.launch {
+                        BookAppUtils.syncBookCategoryAsset()
+                    }
+                }
+                reSync.visibility = View.VISIBLE
+            } else {
+                reSync.visibility = View.GONE
             }
         }
     }
