@@ -712,7 +712,8 @@ class FloatEditorDialog(
                     }
                 }
             }
-            //报销
+            //报销\退款
+            BillType.IncomeRefund,
             BillType.IncomeReimbursement -> {
                 binding.chooseBill.visibility = View.VISIBLE
                 binding.payInfo.visibility = View.VISIBLE
@@ -723,7 +724,6 @@ class FloatEditorDialog(
             }
 
             BillType.Transfer -> return
-            BillType.IncomeRefund -> TODO()
         }
     }
 
@@ -741,7 +741,7 @@ class FloatEditorDialog(
 
         binding.chipLend.visibility = View.GONE
         binding.chipBorrow.visibility = View.GONE
-
+        binding.chipRefund.visibility = View.GONE
         binding.chipGroup.clearCheck()
 
 
@@ -769,6 +769,7 @@ class FloatEditorDialog(
                 binding.chipRepayment.text = context.getString(R.string.income_repayment)
                 binding.chipGroup.visibility = View.VISIBLE
                 binding.chipBorrow.visibility = View.VISIBLE
+                binding.chipRefund.visibility = View.VISIBLE
                 binding.category.visibility = View.VISIBLE
                 setBillTypeLevel2(billType)
             }
@@ -785,7 +786,7 @@ class FloatEditorDialog(
             BillType.IncomeLending -> return
             BillType.IncomeRepayment -> return
             BillType.IncomeReimbursement -> return
-            BillType.IncomeRefund -> TODO()
+            BillType.IncomeRefund -> return
         }
 
 
@@ -850,6 +851,9 @@ class FloatEditorDialog(
                         setBillTypeLevel2(BillType.IncomeRepayment)
                     }
                 }
+                R.id.chipRefund -> {
+                    setBillTypeLevel2(BillType.IncomeRefund)
+                }
             }
         }
     }
@@ -865,10 +869,13 @@ class FloatEditorDialog(
 
     private fun bindingSelectBillsEvents() {
         binding.chooseBill.setOnClickListener {
-
+            val type = when (billTypeLevel2) {
+                BillType.IncomeReimbursement -> Setting.HASH_BAOXIAO_BILL
+                BillType.IncomeRefund -> Setting.HASH_BILL
+                else -> Setting.HASH_BAOXIAO_BILL
+            }
             // 收入对应的报销
-
-            BillSelectorDialog(context, selectedBills, Setting.HASH_BAOXIAO_BILL) {
+            BillSelectorDialog(context, selectedBills, type) {
                 bindingSelectBillsUi()
             }.show(float, cancel = true)
         }

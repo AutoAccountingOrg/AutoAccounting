@@ -130,6 +130,14 @@
                     android:layout_height="wrap_content"
                     android:checked="false"
                     android:text="@string/borrow" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipRefund"
+                    style="@style/Widget.Material3.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="false"
+                    android:text="@string/refund" />
                 <!-- Chips can be declared here, or added dynamically. -->
 
             </com.google.android.material.chip.ChipGroup>
