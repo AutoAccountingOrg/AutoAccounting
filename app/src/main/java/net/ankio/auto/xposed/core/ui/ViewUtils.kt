@@ -15,6 +15,7 @@
 
 package net.ankio.auto.xposed.core.ui
 
+import android.app.Activity
 import android.view.View
 import de.robv.android.xposed.XposedHelpers
 
@@ -22,6 +23,22 @@ object ViewUtils {
     fun getViewById(
         rClass: String,
         obj: View,
+        classLoader: ClassLoader,
+        id: String,
+    ): View {
+        val clazz = classLoader.loadClass(rClass)
+        val resourceId = clazz.getField(id).getInt(null)
+        // 调用 findViewById 并转换为 TextView
+        return XposedHelpers.callMethod(
+            obj,
+            "findViewById",
+            resourceId,
+        ) as View
+    }
+
+    fun getViewById(
+        rClass: String,
+        obj: Activity,
         classLoader: ClassLoader,
         id: String,
     ): View {

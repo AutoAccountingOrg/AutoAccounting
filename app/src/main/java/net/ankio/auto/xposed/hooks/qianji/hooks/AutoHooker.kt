@@ -15,14 +15,18 @@
 
 package net.ankio.auto.xposed.hooks.qianji.hooks
 
+import android.R
+import android.app.Activity
 import android.content.Intent
 import android.net.Uri
+import android.os.Bundle
+import android.view.View
 import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
+import net.ankio.auto.xposed.core.ui.ViewUtils
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.core.utils.AppRuntime.application
 import net.ankio.auto.xposed.core.utils.AppRuntime.manifest
@@ -45,6 +49,7 @@ import net.ankio.auto.xposed.hooks.qianji.tools.QianJiBillType
 import net.ankio.auto.xposed.hooks.qianji.tools.QianJiUri
 import org.ezbook.server.db.model.BillInfoModel
 
+
 class AutoHooker : PartHooker() {
     lateinit var addBillIntentAct: Class<*>
 
@@ -63,6 +68,22 @@ class AutoHooker : PartHooker() {
 
         hookTaskLog()
 
+        hookView()
+    }
+
+
+    private fun hookView() {
+        Hooker.before(addBillIntentAct, "onCreate", Bundle::class.java) {
+            val act = it.thisObject as Activity
+            val background = ViewUtils.getViewById(
+                "com.mutangtech.qianji.R\$id",
+                act,
+                AppRuntime.classLoader,
+                "content_view"
+            )
+            // 设置透明背景
+            background.setBackgroundColor(android.graphics.Color.TRANSPARENT)
+        }
     }
 
 
