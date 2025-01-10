@@ -66,7 +66,8 @@ object DataUtils {
      */
     fun configBoolean(key: String, def: Boolean = false): Boolean {
         return runBlocking {
-            SettingModel.get(key, def.toString()).toBoolean()
+            val result = SettingModel.get(key, def.toString())
+            if (result.isEmpty()) def else result.toBoolean()
         }
     }
 }
