@@ -26,12 +26,14 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.databinding.DialogCategorySelectBinding
+import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.adapter.BillSelectorAdapter
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.componets.StatusPage
 import net.ankio.auto.ui.componets.WrapContentLinearLayoutManager
 import net.ankio.auto.ui.utils.BookAppUtils
+import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BookBillModel
 
@@ -65,12 +67,17 @@ class BillSelectorDialog(
         statusPage.showLoading()
 
         lifecycleScope.launch {
-            when (type) {
-                Setting.HASH_BAOXIAO_BILL -> BookAppUtils.syncReimburseBill() //先同步最近的报销账单
-                Setting.HASH_BILL -> BookAppUtils.syncRecentExpenseBill() //先同步最近的支付账单
+            val proactively =
+                ConfigUtils.getBoolean(Setting.PROACTIVELY_MODEL, DefaultData.PROACTIVELY_MODEL)
+            if (proactively) {
+                when (type) {
+                    Setting.HASH_BAOXIAO_BILL -> BookAppUtils.syncReimburseBill() //先同步最近的报销账单
+                    Setting.HASH_BILL -> BookAppUtils.syncRecentExpenseBill() //先同步最近的支付账单
+                }
             }
 
-            loadData()
+
+            loadData(proactively)
         }
 
 
@@ -78,7 +85,7 @@ class BillSelectorDialog(
     }
 
 
-    private suspend fun loadData() = withContext(Dispatchers.IO) {
+    private suspend fun loadData(proactively: Boolean) = withContext(Dispatchers.IO) {
         val startTime = System.currentTimeMillis()
         val timeout = 10000 // 10秒超时
 
@@ -90,6 +97,12 @@ class BillSelectorDialog(
                 withContext(Dispatchers.Main) {
                     statusPage.showContent()
                     adapter.updateItems(list)
+                }
+                return@withContext
+            }
+            if (!proactively) {
+                withContext(Dispatchers.Main) {
+                    statusPage.showEmpty()
                 }
                 return@withContext
             }
