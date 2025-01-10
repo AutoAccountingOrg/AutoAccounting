@@ -21,6 +21,7 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.utils.DateUtils
 import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.utils.AppRuntime
+import net.ankio.auto.xposed.hooks.qianji.impl.AssetPreviewPresenterImpl
 import net.ankio.auto.xposed.hooks.qianji.models.AssetAccount
 import net.ankio.auto.xposed.hooks.qianji.models.Bill
 import net.ankio.auto.xposed.hooks.qianji.models.Book
@@ -138,13 +139,9 @@ abstract class BaseDebt {
     }
 
 
-    private val assetSqlHelperClazz by lazy {
-        AppRuntime.clazz("AssetDbHelper")
-    }
 
     fun updateAssets(assetAccount: AssetAccount) {
-        val assetSqlHelper = XposedHelpers.newInstance(assetSqlHelperClazz)
-        XposedHelpers.callMethod(assetSqlHelper, "insertOrReplace", assetAccount.toObject(), false)
+        AssetPreviewPresenterImpl.updateAsset(assetAccount)
     }
 
     fun pushBill() {

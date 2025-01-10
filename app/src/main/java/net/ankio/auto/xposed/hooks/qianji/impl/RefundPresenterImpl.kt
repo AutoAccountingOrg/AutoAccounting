@@ -32,24 +32,19 @@ object RefundPresenterImpl {
     val CLAZZ = "com.mutangtech.qianji.bill.refund.RefundPresenterImpl"
     val refundImpl = Hooker.loader(CLAZZ)
 
-    suspend fun refund(billInfo: BillInfoModel): Boolean = withContext(Dispatchers.Main) {
+    suspend fun refund(billInfo: BillInfoModel) = withContext(Dispatchers.Main) {
 
-
-        val billId = billInfo.extendData.split(", ").firstOrNull()
-        if (billId == null) {
-            AppRuntime.logE(Throwable("找不到退款的账单id"))
-            return@withContext false
-        }
+        val billId =
+            billInfo.extendData.split(", ").firstOrNull() ?: throw Throwable("找不到退款的账单id")
         // 先获取账单列表
         val bills = SearchPresenterImpl.getLast10DayLists()
-        //AppRuntime.log("bills: $bills")
+        AppRuntime.log("bills: $bills")
         //查找退款的账单
         val bill = bills.firstOrNull {
             it != null && Bill.fromObject(it).getBillid() == billId.toLong()
         }?.let { Bill.fromObject(it) }
         if (bill == null) {
-            AppRuntime.logE(Throwable("找不到退款的账单"))
-            return@withContext false
+            throw Throwable("找不到退款的账单")
         }
         bill.set_id(null)
 
@@ -58,7 +53,7 @@ object RefundPresenterImpl {
         // 获取退款账户
         val assetAccount = AssetPreviewPresenterImpl.getAssetByName(billInfo.accountNameFrom)
 
-        return@withContext suspendCoroutine { continuation ->
+        suspendCoroutine { continuation ->
             val money = billInfo.money
             val calendar = Calendar.getInstance()
             calendar.timeInMillis = billInfo.time
@@ -68,8 +63,7 @@ object RefundPresenterImpl {
 
             val constructor = refundImpl.constructors.firstOrNull()
             if (constructor == null) {
-                AppRuntime.logE(NoSuchMethodException("构造函数未找到"))
-                continuation.resume(false)
+                continuation.resumeWith(Result.failure(NoSuchMethodException("构造函数未找到")))
                 return@suspendCoroutine
             }
 
@@ -83,9 +77,16 @@ object RefundPresenterImpl {
                 if (method.name == "onFinished") {
                     val result = args[0] as Boolean
                     if (!result) {
-                        AppRuntime.logE(Throwable("退款失败"))
+                        continuation.resumeWith(Result.failure(Throwable("退款失败")))
+                    } else {
+                        if (assetAccount != null) {
+                            // 更新资产账户余额
+                            //assetAccount.addMoney(money)
+                            AssetPreviewPresenterImpl.updateAsset(assetAccount)
+                        }
+                        continuation.resumeWith(Result.success(Unit))
                     }
-                    continuation.resume(result)
+
                 }
                 null
             }
@@ -105,5 +106,6 @@ object RefundPresenterImpl {
                 tagList
             )
         }
+
     }
 }

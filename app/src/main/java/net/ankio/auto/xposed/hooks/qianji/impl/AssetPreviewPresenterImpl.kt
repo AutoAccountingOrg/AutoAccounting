@@ -186,6 +186,15 @@ object AssetPreviewPresenterImpl {
             asset.setIcon("null")
             return@withContext asset
         }
+    private val assetSqlHelperClazz by lazy {
+        AppRuntime.clazz("AssetDbHelper")
+    }
+
+    fun updateAsset(assetAccount: AssetAccount) {
+        val assetSqlHelper = XposedHelpers.newInstance(assetSqlHelperClazz)
+        XposedHelpers.callMethod(assetSqlHelper, "insertOrReplace", assetAccount.toObject(), false)
+
+    }
 
 
     // 修改资产余额： public final void R0(AssetAccount p0,double p1,boolean p2){
