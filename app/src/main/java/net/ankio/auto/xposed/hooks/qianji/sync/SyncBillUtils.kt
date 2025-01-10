@@ -61,12 +61,13 @@ class SyncBillUtils {
             val bill = QianJiUri.toQianJi(it)
             val intent = Intent(Intent.ACTION_VIEW, bill)
             intent.putExtra("billInfo", Gson().toJson(it))
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             withContext(Dispatchers.Main) {
                 context.startActivity(intent)
             }
             // 现将指定的账单全部记录为成功，后续拦截到错误的时候再修改为失败
             BillInfoModel.status(it.id, true)
-            delay(5) // 延迟5毫秒
+            delay(500) // 延迟500毫秒
         }
         withContext(Dispatchers.Main) {
             MessageUtils.toast("已将所有账单同步完成！")

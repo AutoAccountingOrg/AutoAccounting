@@ -32,6 +32,7 @@ import net.ankio.auto.xposed.hooks.qianji.impl.AssetPreviewPresenterImpl
 import net.ankio.auto.xposed.hooks.qianji.impl.BookManagerImpl
 import net.ankio.auto.xposed.hooks.qianji.impl.BxPresenterImpl
 import net.ankio.auto.xposed.hooks.qianji.impl.CateInitPresenterImpl
+import net.ankio.auto.xposed.hooks.qianji.impl.RefundPresenterImpl
 import net.ankio.auto.xposed.hooks.qianji.impl.SearchPresenterImpl
 import net.ankio.auto.xposed.hooks.qianji.models.AutoTaskLog
 import net.ankio.auto.xposed.hooks.qianji.sync.SyncBillUtils
@@ -165,8 +166,7 @@ class AutoHooker : PartHooker() {
 
                             manifest.logD("借出失败 ${it.message}")
                             manifest.logE(it)
-                            MessageUtils.toast("借出失败 ${handleError(it.message ?: "")}")
-                            manifest.logE(it)
+                            MessageUtils.toast("借出失败 ${it.message ?: ""}")
                         }
                         XposedHelpers.callMethod(param.thisObject, "finish")
                     }
@@ -184,8 +184,7 @@ class AutoHooker : PartHooker() {
                         }.onFailure {
                             manifest.logE(it)
                             manifest.logD("还款失败 ${it.message}")
-                            MessageUtils.toast("还款失败 ${handleError(it.message ?: "")}")
-                            manifest.logE(it)
+                            MessageUtils.toast("还款失败 ${it.message ?: ""}")
                         }
                         XposedHelpers.callMethod(param.thisObject, "finish")
                     }
@@ -203,8 +202,7 @@ class AutoHooker : PartHooker() {
                         }.onFailure {
                             manifest.logE(it)
                             manifest.logD("借入失败 ${it.message}")
-                            MessageUtils.toast("借入失败 ${handleError(it.message ?: "")}")
-                            manifest.logE(it)
+                            MessageUtils.toast("借入失败 ${it.message ?: ""}")
                         }
                         XposedHelpers.callMethod(param.thisObject, "finish")
                     }
@@ -222,8 +220,7 @@ class AutoHooker : PartHooker() {
                         }.onFailure {
                             manifest.logE(it)
                             manifest.logD("收款失败 ${it.message}")
-                            MessageUtils.toast("收款失败 ${handleError(it.message ?: "")}")
-                            manifest.logE(it)
+                            MessageUtils.toast("收款失败 ${it.message ?: ""}")
                         }
                         XposedHelpers.callMethod(param.thisObject, "finish")
                     }
@@ -239,7 +236,7 @@ class AutoHooker : PartHooker() {
                             BillInfoModel.status(billInfo.id, true)
                         }.onFailure {
                             manifest.logD("报销失败 ${it.message}")
-                            MessageUtils.toast("报销失败 ${handleError(it.message ?: "")}")
+                            MessageUtils.toast("报销失败 ${it.message ?: ""}")
                             manifest.logE(it)
                         }
                         XposedHelpers.callMethod(param.thisObject, "finish")
@@ -247,7 +244,20 @@ class AutoHooker : PartHooker() {
                 }
                 // 收入（退款)
                 QianJiBillType.IncomeRefund.value -> {
-                    // 退款
+                    param.result = null
+                    ThreadUtils.launch {
+                        runCatching {
+                            RefundPresenterImpl.refund(billInfo)
+                        }.onSuccess {
+                            MessageUtils.toast("退款成功")
+                            BillInfoModel.status(billInfo.id, true)
+                        }.onFailure {
+                            manifest.logE(it)
+                            manifest.logD("退款失败 ${it.message}")
+                            MessageUtils.toast("退款失败 ${it.message ?: ""}")
+                        }
+                        XposedHelpers.callMethod(param.thisObject, "finish")
+                    }
                 }
 
 
@@ -256,14 +266,6 @@ class AutoHooker : PartHooker() {
         }
     }
 
-    private fun handleError(message: String): String {
-        if (message.contains("key=accountname;value=")) {
-            val assetName = message.split("value=")[1]
-            if (assetName.isEmpty()) return message
-            return "钱迹中找不到【${assetName}】资产账户，请先创建。"
-        }
-        return message
-    }
 
     /*
     * hookTimeout
