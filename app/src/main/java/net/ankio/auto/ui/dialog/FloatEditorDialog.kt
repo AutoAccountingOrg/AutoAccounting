@@ -217,17 +217,42 @@ class FloatEditorDialog(
                     }
 
                 }
+                BillType.IncomeRefund -> {
+                    this.accountNameFrom = binding.payFrom.getText()
+                    this.extendData = selectedBills.joinToString { it }
+                    if (selectedBills.isEmpty()) {
+                        throw BillException(context.getString(R.string.refund_bill_empty))
+                    }
+                    if (assetManager) {
+                        if (this.accountNameFrom.isEmpty()) {
+                            throw BillException(context.getString(R.string.refund_income_account_empty))
+                        }
+
+                        if (assets.find { it.name == this.accountNameFrom } == null) {
+                            throw BillException(
+                                context.getString(
+                                    R.string.expend_account_not_exist,
+                                    this.accountNameFrom
+                                )
+                            )
+                        }
+
+                    }
+
+                }
+
 
                 BillType.IncomeReimbursement -> {
                     this.accountNameFrom = binding.payFrom.getText()
                     this.extendData = selectedBills.joinToString { it }
+                    if (selectedBills.isEmpty()) {
+                        throw BillException(context.getString(R.string.reimbursement_bill_empty))
+                    }
                     if (assetManager) {
                         if (this.accountNameFrom.isEmpty()) {
                             throw BillException(context.getString(R.string.reimbursement_income_account_empty))
                         }
-                        if (selectedBills.isEmpty()) {
-                            throw BillException(context.getString(R.string.reimbursement_bill_empty))
-                        }
+
                         if (assets.find { it.name == this.accountNameFrom } == null) {
                             throw BillException(
                                 context.getString(
@@ -780,12 +805,12 @@ class FloatEditorDialog(
                 setAssetItem(billInfoModel.accountNameTo, binding.transferTo)
             }
 
-            BillType.ExpendReimbursement -> return
-            BillType.ExpendLending -> return
-            BillType.ExpendRepayment -> return
-            BillType.IncomeLending -> return
-            BillType.IncomeRepayment -> return
-            BillType.IncomeReimbursement -> return
+            BillType.ExpendReimbursement,
+            BillType.ExpendLending,
+            BillType.ExpendRepayment,
+            BillType.IncomeLending,
+            BillType.IncomeRepayment,
+            BillType.IncomeReimbursement,
             BillType.IncomeRefund -> return
         }
 
@@ -894,6 +919,7 @@ class FloatEditorDialog(
                     BillType.IncomeLending -> R.id.chipBorrow
                     BillType.IncomeRepayment -> R.id.chipRepayment
                     BillType.IncomeReimbursement -> R.id.chipReimbursement
+                    BillType.IncomeRefund -> R.id.chipRefund
                     else -> -1
                 }
             )

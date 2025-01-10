@@ -39,6 +39,7 @@ import net.ankio.auto.ui.utils.AssetsUtils
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.BillTool
 import org.ezbook.server.constant.BillState
+import org.ezbook.server.constant.BillType
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BillInfoModel
@@ -342,6 +343,15 @@ class FloatingWindowManager(
                     }
 
                     FloatEvent.POP_EDIT_WINDOW.ordinal -> {
+
+                        //对于退款账单额外处理
+                        if (billInfoModel.type == BillType.Income && billInfoModel.remark.contains(
+                                Regex("退[款货]")
+                            )
+                        ) {
+                            billInfoModel.type = BillType.IncomeRefund
+                        }
+
                         runCatching {
                             FloatEditorDialog(themedContext, billInfoModel, true, onCancelClick = {
                                 App.launch {

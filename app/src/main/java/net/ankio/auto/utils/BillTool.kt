@@ -47,6 +47,7 @@ object BillTool {
             BillType.IncomeLending -> BillType.Income
             BillType.IncomeRepayment -> BillType.Income
             BillType.IncomeReimbursement -> BillType.Income
+            BillType.IncomeRefund -> BillType.Income
             else -> type
         }
     }
