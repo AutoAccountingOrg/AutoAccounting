@@ -22,6 +22,7 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.App.Companion.app
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.storage.ConfigUtils
+import net.ankio.auto.storage.Logger
 import net.ankio.auto.xposed.hooks.qianji.tools.QianJiAction
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
@@ -30,31 +31,36 @@ import org.ezbook.server.db.model.SettingModel
 object BookAppUtils {
 
     private suspend fun createIntent(action: QianJiAction) = withContext(Dispatchers.Main) {
-        val packageName = ConfigUtils.getString(Setting.BOOK_APP_ID, DefaultData.BOOK_APP)
+        runCatching {
+            val packageName = ConfigUtils.getString(Setting.BOOK_APP_ID, DefaultData.BOOK_APP)
 
-        var activityName =
-            SettingModel.get(Setting.BOOK_APP_ACTIVITY, DefaultData.BOOK_APP_ACTIVITY)
+            var activityName =
+                SettingModel.get(Setting.BOOK_APP_ACTIVITY, DefaultData.BOOK_APP_ACTIVITY)
 
-        if (activityName.isEmpty()) {
-            activityName = DefaultData.BOOK_APP_ACTIVITY
-        }
-
-        if (activityName == DefaultData.BOOK_APP_ACTIVITY && packageName !== DefaultData.BOOK_APP) {
-            val launchIntent = app.packageManager.getLaunchIntentForPackage(packageName)
-            if (launchIntent != null) {
-                launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                app.startActivity(launchIntent)
+            if (activityName.isEmpty()) {
+                activityName = DefaultData.BOOK_APP_ACTIVITY
             }
-            return@withContext
+
+            if (activityName == DefaultData.BOOK_APP_ACTIVITY && packageName !== DefaultData.BOOK_APP) {
+                val launchIntent = app.packageManager.getLaunchIntentForPackage(packageName)
+                if (launchIntent != null) {
+                    launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    app.startActivity(launchIntent)
+                }
+                return@withContext
+            }
+            // val launchIntent = app.packageManager.getLaunchIntentForPackage(packageName)
+            val intent = Intent().apply {
+                setClassName(packageName, activityName) // 设置目标应用和目标 Activity
+                putExtra("from", BuildConfig.APPLICATION_ID) // 添加额外参数
+                putExtra("action", action.name) // 传递 action
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) // 确保在新任务栈中启动
+            }
+            app.startActivity(intent)
+        }.onFailure {
+            it.printStackTrace()
+            Logger.e("createIntent error: ${it.message}")
         }
-        // val launchIntent = app.packageManager.getLaunchIntentForPackage(packageName)
-        val intent = Intent().apply {
-            setClassName(packageName, activityName) // 设置目标应用和目标 Activity
-            putExtra("from", BuildConfig.APPLICATION_ID) // 添加额外参数
-            putExtra("action", action.name) // 传递 action
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) // 确保在新任务栈中启动
-        }
-        app.startActivity(intent)
     }
 
     suspend fun syncData() {
