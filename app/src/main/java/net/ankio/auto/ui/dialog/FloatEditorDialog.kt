@@ -35,6 +35,7 @@ import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.componets.IconView
+import net.ankio.auto.ui.utils.BookAppUtils
 import net.ankio.auto.ui.utils.ListPopupUtils
 import net.ankio.auto.ui.utils.ResourceUtils
 import net.ankio.auto.ui.utils.ToastUtils
@@ -381,8 +382,12 @@ class FloatEditorDialog(
                     val syncType = ConfigUtils.getString(Setting.SYNC_TYPE, DefaultData.SYNC_TYPE)
                     if (syncType != SyncType.WhenOpenApp.name) {
                         val bills = BillInfoModel.sync()
-                        if ((syncType == SyncType.BillsLimit10.name && bills.size >= 10) || (syncType == SyncType.BillsLimit5.name && bills.size >= 5)) {
-                            App.startBookApp()
+                        if (
+                            (syncType == SyncType.BillsLimit10.name && bills.size >= 10) ||
+                            (syncType == SyncType.BillsLimit5.name && bills.size >= 5) ||
+                            (syncType == SyncType.BillsLimit1.name && bills.size >= 1)
+                        ) {
+                            BookAppUtils.syncData()
                         }
                     }
 
