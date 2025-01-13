@@ -134,7 +134,7 @@ class ExpendRepaymentUtils :
         accountTo.addMoney(billModel.money)
 
         updateAssets(accountTo)
-
+        updateAssets(accountFrom)
     }
 
     /**
@@ -179,7 +179,7 @@ class ExpendRepaymentUtils :
 
 
         bill.setBook(book)
-        bill.setDescinfo("${accountFrom.getName()}->${accountTo.getName()}")
+        bill.setDescinfo("${accountTo.getName()}->${accountFrom.getName()}")
 
         bill
 

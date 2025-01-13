@@ -73,16 +73,18 @@ class AutoHooker : PartHooker() {
 
 
     private fun hookView() {
-        Hooker.before(addBillIntentAct, "onCreate", Bundle::class.java) {
+        Hooker.after(addBillIntentAct, "onCreate", Bundle::class.java) {
             val act = it.thisObject as Activity
-            val background = ViewUtils.getViewById(
-                "com.mutangtech.qianji.R\$id",
-                act,
-                AppRuntime.classLoader,
-                "content_view"
-            )
-            // 设置透明背景
-            background.setBackgroundColor(android.graphics.Color.TRANSPARENT)
+            runCatching {
+                val background = ViewUtils.getViewById(
+                    "com.mutangtech.qianji.R\$id",
+                    act,
+                    AppRuntime.classLoader,
+                    "content_view"
+                )
+                // 设置透明背景
+                background.setBackgroundColor(android.graphics.Color.TRANSPARENT)
+            }
         }
     }
 
@@ -174,7 +176,7 @@ class AutoHooker : PartHooker() {
                     return@before
                 }
 
-                // 支出（借出）
+                // 支出（借出）,ok
                 QianJiBillType.ExpendLending.value -> {
                     param.result = null
                     ThreadUtils.launch {
@@ -193,7 +195,7 @@ class AutoHooker : PartHooker() {
                     }
 
                 }
-                // 支出（还款）
+                // 支出（还款）,ok
                 QianJiBillType.ExpendRepayment.value -> {
                     param.result = null
                     ThreadUtils.launch {
