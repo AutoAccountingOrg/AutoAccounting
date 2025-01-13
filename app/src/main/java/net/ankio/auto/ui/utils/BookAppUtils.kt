@@ -32,7 +32,11 @@ object BookAppUtils {
 
     private suspend fun createIntent(action: BillAction) = withContext(Dispatchers.Main) {
         runCatching {
-            val packageName = ConfigUtils.getString(Setting.BOOK_APP_ID, DefaultData.BOOK_APP)
+            var packageName = ConfigUtils.getString(Setting.BOOK_APP_ID, DefaultData.BOOK_APP)
+
+            if (packageName.isEmpty()) {
+                packageName = DefaultData.BOOK_APP
+            }
 
             var activityName =
                 SettingModel.get(Setting.BOOK_APP_ACTIVITY, DefaultData.BOOK_APP_ACTIVITY)
@@ -40,6 +44,8 @@ object BookAppUtils {
             if (activityName.isEmpty()) {
                 activityName = DefaultData.BOOK_APP_ACTIVITY
             }
+
+            Logger.i("createIntent: $packageName $activityName, action: $action")
 
             if (activityName == DefaultData.BOOK_APP_ACTIVITY && packageName !== DefaultData.BOOK_APP) {
                 val launchIntent = app.packageManager.getLaunchIntentForPackage(packageName)
