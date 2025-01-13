@@ -161,8 +161,8 @@ class ExpendLendingUtils :
         // (agent) [385693] Arguments com.mutangtech.qianji.data.db.dbhelper.k.saveOrUpdateBill(_id=null;billid=1726483978004140450;userid=200104405e109647c18e9;bookid=-1;timeInSec=1721215710;type=7;remark=从前慢(**江) ;money=962.0;status=2;categoryId=0;platform=0;assetId=1584352987097;fromId=-1;targetId=1726484010133;extra=null)
 
 
-        Bill.setZhaiwuCurrentAsset(bill, accountFrom)
-        Bill.setZhaiwuAboutAsset(bill, accountTo)
+        Bill.setZhaiwuCurrentAsset(bill, accountTo)
+        Bill.setZhaiwuAboutAsset(bill, accountFrom)
         bill.setBook(book)
         bill.setDescinfo("${accountFrom.getName()}->${accountTo.getName()}")
 
