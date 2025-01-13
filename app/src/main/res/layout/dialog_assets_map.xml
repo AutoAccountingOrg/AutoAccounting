@@ -28,11 +28,30 @@
         android:layout_height="wrap_content"
         app:innerHeight="wrap_content" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/buttonSure"
+    <!-- 按钮容器 -->
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/btn_height_small"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
         android:layout_marginTop="@dimen/padding"
-        android:text="@string/sure_msg" />
+        android:layout_marginBottom="@dimen/padding">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonCancel"
+            style="@style/Widget.Material3.Button.TonalButton"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/btn_height_small"
+            android:layout_marginEnd="@dimen/one_padding"
+            android:layout_weight="1"
+            android:text="@string/cancel_msg" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonSure"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="@dimen/btn_height_small"
+            android:text="@string/sure_msg" />
+    </LinearLayout>
 
 </LinearLayout>
