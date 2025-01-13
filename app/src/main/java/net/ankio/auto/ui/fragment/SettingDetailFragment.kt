@@ -116,7 +116,8 @@ class SettingDetailFragment : BaseFragment() {
                 requireActivity() as BaseActivity,
                 binding.container,
                 layoutInflater,
-                settingItems
+                settingItems,
+                lifecycle
             )
         settingUtils.init()
     }

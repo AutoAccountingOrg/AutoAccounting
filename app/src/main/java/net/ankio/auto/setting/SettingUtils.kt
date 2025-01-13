@@ -25,6 +25,7 @@ import android.view.ViewGroup
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.util.forEach
 import androidx.core.widget.addTextChangedListener
+import androidx.lifecycle.Lifecycle
 import androidx.viewbinding.ViewBinding
 import com.google.android.material.textfield.TextInputLayout
 import net.ankio.auto.databinding.SettingItemCardBinding
@@ -50,7 +51,8 @@ class SettingUtils(
     private val context: BaseActivity,
     private val container: ViewGroup,
     private val inflater: LayoutInflater,
-    private val settingItems: List<SettingItem>
+    private val settingItems: List<SettingItem>,
+    private val lifecycle: Lifecycle,
 ) {
     private val viewBindings = SparseArray<ViewBinding>()
     private val resumeCallbacks = HashMap<SettingItem, () -> Unit>()
@@ -311,7 +313,7 @@ class SettingUtils(
                     title,
                     item.selectList,
                     getData(),
-                    context.lifecycle,
+                    lifecycle,
                 ) { _, _, value ->
                     updateValue(value)
                 }.toggle()
