@@ -30,6 +30,8 @@ interface AssetMapDao {
     @Query("SELECT * FROM AssetsMapModel ORDER BY id DESC limit :limit offset :offset")
     suspend fun load(limit: Int, offset: Int): List<AssetsMapModel>
 
+    @Query("SELECT * FROM AssetsMapModel ORDER BY id DESC")
+    suspend fun list(): List<AssetsMapModel>
     @Insert
     suspend fun insert(log: AssetsMapModel): Long
 
