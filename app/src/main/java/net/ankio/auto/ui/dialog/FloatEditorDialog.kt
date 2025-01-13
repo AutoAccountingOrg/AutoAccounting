@@ -385,7 +385,7 @@ class FloatEditorDialog(
                         if (
                             (syncType == SyncType.BillsLimit10.name && bills.size >= 10) ||
                             (syncType == SyncType.BillsLimit5.name && bills.size >= 5) ||
-                            (syncType == SyncType.BillsLimit1.name && bills.size >= 1)
+                            (syncType == SyncType.BillsLimit1.name && bills.isNotEmpty())
                         ) {
                             BookAppUtils.syncData()
                         }
