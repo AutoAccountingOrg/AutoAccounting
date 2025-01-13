@@ -246,7 +246,7 @@ class AutoHooker : PartHooker() {
                         XposedHelpers.callMethod(param.thisObject, "finish")
                     }
                 }
-                // 收入（报销)
+                // 收入（报销),OK
                 QianJiBillType.IncomeReimbursement.value -> {
                     param.result = null
                     ThreadUtils.launch {
@@ -263,7 +263,7 @@ class AutoHooker : PartHooker() {
                         XposedHelpers.callMethod(param.thisObject, "finish")
                     }
                 }
-                // 收入（退款)
+                // 收入（退款),OK
                 QianJiBillType.IncomeRefund.value -> {
                     param.result = null
                     ThreadUtils.launch {
