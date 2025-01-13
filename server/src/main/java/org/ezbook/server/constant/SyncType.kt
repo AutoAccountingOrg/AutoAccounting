@@ -17,6 +17,7 @@ package org.ezbook.server.constant
 
 enum class SyncType {
     WhenOpenApp, //打开账本时同步
+    BillsLimit1, //实时同步
     BillsLimit5, //账单超过5条时同步
     BillsLimit10, //账单超过10条时同步
 }
