@@ -15,6 +15,7 @@
 
 package org.ezbook.server.tools
 
+import org.ezbook.server.Server
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.Db
@@ -28,67 +29,68 @@ object Assets {
      * 必须运行在IO线程，不允许在主线程运行
      */
     suspend fun setAssetsMap(billInfoModel: BillInfoModel): Boolean {
-        // 检查资产管理器是否启用
-        val assetManager =
-            Db.get().settingDao().query(Setting.SETTING_ASSET_MANAGER)?.value == "true"
+        val assetManager = isAssetManagerEnabled()
         if (!assetManager) return false
 
-        var needsUserAction = false
+        var needsUserAction = true
 
-        // 处理转出账户
-        processAccount(
-            accountName = billInfoModel.accountNameFrom,
-            billType = billInfoModel.type,
-            validTypes = listOf(BillType.IncomeLending, BillType.IncomeRepayment)
-        )?.let { newName ->
-            billInfoModel.accountNameFrom = newName
-            needsUserAction = true
+        val newAccountNameFrom = processAccount(
+            billInfoModel.accountNameFrom,
+            billInfoModel.type,
+            listOf(BillType.IncomeLending, BillType.IncomeRepayment)
+        )
+        if (newAccountNameFrom != null) {
+            billInfoModel.accountNameFrom = newAccountNameFrom
+            needsUserAction = false
         }
 
-        // 处理转入账户
-        processAccount(
-            accountName = billInfoModel.accountNameTo,
-            billType = billInfoModel.type,
-            validTypes = listOf(BillType.ExpendLending, BillType.ExpendRepayment)
-        )?.let { newName ->
-            billInfoModel.accountNameTo = newName
-            needsUserAction = true
+        val newAccountNameTo = processAccount(
+            billInfoModel.accountNameTo,
+            billInfoModel.type,
+            listOf(BillType.ExpendLending, BillType.ExpendRepayment)
+        )
+        if (newAccountNameTo != null) {
+            billInfoModel.accountNameTo = newAccountNameTo
+            needsUserAction = false
         }
+
+        Server.logD("setAssetsMap: $billInfoModel, needsUserAction: $needsUserAction")
 
         return needsUserAction
     }
 
-    /**
-     * 处理单个账户的资产映射
-     * @param accountName 账户名称
-     * @param billType 账单类型
-     * @param validTypes 有效的账单类型列表
-     * @return 新的账户名称，如果不需要更改则返回null
-     */
+    private suspend fun isAssetManagerEnabled(): Boolean =
+        Db.get().settingDao().query(Setting.SETTING_ASSET_MANAGER)?.value == "true"
+
     private suspend fun processAccount(
         accountName: String,
         billType: BillType,
         validTypes: List<BillType>
     ): String? {
-        if (accountName.isEmpty()) return null
-        if (validTypes.contains(billType)) return null
+        if (accountName.isEmpty() || validTypes.contains(billType)) return null
+
+        val assetName = Db.get().assetsDao().query(accountName)
+        if (assetName != null) return assetName.name
 
         val mapName = Db.get().assetsMapDao().query(accountName)
-        val assetName = Db.get().assetsDao().query(accountName)
-        if (assetName != null) return null
-
-        if (mapName == null) {
-
-
-            // 添加空白资产映射
-            val map = AssetsMapModel().apply {
-                name = accountName
-                this.mapName = ""
-            }
-            Db.get().assetsMapDao().insert(map)
-            return null
+        if (mapName != null && mapName.mapName.isNotEmpty()) {
+            return mapName.mapName
         }
 
-        return mapName.mapName.ifEmpty { null }
+        // 处理空映射或不存在的映射
+        return handleEmptyMapping(accountName) ?: insertEmptyMapping(accountName)
+    }
+
+    private suspend fun handleEmptyMapping(accountName: String): String? {
+        val list = Db.get().assetsMapDao().list()
+        return list.firstOrNull { it.regex && accountName.contains(it.name) }?.mapName
+    }
+
+    private suspend fun insertEmptyMapping(accountName: String): String? {
+        Db.get().assetsMapDao().insert(AssetsMapModel().apply {
+            name = accountName
+            this.mapName = ""
+        })
+        return null
     }
 }
