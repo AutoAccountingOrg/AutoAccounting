@@ -47,7 +47,12 @@ object BookAppUtils {
 
             Logger.i("createIntent: $packageName $activityName, action: $action")
 
-            if (activityName == DefaultData.BOOK_APP_ACTIVITY && packageName !== DefaultData.BOOK_APP) {
+            val noProactively = SettingModel.get(
+                Setting.PROACTIVELY_MODEL,
+                DefaultData.PROACTIVELY_MODEL.toString()
+            ) == "false"
+
+            if (activityName == DefaultData.BOOK_APP_ACTIVITY && packageName !== DefaultData.BOOK_APP || noProactively) {
                 val launchIntent = app.packageManager.getLaunchIntentForPackage(packageName)
                 if (launchIntent != null) {
                     launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
