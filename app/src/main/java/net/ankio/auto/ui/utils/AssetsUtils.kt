@@ -36,6 +36,12 @@ object AssetsUtils {
         callback: () -> Unit
     ) =
         withContext(Dispatchers.Main) {
+            val ignoreAssets =
+                ConfigUtils.getBoolean(Setting.IGNORE_ASSET, DefaultData.IGNORE_ASSET)
+            if (ignoreAssets) {
+                callback()
+                return@withContext
+            }
             val empty = AssetsMapModel.empty()
             if (empty.isEmpty()) {
                 callback()

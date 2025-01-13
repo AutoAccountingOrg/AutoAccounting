@@ -16,6 +16,9 @@
 package org.ezbook.server.routes
 
 
+import android.content.Context
+import android.content.Intent
+import android.content.res.Configuration
 import android.widget.Toast
 import com.google.gson.Gson
 import com.google.gson.JsonObject
@@ -33,9 +36,11 @@ import org.ezbook.server.ai.Gemini
 import org.ezbook.server.ai.OneAPI
 import org.ezbook.server.ai.QWen
 import org.ezbook.server.constant.AIModel
+import org.ezbook.server.constant.BillAction
 import org.ezbook.server.constant.BillState
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.constant.DataType
+import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.constant.SyncType
 import org.ezbook.server.db.Db
@@ -49,266 +54,429 @@ import org.ezbook.server.tools.Category
 import org.ezbook.server.tools.FloatingIntent
 
 
-class JsRoute(private val session: ApplicationCall, private val context: android.content.Context) {
+class JsRoute(private val session: ApplicationCall, private val context: Context) {
     private val params: Parameters = session.request.queryParameters
 
     /**
-     * 获取设置
+     * 主函数，负责账单分析的整体流程。
+     * 包括接收参数、数据解析、分析、分类处理以及最终结果的返回。
+     * @return ResultModel 包含操作结果的模型
      */
     suspend fun analysis(): ResultModel {
-        Server.log("Analysis: init")
+        Server.logD("Analysis: init")
         val app = params["app"] ?: ""
         val type = params["type"] ?: ""
         val fromAppData = params["fromAppData"]?.toBoolean() ?: false
         val ai = params["ai"] == "true"
         val data = session.receiveText()
-        //将string转换为枚举类型
-        val dataType: DataType
-        try {
-            dataType = DataType.valueOf(type)
-        } catch (e: IllegalArgumentException) {
-            return ResultModel(400, "Type exception: $type")
-        }
 
-        Server.log("Analysis: $app $type $fromAppData $ai")
-        val appDataModel = AppDataModel()
-        appDataModel.app = app
-        appDataModel.data = data
-        appDataModel.type = dataType
-        appDataModel.time = System.currentTimeMillis()
+        // 解析字符串为枚举类型 DataType
+        val dataType: DataType =
+            parseDataType(type) ?: return ResultModel(400, "Type exception: $type")
 
+        Server.logD("账单分析: app=$app ,type=$type ,fromAppData=$fromAppData ,ai=$ai")
 
-        // 判断是否需要插入AppData
-        Server.log("isFromAppData: $fromAppData")
-        if (!fromAppData) {
-            appDataModel.id = Db.get().dataDao().insert(appDataModel)
-        }
+        val appDataModel = createAppDataModel(app, data, dataType, fromAppData)
 
         val t = System.currentTimeMillis()
 
-        var billInfoModel: BillInfoModel? = null
-
-        if (!ai) {
-            val js = RuleGenerator.data(app, dataType)
-
-            if (js === "") {
-                return ResultModel(404, "JS无效，请更新规则。")
-            }
-
-            val result = runJS(js, data)
-
-            if (result == "") {
-
-                val useAi =
-                    (Db.get().settingDao().query(Setting.AI_AUXILIARY)?.value ?: "false") == "true"
-
-                if (useAi && !fromAppData) {
-                    billInfoModel = parseBillInfoFromAi(app, data)
-                    if (billInfoModel == null) {
-                        return ResultModel(404, "未分析到有效账单（大模型也识别不到）。")
-                    }
-                } else return ResultModel(404, "未分析到有效账单（可以试试用大模型识别）。")
-            } else {
-                billInfoModel = parseBillInfo(result, app, dataType)
-            }
+        // 初始化 BillInfoModel
+        val billInfoModel = if (ai) {
+            analyzeWithAI(app, data)
         } else {
-            billInfoModel = parseBillInfoFromAi(app, data)
-            if (billInfoModel == null) {
-                return ResultModel(404, "未分析到有效账单（大模型也识别不到）。")
-            }
+            analyzeWithoutAI(app, data, dataType, fromAppData)
         }
 
+        if (billInfoModel == null) {
+            return ResultModel(404, "未分析到有效账单（FromAi=${ai}）。")
+        }
 
-        /**
-         *  {
-         *       type: 1,
-         *       money: 0.01,
-         *       fee: 0,
-         *       shopName: '来自从前慢',
-         *       shopItem: '普通红包',
-         *       accountNameFrom: '支付宝余额',
-         *       accountNameTo: '',
-         *       currency: 'CNY',
-         *       time: 1702972951000,
-         *       channel: '支付宝[收红包]',
-         *       ruleName：'xxxx'
-         *     }
-         */
+        // 分类账单信息
+        categorizeBill(billInfoModel)
 
+        val total = System.currentTimeMillis() - t
+        Server.log("识别用时: $total ms")
 
-        if (billInfoModel.cateName.isEmpty() || billInfoModel.cateName == "其它" || billInfoModel.cateName == "其他") {
-            //将time从时间戳，转换为h:i的格式
-            val time = android.text.format.DateFormat.format("HH:mm", billInfoModel.time).toString()
+        // 处理账单信息
+        var userAction = processBillInfo(billInfoModel, fromAppData)
 
+        if (!fromAppData) {
+            handleUserNotification(billInfoModel, userAction)
 
-            val categoryJS = RuleGenerator.category()
+            // 更新 AppData 数据
+            updateAppDataModel(appDataModel, billInfoModel)
+        }
 
-            val win = JsonObject()
-            win.addProperty("type", billInfoModel.type.name)
-            win.addProperty("money", billInfoModel.money)
-            win.addProperty("shopName", billInfoModel.shopName)
-            win.addProperty("shopItem", billInfoModel.shopItem)
-            win.addProperty("time", time)
-            var categoryResult = runJS(categoryJS, Gson().toJson(win))
-            // { book: '默认账本', category: '早茶' }
-            if (categoryResult == "") {
-                categoryResult = "{ book: '默认账本', category: '其他' }"
+        return ResultModel(200, "OK", billInfoModel)
+    }
+
+    /**
+     * 解析字符串类型为枚举类型 DataType。
+     * @param type 字符串表示的类型
+     * @return DataType 或 null（解析失败）
+     */
+    private fun parseDataType(type: String): DataType? {
+        return try {
+            DataType.valueOf(type)
+        } catch (e: IllegalArgumentException) {
+            null
+        }
+    }
+
+    /**
+     * 创建 AppDataModel 对象，并根据条件插入数据库。
+     * @param app 应用标识
+     * @param data 数据内容
+     * @param dataType 数据类型
+     * @param fromAppData 是否从 App 数据中获取
+     * @return AppDataModel 实例
+     */
+    private suspend fun createAppDataModel(
+        app: String,
+        data: String,
+        dataType: DataType,
+        fromAppData: Boolean
+    ): AppDataModel {
+        val appDataModel = AppDataModel().apply {
+            this.app = app
+            this.data = data
+            this.type = dataType
+            this.time = System.currentTimeMillis()
+        }
+        if (!fromAppData) {
+            appDataModel.id = Db.get().dataDao().insert(appDataModel)
+        }
+        return appDataModel
+    }
+
+    /**
+     * 不使用 AI 的情况下进行账单分析。
+     * 通过规则引擎解析数据或切换到 AI 分析。
+     * @param app 应用标识
+     * @param data 数据内容
+     * @param dataType 数据类型
+     * @param fromAppData 是否从 App 数据中获取
+     * @return BillInfoModel 或 null
+     */
+    private suspend fun analyzeWithoutAI(
+        app: String,
+        data: String,
+        dataType: DataType,
+        fromAppData: Boolean
+    ): BillInfoModel? {
+        val js = RuleGenerator.data(app, dataType)
+        if (js.isEmpty()) {
+            return null
+        }
+        val result = runJS(js, data)
+        if (result.isEmpty()) {
+            if (shouldUseAI() && !fromAppData) {
+                return analyzeWithAI(app, data)
             }
+            return null
+        }
+        return parseBillInfo(result, app, dataType)
+    }
+
+    /**
+     * 判断是否应该使用 AI 进行账单分析。
+     * @return Boolean 表示是否使用 AI
+     */
+    private suspend fun shouldUseAI(): Boolean {
+        return (Db.get().settingDao().query(Setting.AI_AUXILIARY)?.value ?: "false") == "true"
+    }
+
+    /**
+     * 使用 AI 分析账单数据。
+     * @param app 应用标识
+     * @param data 数据内容
+     * @return BillInfoModel 或 null
+     */
+    private suspend fun analyzeWithAI(app: String, data: String): BillInfoModel? {
+        return parseBillInfoFromAi(app, data)
+    }
+
+    /**
+     * 对账单信息进行分类。
+     * 确保账单有明确的类别和账本信息。
+     * @param billInfoModel 账单信息模型
+     */
+    private suspend fun categorizeBill(billInfoModel: BillInfoModel) {
+        if (billInfoModel.cateName.isEmpty() || billInfoModel.cateName == "其它" || billInfoModel.cateName == "其他") {
+            val time = android.text.format.DateFormat.format("HH:mm", billInfoModel.time).toString()
+            val categoryJS = RuleGenerator.category()
+            val win = JsonObject().apply {
+                addProperty("type", billInfoModel.type.name)
+                addProperty("money", billInfoModel.money)
+                addProperty("shopName", billInfoModel.shopName)
+                addProperty("shopItem", billInfoModel.shopItem)
+                addProperty("time", time)
+            }
+            val categoryResult = runCatching {
+                runJS(categoryJS, Gson().toJson(win))
+            }.getOrDefault("{ book: '默认账本', category: '其他' }")
 
             val categoryJson = runCatching {
                 Gson().fromJson(categoryResult, JsonObject::class.java)
-            }.onFailure {
-                Server.logW("Failed to analyze categories：$categoryResult")
             }.getOrNull()
 
             billInfoModel.bookName = categoryJson?.get("book")?.asString ?: "默认账本"
             billInfoModel.cateName = categoryJson?.get("category")?.asString ?: "其他"
         }
+    }
 
-
-        val total = System.currentTimeMillis() - t
-        // 识别用时
-        Server.log("识别用时: $total ms")
-
-        //  资产映射
-        val needUserAction = Assets.setAssetsMap(billInfoModel)
-
-        // 分类映射
+    /**
+     * 处理账单信息。
+     * 包括资产映射、分类映射、时间修正和任务调度。
+     * @param billInfoModel 账单信息模型
+     * @param fromAppData 是否从 App 数据中获取
+     */
+    private suspend fun processBillInfo(
+        billInfoModel: BillInfoModel,
+        fromAppData: Boolean
+    ): Boolean {
+        var needUserAction = Assets.setAssetsMap(billInfoModel)
         Category.setCategoryMap(billInfoModel)
-
         billInfoModel.remark = Bill.getRemark(billInfoModel, context)
-        //  备注生成
-        //  设置默认账本
         Bill.setBookName(billInfoModel)
-        // app数据里面识别的数据不着急插入数据库，等用户选择，其他情况下先插入数据库，再判断是否需要去重
+
         if (!fromAppData) {
-            //存入数据库
             billInfoModel.id = Db.get().billInfoDao().insert(billInfoModel)
         }
-        // 时间容错：部分规则可能识别的时间准确，需要容错，小于2000年之前的时间认为是错误的
+
         if (billInfoModel.time < 946656000000) {
             billInfoModel.time = System.currentTimeMillis()
         }
-        // 账单分组，用于检查重复账单
+
         val task = Server.billProcessor.addTask(billInfoModel, context)
         task.await()
-        if (task.result == null) {
-            billInfoModel.state = BillState.Wait2Edit
-        } else {
-            billInfoModel.state = BillState.Edited
+        billInfoModel.state = if (task.result == null) BillState.Wait2Edit else BillState.Edited
+        val ignoreAsset = Db.get().settingDao().query(Setting.IGNORE_ASSET)?.value == "true"
+        if (ignoreAsset && needUserAction) {
+            needUserAction = false
         }
-
-
-
-
         Db.get().billInfoDao().update(billInfoModel)
-        Server.log("账单: $billInfoModel")
-        if (!fromAppData) {
-            // 切换到主线程
-            if (!billInfoModel.auto) {
-                Server.log("自动记录 - 关闭: $billInfoModel")
-                val showInLandScape =
-                    Db.get().settingDao().query(Setting.LANDSCAPE_DND)?.value != "false"
-                withContext(Dispatchers.Main) {
-                    runCatching {
-                        startAutoPanel(billInfoModel, task.result,showInLandScape)
-                    }.onFailure {
-                        Server.log(it)
-                    }
-                }
-            } else {
-                // try
-                if (needUserAction) {
-                    billInfoModel.state = BillState.Wait2Edit
-                } else {
-                    billInfoModel.state = BillState.Edited
-                }
-                sync2Book(context)
-                val showTip =
-                    Db.get().settingDao().query(Setting.SHOW_AUTO_BILL_TIP)?.value == "true"
-                if (showTip) {
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(
-                            context,
-                            "已自动记录账单，可在账单列表中查看。",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
+        return needUserAction
+    }
+
+    /**
+     * 处理用户通知逻辑。
+     * 决定是否弹出提示或执行其他与用户相关的操作。
+     * @param billInfoModel 账单信息模型
+     */
+    private suspend fun handleUserNotification(billInfoModel: BillInfoModel, userAction: Boolean) {
+        if (!billInfoModel.auto) {
+            val showInLandScape =
+                Db.get().settingDao().query(Setting.LANDSCAPE_DND)?.value != "false"
+            withContext(Dispatchers.Main) {
+                runCatching {
+                    startAutoPanel(billInfoModel, null, showInLandScape)
                 }
             }
-
-            // 更新AppData
-            appDataModel.match = true
-            appDataModel.rule = billInfoModel.ruleName
-            appDataModel.version = Db.get().settingDao().query(Setting.RULE_VERSION)?.value ?: ""
-            Db.get().dataDao().update(appDataModel)
-
+        } else {
+            if (userAction) {
+                billInfoModel.state = BillState.Wait2Edit
+                Db.get().billInfoDao().update(billInfoModel)
+            }
+            sync2Book(context)
+            val showTip = Db.get().settingDao().query(Setting.SHOW_AUTO_BILL_TIP)?.value == "true"
+            if (showTip) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        context,
+                        "已自动记录账单(￥${billInfoModel.money})。",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
         }
-        return ResultModel(200, "OK", billInfoModel)
+    }
+
+    /**
+     * 更新 AppDataModel 的匹配状态和规则版本信息。
+     * 并存入数据库。
+     * @param appDataModel 应用数据模型
+     * @param billInfoModel 账单信息模型
+     */
+    private suspend fun updateAppDataModel(
+        appDataModel: AppDataModel,
+        billInfoModel: BillInfoModel
+    ) {
+        appDataModel.match = true
+        appDataModel.rule = billInfoModel.ruleName
+        appDataModel.version = Db.get().settingDao().query(Setting.RULE_VERSION)?.value ?: ""
+        Db.get().dataDao().update(appDataModel)
     }
 
 
+    /**
+     * 使用AI模型解析账单信息
+     * @param app 应用名称
+     * @param data 待解析的数据
+     * @return 解析后的账单信息模型，解析失败返回null
+     */
     private suspend fun parseBillInfoFromAi(app: String, data: String): BillInfoModel? {
-        val aiModel = Db.get().settingDao().query(Setting.AI_MODEL)?.value ?: AIModel.Gemini
-        val billInfoModel: BillInfoModel? = runCatching {
+        // 获取AI模型配置
+        val aiModel = getAiModel()
+
+        // 请求AI模型解析数据
+        val billInfoModel = requestAiAnalysis(aiModel, data)
+        Server.log("AI($aiModel) 响应: $billInfoModel")
+
+        // 验证并处理解析结果
+        return billInfoModel?.let { model ->
+            if (!isValidBillInfo(model)) {
+                return null
+            }
+
+            processBillInfo(model, aiModel, app)
+        }
+    }
+
+    /**
+     * 获取配置的AI模型
+     */
+    private suspend fun getAiModel(): String =
+        Db.get().settingDao().query(Setting.AI_MODEL)?.value ?: AIModel.Gemini.name
+
+    /**
+     * 请求AI模型解析数据
+     */
+    private suspend fun requestAiAnalysis(aiModel: String, data: String): BillInfoModel? =
+        runCatching {
             when (aiModel) {
                 AIModel.Gemini.name -> Gemini().request(data)
                 AIModel.QWen.name -> QWen().request(data)
                 AIModel.DeepSeek.name -> DeepSeek().request(data)
                 AIModel.ChatGPT.name -> ChatGPT().request(data)
-                AIModel.OneAPI.name -> {
-                    var uri = Db.get().settingDao().query(Setting.AI_ONE_API_URI)?.value ?: ""
-                    if (!uri.contains("v1/chat/completions")) {
-                        uri = "$uri/v1/chat/completions"
-                    }
-                    val model = Db.get().settingDao().query(Setting.AI_ONE_API_MODEL)?.value ?: ""
-                    OneAPI(uri, model).request(data)
-                }
-
-                else -> {
-                    null
-                }
+                AIModel.OneAPI.name -> handleOneApiRequest(data)
+                else -> null
             }
         }.onFailure {
             Server.log(it)
         }.getOrNull()
-        Server.log("AI($aiModel) 响应: ${billInfoModel}")
-        if (billInfoModel == null) return null
-        if (billInfoModel.money == 0.0 || billInfoModel.accountNameFrom.isEmpty()) {
-            return null
+
+    /**
+     * 处理OneAPI请求
+     */
+    private suspend fun handleOneApiRequest(data: String): BillInfoModel? {
+        var uri = Db.get().settingDao().query(Setting.AI_ONE_API_URI)?.value.orEmpty()
+        if (!uri.contains("v1/chat/completions")) {
+            uri = "$uri/v1/chat/completions"
         }
-        if (billInfoModel.money < 0) {
-            billInfoModel.money = -billInfoModel.money
-        }
-        billInfoModel.ruleName = "$aiModel 生成"
-        billInfoModel.state = BillState.Wait2Edit
-        billInfoModel.app = app
-        return billInfoModel
+        val model = Db.get().settingDao().query(Setting.AI_ONE_API_MODEL)?.value.orEmpty()
+        return OneAPI(uri, model).request(data)
     }
 
-    private suspend fun sync2Book(context: android.content.Context) {
-        val packageName = Db.get().settingDao().query(Setting.BOOK_APP_ID)?.value ?: return
-        val syncType =
-            Db.get().settingDao().query(Setting.SYNC_TYPE)?.value ?: SyncType.WhenOpenApp.name
+    /**
+     * 验证账单信息是否有效
+     */
+    private fun isValidBillInfo(billInfo: BillInfoModel): Boolean =
+        billInfo.money != 0.0 && billInfo.accountNameFrom.isNotEmpty()
 
+    /**
+     * 处理账单信息
+     */
+    private fun processBillInfo(
+        billInfo: BillInfoModel,
+        aiModel: String,
+        app: String
+    ): BillInfoModel = billInfo.apply {
+        // 处理负数金额
+        if (money < 0) {
+            money = -money
+        }
+        ruleName = "$aiModel 生成"
+        state = BillState.Wait2Edit
+        this.app = app
+    }
+
+    /**
+     * 同步账单到记账应用
+     * @param context 应用上下文
+     */
+    private suspend fun sync2Book(context: Context) {
+        // 获取记账应用包名，如果未设置则直接返回
+        val packageName = Db.get().settingDao().query(Setting.BOOK_APP_ID)?.value ?: run {
+            Server.log("未设置记账应用")
+            return
+        }
+
+        // 获取同步类型设置
+        val syncType = getSyncType()
+
+        // 如果是打开应用时同步，则直接返回
         if (syncType == SyncType.WhenOpenApp.name) {
+            Server.log("设置为打开应用时同步")
             return
         }
 
-        val wait = Db.get().billInfoDao().queryNoSync()
-
-        if (wait.isEmpty()) {
-            Server.log("No need to sync")
+        // 获取待同步的账单
+        val pendingBills = Db.get().billInfoDao().queryNoSync()
+        if (pendingBills.isEmpty()) {
+            Server.log("无需同步：没有待同步账单")
             return
         }
 
-        if ((syncType == SyncType.BillsLimit10.name && wait.size >= 10) || (syncType == SyncType.BillsLimit5.name && wait.size >= 5)) {
-            val launchIntent = context.packageManager.getLaunchIntentForPackage(packageName)
-            if (launchIntent != null) {
-                context.startActivity(launchIntent)
+        // 检查是否需要启动同步
+        if (shouldStartSync(syncType, pendingBills.size)) {
+            launchBookApp(context, packageName)
+        }
+    }
+
+    /**
+     * 获取同步类型设置
+     * @return 同步类型，默认为打开应用时同步
+     */
+    private suspend fun getSyncType(): String =
+        Db.get().settingDao().query(Setting.SYNC_TYPE)?.value ?: SyncType.WhenOpenApp.name
+
+    /**
+     * 检查是否应该开始同步
+     * @param syncType 同步类型
+     * @param pendingCount 待同步账单数量
+     * @return 是否应该开始同步
+     */
+    private fun shouldStartSync(syncType: String, pendingCount: Int): Boolean =
+        (syncType == SyncType.BillsLimit10.name && pendingCount >= 10) ||
+                (syncType == SyncType.BillsLimit5.name && pendingCount >= 5) ||
+                (syncType == SyncType.BillsLimit1.name && pendingCount >= 1)
+
+    /**
+     * 启动记账应用
+     * @param context 应用上下文
+     * @param packageName 记账应用包名
+     */
+    private suspend fun launchBookApp(context: Context, packageName: String) {
+        runCatching {
+
+            var activityName =
+                Db.get().settingDao().query(Setting.BOOK_APP_ACTIVITY)?.value
+                    ?: DefaultData.BOOK_APP_ACTIVITY
+
+            if (activityName.isEmpty()) {
+                activityName = DefaultData.BOOK_APP_ACTIVITY
             }
-        }
 
+            if (activityName == DefaultData.BOOK_APP_ACTIVITY && packageName !== DefaultData.BOOK_APP) {
+                val launchIntent = context.packageManager.getLaunchIntentForPackage(packageName)
+                if (launchIntent != null) {
+                    launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    context.startActivity(launchIntent)
+                }
+                return
+            }
+            // val launchIntent = app.packageManager.getLaunchIntentForPackage(packageName)
+            val intent = Intent().apply {
+                setClassName(packageName, activityName) // 设置目标应用和目标 Activity
+                putExtra("from", Server.packageName) // 添加额外参数
+                putExtra("action", BillAction.SYNC_BILL) // 传递 action
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) // 确保在新任务栈中启动
+            }
+            context.startActivity(intent)
+        }.onFailure { error ->
+            Server.log("启动记账应用失败：${error.message}")
+        }
     }
 
     /**
@@ -325,64 +493,86 @@ class JsRoute(private val session: ApplicationCall, private val context: android
     ): BillInfoModel {
         val json = Gson().fromJson(result, JsonObject::class.java)
 
-        val money = json.get("money")?.asDouble ?: 0.0
-        val fee = json.get("fee")?.asDouble ?: 0.0
-        val shopName = json.get("shopName")?.asString ?: ""
-        val shopItem = json.get("shopItem")?.asString ?: ""
-        val accountNameFrom = json.get("accountNameFrom")?.asString ?: ""
-        val accountNameTo = json.get("accountNameTo")?.asString ?: ""
-        val currency = json.get("currency")?.asString ?: ""
-        val time = json.get("time")?.asLong ?: System.currentTimeMillis()
-        val channel = json.get("channel")?.asString ?: ""
-        val ruleName = json.get("ruleName")?.asString ?: ""
-        val type = json.get("type")?.asString ?: "Expend"
-        // 根据ruleName判断是否需要自动记录
-        val rule = Db.get().ruleDao().query(dataType.name, app, ruleName)
-        val autoRecord = rule != null && rule.autoRecord
+        // 使用安全调用运算符和默认值
+        return BillInfoModel().apply {
+            type = runCatching {
+                BillType.valueOf(json.get("type")?.asString ?: "Expend")
+            }.getOrDefault(BillType.Expend)
 
+            this.app = app
+            time = json.get("time")?.asLong ?: System.currentTimeMillis()
+            money = json.get("money")?.asDouble ?: 0.0
+            fee = json.get("fee")?.asDouble ?: 0.0
+            shopName = json.get("shopItem")?.asString.orEmpty()
+            shopItem = json.get("shopItem")?.asString.orEmpty()
+            accountNameFrom = json.get("accountNameFrom")?.asString.orEmpty()
+            accountNameTo = json.get("accountNameTo")?.asString.orEmpty()
+            currency = json.get("currency")?.asString.orEmpty()
+            channel = json.get("channel")?.asString.orEmpty()
+            ruleName = json.get("ruleName")?.asString.orEmpty()
 
-        val billInfoModel = BillInfoModel()
-        billInfoModel.type = BillType.valueOf(type)
-        billInfoModel.app = app
-        billInfoModel.time = time
-        billInfoModel.money = money
-        billInfoModel.fee = fee
-        billInfoModel.shopName = shopName
-        billInfoModel.shopItem = shopItem
-        billInfoModel.accountNameFrom = accountNameFrom
-        billInfoModel.accountNameTo = accountNameTo
-        billInfoModel.currency = currency
-        billInfoModel.channel = channel
-        billInfoModel.ruleName = ruleName
-        billInfoModel.auto = autoRecord
-
-        return billInfoModel
+            // 根据ruleName判断是否需要自动记录
+            val rule = Db.get().ruleDao().query(dataType.name, app, ruleName)
+            auto = rule?.autoRecord ?: false
+        }
     }
 
     /**
      * 启动自动记账面板
+     * @param billInfoModel 账单信息模型
+     * @param parent 父账单信息
+     * @param showInLandScape 是否在横屏状态下显示
      */
-    private suspend fun startAutoPanel(billInfoModel: BillInfoModel, parent: BillInfoModel?, showInLandScape: Boolean = false) {
-
-        // 判断当前手机是否为横屏状态
-        if (!showInLandScape && context.resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) {
-           Toast.makeText(context, "账单金额：${billInfoModel.money}，横屏状态下为您自动暂存。", Toast.LENGTH_SHORT).show()
+    private suspend fun startAutoPanel(
+        billInfoModel: BillInfoModel,
+        parent: BillInfoModel?,
+        showInLandScape: Boolean = false
+    ) {
+        // 检查横屏状态并处理
+        if (isLandscapeMode() && !showInLandScape) {
+            showToastForLandscapeMode(billInfoModel.money)
             return
         }
 
+        // 创建并启动悬浮窗
+        launchFloatingWindow(billInfoModel, parent)
+    }
+
+    /**
+     * 检查当前设备是否处于横屏模式
+     * @return Boolean 如果是横屏返回true，否则返回false
+     */
+    private fun isLandscapeMode(): Boolean =
+        context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+
+    /**
+     * 在横屏模式下显示提示信息
+     * @param money 账单金额，用于在提示信息中显示
+     */
+    private fun showToastForLandscapeMode(money: Double) {
+        Toast.makeText(
+            context,
+            "账单金额：$money，横屏状态下为您自动暂存。",
+            Toast.LENGTH_SHORT
+        ).show()
+    }
+
+    /**
+     * 启动悬浮窗口来显示账单信息
+     * @param billInfoModel 要显示的账单信息模型
+     * @param parent 父账单信息，可能为null，用于关联相关账单
+     * @throws SecurityException 如果应用没有必要的权限
+     */
+    private suspend fun launchFloatingWindow(billInfoModel: BillInfoModel, parent: BillInfoModel?) {
         val intent = FloatingIntent(billInfoModel, true, "JsRoute", parent).toIntent()
-        Server.log("拉起自动记账悬浮窗口：$intent")
-        try {
+        Server.logD("拉起自动记账悬浮窗口：$intent")
+
+        runCatching {
             context.startActivity(intent)
-        } catch (t: Throwable) {
-            Server.log("自动记账悬浮窗拉起失败：$t")
-            Server.log(t)
+        }.onFailure { throwable ->
+            Server.log("自动记账悬浮窗拉起失败：$throwable")
+            Server.log(throwable)
         }
-        /* if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-             context.startForegroundService(intent)
-         } else {
-             context.startService(intent)
-         }*/
     }
 
 

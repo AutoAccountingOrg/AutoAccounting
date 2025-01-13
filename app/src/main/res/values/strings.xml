@@ -414,6 +414,10 @@
     <string name="refund_income_account_empty">退款账户不能为空</string>
     <string name="refund_bill_empty">必须选择一个账单才能退款</string>
     <string name="container">包含关系</string>
+    <string name="bills_limit1">实时同步</string>
+    <string name="setting_bill_asset">资产</string>
+    <string name="setting_bill_ignore_asset">忽略资产错误</string>
+    <string name="setting_bill_ignore_asset_desc">该功能谨慎开启，当识别到的资产不在资产列表的时候直接忽略当前资产。</string>
 
 
 </resources>

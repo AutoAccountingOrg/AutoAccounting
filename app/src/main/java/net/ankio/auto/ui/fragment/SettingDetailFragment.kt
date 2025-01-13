@@ -201,14 +201,22 @@ class SettingDetailFragment : BaseFragment() {
                 selectList =
                 hashMapOf(
                     requireContext().getString(R.string.when_open_app) to SyncType.WhenOpenApp.name,
+                    requireContext().getString(R.string.bills_limit1) to SyncType.BillsLimit1.name,
                     requireContext().getString(R.string.bills_limit5) to SyncType.BillsLimit5.name,
                     requireContext().getString(R.string.bills_limit10) to SyncType.BillsLimit10.name,
                 ),
                 default = DefaultData.SYNC_TYPE,
 
                 ),
+            SettingItem.Title(R.string.setting_bill_asset),
 
-            SettingItem.Card(R.string.setting_bill_sync_tip),
+            SettingItem.Switch(
+                title = R.string.setting_bill_ignore_asset,
+                key = Setting.IGNORE_ASSET,
+                icon = R.drawable.home_app_assets,
+                default = DefaultData.IGNORE_ASSET,
+                subTitle = R.string.setting_bill_ignore_asset_desc,
+            ),
         )
     }
 
