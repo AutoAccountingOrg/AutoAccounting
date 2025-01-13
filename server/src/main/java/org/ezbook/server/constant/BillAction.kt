@@ -13,9 +13,9 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.xposed.hooks.qianji.tools
+package org.ezbook.server.constant
 
-enum class QianJiAction {
+enum class BillAction {
     //同步账单
     SYNC_BILL,
 

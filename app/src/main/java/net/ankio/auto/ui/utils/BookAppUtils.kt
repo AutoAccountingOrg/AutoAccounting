@@ -23,14 +23,14 @@ import net.ankio.auto.App.Companion.app
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Logger
-import net.ankio.auto.xposed.hooks.qianji.tools.QianJiAction
+import org.ezbook.server.constant.BillAction
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.SettingModel
 
 object BookAppUtils {
 
-    private suspend fun createIntent(action: QianJiAction) = withContext(Dispatchers.Main) {
+    private suspend fun createIntent(action: BillAction) = withContext(Dispatchers.Main) {
         runCatching {
             val packageName = ConfigUtils.getString(Setting.BOOK_APP_ID, DefaultData.BOOK_APP)
 
@@ -64,19 +64,19 @@ object BookAppUtils {
     }
 
     suspend fun syncData() {
-        createIntent(QianJiAction.SYNC_BILL)
+        createIntent(BillAction.SYNC_BILL)
     }
 
     suspend fun syncBookCategoryAsset() {
-        createIntent(QianJiAction.SYNC_BOOK_CATEGORY_ASSET)
+        createIntent(BillAction.SYNC_BOOK_CATEGORY_ASSET)
     }
 
     suspend fun syncReimburseBill() {
-        createIntent(QianJiAction.SYNC_REIMBURSE_BILL)
+        createIntent(BillAction.SYNC_REIMBURSE_BILL)
     }
 
     suspend fun syncRecentExpenseBill() {
-        createIntent(QianJiAction.SYNC_RECENT_EXPENSE_BILL)
+        createIntent(BillAction.SYNC_RECENT_EXPENSE_BILL)
     }
 
 }

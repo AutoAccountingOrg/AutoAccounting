@@ -44,9 +44,9 @@ import net.ankio.auto.xposed.hooks.qianji.sync.debt.ExpendLendingUtils
 import net.ankio.auto.xposed.hooks.qianji.sync.debt.ExpendRepaymentUtils
 import net.ankio.auto.xposed.hooks.qianji.sync.debt.IncomeLendingUtils
 import net.ankio.auto.xposed.hooks.qianji.sync.debt.IncomeRepaymentUtils
-import net.ankio.auto.xposed.hooks.qianji.tools.QianJiAction
 import net.ankio.auto.xposed.hooks.qianji.tools.QianJiBillType
 import net.ankio.auto.xposed.hooks.qianji.tools.QianJiUri
+import org.ezbook.server.constant.BillAction
 import org.ezbook.server.db.model.BillInfoModel
 
 
@@ -103,27 +103,27 @@ class AutoHooker : PartHooker() {
             // 只处理来自自动记账的账单
             val action = intent.getStringExtra("action") ?: return@before
             it.result = null
-            val actionItem = QianJiAction.valueOf(action)
+            val actionItem = BillAction.valueOf(action)
             ThreadUtils.launch(Dispatchers.Main) {
                 when (actionItem) {
-                    QianJiAction.SYNC_BILL -> {
+                    BillAction.SYNC_BILL -> {
                         // 同步账单的请求
                         SyncBillUtils().sync(application!!)
                     }
 
-                    QianJiAction.SYNC_BOOK_CATEGORY_ASSET -> {
+                    BillAction.SYNC_BOOK_CATEGORY_ASSET -> {
                         //同步资产、账本、分类等数据的请求
                         AssetPreviewPresenterImpl.syncAssets()
                         val books = BookManagerImpl.syncBooks()
                         CateInitPresenterImpl.syncCategory(books)
                     }
 
-                    QianJiAction.SYNC_REIMBURSE_BILL -> {
+                    BillAction.SYNC_REIMBURSE_BILL -> {
                         //同步报销账单的请求，不需要频繁请求
                         BxPresenterImpl.syncBaoXiao()
                     }
 
-                    QianJiAction.SYNC_RECENT_EXPENSE_BILL -> {
+                    BillAction.SYNC_RECENT_EXPENSE_BILL -> {
                         //同步最近10天的支出账单, 不需要频繁请求
                         SearchPresenterImpl.syncBills()
                     }
