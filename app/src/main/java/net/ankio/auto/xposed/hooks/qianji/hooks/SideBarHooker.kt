@@ -44,6 +44,9 @@ import net.ankio.auto.xposed.hooks.qianji.tools.QianJiUi
 import org.ezbook.server.Server
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
+import org.ezbook.server.constant.SyncType
+import org.ezbook.server.db.model.BillInfoModel
+import org.ezbook.server.db.model.SettingModel
 
 
 class SideBarHooker : PartHooker() {
@@ -177,6 +180,7 @@ class SideBarHooker : PartHooker() {
             AssetPreviewPresenterImpl.syncAssets()
             val books = BookManagerImpl.syncBooks()
             CateInitPresenterImpl.syncCategory(books)
+
             if (!DataUtils.configBoolean(
                     Setting.PROACTIVELY_MODEL,
                     DefaultData.PROACTIVELY_MODEL
@@ -188,6 +192,18 @@ class SideBarHooker : PartHooker() {
                 SearchPresenterImpl.syncBills()
                 //同步账单
                 SyncBillUtils().sync(context)
+            } else {
+                if (DataUtils.configString(
+                        Setting.SYNC_TYPE,
+                        DefaultData.SYNC_TYPE
+                    ) == SyncType.WhenOpenApp.name
+                ) {
+                    if (BillInfoModel.sync().isNotEmpty()) {
+                        //同步账单
+                        SyncBillUtils().sync(context)
+                    }
+
+                }
             }
 
         }
