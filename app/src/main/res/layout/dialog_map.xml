@@ -19,6 +19,15 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
+    <com.google.android.material.materialswitch.MaterialSwitch
+        android:id="@+id/regex"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/padding"
+        android:text="@string/map_regex"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/editText" />
+
     <net.ankio.auto.ui.componets.IconView
         android:id="@+id/target"
         android:layout_width="wrap_content"
@@ -27,11 +36,10 @@
         android:clickable="true"
         android:focusable="true"
         android:padding="@dimen/padding"
-        android:layout_marginTop="@dimen/padding"
-        android:layout_marginBottom="@dimen/padding"
         app:iconTintEnabled="false"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editText"
+        app:layout_constraintBottom_toBottomOf="@id/regex"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/regex"
         app:text="@string/map_target"
         app:textColor="?colorOnBackground" />
 
@@ -40,12 +48,12 @@
         style="@style/Widget.Material3.Button.TonalButton"
         android:layout_width="0dp"
         android:layout_height="@dimen/btn_height_small"
-        android:layout_marginEnd="@dimen/one_padding"
         android:layout_marginTop="@dimen/padding"
+        android:layout_marginEnd="@dimen/one_padding"
         android:text="@string/cancel_msg"
         app:layout_constraintEnd_toStartOf="@id/buttonSure"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/target" />
+        app:layout_constraintTop_toBottomOf="@id/regex" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/buttonSure"
