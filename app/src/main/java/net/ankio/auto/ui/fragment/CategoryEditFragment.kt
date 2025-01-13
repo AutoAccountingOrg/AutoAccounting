@@ -218,7 +218,7 @@ class CategoryEditFragment : BaseFragment() {
                 getString(R.string.type_type) to 4,
             )
         val listPopupUtils =
-            ListPopupUtils(requireContext(), view, menuItems, 0) { pos, key, value ->
+            ListPopupUtils(requireContext(), view, menuItems, 0, lifecycle) { pos, key, value ->
                 when (value) {
                     0 -> inputMoneyRange(flexboxLayout, element)
                     1 -> inputTimeRange(flexboxLayout, element)
@@ -244,7 +244,7 @@ class CategoryEditFragment : BaseFragment() {
         var js = ""
 
         val listPopupUtils =
-            ListPopupUtils(requireContext(), view, menuItems, 0) { pos, key, value ->
+            ListPopupUtils(requireContext(), view, menuItems, 0, lifecycle) { pos, key, value ->
                 msg = getString(R.string.type_pay, key)
                 when (value) {
                     0 -> js = "type === 0"

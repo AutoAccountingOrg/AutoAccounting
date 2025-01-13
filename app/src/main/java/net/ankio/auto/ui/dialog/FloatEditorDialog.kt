@@ -431,6 +431,7 @@ class FloatEditorDialog(
                 binding.priceContainer,
                 stringList,
                 billTypeLevel1,
+                lifecycle
             ) { pos, key, value ->
                 billTypeLevel1 = value as BillType
                 billTypeLevel2 = billTypeLevel1
@@ -597,6 +598,7 @@ class FloatEditorDialog(
                     binding.moneyType,
                     hashMap,
                     billInfoModel.currency,
+                    lifecycle
                 ) { pos, key, value ->
                     billInfoModel.currency = (value as Currency).name
                     bindingMoneyTypeUI()

@@ -25,19 +25,25 @@ import android.widget.FrameLayout
 import android.widget.ListAdapter
 import android.widget.ListPopupWindow
 import net.ankio.auto.R
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.OnLifecycleEvent
 
 class ListPopupUtils(
     val context: Context,
     anchor: View,
     val list: HashMap<String, Any>,
     val value: Any,
+    lifecycle: Lifecycle,
     onClick: (position: Int, key: String, value: Any) -> Unit,
-) {
+
+    ) : LifecycleObserver {
     private val listPopupWindow: ListPopupWindow = ListPopupWindow(context)
     private var adapter: ArrayAdapter<String>
     private var selectIndex = 0
 
     init {
+        lifecycle.addObserver(this)
         val keyList = list.keys.toList()
         adapter = ArrayAdapter(context, R.layout.list_popup_window_item, keyList)
         listPopupWindow.setAdapter(adapter)
@@ -104,5 +110,10 @@ class ListPopupUtils(
             }
             hasShowPopupWindow = !hasShowPopupWindow
         }
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    fun onDestroy() {
+        listPopupWindow.dismiss()
     }
 }

@@ -310,7 +310,8 @@ class SettingUtils(
                     context,
                     title,
                     item.selectList,
-                    getData()
+                    getData(),
+                    context.lifecycle,
                 ) { _, _, value ->
                     updateValue(value)
                 }.toggle()
