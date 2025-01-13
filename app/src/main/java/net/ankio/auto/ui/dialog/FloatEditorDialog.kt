@@ -47,6 +47,7 @@ import org.ezbook.server.constant.Currency
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.constant.SyncType
+import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.AssetsModel
 import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.db.model.BookNameModel
@@ -120,13 +121,18 @@ class FloatEditorDialog(
         val assetManager =
             ConfigUtils.getBoolean(Setting.SETTING_ASSET_MANAGER, DefaultData.SETTING_ASSET_MANAGER)
         Logger.d("Get Bill Data, type=> $billTypeLevel2, type1=> $billTypeLevel1")
+        val ignoreAsset = ConfigUtils.getBoolean(
+            Setting.IGNORE_ASSET,
+            DefaultData.IGNORE_ASSET
+        )
+
         return billInfoModel.copy().apply {
             this.type = billTypeLevel2
             when (billTypeLevel2) {
                 BillType.Expend -> {
                     this.accountNameFrom = binding.payFrom.getText()
                     this.accountNameTo = ""
-                    if (assetManager) {
+                    if (assetManager && !ignoreAsset) {
                         if (this.accountNameFrom.isEmpty()) {
                             throw BillException(context.getString(R.string.expend_account_empty))
                         }
@@ -146,7 +152,7 @@ class FloatEditorDialog(
                 BillType.Income -> {
                     this.accountNameFrom = binding.payFrom.getText()
                     this.accountNameTo = ""
-                    if (assetManager) {
+                    if (assetManager && !ignoreAsset) {
                         if (this.accountNameFrom.isEmpty()) {
                             throw BillException(context.getString(R.string.income_account_empty))
                         }
@@ -165,7 +171,7 @@ class FloatEditorDialog(
                 BillType.Transfer -> {
                     this.accountNameFrom = binding.transferFrom.getText()
                     this.accountNameTo = binding.transferTo.getText()
-                    if (assetManager) {
+                    if (assetManager && !ignoreAsset) {
                         if (this.accountNameFrom.isEmpty()) {
                             throw BillException(context.getString(R.string.transfer_from_empty))
                         }
@@ -201,7 +207,7 @@ class FloatEditorDialog(
                 BillType.ExpendReimbursement -> {
                     this.accountNameFrom = binding.payFrom.getText()
                     this.accountNameTo = ""
-                    if (assetManager) {
+                    if (assetManager && !ignoreAsset) {
                         if (this.accountNameFrom.isEmpty()) {
                             throw BillException(context.getString(R.string.reimbursement_account_empty))
                         }
@@ -223,7 +229,7 @@ class FloatEditorDialog(
                     if (selectedBills.isEmpty()) {
                         throw BillException(context.getString(R.string.refund_bill_empty))
                     }
-                    if (assetManager) {
+                    if (assetManager && !ignoreAsset) {
                         if (this.accountNameFrom.isEmpty()) {
                             throw BillException(context.getString(R.string.refund_income_account_empty))
                         }
@@ -248,7 +254,7 @@ class FloatEditorDialog(
                     if (selectedBills.isEmpty()) {
                         throw BillException(context.getString(R.string.reimbursement_bill_empty))
                     }
-                    if (assetManager) {
+                    if (assetManager && !ignoreAsset) {
                         if (this.accountNameFrom.isEmpty()) {
                             throw BillException(context.getString(R.string.reimbursement_income_account_empty))
                         }
@@ -269,7 +275,7 @@ class FloatEditorDialog(
                 BillType.ExpendLending, BillType.ExpendRepayment -> {
                     this.accountNameFrom = binding.debtExpendFrom.getText()
                     this.accountNameTo = binding.debtExpendTo.getText().toString()
-                    if (assetManager) {
+                    if (assetManager && !ignoreAsset) {
                         if (this.accountNameFrom.isEmpty()) {
                             throw BillException(
                                 if (BillType.ExpendLending == billTypeLevel2) context.getString(R.string.expend_debt_empty) else context.getString(
@@ -297,7 +303,7 @@ class FloatEditorDialog(
                 BillType.IncomeLending, BillType.IncomeRepayment -> {
                     this.accountNameFrom = binding.debtIncomeFrom.getText().toString()
                     this.accountNameTo = binding.debtIncomeTo.getText()
-                    if (assetManager) {
+                    if (assetManager && !ignoreAsset) {
                         if (this.accountNameFrom.isEmpty()) {
                             throw BillException(
                                 if (BillType.IncomeLending == billTypeLevel2) context.getString(R.string.income_debt_empty) else context.getString(
@@ -317,10 +323,6 @@ class FloatEditorDialog(
                         }
 
                     }
-
-                }
-
-                BillType.IncomeRefund -> {
 
                 }
             }
