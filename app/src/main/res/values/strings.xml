@@ -413,6 +413,7 @@
     <string name="proactive_msg">指的是自动记账在同步数据的时候主动调用记账软件接口而不是和被动模式一样需要打开记账软件。</string>
     <string name="refund_income_account_empty">退款账户不能为空</string>
     <string name="refund_bill_empty">必须选择一个账单才能退款</string>
+    <string name="container">包含关系</string>
 
 
 </resources>

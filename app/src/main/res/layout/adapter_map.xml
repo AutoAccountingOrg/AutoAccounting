@@ -38,6 +38,18 @@
         android:maxLines="2"
         tools:text="映射文本很长很映射文本很长很长很长映射文本很长很长很长映射文本很长很长很长映射文本很长很长很长长很长" />
 
+    <!-- 包含关系标签，使用 Chip 组件 -->
+    <com.google.android.material.chip.Chip
+        android:id="@+id/containment_chip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:text="@string/container"
+        style="@style/Widget.MaterialComponents.Chip.Action"
+        android:layout_marginStart="@dimen/one_padding"
+        android:enabled="false"
+        android:layout_marginEnd="@dimen/one_padding" />
+
     <!-- 中间固定宽度的箭头图标 -->
     <ImageView
         android:id="@+id/icon_header"

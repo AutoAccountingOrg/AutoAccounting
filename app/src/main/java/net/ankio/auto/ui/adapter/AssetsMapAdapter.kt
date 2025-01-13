@@ -17,6 +17,7 @@
 package net.ankio.auto.ui.adapter
 
 import android.app.Activity
+import android.view.View
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
@@ -83,6 +84,11 @@ class AssetsMapAdapter(
 
         binding.raw.text = data.name
         binding.target.setText(data.mapName)
+        binding.containmentChip.visibility = if (data.regex) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
     }
 
     override fun areItemsSame(oldItem: AssetsMapModel, newItem: AssetsMapModel): Boolean {
