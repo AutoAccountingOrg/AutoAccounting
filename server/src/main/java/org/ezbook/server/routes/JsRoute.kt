@@ -508,7 +508,7 @@ class JsRoute(private val session: ApplicationCall, private val context: Context
             time = json.get("time")?.asLong ?: System.currentTimeMillis()
             money = json.get("money")?.asDouble ?: 0.0
             fee = json.get("fee")?.asDouble ?: 0.0
-            shopName = json.get("shopItem")?.asString.orEmpty()
+            shopName = json.get("shopName")?.asString.orEmpty()
             shopItem = json.get("shopItem")?.asString.orEmpty()
             accountNameFrom = json.get("accountNameFrom")?.asString.orEmpty()
             accountNameTo = json.get("accountNameTo")?.asString.orEmpty()
