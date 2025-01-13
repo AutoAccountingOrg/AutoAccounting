@@ -71,6 +71,9 @@ class BillAssetsMapDialog(
                 dismiss()
             }
         }
+        binding.buttonCancel.setOnClickListener {
+            dismiss()
+        }
     }
 
 

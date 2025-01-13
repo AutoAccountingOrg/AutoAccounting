@@ -57,7 +57,7 @@ object AssetsUtils {
                         }
                 }
                 callback()
-            }.show(float = float)
+            }.show(float = float, cancel = true)
         }
     /**
      * 计算两个字符串的最长连续相似子串
