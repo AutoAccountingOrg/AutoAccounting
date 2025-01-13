@@ -98,10 +98,10 @@ class JsRoute(private val session: ApplicationCall, private val context: Context
         Server.log("识别用时: $total ms")
 
         // 处理账单信息
-        var userAction = processBillInfo(billInfoModel, fromAppData)
+        var pair = processBillInfo(billInfoModel, fromAppData)
 
         if (!fromAppData) {
-            handleUserNotification(billInfoModel, userAction)
+            handleUserNotification(billInfoModel, pair.first, pair.second)
 
             // 更新 AppData 数据
             updateAppDataModel(appDataModel, billInfoModel)
@@ -234,7 +234,7 @@ class JsRoute(private val session: ApplicationCall, private val context: Context
     private suspend fun processBillInfo(
         billInfoModel: BillInfoModel,
         fromAppData: Boolean
-    ): Boolean {
+    ): Pair<BillInfoModel?, Boolean> {
         var needUserAction = Assets.setAssetsMap(billInfoModel)
         Category.setCategoryMap(billInfoModel)
         billInfoModel.remark = Bill.getRemark(billInfoModel, context)
@@ -251,12 +251,13 @@ class JsRoute(private val session: ApplicationCall, private val context: Context
         val task = Server.billProcessor.addTask(billInfoModel, context)
         task.await()
         billInfoModel.state = if (task.result == null) BillState.Wait2Edit else BillState.Edited
+        val parent = task.result
         val ignoreAsset = Db.get().settingDao().query(Setting.IGNORE_ASSET)?.value == "true"
         if (ignoreAsset && needUserAction) {
             needUserAction = false
         }
         Db.get().billInfoDao().update(billInfoModel)
-        return needUserAction
+        return Pair(parent, needUserAction)
     }
 
     /**
@@ -264,13 +265,17 @@ class JsRoute(private val session: ApplicationCall, private val context: Context
      * 决定是否弹出提示或执行其他与用户相关的操作。
      * @param billInfoModel 账单信息模型
      */
-    private suspend fun handleUserNotification(billInfoModel: BillInfoModel, userAction: Boolean) {
+    private suspend fun handleUserNotification(
+        billInfoModel: BillInfoModel,
+        parent: BillInfoModel?,
+        userAction: Boolean
+    ) {
         if (!billInfoModel.auto) {
             val showInLandScape =
                 Db.get().settingDao().query(Setting.LANDSCAPE_DND)?.value != "false"
             withContext(Dispatchers.Main) {
                 runCatching {
-                    startAutoPanel(billInfoModel, null, showInLandScape)
+                    startAutoPanel(billInfoModel, parent, showInLandScape)
                 }
             }
         } else {
