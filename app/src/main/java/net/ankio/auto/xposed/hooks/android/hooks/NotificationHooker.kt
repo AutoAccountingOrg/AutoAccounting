@@ -21,7 +21,7 @@ import com.google.gson.JsonObject
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.utils.AppRuntime
-import net.ankio.auto.xposed.core.utils.MD5HashTable
+import org.ezbook.server.tools.MD5HashTable
 import net.ankio.auto.xposed.core.utils.ThreadUtils
 import org.ezbook.server.constant.DataType
 import org.ezbook.server.constant.DefaultData

@@ -52,10 +52,17 @@ import org.ezbook.server.tools.Assets
 import org.ezbook.server.tools.Bill
 import org.ezbook.server.tools.Category
 import org.ezbook.server.tools.FloatingIntent
+import org.ezbook.server.tools.MD5HashTable
 
 
 class JsRoute(private val session: ApplicationCall, private val context: Context) {
     private val params: Parameters = session.request.queryParameters
+
+    companion object {
+        val hashMap = MD5HashTable()
+    }
+
+
 
     /**
      * 主函数，负责账单分析的整体流程。
@@ -70,6 +77,13 @@ class JsRoute(private val session: ApplicationCall, private val context: Context
         val ai = params["ai"] == "true"
         val data = session.receiveText()
 
+        if (!fromAppData) {
+            val hash = MD5HashTable.md5("${app},${type},${data}")
+            if (hashMap.contains(hash)) {
+                return ResultModel(200, "OK", null)
+            }
+            hashMap.add(hash)
+        }
         // 解析字符串为枚举类型 DataType
         val dataType: DataType =
             parseDataType(type) ?: return ResultModel(400, "Type exception: $type")

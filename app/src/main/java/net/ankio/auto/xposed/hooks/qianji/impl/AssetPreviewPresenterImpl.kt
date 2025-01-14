@@ -22,7 +22,7 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.core.utils.DataUtils
-import net.ankio.auto.xposed.core.utils.MD5HashTable
+import org.ezbook.server.tools.MD5HashTable
 import net.ankio.auto.xposed.core.utils.MessageUtils
 import net.ankio.auto.xposed.hooks.qianji.models.AssetAccount
 import net.ankio.auto.xposed.hooks.qianji.tools.QianJiAssetType
