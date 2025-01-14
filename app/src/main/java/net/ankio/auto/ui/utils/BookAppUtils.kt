@@ -65,6 +65,7 @@ object BookAppUtils {
                 setClassName(packageName, activityName) // 设置目标应用和目标 Activity
                 putExtra("from", BuildConfig.APPLICATION_ID) // 添加额外参数
                 putExtra("action", action.name) // 传递 action
+                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP) // 清除栈顶
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) // 确保在新任务栈中启动
             }
             app.startActivity(intent)

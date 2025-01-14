@@ -132,7 +132,7 @@ class AutoHooker : PartHooker() {
                 }
                 // 跳过原始方法执行
 
-                XposedHelpers.callMethod(it.thisObject, "finish")
+                XposedHelpers.callMethod(it.thisObject, "finishAffinity")
             }
         }
     }
