@@ -63,7 +63,6 @@ class JsRoute(private val session: ApplicationCall, private val context: Context
     }
 
 
-
     /**
      * 主函数，负责账单分析的整体流程。
      * 包括接收参数、数据解析、分析、分类处理以及最终结果的返回。
@@ -285,8 +284,9 @@ class JsRoute(private val session: ApplicationCall, private val context: Context
         userAction: Boolean
     ) {
         if (!billInfoModel.auto) {
-            val showInLandScape =
-                Db.get().settingDao().query(Setting.LANDSCAPE_DND)?.value != "false"
+            val landscapeDnd =
+                Db.get().settingDao().query(Setting.LANDSCAPE_DND)?.value != "true"
+            val showInLandScape = !landscapeDnd
             withContext(Dispatchers.Main) {
                 runCatching {
                     startAutoPanel(billInfoModel, parent, showInLandScape)
