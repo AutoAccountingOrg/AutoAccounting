@@ -42,7 +42,7 @@ object ServerInfo {
         NotificationService.checkPermission()
     }
 
-    private suspend fun checkServer(context: Context) {
+    private suspend fun checkServer(context: Context) = withContext(Dispatchers.IO) {
         val data = Server.request("/", "", true)
         if (data === null){
             throw ServiceCheckException(

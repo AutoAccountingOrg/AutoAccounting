@@ -30,7 +30,9 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.elevation.SurfaceColors
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
@@ -148,7 +150,9 @@ class HomeFragment : BaseFragment() {
             }.onFailure { e ->
                 if (e is ServiceCheckException) {
                     if (isUiReady()) {
-                        showServiceErrorDialog(e)
+                        withContext(Dispatchers.Main) {
+                            showServiceErrorDialog(e)
+                        }
                     } else {
                         Logger.e("Error in check service", e)
                     }

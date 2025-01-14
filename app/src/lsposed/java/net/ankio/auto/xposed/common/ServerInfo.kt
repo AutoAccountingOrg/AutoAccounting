@@ -34,7 +34,7 @@ object ServerInfo {
         checkServer(context)
     }
 
-private suspend fun checkServer(context: Context) {
+    private suspend fun checkServer(context: Context) = withContext(Dispatchers.IO) {
     val data = Server.request("/", "", true)
     if (data === null){
         throw ServiceCheckException(
