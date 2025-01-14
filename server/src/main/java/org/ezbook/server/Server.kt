@@ -82,34 +82,48 @@ class Server(private val context: Context) {
         /**
          * 发送请求
          */
-        suspend fun request(path: String, json: String = ""): String? =
+        suspend fun request(path: String, json: String = "", retry: Boolean = false): String? =
             withContext(Dispatchers.IO) {
-                runCatching {
-                    val uri = "http://127.0.0.1:52045/$path"
-                    val client = OkHttpClient.Builder()
-                        .readTimeout(60, TimeUnit.SECONDS)
-                        .proxy(Proxy.NO_PROXY)
-                        .build()
+                val startTime = System.currentTimeMillis()
+                var lastError: Throwable? = null
 
-                    val body: RequestBody =
-                        json.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
+                while (true) {
+                    runCatching {
+                        val uri = "http://127.0.0.1:52045/$path"
+                        val client = OkHttpClient.Builder()
+                            .readTimeout(60, TimeUnit.SECONDS)
+                            .proxy(Proxy.NO_PROXY)
+                            .build()
 
-                    val request = Request.Builder()
-                        .url(uri)
-                        .post(body)
-                        .addHeader("Content-Type", "application/json")
-                        .build()
+                        val body: RequestBody =
+                            json.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
 
-                    client.newCall(request).execute().use { response ->
-                        if (!response.isSuccessful) throw Exception("Unexpected code $response")
-                        response.body?.string()
+                        val request = Request.Builder()
+                            .url(uri)
+                            .post(body)
+                            .addHeader("Content-Type", "application/json")
+                            .build()
+
+                        client.newCall(request).execute().use { response ->
+                            if (!response.isSuccessful) throw Exception("Unexpected code $response")
+                            return@withContext response.body?.string()
+                        }
+                    }.onFailure {
+                        lastError = it
+                        if (it !is ConnectException) {
+                            it.printStackTrace()
+                        }
+                        log("请求失败: ${it.message}")
                     }
-                }.onFailure {
-                    if (it !is ConnectException) {
-                        it.printStackTrace()
+
+                    if (!retry || System.currentTimeMillis() - startTime > 10000) {
+                        break
                     }
-                    log("请求失败: ${it.message}")
-                }.getOrNull()
+                    delay(1000)  // 等待1秒后重试
+                }
+
+                lastError?.let { throw it }
+                null  // 如果重试结束仍然失败，则返回null
             }
 
         private const val TAG = "AutoServer"

@@ -35,7 +35,7 @@ object ServerInfo {
     }
 
 private suspend fun checkServer(context: Context) {
-    val data = Server.request("/");
+    val data = Server.request("/", "", true)
     if (data === null){
         throw ServiceCheckException(
             context.getString(R.string.server_error_title),
