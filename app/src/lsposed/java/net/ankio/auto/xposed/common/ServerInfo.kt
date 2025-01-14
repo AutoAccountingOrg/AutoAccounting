@@ -16,9 +16,6 @@
 package net.ankio.auto.xposed.common
 
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
-import android.provider.Settings
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
@@ -35,7 +32,7 @@ object ServerInfo {
     }
 
     private suspend fun checkServer(context: Context) = withContext(Dispatchers.IO) {
-    val data = Server.request("/", "", true)
+        val data = Server.request("/", "")
     if (data === null){
         throw ServiceCheckException(
             context.getString(R.string.server_error_title),

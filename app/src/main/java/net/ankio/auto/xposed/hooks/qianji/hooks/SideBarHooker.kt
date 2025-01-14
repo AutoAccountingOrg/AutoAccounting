@@ -46,7 +46,6 @@ import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.constant.SyncType
 import org.ezbook.server.db.model.BillInfoModel
-import org.ezbook.server.db.model.SettingModel
 
 
 class SideBarHooker : PartHooker() {
