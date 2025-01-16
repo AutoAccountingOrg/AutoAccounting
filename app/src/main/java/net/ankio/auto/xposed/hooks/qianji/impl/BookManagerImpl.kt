@@ -102,7 +102,7 @@ object BookManagerImpl {
                 val book = Book.fromObject(it)
                 bookList.add(BookNameModel().apply {
                     name = book.getName()
-                    icon = book.getCover()
+                    icon = book.getCover() ?: ""
                     remoteId = book.getBookId().toString()
                 })
             }

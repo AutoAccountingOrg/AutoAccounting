@@ -104,11 +104,11 @@ class Book {
     /**
      * 获取封面
      */
-    fun getCover(): String {
+    fun getCover(): String? {
         return XposedHelpers.callMethod(
             bookObj,
             "getCover"
-        ) as String
+        ) as String?
     }
 
     /**
