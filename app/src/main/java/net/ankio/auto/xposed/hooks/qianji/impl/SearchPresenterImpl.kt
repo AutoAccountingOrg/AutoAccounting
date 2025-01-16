@@ -163,7 +163,11 @@ object SearchPresenterImpl {
         // 报销账单
         val bxList =
             withContext(Dispatchers.Main) {
-                getLast10DayLists()
+                runCatching {
+                    getLast10DayLists()
+                }.onFailure {
+                    AppRuntime.logE(it)
+                }.getOrDefault(emptyList<Any>())
             }
 
         val bills = convert2Bill(bxList, Setting.HASH_BILL)
