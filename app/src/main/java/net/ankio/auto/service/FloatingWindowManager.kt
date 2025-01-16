@@ -45,6 +45,7 @@ import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.tools.FloatingIntent
 import java.util.Locale
+import kotlinx.coroutines.Job
 
 /**
  * 浮动窗口管理器，负责处理和管理浮动窗口的显示和操作。
@@ -107,7 +108,9 @@ class FloatingWindowManager(
     private fun killProcess() {
         App.launch(Dispatchers.Main) {
             floatingQueue.shutdown()
+            removeTip()
         }
+
     }
 
     /**
@@ -119,7 +122,9 @@ class FloatingWindowManager(
     private fun stopProcess() {
         App.launch(Dispatchers.Main) {
             floatingQueue.processStop()
+            removeTip()
         }
+
     }
 
     /**
@@ -191,7 +196,7 @@ class FloatingWindowManager(
     fun removeTip() {
         if (tipBinding.root.isAttachedToWindow) {
             runCatching {
-                windowManager.removeView(tipBinding.root)
+                windowManager.removeViewImmediate(tipBinding.root)
             }.onFailure {
                 Logger.w("Failed to remove view ${it.message}")
             }
