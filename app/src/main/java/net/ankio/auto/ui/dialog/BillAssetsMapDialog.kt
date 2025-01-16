@@ -48,7 +48,10 @@ class BillAssetsMapDialog(
     override fun onViewCreated(view: View) {
         super.onViewCreated(view)
         items.forEach {
-            it.mapName = AssetsUtils.getAssetsByAlgorithm(assetsItems, it.name)
+            val map = AssetsUtils.getAssetsByAlgorithm(assetsItems, it.name)
+            if (map != it.mapName) {
+                it.mapName = map
+            }
         }
 
         val adapter = BillAssetsMapAdapter(context)
@@ -67,13 +70,18 @@ class BillAssetsMapDialog(
         binding.buttonSure.setOnClickListener {
             lifecycleScope.launch {
                 if (!validateAndSaveMapping()) return@launch
-                onClose(items)
+
                 dismiss()
             }
         }
         binding.buttonCancel.setOnClickListener {
             dismiss()
         }
+    }
+
+    override fun dismiss() {
+        super.dismiss()
+        onClose(items)
     }
 
 

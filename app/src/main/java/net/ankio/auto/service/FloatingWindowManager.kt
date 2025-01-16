@@ -328,6 +328,7 @@ class FloatingWindowManager(
      * @param billInfoModel 账单信息模型，包含需要编辑或处理的账单信息。
      */
     private fun callBillInfoEditor(key: String, billInfoModel: BillInfoModel) {
+        Logger.d("CallBillInfoEditor: $key, $billInfoModel")
         App.launch(Dispatchers.Main) {
             AssetsUtils.setMapAssets(themedContext, true, billInfoModel) {
                 if (billInfoModel.auto) {
