@@ -115,9 +115,12 @@ object Bill {
      * 合并账户信息
      */
     private fun mergeAccountInfo(source: BillInfoModel, target: BillInfoModel) {
+        val isTransfer = source.type == BillType.Transfer
         // 只在目标账户为空时合并
-        if (target.accountNameFrom.isEmpty() && source.accountNameFrom.isNotEmpty()) {
-            target.accountNameFrom = source.accountNameFrom
+        if (source.accountNameFrom.isNotEmpty()) {
+            if (isTransfer || target.accountNameFrom.isEmpty()) {
+                target.accountNameFrom = source.accountNameFrom
+            }
         }
         if (target.accountNameTo.isEmpty() && source.accountNameTo.isNotEmpty()) {
             target.accountNameTo = source.accountNameTo
