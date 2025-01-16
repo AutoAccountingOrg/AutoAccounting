@@ -78,7 +78,7 @@ object Assets {
         }
 
         // 处理空映射或不存在的映射
-        return handleEmptyMapping(accountName) ?: insertEmptyMapping(accountName)
+        return handleEmptyMapping(accountName) ?: insertEmptyMapping(accountName, mapName)
     }
 
     private suspend fun handleEmptyMapping(accountName: String): String? {
@@ -86,7 +86,8 @@ object Assets {
         return list.firstOrNull { it.regex && accountName.contains(it.name) }?.mapName
     }
 
-    private suspend fun insertEmptyMapping(accountName: String): String? {
+    private suspend fun insertEmptyMapping(accountName: String, mapName: AssetsMapModel?): String? {
+        if (mapName != null) return null
         Db.get().assetsMapDao().insert(AssetsMapModel().apply {
             name = accountName
             this.mapName = ""
