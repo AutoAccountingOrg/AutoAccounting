@@ -444,6 +444,7 @@ class HomeFragment : BaseFragment() {
     }
 
     private fun bindDonateUI() {
+        if (!isUiReady()) return
         val donateTime = ConfigUtils.getLong(Setting.DONATE_TIME, 0)
         val now = System.currentTimeMillis()
 
@@ -459,6 +460,7 @@ class HomeFragment : BaseFragment() {
      * 绑定记账软件数据部分的UI
      */
     private fun bindBookAppUI() {
+        if (!isUiReady()) return
         binding.book.visibility =
             if (ConfigUtils.getBoolean(
                     Setting.SETTING_BOOK_MANAGER,
@@ -526,7 +528,7 @@ class HomeFragment : BaseFragment() {
      * 绑定规则部分的UI
      */
     private fun bindRuleUI() {
-        // if (!isUiReady()) return
+        if (!isUiReady()) return
         lifecycleScope.launch {
             SettingModel.get(Setting.RULE_VERSION, "None").let {
                 if (!isUiReady()) return@launch
