@@ -71,7 +71,16 @@ class LogAdapter :
             appName
         }
 
-        binding.log.text = data.message
+        val maxLength = 1024
+        val message = data.message
+        val displayedMessage = if (message.codePointCount(0, message.length) > maxLength) {
+            val cutPoint = message.offsetByCodePoints(0, maxLength)
+            message.substring(0, cutPoint) + "..."
+        } else {
+            message
+        }
+
+        binding.log.text = displayedMessage
 
         // 使用映射获取颜色
         val colorResId = LOG_LEVEL_COLORS[data.level] ?: R.color.log_info
