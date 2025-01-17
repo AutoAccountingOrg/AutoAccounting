@@ -39,17 +39,20 @@ import net.ankio.auto.ui.utils.BookAppUtils
 import net.ankio.auto.ui.utils.viewBinding
 import net.ankio.auto.utils.DateUtils
 import net.ankio.auto.xposed.core.utils.DataUtils
+import org.ezbook.server.constant.BillState
+import org.ezbook.server.constant.DataType
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
+import org.ezbook.server.constant.SyncType
 import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.db.model.SettingModel
 
 
 open class OrderFragment : BasePageFragment<OrderGroup>() {
     override val binding: FragmentBillBinding by viewBinding(FragmentBillBinding::inflate)
-
+    var syncType = mutableListOf<String>()
     override suspend fun loadData(callback: (resultData: List<OrderGroup>) -> Unit) {
-        val list = BillInfoModel.list(page, pageSize)
+        val list = BillInfoModel.list(page, pageSize, syncType)
 
         val groupedData = list.groupBy {
             DateUtils.stampToDate(it.time, "yyyy-MM-dd")
@@ -108,6 +111,36 @@ open class OrderFragment : BasePageFragment<OrderGroup>() {
             }).showInFragment(this, false, true)
         }
         recyclerView.adapter = adapter
+
+
+        chipEvent()
+    }
+
+
+    private fun chipEvent() {
+        binding.chipGroup.isSingleSelection = false
+        binding.chipSynced.isChecked = true
+        binding.chipWaitEdit.isChecked = true
+        binding.chipWaitSync.isChecked = true
+        binding.chipGroup.setOnCheckedStateChangeListener { group, checkedId ->
+            syncType.clear()
+            checkedId.forEach {
+                when (it) {
+                    R.id.chip_synced -> {
+                        syncType.add(BillState.Synced.name)
+                    }
+
+                    R.id.chip_wait_edit -> {
+                        syncType.add(BillState.Wait2Edit.name)
+                    }
+
+                    R.id.chip_wait_sync -> {
+                        syncType.add(BillState.Edited.name)
+                    }
+                }
+            }
+            reload()
+        }
     }
 
     override fun onResume() {

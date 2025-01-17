@@ -33,8 +33,14 @@ class BillRoute(private val session: ApplicationCall) {
         //获取分页数据
         val page = params["page"]?.toInt() ?: 1
         val limit = params["limit"]?.toInt() ?: 10
+        val type = params["type"]?.split(", ") ?: listOf(
+            BillState.Edited.name,
+            BillState.Synced.name,
+            BillState.Wait2Edit.name
+        )
+        Server.logD("获取账单列表:$page $limit $type")
         val offset = (page - 1) * limit
-        val logs = Db.get().billInfoDao().loadPage(limit, offset)
+        val logs = Db.get().billInfoDao().loadPage(limit, offset, type)
         return ResultModel(200, "OK", logs)
     }
 

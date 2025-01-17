@@ -46,8 +46,8 @@ interface BillInfoDao {
     @Query("SELECT * FROM BillInfoModel WHERE state = 'Wait2Edit' and groupId = -1")
     suspend fun loadWaitEdit(): List<BillInfoModel>
 
-    @Query("SELECT * FROM BillInfoModel WHERE groupId=-1 ORDER BY time DESC LIMIT :limit OFFSET :offset")
-    suspend fun loadPage(limit: Int, offset: Int): List<BillInfoModel>
+    @Query("SELECT * FROM BillInfoModel WHERE groupId=-1 and state in(:state) ORDER BY time DESC LIMIT :limit OFFSET :offset")
+    suspend fun loadPage(limit: Int, offset: Int, state: List<String>): List<BillInfoModel>
 
     @Query("DELETE FROM BillInfoModel WHERE groupId = :groupId")
     suspend fun deleteGroup(groupId: Long)

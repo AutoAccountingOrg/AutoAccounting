@@ -174,9 +174,17 @@ class BillInfoModel {
         }
 
 
-        suspend fun list(page: Int, pageSize: Int): List<BillInfoModel> =
+        suspend fun list(page: Int, pageSize: Int, type: MutableList<String>): List<BillInfoModel> =
             withContext(Dispatchers.IO) {
-                val response = Server.request("bill/list?page=$page&limit=$pageSize")
+                val typeName = listOf(
+                    BillState.Edited.name,
+                    BillState.Synced.name,
+                    BillState.Wait2Edit.name
+                ).joinToString()
+                val syncType = if (type.isNotEmpty()) type.joinToString() else typeName
+
+                val response =
+                    Server.request("bill/list?page=$page&limit=$pageSize&type=${syncType}")
 
                 runCatching {
                     val json = Gson().fromJson(response, JsonObject::class.java)

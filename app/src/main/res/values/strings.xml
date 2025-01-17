@@ -418,6 +418,9 @@
     <string name="setting_bill_asset">资产</string>
     <string name="setting_bill_ignore_asset">忽略资产错误</string>
     <string name="setting_bill_ignore_asset_desc">该功能谨慎开启，当识别到的资产不在资产列表的时候直接忽略当前资产。</string>
+    <string name="item_wait_sync">待同步</string>
+    <string name="item_wait_edit">待编辑</string>
+    <string name="item_synced">已同步</string>
 
 
 </resources>
