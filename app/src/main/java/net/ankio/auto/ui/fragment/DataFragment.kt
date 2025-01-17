@@ -139,6 +139,9 @@ class DataFragment : BasePageFragment<AppDataModel>(), Toolbar.OnMenuItemClickLi
 ## 数据链接                        
 [数据过期时间：${timeout}](${url})
 ## 其他信息
+<!------ 
+ 1. 您可以在下面添加说明信息。
+ ------>  
 
                 """.trimIndent()
                     } else {
