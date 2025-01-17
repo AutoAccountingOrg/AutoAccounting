@@ -148,6 +148,7 @@ class FloatEditorDialog(
     
         return billInfoModel.copy().apply {
             this.type = billTypeLevel2
+            this.extendData = selectedBills.joinToString()
             val accountFrom = when (billTypeLevel2) {
                 BillType.Expend, BillType.Income, BillType.ExpendReimbursement, BillType.IncomeRefund, BillType.IncomeReimbursement -> binding.payFrom.getText()
                     .toString()
