@@ -35,6 +35,7 @@ import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.componets.IconView
+import net.ankio.auto.ui.utils.AssetsUtils
 import net.ankio.auto.ui.utils.BookAppUtils
 import net.ankio.auto.ui.utils.ListPopupUtils
 import net.ankio.auto.ui.utils.ResourceUtils
@@ -116,221 +117,68 @@ class FloatEditorDialog(
 
     }
 
-    // 综合以上内容，应用到billInfo对象上
 
-    private fun getBillData(assets: List<AssetsModel>): BillInfoModel {
-        val assetManager =
-            ConfigUtils.getBoolean(Setting.SETTING_ASSET_MANAGER, DefaultData.SETTING_ASSET_MANAGER)
-        Logger.d("Get Bill Data, type=> $billTypeLevel2, type1=> $billTypeLevel1")
-        val ignoreAsset = ConfigUtils.getBoolean(
-            Setting.IGNORE_ASSET,
-            DefaultData.IGNORE_ASSET
-        )
-
-        return billInfoModel.copy().apply {
-            this.type = billTypeLevel2
-            when (billTypeLevel2) {
-                BillType.Expend -> {
-                    this.accountNameFrom = binding.payFrom.getText()
-                    this.accountNameTo = ""
-                    if (assetManager && !ignoreAsset) {
-                        if (this.accountNameFrom.isEmpty()) {
-                            throw BillException(context.getString(R.string.expend_account_empty))
-                        }
-
-                        if (assets.find { it.name == this.accountNameFrom } == null) {
-                            throw BillException(
-                                context.getString(
-                                    R.string.expend_account_not_exist,
-                                    this.accountNameFrom
-                                )
-                            )
-                        }
-                    }
-
-                }
-
-                BillType.Income -> {
-                    this.accountNameFrom = binding.payFrom.getText()
-                    this.accountNameTo = ""
-                    if (assetManager && !ignoreAsset) {
-                        if (this.accountNameFrom.isEmpty()) {
-                            throw BillException(context.getString(R.string.income_account_empty))
-                        }
-                        if (assets.find { it.name == this.accountNameFrom } == null) {
-                            throw BillException(
-                                context.getString(
-                                    R.string.expend_account_not_exist,
-                                    this.accountNameFrom
-                                )
-                            )
-                        }
-                    }
-
-                }
-
-                BillType.Transfer -> {
-                    this.accountNameFrom = binding.transferFrom.getText()
-                    this.accountNameTo = binding.transferTo.getText()
-                    if (assetManager && !ignoreAsset) {
-                        if (this.accountNameFrom.isEmpty()) {
-                            throw BillException(context.getString(R.string.transfer_from_empty))
-                        }
-                        if (this.accountNameTo.isEmpty()) {
-                            throw BillException(context.getString(R.string.transfer_to_empty))
-                        }
-
-                        if (this.accountNameFrom == this.accountNameTo) {
-                            throw BillException(context.getString(R.string.transfer_same_account))
-                        }
-
-                        if (assets.find { it.name == this.accountNameFrom } == null) {
-                            throw BillException(
-                                context.getString(
-                                    R.string.expend_account_not_exist,
-                                    this.accountNameFrom
-                                )
-                            )
-                        }
-
-                        if (assets.find { it.name == this.accountNameTo } == null) {
-                            throw BillException(
-                                context.getString(
-                                    R.string.expend_account_not_exist,
-                                    this.accountNameTo
-                                )
-                            )
-                        }
-
-                    }
-                }
-
-                BillType.ExpendReimbursement -> {
-                    this.accountNameFrom = binding.payFrom.getText()
-                    this.accountNameTo = ""
-                    if (assetManager && !ignoreAsset) {
-                        if (this.accountNameFrom.isEmpty()) {
-                            throw BillException(context.getString(R.string.reimbursement_account_empty))
-                        }
-                        if (assets.find { it.name == this.accountNameFrom } == null) {
-                            throw BillException(
-                                context.getString(
-                                    R.string.expend_account_not_exist,
-                                    this.accountNameFrom
-                                )
-                            )
-                        }
-
-                    }
-
-                }
-                BillType.IncomeRefund -> {
-                    this.accountNameFrom = binding.payFrom.getText()
-                    this.extendData = selectedBills.joinToString { it }
-                    if (selectedBills.isEmpty()) {
-                        throw BillException(context.getString(R.string.refund_bill_empty))
-                    }
-                    if (assetManager && !ignoreAsset) {
-                        if (this.accountNameFrom.isEmpty()) {
-                            throw BillException(context.getString(R.string.refund_income_account_empty))
-                        }
-
-                        if (assets.find { it.name == this.accountNameFrom } == null) {
-                            throw BillException(
-                                context.getString(
-                                    R.string.expend_account_not_exist,
-                                    this.accountNameFrom
-                                )
-                            )
-                        }
-
-                    }
-
-                }
-
-
-                BillType.IncomeReimbursement -> {
-                    this.accountNameFrom = binding.payFrom.getText()
-                    this.extendData = selectedBills.joinToString { it }
-                    if (selectedBills.isEmpty()) {
-                        throw BillException(context.getString(R.string.reimbursement_bill_empty))
-                    }
-                    if (assetManager && !ignoreAsset) {
-                        if (this.accountNameFrom.isEmpty()) {
-                            throw BillException(context.getString(R.string.reimbursement_income_account_empty))
-                        }
-
-                        if (assets.find { it.name == this.accountNameFrom } == null) {
-                            throw BillException(
-                                context.getString(
-                                    R.string.expend_account_not_exist,
-                                    this.accountNameFrom
-                                )
-                            )
-                        }
-
-                    }
-
-                }
-                // 借出,还款
-                BillType.ExpendLending, BillType.ExpendRepayment -> {
-                    this.accountNameFrom = binding.debtExpendFrom.getText()
-                    this.accountNameTo = binding.debtExpendTo.getText().toString()
-                    if (assetManager && !ignoreAsset) {
-                        if (this.accountNameFrom.isEmpty()) {
-                            throw BillException(
-                                if (BillType.ExpendLending == billTypeLevel2) context.getString(R.string.expend_debt_empty) else context.getString(
-                                    R.string.repayment_account_empty
-                                )
-                            )
-                        }
-                        if (this.accountNameTo.isEmpty()) {
-                            throw BillException(
-                                if (BillType.ExpendLending == billTypeLevel2) context.getString(R.string.debt_account_empty) else context.getString(
-                                    R.string.repayment_account2_empty
-                                )
-                            )
-                        }
-                        if (this.accountNameFrom == this.accountNameTo) {
-                            throw BillException(context.getString(R.string.lending_same_account))
-                        }
-
-
-                    }
-
-                }
-
-                // 借入,收款
-                BillType.IncomeLending, BillType.IncomeRepayment -> {
-                    this.accountNameFrom = binding.debtIncomeFrom.getText().toString()
-                    this.accountNameTo = binding.debtIncomeTo.getText()
-                    if (assetManager && !ignoreAsset) {
-                        if (this.accountNameFrom.isEmpty()) {
-                            throw BillException(
-                                if (BillType.IncomeLending == billTypeLevel2) context.getString(R.string.income_debt_empty) else context.getString(
-                                    R.string.income_lending_account_empty
-                                )
-                            )
-                        }
-                        if (this.accountNameTo.isEmpty()) {
-                            throw BillException(
-                                if (BillType.IncomeLending == billTypeLevel2) context.getString(R.string.income_lending_account2_empty) else context.getString(
-                                    R.string.income_repayment_account_empty
-                                )
-                            )
-                        }
-                        if (this.accountNameFrom == this.accountNameTo) {
-                            throw BillException(context.getString(R.string.lending_same_account))
-                        }
-
-                    }
-
-                }
+    private suspend fun ensureAccountExists(
+        accountName: String,
+        assets: List<AssetsModel>,
+        context: Context,
+        billInfoModel: BillInfoModel,
+        from: Boolean
+    ) {
+        if (assets.none { it.name == accountName }) {
+            AssetsUtils.setMapAssets(billInfoModel)
+            val account = if (from) billInfoModel.accountNameFrom else billInfoModel.accountNameTo
+            if (assets.none { it.name == account }) {
+                throw BillException(context.getString(R.string.expend_account_not_exist, account))
             }
-            this.remark = binding.remark.text.toString()
         }
     }
 
+    private fun checkAccountNotEmpty(accountName: String, errorMessage: String) {
+        if (accountName.isEmpty()) {
+            throw BillException(errorMessage)
+        }
+    }
+    // 综合以上内容，应用到billInfo对象上
+
+    private suspend fun getBillData(assets: List<AssetsModel>): BillInfoModel {
+        val assetManager =
+            ConfigUtils.getBoolean(Setting.SETTING_ASSET_MANAGER, DefaultData.SETTING_ASSET_MANAGER)
+        val ignoreAsset = ConfigUtils.getBoolean(Setting.IGNORE_ASSET, DefaultData.IGNORE_ASSET)
+    
+        return billInfoModel.copy().apply {
+            this.type = billTypeLevel2
+            val accountFrom = when (billTypeLevel2) {
+                BillType.Expend, BillType.Income, BillType.ExpendReimbursement, BillType.IncomeRefund, BillType.IncomeReimbursement -> binding.payFrom.getText()
+                    .toString()
+
+                BillType.Transfer -> binding.transferFrom.getText().toString()
+                BillType.ExpendLending, BillType.ExpendRepayment, BillType.IncomeLending, BillType.IncomeRepayment -> binding.debtExpendFrom.getText()
+                    .toString()
+
+                else -> ""
+            }
+            val accountTo = when (billTypeLevel2) {
+                BillType.Transfer -> binding.transferTo.getText().toString()
+                BillType.ExpendLending, BillType.ExpendRepayment, BillType.IncomeLending, BillType.IncomeRepayment -> binding.debtExpendTo.getText()
+                    .toString()
+
+                else -> ""
+            }
+            this.accountNameFrom = accountFrom
+            this.accountNameTo = accountTo
+            if (assetManager && !ignoreAsset) {
+                checkAccountNotEmpty(accountFrom, context.getString(R.string.expend_account_empty))
+                ensureAccountExists(accountFrom, assets, context, this@apply, true)
+                if (accountTo.isNotEmpty()) {
+                    ensureAccountExists(accountTo, assets, context, this@apply, false)
+                }
+            }
+    
+
+            this.remark = binding.remark.text.toString()
+        }
+    }
 
     private fun bindingButtonsEvents() {
         // 关闭按钮

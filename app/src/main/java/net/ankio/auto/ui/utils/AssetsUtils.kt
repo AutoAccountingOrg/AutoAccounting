@@ -24,6 +24,7 @@ import net.ankio.auto.ui.dialog.BillAssetsMapDialog
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
+import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.AssetsMapModel
 import org.ezbook.server.db.model.AssetsModel
 import org.ezbook.server.db.model.BillInfoModel
@@ -164,7 +165,11 @@ object AssetsUtils {
             .trim()
     }
 
-
+    private suspend fun handleEmptyMapping(accountName: String): String? {
+        val list = AssetsMapModel.list(1, 10000)
+        Logger.d("handleEmptyMapping: $accountName, list: $list")
+        return list.firstOrNull { it.regex && accountName.contains(it.name) }?.mapName
+    }
     /**
      * 获取需要映射的资产
      */
@@ -181,13 +186,20 @@ object AssetsUtils {
         if (billInfoModel.accountNameFrom.isNotEmpty()) {
             val mapName = AssetsMapModel.getByName(billInfoModel.accountNameFrom)
             val assetName = AssetsModel.getByName(billInfoModel.accountNameFrom)
+
+            Logger.d("setMapAssets: $billInfoModel, mapName: $mapName, assetName: $assetName")
             if (assetName == null) {
                 if (mapName == null) {
                     if (!listOf(BillType.IncomeLending, BillType.IncomeRepayment).contains(
                             billInfoModel.type
                         )
                     ) {
-                        assets.add(billInfoModel.accountNameFrom)
+                        val mapNameStr = handleEmptyMapping(billInfoModel.accountNameFrom)
+                        if (mapNameStr != null) {
+                            billInfoModel.accountNameFrom = mapNameStr
+                        } else {
+                            assets.add(billInfoModel.accountNameFrom)
+                        }
                     }
                 } else {
                     billInfoModel.accountNameFrom = mapName.mapName
@@ -199,13 +211,19 @@ object AssetsUtils {
         if (billInfoModel.accountNameTo.isNotEmpty()) {
             val mapName = AssetsMapModel.getByName(billInfoModel.accountNameTo)
             val assetName = AssetsModel.getByName(billInfoModel.accountNameTo)
+            Logger.d("setMapAssets: $billInfoModel, mapName: $mapName, assetName: $assetName")
             if (assetName == null) {
                 if (mapName == null) {
                     if (!listOf(BillType.ExpendLending, BillType.ExpendRepayment).contains(
                             billInfoModel.type
                         )
                     ) {
-                        assets.add(billInfoModel.accountNameTo)
+                        val mapNameStr = handleEmptyMapping(billInfoModel.accountNameTo)
+                        if (mapNameStr != null) {
+                            billInfoModel.accountNameTo = mapNameStr
+                        } else {
+                            assets.add(billInfoModel.accountNameTo)
+                        }
                     }
                 } else {
                     billInfoModel.accountNameTo = mapName.mapName
