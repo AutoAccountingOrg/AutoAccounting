@@ -285,11 +285,11 @@ class JsRoute(private val session: ApplicationCall, private val context: Context
         userAction: Boolean
     ) {
         if (!billInfoModel.auto) {
-            val showInLandScape =
+            val dnd =
                 Db.get().settingDao().query(Setting.LANDSCAPE_DND)?.value != "false"
             withContext(Dispatchers.Main) {
                 runCatching {
-                    startAutoPanel(billInfoModel, parent, showInLandScape)
+                    startAutoPanel(billInfoModel, parent, dnd)
                 }
             }
         } else {
@@ -540,15 +540,17 @@ class JsRoute(private val session: ApplicationCall, private val context: Context
      * 启动自动记账面板
      * @param billInfoModel 账单信息模型
      * @param parent 父账单信息
-     * @param showInLandScape 是否在横屏状态下显示
+     * @param dnd 横屏勿扰
      */
     private suspend fun startAutoPanel(
         billInfoModel: BillInfoModel,
         parent: BillInfoModel?,
-        showInLandScape: Boolean = false
+        dnd: Boolean = false
     ) {
+        val isLandscape = isLandscapeMode()
+        Server.logD("横屏状态：$isLandscape, 是否横屏勿扰：$dnd")
         // 检查横屏状态并处理
-        if (isLandscapeMode() && !showInLandScape) {
+        if (isLandscapeMode() && dnd) {
             showToastForLandscapeMode(billInfoModel.money)
             return
         }
