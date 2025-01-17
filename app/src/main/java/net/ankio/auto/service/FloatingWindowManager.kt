@@ -308,6 +308,7 @@ class FloatingWindowManager(
         billInfoModel2.state = BillState.Edited
         App.launch {
             BillInfoModel.put(billInfoModel2)
+            BillTool.syncBills()
         }
         if (ConfigUtils.getBoolean(Setting.SHOW_SUCCESS_POPUP, DefaultData.SHOW_SUCCESS_POPUP)) {
             ToastUtils.info(
@@ -338,7 +339,9 @@ class FloatingWindowManager(
             AssetsUtils.setMapAssets(themedContext, true, billInfoModel) {
                 if (billInfoModel.auto) {
                     recordBillInfo(billInfoModel)
+
                     stopProcess()
+
                     return@setMapAssets
                 }
                 when (ConfigUtils.getInt(key, FloatEvent.POP_EDIT_WINDOW.ordinal)) {

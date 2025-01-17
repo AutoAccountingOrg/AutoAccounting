@@ -19,9 +19,13 @@ import androidx.core.content.ContextCompat
 import com.google.android.material.textview.MaterialTextView
 import net.ankio.auto.R
 import net.ankio.auto.storage.ConfigUtils
+import net.ankio.auto.storage.Logger
+import net.ankio.auto.ui.utils.BookAppUtils
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
+import org.ezbook.server.constant.SyncType
+import org.ezbook.server.db.model.BillInfoModel
 
 object BillTool {
 
@@ -83,5 +87,21 @@ object BillTool {
             return "$category1 - $category2"
         }
         return category2
+    }
+
+    suspend fun syncBills() {
+        val syncType = ConfigUtils.getString(Setting.SYNC_TYPE, DefaultData.SYNC_TYPE)
+        Logger.d("Sync Type => $syncType")
+        if (syncType != SyncType.WhenOpenApp.name) {
+            val bills = BillInfoModel.sync()
+            Logger.d("Sync Bills => $bills")
+            if (
+                (syncType == SyncType.BillsLimit10.name && bills.size >= 10) ||
+                (syncType == SyncType.BillsLimit5.name && bills.size >= 5) ||
+                (syncType == SyncType.BillsLimit1.name && bills.isNotEmpty())
+            ) {
+                BookAppUtils.syncData()
+            }
+        }
     }
 }

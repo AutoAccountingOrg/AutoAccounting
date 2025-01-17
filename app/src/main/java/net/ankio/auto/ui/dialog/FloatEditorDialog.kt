@@ -227,17 +227,7 @@ class FloatEditorDialog(
                         BillCategoryDialog(context, convertBillInfo).show(float, cancel = true)
                     }
 
-                    val syncType = ConfigUtils.getString(Setting.SYNC_TYPE, DefaultData.SYNC_TYPE)
-                    if (syncType != SyncType.WhenOpenApp.name) {
-                        val bills = BillInfoModel.sync()
-                        if (
-                            (syncType == SyncType.BillsLimit10.name && bills.size >= 10) ||
-                            (syncType == SyncType.BillsLimit5.name && bills.size >= 5) ||
-                            (syncType == SyncType.BillsLimit1.name && bills.isNotEmpty())
-                        ) {
-                            BookAppUtils.syncData()
-                        }
-                    }
+                    BillTool.syncBills()
 
                 }.onFailure {
                     Logger.e("Failed to record bill", it)
