@@ -550,7 +550,7 @@ class JsRoute(private val session: ApplicationCall, private val context: Context
         val isLandscape = isLandscapeMode()
         Server.logD("横屏状态：$isLandscape, 是否横屏勿扰：$dnd")
         // 检查横屏状态并处理
-        if (isLandscapeMode() && dnd) {
+        if (isLandscape && dnd) {
             showToastForLandscapeMode(billInfoModel.money)
             return
         }
