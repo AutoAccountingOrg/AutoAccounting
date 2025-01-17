@@ -110,6 +110,11 @@ open class OrderFragment : BasePageFragment<OrderGroup>() {
         recyclerView.adapter = adapter
     }
 
+    override fun onResume() {
+        super.onResume()
+        reload()
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

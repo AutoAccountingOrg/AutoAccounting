@@ -70,18 +70,21 @@ abstract class BasePageFragment<T> : BaseFragment() {
         }
     }
 
+    private var isLoading = false
     /**
      * 获取数据
      */
     protected open fun loadDataInside(callback: ((Boolean, Boolean) -> Unit)? = null) {
         // 没有附加到Activity上，不加载数据
-        if (activity == null || !isAdded) return
+        if (activity == null || !isAdded || isLoading) return
         if (page == 1) {
             resetPage()
         }
+        isLoading = true
         lifecycleScope.launch {
             withContext(Dispatchers.IO) {
                 loadData { resultData ->
+
                     if (resultData.isEmpty()) {
                         if (pageData.isEmpty()) {
                             lifecycleScope.launch {
@@ -89,6 +92,7 @@ abstract class BasePageFragment<T> : BaseFragment() {
                             }
                         }
                         callback?.invoke(true, false)
+                        isLoading = false
                         return@loadData
                     }
 
@@ -102,6 +106,7 @@ abstract class BasePageFragment<T> : BaseFragment() {
                     val total = page * pageSize
 
                     if (callback != null && isAdded) callback(true, total > pageData.size)
+                    isLoading = false
                 }
             }
         }
