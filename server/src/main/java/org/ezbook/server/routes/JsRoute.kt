@@ -216,26 +216,36 @@ class JsRoute(private val session: ApplicationCall, private val context: Context
      * @param billInfoModel 账单信息模型
      */
     private suspend fun categorizeBill(billInfoModel: BillInfoModel) {
-        if (billInfoModel.cateName.isEmpty() || billInfoModel.cateName == "其它" || billInfoModel.cateName == "其他") {
-            val time = android.text.format.DateFormat.format("HH:mm", billInfoModel.time).toString()
-            val categoryJS = RuleGenerator.category()
-            val win = JsonObject().apply {
-                addProperty("type", billInfoModel.type.name)
-                addProperty("money", billInfoModel.money)
-                addProperty("shopName", billInfoModel.shopName)
-                addProperty("shopItem", billInfoModel.shopItem)
-                addProperty("time", time)
+        if (!billInfoModel.needReCategory()) return;
+        val time = android.text.format.DateFormat.format("HH:mm", billInfoModel.time).toString()
+        val categoryJS = RuleGenerator.category()
+        val win = JsonObject().apply {
+            addProperty("type", billInfoModel.type.name)
+            addProperty("money", billInfoModel.money)
+            addProperty("shopName", billInfoModel.shopName)
+            addProperty("shopItem", billInfoModel.shopItem)
+            addProperty("ruleName", billInfoModel.ruleName)
+            addProperty("time", time)
+        }
+        val categoryResult = runCatching {
+            runJS(categoryJS, Gson().toJson(win))
+        }.getOrDefault("{ book: '默认账本', category: '其他' }")
+
+        val categoryJson = runCatching {
+            Gson().fromJson(categoryResult, JsonObject::class.java)
+        }.getOrNull()
+
+        billInfoModel.bookName = categoryJson?.get("book")?.asString ?: "默认账本"
+        billInfoModel.cateName = categoryJson?.get("category")?.asString ?: "其他"
+
+        // 如果分类结果为"其他"或"其它"，尝试使用AI进行分类
+        if (billInfoModel.needReCategory()) {
+            val useAi =
+                Db.get().settingDao().query(Setting.USE_AI_FOR_CATEGORIZATION)?.value == "true"
+            if (useAi) {
+                val aiCategory = requestAiCategory(billInfoModel)
+                billInfoModel.cateName = aiCategory
             }
-            val categoryResult = runCatching {
-                runJS(categoryJS, Gson().toJson(win))
-            }.getOrDefault("{ book: '默认账本', category: '其他' }")
-
-            val categoryJson = runCatching {
-                Gson().fromJson(categoryResult, JsonObject::class.java)
-            }.getOrNull()
-
-            billInfoModel.bookName = categoryJson?.get("book")?.asString ?: "默认账本"
-            billInfoModel.cateName = categoryJson?.get("category")?.asString ?: "其他"
         }
     }
 
@@ -358,16 +368,43 @@ class JsRoute(private val session: ApplicationCall, private val context: Context
     private suspend fun getAiModel(): String =
         Db.get().settingDao().query(Setting.AI_MODEL)?.value ?: AIModel.Gemini.name
 
+    private suspend fun requestAiCategory(billInfoModel: BillInfoModel): String {
+        val aiModel = getAiModel()
+        val json = Gson().toJson(
+            mapOf(
+                "shopName" to billInfoModel.shopName,
+                "shopItem" to billInfoModel.shopItem,
+            )
+        )
+        return when (aiModel) {
+            AIModel.Gemini.name -> Gemini().requestCategory(json) ?: "其他"
+            AIModel.QWen.name -> QWen().requestCategory(json) ?: "其他"
+            AIModel.DeepSeek.name -> DeepSeek().requestCategory(json) ?: "其他"
+            AIModel.ChatGPT.name -> ChatGPT().requestCategory(json) ?: "其他"
+            AIModel.OneAPI.name -> handleOneApiCategoryRequest(json)
+            else -> "其他"
+        }
+    }
+
+    private suspend fun handleOneApiCategoryRequest(json: String): String {
+        var uri = Db.get().settingDao().query(Setting.AI_ONE_API_URI)?.value.orEmpty()
+        if (!uri.contains("v1/chat/completions")) {
+            uri = "$uri/v1/chat/completions"
+        }
+        val model = Db.get().settingDao().query(Setting.AI_ONE_API_MODEL)?.value.orEmpty()
+        return OneAPI(uri, model).requestCategory(json) ?: "其他"
+    }
+
     /**
      * 请求AI模型解析数据
      */
     private suspend fun requestAiAnalysis(aiModel: String, data: String): BillInfoModel? =
         runCatching {
             when (aiModel) {
-                AIModel.Gemini.name -> Gemini().request(data)
-                AIModel.QWen.name -> QWen().request(data)
-                AIModel.DeepSeek.name -> DeepSeek().request(data)
-                AIModel.ChatGPT.name -> ChatGPT().request(data)
+                AIModel.Gemini.name -> Gemini().requestBill(data)
+                AIModel.QWen.name -> QWen().requestBill(data)
+                AIModel.DeepSeek.name -> DeepSeek().requestBill(data)
+                AIModel.ChatGPT.name -> ChatGPT().requestBill(data)
                 AIModel.OneAPI.name -> handleOneApiRequest(data)
                 else -> null
             }
@@ -384,7 +421,7 @@ class JsRoute(private val session: ApplicationCall, private val context: Context
             uri = "$uri/v1/chat/completions"
         }
         val model = Db.get().settingDao().query(Setting.AI_ONE_API_MODEL)?.value.orEmpty()
-        return OneAPI(uri, model).request(data)
+        return OneAPI(uri, model).requestBill(data)
     }
 
     /**

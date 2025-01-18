@@ -42,8 +42,7 @@ class Gemini : BaseAi() {
         set(value) {}
 
 
-    override suspend fun request(data: String): BillInfoModel? {
-        val (system, user) = getConversations(data)
+    override suspend fun request(data: String, system: String, user: String): String? {
         val url =
             "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=$apiKey"
 
@@ -91,7 +90,7 @@ class Gemini : BaseAi() {
                 val parts = content.getAsJsonArray("parts")
                 val text = parts[0].asJsonObject.get("text").asString.replace("```json", "")
                     .replace("```", "").trim()
-                Gson().fromJson(text, BillInfoModel::class.java)
+                text
             }.onFailure {
                 Server.log(it)
             }.getOrNull()

@@ -444,9 +444,17 @@ class SettingDetailFragment : BaseFragment() {
                 regex = "${Setting.USE_AI}=true",
                 title = R.string.setting_bill_ai,
                 key = Setting.AI_AUXILIARY,
-                icon = R.drawable.ic_ai,
+                icon = R.drawable.bottom_select_data,
                 subTitle = R.string.setting_bill_ai_desc,
                 default = DefaultData.AI_AUXILIARY,
+
+                ),
+            SettingItem.Switch(
+                regex = "${Setting.USE_AI}=true",
+                title = R.string.setting_category_ai,
+                key = Setting.USE_AI_FOR_CATEGORIZATION,
+                icon = R.drawable.setting2_icon_category,
+                default = DefaultData.USE_AI_FOR_CATEGORIZATION,
 
                 ),
             SettingItem.Select(

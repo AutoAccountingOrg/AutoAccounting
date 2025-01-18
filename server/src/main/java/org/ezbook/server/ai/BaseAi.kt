@@ -28,7 +28,9 @@ import org.ezbook.server.db.model.BillInfoModel
 import java.util.concurrent.TimeUnit
 
 abstract class BaseAi {
-    private val prompt = """
+
+
+    private val prompt_bill = """
 You are an AI assistant that extracts specific bill information from raw data. Your task is to identify and extract ONLY the exact transaction details present in the raw data.
 
 CRITICAL REQUIREMENT:
@@ -77,7 +79,7 @@ Output Example:
 }
 """".trimIndent()
 
-    val input = """
+    private val input_bill = """
 Input:
 - Raw Data: 
   ```
@@ -88,6 +90,38 @@ Input:
   {category}
   ```
     """.trimIndent()
+
+
+    private val prompt_category = """
+You are an AI assistant tasked with categorizing transactions based on the merchant name ('shopName') and the item purchased ('shopItem'). Use the provided Category JSON to determine the appropriate category for each transaction. Output the category directly without additional comments or explanations.
+
+Instructions:
+1. Read the 'shopName' and 'shopItem' from the input.
+2. Match these details against the provided Category JSON.
+3. Output the matching category name directly.
+
+Example Input:
+{
+    "shopName": "钱塘江超市",
+    "shopItem": "上好佳薯片"
+}
+
+Example Output:
+购物
+""".trimIndent()
+
+    private val input_category = """
+Input:
+- Raw Data: 
+  ```
+  {data}
+  ```
+- Category JSON:
+  ```json
+  {category}
+  ```
+    """.trimIndent()
+
 
     /**
      * API Key
@@ -114,23 +148,54 @@ Input:
      */
     abstract var createKeyUri: String
 
-    suspend fun getConversations(data: String): Pair<String, String> {
+    /**
+     * 生成账单信息识别的对话
+     * @param data 原始数据
+     * @return 系统提示和用户输入的对
+     */
+    suspend fun getBillConversation(data: String): Pair<String, String> {
+        apiKey = Db.get().settingDao().query("${Setting.API_KEY}_$name")?.value ?: ""
+        if (apiKey.isEmpty()) throw RuntimeException("api key is empty")
+        val category = Db.get().categoryDao().all().map {
+            Pair(it.name, it.type)
+        }
+        return Pair(
+            prompt_bill.replace("{time}", System.currentTimeMillis().toString()),
+            input_bill.replace("{data}", data).replace("{category}", Gson().toJson(category))
+        )
+    }
+
+    /**
+     * 生成分类任务的对话
+     * @param data 原始数据
+     * @return 系统提示和用户输入的对
+     */
+    suspend fun getCategoryConversation(data: String): Pair<String, String> {
         val category = Db.get().categoryDao().all().map {
             Pair(it.name, it.type)
         }
         apiKey = Db.get().settingDao().query("${Setting.API_KEY}_$name")?.value ?: ""
-
         if (apiKey.isEmpty()) throw RuntimeException("api key is empty")
 
         return Pair(
-            prompt.replace("{aiName}", name)
-                .replace("{time}", System.currentTimeMillis().toString()),
-            input.replace("{data}", data).replace("{category}", Gson().toJson(category))
+            prompt_category,
+            input_category.replace("{data}", data).replace("{category}", Gson().toJson(category))
         )
     }
 
-    open suspend fun request(data: String): BillInfoModel? {
-        val (system, user) = getConversations(data)
+
+    suspend fun requestBill(data: String): BillInfoModel? {
+        val (system, user) = getBillConversation(data)
+        val result = request(data, system, user)
+        return runCatching { Gson().fromJson(result, BillInfoModel::class.java) }.getOrNull()
+    }
+
+    suspend fun requestCategory(data: String): String? {
+        val (system, user) = getCategoryConversation(data)
+        return request(data, system, user)
+    }
+
+    open suspend fun request(data: String, system: String, user: String): String? {
         val url = api
         val client = OkHttpClient.Builder().readTimeout(60, TimeUnit.SECONDS).build()
 
@@ -178,7 +243,7 @@ Input:
                 val message = firstChoice.getAsJsonObject("message")
                 val content =
                     message.get("content").asString.replace("```json", "").replace("```", "").trim()
-                Gson().fromJson(content, BillInfoModel::class.java)
+                content
             }.onFailure {
                 Server.log(it)
             }.getOrNull()

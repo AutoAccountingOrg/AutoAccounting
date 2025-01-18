@@ -421,6 +421,7 @@
     <string name="item_wait_sync">待同步</string>
     <string name="item_wait_edit">待编辑</string>
     <string name="item_synced">已同步</string>
+    <string name="setting_category_ai">使用AI辅助分类</string>
 
 
 </resources>

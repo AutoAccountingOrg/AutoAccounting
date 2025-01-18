@@ -16,6 +16,7 @@
 package org.ezbook.server.constant
 
 object DefaultData {
+    val USE_AI_FOR_CATEGORIZATION: Boolean = false
     const val IGNORE_ASSET: Boolean = false
     const val PROACTIVELY_MODEL: Boolean = true
     const val BOOK_APP_ACTIVITY: String = "com.mutangtech.qianji.bill.auto.AddBillIntentAct"

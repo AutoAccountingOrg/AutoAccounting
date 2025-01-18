@@ -16,6 +16,7 @@
 package org.ezbook.server.constant
 
 object Setting {
+    val USE_AI_FOR_CATEGORIZATION: String = "use_ai_for_categorization"
     val IGNORE_ASSET: String = "ignore_asset"
     val LAST_SYNC_TIME: String = "last_sync_time"
     val PROACTIVELY_MODEL: String = "proactively_model"
