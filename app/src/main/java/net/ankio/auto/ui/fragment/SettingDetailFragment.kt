@@ -461,7 +461,7 @@ class SettingDetailFragment : BaseFragment() {
                 regex = "${Setting.USE_AI}=true",
                 title = R.string.setting_bill_ai_type,
                 key = Setting.AI_MODEL,
-                default = AIModel.DeepSeek.name,
+                default = DefaultData.AI_MODEL,
                 icon = R.drawable.ic_support,
                 selectList =
                 hashMapOf(

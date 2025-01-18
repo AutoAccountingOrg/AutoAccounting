@@ -16,6 +16,7 @@
 package org.ezbook.server.constant
 
 object DefaultData {
+    val AI_MODEL: String = AIModel.DeepSeek.name
     val USE_AI_FOR_CATEGORIZATION: Boolean = false
     const val IGNORE_ASSET: Boolean = false
     const val PROACTIVELY_MODEL: Boolean = true

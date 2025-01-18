@@ -366,7 +366,7 @@ class JsRoute(private val session: ApplicationCall, private val context: Context
      * 获取配置的AI模型
      */
     private suspend fun getAiModel(): String =
-        Db.get().settingDao().query(Setting.AI_MODEL)?.value ?: AIModel.Gemini.name
+        Db.get().settingDao().query(Setting.AI_MODEL)?.value ?: DefaultData.AI_MODEL
 
     private suspend fun requestAiCategory(billInfoModel: BillInfoModel): String {
         val aiModel = getAiModel()
