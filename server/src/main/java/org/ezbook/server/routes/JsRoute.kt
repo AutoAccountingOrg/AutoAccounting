@@ -484,8 +484,14 @@ class JsRoute(private val session: ApplicationCall, private val context: Context
      * 获取同步类型设置
      * @return 同步类型，默认为打开应用时同步
      */
-    private suspend fun getSyncType(): String =
-        Db.get().settingDao().query(Setting.SYNC_TYPE)?.value ?: SyncType.WhenOpenApp.name
+    private suspend fun getSyncType(): String {
+        val type =
+            Db.get().settingDao().query(Setting.SYNC_TYPE)?.value ?: SyncType.WhenOpenApp.name
+        if (type !in SyncType.entries.map { it.name }) {
+            return SyncType.WhenOpenApp.name
+        }
+        return type
+    }
 
     /**
      * 检查是否应该开始同步
