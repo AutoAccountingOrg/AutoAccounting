@@ -172,7 +172,7 @@ Input:
      */
     suspend fun getCategoryConversation(data: String): Pair<String, String> {
         val category = Db.get().categoryDao().all().map {
-            Pair(it.name, it.type)
+            it.name
         }
         apiKey = Db.get().settingDao().query("${Setting.API_KEY}_$name")?.value ?: ""
         if (apiKey.isEmpty()) throw RuntimeException("api key is empty")
