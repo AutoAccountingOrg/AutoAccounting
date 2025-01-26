@@ -91,13 +91,13 @@ class NotificationService : NotificationListenerService() {
         }
 
 
-        if (pkg === "com.android.mms"){
+        if (pkg == "com.android.mms") {
             val json = JsonObject().apply {
                 addProperty("sender","")
                 addProperty("body",text)
                 addProperty("t",System.currentTimeMillis())
             }
-            Analyze.start(DataType.DATA, Gson().toJson(json), pkg)
+            Analyze.start(DataType.DATA, Gson().toJson(json), "com.android.phone")
         }else{
             val json = JsonObject()
             json.addProperty("title", title)
