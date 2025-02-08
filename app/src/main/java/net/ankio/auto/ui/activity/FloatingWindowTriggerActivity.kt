@@ -22,6 +22,7 @@ import android.os.Bundle
 import android.os.PersistableBundle
 import android.view.Gravity
 import android.view.WindowManager
+import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.intent.IntentType
 import net.ankio.auto.service.AppService
@@ -68,9 +69,10 @@ class FloatingWindowTriggerActivity : Activity() {
     }
 
     private fun startFloatService(intent: Intent) {
-        val type = intent.getStringExtra("type")
+        //App.printIntent(intent)
+        val type = intent.getStringExtra("intentType")
         val t = intent.getLongExtra("t", 0L)
-        Logger.i("startFloatService: t = $t")
+        Logger.i("startFloatService: t = $t, type = $type")
         // 如果是1分钟之后才收到的intent,则不启动服务
         if (t < System.currentTimeMillis() - Constants.INTENT_TIMEOUT) {
             Logger.e("startFloatService error: t = $t is invalid")
