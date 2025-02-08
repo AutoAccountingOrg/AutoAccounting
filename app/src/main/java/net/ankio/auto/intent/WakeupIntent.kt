@@ -19,21 +19,12 @@ import android.content.ComponentName
 import android.content.Intent
 import org.ezbook.server.Server
 
-data class WakeupIntent(
-    val t: Long = System.currentTimeMillis(),
-    val type: IntentType = IntentType.WakeupIntent
-) {
-    companion object {
-        fun parse(intent: Intent): WakeupIntent {
-            val t = intent.getLongExtra("t", 0)
-            return WakeupIntent(t)
-        }
-    }
+class WakeupIntent {
 
     fun toIntent(): Intent {
         val intent = Intent()
-        intent.putExtra("t", t)
-        intent.putExtra("type", type)
+        intent.putExtra("t", System.currentTimeMillis())
+        intent.putExtra("intentType", IntentType.WakeupIntent.name)
         intent.setComponent(
             ComponentName(
                 Server.packageName,

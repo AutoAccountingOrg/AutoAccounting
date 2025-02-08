@@ -60,7 +60,7 @@ class AppService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent == null || intent.getStringExtra("type") != IntentType.FloatingIntent.name) {
+        if (intent == null || intent.getStringExtra("intentType") != IntentType.FloatingIntent.name) {
             return START_STICKY
         }
         return floatingWindowService.onStartCommand(intent, flags, startId)

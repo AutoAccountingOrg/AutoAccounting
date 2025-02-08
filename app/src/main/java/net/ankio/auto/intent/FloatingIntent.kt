@@ -26,8 +26,6 @@ data class FloatingIntent(
     val showTip: Boolean,
     val from: String,
     val parent: BillInfoModel? = null,
-    val t: Long = System.currentTimeMillis(),
-    val type: IntentType = IntentType.FloatingIntent
 ) {
 
     companion object {
@@ -51,8 +49,7 @@ data class FloatingIntent(
             } else {
                 null
             }
-            val t = intent.getLongExtra("t", 0)
-            return FloatingIntent(billInfo, showTip, from, parent, t)
+            return FloatingIntent(billInfo, showTip, from, parent)
         }
     }
 
@@ -62,8 +59,8 @@ data class FloatingIntent(
         intent.putExtra("billInfo", Gson().toJson(billInfoModel))
         intent.putExtra("id", billInfoModel.id)
         intent.putExtra("showWaitTip", showTip)
-        intent.putExtra("t", t)
-        intent.putExtra("type", type)
+        intent.putExtra("t", System.currentTimeMillis())
+        intent.putExtra("intentType", IntentType.FloatingIntent.name)
         if (parent != null) {
             intent.putExtra("parent", Gson().toJson(parent))
         }
