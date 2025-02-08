@@ -107,11 +107,19 @@ class JsRoute(private val session: ApplicationCall, private val context: Context
         // 处理账单信息
         var pair = processBillInfo(billInfoModel, fromAppData)
 
+
+
         if (!fromAppData) {
+
+            if (billInfoModel.auto) {
+                billInfoModel.state = BillState.Edited
+            }
+
             if (pair.second) {
                 billInfoModel.state = BillState.Wait2Edit
-                Db.get().billInfoDao().update(billInfoModel)
+
             }
+            Db.get().billInfoDao().update(billInfoModel)
             // 更新 AppData 数据
             updateAppDataModel(appDataModel, billInfoModel)
         }
