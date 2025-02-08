@@ -25,7 +25,7 @@ import org.ezbook.server.Server
 
 object CommonHooker {
     fun init() {
-        Logger.logD(TAG, "Start server...: ${AndroidAppHelper.currentPackageName()}")
+        Logger.logD(TAG, "Start server...: ${AppRuntime.manifest.packageName}")
         try {
             /**
              * js引擎

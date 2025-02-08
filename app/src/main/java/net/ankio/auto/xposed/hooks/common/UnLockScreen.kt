@@ -25,7 +25,7 @@ import net.ankio.auto.xposed.core.App.Companion.TAG
 import net.ankio.auto.xposed.core.logger.Logger
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import org.ezbook.server.db.model.BillInfoModel
-import org.ezbook.server.tools.FloatingIntent
+import net.ankio.auto.intent.FloatingIntent
 
 object UnLockScreen {
     suspend fun launchUnEditedBills(){

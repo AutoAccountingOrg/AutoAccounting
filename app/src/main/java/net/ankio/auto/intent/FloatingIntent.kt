@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 ankio(ankio@ankio.net)
+ * Copyright (C) 2025 ankio(ankio@ankio.net)
  * Licensed under the Apache License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,7 +13,7 @@
  *   limitations under the License.
  */
 
-package org.ezbook.server.tools
+package net.ankio.auto.intent
 
 import android.content.ComponentName
 import android.content.Intent
@@ -25,7 +25,9 @@ data class FloatingIntent(
     val billInfoModel: BillInfoModel,
     val showTip: Boolean,
     val from: String,
-    val parent: BillInfoModel? = null
+    val parent: BillInfoModel? = null,
+    val t: Long = System.currentTimeMillis(),
+    val type: IntentType = IntentType.FloatingIntent
 ) {
 
     companion object {
@@ -36,6 +38,7 @@ data class FloatingIntent(
                     BillInfoModel::class.java
                 )
             }.getOrDefault(BillInfoModel())
+
             val showTip = intent.getBooleanExtra("showWaitTip", false)
             val from = intent.getStringExtra("from") ?: ""
             val parent = if (intent.hasExtra("parent")) {
@@ -48,20 +51,19 @@ data class FloatingIntent(
             } else {
                 null
             }
-            return FloatingIntent(billInfo, showTip, from, parent)
+            val t = intent.getLongExtra("t", 0)
+            return FloatingIntent(billInfo, showTip, from, parent, t)
         }
     }
 
-    fun getUniqueKey(): String {
-        return billInfoModel.id.toString()
-    }
 
     fun toIntent(): Intent {
         val intent = Intent()
         intent.putExtra("billInfo", Gson().toJson(billInfoModel))
         intent.putExtra("id", billInfoModel.id)
         intent.putExtra("showWaitTip", showTip)
-        intent.putExtra("t", System.currentTimeMillis())
+        intent.putExtra("t", t)
+        intent.putExtra("type", type)
         if (parent != null) {
             intent.putExtra("parent", Gson().toJson(parent))
         }
