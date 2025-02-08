@@ -16,15 +16,12 @@
 package net.ankio.auto.service
 
 import android.content.Intent
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.launch
 import net.ankio.auto.App
 import net.ankio.auto.storage.Logger
-import org.ezbook.server.tools.FloatingIntent
-import java.util.*
+import net.ankio.auto.intent.FloatingIntent
 
 /**
  * 自动记账悬浮窗队列类。
@@ -39,7 +36,7 @@ import java.util.*
  *
  * @param callback 用于处理队列中Intent的回调函数。回调函数接收两个参数：当前处理的Intent和当前的FloatingQueue实例。
  */
-class FloatingQueue(private val callback:(FloatingIntent,FloatingQueue)->Unit) {
+class FloatingQueue(private val callback: (FloatingIntent, FloatingQueue) -> Unit) {
     private val channel = Channel<FloatingIntent>(Channel.BUFFERED)
     // 用于追踪当前队列中的Intent
     private val stopChannel = Channel<Unit>(capacity = 1, BufferOverflow.DROP_LATEST)

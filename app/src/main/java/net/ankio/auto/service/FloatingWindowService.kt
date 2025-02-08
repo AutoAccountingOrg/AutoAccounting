@@ -15,35 +15,31 @@
 
 package net.ankio.auto.service
 
-import android.app.Service
+import android.app.Service.START_NOT_STICKY
+import android.content.Context
 import android.content.Intent
-import android.os.IBinder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import net.ankio.auto.App
 import net.ankio.auto.R
+import net.ankio.auto.intent.FloatingIntent
 import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.utils.ToastUtils
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BillInfoModel
-import org.ezbook.server.tools.FloatingIntent
+
+class FloatingWindowService(val context: Context) {
 
 
-class FloatingWindowService : Service() {
-
-    override fun onBind(intent: Intent): IBinder? {
-        return null
-    }
 
     private lateinit var floatingQueue: FloatingQueue
 
     var bills = Channel<BillInfoModel>(capacity = 1, BufferOverflow.DROP_LATEST)
 
-    override fun onCreate() {
-        super.onCreate()
+    fun onCreate() {
         floatingQueue = FloatingQueue { intent, floatingQueue ->
             //单独处理
             FloatingWindowManager(this, intent, floatingQueue).process()
@@ -51,7 +47,7 @@ class FloatingWindowService : Service() {
     }
 
 
-    override fun onStartCommand(
+    fun onStartCommand(
         intent: Intent,
         flags: Int,
         startId: Int,
@@ -65,7 +61,7 @@ class FloatingWindowService : Service() {
                 )
             ) {
                 //说明是重复账单
-                ToastUtils.info(getString(R.string.repeat_bill))
+                ToastUtils.info(context.getString(R.string.repeat_bill))
             }
             App.launch(Dispatchers.Main) {
                 bills.send(parent)
@@ -78,9 +74,8 @@ class FloatingWindowService : Service() {
     }
 
 
-    override fun onDestroy() {
+    fun onDestroy() {
         floatingQueue.shutdown()
         runCatching { !bills.isClosedForSend && bills.close() }
-        super.onDestroy()
     }
 }

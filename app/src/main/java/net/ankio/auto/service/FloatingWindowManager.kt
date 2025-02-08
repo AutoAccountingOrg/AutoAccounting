@@ -43,9 +43,8 @@ import org.ezbook.server.constant.BillType
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BillInfoModel
-import org.ezbook.server.tools.FloatingIntent
+import net.ankio.auto.intent.FloatingIntent
 import java.util.Locale
-import kotlinx.coroutines.Job
 
 /**
  * 浮动窗口管理器，负责处理和管理浮动窗口的显示和操作。
@@ -58,14 +57,15 @@ import kotlinx.coroutines.Job
  * @param floatingQueue 浮动任务队列，用于管理浮动任务的执行。
  */
 class FloatingWindowManager(
-    private val context: FloatingWindowService,
+    private val service: FloatingWindowService,
     private val intent: FloatingIntent,
     private val floatingQueue: FloatingQueue
 ) {
     private var timeCount: Int = 0
     private var lastTheme = ThemeEngine.getInstance(App.app).getTheme()
     private var themedContext: Context
-    private val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+    private val windowManager =
+        service.context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
 
     init {
         timeCount = runCatching {
@@ -166,7 +166,7 @@ class FloatingWindowManager(
                 sb.append("\n")
             }
             intent2.putExtra("msg", sb.toString())
-            context.startActivity(intent2)
+            service.context.startActivity(intent2)
             //停止处理任务
             killProcess()
         }
@@ -312,7 +312,7 @@ class FloatingWindowManager(
         }
         if (ConfigUtils.getBoolean(Setting.SHOW_SUCCESS_POPUP, DefaultData.SHOW_SUCCESS_POPUP)) {
             ToastUtils.info(
-                context.getString(
+                service.context.getString(
                     R.string.auto_success,
                     billInfoModel2.money.toString(),
                 ),
@@ -369,7 +369,7 @@ class FloatingWindowManager(
                                 stopProcess()
                             }, onConfirmClick = {
                                 stopProcess()
-                            }, floatingWindowService = context).show(true)
+                            }, floatingWindowService = service).show(true)
                         }.onFailure {
                             stopProcess()
                             Logger.e("Failed to show editor", it)

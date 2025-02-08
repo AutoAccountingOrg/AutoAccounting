@@ -15,6 +15,7 @@
 
 package net.ankio.auto.ui.activity
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
@@ -23,8 +24,10 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.launch
+import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.databinding.ActivityMainBinding
+import net.ankio.auto.service.AppService
 import net.ankio.auto.storage.BackupUtils
 import net.ankio.auto.ui.api.BaseActivity
 
@@ -71,9 +74,12 @@ class MainActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        // 初始化底���导航栏
+        // 初始化底导航栏
         onBottomViewInit()
         BackupUtils.initRequestPermission(this)
+        if (BuildConfig.FLAVOR == "lspatch") {
+            startForegroundService(Intent(this, AppService::class.java))
+        }
     }
 
     /**
