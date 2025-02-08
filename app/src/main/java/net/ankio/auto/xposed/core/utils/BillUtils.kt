@@ -19,6 +19,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import com.google.gson.Gson
+import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.BuildConfig
@@ -34,12 +35,31 @@ import org.ezbook.server.models.BillResultModel
 class BillUtils {
 
     companion object {
-        suspend fun handle(billResultModel: BillResultModel) {
-            val billUtils = BillUtils()
-            billUtils.handleUserNotification(
-                billResultModel.billInfoModel,
-                billResultModel.parentInfoModel
-            )
+        private const val TAG = "BillUtils"
+
+        suspend fun handle(result: String) {
+            try {
+                val json = Gson().fromJson(result, JsonObject::class.java)
+                val resultData = json?.getAsJsonObject("data") ?: run {
+                    Logger.log(TAG, "数据为空：result=$result")
+                    return
+                }
+
+                val billResult = runCatching {
+                    Gson().fromJson(resultData, BillResultModel::class.java)
+                }.getOrNull() ?: run {
+                    Logger.log(TAG, "解析账单数据失败：resultData=$resultData")
+                    return
+                }
+
+                val billUtils = BillUtils()
+                billUtils.handleUserNotification(
+                    billResult.billInfoModel,
+                    billResult.parentInfoModel
+                )
+            } catch (e: Exception) {
+                Logger.logE(TAG, e)
+            }
         }
     }
 
@@ -67,9 +87,6 @@ class BillUtils {
             }
         }
     }
-
-
-    private val TAG = "BillUtils"
 
     /**
      * 同步账单到记账应用

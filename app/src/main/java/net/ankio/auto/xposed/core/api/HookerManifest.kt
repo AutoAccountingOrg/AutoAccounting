@@ -317,20 +317,11 @@ abstract class HookerManifest {
 
             if (result != null) {
 
-                val json = Gson().fromJson(result, JsonObject::class.java)
-                val resultData = json.getAsJsonObject("data")
 
-                if (resultData == null) {
-                    logD("Analysis failed: $result")
-                    return@launch
-                }
-
-                val billResult = Gson().fromJson(data, BillResultModel::class.java)
-
-                BillUtils.handle(billResult)
+                BillUtils.handle(result)
 
 
-                logD("Analysis Result: $billResult")
+                logD("Analysis Result: $result")
             } else {
                 logD("Analysis failed after 20 attempts")
             }

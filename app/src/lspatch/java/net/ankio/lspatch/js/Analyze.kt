@@ -61,17 +61,7 @@ object Analyze {
 
            if (result != null) {
 
-               val json = Gson().fromJson(result, JsonObject::class.java)
-               val resultData = json.getAsJsonObject("data")
-
-               if (resultData == null) {
-                   Logger.d("Analysis failed: $result")
-                   return@launch
-               }
-
-               val billResult = Gson().fromJson(data, BillResultModel::class.java)
-
-               BillUtils.handle(billResult)
+               BillUtils.handle(result)
 
                Logger.d("Analysis Result: $result")
            } else {
