@@ -22,7 +22,6 @@ import net.ankio.auto.xposed.core.utils.AppRuntime.application
 import net.ankio.auto.xposed.core.utils.AppRuntime.classLoader
 import net.ankio.auto.xposed.hooks.wechat.hooks.ChatUserHooker
 import net.ankio.auto.xposed.hooks.wechat.hooks.DatabaseHooker
-import net.ankio.auto.xposed.hooks.wechat.hooks.DeviceHooker
 import net.ankio.auto.xposed.hooks.wechat.hooks.PayToolsHooker
 import net.ankio.auto.xposed.hooks.wechat.hooks.RedPackageHooker
 import net.ankio.auto.xposed.hooks.wechat.hooks.TransferHooker
@@ -44,12 +43,6 @@ class WechatHooker : HookerManifest() {
         if (application == null) {
             return
         }
-
-        // 检查是否使用便携模式
-
-
-        DeviceHooker().hook()
-
 
         // 腾讯tinker热更新框架在加载后会导致hook无效，最简单的办法是删掉
         // 判断目录/data/data/com.tencent.mm/tinker/下是否有patch-开头的文件夹，如果有就删除
@@ -79,63 +72,6 @@ class WechatHooker : HookerManifest() {
     )
 
 
-    override fun beforeAdaption(): MutableList<Clazz> {
-        // 只在微信别名包下生效，避免老版本适配失败
-        if (application!!.packageName == DefaultData.WECHAT_PACKAGE_ALIAS) {
-            log("微信处于别名包下，添加对平板设备的适配")
-            rules.add(
-                Clazz(
-                    type = "class",
-                    name = "wechatTablet",
-                    nameRule = "com.tencent.mm.ui.\\w+",
-                    strings = arrayListOf(
-                        "oplus.hardware.type.tablet",
-                        "isSamsungFoldableDevice!!!",
-                        "SM-F9",
-                        "SM-W202",
-                        "SM-W90"
-                    ),
-                    methods = arrayListOf(
-                        ClazzMethod(
-                            findName = "isSamsungFoldableDevice",
-                            returnType = "boolean",
-                            strings = arrayListOf(
-                                "isSamsungFoldableDevice!!!",
-                                "SM-F9",
-                                "SM-W202",
-                                "SM-W90"
-                            )
-                        ),
-                        ClazzMethod(
-                            findName = "isTablet",
-                            returnType = "boolean",
-                            strings = arrayListOf(
-                                "lenovo",
-                                "Lenovo TB-9707F",
-                                "eebbk",
-                                "A2"
-                            )
-                        )
-                    )
-                ),
-
-                )
-            rules.add(
-                Clazz(
-                    type = "class",
-                    name = "wechatModelChild",
-                    strings = arrayListOf(
-                        ".auth_cache/",
-                        "MicroMsg.DeviceInfo",
-                        "cacheFileCount is less or equal than zero.",
-                        "[-] Base dir does not exist, base cache will return defValue.",
-                        "[!] Cache missed, base cache will return defValue."
-                    ),
-                ),
-            )
-        }
-        return rules
-    }
 
     override var rules: MutableList<Clazz> = mutableListOf(
         Clazz(
