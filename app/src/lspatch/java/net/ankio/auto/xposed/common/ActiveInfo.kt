@@ -23,12 +23,13 @@ import net.ankio.auto.storage.Logger
 
 object ActiveInfo {
    suspend fun getFramework(): String {
-        return SettingModel.get(Setting.KEY_FRAMEWORK, "Unknown Framework")
+       return SettingModel.get(Setting.KEY_FRAMEWORK, "Unknown Framework")
+           .ifEmpty { "LSPatch Framework" }
     }
 
    suspend fun isModuleActive(): Boolean {
        val maxAttempts = 3  // 最大重试次数
-       val delayBetweenAttempts = 3000L  // 每次重试间隔3秒
+       val delayBetweenAttempts = 500L  // 每次重试间隔3秒
 
        repeat(maxAttempts) { attempt ->
            try {
