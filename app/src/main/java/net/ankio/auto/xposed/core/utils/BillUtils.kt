@@ -23,6 +23,7 @@ import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.BuildConfig
+import net.ankio.auto.intent.FloatingIntent
 import net.ankio.auto.xposed.core.logger.Logger
 import net.ankio.auto.xposed.core.utils.MessageUtils.toast
 import org.ezbook.server.constant.BillAction
@@ -221,8 +222,7 @@ class BillUtils {
      * @throws SecurityException 如果应用没有必要的权限
      */
     private suspend fun launchFloatingWindow(billInfoModel: BillInfoModel, parent: BillInfoModel?) {
-        val intent =
-            net.ankio.auto.intent.FloatingIntent(billInfoModel, true, "JsRoute", parent).toIntent()
+        val intent = FloatingIntent(billInfoModel, true, "JsRoute", parent).toIntent()
         Logger.log(TAG, "拉起自动记账悬浮窗口：$intent")
 
         runCatching {
