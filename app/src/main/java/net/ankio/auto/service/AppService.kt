@@ -22,7 +22,15 @@ import android.app.Service
 import android.content.Intent
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
+import net.ankio.auto.App
+import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
+import net.ankio.auto.intent.IntentType
+import net.ankio.auto.xposed.core.api.HookerManifest
+import net.ankio.auto.xposed.core.utils.AppRuntime
+import net.ankio.auto.xposed.hooks.auto.AutoHooker
+import net.ankio.auto.xposed.hooks.common.CommonHooker
+import org.ezbook.server.Server
 
 class AppService : Service() {
     private val floatingWindowService = FloatingWindowService(this)
@@ -33,11 +41,26 @@ class AppService : Service() {
     override fun onCreate() {
         super.onCreate()
         startForeground(1, createNotification())
+        initServer()
         floatingWindowService.onCreate()
     }
 
+    fun initServer() {
+        if (BuildConfig.FLAVOR != "lspatch") {
+            return
+        }
+        AppRuntime.manifest = AutoHooker()
+        AppRuntime.modulePath =
+            packageManager.getApplicationInfo(BuildConfig.APPLICATION_ID, 0).sourceDir
+        AppRuntime.classLoader = classLoader
+        AppRuntime.application = App.app
+        Server.packageName = App.app.packageName
+        Server.versionName = BuildConfig.VERSION_NAME
+        CommonHooker.init()
+    }
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent == null) {
+        if (intent == null || intent.getStringExtra("type") != IntentType.FloatingIntent.name) {
             return START_STICKY
         }
         return floatingWindowService.onStartCommand(intent, flags, startId)
