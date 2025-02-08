@@ -21,11 +21,15 @@ import android.content.pm.PackageManager
 import android.provider.Settings
 import android.security.NetworkSecurityPolicy
 import com.google.gson.Gson
+import com.google.gson.JsonObject
 import com.google.gson.reflect.TypeToken
 import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.delay
+import net.ankio.auto.BuildConfig
+import net.ankio.auto.intent.WakeupIntent
 import net.ankio.auto.xposed.core.logger.Logger
 import net.ankio.auto.xposed.core.utils.AppRuntime
+import net.ankio.auto.xposed.core.utils.BillUtils
 import net.ankio.auto.xposed.core.utils.DataUtils.get
 import net.ankio.auto.xposed.core.utils.DataUtils.set
 import net.ankio.auto.xposed.core.utils.MessageUtils.toast
@@ -42,6 +46,7 @@ import org.ezbook.server.constant.DataType
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.SettingModel
+import org.ezbook.server.models.BillResultModel
 
 /**
  * HookerManifest
@@ -296,6 +301,13 @@ abstract class HookerManifest {
                     request("js/analysis?type=${type.name}&app=$appPackage&fromAppData=false", data)
 
                 if (result == null) {
+                    //判断是否为lspatch,
+                    if (BuildConfig.FLAVOR == "lspatch") {
+                        WakeupIntent().toIntent().let {
+                            AppRuntime.application!!.startActivity(it)
+                        }
+                    }
+
                     retryCount++
                     val delaySeconds = (1L shl (retryCount - 1)) * 10  // 10, 20, 40, 80, 160...
                     logD("Analysis attempt $retryCount failed, retrying in $delaySeconds seconds...")
@@ -304,12 +316,27 @@ abstract class HookerManifest {
             }
 
             if (result != null) {
-                logD("Analysis Result: $result")
+
+                val json = Gson().fromJson(result, JsonObject::class.java)
+                val resultData = json.getAsJsonObject("data")
+
+                if (resultData == null) {
+                    logD("Analysis failed: $result")
+                    return@launch
+                }
+
+                val billResult = Gson().fromJson(data, BillResultModel::class.java)
+
+                BillUtils.handle(billResult)
+
+
+                logD("Analysis Result: $billResult")
             } else {
                 logD("Analysis failed after 20 attempts")
             }
         }
     }
+
 
     suspend fun request(path: String, json: String = ""): String? {
         return runCatching {

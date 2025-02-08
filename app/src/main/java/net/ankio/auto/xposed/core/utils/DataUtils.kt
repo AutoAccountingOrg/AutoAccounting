@@ -55,7 +55,8 @@ object DataUtils {
      */
     fun configString(key: String, def: String = ""): String {
         return runBlocking {
-            SettingModel.get(key, def)
+            val result = SettingModel.get(key, def)
+            result.ifEmpty { def }
         }
     }
 
