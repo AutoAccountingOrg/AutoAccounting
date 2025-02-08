@@ -15,18 +15,24 @@
 
 package net.ankio.lspatch.js
 
+import com.google.gson.Gson
+import com.google.gson.JsonObject
 import kotlinx.coroutines.delay
 import net.ankio.auto.App
+import net.ankio.auto.intent.WakeupIntent
 import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Logger
+import net.ankio.auto.xposed.core.utils.AppRuntime
+import net.ankio.auto.xposed.core.utils.BillUtils
 import org.ezbook.server.Server.Companion.request
 import org.ezbook.server.constant.DataType
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
+import org.ezbook.server.models.BillResultModel
 
 object Analyze {
     fun start(type: DataType, data: String, appPackage: String){
-
+        AppRuntime.application = App.app
         val filter = ConfigUtils.getString(Setting.SMS_FILTER, DefaultData.SMS_FILTER).split(",")
 
         if (filter.all { !data.contains(it) }) {
@@ -43,6 +49,9 @@ object Analyze {
                result = request("js/analysis?type=${type.name}&app=$appPackage&fromAppData=false", data)
 
                if (result == null) {
+                   WakeupIntent().toIntent().let {
+                       App.app.startActivity(it)
+                   }
                    retryCount++
                    val delaySeconds = (1L shl (retryCount - 1)) * 10  // 10, 20, 40, 80, 160...
                    Logger.d("Analysis attempt $retryCount failed, retrying in $delaySeconds seconds...")
@@ -51,6 +60,19 @@ object Analyze {
            }
 
            if (result != null) {
+
+               val json = Gson().fromJson(result, JsonObject::class.java)
+               val resultData = json.getAsJsonObject("data")
+
+               if (resultData == null) {
+                   Logger.d("Analysis failed: $result")
+                   return@launch
+               }
+
+               val billResult = Gson().fromJson(data, BillResultModel::class.java)
+
+               BillUtils.handle(billResult)
+
                Logger.d("Analysis Result: $result")
            } else {
                Logger.d("Analysis failed after 20 attempts")
