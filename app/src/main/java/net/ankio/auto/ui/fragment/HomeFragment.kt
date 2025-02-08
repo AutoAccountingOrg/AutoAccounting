@@ -532,7 +532,7 @@ class HomeFragment : BaseFragment() {
         lifecycleScope.launch {
             SettingModel.get(Setting.RULE_VERSION, "None").let {
                 if (!isUiReady()) return@launch
-                binding.ruleVersion.text = it
+                binding.ruleVersion.text = it.ifEmpty { "None" }
             }
         }
     }
