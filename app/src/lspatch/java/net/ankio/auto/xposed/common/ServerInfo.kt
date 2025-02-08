@@ -22,10 +22,12 @@ import android.provider.Settings
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.exceptions.ServiceCheckException
+import net.ankio.auto.storage.Logger
 import net.ankio.auto.storage.SpUtils
 import net.ankio.lspatch.services.NotificationService
 import net.ankio.lspatch.services.SmsReceiver
@@ -43,42 +45,69 @@ object ServerInfo {
     }
 
     private suspend fun checkServer(context: Context) = withContext(Dispatchers.IO) {
-        val data = Server.request("/", "")
-        if (data === null){
-            throw ServiceCheckException(
-                context.getString(R.string.server_error_title),
-                context.getString(R.string.server_error),
-                context.getString(R.string.server_error_btn),
-                        action = { activity ->
-                //跳转微信设置页面
-                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                val uri = Uri.fromParts("package", SpUtils.getString(Setting.HOOK_WECHAT, DefaultData.WECHAT_PACKAGE), null)
-                intent.setData(uri)
-                activity.startActivity(intent)
-            })
-        }else{
-            val json = Gson().fromJson(data,JsonObject::class.java)
-            if (json.get("data").asString != BuildConfig.VERSION_NAME){
-                throw ServiceCheckException(
-                    context.getString(
-                        R.string.server_error_version_title
-                    ),
-                    context.getString(
-                        R.string.server_error_version,
-                        json.get("data").asString,
-                        BuildConfig.VERSION_NAME
-                    ),
-                    context.getString(R.string.server_error_btn)
-                    ,
-                    action = { activity ->
-                    //跳转微信设置页面
-                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                    val uri = Uri.fromParts("package",SpUtils.getString(Setting.HOOK_WECHAT, DefaultData.WECHAT_PACKAGE), null)
-                    intent.setData(uri)
-                    activity.startActivity(intent)
-                })
+        val maxAttempts = 3  // 最大重试次数
+        val delayBetweenAttempts = 3000L  // 每次重试间隔3秒
+
+        repeat(maxAttempts) { attempt ->
+            try {
+                val data = Server.request("/", "")
+                if (data != null) {
+                    val json = Gson().fromJson(data, JsonObject::class.java)
+                    if (json.get("data").asString != BuildConfig.VERSION_NAME) {
+                        throw ServiceCheckException(
+                            context.getString(R.string.server_error_version_title),
+                            context.getString(
+                                R.string.server_error_version,
+                                json.get("data").asString,
+                                BuildConfig.VERSION_NAME
+                            ),
+                            context.getString(R.string.server_error_btn),
+                            action = { activity ->
+                                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                                val uri = Uri.fromParts(
+                                    "package",
+                                    SpUtils.getString(
+                                        Setting.HOOK_WECHAT,
+                                        DefaultData.WECHAT_PACKAGE
+                                    ),
+                                    null
+                                )
+                                intent.setData(uri)
+                                activity.startActivity(intent)
+                            }
+                        )
+                    }
+                    return@withContext  // 成功检查，直接返回
+                }
+            } catch (e: ServiceCheckException) {
+                throw e  // 版本不匹配异常直接抛出
+            } catch (e: Exception) {
+                if (attempt == maxAttempts - 1) {
+                    Logger.e("服务检查失败", e)
+                }
+            }
+
+            if (attempt < maxAttempts - 1) {
+                delay(delayBetweenAttempts)
             }
         }
+
+        // 所有重试都失败后抛出异常
+        throw ServiceCheckException(
+            context.getString(R.string.server_error_title),
+            context.getString(R.string.server_error),
+            context.getString(R.string.server_error_btn),
+            action = { activity ->
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                val uri = Uri.fromParts(
+                    "package",
+                    SpUtils.getString(Setting.HOOK_WECHAT, DefaultData.WECHAT_PACKAGE),
+                    null
+                )
+                intent.setData(uri)
+                activity.startActivity(intent)
+            }
+        )
     }
 
 }

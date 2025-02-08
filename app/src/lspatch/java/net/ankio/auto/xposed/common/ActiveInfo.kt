@@ -18,6 +18,8 @@ package net.ankio.auto.xposed.common
 import org.ezbook.server.Server
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.SettingModel
+import kotlinx.coroutines.delay
+import net.ankio.auto.storage.Logger
 
 object ActiveInfo {
    suspend fun getFramework(): String {
@@ -25,6 +27,24 @@ object ActiveInfo {
     }
 
    suspend fun isModuleActive(): Boolean {
-        return  Server.request("/") != null
+       val maxAttempts = 3  // 最大重试次数
+       val delayBetweenAttempts = 3000L  // 每次重试间隔3秒
+
+       repeat(maxAttempts) { attempt ->
+           try {
+               val response = Server.request("/")
+               if (response != null) return true
+           } catch (e: Exception) {
+               if (attempt == maxAttempts - 1) {
+                   Logger.e("模块激活检查失败", e)
+               }
+           }
+
+           if (attempt < maxAttempts - 1) {
+               delay(delayBetweenAttempts)
+           }
+       }
+
+       return false
     }
 }
