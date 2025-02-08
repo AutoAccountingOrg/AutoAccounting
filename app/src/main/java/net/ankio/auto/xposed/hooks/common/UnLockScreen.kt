@@ -29,6 +29,7 @@ import net.ankio.auto.intent.FloatingIntent
 
 object UnLockScreen {
     suspend fun launchUnEditedBills(){
+        delay(3000)
         val list = BillInfoModel.edit()
         Logger.logD(TAG, "BillInfoModel.edit()：$list")
         list.forEach { billInfoModel ->
