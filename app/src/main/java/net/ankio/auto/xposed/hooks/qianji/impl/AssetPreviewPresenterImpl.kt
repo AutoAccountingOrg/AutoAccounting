@@ -110,7 +110,7 @@ object AssetPreviewPresenterImpl {
         accounts.forEach {
             if (it == null) return@forEach
             val assetAccount = AssetAccount.fromObject(it)
-            if (!assetAccount.isVisible()) {
+            if (!assetAccount.isVisible() && !assetAccount.isZhaiWuFinished()) {
                 AppRuntime.logD("隐藏的资产不同步:${assetAccount.getName()}")
                 return@forEach
             }
