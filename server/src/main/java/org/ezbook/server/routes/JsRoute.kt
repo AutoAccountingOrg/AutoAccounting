@@ -17,9 +17,6 @@ package org.ezbook.server.routes
 
 
 import android.content.Context
-import android.content.Intent
-import android.content.res.Configuration
-import android.widget.Toast
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.shiqi.quickjs.JSString
@@ -27,8 +24,6 @@ import com.shiqi.quickjs.QuickJS
 import io.ktor.application.ApplicationCall
 import io.ktor.http.Parameters
 import io.ktor.request.receiveText
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import org.ezbook.server.Server
 import org.ezbook.server.ai.ChatGPT
 import org.ezbook.server.ai.DeepSeek
@@ -36,22 +31,20 @@ import org.ezbook.server.ai.Gemini
 import org.ezbook.server.ai.OneAPI
 import org.ezbook.server.ai.QWen
 import org.ezbook.server.constant.AIModel
-import org.ezbook.server.constant.BillAction
 import org.ezbook.server.constant.BillState
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.constant.DataType
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
-import org.ezbook.server.constant.SyncType
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.AppDataModel
 import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.engine.RuleGenerator
+import org.ezbook.server.models.BillResultModel
 import org.ezbook.server.models.ResultModel
 import org.ezbook.server.tools.Assets
 import org.ezbook.server.tools.Bill
 import org.ezbook.server.tools.Category
-import org.ezbook.server.tools.FloatingIntent
 import org.ezbook.server.tools.MD5HashTable
 
 
@@ -115,13 +108,21 @@ class JsRoute(private val session: ApplicationCall, private val context: Context
         var pair = processBillInfo(billInfoModel, fromAppData)
 
         if (!fromAppData) {
-            handleUserNotification(billInfoModel, pair.first, pair.second)
-
+            if (pair.second) {
+                billInfoModel.state = BillState.Wait2Edit
+                Db.get().billInfoDao().update(billInfoModel)
+            }
             // 更新 AppData 数据
             updateAppDataModel(appDataModel, billInfoModel)
         }
 
-        return ResultModel(200, "OK", billInfoModel)
+        return ResultModel(
+            200, "OK", BillResultModel(
+                billInfoModel,
+                pair.first,
+                pair.second
+            )
+        )
     }
 
     /**
@@ -284,42 +285,6 @@ class JsRoute(private val session: ApplicationCall, private val context: Context
         return Pair(parent, needUserAction)
     }
 
-    /**
-     * 处理用户通知逻辑。
-     * 决定是否弹出提示或执行其他与用户相关的操作。
-     * @param billInfoModel 账单信息模型
-     */
-    private suspend fun handleUserNotification(
-        billInfoModel: BillInfoModel,
-        parent: BillInfoModel?,
-        userAction: Boolean
-    ) {
-        if (!billInfoModel.auto) {
-            val dnd =
-                Db.get().settingDao().query(Setting.LANDSCAPE_DND)?.value != "false"
-            withContext(Dispatchers.Main) {
-                runCatching {
-                    startAutoPanel(billInfoModel, parent, dnd)
-                }
-            }
-        } else {
-            if (userAction) {
-                billInfoModel.state = BillState.Wait2Edit
-                Db.get().billInfoDao().update(billInfoModel)
-            }
-            sync2Book(context)
-            val showTip = Db.get().settingDao().query(Setting.SHOW_AUTO_BILL_TIP)?.value == "true"
-            if (showTip) {
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(
-                        context,
-                        "已自动记录账单(￥${billInfoModel.money})。",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-        }
-    }
 
     /**
      * 更新 AppDataModel 的匹配状态和规则版本信息。
@@ -447,99 +412,7 @@ class JsRoute(private val session: ApplicationCall, private val context: Context
         this.app = app
     }
 
-    /**
-     * 同步账单到记账应用
-     * @param context 应用上下文
-     */
-    private suspend fun sync2Book(context: Context) {
-        // 获取记账应用包名，如果未设置则直接返回
-        val packageName = Db.get().settingDao().query(Setting.BOOK_APP_ID)?.value ?: run {
-            Server.log("未设置记账应用")
-            return
-        }
 
-        // 获取同步类型设置
-        val syncType = getSyncType()
-
-        // 如果是打开应用时同步，则直接返回
-        if (syncType == SyncType.WhenOpenApp.name) {
-            Server.log("设置为打开应用时同步")
-            return
-        }
-
-        // 获取待同步的账单
-        val pendingBills = Db.get().billInfoDao().queryNoSync()
-        if (pendingBills.isEmpty()) {
-            Server.log("无需同步：没有待同步账单")
-            return
-        }
-
-        // 检查是否需要启动同步
-        if (shouldStartSync(syncType, pendingBills.size)) {
-            launchBookApp(context, packageName)
-        }
-    }
-
-    /**
-     * 获取同步类型设置
-     * @return 同步类型，默认为打开应用时同步
-     */
-    private suspend fun getSyncType(): String {
-        val type =
-            Db.get().settingDao().query(Setting.SYNC_TYPE)?.value ?: SyncType.WhenOpenApp.name
-        if (type !in SyncType.entries.map { it.name }) {
-            return SyncType.WhenOpenApp.name
-        }
-        return type
-    }
-
-    /**
-     * 检查是否应该开始同步
-     * @param syncType 同步类型
-     * @param pendingCount 待同步账单数量
-     * @return 是否应该开始同步
-     */
-    private fun shouldStartSync(syncType: String, pendingCount: Int): Boolean =
-        (syncType == SyncType.BillsLimit10.name && pendingCount >= 10) ||
-                (syncType == SyncType.BillsLimit5.name && pendingCount >= 5) ||
-                (syncType == SyncType.BillsLimit1.name && pendingCount >= 1)
-
-    /**
-     * 启动记账应用
-     * @param context 应用上下文
-     * @param packageName 记账应用包名
-     */
-    private suspend fun launchBookApp(context: Context, packageName: String) {
-        runCatching {
-
-            var activityName =
-                Db.get().settingDao().query(Setting.BOOK_APP_ACTIVITY)?.value
-                    ?: DefaultData.BOOK_APP_ACTIVITY
-
-            if (activityName.isEmpty()) {
-                activityName = DefaultData.BOOK_APP_ACTIVITY
-            }
-
-            if (activityName == DefaultData.BOOK_APP_ACTIVITY && packageName !== DefaultData.BOOK_APP) {
-                val launchIntent = context.packageManager.getLaunchIntentForPackage(packageName)
-                if (launchIntent != null) {
-                    launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    context.startActivity(launchIntent)
-                }
-                return
-            }
-            // val launchIntent = app.packageManager.getLaunchIntentForPackage(packageName)
-            val intent = Intent().apply {
-                setClassName(packageName, activityName) // 设置目标应用和目标 Activity
-                putExtra("from", Server.packageName) // 添加额外参数
-                putExtra("action", BillAction.SYNC_BILL) // 传递 action
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) // 确保在新任务栈中启动
-            }
-            context.startActivity(intent)
-        }.onFailure { error ->
-            Server.log("启动记账应用失败：${error.message}")
-        }
-    }
 
     /**
      * 解析账单信息
@@ -579,65 +452,6 @@ class JsRoute(private val session: ApplicationCall, private val context: Context
         }
     }
 
-    /**
-     * 启动自动记账面板
-     * @param billInfoModel 账单信息模型
-     * @param parent 父账单信息
-     * @param dnd 横屏勿扰
-     */
-    private suspend fun startAutoPanel(
-        billInfoModel: BillInfoModel,
-        parent: BillInfoModel?,
-        dnd: Boolean = false
-    ) {
-        val isLandscape = isLandscapeMode()
-        Server.logD("横屏状态：$isLandscape, 是否横屏勿扰：$dnd")
-        // 检查横屏状态并处理
-        if (isLandscape && dnd) {
-            showToastForLandscapeMode(billInfoModel.money)
-            return
-        }
-
-        // 创建并启动悬浮窗
-        launchFloatingWindow(billInfoModel, parent)
-    }
-
-    /**
-     * 检查当前设备是否处于横屏模式
-     * @return Boolean 如果是横屏返回true，否则返回false
-     */
-    private fun isLandscapeMode(): Boolean =
-        context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-
-    /**
-     * 在横屏模式下显示提示信息
-     * @param money 账单金额，用于在提示信息中显示
-     */
-    private fun showToastForLandscapeMode(money: Double) {
-        Toast.makeText(
-            context,
-            "账单金额：$money，横屏状态下为您自动暂存。",
-            Toast.LENGTH_SHORT
-        ).show()
-    }
-
-    /**
-     * 启动悬浮窗口来显示账单信息
-     * @param billInfoModel 要显示的账单信息模型
-     * @param parent 父账单信息，可能为null，用于关联相关账单
-     * @throws SecurityException 如果应用没有必要的权限
-     */
-    private suspend fun launchFloatingWindow(billInfoModel: BillInfoModel, parent: BillInfoModel?) {
-        val intent = FloatingIntent(billInfoModel, true, "JsRoute", parent).toIntent()
-        Server.logD("拉起自动记账悬浮窗口：$intent")
-
-        runCatching {
-            context.startActivity(intent)
-        }.onFailure { throwable ->
-            Server.log("自动记账悬浮窗拉起失败：$throwable")
-            Server.log(throwable)
-        }
-    }
 
 
     /**
