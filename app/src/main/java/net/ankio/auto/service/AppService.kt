@@ -45,7 +45,7 @@ class AppService : Service() {
         floatingWindowService.onCreate()
     }
 
-    fun initServer() {
+    private fun initServer() {
         if (BuildConfig.FLAVOR != "lspatch") {
             return
         }
