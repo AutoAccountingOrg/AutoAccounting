@@ -17,6 +17,7 @@ package net.ankio.auto.xposed.hooks.common
 
 import android.app.AndroidAppHelper
 import de.robv.android.xposed.XposedBridge
+import net.ankio.auto.BuildConfig
 import net.ankio.auto.xposed.core.App.Companion.TAG
 import net.ankio.auto.xposed.core.logger.Logger
 import net.ankio.auto.xposed.core.utils.AppRuntime
@@ -40,9 +41,6 @@ object CommonHooker {
              */
             val server = Server(AppRuntime.application!!)
             server.startServer()
-            ThreadUtils.launch {
-                XposedFramework.init()
-            }
             AppInstaller.init(AppRuntime.application!!, server)
             Logger.logD(TAG, "Server start success")
         } catch (e: Throwable) {

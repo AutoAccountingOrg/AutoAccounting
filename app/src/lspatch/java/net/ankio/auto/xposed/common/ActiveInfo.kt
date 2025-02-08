@@ -15,16 +15,13 @@
 
 package net.ankio.auto.xposed.common
 
-import org.ezbook.server.Server
-import org.ezbook.server.constant.Setting
-import org.ezbook.server.db.model.SettingModel
 import kotlinx.coroutines.delay
 import net.ankio.auto.storage.Logger
+import org.ezbook.server.Server
 
 object ActiveInfo {
    suspend fun getFramework(): String {
-       return SettingModel.get(Setting.KEY_FRAMEWORK, "Unknown Framework")
-           .ifEmpty { "LSPatch Framework" }
+       return "LSPatch"
     }
 
    suspend fun isModuleActive(): Boolean {
