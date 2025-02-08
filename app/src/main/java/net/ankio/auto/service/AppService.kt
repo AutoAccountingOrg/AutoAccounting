@@ -76,21 +76,29 @@ class AppService : Service() {
         val channelId = "foreground_service_channel"
 
         val channel = NotificationChannel(
-            channelId, applicationContext.getString(R.string.app_name),
-            NotificationManager.IMPORTANCE_MIN // 设为最低级别，避免打扰
+            channelId,
+            applicationContext.getString(R.string.app_name), // 使用更具描述性的名称
+            NotificationManager.IMPORTANCE_MIN
         ).apply {
-            setShowBadge(false) // 禁用桌面角标
+            setShowBadge(false)
             enableLights(false)
             enableVibration(false)
+            setSound(null, null)  // 确保没有声音
+            lockscreenVisibility = Notification.VISIBILITY_SECRET  // 锁屏不显示
+            description = getString(R.string.service_channel_description)  // 添加通道描述
         }
         getSystemService(NotificationManager::class.java)?.createNotificationChannel(channel)
 
         return NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(R.mipmap.ic_launcher_round) // 透明图标，最小化视觉影响
-            .setSilent(true) // 不触发声音或震动
-            .setOngoing(true) // 防止用户误删
-            .setPriority(NotificationCompat.PRIORITY_MIN) // 设置最低优先级
-            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE) // 防止过度展示
+            .setSmallIcon(R.drawable.icon_auto)  // 建议使用专门的服务图标
+            .setSilent(true)
+            .setOngoing(true)
+            .setShowWhen(false)  // 不显示时间
+            .setContentTitle(getString(R.string.service_notification_title))
+            .setPriority(NotificationCompat.PRIORITY_MIN)
+            .setVisibility(NotificationCompat.VISIBILITY_SECRET)  // 锁屏不显示
+            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
+            .setCategory(Notification.CATEGORY_SERVICE)  // 明确指定通知类别
             .build()
     }
 
