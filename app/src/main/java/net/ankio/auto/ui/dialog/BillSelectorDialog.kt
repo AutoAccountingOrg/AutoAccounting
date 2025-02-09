@@ -34,6 +34,7 @@ import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.componets.StatusPage
 import net.ankio.auto.ui.componets.WrapContentLinearLayoutManager
 import net.ankio.auto.ui.utils.BookAppUtils
+import net.ankio.auto.xposed.hooks.qianji.models.Book
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BookBillModel
@@ -68,10 +69,17 @@ class BillSelectorDialog(
         }
         statusPage.showLoading()
 
+
+
         lifecycleScope.launch {
+
             val proactively =
                 ConfigUtils.getBoolean(Setting.PROACTIVELY_MODEL, DefaultData.PROACTIVELY_MODEL)
             if (proactively) {
+                //先同步
+                BookAppUtils.syncData()
+                //然后清空数据列表
+                BookBillModel.put(arrayListOf(), "", type)
                 val lastSyncTime = ConfigUtils.getLong(Setting.LAST_SYNC_TIME, 0)
                 if (System.currentTimeMillis() - lastSyncTime > Constants.SYNC_INTERVAL) {
                     ConfigUtils.putLong(Setting.LAST_SYNC_TIME, System.currentTimeMillis())
@@ -82,8 +90,6 @@ class BillSelectorDialog(
                 }
 
             }
-
-
             loadData(proactively)
         }
 
