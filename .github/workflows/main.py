@@ -315,32 +315,62 @@ def truncate_content(content):
     else:
         # 如果长度不超过 4000，返回原字符串
         return content
-def send_apk_with_changelog(workspace,title):
+def send_apk_with_changelog(workspace, title):
+    # 读取更新日志
     with open(workspace + '/dist/README.md', 'r', encoding='utf-8') as file:
-        content = file.read()
-    apk_path = workspace + '/dist/'
+        content = truncate_content(md2tgmd.escape(file.read()))
+    
     token = os.getenv("TELEGRAM_BOT_TOKEN")
     channel_id = "@qianji_auto"
-    """ 电报限制文件大小在50M以内，而自动记账两个文件合并起来超过50M，所以分开发送 """
-    url = f"https://api.telegram.org/bot{token}/sendDocument"
-    content = truncate_content(content)
-    print(f"发送更新日志到电报频道: {channel_id}", content)
-    for favor in flavors:
-        name = f"app-{favor}-signed.apk"
-        file_path = apk_path + name
-        new_name = f"{title}-{favor}.apk"
-        # 打开 APK 文件
-        files = {
-            "document": (new_name, open(file_path, "rb"))
+    base_url = f"https://api.telegram.org/bot{token}"
+    
+    # 先上传所有APK文件
+    file_ids = []
+    for flavor in flavors:
+        file_path = os.path.join(workspace, 'dist', f'app-{flavor}-signed.apk')
+        new_name = f"{title}-{flavor}.apk"
+        
+        try:
+            with open(file_path, "rb") as apk_file:
+                response = requests.post(
+                    f"{base_url}/uploadDocument",
+                    files={"document": (new_name, apk_file)}
+                )
+                response.raise_for_status()
+                file_ids.append(response.json()['result']['file_id'])
+                print(f"成功上传 {flavor} 版本")
+        except Exception as e:
+            print(f"上传 {flavor} 版本时出错: {str(e)}")
+            continue
+    
+    # 构建媒体组
+    media = []
+    for i, file_id in enumerate(file_ids):
+        item = {
+            "type": "document",
+            "media": file_id,
         }
-        # 数据部分，包含 Channel ID 和更新日志作为 caption
-        data = {
-            "chat_id": channel_id,
-            "caption": content,  # 更新日志
-            "parse_mode": "MarkdownV2"  # 可选：使用 Markdown 格式化日志内容
-        }
-        response = requests.post(url, files=files, data=data)
-        print(response.json())
+        # 只在第一个文件添加说明文本
+        if i == 0:
+            item.update({
+                "caption": content,
+                "parse_mode": "MarkdownV2"
+            })
+        media.append(item)
+    
+    # 发送媒体组
+    try:
+        response = requests.post(
+            f"{base_url}/sendMediaGroup",
+            json={
+                "chat_id": channel_id,
+                "media": media
+            }
+        )
+        response.raise_for_status()
+        print("成功发送所有APK文件")
+    except Exception as e:
+        print(f"发送媒体组时出错: {str(e)}")
 
 
 def send_forums( title, channel,workspace):
