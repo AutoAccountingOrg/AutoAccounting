@@ -40,7 +40,7 @@ object Apps {
             ////////////////////////////
             WechatHooker(), // Wechat
             AliPayHooker(), // AliPay
-            SmsHooker() // Sms
+            SmsHooker(), // Sms
             ////////////////////////////
         )
     }
