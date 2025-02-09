@@ -37,7 +37,8 @@ object Assets {
         val newAccountNameFrom = processAccount(
             billInfoModel.accountNameFrom,
             billInfoModel.type,
-            listOf(BillType.IncomeLending, BillType.IncomeRepayment)
+            listOf(BillType.IncomeLending, BillType.IncomeRepayment),
+            billInfoModel
         )
         if (newAccountNameFrom != null) {
             billInfoModel.accountNameFrom = newAccountNameFrom
@@ -47,10 +48,15 @@ object Assets {
         val newAccountNameTo = processAccount(
             billInfoModel.accountNameTo,
             billInfoModel.type,
-            listOf(BillType.ExpendLending, BillType.ExpendRepayment)
+            listOf(BillType.ExpendLending, BillType.ExpendRepayment),
+            billInfoModel
         )
         if (newAccountNameTo != null) {
             billInfoModel.accountNameTo = newAccountNameTo
+            needsUserAction = false
+        }
+
+        if (needsUserAction && billInfoModel.generateByAi()) {
             needsUserAction = false
         }
 
@@ -65,7 +71,8 @@ object Assets {
     private suspend fun processAccount(
         accountName: String,
         billType: BillType,
-        validTypes: List<BillType>
+        validTypes: List<BillType>,
+        billInfoModel: BillInfoModel
     ): String? {
         if (accountName.isEmpty() || validTypes.contains(billType)) return null
 
@@ -78,7 +85,11 @@ object Assets {
         }
 
         // 处理空映射或不存在的映射
-        return handleEmptyMapping(accountName) ?: insertEmptyMapping(accountName, mapName)
+        return handleEmptyMapping(accountName) ?: insertEmptyMapping(
+            accountName,
+            mapName,
+            billInfoModel
+        )
     }
 
     private suspend fun handleEmptyMapping(accountName: String): String? {
@@ -86,7 +97,12 @@ object Assets {
         return list.firstOrNull { it.regex && accountName.contains(it.name) }?.mapName
     }
 
-    private suspend fun insertEmptyMapping(accountName: String, mapName: AssetsMapModel?): String? {
+    private suspend fun insertEmptyMapping(
+        accountName: String,
+        mapName: AssetsMapModel?,
+        billInfoModel: BillInfoModel
+    ): String? {
+        if (billInfoModel.generateByAi()) return null
         if (mapName != null) return null
         Db.get().assetsMapDao().insert(AssetsMapModel().apply {
             name = accountName
