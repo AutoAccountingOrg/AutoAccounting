@@ -401,7 +401,6 @@ class SettingDetailFragment : BaseFragment() {
                 },
                 onSavedValue = { value, activity ->
                     ThemeEngine.getInstance(requireContext()).isTrueBlack = value as Boolean
-
                     activity.recreateActivity()
                 },
 
@@ -414,7 +413,7 @@ class SettingDetailFragment : BaseFragment() {
                     ThemeEngine.getInstance(requireContext()).isDynamicTheme
                 },
                 onSavedValue = { value, activity ->
-                    ThemeEngine.getInstance(requireContext()).isDynamicTheme = value as Boolean
+                    ThemeEngine.getInstance(requireContext()).isDynamicTheme = value
                     activity.recreateActivity()
                 },
 

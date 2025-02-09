@@ -198,35 +198,41 @@ class SettingUtils(
             }
 
             val updateSwitch = { isChecked: Boolean ->
-                item.key?.let { ConfigUtils.putBoolean(it, isChecked) }
-                item.onItemClick?.invoke(isChecked, context)
-                item.onSavedValue?.invoke(isChecked, context)
-                item.key?.let { key ->
-                    visibilityConditions[key] = isChecked
+                if (item.onSavedValue != null) {
+                    item.onSavedValue.invoke(isChecked, context)
+                } else if (item.key != null) {
+                    ConfigUtils.putBoolean(item.key, isChecked)
+                    visibilityConditions[item.key] = isChecked
                     updateVisibility()
                 }
             }
 
+            fun getData(): Boolean {
+                return if (item.onGetKeyValue != null) {
+                    item.onGetKeyValue.invoke()
+                } else if (item.key != null) {
+                    ConfigUtils.getBoolean(item.key, item.default)
+                } else {
+                    item.default
+                }
+            }
 
             root.setOnClickListener {
                 switchWidget.isChecked = !switchWidget.isChecked
-               // updateSwitch(switchWidget.isChecked)
-            }
-
-            fun getData() = item.onGetKeyValue?.invoke()
-                ?: item.key?.let { ConfigUtils.getBoolean(it, item.default) }?: item.default
-
-            switchWidget.setOnCheckedChangeListener { view, isChecked ->
-                if (getData() == isChecked) {
-                    return@setOnCheckedChangeListener
+                item.onItemClick?.invoke(switchWidget.isChecked, context)
+                if (getData() == switchWidget.isChecked) {
+                    return@setOnClickListener
                 }
-                updateSwitch(isChecked)
+                updateSwitch(switchWidget.isChecked)
             }
+
+
+            switchWidget.isClickable = false
+
 
             resumeCallbacks[item] = {
                 val savedValue = getData()
-                
-                switchWidget.isChecked = savedValue
+                switchWidget.isChecked = getData()
                 item.key?.let { key ->
                     visibilityConditions[key] = savedValue
                     updateVisibility()
