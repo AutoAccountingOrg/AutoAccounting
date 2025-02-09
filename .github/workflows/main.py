@@ -318,7 +318,7 @@ def truncate_content(content):
 def send_apk_with_changelog(workspace, title):
     # 读取更新日志
     with open(workspace + '/dist/README.md', 'r', encoding='utf-8') as file:
-        content = truncate_content(md2tgmd.escape(file.read()))
+        content = file.read()
     
     token = os.getenv("TELEGRAM_BOT_TOKEN")
     channel_id = "@qianji_auto"
@@ -335,7 +335,7 @@ def send_apk_with_changelog(workspace, title):
                 response = requests.post(
                     f"{base_url}/sendDocument",
                     data={
-                        "chat_id": channel_id,
+                        "chat_id": "@ezbook_archives",
                         "caption": "" # 空的说明文本
                     },
                     files={"document": (new_name, apk_file)}
