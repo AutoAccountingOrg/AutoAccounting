@@ -43,14 +43,15 @@ class SmsReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         val bundle: Bundle? = intent!!.extras
         if (bundle != null) {
-            val pdus =
-                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.S_V2) bundle.getParcelableArray(
-                    "pdus",
-                    ByteArray::class.java
-                ) else bundle.getParcelableArray("pdus")
-            if (pdus == null) {
-                Log.e("SmsReceiver", "SmsReceiver: pdus is null")
-                return
+            val pdus = when {
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> {
+                    bundle.getSerializable("pdus", Array::class.java) as Array<*>
+                }
+
+                else -> {
+                    @Suppress("DEPRECATION")
+                    bundle.getSerializable("pdus") as Array<*>
+                }
             }
 
             var sender = ""
