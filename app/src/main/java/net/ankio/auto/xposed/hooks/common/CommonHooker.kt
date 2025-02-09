@@ -15,13 +15,9 @@
 
 package net.ankio.auto.xposed.hooks.common
 
-import android.app.AndroidAppHelper
-import de.robv.android.xposed.XposedBridge
-import net.ankio.auto.BuildConfig
 import net.ankio.auto.xposed.core.App.Companion.TAG
 import net.ankio.auto.xposed.core.logger.Logger
 import net.ankio.auto.xposed.core.utils.AppRuntime
-import net.ankio.auto.xposed.core.utils.ThreadUtils
 import org.ezbook.server.Server
 
 object CommonHooker {
@@ -44,8 +40,6 @@ object CommonHooker {
             AppInstaller.init(AppRuntime.application!!, server)
             Logger.logD(TAG, "Server start success")
         } catch (e: Throwable) {
-            XposedBridge.log("Server start failed")
-            XposedBridge.log(e)
             Logger.logD(TAG, e.message ?: "")
         }
     }
