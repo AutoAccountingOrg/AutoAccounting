@@ -60,6 +60,7 @@ Important Rules:
 - Leave other fields empty ("") if the information is not explicitly present
 - Do not attempt to guess or infer missing information
 - Only use category names that exactly match the provided Category JSON
+- Do not use People Name as accountNameFrom or accountNameTo
 
 Output Format:
 - Return ONLY the JSON object, no explanations or comments
