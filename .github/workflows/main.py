@@ -333,11 +333,16 @@ def send_apk_with_changelog(workspace, title):
         try:
             with open(file_path, "rb") as apk_file:
                 response = requests.post(
-                    f"{base_url}/uploadDocument",
+                    f"{base_url}/sendDocument",
+                    data={
+                        "chat_id": channel_id,
+                        "caption": "" # 空的说明文本
+                    },
                     files={"document": (new_name, apk_file)}
                 )
                 response.raise_for_status()
-                file_ids.append(response.json()['result']['file_id'])
+                file_id = response.json()['result']['document']['file_id']
+                file_ids.append(file_id)
                 print(f"成功上传 {flavor} 版本")
         except Exception as e:
             print(f"上传 {flavor} 版本时出错: {str(e)}")
@@ -371,6 +376,7 @@ def send_apk_with_changelog(workspace, title):
         print("成功发送所有APK文件")
     except Exception as e:
         print(f"发送媒体组时出错: {str(e)}")
+        print(f"错误详情: {response.text if 'response' in locals() else '无响应'}")
 
 
 def send_forums( title, channel,workspace):
