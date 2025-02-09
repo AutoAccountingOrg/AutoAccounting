@@ -95,7 +95,7 @@ class BillUtils {
      */
     private suspend fun sync2Book(context: Context) {
         // 获取记账应用包名，如果未设置则直接返回
-        val packageName = DataUtils.configString(Setting.BOOK_APP_ID, "")
+        val packageName = DataUtils.configString(Setting.BOOK_APP_ID, DefaultData.BOOK_APP)
         if (packageName.isEmpty()) {
             Logger.log(TAG, "未设置记账应用")
             return
