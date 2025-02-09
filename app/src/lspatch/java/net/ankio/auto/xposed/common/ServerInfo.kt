@@ -16,9 +16,6 @@
 package net.ankio.auto.xposed.common
 
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
-import android.provider.Settings
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
@@ -28,12 +25,9 @@ import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.exceptions.ServiceCheckException
 import net.ankio.auto.storage.Logger
-import net.ankio.auto.storage.SpUtils
 import net.ankio.lspatch.services.NotificationService
 import net.ankio.lspatch.services.SmsReceiver
 import org.ezbook.server.Server
-import org.ezbook.server.constant.DefaultData
-import org.ezbook.server.constant.Setting
 
 
 object ServerInfo {
@@ -63,17 +57,7 @@ object ServerInfo {
                             ),
                             context.getString(R.string.server_error_btn),
                             action = { activity ->
-                                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                                val uri = Uri.fromParts(
-                                    "package",
-                                    SpUtils.getString(
-                                        Setting.HOOK_WECHAT,
-                                        DefaultData.WECHAT_PACKAGE
-                                    ),
-                                    null
-                                )
-                                intent.setData(uri)
-                                activity.startActivity(intent)
+
                             }
                         )
                     }
@@ -98,14 +82,7 @@ object ServerInfo {
             context.getString(R.string.server_error),
             context.getString(R.string.server_error_btn),
             action = { activity ->
-                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                val uri = Uri.fromParts(
-                    "package",
-                    SpUtils.getString(Setting.HOOK_WECHAT, DefaultData.WECHAT_PACKAGE),
-                    null
-                )
-                intent.setData(uri)
-                activity.startActivity(intent)
+
             }
         )
     }
