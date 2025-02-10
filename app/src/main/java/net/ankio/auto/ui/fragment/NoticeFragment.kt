@@ -47,12 +47,18 @@ class NoticeFragment : BasePageFragment<AppInfo>() {
         }
         val newFiltered = mutableListOf<AppInfo>()
         if (query.isEmpty()) {
-            newFiltered.addAll(appsList)
+            if (pageData.isEmpty()) {
+                newFiltered.addAll(appsList)
+            }
+
         } else {
-            newFiltered.addAll(appsList.filter {
+            val filter = appsList.filter {
                 it.appName.contains(query, ignoreCase = true) ||
                         it.packageName.contains(query, ignoreCase = true)
-            })
+            }
+            if (pageData != filter) {
+                newFiltered.addAll(filter)
+            }
         }
         sorApps(newFiltered)
         callback(newFiltered)
