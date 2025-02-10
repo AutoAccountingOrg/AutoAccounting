@@ -26,7 +26,6 @@ import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.intent.IntentType
-import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.hooks.auto.AutoHooker
 import net.ankio.auto.xposed.hooks.common.CommonHooker
@@ -40,6 +39,9 @@ class AppService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        // 创建通知通道
+        createNotificationChannel()
+        // 启动前台服务
         startForeground(1, createNotification())
         initServer()
         floatingWindowService.onCreate()
@@ -72,33 +74,35 @@ class AppService : Service() {
         floatingWindowService.onDestroy()
     }
 
-    private fun createNotification(): Notification {
+    private fun createNotificationChannel() {
         val channelId = "foreground_service_channel"
-
         val channel = NotificationChannel(
             channelId,
-            applicationContext.getString(R.string.app_name), // 使用更具描述性的名称
+            applicationContext.getString(R.string.app_name),
             NotificationManager.IMPORTANCE_MIN
         ).apply {
             setShowBadge(false)
             enableLights(false)
             enableVibration(false)
-            setSound(null, null)  // 确保没有声音
-            lockscreenVisibility = Notification.VISIBILITY_SECRET  // 锁屏不显示
-            description = getString(R.string.service_channel_description)  // 添加通道描述
+            setSound(null, null)
+            lockscreenVisibility = Notification.VISIBILITY_SECRET
+            description = getString(R.string.service_channel_description)
         }
         getSystemService(NotificationManager::class.java)?.createNotificationChannel(channel)
+    }
 
+    private fun createNotification(): Notification {
+        val channelId = "foreground_service_channel"
         return NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(R.drawable.icon_auto)  // 建议使用专门的服务图标
+            .setSmallIcon(R.drawable.icon_auto)
             .setSilent(true)
             .setOngoing(true)
-            .setShowWhen(false)  // 不显示时间
+            .setShowWhen(false)
             .setContentTitle(getString(R.string.service_notification_title))
             .setPriority(NotificationCompat.PRIORITY_MIN)
-            .setVisibility(NotificationCompat.VISIBILITY_SECRET)  // 锁屏不显示
+            .setVisibility(NotificationCompat.VISIBILITY_SECRET)
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
-            .setCategory(Notification.CATEGORY_SERVICE)  // 明确指定通知类别
+            .setCategory(Notification.CATEGORY_SERVICE)
             .build()
     }
 
