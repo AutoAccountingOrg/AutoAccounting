@@ -35,7 +35,10 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentDataBinding
+import net.ankio.auto.intent.FloatingIntent
+import net.ankio.auto.intent.IntentType
 import net.ankio.auto.request.Pastebin
+import net.ankio.auto.service.AppService
 import net.ankio.auto.service.FloatingWindowService
 import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Logger
@@ -57,6 +60,7 @@ import org.ezbook.server.constant.DataType
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.AppDataModel
 import org.ezbook.server.db.model.BillInfoModel
+import org.ezbook.server.models.BillResultModel
 
 class DataFragment : BasePageFragment<AppDataModel>(), Toolbar.OnMenuItemClickListener {
     var app: String = ""
@@ -203,10 +207,10 @@ ${item.rule}
                 Logger.w("Test Error Info: ${data.get("msg").asString}")
                 return@withContext null
             }
-            return@withContext Gson().fromJson(
-                data.getAsJsonObject("data"),
-                BillInfoModel::class.java
-            )
+            val billResult = runCatching {
+                Gson().fromJson(data.getAsJsonObject("data"), BillResultModel::class.java)
+            }.getOrNull()
+            return@withContext billResult?.billInfoModel
         }
 
     private suspend fun runTest(ai: Boolean = false, item: AppDataModel) {
@@ -227,14 +231,15 @@ ${item.rule}
             ToastUtils.error(R.string.no_rule_hint)
         } else {
             val serviceIntent =
-                Intent(activity, FloatingWindowService::class.java).apply {
+                Intent(activity, AppService::class.java).apply {
                     putExtra("parent", "")
                     putExtra("billInfo", Gson().toJson(billModel))
                     putExtra("showWaitTip", false)
                     putExtra("from", "AppData")
+                    putExtra("intentType", IntentType.FloatingIntent.name)
                 }
             Logger.d("Start FloatingWindowService")
-            requireActivity().startService(serviceIntent)
+            requireActivity().startForegroundService(serviceIntent)
         }
     }
 
