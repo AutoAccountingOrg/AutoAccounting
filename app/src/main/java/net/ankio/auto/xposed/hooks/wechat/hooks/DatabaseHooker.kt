@@ -92,12 +92,14 @@ class DatabaseHooker : PartHooker() {
                         val msg = json.get("msg").asJsonObject.get("appmsg").asJsonObject
                         tpl.addProperty("description", msg.get("des").asString)
                         tpl.addProperty("title", msg.get("title").asString)
-                        tpl.addProperty(
-                            "display_name",
-                            msg.get("mmreader")
-                                .asJsonObject.get("template_header")
-                                .asJsonObject.get("display_name").asString,
-                        )
+                        runCatching {
+                            tpl.addProperty(
+                                "display_name",
+                                msg.get("mmreader")
+                                    .asJsonObject.get("template_header")
+                                    .asJsonObject.get("display_name").asString,
+                            )
+                        }
                         putCache(tpl)
                         val result = JsonObject()
                         result.add("mMap", tpl)
