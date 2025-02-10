@@ -39,6 +39,7 @@ class BillUtils {
         private const val TAG = "BillUtils"
 
         suspend fun handle(result: String) {
+            Logger.logD(TAG, "处理账单数据：$result")
             try {
                 val json = Gson().fromJson(result, JsonObject::class.java)
                 val resultData = json?.getAsJsonObject("data") ?: run {
