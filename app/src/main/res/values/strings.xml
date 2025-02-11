@@ -424,6 +424,7 @@
     <string name="setting_category_ai">使用AI辅助分类</string>
     <string name="service_channel_description">自动记账悬浮窗、后台监听服务</string>
     <string name="service_notification_title">自动记账悬浮窗/后台服务运行中</string>
+    <string name="auto_record_">静默记账</string>
 
 
 </resources>
