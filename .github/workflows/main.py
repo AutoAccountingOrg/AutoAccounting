@@ -358,7 +358,7 @@ def send_apk_with_changelog(workspace, title):
         # 只在第一个文件添加说明文本
         if i == 0:
             item.update({
-                "caption": content,
+                "caption": truncate_content(content),
                 "parse_mode": "MarkdownV2"
             })
         media.append(item)
