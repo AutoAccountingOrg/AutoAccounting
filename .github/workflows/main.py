@@ -355,10 +355,14 @@ def send_apk_with_changelog(workspace, title):
             "type": "document",
             "media": file_id,
         }
-        # 只在第一个文件添加说明文本
-        if i == 0:
+        # 在最后一个文件添加说明文本
+        if i == len(file_ids) - 1:
+            # 添加版本选择提示
+            tips = "\n\n版本选择说明：\n" \
+                   "• Xposed版本：需要Root并安装LSPosed框架\n" \
+                   "• LSPatch版本：无需root，直接安装即可使用"
             item.update({
-                "caption": truncate_content(content),
+                "caption": truncate_content(content + tips),
                 "parse_mode": "MarkdownV2"
             })
         media.append(item)
