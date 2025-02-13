@@ -73,7 +73,7 @@ class SyncBillUtils {
         }
 
         val syncedBills = getSyncedBills(context)
-        val newBills = bills.filter { !syncedBills.contains(it.id.toString()) }
+        val newBills = bills.filter { !syncedBills.contains(it.hash()) }
 
         if (newBills.isEmpty()) {
             AppRuntime.log("All bills have been synced")
@@ -107,7 +107,7 @@ class SyncBillUtils {
                 context.startActivity(intent)
             }
             BillInfoModel.status(it.id, true)
-            addToSyncedBills(context, it.id.toString())
+            addToSyncedBills(context, it.hash())
             delay(500)
         }
         withContext(Dispatchers.Main) {
