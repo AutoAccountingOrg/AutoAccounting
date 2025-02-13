@@ -29,6 +29,38 @@ import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.BillInfoModel
 
 class SyncBillUtils {
+    private val PREFS_NAME = "sync_bill_cache"
+    private val SYNCED_BILLS_KEY = "synced_bills"
+    private val SYNC_TIME_KEY = "sync_time"
+    private val ONE_DAY_MILLIS = 24 * 60 * 60 * 1000 // 一天的毫秒数
+
+    private fun getSyncedBills(context: Context): Set<String> {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val lastSyncTime = prefs.getLong(SYNC_TIME_KEY, 0)
+        val currentTime = System.currentTimeMillis()
+
+        // 如果缓存超过一天，清空缓存
+        return if (currentTime - lastSyncTime > ONE_DAY_MILLIS) {
+            prefs.edit()
+                .clear()
+                .putLong(SYNC_TIME_KEY, currentTime)
+                .apply()
+            setOf()
+        } else {
+            prefs.getStringSet(SYNCED_BILLS_KEY, setOf()) ?: setOf()
+        }
+    }
+
+    private fun addToSyncedBills(context: Context, billId: String) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val syncedBills = getSyncedBills(context).toMutableSet()
+        syncedBills.add(billId)
+        prefs.edit()
+            .putStringSet(SYNCED_BILLS_KEY, syncedBills)
+            .putLong(SYNC_TIME_KEY, System.currentTimeMillis())
+            .apply()
+    }
+
     suspend fun sync(context: Context) = withContext(Dispatchers.IO) {
         if (!UserModel.isLogin()) {
             MessageUtils.toast("未登录无法自动记账")
@@ -39,9 +71,18 @@ class SyncBillUtils {
             AppRuntime.log("No bills need to sync")
             return@withContext
         }
-        AppRuntime.log("Sync ${bills.size} bills")
+
+        val syncedBills = getSyncedBills(context)
+        val newBills = bills.filter { !syncedBills.contains(it.id.toString()) }
+
+        if (newBills.isEmpty()) {
+            AppRuntime.log("All bills have been synced")
+            return@withContext
+        }
+
+        AppRuntime.log("Sync ${newBills.size} bills")
         AutoConfig.load()
-        bills.forEach {
+        newBills.forEach {
 
             if (!AutoConfig.assetManagement){
                 if (it.type === BillType.Transfer){
@@ -65,9 +106,9 @@ class SyncBillUtils {
             withContext(Dispatchers.Main) {
                 context.startActivity(intent)
             }
-            // 现将指定的账单全部记录为成功，后续拦截到错误的时候再修改为失败
             BillInfoModel.status(it.id, true)
-            delay(500) // 延迟500毫秒
+            addToSyncedBills(context, it.id.toString())
+            delay(500)
         }
         withContext(Dispatchers.Main) {
             MessageUtils.toast("已将所有账单同步完成！")
