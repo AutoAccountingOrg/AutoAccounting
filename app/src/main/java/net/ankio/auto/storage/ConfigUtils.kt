@@ -161,7 +161,14 @@ class ConfigUtils private constructor(context: Context) {
 
     // 显式保存函数，将内存中的数据写入文件
     fun save() {
-        settingsFile.writeText(gson.toJson(settings))
+        try {
+            if (!settingsFile.exists()) {
+                settingsFile.createNewFile()
+            }
+            settingsFile.writeText(gson.toJson(settings))
+        } catch (e: Exception) {
+            Logger.e("保存设置文件失败: ${e.message}")
+        }
     }
 
     // 获取 String 值，提供默认值
