@@ -36,7 +36,6 @@ import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.componets.IconView
 import net.ankio.auto.ui.utils.AssetsUtils
-import net.ankio.auto.ui.utils.BookAppUtils
 import net.ankio.auto.ui.utils.ListPopupUtils
 import net.ankio.auto.ui.utils.ResourceUtils
 import net.ankio.auto.ui.utils.ToastUtils
@@ -48,8 +47,6 @@ import org.ezbook.server.constant.BillType
 import org.ezbook.server.constant.Currency
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
-import org.ezbook.server.constant.SyncType
-import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.AssetsModel
 import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.db.model.BookNameModel
@@ -145,37 +142,183 @@ class FloatEditorDialog(
         val assetManager =
             ConfigUtils.getBoolean(Setting.SETTING_ASSET_MANAGER, DefaultData.SETTING_ASSET_MANAGER)
         val ignoreAsset = ConfigUtils.getBoolean(Setting.IGNORE_ASSET, DefaultData.IGNORE_ASSET)
-    
+
         return billInfoModel.copy().apply {
             this.type = billTypeLevel2
             this.extendData = selectedBills.joinToString()
-            val accountFrom = when (billTypeLevel2) {
-                BillType.Expend, BillType.Income, BillType.ExpendReimbursement, BillType.IncomeRefund, BillType.IncomeReimbursement -> binding.payFrom.getText()
-                    .toString()
 
-                BillType.Transfer -> binding.transferFrom.getText().toString()
-                BillType.ExpendLending, BillType.ExpendRepayment, BillType.IncomeLending, BillType.IncomeRepayment -> binding.debtExpendFrom.getText()
-                    .toString()
 
-                else -> ""
-            }
-            val accountTo = when (billTypeLevel2) {
-                BillType.Transfer -> binding.transferTo.getText().toString()
-                BillType.ExpendLending, BillType.ExpendRepayment, BillType.IncomeLending, BillType.IncomeRepayment -> binding.debtExpendTo.getText()
-                    .toString()
+            // Expend,//支出
+            //
+            //    ExpendReimbursement,//支出（记作报销）
+            //    ExpendLending,//支出（借出）
+            //    ExpendRepayment,//支出（还款）
+            //
+            //    Income,//收入
+            //
+            //    IncomeLending,//收入（借入）
+            //    IncomeRepayment,//收入（收款）
+            //    IncomeReimbursement,//收入（报销）
+            //    IncomeRefund, //收入（退款）
+            //
+            //    Transfer//转账
 
-                else -> ""
-            }
-            this.accountNameFrom = accountFrom
-            this.accountNameTo = accountTo
-            if (assetManager && !ignoreAsset) {
-                checkAccountNotEmpty(accountFrom, context.getString(R.string.expend_account_empty))
-                ensureAccountExists(accountFrom, assets, context, this@apply, true)
-                if (accountTo.isNotEmpty()) {
-                    ensureAccountExists(accountTo, assets, context, this@apply, false)
+
+            when (billTypeLevel2) {
+                // 支出
+                BillType.Expend -> {
+                    this.accountNameFrom = binding.payFrom.getText()
+                    this.accountNameTo = ""
+                    if (!ignoreAsset) {
+                        checkAccountNotEmpty(
+                            this.accountNameFrom,
+                            context.getString(R.string.expend_account_empty)
+                        )
+                        ensureAccountExists(this.accountNameFrom, assets, context, this, true)
+                    }
                 }
+                // 收入
+                BillType.Income -> {
+                    this.accountNameFrom = binding.payFrom.getText()
+                    this.accountNameTo = ""
+                    if (!ignoreAsset) {
+                        checkAccountNotEmpty(
+                            this.accountNameFrom,
+                            context.getString(R.string.income_account_empty)
+                        )
+                        ensureAccountExists(this.accountNameFrom, assets, context, this, true)
+                    }
+
+                }
+
+                // 转账
+                BillType.Transfer -> {
+                    this.accountNameFrom = binding.transferFrom.getText()
+                    this.accountNameTo = binding.transferTo.getText()
+                    if (!ignoreAsset) {
+                        checkAccountNotEmpty(
+                            this.accountNameFrom,
+                            context.getString(R.string.transfer_from_empty)
+                        )
+                        checkAccountNotEmpty(
+                            this.accountNameTo,
+                            context.getString(R.string.transfer_to_empty)
+                        )
+                        if (this.accountNameFrom == this.accountNameTo) {
+                            throw BillException(context.getString(R.string.transfer_same_account))
+                        }
+
+                        ensureAccountExists(this.accountNameFrom, assets, context, this, true)
+                        ensureAccountExists(this.accountNameTo, assets, context, this, false)
+                    }
+                }
+
+                // 支出（记作报销）
+                BillType.ExpendReimbursement -> {
+                    this.accountNameFrom = binding.payFrom.getText()
+                    this.accountNameTo = ""
+                    if (!ignoreAsset) {
+                        checkAccountNotEmpty(
+                            this.accountNameFrom,
+                            context.getString(R.string.expend_account_empty)
+                        )
+                        ensureAccountExists(this.accountNameFrom, assets, context, this, true)
+                    }
+
+                }
+
+                // 收入（退款）
+                BillType.IncomeRefund -> {
+                    this.accountNameFrom = binding.payFrom.getText()
+                    this.extendData = selectedBills.joinToString { it }
+                    if (selectedBills.isEmpty()) {
+                        throw BillException(context.getString(R.string.refund_bill_empty))
+                    }
+                    if (!ignoreAsset) {
+                        checkAccountNotEmpty(
+                            this.accountNameFrom,
+                            context.getString(R.string.income_account_empty)
+                        )
+
+                        ensureAccountExists(this.accountNameFrom, assets, context, this, true)
+
+                    }
+
+                }
+
+                // 收入（报销）
+                BillType.IncomeReimbursement -> {
+                    this.accountNameFrom = binding.payFrom.getText()
+                    this.extendData = selectedBills.joinToString { it }
+                    if (selectedBills.isEmpty()) {
+                        throw BillException(context.getString(R.string.reimbursement_bill_empty))
+                    }
+                    if (!ignoreAsset) {
+                        checkAccountNotEmpty(
+                            this.accountNameFrom,
+                            context.getString(R.string.income_account_empty)
+                        )
+                        ensureAccountExists(this.accountNameFrom, assets, context, this, true)
+
+                    }
+
+                }
+                // 支出（借出、还款）
+                BillType.ExpendLending, BillType.ExpendRepayment -> {
+                    this.accountNameFrom = binding.debtExpendFrom.getText()
+                    this.accountNameTo = binding.debtExpendTo.getText().toString()
+                    if (!ignoreAsset) {
+                        checkAccountNotEmpty(
+                            this.accountNameFrom,
+                            if (BillType.ExpendLending == billTypeLevel2) context.getString(R.string.expend_debt_empty) else context.getString(
+                                R.string.repayment_account_empty
+                            )
+                        )
+                        checkAccountNotEmpty(
+                            this.accountNameTo,
+                            if (BillType.ExpendLending == billTypeLevel2) context.getString(R.string.debt_account_empty) else context.getString(
+                                R.string.repayment_account_empty
+                            )
+                        )
+
+                        if (this.accountNameFrom == this.accountNameTo) {
+                            throw BillException(context.getString(R.string.lending_same_account))
+                        }
+
+                    }
+
+                }
+
+                // 收入（借入、收款）
+                BillType.IncomeLending, BillType.IncomeRepayment -> {
+                    this.accountNameFrom = binding.debtIncomeFrom.getText().toString()
+                    this.accountNameTo = binding.debtIncomeTo.getText()
+                    if (!ignoreAsset) {
+                        checkAccountNotEmpty(
+                            this.accountNameFrom,
+                            if (BillType.IncomeLending == billTypeLevel2) context.getString(R.string.income_debt_empty) else context.getString(
+                                R.string.income_lending_account_empty
+                            )
+                        )
+                        checkAccountNotEmpty(
+                            this.accountNameTo,
+                            if (BillType.IncomeLending == billTypeLevel2) context.getString(R.string.income_lending_account2_empty) else context.getString(
+                                R.string.income_repayment_account_empty
+                            )
+                        )
+
+                        if (this.accountNameFrom == this.accountNameTo) {
+                            throw BillException(context.getString(R.string.lending_same_account))
+                        }
+
+
+                    }
+
+                }
+
             }
-    
+
+
 
             this.remark = binding.remark.text.toString()
         }
@@ -724,6 +867,7 @@ class FloatEditorDialog(
                         setBillTypeLevel2(BillType.IncomeRepayment)
                     }
                 }
+
                 R.id.chipRefund -> {
                     setBillTypeLevel2(BillType.IncomeRefund)
                 }
