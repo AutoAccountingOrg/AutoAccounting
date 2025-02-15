@@ -337,11 +337,7 @@ class FloatingWindowManager(
      */
     private fun callBillInfoEditor(key: String, billInfoModel: BillInfoModel) {
         Logger.d("CallBillInfoEditor: $key, $billInfoModel")
-        val id = intent.billInfoModel.id
-        var billInfo = billInfoModel
-        if (id > 0) { //优先根据id从数据库中获取
-            billInfo = runBlocking { BillInfoModel.get(id) ?: billInfoModel }
-        }
+        val billInfo = billInfoModel
         App.launch(Dispatchers.Main) {
             AssetsUtils.setMapAssets(themedContext, true, billInfo) {
                 if (billInfo.auto) {

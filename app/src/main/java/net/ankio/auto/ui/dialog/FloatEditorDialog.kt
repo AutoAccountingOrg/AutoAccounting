@@ -109,6 +109,8 @@ class FloatEditorDialog(
                 runCatching {
                     val billInfo = floatingWindowService.bills.receive()
                     checkUpdateBills(billInfo)
+                }.onFailure {
+                    Logger.e("Failed to receive bill from service", it)
                 }
             }
         }
