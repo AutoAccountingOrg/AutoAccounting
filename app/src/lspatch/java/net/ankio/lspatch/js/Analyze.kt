@@ -50,9 +50,10 @@ object Analyze {
 
                if (result == null) {
                    WakeupIntent().toIntent().let {
-                       kotlin.runCatching {
-                           App.application!!.startActivity(it)
-                           logE(Throwable("拉起自动记账失败：$it"))
+                       runCatching {
+                           AppRuntime.application!!.startActivity(it)
+                       }.onFailure {
+                           Logger.e("拉起自动记账失败", it)
                        }
                    }
                    retryCount++
