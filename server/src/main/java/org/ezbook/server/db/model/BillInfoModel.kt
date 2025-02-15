@@ -168,7 +168,7 @@ class BillInfoModel {
             runCatching {
                 val json = Gson().fromJson(response, JsonObject::class.java)
                 Gson().fromJson(
-                    json.getAsJsonArray("data"),
+                    json.getAsJsonObject("data"),
                     BillInfoModel::class.java
                 )
             }.getOrNull()
