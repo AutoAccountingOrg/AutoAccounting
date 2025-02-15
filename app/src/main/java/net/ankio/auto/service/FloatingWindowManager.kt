@@ -27,6 +27,8 @@ import android.view.WindowManager
 import androidx.core.content.ContextCompat
 import com.quickersilver.themeengine.ThemeEngine
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.constant.FloatEvent
@@ -335,10 +337,15 @@ class FloatingWindowManager(
      */
     private fun callBillInfoEditor(key: String, billInfoModel: BillInfoModel) {
         Logger.d("CallBillInfoEditor: $key, $billInfoModel")
+        val id = intent.billInfoModel.id
+        var billInfo = billInfoModel
+        if (id > 0) { //优先根据id从数据库中获取
+            billInfo = runBlocking { BillInfoModel.get(id) ?: billInfoModel }
+        }
         App.launch(Dispatchers.Main) {
-            AssetsUtils.setMapAssets(themedContext, true, billInfoModel) {
-                if (billInfoModel.auto) {
-                    recordBillInfo(billInfoModel)
+            AssetsUtils.setMapAssets(themedContext, true, billInfo) {
+                if (billInfo.auto) {
+                    recordBillInfo(billInfo)
 
                     stopProcess()
 
@@ -347,22 +354,22 @@ class FloatingWindowManager(
                 when (ConfigUtils.getInt(key, FloatEvent.POP_EDIT_WINDOW.ordinal)) {
                     FloatEvent.AUTO_ACCOUNT.ordinal -> {
                         // 记账
-                        recordBillInfo(billInfoModel)
+                        recordBillInfo(billInfo)
                         stopProcess()
                     }
 
                     FloatEvent.POP_EDIT_WINDOW.ordinal -> {
 
                         //对于退款账单额外处理
-                        if (billInfoModel.type == BillType.Income && billInfoModel.remark.contains(
+                        if (billInfo.type == BillType.Income && billInfo.remark.contains(
                                 Regex("退[款货]")
                             )
                         ) {
-                            billInfoModel.type = BillType.IncomeRefund
+                            billInfo.type = BillType.IncomeRefund
                         }
 
                         runCatching {
-                            FloatEditorDialog(themedContext, billInfoModel, true, onCancelClick = {
+                            FloatEditorDialog(themedContext, billInfo, true, onCancelClick = {
                                 App.launch {
                                     BillInfoModel.remove(it.id)
                                 }

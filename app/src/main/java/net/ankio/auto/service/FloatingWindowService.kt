@@ -48,12 +48,12 @@ class FloatingWindowService(val context: Context) {
 
 
     fun onStartCommand(
-        intent: Intent,
+        intent: FloatingIntent,
         flags: Int,
         startId: Int,
     ): Int {
         Logger.d("FloatingWindowService onStartCommand")
-        val parent = FloatingIntent.parse(intent).parent
+        val parent = intent.parent
         if (parent != null) {
             if (ConfigUtils.getBoolean(
                     Setting.SHOW_DUPLICATED_POPUP,

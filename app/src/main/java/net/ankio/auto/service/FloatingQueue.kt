@@ -56,8 +56,7 @@ class FloatingQueue(private val callback: (FloatingIntent, FloatingQueue) -> Uni
      *
      * @param rawIntent 原始Intent
      */
-    fun send(rawIntent: Intent) {
-        val intent = FloatingIntent.parse(rawIntent)
+    fun send(intent: FloatingIntent) {
         App.launch(Dispatchers.Main) {
             try {
                 channel.send(intent)
