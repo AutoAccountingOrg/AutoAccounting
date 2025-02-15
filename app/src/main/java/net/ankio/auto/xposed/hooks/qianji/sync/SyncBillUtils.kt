@@ -29,89 +29,112 @@ import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.BillInfoModel
 
 class SyncBillUtils {
-    private val PREFS_NAME = "sync_bill_cache"
-    private val SYNCED_BILLS_KEY = "synced_bills"
-    private val SYNC_TIME_KEY = "sync_time"
-    private val ONE_DAY_MILLIS = 24 * 60 * 60 * 1000 // 一天的毫秒数
-
-    private fun getSyncedBills(context: Context): Set<String> {
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val lastSyncTime = prefs.getLong(SYNC_TIME_KEY, 0)
-        val currentTime = System.currentTimeMillis()
-
-        // 如果缓存超过一天，清空缓存
-        return if (currentTime - lastSyncTime > ONE_DAY_MILLIS) {
-            prefs.edit()
-                .clear()
-                .putLong(SYNC_TIME_KEY, currentTime)
-                .apply()
-            setOf()
-        } else {
-            prefs.getStringSet(SYNCED_BILLS_KEY, setOf()) ?: setOf()
-        }
+    companion object {
+        private const val PREFS_NAME = "sync_status"
+        private const val LAST_SYNC_TIME_KEY = "last_sync_time"
+        private const val SYNC_STATE_TIME_KEY = "sync_state_time"
+        private const val MIN_INTERVAL = 5000L // 5秒的间隔时间
+        private const val SYNC_TIMEOUT = 30000L // 30秒的超时时间
     }
 
-    private fun addToSyncedBills(context: Context, billId: String) {
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val syncedBills = getSyncedBills(context).toMutableSet()
-        syncedBills.add(billId)
-        prefs.edit()
-            .putStringSet(SYNCED_BILLS_KEY, syncedBills)
-            .putLong(SYNC_TIME_KEY, System.currentTimeMillis())
+    private fun getLastSyncTime(context: Context): Long {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getLong(LAST_SYNC_TIME_KEY, 0L)
+    }
+
+    private fun updateLastSyncTime(context: Context, time: Long) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putLong(LAST_SYNC_TIME_KEY, time)
             .apply()
     }
 
+    private fun getSyncState(context: Context): Boolean {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val syncStateTime = prefs.getLong(SYNC_STATE_TIME_KEY, 0L)
+        val currentTime = System.currentTimeMillis()
+
+        // 如果上次同步状态时间超过30秒，认为同步已经结束
+        return if (currentTime - syncStateTime < SYNC_TIMEOUT) {
+            true
+        } else {
+            // 清除过期的同步状态
+            prefs.edit().remove(SYNC_STATE_TIME_KEY).apply()
+            false
+        }
+    }
+
+    private fun updateSyncState(context: Context, isSyncing: Boolean) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val editor = prefs.edit()
+        if (isSyncing) {
+            editor.putLong(SYNC_STATE_TIME_KEY, System.currentTimeMillis())
+        } else {
+            editor.remove(SYNC_STATE_TIME_KEY)
+        }
+        editor.apply()
+    }
+
     suspend fun sync(context: Context) = withContext(Dispatchers.IO) {
-        if (!UserModel.isLogin()) {
-            MessageUtils.toast("未登录无法自动记账")
+        val currentTime = System.currentTimeMillis()
+        if (getSyncState(context)) {
+            AppRuntime.log("同步任务正在进行中，忽略本次调用")
             return@withContext
         }
-        val bills = BillInfoModel.sync()
-        if (bills.isEmpty()) {
-            AppRuntime.log("No bills need to sync")
-            return@withContext
-        }
-
-        val syncedBills = getSyncedBills(context)
-        val newBills = bills.filter { !syncedBills.contains(it.hash()) }
-
-        if (newBills.isEmpty()) {
-            AppRuntime.log("All bills have been synced")
+        if (currentTime - getLastSyncTime(context) < MIN_INTERVAL) {
+            AppRuntime.log("调用过于频繁，请稍后再试")
             return@withContext
         }
 
-        AppRuntime.log("Sync ${newBills.size} bills")
-        AutoConfig.load()
-        newBills.forEach {
+        try {
+            updateSyncState(context, true)
+            updateLastSyncTime(context, currentTime)
 
-            if (!AutoConfig.assetManagement){
-                if (it.type === BillType.Transfer){
-                    //没开启资产管理不同步转账类型
-                    return@forEach
-                }
+            if (!UserModel.isLogin()) {
+                MessageUtils.toast("未登录无法自动记账")
+                return@withContext
+            }
+            val bills = BillInfoModel.sync()
+            if (bills.isEmpty()) {
+                AppRuntime.log("No bills need to sync")
+                return@withContext
             }
 
-            if (!AutoConfig.lending){
-                if (it.type === BillType.ExpendLending || it.type === BillType.IncomeLending ||
-                    it.type === BillType.ExpendRepayment || it.type === BillType.IncomeRepayment){
-                    //没开启债务不同步报销类型
-                    return@forEach
-                }
-            }
+            AppRuntime.log("Sync ${bills.size} bills")
+            AutoConfig.load()
+            bills.forEach {
 
-            val bill = QianJiUri.toQianJi(it)
-            val intent = Intent(Intent.ACTION_VIEW, bill)
-            intent.putExtra("billInfo", Gson().toJson(it))
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                if (!AutoConfig.assetManagement) {
+                    if (it.type === BillType.Transfer) {
+                        //没开启资产管理不同步转账类型
+                        return@forEach
+                    }
+                }
+
+                if (!AutoConfig.lending) {
+                    if (it.type === BillType.ExpendLending || it.type === BillType.IncomeLending ||
+                        it.type === BillType.ExpendRepayment || it.type === BillType.IncomeRepayment
+                    ) {
+                        //没开启债务不同步报销类型
+                        return@forEach
+                    }
+                }
+
+                val bill = QianJiUri.toQianJi(it)
+                val intent = Intent(Intent.ACTION_VIEW, bill)
+                intent.putExtra("billInfo", Gson().toJson(it))
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                withContext(Dispatchers.Main) {
+                    context.startActivity(intent)
+                }
+                BillInfoModel.status(it.id, true)
+                delay(500)
+            }
             withContext(Dispatchers.Main) {
-                context.startActivity(intent)
+                MessageUtils.toast("已将所有账单同步完成！")
             }
-            BillInfoModel.status(it.id, true)
-            addToSyncedBills(context, it.hash())
-            delay(500)
-        }
-        withContext(Dispatchers.Main) {
-            MessageUtils.toast("已将所有账单同步完成！")
+        } finally {
+            updateSyncState(context, false)
         }
     }
 }
