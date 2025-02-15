@@ -50,7 +50,10 @@ object Analyze {
 
                if (result == null) {
                    WakeupIntent().toIntent().let {
-                       App.app.startActivity(it)
+                       kotlin.runCatching {
+                           App.application!!.startActivity(it)
+                           logE(Throwable("拉起自动记账失败：$it"))
+                       }
                    }
                    retryCount++
                    val delaySeconds = (1L shl (retryCount - 1)) * 10  // 10, 20, 40, 80, 160...

@@ -18,6 +18,7 @@ package net.ankio.auto.intent
 import android.content.ComponentName
 import android.content.Intent
 import com.google.gson.Gson
+import net.ankio.auto.BuildConfig
 import org.ezbook.server.Server
 import org.ezbook.server.db.model.BillInfoModel
 
@@ -67,7 +68,7 @@ data class FloatingIntent(
         intent.putExtra("from", from)
         intent.setComponent(
             ComponentName(
-                Server.packageName,
+                BuildConfig.APPLICATION_ID,
                 "net.ankio.auto.ui.activity.FloatingWindowTriggerActivity"
             )
         )

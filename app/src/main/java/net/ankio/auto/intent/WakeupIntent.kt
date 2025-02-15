@@ -17,6 +17,7 @@ package net.ankio.auto.intent
 
 import android.content.ComponentName
 import android.content.Intent
+import net.ankio.auto.BuildConfig
 import org.ezbook.server.Server
 
 class WakeupIntent {
@@ -27,7 +28,7 @@ class WakeupIntent {
         intent.putExtra("intentType", IntentType.WakeupIntent.name)
         intent.setComponent(
             ComponentName(
-                Server.packageName,
+                BuildConfig.APPLICATION_ID,
                 "net.ankio.auto.ui.activity.FloatingWindowTriggerActivity"
             )
         )
