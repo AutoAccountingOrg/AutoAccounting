@@ -197,11 +197,6 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
             return
         }
 
-        //注入版本信息
-        Server.versionName = BuildConfig.VERSION_NAME
-        //注入包名
-        Server.packageName = BuildConfig.APPLICATION_ID
-
         initHookers()
 
         AppRuntime.manifest.logD("Hooker init success, ${AppRuntime.manifest.appName}(${AppRuntime.versionCode})")

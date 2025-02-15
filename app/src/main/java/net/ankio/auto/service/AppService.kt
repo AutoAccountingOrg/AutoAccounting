@@ -25,6 +25,7 @@ import androidx.core.app.NotificationCompat
 import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
+import net.ankio.auto.intent.FloatingIntent
 import net.ankio.auto.intent.IntentType
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.hooks.auto.AutoHooker
@@ -56,8 +57,9 @@ class AppService : Service() {
             packageManager.getApplicationInfo(BuildConfig.APPLICATION_ID, 0).sourceDir
         AppRuntime.classLoader = classLoader
         AppRuntime.application = App.app
-        Server.packageName = App.app.packageName
+        Server.packageName = BuildConfig.APPLICATION_ID
         Server.versionName = BuildConfig.VERSION_NAME
+        Server.debug = BuildConfig.DEBUG
         CommonHooker.init()
     }
 
@@ -65,7 +67,8 @@ class AppService : Service() {
         if (intent == null || intent.getStringExtra("intentType") != IntentType.FloatingIntent.name) {
             return START_STICKY
         }
-        return floatingWindowService.onStartCommand(intent, flags, startId)
+        val floatingIntent = FloatingIntent.parse(intent)
+        return floatingWindowService.onStartCommand(floatingIntent, flags, startId)
     }
 
     override fun onDestroy() {

@@ -16,7 +16,9 @@
 package org.ezbook.server.routes
 
 
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.shiqi.quickjs.JSString
@@ -51,9 +53,6 @@ import org.ezbook.server.tools.MD5HashTable
 class JsRoute(private val session: ApplicationCall, private val context: Context) {
     private val params: Parameters = session.request.queryParameters
 
-    companion object {
-        val hashMap = MD5HashTable()
-    }
 
 
 
@@ -70,13 +69,6 @@ class JsRoute(private val session: ApplicationCall, private val context: Context
         val ai = params["ai"] == "true"
         val data = session.receiveText()
 
-        if (!fromAppData) {
-            val hash = MD5HashTable.md5("${app},${type},${data}")
-            if (hashMap.contains(hash)) {
-                return ResultModel(200, "OK", null)
-            }
-            hashMap.add(hash)
-        }
         // 解析字符串为枚举类型 DataType
         val dataType: DataType =
             parseDataType(type) ?: return ResultModel(400, "Type exception: $type")
@@ -122,7 +114,15 @@ class JsRoute(private val session: ApplicationCall, private val context: Context
             Db.get().billInfoDao().update(billInfoModel)
             // 更新 AppData 数据
             updateAppDataModel(appDataModel, billInfoModel)
+
+
+            if (Server.debug) {
+                debugIntent(billInfoModel, false, app, pair.first).let {
+                    context.startActivity(it)
+                }
+            }
         }
+
 
         return ResultModel(
             200, "OK", BillResultModel(
@@ -131,6 +131,36 @@ class JsRoute(private val session: ApplicationCall, private val context: Context
                 pair.second
             )
         )
+    }
+
+
+    private fun debugIntent(
+        billInfoModel: BillInfoModel,
+        showTip: Boolean,
+        from: String,
+        parent: BillInfoModel?
+    ): Intent {
+        val intent = Intent()
+        intent.putExtra("billInfo", Gson().toJson(billInfoModel))
+        intent.putExtra("id", billInfoModel.id)
+        intent.putExtra("showWaitTip", showTip)
+        intent.putExtra("t", System.currentTimeMillis())
+        intent.putExtra("intentType", "FloatingIntent")
+        if (parent != null) {
+            intent.putExtra("parent", Gson().toJson(parent))
+        }
+        intent.putExtra("from", from)
+        intent.setComponent(
+            ComponentName(
+                Server.packageName,
+                "net.ankio.auto.ui.activity.FloatingWindowTriggerActivity"
+            )
+        )
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+        intent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
+        return intent
     }
 
     /**

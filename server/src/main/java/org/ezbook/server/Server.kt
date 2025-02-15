@@ -43,6 +43,7 @@ class Server(private val context: Context) {
     private val port = 52045
 
 
+
     init {
         Db.init(context)
     }
@@ -76,6 +77,7 @@ class Server(private val context: Context) {
 
         var versionName = "1.0.0"
         var packageName = "net.ankio.auto.xposed"
+        var debug = false
         lateinit var billProcessor: BillProcessor
 
         /**
@@ -101,7 +103,11 @@ class Server(private val context: Context) {
 
                     client.newCall(request).execute().use { response ->
                         if (!response.isSuccessful) throw Exception("Unexpected code $response")
-                        response.body?.string()
+                        val data = response.body?.string()
+                        if (debug && !uri.contains("log/")) {
+                            log("请求成功: $uri, 数据: $data")
+                        }
+                        data
                     }
                 }.onFailure {
                     if (it !is ConnectException) {
