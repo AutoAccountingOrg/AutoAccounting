@@ -304,7 +304,10 @@ abstract class HookerManifest {
                     //判断是否为lspatch,
                     if (BuildConfig.FLAVOR == "lspatch") {
                         WakeupIntent().toIntent().let {
-                            AppRuntime.application!!.startActivity(it)
+                            kotlin.runCatching {
+                                AppRuntime.application!!.startActivity(it)
+                                logE(Throwable("拉起自动记账失败：$it"))
+                            }
                         }
                     }
 
