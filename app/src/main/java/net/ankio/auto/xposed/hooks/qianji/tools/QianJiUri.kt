@@ -51,44 +51,8 @@ object QianJiUri {
         }
 
         if (AutoConfig.assetManagement) {
-            val ignore = DataUtils.configBoolean(Setting.IGNORE_ASSET, DefaultData.IGNORE_ASSET)
-            if (listOf(
-                    BillType.Expend,//支出
-
-                    BillType.ExpendReimbursement,//支出（记作报销）
-                    BillType.ExpendLending,//支出（借出）
-                    BillType.ExpendRepayment,//支出（还款）
-
-                    BillType.Income,//收入
-
-                    BillType.IncomeReimbursement,//收入（报销）
-                    BillType.IncomeRefund, //收入（退款）
-
-                    BillType.Transfer//转账
-                ).contains(billModel.type)
-            ) {
-                val assetFromExists =
-                    AssetPreviewPresenterImpl.getAssetByName(billModel.accountNameFrom) != null
-                if (assetFromExists || ignore) {
-                    uri.append("&accountname=${Uri.encode(billModel.accountNameFrom)}")
-                }
-
-            }
-            if (listOf(
-                    BillType.IncomeLending,//收入（借入）
-                    BillType.IncomeRepayment,//收入（收款）
-                    BillType.Transfer//转账
-                ).contains(billModel.type)
-            ) {
-
-                // 检查是否存在对应的资产，如果不存在但不忽略，则不添加 accountname2
-                val assetExists =
-                    AssetPreviewPresenterImpl.getAssetByName(billModel.accountNameTo) != null
-                if (assetExists || ignore) {
-                    uri.append("&accountname2=${Uri.encode(billModel.accountNameTo)}")
-                }
-            }
-
+            uri.append("&accountname=${Uri.encode(billModel.accountNameFrom)}")
+            uri.append("&accountname2=${Uri.encode(billModel.accountNameTo)}")
         }
 
         if (AutoConfig.fee) {
