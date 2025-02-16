@@ -49,7 +49,7 @@ class RuleUpdate(private val context: Activity) : BaseUpdate(context) {
     override fun onCheckedUpdate() {
         download = if (ConfigUtils.getString(
                 Setting.UPDATE_CHANNEL,
-                UpdateChannel.GithubRaw.name
+                UpdateChannel.GithubProxy.name
             ) != UpdateChannel.Cloud.name
         ) {
             switchGithub("AutoAccountingOrg/$repo/releases/download/$version/$version.zip")
