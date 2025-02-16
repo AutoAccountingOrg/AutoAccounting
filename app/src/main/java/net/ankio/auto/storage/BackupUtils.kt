@@ -113,11 +113,19 @@ class BackupUtils(private val context: Context) {
         }
 
         fun requestPermission(activity: MainActivity) {
-            backupLauncher?.launch(null)
+            runCatching {
+                backupLauncher?.launch(null)
+            }.onFailure {
+                Logger.e("Failed to request backup permission", it)
+            }
         }
 
         fun requestRestore(activity: MainActivity) {
-            restoreLauncher?.launch(arrayOf("*/*"))
+            runCatching {
+                restoreLauncher?.launch(arrayOf("*/*"))
+            }.onFailure {
+                Logger.e("Failed to request restore permission", it)
+            }
         }
 
         fun hasAccessPermission(context: Context): Boolean {
