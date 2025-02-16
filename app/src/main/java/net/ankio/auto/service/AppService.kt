@@ -40,10 +40,6 @@ class AppService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        // 创建通知通道
-        createNotificationChannel()
-        // 启动前台服务
-        startForeground(1, createNotification())
         initServer()
         floatingWindowService.onCreate()
     }
@@ -64,6 +60,10 @@ class AppService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        // 创建通知通道
+        createNotificationChannel()
+        // 启动前台服务
+        startForeground(1, createNotification())
         if (intent == null || intent.getStringExtra("intentType") != IntentType.FloatingIntent.name) {
             return START_STICKY
         }
@@ -76,9 +76,9 @@ class AppService : Service() {
         stopForeground(STOP_FOREGROUND_REMOVE)
         floatingWindowService.onDestroy()
     }
-
+    val channelId = "foreground_service_channel"
     private fun createNotificationChannel() {
-        val channelId = "foreground_service_channel"
+
         val channel = NotificationChannel(
             channelId,
             applicationContext.getString(R.string.app_name),
@@ -95,7 +95,6 @@ class AppService : Service() {
     }
 
     private fun createNotification(): Notification {
-        val channelId = "foreground_service_channel"
         return NotificationCompat.Builder(this, channelId)
             .setSmallIcon(R.drawable.icon_auto)
             .setSilent(true)
