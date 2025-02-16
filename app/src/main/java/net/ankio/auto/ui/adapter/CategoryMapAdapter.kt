@@ -17,6 +17,7 @@
 package net.ankio.auto.ui.adapter
 
 import android.app.Activity
+import android.view.View
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.databinding.AdapterMapBinding
@@ -63,6 +64,7 @@ class CategoryMapAdapter(
 
         binding.raw.text = data.name
         binding.target.setText(data.mapName)
+        binding.containmentChip.visibility = View.GONE
 
         holder.launch {
             ResourceUtils.getCategoryDrawableByName(data.mapName, activity).let {
