@@ -141,8 +141,16 @@ class FloatEditorDialog(
     private suspend fun getBillData(assets: List<AssetsModel>): BillInfoModel {
         val assetManager =
             ConfigUtils.getBoolean(Setting.SETTING_ASSET_MANAGER, DefaultData.SETTING_ASSET_MANAGER)
-        val ignoreAsset =
-            assetManager && ConfigUtils.getBoolean(Setting.IGNORE_ASSET, DefaultData.IGNORE_ASSET)
+        val ignoreAsset = if (assetManager) ConfigUtils.getBoolean(
+            Setting.IGNORE_ASSET,
+            DefaultData.IGNORE_ASSET
+        ) else true
+
+
+        // assetManager = true, ignoreAsset = true, 无需检查资产
+        // assetManager = true, ignoreAsset = false, 需要检查资产
+        // assetManager = false, ignoreAsset = true, 无需检查资产
+        // assetManager = false, ignoreAsset = false, 无需检查资产
 
         return billInfoModel.copy().apply {
             this.type = billTypeLevel2
