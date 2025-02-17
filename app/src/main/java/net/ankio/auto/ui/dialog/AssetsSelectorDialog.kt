@@ -30,6 +30,7 @@ import org.ezbook.server.db.model.AssetsModel
 
 class AssetsSelectorDialog(
     private val context: Context,
+    private val filter: List<AssetsType> = emptyList(),
     private val callback: (AssetsModel) -> Unit
 ) :
     BaseSheetDialog(context) {
@@ -62,7 +63,9 @@ class AssetsSelectorDialog(
         statusPage.showLoading()
         lifecycleScope.launch {
             dataItems.clear()
-            val newData = AssetsModel.list()
+            val newData = AssetsModel.list().filter {
+                filter.isEmpty() || filter.contains(it.type)
+            }
 
             if (newData.isEmpty()) {
                 statusPage.showEmpty()

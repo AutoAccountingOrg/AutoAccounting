@@ -957,30 +957,65 @@ class FloatEditorDialog(
 
     private fun bindChangeAssets() {
         binding.payFrom.setOnClickListener {
-            AssetsSelectorDialog(context) { model ->
+            AssetsSelectorDialog(
+                context, filter = listOf(
+                    AssetsType.CREDIT,
+                    AssetsType.NORMAL,
+                    AssetsType.VIRTUAL,
+                    AssetsType.FINANCIAL
+                )
+            ) { model ->
                 setAssetItem(model.name, model.icon, binding.payFrom)
             }.show(float = float, cancel = true)
         }
         binding.transferFrom.setOnClickListener {
-            AssetsSelectorDialog(context) { model ->
+            AssetsSelectorDialog(
+                context, filter = listOf(
+                    AssetsType.CREDIT,
+                    AssetsType.NORMAL,
+                    AssetsType.VIRTUAL,
+                    AssetsType.FINANCIAL
+                )
+            ) { model ->
                 setAssetItem(model.name, model.icon, binding.transferFrom)
             }.show(float = float, cancel = true)
         }
 
         binding.transferTo.setOnClickListener {
-            AssetsSelectorDialog(context) { model ->
+            AssetsSelectorDialog(
+                context, filter = listOf(
+                    AssetsType.CREDIT,
+                    AssetsType.NORMAL,
+                    AssetsType.VIRTUAL,
+                    AssetsType.FINANCIAL
+                )
+            ) { model ->
                 setAssetItem(model.name, model.icon, binding.transferTo)
             }.show(float = float, cancel = true)
         }
 
         binding.debtExpendFrom.setOnClickListener {
-            AssetsSelectorDialog(context) { model ->
+            AssetsSelectorDialog(
+                context, filter = listOf(
+                    AssetsType.CREDIT,
+                    AssetsType.NORMAL,
+                    AssetsType.VIRTUAL,
+                    AssetsType.FINANCIAL
+                )
+            ) { model ->
                 setAssetItem(model.name, model.icon, binding.debtExpendFrom)
             }.show(float = float, cancel = true)
         }
 
         binding.debtIncomeTo.setOnClickListener {
-            AssetsSelectorDialog(context) { model ->
+            AssetsSelectorDialog(
+                context, filter = listOf(
+                    AssetsType.CREDIT,
+                    AssetsType.NORMAL,
+                    AssetsType.VIRTUAL,
+                    AssetsType.FINANCIAL
+                )
+            ) { model ->
                 setAssetItem(model.name, model.icon, binding.debtIncomeTo)
             }.show(float = float, cancel = true)
         }
