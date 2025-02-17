@@ -30,18 +30,17 @@ object Pastebin {
         val request = RequestsUtils(context)
         request.addHeader("Accept","application/json")
        val (code,body) = request.form(
-            "https://fars.ee/", hashMapOf(
-                "content" to data,
-                "sunset" to DateUtils.stampToDate(DateUtils.twoMonthsLater(), "yyyy-MM-dd'T'HH:mm:ss")
+           "https://bin.ankio.net/", hashMapOf(
+               "data" to data,
+               "ttl" to (60 * 24 * 60 * 60).toString()
             )
         )
 
         Logger.d("body:$body")
 
         val json = JsonParser.parseString(body).asJsonObject
-        val url = json.get("url").asString
-        val sunset = json.get("sunset").asString
-        val timeout = DateUtils.stampToDate(DateUtils.dateToStamp(sunset,"yyyy-MM-dd'T'HH:mm:ss"))
+        val url = json.get("data").asString
+        val timeout = DateUtils.stampToDate(DateUtils.twoMonthsLater())
         Pair(url,timeout)
     }
 }
