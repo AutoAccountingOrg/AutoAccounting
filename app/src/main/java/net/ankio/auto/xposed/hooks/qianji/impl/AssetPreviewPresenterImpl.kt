@@ -158,22 +158,36 @@ object AssetPreviewPresenterImpl {
      */
     suspend fun getAssetByName(name: String, sType: Int = -1): AssetAccount? =
         withContext(Dispatchers.IO) {
+            // 确保assets已加载
             if (assets == null) {
                 assets = withContext(Dispatchers.Main) {
                     getAssetsList()
                 }
             }
-            val account = assets!!.firstOrNull {
-                val assetAccount = AssetAccount.fromObject(it!!)
-                assetAccount.getName() == name && (sType == -1 || assetAccount.getStype() == sType)
-            }
+
+            // 尝试查找资产
+            var account = findAssetInList(name, sType)
+
+            // 如果未找到，重新加载资产列表后再次尝试
             if (account == null) {
-                AppRuntime.logD("未找到资产:$name")
-                return@withContext null
-            } else {
-                return@withContext AssetAccount.fromObject(account)
+                assets = withContext(Dispatchers.Main) {
+                    getAssetsList()
+                }
+                account = findAssetInList(name, sType)
+                if (account == null) {
+                    AppRuntime.logD("未找到资产:$name")
+                }
             }
+
+            account
         }
+
+    private fun findAssetInList(name: String, sType: Int): AssetAccount? {
+        return assets?.firstOrNull {
+            val assetAccount = AssetAccount.fromObject(it!!)
+            assetAccount.getName() == name && (sType == -1 || assetAccount.getStype() == sType)
+        }?.let { AssetAccount.fromObject(it) }
+    }
 
     suspend fun getOrCreateAssetByName(name: String, type: Int, sType: Int): AssetAccount =
         withContext(Dispatchers.IO) {
