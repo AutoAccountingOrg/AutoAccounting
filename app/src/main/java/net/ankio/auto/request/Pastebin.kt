@@ -32,7 +32,7 @@ object Pastebin {
        val (code,body) = request.form(
            "https://bin.ankio.net/", hashMapOf(
                "data" to data,
-               "ttl" to (60 * 24 * 60 * 60).toString()
+               "ttl" to (60 * 24 * 60).toString()
             )
         )
 
