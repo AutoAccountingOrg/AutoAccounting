@@ -24,6 +24,7 @@ import net.ankio.auto.xposed.core.utils.AppRuntime
 import org.ezbook.server.tools.MD5HashTable
 import net.ankio.auto.xposed.core.utils.MessageUtils
 import net.ankio.auto.xposed.hooks.qianji.models.Bill
+import net.ankio.auto.xposed.hooks.qianji.models.Book
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.db.model.BookBillModel
@@ -40,7 +41,7 @@ object BxPresenterImpl {
     }
 
 
-    private suspend fun getBaoXiaoList(all: Boolean = false): List<*> =
+    private suspend fun getBaoXiaoList(all: Boolean = false, books: List<*>): List<*> =
         suspendCoroutine { continuation ->
             var resumed = false
             val constructor = baoXiaoImpl.constructors.first()!!
@@ -70,6 +71,10 @@ object BxPresenterImpl {
 
             //BookFilter
             val bookFilter = XposedHelpers.newInstance(refreshMethod.parameters[1].type)
+            books.forEach {
+                XposedHelpers.callMethod(bookFilter, "add", it)
+            }
+
             //KeywordFilter
             val keywordFilter = XposedHelpers.newInstance(refreshMethod.parameters[2].type, "")
 
@@ -86,10 +91,11 @@ object BxPresenterImpl {
 
 
     suspend fun syncBaoXiao() = withContext(Dispatchers.IO) {
+        val books = BookManagerImpl.getBooks()
         // 报销账单
         val bxList =
             withContext(Dispatchers.Main) {
-                getBaoXiaoList()
+                getBaoXiaoList(true, books)
             }
 
         val bills = convert2Bill(bxList, Setting.HASH_BAOXIAO_BILL)
@@ -109,6 +115,8 @@ object BxPresenterImpl {
 
     suspend fun doBaoXiao(billModel: BillInfoModel) = withContext(Dispatchers.Main) {
 
+        val books = BookManagerImpl.getBooks()
+
         val list = billModel.extendData.split(", ")
             .map { it.trim() }
             .distinct()
@@ -116,7 +124,7 @@ object BxPresenterImpl {
 
         val billList =
             withContext(Dispatchers.Main) {
-                getBaoXiaoList(true)
+                getBaoXiaoList(true, books)
             }
 
         val selectBills =
