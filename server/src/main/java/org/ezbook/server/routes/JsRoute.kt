@@ -236,7 +236,8 @@ class JsRoute(private val session: ApplicationCall, private val context: Context
      * @return Boolean 表示是否使用 AI
      */
     private suspend fun shouldUseAI(): Boolean {
-        return (Db.get().settingDao().query(Setting.AI_AUXILIARY)?.value ?: "false") == "true"
+        val useAI = Db.get().settingDao().query(Setting.USE_AI)?.value == "true"
+        return useAI && Db.get().settingDao().query(Setting.AI_AUXILIARY)?.value == "true"
     }
 
     /**
@@ -279,9 +280,10 @@ class JsRoute(private val session: ApplicationCall, private val context: Context
 
         // 如果分类结果为"其他"或"其它"，尝试使用AI进行分类
         if (billInfoModel.needReCategory()) {
+            val ai = Db.get().settingDao().query(Setting.USE_AI)?.value == "true"
             val useAi =
                 Db.get().settingDao().query(Setting.USE_AI_FOR_CATEGORIZATION)?.value == "true"
-            if (useAi) {
+            if (ai && useAi) {
                 val aiCategory = requestAiCategory(billInfoModel)
                 billInfoModel.cateName = aiCategory
             }
