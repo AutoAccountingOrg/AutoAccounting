@@ -35,35 +35,45 @@ import java.lang.reflect.Proxy
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
+/**
+ * 钱迹资产预览界面的Presenter实现类
+ * 该类负责处理钱迹App中资产相关的业务逻辑，包括资产列表的获取、同步和更新等功能
+ */
 object AssetPreviewPresenterImpl {
 
-    const val CLAZZ = "com.mutangtech.qianji.asset.account.mvp.AssetPreviewPresenterImpl"
+    // 钱迹App中资产预览Presenter的完整类名
+    private const val CLAZZ = "com.mutangtech.qianji.asset.account.mvp.AssetPreviewPresenterImpl"
+
+    // 懒加载方式获取钱迹资产预览Presenter类
     val assetPreviewPresenterImplClazz by lazy {
         Hooker.loader(CLAZZ)
     }
+
+    // 缓存获取到的资产列表
     private var assets: List<*>? = null
+
     /**
      * 从钱迹获取资产列表
+     * 该方法通过Hook钱迹App的相关方法，获取完整的资产列表
+     * @return 返回资产列表对象
      */
-    suspend fun getAssetsList(): List<*> = suspendCoroutine { continuation ->
+    private suspend fun getAssetsList(): List<*> = suspendCoroutine { continuation ->
         var resumed = false
-        // 获取所有构造函数
+        // 获取构造函数
         val constructor = assetPreviewPresenterImplClazz.constructors.firstOrNull()
-
-        /**
-         * 410_951 public AssetPreviewPresenterImpl(u7.b bVar, f8.c cVar)
-         */
 
         if (constructor == null) {
             continuation.resumeWith(Result.failure(NoSuchMethodException("构造函数未找到")))
             return@suspendCoroutine
         }
+
+        // 获取构造函数参数类型
         val parameterTypes: Array<Class<*>> = constructor.parameterTypes
-        // 第一个是interface, 第二个是class
+        // 创建构造函数所需的参数实例
         val param2Object = XposedHelpers.newInstance(parameterTypes[1]) // f8.c
         val param1Clazz = parameterTypes[0] // u7.b
 
-
+        // 创建代理对象作为第一个参数
         val param1Object = Proxy.newProxyInstance(
             AppRuntime.classLoader,
             arrayOf(param1Clazz)
@@ -71,34 +81,28 @@ object AssetPreviewPresenterImpl {
             null
         }
 
+        // 创建AssetPreviewPresenterImpl实例
         val assetPreviewPresenterImplObj =
             XposedHelpers.newInstance(assetPreviewPresenterImplClazz, param1Object, param2Object)
 
-        //  f8.c.setAccountList(java.util.List, boolean, boolean, boolean, java.util.HashMap, int)
-        Hooker.onceAfter(
+        // Hook setAccountList方法以获取资产列表数据'
+        Hooker.onceAfterNoParams(
             parameterTypes[1],
-            "setAccountList",
-            List::class.java,
-            Boolean::class.java,
-            Boolean::class.java,
-            Boolean::class.java,
-            HashMap::class.java,
-            Int::class.java
+            "setAccountList"
         ) {
-            val accountList = it.args[0] as List<*> // 资产列表
+            val accountList = it.args[0] as List<*>
             if (!resumed) {
                 resumed = true
                 continuation.resume(accountList)
             }
-            true
         }
-
-        //触发加载资产列表
+        // 触发加载资产列表
         XposedHelpers.callMethod(assetPreviewPresenterImplObj, "loadAssets", true, false)
-
     }
+
     /**
-     * 同步资产列表
+     * 同步资产列表到自动记账系统
+     * 该方法会将钱迹中的资产信息转换并同步到自动记账系统中
      */
     suspend fun syncAssets() = withContext(Dispatchers.IO) {
         val accounts =
@@ -154,7 +158,10 @@ object AssetPreviewPresenterImpl {
     }
 
     /**
-     * 通过资产名称获取资产
+     * 通过资产名称获取特定资产信息
+     * @param name 资产名称
+     * @param sType 资产子类型，默认为-1表示不限制子类型
+     * @return 返回匹配的资产账户，如果未找到则返回null
      */
     suspend fun getAssetByName(name: String, sType: Int = -1): AssetAccount? =
         withContext(Dispatchers.IO) {
@@ -182,6 +189,12 @@ object AssetPreviewPresenterImpl {
             account
         }
 
+    /**
+     * 在资产列表中查找指定资产
+     * @param name 资产名称
+     * @param sType 资产子类型
+     * @return 返回匹配的资产账户，如果未找到则返回null
+     */
     private fun findAssetInList(name: String, sType: Int): AssetAccount? {
         return assets?.firstOrNull {
             val assetAccount = AssetAccount.fromObject(it!!)
@@ -189,6 +202,14 @@ object AssetPreviewPresenterImpl {
         }?.let { AssetAccount.fromObject(it) }
     }
 
+    /**
+     * 获取或创建指定资产
+     * 如果资产不存在，则创建一个新的资产账户
+     * @param name 资产名称
+     * @param type 资产类型
+     * @param sType 资产子类型
+     * @return 返回已存在或新创建的资产账户
+     */
     suspend fun getOrCreateAssetByName(name: String, type: Int, sType: Int): AssetAccount =
         withContext(Dispatchers.IO) {
             val account = getAssetByName(name, sType)
@@ -200,35 +221,19 @@ object AssetPreviewPresenterImpl {
             asset.setIcon("null")
             return@withContext asset
         }
+
+    // 懒加载方式获取资产数据库Helper类
     private val assetSqlHelperClazz by lazy {
         AppRuntime.clazz("AssetDbHelper")
     }
 
+    /**
+     * 更新资产信息
+     * 将修改后的资产信息保存到数据库中
+     * @param assetAccount 要更新的资产账户对象
+     */
     fun updateAsset(assetAccount: AssetAccount) {
         val assetSqlHelper = XposedHelpers.newInstance(assetSqlHelperClazz)
         XposedHelpers.callMethod(assetSqlHelper, "insertOrReplace", assetAccount.toObject(), false)
-
     }
-
-
-    // 修改资产余额： public final void R0(AssetAccount p0,double p1,boolean p2){
-    //       double[] uodoubleArra;
-    //       if (p0 == null) {
-    //          return;
-    //       }
-    //       double money = p0.getMoney();
-    //       if (p2) {
-    //          uodoubleArra = new double[]{p1};
-    //          p1 = m.plus(money, uodoubleArra);
-    //       }else {
-    //          uodoubleArra = new double[]{p1};
-    //          p1 = m.subtract(money, uodoubleArra);
-    //       }
-    //       p0.changeMoney(p1);
-    //       new a().insertOrReplace(p0, 0);
-    //       Intent intent = new Intent("com.free2017.broadcast.asset.changed_single");
-    //       intent.putExtra("data", p0);
-    //       b.b(intent);
-    //       return;
-    //    }
 }

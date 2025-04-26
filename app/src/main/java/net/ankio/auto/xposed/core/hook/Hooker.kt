@@ -437,4 +437,101 @@ object Hooker {
         return XposedBridge.invokeOriginalMethod(this.method, this.thisObject, this.args)
     }
 
+    /**
+     * 生成Hook的唯一键
+     * @param clazz 类对象或类名
+     * @param method 方法名
+     * @param parameterTypes 参数类型数组
+     * @return Hook的唯一标识字符串
+     */
+    private fun generateHookKey(
+        clazz: Any,
+        method: String,
+        parameterTypes: Array<out Any> = emptyArray()
+    ): String =
+        "$clazz-$method-${parameterTypes.joinToString()}"
+
+    /**
+     * 一次性在方法执行前进行Hook，按方法名匹配所有重载方法
+     * @param clazz 要Hook的类（可以是Class对象或类名字符串）
+     * @param methodName 要Hook的方法名
+     * @param hook Hook处理函数
+     */
+    fun onceBeforeNoParams(
+        clazz: Any,
+        methodName: String,
+        hook: (XC_MethodHook.MethodHookParam) -> Unit
+    ) {
+        try {
+            val targetClass = when (clazz) {
+                is String -> loader(clazz, AppRuntime.classLoader)
+                is Class<*> -> clazz
+                else -> throw IllegalArgumentException("Invalid class type")
+            }
+
+            targetClass.declaredMethods
+                .filter { it.name == methodName }
+                .forEach { method ->
+                    val hookKey = generateHookKey(targetClass, methodName, method.parameterTypes)
+                    hookMap[hookKey]?.unhook()
+
+                    val unhook = XposedBridge.hookMethod(method, object : XC_MethodHook() {
+                        override fun beforeHookedMethod(param: MethodHookParam) {
+                            hook(param)
+                            hookMap[hookKey]?.unhook()
+                            hookMap.remove(hookKey)
+                        }
+                    })
+                    hookMap[hookKey] = unhook
+                }
+        } catch (e: Exception) {
+            when (e) {
+                is ClassNotFoundException -> log("Class not found: $clazz", e)
+                else -> log("Error hooking method: $clazz.$methodName", e)
+            }
+        }
+    }
+
+    /**
+     * 一次性在方法执行后进行Hook，按方法名匹配所有重载方法
+     * @param clazz 要Hook的类（可以是Class对象或类名字符串）
+     * @param methodName 要Hook的方法名
+     * @param hook Hook处理函数
+     */
+    fun onceAfterNoParams(
+        clazz: Any,
+        methodName: String,
+        hook: (XC_MethodHook.MethodHookParam) -> Unit
+    ) {
+        try {
+            val targetClass = when (clazz) {
+                is String -> loader(clazz, AppRuntime.classLoader)
+                is Class<*> -> clazz
+                else -> throw IllegalArgumentException("Invalid class type")
+            }
+
+            targetClass.declaredMethods
+                .filter { it.name == methodName }
+                .forEach { method ->
+                    val hookKey = generateHookKey(targetClass, methodName, method.parameterTypes)
+                    hookMap[hookKey]?.unhook()
+
+                    val unhook = XposedBridge.hookMethod(method, object : XC_MethodHook() {
+                        override fun afterHookedMethod(param: MethodHookParam) {
+                            hook(param)
+                            hookMap[hookKey]?.unhook()
+                            hookMap.remove(hookKey)
+                        }
+                    })
+                    hookMap[hookKey] = unhook
+                }
+        } catch (e: Exception) {
+            when (e) {
+                is ClassNotFoundException -> log("Class not found: $clazz", e)
+                else -> log("Error hooking method: $clazz.$methodName", e)
+            }
+        }
+    }
+
+
 }
