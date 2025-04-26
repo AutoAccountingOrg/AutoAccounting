@@ -25,17 +25,13 @@ import org.ezbook.server.constant.DataType
 
 class MessageBoxHooker : PartHooker() {
     override fun hook() {
-        val msgboxInfoServiceImpl =
-            Hooker.loader("com.alipay.android.phone.messageboxstatic.biz.sync.d")
+
         val syncMessage =
             Hooker.loader("com.alipay.mobile.rome.longlinkservice.syncmodel.SyncMessage")
-        Hooker.before(
-            msgboxInfoServiceImpl,
-            "onReceiveMessage",
-            syncMessage,
-        ) { param ->
-            val syncMessageObject = param.args[0]
-            val result = XposedHelpers.callMethod(syncMessageObject, "getData") as String
+
+        Hooker.after(syncMessage, "toString") { methodHookParam ->
+            // 执行toString,这是支付宝将数据写入到了日志
+            val result = XposedHelpers.callMethod(methodHookParam.thisObject, "getData") as String
             // 收到的是数组，拆分
             Gson().fromJson(result, JsonArray::class.java).forEach { jsonObject ->
 
@@ -49,5 +45,7 @@ class MessageBoxHooker : PartHooker() {
                 AppRuntime.manifest.analysisData(DataType.DATA, Gson().toJson(jsonArray))
             }
         }
+
+
     }
 }
