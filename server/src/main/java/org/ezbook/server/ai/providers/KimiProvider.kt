@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 ankio(ankio@ankio.net)
+ * Copyright (C) 2025 ankio(ankio@ankio.net)
  * Licensed under the Apache License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,18 +13,17 @@
  *   limitations under the License.
  */
 
-package org.ezbook.server.ai
+package org.ezbook.server.ai.providers
 
-import org.ezbook.server.constant.AIModel
+/**
+ * Kimi API提供商实现
+ */
+class KimiProvider : BaseOpenAIProvider() {
+    override val name: String = "kimi"
 
-class OneAPI(
-    override var api: String,
-    override var model: String
-) : BaseAi() {
-    override var name: String
-        get() = AIModel.OneAPI.name
-        set(value) {}
-    override var createKeyUri: String
-        get() = "https://github.com/songquanpeng/one-api"
-        set(value) {}
-}
+    override val createKeyUri: String = "https://platform.moonshot.cn/console/api-keys"
+
+    override val apiUri: String = "https://api.moonshot.cn/v1"
+
+    override var model: String = "moonshot-v1-8k"
+} 

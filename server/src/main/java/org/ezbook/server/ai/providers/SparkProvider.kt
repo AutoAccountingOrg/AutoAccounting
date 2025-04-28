@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 ankio(ankio@ankio.net)
+ * Copyright (C) 2025 ankio(ankio@ankio.net)
  * Licensed under the Apache License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,21 +13,23 @@
  *   limitations under the License.
  */
 
-package org.ezbook.server.ai
+package org.ezbook.server.ai.providers
 
-import org.ezbook.server.constant.AIModel
+/**
+ * 讯飞星火 API提供商实现
+ */
+class SparkProvider : BaseOpenAIProvider() {
+    override val name: String = "spark"
 
-class ChatGPT : BaseAi() {
-    override var api: String
-        get() = "https://api.openai.com/v1/chat/completions"
-        set(value) {}
-    override var model: String
-        get() = "gpt-4o-mini"
-        set(value) {}
-    override var name: String
-        get() = AIModel.ChatGPT.name
-        set(value) {}
-    override var createKeyUri: String
-        get() = "https://platform.openai.com/api-keys"
-        set(value) {}
-}
+    override val createKeyUri: String = "https://console.xfyun.cn/services/cbm"
+
+    override val apiUri: String = "https://spark-api-open.xf-yun.com/v1"
+
+    override var model: String = "lite"
+
+    override suspend fun getAvailableModels(): List<String> {
+        return listOf(
+            model, ""
+        ) //只有lite版本好用
+    }
+} 
