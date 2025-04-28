@@ -35,4 +35,18 @@ interface SettingDao {
     @Query("SELECT * FROM SettingModel")
     suspend fun load(): List<SettingModel>
 
+
+    suspend fun set(key: String, value: String) {
+        val setting = query(key)
+        if (setting == null) {
+            insert(SettingModel().apply {
+                this.key = key
+                this.value = value
+            })
+        } else {
+            setting.value = value
+            update(setting)
+        }
+    }
+
 }
