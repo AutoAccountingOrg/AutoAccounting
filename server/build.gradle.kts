@@ -1,0 +1,78 @@
+/* ---------- plugins ---------- */
+plugins {
+    alias(libs.plugins.androidLibrary)
+    alias(libs.plugins.kotlinAndroid)
+    id("com.google.devtools.ksp")
+}
+
+/* ---------- Android config ---------- */
+android {
+    namespace = "org.ezbook.server"
+    compileSdk = 35
+
+    defaultConfig {
+        minSdk = 24
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles("consumer-rules.pro")
+    }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+    kotlinOptions { jvmTarget = "17" }
+
+    /* AGP 8.x 新写法：packaging → resources.excludes / jniLibs.excludes */
+    packaging {
+        resources.excludes += setOf(
+            "META-INF/DEPENDENCIES",
+            "META-INF/LICENSE",
+            "META-INF/LICENSE.txt",
+            "META-INF/license.txt",
+            "META-INF/NOTICE",
+            "META-INF/NOTICE.txt",
+            "META-INF/notice.txt",
+            "META-INF/ASL2.0",
+            "META-INF/INDEX.LIST"
+        )
+    }
+}
+
+/* ---------- repositories ---------- */
+repositories {
+    google() // Required for Android dependencies
+    mavenCentral() // Required for KSP and other dependencies
+    maven { url = uri("https://www.jitpack.io") }
+}
+
+/* ---------- dependencies ---------- */
+dependencies {
+
+    // Gson & OkHttp
+    implementation(libs.gson)
+    implementation(libs.okhttp)
+
+    // Room with KSP (instead of KAPT)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.appcompat.resources)
+    ksp(libs.androidx.room.compiler) // Use KSP instead of KAPT
+    implementation(libs.androidx.room.ktx)
+
+    // QuickJS
+    implementation(libs.quickjs.android)
+
+    // Ktor
+    implementation(libs.ktor.server.netty)
+    implementation(libs.ktor.server.core)
+    implementation(libs.ktor.gson)
+}
