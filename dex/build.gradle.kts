@@ -4,17 +4,17 @@
  */
 plugins {
     `java-library`
-    `maven-publish`
-    id("org.jetbrains.kotlin.jvm")    // 如果有 libs.plugins，可以写 alias(libs.plugins.jetbrains.kotlin.jvm)
+    //alias(libs.plugins.kotlinJvm)   apply false // 如果有 libs.plugins，可以写 alias(libs.plugins.jetbrains.kotlin.jvm)
+    id(libs.plugins.kotlinJvm.get().pluginId)
 }
 
 java {         // JavaExtension
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
 kotlin {       // KotlinJvmDsl
-    jvmToolchain(17)
+    jvmToolchain(21)
 }
 
 repositories {
@@ -22,29 +22,6 @@ repositories {
 }
 
 dependencies {
-    implementation(libs.dexlib2)      // Version Catalog 示例
-    // implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk17")
+    implementation(libs.dexlib2)
 }
 
-publishing {
-    publications {
-        // Kotlin DSL 用 register 而不是直接调用构造函数
-        register<MavenPublication>("release") {
-            groupId = "net.ankio.dex"
-            artifactId = "DexLib"
-            version = "1.0.0"
-
-            from(components["java"])
-        }
-    }
-
-    repositories {
-        maven {
-            url = uri(
-                // 等价于 new File(System.getProperty("user.home"), ".m2/repository")
-                File(System.getProperty("user.home"))
-                    .resolve(".m2/repository")
-            )
-        }
-    }
-}
