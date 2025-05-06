@@ -16,11 +16,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    app:edgeToEdge="true"
+    app:consumeSystemWindowsInsets="start|end"
+    app:fitsSystemWindowsInsets="start|end">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/toolbarLayout"
         android:layout_width="match_parent"
+        app:fitsSystemWindowsInsets="top"
         android:layout_height="wrap_content">
 
         <com.google.android.material.appbar.MaterialToolbar

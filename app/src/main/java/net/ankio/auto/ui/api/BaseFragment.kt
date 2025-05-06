@@ -15,83 +15,39 @@
 
 package net.ankio.auto.ui.api
 
-import android.R
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
-import androidx.annotation.IdRes
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
-import androidx.navigation.NavOptions
-import androidx.navigation.fragment.findNavController
 import androidx.viewbinding.ViewBinding
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import net.ankio.auto.App
-import net.ankio.auto.storage.Logger
-import net.ankio.auto.ui.utils.ViewUtils
+import java.lang.reflect.ParameterizedType
 
+abstract class BaseFragment<VB : ViewBinding> : Fragment() {
 
-/**
- * 基础的Fragment
- */
-abstract class BaseFragment : Fragment() {
+    protected var _binding: VB? = null
+    protected val binding get() = _binding!!
 
-    abstract val binding: ViewBinding
-
-    override fun toString(): String {
-        return this.javaClass.simpleName
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        val type = javaClass.genericSuperclass as ParameterizedType
+        val bindingClass = type.actualTypeArguments[0] as Class<*>
+        val method = bindingClass.getDeclaredMethod(
+            "inflate",
+            LayoutInflater::class.java,
+            ViewGroup::class.java,
+            Boolean::class.java
+        )
+        @Suppress("UNCHECKED_CAST")
+        _binding = method.invoke(null, inflater, container, false) as VB
+        return binding.root
     }
 
-    override fun onStop() {
-        super.onStop()
-        App.pageStopOrDestroy()
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
-
-
-    open fun beforeViewBindingDestroy() {
-
-    }
-
-
-    fun isUiReady(): Boolean {
-        return view != null
-    }
-
-    open fun navigate(@IdRes resId: Int, bundle: Bundle? = null) {
-        viewLifecycleOwner.lifecycleScope.launch {
-            try {
-                val options = NavOptions.Builder()
-                    .setEnterAnim(R.anim.fade_in)
-                    .setExitAnim(R.anim.fade_out)
-                    .setPopEnterAnim(R.anim.fade_in)
-                    .setPopExitAnim(R.anim.fade_out)
-                    .build()
-                // 使用协程的 withContext 确保在主线程执行
-                withContext(Dispatchers.Main) {
-                    findNavController().navigate(resId, bundle, options)
-                }
-            } catch (e: Exception) {
-                Logger.w("Navigation failed: ${e.message}")
-            }
-        }
-    }
-
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        view.visibility = View.INVISIBLE
-        view.postDelayed({
-            view.visibility = View.VISIBLE
-        }, 300)
-        val materialToolbar = ViewUtils.findMaterialToolbar(view) ?: return
-
-        // 通过tag判断是否是返回按钮
-        if (materialToolbar.tag == "back_button") {
-            materialToolbar.setNavigationOnClickListener {
-                findNavController().navigateUp()
-            }
-        }
-    }
-
 }
