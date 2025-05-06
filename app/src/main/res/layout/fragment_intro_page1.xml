@@ -54,7 +54,7 @@
             android:layout_height="wrap_content"
             android:text="@string/get_started"
             app:icon="@drawable/ic_arrow_forward_24"
-            app:iconGravity="textStart"
+            app:iconGravity="textEnd"
             app:iconPadding="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
