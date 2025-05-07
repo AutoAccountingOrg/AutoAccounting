@@ -1,0 +1,42 @@
+<!--
+  ~ Copyright (C) 2025 ankio(ankio@ankio.net)
+  ~ Licensed under the Apache License, Version 3.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~         http://www.apache.org/licenses/LICENSE-3.0
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~   limitations under the License.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="545.99dp"
+    android:height="495.29dp"
+    android:viewportWidth="154.09"
+    android:viewportHeight="139.78">
+    <path
+        android:pathData="m67.93,98.48c-0.04,10.15 -0.08,20.3 -0.13,30.45 -0.04,8.18 0.8,9.26 9.28,9.36l67.45,0c6.64,-0.09 7.95,-1.47 8.05,-8.12l-0.09,-115.43c-0.01,-11.29 -1.84,-13.16 -13.17,-13.15 -20.55,0.02 -39.2,-0.15 -60.67,-0.05 -7.32,0 -10.89,0.94 -10.97,10.87l-0.29,29.16 19.64,0 0,6.04c-2.51,1.63 -4.83,3.85 -5.73,7.55 -0.22,0.78 -0.25,1.59 -0.2,2.33 0.27,4.06 2.92,8.28 8.57,8.92 0.73,0.07 1.44,0.11 2.12,0.06 4.26,-0.34 8.68,-3.97 8.62,-9.45 0,-0.63 -0.09,-1.22 -0.22,-1.8 -0.87,-3.82 -3.2,-5.81 -5.81,-7.48l-0.13,-6.17 17.5,0.27c3.32,0.44 4.51,2.47 4.77,4.41l0.05,19.22 2.94,0c2.56,-3.32 5.84,-4.81 9.45,-4.72 5.02,0.44 7.93,4.16 8.5,7.31 0.13,1.24 0.17,2.43 0.01,3.58 -0.72,5.25 -5.51,8.03 -8.59,8.33 -0.57,0.04 -1.09,0.04 -1.62,0.02 -3.49,-0.16 -6.12,-1.82 -7.75,-5.26l-2.94,0 -0.13,18.16c0.22,3.46 -2.51,5.35 -4.52,5.43z"
+        android:strokeLineJoin="round"
+        android:strokeWidth="3"
+        android:fillColor="#000000"
+        android:strokeColor="#b1b1b1"
+        android:strokeLineCap="butt" />
+    <path
+        android:pathData="m71.41,15.25 l75.57,0 0,108.86 -75.14,0.22 -0.43,-21.41 43.29,-0.22c3.41,0 6.21,-3.6 6.21,-5.64l0.22,-14.37c13.93,6.25 21.61,-3.69 20.84,-13.39 -0.51,-6.44 -3.2,-11.37 -11.7,-12.81 -3.29,-0.48 -6.06,0.87 -9.44,2.52l0.24,-15.29c0,-3.66 -6.31,-6.32 -8.25,-6.32l-41.63,-0.22z"
+        android:strokeLineJoin="miter"
+        android:strokeWidth="0"
+        android:fillColor="#87cdde"
+        android:strokeColor="#000000"
+        android:strokeLineCap="butt" />
+    <path
+        android:pathData="m1.5,97.14 l0,-56.91 19.64,0 0,0 0,6.04c-3.82,2.3 -5.64,5.45 -5.94,8.57 -0.11,7.06 4.99,10.11 9.4,10.28 5.4,0.2 10.3,-3.9 9.95,-10.25 -0.27,-3.15 -2.26,-6.27 -6.06,-8.46l-0.13,-6.17 15.64,0c3.86,-0.11 6.68,2.16 6.68,6.32l0,17.57 2.94,0c2.37,-3.35 5.87,-4.82 9.15,-4.67 5.93,0.22 8.91,4.83 8.88,9.47 -0.03,4.68 -3.1,9.39 -9.27,9.71 -3.08,-0.04 -6.37,-0.7 -8.76,-5.26l-2.94,0 0,18.13c0,3.46 -2.69,5.63 -5.47,5.63z"
+        android:strokeLineJoin="round"
+        android:strokeWidth="3"
+        android:fillColor="#000000"
+        android:strokeColor="#b2b2b2"
+        android:strokeLineCap="butt" />
+</vector>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/patchOptionsRoot"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="24dp"
+    app:edgeToEdge="true"
+    app:consumeSystemWindowsInsets="start|end"
+    app:fitsSystemWindowsInsets="top|bottom">
+
+    <!-- 标题 -->
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tvLabel"
+        style="@style/TextAppearance.Material3.HeadlineSmall"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/select_work_mode"
+        android:textColor="?attr/colorOnBackground"
+        android:contentDescription="@string/select_work_mode"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- 下面把 RadioGroup 换成自定义的 ExpandableCardGroup -->
+    <net.ankio.auto.ui.components.ExpandableCardGroup
+        android:id="@+id/cardGroup"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        app:layout_constraintTop_toBottomOf="@id/tvLabel"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:animateLayoutChanges="true">
+
+        <!-- 第一张可展开卡片：Xposed 模式 -->
+        <net.ankio.auto.ui.components.ExpandableCardView
+            android:id="@+id/cardXposed"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:ecv_icon="@drawable/xposed_framework_icon"
+            app:ecv_titleText="@string/xposed_mode_title"
+            app:ecv_descriptionText="@string/xposed_mode_description"
+            app:ecv_expanded="true" />
+
+        <net.ankio.auto.ui.components.ExpandableCardView
+            android:id="@+id/cardOcr"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:ecv_icon="@drawable/xposed_framework_icon"
+            app:ecv_titleText="@string/ocr_mode_title"
+            app:ecv_descriptionText="@string/ocr_mode_description" />
+
+        <!-- 如需更多模式，继续在这里加 ExpandableCardView 即可 -->
+    </net.ankio.auto.ui.components.ExpandableCardGroup>
+
+    <!-- 下一步 按钮 -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnNext"
+        style="@style/Widget.Material3.Button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/action_next"
+        android:layout_marginTop="32dp"
+        android:paddingVertical="12dp"
+        app:icon="@drawable/ic_arrow_forward_24"
+        app:iconGravity="textEnd"
+        app:iconPadding="8dp"
+        app:iconTint="?attr/colorOnPrimary"
+        android:contentDescription="@string/action_next"
+        app:layout_constraintTop_toBottomOf="@id/cardGroup"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

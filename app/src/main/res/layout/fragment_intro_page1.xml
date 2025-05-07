@@ -3,7 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/spark_container"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    app:edgeToEdge="true"
+    app:consumeSystemWindowsInsets="start|end"
+    app:fitsSystemWindowsInsets="top|bottom">
 
     <!-- Spark 会把这一层作为“画布”做渐变，无需再写 android:background -->
     <!-- 下面是原来的 ConstraintLayout 内容，几乎未改动 -->
