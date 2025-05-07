@@ -45,4 +45,14 @@
         <attr name="cornerRadiusBottomRight" format="dimension" />
         <attr name="cornerRadius" format="dimension" />
     </declare-styleable>
+    <declare-styleable name="ExpandableCardView">
+        <!-- icon drawable -->
+        <attr name="ecv_icon" format="reference" />
+        <!-- 标题文字 -->
+        <attr name="ecv_titleText" format="string" />
+        <!-- 描述文字 -->
+        <attr name="ecv_descriptionText" format="string" />
+        <!-- 是否默认展开 -->
+        <attr name="ecv_expanded" format="boolean" />
+    </declare-styleable>
 </resources>
