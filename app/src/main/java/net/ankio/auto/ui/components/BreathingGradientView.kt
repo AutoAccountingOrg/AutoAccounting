@@ -32,9 +32,16 @@ class BreathingGradientView @JvmOverloads constructor(
     private lateinit var shader: RadialGradient
     private var progress = 0f                // 动画进度 0..1
 
+    // Store a reference to the animator to be able to cancel it later
+    private var animator: ValueAnimator? = null
+
     init {
         setWillNotDraw(false)
-        ValueAnimator.ofFloat(0f, 1f).apply {
+        setupAnimator()
+    }
+
+    private fun setupAnimator() {
+        animator = ValueAnimator.ofFloat(0f, 1f).apply {
             duration = cycleDuration
             interpolator = LinearInterpolator()
             repeatCount = ValueAnimator.INFINITE
@@ -43,8 +50,20 @@ class BreathingGradientView @JvmOverloads constructor(
                 progress = it.animatedValue as Float
                 invalidate()
             }
-            start()
         }
+    }
+
+    // Start animation when attached to window
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        animator?.start()
+    }
+
+    // Stop animation when detached from window
+    override fun onDetachedFromWindow() {
+        animator?.cancel()
+        animator = null
+        super.onDetachedFromWindow()
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
