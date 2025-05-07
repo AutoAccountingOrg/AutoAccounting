@@ -14,7 +14,7 @@
   -->
 
 <resources>
-    <string name="app_name">自动记账</string>
+
     <string name="about_view_source_code"><![CDATA[在 %s 查看源码]]></string>
     <string name="title_home">主页</string>
     <string name="title_data">数据</string>
@@ -426,5 +426,56 @@
     <string name="service_notification_title">自动记账悬浮窗/后台服务运行中</string>
     <string name="auto_record_">静默记账</string>
 
+
+    <!-- Colors -->
+    <string name="color_default">Default</string>
+    <string name="color_sakura">Sakura</string>
+    <string name="color_red">Red</string>
+    <string name="color_pink">Pink</string>
+    <string name="color_purple">Purple</string>
+    <string name="color_deep_purple">Deep purple</string>
+    <string name="color_indigo">Indigo</string>
+    <string name="color_blue">Blue</string>
+    <string name="color_light_blue">Light blue</string>
+    <string name="color_cyan">Cyan</string>
+    <string name="color_teal">Teal</string>
+    <string name="color_green">Green</string>
+    <string name="color_light_green">Light green</string>
+    <string name="color_lime">Lime</string>
+    <string name="color_yellow">Yellow</string>
+    <string name="color_amber">Amber</string>
+    <string name="color_orange">Orange</string>
+    <string name="color_deep_orange">Deep orange</string>
+    <string name="color_brown">Brown</string>
+    <string name="color_blue_grey">Blue grey</string>
+
+    <!-- Intro -->
+    <string name="app_name">Auto Accounting</string>
+
+    <!-- Intro page -->
+    <string name="intro_title">Auto Accounting 4.0</string>
+    <string name="intro_subtitle">Faster, Lighter, Smarter</string>
+    <string name="get_started">Get Started Now</string>
+
+
+    <!-- Title and labels -->
+    <string name="select_work_mode">Choose Work Mode</string>
+    <string name="select_work_mode_subtitle">
+    Choose the extraction method that best fits your device setup.
+</string>
+    <!-- Xposed Mode -->
+    <string name="xposed_mode_title">Xposed Mode</string>
+    <string name="xposed_mode_description">
+        Root + LSPosed required. Hooks directly into app APIs and notifications for real-time, high-accuracy data capture—ideal for power users or enterprise environments with full device control.
+    </string>
+
+    <!-- OCR Mode -->
+    <string name="ocr_mode_title">OCR Mode</string>
+    <string name="ocr_mode_description">
+        No root needed. Captures screenshots or notifications and runs OCR/AI to extract bill details—easy to deploy on any device, perfect for everyday users and broad-compatibility scenarios.
+    </string>
+
+    <!-- Action -->
+    <string name="action_next">Next</string>
 
 </resources>
