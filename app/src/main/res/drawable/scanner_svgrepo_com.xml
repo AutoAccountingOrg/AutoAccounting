@@ -1,0 +1,59 @@
+<!--
+  ~ Copyright (C) 2025 ankio(ankio@ankio.net)
+  ~ Licensed under the Apache License, Version 3.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~         http://www.apache.org/licenses/LICENSE-3.0
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~   limitations under the License.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="800dp"
+    android:height="800dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <group>
+        <clip-path android:pathData="M0,0h24v24h-24z" />
+        <path
+            android:pathData="M20,12H4"
+            android:strokeLineJoin="round"
+            android:strokeWidth="2.5"
+            android:fillColor="#00000000"
+            android:strokeColor="#292929"
+            android:strokeLineCap="round" />
+        <path
+            android:pathData="M16,4H18C19.105,4 20,4.895 20,6V8"
+            android:strokeLineJoin="round"
+            android:strokeWidth="2.5"
+            android:fillColor="#00000000"
+            android:strokeColor="#292929"
+            android:strokeLineCap="round" />
+        <path
+            android:pathData="M8,20L6,20C4.895,20 4,19.104 4,18L4,16"
+            android:strokeLineJoin="round"
+            android:strokeWidth="2.5"
+            android:fillColor="#00000000"
+            android:strokeColor="#292929"
+            android:strokeLineCap="round" />
+        <path
+            android:pathData="M20,16V18C20,19.104 19.105,20 18,20H16"
+            android:strokeLineJoin="round"
+            android:strokeWidth="2.5"
+            android:fillColor="#00000000"
+            android:strokeColor="#292929"
+            android:strokeLineCap="round" />
+        <path
+            android:pathData="M4,8L4,6C4,4.895 4.895,4 6,4L8,4"
+            android:strokeLineJoin="round"
+            android:strokeWidth="2.5"
+            android:fillColor="#00000000"
+            android:strokeColor="#292929"
+            android:strokeLineCap="round" />
+    </group>
+</vector>
