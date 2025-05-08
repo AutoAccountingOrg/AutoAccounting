@@ -17,6 +17,7 @@ package net.ankio.auto.ui.utils
 
 import android.app.Application
 import android.content.Context
+import android.view.Gravity
 import android.view.View
 import com.hjq.toast.ToastParams
 import com.hjq.toast.Toaster
@@ -36,6 +37,7 @@ object ToastUtils {
 
     fun init(application: Application) {
         Toaster.init(application)
+        Toaster.setGravity(Gravity.BOTTOM)
     }
 
     fun info(int: Int) {
