@@ -37,8 +37,15 @@
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/title"
                     style="@style/TextAppearance.Material3.TitleMedium"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
                     android:layout_height="wrap_content" />
+
+                <ImageView
+                    android:id="@+id/stateIcon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginStart="12dp" />
             </LinearLayout>
 
             <!-- 描述：顶间距改为 12dp -->

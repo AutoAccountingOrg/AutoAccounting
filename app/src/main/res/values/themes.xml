@@ -15,10 +15,28 @@
 
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="AppTheme" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="AppTheme" parent="Theme.Material3.DynamicColors.Light.Rikka">
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay.Rikka.Material3</item>
+        <item name="colorPrimaryVariant">@color/primary_dark_light_light_status_bar</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionModeOverlay">true</item>
+        <!-- Preference title -->
+        <item name="android:textAppearanceListItem">?textAppearanceSubtitle1</item>
+        <!-- Preference category title -->
+        <item name="android:colorAccent">?colorPrimary</item>
+        <!-- Preference switch -->
+        <item name="android:colorControlActivated">?colorPrimary</item>
+
         <item name="android:statusBarColor">@android:color/transparent</item>
-        <!-- <item name="android:windowBackground">@mipmap/ic_launcher_background</item>
- -->
+        <item name="android:windowLightStatusBar">?attr/isLightTheme</item>
+        <item name="android:windowLightNavigationBar" tools:ignore="NewApi">true</item>
+
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:enforceNavigationBarContrast">false</item>
+        <item name="android:enforceStatusBarContrast">false</item>
     </style>
 
     <style name="BottomSheetDialog" parent="Theme.Material3.DayNight.BottomSheetDialog">

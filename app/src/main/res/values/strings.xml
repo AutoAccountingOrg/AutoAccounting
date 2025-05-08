@@ -478,4 +478,36 @@
     <!-- Action -->
     <string name="action_next">Next</string>
 
+
+    <string name="auth_title">Permissions Required</string>
+    <string name="auth_subtitle">To extract bill data, please grant the following permissions:</string>
+
+    <string name="perm_notification_title">Notification Access</string>
+    <string name="perm_notification_desc">Allows the app to read incoming notifications to capture bill alerts.</string>
+
+    <string name="perm_sms_title">SMS Read Access</string>
+    <string name="perm_sms_desc">Allows the app to read SMS messages for payment confirmation codes.</string>
+
+    <string name="perm_overlay_title">Overlay Permission</string>
+    <string name="perm_overlay_desc">Allows displaying floating windows for quick extraction tools.</string>
+
+
+    <string name="perm_network_title">Network Access</string>
+    <string name="perm_network_desc">
+    Allows the app to access the Internet for AI analysis and data synchronization.
+</string>
+
+
+    <string name="action_grant_permissions">Grant Permissions</string>
+    <string name="perm_xposed_title">Xposed Module Activation</string>
+    <string name="perm_xposed_desc">
+    Please open LSPosed Manager, go to Modules > Auto Accounting, enable the toggle, and then reboot your device to complete activation.
+</string>
+
+    <string name="perm_xposed_tip">Please enter “*” on the dialer to launch the LSPosed Manager.</string>
+    <string name="perm_overlay_tip">
+    On the “Display over other apps” settings page, locate “Auto Accounting” and turn it on.
+</string>
+
+
 </resources>
