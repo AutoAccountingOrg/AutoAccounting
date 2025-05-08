@@ -27,25 +27,31 @@ import android.os.Build
 import android.os.Process
 import android.util.TypedValue
 import androidx.annotation.AttrRes
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.view.ContextThemeWrapper
 import com.google.android.material.color.MaterialColors
-import com.quickersilver.themeengine.ThemeEngine
+import com.tencent.bugly.crashreport.CrashReport
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Logger
-import net.ankio.auto.ui.activity.MainActivity
+import net.ankio.auto.ui.activity.HomeActivity
 import net.ankio.auto.ui.utils.ToastUtils
-import net.ankio.auto.utils.ExceptionHandler
+import net.ankio.auto.utils.PrefManager
+import net.ankio.auto.utils.PrefManager.darkTheme
+import net.ankio.auto.utils.ThemeUtils
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
+import rikka.material.app.LocaleDelegate
 import java.math.BigInteger
 import java.security.MessageDigest
+import java.util.Locale
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
+lateinit var autoApp: App
 class App : Application() {
 
 
@@ -140,10 +146,7 @@ class App : Application() {
             @AttrRes attrResId: Int,
         ): Int {
             return MaterialColors.getColor(
-                ContextThemeWrapper(
-                    app,
-                    ThemeEngine.getInstance(app).getTheme(),
-                ),
+                ThemeUtils.themedCtx(autoApp),
                 attrResId,
                 Color.WHITE,
             )
@@ -153,7 +156,7 @@ class App : Application() {
          * 获取主题Context
          */
         fun getThemeContext(context: Context): Context {
-            return ContextThemeWrapper(context, ThemeEngine.getInstance(context).getTheme())
+            return ThemeUtils.themedCtx(context)
         }
 
         /**
@@ -183,7 +186,7 @@ class App : Application() {
          * 重启应用
          */
         fun restart() {
-            val intent = Intent(app, MainActivity::class.java)
+            val intent = Intent(app, HomeActivity::class.java)
             intent.addFlags(FLAG_ACTIVITY_NEW_TASK)
             app.startActivity(intent)
             Process.killProcess(Process.myPid())
@@ -248,25 +251,63 @@ class App : Application() {
         }
     }
 
-    /**
-     * 初始化
-     */
-    override fun attachBaseContext(base: Context?) {
-        super.attachBaseContext(base)
-        Logger.i("App init")
+    override fun onCreate() {
+        super.onCreate()
+
+        autoApp = this
         app = this
-        ConfigUtils.init(this)
-        // 初始化调试模式
-        debug =
-            BuildConfig.DEBUG || ConfigUtils.getBoolean(Setting.DEBUG_MODE, DefaultData.DEBUG_MODE)
-        Logger.i("Debug Mode: $debug")
         if (!BuildConfig.DEBUG) {
-            // 设置全局异常
-            ExceptionHandler.init(this)
+            initBugly()
         }
+
+        initTheme()
+
+        initLanguage()
 
         // 初始化 Toast 框架
         ToastUtils.init(this)
+
+
     }
+
+    private fun initTheme() {
+        AppCompatDelegate.setDefaultNightMode(darkTheme)
+    }
+
+    private fun initLanguage() {
+        applyLocale(PrefManager.language)
+    }
+
+    fun getLocale(tag: String): Locale {
+        return if (tag == "SYSTEM") LocaleDelegate.systemLocale
+        else Locale.forLanguageTag(tag)
+    }
+
+    private fun applyLocale(languageTag: String) {
+        LocaleDelegate.defaultLocale = getLocale(languageTag)
+        val config = resources.configuration
+        config.setLocale(LocaleDelegate.defaultLocale)
+        createConfigurationContext(config)
+    }
+
+    /** 初始化 Bugly */
+    private fun initBugly() {
+        val strategy = CrashReport.UserStrategy(this).apply {
+            // 版本号、包名——便于在 Bugly 后台快速定位
+            appVersion = BuildConfig.VERSION_NAME
+            appPackageName = BuildConfig.APPLICATION_ID
+            // 设备型号：用品牌 + 型号能帮助你在后台过滤同类设备
+            deviceModel = "${Build.BRAND} ${Build.MODEL}"
+        }
+
+        // 第 2 个参数替换为你的 Bugly App Id
+        CrashReport.initCrashReport(
+            this,
+            "af9e0f4181",
+            BuildConfig.DEBUG,   // true 会在日志里输出调试信息
+            strategy
+        )
+    }
+
 
 }

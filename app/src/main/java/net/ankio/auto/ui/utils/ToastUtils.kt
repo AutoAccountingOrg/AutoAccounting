@@ -16,16 +16,28 @@
 package net.ankio.auto.ui.utils
 
 import android.app.Application
+import android.content.Context
+import android.view.View
+import com.hjq.toast.ToastParams
 import com.hjq.toast.Toaster
+import com.hjq.toast.style.CustomToastStyle
 import net.ankio.auto.App
+import net.ankio.auto.R
+import net.ankio.auto.utils.ThemeUtils
 
 
 object ToastUtils {
 
+    class CustomToastStyleAnkio(id: Int) : CustomToastStyle(id) {
+        override fun createView(context: Context?): View {
+            return super.createView(ThemeUtils.themedCtx(context!!))
+        }
+    }
 
     fun init(application: Application) {
         //这里进行主题包装
         Toaster.init(application)
+
     }
 
     fun info(int: Int) {
@@ -37,17 +49,16 @@ object ToastUtils {
     }
 
     fun info(msg: String) {
-        /* val params = ToastParams()
-           params.text = msg
-           params.style = CustomToastStyle(R.layout.toast_info)
-           Toaster.show(params)*/
-        Toaster.show(msg)
+        Toaster.show(ToastParams().apply {
+            text = msg
+            style = CustomToastStyleAnkio(R.layout.toast_info)
+        })
     }
 
     fun error(msg: String) {
-        /*  val params = ToastParams()
-          params.text = msg
-          params.style = CustomToastStyle(R.layout.toast_error)*/
-        Toaster.show(msg)
+        Toaster.show(ToastParams().apply {
+            text = msg
+            style = CustomToastStyleAnkio(R.layout.toast_error)
+        })
     }
 }
