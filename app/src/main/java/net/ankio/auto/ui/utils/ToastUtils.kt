@@ -21,7 +21,6 @@ import android.view.View
 import com.hjq.toast.ToastParams
 import com.hjq.toast.Toaster
 import com.hjq.toast.style.CustomToastStyle
-import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.autoApp
 import net.ankio.auto.utils.ThemeUtils
