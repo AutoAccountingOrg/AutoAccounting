@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 ankio(ankio@ankio.net)
+ * Copyright (C) 2025 ankio(ankio@ankio.net)
  * Licensed under the Apache License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,11 +13,11 @@
  *   limitations under the License.
  */
 
-package org.ezbook.server.constant
+package net.ankio.auto.ui.vm
 
-enum class SyncType {
-    WhenOpenApp, //打开账本时同步
-    BillsLimit1, //实时同步
-    BillsLimit5, //账单超过5条时同步
-    BillsLimit10, //账单超过10条时同步
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+
+class IntroSharedVm : ViewModel() {
+    val pageRequest = MutableLiveData<Int>()
 }

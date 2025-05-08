@@ -18,11 +18,15 @@ package net.ankio.auto.service
 import android.app.Service.START_NOT_STICKY
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
+import android.os.Build
+import android.provider.Settings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import net.ankio.auto.App
 import net.ankio.auto.R
+import net.ankio.auto.autoApp
 import net.ankio.auto.intent.FloatingIntent
 import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Logger
@@ -77,5 +81,21 @@ class FloatingWindowService(val context: Context) {
     fun onDestroy() {
         floatingQueue.shutdown()
         runCatching { !bills.isClosedForSend && bills.close() }
+    }
+
+    companion object : IService {
+        override fun hasPermission(): Boolean {
+            return Settings.canDrawOverlays(autoApp)
+        }
+
+        override fun startPermissionActivity(context: Context) {
+            val intent = Intent(
+                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                Uri.parse("package:${context.packageName}")
+            )
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            context.startActivity(intent)
+        }
+
     }
 }
