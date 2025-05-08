@@ -24,7 +24,7 @@ import net.ankio.auto.xposed.hooks.sms.SmsHooker
 import net.ankio.auto.xposed.hooks.wechat.WechatHooker
 
 
-object Apps {
+object XposedModule {
 
     fun get(): MutableList<HookerManifest> {
         return mutableListOf(
@@ -43,5 +43,9 @@ object Apps {
             SmsHooker(), // Sms
             ////////////////////////////
         )
+    }
+
+    fun active(): Boolean {
+        return false
     }
 }
