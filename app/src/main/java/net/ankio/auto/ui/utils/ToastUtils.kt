@@ -29,7 +29,7 @@ import net.ankio.auto.utils.ThemeUtils
 
 object ToastUtils {
 
-    class CustomToastStyleAnkio(id: Int) : CustomToastStyle(id) {
+    class CustomToastStyleAnkio(id: Int, gravity: Int) : CustomToastStyle(id, gravity) {
         override fun createView(context: Context?): View {
             return super.createView(ThemeUtils.themedCtx(context!!))
         }
@@ -37,7 +37,6 @@ object ToastUtils {
 
     fun init(application: Application) {
         Toaster.init(application)
-        Toaster.setGravity(Gravity.BOTTOM)
     }
 
     fun info(int: Int) {
@@ -51,14 +50,14 @@ object ToastUtils {
     fun info(msg: String) {
         Toaster.show(ToastParams().apply {
             text = msg
-            style = CustomToastStyleAnkio(R.layout.toast_info)
+            style = CustomToastStyleAnkio(R.layout.toast_info, Gravity.BOTTOM)
         })
     }
 
     fun error(msg: String) {
         Toaster.show(ToastParams().apply {
             text = msg
-            style = CustomToastStyleAnkio(R.layout.toast_error)
+            style = CustomToastStyleAnkio(R.layout.toast_error, Gravity.BOTTOM)
         })
     }
 }
