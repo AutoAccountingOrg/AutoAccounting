@@ -16,20 +16,16 @@
 package net.ankio.auto.xposed.hooks.qianji.tools
 
 import android.net.Uri
+import androidx.core.net.toUri
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.ankio.auto.xposed.core.utils.DataUtils
-import net.ankio.auto.xposed.hooks.qianji.impl.AssetPreviewPresenterImpl
+import net.ankio.auto.xposed.core.logger.Logger
 import net.ankio.auto.xposed.hooks.qianji.sync.AutoConfig
+import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.BillInfoModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import net.ankio.auto.xposed.hooks.qianji.tools.formatTime
-import org.ezbook.server.constant.BillType
-import org.ezbook.server.constant.DefaultData
-import org.ezbook.server.constant.Setting
-import org.ezbook.server.db.model.SettingModel
 
 object QianJiUri {
     suspend fun toQianJi(billModel: BillInfoModel): Uri = withContext(Dispatchers.IO) {
@@ -44,13 +40,18 @@ object QianJiUri {
             category = "${categoryNames[0].trim()}/::/${categoryNames[1].trim()}"
         }
         uri.append("&catename=${Uri.encode(category)}")
-        uri.append("&catechoose=0")
+
+        // invalid when BillType is Transfer
+        if (billModel.type != BillType.Transfer) {
+            uri.append("&catechoose=0")
+        }
 
         if (billModel.bookName != "默认账本" && billModel.bookName != "日常账本" && AutoConfig.multiBooks) {
             uri.append("&bookname=${Uri.encode(billModel.bookName)}")
         }
 
-        if (AutoConfig.assetManagement) {
+        // invalid when BillType is not Transfer
+        if (AutoConfig.assetManagement && billModel.type == BillType.Transfer) {
             uri.append("&accountname=${Uri.encode(billModel.accountNameFrom)}")
             uri.append("&accountname2=${Uri.encode(billModel.accountNameTo)}")
         }
@@ -72,7 +73,9 @@ object QianJiUri {
 
         uri.append("&id=").append(billModel.id)
 
-        Uri.parse(uri.toString())
+        Logger.logD("QianjiUri", uri.toString())
+
+        uri.toString().toUri()
     }
 
 
