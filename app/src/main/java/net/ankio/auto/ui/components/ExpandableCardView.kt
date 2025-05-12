@@ -17,6 +17,10 @@ class ExpandableCardView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null
 ) : MaterialCardView(context, attrs) {
+    private var onCardClick: (() -> Unit)? = null
+    fun setOnCardClickListener(listener: () -> Unit) {
+        onCardClick = listener
+    }
 
     private val header by lazy { findViewById<View>(R.id.header) }
     private val detail by lazy { findViewById<View>(R.id.detail) }
@@ -64,14 +68,20 @@ class ExpandableCardView @JvmOverloads constructor(
             isExpanded = def
         }
 
-        // 点击 header 时：先收起同级，再做平滑过渡，再切换自己
-        rootView.setOnClickListener {
+
+        this.setOnClickListener {
+            if (isExpanded) {
+                onCardClick?.invoke()
+                return@setOnClickListener
+            }
+            // 1) collapse 其它
             (parent as? ExpandableCardGroup)?.collapseAll()
-            // 平滑过渡
+            // 2) 流畅动画
             TransitionManager.beginDelayedTransition(
                 parent as ViewGroup,
                 AutoTransition().apply { duration = 200 }
             )
+            // 3) 切换展开/折叠
             isExpanded = !isExpanded
         }
     }

@@ -19,7 +19,6 @@ import android.animation.LayoutTransition
 import android.content.Context
 import android.util.AttributeSet
 import android.view.View
-import android.view.ViewGroup.MarginLayoutParams
 import android.widget.LinearLayout
 import com.google.android.material.card.MaterialCardView
 
@@ -50,7 +49,7 @@ class ExpandableCardGroup @JvmOverloads constructor(
 
     override fun onFinishInflate() {
         super.onFinishInflate()
-        applyGrouping()
+
     }
 
     override fun onViewAdded(child: View) {
@@ -58,13 +57,23 @@ class ExpandableCardGroup @JvmOverloads constructor(
         applyGrouping()
     }
 
+
     private fun applyGrouping() {
         val density = resources.displayMetrics.density
         val gapPx = (gapDp * density).toInt()
         val cornerPx = cornerDp * density
 
+        val visibleChildren = mutableListOf<View>()
         for (i in 0 until childCount) {
             val child = getChildAt(i)
+            if (child.visibility == View.VISIBLE) {
+                visibleChildren.add(child)
+            }
+        }
+        val visibleCount = visibleChildren.size
+
+        for (i in 0 until visibleCount) {
+            val child = visibleChildren[i]
 
             // 1) apply top-gap margin (except on the first card)
             (child.layoutParams as? MarginLayoutParams)?.let { lp ->
@@ -88,7 +97,7 @@ class ExpandableCardGroup @JvmOverloads constructor(
                 }
 
                 // bottom corners
-                if (i == childCount - 1) {
+                if (i == visibleCount - 1) {
                     builder
                         .setBottomLeftCornerSize(cornerPx)
                         .setBottomRightCornerSize(cornerPx)
