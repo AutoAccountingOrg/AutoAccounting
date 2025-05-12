@@ -85,4 +85,17 @@ class ExpandableCardView @JvmOverloads constructor(
             isExpanded = !isExpanded
         }
     }
+
+    private lateinit var callback: (old: Int, new: Int) -> Unit
+    fun setOnVisibilityChanged(fn: (old: Int, new: Int) -> Unit) {
+        callback = fn
+    }
+
+    override fun setVisibility(visibility: Int) {
+        val old = getVisibility()
+        super.setVisibility(visibility)
+        if (::callback.isInitialized) {
+            callback(old, visibility)
+        }
+    }
 }

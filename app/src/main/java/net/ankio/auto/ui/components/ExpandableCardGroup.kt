@@ -18,9 +18,12 @@ package net.ankio.auto.ui.components
 import android.animation.LayoutTransition
 import android.content.Context
 import android.util.AttributeSet
+import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import android.widget.LinearLayout
 import com.google.android.material.card.MaterialCardView
+import net.ankio.auto.storage.Logger
 
 /**
  * A vertical group of ExpandableCardView that:
@@ -28,7 +31,7 @@ import com.google.android.material.card.MaterialCardView
  *  • applies a small gap and proper corner radii based on child position
  *  • supports collapseAll() and selectedIndex
  */
-class ExpandableCardGroup @JvmOverloads constructor(
+open class ExpandableCardGroup @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null
 ) : LinearLayout(context, attrs) {
@@ -49,14 +52,37 @@ class ExpandableCardGroup @JvmOverloads constructor(
 
     override fun onFinishInflate() {
         super.onFinishInflate()
-
+        for (i in 0 until childCount) {
+            val child = getChildAt(i)
+            if (child !is ExpandableCardView) {
+                continue
+            }
+            child.setOnVisibilityChanged { old, new ->
+                onChildVisibilityChanged(child, old, new)
+            }
+        }
     }
 
+    /** 子 View 被添加进来时 */
     override fun onViewAdded(child: View) {
         super.onViewAdded(child)
         applyGrouping()
     }
 
+    /** 子 View 被移除时 */
+    override fun onViewRemoved(child: View) {
+        super.onViewRemoved(child)
+        applyGrouping()
+    }
+
+
+    /** 子 View 的可见性发生变化时 */
+    private fun onChildVisibilityChanged(child: View, oldVisibility: Int, newVisibility: Int) {
+        // 只有在 VISIBLE / GONE 之间切换时才需要重新分组
+        if ((oldVisibility == View.VISIBLE) xor (newVisibility == View.VISIBLE)) {
+            applyGrouping()
+        }
+    }
 
     private fun applyGrouping() {
         val density = resources.displayMetrics.density
@@ -71,6 +97,7 @@ class ExpandableCardGroup @JvmOverloads constructor(
             }
         }
         val visibleCount = visibleChildren.size
+
 
         for (i in 0 until visibleCount) {
             val child = visibleChildren[i]
