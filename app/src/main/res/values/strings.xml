@@ -504,9 +504,60 @@
     Please open LSPosed Manager, go to Modules > Auto Accounting, enable the toggle, and then reboot your device to complete activation.
 </string>
 
-    <string name="perm_xposed_tip">Please enter “*” on the dialer to launch the LSPosed Manager.</string>
+    <string name="perm_xposed_tip">Open LSPosed Manager, enable the module, and then return here.</string>
     <string name="perm_overlay_tip">
     On the “Display over other apps” settings page, locate “Auto Accounting” and turn it on.
+</string>
+    <string name="keepalive_title">Keep Auto Accounting Running</string>
+    <string name="keepalive_subtitle">
+        To ensure continuous background operation, please configure these settings:
+    </string>
+
+    <string name="keepalive_battery_title">Ignore Battery Optimization</string>
+    <string name="keepalive_battery_desc">
+        Allow the app to run unrestricted when the device is idle or the screen is off.
+    </string>
+
+    <string name="keepalive_autostart_title">Enable Auto-Start</string>
+    <string name="keepalive_autostart_desc">
+        Permit the app to launch automatically after device reboot.
+    </string>
+
+    <string name="keepalive_tasklock_title">Lock in Task Manager</string>
+    <string name="keepalive_tasklock_desc">
+        Exclude the app from task cleaners to prevent it from being killed.
+    </string>
+
+    <string name="action_continue">Continue</string>
+    <string name="perm_not_complete">Some permissions are still missing. Please grant them before continuing.</string>
+
+    <!-- Battery optimization -->
+    <string name="keepalive_battery_fail">
+    Unable to open the battery‑optimization settings. Please add the app to the whitelist manually.
+</string>
+
+    <!-- Auto‑start -->
+    <string name="keepalive_autostart_tip">
+    Locate the “Auto‑start” (or “Startup management”) screen and allow this app to start automatically.
+</string>
+    <string name="keepalive_autostart_fail">
+    Unable to open the auto‑start settings. Please configure it manually.
+</string>
+
+    <!-- Task‑manager lock -->
+    <string name="keepalive_tasklock_tip">
+    Open the recent‑apps screen, then pull down or long‑press this app’s card and choose “Lock” to keep it running.
+</string>
+
+    <!-- Battery optimisation -->
+    <string name="keepalive_battery_tip_list">
+    Find this app in the list and switch it to “Don’t optimise”.
+</string>
+    <string name="keepalive_battery_tip_details">
+    Tap “Battery optimisation” → “Don’t optimise” on the next screen.
+</string>
+    <string name="keepalive_battery_already">
+    Battery optimisation is already disabled for this app.
 </string>
 
 

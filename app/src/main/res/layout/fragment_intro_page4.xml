@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/keepAliveRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="24dp"
+    app:edgeToEdge="true"
+    app:consumeSystemWindowsInsets="start|end"
+    app:fitsSystemWindowsInsets="top|bottom">
+
+    <!-- 页面主标题 -->
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tvKeepAliveTitle"
+        style="@style/TextAppearance.Material3.HeadlineSmall"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/keepalive_title"
+        android:textColor="?attr/colorOnBackground"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- 副标题说明 -->
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tvKeepAliveSubtitle"
+        style="@style/TextAppearance.Material3.BodyMedium"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/keepalive_subtitle"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        app:layout_constraintTop_toBottomOf="@id/tvKeepAliveTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- 滚动区：保持后台运行选项 -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollKeepAlive"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toBottomOf="@id/tvKeepAliveSubtitle"
+        app:layout_constraintBottom_toTopOf="@id/btnContinue"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <net.ankio.auto.ui.components.ExpandableCardGroup
+            android:id="@+id/keepAliveGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:animateLayoutChanges="true">
+
+            <!-- 忽略电池优化 -->
+            <net.ankio.auto.ui.components.ExpandableCardView
+                android:id="@+id/cardBatteryOpt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:ecv_icon="@drawable/ic_battery"
+                app:ecv_titleText="@string/keepalive_battery_title"
+                app:ecv_descriptionText="@string/keepalive_battery_desc" />
+
+            <!-- 自启动权限 -->
+            <net.ankio.auto.ui.components.ExpandableCardView
+                android:id="@+id/cardAutostart"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:ecv_icon="@drawable/ic_autostart"
+                app:ecv_titleText="@string/keepalive_autostart_title"
+                app:ecv_descriptionText="@string/keepalive_autostart_desc" />
+
+            <!-- 任务管理器锁定 -->
+            <net.ankio.auto.ui.components.ExpandableCardView
+                android:id="@+id/cardTaskLock"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:ecv_icon="@drawable/ic_lock"
+                app:ecv_titleText="@string/keepalive_tasklock_title"
+                app:ecv_descriptionText="@string/keepalive_tasklock_desc" />
+
+        </net.ankio.auto.ui.components.ExpandableCardGroup>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- 继续按钮 -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnContinue"
+        style="@style/Widget.Material3.Button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/action_continue"
+        android:paddingVertical="12dp"
+        app:icon="@drawable/ic_arrow_forward_24"
+        app:iconGravity="textEnd"
+        app:iconPadding="8dp"
+        app:iconTint="?attr/colorOnPrimary"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:contentDescription="@string/action_continue" />
+</androidx.constraintlayout.widget.ConstraintLayout>
