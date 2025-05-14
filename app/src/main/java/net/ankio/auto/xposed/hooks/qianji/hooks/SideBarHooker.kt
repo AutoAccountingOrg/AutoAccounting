@@ -16,6 +16,7 @@
 package net.ankio.auto.xposed.hooks.qianji.hooks
 
 import android.app.Activity
+import android.content.Intent
 import android.view.LayoutInflater
 import android.widget.FrameLayout
 import android.widget.LinearLayout
@@ -130,6 +131,14 @@ class SideBarHooker : PartHooker() {
         itemMenuBinding.title.setTextColor(mainColor)
         itemMenuBinding.version.text = BuildConfig.VERSION_NAME.replace(" - Xposed", "")
         itemMenuBinding.version.setTextColor(subColor)
+
+
+        // 设置图标点击事件，打开自动记账
+        itemMenuBinding.appIcon.setOnClickListener {
+            context.startActivity(Intent().setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                .setClassName("net.ankio.auto.xposed", "net.ankio.auto.ui.activity.MainActivity"))
+        }
+
 
         // 设置点击事件，触发数据同步
         itemMenuBinding.root.setOnClickListener {
