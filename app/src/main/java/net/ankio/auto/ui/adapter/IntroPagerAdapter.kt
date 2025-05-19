@@ -7,9 +7,10 @@ import net.ankio.auto.ui.fragment.intro.IntroPage1Fragment
 import net.ankio.auto.ui.fragment.intro.IntroPage2Fragment
 import net.ankio.auto.ui.fragment.intro.IntroPage3Fragment
 import net.ankio.auto.ui.fragment.intro.IntroPage4Fragment
+import net.ankio.auto.ui.fragment.intro.IntroPage5Fragment
 
 class IntroPagerAdapter(activity: FragmentActivity) : FragmentStateAdapter(activity) {
-    override fun getItemCount() = 4 // 页数
+    override fun getItemCount() = 5 // 页数
 
     override fun createFragment(position: Int): Fragment {
         return when (position) {
@@ -17,6 +18,7 @@ class IntroPagerAdapter(activity: FragmentActivity) : FragmentStateAdapter(activ
             1 -> IntroPage2Fragment()
             2 -> IntroPage3Fragment()
             3 -> IntroPage4Fragment()
+            4 -> IntroPage5Fragment()
             else -> throw IllegalArgumentException("Invalid page")
         }
     }

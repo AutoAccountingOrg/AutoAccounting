@@ -559,6 +559,8 @@
     <string name="keepalive_battery_already">
     Battery optimisation is already disabled for this app.
 </string>
+    <string name="select_ledger_title">Select Accounting App</string>
+    <string name="select_ledger_subtitle">Auto Accounting does not include data visualization features by default; you need to select one to serve as your data visualization analysis tool.</string>
 
 
 </resources>

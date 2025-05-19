@@ -1,3 +1,5 @@
+import java.util.Calendar
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
@@ -9,7 +11,7 @@ plugins {
 autoResConfig {
     generateClass.set(true)
     generateRes.set(false)
-    generatedClassFullName.set("org.ezbook.util.LangList")
+    generatedClassFullName.set("net.ankio.auto.util.LangList")
     generatedArrayFirstItem.set("SYSTEM")
 }
 
@@ -57,23 +59,12 @@ android {
     defaultConfig {
         applicationId = "net.ankio.auto"
         minSdk = 29
-        versionCode = 212
+        versionCode = calculateVersionCode()
         versionName = "4.0.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         flavorDimensions += "version"
         setProperty("archivesBaseName", "app-${versionName}(${versionCode})")
-        productFlavors {
-            create("lsposed") {
-                dimension = "version"
-                applicationIdSuffix = ".xposed"
-                versionNameSuffix = " - Xposed"
-            }
-            create("ocr") {
-                dimension = "version"
-                applicationIdSuffix = ".ocr"
-                versionNameSuffix = " - Ocr"
-            }
-        }
+
 
 
         ndk {
@@ -111,19 +102,7 @@ android {
         // 普通资源（非 .so）放这里
         resources {
             excludes += listOf(
-                "META-INF/DEPENDENCIES",
-                "META-INF/LICENSE",
-                "META-INF/LICENSE.md",
-                "META-INF/LICENSE.txt",
-                "META-INF/NOTICE",
-                "META-INF/NOTICE.txt",
-                "META-INF/NOTICE.md",
-                "META-INF/ASL2.0",
-                "META-INF/gson/FieldAttributes.txt",
-                "META-INF/gson/LongSerializationPolicy.txt",
-                "META-INF/gson/annotations.txt",
-                "META-INF/INDEX.LIST",
-                "META-INF/io.netty.versions.properties"
+                "META-INF/*"
             )
         }
 
@@ -142,10 +121,23 @@ android {
         )
     }
 
+
+}
+fun calculateVersionCode(): Int {
+    val calendar = Calendar.getInstance()
+    val year = calendar.get(Calendar.YEAR)
+    val month = calendar.get(Calendar.MONTH) + 1
+    val day = calendar.get(Calendar.DAY_OF_MONTH)
+    return year * 10000 + month * 100 + day
 }
 
+configurations.configureEach {
+    exclude("androidx.appcompat", "appcompat")
+}
 
 dependencies {
+
+
     implementation(libs.androidx.swiperefreshlayout)
 
 
@@ -161,8 +153,6 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.lifecycle.runtime.ktx)
 
-    // 主题库
-    implementation(libs.themeEngine)
 
     // Html转换
     implementation(libs.html.ktx)
@@ -182,8 +172,6 @@ dependencies {
     // 圆角
     implementation(libs.round)
 
-    // bug
-    implementation(libs.bugsnag.android)
 
     // okhttp
     implementation(libs.okhttp)
@@ -199,4 +187,17 @@ dependencies {
 
     // debug依赖
     debugImplementation(libs.leakcanary.android)
+
+
+
+    implementation(libs.rikkaMaterial)
+    implementation(libs.rikkaMaterialPreference)
+    implementation(libs.about)
+
+    implementation("dev.rikka.rikkax.insets:insets:1.3.0")
+    implementation("org.snakeyaml:snakeyaml-engine:2.9")
+
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+
+    implementation("com.tencent.bugly:crashreport:latest.release")
 }

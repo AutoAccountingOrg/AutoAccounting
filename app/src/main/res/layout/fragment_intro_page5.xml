@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/selectLedgerRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="24dp"
+    app:edgeToEdge="true"
+    app:consumeSystemWindowsInsets="start|end"
+    app:fitsSystemWindowsInsets="top|bottom">
+
+    <!-- 页面主标题 -->
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tvSelectLedgerTitle"
+        style="@style/TextAppearance.Material3.HeadlineSmall"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/select_ledger_title"
+        android:textColor="?attr/colorOnBackground"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- 副标题说明 -->
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tvSelectLedgerSubtitle"
+        style="@style/TextAppearance.Material3.BodyMedium"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/select_ledger_subtitle"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        app:layout_constraintTop_toBottomOf="@id/tvSelectLedgerTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- 滚动区：记账软件列表（固定两项：钱迹 & 自动记账） -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollLedgerList"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toBottomOf="@id/tvSelectLedgerSubtitle"
+        app:layout_constraintBottom_toTopOf="@id/btnContinue"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <net.ankio.auto.ui.components.ExpandableCardGroup
+            android:id="@+id/ledgerCardGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:animateLayoutChanges="true">
+
+
+        </net.ankio.auto.ui.components.ExpandableCardGroup>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- 继续按钮 -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnContinue"
+        style="@style/Widget.Material3.Button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/action_continue"
+        android:paddingVertical="12dp"
+        app:icon="@drawable/ic_arrow_forward_24"
+        app:iconGravity="textEnd"
+        app:iconPadding="8dp"
+        app:iconTint="?attr/colorOnPrimary"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:contentDescription="@string/action_continue" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

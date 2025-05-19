@@ -1,0 +1,19 @@
+# 记账软件列表（AutoApp 构造参数同款字段）
+# 如：name, icon(对应 R.drawable), package, website, description
+
+
+- name: "钱迹"
+  icon: "https://pp.myapp.com/ma_icon/0/icon_52573842_1744768940/256"                  # → R.drawable.app_qianji
+  package: "com.mutangtech.qianji"
+  website: "https://qianjiapp.com/"
+  description: |
+    钱迹，一款简洁纯粹的记账 App，是一个 “无广告、无开屏、无理财” 的 “三无” 产品。
+    力求极简，专注个人记账，将每一笔收支都清晰记录，消费及资产随时了然于心。
+
+
+- name: "仅自动记账"
+  icon: ""             # → R.drawable.app_auto_ledger
+  package: "net.ankio.auto"
+  website: ""
+  description: |
+    仅将账单记录到自动记账，不同步到任何记账软件。
