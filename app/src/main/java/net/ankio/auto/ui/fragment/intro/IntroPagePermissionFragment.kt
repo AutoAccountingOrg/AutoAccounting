@@ -1,7 +1,6 @@
 package net.ankio.auto.ui.fragment.intro
 
 import android.Manifest
-import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
@@ -11,19 +10,17 @@ import android.provider.Settings
 import android.view.View
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import com.google.android.material.color.MaterialColors
 import net.ankio.auto.R
 import net.ankio.auto.constant.WorkMode
-import net.ankio.auto.databinding.FragmentIntroPage3Binding
+import net.ankio.auto.databinding.FragmentIntroPagePermissionBinding
 import net.ankio.auto.service.FloatingWindowService
 import net.ankio.auto.service.NotificationService
 import net.ankio.auto.service.SmsReceiver
-import net.ankio.auto.ui.api.BaseFragment
+import net.ankio.auto.ui.adapter.IntroPagerAdapter
 import net.ankio.auto.ui.components.ExpandableCardView
 import net.ankio.auto.ui.utils.ToastUtils
-import net.ankio.auto.ui.vm.IntroSharedVm
 import net.ankio.auto.ui.vm.PermissionSharedVm
 import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.xposed.XposedModule
@@ -31,10 +28,9 @@ import net.ankio.auto.xposed.XposedModule
 /**
  * 引导页 #3 – 权限申请
  */
-class IntroPage3Fragment : BaseFragment<FragmentIntroPage3Binding>() {
+class IntroPagePermissionFragment : BaseIntroPageFragment<FragmentIntroPagePermissionBinding>() {
 
     private val permissionVm: PermissionSharedVm by viewModels()
-    private val vm: IntroSharedVm by activityViewModels()
 
     // ──────────────────────────────────────────────────────────────────────────────
     // Lifecycle
@@ -48,7 +44,6 @@ class IntroPage3Fragment : BaseFragment<FragmentIntroPage3Binding>() {
 
     override fun onResume() {
         super.onResume()
-        PrefManager.introIndex = 2
 
         // 根据工作模式隐藏/显示卡片
         if (PrefManager.workMode == WorkMode.Xposed) {
@@ -129,7 +124,7 @@ class IntroPage3Fragment : BaseFragment<FragmentIntroPage3Binding>() {
         }.all { it == true }
 
         if (requiredGranted) {
-            vm.pageRequest.value = 3
+            vm.pageRequest.value = IntroPagerAdapter.IntroPage.KEEP
         } else {
             ToastUtils.error(R.string.perm_not_complete)   // “还有权限未授权”
         }

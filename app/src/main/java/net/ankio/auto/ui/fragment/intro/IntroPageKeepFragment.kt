@@ -1,33 +1,27 @@
 package net.ankio.auto.ui.fragment.intro
 
 import android.annotation.SuppressLint
-import android.content.ActivityNotFoundException
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings
 import android.view.View
-import androidx.core.content.ContextCompat
-import androidx.fragment.app.activityViewModels
 import net.ankio.auto.R
 import net.ankio.auto.constant.WorkMode
-import net.ankio.auto.databinding.FragmentIntroPage4Binding
-import net.ankio.auto.ui.api.BaseFragment
+import net.ankio.auto.databinding.FragmentIntroPageKeepBinding
+import net.ankio.auto.ui.adapter.IntroPagerAdapter
 import net.ankio.auto.ui.components.ExpandableCardView
 import net.ankio.auto.ui.utils.ToastUtils
-import net.ankio.auto.ui.vm.IntroSharedVm
 import net.ankio.auto.utils.PrefManager
 
 /**
  * 引导页 #4 – 后台保活相关权限
  */
-class IntroPage4Fragment : BaseFragment<FragmentIntroPage4Binding>() {
+class IntroPageKeepFragment : BaseIntroPageFragment<FragmentIntroPageKeepBinding>() {
 
-    private val vm: IntroSharedVm by activityViewModels()
 
     // ──────────────────────────────────────────────────────────────────────────────
     // Lifecycle
@@ -37,7 +31,9 @@ class IntroPage4Fragment : BaseFragment<FragmentIntroPage4Binding>() {
         super.onViewCreated(view, savedInstanceState)
 
         /* 继续 → 下一页 */
-        binding.btnContinue.setOnClickListener { vm.pageRequest.value = 4 }
+        binding.btnContinue.setOnClickListener {
+            vm.pageRequest.value = IntroPagerAdapter.IntroPage.APP
+        }
 
         /* 卡片点击动作 */
         registerCardClick(binding.cardBatteryOpt) { openBatteryOptimizationPage() }
@@ -47,7 +43,6 @@ class IntroPage4Fragment : BaseFragment<FragmentIntroPage4Binding>() {
 
     override fun onResume() {
         super.onResume()
-        PrefManager.introIndex = 3
 
         /* Xposed 模式下无需电池优化/任务锁定 */
         if (PrefManager.workMode == WorkMode.Xposed) {

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/selectLedgerRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="24dp"
+    app:edgeToEdge="true"
+    app:consumeSystemWindowsInsets="start|end"
+    app:fitsSystemWindowsInsets="top|bottom">
+
+    <!-- 页面主标题 -->
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tvSelectLedgerTitle"
+        style="@style/TextAppearance.Material3.HeadlineSmall"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/sync_title"
+        android:textColor="?attr/colorOnBackground"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- 副标题说明 -->
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tvSelectLedgerSubtitle"
+        style="@style/TextAppearance.Material3.BodyLarge"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/sync_subtitle"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        app:layout_constraintTop_toBottomOf="@id/tvSelectLedgerTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- 继续按钮 -->
+
+    <!-- 继续按钮 -->
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSync"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+
+        android:layout_marginBottom="416dp"
+        android:contentDescription="@string/action_continue"
+        android:paddingVertical="12dp"
+        android:text="@string/action_sync"
+        app:icon="@drawable/ic_arrow_forward_24"
+        app:iconGravity="textEnd"
+        app:iconPadding="8dp"
+        app:iconTint="?attr/colorPrimary"
+        app:layout_constraintBottom_toTopOf="@+id/btnContinue"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sync_state"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnContinue"
+        style="@style/Widget.Material3.Button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/action_continue"
+        android:paddingVertical="12dp"
+        app:icon="@drawable/ic_arrow_forward_24"
+        app:iconGravity="textEnd"
+        app:iconPadding="8dp"
+        app:iconTint="?attr/colorOnPrimary"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:contentDescription="@string/action_continue" />
+
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="68dp"
+        android:src="@drawable/ic_warning"
+        android:tint="@color/log_warning"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvSelectLedgerSubtitle" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/sync_state"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="@string/sync_state_not"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView2" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 ankio(ankio@ankio.net)
+ * Copyright (C) 2025 ankio(ankio@ankio.net)
  * Licensed under the Apache License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,12 +13,15 @@
  *   limitations under the License.
  */
 
-package org.ezbook.server.constant
+package net.ankio.auto.ui.fragment.intro
 
-enum class AIModel {
-    Gemini,
-    DeepSeek,
-    QWen,
-    ChatGPT,
-    OneAPI
+import androidx.fragment.app.activityViewModels
+import androidx.viewbinding.ViewBinding
+import net.ankio.auto.ui.api.BaseFragment
+import net.ankio.auto.ui.vm.IntroSharedVm
+
+open class BaseIntroPageFragment<VB : ViewBinding> : BaseFragment<VB>() {
+    protected val vm: IntroSharedVm by activityViewModels()
+
+
 }

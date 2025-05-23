@@ -1,26 +1,21 @@
 package net.ankio.auto.ui.fragment.intro
 
-import android.net.Uri
 import android.os.Bundle
 import android.view.View
-import androidx.fragment.app.activityViewModels
+import androidx.core.net.toUri
 import com.bumptech.glide.Glide
-import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
-import net.ankio.auto.databinding.FragmentIntroPage5Binding
-import net.ankio.auto.models.AutoApp
-import net.ankio.auto.ui.api.BaseFragment
+import net.ankio.auto.adapter.AppAdapterManager
+import net.ankio.auto.adapter.IAppAdapter
+import net.ankio.auto.databinding.FragmentIntroPageAppBinding
 import net.ankio.auto.ui.components.ExpandableCardView
-import net.ankio.auto.ui.vm.IntroSharedVm
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.utils.isAppInstalled
-import org.snakeyaml.engine.v2.api.Load
-import org.snakeyaml.engine.v2.api.LoadSettings
 
-class IntroPage5Fragment : BaseFragment<FragmentIntroPage5Binding>() {
-    private val vm: IntroSharedVm by activityViewModels()
+class IntroPageAppFragment : BaseIntroPageFragment<FragmentIntroPageAppBinding>() {
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -47,32 +42,12 @@ class IntroPage5Fragment : BaseFragment<FragmentIntroPage5Binding>() {
     }
 
     lateinit var apps:
-            List<AutoApp>
+            List<IAppAdapter>
 
     private fun readApp() {
-        // 1. 读取 raw 目录下的文件
-        val stream = resources.openRawResource(R.raw.app)
-        val text = stream.bufferedReader().use { it.readText() }
-
-// 2. 把 YAML 加载为 List<Map<String, Any>>
-        // 1. 准备设置
-        val settings = LoadSettings.builder().build()
-// 2. 创建 loader
-        val loader = Load(settings)
-// 3. 加载
-        @Suppress("UNCHECKED_CAST")
-        val list = loader.loadFromString(text) as List<Map<String, Any>>
 
 // 3. 转换为 AutoApp 对象
-        apps = list.map { m ->
-            AutoApp(
-                name = m["name"] as String,
-                icon = m["icon"] as String,
-                pkg = m["package"] as String,
-                website = m["website"] as String,
-                description = m["description"] as String
-            )
-        }
+        apps = AppAdapterManager.adapterList()
 
         // 4. 遍历绑定到 UI
         apps.forEachIndexed { index, app ->
@@ -84,11 +59,11 @@ class IntroPage5Fragment : BaseFragment<FragmentIntroPage5Binding>() {
                     icon.setImageResource(R.mipmap.ic_launcher_foreground)
                 }
                 setTitle(app.name)
-                setDescription(app.description)
+                setDescription(app.desc)
                 setOnCardClickListener {
                     //判断App是否安装
-                    if (!context.isAppInstalled(app.pkg)) {
-                        CustomTabsHelper.launchUrl(context, Uri.parse(app.website))
+                    if (!context.isAppInstalled(app.pkg) && app.link.isNotEmpty()) {
+                        CustomTabsHelper.launchUrl(context, app.link.toUri())
                     }
                 }
                 if (index == 0) {
@@ -102,7 +77,6 @@ class IntroPage5Fragment : BaseFragment<FragmentIntroPage5Binding>() {
 
     override fun onResume() {
         super.onResume()
-        PrefManager.introIndex = 4
     }
 
     override fun onDestroyView() {

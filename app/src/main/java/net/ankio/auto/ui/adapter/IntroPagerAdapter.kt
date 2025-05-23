@@ -3,23 +3,30 @@ package net.ankio.auto.ui.adapter
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import net.ankio.auto.ui.fragment.intro.IntroPage1Fragment
-import net.ankio.auto.ui.fragment.intro.IntroPage2Fragment
-import net.ankio.auto.ui.fragment.intro.IntroPage3Fragment
-import net.ankio.auto.ui.fragment.intro.IntroPage4Fragment
-import net.ankio.auto.ui.fragment.intro.IntroPage5Fragment
+import net.ankio.auto.ui.fragment.intro.IntroPageAppFragment
+import net.ankio.auto.ui.fragment.intro.IntroPageHomeFragment
+import net.ankio.auto.ui.fragment.intro.IntroPageKeepFragment
+import net.ankio.auto.ui.fragment.intro.IntroPageModeFragment
+import net.ankio.auto.ui.fragment.intro.IntroPagePermissionFragment
+import net.ankio.auto.ui.fragment.intro.IntroPageSyncFragment
 
 class IntroPagerAdapter(activity: FragmentActivity) : FragmentStateAdapter(activity) {
-    override fun getItemCount() = 5 // 页数
 
-    override fun createFragment(position: Int): Fragment {
-        return when (position) {
-            0 -> IntroPage1Fragment()
-            1 -> IntroPage2Fragment()
-            2 -> IntroPage3Fragment()
-            3 -> IntroPage4Fragment()
-            4 -> IntroPage5Fragment()
-            else -> throw IllegalArgumentException("Invalid page")
-        }
+    override fun getItemCount() = IntroPage.entries.size
+
+    override fun createFragment(position: Int): Fragment =
+        IntroPage.entries[position].create()      // ← 调用工厂函数
+
+    enum class IntroPage(private val factory: () -> Fragment) {
+        HOME({ IntroPageHomeFragment() }),
+        MODE({ IntroPageModeFragment() }),
+        PERMISSION({ IntroPagePermissionFragment() }),
+        KEEP({ IntroPageKeepFragment() }),
+        APP({ IntroPageAppFragment() }),
+        SYNC({ IntroPageSyncFragment(); })
+
+        ;
+
+        fun create(): Fragment = factory()         // 每次都拿到“全新”实例
     }
 }
