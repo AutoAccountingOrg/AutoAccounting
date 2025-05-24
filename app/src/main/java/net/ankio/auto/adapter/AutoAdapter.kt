@@ -42,4 +42,8 @@ class AutoAdapter : IAppAdapter {
     override fun syncBill(billInfoModel: BillInfoModel) {
 
     }
+
+    override fun supportSyncAssets(): Boolean {
+        return false
+    }
 }

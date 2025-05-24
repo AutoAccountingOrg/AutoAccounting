@@ -34,6 +34,9 @@ interface IAppAdapter {
     //应用描述
     val name: String
 
+    //是否支持同步资产，你可以在这里做资产初始化的
+    fun supportSyncAssets(): Boolean
+
     //支持的功能，部分记账软件可能接口不支持
     fun features(): List<BookFeatures>
 

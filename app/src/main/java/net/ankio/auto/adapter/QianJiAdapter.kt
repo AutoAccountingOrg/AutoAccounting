@@ -68,4 +68,11 @@ class QianJiAdapter : IAppAdapter {
     override fun syncBill(billInfoModel: BillInfoModel) {
         //TODO 将账单同步到目标应用
     }
+    override fun supportSyncAssets(): Boolean {
+        if (AppAdapterManager.xposedMode()) return true
+        //TODO 初始化钱迹默认资产，只有没有账本和分类的时候才初始化
+
+
+        return false
+    }
 }
