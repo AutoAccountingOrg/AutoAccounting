@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/featureOptionsRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="24dp"
+    app:edgeToEdge="true"
+    app:consumeSystemWindowsInsets="start|end"
+    app:fitsSystemWindowsInsets="top|bottom">
+
+    <!-- 标题 -->
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tvLabel"
+        style="@style/TextAppearance.Material3.HeadlineSmall"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/title_feature_select"
+        android:textColor="?attr/colorOnBackground"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- 说明 -->
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tvSubtitle"
+        style="@style/TextAppearance.Material3.BodyMedium"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/subtitle_feature_select"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        app:layout_constraintTop_toBottomOf="@id/tvLabel"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- 可滚动功能卡片组 -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scroll"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="24dp"
+        app:layout_constraintTop_toBottomOf="@id/tvSubtitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/btnContinue">
+
+        <net.ankio.auto.ui.components.ExpandableCardGroup
+            android:id="@+id/cardGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:animateLayoutChanges="true">
+
+            <!-- 资产管理 -->
+            <net.ankio.auto.ui.components.ExpandableCardView
+                android:id="@+id/cardAssetManage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:ecv_icon="@drawable/home_app_assets"
+                app:ecv_titleText="@string/feature_asset_manage"
+                app:ecv_descriptionText="@string/feature_asset_manage_desc"
+                app:ecv_switch="true" />
+
+            <!-- 多账本管理 -->
+            <net.ankio.auto.ui.components.ExpandableCardView
+                android:id="@+id/cardMultiBook"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:ecv_icon="@drawable/home_app_book_data"
+                app:ecv_titleText="@string/feature_multi_book"
+                app:ecv_descriptionText="@string/feature_multi_book_desc"
+                app:ecv_switch="true" />
+
+            <!-- 报销 -->
+            <net.ankio.auto.ui.components.ExpandableCardView
+                android:id="@+id/cardReimbursement"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:ecv_icon="@drawable/setting_icon_reimbursement"
+                app:ecv_titleText="@string/feature_reimbursement"
+                app:ecv_descriptionText="@string/feature_reimbursement_desc"
+                app:ecv_switch="true" />
+
+            <!-- 债务 -->
+            <net.ankio.auto.ui.components.ExpandableCardView
+                android:id="@+id/cardLeading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:ecv_icon="@drawable/setting_icon_debt"
+                app:ecv_titleText="@string/feature_leading"
+                app:ecv_descriptionText="@string/feature_leading_desc"
+                app:ecv_switch="true" />
+
+            <!-- 手续费 / 优惠 -->
+            <net.ankio.auto.ui.components.ExpandableCardView
+                android:id="@+id/cardFee"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:ecv_icon="@drawable/setting_icon_fee"
+                app:ecv_titleText="@string/feature_fee"
+                app:ecv_descriptionText="@string/feature_fee_desc"
+                app:ecv_switch="true" />
+
+            <!-- 多币种 -->
+            <net.ankio.auto.ui.components.ExpandableCardView
+                android:id="@+id/cardMultiCurrency"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:ecv_icon="@drawable/setting2_icon_language"
+                app:ecv_titleText="@string/feature_multi_currency"
+                app:ecv_descriptionText="@string/feature_multi_currency_desc"
+                app:ecv_switch="true" />
+
+            <!-- 标签 -->
+            <net.ankio.auto.ui.components.ExpandableCardView
+                android:id="@+id/cardTag"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:ecv_icon="@drawable/ic_tag"
+                app:ecv_titleText="@string/feature_tag"
+                app:ecv_descriptionText="@string/feature_tag_desc"
+                app:ecv_switch="true" />
+
+        </net.ankio.auto.ui.components.ExpandableCardGroup>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- 下一步 -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnContinue"
+        style="@style/Widget.Material3.Button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/action_continue"
+        android:paddingVertical="12dp"
+        app:icon="@drawable/ic_arrow_forward_24"
+        app:iconGravity="textEnd"
+        app:iconPadding="8dp"
+        app:iconTint="?attr/colorOnPrimary"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
