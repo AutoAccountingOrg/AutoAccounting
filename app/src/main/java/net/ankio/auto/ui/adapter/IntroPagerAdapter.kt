@@ -4,6 +4,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import net.ankio.auto.ui.fragment.intro.IntroPageAppFragment
+import net.ankio.auto.ui.fragment.intro.IntroPageFeatureFragment
 import net.ankio.auto.ui.fragment.intro.IntroPageHomeFragment
 import net.ankio.auto.ui.fragment.intro.IntroPageKeepFragment
 import net.ankio.auto.ui.fragment.intro.IntroPageModeFragment
@@ -23,7 +24,8 @@ class IntroPagerAdapter(activity: FragmentActivity) : FragmentStateAdapter(activ
         PERMISSION({ IntroPagePermissionFragment() }),
         KEEP({ IntroPageKeepFragment() }),
         APP({ IntroPageAppFragment() }),
-        SYNC({ IntroPageSyncFragment(); })
+        FEATURE({ IntroPageFeatureFragment(); }),
+        SYNC({ IntroPageSyncFragment(); }),
 
         ;
 

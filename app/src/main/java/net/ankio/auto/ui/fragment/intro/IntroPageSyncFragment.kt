@@ -11,9 +11,6 @@ class IntroPageSyncFragment : BaseIntroPageFragment<FragmentIntroPageSyncBinding
         super.onViewCreated(view, savedInstanceState)
 
 
-        binding.btnStart.setOnClickListener {
-            vm.pageRequest.value = IntroPagerAdapter.IntroPage.MODE
-        }
 
 
     }

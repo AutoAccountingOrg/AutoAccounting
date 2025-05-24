@@ -9,6 +9,7 @@ import net.ankio.auto.R
 import net.ankio.auto.adapter.AppAdapterManager
 import net.ankio.auto.adapter.IAppAdapter
 import net.ankio.auto.databinding.FragmentIntroPageAppBinding
+import net.ankio.auto.ui.adapter.IntroPagerAdapter
 import net.ankio.auto.ui.components.ExpandableCardView
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.PrefManager
@@ -29,12 +30,8 @@ class IntroPageAppFragment : BaseIntroPageFragment<FragmentIntroPageAppBinding>(
 
         binding.btnContinue.setOnClickListener {
             PrefManager.bookApp = apps[binding.ledgerCardGroup.selectedIndex].pkg
-            //同步数据
-            if (PrefManager.bookApp == BuildConfig.APPLICATION_ID) {
-                vm.pageRequest.value = 6 //跳过数据同步
-            } else {
-                vm.pageRequest.value = 5 //执行数据同步
-            }
+            //选择功能
+            vm.pageRequest.value = IntroPagerAdapter.IntroPage.FEATURE
 
         }
 
