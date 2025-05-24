@@ -5,12 +5,15 @@ import android.content.res.Resources
 import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CompoundButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.transition.AutoTransition
 import androidx.transition.TransitionManager
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.color.MaterialColors
+import com.google.android.material.materialswitch.MaterialSwitch
+import com.google.android.material.switchmaterial.SwitchMaterial
 import net.ankio.auto.R
 
 class ExpandableCardView @JvmOverloads constructor(
@@ -24,10 +27,10 @@ class ExpandableCardView @JvmOverloads constructor(
 
     private val header by lazy { findViewById<View>(R.id.header) }
     private val detail by lazy { findViewById<View>(R.id.detail) }
-    private val icon by lazy { findViewById<ImageView>(R.id.icon) }
-    private val titleView by lazy { findViewById<TextView>(R.id.title) }
-    private val descView by lazy { findViewById<TextView>(R.id.description) }
-
+    val icon by lazy { findViewById<ImageView>(R.id.icon) }
+    val titleView by lazy { findViewById<TextView>(R.id.title) }
+    val descView by lazy { findViewById<TextView>(R.id.description) }
+    val switch by lazy { findViewById<MaterialSwitch>(R.id.cardSwitch) }
     // 主题色
     private val colorSurfaceVariant =
         MaterialColors.getColor(this, com.google.android.material.R.attr.colorSurfaceVariant)
@@ -64,8 +67,10 @@ class ExpandableCardView @JvmOverloads constructor(
             ta.getString(R.styleable.ExpandableCardView_ecv_descriptionText)
                 ?.let(descView::setText)
             val def = ta.getBoolean(R.styleable.ExpandableCardView_ecv_expanded, false)
+            val sw = ta.getBoolean(R.styleable.ExpandableCardView_ecv_switch, false)
             ta.recycle()
             isExpanded = def
+            useSwitch(sw)
         }
 
 
@@ -98,4 +103,36 @@ class ExpandableCardView @JvmOverloads constructor(
             callback(old, visibility)
         }
     }
+
+    fun setTitle(title: String) {
+        this.titleView.text = title
+    }
+
+    fun setDescription(desc: String) {
+        this.descView.text = desc
+    }
+
+    fun setOnSwitchChanged(fn: CompoundButton.OnCheckedChangeListener) {
+        this.switch.setOnCheckedChangeListener(fn)
+    }
+
+    fun useSwitch(boolean: Boolean) {
+        this.switch.visibility = if (boolean) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
+    }
+
+
+    fun setSwitch(boolean: Boolean) {
+        this.switch.isChecked = boolean
+    }
+
+
+    fun switch(): Boolean {
+        return this.switch.isChecked
+    }
+
+
 }
