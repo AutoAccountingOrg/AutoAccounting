@@ -41,6 +41,7 @@
         android:layout_height="0dp"
         android:fillViewport="true"
         android:layout_marginTop="24dp"
+        android:layout_marginBottom="24dp"
         app:layout_constraintTop_toBottomOf="@id/tvKeepAliveSubtitle"
         app:layout_constraintBottom_toTopOf="@id/btnContinue"
         app:layout_constraintStart_toStartOf="parent"

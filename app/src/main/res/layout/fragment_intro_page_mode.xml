@@ -45,7 +45,8 @@
         app:layout_constraintBottom_toTopOf="@id/btnNext"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="24dp">
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="24dp">
 
         <net.ankio.auto.ui.components.ExpandableCardGroup
             android:id="@+id/cardGroup"
