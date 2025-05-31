@@ -15,6 +15,7 @@
 
 package org.ezbook.server.ai
 
+import android.util.Log
 import org.ezbook.server.ai.providers.BaseAIProvider
 import org.ezbook.server.ai.providers.ChatGPTProvider
 import org.ezbook.server.ai.providers.DeepSeekProvider
@@ -33,7 +34,7 @@ import org.ezbook.server.db.Db
 class AiManager {
 
     // 当前选择的AI提供者名称
-    private var currentProviderName: String = "DeepSeek"
+    var currentProviderName: String = "DeepSeek"
 
     // 所有可用的AI提供者列表
     private val providers = mapOf(
@@ -138,7 +139,9 @@ class AiManager {
      * @return 可用的模型列表
      */
     suspend fun getAvailableModels(): List<String> {
-        return getCurrentProvider()?.getAvailableModels() ?: emptyList()
+        return runCatching { getCurrentProvider()?.getAvailableModels() }.onFailure {
+            Log.e("模块错误", it.message ?: "", it)
+        }.getOrNull() ?: emptyList()
     }
 
     /**
