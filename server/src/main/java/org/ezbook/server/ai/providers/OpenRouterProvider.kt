@@ -23,7 +23,7 @@ class OpenRouterProvider : BaseOpenAIProvider() {
 
     override val createKeyUri: String = "https://openrouter.ai/keys"
 
-    override val apiUri: String = "https://openrouter.ai/api"
+    override val apiUri: String = "https://openrouter.ai/api/v1"
 
     override var model: String = "openai/gpt-3.5-turbo"
 }

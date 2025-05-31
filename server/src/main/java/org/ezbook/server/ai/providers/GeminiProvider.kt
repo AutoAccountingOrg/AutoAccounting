@@ -1,5 +1,6 @@
 package org.ezbook.server.ai.providers
 
+import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import com.google.gson.Gson
@@ -22,13 +23,6 @@ class GeminiProvider : BaseAIProvider() {
 
     override var model: String = "gemini-2.0-flash"
 
-    private val client = OkHttpClient.Builder()
-        .connectTimeout(60, TimeUnit.SECONDS)
-        .writeTimeout(60, TimeUnit.SECONDS)
-        .readTimeout(60, TimeUnit.SECONDS)
-        .build()
-
-    private val gson = Gson()
 
     /**
      * 获取可用模型列表
@@ -39,17 +33,21 @@ class GeminiProvider : BaseAIProvider() {
             .url(url)
             .get()
             .build()
-        client.newCall(request).execute().use { response ->
-            if (!response.isSuccessful) throw RuntimeException("Failed to get models: ${response.code}")
-            val body = response.body?.string() ?: throw RuntimeException("Empty response body")
-            val jsonObject = JsonParser.parseString(body).asJsonObject
+        runCatching {
+            client.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) throw RuntimeException("Failed to get models: ${response.code}")
+                val body = response.body?.string() ?: throw RuntimeException("Empty response body")
+                val jsonObject = JsonParser.parseString(body).asJsonObject
 
-            val models = mutableListOf<String>()
-            jsonObject.getAsJsonArray("models")?.forEach { model ->
-                model.asJsonObject.get("name")?.asString?.let { models.add(it) }
+                val models = mutableListOf<String>()
+                jsonObject.getAsJsonArray("models")?.forEach { model ->
+                    model.asJsonObject.get("name")?.asString?.let { models.add(it) }
+                }
+                models
             }
-            models
-        }
+        }.onFailure {
+            Log.e("Request", "${it.message}", it)
+        }.getOrElse { emptyList() }
     }
 
     /**
@@ -75,24 +73,28 @@ class GeminiProvider : BaseAIProvider() {
                 )
                 .addHeader("Content-Type", "application/json")
                 .build()
-            client.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) {
-                    val errorBody = response.body?.string()
-                    throw RuntimeException("Request failed: ${response.code}, body: $errorBody")
-                }
-                val body = response.body?.string() ?: return@withContext null
-                val jsonObject = JsonParser.parseString(body).asJsonObject
+            runCatching {
+                client.newCall(request).execute().use { response ->
+                    if (!response.isSuccessful) {
+                        val errorBody = response.body?.string()
+                        throw RuntimeException("Request failed: ${response.code}, body: $errorBody")
+                    }
+                    val body = response.body?.string() ?: return@withContext null
+                    val jsonObject = JsonParser.parseString(body).asJsonObject
 
-                return@withContext jsonObject
-                    .getAsJsonArray("candidates")
-                    ?.firstOrNull()
-                    ?.asJsonObject
-                    ?.getAsJsonObject("content")
-                    ?.getAsJsonArray("parts")
-                    ?.firstOrNull()
-                    ?.asJsonObject
-                    ?.get("text")
-                    ?.asString
-            }
+                    return@withContext jsonObject
+                        .getAsJsonArray("candidates")
+                        ?.firstOrNull()
+                        ?.asJsonObject
+                        ?.getAsJsonObject("content")
+                        ?.getAsJsonArray("parts")
+                        ?.firstOrNull()
+                        ?.asJsonObject
+                        ?.get("text")
+                        ?.asString
+                }
+            }.onFailure {
+                Log.e("Request", "${it.message}", it)
+            }.getOrElse { null }
         }
 }

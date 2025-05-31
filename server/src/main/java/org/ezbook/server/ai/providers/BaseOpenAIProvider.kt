@@ -15,12 +15,15 @@
 
 package org.ezbook.server.ai.providers
 
+import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.JsonParser
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.logging.HttpLoggingInterceptor
+import org.ezbook.server.Server
 import java.util.concurrent.TimeUnit
 
 /**
@@ -28,13 +31,7 @@ import java.util.concurrent.TimeUnit
  * 提供了通用的OpenAI接口实现，继承此类的提供商只需要实现必要的属性即可
  */
 abstract class BaseOpenAIProvider : BaseAIProvider() {
-    protected val client = OkHttpClient.Builder()
-        .connectTimeout(60, TimeUnit.SECONDS)
-        .writeTimeout(60, TimeUnit.SECONDS)
-        .readTimeout(60, TimeUnit.SECONDS)
-        .build()
 
-    protected val gson = Gson()
 
 
     /**
@@ -46,19 +43,24 @@ abstract class BaseOpenAIProvider : BaseAIProvider() {
             .addHeader("Authorization", "Bearer ${getApiKey()}")
             .build()
 
-        client.newCall(request).execute().use { response ->
-            if (!response.isSuccessful) throw RuntimeException("Failed to get models: ${response.code}")
 
-            val body = response.body?.string() ?: throw RuntimeException("Empty response body")
-            val jsonObject = JsonParser.parseString(body).asJsonObject
-            val models = mutableListOf<String>()
+        return runCatching {
+            client.newCall(request).execute().use { response ->
+                //  if (!response.isSuccessful) throw RuntimeException("Failed to get models: ${response.code}")
 
-            jsonObject.getAsJsonArray("data")?.forEach { model ->
-                models.add(model.asJsonObject.get("id").asString)
+                val body = response.body.string() ?: throw RuntimeException("Empty response body")
+                val jsonObject = JsonParser.parseString(body).asJsonObject
+                val models = mutableListOf<String>()
+
+                jsonObject.getAsJsonArray("data")?.forEach { model ->
+                    models.add(model.asJsonObject.get("id").asString)
+                }
+
+                return models
             }
-
-            return models
-        }
+        }.onFailure {
+            Log.e("Request", "${it.message}", it)
+        }.getOrElse { emptyList() }
     }
 
     /**
@@ -101,21 +103,24 @@ abstract class BaseOpenAIProvider : BaseAIProvider() {
             .addHeader("Content-Type", "application/json")
             .post(gson.toJson(requestBody).toRequestBody("application/json".toMediaTypeOrNull()))
             .build()
+        return runCatching {
+            client.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) return null
 
-        client.newCall(request).execute().use { response ->
-            if (!response.isSuccessful) return null
+                val body = response.body?.string() ?: return null
+                val jsonObject = JsonParser.parseString(body).asJsonObject
 
-            val body = response.body?.string() ?: return null
-            val jsonObject = JsonParser.parseString(body).asJsonObject
-
-            return jsonObject
-                .getAsJsonArray("choices")
-                ?.get(0)
-                ?.asJsonObject
-                ?.getAsJsonObject("message")
-                ?.get("content")
-                ?.asString
-        }
+                return jsonObject
+                    .getAsJsonArray("choices")
+                    ?.get(0)
+                    ?.asJsonObject
+                    ?.getAsJsonObject("message")
+                    ?.get("content")
+                    ?.asString
+            }
+        }.onFailure {
+            Log.e("Request", "${it.message}", it)
+        }.getOrElse { null }
     }
 
 } 

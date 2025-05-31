@@ -1,7 +1,13 @@
 package org.ezbook.server.ai.providers
 
+import android.util.Log
+import com.google.gson.Gson
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
+import org.ezbook.server.Server
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.Db
+import java.util.concurrent.TimeUnit
 
 /**
  * AI提供商的基础抽象类
@@ -47,6 +53,27 @@ abstract class BaseAIProvider {
      * 发送请求到AI服务
      */
     abstract suspend fun request(system: String, user: String): String?
+
+    protected val client = OkHttpClient.Builder()
+        .apply {
+            if (Server.debug) {
+                class LoudLogger : HttpLoggingInterceptor.Logger {
+                    override fun log(message: String) {
+                        Log.w("openai", message)
+                    }
+                }
+
+                val loud =
+                    HttpLoggingInterceptor(LoudLogger()).setLevel(HttpLoggingInterceptor.Level.BODY)
+                addInterceptor(loud)
+            }
+        }
+        .connectTimeout(60, TimeUnit.SECONDS)
+        .writeTimeout(60, TimeUnit.SECONDS)
+        .readTimeout(60, TimeUnit.SECONDS)
+        .build()
+
+    protected val gson = Gson()
 
 
 }
