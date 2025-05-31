@@ -102,7 +102,7 @@ abstract class BaseOpenAIProvider : BaseAIProvider() {
             client.newCall(request).execute().use { response ->
                 if (!response.isSuccessful) return null
 
-                val body = response.body.string()
+                val body = response.body.string().removeThink()
                 val jsonObject = JsonParser.parseString(body).asJsonObject
 
                 return jsonObject

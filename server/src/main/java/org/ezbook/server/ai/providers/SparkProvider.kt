@@ -29,7 +29,7 @@ class SparkProvider : BaseOpenAIProvider() {
 
     override suspend fun getAvailableModels(): List<String> {
         return listOf(
-            model, ""
+            model
         ) //只有lite版本好用
     }
 } 

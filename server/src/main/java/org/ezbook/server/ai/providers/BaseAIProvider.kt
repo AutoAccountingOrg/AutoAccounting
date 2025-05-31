@@ -75,5 +75,11 @@ abstract class BaseAIProvider {
 
     protected val gson = Gson()
 
-
+    fun String.removeThink(): String {
+        // (?si) = DOTALL + IGNORECASE => “s” 让 . 匹配换行，“i” 忽略大小写
+        val regex = Regex("(?si)<think\\b[^>]*?>.*?</think>")
+        return replace(regex, "")          // 去掉所有 <think>…</think>
+            .replace(Regex("\\n{3,}"), "\n\n") // 压缩连续空行
+            .trim()
+    }
 }

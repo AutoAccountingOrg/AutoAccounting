@@ -36,7 +36,7 @@ class GeminiProvider : BaseAIProvider() {
         runCatching {
             client.newCall(request).execute().use { response ->
                 if (!response.isSuccessful) throw RuntimeException("Failed to get models: ${response.code}")
-                val body = response.body?.string() ?: throw RuntimeException("Empty response body")
+                val body = response.body.string()
                 val jsonObject = JsonParser.parseString(body).asJsonObject
 
                 val models = mutableListOf<String>()
@@ -76,10 +76,10 @@ class GeminiProvider : BaseAIProvider() {
             runCatching {
                 client.newCall(request).execute().use { response ->
                     if (!response.isSuccessful) {
-                        val errorBody = response.body?.string()
+                        val errorBody = response.body.string()
                         throw RuntimeException("Request failed: ${response.code}, body: $errorBody")
                     }
-                    val body = response.body?.string() ?: return@withContext null
+                    val body = response.body.string().removeThink()
                     val jsonObject = JsonParser.parseString(body).asJsonObject
 
                     return@withContext jsonObject
