@@ -16,15 +16,10 @@
 package org.ezbook.server.ai.providers
 
 import android.util.Log
-import com.google.gson.Gson
 import com.google.gson.JsonParser
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
-import okhttp3.logging.HttpLoggingInterceptor
-import org.ezbook.server.Server
-import java.util.concurrent.TimeUnit
 
 /**
  * OpenAI风格API的基础实现类
@@ -107,7 +102,7 @@ abstract class BaseOpenAIProvider : BaseAIProvider() {
             client.newCall(request).execute().use { response ->
                 if (!response.isSuccessful) return null
 
-                val body = response.body?.string() ?: return null
+                val body = response.body.string()
                 val jsonObject = JsonParser.parseString(body).asJsonObject
 
                 return jsonObject
