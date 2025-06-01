@@ -69,6 +69,8 @@ fun Application.module(context: Context) {
 
     routing {
 
+        aiApiRoutes()
+
         get("/") {
             call.respond(
                 ResultModel(200, "欢迎使用自动记账", Server.versionName)
