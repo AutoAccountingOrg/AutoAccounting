@@ -56,7 +56,7 @@ class IntroPageFeatureFragment :
         )
     }
 
-    lateinit var bookAdapter: IAppAdapter
+    private lateinit var bookAdapter: IAppAdapter
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -66,7 +66,7 @@ class IntroPageFeatureFragment :
                 vm.pageRequest.value = IntroPagerAdapter.IntroPage.SYNC
             } else {
                 // 跳转默认配置页面
-                // vm.pageRequest.value = IntroPagerAdapter.IntroPage.MODE
+                vm.pageRequest.value = IntroPagerAdapter.IntroPage.AI
             }
 
         }
