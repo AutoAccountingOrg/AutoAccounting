@@ -16,26 +16,36 @@
 package net.ankio.auto.ui.activity
 
 import android.os.Bundle
+import androidx.activity.viewModels
+import androidx.recyclerview.widget.RecyclerView
 import net.ankio.auto.databinding.ActivityIntroBinding
 import net.ankio.auto.ui.adapter.IntroPagerAdapter
+import net.ankio.auto.ui.adapter.IntroPagerAdapter.IntroPage
 import net.ankio.auto.ui.api.BaseActivity
+import net.ankio.auto.ui.vm.IntroSharedVm
 import net.ankio.auto.utils.PrefManager
 
 class MainActivity : BaseActivity() {
     private val binding: ActivityIntroBinding by lazy {
         ActivityIntroBinding.inflate(layoutInflater)
     }
-
+    private val vm: IntroSharedVm by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //已经在引导页面呆过，直接进入主页
 
-        if (PrefManager.intro) {
+        if (PrefManager.introIndex >= IntroPage.entries.size) {
             start<HomeActivity>()
             return
         }
 
         setContentView(binding.root)
         binding.viewPager.adapter = IntroPagerAdapter(this)
+        binding.viewPager.isUserInputEnabled = false
+        binding.viewPager.setCurrentItem(PrefManager.introIndex, false)
+        vm.pageRequest.observe(this) { idx ->
+            PrefManager.introIndex = idx.ordinal
+            binding.viewPager.setCurrentItem(idx.ordinal, true)
+        }
     }
 }
