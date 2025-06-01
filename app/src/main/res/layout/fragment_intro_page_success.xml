@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<net.ankio.auto.ui.components.BreathingGradientView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/spark_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:edgeToEdge="true"
+    app:consumeSystemWindowsInsets="start|end"
+    app:fitsSystemWindowsInsets="top|bottom">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="24dp">
+
+        <LinearLayout
+            android:id="@+id/center_group"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintVertical_chainStyle="packed">
+
+            <ImageView
+                android:layout_width="96dp"
+                android:layout_height="96dp"
+                android:src="@drawable/home_active_success"
+                android:tint="?attr/colorPrimary"
+                android:contentDescription="@string/success_desc" />
+
+            <com.google.android.material.textview.MaterialTextView
+                style="?attr/textAppearanceHeadlineMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/success_title"
+                android:layout_marginTop="20dp" />
+
+            <com.google.android.material.textview.MaterialTextView
+                style="?attr/textAppearanceBodyLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/success_subtitle"
+                android:alpha="0.7"
+                android:layout_marginTop="4dp" />
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_start"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/success_button"
+            app:icon="@drawable/ic_arrow_forward_24"
+            app:iconGravity="textEnd"
+            app:iconPadding="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintWidth_percent="0.7"
+            android:layout_marginBottom="32dp" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</net.ankio.auto.ui.components.BreathingGradientView>

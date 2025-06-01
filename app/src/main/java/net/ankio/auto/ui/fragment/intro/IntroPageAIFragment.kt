@@ -18,6 +18,7 @@ import net.ankio.auto.R
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.PrefManager
 import androidx.core.net.toUri
+import net.ankio.auto.ui.adapter.IntroPagerAdapter
 
 class IntroPageAIFragment : BaseIntroPageFragment<FragmentIntroPageAiBinding>() {
 
@@ -77,6 +78,7 @@ class IntroPageAIFragment : BaseIntroPageFragment<FragmentIntroPageAiBinding>() 
             lifecycleScope.launch {
                 AiAPI.setCurrentModel(binding.actAiModel.text.toString())
             }
+            vm.pageRequest.value = IntroPagerAdapter.IntroPage.SUCCESS
         }
 
         binding.btnGetToken.setOnClickListener {

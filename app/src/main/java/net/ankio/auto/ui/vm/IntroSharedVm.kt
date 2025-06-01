@@ -17,7 +17,8 @@ package net.ankio.auto.ui.vm
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import net.ankio.auto.ui.adapter.IntroPagerAdapter
 
 class IntroSharedVm : ViewModel() {
-    val pageRequest = MutableLiveData<Int>()
+    val pageRequest = MutableLiveData<IntroPagerAdapter.IntroPage>()
 }
