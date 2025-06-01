@@ -34,7 +34,7 @@ class MainActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         //已经在引导页面呆过，直接进入主页
 
-        if (PrefManager.introIndex >= IntroPage.entries.size) {
+        if (PrefManager.introIndex + 1 >= IntroPage.entries.size) {
             start<HomeActivity>()
             return
         }
