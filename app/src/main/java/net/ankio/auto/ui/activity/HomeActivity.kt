@@ -16,148 +16,122 @@
 package net.ankio.auto.ui.activity
 
 import android.os.Bundle
-import android.view.View
-import androidx.interpolator.view.animation.FastOutSlowInInterpolator
+import androidx.annotation.StringRes
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.NavigationUI
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.launch
+import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.databinding.ActivityMainBinding
 import net.ankio.auto.storage.BackupUtils
 import net.ankio.auto.ui.api.BaseActivity
+import net.ankio.auto.ui.fragment.plugin.HomeFragment
+import net.ankio.auto.utils.PrefManager
+import androidx.core.view.get
+import net.ankio.auto.storage.Logger
+import androidx.core.view.size
 
 class HomeActivity : BaseActivity() {
-    // 视图绑定
     private val binding: ActivityMainBinding by lazy {
         ActivityMainBinding.inflate(layoutInflater)
     }
 
     private data class NavigationItem(
-        val id: Int,
+        @StringRes val label: Int,
+        val fragmentProvider: () -> Fragment,
         val selectedIcon: Int,
         val unselectedIcon: Int
     )
 
-    private val barList = listOf(
-        NavigationItem(
-            R.id.homeFragment,
-            R.drawable.bottom_select_home,
-            R.drawable.bottom_unselect_home
-        ),
-        NavigationItem(
-            R.id.dataFragment,
-            R.drawable.bottom_select_data,
-            R.drawable.bottom_unselect_data
-        ),
-        NavigationItem(
-            R.id.settingFragment,
-            R.drawable.bottom_select_setting,
-            R.drawable.bottom_unselect_setting
-        ),
-        NavigationItem(
-            R.id.dataRuleFragment,
-            R.drawable.bottom_select_rule,
-            R.drawable.bottom_unselect_rule
-        ),
-        NavigationItem(
-            R.id.orderFragment,
-            R.drawable.bottom_select_order,
-            R.drawable.bottom_unselect_order
-        )
-    )
+    private val bottomNavigationView by lazy { binding.bottomNavigation }
 
+    // 当前 Fragment tag
+    private var currentTag: String? = null
+
+    // Fragment 缓存
+    private val fragmentMap = mutableMapOf<String, Fragment>()
+
+    private fun bottomList(): List<NavigationItem> {
+        val list = ArrayList<NavigationItem>()
+        if (PrefManager.bookApp === BuildConfig.APPLICATION_ID) {
+            // 填入真实内容
+        } else {
+            list.add(
+                NavigationItem(
+                    label = R.string.title_home,
+                    fragmentProvider = { HomeFragment() },
+                    R.drawable.bottom_select_home,
+                    R.drawable.bottom_unselect_home
+                )
+            )
+            // 更多 fragment 可添加于此
+        }
+        return list
+    }
+
+    private lateinit var barList: List<NavigationItem>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        // 初始化底导航栏
-        onBottomViewInit()
-        BackupUtils.initRequestPermission(this)
-    }
-
-    /**
-     * 导航栏初始化
-     */
-    private fun onBottomViewInit() {
-        setupNavigationComponents()
-        setupDestinationChangeListener()
-    }
-
-    private val bottomNavigationView: BottomNavigationView by lazy {
-        binding.bottomNavigation
-    }
-    private lateinit var navHostFragment: NavHostFragment
-
-    private fun setupNavigationComponents() {
-        navHostFragment = supportFragmentManager
-            .findFragmentById(R.id.nav_host_fragment) as NavHostFragment?
-            ?: throw IllegalStateException("NavHostFragment not found")
-
-        // binding.navHostFragment.setPadding(0,0,0,0)
-
-        val navController = navHostFragment.navController
-        NavigationUI.setupWithNavController(bottomNavigationView, navController)
-    }
-
-    /**
-     * 设置目标更改监听器
-     */
-    private fun setupDestinationChangeListener() {
-        navHostFragment.navController.addOnDestinationChangedListener { _, destination, _ ->
-            updateNavigationIcons(destination.id)
-            updateBottomNavigationVisibility(destination.id)
+        barList = bottomList()
+        initBottomNavigation()
+        //BackupUtils.initRequestPermission(this)
+        // 默认加载第一个页面
+        if (savedInstanceState == null && barList.isNotEmpty()) {
+            switchFragment(0)
         }
     }
 
-    /**
-     * 更新导航图标
-     */
-    private fun updateNavigationIcons(currentDestinationId: Int) {
-        barList.forEach { (itemId, selectedIcon, unselectedIcon) ->
-            bottomNavigationView.menu.findItem(itemId).setIcon(
-                if (itemId == currentDestinationId) selectedIcon else unselectedIcon
-            )
-        }
-    }
-
-    /**
-     * 更新底部导航栏可见性
-     */
-    private fun updateBottomNavigationVisibility(destinationId: Int) {
-        val shouldShow = barList.any { it.id == destinationId }
-
-        if (shouldShow && bottomNavigationView.visibility == View.GONE) {
-            // 显示动画
-            bottomNavigationView.apply {
-                visibility = View.VISIBLE
-                alpha = 0f
-                translationY = height.toFloat()
-                animate()
-                    .alpha(1f)
-                    .translationY(0f)
-                    .setDuration(300)
-                    .setInterpolator(FastOutSlowInInterpolator())
-                    .start()
+    private fun initBottomNavigation() {
+        val menu = bottomNavigationView.menu
+        barList.forEachIndexed { index, item ->
+            menu.add(0, index, index, item.label).apply {
+                setIcon(item.unselectedIcon)
             }
-        } else if (!shouldShow && bottomNavigationView.visibility == View.VISIBLE) {
-            // 隐藏动画
-            bottomNavigationView.animate()
-                .alpha(0f)
-                .translationY(bottomNavigationView.height.toFloat())
-                .setDuration(300)
-                .setInterpolator(FastOutSlowInInterpolator())
-                .withEndAction {
-                    bottomNavigationView.visibility = View.GONE
-                }
-                .start()
+        }
+
+        bottomNavigationView.setOnItemSelectedListener { menuItem ->
+            switchFragment(menuItem.itemId)
+            true
         }
     }
 
-    /**
-     * 应用停止
-     */
+    private fun switchFragment(index: Int) {
+        val tag = "fragment_$index"
+        if (tag == currentTag) return
+
+        val transaction = supportFragmentManager.beginTransaction()
+
+        val newFragment = fragmentMap.getOrPut(tag) {
+            barList[index].fragmentProvider()
+        }
+
+        supportFragmentManager.fragments.forEach {
+            transaction.hide(it)
+        }
+
+        if (newFragment.isAdded) {
+            transaction.show(newFragment)
+        } else {
+            transaction.add(R.id.nav_host_fragment, newFragment, tag)
+        }
+
+        transaction.commitNowAllowingStateLoss()
+        currentTag = tag
+        updateIcons(index)
+    }
+
+    private fun updateIcons(selectedIndex: Int) {
+        for (i in barList.indices) {
+            val iconRes = if (i == selectedIndex)
+                barList[i].selectedIcon
+            else
+                barList[i].unselectedIcon
+            bottomNavigationView.menu[i].icon = getDrawable(iconRes)
+        }
+    }
+
     override fun onStop() {
         super.onStop()
         lifecycleScope.launch {
@@ -166,5 +140,6 @@ class HomeActivity : BaseActivity() {
             }
         }
     }
-
 }
+
+private fun Int.toId(): Int = 1000 + this // 避免与系统资源 ID 冲突
