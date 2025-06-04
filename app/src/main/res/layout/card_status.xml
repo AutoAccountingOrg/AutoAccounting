@@ -1,0 +1,61 @@
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/status_card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    style="?attr/materialCardViewFilledStyle"
+    app:layout_constraintTop_toTopOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintEnd_toEndOf="parent">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/card_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimaryContainer"
+        android:clickable="true"
+        android:padding="@dimen/state_padding">
+
+        <!-- 图标 -->
+        <ImageView
+            android:id="@+id/icon_view"
+            android:layout_width="@dimen/image_size"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:src="@drawable/home_active_success"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:tint="?colorOnPrimaryContainer" />
+
+        <!-- 主标题（含版本号） -->
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/title_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textColor="?colorOnPrimaryContainer"
+            app:layout_constraintStart_toEndOf="@id/icon_view"
+            app:layout_constraintTop_toTopOf="@id/icon_view"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="已激活（v1.2.3）" />
+        <!-- 副标题 -->
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/subtitle_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small"
+            android:textColor="?colorOnPrimaryContainer"
+            app:layout_constraintStart_toEndOf="@id/icon_view"
+            app:layout_constraintTop_toBottomOf="@id/title_text"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="Xposed模式" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>
