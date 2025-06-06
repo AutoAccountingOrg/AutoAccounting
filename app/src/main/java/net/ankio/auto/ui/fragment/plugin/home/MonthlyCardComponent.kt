@@ -21,11 +21,12 @@ import androidx.lifecycle.coroutineScope
 import kotlinx.coroutines.launch
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
-import net.ankio.auto.constant.WorkMode
 import net.ankio.auto.databinding.CardMonthlyBinding
 import net.ankio.auto.http.api.BillAPI
 import net.ankio.auto.ui.api.BaseComponent
+import net.ankio.auto.ui.utils.ResourceUtils
 import net.ankio.auto.utils.PrefManager
+import net.ankio.auto.utils.toBookCover
 import java.util.Calendar
 import java.util.Locale
 
@@ -61,6 +62,8 @@ class MonthlyCardComponent(binding: CardMonthlyBinding, private val lifecycle: L
             val syncCount = BillAPI.sync().size
 
             binding.tvPendingSync.text = context.getString(R.string.pending_sync, syncCount)
+
+            PrefManager.defaultBook.toBookCover(binding.coverImage)
         }
     }
 
