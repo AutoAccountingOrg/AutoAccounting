@@ -43,7 +43,7 @@ object LocalNetwork {
         path: String,
         payload: Any? = null,
     ): String = withContext(Dispatchers.IO) {
-        val url = "http://127.0.0.1:52045$path"
+        val url = "http://127.0.0.1:52045/${path.trimStart('/')}"
         client.addHeader("Authorize", "")
         when (payload) {
             is JsonObject -> {

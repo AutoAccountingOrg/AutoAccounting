@@ -111,4 +111,28 @@ class BillRoute(private val session: ApplicationCall) {
         return ResultModel(200, "OK", logs)
     }
 
+    suspend fun monthlyStats(): ResultModel {
+        val year = params["year"]?.toInt() ?: return ResultModel(400, "Year parameter is required")
+        val month =
+            params["month"]?.toInt() ?: return ResultModel(400, "Month parameter is required")
+
+        // 计算时间范围
+        val calendar = java.util.Calendar.getInstance()
+        calendar.set(year, month - 1, 1, 0, 0, 0)
+        calendar.set(java.util.Calendar.MILLISECOND, 0)
+        val startTime = calendar.timeInMillis
+
+        calendar.add(java.util.Calendar.MONTH, 1)
+        val endTime = calendar.timeInMillis
+
+        val income = Db.get().billInfoDao().getMonthlyIncome(startTime, endTime) ?: 0.0
+        val expense = Db.get().billInfoDao().getMonthlyExpense(startTime, endTime) ?: 0.0
+
+        return ResultModel(
+            200, "OK", mapOf(
+                "income" to income,
+                "expense" to expense
+            )
+        )
+    }
 }

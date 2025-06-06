@@ -164,4 +164,23 @@ object BillAPI {
     suspend fun unGroup(id: Long) = withContext(Dispatchers.IO) {
         LocalNetwork.request("bill/unGroup?id=$id")
     }
+
+    /**
+     * 获取指定年月的收支统计
+     * @param year 年份
+     * @param month 月份（1-12）
+     * @return 包含收入和支出总额的Map，如果请求失败则返回null
+     */
+    suspend fun getMonthlyStats(year: Int, month: Int): Map<String, Double>? =
+        withContext(Dispatchers.IO) {
+            val response = LocalNetwork.request("/bill/monthly/stats?year=$year&month=$month", "{}")
+            runCatching {
+                val json = Gson().fromJson(response, JsonObject::class.java)
+                val data = json.getAsJsonObject("data")
+                mapOf(
+                    "income" to data.get("income").asDouble,
+                    "expense" to data.get("expense").asDouble
+                )
+            }.getOrNull()
+        }
 }

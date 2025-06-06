@@ -269,6 +269,10 @@ fun Application.module(context: Context) {
                 call.respond(BillRoute(call).edit())
             }
 
+            post("/monthly/stats") {
+                call.respond(BillRoute(call).monthlyStats())
+            }
+
             post("/book/list") {
                 call.respond(BookBillRoute(call).list())
             }

@@ -69,4 +69,10 @@ interface BillInfoDao {
 
     @Query("SELECT * FROM BillInfoModel WHERE groupId = :groupId")
     suspend fun queryGroup(groupId: Long): List<BillInfoModel>
+
+    @Query("SELECT SUM(money) FROM BillInfoModel WHERE type = 'Income' AND time >= :startTime AND time < :endTime AND groupId = -1")
+    suspend fun getMonthlyIncome(startTime: Long, endTime: Long): Double?
+
+    @Query("SELECT SUM(money) FROM BillInfoModel WHERE type = 'Expend' AND time >= :startTime AND time < :endTime AND groupId = -1")
+    suspend fun getMonthlyExpense(startTime: Long, endTime: Long): Double?
 }
