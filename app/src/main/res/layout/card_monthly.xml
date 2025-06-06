@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/income_expense_card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    style="@style/HomeCard">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/card_root"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- 背景图 -->
+        <ImageView
+            android:id="@+id/cover_image"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/default_book"
+            app:layout_constraintDimensionRatio="16:7"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- 半透明遮罩 -->
+        <View
+            android:id="@+id/scrim"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@color/cardScrim"
+            app:layout_constraintTop_toTopOf="@id/cover_image"
+            app:layout_constraintBottom_toBottomOf="@id/cover_image"
+            app:layout_constraintStart_toStartOf="@id/cover_image"
+            app:layout_constraintEnd_toEndOf="@id/cover_image" />
+
+        <!-- 垂直指引线（50% 分栏）-->
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/v_guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="197dp" />
+
+        <!-- 月收入 -->
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tv_income_amount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
+            android:textColor="?attr/colorTertiary"
+            tools:text="¥7,300.00"
+            android:layout_marginStart="24dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/tv_pending_sync"
+            android:layout_marginBottom="24dp" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tv_income_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/month_income"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            android:textColor="@color/scrimLabel"
+            android:layout_marginStart="24dp"
+            android:layout_marginBottom="4dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/tv_income_amount" />
+
+        <!-- 月支出 -->
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tv_expense_amount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
+            android:textColor="?attr/colorError"
+            tools:text="¥18,188.83"
+            android:layout_marginStart="24dp"
+            app:layout_constraintStart_toStartOf="@id/v_guideline"
+            app:layout_constraintBottom_toTopOf="@id/tv_pending_sync"
+            android:layout_marginBottom="24dp" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tv_expense_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/month_expense"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            android:textColor="@color/scrimLabel"
+            android:layout_marginStart="24dp"
+            android:layout_marginBottom="4dp"
+            app:layout_constraintStart_toStartOf="@id/v_guideline"
+            app:layout_constraintBottom_toTopOf="@id/tv_expense_amount" />
+
+        <!-- 待同步账单数量 (底栏) -->
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tv_pending_sync"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="24dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="16dp"
+            android:text="@string/pending_sync"
+            android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+            android:textColor="@color/scrimSync"
+            android:background="@color/syncBarBg"
+            android:gravity="center"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>
