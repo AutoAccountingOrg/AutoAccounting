@@ -15,9 +15,15 @@
 
 package net.ankio.auto.ui.fragment.plugin.home
 
+import android.graphics.Color
+import android.graphics.drawable.BitmapDrawable
 import android.view.View
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.ColorUtils
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.coroutineScope
+import androidx.palette.graphics.Palette
+import com.google.android.material.resources.MaterialResources
 import kotlinx.coroutines.launch
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
@@ -63,7 +69,24 @@ class MonthlyCardComponent(binding: CardMonthlyBinding, private val lifecycle: L
 
             binding.tvPendingSync.text = context.getString(R.string.pending_sync, syncCount)
 
-            PrefManager.defaultBook.toBookCover(binding.coverImage)
+            /* binding.ivBookCoverBg.drawable?.let { drawable ->
+                 val bitmap = (drawable as BitmapDrawable).bitmap
+                 Palette.from(bitmap).generate { palette ->
+                     palette?.let {
+                         val dominantColor = it.getDominantColor(com.google.android.material.R.attr.backgroundColor)
+
+                         // 根据背景色计算文字颜色（前景色自动亮或暗）
+                         val textColor = if (ColorUtils.calculateLuminance(dominantColor) < 0.5) Color.WHITE else Color.BLACK
+
+                         // 设置收入支出文本颜色
+                         binding.tvIncomeAmount.setTextColor(textColor)
+                         binding.tvExpenseAmount.setTextColor(textColor)
+                         binding.tvPendingSync.setTextColor(ColorUtils.setAlphaComponent(textColor, 200))
+                     }
+                 }
+             }*/
+
+
         }
     }
 
