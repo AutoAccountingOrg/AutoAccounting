@@ -15,6 +15,7 @@
 
 package net.ankio.auto.ui.fragment.plugin.home
 
+import android.view.View
 import android.view.ViewGroup
 import android.widget.GridLayout
 import androidx.annotation.ColorRes
@@ -22,6 +23,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.lifecycle.Lifecycle
 import com.bumptech.glide.Glide
+import com.google.android.material.elevation.SurfaceColors
 import net.ankio.auto.R
 import net.ankio.auto.adapter.AppAdapterManager
 import net.ankio.auto.databinding.CardBookBinding
@@ -33,21 +35,30 @@ class BookCardComponent(binding: CardBookBinding, private val lifecycle: Lifecyc
     BaseComponent<CardBookBinding>(binding, lifecycle) {
     override fun init() {
         super.init()
-        binding.btnEdit.setOnClickListener {
+        binding.btnSwitch.setOnClickListener {
             // TODO 选择记账软件
         }
 
         binding.btnRefresh.setOnClickListener {
-            // TODO 执行数据同步
+            val adapter = AppAdapterManager.adapter()
+            adapter.syncAssets()
         }
 
         initActionGrid(actionItems())
+
+        binding.root.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(context))
     }
 
     override fun resume() {
         super.resume()
         val adapter = AppAdapterManager.adapter()
+        binding.btnRefresh.visibility = if (adapter.supportSyncAssets()) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
         binding.tvAppName.text = adapter.name
+        binding.tvPackageName.text = adapter.pkg
         Glide.with(context).load(adapter.icon)
             .error(R.mipmap.ic_launcher)
             .fallback(R.mipmap.ic_launcher)

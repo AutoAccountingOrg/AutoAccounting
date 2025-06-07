@@ -23,6 +23,7 @@ import androidx.core.graphics.ColorUtils
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.coroutineScope
 import androidx.palette.graphics.Palette
+import com.google.android.material.elevation.SurfaceColors
 import com.google.android.material.resources.MaterialResources
 import kotlinx.coroutines.launch
 import net.ankio.auto.BuildConfig
@@ -47,11 +48,12 @@ class MonthlyCardComponent(binding: CardMonthlyBinding, private val lifecycle: L
         } else {
             View.VISIBLE
         }
+        binding.root.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(context))
     }
 
 
     override fun resume() {
-        super.resume()
+        super.resume() 
         lifecycle.coroutineScope.launch {
             val calendar = Calendar.getInstance()
             val year = calendar.get(Calendar.YEAR)
