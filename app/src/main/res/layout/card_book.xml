@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/card_dashboard"
+    style="@style/HomeCard"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginVertical="8dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/padding">
+
+        <!-- 优化后的 Header -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="@dimen/padding"
+            android:paddingEnd="@dimen/padding"
+            android:paddingTop="@dimen/padding"
+            android:paddingBottom="@dimen/padding">
+
+            <!-- ① 应用 Icon：圆形背景 + 图标 -->
+            <ImageView
+                android:id="@+id/ivAppIcon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center"
+                android:src="@mipmap/ic_launcher"
+                android:contentDescription="@string/app_icon_desc" />
+
+            <!-- ② 应用名：占满剩余空间 -->
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tvAppName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="12dp"
+                tools:text="自动记账"
+                style="@style/TextAppearance.Material3.TitleMedium"
+                android:textColor="?attr/colorOnSurface"
+                android:ellipsize="end"
+                android:maxLines="1" />
+
+            <!-- ③ 编辑按钮：MaterialIconButton -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnEdit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:icon="@drawable/icon_edit"
+                style="@style/Widget.Material3.Button.IconButton.Outlined"
+                android:layout_marginEnd="8dp" />
+
+            <!-- ④ 刷新按钮 -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnRefresh"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:icon="@drawable/icon_restart"
+                style="@style/Widget.Material3.Button.IconButton.Filled" />
+        </LinearLayout>
+
+        <!-- ↓↓↓ 4 列功能图标：保持原样 ↓↓↓ -->
+        <GridLayout
+            android:id="@+id/gridActions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:columnCount="4"
+            android:paddingTop="12dp">
+
+
+        </GridLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>
