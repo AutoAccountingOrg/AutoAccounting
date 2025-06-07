@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
+import android.text.TextUtils
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.Gravity
@@ -50,14 +51,23 @@ class IconTileView @JvmOverloads constructor(
 
         // 文字
         addView(labelView.apply {
-            setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f)
+            // 1️⃣ 文字样式
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 11f)                         // 稍微小一点
             setTextColor(resolveColor(MaterialR.attr.colorOnSurface))
-            maxLines = 1
-            layoutParams =
-                LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).apply {
-                    topMargin = dp(6)
-                }
+            maxLines = 2                                                       // 最多两行
+            ellipsize = TextUtils.TruncateAt.END                               // 超出省略号
+
+            // 2️⃣ 宽度 & 顶部间距
+            val textWidth = circleSize + dp(16)                                // 圆 + 两边内边距
+            layoutParams = LayoutParams(textWidth, LayoutParams.WRAP_CONTENT).apply {
+                topMargin = dp(4)                                              // 缩小顶部间距
+                gravity = Gravity.CENTER_HORIZONTAL                            // 水平居中
+            }
+
+            // 3️⃣ 居中对齐
+            textAlignment = TEXT_ALIGNMENT_CENTER
         })
+
 
         // 解析 XML
         context.theme.obtainStyledAttributes(attrs, R.styleable.IconTileView, 0, 0).use { ta ->
