@@ -1,24 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-  ~ Copyright (C) 2023 ankio(ankio@ankio.net)
-  ~ Licensed under the Apache License, Version 3.0 (the "License");
-  ~ you may not use this file except in compliance with the License.
-  ~ You may obtain a copy of the License at
-  ~
-  ~         http://www.apache.org/licenses/LICENSE-3.0
-  ~
-  ~  Unless required by applicable law or agreed to in writing, software
-  ~  distributed under the License is distributed on an "AS IS" BASIS,
-  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  ~  See the License for the specific language governing permissions and
-  ~   limitations under the License.
-  -->
+<?xml version="1.0" encoding="utf-8"?><!-- HomeActivity 根布局（优化后） -->
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
 
+    <!-- ① 顶部 AppBar -->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/toolbarLayout"
         android:layout_width="match_parent"
@@ -27,6 +14,7 @@
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
+            style="@style/Widget.Material3.Toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@android:color/transparent"
@@ -34,41 +22,48 @@
             app:title="@string/app_name" />
     </com.google.android.material.appbar.AppBarLayout>
 
+    <!-- ② 内容区：滚动 -->
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:clipToPadding="false"
         android:overScrollMode="never"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <!-- 用 LinearLayout 即可，垂直顺序排布 -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:paddingHorizontal="@dimen/screen_horizontal_margin"
             android:paddingVertical="@dimen/screen_vertical_margin">
 
+            <!-- 卡片 1：状态 -->
             <include
                 android:id="@+id/active_card"
                 layout="@layout/card_status"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintWidth_max="@dimen/max_content_width" />
+                android:layout_marginTop="0dp"
+                android:maxWidth="@dimen/max_content_width" />
 
+            <!-- 卡片 2：月度信息 -->
             <include
                 android:id="@+id/monthly_card"
                 layout="@layout/card_monthly"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
+                android:layout_height="160dp"
+                android:layout_marginTop="16dp"
+                android:maxWidth="@dimen/max_content_width" />
+
+            <!-- 卡片 3：账本功能 -->
+            <include
+                android:id="@+id/book_card"
+                layout="@layout/card_book"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/active_card"
-                app:layout_constraintWidth_max="@dimen/max_content_width" />
+                android:maxWidth="@dimen/max_content_width" />
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        </LinearLayout>
     </androidx.core.widget.NestedScrollView>
-
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
