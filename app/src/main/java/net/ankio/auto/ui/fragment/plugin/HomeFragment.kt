@@ -17,18 +17,33 @@ package net.ankio.auto.ui.fragment.plugin
 
 import android.os.Bundle
 import android.view.View
+import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentPluginHomeBinding
 import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.api.bindAs
 import net.ankio.auto.ui.fragment.plugin.home.BookCardComponent
 import net.ankio.auto.ui.fragment.plugin.home.MonthlyCardComponent
+import net.ankio.auto.ui.fragment.plugin.home.RuleVersionCardComponent
 import net.ankio.auto.ui.fragment.plugin.home.StatusCardComponent
 
 class HomeFragment : BaseFragment<FragmentPluginHomeBinding>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.activeCard.bindAs<StatusCardComponent>(lifecycle)
+        binding.ruleVersionCard.bindAs<RuleVersionCardComponent>(lifecycle)
         binding.monthlyCard.bindAs<MonthlyCardComponent>(lifecycle)
         binding.bookCard.bindAs<BookCardComponent>(lifecycle)
+
+        binding.toolbar.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.title_log -> {
+                    // TODO 跳转日志页面
+                    true
+                }
+
+
+                else -> false
+            }
+        }
     }
 }

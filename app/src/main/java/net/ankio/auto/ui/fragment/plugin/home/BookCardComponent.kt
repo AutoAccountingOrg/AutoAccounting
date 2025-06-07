@@ -155,22 +155,22 @@ class BookCardComponent(binding: CardBookBinding, private val lifecycle: Lifecyc
     /* -------------------------------------------------------
      * 占位回调：请替换成真正实现
      * ----------------------------------------------------- */
-    private fun openBookManager() { /* TODO */
+    private fun openBookManager() { /* TODO 跳转账本管理页面，对于Xposed并支持自动同步的，隐藏手动添加选项 */
     }
 
-    private fun openCategoryManager() { /* TODO */
+    private fun openCategoryManager() { /* TODO 跳转分类管理页面（支持二级分类及用户手动添加图标）*/
     }
 
-    private fun openCategoryMapping() { /* TODO */
+    private fun openCategoryMapping() { /* TODO 跳转分类映射页面 */
     }
 
-    private fun openAssetManager() { /* TODO */
+    private fun openAssetManager() { /* TODO 跳转资产管理页面（根据自动记账定义的资产拆分）*/
     }
 
-    private fun openAssetMapping() { /* TODO */
+    private fun openAssetMapping() { /* TODO 跳转资产映射 */
     }
 
-    private fun openTagManager() { /* TODO */
+    private fun openTagManager() { /* TODO 跳转标签管理 */
     }
 
 
