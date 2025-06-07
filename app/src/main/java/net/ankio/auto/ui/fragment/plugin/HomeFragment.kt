@@ -20,6 +20,7 @@ import android.view.View
 import net.ankio.auto.databinding.FragmentPluginHomeBinding
 import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.api.bindAs
+import net.ankio.auto.ui.fragment.plugin.home.BookCardComponent
 import net.ankio.auto.ui.fragment.plugin.home.MonthlyCardComponent
 import net.ankio.auto.ui.fragment.plugin.home.StatusCardComponent
 
@@ -28,5 +29,6 @@ class HomeFragment : BaseFragment<FragmentPluginHomeBinding>() {
         super.onViewCreated(view, savedInstanceState)
         binding.activeCard.bindAs<StatusCardComponent>(lifecycle)
         binding.monthlyCard.bindAs<MonthlyCardComponent>(lifecycle)
+        binding.bookCard.bindAs<BookCardComponent>(lifecycle)
     }
 }
