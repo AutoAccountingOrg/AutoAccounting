@@ -1,18 +1,3 @@
-/*
- * Copyright (C) 2025 ankio(ankio@ankio.net)
- * Licensed under the Apache License, Version 3.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-3.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *   limitations under the License.
- */
-
 package net.ankio.auto.ui.components
 
 import android.animation.ValueAnimator
@@ -22,19 +7,15 @@ import android.graphics.*
 import android.util.AttributeSet
 import android.view.View
 import androidx.core.graphics.ColorUtils
+import net.ankio.auto.utils.ThemeUtils
+import net.ankio.auto.utils.toThemeColor
 
 class MaterialScanBorderView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null
 ) : View(context, attrs) {
 
-    private val borderPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.argb(80, 255, 255, 255) // 常规边框淡色（可选）
-        strokeWidth = 4.dp
-        style = Paint.Style.STROKE
-    }
-
     private val lightPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        strokeWidth = 6.dp
+        strokeWidth = 10.dp
         style = Paint.Style.STROKE
         strokeCap = Paint.Cap.ROUND
     }
@@ -42,27 +23,31 @@ class MaterialScanBorderView @JvmOverloads constructor(
     private val borderRect = RectF()
     private val borderPath = Path()
     private val pathMeasure = PathMeasure()
+    private var pathLength = 0f
 
     // 流光参数
     private var currProgress = 0f
-    private val flowLengthRatio = 0.14f // 流光长度占总长的比例（0.0-1.0）
+    private val flowLengthRatio = 0.15f // 流光长度
+    private val tailLengthRatio = 0.7f // 拖尾在流光中占比
+
+    // 主色和拖尾渐变
+    private val primaryColor = com.google.android.material.R.attr.colorPrimary.toThemeColor()
+    private val flowColor = ColorUtils.setAlphaComponent(primaryColor, 230)
+    private val tailColor = ColorUtils.setAlphaComponent(primaryColor, 0)
 
     private var animator: ValueAnimator? = null
 
-    // 自定义颜色渐变
-    private val lightColors = intArrayOf(
-        Color.argb(220, 102, 204, 255), // 主色
-        Color.argb(64, 102, 204, 255)   // 渐隐
-    )
-
     init {
+        setLayerType(LAYER_TYPE_SOFTWARE, null)
         startAnim()
     }
 
     private fun startAnim() {
+        animator?.cancel()
         animator = ValueAnimator.ofFloat(0f, 1f).apply {
-            duration = 2500L
+            duration = 2200L
             repeatCount = ValueAnimator.INFINITE
+            interpolator = null // 视觉匀速（线性）
             addUpdateListener {
                 currProgress = it.animatedValue as Float
                 invalidate()
@@ -85,37 +70,49 @@ class MaterialScanBorderView @JvmOverloads constructor(
             h.toFloat() - padding
         )
         borderPath.reset()
-        val radius = 18.dp
+        val radius = 22.dp
         borderPath.addRoundRect(borderRect, radius, radius, Path.Direction.CW)
-        pathMeasure.setPath(borderPath, true)
+        pathMeasure.setPath(borderPath, false)
+        pathLength = pathMeasure.length
     }
 
     override fun onDraw(canvas: Canvas) {
-        // 1. 可选：常规描边
+        // 可选描边
         // canvas.drawPath(borderPath, borderPaint)
 
-        // 2. 绘制流光
-        val len = pathMeasure.length
+        // === 计算流光起止点 ===
+        val len = pathLength
         val flowLen = len * flowLengthRatio
         val start = currProgress * len
-        val end = (start + flowLen) % len
+        var end = (start + flowLen)
+        if (end > len) end -= len
 
+        // === 拖尾渐变：拉长的水滴形 ===
+        // 构造流光Path
         val lightPath = Path()
         if (end > start) {
             pathMeasure.getSegment(start, end, lightPath, true)
         } else {
             // 跨越起点
             pathMeasure.getSegment(start, len, lightPath, true)
-            pathMeasure.getSegment(0f, end, lightPath, true)
+            pathMeasure.getSegment(0f, end, lightPath, false)
         }
 
-        // 流光渐变
-        val pos = FloatArray(2)
-        pathMeasure.getPosTan((start + flowLen / 2) % len, pos, null)
-        lightPaint.shader = LinearGradient(
-            pos[0], pos[1], pos[0] + 1, pos[1] + 1, // 只为动画刷新
-            lightColors, floatArrayOf(0f, 1f), Shader.TileMode.CLAMP
+        // 计算头尾位置
+        val headPos = FloatArray(2)
+        val tailPos = FloatArray(2)
+        pathMeasure.getPosTan(end, headPos, null)
+        pathMeasure.getPosTan(start, tailPos, null)
+
+        // 渐变模拟水滴：尾部透明
+        val shader = LinearGradient(
+            tailPos[0], tailPos[1], headPos[0], headPos[1],
+            intArrayOf(tailColor, flowColor, tailColor),
+            floatArrayOf(0f, tailLengthRatio, 1f),
+            Shader.TileMode.CLAMP
         )
+        lightPaint.shader = shader
+        lightPaint.maskFilter = BlurMaskFilter(6.dp, BlurMaskFilter.Blur.NORMAL)
         canvas.drawPath(lightPath, lightPaint)
     }
 }
