@@ -52,54 +52,32 @@
         <net.ankio.auto.ui.components.ExpandableCardGroup
             android:id="@+id/cardGroup"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:animateLayoutChanges="true">
-            <!-- 悬浮窗权限 -->
-            <net.ankio.auto.ui.components.ExpandableCardView
-                android:id="@+id/cardOverlay"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:ecv_icon="@drawable/ic_overlay"
-                app:ecv_titleText="@string/perm_overlay_title"
-                app:ecv_descriptionText="@string/perm_overlay_desc"
-                app:ecv_expanded="true" />
+            android:layout_height="0dp"
+            app:layout_constraintTop_toBottomOf="@id/tvAuthSubtitle"
+            app:layout_constraintBottom_toTopOf="@id/btnNext"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="24dp"
+            android:animateLayoutChanges="true" />
 
-            <net.ankio.auto.ui.components.ExpandableCardView
-                android:id="@+id/cardXposedModule"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:ecv_icon="@drawable/xposed_framework_icon"
-                app:ecv_titleText="@string/perm_xposed_title"
-                app:ecv_descriptionText="@string/perm_xposed_desc" />
-            <!-- 通知读取授权 -->
-            <net.ankio.auto.ui.components.ExpandableCardView
-                android:id="@+id/cardNotification"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:ecv_icon="@drawable/ic_notifications"
-                app:ecv_titleText="@string/perm_notification_title"
-                app:ecv_descriptionText="@string/perm_notification_desc" />
-
-            <!-- 短信读取授权 -->
-            <net.ankio.auto.ui.components.ExpandableCardView
-                android:id="@+id/cardSms"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:ecv_icon="@drawable/ic_sms"
-                app:ecv_titleText="@string/perm_sms_title"
-                app:ecv_descriptionText="@string/perm_sms_desc" />
-
-            <!-- 网络访问授权 -->
-            <net.ankio.auto.ui.components.ExpandableCardView
-                android:id="@+id/cardNetwork"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:ecv_icon="@drawable/ic_network"
-                app:ecv_titleText="@string/perm_network_title"
-                app:ecv_descriptionText="@string/perm_network_desc" />
-            <!-- 如有更多，继续加 -->
-        </net.ankio.auto.ui.components.ExpandableCardGroup>
     </androidx.core.widget.NestedScrollView>
+
+    <!-- 下一步 按钮，始终贴底可点击 -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnBack"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/action_back"
+        android:paddingVertical="12dp"
+        app:icon="@drawable/ic_arrow_back"
+        app:iconGravity="textStart"
+        app:iconPadding="8dp"
+        app:iconTint="?attr/colorPrimary"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btnNext"
+        android:layout_marginEnd="8dp"
+        android:contentDescription="@string/action_back" />
 
     <!-- 下一步 按钮，始终贴底可点击 -->
     <com.google.android.material.button.MaterialButton
@@ -114,7 +92,7 @@
         app:iconPadding="8dp"
         app:iconTint="?attr/colorOnPrimary"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@id/btnBack"
         app:layout_constraintEnd_toEndOf="parent"
         android:contentDescription="@string/action_next" />
 </androidx.constraintlayout.widget.ConstraintLayout>

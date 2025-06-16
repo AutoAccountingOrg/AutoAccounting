@@ -45,7 +45,7 @@
         app:layout_constraintTop_toBottomOf="@id/tvSubtitle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/btnContinue">
+        app:layout_constraintBottom_toTopOf="@id/btnNext">
 
         <net.ankio.auto.ui.components.ExpandableCardGroup
             android:id="@+id/cardGroup"
@@ -128,18 +128,37 @@
 
     <!-- 下一步 -->
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnContinue"
+        android:id="@+id/btnBack"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/action_back"
+        android:paddingVertical="12dp"
+        app:icon="@drawable/ic_arrow_back"
+        app:iconGravity="textStart"
+        app:iconPadding="8dp"
+        app:iconTint="?attr/colorPrimary"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btnNext"
+        android:layout_marginEnd="8dp"
+        android:contentDescription="@string/action_back" />
+
+    <!-- 下一步 按钮，始终贴底可点击 -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnNext"
         style="@style/Widget.Material3.Button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="@string/action_continue"
+        android:text="@string/action_next"
         android:paddingVertical="12dp"
         app:icon="@drawable/ic_arrow_forward_24"
         app:iconGravity="textEnd"
         app:iconPadding="8dp"
         app:iconTint="?attr/colorOnPrimary"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/btnBack"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        android:contentDescription="@string/action_next" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

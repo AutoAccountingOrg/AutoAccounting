@@ -77,6 +77,24 @@
         </net.ankio.auto.ui.components.ExpandableCardGroup>
     </androidx.core.widget.NestedScrollView>
 
+    <!-- 返回 按钮 -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnBack"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/action_back"
+        android:paddingVertical="12dp"
+        app:icon="@drawable/ic_arrow_back"
+        app:iconGravity="textStart"
+        app:iconPadding="8dp"
+        app:iconTint="?attr/colorPrimary"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btnNext"
+        android:layout_marginEnd="8dp"
+        android:contentDescription="@string/action_back" />
+
     <!-- 下一步 按钮，始终贴底可点击 -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnNext"
@@ -90,7 +108,7 @@
         app:iconPadding="8dp"
         app:iconTint="?attr/colorOnPrimary"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@id/btnBack"
         app:layout_constraintEnd_toEndOf="parent"
         android:contentDescription="@string/action_next" />
 </androidx.constraintlayout.widget.ConstraintLayout>
