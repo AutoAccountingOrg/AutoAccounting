@@ -27,13 +27,24 @@ import net.ankio.auto.service.utils.ShakeDetector
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.utils.throttle
 
+/**
+ * OCR服务类，用于实现屏幕文字识别功能
+ * 主要功能：
+ * 1. 监听设备摇动事件
+ * 2. 截取屏幕内容
+ * 3. 进行OCR文字识别
+ * 4. 显示识别动画界面
+ */
 class OcrService : ICoreService() {
 
+    // 协程作用域，用于处理异步任务
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
+    // 屏幕截图助手
     private lateinit var shotHelper: ScreenShotHelper
     // private lateinit var allowedPkgs: Set<String>   // 配置白名单
 
+    // 摇动检测器，使用节流函数防止频繁触发
     private val detector by lazy {
         val t = throttle { onShake() }
         ShakeDetector(
@@ -43,6 +54,10 @@ class OcrService : ICoreService() {
         }
     }
 
+    /**
+     * 服务创建时的初始化
+     * 检查必要权限并初始化相关组件
+     */
     override fun onCreate(coreService: CoreService) {
         super.onCreate(coreService)
 
@@ -56,12 +71,10 @@ class OcrService : ICoreService() {
             return
         }
 
-        // MediaProjection 已在前台服务里初始化后注入
+        // 初始化屏幕截图助手
         shotHelper = ScreenShotHelper(coreService, ProjectionGateway.get(coreService))
 
-        // 允许在支付宝和微信中摇一摇触发
-        //  allowedPkgs = setOf("com.eg.android.AlipayGphone", "com.tencent.mm")
-
+        // 启动摇动检测
         if (!detector.start()) {
             Logger.e("设备不支持加速度传感器")
             shotHelper.release()
@@ -74,6 +87,9 @@ class OcrService : ICoreService() {
         //TODO("Not yet implemented")
     }
 
+    /**
+     * 服务销毁时的清理工作
+     */
     override fun onDestroy() {
         detector.stop()
         shotHelper.release()
@@ -83,6 +99,13 @@ class OcrService : ICoreService() {
 
     /* -------------------------------- 业务逻辑 ------------------------------- */
 
+    /**
+     * 处理摇动事件
+     * 1. 获取当前前台应用
+     * 2. 显示OCR动画界面
+     * 3. 截取屏幕并进行OCR识别
+     * 4. 将识别结果发送给JS引擎处理
+     */
     private fun onShake() {
         val pkg = getTopPackagePostL(coreService) ?: return
         Logger.d("检测到白名单应用 [$pkg]，开始截屏 OCR")
@@ -101,21 +124,22 @@ class OcrService : ICoreService() {
             }
             Logger.d("处理结束")
             //TODO 屏幕识别结束
-
         }
-
-        //屏幕识别动画
-
     }
 
+    // 悬浮窗相关变量
     private var floatView: View? = null
     private var windowManager: WindowManager? = null
 
+    /**
+     * 显示OCR识别动画界面
+     * 创建一个全屏悬浮窗来显示识别动画
+     */
     private fun startOcrView(context: Context) {
         // 已经显示则不再重复
         if (floatView != null) return
 
-        // 检查并申请权限
+        // 检查悬浮窗权限
         if (!Settings.canDrawOverlays(context)) {
             Logger.e("不支持显示悬浮窗")
             return
@@ -123,6 +147,7 @@ class OcrService : ICoreService() {
 
         windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
 
+        // 配置悬浮窗参数
         val layoutParams = WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.MATCH_PARENT,
@@ -133,12 +158,14 @@ class OcrService : ICoreService() {
         )
         layoutParams.gravity = Gravity.CENTER
 
-        // 你的自定义OCR悬浮View
+        // 创建并显示悬浮窗
         floatView = OcrViewBinding.inflate(LayoutInflater.from(context)).root
-
         windowManager?.addView(floatView, layoutParams)
     }
 
+    /**
+     * 关闭OCR识别动画界面
+     */
     private fun stopOcrView() {
         floatView?.let { view ->
             windowManager?.removeView(view)
@@ -147,12 +174,20 @@ class OcrService : ICoreService() {
         }
     }
 
-
+    /**
+     * 将OCR识别结果发送给JS引擎处理
+     * @param text OCR识别的文本内容
+     * @param app 当前应用包名
+     */
     private suspend fun send2JsEngine(text: String, app: String) {
         //TODO 使用js引擎识别
         Logger.d("app=$app, text=$text")
     }
 
+    /**
+     * 获取当前前台应用包名
+     * @return 返回最近10秒内最活跃的应用包名
+     */
     private fun getTopPackagePostL(ctx: Context): String? {
         val usm = ctx.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
         val end = System.currentTimeMillis()
@@ -163,8 +198,10 @@ class OcrService : ICoreService() {
         return recent.packageName
     }
 
-
     companion object : IService {
+        /**
+         * 检查是否有使用情况访问权限
+         */
         override fun hasPermission(): Boolean {
             val ctx = autoApp
             val appOps = ctx.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
@@ -175,13 +212,15 @@ class OcrService : ICoreService() {
             return mode == AppOpsManager.MODE_ALLOWED
         }
 
+        /**
+         * 启动权限设置页面
+         */
         override fun startPermissionActivity(context: Context) {
             context.startActivity(
                 Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             )
         }
-
     }
 }
 

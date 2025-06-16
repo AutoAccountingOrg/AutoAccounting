@@ -9,8 +9,18 @@ import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import net.ankio.auto.storage.Logger
 
+/**
+ * OCR处理器对象，用于处理图像文字识别
+ * 使用Google ML Kit的文本识别功能，支持中文识别
+ */
 object OcrProcessor {
 
+    /**
+     * 识别图片中的文字
+     *
+     * @param bitmap 需要识别的图片
+     * @return 识别出的文字内容，如果识别失败则返回空字符串
+     */
     suspend fun recognize(bitmap: Bitmap): String = withContext(Dispatchers.Default) {
         Logger.d("截屏结果识别中....")
         val client = TextRecognition.getClient(

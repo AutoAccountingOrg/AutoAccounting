@@ -17,11 +17,21 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * 基于协程的屏幕截图工具
+ *
+ * 该类提供了使用 MediaProjection API 进行屏幕截图的功能。主要特点：
+ * - 使用协程进行异步操作
+ * - 支持双缓冲的 ImageReader
+ * - 自动处理图像格式转换
+ * - 线程安全的截图操作
+ *
+ * @param ctx 应用上下文，用于获取屏幕参数
+ * @param projection MediaProjection 实例，用于创建虚拟显示
  */
 class ScreenShotHelper(
     ctx: Context,
     private val projection: MediaProjection
 ) {
+    /** 用于确保同一时间只有一个截图操作在进行 */
     private val busy = AtomicBoolean(false)
 
     // 确保宽高为偶数（编码器硬性要求）
@@ -30,19 +40,27 @@ class ScreenShotHelper(
     private val height = metrics.heightPixels
     private val dpi = metrics.densityDpi
 
-    // 双缓冲 ImageReader
+    /** 双缓冲 ImageReader，用于接收屏幕图像数据 */
     private val imageReader = ImageReader.newInstance(
         width,
         height,
         PixelFormat.RGBA_8888,
         2
     )
+
+    /** 虚拟显示实例，用于捕获屏幕内容 */
     private var virtualDisplay: android.hardware.display.VirtualDisplay? = null
 
     init {
         createVirtualDisplay()
     }
 
+    /**
+     * 创建虚拟显示实例
+     *
+     * 使用 MediaProjection 创建虚拟显示，用于捕获屏幕内容。
+     * 虚拟显示会将屏幕内容输出到 ImageReader 的 surface。
+     */
     private fun createVirtualDisplay() {
         virtualDisplay = projection.createVirtualDisplay(
             "screen-mirror",
@@ -57,7 +75,12 @@ class ScreenShotHelper(
     }
 
     /**
-     * 截图并返回 Bitmap，若失败则抛出异常。
+     * 执行屏幕截图操作
+     *
+     * 该方法会异步捕获当前屏幕内容并转换为 Bitmap。
+     * 如果已有截图操作正在进行，则返回 null。
+     *
+     * @return 包含屏幕内容的 Bitmap，如果截图失败则返回 null
      */
     suspend fun capture(): Bitmap? = withContext(Dispatchers.IO) {
         if (!busy.compareAndSet(false, true)) {
@@ -79,7 +102,13 @@ class ScreenShotHelper(
     }
 
     /**
-     * 在指定超时时间内获取最新屏幕图像。
+     * 在指定超时时间内获取最新屏幕图像
+     *
+     * 该方法会持续尝试获取最新的屏幕图像，直到成功或超时。
+     *
+     * @param timeoutMillis 超时时间（毫秒）
+     * @return 捕获到的屏幕图像
+     * @throws IllegalStateException 如果超时仍未获取到图像
      */
     private suspend fun acquireImageWithTimeout(timeoutMillis: Long): Image =
         withTimeout(timeoutMillis) {
@@ -94,9 +123,13 @@ class ScreenShotHelper(
             throw IllegalStateException("Timeout waiting for image")
         }
 
-
     /**
-     * 解析 Image 为 Bitmap。
+     * 将 Image 对象转换为 Bitmap
+     *
+     * 处理图像数据，包括处理像素步长和行步长，确保正确转换图像格式。
+     *
+     * @param image 要处理的 Image 对象
+     * @return 转换后的 Bitmap 对象
      */
     private suspend fun processImage(image: Image): Bitmap =
         withContext(Dispatchers.IO) {
@@ -120,7 +153,10 @@ class ScreenShotHelper(
         }
 
     /**
-     * 释放相关资源。
+     * 释放所有相关资源
+     *
+     * 释放虚拟显示、ImageReader 和 MediaProjection 实例。
+     * 在不再需要截图功能时调用此方法。
      */
     fun release() {
         virtualDisplay?.release()
