@@ -16,7 +16,11 @@ class IntroPageModeFragment : BaseIntroPageFragment<FragmentIntroPageModeBinding
         binding.btnNext.setOnClickListener {
             val index = binding.cardGroup.selectedIndex
             PrefManager.workMode = WorkMode.entries[index]
+            //如果已经监听了服务端口，设置workMode
             vm.pageRequest.value = IntroPagerAdapter.IntroPage.PERMISSION
+        }
+        binding.btnBack.setOnClickListener {
+            vm.pageRequest.value = IntroPagerAdapter.IntroPage.HOME
         }
 
     }

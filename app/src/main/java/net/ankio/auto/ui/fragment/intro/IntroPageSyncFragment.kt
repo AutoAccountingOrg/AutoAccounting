@@ -20,9 +20,14 @@ class IntroPageSyncFragment : BaseIntroPageFragment<FragmentIntroPageSyncBinding
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.btnContinue.setOnClickListener {
+        binding.btnNext.setOnClickListener {
             vm.pageRequest.value = IntroPagerAdapter.IntroPage.AI
         }
+
+        binding.btnBack.setOnClickListener {
+            vm.pageRequest.value = IntroPagerAdapter.IntroPage.FEATURE
+        }
+
 
         binding.btnSync.setOnClickListener {
             val adapter = AppAdapterManager.adapter()

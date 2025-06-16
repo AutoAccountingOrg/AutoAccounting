@@ -61,7 +61,7 @@ class IntroPageFeatureFragment :
         super.onViewCreated(view, savedInstanceState)
 
         // “下一步” 按钮
-        binding.btnContinue.setOnClickListener {
+        binding.btnNext.setOnClickListener {
             if (bookAdapter.supportSyncAssets()) {
                 vm.pageRequest.value = IntroPagerAdapter.IntroPage.SYNC
             } else {
@@ -69,6 +69,9 @@ class IntroPageFeatureFragment :
                 vm.pageRequest.value = IntroPagerAdapter.IntroPage.AI
             }
 
+        }
+        binding.btnBack.setOnClickListener {
+            vm.pageRequest.value = IntroPagerAdapter.IntroPage.APP
         }
 
         // 初始化卡片状态 & 监听

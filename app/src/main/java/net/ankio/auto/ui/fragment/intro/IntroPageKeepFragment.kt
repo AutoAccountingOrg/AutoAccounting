@@ -16,6 +16,7 @@ import net.ankio.auto.ui.adapter.IntroPagerAdapter
 import net.ankio.auto.ui.components.ExpandableCardView
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.PrefManager
+import androidx.core.net.toUri
 
 /**
  * 引导页 #4 – 后台保活相关权限
@@ -31,8 +32,12 @@ class IntroPageKeepFragment : BaseIntroPageFragment<FragmentIntroPageKeepBinding
         super.onViewCreated(view, savedInstanceState)
 
         /* 继续 → 下一页 */
-        binding.btnContinue.setOnClickListener {
+        binding.btnNext.setOnClickListener {
             vm.pageRequest.value = IntroPagerAdapter.IntroPage.APP
+        }
+
+        binding.btnBack.setOnClickListener {
+            vm.pageRequest.value = IntroPagerAdapter.IntroPage.PERMISSION
         }
 
         /* 卡片点击动作 */
@@ -96,7 +101,7 @@ class IntroPageKeepFragment : BaseIntroPageFragment<FragmentIntroPageKeepBinding
             startActivity(
                 Intent(
                     Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                    Uri.parse("package:${ctx.packageName}")
+                    "package:${ctx.packageName}".toUri()
                 ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             )
             ToastUtils.info(R.string.keepalive_battery_tip_details)
@@ -163,7 +168,7 @@ class IntroPageKeepFragment : BaseIntroPageFragment<FragmentIntroPageKeepBinding
                 startActivity(
                     Intent(
                         Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                        Uri.parse("package:${ctx.packageName}")
+                        "package:${ctx.packageName}".toUri()
                     ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 )
                 ToastUtils.info(R.string.keepalive_autostart_tip)

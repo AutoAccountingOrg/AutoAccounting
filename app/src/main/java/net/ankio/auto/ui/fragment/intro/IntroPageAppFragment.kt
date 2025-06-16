@@ -28,13 +28,15 @@ class IntroPageAppFragment : BaseIntroPageFragment<FragmentIntroPageAppBinding>(
               vm.pageRequest.value = 1
           }*/
 
-        binding.btnContinue.setOnClickListener {
+        binding.btnNext.setOnClickListener {
             PrefManager.bookApp = apps[binding.ledgerCardGroup.selectedIndex].pkg
             //选择功能
             vm.pageRequest.value = IntroPagerAdapter.IntroPage.FEATURE
 
         }
-
+        binding.btnBack.setOnClickListener {
+            vm.pageRequest.value = IntroPagerAdapter.IntroPage.KEEP
+        }
 
     }
 

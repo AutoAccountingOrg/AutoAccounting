@@ -18,10 +18,25 @@ import net.ankio.auto.R
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.PrefManager
 import androidx.core.net.toUri
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withTimeoutOrNull
+import net.ankio.auto.adapter.AppAdapterManager
 import net.ankio.auto.ui.adapter.IntroPagerAdapter
 
 class IntroPageAIFragment : BaseIntroPageFragment<FragmentIntroPageAiBinding>() {
 
+    private suspend fun fetchProvidersWithRetry(): List<String> = withTimeoutOrNull(30_000) {
+        var list: List<String>
+        do {
+            list = AiAPI.getProviders()
+            if (list.isEmpty()) {
+                // 列表为空，等 500ms 后重试
+                delay(500)
+            }
+        } while (list.isEmpty())
+        // 跳出循环时 list 已经非空，或超时抛 null
+        list
+    } ?: emptyList()  // 超时或返回 null 时，给个空列表
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -41,7 +56,7 @@ class IntroPageAIFragment : BaseIntroPageFragment<FragmentIntroPageAiBinding>() 
         }
 
         lifecycleScope.launch {
-            val providerList = AiAPI.getProviders()
+            val providerList = fetchProvidersWithRetry()
             binding.actAiProvider.bindItems(providerList)
             // 提供者选择后，启用刷新按钮
             binding.actAiProvider.setOnItemClickListener { _, _, pos, _ ->
@@ -70,7 +85,7 @@ class IntroPageAIFragment : BaseIntroPageFragment<FragmentIntroPageAiBinding>() 
             }
         }
 
-        binding.btnSaveAi.setOnClickListener {
+        binding.btnNext.setOnClickListener {
             // 完成
             PrefManager.aiFeatureOCR = binding.chipUsageOcr.isChecked
             PrefManager.aiFeatureAutoDetection = binding.chipUsageAutoDetect.isChecked
@@ -89,6 +104,17 @@ class IntroPageAIFragment : BaseIntroPageFragment<FragmentIntroPageAiBinding>() 
             }
 
             CustomTabsHelper.launchUrlOrCopy(requireContext(), uri)
+
+        }
+
+        binding.btnBack.setOnClickListener {
+
+            if (AppAdapterManager.adapter().supportSyncAssets()) {
+                vm.pageRequest.value = IntroPagerAdapter.IntroPage.SYNC
+            } else {
+                vm.pageRequest.value = IntroPagerAdapter.IntroPage.FEATURE
+            }
+
 
         }
     }
