@@ -53,32 +53,6 @@
             android:layout_height="wrap_content"
             android:animateLayoutChanges="true">
 
-            <!-- 忽略电池优化 -->
-            <net.ankio.auto.ui.components.ExpandableCardView
-                android:id="@+id/cardBatteryOpt"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:ecv_icon="@drawable/ic_battery"
-                app:ecv_titleText="@string/keepalive_battery_title"
-                app:ecv_descriptionText="@string/keepalive_battery_desc" />
-
-            <!-- 自启动权限 -->
-            <net.ankio.auto.ui.components.ExpandableCardView
-                android:id="@+id/cardAutostart"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:ecv_icon="@drawable/ic_autostart"
-                app:ecv_titleText="@string/keepalive_autostart_title"
-                app:ecv_descriptionText="@string/keepalive_autostart_desc" />
-
-            <!-- 任务管理器锁定 -->
-            <net.ankio.auto.ui.components.ExpandableCardView
-                android:id="@+id/cardTaskLock"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:ecv_icon="@drawable/ic_lock"
-                app:ecv_titleText="@string/keepalive_tasklock_title"
-                app:ecv_descriptionText="@string/keepalive_tasklock_desc" />
 
         </net.ankio.auto.ui.components.ExpandableCardGroup>
     </androidx.core.widget.NestedScrollView>

@@ -17,12 +17,12 @@ import net.ankio.auto.ui.components.ExpandableCardView
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.PrefManager
 import androidx.core.net.toUri
+import net.ankio.auto.adapter.AppAdapterManager
 
 /**
- * 引导页 #4 – 后台保活相关权限
+ * 引导页 #4 – 后台保活相关权限
  */
 class IntroPageKeepFragment : BaseIntroPageFragment<FragmentIntroPageKeepBinding>() {
-
 
     // ──────────────────────────────────────────────────────────────────────────────
     // Lifecycle
@@ -39,20 +39,111 @@ class IntroPageKeepFragment : BaseIntroPageFragment<FragmentIntroPageKeepBinding
         binding.btnBack.setOnClickListener {
             vm.pageRequest.value = IntroPagerAdapter.IntroPage.PERMISSION
         }
-
-        /* 卡片点击动作 */
-        registerCardClick(binding.cardBatteryOpt) { openBatteryOptimizationPage() }
-        registerCardClick(binding.cardAutostart) { openAutoStartPage() }
-        registerCardClick(binding.cardTaskLock) { showTaskLockGuide() }
+        setupCardsDynamic()
     }
 
     override fun onResume() {
         super.onResume()
 
-        /* Xposed 模式下无需电池优化/任务锁定 */
-        if (PrefManager.workMode == WorkMode.Xposed) {
-            binding.cardBatteryOpt.visibility = View.GONE
-            binding.cardTaskLock.visibility = View.GONE
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────────
+    // Keep-alive Items
+    // ──────────────────────────────────────────────────────────────────────────────
+
+    /**
+     * 保活项数据类
+     * @param iconRes 图标资源ID
+     * @param titleRes 标题资源ID
+     * @param descRes 描述资源ID
+     * @param checkEnabled 检查是否已启用的方法
+     * @param onClick 点击处理方法
+     * @param viewId 视图ID
+     */
+    data class KeepItem(
+        val iconRes: Int,
+        val titleRes: Int,
+        val descRes: Int,
+        val onClick: () -> Unit,
+        var viewId: Int = View.NO_ID
+    )
+
+    // 保活项列表
+    private lateinit var keepItems: MutableList<KeepItem>
+
+    /**
+     * 动态设置保活卡片
+     */
+    private fun setupCardsDynamic() {
+        val container = binding.keepAliveGroup
+        val ctx = requireContext()
+        val isXposed = AppAdapterManager.xposedMode()
+
+        // 构建保活项列表
+        keepItems = mutableListOf<KeepItem>().apply {
+            // 电池优化白名单
+            if (!isXposed) {
+                add(
+                    KeepItem(
+                        iconRes = R.drawable.ic_battery,
+                        titleRes = R.string.keepalive_battery_title,
+                        descRes = R.string.keepalive_battery_desc,
+
+                        onClick = { openBatteryOptimizationPage() }
+                    )
+                )
+            }
+
+            // 自启动权限
+            add(
+                KeepItem(
+                    iconRes = R.drawable.ic_autostart,
+                    titleRes = R.string.keepalive_autostart_title,
+                    descRes = R.string.keepalive_autostart_desc,
+                    // 无法检测是否已授权
+                    onClick = { openAutoStartPage() }
+                )
+            )
+
+            // 任务锁定
+            if (!isXposed) {
+                add(
+                    KeepItem(
+                        iconRes = R.drawable.ic_lock,
+                        titleRes = R.string.keepalive_tasklock_title,
+                        descRes = R.string.keepalive_tasklock_desc,
+                        // 无法检测是否已锁定
+                        onClick = { showTaskLockGuide() }
+                    )
+                )
+
+            }
+// 通知权限
+            add(
+                KeepItem(
+                    iconRes = R.drawable.ic_notifications,
+                    titleRes = R.string.keepalive_notification_title,
+                    descRes = R.string.keepalive_notification_desc,
+
+                    onClick = { openNotificationSettings() }
+                )
+            )
+
+        }
+
+        // 清空并重新创建所有保活卡片
+        container.removeAllViews()
+
+        keepItems.forEach { item ->
+            item.viewId = View.generateViewId()
+            val card = ExpandableCardView(requireContext()).apply {
+                icon.setImageResource(item.iconRes)
+                setTitle(context.getString(item.titleRes))
+                setDescription(context.getString(item.descRes))
+                setOnCardClickListener { item.onClick() }
+                id = item.viewId
+            }
+            container.addView(card)
         }
     }
 
@@ -60,17 +151,9 @@ class IntroPageKeepFragment : BaseIntroPageFragment<FragmentIntroPageKeepBinding
     // Helpers
     // ──────────────────────────────────────────────────────────────────────────────
 
-    /**
-     * 为 [ExpandableCardView] 绑定点击回调
-     */
-    private inline fun registerCardClick(card: ExpandableCardView, crossinline action: () -> Unit) {
-        card.setOnCardClickListener { action() }
-    }
-
     @SuppressLint("BatteryLife")
     private fun openBatteryOptimizationPage() {
         val ctx = requireContext()
-
 
         // 已经在白名单 → 仅提示
         val pm = ctx.getSystemService(Context.POWER_SERVICE) as PowerManager
@@ -79,7 +162,7 @@ class IntroPageKeepFragment : BaseIntroPageFragment<FragmentIntroPageKeepBinding
             return
         }
 
-        // ① 系统“电池优化”总列表（无需额外权限）
+        // ① 系统"电池优化"总列表（无需额外权限）
         val listIntent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
@@ -94,7 +177,7 @@ class IntroPageKeepFragment : BaseIntroPageFragment<FragmentIntroPageKeepBinding
         openAppDetailsFallback()
     }
 
-    /** 打开“应用详情”并给出提示 */
+    /** 打开"应用详情"并给出提示 */
     private fun openAppDetailsFallback() {
         val ctx = requireContext()
         runCatching {
@@ -110,7 +193,7 @@ class IntroPageKeepFragment : BaseIntroPageFragment<FragmentIntroPageKeepBinding
         }
     }
 
-    /** 跳转到厂商的“自启动/后台弹性启动”设置界面；全部失败时退到本应用详情页 */
+    /** 跳转到厂商的"自启动/后台弹性启动"设置界面；全部失败时退到本应用详情页 */
     private fun openAutoStartPage() {
         val ctx = requireContext()
 
@@ -122,13 +205,13 @@ class IntroPageKeepFragment : BaseIntroPageFragment<FragmentIntroPageKeepBinding
                 "com.miui.permcenter.autostart.AutoStartManagementActivity"
             ),
 
-            // EMUI / MagicOS
+            // EMUI / MagicOS
             ComponentName(
                 "com.huawei.systemmanager",
                 "com.huawei.systemmanager.startupmgr.ui.StartupNormalAppListActivity"
             ),
 
-            // OPPO / realme
+            // OPPO / realme
             ComponentName(
                 "com.coloros.safecenter",
                 "com.coloros.safecenter.permission.startup.StartupAppListActivity"
@@ -178,9 +261,25 @@ class IntroPageKeepFragment : BaseIntroPageFragment<FragmentIntroPageKeepBinding
         }
     }
 
-
-    /** 任务管理器“锁定”功能无法通过 Intent 直接跳转 → 弹提示 */
+    /** 任务管理器"锁定"功能无法通过 Intent 直接跳转 → 弹提示 */
     private fun showTaskLockGuide() {
-        ToastUtils.info(R.string.keepalive_tasklock_tip)   // “请在最近任务中下拉/长按本应用以锁定，防止被系统清理”
+        ToastUtils.info(R.string.keepalive_tasklock_tip)
+    }
+
+    /** 打开通知设置页面 */
+    private fun openNotificationSettings() {
+        val ctx = requireContext()
+        val intent = Intent().apply {
+            action = Settings.ACTION_APP_NOTIFICATION_SETTINGS
+            putExtra(Settings.EXTRA_APP_PACKAGE, ctx.packageName)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+
+        runCatching {
+            startActivity(intent)
+        }.onFailure {
+            // 如果无法打开通知设置，则打开应用详情页
+            openAppDetailsFallback()
+        }
     }
 }
