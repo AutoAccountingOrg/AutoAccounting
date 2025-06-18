@@ -24,6 +24,7 @@ import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.constant.WorkMode
 import net.ankio.auto.databinding.CardStatusBinding
+import net.ankio.auto.service.OcrService
 import net.ankio.auto.ui.api.BaseComponent
 import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.utils.toDrawable
@@ -62,8 +63,7 @@ class StatusCardComponent(binding: CardStatusBinding, private val lifecycle: Lif
     }
 
     private fun checkOcrActive(): Boolean {
-        // TODO 检测OCR服务是否运行中
-        return false
+        return OcrService.serverStarted
     }
 
     override fun resume() {
