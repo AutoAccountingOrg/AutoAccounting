@@ -16,9 +16,13 @@
 package net.ankio.auto.ui.activity
 
 import android.os.Bundle
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.viewModels
-import androidx.recyclerview.widget.RecyclerView
+import net.ankio.auto.constant.WorkMode
 import net.ankio.auto.databinding.ActivityIntroBinding
+import net.ankio.auto.service.CoreService
+import net.ankio.auto.service.utils.ProjectionGateway
+import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.adapter.IntroPagerAdapter
 import net.ankio.auto.ui.adapter.IntroPagerAdapter.IntroPage
 import net.ankio.auto.ui.api.BaseActivity
@@ -34,18 +38,57 @@ class MainActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         //已经在引导页面呆过，直接进入主页
 
+        Logger.i("PrefManager.introIndex = ${PrefManager.introIndex}")
+
+
+        projectionLauncher = ProjectionGateway.register(this) {
+            CoreService.start(this)
+        }
+
+        startCoreService()
+
         if (PrefManager.introIndex + 1 >= IntroPage.entries.size) {
             start<HomeActivity>()
             return
         }
 
+
         setContentView(binding.root)
+
         binding.viewPager.adapter = IntroPagerAdapter(this)
         binding.viewPager.isUserInputEnabled = false
+
+
+
         binding.viewPager.setCurrentItem(PrefManager.introIndex, false)
+
         vm.pageRequest.observe(this) { idx ->
             PrefManager.introIndex = idx.ordinal
+            startCoreService()
             binding.viewPager.setCurrentItem(idx.ordinal, true)
         }
+
+
     }
+
+    private lateinit var projectionLauncher: ActivityResultLauncher<Unit>
+
+    private fun startCoreService() {
+        // 引导页未完成？直接返回
+        if (PrefManager.introIndex < IntroPage.APP.ordinal) return
+
+        // 非 OCR 模式 → 无需截屏授权
+        if (PrefManager.workMode != WorkMode.Ocr) {
+            CoreService.start(this)
+            return
+        }
+
+        // OCR 模式
+        if (ProjectionGateway.isReady()) {
+            CoreService.start(this)
+        } else {
+            projectionLauncher.launch(Unit)   // 弹一次系统授权窗
+        }
+    }
+
 }
