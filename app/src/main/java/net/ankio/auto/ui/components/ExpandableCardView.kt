@@ -1,6 +1,7 @@
 package net.ankio.auto.ui.components
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.content.res.Resources
 import android.util.AttributeSet
 import android.view.View
@@ -15,6 +16,7 @@ import com.google.android.material.color.MaterialColors
 import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.switchmaterial.SwitchMaterial
 import net.ankio.auto.R
+import net.ankio.auto.utils.toThemeColor
 
 class ExpandableCardView @JvmOverloads constructor(
     context: Context,
@@ -133,6 +135,16 @@ class ExpandableCardView @JvmOverloads constructor(
     fun switch(): Boolean {
         return this.switch.isChecked
     }
+
+    fun enableTint(boolean: Boolean) {
+        if (boolean) {
+            val color = com.google.android.material.R.attr.colorPrimary.toThemeColor()
+            icon.imageTintList = ColorStateList.valueOf(color)
+        } else {
+            icon.imageTintList = null
+        }
+    }
+
 
 
 }
