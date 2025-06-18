@@ -30,6 +30,8 @@ import net.ankio.auto.utils.PrefManager
 import androidx.core.view.get
 import net.ankio.auto.storage.Logger
 import androidx.core.view.size
+import net.ankio.auto.service.CoreService
+import net.ankio.auto.ui.fragment.plugin.DataFragment
 
 class HomeActivity : BaseActivity() {
     private val binding: ActivityMainBinding by lazy {
@@ -62,7 +64,15 @@ class HomeActivity : BaseActivity() {
                     fragmentProvider = { HomeFragment() },
                     R.drawable.bottom_select_home,
                     R.drawable.bottom_unselect_home
-                )
+                ),
+            )
+            list.add(
+                NavigationItem(
+                    label = R.string.title_data,
+                    fragmentProvider = { DataFragment() },
+                    R.drawable.bottom_select_data,
+                    R.drawable.bottom_select_data
+                ),
             )
             // 更多 fragment 可添加于此
         }
