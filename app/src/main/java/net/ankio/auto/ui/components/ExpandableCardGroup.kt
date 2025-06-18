@@ -147,8 +147,11 @@ open class ExpandableCardGroup @JvmOverloads constructor(
     }
 
     /** Returns the index of the currently expanded card, or -1 if none */
-    val selectedIndex: Int
+    var selectedIndex: Int
         get() = (0 until childCount)
             .firstOrNull { (getChildAt(it) as? ExpandableCardView)?.isExpanded == true }
             ?: -1
+        set(index) = (0 until childCount).forEach {
+            (getChildAt(it) as? ExpandableCardView)?.isExpanded = index == it
+        }
 }
