@@ -22,5 +22,26 @@
     <color name="log_error">#EF9A9A</color> <!-- 浅错误 -->
     <color name="log_debug">#B0BEC5</color> <!-- 浅调试 -->
     <color name="black">#000</color>
-    <color name="gray40">#90A0A0A0</color>
+    <color name="gray40">#66000000</color>
+    <color name="gray30">#47000000</color>
+
+
+    <color name="cardScrim">#47000000</color>          <!-- 28 % 黑：夜间少压暗 -->
+    <color name="syncBarBg">#66000000</color>          <!-- 40 % 黑 -->
+
+    <color name="scrimLabel">#FFCACACA</color>         <!-- 亮灰，避免纯白刺眼 -->
+    <color name="scrimSync">#B3FFFFFF</color>
+
+    <color name="amountIncome">#FF90CAF9</color>  <!-- 亮度 +20% -->
+    <color name="amountExpense">#FFFF8A80</color>
+    <color name="textPrimary">#FFFFFFFF</color>
+    <color name="textSecondary">#B3FFFFFF</color>    <!-- 90% 黑 -->
+
+    <color name="tile_bg_books">#FF4E2F30</color>
+    <color name="tile_bg_category">#FF5A4C21</color>
+    <color name="tile_bg_category_map">#FF543654</color>
+    <color name="tile_bg_assets">#FF2E5050</color>
+    <color name="tile_bg_assets_map">#FF4A356B</color>
+    <color name="tile_bg_tag">#FF4C3A10</color>
+
 </resources>

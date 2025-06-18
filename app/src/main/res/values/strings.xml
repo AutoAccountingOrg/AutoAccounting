@@ -16,12 +16,13 @@
 <resources>
 
     <string name="about_view_source_code"><![CDATA[在 %s 查看源码]]></string>
-    <string name="title_home">主页</string>
-    <string name="title_data">数据</string>
+    <string name="title_home">Home</string>
+    <string name="title_data">Data</string>
     <string name="title_rule">规则</string>
     <string name="title_order">账单</string>
     <string name="title_setting">设置</string>
-    <string name="active_error">未激活</string>
+    <string name="active_error">Inactive (%s)</string>
+    <string name="active_success">Activated (%s)</string>
     <string name="description">基于本地规则的自动记账模块。</string>
     <string name="communication_title">交流讨论</string>
     <string name="msg_telegram">Telegram</string>
@@ -118,14 +119,21 @@
     <string name="app_url">更新检测地址</string>
     <string name="setting_update_type">检查更新类型</string>
     <string name="title_rule_category">自定义分类规则</string>
-    <string name="title_books">账本数据</string>
     <string name="rule_title">记账规则</string>
     <string name="data_title">记账软件数据</string>
     <string name="title_app">记账应用</string>
     <string name="cancel">关闭</string>
     <string name="no_setting">未设置</string>
-    <string name="title_category">分类数据</string>
-    <string name="title_assets">资产数据</string>
+
+    <string name="title_books">Books</string>
+    <string name="title_category">Categories</string>
+    <string name="title_category_mapping">Category Mapping</string>
+    <string name="title_assets">Assets</string>
+    <string name="title_assets_map">Asset Mapping</string>
+    <string name="title_tag">Tags</string>
+    <string name="app_icon_desc">App Icon</string>
+
+
     <string name="title_map">资产映射</string>
     <string name="map_input_raw">请输入原始资产</string>
     <string name="map_regex">包含关系</string>
@@ -422,8 +430,9 @@
     <string name="item_wait_edit">待编辑</string>
     <string name="item_synced">已同步</string>
     <string name="setting_category_ai">使用AI辅助分类</string>
-    <string name="service_channel_description">自动记账悬浮窗、后台监听服务</string>
-    <string name="service_notification_title">自动记账悬浮窗/后台服务运行中</string>
+    <string name="service_channel_description">Auto-accounting background listener services</string>
+    <string name="service_notification_title">Auto-accounting background service is running</string>
+
     <string name="auto_record_">静默记账</string>
 
 
@@ -561,6 +570,95 @@
 </string>
     <string name="select_ledger_title">Select Accounting App</string>
     <string name="select_ledger_subtitle">Auto Accounting does not include data visualization features by default; you need to select one to serve as your data visualization analysis tool.</string>
+    <string name="sync_title">Sync Assets</string>
+    <string name="sync_subtitle">AutoAccounting needs access to the target app’s categories, assets, and ledgers in order to record transactions correctly.</string>
+    <string name="action_sync">Start Sync</string>
+    <string name="sync_state_not">Data not yet synced</string>
+
+
+    <!-- Page title & subtitle -->
+    <string name="title_feature_select">Select the features you need</string>
+    <string name="subtitle_feature_select">    Tick the features you want to use in your ledger.
+    Be sure to enable the same feature inside the corresponding app as well—otherwise it won’t take effect.
+    Features an app doesn’t support are hidden automatically.</string>
+
+    <!-- Feature names & descriptions -->
+    <string name="feature_asset_manage">Asset Management</string>
+    <string name="feature_asset_manage_desc">Track changes to bank cards, cash, funds, and other assets</string>
+
+    <string name="feature_multi_book">Multiple Ledgers</string>
+    <string name="feature_multi_book_desc">Manage personal, family, or project books side by side</string>
+
+    <string name="feature_reimbursement">Reimbursement</string>
+    <string name="feature_reimbursement_desc">Centralise and follow your reimbursement workflow</string>
+
+    <string name="feature_leading">Debt</string>
+    <string name="feature_leading_desc">Borrowing / lending, instalments, and repayment reminders</string>
+
+    <string name="feature_fee">Fee / Discount</string>
+    <string name="feature_fee_desc">Capture fees, vouchers, and discounts automatically</string>
+
+    <string name="feature_multi_currency">Multi-currency</string>
+    <string name="feature_multi_currency_desc">Accounts and auto-conversion in multiple currencies</string>
+
+    <string name="feature_tag">Tags</string>
+    <string name="feature_tag_desc">Custom tags for flexible statistics</string>
+
+
+    <!-- Page titles & subtitles -->
+    <string name="ai_settings_title">AI Settings</string>
+    <string name="ai_settings_subtitle">Configure your preferred AI service, model, and API token</string>
+
+    <!-- Form hints / labels -->
+    <string name="ai_provider_hint">AI Provider</string>
+    <string name="ai_model_hint">AI Model</string>
+    <string name="ai_token_hint">API Token</string>
+    <string name="ai_get_token">Get Token</string>
+
+    <!-- Usage chip section -->
+    <string name="ai_usage_title">AI Usage</string>
+    <string name="ai_usage_ocr">OCR Recognition</string>
+    <string name="ai_usage_autodetect">Auto Detection</string>
+    <string name="ai_usage_autocategory">Auto Categorization</string>
+
+    <!-- Common actions -->
+    <string name="action_save">Save</string>
+
+    <!-- Runtime messages -->
+    <string name="msg_invalid_token">Invalid token—please check and try again.</string>
+    <string name="msg_loading_models">Loading models…</string>
+    <string name="sync_state_success">Synchronized data</string>
+    <string name="error_token_required">Please enter API token</string>
+
+    <string name="success_desc">Setup success icon</string>
+    <string name="success_title">You\'re all set!</string>
+
+    <string name="success_subtitle">Everything is ready. Let\'s get started.</string>
+    <string name="success_button">Get Started</string>
+    <!-- Finance card labels -->
+    <string name="month_income">Monthly income</string>
+    <string name="month_expense">Monthly expense</string>
+
+    <!-- Pending-sync footer; use String.format(Locale) or the XML %1$d placeholder -->
+    <string name="pending_sync">Pending sync bills: %1$d</string>
+
+    <!-- Optional: content-description for the background image (accessibility) -->
+    <string name="desc_month_cover">Finance summary cover image</string>
+
+    <string name="rule_version_title">Rule Version（v%1$s）</string>
+    <string name="rule_version_last_update">Last Update：%1$s</string>
+    <string name="action_back">Previous</string>
+
+    <!-- res/values/strings.xml -->
+    <string name="perm_storage_title">Storage Permission</string>
+    <string name="perm_storage_desc">Allow the app to read and write device storage for saving and loading files</string>
+
+    <string name="perm_screenshot_title">Screenshot Access</string>
+    <string name="perm_screenshot_desc">Allow the app to read your screenshots for OCR.</string>
+    <string name="perm_usage_title">Usage Access</string>
+    <string name="perm_usage_desc">Let the app detect which foreground app you’re using.</string>
+    <string name="keepalive_notification_title">Notification Permission</string>
+    <string name="keepalive_notification_desc">Allow the app to send notifications to keep the foreground service running.</string>
 
 
 </resources>

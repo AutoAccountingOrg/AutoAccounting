@@ -56,4 +56,10 @@
         <attr name="ecv_expanded" format="boolean" />
         <attr name="ecv_switch" format="boolean" />
     </declare-styleable>
+    <declare-styleable name="IconTileView">
+        <attr name="tileIcon" format="reference" />
+        <attr name="tileLabel" format="string" />
+        <attr name="circleColor" format="color" />
+    </declare-styleable>
+
 </resources>

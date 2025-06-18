@@ -16,7 +16,7 @@
 <resources>
     <string-array name="xposed_scope">
         <item>android</item>
-        <item>net.ankio.auto.xposed</item><!-- 模块自己 -->
+        <item>net.ankio.auto</item><!-- 模块自己 -->
         <item>com.mutangtech.qianji</item><!-- 钱迹 -->
 
         <item>com.android.phone</item><!-- 短信 -->

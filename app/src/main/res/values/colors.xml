@@ -25,8 +25,30 @@
     <color name="log_error">#DC3545</color> <!-- 错误 -->
     <color name="log_debug">#6C757D</color> <!-- 调试 -->
     <color name="black">#FF000000</color>
-    <color name="gray40">#90000000</color>
+    <color name="gray40">#80000000</color>
+    <color name="gray30">#7A000000</color>
     <color name="transparent">#00000000</color>
+
+    <color name="cardScrim">#7A000000</color>          <!-- 48 % 黑：整张卡半透明暗化 -->
+    <color name="syncBarBg">#80000000</color>          <!-- 50 % 黑：待同步条 -->
+    <color name="scrimLabel">#FFFFFFFF</color>         <!-- 收入/支出标签 -->
+    <color name="scrimSync">#CCFFFFFF</color>
+
+
+    <color name="amountIncome">#FF2979FF</color>  <!-- 亮蓝 -->
+    <color name="amountExpense">#FFFF5252</color> <!-- 红 -->
+    <color name="textPrimary">#FFFFFFFF</color>
+    <color name="textSecondary">#CCFFFFFF</color>
+    <color name="scrimStart">#00000000</color>
+    <color name="scrimEnd">#B3000000</color>      <!-- 70% 黑 -->
+
+
+    <color name="tile_bg_books">#FFFCE8E9</color>
+    <color name="tile_bg_category">#FFFFF2DB</color>
+    <color name="tile_bg_category_map">#FFDAD7FF</color>
+    <color name="tile_bg_assets">#FFE8F6F6</color>
+    <color name="tile_bg_assets_map">#FFF2E9FF</color>
+    <color name="tile_bg_tag">#FFFFF7CC</color>
 
 
     <color name="md_theme_light_primary">#6750A4</color>
