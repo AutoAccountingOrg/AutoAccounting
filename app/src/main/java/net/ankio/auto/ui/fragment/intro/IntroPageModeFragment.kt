@@ -23,10 +23,12 @@ class IntroPageModeFragment : BaseIntroPageFragment<FragmentIntroPageModeBinding
             vm.pageRequest.value = IntroPagerAdapter.IntroPage.HOME
         }
 
+
     }
 
     override fun onResume() {
         super.onResume()
+        binding.cardGroup.selectedIndex = WorkMode.entries.indexOf(PrefManager.workMode)
     }
 
     override fun onDestroyView() {

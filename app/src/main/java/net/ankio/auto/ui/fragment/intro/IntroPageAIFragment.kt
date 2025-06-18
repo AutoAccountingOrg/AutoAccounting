@@ -136,4 +136,21 @@ class IntroPageAIFragment : BaseIntroPageFragment<FragmentIntroPageAiBinding>() 
         val adapter = ArrayAdapter(context, android.R.layout.simple_list_item_1, items)
         setAdapter(adapter)
     }
+
+
+    override fun onResume() {
+        super.onResume()
+        lifecycleScope.launch {
+            binding.chipUsageOcr.isChecked = PrefManager.aiFeatureOCR
+            binding.chipUsageAutoDetect.isChecked = PrefManager.aiFeatureAutoDetection
+            binding.chipUsageAutoCategory.isChecked = PrefManager.aiFeatureCategory
+            runCatching {
+                binding.actAiProvider.setText(AiAPI.getCurrentProvider())
+                binding.actAiModel.setText(AiAPI.getCurrentModel())
+                binding.etAiToken.setText(AiAPI.getApiKey())
+            }
+        }
+
+
+    }
 }

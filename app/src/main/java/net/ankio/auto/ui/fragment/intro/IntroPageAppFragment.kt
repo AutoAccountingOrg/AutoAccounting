@@ -8,6 +8,7 @@ import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.adapter.AppAdapterManager
 import net.ankio.auto.adapter.IAppAdapter
+import net.ankio.auto.constant.WorkMode
 import net.ankio.auto.databinding.FragmentIntroPageAppBinding
 import net.ankio.auto.ui.adapter.IntroPagerAdapter
 import net.ankio.auto.ui.components.ExpandableCardView
@@ -77,6 +78,9 @@ class IntroPageAppFragment : BaseIntroPageFragment<FragmentIntroPageAppBinding>(
 
     override fun onResume() {
         super.onResume()
+        binding.ledgerCardGroup.selectedIndex = apps.indexOfFirst {
+            it.pkg == PrefManager.bookApp
+        }
     }
 
     override fun onDestroyView() {
