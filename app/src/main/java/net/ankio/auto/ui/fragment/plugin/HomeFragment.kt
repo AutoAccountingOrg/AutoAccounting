@@ -15,16 +15,19 @@
 
 package net.ankio.auto.ui.fragment.plugin
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentPluginHomeBinding
+import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.api.bindAs
 import net.ankio.auto.ui.fragment.plugin.home.BookCardComponent
 import net.ankio.auto.ui.fragment.plugin.home.MonthlyCardComponent
 import net.ankio.auto.ui.fragment.plugin.home.RuleVersionCardComponent
 import net.ankio.auto.ui.fragment.plugin.home.StatusCardComponent
+import net.ankio.auto.utils.PrefManager
 
 class HomeFragment : BaseFragment<FragmentPluginHomeBinding>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -41,7 +44,13 @@ class HomeFragment : BaseFragment<FragmentPluginHomeBinding>() {
                     true
                 }
 
-
+                R.id.title_explore -> {
+                    PrefManager.introIndex = 0
+                    val intent = Intent(requireContext(), MainActivity::class.java)
+                    startActivity(intent)
+                    requireActivity().finish()
+                    true
+                }
                 else -> false
             }
         }
