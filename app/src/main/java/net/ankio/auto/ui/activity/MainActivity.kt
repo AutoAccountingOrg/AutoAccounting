@@ -43,12 +43,14 @@ class MainActivity : BaseActivity() {
 
         projectionLauncher = ProjectionGateway.register(this) {
             CoreService.start(this)
+            if (PrefManager.introIndex + 1 >= IntroPage.entries.size) {
+                start<HomeActivity>()
+            }
         }
 
         startCoreService()
 
         if (PrefManager.introIndex + 1 >= IntroPage.entries.size) {
-            start<HomeActivity>()
             return
         }
 
