@@ -56,7 +56,6 @@ class IntroPageKeepFragment : BaseIntroPageFragment<FragmentIntroPageKeepBinding
      * @param iconRes 图标资源ID
      * @param titleRes 标题资源ID
      * @param descRes 描述资源ID
-     * @param checkEnabled 检查是否已启用的方法
      * @param onClick 点击处理方法
      * @param viewId 视图ID
      */

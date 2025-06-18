@@ -51,11 +51,12 @@ class IntroPageAppFragment : BaseIntroPageFragment<FragmentIntroPageAppBinding>(
         // 4. 遍历绑定到 UI
         apps.forEachIndexed { index, app ->
             val card = ExpandableCardView(requireContext()).apply {
+                enableTint(false)
                 // icon 可能是 URL，也可能是本地资源名
                 if (app.icon.startsWith("http")) {
                     Glide.with(this).load(app.icon).into(icon)
                 } else {
-                    icon.setImageResource(R.mipmap.ic_launcher_foreground)
+                    icon.setImageResource(R.mipmap.ic_launcher)
                 }
                 setTitle(app.name)
                 setDescription(app.desc)
