@@ -15,177 +15,65 @@
 
 package net.ankio.auto.ui.api
 
-import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
-import android.content.res.Configuration
+import android.content.res.Resources
 import android.graphics.Color
-import android.os.Build
 import android.os.Bundle
-import android.view.View
-import android.view.ViewGroup
-import android.view.WindowInsets
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.WindowCompat
-import com.quickersilver.themeengine.ThemeEngine
-import com.quickersilver.themeengine.ThemeMode
-import net.ankio.auto.App
-import net.ankio.auto.ui.utils.DisplayUtils
-import net.ankio.auto.ui.utils.ViewUtils
-import net.ankio.auto.utils.LanguageUtils
+import net.ankio.auto.R
+import net.ankio.auto.utils.ThemeUtils
+import rikka.material.app.MaterialActivity
 
 
 /**
  * 基础的BaseActivity
  */
-open class BaseActivity : AppCompatActivity() {
-    /**
-     * 重构context
-     */
-    override fun attachBaseContext(newBase: Context?) {
-        val context =
-            newBase?.let {
-                LanguageUtils.initAppLanguage(it)
-            }
-        super.attachBaseContext(context)
+open class BaseActivity : MaterialActivity() {
+    override fun computeUserThemeKey() =
+        ThemeUtils.colorTheme + ThemeUtils.getNightThemeStyleRes(this)
+
+    override fun onApplyTranslucentSystemBars() {
+        super.onApplyTranslucentSystemBars()
+        window.statusBarColor = Color.TRANSPARENT
+        window.navigationBarColor = Color.TRANSPARENT
+    }
+
+    override fun onApplyUserThemeResource(theme: Resources.Theme, isDecorView: Boolean) {
+        if (!ThemeUtils.isSystemAccent)
+            theme.applyStyle(ThemeUtils.colorThemeStyleRes, true)
+        theme.applyStyle(ThemeUtils.getNightThemeStyleRes(this), true) //blackDarkMode
+        theme.applyStyle(
+            rikka.material.preference.R.style.ThemeOverlay_Rikka_Material3_Preference,
+            true
+        )
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState)
-        DisplayUtils.setCustomDensity(this)
-        // 主题初始化
-        ThemeEngine.applyToActivity(this@BaseActivity)
-        // 等待view创建完成
-        window.decorView.post {
-            onViewCreated()
-        }
     }
 
 
     /**
-     * 在子activity手动调用该方法
+     * Activity 扩展：一行代码启动目标 Activity
+     *
+     * @param finishCurrent  是否在跳转后关闭当前 Activity，默认 false
+     * @param builder        可选的 Intent 配置 λ，可以 putExtra / setFlags 等
+     *
+     * 用法：
+     *   goTo<DetailActivity>()                       // 纯跳转
+     *   goTo<LoginActivity>(finishCurrent = true)    // 跳转并关闭当前页
+     *   goTo<EditActivity> {                         // 携带数据
+     *       putExtra("id", 42)
+     *       putExtra("name", "Ankio")
+     *   }
      */
-    private fun onViewCreated() {
-        // 主题初始化
-        val themeMode = ThemeEngine.getInstance(this@BaseActivity).themeMode
-
-        val currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
-        val light =
-            !(themeMode == ThemeMode.DARK || (themeMode == ThemeMode.AUTO && currentNightMode == Configuration.UI_MODE_NIGHT_YES))
-        enableImmersiveMode(light)
-
-    }
-
-    /**
-     * 沉浸式模式
-     */
-    private fun enableImmersiveMode(light: Boolean) {
-        //状态栏
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-        window.statusBarColor = Color.TRANSPARENT
-        //导航栏
-        //当背景透明时去掉灰色蒙层
-        window.isNavigationBarContrastEnforced = false
-        //导航栏背景颜色透明
-        window.navigationBarColor = Color.TRANSPARENT
-        WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars =
-            light
-        WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightNavigationBars =
-            light
-
-        // 获取根布局
-        val rootView = findViewById<View>(android.R.id.content) as ViewGroup
-
-        rootView.setOnApplyWindowInsetsListener { v, insets ->
-            val rootLayout = rootView.getChildAt(0) as ViewGroup
-            val statusBarHeight = getStatusBarHeight(insets)
-            val navigationBarHeight = getNavigationBarHeight(insets)
-            App.statusBarHeight = statusBarHeight
-            App.navigationBarHeight = navigationBarHeight
-            // 找到第一个子view
-            val fragmentContainerView = ViewUtils.findFragmentContainerView(rootLayout)
-                ?: return@setOnApplyWindowInsetsListener insets
-            var firstView = fragmentContainerView.getChildAt(0)
-            val appBarLayout = ViewUtils.findAppBarLayout(fragmentContainerView)
-            if (appBarLayout != null) {
-                firstView = appBarLayout
-            }
-            if (firstView is ViewGroup) {
-                val firstViewGroupChild = firstView.getChildAt(0)
-                val params = firstViewGroupChild.layoutParams as ViewGroup.MarginLayoutParams
-                params.topMargin = statusBarHeight
-                firstViewGroupChild.layoutParams = params
-            } else {
-                // 设置padding
-                firstView.setPadding(0, statusBarHeight, 0, 0)
-            }
-            val lastView = fragmentContainerView.getChildAt(fragmentContainerView.childCount - 1)
-            val navigation = rootLayout.getChildAt(rootLayout.childCount - 1)
-            // Logger.d("navigation:$navigation,visibility:${navigation?.visibility}")
-
-            lastView.postDelayed({
-                if (navigation == null || navigation.visibility == View.GONE) {
-                    lastView.setPadding(0, 0, 0, navigationBarHeight)
-                } else {
-                    lastView.setPadding(0, 0, 0, 0)
-                }
-            }, 300)
-
-            // 返回未消费的 insets
-            v.onApplyWindowInsets(insets)
-        }
-    }
-
-    @SuppressLint("InternalInsetResource")
-    private fun getStatusBarHeight(insets: WindowInsets): Int {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            insets.getInsets(WindowInsets.Type.statusBars()).top
-        } else {
-            val resourceId = resources.getIdentifier("status_bar_height", "dimen", "android")
-            if (resourceId > 0) resources.getDimensionPixelSize(resourceId) else 0
-        }
-    }
-
-    @SuppressLint("InternalInsetResource")
-    private fun getNavigationBarHeight(insets: WindowInsets): Int {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            insets.getInsets(WindowInsets.Type.navigationBars()).bottom
-        } else {
-            val resourceId = resources.getIdentifier("navigation_bar_height", "dimen", "android")
-            if (resourceId > 0) resources.getDimensionPixelSize(resourceId) else 0
-        }
-    }
-
-
-    /**
-     * 切换activity
-     */
-    inline fun <reified T : BaseActivity> Context.start() {
-        val intent = Intent(this, T::class.java)
+    inline fun <reified T : BaseActivity> BaseActivity.start(
+        finishCurrent: Boolean = false,
+        noinline builder: Intent.() -> Unit = {}
+    ) {
+        val intent = Intent(this, T::class.java).apply(builder)
         startActivity(intent)
+        if (finishCurrent) finish()
     }
 
-    /**
-     * 切换activity
-     */
-    inline fun <reified T : BaseActivity> Context.startNew() {
-        val intent = Intent(this, T::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        startActivity(intent)
-    }
-
-    /**
-     * 重新创建activity
-     */
-    fun recreateActivity() {
-        runOnUiThread {
-            recreate()
-        }
-    }
-
-
-    override fun onStop() {
-        super.onStop()
-        App.pageStopOrDestroy()
-    }
 }

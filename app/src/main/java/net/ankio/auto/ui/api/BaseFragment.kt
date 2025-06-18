@@ -25,7 +25,7 @@ import java.lang.reflect.ParameterizedType
 
 abstract class BaseFragment<VB : ViewBinding> : Fragment() {
 
-    protected var _binding: VB? = null
+    private var _binding: VB? = null
     protected val binding get() = _binding!!
 
     override fun onCreateView(
@@ -34,7 +34,11 @@ abstract class BaseFragment<VB : ViewBinding> : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val type = javaClass.genericSuperclass as ParameterizedType
-        val bindingClass = type.actualTypeArguments[0] as Class<*>
+        val bindingClass = type.actualTypeArguments.firstOrNull {
+            it is Class<*> && ViewBinding::class.java.isAssignableFrom(it)
+        } as? Class<VB>
+            ?: throw IllegalStateException("Cannot infer ViewBinding type for ${javaClass.name}")
+
         val method = bindingClass.getDeclaredMethod(
             "inflate",
             LayoutInflater::class.java,
