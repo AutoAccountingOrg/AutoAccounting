@@ -136,7 +136,7 @@ class SideBarHooker : PartHooker() {
         // 设置图标点击事件，打开自动记账
         itemMenuBinding.appIcon.setOnClickListener {
             context.startActivity(Intent().setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                .setClassName("net.ankio.auto.xposed", "net.ankio.auto.ui.activity.MainActivity"))
+                .setClassName(PACKAGE_NAME, MAIN_ACTIVITY))
         }
 
 
