@@ -13,7 +13,7 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.ui.componets
+package net.ankio.auto.ui.components
 
 import android.content.Context
 import android.graphics.Color
