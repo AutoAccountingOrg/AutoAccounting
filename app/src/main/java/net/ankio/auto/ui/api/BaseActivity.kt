@@ -20,60 +20,127 @@ import android.content.res.Resources
 import android.graphics.Color
 import android.os.Bundle
 import net.ankio.auto.R
+import net.ankio.auto.storage.Logger
 import net.ankio.auto.utils.ThemeUtils
 import rikka.material.app.MaterialActivity
 
 
 /**
- * 基础的BaseActivity
+ * 基础Activity类，继承自MaterialActivity
+ *
+ * 提供以下功能：
+ * 1. 主题管理：支持动态主题切换和夜间模式
+ * 2. 状态栏和导航栏透明化处理
+ * 3. Activity跳转扩展方法
+ *
+ * 所有继承此类的Activity都将自动获得这些基础功能
  */
 open class BaseActivity : MaterialActivity() {
+
+    /**
+     * 计算用户主题键值
+     * 结合颜色主题和夜间模式样式资源生成唯一的主题标识
+     *
+     * @return 主题键值字符串
+     */
     override fun computeUserThemeKey() =
         ThemeUtils.colorTheme + ThemeUtils.getNightThemeStyleRes(this)
 
+    /**
+     * 应用透明系统栏
+     * 设置状态栏和导航栏为透明，实现沉浸式体验
+     */
     override fun onApplyTranslucentSystemBars() {
         super.onApplyTranslucentSystemBars()
+
         window.statusBarColor = Color.TRANSPARENT
         window.navigationBarColor = Color.TRANSPARENT
+
     }
 
+    /**
+     * 应用用户主题资源
+     * 根据当前主题设置和夜间模式应用相应的样式
+     *
+     * @param theme 主题资源对象
+     * @param isDecorView 是否为装饰视图
+     */
     override fun onApplyUserThemeResource(theme: Resources.Theme, isDecorView: Boolean) {
-        if (!ThemeUtils.isSystemAccent)
+
+        // 如果不是系统强调色，应用自定义颜色主题
+        if (!ThemeUtils.isSystemAccent) {
+            Logger.d("Applying custom color theme: ${ThemeUtils.colorThemeStyleRes}")
             theme.applyStyle(ThemeUtils.colorThemeStyleRes, true)
-        theme.applyStyle(ThemeUtils.getNightThemeStyleRes(this), true) //blackDarkMode
+        }
+
+        // 应用夜间模式样式
+        val nightThemeRes = ThemeUtils.getNightThemeStyleRes(this)
+        Logger.d("Applying night theme: $nightThemeRes")
+        theme.applyStyle(nightThemeRes, true)
+
+        // 应用Material3偏好设置主题
         theme.applyStyle(
             rikka.material.preference.R.style.ThemeOverlay_Rikka_Material3_Preference,
             true
         )
-    }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        setTheme(R.style.AppTheme);
-        super.onCreate(savedInstanceState)
     }
-
 
     /**
-     * Activity 扩展：一行代码启动目标 Activity
+     * Activity创建时的初始化
+     * 设置应用主题并调用父类onCreate方法
      *
-     * @param finishCurrent  是否在跳转后关闭当前 Activity，默认 false
-     * @param builder        可选的 Intent 配置 λ，可以 putExtra / setFlags 等
+     * @param savedInstanceState 保存的实例状态
+     */
+    override fun onCreate(savedInstanceState: Bundle?) {
+
+        setTheme(R.style.AppTheme)
+
+        super.onCreate(savedInstanceState)
+
+    }
+
+    /**
+     * Activity扩展：一行代码启动目标Activity
      *
-     * 用法：
-     *   goTo<DetailActivity>()                       // 纯跳转
-     *   goTo<LoginActivity>(finishCurrent = true)    // 跳转并关闭当前页
-     *   goTo<EditActivity> {                         // 携带数据
-     *       putExtra("id", 42)
-     *       putExtra("name", "Ankio")
-     *   }
+     * 提供便捷的Activity跳转方法，支持：
+     * - 纯跳转
+     * - 跳转后关闭当前Activity
+     * - 携带额外数据跳转
+     *
+     * @param finishCurrent 是否在跳转后关闭当前Activity，默认false
+     * @param builder 可选的Intent配置lambda，可以putExtra/setFlags等
+     *
+     * 使用示例：
+     * ```kotlin
+     * // 纯跳转
+     * goTo<DetailActivity>()
+     *
+     * // 跳转并关闭当前页
+     * goTo<LoginActivity>(finishCurrent = true)
+     *
+     * // 携带数据跳转
+     * goTo<EditActivity> {
+     *     putExtra("id", 42)
+     *     putExtra("name", "Ankio")
+     * }
+     * ```
      */
     inline fun <reified T : BaseActivity> BaseActivity.start(
         finishCurrent: Boolean = false,
         noinline builder: Intent.() -> Unit = {}
     ) {
+        val targetActivity = T::class.java.simpleName
+        Logger.d("Starting activity: $targetActivity, finishCurrent: $finishCurrent")
+        
         val intent = Intent(this, T::class.java).apply(builder)
         startActivity(intent)
-        if (finishCurrent) finish()
+
+        if (finishCurrent) {
+            Logger.d("Finishing current activity: ${this.javaClass.simpleName}")
+            finish()
+        }
+
     }
 
 }
