@@ -118,7 +118,6 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
             Logger.d("Selected app: $app (id: $id)")
             reload()
         }
-        refreshLeftData()
     }
 
     /**
@@ -201,7 +200,7 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
             }
 
             Logger.d("Filter updated: match=$match, type='$type'")
-            loadDataInside()
+            reload()
         }
     }
 
