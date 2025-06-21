@@ -15,6 +15,7 @@ import androidx.core.view.setPadding
 import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.ui.models.RailMenuItem
+import androidx.core.view.isEmpty
 
 class CustomNavigationRail @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
@@ -35,6 +36,13 @@ class CustomNavigationRail @JvmOverloads constructor(
         scrollView.addView(internalLayout)
         addView(scrollView)
     }
+
+    fun clear() {
+        menuItems.clear()                 // 清空数据
+        internalLayout.removeAllViews()    // 清空所有 item 视图
+        selectedView = null                // 清空选中项
+    }
+
 
     fun addMenuItem(item: RailMenuItem) {
         val view = LayoutInflater.from(context)
@@ -80,11 +88,6 @@ class CustomNavigationRail @JvmOverloads constructor(
             onItemSelectedListener?.invoke(item)
         }
 
-        // 默认选中第一个
-        if (menuItems.isEmpty()) {
-            view.performClick()
-        }
-
         menuItems.add(item)
         internalLayout.addView(view)
     }
@@ -94,8 +97,10 @@ class CustomNavigationRail @JvmOverloads constructor(
     }
 
 
-    fun isEmpty(): Boolean {
-        return menuItems.isEmpty()
+    fun performFirstItem(): Boolean {
+        if (menuItems.isEmpty() || internalLayout.isEmpty()) return false
+        internalLayout.getChildAt(0)?.performClick()
+        return true
     }
 
     private fun dp(px: Int): Int = (px * resources.displayMetrics.density).toInt()
