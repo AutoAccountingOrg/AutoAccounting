@@ -23,8 +23,10 @@ import net.ankio.auto.BuildConfig
 import net.ankio.auto.autoApp
 import net.ankio.auto.constant.WorkMode
 import androidx.core.content.edit
+import net.ankio.auto.http.api.BookNameAPI
 
 object PrefManager {
+
 
 
     private const val PREF_DARK_THEME = "dark_theme"
@@ -33,6 +35,13 @@ object PrefManager {
     private const val PREF_THEME_COLOR = "theme_color"
 
     private val pref = autoApp.getSharedPreferences("settings", MODE_PRIVATE)
+
+    fun init() {
+        pref.registerOnSharedPreferenceChangeListener { sharedPreferences, key ->
+            val value = sharedPreferences.all[key]
+            // TODO 同步到服务端
+        }
+    }
 
     var darkTheme: Int
         get() = pref.getInt(PREF_DARK_THEME, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
@@ -128,4 +137,18 @@ object PrefManager {
     var aiFeatureAutoDetection: Boolean
         get() = pref.getBoolean("aiFeatureAutoDetection", false)
         set(value) = pref.edit { putBoolean("aiFeatureAutoDetection", value) }
+
+
+    var defaultBook: String
+        get() = pref.getString("defaultBook", BookNameAPI.DEFAULT_BOOK)!!
+        set(value) = pref.edit { putString("defaultBook", value) }
+
+    var ruleVersion: String
+        get() = pref.getString("ruleVersion", "none")!!
+        set(value) = pref.edit { putString("ruleVersion", value) }
+
+    var ruleUpdate: String
+        get() = pref.getString("ruleUpdate", "none")!!
+        set(value) = pref.edit { putString("ruleUpdate", value) }
+
 }

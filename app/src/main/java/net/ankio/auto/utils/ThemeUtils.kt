@@ -16,9 +16,11 @@
 package net.ankio.auto.utils
 
 import android.content.Context
+import android.graphics.Color
 import androidx.annotation.StyleRes
 import androidx.appcompat.view.ContextThemeWrapper
 import com.google.android.material.color.DynamicColors
+import com.google.android.material.color.MaterialColors
 import net.ankio.auto.R
 import net.ankio.auto.autoApp
 
