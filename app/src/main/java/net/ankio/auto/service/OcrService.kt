@@ -202,7 +202,7 @@ class OcrService : ICoreService() {
         //TODO 使用js引擎识别
         Logger.d("app=$app, text=$text")
 
-        val billResult = JsAPI.analysis(DataType.OCR, text, app) ?: return
+        val billResult = JsAPI.analysis(DataType.DATA, text, app) ?: return
 
         // TODO 弹出处理窗口
     }
