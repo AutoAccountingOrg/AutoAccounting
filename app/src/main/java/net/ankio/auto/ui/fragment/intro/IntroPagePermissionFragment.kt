@@ -73,9 +73,12 @@ class IntroPagePermissionFragment : BaseIntroPageFragment<FragmentIntroPagePermi
     // 屏幕投影权限请求启动器
     private val projLauncher: ActivityResultLauncher<Unit> by lazy {
         ProjectionGateway.register(
-            caller = this
+            caller = this,
+            onReady = {
+
+            }
         ) {
-            // 投影权限回调处理
+            projLauncher.launch(Unit)
         }
     }
 
