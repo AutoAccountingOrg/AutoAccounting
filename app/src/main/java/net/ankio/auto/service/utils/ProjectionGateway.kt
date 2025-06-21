@@ -59,7 +59,8 @@ object ProjectionGateway {
      */
     fun register(
         caller: ActivityResultCaller,
-        onReady: () -> Unit
+        onReady: () -> Unit,
+        onDenied: () -> Unit
     ): ActivityResultLauncher<Unit> {
 
         val contract = object : ActivityResultContract<Unit, Intent?>() {
@@ -83,6 +84,7 @@ object ProjectionGateway {
         return caller.registerForActivityResult(contract) { data ->
             if (data == null) {           // 用户取消
                 Logger.e("MediaProjection denied by user")
+                onDenied()
                 return@registerForActivityResult
             }
             resultData = data

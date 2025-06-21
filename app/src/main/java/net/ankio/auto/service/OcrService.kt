@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.PixelFormat
 import android.hardware.SensorManager
+import android.os.PowerManager
 import android.provider.Settings
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -26,6 +27,9 @@ import net.ankio.auto.service.utils.ScreenShotHelper
 import net.ankio.auto.service.utils.ShakeDetector
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.utils.throttle
+import android.app.KeyguardManager
+import net.ankio.auto.http.api.JsAPI
+import org.ezbook.server.constant.DataType
 
 /**
  * OCR服务类，用于实现屏幕文字识别功能
@@ -46,7 +50,7 @@ class OcrService : ICoreService() {
 
     // 摇动检测器，使用节流函数防止频繁触发
     private val detector by lazy {
-        val t = throttle { onShake() }
+        val t = throttle(2000) { onShake() }
         ShakeDetector(
             coreService.getSystemService(Context.SENSOR_SERVICE) as SensorManager
         ) {
@@ -81,6 +85,8 @@ class OcrService : ICoreService() {
             return
         }
         Logger.d("摇一摇监听中")
+
+        serverStarted = true
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int) {
@@ -107,6 +113,20 @@ class OcrService : ICoreService() {
      * 4. 将识别结果发送给JS引擎处理
      */
     private fun onShake() {
+        // Check if screen is on and device is unlocked
+        val powerManager = coreService.getSystemService(Context.POWER_SERVICE) as PowerManager
+        if (!powerManager.isInteractive) {
+            Logger.d("Screen is off, skipping OCR")
+            return
+        }
+
+        val keyguardManager =
+            coreService.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+        if (keyguardManager.isKeyguardLocked) {
+            Logger.d("Device is locked, skipping OCR")
+            return
+        }
+
         val pkg = getTopPackagePostL(coreService) ?: return
         Logger.d("检测到白名单应用 [$pkg]，开始截屏 OCR")
         scope.launch {
@@ -118,7 +138,6 @@ class OcrService : ICoreService() {
                 val text = OcrProcessor.recognize(image)
                 if (text.isNotBlank()) send2JsEngine(text, pkg)
             }
-            delay(30_000)
             withContext(Dispatchers.Main) {
                 stopOcrView()
             }
@@ -182,6 +201,10 @@ class OcrService : ICoreService() {
     private suspend fun send2JsEngine(text: String, app: String) {
         //TODO 使用js引擎识别
         Logger.d("app=$app, text=$text")
+
+        val billResult = JsAPI.analysis(DataType.OCR, text, app) ?: return
+
+        // TODO 弹出处理窗口
     }
 
     /**
@@ -221,6 +244,8 @@ class OcrService : ICoreService() {
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             )
         }
+
+        public var serverStarted = false
     }
 }
 
