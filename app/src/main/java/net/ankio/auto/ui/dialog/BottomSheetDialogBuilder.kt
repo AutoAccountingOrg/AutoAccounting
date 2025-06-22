@@ -71,15 +71,7 @@ class BottomSheetDialogBuilder : BaseSheetDialog<DialogBottomSheetBinding> {
         Logger.d("BottomSheetDialogBuilder created with Service: ${service.javaClass.simpleName}")
     }
 
-    /**
-     * 视图创建完成后的初始化
-     * 默认隐藏标题和按钮，为后续配置做准备
-     * @param view 创建的视图
-     */
-    override fun onViewCreated(view: View?) {
-        super.onViewCreated(view)
-        Logger.d("BottomSheetDialogBuilder view created, initializing default state")
-
+    init {
         // 默认隐藏所有UI元素，等待后续配置
         binding.title.visibility = View.GONE
         binding.positiveButton.visibility = View.GONE

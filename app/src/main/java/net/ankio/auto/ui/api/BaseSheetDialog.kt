@@ -79,6 +79,32 @@ abstract class BaseSheetDialog<VB : ViewBinding> : BottomSheetDialog {
     /** 是否为悬浮窗模式，Service环境下必须为true */
     private val isOverlay: Boolean
 
+    init {
+        try {
+
+            // 通过反射获取泛型参数中的 ViewBinding 类型
+            val type = javaClass.genericSuperclass as ParameterizedType
+            val bindingClass = type.actualTypeArguments.firstOrNull {
+                it is Class<*> && ViewBinding::class.java.isAssignableFrom(it)
+            } as? Class<VB>
+                ?: throw IllegalStateException("Cannot infer ViewBinding type for ${javaClass.name}")
+
+
+            // 获取 ViewBinding 的 inflate 方法
+            val method = bindingClass.getDeclaredMethod(
+                "inflate",
+                LayoutInflater::class.java,
+            )
+
+            // 调用 inflate 方法创建绑定实例
+            @Suppress("UNCHECKED_CAST")
+            _binding = method.invoke(null, LayoutInflater.from(context)) as VB
+
+        } catch (e: Exception) {
+            Logger.e("Failed to create view for ${javaClass.simpleName}", e)
+        }
+    }
+
     /**
      * 使用Activity构造弹窗
      *
@@ -119,43 +145,7 @@ abstract class BaseSheetDialog<VB : ViewBinding> : BottomSheetDialog {
         if (event == Lifecycle.Event.ON_DESTROY) dismiss()
     }
 
-    /**
-     * 子类必须实现: 用于生成内容View
-     *
-     * 这个方法在弹窗显示时被调用，子类需要返回要显示的内容视图。
-     * 返回的View将被添加到弹窗的内容容器中。
-     *
-     * @param inflater 布局填充器，用于inflate布局文件
-     * @return 返回要显示的内容视图
-     */
-    fun onCreateView(inflater: LayoutInflater): View? {
-        try {
 
-            // 通过反射获取泛型参数中的 ViewBinding 类型
-            val type = javaClass.genericSuperclass as ParameterizedType
-            val bindingClass = type.actualTypeArguments.firstOrNull {
-                it is Class<*> && ViewBinding::class.java.isAssignableFrom(it)
-            } as? Class<VB>
-                ?: throw IllegalStateException("Cannot infer ViewBinding type for ${javaClass.name}")
-
-
-            // 获取 ViewBinding 的 inflate 方法
-            val method = bindingClass.getDeclaredMethod(
-                "inflate",
-                LayoutInflater::class.java,
-            )
-
-            // 调用 inflate 方法创建绑定实例
-            @Suppress("UNCHECKED_CAST")
-            _binding = method.invoke(null, inflater) as VB
-
-
-            return binding.root
-        } catch (e: Exception) {
-            Logger.e("Failed to create view for ${javaClass.simpleName}", e)
-            return null
-        }
-    }
 
     /**
      * 子类可重写：View创建后回调（必须调用super）
@@ -397,12 +387,12 @@ abstract class BaseSheetDialog<VB : ViewBinding> : BottomSheetDialog {
 
         // 创建和配置视图
         val cardView = prepareBaseView()
-        val root = onCreateView(LayoutInflater.from(context))
-        cardView.findViewById<LinearLayout>(R.id.innerView).addView(root)
+
+        cardView.findViewById<LinearLayout>(R.id.innerView).addView(binding.root)
         setContentView(cardView)
 
         // 回调子类
-        onViewCreated(root)
+        onViewCreated(binding.root)
 
         // 设置布局参数
         cardView.layoutParams = (cardView.layoutParams as FrameLayout.LayoutParams).apply {
