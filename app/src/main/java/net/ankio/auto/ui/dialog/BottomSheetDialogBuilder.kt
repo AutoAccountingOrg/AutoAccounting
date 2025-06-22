@@ -15,109 +15,219 @@
 
 package net.ankio.auto.ui.dialog
 
-import android.content.Context
-import android.view.LayoutInflater
+import android.app.Activity
+import android.app.Service
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.fragment.app.Fragment
 import net.ankio.auto.databinding.DialogBottomSheetBinding
+import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseSheetDialog
 
-class BottomSheetDialogBuilder(context: Context) : BaseSheetDialog(context) {
-    // .setTitle(R.string.add_filter)
-    //            .setView(inputBinding.root)
-    //            .setPositiveButton(R.string.sure_msg) { dialog, which ->
-    //                val input = inputBinding.input.text.toString()
-    //                if (input.isNotEmpty()) {
-    //                    if (chip != null) {
-    //                        chip.text = input
-    //                        setChip(text,input)
-    //                    } else {
-    //                        addChip(input,true)
-    //                    }
-    //                }
-    //            }
-    //            .setNegativeButton(R.string.cancel_msg, null)
+/**
+ * 底部弹窗构建器
+ *
+ * 提供链式调用的API来构建和配置底部弹窗对话框。
+ * 支持设置标题、消息、按钮和自定义视图。
+ *
+ * 使用示例：
+ * ```
+ * BottomSheetDialogBuilder(activity)
+ *     .setTitle("确认操作")
+ *     .setMessage("是否确认执行此操作？")
+ *     .setPositiveButton("确认") { dialog, which ->
+ *         // 处理确认逻辑
+ *     }
+ *     .setNegativeButton("取消") { dialog, which ->
+ *         // 处理取消逻辑
+ *     }
+ *     .show()
+ * ```
+ */
+class BottomSheetDialogBuilder : BaseSheetDialog<DialogBottomSheetBinding> {
 
-    val binding = DialogBottomSheetBinding.inflate(LayoutInflater.from(context))
+    /**
+     * 使用Activity上下文构造底部弹窗构建器
+     * @param activity Activity实例
+     */
+    constructor(activity: Activity) : super(activity) {
+        Logger.d("BottomSheetDialogBuilder created with Activity: ${activity.javaClass.simpleName}")
+    }
 
-    init {
+    /**
+     * 使用Fragment上下文构造底部弹窗构建器
+     * @param fragment Fragment实例
+     */
+    constructor(fragment: Fragment) : super(fragment) {
+        Logger.d("BottomSheetDialogBuilder created with Fragment: ${fragment.javaClass.simpleName}")
+    }
+
+    /**
+     * 使用Service上下文构造底部弹窗构建器
+     * @param service Service实例
+     */
+    constructor(service: Service) : super(service) {
+        Logger.d("BottomSheetDialogBuilder created with Service: ${service.javaClass.simpleName}")
+    }
+
+    /**
+     * 视图创建完成后的初始化
+     * 默认隐藏标题和按钮，为后续配置做准备
+     * @param view 创建的视图
+     */
+    override fun onViewCreated(view: View?) {
+        super.onViewCreated(view)
+        Logger.d("BottomSheetDialogBuilder view created, initializing default state")
+
+        // 默认隐藏所有UI元素，等待后续配置
         binding.title.visibility = View.GONE
         binding.positiveButton.visibility = View.GONE
         binding.negativeButton.visibility = View.GONE
+
+        Logger.d("Default UI elements hidden (title, positiveButton, negativeButton)")
     }
 
+    /**
+     * 设置弹窗标题
+     * @param title 标题文本
+     * @return 当前构建器实例，支持链式调用
+     */
     fun setTitle(title: String): BottomSheetDialogBuilder {
+        Logger.d("Setting title: '$title'")
         binding.title.text = title
         binding.title.visibility = View.VISIBLE
         return this
     }
 
+    /**
+     * 设置弹窗标题（使用字符串资源ID）
+     * @param title 字符串资源ID
+     * @return 当前构建器实例，支持链式调用
+     */
     fun setTitleInt(title: Int): BottomSheetDialogBuilder {
+        val titleText = context.getString(title)
+        Logger.d("Setting title from resource ID $title: '$titleText'")
         binding.title.setText(title)
         binding.title.visibility = View.VISIBLE
         return this
     }
 
+    /**
+     * 设置确认按钮（使用字符串资源ID）
+     * @param text 按钮文本的资源ID
+     * @param listener 按钮点击监听器，可为null
+     * @return 当前构建器实例，支持链式调用
+     */
     fun setPositiveButton(
         text: Int,
-        listener: ((dialog: BaseSheetDialog, which: Int) -> Unit)?
+        listener: ((dialog: BaseSheetDialog<DialogBottomSheetBinding>, which: Int) -> Unit)?
     ): BottomSheetDialogBuilder {
-        val t = context.getString(text)
-        return setPositiveButton(t, listener)
+        val buttonText = context.getString(text)
+        Logger.d("Setting positive button with resource ID $text: '$buttonText'")
+        return setPositiveButton(buttonText, listener)
     }
 
+    /**
+     * 设置确认按钮
+     * @param text 按钮文本
+     * @param listener 按钮点击监听器，可为null
+     * @return 当前构建器实例，支持链式调用
+     */
     fun setPositiveButton(
         text: String,
-        listener: ((dialog: BaseSheetDialog, which: Int) -> Unit)?
+        listener: ((dialog: BaseSheetDialog<DialogBottomSheetBinding>, which: Int) -> Unit)?
     ): BottomSheetDialogBuilder {
+        Logger.d("Setting positive button: '$text'")
         binding.positiveButton.text = text
         binding.positiveButton.setOnClickListener {
-
-            if (listener != null)
+            Logger.d("Positive button clicked: '$text'")
+            if (listener != null) {
+                Logger.d("Executing positive button listener")
                 listener(this, 0)
+            } else {
+                Logger.d("No positive button listener provided")
+            }
             dismiss()
         }
         binding.positiveButton.visibility = View.VISIBLE
         return this
     }
 
+    /**
+     * 设置取消按钮（使用字符串资源ID）
+     * @param text 按钮文本的资源ID
+     * @param listener 按钮点击监听器，可为null
+     * @return 当前构建器实例，支持链式调用
+     */
     fun setNegativeButton(
         text: Int,
-        listener: ((dialog: BaseSheetDialog, which: Int) -> Unit)?
+        listener: ((dialog: BaseSheetDialog<DialogBottomSheetBinding>, which: Int) -> Unit)?
     ): BottomSheetDialogBuilder {
-        val t = context.getString(text)
-        return setNegativeButton(t, listener)
+        val buttonText = context.getString(text)
+        Logger.d("Setting negative button with resource ID $text: '$buttonText'")
+        return setNegativeButton(buttonText, listener)
     }
 
+    /**
+     * 设置取消按钮
+     * @param text 按钮文本
+     * @param listener 按钮点击监听器，可为null
+     * @return 当前构建器实例，支持链式调用
+     */
     fun setNegativeButton(
         text: String,
-        listener: ((dialog: BaseSheetDialog, which: Int) -> Unit)?
+        listener: ((dialog: BaseSheetDialog<DialogBottomSheetBinding>, which: Int) -> Unit)?
     ): BottomSheetDialogBuilder {
+        Logger.d("Setting negative button: '$text'")
         binding.negativeButton.text = text
         binding.negativeButton.setOnClickListener {
-
-            if (listener != null)
+            Logger.d("Negative button clicked: '$text'")
+            if (listener != null) {
+                Logger.d("Executing negative button listener")
                 listener(this, 0)
+            } else {
+                Logger.d("No negative button listener provided")
+            }
             dismiss()
         }
         binding.negativeButton.visibility = View.VISIBLE
         return this
     }
 
-
+    /**
+     * 设置自定义视图
+     * 将指定的视图添加到弹窗的内容容器中
+     * @param view 要添加的自定义视图
+     * @return 当前构建器实例，支持链式调用
+     */
     fun setView(view: View): BottomSheetDialogBuilder {
+        Logger.d("Setting custom view: ${view.javaClass.simpleName}")
         val layoutParams = LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
             LinearLayout.LayoutParams.WRAP_CONTENT
         )
         view.layoutParams = layoutParams
         binding.container.addView(view)
+        Logger.d("Custom view added to container successfully")
         return this
     }
 
-    override fun onCreateView(inflater: LayoutInflater) = binding.root
+    /**
+     * 设置弹窗消息
+     * 创建一个TextView来显示消息文本
+     * @param string 消息文本
+     * @return 当前构建器实例，支持链式调用
+     */
     fun setMessage(string: String): BottomSheetDialogBuilder {
+        Logger.d(
+            "Setting message: '${
+                if (string.length > 50) string.substring(
+                    0,
+                    50
+                ) + "..." else string
+            }'"
+        )
         val textView = TextView(context)
         textView.text = string
         textView.setPadding(0, 0, 0, 0)
@@ -126,7 +236,21 @@ class BottomSheetDialogBuilder(context: Context) : BaseSheetDialog(context) {
         return this
     }
 
+    /**
+     * 设置弹窗消息（使用字符串资源ID）
+     * @param string 字符串资源ID
+     * @return 当前构建器实例，支持链式调用
+     */
     fun setMessage(string: Int): BottomSheetDialogBuilder {
-        return setMessage(context.getString(string))
+        val messageText = context.getString(string)
+        Logger.d(
+            "Setting message from resource ID $string: '${
+                if (messageText.length > 50) messageText.substring(
+                    0,
+                    50
+                ) + "..." else messageText
+            }'"
+        )
+        return setMessage(messageText)
     }
 }
