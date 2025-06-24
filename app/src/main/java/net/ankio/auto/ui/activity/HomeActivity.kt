@@ -16,6 +16,7 @@
 package net.ankio.auto.ui.activity
 
 import android.os.Bundle
+import android.view.View
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -46,6 +47,20 @@ class HomeActivity : BaseActivity() {
         val navController = (supportFragmentManager
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment).navController
         binding.bottomNavigation.setupWithNavController(navController)
+        // 监听当前fragment变化
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            // 这里判断destination.id是否在底部tab范围内
+            val idsToShowBottomNav = setOf(
+                R.id.homeFragment,
+                R.id.dataFragment
+                //TODO ...其他底部tab id
+            )
+            if (destination.id in idsToShowBottomNav) {
+                binding.bottomNavigation.visibility = View.VISIBLE
+            } else {
+                binding.bottomNavigation.visibility = View.GONE
+            }
+        }
     }
 
 
