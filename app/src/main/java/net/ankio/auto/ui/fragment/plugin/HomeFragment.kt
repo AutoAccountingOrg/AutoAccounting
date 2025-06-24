@@ -18,6 +18,7 @@ package net.ankio.auto.ui.fragment.plugin
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import androidx.navigation.fragment.findNavController
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentPluginHomeBinding
 import net.ankio.auto.ui.activity.MainActivity
@@ -41,6 +42,11 @@ class HomeFragment : BaseFragment<FragmentPluginHomeBinding>() {
             when (menuItem.itemId) {
                 R.id.title_log -> {
                     // TODO 跳转日志页面
+                    true
+                }
+
+                R.id.title_theme -> {
+                    findNavController().navigate(R.id.appearanceFragment)
                     true
                 }
 

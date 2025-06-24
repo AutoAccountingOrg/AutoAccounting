@@ -242,7 +242,13 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
     override fun onMenuItemClick(item: MenuItem?): Boolean {
         when (item?.itemId) {
             R.id.item_clear -> {
-                BottomSheetDialogBuilder(requireActivity())
+                // 检查Fragment View是否仍然有效
+                if (view == null || !isAdded || isDetached) {
+                    Logger.w("Fragment is not in valid state, cannot show dialog")
+                    return true
+                }
+
+                BottomSheetDialogBuilder(this)
                     .setTitle(requireActivity().getString(R.string.delete_data))
                     .setMessage(requireActivity().getString(R.string.delete_msg))
                     .setPositiveButton(requireActivity().getString(R.string.sure_msg)) { _, _ ->
@@ -260,7 +266,7 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
                     .setNegativeButton(requireActivity().getString(R.string.cancel_msg)) { _, _ ->
                         Logger.d("User cancelled data clear")
                     }
-                    .showInFragment(this, false, true)
+                    .show()
                 return true
             }
 
