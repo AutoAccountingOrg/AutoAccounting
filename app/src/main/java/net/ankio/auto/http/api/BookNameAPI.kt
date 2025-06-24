@@ -45,61 +45,41 @@ object BookNameAPI {
         }.getOrNull() ?: emptyList()
     }
 
-    /**
-     * 根据账本名称获取账本信息
-     * @param name 账本名称
-     * @return 如果找到对应名称的账本则返回该账本，否则返回一个新的账本对象
-     */
-    suspend fun getByName(name: String): BookNameModel {
-        list().firstOrNull { it.name == name }?.let {
-            return it
-        }
-        return BookNameModel().apply { this.name = name }
-    }
+
 
     /**
      * 获取默认账本
-     * @param bookName 期望的账本名称
      * @return 按以下优先级返回账本：
      * 1. 如果账本列表为空，创建新账本
      * 2. 如果找到指定名称的账本，返回该账本
      * 3. 如果请求的是"默认账本"但未找到，返回列表第一个账本
      * 4. 其他情况创建新账本
      */
-    suspend fun getDefaultBook(bookName: String): BookNameModel {
+    const val DEFAULT_BOOK = "默认账本"
+
+    suspend fun getBook(bookName: String): BookNameModel {
         val books = list()
 
-        // 如果列表为空，创建新账本
-        if (books.isEmpty()) {
-            return BookNameModel().apply {
-                name = bookName
-            }
-        }
+        // ❶ 列表为空 → 直接返回默认账本
+        if (books.isEmpty()) return BookNameModel().apply { DEFAULT_BOOK }
 
-        // 先尝试查找指定名称的账本
-        books.firstOrNull { it.name == bookName }?.let {
-            return it
-        }
+        // ❷ 尝试在已有列表里找到同名账本
+        books.firstOrNull { it.name == bookName }?.let { return it }
 
-        // 如果是请求"默认账本"但未找到，返回列表第一个账本
-        if (bookName == "默认账本") {
-            return books.first()
-        }
+        // ❸ 若请求的是“默认账本”却没找到 → 退而求其次返回第一个账本
+        if (bookName == DEFAULT_BOOK) return books.first()
 
-        // 其他情况创建新账本
-        return BookNameModel().apply {
-            name = bookName
-        }
+        // ❹ 其余情况：新建一个同名账本
+        return BookNameModel().apply { name = bookName }
     }
+
 
     /**
      * 获取第一个账本
      * @return 如果存在账本则返回第一个账本，否则返回一个名为"默认账本"的新账本
      */
     suspend fun getFirstBook(): BookNameModel {
-        return list().firstOrNull() ?: BookNameModel().apply {
-            name = "默认账本"
-        }
+        return getBook(DEFAULT_BOOK)
     }
 
     /**
