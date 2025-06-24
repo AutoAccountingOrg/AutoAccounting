@@ -23,6 +23,7 @@ import com.google.android.material.color.DynamicColors
 import com.google.android.material.color.MaterialColors
 import net.ankio.auto.R
 import net.ankio.auto.autoApp
+import net.ankio.auto.storage.Logger
 
 
 import rikka.core.util.ResourceUtils
@@ -32,7 +33,7 @@ object ThemeUtils {
     @StyleRes
     fun getNightThemeStyleRes(context: Context): Int {
         return if (PrefManager.blackDarkTheme && ResourceUtils.isNightMode(context.resources.configuration))
-            R.style.ThemeOverlay_Dark else R.style.ThemeOverlay
+            R.style.ThemeOverlay_Black else R.style.ThemeOverlay
     }
 
 
@@ -68,5 +69,13 @@ object ThemeUtils {
     val colorThemeStyleRes: Int
         @StyleRes get() = colorThemeMap[colorTheme] ?: R.style.ThemeOverlay_MaterialDefault
 
-    fun themedCtx(context: Context) = ContextThemeWrapper(context, R.style.AppTheme)
+    fun themedCtx(context: Context): Context {
+        return if (isSystemAccent) {
+            ContextThemeWrapper(DynamicColors.wrapContextIfAvailable(context), R.style.AppTheme)
+        } else {
+            ContextThemeWrapper(context, colorThemeStyleRes)
+        }
+
+    }
+
 }
