@@ -18,8 +18,6 @@ package net.ankio.auto.ui.api
 import android.content.Intent
 import android.content.res.Resources
 import android.graphics.Color
-import android.os.Bundle
-import net.ankio.auto.R
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.utils.ThemeUtils
 import rikka.material.app.MaterialActivity
@@ -78,25 +76,6 @@ open class BaseActivity : MaterialActivity() {
         Logger.d("Applying night theme: $nightThemeRes")
         theme.applyStyle(nightThemeRes, true)
 
-        // 应用Material3偏好设置主题
-        theme.applyStyle(
-            rikka.material.preference.R.style.ThemeOverlay_Rikka_Material3_Preference,
-            true
-        )
-
-    }
-
-    /**
-     * Activity创建时的初始化
-     * 设置应用主题并调用父类onCreate方法
-     *
-     * @param savedInstanceState 保存的实例状态
-     */
-    override fun onCreate(savedInstanceState: Bundle?) {
-
-        setTheme(R.style.AppTheme)
-
-        super.onCreate(savedInstanceState)
 
     }
 
