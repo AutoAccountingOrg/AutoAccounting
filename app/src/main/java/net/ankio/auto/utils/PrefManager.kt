@@ -28,7 +28,6 @@ import net.ankio.auto.http.api.BookNameAPI
 object PrefManager {
 
 
-
     private const val PREF_DARK_THEME = "dark_theme"
     private const val PREF_BLACK_DARK_THEME = "black_dark_theme"
     private const val PREF_FOLLOW_SYSTEM_ACCENT = "follow_system_accent"
@@ -151,4 +150,7 @@ object PrefManager {
         get() = pref.getString("ruleUpdate", "none")!!
         set(value) = pref.edit { putString("ruleUpdate", value) }
 
+    var uiRoundStyle: Boolean
+        get() = pref.getBoolean("uiRoundStyle", true)
+        set(value) = pref.edit { putBoolean("uiRoundStyle", value) }
 }
