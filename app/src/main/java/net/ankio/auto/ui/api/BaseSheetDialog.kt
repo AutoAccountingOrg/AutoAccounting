@@ -42,6 +42,8 @@ import net.ankio.auto.R
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.utils.DisplayUtils
 import net.ankio.auto.utils.PrefManager
+import net.ankio.auto.utils.ThemeUtils
+import net.ankio.auto.utils.toTheme
 import net.ankio.auto.utils.toThemeColor
 import java.lang.reflect.ParameterizedType
 
@@ -78,6 +80,9 @@ abstract class BaseSheetDialog<VB : ViewBinding> : BottomSheetDialog {
 
     /** 是否为悬浮窗模式，Service环境下必须为true */
     private val isOverlay: Boolean
+
+
+    private val context = getContext().toTheme()
 
     init {
         try {
