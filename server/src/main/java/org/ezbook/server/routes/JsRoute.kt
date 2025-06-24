@@ -27,12 +27,9 @@ import io.ktor.application.ApplicationCall
 import io.ktor.http.Parameters
 import io.ktor.request.receiveText
 import org.ezbook.server.Server
-import org.ezbook.server.ai.ChatGPT
-import org.ezbook.server.ai.DeepSeek
-import org.ezbook.server.ai.Gemini
-import org.ezbook.server.ai.OneAPI
-import org.ezbook.server.ai.QWen
-import org.ezbook.server.constant.AIModel
+import org.ezbook.server.ai.AiManager
+import org.ezbook.server.ai.tools.BillTool
+import org.ezbook.server.ai.tools.CategoryTool
 import org.ezbook.server.constant.BillState
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.constant.DataType
@@ -47,7 +44,6 @@ import org.ezbook.server.models.ResultModel
 import org.ezbook.server.tools.Assets
 import org.ezbook.server.tools.Bill
 import org.ezbook.server.tools.Category
-import org.ezbook.server.tools.MD5HashTable
 
 
 class JsRoute(private val session: ApplicationCall, private val context: Context) {
@@ -351,10 +347,10 @@ class JsRoute(private val session: ApplicationCall, private val context: Context
      */
     private suspend fun parseBillInfoFromAi(app: String, data: String): BillInfoModel? {
         // 获取AI模型配置
-        val aiModel = getAiModel()
+        val aiModel = AiManager.getInstance().getCurrentModel()
 
         // 请求AI模型解析数据
-        val billInfoModel = requestAiAnalysis(aiModel, data)
+        val billInfoModel = requestAiAnalysis(data)
         Server.log("AI($aiModel) 响应: $billInfoModel")
 
         // 验证并处理解析结果
@@ -374,60 +370,29 @@ class JsRoute(private val session: ApplicationCall, private val context: Context
         Db.get().settingDao().query(Setting.AI_MODEL)?.value ?: DefaultData.AI_MODEL
 
     private suspend fun requestAiCategory(billInfoModel: BillInfoModel): String {
-        val aiModel = getAiModel()
+
         val json = Gson().toJson(
             mapOf(
                 "shopName" to billInfoModel.shopName,
                 "shopItem" to billInfoModel.shopItem,
+                "ruleName" to billInfoModel.ruleName
             )
         )
-        return when (aiModel) {
-            AIModel.Gemini.name -> Gemini().requestCategory(json) ?: "其他"
-            AIModel.QWen.name -> QWen().requestCategory(json) ?: "其他"
-            AIModel.DeepSeek.name -> DeepSeek().requestCategory(json) ?: "其他"
-            AIModel.ChatGPT.name -> ChatGPT().requestCategory(json) ?: "其他"
-            AIModel.OneAPI.name -> handleOneApiCategoryRequest(json)
-            else -> "其他"
-        }
+
+        return CategoryTool().execute(json) ?: "其他"
     }
 
-    private suspend fun handleOneApiCategoryRequest(json: String): String {
-        var uri = Db.get().settingDao().query(Setting.AI_ONE_API_URI)?.value.orEmpty()
-        if (!uri.contains("v1/chat/completions")) {
-            uri = "$uri/v1/chat/completions"
-        }
-        val model = Db.get().settingDao().query(Setting.AI_ONE_API_MODEL)?.value.orEmpty()
-        return OneAPI(uri, model).requestCategory(json) ?: "其他"
-    }
 
     /**
      * 请求AI模型解析数据
      */
-    private suspend fun requestAiAnalysis(aiModel: String, data: String): BillInfoModel? =
+    private suspend fun requestAiAnalysis(data: String): BillInfoModel? =
         runCatching {
-            when (aiModel) {
-                AIModel.Gemini.name -> Gemini().requestBill(data)
-                AIModel.QWen.name -> QWen().requestBill(data)
-                AIModel.DeepSeek.name -> DeepSeek().requestBill(data)
-                AIModel.ChatGPT.name -> ChatGPT().requestBill(data)
-                AIModel.OneAPI.name -> handleOneApiRequest(data)
-                else -> null
-            }
+            Gson().fromJson(BillTool().execute(data), BillInfoModel::class.java)
         }.onFailure {
             Server.log(it)
         }.getOrNull()
 
-    /**
-     * 处理OneAPI请求
-     */
-    private suspend fun handleOneApiRequest(data: String): BillInfoModel? {
-        var uri = Db.get().settingDao().query(Setting.AI_ONE_API_URI)?.value.orEmpty()
-        if (!uri.contains("v1/chat/completions")) {
-            uri = "$uri/v1/chat/completions"
-        }
-        val model = Db.get().settingDao().query(Setting.AI_ONE_API_MODEL)?.value.orEmpty()
-        return OneAPI(uri, model).requestBill(data)
-    }
 
     /**
      * 验证账单信息是否有效
