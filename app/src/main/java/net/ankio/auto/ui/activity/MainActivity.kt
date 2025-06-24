@@ -40,13 +40,14 @@ class MainActivity : BaseActivity() {
 
         Logger.i("PrefManager.introIndex = ${PrefManager.introIndex}")
 
-
-        projectionLauncher = ProjectionGateway.register(this) {
+        projectionLauncher = ProjectionGateway.register(this, onReady = {
             CoreService.start(this)
             if (PrefManager.introIndex + 1 >= IntroPage.entries.size) {
                 start<HomeActivity>()
             }
-        }
+        }, onDenied = {
+            projectionLauncher.launch(Unit)
+        })
 
         startCoreService()
 
