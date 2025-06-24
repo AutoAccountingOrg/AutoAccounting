@@ -4,7 +4,7 @@
         android:icon="@drawable/ic_explore"
         android:showAsAction="ifRoom"
         android:iconTint="?colorOnPrimary"
-        android:title="@string/title_log" />
+        android:title="@string/title_home" />
     <item
         android:id="@+id/title_log"
         android:icon="@drawable/menu_item_log"
@@ -12,6 +12,11 @@
         android:iconTint="?colorOnPrimary"
         android:title="@string/title_log" />
 
-
+    <item
+        android:id="@+id/title_theme"
+        android:icon="@drawable/ic_theme"
+        android:showAsAction="ifRoom"
+        android:iconTint="?colorOnPrimary"
+        android:title="@string/setting_theme" />
 
 </menu>
