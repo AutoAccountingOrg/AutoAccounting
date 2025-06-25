@@ -25,7 +25,7 @@ import org.ezbook.server.constant.LogLevel
 import org.ezbook.server.db.model.LogModel
 
 class LogAdapter :
-    BaseAdapter<AdapterLogBinding, LogModel>(AdapterLogBinding::class.java) {
+    BaseAdapter<AdapterLogBinding, LogModel>() {
 
     companion object {
         private const val DATE_FORMAT = "yyyy-MM-dd\nHH:mm:ss"

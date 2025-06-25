@@ -41,7 +41,7 @@ class HomeFragment : BaseFragment<FragmentPluginHomeBinding>() {
         binding.toolbar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.title_log -> {
-                    // TODO 跳转日志页面
+                    findNavController().navigate(R.id.action_homeFragment_to_logFragment)
                     true
                 }
 
