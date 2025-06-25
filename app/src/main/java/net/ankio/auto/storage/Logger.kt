@@ -38,7 +38,7 @@ object Logger {
     }
 
     /** 获取今天的日志文件 */
-    fun getLogFile(context: Context): File {
+    private fun getLogFile(context: Context): File {
         val dir = File(context.cacheDir, LOG_DIR)
         if (!dir.exists()) dir.mkdirs()
         val date = SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(Date())
@@ -112,7 +112,6 @@ object Logger {
             else -> LogLevel.DEBUG
         }
 
-        if (message.contains("/log")) return
 
         App.launch {
             LogAPI.add(logLevel, BuildConfig.APPLICATION_ID, tag + header, message)
@@ -157,6 +156,9 @@ object Logger {
 
     suspend fun packageLogs(context: Context): File = withContext(Dispatchers.IO) {
         val file = getLogFile(context)
+        if (file.exists()) {
+            file.delete()
+        }
         //拉取所有日志
         var index = 0
         do {
