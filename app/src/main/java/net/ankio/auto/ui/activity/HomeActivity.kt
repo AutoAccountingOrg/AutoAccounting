@@ -35,6 +35,8 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import net.ankio.auto.service.CoreService
 import net.ankio.auto.ui.fragment.plugin.DataFragment
+import net.ankio.auto.ui.utils.slideDown
+import net.ankio.auto.ui.utils.slideUp
 
 class HomeActivity : BaseActivity() {
     private val binding: ActivityMainBinding by lazy {
@@ -56,9 +58,9 @@ class HomeActivity : BaseActivity() {
                 //TODO ...其他底部tab id
             )
             if (destination.id in idsToShowBottomNav) {
-                binding.bottomNavigation.visibility = View.VISIBLE
+                binding.bottomNavigation.slideUp()
             } else {
-                binding.bottomNavigation.visibility = View.GONE
+                binding.bottomNavigation.slideDown()
             }
         }
     }

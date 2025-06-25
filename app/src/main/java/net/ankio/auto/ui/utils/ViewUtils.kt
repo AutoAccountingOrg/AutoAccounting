@@ -21,6 +21,7 @@ import androidx.fragment.app.FragmentContainerView
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.navigation.NavigationView
+import androidx.core.view.isVisible
 
 object ViewUtils {
     fun <T : View> findView(
@@ -68,5 +69,20 @@ object ViewUtils {
         maxDepth: Int = 5
     ): FragmentContainerView? {
         return findView(view, currentDepth, maxDepth, FragmentContainerView::class.java)
+    }
+}
+
+fun View.slideUp(duration: Long = 400) {
+    if (visibility != View.VISIBLE) {
+        visibility = View.VISIBLE
+        animate().translationY(0f).setDuration(duration).start()
+    }
+}
+
+fun View.slideDown(duration: Long = 400) {
+    if (isVisible) {
+        animate().translationY(height.toFloat()).setDuration(duration)
+            .withEndAction { visibility = View.GONE }
+            .start()
     }
 }
