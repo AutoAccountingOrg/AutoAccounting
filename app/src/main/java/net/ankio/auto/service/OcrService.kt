@@ -1,6 +1,7 @@
 package net.ankio.auto.service
 
 import android.app.AppOpsManager
+import android.app.KeyguardManager
 import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.Intent
@@ -16,19 +17,17 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.autoApp
 import net.ankio.auto.databinding.OcrViewBinding
+import net.ankio.auto.http.api.JsAPI
 import net.ankio.auto.service.utils.OcrProcessor
 import net.ankio.auto.service.utils.ProjectionGateway
 import net.ankio.auto.service.utils.ScreenShotHelper
 import net.ankio.auto.service.utils.ShakeDetector
 import net.ankio.auto.storage.Logger
-import net.ankio.auto.utils.throttle
-import android.app.KeyguardManager
-import net.ankio.auto.http.api.JsAPI
+import net.ankio.auto.utils.Throttle
 import org.ezbook.server.constant.DataType
 
 /**
@@ -50,11 +49,11 @@ class OcrService : ICoreService() {
 
     // 摇动检测器，使用节流函数防止频繁触发
     private val detector by lazy {
-        val t = throttle(2000) { onShake() }
+        val throttle = Throttle.asFunction(2000) { onShake() }
         ShakeDetector(
             coreService.getSystemService(Context.SENSOR_SERVICE) as SensorManager
         ) {
-            t()
+            throttle()
         }
     }
 

@@ -15,17 +15,38 @@
 
 package net.ankio.auto.utils
 
-fun throttle(intervalMs: Long = 300, block: () -> Unit): () -> Unit {
-    var lastTime = 0L
-    return {
+import java.util.concurrent.atomic.AtomicLong
+
+class Throttle(
+    private val intervalMs: Long = 300,
+    private val block: () -> Unit
+) : Runnable {
+    private val lastTime = AtomicLong(0)
+
+    override fun run() {
         val now = System.currentTimeMillis()
-        if (now - lastTime >= intervalMs) {
-            lastTime = now
-            block()
+        val prev = lastTime.get()
+        if (now - prev >= intervalMs) {
+            if (lastTime.compareAndSet(prev, now)) {
+                block()
+            }
         }
     }
-}
 
-fun throttle(block: () -> Unit): () -> Unit {
-    return throttle(300, block)
+    /**
+     * 主动手动调用（更符合 throttle.run { ... } 习惯）
+     */
+    fun runThrottle() = run()
+
+    companion object {
+        /**
+         * 兼容你最早的函数式写法：返回一个可调用的函数（函数式 API）
+         */
+        fun asFunction(intervalMs: Long = 300, block: () -> Unit): () -> Unit {
+            val throttle = Throttle(intervalMs, block)
+            return { throttle.run() }
+        }
+
+        fun asFunction(block: () -> Unit): () -> Unit = asFunction(300, block)
+    }
 }
