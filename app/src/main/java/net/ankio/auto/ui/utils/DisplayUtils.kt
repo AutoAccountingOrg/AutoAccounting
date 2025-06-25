@@ -25,6 +25,7 @@ import android.util.DisplayMetrics
 import android.util.TypedValue
 import android.view.WindowManager
 import net.ankio.auto.App
+import net.ankio.auto.autoApp
 import net.ankio.auto.storage.Logger
 
 
@@ -37,6 +38,28 @@ import net.ankio.auto.storage.Logger
  * - 窗口模式判断
  */
 object DisplayUtils {
+
+    private var navHeight: Int = -1
+    private var statusHeight: Int = -1
+
+    fun getNavigationBarHeight(context: Context): Int {
+        if (navHeight < 0) {
+            val res = context.resources
+            val navId = res.getIdentifier("navigation_bar_height", "dimen", "android")
+            navHeight = if (navId > 0) res.getDimensionPixelSize(navId) else 0
+        }
+        return navHeight
+    }
+
+    fun getStatusBarHeight(context: Context): Int {
+        if (statusHeight < 0) {
+            val res = context.resources
+            val statusId = res.getIdentifier("status_bar_height", "dimen", "android")
+            statusHeight = if (statusId > 0) res.getDimensionPixelSize(statusId) else 0
+        }
+        return statusHeight
+    }
+
     // 屏幕尺寸阈值常量
     private const val MINI_SCREEN_WIDTH = 360
     private const val MINI_SCREEN_HEIGHT = 640
@@ -179,19 +202,19 @@ object DisplayUtils {
     /**
      * dp转px
      */
-    fun dp2px(context: Context, dpValue: Float): Int {
+    fun dp2px(dpValue: Float): Int {
         return TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP,
             dpValue,
-            context.resources.displayMetrics
+            autoApp.resources.displayMetrics
         ).toInt()
     }
 
     /**
      * px转dp
      */
-    fun px2dp(context: Context, pxValue: Float): Int {
-        val scale = context.resources.displayMetrics.density
+    fun px2dp(pxValue: Float): Int {
+        val scale = autoApp.resources.displayMetrics.density
         return (pxValue / scale + 0.5f).toInt()
     }
 
