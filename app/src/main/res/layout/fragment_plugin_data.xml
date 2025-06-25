@@ -25,7 +25,6 @@
 
     <!-- 主内容区 -->
     <LinearLayout
-        android:id="@+id/content_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal"
