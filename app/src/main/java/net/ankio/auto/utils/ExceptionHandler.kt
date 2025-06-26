@@ -1,77 +1,78 @@
-/*
- * Copyright (C) 2024 ankio(ankio@ankio.net)
- * Licensed under the Apache License, Version 3.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-3.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *   limitations under the License.
- */
-
 package net.ankio.auto.utils
 
 import android.content.Context
 import android.content.Intent
-import com.bugsnag.android.Bugsnag
-import com.bugsnag.android.Event
-import net.ankio.auto.App
+import android.os.Build
+import com.tencent.bugly.crashreport.CrashReport
 import net.ankio.auto.BuildConfig
-import net.ankio.auto.storage.ConfigUtils
+import net.ankio.auto.autoApp
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.activity.ErrorActivity
-import org.ezbook.server.constant.DefaultData
-import org.ezbook.server.constant.Setting
+import java.io.File
+import java.io.FileOutputStream
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import kotlin.system.exitProcess
 
-class ExceptionHandler(private val context: Context) : Thread.UncaughtExceptionHandler {
-    private var mDefaultHandler: Thread.UncaughtExceptionHandler? = null
+class ExceptionHandler private constructor(private val context: Context) :
+    Thread.UncaughtExceptionHandler {
 
+    private var mDefaultHandler: Thread.UncaughtExceptionHandler? = null
 
     init {
         mDefaultHandler = Thread.getDefaultUncaughtExceptionHandler()
-        // 将当前类设为默认异常处理器
         Thread.setDefaultUncaughtExceptionHandler(this)
-
-        Bugsnag.start(context)
-        Bugsnag.addOnError { event ->
-            val result = handleException(event) // 发送此异常
-            result
-        }
-    }
-
-
-    private fun handleException(events: Event): Boolean {
-        val error = events.originalError
-        if (error == null) {
-            val msg = events.errors[0].errorMessage ?: ""
-            Logger.e("Exception is null", Throwable(msg))
-            return false
-        }
-
-        // return true
-        // 调试模式不上传错误数据
-        return !App.debug && ConfigUtils.getBoolean(
-            Setting.SEND_ERROR_REPORT,
-            DefaultData.SEND_ERROR_REPORT
-        )
-    }
-
-    private fun getRootCause(e: Throwable): Throwable {
-        var cause = e.cause
-        while (cause?.cause != null) {
-            cause = cause.cause
-        }
-        return cause ?: e
     }
 
     companion object {
+
+        // 初始化，在Application的onCreate里调用即可
         fun init(context: Context) {
             ExceptionHandler(context)
+        }
+
+
+        // 日志拼接，支持递归 cause
+        private fun buildExceptionLog(e: Throwable, label: String = "主线程异常"): String {
+            val sb = StringBuilder()
+            sb.append("【$label】\n")
+            sb.append("App版本: ${BuildConfig.VERSION_NAME}\n")
+            sb.append("版本号: ${BuildConfig.VERSION_CODE}\n")
+            sb.append("设备型号: ${Build.MODEL}\n")
+            sb.append("系统版本: ${Build.VERSION.RELEASE}\n")
+            sb.append("品牌: ${Build.BRAND}\n")
+            sb.append(
+                "异常时间: ${
+                    SimpleDateFormat(
+                        "yyyy-MM-dd HH:mm:ss",
+                        Locale.getDefault()
+                    ).format(Date())
+                }\n\n"
+            )
+            collectStackTrace(e, sb)
+            return sb.toString()
+        }
+
+        private fun collectStackTrace(e: Throwable, sb: StringBuilder) {
+            sb.append(e.toString()).append("\n")
+            e.stackTrace.forEach { sb.append("\tat $it\n") }
+            e.cause?.let {
+                sb.append("Caused by: ")
+                collectStackTrace(it, sb)
+            }
+        }
+
+        private fun saveLogToLocal(ctx: Context, msg: String, tag: String = "crash") {
+            try {
+                val logDir = File(ctx.cacheDir, "crash")
+                if (!logDir.exists()) logDir.mkdirs()
+                val file = File(logDir, "${tag}_${System.currentTimeMillis()}.log")
+                FileOutputStream(file).use { it.write(msg.toByteArray()) }
+                Logger.d(msg)
+            } catch (ex: Exception) {
+                // ignore
+            }
         }
     }
 
@@ -79,24 +80,25 @@ class ExceptionHandler(private val context: Context) : Thread.UncaughtExceptionH
         t: Thread,
         e: Throwable,
     ) {
-        val root = getRootCause(e)
-        Logger.e("Handler UncaughtException", root)
+        val msg = buildExceptionLog(e, "主线程未捕获异常")
+        Logger.e("Handler UncaughtException", e)
+        saveLogToLocal(context, msg)
+        // Bugly 上报
+        CrashReport.postCatchedException(e)
 
-        // 将异常拼成字符串
-        val sb = StringBuilder()
-        sb.append("版本: ${BuildConfig.VERSION_NAME}\n")
-        sb.append("版本号: ${BuildConfig.VERSION_CODE}\n")
-        sb.append("异常信息: ${root.message}\n")
-        sb.append("异常堆栈: \n")
-        root.stackTrace.forEach {
-            sb.append(it.toString())
-            sb.append("\n")
+        // 跳转错误界面
+        try {
+            val intent = Intent(context, ErrorActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            intent.putExtra("msg", msg)
+            intent.putExtra("isErrorActivity", true)
+            context.startActivity(intent)
+        } catch (ex: Exception) {
+            Logger.e("Failed to start ErrorActivity", ex)
         }
-        // 打开ErrorActivity
-        val intent = Intent(context, ErrorActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        intent.putExtra("msg", sb.toString())
-        context.startActivity(intent)
-        exitProcess(0) // 关闭已奔溃的app进程
+
+        exitProcess(0)
     }
 }
+
+
