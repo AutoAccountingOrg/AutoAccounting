@@ -28,17 +28,18 @@ import android.os.Process
 import android.util.TypedValue
 import androidx.annotation.AttrRes
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.appcompat.view.ContextThemeWrapper
 import com.google.android.material.color.MaterialColors
 import com.tencent.bugly.crashreport.CrashReport
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import net.ankio.auto.http.LicenseNetwork
 import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.activity.HomeActivity
 import net.ankio.auto.ui.utils.ToastUtils
+import net.ankio.auto.utils.ExceptionHandler
 import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.utils.PrefManager.darkTheme
 import net.ankio.auto.utils.ThemeUtils
@@ -56,7 +57,10 @@ class App : Application() {
 
 
     companion object {
-        var navigationBarHeight: Int = 0
+
+
+        val licenseNetwork = LicenseNetwork()
+
         var statusBarHeight: Int = 0
 
         /* App实例 */
@@ -159,19 +163,7 @@ class App : Application() {
             return ThemeUtils.themedCtx(context)
         }
 
-        /**
-         * 是否安装了某个应用
-         */
-        fun isAppInstalled(appName: String?): Boolean {
-            return try {
-                appName?.let {
-                    app.packageManager.getPackageInfo(it, PackageManager.GET_ACTIVITIES)
-                    true
-                } ?: false
-            } catch (e: PackageManager.NameNotFoundException) {
-                false
-            }
-        }
+
 
         /**
          * 复制到剪切板
@@ -272,6 +264,7 @@ class App : Application() {
 
     private fun initTheme() {
         AppCompatDelegate.setDefaultNightMode(darkTheme)
+        // setTheme(ThemeUtils.colorThemeStyleRes)
     }
 
     private fun initLanguage() {
@@ -290,8 +283,13 @@ class App : Application() {
         createConfigurationContext(config)
     }
 
+
     /** 初始化 Bugly */
     private fun initBugly() {
+
+
+        ExceptionHandler.init(this)
+
         val strategy = CrashReport.UserStrategy(this).apply {
             // 版本号、包名——便于在 Bugly 后台快速定位
             appVersion = BuildConfig.VERSION_NAME
