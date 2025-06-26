@@ -23,6 +23,7 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.storage.Logger
 import okhttp3.Call
+import okhttp3.Dns
 import okhttp3.EventListener
 import okhttp3.FormBody
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
@@ -40,6 +41,7 @@ import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.net.InetAddress
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.TimeUnit
 import javax.xml.parsers.DocumentBuilderFactory
@@ -48,18 +50,38 @@ import javax.xml.parsers.DocumentBuilderFactory
  * HTTP请求工具类
  * 提供各种HTTP请求方法的封装
  */
-class RequestsUtils {
+class RequestsUtils() {
     companion object {
         private const val DEFAULT_TIMEOUT = 30L
         private const val DEFAULT_MEDIA_TYPE = "application/json; charset=utf-8"
-
+        private val customDns = Dns { hostname ->
+            if (hostname == "license.ez-book.org" && BuildConfig.DEBUG) {
+                listOf(InetAddress.getByName("192.168.100.200"))
+            } else {
+                Dns.SYSTEM.lookup(hostname)
+            }
+        }
 
         private val okHttpClient = OkHttpClient.Builder()
             .apply {
                 if (BuildConfig.DEBUG) {
                     class LoudLogger : HttpLoggingInterceptor.Logger {
+                        private var skip = false
                         override fun log(message: String) {
-                            Logger.w(message)
+                            if ((message.startsWith("-->") || message.startsWith("<--")) && message.contains(
+                                    "http"
+                                )
+                            ) {
+                                // 判断当前请求 URL 是否需要跳过
+                                skip = listOf("/log").any { message.contains(it) }
+                            }
+                            if (!skip) {
+                                Log.w("Request", message)
+                            }
+                            // 在结束一轮请求后重置
+                            if (message.startsWith("<-- END HTTP")) {
+                                skip = false
+                            }
                         }
                     }
 
@@ -71,6 +93,7 @@ class RequestsUtils {
             .connectTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
             .readTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
             .writeTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
+            .dns(customDns)
             .build()
     }
 
@@ -123,6 +146,7 @@ class RequestsUtils {
                 .url(url)
                 .addHeaders()
                 .build()
+
 
             client.newCall(request).execute().use { response ->
                 val body = response.body?.bytes() ?: ByteArray(0)
