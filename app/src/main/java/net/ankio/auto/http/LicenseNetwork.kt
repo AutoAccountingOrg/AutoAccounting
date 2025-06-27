@@ -18,6 +18,7 @@ package net.ankio.auto.http
 import android.os.Build
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import net.ankio.auto.BuildConfig
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.utils.PrefManager
 import java.io.File
@@ -26,21 +27,19 @@ import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 
 class LicenseNetwork {
-    private var localId = PrefManager.localID
     private val client by lazy {
         RequestsUtils()
     }
 
     init {
-        if (localId.isEmpty()) {
-            localId = UUID.randomUUID().toString()
-            PrefManager.localID = localId
+        if (PrefManager.localID.isEmpty()) {
+            PrefManager.localID = UUID.randomUUID().toString()
         }
         client.addHeader("X-Device-Board", Build.BOARD)
         client.addHeader("X-Device-Hardware", Build.HARDWARE)
         client.addHeader("X-Device-Model", Build.MODEL)
         client.addHeader("X-Device-Manufacturer", Build.MANUFACTURER)
-        client.addHeader("X-Device-Local-Id", localId)
+        client.addHeader("X-Device-Local-Id", PrefManager.localID)
     }
 
 
@@ -61,7 +60,7 @@ class LicenseNetwork {
 
         // 2. 合并数据
         val data = mutableMapOf<String, String>()
-        data["device"] = localId
+        data["device"] = PrefManager.localID
         data.putAll(postData)
 
         // 3. 字典序排序
@@ -72,12 +71,13 @@ class LicenseNetwork {
             sortedData.entries.joinToString("&") { "${it.key}=${it.value}" } + "&timestamp=$timestamp"
 
         // 5. 生成签名
-        val signature = hmacSha256(signString, localId)
+        val signature = hmacSha256(signString, PrefManager.localID)
 
         return Pair(signature, timestamp)
     }
 
-    private val url = "https://license.ez-book.org"
+    private val url =
+        if (BuildConfig.DEBUG) "https://license.ankio.icu" else "https://license.ez-book.org"
 
     suspend fun post(
         path: String,
