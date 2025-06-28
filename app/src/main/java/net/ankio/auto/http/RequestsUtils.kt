@@ -55,7 +55,7 @@ class RequestsUtils() {
         private const val DEFAULT_TIMEOUT = 30L
         private const val DEFAULT_MEDIA_TYPE = "application/json; charset=utf-8"
         private val customDns = Dns { hostname ->
-            if (hostname == "license.ez-book.org" && BuildConfig.DEBUG) {
+            if (hostname == "license.ankio.icu" && BuildConfig.DEBUG) {
                 listOf(InetAddress.getByName("192.168.100.200"))
             } else {
                 Dns.SYSTEM.lookup(hostname)

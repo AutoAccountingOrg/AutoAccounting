@@ -23,7 +23,7 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.http.LocalNetwork
 import org.ezbook.server.db.model.RuleModel
 
-object RuleAPI {
+object RuleManageAPI {
     /**
      * 根据条件查询
      * @param app 应用
