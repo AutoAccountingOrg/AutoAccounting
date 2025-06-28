@@ -50,7 +50,7 @@ import javax.xml.parsers.DocumentBuilderFactory
  * HTTP请求工具类
  * 提供各种HTTP请求方法的封装
  */
-class RequestsUtils() {
+class RequestsUtils {
     companion object {
         private const val DEFAULT_TIMEOUT = 30L
         private const val DEFAULT_MEDIA_TYPE = "application/json; charset=utf-8"
@@ -65,30 +65,21 @@ class RequestsUtils() {
         private val okHttpClient = OkHttpClient.Builder()
             .apply {
                 if (BuildConfig.DEBUG) {
-                    class LoudLogger : HttpLoggingInterceptor.Logger {
-                        private var skip = false
-                        override fun log(message: String) {
-                            if ((message.startsWith("-->") || message.startsWith("<--")) && message.contains(
-                                    "http"
-                                )
-                            ) {
-                                // 判断当前请求 URL 是否需要跳过
-                                skip = listOf("/log").any { message.contains(it) }
-                            }
-                            if (!skip) {
+                    addInterceptor { chain ->
+                        val request = chain.request()
+                        if (!request.url.encodedPath.contains("/log")) {
+                            val logger = HttpLoggingInterceptor.Logger { message ->
                                 Log.w("Request", message)
                             }
-                            // 在结束一轮请求后重置
-                            if (message.startsWith("<-- END HTTP")) {
-                                skip = false
-                            }
+                            val loggingInterceptor = HttpLoggingInterceptor(logger)
+                            loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
+                            return@addInterceptor loggingInterceptor.intercept(chain)
+                        } else {
+                            return@addInterceptor chain.proceed(request)
                         }
                     }
-
-                    val loud =
-                        HttpLoggingInterceptor(LoudLogger()).setLevel(HttpLoggingInterceptor.Level.BODY)
-                    addInterceptor(loud)
                 }
+
             }
             .connectTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
             .readTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
@@ -131,9 +122,10 @@ class RequestsUtils() {
     ): T = withContext(Dispatchers.IO) {
         runCatching { block() }
             .onFailure { ex ->
-                when (ex) {
-                    is IOException -> Logger.e("Network error", ex)
-                    else -> Logger.e("Unexpected error", ex)
+                if (ex.message?.contains("127.0.0.1:52045") == true) {
+                    Log.e("Request", ex.message ?: "", ex)
+                } else {
+                    Logger.e(ex.message ?: "", ex)
                 }
             }
             .getOrElse { fallback() }       // 关键：返回默认值
