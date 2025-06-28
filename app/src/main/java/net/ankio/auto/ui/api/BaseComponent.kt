@@ -15,6 +15,7 @@
 
 package net.ankio.auto.ui.api
 
+import android.app.Activity
 import android.content.Context
 import androidx.annotation.CallSuper
 import androidx.lifecycle.DefaultLifecycleObserver
@@ -46,6 +47,10 @@ abstract class BaseComponent<T : ViewBinding>(
         lifecycle.addObserver(this)
     }
 
+    protected lateinit var activity: Activity
+    fun bindActivity(activity: Activity) {
+        this.activity = activity
+    }
     /**
      * 组件初始化方法，在组件创建后调用
      *
@@ -125,7 +130,8 @@ abstract class BaseComponent<T : ViewBinding>(
  * @throws IllegalArgumentException 当找不到匹配的构造函数时抛出
  */
 inline fun <reified T : BaseComponent<*>> ViewBinding.bindAs(
-    lifecycle: Lifecycle
+    lifecycle: Lifecycle,
+    activity: Activity? = null
 ): T {
     // 查找匹配的构造函数：第一个参数是当前ViewBinding类型，第二个参数是Lifecycle类型
     val constructor = T::class.constructors.find {
@@ -136,5 +142,10 @@ inline fun <reified T : BaseComponent<*>> ViewBinding.bindAs(
         ?: error("Constructor (binding: ${this::class}, lifecycle: Lifecycle) not found in ${T::class}")
 
     // 创建实例并调用init方法
-    return constructor.call(this, lifecycle).apply { init() }
+    return constructor.call(this, lifecycle).apply {
+        if (activity != null) {
+            bindActivity(activity)
+        }
+        init()
+    }
 }
