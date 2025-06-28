@@ -124,7 +124,7 @@ class LicenseNetwork {
 
         ): Boolean = withContext(Dispatchers.IO) {
         val uri =
-            "$url/${path.trimStart('/')}" + queryData.entries.joinToString("&") { "${it.key}=${it.value}" }
+            "$url/${path.trimStart('/')}?" + queryData.entries.joinToString("&") { "${it.key}=${it.value}" }
         val (signature, timestamp) = generateSignature(queryData)
         client.addHeader("X-Token", PrefManager.token)
         client.addHeader("X-Signature", signature)

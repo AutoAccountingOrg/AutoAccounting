@@ -31,7 +31,7 @@ object RuleAPI {
 
     suspend fun download(version: String, file: File): Boolean {
         return App.licenseNetwork.download(
-            "/rule/download", file, hashMapOf(
+            "/rule/download/", file, hashMapOf(
                 "version" to version
             )
         )
