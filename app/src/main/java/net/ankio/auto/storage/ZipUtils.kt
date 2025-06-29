@@ -1,104 +1,60 @@
 package net.ankio.auto.storage
 
-import java.io.BufferedInputStream
-import java.io.BufferedOutputStream
+import net.lingala.zip4j.ZipFile
+import net.lingala.zip4j.model.ZipParameters
+import net.lingala.zip4j.model.enums.EncryptionMethod
 import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.IOException
-import java.nio.charset.Charset
-import java.nio.file.Files
-import java.nio.file.Paths
-import java.util.zip.ZipEntry
-import java.util.zip.ZipInputStream
-import java.util.zip.ZipOutputStream
 
 object ZipUtils {
 
-    //========================解压===START===================================
     /**
-     * 解压文件
-     * 支持无文件夹和带文件夹的压缩包
+     * 压缩目录或文件，支持可选密码
+     * @param sourceFile 目标文件或文件夹
+     * @param zipFile 输出的zip文件路径
+     * @param password 为空表示不加密
      */
-    fun unzip(zipFilePath: String, desDirectory: String, callback: ((String) -> Unit)? = null) {
-        val desDir = File(desDirectory)
-        if (!desDir.exists() && !desDir.mkdirs()) {
-            Logger.e("Failed to create directory: $desDirectory")
-            return
-        }
+    fun zipAll(sourceFile: File, zipFile: String, password: String? = null) {
         try {
-            ZipInputStream(
-                FileInputStream(zipFilePath),
-                Charset.defaultCharset()
-            ).use { zipInputStream ->
-                var zipEntry: ZipEntry? = zipInputStream.nextEntry
-                while (zipEntry != null) {
-                    val unzipFilePath = Paths.get(desDirectory, zipEntry.name).toString()
-                    callback?.invoke(zipEntry.name)
-
-                    if (zipEntry.isDirectory) {
-                        Files.createDirectories(Paths.get(unzipFilePath))
-                    } else {
-                        val file = File(unzipFilePath)
-                        Files.createDirectories(file.parentFile.toPath())
-                        BufferedOutputStream(FileOutputStream(file)).use { bufferedOutputStream ->
-                            val buffer = ByteArray(8192)  // 优化缓冲区大小
-                            var readLen: Int
-                            while (zipInputStream.read(buffer).also { readLen = it } > 0) {
-                                bufferedOutputStream.write(buffer, 0, readLen)
-                            }
-                        }
-                    }
-                    zipInputStream.closeEntry()
-                    zipEntry = zipInputStream.nextEntry
+            val zip = if (!password.isNullOrEmpty())
+                ZipFile(zipFile, password.toCharArray())
+            else
+                ZipFile(zipFile)
+            val params = ZipParameters().apply {
+                if (!password.isNullOrEmpty()) {
+                    isEncryptFiles = true
+                    encryptionMethod = EncryptionMethod.AES
                 }
             }
-        } catch (e: IOException) {
-            Logger.e("Unzip failed: ${e.message}")
-        }
-    }
-    //========================解压===END===================================
-
-    //========================压缩===START=================================
-    fun zipAll(sourceFile: File, zipFile: String) {
-        try {
-            ZipOutputStream(BufferedOutputStream(FileOutputStream(zipFile))).use { zipOut ->
-                zipFiles(zipOut, sourceFile, "")
-            }
-        } catch (e: IOException) {
+            if (sourceFile.isDirectory)
+                zip.addFolder(sourceFile, params)
+            else
+                zip.addFile(sourceFile, params)
+        } catch (e: Exception) {
             Logger.e("Zip failed: ${e.message}")
         }
     }
 
-    private fun zipFiles(zipOut: ZipOutputStream, sourceFile: File, parentDirPath: String) {
-        val buffer = ByteArray(8192)  // 优化缓冲区大小
-        sourceFile.listFiles()?.forEach { file ->
-            val zipPath = parentDirPath + file.name + if (file.isDirectory) File.separator else ""
-            Logger.d("Adding ${if (file.isDirectory) "Directory" else "file"}: $zipPath")
-
-            try {
-                zipOut.putNextEntry(ZipEntry(zipPath).apply {
-                    time = file.lastModified()
-                    size = if (file.isFile) file.length() else 0
-                })
-
-                if (file.isDirectory) {
-                    zipFiles(zipOut, file, zipPath)
-                } else {
-                    FileInputStream(file).use { fi ->
-                        BufferedInputStream(fi).use { origin ->
-                            var readLen: Int
-                            while (origin.read(buffer).also { readLen = it } != -1) {
-                                zipOut.write(buffer, 0, readLen)
-                            }
-                        }
-                    }
-                }
-                zipOut.closeEntry()
-            } catch (e: IOException) {
-                Logger.e("Zip failed: ${e.message}")
+    /**
+     * 解压，自动判断是否加密
+     * @param zipFilePath zip文件路径
+     * @param desDirectory 解压到哪里
+     * @param password 可选，若为null或空自动尝试无密码解压
+     */
+    fun unzip(
+        zipFilePath: String,
+        desDirectory: String,
+        password: String? = null,
+        callback: ((String) -> Unit)? = null
+    ) {
+        try {
+            val zipFile = ZipFile(zipFilePath)
+            if (zipFile.isEncrypted && !password.isNullOrEmpty()) {
+                zipFile.setPassword(password.toCharArray())
             }
+            zipFile.extractAll(desDirectory)
+            zipFile.fileHeaders.forEach { callback?.invoke(it.fileName) }
+        } catch (e: Exception) {
+            Logger.e("Unzip failed: ${e.message}")
         }
     }
-    //========================压缩===END===================================
 }
