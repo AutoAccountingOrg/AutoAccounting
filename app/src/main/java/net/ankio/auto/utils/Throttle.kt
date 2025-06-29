@@ -1,50 +1,43 @@
-/*
- * Copyright (C) 2025 ankio(ankio@ankio.net)
- * Licensed under the Apache License, Version 3.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-3.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *   limitations under the License.
- */
-
 package net.ankio.auto.utils
 
 import java.util.concurrent.atomic.AtomicLong
 
-class Throttle(
+class Throttle<T>(
     private val intervalMs: Long = 300,
-    private val block: () -> Unit
-) : Runnable {
+    private val block: (T) -> Unit
+) {
     private val lastTime = AtomicLong(0)
 
-    override fun run() {
+    fun run(param: T) {
         val now = System.currentTimeMillis()
         val prev = lastTime.get()
         if (now - prev >= intervalMs) {
             if (lastTime.compareAndSet(prev, now)) {
-                block()
+                block(param)
             }
         }
     }
 
     /**
-     * 主动手动调用（更符合 throttle.run { ... } 习惯）
+     * 兼容不带参数的调用习惯（T=Unit）
      */
-    fun runThrottle() = run()
+    fun run() = run(Unit as T)
 
     companion object {
         /**
-         * 兼容你最早的函数式写法：返回一个可调用的函数（函数式 API）
+         * 支持带参数的函数式写法
+         */
+        fun <T> asFunction(intervalMs: Long = 300, block: (T) -> Unit): (T) -> Unit {
+            val throttle = Throttle(intervalMs, block)
+            return { param -> throttle.run(param) }
+        }
+
+        /**
+         * 支持无参数写法
          */
         fun asFunction(intervalMs: Long = 300, block: () -> Unit): () -> Unit {
-            val throttle = Throttle(intervalMs, block)
-            return { throttle.run() }
+            val throttle = Throttle(intervalMs) { _: Unit -> block() }
+            return { throttle.run(Unit) }
         }
 
         fun asFunction(block: () -> Unit): () -> Unit = asFunction(300, block)
