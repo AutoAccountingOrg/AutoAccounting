@@ -28,7 +28,6 @@ import net.ankio.auto.http.api.BookNameAPI
 object PrefManager {
 
 
-
     private const val PREF_DARK_THEME = "dark_theme"
     private const val PREF_BLACK_DARK_THEME = "black_dark_theme"
     private const val PREF_FOLLOW_SYSTEM_ACCENT = "follow_system_accent"
@@ -169,7 +168,14 @@ object PrefManager {
         get() = pref.getBoolean("autoCheckAppUpdate", true)
         set(value) = pref.edit { putBoolean("autoCheckAppUpdate", value) }
 
+
+    var appChannel: String
+        get() = pref.getString("appChannel", VersionUtils.CHANNEL_STABLE)!!
+        set(value) = pref.edit { putString("appChannel", value) }
+
     var autoCheckRuleUpdate: Boolean
         get() = pref.getBoolean("autoCheckRuleUpdate", true)
         set(value) = pref.edit { putBoolean("autoCheckRuleUpdate", value) }
+
+
 }
