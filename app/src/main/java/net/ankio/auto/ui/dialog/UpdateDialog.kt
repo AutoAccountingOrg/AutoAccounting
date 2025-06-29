@@ -13,54 +13,66 @@
  *   limitations under the License.
  */
 
+
 package net.ankio.auto.ui.dialog
 
 import android.app.Activity
+import android.app.Service
 import android.view.LayoutInflater
 import android.view.View
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogUpdateBinding
+import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseSheetDialog
-import net.ankio.auto.update.BaseUpdate
 import net.ankio.auto.update.RuleUpdate
+import net.ankio.auto.utils.UpdateModel
 import rikka.html.text.toHtml
 
-class UpdateDialog(
-    private val context: Activity,
-    private val baseUpdate: BaseUpdate,
-    private val finish: () -> Unit
-) : BaseSheetDialog(context) {
-    private lateinit var binding: DialogUpdateBinding
-
-    override fun onCreateView(inflater: LayoutInflater): View {
-        binding = DialogUpdateBinding.inflate(inflater)
-
-        //cardView = binding.cardView
-        //cardViewInner = binding.cardViewInner
-
-        binding.version.text = baseUpdate.version
-        binding.updateInfo.text = baseUpdate.log.toHtml()
-        binding.date.text = baseUpdate.date
-        binding.name.text =
-            if (baseUpdate is RuleUpdate) context.getString(R.string.rule) else context.getString(R.string.app)
-        binding.update.setOnClickListener {
-            lifecycleScope.launch {
-                baseUpdate.update {
-                    dismiss()
-                }
-            }
-        }
+class UpdateDialog
+/**
+ * 使用Activity上下文构造底部弹窗构建器
+ * @param activity Activity实例
+ */(private var updateModel: UpdateModel, activity: Activity) :
+    BaseSheetDialog<DialogUpdateBinding>(activity) {
 
 
-        return binding.root
+    lateinit var onClickUpdate: () -> Unit
+
+    fun setOnClickUpdate(onClickUpdate: () -> Unit): UpdateDialog {
+        this.onClickUpdate = onClickUpdate
+        return this
     }
 
+    private lateinit var ruleTitle: String
 
-    override fun dismiss() {
-        finish()
-        super.dismiss()
+    fun setRuleTitle(title: String): UpdateDialog {
+        ruleTitle = title
+        return this
+    }
+
+    override fun onViewCreated(view: View?) {
+        super.onViewCreated(view)
+        binding.version.text = updateModel.version
+        binding.updateInfo.text = updateModel.log.toHtml()
+        binding.date.text = updateModel.date
+        if (::ruleTitle.isInitialized) {
+            binding.name.text = ruleTitle
+        }
+        //  binding.name.text =  if (updateModel is RuleUpdate) context.getString(R.string.rule) else context.getString(R.string.app)
+        binding.update.setOnClickListener {
+            if (::onClickUpdate.isInitialized) {
+                onClickUpdate()
+            }
+            dismiss()
+        }
+    }
+
+    init {
+        Logger.d("BottomSheetDialogBuilder created with Activity: ${activity.javaClass.simpleName}")
     }
 
 }
+
