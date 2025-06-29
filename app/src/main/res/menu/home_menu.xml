@@ -12,11 +12,5 @@
         android:iconTint="?colorOnPrimary"
         android:title="@string/title_log" />
 
-    <item
-        android:id="@+id/title_theme"
-        android:icon="@drawable/ic_theme"
-        android:showAsAction="ifRoom"
-        android:iconTint="?colorOnPrimary"
-        android:title="@string/setting_theme" />
 
 </menu>

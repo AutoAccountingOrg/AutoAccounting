@@ -45,10 +45,6 @@ class HomeFragment : BaseFragment<FragmentPluginHomeBinding>() {
                     true
                 }
 
-                R.id.title_theme -> {
-                    findNavController().navigate(R.id.appearanceFragment)
-                    true
-                }
 
                 R.id.title_explore -> {
                     PrefManager.introIndex = 0
