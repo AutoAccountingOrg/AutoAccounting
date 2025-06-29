@@ -17,6 +17,8 @@ package net.ankio.auto.ui.activity
 
 import android.os.Bundle
 import android.view.View
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.OnBackPressedDispatcher
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -35,8 +37,10 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import net.ankio.auto.service.CoreService
 import net.ankio.auto.ui.fragment.plugin.DataFragment
+import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.ui.utils.slideDown
 import net.ankio.auto.ui.utils.slideUp
+import kotlin.system.exitProcess
 
 class HomeActivity : BaseActivity() {
     private val binding: ActivityMainBinding by lazy {
@@ -63,10 +67,22 @@ class HomeActivity : BaseActivity() {
                 binding.bottomNavigation.slideDown()
             }
         }
+
+        var lastBackPressedTime = 0L
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (!navController.popBackStack()) {
+                    val now = System.currentTimeMillis()
+                    if (now - lastBackPressedTime < 2000) {
+                        moveTaskToBack(true)
+                    } else {
+                        lastBackPressedTime = now
+                        ToastUtils.info(R.string.press_again_to_exit)
+                    }
+                }
+            }
+        });
     }
 
 
-    override fun onStop() {
-        super.onStop()
-    }
 }
