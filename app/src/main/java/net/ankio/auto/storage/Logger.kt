@@ -147,6 +147,7 @@ object Logger {
             Log.INFO -> Log.i(tag, message)
             Log.WARN -> Log.w(tag, message)
             Log.ERROR -> Log.e(tag, message)
+            else -> Log.i(tag, message)
         }
 
         // 构建调用位置信息
