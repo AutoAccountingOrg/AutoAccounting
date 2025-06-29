@@ -16,6 +16,7 @@ import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.ui.models.RailMenuItem
 import androidx.core.view.isEmpty
+import net.ankio.auto.utils.toThemeColor
 
 class CustomNavigationRail @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
@@ -53,9 +54,9 @@ class CustomNavigationRail @JvmOverloads constructor(
         iconView.setImageDrawable(item.icon)
         textView.text = item.text
 
-        val defaultColor = App.getThemeAttrColor(com.google.android.material.R.attr.colorOnSurface)
+        val defaultColor = com.google.android.material.R.attr.colorOnPrimaryContainer.toThemeColor()
         val selectedColor =
-            App.getThemeAttrColor(com.google.android.material.R.attr.colorOnSecondaryContainer)
+            com.google.android.material.R.attr.colorOnSecondaryContainer.toThemeColor()
 
         // iconView.setColorFilter(defaultColor)
         textView.setTextColor(defaultColor)

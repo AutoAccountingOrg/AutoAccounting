@@ -1,29 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:gravity="center"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
 
-    android:padding="@dimen/one_padding">
+    android:clickable="true"
+    android:focusable="true"
+    android:paddingTop="18dp"
+    android:paddingBottom="18dp"
+    android:paddingStart="@dimen/one_padding"
+    android:paddingEnd="@dimen/one_padding"
+    android:background="?attr/selectableItemBackground">
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/iconView"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:layout_gravity="center_horizontal"
-        android:contentDescription="@null" />
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:contentDescription="@null"
+        tools:src="@mipmap/ic_launcher" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/textView"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="4dp"
-        android:layout_weight="1"
-        android:ellipsize="end"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:gravity="center"
+        android:textAlignment="center"
         android:maxLines="2"
-        android:textColor="?colorOnBackground"
+        android:ellipsize="end"
         android:textSize="12sp"
-        tools:text="这是自动记账这是自动记账这是自动记账这是自动记账这是自动记账这是自动记账这是自动记账这是自动记账这是自动记账这是自动记账这是自动记账" />
+        android:textColor="?attr/colorOnSurface"
+        android:layout_marginTop="4dp"
+        tools:text="自动记账嘻嘻嘻嘻嘻嘻" />
+
 </LinearLayout>
