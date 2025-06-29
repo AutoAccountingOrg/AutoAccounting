@@ -50,10 +50,10 @@ class RuleVersionCardComponent(
      * 节流器，防止频繁调用更新接口
      * 设置5秒的冷却时间，避免用户重复点击导致的问题
      */
-    private val throttle = Throttle.asFunction(5000) {
+    private val throttle = Throttle.asFunction<Boolean>(5000) { fromUser ->
         lifecycle.coroutineScope.launch {
             try {
-                updateRules()
+                updateRules(fromUser)
             } catch (e: Exception) {
                 Logger.e(e.message ?: "", e)
             }
@@ -70,17 +70,17 @@ class RuleVersionCardComponent(
         binding.root.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(context))
 
         // 设置更新按钮点击事件
-        binding.updateButton.setOnClickListener { throttle() }
+        binding.updateButton.setOnClickListener { throttle(true) }
 
         // 长按更新按钮重置版本号并强制更新
         binding.updateButton.setOnLongClickListener {
             PrefManager.ruleVersion = ""
-            throttle()
+            throttle(true)
             true
         }
 
         // 如果开启了自动检查更新，则执行更新检查
-        if (PrefManager.autoCheckRuleUpdate) throttle()
+        if (PrefManager.autoCheckRuleUpdate) throttle(false)
     }
 
     /**
@@ -116,15 +116,31 @@ class RuleVersionCardComponent(
      * 检查并更新规则
      * 从服务器获取最新版本信息，如果有更新则显示更新对话框
      */
-    private suspend fun updateRules() {
+    private suspend fun updateRules(fromUser: Boolean) {
         setUpdateButtonEnabled(false)
+        if (fromUser) {
+            ToastUtils.info(R.string.check_update)
+        }
         try {
             // 获取服务器最新版本信息
             val json = RuleAPI.lastVer()
-            val update = VersionUtils.fromJSON(json) ?: return
+            val update = VersionUtils.fromJSON(json)
+            if (update == null) {
+                if (fromUser) {
+                    ToastUtils.error(R.string.no_need_to_update)
+                }
+                setUpdateButtonEnabled(true)
+                return
+            }
 
             // 检查版本是否需要更新
-            if (!VersionUtils.checkVersionLarge(PrefManager.ruleVersion, update.version)) return
+            if (!VersionUtils.checkVersionLarge(PrefManager.ruleVersion, update.version)) {
+                if (fromUser) {
+                    ToastUtils.error(R.string.no_need_to_update)
+                }
+                setUpdateButtonEnabled(true)
+                return
+            }
 
             // 显示更新对话框
             UpdateDialog(update, activity)
