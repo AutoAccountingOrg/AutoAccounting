@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.launch
@@ -130,7 +131,14 @@ class LogFragment : BasePageFragment<LogModel, FragmentLogBinding>() {
                 else -> false
             }
         }
+
+        binding.topAppBar.setNavigationOnClickListener {
+            findNavController().popBackStack()
+        }
+
+
     }
+
 
     /**
      * 分享日志文件
