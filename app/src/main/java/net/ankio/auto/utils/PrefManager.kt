@@ -163,4 +163,13 @@ object PrefManager {
     var token: String
         get() = pref.getString("token", "")!!
         set(value) = pref.edit { putString("token", value) }
+
+    //autoCheckUpdate
+    var autoCheckAppUpdate: Boolean
+        get() = pref.getBoolean("autoCheckAppUpdate", true)
+        set(value) = pref.edit { putBoolean("autoCheckAppUpdate", value) }
+
+    var autoCheckRuleUpdate: Boolean
+        get() = pref.getBoolean("autoCheckRuleUpdate", true)
+        set(value) = pref.edit { putBoolean("autoCheckRuleUpdate", value) }
 }
