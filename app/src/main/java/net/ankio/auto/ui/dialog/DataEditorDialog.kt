@@ -17,11 +17,8 @@
 package net.ankio.auto.ui.dialog
 
 import android.view.View
-import com.google.gson.Gson
-import com.google.gson.JsonElement
 import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogDataEditorBinding
-import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.utils.ToastUtils
@@ -64,7 +61,7 @@ class DataEditorDialog(
         }
 
         binding.btnMaskAll.setOnClickListener {
-            val result = DesensitizerRegistry.maskAll(binding.etContent.text.toString())
+            val result = Desensitizer.maskAll(binding.etContent.text.toString())
             BottomSheetDialogBuilder(activity)
                 .setTitle(activity.getString(R.string.replace_result))
                 .setMessage(result.changes.joinToString(separator = "\n") { (from, to) -> "\"$from\" → \"$to\"" })
@@ -78,114 +75,63 @@ class DataEditorDialog(
 
     }
 }
-
-
-/**
- * 脱敏结果：替换后的文本 + 替换日志
- */
 data class DesensitizeResult(
     val masked: String,
-    val changes: List<Pair<String, String>> // 原值 → 占位值
+    val changes: List<Pair<String, String>>
 )
 
-/**
- * 单条策略
- */
-interface Desensitizer {
-    fun mask(input: CharSequence, log: MutableList<Pair<String, String>>): CharSequence
-}
+private data class Rule(
+    val regex: Regex,
+    val replacer: (MatchResult) -> String
+)
 
-/**
- * 基于正则 + 固定占位值的策略
- */
-class RegexDesensitizer(
-    private val pattern: Regex,
-    private val placeholder: String
-) : Desensitizer {
+object Desensitizer {
 
-    override fun mask(input: CharSequence, log: MutableList<Pair<String, String>>): CharSequence =
-        pattern.replace(input) { mr ->
-            log += mr.value to placeholder
-            placeholder
+    /** 数字 → 0；其余字符照抄，保持格式和长度 */
+    private val zeroDigits: (MatchResult) -> String = { mr ->
+        buildString {
+            for (ch in mr.value) append(if (ch.isDigit()) '0' else ch)
         }
-}
-
-/**
- * 全局注册表 —— 一键脱敏
- */
-object DesensitizerRegistry {
-
-    private val delegates = mutableListOf<Desensitizer>()
-
-    init {
-        // 1️⃣ 手机号
-        register(RegexDesensitizer(Regex("\\b1[3-9]\\d{9}\\b"), "13800000000"))
-
-        // 2️⃣ 邮箱
-        register(
-            RegexDesensitizer(
-                Regex("[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}"),
-                "example@example.com"
-            )
-        )
-
-        // 3️⃣ 身份证号
-        register(
-            RegexDesensitizer(
-                Regex("\\b\\d{6}(19|20)?\\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\\d|3[01])\\d{3}[0-9Xx]\\b"),
-                "110101199001011234"
-            )
-        )
-
-        // 4️⃣ 整串银行卡号
-        register(RegexDesensitizer(Regex("\\b\\d{16,19}\\b"), "6222000000000000000"))
-
-
-        // 6️⃣ 括号包裹尾号 4 位
-        register(
-            RegexDesensitizer(
-                Regex("(?<=[(（])\\d{4}(?=[)）])"),
-                "0000"
-            )
-        )
-
-        // 7️⃣ IPv4
-        register(
-            RegexDesensitizer(
-                Regex("(?:25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]?\\d)){3}"),
-                "192.0.2.1"
-            )
-        )
-
-        // 8️⃣ 中文姓名
-        register(RegexDesensitizer(Regex("\\b[\\u4E00-\\u9FA5]{2,4}\\b"), "张三"))
-
-        // 9️⃣ 护照
-        register(RegexDesensitizer(Regex("\\b[EGPSeqg]\\d{8}\\b"), "E12345678"))
-
-        // 🔟 港澳台通行证
-        register(RegexDesensitizer(Regex("\\b[HMhm]\\d{8,10}\\b"), "H123456789"))
-
-        // 11️⃣ 支付金额
-        register(
-            RegexDesensitizer(
-                Regex("(?<=\\b)(¥|￥)?\\d{1,3}(?:,\\d{3})*(?:\\.\\d{1,2})?\\b"),
-                "100.00"
-            )
-        )
     }
 
-    fun register(desensitizer: Desensitizer) {
-        delegates += desensitizer
+    /** 仅当出现货币符号 / 单位时才匹配金额 */
+    private val amountRegex =
+        "(?xi)(?: [¥￥€]\\s*\\d+(?:,\\d{3})*(?:\\.\\d{1,2})? | \\d+(?:,\\d{3})*(?:\\.\\d{1,2})?\\s*(?:元|块|人民币|美元|USD|CNY|EUR) )".toRegex()
+
+
+    private val rules = java.util.concurrent.CopyOnWriteArrayList(
+        listOf(
+            Rule("\\b1[3-9]\\d{9}\\b".toRegex()) { "13800000000" },              // 手机号
+            Rule("[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}".toRegex()) { "example@example.com" }, // 邮箱
+            Rule("\\b\\d{6}(19|20)?\\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\\d|3[01])\\d{3}[0-9Xx]\\b".toRegex()) { "110101199001011234" }, // 身份证
+            Rule("\\b\\d{16,19}\\b".toRegex()) { "6222000000000000000" },        // 银行卡
+            Rule("(?<=[(（])\\d{4}(?=[)）])".toRegex()) { "0000" },               // (1234)
+            Rule("(?:25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]?\\d)){3}".toRegex()) { "192.0.2.1" }, // IPv4
+            Rule("\\b[\\u4E00-\\u9FA5]{2,4}\\b".toRegex()) { "张三" },           // 中文姓名
+            Rule("\\b[EGPSeqg]\\d{8}\\b".toRegex()) { "E12345678" },             // 护照
+            Rule("\\b[HMhm]\\d{8,10}\\b".toRegex()) { "H123456789" },            // 港澳台通行证
+            Rule(amountRegex, zeroDigits)                                        // 金额（改进版）
+        )
+    )
+
+    /** 动态增加自定义规则（注意 replacer 返回占位值） */
+    fun register(regex: Regex, replacer: (MatchResult) -> String) {
+        rules += Rule(regex, replacer)
     }
 
-    /**
-     * 返回替换后的文本 + 替换日志
-     */
+    /** 主入口：只收 String，返回脱敏结果 */
     fun maskAll(src: String): DesensitizeResult {
+        var out: String = src
         val log = mutableListOf<Pair<String, String>>()
-        val masked = delegates.fold(src) { acc, d -> d.mask(acc, log).toString() }
-        return DesensitizeResult(masked, log)
+
+        for (rule in rules) {
+            out = rule.regex.replace(out) { mr ->
+                val repl = rule.replacer(mr)
+                log += mr.value to repl
+                repl
+            }
+        }
+        return DesensitizeResult(out, log)
     }
 }
 
