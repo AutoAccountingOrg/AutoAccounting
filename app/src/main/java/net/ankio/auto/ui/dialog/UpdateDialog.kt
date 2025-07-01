@@ -27,7 +27,6 @@ import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogUpdateBinding
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseSheetDialog
-import net.ankio.auto.update.RuleUpdate
 import net.ankio.auto.utils.UpdateModel
 import rikka.html.text.toHtml
 
