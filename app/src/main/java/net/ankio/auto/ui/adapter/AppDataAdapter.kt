@@ -96,7 +96,7 @@ class AppDataAdapter(
                     loading.close()
                 }
 
-            }
+            }.show()
         }
 
         binding.root.setOnLongClickListener {
