@@ -36,4 +36,14 @@ object RuleAPI {
             )
         )
     }
+
+    suspend fun submit(title: String, body: String): String {
+        return App.licenseNetwork.post(
+            "/rule/issue",
+            hashMapOf(
+                "title" to title,
+                "body" to body
+            )
+        )
+    }
 }
