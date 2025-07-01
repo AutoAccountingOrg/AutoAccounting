@@ -45,7 +45,7 @@ import net.ankio.auto.ui.api.BaseSheetDialog
  *     .show()
  * ```
  */
-class BottomSheetDialogBuilder : BaseSheetDialog<DialogBottomSheetBinding> {
+open class BottomSheetDialogBuilder : BaseSheetDialog<DialogBottomSheetBinding> {
 
     /**
      * 使用Activity上下文构造底部弹窗构建器
@@ -80,12 +80,15 @@ class BottomSheetDialogBuilder : BaseSheetDialog<DialogBottomSheetBinding> {
         Logger.d("Default UI elements hidden (title, positiveButton, negativeButton)")
     }
 
+    override fun setTitle(titleId: Int) {
+        setTitleInt(titleId)
+    }
     /**
      * 设置弹窗标题
      * @param title 标题文本
      * @return 当前构建器实例，支持链式调用
      */
-    fun setTitle(title: String): BottomSheetDialogBuilder {
+    open fun setTitle(title: String): BottomSheetDialogBuilder {
         Logger.d("Setting title: '$title'")
         binding.title.text = title
         binding.title.visibility = View.VISIBLE
@@ -97,7 +100,7 @@ class BottomSheetDialogBuilder : BaseSheetDialog<DialogBottomSheetBinding> {
      * @param title 字符串资源ID
      * @return 当前构建器实例，支持链式调用
      */
-    fun setTitleInt(title: Int): BottomSheetDialogBuilder {
+    open fun setTitleInt(title: Int): BottomSheetDialogBuilder {
         val titleText = context.getString(title)
         Logger.d("Setting title from resource ID $title: '$titleText'")
         binding.title.setText(title)
@@ -111,7 +114,7 @@ class BottomSheetDialogBuilder : BaseSheetDialog<DialogBottomSheetBinding> {
      * @param listener 按钮点击监听器，可为null
      * @return 当前构建器实例，支持链式调用
      */
-    fun setPositiveButton(
+    open fun setPositiveButton(
         text: Int,
         listener: ((dialog: BaseSheetDialog<DialogBottomSheetBinding>, which: Int) -> Unit)?
     ): BottomSheetDialogBuilder {
@@ -126,7 +129,7 @@ class BottomSheetDialogBuilder : BaseSheetDialog<DialogBottomSheetBinding> {
      * @param listener 按钮点击监听器，可为null
      * @return 当前构建器实例，支持链式调用
      */
-    fun setPositiveButton(
+    open fun setPositiveButton(
         text: String,
         listener: ((dialog: BaseSheetDialog<DialogBottomSheetBinding>, which: Int) -> Unit)?
     ): BottomSheetDialogBuilder {
@@ -152,7 +155,7 @@ class BottomSheetDialogBuilder : BaseSheetDialog<DialogBottomSheetBinding> {
      * @param listener 按钮点击监听器，可为null
      * @return 当前构建器实例，支持链式调用
      */
-    fun setNegativeButton(
+    open fun setNegativeButton(
         text: Int,
         listener: ((dialog: BaseSheetDialog<DialogBottomSheetBinding>, which: Int) -> Unit)?
     ): BottomSheetDialogBuilder {
@@ -167,7 +170,7 @@ class BottomSheetDialogBuilder : BaseSheetDialog<DialogBottomSheetBinding> {
      * @param listener 按钮点击监听器，可为null
      * @return 当前构建器实例，支持链式调用
      */
-    fun setNegativeButton(
+    open fun setNegativeButton(
         text: String,
         listener: ((dialog: BaseSheetDialog<DialogBottomSheetBinding>, which: Int) -> Unit)?
     ): BottomSheetDialogBuilder {
@@ -211,7 +214,7 @@ class BottomSheetDialogBuilder : BaseSheetDialog<DialogBottomSheetBinding> {
      * @param string 消息文本
      * @return 当前构建器实例，支持链式调用
      */
-    fun setMessage(string: String): BottomSheetDialogBuilder {
+    open fun setMessage(string: String): BottomSheetDialogBuilder {
         Logger.d(
             "Setting message: '${
                 if (string.length > 50) string.substring(
@@ -233,7 +236,7 @@ class BottomSheetDialogBuilder : BaseSheetDialog<DialogBottomSheetBinding> {
      * @param string 字符串资源ID
      * @return 当前构建器实例，支持链式调用
      */
-    fun setMessage(string: Int): BottomSheetDialogBuilder {
+    open fun setMessage(string: Int): BottomSheetDialogBuilder {
         val messageText = context.getString(string)
         Logger.d(
             "Setting message from resource ID $string: '${
