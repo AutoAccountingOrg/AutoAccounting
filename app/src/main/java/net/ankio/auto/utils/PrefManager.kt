@@ -178,4 +178,7 @@ object PrefManager {
         set(value) = pref.edit { putBoolean("autoCheckRuleUpdate", value) }
 
 
+    var githubConnectivity: Boolean
+        get() = pref.getBoolean("githubConnectivity", true)
+        set(value) = pref.edit { putBoolean("githubConnectivity", value) }
 }
