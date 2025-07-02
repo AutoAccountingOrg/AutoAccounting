@@ -64,6 +64,9 @@ class AppDataAdapter(
             onContentClick(it, holder.item!!)
         }
 
+        binding.createRule.setOnClickListener {
+            onCreateRule(it, holder.item!!)
+        }
 
 
         binding.uploadData.setOnClickListener {
@@ -118,6 +121,10 @@ class AppDataAdapter(
         binding.groupCard.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(activity))
         // binding.content.setBackgroundColor(SurfaceColors.SURFACE_3.getColor(activity))
 
+    }
+
+    private fun onCreateRule(it: View?, item: AppDataModel) {
+        //TODO 携带数据到规则创建页面
     }
 
 
@@ -183,9 +190,15 @@ class AppDataAdapter(
         if (!data.match || data.rule.isEmpty()) {
             binding.ruleName.visibility = View.INVISIBLE
             binding.uploadData.setIconResource(R.drawable.icon_upload)
+            binding.createRule.visibility = View.VISIBLE
         } else {
             binding.ruleName.visibility = View.VISIBLE
             binding.uploadData.setIconResource(R.drawable.icon_question)
+            binding.createRule.visibility = if (data.rule.contains("生成")) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
         }
         val rule = data.rule
 
