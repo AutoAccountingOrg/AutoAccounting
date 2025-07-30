@@ -35,12 +35,13 @@ object RuleManageAPI {
     suspend fun list(
         app: String,
         type: String,
+        creator: String,
         page: Int,
         limit: Int,
         search: String = ""
     ): List<RuleModel> = withContext(Dispatchers.IO) {
         val response = LocalNetwork.request(
-            "rule/list?page=$page&limit=$limit&app=$app&type=$type&search=${
+            "rule/list?page=$page&limit=$limit&app=$app&creator=${creator}&type=$type&search=${
                 Uri.encode(search)
             }"
         )

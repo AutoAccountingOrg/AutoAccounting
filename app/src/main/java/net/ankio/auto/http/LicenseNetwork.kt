@@ -76,8 +76,7 @@ class LicenseNetwork {
         return Pair(signature, timestamp)
     }
 
-    private val url =
-        if (BuildConfig.DEBUG) "https://license.ankio.icu" else "https://license.ez-book.org"
+    private val url = "https://license.ez-book.org"
 
     suspend fun post(
         path: String,
