@@ -36,6 +36,7 @@ import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.utils.Throttle
 import androidx.core.net.toUri
+import net.ankio.auto.utils.toThemeColor
 
 class SettingFragment : BaseFragment<FragmentSettingBinding>() {
 
@@ -195,6 +196,7 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>() {
             // 检查 token 是否为空
             if (PrefManager.token.isEmpty()) {
                 withContext(Dispatchers.Main) {
+                    updateProCardState(false)
                     binding.proActivateInfo.text = getString(R.string.pro_activate_click_to_enter)
                 }
                 return
@@ -207,6 +209,7 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>() {
                 if (info.containsKey("error")) {
                     // 显示错误信息
                     val errorMsg = info["error"] ?: getString(R.string.unknown_error)
+                    updateProCardState(false)
                     binding.proActivateInfo.text =
                         getString(R.string.pro_activate_info_failed, errorMsg)
                     Logger.e("激活信息接口返回错误: $errorMsg")
@@ -214,6 +217,7 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>() {
                     // 显示正常信息
                     val count = info["count"] ?: "0"
                     val time = info["time"] ?: getString(R.string.unknown)
+                    updateProCardState(true)
                     binding.proActivateInfo.text =
                         getString(R.string.pro_activate_info_format, count, time)
                 }
@@ -221,8 +225,28 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>() {
         } catch (e: Exception) {
             Logger.e("获取激活信息异常: ${e.message}", e)
             withContext(Dispatchers.Main) {
+                updateProCardState(false)
                 binding.proActivateInfo.text = getString(R.string.pro_activate_network_error)
             }
+        }
+    }
+
+    /**
+     * 更新高级版卡片状态
+     * @param isActivated 是否激活
+     */
+    private fun updateProCardState(isActivated: Boolean) {
+        if (isActivated) {
+            // 激活状态：显示渐变背景图片，隐藏普通背景
+            // binding.proGradientBackground.visibility = View.VISIBLE
+            binding.proCardContent.setBackgroundResource(android.R.color.transparent)
+        } else {
+            // 未激活状态：隐藏渐变背景图片，显示普通背景
+            //  binding.proGradientBackground.visibility = View.GONE
+            // 使用主题颜色作为背景
+            val backgroundColor =
+                com.google.android.material.R.attr.colorPrimaryContainer.toThemeColor()
+            binding.proCardContent.setBackgroundColor(backgroundColor)
         }
     }
 }
