@@ -101,7 +101,7 @@ open class BottomSheetDialogBuilder : BaseSheetDialog<DialogBottomSheetBinding> 
      * @return 当前构建器实例，支持链式调用
      */
     open fun setTitleInt(title: Int): BottomSheetDialogBuilder {
-        val titleText = context.getString(title)
+        val titleText = ctx.getString(title)
         Logger.d("Setting title from resource ID $title: '$titleText'")
         binding.title.setText(title)
         binding.title.visibility = View.VISIBLE
@@ -118,7 +118,7 @@ open class BottomSheetDialogBuilder : BaseSheetDialog<DialogBottomSheetBinding> 
         text: Int,
         listener: ((dialog: BaseSheetDialog<DialogBottomSheetBinding>, which: Int) -> Unit)?
     ): BottomSheetDialogBuilder {
-        val buttonText = context.getString(text)
+        val buttonText = ctx.getString(text)
         Logger.d("Setting positive button with resource ID $text: '$buttonText'")
         return setPositiveButton(buttonText, listener)
     }
@@ -159,7 +159,7 @@ open class BottomSheetDialogBuilder : BaseSheetDialog<DialogBottomSheetBinding> 
         text: Int,
         listener: ((dialog: BaseSheetDialog<DialogBottomSheetBinding>, which: Int) -> Unit)?
     ): BottomSheetDialogBuilder {
-        val buttonText = context.getString(text)
+        val buttonText = ctx.getString(text)
         Logger.d("Setting negative button with resource ID $text: '$buttonText'")
         return setNegativeButton(buttonText, listener)
     }
@@ -223,7 +223,7 @@ open class BottomSheetDialogBuilder : BaseSheetDialog<DialogBottomSheetBinding> 
                 ) + "..." else string
             }'"
         )
-        val textView = TextView(context)
+        val textView = TextView(ctx)
         textView.text = string
         textView.setPadding(0, 0, 0, 0)
         textView.textSize = 16f
@@ -237,7 +237,7 @@ open class BottomSheetDialogBuilder : BaseSheetDialog<DialogBottomSheetBinding> 
      * @return 当前构建器实例，支持链式调用
      */
     open fun setMessage(string: Int): BottomSheetDialogBuilder {
-        val messageText = context.getString(string)
+        val messageText = ctx.getString(string)
         Logger.d(
             "Setting message from resource ID $string: '${
                 if (messageText.length > 50) messageText.substring(

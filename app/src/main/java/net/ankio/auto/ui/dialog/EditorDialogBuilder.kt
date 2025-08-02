@@ -20,6 +20,7 @@ import android.app.Service
 import android.text.InputType
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
@@ -95,46 +96,55 @@ class EditorDialogBuilder : BottomSheetDialogBuilder {
         super.setMessage(string)
         return this
     }
-
     override fun setMessage(string: String): EditorDialogBuilder {
-// ② 创建 TextInputLayout
-        val inputLayout = TextInputLayout(context).apply {
-            id = View.generateViewId()
 
-            // layout_width="match_parent"  layout_height="wrap_content"
-            layoutParams = ViewGroup.MarginLayoutParams(
+        // ① 创建 TextInputLayout（父容器就是 LinearLayout，本身继承自它）
+        val inputLayout = TextInputLayout(
+            ctx,
+            null,
+            com.google.android.material.R.attr.textInputOutlinedStyle
+        ).apply {
+            id = View.generateViewId()
+            // match_parent / wrap_content，带外边距
+            layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             ).apply {
-                val vPad = context.resources.getDimensionPixelSize(R.dimen.one_padding)
+                val vPad = ctx.resources.getDimensionPixelSize(R.dimen.one_padding)
                 topMargin = vPad
                 bottomMargin = vPad
+
             }
         }
 
-        // ③ 创建内部的 TextInputEditText
-        editText = TextInputEditText(context).apply {
+        // ② 创建内层 TextInputEditText —— 关键：一定要用 LinearLayout.LayoutParams
+        editText =
+            TextInputEditText(ctx, null, com.google.android.material.R.attr.editTextStyle).apply {
             id = View.generateViewId()
-            layoutParams = ViewGroup.LayoutParams(
+
+                layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
-            // 你愿意的话可以先填点默认值
+
+                // 默认内容
             setText(string)
             inputType = inputTypeInt
         }
 
-        // ④ 组合 & 添加到父布局
+        // ③ 组装并设置到 Dialog
         inputLayout.addView(editText)   // 把 EditText 放进 TextInputLayout
-        setView(inputLayout)
+        setView(inputLayout)            // AlertDialog.Builder 的自定义视图
+
         return this
     }
+
 
     fun setEditorPositiveButton(
         text: Int,
         listener: ((result: String) -> Unit)?
     ): EditorDialogBuilder {
-        val buttonText = context.getString(text)
+        val buttonText = ctx.getString(text)
         Logger.d("Setting positive button with resource ID $text: '$buttonText'")
         return setEditorPositiveButton(buttonText, listener)
     }
