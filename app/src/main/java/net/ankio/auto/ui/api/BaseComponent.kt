@@ -59,7 +59,7 @@ abstract class BaseComponent<T : ViewBinding>(
      */
     @CallSuper
     open fun init() {
-        Logger.d("BaseComponent init called: ${this.javaClass.simpleName}")
+        //Logger.d("BaseComponent init called: ${this.javaClass.simpleName}")
     }
 
     /**
@@ -70,7 +70,7 @@ abstract class BaseComponent<T : ViewBinding>(
      */
     @CallSuper
     open fun resume() {
-        Logger.d("BaseComponent resume called: ${this.javaClass.simpleName}")
+        //Logger.d("BaseComponent resume called: ${this.javaClass.simpleName}")
     }
 
     /**
@@ -81,7 +81,7 @@ abstract class BaseComponent<T : ViewBinding>(
      */
     @CallSuper
     open fun stop() {
-        Logger.d("BaseComponent stop called: ${this.javaClass.simpleName}")
+        // Logger.d("BaseComponent stop called: ${this.javaClass.simpleName}")
     }
 
     /**
@@ -92,7 +92,7 @@ abstract class BaseComponent<T : ViewBinding>(
      */
     @CallSuper
     open fun cleanup() {
-        Logger.d("BaseComponent cleanup called: ${this.javaClass.simpleName}")
+        //.d("BaseComponent cleanup called: ${this.javaClass.simpleName}")
     }
 
     /**
@@ -112,7 +112,7 @@ abstract class BaseComponent<T : ViewBinding>(
      * 当页面销毁时自动清理资源并移除生命周期观察者
      */
     final override fun onDestroy(owner: LifecycleOwner) {
-        Logger.d("BaseComponent onDestroy called: ${this.javaClass.simpleName}")
+        //Logger.d("BaseComponent onDestroy called: ${this.javaClass.simpleName}")
         lifecycle.removeObserver(this)
         cleanup()
     }
