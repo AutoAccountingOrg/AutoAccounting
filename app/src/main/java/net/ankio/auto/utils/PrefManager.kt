@@ -18,12 +18,15 @@ package net.ankio.auto.utils
 import android.content.ComponentName
 import android.content.Context.MODE_PRIVATE
 import android.content.pm.PackageManager
+import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.autoApp
 import net.ankio.auto.constant.WorkMode
 import androidx.core.content.edit
+import net.ankio.auto.App
 import net.ankio.auto.http.api.BookNameAPI
+import net.ankio.auto.http.api.SettingAPI
 
 object PrefManager {
 
@@ -37,8 +40,11 @@ object PrefManager {
 
     fun init() {
         pref.registerOnSharedPreferenceChangeListener { sharedPreferences, key ->
+            if (key == null) return@registerOnSharedPreferenceChangeListener
             val value = sharedPreferences.all[key]
-            // TODO 同步到服务端
+            App.launch {
+                SettingAPI.set(key, value.toString())
+            }
         }
     }
 
