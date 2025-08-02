@@ -53,9 +53,7 @@ class CoreService : Service() {
         super.onCreate()
         Logger.i("onCreate invoked，PrefManager.workMode = ${PrefManager.workMode}")
         createNotificationChannel()
-        Logger.i("Notification channel created")
         startForeground(NOTIF_ID, buildNotification())
-        Logger.i("Foreground started with notification ID $NOTIF_ID")
 
         services.forEach { service ->
             try {
@@ -95,7 +93,6 @@ class CoreService : Service() {
      * @return 配置好的通知对象
      */
     private fun buildNotification(): Notification {
-        Logger.d("Building notification for foreground service")
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.icon_auto)
             .setContentTitle(getString(R.string.service_notification_title))
@@ -120,7 +117,6 @@ class CoreService : Service() {
         Logger.i("onStartCommand received - intent=$intent, flags=$flags, startId=$startId")
         services.forEach { service ->
             try {
-                Logger.i("Service onStartCommand: ${service.javaClass.simpleName}")
                 service.onStartCommand(intent, flags, startId)
             } catch (e: Exception) {
                 Logger.e(
@@ -137,7 +133,6 @@ class CoreService : Service() {
      * 停止前台服务并销毁所有子服务
      */
     override fun onDestroy() {
-        Logger.i("onDestroy invoked")
         stopForeground(STOP_FOREGROUND_REMOVE)
         services.forEach { service ->
             try {

@@ -27,6 +27,7 @@ import net.ankio.auto.service.utils.ProjectionGateway
 import net.ankio.auto.service.utils.ScreenShotHelper
 import net.ankio.auto.service.utils.ShakeDetector
 import net.ankio.auto.storage.Logger
+import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.utils.Throttle
 import org.ezbook.server.constant.DataType
 
@@ -49,11 +50,11 @@ class OcrService : ICoreService() {
 
     // 摇动检测器，使用节流函数防止频繁触发
     private val detector by lazy {
-        val throttle = Throttle.asFunction(2000) { onShake() }
+        //val throttle = Throttle.asFunction(2000) { onShake() }
         ShakeDetector(
-            coreService.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+            coreService.getSystemService(Context.SENSOR_SERVICE) as SensorManager,
         ) {
-            throttle()
+            onShake()
         }
     }
 
@@ -89,7 +90,7 @@ class OcrService : ICoreService() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int) {
-        //TODO("Not yet implemented")
+
     }
 
     /**
@@ -104,6 +105,8 @@ class OcrService : ICoreService() {
 
     /* -------------------------------- 业务逻辑 ------------------------------- */
 
+    private var ocrDoing = false
+
     /**
      * 处理摇动事件
      * 1. 获取当前前台应用
@@ -112,22 +115,18 @@ class OcrService : ICoreService() {
      * 4. 将识别结果发送给JS引擎处理
      */
     private fun onShake() {
-        // Check if screen is on and device is unlocked
-        val powerManager = coreService.getSystemService(Context.POWER_SERVICE) as PowerManager
-        if (!powerManager.isInteractive) {
-            Logger.d("Screen is off, skipping OCR")
+        Logger.d("onShake")
+        if (ocrDoing) {
+            Logger.d("ocrDoing skip")
             return
         }
-
-        val keyguardManager =
-            coreService.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
-        if (keyguardManager.isKeyguardLocked) {
-            Logger.d("Device is locked, skipping OCR")
-            return
-        }
-
         val pkg = getTopPackagePostL(coreService) ?: return
+        if (pkg !in PrefManager.appWhiteList) {
+            Logger.d("前台应用 $pkg 不在监控白名单，忽略。")
+            return
+        }
         Logger.d("检测到白名单应用 [$pkg]，开始截屏 OCR")
+        ocrDoing = true
         scope.launch {
             withContext(Dispatchers.Main) {
                 startOcrView(coreService)
@@ -141,7 +140,8 @@ class OcrService : ICoreService() {
                 stopOcrView()
             }
             Logger.d("处理结束")
-            //TODO 屏幕识别结束
+
+            ocrDoing = false
         }
     }
 
@@ -198,11 +198,9 @@ class OcrService : ICoreService() {
      * @param app 当前应用包名
      */
     private suspend fun send2JsEngine(text: String, app: String) {
-        //TODO 使用js引擎识别
         Logger.d("app=$app, text=$text")
-
         val billResult = JsAPI.analysis(DataType.DATA, text, app) ?: return
-
+        // 发起记账intent
         // TODO 弹出处理窗口
     }
 
