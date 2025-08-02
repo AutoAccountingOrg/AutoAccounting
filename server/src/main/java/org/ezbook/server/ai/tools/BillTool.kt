@@ -21,7 +21,7 @@ import org.ezbook.server.db.dao.CategoryDao
 import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.tools.Category
 
-class BillTool : BaseAiTool {
+class BillTool {
 
     private val prompt = """
 # Task Description
@@ -77,7 +77,7 @@ Extract and output a structured JSON object containing **ONLY** the fields liste
 
 """".trimIndent()
 
-    override suspend fun execute(data: String): String? {
+    suspend fun execute(data: String): String? {
         val categories = Db.get().categoryDao().all()
         val categoryNames = categories.joinToString(",") { it.name.toString() }
         val user = """

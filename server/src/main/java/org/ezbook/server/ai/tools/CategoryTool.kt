@@ -18,7 +18,7 @@ package org.ezbook.server.ai.tools
 import org.ezbook.server.ai.AiManager
 import org.ezbook.server.db.Db
 
-class CategoryTool : BaseAiTool {
+class CategoryTool {
     private val prompt = """
 # Task Description
 
@@ -71,7 +71,7 @@ Always match to the closest and most accurate category from the provided list.
 If unsure or if no match is possible, return "" (an empty string) without explanation.
 """".trimIndent()
 
-    override suspend fun execute(data: String): String? {
+    suspend fun execute(data: String): String? {
         val categories = Db.get().categoryDao().all()
         val categoryNames = categories.joinToString(",") { it.name.toString() }
         val user = """
