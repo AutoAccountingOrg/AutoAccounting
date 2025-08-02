@@ -227,7 +227,7 @@ object BillManager {
      * @param billInfoModel 账单信息
      * @param context 上下文
      */
-    private suspend fun getRemark(billInfoModel: BillInfoModel, context: Context): String {
+    suspend fun getRemark(billInfoModel: BillInfoModel, context: Context): String {
         val settingBillRemark = Db.get().settingDao()
             .query(Setting.NOTE_FORMAT)?.value ?: DefaultData.NOTE_FORMAT
 
@@ -270,13 +270,4 @@ object BillManager {
         }
     }
 
-    /**
-     * 获取系统设置的默认账本名称
-     * 如果未设置，返回"默认账本"
-     */
-    private suspend fun getDefaultBookName(): String {
-        return Db.get().settingDao()
-            .query(Setting.DEFAULT_BOOK_NAME)
-            ?.value ?: DEFAULT_BOOK_NAME
-    }
 }
