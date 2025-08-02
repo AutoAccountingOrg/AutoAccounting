@@ -251,6 +251,7 @@
 
     <string name="item_notice">Notification monitoring</string>
     <string name="item_search">Search...</string>
+    <string name="item_purchase">Purchase</string>
     <string name="title_notice">Notification monitoring</string>
     <string name="auto_apps">Please select accounting app</string>
     <string name="type_credit">Credit account</string>
@@ -388,6 +389,7 @@
     <string name="setting_desc_danger">Anonymous analytics · Debug · Database · Hook app adjustment</string>
 
     <string name="pro_rule_update_plan">Rule Update Plan</string>
+    <string name="pro_subtitle">Professional features and updates</string>
     <string name="pro_activate_count_network_error">Count: Network error</string>
     <string name="pro_activate_time_network_error">Time: Network error</string>
     <string name="pro_activate_click_to_enter">Click here to enter activation code</string>

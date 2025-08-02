@@ -35,6 +35,7 @@
     <color name="scrimSync">#CCFFFFFF</color>
 
 
+
     <color name="amountIncome">#FF2979FF</color>  <!-- 亮蓝 -->
     <color name="amountExpense">#FFFF5252</color> <!-- 红 -->
     <color name="textPrimary">#FFFFFFFF</color>
@@ -111,5 +112,6 @@
     <color name="md_theme_dark_surfaceTint">#D0BCFF</color>
     <color name="md_theme_dark_outlineVariant">#49454F</color>
     <color name="md_theme_dark_scrim">#000000</color>
+
 
 </resources>
