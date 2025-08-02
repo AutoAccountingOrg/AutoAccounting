@@ -58,8 +58,10 @@ class HomeActivity : BaseActivity() {
             // 这里判断destination.id是否在底部tab范围内
             val idsToShowBottomNav = setOf(
                 R.id.homeFragment,
-                R.id.dataFragment
-                //TODO ...其他底部tab id
+                R.id.dataFragment,
+                R.id.ruleFragment,
+                //TODO Orders,Settings
+                R.id.settingFragment
             )
             if (destination.id in idsToShowBottomNav) {
                 binding.bottomNavigation.slideUp()

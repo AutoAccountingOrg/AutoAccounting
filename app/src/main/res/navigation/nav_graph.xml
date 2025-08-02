@@ -19,6 +19,14 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/homeFragment">
 
+    <activity
+        tools:layout="@layout/activity_main"
+        android:id="@+id/mainActivity"
+        android:name="net.ankio.auto.ui.activity.HomeActivity"
+        android:label="@string/title_home">
+
+
+    </activity>
     <fragment
         android:id="@+id/homeFragment"
         android:name="net.ankio.auto.ui.fragment.plugin.HomeFragment"
@@ -26,6 +34,9 @@
         tools:layout="@layout/fragment_plugin_home">
 
 
+        <action
+            android:id="@+id/action_homeFragment_to_logFragment"
+            app:destination="@id/logFragment" />
     </fragment>
 
     <fragment
@@ -34,6 +45,32 @@
         android:label="@string/title_data"
         tools:layout="@layout/fragment_plugin_data">
 
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/ruleFragment"
+        android:name="net.ankio.auto.ui.fragment.plugin.RuleDataFragment"
+        android:label="@string/title_rule"
+        tools:layout="@layout/fragment_plugin_rule_list">
+
+
+    </fragment>
+
+
+    <fragment
+        android:id="@+id/logFragment"
+        android:name="net.ankio.auto.ui.fragment.LogFragment"
+        android:label="@string/title_log"
+        tools:layout="@layout/fragment_log">
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/settingFragment"
+        android:name="net.ankio.auto.ui.fragment.SettingFragment"
+        android:label="@string/title_setting"
+        tools:layout="@layout/fragment_setting">
 
     </fragment>
 

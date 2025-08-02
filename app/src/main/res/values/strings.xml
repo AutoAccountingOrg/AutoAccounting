@@ -13,117 +13,115 @@
   ~   limitations under the License.
   -->
 
-<resources>
+<resources tools:locale="en" xmlns:tools="http://schemas.android.com/tools">
 
-    <string name="about_view_source_code"><![CDATA[在 %s 查看源码]]></string>
+    <string name="about_view_source_code"><![CDATA[View source code on %s]]></string>
     <string name="title_home">Home</string>
     <string name="title_data">Data</string>
-    <string name="title_rule">规则</string>
-    <string name="title_order">账单</string>
-    <string name="title_setting">设置</string>
+    <string name="title_rule">Rule</string>
+    <string name="title_order">Orders</string>
+    <string name="title_setting">Settings</string>
     <string name="active_error">Inactive (%s)</string>
     <string name="active_success">Activated (%s)</string>
-    <string name="description">基于本地规则的自动记账模块。</string>
-    <string name="communication_title">交流讨论</string>
+    <string name="description">Local rule-based automatic accounting module.</string>
+    <string name="communication_title">Discussion</string>
     <string name="msg_telegram">Telegram</string>
     <string name="msg_telegram_number">AutoAccounting</string>
     <string name="msg_qq_number">165652170</string>
-    <string name="msg_qq">QQ（付费）</string>
-    <string name="title_log">日志</string>
-    <string name="title_more">更多</string>
+    <string name="msg_qq">QQ (Paid)</string>
+    <string name="title_log">Log</string>
+    <string name="title_more">More</string>
 
-    <string name="setting_use_system_theme">使用系统颜色</string>
-    <string name="setting_use_dark_theme">深色模式使用纯黑色</string>
-    <string name="setting_skin">外观</string>
-    <string name="setting_theme">主题</string>
-    <string name="setting_dark_theme">深色主题</string>
-    <string name="lang_follow_system">跟随系统</string>
-    <string name="setting_privacy">隐私</string>
-    <string name="setting_analysis">匿名分析</string>
-    <string name="setting_analysis_desc">我们使用Bugsnag来收集崩溃信息</string>
-    <string name="ok">好的</string>
-    <string name="dialog_cannot_open_browser_title">无法打开浏览器</string>
-    <string name="toast_copied_to_clipboard_with_text"><![CDATA[<b>%s</b> 已复制到剪切板。]]></string>
-    <string name="close">关闭</string>
-    <string name="default_theme">默认主题</string>
-    <string name="always_off">总是关闭</string>
-    <string name="always_on">总是开启</string>
-    <string name="choose_theme">选择主题</string>
-    <string name="delete_data">删除数据</string>
-    <string name="delete_msg">您确定要删除这些数据吗？</string>
-    <string name="cancel_msg">关闭</string>
-    <string name="sure_msg">确定</string>
-    <string name="content_title">数据查看</string>
-    <string name="title_rule_official">官方规则库</string>
-    <string name="rule_book">选择账本</string>
-    <string name="if_condition_true">若满足</string>
-    <string name="condition_result_book">则账本为</string>
-    <string name="condition_result_category">分类为</string>
-    <string name="and">且</string>
-    <string name="or">或</string>
-    <string name="condition">选择条件</string>
-    <string name="type_money">金额</string>
-    <string name="type_time">时间</string>
-    <string name="type_shop">商户</string>
-    <string name="type_item">商品</string>
-    <string name="type_type">交易类型</string>
-    <string name="lower_money">最低金额</string>
-    <string name="higher_money">最高金额</string>
-    <string name="money_range">填写金额范围</string>
-    <string name="money_error">金额必须大于等于0</string>
-    <string name="money_max_info">"金额大于 %s "</string>
-    <string name="money_min_info">金额小于 %s</string>
-    <string name="money_range_info">金额范围为%s到%s</string>
-    <string name="money_equal_info">金额等于%s</string>
-    <string name="time_range">时间在%s - %s之间</string>
-    <string name="select_time_lower">请选择起始时间</string>
-    <string name="select_time_higher">请选择结束时间</string>
-    shop_name_contains
-    <string name="regex">请输入匹配内容</string>
-    <string name="shop_input">请输入商户名称条件</string>
-    <string name="input_contains">包含</string>
-    <string name="input_regex">正则匹配到</string>
-    <string name="shop_name_contains">%s包含【%s】</string>
-    <string name="shop_name_regex">%s匹配到【%s】</string>
-    <string name="shop_item_input">请输入商品名称条件</string>
-    <string name="shop_name">商户名称</string>
-    <string name="shop_item_name">商品名称</string>
-    <string name="type_for_pay">支出</string>
-    <string name="type_for_income">收入</string>
-    <string name="type_pay">交易类型为【%s】</string>
-    <string name="category">请选择分类</string>
-    <string name="save_rule">保存规则</string>
-    <string name="useless_condition">条件不允许为空</string>
-    <string name="useless_book">账本不允许为空</string>
-    <string name="useless_category">分类不允许为空</string>
-    <string name="upload_waiting">正在上传中...</string>
-    <string name="sure_update">更新</string>
-    <string name="share_file">分享日志</string>
-    <string name="setting_others">其他</string>
-    <string name="setting_debug">调试模式</string>
-    <string name="auto_success">自动记账成功，金额为 %s</string>
-    <string name="btn_save">保存</string>
-    <string name="btn_cancel">取消</string>
-    <string name="float_remark">备注</string>
-    <string name="float_income">收入</string>
-    <string name="float_expend">支出</string>
-    <string name="float_transfer">转账（信用还款）</string>
-    <string name="float_expend_debt">借款人</string>
-    <string name="float_income_debt">债主</string>
-    <string name="restart">重新启动自动记账</string>
-    <string name="copy_command_success">已复制到剪切板</string>
-    <string name="setting_lang">语言</string>
-    <string name="setting_update">更新</string>
-    <string name="setting_rule">自动检查规则更新</string>
-    <string name="setting_app">自动检查应用更新</string>
-    <string name="app_url">更新检测地址</string>
-    <string name="setting_update_type">检查更新类型</string>
-    <string name="title_rule_category">自定义分类规则</string>
-    <string name="rule_title">记账规则</string>
-    <string name="data_title">记账软件数据</string>
-    <string name="title_app">记账应用</string>
-    <string name="cancel">关闭</string>
-    <string name="no_setting">未设置</string>
+    <string name="setting_use_system_theme">Use system colors</string>
+    <string name="setting_use_dark_theme">Use pure black in dark mode</string>
+    <string name="setting_skin">Appearance</string>
+    <string name="setting_theme">Theme</string>
+    <string name="setting_dark_theme">Dark theme</string>
+    <string name="lang_follow_system">Follow system</string>
+    <string name="setting_privacy">Privacy</string>
+    <string name="setting_analysis">Anonymous analytics</string>
+    <string name="setting_analysis_desc">We use Bugsnag to collect crash information</string>
+    <string name="ok">OK</string>
+    <string name="dialog_cannot_open_browser_title">Cannot open browser</string>
+    <string name="toast_copied_to_clipboard_with_text"><![CDATA[<b>%s</b> has been copied to clipboard.]]></string>
+    <string name="close">Close</string>
+    <string name="default_theme">Default theme</string>
+    <string name="always_off">Always off</string>
+    <string name="always_on">Always on</string>
+    <string name="choose_theme">Choose theme</string>
+    <string name="delete_data">Delete data</string>
+    <string name="delete_msg">Are you sure you want to delete this data?</string>
+    <string name="cancel_msg">Close</string>
+    <string name="sure_msg">Confirm</string>
+    <string name="content_title">Data view</string>
+    <string name="title_rule_official">Official rule library</string>
+    <string name="rule_book">Select book</string>
+    <string name="if_condition_true">If satisfied</string>
+    <string name="condition_result_book">Then book is</string>
+    <string name="condition_result_category">Category is</string>
+    <string name="and">And</string>
+    <string name="or">Or</string>
+    <string name="condition">Select condition</string>
+    <string name="type_money">Amount</string>
+    <string name="type_time">Time</string>
+    <string name="type_shop">Merchant</string>
+    <string name="type_item">Item</string>
+    <string name="type_type">Transaction type</string>
+    <string name="lower_money">Minimum amount</string>
+    <string name="higher_money">Maximum amount</string>
+    <string name="money_range">Fill in amount range</string>
+    <string name="money_error">Amount must be greater than or equal to 0</string>
+    <string name="money_max_info">"Amount greater than %s "</string>
+    <string name="money_min_info">Amount less than %s</string>
+    <string name="money_range_info" formatted="false">Amount range from %s to %s</string>
+    <string name="money_equal_info">Amount equals %s</string>
+    <string name="time_range" formatted="false">Time between %s - %s</string>
+    <string name="select_time_lower">Please select start time</string>
+    <string name="select_time_higher">Please select end time</string>
+    <string name="regex">Please enter matching content</string>
+    <string name="shop_input">Please enter merchant name condition</string>
+    <string name="input_contains">Contains</string>
+    <string name="input_regex">Regex match</string>
+    <string name="shop_name_contains" formatted="false">%s contains 【%s】</string>
+    <string name="shop_name_regex" formatted="false">%s matches 【%s】</string>
+    <string name="shop_item_input">Please enter item name condition</string>
+    <string name="shop_name">Merchant name</string>
+    <string name="shop_item_name">Item name</string>
+    <string name="type_for_pay">Expense</string>
+    <string name="type_for_income">Income</string>
+    <string name="type_pay">Transaction type is 【%s】</string>
+    <string name="category">Please select category</string>
+    <string name="save_rule">Save rule</string>
+    <string name="useless_condition">Condition cannot be empty</string>
+    <string name="useless_book">Book cannot be empty</string>
+    <string name="useless_category">Category cannot be empty</string>
+    <string name="upload_waiting">Uploading...</string>
+    <string name="sure_update">Update</string>
+    <string name="share_file">Share log</string>
+    <string name="setting_others">Others</string>
+    <string name="setting_debug">Debug mode</string>
+    <string name="auto_success">Auto accounting success, amount is %s</string>
+    <string name="btn_save">Save</string>
+    <string name="float_remark">Remark</string>
+    <string name="float_income">Income</string>
+    <string name="float_expend">Expense</string>
+    <string name="float_transfer">Transfer (Credit repayment)</string>
+    <string name="float_expend_debt">Borrower</string>
+    <string name="float_income_debt">Creditor</string>
+    <string name="restart">Restart auto accounting</string>
+    <string name="copy_command_success">Copied to clipboard</string>
+    <string name="setting_lang">Language</string>
+    <string name="setting_update">Update</string>
+    <string name="setting_rule">Auto check rule updates</string>
+    <string name="setting_app">Auto check app updates</string>
+    <string name="app_url">Update detection URL</string>
+    <string name="setting_update_type">Check update type</string>
+    <string name="title_rule_category">Custom category rules</string>
+    <string name="rule_title">Accounting rules</string>
+    <string name="data_title">Accounting app data</string>
+    <string name="title_app">Accounting app</string>
+    <string name="cancel">Close</string>
+    <string name="no_setting">Not set</string>
 
     <string name="title_books">Books</string>
     <string name="title_category">Categories</string>
@@ -134,306 +132,330 @@
     <string name="app_icon_desc">App Icon</string>
 
 
-    <string name="title_map">资产映射</string>
-    <string name="map_input_raw">请输入原始资产</string>
-    <string name="map_regex">包含关系</string>
-    <string name="map_target">请选择目标资产</string>
-    <string name="map_empty">资产名称或者映射资产不能为空</string>
-    <string name="delete_title">删除确认</string>
-    <string name="delete_message">你确定要删除%s吗？</string>
-    <string name="delete">删除</string>
-    <string name="debug_msg">反馈错误日志的时候请打开该选项。</string>
-    <string name="setting_use_round_style">使用圆角弹窗风格</string>
-    <string name="item_share">分享</string>
-    <string name="item_clear">清除</string>
+    <string name="title_map">Asset mapping</string>
+    <string name="map_input_raw">Please enter original asset</string>
+    <string name="map_regex">Contains relationship</string>
+    <string name="map_target">Please select target asset</string>
+    <string name="map_empty">Asset name or mapped asset cannot be empty</string>
+    <string name="delete_title">Delete confirmation</string>
+    <string name="delete_message">Are you sure you want to delete %s?</string>
+
+    <string name="delete">Delete</string>
+    <string name="debug_msg">Please enable this option when reporting error logs.</string>
+    <string name="setting_use_round_style">Use rounded popup style</string>
+    <string name="item_share">Share</string>
+    <string name="item_clear">Clear</string>
     <string name="telegram_url">https://t.me/qianji_auto</string>
     <string name="qq_url"><![CDATA[http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=xbC660-aVU9wqY1eUsk2d58h_sGee1fV&authKey=aerSKb2KMh%2FGUz5IFxCUzgkql%2Fc%2BGILdzx6uIPelUB0aJrPFb3aDLw5s3HR38o0v&noverify=0&group_code=165652170]]></string>
-    <string name="setting_backup">备份</string>
-    <string name="setting_auto_backup">自动备份</string>
-    <string name="setting_backup_2_webdav">备份到Webdav</string>
-    <string name="setting_backup_2_local">备份到本地</string>
-    <string name="setting_restore_2_local">从本地恢复备份</string>
-    <string name="setting_use_webdav">使用WebDav取缔本地备份</string>
-    <string name="setting_restore_2_webdav">从WebDav恢复</string>
-    <string name="setting_webdav_host">WebDav服务商</string>
-    <string name="setting_webdav_username">WebDav用户名</string>
-    <string name="setting_webdav_password">WebDav密码</string>
-    <string name="backup_success">备份成功</string>
-    <string name="setting_backup_path">本地备份存储路径</string>
-    <string name="setting_backup_path_desc">未设置</string>
-    <string name="backup_loading">备份中...</string>
-    <string name="restore_loading">正在恢复中...</string>
-    <string name="unsupport_backup">不支持恢复【%s】版本的数据，请将App降级到该版本后再试。</string>
-    <string name="backup_error">数据库备份失败。</string>
-    <string name="restore_success">恢复成功</string>
-    <string name="unspport_package_backup">不支持使用不同架构的数据包进行恢复。</string>
-    <string name="backup_error_msg">备份失败</string>
-    <string name="net_error_msg">网络错误</string>
-    <string name="net_error_msg_rule">网络错误，请在设置中换源后再试。</string>
-    <string name="backup_auth">账号密码错误</string>
-    <string name="backup_not_found">服务端没有备份文件</string>
-    <string name="restore_webdav">正在下载备份文件</string>
-    <string name="backup_webdav">正准备上传中...</string>
-    <string name="backup_pack">正在打包数据中...</string>
-    <string name="setting_webdav_password_desc">坚果云需要创建应用密码后才能正常使用。</string>
-    <string name="setting_bill_remark">备注格式</string>
-    <string name="setting_bill_repeat">账单去重</string>
-    <string name="setting_bill_repeat_desc">账单去重功能会使用内置的去重算法对当前识别到的账单进行去重（该功能只在账单未同步到记账软件时有效）</string>
-    <string name="setting_bill_remark_desc">支持使用如下中文变量：【商户名称】、【商品名称】、【币种类型】、【金额】、【分类】、【账本】、【来源】、【原始资产】、【渠道】</string>
-    <string name="setting_float_time">倒计时时长（单位：秒）</string>
-    <string name="setting_float_time_desc">当倒计时为0则触发超时事件</string>
-    <string name="setting_float_on_badge_click">悬浮角标被单击时</string>
-    <string name="pop_edit_window">弹出记账编辑面板</string>
-    <string name="auto_account">直接记录账单</string>
-    <string name="no_account">不记录账单</string>
-    <string name="setting_float_on_badge_long_click">悬浮角标被长按时</string>
-    <string name="setting_float_on_badge_timeout">悬浮角标超时后</string>
-    <string name="setting_category">分类</string>
-    <string name="setting_auto_create_category">允许自动生成分类</string>
-    <string name="setting_auto_create_category_desc">如果每次手动选择的分类结果与系统自动分类的结果不一致，则提示自动生成分类。</string>
-    <string name="setting_color">颜色偏好</string>
-    <string name="setting_pay_color">收支高亮颜色</string>
-    <string name="setting_pay_color_red">红色支出，绿色收入。</string>
-    <string name="setting_pay_color_green">绿色支出，红色收入。</string>
-    <string name="setting_category_show_parent">二级分类显示父类</string>
-    <string name="setting_book_success">记账成功后使用弹出提示</string>
-    <string name="setting_category_show_parent_desc">该项只在用户自己编写分类规则或手动选择分类时有效，自动记账官方规则不会显示二级分类。</string>
-    <string name="item_sync">同步</string>
-    <string name="auto_category">检测到保存账单时使用的分类与自动记账规则识别的分类不一致，是否为您生成新的分类规则？</string>
-    <string name="rule">规则</string>
+    <string name="setting_backup">Backup</string>
+    <string name="setting_auto_backup">Auto backup</string>
+    <string name="setting_backup_2_webdav">Backup to WebDav</string>
+    <string name="setting_backup_2_local">Backup to local</string>
+    <string name="setting_restore_2_local">Restore from local backup</string>
+    <string name="setting_use_webdav">Use WebDav instead of local backup</string>
+    <string name="setting_restore_2_webdav">Restore from WebDav</string>
+    <string name="setting_webdav_host">WebDav service provider</string>
+    <string name="setting_webdav_username">WebDav username</string>
+    <string name="setting_webdav_password">WebDav password</string>
+    <string name="backup_success">Backup successful</string>
+    <string name="setting_backup_path">Local backup storage path</string>
+    <string name="setting_backup_path_desc">Not set</string>
+    <string name="backup_loading">Backing up...</string>
+    <string name="restore_loading">Restoring...</string>
+    <string name="unsupport_backup">Cannot restore 【%s】 version data, please downgrade the app to that version and try again.</string>
+    <string name="backup_error">Database backup failed.</string>
+    <string name="restore_success">Restore successful</string>
+    <string name="unspport_package_backup">Cannot restore using data packages from different architectures.</string>
+    <string name="backup_error_msg">Backup failed</string>
+    <string name="net_error_msg">Network error</string>
+    <string name="net_error_msg_rule">Network error, please change source in settings and try again.</string>
+    <string name="backup_auth">Username or password error</string>
+    <string name="backup_not_found">No backup file found on server</string>
+    <string name="restore_webdav">Downloading backup file</string>
+    <string name="backup_webdav">Preparing to upload...</string>
+    <string name="backup_pack">Packing data...</string>
+    <string name="setting_webdav_password_desc">Nutstore requires creating an app password for normal use.</string>
+    <string name="setting_bill_remark">Remark format</string>
+    <string name="setting_bill_repeat">Bill deduplication</string>
+    <string name="setting_bill_repeat_desc">Bill deduplication function will use built-in deduplication algorithm to deduplicate currently recognized bills (this function only works when bills are not synced to accounting software)</string>
+    <string name="setting_bill_remark_desc">Supports using the following Chinese variables: 【Merchant name】, 【Item name】, 【Currency type】, 【Amount】, 【Category】, 【Book】, 【Source】, 【Original asset】, 【Channel】</string>
+    <string name="setting_float_time">Countdown duration (seconds)</string>
+    <string name="setting_float_time_desc">When countdown reaches 0, timeout event is triggered</string>
+    <string name="setting_float_on_badge_click">When floating badge is clicked</string>
+    <string name="pop_edit_window">Pop up accounting edit panel</string>
+    <string name="auto_account">Record bill directly</string>
+    <string name="no_account">Do not record bill</string>
+    <string name="setting_float_on_badge_long_click">When floating badge is long pressed</string>
+    <string name="setting_float_on_badge_timeout">After floating badge timeout</string>
+    <string name="setting_category">Category</string>
+    <string name="setting_auto_create_category">Allow auto generate category</string>
+    <string name="setting_auto_create_category_desc">If the manually selected category result is inconsistent with the automatic categorization result, prompt to auto generate category.</string>
+    <string name="setting_color">Color preference</string>
+    <string name="setting_pay_color">Income/expense highlight color</string>
+    <string name="setting_pay_color_red">Red for expense, green for income.</string>
+    <string name="setting_pay_color_green">Green for expense, red for income.</string>
+    <string name="setting_category_show_parent">Show parent for secondary categories</string>
+    <string name="setting_book_success">Use popup notification after successful accounting</string>
+    <string name="setting_category_show_parent_desc">This item only takes effect when users write category rules themselves or manually select categories. Official automatic accounting rules will not show secondary categories.</string>
+    <string name="item_sync">Sync</string>
+    <string name="auto_category">Detected that the category used when saving the bill is inconsistent with the category identified by the automatic accounting rule. Would you like to generate a new category rule?</string>
+    <string name="rule">Rule</string>
     <string name="app">App</string>
-    <string name="update_success">规则更新成功</string>
-    <string name="app_error_msg">自动记账运行发生错误</string>
-    <string name="update_rule">更新规则：%s</string>
-    <string name="str_replace">数据替换</string>
-    <string name="rawData">查找关键词</string>
-    <string name="replaceData">替换关键词</string>
-    <string name="btn_replace">替换</string>
-    <string name="no_empty">两侧的替换内容不允许为空</string>
-    <string name="no_replace">没有内容被替换</string>
-    <string name="json_error">数据存在错误</string>
-    <string name="str_content">上传内容</string>
-    <string name="setting_asset">资产</string>
-    <string name="setting_auto_asset">自动生成资产映射</string>
-    <string name="setting_auto_asset_desc">如果你手动选择了资产，即最终记录到账单的资产和一开始是识别到的资产不一致，自动记账会自动创建映射。</string>
-    <string name="setting_auto_ai_asset">智能识别资产</string>
-    <string name="setting_auto_ai_asset_desc">自动记账将尝试使用内置的识别算法自动映射正确的资产</string>
-    <string name="loading_logs">正在打包日志中...</string>
-    <string name="no_need_to_update">无需更新，长按强制更新</string>
-    <string name="check_update">检查更新中...</string>
-    <string name="delete_bill_message">您确认要删除这笔账单吗？</string>
-    <string name="delete_data_message">你确定要删除这条数据吗</string>
-    <string name="copy">复制</string>
-    <string name="chip_all">全部</string>
-    <string name="chip_data">数据</string>
-    <string name="chip_notify">通知</string>
-    <string name="title_data_rule">数据规则</string>
-    <string name="downloading">规则下载中...</string>
-    <string name="update_error">更新失败</string>
-    <string name="delete_rule">移除无效规则...</string>
-    <string name="add_rule">新增规则：%s</string>
-    <string name="unzip_finish">解压完成</string>
-    <string name="unzip">解压：%s</string>
-    <string name="auto_record">自动记录</string>
-    <string name="msg_geekbar">GeekBar（推荐）</string>
+    <string name="update_success">Rule update successful</string>
+    <string name="app_error_msg">Auto accounting runtime error</string>
+    <string name="update_rule">Update Rule: %s</string>
+    <string name="no_empty">The replacement content on both sides must not be empty.</string>
+    <string name="no_replace">No content was replaced</string>
+    <string name="json_error">Data contains errors</string>
+    <string name="str_content">Uploaded content</string>
+    <string name="setting_asset">Asset</string>
+    <string name="setting_auto_asset">Automatically generate asset mapping</string>
+    <string name="setting_auto_asset_desc">If you manually choose an asset (i.e., the asset ultimately recorded on the bill differs from the one initially detected), Auto-Bookkeeping will automatically create a mapping.</string>
+    <string name="setting_auto_ai_asset">Smart asset recognition</string>
+    <string name="setting_auto_ai_asset_desc">Auto-Bookkeeping will try to map the correct asset using its built-in recognition algorithm.</string>
+    <string name="loading_logs">Packing logs...</string>
+    <string name="no_need_to_update">No update needed. Long press to force update.</string>
+    <string name="check_update">Checking for updates...</string>
+    <string name="delete_bill_message">Are you sure you want to delete this bill?</string>
+    <string name="delete_data_message">Are you sure you want to delete this data?</string>
+    <string name="copy">Copy</string>
+    <string name="chip_all">All</string>
+    <string name="chip_data">Data</string>
+    <string name="chip_notify">Notification</string>
+    <string name="title_data_rule">Data rules</string>
+
+    <!-- Filter dropdown options -->
+    <string name="filter_rule_type">Rule Type</string>
+    <string name="filter_creator">Creator</string>
+
+    <!-- Rule type filter options -->
+    <string name="filter_type_all">All</string>
+    <string name="filter_type_data">Data</string>
+    <string name="filter_type_notify">Notification</string>
+
+    <!-- Creator filter options -->
+    <string name="filter_creator_all">All</string>
+    <string name="filter_creator_user">User</string>
+    <string name="filter_creator_official">Official</string>
+
+    <string name="downloading">Downloading rules...</string>
+    <string name="update_error">Update failed</string>
+    <string name="delete_rule">Removing invalid rules...</string>
+    <string name="add_rule">Added rule: %s</string>
+    <string name="unzip_finish">Extraction complete</string>
+    <string name="unzip">Extracting: %s</string>
+    <string name="auto_record">Auto record</string>
+    <string name="msg_geekbar">GeekBar (Recommended)</string>
     <string name="msg_geekbar_number">forum.ez-book.org</string>
     <string name="geekbar_uri">https://forum.ez-book.org/t/ezbook</string>
 
-    <string name="item_notice">通知监控</string>
-    <string name="item_search">搜索...</string>
-    <string name="title_notice">通知监控</string>
-    <string name="auto_apps">请选择记账应用</string>
-    <string name="type_credit">信用账户</string>
-    <string name="type_normal">普通资产</string>
-    <string name="type_virtual">虚拟资产</string>
-    <string name="type_financial">理财资产</string>
-    <string name="type_borrower">借款人</string>
-    <string name="type_creditor">债权人</string>
-    <string name="empty_text">空空如也</string>
-    <string name="error_text">发生了一些错误</string>
-    <string name="title_category_map">分类映射</string>
-    <string name="add_category_map">添加分类映射：%s</string>
-    <string name="delete_category_map">删除分类映射：%s</string>
-    <string name="title_category_edit">编辑分类规则</string>
-    <string name="input">请输入</string>
-    <string name="no_rule_hint">未命中任何规则</string>
-    <string name="reimbursement">报销</string>
-    <string name="lend">借出</string>
-    <string name="repayment">销账</string>
-    <string name="borrow">借入</string>
-    <string name="float_choose_bill">请选择账单</string>
-    <string name="issue_title">反馈内容</string>
-    <string name="disallow_empty">你好歹告诉我们这个数据有什么问题吧。</string>
-    <string name="float_choose_bills">已选择%d条账单</string>
-    <string name="version_stable">稳定版</string>
-    <string name="version_beta">测试版</string>
-    <string name="version_canary">金丝雀版</string>
-    <string name="setting_update_channel">更新渠道</string>
+    <string name="item_notice">Notification monitoring</string>
+    <string name="item_search">Search...</string>
+    <string name="title_notice">Notification monitoring</string>
+    <string name="auto_apps">Please select accounting app</string>
+    <string name="type_credit">Credit account</string>
+    <string name="type_normal">Normal asset</string>
+    <string name="type_virtual">Virtual asset</string>
+    <string name="type_financial">Financial asset</string>
+    <string name="type_borrower">Borrower</string>
+    <string name="type_creditor">Creditor</string>
+    <string name="empty_text">Empty</string>
+    <string name="error_text">Some errors occurred</string>
+    <string name="title_category_map">Category mapping</string>
+    <string name="add_category_map">Add category mapping: %s</string>
+    <string name="delete_category_map">Delete category mapping: %s</string>
+    <string name="title_category_edit">Edit category rule</string>
+    <string name="input">Please enter</string>
+    <string name="no_rule_hint">No rule matched</string>
+    <string name="reimbursement">Reimbursement</string>
+    <string name="lend">Lend</string>
+    <string name="repayment">Repayment</string>
+    <string name="borrow">Borrow</string>
+    <string name="float_choose_bill">Please select bill</string>
+    <string name="issue_title">Feedback content</string>
+    <string name="disallow_empty">Please tell us what\'s wrong with this data.</string>
+    <string name="float_choose_bills">Selected %d bills</string>
+    <string name="version_stable">Stable</string>
+    <string name="version_beta">Beta</string>
+    <string name="version_canary">Canary</string>
+    <string name="setting_update_channel">Update channel</string>
     <string name="update_channel_github_raw">Github(Raw)</string>
     <string name="update_channel_github_proxy">Github(ghproxy.net)</string>
     <string name="update_channel_github_proxy2">Github(ghproxy.cc)</string>
     <string name="update_channel_github_mirror">Github(gitmirror.com)</string>
     <string name="update_channel_github_d">Github(dgithub.xyz)</string>
     <string name="update_channel_github_kk">Github(kkgithub.com)</string>
-    <string name="update_channel_cloud">自动记账网盘</string>
-    <string name="setting_asset_manager">资产管理功能</string>
-    <string name="setting_currency_manager">多币种管理</string>
-    <string name="setting_reimbursement_manager">报销功能</string>
-    <string name="setting_lending_manager">债务功能</string>
-    <string name="setting_mutilbooks_manager">多账本管理</string>
-    <string name="setting_fee_manager">手续费功能</string>
-    <string name="expend_repayment">还债</string>
-    <string name="income_repayment">收债</string>
-    <string name="expend_lending">债务 - 借出</string>
-    <string name="expend_repayment_info">债务 - 还款</string>
-    <string name="income_lending">债务 - 借入</string>
-    <string name="income_repayment_info">债务 - 收款</string>
-    <string name="title_no_permission">未授权悬浮窗权限</string>
-    <string name="no_permission_float_window">自动记账需要悬浮窗权限来显示编辑窗口，请到自动记账设置中进行授权。</string>
-    <string name="expend_account_empty">支出账户不能为空</string>
-    <string name="income_account_empty">收入账户不能为空</string>
-    <string name="transfer_from_empty">转出账户不能为空</string>
-    <string name="transfer_to_empty">转入（信用）账户不能为空</string>
-    <string name="reimbursement_account_empty">报销（支出）账户不能为空</string>
-    <string name="reimbursement_income_account_empty">报销（收入）账户不能为空</string>
-    <string name="reimbursement_bill_empty">至少需要选择一个账单才能进行报销</string>
-    <string name="expend_debt_empty">借出账户不能为空</string>
-    <string name="repayment_account_empty">债主不能为空</string>
-    <string name="debt_account_empty">欠债人不能为空</string>
-    <string name="repayment_account2_empty">还债账户不能为空</string>
-    <string name="income_debt_empty">债主不能为空</string>
-    <string name="income_lending_account_empty">收款账户不能为空</string>
-    <string name="income_lending_account2_empty">借入账户不能为空</string>
-    <string name="income_repayment_account_empty">还债不能为空</string>
-    <string name="repeat_bill">检测到重复账单，已自动合并。</string>
-    <string name="transfer_same_account">转账的两个账户不允许一致</string>
-    <string name="lending_same_account">两个债务账户不允许一致</string>
-    <string name="expend_account_not_exist">资产账户【%s】不存在，请选择资产后再保存</string>
-    <string name="setting_bill_show_rule">账单页面显示识别规则</string>
-    <string name="auto_create">自动生成</string>
-    <string name="chip_pair">已匹配</string>
-    <string name="setting_bill_sync">账单同步策略</string>
-    <string name="setting_bill_sync_type">同步方式</string>
-    <string name="when_open_app">打开记账软件时同步</string>
-    <string name="bills_limit5">未同步账单达到5条时自动同步</string>
-    <string name="bills_limit10">未同步账单达到10条时自动同步</string>
-    <string name="setting_ai">AI功能</string>
-    <string name="setting_bill_ai">使用AI大模型辅助识别账单</string>
-    <string name="setting_bill_ai_desc">所有未匹配到账单的数据，自动记账都将尝试使用大模型进行识别。</string>
+    <string name="update_channel_cloud">Auto Accounting Cloud Drive</string>
+    <string name="setting_asset_manager">Asset management feature</string>
+    <string name="setting_currency_manager">Multi-currency management</string>
+    <string name="setting_reimbursement_manager">Reimbursement feature</string>
+    <string name="setting_lending_manager">Debt feature</string>
+    <string name="setting_mutilbooks_manager">Multi-book management</string>
+    <string name="setting_fee_manager">Fee feature</string>
+    <string name="expend_repayment">Debt repayment</string>
+    <string name="income_repayment">Debt collection</string>
+    <string name="expend_lending">Debt - Lend out</string>
+    <string name="expend_repayment_info">Debt - Repayment</string>
+    <string name="income_lending">Debt - Borrow in</string>
+    <string name="income_repayment_info">Debt - Collection</string>
+    <string name="title_no_permission">No floating window permission</string>
+    <string name="no_permission_float_window">Auto accounting requires floating window permission to display edit window, please authorize in Auto Accounting settings.</string>
+    <string name="expend_account_empty">Expense account cannot be empty</string>
+    <string name="income_account_empty">Income account cannot be empty</string>
+    <string name="transfer_from_empty">Transfer from account cannot be empty</string>
+    <string name="transfer_to_empty">Transfer to (credit) account cannot be empty</string>
+    <string name="reimbursement_account_empty">Reimbursement (expense) account cannot be empty</string>
+    <string name="reimbursement_income_account_empty">Reimbursement (income) account cannot be empty</string>
+    <string name="reimbursement_bill_empty">At least one bill must be selected for reimbursement</string>
+    <string name="expend_debt_empty">Lend out account cannot be empty</string>
+    <string name="repayment_account_empty">Creditor cannot be empty</string>
+    <string name="debt_account_empty">Debtor cannot be empty</string>
+    <string name="repayment_account2_empty">Repayment account cannot be empty</string>
+    <string name="income_debt_empty">Creditor cannot be empty</string>
+    <string name="income_lending_account_empty">Collection account cannot be empty</string>
+    <string name="income_lending_account2_empty">Borrow in account cannot be empty</string>
+    <string name="income_repayment_account_empty">Repayment cannot be empty</string>
+    <string name="repeat_bill">Duplicate bill detected, automatically merged.</string>
+    <string name="transfer_same_account">Transfer accounts cannot be the same</string>
+    <string name="lending_same_account">Two debt accounts cannot be the same</string>
+    <string name="expend_account_not_exist">Asset account 【%s】 does not exist, please select asset before saving</string>
+    <string name="setting_bill_show_rule">Show recognition rule on bill page</string>
+    <string name="auto_create">Auto generate</string>
+    <string name="chip_pair">Matched</string>
+    <string name="setting_bill_sync">Bill sync strategy</string>
+    <string name="setting_bill_sync_type">Sync method</string>
+    <string name="when_open_app">Sync when opening accounting software</string>
+    <string name="bills_limit5">Auto sync when unsynchronized bills reach 5</string>
+    <string name="bills_limit10">Auto sync when unsynchronized bills reach 10</string>
+    <string name="setting_ai">AI features</string>
+    <string name="setting_bill_ai">Use AI large model to assist bill recognition</string>
+    <string name="setting_bill_ai_desc">All unmatched bill data will be attempted to be recognized using large models by auto accounting.</string>
     <string name="gemini">Google Gemini</string>
-    <string name="setting_bill_ai_type">大模型服务商</string>
+    <string name="setting_bill_ai_type">Large model service provider</string>
     <string name="setting_bill_ai_key">API Key</string>
-    <string name="ai_loading">正在调用 %s 识别中...</string>
-    <string name="qwen">通义千问</string>
+    <string name="ai_loading">Recognizing...</string>
+    <string name="qwen">Qwen</string>
     <string name="deepseek">DeepSeek</string>
     <string name="chatgpt">ChatGPT</string>
     <string name="oneapi">OneAPI</string>
-    <string name="setting_bill_one_api_uri">接口地址</string>
-    <string name="setting_bill_one_api_model">模型选择</string>
-    <string name="setting_bill_auto_record">自动记录的账单显示提示</string>
-    <string name="setting_clear_database">清空数据库</string>
-    <string name="clear_db_desc">不可撤销的操作，仅在需要卸载自动记账的时候使用。</string>
-    <string name="clear_db_msg">您确定要清除数据库吗？清除数据库前请确保已经备份。</string>
-    <string name="clear_success">清除成功</string>
-    <string name="btn_set_permission">授予权限</string>
-    <string name="title_no_book_app">未设置记账软件</string>
-    <string name="no_book_app">自动记账仅负责捕获账单，更专业的统计和分析应该由专业的记账软件提供支持。</string>
-    <string name="btn_set_book_app">设置记账软件</string>
+    <string name="setting_bill_one_api_uri">API address</string>
+    <string name="setting_bill_one_api_model">Model selection</string>
+    <string name="setting_bill_auto_record">Show notification for auto-recorded bills</string>
+    <string name="setting_clear_database">Clear database</string>
+    <string name="clear_db_desc">Irreversible operation, only use when uninstalling auto accounting.</string>
+    <string name="clear_db_msg">Are you sure you want to clear the database? Please ensure backup before clearing database.</string>
+    <string name="clear_success">Clear successful</string>
+    <string name="btn_set_permission">Grant permission</string>
+    <string name="title_no_book_app">No accounting software set</string>
+    <string name="no_book_app">Auto accounting only captures bills, more professional statistics and analysis should be supported by professional accounting software.</string>
+    <string name="btn_set_book_app">Set accounting software</string>
 
-    <string name="server_error_version_title">服务端版本不匹配</string>
-    <string name="server_error_btn">好的</string>
-    <string name="setting_load_success">成功加载自动记账后弹出提示</string>
-    <string name="load_msg">按需开启</string>
-    <string name="donate_title">支持我们的开源项目</string>
-    <string name="donate_description">感谢您使用自动记账！您的支持是我们持续改进的动力。喜欢我们的应用？请考虑捐赠支持，谢谢您的支持！</string>
-    <string name="donate_alipay">支付宝</string>
-    <string name="donate_wechat">微信</string>
-    <string name="copy_donate_qr">请截图保存后使用微信扫一扫</string>
-    <string name="resource_title">相关资源</string>
-    <string name="msg_doc">用户文档</string>
+    <string name="server_error_version_title">Server version mismatch</string>
+    <string name="server_error_btn">OK</string>
+    <string name="setting_load_success">Show notification after successfully loading auto accounting</string>
+    <string name="load_msg">Enable on demand</string>
+    <string name="donate_title">Support our open source project</string>
+    <string name="donate_description">Thank you for using Auto Accounting! Your support is our motivation to continue improving. Like our app? Please consider donating, thank you for your support!</string>
+    <string name="donate_alipay">Alipay</string>
+    <string name="donate_wechat">WeChat</string>
+    <string name="copy_donate_qr">Please screenshot and save, then use WeChat scan</string>
+    <string name="resource_title">Related resources</string>
+    <string name="msg_doc">User documentation</string>
     <string name="msg_doc_number">www.ez-book.org</string>
-    <string name="msg_pan">网盘</string>
+    <string name="msg_pan">Cloud drive</string>
     <string name="msg_pan_number">cloud.ankio.net</string>
     <string name="msg_doc_url">https://www.ez-book.org</string>
     <string name="msg_pan_url">https://cloud.ankio.net</string>
-    <string name="btn_not_remind">不再提醒</string>
-    <string name="setting_title_bill">账单设置</string>
-    <string name="setting_desc_bill">备注 · 分类 · 账单去重 · 记账提示 · 同步</string>
+    <string name="btn_not_remind">Don\'t remind again</string>
+    <string name="setting_title_bill">Bill settings</string>
+    <string name="setting_desc_bill">Remark · Category · Bill deduplication · Accounting notification · Sync</string>
 
-    <string name="setting_title_popup">弹窗设置</string>
-    <string name="setting_desc_popup">延时 · 风格 · 事件</string>
+    <string name="setting_title_popup">Popup settings</string>
+    <string name="setting_desc_popup">Delay · Style · Events</string>
 
-    <string name="setting_title_features">记账功能配置</string>
-    <string name="setting_desc_features">资产 · 币种 · 报销 · 债务 · 多账本 · 手续费</string>
+    <string name="setting_title_features">Accounting feature configuration</string>
+    <string name="setting_desc_features">Asset · Currency · Reimbursement · Debt · Multi-book · Fee</string>
 
-    <string name="setting_title_experimental">实验性功能</string>
-    <string name="setting_desc_experimental">映射 · 分类 · 智能识别 · AI大模型</string>
+    <string name="setting_title_experimental">Experimental features</string>
+    <string name="setting_desc_experimental">Mapping · Category · Smart recognition · AI large model</string>
 
-    <string name="setting_title_appearance">外观</string>
-    <string name="setting_desc_appearance">主题 · 语言 · 弹窗风格</string>
+    <string name="setting_title_appearance">Appearance</string>
+    <string name="setting_desc_appearance">Theme · Language · Popup style</string>
 
-    <string name="setting_title_backup">备份更新</string>
-    <string name="setting_desc_backup">本地备份 · 云备份 · 应用更新 · 规则更新</string>
+    <string name="setting_title_backup">Backup and update</string>
+    <string name="setting_desc_backup">Local backup · Cloud backup · App update · Rule update</string>
 
-    <string name="setting_desc_danger">匿名分析 · 调试 · 数据库 · Hook应用调整</string>
+    <string name="setting_desc_danger">Anonymous analytics · Debug · Database · Hook app adjustment</string>
 
-    <string name="pro">自动记账 Pro</string>
-    <string name="pro_number">您是第 %s 位解锁自动记账Pro的用户</string>
-    <string name="setting_bill_tip">提示内容</string>
-    <string name="setting_bill_sync_tip">自动记账为了去重需要使用的是被动同步方案，用户只需打开记账软件即可实现账单同步。</string>
-    <string name="setting_bill_category">分类</string>
-    <string name="setting_popup_style">弹窗风格</string>
-    <string name="setting_popup_event">弹窗事件</string>
-    <string name="setting_features">自动记账的功能配置必须和记账软件中的功能配置保持一致。</string>
-    <string name="setting_bill_one_api_uri_desc">"必须填写完整调用地址，包含后缀：v1/chat/completions "</string>
-    <string name="setting_title_others">其他</string>
-    <string name="setting_donate">捐赠</string>
-    <string name="title_category_rule">自动分类规则</string>
-    <string name="item_sms">数据过滤</string>
-    <string name="title_sms_edit">编辑数据过滤条件</string>
-    <string name="add_sms">添加过滤关键词</string>
-    <string name="add_filter">过滤关键字</string>
-    <string name="picker_year">年</string>
-    <string name="picker_month">月</string>
-    <string name="picker_day">日</string>
+    <string name="pro_rule_update_plan">Rule Update Plan</string>
+    <string name="pro_activate_count_network_error">Count: Network error</string>
+    <string name="pro_activate_time_network_error">Time: Network error</string>
+    <string name="pro_activate_click_to_enter">Click here to enter activation code</string>
+    <string name="pro_activate_dialog_title">Enter Activation Code</string>
+    <string name="pro_activate_dialog_hint">Please enter your activation code</string>
+    <string name="pro_activate_success">Activation successful!</string>
+    <string name="pro_activate_failed">Activation failed: %s</string>
+    <string name="pro_activate_code_format_error">Invalid activation code format</string>
+    <string name="pro_activate_info_failed">Failed to get activation info: %s</string>
+    <string name="pro_activate_info_format">Activation count: %s\nActivation time: %s</string>
+    <string name="pro_activate_network_error">Network error, unable to get activation info</string>
+    <string name="unknown_error">Unknown error</string>
+    <string name="unknown">Unknown</string>
+    <string name="setting_bill_tip">Notification content</string>
+    <string name="setting_bill_sync_tip">Auto accounting uses passive sync solution for deduplication, users only need to open accounting software to sync bills.</string>
+    <string name="setting_bill_category">Category</string>
+    <string name="setting_popup_style">Popup style</string>
+    <string name="setting_popup_event">Popup events</string>
+    <string name="setting_features">Auto accounting feature configuration must be consistent with feature configuration in accounting software.</string>
+    <string name="setting_bill_one_api_uri_desc">"Must fill in complete API address, including suffix: v1/chat/completions "</string>
+    <string name="setting_title_others">Others</string>
+    <string name="setting_donate">Donate</string>
+    <string name="title_category_rule">Auto category rules</string>
+    <string name="item_sms">Data filtering</string>
+    <string name="title_sms_edit">Edit data filter conditions</string>
+    <string name="add_sms">Add filter keywords</string>
+    <string name="add_filter">Filter keywords</string>
+    <string name="picker_year">Year</string>
+    <string name="picker_month">Month</string>
+    <string name="picker_day">Day</string>
     <string name="picker_hour">:</string>
-    <string name="date">日期</string>
-    <string name="date_time">时间</string>
-    <string name="float_time">请选择日期和时间</string>
-    <string name="title_bill">账单列表</string>
-    <string name="no_remind">不再提醒</string>
-    <string name="clear_db">完全删除数据库</string>
-    <string name="setting_ai_desc">隐私提醒：启用AI功能，你的App数据、分类数据、资产数据，将会被上传至对应的大模型（第三方，与自动记账无关）进行识别。</string>
-    <string name="setting_bill_use_ai">使用AI功能</string>
-    <string name="setting_bill_key">获取API Key</string>
-    <string name="setting_landscape_dnd">横屏勿扰</string>
-    <string name="setting_landscape_dnd_desc">当您处于横屏模式时（例如游戏、观影），不弹窗记录账单，避免影响使用体验。</string>
-    <string name="un_group_title">拆分为独立订单</string>
-    <string name="un_group_message">您确定要将这笔订单从当前订单中拆分为独立订单吗？</string>
-    <string name="assets_map_title">发现未识别的资产</string>
-    <string name="assets_map_description">记账应用无法处理未识别的资产，请对以下资产进行映射，以确保资产名称正确。</string>
-    <string name="map_source_not_exist">映射的资产不存在</string>
-    <string name="setting_duplicated">重复账单合并显示提示</string>
-    <string name="income_reimbursement_info">报销 - %s</string>
-    <string name="income_refund_info">退款 - %s</string>
-    <string name="refund">退款</string>
-    <string name="setting_proactively">主动模式</string>
-    <string name="proactive_msg">指的是自动记账在同步数据的时候主动调用记账软件接口而不是和被动模式一样需要打开记账软件。</string>
-    <string name="refund_income_account_empty">退款账户不能为空</string>
-    <string name="refund_bill_empty">必须选择一个账单才能退款</string>
-    <string name="container">包含关系</string>
-    <string name="bills_limit1">实时同步</string>
-    <string name="setting_bill_asset">资产</string>
-    <string name="setting_bill_ignore_asset">忽略资产错误</string>
-    <string name="setting_bill_ignore_asset_desc">该功能谨慎开启，当识别到的资产不在资产列表的时候直接忽略当前资产。</string>
-    <string name="item_wait_sync">待同步</string>
-    <string name="item_wait_edit">待编辑</string>
-    <string name="item_synced">已同步</string>
-    <string name="setting_category_ai">使用AI辅助分类</string>
+    <string name="date">Date</string>
+    <string name="date_time">Time</string>
+    <string name="float_time">Please select date and time</string>
+    <string name="title_bill">Bill list</string>
+    <string name="no_remind">Don\'t remind again</string>
+    <string name="clear_db">Completely delete database</string>
+    <string name="setting_ai_desc">Privacy reminder: Enabling AI features will upload your app data, category data, and asset data to corresponding large models (third-party, unrelated to auto accounting) for recognition.</string>
+    <string name="setting_bill_use_ai">Use AI features</string>
+    <string name="setting_bill_key">Get API Key</string>
+    <string name="setting_landscape_dnd">Landscape do not disturb</string>
+    <string name="setting_landscape_dnd_desc">When you are in landscape mode (e.g., gaming, watching videos), do not pop up to record bills to avoid affecting user experience.</string>
+    <string name="un_group_title">Split into independent order</string>
+    <string name="un_group_message">Are you sure you want to split this order from the current order into an independent order?</string>
+    <string name="assets_map_title">Unrecognized asset found</string>
+    <string name="assets_map_description">Accounting app cannot handle unrecognized assets, please map the following assets to ensure correct asset names.</string>
+    <string name="map_source_not_exist">Mapped asset does not exist</string>
+    <string name="setting_duplicated">Show notification for duplicate bill merge</string>
+    <string name="income_reimbursement_info">Reimbursement - %s</string>
+    <string name="income_refund_info">Refund - %s</string>
+    <string name="refund">Refund</string>
+    <string name="setting_proactively">Proactive mode</string>
+    <string name="proactive_msg">Refers to auto accounting actively calling accounting software API when syncing data instead of needing to open accounting software like passive mode.</string>
+    <string name="refund_income_account_empty">Refund account cannot be empty</string>
+    <string name="refund_bill_empty">Must select one bill for refund</string>
+    <string name="container">Contains relationship</string>
+    <string name="bills_limit1">Real-time sync</string>
+    <string name="setting_bill_asset">Asset</string>
+    <string name="setting_bill_ignore_asset">Ignore asset errors</string>
+    <string name="setting_bill_ignore_asset_desc">Use this feature carefully, directly ignore current asset when recognized asset is not in asset list.</string>
+    <string name="item_wait_sync">Pending sync</string>
+    <string name="item_wait_edit">Pending edit</string>
+    <string name="item_synced">Synced</string>
+    <string name="setting_category_ai">Use AI-assisted categorization</string>
     <string name="service_channel_description">Auto-accounting background listener services</string>
     <string name="service_notification_title">Auto-accounting background service is running</string>
 
-    <string name="auto_record_">静默记账</string>
+    <string name="auto_record_">Silent accounting</string>
 
 
     <!-- Colors -->
@@ -515,7 +537,7 @@
 
     <string name="perm_xposed_tip">Open LSPosed Manager, enable the module, and then return here.</string>
     <string name="perm_overlay_tip">
-    On the “Display over other apps” settings page, locate “Auto Accounting” and turn it on.
+    On the "Display over other apps" settings page, locate "Auto Accounting" and turn it on.
 </string>
     <string name="keepalive_title">Keep Auto Accounting Running</string>
     <string name="keepalive_subtitle">
@@ -547,7 +569,7 @@
 
     <!-- Auto‑start -->
     <string name="keepalive_autostart_tip">
-    Locate the “Auto‑start” (or “Startup management”) screen and allow this app to start automatically.
+    Locate the "Auto‑start" (or "Startup management") screen and allow this app to start automatically.
 </string>
     <string name="keepalive_autostart_fail">
     Unable to open the auto‑start settings. Please configure it manually.
@@ -555,15 +577,15 @@
 
     <!-- Task‑manager lock -->
     <string name="keepalive_tasklock_tip">
-    Open the recent‑apps screen, then pull down or long‑press this app’s card and choose “Lock” to keep it running.
+    Open the recent‑apps screen, then pull down or long‑press this app\'s card and choose "Lock" to keep it running.
 </string>
 
     <!-- Battery optimisation -->
     <string name="keepalive_battery_tip_list">
-    Find this app in the list and switch it to “Don’t optimise”.
+    Find this app in the list and switch it to "Don't optimise".
 </string>
     <string name="keepalive_battery_tip_details">
-    Tap “Battery optimisation” → “Don’t optimise” on the next screen.
+    Tap "Battery optimisation" → "Don't optimise" on the next screen.
 </string>
     <string name="keepalive_battery_already">
     Battery optimisation is already disabled for this app.
@@ -571,7 +593,7 @@
     <string name="select_ledger_title">Select Accounting App</string>
     <string name="select_ledger_subtitle">Auto Accounting does not include data visualization features by default; you need to select one to serve as your data visualization analysis tool.</string>
     <string name="sync_title">Sync Assets</string>
-    <string name="sync_subtitle">AutoAccounting needs access to the target app’s categories, assets, and ledgers in order to record transactions correctly.</string>
+    <string name="sync_subtitle">AutoAccounting needs access to the target app\'s categories, assets, and ledgers in order to record transactions correctly.</string>
     <string name="action_sync">Start Sync</string>
     <string name="sync_state_not">Data not yet synced</string>
 
@@ -579,8 +601,8 @@
     <!-- Page title & subtitle -->
     <string name="title_feature_select">Select the features you need</string>
     <string name="subtitle_feature_select">    Tick the features you want to use in your ledger.
-    Be sure to enable the same feature inside the corresponding app as well—otherwise it won’t take effect.
-    Features an app doesn’t support are hidden automatically.</string>
+    Be sure to enable the same feature inside the corresponding app as well—otherwise it won\'t take effect.
+    Features an app doesn\'t support are hidden automatically.</string>
 
     <!-- Feature names & descriptions -->
     <string name="feature_asset_manage">Asset Management</string>
@@ -645,8 +667,8 @@
     <!-- Optional: content-description for the background image (accessibility) -->
     <string name="desc_month_cover">Finance summary cover image</string>
 
-    <string name="rule_version_title">Rule Version（v%1$s）</string>
-    <string name="rule_version_last_update">Last Update：%1$s</string>
+    <string name="rule_version_title">Rule Version（%1$s）</string>
+    <string name="rule_version_last_update">%1$s</string>
     <string name="action_back">Previous</string>
 
     <!-- res/values/strings.xml -->
@@ -656,9 +678,40 @@
     <string name="perm_screenshot_title">Screenshot Access</string>
     <string name="perm_screenshot_desc">Allow the app to read your screenshots for OCR.</string>
     <string name="perm_usage_title">Usage Access</string>
-    <string name="perm_usage_desc">Let the app detect which foreground app you’re using.</string>
+    <string name="perm_usage_desc">Let the app detect which foreground app you\'re using.</string>
     <string name="keepalive_notification_title">Notification Permission</string>
     <string name="keepalive_notification_desc">Allow the app to send notifications to keep the foreground service running.</string>
+
+
+    <string name="settings_theme">Theme</string>
+    <string name="settings_system_theme_color_summary">Theme color from system</string>
+    <string name="settings_system_theme_color">System Theme Color</string>
+    <string name="settings_theme_color">Theme Color</string>
+    <string name="dark_theme">Dark Theme</string>
+    <string name="settings_pure_black_dark_theme">Pure Black Dark Theme</string>
+    <string name="settings_pure_black_dark_theme_summary">Use the pure black theme if dark theme is enabled</string>
+    <string name="dark_theme_off">Always Off</string>
+    <string name="dark_theme_on">Always On</string>
+    <string name="follow_system">Follow System</string>
+    <string name="dark_theme_follow_system">@string/follow_system</string>
+
+
+    <string name="settings_language">Language</string>
+    <string name="press_again_to_exit">Press again to exit</string>
+    <string name="ai_not_support">AI-generated data does not support feedback.</string>
+
+
+    <string name="label_replace">Replace / Substitute</string>
+    <string name="hint_raw">Find text</string>
+    <string name="hint_target">Replace with</string>
+
+    <string name="btn_replace">Replace</string>
+    <string name="btn_mask_all">Mask All</string>
+    <string name="label_content">Content</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="btn_confirm">Confirm</string>
+    <string name="replace_result">Replacement result</string>
+    <string name="rule_issue">Rules contain errors</string>
 
 
 </resources>

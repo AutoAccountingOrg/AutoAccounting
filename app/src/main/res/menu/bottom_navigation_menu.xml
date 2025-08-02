@@ -24,19 +24,19 @@
         android:enabled="true"
         android:icon="@drawable/bottom_data_selector"
         android:title="@string/title_data" />
-    <!-- <item
-         android:id="@+id/dataRuleFragment"
+    <item
+        android:id="@+id/ruleFragment"
          android:enabled="true"
-         android:icon="@drawable/bottom_unselect_rule"
+        android:icon="@drawable/bottom_rule_selector"
          android:title="@string/title_rule" />
-     <item
-         android:id="@+id/orderFragment"
-         android:enabled="true"
-         android:icon="@drawable/bottom_unselect_order"
-         android:title="@string/title_order" />
-     <item
-         android:id="@+id/settingFragment"
-         android:enabled="true"
-         android:icon="@drawable/bottom_unselect_setting"
-         android:title="@string/title_setting" />-->
+    <item
+        android:id="@+id/orderFragment"
+        android:enabled="true"
+        android:icon="@drawable/bottom_unselect_order"
+        android:title="@string/title_order" />
+    <item
+        android:id="@+id/settingFragment"
+        android:enabled="true"
+        android:icon="@drawable/bottom_unselect_setting"
+        android:title="@string/title_setting" />
 </menu>
