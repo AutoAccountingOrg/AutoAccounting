@@ -16,6 +16,7 @@
 
 package net.ankio.auto.ui.fragment
 
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.coroutineScope
@@ -25,13 +26,16 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentSettingBinding
+import net.ankio.auto.http.LicenseNetwork
 import net.ankio.auto.http.license.ActivateAPI
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.dialog.EditorDialogBuilder
 import net.ankio.auto.ui.utils.ToastUtils
+import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.utils.Throttle
+import androidx.core.net.toUri
 
 class SettingFragment : BaseFragment<FragmentSettingBinding>() {
 
@@ -51,6 +55,17 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        binding.topAppBar.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.item_purchase -> CustomTabsHelper.launchUrl(
+                    requireContext(),
+                    LicenseNetwork.url.toUri()
+                )
+
+                else -> false
+            }
+        }
 
         // 设置激活信息卡片点击事件
         binding.proCard.setOnClickListener {

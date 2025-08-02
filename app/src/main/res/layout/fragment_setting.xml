@@ -27,11 +27,11 @@
         app:liftOnScrollTargetViewId="@id/content_view">
 
         <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
+            android:id="@+id/topAppBar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@android:color/transparent"
-
+            app:menu="@menu/setting_menu"
             style="@style/Widget.Material3.Toolbar"
             app:title="@string/title_setting" />
     </com.google.android.material.appbar.AppBarLayout>

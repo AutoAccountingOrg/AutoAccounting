@@ -76,7 +76,6 @@ class LicenseNetwork {
         return Pair(signature, timestamp)
     }
 
-    private val url = "https://license.ez-book.org"
 
     suspend fun post(
         path: String,
@@ -134,6 +133,10 @@ class LicenseNetwork {
             Logger.e("请求失败：$e", e)
             return@withContext false
         }
+    }
+
+    companion object {
+        val url: String = "https://license.ez-book.org"
     }
 
 

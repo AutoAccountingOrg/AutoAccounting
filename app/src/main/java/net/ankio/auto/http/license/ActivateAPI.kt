@@ -61,7 +61,7 @@ object ActivateAPI {
                 val data = json.get("data").asJsonObject
                 return hashMapOf(
                     "count" to data.get("active_count").asInt.toString(), //本月激活次数
-                    "time" to DateUtils.stampToDate(data.get("bind_time").asLong) //激活时间
+                    "time" to DateUtils.stampToDate(data.get("bind_time").asLong * 1000) //激活时间
                 )
             }
         }.getOrElse { hashMapOf() }
