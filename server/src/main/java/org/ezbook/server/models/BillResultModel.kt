@@ -20,5 +20,4 @@ import org.ezbook.server.db.model.BillInfoModel
 data class BillResultModel(
     val billInfoModel: BillInfoModel,
     val parentInfoModel: BillInfoModel? = null,
-    val needUserAction: Boolean = false
 )

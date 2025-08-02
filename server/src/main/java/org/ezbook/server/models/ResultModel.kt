@@ -19,4 +19,10 @@ data class ResultModel(
     val code: Int,
     val msg: String,
     val data: Any? = null
-)
+) {
+    companion object {
+        fun ok(data: Any?) = ResultModel(200, "OK", data)
+
+        fun error(code: Int, msg: String) = ResultModel(code, msg)
+    }
+}
