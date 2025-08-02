@@ -15,23 +15,26 @@
 
 package org.ezbook.server.tools
 
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.ScheduledThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 
 class MemoryCache {
 
     private val DEFAULT_DURATION_SECONDS = 30L
-    val cacheMap = ConcurrentHashMap<String, CacheItem<*>>()
+    private val MAX_SIZE = 20
 
-    private val cleaner = ScheduledThreadPoolExecutor(1).apply {
-        scheduleWithFixedDelay(::cleanExpired, 5, 5, TimeUnit.MINUTES)
+    // 使用 LinkedHashMap 实现 LRU，accessOrder = true 表示按访问顺序排序
+    val cacheMap = object : LinkedHashMap<String, CacheItem<*>>(16, 0.75f, true) {
+        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, CacheItem<*>>?): Boolean {
+            return size > MAX_SIZE
+        }
     }
 
+    @Synchronized
     fun <T> put(key: String, value: T, durationSeconds: Long = DEFAULT_DURATION_SECONDS) {
         cacheMap[key] = CacheItem(value, nowPlus(durationSeconds))
     }
 
+    @Synchronized
     inline fun <reified T> get(key: String, deleteAfterRead: Boolean = false): T? {
         val item = cacheMap[key] ?: return null
         return when {
@@ -45,22 +48,19 @@ class MemoryCache {
         }
     }
 
+    @Synchronized
     fun clear() = cacheMap.clear()
-    fun remove(key: String) = cacheMap.remove(key)
-    val size: Int get() = cacheMap.size
 
-    private fun cleanExpired() {
-        cacheMap.entries.removeIf { (_, item) -> item.isExpired() }
-    }
+    @Synchronized
+    fun remove(key: String) = cacheMap.remove(key)
+
+    @get:Synchronized
+    val size: Int get() = cacheMap.size
 
     private fun nowPlus(seconds: Long): Long =
         System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(seconds)
 
     data class CacheItem<T>(val value: T, val expireTime: Long) {
         fun isExpired(): Boolean = System.currentTimeMillis() >= expireTime
-    }
-
-    fun shutdown() {
-        cleaner.shutdown()
     }
 }
