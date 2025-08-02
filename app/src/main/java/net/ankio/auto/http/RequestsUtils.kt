@@ -122,8 +122,8 @@ class RequestsUtils {
     ): T = withContext(Dispatchers.IO) {
         runCatching { block() }
             .onFailure { ex ->
-                if (ex.message?.contains("127.0.0.1:52045") == true) {
-                    Log.e("Request", ex.message ?: "", ex)
+                if (ex.message?.contains("127.0.0.1:52045") == true || ex.message?.contains("timeout") == true) {
+                    //     Log.e("Request", ex.message ?: "", ex)
                 } else {
                     Logger.e(ex.message ?: "", ex)
                 }
