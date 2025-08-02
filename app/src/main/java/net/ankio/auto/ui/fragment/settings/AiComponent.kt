@@ -104,7 +104,6 @@ class AiComponent(
             val hasToken = !text.isNullOrBlank()
             actAiProvider.isEnabled = hasToken
             actAiModel.apply {
-                setText("")
                 isEnabled = hasToken
             }
             btnRefreshModels.isEnabled = hasToken
