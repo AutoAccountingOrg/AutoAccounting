@@ -39,6 +39,26 @@ class IntroPagePermissionFragment : BaseIntroPageFragment<FragmentIntroPagePermi
     // Lifecycle
     // ──────────────────────────────────────────────────────────────────────────────
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // 在 Fragment 创建时初始化屏幕投影权限请求启动器
+        projLauncher = ProjectionGateway.register(
+            caller = this,
+            onReady = {
+                // 权限授予成功，刷新权限状态
+                if (::perms.isInitialized && isAdded && view != null) {
+                    perms.forEach {
+                        val card = binding.cardGroup.findViewById<ExpandableCardView>(it.viewId)
+                        setState(card, it.checkGranted())
+                    }
+                }
+            },
+            onDenied = {
+                // 权限被拒绝，无需额外处理，用户可以再次点击申请
+            }
+        )
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         // 设置下一步按钮点击事件
@@ -71,16 +91,7 @@ class IntroPagePermissionFragment : BaseIntroPageFragment<FragmentIntroPagePermi
     private lateinit var perms: MutableList<PermItem>
 
     // 屏幕投影权限请求启动器
-    private val projLauncher: ActivityResultLauncher<Unit> by lazy {
-        ProjectionGateway.register(
-            caller = this,
-            onReady = {
-
-            }
-        ) {
-            projLauncher.launch(Unit)
-        }
-    }
+    private lateinit var projLauncher: ActivityResultLauncher<Unit>
 
     /**
      * 动态设置权限卡片
