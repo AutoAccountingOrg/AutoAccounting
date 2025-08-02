@@ -1,0 +1,103 @@
+/*
+ * Copyright (C) 2024 ankio(ankio@ankio.net)
+ * Licensed under the Apache License, Version 3.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-3.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
+
+package org.ezbook.server.server
+
+import io.ktor.application.call
+import io.ktor.request.receive
+import io.ktor.response.respond
+import io.ktor.routing.Route
+import io.ktor.routing.get
+import io.ktor.routing.post
+import io.ktor.routing.route
+import org.ezbook.server.constant.Setting
+import org.ezbook.server.db.Db
+import org.ezbook.server.db.model.CategoryModel
+import org.ezbook.server.models.ResultModel
+
+/**
+ * 分类管理路由配置
+ * 提供收支分类的管理功能，支持多级分类和按账本、类型查询
+ */
+fun Route.categoryRoutes() {
+    route("/category") {
+        /**
+         * GET /category/list - 获取分类列表
+         * 根据账本和类型获取对应的分类数据
+         *
+         * @param book 账本名称，必填
+         * @param type 分类类型（收入/支出），必填
+         * @param parent 父分类ID，默认为-1（顶级分类）
+         * @return ResultModel 包含分类列表数据
+         */
+        get("/list") {
+            val book = call.request.queryParameters["book"] ?: ""
+            if (book.isEmpty()) {
+                call.respond(ResultModel(400, "book is empty"))
+                return@get
+            }
+
+            val type = call.request.queryParameters["type"] ?: ""
+            if (type.isEmpty()) {
+                call.respond(ResultModel(400, "type is empty"))
+                return@get
+            }
+
+            val parent = call.request.queryParameters["parent"] ?: "-1"
+            val categories = Db.get().categoryDao().load(book, type, parent)
+            call.respond(ResultModel(200, "OK", categories))
+        }
+
+        /**
+         * POST /category/put - 批量更新分类数据
+         * 用于同步外部系统的分类数据，并更新数据hash值
+         *
+         * @param md5 数据的MD5校验值，用于数据完整性验证
+         * @param body Array<CategoryModel> 分类数据数组
+         * @return ResultModel 包含操作结果
+         */
+        post("/put") {
+            val md5 = call.request.queryParameters["md5"] ?: ""
+            val categories = call.receive<Array<CategoryModel>>()
+            val result = Db.get().categoryDao().put(categories)
+
+            // 更新分类数据的hash值
+            setByInner(Setting.HASH_CATEGORY, md5)
+            call.respond(ResultModel(200, "OK", result))
+        }
+
+        /**
+         * GET /category/get - 根据名称获取分类信息
+         *
+         * @param book 账本名称，可选
+         * @param type 分类类型，可选
+         * @param name 分类名称，必填
+         * @return ResultModel 包含分类详细信息
+         */
+        get("/get") {
+            val book = call.request.queryParameters["book"]?.takeIf { it.isNotEmpty() }
+            val type = call.request.queryParameters["type"]?.takeIf { it.isNotEmpty() }
+            val name = call.request.queryParameters["name"] ?: ""
+
+            if (name.isEmpty()) {
+                call.respond(ResultModel(400, "name is empty"))
+                return@get
+            }
+
+            val category = Db.get().categoryDao().getByName(book, type, name)
+            call.respond(ResultModel(200, "OK", category))
+        }
+    }
+} 
