@@ -13,7 +13,7 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.ui.fragment.plugin.home
+package net.ankio.auto.ui.fragment.home
 
 import android.view.View
 import androidx.annotation.ColorInt

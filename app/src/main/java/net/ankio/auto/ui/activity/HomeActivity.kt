@@ -16,31 +16,15 @@
 package net.ankio.auto.ui.activity
 
 import android.os.Bundle
-import android.view.View
 import androidx.activity.OnBackPressedCallback
-import androidx.activity.OnBackPressedDispatcher
-import androidx.annotation.StringRes
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.launch
-import net.ankio.auto.BuildConfig
-import net.ankio.auto.R
-import net.ankio.auto.databinding.ActivityMainBinding
-import net.ankio.auto.storage.BackupUtils
-import net.ankio.auto.ui.api.BaseActivity
-import net.ankio.auto.ui.fragment.plugin.HomeFragment
-import net.ankio.auto.utils.PrefManager
-import androidx.core.view.get
-import net.ankio.auto.storage.Logger
-import androidx.core.view.size
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
-import net.ankio.auto.service.CoreService
-import net.ankio.auto.ui.fragment.plugin.DataFragment
+import net.ankio.auto.R
+import net.ankio.auto.databinding.ActivityMainBinding
+import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.ui.utils.slideDown
 import net.ankio.auto.ui.utils.slideUp
-import kotlin.system.exitProcess
 
 class HomeActivity : BaseActivity() {
     private val binding: ActivityMainBinding by lazy {

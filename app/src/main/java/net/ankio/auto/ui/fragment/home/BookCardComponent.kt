@@ -13,7 +13,7 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.ui.fragment.plugin.home
+package net.ankio.auto.ui.fragment.home
 
 import android.view.View
 import android.view.ViewGroup
@@ -139,6 +139,26 @@ class BookCardComponent(binding: CardBookBinding, private val lifecycle: Lifecyc
             )
         }
 
+        // 应用监控白名单
+        list.add(
+            ActionTile(
+                icon = R.drawable.home_app_book,
+                label = R.string.title_app_whitelist,
+                circleColor = R.color.tile_bg_app_whitelist,
+                onClick = { openAppWhitelist() }
+            )
+        )
+
+        // 账单数据过滤关键词
+        list.add(
+            ActionTile(
+                icon = R.drawable.data_filter,
+                label = R.string.title_data_filter,
+                circleColor = R.color.tile_bg_data_filter,
+                onClick = { openDataFilter() }
+            )
+        )
+
         return list
     }
 
@@ -171,6 +191,12 @@ class BookCardComponent(binding: CardBookBinding, private val lifecycle: Lifecyc
     }
 
     private fun openTagManager() { /* TODO 跳转标签管理 */
+    }
+
+    private fun openAppWhitelist() { /* TODO 跳转应用监控白名单管理页面 */
+    }
+
+    private fun openDataFilter() { /* TODO 跳转账单数据过滤关键词管理页面 */
     }
 
 

@@ -13,27 +13,19 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.ui.fragment.plugin.home
+package net.ankio.auto.ui.fragment.home
 
-import android.graphics.Color
-import android.graphics.drawable.BitmapDrawable
 import android.view.View
-import androidx.core.content.ContextCompat
-import androidx.core.graphics.ColorUtils
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.coroutineScope
-import androidx.palette.graphics.Palette
 import com.google.android.material.elevation.SurfaceColors
-import com.google.android.material.resources.MaterialResources
 import kotlinx.coroutines.launch
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.databinding.CardMonthlyBinding
 import net.ankio.auto.http.api.BillAPI
 import net.ankio.auto.ui.api.BaseComponent
-import net.ankio.auto.ui.utils.ResourceUtils
 import net.ankio.auto.utils.PrefManager
-import net.ankio.auto.utils.toBookCover
 import java.util.Calendar
 import java.util.Locale
 

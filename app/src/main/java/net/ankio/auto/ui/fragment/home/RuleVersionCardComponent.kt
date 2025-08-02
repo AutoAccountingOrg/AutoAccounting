@@ -1,4 +1,4 @@
-package net.ankio.auto.ui.fragment.plugin.home
+package net.ankio.auto.ui.fragment.home
 
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.coroutineScope

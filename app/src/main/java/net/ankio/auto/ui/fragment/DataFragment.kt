@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 ankio(ankio@ankio.net)
+ * Copyright (C) 2025 ankio(ankio@ankio.net)
  * Licensed under the Apache License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,301 +15,169 @@
 
 package net.ankio.auto.ui.fragment
 
-import android.content.Intent
-import android.graphics.drawable.Drawable
-import android.net.Uri
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
-import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.lifecycleScope
-import com.google.gson.Gson
 import com.google.gson.JsonObject
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import net.ankio.auto.App
 import net.ankio.auto.R
-import net.ankio.auto.databinding.FragmentDataBinding
-import net.ankio.auto.intent.FloatingIntent
-import net.ankio.auto.intent.IntentType
-import net.ankio.auto.request.Pastebin
-import net.ankio.auto.service.AppService
-import net.ankio.auto.service.FloatingWindowService
-import net.ankio.auto.storage.ConfigUtils
+import net.ankio.auto.databinding.FragmentPluginDataBinding
+import net.ankio.auto.http.api.AppDataAPI
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.adapter.AppDataAdapter
 import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.api.BasePageFragment
-import net.ankio.auto.ui.componets.CustomNavigationRail
-import net.ankio.auto.ui.componets.MaterialSearchView
-import net.ankio.auto.ui.componets.WrapContentLinearLayoutManager
+import net.ankio.auto.ui.components.MaterialSearchView
+import net.ankio.auto.ui.components.WrapContentLinearLayoutManager
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
-import net.ankio.auto.ui.dialog.DataEditorDialog
 import net.ankio.auto.ui.models.RailMenuItem
-import net.ankio.auto.ui.utils.LoadingUtils
-import net.ankio.auto.ui.utils.ToastUtils
-import net.ankio.auto.ui.utils.viewBinding
-import net.ankio.auto.utils.CustomTabsHelper
-import org.ezbook.server.Server
+import net.ankio.auto.utils.getAppInfoFromPackageName
 import org.ezbook.server.constant.DataType
-import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.AppDataModel
-import org.ezbook.server.db.model.BillInfoModel
-import org.ezbook.server.models.BillResultModel
 
-class DataFragment : BasePageFragment<AppDataModel>(), Toolbar.OnMenuItemClickListener {
+/**
+ * 插件数据管理Fragment
+ *
+ * 该Fragment负责展示和管理应用数据，包括：
+ * - 左侧应用列表展示
+ * - 数据筛选（通知数据、应用数据、匹配状态）
+ * - 搜索功能
+ * - 数据清理功能
+ *
+ * @author ankio
+ */
+class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>(),
+    Toolbar.OnMenuItemClickListener {
+
+    /** 当前选中的应用包名 */
     var app: String = ""
+
+    /** 数据类型筛选（NOTICE/DATA） */
     var type: String = ""
+
+    /** 是否只显示匹配的数据 */
     var match = false
+
+    /** 搜索关键词 */
     var searchData = ""
-    override suspend fun loadData(callback: (resultData: List<AppDataModel>) -> Unit) {
-        AppDataModel.list(app, type, match, page, pageSize, searchData).let { result ->
-            callback(result)
-        }
+
+    /** 左侧应用数据缓存 */
+    private var leftData = JsonObject()
+
+    /**
+     * 加载数据的主要方法
+     * 根据当前筛选条件从API获取应用数据列表
+     *
+     * @return 应用数据模型列表
+     */
+    override suspend fun loadData(): List<AppDataModel> {
+        Logger.d("Loading data with params: app=$app, type=$type, match=$match, page=$page, pageSize=$pageSize, searchData='$searchData'")
+        val result = AppDataAPI.list(app, type, match, page, pageSize, searchData)
+        Logger.d("Loaded ${result.size} data items")
+        return result
     }
 
-    private lateinit var adapter: AppDataAdapter
-
-    override fun onCreateAdapter() {
+    /**
+     * 创建数据适配器
+     * 配置RecyclerView的布局管理器和适配器
+     *
+     * @return 配置好的AppDataAdapter实例
+     */
+    override fun onCreateAdapter(): AppDataAdapter {
         val recyclerView = binding.statusPage.contentView!!
         recyclerView.layoutManager = WrapContentLinearLayoutManager(requireContext())
-        adapter = AppDataAdapter(requireActivity() as BaseActivity)
-        adapter
-            .setOnEditClick(::onEditClick)
-            .setOnLongClick(::onLongClick)
-            .setOnUploadClick(::onUploadClick)
-            .setOnTestRuleClick(::onTestRuleClick)
-            .setOnTestRuleAiClick(::onAITestRuleClick)
-            .setOnContentClick(::onContentClick)
-        recyclerView.adapter = adapter
+        return AppDataAdapter(requireActivity() as BaseActivity)
     }
 
-    fun onContentClick(item: AppDataModel) {
-        BottomSheetDialogBuilder(requireActivity())
-            .setTitle(requireActivity().getString(R.string.content_title))
-            .setMessage(item.data)
-            .setNegativeButton(requireActivity().getString(R.string.cancel_msg)) { _, _ -> }
-            .setPositiveButton(requireActivity().getString(R.string.copy)) { _, _ ->
-                App.copyToClipboard(item.data)
-                ToastUtils.error(R.string.copy_command_success)
-            }
-            .showInFragment(this, false, true)
-    }
-
-    fun onEditClick(item: AppDataModel) {
-        // 跳转编辑页
-    }
-
-    fun onLongClick(item: AppDataModel) {
-        BottomSheetDialogBuilder(requireActivity())
-            .setTitle(requireActivity().getString(R.string.delete_title))
-            .setMessage(requireActivity().getString(R.string.delete_data_message))
-            .setPositiveButton(requireActivity().getString(R.string.sure_msg)) { _, _ ->
-                pageData.remove(item)
-                adapter.updateItems(pageData)
-                lifecycleScope.launch {
-                    AppDataModel.delete(item.id)
-                }
-            }
-            .setNegativeButton(requireActivity().getString(R.string.cancel_msg)) { _, _ -> }
-            .showInFragment(this, false, true)
-    }
-
-    fun onUploadClick(item: AppDataModel) {
-        DataEditorDialog(requireActivity(), item.data) { result ->
-            val loading = LoadingUtils(requireActivity())
-            loading.show(R.string.upload_waiting)
-            lifecycleScope.launch {
-                val type = item.type.name
-                val title = if (!item.match) {
-                    "[Adaptation Request][$type]${item.app}"
-                } else {
-                    "[Bug][Rule][$type]${item.app}"
-                }
-                runCatching {
-                    val (url, timeout) = Pastebin.add(result, requireContext())
-                    val body = if (!item.match) {
-                        """
-<!------ 
- 1. 请不要手动复制数据，下面的链接中已包含数据；
- 2. 您可以新增信息，但是不要删除本页任何内容；
- 3. 一般情况下，您直接划到底部点击submit即可。
- ------>                        
-## 数据链接                        
-[数据过期时间：${timeout}](${url})
-## 其他信息
-<!------ 
- 1. 您可以在下面添加说明信息。
- ------>  
-
-                """.trimIndent()
-                    } else {
-                        """
-<!------ 
- 1. 请不要手动复制数据，下面的链接中已包含数据；
- 2. 该功能是反馈规则识别错误的，请勿写其他无关内容；
- ------>  
-## 规则
-${item.rule}
-## 数据
-[数据过期时间：${timeout}](${url})
-## 说明
-
-
-                         
-                                            """.trimIndent()
-                    }
-                    val uri = if (item.match) {
-                        "https://github.com/AutoAccountingOrg/AutoAccounting/issues"
-                    } else {
-                        "https://github.com/AutoAccountingOrg/AutoRule/issues"
-                    }
-                    CustomTabsHelper.launchUrl(
-                        requireContext(),
-                        Uri.parse("$uri/new?title=${Uri.encode(title)}&body=${Uri.encode(body)}"),
-                    )
-                    loading.close()
-                }.onFailure {
-                    ToastUtils.error(it.message!!)
-                    loading.close()
-                    return@launch
-                }
-            }
-        }.showInFragment(this, false, true)
-    }
-
-    fun onTestRuleClick(item: AppDataModel) {
-        lifecycleScope.launch {
-            runTest(false, item)
-        }
-    }
-
-    fun onAITestRuleClick(item: AppDataModel) {
-        lifecycleScope.launch {
-            runTest(true, item)
-        }
-    }
-
-    private suspend fun testRule(item: AppDataModel, ai: Boolean = false): BillInfoModel? =
-        withContext(Dispatchers.IO) {
-            val result = Server.request(
-                "js/analysis?type=${item.type.name}&app=${item.app}&fromAppData=true&ai=${ai}",
-                item.data
-            ) ?: return@withContext null
-            Logger.d("Test Result: $result")
-            val data = Gson().fromJson(result, JsonObject::class.java)
-            if (data.get("code").asInt != 200) {
-                Logger.w("Test Error Info: ${data.get("msg").asString}")
-                return@withContext null
-            }
-            val billResult = runCatching {
-                Gson().fromJson(data.getAsJsonObject("data"), BillResultModel::class.java)
-            }.getOrNull()
-            return@withContext billResult?.billInfoModel
-        }
-
-    private suspend fun runTest(ai: Boolean = false, item: AppDataModel) {
-        val loadingUtils = LoadingUtils(requireActivity())
-        if (ai) {
-            loadingUtils.show(
-                requireActivity().getString(
-                    R.string.ai_loading,
-                    ConfigUtils.getString(Setting.AI_MODEL)
-                )
-            )
-        }
-        val billModel = testRule(item, ai)
-        if (ai) {
-            loadingUtils.close()
-        }
-        if (billModel == null) {
-            ToastUtils.error(R.string.no_rule_hint)
-        } else {
-            val serviceIntent =
-                Intent(activity, AppService::class.java).apply {
-                    putExtra("parent", "")
-                    putExtra("billInfo", Gson().toJson(billModel))
-                    putExtra("showWaitTip", false)
-                    putExtra("from", "AppData")
-                    putExtra("intentType", IntentType.FloatingIntent.name)
-                }
-            Logger.d("Start FloatingWindowService")
-            requireActivity().startForegroundService(serviceIntent)
-        }
-    }
-
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ) = binding.root
-
-    override val binding: FragmentDataBinding by viewBinding(FragmentDataBinding::inflate)
-
+    /**
+     * Fragment视图创建完成后的初始化
+     * 设置左侧数据、芯片事件、工具栏菜单和搜索功能
+     */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        loadLeftData(binding.leftList)
+        setUpLeftData()
         setupChipEvent()
-        val leftList = binding.leftList
-        lifecycleScope.launch {
-            AppDataModel.apps().let { result ->
-                leftData = result
-                var i = 0
-                for (key in result.keySet()) {
-                    i++
-                    var app = App.getAppInfoFromPackageName(key)
-
-                    if (app == null) {
-                        if (App.debug) {
-                            app = arrayOf(
-                                key,
-                                ResourcesCompat.getDrawable(
-                                    App.app.resources,
-                                    R.drawable.default_asset,
-                                    null
-                                ),
-                                ""
-                            )
-                        } else {
-                            continue
-                        }
-
-                    }
-
-                    leftList.addMenuItem(
-                        RailMenuItem(i, app[1] as Drawable, app[0] as String)
-                    )
-
-                }
-                if (!leftList.triggerFirstItem()) {
-                    statusPage.showEmpty()
-                }
-            }
-        }
-
         binding.toolbar.setOnMenuItemClickListener(this)
         setUpSearch()
+
     }
 
-    private var leftData = JsonObject()
-    private fun loadLeftData(leftList: CustomNavigationRail) {
+    /**
+     * 设置左侧应用列表数据
+     * 配置应用选择监听器和刷新数据
+     */
+    private fun setUpLeftData() {
 
-        leftList.setOnItemSelectedListener {
+        binding.leftList.setOnItemSelectedListener {
             val id = it.id
             page = 1
             app = leftData.keySet().elementAt(id - 1)
-            statusPage.showLoading()
-            loadDataInside()
+            Logger.d("Selected app: $app (id: $id)")
+            reload()
         }
     }
 
+    /**
+     * Fragment恢复时的处理
+     */
+    override fun onResume() {
+        super.onResume()
+        refreshLeftData()
+    }
+
+    /**
+     * 刷新左侧应用数据
+     * 从API获取应用列表并更新UI
+     */
+    private fun refreshLeftData() {
+        Logger.d("Refreshing left data")
+        lifecycleScope.launch {
+            try {
+                // 1. 清空列表
+                binding.leftList.clear()
+
+                // 2. 拉取 app 数据
+                val result = AppDataAPI.apps()
+                leftData = result
+                Logger.d("Fetched ${result.size()} apps from API")
+
+                var index = 1
+                // 3. 遍历所有 app 包名
+                for (packageName in result.keySet()) {
+                    val app = getAppInfoFromPackageName(packageName)
+                    if (app == null) {
+                        Logger.w("Failed to get app info for package: $packageName")
+                        continue
+                    }
+
+                    binding.leftList.addMenuItem(
+                        RailMenuItem(index, app.icon!!, app.name)
+                    )
+                    Logger.d("Added app to left list: ${app.name} ($packageName)")
+                    index++
+                }
+
+                // 4. 若没有任何 app，展示空状态页
+                if (!binding.leftList.performFirstItem()) {
+                    Logger.w("No apps available, showing empty state")
+                    statusPage.showEmpty()
+                }
+            } catch (e: Exception) {
+                Logger.e("Error refreshing left data", e)
+                statusPage.showError()
+            }
+        }
+    }
+
+    /**
+     * 设置筛选芯片事件监听
+     * 处理数据类型和匹配状态的筛选
+     */
     private fun setupChipEvent() {
+
         binding.chipGroup.setOnCheckedStateChangeListener { group, checkedId ->
 
             match = false
@@ -331,49 +199,79 @@ ${item.rule}
                 type = ""
             }
 
-
-            loadDataInside()
+            Logger.d("Filter updated: match=$match, type='$type'")
+            reload()
         }
     }
 
+    /**
+     * 设置搜索功能
+     * 配置搜索视图的查询文本监听器
+     */
     private fun setUpSearch() {
+
+
         val searchItem = binding.toolbar.menu.findItem(R.id.action_search)
         if (searchItem != null) {
             val searchView = searchItem.actionView as MaterialSearchView
             searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String?): Boolean {
+                    Logger.d("Search submitted: '$query'")
                     return true
                 }
 
                 override fun onQueryTextChange(newText: String?): Boolean {
                     searchData = newText ?: ""
+                    Logger.d("Search text changed: '$searchData'")
                     reload()
                     return true
                 }
-
             })
+        } else {
+            Logger.w("Search menu item not found")
         }
     }
 
+    /**
+     * 工具栏菜单项点击处理
+     * 处理数据清理等菜单操作
+     *
+     * @param item 被点击的菜单项
+     * @return 是否处理了菜单点击事件
+     */
     override fun onMenuItemClick(item: MenuItem?): Boolean {
         when (item?.itemId) {
             R.id.item_clear -> {
-                BottomSheetDialogBuilder(requireActivity())
+                // 检查Fragment View是否仍然有效
+                if (view == null || !isAdded || isDetached) {
+                    Logger.w("Fragment is not in valid state, cannot show dialog")
+                    return true
+                }
+
+                BottomSheetDialogBuilder(this)
                     .setTitle(requireActivity().getString(R.string.delete_data))
                     .setMessage(requireActivity().getString(R.string.delete_msg))
                     .setPositiveButton(requireActivity().getString(R.string.sure_msg)) { _, _ ->
                         lifecycleScope.launch {
-                            AppDataModel.clear()
-                            page = 1
-                            loadDataInside()
+                            try {
+                                AppDataAPI.clear()
+                                Logger.i("Data cleared successfully")
+                                page = 1
+                                reload()
+                            } catch (e: Exception) {
+                                Logger.e("Error clearing data", e)
+                            }
                         }
                     }
-                    .setNegativeButton(requireActivity().getString(R.string.cancel_msg)) { _, _ -> }
-                    .showInFragment(this, false, true)
+                    .setNegativeButton(requireActivity().getString(R.string.cancel_msg)) { _, _ ->
+                        Logger.d("User cancelled data clear")
+                    }
+                    .show()
                 return true
             }
 
             else -> {
+                Logger.d("Unknown menu item clicked: ${item?.itemId}")
                 return false
             }
         }
