@@ -20,6 +20,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 import org.ezbook.server.constant.BillState
+import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.BillInfoModel
 
 @Dao
@@ -27,8 +28,13 @@ interface BillInfoDao {
     @Insert
     suspend fun insert(billInfo: BillInfoModel): Long
 
-    @Query("SELECT * FROM BillInfoModel WHERE money = :money AND time >= :startTime AND time <= :endTime AND groupId = -1")
-    suspend fun query(money: Double, startTime: Long, endTime: Long): List<BillInfoModel>
+    @Query("SELECT * FROM BillInfoModel WHERE money = :money AND time >= :startTime AND time <= :endTime AND groupId = -1 AND type=:type")
+    suspend fun query(
+        money: Double,
+        startTime: Long,
+        endTime: Long,
+        type: BillType
+    ): List<BillInfoModel>
 
     @Query("SELECT * FROM BillInfoModel WHERE id = :id")
     suspend fun queryId(id: Long): BillInfoModel?

@@ -103,7 +103,7 @@ class BillInfoModel {
     var groupId: Long = -1
 
     /**
-     * 数据渠道，这里指的是更具体的渠道，例如【建设银行】微信公众号，用户【xxxx】这种
+     * 数据来源渠道，这里指的是更具体的渠道，例如【建设银行】微信公众号，用户【xxxx】这种
      */
     var channel: String = ""
 

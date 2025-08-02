@@ -30,6 +30,7 @@ interface RuleDao {
     WHERE app = :app 
     AND (:type IS NULL OR type = :type)
     AND (:searchTerm IS NULL OR name LIKE '%' || :searchTerm || '%')
+    AND (:creator IS NULL OR :creator = '' OR creator = :creator)
     ORDER BY enabled DESC,id DESC 
     LIMIT :limit 
     OFFSET :offset
@@ -40,7 +41,8 @@ interface RuleDao {
         offset: Int,
         app: String,
         type: String? = null,
-        searchTerm: String? = null
+        searchTerm: String? = null,
+        creator: String? = null
     ): List<RuleModel>
 
     //查询所有启用的规则，用于JS执行
