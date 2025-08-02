@@ -40,7 +40,7 @@ object RuleManageAPI {
         limit: Int,
         search: String = ""
     ): List<RuleModel> = withContext(Dispatchers.IO) {
-        val response = LocalNetwork.request(
+        val response = LocalNetwork.get(
             "rule/list?page=$page&limit=$limit&app=$app&creator=${creator}&type=$type&search=${
                 Uri.encode(search)
             }"
@@ -56,7 +56,7 @@ object RuleManageAPI {
      * 获取所有系统规则
      */
     suspend fun system(name: String): RuleModel? = withContext(Dispatchers.IO) {
-        val response = LocalNetwork.request("rule/system?name=${Uri.encode(name)}")
+        val response = LocalNetwork.get("rule/system?name=${Uri.encode(name)}")
 
         runCatching {
             val json = Gson().fromJson(response, JsonObject::class.java)
@@ -65,18 +65,18 @@ object RuleManageAPI {
     }
 
     suspend fun deleteSystemRule() = withContext(Dispatchers.IO) {
-        LocalNetwork.request("rule/deleteSystemRule")
+        LocalNetwork.post("rule/deleteSystemRule")
     }
 
     suspend fun put(rule: RuleModel) = withContext(Dispatchers.IO) {
-        LocalNetwork.request("rule/put", Gson().toJson(rule))
+        LocalNetwork.post("rule/put", Gson().toJson(rule))
     }
 
     /**
      * 添加规则
      */
     suspend fun add(rule: RuleModel): Int = withContext(Dispatchers.IO) {
-        val response = LocalNetwork.request("rule/add", Gson().toJson(rule))
+        val response = LocalNetwork.post("rule/add", Gson().toJson(rule))
         runCatching {
             val json = Gson().fromJson(response, JsonObject::class.java)
             json.get("data").asInt
@@ -87,21 +87,21 @@ object RuleManageAPI {
      * 更新规则
      */
     suspend fun update(rule: RuleModel) = withContext(Dispatchers.IO) {
-        LocalNetwork.request("rule/update", Gson().toJson(rule))
+        LocalNetwork.post("rule/update", Gson().toJson(rule))
     }
 
     /**
      * 删除规则
      */
     suspend fun delete(id: Int) = withContext(Dispatchers.IO) {
-        LocalNetwork.request("rule/delete?id=$id")
+        LocalNetwork.post("rule/delete", Gson().toJson(mapOf("id" to id)))
     }
 
     /**
      * 获取app列表
      */
     suspend fun apps(): JsonObject = withContext(Dispatchers.IO) {
-        val response = LocalNetwork.request("rule/apps")
+        val response = LocalNetwork.get("rule/apps")
 
         runCatching {
             val json = Gson().fromJson(response, JsonObject::class.java)

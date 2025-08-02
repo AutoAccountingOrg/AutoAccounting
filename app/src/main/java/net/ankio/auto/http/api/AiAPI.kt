@@ -53,7 +53,7 @@ object AiAPI {
     suspend fun setCurrentProvider(name: String) = withContext(Dispatchers.IO) {
         try {
             val body = gson.toJson(mapOf("name" to name))
-            LocalNetwork.request("/ai/provider", body)
+            LocalNetwork.post("/ai/provider", body)
         } catch (e: Exception) {
             Logger.e("setCurrentProvider gson/req error: ${e.message}", e)
         }
@@ -80,7 +80,7 @@ object AiAPI {
     suspend fun setApiKey(key: String) = withContext(Dispatchers.IO) {
         try {
             val body = gson.toJson(mapOf("key" to key))
-            LocalNetwork.request("/ai/apikey", body)
+            LocalNetwork.post("/ai/apikey", body)
         } catch (e: Exception) {
             Logger.e("setApiKey gson/req error: ${e.message}", e)
         }
@@ -107,7 +107,7 @@ object AiAPI {
     suspend fun setApiUrl(url: String) = withContext(Dispatchers.IO) {
         try {
             val body = gson.toJson(mapOf("url" to url))
-            LocalNetwork.request("/ai/apiurl", body)
+            LocalNetwork.post("/ai/apiurl", body)
         } catch (e: Exception) {
             Logger.e("setApiUrl gson/req error: ${e.message}", e)
         }
@@ -149,7 +149,7 @@ object AiAPI {
     suspend fun setCurrentModel(model: String) = withContext(Dispatchers.IO) {
         try {
             val body = gson.toJson(mapOf("model" to model))
-            LocalNetwork.request("/ai/model", body)
+            LocalNetwork.post("/ai/model", body)
         } catch (e: Exception) {
             Logger.e("setCurrentModel gson/req error: ${e.message}", e)
         }
@@ -177,7 +177,7 @@ object AiAPI {
         withContext(Dispatchers.IO) {
             try {
                 val body = gson.toJson(mapOf("system" to systemPrompt, "user" to userPrompt))
-                val resp = LocalNetwork.request("/ai/request", body)
+                val resp = LocalNetwork.post("/ai/request", body)
                 val type = object : TypeToken<ApiResponse<String>>() {}.type
                 val apiResp: ApiResponse<String> = gson.fromJson(resp, type)
                 apiResp.data ?: ""

@@ -37,7 +37,7 @@ object CategoryRuleAPI {
     suspend fun list(page: Int = 1, limit: Int = 10): List<CategoryRuleModel> = withContext(
         Dispatchers.IO
     ) {
-        val response = LocalNetwork.request("category/rule/list?page=$page&limit=$limit")
+        val response = LocalNetwork.post("category/rule/list?page=$page&limit=$limit")
 
         runCatching {
             val json = Gson().fromJson(response, JsonObject::class.java)
@@ -55,7 +55,7 @@ object CategoryRuleAPI {
      * @return 返回包含响应数据的[JsonObject]
      */
     suspend fun put(model: CategoryRuleModel): JsonObject = withContext(Dispatchers.IO) {
-        val response = LocalNetwork.request("category/rule/put", Gson().toJson(model))
+        val response = LocalNetwork.post("category/rule/put", Gson().toJson(model))
 
         runCatching {
             val json = Gson().fromJson(response, JsonObject::class.java)
@@ -72,6 +72,6 @@ object CategoryRuleAPI {
      * @param id 要删除的分类规则ID
      */
     suspend fun remove(id: Long) = withContext(Dispatchers.IO) {
-        LocalNetwork.request("category/rule/delete?id=$id")
+        LocalNetwork.post("category/rule/delete", Gson().toJson(mapOf("id" to id)))
     }
 }

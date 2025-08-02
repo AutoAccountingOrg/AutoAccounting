@@ -35,7 +35,7 @@ object AssetsAPI {
     suspend fun list(): List<AssetsModel> = withContext(
         Dispatchers.IO
     ) {
-        val response = LocalNetwork.request("assets/list")
+        val response = LocalNetwork.get("assets/list")
 
 
         runCatching {
@@ -54,7 +54,7 @@ object AssetsAPI {
      */
     suspend fun put(data: ArrayList<AssetsModel>, md5: String) {
         val json = Gson().toJson(data)
-        LocalNetwork.request("assets/put?md5=$md5", json)
+        LocalNetwork.post("assets/put?md5=$md5", json)
     }
 
     /**
@@ -63,7 +63,7 @@ object AssetsAPI {
      * @return 返回对应的资产模型，如果未找到则返回null
      */
     suspend fun getByName(name: String): AssetsModel? {
-        val response = LocalNetwork.request("assets/get?name=${Uri.encode(name)}")
+        val response = LocalNetwork.get("assets/get?name=${Uri.encode(name)}")
 
         return runCatching {
             val json = Gson().fromJson(response, JsonObject::class.java)

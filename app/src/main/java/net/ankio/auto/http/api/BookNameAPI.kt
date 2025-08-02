@@ -34,7 +34,7 @@ object BookNameAPI {
     suspend fun list(): List<BookNameModel> = withContext(
         Dispatchers.IO
     ) {
-        val response = LocalNetwork.request("book/list")
+        val response = LocalNetwork.post("book/list")
 
         runCatching {
             val json = Gson().fromJson(response, JsonObject::class.java)
@@ -90,6 +90,6 @@ object BookNameAPI {
      */
     suspend fun put(bookList: ArrayList<BookNameModel>, md5: String) =
         withContext(Dispatchers.IO) {
-            LocalNetwork.request("book/put?md5=$md5", Gson().toJson(bookList))
+            LocalNetwork.post("book/put?md5=$md5", Gson().toJson(bookList))
         }
 }

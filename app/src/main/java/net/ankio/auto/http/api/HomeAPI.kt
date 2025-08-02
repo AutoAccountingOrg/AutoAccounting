@@ -26,7 +26,7 @@ object HomeAPI {
      * 响应内容为服务器版本号
      */
     suspend fun index(): String? = withContext(Dispatchers.IO) {
-        val response = LocalNetwork.request("/")
+        val response = LocalNetwork.get("/")
 
         runCatching {
             val json = Gson().fromJson(response, JsonObject::class.java)

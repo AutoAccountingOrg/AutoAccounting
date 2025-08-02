@@ -29,7 +29,7 @@ object JsAPI {
         appPackage: String,
         fromAppData: Boolean = false
     ): BillResultModel? {
-        val result = LocalNetwork.request(
+        val result = LocalNetwork.post(
             "js/analysis?type=${type.name}&app=$appPackage&fromAppData=$fromAppData",
             data
         )
@@ -44,8 +44,8 @@ object JsAPI {
     }
 
 
-    suspend fun run(js: String): String? {
-        return LocalNetwork.request(
+    suspend fun run(js: String): String {
+        return LocalNetwork.post(
             "js/run",
             js
         )

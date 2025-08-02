@@ -36,7 +36,7 @@ object BookBillAPI {
     suspend fun list(typeName: String): List<BookBillModel> = withContext(
         Dispatchers.IO
     ) {
-        val response = LocalNetwork.request("bill/book/list?type=${typeName}")
+        val response = LocalNetwork.get("bill/book/list?type=${typeName}")
         runCatching {
             val json = Gson().fromJson(response, JsonObject::class.java)
             Gson().fromJson(
@@ -57,7 +57,7 @@ object BookBillAPI {
     suspend fun put(bills: ArrayList<BookBillModel>, md5: String, typeName: String) =
         withContext(Dispatchers.IO) {
             val json = Gson().toJson(bills)
-            LocalNetwork.request("bill/book/put?md5=$md5&type=${typeName}", json)
+            LocalNetwork.post("bill/book/put?md5=$md5&type=${typeName}", json)
         }
 
 }

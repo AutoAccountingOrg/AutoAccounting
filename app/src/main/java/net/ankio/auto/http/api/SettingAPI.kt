@@ -26,7 +26,7 @@ object SettingAPI {
      * 获取设置
      */
     suspend fun get(key: String, default: String): String = withContext(Dispatchers.IO) {
-        val response = LocalNetwork.request("setting/get?key=$key")
+        val response = LocalNetwork.post("setting/get?key=$key")
 
         runCatching {
             val json = Gson().fromJson(response, JsonObject::class.java)
@@ -38,10 +38,26 @@ object SettingAPI {
      * 设置
      */
     suspend fun set(key: String, value: String) = withContext(Dispatchers.IO) {
-        LocalNetwork.request("setting/set?key=$key", value)
+        LocalNetwork.post("setting/set?key=$key", value)
     }
 
     suspend fun clearDatabase() = withContext(Dispatchers.IO) {
-        LocalNetwork.request("db/clear")
+        LocalNetwork.post("db/clear")
+    }
+
+    /**
+     * 获取所有设置项列表
+     */
+    suspend fun list(): List<org.ezbook.server.db.model.SettingModel> =
+        withContext(Dispatchers.IO) {
+            val response = LocalNetwork.post("setting/list")
+
+            runCatching {
+                val json = Gson().fromJson(response, JsonObject::class.java)
+                Gson().fromJson(
+                    json.getAsJsonArray("data"),
+                    Array<org.ezbook.server.db.model.SettingModel>::class.java
+                ).toList()
+            }.getOrNull() ?: emptyList()
     }
 }

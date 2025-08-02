@@ -34,7 +34,7 @@ object BillAPI {
      * @return 服务器响应结果
      */
     suspend fun put(billInfoModel: BillInfoModel) = withContext(Dispatchers.IO) {
-        LocalNetwork.request("bill/put", Gson().toJson(billInfoModel))
+        LocalNetwork.post("bill/put", Gson().toJson(billInfoModel))
     }
 
     /**
@@ -43,7 +43,7 @@ object BillAPI {
      * @return 服务器响应结果
      */
     suspend fun remove(id: Long) = withContext(Dispatchers.IO) {
-        LocalNetwork.request("bill/remove?id=$id")
+        LocalNetwork.post("bill/remove", Gson().toJson(mapOf("id" to id)))
     }
 
     /**
@@ -52,7 +52,7 @@ object BillAPI {
      * @return 账单信息模型，如果获取失败则返回null
      */
     suspend fun get(id: Long): BillInfoModel? = withContext(Dispatchers.IO) {
-        val response = LocalNetwork.request("bill/get?id=$id")
+        val response = LocalNetwork.get("bill/get?id=$id")
         runCatching {
             val json = Gson().fromJson(response, JsonObject::class.java)
             Gson().fromJson(
@@ -79,7 +79,7 @@ object BillAPI {
             val syncType = if (type.isNotEmpty()) type.joinToString() else typeName
 
             val response =
-                LocalNetwork.request("bill/list?page=$page&limit=$pageSize&type=${syncType}")
+                LocalNetwork.get("bill/list?page=$page&limit=$pageSize&type=${syncType}")
 
             runCatching {
                 val json = Gson().fromJson(response, JsonObject::class.java)
@@ -95,7 +95,7 @@ object BillAPI {
      * @return 需要同步的账单信息模型列表
      */
     suspend fun sync(): List<BillInfoModel> = withContext(Dispatchers.IO) {
-        val response = LocalNetwork.request("bill/sync/list")
+        val response = LocalNetwork.get("bill/sync/list")
 
         runCatching {
             val json = Gson().fromJson(response, JsonObject::class.java)
@@ -113,7 +113,7 @@ object BillAPI {
      * @return 服务器响应结果
      */
     suspend fun status(id: Long, sync: Boolean) = withContext(Dispatchers.IO) {
-        LocalNetwork.request("bill/status?id=$id&sync=$sync")
+        LocalNetwork.post("bill/status", Gson().toJson(mapOf("id" to id, "sync" to sync)))
     }
 
     /**
@@ -122,7 +122,7 @@ object BillAPI {
      * @return 该分组下的账单信息模型列表
      */
     suspend fun getBillByGroup(id: Long): List<BillInfoModel> = withContext(Dispatchers.IO) {
-        val response = LocalNetwork.request("bill/group?id=$id")
+        val response = LocalNetwork.get("bill/group?id=$id")
 
         runCatching {
             val json = Gson().fromJson(response, JsonObject::class.java)
@@ -138,7 +138,7 @@ object BillAPI {
      * @return 服务器响应结果
      */
     suspend fun clear() = withContext(Dispatchers.IO) {
-        LocalNetwork.request("bill/clear")
+        LocalNetwork.post("bill/clear")
     }
 
     /**
@@ -147,7 +147,7 @@ object BillAPI {
      */
     suspend fun edit(): List<BillInfoModel> = withContext(Dispatchers.IO) {
         runCatching {
-            val response = LocalNetwork.request("bill/edit")
+            val response = LocalNetwork.get("bill/edit")
             val json = Gson().fromJson(response, JsonObject::class.java)
             Gson().fromJson(
                 json.getAsJsonArray("data"),
@@ -162,7 +162,7 @@ object BillAPI {
      * @return 服务器响应结果
      */
     suspend fun unGroup(id: Long) = withContext(Dispatchers.IO) {
-        LocalNetwork.request("bill/unGroup?id=$id")
+        LocalNetwork.post("bill/unGroup", Gson().toJson(mapOf("id" to id)))
     }
 
     /**
@@ -173,7 +173,7 @@ object BillAPI {
      */
     suspend fun getMonthlyStats(year: Int, month: Int): Map<String, Double>? =
         withContext(Dispatchers.IO) {
-            val response = LocalNetwork.request("/bill/monthly/stats?year=$year&month=$month", "{}")
+            val response = LocalNetwork.post("/bill/monthly/stats?year=$year&month=$month", "{}")
             runCatching {
                 val json = Gson().fromJson(response, JsonObject::class.java)
                 val data = json.getAsJsonObject("data")

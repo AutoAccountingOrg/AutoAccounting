@@ -50,7 +50,7 @@ object AppDataAPI {
         search: String
     ): List<AppDataModel> = withContext(Dispatchers.IO) {
         // 构建查询URL，对搜索关键词进行URL编码以防止特殊字符问题
-        val response = LocalNetwork.request(
+        val response = LocalNetwork.get(
             "data/list?page=$page&limit=$limit&app=$app&type=$type&match=${match}&search=${
                 Uri.encode(search)
             }"
@@ -73,7 +73,7 @@ object AppDataAPI {
      * @return 返回服务器响应结果
      */
     suspend fun clear() = withContext(Dispatchers.IO) {
-        LocalNetwork.request("data/clear")
+        LocalNetwork.post("data/clear")
     }
 
     /**
@@ -85,7 +85,7 @@ object AppDataAPI {
      */
     suspend fun put(data: AppDataModel) = withContext(Dispatchers.IO) {
         // 将数据模型转换为JSON格式发送到服务器
-        LocalNetwork.request("data/put", Gson().toJson(data))
+        LocalNetwork.post("data/put", Gson().toJson(data))
     }
 
     /**
@@ -95,7 +95,7 @@ object AppDataAPI {
      * @return 返回服务器响应结果
      */
     suspend fun delete(id: Long) = withContext(Dispatchers.IO) {
-        LocalNetwork.request("data/delete?id=$id")
+        LocalNetwork.post("data/delete", Gson().toJson(mapOf("id" to id)))
     }
 
     /**
@@ -105,7 +105,7 @@ object AppDataAPI {
      * @return 返回包含应用统计信息的JsonObject，如果获取失败则返回空的JsonObject
      */
     suspend fun apps(): JsonObject = withContext(Dispatchers.IO) {
-        val response = LocalNetwork.request("data/apps")
+        val response = LocalNetwork.get("data/apps")
 
         // 安全地解析JSON响应，提取data字段中的应用统计信息
         runCatching {

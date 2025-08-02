@@ -13,7 +13,21 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.http.api
+package net.ankio.auto.service
 
-object DbAPI {
+import android.content.Intent
+
+class FloatingService : ICoreService() {
+    override fun onCreate(coreService: CoreService) {
+        super.onCreate(coreService)
+
+    }
+
+    override fun onDestroy() {
+
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int) {
+
+    }
 }

@@ -36,7 +36,7 @@ object AssetsMapAPI {
     suspend fun list(page: Int, pageSize: Int): List<AssetsMapModel> = withContext(
         Dispatchers.IO
     ) {
-        val response = LocalNetwork.request("assets/map/list?page=$page&limit=$pageSize")
+        val response = LocalNetwork.get("assets/map/list?page=$page&limit=$pageSize")
 
         runCatching {
             val json = Gson().fromJson(response, JsonObject::class.java)
@@ -52,7 +52,7 @@ object AssetsMapAPI {
      * @return 未映射的资产模型列表
      */
     suspend fun empty(): List<AssetsMapModel> = withContext(Dispatchers.IO) {
-        val response = LocalNetwork.request("assets/map/empty")
+        val response = LocalNetwork.get("assets/map/empty")
         runCatching {
             val json = Gson().fromJson(response, JsonObject::class.java)
             Gson().fromJson(
@@ -68,7 +68,7 @@ object AssetsMapAPI {
      * @return 后端返回的JsonObject结果
      */
     suspend fun put(model: AssetsMapModel): JsonObject = withContext(Dispatchers.IO) {
-        val response = LocalNetwork.request("assets/map/put", Gson().toJson(model))
+        val response = LocalNetwork.post("assets/map/put", Gson().toJson(model))
 
         runCatching {
             val json = Gson().fromJson(response, JsonObject::class.java)
@@ -84,7 +84,7 @@ object AssetsMapAPI {
      * @param id 资产映射ID
      */
     suspend fun remove(id: Long) = withContext(Dispatchers.IO) {
-        LocalNetwork.request("assets/map/delete?id=$id")
+        LocalNetwork.post("assets/map/delete", Gson().toJson(mapOf("id" to id)))
     }
 
     /**
@@ -93,7 +93,7 @@ object AssetsMapAPI {
      * @return 对应的资产映射模型，若不存在则为null
      */
     suspend fun getByName(account: String): AssetsMapModel? = withContext(Dispatchers.IO) {
-        val response = LocalNetwork.request("assets/map/get?name=${Uri.encode(account)}")
+        val response = LocalNetwork.get("assets/map/get?name=${Uri.encode(account)}")
 
         runCatching {
             val json = Gson().fromJson(response, JsonObject::class.java)

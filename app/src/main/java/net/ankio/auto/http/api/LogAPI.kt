@@ -34,7 +34,7 @@ object LogAPI {
             log.app = app
             log.location = location
             log.message = message
-            LocalNetwork.request("log/add", Gson().toJson(log))
+            LocalNetwork.post("log/add", Gson().toJson(log))
         }
 
     /**
@@ -45,7 +45,7 @@ object LogAPI {
      */
     suspend fun list(page: Int = 1, limit: Int = 10): List<LogModel> =
         withContext(Dispatchers.IO) {
-            val response = LocalNetwork.request("log/list?page=$page&limit=$limit")
+            val response = LocalNetwork.get("log/list?page=$page&limit=$limit")
 
 
             runCatching {
@@ -63,6 +63,6 @@ object LogAPI {
      * 清空日志
      */
     suspend fun clear() = withContext(Dispatchers.IO) {
-        LocalNetwork.request("log/clear")
+        LocalNetwork.post("log/clear")
     }
 }

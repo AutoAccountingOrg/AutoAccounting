@@ -39,7 +39,7 @@ object CategoryMapAPI {
         withContext(
             Dispatchers.IO
         ) {
-            val response = LocalNetwork.request(
+            val response = LocalNetwork.get(
                 "category/map/list?page=$page&limit=$pageSize&search=${
                     Uri.encode(
                         search
@@ -63,7 +63,7 @@ object CategoryMapAPI {
      * @return 返回服务器响应结果
      */
     suspend fun put(model: CategoryMapModel) = withContext(Dispatchers.IO) {
-        LocalNetwork.request("category/map/put", Gson().toJson(model))
+        LocalNetwork.post("category/map/put", Gson().toJson(model))
     }
 
     /**
@@ -72,6 +72,6 @@ object CategoryMapAPI {
      * @return 返回服务器响应结果
      */
     suspend fun remove(id: Long) = withContext(Dispatchers.IO) {
-        LocalNetwork.request("category/map/delete?id=$id")
+        LocalNetwork.post("category/map/delete", Gson().toJson(mapOf("id" to id)))
     }
 }

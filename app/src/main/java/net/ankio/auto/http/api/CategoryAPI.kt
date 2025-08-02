@@ -43,7 +43,7 @@ object CategoryAPI {
         type: BillType,
         parent: String,
     ): List<CategoryModel> = withContext(Dispatchers.IO) {
-        val response = LocalNetwork.request("category/list?book=$bookID&type=$type&parent=$parent")
+        val response = LocalNetwork.get("category/list?book=$bookID&type=$type&parent=$parent")
 
         runCatching {
             val json = Gson().fromJson(response, JsonObject::class.java)
@@ -68,7 +68,7 @@ object CategoryAPI {
         type: String = ""
     ): CategoryModel? = withContext(Dispatchers.IO) {
         val response =
-            LocalNetwork.request("category/get?name=${Uri.encode(name)}&book=$bookID&type=$type")
+            LocalNetwork.get("category/get?name=${Uri.encode(name)}&book=$bookID&type=$type")
 
         runCatching {
             val json = Gson().fromJson(response, JsonObject::class.java)
@@ -87,6 +87,6 @@ object CategoryAPI {
      * @return 返回服务器响应结果
      */
     suspend fun put(data: ArrayList<CategoryModel>, md5: String) = withContext(Dispatchers.IO) {
-        LocalNetwork.request("category/put?md5=$md5", Gson().toJson(data))
+        LocalNetwork.post("category/put?md5=$md5", Gson().toJson(data))
     }
 }
