@@ -135,11 +135,7 @@ class BookEditFragment : BaseFragment<FragmentBookEditBinding>() {
                 try {
                     val drawable = ImageUtils.get(
                         requireContext(),
-                        if (currentBookModel.icon.startsWith("data:image")) {
-                            currentBookModel.icon
-                        } else {
-                            "data:image/jpeg;base64,${currentBookModel.icon}"
-                        },
+                        currentBookModel.icon,
                         R.drawable.ic_book
                     )
 
