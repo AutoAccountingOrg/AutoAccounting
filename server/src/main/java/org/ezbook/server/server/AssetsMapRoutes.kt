@@ -17,6 +17,7 @@ package org.ezbook.server.server
 
 import io.ktor.application.call
 import io.ktor.request.receive
+import io.ktor.request.receiveText
 import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.get
@@ -46,16 +47,16 @@ fun Route.assetsMapRoutes() {
 
             if (limit == 0) {
                 // 返回所有数据，不分页
-                val mappings = Db.get().assetsMapDao().loadWithoutLimit()
+                val mappings = Db.get().assetsMapDao().list()
                 call.respond(ResultModel(200, "OK", mappings))
                 return@get
             }
 
             val page = call.request.queryParameters["page"]?.toInt() ?: 1
             val offset = (page - 1) * limit
-            val search = call.request.queryParameters["search"]?.takeIf { it.isNotEmpty() }
+            //  val search = call.request.queryParameters["search"]?.takeIf { it.isNotEmpty() }
 
-            val mappings = Db.get().assetsMapDao().loadWithLimit(limit, offset, search)
+            val mappings = Db.get().assetsMapDao().load(limit, offset)
             call.respond(ResultModel(200, "OK", mappings))
         }
 
