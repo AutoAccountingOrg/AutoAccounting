@@ -35,15 +35,7 @@ android {
     /* AGP 8.x 新写法：packaging → resources.excludes / jniLibs.excludes */
     packaging {
         resources.excludes += setOf(
-            "META-INF/DEPENDENCIES",
-            "META-INF/LICENSE",
-            "META-INF/LICENSE.txt",
-            "META-INF/license.txt",
-            "META-INF/NOTICE",
-            "META-INF/NOTICE.txt",
-            "META-INF/notice.txt",
-            "META-INF/ASL2.0",
-            "META-INF/INDEX.LIST"
+            "META-INF/*"
         )
     }
 }
@@ -64,7 +56,6 @@ dependencies {
 
     // Room with KSP (instead of KAPT)
     implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.appcompat.resources)
     ksp(libs.androidx.room.compiler) // Use KSP instead of KAPT
     implementation(libs.androidx.room.ktx)
 
@@ -75,4 +66,5 @@ dependencies {
     implementation(libs.ktor.server.netty)
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.gson)
+    debugImplementation("com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.11")
 }
