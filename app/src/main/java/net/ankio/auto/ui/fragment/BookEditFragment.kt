@@ -93,9 +93,6 @@ class BookEditFragment : BaseFragment<FragmentBookEditBinding>() {
 
         // 图标选择
         iconSelectCard.setOnClickListener { showIconSelector() }
-
-        // 监听账本名称变化，更新图标预览文字
-        bookNameEditText.setOnFocusChangeListener { _, _ -> updateIconStatusText() }
     }
 
     /**
