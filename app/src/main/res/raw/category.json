@@ -1,0 +1,1906 @@
+[
+  {
+    "url": "http://res3.qianjiapp.com/cate_yajin.png",
+    "name": "押金"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_qianzheng.png",
+    "name": "签证"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_lvshifei1.png",
+    "name": "律师费"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_lvshifei2.png",
+    "name": "律师费"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_qifu.png",
+    "name": "祈福"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_fapiao.png",
+    "name": "发票"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_guanshui.png",
+    "name": "关税"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_yanjing.png",
+    "name": "眼镜"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_fuyin.png",
+    "name": "复印"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_zhongjie.png",
+    "name": "中介"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_daijia.png",
+    "name": "代驾"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_caipiao.png",
+    "name": "彩票"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_juanzeng.png",
+    "name": "捐赠"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_baoxian.png",
+    "name": "保险"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_dangfei.png",
+    "name": "党费"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_tuanfei.png",
+    "name": "团费"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_gongzuo.png",
+    "name": "工作"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_qunuan.png",
+    "name": "取暖"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_ranqi.png",
+    "name": "燃气"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_dianfei.png",
+    "name": "电费"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_shuifei.png.png",
+    "name": "水费"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_wyf.png",
+    "name": "物业费"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate3_zhuanrang.png",
+    "name": "转让"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate3_butie.png",
+    "name": "补贴"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate3_yingshou.png",
+    "name": "应收"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_gongzi.png",
+    "name": "工资"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_baomingfei.png",
+    "name": "报名费"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_kecheng.png",
+    "name": "课程"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_peixun.png",
+    "name": "培训"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_wenju.png",
+    "name": "文具"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_shuji.png",
+    "name": "书籍"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_kaoshi.png",
+    "name": "考试"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_xuexi.png",
+    "name": "学习"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_baojianpin.png",
+    "name": "保健品"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_jiuzhenka.png",
+    "name": "就诊卡"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_vaccine.png",
+    "name": "疫苗"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate_kouzhao.png",
+    "name": "口罩"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate_hesuan.png",
+    "name": "核酸检测"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_baojian.png",
+    "name": "保健"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_jiuzhen.png",
+    "name": "就诊"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_guahao.png",
+    "name": "挂号"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_yiliao.png",
+    "name": "医疗"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_fangzu.png",
+    "name": "房租"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_fangdai.png",
+    "name": "房贷"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic3_jiudian.png",
+    "name": "酒店"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_lunchuan.png",
+    "name": "轮船"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_zixingche.png",
+    "name": "自行车"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_gongxiangdc.png",
+    "name": "共享单车"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_dianpc.png",
+    "name": "电脑"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_dache.png",
+    "name": "打车"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_feiji.png",
+    "name": "飞机"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_cixuanfu.png",
+    "name": "磁悬浮"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_huoche.png",
+    "name": "火车"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_ditie2.png",
+    "name": "地铁"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_gongjiao.png",
+    "name": "公交"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_jiaotong.png",
+    "name": "交通"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_qingke.png",
+    "name": "轻客"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic3_pinli.png",
+    "name": "拼车"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_renqing.png",
+    "name": "人情"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_qichebaoxian.png",
+    "name": "汽车保险"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_qichefakuan.png",
+    "name": "汽车罚款"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_qichetingchefei.png",
+    "name": "汽车停车费"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_qichechongdian.png",
+    "name": "汽车充电"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_qichejiayou.png",
+    "name": "汽车加油"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_qiche.png",
+    "name": "汽车"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_pet_jiyang.png",
+    "name": "宠物寄养"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_petclinic.png",
+    "name": "宠物诊所"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_petvaccine.png",
+    "name": "宠物疫苗"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cat_petpill.png",
+    "name": "宠物药品"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_petwater.png",
+    "name": "宠物饮水"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_petbed.png",
+    "name": "宠物床"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_pet_guantou.png",
+    "name": "宠物罐头"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_catlitter.png",
+    "name": "猫砂"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_cattoys.png",
+    "name": "猫玩具"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_catfood.png",
+    "name": "猫粮"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_dogtoys.png",
+    "name": "狗玩具"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_dogfood.png",
+    "name": "狗粮"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_zhuyuan.png",
+    "name": "住院护理"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_yuesao.png",
+    "name": "月嫂服务"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_jiuzhen.png",
+    "name": "就诊服务"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_yimiao.png",
+    "name": "疫苗"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_qinziyou.png",
+    "name": "亲子游"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_zaojiao.png",
+    "name": "早教"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_wanju.png",
+    "name": "玩具"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_yaoping.png",
+    "name": "药品"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_zhiniaoku.png",
+    "name": "纸尿裤"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_fushi.png",
+    "name": "服饰"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_naiping.png",
+    "name": "奶瓶"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_naifen.png",
+    "name": "奶粉"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_chanjian.png",
+    "name": "产检"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_pet.png",
+    "name": "宠物"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_pengyou.png",
+    "name": "朋友"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_haizi.png",
+    "name": "孩子"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_lianai.png",
+    "name": "恋爱"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_fumu.png",
+    "name": "父母"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_jiaren.png",
+    "name": "家人"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_biwa.png",
+    "name": "琵琶"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_erhu.png",
+    "name": "二胡"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_ruan.png",
+    "name": "阮"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_guzheng.png",
+    "name": "古筝"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_flute.png",
+    "name": "长笛"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_accordion.png",
+    "name": "手风琴"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_harmonica.png",
+    "name": "口琴"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_piano.png",
+    "name": "钢琴"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_harp.png",
+    "name": "竖琴"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_saxophone.png",
+    "name": "萨克斯"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_trombone.png",
+    "name": "长号"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_trumpet.png",
+    "name": "小号"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_cello.png",
+    "name": "大提琴"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_violin.png",
+    "name": "小提琴"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_guitar.png",
+    "name": "吉他"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_dance.png",
+    "name": "舞蹈"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_meishu.png",
+    "name": "美术"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_shufa.png",
+    "name": "书法"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_motuo.png",
+    "name": "摩托车"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_feipan.png",
+    "name": "飞盘"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_shejian.png",
+    "name": "射箭"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_panyan.png",
+    "name": "攀岩"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_qianshui.png",
+    "name": "潜水"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_chonglang.png",
+    "name": "冲浪"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_piaoliu.png",
+    "name": "漂流"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_lunhua.png",
+    "name": "轮滑"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_huaban.png",
+    "name": "滑板"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_huabing.png",
+    "name": "滑冰"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_huaxue.png",
+    "name": "滑雪"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_tubu.png",
+    "name": "徒步"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_qixing.png",
+    "name": "骑行"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_kongshoudao.png",
+    "name": "空手道"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_taiquandao.png",
+    "name": "跆拳道"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_sanda.png",
+    "name": "散打"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_gaoerfu.png",
+    "name": "高尔夫"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_boji.png",
+    "name": "搏击"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_yumaoqiu.png",
+    "name": "羽毛球"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_pingpang.png",
+    "name": "乒乓球"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_taiqiu.png",
+    "name": "台球"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_bangqiu.png",
+    "name": "棒球"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_wangqiu.png",
+    "name": "网球"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_zuqiu.png",
+    "name": "足球"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_lanqiu.png",
+    "name": "篮球"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_youyong.png",
+    "name": "游泳"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_wodao.png",
+    "name": "舞蹈"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_yujia2.png",
+    "name": "瑜伽"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_jianshenfang.png",
+    "name": "健身房"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_jianshenqicai.png",
+    "name": "健身器材"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_yundong.png",
+    "name": "运动"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_yangniao.png",
+    "name": "养鸟"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_yangyu.png",
+    "name": "养鱼"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_lvzhi.png",
+    "name": "绿植"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_sangna.png",
+    "name": "桑拿"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_puke.png",
+    "name": "扑克"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_majiang.png",
+    "name": "麻将"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_luying.png",
+    "name": "露营"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_diaoyu.png",
+    "name": "钓鱼"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_yanchu.png",
+    "name": "演出"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_menpiao.png",
+    "name": "门票"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_lvxing.png",
+    "name": "旅行"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_dashang.png",
+    "name": "打赏"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_kge.png",
+    "name": "K歌"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_dianying.png",
+    "name": "电影"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_juhui.png",
+    "name": "聚会"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_zhanlan.png",
+    "name": "展览"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_youxi.png",
+    "name": "游戏"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_yule.png",
+    "name": "娱乐"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_xcx.png",
+    "name": "小程序"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_wd.png",
+    "name": "问答"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_wph.png",
+    "name": "唯品会"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_xianyu.png",
+    "name": "闲鱼"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_xiaomi.png",
+    "name": "小米"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_xioamiyoupin.png",
+    "name": "小米有品"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_suning.png",
+    "name": "苏宁"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_dangdang.png",
+    "name": "当当"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_yanxuan.png",
+    "name": "网易严选"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_wangyikaola.png",
+    "name": "网易考拉"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_xiaohongshu.png",
+    "name": "小红书"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_amazon.png",
+    "name": "亚马逊"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_hema.png",
+    "name": "盒马鲜生"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_pdd.png",
+    "name": "拼多多"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_tianmao.png",
+    "name": "天猫"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_taobao.png",
+    "name": "淘宝"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_huolala.png",
+    "name": "货拉拉"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_xunlei.png",
+    "name": "下载工具"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_kuaigou.png",
+    "name": "下载工具"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_acfun.png",
+    "name": "视频平台"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_douyu.png",
+    "name": "直播平台"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_huya.png",
+    "name": "直播平台"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_microsoft.png",
+    "name": "办公软件"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_dropbox.png",
+    "name": "云存储"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_googledrive.png",
+    "name": "云存储"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_huaweiyun.png",
+    "name": "云存储"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_xiaomiyun.png",
+    "name": "云存储"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_kuakewp.png",
+    "name": "快看漫画"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_tencentcloud.png",
+    "name": "腾讯云"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_aliyunpan.png",
+    "name": "阿里云盘"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_115.png",
+    "name": "115网盘"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_baiduyun.png",
+    "name": "百度网盘"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_zhangyue.png",
+    "name": "掌阅"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_icloud.png",
+    "name": "iCloud"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_jjwx.png",
+    "name": "晋江文学城"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_kuaikan.png",
+    "name": "快看漫画"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_shuqi.png",
+    "name": "书旗小说"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_qidian.png",
+    "name": "起点读书"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_lanren.png",
+    "name": "懒人听书"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_qqyuedu.png",
+    "name": "QQ阅读"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_ximalaya.png",
+    "name": "喜马拉雅"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_wps.png",
+    "name": "WPS"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_weread.png",
+    "name": "微信读书"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_zhihuvip.png",
+    "name": "知乎会员"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_weibovip.png",
+    "name": "微博会员"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_qqvip.png",
+    "name": "QQ会员"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_kuwo.png",
+    "name": "酷我音乐"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_kugou.png",
+    "name": "音乐"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_spotify.png",
+    "name": "音乐"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_wangyimusic.png",
+    "name": "音乐"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_qqmusic.png",
+    "name": "音乐"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_tengxunjiasu.png",
+    "name": "网络加速"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_uujiasuqi.png",
+    "name": "网络加速"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_disney.png",
+    "name": "影视"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_xbox.png",
+    "name": "游戏"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_switch.png",
+    "name": "游戏"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_steam.png",
+    "name": "游戏"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_playstation.png",
+    "name": "游戏主机"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_mihoyo.png",
+    "name": "游戏公司"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_twitch.png",
+    "name": "游戏直播"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_hulu.png",
+    "name": "流媒体平台"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_applemusic.png",
+    "name": "音乐平台"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_hbo.png",
+    "name": "影视平台"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_netflix.png",
+    "name": "流媒体平台"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_youtube.png",
+    "name": "视频平台"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_cibn.png",
+    "name": "网络电视"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_bestv.png",
+    "name": "网络电视"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_migu.png",
+    "name": "音乐"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_mangguotv.png",
+    "name": "芒果TV"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_tencentsport.png",
+    "name": "腾讯体育"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_tencenttv.png",
+    "name": "腾讯视频"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_bilibili.png",
+    "name": "哔哩哔哩"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_youku.png",
+    "name": "优酷"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_iqiyi.png",
+    "name": "爱奇艺"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_kuaishou.png",
+    "name": "快手"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_douying.png",
+    "name": "抖音"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_1688.png",
+    "name": "阿里巴巴"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_88vip2.png",
+    "name": "会员服务"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_jingdong.png",
+    "name": "电商平台"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_meituan.png",
+    "name": "外卖平台"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_eleme.png",
+    "name": "外卖平台"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_jinianchao.png",
+    "name": "纪念钞"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_jinianbi.png",
+    "name": "纪念币"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_cryptocurrency.png",
+    "name": "加密货币"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_bitcoin.png",
+    "name": "比特币"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_nft.png",
+    "name": "NFT数字藏品"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_versace.png",
+    "name": "奢侈品品牌"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_valentino.png",
+    "name": "华伦天奴"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_ck.png",
+    "name": "卡尔文克莱恩"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_burberry.png",
+    "name": "巴宝莉"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_chanel.png",
+    "name": "香奈儿"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_coach.png",
+    "name": "蔻驰"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_gucci.png",
+    "name": "古驰"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_prada.png",
+    "name": "普拉达"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_armani.png",
+    "name": "阿玛尼"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_lv.png",
+    "name": "路易威登"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cage_givenchy.png",
+    "name": "纪梵希"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_711.png",
+    "name": "鞋类"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_ecco.png",
+    "name": "鞋类"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_timber.png",
+    "name": "鞋类"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_skq.png",
+    "name": "鞋类"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_ugg.png",
+    "name": "鞋类"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_dkn.png",
+    "name": "鞋类"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_arcteryx.png",
+    "name": "户外装备"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_northface.png",
+    "name": "户外装备"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_puma.png",
+    "name": "运动鞋"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_hoka.png",
+    "name": "运动鞋"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_kw.png",
+    "name": "关键词"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_erke.png",
+    "name": "儿童"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_lining.png",
+    "name": "李宁"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_anta.png",
+    "name": "安踏"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_vans.png",
+    "name": "万斯"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_fila.png",
+    "name": "斐乐"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_adm.png",
+    "name": "阿迪达斯"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_adidas.png",
+    "name": "阿迪达斯"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_newb.png",
+    "name": "纽巴伦"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_nike.png",
+    "name": "耐克"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_hm.png",
+    "name": "服装"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_ochirly.png",
+    "name": "女装"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_miumiu.png",
+    "name": "女装"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_vm.png",
+    "name": "服装"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_only.png",
+    "name": "女装"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_primark.png",
+    "name": "服装"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_zara.png",
+    "name": "服装"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_uniqlo.png",
+    "name": "服装"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_yinxiang.png",
+    "name": "箱包"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_watch.png",
+    "name": "手表"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_awatch.png",
+    "name": "手表"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_apphuiyuan.png",
+    "name": "会员"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_appgoumai.png",
+    "name": "购物"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_diannao.png",
+    "name": "电脑"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_jianpan.png",
+    "name": "键盘"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_erji.png",
+    "name": "耳机"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_chongdianbao.png",
+    "name": "充电宝"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_xiangji.png",
+    "name": "相机"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_shouijpeijian.png",
+    "name": "手机配件"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_phone.png",
+    "name": "手机"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_fencizhen.png",
+    "name": "粉刺针"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_shuzhuangtai.png",
+    "name": "梳妆台"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_jingzi2.png",
+    "name": "镜子"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_xilianjin.png",
+    "name": "洗脸巾"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_huazhuangmian2.png",
+    "name": "化妆棉"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_shuiguangzhen.png",
+    "name": "水光针"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_yimei.png",
+    "name": "医美"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_meirongyi2.png",
+    "name": "美容仪"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_spa.png",
+    "name": "SPA"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_meijie.png",
+    "name": "美睫"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_meifa.png",
+    "name": "美发"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_meijia2.png",
+    "name": "美甲"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_zhijiayou.png",
+    "name": "指甲油"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_hushoushuang2.png",
+    "name": "护手霜"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_xifalu.png",
+    "name": "洗发露"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_hufasu.png",
+    "name": "护肤素"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_shentiru.png",
+    "name": "身体乳"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_huazhuangshua.png",
+    "name": "化妆刷"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_jiemaogao.png",
+    "name": "睫毛膏"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_chungao.png",
+    "name": "唇膏"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_chuncai.png",
+    "name": "唇彩"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_kouhong.png",
+    "name": "口红"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_xiangshui2.png",
+    "name": "香水"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_gaoguang.png",
+    "name": "高光"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_saihong2.png",
+    "name": "腮红"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_meibi.png",
+    "name": "眉笔"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_yanxianbi.png",
+    "name": "眼线笔"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_yanying2.png",
+    "name": "眼影"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_lianfen.png",
+    "name": "粉底"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_fendi.png",
+    "name": "粉底液"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_fangshai.png",
+    "name": "防晒"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_mianmo.png",
+    "name": "面膜"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_jinghua2.png",
+    "name": "精华"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_yanshuang.png",
+    "name": "眼霜"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_mianshuang.png",
+    "name": "面霜"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_ruye2.png",
+    "name": "乳液"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_huazhuangshui.png",
+    "name": "化妆水"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_ximiannai.png",
+    "name": "洗面奶"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_xiezhuangyou2.png",
+    "name": "卸妆油"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_meifa.png",
+    "name": "美发"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_toushi.png",
+    "name": "眼镜"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_meirong.png",
+    "name": "美容"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_meizhuang.png",
+    "name": "美妆"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_swimsuit3.png",
+    "name": "泳衣"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_swimsuit1.png",
+    "name": "泳衣"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_qiuyi.png",
+    "name": "球衣"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_qiuku.png",
+    "name": "秋裤"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_siwa.png",
+    "name": "丝袜"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_hanfu.png",
+    "name": "汉服"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_wazi.png",
+    "name": "袜子"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_qunzi.png",
+    "name": "裙子"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_hight_boots.png",
+    "name": "高筒靴"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_boots.png",
+    "name": "靴子"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_pingdixie.png",
+    "name": "平底鞋"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_liangxie.png",
+    "name": "凉鞋"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_gaogenxie.png",
+    "name": "高跟鞋"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_qiuxie.png",
+    "name": "球鞋"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_baobao.png",
+    "name": "包包"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_shipin.png",
+    "name": "食品"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_qqny.png",
+    "name": "情趣内衣"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_neiyi.png",
+    "name": "内衣"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_kuzi.png",
+    "name": "裤子"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_wenxiong.png",
+    "name": "文胸"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_yurongfu.png",
+    "name": "羽绒服"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_outdoor_jacket.png",
+    "name": "户外夹克"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_waitao.png",
+    "name": "外套"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_maozi.png",
+    "name": "帽子"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_shouban.png",
+    "name": "手包"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_manghe.png",
+    "name": "盲盒"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_riyongpin.png",
+    "name": "日用品"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic3_jiaju.png",
+    "name": "家具"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_dianqi.png",
+    "name": "电器"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_shuma.png",
+    "name": "数码"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_yifu.png",
+    "name": "服装"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_gouwu2.png",
+    "name": "购物"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_mxbc.png",
+    "name": "面包"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_ruixing.png",
+    "name": "咖啡"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_xbk.png",
+    "name": "汉堡"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_huoguo.png",
+    "name": "火锅"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_shaokao.png",
+    "name": "烧烤"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_douzhipin.png",
+    "name": "豆制品"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_seafood.png",
+    "name": "海鲜"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_cake.png",
+    "name": "蛋糕"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_mianbao.png",
+    "name": "面包"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_niunai.png",
+    "name": "牛奶"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_meat.png",
+    "name": "肉类"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_yagao.png",
+    "name": "牙膏"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_tool.png",
+    "name": "工具"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_xjj.png",
+    "name": "清洁剂"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_canju.png",
+    "name": "餐具"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_ljd.png",
+    "name": "家电"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_xiyiye.png",
+    "name": "洗衣液"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_condom.png",
+    "name": "避孕套"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_tampon.png",
+    "name": "卫生棉条"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_wsj.png",
+    "name": "卫生巾"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_zhijin.png",
+    "name": "纸巾"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_hua.png",
+    "name": "花卉"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_jicun.png",
+    "name": "积存"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_kuaidi.png",
+    "name": "快递"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_xizao.png",
+    "name": "洗浴用品"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate3_qingjie.png",
+    "name": "清洁"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_lifa.png",
+    "name": "理发"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_shuidianmei.png",
+    "name": "水电煤"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_wangluo.png",
+    "name": "网络"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_dianhua.png",
+    "name": "电话"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_chaimiyouyan.png",
+    "name": "柴米油盐"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_richang2.png",
+    "name": "日常"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_egg.png",
+    "name": "鸡蛋"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_tangyuan.png",
+    "name": "汤圆"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_jiaozi.png",
+    "name": "饺子"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_mantou.png",
+    "name": "馒头"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_mian.png",
+    "name": "面食"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_mianfen.png",
+    "name": "面粉"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_shucai.png",
+    "name": "蔬菜"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_yanjiu.png",
+    "name": "烟具"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_jiu.png",
+    "name": "酒类"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_yan.png",
+    "name": "烟草"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_chocolate.png",
+    "name": "巧克力"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_candy.png",
+    "name": "糖果"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_tianpin.png",
+    "name": "甜点"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_cha.png",
+    "name": "茶"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_coffee.png",
+    "name": "咖啡"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_water.png",
+    "name": "水"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_kuangquanshui.png",
+    "name": "矿泉水"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_xgao.png",
+    "name": "雪糕"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_yinliao.png",
+    "name": "饮料"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_naicha.png",
+    "name": "奶茶"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_shuiguo.png",
+    "name": "水果"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_lingshi.png",
+    "name": "零食"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_waimai.png",
+    "name": "外卖"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_yexiao.png",
+    "name": "夜宵"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_wancan.png",
+    "name": "晚餐"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_wucan.png",
+    "name": "午餐"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_zaocan.png",
+    "name": "早餐"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_yinshi.png",
+    "name": "饮食"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_nianfei.png",
+    "name": "年费"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_lixi.png",
+    "name": "利息"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_rengongfei.png",
+    "name": "人工费"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_fuwufei.png",
+    "name": "服务费"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_shouxufei.png",
+    "name": "手续费"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_exchange.png",
+    "name": "外汇"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_waihui.png",
+    "name": "外汇"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_zhaiquan.png",
+    "name": "债券"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_huangjin.png",
+    "name": "黄金"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_licai.png",
+    "name": "理财"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_jijin.png",
+    "name": "基金"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_gupiao.png",
+    "name": "股票"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_other.png",
+    "name": "其他"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_zhihuan.png",
+    "name": "置换"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_jiangxuejin.png",
+    "name": "奖学金"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_tuishui.png",
+    "name": "退税"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_zujin.png",
+    "name": "租金"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_waikuai.png",
+    "name": "外币"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_fahongbao.png",
+    "name": "红包"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_yasuiqian.png",
+    "name": "压岁钱"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_linghuaqian.png",
+    "name": "零花钱"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_shenghuofei.png",
+    "name": "生活费"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_yibao.png",
+    "name": "医保"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_gongjijin.png",
+    "name": "公积金"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_gongzi.png",
+    "name": "工资"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_ticheng.png",
+    "name": "提成"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_cate2_jiangjin.png",
+    "name": "奖金"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_bank_zhaoshang.png",
+    "name": "招商银行"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/assetv2/asset_icon_cash.png",
+    "name": "现金"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/ic_bank_jiangsu.png",
+    "name": "江苏银行"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_yuesao.png",
+    "name": "月嫂"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_jiuzhen.png",
+    "name": "就诊"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_yimiao.png",
+    "name": "疫苗"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_qinziyou.png",
+    "name": "亲子游"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_zaojiao.png",
+    "name": "早教"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_zhiniaoku.png",
+    "name": "纸尿裤"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_wanju.png",
+    "name": "玩具"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_naiping.png",
+    "name": "奶瓶"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cate_chanjian.png",
+    "name": "产检"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_naifen.png",
+    "name": "奶粉"
+  },
+  {
+    "url": "http://res3.qianjiapp.com/cateic_fushi.png",
+    "name": "服饰"
+  }
+]
