@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.ezbook.server.Server
 import org.ezbook.server.db.model.BillInfoModel
-import org.ezbook.server.tools.Bill
+import org.ezbook.server.tools.BillManager
 
 class BillProcessor {
     private val scope = CoroutineScope(
@@ -50,7 +50,7 @@ class BillProcessor {
 
     private suspend fun processTask(task: BillTask) {
         withContext(Dispatchers.IO) {
-            task.result = Bill.groupBillInfo(task.billInfoModel, task.context)
+            task.result = BillManager.groupBillInfo(task.billInfoModel, task.context)
         }
     }
 
