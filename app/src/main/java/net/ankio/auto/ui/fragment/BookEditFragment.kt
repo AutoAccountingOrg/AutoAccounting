@@ -172,7 +172,7 @@ class BookEditFragment : BaseFragment<FragmentBookEditBinding>() {
      * 设置默认图标
      */
     private fun setDefaultIcon() = with(binding) {
-        bookIconPreview.setImageResource(R.drawable.ic_book)
+        bookIconPreview.setImageResource(R.drawable.default_book)
         iconStatusText.text = getString(R.string.tap_to_select_icon)
     }
 
