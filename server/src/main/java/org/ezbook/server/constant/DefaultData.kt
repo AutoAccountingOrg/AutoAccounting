@@ -16,7 +16,7 @@
 package org.ezbook.server.constant
 
 object DefaultData {
-    val AI_MODEL: String = AIModel.DeepSeek.name
+    val AI_MODEL: String = "DeepSeek"
     val USE_AI_FOR_CATEGORIZATION: Boolean = false
     const val IGNORE_ASSET: Boolean = false
     const val PROACTIVELY_MODEL: Boolean = true
@@ -88,7 +88,6 @@ object DefaultData {
     val USE_ROUND_STYLE = false
     val SHOW_SUCCESS_POPUP = true
     val AUTO_CREATE_CATEGORY = false
-    val SYNC_TYPE = SyncType.WhenOpenApp.name
 
 
 }

@@ -16,184 +16,97 @@
 package org.ezbook.server.constant
 
 object Setting {
-    val USE_AI_FOR_CATEGORIZATION: String = "use_ai_for_categorization"
-    val IGNORE_ASSET: String = "ignore_asset"
-    val LAST_SYNC_TIME: String = "last_sync_time"
-    val PROACTIVELY_MODEL: String = "proactively_model"
-    val BOOK_APP_ACTIVITY: String = "book_app_activity"
-    const val HASH_BAOXIAO_BILL: String = "hash_baoxiao_bill"
-    const val SHOW_DUPLICATED_POPUP: String = "show_duplicated_popup"
-    const val LANDSCAPE_DND: String = "landscape_dnd"
-    const val AI_AUXILIARY: String = "ai_auxiliary"
-    const val SMS_PERMISSION: String = "sms_permission"
-    const val NOTIFICATION_PERMISSION: String = "notification_permission"
-    const val SMS_FILTER: String = "sms_filter"
+    // ======== AI设置 ========
+    const val AI_MODEL = "ai_model"                                    // AI模型选择
+    const val USE_AI = "use_ai"                                       // 是否启用AI
+    const val USE_AI_FOR_CATEGORIZATION: String = "use_ai_for_categorization" // AI分类
+    const val AI_AUXILIARY: String = "ai_auxiliary"                    // AI辅助功能
+    const val API_KEY = "api_key"                                     // API密钥
+    const val AI_ONE_API_URI = "ai_one_api_uri"                      // One API地址
+    const val AI_ONE_API_MODEL = "ai_one_api_model"                  // One API模型
+    const val API_URI: String = "api_uri"                                  // API地址
+    const val API_MODEL: String = "api_model"                              // API模型
 
-    // 检查间隔
-    const val LAST_UPDATE_CHECK_TIME: String = "last_update_check_time"
+    // ======== 自动记账设置 ========
+    const val HOOK_AUTO_SERVER: String = "hook_auto_server"          // 自动记账服务
+    const val BOOK_APP_ID = "setting_book_app_id"                    // 记账软件ID
+    const val BOOK_APP_ACTIVITY: String = "book_app_activity"              // 记账软件Activity
+    const val SHOW_AUTO_BILL_TIP = "show_auto_bill_tip"             // 自动记账提示
+    const val SETTING_REMIND_BOOK: String = "setting_remind_book"    // 记账提醒
+    const val AUTO_CREATE_CATEGORY = "setting_auto_create_category"  // 自动创建分类
+    const val AUTO_GROUP = "setting_auto_group"                      // 自动分组（去重）
+    const val LISTENER_APP_LIST = "setting_listener_app_list"        // 监听应用列表
+    const val PROACTIVELY_MODEL: String = "proactively_model"             // 主动模式
 
-    // 是否开启自动记账
-    const val HOOK_WECHAT: String = "hook_wechat"
-    const val HOOK_AUTO_SERVER: String = "hook_auto_server"
+    // ======== 权限设置 ========
+    const val SMS_FILTER: String = "sms_filter"                      // 短信过滤
+    const val LANDSCAPE_DND: String = "landscape_dnd"                // 横屏勿扰模式
 
-    //提醒用户记账软件设置
-    const val SETTING_REMIND_BOOK: String = "setting_remind_book"
-    const val DONATE_TIME: String = "donate_time"
-    const val LOAD_SUCCESS: String = "load_success"
-    const val KEY_FRAMEWORK: String = "framework"
-    const val LAST_BACKUP_TIME: String = "last_backup_time"
-    const val SHOW_AUTO_BILL_TIP = "show_auto_bill_tip"
+    // ======== 同步和备份 ========
+    const val SYNC_TYPE = "setting_sync_type"                        // 同步类型
+    const val LAST_SYNC_TIME: String = "last_sync_time"                   // 最后同步时间
+    const val AUTO_BACKUP = "auto_backup"                           // 自动备份
+    const val LAST_BACKUP_TIME: String = "last_backup_time"         // 最后备份时间
 
-    //自动备份
-    const val AUTO_BACKUP = "auto_backup"
+    // WebDAV配置
+    const val USE_WEBDAV = "setting_use_webdav"                     // 启用WebDAV
+    const val WEBDAV_HOST = "setting_webdav_host"                   // WebDAV服务器
+    const val WEBDAV_USER = "setting_webdav_user"                   // WebDAV用户名
+    const val WEBDAV_PASSWORD = "setting_webdav_password"           // WebDAV密码
+    const val LOCAL_BACKUP_PATH = "setting_local_backup_path"       // 本地备份路径
 
-    // one api需要提供地址和模型
-    const val AI_ONE_API_URI = "ai_one_api_uri"
-    const val AI_ONE_API_MODEL = "ai_one_api_model"
+    // 同步哈希值
+    const val HASH_ASSET = "setting_hash_asset"                     // 资产哈希
+    const val HASH_BILL = "setting_hash_bill"                       // 账单哈希
+    const val HASH_BOOK = "setting_hash_book"                       // 账本哈希
+    const val HASH_CATEGORY = "setting_hash_category"               // 分类哈希
+    const val HASH_BAOXIAO_BILL: String = "hash_baoxiao_bill"      // 报销单哈希
 
-    // 所用的AI模型
-    const val AI_MODEL = "ai_model"
+    // ======== UI设置 ========
+    const val USE_ROUND_STYLE = "setting_use_round_style"           // 圆角风格
+    const val USE_SYSTEM_SKIN = "setting_use_system_skin"           // 系统皮肤
+    const val SHOW_RULE_NAME = "setting_show_rule_name"             // 显示规则名称
+    const val SHOW_SUCCESS_POPUP = "setting_show_success_popup"     // 成功提示弹窗
+    const val SHOW_DUPLICATED_POPUP: String = "show_duplicated_popup" // 重复提示弹窗
+    const val CATEGORY_SHOW_PARENT = "setting_category_show_parent" // 显示父分类
+    const val EXPENSE_COLOR_RED = "setting_expense_color_red"       // 支出红色显示
+    const val NOTE_FORMAT = "setting_note_format"                   // 备注格式
+    const val SYSTEM_LANGUAGE = "setting_system_language"           // 系统语言
 
-    // 是否使用AI辅助识别
-    const val USE_AI = "use_ai"
+    // ======== 悬浮窗设置 ========
+    const val FLOAT_TIMEOUT_OFF = "setting_float_timeout_off"       // 超时时间
+    const val FLOAT_TIMEOUT_ACTION = "setting_float_timeout_action" // 超时操作
+    const val FLOAT_CLICK = "setting_float_click"                   // 点击事件
+    const val FLOAT_LONG_CLICK = "setting_float_long_click"         // 长按事件
 
-    // API_KEY
-    const val API_KEY = "api_key"
+    // ======== 功能模块开关 ========
+    const val SETTING_ASSET_MANAGER = "setting_asset_manager"       // 资产管理
+    const val SETTING_CURRENCY_MANAGER = "setting_multi_currency"   // 多币种
+    const val SETTING_REIMBURSEMENT = "setting_reimbursement"      // 报销功能
+    const val SETTING_DEBT = "setting_debt"                         // 债务功能
+    const val SETTING_BOOK_MANAGER = "setting_book_manager"         // 多账本
+    const val SETTING_FEE = "setting_fee"                          // 手续费
+    const val SETTING_TAG = "setting_tag"                          // 标签功能
+    const val IGNORE_ASSET: String = "ignore_asset"                      // 忽略资产
+    const val DEFAULT_BOOK_NAME = "setting_default_book_name"      // 默认账本
 
-    // 同步类型
-    const val SYNC_TYPE = "setting_sync_type"
+    // ======== 系统设置 ========
+    const val DEBUG_MODE = "setting_debug_mode"                     // 调试模式
+    const val SEND_ERROR_REPORT = "setting_send_error_report"      // 错误报告
+    const val KEY_FRAMEWORK: String = "framework"                   // 框架标识
+    const val LOAD_SUCCESS: String = "load_success"                // 加载成功
+    const val DONATE_TIME: String = "donate_time"                  // 捐赠时间
 
-    // 展示规则名称
-    const val SHOW_RULE_NAME = "setting_show_rule_name"
+    // ======== 更新设置 ========
+    const val LAST_UPDATE_CHECK_TIME: String = "last_update_check_time" // 检查更新时间
+    const val UPDATE_CHANNEL = "setting_update_channel"             // 更新渠道
+    const val CHECK_UPDATE_TYPE = "setting_check_update_type"      // 更新类型
+    const val CHECK_APP_UPDATE = "setting_check_app_update"        // 应用更新
+    const val CHECK_RULE_UPDATE = "setting_check_rule_update"      // 规则更新
+    const val RULE_VERSION = "setting_rule_version"                // 规则版本
+    const val RULE_UPDATE_TIME = "setting_rule_update_time"        // 规则更新时间
 
-    //自动记账对应的记账软件
-    const val BOOK_APP_ID = "setting_book_app_id"
-
-    //默认账本
-    const val DEFAULT_BOOK_NAME = "setting_default_book_name"
-
-    //监听的App列表
-    const val LISTENER_APP_LIST = "setting_listener_app_list"
-
-    // 调试模式
-    const val DEBUG_MODE = "setting_debug_mode"
-
-    // js: 通用
-    const val JS_COMMON = "setting_js_common"
-
-    // js 分类
-    const val JS_CATEGORY = "setting_js_category"
-
-
-    // 同步的资产的md5
-    const val HASH_ASSET = "setting_hash_asset"
-
-    // 同步的账单的md5
-    const val HASH_BILL = "setting_hash_bill"
-
-    // 同步的账本的md5
-    const val HASH_BOOK = "setting_hash_book"
-
-    // 同步的分类的md5
-    const val HASH_CATEGORY = "setting_hash_category"
-
-
-    /////////////////////////////////一些设置项///////////////////////
-    //悬浮窗超时时间
-    const val FLOAT_TIMEOUT_OFF = "setting_float_timeout_off"
-
-    //悬浮标签倒计时结束后的操作
-    const val FLOAT_TIMEOUT_ACTION = "setting_float_timeout_action"
-
-    //悬浮标签被点击
-    const val FLOAT_CLICK = "setting_float_click"
-
-    //悬浮标签被长按
-    const val FLOAT_LONG_CLICK = "setting_float_long_click"
-
-    //是否显示记账成功的弹窗
-    const val SHOW_SUCCESS_POPUP = "setting_show_success_popup"
-
-    // 本地备份地址
-    const val LOCAL_BACKUP_PATH = "setting_local_backup_path"
-
-    // 使用Webdav
-    const val USE_WEBDAV = "setting_use_webdav"
-
-    // Webdav host
-    const val WEBDAV_HOST = "setting_webdav_host"
-
-    // webdav user
-    const val WEBDAV_USER = "setting_webdav_user"
-
-    // webdav password
-    const val WEBDAV_PASSWORD = "setting_webdav_password"
-
-    // 是否自动分组（去重）
-    const val AUTO_GROUP = "setting_auto_group"
-
-    // 使用圆角风格
-    const val USE_ROUND_STYLE = "setting_use_round_style"
-
-    // 是否自动创建分类
-    const val AUTO_CREATE_CATEGORY = "setting_auto_create_category"
-
-    // 规则版本
-    const val RULE_VERSION = "setting_rule_version"
-
-    // 规则更新时间
-    const val RULE_UPDATE_TIME = "setting_rule_update_time"
-
-    // 更新渠道
-    const val UPDATE_CHANNEL = "setting_update_channel"
-
-
-    //分类是否展示父类
-    const val CATEGORY_SHOW_PARENT = "setting_category_show_parent"
-
-    // 支出的颜色为红色
-    const val EXPENSE_COLOR_RED = "setting_expense_color_red"
-
-    // 发送错误报告
-    const val SEND_ERROR_REPORT = "setting_send_error_report"
-
-    // 系统语言
-    const val SYSTEM_LANGUAGE = "setting_system_language"
-
-
-    // 备注格式
-    const val NOTE_FORMAT = "setting_note_format"
-
-    // 使用系统皮肤
-    const val USE_SYSTEM_SKIN = "setting_use_system_skin"
-
-    // 检查更新类型
-    const val CHECK_UPDATE_TYPE = "setting_check_update_type"
-
-    //检查应用更新
-    const val CHECK_APP_UPDATE = "setting_check_app_update"
-
-    //检查规则更新
-    const val CHECK_RULE_UPDATE = "setting_check_rule_update"
-
-    // 资产管理
-    const val SETTING_ASSET_MANAGER = "setting_asset_manager"
-
-    // 多币种
-    const val SETTING_CURRENCY_MANAGER = "setting_multi_currency"
-
-    // 报销
-    const val SETTING_REIMBURSEMENT = "setting_reimbursement"
-
-    // 债务
-    const val SETTING_DEBT = "setting_debt"
-
-    // 多账本
-    const val SETTING_BOOK_MANAGER = "setting_book_manager"
-
-    // 手续费
-    const val SETTING_FEE = "setting_fee"
-
-    // 标签
-    const val SETTING_TAG = "setting_tag"
+    // ======== 脚本设置 ========
+    const val JS_COMMON = "setting_js_common"                      // 通用脚本
+    const val JS_CATEGORY = "setting_js_category"                  // 分类脚本
 }

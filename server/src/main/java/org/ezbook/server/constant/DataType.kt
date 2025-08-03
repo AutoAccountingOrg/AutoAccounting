@@ -16,6 +16,7 @@
 package org.ezbook.server.constant
 
 enum class DataType {
+    OCR,
     DATA,
     NOTICE
 }

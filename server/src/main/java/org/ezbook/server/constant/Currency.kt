@@ -18,7 +18,6 @@ package org.ezbook.server.constant
 import android.content.Context
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.appcompat.content.res.AppCompatResources
 import org.ezbook.server.R
 
 /**
@@ -188,7 +187,7 @@ enum class Currency(
     /**
      * 获取货币图标
      */
-    fun icon(context: Context) = AppCompatResources.getDrawable(context, currencyIconResId)
+    fun icon(context: Context) = context.getDrawable(currencyIconResId)
 
     companion object {
         //获取所有枚举值的hash
