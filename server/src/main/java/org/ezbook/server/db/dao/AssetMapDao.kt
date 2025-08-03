@@ -58,4 +58,5 @@ interface AssetMapDao {
             update(data)
         }
     }
+
 }
