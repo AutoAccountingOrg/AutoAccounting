@@ -15,14 +15,8 @@
 
 package org.ezbook.server.db.model
 
-import android.net.Uri
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.google.gson.Gson
-import com.google.gson.JsonObject
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import org.ezbook.server.Server
 
 @Entity
 class RuleModel {
@@ -58,93 +52,6 @@ class RuleModel {
 
     // 规则更新时间
     var updateAt: Long = System.currentTimeMillis()
-
-    companion object {
-        /**
-         * 根据条件查询
-         * @param app 应用
-         * @param type 类型
-         * @param page 页码
-         * @param limit 每页数量
-         * @return 规则列表
-         */
-        suspend fun list(
-            app: String,
-            type: String,
-            page: Int,
-            limit: Int,
-            search: String = ""
-        ): List<RuleModel> = withContext(Dispatchers.IO) {
-            val response = Server.request(
-                "rule/list?page=$page&limit=$limit&app=$app&type=$type&search=${
-                    Uri.encode(search)
-                }"
-            )
-
-            runCatching {
-                val json = Gson().fromJson(response, JsonObject::class.java)
-                Gson().fromJson(json.getAsJsonArray("data"), Array<RuleModel>::class.java).toList()
-            }.getOrNull() ?: emptyList()
-        }
-
-        /**
-         * 获取所有系统规则
-         */
-        suspend fun system(name: String): RuleModel? = withContext(Dispatchers.IO) {
-            val response = Server.request("rule/system?name=${Uri.encode(name)}")
-
-            runCatching {
-                val json = Gson().fromJson(response, JsonObject::class.java)
-                Gson().fromJson(json.getAsJsonObject("data"), RuleModel::class.java)
-            }.getOrNull()
-        }
-
-        suspend fun deleteSystemRule() = withContext(Dispatchers.IO) {
-            Server.request("rule/deleteSystemRule")
-        }
-
-        suspend fun put(rule: RuleModel) = withContext(Dispatchers.IO) {
-            Server.request("rule/put", Gson().toJson(rule))
-        }
-
-        /**
-         * 添加规则
-         */
-        suspend fun add(rule: RuleModel): Int = withContext(Dispatchers.IO) {
-            val response = Server.request("rule/add", Gson().toJson(rule))
-            runCatching {
-                val json = Gson().fromJson(response, JsonObject::class.java)
-                json.get("data").asInt
-            }.getOrDefault(0)
-        }
-
-        /**
-         * 更新规则
-         */
-        suspend fun update(rule: RuleModel) = withContext(Dispatchers.IO) {
-            Server.request("rule/update", Gson().toJson(rule))
-        }
-
-        /**
-         * 删除规则
-         */
-        suspend fun delete(id: Int) = withContext(Dispatchers.IO) {
-            Server.request("rule/delete?id=$id")
-        }
-
-        /**
-         * 获取app列表
-         */
-        suspend fun apps(): JsonObject = withContext(Dispatchers.IO) {
-            val response = Server.request("rule/apps")
-
-            runCatching {
-                val json = Gson().fromJson(response, JsonObject::class.java)
-                json.getAsJsonObject("data")
-            }.getOrNull() ?: JsonObject()
-        }
-
-    }
 
     override fun toString(): String {
         return "RuleModel(id=$id, app='$app', type='$type', js='$js', name='$name', systemRuleName='$systemRuleName', creator='$creator', struct='$struct', autoRecord=$autoRecord, enabled=$enabled)"

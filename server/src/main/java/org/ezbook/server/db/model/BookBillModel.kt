@@ -17,11 +17,6 @@ package org.ezbook.server.db.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.google.gson.Gson
-import com.google.gson.JsonObject
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import org.ezbook.server.Server
 
 
 /**
@@ -47,28 +42,6 @@ class BookBillModel {
 
     var category: String = ""
     var type: String = ""
-
-    companion object {
-        suspend fun list(typeName: String): List<BookBillModel> = withContext(
-            Dispatchers.IO
-        ) {
-            val response = Server.request("bill/book/list?type=${typeName}")
-            runCatching {
-                val json = Gson().fromJson(response, JsonObject::class.java)
-                Gson().fromJson(
-                    json.getAsJsonArray("data"),
-                    Array<BookBillModel>::class.java
-                ).toList()
-            }.getOrNull() ?: emptyList()
-        }
-
-        suspend fun put(bills: ArrayList<BookBillModel>, md5: String, typeName: String) =
-            withContext(Dispatchers.IO) {
-                val json = Gson().toJson(bills)
-                Server.request("bill/book/put?md5=$md5&type=${typeName}", json)
-            }
-
-    }
 
     override fun toString(): String {
         return "BookBillModel(id=$id, money=$money, time=$time, remark='$remark', remoteId='$remoteId', remoteBookId='$remoteBookId', category='$category', type='$type')"

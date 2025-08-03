@@ -17,11 +17,6 @@ package org.ezbook.server.db.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.google.gson.Gson
-import com.google.gson.JsonObject
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import org.ezbook.server.Server
 
 @Entity
 class SettingModel {
@@ -29,29 +24,4 @@ class SettingModel {
     var id = 0
     var key = ""
     var value = ""
-
-    companion object {
-        /**
-         * 获取设置
-         */
-        suspend fun get(key: String, default: String): String = withContext(Dispatchers.IO) {
-            val response = Server.request("setting/get?key=$key")
-
-            runCatching {
-                val json = Gson().fromJson(response, JsonObject::class.java)
-                json.get("data").asString
-            }.getOrNull() ?: default
-        }
-
-        /**
-         * 设置
-         */
-        suspend fun set(key: String, value: String) = withContext(Dispatchers.IO) {
-            Server.request("setting/set?key=$key", value)
-        }
-
-        suspend fun clearDatabase() = withContext(Dispatchers.IO) {
-            Server.request("db/clear")
-        }
-    }
 }

@@ -14,14 +14,8 @@
  */
 package org.ezbook.server.db.model
 
-import android.net.Uri
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.google.gson.Gson
-import com.google.gson.JsonObject
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import org.ezbook.server.Server
 import org.ezbook.server.constant.AssetsType
 import org.ezbook.server.constant.Currency
 
@@ -40,42 +34,4 @@ class AssetsModel {
     var type: AssetsType = AssetsType.NORMAL // 账户类型
     var extras: String = "" // 额外信息，例如银行卡的卡号等
     var currency: Currency = Currency.CNY // 货币类型
-
-    companion object {
-        /**
-         * 根据条件查询
-         * @return 规则列表
-         */
-        suspend fun list(): List<AssetsModel> = withContext(
-            Dispatchers.IO
-        ) {
-            val response = Server.request("assets/list")
-
-
-            runCatching {
-                val json = Gson().fromJson(response, JsonObject::class.java)
-                Gson().fromJson(
-                    json.getAsJsonArray("data"),
-                    Array<AssetsModel>::class.java
-                ).toList()
-            }.getOrNull() ?: emptyList()
-        }
-
-        suspend fun put(data: ArrayList<AssetsModel>, md5: String) {
-            val json = Gson().toJson(data)
-            Server.request("assets/put?md5=$md5", json)
-        }
-
-        suspend fun getByName(name: String): AssetsModel? {
-            val response = Server.request("assets/get?name=${Uri.encode(name)}")
-
-            return runCatching {
-                val json = Gson().fromJson(response, JsonObject::class.java)
-                Gson().fromJson(
-                    json.getAsJsonObject("data"),
-                    AssetsModel::class.java
-                )
-            }.getOrNull()
-        }
-    }
 }

@@ -15,14 +15,8 @@
 
 package org.ezbook.server.db.model
 
-import android.net.Uri
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.google.gson.Gson
-import com.google.gson.JsonObject
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import org.ezbook.server.Server
 import org.ezbook.server.constant.DataType
 
 @Entity
@@ -73,60 +67,7 @@ class AppDataModel {
      */
     var version: String = ""
 
-    companion object {
-        /**
-         * 根据条件查询
-         * @param app 应用
-         * @param type 类型
-         * @param page 页码
-         * @param limit 每页数量
-         * @return 规则列表
-         */
-        suspend fun list(
-            app: String,
-            type: String,
-            match: Boolean,
-            page: Int,
-            limit: Int,
-            search: String
-        ): List<AppDataModel> = withContext(Dispatchers.IO) {
-            val response = Server.request(
-                "data/list?page=$page&limit=$limit&app=$app&type=$type&match=${match}&search=${
-                    Uri.encode(search)
-                }"
-            )
 
-
-            runCatching {
-                val json = Gson().fromJson(response, JsonObject::class.java)
-                Gson().fromJson(
-                    json.getAsJsonArray("data"),
-                    Array<AppDataModel>::class.java
-                ).toList()
-            }.getOrNull() ?: emptyList()
-        }
-
-        suspend fun clear() = withContext(Dispatchers.IO) {
-            Server.request("data/clear")
-        }
-
-        suspend fun put(data: AppDataModel) = withContext(Dispatchers.IO) {
-            Server.request("data/put", Gson().toJson(data))
-        }
-
-        suspend fun delete(id: Long) = withContext(Dispatchers.IO) {
-            Server.request("data/delete?id=$id")
-        }
-
-        suspend fun apps(): JsonObject = withContext(Dispatchers.IO) {
-            val response = Server.request("data/apps")
-
-            runCatching {
-                val json = Gson().fromJson(response, JsonObject::class.java)
-                json.getAsJsonObject("data")
-            }.getOrNull() ?: JsonObject()
-        }
-    }
 
     override fun toString(): String {
         return "AppDataModel(id=$id, data='', type=$type, app='$app', time=$time, match=$match, rule='$rule', issue=$issue)"

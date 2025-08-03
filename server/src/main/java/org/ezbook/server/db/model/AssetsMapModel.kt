@@ -15,14 +15,8 @@
 
 package org.ezbook.server.db.model
 
-import android.net.Uri
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.google.gson.Gson
-import com.google.gson.JsonObject
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import org.ezbook.server.Server
 
 @Entity
 class AssetsMapModel {
@@ -43,65 +37,6 @@ class AssetsMapModel {
      * 映射到的账户名
      */
     var mapName: String = "" // 映射账户名
-
-    companion object {
-        suspend fun list(page: Int, pageSize: Int): List<AssetsMapModel> = withContext(
-            Dispatchers.IO
-        ) {
-            val response = Server.request("assets/map/list?page=$page&limit=$pageSize")
-
-
-            runCatching {
-                val json = Gson().fromJson(response, JsonObject::class.java)
-                Gson().fromJson(
-                    json.getAsJsonArray("data"),
-                    Array<AssetsMapModel>::class.java
-                ).toList()
-            }.getOrNull() ?: emptyList()
-        }
-
-        suspend fun empty(): List<AssetsMapModel> = withContext(Dispatchers.IO) {
-            val response = Server.request("assets/map/empty")
-            runCatching {
-                val json = Gson().fromJson(response, JsonObject::class.java)
-                Gson().fromJson(
-                    json.getAsJsonArray("data"),
-                    Array<AssetsMapModel>::class.java
-                ).toList()
-            }.getOrNull() ?: emptyList()
-        }
-
-        suspend fun put(model: AssetsMapModel): JsonObject = withContext(Dispatchers.IO) {
-            val response = Server.request("assets/map/put", Gson().toJson(model))
-
-
-            runCatching {
-                val json = Gson().fromJson(response, JsonObject::class.java)
-                Gson().fromJson(
-                    json.getAsJsonArray("data"),
-                    JsonObject::class.java
-                )
-            }.getOrNull() ?: JsonObject()
-        }
-
-        suspend fun remove(id: Long) = withContext(Dispatchers.IO) {
-            Server.request("assets/map/delete?id=$id")
-        }
-
-        suspend fun getByName(account: String): AssetsMapModel? = withContext(Dispatchers.IO) {
-            val response = Server.request("assets/map/get?name=${Uri.encode(account)}")
-
-            runCatching {
-                val json = Gson().fromJson(response, JsonObject::class.java)
-                Gson().fromJson(
-                    json.getAsJsonObject("data"),
-                    AssetsMapModel::class.java
-                )
-            }.getOrNull()
-        }
-
-
-    }
 
     override fun toString(): String {
         return "AssetsMapModel(id=$id, regex=$regex, name='$name', mapName='$mapName')"

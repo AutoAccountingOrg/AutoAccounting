@@ -17,11 +17,6 @@ package org.ezbook.server.db.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.google.gson.Gson
-import com.google.gson.JsonObject
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import org.ezbook.server.Server
 import org.ezbook.server.constant.LogLevel
 
 @Entity
@@ -38,49 +33,4 @@ class LogModel {
     var message = ""
 
     var time = System.currentTimeMillis()
-
-    companion object {
-        /**
-         * 添加日志
-         */
-        suspend fun add(level: LogLevel, app: String, location: String, message: String) =
-            withContext(Dispatchers.IO) {
-                val log = LogModel()
-                log.level = level
-                log.app = app
-                log.location = location
-                log.message = message
-                Server.request("log/add", Gson().toJson(log))
-            }
-
-        /**
-         * 获取日志列表
-         * @param page 页码
-         * @param limit 每页数量
-         * @return 日志列表
-         */
-        suspend fun list(page: Int = 1, limit: Int = 10): List<LogModel> =
-            withContext(Dispatchers.IO) {
-                val response = Server.request("log/list?page=$page&limit=$limit")
-
-
-                runCatching {
-                    val json = Gson().fromJson(response, JsonObject::class.java)
-                    Gson().fromJson(
-                        json.getAsJsonArray("data"),
-                        Array<LogModel>::class.java
-                    ).toList()
-                }.getOrDefault(
-                    emptyList()
-                )
-            }
-
-        /**
-         * 清空日志
-         */
-        suspend fun clear() = withContext(Dispatchers.IO) {
-            Server.request("log/clear")
-        }
-    }
-
 }

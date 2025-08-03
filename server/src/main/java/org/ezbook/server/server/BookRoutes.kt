@@ -17,10 +17,12 @@ package org.ezbook.server.server
 
 import io.ktor.application.call
 import io.ktor.request.receive
+import io.ktor.request.receiveText
 import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.post
 import io.ktor.routing.route
+import org.ezbook.server.Server
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.BookNameModel
@@ -58,6 +60,23 @@ fun Route.bookRoutes() {
             // 更新账本数据的hash值
             setByInner(Setting.HASH_BOOK, md5)
             call.respond(ResultModel(200, "OK", result))
+        }
+
+        /**
+         * POST /book/delete - 删除指定账本
+         * 根据账本ID删除对应的账本记录
+         *
+         * @param body 包含id的JSON对象
+         * @return ResultModel 操作结果
+         */
+        post("/delete") {
+            val requestBody = call.receiveText()
+            val json =
+                com.google.gson.Gson().fromJson(requestBody, com.google.gson.JsonObject::class.java)
+            val id = json?.get("id")?.asLong ?: 0
+            Server.log("删除账本:$id")
+            Db.get().bookNameDao().delete(id)
+            call.respond(ResultModel(200, "OK", 0))
         }
     }
 } 

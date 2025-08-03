@@ -15,14 +15,8 @@
 
 package org.ezbook.server.db.model
 
-import android.net.Uri
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.google.gson.Gson
-import com.google.gson.JsonObject
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import org.ezbook.server.Server
 
 @Entity
 class CategoryMapModel {
@@ -38,36 +32,4 @@ class CategoryMapModel {
      * 映射到的账户名
      */
     var mapName: String = "" // 映射账户名
-
-    companion object {
-        suspend fun list(page: Int, pageSize: Int, search: String = ""): List<CategoryMapModel> =
-            withContext(
-                Dispatchers.IO
-            ) {
-                val response = Server.request(
-                    "category/map/list?page=$page&limit=$pageSize&search=${
-                        Uri.encode(
-                            search
-                        )
-                    }"
-                )
-
-
-                runCatching {
-                    val json = Gson().fromJson(response, JsonObject::class.java)
-                    Gson().fromJson(
-                        json.getAsJsonArray("data"),
-                        Array<CategoryMapModel>::class.java
-                    ).toList()
-                }.getOrNull() ?: emptyList()
-            }
-
-        suspend fun put(model: CategoryMapModel) = withContext(Dispatchers.IO) {
-            Server.request("category/map/put", Gson().toJson(model))
-        }
-
-        suspend fun remove(id: Long) = withContext(Dispatchers.IO) {
-            Server.request("category/map/delete?id=$id")
-        }
-    }
 }

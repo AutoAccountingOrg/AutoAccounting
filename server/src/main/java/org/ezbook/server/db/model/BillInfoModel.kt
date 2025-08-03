@@ -17,11 +17,6 @@ package org.ezbook.server.db.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.google.gson.Gson
-import com.google.gson.JsonObject
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import org.ezbook.server.Server
 import org.ezbook.server.constant.BillState
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.tools.MD5HashTable
@@ -151,100 +146,6 @@ class BillInfoModel {
         billInfoModel.auto = auto
         billInfoModel.ruleName = ruleName
         return billInfoModel
-    }
-
-
-    companion object {
-        suspend fun put(billInfoModel: BillInfoModel) = withContext(Dispatchers.IO) {
-            Server.request("bill/put", Gson().toJson(billInfoModel))
-        }
-
-        suspend fun remove(id: Long) = withContext(Dispatchers.IO) {
-            Server.request("bill/remove?id=$id")
-        }
-
-        suspend fun get(id: Long): BillInfoModel? = withContext(Dispatchers.IO) {
-            val response = Server.request("bill/get?id=$id")
-            runCatching {
-                val json = Gson().fromJson(response, JsonObject::class.java)
-                Gson().fromJson(
-                    json.getAsJsonObject("data"),
-                    BillInfoModel::class.java
-                )
-            }.getOrNull()
-        }
-
-
-        suspend fun list(page: Int, pageSize: Int, type: MutableList<String>): List<BillInfoModel> =
-            withContext(Dispatchers.IO) {
-                val typeName = listOf(
-                    BillState.Edited.name,
-                    BillState.Synced.name,
-                    BillState.Wait2Edit.name
-                ).joinToString()
-                val syncType = if (type.isNotEmpty()) type.joinToString() else typeName
-
-                val response =
-                    Server.request("bill/list?page=$page&limit=$pageSize&type=${syncType}")
-
-                runCatching {
-                    val json = Gson().fromJson(response, JsonObject::class.java)
-                    Gson().fromJson(
-                        json.getAsJsonArray("data"),
-                        Array<BillInfoModel>::class.java
-                    ).toList()
-                }.getOrNull() ?: emptyList()
-            }
-
-
-        suspend fun sync(): List<BillInfoModel> = withContext(Dispatchers.IO) {
-            val response = Server.request("bill/sync/list")
-
-            runCatching {
-                val json = Gson().fromJson(response, JsonObject::class.java)
-                Gson().fromJson(
-                    json.getAsJsonArray("data"),
-                    Array<BillInfoModel>::class.java
-                ).toList()
-            }.getOrNull() ?: emptyList()
-        }
-
-        suspend fun status(id: Long, sync: Boolean) = withContext(Dispatchers.IO) {
-            Server.request("bill/status?id=$id&sync=$sync")
-        }
-
-        suspend fun getBillByGroup(id: Long): List<BillInfoModel> = withContext(Dispatchers.IO) {
-            val response = Server.request("bill/group?id=$id")
-
-            runCatching {
-                val json = Gson().fromJson(response, JsonObject::class.java)
-                Gson().fromJson(
-                    json.getAsJsonArray("data"),
-                    Array<BillInfoModel>::class.java
-                ).toList()
-            }.getOrNull() ?: emptyList()
-        }
-
-        suspend fun clear() = withContext(Dispatchers.IO) {
-            Server.request("bill/clear")
-        }
-
-
-        suspend fun edit(): List<BillInfoModel> = withContext(Dispatchers.IO) {
-            runCatching {
-                val response = Server.request("bill/edit")
-                val json = Gson().fromJson(response, JsonObject::class.java)
-                Gson().fromJson(
-                    json.getAsJsonArray("data"),
-                    Array<BillInfoModel>::class.java
-                ).toList()
-            }.getOrNull() ?: emptyList()
-        }
-
-        suspend fun unGroup(id: Long) = withContext(Dispatchers.IO) {
-            Server.request("bill/unGroup?id=$id")
-        }
-
     }
 
     fun needReCategory(): Boolean {

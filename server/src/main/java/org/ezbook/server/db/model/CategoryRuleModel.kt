@@ -18,10 +18,6 @@ package org.ezbook.server.db.model
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.Gson
-import com.google.gson.JsonObject
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import org.ezbook.server.Server
 
 @Entity
 class CategoryRuleModel {
@@ -40,39 +36,4 @@ class CategoryRuleModel {
     // var text = ""
 
     var element: String = "" //数据json
-
-    companion object {
-        suspend fun list(page: Int = 1, limit: Int = 10): List<CategoryRuleModel> = withContext(
-            Dispatchers.IO
-        ) {
-            val response = Server.request("category/rule/list?page=$page&limit=$limit")
-
-            runCatching {
-                val json = Gson().fromJson(response, JsonObject::class.java)
-                Gson().fromJson(
-                    json.getAsJsonArray("data"),
-                    Array<CategoryRuleModel>::class.java
-                ).toList()
-            }.getOrNull() ?: emptyList()
-        }
-
-        suspend fun put(model: CategoryRuleModel): JsonObject = withContext(Dispatchers.IO) {
-            val response = Server.request("category/rule/put", Gson().toJson(model))
-
-
-            runCatching {
-                val json = Gson().fromJson(response, JsonObject::class.java)
-                Gson().fromJson(
-                    json.getAsJsonArray("data"),
-                    JsonObject::class.java
-                )
-            }.getOrNull() ?: JsonObject()
-        }
-
-        suspend fun remove(id: Long) = withContext(Dispatchers.IO) {
-            Server.request("category/rule/delete?id=$id")
-        }
-
-
-    }
 }

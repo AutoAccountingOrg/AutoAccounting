@@ -15,14 +15,8 @@
 
 package org.ezbook.server.db.model
 
-import android.net.Uri
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.google.gson.Gson
-import com.google.gson.JsonObject
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import org.ezbook.server.Server
 import org.ezbook.server.constant.BillType
 
 @Entity
@@ -63,52 +57,6 @@ class CategoryModel {
 
      */
     var type: BillType = BillType.Income
-
-    companion object {
-
-
-        suspend fun list(
-            bookID: String,
-            type: BillType,
-            parent: String,
-        ): List<CategoryModel> = withContext(Dispatchers.IO) {
-            val response = Server.request("category/list?book=$bookID&type=$type&parent=$parent")
-
-
-
-            runCatching {
-                val json = Gson().fromJson(response, JsonObject::class.java)
-                Gson().fromJson(
-                    json.getAsJsonArray("data"),
-                    Array<CategoryModel>::class.java
-                ).toList()
-            }.getOrNull() ?: emptyList()
-
-        }
-
-
-        suspend fun getByName(
-            name: String,
-            bookID: String = "",
-            type: String = ""
-        ): CategoryModel? = withContext(Dispatchers.IO) {
-            val response =
-                Server.request("category/get?name=${Uri.encode(name)}&book=$bookID&type=$type")
-
-            runCatching {
-                val json = Gson().fromJson(response, JsonObject::class.java)
-                Gson().fromJson(
-                    json.getAsJsonObject("data"),
-                    CategoryModel::class.java
-                )
-            }.getOrNull()
-        }
-
-        suspend fun put(data: ArrayList<CategoryModel>, md5: String) = withContext(Dispatchers.IO) {
-            Server.request("category/put?md5=$md5", Gson().toJson(data))
-        }
-
-    }
 
     fun isPanel(): Boolean {
         return remoteId == "-9999"

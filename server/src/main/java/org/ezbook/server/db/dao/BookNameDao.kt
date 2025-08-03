@@ -35,6 +35,13 @@ interface BookNameDao {
     @Query("DELETE FROM BookNameModel")
     suspend fun clear()
 
+    /**
+     * 根据ID删除指定账本
+     * @param id 账本ID
+     */
+    @Query("DELETE FROM BookNameModel WHERE id = :id")
+    suspend fun delete(id: Long)
+
     @Transaction
     suspend fun put(data: Array<BookNameModel>) {
         clear()
