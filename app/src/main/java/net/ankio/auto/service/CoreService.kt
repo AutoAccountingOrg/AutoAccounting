@@ -6,7 +6,11 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
 import android.content.Intent
+import android.os.IBinder
 import androidx.core.app.NotificationCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleService
 import net.ankio.auto.R
 import net.ankio.auto.constant.WorkMode
 import net.ankio.auto.storage.Logger
@@ -17,9 +21,8 @@ import net.ankio.auto.utils.PrefManager
  * 负责管理和协调其他子服务的生命周期
  * 包括：服务器服务、OCR服务和悬浮窗服务
  */
-class CoreService : Service() {
+class CoreService : LifecycleService() {
 
-    override fun onBind(intent: Intent?) = null
 
     /** 通知ID，用于前台服务通知 */
     private val NOTIF_ID = 1000
@@ -114,6 +117,7 @@ class CoreService : Service() {
      * @return START_STICKY 表示服务被系统杀死后会尝试重新创建
      */
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        super.onStartCommand(intent, flags, startId)
         Logger.i("onStartCommand received - intent=$intent, flags=$flags, startId=$startId")
         services.forEach { service ->
             try {
