@@ -41,7 +41,7 @@ class BookSelectorDialog(
         bookComponent = binding.bindAs(lifecycleOwner.lifecycle)
 
         // 设置是否显示选择按钮
-        bookComponent.setShowSelect(showSelect)
+        bookComponent.setShowOption(showSelect, false)
 
         // 设置账本选择回调
         bookComponent.setOnBookSelectedListener { selectedBook, billType ->

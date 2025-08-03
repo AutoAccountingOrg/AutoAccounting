@@ -32,7 +32,7 @@ class BookComponent(binding: ComponentBookBinding, private val lifecycle: Lifecy
     private val dataItems = mutableListOf<BookNameModel>()
     private lateinit var adapter: BookSelectorAdapter
     private var showSelect: Boolean = false
-
+    private var showEdit: Boolean = false
     /**
      * 设置账本选择回调
      * @param callback 回调函数，参数为选中的BookNameModel和BillType
@@ -41,20 +41,10 @@ class BookComponent(binding: ComponentBookBinding, private val lifecycle: Lifecy
         this.onBookSelected = callback
     }
 
-    /**
-     * 设置简化的账本选择回调（只接收BookNameModel参数）
-     * @param callback 回调函数，参数为选中的BookNameModel
-     */
-    fun setOnBookSelectedSimpleListener(callback: (BookNameModel) -> Unit) {
-        this.onBookSelected = { bookModel, _ -> callback(bookModel) }
-    }
 
-    /**
-     * 设置是否显示收入/支出选择按钮
-     * @param show 是否显示选择按钮
-     */
-    fun setShowSelect(show: Boolean) {
-        this.showSelect = show
+    fun setShowOption(select: Boolean, edit: Boolean) {
+        this.showSelect = select
+        this.showEdit = edit
         if (::adapter.isInitialized) {
             // 重新创建适配器以应用新的showSelect设置
             setupRecyclerView()
@@ -73,8 +63,8 @@ class BookComponent(binding: ComponentBookBinding, private val lifecycle: Lifecy
         recyclerView.layoutManager = WrapContentLinearLayoutManager(context)
 
         // 创建适配器，支持showSelect参数
-        adapter = BookSelectorAdapter(showSelect = showSelect) { item, type ->
-            onBookSelected?.invoke(item, type)
+        adapter = BookSelectorAdapter(showSelect = showSelect, showEdit = showEdit) { item, type ->
+            onBookSelected?.invoke(item, BillType.valueOf(type))
         }
 
         recyclerView.adapter = adapter

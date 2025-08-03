@@ -71,6 +71,7 @@
                 android:alpha="0.6"
                 android:backgroundTint="?colorPrimaryContainer"
                 android:text="@string/float_income"
+                app:icon="@drawable/ic_trending_down"
                 android:textColor="?colorOnPrimaryContainer"
                 app:cornerRadius="0dp" />
 
@@ -83,9 +84,51 @@
                 android:alpha="0.6"
                 android:backgroundTint="?colorPrimaryContainer"
                 android:text="@string/float_expend"
+                app:icon="@drawable/ic_trending_up"
                 android:textColor="?colorOnPrimaryContainer"
 
                 app:cornerRadius="0dp" />
+
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+
+        <!-- 编辑/删除按钮组 (与收入/支出按钮组互斥显示) -->
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/editContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="-4dp"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="@+id/view2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/editButton"
+                style="@style/Widget.Material3.Button.ElevatedButton"
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:layout_weight="1"
+                android:alpha="0.6"
+                android:backgroundTint="?colorPrimaryContainer"
+                android:text="@string/edit"
+                android:textColor="?colorOnPrimaryContainer"
+                app:cornerRadius="0dp"
+                app:icon="@drawable/icon_edit" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/deleteButton"
+                style="@style/Widget.Material3.Button.ElevatedButton"
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:layout_weight="1"
+                android:alpha="0.6"
+                android:backgroundTint="?colorErrorContainer"
+                android:text="@string/delete"
+                android:textColor="?colorOnErrorContainer"
+                app:cornerRadius="0dp"
+                app:icon="@drawable/icon_delete" />
 
         </com.google.android.material.button.MaterialButtonToggleGroup>
 
