@@ -33,6 +33,15 @@ import net.ankio.auto.utils.PrefManager
 
 class BookCardComponent(binding: CardBookBinding, private val lifecycle: Lifecycle) :
     BaseComponent<CardBookBinding>(binding, lifecycle) {
+
+
+    private lateinit var onRedirect: (id: Int) -> Unit
+
+
+    fun setOnRedirect(it: (id: Int) -> Unit) {
+        onRedirect = it
+    }
+
     override fun init() {
         super.init()
         binding.btnSwitch.setOnClickListener {
@@ -175,7 +184,8 @@ class BookCardComponent(binding: CardBookBinding, private val lifecycle: Lifecyc
     /* -------------------------------------------------------
      * 占位回调：请替换成真正实现
      * ----------------------------------------------------- */
-    private fun openBookManager() { /* TODO 跳转账本管理页面，对于Xposed并支持自动同步的，隐藏手动添加选项 */
+    private fun openBookManager() {
+        onRedirect.invoke(R.id.action_homeFragment_to_bookFragment)
     }
 
     private fun openCategoryManager() { /* TODO 跳转分类管理页面（支持二级分类及用户手动添加图标）*/

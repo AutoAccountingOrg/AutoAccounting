@@ -21,6 +21,7 @@ import net.ankio.auto.databinding.AdapterBookBinding
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
 import net.ankio.auto.ui.utils.ResourceUtils
+import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.BookNameModel
 
@@ -29,11 +30,12 @@ import org.ezbook.server.db.model.BookNameModel
  * 用于显示账本列表，支持三种模式：
  * 1. 普通模式：点击账本项
  * 2. 选择模式：显示收入/支出选择按钮
- * 3. 编辑模式：显示编辑/删除按钮
+ * 3. 编辑模式：显示编辑/设置默认/删除按钮
  *
  * @param showSelect 是否显示选择按钮（收入/支出）
- * @param showEdit 是否显示编辑按钮（编辑/删除）
+ * @param showEdit 是否显示编辑按钮（编辑/设置默认/删除）
  * @param onClick 点击事件回调，参数为(账本模型, 操作类型)
+ *                操作类型包括: "item", "Income", "Expend", "edit", "setDefault", "delete"
  */
 class BookSelectorAdapter(
     private val showSelect: Boolean = false,
@@ -81,11 +83,15 @@ class BookSelectorAdapter(
             }
 
         } else if (showEdit) {
-            // 编辑模式：设置编辑和删除按钮的点击事件
+            // 编辑模式：设置编辑、设置默认和删除按钮的点击事件
 
             // 点击编辑按钮
             binding.editButton.setOnClickListener {
                 onClick(holder.item!!, "edit")
+            }
+            // 点击设置默认按钮
+            binding.defaultButton.setOnClickListener {
+                onClick(holder.item!!, "setDefault")
             }
             // 点击删除按钮
             binding.deleteButton.setOnClickListener {
@@ -121,6 +127,17 @@ class BookSelectorAdapter(
         }
         // 设置账本名称
         binding.itemValue.text = data.name
+
+        // 如果在编辑模式下，控制设置默认账本按钮的可见性
+        if (showEdit) {
+            val defaultBookName = PrefManager.defaultBook
+            // 如果当前账本是默认账本，隐藏设置默认按钮；否则显示
+            binding.defaultButton.visibility = if (data.name == defaultBookName) {
+                android.view.View.GONE
+            } else {
+                android.view.View.VISIBLE
+            }
+        }
     }
 
     /**

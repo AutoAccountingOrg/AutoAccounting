@@ -61,7 +61,7 @@ object BookNameAPI {
         val books = list()
 
         // ❶ 列表为空 → 直接返回默认账本
-        if (books.isEmpty()) return BookNameModel().apply { DEFAULT_BOOK }
+        if (books.isEmpty()) return BookNameModel().apply { name = DEFAULT_BOOK }
 
         // ❷ 尝试在已有列表里找到同名账本
         books.firstOrNull { it.name == bookName }?.let { return it }
@@ -92,4 +92,16 @@ object BookNameAPI {
         withContext(Dispatchers.IO) {
             LocalNetwork.post("book/put?md5=$md5", Gson().toJson(bookList))
         }
+
+    /**
+     * 删除指定账本
+     * @param bookId 要删除的账本ID
+     * @return 服务器响应结果
+     */
+    suspend fun delete(bookId: Long) = withContext(Dispatchers.IO) {
+        val json = JsonObject().apply {
+            addProperty("id", bookId)
+        }
+        LocalNetwork.post("book/delete", Gson().toJson(json))
+    }
 }

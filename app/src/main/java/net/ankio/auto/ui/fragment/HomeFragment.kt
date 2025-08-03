@@ -36,8 +36,10 @@ class HomeFragment : BaseFragment<FragmentPluginHomeBinding>() {
         binding.activeCard.bindAs<StatusCardComponent>(lifecycle)
         binding.ruleVersionCard.bindAs<RuleVersionCardComponent>(lifecycle, requireActivity())
         binding.monthlyCard.bindAs<MonthlyCardComponent>(lifecycle)
-        binding.bookCard.bindAs<BookCardComponent>(lifecycle)
-
+        val bookCard = binding.bookCard.bindAs<BookCardComponent>(lifecycle)
+        bookCard.setOnRedirect {
+            findNavController().navigate(it)
+        }
         binding.toolbar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.title_log -> {

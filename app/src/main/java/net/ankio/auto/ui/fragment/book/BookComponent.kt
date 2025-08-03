@@ -22,6 +22,8 @@ import net.ankio.auto.databinding.ComponentBookBinding
 import net.ankio.auto.ui.adapter.BookSelectorAdapter
 import net.ankio.auto.ui.api.BaseComponent
 import net.ankio.auto.ui.components.WrapContentLinearLayoutManager
+import net.ankio.auto.http.api.BookNameAPI
+import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.BookNameModel
 
@@ -77,7 +79,7 @@ class BookComponent(binding: ComponentBookBinding, private val lifecycle: Lifecy
         lifecycle.coroutineScope.launch {
             try {
                 dataItems.clear()
-                var newData = BookNameModel.list()
+                var newData = BookNameAPI.list()
 
                 // 如果数据为空，创建默认账本
                 if (newData.isEmpty()) {
@@ -88,7 +90,17 @@ class BookComponent(binding: ComponentBookBinding, private val lifecycle: Lifecy
                     })
                 }
 
-                dataItems.addAll(newData)
+                // 对账本列表进行排序：默认账本排在第一位，其他账本按原顺序排列
+                val defaultBookName = PrefManager.defaultBook
+                val sortedData = newData.sortedWith(compareByDescending<BookNameModel> { book ->
+                    // 如果是默认账本，返回1（排在前面），否则返回0
+                    if (book.name == defaultBookName) 1 else 0
+                }.thenBy { book ->
+                    // 非默认账本保持原有的ID倒序排序
+                    -book.id
+                })
+
+                dataItems.addAll(sortedData)
                 adapter.updateItems(dataItems)
                 binding.statusPage.showContent()
             } catch (e: Exception) {

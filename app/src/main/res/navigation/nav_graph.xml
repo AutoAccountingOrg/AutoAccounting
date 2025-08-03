@@ -29,7 +29,7 @@
     </activity>
     <fragment
         android:id="@+id/homeFragment"
-        android:name="net.ankio.auto.ui.fragment.plugin.HomeFragment"
+        android:name="net.ankio.auto.ui.fragment.HomeFragment"
         android:label="@string/title_home"
         tools:layout="@layout/fragment_plugin_home">
 
@@ -37,11 +37,14 @@
         <action
             android:id="@+id/action_homeFragment_to_logFragment"
             app:destination="@id/logFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_bookFragment"
+            app:destination="@id/bookFragment" />
     </fragment>
 
     <fragment
         android:id="@+id/dataFragment"
-        android:name="net.ankio.auto.ui.fragment.plugin.DataFragment"
+        android:name="net.ankio.auto.ui.fragment.DataFragment"
         android:label="@string/title_data"
         tools:layout="@layout/fragment_plugin_data">
 
@@ -50,7 +53,7 @@
 
     <fragment
         android:id="@+id/ruleFragment"
-        android:name="net.ankio.auto.ui.fragment.plugin.RuleDataFragment"
+        android:name="net.ankio.auto.ui.fragment.RuleDataFragment"
         android:label="@string/title_rule"
         tools:layout="@layout/fragment_plugin_rule_list">
 
@@ -80,6 +83,29 @@
         android:label="@string/setting_theme"
         tools:layout="@layout/fragment_setting_appearance">
 
+    </fragment>
+
+    <fragment
+        android:id="@+id/bookFragment"
+        android:name="net.ankio.auto.ui.fragment.BookFragment"
+        android:label="@string/title_books"
+        tools:layout="@layout/fragment_book">
+
+        <action
+            android:id="@+id/action_bookFragment_to_bookEditFragment"
+            app:destination="@id/bookEditFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/bookEditFragment"
+        android:name="net.ankio.auto.ui.fragment.BookEditFragment"
+        android:label="@string/title_book_edit"
+        tools:layout="@layout/fragment_book_edit">
+
+        <argument
+            android:name="bookId"
+            app:argType="long"
+            android:defaultValue="0L" />
     </fragment>
 
 
