@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 ankio(ankio@ankio.net)
+ * Copyright (C) 2025 ankio(ankio@ankio.net)
  * Licensed under the Apache License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,12 +13,12 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.ui.models
+package net.ankio.auto.models
 
 data class AutoApp(
     val name: String,
-    val icon: Int,
-    val packageName: String,
-    val url: String,
-    val desc: String
+    val icon: String,
+    val pkg: String,
+    val website: String,
+    val description: String
 )
