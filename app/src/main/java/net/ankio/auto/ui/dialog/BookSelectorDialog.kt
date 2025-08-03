@@ -15,67 +15,58 @@
 
 package net.ankio.auto.ui.dialog
 
-//import net.ankio.auto.ui.adapter.BookSelectorAdapter
-import android.content.Context
-import android.view.LayoutInflater
+import android.app.Activity
 import android.view.View
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.launch
-import net.ankio.auto.databinding.DialogBookSelectBinding
-import net.ankio.auto.ui.adapter.BookSelectorAdapter
+import androidx.lifecycle.LifecycleOwner
+import net.ankio.auto.databinding.ComponentBookBinding
 import net.ankio.auto.ui.api.BaseSheetDialog
-import net.ankio.auto.ui.componets.StatusPage
-import net.ankio.auto.ui.componets.WrapContentLinearLayoutManager
+import net.ankio.auto.ui.api.bindAs
+import net.ankio.auto.ui.fragment.book.BookComponent
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.BookNameModel
 
 class BookSelectorDialog(
-    private val context: Context,
     private val showSelect: Boolean = false,
-    val callback: (BookNameModel, BillType) -> Unit
-) :
-    BaseSheetDialog(context) {
-    private lateinit var binding: DialogBookSelectBinding
-    private val dataItems = mutableListOf<BookNameModel>()
+    val callback: (BookNameModel, BillType) -> Unit,
+    activity: Activity
+) : BaseSheetDialog<ComponentBookBinding>(activity) {
 
-    private lateinit var statusPage: StatusPage
-    private lateinit var adapter: BookSelectorAdapter
-    override fun onCreateView(inflater: LayoutInflater): View {
-        binding = DialogBookSelectBinding.inflate(inflater)
-        statusPage = binding.statusPage
-        val recyclerView = statusPage.contentView!!
-        recyclerView.layoutManager = WrapContentLinearLayoutManager(context)
-        //cardView = binding.cardView
-        //cardViewInner = recyclerView
-        adapter = BookSelectorAdapter(showSelect) { item, type ->
-            callback(item, type)
+    private lateinit var bookComponent: BookComponent
+    private val lifecycleOwner: LifecycleOwner = activity as LifecycleOwner
+
+    override fun onViewCreated(view: View?) {
+        super.onViewCreated(view)
+
+        // 使用bindAs创建BookComponent实例
+        bookComponent = binding.bindAs(lifecycleOwner.lifecycle)
+
+        // 设置是否显示选择按钮
+        bookComponent.setShowSelect(showSelect)
+
+        // 设置账本选择回调
+        bookComponent.setOnBookSelectedListener { selectedBook, billType ->
+            callback(selectedBook, billType)
             this.dismiss()
         }
-        recyclerView.adapter = adapter
-
-
-        loadData()
-        return binding.root
     }
 
-    private fun loadData() {
-        statusPage.showLoading()
-        lifecycleScope.launch {
-            dataItems.clear()
-            var newData = BookNameModel.list()
-
-            if (newData.isEmpty()) {
-                newData = mutableListOf(BookNameModel().apply {
-                    name = "默认账本"
-                    id = 1
-                    icon = ""
-                })
-            }
-            dataItems.addAll(newData)
-            adapter.updateItems(dataItems)
-            statusPage.showContent()
+    /**
+     * 刷新账本数据
+     */
+    fun refreshData() {
+        if (::bookComponent.isInitialized) {
+            bookComponent.refreshData()
         }
     }
 
-
+    /**
+     * 获取当前账本列表
+     */
+    fun getBookList(): List<BookNameModel> {
+        return if (::bookComponent.isInitialized) {
+            bookComponent.getDataItems()
+        } else {
+            emptyList()
+        }
+    }
 }

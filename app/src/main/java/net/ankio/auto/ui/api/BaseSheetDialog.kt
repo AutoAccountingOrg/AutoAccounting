@@ -20,6 +20,7 @@ import android.app.Service
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.WindowManager
@@ -33,6 +34,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleService
 import androidx.viewbinding.ViewBinding
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -63,7 +65,8 @@ import java.lang.reflect.ParameterizedType
  * 2. 可选择重写 onViewCreated() 进行初始化
  * 3. 调用 show() 方法显示弹窗
  */
-abstract class BaseSheetDialog<VB : ViewBinding> : BottomSheetDialog {
+abstract class BaseSheetDialog<VB : ViewBinding> :
+    BottomSheetDialog {
     /**
      * ViewBinding 实例，在 Fragment 销毁时会被置空以防止内存泄漏
      */
@@ -82,28 +85,38 @@ abstract class BaseSheetDialog<VB : ViewBinding> : BottomSheetDialog {
     private val isOverlay: Boolean
 
 
-    private val context = getContext().toTheme()
+    protected val ctx = context.toTheme()
+
+    // ① 在 class 里加一个小工具函数（放在 init 外即可）
+    private fun findViewBindingClass(start: Class<*>): Class<out ViewBinding>? {
+        var current: Class<*>? = start
+        while (current != null) {
+            val superType = current.genericSuperclass
+            if (superType is ParameterizedType) {
+                val vb = superType.actualTypeArguments
+                    .firstOrNull { it is Class<*> && ViewBinding::class.java.isAssignableFrom(it) }
+                        as? Class<out ViewBinding>
+                if (vb != null) return vb
+            }
+            current = current.superclass          // 继续向上
+        }
+        return null
+    }
+
 
     init {
         try {
 
             // 通过反射获取泛型参数中的 ViewBinding 类型
-            val type = javaClass.genericSuperclass as ParameterizedType
-            val bindingClass = type.actualTypeArguments.firstOrNull {
-                it is Class<*> && ViewBinding::class.java.isAssignableFrom(it)
-            } as? Class<VB>
-                ?: throw IllegalStateException("Cannot infer ViewBinding type for ${javaClass.name}")
+            val bindingClass = findViewBindingClass(javaClass)
+                ?: error("无法解析 ViewBinding 泛型，请确保每一层继承都带上具体类型")
 
-
-            // 获取 ViewBinding 的 inflate 方法
-            val method = bindingClass.getDeclaredMethod(
+            val inflate = bindingClass.getDeclaredMethod(
                 "inflate",
                 LayoutInflater::class.java,
             )
-
-            // 调用 inflate 方法创建绑定实例
             @Suppress("UNCHECKED_CAST")
-            _binding = method.invoke(null, LayoutInflater.from(context)) as VB
+            _binding = inflate.invoke(null, LayoutInflater.from(ctx)) as VB
 
         } catch (e: Exception) {
             Logger.e("Failed to create view for ${javaClass.simpleName}", e)
@@ -116,9 +129,10 @@ abstract class BaseSheetDialog<VB : ViewBinding> : BottomSheetDialog {
      * @param activity 宿主Activity，将自动监听其生命周期
      */
     constructor(activity: Activity) : super(activity, R.style.BottomSheetDialog) {
-        lifecycleOwner = if (activity is LifecycleOwner) activity else null
+        if (activity !is LifecycleOwner) throw RuntimeException("activity must be LifecycleOwner")
+        lifecycleOwner = activity
         isOverlay = false
-        lifecycleOwner?.lifecycle?.addObserver(lifecycleObserver)
+        lifecycleOwner.lifecycle.addObserver(lifecycleObserver)
     }
 
     /**
@@ -137,8 +151,9 @@ abstract class BaseSheetDialog<VB : ViewBinding> : BottomSheetDialog {
      *
      * @param service 宿主Service，弹窗将以悬浮窗形式显示
      */
-    constructor(service: Service) : super(service, R.style.BottomSheetDialog) {
-        lifecycleOwner = null // Service无生命周期监听
+    constructor(service: LifecycleService) : super(service, R.style.BottomSheetDialog) {
+        lifecycleOwner = service
+        service.lifecycle.addObserver(lifecycleObserver)
         isOverlay = true      // 必须悬浮窗
     }
 
@@ -189,14 +204,14 @@ abstract class BaseSheetDialog<VB : ViewBinding> : BottomSheetDialog {
      * @return 配置好的MaterialCardView
      */
     private fun createCardView(round: Boolean, margin: Int): MaterialCardView {
-        return MaterialCardView(context).apply {
+        return MaterialCardView(ctx).apply {
             // 设置布局参数
             layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
                 if (round) {
                     // 圆角样式：设置四周边距，底部额外加上导航栏高度
                     setMargins(
                         margin, margin, margin, margin + DisplayUtils.getNavigationBarHeight(
-                            context
+                            ctx
                         )
                     )
                 } else {
@@ -210,7 +225,7 @@ abstract class BaseSheetDialog<VB : ViewBinding> : BottomSheetDialog {
             strokeColor =
                 com.google.android.material.R.attr.colorSurfaceContainerHighest.toThemeColor()  // 边框颜色
             strokeWidth = 0     // 无边框
-            setCardBackgroundColor(ContextCompat.getColor(context, R.color.transparent))  // 透明背景
+            setCardBackgroundColor(ContextCompat.getColor(ctx, R.color.transparent))  // 透明背景
             radius = if (round) DisplayUtils.dp2px(16f).toFloat() else 0f  // 圆角半径
         }
     }
@@ -227,23 +242,23 @@ abstract class BaseSheetDialog<VB : ViewBinding> : BottomSheetDialog {
      * @return 配置好的背景LinearLayout
      */
     private fun createBackgroundView(round: Boolean): LinearLayout {
-        return LinearLayout(context).apply {
+        return LinearLayout(ctx).apply {
             layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
             orientation = LinearLayout.VERTICAL
             setPadding(0, 0, 0, 0)
 
             // 根据样式选择背景drawable
             val drawableRes = if (round) R.drawable.rounded_all else R.drawable.rounded_top
-            val drawable = ContextCompat.getDrawable(context, drawableRes)?.mutate()
+            val drawable = ContextCompat.getDrawable(ctx, drawableRes)?.mutate()
 
             // 设置主题颜色
-            drawable?.setTint(SurfaceColors.SURFACE_3.getColor(context))
+            drawable?.setTint(SurfaceColors.SURFACE_3.getColor(ctx))
             background = drawable
 
             // 直角样式时底部添加导航栏高度
             if (!round) updatePadding(
                 bottom = DisplayUtils.getNavigationBarHeight(
-                    context
+                    ctx
                 )
             )
         }
@@ -260,7 +275,7 @@ abstract class BaseSheetDialog<VB : ViewBinding> : BottomSheetDialog {
      * @return 配置好的内容容器LinearLayout
      */
     private fun createInnerView(): LinearLayout {
-        return LinearLayout(context).apply {
+        return LinearLayout(ctx).apply {
             id = R.id.innerView  // 设置ID便于查找
             layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
             orientation = LinearLayout.VERTICAL
@@ -323,7 +338,7 @@ abstract class BaseSheetDialog<VB : ViewBinding> : BottomSheetDialog {
             state = BottomSheetBehavior.STATE_EXPANDED  // 默认展开
             // 设置最大高度为屏幕高度减去状态栏高度
             maxHeight =
-                DisplayUtils.getRealScreenSize(context).y - DisplayUtils.getStatusBarHeight(context)
+                DisplayUtils.getRealScreenSize(ctx).y - DisplayUtils.getStatusBarHeight(ctx)
         }
 
         Logger.d("BottomSheet configured - maxHeight: ${bottomSheetBehavior.maxHeight}")
@@ -336,7 +351,7 @@ abstract class BaseSheetDialog<VB : ViewBinding> : BottomSheetDialog {
             // 键盘弹出时调整底部边距
             bottomSheet.updatePadding(
                 bottom = if (imeVisible) imeHeight - DisplayUtils.getNavigationBarHeight(
-                    context
+                    ctx
                 ) else 0
             )
 
@@ -374,8 +389,8 @@ abstract class BaseSheetDialog<VB : ViewBinding> : BottomSheetDialog {
             }
         }
 
-        // Activity状态安全检查：如果 context 是 Activity 需检查存活
-        (context as? Activity)?.let {
+        // Activity状态安全检查：如果 ctx 是 Activity 需检查存活
+        (ctx as? Activity)?.let {
             if (it.isFinishing || it.isDestroyed) {
                 Logger.w("Cannot show dialog: activity not running")
                 return
@@ -384,7 +399,7 @@ abstract class BaseSheetDialog<VB : ViewBinding> : BottomSheetDialog {
 
         // 悬浮窗权限检查：Service 下只能用悬浮窗
         if (isOverlay && !float) {
-            Logger.e("Service context must use overlay window")
+            Logger.e("Service ctx must use overlay window")
             return
         }
         
