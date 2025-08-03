@@ -21,6 +21,7 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LifecycleService
 import net.ankio.auto.databinding.DialogBottomSheetBinding
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseSheetDialog
@@ -67,7 +68,7 @@ open class BottomSheetDialogBuilder : BaseSheetDialog<DialogBottomSheetBinding> 
      * 使用Service上下文构造底部弹窗构建器
      * @param service Service实例
      */
-    constructor(service: Service) : super(service) {
+    constructor(service: LifecycleService) : super(service) {
         Logger.d("BottomSheetDialogBuilder created with Service: ${service.javaClass.simpleName}")
     }
 

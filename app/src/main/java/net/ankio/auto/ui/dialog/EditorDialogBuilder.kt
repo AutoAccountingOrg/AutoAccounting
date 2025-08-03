@@ -22,6 +22,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LifecycleService
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import net.ankio.auto.R
@@ -59,7 +60,9 @@ class EditorDialogBuilder : BottomSheetDialogBuilder {
      * 使用Service上下文构造底部弹窗构建器
      * @param service Service实例
      */
-    constructor(service: Service, inputType: Int = InputType.TYPE_CLASS_TEXT) : super(service) {
+    constructor(service: LifecycleService, inputType: Int = InputType.TYPE_CLASS_TEXT) : super(
+        service
+    ) {
         initType(inputType)
     }
 
