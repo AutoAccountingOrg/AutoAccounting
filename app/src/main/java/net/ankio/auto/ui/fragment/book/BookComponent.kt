@@ -28,7 +28,7 @@ import org.ezbook.server.db.model.BookNameModel
 class BookComponent(binding: ComponentBookBinding, private val lifecycle: Lifecycle) :
     BaseComponent<ComponentBookBinding>(binding, lifecycle) {
 
-    private var onBookSelected: ((BookNameModel, BillType) -> Unit)? = null
+    private var onBookSelected: ((BookNameModel, String) -> Unit)? = null
     private val dataItems = mutableListOf<BookNameModel>()
     private lateinit var adapter: BookSelectorAdapter
     private var showSelect: Boolean = false
@@ -37,7 +37,7 @@ class BookComponent(binding: ComponentBookBinding, private val lifecycle: Lifecy
      * 设置账本选择回调
      * @param callback 回调函数，参数为选中的BookNameModel和BillType
      */
-    fun setOnBookSelectedListener(callback: (BookNameModel, BillType) -> Unit) {
+    fun setOnBookSelectedListener(callback: (BookNameModel, String) -> Unit) {
         this.onBookSelected = callback
     }
 
@@ -64,7 +64,7 @@ class BookComponent(binding: ComponentBookBinding, private val lifecycle: Lifecy
 
         // 创建适配器，支持showSelect参数
         adapter = BookSelectorAdapter(showSelect = showSelect, showEdit = showEdit) { item, type ->
-            onBookSelected?.invoke(item, BillType.valueOf(type))
+            onBookSelected?.invoke(item, type)
         }
 
         recyclerView.adapter = adapter

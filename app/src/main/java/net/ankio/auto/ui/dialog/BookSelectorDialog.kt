@@ -45,7 +45,7 @@ class BookSelectorDialog(
 
         // 设置账本选择回调
         bookComponent.setOnBookSelectedListener { selectedBook, billType ->
-            callback(selectedBook, billType)
+            callback(selectedBook, BillType.valueOf(billType))
             this.dismiss()
         }
     }
