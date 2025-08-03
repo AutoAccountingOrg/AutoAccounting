@@ -13,7 +13,7 @@ import net.ankio.auto.R
 import net.ankio.auto.adapter.AppAdapterManager
 import net.ankio.auto.databinding.FragmentIntroPageSyncBinding
 import net.ankio.auto.ui.adapter.IntroPagerAdapter
-import org.ezbook.server.db.model.BookNameModel
+import net.ankio.auto.http.api.BookNameAPI
 
 class IntroPageSyncFragment : BaseIntroPageFragment<FragmentIntroPageSyncBinding>() {
 
@@ -42,7 +42,7 @@ class IntroPageSyncFragment : BaseIntroPageFragment<FragmentIntroPageSyncBinding
         super.onResume()
         viewLifecycleOwner.lifecycleScope.launch {
             while (isActive) {                       // 视图销毁自动退出
-                val synced = BookNameModel.list().isNotEmpty()
+                val synced = BookNameAPI.list().isNotEmpty()
 
                 if (synced) {
                     binding.syncState.setText(R.string.sync_state_success)
