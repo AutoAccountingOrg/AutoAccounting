@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2024 ankio(ankio@ankio.net)
+ * Copyright (C) 2025 ankio(ankio@ankio.net)
  * Licensed under the Apache License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  *         http://www.apache.org/licenses/LICENSE-3.0
- *  
+ *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,518 +16,407 @@
 package net.ankio.auto.ui.fragment
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import androidx.core.view.size
+import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.google.android.material.elevation.SurfaceColors
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import com.hjq.toast.Toaster
+import androidx.recyclerview.widget.GridLayoutManager
+import com.bumptech.glide.Glide
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.ankio.auto.R
-import net.ankio.auto.databinding.DialogRegexInputBinding
-import net.ankio.auto.databinding.DialogRegexMoneyBinding
 import net.ankio.auto.databinding.FragmentCategoryEditBinding
+import net.ankio.auto.http.api.CategoryAPI
+import net.ankio.auto.storage.Logger
+import net.ankio.auto.ui.adapter.CategorySelectorAdapter
 import net.ankio.auto.ui.api.BaseFragment
-import net.ankio.auto.ui.componets.FlowElement
-import net.ankio.auto.ui.componets.FlowLayoutManager
-import net.ankio.auto.ui.dialog.BookSelectorDialog
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
-import net.ankio.auto.ui.dialog.CategorySelectorDialog
-import net.ankio.auto.ui.dialog.DateTimePickerDialog
-import net.ankio.auto.ui.utils.ListPopupUtils
-import net.ankio.auto.ui.utils.viewBinding
-import net.ankio.auto.utils.BillTool
-import org.ezbook.server.db.model.CategoryRuleModel
-import java.util.Calendar
+import net.ankio.auto.ui.utils.CategoryUtils
+import net.ankio.auto.ui.utils.ToastUtils
+import org.ezbook.server.constant.BillType
+import org.ezbook.server.db.model.CategoryModel
 
-class CategoryEditFragment : BaseFragment() {
-    override val binding: FragmentCategoryEditBinding by viewBinding(FragmentCategoryEditBinding::inflate)
+/**
+ * 分类编辑Fragment
+ *
+ * 该Fragment负责分类的创建和编辑功能，提供以下功能：
+ * - 创建新分类
+ * - 编辑现有分类
+ * - 展示所属账本和父分类信息
+ * - 使用CategoryUtils获取系统分类图标并支持搜索
+ * - 保存和删除分类
+ */
+class CategoryEditFragment : BaseFragment<FragmentCategoryEditBinding>() {
 
-    private var categoryRuleModel: CategoryRuleModel = CategoryRuleModel()
-    private var remoteBookId: String = "-1" // -1是默认账本
+    /** 当前分类模型 */
+    private var currentCategoryModel: CategoryModel = CategoryModel()
+
+    /** 是否为编辑模式 */
+    private var isEditMode = false
+
+    /** 分类ID */
+    private var categoryId: Long = 0L
+
+    /** 账本名称 */
     private var bookName: String = ""
-    private var category: String = ""
-    private var list: MutableList<HashMap<String, Any>>? = mutableListOf()
 
-    private fun buildUI() {
+    /** 账单类型 */
+    private var billType: BillType = BillType.Expend
 
-        val flexboxLayout = binding.flexboxLayout
-        // 监听器取消
-        for (i in 0 until binding.flexboxLayout.childCount) {
-            val child = binding.flexboxLayout.getChildAt(i)
-            child.setOnClickListener(null)
-            child.setOnLongClickListener(null)
-        }
-        // 清除所有的UI
-        flexboxLayout.removeAllViews()
-        flexboxLayout.appendTextView(getString(R.string.if_condition_true))
+    /** 父分类ID */
+    private var parentId: String = "-1"
 
-        val listType = object : TypeToken<MutableList<HashMap<String, Any>>>() {}.type
-        val list: MutableList<HashMap<String, Any>>? =
-            Gson().fromJson(categoryRuleModel.element, listType)
-        // 依次排列
-        if (list.isNullOrEmpty()) {
-            val buttonElem =
-                flexboxLayout.appendAddButton(callback = { it, _ ->
-                    flexboxLayout.appendWaveTextview(
-                        getString(R.string.condition),
-                        connector = true,
-                        elem = it,
-                    ) { it2, view ->
-                        showSelectType(flexboxLayout, view, it2)
-                    }
-                })
+    /** 父分类名称 */
+    private var parentCategoryName: String = ""
 
-            val buttonView = buttonElem.getFirstView()
-            flexboxLayout.firstWaveTextViewPosition = flexboxLayout.indexOfChild(buttonView)
-            buttonView?.callOnClick()
-            flexboxLayout.appendTextView(getString(R.string.condition_result_book))
-            flexboxLayout.appendWaveTextview(getString(R.string.rule_book)) { it2, _ ->
-                onClickBook(it2)
-            }
-            flexboxLayout.appendTextView(getString(R.string.condition_result_category))
-            flexboxLayout.appendWaveTextview(getString(R.string.category)) { it2, _ ->
-                onClickCategory(it2)
-            }
-            // 列表为空
-            return
-        }
-        // 最后一个是数据
-        val lastElement = list.removeAt(list.lastIndex)
-        // fix #7 因为存储的时候使用的是hashmap<String,Any>，反向识别的时候可能会将Int类型识别为Double
-        remoteBookId = lastElement["id"].toString()
-        bookName = lastElement["book"] as String
-        category = lastElement["category"] as String
+    /** 分类工具类 */
+    private val categoryUtils = CategoryUtils()
 
-        // 添加到页面来
-        flexboxLayout.firstWaveTextViewPosition = flexboxLayout.size - 1
-        val buttonElem =
-            flexboxLayout.appendAddButton(callback = { it, _ ->
-                flexboxLayout.appendWaveTextview(
-                    getString(R.string.condition),
-                    connector = true,
-                    elem = it,
-                ) { it2, view ->
-                    showSelectType(flexboxLayout, view, it2)
-                }
-            })
-        for (hashMap in list) {
-            flexboxLayout.appendWaveTextview(
-                hashMap["text"] as String,
-                connector = hashMap.containsKey("jsPre"),
-                elem = buttonElem,
-                data = hashMap,
-            ) { it2, view ->
-                val type = it2.data["type"]
-                if (type != null) {
-                    when (type as String) {
-                        "type" -> inputType(it2, view)
-                        "shopName" -> inputShop(flexboxLayout, it2)
-                        "shopItem" -> inputShopItem(flexboxLayout, it2)
-                        "timeRange" -> inputTimeRange(flexboxLayout, it2)
-                        "moneyRange" -> inputMoneyRange(flexboxLayout, it2)
-                    }
-                }
-            }
-        }
+    /** 图标适配器 */
+    private lateinit var iconAdapter: CategorySelectorAdapter
 
-        flexboxLayout.appendTextView(getString(R.string.condition_result_book))
+    /** 所有图标数据 */
+    private var allCategories = mutableListOf<CategoryModel>()
 
-        flexboxLayout.appendWaveTextview(lastElement["book"] as String) { it2, _ ->
-            onClickBook(it2)
-        }
-        flexboxLayout.appendTextView(getString(R.string.condition_result_category))
+    /** 过滤后的图标数据 */
+    private var filteredCategories = mutableListOf<CategoryModel>()
 
-        flexboxLayout.appendWaveTextview(lastElement["category"] as String) { it2, _ ->
+    /** 当前选中的分类 */
+    private var selectedCategory: CategoryModel? = null
 
-            onClickCategory(it2)
-        }
-    }
+    /** 搜索防抖延迟 */
+    private var searchJob: Job? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.ruleCard.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(requireContext()))
 
-        binding.saveItem.setOnClickListener {
-            saveItem()
+        // 获取参数并判断编辑模式
+        arguments?.let { bundle ->
+            categoryId = bundle.getLong("categoryId", 0L)
+            bookName = bundle.getString("bookName", "")
+            billType = BillType.valueOf(bundle.getString("billType", "Expend"))
+            parentId = bundle.getString("parentId", "-1")
+            parentCategoryName = bundle.getString("parentCategoryName", "")
+            isEditMode = categoryId > 0
         }
 
-        arguments?.apply {
-            categoryRuleModel = runCatching {
-                Gson().fromJson(
-                    getString("data"),
-                    CategoryRuleModel::class.java
-                )
-            }.getOrDefault(CategoryRuleModel())
-        }
-        buildUI()
-    }
+        setupUI()
+        setupEvents()
+        setupCategoryGrid()
+        loadIconData()
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View = binding.root
-
-    private fun onClickBook(it2: FlowElement) {
-        BookSelectorDialog(requireContext()) { bookItem, _ ->
-            it2.removed()
-                .setAsWaveTextview(bookItem.name, it2.connector, callback = it2.waveCallback)
-            bookName = bookItem.name
-            remoteBookId = bookItem.remoteId
-        }.show(cancel = true)
-    }
-
-    private fun onClickCategory(it2: FlowElement) {
-        BookSelectorDialog(requireContext(), true) { bookModel, type ->
-            CategorySelectorDialog(requireActivity(), bookModel.remoteId, type) { parent, child ->
-                val string: String =
-                    if (parent == null) {
-                        "其他"
-                    } else {
-                        BillTool.getCateName(parent.name!!, child?.name)
-                    }
-                it2.removed().setAsWaveTextview(
-                    string,
-                    it2.connector,
-                    callback = it2.waveCallback,
-                )
-                category = string
-
-            }.show(cancel = true)
-        }.show(cancel = true)
-    }
-
-    private fun showSelectType(
-        flexboxLayout: FlowLayoutManager,
-        view: View,
-        element: FlowElement,
-    ) {
-        if (!isAdded) return
-        val menuItems: HashMap<String, Any> =
-            hashMapOf(
-                getString(R.string.type_money) to 0,
-                getString(R.string.type_time) to 1,
-                getString(R.string.type_shop) to 2,
-                getString(R.string.type_item) to 3,
-                getString(R.string.type_type) to 4,
-            )
-        val listPopupUtils =
-            ListPopupUtils(requireContext(), view, menuItems, 0, lifecycle) { pos, key, value ->
-                when (value) {
-                    0 -> inputMoneyRange(flexboxLayout, element)
-                    1 -> inputTimeRange(flexboxLayout, element)
-                    2 -> inputShop(flexboxLayout, element)
-                    3 -> inputShopItem(flexboxLayout, element)
-                    4 -> inputType(element, view)
-                }
-            }
-        listPopupUtils.toggle()
-    }
-
-    private fun inputType(
-        element: FlowElement,
-        view: View,
-    ) {
-        if (!isAdded) return
-        val menuItems: HashMap<String, Any> =
-            hashMapOf(
-                getString(R.string.type_for_pay) to 0,
-                getString(R.string.type_for_income) to 1,
-            )
-        var msg = ""
-        var js = ""
-
-        val listPopupUtils =
-            ListPopupUtils(requireContext(), view, menuItems, 0, lifecycle) { pos, key, value ->
-                msg = getString(R.string.type_pay, key)
-                when (value) {
-                    0 -> js = "type === 0"
-                    1 -> js = "type === 1"
-                }
-                element.data["js"] = js
-                element.data["type"] = "type"
-                element.data["text"] = msg
-                element.removed()
-                    .setAsWaveTextview(msg, element.connector, callback = element.waveCallback)
-            }
-
-        listPopupUtils.toggle()
-    }
-
-    private fun inputShop(
-        flexboxLayout: FlowLayoutManager,
-        view: FlowElement,
-    ) {
-        showInput(
-            flexboxLayout,
-            view,
-            R.string.shop_input,
-            "shopName",
-            getString(R.string.shop_name),
-        )
-    }
-
-    private fun inputShopItem(
-        flexboxLayout: FlowLayoutManager,
-        view: FlowElement,
-    ) {
-        showInput(
-            flexboxLayout,
-            view,
-            R.string.shop_item_input,
-            "shopItem",
-            getString(R.string.shop_item_name),
-        )
-    }
-
-    private fun showInput(
-        flexboxLayout: FlowLayoutManager,
-        element: FlowElement,
-        title: Int,
-        item: String,
-        name: String,
-    ) {
-        if (!isAdded) return
-        val inputBinding = DialogRegexInputBinding.inflate(LayoutInflater.from(requireContext()))
-        var select: Int =
-            when (val selectValue = element.data.getOrDefault("select", 0)) {
-                is Int -> selectValue
-                is Double -> selectValue.toInt()
-                else -> 0 // 或者你可以选择其他默认值
-            }
-        var content = element.data.getOrDefault("content", "") as String
-        val options: Array<String> =
-            arrayOf(getString(R.string.input_contains), getString(R.string.input_regex))
-        val adapter: ArrayAdapter<String> =
-            ArrayAdapter<String>(requireContext(), android.R.layout.simple_spinner_item, options)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        inputBinding.spinner.adapter = adapter
-        inputBinding.spinner.setSelection(select)
-        inputBinding.content.setText(content)
-
-        BottomSheetDialogBuilder(requireContext())
-            .setTitleInt(title)
-            .setView(inputBinding.root)
-            .setPositiveButton(R.string.sure_msg) { dialog, which ->
-                select = options.indexOf(inputBinding.spinner.selectedItem)
-                content = inputBinding.content.text.toString()
-                element.data["select"] = select
-                element.data["content"] = content
-                element.data["type"] = item
-                var msg = ""
-                if (select == 0) {
-                    element.data["js"] = "$item.indexOf(\"$content\")!==-1 "
-
-                    msg = getString(R.string.shop_name_contains, name, content)
-                } else {
-                    element.data["js"] = "$item.match(/$content/)"
-                    msg = getString(R.string.shop_name_regex, name, content)
-                }
-                element.data["text"] = msg
-                element.removed().setAsWaveTextview(msg, element.connector) { it, view ->
-                    inputShop(flexboxLayout, it)
-                }
-            }
-            .setNegativeButton(R.string.cancel_msg, null)
-            .showInFragment(this, false, true)
-    }
-
-    private fun showTimer(
-        time: String,
-        title: String,
-        callback: (String) -> Unit,
-    ) {
-        if (!isAdded) return
-        val result = time.split(":")
-        val dialog = DateTimePickerDialog.withCurrentTime(requireContext(), true, title)
-        dialog.setDateTime(0, 0, 0, result[0].toInt(), result[1].toInt())
-        dialog.setOnDateTimeSelectedListener { year, month, day, hour, minute ->
-            callback("$hour:$minute")
-        }
-        dialog.showInFragment(this, false, true)
-    }
-
-    private fun inputTimeRange(
-        flexboxLayout: FlowLayoutManager,
-        element: FlowElement,
-    ) {
-        if (!isAdded) return
-        val currentTime = Calendar.getInstance()
-        val hour = currentTime.get(Calendar.HOUR_OF_DAY)
-        val minute = currentTime.get(Calendar.MINUTE)
-        var minTime = element.data.getOrDefault("minTime", "$hour:$minute").toString()
-        var maxTime = element.data.getOrDefault("maxTime", "$hour:$minute").toString()
-        showTimer(minTime, getString(R.string.select_time_lower)) { it1 ->
-            minTime = it1
-            showTimer(maxTime, getString(R.string.select_time_higher)) {
-                maxTime = it
-                val js = "common.isTimeInRange('$minTime','$maxTime',currentTime)"
-                val input = getString(R.string.time_range, minTime, maxTime)
-                element.data["js"] = js
-                element.data["minTime"] = minTime
-                element.data["maxTime"] = maxTime
-                element.data["text"] = input
-                element.data["type"] = "timeRange"
-                element.removed().setAsWaveTextview(input, element.connector) { it, view ->
-                    inputTimeRange(flexboxLayout, it)
-                }
-            }
+        // 加载现有数据（编辑模式）
+        if (isEditMode) {
+            loadCategoryData()
+        } else {
+            // 创建模式，设置默认值
+            initializeNewCategory()
         }
     }
 
-    private fun inputMoneyRange(
-        flexboxLayout: FlowLayoutManager,
-        element: FlowElement,
-    ) {
-        if (!isAdded) return
-        val moneyRangeBinding =
-            DialogRegexMoneyBinding.inflate(LayoutInflater.from(requireContext()))
-        moneyRangeBinding.lower.setText(element.data.getOrDefault("minAmount", "").toString())
-        moneyRangeBinding.higher.setText(element.data.getOrDefault("maxAmount", "").toString())
-        BottomSheetDialogBuilder(requireContext())
-            .setTitleInt(R.string.money_range)
-            .setView(moneyRangeBinding.root)
-            .setPositiveButton(R.string.sure_msg) { _, _ ->
-                // 处理用户输入的金额范围
-                // 从 dialogView 中获取用户输入的数据
-
-                val maxAmount =
-                    runCatching {
-                        moneyRangeBinding.higher.text.toString().toFloat()
-                    }.getOrDefault(0).toFloat()
-
-                val minAmount =
-                    runCatching {
-                        moneyRangeBinding.lower.text.toString().toFloat()
-                    }.getOrDefault(0).toFloat()
-
-                var js = ""
-                var input = ""
-                if (maxAmount.toInt() == 0 && minAmount > 0) {
-                    js = "money > $minAmount"
-                    input = getString(R.string.money_max_info, minAmount.toString())
-                }
-
-                if (minAmount.toInt() == 0 && maxAmount > 0) {
-                    js = "money < $maxAmount"
-                    input = getString(R.string.money_min_info, maxAmount.toString())
-                }
-
-                if (minAmount > 0 && maxAmount > 0 && maxAmount > minAmount) {
-                    js = "money < $maxAmount && money > $minAmount"
-                    input =
-                        getString(
-                            R.string.money_range_info,
-                            minAmount.toString(),
-                            maxAmount.toString(),
-                        )
-                }
-
-                if (minAmount > 0 && maxAmount > 0 && maxAmount == minAmount) {
-                    js = "money == $minAmount"
-                    input = getString(R.string.money_equal_info, minAmount.toString())
-                }
-                // 在此处处理用户输入的金额范围
-                if (js === "") {
-                    Toaster.show(R.string.money_error)
-                    return@setPositiveButton
-                }
-                element.data["js"] = js
-                element.data["minAmount"] = minAmount
-                element.data["maxAmount"] = maxAmount
-                element.data["text"] = input
-                element.data["type"] = "moneyRange"
-                element.removed().setAsWaveTextview(input, element.connector) { it, view ->
-                    inputMoneyRange(flexboxLayout, it)
-                }
-            }
-            .setNegativeButton(R.string.cancel_msg, null)
-            .showInFragment(this, false, true)
+    override fun onDestroyView() {
+        super.onDestroyView()
+        // 取消搜索任务，避免内存泄漏
+        searchJob?.cancel()
     }
 
-    private fun saveItem() {
-        val map = binding.flexboxLayout.getViewMap()
-        var condition = ""
-        //   var text = "若满足"
-        list = mutableListOf()
+    /**
+     * 设置UI界面
+     */
+    private fun setupUI() = with(binding) {
+        // 设置标题
+        toolbar.title = getString(if (isEditMode) R.string.edit_category else R.string.add_category)
+        saveButton.text = getString(if (isEditMode) R.string.btn_save else R.string.btn_create)
 
-        var findFirstJs = false
-        val mapList = map.filter { flowElement ->
-            if (flowElement.data.containsKey("js")) {
-                // 移除无效数据
-                if (flowElement.data.containsKey("content") && flowElement.data["content"].toString()
-                        .isEmpty()
-                ) {
-                    return@filter false // 过滤掉该元素
-                }
+        // 设置账本信息
+        bookNameText.text = bookName
 
-                if (!findFirstJs) {
-                    findFirstJs = true
-                    flowElement.data.remove("jsPre")
-                } else {
-                    if (!flowElement.data.containsKey("jsPre")) {
-                        flowElement.data["jsPre"] = " && "
-                    }
-                }
-            }
-            true // 保留该元素
-        }
+        // 设置父分类信息
+        loadParentCategoryInfo()
 
-
-        for (flowElement in mapList) {
-            flowElement.data["js"]?.let { js ->
-                list!!.add(flowElement.data)
-
-                // 如果存在 "jsPre"，则追加到 condition 中
-                flowElement.data["jsPre"]?.let { pre ->
-                    condition += pre
-                }
-
-                // 追加 "js" 到 condition 中
-                condition += js
-            }
-        }
-        //text += "，则账本为【$bookName】，分类为【$category】。"
-        val otherData =
-            hashMapOf<String, Any>(
-                "book" to bookName,
-                "category" to category,
-                "id" to remoteBookId,
-            )
-        list!!.add(otherData)
-        condition += ""
-        val js = "if($condition){ return { book:'$bookName',category:'$category'} }"
-
-        categoryRuleModel.js = js
-        // categoryRuleModel.text = text
-        categoryRuleModel.element = Gson().toJson(list)
-
-
-
-        if (categoryRuleModel.js.contains("if()")) {
-            Toaster.show(R.string.useless_condition)
-            return
-        }
-        if (categoryRuleModel.js.contains("book:''")) {
-            Toaster.show(getString(R.string.useless_book))
-            return
-        }
-        if (categoryRuleModel.js.contains("category:''")) {
-            Toaster.show(getString(R.string.useless_category))
-            return
-        }
-
-        categoryRuleModel.enabled = true
-        categoryRuleModel.creator = "user"
-        lifecycleScope.launch {
-            CategoryRuleModel.put(categoryRuleModel)
+        // 返回按钮
+        toolbar.setNavigationOnClickListener {
             findNavController().popBackStack()
         }
     }
-}
+
+    /**
+     * 设置分类图标网格
+     */
+    private fun setupCategoryGrid() = with(binding) {
+        // 直接使用statusPage
+        val recyclerView = statusPage.contentView!!
+
+        // 设置网格布局管理器（5列）
+        val layoutManager = GridLayoutManager(requireContext(), 5)
+        recyclerView.layoutManager = layoutManager
+
+        // 初始化适配器
+        iconAdapter = CategorySelectorAdapter(
+            onItemClick = { item, pos, hasChild, view ->
+                onCategorySelected(item)
+            },
+            onItemChildClick = { _, _ -> },
+            onItemLongClick = null,
+            isEditMode = false
+        )
+
+        recyclerView.adapter = iconAdapter
+    }
+
+    /**
+     * 设置事件监听器
+     */
+    private fun setupEvents() = with(binding) {
+        // 保存按钮
+        saveButton.setOnClickListener { saveCategory() }
+
+        // 图标搜索（带防抖）
+        iconSearchEditText.addTextChangedListener { text ->
+            val query = text?.toString() ?: ""
+            performSearchWithDebounce(query)
+        }
+    }
+
+    /**
+     * 加载图标数据
+     */
+    private fun loadIconData() {
+        lifecycleScope.launch {
+            try {
+                // 在IO线程中加载分类数据
+                val categories = withContext(Dispatchers.IO) {
+                    categoryUtils.list(requireContext()).map { categoryItem ->
+                        CategoryModel().apply {
+                            name = categoryItem.name
+                            icon = categoryItem.icon
+                            remoteId = categoryItem.remoteId
+                        }
+                    }
+                }
+
+                // 在主线程中更新UI
+                allCategories.clear()
+                allCategories.addAll(categories)
+
+                filteredCategories.clear()
+                filteredCategories.addAll(allCategories)
+
+                // 显示加载的数据
+                binding.statusPage.showContent()
+                iconAdapter.submitItems(filteredCategories)
+
+                // 设置默认图标
+                if (allCategories.isNotEmpty() && selectedCategory == null) {
+                    onCategorySelected(allCategories.first())
+                }
+            } catch (e: Exception) {
+                Logger.e("Failed to load icon data", e)
+                ToastUtils.error(getString(R.string.category_load_failed))
+                binding.statusPage.showError()
+            }
+        }
+    }
+
+    /**
+     * 处理分类选择
+     */
+    private fun onCategorySelected(category: CategoryModel) {
+        selectedCategory = category
+
+        // 加载图标图片
+        Glide.with(this@CategoryEditFragment)
+            .load(category.icon)
+            .placeholder(R.drawable.default_cate)
+            .error(R.drawable.default_cate)
+            .into(binding.selectedIconImageView)
+    }
+
+    /**
+     * 带防抖的搜索
+     */
+    private fun performSearchWithDebounce(query: String) {
+        // 取消之前的搜索任务
+        searchJob?.cancel()
+
+        // 如果查询为空，立即显示所有数据
+        if (query.isEmpty()) {
+            filterCategories(query)
+            return
+        }
+
+        // 创建新的搜索任务，延迟300ms执行
+        searchJob = lifecycleScope.launch {
+            delay(300) // 防抖延迟
+            filterCategories(query)
+        }
+    }
+
+    /**
+     * 过滤分类数据（优化版本）
+     */
+    private fun filterCategories(query: String) {
+        val newFilteredList = if (query.isEmpty()) {
+            allCategories
+        } else {
+            allCategories.filter { category ->
+                category.name?.contains(query, ignoreCase = true) == true
+            }
+        }
+
+        // 只在数据真正改变时才更新
+        if (filteredCategories.size != newFilteredList.size ||
+            !filteredCategories.containsAll(newFilteredList)
+        ) {
+            filteredCategories.clear()
+            filteredCategories.addAll(newFilteredList)
+
+            // 使用 notifyDataSetChanged 避免视图复用问题
+            iconAdapter.submitItems(filteredCategories)
+        }
+    }
+
+    /**
+     * 加载父分类信息
+     */
+    private fun loadParentCategoryInfo() {
+        if (parentId == "-1") {
+            binding.parentCategoryText.text = getString(R.string.no_parent_category)
+            return
+        }
+
+        binding.parentCategoryText.text = parentCategoryName
+    }
+
+    /**
+     * 初始化新分类
+     */
+    private fun initializeNewCategory() {
+        currentCategoryModel = CategoryModel().apply {
+            remoteBookId = bookName
+            type = billType
+            remoteParentId = parentId
+        }
+
+        // 设置默认图标信息
+        updateUIWithDefaultIcon()
+    }
+
+    /**
+     * 更新UI显示默认图标
+     */
+    private fun updateUIWithDefaultIcon() = with(binding) {
+        selectedIconImageView.setImageResource(R.drawable.default_cate)
+    }
+
+    /**
+     * 加载现有分类数据
+     */
+    private fun loadCategoryData() {
+        lifecycleScope.launch {
+            try {
+                val category = CategoryAPI.getById(categoryId)
+                category?.let {
+                    currentCategoryModel = it
+                    binding.categoryNameEditText.setText(it.name)
+                    parentId = it.remoteParentId
+
+                    // 如果有图标，设置选中状态
+                    it.icon?.let { iconUrl ->
+                        val iconItem = allCategories.find { icon -> icon.icon == iconUrl }
+                        iconItem?.let { item ->
+                            onCategorySelected(item)
+                        }
+                    }
+                } ?: run {
+                    ToastUtils.error(getString(R.string.category_not_found))
+                    findNavController().popBackStack()
+                }
+            } catch (e: Exception) {
+                Logger.e("Failed to load category data", e)
+                ToastUtils.error(getString(R.string.category_load_failed))
+                findNavController().popBackStack()
+            }
+        }
+    }
+
+    /**
+     * 保存分类
+     */
+    private fun saveCategory() {
+        val categoryName = binding.categoryNameEditText.text?.toString()?.trim()
+
+        if (categoryName.isNullOrEmpty()) {
+            ToastUtils.error(getString(R.string.category_name_empty))
+            return
+        }
+
+        if (selectedCategory == null) {
+            ToastUtils.error(getString(R.string.category_icon_empty))
+            return
+        }
+
+        // 更新分类信息
+        currentCategoryModel.apply {
+            name = categoryName
+            remoteBookId = bookName
+            type = billType
+            remoteParentId = parentId
+            icon = selectedCategory?.icon // 保存选中的图标URL
+        }
+
+        lifecycleScope.launch {
+            try {
+                val savedId = CategoryAPI.save(currentCategoryModel)
+                if (savedId > 0) {
+                    ToastUtils.info(getString(R.string.save_category_success))
+                    findNavController().popBackStack()
+                } else {
+                    ToastUtils.error(getString(R.string.save_failed))
+                }
+            } catch (e: Exception) {
+                Logger.e("Failed to save category", e)
+                ToastUtils.error(getString(R.string.save_failed))
+            }
+        }
+    }
+
+    /**
+     * 显示删除分类确认对话框
+     */
+    private fun showDeleteCategoryDialog() {
+        if (!isEditMode) return
+
+        BottomSheetDialogBuilder(this)
+            .setTitle(getString(R.string.delete_category))
+            .setMessage(getString(R.string.delete_category_message, currentCategoryModel.name))
+            .setPositiveButton(getString(R.string.ok)) { _, _ ->
+                deleteCategory()
+            }
+            .setNegativeButton(getString(R.string.close)) { _, _ -> }
+            .show()
+    }
+
+    /**
+     * 删除分类
+     */
+    private fun deleteCategory() {
+        lifecycleScope.launch {
+            try {
+                val deletedId = CategoryAPI.delete(currentCategoryModel.id)
+                if (deletedId > 0) {
+                    ToastUtils.info(getString(R.string.delete_category_success))
+                    findNavController().popBackStack()
+                } else {
+                    ToastUtils.error(getString(R.string.delete_failed))
+                }
+            } catch (e: Exception) {
+                Logger.e("Failed to delete category", e)
+                ToastUtils.error(getString(R.string.delete_failed))
+            }
+        }
+    }
+} 

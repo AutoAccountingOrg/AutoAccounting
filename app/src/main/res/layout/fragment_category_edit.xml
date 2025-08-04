@@ -1,5 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (C) 2023 ankio(ankio@ankio.net)
+  ~ Copyright (C) 2025 ankio(ankio@ankio.net)
   ~ Licensed under the Apache License, Version 3.0 (the "License");
   ~ you may not use this file except in compliance with the License.
   ~ You may obtain a copy of the License at
@@ -18,24 +19,30 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     tools:context=".ui.fragment.CategoryEditFragment">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/toolbarLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="?attr/colorSurface"
+        app:liftOnScroll="true"
+        app:liftOnScrollTargetViewId="@id/content_view"
+        android:fitsSystemWindows="true">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="@android:color/transparent"
+            android:layout_height="wrap_content"
+            android:minHeight="?attr/actionBarSize"
             android:tag="back_button"
             app:navigationIcon="@drawable/abc_ic_ab_back_material"
             app:title="@string/title_category_edit" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/content_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
@@ -47,39 +54,167 @@
             android:orientation="vertical"
             android:padding="@dimen/padding">
 
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/ruleCard"
-
-                style="?attr/materialCardViewElevatedStyle"
+            <!-- 所属账本信息 -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/padding"
-                app:cardBackgroundColor="?attr/colorSurfaceVariant"
-                app:cardCornerRadius="@dimen/radius"
-                app:cardElevation="0dp">
+                android:orientation="vertical"
+                android:layout_marginBottom="24dp">
 
-                <net.ankio.auto.ui.componets.FlowLayoutManager
-                    android:id="@+id/flexboxLayout"
+                <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="@dimen/padding"
-                    app:alignItems="center"
-                    app:flexWrap="wrap"
-                    app:justifyContent="flex_start">
+                    android:text="@string/book_info_label"
+                    android:textAppearance="?attr/textAppearanceTitleMedium"
+                    android:layout_marginBottom="8dp" />
 
-                </net.ankio.auto.ui.componets.FlowLayoutManager>
-            </com.google.android.material.card.MaterialCardView>
+                <TextView
+                    android:id="@+id/bookNameText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?attr/textAppearanceBodyLarge"
+                    android:textColor="?attr/colorOnSurface"
+                    tools:text="默认账本" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/saveItem"
-                style="@style/Widget.Material3.Button"
+            </LinearLayout>
+
+            <!-- 所属父分类信息 -->
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/btn_height_small"
-                android:text="@string/save_rule"
-                android:textSize="@dimen/save_size" />
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="24dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/parent_category_label"
+                    android:textAppearance="?attr/textAppearanceTitleMedium"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:id="@+id/parentCategoryText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?attr/textAppearanceBodyLarge"
+                    android:textColor="?attr/colorOnSurface"
+                    tools:text="无父分类" />
+
+            </LinearLayout>
+
+            <!-- 分类名称和图标设置 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="24dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/category_name_label"
+                    android:textAppearance="?attr/textAppearanceTitleMedium"
+                    android:layout_marginBottom="8dp" />
+
+                <!-- 图标和名称在同一行 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <ImageView
+                        android:id="@+id/selectedIconImageView"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_marginEnd="16dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:scaleType="centerCrop"
+                        android:padding="8dp"
+                        android:tint="?colorPrimary"
+                        tools:src="@drawable/default_cate" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/categoryNameInputLayout"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="@string/category_name_hint"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/categoryNameEditText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="text"
+                            android:maxLines="1" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/category_icon_label"
+                    android:textAppearance="?attr/textAppearanceTitleMedium"
+                    android:layout_marginBottom="8dp" />
+
+                <!-- 图标搜索框 -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/iconSearchInputLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/search_icon_hint"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    app:startIconDrawable="@drawable/menu_icon_search"
+                    app:endIconMode="clear_text"
+                    android:layout_marginBottom="16dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/iconSearchEditText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text"
+                        android:maxLines="1"
+                        android:paddingStart="48dp" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- 使用独立的 StatusPage 作为图标选择器 -->
+                <net.ankio.auto.ui.components.StatusPage
+                    android:id="@+id/statusPage"
+                    android:layout_width="match_parent"
+                    android:layout_height="300dp"
+                    app:innerHeight="300dp" />
+
+            </LinearLayout>
 
         </LinearLayout>
 
     </androidx.core.widget.NestedScrollView>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/saveButton"
+        style="@style/Widget.Material3.Button.UnelevatedButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:text="@string/btn_save"
+        android:contentDescription="@string/btn_save"
+        android:textColor="?attr/colorOnPrimary"
+        android:backgroundTint="?attr/colorPrimary"
+        android:elevation="6dp"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        app:icon="@drawable/ic_save"
+        app:iconGravity="textStart"
+        app:iconPadding="8dp"
+        app:iconTint="?attr/colorOnPrimary"
+        app:cornerRadius="28dp" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

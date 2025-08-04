@@ -20,28 +20,35 @@ import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.GridLayoutManager
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterCategoryListBinding
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
 import net.ankio.auto.ui.utils.ResourceUtils
+import net.ankio.auto.http.api.CategoryAPI
 import org.ezbook.server.db.model.CategoryModel
+import androidx.core.view.isVisible
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import org.ezbook.server.constant.BillType
 
 /**
  * 分类选择器适配器
  * @property dataItems 分类数据列表
  * @property onItemClick 点击事件回调
  * @property onItemChildClick 子项点击事件回调
+ * @property onItemLongClick 长按事件回调
+ * @property isEditMode 是否编辑模式
  */
 
 class CategorySelectorAdapter(
     private val onItemClick: (item: CategoryModel, pos: Int, hasChild: Boolean, view: View) -> Unit,
     private val onItemChildClick: (item: CategoryModel, pos: Int) -> Unit,
+    private val onItemLongClick: ((item: CategoryModel, pos: Int) -> Unit)? = null,
+    private var isEditMode: Boolean = false
 ) : BaseAdapter<AdapterCategoryListBinding, CategoryModel>(
-    AdapterCategoryListBinding::class.java,
+
 ) {
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterCategoryListBinding, CategoryModel>) {
     }
@@ -49,34 +56,28 @@ class CategorySelectorAdapter(
     /**
      * 二级分类缓存
      */
-    private val level2 = hashMapOf<Long, MutableList<CategoryModel>>()
+    private val childMap = hashMapOf<Long, MutableList<CategoryModel>>()
 
     /**
      * 当前面板对应的Item
      */
     private var panelItem: CategoryModel? = null
 
+
     /**
      * 加载二级分类的数据
      */
-    private fun loadData(
-        data: CategoryModel,
-        holder: BaseViewHolder<AdapterCategoryListBinding, CategoryModel>,
-        callback: (MutableList<CategoryModel>) -> Unit
-    ) {
-        if (!level2.containsKey(data.id)) {
-            //获取二级菜单
-            holder.launch {
-                val list = CategoryModel.list(data.remoteBookId, data.type, data.remoteId)
-                val items = list.toMutableList()
-                level2[data.id] = items
-                withContext(Dispatchers.Main) {
-                    callback(items)
-                }
-            }
-        } else {
-            callback(level2[data.id]!!)
-        }
+    private suspend fun loadChildData(
+        parentCategory: CategoryModel
+    ): MutableList<CategoryModel> = withContext(Dispatchers.IO) {
+        if (childMap.containsKey(parentCategory.id)) return@withContext childMap[parentCategory.id]!!
+        val list = CategoryAPI.list(
+            parentCategory.remoteBookId,
+            parentCategory.type,
+            parentCategory.remoteId
+        ).toMutableList()
+        childMap[parentCategory.id] = list
+        return@withContext list
     }
 
     override fun onBindViewHolder(
@@ -100,28 +101,72 @@ class CategorySelectorAdapter(
      */
     private fun renderPanel(
         holder: BaseViewHolder<AdapterCategoryListBinding, CategoryModel>,
-        data: CategoryModel,
+        parentCCategory: CategoryModel,
         context: Context
     ) {
         val binding = holder.binding
         binding.icon.visibility = View.GONE
         binding.container.visibility = View.VISIBLE
         binding.recyclerView.layoutManager = GridLayoutManager(context, 5)
-        val adapter = CategorySelectorAdapter({ childItem, pos, _, _ ->
-            onItemChildClick(childItem, pos)
-        }, { _, _ ->
-            // 因为二级分类下面不会再有子类，所以子类点击直接忽略。
-        })
+        val adapter = CategorySelectorAdapter(
+            isEditMode = isEditMode,
+            onItemClick = { item, pos, hasChild, view ->
+                onItemClick(item, pos, hasChild, view)
+            },
+            onItemChildClick = { item, pos ->
+
+            },
+            onItemLongClick = { item, pos ->
+                onItemLongClick?.invoke(item, pos)
+            }
+        )
         binding.recyclerView.adapter = adapter
 
         // 面板没有子类，所以无法渲染~
 
-        loadData(panelItem!!, holder) {
-            adapter.updateItems(it)
-            val leftDistanceView2: Int = data.id.toInt()
+        launchInAdapter {
+            val list = loadChildData(panelItem!!)
+            // 在编辑模式下，为二级分类添加"添加"按钮
+            if (isEditMode) {
+                val addButton = createAddButtonItem(
+                    panelItem!!.remoteBookId,
+                    panelItem!!.type,
+                    panelItem!!.remoteId
+                )
+                if (list.find { addButton.remoteId === it.remoteId } == null)
+                    list.add(addButton)
+            }
+
+            adapter.updateItems(list)
+            val leftDistanceView2: Int = parentCCategory.id.toInt()
             val layoutParams = binding.imageView.layoutParams as ViewGroup.MarginLayoutParams
             layoutParams.leftMargin = leftDistanceView2 // 设置左边距
         }
+
+
+    }
+
+
+    /**
+     * 创建添加按钮的CategoryModel
+     * @param bookId 账本ID
+     * @param type 分类类型
+     * @param parentId 父分类ID，"-1"表示一级分类
+     * @return 添加按钮的CategoryModel
+     */
+    fun createAddButtonItem(
+        bookId: String,
+        type: BillType,
+        parentId: String = "-1"
+    ): CategoryModel {
+        val addItem = CategoryModel()
+        addItem.remoteId = "-9998" // 特殊ID标识添加按钮
+        addItem.remoteBookId = bookId
+        addItem.remoteParentId = parentId
+        addItem.type = type
+        addItem.name = "添加"
+        addItem.icon = "add" // 特殊图标标识
+        return addItem
     }
 
     private var prevBinding: AdapterCategoryListBinding? = null
@@ -137,14 +182,36 @@ class CategorySelectorAdapter(
         val binding = holder.binding
         binding.icon.visibility = View.VISIBLE
         binding.container.visibility = View.GONE
-        holder.launch {
-            ResourceUtils.getCategoryDrawable(data, binding.itemImageIcon)
+
+        // 特殊处理添加按钮
+        if (data.isAddBtn()) {
+            // 添加按钮的特殊渲染
+            binding.itemImageIcon.setImageResource(R.drawable.float_add)
+            binding.ivMore.visibility = View.GONE
+
+        } else {
+            // 设置默认图标，避免加载时的空白
+            binding.itemImageIcon.setImageResource(R.drawable.default_cate)
+
+            // 异步加载图标，并确保在视图复用时取消之前的加载
+            launchInAdapter {
+                try {
+                    // 检查当前绑定的数据是否还是同一个，避免加载错误的图标
+                    if (holder.item == data) {
+                        ResourceUtils.getCategoryDrawable(data, binding.itemImageIcon)
+                    }
+                } catch (e: Exception) {
+                    // 如果加载失败，保持默认图标
+                }
+            }
         }
+        
+
         binding.itemText.text = data.name
 
         binding.root.setOnClickListener {
             if (data.isPanel()) return@setOnClickListener
-            val hasChild = binding.ivMore.visibility == View.VISIBLE
+            val hasChild = binding.ivMore.isVisible
             if (prevBinding != null) {
                 setActive(prevBinding!!, false)
             }
@@ -153,15 +220,33 @@ class CategorySelectorAdapter(
             panelItem = data
             onItemClick(data, position, hasChild, binding.itemImageIcon)
         }
+
+        // 添加长按监听器（仅在编辑模式下且不是添加按钮时）
+        if (isEditMode && onItemLongClick != null && !data.isAddBtn() && !data.isPanel()) {
+            binding.root.setOnLongClickListener {
+                onItemLongClick.invoke(data, position)
+                true
+            }
+        }
         // 本身就是二级菜单，无需继续获取二级菜单
-        if (data.isChild()) {
+        if (data.isChild() || data.isAddBtn()) {
             renderMoreItem(binding, false)
             return
         }
-        loadData(data, holder) {
-            renderMoreItem(binding, it.isNotEmpty())
-        }
 
+        launchInAdapter {
+            try {
+                // 检查当前绑定的数据是否还是同一个
+                if (holder.item == data) {
+                    val child = loadChildData(data)
+                    val hasChild = child.isNotEmpty() || isEditMode
+                    renderMoreItem(binding, hasChild)
+                }
+            } catch (e: Exception) {
+                // 如果加载失败，隐藏更多按钮
+                renderMoreItem(binding, false)
+            }
+        }
     }
 
     private fun renderMoreItem(binding: AdapterCategoryListBinding, hasChild: Boolean) {

@@ -1,39 +1,44 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/colorSurface"
         app:liftOnScroll="true"
-        app:liftOnScrollTargetViewId="@id/content_view">
+        app:liftOnScrollTargetViewId="@id/content_view"
+        android:fitsSystemWindows="true">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/topAppBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:minHeight="?attr/actionBarSize"
-
             android:tag="back_button"
             app:menu="@menu/category_menu"
             app:navigationIcon="@drawable/abc_ic_ab_back_material"
-            app:title="@string/title_category_map" />
+            app:title="@string/title_category" />
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tab_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:tabMode="fixed"
+            app:tabGravity="fill" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/swipe_refresh_layout"
+
+    <!-- ViewPager2用于显示收入/支出分类 -->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/view_pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-        <net.ankio.auto.ui.componets.StatusPage
-            android:id="@+id/status_page"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"></net.ankio.auto.ui.componets.StatusPage>
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-
+        android:visibility="gone"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
