@@ -37,7 +37,7 @@
                 android:layout_centerHorizontal="true"
                 android:background="@drawable/rounded_border"
                 android:padding="7dp"
-                android:scaleType="centerCrop"
+                android:scaleType="fitCenter"
                 android:src="@drawable/default_cate"
 
                 app:tint="?colorOnPrimary" />
