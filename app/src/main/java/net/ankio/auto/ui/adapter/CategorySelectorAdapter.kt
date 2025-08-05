@@ -27,6 +27,7 @@ import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterCategoryListBinding
 import net.ankio.auto.http.api.CategoryAPI
+import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
 import net.ankio.auto.ui.utils.setCategoryIcon
@@ -45,7 +46,7 @@ import org.ezbook.server.db.model.CategoryModel
 class CategorySelectorAdapter(
     private val onItemClick: (item: CategoryModel, pos: Int, hasChild: Boolean, view: View) -> Unit,
     private val onItemChildClick: (item: CategoryModel, pos: Int) -> Unit,
-    private val onItemLongClick: ((item: CategoryModel, pos: Int) -> Unit)? = null,
+    private val onItemLongClick: ((item: CategoryModel, pos: Int, view: View) -> Unit)? = null,
     private var isEditMode: Boolean = false
 ) : BaseAdapter<AdapterCategoryListBinding, CategoryModel>(
 
@@ -107,20 +108,25 @@ class CategorySelectorAdapter(
         val binding = holder.binding
         binding.icon.visibility = View.GONE
         binding.container.visibility = View.VISIBLE
-        binding.recyclerView.layoutManager = GridLayoutManager(context, 5)
-        val adapter = CategorySelectorAdapter(
-            isEditMode = isEditMode,
-            onItemClick = { item, pos, hasChild, view ->
-                onItemClick(item, pos, hasChild, view)
-            },
-            onItemChildClick = { item, pos ->
+        val adapter: CategorySelectorAdapter
+        if (binding.recyclerView.adapter == null) {
+            binding.recyclerView.layoutManager = GridLayoutManager(context, 5)
+            adapter = CategorySelectorAdapter(
+                isEditMode = isEditMode,
+                onItemClick = { item, pos, hasChild, view ->
+                    onItemChildClick(item, pos)
+                },
+                onItemChildClick = { item, pos ->
 
-            },
-            onItemLongClick = { item, pos ->
-                onItemLongClick?.invoke(item, pos)
-            }
-        )
-        binding.recyclerView.adapter = adapter
+                },
+                onItemLongClick = { item, pos, view ->
+                    onItemLongClick?.invoke(item, pos, view)
+                }
+            )
+            binding.recyclerView.adapter = adapter
+        } else {
+            adapter = binding.recyclerView.adapter as CategorySelectorAdapter
+        }
 
         // 面板没有子类，所以无法渲染~
 
@@ -209,11 +215,9 @@ class CategorySelectorAdapter(
         }
 
         // 添加长按监听器（仅在编辑模式下且不是添加按钮时）
-        if (isEditMode && onItemLongClick != null && !data.isAddBtn() && !data.isPanel()) {
-            binding.root.setOnLongClickListener {
-                onItemLongClick.invoke(data, position)
-                true
-            }
+        binding.root.setOnLongClickListener {
+            onItemLongClick?.invoke(data, position, binding.root)
+            true
         }
         // 本身就是二级菜单，无需继续获取二级菜单
         if (data.isChild() || data.isAddBtn()) {
@@ -272,10 +276,12 @@ class CategorySelectorAdapter(
     }
 
     override fun areItemsSame(oldItem: CategoryModel, newItem: CategoryModel): Boolean {
-        return oldItem.id == newItem.id && oldItem.isPanel() == newItem.isPanel() && oldItem.isChild() == newItem.isChild()
+        if (oldItem.isPanel() == newItem.isPanel()) return true
+        return oldItem.id == newItem.id
     }
 
     override fun areContentsSame(oldItem: CategoryModel, newItem: CategoryModel): Boolean {
+        //  if (oldItem.isPanel() == newItem.isPanel()) return true
         return oldItem == newItem
     }
 

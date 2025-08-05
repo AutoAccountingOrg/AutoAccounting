@@ -146,11 +146,21 @@ abstract class BaseAdapter<T : ViewBinding, E> : RecyclerView.Adapter<BaseViewHo
      * @param newItems 新的数据列表
      */
     fun updateItems(newItems: List<E>) {
-        val diffResult = DiffUtil.calculateDiff(AdapterDiffCallback(items, newItems))
+        // 1. 拷贝旧数据，防止后面清空 items 时影响 diff (好习惯)
+        val oldItems = items.toList()
+
+        // 2. 计算差异
+        val diffResult = DiffUtil.calculateDiff(AdapterDiffCallback(oldItems, newItems))
+
+        // 3. 替换数据集
         items.clear()
         items.addAll(newItems)
+
+        // 4. 分发更新
         diffResult.dispatchUpdatesTo(this)
-        Logger.d("Updated items with DiffUtil: old=${items.size}, new=${newItems.size}")
+
+        Logger.d("Updated items with DiffUtil: old=${oldItems}, new=${newItems}")
+        Logger.e("pdated items with DiffUtil", Exception())
     }
 
     /**

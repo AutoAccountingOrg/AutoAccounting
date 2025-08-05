@@ -131,7 +131,10 @@ fun Route.categoryRoutes() {
 
             val resultId = if (category.id == 0L) {
                 // 新建分类
-                Db.get().categoryDao().insert(category)
+                category.id = Db.get().categoryDao().insert(category)
+                category.remoteId = category.id.toString()
+                Db.get().categoryDao().update(category)
+                category.id
             } else {
                 // 更新分类
                 val updateCount = Db.get().categoryDao().update(category)
