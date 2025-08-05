@@ -5,10 +5,16 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import net.ankio.auto.storage.Logger
 import java.lang.reflect.Method
 import java.lang.reflect.ParameterizedType
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * RecyclerView 适配器基类
@@ -24,9 +30,37 @@ import java.util.concurrent.ConcurrentHashMap
  */
 abstract class BaseAdapter<T : ViewBinding, E> : RecyclerView.Adapter<BaseViewHolder<T, E>>() {
 
+    // Adapter 级别的协程作用域
+    private val adapterScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+
+    /**
+     * 在 Adapter 的协程作用域中执行操作
+     */
+    protected fun launchInAdapter(block: suspend CoroutineScope.() -> Unit) {
+        adapterScope.launch {
+            try {
+                block()
+            } catch (e: CancellationException) {
+                Logger.d("Adapter coroutine cancelled: ${e.message}")
+            } catch (e: Exception) {
+                Logger.e("Error in adapter coroutine", e)
+            }
+        }
+    }
+
+    /**
+     * 清理 Adapter 资源
+     */
+    fun cleanup() {
+        adapterScope.cancel()
+    }
     /** 数据列表 */
     private val items = mutableListOf<E>()
 
+    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView)
+        cleanup()
+    }
     /**
      * 更新指定位置的数据项
      *
@@ -165,6 +199,7 @@ abstract class BaseAdapter<T : ViewBinding, E> : RecyclerView.Adapter<BaseViewHo
      * @param position 数据位置
      */
     override fun onBindViewHolder(holder: BaseViewHolder<T, E>, position: Int) {
+        holder.clear()
         val item = items[position]
         holder.item = item
         onBindViewHolder(holder, item, position)
