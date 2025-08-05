@@ -47,7 +47,7 @@ class CategoryComponent(
     private var onCategorySelected: ((CategoryModel?, CategoryModel?) -> Unit)? = null
 
     // 长按回调函数
-    private var onCategoryLongClick: ((CategoryModel, Int) -> Unit)? = null
+    private var onCategoryLongClick: ((CategoryModel, Int, View) -> Unit)? = null
 
     // 父类别
     private var categoryModel1: CategoryModel? = null
@@ -92,7 +92,7 @@ class CategoryComponent(
      * 设置长按回调
      * @param callback 回调函数，参数为被长按的分类和位置
      */
-    fun setOnCategoryLongClickListener(callback: (CategoryModel, Int) -> Unit) {
+    fun setOnCategoryLongClickListener(callback: (CategoryModel, Int, View) -> Unit) {
         this.onCategoryLongClick = callback
     }
 
@@ -144,12 +144,13 @@ class CategoryComponent(
         adapter = CategorySelectorAdapter(
             onItemClick = { item, pos, hasChild, view ->
                 // 处理添加按钮点击
-                if (item.remoteId == "-9998") {
-                    handleAddButtonClick(item, pos)
-                    return@CategorySelectorAdapter
-                }
+
 
                 categoryModel1 = item
+                if (item.isAddBtn()) {
+                    onCategorySelected?.invoke(categoryModel1, null)
+                    return@CategorySelectorAdapter
+                }
                 val panelPosition = getPanelIndex(pos) // 在当前位置，面板应该插入到哪里
                 val lastPanelPosition = getPanelIndex(lastPosition) // 在上一个位置，面板在那里
 
@@ -206,14 +207,12 @@ class CategoryComponent(
                 lastPosition = pos
             },
             onItemChildClick = { item, _ ->
-                // 处理二级分类添加按钮点击
-                if (item.isAddBtn()) {
-                    handleChildAddButtonClick(item)
-                    return@CategorySelectorAdapter
-                }
                 categoryModel2 = item
+                onCategorySelected?.invoke(categoryModel1, categoryModel2)
             },
-            onItemLongClick = onCategoryLongClick,
+            onItemLongClick = { item, pos, view ->
+                onCategoryLongClick?.invoke(item, pos, view)
+            },
             isEditMode = isEditMode
         )
 
@@ -337,26 +336,6 @@ class CategoryComponent(
             expand = false
             lastPosition = -1
         }
-    }
-
-    /**
-     * 处理一级分类添加按钮点击
-     * @param item 添加按钮的CategoryModel
-     * @param pos 位置
-     */
-    private fun handleAddButtonClick(item: CategoryModel, pos: Int) {
-        // 这里可以触发添加一级分类的对话框或跳转到添加页面
-        onCategorySelected?.invoke(item, null)
-    }
-
-    /**
-     * 处理二级分类添加按钮点击
-     * @param item 添加按钮的CategoryModel
-     */
-    private fun handleChildAddButtonClick(item: CategoryModel) {
-        // 这里可以触发添加二级分类的对话框或跳转到添加页面
-        // item.remoteParentId包含了父分类的ID
-        onCategorySelected?.invoke(null, item)
     }
 
 } 

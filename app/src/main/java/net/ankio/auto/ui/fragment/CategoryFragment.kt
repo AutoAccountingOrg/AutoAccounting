@@ -28,12 +28,14 @@ import net.ankio.auto.R
 import net.ankio.auto.databinding.ComponentCategoryBinding
 import net.ankio.auto.databinding.FragmentCategoryBinding
 import net.ankio.auto.http.api.CategoryAPI
+import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.api.bindAs
 import net.ankio.auto.ui.dialog.BookSelectorDialog
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
 import net.ankio.auto.ui.fragment.book.CategoryComponent
 import net.ankio.auto.ui.utils.DisplayUtils.dp2px
+import net.ankio.auto.ui.utils.ListPopupUtils
 import net.ankio.auto.ui.utils.ToastUtils
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.BookNameModel
@@ -271,16 +273,8 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>() {
             categoryComponent.setOnCategorySelectedListener { parent, child ->
                 // 处理分类选择事件
                 when {
-                    parent?.remoteId == "-9998" -> {
-                        // 添加一级分类，跳转到编辑页面
-                        navigateToCategoryEdit(
-                            categoryId = 0L,
-                            parentId = "-1",
-                            parentCategoryName = ""
-                        )
-                    }
 
-                    child?.remoteId == "-9998" -> {
+                    child?.isAddBtn() == true -> {
                         // 添加二级分类，跳转到编辑页面
                         navigateToCategoryEdit(
                             categoryId = 0L,
@@ -289,26 +283,21 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>() {
                         )
                     }
 
-                    else -> {
-                        // 选择了具体分类，跳转到编辑页面
-                        val categoryToEdit = child ?: parent
-                        categoryToEdit?.let {
-                            if (it.id > 0) {
-                                navigateToCategoryEdit(
-                                    categoryId = it.id,
-                                    parentId = it.remoteParentId,
-                                    parentCategoryName = if (child != null) parent!!.name!! else ""
-                                )
-                            }
-                        }
+                    parent?.isAddBtn() == true -> {
+                        // 添加一级分类，跳转到编辑页面
+                        navigateToCategoryEdit(
+                            categoryId = 0L,
+                            parentId = "-1",
+                            parentCategoryName = ""
+                        )
                     }
                 }
             }
 
             // 设置长按回调
-            categoryComponent.setOnCategoryLongClickListener { category, position ->
-                // 长按删除分类
-                showDeleteCategoryDialog(category)
+            categoryComponent.setOnCategoryLongClickListener { category, position, view ->
+                // 长按弹出编辑或删除选择对话框
+                showCategoryActionDialog(category, view)
             }
         }
 
@@ -343,6 +332,40 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>() {
                 R.id.action_categoryFragment_to_categoryEditFragment,
                 bundle
             )
+        }
+
+        /**
+         * 显示分类操作选择对话框（编辑或删除）
+         */
+        private fun showCategoryActionDialog(category: CategoryModel, anchorView: View) {
+            val actionMap = hashMapOf<String, String>(
+                getString(R.string.edit) to "edit",
+                getString(R.string.delete) to "delete"
+            )
+
+            ListPopupUtils(
+                context = requireContext(),
+                anchor = anchorView,
+                list = actionMap as HashMap<String, Any>,
+                value = "",
+                lifecycle = lifecycle
+            ) { position, key, value ->
+                when (value) {
+                    "edit" -> {
+                        // 编辑分类 - 跳转到编辑页面
+                        navigateToCategoryEdit(
+                            categoryId = category.id,
+                            parentId = category.remoteParentId,
+                            parentCategoryName = "" // 父分类名称将在编辑页面中根据parentId动态获取
+                        )
+                    }
+
+                    "delete" -> {
+                        // 删除分类 - 显示删除确认对话框
+                        showDeleteCategoryDialog(category)
+                    }
+                }
+            }.toggle()
         }
 
         /**

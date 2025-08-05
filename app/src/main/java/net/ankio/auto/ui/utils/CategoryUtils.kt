@@ -19,6 +19,7 @@ import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import net.ankio.auto.R
+import org.ezbook.server.db.model.CategoryModel
 import java.io.IOException
 import java.io.InputStreamReader
 
@@ -32,7 +33,7 @@ class CategoryUtils {
      * @param context 上下文对象
      * @return 分类项目列表
      */
-    fun list(context: Context): List<CategoryItem> {
+    fun list(context: Context): List<CategoryModel> {
         return try {
             // 打开 raw 资源文件
             val inputStream = context.resources.openRawResource(R.raw.category)
@@ -40,8 +41,8 @@ class CategoryUtils {
 
             // 使用 gson 解析 JSON 数据
             val gson = Gson()
-            val listType = object : TypeToken<List<CategoryItem>>() {}.type
-            val categories: List<CategoryItem> = gson.fromJson(reader, listType)
+            val listType = object : TypeToken<List<CategoryModel>>() {}.type
+            val categories: List<CategoryModel> = gson.fromJson(reader, listType)
 
             // 关闭资源
             reader.close()
@@ -57,10 +58,3 @@ class CategoryUtils {
         }
     }
 }
-
-/**
- * 分类数据项
- * @param name 分类名称
- * @param url 分类图标URL
- */
-data class CategoryItem(val name: String, val url: String)
