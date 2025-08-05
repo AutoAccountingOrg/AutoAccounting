@@ -20,43 +20,64 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.launch
+import androidx.recyclerview.widget.RecyclerView
 import net.ankio.auto.R
-import net.ankio.auto.databinding.FragmentCategoryBinding
+import net.ankio.auto.databinding.FragmentCategoryMapBinding
+import net.ankio.auto.http.api.CategoryMapAPI
 import net.ankio.auto.ui.adapter.CategoryMapAdapter
 import net.ankio.auto.ui.api.BasePageFragment
-import net.ankio.auto.ui.componets.MaterialSearchView
-import net.ankio.auto.ui.componets.WrapContentLinearLayoutManager
-import net.ankio.auto.ui.utils.viewBinding
+import net.ankio.auto.ui.components.MaterialSearchView
+import net.ankio.auto.ui.components.WrapContentLinearLayoutManager
 import org.ezbook.server.db.model.CategoryMapModel
 
-class CategoryMapFragment : BasePageFragment<CategoryMapModel>() {
-    override val binding: FragmentCategoryBinding by viewBinding(FragmentCategoryBinding::inflate)
-    var searchData: String = ""
-    override suspend fun loadData(callback: (resultData: List<CategoryMapModel>) -> Unit) {
-        lifecycleScope.launch {
-            val newData = CategoryMapModel.list(page, pageSize, searchData)
-            callback(newData)
-        }
+/**
+ * 分类映射Fragment
+ *
+ * 该Fragment负责显示和管理分类映射列表，提供以下功能：
+ * - 显示所有分类映射列表
+ * - 搜索分类映射
+ * - 编辑分类映射
+ * - 分页加载更多数据
+ *
+ * 继承自BasePageFragment提供分页功能
+ */
+class CategoryMapFragment : BasePageFragment<CategoryMapModel, FragmentCategoryMapBinding>() {
+
+    /** 搜索关键词 */
+    private var searchData: String = ""
+
+    /**
+     * 加载分类映射数据
+     * @return 当前页的分类映射列表
+     */
+    override suspend fun loadData(): List<CategoryMapModel> {
+        return CategoryMapAPI.list(page, pageSize, searchData)
     }
 
-    override fun onCreateAdapter() {
-        val recyclerView = statusPage.contentView!!
-        recyclerView.layoutManager = WrapContentLinearLayoutManager(context)
-        recyclerView.adapter = CategoryMapAdapter(requireActivity())
+    /**
+     * 创建RecyclerView适配器
+     * @return CategoryMapAdapter实例
+     */
+    override fun onCreateAdapter(): RecyclerView.Adapter<*> {
+        return CategoryMapAdapter(requireActivity())
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View = binding.root
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // 设置RecyclerView布局管理器
+        statusPage.contentView?.layoutManager = WrapContentLinearLayoutManager(context)
+
+        // 设置工具栏搜索功能
+        setupSearchView()
+    }
+
+    /**
+     * 设置搜索视图
+     */
+    private fun setupSearchView() {
         val searchItem = binding.topAppBar.menu.findItem(R.id.action_search)
 
         if (searchItem != null) {
@@ -68,10 +89,9 @@ class CategoryMapFragment : BasePageFragment<CategoryMapModel>() {
 
                 override fun onQueryTextChange(newText: String?): Boolean {
                     searchData = newText ?: ""
-                    reload()
+                    reload() // 重新加载数据
                     return true
                 }
-
             })
         }
     }

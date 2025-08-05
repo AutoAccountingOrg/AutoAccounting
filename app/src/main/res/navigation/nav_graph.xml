@@ -40,6 +40,12 @@
         <action
             android:id="@+id/action_homeFragment_to_bookFragment"
             app:destination="@id/bookFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_categoryFragment"
+            app:destination="@id/categoryFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_categoryMapFragment"
+            app:destination="@id/categoryMapFragment" />
     </fragment>
 
     <fragment
@@ -106,6 +112,49 @@
             android:name="bookId"
             app:argType="long"
             android:defaultValue="0L" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/categoryFragment"
+        android:name="net.ankio.auto.ui.fragment.CategoryFragment"
+        android:label="@string/title_category_map"
+        tools:layout="@layout/fragment_category">
+
+        <action
+            android:id="@+id/action_categoryFragment_to_categoryEditFragment"
+            app:destination="@id/categoryEditFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/categoryEditFragment"
+        android:name="net.ankio.auto.ui.fragment.CategoryEditFragment"
+        android:label="@string/title_category_edit"
+        tools:layout="@layout/fragment_category_edit">
+
+        <argument
+            android:name="categoryId"
+            app:argType="long"
+            android:defaultValue="0L" />
+        <argument
+            android:name="bookName"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="billType"
+            app:argType="string"
+            android:defaultValue="Expend" />
+        <argument
+            android:name="parentId"
+            app:argType="string"
+            android:defaultValue="-1" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/categoryMapFragment"
+        android:name="net.ankio.auto.ui.fragment.CategoryMapFragment"
+        android:label="@string/title_category_map"
+        tools:layout="@layout/fragment_category_map">
+
     </fragment>
 
 

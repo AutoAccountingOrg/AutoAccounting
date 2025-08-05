@@ -21,17 +21,18 @@ import android.view.View
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.databinding.AdapterMapBinding
+import net.ankio.auto.http.api.CategoryMapAPI
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
 import net.ankio.auto.ui.dialog.BookSelectorDialog
 import net.ankio.auto.ui.dialog.CategorySelectorDialog
-import net.ankio.auto.ui.utils.ResourceUtils
+import net.ankio.auto.ui.utils.setCategoryIcon
 import net.ankio.auto.utils.BillTool
 import org.ezbook.server.db.model.CategoryMapModel
 
 class CategoryMapAdapter(
     val activity: Activity
-) : BaseAdapter<AdapterMapBinding, CategoryMapModel>(AdapterMapBinding::class.java) {
+) : BaseAdapter<AdapterMapBinding, CategoryMapModel>() {
 
 
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterMapBinding, CategoryMapModel>) {
@@ -40,17 +41,30 @@ class CategoryMapAdapter(
             val item = holder.item!!
             val position = indexOf(item)
 
-            BookSelectorDialog(activity, true) { book, type ->
-                CategorySelectorDialog(activity, book.remoteId, type) { category1, category2 ->
-                    holder.launch {
-                        item.mapName = BillTool.getCateName(category1?.name!!, category2?.name)
-                        CategoryMapModel.put(item)
-                        withContext(Dispatchers.Main) {
-                            updateItem(position, item)
-                        }
-                    }
-                }.show(cancel = true)
-            }.show(cancel = true)
+            // 显示账本选择对话框
+            BookSelectorDialog(
+                showSelect = true,
+                callback = { book, type ->
+                    // 显示分类选择对话框
+                    CategorySelectorDialog(
+                        book = book.name,
+                        type = type,
+                        callback = { category1, category2 ->
+                            launchInAdapter {
+                                // 更新映射名称
+                                item.mapName =
+                                    BillTool.getCateName(category1?.name ?: "", category2?.name)
+                                CategoryMapAPI.put(item)
+                                withContext(Dispatchers.Main) {
+                                    updateItem(position, item)
+                                }
+                            }
+                        },
+                        activity = activity
+                    ).show()
+                },
+                activity = activity
+            ).show()
 
         }
     }
@@ -64,14 +78,12 @@ class CategoryMapAdapter(
 
         binding.raw.text = data.name
         binding.target.setText(data.mapName)
+        binding.target.setTint(true)
         binding.containmentChip.visibility = View.GONE
 
-        holder.launch {
-            ResourceUtils.getCategoryDrawableByName(data.mapName, activity).let {
-                withContext(Dispatchers.Main) {
-                    binding.target.setIcon(it, true)
-                }
-            }
+
+        launchInAdapter {
+            binding.target.imageView().setCategoryIcon(data.mapName)
         }
     }
 
