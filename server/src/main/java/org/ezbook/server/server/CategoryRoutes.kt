@@ -17,6 +17,7 @@ package org.ezbook.server.server
 
 import io.ktor.application.call
 import io.ktor.request.receive
+import io.ktor.request.receiveText
 import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.get
@@ -98,6 +99,68 @@ fun Route.categoryRoutes() {
 
             val category = Db.get().categoryDao().getByName(book, type, name)
             call.respond(ResultModel(200, "OK", category))
+        }
+
+        /**
+         * GET /category/getById - 根据ID获取分类信息
+         *
+         * @param id 分类ID，必填
+         * @return ResultModel 包含分类详细信息
+         */
+        get("/getById") {
+            val id = call.request.queryParameters["id"]?.toLongOrNull()
+
+            if (id == null || id <= 0) {
+                call.respond(ResultModel(400, "id is invalid"))
+                return@get
+            }
+
+            val category = Db.get().categoryDao().getById(id)
+            call.respond(ResultModel(200, "OK", category))
+        }
+
+        /**
+         * POST /category/save - 保存或更新分类
+         * 根据分类ID自动判断是插入新分类还是更新现有分类
+         *
+         * @param body CategoryModel 分类数据
+         * @return ResultModel 包含分类ID
+         */
+        post("/save") {
+            val category = call.receive<CategoryModel>()
+
+            val resultId = if (category.id == 0L) {
+                // 新建分类
+                Db.get().categoryDao().insert(category)
+            } else {
+                // 更新分类
+                val updateCount = Db.get().categoryDao().update(category)
+                if (updateCount > 0) category.id else 0L
+            }
+
+            call.respond(ResultModel(200, "OK", resultId))
+        }
+
+        /**
+         * POST /category/delete - 删除指定分类
+         *
+         * @param body 包含id的JSON对象
+         * @return ResultModel 包含删除的分类ID
+         */
+        post("/delete") {
+            val requestBody = call.receiveText()
+            val json =
+                com.google.gson.Gson().fromJson(requestBody, com.google.gson.JsonObject::class.java)
+            val id = json?.get("id")?.asLong ?: 0
+
+            if (id <= 0) {
+                call.respond(ResultModel(400, "id is invalid"))
+                return@post
+            }
+
+            val deleteCount = Db.get().categoryDao().delete(id)
+            val resultId = if (deleteCount > 0) id else 0L
+            call.respond(ResultModel(200, "OK", resultId))
         }
     }
 } 

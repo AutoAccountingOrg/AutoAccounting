@@ -58,13 +58,11 @@ class CategoryModel {
      */
     var type: BillType = BillType.Income
 
-    fun isPanel(): Boolean {
-        return remoteId == "-9999"
-    }
+    fun isPanel() = remoteId == "-9999"
 
-    fun isChild(): Boolean {
-        return remoteParentId != "-1"
-    }
+    fun isAddBtn() = remoteId == "-9998"
+
+    fun isChild() = remoteParentId != "-1"
 
     override fun toString(): String {
         return "CategoryModel(id=$id, name=$name, icon=$icon, remoteId='$remoteId', remoteBookId='$remoteBookId', remoteParentId='$remoteParentId', book=$book, sort=$sort, type=$type)"

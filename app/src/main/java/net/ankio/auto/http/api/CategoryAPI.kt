@@ -89,4 +89,53 @@ object CategoryAPI {
     suspend fun put(data: ArrayList<CategoryModel>, md5: String) = withContext(Dispatchers.IO) {
         LocalNetwork.post("category/put?md5=$md5", Gson().toJson(data))
     }
+
+    /**
+     * 保存或更新分类
+     *
+     * @param category 分类模型
+     * @return 返回分类ID
+     */
+    suspend fun save(category: CategoryModel): Long = withContext(Dispatchers.IO) {
+        val response = LocalNetwork.post("category/save", Gson().toJson(category))
+
+        runCatching {
+            val json = Gson().fromJson(response, JsonObject::class.java)
+            json.get("data")?.asLong ?: 0L
+        }.getOrElse { 0L }
+    }
+
+    /**
+     * 删除分类
+     *
+     * @param categoryId 分类ID
+     * @return 返回删除的分类ID
+     */
+    suspend fun delete(categoryId: Long): Long = withContext(Dispatchers.IO) {
+        val response =
+            LocalNetwork.post("category/delete", Gson().toJson(mapOf("id" to categoryId)))
+
+        runCatching {
+            val json = Gson().fromJson(response, JsonObject::class.java)
+            json.get("data")?.asLong ?: 0L
+        }.getOrElse { 0L }
+    }
+
+    /**
+     * 根据ID获取分类
+     *
+     * @param categoryId 分类ID
+     * @return 返回分类模型，如果未找到则返回null
+     */
+    suspend fun getById(categoryId: Long): CategoryModel? = withContext(Dispatchers.IO) {
+        val response = LocalNetwork.get("category/getById?id=$categoryId")
+
+        runCatching {
+            val json = Gson().fromJson(response, JsonObject::class.java)
+            Gson().fromJson(
+                json.getAsJsonObject("data"),
+                CategoryModel::class.java
+            )
+        }.getOrNull()
+    }
 }

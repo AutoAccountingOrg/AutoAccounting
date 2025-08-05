@@ -19,6 +19,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Update
 import org.ezbook.server.db.model.CategoryModel
 
 
@@ -31,9 +32,17 @@ interface CategoryDao {
     @Query("SELECT * FROM CategoryModel WHERE name =:name AND (:book IS NULL OR  remoteBookId = :book) AND (:type IS NULL OR  type = :type) ORDER BY id DESC LIMIT 1")
     suspend fun getByName(book: String?, type: String?, name: String): CategoryModel?
 
+    @Query("SELECT * FROM CategoryModel WHERE id = :id")
+    suspend fun getById(id: Long): CategoryModel?
 
     @Insert
     suspend fun insert(log: CategoryModel): Long
+
+    @Update
+    suspend fun update(category: CategoryModel): Int
+
+    @Query("DELETE FROM CategoryModel WHERE id = :id")
+    suspend fun delete(id: Long): Int
 
     @Query("DELETE FROM CategoryModel")
     suspend fun clear()
