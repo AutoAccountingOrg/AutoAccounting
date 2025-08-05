@@ -32,13 +32,13 @@ import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentBookEditBinding
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseFragment
-import net.ankio.auto.ui.utils.ImageUtils
 import net.ankio.auto.ui.utils.ToastUtils
 import org.ezbook.server.db.model.BookNameModel
 import java.io.ByteArrayOutputStream
 import java.security.MessageDigest
 import androidx.core.graphics.scale
 import net.ankio.auto.http.api.BookNameAPI
+import net.ankio.auto.ui.utils.load
 
 /**
  * 账本编辑Fragment - 用于创建新账本或编辑现有账本
@@ -131,21 +131,7 @@ class BookEditFragment : BaseFragment<FragmentBookEditBinding>() {
      */
     private fun updateIconPreview() = with(binding) {
         if (currentBookModel.icon.isNotEmpty()) {
-            lifecycleScope.launch {
-                try {
-                    val drawable = ImageUtils.get(
-                        requireContext(),
-                        currentBookModel.icon,
-                        R.drawable.ic_book
-                    )
-
-                    bookIconPreview.setImageDrawable(drawable)
-                    updateIconStatusText()
-                } catch (e: Exception) {
-                    Logger.e("Failed to load book icon", e)
-                    setDefaultIcon()
-                }
-            }
+            bookIconPreview.load(currentBookModel.icon, R.drawable.ic_book)
         } else {
             setDefaultIcon()
         }

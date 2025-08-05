@@ -19,19 +19,19 @@ package net.ankio.auto.ui.adapter
 import android.content.Context
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.GridLayoutManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterCategoryListBinding
+import net.ankio.auto.http.api.CategoryAPI
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
-import net.ankio.auto.ui.utils.ResourceUtils
-import net.ankio.auto.http.api.CategoryAPI
-import org.ezbook.server.db.model.CategoryModel
-import androidx.core.view.isVisible
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import net.ankio.auto.ui.utils.setCategoryIcon
 import org.ezbook.server.constant.BillType
+import org.ezbook.server.db.model.CategoryModel
 
 /**
  * 分类选择器适配器
@@ -190,20 +190,7 @@ class CategorySelectorAdapter(
             binding.ivMore.visibility = View.GONE
 
         } else {
-            // 设置默认图标，避免加载时的空白
-            binding.itemImageIcon.setImageResource(R.drawable.default_cate)
-
-            // 异步加载图标，并确保在视图复用时取消之前的加载
-            launchInAdapter {
-                try {
-                    // 检查当前绑定的数据是否还是同一个，避免加载错误的图标
-                    if (holder.item == data) {
-                        ResourceUtils.getCategoryDrawable(data, binding.itemImageIcon)
-                    }
-                } catch (e: Exception) {
-                    // 如果加载失败，保持默认图标
-                }
-            }
+            binding.itemImageIcon.setCategoryIcon(data)
         }
         
 

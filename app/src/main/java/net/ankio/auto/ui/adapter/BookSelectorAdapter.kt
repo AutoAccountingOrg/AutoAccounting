@@ -17,10 +17,11 @@
 package net.ankio.auto.ui.adapter
 
 import androidx.constraintlayout.widget.ConstraintLayout
+import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterBookBinding
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
-import net.ankio.auto.ui.utils.ResourceUtils
+import net.ankio.auto.ui.utils.load
 import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.BookNameModel
@@ -101,7 +102,7 @@ class BookSelectorAdapter(
         } else {
             // 普通模式：整个项目可点击
             binding.root.setOnClickListener {
-                onClick(holder.item!!, "item")
+                onClick(holder.item!!, BillType.Expend.name)
             }
         }
 
@@ -121,10 +122,7 @@ class BookSelectorAdapter(
         position: Int
     ) {
         val binding = holder.binding
-        // 异步加载账本图标
-        holder.launch {
-            ResourceUtils.getBookNameDrawable(data.name, holder.context, binding.book)
-        }
+        binding.book.load(data.icon, R.drawable.default_book)
         // 设置账本名称
         binding.itemValue.text = data.name
 

@@ -15,55 +15,94 @@
 
 package net.ankio.auto.ui.utils
 
-import android.content.Context
-import android.graphics.BitmapFactory
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
-import androidx.core.content.res.ResourcesCompat
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import net.ankio.auto.request.RequestsUtils
-import net.ankio.auto.storage.Logger
+import android.widget.ImageView
+import com.bumptech.glide.Glide
+import net.ankio.auto.R
+import net.ankio.auto.http.api.AssetsAPI
+import net.ankio.auto.http.api.CategoryAPI
+import org.ezbook.server.db.model.AssetsModel
+import org.ezbook.server.db.model.CategoryModel
 
-object ImageUtils {
-    suspend fun get(
-        context: Context,
-        uriString: String,
-        default: Int,
-    ): Drawable =
-        withContext(Dispatchers.IO) {
-            val result =
-                if (uriString.startsWith("data:image")) {
-                    getFromBase64(context, uriString)
-                } else if (uriString.startsWith("http")) {
-                    getFromWeb(context, uriString)
-                } else {
-                    null
-                }
-            (result ?: ResourcesCompat.getDrawable(context.resources, default, context.theme))!!
-        }
+/**
+ * 资源工具类，提供各种图标和图片的加载功能
+ * 基于Glide实现，支持base64和网络图片
+ */
 
-    private fun getFromBase64(
-        context: Context,
-        base64String: String,
-    ): Drawable {
-        val base64Image = base64String.substring(base64String.indexOf(",") + 1)
-        val decodedString = android.util.Base64.decode(base64Image, android.util.Base64.DEFAULT)
-        val decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.size)
-        return BitmapDrawable(context.resources, decodedByte)
+/**
+ * 给任意 ImageView 加载图片。
+ *
+ * @param src  图片源：可为 data:image;base64、http/https URL，或 null/空串
+ * @param defaultResId 占位 & 错误图资源 id
+ */
+fun ImageView.load(
+    src: String?,
+    defaultResId: Int,
+) {
+
+    Glide.with(this)
+        .load(
+            when {
+                src.isNullOrBlank() -> defaultResId          // 空串直接用占位图
+                else -> src                   // 普通 URL
+            }
+        )
+        .error(defaultResId)
+        .fallback(defaultResId)
+        .into(this)
+}
+
+/**
+ * ImageView扩展函数：设置分类图标
+ * @param categoryModel 分类数据模型
+ */
+fun ImageView.setCategoryIcon(categoryModel: CategoryModel) {
+    val icon = categoryModel.icon ?: ""
+    this.load(icon, R.drawable.default_cate)
+}
+
+/**
+ * ImageView扩展函数：根据分类名称设置分类图标
+ * @param name 分类名称
+ * @param bookId 账本ID
+ * @param type 分类类型
+ */
+suspend fun ImageView.setCategoryIcon(
+    name: String,
+    bookId: String = "",
+    type: String = ""
+) {
+    var cateName = name
+    if (cateName.contains("-")) {
+        cateName = cateName.split("-")[1].trim()
     }
+    val item = CategoryAPI.getByName(cateName, bookId, type)
+    val icon = item?.icon ?: ""
+    this.load(icon, R.drawable.default_cate)
+}
 
-    private suspend fun getFromWeb(
-        context: Context,
-        uriString: String,
-    ): Drawable? =
-        withContext(Dispatchers.IO) {
-            runCatching {
-                val result = RequestsUtils(context, 60 * 24 * 180).image(url = uriString)
-                val bitmap = BitmapFactory.decodeStream(result.second.inputStream())
-                BitmapDrawable(null, bitmap)
-            }.onFailure {
-                Logger.e("Failed to load image from web：${it.message}", it)
-            }.getOrNull()
-        }
+/**
+ * ImageView扩展函数：设置资产图标
+ * @param assetsModel 资产数据模型
+ */
+fun ImageView.setAssetIcon(assetsModel: AssetsModel) {
+    val icon = assetsModel.icon
+    this.load(icon, R.drawable.default_asset)
+}
+
+/**
+ * ImageView扩展函数：根据URI设置资产图标
+ * @param uri 图片URI
+ */
+fun ImageView.setAssetIcon(uri: String) {
+    this.load(uri, R.drawable.default_asset)
+}
+
+/**
+ * ImageView扩展函数：根据资产名称设置资产图标
+ * @param name 资产名称
+ */
+suspend fun ImageView.setAssetIconByName(name: String) {
+    val asset = AssetsAPI.getByName(name)
+    val icon = asset?.icon ?: ""
+    this.load(icon, R.drawable.default_asset)
 }

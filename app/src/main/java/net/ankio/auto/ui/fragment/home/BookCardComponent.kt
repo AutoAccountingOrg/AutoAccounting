@@ -29,6 +29,7 @@ import net.ankio.auto.adapter.AppAdapterManager
 import net.ankio.auto.databinding.CardBookBinding
 import net.ankio.auto.ui.api.BaseComponent
 import net.ankio.auto.ui.components.IconTileView
+import net.ankio.auto.ui.dialog.BookSelectorDialog
 import net.ankio.auto.utils.PrefManager
 
 class BookCardComponent(binding: CardBookBinding, private val lifecycle: Lifecycle) :
@@ -188,7 +189,8 @@ class BookCardComponent(binding: CardBookBinding, private val lifecycle: Lifecyc
         onRedirect.invoke(R.id.action_homeFragment_to_bookFragment)
     }
 
-    private fun openCategoryManager() { /* TODO 跳转分类管理页面（支持二级分类及用户手动添加图标）*/
+    private fun openCategoryManager() {
+        onRedirect.invoke(R.id.action_homeFragment_to_categoryFragment)
     }
 
     private fun openCategoryMapping() { /* TODO 跳转分类映射页面 */
