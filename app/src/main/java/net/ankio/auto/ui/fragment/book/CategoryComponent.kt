@@ -144,11 +144,10 @@ class CategoryComponent(
         adapter = CategorySelectorAdapter(
             onItemClick = { item, pos, hasChild, view ->
                 // 处理添加按钮点击
-
-
                 categoryModel1 = item
+                onCategorySelected?.invoke(categoryModel1, null)
                 if (item.isAddBtn()) {
-                    onCategorySelected?.invoke(categoryModel1, null)
+
                     return@CategorySelectorAdapter
                 }
                 val panelPosition = getPanelIndex(pos) // 在当前位置，面板应该插入到哪里

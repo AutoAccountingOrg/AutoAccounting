@@ -193,7 +193,8 @@ class BookCardComponent(binding: CardBookBinding, private val lifecycle: Lifecyc
         onRedirect.invoke(R.id.action_homeFragment_to_categoryFragment)
     }
 
-    private fun openCategoryMapping() { /* TODO 跳转分类映射页面 */
+    private fun openCategoryMapping() {
+        onRedirect.invoke(R.id.action_homeFragment_to_categoryMapFragment)
     }
 
     private fun openAssetManager() { /* TODO 跳转资产管理页面（根据自动记账定义的资产拆分）*/
