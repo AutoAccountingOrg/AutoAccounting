@@ -86,5 +86,18 @@
         <item>@string/color_blue_grey</item>
     </string-array>
 
+    <!-- Rule type filter options -->
+    <string-array name="rule_type_options" translatable="false">
+        <item>@string/filter_type_all</item>
+        <item>@string/filter_type_notify</item>
+        <item>@string/filter_type_data</item>
+    </string-array>
+
+    <!-- Creator filter options -->
+    <string-array name="creator_options" translatable="false">
+        <item>@string/filter_creator_all</item>
+        <item>@string/filter_creator_user</item>
+        <item>@string/filter_creator_official</item>
+    </string-array>
 
 </resources>

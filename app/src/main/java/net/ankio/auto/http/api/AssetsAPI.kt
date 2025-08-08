@@ -74,4 +74,49 @@ object AssetsAPI {
         }.getOrNull()
     }
 
+    /**
+     * 保存或更新资产
+     * @param asset 资产模型
+     * @return 返回资产ID
+     */
+    suspend fun save(asset: AssetsModel): Long = withContext(Dispatchers.IO) {
+        val response = LocalNetwork.post("assets/save", Gson().toJson(asset))
+
+        runCatching {
+            val json = Gson().fromJson(response, JsonObject::class.java)
+            json.get("data")?.asLong ?: 0L
+        }.getOrElse { 0L }
+    }
+
+    /**
+     * 删除资产
+     * @param assetId 资产ID
+     * @return 返回删除的资产ID
+     */
+    suspend fun delete(assetId: Long): Long = withContext(Dispatchers.IO) {
+        val response = LocalNetwork.post("assets/delete", Gson().toJson(mapOf("id" to assetId)))
+
+        runCatching {
+            val json = Gson().fromJson(response, JsonObject::class.java)
+            json.get("data")?.asLong ?: 0L
+        }.getOrElse { 0L }
+    }
+
+    /**
+     * 根据ID获取资产
+     * @param assetId 资产ID
+     * @return 返回资产模型，如果未找到则返回null
+     */
+    suspend fun getById(assetId: Long): AssetsModel? = withContext(Dispatchers.IO) {
+        val response = LocalNetwork.get("assets/getById?id=$assetId")
+
+        runCatching {
+            val json = Gson().fromJson(response, JsonObject::class.java)
+            Gson().fromJson(
+                json.getAsJsonObject("data"),
+                AssetsModel::class.java
+            )
+        }.getOrNull()
+    }
+
 }

@@ -25,7 +25,7 @@
     <color name="log_error">#DC3545</color> <!-- 错误 -->
     <color name="log_debug">#6C757D</color> <!-- 调试 -->
     <color name="black">#FF000000</color>
-    <color name="gray40">#80000000</color>
+    <color name="gray40">#30000000</color>
     <color name="gray30">#7A000000</color>
     <color name="transparent">#00000000</color>
 
@@ -50,6 +50,8 @@
     <color name="tile_bg_assets">#FFE8F6F6</color>
     <color name="tile_bg_assets_map">#FFF2E9FF</color>
     <color name="tile_bg_tag">#FFFFF7CC</color>
+    <color name="tile_bg_app_whitelist">#FFE7F3E7</color>
+    <color name="tile_bg_data_filter">#FFFEF0E7</color>
 
 
     <color name="md_theme_light_primary">#6750A4</color>

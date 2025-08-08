@@ -18,10 +18,13 @@ package net.ankio.auto.ui.dialog
 import android.app.Activity
 import android.view.View
 import androidx.lifecycle.LifecycleOwner
+import net.ankio.auto.R
 import net.ankio.auto.databinding.ComponentCategoryBinding
+import net.ankio.auto.databinding.DialogCategorySelectBinding
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.api.bindAs
 import net.ankio.auto.ui.fragment.book.CategoryComponent
+import net.ankio.auto.ui.utils.ToastUtils
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.CategoryModel
 
@@ -34,64 +37,40 @@ class CategorySelectorDialog(
     private val type: BillType = BillType.Expend,
     val callback: (CategoryModel?, CategoryModel?) -> Unit,
     activity: Activity
-) : BaseSheetDialog<ComponentCategoryBinding>(activity) {
+) : BaseSheetDialog<DialogCategorySelectBinding>(activity) {
 
     private lateinit var categoryComponent: CategoryComponent
     private val lifecycleOwner: LifecycleOwner = activity as LifecycleOwner
+
+
+    private var parentCategory: CategoryModel? = null;
+    private var childCategory: CategoryModel? = null;
 
     override fun onViewCreated(view: View?) {
         super.onViewCreated(view)
 
         // 使用bindAs创建CategoryComponent实例
-        categoryComponent = binding.bindAs(lifecycleOwner.lifecycle)
+        categoryComponent = binding.category.bindAs<CategoryComponent>(lifecycleOwner.lifecycle)
 
         // 设置账本信息
         categoryComponent.setBookInfo(book, type)
 
         // 设置分类选择回调
         categoryComponent.setOnCategorySelectedListener { parent, child ->
-            callback(parent, child)
-            this.dismiss()
+            parentCategory = parent
+            childCategory = child
+        }
+
+        binding.button.setOnClickListener {
+            if (parentCategory == null) {
+                // 显示错误提示：没有选择分类
+                ToastUtils.error(R.string.useless_category)
+                return@setOnClickListener
+            }
+
+            callback.invoke(parentCategory, childCategory)
+            dismiss()
         }
     }
 
-    /**
-     * 刷新分类数据
-     */
-    fun refreshData() {
-        if (::categoryComponent.isInitialized) {
-            categoryComponent.refreshData()
-        }
-    }
-
-    /**
-     * 获取当前分类列表
-     */
-    fun getCategoryList(): List<CategoryModel> {
-        return if (::categoryComponent.isInitialized) {
-            categoryComponent.getDataItems()
-        } else {
-            emptyList()
-        }
-    }
-
-    /**
-     * 获取当前选中的分类
-     */
-    fun getSelectedCategories(): Pair<CategoryModel?, CategoryModel?> {
-        return if (::categoryComponent.isInitialized) {
-            categoryComponent.getSelectedCategories()
-        } else {
-            Pair(null, null)
-        }
-    }
-
-    /**
-     * 清除选择
-     */
-    fun clearSelection() {
-        if (::categoryComponent.isInitialized) {
-            categoryComponent.clearSelection()
-        }
-    }
 }

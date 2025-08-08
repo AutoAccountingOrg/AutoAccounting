@@ -16,11 +16,14 @@
 package net.ankio.auto.ui.utils
 
 import android.content.Context
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import net.ankio.auto.R
 import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Logger
-import net.ankio.auto.ui.dialog.BillAssetsMapDialog
+//import net.ankio.auto.ui.dialog.BillAssetsMapDialog
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
@@ -28,6 +31,11 @@ import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.AssetsMapModel
 import org.ezbook.server.db.model.AssetsModel
 import org.ezbook.server.db.model.BillInfoModel
+import net.ankio.auto.http.api.AssetsAPI
+import net.ankio.auto.http.api.AssetsMapAPI
+import org.ezbook.server.db.model.CategoryModel
+import java.io.IOException
+import java.io.InputStreamReader
 
 object AssetsUtils {
     suspend fun setMapAssets(
@@ -43,28 +51,29 @@ object AssetsUtils {
                 callback()
                 return@withContext
             }
-            val empty = AssetsMapModel.empty()
+            val empty = AssetsMapAPI.empty()
             if (empty.isEmpty()) {
                 callback()
                 return@withContext
             }
-            val assetItems = AssetsModel.list()
-            BillAssetsMapDialog(context, float, empty.toMutableList(), assetItems) { items ->
-                runCatching {
+            val assetItems = AssetsAPI.list()
+            /*  BillAssetsMapDialog(context, float, empty.toMutableList(), assetItems) { items ->
+                  runCatching {
 
-                    items.first { billInfoModel.accountNameFrom.isNotEmpty() && billInfoModel.accountNameFrom == it.name }
-                        .let {
-                            billInfoModel.accountNameFrom = it.mapName
-                        }
-                }
-                runCatching {
-                    items.first { billInfoModel.accountNameTo.isNotEmpty() && billInfoModel.accountNameTo == it.name }
-                        .let {
-                            billInfoModel.accountNameTo = it.mapName
-                        }
-                }
-                callback()
-            }.show(float = float, cancel = true)
+                      items.first { billInfoModel.accountNameFrom.isNotEmpty() && billInfoModel.accountNameFrom == it.name }
+                          .let {
+                              billInfoModel.accountNameFrom = it.mapName
+                          }
+                  }
+                  runCatching {
+                      items.first { billInfoModel.accountNameTo.isNotEmpty() && billInfoModel.accountNameTo == it.name }
+                          .let {
+                              billInfoModel.accountNameTo = it.mapName
+                          }
+                  }
+                  callback()
+              }.show(float = float, cancel = true)
+          */
         }
     /**
      * 计算两个字符串的最长连续相似子串
@@ -166,7 +175,7 @@ object AssetsUtils {
     }
 
     private suspend fun handleEmptyMapping(accountName: String): String? {
-        val list = AssetsMapModel.list(1, 10000)
+        val list = AssetsMapAPI.list(1, 10000)
         Logger.d("handleEmptyMapping: $accountName, list: $list")
         return list.firstOrNull { it.regex && accountName.contains(it.name) }?.mapName
     }
@@ -177,15 +186,15 @@ object AssetsUtils {
         //如果不使用资产管理就不进行映射
         val assetManager =
             ConfigUtils.getBoolean(Setting.SETTING_ASSET_MANAGER, DefaultData.SETTING_ASSET_MANAGER)
-        val list = AssetsModel.list()
+        val list = AssetsAPI.list()
         if (!assetManager || list.isEmpty()) {
             return mutableListOf()
         }
 
         val assets = mutableListOf<String>()
         if (billInfoModel.accountNameFrom.isNotEmpty()) {
-            val mapName = AssetsMapModel.getByName(billInfoModel.accountNameFrom)
-            val assetName = AssetsModel.getByName(billInfoModel.accountNameFrom)
+            val mapName = AssetsMapAPI.getByName(billInfoModel.accountNameFrom)
+            val assetName = AssetsAPI.getByName(billInfoModel.accountNameFrom)
 
             Logger.d("setMapAssets: $billInfoModel, mapName: $mapName, assetName: $assetName")
             if (assetName == null) {
@@ -209,8 +218,8 @@ object AssetsUtils {
         }
 
         if (billInfoModel.accountNameTo.isNotEmpty()) {
-            val mapName = AssetsMapModel.getByName(billInfoModel.accountNameTo)
-            val assetName = AssetsModel.getByName(billInfoModel.accountNameTo)
+            val mapName = AssetsMapAPI.getByName(billInfoModel.accountNameTo)
+            val assetName = AssetsAPI.getByName(billInfoModel.accountNameTo)
             Logger.d("setMapAssets: $billInfoModel, mapName: $mapName, assetName: $assetName")
             if (assetName == null) {
                 if (mapName == null) {
@@ -236,4 +245,33 @@ object AssetsUtils {
         return assets
     }
 
+
+    /**
+     * 从 raw/category.json 文件中读取分类数据并解析为 CategoryItem 列表
+     * @param context 上下文对象
+     * @return 分类项目列表
+     */
+    fun list(context: Context): List<AssetsModel> {
+        return try {
+            // 打开 raw 资源文件
+            val inputStream = context.resources.openRawResource(R.raw.assets)
+            val reader = InputStreamReader(inputStream)
+
+            // 使用 gson 解析 JSON 数据
+            val gson = Gson()
+            val listType = object : TypeToken<List<AssetsModel>>() {}.type
+            val assets: List<AssetsModel> = gson.fromJson(reader, listType)
+
+            // 关闭资源
+            reader.close()
+            inputStream.close()
+
+            assets
+
+        } catch (e: Exception) {
+            Logger.e(e.message ?: "", e)
+            // 处理其他异常，返回空列表
+            emptyList()
+        }
+    }
 }

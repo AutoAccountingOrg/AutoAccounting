@@ -17,6 +17,7 @@ package org.ezbook.server.server
 
 import io.ktor.application.call
 import io.ktor.request.receive
+import io.ktor.request.receiveText
 import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.get
@@ -71,6 +72,52 @@ fun Route.assetsRoutes() {
             val name = call.request.queryParameters["name"] ?: ""
             val asset = Db.get().assetsDao().query(name)
             call.respond(ResultModel(200, "OK", asset))
+        }
+
+        /**
+         * GET /assets/getById - 根据ID获取资产信息
+         *
+         * @param id 资产ID
+         * @return ResultModel 包含指定资产的详细信息
+         */
+        get("/getById") {
+            val id = call.request.queryParameters["id"]?.toLongOrNull() ?: 0L
+            val asset = Db.get().assetsDao().getById(id)
+            call.respond(ResultModel(200, "OK", asset))
+        }
+
+        /**
+         * POST /assets/save - 保存或更新资产
+         *
+         * @param body AssetsModel 资产数据
+         * @return ResultModel 包含保存后的资产ID
+         */
+        post("/save") {
+            val asset = call.receive<AssetsModel>()
+            val assetId = Db.get().assetsDao().save(asset)
+            call.respond(ResultModel(200, "OK", assetId))
+        }
+
+        /**
+         * POST /assets/delete - 删除指定资产
+         *
+         * @param body 包含id的JSON对象
+         * @return ResultModel 包含删除的资产ID
+         */
+        post("/delete") {
+            val requestBody = call.receiveText()
+            val json =
+                com.google.gson.Gson().fromJson(requestBody, com.google.gson.JsonObject::class.java)
+            val id = json?.get("id")?.asLong ?: 0
+
+            if (id <= 0) {
+                call.respond(ResultModel(400, "id is invalid"))
+                return@post
+            }
+
+            val deleteCount = Db.get().assetsDao().delete(id)
+            val resultId = if (deleteCount > 0) id else 0L
+            call.respond(ResultModel(200, "OK", resultId))
         }
     }
 } 

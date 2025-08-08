@@ -46,6 +46,9 @@
         <action
             android:id="@+id/action_homeFragment_to_categoryMapFragment"
             app:destination="@id/categoryMapFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_assetFragment"
+            app:destination="@id/assetFragment" />
     </fragment>
 
     <fragment
@@ -155,6 +158,29 @@
         android:label="@string/title_category_map"
         tools:layout="@layout/fragment_category_map">
 
+    </fragment>
+
+    <fragment
+        android:id="@+id/assetFragment"
+        android:name="net.ankio.auto.ui.fragment.AssetFragment"
+        android:label="@string/title_assets"
+        tools:layout="@layout/fragment_asset">
+
+        <action
+            android:id="@+id/action_assetFragment_to_assetEditFragment"
+            app:destination="@id/assetEditFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/assetEditFragment"
+        android:name="net.ankio.auto.ui.fragment.AssetEditFragment"
+        android:label="@string/title_asset_edit"
+        tools:layout="@layout/fragment_asset_edit">
+
+        <argument
+            android:name="assetId"
+            app:argType="long"
+            android:defaultValue="0L" />
     </fragment>
 
 

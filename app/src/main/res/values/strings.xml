@@ -124,11 +124,74 @@
     <string name="no_setting">Not set</string>
 
     <string name="title_books">Books</string>
+    <string name="add_book">Add Book</string>
+    <string name="manage_books">Manage Books</string>
+    <string name="book_selected">Book Selected</string>
+    <string name="selected_book_info">You have selected book: %s</string>
+    <string name="add_book_description">Create a new accounting book to organize your financial records.</string>
+    <string name="manage_books_description">Edit, delete or modify existing accounting books.</string>
+
+    <!-- Book Edit Strings -->
+    <string name="title_book_edit">Edit Book</string>
+    <string name="edit_book">Edit Book</string>
+    <string name="book_basic_info">Basic Information</string>
+    <string name="book_name_hint">Enter book name</string>
+    <string name="book_name_helper">Book name should be 1-20 characters</string>
+    <string name="book_icon_label">Book Icon</string>
+    <string name="book_icon">Book Icon</string>
+    <string name="select_book_icon">Select Icon</string>
+    <string name="tap_to_select_icon">Tap to select an icon</string>
+    <string name="icon_selected">Icon selected</string>
+    <string name="select_icon">Select Icon</string>
+    <string name="btn_create">Create</string>
+    <string name="saving">Saving...</string>
+
+    <!-- Book Edit Messages -->
+    <string name="book_name_required">Book name is required</string>
+    <string name="book_name_too_long">Book name is too long</string>
+    <string name="book_name_exists">A book with this name already exists</string>
+    <string name="book_not_found">Book not found</string>
+    <string name="book_load_failed">Failed to load book data</string>
+    <string name="book_created_success">Book created successfully</string>
+    <string name="book_updated_success">Book updated successfully</string>
+    <string name="book_create_failed">Failed to create book</string>
+    <string name="book_update_failed">Failed to update book</string>
+    <string name="set_default_book">Set as default</string>
+    <string name="set_default_book_success">Default book set successfully</string>
+    <string name="set_default_book_failed">Failed to set default book</string>
+    <string name="icon_select_failed">Failed to select icon</string>
+    <string name="image_load_failed">Failed to load image</string>
+    <string name="image_process_failed">Failed to process image</string>
+    <string name="delete_book_message">Are you sure you want to delete book %s ?</string>
+    <string name="delete_book_success">Book deleted successfully</string>
+    <string name="delete_book_failed">Failed to delete book</string>
+
     <string name="title_category">Categories</string>
     <string name="title_category_mapping">Category Mapping</string>
     <string name="title_assets">Assets</string>
     <string name="title_assets_map">Asset Mapping</string>
+    <string name="add_asset">Add Asset</string>
+    <string name="delete_asset">Delete Asset</string>
+    <string name="delete_asset_message">Are you sure you want to delete asset %s?</string>
+
+    <!-- Asset Edit Strings -->
+    <string name="title_asset_edit">Edit Asset</string>
+    <string name="edit_asset">Edit Asset</string>
+    <string name="asset_type_label">Asset Type</string>
+    <string name="currency_label">Currency</string>
+    <string name="asset_name_hint">Enter asset name</string>
+    <string name="asset_extras_hint">Additional information (optional)</string>
+    <string name="asset_extras_helper">e.g., card number, account details</string>
+    <string name="asset_name_empty">Asset name cannot be empty</string>
+    <string name="asset_icon_empty">Please select an asset icon</string>
+    <string name="asset_not_found">Asset not found</string>
+    <string name="asset_load_failed">Failed to load asset</string>
+    <string name="save_asset_success">Asset saved successfully</string>
+    <string name="extras_too_long">Additional information too long</string>
+    <string name="delete_asset_success">Asset deleted successfully</string>
     <string name="title_tag">Tags</string>
+    <string name="title_app_whitelist">App Whitelist</string>
+    <string name="title_data_filter">Data Filter</string>
     <string name="app_icon_desc">App Icon</string>
 
 
@@ -141,6 +204,7 @@
     <string name="delete_message">Are you sure you want to delete %s?</string>
 
     <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
     <string name="debug_msg">Please enable this option when reporting error logs.</string>
     <string name="setting_use_round_style">Use rounded popup style</string>
     <string name="item_share">Share</string>
@@ -265,7 +329,6 @@
     <string name="title_category_map">Category mapping</string>
     <string name="add_category_map">Add category mapping: %s</string>
     <string name="delete_category_map">Delete category mapping: %s</string>
-    <string name="title_category_edit">Edit category rule</string>
     <string name="input">Please enter</string>
     <string name="no_rule_hint">No rule matched</string>
     <string name="reimbursement">Reimbursement</string>
@@ -714,6 +777,43 @@
     <string name="btn_confirm">Confirm</string>
     <string name="replace_result">Replacement result</string>
     <string name="rule_issue">Rules contain errors</string>
+
+    <!-- Category Fragment -->
+    <string name="select_book_first">Please select a book first</string>
+    <string name="select_book">Select Book</string>
+    <string name="title_category_map_with_book">Categories - %s</string>
+    <string name="expend_category">Expense</string>
+    <string name="income_category">Income</string>
+    <string name="add_category_feature_coming_soon">Add category feature coming soon</string>
+    <string name="add_sub_category_feature_coming_soon">Add sub-category feature coming soon</string>
+    <string name="selected_category">Selected: %s</string>
+    <string name="long_click_category">Long clicked: %s</string>
+    <string name="action_switch_book">Switch Book</string>
+    <string name="title_category_edit">Edit Category</string>
+    <string name="add_category">Add Category</string>
+    <string name="edit_category">Edit Category</string>
+    <string name="delete_category">Delete Category</string>
+    <string name="category_action_title">Category Action: %s</string>
+    <string name="category_action_message">What would you like to do with this category?</string>
+    <string name="delete_category_message">Are you sure to delete category "%s"?</string>
+    <string name="delete_category_success">Category deleted successfully</string>
+    <string name="category_name_label">Category Name</string>
+    <string name="category_name_hint">Enter category name</string>
+    <string name="parent_category_label">Parent Category</string>
+    <string name="select_parent_category">Select Parent Category</string>
+    <string name="no_parent_category">No Parent (Top Level)</string>
+    <string name="book_info_label">Book</string>
+    <string name="category_icon_label">Category Icon</string>
+    <string name="search_icon_hint">Search icon by name</string>
+    <string name="default_icon_name">Default Icon</string>
+    <string name="save_category_success">Category saved successfully</string>
+    <string name="category_name_empty">Category name cannot be empty</string>
+    <string name="category_icon_empty">Please select a category icon</string>
+    <string name="category_not_found">Category not found</string>
+    <string name="category_load_failed">Failed to load category</string>
+    <string name="save_failed">Save failed</string>
+    <string name="delete_failed">Delete failed</string>
+    <string name="asset_icon">Asset icon</string>
 
 
 </resources>
