@@ -205,8 +205,6 @@ val MIGRATION_7_8 = object : Migration(7, 8) {
                 id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                 name TEXT NOT NULL,
                 color TEXT NOT NULL DEFAULT '#2196F3',
-                createTime INTEGER NOT NULL DEFAULT 0,
-                updateTime INTEGER NOT NULL DEFAULT 0,
                 UNIQUE(name)
             )
         """.trimIndent()
