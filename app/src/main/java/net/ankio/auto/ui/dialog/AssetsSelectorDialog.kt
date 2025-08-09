@@ -15,81 +15,113 @@
 
 package net.ankio.auto.ui.dialog
 
-import android.content.Context
-import android.view.LayoutInflater
+import android.app.Activity
 import android.view.View
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.launch
-import net.ankio.auto.databinding.DialogBookSelectBinding
-import net.ankio.auto.ui.adapter.AssetsSelectorAdapter
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleService
+import net.ankio.auto.databinding.ComponentAssetBinding
 import net.ankio.auto.ui.api.BaseSheetDialog
-import net.ankio.auto.ui.componets.StatusPage
-import net.ankio.auto.ui.componets.WrapContentLinearLayoutManager
+import net.ankio.auto.ui.api.bindAs
+import net.ankio.auto.ui.fragment.book.AssetComponent
 import org.ezbook.server.constant.AssetsType
 import org.ezbook.server.db.model.AssetsModel
 
-class AssetsSelectorDialog(
-    private val context: Context,
-    private val filter: List<AssetsType> = emptyList(),
+/**
+ * 资产选择对话框
+ *
+ * 该对话框用于选择资产，基于AssetComponent组件实现，提供以下功能：
+ * - 显示所有可用资产列表
+ * - 支持按资产类型过滤
+ * - 自动排序和状态管理
+ * - 点击选择资产并回调
+ *
+ * 支持三种构造方式：
+ * - Activity构造：传入Activity实例
+ * - Fragment构造：传入Fragment实例
+ * - Service构造：传入LifecycleService实例（悬浮窗模式）
+ */
+class AssetsSelectorDialog : BaseSheetDialog<ComponentAssetBinding> {
+
+    private val filter: List<AssetsType>
     private val callback: (AssetsModel) -> Unit
-) :
-    BaseSheetDialog(context) {
-    private lateinit var binding: DialogBookSelectBinding
-    private val dataItems = mutableListOf<AssetsModel>()
+    private lateinit var assetComponent: AssetComponent
+    private val lifecycleOwner: LifecycleOwner
 
-    private lateinit var statusPage: StatusPage
-
-    private lateinit var adapter: AssetsSelectorAdapter
-
-    override fun onCreateView(inflater: LayoutInflater): View {
-        binding = DialogBookSelectBinding.inflate(inflater)
-        statusPage = binding.statusPage
-        val recyclerView = statusPage.contentView!!
-        statusPage.contentView!!.layoutManager = WrapContentLinearLayoutManager(context)
-
-        //cardView = binding.cardView
-        // cardViewInner = statusPage
-        adapter = AssetsSelectorAdapter { item ->
-            callback(item)
-            dismiss()
-        }
-        recyclerView.adapter = adapter
-        loadData()
-        return binding.root
+    /**
+     * 使用Activity构造资产选择对话框
+     * @param activity 宿主Activity
+     * @param filter 资产类型过滤列表，为空表示显示所有类型
+     * @param callback 选择资产后的回调函数
+     */
+    constructor(
+        activity: Activity,
+        filter: List<AssetsType> = emptyList(),
+        callback: (AssetsModel) -> Unit
+    ) : super(activity) {
+        this.filter = filter
+        this.callback = callback
+        this.lifecycleOwner = activity as LifecycleOwner
     }
 
-
-    private fun loadData() {
-        statusPage.showLoading()
-        lifecycleScope.launch {
-            dataItems.clear()
-            val newData = AssetsModel.list().filter {
-                filter.isEmpty() || filter.contains(it.type)
-            }
-
-            if (newData.isEmpty()) {
-                statusPage.showEmpty()
-                return@launch
-            }
-            dataItems.addAll(newData)
-            //对dataItems进行排序，type为NORMAL的排在前面,债权人排在最后
-            dataItems.sortWith(compareByDescending<AssetsModel> {
-                when (it.type) {
-                    AssetsType.NORMAL -> 6
-                    AssetsType.CREDIT -> 5
-                    AssetsType.FINANCIAL -> 4
-                    AssetsType.VIRTUAL -> 3
-                    AssetsType.BORROWER -> 2
-                    AssetsType.CREDITOR -> 1
-                }
-            }.thenBy {
-                it.name
-            }
-            )
-
-            adapter.updateItems(dataItems)
-            statusPage.showContent()
-        }
+    /**
+     * 使用Fragment构造资产选择对话框
+     * @param fragment 宿主Fragment
+     * @param filter 资产类型过滤列表，为空表示显示所有类型
+     * @param callback 选择资产后的回调函数
+     */
+    constructor(
+        fragment: Fragment,
+        filter: List<AssetsType> = emptyList(),
+        callback: (AssetsModel) -> Unit
+    ) : super(fragment) {
+        this.filter = filter
+        this.callback = callback
+        this.lifecycleOwner = fragment.viewLifecycleOwner
     }
 
+    /**
+     * 使用LifecycleService构造资产选择对话框（悬浮窗模式）
+     * @param service 宿主Service
+     * @param filter 资产类型过滤列表，为空表示显示所有类型
+     * @param callback 选择资产后的回调函数
+     */
+    constructor(
+        service: LifecycleService,
+        filter: List<AssetsType> = emptyList(),
+        callback: (AssetsModel) -> Unit
+    ) : super(service) {
+        this.filter = filter
+        this.callback = callback
+        this.lifecycleOwner = service
+    }
+
+    override fun onViewCreated(view: View?) {
+        super.onViewCreated(view)
+        setupAssetComponent()
+    }
+
+    /**
+     * 设置资产组件
+     */
+    private fun setupAssetComponent() {
+        // 使用bindAs扩展函数创建AssetComponent实例
+        assetComponent = binding.bindAs(lifecycleOwner.lifecycle)
+
+        // 设置资产选择回调
+        assetComponent.setOnAssetSelectedListener { asset ->
+            asset?.let {
+                callback(it)
+                dismiss()
+            }
+        }
+
+        // 如果有过滤条件，设置过滤器
+        if (filter.isNotEmpty()) {
+            assetComponent.setAssetTypesFilter(filter)
+        } else {
+            // 没有过滤条件时，刷新数据显示所有资产
+            assetComponent.refreshData()
+        }
+    }
 }

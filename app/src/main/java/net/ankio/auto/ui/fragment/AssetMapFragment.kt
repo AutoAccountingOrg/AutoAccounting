@@ -16,52 +16,124 @@
 package net.ankio.auto.ui.fragment
 
 import android.os.Bundle
-import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
+import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentMapBinding
+import net.ankio.auto.http.api.AssetsMapAPI
 import net.ankio.auto.ui.adapter.AssetsMapAdapter
 import net.ankio.auto.ui.api.BasePageFragment
-import net.ankio.auto.ui.componets.WrapContentLinearLayoutManager
+import net.ankio.auto.ui.components.WrapContentLinearLayoutManager
 import net.ankio.auto.ui.dialog.AssetsMapDialog
-import net.ankio.auto.ui.utils.viewBinding
 import org.ezbook.server.db.model.AssetsMapModel
 
-class AssetMapFragment : BasePageFragment<AssetsMapModel>() {
+/**
+ * 资产映射Fragment
+ *
+ * 该Fragment负责显示和管理资产映射列表，提供以下功能：
+ * - 显示所有资产映射列表
+ * - 添加新的资产映射
+ * - 编辑资产映射
+ * - 重新应用资产映射到历史数据
+ * - 分页加载更多数据
+ *
+ * 继承自BasePageFragment提供分页功能
+ */
+class AssetMapFragment : BasePageFragment<AssetsMapModel, FragmentMapBinding>() {
 
-    override val binding: FragmentMapBinding by viewBinding(FragmentMapBinding::inflate)
-
-    override suspend fun loadData(callback: (resultData: List<AssetsMapModel>) -> Unit) {
-        lifecycleScope.launch {
-            val newData = AssetsMapModel.list(page, pageSize)
-            callback(newData)
-        }
+    /**
+     * 加载资产映射数据
+     * @return 当前页的资产映射列表
+     */
+    override suspend fun loadData(): List<AssetsMapModel> {
+        return AssetsMapAPI.list(page, pageSize)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View = binding.root
-
-    override fun onCreateAdapter() {
-        val recyclerView = statusPage.contentView!!
-        recyclerView.layoutManager = WrapContentLinearLayoutManager(context)
-        recyclerView.adapter = AssetsMapAdapter(requireActivity())
+    /**
+     * 创建RecyclerView适配器
+     * @return AssetsMapAdapter实例
+     */
+    override fun onCreateAdapter(): RecyclerView.Adapter<*> {
+        return AssetsMapAdapter(requireActivity(), this)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // 设置RecyclerView布局管理器
+        statusPage.contentView?.layoutManager = WrapContentLinearLayoutManager(context)
+
+        // 设置添加按钮点击事件
         binding.addButton.setOnClickListener {
-            AssetsMapDialog(requireContext()) { model ->
+            AssetsMapDialog(this) { model ->
                 lifecycleScope.launch {
-                    AssetsMapModel.put(model)
+                    AssetsMapAPI.put(model)
                     reload()
                 }
-            }.showInFragment(this, false, true)
+
+            }.show()
+        }
+
+        // 设置工具栏菜单点击事件
+        binding.topAppBar.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.action_reapply -> {
+                    showReapplyConfirmDialog()
+                    true
+                }
+
+                else -> false
+            }
         }
     }
 
+    /**
+     * 显示重新应用确认对话框
+     */
+    private fun showReapplyConfirmDialog() {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.reapply_confirm_title)
+            .setMessage(R.string.reapply_confirm_message)
+            .setPositiveButton(R.string.sure_msg) { _, _ ->
+                reapplyAssetMapping()
+            }
+            .setNegativeButton(R.string.cancel_msg, null)
+            .show()
+    }
+
+    /**
+     * 执行重新应用资产映射操作
+     */
+    private fun reapplyAssetMapping() {
+        lifecycleScope.launch {
+            try {
+                // 显示开始提示
+                Snackbar.make(binding.root, R.string.reapply_started, Snackbar.LENGTH_SHORT).show()
+
+                // 调用API
+                val result = AssetsMapAPI.reapply()
+
+                // 检查结果并显示相应提示
+                if (result.has("success") && result.get("success").asBoolean) {
+                    Snackbar.make(binding.root, R.string.reapply_success, Snackbar.LENGTH_LONG)
+                        .show()
+                } else {
+                    val message = if (result.has("message")) {
+                        result.get("message").asString
+                    } else {
+                        getString(R.string.reapply_failed)
+                    }
+                    Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
+                }
+            } catch (e: Exception) {
+                // 显示错误提示
+                Snackbar.make(binding.root, R.string.reapply_failed, Snackbar.LENGTH_LONG).show()
+            }
+        }
+    }
 }

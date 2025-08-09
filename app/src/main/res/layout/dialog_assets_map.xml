@@ -22,7 +22,7 @@
         style="@style/TextAppearance.Material3.BodyMedium"
         android:text="@string/assets_map_description" />
 
-    <net.ankio.auto.ui.componets.StatusPage
+    <net.ankio.auto.ui.components.StatusPage
         android:id="@+id/status_page"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

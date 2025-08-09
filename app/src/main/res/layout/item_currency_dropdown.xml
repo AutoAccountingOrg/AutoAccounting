@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  带图标的货币下拉项布局（使用内置 IconView）
+  - 单行显示：图标 + 文本
+  - 依赖代码侧设置图标 URL 与文本
+-->
+<net.ankio.auto.ui.components.IconView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/currencyItem"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="@dimen/padding"
+    android:paddingStart="12dp"
+    android:paddingEnd="12dp" />
+
+

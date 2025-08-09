@@ -31,12 +31,17 @@ object AssetsMapAPI {
      * 分页获取资产映射列表。
      * @param page 页码，从1开始
      * @param pageSize 每页数量
+     * @param searchKeyword 搜索关键词，可为空
      * @return 资产映射模型列表
      */
-    suspend fun list(page: Int, pageSize: Int): List<AssetsMapModel> = withContext(
+    suspend fun list(page: Int, pageSize: Int, searchKeyword: String = ""): List<AssetsMapModel> =
+        withContext(
         Dispatchers.IO
     ) {
-        val response = LocalNetwork.get("assets/map/list?page=$page&limit=$pageSize")
+            val searchParam =
+                if (searchKeyword.isNotEmpty()) "&search=${Uri.encode(searchKeyword)}" else ""
+            val response =
+                LocalNetwork.get("assets/map/list?page=$page&limit=$pageSize$searchParam")
 
         runCatching {
             val json = Gson().fromJson(response, JsonObject::class.java)
@@ -102,6 +107,19 @@ object AssetsMapAPI {
                 AssetsMapModel::class.java
             )
         }.getOrNull()
+    }
+
+    /**
+     * 重新应用资产映射到历史数据。
+     * 此操作会在服务端执行，对所有历史账单重新应用当前的资产映射规则。
+     * @return 操作结果的JsonObject
+     */
+    suspend fun reapply(): JsonObject = withContext(Dispatchers.IO) {
+        val response = LocalNetwork.post("assets/map/reapply", "{}")
+
+        runCatching {
+            Gson().fromJson(response, JsonObject::class.java)
+        }.getOrNull() ?: JsonObject()
     }
 
 }

@@ -81,4 +81,16 @@ interface BillInfoDao {
 
     @Query("SELECT SUM(money) FROM BillInfoModel WHERE type = 'Expend' AND time >= :startTime AND time < :endTime AND groupId = -1")
     suspend fun getMonthlyExpense(startTime: Long, endTime: Long): Double?
+
+    @Query("SELECT * FROM BillInfoModel WHERE groupId = -1 LIMIT :limit OFFSET :offset")
+    suspend fun getBillsBatch(limit: Int, offset: Int): List<BillInfoModel>
+
+    @Query("SELECT COUNT(*) FROM BillInfoModel WHERE groupId = -1")
+    suspend fun getBillsCount(): Int
+
+    @Query("SELECT * FROM BillInfoModel WHERE groupId = -1 AND time >= :startTime LIMIT :limit OFFSET :offset")
+    suspend fun getRecentBillsBatch(limit: Int, offset: Int, startTime: Long): List<BillInfoModel>
+
+    @Query("SELECT COUNT(*) FROM BillInfoModel WHERE groupId = -1 AND time >= :startTime")
+    suspend fun getRecentBillsCount(startTime: Long): Int
 }

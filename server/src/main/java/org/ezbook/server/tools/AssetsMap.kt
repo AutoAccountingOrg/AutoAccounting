@@ -27,8 +27,38 @@ import org.ezbook.server.db.model.BillInfoModel
  *
  * 负责将账单中的原始账户名称映射为标准化的资产名称，支持多种映射方式：
  * - 直接资产查找、自定义映射、正则表达式匹配等
+ *
+ * 优化特性：
+ * - 使用MemoryCache缓存正则映射规则，避免重复查询
+ * - 简化映射逻辑，提升性能
  */
 object AssetsMap {
+
+    // 使用现有的MemoryCache实现
+    private val cache = MemoryCache()
+    private const val REGEX_MAPPINGS_CACHE_KEY = "regex_mappings"
+    private const val CACHE_DURATION_SECONDS = 300L // 5分钟缓存
+
+    /**
+     * 清除缓存，在映射规则更新时调用
+     */
+    fun clearCache() {
+        cache.remove(REGEX_MAPPINGS_CACHE_KEY)
+    }
+
+    /**
+     * 获取正则表达式映射规则（带缓存）
+     */
+    private suspend fun getRegexMappings(): List<AssetsMapModel> {
+        // 尝试从缓存获取
+        cache.get<List<AssetsMapModel>>(REGEX_MAPPINGS_CACHE_KEY)?.let { return it }
+
+        // 缓存未命中，重新加载并缓存
+        val regexMappings = Db.get().assetsMapDao().list().filter { it.regex }
+        cache.put(REGEX_MAPPINGS_CACHE_KEY, regexMappings, CACHE_DURATION_SECONDS)
+
+        return regexMappings
+    }
 
     /**
      * 设置资产映射
@@ -44,71 +74,68 @@ object AssetsMap {
         if (Db.get().settingDao().query(Setting.SETTING_ASSET_MANAGER)?.value != "true") {
             return
         }
+
         // 处理来源账户（跳过收入借贷和收入还款类型）
-        val mappedAccountFrom = mapAccount(
-            billInfoModel.accountNameFrom,
-            billInfoModel.type,
-            listOf(BillType.IncomeLending, BillType.IncomeRepayment),
-            billInfoModel
-        )
-        if (mappedAccountFrom != null) {
-            billInfoModel.accountNameFrom = mappedAccountFrom
+        if (billInfoModel.accountNameFrom.isNotEmpty() &&
+            !listOf(BillType.IncomeLending, BillType.IncomeRepayment).contains(billInfoModel.type)
+        ) {
+
+            val mappedAccountFrom = mapAccount(billInfoModel.accountNameFrom, billInfoModel)
+            if (mappedAccountFrom != null) {
+                billInfoModel.accountNameFrom = mappedAccountFrom
+            }
         }
 
         // 处理目标账户（跳过支出借贷和支出还款类型）
-        val mappedAccountTo = mapAccount(
-            billInfoModel.accountNameTo,
-            billInfoModel.type,
-            listOf(BillType.ExpendLending, BillType.ExpendRepayment),
-            billInfoModel
-        )
-        if (mappedAccountTo != null) {
-            billInfoModel.accountNameTo = mappedAccountTo
+        if (billInfoModel.accountNameTo.isNotEmpty() &&
+            !listOf(BillType.ExpendLending, BillType.ExpendRepayment).contains(billInfoModel.type)
+        ) {
+
+            val mappedAccountTo = mapAccount(billInfoModel.accountNameTo, billInfoModel)
+            if (mappedAccountTo != null) {
+                billInfoModel.accountNameTo = mappedAccountTo
+            }
         }
 
         Server.logD("setAssetsMap: $billInfoModel")
-        return
     }
 
     /**
      * 映射单个账户
      *
-     * 按优先级顺序处理：资产查找 -> 映射查找 -> 正则匹配 -> 创建空映射
+     * 按优先级顺序处理：直接资产查找 -> 自定义映射查找 -> 正则匹配 -> 创建空映射
      *
      * @param accountName 账户名称
-     * @param billType 账单类型
-     * @param skipTypes 跳过处理的类型列表
-     * @param billInfoModel 账单模型
+     * @param billInfoModel 账单模型（用于判断是否AI生成）
      * @return String? 映射后的账户名称，null表示无法映射
      */
-    private suspend fun mapAccount(
-        accountName: String,
-        billType: BillType,
-        skipTypes: List<BillType>,
-        billInfoModel: BillInfoModel
-    ): String? {
-        // 空账户名或跳过类型直接返回
-        if (accountName.isEmpty() || skipTypes.contains(billType)) return null
-
-        // 1. 直接资产查找
+    private suspend fun mapAccount(accountName: String, billInfoModel: BillInfoModel): String? {
+        // 1. 直接资产查找 - 最高优先级
         Db.get().assetsDao().query(accountName)?.name?.let { return it }
 
         // 2. 自定义映射查找
         val existingMap = Db.get().assetsMapDao().query(accountName)
-        if (existingMap?.mapName?.isNotEmpty() == true) return existingMap.mapName
+        if (existingMap?.mapName?.isNotEmpty() == true) {
+            return existingMap.mapName
+        }
 
-        // 3. 正则表达式匹配
-        Db.get().assetsMapDao().list()
-            .filter { it.regex }
-            .firstOrNull { accountName.contains(it.name) }
-            ?.mapName?.let { return it }
+        // 3. 正则表达式匹配 - 使用缓存
+        val regexMappings = getRegexMappings()
+        regexMappings.firstOrNull { mapping ->
+            accountName.contains(mapping.name)
+        }?.mapName?.let { return it }
 
         // 4. 创建空映射（仅当非AI生成且不存在映射时）
         if (!billInfoModel.generateByAi() && existingMap == null) {
-            Db.get().assetsMapDao().insert(AssetsMapModel().apply {
-                name = accountName
-                mapName = ""
-            })
+            try {
+                Db.get().assetsMapDao().insert(AssetsMapModel().apply {
+                    name = accountName
+                    mapName = ""
+                })
+            } catch (e: Exception) {
+                // 忽略插入错误（可能因为并发插入相同记录）
+                Server.logD("创建空映射失败: ${e.message}")
+            }
         }
 
         return null

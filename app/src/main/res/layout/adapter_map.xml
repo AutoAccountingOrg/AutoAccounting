@@ -26,29 +26,39 @@
     android:orientation="horizontal"
     android:padding="@dimen/padding">
 
-    <!-- 左侧文本 -->
-    <TextView
-        android:id="@+id/raw"
-        style="@style/TextAppearance.AppCompat.Medium"
+    <!-- 左侧内容区域，包含文本和标签 -->
+    <FrameLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
         android:layout_weight="1"
-        android:ellipsize="end"
-        android:maxLines="2"
-        tools:text="映射文本很长很映射文本很长很长很长映射文本很长很长很长映射文本很长很长很长映射文本很长很长很长长很长" />
+        android:layout_gravity="center_vertical">
 
-    <!-- 包含关系标签，使用 Chip 组件 -->
-    <com.google.android.material.chip.Chip
-        android:id="@+id/containment_chip"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:text="@string/container"
-        style="@style/Widget.MaterialComponents.Chip.Action"
-        android:layout_marginStart="@dimen/one_padding"
-        android:enabled="false"
-        android:layout_marginEnd="@dimen/one_padding" />
+        <!-- 左侧文本 -->
+        <TextView
+            android:id="@+id/raw"
+            style="@style/TextAppearance.AppCompat.Medium"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:paddingEnd="60dp"
+            tools:text="映射文本很长很映射文本很长很长很长映射文本很长很长很长映射文本很长很长很长映射文本很长很长很长长很长" />
+
+        <!-- 包含关系标签，附在右上角 -->
+        <com.google.android.material.chip.Chip
+            android:id="@+id/containment_chip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|end"
+            android:text="@string/container"
+            style="@style/Widget.MaterialComponents.Chip.Action"
+            android:enabled="false"
+            android:layout_marginEnd="8dp"
+            android:textSize="10sp"
+            android:minHeight="24dp" />
+
+    </FrameLayout>
 
     <!-- 中间固定宽度的箭头图标 -->
     <ImageView
@@ -63,7 +73,7 @@
         android:src="@drawable/icon_map_right" />
 
     <!-- 右侧文本 -->
-    <net.ankio.auto.ui.componets.IconView
+    <net.ankio.auto.ui.components.IconView
         android:id="@+id/target"
         android:layout_width="0dp"
         android:layout_height="wrap_content"

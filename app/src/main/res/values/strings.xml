@@ -197,9 +197,17 @@
 
     <string name="title_map">Asset mapping</string>
     <string name="map_input_raw">Please enter original asset</string>
-    <string name="map_regex">Contains relationship</string>
+    <string name="map_regex">Fuzzy matching (supports partial matching of asset names)</string>
+    <string name="map_regex_desc">When enabled, asset names containing the input text will be matched. For example, entering \"Alipay\" can match \"Alipay Balance\", \"Alipay Yu\'e Bao\", etc.</string>
     <string name="map_target">Please select target asset</string>
     <string name="map_empty">Asset name or mapped asset cannot be empty</string>
+    <string name="reapply_asset_mapping">Reapply Asset Mapping</string>
+    <string name="reapply_asset_mapping_desc">This will reapply all asset mapping rules to the last 3 months of historical data. This operation may take some time.</string>
+    <string name="reapply_confirm_title">Confirm Reapply</string>
+    <string name="reapply_confirm_message">Are you sure you want to reapply asset mapping to the last 3 months of historical data? This operation cannot be undone.</string>
+    <string name="reapply_started">Asset mapping reapplication started</string>
+    <string name="reapply_success">Asset mapping reapplication completed successfully</string>
+    <string name="reapply_failed">Asset mapping reapplication failed</string>
     <string name="delete_title">Delete confirmation</string>
     <string name="delete_message">Are you sure you want to delete %s?</string>
 
@@ -508,7 +516,7 @@
     <string name="proactive_msg">Refers to auto accounting actively calling accounting software API when syncing data instead of needing to open accounting software like passive mode.</string>
     <string name="refund_income_account_empty">Refund account cannot be empty</string>
     <string name="refund_bill_empty">Must select one bill for refund</string>
-    <string name="container">Contains relationship</string>
+    <string name="container">Fuzzy</string>
     <string name="bills_limit1">Real-time sync</string>
     <string name="setting_bill_asset">Asset</string>
     <string name="setting_bill_ignore_asset">Ignore asset errors</string>
