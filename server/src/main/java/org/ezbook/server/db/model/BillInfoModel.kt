@@ -123,6 +123,12 @@ class BillInfoModel {
      */
     var ruleName: String = ""
 
+    /**
+     * 标签名称列表，使用逗号分割的字符串存储多个标签名称
+     * 例如: "餐饮,报销,出差" 表示该账单关联了这些标签
+     */
+    var tags: String = ""
+
     fun copy(): BillInfoModel {
         val billInfoModel = BillInfoModel()
         billInfoModel.id = id
@@ -145,6 +151,7 @@ class BillInfoModel {
         billInfoModel.remark = remark
         billInfoModel.auto = auto
         billInfoModel.ruleName = ruleName
+        billInfoModel.tags = tags
         return billInfoModel
     }
 
@@ -157,11 +164,60 @@ class BillInfoModel {
     }
 
     override fun toString(): String {
-        return "BillInfoModel(id=$id, type=$type, currency='$currency', money=$money, fee=$fee, time=$time, shopName='$shopName', shopItem='$shopItem', cateName='$cateName', extendData='$extendData', bookName='$bookName', accountNameFrom='$accountNameFrom', accountNameTo='$accountNameTo', app='$app', groupId=$groupId, channel='$channel', state=$state, remark='$remark', auto=$auto, ruleName='$ruleName')"
+        return "BillInfoModel(id=$id, type=$type, currency='$currency', money=$money, fee=$fee, time=$time, shopName='$shopName', shopItem='$shopItem', cateName='$cateName', extendData='$extendData', bookName='$bookName', accountNameFrom='$accountNameFrom', accountNameTo='$accountNameTo', app='$app', groupId=$groupId, channel='$channel', state=$state, remark='$remark', auto=$auto, ruleName='$ruleName', tags='$tags')"
     }
 
     fun hash(): String {
         // md5
         return MD5HashTable.md5(toString())
+    }
+
+    /**
+     * 获取标签列表
+     * @return 标签名称列表
+     */
+    fun getTagList(): List<String> {
+        if (tags.isEmpty()) return emptyList()
+        return tags.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+    }
+
+    /**
+     * 设置标签列表
+     * @param tagList 标签名称列表
+     */
+    fun setTagList(tagList: List<String>) {
+        tags = tagList.filter { it.isNotEmpty() }.joinToString(",")
+    }
+
+    /**
+     * 添加标签
+     * @param tag 标签名称
+     */
+    fun addTag(tag: String) {
+        if (tag.isEmpty()) return
+        val currentTags = getTagList().toMutableList()
+        if (!currentTags.contains(tag)) {
+            currentTags.add(tag)
+            setTagList(currentTags)
+        }
+    }
+
+    /**
+     * 移除标签
+     * @param tag 标签名称
+     */
+    fun removeTag(tag: String) {
+        val currentTags = getTagList().toMutableList()
+        currentTags.remove(tag)
+        setTagList(currentTags)
+    }
+
+    /**
+     * 检查是否包含指定标签
+     * @param tag 标签名称
+     * @return 是否包含该标签
+     */
+    fun hasTag(tag: String): Boolean {
+        return getTagList().contains(tag)
     }
 }

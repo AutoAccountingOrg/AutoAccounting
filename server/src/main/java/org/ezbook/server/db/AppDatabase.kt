@@ -30,6 +30,7 @@ import org.ezbook.server.db.dao.CategoryRuleDao
 import org.ezbook.server.db.dao.LogDao
 import org.ezbook.server.db.dao.RuleDao
 import org.ezbook.server.db.dao.SettingDao
+import org.ezbook.server.db.dao.TagDao
 import org.ezbook.server.db.model.AppDataModel
 import org.ezbook.server.db.model.AssetsMapModel
 import org.ezbook.server.db.model.AssetsModel
@@ -42,6 +43,7 @@ import org.ezbook.server.db.model.CategoryRuleModel
 import org.ezbook.server.db.model.LogModel
 import org.ezbook.server.db.model.RuleModel
 import org.ezbook.server.db.model.SettingModel
+import org.ezbook.server.db.model.TagModel
 
 @Database(
     entities = [
@@ -56,9 +58,10 @@ import org.ezbook.server.db.model.SettingModel
         AssetsMapModel::class,
         CategoryMapModel::class,
         CategoryRuleModel::class,
-        BookBillModel::class
+        BookBillModel::class,
+        TagModel::class
     ],
-    version = 7,
+    version = 9,
     exportSchema = false,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -74,6 +77,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun categoryMapDao(): CategoryMapDao
     abstract fun categoryRuleDao(): CategoryRuleDao
     abstract fun bookBillDao(): BookBillDao
+    abstract fun tagDao(): TagDao
 }
 
 val MIGRATION_2_3 = object : Migration(2, 3) {
@@ -189,5 +193,30 @@ val MIGRATION_6_7 = object : Migration(6, 7) {
     override fun migrate(database: SupportSQLiteDatabase) {
         // BookBill表添加type字段
         database.execSQL("ALTER TABLE BookBillModel ADD COLUMN type TEXT NOT NULL DEFAULT ''")
+    }
+}
+
+val MIGRATION_7_8 = object : Migration(7, 8) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        // 创建标签表
+        database.execSQL(
+            """
+            CREATE TABLE TagModel (
+                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                name TEXT NOT NULL,
+                color TEXT NOT NULL DEFAULT '#2196F3',
+                createTime INTEGER NOT NULL DEFAULT 0,
+                updateTime INTEGER NOT NULL DEFAULT 0,
+                UNIQUE(name)
+            )
+        """.trimIndent()
+        )
+    }
+}
+
+val MIGRATION_8_9 = object : Migration(8, 9) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        // 为BillInfoModel表添加tags字段
+        database.execSQL("ALTER TABLE BillInfoModel ADD COLUMN tags TEXT NOT NULL DEFAULT ''")
     }
 }

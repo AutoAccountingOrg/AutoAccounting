@@ -93,6 +93,9 @@ fun Application.module(context: Context) {
         // 账单路由
         billRoutes()
 
+        // 标签路由
+        tagRoutes()
+
         // 数据库路由
         databaseRoutes(context)
     }
