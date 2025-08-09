@@ -61,7 +61,7 @@ import org.ezbook.server.db.model.TagModel
         BookBillModel::class,
         TagModel::class
     ],
-    version = 9,
+    version = 10,
     exportSchema = false,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -216,5 +216,12 @@ val MIGRATION_8_9 = object : Migration(8, 9) {
     override fun migrate(database: SupportSQLiteDatabase) {
         // 为BillInfoModel表添加tags字段
         database.execSQL("ALTER TABLE BillInfoModel ADD COLUMN tags TEXT NOT NULL DEFAULT ''")
+    }
+}
+
+val MIGRATION_9_10 = object : Migration(9, 10) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        // 为TagModel表添加group字段，支持标签分组
+        database.execSQL("ALTER TABLE TagModel ADD COLUMN `group` TEXT NOT NULL DEFAULT ''")
     }
 }

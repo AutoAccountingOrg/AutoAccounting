@@ -148,5 +148,50 @@ fun Route.tagRoutes() {
 
             call.respond(ResultModel(200, "OK", isAvailable))
         }
+
+        /**
+         * POST /tag/batch - 重置并批量插入标签
+         * 先清除所有现有标签，再插入新的标签列表
+         * 用于恢复默认标签等场景
+         *
+         * @param body 标签列表
+         * @return ResultModel 包含插入的标签ID列表
+         */
+        post("/batch") {
+            val requestBody = call.receiveText()
+            val gson = com.google.gson.Gson()
+            val tagsList = try {
+                val listType = object : com.google.gson.reflect.TypeToken<List<TagModel>>() {}.type
+                gson.fromJson<List<TagModel>>(requestBody, listType)
+            } catch (e: Exception) {
+                call.respond(ResultModel(400, "无效的标签数据格式: ${e.message}", null))
+                return@post
+            }
+
+            if (tagsList.isEmpty()) {
+                call.respond(ResultModel(400, "标签列表不能为空", null))
+                return@post
+            }
+
+            try {
+                // 重置所有标签的ID，让数据库自动分配
+                tagsList.forEach { it.id = 0L }
+
+                // 先清除所有现有标签
+                Db.get().tagDao().deleteAll()
+
+                // 再批量插入新标签
+                val insertedIds = Db.get().tagDao().batchInsert(tagsList)
+                call.respond(
+                    ResultModel(
+                        200,
+                        "标签重置成功",
+                        mapOf("insertedIds" to insertedIds, "count" to insertedIds.size)
+                    )
+                )
+            } catch (e: Exception) {
+                call.respond(ResultModel(500, "标签重置失败: ${e.message}", null))
+            }
+        }
     }
 }

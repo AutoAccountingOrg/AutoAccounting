@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- 恢复默认标签 -->
+    <item
+        android:id="@+id/action_restore_default_tags"
+        android:showAsAction="ifRoom"
+        android:title="@string/restore_default_tags"
+        android:icon="@drawable/ic_restore" />
+
+</menu>

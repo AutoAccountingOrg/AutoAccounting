@@ -38,9 +38,14 @@ class TagModel {
      */
     var color: String = "#2196F3"
 
+    /**
+     * 标签分组名称（如"场景"、"角色"等）
+     */
+    var group: String = ""
+
 
     override fun toString(): String {
-        return "TagModel(id=$id, name='$name', color='$color')"
+        return "TagModel(id=$id, name='$name', color='$color', group='$group')"
     }
 
     override fun equals(other: Any?): Boolean {

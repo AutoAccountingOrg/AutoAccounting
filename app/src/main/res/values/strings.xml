@@ -823,5 +823,52 @@
     <string name="delete_failed">Delete failed</string>
     <string name="asset_icon">Asset icon</string>
 
+    <!-- Tag related strings -->
+    <string name="add_tag">Add Tag</string>
+    <string name="edit_tag">Edit Tag</string>
+    <string name="delete_tag">Delete Tag</string>
+    <string name="tag_name">Tag Name</string>
+    <string name="tag_name_hint">Enter tag name</string>
+    <string name="tag_name_helper">Maximum 50 characters</string>
+    <string name="tag_name_placeholder">Tag Name</string>
+    <string name="tag_name_required">Tag name is required</string>
+    <string name="tag_name_too_long">Tag name is too long</string>
+    <string name="tag_name_exists">Tag name already exists</string>
+    <string name="tag_color">Tag Color</string>
+    <string name="tag_group">Tag Group</string>
+    <string name="tag_group_hint">Select or enter group name</string>
+    <string name="tag_group_placeholder">Group Name</string>
+    <string name="tag_group_custom">Custom Group</string>
+    <string name="tag_group_none">No Group</string>
+    <string name="tag_group_scene">Scene</string>
+    <string name="tag_group_role">Role</string>
+    <string name="tag_group_attribute">Attribute</string>
+    <string name="tag_group_time">Time</string>
+    <string name="tag_group_project">Project</string>
+    <string name="tag_group_emotion">Emotion</string>
+    <string name="tag_group_location">Location</string>
+    <string name="tag_group_platform">Platform</string>
+    <string name="tag_group_game">Game</string>
+    <string name="tag_group_other">Other</string>
+    <string name="select_color">Select Color</string>
+    <string name="current_color">Current Color</string>
+    <string name="preset_colors">Preset Colors</string>
+    <string name="custom_color">Custom Color</string>
+    <string name="color_hex_hint">#RRGGBB</string>
+    <string name="color_hex_helper">Enter hexadecimal color value</string>
+    <string name="tap_to_change_color">Tap to change color</string>
+    <string name="preview">Preview</string>
+    <string name="preview_time">2024-01-01 12:00</string>
+    <string name="delete_tag_message">Are you sure to delete tag "%s"?</string>
+    <string name="tag_created_successfully">Tag created successfully</string>
+    <string name="tag_updated_successfully">Tag updated successfully</string>
+    <string name="tag_deleted_successfully">Tag deleted successfully</string>
+    <string name="load_tag_failed">Failed to load tag</string>
+    <string name="title_tag_edit">Edit Tag</string>
+    <string name="restore_default_tags">Restore Default Tags</string>
+    <string name="restore_default_tags_title">Restore Default Tags</string>
+    <string name="restore_default_tags_message">This operation will clear all existing tags and restore the default tags. This action cannot be undone. Do you want to continue?</string>
+    <string name="restore_default_tags_success">Default tags restored successfully</string>
+    <string name="restore_default_tags_failed">Failed to restore default tags</string>
 
 </resources>

@@ -131,4 +131,46 @@ object TagAPI {
                 json.getAsJsonPrimitive("data").asBoolean
             }.getOrNull() ?: false
         }
+
+    /**
+     * 获取所有已存在的标签分组。
+     * @return 已存在分组列表，去重且按预定义顺序排序
+     */
+    suspend fun getGroups(): List<String> = withContext(Dispatchers.IO) {
+        val allTags = all()
+        val existingGroups = allTags.map { it.group.ifEmpty { "其他" } }.distinct()
+
+        // 预定义的分组顺序
+        val predefinedGroups = listOf("其他")
+
+        // 按预定义顺序排序，未在预定义中的分组排在最后
+        val sortedGroups = mutableListOf<String>()
+        predefinedGroups.forEach { group ->
+            if (existingGroups.contains(group)) {
+                sortedGroups.add(group)
+            }
+        }
+
+        // 添加不在预定义列表中的分组
+        existingGroups.forEach { group ->
+            if (!predefinedGroups.contains(group)) {
+                sortedGroups.add(group)
+            }
+        }
+
+        sortedGroups
+    }
+
+    /**
+     * 批量插入标签（重置模式：先清除所有现有标签，再插入新标签）。
+     * @param tags 标签列表
+     * @return 后端返回的操作结果
+     */
+    suspend fun batchInsert(tags: List<TagModel>): JsonObject = withContext(Dispatchers.IO) {
+        val response = LocalNetwork.post("tag/batch", Gson().toJson(tags))
+
+        runCatching {
+            Gson().fromJson(response, JsonObject::class.java)
+        }.getOrNull() ?: JsonObject()
+    }
 }

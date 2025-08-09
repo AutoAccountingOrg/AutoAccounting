@@ -49,6 +49,21 @@
         <action
             android:id="@+id/action_homeFragment_to_assetFragment"
             app:destination="@id/assetFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_assetMapFragment"
+            app:destination="@id/assetMapFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_tagFragment"
+            app:destination="@id/tagFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_orderFragment"
+            app:destination="@id/orderFragment" />
+        <!-- <action
+             android:id="@+id/action_homeFragment_to_categoryRuleFragment"
+             app:destination="@id/categoryRuleFragment" />
+         <action
+             android:id="@+id/action_homeFragment_to_noticeFragment"
+             app:destination="@id/noticeFragment" />-->
     </fragment>
 
     <fragment
@@ -84,6 +99,12 @@
         android:label="@string/title_setting"
         tools:layout="@layout/fragment_setting">
 
+        <!-- <action
+             android:id="@+id/action_settingFragment_to_settingDetailFragment"
+             app:destination="@id/settingDetailFragment" />
+         <action
+             android:id="@+id/action_settingFragment_to_smsFragment"
+             app:destination="@id/smsFragment" />-->
     </fragment>
 
     <fragment
@@ -183,5 +204,105 @@
             android:defaultValue="0L" />
     </fragment>
 
+    <fragment
+        android:id="@+id/assetMapFragment"
+        android:name="net.ankio.auto.ui.fragment.AssetMapFragment"
+        android:label="@string/title_map"
+        tools:layout="@layout/fragment_map">
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/tagFragment"
+        android:name="net.ankio.auto.ui.fragment.TagFragment"
+        android:label="@string/title_tag"
+        tools:layout="@layout/fragment_tag">
+
+        <action
+            android:id="@+id/action_tagFragment_to_tagEditFragment"
+            app:destination="@id/tagEditFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/tagEditFragment"
+        android:name="net.ankio.auto.ui.fragment.TagEditFragment"
+        android:label="@string/title_tag_edit"
+        tools:layout="@layout/fragment_tag_edit">
+
+        <argument
+            android:name="tagId"
+            app:argType="long"
+            android:defaultValue="0L" />
+    </fragment>
+
+
+    <!--
+    <fragment
+        android:id="@+id/orderFragment"
+        android:name="net.ankio.auto.ui.fragment.OrderFragment"
+        android:label="@string/title_bill"
+        tools:layout="@layout/fragment_bill">
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/categoryRuleFragment"
+        android:name="net.ankio.auto.ui.fragment.CategoryRuleFragment"
+        android:label="@string/title_category_rule"
+        tools:layout="@layout/fragment_category_rule">
+
+        <action
+            android:id="@+id/action_categoryRuleFragment_to_categoryRuleEditFragment"
+            app:destination="@id/categoryRuleEditFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/categoryRuleEditFragment"
+        android:name="net.ankio.auto.ui.fragment.CategoryRuleEditFragment"
+        android:label="@string/title_category_rule_edit"
+        tools:layout="@layout/fragment_category_rule">
+
+        <argument
+            android:name="ruleId"
+            app:argType="long"
+            android:defaultValue="0L" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/dataRuleFragment"
+        android:name="net.ankio.auto.ui.fragment.DataRuleFragment"
+        android:label="@string/title_data_rule"
+        tools:layout="@layout/fragment_plugin_rule_list">
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/settingDetailFragment"
+        android:name="net.ankio.auto.ui.fragment.SettingDetailFragment"
+        android:label="@string/title_setting_detail"
+        tools:layout="@layout/fragment_setting_detail">
+
+        <argument
+            android:name="settingKey"
+            app:argType="string"
+            android:defaultValue="" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/smsFragment"
+        android:name="net.ankio.auto.ui.fragment.SmsFragment"
+        android:label="@string/title_sms"
+        tools:layout="@layout/fragment_sms_edit">
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/noticeFragment"
+        android:name="net.ankio.auto.ui.fragment.NoticeFragment"
+        android:label="@string/title_notice"
+        tools:layout="@layout/fragment_notice">
+
+    </fragment>
+-->
 
 </navigation>

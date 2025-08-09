@@ -39,6 +39,14 @@ interface TagDao {
     suspend fun insert(tagModel: TagModel): Long
 
     /**
+     * 批量插入标签
+     * @param tagModels 标签模型列表
+     * @return 插入后的ID列表
+     */
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun batchInsert(tagModels: List<TagModel>): List<Long>
+
+    /**
      * 更新标签
      * @param tagModel 标签模型
      * @return 影响的行数
@@ -52,6 +60,13 @@ interface TagDao {
      */
     @Query("DELETE FROM TagModel WHERE id = :id")
     suspend fun delete(id: Long)
+
+    /**
+     * 清除所有标签
+     * 用于重置标签数据
+     */
+    @Query("DELETE FROM TagModel")
+    suspend fun deleteAll()
 
     /**
      * 根据ID查询标签
