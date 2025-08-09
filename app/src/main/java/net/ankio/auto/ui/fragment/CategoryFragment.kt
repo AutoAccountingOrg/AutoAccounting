@@ -17,12 +17,14 @@ package net.ankio.auto.ui.fragment
 
 import android.os.Bundle
 import android.view.View
+import android.view.MenuItem
 import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayoutMediator
+import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.ComponentCategoryBinding
@@ -34,12 +36,14 @@ import net.ankio.auto.ui.api.bindAs
 import net.ankio.auto.ui.dialog.BookSelectorDialog
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
 import net.ankio.auto.ui.fragment.book.CategoryComponent
+import net.ankio.auto.ui.utils.CategoryUtils
 import net.ankio.auto.ui.utils.DisplayUtils.dp2px
 import net.ankio.auto.ui.utils.ListPopupUtils
 import net.ankio.auto.ui.utils.ToastUtils
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.BookNameModel
 import org.ezbook.server.db.model.CategoryModel
+import org.ezbook.server.tools.MD5HashTable
 
 /**
  * 分类管理Fragment
@@ -50,7 +54,8 @@ import org.ezbook.server.db.model.CategoryModel
  * - 支持分类的增删改查
  * - 右上角提供账本切换功能
  */
-class CategoryFragment : BaseFragment<FragmentCategoryBinding>() {
+class CategoryFragment : BaseFragment<FragmentCategoryBinding>(),
+    androidx.appcompat.widget.Toolbar.OnMenuItemClickListener {
 
     companion object {
         private const val KEY_SELECTED_BOOK_ID = "selected_book_id"
@@ -150,16 +155,7 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>() {
         }
 
         // 设置菜单项点击监听器
-        binding.topAppBar.setOnMenuItemClickListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.action_switch_book -> {
-                    showBookSelectorDialog()
-                    true
-                }
-
-                else -> false
-            }
-        }
+        binding.topAppBar.setOnMenuItemClickListener(this)
     }
 
     /**
@@ -190,7 +186,7 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>() {
             binding.topAppBar.title = "${getString(R.string.title_category)} - ${book.name}"
 
             // 设置ViewPager适配器
-            pagerAdapter = CategoryPagerAdapter(this, book.name)
+            pagerAdapter = CategoryPagerAdapter(this, book.remoteId, book.name)
             binding.viewPager.adapter = pagerAdapter
 
             // 连接TabLayout和ViewPager2
@@ -205,10 +201,64 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>() {
     }
 
     /**
+     * 处理工具栏菜单点击
+     */
+    override fun onMenuItemClick(item: MenuItem?): Boolean {
+        return when (item?.itemId) {
+            R.id.action_switch_book -> {
+                showBookSelectorDialog()
+                true
+            }
+
+            R.id.action_restore_default_categories -> {
+                showRestoreDefaultCategoriesDialog()
+                true
+            }
+
+            else -> false
+        }
+    }
+
+    /**
+     * 显示恢复默认分类确认弹窗
+     */
+    private fun showRestoreDefaultCategoriesDialog() {
+        if (selectedBook == null) {
+            ToastUtils.error(getString(R.string.select_book_first))
+            return
+        }
+        BottomSheetDialogBuilder(this)
+            .setTitle(getString(R.string.restore_default_categories_title))
+            .setMessage(getString(R.string.restore_default_categories_message))
+            .setPositiveButton(getString(R.string.ok)) { _, _ ->
+                restoreDefaultCategories()
+            }
+            .setNegativeButton(getString(R.string.close)) { _, _ -> }
+            .show()
+    }
+
+    /**
+     * 恢复默认分类：清空当前账本全部分类并按内置默认分类重建
+     */
+    private fun restoreDefaultCategories() {
+        val book = selectedBook ?: return
+        lifecycleScope.launch {
+            val defaults = CategoryUtils().setDefaultCategory(book)
+            CategoryAPI.put(defaults, MD5HashTable.md5(Gson().toJson(defaults)))
+
+            ToastUtils.info(getString(R.string.restore_default_categories_success))
+            // 刷新当前页
+            refreshCurrentPageData()
+
+        }
+    }
+
+    /**
      * 分类Tab页面适配器
      */
     private class CategoryPagerAdapter(
         fragment: Fragment,
+        private val bookRemoteId: String,
         private val bookName: String
     ) : FragmentStateAdapter(fragment) {
 
@@ -220,7 +270,7 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>() {
                 1 -> BillType.Income  // 收入
                 else -> BillType.Expend
             }
-            return CategoryPageFragment.newInstance(bookName, billType)
+            return CategoryPageFragment.newInstance(bookRemoteId, bookName, billType)
         }
     }
 
@@ -231,11 +281,17 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>() {
 
         companion object {
             private const val ARG_BOOK_NAME = "book_name"
+            private const val ARG_REMOTE_BOOK_ID = "book_remote_id"
             private const val ARG_BILL_TYPE = "bill_type"
 
-            fun newInstance(bookName: String, billType: BillType): CategoryPageFragment {
+            fun newInstance(
+                bookRemoteId: String,
+                bookName: String,
+                billType: BillType
+            ): CategoryPageFragment {
                 return CategoryPageFragment().apply {
                     arguments = Bundle().apply {
+                        putString(ARG_REMOTE_BOOK_ID, bookRemoteId)
                         putString(ARG_BOOK_NAME, bookName)
                         putString(ARG_BILL_TYPE, billType.name)
                     }
@@ -245,12 +301,14 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>() {
 
         private lateinit var categoryComponent: CategoryComponent
         private lateinit var bookName: String
+        private lateinit var bookRemoteId: String
         private lateinit var billType: BillType
 
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             super.onViewCreated(view, savedInstanceState)
 
             // 获取参数
+            bookRemoteId = arguments?.getString(ARG_REMOTE_BOOK_ID) ?: ""
             bookName = arguments?.getString(ARG_BOOK_NAME) ?: ""
             billType = BillType.valueOf(arguments?.getString(ARG_BILL_TYPE) ?: "Expend")
 
@@ -267,7 +325,7 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>() {
             categoryComponent = binding.bindAs<CategoryComponent>(lifecycle)
 
             // 设置账本信息
-            categoryComponent.setBookInfo(bookName, billType, true)
+            categoryComponent.setBookInfo(bookRemoteId, billType, true)
 
             // 设置分类选择回调
             categoryComponent.setOnCategorySelectedListener { parent, child ->

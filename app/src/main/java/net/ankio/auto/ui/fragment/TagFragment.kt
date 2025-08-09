@@ -61,6 +61,10 @@ class TagFragment : BaseFragment<FragmentTagBinding>(), Toolbar.OnMenuItemClickL
             navigateToEditTag(0) // 传入0表示新建标签
         }
 
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            tagComponent.refreshData()
+            binding.swipeRefreshLayout.isRefreshing = false
+        }
         // 初始化TagComponent
         setupTagComponent()
     }
@@ -119,6 +123,7 @@ class TagFragment : BaseFragment<FragmentTagBinding>(), Toolbar.OnMenuItemClickL
             }
         }
     }
+
 
     /**
      * 处理菜单项点击事件

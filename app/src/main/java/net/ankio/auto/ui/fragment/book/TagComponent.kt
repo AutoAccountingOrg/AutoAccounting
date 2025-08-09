@@ -112,30 +112,29 @@ class TagComponent(binding: ComponentTagBinding, private val lifecycle: Lifecycl
         
         lifecycle.coroutineScope.launch {
             try {
-                dataItems.clear()
-                val newData = TagAPI.all().groupBy { it.group.ifEmpty { "其他" } }
-                dataItems.putAll(newData)
+                // 拉取并分组（空组名→"其他"）
+                val grouped = TagAPI.all().groupBy { it.group.ifEmpty { "其他" } }
 
-                if (dataItems.isEmpty()) {
+                if (grouped.isEmpty()) {
+                    adapter.updateItems(emptyList())
                     binding.statusPage.showEmpty()
-                } else {
+                    return@launch
+                }
 
-                    //构建list
-
-                    val adapterItems = mutableListOf<TagModel>()
-
-                    for ((key, valueList) in dataItems) {
-                        adapterItems.add(TagModel().apply {
-                            group = "-1"
+// 构建 adapter 列表：每个分组先插入一条“分组头”，再跟分组内元素
+                val adapterItems: List<TagModel> = grouped.flatMap { (key, valueList) ->
+                    buildList {
+                        add(TagModel().apply {
+                            group = "-1"    // 你的“分组头”标记
                             name = key
                         })
-                        adapterItems.addAll(valueList)
+                        addAll(valueList)
                     }
-
-
-                    adapter.updateItems(adapterItems)
-                    binding.statusPage.showContent()
                 }
+
+                adapter.updateItems(adapterItems)
+                binding.statusPage.showContent()
+
             } catch (e: Exception) {
                 binding.statusPage.showError()
             }

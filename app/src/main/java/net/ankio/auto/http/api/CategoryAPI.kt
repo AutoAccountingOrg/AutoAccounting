@@ -21,6 +21,7 @@ import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.http.LocalNetwork
+import net.ankio.auto.storage.Logger
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.CategoryModel
 
@@ -86,7 +87,7 @@ object CategoryAPI {
      * @param md5 数据的MD5校验值
      * @return 返回服务器响应结果
      */
-    suspend fun put(data: ArrayList<CategoryModel>, md5: String) = withContext(Dispatchers.IO) {
+    suspend fun put(data: List<CategoryModel>, md5: String) = withContext(Dispatchers.IO) {
         LocalNetwork.post("category/put?md5=$md5", Gson().toJson(data))
     }
 

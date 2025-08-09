@@ -21,4 +21,10 @@
         android:icon="@drawable/ic_book"
         android:showAsAction="ifRoom"
         android:title="@string/action_switch_book" />
+
+    <item
+        android:id="@+id/action_restore_default_categories"
+        android:icon="@drawable/ic_restore"
+        android:title="@string/restore_default_categories"
+        android:showAsAction="ifRoom" />
 </menu>

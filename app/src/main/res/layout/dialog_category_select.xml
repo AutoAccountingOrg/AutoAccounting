@@ -18,12 +18,9 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <net.ankio.auto.ui.componets.StatusPage
-        android:id="@+id/statusPage"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        app:innerHeight="wrap_content" />
+    <include
+        layout="@layout/component_category"
+        android:id="@+id/category" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/button"

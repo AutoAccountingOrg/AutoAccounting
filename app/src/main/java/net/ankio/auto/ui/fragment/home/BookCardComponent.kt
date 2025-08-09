@@ -205,7 +205,8 @@ class BookCardComponent(binding: CardBookBinding, private val lifecycle: Lifecyc
         onRedirect.invoke(R.id.action_homeFragment_to_assetMapFragment)
     }
 
-    private fun openTagManager() { /* TODO 跳转标签管理 */
+    private fun openTagManager() {
+        onRedirect.invoke(R.id.action_homeFragment_to_tagFragment)
     }
 
     private fun openAppWhitelist() { /* TODO 跳转应用监控白名单管理页面 */

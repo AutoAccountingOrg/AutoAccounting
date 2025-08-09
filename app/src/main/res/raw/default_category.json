@@ -1,0 +1,430 @@
+{
+  "支出": [
+    {
+      "name": "餐饮",
+      "icon": "http://res3.qianjiapp.com/cateic_yinshi.png",
+      "sub": [
+        {
+          "name": "早餐",
+          "icon": "http://res3.qianjiapp.com/ic_cate2_zaocan.png"
+        },
+        {
+          "name": "午餐",
+          "icon": "http://res3.qianjiapp.com/ic_cate2_wucan.png"
+        },
+        {
+          "name": "晚餐",
+          "icon": "http://res3.qianjiapp.com/ic_cate2_wancan.png"
+        },
+        {
+          "name": "夜宵",
+          "icon": "http://res3.qianjiapp.com/ic_cate2_yexiao.png"
+        },
+        {
+          "name": "外卖",
+          "icon": "http://res3.qianjiapp.com/ic_cate2_waimai.png"
+        },
+        {
+          "name": "零食",
+          "icon": "http://res3.qianjiapp.com/cateic_lingshi.png"
+        },
+        {
+          "name": "饮品",
+          "icon": "http://res3.qianjiapp.com/cate_ruixing.png"
+        },
+        {
+          "name": "聚会",
+          "icon": "http://res3.qianjiapp.com/ic_cate2_juhui.png"
+        }
+      ]
+    },
+    {
+      "name": "交通",
+      "icon": "http://res3.qianjiapp.com/cateic_jiaotong.png",
+      "sub": [
+        {
+          "name": "公交",
+          "icon": "http://res3.qianjiapp.com/ic_cate2_gongjiao.png"
+        },
+        {
+          "name": "地铁",
+          "icon": "http://res3.qianjiapp.com/ic_cate2_ditie2.png"
+        },
+        {
+          "name": "网约车",
+          "icon": "http://res3.qianjiapp.com/ic_cate2_dache.png"
+        },
+        {
+          "name": "火车",
+          "icon": "http://res3.qianjiapp.com/cateic_huoche.png"
+        },
+        {
+          "name": "飞机",
+          "icon": "http://res3.qianjiapp.com/ic_cate2_feiji.png"
+        },
+        {
+          "name": "停车费",
+          "icon": "http://res3.qianjiapp.com/ic_cate2_qichetingchefei.png"
+        },
+        {
+          "name": "加油",
+          "icon": "http://res3.qianjiapp.com/ic_cate2_qichejiayou.png"
+        },
+        {
+          "name": "车辆保险",
+          "icon": "http://res3.qianjiapp.com/ic_cate2_qichebaoxian.png"
+        }
+      ]
+    },
+    {
+      "name": "住房居家",
+      "icon": "http://res3.qianjiapp.com/ic_cate2_shuidianmei.png",
+      "sub": [
+        {
+          "name": "房租",
+          "icon": "http://res3.qianjiapp.com/ic_cate2_fangzu.png"
+        },
+        {
+          "name": "房贷",
+          "icon": "http://res3.qianjiapp.com/ic_cate2_fangdai.png"
+        },
+        {
+          "name": "物业费",
+          "icon": "http://res3.qianjiapp.com/cate_wyf.png"
+        },
+        {
+          "name": "水费",
+          "icon": "http://res3.qianjiapp.com/cateic_shuifei.png.png"
+        },
+        {
+          "name": "电费",
+          "icon": "http://res3.qianjiapp.com/cateic_dianfei.png"
+        },
+        {
+          "name": "燃气费",
+          "icon": "http://res3.qianjiapp.com/cateic_ranqi.png"
+        },
+        {
+          "name": "网费",
+          "icon": "http://res3.qianjiapp.com/cateic_wangluo.png"
+        }
+      ]
+    },
+    {
+      "name": "日用杂货",
+      "icon": "http://res3.qianjiapp.com/cateic_riyongpin.png",
+      "sub": [
+        {
+          "name": "纸巾",
+          "icon": "http://res3.qianjiapp.com/cateic_zhijin.png"
+        },
+        {
+          "name": "洗衣液",
+          "icon": "http://res3.qianjiapp.com/cateic_xiyiye.png"
+        },
+        {
+          "name": "清洁",
+          "icon": "http://res3.qianjiapp.com/ic_cate3_qingjie.png"
+        },
+        {
+          "name": "餐具",
+          "icon": "http://res3.qianjiapp.com/cateic_canju.png"
+        },
+        {
+          "name": "快递",
+          "icon": "http://res3.qianjiapp.com/ic_cate2_kuaidi.png"
+        }
+      ]
+    },
+    {
+      "name": "服饰鞋包",
+      "icon": "http://res3.qianjiapp.com/cateic_yifu.png",
+      "sub": [
+        {
+          "name": "服装",
+          "icon": "http://res3.qianjiapp.com/cateic_yifu.png"
+        },
+        {
+          "name": "鞋类",
+          "icon": "http://res3.qianjiapp.com/cate_711.png"
+        },
+        {
+          "name": "包包",
+          "icon": "http://res3.qianjiapp.com/cateic_baobao.png"
+        },
+        {
+          "name": "配饰",
+          "icon": "http://res3.qianjiapp.com/cateic_shouban.png"
+        },
+        {
+          "name": "内衣",
+          "icon": "http://res3.qianjiapp.com/cateic_neiyi.png"
+        }
+      ]
+    },
+    {
+      "name": "数码电器",
+      "icon": "http://res3.qianjiapp.com/cateic_shuma.png",
+      "sub": [
+        {
+          "name": "手机",
+          "icon": "http://res3.qianjiapp.com/cate_phone.png"
+        },
+        {
+          "name": "电脑",
+          "icon": "http://res3.qianjiapp.com/cateic_diannao.png"
+        },
+        {
+          "name": "家电",
+          "icon": "http://res3.qianjiapp.com/ic_cate2_dianqi.png"
+        },
+        {
+          "name": "相机",
+          "icon": "http://res3.qianjiapp.com/ic_cate2_xiangji.png"
+        },
+        {
+          "name": "配件",
+          "icon": "http://res3.qianjiapp.com/cateic_erji.png"
+        }
+      ]
+    },
+    {
+      "name": "娱乐休闲",
+      "icon": "http://res3.qianjiapp.com/cateic_yule.png",
+      "sub": [
+        {
+          "name": "电影",
+          "icon": "http://res3.qianjiapp.com/ic_cate2_dianying.png"
+        },
+        {
+          "name": "演出",
+          "icon": "http://res3.qianjiapp.com/cateic_yanchu.png"
+        },
+        {
+          "name": "K歌",
+          "icon": "http://res3.qianjiapp.com/ic_cate2_kge.png"
+        },
+        {
+          "name": "游戏",
+          "icon": "http://res3.qianjiapp.com/ic_cate2_youxi.png"
+        },
+        {
+          "name": "运动",
+          "icon": "http://res3.qianjiapp.com/cateic_yundong.png"
+        },
+        {
+          "name": "旅行",
+          "icon": "http://res3.qianjiapp.com/cateic_lvxing.png"
+        },
+        {
+          "name": "门票",
+          "icon": "http://res3.qianjiapp.com/ic_cate2_menpiao.png"
+        }
+      ]
+    },
+    {
+      "name": "教育学习",
+      "icon": "http://res3.qianjiapp.com/cateic_xuexi.png",
+      "sub": [
+        {
+          "name": "课程",
+          "icon": "http://res3.qianjiapp.com/cate_kecheng.png"
+        },
+        {
+          "name": "书籍",
+          "icon": "http://res3.qianjiapp.com/ic_cate2_shuji.png"
+        },
+        {
+          "name": "考试",
+          "icon": "http://res3.qianjiapp.com/ic_cate2_kaoshi.png"
+        },
+        {
+          "name": "文具",
+          "icon": "http://res3.qianjiapp.com/cateic_wenju.png"
+        }
+      ]
+    },
+    {
+      "name": "医疗",
+      "icon": "http://res3.qianjiapp.com/cateic_yiliao.png",
+      "sub": [
+        {
+          "name": "药品",
+          "icon": "http://res3.qianjiapp.com/ic_cate2_yaoping.png"
+        },
+        {
+          "name": "挂号",
+          "icon": "http://res3.qianjiapp.com/ic_cate2_guahao.png"
+        },
+        {
+          "name": "检查",
+          "icon": "http://res3.qianjiapp.com/ic_cate_hesuan.png"
+        },
+        {
+          "name": "疫苗",
+          "icon": "http://res3.qianjiapp.com/cate_vaccine.png"
+        },
+        {
+          "name": "保健",
+          "icon": "http://res3.qianjiapp.com/ic_cate2_baojian.png"
+        }
+      ]
+    },
+    {
+      "name": "人情往来",
+      "icon": "http://res3.qianjiapp.com/cateic_renqing.png",
+      "sub": [
+        {
+          "name": "生日礼物",
+          "icon": "http://res3.qianjiapp.com/cateic_pengyou.png"
+        },
+        {
+          "name": "婚礼礼金",
+          "icon": "http://res3.qianjiapp.com/ic_cate2_lianai.png"
+        },
+        {
+          "name": "节日礼物",
+          "icon": "http://res3.qianjiapp.com/ic_cate2_apphuiyuan.png"
+        },
+        {
+          "name": "宴席酒席",
+          "icon": "http://res3.qianjiapp.com/ic_cate2_dashang.png"
+        }
+      ]
+    },
+    {
+      "name": "宠物",
+      "icon": "http://res3.qianjiapp.com/cateic_pet.png",
+      "sub": [
+        {
+          "name": "猫粮",
+          "icon": "http://res3.qianjiapp.com/cate_catfood.png"
+        },
+        {
+          "name": "狗粮",
+          "icon": "http://res3.qianjiapp.com/cate_dogfood.png"
+        },
+        {
+          "name": "宠物医疗",
+          "icon": "http://res3.qianjiapp.com/cate_petclinic.png"
+        },
+        {
+          "name": "宠物用品",
+          "icon": "http://res3.qianjiapp.com/cate_petbed.png"
+        }
+      ]
+    },
+    {
+      "name": "税费",
+      "icon": "http://res3.qianjiapp.com/cateic_other.png",
+      "sub": [
+        {
+          "name": "手续费",
+          "icon": "http://res3.qianjiapp.com/ic_cate2_shouxufei.png"
+        },
+        {
+          "name": "服务费",
+          "icon": "http://res3.qianjiapp.com/cate_fuwufei.png"
+        },
+        {
+          "name": "关税",
+          "icon": "http://res3.qianjiapp.com/cate_guanshui.png"
+        }
+      ]
+    },
+    {
+      "name": "其他",
+      "icon": "http://res3.qianjiapp.com/cateic_other.png"
+    }
+  ],
+  "收入": [
+    {
+      "name": "薪酬",
+      "icon": "http://res3.qianjiapp.com/cateic_gongzi.png",
+      "sub": [
+        {
+          "name": "工资",
+          "icon": "http://res3.qianjiapp.com/cateic_gongzi.png"
+        },
+        {
+          "name": "奖金",
+          "icon": "http://res3.qianjiapp.com/ic_cate2_jiangjin.png"
+        },
+        {
+          "name": "提成",
+          "icon": "http://res3.qianjiapp.com/ic_cate2_ticheng.png"
+        },
+        {
+          "name": "津贴",
+          "icon": "http://res3.qianjiapp.com/ic_cate3_butie.png"
+        }
+      ]
+    },
+    {
+      "name": "投资",
+      "icon": "http://res3.qianjiapp.com/cateic_licai.png",
+      "sub": [
+        {
+          "name": "利息",
+          "icon": "http://res3.qianjiapp.com/cateic_lixi.png"
+        },
+        {
+          "name": "退税",
+          "icon": "http://res3.qianjiapp.com/ic_cate2_tuishui.png"
+        },
+        {
+          "name": "奖学金",
+          "icon": "http://res3.qianjiapp.com/ic_cate2_jiangxuejin.png"
+        }
+      ]
+    },
+    {
+      "name": "租金",
+      "icon": "http://res3.qianjiapp.com/ic_cate2_zujin.png"
+    },
+    {
+      "name": "二手",
+      "icon": "http://res3.qianjiapp.com/ic_cate3_zhuanrang.png"
+    },
+    {
+      "name": "补偿",
+      "icon": "http://res3.qianjiapp.com/ic_cate2_tuishui.png",
+      "sub": [
+        {
+          "name": "理赔",
+          "icon": "http://res3.qianjiapp.com/ic_cate2_yibao.png"
+        },
+        {
+          "name": "报销款",
+          "icon": "http://res3.qianjiapp.com/cate_fapiao.png"
+        },
+        {
+          "name": "退押金",
+          "icon": "http://res3.qianjiapp.com/cate_yajin.png"
+        }
+      ]
+    },
+    {
+      "name": "人情往来",
+      "icon": "http://res3.qianjiapp.com/cateic_renqing.png",
+      "sub": [
+        {
+          "name": "红包",
+          "icon": "http://res3.qianjiapp.com/cateic_fahongbao.png"
+        },
+        {
+          "name": "礼金",
+          "icon": "http://res3.qianjiapp.com/ic_cate2_lianai.png"
+        },
+        {
+          "name": "压岁钱",
+          "icon": "http://res3.qianjiapp.com/cateic_yasuiqian.png"
+        }
+      ]
+    },
+    {
+      "name": "其他",
+      "icon": "http://res3.qianjiapp.com/cateic_other.png"
+    }
+  ]
+}

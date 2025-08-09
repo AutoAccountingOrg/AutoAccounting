@@ -276,6 +276,7 @@ class BookEditFragment : BaseFragment<FragmentBookEditBinding>() {
                     // 添加新账本（生成新ID）
                     val maxId = existingBooks.maxOfOrNull { it.id } ?: 0
                     currentBookModel.id = maxId + 1
+                    currentBookModel.remoteId = currentBookModel.id.toString()
                     existingBooks.add(currentBookModel)
                 }
 
