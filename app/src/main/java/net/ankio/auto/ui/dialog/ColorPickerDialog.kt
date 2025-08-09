@@ -18,11 +18,11 @@ package net.ankio.auto.ui.dialog
 import android.app.Activity
 import android.content.res.ColorStateList
 import android.graphics.Color
-import android.text.Editable
-import android.text.TextWatcher
+import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.graphics.ColorUtils
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleService
@@ -31,192 +31,109 @@ import androidx.recyclerview.widget.RecyclerView
 import net.ankio.auto.databinding.DialogColorPickerBinding
 import net.ankio.auto.databinding.ItemColorBinding
 import net.ankio.auto.ui.api.BaseSheetDialog
+import androidx.core.graphics.toColorInt
 
 /**
- * 颜色选择对话框
+ * 简化的颜色选择对话框
  *
- * 提供预设颜色和自定义颜色输入功能
+ * 只提供颜色圆圈选择功能，选中状态通过外圈高亮显示
  */
 class ColorPickerDialog : BaseSheetDialog<DialogColorPickerBinding> {
-
-    /** 初始颜色值 */
-    private var initialColor: String = "#2196F3"
 
     /** 颜色选择回调函数 */
     private var onColorSelected: ((String) -> Unit)? = null
 
     /** 当前选中的颜色 */
-    private var selectedColor: String = initialColor
+    private var selectedColor: String = "#2196F3"
 
     /** 颜色网格适配器 */
     private lateinit var colorAdapter: ColorAdapter
 
     /**
-     * 使用Activity构造颜色选择对话框
-     *
-     * @param activity 宿主Activity
+     * 构造函数
      */
     constructor(activity: Activity) : super(activity)
-
-    /**
-     * 使用Fragment构造颜色选择对话框
-     *
-     * @param fragment 宿主Fragment
-     */
     constructor(fragment: Fragment) : super(fragment)
-
-    /**
-     * 使用LifecycleService构造颜色选择对话框（悬浮窗模式）
-     *
-     * @param service 宿主Service
-     */
     constructor(service: LifecycleService) : super(service)
 
-    // 预设颜色列表
-    private val presetColors = listOf(
-        "#F44336", "#E91E63", "#9C27B0", "#673AB7",
-        "#3F51B5", "#2196F3", "#03A9F4", "#00BCD4",
-        "#009688", "#4CAF50", "#8BC34A", "#CDDC39",
-        "#FFEB3B", "#FFC107", "#FF9800", "#FF5722",
-        "#795548", "#9E9E9E", "#607D8B", "#000000"
+    // 预设颜色列表 - 优化为适合标签底色的颜色
+    private val colors = listOf(
+        // 红色系 - 温和的红色调
+        "#E57373", "#F06292", "#EF5350", "#FF7043",
+        // 粉色系 - 柔和的粉色
+        "#F48FB1", "#CE93D8", "#BA68C8", "#AB47BC",
+        // 紫色系 - 优雅的紫色
+        "#9575CD", "#7986CB", "#64B5F6", "#42A5F5",
+        // 蓝色系 - 舒适的蓝色
+        "#29B6F6", "#26C6DA", "#26A69A", "#66BB6A",
+        // 绿色系 - 自然的绿色
+        "#81C784", "#AED581", "#DCE775", "#FFF176",
+        // 黄色系 - 温暖但不刺眼的黄色
+        "#FFD54F", "#FFCC02", "#FFB74D", "#FF8A65",
+        // 橙色系 - 活力的橙色
+        "#A1887F", "#90A4AE", "#78909C", "#546E7A",
+        // 中性色系 - 优雅的灰色调
+        "#8D6E63", "#795548", "#607D8B", "#455A64"
     )
 
     /**
-     * 设置初始颜色和颜色选择回调
-     *
-     * @param initialColor 初始颜色值，默认为蓝色
-     * @param onColorSelected 颜色选择完成时的回调函数
-     * @return ColorPickerDialog 当前实例，支持链式调用
+     * 设置颜色配置
      */
     fun setColorConfig(
         initialColor: String = "#2196F3",
         onColorSelected: (String) -> Unit
     ): ColorPickerDialog {
-        this.initialColor = initialColor
         this.selectedColor = initialColor
         this.onColorSelected = onColorSelected
         return this
     }
 
-    override fun onViewCreated(view: View) {
+    override fun onViewCreated(view: View?) {
         super.onViewCreated(view)
-
-        setupViews()
         setupColorGrid()
-        setupCustomColorInput()
-        setupButtons()
+        setupConfirmButton()
 
-        // 设置初始颜色
-        updateSelectedColor(initialColor)
-    }
-
-    /**
-     * 设置视图
-     */
-    private fun setupViews() {
-        // 初始化当前颜色显示
-        updateColorPreview(selectedColor)
+        // 确保初始选中状态正确显示
+        colorAdapter.updateSelectedColor(selectedColor)
     }
 
     /**
      * 设置颜色网格
      */
     private fun setupColorGrid() {
-        colorAdapter = ColorAdapter(presetColors) { color ->
-            updateSelectedColor(color)
+        colorAdapter = ColorAdapter(colors) { color ->
+            selectedColor = color
+            colorAdapter.updateSelectedColor(color)
         }
 
         binding.colorGrid.apply {
-            layoutManager = GridLayoutManager(context, 5)
+            layoutManager = GridLayoutManager(context, 5) // 5列更合适的布局
             adapter = colorAdapter
+            // 禁用RecyclerView的滚动，让ScrollView处理滚动
+            isNestedScrollingEnabled = false
         }
     }
 
     /**
-     * 设置自定义颜色输入
+     * 设置确认按钮
      */
-    private fun setupCustomColorInput() {
-        binding.customColorInput.apply {
-            setText(selectedColor)
-
-            addTextChangedListener(object : TextWatcher {
-                override fun beforeTextChanged(
-                    s: CharSequence?,
-                    start: Int,
-                    count: Int,
-                    after: Int
-                ) {
-                }
-
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-                override fun afterTextChanged(s: Editable?) {
-                    val input = s.toString().trim()
-                    if (isValidHexColor(input)) {
-                        updateSelectedColor(input)
-                    }
-                }
-            })
-        }
-    }
-
-    /**
-     * 设置按钮
-     */
-    private fun setupButtons() {
-        binding.cancelButton.setOnClickListener {
+    private fun setupConfirmButton() {
+        binding.confirmButton.setOnClickListener {
+            onColorSelected?.invoke(selectedColor)
             dismiss()
         }
-
-        binding.confirmButton.setOnClickListener {
-            if (isValidHexColor(selectedColor)) {
-                onColorSelected?.invoke(selectedColor)
-                dismiss()
-            }
-        }
     }
 
     /**
-     * 更新选中的颜色
+     * 根据背景颜色计算最佳对比色
+     * @param backgroundColor 背景颜色
+     * @return 对比色（黑色或白色）
      */
-    private fun updateSelectedColor(color: String) {
-        if (!isValidHexColor(color)) return
-
-        selectedColor = color
-        updateColorPreview(color)
-        colorAdapter.updateSelectedColor(color)
-
-        // 更新自定义颜色输入框（如果不是用户输入触发的）
-        if (binding.customColorInput.text.toString() != color) {
-            binding.customColorInput.setText(color)
-        }
-    }
-
-    /**
-     * 更新颜色预览
-     */
-    private fun updateColorPreview(color: String) {
-        try {
-            val colorInt = Color.parseColor(color)
-            binding.currentColorPreview.backgroundTintList = ColorStateList.valueOf(colorInt)
-            binding.currentColorText.text = color.uppercase()
-        } catch (e: Exception) {
-            // 无效颜色，使用默认颜色
-            val defaultColor = Color.parseColor("#2196F3")
-            binding.currentColorPreview.backgroundTintList = ColorStateList.valueOf(defaultColor)
-            binding.currentColorText.text = "#2196F3"
-        }
-    }
-
-    /**
-     * 验证十六进制颜色是否有效
-     */
-    private fun isValidHexColor(color: String): Boolean {
-        return try {
-            Color.parseColor(color)
-            color.matches(Regex("^#[0-9A-Fa-f]{6}$"))
-        } catch (e: Exception) {
-            false
-        }
+    private fun getContrastColor(backgroundColor: Int): Int {
+        // 计算颜色的相对亮度
+        val luminance = ColorUtils.calculateLuminance(backgroundColor)
+        // 如果亮度大于0.5，使用黑色；否则使用白色
+        return if (luminance > 0.5) Color.BLACK else Color.WHITE
     }
 
     /**
@@ -227,7 +144,7 @@ class ColorPickerDialog : BaseSheetDialog<DialogColorPickerBinding> {
         private val onColorClick: (String) -> Unit
     ) : RecyclerView.Adapter<ColorAdapter.ColorViewHolder>() {
 
-        private var selectedColor: String = initialColor
+        private var selectedColor: String = this@ColorPickerDialog.selectedColor
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ColorViewHolder {
             val binding = ItemColorBinding.inflate(
@@ -244,11 +161,14 @@ class ColorPickerDialog : BaseSheetDialog<DialogColorPickerBinding> {
 
         override fun getItemCount(): Int = colors.size
 
+        /**
+         * 更新选中颜色
+         */
         fun updateSelectedColor(color: String) {
             val oldSelected = selectedColor
             selectedColor = color
 
-            // 刷新相关项
+            // 只刷新相关的项目
             colors.forEachIndexed { index, c ->
                 if (c == oldSelected || c == color) {
                     notifyItemChanged(index)
@@ -261,18 +181,31 @@ class ColorPickerDialog : BaseSheetDialog<DialogColorPickerBinding> {
 
             fun bind(color: String) {
                 try {
-                    val colorInt = Color.parseColor(color)
-                    binding.colorCircle.backgroundTintList = ColorStateList.valueOf(colorInt)
+                    val colorInt = color.toColorInt()
 
-                    // 显示/隐藏选中指示器
-                    binding.selectedIndicator.isVisible = (color == selectedColor)
+                    // 创建圆形背景
+                    val circleDrawable = GradientDrawable().apply {
+                        shape = GradientDrawable.OVAL
+                        setColor(colorInt)
+                    }
+                    binding.colorCircle.background = circleDrawable
+
+                    // 选中效果 - 显示对号
+                    val isSelected = (color == selectedColor)
+                    binding.checkIcon.isVisible = isSelected
+
+                    // 根据背景颜色计算对比色，设置对号颜色
+                    if (isSelected) {
+                        val contrastColor = getContrastColor(colorInt)
+                        binding.checkIcon.setColorFilter(contrastColor)
+                    }
 
                     // 设置点击事件
                     binding.colorItem.setOnClickListener {
                         onColorClick(color)
                     }
                 } catch (e: Exception) {
-                    // 无效颜色，隐藏此项
+                    // 无效颜色则隐藏
                     binding.root.isVisible = false
                 }
             }

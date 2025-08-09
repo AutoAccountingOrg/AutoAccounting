@@ -15,30 +15,31 @@
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/color_item"
-    android:layout_width="48dp"
-    android:layout_height="48dp"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
     android:layout_margin="4dp"
     android:background="@drawable/ripple_effect"
     android:clickable="true"
-    android:focusable="true">
+    android:focusable="true"
+    android:padding="4dp">
 
     <!-- 颜色圆形 -->
     <View
         android:id="@+id/color_circle"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:layout_gravity="center"
-        android:background="@drawable/shape_circle"
-        android:backgroundTint="#2196F3" />
 
-    <!-- 选中状态指示器 -->
+        />
+
+
+    <!-- 选中状态对号图标 -->
     <ImageView
-        android:id="@+id/selected_indicator"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
+        android:id="@+id/check_icon"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
         android:layout_gravity="center"
         android:src="@drawable/ic_check"
-        android:tint="@android:color/white"
         android:visibility="gone" />
 
 </FrameLayout>
