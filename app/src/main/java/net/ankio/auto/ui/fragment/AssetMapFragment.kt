@@ -19,6 +19,7 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
@@ -68,6 +69,11 @@ class AssetMapFragment : BasePageFragment<AssetsMapModel, FragmentMapBinding>() 
 
         // 设置RecyclerView布局管理器
         statusPage.contentView?.layoutManager = WrapContentLinearLayoutManager(context)
+
+        // 设置返回按钮点击事件
+        binding.topAppBar.setNavigationOnClickListener {
+            findNavController().popBackStack()
+        }
 
         // 设置添加按钮点击事件
         binding.addButton.setOnClickListener {
