@@ -71,21 +71,13 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/error_icon" />
 
-    <!-- Content Container - 支持任意类型的内容视图 -->
-    <FrameLayout
-        android:id="@+id/content_container"
+    <!-- Content -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/content_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:overScrollMode="never"
         android:visibility="gone"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <!-- 默认的 RecyclerView，保持向后兼容 -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/content_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:overScrollMode="never" />
-
-    </FrameLayout>
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
