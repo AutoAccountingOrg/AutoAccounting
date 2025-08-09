@@ -20,8 +20,6 @@ import android.view.MenuItem
 import android.view.View
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentMapBinding
@@ -30,6 +28,9 @@ import net.ankio.auto.ui.adapter.AssetsMapAdapter
 import net.ankio.auto.ui.api.BasePageFragment
 import net.ankio.auto.ui.components.WrapContentLinearLayoutManager
 import net.ankio.auto.ui.dialog.AssetsMapDialog
+import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
+import net.ankio.auto.ui.utils.LoadingUtils
+import net.ankio.auto.ui.utils.ToastUtils
 import org.ezbook.server.db.model.AssetsMapModel
 
 /**
@@ -96,8 +97,8 @@ class AssetMapFragment : BasePageFragment<AssetsMapModel, FragmentMapBinding>() 
      * 显示重新应用确认对话框
      */
     private fun showReapplyConfirmDialog() {
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle(R.string.reapply_confirm_title)
+        BottomSheetDialogBuilder(this)
+            .setTitleInt(R.string.reapply_confirm_title)
             .setMessage(R.string.reapply_confirm_message)
             .setPositiveButton(R.string.sure_msg) { _, _ ->
                 reapplyAssetMapping()
@@ -111,29 +112,16 @@ class AssetMapFragment : BasePageFragment<AssetsMapModel, FragmentMapBinding>() 
      */
     private fun reapplyAssetMapping() {
         lifecycleScope.launch {
-            try {
-                // 显示开始提示
-                Snackbar.make(binding.root, R.string.reapply_started, Snackbar.LENGTH_SHORT).show()
+            val loadingUtils = LoadingUtils(requireActivity())
+            // 显示加载对话框
+            loadingUtils.show(R.string.reapply_started)
 
-                // 调用API
-                val result = AssetsMapAPI.reapply()
+            // 调用API
+            AssetsMapAPI.reapply()
 
-                // 检查结果并显示相应提示
-                if (result.has("success") && result.get("success").asBoolean) {
-                    Snackbar.make(binding.root, R.string.reapply_success, Snackbar.LENGTH_LONG)
-                        .show()
-                } else {
-                    val message = if (result.has("message")) {
-                        result.get("message").asString
-                    } else {
-                        getString(R.string.reapply_failed)
-                    }
-                    Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
-                }
-            } catch (e: Exception) {
-                // 显示错误提示
-                Snackbar.make(binding.root, R.string.reapply_failed, Snackbar.LENGTH_LONG).show()
-            }
+            ToastUtils.info(R.string.reapply_success)
+
+            loadingUtils.close()
         }
     }
 }
