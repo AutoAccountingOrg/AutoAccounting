@@ -147,21 +147,22 @@ class TagComponent(binding: ComponentTagBinding, private val lifecycle: Lifecycl
      * 处理标签点击事件
      */
     private fun handleTagClick(tag: TagModel, action: String) {
+        // 根据当前模式与动作类型分发一次性回调，避免重复触发导致二次导航
         when (action) {
+            // 选择模式下，通知选中集合变化；编辑模式忽略此动作
             "select" -> {
                 if (!isEditMode) {
                     onSelectionChanged?.invoke(adapter.getSelectedTags().toSet())
                 }
             }
 
+            // 编辑模式下，分发编辑/删除回调；选择模式下忽略
             "edit", "delete" -> {
-                // 编辑模式下的操作
-                onTagSelected?.invoke(tag, action)
+                if (isEditMode) {
+                    onTagSelected?.invoke(tag, action)
+                }
             }
         }
-
-        // 通知外部回调
-        onTagSelected?.invoke(tag, action)
     }
 
 

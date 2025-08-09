@@ -19,16 +19,20 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.widget.Toolbar
+import androidx.core.view.setPadding
+import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentTagBinding
 import net.ankio.auto.http.api.TagAPI
+import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.api.bindAs
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
 import net.ankio.auto.ui.fragment.book.TagComponent
+import net.ankio.auto.ui.utils.DisplayUtils
 import net.ankio.auto.ui.utils.TagUtils
 import net.ankio.auto.ui.utils.ToastUtils
 
@@ -67,6 +71,9 @@ class TagFragment : BaseFragment<FragmentTagBinding>(), Toolbar.OnMenuItemClickL
     private fun setupTagComponent() {
         // 使用bindAs扩展函数创建TagComponent实例
         tagComponent = binding.tagComponent.bindAs<TagComponent>(lifecycle)
+        binding.tagComponent.root.updatePadding(
+            bottom = DisplayUtils.getNavigationBarHeight(requireContext())
+        )
         tagComponent.setEditMode(true) // 编辑模式：显示删除按钮，长按编辑
         tagComponent.setOnTagSelectedListener { tag, type ->
             when (type) {

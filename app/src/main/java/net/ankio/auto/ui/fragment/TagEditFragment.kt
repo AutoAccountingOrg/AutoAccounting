@@ -51,7 +51,6 @@ class TagEditFragment : BaseFragment<FragmentTagEditBinding>() {
 
         initializeTag()
         setupViews()
-        setupGroupSelection()
         setupListeners()
     }
 
@@ -73,6 +72,8 @@ class TagEditFragment : BaseFragment<FragmentTagEditBinding>() {
                         color = defaultColor
                     }
                     setupViewsWithData()
+                    // 在 tagModel 初始化完成后再初始化分组选择
+                    setupGroupSelection()
                 } catch (e: Exception) {
                     ToastUtils.error(R.string.load_tag_failed)
                     findNavController().popBackStack()
@@ -84,6 +85,8 @@ class TagEditFragment : BaseFragment<FragmentTagEditBinding>() {
                 color = defaultColor
             }
             setupViewsWithData()
+            // 新建模式下立即初始化分组选择
+            setupGroupSelection()
         }
     }
 

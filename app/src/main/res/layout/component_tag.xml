@@ -20,7 +20,9 @@
     <net.ankio.auto.ui.components.StatusPage
         android:id="@+id/status_page"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/padding" />
+        android:layout_height="match_parent"
+        app:innerHeight="match_parent"
+        android:paddingStart="@dimen/padding"
+        android:paddingEnd="@dimen/padding" />
 
 </LinearLayout>
