@@ -83,12 +83,8 @@ fun Route.tagRoutes() {
                 return@post
             }
 
-            // 设置更新时间
-            model.updateTime = System.currentTimeMillis()
-
             if (model.id == 0L) {
                 // 新增标签
-                model.createTime = System.currentTimeMillis()
                 model.id = Db.get().tagDao().insert(model)
             } else {
                 // 更新标签

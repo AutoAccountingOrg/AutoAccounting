@@ -38,18 +38,9 @@ class TagModel {
      */
     var color: String = "#2196F3"
 
-    /**
-     * 创建时间戳
-     */
-    var createTime: Long = System.currentTimeMillis()
-
-    /**
-     * 更新时间戳
-     */
-    var updateTime: Long = System.currentTimeMillis()
 
     override fun toString(): String {
-        return "TagModel(id=$id, name='$name', color='$color', createTime=$createTime, updateTime=$updateTime)"
+        return "TagModel(id=$id, name='$name', color='$color')"
     }
 
     override fun equals(other: Any?): Boolean {

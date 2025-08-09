@@ -73,7 +73,7 @@ interface TagDao {
      * 获取所有标签列表（按创建时间倒序）
      * @return 标签列表
      */
-    @Query("SELECT * FROM TagModel ORDER BY createTime DESC")
+    @Query("SELECT * FROM TagModel ORDER BY id DESC")
     suspend fun list(): List<TagModel>
 
     /**
@@ -82,7 +82,7 @@ interface TagDao {
      * @param offset 偏移量
      * @return 标签列表
      */
-    @Query("SELECT * FROM TagModel ORDER BY createTime DESC LIMIT :limit OFFSET :offset")
+    @Query("SELECT * FROM TagModel ORDER BY id DESC LIMIT :limit OFFSET :offset")
     suspend fun load(limit: Int, offset: Int): List<TagModel>
 
     /**
@@ -99,6 +99,6 @@ interface TagDao {
      * @param offset 偏移量
      * @return 匹配的标签列表
      */
-    @Query("SELECT * FROM TagModel WHERE name LIKE '%' || :keyword || '%' ORDER BY createTime DESC LIMIT :limit OFFSET :offset")
+    @Query("SELECT * FROM TagModel WHERE name LIKE '%' || :keyword || '%' ORDER BY id DESC LIMIT :limit OFFSET :offset")
     suspend fun search(keyword: String, limit: Int, offset: Int): List<TagModel>
 }
