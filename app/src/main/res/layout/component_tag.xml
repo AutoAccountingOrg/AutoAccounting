@@ -1,0 +1,30 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <net.ankio.auto.ui.components.StatusPage
+        android:id="@+id/status_page"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:innerHeight="wrap_content">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chip_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/padding"
+                app:chipSpacing="8dp"
+                app:lineSpacing="4dp"
+                app:singleLine="false"
+                app:singleSelection="false" />
+
+        </ScrollView>
+
+    </net.ankio.auto.ui.components.StatusPage>
+
+</LinearLayout>
