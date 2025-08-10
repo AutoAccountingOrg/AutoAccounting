@@ -212,7 +212,8 @@ class BookCardComponent(binding: CardBookBinding, private val lifecycle: Lifecyc
     private fun openAppWhitelist() { /* TODO 跳转应用监控白名单管理页面 */
     }
 
-    private fun openDataFilter() { /* TODO 跳转账单数据过滤关键词管理页面 */
+    private fun openDataFilter() {
+        onRedirect.invoke(R.id.action_homeFragment_to_dataFilterFragment)
     }
 
 

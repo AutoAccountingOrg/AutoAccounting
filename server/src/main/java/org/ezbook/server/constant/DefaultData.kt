@@ -29,7 +29,7 @@ object DefaultData {
     const val NOTE_FORMAT: String = "【商户名称】【商品名称】"
     const val WECHAT_PACKAGE: String = "com.tencent.mm"
     const val WECHAT_PACKAGE_ALIAS: String = "${WECHAT_PACKAGE}2"
-    val SMS_FILTER = listOf(
+    val DATA_FILTER = listOf(
         "银行", "信用卡", "借记卡", "公积金",
         "元", "￥", "¥", "人民币",
         "消费", "支付", "支出", "转出", "取出", "取款",

@@ -28,6 +28,7 @@ import com.google.gson.Gson
 import net.ankio.auto.App
 import net.ankio.auto.http.api.BookNameAPI
 import net.ankio.auto.http.api.SettingAPI
+import org.ezbook.server.constant.DefaultData
 
 object PrefManager {
 
@@ -193,4 +194,9 @@ object PrefManager {
     var appWhiteList: Array<String> //TODO 白名单默认选择微信、支付宝、京东、饿了么、美团、拼多多、抖音
         get() = Gson().fromJson(pref.getString("appWhiteList", "[]"), Array<String>::class.java)
         set(value) = pref.edit { putString("appWhiteList", Gson().toJson(value)) }
+
+    var dataFilter: MutableList<String> //TODO 白名单默认选择微信、支付宝、京东、饿了么、美团、拼多多、抖音
+        get() = pref.getString("dataFilter", DefaultData.DATA_FILTER)!!.split(",")
+            .filter { it.isNotEmpty() }.toMutableList()
+        set(value) = pref.edit { putString("dataFilter", value.joinToString(",")) }
 }
