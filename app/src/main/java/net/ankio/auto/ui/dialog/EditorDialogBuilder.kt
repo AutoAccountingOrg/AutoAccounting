@@ -16,17 +16,16 @@
 package net.ankio.auto.ui.dialog
 
 import android.app.Activity
-import android.app.Service
 import android.text.InputType
+import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleService
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogBottomSheetBinding
+import net.ankio.auto.databinding.SettingItemInputBinding
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseSheetDialog
 import kotlin.properties.Delegates
@@ -100,45 +99,17 @@ class EditorDialogBuilder : BottomSheetDialogBuilder {
         return this
     }
     override fun setMessage(string: String): EditorDialogBuilder {
+        // 使用现有的布局资源 setting_item_input 来构建输入框
+        val view = SettingItemInputBinding.inflate(LayoutInflater.from(ctx))
+        val inputLayout = view.inputLayout
+        editText = view.input
 
-        // ① 创建 TextInputLayout（父容器就是 LinearLayout，本身继承自它）
-        val inputLayout = TextInputLayout(
-            ctx,
-            null,
-            com.google.android.material.R.attr.textInputOutlinedStyle
-        ).apply {
-            id = View.generateViewId()
-            // match_parent / wrap_content，带外边距
-            layoutParams = LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            ).apply {
-                val vPad = ctx.resources.getDimensionPixelSize(R.dimen.one_padding)
-                topMargin = vPad
-                bottomMargin = vPad
+        // 预填内容与输入类型
+        editText.setText(string)
+        editText.inputType = inputTypeInt
 
-            }
-        }
-
-        // ② 创建内层 TextInputEditText —— 关键：一定要用 LinearLayout.LayoutParams
-        editText =
-            TextInputEditText(ctx, null, com.google.android.material.R.attr.editTextStyle).apply {
-            id = View.generateViewId()
-
-                layoutParams = LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-
-                // 默认内容
-            setText(string)
-            inputType = inputTypeInt
-        }
-
-        // ③ 组装并设置到 Dialog
-        inputLayout.addView(editText)   // 把 EditText 放进 TextInputLayout
-        setView(inputLayout)            // AlertDialog.Builder 的自定义视图
-
+        // 将视图设置到对话框
+        setView(inputLayout)
         return this
     }
 
