@@ -58,6 +58,12 @@
         <action
             android:id="@+id/action_homeFragment_to_orderFragment"
             app:destination="@id/orderFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_dataFilterFragment"
+            app:destination="@id/dataFilterFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_appWhiteListFragment"
+            app:destination="@id/appWhiteListFragment" />
         <!-- <action
              android:id="@+id/action_homeFragment_to_categoryRuleFragment"
              app:destination="@id/categoryRuleFragment" />
@@ -234,7 +240,17 @@
             app:argType="long"
             android:defaultValue="0L" />
     </fragment>
+    <fragment
+        android:id="@+id/dataFilterFragment"
+        android:name="net.ankio.auto.ui.fragment.DataFilterFragment"
+        android:label="@string/title_data_filter"
+        tools:layout="@layout/fragment_data_filter" />
 
+    <fragment
+        android:id="@+id/appWhiteListFragment"
+        android:name="net.ankio.auto.ui.fragment.AppWhiteListFragment"
+        android:label="@string/title_app_whitelist"
+        tools:layout="@layout/fragment_notice" />
 
     <!--
     <fragment
@@ -288,11 +304,7 @@
             android:defaultValue="" />
     </fragment>
 
-    <fragment
-        android:id="@+id/smsFragment"
-        android:name="net.ankio.auto.ui.fragment.SmsFragment"
-        android:label="@string/title_sms"
-        tools:layout="@layout/fragment_sms_edit">
+
 
     </fragment>
 
