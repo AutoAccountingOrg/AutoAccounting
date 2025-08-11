@@ -20,6 +20,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentCategoryMapBinding
@@ -69,7 +70,7 @@ class CategoryMapFragment : BasePageFragment<CategoryMapModel, FragmentCategoryM
 
         // 设置RecyclerView布局管理器
         statusPage.contentView?.layoutManager = WrapContentLinearLayoutManager(context)
-
+        binding.topAppBar.setNavigationOnClickListener { findNavController().popBackStack() }
         // 设置工具栏搜索功能
         setupSearchView()
     }
