@@ -91,7 +91,7 @@
 
         </com.google.android.material.button.MaterialButtonToggleGroup>
 
-        <!-- 编辑/删除按钮组 (与收入/支出按钮组互斥显示) -->
+        <!-- 编辑/设置默认/删除按钮组 (与收入/支出按钮组互斥显示) -->
         <com.google.android.material.button.MaterialButtonToggleGroup
             android:id="@+id/editContainer"
             android:layout_width="match_parent"
@@ -116,6 +116,19 @@
                 android:textColor="?colorOnPrimaryContainer"
                 app:cornerRadius="0dp"
                 app:icon="@drawable/icon_edit" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/defaultButton"
+                style="@style/Widget.Material3.Button.ElevatedButton"
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:layout_weight="1"
+                android:alpha="0.6"
+                android:backgroundTint="?colorSecondaryContainer"
+                android:text="@string/set_default_book"
+                android:textColor="?colorOnSecondaryContainer"
+                app:cornerRadius="0dp"
+                app:icon="@drawable/ic_verified" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/deleteButton"

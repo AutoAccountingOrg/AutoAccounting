@@ -29,8 +29,14 @@ import net.ankio.auto.ui.fragment.home.MonthlyCardComponent
 import net.ankio.auto.ui.fragment.home.RuleVersionCardComponent
 import net.ankio.auto.ui.fragment.home.StatusCardComponent
 import net.ankio.auto.utils.PrefManager
+import net.ankio.auto.utils.Throttle
 
 class HomeFragment : BaseFragment<FragmentPluginHomeBinding>() {
+
+    private val nav = Throttle.asFunction<Int>(300) {
+        findNavController().navigate(it)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.activeCard.bindAs<StatusCardComponent>(lifecycle)
@@ -38,7 +44,7 @@ class HomeFragment : BaseFragment<FragmentPluginHomeBinding>() {
         binding.monthlyCard.bindAs<MonthlyCardComponent>(lifecycle)
         val bookCard = binding.bookCard.bindAs<BookCardComponent>(lifecycle)
         bookCard.setOnRedirect {
-            findNavController().navigate(it)
+            nav.invoke(it)
         }
         binding.toolbar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {

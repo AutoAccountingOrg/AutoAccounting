@@ -19,7 +19,8 @@
     <item
         android:id="@+id/action_search"
         android:actionViewClass="net.ankio.auto.ui.components.MaterialSearchView"
-        android:showAsAction="ifRoom"
+        android:icon="@drawable/menu_icon_search"
+        android:showAsAction="ifRoom|collapseActionView"
         android:title="@string/item_search" />
 
 </menu>

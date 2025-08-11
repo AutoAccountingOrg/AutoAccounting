@@ -23,7 +23,7 @@
             app:menu="@menu/tag_menu" />
 
     </com.google.android.material.appbar.AppBarLayout>
-    <!-- 标签组件容器 -->
+    <!-- 标签组件容器，外部包裹 SwipeRefreshLayout 以支持下拉刷新 -->
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipe_refresh_layout"
         android:layout_width="match_parent"
@@ -32,8 +32,9 @@
 
         <include
             android:id="@+id/tag_component"
-            layout="@layout/component_tag" />
-
+            layout="@layout/component_tag"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/addButton"

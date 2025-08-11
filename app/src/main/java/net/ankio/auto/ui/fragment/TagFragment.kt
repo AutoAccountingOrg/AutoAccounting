@@ -61,10 +61,6 @@ class TagFragment : BaseFragment<FragmentTagBinding>(), Toolbar.OnMenuItemClickL
             navigateToEditTag(0) // 传入0表示新建标签
         }
 
-        binding.swipeRefreshLayout.setOnRefreshListener {
-            tagComponent.refreshData()
-            binding.swipeRefreshLayout.isRefreshing = false
-        }
         // 初始化TagComponent
         setupTagComponent()
     }
@@ -78,6 +74,7 @@ class TagFragment : BaseFragment<FragmentTagBinding>(), Toolbar.OnMenuItemClickL
         binding.tagComponent.root.updatePadding(
             bottom = DisplayUtils.getNavigationBarHeight(requireContext())
         )
+        binding.tagComponent.statusPage.swipeRefreshLayout = binding.swipeRefreshLayout
         tagComponent.setEditMode(true) // 编辑模式：显示删除按钮，长按编辑
         tagComponent.setOnTagSelectedListener { tag, type ->
             when (type) {

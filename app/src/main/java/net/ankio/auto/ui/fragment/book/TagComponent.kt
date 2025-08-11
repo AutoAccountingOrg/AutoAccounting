@@ -17,16 +17,14 @@ package net.ankio.auto.ui.fragment.book
 
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.coroutineScope
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.SimpleItemAnimator
-import com.google.android.flexbox.FlexboxLayout
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.flexbox.FlexboxLayoutManager
 import kotlinx.coroutines.launch
 import net.ankio.auto.databinding.ComponentTagBinding
-import net.ankio.auto.ui.api.BaseComponent
 import net.ankio.auto.http.api.TagAPI
 import net.ankio.auto.ui.adapter.TagSelectorAdapter
-import net.ankio.auto.ui.components.FlowLayoutManager
+import net.ankio.auto.ui.api.BaseComponent
 import org.ezbook.server.db.model.TagModel
 
 /**
@@ -41,7 +39,6 @@ class TagComponent(binding: ComponentTagBinding, private val lifecycle: Lifecycl
 
     private var onTagSelected: ((TagModel, String) -> Unit)? = null
     private var onSelectionChanged: ((Set<TagModel>) -> Unit)? = null
-    private val dataItems = HashMap<String, List<TagModel>>()
     private var isEditMode: Boolean = false
     private lateinit var adapter: TagSelectorAdapter
 
@@ -82,10 +79,15 @@ class TagComponent(binding: ComponentTagBinding, private val lifecycle: Lifecycl
         loadData()
     }
 
+
     /**
      * 设置RecyclerView
      */
     private fun setupRecyclerView() {
+        binding.statusPage.swipeRefreshLayout?.setOnRefreshListener {
+            refreshData()
+            binding.statusPage.swipeRefreshLayout!!.isRefreshing = false
+        }
         val recyclerView = binding.statusPage.contentView!!
 
         // 设置布局管理器，使用GridLayoutManager来处理分组和标签的不同布局

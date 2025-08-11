@@ -58,10 +58,14 @@ class BookComponent(binding: ComponentBookBinding, private val lifecycle: Lifecy
 
         setupRecyclerView()
         loadData()
+        binding.statusPage.swipeRefreshLayout?.setOnRefreshListener {
+            refreshData()
+        }
     }
 
     private fun setupRecyclerView() {
         val recyclerView = binding.statusPage.contentView!!
+        // 外部已注入 SwipeRefreshLayout，这里仅使用刷新动画（存在即使用）
         recyclerView.layoutManager = WrapContentLinearLayoutManager(context)
 
         // 创建适配器，支持showSelect参数

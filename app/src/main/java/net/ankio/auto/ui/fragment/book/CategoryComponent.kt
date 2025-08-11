@@ -133,7 +133,6 @@ class CategoryComponent(
      */
     private fun setupRecyclerView() {
         val recyclerView = binding.statusPage.contentView!!
-
         // 设置布局管理器
         val layoutManager = GridLayoutManager(context, line)
         layoutManager.spanSizeLookup = SpecialSpanSizeLookup()

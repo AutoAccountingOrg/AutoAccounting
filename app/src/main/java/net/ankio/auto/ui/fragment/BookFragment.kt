@@ -91,6 +91,9 @@ class BookFragment : BaseFragment<FragmentBookBinding>() {
             }
         }
 
+        // 将外层 SwipeRefreshLayout 注入到内部 StatusPage
+        bookComponent.binding.statusPage.swipeRefreshLayout = binding.swipeRefreshLayout
+
         binding.swipeRefreshLayout.setOnRefreshListener {
             refreshBookList()
             binding.swipeRefreshLayout.isRefreshing = false
