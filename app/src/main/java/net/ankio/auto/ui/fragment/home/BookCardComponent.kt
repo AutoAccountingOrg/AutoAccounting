@@ -29,7 +29,7 @@ import net.ankio.auto.adapter.AppAdapterManager
 import net.ankio.auto.databinding.CardBookBinding
 import net.ankio.auto.ui.api.BaseComponent
 import net.ankio.auto.ui.components.IconTileView
-import net.ankio.auto.ui.dialog.BookSelectorDialog
+import net.ankio.auto.ui.dialog.AppDialog
 import net.ankio.auto.utils.PrefManager
 
 class BookCardComponent(binding: CardBookBinding, private val lifecycle: Lifecycle) :
@@ -46,7 +46,14 @@ class BookCardComponent(binding: CardBookBinding, private val lifecycle: Lifecyc
     override fun init() {
         super.init()
         binding.btnSwitch.setOnClickListener {
-            // TODO 选择记账软件
+            // 打开记账软件选择弹窗，用户选择后会在对话框内部保存到 PrefManager
+            // 依赖于在绑定组件时注入的 Activity（见 HomeFragment 里 bindAs 的传参）
+            AppDialog(activity)
+                .setOnClose {
+                    // 刷新首页当前记账软件的展示（名称、包名、图标与同步资产按钮可见性）
+                    resume()
+                }
+                .show()
         }
 
         binding.btnRefresh.setOnClickListener {

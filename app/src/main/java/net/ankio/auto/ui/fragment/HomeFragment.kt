@@ -42,7 +42,7 @@ class HomeFragment : BaseFragment<FragmentPluginHomeBinding>() {
         binding.activeCard.bindAs<StatusCardComponent>(lifecycle)
         binding.ruleVersionCard.bindAs<RuleVersionCardComponent>(lifecycle, requireActivity())
         binding.monthlyCard.bindAs<MonthlyCardComponent>(lifecycle)
-        val bookCard = binding.bookCard.bindAs<BookCardComponent>(lifecycle)
+        val bookCard = binding.bookCard.bindAs<BookCardComponent>(lifecycle, requireActivity())
         bookCard.setOnRedirect {
             nav.invoke(it)
         }

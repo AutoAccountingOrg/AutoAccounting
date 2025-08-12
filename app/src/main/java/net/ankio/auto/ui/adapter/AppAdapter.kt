@@ -24,7 +24,7 @@ import net.ankio.auto.ui.models.AppInfo
 class AppAdapter(
     private val pkg: PackageManager,
     private val callback: (AppInfo) -> Unit
-) : BaseAdapter<AdapterAppBinding, AppInfo>(AdapterAppBinding::class.java) {
+) : BaseAdapter<AdapterAppBinding, AppInfo>() {
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterAppBinding, AppInfo>) {
         val binding = holder.binding
         binding.root.setOnClickListener {

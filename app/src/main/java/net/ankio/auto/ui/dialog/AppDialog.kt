@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 ankio(ankio@ankio.net)
+ * Copyright (C) 2025 ankio(ankio@ankio.net)
  * Licensed under the Apache License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,56 +15,84 @@
 
 package net.ankio.auto.ui.dialog
 
-import android.content.Context
-import android.view.LayoutInflater
+import android.app.Activity
 import android.view.View
-import net.ankio.auto.R
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.LifecycleService
+import androidx.recyclerview.widget.RecyclerView
+import net.ankio.auto.adapter.AppAdapterManager
+import net.ankio.auto.adapter.IAppAdapter
 import net.ankio.auto.databinding.DialogAppBinding
-import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.ui.adapter.AppListAdapter
 import net.ankio.auto.ui.api.BaseSheetDialog
-import net.ankio.auto.ui.componets.WrapContentLinearLayoutManager
-import net.ankio.auto.ui.models.AutoApp
-import org.ezbook.server.constant.DefaultData
-import org.ezbook.server.constant.Setting
+import net.ankio.auto.ui.components.WrapContentLinearLayoutManager
+import net.ankio.auto.utils.PrefManager
 
 /**
  * 记账软件选择对话框
+ *
+ * 功能：
+ * - 展示支持的记账软件列表
+ * - 点击已安装的目标项即可选择并保存
+ * - 未安装则跳转到官网/应用页面
+ * - 支持在 Activity / Fragment / Service(悬浮窗) 环境中使用
  */
-class AppDialog(private val context: Context, private val finish: () -> Unit) :
-    BaseSheetDialog(context) {
-    private lateinit var binding: DialogAppBinding
+class AppDialog : BaseSheetDialog<DialogAppBinding> {
 
-    private var apps = mutableListOf(
-        AutoApp(
-            "钱迹",
-            R.drawable.app_qianji,
-            "com.mutangtech.qianji",
-            "https://qianjiapp.com/",
-            "钱迹，一款简洁纯粹的记账 App，是一个 “无广告、无开屏、无理财” 的 “三无” 产品，力求极简，专注个人记账，将每一笔收支都清晰记录，消费及资产随时了然于心。"
-        ),
-    )
+    /**
+     * 关闭回调。
+     *
+     * 当对话框关闭（dismiss）后触发，用于通知外部刷新界面等。
+     */
+    private var onClose: (() -> Unit)? = null
 
-    override fun onCreateView(inflater: LayoutInflater): View {
-        binding = DialogAppBinding.inflate(inflater)
+    /**
+     * 构造函数
+     */
+    constructor(activity: Activity) : super(activity)
+    constructor(fragment: Fragment) : super(fragment)
+    constructor(service: LifecycleService) : super(service)
 
-        val recyclerView = binding.recyclerView
-        recyclerView.layoutManager = WrapContentLinearLayoutManager(context)
-        val adapter = AppListAdapter(
-            context,
-            ConfigUtils.getString(Setting.BOOK_APP_ID, DefaultData.BOOK_APP)
-        ) {
-            ConfigUtils.putString(Setting.BOOK_APP_ID, it.packageName)
+    override fun onViewCreated(view: View?) {
+        super.onViewCreated(view)
+        setupRecycler(binding.recyclerView)
+    }
+
+    /**
+     * 初始化并绑定列表
+     */
+    private fun setupRecycler(recyclerView: RecyclerView) {
+        recyclerView.layoutManager = WrapContentLinearLayoutManager(ctx)
+
+        // 直接使用 IAppAdapter 列表作为数据源
+        val apps: List<IAppAdapter> = AppAdapterManager.adapterList()
+
+        // 创建并绑定适配器
+        val adapter = AppListAdapter(ctx, PrefManager.bookApp) { selected ->
+            // 保存选择的记账软件
+            PrefManager.bookApp = selected.pkg
+            // 关闭弹窗
             dismiss()
         }
         recyclerView.adapter = adapter
+        // 使用全量提交，避免依赖 Diff 回调
+        adapter.submitItems(apps)
+    }
 
-        adapter.updateItems(apps)
-        return binding.root
+    /**
+     * 设置关闭回调。
+     *
+     * @param callback 对话框关闭后要执行的回调
+     * @return 返回自身以便链式调用
+     */
+    fun setOnClose(callback: () -> Unit): AppDialog {
+        this.onClose = callback
+        return this
     }
 
     override fun dismiss() {
-        finish()
+        // 先关闭对话框，再回调通知外部刷新
         super.dismiss()
+        onClose?.invoke()
     }
 }
