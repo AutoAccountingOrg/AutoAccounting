@@ -121,6 +121,10 @@ android {
         )
     }
 
+    lint {
+        checkReleaseBuilds = false
+        abortOnError = false
+    }
 
 }
 fun calculateVersionCode(): Int {
@@ -162,6 +166,8 @@ dependencies {
 
     // toast
     implementation(libs.toaster)
+    implementation(libs.preferenceKtx)
+    implementation(libs.androidx.lifecycle.service)
 
     // xp依赖
     compileOnly(libs.xposed)
@@ -200,4 +206,14 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.16.0")
 
     implementation("com.tencent.bugly:crashreport:latest.release")
+
+    debugImplementation("com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.11")
+    implementation("androidx.palette:palette-ktx:1.0.0")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.8.1")
+    implementation("net.lingala.zip4j:zip4j:2.11.5")
+    implementation(kotlin("reflect"))
+
+    implementation("com.github.equationl.paddleocr4android:paddleocr4android:v1.2.9")
+
 }

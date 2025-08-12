@@ -48,6 +48,8 @@ class OcrService : ICoreService() {
     private lateinit var shotHelper: ScreenShotHelper
     // private lateinit var allowedPkgs: Set<String>   // 配置白名单
 
+    private lateinit var ocrProcessor: OcrProcessor
+
     // 摇动检测器，使用节流函数防止频繁触发
     private val detector by lazy {
         //val throttle = Throttle.asFunction(2000) { onShake() }
@@ -85,6 +87,8 @@ class OcrService : ICoreService() {
             return
         }
         Logger.d("摇一摇监听中")
+
+        ocrProcessor = OcrProcessor(coreService)
 
         serverStarted = true
     }
@@ -133,7 +137,7 @@ class OcrService : ICoreService() {
             }
             val image = shotHelper.capture()
             if (image != null) {
-                val text = OcrProcessor.recognize(image)
+                val text = ocrProcessor.recognize(image)
                 if (text.isNotBlank()) send2JsEngine(text, pkg)
             }
             withContext(Dispatchers.Main) {

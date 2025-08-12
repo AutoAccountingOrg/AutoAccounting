@@ -9,7 +9,6 @@ import androidx.activity.result.ActivityResultCaller
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContract
 import net.ankio.auto.storage.Logger
-import javax.inject.Singleton
 
 /**
  * ProjectionGateway 是一个单例对象，用于管理 Android 的屏幕录制权限和 MediaProjection 实例。
@@ -21,7 +20,7 @@ import javax.inject.Singleton
  * 3. 提供权限状态检查
  * 4. 处理权限请求结果
  */
-@Singleton      // 如果不用 Hilt，可删除此注解
+
 object ProjectionGateway {
 
     /* ------------------ 公共 API ------------------ */
