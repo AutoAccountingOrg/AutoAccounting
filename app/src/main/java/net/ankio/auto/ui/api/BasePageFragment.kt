@@ -79,9 +79,10 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
         // 初始化UI组件
         _statusPage = view.findViewById(R.id.status_page)
         _swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout)
-
+        // 注入外部 SwipeRefreshLayout 到 StatusPage
+        statusPage.swipeRefreshLayout = _swipeRefreshLayout
         // 显示加载状态
-        // statusPage.showLoading()
+        statusPage.showLoading()
 
         // 创建并设置适配器
         adapter = onCreateAdapter()
@@ -125,7 +126,7 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
         Logger.d("reload: Reloading data from page 1")
         resetPage()
         hasMoreData = true
-        // statusPage.showLoading()
+        statusPage.showLoading()
         loadDataInside()
     }
 

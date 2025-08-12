@@ -35,7 +35,7 @@ import net.ankio.auto.storage.Logger
  * @param lifecycle 生命周期对象，用于监听生命周期事件
  */
 abstract class BaseComponent<T : ViewBinding>(
-    protected val binding: T,
+    val binding: T,
     private val lifecycle: Lifecycle
 ) : DefaultLifecycleObserver {
 

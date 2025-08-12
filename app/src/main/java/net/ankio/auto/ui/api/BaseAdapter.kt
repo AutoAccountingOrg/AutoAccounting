@@ -160,7 +160,7 @@ abstract class BaseAdapter<T : ViewBinding, E> : RecyclerView.Adapter<BaseViewHo
         diffResult.dispatchUpdatesTo(this)
 
         Logger.d("Updated items with DiffUtil: old=${oldItems}, new=${newItems}")
-        Logger.e("pdated items with DiffUtil", Exception())
+//        Logger.e("pdated items with DiffUtil", Exception())
     }
 
     /**
