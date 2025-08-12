@@ -28,6 +28,7 @@ import org.ezbook.server.constant.BillType
 import org.ezbook.server.constant.DataType
 import org.ezbook.server.db.AppDatabase
 import org.ezbook.server.db.Db
+import org.ezbook.server.db.model.AppDataModel
 import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.engine.JsExecutor
 import org.ezbook.server.engine.RuleGenerator
@@ -77,6 +78,18 @@ class BillService(
                 return@withContext ResultModel.error(400, "Type exception: ${analysisParams.type}")
             }
 
+            var appDataModel: AppDataModel? = null
+
+            if (!analysisParams.fromAppData) {
+                //数据不是存储在AppData
+                appDataModel = AppDataModel()
+                appDataModel.data = analysisParams.data
+                appDataModel.app = analysisParams.app
+                appDataModel.type = dataType
+                appDataModel.id = Db.get().dataDao().insert(appDataModel)
+                appDataModel.time = System.currentTimeMillis()
+            }
+
             // 记录分析开始时间，用于性能统计
             val start = System.currentTimeMillis()
 
@@ -99,6 +112,13 @@ class BillService(
             // 计算并记录分析耗时
             val cost = System.currentTimeMillis() - start
             Server.log("识别用时: $cost ms")
+
+            if (appDataModel != null) {
+                appDataModel.match = true
+                appDataModel.rule = billInfo.ruleName
+                appDataModel.version = ""
+                Db.get().dataDao().update(appDataModel)
+            }
 
             // 返回成功结果
             ResultModel.ok(
@@ -162,9 +182,8 @@ class BillService(
     private suspend fun analyzeWithAI(app: String, data: String): BillInfoModel? =
         runCatching {
             Server.logD("调用AI分析")
-            // 调用AI工具执行分析并解析JSON结果
-            Gson().fromJson(BillTool().execute(data), BillInfoModel::class.java)
-        }.getOrNull()?.takeIf { isValid(it) }?.apply {
+            BillTool().execute(data)
+        }.getOrNull()?.apply {
             // 设置AI分析的标识信息
             ruleName = "${AiManager.getInstance().currentProviderName} 生成"
             state = BillState.Wait2Edit

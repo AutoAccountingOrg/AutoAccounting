@@ -15,6 +15,8 @@
 
 package org.ezbook.server.ai.tools
 
+import com.google.gson.Gson
+import org.ezbook.server.Server
 import org.ezbook.server.ai.AiManager
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.dao.CategoryDao
@@ -77,7 +79,7 @@ Extract and output a structured JSON object containing **ONLY** the fields liste
 
 """".trimIndent()
 
-    suspend fun execute(data: String): String? {
+    suspend fun execute(data: String): BillInfoModel? {
         val categories = Db.get().categoryDao().all()
         val categoryNames = categories.joinToString(",") { it.name.toString() }
         val user = """
@@ -92,6 +94,14 @@ Input:
   ```      
         """.trimIndent()
 
-        return AiManager.getInstance().request(prompt, user)
+        val data = AiManager.getInstance().request(prompt, user)
+        val bill = data?.replace("```json", "")?.replace("```", "")
+        Server.logD("AI Response: $bill")
+        return runCatching {
+            val billInfoModel = Gson().fromJson(bill, BillInfoModel::class.java)
+            if (billInfoModel.money < 0) billInfoModel.money = -billInfoModel.money
+            if (billInfoModel.money == 0.0) return null
+            billInfoModel
+        }.getOrNull()
     }
 }
