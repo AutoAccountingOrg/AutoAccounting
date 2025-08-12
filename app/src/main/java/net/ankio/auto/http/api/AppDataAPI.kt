@@ -44,15 +44,18 @@ object AppDataAPI {
     suspend fun list(
         app: String,
         type: String,
-        match: Boolean,
+        match: Boolean?,
         page: Int,
         limit: Int,
         search: String
     ): List<AppDataModel> = withContext(Dispatchers.IO) {
         // 构建查询URL，对搜索关键词进行URL编码以防止特殊字符问题
+        val matchParam = match?.toString()?.let { "&match=$it" } ?: ""
         val response = LocalNetwork.get(
-            "data/list?page=$page&limit=$limit&app=$app&type=$type&match=${match}&search=${
-                Uri.encode(search)
+            "data/list?page=$page&limit=$limit&app=$app&type=$type$matchParam&search=${
+                Uri.encode(
+                    search
+                )
             }"
         )
 

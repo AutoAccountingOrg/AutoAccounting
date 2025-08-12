@@ -20,6 +20,7 @@ import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
+import android.widget.ArrayAdapter
 import androidx.lifecycle.lifecycleScope
 import com.google.gson.JsonObject
 import kotlinx.coroutines.launch
@@ -58,8 +59,8 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
     /** 数据类型筛选（NOTICE/DATA） */
     var type: String = ""
 
-    /** 是否只显示匹配的数据 */
-    var match = false
+    /** 匹配状态：null=全部，true=已匹配，false=未匹配 */
+    var match: Boolean? = null
 
     /** 搜索关键词 */
     var searchData = ""
@@ -99,7 +100,7 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setUpLeftData()
-        setupChipEvent()
+        setupFilterDropdown()
         binding.toolbar.setOnMenuItemClickListener(this)
         setUpSearch()
 
@@ -173,35 +174,63 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
     }
 
     /**
-     * 设置筛选芯片事件监听
-     * 处理数据类型和匹配状态的筛选
+     * 设置下拉筛选（类型、匹配）
      */
-    private fun setupChipEvent() {
+    private fun setupFilterDropdown() {
+        setupTypeFilter()
+        setupMatchFilter()
+    }
 
-        binding.chipGroup.setOnCheckedStateChangeListener { group, checkedId ->
+    /**
+     * 设置数据类型过滤器（全部/通知/数据）
+     */
+    private fun setupTypeFilter() {
+        // 选项复用规则页的数组，文本一致：全部/通知/数据
+        val typeOptions = resources.getStringArray(R.array.rule_type_options)
 
-            match = false
-            type = ""
+        val typeAdapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_dropdown_item_1line,
+            typeOptions
+        )
 
-            if (R.id.chip_match in checkedId) {
-                match = true
+        binding.typeDropdown.setAdapter(typeAdapter)
+        binding.typeDropdown.setOnItemClickListener { _, _, position, _ ->
+            type = when (position) {
+                1 -> DataType.NOTICE.name
+                2 -> DataType.DATA.name
+                else -> ""
             }
-
-            if (R.id.chip_notify in checkedId) {
-                type = DataType.NOTICE.name
-            }
-
-            if (R.id.chip_data in checkedId) {
-                type = DataType.DATA.name
-            }
-
-            if (R.id.chip_notify in checkedId && R.id.chip_data in checkedId) {
-                type = ""
-            }
-
-            Logger.d("Filter updated: match=$match, type='$type'")
+            Logger.d("Data type filter updated: type='$type'")
             reload()
         }
+        // 默认：全部
+        binding.typeDropdown.setText(typeOptions[0], false)
+    }
+
+    /**
+     * 设置匹配状态过滤器（全部/已匹配/未匹配）
+     */
+    private fun setupMatchFilter() {
+        val matchOptions = resources.getStringArray(R.array.match_options)
+        val matchAdapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_dropdown_item_1line,
+            matchOptions
+        )
+
+        binding.matchDropdown.setAdapter(matchAdapter)
+        binding.matchDropdown.setOnItemClickListener { _, _, position, _ ->
+            match = when (position) {
+                1 -> true  // 已匹配
+                2 -> false // 未匹配
+                else -> null // 全部
+            }
+            Logger.d("Match filter updated: match=$match")
+            reload()
+        }
+        // 默认：全部
+        binding.matchDropdown.setText(matchOptions[0], false)
     }
 
     /**

@@ -57,7 +57,11 @@ fun Route.dataRoutes() {
 
             val app = call.request.queryParameters["app"] ?: ""
             val type = call.request.queryParameters["type"]?.takeIf { it.isNotEmpty() }
-            val match = call.request.queryParameters["match"]?.toBoolean() ?: false
+            val matchParam = call.request.queryParameters["match"]
+            val match: Boolean? = when (matchParam) {
+                null, "" -> null
+                else -> matchParam.toBoolean()
+            }
             val search = call.request.queryParameters["search"]?.takeIf { it.isNotEmpty() }
 
             val data = Db.get().dataDao().load(limit, offset, app, match, type, search)

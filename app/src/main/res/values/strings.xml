@@ -299,6 +299,7 @@
     <!-- Filter dropdown options -->
     <string name="filter_rule_type">Rule Type</string>
     <string name="filter_creator">Creator</string>
+    <string name="filter_match">Match</string>
 
     <!-- Rule type filter options -->
     <string name="filter_type_all">All</string>
@@ -309,6 +310,10 @@
     <string name="filter_creator_all">All</string>
     <string name="filter_creator_user">User</string>
     <string name="filter_creator_official">Official</string>
+
+    <!-- Match filter options -->
+    <string name="filter_match_only">Matched only</string>
+    <string name="filter_unmatched_only">Unmatched only</string>
 
     <string name="downloading">Downloading rules...</string>
     <string name="update_error">Update failed</string>
@@ -870,5 +875,12 @@
     <string name="restore_default_tags_message">This operation will clear all existing tags and restore the default tags. This action cannot be undone. Do you want to continue?</string>
     <string name="restore_default_tags_success">Default tags restored successfully</string>
     <string name="restore_default_tags_failed">Failed to restore default tags</string>
+
+    <!-- Category reset -->
+    <string name="restore_default_categories">Restore Default Categories</string>
+    <string name="restore_default_categories_title">Restore Default Categories</string>
+    <string name="restore_default_categories_message">This will clear all categories for the current book and restore the default categories. This action cannot be undone. Continue?</string>
+    <string name="restore_default_categories_success">Default categories restored successfully</string>
+    <string name="restore_default_categories_failed">Failed to restore default categories</string>
 
 </resources>

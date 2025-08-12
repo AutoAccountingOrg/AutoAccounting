@@ -100,4 +100,11 @@
         <item>@string/filter_creator_official</item>
     </string-array>
 
+    <!-- Match filter options for data page -->
+    <string-array name="match_options" translatable="false">
+        <item>@string/filter_type_all</item>
+        <item>@string/filter_match_only</item>
+        <item>@string/filter_unmatched_only</item>
+    </string-array>
+
 </resources>
