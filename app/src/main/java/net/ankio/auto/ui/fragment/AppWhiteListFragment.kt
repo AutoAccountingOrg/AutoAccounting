@@ -113,6 +113,8 @@ class AppWhiteListFragment : BasePageFragment<AppInfo, FragmentNoticeBinding>() 
                     selectedApps.add(appInfo.packageName)
                 }
             }
+            // 每次状态变化立即持久化保存白名单，避免依赖页面生命周期
+            PrefManager.appWhiteList = selectedApps
         }
     }
 
