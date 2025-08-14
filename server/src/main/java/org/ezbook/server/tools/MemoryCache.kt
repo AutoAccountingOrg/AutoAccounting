@@ -63,4 +63,31 @@ class MemoryCache {
     data class CacheItem<T>(val value: T, val expireTime: Long) {
         fun isExpired(): Boolean = System.currentTimeMillis() >= expireTime
     }
+
+    companion object {
+        // 单例引用，使用 @Volatile 保证多线程可见性
+        @Volatile
+        private var INSTANCE: MemoryCache? = null
+
+        /**
+         * 获取全局单例实例（线程安全，双重检查）
+         */
+        fun instance(): MemoryCache {
+            // 第一重检查，避免不必要的加锁
+            val localRef = INSTANCE
+            if (localRef != null) return localRef
+
+            // 同步创建实例，确保只初始化一次
+            return synchronized(this) {
+                val again = INSTANCE
+                if (again != null) {
+                    again
+                } else {
+                    val created = MemoryCache()
+                    INSTANCE = created
+                    created
+                }
+            }
+        }
+    }
 }
