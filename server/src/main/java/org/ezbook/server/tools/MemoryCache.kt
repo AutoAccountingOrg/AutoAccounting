@@ -17,77 +17,90 @@ package org.ezbook.server.tools
 
 import java.util.concurrent.TimeUnit
 
+/**
+ * 简单的内存缓存实现，支持LRU淘汰和过期时间
+ * 线程安全，使用synchronized保证并发访问正确性
+ */
 class MemoryCache {
 
-    private val DEFAULT_DURATION_SECONDS = 30L
-    private val MAX_SIZE = 20
-
-    // 使用 LinkedHashMap 实现 LRU，accessOrder = true 表示按访问顺序排序
-    val cacheMap = object : LinkedHashMap<String, CacheItem<*>>(16, 0.75f, true) {
-        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, CacheItem<*>>?): Boolean {
-            return size > MAX_SIZE
-        }
-    }
-
-    @Synchronized
-    fun <T> put(key: String, value: T, durationSeconds: Long = DEFAULT_DURATION_SECONDS) {
-        cacheMap[key] = CacheItem(value, nowPlus(durationSeconds))
-    }
-
-    @Synchronized
-    inline fun <reified T> get(key: String, deleteAfterRead: Boolean = false): T? {
-        val item = cacheMap[key] ?: return null
-        return when {
-            item.isExpired() -> {
-                cacheMap.remove(key); null
-            }
-
-            item.value !is T -> null // 类型不匹配
-            deleteAfterRead -> cacheMap.remove(key)?.value as T
-            else -> item.value as T
-        }
-    }
-
-    @Synchronized
-    fun clear() = cacheMap.clear()
-
-    @Synchronized
-    fun remove(key: String) = cacheMap.remove(key)
-
-    @get:Synchronized
-    val size: Int get() = cacheMap.size
-
-    private fun nowPlus(seconds: Long): Long =
-        System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(seconds)
-
-    data class CacheItem<T>(val value: T, val expireTime: Long) {
-        fun isExpired(): Boolean = System.currentTimeMillis() >= expireTime
-    }
-
     companion object {
-        // 单例引用，使用 @Volatile 保证多线程可见性
-        @Volatile
-        private var INSTANCE: MemoryCache? = null
+        private const val DEFAULT_DURATION_SECONDS = 30L
+        private const val MAX_SIZE = 20
 
-        /**
-         * 获取全局单例实例（线程安全，双重检查）
-         */
-        fun instance(): MemoryCache {
-            // 第一重检查，避免不必要的加锁
-            val localRef = INSTANCE
-            if (localRef != null) return localRef
-
-            // 同步创建实例，确保只初始化一次
-            return synchronized(this) {
-                val again = INSTANCE
-                if (again != null) {
-                    again
-                } else {
-                    val created = MemoryCache()
-                    INSTANCE = created
-                    created
-                }
-            }
-        }
+        // 使用object声明替代复杂的双重检查单例
+        val instance: MemoryCache by lazy { MemoryCache() }
     }
+
+    // LRU缓存实现，accessOrder=true按访问顺序排序
+    private val cache = object : LinkedHashMap<String, CacheItem>(16, 0.75f, true) {
+        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, CacheItem>?) =
+            size > MAX_SIZE
+    }
+
+    /**
+     * 存储数据到缓存
+     * @param key 缓存键
+     * @param value 缓存值
+     * @param durationSeconds 过期时间（秒），默认30秒
+     */
+    @Synchronized
+    fun put(key: String, value: Any, durationSeconds: Long = DEFAULT_DURATION_SECONDS) {
+        cache[key] = CacheItem(
+            value,
+            System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(durationSeconds)
+        )
+    }
+
+    /**
+     * 从缓存获取数据
+     * @param key 缓存键
+     * @return 缓存值，如果不存在或已过期返回null
+     */
+    @Synchronized
+    fun get(key: String): Any? {
+        val item = cache[key] ?: return null
+
+        // 检查是否过期，过期则删除并返回null
+        if (System.currentTimeMillis() >= item.expireTime) {
+            cache.remove(key)
+            return null
+        }
+
+        return item.value
+    }
+
+    /**
+     * 从缓存获取数据并删除
+     * @param key 缓存键
+     * @return 缓存值，如果不存在或已过期返回null
+     */
+    @Synchronized
+    fun pop(key: String): Any? {
+        val value = get(key)
+        if (value != null) cache.remove(key)
+        return value
+    }
+
+    /**
+     * 删除指定缓存项
+     */
+    @Synchronized
+    fun remove(key: String) = cache.remove(key)
+
+    /**
+     * 清空所有缓存
+     */
+    @Synchronized
+    fun clear() = cache.clear()
+
+    /**
+     * 获取当前缓存大小
+     */
+    @get:Synchronized
+    val size: Int get() = cache.size
+
+    /**
+     * 缓存项数据类
+     */
+    data class CacheItem(val value: Any, val expireTime: Long)
 }
