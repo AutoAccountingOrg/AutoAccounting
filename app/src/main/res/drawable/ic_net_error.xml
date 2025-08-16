@@ -2,7 +2,8 @@
     android:width="500dp"
     android:height="500dp"
     android:viewportWidth="500"
-    android:viewportHeight="500">
+    android:viewportHeight="500"
+    android:tint="?colorOnBackground">
     <path
         android:fillColor="#EBEBEB"
         android:pathData="M0,382.4h500v0.25h-500z" />

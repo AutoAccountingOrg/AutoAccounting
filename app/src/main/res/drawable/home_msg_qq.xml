@@ -17,7 +17,8 @@
     android:width="40dp"
     android:height="40dp"
     android:viewportWidth="32"
-    android:viewportHeight="32">
+    android:viewportHeight="32"
+    android:tint="?colorOnBackground">
     <path
         android:fillColor="#202327"
         android:fillType="evenOdd"

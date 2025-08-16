@@ -2,7 +2,8 @@
     android:width="@dimen/image_size"
     android:height="@dimen/image_size"
     android:viewportWidth="960"
-    android:viewportHeight="960">
+    android:viewportHeight="960"
+    android:tint="?colorOnBackground">
     <path
         android:fillColor="#FF000000"
         android:pathData="M417,543L166,543v-126h251v-251h126v251h251v126L543,543v251L417,794v-251Z" />

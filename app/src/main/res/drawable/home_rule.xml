@@ -17,7 +17,8 @@
     android:width="@dimen/icon_size"
     android:height="@dimen/icon_size"
     android:viewportWidth="960"
-    android:viewportHeight="960">
+    android:viewportHeight="960"
+    android:tint="?colorOnBackground">
     <path
         android:fillColor="#FF000000"
         android:pathData="M751,364 L596,209l70,-70q17,-17 42,-17t42,17l71,71q17,17 17,42t-17,42l-70,70ZM120,840v-156l194,-194L93,268l174,-176 223,223 63,-63 155,155 -63,63 223,223L693,866 471,645 276,840L120,840ZM357,447 L447,357 374,284 326,332 284,290 332,242 268,178 178,268 357,447ZM691,782 L781,692 717,628 669,676 627,634 675,586 602,513 512,603 691,782Z" />
