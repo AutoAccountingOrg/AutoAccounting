@@ -1,25 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (C) 2025 ankio(ankio@ankio.net)
+  ~ Copyright (C) 2025 ankio
   ~ Licensed under the Apache License, Version 3.0 (the "License");
-  ~ you may not use this file except in compliance with the License.
-  ~ You may obtain a copy of the License at
-  ~
-  ~         http://www.apache.org/licenses/LICENSE-3.0
-  ~
-  ~  Unless required by applicable law or agreed to in writing, software
-  ~  distributed under the License is distributed on an "AS IS" BASIS,
-  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  ~  See the License for the specific language governing permissions and
-  ~   limitations under the License.
   -->
-
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context=".ui.fragment.RuleEditJsFragment">
+    tools:context=".ui.fragment.RuleEditFragment">
+
+    <!-- 主要内容区域 -->
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/toolbarLayout"
@@ -34,28 +30,138 @@
             android:background="@android:color/transparent"
             android:tag="back_button"
             app:navigationIcon="@drawable/abc_ic_ab_back_material"
-            app:menu="@menu/menu_rule_edit"
             app:title="@string/title_rule_edit" />
-
-
     </com.google.android.material.appbar.AppBarLayout>
 
-    <FrameLayout
+        <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        app:fitsSystemWindowsInsets="bottom">
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <WebView
-            android:id="@+id/webView"
+            <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="invisible" />
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/padding">
 
-    </FrameLayout>
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_marginBottom="@dimen/one_padding"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/rule_name">
 
-    <!-- 操作按钮已移至右上角菜单 -->
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/nameEdit"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+                </com.google.android.material.textfield.TextInputLayout>
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_marginBottom="@dimen/one_padding"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/app">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/appEdit"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:focusable="false"
+                        android:focusableInTouchMode="false"
+                        android:clickable="false"
+                        android:cursorVisible="false" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_marginBottom="@dimen/one_padding"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/rule_type">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/typeEdit"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:focusable="false"
+                        android:focusableInTouchMode="false"
+                        android:clickable="false"
+                        android:cursorVisible="false" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_marginBottom="@dimen/one_padding"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/rule_system_rule_name">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/systemRuleNameEdit"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:focusable="false"
+                        android:focusableInTouchMode="false"
+                        android:clickable="false"
+                        android:cursorVisible="false" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/enabledSwitch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/rule_enable" />
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/autoRecordSwitch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/auto_record" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/rule_edit_rule">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/jsEditInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="120dp"
+                        android:focusable="false"
+                        android:focusableInTouchMode="false"
+                        android:clickable="true"
+                        android:cursorVisible="false"
+                        android:gravity="top|start"
+                        android:inputType="textMultiLine"
+                        android:hint="@string/rule_tap_to_edit" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </LinearLayout>
+        </ScrollView>
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+    <!-- 悬浮保存按钮 -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/saveButton"
+        style="@style/Widget.Material3.Button.UnelevatedButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:text="@string/btn_save"
+        android:contentDescription="@string/btn_save"
+        android:textColor="?attr/colorOnPrimary"
+        android:backgroundTint="?attr/colorPrimary"
+        android:elevation="6dp"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        app:icon="@drawable/ic_save"
+        app:iconGravity="textStart"
+        app:iconPadding="8dp"
+        app:iconTint="?attr/colorOnPrimary"
+        app:cornerRadius="28dp" />
+
+</FrameLayout>
 
 

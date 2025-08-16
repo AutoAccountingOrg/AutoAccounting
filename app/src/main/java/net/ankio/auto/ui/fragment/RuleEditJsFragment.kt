@@ -30,7 +30,7 @@ import androidx.navigation.fragment.findNavController
 import com.google.android.material.color.MaterialColors
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
-import net.ankio.auto.databinding.FragmentRuleEditBinding
+import net.ankio.auto.databinding.FragmentRuleJsEditBinding
 import net.ankio.auto.http.api.AiAPI
 import net.ankio.auto.http.api.JsAPI
 import net.ankio.auto.ui.api.BaseFragment
@@ -46,7 +46,7 @@ import org.ezbook.server.db.model.AppDataModel
  * 简单的 WebView 包装，加载 JS 编辑器，提供运行和保存功能。
  * 不要过度设计，不要无意义的抽象。
  */
-class RuleEditJsFragment : BaseFragment<FragmentRuleEditBinding>() {
+class RuleEditJsFragment : BaseFragment<FragmentRuleJsEditBinding>() {
 
     // 核心数据，使用灵活的 HashMap
     private var jsContent: String = ""
@@ -297,7 +297,6 @@ let $name = {
                     val cleanCode = extractJsCodeFromAiResponse(optimizedCode)
                     if (cleanCode.isNotBlank()) {
                         setJsContent(cleanCode)
-                        ToastUtils.info("AI优化完成")
                     } else {
                         ToastUtils.error(getString(R.string.ai_assist_no_result))
                     }

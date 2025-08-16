@@ -18,8 +18,10 @@ package net.ankio.auto.ui.adapter
 import android.content.Intent
 import android.net.Uri
 import android.view.View
+import android.os.Bundle
 import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.Navigation
 import com.google.android.material.elevation.SurfaceColors
 import com.google.gson.Gson
 import com.google.gson.JsonObject
@@ -29,6 +31,7 @@ import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterDataBinding
 import net.ankio.auto.http.Pastebin
 import net.ankio.auto.http.api.JsAPI
+import net.ankio.auto.http.api.AppDataAPI
 import net.ankio.auto.http.license.RuleAPI
 import net.ankio.auto.intent.IntentType
 import net.ankio.auto.service.CoreService
@@ -45,6 +48,7 @@ import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.DateUtils
 import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.db.model.AppDataModel
+import androidx.navigation.findNavController
 
 class AppDataAdapter(
     private val activity: BaseActivity
@@ -110,7 +114,7 @@ class AppDataAdapter(
                 .setPositiveButton(activity.getString(R.string.btn_confirm)) { _, _ ->
                     removeItem(item)
                     activity.lifecycleScope.launch {
-                        AppDataModel.delete(item.id)
+                        AppDataAPI.delete(item.id)
                     }
                 }
                 .setNegativeButton(activity.getString(R.string.btn_cancel)) { _, _ -> }
@@ -123,8 +127,17 @@ class AppDataAdapter(
 
     }
 
+    /**
+     * 引导进入规则编辑页面
+     * - 默认进入 JS 编辑器（editorType=js）
+     * - 携带当前数据作为 JS 注释注入（type=js, data=item.data）
+     */
     private fun onCreateRule(it: View?, item: AppDataModel) {
-        //TODO 携带数据到规则创建页面
+        if (it == null) return
+        val args = Bundle().apply {
+            putString("data", Gson().toJson(item))
+        }
+        it.findNavController().navigate(R.id.ruleEditFragment, args)
     }
 
 
