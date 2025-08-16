@@ -31,6 +31,7 @@ import com.google.android.material.color.MaterialColors
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentRuleEditBinding
+import net.ankio.auto.http.api.AiAPI
 import net.ankio.auto.http.api.JsAPI
 import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
@@ -183,6 +184,10 @@ let $name = {
                         saveJsCode(); true
                     }
 
+                    R.id.action_ai_assist -> {
+                        optimizeJsWithAi(); true
+                    }
+
                     else -> false
                 }
             }
@@ -257,6 +262,114 @@ let $name = {
     }
 
     /**
+     * 使用AI优化当前JS代码，直接替换编辑器内容
+     */
+    private fun optimizeJsWithAi() {
+        getCurrentJsContent { currentJs ->
+            when {
+                currentJs.isBlank() -> {
+                    ToastUtils.error(getString(R.string.ai_assist_empty_code))
+                    return@getCurrentJsContent
+                }
+
+                else -> requestAiOptimization(currentJs)
+            }
+        }
+    }
+
+    /**
+     * 请求AI优化代码
+     */
+    private fun requestAiOptimization(jsCode: String) {
+        lifecycleScope.launch {
+            val loading = LoadingUtils(requireActivity())
+            loading.show(getString(R.string.ai_assist_optimizing))
+
+            try {
+                val systemPrompt = buildAiSystemPrompt()
+                val userPrompt = buildAiUserPrompt(jsCode)
+                val optimizedCode = AiAPI.request(systemPrompt, userPrompt)
+
+                loading.close()
+
+                if (optimizedCode.isNotBlank()) {
+                    // 提取纯JS代码并设置到编辑器
+                    val cleanCode = extractJsCodeFromAiResponse(optimizedCode)
+                    if (cleanCode.isNotBlank()) {
+                        setJsContent(cleanCode)
+                        ToastUtils.info("AI优化完成")
+                    } else {
+                        ToastUtils.error(getString(R.string.ai_assist_no_result))
+                    }
+                } else {
+                    ToastUtils.error(getString(R.string.ai_assist_no_result))
+                }
+            } catch (e: Exception) {
+                loading.close()
+                Logger.e("AI优化失败: ${e.message}", e)
+                ToastUtils.error(getString(R.string.ai_assist_failed, e.message ?: "Unknown error"))
+            }
+        }
+    }
+
+    /**
+     * 构建AI系统提示
+     */
+    private fun buildAiSystemPrompt(): String {
+        return """你是一个JavaScript代码优化专家，专门优化用于解析账单数据的JS规则。
+
+任务要求：
+1. 分析用户提供的JS代码，理解其解析逻辑
+2. 优化代码结构，提高可读性和性能
+3. 保持原有功能不变，只优化实现方式
+4. 使用更好的正则表达式、字符串处理方法
+5. Income表示收入，Transfer表示转账，Expend表示支出
+6. 对于解析的商户名称和商品信息要尽可能详细；
+7. 如果有卡号，请务必将卡号包含在资产中；
+8. 保持函数签名和返回格式不变
+
+代码要求：
+- 函数名保持原样（如 let rule_xxxx = { get(data) { ... } }）
+- 返回格式必须是 { type, money, shopName, shopItem, accountNameFrom, accountNameTo, fee, currency, time, channel } 或者 null
+- 只返回优化后的完整JS代码，不要添加额外说明
+- 代码要简洁、高效、可读性强"""
+    }
+
+    /**
+     * 构建AI用户提示
+     */
+    private fun buildAiUserPrompt(jsCode: String): String {
+        return """
+这是输入参数            
+```
+$testData
+```
+这是需要优化的JavaScript代码：
+```javascript
+$jsCode
+```
+
+请直接返回优化后的完整代码，不要添加其他说明。"""
+    }
+
+    /**
+     * 从AI响应中提取纯JS代码
+     */
+    private fun extractJsCodeFromAiResponse(response: String): String {
+        // 尝试提取代码块中的内容
+        val codeBlockPattern =
+            "```(?:javascript|js)?\n?(.*?)\n?```".toRegex(RegexOption.DOT_MATCHES_ALL)
+        val match = codeBlockPattern.find(response)
+
+        return if (match != null) {
+            match.groupValues[1].trim()
+        } else {
+            // 如果没有代码块标记，直接清理响应
+            response.trim()
+        }
+    }
+
+    /**
      * 发送结果并返回
      */
     private fun sendResult(jsContent: String) {
@@ -321,7 +434,7 @@ let $name = {
                 BottomSheetDialogBuilder(requireActivity())
                     .setTitle(getString(R.string.execution_result))
                     .setMessage(displayResult)
-                    .setNegativeButton(getString(R.string.confirm)) { _, _ ->
+                    .setPositiveButton(getString(R.string.confirm)) { _, _ ->
                         // 对话框会自动关闭，无需手动调用 dismiss()
                     }
                     .show()

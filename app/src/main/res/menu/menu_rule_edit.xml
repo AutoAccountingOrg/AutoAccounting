@@ -28,4 +28,10 @@
         android:showAsAction="ifRoom"
         android:title="@string/btn_save" />
 
+    <item
+        android:id="@+id/action_ai_assist"
+        android:icon="@drawable/ic_ai"
+        android:showAsAction="ifRoom"
+        android:title="@string/ai_assist" />
+
 </menu>
