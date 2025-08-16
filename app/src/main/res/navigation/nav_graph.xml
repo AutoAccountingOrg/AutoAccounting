@@ -83,12 +83,27 @@
 
     <fragment
         android:id="@+id/ruleFragment"
-        android:name="net.ankio.auto.ui.fragment.RuleDataFragment"
+        android:name="net.ankio.auto.ui.fragment.RuleManageFragment"
         android:label="@string/title_rule"
         tools:layout="@layout/fragment_plugin_rule_list">
 
+        <action
+            android:id="@+id/action_ruleManageFragment_to_ruleEditFragment"
+            app:destination="@id/ruleEditFragment" />
 
     </fragment>
+
+    <fragment
+        android:id="@+id/ruleEditFragment"
+        android:name="net.ankio.auto.ui.fragment.RuleEditFragment"
+        android:label="@string/title_rule_edit"
+        tools:layout="@layout/fragment_rule_edit" />
+
+    <fragment
+        android:id="@+id/ruleEditJsFragment"
+        android:name="net.ankio.auto.ui.fragment.RuleEditJsFragment"
+        android:label="@string/title_rule_edit"
+        tools:layout="@layout/fragment_rule_js_edit" />
 
 
     <fragment

@@ -33,7 +33,7 @@
         android:layout_margin="@dimen/padding"
         android:orientation="vertical">
 
-        <net.ankio.auto.ui.componets.FlowLayoutManager
+        <net.ankio.auto.ui.components.FlowLayoutManager
             android:id="@+id/flexboxLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -42,7 +42,7 @@
             app:flexWrap="wrap"
             app:justifyContent="flex_start">
 
-        </net.ankio.auto.ui.componets.FlowLayoutManager>
+        </net.ankio.auto.ui.components.FlowLayoutManager>
 
         <LinearLayout
             android:id="@+id/status_bar"
