@@ -18,13 +18,10 @@ package net.ankio.auto.ui.fragment.category
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.ArrayAdapter
-import androidx.core.view.size
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
-import com.google.android.material.elevation.SurfaceColors
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.hjq.toast.Toaster
 import net.ankio.auto.R
 import net.ankio.auto.databinding.ComponentCategoryEditBinding
 import net.ankio.auto.databinding.DialogRegexInputBinding
@@ -38,6 +35,7 @@ import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
 import net.ankio.auto.ui.dialog.CategorySelectorDialog
 import net.ankio.auto.ui.dialog.DateTimePickerDialog
 import net.ankio.auto.ui.utils.ListPopupUtils
+import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.BillTool
 import org.ezbook.server.db.model.CategoryRuleModel
 import java.util.Calendar
@@ -177,17 +175,17 @@ class CategoryComponent(
 
         when {
             js.contains("if()") -> {
-                Toaster.show(R.string.useless_condition)
+                ToastUtils.info(R.string.useless_condition)
                 return null
             }
 
             js.contains("book:''") -> {
-                Toaster.show(context.getString(R.string.useless_book))
+                ToastUtils.info(context.getString(R.string.useless_book))
                 return null
             }
 
             js.contains("category:''") -> {
-                Toaster.show(context.getString(R.string.useless_category))
+                ToastUtils.info(context.getString(R.string.useless_category))
                 return null
             }
         }
@@ -248,16 +246,18 @@ class CategoryComponent(
         }
 
         flexboxLayout.appendTextView(activity.getString(R.string.condition_result_book))
+        bookName = lastElement["book"] as String
         flexboxLayout.appendWaveTextview(
-            text = lastElement["book"] as String,
+            text = bookName,
             data = lastElement
         ) { elem, textview ->
             if (readOnly) return@appendWaveTextview
             onClickBook(elem)
         }
         flexboxLayout.appendTextView(activity.getString(R.string.condition_result_category))
+        category = lastElement["category"] as String
         flexboxLayout.appendWaveTextview(
-            text = lastElement["category"] as String,
+            text = category,
             data = lastElement
         ) { elem, textview ->
             if (readOnly) return@appendWaveTextview
@@ -501,7 +501,7 @@ class CategoryComponent(
         val content = inputBinding.content.text.toString().trim()
 
         if (content.isEmpty()) {
-            Toaster.show("请输入有效内容")
+            ToastUtils.info("请输入有效内容")
             return
         }
 
@@ -692,7 +692,7 @@ class CategoryComponent(
         }
 
         if (js.isEmpty()) {
-            Toaster.show(R.string.money_error)
+            ToastUtils.info(R.string.money_error)
             return
         }
 

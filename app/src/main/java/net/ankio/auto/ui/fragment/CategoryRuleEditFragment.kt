@@ -20,7 +20,6 @@ import android.view.View
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.gson.Gson
-import com.hjq.toast.Toaster
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentCategoryRuleEditBinding
@@ -29,6 +28,7 @@ import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.api.bindAs
 import net.ankio.auto.ui.fragment.category.CategoryComponent
+import net.ankio.auto.ui.utils.ToastUtils
 import org.ezbook.server.db.model.CategoryRuleModel
 
 /**
@@ -152,7 +152,7 @@ class CategoryRuleEditFragment : BaseFragment<FragmentCategoryRuleEditBinding>()
             Logger.i("规则保存成功: ${categoryRuleModel.js}")
 
             // 显示成功提示
-            Toaster.show(R.string.save_rule_success)
+            ToastUtils.info(R.string.save_rule_success)
 
             // 返回上一页面
             findNavController().popBackStack()
@@ -166,7 +166,7 @@ class CategoryRuleEditFragment : BaseFragment<FragmentCategoryRuleEditBinding>()
         Logger.e("Fragment初始化失败: ${error.message}")
 
         // 显示错误提示
-        Toaster.show("初始化失败，请重试")
+        ToastUtils.error("初始化失败，请重试")
 
         // 返回上一页面
         findNavController().popBackStack()
