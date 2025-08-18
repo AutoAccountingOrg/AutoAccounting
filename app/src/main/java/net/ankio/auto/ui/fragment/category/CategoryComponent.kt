@@ -160,7 +160,7 @@ class CategoryComponent(
         // 更新规则模型
         categoryRuleModel.js = js
         categoryRuleModel.element = Gson().toJson(elementDataList)
-
+        categoryRuleModel.creator = "user"
         // 验证规则完整性
         return validateRule()
     }
