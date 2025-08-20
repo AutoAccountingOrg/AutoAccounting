@@ -202,25 +202,26 @@ class BillService(
         app: String,
         dataType: DataType
     ): BillInfoModel {
+        Server.logD("解析数据：$result")
         val json = Gson().fromJson(result, JsonObject::class.java)
 
-        // 使用安全调用运算符和默认值
+        // 使用安全的 JSON 访问扩展函数
         return BillInfoModel().apply {
             type = runCatching {
-                BillType.valueOf(json.get("type")?.asString ?: "Expend")
+                BillType.valueOf(json.safeGetString("type", "Expend"))
             }.getOrDefault(BillType.Expend)
 
             this.app = app
-            time = json.get("time")?.asLong ?: System.currentTimeMillis()
-            money = json.get("money")?.asDouble ?: 0.0
-            fee = json.get("fee")?.asDouble ?: 0.0
-            shopName = json.get("shopName")?.asString.orEmpty()
-            shopItem = json.get("shopItem")?.asString.orEmpty()
-            accountNameFrom = json.get("accountNameFrom")?.asString.orEmpty()
-            accountNameTo = json.get("accountNameTo")?.asString.orEmpty()
-            currency = json.get("currency")?.asString.orEmpty()
-            channel = json.get("channel")?.asString.orEmpty()
-            ruleName = json.get("ruleName")?.asString.orEmpty()
+            time = json.safeGetLong("time", System.currentTimeMillis())
+            money = json.safeGetDouble("money", 0.0)
+            fee = json.safeGetDouble("fee", 0.0)
+            shopName = json.safeGetString("shopName")
+            shopItem = json.safeGetString("shopItem")
+            accountNameFrom = json.safeGetString("accountNameFrom")
+            accountNameTo = json.safeGetString("accountNameTo")
+            currency = json.safeGetString("currency")
+            channel = json.safeGetString("channel")
+            ruleName = json.safeGetString("ruleName")
 
             // 根据ruleName判断是否需要自动记录
             val rule = Db.get().ruleDao().query(dataType.name, app, ruleName)
@@ -257,8 +258,8 @@ class BillService(
         }.getOrNull()
 
         // 设置账本名称和分类名称，使用默认值作为回退
-        bill.bookName = categoryJson?.get("book")?.asString ?: "默认账本"
-        bill.cateName = categoryJson?.get("category")?.asString ?: "其他"
+        bill.bookName = categoryJson?.safeGetString("book", "默认账本") ?: "默认账本"
+        bill.cateName = categoryJson?.safeGetString("category", "其他") ?: "其他"
     }
 
     /**
