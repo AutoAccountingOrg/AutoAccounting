@@ -25,6 +25,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Process
 import android.util.TypedValue
+import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.activity.HomeActivity
 import java.math.BigInteger
 import java.security.MessageDigest
@@ -97,13 +98,29 @@ object SystemUtils {
     }
 
     /**
+     * 启动Activity
+     * @param intent 要启动的Intent
+     */
+    fun startActivity(intent: Intent) {
+        try {
+            // 确保Intent有NEW_TASK标志，因为从非Activity上下文启动
+            if (intent.flags and FLAG_ACTIVITY_NEW_TASK == 0) {
+                intent.addFlags(FLAG_ACTIVITY_NEW_TASK)
+            }
+            application.startActivity(intent)
+        } catch (e: Exception) {
+            Logger.e("Failed to start activity", e)
+        }
+    }
+    
+    /**
      * 打开记账软件应用
      */
     fun startBookApp() {
         val packageName = PrefManager.bookApp
         val launchIntent = application.packageManager.getLaunchIntentForPackage(packageName)
         if (launchIntent != null) {
-            application.startActivity(launchIntent)
+            startActivity(launchIntent)
         }
     }
 }
