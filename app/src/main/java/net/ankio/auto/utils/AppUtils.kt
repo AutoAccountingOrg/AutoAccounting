@@ -31,22 +31,17 @@ import net.ankio.auto.autoApp
  * @return 如果已安装返回 true，否则返回 false
  */
 fun Context.isAppInstalled(packageName: String?): Boolean =
-    packageName
-        ?.takeIf { it.isNotBlank() }
-        ?.let {
-            runCatching {
-                // Android 13+ 推荐使用新 API
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    packageManager.getPackageInfo(
-                        it,
-                        PackageManager.PackageInfoFlags.of(0)
-                    )
-                } else {
-                    packageManager.getPackageInfo(it, 0)
-                }
-            }.isSuccess
-        } ?: false
+    PackageManagerCompat.isPackageInstalled(packageManager, packageName)
 
+
+
+/**
+ * 将Context转换为主题化的Context
+ * 应用当前主题设置（动态颜色、夜间模式等）
+ */
+fun Context.toThemeCtx(): Context {
+    return ThemeUtils.themedCtx(this)
+}
 
 data class AppInfo(
     val name: String,
@@ -55,28 +50,14 @@ data class AppInfo(
 )
 
 fun getAppInfoFromPackageName(packageName: String): AppInfo? {
-    return try {
-        val pm = autoApp.packageManager
-
-        val appInfo: ApplicationInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            pm.getApplicationInfo(packageName, PackageManager.ApplicationInfoFlags.of(0))
-        } else {
-            pm.getApplicationInfo(packageName, PackageManager.GET_META_DATA)
-        }
-
-        val appName = pm.getApplicationLabel(appInfo).toString()
-        val appIcon = runCatching { pm.getApplicationIcon(appInfo) }.getOrNull()
-
-        val packageInfo: PackageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            pm.getPackageInfo(packageName, PackageManager.PackageInfoFlags.of(0))
-        } else {
-            pm.getPackageInfo(packageName, PackageManager.GET_META_DATA)
-        }
-
-        val appVersion = packageInfo.versionName ?: ""
-
-        AppInfo(appName, appIcon, appVersion)
-    } catch (e: PackageManager.NameNotFoundException) {
-        null
-    }
+    val pm = autoApp.packageManager
+    
+    val appInfo = PackageManagerCompat.getApplicationInfo(pm, packageName) ?: return null
+    val packageInfo = PackageManagerCompat.getPackageInfo(pm, packageName) ?: return null
+    
+    val appName = pm.getApplicationLabel(appInfo).toString()
+    val appIcon = runCatching { pm.getApplicationIcon(appInfo) }.getOrNull()
+    val appVersion = packageInfo.versionName ?: ""
+    
+    return AppInfo(appName, appIcon, appVersion)
 }

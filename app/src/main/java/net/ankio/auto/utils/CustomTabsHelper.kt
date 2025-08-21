@@ -10,6 +10,7 @@ import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
+import net.ankio.auto.utils.SystemUtils
 
 
 object CustomTabsHelper {
@@ -66,8 +67,8 @@ object CustomTabsHelper {
             } catch (tr: Throwable) {
                 Logger.e("Failed to open default browser", tr)
                 try {
-                    App.copyToClipboard(url)
-                    BottomSheetDialogBuilder(context)
+                    SystemUtils.copyToClipboard(url)
+                    /*BottomSheetDialogBuilder(context)
                         .setTitleInt(R.string.dialog_cannot_open_browser_title)
                         .setMessage(
                             context.getString(
@@ -76,7 +77,7 @@ object CustomTabsHelper {
                             ),
                         )
                         .setPositiveButton(R.string.ok, null)
-                        .show()
+                        .show()*/
                 } catch (ignored: Throwable) {
                 }
             }

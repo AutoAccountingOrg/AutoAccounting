@@ -59,4 +59,22 @@ object DateUtils {
         return calendar.timeInMillis
     }
 
+    /**
+     * 将年月日时分秒转换为时间戳
+     *
+     * @param year 年份
+     * @param month 月份（1-12）
+     * @param day 日期
+     * @param hour 小时（0-23）
+     * @param minute 分钟（0-59）
+     * @param second 秒（0-59）
+     * @return 时间戳（毫秒）
+     */
+    fun getTime(year: Int, month: Int, day: Int, hour: Int, minute: Int, second: Int): Long {
+        val calendar = Calendar.getInstance()
+        calendar.set(year, month - 1, day, hour, minute, second) // month - 1 因为 Calendar 月份从0开始
+        calendar.set(Calendar.MILLISECOND, 0)
+        return calendar.timeInMillis
+    }
+
 }

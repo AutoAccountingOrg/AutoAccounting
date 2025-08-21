@@ -21,7 +21,7 @@ import android.content.res.Resources
 import android.content.res.XmlResourceParser
 import androidx.core.os.ConfigurationCompat
 import net.ankio.auto.R
-import net.ankio.auto.storage.ConfigUtils
+import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.storage.Logger
 import org.ezbook.server.constant.Setting
 import java.util.Locale
@@ -36,11 +36,11 @@ object LanguageUtils {
     }
 
     fun getAppLang(): String {
-        return ConfigUtils.getString(Setting.SYSTEM_LANGUAGE, "SYSTEM")
+        return PrefManager.language
     }
 
     fun setAppLanguage(language: String) {
-        ConfigUtils.putString(Setting.SYSTEM_LANGUAGE, language)
+        PrefManager.language = language
     }
 
     fun getLangList(context: Context): HashMap<String, Any> {
@@ -60,7 +60,7 @@ object LanguageUtils {
         val langList = mutableListOf<String>()
 
         // 打开 XML 文件
-        val parser = context.resources.getXml(R.xml.locale_config)
+        val parser = context.resources.getXml(R.xml.locales_config)
 
         try {
             var eventType = parser.eventType

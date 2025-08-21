@@ -18,14 +18,11 @@ package net.ankio.auto.utils
 import androidx.core.content.ContextCompat
 import com.google.android.material.textview.MaterialTextView
 import net.ankio.auto.R
-import net.ankio.auto.storage.ConfigUtils
-import net.ankio.auto.storage.Logger
+import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.ui.utils.BookAppUtils
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
-import org.ezbook.server.constant.SyncType
-import org.ezbook.server.db.model.BillInfoModel
 
 object BillTool {
 
@@ -33,7 +30,7 @@ object BillTool {
      * 获取页面显示颜色
      */
     fun getColor(type: BillType): Int {
-        val payColor = ConfigUtils.getInt(Setting.EXPENSE_COLOR_RED, DefaultData.EXPENSE_COLOR_RED)
+        val payColor = PrefManager.expenseColorRed
 
         return when (type) {
             BillType.Expend -> if (payColor == 0) R.color.danger else R.color.success
@@ -79,7 +76,7 @@ object BillTool {
     fun getCateName(category1: String, category2: String? = null): String {
 
         val showParent =
-            ConfigUtils.getBoolean(Setting.CATEGORY_SHOW_PARENT, DefaultData.CATEGORY_SHOW_PARENT)
+            PrefManager.categoryShowParent
         if (category2 === null) {
             return category1
         }
@@ -90,18 +87,7 @@ object BillTool {
     }
 
     suspend fun syncBills() {
-        val syncType = ConfigUtils.getString(Setting.SYNC_TYPE, DefaultData.SYNC_TYPE)
-        Logger.d("Sync Type => $syncType")
-        if (syncType != SyncType.WhenOpenApp.name) {
-            val bills = BillInfoModel.sync()
-            Logger.d("Sync Bills => $bills")
-            if (
-                (syncType == SyncType.BillsLimit10.name && bills.size >= 10) ||
-                (syncType == SyncType.BillsLimit5.name && bills.size >= 5) ||
-                (syncType == SyncType.BillsLimit1.name && bills.isNotEmpty())
-            ) {
-                BookAppUtils.syncData()
-            }
-        }
+
+        BookAppUtils.syncData()
     }
 }
