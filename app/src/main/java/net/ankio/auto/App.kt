@@ -67,7 +67,6 @@ open class App : Application() {
             CoroutineManager.launchOnIO(context, block)
         }
 
-
     }
 
     override fun onCreate() {
@@ -95,6 +94,7 @@ open class App : Application() {
      * 非调试模式下初始化Bugly
      */
     private fun initBuglyIfRelease() {
+        ExceptionHandler.init(this)
         if (!PrefManager.debugMode) {
             initBugly()
         }
@@ -133,7 +133,7 @@ open class App : Application() {
     /**
      * 获取语言环境
      */
-    private fun getLocale(tag: String): Locale {
+    fun getLocale(tag: String): Locale {
         return if (tag == "SYSTEM") LocaleDelegate.systemLocale
         else Locale.forLanguageTag(tag)
     }
@@ -152,7 +152,7 @@ open class App : Application() {
      * 初始化Bugly崩溃收集
      */
     private fun initBugly() {
-        ExceptionHandler.init(this)
+
 
         val strategy = CrashReport.UserStrategy(this).apply {
             appVersion = BuildConfig.VERSION_NAME
