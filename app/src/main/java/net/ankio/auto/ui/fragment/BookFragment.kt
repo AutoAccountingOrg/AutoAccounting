@@ -148,7 +148,7 @@ class BookFragment : BaseFragment<FragmentBookBinding>() {
      * @param bookModel 要删除的账本模型
      */
     private fun showDeleteBookDialog(bookModel: BookNameModel) {
-        BottomSheetDialogBuilder(this)
+        BottomSheetDialogBuilder.create(this)
             .setTitle(getString(R.string.delete))
             .setMessage(getString(R.string.delete_book_message, bookModel.name))
             .setPositiveButton(getString(R.string.ok)) { _, _ ->
