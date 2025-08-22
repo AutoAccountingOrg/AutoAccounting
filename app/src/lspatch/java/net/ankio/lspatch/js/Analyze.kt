@@ -20,7 +20,7 @@ import com.google.gson.JsonObject
 import kotlinx.coroutines.delay
 import net.ankio.auto.App
 import net.ankio.auto.intent.WakeupIntent
-import net.ankio.auto.storage.ConfigUtils
+import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.core.utils.BillUtils
@@ -33,7 +33,7 @@ import org.ezbook.server.models.BillResultModel
 object Analyze {
     fun start(type: DataType, data: String, appPackage: String){
         AppRuntime.application = App.app
-        val filter = ConfigUtils.getString(Setting.SMS_FILTER, DefaultData.SMS_FILTER).split(",")
+        val filter = PrefManager.smsFilter.split(",")
 
         if (filter.all { !data.contains(it) }) {
             Logger.d("all filter not contains: $data, $filter")
