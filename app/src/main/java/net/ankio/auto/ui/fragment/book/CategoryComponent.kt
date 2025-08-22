@@ -24,7 +24,7 @@ import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup
 import androidx.recyclerview.widget.SimpleItemAnimator
 import kotlinx.coroutines.launch
 import net.ankio.auto.databinding.ComponentCategoryBinding
-import net.ankio.auto.storage.ConfigUtils
+import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.ui.adapter.CategorySelectorAdapter
 import net.ankio.auto.ui.api.BaseComponent
 import net.ankio.auto.http.api.CategoryAPI
@@ -253,7 +253,7 @@ class CategoryComponent(
         var leftDistanceWithMargin =
             location[0] + view.paddingLeft + params.leftMargin - view.width / 2
 
-        if (ConfigUtils.getBoolean(Setting.USE_ROUND_STYLE, DefaultData.USE_ROUND_STYLE)) {
+        if (PrefManager.uiRoundStyle) {
             leftDistanceWithMargin -= view.width / 2
         }
 

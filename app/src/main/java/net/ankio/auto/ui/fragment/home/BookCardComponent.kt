@@ -48,7 +48,7 @@ class BookCardComponent(binding: CardBookBinding, private val lifecycle: Lifecyc
         binding.btnSwitch.setOnClickListener {
             // 打开记账软件选择弹窗，用户选择后会在对话框内部保存到 PrefManager
             // 依赖于在绑定组件时注入的 Activity（见 HomeFragment 里 bindAs 的传参）
-            AppDialog(activity)
+            AppDialog.create(activity)
                 .setOnClose {
                     // 刷新首页当前记账软件的展示（名称、包名、图标与同步资产按钮可见性）
                     resume()

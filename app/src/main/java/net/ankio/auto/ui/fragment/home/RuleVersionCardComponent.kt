@@ -143,7 +143,8 @@ class RuleVersionCardComponent(
             }
 
             // 显示更新对话框
-            UpdateDialog(update, activity)
+            UpdateDialog.create(activity)
+                .setUpdateModel(update)
                 .setRuleTitle(context.getString(R.string.rule))
                 .setOnClickUpdate {
                     lifecycle.coroutineScope.launch {

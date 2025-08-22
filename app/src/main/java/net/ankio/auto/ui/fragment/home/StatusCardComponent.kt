@@ -163,7 +163,8 @@ class StatusCardComponent(binding: CardStatusBinding, private val lifecycle: Lif
             }
 
             // 显示更新对话框
-            UpdateDialog(update, activity)
+            UpdateDialog.create(activity)
+                .setUpdateModel(update)
                 .setRuleTitle(context.getString(R.string.app))
                 .setOnClickUpdate {
                     val url =

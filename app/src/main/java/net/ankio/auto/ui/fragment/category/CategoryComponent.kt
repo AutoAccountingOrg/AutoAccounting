@@ -34,7 +34,7 @@ import net.ankio.auto.ui.dialog.BookSelectorDialog
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
 import net.ankio.auto.ui.dialog.CategorySelectorDialog
 import net.ankio.auto.ui.dialog.DateTimePickerDialog
-import net.ankio.auto.ui.utils.ListPopupUtils
+import net.ankio.auto.ui.utils.ListPopupUtilsGeneric
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.BillTool
 import org.ezbook.server.db.model.CategoryRuleModel
@@ -279,16 +279,15 @@ class CategoryComponent(
         )
 
         val menuItems = conditionTypes.mapIndexed { index, name -> name to index }.toMap()
-            .toMutableMap() as HashMap<String, Any>
 
-        val listPopupUtils = ListPopupUtils(
+        val listPopupUtils = ListPopupUtilsGeneric<Int>(
             context,
             view,
             menuItems,
             0,
             lifecycle
         ) { _, _, value ->
-            handleConditionTypeSelection(element, value as Int, view)
+            handleConditionTypeSelection(element, value, view)
         }
 
         listPopupUtils.toggle()
@@ -341,21 +340,20 @@ class CategoryComponent(
         val billTypeJS = arrayOf("type === 0", "type === 1")
 
         // 直接创建菜单数据，避免不必要的类型转换
-        val menuItems = hashMapOf<String, Any>()
+        val menuItems = hashMapOf<String, Int>()
         billTypeTexts.forEachIndexed { index, text ->
             menuItems[text] = index
         }
 
 
         // 创建并显示选择弹窗
-        val listPopupUtils = ListPopupUtils(
+        val listPopupUtils = ListPopupUtilsGeneric(
             context,
             view,
             menuItems,
             0,
             lifecycle
-        ) { _, key, value ->
-            val typeIndex = value as Int
+        ) { _, key, typeIndex ->
             val conditionText = context.getString(R.string.type_pay, key)
 
             // 创建新的元素数据
@@ -446,9 +444,9 @@ class CategoryComponent(
         inputBinding.content.setText(savedContent)
 
         // 显示对话框
-        BottomSheetDialogBuilder(fragmentActivity)
+        BottomSheetDialogBuilder.create(fragmentActivity)
             .setTitleInt(titleRes)
-            .setView(inputBinding.root)
+            .addCustomView(inputBinding.root)
             .setPositiveButton(R.string.sure_msg) { _, _ ->
                 handleTextInputConfirm(
                     element,
@@ -458,7 +456,7 @@ class CategoryComponent(
                 )
             }
             .setNegativeButton(R.string.cancel_msg, null)
-            .show(false, true)
+            .show(true)
     }
 
     /**
@@ -613,12 +611,12 @@ class CategoryComponent(
         }
 
         val result = time.split(":")
-        val dialog = DateTimePickerDialog.withCurrentTime(fragmentActivity, true, title)
+        val dialog = DateTimePickerDialog.create(fragmentActivity)
         dialog.setDateTime(0, 0, 0, result[0].toInt(), result[1].toInt())
-        dialog.setOnDateTimeSelectedListener { _, _, _, hour, minute ->
-            callback("$hour:$minute")
-        }
-        dialog.show(false, true)
+            .setTitle(title)
+            .setOnDateTimeSelected { year, month, day, hour, minute ->
+                callback("$hour:$minute")
+            }.show(true)
     }
 
     /**
@@ -637,14 +635,14 @@ class CategoryComponent(
         moneyRangeBinding.lower.setText(elementData.getOrDefault("minAmount", "").toString())
         moneyRangeBinding.higher.setText(elementData.getOrDefault("maxAmount", "").toString())
 
-        BottomSheetDialogBuilder(fragmentActivity)
+        BottomSheetDialogBuilder.create(fragmentActivity)
             .setTitleInt(R.string.money_range)
-            .setView(moneyRangeBinding.root)
+            .addCustomView(moneyRangeBinding.root)
             .setPositiveButton(R.string.sure_msg) { _, _ ->
                 handleMoneyRangeConfirm(element, moneyRangeBinding)
             }
             .setNegativeButton(R.string.cancel_msg, null)
-            .show(false, true)
+            .show(true)
     }
 
     /**
@@ -731,10 +729,9 @@ class CategoryComponent(
             return
         }
 
-        BookSelectorDialog(
-            fragmentActivity,
-            showSelect = false,
-            callback = { bookItem, _ ->
+        BookSelectorDialog.create(fragmentActivity)
+            .setShowSelect(false)
+            .setCallback { bookItem, _ ->
                 bookName = bookItem.name
                 remoteBookId = bookItem.remoteId
 
@@ -745,7 +742,7 @@ class CategoryComponent(
 
                 Logger.d("选择账本: ${bookItem.name} (${bookItem.remoteId})")
             }
-        ).show(cancel = true)
+            .show(cancel = true)
     }
 
     /**
@@ -758,13 +755,13 @@ class CategoryComponent(
             return
         }
 
-        BookSelectorDialog(
-            showSelect = true,
-            callback = { bookModel, type ->
-                CategorySelectorDialog(
-                    book = bookModel.remoteId,
-                    type = type,
-                    callback = { parent, child ->
+        BookSelectorDialog.create(fragmentActivity)
+            .setShowSelect(true)
+            .setCallback { bookModel, type ->
+                CategorySelectorDialog.create(fragmentActivity)
+                    .setBook(bookModel.remoteId)
+                    .setType(type)
+                    .setCallback { parent, child ->
                         val categoryName = if (parent == null) {
                             "其他"
                         } else {
@@ -780,12 +777,10 @@ class CategoryComponent(
                             }
 
                         Logger.d("选择分类: $categoryName")
-                    },
-                    activity = fragmentActivity
-                ).show(cancel = true)
-            },
-            activity = fragmentActivity
-        ).show(cancel = true)
+                    }
+                    .show(cancel = true)
+            }
+            .show(cancel = true)
     }
 
 }
