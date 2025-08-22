@@ -26,6 +26,8 @@ object Setting {
     const val AI_ONE_API_MODEL = "ai_one_api_model"                  // One API模型
     const val API_URI: String = "api_uri"                                  // API地址
     const val API_MODEL: String = "api_model"                              // API模型
+    const val AI_OCR: String = "setting_ai_ocr"                          // 是否启用OCR能力
+    const val AI_AUTO_DETECTION: String = "setting_ai_auto_detection"    // 是否启用自动检测
 
     // ======== 自动记账设置 ========
     const val HOOK_AUTO_SERVER: String = "hook_auto_server"          // 自动记账服务
@@ -37,6 +39,7 @@ object Setting {
     const val AUTO_GROUP = "setting_auto_group"                      // 自动分组（去重）
     const val LISTENER_APP_LIST = "setting_listener_app_list"        // 监听应用列表
     const val PROACTIVELY_MODEL: String = "proactively_model"             // 主动模式
+    const val DATA_FILTER: String = "setting_data_filter"                 // 数据关键词过滤，逗号分隔
 
     // ======== 权限设置 ========
     const val SMS_FILTER: String = "sms_filter"                      // 短信过滤
@@ -72,6 +75,10 @@ object Setting {
     const val EXPENSE_COLOR_RED = "setting_expense_color_red"       // 支出红色显示
     const val NOTE_FORMAT = "setting_note_format"                   // 备注格式
     const val SYSTEM_LANGUAGE = "setting_system_language"           // 系统语言
+    const val UI_DARK_THEME_MODE = "setting_ui_dark_theme_mode"     // 深色主题模式（-1跟随系统/1强制亮/2强制暗等）
+    const val UI_PURE_BLACK = "setting_ui_pure_black"               // 纯黑暗色
+    const val UI_FOLLOW_SYSTEM_ACCENT = "setting_ui_follow_system_accent" // 跟随系统强调色
+    const val UI_THEME_COLOR = "setting_ui_theme_color"             // 主题色标识
 
     // ======== 悬浮窗设置 ========
     const val FLOAT_TIMEOUT_OFF = "setting_float_timeout_off"       // 超时时间
@@ -96,6 +103,11 @@ object Setting {
     const val KEY_FRAMEWORK: String = "framework"                   // 框架标识
     const val LOAD_SUCCESS: String = "load_success"                // 加载成功
     const val DONATE_TIME: String = "donate_time"                  // 捐赠时间
+    const val HIDE_ICON: String = "setting_hide_icon"               // 是否隐藏启动图标
+    const val INTRO_INDEX: String = "setting_intro_index"           // 引导页索引/阶段
+    const val LOCAL_ID: String = "setting_local_id"                 // 本地实例ID
+    const val TOKEN: String = "setting_token"                       // 访问令牌
+    const val GITHUB_CONNECTIVITY: String = "setting_github_connectivity" // GitHub连通性探测
 
     // ======== 更新设置 ========
     const val LAST_UPDATE_CHECK_TIME: String = "last_update_check_time" // 检查更新时间

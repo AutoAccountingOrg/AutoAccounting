@@ -16,19 +16,24 @@
 package org.ezbook.server.constant
 
 object DefaultData {
+    // ======== AI 默认值 ========
     val AI_MODEL: String = "DeepSeek"
+    val USE_AI: Boolean = false
     val USE_AI_FOR_CATEGORIZATION: Boolean = false
+    val AI_AUXILIARY: Boolean = false
+    val AI_OCR: Boolean = false
+    val AI_AUTO_DETECTION: Boolean = false
+
+    // ======== 自动记账 默认值 ========
     const val IGNORE_ASSET: Boolean = false
     const val PROACTIVELY_MODEL: Boolean = true
     const val BOOK_APP_ACTIVITY: String = "com.mutangtech.qianji.bill.auto.AddBillIntentAct"
-    const val SHOW_DUPLICATED_POPUP: Boolean = true
-    const val LANDSCAPE_DND: Boolean = true
-    const val LOAD_SUCCESS: Boolean = false
-    const val AI_AUXILIARY: Boolean = false
     const val SHOW_AUTO_BILL_TIP: Boolean = true
     const val NOTE_FORMAT: String = "【商户名称】【商品名称】"
     const val WECHAT_PACKAGE: String = "com.tencent.mm"
     const val WECHAT_PACKAGE_ALIAS: String = "${WECHAT_PACKAGE}2"
+
+    // 数据过滤关键字（逗号分隔存储）
     val DATA_FILTER = listOf(
         "银行", "信用卡", "借记卡", "公积金",
         "元", "￥", "¥", "人民币",
@@ -40,6 +45,7 @@ object DefaultData {
         "交易", "动账", "账单",
     ).joinToString(",")
 
+    // 监听应用白名单（逗号分隔存储）
     val APP_FILTER = listOf(
         "cmb.pb", // 招商银行
         "cn.gov.pbc.dcep", // 数字人民币
@@ -106,9 +112,10 @@ object DefaultData {
 
     ).joinToString(",")
 
-    // 钱迹
+    // 默认账本应用包名
     val BOOK_APP = "com.mutangtech.qianji"
 
+    // ======== 功能模块 默认值 ========
     val SETTING_ASSET_MANAGER = false
     val SETTING_FEE = false
     val SETTING_BOOK_MANAGER = false
@@ -118,6 +125,7 @@ object DefaultData {
     val SETTING_REMIND_BOOK = false
 
 
+    // ======== 备份/同步/UI/系统 默认值 ========
     val LAST_BACKUP_TIME = 0L
     val AUTO_BACKUP = false
     val USE_WEBDAV = false
@@ -138,14 +146,76 @@ object DefaultData {
 
     val SHOW_RULE_NAME = true
 
+    // ======== 更新 默认值 ========
     val CHECK_RULE_UPDATE = true
     val CHECK_APP_UPDATE = true
+    val RULE_VERSION: String = "none"
+    val RULE_UPDATE_TIME: String = "none"
+    val UPDATE_CHANNEL: String = "stable"
 
-    val USE_AI = false
+    // ======== UI 外观 默认值 ========
+    val UI_PURE_BLACK: Boolean = false
+    val UI_FOLLOW_SYSTEM_ACCENT: Boolean = true
+    val UI_THEME_COLOR: String = "MATERIAL_DEFAULT"
+    val USE_ROUND_STYLE = true
+
     val AUTO_GROUP = true
-    val USE_ROUND_STYLE = false
     val SHOW_SUCCESS_POPUP = true
     val AUTO_CREATE_CATEGORY = false
+
+    // ======== 系统设置 默认值 ========
+    val SYSTEM_LANGUAGE: String = "SYSTEM"
+    val KEY_FRAMEWORK: String = "Xposed"  // 默认工作模式
+    val HIDE_ICON: Boolean = false
+    val INTRO_INDEX: Int = 0
+    val LOCAL_ID: String = ""
+    val TOKEN: String = ""
+    val GITHUB_CONNECTIVITY: Boolean = true
+    val LOAD_SUCCESS: Boolean = false
+    val DONATE_TIME: String = ""
+
+    // ======== AI 完整默认值 ========
+    val API_KEY: String = ""
+    val AI_ONE_API_URI: String = ""
+    val AI_ONE_API_MODEL: String = ""
+    val API_URI: String = ""
+    val API_MODEL: String = ""
+
+    // ======== 自动记账完整默认值 ========
+    val HOOK_AUTO_SERVER: Boolean = false
+    val SETTING_TAG: Boolean = false
+
+    // ======== 权限设置默认值 ========
+    val SMS_FILTER: String = ""
+    val LANDSCAPE_DND: Boolean = true
+
+    // ======== 同步设置默认值 ========
+    val SYNC_TYPE: String = "none"
+    val LAST_SYNC_TIME: Long = 0L
+
+    // ======== 同步哈希默认值 ========
+    val HASH_ASSET: String = ""
+    val HASH_BILL: String = ""
+    val HASH_BOOK: String = ""
+    val HASH_CATEGORY: String = ""
+    val HASH_BAOXIAO_BILL: String = ""
+
+    // ======== UI 完整默认值 ========
+    val USE_SYSTEM_SKIN: Boolean = false
+    val SHOW_DUPLICATED_POPUP: Boolean = true
+
+    // ======== 悬浮窗默认值 ========
+    val FLOAT_TIMEOUT_ACTION: String = "dismiss"
+    val FLOAT_CLICK: String = "show_editor"
+    val FLOAT_LONG_CLICK: String = "dismiss"
+
+    // ======== 更新完整默认值 ========
+    val LAST_UPDATE_CHECK_TIME: Long = 0L
+    val CHECK_UPDATE_TYPE: String = "auto"
+
+    // ======== 脚本默认值 ========
+    val JS_COMMON: String = ""
+    val JS_CATEGORY: String = ""
 
 
 }
