@@ -7,6 +7,7 @@ import net.ankio.auto.adapter.IAppAdapter
 import net.ankio.auto.constant.BookFeatures
 import net.ankio.auto.databinding.FragmentIntroPageFeatureBinding
 import net.ankio.auto.ui.adapter.IntroPagerAdapter
+import net.ankio.auto.ui.components.ExpandableCardView
 import net.ankio.auto.utils.PrefManager
 
 /**
@@ -103,7 +104,7 @@ class IntroPageFeatureFragment :
 
     /** 组合数据类，便于统一管理 */
     private data class FeatureBinding(
-        val card: net.ankio.auto.ui.components.ExpandableCardView,
+        val card: ExpandableCardView,
         val getter: () -> Boolean,
         val setter: (Boolean) -> Unit
     )

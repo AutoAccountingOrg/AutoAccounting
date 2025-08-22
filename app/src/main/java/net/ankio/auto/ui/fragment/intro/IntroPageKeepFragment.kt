@@ -4,18 +4,15 @@ import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings
 import android.view.View
 import net.ankio.auto.R
-import net.ankio.auto.constant.WorkMode
 import net.ankio.auto.databinding.FragmentIntroPageKeepBinding
 import net.ankio.auto.ui.adapter.IntroPagerAdapter
 import net.ankio.auto.ui.components.ExpandableCardView
 import net.ankio.auto.ui.utils.ToastUtils
-import net.ankio.auto.utils.PrefManager
 import androidx.core.net.toUri
 import net.ankio.auto.adapter.AppAdapterManager
 

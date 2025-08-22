@@ -14,6 +14,7 @@ import net.ankio.auto.adapter.AppAdapterManager
 import net.ankio.auto.databinding.FragmentIntroPageSyncBinding
 import net.ankio.auto.ui.adapter.IntroPagerAdapter
 import net.ankio.auto.http.api.BookNameAPI
+import net.ankio.auto.utils.toThemeColor
 
 class IntroPageSyncFragment : BaseIntroPageFragment<FragmentIntroPageSyncBinding>() {
 
@@ -58,7 +59,7 @@ class IntroPageSyncFragment : BaseIntroPageFragment<FragmentIntroPageSyncBinding
                         binding.syncImage,
                         ContextCompat.getColorStateList(
                             requireContext(),
-                            App.getThemeAttrColor(com.google.android.material.R.attr.colorPrimary)
+                            com.google.android.material.R.attr.colorPrimary.toThemeColor()
                         )
                     )
                 }

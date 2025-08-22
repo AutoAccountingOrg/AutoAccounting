@@ -4,11 +4,9 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.net.toUri
 import com.bumptech.glide.Glide
-import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.adapter.AppAdapterManager
 import net.ankio.auto.adapter.IAppAdapter
-import net.ankio.auto.constant.WorkMode
 import net.ankio.auto.databinding.FragmentIntroPageAppBinding
 import net.ankio.auto.ui.adapter.IntroPagerAdapter
 import net.ankio.auto.ui.components.ExpandableCardView
