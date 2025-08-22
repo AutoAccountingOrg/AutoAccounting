@@ -112,7 +112,7 @@ class LogFragment : BasePageFragment<LogModel, FragmentLogBinding>() {
                 // 清空日志数据
                 R.id.item_clear -> {
                     // 显示确认对话框
-                    BottomSheetDialogBuilder(this)
+                    BottomSheetDialogBuilder.create(this)
                         .setTitle(requireActivity().getString(R.string.delete_data))
                         .setMessage(requireActivity().getString(R.string.delete_msg))
                         .setPositiveButton(requireActivity().getString(R.string.sure_msg)) { _, _ ->

@@ -430,7 +430,7 @@ $jsCode
 
             if (result.isNotBlank()) {
                 val displayResult = extractAndFormatData(result)
-                BottomSheetDialogBuilder(requireActivity())
+                BottomSheetDialogBuilder.create(requireActivity())
                     .setTitle(getString(R.string.execution_result))
                     .setMessage(displayResult)
                     .setPositiveButton(getString(R.string.confirm)) { _, _ ->

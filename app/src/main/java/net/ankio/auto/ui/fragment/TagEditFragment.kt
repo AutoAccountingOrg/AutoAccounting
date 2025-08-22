@@ -211,8 +211,8 @@ class TagEditFragment : BaseFragment<FragmentTagEditBinding>() {
      * 显示颜色选择器
      */
     private fun showColorPicker() {
-        ColorPickerDialog(requireActivity())
-            .setColorConfig(tagModel.color) { selectedColor ->
+        ColorPickerDialog.create(this)
+            .setInitialColor(tagModel.color).setOnColorSelected { selectedColor ->
                 tagModel.color = selectedColor
                 updateColorDisplay(selectedColor)
             }

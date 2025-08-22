@@ -89,7 +89,7 @@ class TagFragment : BaseFragment<FragmentTagBinding>(), Toolbar.OnMenuItemClickL
      * @param tag 要删除的标签
      */
     private fun showDeleteTagDialog(tag: org.ezbook.server.db.model.TagModel) {
-        BottomSheetDialogBuilder(this)
+        BottomSheetDialogBuilder.create(this)
             .setTitle(getString(R.string.delete_tag))
             .setMessage(getString(R.string.delete_tag_message, tag.name))
             .setPositiveButton(getString(R.string.ok)) { _, _ ->
@@ -142,7 +142,7 @@ class TagFragment : BaseFragment<FragmentTagBinding>(), Toolbar.OnMenuItemClickL
      * 显示恢复默认标签确认对话框
      */
     private fun showRestoreDefaultTagsDialog() {
-        BottomSheetDialogBuilder(this)
+        BottomSheetDialogBuilder.create(this)
             .setTitle(getString(R.string.restore_default_tags_title))
             .setMessage(getString(R.string.restore_default_tags_message))
             .setPositiveButton(getString(R.string.ok)) { _, _ ->
