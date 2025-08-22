@@ -277,7 +277,7 @@ object PrefManager {
 
     /** 深色主题模式 - 取值遵循 AppCompatDelegate.MODE_NIGHT_* */
     var darkTheme: Int
-        get() = getInt(Setting.UI_DARK_THEME_MODE, DefaultData.UI_DARK_THEME_MODE)
+        get() = getInt(Setting.UI_DARK_THEME_MODE, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
         set(value) = putInt(Setting.UI_DARK_THEME_MODE, value)
 
     /** 纯黑暗色开关 - 深色模式下是否使用纯黑背景 */

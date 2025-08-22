@@ -84,12 +84,14 @@ class ExceptionHandler private constructor(private val context: Context) :
         Logger.e("Handler UncaughtException", e)
         saveLogToLocal(context, msg)
         // Bugly 上报
+        if (!PrefManager.debugMode)
         CrashReport.postCatchedException(e)
 
         // 跳转错误界面
         try {
             val intent = Intent(context, ErrorActivity::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK) // 清除其他Activity
             intent.putExtra("msg", msg)
             intent.putExtra("isErrorActivity", true)
             context.startActivity(intent)
