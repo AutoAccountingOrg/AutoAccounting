@@ -77,7 +77,7 @@ class AssetMapFragment : BasePageFragment<AssetsMapModel, FragmentMapBinding>() 
 
         // 设置添加按钮点击事件
         binding.addButton.setOnClickListener {
-            AssetsMapDialog(this) { model ->
+            AssetsMapDialog.create(this).setOnClose { model ->
                 lifecycleScope.launch {
                     AssetsMapAPI.put(model)
                     reload()
@@ -103,7 +103,7 @@ class AssetMapFragment : BasePageFragment<AssetsMapModel, FragmentMapBinding>() 
      * 显示重新应用确认对话框
      */
     private fun showReapplyConfirmDialog() {
-        BottomSheetDialogBuilder(this)
+        BottomSheetDialogBuilder.create(this)
             .setTitleInt(R.string.reapply_confirm_title)
             .setMessage(R.string.reapply_confirm_message)
             .setPositiveButton(R.string.sure_msg) { _, _ ->

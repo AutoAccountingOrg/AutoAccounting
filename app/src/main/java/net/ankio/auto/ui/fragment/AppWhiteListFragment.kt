@@ -23,17 +23,13 @@ import androidx.appcompat.widget.SearchView
 import androidx.navigation.fragment.findNavController
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentNoticeBinding
-import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.storage.Logger
-import net.ankio.auto.storage.SpUtils
 import net.ankio.auto.ui.adapter.AppAdapter
 import net.ankio.auto.ui.api.BasePageFragment
 import net.ankio.auto.ui.components.MaterialSearchView
 import net.ankio.auto.ui.components.WrapContentLinearLayoutManager
 import net.ankio.auto.ui.models.AppInfo
 import net.ankio.auto.utils.PrefManager
-import org.ezbook.server.constant.DefaultData
-import org.ezbook.server.constant.Setting
 
 /**
  * 通知来源应用选择 Fragment

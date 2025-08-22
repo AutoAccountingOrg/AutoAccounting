@@ -34,7 +34,7 @@ import net.ankio.auto.ui.api.bindAs
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
 import net.ankio.auto.ui.fragment.book.AssetComponent
 import net.ankio.auto.ui.utils.DisplayUtils.dp2px
-import net.ankio.auto.ui.utils.ListPopupUtils
+import net.ankio.auto.ui.utils.ListPopupUtilsGeneric
 import net.ankio.auto.ui.utils.ToastUtils
 import org.ezbook.server.constant.AssetsType
 import org.ezbook.server.db.model.AssetsModel
@@ -225,10 +225,10 @@ class AssetFragment : BaseFragment<FragmentAssetBinding>() {
                 getString(R.string.delete) to "delete"
             )
 
-            ListPopupUtils(
+            ListPopupUtilsGeneric<String>(
                 context = requireContext(),
                 anchor = anchorView,
-                list = actionMap as HashMap<String, Any>,
+                list = actionMap,
                 value = "",
                 lifecycle = lifecycle
             ) { _, _, value ->
@@ -243,7 +243,7 @@ class AssetFragment : BaseFragment<FragmentAssetBinding>() {
          * 显示删除资产确认对话框
          */
         private fun showDeleteAssetDialog(asset: AssetsModel) {
-            BottomSheetDialogBuilder(this)
+            BottomSheetDialogBuilder.create(this)
                 .setTitle(getString(R.string.delete_asset))
                 .setMessage(getString(R.string.delete_asset_message, asset.name))
                 .setPositiveButton(getString(R.string.ok)) { _, _ ->
