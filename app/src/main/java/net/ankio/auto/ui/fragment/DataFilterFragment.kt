@@ -15,19 +15,17 @@
 
 package net.ankio.auto.ui.fragment
 
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.View
-import android.content.res.ColorStateList
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.chip.Chip
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentDataFilterBinding
-import net.ankio.auto.storage.ConfigUtils
 import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.dialog.EditorDialogBuilder
 import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.utils.toThemeColor
-import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
 
 /**
@@ -95,7 +93,7 @@ class DataFilterFragment : BaseFragment<FragmentDataFilterBinding>() {
      */
     private fun showInput(text: String, chip: Chip? = null) {
         // 使用统一的 EditorDialogBuilder 构建输入对话框
-        EditorDialogBuilder(this)
+        EditorDialogBuilder.create(this)
             .setTitleInt(R.string.add_filter)
             .setMessage(text)
             .setEditorPositiveButton(R.string.sure_msg) { input ->
