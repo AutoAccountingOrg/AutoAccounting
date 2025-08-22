@@ -74,12 +74,8 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
      *
      * @return 应用数据模型列表
      */
-    override suspend fun loadData(): List<AppDataModel> {
-        Logger.d("Loading data with params: app=$app, type=$type, match=$match, page=$page, pageSize=$pageSize, searchData='$searchData'")
-        val result = AppDataAPI.list(app, type, match, page, pageSize, searchData)
-        Logger.d("Loaded ${result.size} data items")
-        return result
-    }
+    override suspend fun loadData(): List<AppDataModel> =
+        AppDataAPI.list(app, type, match, page, pageSize, searchData)
 
     /**
      * 创建数据适配器
@@ -277,7 +273,7 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
                     return true
                 }
 
-                BottomSheetDialogBuilder(this)
+                BottomSheetDialogBuilder.create(this)
                     .setTitle(requireActivity().getString(R.string.delete_data))
                     .setMessage(requireActivity().getString(R.string.delete_msg))
                     .setPositiveButton(requireActivity().getString(R.string.sure_msg)) { _, _ ->
