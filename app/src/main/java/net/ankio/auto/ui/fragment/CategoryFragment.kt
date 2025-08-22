@@ -38,7 +38,7 @@ import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
 import net.ankio.auto.ui.fragment.book.CategoryComponent
 import net.ankio.auto.ui.utils.CategoryUtils
 import net.ankio.auto.ui.utils.DisplayUtils.dp2px
-import net.ankio.auto.ui.utils.ListPopupUtils
+import net.ankio.auto.ui.utils.ListPopupUtilsGeneric
 import net.ankio.auto.ui.utils.ToastUtils
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.BookNameModel
@@ -162,14 +162,12 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>(),
      * 显示账本选择对话框
      */
     private fun showBookSelectorDialog() {
-        val dialog = BookSelectorDialog(
-            showSelect = false,
-            callback = { bookModel, _ ->
+        val dialog = BookSelectorDialog.create(this)
+            .setShowSelect(false)
+            .setCallback { bookModel, _ ->
                 selectedBook = bookModel
                 initializeCategoryTabs()
-            },
-            activity = requireActivity()
-        )
+            }
         dialog.show()
     }
 
@@ -227,7 +225,7 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>(),
             ToastUtils.error(getString(R.string.select_book_first))
             return
         }
-        BottomSheetDialogBuilder(this)
+        BottomSheetDialogBuilder.create(this)
             .setTitle(getString(R.string.restore_default_categories_title))
             .setMessage(getString(R.string.restore_default_categories_message))
             .setPositiveButton(getString(R.string.ok)) { _, _ ->
@@ -401,10 +399,10 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>(),
                 getString(R.string.delete) to "delete"
             )
 
-            ListPopupUtils(
+            ListPopupUtilsGeneric<String>(
                 context = requireContext(),
                 anchor = anchorView,
-                list = actionMap as HashMap<String, Any>,
+                list = actionMap,
                 value = "",
                 lifecycle = lifecycle
             ) { position, key, value ->
@@ -430,7 +428,7 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>(),
          * 显示删除分类确认对话框
          */
         private fun showDeleteCategoryDialog(category: CategoryModel) {
-            BottomSheetDialogBuilder(this)
+            BottomSheetDialogBuilder.create(this)
                 .setTitle(getString(R.string.delete_category))
                 .setMessage(getString(R.string.delete_category_message, category.name))
                 .setPositiveButton(getString(R.string.ok)) { _, _ ->
