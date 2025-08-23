@@ -53,7 +53,7 @@ class FloatingWindowTriggerActivity : BaseActivity() {
                 serviceManager.requestProjectionPermission()
             }
         )
-        serviceManager.requestProjectionPermission()
+        if (!serviceManager.isReady()) serviceManager.requestProjectionPermission()
     }
 
     private fun createOnePxWindow() {
@@ -86,7 +86,7 @@ class FloatingWindowTriggerActivity : BaseActivity() {
         // 1. 超时检查
         if (t < System.currentTimeMillis() - Constants.INTENT_TIMEOUT) {
             Logger.e("Intent已超时: 时间戳=$t")
-            finish()
+            finishAffinity()
             return
         }
 
@@ -101,7 +101,7 @@ class FloatingWindowTriggerActivity : BaseActivity() {
                     "package:$packageName".toUri()
                 ).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             )
-            finish()
+            finishAffinity()
             return
         }
 
@@ -118,7 +118,7 @@ class FloatingWindowTriggerActivity : BaseActivity() {
 
             if (waitCount >= maxWaitCount) {
                 Logger.e("等待ServiceManager就绪超时")
-                finish()
+                finishAffinity()
                 return@launch
             }
 
@@ -133,7 +133,7 @@ class FloatingWindowTriggerActivity : BaseActivity() {
             } catch (e: Exception) {
                 Logger.e("启动服务失败: ${e.message}", e)
             } finally {
-                finish()
+                finishAffinity()
             }
 
         }
