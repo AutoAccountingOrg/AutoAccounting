@@ -17,7 +17,6 @@ import com.google.android.material.color.MaterialColors
 import net.ankio.auto.R
 import net.ankio.auto.constant.WorkMode
 import net.ankio.auto.databinding.FragmentIntroPagePermissionBinding
-import net.ankio.auto.service.FloatingWindowService
 import net.ankio.auto.service.NotificationService
 import net.ankio.auto.service.SmsReceiver
 import net.ankio.auto.ui.adapter.IntroPagerAdapter
@@ -26,7 +25,9 @@ import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.xposed.XposedModule
 import net.ankio.auto.service.OcrService
-import net.ankio.auto.service.utils.ProjectionGateway
+import net.ankio.auto.service.OverlayService
+import net.ankio.auto.service.ocr.ProjectionGateway
+import net.ankio.auto.service.overlay.BillWindowManager
 
 /**
  * 引导页 #3 – 权限申请
@@ -110,8 +111,8 @@ class IntroPagePermissionFragment : BaseIntroPageFragment<FragmentIntroPagePermi
                     iconRes = R.drawable.ic_overlay,
                     titleRes = R.string.perm_overlay_title,
                     descRes = R.string.perm_overlay_desc,
-                    checkGranted = { FloatingWindowService.hasPermission() },
-                    onClick = { FloatingWindowService.startPermissionActivity(ctx) }
+                    checkGranted = { OverlayService.hasPermission() },
+                    onClick = { OverlayService.startPermissionActivity(ctx) }
                 )
             )
 
