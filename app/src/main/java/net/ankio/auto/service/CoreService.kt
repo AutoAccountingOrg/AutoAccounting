@@ -4,12 +4,8 @@ import android.app.Activity
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.Service
 import android.content.Intent
-import android.os.IBinder
 import androidx.core.app.NotificationCompat
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleService
 import net.ankio.auto.R
 import net.ankio.auto.constant.WorkMode
@@ -23,29 +19,17 @@ import net.ankio.auto.utils.PrefManager
  */
 class CoreService : LifecycleService() {
 
-
     /** 通知ID，用于前台服务通知 */
-    private val NOTIF_ID = 1000
+    private val notificationId = 1000
 
     /** 通知渠道ID，用于创建通知渠道 */
-    private val CHANNEL_ID = "core_service"
+    private val channelId = "core_service"
 
-    /**
-     * 服务列表，根据工作模式动态决定启用的服务
-     * Xposed模式下只启用悬浮窗服务
-     * 其他模式下启用所有服务：服务器服务、OCR服务和悬浮窗服务
-     */
-    private val services = if (PrefManager.workMode === WorkMode.Xposed) {
-        listOf<ICoreService>(
-            FloatingService()
-        )
-    } else {
-        listOf(
-            ServerService(),  // 自动记账的服务模块
-            OcrService(),     // OCR服务
-            FloatingService() // 悬浮窗服务
-        )
-    }
+    /** 服务列表，在onCreate中根据工作模式动态初始化 */
+    private lateinit var services: List<ICoreService>
+
+    /** 通知渠道是否已创建的标志 */
+    private var isNotificationChannelCreated = false
 
     /**
      * 服务创建时调用
@@ -54,29 +38,75 @@ class CoreService : LifecycleService() {
      */
     override fun onCreate() {
         super.onCreate()
-        Logger.i("onCreate invoked，PrefManager.workMode = ${PrefManager.workMode}")
-        createNotificationChannel()
-        startForeground(NOTIF_ID, buildNotification())
+        Logger.i("服务创建，工作模式 = ${PrefManager.workMode}")
 
+        // 根据工作模式初始化服务列表
+        initializeServices()
+
+        createNotificationChannel()
+        startForeground(notificationId, buildNotification())
+
+        // 初始化所有子服务
+        initializeChildServices()
+    }
+
+    /**
+     * 根据工作模式初始化服务列表
+     * Xposed模式下只启用悬浮窗服务
+     * 其他模式下启用所有服务：服务器服务、OCR服务和悬浮窗服务
+     */
+    private fun initializeServices() {
+        services = if (PrefManager.workMode === WorkMode.Xposed) {
+            listOf<ICoreService>(
+                FloatingService()
+            )
+        } else {
+            listOf(
+                ServerService(),  // 自动记账的服务模块
+                OcrService(),     // OCR服务
+                FloatingService() // 悬浮窗服务
+            )
+        }
+        Logger.i("已为工作模式 ${PrefManager.workMode} 初始化 ${services.size} 个服务")
+    }
+
+    /**
+     * 初始化所有子服务
+     * 为每个服务提供错误处理和日志记录
+     */
+    private fun initializeChildServices() {
+        var successCount = 0
+        var failureCount = 0
+        
         services.forEach { service ->
             try {
-                Logger.i("Initializing service: ${service.javaClass.simpleName}")
+                Logger.i("正在初始化服务: ${service.javaClass.simpleName}")
                 service.onCreate(this)
+                successCount++
             } catch (e: Exception) {
-                Logger.e("Error initializing ${service.javaClass.simpleName}: ${e.message}", e)
+                Logger.e("初始化服务 ${service.javaClass.simpleName} 失败: ${e.message}", e)
+                failureCount++
             }
         }
+
+        Logger.i("服务初始化完成: 成功 $successCount 个，失败 $failureCount 个")
     }
 
     /**
      * 创建通知渠道
      * 配置为低优先级通知，不显示角标，无声音和震动
+     * 避免重复创建通知渠道
      */
     private fun createNotificationChannel() {
-        Logger.d("Creating notification channel: $CHANNEL_ID")
+        if (isNotificationChannelCreated) {
+            Logger.d("通知渠道已创建，跳过")
+            return
+        }
+
+        Logger.d("正在创建通知渠道: $channelId")
         val nm = getSystemService(NotificationManager::class.java)
         val channel = NotificationChannel(
-            CHANNEL_ID,
+            channelId,
             getString(R.string.app_name),
             NotificationManager.IMPORTANCE_LOW  // 低打扰
         ).apply {
@@ -88,6 +118,8 @@ class CoreService : LifecycleService() {
             description = getString(R.string.service_channel_description)
         }
         nm.createNotificationChannel(channel)
+        isNotificationChannelCreated = true
+        Logger.d("通知渠道创建成功")
     }
 
     /**
@@ -96,7 +128,7 @@ class CoreService : LifecycleService() {
      * @return 配置好的通知对象
      */
     private fun buildNotification(): Notification {
-        return NotificationCompat.Builder(this, CHANNEL_ID)
+        return NotificationCompat.Builder(this, channelId)
             .setSmallIcon(R.drawable.icon_auto)
             .setContentTitle(getString(R.string.service_notification_title))
             .setOngoing(true)
@@ -118,13 +150,13 @@ class CoreService : LifecycleService() {
      */
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
-        Logger.i("onStartCommand received - intent=$intent, flags=$flags, startId=$startId")
+        Logger.i("收到启动命令 - intent=$intent, flags=$flags, startId=$startId")
         services.forEach { service ->
             try {
                 service.onStartCommand(intent, flags, startId)
             } catch (e: Exception) {
                 Logger.e(
-                    "Error in onStartCommand for ${service.javaClass.simpleName}: ${e.message}",
+                    "服务 ${service.javaClass.simpleName} 处理启动命令失败: ${e.message}",
                     e
                 )
             }
@@ -137,15 +169,36 @@ class CoreService : LifecycleService() {
      * 停止前台服务并销毁所有子服务
      */
     override fun onDestroy() {
-        stopForeground(STOP_FOREGROUND_REMOVE)
-        services.forEach { service ->
-            try {
-                Logger.i("Destroying service: ${service.javaClass.simpleName}")
-                service.onDestroy()
-            } catch (e: Exception) {
-                Logger.e("Error destroying ${service.javaClass.simpleName}: ${e.message}", e)
-            }
+        Logger.i("服务销毁，正在清理子服务")
+
+        // 停止前台服务
+        try {
+            stopForeground(STOP_FOREGROUND_REMOVE)
+        } catch (e: Exception) {
+            Logger.e("停止前台服务失败: ${e.message}", e)
         }
+
+        // 销毁所有子服务
+        if (::services.isInitialized) {
+            var successCount = 0
+            var failureCount = 0
+
+            services.forEach { service ->
+                try {
+                    Logger.i("正在销毁服务: ${service.javaClass.simpleName}")
+                    service.onDestroy()
+                    successCount++
+                } catch (e: Exception) {
+                    Logger.e("销毁服务 ${service.javaClass.simpleName} 失败: ${e.message}", e)
+                    failureCount++
+                }
+            }
+
+            Logger.i("服务销毁完成: 成功 $successCount 个，失败 $failureCount 个")
+        } else {
+            Logger.w("服务未初始化，跳过销毁")
+        }
+        
         super.onDestroy()
     }
 
@@ -154,16 +207,22 @@ class CoreService : LifecycleService() {
          * 启动核心服务的静态方法
          * @param activity 启动服务的Activity上下文
          * @param intent 可选的额外Intent参数
+         * @return 是否成功启动服务
          */
-        fun start(activity: Activity, intent: Intent? = null) {
-            val targetIntent = Intent(activity, CoreService::class.java).apply {
-                intent?.extras?.let(::putExtras)
-            }
-            Logger.i("Starting CoreService via companion.start")
-            try {
+        fun start(activity: Activity, intent: Intent? = null): Boolean {
+            return try {
+                val targetIntent = Intent(activity, CoreService::class.java).apply {
+                    intent?.extras?.let(::putExtras)
+                }
+                Logger.i("通过伴生对象启动核心服务，工作模式: ${PrefManager.workMode}")
+                
                 activity.startForegroundService(targetIntent)
+                Logger.i("核心服务启动成功")
+                true
+
             } catch (e: Exception) {
-                Logger.e("Failed to start service: ${e.message}", e)
+                Logger.e("启动服务时未知异常: ${e.message}", e)
+                false
             }
         }
     }
