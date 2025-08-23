@@ -133,7 +133,7 @@ object DefaultData {
     val WEBDAV_USER = ""
     val WEBDAV_PASSWORD = ""
     val DEBUG_MODE = false
-    val FLOAT_TIMEOUT_OFF = "10"
+    val FLOAT_TIMEOUT_OFF = 10
     val DEFAULT_BOOK_NAME = "默认账本"
 
     val EXPENSE_COLOR_RED = 0

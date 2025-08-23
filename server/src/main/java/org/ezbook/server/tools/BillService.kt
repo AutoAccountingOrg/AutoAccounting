@@ -16,6 +16,8 @@
 package org.ezbook.server.tools
 
 import android.content.Context
+import android.content.res.Configuration
+import android.widget.Toast
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
@@ -26,12 +28,14 @@ import org.ezbook.server.ai.tools.BillTool
 import org.ezbook.server.constant.BillState
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.constant.DataType
+import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.AppDatabase
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.AppDataModel
 import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.engine.JsExecutor
 import org.ezbook.server.engine.RuleGenerator
+import org.ezbook.server.intent.BillInfoIntent
 import org.ezbook.server.models.BillResultModel
 import org.ezbook.server.models.ResultModel
 import org.ezbook.server.server.AnalysisParams
@@ -60,6 +64,58 @@ class BillService(
     private val jsExecutor: JsExecutor = JsExecutor()
 ) : Closeable {
 
+    /**
+     * 启动自动记账面板
+     * @param billInfoModel 账单信息模型
+     * @param parent 父账单信息
+     * @param dnd 横屏勿扰
+     */
+    private suspend fun startAutoPanel(
+        billInfoModel: BillInfoModel,
+        parent: BillInfoModel?,
+        dnd: Boolean = false
+    ) {
+        val isLandscape = isLandscapeMode()
+        Server.log("横屏状态：$isLandscape, 是否横屏勿扰：$dnd")
+        // 检查横屏状态并处理
+        if (isLandscape && dnd) {
+            Toast.makeText(
+                Server.application,
+                "账单金额：${billInfoModel.money}，横屏状态下为您自动暂存。",
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
+
+        // 创建并启动悬浮窗
+        launchFloatingWindow(billInfoModel, parent)
+    }
+
+    /**
+     * 检查当前设备是否处于横屏模式
+     * @return Boolean 如果是横屏返回true，否则返回false
+     */
+    private fun isLandscapeMode(): Boolean =
+        Server.application.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+
+
+    /**
+     * 启动悬浮窗口来显示账单信息
+     * @param billInfoModel 要显示的账单信息模型
+     * @param parent 父账单信息，可能为null，用于关联相关账单
+     * @throws SecurityException 如果应用没有必要的权限
+     */
+    private suspend fun launchFloatingWindow(billInfoModel: BillInfoModel, parent: BillInfoModel?) {
+        val intent = BillInfoIntent(billInfoModel, "JsRoute", parent).toIntent()
+        Server.log("拉起自动记账悬浮窗口：$intent")
+
+        runCatching {
+            Server.application.startActivity(intent)
+        }.onFailure { throwable ->
+            Server.log("自动记账悬浮窗拉起失败：$throwable")
+            Server.log(throwable)
+        }
+    }
     /**
      * 分析账单数据的主要入口方法
      *
@@ -118,6 +174,13 @@ class BillService(
                 appDataModel.rule = billInfo.ruleName
                 appDataModel.version = ""
                 Db.get().dataDao().update(appDataModel)
+            }
+
+
+            // 拉起悬浮窗
+            if (!analysisParams.fromAppData) {
+                val dnd = Db.get().settingDao().query(Setting.LANDSCAPE_DND)?.value !== "false"
+                startAutoPanel(billInfo, parentBillInfo, dnd)
             }
 
             // 返回成功结果

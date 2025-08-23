@@ -15,21 +15,18 @@
 
 package org.ezbook.server.intent
 
-import android.content.ComponentName
 import android.content.Intent
 import com.google.gson.Gson
-import org.ezbook.server.Server
 import org.ezbook.server.db.model.BillInfoModel
 
-data class FloatingIntent(
+data class BillInfoIntent(
     val billInfoModel: BillInfoModel,
-    val showTip: Boolean,
     val from: String,
     val parent: BillInfoModel? = null,
 ) : BaseIntent(IntentType.FloatingIntent) {
 
     companion object {
-        fun parse(intent: Intent): FloatingIntent {
+        fun parse(intent: Intent): BillInfoIntent {
             val billInfo = runCatching {
                 Gson().fromJson(
                     intent.getStringExtra("billInfo"),
@@ -37,7 +34,6 @@ data class FloatingIntent(
                 )
             }.getOrDefault(BillInfoModel())
 
-            val showTip = intent.getBooleanExtra("showWaitTip", false)
             val from = intent.getStringExtra("from") ?: ""
             val parent = if (intent.hasExtra("parent")) {
                 runCatching {
@@ -49,7 +45,7 @@ data class FloatingIntent(
             } else {
                 null
             }
-            return FloatingIntent(billInfo, showTip, from, parent)
+            return BillInfoIntent(billInfo, from, parent)
         }
     }
 
@@ -58,7 +54,6 @@ data class FloatingIntent(
         val intent = super.toIntent()
         intent.putExtra("billInfo", Gson().toJson(billInfoModel))
         intent.putExtra("id", billInfoModel.id)
-        intent.putExtra("showWaitTip", showTip)
         if (parent != null) {
             intent.putExtra("parent", Gson().toJson(parent))
         }

@@ -15,6 +15,7 @@
 
 package org.ezbook.server
 
+import android.app.Application
 import android.content.Context
 import android.util.Log
 import io.ktor.server.engine.embeddedServer
@@ -38,9 +39,10 @@ import java.net.Proxy
 import java.util.concurrent.TimeUnit
 
 
-class Server(private val context: Context) {
+class Server(private val context: Application) {
 
     private val port = 52045
+
 
 
 
@@ -60,6 +62,7 @@ class Server(private val context: Context) {
         server.start()
         println("Server started on port $port")
         billProcessor = BillProcessor()
+        application = context
     }
 
     fun restartServer() {
@@ -79,7 +82,7 @@ class Server(private val context: Context) {
         var packageName = "net.ankio.auto"
         var debug = false
         lateinit var billProcessor: BillProcessor
-
+        lateinit var application: Application
         /**
          * 发送请求
          */
