@@ -76,7 +76,7 @@ class Server(private val context: Context) {
     companion object {
 
         var versionName = "1.0.0"
-        var packageName = "net.ankio.auto.xposed"
+        var packageName = "net.ankio.auto"
         var debug = false
         lateinit var billProcessor: BillProcessor
 

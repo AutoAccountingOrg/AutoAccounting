@@ -24,6 +24,7 @@ import net.ankio.auto.R
 import net.ankio.auto.adapter.AppAdapterManager
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.activity.FloatingWindowTriggerActivity
+import org.ezbook.server.intent.OCRIntent
 
 /**
  * OCR快速设置磁贴服务
@@ -85,12 +86,7 @@ class OcrTileService : TileService() {
 
         try {
             // 创建启动FloatingWindowTriggerActivity的Intent
-            val intent = Intent(this, FloatingWindowTriggerActivity::class.java).apply {
-                putExtra("intentType", "OCR")
-                putExtra("t", System.currentTimeMillis())
-                putExtra("action", OcrService.ACTION_START_OCR)
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK
-            }
+            val intent = OCRIntent().toIntent()
 
             // 根据Android版本收起面板
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {

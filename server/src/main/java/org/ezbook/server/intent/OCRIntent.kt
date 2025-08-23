@@ -13,29 +13,24 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.intent
+package org.ezbook.server.intent
 
 import android.content.ComponentName
 import android.content.Intent
-import net.ankio.auto.BuildConfig
+import com.google.gson.Gson
 import org.ezbook.server.Server
+import org.ezbook.server.db.model.BillInfoModel
 
-class WakeupIntent {
+class OCRIntent : BaseIntent(IntentType.OCR) {
 
-    fun toIntent(): Intent {
-        val intent = Intent()
-        intent.putExtra("t", System.currentTimeMillis())
-        intent.putExtra("intentType", IntentType.WakeupIntent.name)
-        intent.setComponent(
-            ComponentName(
-                BuildConfig.APPLICATION_ID,
-                "net.ankio.auto.ui.activity.FloatingWindowTriggerActivity"
-            )
-        )
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-        intent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
+    companion object {
+        fun parse(intent: Intent): OCRIntent {
+            return OCRIntent()
+        }
+    }
+
+    override fun toIntent(): Intent {
+        val intent = super.toIntent()
         return intent
     }
 

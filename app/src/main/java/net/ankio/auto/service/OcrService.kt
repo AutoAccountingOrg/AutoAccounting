@@ -13,12 +13,10 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import net.ankio.auto.App
+import net.ankio.auto.BuildConfig
 import net.ankio.auto.autoApp
 import net.ankio.auto.databinding.OcrViewBinding
 import net.ankio.auto.http.api.JsAPI
@@ -30,6 +28,7 @@ import net.ankio.auto.storage.Logger
 import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.utils.Throttle
 import org.ezbook.server.constant.DataType
+import org.ezbook.server.intent.IntentType
 
 /**
  * OCR服务类，用于实现屏幕文字识别功能
@@ -41,18 +40,13 @@ import org.ezbook.server.constant.DataType
  */
 class OcrService : ICoreService() {
 
-    // 协程作用域，用于处理异步任务
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-
     // 屏幕截图助手
     private lateinit var shotHelper: ScreenShotHelper
-    // private lateinit var allowedPkgs: Set<String>   // 配置白名单
 
     private lateinit var ocrProcessor: OcrProcessor
 
     // 摇动检测器，使用节流函数防止频繁触发
     private val detector by lazy {
-        //val throttle = Throttle.asFunction(2000) { onShake() }
         ShakeDetector(
             coreService.getSystemService(Context.SENSOR_SERVICE) as SensorManager,
         ) {
@@ -80,6 +74,10 @@ class OcrService : ICoreService() {
         // 初始化屏幕截图助手
         shotHelper = ScreenShotHelper(coreService, ProjectionGateway.get(coreService))
 
+        ocrProcessor = OcrProcessor(coreService)
+
+        serverStarted = true
+
         // 启动摇动检测
         if (!detector.start()) {
             Logger.e("设备不支持加速度传感器")
@@ -87,13 +85,19 @@ class OcrService : ICoreService() {
             return
         }
         Logger.d("摇一摇监听中")
-
-        ocrProcessor = OcrProcessor(coreService)
-
-        serverStarted = true
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int) {
+
+        if (intent?.getStringExtra("intentType") == IntentType.OCR.name) {
+            Logger.d("收到Intent启动OCR请求")
+            //延迟1秒启动，等activity退出
+            App.launch {
+                delay(1000)
+                triggerOcr()
+            }
+        }
+
 
     }
 
@@ -104,7 +108,6 @@ class OcrService : ICoreService() {
         detector.stop()
         shotHelper.release()
         ProjectionGateway.release()
-        scope.cancel()
     }
 
     /* -------------------------------- 业务逻辑 ------------------------------- */
@@ -113,39 +116,64 @@ class OcrService : ICoreService() {
 
     /**
      * 处理摇动事件
+     */
+    private fun onShake() {
+        Logger.d("检测到摇动事件")
+        triggerOcr()
+    }
+
+    /**
+     * 触发OCR识别
+     * 支持多种触发方式：摇动、Intent、磁贴等
      * 1. 获取当前前台应用
      * 2. 显示OCR动画界面
      * 3. 截取屏幕并进行OCR识别
      * 4. 将识别结果发送给JS引擎处理
      */
-    private fun onShake() {
-        Logger.d("onShake")
+    private fun triggerOcr() {
         if (ocrDoing) {
-            Logger.d("ocrDoing skip")
+            Logger.d("OCR正在处理中，跳过本次请求")
             return
         }
-        val pkg = getTopPackagePostL(coreService) ?: return
+
+        val pkg = getTopPackagePostL(coreService) ?: run {
+            Logger.d("无法获取前台应用")
+            return
+        }
+
         if (pkg !in PrefManager.appWhiteList) {
             Logger.d("前台应用 $pkg 不在监控白名单，忽略。")
             return
         }
+
         Logger.d("检测到白名单应用 [$pkg]，开始截屏 OCR")
         ocrDoing = true
-        scope.launch {
-            withContext(Dispatchers.Main) {
-                startOcrView(coreService)
-            }
-            val image = shotHelper.capture()
-            if (image != null) {
-                val text = ocrProcessor.recognize(image)
-                if (text.isNotBlank()) send2JsEngine(text, pkg)
-            }
-            withContext(Dispatchers.Main) {
-                stopOcrView()
-            }
-            Logger.d("处理结束")
 
-            ocrDoing = false
+        // 使用全局协程管理器
+        App.launch {
+            try {
+                // 在主线程显示OCR动画
+                startOcrView(coreService)
+
+                // 在IO线程进行截图和OCR识别
+                val image = shotHelper.capture()
+                if (image != null) {
+                    val text = ocrProcessor.recognize(image)
+                    if (text.isNotBlank()) {
+                        send2JsEngine(text, pkg)
+                    }
+                }
+
+                stopOcrView()
+
+                Logger.d("OCR处理完成")
+            } catch (e: Exception) {
+                Logger.e("OCR处理异常: ${e.message}")
+                // 确保在异常情况下也能关闭动画
+                stopOcrView()
+            } finally {
+                ocrDoing = false
+            }
         }
     }
 
@@ -210,19 +238,46 @@ class OcrService : ICoreService() {
 
     /**
      * 获取当前前台应用包名
-     * @return 返回最近10秒内最活跃的应用包名
+     * @return 返回最近使用的应用包名
      */
     private fun getTopPackagePostL(ctx: Context): String? {
-        val usm = ctx.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
-        val end = System.currentTimeMillis()
-        val begin = end - 10_000                    // 最近 10 秒窗口
-        val list = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, begin, end)
-        if (list.isNullOrEmpty()) return null
-        val recent = list.maxByOrNull { it.lastTimeUsed } ?: return null
-        return recent.packageName
+        try {
+            val usm = ctx.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+            val end = System.currentTimeMillis()
+            val begin = end - 60_000  // 最近1分钟
+
+            val list = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, begin, end)
+                .filter {
+                    !it.packageName.startsWith("com.android")
+                    !it.packageName.startsWith(BuildConfig.APPLICATION_ID)
+                            && it.lastTimeUsed > 0
+                            && it.totalTimeInForeground > 0
+                }
+            if (list.isEmpty()) return null
+
+
+
+
+            list.forEach { usageStats ->
+                Logger.d("包名: ${usageStats.packageName}, 最后使用时间: ${usageStats.lastTimeUsed}, 前台时间: ${usageStats.totalTimeInForeground}")
+            }
+
+            val recent = list.maxByOrNull { it.lastTimeUsed }
+
+            return recent?.packageName
+        } catch (e: Exception) {
+            Logger.e("获取前台应用失败: ${e.message}")
+            return null
+        }
     }
 
     companion object : IService {
+        /** OCR启动Action常量 */
+        const val ACTION_START_OCR = "net.ankio.auto.action.START_OCR"
+
+        /** 服务启动状态 */
+        var serverStarted = false
+        
         /**
          * 检查是否有使用情况访问权限
          */
@@ -246,7 +301,16 @@ class OcrService : ICoreService() {
             )
         }
 
-        public var serverStarted = false
+        /**
+         * 通过Intent启动OCR识别
+         * @param context 上下文
+         */
+        fun startOcrByIntent(context: Context) {
+            val intent = Intent(context, CoreService::class.java).apply {
+                action = ACTION_START_OCR
+            }
+            context.startService(intent)
+        }
     }
 }
 

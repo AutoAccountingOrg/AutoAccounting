@@ -13,9 +13,9 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.intent
+package org.ezbook.server.intent
 
 enum class IntentType {
     FloatingIntent,
-    WakeupIntent
+    OCR
 }

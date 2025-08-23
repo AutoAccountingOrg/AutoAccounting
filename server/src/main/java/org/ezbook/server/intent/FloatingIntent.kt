@@ -13,12 +13,11 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.intent
+package org.ezbook.server.intent
 
 import android.content.ComponentName
 import android.content.Intent
 import com.google.gson.Gson
-import net.ankio.auto.BuildConfig
 import org.ezbook.server.Server
 import org.ezbook.server.db.model.BillInfoModel
 
@@ -27,7 +26,7 @@ data class FloatingIntent(
     val showTip: Boolean,
     val from: String,
     val parent: BillInfoModel? = null,
-) {
+) : BaseIntent(IntentType.FloatingIntent) {
 
     companion object {
         fun parse(intent: Intent): FloatingIntent {
@@ -55,27 +54,14 @@ data class FloatingIntent(
     }
 
 
-    fun toIntent(): Intent {
-        val intent = Intent()
+    override fun toIntent(): Intent {
+        val intent = super.toIntent()
         intent.putExtra("billInfo", Gson().toJson(billInfoModel))
         intent.putExtra("id", billInfoModel.id)
         intent.putExtra("showWaitTip", showTip)
-        intent.putExtra("t", System.currentTimeMillis())
-        intent.putExtra("intentType", IntentType.FloatingIntent.name)
         if (parent != null) {
             intent.putExtra("parent", Gson().toJson(parent))
         }
-        intent.putExtra("from", from)
-        intent.setComponent(
-            ComponentName(
-                BuildConfig.APPLICATION_ID,
-                "net.ankio.auto.ui.activity.FloatingWindowTriggerActivity"
-            )
-        )
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-        intent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
         return intent
     }
 }
