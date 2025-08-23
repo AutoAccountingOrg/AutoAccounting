@@ -1,32 +1,28 @@
 package net.ankio.auto.service
 
 import android.app.AppOpsManager
-import android.app.KeyguardManager
 import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.Intent
 import android.graphics.PixelFormat
 import android.hardware.SensorManager
-import android.os.PowerManager
 import android.provider.Settings
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
 import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.autoApp
 import net.ankio.auto.databinding.OcrViewBinding
 import net.ankio.auto.http.api.JsAPI
-import net.ankio.auto.service.utils.OcrProcessor
-import net.ankio.auto.service.utils.ProjectionGateway
-import net.ankio.auto.service.utils.ScreenShotHelper
-import net.ankio.auto.service.utils.ShakeDetector
+import net.ankio.auto.service.ocr.OcrProcessor
+import net.ankio.auto.service.ocr.ProjectionGateway
+import net.ankio.auto.service.ocr.ScreenShotHelper
+import net.ankio.auto.service.ocr.ShakeDetector
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.utils.PrefManager
-import net.ankio.auto.utils.Throttle
 import org.ezbook.server.constant.DataType
 import org.ezbook.server.intent.IntentType
 

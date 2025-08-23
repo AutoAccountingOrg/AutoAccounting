@@ -1,4 +1,4 @@
-package net.ankio.auto.service.utils
+package net.ankio.auto.service.ocr
 
 import android.app.Activity
 import android.content.Context

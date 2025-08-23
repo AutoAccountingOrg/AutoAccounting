@@ -1,4 +1,4 @@
-package net.ankio.auto.service.utils
+package net.ankio.auto.service.ocr
 
 import android.hardware.Sensor
 import android.hardware.SensorEvent

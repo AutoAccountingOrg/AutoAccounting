@@ -1,4 +1,4 @@
-package net.ankio.auto.service.utils
+package net.ankio.auto.service.ocr
 
 import android.content.Context
 import android.graphics.Bitmap
