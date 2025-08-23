@@ -12,7 +12,7 @@ import net.ankio.auto.xposed.hooks.common.JsEngine
 import net.ankio.auto.xposed.hooks.common.UnLockScreen
 import org.ezbook.server.Server
 
-class ServerService : ICoreService() {
+class BackgroundHttpService : ICoreService() {
 
 
     private lateinit var httpService: Server

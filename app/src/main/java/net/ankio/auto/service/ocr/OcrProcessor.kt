@@ -32,11 +32,11 @@ class OcrProcessor(context: Context) {
 // 请根据需要配置，三项全开识别率最高；如果只开识别几乎无法正确识别，至少需要搭配检测或分类其中之一
 // 也可单独运行 检测模型 获取文本位置
         config.isRunDet = true
-        config.isRunCls = false
+        config.isRunCls = true
         config.isRunRec = true
 
 // 使用所有核心运行
-        config.cpuPowerMode = CpuPowerMode.LITE_POWER_FULL
+        config.cpuPowerMode = CpuPowerMode.LITE_POWER_RAND_LOW
 
 // 绘制文本位置
         config.isDrwwTextPositionBox = false
@@ -53,16 +53,30 @@ class OcrProcessor(context: Context) {
      * @return 识别出的文字内容，如果识别失败则返回空字符串
      */
     suspend fun recognize(bitmap: Bitmap): String = withContext(Dispatchers.Default) {
+        val recognizeStartTime = System.currentTimeMillis()
+        
         if (!init) {
+            val initStartTime = System.currentTimeMillis()
             val initResult = ocr.initModelSync(config)
+            val initTime = System.currentTimeMillis() - initStartTime
+            Logger.d("OCR模型初始化耗时: ${initTime}ms")
+            
             if (initResult.isFailure) {
                 Logger.d("模型初始化失败....")
                 return@withContext ""
             }
             init = true
         }
+
         Logger.d("截屏结果识别中....")
+        val ocrStartTime = System.currentTimeMillis()
         val result = ocr.runSync(bitmap)
+        val ocrTime = System.currentTimeMillis() - ocrStartTime
+        Logger.d("OCR识别耗时: ${ocrTime}ms")
+
+        val totalRecognizeTime = System.currentTimeMillis() - recognizeStartTime
+        Logger.d("OCR识别总耗时: ${totalRecognizeTime}ms")
+        
         if (result.isFailure) return@withContext ""
         else return@withContext result.getOrNull()?.simpleText ?: ""
     }

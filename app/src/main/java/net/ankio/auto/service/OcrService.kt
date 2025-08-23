@@ -24,6 +24,7 @@ import net.ankio.auto.service.ocr.ShakeDetector
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.constant.DataType
+import org.ezbook.server.intent.BillInfoIntent
 import org.ezbook.server.intent.IntentType
 
 /**
@@ -147,12 +148,17 @@ class OcrService : ICoreService() {
 
         // 使用全局协程管理器
         App.launch {
+            val startTime = System.currentTimeMillis()
             try {
                 // 在主线程显示OCR动画
                 startOcrView(coreService)
 
                 // 在IO线程进行截图和OCR识别
+                val captureStartTime = System.currentTimeMillis()
                 val image = shotHelper.capture()
+                val captureTime = System.currentTimeMillis() - captureStartTime
+                Logger.d("截图耗时: ${captureTime}ms")
+
                 if (image != null) {
                     val text = ocrProcessor.recognize(image)
                     if (text.isNotBlank()) {
@@ -162,7 +168,8 @@ class OcrService : ICoreService() {
 
                 stopOcrView()
 
-                Logger.d("OCR处理完成")
+                val totalTime = System.currentTimeMillis() - startTime
+                Logger.d("OCR处理完成，总耗时: ${totalTime}ms")
             } catch (e: Exception) {
                 Logger.e("OCR处理异常: ${e.message}")
                 // 确保在异常情况下也能关闭动画
@@ -228,8 +235,7 @@ class OcrService : ICoreService() {
     private suspend fun send2JsEngine(text: String, app: String) {
         Logger.d("app=$app, text=$text")
         val billResult = JsAPI.analysis(DataType.DATA, text, app) ?: return
-        // 发起记账intent
-        // TODO 弹出处理窗口
+        Logger.d("识别结果：${billResult.billInfoModel}")
     }
 
     /**
@@ -244,7 +250,7 @@ class OcrService : ICoreService() {
 
             val list = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, begin, end)
                 .filter {
-                    !it.packageName.startsWith("com.android")
+                    !it.packageName.startsWith("com.android") &&
                     !it.packageName.startsWith(BuildConfig.APPLICATION_ID)
                             && it.lastTimeUsed > 0
                             && it.totalTimeInForeground > 0

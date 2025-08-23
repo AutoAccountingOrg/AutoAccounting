@@ -58,13 +58,13 @@ class CoreService : LifecycleService() {
     private fun initializeServices() {
         services = if (PrefManager.workMode === WorkMode.Xposed) {
             listOf<ICoreService>(
-                FloatingService()
+                OverlayService()
             )
         } else {
             listOf(
-                ServerService(),  // 自动记账的服务模块
+                BackgroundHttpService(),  // 自动记账的服务模块
                 OcrService(),     // OCR服务
-                FloatingService() // 悬浮窗服务
+                OverlayService() // 悬浮窗服务
             )
         }
         Logger.i("已为工作模式 ${PrefManager.workMode} 初始化 ${services.size} 个服务")
@@ -224,6 +224,10 @@ class CoreService : LifecycleService() {
                 Logger.e("启动服务时未知异常: ${e.message}", e)
                 false
             }
+        }
+
+        fun startBillActivity() {
+
         }
     }
 }
