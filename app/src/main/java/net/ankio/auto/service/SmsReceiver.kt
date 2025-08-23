@@ -26,15 +26,29 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.telephony.SmsMessage
+import android.provider.Telephony
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.google.gson.Gson
 import com.google.gson.JsonObject
+import net.ankio.auto.App
 import net.ankio.auto.autoApp
+import net.ankio.auto.constant.WorkMode
+import net.ankio.auto.http.api.JsAPI
+import net.ankio.auto.storage.Logger
+import net.ankio.auto.utils.PrefManager
+import org.ezbook.server.constant.DataType
 
 
 class SmsReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
-        val bundle: Bundle? = intent!!.extras
+        // 验证Intent的action，确保只处理SMS接收广播，防止恶意应用发送伪造Intent
+        if (intent?.action != Telephony.Sms.Intents.SMS_RECEIVED_ACTION) {
+            return
+        }
+
+        if (PrefManager.workMode != WorkMode.Ocr) return
+        val bundle: Bundle? = intent.extras
         if (bundle != null) {
             val pdus = when {
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> {
@@ -61,7 +75,12 @@ class SmsReceiver : BroadcastReceiver() {
                 addProperty("body", messageBody)
                 addProperty("t", System.currentTimeMillis())
             }
-            // Analyze.start(DataType.DATA, Gson().toJson(json), "com.android.phone")
+
+            App.launch {
+                val billResult =
+                    JsAPI.analysis(DataType.DATA, Gson().toJson(json), "com.android.phone")
+                Logger.d("识别结果：${billResult?.billInfoModel}")
+            }
         }
     }
 
