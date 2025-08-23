@@ -18,6 +18,7 @@ package net.ankio.auto.ui.dialog
 import android.app.Activity
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleService
 import androidx.recyclerview.widget.RecyclerView
 import net.ankio.auto.adapter.AppAdapterManager
@@ -36,8 +37,19 @@ import net.ankio.auto.utils.PrefManager
  * - 点击已安装的目标项即可选择并保存
  * - 未安装则跳转到官网/应用页面
  * - 支持在 Activity / Fragment / Service(悬浮窗) 环境中使用
+ *
+ * 使用方式：
+ * ```kotlin
+ * AppDialog.create(activity)
+ *     .setOnClose { refreshUI() }
+ *     .show()
+ * ```
  */
-class AppDialog : BaseSheetDialog<DialogAppBinding> {
+class AppDialog private constructor(
+    context: android.content.Context,
+    lifecycleOwner: LifecycleOwner?,
+    isOverlay: Boolean
+) : BaseSheetDialog<DialogAppBinding>(context, lifecycleOwner, isOverlay) {
 
     /**
      * 关闭回调。
@@ -47,11 +59,14 @@ class AppDialog : BaseSheetDialog<DialogAppBinding> {
     private var onClose: (() -> Unit)? = null
 
     /**
-     * 构造函数
+     * 设置关闭回调
+     *
+     * @param callback 对话框关闭后要执行的回调
+     * @return 返回自身以便链式调用
      */
-    constructor(activity: Activity) : super(activity)
-    constructor(fragment: Fragment) : super(fragment)
-    constructor(service: LifecycleService) : super(service)
+    fun setOnClose(callback: () -> Unit) = apply {
+        this.onClose = callback
+    }
 
     override fun onViewCreated(view: View?) {
         super.onViewCreated(view)
@@ -79,20 +94,38 @@ class AppDialog : BaseSheetDialog<DialogAppBinding> {
         adapter.submitItems(apps)
     }
 
-    /**
-     * 设置关闭回调。
-     *
-     * @param callback 对话框关闭后要执行的回调
-     * @return 返回自身以便链式调用
-     */
-    fun setOnClose(callback: () -> Unit): AppDialog {
-        this.onClose = callback
-        return this
-    }
-
     override fun dismiss() {
         // 先关闭对话框，再回调通知外部刷新
         super.dismiss()
         onClose?.invoke()
+    }
+
+    companion object {
+        /**
+         * 从Activity创建记账软件选择对话框
+         * @param activity 宿主Activity
+         * @return 对话框实例
+         */
+        fun create(activity: Activity): AppDialog {
+            return AppDialog(activity, activity as LifecycleOwner, false)
+        }
+
+        /**
+         * 从Fragment创建记账软件选择对话框
+         * @param fragment 宿主Fragment
+         * @return 对话框实例
+         */
+        fun create(fragment: Fragment): AppDialog {
+            return AppDialog(fragment.requireContext(), fragment.viewLifecycleOwner, false)
+        }
+
+        /**
+         * 从Service创建记账软件选择对话框（悬浮窗模式）
+         * @param service 宿主Service
+         * @return 对话框实例
+         */
+        fun create(service: LifecycleService): AppDialog {
+            return AppDialog(service, service, true)
+        }
     }
 }

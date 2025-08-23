@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 ankio(ankio@ankio.net)
+ * Copyright (C) 2025 ankio(ankio@ankio.net)
  * Licensed under the Apache License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,119 +15,235 @@
 
 package net.ankio.auto.ui.dialog
 
-//import net.ankio.auto.ui.adapter.BillSelectorAdapter
-import android.content.Context
-import android.content.Intent
-import android.view.LayoutInflater
+import android.app.Activity
 import android.view.View
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import net.ankio.auto.databinding.DialogCategorySelectBinding
-import net.ankio.auto.storage.ConfigUtils
+import net.ankio.auto.databinding.DialogBillSelectBinding
+import net.ankio.auto.http.api.BookBillAPI
+import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.storage.Constants
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.adapter.BillSelectorAdapter
 import net.ankio.auto.ui.api.BaseSheetDialog
-import net.ankio.auto.ui.componets.StatusPage
-import net.ankio.auto.ui.componets.WrapContentLinearLayoutManager
+import net.ankio.auto.ui.components.WrapContentLinearLayoutManager
 import net.ankio.auto.ui.utils.BookAppUtils
-import net.ankio.auto.xposed.hooks.qianji.models.Book
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
-import org.ezbook.server.db.model.BookBillModel
 
-class BillSelectorDialog(
-    private val context: Context,
-    private val selectedBills: MutableList<String> = ArrayList(),
-    private val type: String,
-    private val callback: (MutableList<String>) -> Unit,
-) :
-    BaseSheetDialog(context) {
-    private lateinit var binding: DialogCategorySelectBinding
-    private lateinit var statusPage: StatusPage
+/**
+ * 账单选择对话框
+ *
+ * 设计原则：
+ * 1. 单一职责：只负责账单选择逻辑
+ * 2. 简洁实现：消除复杂状态管理，统一处理流程
+ * 3. 类型安全：使用强类型参数替代魔法值
+ * 4. 良好错误处理：超时机制和用户反馈
+ *
+ * 用途：
+ * - 报销账单选择（多选模式）
+ * - 退款账单选择（单选模式）
+ *
+ * 使用方式：
+ * ```kotlin
+ * BillSelectorDialog.create(activity)
+ *     .setSelectedBills(selectedList)
+ *     .setBillType(Setting.HASH_BAOXIAO_BILL)
+ *     .setCallback { /* 处理选择结果 */ }
+ *     .show()
+ * ```
+ */
+class BillSelectorDialog private constructor(
+    context: android.content.Context,
+    lifecycleOwner: LifecycleOwner?,
+    isOverlay: Boolean
+) : BaseSheetDialog<DialogBillSelectBinding>(context, lifecycleOwner, isOverlay) {
+
+    private var selectedBills: MutableList<String> = mutableListOf()
+    private var billType: String = Setting.HASH_BILL // 默认值
+    private var callback: (() -> Unit)? = null
+
     private lateinit var adapter: BillSelectorAdapter
-    override fun onCreateView(inflater: LayoutInflater): View {
-        binding = DialogCategorySelectBinding.inflate(inflater)
-        val layoutManager = WrapContentLinearLayoutManager(context)
-        statusPage = binding.statusPage
-        //cardView = binding.cardView
-        //cardViewInner = binding.cardViewInner
-        val recyclerView = statusPage.contentView!!
-        recyclerView.layoutManager = layoutManager
-        val multipleSelect = type == Setting.HASH_BAOXIAO_BILL // 报销账单支持多选
+
+    /**
+     * 设置已选择的账单列表
+     * @param bills 已选择的账单ID列表
+     * @return 当前对话框实例，支持链式调用
+     */
+    fun setSelectedBills(bills: MutableList<String>) = apply {
+        this.selectedBills = bills
+    }
+
+    /**
+     * 设置账单类型
+     * @param type 账单类型，如 Setting.HASH_BAOXIAO_BILL 或 Setting.HASH_BILL
+     * @return 当前对话框实例，支持链式调用
+     */
+    fun setBillType(type: String) = apply {
+        this.billType = type
+    }
+
+    /**
+     * 设置选择完成回调
+     * @param callback 选择完成后的回调函数
+     * @return 当前对话框实例，支持链式调用
+     */
+    fun setCallback(callback: () -> Unit) = apply {
+        this.callback = callback
+    }
+
+    override fun onViewCreated(view: View?) {
+        super.onViewCreated(view)
+        setupRecyclerView()
+        setupConfirmButton()
+        loadBillData()
+    }
+
+    /**
+     * 设置列表视图
+     */
+    private fun setupRecyclerView() {
+        val recyclerView = binding.statusPage.contentView!!
+        recyclerView.layoutManager = WrapContentLinearLayoutManager(ctx)
+
+        // 判断是否支持多选（报销账单支持多选）
+        val multipleSelect = billType == Setting.HASH_BAOXIAO_BILL
         adapter = BillSelectorAdapter(selectedBills, multipleSelect)
         recyclerView.adapter = adapter
 
-        recyclerView.setPadding(0, 0, 0, 0)
-
-        binding.button.setOnClickListener {
-            callback.invoke(selectedBills)
-            dismiss()
-        }
-        statusPage.showLoading()
-
-
-
-        lifecycleScope.launch {
-
-            val proactively =
-                ConfigUtils.getBoolean(Setting.PROACTIVELY_MODEL, DefaultData.PROACTIVELY_MODEL)
-            if (proactively) {
-                //先同步
-                BookAppUtils.syncData()
-                //然后清空数据列表
-                BookBillModel.put(arrayListOf(), "", type)
-                val lastSyncTime = ConfigUtils.getLong(Setting.LAST_SYNC_TIME, 0)
-                if (System.currentTimeMillis() - lastSyncTime > Constants.SYNC_INTERVAL) {
-                    ConfigUtils.putLong(Setting.LAST_SYNC_TIME, System.currentTimeMillis())
-                    when (type) {
-                        Setting.HASH_BAOXIAO_BILL -> BookAppUtils.syncReimburseBill() //先同步最近的报销账单
-                        Setting.HASH_BILL -> BookAppUtils.syncRecentExpenseBill() //先同步最近的支付账单
-                    }
-                }
-
-            }
-            loadData(proactively)
-        }
-
-
-        return binding.root
+        Logger.d("RecyclerView设置完成，多选模式: $multipleSelect")
     }
 
+    /**
+     * 设置确认按钮
+     */
+    private fun setupConfirmButton() {
+        binding.confirmButton.setOnClickListener {
+            callback?.invoke()
+            dismiss()
+        }
+    }
 
-    private suspend fun loadData(proactively: Boolean) = withContext(Dispatchers.IO) {
+    /**
+     * 加载账单数据
+     */
+    private fun loadBillData() {
+        binding.statusPage.showLoading()
+        
+        lifecycleScope.launch {
+            val proactively = PrefManager.featureLeading
+            
+            if (proactively) {
+                syncDataIfNeeded()
+            }
+
+            loadDataWithTimeout(proactively)
+        }
+    }
+
+    /**
+     * 同步数据（如果需要）
+     */
+    private suspend fun syncDataIfNeeded() = withContext(Dispatchers.IO) {
+        try {
+            // 同步基础数据
+            BookAppUtils.syncData()
+
+            // 清空现有数据
+            BookBillAPI.put(arrayListOf(), "", billType)
+
+            // 检查同步间隔
+            val lastSyncTime = PrefManager.lastSyncTime
+            val now = System.currentTimeMillis()
+
+            if (now - lastSyncTime > Constants.SYNC_INTERVAL) {
+                PrefManager.lastSyncTime = now
+
+                when (billType) {
+                    Setting.HASH_BAOXIAO_BILL -> BookAppUtils.syncReimburseBill()
+                    Setting.HASH_BILL -> BookAppUtils.syncRecentExpenseBill()
+                }
+
+                Logger.d("同步完成，账单类型: $billType")
+            }
+        } catch (e: Exception) {
+            Logger.e("同步数据失败", e)
+        }
+    }
+
+    /**
+     * 带超时的数据加载
+     */
+    private suspend fun loadDataWithTimeout(proactively: Boolean) = withContext(Dispatchers.IO) {
         val startTime = System.currentTimeMillis()
         val timeout = 10000 // 10秒超时
 
         while (System.currentTimeMillis() - startTime < timeout) {
-            val list = BookBillModel.list(type)
-            Logger.d("list: $list")
+            try {
+                val bills = BookBillAPI.list(billType)
+                Logger.d("获取到账单数量: ${bills.size}")
 
-            if (list.isNotEmpty()) {
-                withContext(Dispatchers.Main) {
-                    statusPage.showContent()
-                    adapter.updateItems(list)
+                if (bills.isNotEmpty()) {
+                    withContext(Dispatchers.Main) {
+                        binding.statusPage.showContent()
+                        adapter.updateItems(bills)
+                    }
+                    return@withContext
                 }
-                return@withContext
-            }
-            if (!proactively) {
-                withContext(Dispatchers.Main) {
-                    statusPage.showEmpty()
-                }
-                return@withContext
-            }
 
-            // 等待500毫秒后重试
-            delay(500)
+                // 如果不是主动模式且没有数据，直接显示空状态
+                if (!proactively) {
+                    break
+                }
+
+                // 等待500ms后重试
+                delay(500)
+
+            } catch (e: Exception) {
+                Logger.e("加载账单数据失败", e)
+                break
+            }
         }
 
-        // 超时后显示空状态
+        // 显示空状态
         withContext(Dispatchers.Main) {
-            statusPage.showEmpty()
+            binding.statusPage.showEmpty()
+            Logger.d("账单数据为空或加载超时")
         }
     }
 
+    companion object {
+        /**
+         * 从Activity创建账单选择对话框
+         * @param activity 宿主Activity
+         * @return 对话框实例
+         */
+        fun create(activity: Activity): BillSelectorDialog {
+            return BillSelectorDialog(activity, activity as LifecycleOwner, false)
+        }
+
+        /**
+         * 从Fragment创建账单选择对话框
+         * @param fragment 宿主Fragment
+         * @return 对话框实例
+         */
+        fun create(fragment: Fragment): BillSelectorDialog {
+            return BillSelectorDialog(fragment.requireContext(), fragment.viewLifecycleOwner, false)
+        }
+
+        /**
+         * 从Service创建账单选择对话框（悬浮窗模式）
+         * @param service 宿主Service
+         * @return 对话框实例
+         */
+        fun create(service: LifecycleService): BillSelectorDialog {
+            return BillSelectorDialog(service, service, true)
+        }
+    }
 }

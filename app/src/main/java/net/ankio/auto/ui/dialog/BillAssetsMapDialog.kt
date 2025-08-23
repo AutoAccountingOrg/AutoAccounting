@@ -11,7 +11,8 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *   limitations under the License.
- */
+ *//*
+
 
 package net.ankio.auto.ui.dialog
 
@@ -24,9 +25,11 @@ import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogAssetsMapBinding
 import net.ankio.auto.ui.adapter.BillAssetsMapAdapter
 import net.ankio.auto.ui.api.BaseSheetDialog
-import net.ankio.auto.ui.componets.WrapContentLinearLayoutManager
+import net.ankio.auto.ui.components.WrapContentLinearLayoutManager
 import net.ankio.auto.ui.utils.AssetsUtils
 import net.ankio.auto.ui.utils.ToastUtils
+import net.ankio.auto.http.api.AssetsAPI
+import net.ankio.auto.http.api.AssetsMapAPI
 import org.ezbook.server.db.model.AssetsMapModel
 import org.ezbook.server.db.model.AssetsModel
 
@@ -57,11 +60,13 @@ class BillAssetsMapDialog(
         val adapter = BillAssetsMapAdapter(context)
         adapter.updateItems(items)
         adapter.setOnClickListener {
-            AssetsSelectorDialog(context) { asset ->
-                val position = items.indexOf(it)
-                it.mapName = asset.name
-                adapter.updateItem(position, it)
-            }.show(float = float)
+            AssetsSelectorDialog.create(context as Activity)
+                .setCallback { asset ->
+                    val position = items.indexOf(it)
+                    it.mapName = asset.name
+                    adapter.updateItem(position, it)
+                }
+                .show()
         }
 
         binding.statusPage.contentView!!.layoutManager = WrapContentLinearLayoutManager(context)
@@ -87,11 +92,11 @@ class BillAssetsMapDialog(
 
     private suspend fun validateAndSaveMapping(): Boolean {
         items.forEach {
-            if (AssetsModel.getByName(it.mapName) == null) {
+            if (AssetsAPI.getByName(it.mapName) == null) {
                 ToastUtils.error(R.string.map_source_not_exist)
                 return false
             }
-            AssetsMapModel.put(it)
+            AssetsMapAPI.put(it)
         }
 
         return true
@@ -99,4 +104,4 @@ class BillAssetsMapDialog(
 
 
 
-}
+}*/

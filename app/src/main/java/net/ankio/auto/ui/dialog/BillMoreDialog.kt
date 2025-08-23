@@ -11,7 +11,8 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *   limitations under the License.
- */
+ *//*
+
 
 package net.ankio.auto.ui.dialog
 
@@ -27,7 +28,8 @@ import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogBillMoreBinding
 import net.ankio.auto.ui.adapter.OrderItemAdapter
 import net.ankio.auto.ui.api.BaseSheetDialog
-import net.ankio.auto.ui.componets.WrapContentLinearLayoutManager
+import net.ankio.auto.ui.components.WrapContentLinearLayoutManager
+import net.ankio.auto.http.api.BillAPI
 import org.ezbook.server.db.model.BillInfoModel
 
 class BillMoreDialog(
@@ -56,12 +58,12 @@ class BillMoreDialog(
 
 // 设置长按事件
         adapter.setOnItemLongClickListener { item, position ->
-            BottomSheetDialogBuilder(context)
+            BottomSheetDialogBuilder.create(context as Activity)
                 .setTitleInt(R.string.un_group_title)
                 .setMessage(R.string.un_group_message)
                 .setPositiveButton(R.string.sure_msg) { _, _ ->
                     lifecycleScope.launch {
-                        BillInfoModel.unGroup(item.id)
+                        BillAPI.unGroup(item.id)
                         onReload(this@BillMoreDialog)
                     }
                 }
@@ -71,7 +73,7 @@ class BillMoreDialog(
         recyclerView.adapter = adapter
         statusPage.showLoading()
         lifecycleScope.launch {
-            val bills = BillInfoModel.getBillByGroup(billInfoModel.id)
+            val bills = BillAPI.getBillByGroup(billInfoModel.id)
             if (bills.isEmpty()) {
                 withContext(Dispatchers.Main) {
                     statusPage.showEmpty()
@@ -91,3 +93,4 @@ class BillMoreDialog(
     }
 
 }
+*/

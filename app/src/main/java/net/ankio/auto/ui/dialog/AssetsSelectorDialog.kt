@@ -36,64 +36,43 @@ import org.ezbook.server.db.model.AssetsModel
  * - 自动排序和状态管理
  * - 点击选择资产并回调
  *
- * 支持三种构造方式：
- * - Activity构造：传入Activity实例
- * - Fragment构造：传入Fragment实例
- * - Service构造：传入LifecycleService实例（悬浮窗模式）
+ * 使用方式：
+ * ```kotlin
+ * AssetsSelectorDialog.create(activity)
+ *     .setFilter(listOf(AssetsType.NORMAL))
+ *     .setCallback { asset -> }
+ *     .show()
+ * ```
  */
-class AssetsSelectorDialog : BaseSheetDialog<ComponentAssetBinding> {
+class AssetsSelectorDialog private constructor(
+    context: android.content.Context,
+    lifecycleOwner: LifecycleOwner?,
+    isOverlay: Boolean
+) : BaseSheetDialog<ComponentAssetBinding>(context, lifecycleOwner, isOverlay) {
 
-    private val filter: List<AssetsType>
-    private val callback: (AssetsModel) -> Unit
+    private var filter: List<AssetsType> = emptyList()
+    private var callback: ((AssetsModel) -> Unit)? = null
     private lateinit var assetComponent: AssetComponent
-    private val lifecycleOwner: LifecycleOwner
 
     /**
-     * 使用Activity构造资产选择对话框
-     * @param activity 宿主Activity
+     * 设置资产类型过滤
      * @param filter 资产类型过滤列表，为空表示显示所有类型
-     * @param callback 选择资产后的回调函数
+     * @return 当前对话框实例，支持链式调用
      */
-    constructor(
-        activity: Activity,
-        filter: List<AssetsType> = emptyList(),
-        callback: (AssetsModel) -> Unit
-    ) : super(activity) {
+    fun setFilter(filter: List<AssetsType>) = apply {
         this.filter = filter
-        this.callback = callback
-        this.lifecycleOwner = activity as LifecycleOwner
+        if (::assetComponent.isInitialized && filter.isNotEmpty()) {
+            assetComponent.setAssetTypesFilter(filter)
+        }
     }
 
     /**
-     * 使用Fragment构造资产选择对话框
-     * @param fragment 宿主Fragment
-     * @param filter 资产类型过滤列表，为空表示显示所有类型
+     * 设置选择回调
      * @param callback 选择资产后的回调函数
+     * @return 当前对话框实例，支持链式调用
      */
-    constructor(
-        fragment: Fragment,
-        filter: List<AssetsType> = emptyList(),
-        callback: (AssetsModel) -> Unit
-    ) : super(fragment) {
-        this.filter = filter
+    fun setCallback(callback: (AssetsModel) -> Unit) = apply {
         this.callback = callback
-        this.lifecycleOwner = fragment.viewLifecycleOwner
-    }
-
-    /**
-     * 使用LifecycleService构造资产选择对话框（悬浮窗模式）
-     * @param service 宿主Service
-     * @param filter 资产类型过滤列表，为空表示显示所有类型
-     * @param callback 选择资产后的回调函数
-     */
-    constructor(
-        service: LifecycleService,
-        filter: List<AssetsType> = emptyList(),
-        callback: (AssetsModel) -> Unit
-    ) : super(service) {
-        this.filter = filter
-        this.callback = callback
-        this.lifecycleOwner = service
     }
 
     override fun onViewCreated(view: View?) {
@@ -106,12 +85,12 @@ class AssetsSelectorDialog : BaseSheetDialog<ComponentAssetBinding> {
      */
     private fun setupAssetComponent() {
         // 使用bindAs扩展函数创建AssetComponent实例
-        assetComponent = binding.bindAs(lifecycleOwner.lifecycle)
+        assetComponent = binding.bindAs(lifecycleOwner!!.lifecycle)
 
         // 设置资产选择回调
         assetComponent.setOnAssetSelectedListener { asset ->
             asset?.let {
-                callback(it)
+                callback?.invoke(it)
                 dismiss()
             }
         }
@@ -122,6 +101,39 @@ class AssetsSelectorDialog : BaseSheetDialog<ComponentAssetBinding> {
         } else {
             // 没有过滤条件时，刷新数据显示所有资产
             assetComponent.refreshData()
+        }
+    }
+
+    companion object {
+        /**
+         * 从Activity创建资产选择对话框
+         * @param activity 宿主Activity
+         * @return 对话框实例
+         */
+        fun create(activity: Activity): AssetsSelectorDialog {
+            return AssetsSelectorDialog(activity, activity as LifecycleOwner, false)
+        }
+
+        /**
+         * 从Fragment创建资产选择对话框
+         * @param fragment 宿主Fragment
+         * @return 对话框实例
+         */
+        fun create(fragment: Fragment): AssetsSelectorDialog {
+            return AssetsSelectorDialog(
+                fragment.requireContext(),
+                fragment.viewLifecycleOwner,
+                false
+            )
+        }
+
+        /**
+         * 从Service创建资产选择对话框（悬浮窗模式）
+         * @param service 宿主Service
+         * @return 对话框实例
+         */
+        fun create(service: LifecycleService): AssetsSelectorDialog {
+            return AssetsSelectorDialog(service, service, true)
         }
     }
 }

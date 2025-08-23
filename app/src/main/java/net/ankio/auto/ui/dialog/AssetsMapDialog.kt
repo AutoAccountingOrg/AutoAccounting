@@ -15,9 +15,9 @@
 package net.ankio.auto.ui.dialog
 
 import android.app.Activity
-import android.content.Context
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
@@ -38,77 +38,42 @@ import org.ezbook.server.db.model.AssetsMapModel
  * - 设置是否为正则表达式匹配
  * - 保存或取消操作
  *
- * 支持三种构造方式：
- * - Activity构造：传入Activity实例
- * - Fragment构造：传入Fragment实例
- * - Service构造：传入LifecycleService实例（悬浮窗模式）
+ * 使用方式：
+ * ```kotlin
+ * AssetsMapDialog.create(activity)
+ *     .setAssetsMapModel(existingModel)
+ *     .setOnClose { model ->
+ *         // 处理保存结果
+ *     }
+ *     .show()
+ * ```
  */
-class AssetsMapDialog : BaseSheetDialog<DialogMapBinding> {
+class AssetsMapDialog private constructor(
+    context: android.content.Context,
+    lifecycleOwner: LifecycleOwner?,
+    isOverlay: Boolean
+) : BaseSheetDialog<DialogMapBinding>(context, lifecycleOwner, isOverlay) {
 
-    private val assetsMapModel: AssetsMapModel
-    private val onClose: (AssetsMapModel) -> Unit
-    private val context: Context
-
-    // 保存宿主对象引用以便创建子对话框
-    private val hostActivity: Activity?
-    private val hostFragment: Fragment?
-    private val hostService: LifecycleService?
+    private var assetsMapModel: AssetsMapModel = AssetsMapModel()
+    private var onClose: ((AssetsMapModel) -> Unit)? = null
 
     /**
-     * 使用Activity构造资产映射对话框
-     * @param activity 宿主Activity
-     * @param assetsMapModel 要编辑的资产映射模型，默认为新建
-     * @param onClose 保存完成后的回调函数
+     * 设置资产映射模型
+     * @param model 要编辑的资产映射模型，默认为新建
+     * @return 当前对话框实例，支持链式调用
      */
-    constructor(
-        activity: Activity,
-        assetsMapModel: AssetsMapModel = AssetsMapModel(),
-        onClose: (AssetsMapModel) -> Unit
-    ) : super(activity) {
-        this.assetsMapModel = assetsMapModel
-        this.onClose = onClose
-        this.context = activity
-        this.hostActivity = activity
-        this.hostFragment = null
-        this.hostService = null
+    fun setAssetsMapModel(model: AssetsMapModel) = apply {
+        this.assetsMapModel = model
+        setBindingData()
     }
 
     /**
-     * 使用Fragment构造资产映射对话框
-     * @param fragment 宿主Fragment
-     * @param assetsMapModel 要编辑的资产映射模型，默认为新建
-     * @param onClose 保存完成后的回调函数
+     * 设置保存完成回调
+     * @param callback 保存完成后的回调函数
+     * @return 当前对话框实例，支持链式调用
      */
-    constructor(
-        fragment: Fragment,
-        assetsMapModel: AssetsMapModel = AssetsMapModel(),
-        onClose: (AssetsMapModel) -> Unit
-    ) : super(fragment) {
-        this.assetsMapModel = assetsMapModel
-        this.onClose = onClose
-        this.context = fragment.requireContext()
-        this.hostActivity = null
-        this.hostFragment = fragment
-        this.hostService = null
-    }
-
-    /**
-     * 使用LifecycleService构造资产映射对话框（悬浮窗模式）
-     * @param service 宿主Service
-     * @param assetsMapModel 要编辑的资产映射模型，默认为新建
-     * @param onClose 保存完成后的回调函数
-     */
-    constructor(
-        service: LifecycleService,
-        assetsMapModel: AssetsMapModel = AssetsMapModel(),
-        onClose: (AssetsMapModel) -> Unit
-    ) : super(service) {
-        this.assetsMapModel = assetsMapModel
-        this.onClose = onClose
-        this.context = service
-        this.hostActivity = null
-        this.hostFragment = null
-        this.hostService = service
+    fun setOnClose(callback: (AssetsMapModel) -> Unit) = apply {
+        this.onClose = callback
     }
 
     override fun onViewCreated(view: View?) {
@@ -133,7 +98,7 @@ class AssetsMapDialog : BaseSheetDialog<DialogMapBinding> {
     private fun setBindingData() = with(binding) {
         raw.setText(assetsMapModel.name)
         if (assetsMapModel.mapName.isEmpty()) {
-            target.setText(context.getString(R.string.map_target))
+            target.setText(ctx.getString(R.string.map_target))
         } else {
             target.setText(assetsMapModel.mapName)
         }
@@ -160,8 +125,8 @@ class AssetsMapDialog : BaseSheetDialog<DialogMapBinding> {
         val name = raw.text.toString()
         val mapName = target.getText()
 
-        if (name.isEmpty() || mapName == context.getString(R.string.map_target)) {
-            ToastUtils.error(context.getString(R.string.map_empty))
+        if (name.isEmpty() || mapName == ctx.getString(R.string.map_target)) {
+            ToastUtils.error(ctx.getString(R.string.map_empty))
         } else {
             assetsMapModel.apply {
                 this.name = name
@@ -169,7 +134,7 @@ class AssetsMapDialog : BaseSheetDialog<DialogMapBinding> {
                 this.regex = binding.regex.isChecked
             }
             lifecycleScope.launch {
-                onClose(assetsMapModel)
+                onClose?.invoke(assetsMapModel)
                 dismiss()
             }
         }
@@ -179,25 +144,21 @@ class AssetsMapDialog : BaseSheetDialog<DialogMapBinding> {
      * 显示资产选择器
      */
     private fun showAssetSelector() {
-        val selectorDialog = when {
-            hostActivity != null -> AssetsSelectorDialog(hostActivity) { asset ->
-                updateSelectedAsset(asset)
-            }
-
-            hostFragment != null -> AssetsSelectorDialog(hostFragment) { asset ->
-                updateSelectedAsset(asset)
-            }
-
-            hostService != null -> AssetsSelectorDialog(hostService) { asset ->
-                updateSelectedAsset(asset)
-            }
-
+        val selectorDialog = when (ctx) {
+            is Activity -> AssetsSelectorDialog.create(ctx as Activity)
             else -> {
-                // 不应该到达这里
-                return
+                // 对于 Fragment 和 Service，需要从 lifecycleOwner 获取
+                when (lifecycleOwner) {
+                    is Fragment -> AssetsSelectorDialog.create(lifecycleOwner as Fragment)
+                    is LifecycleService -> AssetsSelectorDialog.create(lifecycleOwner as LifecycleService)
+                    else -> return // 无法创建选择器
+                }
             }
         }
-        selectorDialog.show()
+
+        selectorDialog.setCallback { asset ->
+            updateSelectedAsset(asset)
+        }.show()
     }
 
     /**
@@ -209,6 +170,35 @@ class AssetsMapDialog : BaseSheetDialog<DialogMapBinding> {
 
         lifecycleScope.launch {
             binding.target.imageView().setAssetIcon(asset)
+        }
+    }
+
+    companion object {
+        /**
+         * 从Activity创建资产映射对话框
+         * @param activity 宿主Activity
+         * @return 对话框实例
+         */
+        fun create(activity: Activity): AssetsMapDialog {
+            return AssetsMapDialog(activity, activity as LifecycleOwner, false)
+        }
+
+        /**
+         * 从Fragment创建资产映射对话框
+         * @param fragment 宿主Fragment
+         * @return 对话框实例
+         */
+        fun create(fragment: Fragment): AssetsMapDialog {
+            return AssetsMapDialog(fragment.requireContext(), fragment, false)
+        }
+
+        /**
+         * 从Service创建资产映射对话框（悬浮窗模式）
+         * @param service 宿主Service
+         * @return 对话框实例
+         */
+        fun create(service: LifecycleService): AssetsMapDialog {
+            return AssetsMapDialog(service, service, true)
         }
     }
 }

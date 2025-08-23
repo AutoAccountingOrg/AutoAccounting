@@ -15,20 +15,46 @@
 
 package net.ankio.auto.ui.dialog
 
-import android.content.Context
-import android.view.LayoutInflater
+import android.app.Activity
 import android.view.View
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleService
 import net.ankio.auto.databinding.CustomDateTimePickerBinding
 import net.ankio.auto.ui.api.BaseSheetDialog
 import java.util.Calendar
 import kotlin.math.min
 
-class DateTimePickerDialog(
-    context: Context,
-    private val timeOnly: Boolean = false,
-    private val title: String? = null
-) : BaseSheetDialog(context) {
-    lateinit var binding: CustomDateTimePickerBinding
+/**
+ * 日期时间选择器对话框
+ *
+ * 支持以下功能：
+ * - 年月日时分选择
+ * - 仅时间选择模式
+ * - 自定义标题
+ * - 自动处理月份天数变化（闰年等）
+ * - 生命周期安全管理
+ *
+ * 使用方式：
+ * ```kotlin
+ * DateTimePickerDialog.create(activity)
+ *     .setTimeOnly(true)
+ *     .setTitle("选择时间")
+ *     .setOnDateTimeSelected { year, month, day, hour, minute -> }
+ *     .show()
+ * ```
+ */
+class DateTimePickerDialog private constructor(
+    context: android.content.Context,
+    lifecycleOwner: LifecycleOwner?,
+    isOverlay: Boolean
+) : BaseSheetDialog<CustomDateTimePickerBinding>(context, lifecycleOwner, isOverlay) {
+
+    // 配置参数
+    private var timeOnly: Boolean = false
+    private var title: String? = null
+
+    // 回调函数
     private var onDateTimeSelectedListener: ((year: Int, month: Int, day: Int, hour: Int, minute: Int) -> Unit)? =
         null
 
@@ -39,12 +65,52 @@ class DateTimePickerDialog(
     private var currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
     private var currentMinute = Calendar.getInstance().get(Calendar.MINUTE)
 
-    override fun onCreateView(inflater: LayoutInflater): View {
-        binding = CustomDateTimePickerBinding.inflate(inflater)
-        return binding.root
+    /**
+     * 设置是否仅显示时间选择器
+     * @param timeOnly true表示仅时间，false表示日期+时间
+     * @return 当前对话框实例，支持链式调用
+     */
+    fun setTimeOnly(timeOnly: Boolean) = apply {
+        this.timeOnly = timeOnly
     }
 
-    override fun onViewCreated(view: View) {
+    /**
+     * 设置对话框标题
+     * @param title 标题文本，null表示不显示标题
+     * @return 当前对话框实例，支持链式调用
+     */
+    fun setTitle(title: String?) = apply {
+        this.title = title
+    }
+
+    /**
+     * 设置日期时间选择回调
+     * @param listener 选择后的回调函数
+     * @return 当前对话框实例，支持链式调用
+     */
+    fun setOnDateTimeSelected(listener: (year: Int, month: Int, day: Int, hour: Int, minute: Int) -> Unit) =
+        apply {
+            this.onDateTimeSelectedListener = listener
+    }
+
+    /**
+     * 设置初始日期时间
+     * @param year 年份
+     * @param month 月份（1-12）
+     * @param day 日期
+     * @param hour 小时（0-23）
+     * @param minute 分钟（0-59）
+     * @return 当前对话框实例，支持链式调用
+     */
+    fun setDateTime(year: Int, month: Int, day: Int, hour: Int, minute: Int) = apply {
+        this.currentYear = year
+        this.currentMonth = month
+        this.currentDay = day
+        this.currentHour = hour
+        this.currentMinute = minute
+    }
+
+    override fun onViewCreated(view: View?) {
         super.onViewCreated(view)
 
         // 设置标题
@@ -55,130 +121,204 @@ class DateTimePickerDialog(
             binding.dialogTitle.visibility = View.GONE
         }
 
+        // 仅时间模式时隐藏日期选择器
         if (timeOnly) {
-            binding.llDate.visibility = View.GONE
             binding.llDateTitle.visibility = View.GONE
+            binding.llDate.visibility = View.GONE
         }
 
-        initializePickers()
-        setupListeners()
-    }
+        // 初始化选择器
+        setupPickers()
 
-    private fun initializePickers() {
-        // 设置年份范围
-        binding.npYear.apply {
-            minValue = 1900
-            maxValue = 2100
-            value = currentYear
-        }
-
-        // 设置月份范围
-        binding.npMonth.apply {
-            minValue = 1
-            maxValue = 12
-            value = currentMonth
-        }
-
-        // 设置日期范围
-        updateDayPicker()
-
-        // 设置小时范围
-        binding.npHour.apply {
-            minValue = 0
-            maxValue = 23
-            value = currentHour
-        }
-
-        // 设置分钟范围
-        binding.npMinute.apply {
-            minValue = 0
-            maxValue = 59
-            value = currentMinute
-        }
-    }
-
-    private fun setupListeners() {
-        // 月份变化时更新天数
-        binding.npMonth.setOnValueChangedListener { _, _, newVal ->
-            currentMonth = newVal
-            updateDayPicker()
-        }
-
-        binding.npYear.setOnValueChangedListener { _, _, newVal ->
-            currentYear = newVal
-            updateDayPicker()
-        }
-
-        // 确定按钮点击事件
+        // 设置确认按钮
         binding.positiveButton.setOnClickListener {
             onDateTimeSelectedListener?.invoke(
-                binding.npYear.value,
-                binding.npMonth.value,
-                binding.npDay.value,
-                binding.npHour.value,
-                binding.npMinute.value
+                currentYear,
+                currentMonth,
+                currentDay,
+                currentHour,
+                currentMinute
             )
             dismiss()
         }
 
-        // 取消按钮点击事件
+        // 设置取消按钮
         binding.negativeButton.setOnClickListener {
             dismiss()
         }
     }
 
-    private fun updateDayPicker() {
-        val calendar = Calendar.getInstance()
-        calendar.set(Calendar.YEAR, currentYear)
-        calendar.set(Calendar.MONTH, currentMonth - 1)
+    /**
+     * 初始化所有选择器
+     */
+    private fun setupPickers() {
+        if (!timeOnly) {
+            setupDatePickers()
+        }
+        setupTimePickers()
+    }
 
-        val maxDays = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+    /**
+     * 设置日期选择器
+     */
+    private fun setupDatePickers() {
+        // 年份选择器（1900-2100）
+        binding.npYear.apply {
+            minValue = 1900
+            maxValue = 2100
+            value = currentYear
+            setOnValueChangedListener { _, _, newVal ->
+                currentYear = newVal
+                updateDayPicker()
+            }
+        }
+
+        // 月份选择器（1-12）
+        binding.npMonth.apply {
+            minValue = 1
+            maxValue = 12
+            value = currentMonth
+            setOnValueChangedListener { _, _, newVal ->
+                currentMonth = newVal
+                updateDayPicker()
+            }
+        }
+
+        // 日期选择器
+        updateDayPicker()
+    }
+
+    /**
+     * 设置时间选择器
+     */
+    private fun setupTimePickers() {
+        // 小时选择器（0-23）
+        binding.npHour.apply {
+            minValue = 0
+            maxValue = 23
+            value = currentHour
+            setFormatter { String.format("%02d", it) }
+            setOnValueChangedListener { _, _, newVal ->
+                currentHour = newVal
+            }
+        }
+
+        // 分钟选择器（0-59）
+        binding.npMinute.apply {
+            minValue = 0
+            maxValue = 59
+            value = currentMinute
+            setFormatter { String.format("%02d", it) }
+            setOnValueChangedListener { _, _, newVal ->
+                currentMinute = newVal
+            }
+        }
+    }
+
+    /**
+     * 更新日期选择器的最大值
+     * 根据当前年月计算该月的最大天数
+     */
+    private fun updateDayPicker() {
+        val maxDay = getMaxDayOfMonth(currentYear, currentMonth)
+        
         binding.npDay.apply {
             minValue = 1
-            maxValue = maxDays
-            // 确保当前选中的日期不超过该月的最大天数
-            value = min(currentDay, maxDays)
+            maxValue = maxDay
+
+            // 如果当前选中的日期超过了新的最大值，调整为最大值
+            if (currentDay > maxDay) {
+                currentDay = maxDay
+            }
+
+            value = currentDay
+
+            setOnValueChangedListener { _, _, newVal ->
+                currentDay = newVal
+            }
         }
     }
 
-    fun setOnDateTimeSelectedListener(listener: (year: Int, month: Int, day: Int, hour: Int, minute: Int) -> Unit) {
-        onDateTimeSelectedListener = listener
+    /**
+     * 获取指定年月的最大天数
+     * @param year 年份
+     * @param month 月份（1-12）
+     * @return 该月的最大天数
+     */
+    private fun getMaxDayOfMonth(year: Int, month: Int): Int {
+        return when (month) {
+            1, 3, 5, 7, 8, 10, 12 -> 31
+            4, 6, 9, 11 -> 30
+            2 -> if (isLeapYear(year)) 29 else 28
+            else -> 30
+        }
     }
 
-    // 设置初始日期时间的方法
-    fun setDateTime(year: Int, month: Int, day: Int, hour: Int, minute: Int) {
-        currentYear = year
-        currentMonth = month
-        currentDay = day
-        currentHour = hour
-        currentMinute = minute
+    /**
+     * 判断是否为闰年
+     * @param year 年份
+     * @return true表示闰年，false表示平年
+     */
+    private fun isLeapYear(year: Int): Boolean {
+        return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)
+    }
 
-        if (::binding.isInitialized) {
-            binding.npYear.value = year
-            binding.npMonth.value = month
-            binding.npDay.value = day
-            binding.npHour.value = hour
-            binding.npMinute.value = minute
-        }
+    /**
+     * 获取当前选中的时间戳
+     * @return 时间戳（毫秒）
+     */
+    fun getSelectedTimeInMillis(): Long {
+        val calendar = Calendar.getInstance()
+        calendar.set(currentYear, currentMonth - 1, currentDay, currentHour, currentMinute, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+        return calendar.timeInMillis
+    }
+
+    /**
+     * 从时间戳设置日期时间
+     * @param timeInMillis 时间戳（毫秒）
+     */
+    fun setDateTimeFromMillis(timeInMillis: Long) = apply {
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = timeInMillis
+
+        currentYear = calendar.get(Calendar.YEAR)
+        currentMonth = calendar.get(Calendar.MONTH) + 1
+        currentDay = calendar.get(Calendar.DAY_OF_MONTH)
+        currentHour = calendar.get(Calendar.HOUR_OF_DAY)
+        currentMinute = calendar.get(Calendar.MINUTE)
     }
 
     companion object {
-        // 创建当前时间的对话框
-        fun withCurrentTime(
-            context: Context,
-            timeOnly: Boolean = false,
-            title: String? = null
-        ): DateTimePickerDialog {
-            return DateTimePickerDialog(context, timeOnly, title).apply {
-                val calendar = Calendar.getInstance()
-                setDateTime(
-                    calendar.get(Calendar.YEAR),
-                    calendar.get(Calendar.MONTH) + 1,
-                    calendar.get(Calendar.DAY_OF_MONTH),
-                    calendar.get(Calendar.HOUR_OF_DAY),
-                    calendar.get(Calendar.MINUTE)
-                )
-            }
+        /**
+         * 从Activity创建日期时间选择器
+         * @param activity 宿主Activity
+         * @return 对话框实例
+         */
+        fun create(activity: Activity): DateTimePickerDialog {
+            return DateTimePickerDialog(activity, activity as LifecycleOwner, false)
+        }
+
+        /**
+         * 从Fragment创建日期时间选择器
+         * @param fragment 宿主Fragment
+         * @return 对话框实例
+         */
+        fun create(fragment: Fragment): DateTimePickerDialog {
+            return DateTimePickerDialog(
+                fragment.requireContext(),
+                fragment.viewLifecycleOwner,
+                false
+            )
+        }
+
+        /**
+         * 从Service创建日期时间选择器（悬浮窗模式）
+         * @param service 宿主Service
+         * @return 对话框实例
+         */
+        fun create(service: LifecycleService): DateTimePickerDialog {
+            return DateTimePickerDialog(service, service, true)
         }
     }
 }

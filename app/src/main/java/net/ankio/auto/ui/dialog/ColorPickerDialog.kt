@@ -16,29 +16,43 @@
 package net.ankio.auto.ui.dialog
 
 import android.app.Activity
-import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.graphics.ColorUtils
+import androidx.core.graphics.toColorInt
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleService
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import net.ankio.auto.databinding.DialogColorPickerBinding
 import net.ankio.auto.databinding.ItemColorBinding
 import net.ankio.auto.ui.api.BaseSheetDialog
-import androidx.core.graphics.toColorInt
 
 /**
  * 简化的颜色选择对话框
  *
  * 只提供颜色圆圈选择功能，选中状态通过外圈高亮显示
+ *
+ * 使用方式：
+ * ```kotlin
+ * ColorPickerDialog.create(activity)
+ *     .setInitialColor("#FF5722")
+ *     .setOnColorSelected { color ->
+ *         // 处理颜色选择
+ *     }
+ *     .show()
+ * ```
  */
-class ColorPickerDialog : BaseSheetDialog<DialogColorPickerBinding> {
+class ColorPickerDialog private constructor(
+    context: android.content.Context,
+    lifecycleOwner: LifecycleOwner?,
+    isOverlay: Boolean
+) : BaseSheetDialog<DialogColorPickerBinding>(context, lifecycleOwner, isOverlay) {
 
     /** 颜色选择回调函数 */
     private var onColorSelected: ((String) -> Unit)? = null
@@ -48,13 +62,6 @@ class ColorPickerDialog : BaseSheetDialog<DialogColorPickerBinding> {
 
     /** 颜色网格适配器 */
     private lateinit var colorAdapter: ColorAdapter
-
-    /**
-     * 构造函数
-     */
-    constructor(activity: Activity) : super(activity)
-    constructor(fragment: Fragment) : super(fragment)
-    constructor(service: LifecycleService) : super(service)
 
     // 预设颜色列表 - 优化为适合标签底色的颜色
     private val colors = listOf(
@@ -77,15 +84,39 @@ class ColorPickerDialog : BaseSheetDialog<DialogColorPickerBinding> {
     )
 
     /**
-     * 设置颜色配置
+     * 设置初始颜色
+     * @param color 初始颜色值（如 "#FF5722"）
+     * @return 当前对话框实例，支持链式调用
      */
+    fun setInitialColor(color: String) = apply {
+        this.selectedColor = color
+        if (::colorAdapter.isInitialized) {
+            colorAdapter.updateSelectedColor(color)
+        }
+    }
+
+    /**
+     * 设置颜色选择回调
+     * @param callback 颜色选择后的回调函数
+     * @return 当前对话框实例，支持链式调用
+     */
+    fun setOnColorSelected(callback: (String) -> Unit) = apply {
+        this.onColorSelected = callback
+    }
+
+    /**
+     * 设置颜色配置（兼容旧接口）
+     * @deprecated 建议使用 setInitialColor 和 setOnColorSelected 分别设置
+     */
+    @Deprecated(
+        "Use setInitialColor and setOnColorSelected instead",
+        ReplaceWith("setInitialColor(initialColor).setOnColorSelected(onColorSelected)")
+    )
     fun setColorConfig(
         initialColor: String = "#2196F3",
         onColorSelected: (String) -> Unit
     ): ColorPickerDialog {
-        this.selectedColor = initialColor
-        this.onColorSelected = onColorSelected
-        return this
+        return setInitialColor(initialColor).setOnColorSelected(onColorSelected)
     }
 
     override fun onViewCreated(view: View?) {
@@ -209,6 +240,35 @@ class ColorPickerDialog : BaseSheetDialog<DialogColorPickerBinding> {
                     binding.root.isVisible = false
                 }
             }
+        }
+    }
+
+    companion object {
+        /**
+         * 从Activity创建颜色选择对话框
+         * @param activity 宿主Activity
+         * @return 对话框实例
+         */
+        fun create(activity: Activity): ColorPickerDialog {
+            return ColorPickerDialog(activity, activity as LifecycleOwner, false)
+        }
+
+        /**
+         * 从Fragment创建颜色选择对话框
+         * @param fragment 宿主Fragment
+         * @return 对话框实例
+         */
+        fun create(fragment: Fragment): ColorPickerDialog {
+            return ColorPickerDialog(fragment.requireContext(), fragment.viewLifecycleOwner, false)
+        }
+
+        /**
+         * 从Service创建颜色选择对话框（悬浮窗模式）
+         * @param service 宿主Service
+         * @return 对话框实例
+         */
+        fun create(service: LifecycleService): ColorPickerDialog {
+            return ColorPickerDialog(service, service, true)
         }
     }
 }
