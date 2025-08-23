@@ -34,10 +34,10 @@ class IntroPageFeatureFragment :
                 { PrefManager.featureReimbursement },
                 { PrefManager.featureReimbursement = it }
             ),
-            BookFeatures.LEADING to FeatureBinding(
-                binding.cardLeading,
-                { PrefManager.featureLeading },
-                { PrefManager.featureLeading = it }
+            BookFeatures.DEBT to FeatureBinding(
+                binding.cardDebt,
+                { PrefManager.featureDebt },
+                { PrefManager.featureDebt = it }
             ),
             BookFeatures.FEE to FeatureBinding(
                 binding.cardFee,
