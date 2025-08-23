@@ -22,12 +22,16 @@ import android.content.Intent
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import androidx.core.app.NotificationManagerCompat
+import com.google.gson.Gson
 import com.google.gson.JsonObject
+import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.autoApp
 import net.ankio.auto.constant.WorkMode
+import net.ankio.auto.http.api.JsAPI
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.utils.PrefManager
+import org.ezbook.server.constant.DataType
 
 class NotificationService : NotificationListenerService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -50,7 +54,6 @@ class NotificationService : NotificationListenerService() {
                     ?: ""  // 如果都没有，返回空字符串
             }.getOrElse { "" }
 
-            Logger.d("NotificationService: $app $title $text")
             checkNotification(app!!, title, text)
         }.onFailure {
             Logger.e("NotificationService: ${it.message}", it)
@@ -76,12 +79,7 @@ class NotificationService : NotificationListenerService() {
         title: String,
         text: String,
     ) {
-
-        /* val  apps = runCatching {
-             ConfigUtils.getString(Setting.LISTENER_APP_LIST, DefaultData.NOTICE_FILTER)
-                 .split(",").toMutableList()
-         }.getOrElse { mutableListOf() }*/
-        val apps = emptyList<String>()
+        val apps = PrefManager.appWhiteList
 
         if (title.isEmpty() && text.isEmpty()) {
             return
@@ -98,13 +96,22 @@ class NotificationService : NotificationListenerService() {
                 addProperty("body", text)
                 addProperty("t", System.currentTimeMillis())
             }
+            App.launch {
+                val billResult =
+                    JsAPI.analysis(DataType.DATA, Gson().toJson(json), "com.android.phone")
+                Logger.d("识别结果：${billResult?.billInfoModel}")
+            }
             // Analyze.start(DataType.DATA, Gson().toJson(json), "com.android.phone")
         } else {
             val json = JsonObject()
             json.addProperty("title", title)
             json.addProperty("text", text)
             json.addProperty("t", System.currentTimeMillis())
-
+            App.launch {
+                val billResult =
+                    JsAPI.analysis(DataType.NOTICE, Gson().toJson(json), pkg)
+                Logger.d("识别结果：${billResult?.billInfoModel}")
+            }
             //  Analyze.start(DataType.NOTICE, Gson().toJson(json), pkg)
         }
 
