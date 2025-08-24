@@ -26,13 +26,25 @@ data class BillInfoIntent(
 ) : BaseIntent(IntentType.FloatingIntent) {
 
     companion object {
-        fun parse(intent: Intent): BillInfoIntent {
+        /**
+         * 从 Intent 解析 BillInfoIntent
+         * @param intent 可能为空的 Intent 对象
+         * @return 解析后的 BillInfoIntent，如果 intent 为空则返回默认值
+         */
+        fun parse(intent: Intent?): BillInfoIntent? {
+            // 如果 intent 为空，返回默认的 BillInfoIntent
+            if (intent == null) {
+                return null
+            }
+            
             val billInfo = runCatching {
                 Gson().fromJson(
                     intent.getStringExtra("billInfo"),
                     BillInfoModel::class.java
                 )
-            }.getOrDefault(BillInfoModel())
+            }.getOrNull()
+
+            if (billInfo == null) return null
 
             val from = intent.getStringExtra("from") ?: ""
             val parent = if (intent.hasExtra("parent")) {
@@ -45,6 +57,7 @@ data class BillInfoIntent(
             } else {
                 null
             }
+
             return BillInfoIntent(billInfo, from, parent)
         }
     }
