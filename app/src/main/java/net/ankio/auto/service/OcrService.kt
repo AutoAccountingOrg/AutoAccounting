@@ -11,7 +11,9 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.autoApp
@@ -72,6 +74,11 @@ class OcrService : ICoreService() {
         shotHelper = ScreenShotHelper(coreService, ProjectionGateway.get(coreService))
 
         ocrProcessor = OcrProcessor(coreService)
+
+
+        coreService.lifecycleScope.launch {
+            ocrProcessor.ensureOcrReady(coreService)
+        }
 
         serverStarted = true
 

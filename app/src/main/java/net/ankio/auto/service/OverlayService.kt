@@ -45,7 +45,7 @@ class OverlayService : ICoreService() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int) {
-        val floatIntent = BillInfoIntent.parse(intent!!)
+        val floatIntent = BillInfoIntent.parse(intent!!) ?: return
         val parent = floatIntent.parent
         if (parent != null) {
             if (PrefManager.showDuplicatedPopup) {
