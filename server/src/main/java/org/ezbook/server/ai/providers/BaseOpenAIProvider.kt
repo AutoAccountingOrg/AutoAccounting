@@ -15,11 +15,12 @@
 
 package org.ezbook.server.ai.providers
 
-import android.util.Log
+
 import com.google.gson.JsonParser
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import org.ezbook.server.Server
 
 /**
  * OpenAI风格API的基础实现类
@@ -43,7 +44,7 @@ abstract class BaseOpenAIProvider : BaseAIProvider() {
             client.newCall(request).execute().use { response ->
                 //  if (!response.isSuccessful) throw RuntimeException("Failed to get models: ${response.code}")
 
-                val body = response.body.string() ?: throw RuntimeException("Empty response body")
+                val body = response.body?.string() ?: throw RuntimeException("Empty response body")
                 val jsonObject = JsonParser.parseString(body).asJsonObject
                 val models = mutableListOf<String>()
 
@@ -54,17 +55,23 @@ abstract class BaseOpenAIProvider : BaseAIProvider() {
                 return models
             }
         }.onFailure {
-            Log.e("Request", "${it.message}", it)
+            Server.log(it)
         }.getOrElse { emptyList() }
     }
 
+
     /**
-     * 发送请求到AI并获取响应
+     * 发送请求到AI并获取响应（支持流式输出）
      * @param system 系统角色提示词
      * @param user 用户输入
-     * @return AI响应内容
+     * @param onChunk 流式输出时的数据块回调函数
+     * @return AI响应内容（非流式）或null（流式）
      */
-    override suspend fun request(system: String, user: String): String? {
+    override suspend fun request(
+        system: String,
+        user: String,
+        onChunk: ((String) -> Unit)?
+    ): String? {
         val messages = mutableListOf<Map<String, String>>()
 
         // 添加系统消息
@@ -77,7 +84,6 @@ abstract class BaseOpenAIProvider : BaseAIProvider() {
             )
         }
 
-
         // 添加用户消息
         messages.add(
             mapOf(
@@ -86,36 +92,110 @@ abstract class BaseOpenAIProvider : BaseAIProvider() {
             )
         )
 
-        val requestBody = mapOf(
+        val requestBody = mutableMapOf<String, Any>(
             "model" to getModel(),
             "messages" to messages,
             "temperature" to 0.7
         )
 
+        // 如果启用流式输出，添加stream参数
+        if (onChunk != null) {
+            requestBody["stream"] = true
+        }
+
         val request = Request.Builder()
             .url("$apiUri/chat/completions")
             .addHeader("Authorization", "Bearer ${getApiKey()}")
             .addHeader("Content-Type", "application/json")
+            .apply {
+                if (onChunk != null) {
+                    addHeader("Accept", "text/event-stream")
+                }
+            }
             .post(gson.toJson(requestBody).toRequestBody("application/json".toMediaTypeOrNull()))
             .build()
+
         return runCatching {
-            client.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) return null
+            if (onChunk != null) {
+                // 流式处理
+                handleStreamResponse(request, onChunk)
+                null // 流式模式返回null
+            } else {
+                // 普通处理
+                client.newCall(request).execute().use { response ->
+                    if (!response.isSuccessful) return null
 
-                val body = response.body.string().removeThink()
-                val jsonObject = JsonParser.parseString(body).asJsonObject
+                    val body = response.body?.string()?.removeThink() ?: return null
+                    val jsonObject = JsonParser.parseString(body).asJsonObject
 
-                return jsonObject
-                    .getAsJsonArray("choices")
-                    ?.get(0)
-                    ?.asJsonObject
-                    ?.getAsJsonObject("message")
-                    ?.get("content")
-                    ?.asString
+                    jsonObject
+                        .getAsJsonArray("choices")
+                        ?.get(0)
+                        ?.asJsonObject
+                        ?.getAsJsonObject("message")
+                        ?.get("content")
+                        ?.asString
+                }
             }
         }.onFailure {
-            Log.e("Request", "${it.message}", it)
+            Server.log(it)
         }.getOrElse { null }
     }
+
+    /**
+     * 处理流式响应
+     * @param request HTTP请求
+     * @param onChunk 数据块回调函数
+     */
+    private suspend fun handleStreamResponse(request: Request, onChunk: (String) -> Unit) {
+        return kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            client.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) {
+                    Server.log("StreamRequest 请求失败: ${response.code}")
+                    return@withContext
+                }
+
+                val source = response.body?.source()
+                if (source == null) {
+                    Server.log("StreamRequest 响应体为空")
+                    return@withContext
+                }
+
+                try {
+                    while (!source.exhausted()) {
+                        val line = source.readUtf8Line() ?: break
+
+                        // 处理SSE格式的数据
+                        if (line.startsWith("data: ")) {
+                            val data = line.substring(6) // 移除"data: "前缀
+
+                            if (data == "[DONE]") {
+                                break
+                            }
+
+                            try {
+                                val jsonObject = JsonParser.parseString(data).asJsonObject
+                                val choices = jsonObject.getAsJsonArray("choices")
+                                if (choices != null && choices.size() > 0) {
+                                    val choice = choices[0].asJsonObject
+                                    val delta = choice.getAsJsonObject("delta")
+                                    val content = delta?.get("content")?.asString
+
+                                    if (content != null) {
+                                        onChunk(content)
+                                    }
+                                }
+                            } catch (e: Exception) {
+                                Server.log("StreamRequest 解析数据块失败: ${e.message}")
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    Server.log(e)
+                }
+            }
+        }
+    }
+
 
 } 

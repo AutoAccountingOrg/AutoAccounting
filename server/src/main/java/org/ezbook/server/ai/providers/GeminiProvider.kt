@@ -36,7 +36,7 @@ class GeminiProvider : BaseAIProvider() {
         runCatching {
             client.newCall(request).execute().use { response ->
                 if (!response.isSuccessful) throw RuntimeException("Failed to get models: ${response.code}")
-                val body = response.body.string()
+                val body = response.body?.string()
                 val jsonObject = JsonParser.parseString(body).asJsonObject
 
                 val models = mutableListOf<String>()
@@ -53,15 +53,26 @@ class GeminiProvider : BaseAIProvider() {
     /**
      * 发送聊天请求
      */
-    override suspend fun request(system: String, user: String): String? =
+    override suspend fun request(
+        system: String,
+        user: String,
+        onChunk: ((String) -> Unit)?
+    ): String? =
         withContext(Dispatchers.IO) {
-            val url = "$apiUri/$model:generateContent?key=${getApiKey()}"
+            val path = if (onChunk === null) "generateContent" else "streamGenerateContent?alt=sse"
+            val url = "$apiUri/$model:$path"
             val requestBody = mapOf(
                 "contents" to listOf(
                     mapOf(
+                        "role" to "system",
+                        "parts" to listOf(
+                            mapOf("text" to system)
+                        )
+                    ),
+                    mapOf(
                         "role" to "user",
                         "parts" to listOf(
-                            mapOf("text" to (if (system.isNotEmpty()) "$system\n$user" else user))
+                            mapOf("text" to user)
                         )
                     )
                 )
@@ -71,30 +82,64 @@ class GeminiProvider : BaseAIProvider() {
                 .post(
                     gson.toJson(requestBody).toRequestBody("application/json".toMediaTypeOrNull())
                 )
+                .addHeader("x-goog-api-key", getApiKey())
                 .addHeader("Content-Type", "application/json")
                 .build()
             runCatching {
                 client.newCall(request).execute().use { response ->
                     if (!response.isSuccessful) {
-                        val errorBody = response.body.string()
+                        val errorBody = response.body?.string()
                         throw RuntimeException("Request failed: ${response.code}, body: $errorBody")
                     }
-                    val body = response.body.string().removeThink()
-                    val jsonObject = JsonParser.parseString(body).asJsonObject
 
-                    return@withContext jsonObject
-                        .getAsJsonArray("candidates")
-                        ?.firstOrNull()
-                        ?.asJsonObject
-                        ?.getAsJsonObject("content")
-                        ?.getAsJsonArray("parts")
-                        ?.firstOrNull()
-                        ?.asJsonObject
-                        ?.get("text")
-                        ?.asString
+                    if (onChunk != null) {
+                        // 流式处理
+                        val source = response.body?.source()
+                        if (source != null) {
+                            while (!source.exhausted()) {
+                                val line = source.readUtf8Line() ?: break
+                                if (line.startsWith("data: ")) {
+                                    val data = line.substring(6)
+                                    if (data.trim().isNotEmpty() && data != "[DONE]") {
+                                        val content = parseGeminiContent(data)
+                                        if (content != null) {
+                                            onChunk(content)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        return@withContext null // 流式模式返回null
+                    } else {
+                        // 非流式处理
+                        val body = response.body?.string()?.removeThink() ?: ""
+                        return@withContext parseGeminiContent(body)
+                    }
                 }
             }.onFailure {
                 Log.e("Request", "${it.message}", it)
             }.getOrElse { null }
+        }
+
+    /**
+     * 解析Gemini响应内容
+     */
+    private fun parseGeminiContent(body: String): String? {
+        return try {
+            val jsonObject = JsonParser.parseString(body).asJsonObject
+            jsonObject
+                .getAsJsonArray("candidates")
+                ?.firstOrNull()
+                ?.asJsonObject
+                ?.getAsJsonObject("content")
+                ?.getAsJsonArray("parts")
+                ?.firstOrNull()
+                ?.asJsonObject
+                ?.get("text")
+                ?.asString
+        } catch (e: Exception) {
+            Log.e("GeminiParse", "解析失败: ${e.message}")
+            null
+        }
         }
 }

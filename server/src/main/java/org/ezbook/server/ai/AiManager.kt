@@ -162,6 +162,18 @@ class AiManager {
         return getCurrentProvider()?.request(system, user)
     }
 
+
+    /**
+     * 发送流式请求到当前AI服务
+     * @param system 系统提示
+     * @param user 用户提示
+     * @param onChunk 接收到数据块时的回调函数
+     * @return 是否成功开始流式请求
+     */
+    suspend fun requestStream(system: String, user: String, onChunk: (String) -> Unit) {
+        getCurrentProvider()?.request(system, user, onChunk)
+    }
+
     companion object {
         @Volatile
         private var instance: AiManager? = null

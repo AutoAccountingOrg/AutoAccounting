@@ -52,14 +52,19 @@ abstract class BaseAIProvider {
     /**
      * 发送请求到AI服务
      */
-    abstract suspend fun request(system: String, user: String): String?
+    abstract suspend fun request(
+        system: String,
+        user: String,
+        onChunk: ((String) -> Unit)? = null
+    ): String?
+
 
     protected val client = OkHttpClient.Builder()
         .apply {
             if (Server.debug) {
                 class LoudLogger : HttpLoggingInterceptor.Logger {
                     override fun log(message: String) {
-                        Log.w("openai", message)
+                        Log.w("BaseAIProvider", message)
                     }
                 }
 
@@ -68,9 +73,9 @@ abstract class BaseAIProvider {
                 addInterceptor(loud)
             }
         }
-        .connectTimeout(60, TimeUnit.SECONDS)
-        .writeTimeout(60, TimeUnit.SECONDS)
-        .readTimeout(60, TimeUnit.SECONDS)
+        .connectTimeout(5, TimeUnit.MINUTES)
+        .writeTimeout(5, TimeUnit.MINUTES)
+        .readTimeout(5, TimeUnit.MINUTES)
         .build()
 
     protected val gson = Gson()

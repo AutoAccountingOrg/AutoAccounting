@@ -16,13 +16,17 @@
 package org.ezbook.server.server
 
 import io.ktor.application.call
+import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
 import io.ktor.response.respond
+import io.ktor.response.respondTextWriter
 import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.route
+import kotlinx.coroutines.launch
+import org.ezbook.server.Server
 import org.ezbook.server.ai.AiManager
 import org.ezbook.server.models.ResultModel
 
@@ -104,6 +108,35 @@ fun Route.aiApiRoutes() {
             val userPrompt = body["user"] ?: ""
             val resp = AiManager.getInstance().request(systemPrompt, userPrompt)
             call.respond(HttpStatusCode.OK, ResultModel(200, "success", resp))
+        }
+
+        // 发送流式请求 - 真正的SSE响应
+        post("/request/stream") {
+            val body = call.receive<Map<String, String>>()
+            val systemPrompt = body["system"] ?: ""
+            val userPrompt = body["user"] ?: ""
+            // 使用respondTextWriter实现真正的流式响应
+            call.respondTextWriter(ContentType.Text.EventStream) {
+                try {
+                    write("data: [START]\n\n")
+                    flush()
+
+                    AiManager.getInstance().requestStream(systemPrompt, userPrompt) { chunk ->
+                        write("data: $chunk\n\n")
+                        flush()
+                    }
+
+                    write("data: [DONE]\n\n")
+                    flush()
+
+                } catch (e: Exception) {
+                    Server.logD("catch error: ${e.message}")
+                    write("event: error\n")
+                    write("data: ${e.message}\n\n")
+                    flush()
+                }
+            }
+
         }
     }
 }
