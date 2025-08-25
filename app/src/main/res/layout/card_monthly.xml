@@ -1,5 +1,6 @@
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/income_expense_card"
     style="@style/HomeCard">
 
@@ -18,38 +19,32 @@
              app:layout_constraintStart_toStartOf="parent"
              app:layout_constraintTop_toTopOf="parent" />-->
 
-        <View
-            android:id="@+id/shadowOverlay"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:background="?attr/colorSurface"
-            android:alpha="0.4"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
 
         <LinearLayout
             android:id="@+id/incomeExpenseLayout"
             android:layout_width="0dp"
-            android:layout_height="180dp"
+            android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:padding="12dp"
-            app:layout_constraintBottom_toTopOf="@+id/tv_pending_sync"
+            android:padding="16dp"
+            android:layout_marginTop="16dp"
+            android:minHeight="120dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/bottomButtonsLayout">
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_weight="1"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:gravity="center"
                 android:orientation="vertical">
 
                 <com.google.android.material.imageview.ShapeableImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:id="@+id/ivIncomeIcon"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_marginBottom="8dp"
                     android:tint="?attr/colorPrimary"
                     app:srcCompat="@drawable/ic_trending_up" />
 
@@ -57,7 +52,8 @@
                     android:id="@+id/tvIncomeAmount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="¥7,300.00"
+                    android:layout_marginBottom="4dp"
+                    tools:text="¥7,300.00"
                     android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
                     android:textColor="?attr/colorOnSurface" />
 
@@ -78,13 +74,15 @@
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_weight="1"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:gravity="center"
                 android:orientation="vertical">
 
                 <com.google.android.material.imageview.ShapeableImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:id="@+id/ivExpenseIcon"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_marginBottom="8dp"
                     android:tint="?attr/colorError"
                     app:srcCompat="@drawable/ic_trending_down" />
 
@@ -92,7 +90,8 @@
                     android:id="@+id/tvExpenseAmount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="¥18,188.83"
+                    android:layout_marginBottom="4dp"
+                    tools:text="¥18,188.83"
                     android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
                     android:textColor="?attr/colorOnSurface" />
 
@@ -105,20 +104,44 @@
             </LinearLayout>
         </LinearLayout>
 
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/tv_pending_sync"
+        <!-- 底部按钮容器 -->
+        <LinearLayout
+            android:id="@+id/bottomButtonsLayout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:paddingVertical="8dp"
-            android:text="@string/pending_sync"
-            android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-            android:textColor="?attr/colorOnSurfaceVariant"
-            android:background="?attr/colorSurfaceVariant"
-            android:alpha="0.4"
+            android:orientation="horizontal"
+            android:padding="16dp"
+            android:paddingTop="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent">
+
+            <!-- AI分析按钮 -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAiAnalysis"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:text="@string/btn_ai_analysis"
+                app:icon="@drawable/ic_ai"
+                app:iconGravity="textStart" />
+
+            <!-- 账单同步按钮 -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSync"
+                style="@style/Widget.Material3.Button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:text="@string/btn_bill_sync"
+                app:icon="@drawable/ic_sync"
+                app:iconGravity="textStart" />
+
+        </LinearLayout>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </com.google.android.material.card.MaterialCardView>

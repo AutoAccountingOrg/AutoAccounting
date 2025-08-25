@@ -16,6 +16,7 @@
 package net.ankio.auto.ui.fragment.home
 
 import android.view.View
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.coroutineScope
 import com.google.android.material.elevation.SurfaceColors
@@ -25,27 +26,68 @@ import net.ankio.auto.R
 import net.ankio.auto.databinding.CardMonthlyBinding
 import net.ankio.auto.http.api.BillAPI
 import net.ankio.auto.ui.api.BaseComponent
+import net.ankio.auto.utils.BillTool
 import net.ankio.auto.utils.PrefManager
+import org.ezbook.server.constant.BillType
 import java.util.Calendar
 import java.util.Locale
 
 class MonthlyCardComponent(binding: CardMonthlyBinding, private val lifecycle: Lifecycle) :
     BaseComponent<CardMonthlyBinding>(binding, lifecycle) {
 
-    override fun init() {
-        super.init()
-        //tv_pending_sync
-        binding.tvPendingSync.visibility = if (PrefManager.bookApp === BuildConfig.APPLICATION_ID) {
-            View.GONE
-        } else {
-            View.VISIBLE
-        }
-        binding.root.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(context))
+    private var onNavigateToAiSummary: (() -> Unit)? = null
+
+    /**
+     * 设置导航回调
+     */
+    fun setOnNavigateToAiSummary(callback: () -> Unit) {
+        onNavigateToAiSummary = callback
     }
 
+    override fun init() {
+        super.init()
+        binding.root.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(context))
 
-    override fun resume() {
-        super.resume() 
+        // 设置右上角按钮
+        setupTopButtons()
+    }
+
+    /**
+     * 设置右上角按钮
+     */
+    private fun setupTopButtons() {
+        // 设置AI分析按钮
+        binding.btnAiAnalysis.visibility = if (PrefManager.aiMonthlySummary) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
+        binding.btnAiAnalysis.setOnClickListener {
+            onNavigateToAiSummary?.invoke()
+        }
+
+        // 设置同步按钮
+        binding.btnSync.visibility = if (PrefManager.bookApp !== BuildConfig.APPLICATION_ID) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
+        binding.btnSync.setOnClickListener {
+            performSync()
+        }
+    }
+
+    /**
+     * 执行同步操作
+     */
+    private fun performSync() {
+        // TODO 执行同步
+    }
+
+    /**
+     * 刷新数据
+     */
+    private fun refreshData() {
         lifecycle.coroutineScope.launch {
             val calendar = Calendar.getInstance()
             val year = calendar.get(Calendar.YEAR)
@@ -53,35 +95,39 @@ class MonthlyCardComponent(binding: CardMonthlyBinding, private val lifecycle: L
 
             val stats = BillAPI.getMonthlyStats(year, month)
             if (stats != null) {
+                val incomeAmount = stats["income"] ?: 0.0
+                val expenseAmount = stats["expense"] ?: 0.0
+
+                // 设置收入金额和颜色
                 binding.tvIncomeAmount.text =
-                    String.format(Locale.getDefault(), "¥ %.2f", stats["income"] ?: 0.0)
+                    String.format(Locale.getDefault(), "¥ %.2f", incomeAmount)
+                val incomeColor =
+                    ContextCompat.getColor(context, BillTool.getColor(BillType.Income))
+                binding.tvIncomeAmount.setTextColor(incomeColor)
+                binding.ivIncomeIcon.imageTintList =
+                    android.content.res.ColorStateList.valueOf(incomeColor)
+
+                // 设置支出金额和颜色
                 binding.tvExpenseAmount.text =
-                    String.format(Locale.getDefault(), "¥ %.2f", stats["expense"] ?: 0.0)
+                    String.format(Locale.getDefault(), "¥ %.2f", expenseAmount)
+                val expenseColor =
+                    ContextCompat.getColor(context, BillTool.getColor(BillType.Expend))
+                binding.tvExpenseAmount.setTextColor(expenseColor)
+                binding.ivExpenseIcon.imageTintList =
+                    android.content.res.ColorStateList.valueOf(expenseColor)
             }
-
-            val syncCount = BillAPI.sync().size
-
-            binding.tvPendingSync.text = context.getString(R.string.pending_sync, syncCount)
-
-            /* binding.ivBookCoverBg.drawable?.let { drawable ->
-                 val bitmap = (drawable as BitmapDrawable).bitmap
-                 Palette.from(bitmap).generate { palette ->
-                     palette?.let {
-                         val dominantColor = it.getDominantColor(com.google.android.material.R.attr.backgroundColor)
-
-                         // 根据背景色计算文字颜色（前景色自动亮或暗）
-                         val textColor = if (ColorUtils.calculateLuminance(dominantColor) < 0.5) Color.WHITE else Color.BLACK
-
-                         // 设置收入支出文本颜色
-                         binding.tvIncomeAmount.setTextColor(textColor)
-                         binding.tvExpenseAmount.setTextColor(textColor)
-                         binding.tvPendingSync.setTextColor(ColorUtils.setAlphaComponent(textColor, 200))
-                     }
-                 }
-             }*/
-
-
         }
+    }
+
+
+    override fun resume() {
+        super.resume()
+
+        // 更新右上角按钮状态
+        setupTopButtons()
+
+        // 刷新数据
+        refreshData()
     }
 
 }
