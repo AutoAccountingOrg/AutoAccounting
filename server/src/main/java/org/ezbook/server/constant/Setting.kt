@@ -18,16 +18,18 @@ package org.ezbook.server.constant
 object Setting {
     // ======== AI设置 ========
     const val AI_MODEL = "ai_model"                                    // AI模型选择
-    const val USE_AI = "use_ai"                                       // 是否启用AI
-    const val USE_AI_FOR_CATEGORIZATION: String = "use_ai_for_categorization" // AI分类
-    const val AI_AUXILIARY: String = "ai_auxiliary"                    // AI辅助功能
+
+    const val AI_BILL_RECOGNITION: String = "ai_bill_recognition"        // 使用AI识别账单
+    const val AI_CATEGORY_RECOGNITION: String = "ai_category_recognition" // 使用AI识别分类
+    const val AI_ASSET_MAPPING: String = "ai_asset_mapping"              // 使用AI进行资产映射
+    const val AI_MONTHLY_SUMMARY: String = "ai_monthly_summary"          // 使用AI进行账单总结（月度）
+    const val AI_SUMMARY_PROMPT: String = "ai_summary_prompt"            // 自定义AI总结Prompt
+    
     const val API_KEY = "api_key"                                     // API密钥
     const val AI_ONE_API_URI = "ai_one_api_uri"                      // One API地址
     const val AI_ONE_API_MODEL = "ai_one_api_model"                  // One API模型
     const val API_URI: String = "api_uri"                                  // API地址
     const val API_MODEL: String = "api_model"                              // API模型
-    const val AI_OCR: String = "setting_ai_ocr"                          // 是否启用OCR能力
-    const val AI_AUTO_DETECTION: String = "setting_ai_auto_detection"    // 是否启用自动检测
 
     // ======== 自动记账设置 ========
     const val HOOK_AUTO_SERVER: String = "hook_auto_server"          // 自动记账服务

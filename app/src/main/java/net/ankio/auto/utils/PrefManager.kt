@@ -83,30 +83,31 @@ object PrefManager {
         get() = getString(Setting.AI_MODEL, DefaultData.AI_MODEL)
         set(value) = putString(Setting.AI_MODEL, value)
 
-    /** 是否启用 AI 功能总开关 */
-    var useAI: Boolean
-        get() = getBoolean(Setting.USE_AI, DefaultData.USE_AI)
-        set(value) = putBoolean(Setting.USE_AI, value)
 
-    /** AI 分类功能开关 - 是否使用 AI 自动分类交易 */
-    var aiFeatureCategory: Boolean
-        get() = getBoolean(Setting.USE_AI_FOR_CATEGORIZATION, DefaultData.USE_AI_FOR_CATEGORIZATION)
-        set(value) = putBoolean(Setting.USE_AI_FOR_CATEGORIZATION, value)
+    /** 使用AI识别账单 - 从原始数据中提取账单信息 */
+    var aiBillRecognition: Boolean
+        get() = getBoolean(Setting.AI_BILL_RECOGNITION, DefaultData.AI_BILL_RECOGNITION)
+        set(value) = putBoolean(Setting.AI_BILL_RECOGNITION, value)
 
-    /** AI 辅助功能开关 - 提供智能建议和优化 */
-    var aiAuxiliary: Boolean
-        get() = getBoolean(Setting.AI_AUXILIARY, DefaultData.AI_AUXILIARY)
-        set(value) = putBoolean(Setting.AI_AUXILIARY, value)
+    /** 使用AI识别分类 - 自动分类账单 */
+    var aiCategoryRecognition: Boolean
+        get() = getBoolean(Setting.AI_CATEGORY_RECOGNITION, DefaultData.AI_CATEGORY_RECOGNITION)
+        set(value) = putBoolean(Setting.AI_CATEGORY_RECOGNITION, value)
 
-    /** AI OCR 功能开关 - 图片文字识别能力 */
-    var aiFeatureOCR: Boolean
-        get() = getBoolean(Setting.AI_OCR, DefaultData.AI_OCR)
-        set(value) = putBoolean(Setting.AI_OCR, value)
+    /** 使用AI进行资产映射 - 将账单映射到对应资产账户 */
+    var aiAssetMapping: Boolean
+        get() = getBoolean(Setting.AI_ASSET_MAPPING, DefaultData.AI_ASSET_MAPPING)
+        set(value) = putBoolean(Setting.AI_ASSET_MAPPING, value)
 
-    /** AI 自动检测功能开关 - 智能识别交易类型 */
-    var aiFeatureAutoDetection: Boolean
-        get() = getBoolean(Setting.AI_AUTO_DETECTION, DefaultData.AI_AUTO_DETECTION)
-        set(value) = putBoolean(Setting.AI_AUTO_DETECTION, value)
+    /** 使用AI进行账单总结（月度） - 生成月度财务总结 */
+    var aiMonthlySummary: Boolean
+        get() = getBoolean(Setting.AI_MONTHLY_SUMMARY, DefaultData.AI_MONTHLY_SUMMARY)
+        set(value) = putBoolean(Setting.AI_MONTHLY_SUMMARY, value)
+
+    /** AI 总结自定义Prompt - 用户自定义的总结提示词 */
+    var aiSummaryPrompt: String
+        get() = getString(Setting.AI_SUMMARY_PROMPT, DefaultData.AI_SUMMARY_PROMPT)
+        set(value) = putString(Setting.AI_SUMMARY_PROMPT, value)
 
     /** API 密钥 - 用于访问 AI 服务 */
     var apiKey: String
@@ -343,9 +344,9 @@ object PrefManager {
     // ======== 悬浮窗设置 ========
 
     /** 悬浮窗超时时间 - 自动关闭时间（秒，如 "10"） */
-    var floatTimeoutOff: String
-        get() = getString(Setting.FLOAT_TIMEOUT_OFF, DefaultData.FLOAT_TIMEOUT_OFF)
-        set(value) = putString(Setting.FLOAT_TIMEOUT_OFF, value)
+    var floatTimeoutOff: Int
+        get() = getInt(Setting.FLOAT_TIMEOUT_OFF, DefaultData.FLOAT_TIMEOUT_OFF)
+        set(value) = putInt(Setting.FLOAT_TIMEOUT_OFF, value)
 
     /** 悬浮窗超时操作 - 超时后的动作（如 "dismiss", "minimize"） */
     var floatTimeoutAction: String

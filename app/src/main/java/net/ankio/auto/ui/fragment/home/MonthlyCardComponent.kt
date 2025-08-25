@@ -17,6 +17,7 @@ package net.ankio.auto.ui.fragment.home
 
 import android.view.View
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.coroutineScope
 import com.google.android.material.elevation.SurfaceColors
@@ -26,22 +27,30 @@ import net.ankio.auto.R
 import net.ankio.auto.databinding.CardMonthlyBinding
 import net.ankio.auto.http.api.BillAPI
 import net.ankio.auto.ui.api.BaseComponent
+import net.ankio.auto.ui.api.BaseFragment
+import net.ankio.auto.ui.dialog.PeriodSelectorDialog
 import net.ankio.auto.utils.BillTool
 import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.constant.BillType
+import java.lang.ref.WeakReference
 import java.util.Calendar
 import java.util.Locale
 
 class MonthlyCardComponent(binding: CardMonthlyBinding, private val lifecycle: Lifecycle) :
     BaseComponent<CardMonthlyBinding>(binding, lifecycle) {
 
-    private var onNavigateToAiSummary: (() -> Unit)? = null
+    private var onNavigateToAiSummary: ((PeriodSelectorDialog.PeriodData?) -> Unit)? = null
 
+    private lateinit var fragment: Fragment
     /**
      * 设置导航回调
      */
-    fun setOnNavigateToAiSummary(callback: () -> Unit) {
+    fun setOnNavigateToAiSummary(callback: (PeriodSelectorDialog.PeriodData?) -> Unit) = apply {
         onNavigateToAiSummary = callback
+    }
+
+    fun setFragment(fragment: Fragment) = apply {
+        this.fragment = fragment
     }
 
     override fun init() {
@@ -63,7 +72,7 @@ class MonthlyCardComponent(binding: CardMonthlyBinding, private val lifecycle: L
             View.GONE
         }
         binding.btnAiAnalysis.setOnClickListener {
-            onNavigateToAiSummary?.invoke()
+            showPeriodSelector()
         }
 
         // 设置同步按钮
@@ -75,6 +84,17 @@ class MonthlyCardComponent(binding: CardMonthlyBinding, private val lifecycle: L
         binding.btnSync.setOnClickListener {
             performSync()
         }
+    }
+
+    /**
+     * 显示周期选择对话框
+     */
+    private fun showPeriodSelector() {
+        PeriodSelectorDialog.create(fragment)
+            .setOnPeriodSelected { periodData ->
+                onNavigateToAiSummary?.invoke(periodData)
+            }
+            .show()
     }
 
     /**

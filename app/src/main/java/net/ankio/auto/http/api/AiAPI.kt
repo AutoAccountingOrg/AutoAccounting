@@ -186,4 +186,66 @@ object AiAPI {
                 ""
             }
         }
+
+    /**
+     * 向 AI 服务发送流式对话请求
+     * @param systemPrompt 系统提示词
+     * @param userPrompt 用户输入
+     * @param onChunk 接收到数据块时的回调函数
+     * @param onComplete 请求完成时的回调函数
+     * @param onError 发生错误时的回调函数
+     */
+    suspend fun requestStream(
+        systemPrompt: String,
+        userPrompt: String,
+        onChunk: (String) -> Unit,
+        onComplete: () -> Unit = {},
+        onError: (String) -> Unit = {}
+    ) = withContext(Dispatchers.IO) {
+        try {
+            Logger.d("开始流式AI请求")
+            val body = gson.toJson(mapOf("system" to systemPrompt, "user" to userPrompt))
+            Logger.d("请求体: ${body.take(200)}...")
+
+            LocalNetwork.postStream("/ai/request/stream", body) { event, data ->
+                Logger.d("收到SSE事件: event=$event, data=${data.take(100)}...")
+                when (event) {
+                    "message" -> {
+                        // 处理标准SSE消息
+                        if (data == "[DONE]") {
+                            Logger.d("流式请求完成")
+                            onComplete()
+                        } else if (data.startsWith("{\"type\":\"connected\"}")) {
+                            Logger.d("SSE连接已建立")
+                        } else {
+                            Logger.d("收到数据块: ${data.take(50)}...")
+                            onChunk(data)
+                        }
+                    }
+
+                    "chunk" -> {
+                        Logger.d("收到chunk数据: ${data.take(50)}...")
+                        onChunk(data)
+                    }
+
+                    "done" -> {
+                        Logger.d("流式请求完成")
+                        onComplete()
+                    }
+
+                    "error" -> {
+                        Logger.e("流式请求错误: $data")
+                        onError(data)
+                    }
+
+                    else -> {
+                        Logger.d("未知事件类型: $event, 数据: $data")
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Logger.e("requestStream error: ${e.message}", e)
+            onError(e.message ?: "Unknown error")
+        }
+    }
 }

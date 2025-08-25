@@ -22,6 +22,9 @@ import androidx.room.Update
 import org.ezbook.server.constant.BillState
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.BillInfoModel
+import org.ezbook.server.db.model.BillSummaryModel
+import org.ezbook.server.db.model.CategoryStatsModel
+import org.ezbook.server.db.model.ShopStatsModel
 
 @Dao
 interface BillInfoDao {
@@ -93,4 +96,72 @@ interface BillInfoDao {
 
     @Query("SELECT COUNT(*) FROM BillInfoModel WHERE groupId = -1 AND time >= :startTime")
     suspend fun getRecentBillsCount(startTime: Long): Int
+
+    @Query("SELECT * FROM BillInfoModel WHERE groupId = -1 AND time >= :startTime AND time <= :endTime ORDER BY time DESC")
+    suspend fun getBillsByTimeRange(startTime: Long, endTime: Long): List<BillInfoModel>
+
+    // AI摘要相关查询
+
+    /** 获取分类统计（完整统计数据，不能限制） */
+    @Query(
+        """
+        SELECT cateName, SUM(money) as amount, COUNT(*) as count 
+        FROM BillInfoModel 
+        WHERE type = 'Expend' AND time >= :startTime AND time <= :endTime AND groupId = -1 
+        GROUP BY cateName 
+        ORDER BY amount DESC
+    """
+    )
+    suspend fun getExpenseCategoryStats(startTime: Long, endTime: Long): List<CategoryStatsModel>
+
+    /** 获取商户统计（完整统计数据，不能限制） */
+    @Query(
+        """
+        SELECT shopName, SUM(money) as amount, COUNT(*) as count 
+        FROM BillInfoModel 
+        WHERE type = 'Expend' AND time >= :startTime AND time <= :endTime AND groupId = -1 
+        GROUP BY shopName 
+        ORDER BY amount DESC
+    """
+    )
+    suspend fun getExpenseShopStats(startTime: Long, endTime: Long): List<ShopStatsModel>
+
+    /** 获取大额交易样本（必须限制数量，避免过多） */
+    @Query(
+        """
+        SELECT time, type, money, cateName, shopName, shopItem 
+        FROM BillInfoModel 
+        WHERE money >= :threshold AND time >= :startTime AND time <= :endTime AND groupId = -1 
+        ORDER BY money DESC 
+        LIMIT :limit
+    """
+    )
+    suspend fun getLargeTransactions(
+        startTime: Long,
+        endTime: Long,
+        threshold: Double,
+        limit: Int
+    ): List<BillSummaryModel>
+
+    /** 获取账单样本（必须限制数量，避免过多） */
+    @Query(
+        """
+        SELECT time, type, money, cateName, shopName, shopItem 
+        FROM BillInfoModel 
+        WHERE time >= :startTime AND time <= :endTime AND groupId = -1 
+        ORDER BY time DESC 
+        LIMIT :limit
+    """
+    )
+    suspend fun getBillSamples(startTime: Long, endTime: Long, limit: Int): List<BillSummaryModel>
+
+    /** 获取指定时间范围内各类型账单数量 */
+    @Query("SELECT COUNT(*) FROM BillInfoModel WHERE type = 'Income' AND time >= :startTime AND time <= :endTime AND groupId = -1")
+    suspend fun getIncomeCount(startTime: Long, endTime: Long): Int
+
+    @Query("SELECT COUNT(*) FROM BillInfoModel WHERE type = 'Expend' AND time >= :startTime AND time <= :endTime AND groupId = -1")
+    suspend fun getExpenseCount(startTime: Long, endTime: Long): Int
+
+    @Query("SELECT COUNT(*) FROM BillInfoModel WHERE type = 'Transfer' AND time >= :startTime AND time <= :endTime AND groupId = -1")
+    suspend fun getTransferCount(startTime: Long, endTime: Long): Int
 }

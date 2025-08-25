@@ -22,9 +22,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.storage.Logger
-import okhttp3.Call
 import okhttp3.Dns
-import okhttp3.EventListener
 import okhttp3.FormBody
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -33,14 +31,12 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
 import org.w3c.dom.Element
 import org.w3c.dom.NodeList
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileOutputStream
-import java.io.IOException
 import java.net.InetAddress
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.TimeUnit
@@ -52,15 +48,8 @@ import javax.xml.parsers.DocumentBuilderFactory
  */
 class RequestsUtils {
     companion object {
-        private const val DEFAULT_TIMEOUT = 30L
+        private const val DEFAULT_TIMEOUT = 300L
         private const val DEFAULT_MEDIA_TYPE = "application/json; charset=utf-8"
-        private val customDns = Dns { hostname ->
-            if (hostname == "license.ankio.icu" && BuildConfig.DEBUG) {
-                listOf(InetAddress.getByName("192.168.100.200"))
-            } else {
-                Dns.SYSTEM.lookup(hostname)
-            }
-        }
 
         private val okHttpClient = OkHttpClient.Builder()
             .apply {
@@ -84,7 +73,6 @@ class RequestsUtils {
             .connectTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
             .readTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
             .writeTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
-            .dns(customDns)
             .build()
     }
 
@@ -162,7 +150,7 @@ class RequestsUtils {
 
 
             client.newCall(request).execute().use { response ->
-                Pair(response.code, response.body.string())
+                Pair(response.code, response.body?.string() ?: "")
             }
         }
 
@@ -180,7 +168,7 @@ class RequestsUtils {
                 .build()
 
             client.newCall(request).execute().use { response ->
-                Pair(response.code, response.body.string())
+                Pair(response.code, response.body?.string() ?: "")
             }
         }
 
@@ -193,7 +181,7 @@ class RequestsUtils {
                 .build()
 
             client.newCall(request).execute().use { response ->
-                Pair(response.code, response.body.string())
+                Pair(response.code, response.body?.string() ?: "")
             }
         }
 
@@ -206,7 +194,7 @@ class RequestsUtils {
                 .build()
 
             client.newCall(request).execute().use { response ->
-                Pair(response.code, response.body.string())
+                Pair(response.code, response.body?.string() ?: "")
             }
         }
 
@@ -228,7 +216,7 @@ class RequestsUtils {
                 .build()
 
             client.newCall(request).execute().use { response ->
-                Pair(response.code, response.body.string())
+                Pair(response.code, response.body?.string() ?: "")
             }
         }
 
@@ -243,9 +231,9 @@ class RequestsUtils {
                 throw RequestException.NetworkException("Download failed with code ${response.code}")
             }
 
-            response.body.byteStream().use { inputStream ->
+            response.body?.byteStream().use { inputStream ->
                 FileOutputStream(file).use { outputStream ->
-                    inputStream.copyTo(outputStream)
+                    inputStream?.copyTo(outputStream)
                 }
             }
             true
@@ -261,7 +249,7 @@ class RequestsUtils {
                 .build()
 
             client.newCall(request).execute().use { response ->
-                Pair(response.code, response.body.string())
+                Pair(response.code, response.body?.string() ?: "")
             }
         }
 
@@ -287,7 +275,7 @@ class RequestsUtils {
                 .build()
 
             client.newCall(request).execute().use { response ->
-                val body = response.body.string()
+                val body = response.body?.string() ?: ""
                 Logger.d("body: $body")
                 Pair(response.code, parseResponse(body))
             }

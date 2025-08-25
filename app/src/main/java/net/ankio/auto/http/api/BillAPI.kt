@@ -183,4 +183,22 @@ object BillAPI {
                 )
             }.getOrNull()
         }
+
+
+    /**
+     * 获取账单摘要字符串（服务端生成）
+     * @param startTime 开始时间戳（毫秒）
+     * @param endTime 结束时间戳（毫秒）
+     * @param periodName 周期名称
+     * @return 格式化的摘要字符串，如果获取失败则返回null
+     */
+    suspend fun getBillSummary(startTime: Long, endTime: Long, periodName: String): String? =
+        withContext(Dispatchers.IO) {
+            val response =
+                LocalNetwork.get("bill/summary?start=$startTime&end=$endTime&period=$periodName")
+            runCatching {
+                val json = Gson().fromJson(response, JsonObject::class.java)
+                json.get("data").asString
+            }.getOrNull()
+        }
 }

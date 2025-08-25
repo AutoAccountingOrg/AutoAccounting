@@ -186,6 +186,21 @@ fun Route.billRoutes() {
         }
 
         /**
+         * GET /bill/range - 获取指定时间范围内的账单列表
+         *
+         * @param start 开始时间戳（毫秒）
+         * @param end 结束时间戳（毫秒）
+         * @return ResultModel 包含时间范围内的账单列表
+         */
+        get("/range") {
+            val startTime = call.request.queryParameters["start"]?.toLong() ?: 0
+            val endTime =
+                call.request.queryParameters["end"]?.toLong() ?: System.currentTimeMillis()
+            val bills = Db.get().billInfoDao().getBillsByTimeRange(startTime, endTime)
+            call.respond(ResultModel(200, "OK", bills))
+        }
+
+        /**
          * POST /bill/monthly/stats - 获取月度统计数据
          * 计算指定月份的收入和支出统计
          *
@@ -220,6 +235,30 @@ fun Route.billRoutes() {
                     )
                 )
             )
+        }
+
+        /**
+         * GET /bill/summary - 获取账单摘要字符串
+         * 服务端直接返回格式化的摘要，客户端零计算
+         *
+         * @param start 开始时间戳（毫秒）
+         * @param end 结束时间戳（毫秒）
+         * @param period 周期名称，默认为"指定时间段"
+         * @return ResultModel 包含格式化的摘要字符串
+         */
+        get("/summary") {
+            val startTime = call.request.queryParameters["start"]?.toLong()
+                ?: return@get call.respond(ResultModel(400, "Start time parameter is required"))
+            val endTime = call.request.queryParameters["end"]?.toLong()
+                ?: return@get call.respond(ResultModel(400, "End time parameter is required"))
+            val periodName = call.request.queryParameters["period"] ?: "指定时间段"
+
+            val summary = org.ezbook.server.tools.SummaryService.generateSummary(
+                startTime,
+                endTime,
+                periodName
+            )
+            call.respond(ResultModel(200, "OK", summary))
         }
 
         /**

@@ -18,11 +18,13 @@ package org.ezbook.server.constant
 object DefaultData {
     // ======== AI 默认值 ========
     val AI_MODEL: String = "DeepSeek"
-    val USE_AI: Boolean = false
-    val USE_AI_FOR_CATEGORIZATION: Boolean = false
-    val AI_AUXILIARY: Boolean = false
-    val AI_OCR: Boolean = false
-    val AI_AUTO_DETECTION: Boolean = false
+
+    val AI_BILL_RECOGNITION: Boolean = false
+    val AI_CATEGORY_RECOGNITION: Boolean = false
+    val AI_ASSET_MAPPING: Boolean = false
+    val AI_MONTHLY_SUMMARY: Boolean = false
+    val AI_SUMMARY_PROMPT: String =
+        "请根据以下账单数据生成月度财务总结报告，包括收支分析、分类统计和理财建议："
 
     // ======== 自动记账 默认值 ========
     const val IGNORE_ASSET: Boolean = false
