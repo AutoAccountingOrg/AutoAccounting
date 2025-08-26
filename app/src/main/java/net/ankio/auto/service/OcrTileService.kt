@@ -104,4 +104,13 @@ class OcrTileService : TileService() {
             Logger.e("通过磁贴启动OCR识别失败: ${e.message}")
         }
     }
+
+    /**
+     * 服务销毁时调用
+     * 清理资源，防止内存泄露
+     */
+    override fun onDestroy() {
+        Logger.d("OCR磁贴服务销毁，清理资源")
+        super.onDestroy()
+    }
 }
