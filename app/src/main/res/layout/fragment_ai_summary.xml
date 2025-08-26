@@ -30,19 +30,12 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-        <!-- WebView容器 -->
-        <ScrollView
+        <!-- WebView - 自己处理滚动，不需要ScrollView包装 -->
+        <WebView
+            android:id="@+id/webView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:fillViewport="true">
-
-            <WebView
-                android:background="?colorSurfaceContainer"
-                android:id="@+id/webView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-        </ScrollView>
+            android:background="?colorSurfaceContainer" />
 
     </FrameLayout>
 

@@ -18,6 +18,7 @@ package net.ankio.auto.ui.fragment
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -30,6 +31,7 @@ import androidx.navigation.fragment.findNavController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.suspendCancellableCoroutine
 import net.ankio.auto.R
 import com.google.gson.Gson
 import net.ankio.auto.ai.SummaryTool
@@ -47,6 +49,7 @@ import java.util.*
 import androidx.core.graphics.createBitmap
 import android.util.Base64
 import java.io.ByteArrayOutputStream
+import kotlin.coroutines.resume
 
 /**
  * AI账单分析页面
@@ -131,6 +134,13 @@ class AiSummaryFragment : BaseFragment<FragmentAiSummaryBinding>() {
      */
     private fun setupWebView() {
         binding.webView.apply {
+            // 启用整页绘制（仅影响打印/绘图路径），避免只绘制可见区域
+            try {
+                WebView.enableSlowWholeDocumentDraw()
+            } catch (_: Throwable) {
+                // 低版本或ROM不支持时忽略
+            }
+
             settings.apply {
                 javaScriptEnabled = true
                 domStorageEnabled = true
@@ -138,6 +148,9 @@ class AiSummaryFragment : BaseFragment<FragmentAiSummaryBinding>() {
                 useWideViewPort = true
                 setSupportZoom(false)
             }
+
+            // 白底，避免透明背景导致保存时看起来“空白”
+            setBackgroundColor(Color.WHITE)
 
             webViewClient = object : WebViewClient() {
                 override fun onPageFinished(view: WebView?, url: String?) {
@@ -237,12 +250,8 @@ class AiSummaryFragment : BaseFragment<FragmentAiSummaryBinding>() {
                 } else {
                     val width = drawable.intrinsicWidth.takeIf { it > 0 } ?: 48
                     val height = drawable.intrinsicHeight.takeIf { it > 0 } ?: 48
-                    val bitmap = android.graphics.Bitmap.createBitmap(
-                        width,
-                        height,
-                        android.graphics.Bitmap.Config.ARGB_8888
-                    )
-                    val canvas = android.graphics.Canvas(bitmap)
+                    val bitmap = createBitmap(width, height)
+                    val canvas = Canvas(bitmap)
                     drawable.setBounds(0, 0, canvas.width, canvas.height)
                     drawable.draw(canvas)
                     bitmap
@@ -381,14 +390,74 @@ class AiSummaryFragment : BaseFragment<FragmentAiSummaryBinding>() {
     }
 
     /**
-     * 捕获WebView为Bitmap
+     * 捕获WebView为Bitmap - 完整内容截图
+     *
+     * 简洁方案：WebView自己处理滚动，直接获取完整内容高度
      */
     private suspend fun captureWebViewAsBitmap(): Bitmap? = withContext(Dispatchers.Main) {
         try {
             val webView = binding.webView
-            val bitmap = createBitmap(webView.width, webView.contentHeight)
+
+            // 等待内容布局完成（contentHeight > 0），避免早期绘制成白屏
+            if (webView.contentHeight == 0) {
+                suspendCancellableCoroutine { cont ->
+                    webView.post { cont.resume(Unit) }
+                }
+            }
+
+            val originalWidth = webView.width
+            val originalHeight = webView.height
+            if (originalWidth <= 0 || originalHeight <= 0) return@withContext null
+
+            // contentHeight 是 CSS 像素，需要乘以当前缩放比例得到实际像素
+            // contentHeight 为 CSS px，转换到实际像素：使用屏幕 density 作为近似（避免依赖隐藏 API）
+            val density = webView.resources.displayMetrics.density
+            var targetHeight = (webView.contentHeight * density).toInt()
+            if (targetHeight <= 0) targetHeight = originalHeight
+            val targetWidth = originalWidth
+
+            // 临时使用软件层绘制，避免某些机型硬件加速下画布为白
+            val oldLayerType = webView.layerType
+            webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null)
+
+            // 保存当前滚动位置并重置到顶部，避免截到中间位置
+            val oldScrollY = webView.scrollY
+            webView.scrollTo(0, 0)
+
+            // 重新按完整内容高度进行 measure/layout，确保 draw() 能绘制整页
+            webView.measure(
+                View.MeasureSpec.makeMeasureSpec(targetWidth, View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(targetHeight, View.MeasureSpec.EXACTLY)
+            )
+            webView.layout(
+                webView.left,
+                webView.top,
+                webView.left + targetWidth,
+                webView.top + targetHeight
+            )
+
+            // 创建目标位图并绘制（先铺白底）
+            val bitmap = createBitmap(targetWidth, targetHeight)
             val canvas = Canvas(bitmap)
+            canvas.drawColor(Color.WHITE)
             webView.draw(canvas)
+
+            Logger.d("WebView整页截图尺寸: ${targetWidth}x${targetHeight}, density=${density}")
+
+            // 恢复视图状态，避免影响UI
+            webView.measure(
+                View.MeasureSpec.makeMeasureSpec(originalWidth, View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(originalHeight, View.MeasureSpec.EXACTLY)
+            )
+            webView.layout(
+                webView.left,
+                webView.top,
+                webView.left + originalWidth,
+                webView.top + originalHeight
+            )
+            webView.scrollTo(0, oldScrollY)
+            webView.setLayerType(oldLayerType, null)
+
             bitmap
         } catch (e: Exception) {
             Logger.e("捕获WebView失败", e)
