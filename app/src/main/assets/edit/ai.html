@@ -1,0 +1,155 @@
+<!--
+  ~ Copyright (C) 2025 ankio(ankio@ankio.net)
+  ~ Licensed under the Apache License, Version 3.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~         http://www.apache.org/licenses/LICENSE-3.0
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~   limitations under the License.
+  -->
+
+<div style="font-family: 'Segoe UI', system-ui, sans-serif;max-width: 800px;margin: 0 auto;color: var(--text);">
+    <!-- 自动深浅色：通过 CSS 变量 + prefers-color-scheme 跟随系统 -->
+    <style>
+        :root{color-scheme:light dark;--text:#222;--border:rgba(0,0,0,.08);--neutral-05:rgba(0,0,0,.05);--progress-bg:rgba(0,0,0,.08);--blue:#3498db;--blue-rgb:52,152,219;--red:#e74c3c;--red-rgb:231,76,60;--amber:#f39c12;--amber-rgb:243,156,18;--gold:#f1c40f;--gold-rgb:241,196,15;--green:#2ecc71;--green-rgb:46,204,113;--emerald:#27ae60;--purple:#9b59b6;--purple-rgb:155,89,182}@media(prefers-color-scheme:dark){:root{--text:#e6e6e6;--border:rgba(255,255,255,.12);--neutral-05:rgba(255,255,255,.06);--progress-bg:rgba(255,255,255,.12)}}
+    </style><!-- 📊 收支概览 -->
+    <div style="border-radius: 16px;padding: 20px;margin: 20px 0;backdrop-filter: blur(10px);border: 1px solid var(--border);overflow: hidden;">
+        <div style="position: absolute; top: -50%; right: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(var(--blue-rgb), 0.1) 0%, transparent 70%); transform: rotate(-15deg); z-index: -1;"></div>
+        <h3 style="margin-top: 0; color: var(--blue);">📊 收支概览</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+            <div style="background: rgba(var(--blue-rgb), 0.2); padding: 15px; border-radius: 12px; text-align: center;">
+                <div style="font-size: 24px; font-weight: bold; color: var(--blue);">¥0.00</div>
+                <div style="font-size: 14px; opacity: 0.8;">总收入</div>
+            </div>
+            <div style="background: rgba(var(--red-rgb), 0.2); padding: 15px; border-radius: 12px; text-align: center;">
+                <div style="font-size: 24px; font-weight: bold; color: var(--red);">¥0.01</div>
+                <div style="font-size: 14px; opacity: 0.8;">总支出</div>
+            </div>
+            <div style="background: rgba(var(--amber-rgb), 0.2); padding: 15px; border-radius: 12px; text-align: center;">
+                <div style="font-size: 24px; font-weight: bold; color: var(--amber);">¥-0.01</div>
+                <div style="font-size: 14px; opacity: 0.8;">净收入</div>
+            </div>
+        </div>
+        <div style="margin-top: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div style="background: rgba(var(--green-rgb), 0.1); padding: 10px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 18px; font-weight: bold; color: var(--green);">0 笔</div>
+                <div style="font-size: 12px; opacity: 0.8;">收入笔数</div>
+            </div>
+            <div style="background: rgba(var(--red-rgb), 0.1); padding: 10px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 18px; font-weight: bold; color: var(--red);">1 笔</div>
+                <div style="font-size: 12px; opacity: 0.8;">支出笔数</div>
+            </div>
+        </div>
+    </div><!-- 💰 大额交易分析 -->
+    <div style="background: linear-gradient(135deg, rgba(var(--purple-rgb), 0.15), rgba(var(--purple-rgb), 0.15)); border-radius: 16px; padding: 20px; margin: 20px 0; backdrop-filter: blur(10px); border: 1px solid var(--border); position: relative; overflow: hidden;">
+        <div style="position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(var(--purple-rgb), 0.1) 0%, transparent 70%); transform: rotate(15deg); z-index: -1;"></div>
+        <h3 style="margin-top: 0; color: var(--purple);">💰 大额交易分析</h3>
+        <div style="background: rgba(var(--purple-rgb), 0.1); padding: 15px; border-radius: 12px; margin: 10px 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <div style="font-weight: bold; color: var(--purple);">公共课大满足套装</div>
+                    <div style="font-size: 14px; opacity: 0.8;">收单机构财付通支付科技有限公司</div>
+                </div>
+                <div style="font-size: 18px; font-weight: bold; color: var(--red);">-¥0.01</div>
+            </div>
+            <div style="margin-top: 10px; padding: 10px; background: var(--neutral-05); border-radius: 8px;">
+                <div style="font-size: 14px; color: var(--amber);">⚠️
+                    注意：虽然金额极小，但仍建议关注此类小额测试交易
+                </div>
+            </div>
+        </div>
+    </div><!-- 📈 消费分析 -->
+    <div style="background: linear-gradient(135deg, rgba(var(--gold-rgb), 0.15), rgba(var(--amber-rgb), 0.15)); border-radius: 16px; padding: 20px; margin: 20px 0; backdrop-filter: blur(10px); border: 1px solid var(--border); position: relative; overflow: hidden;">
+        <div style="position: absolute; top: -50%; right: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(var(--gold-rgb), 0.1) 0%, transparent 70%); transform: rotate(-10deg); z-index: -1;"></div>
+        <h3 style="margin-top: 0; color: var(--gold);">📈 消费分析</h3>
+        <div style="background: rgba(var(--gold-rgb), 0.1); padding: 15px; border-radius: 12px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;"><span
+                    style="font-weight: bold;">其他类消费</span><span
+                    style="color: var(--red); font-weight: bold;">¥0.01 (100%)</span></div>
+            <div style="height: 20px; background: var(--progress-bg); border-radius: 10px; overflow: hidden;">
+                <div style="height: 100%; width: 100%; background: linear-gradient(90deg, #f39c12, #e67e22); border-radius: 10px;"></div>
+            </div>
+            <div style="margin-top: 15px; color: var(--amber);">📊
+                消费趋势：仅有一笔极小金额消费，无法形成有效的消费趋势分析
+            </div>
+        </div>
+    </div><!-- 🏪 商户分析 -->
+    <div style="background: linear-gradient(135deg, rgba(var(--green-rgb), 0.15), rgba(var(--green-rgb), 0.15)); border-radius: 16px; padding: 20px; margin: 20px 0; backdrop-filter: blur(10px); border: 1px solid var(--border); position: relative; overflow: hidden;">
+        <div style="position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(var(--green-rgb), 0.1) 0%, transparent 70%); transform: rotate(10deg); z-index: -1;"></div>
+        <h3 style="margin-top: 0; color: var(--green);">🏪 商户分析</h3>
+        <div style="background: rgba(var(--green-rgb), 0.1); padding: 15px; border-radius: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <div>
+                    <div style="font-weight: bold; color: var(--green);">
+                        收单机构财付通支付科技有限公司
+                    </div>
+                    <div style="font-size: 14px; opacity: 0.8;">消费频次：1次</div>
+                </div>
+                <div style="font-size: 18px; font-weight: bold; color: var(--red);">¥0.01</div>
+            </div>
+            <div style="background: var(--neutral-05); padding: 10px; border-radius: 8px;">
+                <div style="font-size: 14px; color: var(--emerald);">💡
+                    商户类型：第三方支付平台，通常用于在线消费或转账
+                </div>
+            </div>
+        </div>
+    </div><!-- 💡 理财建议 -->
+    <div style="background: linear-gradient(135deg, rgba(var(--blue-rgb), 0.15), rgba(41, 128, 185, 0.15)); border-radius: 16px; padding: 20px; margin: 20px 0; backdrop-filter: blur(10px); border: 1px solid var(--border); position: relative; overflow: hidden;">
+        <div style="position: absolute; top: -50%; right: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(var(--blue-rgb), 0.1) 0%, transparent 70%); transform: rotate(-5deg); z-index: -1;"></div>
+        <h3 style="margin-top: 0; color: var(--blue);">💡 理财建议</h3>
+        <div style="background: rgba(var(--blue-rgb), 0.1); padding: 15px; border-radius: 12px;">
+            <div style="display: flex; align-items: start; margin-bottom: 15px;">
+                <div style="font-size: 24px; margin-right: 10px;">💰</div>
+                <div>
+                    <div style="font-weight: bold; color: var(--blue);">建立收入来源</div>
+                    <div style="font-size: 14px; opacity: 0.9;">
+                        当前无收入记录，建议优先建立稳定的收入来源
+                    </div>
+                </div>
+            </div>
+            <div style="display: flex; align-items: start; margin-bottom: 15px;">
+                <div style="font-size: 24px; margin-right: 10px;">📱</div>
+                <div>
+                    <div style="font-weight: bold; color: var(--blue);">监控小额交易</div>
+                    <div style="font-size: 14px; opacity: 0.9;">
+                        即使是0.01元的小额交易也应关注，防止成为频繁小额扣费的开始
+                    </div>
+                </div>
+            </div>
+            <div style="display: flex; align-items: start;">
+                <div style="font-size: 24px; margin-right: 10px;">📊</div>
+                <div>
+                    <div style="font-weight: bold; color: var(--blue);">完善财务记录</div>
+                    <div style="font-size: 14px; opacity: 0.9;">
+                        建议开始系统记录所有收支，为后续财务分析打下基础
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div><!-- ⚠️ 风险提醒 -->
+    <div style="background: linear-gradient(135deg, rgba(var(--red-rgb), 0.15), rgba(192, 57, 43, 0.15)); border-radius: 16px; padding: 20px; margin: 20px 0; backdrop-filter: blur(10px); border: 1px solid var(--border); position: relative; overflow: hidden;">
+        <div style="position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(var(--red-rgb), 0.1) 0%, transparent 70%); transform: rotate(5deg); z-index: -1;"></div>
+        <h3 style="margin-top: 0; color: var(--red);">⚠️ 风险提醒</h3>
+        <div style="background: rgba(var(--red-rgb), 0.1); padding: 15px; border-radius: 12px;">
+            <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                <div style="font-size: 20px; margin-right: 10px;">🔍</div>
+                <div style="color: var(--red); font-weight: bold;">零收入状态</div>
+            </div>
+            <div style="font-size: 14px; margin-bottom: 15px;">
+                当前账单显示无任何收入记录，这可能是数据不完整或确实无收入来源，需要重点关注
+            </div>
+            <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                <div style="font-size: 20px; margin-right: 10px;">🔔</div>
+                <div style="color: var(--red); font-weight: bold;">测试交易关注</div>
+            </div>
+            <div style="font-size: 14px;">
+                0.01元的交易可能是测试交易或小额验证，建议确认是否为本人操作，防止账户安全问题
+            </div>
+        </div>
+    </div>
+</div>
