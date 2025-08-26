@@ -16,40 +16,38 @@
 package net.ankio.auto.ui.fragment
 
 import android.content.Intent
-import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.core.content.FileProvider
+import androidx.core.graphics.createBitmap
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.suspendCancellableCoroutine
 import net.ankio.auto.R
-import com.google.gson.Gson
 import net.ankio.auto.ai.SummaryTool
 import net.ankio.auto.databinding.FragmentAiSummaryBinding
+import net.ankio.auto.storage.CacheManager
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.dialog.PeriodSelectorDialog
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.PrefManager
-import java.io.File
-import java.io.FileOutputStream
-import java.text.SimpleDateFormat
-import java.util.*
-import androidx.core.graphics.createBitmap
-import android.util.Base64
 import java.io.ByteArrayOutputStream
-import kotlin.coroutines.resume
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 /**
  * AI账单分析页面
@@ -62,27 +60,21 @@ import kotlin.coroutines.resume
  */
 class AiSummaryFragment : BaseFragment<FragmentAiSummaryBinding>() {
 
-    private var currentSummary: String? = null
-    private var currentPeriodData: PeriodSelectorDialog.PeriodData? = null
+    private lateinit var currentPeriodData: PeriodSelectorDialog.PeriodData
 
     companion object {
         private const val ARG_PERIOD_DATA = "period_data"
         private val gson = Gson()
-
-        /**
-         * 创建带周期数据的Fragment实例
-         */
-        fun newInstance(periodData: PeriodSelectorDialog.PeriodData?): AiSummaryFragment {
-            val fragment = AiSummaryFragment()
-            val args = Bundle()
-            if (periodData != null) {
-                args.putString(ARG_PERIOD_DATA, gson.toJson(periodData))
-            }
-            fragment.arguments = args
-            return fragment
-        }
     }
 
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        WebView.enableSlowWholeDocumentDraw()
+        return super.onCreateView(inflater, container, savedInstanceState)
+    }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -94,15 +86,16 @@ class AiSummaryFragment : BaseFragment<FragmentAiSummaryBinding>() {
 
         // 获取传入的周期数据
         val periodDataJson = arguments?.getString(ARG_PERIOD_DATA)
-        currentPeriodData = if (periodDataJson != null) {
+        if (periodDataJson != null) {
             try {
-                gson.fromJson(periodDataJson, PeriodSelectorDialog.PeriodData::class.java)
+                currentPeriodData =
+                    gson.fromJson(periodDataJson, PeriodSelectorDialog.PeriodData::class.java)
             } catch (e: Exception) {
                 Logger.e("解析周期数据失败", e)
-                null
+                findNavController().popBackStack()
             }
         } else {
-            null
+            findNavController().popBackStack()
         }
 
         setupUI()
@@ -135,11 +128,7 @@ class AiSummaryFragment : BaseFragment<FragmentAiSummaryBinding>() {
     private fun setupWebView() {
         binding.webView.apply {
             // 启用整页绘制（仅影响打印/绘图路径），避免只绘制可见区域
-            try {
-                WebView.enableSlowWholeDocumentDraw()
-            } catch (_: Throwable) {
-                // 低版本或ROM不支持时忽略
-            }
+
 
             settings.apply {
                 javaScriptEnabled = true
@@ -149,15 +138,14 @@ class AiSummaryFragment : BaseFragment<FragmentAiSummaryBinding>() {
                 setSupportZoom(false)
             }
 
-            // 白底，避免透明背景导致保存时看起来“空白”
-            setBackgroundColor(Color.WHITE)
 
             webViewClient = object : WebViewClient() {
                 override fun onPageFinished(view: WebView?, url: String?) {
                     super.onPageFinished(view, url)
                     // 页面加载完成后显示分享按钮
-                    binding.btnShare.visibility =
-                        if (currentSummary != null) View.VISIBLE else View.GONE
+                    binding.btnShare.visibility = View.VISIBLE
+
+                    binding.webView.visibility = View.VISIBLE
                 }
             }
         }
@@ -174,34 +162,58 @@ class AiSummaryFragment : BaseFragment<FragmentAiSummaryBinding>() {
     /**
      * 加载AI分析
      */
-    private fun loadSummary() {
+    private fun loadSummary(forceRefresh: Boolean = false) {
         val loading = LoadingUtils(requireActivity())
 
         lifecycleScope.launch {
             loading.show(getString(R.string.ai_summary_generating))
 
             try {
-                val summary = withContext(Dispatchers.IO) {
-                    if (currentPeriodData != null) {
-                        // 使用自定义周期生成分析
-                        SummaryTool.generateCustomPeriodSummary(
-                            currentPeriodData!!.startTime,
-                            currentPeriodData!!.endTime,
-                            currentPeriodData!!.displayName
-                        )
-                    } else {
-                        // 使用当前月度分析作为默认值
-                        val calendar = Calendar.getInstance()
-                        val currentYear = calendar.get(Calendar.YEAR)
-                        val currentMonth = calendar.get(Calendar.MONTH) + 1
-                        SummaryTool.generateMonthlySummary(currentYear, currentMonth)
+                // 1) 基于周期参数构建缓存键，避免重复生成
+                val cacheKey = buildCacheKey(
+                    currentPeriodData.startTime,
+                    currentPeriodData.endTime,
+                    currentPeriodData.displayName
+                )
+
+                Logger.d("缓存键：$cacheKey")
+
+                // 2) 可选：强制刷新时跳过缓存并清理旧缓存；否则尝试从缓存读取
+                if (forceRefresh) {
+                    withContext(Dispatchers.IO) { CacheManager.remove(cacheKey) }
+                } else {
+                    val cachedHtml =
+                        withContext(Dispatchers.IO) { CacheManager.getString(cacheKey) }
+                    if (cachedHtml != null) {
+                        loading.close()
+                        displayHtml(cachedHtml)
+                        return@launch
                     }
+                }
+
+                // 3) 缓存未命中，生成摘要并转换为HTML
+                val summary = withContext(Dispatchers.IO) {
+                    SummaryTool.generateCustomPeriodSummary(
+                        currentPeriodData.startTime,
+                        currentPeriodData.endTime,
+                        currentPeriodData.displayName
+                    )
                 }
 
                 loading.close()
 
                 if (summary != null) {
-                    displaySummary(summary)
+                    // 转换为HTML并展示
+                    val htmlContent = convertToHtml(summary)
+                    displayHtml(htmlContent)
+                    // 4) 写入缓存，TTL=1小时
+                    withContext(Dispatchers.IO) {
+                        try {
+                            CacheManager.putString(cacheKey, htmlContent, 60 * 60 * 1000L)
+                        } catch (e: Exception) {
+                            Logger.e("缓存AI分析HTML失败", e)
+                        }
+                    }
                 } else {
                     showError(getString(R.string.ai_summary_generate_failed))
                 }
@@ -215,26 +227,34 @@ class AiSummaryFragment : BaseFragment<FragmentAiSummaryBinding>() {
     }
 
     /**
-     * 重新生成分析
+     * 构建缓存键：基于起止时间与显示名，确保相同周期生成的内容复用。
      */
-    private fun regenerateSummary() {
-        loadSummary()
+    private fun buildCacheKey(start: Long, end: Long, name: String): String {
+        // 使用“本地时区日桶”归一化：将时间加上该时刻的时区偏移再按天取整，
+        // 避免按UTC除法导致的跨时区/DST（夏令时）边界误差。
+        val day = 24 * 60 * 60 * 1000L
+        val tz = java.util.TimeZone.getDefault()
+        val startDayBucket = (start + tz.getOffset(start)) / day
+        val endDayBucket = (end + tz.getOffset(end)) / day
+        return "ai:summary:html:${startDayBucket}:${endDayBucket}:${name}"
     }
 
     /**
-     * 显示分析结果
+     * 直接展示HTML（用于缓存命中或生成后展示）。
      */
-    private fun displaySummary(summary: String) {
-        currentSummary = summary
-
-        // 将Markdown转换为HTML并显示
-        val htmlContent = convertToHtml(summary)
+    private fun displayHtml(htmlContent: String) {
         binding.webView.loadDataWithBaseURL(null, htmlContent, "text/html", "UTF-8", null)
-
-        // 显示操作按钮
         binding.layoutActions.visibility = View.VISIBLE
         binding.statusPage.showContent()
     }
+
+    /**
+     * 重新生成分析
+     */
+    private fun regenerateSummary() {
+        loadSummary(true)
+    }
+
 
     /**
      * 获取应用logo的base64编码
@@ -251,6 +271,7 @@ class AiSummaryFragment : BaseFragment<FragmentAiSummaryBinding>() {
                     val width = drawable.intrinsicWidth.takeIf { it > 0 } ?: 48
                     val height = drawable.intrinsicHeight.takeIf { it > 0 } ?: 48
                     val bitmap = createBitmap(width, height)
+
                     val canvas = Canvas(bitmap)
                     drawable.setBounds(0, 0, canvas.width, canvas.height)
                     drawable.draw(canvas)
@@ -276,7 +297,6 @@ class AiSummaryFragment : BaseFragment<FragmentAiSummaryBinding>() {
      */
     private fun convertToHtml(content: String): String {
         val appName = getString(R.string.app_name)
-        val periodName = currentPeriodData?.displayName ?: "当前月份"
         val logoBase64 = getAppLogoBase64()
 
         return """
@@ -285,32 +305,59 @@ class AiSummaryFragment : BaseFragment<FragmentAiSummaryBinding>() {
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          
+            <meta name="color-scheme" content="light dark">
             <style>
-               
+              
+                :root {
+                 
+                    --text-primary: #1f2937;          /* 浅色主文本（更稳的深灰） */
+                    --text-secondary: #6b7280;        /* 浅色次文本 */
+                }
+                @media (prefers-color-scheme: dark) {
+                    :root {
+                      
+                        --text-primary: #e5e7eb;      /* 深色主文本（近 Gray-200） */
+                        --text-secondary: #9ca3af;    /* 深色次文本（Gray-400） */
+                    }
+                }
+                body{
+                    padding:1.5rem
+                }
+
+
+                /* 顶部页眉：左侧小 Logo + 周期标题 */
                 .header {
-                    text-align: center;
-                    padding-bottom: 20px;
-                    border-bottom: 2px solid #e9ecef;
-                    margin-bottom: 24px;
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    padding: 1.5rem;
                 }
                 .logo {
-                    font-size: 32px;
-                    margin: 0 auto 8px;
-                    text-align: center;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
                 }
-                .app-title {
+                .logo img {
+                    width: 28px;
+                    height: 28px;
+                    border-radius: 6px;
+                }
+                .logo .emoji {
                     font-size: 20px;
-                    font-weight: 600;
-                    color: #2c3e50;
-                    margin: 8px 0 4px;
+                    line-height: 1;
                 }
-               
+                .period-title {
+                    font-size: 18px;
+                    font-weight: 600;
+                    color: var(--text-primary);
+                    margin: 0;
+                }
+                
                 .footer {
                     text-align: center;
-                    padding-top: 20px;
-                    border-top: 1px solid #e9ecef;
-                    margin-top: 24px;
-                    color: #6c757d;
+                        padding:1.5rem;
+                    color: var(--text-secondary);
                     font-size: 14px;
                 }
                
@@ -318,13 +365,10 @@ class AiSummaryFragment : BaseFragment<FragmentAiSummaryBinding>() {
         </head>
         <body>
             <div class="container">
-                <!-- 顶部Logo和标题 -->
+                <!-- 顶部页眉：左侧小 Logo，不显示应用标题，仅显示周期标题 -->
                 <div class="header">
-                    <div class="logo">
-                        ${if (logoBase64.isNotEmpty()) "<img src=\"$logoBase64\" alt=\"Logo\" style=\"width: 48px; height: 48px; border-radius: 8px;\">" else "💰"}
-                    </div>
-                    <h1 class="app-title">$appName</h1>
-                    <p class="period-title">$periodName 财务分析报告</p>
+                    <div class="logo">${if (logoBase64.isNotEmpty()) "<img src=\"$logoBase64\" alt=\"Logo\">" else "<span class=\"emoji\">💰</span>"}</div>
+                    <p class="period-title">自动记账 • 财务分析</p>
                 </div>
                 
                 <!-- AI分析内容 -->
@@ -334,12 +378,12 @@ class AiSummaryFragment : BaseFragment<FragmentAiSummaryBinding>() {
                 
                 <!-- 底部信息 -->
                 <div class="footer">
-                    <p>由 $appName 生成 • ${
+                    由 $appName 生成 • ${
             SimpleDateFormat(
                 "yyyy-MM-dd HH:mm",
                 Locale.getDefault()
             ).format(Date())
-        }</p>
+        }
                 </div>
             </div>
         </body>
@@ -358,10 +402,7 @@ class AiSummaryFragment : BaseFragment<FragmentAiSummaryBinding>() {
      * 分享为图片
      */
     private fun shareAsImage() {
-        if (currentSummary == null) {
-            ToastUtils.error(getString(R.string.ai_summary_no_content))
-            return
-        }
+
 
         val loading = LoadingUtils(requireActivity())
 
@@ -369,15 +410,13 @@ class AiSummaryFragment : BaseFragment<FragmentAiSummaryBinding>() {
             loading.show(getString(R.string.ai_summary_generating_image))
 
             try {
-                val bitmap = withContext(Dispatchers.IO) {
-                    captureWebViewAsBitmap()
-                }
+                val imageFile = bitmapFile()
 
-                if (bitmap != null) {
-                    val imageFile = saveBitmapToFile(bitmap)
+                val success = captureWebViewToFile(binding.webView, imageFile)
+                if (success) {
                     shareImageFile(imageFile)
                 } else {
-                    ToastUtils.error(getString(R.string.ai_summary_image_failed))
+                    ToastUtils.error(getString(R.string.ai_summary_image_error, "保存失败"))
                 }
 
             } catch (e: Exception) {
@@ -389,102 +428,85 @@ class AiSummaryFragment : BaseFragment<FragmentAiSummaryBinding>() {
         }
     }
 
-    /**
-     * 捕获WebView为Bitmap - 完整内容截图
-     *
-     * 简洁方案：WebView自己处理滚动，直接获取完整内容高度
-     */
-    private suspend fun captureWebViewAsBitmap(): Bitmap? = withContext(Dispatchers.Main) {
-        try {
-            val webView = binding.webView
 
-            // 等待内容布局完成（contentHeight > 0），避免早期绘制成白屏
-            if (webView.contentHeight == 0) {
-                suspendCancellableCoroutine { cont ->
-                    webView.post { cont.resume(Unit) }
+    /**
+     * 截取 WebView 全量内容并保存为 PNG 文件。
+     * 返回：保存是否成功。
+     * 要点：主线程绘制，IO 线程写文件；白底避免透明。
+     */
+    private suspend fun captureWebViewToFile(
+        webView: WebView,
+        outFile: File
+    ): Boolean {
+        return try {
+            val bitmap = withContext(Dispatchers.Main) {
+                val display = resources.displayMetrics
+                val scale = webView.scale
+                val contentHeightPx = (webView.contentHeight * scale).toInt()
+
+                val width = when {
+                    webView.width > 0 -> webView.width
+                    webView.measuredWidth > 0 -> webView.measuredWidth
+                    else -> display.widthPixels
                 }
+                val height = when {
+                    contentHeightPx > 0 -> contentHeightPx
+                    webView.height > 0 -> webView.height
+                    webView.measuredHeight > 0 -> webView.measuredHeight
+                    else -> display.heightPixels
+                }
+
+                val wSpec = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY)
+                val hSpec = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY)
+                webView.measure(wSpec, hSpec)
+                webView.layout(0, 0, width, height)
+
+                val bmp = createBitmap(width, height)
+                val canvas = Canvas(bmp)
+                canvas.drawColor(Color.WHITE)
+                webView.draw(canvas)
+                bmp
             }
 
-            val originalWidth = webView.width
-            val originalHeight = webView.height
-            if (originalWidth <= 0 || originalHeight <= 0) return@withContext null
-
-            // contentHeight 是 CSS 像素，需要乘以当前缩放比例得到实际像素
-            // contentHeight 为 CSS px，转换到实际像素：使用屏幕 density 作为近似（避免依赖隐藏 API）
-            val density = webView.resources.displayMetrics.density
-            var targetHeight = (webView.contentHeight * density).toInt()
-            if (targetHeight <= 0) targetHeight = originalHeight
-            val targetWidth = originalWidth
-
-            // 临时使用软件层绘制，避免某些机型硬件加速下画布为白
-            val oldLayerType = webView.layerType
-            webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null)
-
-            // 保存当前滚动位置并重置到顶部，避免截到中间位置
-            val oldScrollY = webView.scrollY
-            webView.scrollTo(0, 0)
-
-            // 重新按完整内容高度进行 measure/layout，确保 draw() 能绘制整页
-            webView.measure(
-                View.MeasureSpec.makeMeasureSpec(targetWidth, View.MeasureSpec.EXACTLY),
-                View.MeasureSpec.makeMeasureSpec(targetHeight, View.MeasureSpec.EXACTLY)
-            )
-            webView.layout(
-                webView.left,
-                webView.top,
-                webView.left + targetWidth,
-                webView.top + targetHeight
-            )
-
-            // 创建目标位图并绘制（先铺白底）
-            val bitmap = createBitmap(targetWidth, targetHeight)
-            val canvas = Canvas(bitmap)
-            canvas.drawColor(Color.WHITE)
-            webView.draw(canvas)
-
-            Logger.d("WebView整页截图尺寸: ${targetWidth}x${targetHeight}, density=${density}")
-
-            // 恢复视图状态，避免影响UI
-            webView.measure(
-                View.MeasureSpec.makeMeasureSpec(originalWidth, View.MeasureSpec.EXACTLY),
-                View.MeasureSpec.makeMeasureSpec(originalHeight, View.MeasureSpec.EXACTLY)
-            )
-            webView.layout(
-                webView.left,
-                webView.top,
-                webView.left + originalWidth,
-                webView.top + originalHeight
-            )
-            webView.scrollTo(0, oldScrollY)
-            webView.setLayerType(oldLayerType, null)
-
-            bitmap
+            val saved = withContext(Dispatchers.IO) {
+                try {
+                    outFile.outputStream().use { os ->
+                        bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, os)
+                    }
+                    true
+                } catch (e: Exception) {
+                    Logger.e("保存截屏文件失败", e)
+                    false
+                } finally {
+                    try {
+                        if (!bitmap.isRecycled) bitmap.recycle()
+                    } catch (_: Throwable) {
+                    }
+                }
+            }
+            saved
         } catch (e: Exception) {
-            Logger.e("捕获WebView失败", e)
-            null
+            Logger.e("截取 WebView 异常", e)
+            false
         }
     }
+
+
 
     /**
      * 保存Bitmap到文件
      */
-    private suspend fun saveBitmapToFile(bitmap: Bitmap): File = withContext(Dispatchers.IO) {
+    private suspend fun bitmapFile(): File = withContext(Dispatchers.IO) {
         // 创建AI缓存目录
         val aiCacheDir = File(requireContext().cacheDir, "ai")
         if (!aiCacheDir.exists()) {
             aiCacheDir.mkdirs()
+        } else {
+            aiCacheDir.delete()
+            aiCacheDir.mkdirs()
         }
-
-        // 生成文件名，使用周期信息或时间戳
-        val periodName =
-            currentPeriodData?.displayName?.replace("[^a-zA-Z0-9\\u4e00-\\u9fa5]".toRegex(), "_")
-                ?: "default"
-        val fileName = "ai_summary_${periodName}_${System.currentTimeMillis()}.png"
+        val fileName = "ai_summary_${System.currentTimeMillis()}.png"
         val file = File(aiCacheDir, fileName)
-
-        FileOutputStream(file).use { out ->
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
-        }
 
         file
     }
@@ -501,14 +523,7 @@ class AiSummaryFragment : BaseFragment<FragmentAiSummaryBinding>() {
             )
 
             // 生成分享文本
-            val shareText = if (currentPeriodData != null) {
-                "我的${currentPeriodData!!.displayName}财务分析报告"
-            } else {
-                val calendar = Calendar.getInstance()
-                val year = calendar.get(Calendar.YEAR)
-                val month = calendar.get(Calendar.MONTH) + 1
-                getString(R.string.ai_summary_share_text, year, month)
-            }
+            val shareText = "我的${currentPeriodData!!.displayName}财务分析报告"
 
             val intent = Intent(Intent.ACTION_SEND).apply {
                 type = "image/png"
