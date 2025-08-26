@@ -50,8 +50,8 @@ class RuleVersionCardComponent(
      * 节流器，防止频繁调用更新接口
      * 设置5秒的冷却时间，避免用户重复点击导致的问题
      */
-    private val throttle = Throttle.asFunction<Boolean>(5000) { fromUser ->
-        lifecycle.coroutineScope.launch {
+    private val throttle = Throttle.asFunction<Boolean>(1000 * 60 * 30, "rule_update") { fromUser ->
+        componentScope.launch {
             try {
                 updateRules(fromUser)
             } catch (e: Exception) {

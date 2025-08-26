@@ -108,7 +108,7 @@ class MonthlyCardComponent(binding: CardMonthlyBinding, private val lifecycle: L
      * 刷新数据
      */
     private fun refreshData() {
-        lifecycle.coroutineScope.launch {
+        componentScope.launch {
             val calendar = Calendar.getInstance()
             val year = calendar.get(Calendar.YEAR)
             val month = calendar.get(Calendar.MONTH) + 1 // Calendar.MONTH is 0-based

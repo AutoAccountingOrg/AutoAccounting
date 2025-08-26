@@ -22,6 +22,10 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.viewbinding.ViewBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import net.ankio.auto.storage.Logger
 
 /**
@@ -42,9 +46,13 @@ abstract class BaseComponent<T : ViewBinding>(
     /** 上下文对象，从binding的根视图获取 */
     protected val context: Context = binding.root.context
 
+    /** 组件级别的协程作用域，用于管理异步操作 */
+    protected val componentScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+
     init {
         // 将当前组件注册为生命周期观察者
         lifecycle.addObserver(this)
+
     }
 
     protected lateinit var activity: Activity
@@ -92,7 +100,9 @@ abstract class BaseComponent<T : ViewBinding>(
      */
     @CallSuper
     open fun cleanup() {
-        //.d("BaseComponent cleanup called: ${this.javaClass.simpleName}")
+        // 取消组件协程作用域，防止内存泄露
+        componentScope.cancel()
+        Logger.d("${this.javaClass.simpleName} 协程作用域已取消")
     }
 
     /**

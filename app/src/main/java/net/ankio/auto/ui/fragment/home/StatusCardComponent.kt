@@ -45,7 +45,7 @@ import net.ankio.auto.xposed.common.ActiveInfo
 class StatusCardComponent(binding: CardStatusBinding, private val lifecycle: Lifecycle) :
     BaseComponent<CardStatusBinding>(binding, lifecycle) {
     private val throttle = Throttle.asFunction<Boolean>(5000) { fromUser ->
-        lifecycle.coroutineScope.launch {
+        componentScope.launch {
             try {
                 updateApps(fromUser)
             } catch (e: Exception) {
