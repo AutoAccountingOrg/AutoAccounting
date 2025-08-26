@@ -207,13 +207,13 @@ dependencies {
 
     implementation("com.tencent.bugly:crashreport:latest.release")
 
-    debugImplementation("com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.11")
+    debugImplementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
     implementation("androidx.palette:palette-ktx:1.0.0")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.8.1")
     implementation("net.lingala.zip4j:zip4j:2.11.5")
     implementation(kotlin("reflect"))
 
-    implementation("com.github.equationl.paddleocr4android:paddleocr4android:v1.2.9")
+    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar", "*.aar"))))
 
 }
