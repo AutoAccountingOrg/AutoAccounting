@@ -64,6 +64,9 @@
         <action
             android:id="@+id/action_homeFragment_to_appWhiteListFragment"
             app:destination="@id/appWhiteListFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_aiSummaryFragment"
+            app:destination="@id/aiSummaryFragment" />
         <!-- <action
              android:id="@+id/action_homeFragment_to_categoryRuleFragment"
              app:destination="@id/categoryRuleFragment" />
@@ -90,6 +93,9 @@
         <action
             android:id="@+id/action_ruleManageFragment_to_ruleEditFragment"
             app:destination="@id/ruleEditFragment" />
+        <action
+            android:id="@+id/action_ruleManageFragment_to_categoryRuleEditFragment"
+            app:destination="@id/categoryRuleEditFragment" />
 
     </fragment>
 
@@ -120,13 +126,72 @@
         android:label="@string/title_setting"
         tools:layout="@layout/fragment_setting">
 
-        <!-- <action
-             android:id="@+id/action_settingFragment_to_settingDetailFragment"
-             app:destination="@id/settingDetailFragment" />
-         <action
-             android:id="@+id/action_settingFragment_to_smsFragment"
-             app:destination="@id/smsFragment" />-->
+        <action
+            android:id="@+id/action_settingFragment_to_billPreferenceFragment"
+            app:destination="@id/billPreferenceFragment" />
+        <action
+            android:id="@+id/action_settingFragment_to_popupPreferenceFragment"
+            app:destination="@id/popupPreferenceFragment" />
+        <action
+            android:id="@+id/action_settingFragment_to_featuresPreferenceFragment"
+            app:destination="@id/featuresPreferenceFragment" />
+        <action
+            android:id="@+id/action_settingFragment_to_aiPreferenceFragment"
+            app:destination="@id/aiPreferenceFragment" />
+        <action
+            android:id="@+id/action_settingFragment_to_appearancePreferenceFragment"
+            app:destination="@id/appearancePreferenceFragment" />
+        <action
+            android:id="@+id/action_settingFragment_to_experimentalPreferenceFragment"
+            app:destination="@id/experimentalPreferenceFragment" />
+        <action
+            android:id="@+id/action_settingFragment_to_backupPreferenceFragment"
+            app:destination="@id/backupPreferenceFragment" />
+        <action
+            android:id="@+id/action_settingFragment_to_othersPreferenceFragment"
+            app:destination="@id/othersPreferenceFragment" />
     </fragment>
+
+    <!-- 设置页面 Fragment 定义 -->
+    <fragment
+        android:id="@+id/billPreferenceFragment"
+        android:name="net.ankio.auto.ui.fragment.settings.BillPreferenceFragment"
+        android:label="@string/setting_title_bill" />
+
+    <fragment
+        android:id="@+id/popupPreferenceFragment"
+        android:name="net.ankio.auto.ui.fragment.settings.PopupPreferenceFragment"
+        android:label="@string/setting_title_popup" />
+
+    <fragment
+        android:id="@+id/featuresPreferenceFragment"
+        android:name="net.ankio.auto.ui.fragment.settings.FeaturesPreferenceFragment"
+        android:label="@string/setting_title_features" />
+
+    <fragment
+        android:id="@+id/aiPreferenceFragment"
+        android:name="net.ankio.auto.ui.fragment.settings.AiPreferenceFragment"
+        android:label="@string/setting_title_ai" />
+
+    <fragment
+        android:id="@+id/appearancePreferenceFragment"
+        android:name="net.ankio.auto.ui.fragment.settings.AppearancePreferenceFragment"
+        android:label="@string/setting_title_appearance" />
+
+    <fragment
+        android:id="@+id/experimentalPreferenceFragment"
+        android:name="net.ankio.auto.ui.fragment.settings.ExperimentalPreferenceFragment"
+        android:label="@string/setting_title_experimental" />
+
+    <fragment
+        android:id="@+id/backupPreferenceFragment"
+        android:name="net.ankio.auto.ui.fragment.settings.BackupPreferenceFragment"
+        android:label="@string/setting_title_backup" />
+
+    <fragment
+        android:id="@+id/othersPreferenceFragment"
+        android:name="net.ankio.auto.ui.fragment.settings.OthersPreferenceFragment"
+        android:label="@string/setting_title_others" />
 
     <fragment
         android:id="@+id/appearanceFragment"
@@ -267,7 +332,6 @@
         android:label="@string/title_app_whitelist"
         tools:layout="@layout/fragment_notice" />
 
-    <!--
     <fragment
         android:id="@+id/orderFragment"
         android:name="net.ankio.auto.ui.fragment.OrderFragment"
@@ -277,28 +341,30 @@
     </fragment>
 
     <fragment
-        android:id="@+id/categoryRuleFragment"
-        android:name="net.ankio.auto.ui.fragment.CategoryRuleFragment"
-        android:label="@string/title_category_rule"
-        tools:layout="@layout/fragment_category_rule">
+        android:id="@+id/aiSummaryFragment"
+        android:name="net.ankio.auto.ui.fragment.AiSummaryFragment"
+        android:label="@string/ai_summary_title"
+        tools:layout="@layout/fragment_ai_summary">
 
-        <action
-            android:id="@+id/action_categoryRuleFragment_to_categoryRuleEditFragment"
-            app:destination="@id/categoryRuleEditFragment" />
     </fragment>
 
     <fragment
         android:id="@+id/categoryRuleEditFragment"
         android:name="net.ankio.auto.ui.fragment.CategoryRuleEditFragment"
-        android:label="@string/title_category_rule_edit"
-        tools:layout="@layout/fragment_category_rule">
+        android:label="@string/edit_category"
+        tools:layout="@layout/fragment_category_rule_edit">
 
         <argument
             android:name="ruleId"
             app:argType="long"
             android:defaultValue="0L" />
+        <argument
+            android:name="data"
+            app:argType="string"
+            android:defaultValue="" />
     </fragment>
 
+    <!--
     <fragment
         android:id="@+id/dataRuleFragment"
         android:name="net.ankio.auto.ui.fragment.DataRuleFragment"
@@ -319,10 +385,6 @@
             android:defaultValue="" />
     </fragment>
 
-
-
-    </fragment>
-
     <fragment
         android:id="@+id/noticeFragment"
         android:name="net.ankio.auto.ui.fragment.NoticeFragment"
@@ -330,6 +392,6 @@
         tools:layout="@layout/fragment_notice">
 
     </fragment>
--->
+    -->
 
 </navigation>
