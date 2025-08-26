@@ -57,16 +57,6 @@ open class App : Application() {
             CoroutineManager.launchOnMain(context, block)
         }
 
-        /**
-         * 在IO线程启动协程
-         */
-        fun launchIO(
-            context: CoroutineContext = EmptyCoroutineContext,
-            block: suspend CoroutineScope.() -> Unit
-        ) {
-            CoroutineManager.launchOnIO(context, block)
-        }
-
     }
 
     override fun onCreate() {

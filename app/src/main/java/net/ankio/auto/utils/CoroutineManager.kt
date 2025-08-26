@@ -31,10 +31,6 @@ object CoroutineManager {
     private val mainJob = Job()
     private val mainScope = CoroutineScope(Dispatchers.Main + mainJob)
 
-    /** IO线程协程 */
-    private val ioJob = Job()
-    private val ioScope = CoroutineScope(Dispatchers.IO + ioJob)
-
     /**
      * 在主线程启动协程
      */
@@ -43,23 +39,5 @@ object CoroutineManager {
         block: suspend CoroutineScope.() -> Unit
     ) {
         mainScope.launch(context = context, block = block)
-    }
-
-    /**
-     * 在IO线程启动协程
-     */
-    fun launchOnIO(
-        context: CoroutineContext = EmptyCoroutineContext,
-        block: suspend CoroutineScope.() -> Unit
-    ) {
-        ioScope.launch(context = context, block = block)
-    }
-
-    /**
-     * 取消所有协程
-     */
-    fun cancelAll() {
-        mainJob.cancel()
-        ioJob.cancel()
     }
 }
