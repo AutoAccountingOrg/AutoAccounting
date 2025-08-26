@@ -21,10 +21,9 @@ import androidx.activity.result.ActivityResultCaller
 import androidx.activity.result.ActivityResultLauncher
 import net.ankio.auto.constant.WorkMode
 import net.ankio.auto.service.CoreService
-import net.ankio.auto.service.utils.ProjectionGateway
+import net.ankio.auto.service.ocr.ProjectionGateway
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.adapter.IntroPagerAdapter
-import net.ankio.auto.utils.PrefManager
 
 /**
  * 服务管理器类
