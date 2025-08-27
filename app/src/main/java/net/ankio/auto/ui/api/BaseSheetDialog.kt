@@ -16,23 +16,22 @@
 package net.ankio.auto.ui.api
 
 import android.app.Activity
-import android.app.Service
+import android.content.Context
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.WindowManager
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import androidx.annotation.CallSuper
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
-import androidx.fragment.app.Fragment
+import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleService
 import androidx.viewbinding.ViewBinding
@@ -44,7 +43,7 @@ import net.ankio.auto.R
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.utils.DisplayUtils
 import net.ankio.auto.utils.PrefManager
-import net.ankio.auto.utils.ThemeUtils
+import net.ankio.auto.utils.SystemUtils.findLifecycleOwner
 import net.ankio.auto.utils.toThemeColor
 import net.ankio.auto.utils.toThemeCtx
 import java.lang.reflect.ParameterizedType
@@ -52,44 +51,32 @@ import java.lang.reflect.ParameterizedType
 /**
  * 基础底部弹窗对话框
  *
- * 这是一个自定义的底部弹窗基类，提供了以下功能：
- * - 自动生命周期管理：自动监听Activity/Fragment生命周期，在销毁时自动关闭弹窗
- * - 支持圆角和直角样式：根据用户偏好设置显示不同样式的弹窗
- * - 适配平板和折叠屏：自动处理不同屏幕尺寸和导航栏高度
- * - 键盘弹出处理：监听IME状态变化，自动调整弹窗高度
- * - 悬浮窗支持：支持在Service中显示悬浮窗形式的弹窗
- * - 安全的内存管理：防止内存泄漏和崩溃
+ * 利用 BottomSheetDialog 自身的 LifecycleOwner 特性：
+ * - 使用 Dialog 自身的生命周期，无需额外管理
+ * - 自动推断悬浮窗模式：Service 环境自动启用
+ * - 极简构造：只需 Context 一个参数
+ * - 完整生命周期回调：实现 DefaultLifecycleObserver
  *
  * 使用方式：
  * ```kotlin
- * // Activity中使用
- * MyDialog.create(activity).show()
- *
- * // Fragment中使用
- * MyDialog.create(fragment).show()
- *
- * // Service中使用（悬浮窗）
- * MyDialog.create(service).show()
- *
- * // 自定义Context和LifecycleOwner
- * MyDialog.create(context, lifecycleOwner, isOverlay).show()
+ * // 所有场景统一使用
+ * MyDialog.create(context).show()
  * ```
  */
 abstract class BaseSheetDialog<VB : ViewBinding> :
-    BottomSheetDialog {
+    BottomSheetDialog, DefaultLifecycleObserver {
     /**
-     * ViewBinding 实例，在 Fragment 销毁时会被置空以防止内存泄漏
+     * ViewBinding 实例，在销毁时会被置空以防止内存泄漏
      */
     private var _binding: VB? = null
 
     /**
      * 对外暴露的 ViewBinding 属性，提供非空访问
-     * 在 Fragment 生命周期内可以安全使用
      */
     protected val binding get() = _binding!!
 
-    /** 生命周期所有者，用于自动管理弹窗生命周期 */
-    val lifecycleOwner: LifecycleOwner?
+    /** 宿主生命周期所有者，用于监听宿主销毁 */
+    private val hostLifecycleOwner: LifecycleOwner
 
     /** 是否为悬浮窗模式，Service环境下必须为true */
     private val isOverlay: Boolean
@@ -129,49 +116,54 @@ abstract class BaseSheetDialog<VB : ViewBinding> :
             _binding = inflate.invoke(null, LayoutInflater.from(ctx)) as VB
 
         } catch (e: Exception) {
-            Logger.e("Failed to create view for ${javaClass.simpleName}", e)
+            Logger.e("为 ${javaClass.simpleName} 创建视图失败", e)
         }
     }
 
     /**
-     * 主构造函数 - 支持所有类型的上下文
+     * 简化构造函数 - 自动推断生命周期
      *
-     * @param context 上下文，可以是Activity、Service等
-     * @param lifecycleOwner 生命周期所有者，可为null但不推荐
-     * @param isOverlay 是否为悬浮窗模式，默认false
+     * @param context 上下文，自动从中推断LifecycleOwner
      */
-    constructor(
-        context: android.content.Context,
-        lifecycleOwner: LifecycleOwner? = null,
-        isOverlay: Boolean = false
-    ) : super(context, R.style.BottomSheetDialog) {
-        this.lifecycleOwner = lifecycleOwner
-        this.isOverlay = isOverlay
+    constructor(context: Context) : super(context, R.style.BottomSheetDialog) {
+        val owner = context.findLifecycleOwner()
+        this.hostLifecycleOwner = owner
+        this.isOverlay = owner is LifecycleService
 
-        // 自动监听生命周期
-        lifecycleOwner?.lifecycle?.addObserver(lifecycleObserver)
+        // 监听宿主生命周期，当宿主销毁时自动关闭弹窗
+        hostLifecycleOwner.lifecycle.addObserver(this)
     }
 
     /**
-     * 兼容性构造函数 - 仅传入Context
-     *
-     * @param context 上下文
-     * @deprecated 推荐使用工厂方法 create() 或传入 lifecycleOwner 的构造函数
+     * 宿主生命周期销毁事件处理
+     * 当宿主（Activity/Fragment/Service）销毁时自动关闭弹窗
      */
-    @Deprecated(
-        "请使用 create() 工厂方法或传入 lifecycleOwner 的构造函数",
-        ReplaceWith("BaseSheetDialog.create(context)")
-    )
-    constructor(context: android.content.Context) : this(context, null, false)
-
-    /**
-     * 生命周期观察者，监听宿主生命周期变化
-     * 当宿主销毁时自动关闭弹窗，防止内存泄漏
-     */
-    private val lifecycleObserver = LifecycleEventObserver { _, event ->
-        if (event == Lifecycle.Event.ON_DESTROY) dismiss()
+    final override fun onDestroy(owner: LifecycleOwner) {
+        hostLifecycleOwner.lifecycle.removeObserver(this)
+        onDialogDestroy()
+        dismiss()
     }
 
+    /**
+     * 子类可重写：弹窗销毁时的清理操作
+     *
+     * 在弹窗销毁时调用，子类可以在这里执行：
+     * - 取消网络请求
+     * - 释放资源
+     * - 清理监听器
+     *
+     * 注意：Dialog 自身也是 LifecycleOwner，可以直接使用 this 作为生命周期：
+     * ```kotlin
+     * // 在子类中可以直接使用
+     * viewModel.liveData.observe(this) { data ->
+     *     // 更新UI，会自动跟随Dialog生命周期
+     * }
+     * ```
+     */
+    @CallSuper
+    open fun onDialogDestroy() {
+        // 子类可重写进行清理
+    }
 
 
     /**
@@ -309,7 +301,7 @@ abstract class BaseSheetDialog<VB : ViewBinding> :
         val round = PrefManager.uiRoundStyle
         val margin = DisplayUtils.dp2px(20f)
 
-        Logger.d("Preparing base view - round: $round")
+        Logger.d("准备基础视图 - 圆角样式: $round")
 
         // 创建各个组件
         val cardView = createCardView(round, margin)
@@ -348,7 +340,7 @@ abstract class BaseSheetDialog<VB : ViewBinding> :
                 DisplayUtils.getRealScreenSize(ctx).y - DisplayUtils.getStatusBarHeight(ctx)
         }
 
-        Logger.d("BottomSheet configured - maxHeight: ${bottomSheetBehavior.maxHeight}")
+        Logger.d("BottomSheet 已配置 - 最大高度: ${bottomSheetBehavior.maxHeight}")
 
         // 监听窗口插入变化（主要是键盘）
         ViewCompat.setOnApplyWindowInsetsListener(bottomSheet) { v, insets ->
@@ -364,7 +356,7 @@ abstract class BaseSheetDialog<VB : ViewBinding> :
 
             // 通知子类键盘状态变化
             if (imeVisible) {
-                Logger.d("IME visible, height: $imeHeight")
+                Logger.d("输入法可见，高度: $imeHeight")
                 onImeVisible()
             }
             insets
@@ -384,23 +376,21 @@ abstract class BaseSheetDialog<VB : ViewBinding> :
      * @param cancel 是否可取消，true表示点击外部可关闭弹窗
      */
     open fun show(cancel: Boolean = false) {
-        // 生命周期安全检查：只有生命周期Owner时检查
-        lifecycleOwner?.let {
-            if (it.lifecycle.currentState == Lifecycle.State.DESTROYED) {
-                Logger.w("Cannot show dialog: lifecycle is DESTROYED")
-                return
-            }
+        // 宿主生命周期安全检查
+        if (hostLifecycleOwner.lifecycle.currentState == Lifecycle.State.DESTROYED) {
+            Logger.w("无法显示对话框：宿主生命周期已销毁")
+            return
         }
 
         // Activity状态安全检查：如果 ctx 是 Activity 需检查存活
         (ctx as? Activity)?.let {
             if (it.isFinishing || it.isDestroyed) {
-                Logger.w("Cannot show dialog: activity not running")
+                Logger.w("无法显示对话框：Activity 未运行")
                 return
             }
         }
 
-        Logger.d("Showing dialog - overlay: $isOverlay, cancel: $cancel")
+        Logger.d("显示对话框 - 悬浮窗模式: $isOverlay, 可取消: $cancel")
 
         // 创建和配置视图
         val cardView = prepareBaseView()
@@ -426,11 +416,11 @@ abstract class BaseSheetDialog<VB : ViewBinding> :
                 if (isOverlay) {
                     // 设置为悬浮窗类型
                     params.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
-                    Logger.d("Set as overlay window")
+                    Logger.d("设置为悬浮窗")
                 }
                 win.attributes = params
             }.onFailure {
-                Logger.e("Failed to set window attributes", it)
+                Logger.e("设置窗口属性失败", it)
             }
         }
 
@@ -460,107 +450,36 @@ abstract class BaseSheetDialog<VB : ViewBinding> :
      * - 异常处理
      */
     override fun dismiss() {
-
-        
         runCatching {
             _binding = null
-            // 移除生命周期观察者，防止内存泄漏
-            lifecycleOwner?.lifecycle?.removeObserver(lifecycleObserver)
             // 检查对话框是否正在显示且窗口有效
             if (isShowing && window?.decorView?.isAttachedToWindow == true) {
                 super.dismiss()
             } else {
-                Logger.d("Dialog is not showing or window is not attached, skipping dismiss")
+                Logger.d("对话框未显示或窗口未附加，跳过关闭操作")
             }
         }.onFailure {
             it.printStackTrace()
-            Logger.e("Dismiss error", it)
+            Logger.e("关闭对话框出错", it)
         }
     }
 
     companion object {
         /**
-         * 从Activity创建弹窗
+         * 创建弹窗 - 统一简化的工厂方法
          *
-         * @param activity 宿主Activity，自动作为Context和LifecycleOwner
-         * @return 对话框实例，支持链式调用
-         */
-        inline fun <reified T : BaseSheetDialog<*>> create(activity: Activity): T {
-            if (activity !is LifecycleOwner) {
-                throw IllegalArgumentException("Activity必须实现LifecycleOwner接口")
-            }
-            return createInstance<T>(activity, activity, false)
-        }
-
-        /**
-         * 从Fragment创建弹窗
-         *
-         * @param fragment 宿主Fragment，使用其Context和viewLifecycleOwner
-         * @return 对话框实例，支持链式调用
-         */
-        inline fun <reified T : BaseSheetDialog<*>> create(fragment: Fragment): T {
-            return createInstance<T>(fragment.requireContext(), fragment.viewLifecycleOwner, false)
-        }
-
-        /**
-         * 从LifecycleService创建弹窗（悬浮窗模式）
-         *
-         * @param service 宿主Service，自动作为Context和LifecycleOwner，强制悬浮窗模式
-         * @return 对话框实例，支持链式调用
-         */
-        inline fun <reified T : BaseSheetDialog<*>> create(service: LifecycleService): T {
-            return createInstance<T>(service, service, true)
-        }
-
-        /**
-         * 自定义创建弹窗
-         *
-         * @param context 上下文
-         * @param lifecycleOwner 生命周期所有者，可为null（不推荐）
-         * @param isOverlay 是否为悬浮窗模式
+         * @param context 上下文，自动推断LifecycleOwner
          * @return 对话框实例，支持链式调用
          */
         inline fun <reified T : BaseSheetDialog<*>> create(
-            context: android.content.Context,
-            lifecycleOwner: LifecycleOwner? = null,
-            isOverlay: Boolean = false
-        ): T {
-            return createInstance<T>(context, lifecycleOwner, isOverlay)
-        }
-
-        /**
-         * 内部实例创建方法
-         * 使用反射创建具体的对话框实例
-         */
-        @PublishedApi
-        internal inline fun <reified T : BaseSheetDialog<*>> createInstance(
-            context: android.content.Context,
-            lifecycleOwner: LifecycleOwner?,
-            isOverlay: Boolean
+            context: Context
         ): T {
             val clazz = T::class.java
-            val constructor = try {
-                // 优先尝试新的三参数构造函数
-                clazz.getDeclaredConstructor(
-                    android.content.Context::class.java,
-                    LifecycleOwner::class.java,
-                    Boolean::class.java
-                )
-            } catch (e: NoSuchMethodException) {
-                // 回退到单参数构造函数（兼容旧子类）
-                clazz.getDeclaredConstructor(android.content.Context::class.java)
-            }
-
+            val constructor = clazz.getDeclaredConstructor(
+                Context::class.java
+            )
             constructor.isAccessible = true
-
-            return if (constructor.parameterCount == 3) {
-                constructor.newInstance(context, lifecycleOwner, isOverlay) as T
-            } else {
-                // 单参数构造函数，后续设置属性
-                val instance = constructor.newInstance(context) as T
-                // 通过反射设置私有属性（如果需要）
-                instance
-            }
+            return constructor.newInstance(context) as T
         }
     }
 
