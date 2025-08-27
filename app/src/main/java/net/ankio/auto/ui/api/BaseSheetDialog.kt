@@ -34,11 +34,17 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleService
+import androidx.lifecycle.lifecycleScope
 import androidx.viewbinding.ViewBinding
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.elevation.SurfaceColors
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.utils.DisplayUtils
@@ -47,6 +53,7 @@ import net.ankio.auto.utils.SystemUtils.findLifecycleOwner
 import net.ankio.auto.utils.toThemeColor
 import net.ankio.auto.utils.toThemeCtx
 import java.lang.reflect.ParameterizedType
+import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * 基础底部弹窗对话框
@@ -83,7 +90,17 @@ abstract class BaseSheetDialog<VB : ViewBinding> :
 
 
     protected val ctx = context.toThemeCtx()
-
+    protected fun launch(block: suspend CoroutineScope.() -> Unit) {
+        lifecycleScope.launch {
+            try {
+                block()
+            } catch (e: CancellationException) {
+                Logger.d("dialog协程已取消: ${e.message}")
+            } catch (e: Exception) {
+                Logger.e("适配器协程执行错误", e)
+            }
+        }
+    }
     // ① 在 class 里加一个小工具函数（放在 init 外即可）
     private fun findViewBindingClass(start: Class<*>): Class<out ViewBinding>? {
         var current: Class<*>? = start
@@ -458,6 +475,7 @@ abstract class BaseSheetDialog<VB : ViewBinding> :
             } else {
                 Logger.d("对话框未显示或窗口未附加，跳过关闭操作")
             }
+            lifecycleScope.cancel()
         }.onFailure {
             it.printStackTrace()
             Logger.e("关闭对话框出错", it)
