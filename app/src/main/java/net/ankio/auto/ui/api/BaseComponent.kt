@@ -26,7 +26,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import net.ankio.auto.storage.Logger
+import net.ankio.auto.utils.SystemUtils.findLifecycleOwner
+import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * UI组件基类，提供生命周期管理和ViewBinding支持
@@ -34,31 +37,53 @@ import net.ankio.auto.storage.Logger
  * 该类实现了DefaultLifecycleObserver接口，自动管理组件的生命周期，
  * 子类可以通过重写相应的方法来处理生命周期事件。
  *
+ * 设计原则（遵循Linus好品味）：
+ * 1. 简化构造：只需要ViewBinding，自动推断LifecycleOwner
+ * 2. 消除重复：不再需要手动传递lifecycle参数
+ * 3. 向后兼容：保留原有构造函数，支持渐进式迁移
+ *
  * @param T ViewBinding类型，用于类型安全的视图绑定
  * @param binding ViewBinding实例，提供对视图的访问
- * @param lifecycle 生命周期对象，用于监听生命周期事件
  */
-abstract class BaseComponent<T : ViewBinding>(
-    val binding: T,
+abstract class BaseComponent<T : ViewBinding> : DefaultLifecycleObserver {
+
+    /** ViewBinding实例，提供对视图的访问 */
+    val binding: T
+
+    /** 生命周期对象，从ViewBinding的Context自动推断 */
     private val lifecycle: Lifecycle
-) : DefaultLifecycleObserver {
+
+    /**
+     * 推荐的构造函数 - 只需要ViewBinding，自动推断生命周期
+     *
+     * @param binding ViewBinding实例
+     */
+    constructor(binding: T) {
+        this.binding = binding
+        this.lifecycle = binding.root.context.findLifecycleOwner().lifecycle
+        lifecycle.addObserver(this)
+    }
+
+
 
     /** 上下文对象，从binding的根视图获取 */
-    protected val context: Context = binding.root.context
+    protected val context: Context get() = binding.root.context
 
     /** 组件级别的协程作用域，用于管理异步操作 */
     protected val componentScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
-    init {
-        // 将当前组件注册为生命周期观察者
-        lifecycle.addObserver(this)
-
+    protected fun launch(block: suspend CoroutineScope.() -> Unit) {
+        componentScope.launch {
+            try {
+                block()
+            } catch (e: CancellationException) {
+                Logger.d("组件协程已取消: ${e.message}")
+            } catch (e: Exception) {
+                Logger.e("组件协程执行错误", e)
+            }
+        }
     }
 
-    protected lateinit var activity: Activity
-    fun bindActivity(activity: Activity) {
-        this.activity = activity
-    }
     /**
      * 组件初始化方法，在组件创建后调用
      *
@@ -66,7 +91,7 @@ abstract class BaseComponent<T : ViewBinding>(
      * 此方法在bindAs扩展函数中被自动调用。
      */
     @CallSuper
-    open fun init() {
+    open fun onComponentCreate() {
         //Logger.d("BaseComponent init called: ${this.javaClass.simpleName}")
     }
 
@@ -77,7 +102,7 @@ abstract class BaseComponent<T : ViewBinding>(
      * 适合在这里执行需要重新激活的操作，如刷新数据、恢复动画等。
      */
     @CallSuper
-    open fun resume() {
+    open fun onComponentResume() {
         //Logger.d("BaseComponent resume called: ${this.javaClass.simpleName}")
     }
 
@@ -88,7 +113,7 @@ abstract class BaseComponent<T : ViewBinding>(
      * 适合在这里执行暂停操作，如停止动画、暂停数据更新等。
      */
     @CallSuper
-    open fun stop() {
+    open fun onComponentStop() {
         // Logger.d("BaseComponent stop called: ${this.javaClass.simpleName}")
     }
 
@@ -99,23 +124,22 @@ abstract class BaseComponent<T : ViewBinding>(
      * 适合在这里执行清理操作，如取消网络请求、释放资源等。
      */
     @CallSuper
-    open fun cleanup() {
+    open fun onComponentDestroy() {
         // 取消组件协程作用域，防止内存泄露
         componentScope.cancel()
-        Logger.d("${this.javaClass.simpleName} 协程作用域已取消")
     }
 
     /**
      * 生命周期恢复事件处理
      * 当页面恢复时自动调用resume方法
      */
-    final override fun onResume(owner: LifecycleOwner) = resume()
+    final override fun onResume(owner: LifecycleOwner) = onComponentResume()
 
     /**
      * 生命周期停止事件处理
      * 当页面停止时自动调用stop方法
      */
-    final override fun onStop(owner: LifecycleOwner) = stop()
+    final override fun onStop(owner: LifecycleOwner) = onComponentStop()
 
     /**
      * 生命周期销毁事件处理
@@ -124,38 +148,35 @@ abstract class BaseComponent<T : ViewBinding>(
     final override fun onDestroy(owner: LifecycleOwner) {
         //Logger.d("BaseComponent onDestroy called: ${this.javaClass.simpleName}")
         lifecycle.removeObserver(this)
-        cleanup()
+        onComponentDestroy()
     }
 }
 
+
 /**
- * ViewBinding扩展函数，用于创建并初始化BaseComponent实例
+ * ViewBinding扩展函数，创建BaseComponent实例
  *
- * 此函数通过反射查找匹配的构造函数，创建BaseComponent实例并自动调用init方法。
- * 使用此函数可以简化BaseComponent的创建过程。
+ * 此函数通过反射查找匹配的构造函数，创建BaseComponent实例并自动调用初始化方法。
+ * 自动从ViewBinding的Context推断LifecycleOwner，无需手动传递参数。
  *
- * @param T BaseComponent的具体类型
- * @param lifecycle 生命周期对象
+ * 支持两种使用方式：
+ * 1. 显式指定类型：binding.component.bindAs<MyComponent>()
+ * 2. 类型推断：val component: MyComponent = binding.component.bindAs()
+ *
+ * @param T BaseComponent的具体类型（可显式指定或由编译器推断）
  * @return 初始化完成的BaseComponent实例
  * @throws IllegalArgumentException 当找不到匹配的构造函数时抛出
  */
-inline fun <reified T : BaseComponent<*>> ViewBinding.bindAs(
-    lifecycle: Lifecycle,
-    activity: Activity? = null
-): T {
-    // 查找匹配的构造函数：第一个参数是当前ViewBinding类型，第二个参数是Lifecycle类型
+inline fun <reified T : BaseComponent<*>> ViewBinding.bindAs(): T {
+    // 查找匹配的构造函数：只接受ViewBinding的单参数构造函数
     val constructor = T::class.constructors.find {
-        it.parameters.size == 2 &&
-                it.parameters[0].type.classifier == this::class &&
-                it.parameters[1].type.classifier == Lifecycle::class
+        it.parameters.size == 1 &&
+                it.parameters[0].type.classifier == this::class
     }
-        ?: error("Constructor (binding: ${this::class}, lifecycle: Lifecycle) not found in ${T::class}")
+        ?: error("Constructor (binding: ${this::class}) not found in ${T::class}")
 
-    // 创建实例并调用init方法
-    return constructor.call(this, lifecycle).apply {
-        if (activity != null) {
-            bindActivity(activity)
-        }
-        init()
+    // 创建实例并调用组件初始化方法
+    return constructor.call(this).apply {
+        onComponentCreate()
     }
 }
