@@ -41,25 +41,19 @@ abstract class BaseAdapter<T : ViewBinding, E> : RecyclerView.Adapter<BaseViewHo
             try {
                 block()
             } catch (e: CancellationException) {
-                Logger.d("Adapter coroutine cancelled: ${e.message}")
+                Logger.d("适配器协程已取消: ${e.message}")
             } catch (e: Exception) {
-                Logger.e("Error in adapter coroutine", e)
+                Logger.e("适配器协程执行错误", e)
             }
         }
     }
 
-    /**
-     * 清理 Adapter 资源
-     */
-    fun cleanup() {
-        adapterScope.cancel()
-    }
     /** 数据列表 */
     private val items = mutableListOf<E>()
 
     override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
         super.onDetachedFromRecyclerView(recyclerView)
-        cleanup()
+        adapterScope.cancel()
     }
     /**
      * 更新指定位置的数据项
@@ -71,9 +65,9 @@ abstract class BaseAdapter<T : ViewBinding, E> : RecyclerView.Adapter<BaseViewHo
         if (index in items.indices) {
             items[index] = item
             notifyItemChanged(index)
-            Logger.d("Updated item at position $index")
+            Logger.d("已更新位置 $index 的数据项")
         } else {
-            Logger.w("Failed to update item: index $index out of bounds (size: ${items.size})")
+            Logger.w("更新数据项失败: 索引 $index 超出范围 (大小: ${items.size})")
         }
     }
 
@@ -93,9 +87,9 @@ abstract class BaseAdapter<T : ViewBinding, E> : RecyclerView.Adapter<BaseViewHo
         if (index in items.indices) {
             items.removeAt(index)
             notifyItemRemoved(index)
-            Logger.d("Removed item at position $index")
+            Logger.d("已移除位置 $index 的数据项")
         } else {
-            Logger.w("Failed to remove item: index $index out of bounds (size: ${items.size})")
+            Logger.w("移除数据项失败: 索引 $index 超出范围 (大小: ${items.size})")
         }
     }
 
@@ -109,7 +103,7 @@ abstract class BaseAdapter<T : ViewBinding, E> : RecyclerView.Adapter<BaseViewHo
         if (index >= 0) {
             removeItem(index)
         } else {
-            Logger.w("Failed to remove item: item not found in list")
+            Logger.w("移除数据项失败: 在列表中未找到该项")
         }
     }
 
@@ -137,7 +131,7 @@ abstract class BaseAdapter<T : ViewBinding, E> : RecyclerView.Adapter<BaseViewHo
         items.clear()
         items.addAll(newItems)
         notifyDataSetChanged()
-        Logger.d("Submitted ${newItems.size} items (using notifyDataSetChanged)")
+        Logger.d("已提交 ${newItems.size} 个数据项 (使用 notifyDataSetChanged)")
     }
 
     /**
@@ -159,7 +153,7 @@ abstract class BaseAdapter<T : ViewBinding, E> : RecyclerView.Adapter<BaseViewHo
         // 4. 分发更新
         diffResult.dispatchUpdatesTo(this)
 
-        Logger.d("Updated items with DiffUtil: old=${oldItems}, new=${newItems}")
+        Logger.d("已使用 DiffUtil 更新数据项: 旧=${oldItems.size}项, 新=${newItems.size}项")
 //        Logger.e("pdated items with DiffUtil", Exception())
     }
 
@@ -192,13 +186,13 @@ abstract class BaseAdapter<T : ViewBinding, E> : RecyclerView.Adapter<BaseViewHo
             // 调用 inflate 方法创建 ViewBinding 实例
             method.invoke(null, LayoutInflater.from(parent.context), parent, false) as T
         } catch (e: Exception) {
-            Logger.e("ViewBinding inflation failed for ${javaClass.name}", e)
+            Logger.e("${javaClass.name} 的 ViewBinding 创建失败", e)
             throw IllegalStateException("ViewBinding inflation failed", e)
         }
 
         val holder = BaseViewHolder<T, E>(binding)
         onInitViewHolder(holder)
-        Logger.d("Created ViewHolder for ${javaClass.simpleName}")
+        Logger.d("已为 ${javaClass.simpleName} 创建 ViewHolder")
         return holder
     }
 
