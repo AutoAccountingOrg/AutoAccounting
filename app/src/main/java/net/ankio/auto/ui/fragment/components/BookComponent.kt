@@ -13,22 +13,18 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.ui.fragment.book
+package net.ankio.auto.ui.fragment.components
 
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.coroutineScope
-import kotlinx.coroutines.launch
 import net.ankio.auto.databinding.ComponentBookBinding
 import net.ankio.auto.ui.adapter.BookSelectorAdapter
 import net.ankio.auto.ui.api.BaseComponent
 import net.ankio.auto.ui.components.WrapContentLinearLayoutManager
 import net.ankio.auto.http.api.BookNameAPI
 import net.ankio.auto.utils.PrefManager
-import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.BookNameModel
 
-class BookComponent(binding: ComponentBookBinding, private val lifecycle: Lifecycle) :
-    BaseComponent<ComponentBookBinding>(binding, lifecycle) {
+class BookComponent(binding: ComponentBookBinding) :
+    BaseComponent<ComponentBookBinding>(binding) {
 
     private var onBookSelected: ((BookNameModel, String) -> Unit)? = null
     private val dataItems = mutableListOf<BookNameModel>()
@@ -53,8 +49,8 @@ class BookComponent(binding: ComponentBookBinding, private val lifecycle: Lifecy
         }
     }
 
-    override fun init() {
-        super.init()
+    override fun onComponentCreate() {
+        super.onComponentCreate()
 
         setupRecyclerView()
         loadData()
@@ -80,7 +76,7 @@ class BookComponent(binding: ComponentBookBinding, private val lifecycle: Lifecy
         binding.statusPage.showLoading()
 
         // 使用组件的生命周期作用域
-        lifecycle.coroutineScope.launch {
+        launch {
             try {
                 dataItems.clear()
                 var newData = BookNameAPI.list()

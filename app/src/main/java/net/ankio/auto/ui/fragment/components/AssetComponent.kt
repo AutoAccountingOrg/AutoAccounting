@@ -13,7 +13,7 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.ui.fragment.book
+package net.ankio.auto.ui.fragment.components
 
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager

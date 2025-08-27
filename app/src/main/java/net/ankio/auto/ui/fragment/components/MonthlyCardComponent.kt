@@ -13,31 +13,26 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.ui.fragment.home
+package net.ankio.auto.ui.fragment.components
 
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.coroutineScope
 import com.google.android.material.elevation.SurfaceColors
-import kotlinx.coroutines.launch
 import net.ankio.auto.BuildConfig
-import net.ankio.auto.R
 import net.ankio.auto.databinding.CardMonthlyBinding
 import net.ankio.auto.http.api.BillAPI
 import net.ankio.auto.ui.api.BaseComponent
-import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.dialog.PeriodSelectorDialog
+import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.utils.BillTool
 import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.constant.BillType
-import java.lang.ref.WeakReference
 import java.util.Calendar
 import java.util.Locale
 
-class MonthlyCardComponent(binding: CardMonthlyBinding, private val lifecycle: Lifecycle) :
-    BaseComponent<CardMonthlyBinding>(binding, lifecycle) {
+class MonthlyCardComponent(binding: CardMonthlyBinding) :
+    BaseComponent<CardMonthlyBinding>(binding) {
 
     private var onNavigateToAiSummary: ((PeriodSelectorDialog.PeriodData?) -> Unit)? = null
 
@@ -53,8 +48,8 @@ class MonthlyCardComponent(binding: CardMonthlyBinding, private val lifecycle: L
         this.fragment = fragment
     }
 
-    override fun init() {
-        super.init()
+    override fun onComponentCreate() {
+        super.onComponentCreate()
         binding.root.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(context))
 
         // 设置右上角按钮
@@ -90,7 +85,7 @@ class MonthlyCardComponent(binding: CardMonthlyBinding, private val lifecycle: L
      * 显示周期选择对话框
      */
     private fun showPeriodSelector() {
-        PeriodSelectorDialog.create(fragment)
+        BaseSheetDialog.create<PeriodSelectorDialog>(context)
             .setOnPeriodSelected { periodData ->
                 onNavigateToAiSummary?.invoke(periodData)
             }
@@ -108,7 +103,7 @@ class MonthlyCardComponent(binding: CardMonthlyBinding, private val lifecycle: L
      * 刷新数据
      */
     private fun refreshData() {
-        componentScope.launch {
+        launch {
             val calendar = Calendar.getInstance()
             val year = calendar.get(Calendar.YEAR)
             val month = calendar.get(Calendar.MONTH) + 1 // Calendar.MONTH is 0-based
@@ -140,8 +135,8 @@ class MonthlyCardComponent(binding: CardMonthlyBinding, private val lifecycle: L
     }
 
 
-    override fun resume() {
-        super.resume()
+    override fun onComponentResume() {
+        super.onComponentResume()
 
         // 更新右上角按钮状态
         setupTopButtons()

@@ -13,7 +13,7 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.ui.fragment.home
+package net.ankio.auto.ui.fragment.components
 
 import android.view.View
 import android.view.ViewGroup
@@ -21,7 +21,6 @@ import android.widget.GridLayout
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.lifecycle.Lifecycle
 import com.bumptech.glide.Glide
 import com.google.android.material.elevation.SurfaceColors
 import net.ankio.auto.R
@@ -29,11 +28,12 @@ import net.ankio.auto.adapter.AppAdapterManager
 import net.ankio.auto.databinding.CardBookBinding
 import net.ankio.auto.ui.api.BaseComponent
 import net.ankio.auto.ui.components.IconTileView
+import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.dialog.AppDialog
 import net.ankio.auto.utils.PrefManager
 
-class BookCardComponent(binding: CardBookBinding, private val lifecycle: Lifecycle) :
-    BaseComponent<CardBookBinding>(binding, lifecycle) {
+class BookCardComponent(binding: CardBookBinding) :
+    BaseComponent<CardBookBinding>(binding) {
 
 
     private lateinit var onRedirect: (id: Int) -> Unit
@@ -43,15 +43,15 @@ class BookCardComponent(binding: CardBookBinding, private val lifecycle: Lifecyc
         onRedirect = it
     }
 
-    override fun init() {
-        super.init()
+    override fun onComponentCreate() {
+        super.onComponentCreate()
         binding.btnSwitch.setOnClickListener {
             // 打开记账软件选择弹窗，用户选择后会在对话框内部保存到 PrefManager
-            // 依赖于在绑定组件时注入的 Activity（见 HomeFragment 里 bindAs 的传参）
-            AppDialog.create(activity)
+            // 使用统一的底层工厂方法创建对话框
+            BaseSheetDialog.create<AppDialog>(context)
                 .setOnClose {
                     // 刷新首页当前记账软件的展示（名称、包名、图标与同步资产按钮可见性）
-                    resume()
+                    onComponentResume()
                 }
                 .show()
         }
@@ -66,8 +66,8 @@ class BookCardComponent(binding: CardBookBinding, private val lifecycle: Lifecyc
         binding.root.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(context))
     }
 
-    override fun resume() {
-        super.resume()
+    override fun onComponentResume() {
+        super.onComponentResume()
         val adapter = AppAdapterManager.adapter()
         binding.btnRefresh.visibility = if (adapter.supportSyncAssets()) {
             View.VISIBLE

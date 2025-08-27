@@ -13,14 +13,10 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.ui.fragment.book
+package net.ankio.auto.ui.fragment.components
 
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.coroutineScope
 import androidx.recyclerview.widget.SimpleItemAnimator
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.flexbox.FlexboxLayoutManager
-import kotlinx.coroutines.launch
 import net.ankio.auto.databinding.ComponentTagBinding
 import net.ankio.auto.http.api.TagAPI
 import net.ankio.auto.ui.adapter.TagSelectorAdapter
@@ -32,10 +28,9 @@ import org.ezbook.server.db.model.TagModel
  * 使用StatusPage+Adapter架构重构，支持分组显示
  *
  * @param binding 组件绑定
- * @param lifecycle 生命周期
  */
-class TagComponent(binding: ComponentTagBinding, private val lifecycle: Lifecycle) :
-    BaseComponent<ComponentTagBinding>(binding, lifecycle) {
+class TagComponent(binding: ComponentTagBinding) :
+    BaseComponent<ComponentTagBinding>(binding) {
 
     private var onTagSelected: ((TagModel, String) -> Unit)? = null
     private var onSelectionChanged: ((Set<TagModel>) -> Unit)? = null
@@ -67,14 +62,14 @@ class TagComponent(binding: ComponentTagBinding, private val lifecycle: Lifecycl
         if (::adapter.isInitialized) {
             // 重新创建适配器以应用新的模式
             setupRecyclerView()
-            lifecycle.coroutineScope.launch {
+            launch {
                 refreshData()
             }
         }
     }
 
-    override fun init() {
-        super.init()
+    override fun onComponentCreate() {
+        super.onComponentCreate()
         setupRecyclerView()
         loadData()
     }
@@ -111,8 +106,8 @@ class TagComponent(binding: ComponentTagBinding, private val lifecycle: Lifecycl
      */
     private fun loadData() {
         binding.statusPage.showLoading()
-        
-        lifecycle.coroutineScope.launch {
+
+        launch {
             try {
                 // 拉取并分组（空组名→"其他"）
                 val grouped = TagAPI.all().groupBy { it.group.ifEmpty { "其他" } }

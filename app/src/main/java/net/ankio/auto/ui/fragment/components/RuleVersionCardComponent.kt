@@ -1,13 +1,26 @@
-package net.ankio.auto.ui.fragment.home
+/*
+ * Copyright (C) 2025 ankio(ankio@ankio.net)
+ * Licensed under the Apache License, Version 3.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-3.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
 
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.coroutineScope
+package net.ankio.auto.ui.fragment.components
+
 import com.google.android.material.elevation.SurfaceColors
 import com.google.gson.Gson
 import com.google.gson.JsonArray
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import net.ankio.auto.utils.CoroutineUtils.withMain
 import net.ankio.auto.R
 import net.ankio.auto.databinding.CardRuleVersionBinding
 import net.ankio.auto.http.api.CategoryMapAPI
@@ -18,6 +31,7 @@ import net.ankio.auto.storage.Logger
 import net.ankio.auto.storage.ZipUtils
 import net.ankio.auto.ui.api.BaseComponent
 import net.ankio.auto.ui.dialog.UpdateDialog
+import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.PrefManager
@@ -39,19 +53,17 @@ import org.ezbook.server.db.model.RuleModel
  * 4. 同步分类映射数据
  *
  * @param binding 卡片视图绑定对象
- * @param lifecycle 生命周期对象，用于协程管理
  */
 class RuleVersionCardComponent(
-    binding: CardRuleVersionBinding,
-    private val lifecycle: Lifecycle
-) : BaseComponent<CardRuleVersionBinding>(binding, lifecycle) {
+    binding: CardRuleVersionBinding
+) : BaseComponent<CardRuleVersionBinding>(binding) {
 
     /**
      * 节流器，防止频繁调用更新接口
      * 设置5秒的冷却时间，避免用户重复点击导致的问题
      */
     private val throttle = Throttle.asFunction<Boolean>(1000 * 60 * 30, "rule_update") { fromUser ->
-        componentScope.launch {
+        launch {
             try {
                 updateRules(fromUser)
             } catch (e: Exception) {
@@ -64,8 +76,8 @@ class RuleVersionCardComponent(
      * 初始化组件
      * 设置UI样式、事件监听器和自动检查更新
      */
-    override fun init() {
-        super.init()
+    override fun onComponentCreate() {
+        super.onComponentCreate()
         // 设置卡片背景颜色为Material Design的表面颜色
         binding.root.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(context))
 
@@ -86,8 +98,8 @@ class RuleVersionCardComponent(
     /**
      * 组件恢复时更新显示内容
      */
-    override fun resume() {
-        super.resume()
+    override fun onComponentResume() {
+        super.onComponentResume()
         updateDisplay()
     }
 
@@ -143,11 +155,11 @@ class RuleVersionCardComponent(
             }
 
             // 显示更新对话框
-            UpdateDialog.create(activity)
+            BaseSheetDialog.create<UpdateDialog>(context)
                 .setUpdateModel(update)
                 .setRuleTitle(context.getString(R.string.rule))
                 .setOnClickUpdate {
-                    lifecycle.coroutineScope.launch {
+                    launch {
                         try {
                             updateRule(update)
                         } catch (e: Exception) {
@@ -169,7 +181,7 @@ class RuleVersionCardComponent(
      * @param updateModel 更新模型，包含版本信息和下载地址
      */
     private suspend fun updateRule(updateModel: UpdateModel) = withContext(Dispatchers.IO) {
-        val loading = LoadingUtils(activity).apply {
+        val loading = LoadingUtils(context).apply {
             withMain { show(context.getString(R.string.downloading)) }
         }
         try {
@@ -306,13 +318,5 @@ class RuleVersionCardComponent(
         }
     }
 
-    /**
-     * 主线程跳转工具函数
-     * 用于在IO线程中切换到主线程执行UI操作
-     *
-     * @param block 需要在主线程执行的代码块
-     */
-    private suspend fun withMain(block: suspend () -> Unit) {
-        withContext(Dispatchers.Main) { block() }
-    }
+
 }

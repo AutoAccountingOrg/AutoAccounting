@@ -13,26 +13,22 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.ui.fragment.home
+package net.ankio.auto.ui.fragment.components
 
-import android.view.View
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.core.net.toUri
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.coroutineScope
 import com.google.android.material.elevation.SurfaceColors
-import kotlinx.coroutines.launch
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.constant.WorkMode
 import net.ankio.auto.databinding.CardStatusBinding
 import net.ankio.auto.http.license.AppAPI
-import net.ankio.auto.http.license.RuleAPI
 import net.ankio.auto.service.OcrService
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseComponent
 import net.ankio.auto.ui.dialog.UpdateDialog
+import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.PrefManager
@@ -42,10 +38,10 @@ import net.ankio.auto.utils.toDrawable
 import net.ankio.auto.utils.toThemeColor
 import net.ankio.auto.xposed.common.ActiveInfo
 
-class StatusCardComponent(binding: CardStatusBinding, private val lifecycle: Lifecycle) :
-    BaseComponent<CardStatusBinding>(binding, lifecycle) {
+class StatusCardComponent(binding: CardStatusBinding) :
+    BaseComponent<CardStatusBinding>(binding) {
     private val throttle = Throttle.asFunction<Boolean>(5000) { fromUser ->
-        componentScope.launch {
+        launch {
             try {
                 updateApps(fromUser)
             } catch (e: Exception) {
@@ -54,8 +50,8 @@ class StatusCardComponent(binding: CardStatusBinding, private val lifecycle: Lif
         }
     }
 
-    override fun init() {
-        super.init()
+    override fun onComponentCreate() {
+        super.onComponentCreate()
 
 
         val colorPrimary = com.google.android.material.R.attr.colorPrimary.toThemeColor()
@@ -89,8 +85,8 @@ class StatusCardComponent(binding: CardStatusBinding, private val lifecycle: Lif
         return OcrService.serverStarted
     }
 
-    override fun resume() {
-        super.resume()
+    override fun onComponentResume() {
+        super.onComponentResume()
 
         val active = if (PrefManager.workMode === WorkMode.Ocr) {
             checkOcrActive()
@@ -124,8 +120,8 @@ class StatusCardComponent(binding: CardStatusBinding, private val lifecycle: Lif
 
     }
 
-    override fun cleanup() {
-        super.cleanup()
+    override fun onComponentDestroy() {
+        super.onComponentDestroy()
     }
 
     private fun setActive(
@@ -163,13 +159,13 @@ class StatusCardComponent(binding: CardStatusBinding, private val lifecycle: Lif
             }
 
             // 显示更新对话框
-            UpdateDialog.create(activity)
+            BaseSheetDialog.create<UpdateDialog>(context)
                 .setUpdateModel(update)
                 .setRuleTitle(context.getString(R.string.app))
                 .setOnClickUpdate {
                     val url =
                         "https://cloud.ankio.net/%E8%87%AA%E5%8A%A8%E8%AE%B0%E8%B4%A6/%E8%87%AA%E5%8A%A8%E8%AE%B0%E8%B4%A6/%E7%89%88%E6%9C%AC%E6%9B%B4%E6%96%B0/${PrefManager.appChannel}/${update.version}.apk"
-                    CustomTabsHelper.launchUrl(activity, url.toUri())
+                    CustomTabsHelper.launchUrl(context, url.toUri())
                 }.show()
         } catch (e: Exception) {
             Logger.e(e.message ?: "", e)

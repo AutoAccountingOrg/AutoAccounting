@@ -13,13 +13,11 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.ui.fragment.category
+package net.ankio.auto.ui.fragment.components
 
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.ArrayAdapter
-import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.Lifecycle
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import net.ankio.auto.R
@@ -34,6 +32,7 @@ import net.ankio.auto.ui.dialog.BookSelectorDialog
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
 import net.ankio.auto.ui.dialog.CategorySelectorDialog
 import net.ankio.auto.ui.dialog.DateTimePickerDialog
+import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.utils.ListPopupUtilsGeneric
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.BillTool
@@ -41,13 +40,14 @@ import org.ezbook.server.db.model.CategoryRuleModel
 import java.util.Calendar
 
 /**
- * 分类规则组件 - 支持编辑和只读模式的通用组件
+ * 分类规则编辑组件 - 支持编辑和只读模式的通用组件
  *
  * 设计原则（遵循Linus好品味）：
  * 1. 单一职责：只处理分类规则的UI逻辑
  * 2. 简洁实现：消除特殊情况，统一处理流程
  * 3. 类型安全：使用类型安全的数据结构替代HashMap
  * 4. 生命周期管理：自动处理资源清理
+ * 5. 简化构造：只需要ViewBinding，自动推断生命周期
  *
  * 功能特性：
  * - 支持编辑模式：可添加、修改、删除条件
@@ -56,10 +56,9 @@ import java.util.Calendar
  * - 账本和分类选择：集成账本管理功能
  * - 数据验证：确保规则完整性
  */
-class CategoryComponent(
-    binding: ComponentCategoryEditBinding,
-    private val lifecycle: Lifecycle,
-) : BaseComponent<ComponentCategoryEditBinding>(binding, lifecycle) {
+class CategoryRuleEditComponent(
+    binding: ComponentCategoryEditBinding
+) : BaseComponent<ComponentCategoryEditBinding>(binding) {
 
     /** 当前编辑的分类规则模型 */
     private var categoryRuleModel: CategoryRuleModel = CategoryRuleModel()
@@ -204,16 +203,16 @@ class CategoryComponent(
                 hashMapOf("book" to "默认账本", "category" to "其他")
             )
         val lastElement = list.removeAt(list.lastIndex)
-        flexboxLayout.appendTextView(activity.getString(R.string.if_condition_true))
+        flexboxLayout.appendTextView(context.getString(R.string.if_condition_true))
         for (hashMap in list) {
             if (hashMap.containsKey("jsPre") && readOnly) {
                 flexboxLayout.appendButton(
                     if ((hashMap["jsPre"] as String).contains("&&")) {
-                        activity.getString(
+                        context.getString(
                             R.string.and,
                         )
                     } else {
-                        activity.getString(R.string.or)
+                        context.getString(R.string.or)
                     },
                 )
             }
@@ -233,8 +232,6 @@ class CategoryComponent(
                 }
 
             }
-
-
         }
 
         if (!readOnly) {
@@ -245,7 +242,7 @@ class CategoryComponent(
             })
         }
 
-        flexboxLayout.appendTextView(activity.getString(R.string.condition_result_book))
+        flexboxLayout.appendTextView(context.getString(R.string.condition_result_book))
         bookName = lastElement["book"] as String
         flexboxLayout.appendWaveTextview(
             text = bookName,
@@ -254,7 +251,7 @@ class CategoryComponent(
             if (readOnly) return@appendWaveTextview
             onClickBook(elem)
         }
-        flexboxLayout.appendTextView(activity.getString(R.string.condition_result_category))
+        flexboxLayout.appendTextView(context.getString(R.string.condition_result_category))
         category = lastElement["category"] as String
         flexboxLayout.appendWaveTextview(
             text = category,
@@ -280,17 +277,14 @@ class CategoryComponent(
 
         val menuItems = conditionTypes.mapIndexed { index, name -> name to index }.toMap()
 
-        val listPopupUtils = ListPopupUtilsGeneric<Int>(
-            context,
-            view,
-            menuItems,
-            0,
-            lifecycle
-        ) { _, _, value ->
-            handleConditionTypeSelection(element, value, view)
-        }
-
-        listPopupUtils.toggle()
+        ListPopupUtilsGeneric.create<Int>(context)
+            .setAnchor(view)
+            .setList(menuItems)
+            .setSelectedValue(0)
+            .setOnItemClick { _, _, value ->
+                handleConditionTypeSelection(element, value, view)
+            }
+            .toggle()
     }
 
     /**
@@ -307,16 +301,16 @@ class CategoryComponent(
         }
     }
 
-    override fun init() {
-        super.init()
+    override fun onComponentCreate() {
+        super.onComponentCreate()
         flexboxLayout = binding.flexboxLayout
-        Logger.d("CategoryComponent初始化完成")
+        Logger.d("CategoryRuleEditComponent初始化完成")
     }
 
-    override fun cleanup() {
-        super.cleanup()
+    override fun onComponentDestroy() {
+        super.onComponentDestroy()
         flexboxLayout.removeAllElements()
-        Logger.d("CategoryComponent清理完成")
+        Logger.d("CategoryRuleEditComponent清理完成")
     }
 
     /**
@@ -345,15 +339,12 @@ class CategoryComponent(
             menuItems[text] = index
         }
 
-
         // 创建并显示选择弹窗
-        val listPopupUtils = ListPopupUtilsGeneric(
-            context,
-            view,
-            menuItems,
-            0,
-            lifecycle
-        ) { _, key, typeIndex ->
+        ListPopupUtilsGeneric.create<Int>(context)
+            .setAnchor(view)
+            .setList(menuItems)
+            .setSelectedValue(0)
+            .setOnItemClick { _, key, typeIndex ->
             val conditionText = context.getString(R.string.type_pay, key)
 
             // 创建新的元素数据
@@ -364,7 +355,6 @@ class CategoryComponent(
             )
 
             // 判断是替换现有类型条件还是添加新条件
-            // 修复：使用值比较（==）而不是引用比较（===）
             if (element.data["type"] == "type") {
                 // 替换现有的类型条件
                 element.remove().setAsWaveTextview(conditionText, element.connector) { elem, view ->
@@ -385,9 +375,8 @@ class CategoryComponent(
             }
 
             Logger.d("设置账单类型条件: $conditionText")
-        }
-
-        listPopupUtils.toggle()
+            }
+            .toggle()
     }
 
     /**
@@ -423,13 +412,6 @@ class CategoryComponent(
         conditionType: String,
         displayName: String
     ) {
-        // 确保有FragmentActivity上下文
-        val fragmentActivity = context as? FragmentActivity ?: activity as? FragmentActivity
-        if (fragmentActivity == null) {
-            Logger.e("无法获取FragmentActivity，无法显示对话框")
-            return
-        }
-
         val inputBinding = DialogRegexInputBinding.inflate(LayoutInflater.from(context))
 
         // 初始化已保存的数据
@@ -444,7 +426,7 @@ class CategoryComponent(
         inputBinding.content.setText(savedContent)
 
         // 显示对话框
-        BottomSheetDialogBuilder.create(fragmentActivity)
+        BaseSheetDialog.create<BottomSheetDialogBuilder>(context)
             .setTitleInt(titleRes)
             .addCustomView(inputBinding.root)
             .setPositiveButton(R.string.sure_msg) { _, _ ->
@@ -529,7 +511,7 @@ class CategoryComponent(
             // 替换现有的类型条件
             element.remove().setAsWaveTextview(displayText, element.connector) { elem, view ->
                 if (readOnly) return@setAsWaveTextview
-                if (conditionType === "shopItem") {
+                if (conditionType == "shopItem") {
                     inputShopItem(elem)
                 } else {
                     inputShopName(elem)
@@ -539,7 +521,7 @@ class CategoryComponent(
             // 添加新的类型条件
             flexboxLayout.appendWaveTextview(displayText, element, true, newData) { elem, view ->
                 if (readOnly) return@appendWaveTextview
-                if (conditionType === "shopItem") {
+                if (conditionType == "shopItem") {
                     inputShopItem(elem)
                 } else {
                     inputShopName(elem)
@@ -590,8 +572,6 @@ class CategoryComponent(
                         inputTimeRange(elem)
                     }
                 }
-
-
             }
         }
     }
@@ -604,14 +584,8 @@ class CategoryComponent(
         title: String,
         callback: (String) -> Unit
     ) {
-        val fragmentActivity = context as? FragmentActivity ?: activity as? FragmentActivity
-        if (fragmentActivity == null) {
-            Logger.e("无法获取FragmentActivity，无法显示时间选择器")
-            return
-        }
-
         val result = time.split(":")
-        val dialog = DateTimePickerDialog.create(fragmentActivity)
+        val dialog = BaseSheetDialog.create<DateTimePickerDialog>(context)
         dialog.setDateTime(0, 0, 0, result[0].toInt(), result[1].toInt())
             .setTitle(title)
             .setOnDateTimeSelected { year, month, day, hour, minute ->
@@ -623,19 +597,13 @@ class CategoryComponent(
      * 输入金额范围条件
      */
     private fun inputMoneyRange(element: FlowElement) {
-        val fragmentActivity = context as? FragmentActivity ?: activity as? FragmentActivity
-        if (fragmentActivity == null) {
-            Logger.e("无法获取FragmentActivity，无法显示金额对话框")
-            return
-        }
-
         val moneyRangeBinding = DialogRegexMoneyBinding.inflate(LayoutInflater.from(context))
         val elementData = element.data
 
         moneyRangeBinding.lower.setText(elementData.getOrDefault("minAmount", "").toString())
         moneyRangeBinding.higher.setText(elementData.getOrDefault("maxAmount", "").toString())
 
-        BottomSheetDialogBuilder.create(fragmentActivity)
+        BaseSheetDialog.create<BottomSheetDialogBuilder>(context)
             .setTitleInt(R.string.money_range)
             .addCustomView(moneyRangeBinding.root)
             .setPositiveButton(R.string.sure_msg) { _, _ ->
@@ -715,21 +683,13 @@ class CategoryComponent(
                 inputMoneyRange(elem)
             }
         }
-
-
     }
 
     /**
      * 处理账本选择点击事件
      */
     private fun onClickBook(element: FlowElement) {
-        val fragmentActivity = context as? FragmentActivity ?: activity as? FragmentActivity
-        if (fragmentActivity == null) {
-            Logger.e("无法获取FragmentActivity，无法显示账本选择器")
-            return
-        }
-
-        BookSelectorDialog.create(fragmentActivity)
+        BaseSheetDialog.create<BookSelectorDialog>(context)
             .setShowSelect(false)
             .setCallback { bookItem, _ ->
                 bookName = bookItem.name
@@ -749,16 +709,10 @@ class CategoryComponent(
      * 处理分类选择点击事件
      */
     private fun onClickCategory(element: FlowElement) {
-        val fragmentActivity = context as? FragmentActivity ?: activity as? FragmentActivity
-        if (fragmentActivity == null) {
-            Logger.e("无法获取FragmentActivity，无法显示分类选择器")
-            return
-        }
-
-        BookSelectorDialog.create(fragmentActivity)
+        BaseSheetDialog.create<BookSelectorDialog>(context)
             .setShowSelect(true)
             .setCallback { bookModel, type ->
-                CategorySelectorDialog.create(fragmentActivity)
+                BaseSheetDialog.create<CategorySelectorDialog>(context)
                     .setBook(bookModel.remoteId)
                     .setType(type)
                     .setCallback { parent, child ->
@@ -782,6 +736,4 @@ class CategoryComponent(
             }
             .show(cancel = true)
     }
-
 }
-

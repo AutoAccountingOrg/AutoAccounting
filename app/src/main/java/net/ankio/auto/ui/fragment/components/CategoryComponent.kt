@@ -13,35 +13,34 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.ui.fragment.book
+package net.ankio.auto.ui.fragment.components
 
 import android.view.View
 import android.view.ViewGroup.MarginLayoutParams
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.coroutineScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup
 import androidx.recyclerview.widget.SimpleItemAnimator
-import kotlinx.coroutines.launch
 import net.ankio.auto.databinding.ComponentCategoryBinding
 import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.ui.adapter.CategorySelectorAdapter
 import net.ankio.auto.ui.api.BaseComponent
 import net.ankio.auto.http.api.CategoryAPI
 import org.ezbook.server.constant.BillType
-import org.ezbook.server.constant.DefaultData
-import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.CategoryModel
 
 /**
  * 分类选择组件
+ *
+ * 设计原则（遵循Linus好品味）：
+ * 1. 简化构造：只需要ViewBinding，自动推断生命周期
+ * 2. 统一协程管理：使用BaseComponent的launch方法
+ * 3. 清晰的职责分离：专注于分类选择逻辑
+ * 
  * @param binding 组件绑定对象
- * @param lifecycle 生命周期
  */
 class CategoryComponent(
-    binding: ComponentCategoryBinding,
-    private val lifecycle: Lifecycle
-) : BaseComponent<ComponentCategoryBinding>(binding, lifecycle) {
+    binding: ComponentCategoryBinding
+) : BaseComponent<ComponentCategoryBinding>(binding) {
 
     // 分类选择回调函数
     private var onCategorySelected: ((CategoryModel?, CategoryModel?) -> Unit)? = null
@@ -123,8 +122,8 @@ class CategoryComponent(
         }
     }
 
-    override fun init() {
-        super.init()
+    override fun onComponentCreate() {
+        super.onComponentCreate()
 
     }
 
@@ -267,7 +266,7 @@ class CategoryComponent(
     private fun loadData() {
         binding.statusPage.showLoading()
 
-        lifecycle.coroutineScope.launch {
+        launch {
             try {
                 items.clear()
                 val newData = CategoryAPI.list(book, type, "-1")
