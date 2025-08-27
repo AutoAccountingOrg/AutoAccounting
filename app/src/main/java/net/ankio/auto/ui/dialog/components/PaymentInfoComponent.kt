@@ -15,24 +15,19 @@
 
 package net.ankio.auto.ui.dialog.components
 
-import android.content.Context
-import android.util.AttributeSet
-import android.view.LayoutInflater
 import android.view.View
-import android.widget.LinearLayout
-import androidx.lifecycle.LifecycleCoroutineScope
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.autoApp
 import net.ankio.auto.databinding.ComponentPaymentInfoBinding
+import net.ankio.auto.ui.api.BaseComponent
 import net.ankio.auto.http.api.AssetsAPI
 import net.ankio.auto.ui.components.IconView
 import net.ankio.auto.ui.utils.setAssetIcon
 import net.ankio.auto.ui.utils.setAssetIconByName
+import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.dialog.AssetsSelectorDialog
 import net.ankio.auto.ui.dialog.BillSelectorDialog
 import net.ankio.auto.utils.BillTool
@@ -53,32 +48,26 @@ import org.ezbook.server.db.model.BillInfoModel
  *
  * 使用方式：
  * ```kotlin
- * paymentInfo.initBillInfo(billInfoModel, lifecycleOwner)
+ * val paymentInfo: PaymentInfoComponent = binding.paymentInfo.bindAs()
+ * paymentInfo.setBillInfo(billInfoModel)
  * // 点击时会自动弹出相应的选择对话框并更新账单信息
  * ```
  */
-class PaymentInfoComponent @JvmOverloads constructor(
-    context: Context,
-    attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0
-) : LinearLayout(context, attrs, defStyleAttr) {
+class PaymentInfoComponent(
+    binding: ComponentPaymentInfoBinding
+) : BaseComponent<ComponentPaymentInfoBinding>(binding) {
 
-    private val binding: ComponentPaymentInfoBinding =
-        ComponentPaymentInfoBinding.inflate(LayoutInflater.from(context), this)
-
-    private lateinit var lifecycleOwner: LifecycleOwner
     private lateinit var billInfoModel: BillInfoModel
 
-    init {
-        orientation = VERTICAL
+    override fun onComponentCreate() {
+        super.onComponentCreate()
         setupClickListeners()
     }
 
     /**
-     * 统一初始化方法 - 参考BookHeaderComponent.initBillInfo
+     * 设置账单信息
      */
-    fun initBillInfo(billInfoModel: BillInfoModel, lifecycleOwner: LifecycleOwner) {
-        this.lifecycleOwner = lifecycleOwner
+    fun setBillInfo(billInfoModel: BillInfoModel) {
         this.billInfoModel = billInfoModel
         refresh()
     }
@@ -121,7 +110,7 @@ class PaymentInfoComponent @JvmOverloads constructor(
             }
 
             else -> {
-                visibility = View.GONE
+                binding.root.visibility = View.GONE
             }
         }
     }
@@ -180,7 +169,7 @@ class PaymentInfoComponent @JvmOverloads constructor(
         binding.transferContainer.visibility = View.GONE
         binding.debtContainer.visibility = View.GONE
         binding.chooseBillButton.visibility = View.GONE
-        visibility = View.VISIBLE
+        binding.root.visibility = View.VISIBLE
     }
 
     /**
@@ -237,7 +226,7 @@ class PaymentInfoComponent @JvmOverloads constructor(
      */
     private fun setAssetItem(name: String, view: IconView) {
         view.setText(name)
-        lifecycleOwner.lifecycleScope.launch {
+        launch {
             view.imageView().setAssetIconByName(name)
         }
     }
@@ -278,25 +267,12 @@ class PaymentInfoComponent @JvmOverloads constructor(
      * @param isFirstAccount 是否为第一个账户
      */
     private fun showAssetSelector(isFirstAccount: Boolean) {
-        if (!::lifecycleOwner.isInitialized || !::billInfoModel.isInitialized) {
+        if (!::billInfoModel.isInitialized) {
             return
         }
 
-        // 根据 lifecycleOwner 的类型创建对应的对话框
-        val dialog = when (lifecycleOwner) {
-            is android.app.Activity -> AssetsSelectorDialog.create(lifecycleOwner as android.app.Activity)
-            is androidx.fragment.app.Fragment -> AssetsSelectorDialog.create(lifecycleOwner as androidx.fragment.app.Fragment)
-            is androidx.lifecycle.LifecycleService -> AssetsSelectorDialog.create(lifecycleOwner as androidx.lifecycle.LifecycleService)
-            else -> {
-                // 如果无法确定类型，尝试从 context 获取 Activity
-                val activity = context as? android.app.Activity
-                if (activity != null) {
-                    AssetsSelectorDialog.create(activity)
-                } else {
-                    return // 无法创建对话框
-                }
-            }
-        }
+        // 使用BaseSheetDialog工厂方法创建对话框
+        val dialog = BaseSheetDialog.create<AssetsSelectorDialog>(context)
 
         // 根据账单类型设置资产过滤
         val billType = BillTool.getType(billInfoModel.type)
@@ -321,25 +297,12 @@ class PaymentInfoComponent @JvmOverloads constructor(
      * 显示账单选择对话框
      */
     private fun showBillSelector() {
-        if (!::lifecycleOwner.isInitialized || !::billInfoModel.isInitialized) {
+        if (!::billInfoModel.isInitialized) {
             return
         }
 
-        // 根据 lifecycleOwner 的类型创建对应的对话框
-        val dialog = when (lifecycleOwner) {
-            is android.app.Activity -> BillSelectorDialog.create(lifecycleOwner as android.app.Activity)
-            is androidx.fragment.app.Fragment -> BillSelectorDialog.create(lifecycleOwner as androidx.fragment.app.Fragment)
-            is androidx.lifecycle.LifecycleService -> BillSelectorDialog.create(lifecycleOwner as androidx.lifecycle.LifecycleService)
-            else -> {
-                // 如果无法确定类型，尝试从 context 获取 Activity
-                val activity = context as? android.app.Activity
-                if (activity != null) {
-                    BillSelectorDialog.create(activity)
-                } else {
-                    return // 无法创建对话框
-                }
-            }
-        }
+        // 使用BaseSheetDialog工厂方法创建对话框
+        val dialog = BaseSheetDialog.create<BillSelectorDialog>(context)
 
         // 解析当前选中的账单
         val selectedBills = billInfoModel.extendData

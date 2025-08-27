@@ -40,16 +40,14 @@ import net.ankio.auto.utils.PrefManager
  *
  * 使用方式：
  * ```kotlin
- * AppDialog.create(activity)
+ * BaseSheetDialog.create<AppDialog>(context)
  *     .setOnClose { refreshUI() }
  *     .show()
  * ```
  */
-class AppDialog private constructor(
-    context: android.content.Context,
-    lifecycleOwner: LifecycleOwner?,
-    isOverlay: Boolean
-) : BaseSheetDialog<DialogAppBinding>(context, lifecycleOwner, isOverlay) {
+class AppDialog internal constructor(
+    context: android.content.Context
+) : BaseSheetDialog<DialogAppBinding>(context) {
 
     /**
      * 关闭回调。
@@ -100,32 +98,5 @@ class AppDialog private constructor(
         onClose?.invoke()
     }
 
-    companion object {
-        /**
-         * 从Activity创建记账软件选择对话框
-         * @param activity 宿主Activity
-         * @return 对话框实例
-         */
-        fun create(activity: Activity): AppDialog {
-            return AppDialog(activity, activity as LifecycleOwner, false)
-        }
 
-        /**
-         * 从Fragment创建记账软件选择对话框
-         * @param fragment 宿主Fragment
-         * @return 对话框实例
-         */
-        fun create(fragment: Fragment): AppDialog {
-            return AppDialog(fragment.requireContext(), fragment.viewLifecycleOwner, false)
-        }
-
-        /**
-         * 从Service创建记账软件选择对话框（悬浮窗模式）
-         * @param service 宿主Service
-         * @return 对话框实例
-         */
-        fun create(service: LifecycleService): AppDialog {
-            return AppDialog(service, service, true)
-        }
-    }
 }

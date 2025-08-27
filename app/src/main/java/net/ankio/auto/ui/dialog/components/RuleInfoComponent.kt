@@ -15,12 +15,9 @@
 
 package net.ankio.auto.ui.dialog.components
 
-import android.content.Context
-import android.util.AttributeSet
-import android.view.LayoutInflater
 import android.view.View
-import android.widget.LinearLayout
 import net.ankio.auto.databinding.ComponentRuleInfoBinding
+import net.ankio.auto.ui.api.BaseComponent
 import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.constant.DefaultData
@@ -36,34 +33,20 @@ import org.ezbook.server.constant.Setting
  *
  * 使用方式：
  * ```kotlin
- * ruleInfo.setRuleName("支付宝收款规则")
- * ruleInfo.setFee(0.01, BillType.Transfer)
+ * val ruleInfo: RuleInfoComponent = binding.ruleInfo.bindAs()
+ * ruleInfo.setBillInfo(billInfoModel)
  * ```
  */
-class RuleInfoComponent @JvmOverloads constructor(
-    context: Context,
-    attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0
-) : LinearLayout(context, attrs, defStyleAttr) {
+class RuleInfoComponent(
+    binding: ComponentRuleInfoBinding
+) : BaseComponent<ComponentRuleInfoBinding>(binding) {
 
-    private val binding: ComponentRuleInfoBinding =
-        ComponentRuleInfoBinding.inflate(LayoutInflater.from(context), this)
-
-    private lateinit var lifecycleOwner: androidx.lifecycle.LifecycleOwner
     private lateinit var billInfoModel: org.ezbook.server.db.model.BillInfoModel
 
-    init {
-        orientation = VERTICAL
-    }
-
     /**
-     * 统一初始化方法 - 参考BookHeaderComponent.initBillInfo
+     * 设置账单信息
      */
-    fun initBillInfo(
-        billInfoModel: org.ezbook.server.db.model.BillInfoModel,
-        lifecycleOwner: androidx.lifecycle.LifecycleOwner
-    ) {
-        this.lifecycleOwner = lifecycleOwner
+    fun setBillInfo(billInfoModel: org.ezbook.server.db.model.BillInfoModel) {
         this.billInfoModel = billInfoModel
         refresh()
     }

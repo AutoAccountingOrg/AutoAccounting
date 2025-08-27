@@ -32,7 +32,8 @@ import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.dialog.components.*
-import kotlinx.coroutines.flow.collect
+import net.ankio.auto.ui.api.bindAs
+
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.BillTool
 import org.ezbook.server.constant.BillState
@@ -115,11 +116,9 @@ sealed class RefreshEvent {
  *     .show()
  * ```
  */
-class BillEditorDialog private constructor(
-    context: android.content.Context,
-    lifecycleOwner: androidx.lifecycle.LifecycleOwner?,
-    isOverlay: Boolean
-) : BaseSheetDialog<FloatEditorRefactoredBinding>(context, lifecycleOwner, isOverlay) {
+class BillEditorDialog internal constructor(
+    context: android.content.Context
+) : BaseSheetDialog<FloatEditorRefactoredBinding>(context) {
 
     private var billInfoModel: BillInfoModel? = null
     private var onCancelClick: ((billInfoModel: BillInfoModel) -> Unit)? = null
@@ -168,7 +167,7 @@ class BillEditorDialog private constructor(
     }
 
     /**
-     * 统一组件初始化 - 采用BookHeaderComponent模式
+     * 统一组件初始化 - 采用BaseComponent模式
      */
     private fun initializeAllComponents() {
         val billInfo = billInfoModel ?: return
@@ -176,30 +175,51 @@ class BillEditorDialog private constructor(
         // 初始化基础状态
         currentBillType = BillTool.getType(billInfo.type)
 
-        // 所有组件使用统一的 initBillInfo 模式
-        binding.bookHeader.initBillInfo(billInfo, lifecycleOwner!!)
-        binding.amountDisplay.initBillInfo(billInfo, lifecycleOwner!!)
-        binding.ruleInfo.initBillInfo(billInfo, lifecycleOwner!!)
-        binding.transactionTypeSelector.initBillInfo(billInfo, lifecycleOwner!!)
-        binding.paymentInfo.initBillInfo(billInfo, lifecycleOwner)
-        binding.basicInfo.initBillInfo(billInfo, lifecycleOwner)
-        binding.actionButtons.initBillInfo(billInfo, lifecycleOwner!!)
+        // 使用 bindAs() 创建组件实例并设置账单信息
+        val bookHeader: BookHeaderComponent = binding.bookHeader.bindAs()
+        bookHeader.setBillInfo(billInfo)
 
+        val amountDisplay: AmountDisplayComponent = binding.amountDisplay.bindAs()
+        amountDisplay.setBillInfo(billInfo)
 
+        val ruleInfo: RuleInfoComponent = binding.ruleInfo.bindAs()
+        ruleInfo.setBillInfo(billInfo)
+
+        val transactionTypeSelector: TransactionTypeSelectorComponent =
+            binding.transactionTypeSelector.bindAs()
+        transactionTypeSelector.setBillInfo(billInfo)
+
+        val paymentInfo: PaymentInfoComponent = binding.paymentInfo.bindAs()
+        paymentInfo.setBillInfo(billInfo)
+
+        val basicInfo: BasicInfoComponent = binding.basicInfo.bindAs()
+        basicInfo.setBillInfo(billInfo)
+
+        val actionButtons: ActionButtonsComponent = binding.actionButtons.bindAs()
+        actionButtons.setBillInfo(billInfo)
+
+        // 设置操作按钮事件
+        setupActionButtonEvents(actionButtons)
     }
 
     /**
      * 设置事件监听器 - 组件已自包含选择器逻辑，这里只处理操作按钮
      */
     private fun setupEventListeners() {
+        // 事件监听器在 initializeAllComponents 中设置
+    }
+
+    /**
+     * 设置操作按钮事件
+     */
+    private fun setupActionButtonEvents(actionButtons: ActionButtonsComponent) {
         val billInfo = billInfoModel ?: return
 
-        // 操作按钮事件
-        binding.actionButtons.setOnCancelClickListener {
+        actionButtons.setOnCancelClickListener {
             dismiss()
             onCancelClick?.invoke(billInfo)
         }
-        binding.actionButtons.setOnConfirmClickListener {
+        actionButtons.setOnConfirmClickListener {
             saveBill()
         }
     }
@@ -208,7 +228,7 @@ class BillEditorDialog private constructor(
      * 设置全局刷新监听器 - 支持精细化刷新
      */
     private fun setupGlobalRefreshListener() {
-        lifecycleOwner?.lifecycleScope?.launch {
+        launch {
             refreshEvent.collect { event ->
                 handleRefreshEvent(event)
             }
@@ -230,49 +250,45 @@ class BillEditorDialog private constructor(
                 val oldMainType = BillTool.getType(event.oldType)
                 val newMainType = BillTool.getType(event.newType)
 
-                if (oldMainType != newMainType) {
-                    // 主类型变化（如支出→收入），需要完全刷新类型选择器
-                    Logger.d("主类型变化，完全刷新类型选择器")
-                    binding.transactionTypeSelector.refresh()
-                    binding.paymentInfo.refresh()  // 支付信息也需要刷新
-                } else {
-                    // 同一主类型内的子类型切换，只刷新选中状态
-                    Logger.d("子类型切换，仅刷新选中状态")
-                    binding.transactionTypeSelector.refreshSelection()
-                }
-
-                // 金额显示颜色可能需要更新
-                binding.amountDisplay.refresh()
+                // 类型变化需要重新初始化组件
+                Logger.d("账单类型变化，重新初始化相关组件")
+                initializeAllComponents()
             }
 
             is RefreshEvent.AmountChanged -> {
-                // 金额变化：只影响金额显示组件
+                // 金额变化：重新初始化金额显示组件
                 Logger.d("金额变化: ${event.oldAmount} -> ${event.newAmount}")
-                binding.amountDisplay.refresh()
+                val amountDisplay: AmountDisplayComponent = binding.amountDisplay.bindAs()
+                amountDisplay.setBillInfo(billInfoModel!!)
             }
 
             is RefreshEvent.AccountChanged -> {
-                // 账户变化：只影响支付信息组件
+                // 账户变化：重新初始化支付信息组件
                 Logger.d("账户变化: ${event.accountType}")
-                binding.paymentInfo.refresh()
+                val paymentInfo: PaymentInfoComponent = binding.paymentInfo.bindAs()
+                paymentInfo.setBillInfo(billInfoModel!!)
             }
 
             RefreshEvent.CategoryChanged -> {
-                // 分类变化：只影响基础信息组件
+                // 分类变化：重新初始化基础信息组件
                 Logger.d("分类变化")
-                binding.basicInfo.refresh()
+                val basicInfo: BasicInfoComponent = binding.basicInfo.bindAs()
+                basicInfo.setBillInfo(billInfoModel!!)
             }
 
             RefreshEvent.TimeChanged -> {
-                // 时间变化：只影响基础信息组件
+                // 时间变化：重新初始化基础信息组件
                 Logger.d("时间变化")
-                binding.basicInfo.refresh()
+                val basicInfo: BasicInfoComponent = binding.basicInfo.bindAs()
+                basicInfo.setBillInfo(billInfoModel!!)
             }
 
             RefreshEvent.FeatureToggleChanged -> {
-                // 功能开关变化：主要影响类型选择器的显示状态
-                Logger.d("功能开关变化，刷新类型选择器显示状态")
-                binding.transactionTypeSelector.refreshVisibility()
+                // 功能开关变化：重新初始化类型选择器
+                Logger.d("功能开关变化，重新初始化类型选择器")
+                val transactionTypeSelector: TransactionTypeSelectorComponent =
+                    binding.transactionTypeSelector.bindAs()
+                transactionTypeSelector.setBillInfo(billInfoModel!!)
             }
 
             RefreshEvent.FullRefresh -> {
@@ -285,16 +301,11 @@ class BillEditorDialog private constructor(
 
 
     /**
-     * 刷新所有组件 - 使用统一的refresh方法
+     * 刷新所有组件 - 需要重新获取组件实例
      */
     private fun refreshAllComponents() {
-        binding.bookHeader.refresh()
-        binding.amountDisplay.refresh()
-        binding.ruleInfo.refresh()
-        binding.transactionTypeSelector.refresh()
-        binding.paymentInfo.refresh()
-        binding.basicInfo.refresh()
-        binding.actionButtons.refresh()
+        // 重新初始化所有组件
+        initializeAllComponents()
     }
 
 
@@ -307,7 +318,8 @@ class BillEditorDialog private constructor(
         lifecycleScope.launch {
             try {
                 // 收集组件中可能需要手动同步的数据
-                binding.basicInfo.updateBillInfoFromUI()
+                val basicInfo: BasicInfoComponent = binding.basicInfo.bindAs()
+                basicInfo.updateBillInfoFromUI()
 
                 // 保存账单
                 billInfo.state = BillState.Edited
@@ -345,35 +357,23 @@ class BillEditorDialog private constructor(
     }
 
     companion object {
-        /**
-         * 从Activity创建账单编辑对话框
-         * @param activity 宿主Activity
-         * @return 对话框实例
-         */
-        fun create(activity: Activity): BillEditorDialog {
-            return BillEditorDialog(activity, activity as androidx.lifecycle.LifecycleOwner, false)
-        }
-
-        /**
-         * 从Fragment创建账单编辑对话框
-         * @param fragment 宿主Fragment
-         * @return 对话框实例
-         */
-        fun create(fragment: Fragment): BillEditorDialog {
-            return BillEditorDialog(fragment.requireContext(), fragment.viewLifecycleOwner, false)
-        }
-
-        /**
-         * 从Service创建账单编辑对话框（悬浮窗模式）
-         * @param service 宿主Service
-         * @return 对话框实例
-         */
-        fun create(service: LifecycleService): BillEditorDialog {
-            return BillEditorDialog(service, service, true)
-        }
-
         // 精细化刷新事件流
         val refreshEvent = MutableSharedFlow<RefreshEvent>(replay = 1)
+
+        /**
+         * 创建账单编辑对话框 - 统一的工厂方法
+         *
+         * 支持多种上下文类型：
+         * - Activity: 普通界面使用
+         * - Fragment: Fragment中使用
+         * - LifecycleService: 悬浮窗模式使用
+         *
+         * @param context 上下文，自动推断LifecycleOwner
+         * @return 对话框实例，支持链式调用
+         */
+        fun create(context: android.content.Context): BillEditorDialog {
+            return BaseSheetDialog.create<BillEditorDialog>(context)
+        }
 
         /**
          * 通知所有组件刷新 - 保持向后兼容

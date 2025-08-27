@@ -32,18 +32,16 @@ import java.util.*
  *
  * 使用方式：
  * ```kotlin
- * PeriodSelectorDialog.create(activity)
+ * BaseSheetDialog.create<PeriodSelectorDialog>(context)
  *     .setOnPeriodSelected { period ->
  *         // 处理选择结果
  *     }
  *     .show()
  * ```
  */
-class PeriodSelectorDialog private constructor(
-    context: android.content.Context,
-    lifecycleOwner: LifecycleOwner?,
-    isOverlay: Boolean
-) : BaseSheetDialog<DialogPeriodSelectorBinding>(context, lifecycleOwner, isOverlay) {
+class PeriodSelectorDialog internal constructor(
+    context: android.content.Context
+) : BaseSheetDialog<DialogPeriodSelectorBinding>(context) {
 
     /**
      * 周期类型枚举
@@ -69,28 +67,7 @@ class PeriodSelectorDialog private constructor(
     private var onPeriodSelected: ((PeriodData) -> Unit)? = null
     private var selectedPeriod: Period = Period.LAST_30_DAYS // 默认选择最近30天
 
-    companion object {
-        /**
-         * 创建对话框实例 - Activity环境
-         */
-        fun create(activity: BaseActivity): PeriodSelectorDialog {
-            return PeriodSelectorDialog(activity, activity, false)
-        }
 
-        /**
-         * 创建对话框实例 - Fragment环境
-         */
-        fun create(fragment: Fragment): PeriodSelectorDialog {
-            return PeriodSelectorDialog(fragment.requireContext(), fragment, false)
-        }
-
-        /**
-         * 创建对话框实例 - Service环境（悬浮窗）
-         */
-        fun create(service: LifecycleService): PeriodSelectorDialog {
-            return PeriodSelectorDialog(service, service, true)
-        }
-    }
 
     override fun onViewCreated(view: View?) {
         super.onViewCreated(view)

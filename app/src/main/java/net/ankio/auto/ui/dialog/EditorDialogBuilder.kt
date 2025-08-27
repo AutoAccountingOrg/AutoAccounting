@@ -35,7 +35,7 @@ import net.ankio.auto.ui.api.BaseSheetDialog
  *
  * 使用方式：
  * ```kotlin
- * EditorDialogBuilder.create(activity)
+ * BaseSheetDialog.create<EditorDialogBuilder>(context)
  *     .setInputType(InputType.TYPE_CLASS_NUMBER)
  *     .setTitle("输入数量")
  *     .setMessage("请输入数量")
@@ -45,12 +45,11 @@ import net.ankio.auto.ui.api.BaseSheetDialog
  *     .show()
  * ```
  */
-class EditorDialogBuilder private constructor(
-    context: android.content.Context,
-    lifecycleOwner: LifecycleOwner?,
-    isOverlay: Boolean,
+class EditorDialogBuilder internal constructor(
+    context: android.content.Context
+) : BottomSheetDialogBuilder(context) {
+
     private var inputTypeInt: Int = InputType.TYPE_CLASS_TEXT
-) : BottomSheetDialogBuilder(context, lifecycleOwner, isOverlay) {
 
     private lateinit var editText: TextInputEditText
 
@@ -161,49 +160,5 @@ class EditorDialogBuilder private constructor(
         return if (::editText.isInitialized) editText.text.toString() else ""
     }
 
-    companion object {
-        /**
-         * 从Activity创建编辑器对话框构建器
-         * @param activity 宿主Activity
-         * @param inputType 输入类型，默认为文本类型
-         * @return 构建器实例
-         */
-        fun create(
-            activity: Activity,
-            inputType: Int = InputType.TYPE_CLASS_TEXT
-        ): EditorDialogBuilder {
-            return EditorDialogBuilder(activity, activity as LifecycleOwner, false, inputType)
-        }
 
-        /**
-         * 从Fragment创建编辑器对话框构建器
-         * @param fragment 宿主Fragment
-         * @param inputType 输入类型，默认为文本类型
-         * @return 构建器实例
-         */
-        fun create(
-            fragment: Fragment,
-            inputType: Int = InputType.TYPE_CLASS_TEXT
-        ): EditorDialogBuilder {
-            return EditorDialogBuilder(
-                fragment.requireContext(),
-                fragment.viewLifecycleOwner,
-                false,
-                inputType
-            )
-        }
-
-        /**
-         * 从Service创建编辑器对话框构建器（悬浮窗模式）
-         * @param service 宿主Service
-         * @param inputType 输入类型，默认为文本类型
-         * @return 构建器实例
-         */
-        fun create(
-            service: LifecycleService,
-            inputType: Int = InputType.TYPE_CLASS_TEXT
-        ): EditorDialogBuilder {
-            return EditorDialogBuilder(service, service, true, inputType)
-        }
-    }
 }

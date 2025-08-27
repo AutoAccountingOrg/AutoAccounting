@@ -15,23 +15,16 @@
 
 package net.ankio.auto.ui.dialog.components
 
-import android.content.Context
-import android.util.AttributeSet
-import android.view.LayoutInflater
 import android.view.View
-import android.widget.LinearLayout
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.ComponentTransactionTypeSelectorBinding
+import net.ankio.auto.ui.api.BaseComponent
 import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.ui.dialog.BillEditorDialog
 import net.ankio.auto.utils.BillTool
 import net.ankio.auto.storage.Logger
 import org.ezbook.server.constant.BillType
-import org.ezbook.server.constant.DefaultData
-import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BillInfoModel
 
 /**
@@ -66,19 +59,20 @@ import org.ezbook.server.db.model.BillInfoModel
  * 3. setupForBillType() - 配置主类型对应的子类型选项
  * 4. setupSubTypesForMainType() - 根据功能开关控制子类型显示
  * 5. 用户选择 → setupChipGroupListener() 处理 → 更新账单类型
+ *
+ * 使用方式：
+ * ```kotlin
+ * val transactionTypeSelector: TransactionTypeSelectorComponent = binding.transactionTypeSelector.bindAs()
+ * transactionTypeSelector.setBillInfo(billInfoModel)
+ * ```
  */
-class TransactionTypeSelectorComponent @JvmOverloads constructor(
-    context: Context,
-    attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0
-) : LinearLayout(context, attrs, defStyleAttr) {
+class TransactionTypeSelectorComponent(
+    binding: ComponentTransactionTypeSelectorBinding
+) : BaseComponent<ComponentTransactionTypeSelectorBinding>(binding) {
 
-    private val binding: ComponentTransactionTypeSelectorBinding =
-        ComponentTransactionTypeSelectorBinding.inflate(LayoutInflater.from(context), this)
     private var onTypeSelectedListener: ((BillType) -> Unit)? = null
     private var mainBillType: BillType = BillType.Expend
 
-    private lateinit var lifecycleOwner: LifecycleOwner
     private lateinit var billInfoModel: BillInfoModel
 
     /**
@@ -181,25 +175,22 @@ class TransactionTypeSelectorComponent @JvmOverloads constructor(
         )
     )
 
-    init {
-        orientation = VERTICAL  // 设置垂直布局
+    override fun onComponentCreate() {
+        super.onComponentCreate()
         setupChipGroupListener()  // 初始化chip选择监听器
     }
 
     /**
-     * 统一初始化方法 - 参考BookHeaderComponent.initBillInfo
+     * 设置账单信息
      *
-     * 这是组件的主要入口方法，完成以下初始化工作：
+     * 这是组件的主要入口方法，完成以下工作：
      * 1. 保存账单信息模型的引用，用于后续的类型判断和更新
-     * 2. 保存生命周期所有者，用于协程操作
-     * 3. 刷新UI显示，根据当前账单类型配置界面
-     * 4. 设置自动类型选择，建立用户操作与数据更新的连接
+     * 2. 刷新UI显示，根据当前账单类型配置界面
+     * 3. 设置自动类型选择，建立用户操作与数据更新的连接
      *
      * @param billInfoModel 账单信息模型，包含当前账单的所有数据
-     * @param lifecycleOwner 生命周期所有者，用于协程和生命周期管理
      */
-    fun initBillInfo(billInfoModel: BillInfoModel, lifecycleOwner: LifecycleOwner) {
-        this.lifecycleOwner = lifecycleOwner    // 保存生命周期所有者
+    fun setBillInfo(billInfoModel: BillInfoModel) {
         this.billInfoModel = billInfoModel      // 保存账单信息模型
         refresh()                               // 根据当前账单信息刷新UI
         setupAutoTypeSelection()               // 设置自动类型选择逻辑
@@ -276,7 +267,7 @@ class TransactionTypeSelectorComponent @JvmOverloads constructor(
             billInfoModel.type = selectedType
 
             // 在协程中发送精细化的刷新事件
-            lifecycleOwner.lifecycleScope.launch {
+            launch {
                 // 发送账单类型变化事件，只刷新受影响的组件
                 BillEditorDialog.notifyBillTypeChanged(oldType, selectedType)
 
@@ -360,14 +351,14 @@ class TransactionTypeSelectorComponent @JvmOverloads constructor(
      * 隐藏整个选择器
      */
     private fun hide() {
-        visibility = View.GONE
+        binding.root.visibility = View.GONE
     }
 
     /**
      * 显示选择器
      */
     fun show() {
-        visibility = View.VISIBLE
+        binding.root.visibility = View.VISIBLE
     }
 
     /**
@@ -402,8 +393,7 @@ class TransactionTypeSelectorComponent @JvmOverloads constructor(
 
         // 遍历所有子类型配置，统一处理显示逻辑
         subTypeConfigs.forEach { (chipId, config) ->
-            val chipView = findViewById<View>(chipId)
-            val chipName = context.resources.getResourceEntryName(chipId)  // 获取chip的资源名称用于日志
+            val chipView = binding.root.findViewById<View>(chipId)
 
             // 【第一层过滤】根据当前主类型确定基础可见性
             // 例如：支出模式下，只有visibilityForExpend=true的chip才考虑显示

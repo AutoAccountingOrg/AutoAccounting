@@ -42,11 +42,9 @@ import rikka.html.text.toHtml
  *     .show()
  * ```
  */
-class UpdateDialog private constructor(
-    context: android.content.Context,
-    lifecycleOwner: LifecycleOwner?,
-    isOverlay: Boolean
-) : BaseSheetDialog<DialogUpdateBinding>(context, lifecycleOwner, isOverlay) {
+class UpdateDialog internal constructor(
+    context: android.content.Context
+) : BaseSheetDialog<DialogUpdateBinding>(context) {
 
     private var updateModel: UpdateModel? = null
     private var onClickUpdate: (() -> Unit)? = null
@@ -109,32 +107,5 @@ class UpdateDialog private constructor(
         }
     }
 
-    companion object {
-        /**
-         * 从Activity创建更新对话框
-         * @param activity 宿主Activity
-         * @return 对话框实例
-         */
-        fun create(activity: Activity): UpdateDialog {
-            return UpdateDialog(activity, activity as LifecycleOwner, false)
-        }
 
-        /**
-         * 从Fragment创建更新对话框
-         * @param fragment 宿主Fragment
-         * @return 对话框实例
-         */
-        fun create(fragment: Fragment): UpdateDialog {
-            return UpdateDialog(fragment.requireContext(), fragment.viewLifecycleOwner, false)
-        }
-
-        /**
-         * 从Service创建更新对话框（悬浮窗模式）
-         * @param service 宿主Service
-         * @return 对话框实例
-         */
-        fun create(service: LifecycleService): UpdateDialog {
-            return UpdateDialog(service, service, true)
-        }
-    }
 }

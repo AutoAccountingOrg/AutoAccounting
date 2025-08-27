@@ -15,11 +15,8 @@
 
 package net.ankio.auto.ui.dialog.components
 
-import android.content.Context
-import android.util.AttributeSet
-import android.view.LayoutInflater
-import android.widget.LinearLayout
 import net.ankio.auto.databinding.ComponentActionButtonsBinding
+import net.ankio.auto.ui.api.BaseComponent
 
 /**
  * 操作按钮组件 - 专用于账单编辑对话框
@@ -30,6 +27,8 @@ import net.ankio.auto.databinding.ComponentActionButtonsBinding
  *
  * 使用方式：
  * ```kotlin
+ * val actionButtons: ActionButtonsComponent = binding.actionButtons.bindAs()
+ * actionButtons.setBillInfo(billInfoModel)
  * actionButtons.setOnCancelClickListener {
  *     // 处理取消逻辑
  * }
@@ -38,33 +37,24 @@ import net.ankio.auto.databinding.ComponentActionButtonsBinding
  * }
  * ```
  */
-class ActionButtonsComponent @JvmOverloads constructor(
-    context: Context,
-    attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0
-) : LinearLayout(context, attrs, defStyleAttr) {
+class ActionButtonsComponent(
+    binding: ComponentActionButtonsBinding
+) : BaseComponent<ComponentActionButtonsBinding>(binding) {
 
-    private val binding: ComponentActionButtonsBinding =
-        ComponentActionButtonsBinding.inflate(LayoutInflater.from(context), this)
     private var onCancelClickListener: (() -> Unit)? = null
     private var onConfirmClickListener: (() -> Unit)? = null
 
-    private lateinit var lifecycleOwner: androidx.lifecycle.LifecycleOwner
     private lateinit var billInfoModel: org.ezbook.server.db.model.BillInfoModel
 
-    init {
-        orientation = VERTICAL
+    override fun onComponentCreate() {
+        super.onComponentCreate()
         setupClickListeners()
     }
 
     /**
-     * 统一初始化方法 - 参考BookHeaderComponent.initBillInfo
+     * 设置账单信息
      */
-    fun initBillInfo(
-        billInfoModel: org.ezbook.server.db.model.BillInfoModel,
-        lifecycleOwner: androidx.lifecycle.LifecycleOwner
-    ) {
-        this.lifecycleOwner = lifecycleOwner
+    fun setBillInfo(billInfoModel: org.ezbook.server.db.model.BillInfoModel) {
         this.billInfoModel = billInfoModel
         refresh()
     }

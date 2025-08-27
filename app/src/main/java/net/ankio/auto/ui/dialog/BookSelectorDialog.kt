@@ -15,15 +15,11 @@
 
 package net.ankio.auto.ui.dialog
 
-import android.app.Activity
 import android.view.View
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LifecycleService
 import net.ankio.auto.databinding.ComponentBookBinding
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.api.bindAs
-import net.ankio.auto.ui.fragment.book.BookComponent
+import net.ankio.auto.ui.fragment.components.BookComponent
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.BookNameModel
 
@@ -38,28 +34,15 @@ import org.ezbook.server.db.model.BookNameModel
  *
  * 使用方式：
  * ```kotlin
- * // Activity中使用
- * BookSelectorDialog.create(activity)
+ * BaseSheetDialog.create<BookSelectorDialog>(context)
  *     .setShowSelect(true)
- *     .setCallback { book, type -> }
- *     .show()
- *
- * // Fragment中使用
- * BookSelectorDialog.create(fragment)
- *     .setCallback { book, type -> }
- *     .show()
- *
- * // Service中使用（悬浮窗）
- * BookSelectorDialog.create(service)
  *     .setCallback { book, type -> }
  *     .show()
  * ```
  */
-class BookSelectorDialog private constructor(
-    context: android.content.Context,
-    lifecycleOwner: LifecycleOwner?,
-    isOverlay: Boolean
-) : BaseSheetDialog<ComponentBookBinding>(context, lifecycleOwner, isOverlay) {
+class BookSelectorDialog internal constructor(
+    context: android.content.Context
+) : BaseSheetDialog<ComponentBookBinding>(context) {
 
     private var showSelect: Boolean = false
     private var callback: ((BookNameModel, BillType) -> Unit)? = null
@@ -90,7 +73,7 @@ class BookSelectorDialog private constructor(
         super.onViewCreated(view)
 
         // 使用bindAs创建BookComponent实例
-        bookComponent = binding.bindAs(lifecycleOwner!!.lifecycle)
+        bookComponent = binding.bindAs()
 
         // 设置是否显示选择按钮
         bookComponent.setShowOption(showSelect, false)
@@ -122,32 +105,5 @@ class BookSelectorDialog private constructor(
         }
     }
 
-    companion object {
-        /**
-         * 从Activity创建账本选择对话框
-         * @param activity 宿主Activity
-         * @return 对话框实例
-         */
-        fun create(activity: Activity): BookSelectorDialog {
-            return BookSelectorDialog(activity, activity as LifecycleOwner, false)
-        }
 
-        /**
-         * 从Fragment创建账本选择对话框
-         * @param fragment 宿主Fragment
-         * @return 对话框实例
-         */
-        fun create(fragment: Fragment): BookSelectorDialog {
-            return BookSelectorDialog(fragment.requireContext(), fragment.viewLifecycleOwner, false)
-        }
-
-        /**
-         * 从Service创建账本选择对话框（悬浮窗模式）
-         * @param service 宿主Service
-         * @return 对话框实例
-         */
-        fun create(service: LifecycleService): BookSelectorDialog {
-            return BookSelectorDialog(service, service, true)
-        }
-    }
 }

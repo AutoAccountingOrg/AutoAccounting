@@ -16,21 +16,16 @@
 
 package net.ankio.auto.ui.dialog
 
-import android.app.Activity
 import android.view.View
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.LifecycleService
 import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogDataEditorBinding
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.utils.Desensitizer
 import net.ankio.auto.ui.utils.ToastUtils
 
-class DataEditorDialog private constructor(
-    context: android.content.Context,
-    lifecycleOwner: androidx.lifecycle.LifecycleOwner?,
-    isOverlay: Boolean
-) : BaseSheetDialog<DialogDataEditorBinding>(context, lifecycleOwner, isOverlay) {
+class DataEditorDialog internal constructor(
+    context: android.content.Context
+) : BaseSheetDialog<DialogDataEditorBinding>(context) {
 
     private var data: String = ""
     private var callback: ((result: String) -> Unit)? = null
@@ -88,46 +83,29 @@ class DataEditorDialog private constructor(
 
         binding.btnMaskAll.setOnClickListener {
             val result = Desensitizer.maskAll(binding.etContent.text.toString())
-            BottomSheetDialogBuilder.create(context as Activity)
-                .setTitle(context.getString(R.string.replace_result))
-                .setMessage(result.changes.joinToString(separator = "\n") { (from, to) -> "\"$from\" → \"$to\"" })
-                .setPositiveButton(R.string.btn_confirm) { _, _ ->
-                    binding.etContent.setText(result.masked)
-                }.setNegativeButton(R.string.btn_cancel) { _, _ ->
 
-                }.show()
+            // 如果没有需要替换的内容，直接提示
+            if (result.changes.isEmpty()) {
+                ToastUtils.info(R.string.no_replace)
+                return@setOnClickListener
+            }
 
+            // 使用新的替换预览对话框
+            create<ReplacePreviewDialog>(context)
+                .setDesensitizeResult(result)
+                .setOnConfirm { selectedItems ->
+                    // 根据用户选择的项目执行替换
+                    var currentText = binding.etContent.text.toString()
+                    selectedItems.forEach { item ->
+                        currentText = currentText.replace(item.from, item.to)
+                    }
+                    binding.etContent.setText(currentText)
+                }
+                .show()
         }
 
     }
 
-    companion object {
-        /**
-         * 从Activity创建数据编辑对话框
-         * @param activity 宿主Activity
-         * @return 对话框实例，支持链式调用
-         */
-        fun create(activity: Activity): DataEditorDialog {
-            return DataEditorDialog(activity, activity as androidx.lifecycle.LifecycleOwner, false)
-        }
 
-        /**
-         * 从Fragment创建数据编辑对话框
-         * @param fragment 宿主Fragment
-         * @return 对话框实例，支持链式调用
-         */
-        fun create(fragment: Fragment): DataEditorDialog {
-            return DataEditorDialog(fragment.requireContext(), fragment.viewLifecycleOwner, false)
-        }
-
-        /**
-         * 从Service创建数据编辑对话框（悬浮窗模式）
-         * @param service 宿主Service
-         * @return 对话框实例，支持链式调用
-         */
-        fun create(service: LifecycleService): DataEditorDialog {
-            return DataEditorDialog(service, service, true)
-        }
-    }
 }
 

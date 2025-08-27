@@ -34,7 +34,7 @@ import net.ankio.auto.ui.api.BaseSheetDialog
  *
  * 使用示例：
  * ```
- * BottomSheetDialogBuilder.create(activity)
+ * BaseSheetDialog.create<BottomSheetDialogBuilder>(context)
  *     .setTitle("确认操作")
  *     .setMessage("是否确认执行此操作？")
  *     .setPositiveButton("确认") { dialog, which ->
@@ -46,19 +46,15 @@ import net.ankio.auto.ui.api.BaseSheetDialog
  *     .show()
  * ```
  */
-open class BottomSheetDialogBuilder(
-    context: android.content.Context,
-    lifecycleOwner: LifecycleOwner?,
-    isOverlay: Boolean
-) : BaseSheetDialog<DialogBottomSheetBinding>(context, lifecycleOwner, isOverlay) {
+open class BottomSheetDialogBuilder internal constructor(
+    context: android.content.Context
+) : BaseSheetDialog<DialogBottomSheetBinding>(context) {
 
     init {
         // 默认隐藏所有UI元素，等待后续配置
         binding.title.visibility = View.GONE
         binding.positiveButton.visibility = View.GONE
         binding.negativeButton.visibility = View.GONE
-
-        Logger.d("BottomSheetDialogBuilder created")
     }
 
     override fun setTitle(titleId: Int) {
@@ -71,7 +67,6 @@ open class BottomSheetDialogBuilder(
      * @return 当前构建器实例，支持链式调用
      */
     open fun setTitle(title: String): BottomSheetDialogBuilder {
-        Logger.d("Setting title: '$title'")
         binding.title.text = title
         binding.title.visibility = View.VISIBLE
         return this
@@ -84,8 +79,7 @@ open class BottomSheetDialogBuilder(
      */
     open fun setTitleInt(title: Int): BottomSheetDialogBuilder {
         val titleText = ctx.getString(title)
-        Logger.d("Setting title from resource: '$titleText'")
-        binding.title.setText(title)
+        binding.title.text = titleText
         binding.title.visibility = View.VISIBLE
         return this
     }
@@ -219,36 +213,5 @@ open class BottomSheetDialogBuilder(
         }
     }
 
-    companion object {
-        /**
-         * 从Activity创建底部弹窗构建器
-         * @param activity 宿主Activity
-         * @return 构建器实例
-         */
-        fun create(activity: Activity): BottomSheetDialogBuilder {
-            return BottomSheetDialogBuilder(activity, activity as LifecycleOwner, false)
-        }
 
-        /**
-         * 从Fragment创建底部弹窗构建器
-         * @param fragment 宿主Fragment
-         * @return 构建器实例
-         */
-        fun create(fragment: Fragment): BottomSheetDialogBuilder {
-            return BottomSheetDialogBuilder(
-                fragment.requireContext(),
-                fragment.viewLifecycleOwner,
-                false
-            )
-        }
-
-        /**
-         * 从Service创建底部弹窗构建器（悬浮窗模式）
-         * @param service 宿主Service
-         * @return 构建器实例
-         */
-        fun create(service: LifecycleService): BottomSheetDialogBuilder {
-            return BottomSheetDialogBuilder(service, service, true)
-        }
-    }
 }

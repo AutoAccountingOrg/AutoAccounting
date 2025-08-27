@@ -15,26 +15,24 @@
 
 package net.ankio.auto.ui.dialog.components
 
-import android.content.Context
-import android.util.AttributeSet
-import android.view.LayoutInflater
 import android.view.View
-import android.widget.LinearLayout
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import net.ankio.auto.databinding.ComponentBasicInfoBinding
+import net.ankio.auto.ui.api.BaseComponent
 import net.ankio.auto.http.api.BookNameAPI
 import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.ui.dialog.CategorySelectorDialog
 import net.ankio.auto.ui.dialog.DateTimePickerDialog
 import net.ankio.auto.ui.utils.ListPopupUtilsGeneric
+import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.utils.setCategoryIcon
 import net.ankio.auto.ui.utils.setAssetIcon
 import net.ankio.auto.utils.BillTool
 import net.ankio.auto.utils.DateUtils
+import net.ankio.auto.utils.SystemUtils.findLifecycleOwner
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.constant.Currency
 import org.ezbook.server.constant.DefaultData
@@ -54,32 +52,26 @@ import org.ezbook.server.db.model.CategoryModel
  *
  * 使用方式：
  * ```kotlin
- * basicInfo.initBillInfo(billInfoModel, lifecycleOwner)
+ * val basicInfo: BasicInfoComponent = binding.basicInfo.bindAs()
+ * basicInfo.setBillInfo(billInfoModel)
  * // 点击时会自动弹出相应的选择对话框并更新账单信息
  * ```
  */
-class BasicInfoComponent @JvmOverloads constructor(
-    context: Context,
-    attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0
-) : LinearLayout(context, attrs, defStyleAttr) {
+class BasicInfoComponent(
+    binding: ComponentBasicInfoBinding
+) : BaseComponent<ComponentBasicInfoBinding>(binding) {
 
-    private val binding: ComponentBasicInfoBinding =
-        ComponentBasicInfoBinding.inflate(LayoutInflater.from(context), this)
-
-    private lateinit var lifecycleOwner: LifecycleOwner
     private lateinit var billInfoModel: BillInfoModel
 
-    init {
-        orientation = VERTICAL
+    override fun onComponentCreate() {
+        super.onComponentCreate()
         setupClickListeners()
     }
 
     /**
-     * 统一初始化方法 - 参考BookHeaderComponent.initBillInfo
+     * 设置账单信息
      */
-    fun initBillInfo(billInfoModel: BillInfoModel, lifecycleOwner: LifecycleOwner) {
-        this.lifecycleOwner = lifecycleOwner
+    fun setBillInfo(billInfoModel: BillInfoModel) {
         this.billInfoModel = billInfoModel
         refresh()
     }
@@ -115,7 +107,7 @@ class BasicInfoComponent @JvmOverloads constructor(
      */
     private fun updateCategoryDisplay(billType: BillType) {
         binding.category.setText(billInfoModel.cateName)
-        lifecycleOwner.lifecycleScope.launch {
+        launch {
             val book = BookNameAPI.getBook(billInfoModel.bookName)
             binding.category.imageView().setCategoryIcon(
                 billInfoModel.cateName,
@@ -170,25 +162,12 @@ class BasicInfoComponent @JvmOverloads constructor(
      * 显示分类选择对话框
      */
     private fun showCategorySelector() {
-        if (!::lifecycleOwner.isInitialized || !::billInfoModel.isInitialized) {
+        if (!::billInfoModel.isInitialized) {
             return
         }
 
-        // 根据 lifecycleOwner 的类型创建对应的对话框
-        val dialog = when (lifecycleOwner) {
-            is android.app.Activity -> CategorySelectorDialog.create(lifecycleOwner as android.app.Activity)
-            is androidx.fragment.app.Fragment -> CategorySelectorDialog.create(lifecycleOwner as androidx.fragment.app.Fragment)
-            is androidx.lifecycle.LifecycleService -> CategorySelectorDialog.create(lifecycleOwner as androidx.lifecycle.LifecycleService)
-            else -> {
-                // 如果无法确定类型，尝试从 context 获取 Activity
-                val activity = context as? android.app.Activity
-                if (activity != null) {
-                    CategorySelectorDialog.create(activity)
-                } else {
-                    return // 无法创建对话框
-                }
-            }
-        }
+        // 使用BaseSheetDialog工厂方法创建对话框
+        val dialog = BaseSheetDialog.create<CategorySelectorDialog>(context)
 
         val billType = BillTool.getType(billInfoModel.type)
         dialog.setBook(billInfoModel.bookName)
@@ -206,25 +185,12 @@ class BasicInfoComponent @JvmOverloads constructor(
      * 显示时间选择对话框
      */
     private fun showTimeSelector() {
-        if (!::lifecycleOwner.isInitialized || !::billInfoModel.isInitialized) {
+        if (!::billInfoModel.isInitialized) {
             return
         }
 
-        // 根据 lifecycleOwner 的类型创建对应的对话框
-        val dialog = when (lifecycleOwner) {
-            is android.app.Activity -> DateTimePickerDialog.create(lifecycleOwner as android.app.Activity)
-            is androidx.fragment.app.Fragment -> DateTimePickerDialog.create(lifecycleOwner as androidx.fragment.app.Fragment)
-            is androidx.lifecycle.LifecycleService -> DateTimePickerDialog.create(lifecycleOwner as androidx.lifecycle.LifecycleService)
-            else -> {
-                // 如果无法确定类型，尝试从 context 获取 Activity
-                val activity = context as? android.app.Activity
-                if (activity != null) {
-                    DateTimePickerDialog.create(activity)
-                } else {
-                    return // 无法创建对话框
-                }
-            }
-        }
+        // 使用BaseSheetDialog工厂方法创建对话框
+        val dialog = BaseSheetDialog.create<DateTimePickerDialog>(context)
 
         dialog.setDateTimeFromMillis(billInfoModel.time)
             .setOnDateTimeSelected { year, month, day, hour, minute ->
@@ -240,7 +206,7 @@ class BasicInfoComponent @JvmOverloads constructor(
      * 显示货币选择列表
      */
     private fun showCurrencySelector() {
-        if (!::lifecycleOwner.isInitialized || !::billInfoModel.isInitialized) {
+        if (!::billInfoModel.isInitialized) {
             return
         }
 
@@ -255,20 +221,20 @@ class BasicInfoComponent @JvmOverloads constructor(
             Currency.valueOf(billInfoModel.currency)
         }.getOrDefault(Currency.CNY)
 
-        // 使用 ListPopupUtilsGeneric 显示选择列表
-        val popupUtils = ListPopupUtilsGeneric<Currency>(
-            context = context,
-            anchor = binding.moneyType,
-            list = currencyMap,
-            value = currentCurrency,
-            lifecycle = lifecycleOwner.lifecycle
-        ) { _, _, selectedCurrency ->
-            // 更新货币类型 - 无需类型转换
-            billInfoModel.currency = selectedCurrency.name
-            // 刷新显示
-            refresh()
-        }
+        // 从BaseComponent获取lifecycle
+        val lifecycle = context.findLifecycleOwner().lifecycle
 
-        popupUtils.toggle()
+        // 使用 ListPopupUtilsGeneric 显示选择列表
+        ListPopupUtilsGeneric.create<Currency>(context)
+            .setAnchor(binding.moneyType)
+            .setList(currencyMap)
+            .setSelectedValue(currentCurrency)
+            .setOnItemClick { _, _, selectedCurrency ->
+                // 更新货币类型 - 无需类型转换
+                billInfoModel.currency = selectedCurrency.name
+                // 刷新显示
+                refresh()
+            }
+            .toggle()
     }
 }

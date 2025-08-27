@@ -15,23 +15,20 @@
 
 package net.ankio.auto.ui.dialog.components
 
-import android.content.Context
 import android.content.res.ColorStateList
-import android.util.AttributeSet
-import android.view.LayoutInflater
-import android.widget.LinearLayout
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.core.widget.TextViewCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.ComponentAmountDisplayBinding
+import net.ankio.auto.ui.api.BaseComponent
 import net.ankio.auto.ui.dialog.BillEditorDialog
 import net.ankio.auto.ui.utils.ListPopupUtilsGeneric
 import net.ankio.auto.utils.BillTool
+import net.ankio.auto.utils.SystemUtils.findLifecycleOwner
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.BillInfoModel
 
@@ -46,34 +43,25 @@ import org.ezbook.server.db.model.BillInfoModel
  *
  * 使用方式：
  * ```kotlin
- * amountDisplay.initBillInfo(billInfoModel, lifecycleOwner)
+ * val amountDisplay: AmountDisplayComponent = binding.amountDisplay.bindAs()
+ * amountDisplay.setBillInfo(billInfoModel)
  * // 点击时会自动弹出类型选择列表并更新账单信息
  * ```
  */
-class AmountDisplayComponent @JvmOverloads constructor(
-    context: Context,
-    attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0
-) : LinearLayout(context, attrs, defStyleAttr) {
+class AmountDisplayComponent(
+    binding: ComponentAmountDisplayBinding
+) : BaseComponent<ComponentAmountDisplayBinding>(binding) {
 
-    private val binding: ComponentAmountDisplayBinding =
-        ComponentAmountDisplayBinding.inflate(LayoutInflater.from(context), this)
     private var onTypeChangeListener: ((BillType) -> Unit)? = null
     private var currentBillType: BillType = BillType.Expend
-    private var popupUtils: ListPopupUtilsGeneric<BillType>? = null
 
-    private lateinit var lifecycleOwner: LifecycleOwner
+
     private lateinit var billInfoModel: BillInfoModel
 
-    init {
-        orientation = VERTICAL
-    }
-
     /**
-     * 统一初始化方法 - 参考BookHeaderComponent.initBillInfo
+     * 设置账单信息
      */
-    fun initBillInfo(billInfoModel: BillInfoModel, lifecycleOwner: LifecycleOwner) {
-        this.lifecycleOwner = lifecycleOwner
+    fun setBillInfo(billInfoModel: BillInfoModel) {
         this.billInfoModel = billInfoModel
         refresh()
         setupTypeSelector()
@@ -97,7 +85,7 @@ class AmountDisplayComponent @JvmOverloads constructor(
      * 设置类型选择器
      */
     private fun setupTypeSelector() {
-        if (!::lifecycleOwner.isInitialized || !::billInfoModel.isInitialized) return
+        if (!::billInfoModel.isInitialized) return
 
         // 创建可用的交易类型映射
         val availableTypes = hashMapOf(
@@ -106,13 +94,13 @@ class AmountDisplayComponent @JvmOverloads constructor(
             context.getString(R.string.float_transfer) to BillType.Transfer
         )
 
-        setupTypeSelector(availableTypes, lifecycleOwner.lifecycle)
+        setupTypeSelectorInternal(availableTypes)
 
         // 设置类型变更监听器，自动更新账单信息并发送事件
         onTypeChangeListener = { newType ->
             billInfoModel.type = newType
             // 发送刷新事件给主监听器
-            lifecycleOwner.lifecycleScope.launch {
+            launch {
                 BillEditorDialog.notifyRefresh()
             }
         }
@@ -139,27 +127,24 @@ class AmountDisplayComponent @JvmOverloads constructor(
 
 
     /**
-     * 设置类型选择器可用选项和生命周期
+     * 设置类型选择器可用选项
      *
      * @param availableTypes 可选的交易类型映射（显示名称 -> 类型）
-     * @param lifecycle 生命周期，用于弹窗管理
      */
-    private fun setupTypeSelector(availableTypes: HashMap<String, BillType>, lifecycle: Lifecycle) {
-        popupUtils = ListPopupUtilsGeneric(
-            context,
-            binding.amountContainer,
-            availableTypes,
-            currentBillType,
-            lifecycle
-        ) { _, _, value ->
-            // value 已经是 BillType 类型，无需类型转换！
-            currentBillType = value
-            updateTypeDisplay()
-            onTypeChangeListener?.invoke(value)
-        }
-
+    private fun setupTypeSelectorInternal(availableTypes: HashMap<String, BillType>) {
+        // 设置点击监听器，使用新的链式调用方式
         binding.amountContainer.setOnClickListener {
-            popupUtils?.toggle()
+            ListPopupUtilsGeneric.create<BillType>(context)
+                .setAnchor(binding.amountContainer)
+                .setList(availableTypes)
+                .setSelectedValue(currentBillType)
+                .setOnItemClick { _, _, value ->
+                    // value 已经是 BillType 类型，无需类型转换！
+                    currentBillType = value
+                    updateTypeDisplay()
+                    onTypeChangeListener?.invoke(value)
+                }
+                .show()
         }
     }
 

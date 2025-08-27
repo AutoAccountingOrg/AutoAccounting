@@ -44,11 +44,9 @@ import kotlin.math.min
  *     .show()
  * ```
  */
-class DateTimePickerDialog private constructor(
-    context: android.content.Context,
-    lifecycleOwner: LifecycleOwner?,
-    isOverlay: Boolean
-) : BaseSheetDialog<CustomDateTimePickerBinding>(context, lifecycleOwner, isOverlay) {
+class DateTimePickerDialog internal constructor(
+    context: android.content.Context
+) : BaseSheetDialog<CustomDateTimePickerBinding>(context) {
 
     // 配置参数
     private var timeOnly: Boolean = false
@@ -289,36 +287,6 @@ class DateTimePickerDialog private constructor(
         currentMinute = calendar.get(Calendar.MINUTE)
     }
 
-    companion object {
-        /**
-         * 从Activity创建日期时间选择器
-         * @param activity 宿主Activity
-         * @return 对话框实例
-         */
-        fun create(activity: Activity): DateTimePickerDialog {
-            return DateTimePickerDialog(activity, activity as LifecycleOwner, false)
-        }
 
-        /**
-         * 从Fragment创建日期时间选择器
-         * @param fragment 宿主Fragment
-         * @return 对话框实例
-         */
-        fun create(fragment: Fragment): DateTimePickerDialog {
-            return DateTimePickerDialog(
-                fragment.requireContext(),
-                fragment.viewLifecycleOwner,
-                false
-            )
-        }
 
-        /**
-         * 从Service创建日期时间选择器（悬浮窗模式）
-         * @param service 宿主Service
-         * @return 对话框实例
-         */
-        fun create(service: LifecycleService): DateTimePickerDialog {
-            return DateTimePickerDialog(service, service, true)
-        }
-    }
 }

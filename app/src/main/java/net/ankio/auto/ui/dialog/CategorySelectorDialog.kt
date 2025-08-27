@@ -15,16 +15,12 @@
 
 package net.ankio.auto.ui.dialog
 
-import android.app.Activity
 import android.view.View
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LifecycleService
 import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogCategorySelectBinding
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.api.bindAs
-import net.ankio.auto.ui.fragment.book.CategoryComponent
+import net.ankio.auto.ui.fragment.components.CategoryComponent
 import net.ankio.auto.ui.utils.ToastUtils
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.CategoryModel
@@ -36,7 +32,7 @@ import org.ezbook.server.db.model.CategoryModel
  *
  * 使用方式：
  * ```kotlin
- * CategorySelectorDialog.create(activity)
+ * BaseSheetDialog.create<CategorySelectorDialog>(context)
  *     .setBook("我的账本")
  *     .setType(BillType.Income)
  *     .setCallback { parent, child ->
@@ -45,11 +41,9 @@ import org.ezbook.server.db.model.CategoryModel
  *     .show()
  * ```
  */
-class CategorySelectorDialog private constructor(
-    context: android.content.Context,
-    lifecycleOwner: LifecycleOwner?,
-    isOverlay: Boolean
-) : BaseSheetDialog<DialogCategorySelectBinding>(context, lifecycleOwner, isOverlay) {
+class CategorySelectorDialog internal constructor(
+    context: android.content.Context
+) : BaseSheetDialog<DialogCategorySelectBinding>(context) {
 
     private lateinit var categoryComponent: CategoryComponent
 
@@ -97,7 +91,7 @@ class CategorySelectorDialog private constructor(
         super.onViewCreated(view)
 
         // 使用bindAs创建CategoryComponent实例
-        categoryComponent = binding.category.bindAs<CategoryComponent>(lifecycleOwner!!.lifecycle)
+        categoryComponent = binding.category.bindAs()
 
         // 设置账本信息
         categoryComponent.setBookInfo(book, type)
@@ -120,36 +114,5 @@ class CategorySelectorDialog private constructor(
         }
     }
 
-    companion object {
-        /**
-         * 从Activity创建分类选择对话框
-         * @param activity 宿主Activity
-         * @return 对话框实例
-         */
-        fun create(activity: Activity): CategorySelectorDialog {
-            return CategorySelectorDialog(activity, activity as LifecycleOwner, false)
-        }
 
-        /**
-         * 从Fragment创建分类选择对话框
-         * @param fragment 宿主Fragment
-         * @return 对话框实例
-         */
-        fun create(fragment: Fragment): CategorySelectorDialog {
-            return CategorySelectorDialog(
-                fragment.requireContext(),
-                fragment.viewLifecycleOwner,
-                false
-            )
-        }
-
-        /**
-         * 从Service创建分类选择对话框（悬浮窗模式）
-         * @param service 宿主Service
-         * @return 对话框实例
-         */
-        fun create(service: LifecycleService): CategorySelectorDialog {
-            return CategorySelectorDialog(service, service, true)
-        }
-    }
 }

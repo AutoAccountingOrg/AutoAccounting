@@ -48,11 +48,9 @@ import net.ankio.auto.ui.api.BaseSheetDialog
  *     .show()
  * ```
  */
-class ColorPickerDialog private constructor(
-    context: android.content.Context,
-    lifecycleOwner: LifecycleOwner?,
-    isOverlay: Boolean
-) : BaseSheetDialog<DialogColorPickerBinding>(context, lifecycleOwner, isOverlay) {
+class ColorPickerDialog internal constructor(
+    context: android.content.Context
+) : BaseSheetDialog<DialogColorPickerBinding>(context) {
 
     /** 颜色选择回调函数 */
     private var onColorSelected: ((String) -> Unit)? = null
@@ -243,32 +241,5 @@ class ColorPickerDialog private constructor(
         }
     }
 
-    companion object {
-        /**
-         * 从Activity创建颜色选择对话框
-         * @param activity 宿主Activity
-         * @return 对话框实例
-         */
-        fun create(activity: Activity): ColorPickerDialog {
-            return ColorPickerDialog(activity, activity as LifecycleOwner, false)
-        }
 
-        /**
-         * 从Fragment创建颜色选择对话框
-         * @param fragment 宿主Fragment
-         * @return 对话框实例
-         */
-        fun create(fragment: Fragment): ColorPickerDialog {
-            return ColorPickerDialog(fragment.requireContext(), fragment.viewLifecycleOwner, false)
-        }
-
-        /**
-         * 从Service创建颜色选择对话框（悬浮窗模式）
-         * @param service 宿主Service
-         * @return 对话框实例
-         */
-        fun create(service: LifecycleService): ColorPickerDialog {
-            return ColorPickerDialog(service, service, true)
-        }
-    }
 }

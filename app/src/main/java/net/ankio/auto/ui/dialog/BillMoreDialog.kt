@@ -11,15 +11,15 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *   limitations under the License.
- *//*
-
+ */
 
 package net.ankio.auto.ui.dialog
 
-//import net.ankio.auto.ui.adapter.OrderItemAdapter
-import android.content.Context
-import android.view.LayoutInflater
+import android.app.Activity
 import android.view.View
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -32,65 +32,107 @@ import net.ankio.auto.ui.components.WrapContentLinearLayoutManager
 import net.ankio.auto.http.api.BillAPI
 import org.ezbook.server.db.model.BillInfoModel
 
-class BillMoreDialog(
-    private val context: Context,
-    private val billInfoModel: BillInfoModel,
-    private val onReload: (BillMoreDialog) -> Unit
-) :
-    BaseSheetDialog(context) {
-    private lateinit var binding: DialogBillMoreBinding
-    private val dataItems = mutableListOf<BillInfoModel>()
+/**
+ * 账单组详情对话框
+ *
+ * 用于显示账单组内的所有账单项，支持编辑和解除分组操作
+ *
+ * 使用方式：
+ * ```kotlin
+ * BaseSheetDialog.create<BillMoreDialog>(context)
+ *     .setBillInfo(billInfoModel)
+ *     .setOnReload { dialog -> refreshData() }
+ *     .show()
+ * ```
+ */
+class BillMoreDialog internal constructor(
+    context: android.content.Context
+) : BaseSheetDialog<DialogBillMoreBinding>(context) {
+
+    private var billInfoModel: BillInfoModel? = null
+    private var onReload: ((BillMoreDialog) -> Unit)? = null
     private val adapter = OrderItemAdapter(false)
 
+    /**
+     * 设置账单信息
+     * @param billInfo 账单信息模型
+     * @return 当前对话框实例，支持链式调用
+     */
+    fun setBillInfo(billInfo: BillInfoModel) = apply {
+        this.billInfoModel = billInfo
+    }
 
-    override fun onViewCreated(view: View) {
+    /**
+     * 设置重新加载回调
+     * @param callback 重新加载回调函数
+     * @return 当前对话框实例，支持链式调用
+     */
+    fun setOnReload(callback: (BillMoreDialog) -> Unit) = apply {
+        this.onReload = callback
+    }
+
+    override fun onViewCreated(view: View?) {
         super.onViewCreated(view)
+
         val statusPage = binding.statusPage
         val recyclerView = statusPage.contentView!!
         val layoutManager = WrapContentLinearLayoutManager(context)
         recyclerView.layoutManager = layoutManager
 
+        // 设置点击事件 - 编辑账单
         adapter.setOnItemClickListener { item, position ->
-            FloatEditorDialog(context, item, false, onConfirmClick = {
-                adapter.updateItem(position, it)
-            }).show()
+            create<BillEditorDialog>(context)
+                .setBillInfo(item)
+                .setOnConfirm { updatedBill ->
+                    adapter.updateItem(position, updatedBill)
+                }
+                .show()
         }
 
-// 设置长按事件
+        // 设置长按事件 - 解除分组
         adapter.setOnItemLongClickListener { item, position ->
-            BottomSheetDialogBuilder.create(context as Activity)
+            create<BottomSheetDialogBuilder>(context)
                 .setTitleInt(R.string.un_group_title)
                 .setMessage(R.string.un_group_message)
                 .setPositiveButton(R.string.sure_msg) { _, _ ->
-                    lifecycleScope.launch {
+                    launch {
                         BillAPI.unGroup(item.id)
-                        onReload(this@BillMoreDialog)
+                        onReload?.invoke(this@BillMoreDialog)
                     }
                 }
                 .setNegativeButton(R.string.cancel_msg) { _, _ -> }
                 .show()
         }
+
         recyclerView.adapter = adapter
-        statusPage.showLoading()
-        lifecycleScope.launch {
-            val bills = BillAPI.getBillByGroup(billInfoModel.id)
-            if (bills.isEmpty()) {
+        loadBillData()
+    }
+
+    /**
+     * 加载账单数据
+     */
+    private fun loadBillData() {
+        val billInfo = billInfoModel ?: return
+
+        binding.statusPage.showLoading()
+        launch {
+            try {
+                val bills = BillAPI.getBillByGroup(billInfo.id)
                 withContext(Dispatchers.Main) {
-                    statusPage.showEmpty()
+                    if (bills.isEmpty()) {
+                        binding.statusPage.showEmpty()
+                    } else {
+                        adapter.updateItems(bills)
+                        binding.statusPage.showContent()
+                    }
                 }
-                return@launch
-            }
-            withContext(Dispatchers.Main) {
-                adapter.updateItems(bills)
-                statusPage.showContent()
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    binding.statusPage.showError()
+                }
             }
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater): View {
-        binding = DialogBillMoreBinding.inflate(inflater)
-        return binding.root
-    }
 
 }
-*/

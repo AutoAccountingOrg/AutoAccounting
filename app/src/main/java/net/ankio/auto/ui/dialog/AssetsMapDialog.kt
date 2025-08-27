@@ -48,11 +48,9 @@ import org.ezbook.server.db.model.AssetsMapModel
  *     .show()
  * ```
  */
-class AssetsMapDialog private constructor(
-    context: android.content.Context,
-    lifecycleOwner: LifecycleOwner?,
-    isOverlay: Boolean
-) : BaseSheetDialog<DialogMapBinding>(context, lifecycleOwner, isOverlay) {
+class AssetsMapDialog internal constructor(
+    context: android.content.Context
+) : BaseSheetDialog<DialogMapBinding>(context) {
 
     private var assetsMapModel: AssetsMapModel = AssetsMapModel()
     private var onClose: ((AssetsMapModel) -> Unit)? = null
@@ -144,17 +142,7 @@ class AssetsMapDialog private constructor(
      * 显示资产选择器
      */
     private fun showAssetSelector() {
-        val selectorDialog = when (ctx) {
-            is Activity -> AssetsSelectorDialog.create(ctx as Activity)
-            else -> {
-                // 对于 Fragment 和 Service，需要从 lifecycleOwner 获取
-                when (lifecycleOwner) {
-                    is Fragment -> AssetsSelectorDialog.create(lifecycleOwner as Fragment)
-                    is LifecycleService -> AssetsSelectorDialog.create(lifecycleOwner as LifecycleService)
-                    else -> return // 无法创建选择器
-                }
-            }
-        }
+        val selectorDialog = create<AssetsSelectorDialog>(ctx)
 
         selectorDialog.setCallback { asset ->
             updateSelectedAsset(asset)
@@ -173,32 +161,5 @@ class AssetsMapDialog private constructor(
         }
     }
 
-    companion object {
-        /**
-         * 从Activity创建资产映射对话框
-         * @param activity 宿主Activity
-         * @return 对话框实例
-         */
-        fun create(activity: Activity): AssetsMapDialog {
-            return AssetsMapDialog(activity, activity as LifecycleOwner, false)
-        }
 
-        /**
-         * 从Fragment创建资产映射对话框
-         * @param fragment 宿主Fragment
-         * @return 对话框实例
-         */
-        fun create(fragment: Fragment): AssetsMapDialog {
-            return AssetsMapDialog(fragment.requireContext(), fragment, false)
-        }
-
-        /**
-         * 从Service创建资产映射对话框（悬浮窗模式）
-         * @param service 宿主Service
-         * @return 对话框实例
-         */
-        fun create(service: LifecycleService): AssetsMapDialog {
-            return AssetsMapDialog(service, service, true)
-        }
-    }
 }

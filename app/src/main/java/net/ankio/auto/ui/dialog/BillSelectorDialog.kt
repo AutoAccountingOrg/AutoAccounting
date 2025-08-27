@@ -59,11 +59,9 @@ import org.ezbook.server.constant.Setting
  *     .show()
  * ```
  */
-class BillSelectorDialog private constructor(
-    context: android.content.Context,
-    lifecycleOwner: LifecycleOwner?,
-    isOverlay: Boolean
-) : BaseSheetDialog<DialogBillSelectBinding>(context, lifecycleOwner, isOverlay) {
+class BillSelectorDialog internal constructor(
+    context: android.content.Context
+) : BaseSheetDialog<DialogBillSelectBinding>(context) {
 
     private var selectedBills: MutableList<String> = mutableListOf()
     private var billType: String = Setting.HASH_BILL // 默认值
@@ -218,32 +216,5 @@ class BillSelectorDialog private constructor(
         }
     }
 
-    companion object {
-        /**
-         * 从Activity创建账单选择对话框
-         * @param activity 宿主Activity
-         * @return 对话框实例
-         */
-        fun create(activity: Activity): BillSelectorDialog {
-            return BillSelectorDialog(activity, activity as LifecycleOwner, false)
-        }
 
-        /**
-         * 从Fragment创建账单选择对话框
-         * @param fragment 宿主Fragment
-         * @return 对话框实例
-         */
-        fun create(fragment: Fragment): BillSelectorDialog {
-            return BillSelectorDialog(fragment.requireContext(), fragment.viewLifecycleOwner, false)
-        }
-
-        /**
-         * 从Service创建账单选择对话框（悬浮窗模式）
-         * @param service 宿主Service
-         * @return 对话框实例
-         */
-        fun create(service: LifecycleService): BillSelectorDialog {
-            return BillSelectorDialog(service, service, true)
-        }
-    }
 }
