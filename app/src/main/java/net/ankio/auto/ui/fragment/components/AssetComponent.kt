@@ -16,11 +16,8 @@
 package net.ankio.auto.ui.fragment.book
 
 import android.view.View
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.coroutineScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.SimpleItemAnimator
-import kotlinx.coroutines.launch
 import net.ankio.auto.databinding.ComponentAssetBinding
 import net.ankio.auto.http.api.AssetsAPI
 import net.ankio.auto.ui.adapter.AssetSelectorAdapter
@@ -32,22 +29,22 @@ import org.ezbook.server.db.model.AssetsModel
  * 资产选择组件
  * 提供资产列表的显示和选择功能，支持单击和长按事件
  *
+ * 设计原则（遵循Linus好品味）：
+ * 1. 简化构造：只需要ViewBinding，自动推断生命周期
+ * 2. 统一协程管理：使用BaseComponent的launch方法
+ * 3. 清晰的职责分离：专注于资产选择逻辑
+ *
  * @param binding 组件绑定对象
- * @param lifecycle 生命周期
  */
 class AssetComponent(
-    binding: ComponentAssetBinding,
-    private val lifecycle: Lifecycle
-) : BaseComponent<ComponentAssetBinding>(binding, lifecycle) {
+    binding: ComponentAssetBinding
+) : BaseComponent<ComponentAssetBinding>(binding) {
 
     // 资产选择回调函数
-    private var onAssetSelected: ((AssetsModel?) -> Unit)? = null
+    private var onAssetSelected: ((AssetsModel) -> Unit)? = null
 
     // 长按回调函数
     private var onAssetLongClick: ((AssetsModel, View) -> Unit)? = null
-
-    // 当前选中的资产
-    private var selectedAsset: AssetsModel? = null
 
     // 资产列表
     private var assets = mutableListOf<AssetsModel>()
@@ -62,7 +59,7 @@ class AssetComponent(
      * 设置资产选择回调
      * @param callback 回调函数，参数为选中的资产
      */
-    fun setOnAssetSelectedListener(callback: (AssetsModel?) -> Unit) {
+    fun setOnAssetSelectedListener(callback: (AssetsModel) -> Unit) {
         this.onAssetSelected = callback
     }
 
@@ -74,8 +71,8 @@ class AssetComponent(
         this.onAssetLongClick = callback
     }
 
-    override fun init() {
-        super.init()
+    override fun onComponentCreate() {
+        super.onComponentCreate()
         setupRecyclerView()
         // 延迟加载数据，等待过滤器设置完成
     }
@@ -91,16 +88,14 @@ class AssetComponent(
         (recyclerView.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
 
         // 初始化适配器
-        adapter = AssetSelectorAdapter(
-            onItemClick = { asset, view ->
-                selectedAsset = asset
-                onAssetSelected?.invoke(selectedAsset)
-            },
-            onItemLongClick = { asset, view ->
+        adapter = AssetSelectorAdapter()
+            .setOnItemClickListener { asset, _ ->
+                onAssetSelected?.invoke(asset)
+            }
+            .setOnItemLongClickListener { asset, view ->
                 onAssetLongClick?.invoke(asset, view)
-            },
-            showCurrency = true
-        )
+            }
+
 
         recyclerView.adapter = adapter
     }
@@ -111,7 +106,7 @@ class AssetComponent(
     private fun loadData() {
         binding.statusPage.showLoading()
 
-        lifecycle.coroutineScope.launch {
+        launch {
             try {
                 assets.clear()
                 val allAssets = AssetsAPI.list()
@@ -122,7 +117,7 @@ class AssetComponent(
                 } ?: allAssets
 
                 assets.addAll(filteredAssets)
-                adapter.updateAssets(assets)
+                adapter.updateItems(assets)
 
                 if (assets.isEmpty()) {
                     binding.statusPage.showEmpty()
@@ -138,42 +133,12 @@ class AssetComponent(
     /**
      * 刷新数据
      */
-    fun refreshData() {
-        loadData()
-    }
-
-    /**
-     * 获取当前选中的资产
-     * @return 选中的资产，如果没有选中则返回null
-     */
-    fun getSelectedAsset(): AssetsModel? {
-        return selectedAsset
-    }
-
-    /**
-     * 设置选中的资产
-     * @param asset 要选中的资产
-     */
-    fun setSelectedAsset(asset: AssetsModel?) {
-        selectedAsset = asset
-        onAssetSelected?.invoke(selectedAsset)
-    }
+    fun refreshData() = loadData()
 
     /**
      * 获取当前资产列表
-     * @return 当前的资产数据列表
      */
-    fun getAssets(): List<AssetsModel> {
-        return assets.toList()
-    }
-
-    /**
-     * 清除选择
-     */
-    fun clearSelection() {
-        selectedAsset = null
-        onAssetSelected?.invoke(null)
-    }
+    fun getAssets(): List<AssetsModel> = assets.toList()
 
     /**
      * 设置资产类型过滤器（单类型，向后兼容）

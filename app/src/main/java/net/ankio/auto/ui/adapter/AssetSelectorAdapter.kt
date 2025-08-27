@@ -28,21 +28,33 @@ import org.ezbook.server.db.model.AssetsModel
  * 资产选择器适配器
  * 提供资产列表的显示和交互功能
  *
- * @param onItemClick 单击事件回调
- * @param onItemLongClick 长按事件回调
+ * 设计原则（遵循Linus好品味）：
+ * 1. 简洁构造：无参数构造函数
+ * 2. 链式配置：通过链式调用设置监听器
+ * 3. 消除包装：直接使用父类方法
  */
-class AssetSelectorAdapter(
-    private val onItemClick: (item: AssetsModel, view: View) -> Unit,
-    private val onItemLongClick: ((item: AssetsModel, view: View) -> Unit)? = null,
+class AssetSelectorAdapter : BaseAdapter<AdapterAssetListBinding, AssetsModel>() {
+
+    private var onItemClick: ((AssetsModel, View) -> Unit)? = null
+    private var onItemLongClick: ((AssetsModel, View) -> Unit)? = null
+    private var showCurrency: Boolean = PrefManager.featureMultiCurrency
+
     /**
-     * 是否展示货币标签，由外部传参控制，默认跟随多币种功能开关
+     * 设置点击监听器
      */
-    private val showCurrency: Boolean = PrefManager.featureMultiCurrency
-) : BaseAdapter<AdapterAssetListBinding, AssetsModel>() {
+    fun setOnItemClickListener(listener: (AssetsModel, View) -> Unit) = apply {
+        this.onItemClick = listener
+    }
+
+    /**
+     * 设置长按监听器
+     */
+    fun setOnItemLongClickListener(listener: (AssetsModel, View) -> Unit) = apply {
+        this.onItemLongClick = listener
+    }
 
     /**
      * 初始化视图持有者
-     * 设置点击和长按事件监听器
      */
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterAssetListBinding, AssetsModel>) {
         val binding = holder.binding
@@ -50,18 +62,16 @@ class AssetSelectorAdapter(
         // 设置点击事件
         binding.root.setOnClickListener {
             holder.item?.let { item ->
-                onItemClick(item, it)
+                onItemClick?.invoke(item, it)
             }
         }
 
         // 设置长按事件
-        onItemLongClick?.let { longClickListener ->
-            binding.root.setOnLongClickListener {
-                holder.item?.let { item ->
-                    longClickListener(item, it)
-                }
-                true
+        binding.root.setOnLongClickListener {
+            holder.item?.let { item ->
+                onItemLongClick?.invoke(item, it)
             }
+            true
         }
     }
 
@@ -111,19 +121,5 @@ class AssetSelectorAdapter(
         return oldItem == newItem
     }
 
-    /**
-     * 更新资产列表数据
-     * @param newItems 新的资产数据列表
-     */
-    fun updateAssets(newItems: List<AssetsModel>) {
-        updateItems(newItems)
-    }
 
-    /**
-     * 获取当前资产列表
-     * @return 当前的资产数据列表
-     */
-    fun getAssets(): List<AssetsModel> {
-        return getItems()
-    }
 }
