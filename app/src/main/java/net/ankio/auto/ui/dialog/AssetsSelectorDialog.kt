@@ -18,12 +18,11 @@ package net.ankio.auto.ui.dialog
 import android.app.Activity
 import android.view.View
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleService
 import net.ankio.auto.databinding.ComponentAssetBinding
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.api.bindAs
-import net.ankio.auto.ui.fragment.book.AssetComponent
+import net.ankio.auto.ui.fragment.components.AssetComponent
 import org.ezbook.server.constant.AssetsType
 import org.ezbook.server.db.model.AssetsModel
 
@@ -45,10 +44,8 @@ import org.ezbook.server.db.model.AssetsModel
  * ```
  */
 class AssetsSelectorDialog private constructor(
-    context: android.content.Context,
-    lifecycleOwner: LifecycleOwner?,
-    isOverlay: Boolean
-) : BaseSheetDialog<ComponentAssetBinding>(context, lifecycleOwner, isOverlay) {
+    context: android.content.Context
+) : BaseSheetDialog<ComponentAssetBinding>(context) {
 
     private var filter: List<AssetsType> = emptyList()
     private var callback: ((AssetsModel) -> Unit)? = null
@@ -85,14 +82,12 @@ class AssetsSelectorDialog private constructor(
      */
     private fun setupAssetComponent() {
         // 使用bindAs扩展函数创建AssetComponent实例
-        assetComponent = binding.bindAs(lifecycleOwner!!.lifecycle)
+        assetComponent = binding.bindAs()
 
         // 设置资产选择回调
         assetComponent.setOnAssetSelectedListener { asset ->
-            asset?.let {
-                callback?.invoke(it)
-                dismiss()
-            }
+            callback?.invoke(asset)
+            dismiss()
         }
 
         // 如果有过滤条件，设置过滤器
@@ -104,36 +99,4 @@ class AssetsSelectorDialog private constructor(
         }
     }
 
-    companion object {
-        /**
-         * 从Activity创建资产选择对话框
-         * @param activity 宿主Activity
-         * @return 对话框实例
-         */
-        fun create(activity: Activity): AssetsSelectorDialog {
-            return AssetsSelectorDialog(activity, activity as LifecycleOwner, false)
-        }
-
-        /**
-         * 从Fragment创建资产选择对话框
-         * @param fragment 宿主Fragment
-         * @return 对话框实例
-         */
-        fun create(fragment: Fragment): AssetsSelectorDialog {
-            return AssetsSelectorDialog(
-                fragment.requireContext(),
-                fragment.viewLifecycleOwner,
-                false
-            )
-        }
-
-        /**
-         * 从Service创建资产选择对话框（悬浮窗模式）
-         * @param service 宿主Service
-         * @return 对话框实例
-         */
-        fun create(service: LifecycleService): AssetsSelectorDialog {
-            return AssetsSelectorDialog(service, service, true)
-        }
-    }
 }
