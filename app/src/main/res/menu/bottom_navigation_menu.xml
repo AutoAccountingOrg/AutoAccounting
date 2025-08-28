@@ -32,11 +32,11 @@
     <item
         android:id="@+id/orderFragment"
         android:enabled="true"
-        android:icon="@drawable/bottom_unselect_order"
+        android:icon="@drawable/bottom_order_selector"
         android:title="@string/title_order" />
     <item
         android:id="@+id/settingFragment"
         android:enabled="true"
-        android:icon="@drawable/bottom_unselect_setting"
+        android:icon="@drawable/bottom_setting_selector"
         android:title="@string/title_setting" />
 </menu>

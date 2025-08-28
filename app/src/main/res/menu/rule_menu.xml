@@ -13,22 +13,11 @@
   ~   limitations under the License.
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/action_search"
+        android:actionViewClass="net.ankio.auto.ui.components.MaterialSearchView"
         android:icon="@drawable/menu_icon_search"
-        android:title="@string/item_search"
-        app:actionViewClass="net.ankio.auto.ui.componets.MaterialSearchView"
-        app:showAsAction="ifRoom|collapseActionView" />
-    <item
-        android:id="@+id/item_notice"
-        android:icon="@drawable/menu_item_notice"
-        android:title="@string/item_notice"
-        app:showAsAction="ifRoom" />
-    <item
-        android:id="@+id/item_sms"
-        android:icon="@drawable/data_filter"
-        android:title="@string/item_sms"
-        app:showAsAction="ifRoom" />
+        android:showAsAction="ifRoom|collapseActionView"
+        android:title="@string/item_search" />
 </menu>
