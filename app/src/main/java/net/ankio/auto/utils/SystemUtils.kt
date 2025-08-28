@@ -19,12 +19,14 @@ import android.app.Application
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Process
 import android.util.TypedValue
+import androidx.lifecycle.LifecycleOwner
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.activity.HomeActivity
 import java.math.BigInteger
@@ -122,5 +124,27 @@ object SystemUtils {
         if (launchIntent != null) {
             startActivity(launchIntent)
         }
+    }
+
+    /**
+     * 从Context自动推断LifecycleOwner的扩展函数
+     *
+     * 通过ContextWrapper递归查找LifecycleOwner，支持：
+     * - Activity（实现了LifecycleOwner）
+     * - Fragment（实现了LifecycleOwner）
+     * - LifecycleService（实现了LifecycleOwner）
+     *
+     * @return LifecycleOwner实例，如果找不到则抛出异常
+     * @throws IllegalStateException 当无法找到LifecycleOwner时抛出
+     */
+    fun Context.findLifecycleOwner(): LifecycleOwner {
+        var context = this
+        while (context is ContextWrapper) {
+            if (context is LifecycleOwner) {
+                return context
+            }
+            context = context.baseContext
+        }
+        error("无法从Context中找到LifecycleOwner，请确保Context是Activity、Fragment或LifecycleService")
     }
 }
