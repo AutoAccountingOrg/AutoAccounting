@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (C) 2023 ankio(ankio@ankio.net)
+  ~ Licensed under the Apache License, Version 3.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~         http://www.apache.org/licenses/LICENSE-3.0
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~   limitations under the License.
+  -->
+
+<!-- 规则信息组件 - 显示规则名称和手续费 -->
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:padding="@dimen/one_padding">
+
+        <!-- 规则名称显示 -->
+        <net.ankio.auto.ui.components.IconView
+            android:id="@+id/rule_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:gravity="center_vertical"
+            android:maxLines="1"
+            app:iconSrc="@drawable/home_rule"
+            app:textColor="?attr/colorPrimary"
+            tools:text="这是一条规则名称" />
+
+        <!-- 手续费显示 -->
+        <net.ankio.auto.ui.components.IconView
+            android:id="@+id/fee"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|end"
+            app:textColor="?attr/colorError"
+            tools:text="-0.01" />
+
+    </LinearLayout>
+
+</merge>

@@ -103,41 +103,5 @@
             app:icon="@drawable/ic_autostart" />
     </LinearLayout>
 
-    <!-- Usage chips -->
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/tvUsageLabel"
-        style="@style/TextAppearance.Material3.BodyLarge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="@string/ai_usage_title" />
 
-    <com.google.android.material.chip.ChipGroup
-        android:id="@+id/chipGroupUsage"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        app:singleSelection="false">
-
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipUsageOcr"
-            style="@style/Widget.Material3.Chip.Filter"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/ai_usage_ocr" />
-
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipUsageAutoDetect"
-            style="@style/Widget.Material3.Chip.Filter"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/ai_usage_autodetect" />
-
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipUsageAutoCategory"
-            style="@style/Widget.Material3.Chip.Filter"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/ai_usage_autocategory" />
-    </com.google.android.material.chip.ChipGroup>
 </LinearLayout>

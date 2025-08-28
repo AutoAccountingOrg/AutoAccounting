@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (C) 2023 ankio(ankio@ankio.net)
+  ~ Licensed under the Apache License, Version 3.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~         http://www.apache.org/licenses/LICENSE-3.0
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~   limitations under the License.
+  -->
+
+<!-- 基础信息组件 - 分类、货币、时间、备注 -->
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- 分类选择 -->
+        <net.ankio.auto.ui.components.IconView
+            android:id="@+id/category"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/float_padding"
+            app:iconSrc="@drawable/default_cate"
+            app:iconTintEnabled="true"
+            app:textColor="?attr/colorOnSurface"
+            tools:text="分类" />
+
+        <!-- 货币类型选择 -->
+        <net.ankio.auto.ui.components.IconView
+            android:id="@+id/money_type"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/float_padding"
+            app:iconSrc="@drawable/float_money"
+            app:iconTintEnabled="true"
+            app:textColor="?attr/colorOnSurface"
+            tools:text="人民币" />
+
+        <!-- 时间选择 -->
+        <net.ankio.auto.ui.components.IconView
+            android:id="@+id/time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/float_padding"
+            app:iconSrc="@drawable/float_time"
+            app:iconTintEnabled="true"
+            app:textColor="?attr/colorOnSurface"
+            tools:text="2023年12月21日 11:11:00" />
+
+        <!-- 备注输入 -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/text_field"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/float_remark"
+            android:padding="@dimen/float_padding">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/remark"
+                style="@style/TextAppearance.AppCompat.Medium"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:text="备注信息" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+    </LinearLayout>
+
+</merge>

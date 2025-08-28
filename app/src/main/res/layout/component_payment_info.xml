@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (C) 2023 ankio(ankio@ankio.net)
+  ~ Licensed under the Apache License, Version 3.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~         http://www.apache.org/licenses/LICENSE-3.0
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~   limitations under the License.
+  -->
+
+<!-- 支付信息组件 - 统一处理所有支付相关信息 -->
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- 单一账户支付信息（支出/收入/报销） -->
+        <LinearLayout
+            android:id="@+id/single_account_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:padding="@dimen/float_padding">
+
+            <net.ankio.auto.ui.components.IconView
+                android:id="@+id/single_account"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:iconSrc="@mipmap/ic_launcher_round"
+                app:iconTintEnabled="false"
+                app:textColor="?attr/colorOnSurface"
+                tools:text="微信零钱" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+        </LinearLayout>
+
+        <!-- 双账户传输信息（转账） -->
+        <LinearLayout
+            android:id="@+id/transfer_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="@dimen/float_padding">
+
+            <net.ankio.auto.ui.components.IconView
+                android:id="@+id/transfer_from"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                app:iconSrc="@mipmap/ic_launcher_round"
+                app:iconTintEnabled="false"
+                app:textColor="?attr/colorOnSurface"
+                tools:text="微信零钱" />
+
+            <TextView
+                android:layout_width="@dimen/padding"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/one_padding"
+                android:layout_marginEnd="@dimen/one_padding"
+                android:layout_weight="0"
+                android:gravity="center"
+                android:text="➜" />
+
+            <net.ankio.auto.ui.components.IconView
+                android:id="@+id/transfer_to"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                app:iconSrc="@mipmap/ic_launcher_round"
+                app:iconTintEnabled="false"
+                app:textColor="?attr/colorOnSurface"
+                tools:text="支付宝余额" />
+
+        </LinearLayout>
+
+        <!-- 债务信息（借入/借出/还款/收款） -->
+        <LinearLayout
+            android:id="@+id/debt_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:padding="@dimen/float_padding">
+
+            <!-- 第一个账户（可能是固定账户或输入框） -->
+            <FrameLayout
+                android:id="@+id/debt_first_account_frame"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <!-- 固定账户显示 -->
+                <net.ankio.auto.ui.components.IconView
+                    android:id="@+id/debt_first_account"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:iconSrc="@mipmap/ic_launcher_round"
+                    app:iconTintEnabled="false"
+                    app:textColor="?attr/colorOnSurface"
+                    tools:text="微信零钱" />
+
+                <!-- 债权人/债务人输入框 -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/debt_first_input_layout"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/float_income_debt"
+                    android:maxWidth="200dp">
+
+                    <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                        android:id="@+id/debt_first_input"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text"
+                        tools:simpleItems="" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </FrameLayout>
+
+            <TextView
+                android:layout_width="@dimen/padding"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/one_padding"
+                android:layout_marginEnd="@dimen/one_padding"
+                android:layout_weight="0"
+                android:gravity="center"
+                android:text="➜" />
+
+            <!-- 第二个账户（可能是固定账户或输入框） -->
+            <FrameLayout
+                android:id="@+id/debt_second_account_frame"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <!-- 固定账户显示 -->
+                <net.ankio.auto.ui.components.IconView
+                    android:id="@+id/debt_second_account"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:iconSrc="@mipmap/ic_launcher_round"
+                    app:iconTintEnabled="false"
+                    app:textColor="?attr/colorOnSurface"
+                    tools:text="张三" />
+
+                <!-- 债权人/债务人输入框 -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/debt_second_input_layout"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/float_income_debt"
+                    android:maxWidth="200dp">
+
+                    <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                        android:id="@+id/debt_second_input"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text"
+                        tools:simpleItems="" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </FrameLayout>
+
+        </LinearLayout>
+
+        <!-- 关联账单选择按钮（退款/报销） -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/choose_bill_button"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/float_choose_bill" />
+
+    </LinearLayout>
+
+</merge>
