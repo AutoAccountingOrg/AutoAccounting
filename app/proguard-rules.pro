@@ -22,3 +22,8 @@
 -keep class kotlin.reflect.jvm.internal.impl.**
 -keep class kotlin.Metadata  {*; }
 -keepclassmembers class kotlin.Metadata {    public <methods>;}
+
+
+#bugly
+-dontwarn com.tencent.bugly.**
+-keep public class com.tencent.bugly.**{*;}
