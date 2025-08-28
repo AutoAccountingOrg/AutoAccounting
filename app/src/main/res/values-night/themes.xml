@@ -12,7 +12,7 @@
   ~  See the License for the specific language governing permissions and
   ~   limitations under the License.
   -->
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
 
     <style name="AppTheme" parent="Theme.Material3.DynamicColors.Dark.Rikka">
         <item name="preferenceTheme">@style/PreferenceThemeOverlay.Rikka.Material3</item>
@@ -38,6 +38,20 @@
     <style name="AppTheme.About" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorPrimary">#121212</item>
         <item name="colorPrimaryDark">#121212</item>
+    </style>
+
+    <style name="TransparentActivityTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowCloseOnTouchOutside">true</item>
+        <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:windowDisablePreview">true</item>
+        <item name="android:windowNoDisplay">false</item>
+        <item name="android:backgroundDimEnabled">false</item><!--activity不变暗-->
     </style>
 
 </resources>

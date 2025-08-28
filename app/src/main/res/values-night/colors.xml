@@ -43,5 +43,7 @@
     <color name="tile_bg_assets">#FF2E5050</color>
     <color name="tile_bg_assets_map">#FF4A356B</color>
     <color name="tile_bg_tag">#FF4C3A10</color>
+    <color name="tile_bg_app_whitelist">#FF2F4F2F</color>
+    <color name="tile_bg_data_filter">#FF5C3D26</color>
 
 </resources>
