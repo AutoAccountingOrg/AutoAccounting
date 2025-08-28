@@ -21,7 +21,7 @@ import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
-import net.ankio.auto.storage.ConfigUtils
+import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.storage.Logger
 //import net.ankio.auto.ui.dialog.BillAssetsMapDialog
 import org.ezbook.server.constant.BillType
@@ -45,8 +45,7 @@ object AssetsUtils {
         callback: () -> Unit
     ) =
         withContext(Dispatchers.Main) {
-            val ignoreAssets =
-                ConfigUtils.getBoolean(Setting.IGNORE_ASSET, DefaultData.IGNORE_ASSET)
+            val ignoreAssets = PrefManager.ignoreAsset
             if (ignoreAssets) {
                 callback()
                 return@withContext
@@ -72,7 +71,7 @@ object AssetsUtils {
                           }
                   }
                   callback()
-              }.show(float = float, cancel = true)
+              }.show(cancel = true)
           */
         }
     /**
@@ -184,8 +183,7 @@ object AssetsUtils {
      */
     suspend fun setMapAssets(billInfoModel: BillInfoModel): MutableList<String> {
         //如果不使用资产管理就不进行映射
-        val assetManager =
-            ConfigUtils.getBoolean(Setting.SETTING_ASSET_MANAGER, DefaultData.SETTING_ASSET_MANAGER)
+        val assetManager = PrefManager.featureAssetManage
         val list = AssetsAPI.list()
         if (!assetManager || list.isEmpty()) {
             return mutableListOf()

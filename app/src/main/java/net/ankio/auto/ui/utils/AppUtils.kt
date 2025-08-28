@@ -16,13 +16,14 @@
 package net.ankio.auto.ui.utils
 
 import net.ankio.auto.App
+import net.ankio.auto.autoApp
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.models.AppInfo
 
 object AppUtils {
     fun get(pkg: String): AppInfo? {
         try {
-            val pm = App.app.packageManager
+            val pm = autoApp.packageManager
             val applicationInfo = pm.getApplicationInfo(pkg, 0)
             return AppInfo(
                 appName = pm.getApplicationLabel(applicationInfo).toString(),

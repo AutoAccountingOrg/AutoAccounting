@@ -17,29 +17,28 @@ package net.ankio.auto.ui.utils
 
 import android.content.Intent
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import net.ankio.auto.App.Companion.app
 import net.ankio.auto.BuildConfig
-import net.ankio.auto.storage.ConfigUtils
+import net.ankio.auto.autoApp
+import net.ankio.auto.http.api.SettingAPI
 import net.ankio.auto.storage.Logger
+import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.constant.BillAction
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
-import org.ezbook.server.db.model.SettingModel
 
 object BookAppUtils {
 
     private suspend fun createIntent(action: BillAction) = withContext(Dispatchers.Main) {
         runCatching {
-            var packageName = ConfigUtils.getString(Setting.BOOK_APP_ID, DefaultData.BOOK_APP)
+            var packageName = PrefManager.bookApp
 
             if (packageName.isEmpty()) {
                 packageName = DefaultData.BOOK_APP
             }
 
             var activityName =
-                SettingModel.get(Setting.BOOK_APP_ACTIVITY, DefaultData.BOOK_APP_ACTIVITY)
+                SettingAPI.get(Setting.BOOK_APP_ACTIVITY, DefaultData.BOOK_APP_ACTIVITY)
 
             if (activityName.isEmpty()) {
                 activityName = DefaultData.BOOK_APP_ACTIVITY
@@ -47,16 +46,16 @@ object BookAppUtils {
 
             Logger.i("createIntent: $packageName $activityName, action: $action")
 
-            val noProactively = SettingModel.get(
+            val noProactively = SettingAPI.get(
                 Setting.PROACTIVELY_MODEL,
                 DefaultData.PROACTIVELY_MODEL.toString()
             ) == "false"
 
             if (activityName == DefaultData.BOOK_APP_ACTIVITY && packageName != DefaultData.BOOK_APP || noProactively) {
-                val launchIntent = app.packageManager.getLaunchIntentForPackage(packageName)
+                val launchIntent = autoApp.packageManager.getLaunchIntentForPackage(packageName)
                 if (launchIntent != null) {
                     launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    app.startActivity(launchIntent)
+                    autoApp.startActivity(launchIntent)
                 }
                 return@withContext
             }
@@ -68,7 +67,7 @@ object BookAppUtils {
                 addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP) // 清除栈顶
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) // 确保在新任务栈中启动
             }
-            app.startActivity(intent)
+            autoApp.startActivity(intent)
         }.onFailure {
             it.printStackTrace()
             Logger.e("createIntent error: ${it.message}")

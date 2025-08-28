@@ -15,18 +15,14 @@
 
 package net.ankio.auto.ui.utils
 
-import android.app.Activity
-import android.content.ComponentCallbacks
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Point
 import android.os.Build
-import android.util.DisplayMetrics
 import android.util.TypedValue
+import android.view.Display
 import android.view.WindowManager
-import net.ankio.auto.App
 import net.ankio.auto.autoApp
-import net.ankio.auto.storage.Logger
 
 
 /**
@@ -39,168 +35,63 @@ import net.ankio.auto.storage.Logger
  */
 object DisplayUtils {
 
+    // 使用 @Volatile 确保多线程安全
+    @Volatile
     private var navHeight: Int = -1
+
+    @Volatile
     private var statusHeight: Int = -1
 
+    /**
+     * 获取导航栏高度
+     * @param context 上下文对象
+     * @return 导航栏高度（像素）
+     */
     fun getNavigationBarHeight(context: Context): Int {
         if (navHeight < 0) {
-            val res = context.resources
-            val navId = res.getIdentifier("navigation_bar_height", "dimen", "android")
-            navHeight = if (navId > 0) res.getDimensionPixelSize(navId) else 0
+            synchronized(this) {
+                if (navHeight < 0) {  // 双重检查锁定
+                    val res = context.resources
+                    val navId = res.getIdentifier("navigation_bar_height", "dimen", "android")
+                    navHeight = if (navId > 0) res.getDimensionPixelSize(navId) else 0
+                }
+            }
         }
         return navHeight
     }
 
+    /**
+     * 获取状态栏高度
+     * @param context 上下文对象
+     * @return 状态栏高度（像素）
+     */
     fun getStatusBarHeight(context: Context): Int {
         if (statusHeight < 0) {
-            val res = context.resources
-            val statusId = res.getIdentifier("status_bar_height", "dimen", "android")
-            statusHeight = if (statusId > 0) res.getDimensionPixelSize(statusId) else 0
+            synchronized(this) {
+                if (statusHeight < 0) {  // 双重检查锁定
+                    val res = context.resources
+                    val statusId = res.getIdentifier("status_bar_height", "dimen", "android")
+                    statusHeight = if (statusId > 0) res.getDimensionPixelSize(statusId) else 0
+                }
+            }
         }
         return statusHeight
     }
 
-    // 屏幕尺寸阈值常量
-    private const val MINI_SCREEN_WIDTH = 360
-    private const val MINI_SCREEN_HEIGHT = 640
-    private const val SMALL_SCREEN_WIDTH = 480
-    private const val SMALL_SCREEN_HEIGHT = 800
-    private const val MEDIUM_SCREEN_WIDTH = 720
-    private const val MEDIUM_SCREEN_HEIGHT = 1280
-
-    private var noCompatDensity: Float = 0f
-    private var noCompatScaledDensity: Float = 0f
-
-    fun setCustomDensity(activity: Activity) {
-        try {
-            val appDisplayMetrics: DisplayMetrics = App.app.resources.displayMetrics
-            val screenWidth = appDisplayMetrics.widthPixels / appDisplayMetrics.density
-
-            // 只在屏幕宽度小于360dp或大于1080dp时进行缩放
-            if (screenWidth in 360f..1080f) return
-
-            // 首次初始化
-            if (noCompatDensity == 0f) {
-                noCompatDensity = appDisplayMetrics.density
-                noCompatScaledDensity = appDisplayMetrics.scaledDensity
-
-                // 监听字体大小变化
-                App.app.registerComponentCallbacks(object : ComponentCallbacks {
-                    override fun onConfigurationChanged(newConfig: Configuration) {
-                        if (newConfig.fontScale > 0 && noCompatDensity != 0f) {
-                            // 保持字体大小跟随系统设置
-                            noCompatScaledDensity = App.app.resources.displayMetrics.scaledDensity
-                            setCustomDensity(activity)
-                        }
-                    }
-
-                    override fun onLowMemory() {}
-                })
-            }
-
-            // 计算目标密度
-            val targetDensity = when {
-                screenWidth < 360f -> appDisplayMetrics.widthPixels / 360f  // 小屏幕适配
-                screenWidth > 1080f -> appDisplayMetrics.widthPixels / 1080f  // 大屏幕适配
-                else -> appDisplayMetrics.density  // 正常屏幕保持原始密度
-            }
-
-            // 使用字体缩放因子调整文字大小
-            val fontScale = App.app.resources.configuration.fontScale
-            val baseScaleDensity = noCompatScaledDensity * fontScale
-            // 大屏幕时稍微增加字体大小，但保持原有比例
-            val targetScaleDensity = if (screenWidth > 1080f) {
-                baseScaleDensity * 1.3f
-            } else {
-                baseScaleDensity
-            }
-
-            // 计算DPI
-            val targetDensityDpi = (160 * targetDensity).toInt()
-
-            // 应用到应用级别
-            appDisplayMetrics.apply {
-                density = targetDensity
-                scaledDensity = targetScaleDensity
-                densityDpi = targetDensityDpi
-            }
-
-            // 应用到当前Activity
-            activity.resources.displayMetrics.apply {
-                density = targetDensity
-                scaledDensity = targetScaleDensity
-                densityDpi = targetDensityDpi
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-
     /**
-     * 是否是超小屏幕
-     */
-    fun isMiniScreen(context: Context): Boolean {
-        val point = getScreenSize(context)
-        return point.x < MINI_SCREEN_WIDTH || point.y < MINI_SCREEN_HEIGHT
-    }
-
-    /**
-     * 是否是小屏幕
-     */
-    fun isSmallScreen(context: Context): Boolean {
-        val point = getScreenSize(context)
-        return point.x < SMALL_SCREEN_WIDTH || point.y < SMALL_SCREEN_HEIGHT
-    }
-
-    /**
-     * 是否是中等屏幕
-     */
-    fun isMediumScreen(context: Context): Boolean {
-        val point = getScreenSize(context)
-        return point.x < MEDIUM_SCREEN_WIDTH || point.y < MEDIUM_SCREEN_HEIGHT
-    }
-
-
-    /**
-     * 获取窗口尺寸，不关注设备状态，只关注窗口状态
-     */
-    fun getScreenSize(context: Context): Point {
-        val point = Point()
-        val displayMetrics = context.resources.displayMetrics
-        val density = displayMetrics.density
-
-        // 将实际像素按密度转换为dp值
-        val widthDp = (displayMetrics.widthPixels / density).toInt()
-        val heightDp = (displayMetrics.heightPixels / density).toInt()
-
-
-        point.x = widthDp
-        point.y = heightDp
-
-        Logger.d("getScreenSize: x=${point.x}, y=${point.y}")
-        return point
-    }
-
-    /**
-     * 平行窗口模式（华为、小米）
-     */
-    fun inMagicWindow(context: Context): Boolean {
-        val config: String = context.resources.configuration.toString()
-        return config.contains("hwMultiwindow-magic") || config.contains("miui-magic-windows") || config.contains(
-            "hw-magic-windows"
-        )
-    }
-
-    /**
-     * 窗口是横屏，不关注设备状态，只关注窗口态
+     * 判断当前窗口是否为横屏模式
+     * 注意：这里判断的是窗口方向，而不是设备方向
+     * @param context 上下文对象
+     * @return true 如果窗口为横屏模式
      */
     fun isWindowLandscape(context: Context): Boolean {
-        val orientation: Int = context.resources.configuration.orientation
-        return orientation == Configuration.ORIENTATION_LANDSCAPE
+        return context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
     }
 
     /**
-     * dp转px
+     * 将dp值转换为像素值
+     * @param dpValue dp值
+     * @return 对应的像素值
      */
     fun dp2px(dpValue: Float): Int {
         return TypedValue.applyDimension(
@@ -211,39 +102,56 @@ object DisplayUtils {
     }
 
     /**
-     * px转dp
+     * 将dp值转换为像素值（接受Int参数的重载方法）
+     * @param dpValue dp值
+     * @return 对应的像素值
      */
-    fun px2dp(pxValue: Float): Int {
+    fun dp2px(dpValue: Int): Int = dp2px(dpValue.toFloat())
+
+    /**
+     * 将像素值转换为dp值
+     * @param pxValue 像素值
+     * @return 对应的dp值
+     */
+    private fun px2dp(pxValue: Float): Int {
         val scale = autoApp.resources.displayMetrics.density
         return (pxValue / scale + 0.5f).toInt()
     }
 
     /**
-     * 获取屏幕真实尺寸（包含刘海区域）
+     * 将像素值转换为dp值（接受Int参数的重载方法）
+     * @param pxValue 像素值
+     * @return 对应的dp值
+     */
+    fun px2dp(pxValue: Int): Int = px2dp(pxValue.toFloat())
+
+    /**
+     * 获取真实屏幕尺寸（包括状态栏和导航栏）
+     *
+     * 此方法会返回设备屏幕的完整尺寸，包括系统装饰（状态栏、导航栏等）。
+     * 对于不同的Android版本，使用不同的API来确保兼容性。
+     *
+     * @param context 上下文对象
+     * @return Point对象，包含屏幕的宽度(x)和高度(y)，单位为像素
      */
     fun getRealScreenSize(context: Context): Point {
-        val point = Point()
-        val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        val screenSize = Point()
+        val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as? WindowManager
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            // 使用 WindowMetrics 获取屏幕尺寸
-            val metrics = windowManager.currentWindowMetrics
-            val bounds = metrics.bounds
-            point.x = bounds.width()
-            point.y = bounds.height()
-        } else {
-            @Suppress("DEPRECATION")
-            windowManager.defaultDisplay.getRealSize(point)
+        windowManager?.let { wm ->
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                // Android 11 (API 30) 及以上版本使用新的 API
+                val bounds = wm.currentWindowMetrics.bounds
+                screenSize.x = bounds.width()
+                screenSize.y = bounds.height()
+            } else {
+                // 低版本使用已弃用但仍可用的 API
+                @Suppress("DEPRECATION")
+                val display = wm.defaultDisplay
+                display.getRealSize(screenSize)
+            }
         }
 
-        return point
-    }
-
-
-    fun isTabletOrFoldable(context: Context): Boolean {
-        val displayMetrics = context.resources.displayMetrics
-        val screenWidth = displayMetrics.widthPixels
-        val screenHeight = displayMetrics.heightPixels
-        return screenWidth > screenHeight || screenWidth / displayMetrics.density > 600
+        return screenSize
     }
 }
