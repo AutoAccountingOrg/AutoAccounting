@@ -9,12 +9,6 @@
             android:summary="@string/setting_auto_record_bill_summary"
             android:title="@string/setting_auto_record_bill" />
 
-        <rikka.material.preference.MaterialSwitchPreference
-            android:defaultValue="true"
-            android:icon="@drawable/setting_icon_repeat"
-            android:key="autoGroup"
-            android:summary="@string/setting_auto_group_summary"
-            android:title="@string/setting_auto_group" />
 
         <rikka.material.preference.MaterialSwitchPreference
             android:defaultValue="false"

@@ -789,14 +789,26 @@
     <string name="setting_category_dangerous">Dangerous Operations</string>
 
     <!-- 设置项标题和摘要 -->
-    <string name="setting_auto_group">Auto Group</string>
-    <string name="setting_auto_group_summary">Automatically group related bills</string>
+    <string name="setting_auto_group">Auto Deduplication</string>
+    <string name="setting_auto_group_summary">Automatically deduplicate bills by grouping similar transactions</string>
     <string name="setting_duplicated_bill_filter">Duplicate Bill Filter</string>
     <string name="setting_duplicated_bill_filter_summary">Filter out duplicate bills</string>
     <string name="setting_bill_auto_record_summary">Show notification when auto recording bills</string>
     <string name="setting_load_success_summary">Show notification when loading successfully</string>
     <string name="setting_default_book">Default Book</string>
     <string name="setting_default_book_summary">Default book for new bills</string>
+
+    <!-- 新增的账单设置字符串 -->
+    <string name="setting_auto_create_category_summary">Automatically create categories when unknown categories are encountered</string>
+    <string name="setting_auto_asset_mapping">Auto Asset Mapping</string>
+    <string name="setting_auto_asset_mapping_summary">Automatically map bills to corresponding asset accounts</string>
+    <string name="setting_category_book_config">Book Configuration</string>
+    <string name="setting_book_app">Accounting App</string>
+    <string name="setting_book_app_summary">Target accounting application package name</string>
+    <string name="setting_auto_record_bill">Auto Record Bills</string>
+    <string name="setting_auto_record_bill_summary">Automatically record bills from notifications and messages</string>
+    <string name="setting_auto_asset_mapping_disabled">Asset management feature must be enabled first</string>
+    <string name="setting_current_selection">Current selection: %s</string>
 
     <string name="setting_float_timeout">Float Timeout</string>
     <string name="setting_float_timeout_action">Timeout Action</string>
