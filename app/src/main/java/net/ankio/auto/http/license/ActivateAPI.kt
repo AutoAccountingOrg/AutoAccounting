@@ -18,10 +18,16 @@ package net.ankio.auto.http.license
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import net.ankio.auto.App
+import net.ankio.auto.storage.CacheManager
 import net.ankio.auto.utils.DateUtils
 import net.ankio.auto.utils.PrefManager
 
 object ActivateAPI {
+    /** 缓存键 */
+    private const val CACHE_KEY_INFO = "activate_api_info"
+
+    /** 缓存时间：30分钟（毫秒） */
+    private const val CACHE_DURATION_MS = 30 * 60 * 1000L
     suspend fun active(code: String): String? {
         if (code.isEmpty() || !Regex("^ak-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$").matches(
                 code
@@ -48,22 +54,49 @@ object ActivateAPI {
     }
 
     suspend fun info(): HashMap<String, String> {
-        // 用户进入设置页会刷新，其他情况不刷新
+        // 先尝试从缓存获取数据
+        val cachedData = CacheManager.getString(CACHE_KEY_INFO)
+        if (cachedData != null) {
+            return runCatching {
+                Gson().fromJson(cachedData, HashMap::class.java) as HashMap<String, String>
+            }.getOrElse { hashMapOf() }
+        }
+
+        // 缓存未命中，请求网络数据
         val result = App.licenseNetwork.get("/info")
 
         return runCatching {
             val json = Gson().fromJson(result, JsonObject::class.java)
-            if (json.get("code").asInt != 200) {
-                return hashMapOf(
+            val responseData = if (json.get("code").asInt != 200) {
+                hashMapOf(
                     "error" to json.get("msg").asString
                 )
             } else {
                 val data = json.get("data").asJsonObject
-                return hashMapOf(
+                hashMapOf(
                     "count" to data.get("active_count").asInt.toString(), //本月激活次数
                     "time" to DateUtils.stampToDate(data.get("bind_time").asLong * 1000) //激活时间
                 )
             }
+
+            // 将成功的响应数据缓存30分钟
+            if (!responseData.containsKey("error")) {
+                CacheManager.putString(
+                    CACHE_KEY_INFO,
+                    Gson().toJson(responseData),
+                    CACHE_DURATION_MS
+                )
+            }
+
+            responseData
         }.getOrElse { hashMapOf() }
+    }
+
+    /**
+     * 清除激活信息缓存
+     * 用于强制刷新数据，比如用户手动刷新时调用
+     */
+    fun clearInfoCache() {
+        CacheManager.remove(CACHE_KEY_INFO)
     }
 }
