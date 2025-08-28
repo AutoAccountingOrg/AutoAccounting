@@ -279,4 +279,176 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
             }
         })
     }
+
+    // ================================
+    // 列表操作辅助函数
+    // ================================
+
+    /**
+     * 添加单个数据项到列表末尾
+     * @param item 要添加的数据项
+     */
+    protected fun addItem(item: T) {
+        pageData.add(item)
+        updateAdapter()
+        Logger.d("添加数据项：当前总数${pageData.size}")
+    }
+
+    /**
+     * 添加多个数据项到列表末尾
+     * @param items 要添加的数据项列表
+     */
+    protected fun addItems(items: List<T>) {
+        pageData.addAll(items)
+        updateAdapter()
+        Logger.d("批量添加数据项：${items.size}条，当前总数${pageData.size}")
+    }
+
+    /**
+     * 在指定位置插入数据项
+     * @param index 插入位置
+     * @param item 要插入的数据项
+     */
+    protected fun insertItem(index: Int, item: T) {
+        if (index in 0..pageData.size) {
+            pageData.add(index, item)
+            updateAdapter()
+            Logger.d("在位置${index}插入数据项：当前总数${pageData.size}")
+        } else {
+            Logger.w("插入位置无效：${index}，列表大小：${pageData.size}")
+        }
+    }
+
+    /**
+     * 移除指定数据项
+     * @param item 要移除的数据项
+     * @return 是否移除成功
+     */
+    protected fun removeItem(item: T): Boolean {
+        val removed = pageData.remove(item)
+        if (removed) {
+            updateAdapter()
+            Logger.d("移除数据项成功：当前总数${pageData.size}")
+
+            // 如果列表为空，显示空状态
+            if (pageData.isEmpty()) {
+                statusPage.showEmpty()
+            }
+        } else {
+            Logger.w("移除数据项失败：项目不存在")
+        }
+        return removed
+    }
+
+    /**
+     * 移除指定位置的数据项
+     * @param index 要移除的位置
+     * @return 被移除的数据项，如果位置无效则返回null
+     */
+    protected fun removeItemAt(index: Int): T? {
+        return if (index in 0 until pageData.size) {
+            val removedItem = pageData.removeAt(index)
+            updateAdapter()
+            Logger.d("移除位置${index}的数据项：当前总数${pageData.size}")
+
+            // 如果列表为空，显示空状态
+            if (pageData.isEmpty()) {
+                statusPage.showEmpty()
+            }
+
+            removedItem
+        } else {
+            Logger.w("移除位置无效：${index}，列表大小：${pageData.size}")
+            null
+        }
+    }
+
+    /**
+     * 更新指定位置的数据项
+     * @param index 要更新的位置
+     * @param item 新的数据项
+     * @return 是否更新成功
+     */
+    protected fun updateItem(index: Int, item: T): Boolean {
+        return if (index in 0 until pageData.size) {
+            pageData[index] = item
+            updateAdapter()
+            Logger.d("更新位置${index}的数据项")
+            true
+        } else {
+            Logger.w("更新位置无效：${index}，列表大小：${pageData.size}")
+            false
+        }
+    }
+
+    /**
+     * 替换指定数据项
+     * @param oldItem 要替换的旧数据项
+     * @param newItem 新的数据项
+     * @return 是否替换成功
+     */
+    protected fun replaceItem(oldItem: T, newItem: T): Boolean {
+        val index = pageData.indexOf(oldItem)
+        return if (index != -1) {
+            pageData[index] = newItem
+            updateAdapter()
+            Logger.d("替换数据项成功：位置${index}")
+            true
+        } else {
+            Logger.w("替换数据项失败：旧项目不存在")
+            false
+        }
+    }
+
+    /**
+     * 清空所有数据
+     */
+    protected fun clearItems() {
+        pageData.clear()
+        updateAdapter()
+        statusPage.showEmpty()
+        Logger.d("清空所有数据项")
+    }
+
+    /**
+     * 获取数据项数量
+     * @return 当前数据项总数
+     */
+    protected fun getItemCount(): Int = pageData.size
+
+    /**
+     * 获取指定位置的数据项
+     * @param index 位置索引
+     * @return 数据项，如果位置无效则返回null
+     */
+    protected fun getItem(index: Int): T? {
+        return if (index in 0 until pageData.size) {
+            pageData[index]
+        } else {
+            Logger.w("获取位置无效：${index}，列表大小：${pageData.size}")
+            null
+        }
+    }
+
+    /**
+     * 查找数据项的位置
+     * @param item 要查找的数据项
+     * @return 位置索引，如果不存在则返回-1
+     */
+    protected fun indexOf(item: T): Int = pageData.indexOf(item)
+
+    /**
+     * 检查是否包含指定数据项
+     * @param item 要检查的数据项
+     * @return 是否包含
+     */
+    protected fun contains(item: T): Boolean = pageData.contains(item)
+
+    /**
+     * 更新适配器数据
+     * 统一的适配器更新方法，确保数据同步
+     */
+    private fun updateAdapter() {
+        (adapter as? BaseAdapter<*, T>)?.updateItems(pageData.toList())
+    }
 }
