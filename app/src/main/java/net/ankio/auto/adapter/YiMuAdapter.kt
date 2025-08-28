@@ -147,4 +147,8 @@ class YiMuAdapter : IAppAdapter {
         }
         return "" to name
     }
+
+    override fun syncWaitBills() {
+
+    }
 }

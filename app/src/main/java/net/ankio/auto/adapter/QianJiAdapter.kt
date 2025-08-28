@@ -17,14 +17,20 @@ package net.ankio.auto.adapter
 
 import android.content.Intent
 import android.net.Uri
+import kotlinx.coroutines.runBlocking
 import net.ankio.auto.autoApp
 import net.ankio.auto.constant.BookFeatures
+import net.ankio.auto.http.api.AssetsAPI
+import net.ankio.auto.http.api.SettingAPI
+import org.ezbook.server.constant.AssetsType
 import org.ezbook.server.constant.BillType
+import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BillInfoModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import androidx.core.net.toUri
+import net.ankio.auto.utils.PrefManager
 
 class QianJiAdapter : IAppAdapter {
     override val pkg: String
@@ -41,13 +47,44 @@ class QianJiAdapter : IAppAdapter {
     override val name: String
         get() = "钱迹"
 
+
+    /**
+     * 检查指定账户是否为信用卡类型
+     * @param accountName 账户名称
+     * @return 是否为信用卡账户
+     */
+    private fun isCreditAccount(accountName: String): Boolean = runBlocking {
+        if (accountName.isEmpty()) return@runBlocking false
+
+        // 首先通过名称进行简单判断
+        val nameBasedCheck = accountName.contains("信用", ignoreCase = true) ||
+                accountName.contains("credit", ignoreCase = true) ||
+                accountName.contains("花呗", ignoreCase = true) ||
+                accountName.contains("白条", ignoreCase = true)
+
+        if (nameBasedCheck) return@runBlocking true
+
+        // 如果启用了资产管理，则查询资产类型
+        if (PrefManager.featureAssetManage) {
+            try {
+                val asset = AssetsAPI.getByName(accountName)
+                return@runBlocking asset?.type == AssetsType.CREDIT
+            } catch (e: Exception) {
+                // 查询失败时回退到名称判断
+                return@runBlocking false
+            }
+        }
+
+        false
+    }
+
     override fun features(): List<BookFeatures> {
         return if (AppAdapterManager.xposedMode()) {
             listOf(
                 BookFeatures.MULTI_BOOK,
                 BookFeatures.FEE,
                 //  BookFeatures.TAG,
-                BookFeatures.LEADING,
+                BookFeatures.DEBT,
                 BookFeatures.ASSET_MANAGE,
                 BookFeatures.MULTI_CURRENCY,
                 BookFeatures.REIMBURSEMENT
@@ -69,16 +106,35 @@ class QianJiAdapter : IAppAdapter {
         if (AppAdapterManager.ocrMode()) {
             return
         }
-        //TODO 钱迹同步逻辑
+        // Xposed模式下对该接口进行了Hook,支持数据同步功能
+        val uriBuilder = StringBuilder("qianji://publicapi/addbill")
+        uriBuilder.append("?type=-9990") //同步资产、账单等数据
+        val intent = Intent(Intent.ACTION_VIEW, uriBuilder.toString().toUri()).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        }
+        autoApp.startActivity(intent)
     }
 
+
+    override fun syncWaitBills() {
+        if (AppAdapterManager.ocrMode()) {
+            return
+        }
+        // Xposed模式下对该接口进行了Hook,支持数据同步功能
+        val uriBuilder = StringBuilder("qianji://publicapi/addbill")
+        uriBuilder.append("?type=-9991") // 同步需要报销和退款的账单
+        val intent = Intent(Intent.ACTION_VIEW, uriBuilder.toString().toUri()).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        }
+        autoApp.startActivity(intent)
+    }
 
     override fun syncBill(billInfoModel: BillInfoModel) {
         // 通过钱迹提供的 Uri-Scheme 完成自动化记账。
         // 文档：qianji://publicapi/addbill?type=0&money=26.5&time=2020-01-31 12:30:00&remark=备注&catename=分类&accountname=账户&accountname2=转入账户&bookname=账本&fee=手续费&showresult=0
 
         // 1) 映射账单类型到钱迹类型编码
-        val qjType = toQianJiType(billInfoModel.type)
+        val qjType = toQianJiType(billInfoModel)
 
         // 2) 必填参数：type、money
         val uriBuilder = StringBuilder("qianji://publicapi/addbill")
@@ -105,14 +161,21 @@ class QianJiAdapter : IAppAdapter {
             }
         }
 
-        // 6) 账本（可选）
-        if (billInfoModel.bookName.isNotEmpty()) {
+        // 6) 分类选择模式：0表示自动选择
+        uriBuilder.append("&catechoose=0")
+
+        // 7) 账本（可选）- 排除默认账本名称
+        if (billInfoModel.bookName.isNotEmpty() &&
+            billInfoModel.bookName != "默认账本" &&
+            billInfoModel.bookName != "日常账本" &&
+            PrefManager.featureMultiBook
+        ) {
             uriBuilder.append("&bookname=")
                 .append(Uri.encode(billInfoModel.bookName))
         }
 
-        // 7) 账户信息与手续费（转账/信用卡还款需要账户；收支可选）
-        if (qjType == 2 || qjType == 3) {
+        // 8) 账户信息处理（基于配置项）
+        if (PrefManager.featureAssetManage) {
             if (billInfoModel.accountNameFrom.isNotEmpty()) {
                 uriBuilder.append("&accountname=")
                     .append(Uri.encode(billInfoModel.accountNameFrom))
@@ -121,23 +184,40 @@ class QianJiAdapter : IAppAdapter {
                 uriBuilder.append("&accountname2=")
                     .append(Uri.encode(billInfoModel.accountNameTo))
             }
-            if (billInfoModel.fee > 0) {
-                uriBuilder.append("&fee=").append(billInfoModel.fee)
-            }
-        } else {
-            // 收入/支出可选带出账户
-            if (billInfoModel.accountNameFrom.isNotEmpty()) {
-                uriBuilder.append("&accountname=")
-                    .append(Uri.encode(billInfoModel.accountNameFrom))
-            }
         }
 
-        // 8) 统一不弹出成功提示
-        uriBuilder.append("&showresult=0")
+        // 9) 手续费（基于配置项）
+        if (PrefManager.featureFee && billInfoModel.fee > 0) {
+            uriBuilder.append("&fee=").append(billInfoModel.fee)
+        }
 
-        // TODO 添加更多同步数据
+        // 10) 货币（基于配置项）
+        if (PrefManager.featureMultiCurrency && billInfoModel.currency.isNotEmpty()) {
+            uriBuilder.append("&currency=").append(billInfoModel.currency)
+        } else {
+            uriBuilder.append("&currency=CNY")
+        }
 
-        // 9) 发起隐式 Intent 调起钱迹
+        // 11) 扩展数据（自动记账添加的拓展字段）
+        if (billInfoModel.extendData.isNotEmpty()) {
+            uriBuilder.append("&extendData=")
+                .append(Uri.encode(billInfoModel.extendData))
+        }
+
+        // 12) 账单ID（用于更新或关联）
+        if (billInfoModel.id > 0) {
+            uriBuilder.append("&id=").append(billInfoModel.id)
+        }
+
+        // TODO 标签
+
+        if (!PrefManager.showSuccessPopup) {
+            // 13) 统一不弹出成功提示
+            uriBuilder.append("&showresult=0")
+        }
+
+
+        // 14) 发起隐式 Intent 调起钱迹
         val intent = Intent(Intent.ACTION_VIEW, uriBuilder.toString().toUri()).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
@@ -153,18 +233,35 @@ class QianJiAdapter : IAppAdapter {
 
     /**
      * 将内部账单类型映射到钱迹类型编码。
-     * 钱迹当前支持：0 支出、1 收入、2 转账、3 信用卡还款、5 报销。
-     * 对于未明确支持的类型，尽量回退到支出或收入大类以保证可用性。
+     * 钱迹支持的类型：
+     * 0 支出、1 收入、2 转账、3 信用卡还款、5 报销
+     * 15-20 为扩展类型（Xposed模式下支持）
      */
-    private fun toQianJiType(type: BillType): Int {
-        return when (type) {
+    private fun toQianJiType(billInfoModel: BillInfoModel): Int {
+        return when (billInfoModel.type) {
             BillType.Expend -> 0
             BillType.Income -> 1
-            BillType.Transfer -> 2
-            BillType.ExpendReimbursement, BillType.IncomeReimbursement -> 5
-            // 其他类型按支出/收入大类回退
-            BillType.ExpendLending, BillType.ExpendRepayment -> 0
-            BillType.IncomeLending, BillType.IncomeRepayment, BillType.IncomeRefund -> 1
+            BillType.Transfer -> {
+                // 根据目标账户类型判断是否为信用卡还款
+                if (isCreditAccount(billInfoModel.accountNameTo)) {
+                    3 // 信用卡还款
+                } else {
+                    2 // 普通转账
+                }
+            }
+
+            BillType.ExpendReimbursement -> 5
+            BillType.IncomeReimbursement -> if (AppAdapterManager.xposedMode()) 19 else 1
+
+            // Xposed模式下支持的扩展类型
+            BillType.ExpendLending -> if (AppAdapterManager.xposedMode()) 15 else 0
+            BillType.ExpendRepayment -> if (AppAdapterManager.xposedMode()) 16 else 0
+            BillType.IncomeLending -> if (AppAdapterManager.xposedMode()) 17 else 1
+            BillType.IncomeRepayment -> if (AppAdapterManager.xposedMode()) 18 else 1
+            BillType.IncomeRefund -> if (AppAdapterManager.xposedMode()) 20 else 1
+
+            // 默认回退
+            else -> 0
         }
     }
 

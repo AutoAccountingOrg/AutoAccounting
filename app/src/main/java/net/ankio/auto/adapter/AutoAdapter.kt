@@ -46,4 +46,8 @@ class AutoAdapter : IAppAdapter {
     override fun supportSyncAssets(): Boolean {
         return false
     }
+
+    override fun syncWaitBills() {
+
+    }
 }

@@ -164,4 +164,8 @@ class YiYuAdapter : IAppAdapter {
         val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
         return sdf.format(date)
     }
+
+    override fun syncWaitBills() {
+
+    }
 }

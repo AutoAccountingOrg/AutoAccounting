@@ -43,6 +43,9 @@ interface IAppAdapter {
     //从目标App同步资产等数据
     fun syncAssets()
 
+    // 从目标App同步待退款及报销的账单
+    fun syncWaitBills()
+
     //将账单同步到目标APP
     fun syncBill(billInfoModel: BillInfoModel)
 }
