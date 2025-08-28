@@ -44,7 +44,7 @@ class HomeActivity : BaseActivity() {
                 R.id.homeFragment,
                 R.id.dataFragment,
                 R.id.ruleFragment,
-                //TODO Orders,Settings
+                R.id.orderFragment,
                 R.id.settingFragment
             )
             if (destination.id in idsToShowBottomNav) {
