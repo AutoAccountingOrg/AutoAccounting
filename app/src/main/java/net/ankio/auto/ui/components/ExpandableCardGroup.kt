@@ -18,12 +18,9 @@ package net.ankio.auto.ui.components
 import android.animation.LayoutTransition
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
 import android.view.View
-import android.view.ViewGroup
 import android.widget.LinearLayout
 import com.google.android.material.card.MaterialCardView
-import net.ankio.auto.storage.Logger
 
 /**
  * A vertical group of ExpandableCardView that:

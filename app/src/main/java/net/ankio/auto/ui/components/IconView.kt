@@ -13,7 +13,7 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.ui.componets
+package net.ankio.auto.ui.components
 
 import android.content.Context
 import android.graphics.Color
@@ -22,6 +22,7 @@ import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.LayoutInflater
+import android.widget.ImageView
 import androidx.constraintlayout.widget.ConstraintLayout
 import net.ankio.auto.R
 import net.ankio.auto.databinding.IconViewLayoutBinding
@@ -45,10 +46,12 @@ class IconView : ConstraintLayout {
         attrs?.let { initAttributes(it) }
     }
 
-    fun getSpFromPx(px: Float, context: Context): Float {
-        val scaledDensity = context.resources.displayMetrics.scaledDensity
-        return px / scaledDensity
-    }
+    /**
+     * 获取内部ImageView引用
+     * "最佳实践"：暴露ImageView让调用方自行处理业务逻辑
+     * 保持组件独立性，不与业务耦合
+     */
+    fun imageView(): ImageView = binding.iconViewImage
 
     private fun initAttributes(attrs: AttributeSet) {
         context.obtainStyledAttributes(attrs, R.styleable.IconView).apply {
@@ -81,37 +84,58 @@ class IconView : ConstraintLayout {
         setImageColorFilter(color, tintEnabled)
     }
 
-    fun setText(text: CharSequence?) {
-
-        binding.iconViewText.apply {
-            setTextColor(color)
-            setText(text)
-        }
+    /**
+     * 设置图标着色状态
+     * @param tint 是否启用着色
+     */
+    fun setTint(tint: Boolean) {
+        setImageColorFilter(color, tint)
     }
 
+    /**
+     * 设置文字内容
+     * @param text 文字内容，可为null
+     */
+    fun setText(text: CharSequence?) {
+        binding.iconViewText.text = text
+        binding.iconViewText.setTextColor(color)
+    }
+
+    /**
+     * 获取文字内容
+     * @return 当前显示的文字
+     */
     fun getText(): String = binding.iconViewText.text.toString()
 
+    /**
+     * 设置图标颜色过滤器
+     * "好品味"：消除不必要的when语句，直接用if
+     */
     private fun setImageColorFilter(color: Int, tintEnabled: Boolean = true) {
-        when {
-            !tintEnabled -> binding.iconViewImage.clearColorFilter()
-            else -> binding.iconViewImage.setColorFilter(color, PorterDuff.Mode.SRC_IN)
-        }
-    }
-
-    fun setColor(col: Int, tintEnabled: Boolean = true) {
-        color = col
-        binding.apply {
-            iconViewText.setTextColor(col)
-            setImageColorFilter(col, tintEnabled)
+        if (tintEnabled) {
+            binding.iconViewImage.setColorFilter(color, PorterDuff.Mode.SRC_IN)
+        } else {
+            binding.iconViewImage.clearColorFilter()
         }
     }
 
     /**
+     * 设置组件颜色（包括文字和图标）
+     * @param col 颜色值
+     * @param tintEnabled 是否对图标启用着色
+     */
+    fun setColor(col: Int, tintEnabled: Boolean = true) {
+        color = col
+        binding.iconViewText.setTextColor(col)
+        setImageColorFilter(col, tintEnabled)
+    }
+
+    /**
      * 设置文字大小
-     * @param size 文字大小，单位 sp
+     * @param size 文字大小，单位 sp，必须大于0
      */
     fun setTextSize(size: Float) {
-        // 使用 TypedValue.COMPLEX_UNIT_SP 明确指定单位为 SP
+        require(size > 0) { "文字大小必须大于0" }
         binding.iconViewText.setTextSize(TypedValue.COMPLEX_UNIT_SP, size)
     }
 
@@ -120,8 +144,8 @@ class IconView : ConstraintLayout {
      * @param sizeDp 图标大小，单位 dp
      */
     fun setIconSize(sizeDp: Int) {
-        // 将 dp 转换为 px
-        val sizePx = (sizeDp * resources.displayMetrics.density).toInt()
+        require(sizeDp > 0) { "图标大小必须大于0" }
+        val sizePx = sizeDp.dpToPx()
         binding.iconViewImage.layoutParams = binding.iconViewImage.layoutParams.apply {
             width = sizePx
             height = sizePx
@@ -129,20 +153,20 @@ class IconView : ConstraintLayout {
         binding.iconViewImage.requestLayout()
     }
 
-    // 可选：添加工具方法
-    private fun Float.spToPx(): Float {
-        return this * resources.displayMetrics.scaledDensity
-    }
+    /**
+     * 统一的单位转换工具方法
+     * "好品味"：集中单位转换逻辑，消除重复
+     */
+    private fun Float.spToPx(): Float = this * resources.displayMetrics.scaledDensity
 
-    private fun Int.dpToPx(): Int {
-        return (this * resources.displayMetrics.density).toInt()
-    }
+    private fun Int.dpToPx(): Int = (this * resources.displayMetrics.density).toInt()
 
     /**
      * 设置文本的最大行数
-     * @param maxLines 最大行数
+     * @param maxLines 最大行数，必须大于0
      */
     fun setMaxLines(maxLines: Int) {
+        require(maxLines > 0) { "最大行数必须大于0" }
         binding.iconViewText.maxLines = maxLines
     }
 }

@@ -1,4 +1,4 @@
-package net.ankio.auto.ui.componets
+package net.ankio.auto.ui.components
 
 import android.content.Context
 import android.util.AttributeSet
