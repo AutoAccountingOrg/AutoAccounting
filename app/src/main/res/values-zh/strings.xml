@@ -748,8 +748,9 @@
     <string name="setting_category_auto_record">自动记录</string>
     <string name="setting_category_notification">通知</string>
     <string name="setting_category_remark">备注设置</string>
-    <string name="setting_category_float_timeout">超时设置</string>
-    <string name="setting_category_float_events">事件设置</string>
+    <string name="setting_category_popup_style">圆角弹窗风格</string>
+    <string name="setting_category_float_badge">悬浮角标设置</string>
+    <string name="setting_category_float_events">悬浮角标事件设置</string>
     <string name="setting_category_asset_management">资产管理</string>
     <string name="setting_category_advanced_features">高级功能</string>
     <string name="setting_category_user_guidance">用户指导</string>
@@ -773,7 +774,10 @@
     <string name="setting_default_book">默认账本</string>
     <string name="setting_default_book_summary">新账单的默认账本</string>
 
-    <string name="setting_float_timeout">浮窗超时</string>
+    <string name="setting_round_style">使用圆角弹窗风格</string>
+    <string name="setting_round_style_summary">为弹窗启用圆角样式</string>
+    <string name="setting_float_badge_timeout">悬浮角标超时时间</string>
+    <string name="setting_float_badge_disabled">不显示悬浮角标</string>
     <string name="setting_float_timeout_action">超时操作</string>
     <string name="setting_float_click">点击操作</string>
     <string name="setting_float_long_click">长按操作</string>

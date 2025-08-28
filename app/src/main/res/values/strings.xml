@@ -773,8 +773,9 @@
     <string name="setting_category_auto_record">Auto Recording</string>
     <string name="setting_category_notification">Notifications</string>
     <string name="setting_category_remark">Remark Settings</string>
-    <string name="setting_category_float_timeout">Timeout Settings</string>
-    <string name="setting_category_float_events">Event Settings</string>
+    <string name="setting_category_popup_style">Rounded Popup Style</string>
+    <string name="setting_category_float_badge">Float Badge Settings</string>
+    <string name="setting_category_float_events">Float Badge Event Settings</string>
     <string name="setting_category_asset_management">Asset Management</string>
     <string name="setting_category_advanced_features">Advanced Features</string>
     <string name="setting_category_user_guidance">User Guidance</string>
@@ -810,10 +811,27 @@
     <string name="setting_auto_asset_mapping_disabled">Asset management feature must be enabled first</string>
     <string name="setting_current_selection">Current selection: %s</string>
 
-    <string name="setting_float_timeout">Float Timeout</string>
+    <string name="setting_round_style">Use Rounded Popup Style</string>
+    <string name="setting_round_style_summary">Enable rounded corners for popup windows</string>
+    <string name="setting_float_badge_timeout">Float Badge Timeout</string>
+    <string name="setting_float_badge_disabled">Float badge disabled</string>
     <string name="setting_float_timeout_action">Timeout Action</string>
     <string name="setting_float_click">Click Action</string>
     <string name="setting_float_long_click">Long Click Action</string>
+
+    <!-- Float action display names -->
+    <string name="float_action_dismiss">Dismiss</string>
+    <string name="float_action_auto_record">Auto Record</string>
+    <string name="float_action_minimize">Minimize</string>
+    <string name="float_action_settings">Settings</string>
+
+    <!-- Common strings -->
+    <string name="seconds">seconds</string>
+    <string name="never">Never</string>
+    <string name="setting_not_set">Not Set</string>
+    <string name="setting_timeout_seconds">%d seconds</string>
+    <string name="float_action_edit">Edit Bill</string>
+    <string name="float_action_save">Save</string>
 
     <string name="setting_asset_manager">Asset Management</string>
     <string name="setting_asset_manager_summary">Enable asset management features</string>
