@@ -45,7 +45,6 @@ class FeaturesPreferenceFragment : BasePreferenceFragment() {
                 "featureMultiBook" -> PrefManager.featureMultiBook
                 "featureFee" -> PrefManager.featureFee
                 "featureTag" -> PrefManager.featureTag
-                "featureLeading" -> PrefManager.featureLeading
                 else -> defValue
             }
         }
@@ -59,7 +58,6 @@ class FeaturesPreferenceFragment : BasePreferenceFragment() {
                 "featureMultiBook" -> PrefManager.featureMultiBook = value
                 "featureFee" -> PrefManager.featureFee = value
                 "featureTag" -> PrefManager.featureTag = value
-                "featureLeading" -> PrefManager.featureLeading = value
             }
         }
     }
