@@ -165,7 +165,7 @@ class StatusCardComponent(binding: CardStatusBinding) :
                 .setOnClickUpdate {
                     val url =
                         "https://cloud.ankio.net/%E8%87%AA%E5%8A%A8%E8%AE%B0%E8%B4%A6/%E8%87%AA%E5%8A%A8%E8%AE%B0%E8%B4%A6/%E7%89%88%E6%9C%AC%E6%9B%B4%E6%96%B0/${PrefManager.appChannel}/${update.version}.apk"
-                    CustomTabsHelper.launchUrl(context, url.toUri())
+                    CustomTabsHelper.launchUrl(url.toUri())
                 }.show()
         } catch (e: Exception) {
             Logger.e(e.message ?: "", e)
