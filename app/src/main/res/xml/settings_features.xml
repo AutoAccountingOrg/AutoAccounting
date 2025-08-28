@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="@string/setting_category_asset_management">
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_account_balance_wallet"
+            android:key="featureAssetManage"
+            android:summary="@string/setting_asset_manager_summary"
+            android:title="@string/setting_asset_manager" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/float_money"
+            android:key="featureMultiCurrency"
+            android:summary="@string/setting_currency_manager_summary"
+            android:title="@string/setting_currency_manager" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/float_money"
+            android:key="ignoreAsset"
+            android:summary="@string/setting_ignore_asset_summary"
+            android:title="@string/setting_ignore_asset" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/setting_category_advanced_features">
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/setting_icon_reimbursement"
+            android:key="featureReimbursement"
+            android:summary="@string/setting_reimbursement_summary"
+            android:title="@string/setting_reimbursement" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/setting_icon_debt"
+            android:key="featureDebt"
+            android:summary="@string/setting_debt_summary"
+            android:title="@string/setting_debt" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_book"
+            android:key="featureMultiBook"
+            android:summary="@string/setting_book_manager_summary"
+            android:title="@string/setting_book_manager" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/setting_icon_fee"
+            android:key="featureFee"
+            android:summary="@string/setting_fee_summary"
+            android:title="@string/setting_fee" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_label"
+            android:key="featureTag"
+            android:summary="@string/setting_tag_summary"
+            android:title="@string/setting_tag" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/setting_category_user_guidance">
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_open_in_new"
+            android:key="featureLeading"
+            android:summary="@string/setting_proactively_model_summary"
+            android:title="@string/setting_proactively_model" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

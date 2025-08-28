@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="@string/setting_category_ai_features">
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_ai"
+            android:key="aiBillRecognition"
+            android:summary="@string/setting_ai_bill_recognition_summary"
+            android:title="@string/setting_ai_bill_recognition" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/setting2_icon_category"
+            android:key="aiCategoryRecognition"
+            android:summary="@string/setting_ai_category_recognition_summary"
+            android:title="@string/setting_ai_category_recognition" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/setting_icon_ai_map"
+            android:key="aiAssetMapping"
+            android:summary="@string/setting_ai_asset_mapping_summary"
+            android:title="@string/setting_ai_asset_mapping" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_receipt_long"
+            android:key="aiMonthlySummary"
+            android:summary="@string/setting_ai_monthly_summary_summary"
+            android:title="@string/setting_ai_monthly_summary" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/setting_category_ai_advanced">
+        <androidx.preference.EditTextPreference
+            android:defaultValue=""
+            android:dependency="aiMonthlySummary"
+            android:icon="@drawable/icon_edit"
+            android:key="aiSummaryPrompt"
+            android:summary="@string/setting_ai_summary_prompt_summary"
+            android:title="@string/setting_ai_summary_prompt" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="@string/setting_category_auto_record">
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="true"
+            android:icon="@drawable/setting_icon_auto"
+            android:key="autoGroup"
+            android:summary="@string/setting_auto_group_summary"
+            android:title="@string/setting_auto_group" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/setting_icon_repeat"
+            android:key="showDuplicatedPopup"
+            android:summary="@string/setting_duplicated_bill_filter_summary"
+            android:title="@string/setting_duplicated_bill_filter" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/setting_category_notification">
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="true"
+            android:icon="@drawable/setting_icon_success"
+            android:key="showSuccessPopup"
+            android:summary="@string/setting_bill_auto_record_summary"
+            android:title="@string/setting_bill_auto_record" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/setting_icon_success"
+            android:key="loadSuccess"
+            android:summary="@string/setting_load_success_summary"
+            android:title="@string/setting_load_success" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/setting_category_remark">
+        <rikka.preference.SimpleMenuPreference
+            android:defaultValue=""
+            android:icon="@drawable/setting_icon_remark"
+            android:key="defaultBook"
+            android:summary="@string/setting_default_book_summary"
+            android:title="@string/setting_default_book" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

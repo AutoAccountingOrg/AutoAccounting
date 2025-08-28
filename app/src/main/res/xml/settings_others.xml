@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="@string/setting_category_system">
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/setting2_icon_debug"
+            android:key="debugMode"
+            android:summary="@string/setting_debug_mode_summary"
+            android:title="@string/setting_debug_mode" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="true"
+            android:icon="@drawable/setting2_icon_anonymous"
+            android:key="sendErrorReport"
+            android:summary="@string/setting_send_error_report_summary"
+            android:title="@string/setting_send_error_report" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/setting_landscape_dnd"
+            android:key="landscapeDnd"
+            android:summary="@string/setting_landscape_dnd_summary"
+            android:title="@string/setting_landscape_dnd" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/setting_category_data_filter">
+        <androidx.preference.EditTextPreference
+            android:defaultValue=""
+            android:icon="@drawable/data_filter"
+            android:key="smsFilter"
+            android:summary="@string/setting_sms_filter_summary"
+            android:title="@string/setting_sms_filter" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/setting_category_dangerous">
+        <androidx.preference.Preference
+            android:icon="@drawable/icon_delete"
+            android:key="clearDatabase"
+            android:summary="@string/clear_db_desc"
+            android:title="@string/setting_clear_database" />
+    </PreferenceCategory>
+
+</PreferenceScreen>
