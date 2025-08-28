@@ -56,7 +56,7 @@ abstract class BaseComponent<T : ViewBinding> : DefaultLifecycleObserver {
      * 对外暴露的 ViewBinding 属性，提供非空访问
      * 在组件生命周期内可以安全使用
      */
-    protected val binding get() = _binding!!
+    val binding get() = _binding!!
 
     /** 生命周期对象，从ViewBinding的Context自动推断 */
     private val lifecycle: Lifecycle

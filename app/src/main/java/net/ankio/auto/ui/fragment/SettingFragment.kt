@@ -49,17 +49,6 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>() {
         val isError: Boolean = false
     )
 
-    /**
-     * 节流器，防止频繁调用激活信息接口
-     * 设置300秒的冷却时间
-     */
-    private val throttleActivateInfo = Throttle.asFunction(300000, "active") {
-        lifecycleScope.launch {
-            runCatching { loadActivateInfo() }
-                .onFailure { e -> Logger.e("获取激活信息失败: ${e.message}", e) }
-        }
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -88,7 +77,9 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>() {
     override fun onResume() {
         super.onResume()
         // 使用节流函数获取激活信息
-        throttleActivateInfo()
+        lifecycleScope.launch {
+            loadActivateInfo()
+        }
     }
 
     /**
