@@ -21,14 +21,12 @@ import androidx.appcompat.app.AppCompatDelegate
 import com.tencent.bugly.crashreport.CrashReport
 import kotlinx.coroutines.CoroutineScope
 import net.ankio.auto.http.LicenseNetwork
-import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.utils.ToastUtils
-import net.ankio.auto.utils.CoroutineManager
+import net.ankio.auto.utils.CoroutineUtils
 import net.ankio.auto.utils.ExceptionHandler
 import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.utils.PrefManager.darkTheme
 import net.ankio.auto.utils.SystemUtils
-import net.ankio.auto.utils.ThemeUtils
 import rikka.material.app.LocaleDelegate
 import java.util.Locale
 import kotlin.coroutines.CoroutineContext
@@ -54,7 +52,7 @@ open class App : Application() {
             context: CoroutineContext = EmptyCoroutineContext,
             block: suspend CoroutineScope.() -> Unit
         ) {
-            CoroutineManager.launchOnMain(context, block)
+            CoroutineUtils.launchOnMain(context, block)
         }
 
     }
