@@ -48,6 +48,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.adapter.AppAdapterManager
+import net.ankio.auto.ui.api.BaseSheetDialog
 
 /**
  * 账单浮动窗口管理器
@@ -497,7 +498,7 @@ class BillWindowManager(
         // 确保只有一个对话框
         currentDialog?.dismiss()
 
-        currentDialog = BillEditorDialog.create(service.service())
+        currentDialog = BaseSheetDialog.create<BillEditorDialog>(service.service())
         currentDialog?.setBillInfo(bill)
             ?.setOnCancel {
                 Logger.d("编辑对话框已取消，删除账单")

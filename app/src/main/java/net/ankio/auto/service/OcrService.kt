@@ -73,12 +73,8 @@ class OcrService : ICoreService() {
         // 初始化屏幕截图助手
         shotHelper = ScreenShotHelper(coreService, ProjectionGateway.get(coreService))
 
+        // OCR处理器使用懒加载，不在服务启动时初始化
         ocrProcessor = OcrProcessor(coreService)
-
-
-        coreService.lifecycleScope.launch {
-            ocrProcessor.ensureOcrReady(coreService)
-        }
 
         serverStarted = true
 

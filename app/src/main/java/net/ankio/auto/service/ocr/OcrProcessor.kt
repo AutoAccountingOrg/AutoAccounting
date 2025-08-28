@@ -7,12 +7,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.storage.Logger
 
-class OcrProcessor(context: Context) {
+class OcrProcessor(private val context: Context) {
 
     private lateinit var ocrEngine: OcrEngine
 
 
-    suspend fun ensureOcrReady(context: Context) = withContext(Dispatchers.IO) {
+    private suspend fun ensureOcrReady() = withContext(Dispatchers.IO) {
         if (!::ocrEngine.isInitialized) {
             // 这里做一次初始化
             ocrEngine = OcrEngine(context)
@@ -27,16 +27,20 @@ class OcrProcessor(context: Context) {
      */
     suspend fun recognize(bitmap: Bitmap): String = withContext(Dispatchers.IO) {
         val recognizeStartTime = System.currentTimeMillis()
-        Logger.d("OcrLite OCR 开始识别...")
-
+        Logger.d("OCR 开始识别...")
+        ensureOcrReady()
         return@withContext try {
-            val result = ocrEngine.detect(bitmap, bitmap, 0)
+            // 确保OCR引擎已初始化
+
+
+            val engine = ocrEngine ?: throw IllegalStateException("OCR引擎初始化失败")
+            val result = engine.detect(bitmap, bitmap, 0)
             val text = result.textBlocks.joinToString("\n") { it.text }
             val totalRecognizeTime = System.currentTimeMillis() - recognizeStartTime
-            Logger.d("OcrLite OCR识别耗时: ${totalRecognizeTime}ms")
+            Logger.d("OCR识别耗时: ${totalRecognizeTime}ms")
             text
         } catch (e: Exception) {
-            Logger.d("OcrLite OCR识别失败: ${e.message}")
+            Logger.e("OCR识别失败: ${e.message}", e)
             ""
         }
     }
