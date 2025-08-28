@@ -107,4 +107,101 @@
         <item>@string/filter_unmatched_only</item>
     </string-array>
 
+    <!-- Float timeout options -->
+    <string-array name="float_timeout_texts" translatable="false">
+        <item>5 seconds</item>
+        <item>10 seconds</item>
+        <item>15 seconds</item>
+        <item>30 seconds</item>
+        <item>Never</item>
+    </string-array>
+
+    <string-array name="float_timeout_values" translatable="false">
+        <item>5</item>
+        <item>10</item>
+        <item>15</item>
+        <item>30</item>
+        <item>0</item>
+    </string-array>
+
+    <!-- Float timeout action options -->
+    <string-array name="float_timeout_action_texts" translatable="false">
+        <item>Dismiss</item>
+        <item>Minimize</item>
+        <item>Auto Record</item>
+    </string-array>
+
+    <string-array name="float_timeout_action_values" translatable="false">
+        <item>dismiss</item>
+        <item>minimize</item>
+        <item>auto_record</item>
+    </string-array>
+
+    <!-- Float click action options -->
+    <string-array name="float_click_texts" translatable="false">
+        <item>Edit Bill</item>
+        <item>Auto Record</item>
+        <item>Dismiss</item>
+    </string-array>
+
+    <string-array name="float_click_values" translatable="false">
+        <item>edit</item>
+        <item>auto_record</item>
+        <item>dismiss</item>
+    </string-array>
+
+    <!-- Float long click action options -->
+    <string-array name="float_long_click_texts" translatable="false">
+        <item>Dismiss</item>
+        <item>Edit Bill</item>
+        <item>Settings</item>
+    </string-array>
+
+    <string-array name="float_long_click_values" translatable="false">
+        <item>dismiss</item>
+        <item>edit</item>
+        <item>settings</item>
+    </string-array>
+
+    <!-- AI model options -->
+    <string-array name="ai_model_texts" translatable="false">
+        <item>@string/deepseek</item>
+        <item>@string/chatgpt</item>
+        <item>@string/qwen</item>
+        <item>@string/oneapi</item>
+    </string-array>
+
+    <string-array name="ai_model_values" translatable="false">
+        <item>DeepSeek</item>
+        <item>ChatGPT</item>
+        <item>Qwen</item>
+        <item>OneAPI</item>
+    </string-array>
+
+    <!-- Sync type options -->
+    <string-array name="sync_type_texts" translatable="false">
+        <item>None</item>
+        <item>WebDAV</item>
+        <item>Local</item>
+    </string-array>
+
+    <string-array name="sync_type_values" translatable="false">
+        <item>none</item>
+        <item>webdav</item>
+        <item>local</item>
+    </string-array>
+
+    <!-- Update channel options -->
+    <string-array name="update_channel_texts" translatable="false">
+        <item>Stable</item>
+        <item>Beta</item>
+        <item>Alpha</item>
+    </string-array>
+
+    <string-array name="update_channel_values" translatable="false">
+        <item>stable</item>
+        <item>beta</item>
+        <item>alpha</item>
+    </string-array>
+
 </resources>
