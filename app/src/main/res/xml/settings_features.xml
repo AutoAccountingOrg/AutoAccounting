@@ -16,12 +16,6 @@
             android:summary="@string/setting_currency_manager_summary"
             android:title="@string/setting_currency_manager" />
 
-        <rikka.material.preference.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:icon="@drawable/float_money"
-            android:key="ignoreAsset"
-            android:summary="@string/setting_ignore_asset_summary"
-            android:title="@string/setting_ignore_asset" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/setting_category_advanced_features">
@@ -61,13 +55,5 @@
             android:title="@string/setting_tag" />
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="@string/setting_category_user_guidance">
-        <rikka.material.preference.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:icon="@drawable/ic_open_in_new"
-            android:key="featureLeading"
-            android:summary="@string/setting_proactively_model_summary"
-            android:title="@string/setting_proactively_model" />
-    </PreferenceCategory>
 
 </PreferenceScreen>
