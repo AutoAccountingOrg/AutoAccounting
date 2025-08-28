@@ -195,6 +195,14 @@
                 app:settingIcon="@drawable/ic_payments"
                 app:settingTitle="@string/setting_title_features" />
 
+            <net.ankio.auto.ui.components.SettingItemView
+                android:id="@+id/setting_ai"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:settingDesc="@string/setting_desc_ai"
+                app:settingIcon="@drawable/ic_ai"
+                app:settingTitle="@string/setting_title_ai" />
+
             <!-- 个性设置 -->
             <net.ankio.auto.ui.components.SettingItemView
                 android:id="@+id/setting_appearance"

@@ -16,10 +16,8 @@
 
 package net.ankio.auto.ui.fragment
 
-import android.net.Uri
 import android.os.Bundle
 import android.view.View
-import androidx.lifecycle.coroutineScope
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -36,21 +34,29 @@ import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.utils.Throttle
 import androidx.core.net.toUri
+import androidx.navigation.fragment.findNavController
+import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.utils.toThemeColor
 
 class SettingFragment : BaseFragment<FragmentSettingBinding>() {
 
     /**
+     * 激活状态数据类 - 统一管理激活相关状态
+     */
+    private data class ActivationState(
+        val isActivated: Boolean = false,
+        val displayText: String = "",
+        val isError: Boolean = false
+    )
+
+    /**
      * 节流器，防止频繁调用激活信息接口
      * 设置300秒的冷却时间
      */
-    private val throttleActivateInfo = Throttle.asFunction(300000) {
-        lifecycle.coroutineScope.launch {
-            try {
-                loadActivateInfo()
-            } catch (e: Exception) {
-                Logger.e("获取激活信息失败: ${e.message}", e)
-            }
+    private val throttleActivateInfo = Throttle.asFunction(300000, "active") {
+        lifecycleScope.launch {
+            runCatching { loadActivateInfo() }
+                .onFailure { e -> Logger.e("获取激活信息失败: ${e.message}", e) }
         }
     }
 
@@ -60,7 +66,7 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>() {
         binding.topAppBar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.item_purchase -> CustomTabsHelper.launchUrl(
-                    requireContext(),
+                    requireActivity(),
                     LicenseNetwork.url.toUri()
                 )
 
@@ -75,54 +81,8 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>() {
             }
         }
 
-        binding.settingBill.setOnClickListener {
-            /* navigate(R.id.action_settingFragment_to_settingDetailFragment, Bundle().apply {
-                 putString("title", getString(R.string.setting_title_bill))
-                 putInt("id", R.id.setting_bill)
-             })*/
-        }
-
-        binding.settingPopup.setOnClickListener {
-            /*  navigate(R.id.action_settingFragment_to_settingDetailFragment, Bundle().apply {
-                 putString("title", getString(R.string.setting_title_popup))
-                 putInt("id", R.id.setting_popup)
-             })*/
-        }
-
-        binding.settingFeatures.setOnClickListener {
-            /* navigate(R.id.action_settingFragment_to_settingDetailFragment, Bundle().apply {
-                 putString("title", getString(R.string.setting_title_features))
-                 putInt("id", R.id.setting_features)
-             })*/
-        }
-
-        binding.settingAppearance.setOnClickListener {
-            /*  navigate(R.id.action_settingFragment_to_settingDetailFragment, Bundle().apply {
-                 putString("title", getString(R.string.setting_title_appearance))
-                 putInt("id", R.id.setting_appearance)
-             })*/
-        }
-
-        binding.settingExperimental.setOnClickListener {
-            /* navigate(R.id.action_settingFragment_to_settingDetailFragment, Bundle().apply {
-                 putString("title", getString(R.string.setting_title_experimental))
-                 putInt("id", R.id.setting_experimental)
-             })*/
-        }
-
-        binding.settingBackup.setOnClickListener {
-            /* navigate(R.id.action_settingFragment_to_settingDetailFragment, Bundle().apply {
-                 putString("title", getString(R.string.setting_title_backup))
-                 putInt("id", R.id.setting_backup)
-             })*/
-        }
-
-        binding.settingOthers.setOnClickListener {
-            /* navigate(R.id.action_settingFragment_to_settingDetailFragment, Bundle().apply {
-                 putString("title", getString(R.string.setting_title_others))
-                 putInt("id", R.id.setting_others)
-             })*/
-        }
+        // 设置导航点击事件 - 消除重复代码
+        setupNavigationClickListeners()
     }
 
     override fun onResume() {
@@ -132,10 +92,37 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>() {
     }
 
     /**
+     * 设置导航点击事件 - 统一处理所有设置项的导航
+     */
+    private fun setupNavigationClickListeners() {
+        val navigationMap = mapOf(
+            binding.settingBill to R.id.action_settingFragment_to_billPreferenceFragment,
+            binding.settingPopup to R.id.action_settingFragment_to_popupPreferenceFragment,
+            binding.settingFeatures to R.id.action_settingFragment_to_featuresPreferenceFragment,
+            binding.settingAi to R.id.action_settingFragment_to_aiPreferenceFragment,
+            binding.settingAppearance to R.id.action_settingFragment_to_appearancePreferenceFragment,
+            binding.settingExperimental to R.id.action_settingFragment_to_experimentalPreferenceFragment,
+            binding.settingBackup to R.id.action_settingFragment_to_backupPreferenceFragment,
+            binding.settingOthers to R.id.action_settingFragment_to_othersPreferenceFragment
+        )
+
+        navigationMap.forEach { (view, actionId) ->
+            view.setOnClickListener { findNavController().navigate(actionId) }
+        }
+    }
+
+    /**
+     * 统一的UI更新方法 - 消除重复的线程切换代码
+     */
+    private suspend fun updateUI(action: () -> Unit) {
+        withContext(Dispatchers.Main) { action() }
+    }
+
+    /**
      * 显示激活码输入对话框
      */
     private fun showActivationDialog() {
-        EditorDialogBuilder(requireActivity())
+        BaseSheetDialog.create<EditorDialogBuilder>(requireContext())
             .setTitleInt(R.string.pro_activate_dialog_title)
             .setMessage("")
             .setEditorPositiveButton(R.string.btn_confirm) { activationCode ->
@@ -150,85 +137,103 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>() {
     }
 
     /**
-     * 处理激活码验证
+     * 处理激活码验证 - 统一错误处理和UI更新
      */
     private suspend fun handleActivation(activationCode: String) {
-        if (activationCode.trim().isEmpty()) {
-            withContext(Dispatchers.Main) {
-                ToastUtils.error(R.string.pro_activate_code_format_error)
-            }
+        val trimmedCode = activationCode.trim()
+
+        // 输入验证
+        if (trimmedCode.isEmpty()) {
+            updateUI { ToastUtils.error(R.string.pro_activate_code_format_error) }
             return
         }
 
-        try {
-            // 调用激活API
-            val result = ActivateAPI.active(activationCode.trim())
-
-            withContext(Dispatchers.Main) {
-                if (result == null) {
-                    // 激活成功
-                    ToastUtils.info(R.string.pro_activate_success)
-                    // 重新加载激活信息
-                    loadActivateInfo()
-                } else {
-                    // 激活失败，显示错误信息
-                    ToastUtils.error(getString(R.string.pro_activate_failed, result))
+        // 执行激活并处理结果
+        runCatching { ActivateAPI.active(trimmedCode) }
+            .onSuccess { result ->
+                updateUI {
+                    if (result == null) {
+                        ToastUtils.info(R.string.pro_activate_success)
+                        // 激活成功后重新加载信息
+                        lifecycleScope.launch { loadActivateInfo() }
+                    } else {
+                        ToastUtils.error(getString(R.string.pro_activate_failed, result))
+                    }
                 }
             }
-        } catch (e: Exception) {
-            Logger.e("激活码验证异常: ${e.message}", e)
-            withContext(Dispatchers.Main) {
-                ToastUtils.error(
-                    getString(
-                        R.string.pro_activate_failed,
-                        e.message ?: getString(R.string.unknown_error)
+            .onFailure { e ->
+                Logger.e("激活码验证异常: ${e.message}", e)
+                updateUI {
+                    ToastUtils.error(
+                        getString(
+                            R.string.pro_activate_failed,
+                            e.message ?: getString(R.string.unknown_error)
+                        )
                     )
-                )
+                }
             }
+    }
+
+    /**
+     * 加载激活信息 - 使用状态数据类简化逻辑
+     */
+    private suspend fun loadActivateInfo() {
+        val state = when {
+            // 未设置token - 提示用户激活
+            PrefManager.token.isEmpty() -> ActivationState(
+                isActivated = false,
+                displayText = getString(R.string.pro_activate_click_to_enter),
+                isError = false
+            )
+
+            // 已设置token - 获取激活信息
+            else -> runCatching { ActivateAPI.info() }
+                .fold(
+                    onSuccess = { info -> createActivationStateFromInfo(info) },
+                    onFailure = { e ->
+                        Logger.e("获取激活信息异常: ${e.message}", e)
+                        ActivationState(
+                            isActivated = false,
+                            displayText = getString(R.string.pro_activate_network_error),
+                            isError = true
+                        )
+                    }
+                )
+        }
+
+        // 统一更新UI
+        updateUI { applyActivationState(state) }
+    }
+
+    /**
+     * 根据API返回信息创建激活状态
+     */
+    private fun createActivationStateFromInfo(info: HashMap<String, String>): ActivationState {
+        return if (info.containsKey("error")) {
+            val errorMsg = info["error"] ?: getString(R.string.unknown_error)
+            Logger.e("激活信息接口返回错误: $errorMsg")
+            ActivationState(
+                isActivated = false,
+                displayText = getString(R.string.pro_activate_info_failed, errorMsg),
+                isError = true
+            )
+        } else {
+            val count = info["count"] ?: "0"
+            val time = info["time"] ?: getString(R.string.unknown)
+            ActivationState(
+                isActivated = true,
+                displayText = getString(R.string.pro_activate_info_format, count, time),
+                isError = false
+            )
         }
     }
 
     /**
-     * 加载激活信息
+     * 应用激活状态到UI - 统一的状态更新逻辑
      */
-    private suspend fun loadActivateInfo() {
-        try {
-            // 检查 token 是否为空
-            if (PrefManager.token.isEmpty()) {
-                withContext(Dispatchers.Main) {
-                    updateProCardState(false)
-                    binding.proActivateInfo.text = getString(R.string.pro_activate_click_to_enter)
-                }
-                return
-            }
-
-            val info = ActivateAPI.info()
-
-            // 切换到主线程更新UI
-            withContext(Dispatchers.Main) {
-                if (info.containsKey("error")) {
-                    // 显示错误信息
-                    val errorMsg = info["error"] ?: getString(R.string.unknown_error)
-                    updateProCardState(false)
-                    binding.proActivateInfo.text =
-                        getString(R.string.pro_activate_info_failed, errorMsg)
-                    Logger.e("激活信息接口返回错误: $errorMsg")
-                } else {
-                    // 显示正常信息
-                    val count = info["count"] ?: "0"
-                    val time = info["time"] ?: getString(R.string.unknown)
-                    updateProCardState(true)
-                    binding.proActivateInfo.text =
-                        getString(R.string.pro_activate_info_format, count, time)
-                }
-            }
-        } catch (e: Exception) {
-            Logger.e("获取激活信息异常: ${e.message}", e)
-            withContext(Dispatchers.Main) {
-                updateProCardState(false)
-                binding.proActivateInfo.text = getString(R.string.pro_activate_network_error)
-            }
-        }
+    private fun applyActivationState(state: ActivationState) {
+        updateProCardState(state.isActivated)
+        binding.proActivateInfo.text = state.displayText
     }
 
     /**
