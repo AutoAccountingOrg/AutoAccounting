@@ -47,8 +47,16 @@ import kotlin.coroutines.cancellation.CancellationException
  */
 abstract class BaseComponent<T : ViewBinding> : DefaultLifecycleObserver {
 
-    /** ViewBinding实例，提供对视图的访问 */
-    val binding: T
+    /**
+     * ViewBinding 实例，在组件销毁时会被置空以防止内存泄漏
+     */
+    private var _binding: T? = null
+
+    /**
+     * 对外暴露的 ViewBinding 属性，提供非空访问
+     * 在组件生命周期内可以安全使用
+     */
+    protected val binding get() = _binding!!
 
     /** 生命周期对象，从ViewBinding的Context自动推断 */
     private val lifecycle: Lifecycle
@@ -59,7 +67,7 @@ abstract class BaseComponent<T : ViewBinding> : DefaultLifecycleObserver {
      * @param binding ViewBinding实例
      */
     constructor(binding: T) {
-        this.binding = binding
+        this._binding = binding
         this.lifecycle = binding.root.context.findLifecycleOwner().lifecycle
         lifecycle.addObserver(this)
     }
@@ -129,18 +137,22 @@ abstract class BaseComponent<T : ViewBinding> : DefaultLifecycleObserver {
         componentScope.cancel()
         // 清理 binding 中的所有监听器，防止内存泄漏
         clearBindingListeners()
+        // 将 ViewBinding 实例置空以防止内存泄漏
+        _binding = null
     }
 
     /**
      * 清理 ViewBinding 中的监听器，防止内存泄漏
-     *
+     * 
      * 通过反射清理 binding.root 及其子视图的所有监听器，
      * 这是防止 BaseComponent 持有视图引用导致内存泄漏的关键步骤。
      */
     private fun clearBindingListeners() {
         try {
-            // 递归清理根视图及其所有子视图的监听器
-            clearViewListeners(binding.root)
+            // 在置空前清理根视图及其所有子视图的监听器
+            _binding?.root?.let { rootView ->
+                clearViewListeners(rootView)
+            }
         } catch (e: Exception) {
             Logger.e("清理 ViewBinding 监听器失败", e)
         }
