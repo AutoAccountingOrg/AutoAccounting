@@ -98,15 +98,17 @@ class AppWhiteListFragment : BasePageFragment<AppInfo, FragmentNoticeBinding>() 
     override fun onCreateAdapter(): AppAdapter {
         val recyclerView = binding.statusPage.contentView!!
         recyclerView.layoutManager = WrapContentLinearLayoutManager(requireContext())
-        return AppAdapter(requireActivity().packageManager) { appInfo ->
-            // 根据当前选中状态就地更新白名单列表，保持唯一性
-            if (!appInfo.isSelected) {
-                // 当前为未选中状态，表示用户取消选择 → 从白名单移除
-                selectedApps.removeAll { packageName -> packageName == appInfo.packageName }
-            } else {
-                // 当前为选中状态，表示用户选择 → 加入白名单（避免重复）
-                if (!selectedApps.contains(appInfo.packageName)) {
-                    selectedApps.add(appInfo.packageName)
+        return AppAdapter()
+            .setPackageManager(requireActivity().packageManager)
+            .setOnAppSelectionChangedListener { appInfo ->
+                // 根据当前选中状态就地更新白名单列表，保持唯一性
+                if (!appInfo.isSelected) {
+                    // 当前为未选中状态，表示用户取消选择 → 从白名单移除
+                    selectedApps.removeAll { packageName -> packageName == appInfo.packageName }
+                } else {
+                    // 当前为选中状态，表示用户选择 → 加入白名单（避免重复）
+                    if (!selectedApps.contains(appInfo.packageName)) {
+                        selectedApps.add(appInfo.packageName)
                 }
             }
             // 每次状态变化立即持久化保存白名单，避免依赖页面生命周期
