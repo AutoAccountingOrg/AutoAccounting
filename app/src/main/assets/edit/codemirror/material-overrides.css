@@ -1,0 +1,76 @@
+/*
+ * CodeMirror Material 样式覆盖
+ *
+ * 设计原则：
+ * - 保持与 Material Design 主题一致的整体风格
+ * - 语法高亮优先使用固定颜色确保对比度和可读性
+ * - 仅在必要的地方使用注入的 CSS 变量（避免过度依赖动态颜色）
+ * - 核心UI元素（背景、光标、选区）使用主题颜色保持一致性
+ *
+ * 注入变量说明：
+ * - 由 RuleEditFragment.injectMaterialColorsToJs 提供
+ * - 主要用于：背景色、光标、选区、错误提示等核心UI
+ * - 语法高亮使用固定颜色值，确保在所有主题下都有良好对比度
+ */
+
+.CodeMirror {
+    background: var(--md-color-surface);
+    color: var(--md-color-onSurface);
+    /* 去除边框，靠容器留白与底色区分 */
+    border: none;
+    border-radius: 12px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+.CodeMirror-gutters {
+    background: var(--md-color-surface);
+    /* 去除侧边边框线条 */
+    border-right: none;
+    color: var(--md-color-onSurfaceVariant);
+}
+
+/* 光标与选区 */
+.cm-s-default .CodeMirror-cursor {
+    border-left: 2px solid var(--md-color-primary);
+}
+.cm-s-default .CodeMirror-selected {
+    background: var(--md-color-primaryContainer);
+}
+.CodeMirror ::selection { background: var(--md-color-primaryContainer); }
+.CodeMirror ::-moz-selection { background: var(--md-color-primaryContainer); }
+
+/* 语法高亮（默认主题 cm-s-default） */
+.cm-s-default .cm-comment { color: var(--md-color-outline); font-style: italic; }
+.cm-s-default .cm-keyword,
+.cm-s-default .cm-def,
+.cm-s-default .cm-tag { 
+    color: var(--md-color-primary); 
+    font-weight: 600; /* 增强关键字视觉重量 */
+}
+.cm-s-default .cm-property {
+    color: #8B5CF6; /* 固定紫色，增强属性识别度 */
+}
+.cm-s-default .cm-string,
+.cm-s-default .cm-quote {
+    color: #059669; /* 固定绿色，字符串更易识别 */
+}
+.cm-s-default .cm-number,
+.cm-s-default .cm-atom {
+    color: #DC2626; /* 固定红色，数值突出显示 */
+}
+.cm-s-default .cm-builtin { 
+    color: var(--md-color-secondary); 
+    font-weight: 500; /* 内置函数稍微加粗 */
+}
+.cm-s-default .cm-variable,
+.cm-s-default .cm-variable-2,
+.cm-s-default .cm-variable-3,
+.cm-s-default .cm-type {
+    color: var(--md-color-onSurface);
+}
+.cm-s-default .cm-error { 
+    background: var(--md-color-error); 
+    color: var(--md-color-onError); 
+}
+
+

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>JS 正则表达式编辑器（PCRE 高亮）</title>
+    <link rel="stylesheet" href="codemirror/lib/codemirror.css"/>
+    <link rel="stylesheet" href="codemirror/material-overrides.css"/>
+    <link rel="stylesheet" href="codemirror/addon/pcre/pcre.css"/>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+            background: var(--md-color-surface);
+            color: var(--md-color-onSurface);
+            padding: 12px;
+            margin: 0;
+        }
+        h3 { margin: 0 0 12px; font-weight: 600; color: var(--md-color-onSurface); }
+        #results {
+            white-space: pre-wrap;
+            background: var(--md-color-surfaceVariant);
+            color: var(--md-color-onSurface);
+            border: 1px solid var(--md-color-surfaceVariant);
+            border-radius: 12px;
+            padding: 10px;
+        }
+        .match { background-color: var(--md-color-primaryContainer); }
+    </style>
+</head>
+<body>
+
+<h3>JS 正则表达式测试器（PCRE 高亮）</h3>
+
+<label><strong>正则表达式：</strong></label>
+<div id="regexEditor"></div>
+
+<label><strong>Flags：</strong></label>
+<input type="text" id="flags" value="gmi"/>
+
+<label><strong>测试文本：</strong></label>
+<div id="textArea"></div>
+
+<button onclick="testRegex()">测试正则</button>
+
+<h4>结果：</h4>
+<pre id="results">(等待测试...)</pre>
+
+<script src="codemirror/lib/codemirror.js"></script>
+<script src="codemirror/mode/javascript/javascript.js"></script>
+<script src="codemirror/addon/pcre/pcre.js"></script>
+
+<script>
+    const regexEditor = CodeMirror(document.getElementById("regexEditor"), {
+      mode: "pcre",
+      lineNumbers: false,
+      value: "\\w+",
+      styleActiveLine: true,
+      pcre: { extended: true }  // 控制是否启用 x 标志的扩展模式
+    });
+
+    const cm = CodeMirror(document.getElementById("textArea"), {
+      mode: "javascript",
+      lineNumbers: true,
+      value: "Hello Ankio!\n欢迎使用 JS 正则测试器（PCRE）"
+    });
+
+    function testRegex() {
+      const pattern = regexEditor.getValue();
+      const flags = document.getElementById("flags").value;
+      const text = cm.getValue();
+
+      cm.getAllMarks().forEach(m => m.clear());
+
+      let regex;
+      try {
+        regex = new RegExp(pattern, flags);
+      } catch (e) {
+        document.getElementById("results").textContent = "❌ 正则语法错误: " + e.message;
+        return;
+      }
+
+      const matches = [...text.matchAll(regex)];
+      document.getElementById("results").textContent =
+        matches.length === 0 ? "⚠️ 没有匹配项" :
+        `✅ 共匹配 ${matches.length} 项：\n${matches.map(m => m[0]).join("\n")}`;
+
+      matches.forEach(m => {
+        const from = cm.posFromIndex(m.index);
+        const to = cm.posFromIndex(m.index + m[0].length);
+        cm.markText(from, to, { className: "match" });
+      });
+    }
+</script>
+
+</body>
+</html>

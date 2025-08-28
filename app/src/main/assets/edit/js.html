@@ -1,0 +1,110 @@
+<!--
+  ~ Copyright (C) 2025 ankio(ankio@ankio.net)
+  ~ Licensed under the Apache License, Version 3.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~         http://www.apache.org/licenses/LICENSE-3.0
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~   limitations under the License.
+  -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- 自适应移动端视口设置 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>JS Editor</title>
+    <link rel="stylesheet" href="codemirror/lib/codemirror.css"/>
+    <link rel="stylesheet" href="codemirror/material-overrides.css"/>
+    <style>
+        /*
+         * 颜色来自宿主注入的 CSS 变量（见 RuleEditFragment.injectMaterialColorsToJs）
+         * 可用变量示例：
+         * --md-color-primary, --md-color-onPrimary, --md-color-primaryContainer, --md-color-onPrimaryContainer
+         * --md-color-secondary, --md-color-onSecondary, --md-color-secondaryContainer, --md-color-onSecondaryContainer
+         * --md-color-tertiary, --md-color-onTertiary
+         * --md-color-surface, --md-color-onSurface, --md-color-surfaceVariant, --md-color-onSurfaceVariant, --md-color-outline
+         * --md-color-error, --md-color-onError
+         */
+        html, body { height: 100%; }
+        /* 页面基础排版与色彩（全屏编辑） */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+            background: var(--md-color-surface);
+            color: var(--md-color-onSurface);
+            padding: 0;
+            margin: 0;
+        }
+        /* 编辑器容器充满全屏 */
+        #editor { height: 100vh; }
+        /* 确保 CodeMirror 真实占满容器 */
+        .CodeMirror { height: 100% !important; }
+        .CodeMirror-scroll { height: 100% !important; }
+
+        /* 输出区域与按钮样式（Material 按钮） */
+        #output {
+            margin-top: 12px;
+            white-space: pre-wrap;
+            background: var(--md-color-surfaceVariant);
+            color: var(--md-color-onSurface);
+            border: 1px solid var(--md-color-surfaceVariant);
+            border-radius: 12px;
+            padding: 10px;
+        }
+
+        button {
+            appearance: none;
+            -webkit-appearance: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 12px;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 20px; /* Material rounded */
+            background: var(--md-color-primary);
+            color: var(--md-color-onPrimary);
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.08);
+            transition: background 120ms ease, box-shadow 120ms ease, transform 80ms ease;
+        }
+
+        button:hover { box-shadow: 0 2px 4px rgba(0,0,0,0.16), 0 4px 10px rgba(0,0,0,0.10); }
+        button:active { transform: translateY(1px); }
+        button:focus { outline: 3px solid var(--md-color-primaryContainer); outline-offset: 2px; }
+    </style>
+</head>
+<body>
+<div id="editor"></div>
+
+<script src="codemirror/lib/codemirror.js"></script>
+<script src="codemirror/mode/javascript/javascript.js"></script>
+<script>
+    // 初始化 CodeMirror 编辑器，保持默认主题，配色由上方 CSS 变量接管
+    const editor = CodeMirror(document.getElementById("editor"), {
+        mode: "javascript",
+        lineNumbers: true,
+        value: ''
+    });
+    // 设置尺寸确保占满视口
+    try { editor.setSize("100%", "100%"); } catch (e) {}
+
+    // 对外暴露接口：获取与设置 JS 内容
+    window.getJs = function() {
+        try { return editor.getValue(); } catch (e) { return ''; }
+    };
+    window.setJs = function(content) {
+        try { editor.setValue(typeof content === 'string' ? content : ''); } catch (e) { /* no-op */ }
+    };
+</script>
+
+</body>
+</html>
