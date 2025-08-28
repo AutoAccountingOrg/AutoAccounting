@@ -136,6 +136,16 @@ object PrefManager {
 
     // ======== 自动记账设置 ========
 
+    /** 自动记录账单开关 - 全局自动记账功能总开关 */
+    var autoRecordBill: Boolean
+        get() = getBoolean(Setting.AUTO_RECORD_BILL, DefaultData.AUTO_RECORD_BILL)
+        set(value) = putBoolean(Setting.AUTO_RECORD_BILL, value)
+
+    /** 自动资产映射开关 - 自动将账单映射到对应资产账户（非AI版本） */
+    var autoAssetMapping: Boolean
+        get() = getBoolean(Setting.AUTO_ASSET_MAPPING, DefaultData.AUTO_ASSET_MAPPING)
+        set(value) = putBoolean(Setting.AUTO_ASSET_MAPPING, value)
+
     /** Hook 自动记账服务开关 - 是否启用自动记账 */
     var hookAutoServer: Boolean
         get() = getBoolean(Setting.HOOK_AUTO_SERVER, DefaultData.HOOK_AUTO_SERVER)

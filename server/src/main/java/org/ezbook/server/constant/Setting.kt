@@ -32,6 +32,8 @@ object Setting {
     const val API_MODEL: String = "api_model"                              // API模型
 
     // ======== 自动记账设置 ========
+    const val AUTO_RECORD_BILL: String = "auto_record_bill"         // 自动记录账单（全局开关）
+    const val AUTO_ASSET_MAPPING: String = "auto_asset_mapping"     // 自动资产映射（非AI版本）
     const val HOOK_AUTO_SERVER: String = "hook_auto_server"          // 自动记账服务
     const val BOOK_APP_ID = "setting_book_app_id"                    // 记账软件ID
     const val BOOK_APP_ACTIVITY: String = "book_app_activity"              // 记账软件Activity

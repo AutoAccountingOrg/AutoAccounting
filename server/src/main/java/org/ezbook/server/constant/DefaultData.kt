@@ -215,6 +215,8 @@ object DefaultData {
     val API_MODEL: String = ""
 
     // ======== 自动记账完整默认值 ========
+    val AUTO_RECORD_BILL: Boolean = false        // 自动记录账单默认开启
+    val AUTO_ASSET_MAPPING: Boolean = false     // 自动资产映射默认关闭
     val HOOK_AUTO_SERVER: Boolean = false
     val SETTING_TAG: Boolean = false
 
