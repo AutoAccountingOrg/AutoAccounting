@@ -176,7 +176,6 @@ object LocalNetwork {
                                     break
                                 } else if (data == "[START]") {
                                     Logger.d("SSE连接已建立")
-                                    onEvent("message", data)
                                 } else {
                                     onEvent("message", data)
                                 }
