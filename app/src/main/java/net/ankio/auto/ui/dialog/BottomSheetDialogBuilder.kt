@@ -123,6 +123,7 @@ open class BottomSheetDialogBuilder internal constructor(
         binding.positiveButton.visibility = View.VISIBLE
         binding.positiveButton.setOnClickListener {
             listener?.invoke(this, 0)
+            dismiss()
         }
         return this
     }
@@ -156,6 +157,7 @@ open class BottomSheetDialogBuilder internal constructor(
         binding.negativeButton.visibility = View.VISIBLE
         binding.negativeButton.setOnClickListener {
             listener?.invoke(this, 1)
+            dismiss()
         }
         return this
     }
