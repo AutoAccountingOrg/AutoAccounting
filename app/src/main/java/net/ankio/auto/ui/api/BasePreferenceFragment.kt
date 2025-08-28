@@ -111,6 +111,8 @@ abstract class BasePreferenceFragment : PreferenceFragmentCompat() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        // 清理 Toolbar 的导航监听器，防止 Lambda 持有 Fragment 引用导致内存泄漏
+        binding.toolbar.setNavigationOnClickListener(null)
         _binding = null
     }
 }

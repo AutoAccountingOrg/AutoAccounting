@@ -105,5 +105,12 @@ class BookSelectorDialog internal constructor(
         }
     }
 
-
+    /**
+     * 弹窗销毁时清理回调引用，防止内存泄漏
+     */
+    override fun onDialogDestroy() {
+        super.onDialogDestroy()
+        // 清理回调引用，防止持有 Fragment 引用导致内存泄漏
+        callback = null
+    }
 }

@@ -127,6 +127,46 @@ abstract class BaseComponent<T : ViewBinding> : DefaultLifecycleObserver {
     open fun onComponentDestroy() {
         // 取消组件协程作用域，防止内存泄露
         componentScope.cancel()
+        // 清理 binding 中的所有监听器，防止内存泄漏
+        clearBindingListeners()
+    }
+
+    /**
+     * 清理 ViewBinding 中的监听器，防止内存泄漏
+     *
+     * 通过反射清理 binding.root 及其子视图的所有监听器，
+     * 这是防止 BaseComponent 持有视图引用导致内存泄漏的关键步骤。
+     */
+    private fun clearBindingListeners() {
+        try {
+            // 递归清理根视图及其所有子视图的监听器
+            clearViewListeners(binding.root)
+        } catch (e: Exception) {
+            Logger.e("清理 ViewBinding 监听器失败", e)
+        }
+    }
+
+    /**
+     * 递归清理视图及其子视图的所有监听器
+     */
+    private fun clearViewListeners(view: android.view.View) {
+        try {
+            // 清理点击监听器
+            view.setOnClickListener(null)
+            view.setOnLongClickListener(null)
+            view.setOnTouchListener(null)
+            view.setOnFocusChangeListener(null)
+
+            // 如果是 ViewGroup，递归清理子视图
+            if (view is android.view.ViewGroup) {
+                for (i in 0 until view.childCount) {
+                    clearViewListeners(view.getChildAt(i))
+                }
+            }
+        } catch (e: Exception) {
+            // 忽略清理过程中的异常，避免影响正常销毁流程
+            Logger.d("清理视图监听器时出现异常: ${e.message}")
+        }
     }
 
     /**
