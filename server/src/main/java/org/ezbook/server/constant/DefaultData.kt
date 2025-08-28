@@ -166,7 +166,7 @@ object DefaultData {
     val WEBDAV_USER = ""
     val WEBDAV_PASSWORD = ""
     val DEBUG_MODE = false
-    val FLOAT_TIMEOUT_OFF = 10
+    val FLOAT_TIMEOUT_OFF = 0
     val DEFAULT_BOOK_NAME = "默认账本"
 
     val EXPENSE_COLOR_RED = 0
@@ -240,9 +240,9 @@ object DefaultData {
     val SHOW_DUPLICATED_POPUP: Boolean = true
 
     // ======== 悬浮窗默认值 ========
-    val FLOAT_TIMEOUT_ACTION: String = "dismiss"
-    val FLOAT_CLICK: String = "show_editor"
-    val FLOAT_LONG_CLICK: String = "dismiss"
+    val FLOAT_TIMEOUT_ACTION: String = "AUTO_ACCOUNT"
+    val FLOAT_CLICK: String = "POP_EDIT_WINDOW"
+    val FLOAT_LONG_CLICK: String = "NO_ACCOUNT"
 
     // ======== 更新完整默认值 ========
     val LAST_UPDATE_CHECK_TIME: Long = 0L
