@@ -5,6 +5,13 @@
         <rikka.material.preference.MaterialSwitchPreference
             android:defaultValue="true"
             android:icon="@drawable/setting_icon_auto"
+            android:key="autoRecordBill"
+            android:summary="@string/setting_auto_record_bill_summary"
+            android:title="@string/setting_auto_record_bill" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="true"
+            android:icon="@drawable/setting_icon_repeat"
             android:key="autoGroup"
             android:summary="@string/setting_auto_group_summary"
             android:title="@string/setting_auto_group" />
@@ -15,31 +22,50 @@
             android:key="showDuplicatedPopup"
             android:summary="@string/setting_duplicated_bill_filter_summary"
             android:title="@string/setting_duplicated_bill_filter" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_category"
+            android:key="autoCreateCategory"
+            android:summary="@string/setting_auto_create_category_summary"
+            android:title="@string/setting_auto_create_category" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/setting_icon_ai_map"
+            android:key="autoAssetMapping"
+            android:summary="@string/setting_auto_asset_mapping_summary"
+            android:title="@string/setting_auto_asset_mapping" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/setting_category_notification">
         <rikka.material.preference.MaterialSwitchPreference
             android:defaultValue="true"
-            android:icon="@drawable/setting_icon_success"
+            android:icon="@drawable/ic_notifications"
             android:key="showSuccessPopup"
             android:summary="@string/setting_bill_auto_record_summary"
             android:title="@string/setting_bill_auto_record" />
 
         <rikka.material.preference.MaterialSwitchPreference
             android:defaultValue="false"
-            android:icon="@drawable/setting_icon_success"
+            android:icon="@drawable/ic_notifications"
             android:key="loadSuccess"
             android:summary="@string/setting_load_success_summary"
             android:title="@string/setting_load_success" />
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="@string/setting_category_remark">
-        <rikka.preference.SimpleMenuPreference
-            android:defaultValue=""
-            android:icon="@drawable/setting_icon_remark"
+    <PreferenceCategory android:title="@string/setting_category_book_config">
+        <androidx.preference.Preference
+            android:icon="@drawable/ic_book"
             android:key="defaultBook"
             android:summary="@string/setting_default_book_summary"
             android:title="@string/setting_default_book" />
+
+        <androidx.preference.Preference
+            android:icon="@drawable/ic_open_in_new"
+            android:key="bookApp"
+            android:summary="@string/setting_book_app_summary"
+            android:title="@string/setting_book_app" />
     </PreferenceCategory>
 
 </PreferenceScreen>
