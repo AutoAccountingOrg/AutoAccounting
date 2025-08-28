@@ -19,7 +19,7 @@ enum class BookFeatures {
     ASSET_MANAGE, //资产管理功能
     MULTI_BOOK, //多账本管理
     REIMBURSEMENT,//报销
-    LEADING,//债务
+    DEBT,//债务
     FEE,//手续费或优惠
     MULTI_CURRENCY, //多币种
     TAG,//标签
