@@ -70,5 +70,11 @@ class HomeActivity : BaseActivity() {
         });
     }
 
-
+    override fun onDestroy() {
+        // 取消所有未完成的动画，防止内存泄漏
+        // 这是修复 LeakCanary 报告的 BottomNavigationItemView 内存泄漏问题
+        binding.bottomNavigation.clearAnimation()
+        binding.bottomNavigation.animate().cancel()
+        super.onDestroy()
+    }
 }
