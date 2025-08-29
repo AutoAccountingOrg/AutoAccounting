@@ -17,13 +17,11 @@ package net.ankio.auto.ui.fragment.settings
 
 import android.os.Bundle
 import android.text.TextUtils
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.preference.PreferenceDataStore
-import androidx.preference.PreferenceFragmentCompat
+import net.ankio.auto.R
 import net.ankio.auto.autoApp
+import net.ankio.auto.ui.api.BasePreferenceFragment
 import net.ankio.auto.util.LangList
 import net.ankio.auto.utils.PrefManager
 import rikka.core.util.ResourceUtils
@@ -32,26 +30,43 @@ import rikka.material.app.LocaleDelegate
 import rikka.material.preference.MaterialSwitchPreference
 import rikka.preference.SimpleMenuPreference
 import java.util.Locale
-import net.ankio.auto.R
 
-class AppearancePreferenceFragment : PreferenceFragmentCompat() {
-    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        preferenceManager.preferenceDataStore = SettingsPreferenceDataStore()
-        setPreferencesFromResource(R.xml.settings_theme, rootKey)
+/**
+ * 外观设置页面 - Linus式极简设计
+ *
+ * 设计原则：
+ * 1. 单一职责 - 只负责外观和语言设置
+ * 2. 统一架构 - 继承BasePreferenceFragment保持一致性
+ * 3. 简洁实现 - 消除冗余的布局操作
+ * 4. 向后兼容 - 保持所有原有功能不变
+ *
+ * 功能说明：
+ * - 语言设置（跟随系统或手动选择）
+ * - 主题颜色设置（系统主题色或自定义）
+ * - 深色模式设置（跟随系统、开启、关闭）
+ * - 纯黑深色主题开关
+ */
+class AppearancePreferenceFragment : BasePreferenceFragment() {
 
+    override fun getTitleRes(): Int = R.string.setting_title_appearance
+
+    override fun getPreferencesRes(): Int = R.xml.settings_theme
+
+    override fun createDataStore(): PreferenceDataStore = AppearancePreferenceDataStore()
+
+    /**
+     * 设置自定义偏好行为（重写BasePreferenceFragment方法）
+     */
+    override fun setupPreferences() {
+        super.setupPreferences()
         setupLanguagePreference()
         setupThemePreferences()
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        return super.onCreateView(inflater, container, savedInstanceState)
-    }
-
-    class SettingsPreferenceDataStore : PreferenceDataStore() {
+    /**
+     * 外观设置专用的数据存储类
+     */
+    inner class AppearancePreferenceDataStore : PreferenceDataStore() {
         override fun getString(key: String?, defValue: String?): String {
             return when (key) {
                 "darkTheme" -> PrefManager.darkTheme.toString()
@@ -87,6 +102,9 @@ class AppearancePreferenceFragment : PreferenceFragmentCompat() {
         }
     }
 
+    /**
+     * 设置语言选择偏好
+     */
     private fun setupLanguagePreference() {
         findPreference<SimpleMenuPreference>("language")?.let {
             val userLocale = autoApp.getLocale(PrefManager.language)
@@ -116,6 +134,9 @@ class AppearancePreferenceFragment : PreferenceFragmentCompat() {
         }
     }
 
+    /**
+     * 设置语言偏好的摘要显示
+     */
     private fun setLanguageSummary(preference: SimpleMenuPreference, userLocale: Locale) {
         if (preference.value == "SYSTEM") {
             preference.summary = getString(rikka.core.R.string.follow_system)
@@ -128,6 +149,9 @@ class AppearancePreferenceFragment : PreferenceFragmentCompat() {
         }
     }
 
+    /**
+     * 更新应用语言设置
+     */
     private fun updateLocale(locale: Locale) {
         val config = resources.configuration
         config.setLocale(locale)
@@ -136,7 +160,11 @@ class AppearancePreferenceFragment : PreferenceFragmentCompat() {
         requireActivity().recreate()
     }
 
+    /**
+     * 设置主题相关偏好
+     */
     private fun setupThemePreferences() {
+        // 深色主题模式设置
         findPreference<SimpleMenuPreference>("darkTheme")?.setOnPreferenceChangeListener { _, newValue ->
             val newMode = (newValue as String).toInt()
             if (PrefManager.darkTheme != newMode) {
@@ -145,17 +173,20 @@ class AppearancePreferenceFragment : PreferenceFragmentCompat() {
             true
         }
 
+        // 纯黑深色主题设置
         findPreference<MaterialSwitchPreference>("blackDarkTheme")?.setOnPreferenceChangeListener { _, _ ->
             if (ResourceUtils.isNightMode(requireContext().resources.configuration))
                 activity?.recreate()
             true
         }
 
+        // 跟随系统主题色设置
         findPreference<MaterialSwitchPreference>("followSystemAccent")?.setOnPreferenceChangeListener { _, _ ->
             activity?.recreate()
             true
         }
 
+        // 主题颜色设置
         findPreference<SimpleMenuPreference>("themeColor")?.setOnPreferenceChangeListener { _, _ ->
             activity?.recreate()
             true
