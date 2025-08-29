@@ -103,5 +103,66 @@
             app:icon="@drawable/ic_autostart" />
     </LinearLayout>
 
+    <!-- AI 测试功能区域 -->
+    <LinearLayout
+        android:layout_marginTop="24dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnTestAi"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/ai_test_connection"
+            android:enabled="false"
+            app:icon="@drawable/ic_ai"
+            app:iconGravity="textStart" />
+
+    </LinearLayout>
+
+    <!-- 测试结果显示区域 -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardTestResult"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:visibility="gone"
+        app:cardBackgroundColor="?attr/colorSurfaceContainer"
+        app:cardCornerRadius="@dimen/radius"
+        app:cardElevation="0dp"
+        style="?attr/materialCardViewElevatedStyle">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <net.ankio.auto.ui.components.IconView
+                android:id="@+id/tvTestResultTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="?attr/textAppearanceTitleMedium"
+                app:text="@string/ai_test_result"
+                android:drawablePadding="8dp"
+                app:drawableStartCompat="@drawable/ic_success" />
+
+            <TextView
+                android:id="@+id/tvTestResultContent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textAppearance="?attr/textAppearanceBodyMedium"
+                android:text="@string/ai_test_success_message"
+                android:textIsSelectable="true" />
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
 
 </LinearLayout>

@@ -88,7 +88,7 @@
         android:id="@+id/ruleFragment"
         android:name="net.ankio.auto.ui.fragment.RuleManageFragment"
         android:label="@string/title_rule"
-        tools:layout="@layout/fragment_plugin_rule_list">
+        tools:layout="@layout/fragment_rule_manage">
 
         <action
             android:id="@+id/action_ruleManageFragment_to_ruleEditFragment"
@@ -171,7 +171,18 @@
     <fragment
         android:id="@+id/aiPreferenceFragment"
         android:name="net.ankio.auto.ui.fragment.settings.AiPreferenceFragment"
-        android:label="@string/setting_title_ai" />
+        android:label="@string/setting_title_ai">
+
+        <action
+            android:id="@+id/action_aiPreferenceFragment_to_aiConfigFragment"
+            app:destination="@id/aiConfigFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/aiConfigFragment"
+        android:name="net.ankio.auto.ui.fragment.settings.AiConfigFragment"
+        android:label="@string/setting_title_ai_config"
+        tools:layout="@layout/fragment_ai_config" />
 
     <fragment
         android:id="@+id/appearancePreferenceFragment"
