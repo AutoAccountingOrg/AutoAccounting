@@ -35,7 +35,7 @@ import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.PrefManager
-import net.ankio.auto.utils.Throttle
+
 import net.ankio.auto.utils.UpdateModel
 import net.ankio.auto.utils.VersionUtils
 import org.ezbook.server.constant.DataType
@@ -58,19 +58,6 @@ class RuleVersionCardComponent(
     binding: CardRuleVersionBinding
 ) : BaseComponent<CardRuleVersionBinding>(binding) {
 
-    /**
-     * 节流器，防止频繁调用更新接口
-     * 设置5秒的冷却时间，避免用户重复点击导致的问题
-     */
-    private val throttle = Throttle.asFunction<Boolean>(1000 * 60 * 30, "rule_update") { fromUser ->
-        launch {
-            try {
-                updateRules(fromUser)
-            } catch (e: Exception) {
-                Logger.e(e.message ?: "", e)
-            }
-        }
-    }
 
     /**
      * 初始化组件
@@ -82,17 +69,39 @@ class RuleVersionCardComponent(
         binding.root.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(context))
 
         // 设置更新按钮点击事件
-        binding.updateButton.setOnClickListener { throttle(true) }
+        binding.updateButton.setOnClickListener {
+            launch {
+                try {
+                    updateRules(true)
+                } catch (e: Exception) {
+                    Logger.e(e.message ?: "", e)
+                }
+            }
+        }
 
         // 长按更新按钮重置版本号并强制更新
         binding.updateButton.setOnLongClickListener {
             PrefManager.ruleVersion = ""
-            throttle(true)
+            launch {
+                try {
+                    updateRules(true)
+                } catch (e: Exception) {
+                    Logger.e(e.message ?: "", e)
+                }
+            }
             true
         }
 
         // 如果开启了自动检查更新，则执行更新检查
-        if (PrefManager.autoCheckRuleUpdate) throttle(false)
+        if (PrefManager.autoCheckRuleUpdate) {
+            launch {
+                try {
+                    updateRules(false)
+                } catch (e: Exception) {
+                    Logger.e(e.message ?: "", e)
+                }
+            }
+        }
     }
 
     /**
@@ -181,8 +190,12 @@ class RuleVersionCardComponent(
      * @param updateModel 更新模型，包含版本信息和下载地址
      */
     private suspend fun updateRule(updateModel: UpdateModel) = withContext(Dispatchers.IO) {
-        val loading = LoadingUtils(context).apply {
-            withMain { show(context.getString(R.string.downloading)) }
+        var loading: LoadingUtils? = null
+
+        withMain {
+            loading = LoadingUtils(context).apply {
+                show(context.getString(R.string.downloading))
+            }
         }
         try {
             // 下载规则包
@@ -201,9 +214,14 @@ class RuleVersionCardComponent(
 
             // 解压规则包
             ZipUtils.unzip(file.absolutePath, zipDir.absolutePath, passwd) { filename ->
-                loading.setText(context.getString(R.string.unzip, filename.substringAfterLast("/")))
+                loading?.setText(
+                    context.getString(
+                        R.string.unzip,
+                        filename.substringAfterLast("/")
+                    )
+                )
             }
-            loading.setText(context.getString(R.string.unzip_finish))
+            loading?.setText(context.getString(R.string.unzip_finish))
             file.delete()
 
             // 更新规则和分类
@@ -220,7 +238,7 @@ class RuleVersionCardComponent(
             Logger.e("更新规则错误", e)
             withMain { ToastUtils.error(R.string.update_error) }
         } finally {
-            withMain { loading.close() }
+            withMain { loading?.close() }
         }
     }
 
@@ -230,7 +248,7 @@ class RuleVersionCardComponent(
      * @param distDir 解压后的规则目录
      * @param loading 加载提示工具
      */
-    private suspend fun updateRulesFromDist(distDir: java.io.File, loading: LoadingUtils) {
+    private suspend fun updateRulesFromDist(distDir: java.io.File, loading: LoadingUtils?) {
         // 读取规则配置文件
         val rulesFile = distDir.resolve("rules.json")
         val rulesArray = Gson().fromJson(rulesFile.readText(), JsonArray::class.java)
@@ -271,7 +289,7 @@ class RuleVersionCardComponent(
             }
 
             // 显示更新进度
-            loading.setText(
+            loading?.setText(
                 context.getString(
                     if (ruleModel.id == 0) R.string.add_rule else R.string.update_rule,
                     ruleModel.name
@@ -281,7 +299,7 @@ class RuleVersionCardComponent(
         }
 
         // 删除不再存在的系统规则
-        loading.setText(context.getString(R.string.delete_rule))
+        loading?.setText(context.getString(R.string.delete_rule))
         RuleManageAPI.deleteSystemRule()
     }
 
@@ -291,7 +309,7 @@ class RuleVersionCardComponent(
      * @param distDir 解压后的规则目录
      * @param loading 加载提示工具
      */
-    private suspend fun updateCategoriesFromDist(distDir: java.io.File, loading: LoadingUtils) {
+    private suspend fun updateCategoriesFromDist(distDir: java.io.File, loading: LoadingUtils?) {
         // 获取数据库中的分类映射
         val dbCategories = CategoryMapAPI.list(1, 0)
         // 读取新版本中的分类映射
@@ -305,7 +323,7 @@ class RuleVersionCardComponent(
                 CategoryMapAPI.put(CategoryMapModel().apply {
                     this.name = name; this.mapName = name
                 })
-                loading.setText(context.getString(R.string.add_category_map, name))
+                loading?.setText(context.getString(R.string.add_category_map, name))
             }
         }
 
@@ -313,7 +331,7 @@ class RuleVersionCardComponent(
         dbCategories.forEach { dbCategory ->
             if (distCategories.none { it.asString == dbCategory.name }) {
                 CategoryMapAPI.remove(dbCategory.id)
-                loading.setText(context.getString(R.string.delete_category_map, dbCategory.name))
+                loading?.setText(context.getString(R.string.delete_category_map, dbCategory.name))
             }
         }
     }
