@@ -107,5 +107,9 @@ class UpdateDialog internal constructor(
         }
     }
 
+    override fun onDialogDestroy() {
+        onClickUpdate = null
+        super.onDialogDestroy()
+    }
 
 }
