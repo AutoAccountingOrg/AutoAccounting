@@ -42,48 +42,50 @@
             android:textColor="?colorOnSurface"
             android:text="这是一个规则内容xxx这是一个规则内容xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" />
 
-        <!-- 底部 行：左侧规则名+右侧按钮 -->
-        <LinearLayout
+        <!-- 规则名称行 -->
+        <net.ankio.auto.ui.components.IconView
+            android:id="@+id/ruleName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/one_padding"
+            android:textColor="?colorOnSurface"
+            app:textColor="?colorOnSurface"
+            app:iconSrc="@drawable/home_rule"
+            app:iconTintEnabled="true"
+            tools:text="规则名示例" />
+
+        <!-- 操作按钮行 -->
+        <LinearLayout
+            android:id="@+id/buttonRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/one_padding"
             android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:gravity="end|center_vertical">
 
-            <!-- 规则名，靠左 -->
-            <net.ankio.auto.ui.components.IconView
-                android:id="@+id/ruleName"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textColor="?attr/colorOnSurfaceVariant"
-                app:iconSrc="@drawable/home_rule"
-                app:iconTintEnabled="true"
-                tools:text="规则名示例" />
-
-            <!-- 操作按钮区，靠右 -->
-            <LinearLayout
-                android:id="@+id/buttonRow"
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/createRule"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="end|center_vertical">
+                style="?attr/materialIconButtonFilledStyle"
+                app:icon="@drawable/icon_edit"
+                android:layout_marginEnd="6dp" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/uploadData"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    style="?attr/materialIconButtonOutlinedStyle"
-                    app:icon="@drawable/icon_upload"
-                    android:layout_marginEnd="6dp" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/uploadData"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="?attr/materialIconButtonOutlinedStyle"
+                app:icon="@drawable/icon_upload"
+                android:layout_marginEnd="6dp" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/testRule"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    style="?attr/materialIconButtonFilledTonalStyle"
-                    app:icon="@drawable/icon_test"
-                    android:layout_marginEnd="6dp" />
-            </LinearLayout>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/testRule"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="?attr/materialIconButtonFilledTonalStyle"
+                app:icon="@drawable/icon_test"
+                android:layout_marginEnd="6dp" />
         </LinearLayout>
 
     </LinearLayout>
