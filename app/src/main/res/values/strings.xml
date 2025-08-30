@@ -373,6 +373,9 @@
     <string name="setting_clear_database">Clear database</string>
     <string name="clear_db_desc">Irreversible operation, only use when uninstalling auto accounting.</string>
     <string name="clear_db_msg">Are you sure you want to clear the database? Please ensure backup before clearing database.</string>
+    <string name="clearing_database">Clearing database…</string>
+    <string name="clear_database_success">Database cleared successfully</string>
+    <string name="clear_database_failed">Failed to clear database: %s</string>
     <string name="clear_success">Clear successful</string>
 
     <string name="server_error_version_title">Server version mismatch</string>

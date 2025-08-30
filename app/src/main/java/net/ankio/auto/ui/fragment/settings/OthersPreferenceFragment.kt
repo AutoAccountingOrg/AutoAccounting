@@ -15,9 +15,16 @@
 
 package net.ankio.auto.ui.fragment.settings
 
+import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceDataStore
+import kotlinx.coroutines.launch
 import net.ankio.auto.R
+import net.ankio.auto.http.api.DatabaseAPI
 import net.ankio.auto.ui.api.BasePreferenceFragment
+import net.ankio.auto.ui.api.BaseSheetDialog
+import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
+import net.ankio.auto.ui.utils.LoadingUtils
+import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.PrefManager
 
 /**
@@ -130,14 +137,31 @@ class OthersPreferenceFragment : BasePreferenceFragment() {
      * 显示清除数据库确认对话框
      */
     private fun showClearDatabaseDialog() {
-        androidx.appcompat.app.AlertDialog.Builder(requireContext())
-            .setTitle(R.string.setting_clear_database)
+        BaseSheetDialog.create<BottomSheetDialogBuilder>(requireContext())
+            .setTitleInt(R.string.setting_clear_database)
             .setMessage(R.string.clear_db_msg)
             .setPositiveButton(R.string.btn_confirm) { _, _ ->
-                // 这里应该调用清除数据库的方法
-                // 暂时留空，等待具体实现
+                performClearDatabase()
             }
-            .setNegativeButton(R.string.btn_cancel, null)
+            .setNegativeButton(R.string.btn_cancel) { _, _ -> }
             .show()
+    }
+
+    /**
+     * 执行清除数据库操作
+     */
+    private fun performClearDatabase() {
+        val loading = LoadingUtils(requireContext())
+        lifecycleScope.launch {
+            try {
+                loading.show(R.string.clearing_database)
+                DatabaseAPI.clear()
+                ToastUtils.info(getString(R.string.clear_database_success))
+            } catch (e: Exception) {
+                ToastUtils.error(getString(R.string.clear_database_failed, e.message))
+            } finally {
+                loading.close()
+            }
+        }
     }
 }

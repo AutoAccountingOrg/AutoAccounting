@@ -360,6 +360,9 @@
     <string name="setting_clear_database">清除数据库</string>
     <string name="clear_db_desc">不可逆操作，仅在卸载自动记账时使用。</string>
     <string name="clear_db_msg">您确定要清除数据库吗？请确保在清除数据库前进行备份。</string>
+    <string name="clearing_database">正在清除数据库…</string>
+    <string name="clear_database_success">数据库清除成功</string>
+    <string name="clear_database_failed">数据库清除失败：%s</string>
     <string name="clear_success">清除成功</string>
 
     <string name="server_error_version_title">服务器版本不匹配</string>
