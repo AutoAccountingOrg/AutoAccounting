@@ -16,9 +16,11 @@ import net.ankio.auto.http.api.LogAPI
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.adapter.LogAdapter
 import net.ankio.auto.ui.api.BasePageFragment
+import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.components.WrapContentLinearLayoutManager
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
 import net.ankio.auto.ui.utils.LoadingUtils
+import net.ankio.auto.ui.utils.adapterBottom
 import org.ezbook.server.db.model.LogModel
 import java.io.File
 
@@ -112,7 +114,7 @@ class LogFragment : BasePageFragment<LogModel, FragmentLogBinding>() {
                 // 清空日志数据
                 R.id.item_clear -> {
                     // 显示确认对话框
-                    BottomSheetDialogBuilder.create(this)
+                    BaseSheetDialog.create<BottomSheetDialogBuilder>(requireContext())
                         .setTitle(requireActivity().getString(R.string.delete_data))
                         .setMessage(requireActivity().getString(R.string.delete_msg))
                         .setPositiveButton(requireActivity().getString(R.string.sure_msg)) { _, _ ->
@@ -135,6 +137,8 @@ class LogFragment : BasePageFragment<LogModel, FragmentLogBinding>() {
         binding.topAppBar.setNavigationOnClickListener {
             findNavController().popBackStack()
         }
+
+        binding.statusPage.adapterBottom(requireContext())
 
 
     }
