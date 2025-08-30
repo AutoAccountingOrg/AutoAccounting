@@ -15,6 +15,7 @@
 
 package net.ankio.auto.ui.utils
 
+import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.FragmentContainerView
@@ -22,55 +23,8 @@ import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.navigation.NavigationView
 import androidx.core.view.isVisible
+import androidx.core.view.updatePadding
 
-object ViewUtils {
-    fun <T : View> findView(
-        view: View,
-        currentDepth: Int = 0,
-        maxDepth: Int = 5,
-        clazz: Class<T>
-    ): T? {
-        // 检查当前视图是否是目标类型
-        if (clazz.isInstance(view)) return view as T
-
-        // 如果超过最大深度，返回 null
-        if (currentDepth >= maxDepth) return null
-
-        // 如果是 ViewGroup，递归查找其子视图
-        if (view is ViewGroup) {
-            for (i in 0 until view.childCount) {
-                val child = view.getChildAt(i)
-                val result = findView(child, currentDepth + 1, maxDepth, clazz)
-                if (result != null) return result
-            }
-        }
-        return null
-    }
-
-    fun findMaterialToolbar(
-        view: View,
-        currentDepth: Int = 0,
-        maxDepth: Int = 5
-    ): MaterialToolbar? {
-        return findView(view, currentDepth, maxDepth, MaterialToolbar::class.java)
-    }
-
-    fun findAppBarLayout(view: View, currentDepth: Int = 0, maxDepth: Int = 5): AppBarLayout? {
-        return findView(view, currentDepth, maxDepth, AppBarLayout::class.java)
-    }
-
-    fun findNavigation(view: View, currentDepth: Int = 0, maxDepth: Int = 5): NavigationView? {
-        return findView(view, currentDepth, maxDepth, NavigationView::class.java)
-    }
-
-    fun findFragmentContainerView(
-        view: View,
-        currentDepth: Int = 0,
-        maxDepth: Int = 5
-    ): FragmentContainerView? {
-        return findView(view, currentDepth, maxDepth, FragmentContainerView::class.java)
-    }
-}
 
 /**
  * View向上滑入动画 - Linus式内存安全设计
@@ -117,4 +71,12 @@ fun View.slideDown(duration: Long = 400) {
             }
         }, duration)
     }
+}
+
+fun View.adapterBottom(ctx: Context) {
+    updatePadding(
+        bottom = DisplayUtils.getNavigationBarHeight(
+            ctx
+        )
+    )
 }
