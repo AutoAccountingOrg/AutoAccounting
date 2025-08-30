@@ -35,6 +35,7 @@ import net.ankio.auto.ui.components.WrapContentLinearLayoutManager
 import net.ankio.auto.ui.utils.AssetsUtils
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.ui.utils.setAssetIcon
+import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.constant.AssetsType
 import org.ezbook.server.constant.Currency
 import org.ezbook.server.db.model.AssetsModel
@@ -125,8 +126,19 @@ class AssetEditFragment : BaseFragment<FragmentAssetEditBinding>() {
      * 设置资产类型AutoCompleteTextView
      */
     private fun setupAssetTypeAutoComplete() = with(binding) {
-        // 准备资产类型数据
-        assetTypesList = AssetsType.entries.toList()
+        // 根据功能开关动态构建资产类型数据
+        assetTypesList = buildList {
+            // 基础资产类型始终显示
+            add(AssetsType.NORMAL)      // 普通资产
+            add(AssetsType.CREDIT)      // 信用资产
+
+            // 只有开启债务功能时才显示借贷相关类型
+            if (PrefManager.featureDebt) {
+                add(AssetsType.BORROWER)    // 借款人
+                add(AssetsType.CREDITOR)    // 债权人
+            }
+        }
+        
         val assetTypeNames = assetTypesList.map { type ->
             when (type) {
                 AssetsType.NORMAL -> getString(R.string.type_normal)
@@ -197,12 +209,10 @@ class AssetEditFragment : BaseFragment<FragmentAssetEditBinding>() {
         val recyclerView = statusPage.contentView!!
         recyclerView.layoutManager = WrapContentLinearLayoutManager(requireContext())
 
-        // 初始化适配器，只使用基本的图标选择功能
-        iconAdapter = AssetSelectorAdapter(
-            onItemClick = { item, _ -> onIconSelected(item) },
-            onItemLongClick = null, // 不使用长按
-            showCurrency = false // 图标选择不需要展示货币
-        )
+        // 初始化适配器，使用链式配置模式
+        iconAdapter = AssetSelectorAdapter()
+            .setOnItemClickListener { item, _ -> onIconSelected(item) }
+            .setShowCurrency(false) // 图标选择不需要展示货币
 
         recyclerView.adapter = iconAdapter
     }
