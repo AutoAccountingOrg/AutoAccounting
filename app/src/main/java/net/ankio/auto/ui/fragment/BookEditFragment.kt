@@ -137,15 +137,6 @@ class BookEditFragment : BaseFragment<FragmentBookEditBinding>() {
         }
     }
 
-    /**
-     * 更新图标状态文字
-     */
-    private fun updateIconStatusText() = with(binding) {
-        if (currentBookModel.icon.isNotEmpty()) {
-            val bookName = bookNameEditText.text.toString().trim()
-            iconStatusText.text = bookName.ifEmpty { getString(R.string.icon_selected) }
-        }
-    }
 
     /**
      * 设置默认图标

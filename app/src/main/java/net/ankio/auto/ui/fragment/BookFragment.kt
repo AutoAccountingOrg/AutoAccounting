@@ -24,9 +24,10 @@ import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentBookBinding
 import net.ankio.auto.http.api.BookNameAPI
 import net.ankio.auto.ui.api.BaseFragment
+import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.api.bindAs
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
-import net.ankio.auto.ui.fragment.book.BookComponent
+import net.ankio.auto.ui.fragment.components.BookComponent
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.db.model.BookNameModel
@@ -50,87 +51,42 @@ class BookFragment : BaseFragment<FragmentBookBinding>() {
         super.onViewCreated(view, savedInstanceState)
 
         // 初始化账本组件
-        initBookComponent()
-
-        // 设置工具栏监听器
-        setupToolbar()
-
-        // 设置添加按钮监听器
-        setupAddButton()
-    }
-
-    /**
-     * 初始化账本组件
-     */
-    private fun initBookComponent() {
-        bookComponent = binding.book.bindAs<BookComponent>(lifecycle)
-        // 不显示收入/支出选择按钮，因为这里只是显示账本列表
+        bookComponent = binding.book.bindAs()
         bookComponent.setShowOption(false, true)
 
+        // 设置账本操作回调
         bookComponent.setOnBookSelectedListener { bookNameModel, billType ->
             when (billType) {
-                "edit" -> {
-                    // 跳转到编辑页面
-                    navigateToBookEdit(bookNameModel.id)
-                }
-
+                "edit" -> navigateToBookEdit(bookNameModel.id)
                 "setDefault" -> {
-                    // 更新默认账本设置
                     PrefManager.defaultBook = bookNameModel.name
-
-                    // 显示成功提示
                     ToastUtils.info(R.string.set_default_book_success)
-
-                    // 刷新列表以更新UI状态
                     refreshBookList()
                 }
-
-                "delete" -> {
-                    showDeleteBookDialog(bookNameModel)
-                }
+                "delete" -> showDeleteBookDialog(bookNameModel)
             }
         }
 
-        // 将外层 SwipeRefreshLayout 注入到内部 StatusPage
+        // 设置刷新逻辑
         bookComponent.binding.statusPage.swipeRefreshLayout = binding.swipeRefreshLayout
-
         binding.swipeRefreshLayout.setOnRefreshListener {
             refreshBookList()
             binding.swipeRefreshLayout.isRefreshing = false
         }
-    }
 
-    /**
-     * 设置工具栏
-     */
-    private fun setupToolbar() {
-        // 设置返回按钮监听器
+        // 设置UI监听器
         binding.topAppBar.setNavigationOnClickListener {
             findNavController().popBackStack()
         }
-    }
 
-    /**
-     * 设置添加按钮
-     */
-    private fun setupAddButton() {
         binding.addButton.setOnClickListener {
-            showAddBookDialog()
+            navigateToBookEdit(0L)
         }
-    }
-
-
-    /**
-     * 显示添加账本对话框
-     */
-    private fun showAddBookDialog(bookModel: BookNameModel? = null) {
-        // 跳转到账本编辑页面
-        val bookId = bookModel?.id ?: 0L
-        navigateToBookEdit(bookId)
     }
 
     /**
      * 跳转到账本编辑页面
+     * @param bookId 账本ID，0表示新建账本
      */
     private fun navigateToBookEdit(bookId: Long) {
         val bundle = Bundle().apply {
@@ -148,7 +104,7 @@ class BookFragment : BaseFragment<FragmentBookBinding>() {
      * @param bookModel 要删除的账本模型
      */
     private fun showDeleteBookDialog(bookModel: BookNameModel) {
-        BottomSheetDialogBuilder.create(this)
+        BaseSheetDialog.create<BottomSheetDialogBuilder>(requireContext())
             .setTitle(getString(R.string.delete))
             .setMessage(getString(R.string.delete_book_message, bookModel.name))
             .setPositiveButton(getString(R.string.ok)) { _, _ ->
@@ -164,21 +120,20 @@ class BookFragment : BaseFragment<FragmentBookBinding>() {
      */
     private fun deleteBook(bookModel: BookNameModel) {
         lifecycleScope.launch {
-            // 调用API删除账本
-            BookNameAPI.delete(bookModel.id)
-
-            // 显示成功提示
-            ToastUtils.info(R.string.delete_book_success)
-
-            // 刷新列表
-            refreshBookList()
+            try {
+                BookNameAPI.delete(bookModel.id)
+                ToastUtils.info(R.string.delete_book_success)
+                refreshBookList()
+            } catch (e: Exception) {
+                ToastUtils.error("删除账本失败: ${e.message}")
+            }
         }
     }
 
     /**
      * 刷新账本列表
      */
-    fun refreshBookList() {
+    private fun refreshBookList() {
         if (::bookComponent.isInitialized) {
             // 重新加载账本数据
             lifecycleScope.launch {
