@@ -18,19 +18,46 @@ package net.ankio.auto.http.license
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import net.ankio.auto.App
+import net.ankio.auto.storage.CacheManager
 import net.ankio.auto.utils.PrefManager
 import java.io.File
 
 object AppAPI {
-    suspend fun lastVer(): JsonObject? {
-        val result = App.licenseNetwork.get(
-            "/app/latest", hashMapOf(
-                "channel" to PrefManager.appChannel
-            )
-        )
 
+    /** 版本信息缓存时间：30分钟 */
+    private const val VERSION_CACHE_DURATION = 30 * 60 * 1000L // 30分钟 = 1800000毫秒
+
+    /**
+     * 获取最新版本信息（带30分钟缓存）
+     *
+     * 缓存策略：
+     * - 缓存键基于当前更新渠道生成，不同渠道独立缓存
+     * - 缓存30分钟，避免频繁请求服务器
+     * - 网络请求失败时仍返回缓存数据（如果存在）
+     */
+    suspend fun lastVer(): JsonObject? {
+        val channel = PrefManager.appChannel
+        val cacheKey = "app_version_$channel"
+
+        // 先尝试从缓存获取
+        CacheManager.getString(cacheKey)?.let { cachedJson ->
+            return runCatching {
+                Gson().fromJson(cachedJson, JsonObject::class.java)
+            }.getOrNull()
+        }
+
+        // 缓存未命中，请求网络
         return runCatching {
-            return Gson().fromJson(result, JsonObject::class.java)
+            val result = App.licenseNetwork.get(
+                "/app/latest", hashMapOf(
+                    "channel" to channel
+                )
+            )
+
+            // 缓存响应结果
+            CacheManager.putString(cacheKey, result, VERSION_CACHE_DURATION)
+
+            Gson().fromJson(result, JsonObject::class.java)
         }.getOrNull()
     }
 
