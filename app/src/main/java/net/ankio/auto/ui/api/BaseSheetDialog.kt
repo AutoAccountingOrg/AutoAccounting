@@ -50,7 +50,7 @@ import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.utils.DisplayUtils
 import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.utils.SystemUtils.findLifecycleOwner
-import net.ankio.auto.utils.toThemeColor
+import net.ankio.auto.ui.utils.toThemeColor
 import net.ankio.auto.utils.toThemeCtx
 import java.lang.reflect.ParameterizedType
 import kotlin.coroutines.cancellation.CancellationException

@@ -16,7 +16,7 @@ import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.ui.models.RailMenuItem
 import androidx.core.view.isEmpty
-import net.ankio.auto.utils.toThemeColor
+import net.ankio.auto.ui.utils.toThemeColor
 
 class CustomNavigationRail @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0

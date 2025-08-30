@@ -21,7 +21,7 @@ import net.ankio.auto.databinding.ComponentBookHeaderBinding
 import net.ankio.auto.ui.api.BaseComponent
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.dialog.BookSelectorDialog
-import net.ankio.auto.utils.toBookCover
+import net.ankio.auto.ui.utils.toBookCover
 import org.ezbook.server.db.model.BillInfoModel
 
 /**

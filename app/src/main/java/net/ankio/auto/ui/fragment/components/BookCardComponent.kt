@@ -36,8 +36,13 @@ class BookCardComponent(binding: CardBookBinding) :
     BaseComponent<CardBookBinding>(binding) {
 
 
-    private lateinit var onRedirect: (id: Int) -> Unit
+    private var onRedirect: ((id: Int) -> Unit)? = null
 
+
+    override fun onComponentDestroy() {
+        onRedirect = null
+        super.onComponentDestroy()
+    }
 
     fun setOnRedirect(it: (id: Int) -> Unit) {
         onRedirect = it
@@ -46,11 +51,8 @@ class BookCardComponent(binding: CardBookBinding) :
     override fun onComponentCreate() {
         super.onComponentCreate()
         binding.btnSwitch.setOnClickListener {
-            // 打开记账软件选择弹窗，用户选择后会在对话框内部保存到 PrefManager
-            // 使用统一的底层工厂方法创建对话框
             BaseSheetDialog.create<AppDialog>(context)
                 .setOnClose {
-                    // 刷新首页当前记账软件的展示（名称、包名、图标与同步资产按钮可见性）
                     onComponentResume()
                 }
                 .show()
@@ -193,35 +195,35 @@ class BookCardComponent(binding: CardBookBinding) :
      * 占位回调：请替换成真正实现
      * ----------------------------------------------------- */
     private fun openBookManager() {
-        onRedirect.invoke(R.id.action_homeFragment_to_bookFragment)
+        onRedirect?.invoke(R.id.action_homeFragment_to_bookFragment)
     }
 
     private fun openCategoryManager() {
-        onRedirect.invoke(R.id.action_homeFragment_to_categoryFragment)
+        onRedirect?.invoke(R.id.action_homeFragment_to_categoryFragment)
     }
 
     private fun openCategoryMapping() {
-        onRedirect.invoke(R.id.action_homeFragment_to_categoryMapFragment)
+        onRedirect?.invoke(R.id.action_homeFragment_to_categoryMapFragment)
     }
 
     private fun openAssetManager() {
-        onRedirect.invoke(R.id.action_homeFragment_to_assetFragment)
+        onRedirect?.invoke(R.id.action_homeFragment_to_assetFragment)
     }
 
     private fun openAssetMapping() {
-        onRedirect.invoke(R.id.action_homeFragment_to_assetMapFragment)
+        onRedirect?.invoke(R.id.action_homeFragment_to_assetMapFragment)
     }
 
     private fun openTagManager() {
-        onRedirect.invoke(R.id.action_homeFragment_to_tagFragment)
+        onRedirect?.invoke(R.id.action_homeFragment_to_tagFragment)
     }
 
     private fun openAppWhitelist() { /* TODO 跳转应用监控白名单管理页面 */
-        onRedirect.invoke(R.id.action_homeFragment_to_appWhiteListFragment)
+        onRedirect?.invoke(R.id.action_homeFragment_to_appWhiteListFragment)
     }
 
     private fun openDataFilter() {
-        onRedirect.invoke(R.id.action_homeFragment_to_dataFilterFragment)
+        onRedirect?.invoke(R.id.action_homeFragment_to_dataFilterFragment)
     }
 
 

@@ -8,7 +8,7 @@ import android.util.AttributeSet
 import android.view.View
 import androidx.core.graphics.ColorUtils
 import net.ankio.auto.utils.ThemeUtils
-import net.ankio.auto.utils.toThemeColor
+import net.ankio.auto.ui.utils.toThemeColor
 
 class MaterialScanBorderView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null

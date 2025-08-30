@@ -29,7 +29,7 @@ import com.google.android.material.card.MaterialCardView
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.materialswitch.MaterialSwitch
 import net.ankio.auto.R
-import net.ankio.auto.utils.toThemeColor
+import net.ankio.auto.ui.utils.toThemeColor
 
 class ExpandableCardView @JvmOverloads constructor(
     context: Context,

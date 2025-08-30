@@ -22,7 +22,7 @@ import android.widget.EditText
 import android.widget.ImageView
 import androidx.appcompat.widget.SearchView
 import net.ankio.auto.App
-import net.ankio.auto.utils.toThemeColor
+import net.ankio.auto.ui.utils.toThemeColor
 
 class MaterialSearchView @JvmOverloads constructor(
     context: Context,

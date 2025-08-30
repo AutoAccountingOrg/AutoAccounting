@@ -14,7 +14,7 @@ import net.ankio.auto.adapter.AppAdapterManager
 import net.ankio.auto.databinding.FragmentIntroPageSyncBinding
 import net.ankio.auto.ui.adapter.IntroPagerAdapter
 import net.ankio.auto.http.api.BookNameAPI
-import net.ankio.auto.utils.toThemeColor
+import net.ankio.auto.ui.utils.toThemeColor
 
 class IntroPageSyncFragment : BaseIntroPageFragment<FragmentIntroPageSyncBinding>() {
 

@@ -35,8 +35,8 @@ import net.ankio.auto.utils.CoroutineUtils.withMain
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.utils.VersionUtils
-import net.ankio.auto.utils.toDrawable
-import net.ankio.auto.utils.toThemeColor
+import net.ankio.auto.ui.utils.toDrawable
+import net.ankio.auto.ui.utils.toThemeColor
 import net.ankio.auto.xposed.common.ActiveInfo
 
 class StatusCardComponent(binding: CardStatusBinding) :

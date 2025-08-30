@@ -25,7 +25,7 @@ import net.ankio.auto.http.api.AiAPI
 import net.ankio.auto.ui.api.BaseComponent
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.utils.CustomTabsHelper
-import net.ankio.auto.utils.toThemeColor
+import net.ankio.auto.ui.utils.toThemeColor
 
 /**
  * AI 接入设置组件 - Linus式极简设计

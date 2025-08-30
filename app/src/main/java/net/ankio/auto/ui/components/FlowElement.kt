@@ -26,7 +26,7 @@ import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.utils.SystemUtils
-import net.ankio.auto.utils.toThemeColor
+import net.ankio.auto.ui.utils.toThemeColor
 
 /**
  * 流动布局元素类型定义
