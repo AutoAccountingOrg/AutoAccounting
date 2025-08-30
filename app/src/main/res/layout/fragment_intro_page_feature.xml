@@ -85,7 +85,7 @@
 
             <!-- 债务 -->
             <net.ankio.auto.ui.components.ExpandableCardView
-                android:id="@+id/cardLeading"
+                android:id="@+id/cardDebt"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:ecv_icon="@drawable/setting_icon_debt"
