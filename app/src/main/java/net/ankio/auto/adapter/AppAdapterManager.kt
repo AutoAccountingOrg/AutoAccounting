@@ -57,6 +57,7 @@ object AppAdapterManager {
             QianJiAdapter(), // 钱迹
             YiYuAdapter(), // 一羽记账
             YiMuAdapter(), // 一木记账
+            XiaoXinAdapter(), // 小星记账
         )
     }
 
