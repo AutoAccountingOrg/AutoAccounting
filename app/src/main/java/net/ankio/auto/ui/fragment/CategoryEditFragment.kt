@@ -35,6 +35,7 @@ import net.ankio.auto.ui.adapter.CategorySelectorAdapter
 import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.utils.CategoryUtils
 import net.ankio.auto.ui.utils.ToastUtils
+import net.ankio.auto.ui.utils.adapterBottom
 import net.ankio.auto.ui.utils.load
 import net.ankio.auto.ui.utils.setCategoryIcon
 import org.ezbook.server.constant.BillType
@@ -122,6 +123,7 @@ class CategoryEditFragment : BaseFragment<FragmentCategoryEditBinding>() {
         iconSearchEditText.addTextChangedListener { text ->
             performSearch(text?.toString() ?: "")
         }
+        binding.statusPage.adapterBottom(requireContext())
     }
 
     /**
