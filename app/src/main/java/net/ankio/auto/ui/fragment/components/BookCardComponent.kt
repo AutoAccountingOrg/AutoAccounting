@@ -30,13 +30,18 @@ import net.ankio.auto.ui.api.BaseComponent
 import net.ankio.auto.ui.components.IconTileView
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.dialog.AppDialog
+import net.ankio.auto.ui.dialog.BookSelectorDialog
+import net.ankio.auto.ui.utils.load
 import net.ankio.auto.utils.PrefManager
+import org.ezbook.server.db.model.BookNameModel
+import com.google.gson.Gson
+import net.ankio.auto.ui.fragment.CategoryFragment
 
 class BookCardComponent(binding: CardBookBinding) :
     BaseComponent<CardBookBinding>(binding) {
 
-
-    private var onRedirect: ((id: Int) -> Unit)? = null
+    /** 页面跳转回调 */
+    private var onRedirect: ((id: Int, android.os.Bundle?) -> Unit)? = null
 
 
     override fun onComponentDestroy() {
@@ -44,8 +49,8 @@ class BookCardComponent(binding: CardBookBinding) :
         super.onComponentDestroy()
     }
 
-    fun setOnRedirect(it: (id: Int) -> Unit) {
-        onRedirect = it
+    fun setOnRedirect(callback: (id: Int, android.os.Bundle?) -> Unit) {
+        onRedirect = callback
     }
 
     override fun onComponentCreate() {
@@ -78,10 +83,7 @@ class BookCardComponent(binding: CardBookBinding) :
         }
         binding.tvAppName.text = adapter.name
         binding.tvPackageName.text = adapter.pkg
-        Glide.with(context).load(adapter.icon)
-            .error(R.mipmap.ic_launcher)
-            .fallback(R.mipmap.ic_launcher)
-            .into(binding.ivAppIcon)
+        binding.ivAppIcon.load(adapter.icon, R.mipmap.ic_launcher)
     }
 
 
@@ -195,35 +197,43 @@ class BookCardComponent(binding: CardBookBinding) :
      * 占位回调：请替换成真正实现
      * ----------------------------------------------------- */
     private fun openBookManager() {
-        onRedirect?.invoke(R.id.action_homeFragment_to_bookFragment)
+        onRedirect?.invoke(R.id.action_homeFragment_to_bookFragment, null)
     }
 
     private fun openCategoryManager() {
-        onRedirect?.invoke(R.id.action_homeFragment_to_categoryFragment)
+        BaseSheetDialog.create<BookSelectorDialog>(context)
+            .setShowSelect(false)
+            .setCallback { bookModel, _ ->
+                val bundle = android.os.Bundle().apply {
+                    putString(CategoryFragment.ARG_BOOK_MODEL, Gson().toJson(bookModel))
+                }
+                onRedirect?.invoke(R.id.action_homeFragment_to_categoryFragment, bundle)
+            }
+            .show()
     }
 
     private fun openCategoryMapping() {
-        onRedirect?.invoke(R.id.action_homeFragment_to_categoryMapFragment)
+        onRedirect?.invoke(R.id.action_homeFragment_to_categoryMapFragment, null)
     }
 
     private fun openAssetManager() {
-        onRedirect?.invoke(R.id.action_homeFragment_to_assetFragment)
+        onRedirect?.invoke(R.id.action_homeFragment_to_assetFragment, null)
     }
 
     private fun openAssetMapping() {
-        onRedirect?.invoke(R.id.action_homeFragment_to_assetMapFragment)
+        onRedirect?.invoke(R.id.action_homeFragment_to_assetMapFragment, null)
     }
 
     private fun openTagManager() {
-        onRedirect?.invoke(R.id.action_homeFragment_to_tagFragment)
+        onRedirect?.invoke(R.id.action_homeFragment_to_tagFragment, null)
     }
 
     private fun openAppWhitelist() { /* TODO 跳转应用监控白名单管理页面 */
-        onRedirect?.invoke(R.id.action_homeFragment_to_appWhiteListFragment)
+        onRedirect?.invoke(R.id.action_homeFragment_to_appWhiteListFragment, null)
     }
 
     private fun openDataFilter() {
-        onRedirect?.invoke(R.id.action_homeFragment_to_dataFilterFragment)
+        onRedirect?.invoke(R.id.action_homeFragment_to_dataFilterFragment, null)
     }
 
 

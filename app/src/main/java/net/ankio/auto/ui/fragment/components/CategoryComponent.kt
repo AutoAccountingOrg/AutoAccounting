@@ -138,15 +138,15 @@ class CategoryComponent(
         recyclerView.layoutManager = layoutManager
         (recyclerView.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
 
-        // 初始化适配器
-        adapter = CategorySelectorAdapter(
-            onItemClick = { item, pos, hasChild, view ->
+        // 初始化适配器 - 使用链式调用配置
+        adapter = CategorySelectorAdapter()
+            .editMode(isEditMode)
+            .onItemClick { item, pos, hasChild, view ->
                 // 处理添加按钮点击
                 categoryModel1 = item
                 onCategorySelected?.invoke(categoryModel1, null)
                 if (item.isAddBtn()) {
-
-                    return@CategorySelectorAdapter
+                    return@onItemClick
                 }
                 val panelPosition = getPanelIndex(pos) // 在当前位置，面板应该插入到哪里
                 val lastPanelPosition = getPanelIndex(lastPosition) // 在上一个位置，面板在那里
@@ -159,7 +159,7 @@ class CategoryComponent(
                         lastPosition = -1 // 归位
                         expand = false
                         categoryModel2 = null
-                        return@CategorySelectorAdapter
+                        return@onItemClick
                     }
                     lastPosition = -1
                 }
@@ -185,7 +185,7 @@ class CategoryComponent(
                             adapter.updateItems(items)
                             lastPosition = -1 // 归位
                             expand = false
-                            return@CategorySelectorAdapter
+                            return@onItemClick
                         }
                     }
                 } else {
@@ -202,16 +202,14 @@ class CategoryComponent(
                     }
                 }
                 lastPosition = pos
-            },
-            onItemChildClick = { item, _ ->
+            }
+            .onItemChildClick { item, _ ->
                 categoryModel2 = item
                 onCategorySelected?.invoke(categoryModel1, categoryModel2)
-            },
-            onItemLongClick = { item, pos, view ->
+            }
+            .onItemLongClick { item, pos, view ->
                 onCategoryLongClick?.invoke(item, pos, view)
-            },
-            isEditMode = isEditMode
-        )
+            }
 
         recyclerView.adapter = adapter
     }
@@ -253,7 +251,8 @@ class CategoryComponent(
             location[0] + view.paddingLeft + params.leftMargin - view.width / 2
 
         if (PrefManager.uiRoundStyle) {
-            leftDistanceWithMargin -= view.width / 2
+            //TODO
+            //  leftDistanceWithMargin -= view.width / 2
         }
 
         categoryModel.id = leftDistanceWithMargin.toLong()
