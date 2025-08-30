@@ -27,11 +27,13 @@ import net.ankio.auto.databinding.FragmentMapBinding
 import net.ankio.auto.http.api.AssetsMapAPI
 import net.ankio.auto.ui.adapter.AssetsMapAdapter
 import net.ankio.auto.ui.api.BasePageFragment
+import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.components.WrapContentLinearLayoutManager
 import net.ankio.auto.ui.dialog.AssetsMapDialog
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.ToastUtils
+import net.ankio.auto.ui.utils.adapterBottom
 import org.ezbook.server.db.model.AssetsMapModel
 
 /**
@@ -61,7 +63,9 @@ class AssetMapFragment : BasePageFragment<AssetsMapModel, FragmentMapBinding>() 
      * @return AssetsMapAdapter实例
      */
     override fun onCreateAdapter(): RecyclerView.Adapter<*> {
-        return AssetsMapAdapter(requireActivity(), this)
+        return AssetsMapAdapter()
+            .setOnEditClick { item, position -> handleEditAssetsMap(item, position) }
+            .setOnDeleteClick { item -> handleDeleteAssetsMap(item) }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -77,7 +81,7 @@ class AssetMapFragment : BasePageFragment<AssetsMapModel, FragmentMapBinding>() 
 
         // 设置添加按钮点击事件
         binding.addButton.setOnClickListener {
-            AssetsMapDialog.create(this).setOnClose { model ->
+            BaseSheetDialog.create<AssetsMapDialog>(requireContext()).setOnClose { model ->
                 lifecycleScope.launch {
                     AssetsMapAPI.put(model)
                     reload()
@@ -103,7 +107,7 @@ class AssetMapFragment : BasePageFragment<AssetsMapModel, FragmentMapBinding>() 
      * 显示重新应用确认对话框
      */
     private fun showReapplyConfirmDialog() {
-        BottomSheetDialogBuilder.create(this)
+        BaseSheetDialog.create<BottomSheetDialogBuilder>(requireContext())
             .setTitleInt(R.string.reapply_confirm_title)
             .setMessage(R.string.reapply_confirm_message)
             .setPositiveButton(R.string.sure_msg) { _, _ ->
@@ -129,5 +133,44 @@ class AssetMapFragment : BasePageFragment<AssetsMapModel, FragmentMapBinding>() 
 
             loadingUtils.close()
         }
+    }
+
+    /**
+     * 处理编辑资产映射事件
+     * @param item 要编辑的资产映射项
+     * @param position 项目在列表中的位置
+     */
+    private fun handleEditAssetsMap(item: AssetsMapModel, position: Int) {
+        BaseSheetDialog.create<AssetsMapDialog>(requireContext())
+            .setAssetsMapModel(item)
+            .setOnClose { changedAssetsMap ->
+                lifecycleScope.launch {
+                    AssetsMapAPI.put(changedAssetsMap)
+                    // 更新适配器中的数据
+                    updateItem(position, item)
+                }
+            }
+            .show()
+    }
+
+    /**
+     * 处理删除资产映射事件
+     * @param item 要删除的资产映射项
+     */
+    private fun handleDeleteAssetsMap(item: AssetsMapModel) {
+        BaseSheetDialog.create<BottomSheetDialogBuilder>(requireContext())
+            .setTitleInt(R.string.delete_title)
+            .setMessage(getString(R.string.delete_message, item.name))
+            .setNegativeButton(R.string.cancel_msg) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .setPositiveButton(R.string.delete) { _, _ ->
+                lifecycleScope.launch {
+                    AssetsMapAPI.remove(item.id)
+                    // 从适配器中移除数据
+                    removeItem(item)
+                }
+            }
+            .show()
     }
 }

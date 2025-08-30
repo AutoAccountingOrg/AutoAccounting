@@ -54,6 +54,13 @@ class AssetSelectorAdapter : BaseAdapter<AdapterAssetListBinding, AssetsModel>()
     }
 
     /**
+     * 设置是否显示货币标签
+     */
+    fun setShowCurrency(show: Boolean) = apply {
+        this.showCurrency = show
+    }
+
+    /**
      * 初始化视图持有者
      */
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterAssetListBinding, AssetsModel>) {

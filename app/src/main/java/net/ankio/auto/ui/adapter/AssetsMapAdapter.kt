@@ -16,55 +16,62 @@
 
 package net.ankio.auto.ui.adapter
 
-import android.app.Activity
 import android.view.View
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterMapBinding
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
-import net.ankio.auto.ui.dialog.AssetsMapDialog
-import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
-import net.ankio.auto.ui.utils.ResourceUtils
+import net.ankio.auto.ui.utils.setAssetIconByName
 import org.ezbook.server.db.model.AssetsMapModel
 
-class AssetsMapAdapter(
-    val activity: Activity
-) : BaseAdapter<AdapterMapBinding, AssetsMapModel>(AdapterMapBinding::class.java) {
+/**
+ * 资产映射适配器
+ *
+ * 负责展示资产映射列表项，通过链式调用配置各种事件处理
+ */
+class AssetsMapAdapter : BaseAdapter<AdapterMapBinding, AssetsMapModel>() {
+
+    /** 编辑事件处理器 */
+    private var onEditClick: ((AssetsMapModel, Int) -> Unit)? = null
+
+    /** 删除事件处理器 */
+    private var onDeleteClick: ((AssetsMapModel) -> Unit)? = null
+
+    /**
+     * 设置编辑点击事件处理器
+     * @param handler 处理器函数，接收(item, position)参数
+     * @return 适配器实例，支持链式调用
+     */
+    fun setOnEditClick(handler: (AssetsMapModel, Int) -> Unit) = apply {
+        this.onEditClick = handler
+    }
+
+    /**
+     * 设置删除点击事件处理器
+     * @param handler 处理器函数，接收item参数
+     * @return 适配器实例，支持链式调用
+     */
+    fun setOnDeleteClick(handler: (AssetsMapModel) -> Unit) = apply {
+        this.onDeleteClick = handler
+    }
 
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterMapBinding, AssetsMapModel>) {
         val binding = holder.binding
-        // 单击编辑
-        binding.item.setOnClickListener {
-            val item = holder.item!!
-            val position = indexOf(item)
-            AssetsMapDialog(activity, item) { changedAssetsMap ->
-                updateItem(position, changedAssetsMap)
-                holder.launch {
-                    AssetsMapModel.put(changedAssetsMap)
-                }
-            }.show(cancel = true)
-        }
-        // 长按删除
-        binding.item.setOnLongClickListener {
-            val item = holder.item!!
-            BottomSheetDialogBuilder(activity)
-                .setTitleInt(R.string.delete_title)
-                .setMessage(activity.getString(R.string.delete_message, item.name))
-                .setNegativeButton(R.string.cancel) { dialog, which ->
-                    // 用户点击了取消按钮，不做任何操作
-                    dialog.dismiss()
-                }
-                .setPositiveButton(R.string.delete) { _, _ ->
-                    // 用户点击了删除按钮，执行删除操作
-                    holder.launch {
-                        AssetsMapModel.remove(item.id)
-                    }
 
-                    removeItem(item)
-                }
-                .show()
+        // 单击编辑事件
+        binding.item.setOnClickListener {
+            val item = holder.item
+            if (item != null) {
+                val position = indexOf(item)
+                onEditClick?.invoke(item, position)
+            }
+        }
+
+        // 长按删除事件
+        binding.item.setOnLongClickListener {
+            val item = holder.item
+            if (item != null) {
+                onDeleteClick?.invoke(item)
+            }
             true
         }
     }
@@ -75,11 +82,8 @@ class AssetsMapAdapter(
         position: Int
     ) {
         val binding = holder.binding
-        holder.launch {
-            val drawable = ResourceUtils.getAssetDrawableFromName(data.mapName)
-            withContext(Dispatchers.Main) {
-                binding.target.setIcon(drawable, false)
-            }
+        launchInAdapter {
+            binding.target.imageView().setAssetIconByName(data.mapName)
         }
 
         binding.raw.text = data.name
