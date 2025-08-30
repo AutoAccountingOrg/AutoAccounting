@@ -78,9 +78,11 @@ abstract class BaseSheetDialog<VB : ViewBinding> :
     private var _binding: VB? = null
 
     /**
-     * 对外暴露的 ViewBinding 属性，提供非空访问
+     * 对外暴露的 ViewBinding 属性，提供安全访问
      */
-    protected val binding get() = _binding!!
+    protected val binding
+        get() = _binding
+            ?: throw IllegalStateException("ViewBinding 初始化失败，请检查布局文件和泛型参数")
 
     /** 宿主生命周期所有者，用于监听宿主销毁 */
     private val hostLifecycleOwner: LifecycleOwner
@@ -134,6 +136,8 @@ abstract class BaseSheetDialog<VB : ViewBinding> :
 
         } catch (e: Exception) {
             Logger.e("为 ${javaClass.simpleName} 创建视图失败", e)
+            // 初始化失败时抛出异常，避免后续使用时崩溃
+            throw IllegalStateException("ViewBinding 初始化失败: ${e.message}", e)
         }
     }
 

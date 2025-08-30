@@ -14,11 +14,11 @@
   -->
 
 <!-- 金额显示组件 - 显示交易金额和类型选择 -->
-<merge xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
-
-    <!-- 金额显示容器 - 可点击选择交易类型 -->
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
     <TextView
         android:id="@+id/amount_container"
         android:layout_width="wrap_content"
@@ -32,5 +32,5 @@
         app:drawableStartCompat="@drawable/float_add"
         app:drawableTint="@color/success"
         tools:text="10000000.00" />
+</FrameLayout>
 
-</merge>

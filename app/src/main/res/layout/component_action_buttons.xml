@@ -14,13 +14,11 @@
   -->
 
 <!-- 操作按钮组件 - 取消和确认按钮 -->
-<merge xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/btn_height"
-        android:gravity="center"
-        android:padding="@dimen/float_padding">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/btn_height"
+    android:gravity="center"
+    android:padding="@dimen/float_padding">
 
         <!-- 取消按钮 -->
         <com.google.android.material.button.MaterialButton
@@ -42,6 +40,4 @@
             android:layout_weight="1"
             android:text="@string/btn_save" />
 
-    </LinearLayout>
-
-</merge>
+</LinearLayout>

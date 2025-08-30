@@ -14,11 +14,9 @@
   -->
 
 <!-- 支付信息组件 - 统一处理所有支付相关信息 -->
-<merge xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
-
-    <LinearLayout
+    xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
@@ -187,6 +185,4 @@
             android:layout_height="wrap_content"
             android:text="@string/float_choose_bill" />
 
-    </LinearLayout>
-
-</merge>
+</LinearLayout>

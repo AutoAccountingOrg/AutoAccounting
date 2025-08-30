@@ -14,11 +14,9 @@
   -->
 
 <!-- 规则信息组件 - 显示规则名称和手续费 -->
-<merge xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
-
-    <LinearLayout
+    xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal"
@@ -47,6 +45,4 @@
             app:textColor="?attr/colorError"
             tools:text="-0.01" />
 
-    </LinearLayout>
-
-</merge>
+</LinearLayout>

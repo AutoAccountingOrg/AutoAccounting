@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (C) 2023 ankio(ankio@ankio.net)
+  ~ Licensed under the Apache License, Version 3.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~         http://www.apache.org/licenses/LICENSE-3.0
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~   limitations under the License.
+  -->
+
+<!-- 交易类型选择器组件 - 用于选择报销、借贷、退款等子类型 -->
+<com.google.android.material.chip.ChipGroup xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/chip_group"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="@dimen/padding"
+    app:singleSelection="true">
+
+    <!-- 报销选项 -->
+    <com.google.android.material.chip.Chip
+        android:id="@+id/chip_reimbursement"
+        style="@style/Widget.Material3.Chip.Filter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checked="true"
+        android:text="@string/reimbursement" />
+
+    <!-- 借出选项 -->
+    <com.google.android.material.chip.Chip
+        android:id="@+id/chip_lend"
+        style="@style/Widget.Material3.Chip.Filter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checked="false"
+        android:text="@string/lend" />
+
+    <!-- 还款选项 -->
+    <com.google.android.material.chip.Chip
+        android:id="@+id/chip_repayment"
+        style="@style/Widget.Material3.Chip.Filter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checked="false"
+        android:text="@string/repayment" />
+
+    <!-- 借入选项 -->
+    <com.google.android.material.chip.Chip
+        android:id="@+id/chip_borrow"
+        style="@style/Widget.Material3.Chip.Filter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checked="false"
+        android:text="@string/borrow" />
+
+    <!-- 退款选项 -->
+    <com.google.android.material.chip.Chip
+        android:id="@+id/chip_refund"
+        style="@style/Widget.Material3.Chip.Filter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checked="false"
+        android:text="@string/refund" />
+
+</com.google.android.material.chip.ChipGroup>
+
+
