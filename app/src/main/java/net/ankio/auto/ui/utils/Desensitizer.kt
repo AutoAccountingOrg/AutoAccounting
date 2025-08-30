@@ -100,6 +100,34 @@ object Desensitizer {
         }
     }
 
+    /**
+     * 处理已脱敏的手机号，保持原有格式但标准化数字部分
+     * 支持各种屏蔽符号：*、x、X、●、－等
+     * 原则：保持原有长度和格式，只对数字部分进行标准化脱敏
+     */
+    private fun processMaskedPhone(original: String): String {
+        return buildString {
+            var isFirstDigit = true
+            for (ch in original) {
+                when {
+                    ch.isDigit() -> {
+                        // 第一个数字保持原样（通常是1），其余数字用0替换
+                        append(
+                            if (isFirstDigit) {
+                                isFirstDigit = false
+                                ch
+                            } else {
+                                '0'
+                            }
+                        )
+                    }
+                    // 非数字字符（包括各种屏蔽符号）保持原样
+                    else -> append(ch)
+                }
+            }
+        }
+    }
+
     /** 仅当出现货币符号 / 单位时才匹配金额 */
     private val amountRegex =
         "(?xi)(?: [¥￥€]\\s*\\d+(?:,\\d{3})*(?:\\.\\d{1,2})? | \\d+(?:,\\d{3})*(?:\\.\\d{1,2})?\\s*(?:元|块|人民币|美元|USD|CNY|EUR) )".toRegex()
@@ -112,6 +140,24 @@ object Desensitizer {
         listOf(
             // 手机号：保持1开头，其余位用0填充，保持11位
             Rule("\\b1[3-9]\\d{9}\\b".toRegex()) { mr -> generateSameLengthDigits(mr.value) },
+
+            // 已脱敏手机号：支持各种屏蔽符号的手机号模式
+            // 匹配模式如：138****5678、138xxxx5678、138-****-5678、138 **** 5678等
+            Rule("\\b1[3-9][\\d\\s\\-]*[*●x×X－—]{2,}[\\d\\s\\-]*\\d\\b".toRegex()) { mr ->
+                processMaskedPhone(mr.value)
+            },
+
+            // 中间屏蔽的手机号（不以1开头但符合手机号特征）
+            // 匹配模式如：***1234****、xx1234xxxx等
+            Rule("\\b[*●x×X－—]{2,}\\d{3,4}[*●x×X－—]{2,}\\b".toRegex()) { mr ->
+                processMaskedPhone(mr.value)
+            },
+
+            // 部分屏蔽的11位数字串（可能是手机号）
+            // 匹配模式如：138****5678（纯数字+星号组合，总长度接近11位）
+            Rule("\\b\\d{3}[*●x×X－—]{3,6}\\d{3,4}\\b".toRegex()) { mr ->
+                processMaskedPhone(mr.value)
+            },
 
             // 邮箱：保持原始长度和格式
             Rule("[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}".toRegex()) { mr ->
@@ -170,6 +216,16 @@ object Desensitizer {
      */
     fun register(regex: Regex, replacer: (MatchResult) -> String) {
         rules += Rule(regex, replacer)
+    }
+
+    /**
+     * 专门用于单个手机号脱敏的便捷方法
+     * @param phone 手机号字符串（完整或已部分脱敏）
+     * @return 标准化脱敏后的手机号
+     */
+    fun maskPhone(phone: String): String {
+        // 复用maskAll的逻辑，但只返回结果字符串
+        return maskAll(phone).masked
     }
 
     /**
