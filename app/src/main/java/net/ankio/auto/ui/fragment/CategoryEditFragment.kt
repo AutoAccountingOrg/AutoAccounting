@@ -131,13 +131,11 @@ class CategoryEditFragment : BaseFragment<FragmentCategoryEditBinding>() {
         val recyclerView = statusPage.contentView!!
         recyclerView.layoutManager = GridLayoutManager(requireContext(), 5)
 
-        // 初始化适配器，只使用基本的图标选择功能
-        iconAdapter = CategorySelectorAdapter(
-            onItemClick = { item, _, _, _ -> onIconSelected(item) },
-            onItemChildClick = { _, _ -> }, // 不使用
-            onItemLongClick = null, // 不使用长按
-            isEditMode = false // 不使用编辑模式的复杂功能
-        )
+        // 初始化适配器，只使用基本的图标选择功能 - 链式调用配置
+        iconAdapter = CategorySelectorAdapter()
+            .editMode(false) // 不使用编辑模式的复杂功能
+            .onItemClick { item, _, _, _ -> onIconSelected(item) }
+            .onItemChildClick { _, _ -> } // 不使用子项点击
 
         recyclerView.adapter = iconAdapter
     }
