@@ -22,6 +22,7 @@ import com.google.android.material.elevation.SurfaceColors
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.databinding.CardMonthlyBinding
 import net.ankio.auto.http.api.BillAPI
+import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseComponent
 import net.ankio.auto.ui.dialog.PeriodSelectorDialog
 import net.ankio.auto.ui.api.BaseSheetDialog
@@ -52,32 +53,66 @@ class MonthlyCardComponent(binding: CardMonthlyBinding) :
         super.onComponentCreate()
         binding.root.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(context))
 
-        // 设置右上角按钮
-        setupTopButtons()
+        // 设置底部操作按钮
+        setupBottomButtons()
     }
 
     /**
-     * 设置右上角按钮
+     * 设置底部操作按钮
+     * 根据配置动态显示AI分析和同步按钮
      */
-    private fun setupTopButtons() {
+    private fun setupBottomButtons() {
+        val showAiButton = PrefManager.aiMonthlySummary
+        val showSyncButton = PrefManager.bookApp != BuildConfig.APPLICATION_ID
+
         // 设置AI分析按钮
-        binding.btnAiAnalysis.visibility = if (PrefManager.aiMonthlySummary) {
-            View.VISIBLE
-        } else {
-            View.GONE
-        }
+        binding.btnAiAnalysis.visibility = if (showAiButton) View.VISIBLE else View.GONE
         binding.btnAiAnalysis.setOnClickListener {
             showPeriodSelector()
         }
 
-        // 设置同步按钮
-        binding.btnSync.visibility = if (PrefManager.bookApp !== BuildConfig.APPLICATION_ID) {
+        // 设置同步按钮  
+        binding.btnSync.visibility = if (showSyncButton) View.VISIBLE else View.GONE
+        binding.btnSync.setOnClickListener {
+            performSync()
+        }
+
+        // 控制整个按钮容器的显示状态
+        // 如果两个按钮都不显示，则隐藏整个容器
+        binding.bottomButtonsLayout.visibility = if (showAiButton || showSyncButton) {
             View.VISIBLE
         } else {
             View.GONE
         }
-        binding.btnSync.setOnClickListener {
-            performSync()
+
+        // 调整按钮布局：只有一个按钮时，让它占满整行
+        if (showAiButton && !showSyncButton) {
+            // 只显示AI按钮，移除右边距
+            binding.btnAiAnalysis.layoutParams =
+                (binding.btnAiAnalysis.layoutParams as android.widget.LinearLayout.LayoutParams).apply {
+                    weight = 1f
+                    marginEnd = 0
+                }
+        } else if (!showAiButton && showSyncButton) {
+            // 只显示同步按钮，移除左边距
+            binding.btnSync.layoutParams =
+                (binding.btnSync.layoutParams as android.widget.LinearLayout.LayoutParams).apply {
+                    weight = 1f
+                    marginStart = 0
+                }
+        } else if (showAiButton && showSyncButton) {
+            // 两个按钮都显示，恢复原始边距 (8dp)
+            val marginPx = (8 * context.resources.displayMetrics.density).toInt()
+            binding.btnAiAnalysis.layoutParams =
+                (binding.btnAiAnalysis.layoutParams as android.widget.LinearLayout.LayoutParams).apply {
+                    weight = 1f
+                    marginEnd = marginPx
+                }
+            binding.btnSync.layoutParams =
+                (binding.btnSync.layoutParams as android.widget.LinearLayout.LayoutParams).apply {
+                    weight = 1f
+                    marginStart = marginPx
+                }
         }
     }
 
@@ -138,8 +173,8 @@ class MonthlyCardComponent(binding: CardMonthlyBinding) :
     override fun onComponentResume() {
         super.onComponentResume()
 
-        // 更新右上角按钮状态
-        setupTopButtons()
+        // 更新底部按钮状态
+        setupBottomButtons()
 
         // 刷新数据
         refreshData()
