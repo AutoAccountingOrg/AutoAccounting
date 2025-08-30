@@ -12,23 +12,49 @@ object ZipUtils {
      * @param sourceFile 目标文件或文件夹
      * @param zipFile 输出的zip文件路径
      * @param password 为空表示不加密
+     * @param excludeRootDir 压缩目录时是否排除根目录本身，仅压缩目录内容
      */
-    fun zipAll(sourceFile: File, zipFile: String, password: String? = null) {
+    fun zipAll(
+        sourceFile: File,
+        zipFile: String,
+        password: String? = null,
+        excludeRootDir: Boolean = false
+    ) {
         try {
             val zip = if (!password.isNullOrEmpty())
                 ZipFile(zipFile, password.toCharArray())
             else
                 ZipFile(zipFile)
+
             val params = ZipParameters().apply {
                 if (!password.isNullOrEmpty()) {
                     isEncryptFiles = true
                     encryptionMethod = EncryptionMethod.AES
                 }
             }
-            if (sourceFile.isDirectory)
-                zip.addFolder(sourceFile, params)
-            else
-                zip.addFile(sourceFile, params)
+
+            when {
+                sourceFile.isFile -> {
+                    // 单文件直接添加
+                    zip.addFile(sourceFile, params)
+                }
+
+                sourceFile.isDirectory && excludeRootDir -> {
+                    // 压缩目录内容，排除根目录
+                    sourceFile.listFiles()?.forEach { child ->
+                        if (child.isFile) {
+                            zip.addFile(child, params)
+                        } else if (child.isDirectory) {
+                            zip.addFolder(child, params)
+                        }
+                    }
+                }
+
+                sourceFile.isDirectory -> {
+                    // 压缩整个目录（包含根目录）
+                    zip.addFolder(sourceFile, params)
+                }
+            }
         } catch (e: Exception) {
             Logger.e("Zip failed: ${e.message}")
         }
