@@ -15,18 +15,71 @@
 
 package net.ankio.auto.ui.utils
 
+import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.widget.ImageView
 import com.bumptech.glide.Glide
+import com.google.android.material.color.MaterialColors
 import net.ankio.auto.R
+import net.ankio.auto.autoApp
 import net.ankio.auto.http.api.AssetsAPI
+import net.ankio.auto.http.api.BookNameAPI
 import net.ankio.auto.http.api.CategoryAPI
+import net.ankio.auto.utils.ThemeUtils
 import org.ezbook.server.db.model.AssetsModel
 import org.ezbook.server.db.model.CategoryModel
 
 /**
  * 资源工具类，提供各种图标和图片的加载功能
  * 基于Glide实现，支持base64和网络图片
+ *
+ * 合并了原ResUtils.kt的功能：
+ * - 主题颜色转换
+ * - Drawable资源获取
+ * - 账本封面加载
  */
+
+// ================================
+// 主题和资源扩展函数（来自ResUtils.kt）
+// ================================
+
+/**
+ * 将Material Design颜色属性转换为当前主题下的实际颜色值
+ * @return 当前主题下的颜色值
+ */
+fun Int.toThemeColor(): Int {
+    return MaterialColors.getColor(
+        ThemeUtils.themedCtx(autoApp),
+        this,
+        Color.WHITE,
+    )
+}
+
+/**
+ * 将资源ID转换为Drawable对象
+ * @return Drawable对象，可能为null
+ */
+fun Int.toDrawable(): Drawable? {
+    return autoApp.getDrawable(this)
+}
+
+/**
+ * 为账本名称设置对应的封面图片
+ * @param imageView 目标ImageView
+ */
+suspend fun String.toBookCover(imageView: ImageView) {
+    val book = BookNameAPI.getBook(this)
+    val image = book.icon
+    Glide.with(autoApp).load(image)
+        .placeholder(R.drawable.default_book)   // 加载中
+        .error(R.drawable.default_book)           // 加载失败
+        .fallback(R.drawable.default_book)
+        .into(imageView)
+}
+
+// ================================
+// 图片加载扩展函数
+// ================================
 
 /**
  * 给任意 ImageView 加载图片。
