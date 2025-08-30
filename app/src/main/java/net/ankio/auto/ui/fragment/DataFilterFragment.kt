@@ -23,9 +23,10 @@ import com.google.android.material.chip.Chip
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentDataFilterBinding
 import net.ankio.auto.ui.api.BaseFragment
+import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.dialog.EditorDialogBuilder
 import net.ankio.auto.utils.PrefManager
-import net.ankio.auto.utils.toThemeColor
+import net.ankio.auto.ui.utils.toThemeColor
 import org.ezbook.server.constant.Setting
 
 /**
@@ -93,7 +94,7 @@ class DataFilterFragment : BaseFragment<FragmentDataFilterBinding>() {
      */
     private fun showInput(text: String, chip: Chip? = null) {
         // 使用统一的 EditorDialogBuilder 构建输入对话框
-        EditorDialogBuilder.create(this)
+        BaseSheetDialog.create<EditorDialogBuilder>(requireContext())
             .setTitleInt(R.string.add_filter)
             .setMessage(text)
             .setEditorPositiveButton(R.string.sure_msg) { input ->
