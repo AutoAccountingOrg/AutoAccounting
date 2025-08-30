@@ -19,32 +19,42 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.navigation.fragment.findNavController
+import com.google.gson.Gson
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentPluginHomeBinding
 import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.api.bindAs
-import net.ankio.auto.ui.fragment.home.BookCardComponent
-import net.ankio.auto.ui.fragment.home.MonthlyCardComponent
-import net.ankio.auto.ui.fragment.home.RuleVersionCardComponent
-import net.ankio.auto.ui.fragment.home.StatusCardComponent
+import net.ankio.auto.ui.fragment.components.BookCardComponent
+import net.ankio.auto.ui.fragment.components.MonthlyCardComponent
+import net.ankio.auto.ui.fragment.components.RuleVersionCardComponent
+import net.ankio.auto.ui.fragment.components.StatusCardComponent
 import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.utils.Throttle
 
 class HomeFragment : BaseFragment<FragmentPluginHomeBinding>() {
-
-    private val nav = Throttle.asFunction<Int>(300) {
-        findNavController().navigate(it)
-    }
+    private val gson = Gson()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.activeCard.bindAs<StatusCardComponent>(lifecycle)
-        binding.ruleVersionCard.bindAs<RuleVersionCardComponent>(lifecycle, requireActivity())
-        binding.monthlyCard.bindAs<MonthlyCardComponent>(lifecycle)
-        val bookCard = binding.bookCard.bindAs<BookCardComponent>(lifecycle, requireActivity())
+        val statusCard: StatusCardComponent = binding.activeCard.bindAs()
+
+        val ruleVersionCard: RuleVersionCardComponent = binding.ruleVersionCard.bindAs()
+
+        val monthlyCard: MonthlyCardComponent = binding.monthlyCard.bindAs()
+        monthlyCard.setFragment(this)
+            .setOnNavigateToAiSummary { periodData ->
+                // 使用Bundle传递周期数据
+                val bundle = Bundle()
+                if (periodData != null) {
+                    bundle.putString("period_data", gson.toJson(periodData))
+                }
+                findNavController().navigate(R.id.action_homeFragment_to_aiSummaryFragment, bundle)
+            }
+
+        val bookCard: BookCardComponent = binding.bookCard.bindAs()
         bookCard.setOnRedirect {
-            nav.invoke(it)
+            findNavController().navigate(it)
         }
         binding.toolbar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {

@@ -30,9 +30,10 @@ import net.ankio.auto.ui.api.BaseComponent
 import net.ankio.auto.ui.dialog.UpdateDialog
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.utils.ToastUtils
+import net.ankio.auto.utils.CoroutineUtils.withIO
+import net.ankio.auto.utils.CoroutineUtils.withMain
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.PrefManager
-import net.ankio.auto.utils.Throttle
 import net.ankio.auto.utils.VersionUtils
 import net.ankio.auto.utils.toDrawable
 import net.ankio.auto.utils.toThemeColor
@@ -40,84 +41,75 @@ import net.ankio.auto.xposed.common.ActiveInfo
 
 class StatusCardComponent(binding: CardStatusBinding) :
     BaseComponent<CardStatusBinding>(binding) {
-    private val throttle = Throttle.asFunction<Boolean>(5000) { fromUser ->
-        launch {
-            try {
-                updateApps(fromUser)
-            } catch (e: Exception) {
-                Logger.e(e.message ?: "", e)
-            }
-        }
-    }
 
     override fun onComponentCreate() {
         super.onComponentCreate()
 
-
-        val colorPrimary = com.google.android.material.R.attr.colorPrimary.toThemeColor()
-
-        if (!ActiveInfo.isModuleActive()) {
-            setActive(
-                SurfaceColors.SURFACE_3.getColor(context),
-                colorPrimary,
-                R.drawable.home_active_error,
-            )
-        } else {
-            setActive(
-                colorPrimary,
-                com.google.android.material.R.attr.colorOnPrimary.toThemeColor(),
-                R.drawable.home_active_success,
-            )
+        // 设置点击监听器
+        binding.cardContent.setOnClickListener {
+            launch {
+                updateApps(true)
+            }
         }
 
-        binding.cardContent.setOnClickListener { throttle(true) }
-
-        if (PrefManager.autoCheckAppUpdate) throttle(false)
-
-    }
-
-
-    private fun checkXposedActive(): Boolean {
-        return ActiveInfo.isModuleActive()
-    }
-
-    private fun checkOcrActive(): Boolean {
-        return OcrService.serverStarted
+        // 初始化状态显示
+        updateActiveStatus()
     }
 
     override fun onComponentResume() {
         super.onComponentResume()
+        // 每次恢复时更新状态
+        updateActiveStatus()
+    }
 
-        val active = if (PrefManager.workMode === WorkMode.Ocr) {
-            checkOcrActive()
-        } else {
-            checkXposedActive()
+    /**
+     * 检查当前工作模式下的激活状态
+     */
+    private fun isCurrentModeActive(): Boolean {
+        return when (PrefManager.workMode) {
+            WorkMode.Ocr -> OcrService.serverStarted
+            else -> ActiveInfo.isModuleActive()
         }
-        val colorPrimary = com.google.android.material.R.attr.colorPrimary.toThemeColor()
+    }
+
+    /**
+     * 获取当前模式的标题文本
+     */
+    private fun getCurrentModeTitle(): String {
+        return when (PrefManager.workMode) {
+            WorkMode.Ocr -> context.getString(R.string.ocr_mode_title)
+            else -> context.getString(R.string.xposed_mode_title)
+        }
+    }
+
+    /**
+     * 统一更新激活状态显示
+     */
+    private fun updateActiveStatus() {
+        val isActive = isCurrentModeActive()
         val versionName = BuildConfig.VERSION_NAME
-        if (!active) {
+        val colorPrimary = com.google.android.material.R.attr.colorPrimary.toThemeColor()
+
+        if (isActive) {
+            // 激活状态：绿色背景
             setActive(
-                SurfaceColors.SURFACE_3.getColor(context),
-                colorPrimary,
-                R.drawable.home_active_error,
-            )
-            binding.titleText.text = context.getString(R.string.active_error, versionName)
-        } else {
-            setActive(
-                colorPrimary,
-                com.google.android.material.R.attr.colorOnPrimary.toThemeColor(),
-                R.drawable.home_active_success,
+                backgroundColor = colorPrimary,
+                textColor = com.google.android.material.R.attr.colorOnPrimary.toThemeColor(),
+                drawable = R.drawable.home_active_success
             )
             binding.titleText.text = context.getString(R.string.active_success, versionName)
-        }
-
-        binding.subtitleText.text = if (PrefManager.workMode === WorkMode.Ocr) {
-            context.getString(R.string.ocr_mode_title)
         } else {
-            context.getString(R.string.xposed_mode_title)
+            // 未激活状态：灰色背景
+            setActive(
+                backgroundColor = SurfaceColors.SURFACE_3.getColor(context),
+                textColor = colorPrimary,
+                drawable = R.drawable.home_active_error
+            )
+            binding.titleText.text = context.getString(R.string.active_error, versionName)
         }
 
-
+        // 设置模式标题
+        binding.subtitleText.text = getCurrentModeTitle()
     }
 
     override fun onComponentDestroy() {
@@ -137,28 +129,40 @@ class StatusCardComponent(binding: CardStatusBinding) :
     }
 
     private suspend fun updateApps(fromUser: Boolean) {
+        // UI操作在主线程
         if (fromUser) {
-            ToastUtils.info(R.string.check_update)
+            withMain {
+                ToastUtils.info(R.string.check_update)
+            }
         }
-        try {
+
+        // 网络请求在IO线程
+        val update = withIO {
             val json = AppAPI.lastVer()
-            val update = VersionUtils.fromJSON(json)
-            if (update == null) {
-                if (fromUser) {
+            VersionUtils.fromJSON(json)
+        }
+
+        if (update == null) {
+            if (fromUser) {
+                withMain {
                     ToastUtils.error(R.string.no_need_to_update)
                 }
-                return
             }
+            return
+        }
 
-            // 检查版本是否需要更新
-            if (!VersionUtils.checkVersionLarge(BuildConfig.VERSION_NAME, update.version)) {
-                if (fromUser) {
+        // 检查版本是否需要更新
+        if (!VersionUtils.checkVersionLarge(BuildConfig.VERSION_NAME, update.version)) {
+            if (fromUser) {
+                withMain {
                     ToastUtils.error(R.string.no_need_to_update)
                 }
-                return
             }
+            return
+        }
 
-            // 显示更新对话框
+        // UI操作在主线程 - 显示更新对话框
+        withMain {
             BaseSheetDialog.create<UpdateDialog>(context)
                 .setUpdateModel(update)
                 .setRuleTitle(context.getString(R.string.app))
@@ -167,11 +171,6 @@ class StatusCardComponent(binding: CardStatusBinding) :
                         "https://cloud.ankio.net/%E8%87%AA%E5%8A%A8%E8%AE%B0%E8%B4%A6/%E8%87%AA%E5%8A%A8%E8%AE%B0%E8%B4%A6/%E7%89%88%E6%9C%AC%E6%9B%B4%E6%96%B0/${PrefManager.appChannel}/${update.version}.apk"
                     CustomTabsHelper.launchUrl(url.toUri())
                 }.show()
-        } catch (e: Exception) {
-            Logger.e(e.message ?: "", e)
-            if (fromUser) {
-                ToastUtils.error(R.string.no_need_to_update)
-            }
         }
     }
 }
