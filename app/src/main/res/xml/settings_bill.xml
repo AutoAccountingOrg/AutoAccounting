@@ -46,6 +46,13 @@
             android:key="loadSuccess"
             android:summary="@string/setting_load_success_summary"
             android:title="@string/setting_load_success" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/setting_landscape_dnd"
+            android:key="landscapeDnd"
+            android:summary="@string/setting_landscape_dnd_summary"
+            android:title="@string/setting_landscape_dnd" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/setting_category_book_config">

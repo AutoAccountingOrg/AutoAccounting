@@ -185,7 +185,7 @@ object DefaultData {
     val CHECK_APP_UPDATE = true
     val RULE_VERSION: String = "none"
     val RULE_UPDATE_TIME: String = "none"
-    val UPDATE_CHANNEL: String = "stable"
+    val UPDATE_CHANNEL: String = "Stable"
 
     // ======== UI 外观 默认值 ========
     val UI_PURE_BLACK: Boolean = false

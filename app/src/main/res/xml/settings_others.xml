@@ -16,21 +16,32 @@
             android:summary="@string/setting_send_error_report_summary"
             android:title="@string/setting_send_error_report" />
 
-        <rikka.material.preference.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:icon="@drawable/setting_landscape_dnd"
-            android:key="landscapeDnd"
-            android:summary="@string/setting_landscape_dnd_summary"
-            android:title="@string/setting_landscape_dnd" />
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="@string/setting_category_data_filter">
-        <androidx.preference.EditTextPreference
-            android:defaultValue=""
-            android:icon="@drawable/data_filter"
-            android:key="smsFilter"
-            android:summary="@string/setting_sms_filter_summary"
-            android:title="@string/setting_sms_filter" />
+    <PreferenceCategory android:title="@string/setting_category_update">
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="true"
+            android:icon="@drawable/setting2_icon_update"
+            android:key="autoCheckAppUpdate"
+            android:summary="@string/setting_auto_check_app_update_summary"
+            android:title="@string/setting_auto_check_app_update" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="true"
+            android:icon="@drawable/setting2_icon_rule"
+            android:key="autoCheckRuleUpdate"
+            android:summary="@string/setting_auto_check_rule_update_summary"
+            android:title="@string/setting_auto_check_rule_update" />
+
+        <rikka.preference.SimpleMenuPreference
+            android:defaultValue="stable"
+            android:icon="@drawable/setting2_icon_update_channel"
+            android:key="appChannel"
+            android:summary="%s"
+            android:title="@string/setting_app_channel"
+            android:entries="@array/update_channel_texts"
+            android:entryValues="@array/update_channel_values" />
+
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/setting_category_dangerous">

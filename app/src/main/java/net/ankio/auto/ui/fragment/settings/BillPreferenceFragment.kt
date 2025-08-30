@@ -159,6 +159,7 @@ class BillPreferenceFragment : BasePreferenceFragment() {
                 // 通知设置
                 "showSuccessPopup" -> PrefManager.showSuccessPopup
                 "loadSuccess" -> PrefManager.loadSuccess
+                "landscapeDnd" -> PrefManager.landscapeDnd
                 // 功能开关（用于依赖检查）
                 "featureAssetManage" -> PrefManager.featureAssetManage
                 else -> defValue
@@ -176,6 +177,7 @@ class BillPreferenceFragment : BasePreferenceFragment() {
                 // 通知设置
                 "showSuccessPopup" -> PrefManager.showSuccessPopup = value
                 "loadSuccess" -> PrefManager.loadSuccess = value
+                "landscapeDnd" -> PrefManager.landscapeDnd = value
                 // 功能开关（用于依赖检查）
                 "featureAssetManage" -> PrefManager.featureAssetManage = value
             }
