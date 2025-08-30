@@ -92,7 +92,6 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>() {
             binding.settingFeatures to R.id.action_settingFragment_to_featuresPreferenceFragment,
             binding.settingAi to R.id.action_settingFragment_to_aiPreferenceFragment,
             binding.settingAppearance to R.id.action_settingFragment_to_appearancePreferenceFragment,
-            binding.settingExperimental to R.id.action_settingFragment_to_experimentalPreferenceFragment,
             binding.settingBackup to R.id.action_settingFragment_to_backupPreferenceFragment,
             binding.settingOthers to R.id.action_settingFragment_to_othersPreferenceFragment
         )
@@ -223,8 +222,10 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>() {
      * 应用激活状态到UI - 统一的状态更新逻辑
      */
     private fun applyActivationState(state: ActivationState) {
-        updateProCardState(state.isActivated)
-        binding.proActivateInfo.text = state.displayText
+        runCatching {
+            updateProCardState(state.isActivated)
+            binding.proActivateInfo.text = state.displayText
+        }
     }
 
     /**
