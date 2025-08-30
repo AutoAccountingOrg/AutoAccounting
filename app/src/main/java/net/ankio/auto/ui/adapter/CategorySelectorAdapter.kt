@@ -33,24 +33,70 @@ import net.ankio.auto.ui.api.BaseViewHolder
 import net.ankio.auto.ui.utils.setCategoryIcon
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.CategoryModel
+import net.ankio.auto.ui.utils.toThemeColor
 
 /**
- * 分类选择器适配器
- * @property dataItems 分类数据列表
- * @property onItemClick 点击事件回调
- * @property onItemChildClick 子项点击事件回调
- * @property onItemLongClick 长按事件回调
- * @property isEditMode 是否编辑模式
+ * 分类选择器适配器 - 支持链式调用配置
+ *
+ * 使用示例:
+ * ```kotlin
+ * val adapter = CategorySelectorAdapter()
+ *     .onItemClick { item, pos, hasChild, view ->
+ *         // 处理项目点击
+ *         selectCategory(item)
+ *     }
+ *     .onItemChildClick { item, pos ->
+ *         // 处理子项点击
+ *         navigateToSubCategory(item)
+ *     }
+ *     .onItemLongClick { item, pos, view ->
+ *         // 处理长按事件
+ *         showContextMenu(item, view)
+ *     }
+ *     .editMode(true)
+ *
+ * recyclerView.adapter = adapter
+ * ```
+ *
+ * 相比原来的构造函数参数地狱，现在更加清晰和灵活。
  */
+class CategorySelectorAdapter : BaseAdapter<AdapterCategoryListBinding, CategoryModel>() {
 
-class CategorySelectorAdapter(
-    private val onItemClick: (item: CategoryModel, pos: Int, hasChild: Boolean, view: View) -> Unit,
-    private val onItemChildClick: (item: CategoryModel, pos: Int) -> Unit,
-    private val onItemLongClick: ((item: CategoryModel, pos: Int, view: View) -> Unit)? = null,
+    // 回调函数配置 - 使用链式调用设置
+    private var itemClickHandler: ((CategoryModel, Int, Boolean, View) -> Unit)? = null
+    private var childClickHandler: ((CategoryModel, Int) -> Unit)? = null
+    private var longClickHandler: ((CategoryModel, Int, View) -> Unit)? = null
     private var isEditMode: Boolean = false
-) : BaseAdapter<AdapterCategoryListBinding, CategoryModel>(
 
-) {
+    /**
+     * 链式调用方法 - 配置点击事件
+     */
+    fun onItemClick(handler: (item: CategoryModel, pos: Int, hasChild: Boolean, view: View) -> Unit) =
+        apply {
+            itemClickHandler = handler
+        }
+
+    /**
+     * 链式调用方法 - 配置子项点击事件
+     */
+    fun onItemChildClick(handler: (item: CategoryModel, pos: Int) -> Unit) = apply {
+        childClickHandler = handler
+    }
+
+    /**
+     * 链式调用方法 - 配置长按事件
+     */
+    fun onItemLongClick(handler: (item: CategoryModel, pos: Int, view: View) -> Unit) = apply {
+        longClickHandler = handler
+    }
+
+    /**
+     * 链式调用方法 - 配置编辑模式
+     */
+    fun editMode(enabled: Boolean) = apply {
+        isEditMode = enabled
+    }
+
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterCategoryListBinding, CategoryModel>) {
     }
 
@@ -111,18 +157,17 @@ class CategorySelectorAdapter(
         val adapter: CategorySelectorAdapter
         if (binding.recyclerView.adapter == null) {
             binding.recyclerView.layoutManager = GridLayoutManager(context, 5)
-            adapter = CategorySelectorAdapter(
-                isEditMode = isEditMode,
-                onItemClick = { item, pos, hasChild, view ->
-                    onItemChildClick(item, pos)
-                },
-                onItemChildClick = { item, pos ->
-
-                },
-                onItemLongClick = { item, pos, view ->
-                    onItemLongClick?.invoke(item, pos, view)
+            adapter = CategorySelectorAdapter()
+                .editMode(isEditMode)
+                .onItemClick { item, pos, hasChild, view ->
+                    childClickHandler?.invoke(item, pos)
                 }
-            )
+                .onItemChildClick { _, _ ->
+                    // 子项的子项点击处理（暂时为空）
+                }
+                .onItemLongClick { item, pos, view ->
+                    longClickHandler?.invoke(item, pos, view)
+                }
             binding.recyclerView.adapter = adapter
         } else {
             adapter = binding.recyclerView.adapter as CategorySelectorAdapter
@@ -154,7 +199,7 @@ class CategorySelectorAdapter(
 
 
     /**
-     * 创建添加按钮的CategoryModel
+     * 创建添加按钮的CategoryModel - 使用链式调用风格
      * @param bookId 账本ID
      * @param type 分类类型
      * @param parentId 父分类ID，"-1"表示一级分类
@@ -164,15 +209,13 @@ class CategorySelectorAdapter(
         bookId: String,
         type: BillType,
         parentId: String = "-1"
-    ): CategoryModel {
-        val addItem = CategoryModel()
-        addItem.remoteId = "-9998" // 特殊ID标识添加按钮
-        addItem.remoteBookId = bookId
-        addItem.remoteParentId = parentId
-        addItem.type = type
-        addItem.name = "添加"
-        addItem.icon = "add" // 特殊图标标识
-        return addItem
+    ): CategoryModel = CategoryModel().apply {
+        remoteId = "-9998"      // 特殊ID标识添加按钮
+        remoteBookId = bookId
+        remoteParentId = parentId
+        this.type = type
+        name = "添加"
+        icon = "add"            // 特殊图标标识
     }
 
     private var prevBinding: AdapterCategoryListBinding? = null
@@ -205,18 +248,16 @@ class CategorySelectorAdapter(
         binding.root.setOnClickListener {
             if (data.isPanel()) return@setOnClickListener
             val hasChild = binding.ivMore.isVisible
-            if (prevBinding != null) {
-                setActive(prevBinding!!, false)
-            }
+            prevBinding?.let { setActive(it, false) }
             prevBinding = binding
             setActive(binding, true)
             panelItem = data
-            onItemClick(data, position, hasChild, binding.itemImageIcon)
+            itemClickHandler?.invoke(data, position, hasChild, binding.itemImageIcon)
         }
 
         // 添加长按监听器（仅在编辑模式下且不是添加按钮时）
         binding.root.setOnLongClickListener {
-            onItemLongClick?.invoke(data, position, binding.root)
+            longClickHandler?.invoke(data, position, binding.root)
             true
         }
         // 本身就是二级菜单，无需继续获取二级菜单
@@ -252,23 +293,27 @@ class CategorySelectorAdapter(
         val (textColor, imageBackground, imageColorFilter) =
             if (isActive) {
                 Triple(
-                    App.getThemeAttrColor(com.google.android.material.R.attr.colorPrimary),
+                    com.google.android.material.R.attr.colorPrimary.toThemeColor(),
                     R.drawable.rounded_border,
-                    App.getThemeAttrColor(com.google.android.material.R.attr.colorOnPrimary),
+                    com.google.android.material.R.attr.colorOnPrimary.toThemeColor(),
                 )
             } else {
                 Triple(
-                    App.getThemeAttrColor(com.google.android.material.R.attr.colorSecondary),
+                    com.google.android.material.R.attr.colorSecondary.toThemeColor(),
                     R.drawable.rounded_border_,
-                    App.getThemeAttrColor(com.google.android.material.R.attr.colorSecondary),
+                    com.google.android.material.R.attr.colorSecondary.toThemeColor(),
                 )
             }
 
         binding.itemText.setTextColor(textColor)
+
+        // 链式调用风格设置图标样式
         binding.itemImageIcon.apply {
             setBackgroundResource(imageBackground)
             setColorFilter(imageColorFilter)
         }
+
+        // 链式调用风格设置更多按钮样式
         binding.ivMore.apply {
             setBackgroundResource(imageBackground)
             setColorFilter(imageColorFilter)
