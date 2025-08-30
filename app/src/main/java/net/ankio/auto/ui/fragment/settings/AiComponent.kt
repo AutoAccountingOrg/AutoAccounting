@@ -65,7 +65,8 @@ class AiComponent(
             actAiProvider.isEnabled = false
             actAiModel.isEnabled = false
             btnRefreshModels.isEnabled = false
-            btnTestAi.isEnabled = false
+            btnTestAi.isEnabled = true
+            // 测试按钮始终可用 - 让用户随时可以测试
             cardTestResult.visibility = View.GONE
         }
         bindListeners()
@@ -118,7 +119,7 @@ class AiComponent(
                 isEnabled = hasToken
             }
             btnRefreshModels.isEnabled = hasToken
-            updateTestButtonState()
+            // 移除测试按钮的禁用逻辑 - 让用户随时可以测试
         }
 
         // AI 测试功能
@@ -129,15 +130,7 @@ class AiComponent(
 
     // ------------------------------------ UI 状态管理 ------------------------------------ //
 
-    /**
-     * 更新测试按钮状态 - 只有配置完整时才能测试
-     */
-    private fun updateTestButtonState() = with(binding) {
-        val hasToken = !etAiToken.text.isNullOrBlank()
-        val hasProvider = !actAiProvider.text.isNullOrBlank()
-        val hasModel = !actAiModel.text.isNullOrBlank()
-        btnTestAi.isEnabled = hasToken && hasProvider && hasModel
-    }
+    // 移除了updateTestButtonState方法 - 测试按钮始终可用
 
     /**
      * 显示测试结果
@@ -269,13 +262,11 @@ class AiComponent(
                     isEnabled = true
                 }
                 tilAiToken.error = null
-                updateTestButtonState()
 
             } catch (e: Exception) {
                 // 失败时显示错误信息
                 tilAiToken.error = e.message ?: "获取模型列表失败"
                 actAiModel.isEnabled = false
-                updateTestButtonState()
             } finally {
                 loading.close()
             }
@@ -302,8 +293,7 @@ class AiComponent(
                 // Token
                 binding.etAiToken.setText(AiAPI.getApiKey())
 
-                // 更新测试按钮状态
-                updateTestButtonState()
+                // 测试按钮始终可用，无需更新状态
 
             } catch (e: Exception) {
                 // 静默失败，不影响页面显示
