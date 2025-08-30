@@ -192,7 +192,6 @@ abstract class BaseAdapter<T : ViewBinding, E> : RecyclerView.Adapter<BaseViewHo
 
         val holder = BaseViewHolder<T, E>(binding)
         onInitViewHolder(holder)
-        Logger.d("已为 ${javaClass.simpleName} 创建 ViewHolder")
         return holder
     }
 
