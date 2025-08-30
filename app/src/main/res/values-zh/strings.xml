@@ -794,8 +794,22 @@
     <string name="setting_category_app_update">应用更新</string>
     <string name="setting_category_rule_update">规则更新</string>
     <string name="setting_category_system">系统设置</string>
-    <string name="setting_category_data_filter">数据过滤</string>
+    <string name="setting_category_update">更新设置</string>
     <string name="setting_category_dangerous">危险操作</string>
+
+    <!-- 更新设置 -->
+    <string name="setting_auto_check_app_update">自动检查应用更新</string>
+    <string name="setting_auto_check_app_update_summary">自动检查应用程序更新</string>
+    <string name="setting_auto_check_rule_update">自动检查规则更新</string>
+    <string name="setting_auto_check_rule_update_summary">自动检查记账规则更新</string>
+    <string name="setting_app_channel">更新渠道</string>
+    <string name="setting_app_channel_summary">选择更新渠道：稳定版或测试版</string>
+    <string name="setting_check_update_type">更新检查方式</string>
+    <string name="setting_check_update_type_summary">选择如何检查更新</string>
+
+    <!-- 更新类型选项 -->
+    <string name="update_type_automatic">自动</string>
+    <string name="update_type_manual">手动</string>
 
     <!-- 设置项标题和摘要 -->
     <string name="setting_auto_group">自动分组</string>

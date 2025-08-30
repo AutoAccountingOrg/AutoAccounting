@@ -831,8 +831,22 @@
     <string name="setting_category_app_update">App Update</string>
     <string name="setting_category_rule_update">Rule Update</string>
     <string name="setting_category_system">System Settings</string>
-    <string name="setting_category_data_filter">Data Filter</string>
+    <string name="setting_category_update">Update Settings</string>
     <string name="setting_category_dangerous">Dangerous Operations</string>
+
+    <!-- 更新设置 -->
+    <string name="setting_auto_check_app_update">Auto Check App Updates</string>
+    <string name="setting_auto_check_app_update_summary">Automatically check for application updates</string>
+    <string name="setting_auto_check_rule_update">Auto Check Rule Updates</string>
+    <string name="setting_auto_check_rule_update_summary">Automatically check for accounting rule updates</string>
+    <string name="setting_app_channel">Update Channel</string>
+    <string name="setting_app_channel_summary">Choose update channel: stable or beta</string>
+    <string name="setting_check_update_type">Update Check Type</string>
+    <string name="setting_check_update_type_summary">Choose how to check for updates</string>
+
+    <!-- 更新类型选项 -->
+    <string name="update_type_automatic">Automatic</string>
+    <string name="update_type_manual">Manual</string>
 
     <!-- 设置项标题和摘要 -->
     <string name="setting_auto_group">Auto Deduplication</string>

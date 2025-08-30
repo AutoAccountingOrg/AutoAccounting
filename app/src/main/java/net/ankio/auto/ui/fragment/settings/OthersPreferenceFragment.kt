@@ -22,13 +22,13 @@ import net.ankio.auto.utils.PrefManager
 
 /**
  * 其他设置页面 - Linus式极简设计
- * 
+ *
  * 设计原则：
  * 1. 单一职责 - 只负责系统级设置和更新配置
  * 2. 统一架构 - 继承BasePreferenceFragment保持一致性
  * 3. 简洁实现 - 消除冗余的布局操作
  * 4. 向后兼容 - 保持所有原有功能不变
- * 
+ *
  * 功能说明：
  * - 系统设置（调试模式、错误报告）
  * - 更新设置（应用更新、规则更新、更新渠道）
@@ -41,6 +41,7 @@ class OthersPreferenceFragment : BasePreferenceFragment() {
     override fun getPreferencesRes(): Int = R.xml.settings_others
 
     override fun createDataStore(): PreferenceDataStore = OthersPreferenceDataStore()
+
     /**
      * 设置自定义行为处理
      */
@@ -52,7 +53,7 @@ class OthersPreferenceFragment : BasePreferenceFragment() {
             showClearDatabaseDialog()
             true
         }
-        
+
         // 设置更新渠道显示的摘要
         setupAppChannelPreference()
     }
@@ -105,7 +106,7 @@ class OthersPreferenceFragment : BasePreferenceFragment() {
             val currentValue = PrefManager.appChannel
             val entryValues = preference.entryValues
             val entries = preference.entries
-            
+
             // 找到当前值对应的显示文本
             val index = entryValues?.indexOf(currentValue) ?: -1
             if (index >= 0 && index < (entries?.size ?: 0)) {
@@ -113,7 +114,7 @@ class OthersPreferenceFragment : BasePreferenceFragment() {
             } else {
                 preference.summary = currentValue // 如果找不到对应文本，直接显示值
             }
-            
+
             // 设置值变化监听器，更新显示
             preference.setOnPreferenceChangeListener { _, newValue ->
                 val newIndex = entryValues?.indexOf(newValue) ?: -1
@@ -124,7 +125,7 @@ class OthersPreferenceFragment : BasePreferenceFragment() {
             }
         }
     }
-    
+
     /**
      * 显示清除数据库确认对话框
      */

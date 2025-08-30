@@ -121,46 +121,18 @@
         <item>AUTO_ACCOUNT</item>
     </string-array>
 
-
-    <!-- AI model options -->
-    <string-array name="ai_model_texts" translatable="false">
-        <item>@string/deepseek</item>
-        <item>@string/chatgpt</item>
-        <item>@string/qwen</item>
-        <item>@string/oneapi</item>
-    </string-array>
-
-    <string-array name="ai_model_values" translatable="false">
-        <item>DeepSeek</item>
-        <item>ChatGPT</item>
-        <item>Qwen</item>
-        <item>OneAPI</item>
-    </string-array>
-
-    <!-- Sync type options -->
-    <string-array name="sync_type_texts" translatable="false">
-        <item>None</item>
-        <item>WebDAV</item>
-        <item>Local</item>
-    </string-array>
-
-    <string-array name="sync_type_values" translatable="false">
-        <item>none</item>
-        <item>webdav</item>
-        <item>local</item>
-    </string-array>
-
     <!-- Update channel options -->
     <string-array name="update_channel_texts" translatable="false">
-        <item>Stable</item>
-        <item>Beta</item>
-        <item>Alpha</item>
+        <item>@string/version_stable</item>
+        <item>@string/version_beta</item>
+        <item>@string/version_canary</item>
     </string-array>
 
     <string-array name="update_channel_values" translatable="false">
         <item>stable</item>
         <item>beta</item>
-        <item>alpha</item>
+        <item>canary</item>
     </string-array>
+
 
 </resources>
