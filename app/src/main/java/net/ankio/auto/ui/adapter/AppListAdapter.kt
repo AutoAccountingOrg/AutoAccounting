@@ -19,26 +19,26 @@ import android.content.Context
 import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
 import android.graphics.drawable.Drawable
-import androidx.core.content.res.ResourcesCompat
-import net.ankio.auto.App
+import com.bumptech.glide.Glide
 import net.ankio.auto.databinding.AdapterAutoAppBinding
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
-import net.ankio.auto.ui.models.AutoApp
+import net.ankio.auto.adapter.IAppAdapter
 import net.ankio.auto.utils.CustomTabsHelper
+import net.ankio.auto.utils.isAppInstalled
 
 class AppListAdapter(
     private val context: Context,
-    private val selectApp: String, private val callback: (AutoApp) -> Unit
-) : BaseAdapter<AdapterAutoAppBinding, AutoApp>(AdapterAutoAppBinding::class.java) {
-    override fun onInitViewHolder(holder: BaseViewHolder<AdapterAutoAppBinding, AutoApp>) {
+    private val selectApp: String, private val callback: (IAppAdapter) -> Unit
+) : BaseAdapter<AdapterAutoAppBinding, IAppAdapter>() {
+    override fun onInitViewHolder(holder: BaseViewHolder<AdapterAutoAppBinding, IAppAdapter>) {
         val binding = holder.binding
         binding.root.setOnClickListener {
             val app = holder.item ?: return@setOnClickListener
-            val installedApp = App.isAppInstalled(app.packageName)
-            if (!installedApp) {
-                CustomTabsHelper.launchUrlOrCopy(context, app.url)
+            val installedApp = context.isAppInstalled(app.pkg)
+            if (!installedApp && app.link.isNotEmpty()) {
+                CustomTabsHelper.launchUrlOrCopy(app.link)
             } else {
                 binding.checkbox.isChecked = true
                 callback(app)
@@ -48,41 +48,35 @@ class AppListAdapter(
 
 
     override fun onBindViewHolder(
-        holder: BaseViewHolder<AdapterAutoAppBinding, AutoApp>,
-        data: AutoApp,
+        holder: BaseViewHolder<AdapterAutoAppBinding, IAppAdapter>,
+        data: IAppAdapter,
         position: Int
     ) {
         val binding = holder.binding
-        val drawable = ResourcesCompat.getDrawable(context.resources, data.icon, null)
-        val installedApp = App.isAppInstalled(data.packageName)
-        // 获取应用图标
-        val appIcon = if (installedApp) {
-            getAppIcon(data.packageName) ?: ResourcesCompat.getDrawable(
-                context.resources,
-                data.icon,
-                null
-            )
+        val installedApp = context.isAppInstalled(data.pkg)
+
+        // 优先使用系统图标（已安装）
+        val appIconDrawable = if (installedApp) getAppIcon(data.pkg) else null
+        if (appIconDrawable != null) {
+            binding.appIcon.setImageDrawable(appIconDrawable)
+        } else if (data.icon.startsWith("http")) {
+            Glide.with(binding.appIcon).load(data.icon).into(binding.appIcon)
         } else {
-            drawable
+            binding.appIcon.setImageDrawable(null)
         }
-        binding.appIcon.setImageDrawable(if (installedApp) appIcon else toGrayscale(appIcon!!))
+
+        // 未安装时置灰
+        if (!installedApp) {
+            val matrix = ColorMatrix().apply { setSaturation(0f) }
+            binding.appIcon.colorFilter = ColorMatrixColorFilter(matrix)
+        } else {
+            binding.appIcon.clearColorFilter()
+        }
+
         binding.appName.text = data.name
         binding.appDesc.text = data.desc
-        binding.appPackageName.text = data.packageName
-        binding.checkbox.isChecked = data.packageName == selectApp
-
-        binding.checkbox.isEnabled = installedApp
-
-    }
-
-    private fun toGrayscale(drawable: Drawable): Drawable {
-        val colorMatrix = ColorMatrix()
-        colorMatrix.setSaturation(0f)   // 将饱和度设为0，即灰度化
-
-        val filter = ColorMatrixColorFilter(colorMatrix)
-        drawable.colorFilter = filter
-
-        return drawable
+        binding.appPackageName.text = data.pkg
+        binding.checkbox.isChecked = data.pkg == selectApp
     }
 
     private fun getAppIcon(packageName: String): Drawable? {
@@ -94,11 +88,11 @@ class AppListAdapter(
         }
     }
 
-    override fun areItemsSame(oldItem: AutoApp, newItem: AutoApp): Boolean {
-        return oldItem.packageName == newItem.packageName
+    override fun areItemsSame(oldItem: IAppAdapter, newItem: IAppAdapter): Boolean {
+        return oldItem.pkg == newItem.pkg
     }
 
-    override fun areContentsSame(oldItem: AutoApp, newItem: AutoApp): Boolean {
+    override fun areContentsSame(oldItem: IAppAdapter, newItem: IAppAdapter): Boolean {
         return oldItem == newItem
     }
 }

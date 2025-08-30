@@ -21,6 +21,8 @@ import net.ankio.auto.databinding.AdapterLogBinding
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
 import net.ankio.auto.utils.DateUtils
+import net.ankio.auto.utils.SystemUtils
+import net.ankio.auto.utils.getAppInfoFromPackageName
 import org.ezbook.server.constant.LogLevel
 import org.ezbook.server.db.model.LogModel
 
@@ -44,7 +46,7 @@ class LogAdapter :
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterLogBinding, LogModel>) {
         holder.binding.root.setOnLongClickListener {
             val item = holder.item!!
-            App.copyToClipboard(item.message)
+            SystemUtils.copyToClipboard(item.message)
             true
         }
     }
@@ -59,10 +61,7 @@ class LogAdapter :
         binding.date.text = DateUtils.stampToDate(data.time, DATE_FORMAT)
 
         val appName = cachedApp.getOrPut(data.app) {
-            App.getAppInfoFromPackageName(data.app)
-                ?.firstOrNull()
-                ?.toString()
-                ?: data.app
+            getAppInfoFromPackageName(data.app)?.name ?: data.app
         }
 
         binding.app.text = if (data.location.isNotEmpty()) {

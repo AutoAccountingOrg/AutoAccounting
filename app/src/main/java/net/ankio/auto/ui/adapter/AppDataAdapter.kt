@@ -15,179 +15,91 @@
 
 package net.ankio.auto.ui.adapter
 
-import android.content.Intent
-import android.net.Uri
 import android.view.View
-import android.os.Bundle
-import androidx.core.net.toUri
-import androidx.lifecycle.lifecycleScope
-import androidx.navigation.Navigation
+import androidx.core.view.isVisible
 import com.google.android.material.elevation.SurfaceColors
-import com.google.gson.Gson
-import com.google.gson.JsonObject
-import kotlinx.coroutines.launch
-import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterDataBinding
-import net.ankio.auto.http.Pastebin
-import net.ankio.auto.http.api.JsAPI
-import net.ankio.auto.http.api.AppDataAPI
-import net.ankio.auto.http.license.RuleAPI
-import net.ankio.auto.intent.IntentType
-import net.ankio.auto.service.CoreService
-import net.ankio.auto.storage.Logger
-import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
-import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
-import net.ankio.auto.ui.dialog.DataEditorDialog
-import net.ankio.auto.ui.dialog.EditorDialogBuilder
-import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.ToastUtils
-import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.utils.DateUtils
-import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.db.model.AppDataModel
-import androidx.navigation.findNavController
 
-class AppDataAdapter(
-    private val activity: BaseActivity
-) : BaseAdapter<AdapterDataBinding, AppDataModel>() {
+class AppDataAdapter : BaseAdapter<AdapterDataBinding, AppDataModel>() {
 
-    override fun onInitViewHolder(holder: BaseViewHolder<AdapterDataBinding, AppDataModel>) {
-        val binding = holder.binding
+    companion object {
+        private const val AI_GENERATED_SUFFIX = "生成"
+        private val RULE_NAME_REGEX = "\\[(.*?)]".toRegex()
+    }
 
+    // 事件监听器 - 让外部处理业务逻辑
+    var onTestRuleClick: ((AppDataModel) -> Unit)? = null
+    var onContentClick: ((AppDataModel) -> Unit)? = null
+    var onCreateRuleClick: ((AppDataModel) -> Unit)? = null
+    var onUploadDataClick: ((AppDataModel) -> Unit)? = null
+    var onDeleteClick: ((AppDataModel) -> Unit)? = null
 
-        binding.testRule.setOnClickListener {
-            activity.lifecycleScope.launch {
-                onTestRuleClick(it, holder.item)
-            }
-        }
-
-        binding.content.setOnClickListener {
-            onContentClick(it, holder.item!!)
-        }
-
-        binding.createRule.setOnClickListener {
-            onCreateRule(it, holder.item!!)
-        }
-
-
-        binding.uploadData.setOnClickListener {
-            val item = holder.item!!
-            // AI生成的不支持上传
-            if (item.rule.endsWith("生成")) {
-                ToastUtils.error(R.string.ai_not_support)
-                return@setOnClickListener
-            }
-            DataEditorDialog(activity, item.data) { result ->
-
-                activity.lifecycleScope.launch {
-                    val loading = LoadingUtils(activity)
-                    loading.show(R.string.upload_waiting)
-                    if (!item.match) {
-                        requestRuleHelp(item, result)
-                    } else {
-                        EditorDialogBuilder(activity)
-                            .setTitleInt(R.string.rule_issue)
-                            .setMessage("")
-                            .setEditorPositiveButton(R.string.btn_confirm) {
-                                activity.lifecycleScope.launch {
-                                    requestRuleBug(item, result, it)
-                                }
-                            }.setPositiveButton(R.string.btn_cancel) { _, _ ->
-
-                            }.show()
-
-                    }
-                    loading.close()
-                }
-
-            }.show()
-        }
-
-        binding.root.setOnLongClickListener {
-            val item = holder.item!!
-            BottomSheetDialogBuilder(activity)
-                .setTitle(activity.getString(R.string.delete_title))
-                .setMessage(activity.getString(R.string.delete_data_message))
-                .setPositiveButton(activity.getString(R.string.btn_confirm)) { _, _ ->
-                    removeItem(item)
-                    activity.lifecycleScope.launch {
-                        AppDataAPI.delete(item.id)
-                    }
-                }
-                .setNegativeButton(activity.getString(R.string.btn_cancel)) { _, _ -> }
-                .show()
-            true
-        }
-
-        binding.groupCard.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(activity))
-        // binding.content.setBackgroundColor(SurfaceColors.SURFACE_3.getColor(activity))
-
+    /**
+     * 从规则字符串中提取规则名称
+     */
+    private fun extractRuleName(rule: String): String {
+        return RULE_NAME_REGEX.find(rule)?.destructured?.component1() ?: rule
     }
 
     /**
-     * 引导进入规则编辑页面
-     * - 默认进入 JS 编辑器（editorType=js）
-     * - 携带当前数据作为 JS 注释注入（type=js, data=item.data）
+     * 检查是否为AI生成的规则
      */
-    private fun onCreateRule(it: View?, item: AppDataModel) {
-        if (it == null) return
-        val args = Bundle().apply {
-            putString("data", Gson().toJson(item))
-        }
-        it.findNavController().navigate(R.id.ruleEditFragment, args)
+    private fun isAiGeneratedRule(rule: String): Boolean {
+        return rule.contains(AI_GENERATED_SUFFIX)
     }
 
+    /**
+     * 检查规则是否匹配
+     */
+    private fun isRuleMatched(data: AppDataModel): Boolean {
+        return data.match && data.rule.isNotEmpty()
+    }
 
-    private fun onContentClick(view: View, item: AppDataModel) {
-        BottomSheetDialogBuilder(activity)
-            .setTitle(activity.getString(R.string.content_title))
-            .setMessage(item.data)
-            .setNegativeButton(activity.getString(R.string.cancel_msg)) { _, _ -> }
-            .setPositiveButton(activity.getString(R.string.copy)) { _, _ ->
-                App.copyToClipboard(item.data)
-                ToastUtils.info(R.string.copy_command_success)
+    override fun onInitViewHolder(holder: BaseViewHolder<AdapterDataBinding, AppDataModel>) {
+        val binding = holder.binding
+        val context = holder.context
+
+        // 简单的事件转发 - 让外部处理具体逻辑
+        binding.testRule.setOnClickListener {
+            holder.item?.let { onTestRuleClick?.invoke(it) }
+        }
+
+        binding.content.setOnClickListener {
+            holder.item?.let { onContentClick?.invoke(it) }
+        }
+
+        binding.createRule.setOnClickListener {
+            holder.item?.let { onCreateRuleClick?.invoke(it) }
+        }
+
+        binding.uploadData.setOnClickListener {
+            holder.item?.let { item ->
+                // 只做基本的UI验证，业务逻辑交给外部
+                if (isAiGeneratedRule(item.rule)) {
+                    ToastUtils.error(R.string.ai_not_support)
+                } else {
+                    onUploadDataClick?.invoke(item)
+                }
             }
-            .show()
+        }
+
+        binding.root.setOnLongClickListener {
+            holder.item?.let { onDeleteClick?.invoke(it) }
+            true
+        }
+
+        binding.groupCard.setCardBackgroundColor(SurfaceColors.SURFACE_1.getColor(context))
     }
 
 
-    private suspend fun onTestRuleClick(view: View, item: AppDataModel?) {
 
-        if (item == null) return
 
-        val loadingUtils = LoadingUtils(activity)
-        loadingUtils.show(
-            activity.getString(
-                R.string.ai_loading
-            )
-        )
-
-        val billResultModel = JsAPI.analysis(item.type, item.data, item.app, true)
-
-        if (billResultModel?.billInfoModel == null) {
-            ToastUtils.error(R.string.no_rule_hint)
-            loadingUtils.close()
-            return
-        }
-
-        val targetIntent = Intent(activity, CoreService::class.java).apply {
-            putExtra("parent", "")
-            putExtra("billInfo", Gson().toJson(billResultModel!!.billInfoModel))
-            putExtra("showWaitTip", false)
-            putExtra("from", "AppData")
-            putExtra("intentType", IntentType.FloatingIntent.name)
-        }
-        try {
-            activity.startForegroundService(targetIntent)
-        } catch (e: Exception) {
-            Logger.e("Failed to start service: ${e.message}", e)
-        } finally {
-            loadingUtils.close()
-        }
-    }
 
     override fun onBindViewHolder(
         holder: BaseViewHolder<AdapterDataBinding, AppDataModel>,
@@ -195,35 +107,20 @@ class AppDataAdapter(
         position: Int
     ) {
         val binding = holder.binding
-        binding.content.text = data.data
-        binding.uploadData.visibility = View.VISIBLE
 
+        // 基础数据绑定
+        binding.content.text = data.data
         binding.time.setText(DateUtils.stampToDate(data.time))
 
-        if (!data.match || data.rule.isEmpty()) {
-            binding.ruleName.visibility = View.INVISIBLE
-            binding.uploadData.setIconResource(R.drawable.icon_upload)
-            binding.createRule.visibility = View.VISIBLE
-        } else {
-            binding.ruleName.visibility = View.VISIBLE
-            binding.uploadData.setIconResource(R.drawable.icon_question)
-            binding.createRule.visibility = if (data.rule.contains("生成")) {
-                View.VISIBLE
-            } else {
-                View.GONE
-            }
-        }
-        val rule = data.rule
+        // 规则相关UI状态
+        val hasRule = isRuleMatched(data)
+        val isAiRule = isAiGeneratedRule(data.rule)
 
-        val regex = "\\[(.*?)]".toRegex()
-        val matchResult = regex.find(rule)
-        if (matchResult != null) {
-            val (value) = matchResult.destructured
-            binding.ruleName.setText(value)
-        } else {
-            binding.ruleName.setText(data.rule)
-        }
-
+        binding.ruleName.setText(if (hasRule) extractRuleName(data.rule) else "")
+        binding.ruleName.visibility = if (hasRule) View.VISIBLE else View.INVISIBLE
+        binding.createRule.visibility = if (!hasRule || isAiRule) View.VISIBLE else View.GONE
+        binding.uploadData.setIconResource(if (hasRule) R.drawable.icon_question else R.drawable.icon_upload)
+        binding.uploadData.isVisible = true
     }
 
 
@@ -233,93 +130,5 @@ class AppDataAdapter(
 
     override fun areContentsSame(oldItem: AppDataModel, newItem: AppDataModel): Boolean {
         return oldItem == newItem
-    }
-
-
-    suspend fun requestRuleHelp(item: AppDataModel, result: String) {
-        val type = item.type.name
-        val title = "[Adaptation Request][$type]${item.app}"
-        runCatching {
-            val (url, timeout) = Pastebin.add(result)
-            val body = """
-<!------ 
- 1. 请不要手动复制数据，下面的链接中已包含数据；
- 2. 您可以新增信息，但是不要删除本页任何内容；
- 3. 一般情况下，您直接划到底部点击submit即可。
- ------>                        
-## 数据链接                        
-[数据过期时间：${timeout}](${url})
-## 其他信息
-<!------ 
- 1. 您可以在下面添加说明信息。
- ------>  
-
-                """.trimIndent()
-
-            //上传Github Or 使用API
-            if (PrefManager.githubConnectivity) {
-                submitGithub(title, body)
-            } else {
-                submitCloud(title, body)
-            }
-
-        }.onFailure {
-            Logger.e(it.message ?: "", it)
-            ToastUtils.error(it.message ?: "Error in post issue")
-        }
-    }
-
-    suspend fun requestRuleBug(item: AppDataModel, result: String, desc: String) {
-        val type = item.type.name
-        val title = "[Bug][Rule][$type]${item.app}"
-        runCatching {
-            val (url, timeout) = Pastebin.add(result)
-            val body = """
-<!------ 
- 1. 请不要手动复制数据，下面的链接中已包含数据；
- 2. 该功能是反馈规则识别错误的，请勿写其他无关内容；
- ------>  
-## 规则
-${item.rule}
-## 数据
-[数据过期时间：${timeout}](${url})
-## 说明
-${desc}
-
-                         
-                                            """.trimIndent()
-
-            //上传Github Or 使用API
-            if (PrefManager.githubConnectivity) {
-                submitGithub(title, body)
-            } else {
-                submitCloud(title, body)
-            }
-
-        }.onFailure {
-            Logger.e(it.message ?: "", it)
-            ToastUtils.error(it.message ?: "Error in post issue")
-        }
-    }
-
-    // Github可访问的话，直接通过Github提交
-
-    fun submitGithub(title: String, body: String) {
-        val uri = "https://github.com/AutoAccountingOrg/AutoRuleSubmit/issues"
-        CustomTabsHelper.launchUrl(
-            activity,
-            "$uri/new?title=${Uri.encode(title)}&body=${Uri.encode(body)}".toUri(),
-        )
-    }
-
-
-    // Github不可访问的话，直接通过云端代理提交
-
-    suspend fun submitCloud(title: String, body: String) {
-        val result = RuleAPI.submit(title, body)
-        val data = Gson().fromJson(result, JsonObject::class.java)
-        if (data.get("code").asInt != 200) {
-            throw RuntimeException(data.get("msg").asString)
-        }
     }
 }

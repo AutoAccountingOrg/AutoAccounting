@@ -22,19 +22,30 @@ import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import android.widget.ArrayAdapter
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
+import com.google.gson.Gson
 import com.google.gson.JsonObject
 import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentPluginDataBinding
 import net.ankio.auto.http.api.AppDataAPI
+import net.ankio.auto.http.api.JsAPI
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.adapter.AppDataAdapter
 import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.api.BasePageFragment
+import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.components.MaterialSearchView
 import net.ankio.auto.ui.components.WrapContentLinearLayoutManager
+import net.ankio.auto.ui.dialog.BillEditorDialog
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
+import net.ankio.auto.ui.dialog.DataEditorDialog
+import net.ankio.auto.ui.dialog.EditorDialogBuilder
 import net.ankio.auto.ui.models.RailMenuItem
+import net.ankio.auto.ui.repository.AppDataRepository
+import net.ankio.auto.ui.utils.LoadingUtils
+import net.ankio.auto.ui.utils.ToastUtils
+import net.ankio.auto.utils.SystemUtils
 import net.ankio.auto.utils.getAppInfoFromPackageName
 import org.ezbook.server.constant.DataType
 import org.ezbook.server.db.model.AppDataModel
@@ -68,6 +79,9 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
     /** 左侧应用数据缓存 */
     private var leftData = JsonObject()
 
+    /** Repository实例，负责网络请求 */
+    private val repository = AppDataRepository()
+
     /**
      * 加载数据的主要方法
      * 根据当前筛选条件从API获取应用数据列表
@@ -79,14 +93,125 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
 
     /**
      * 创建数据适配器
-     * 配置RecyclerView的布局管理器和适配器
+     * 配置RecyclerView的布局管理器和适配器，并设置事件监听器
      *
      * @return 配置好的AppDataAdapter实例
      */
     override fun onCreateAdapter(): AppDataAdapter {
         val recyclerView = binding.statusPage.contentView!!
         recyclerView.layoutManager = WrapContentLinearLayoutManager(requireContext())
-        return AppDataAdapter(requireActivity() as BaseActivity)
+
+        return AppDataAdapter().apply {
+            onTestRuleClick = ::handleTestRuleClick
+            onContentClick = ::handleContentClick
+            onCreateRuleClick = ::handleCreateRuleClick
+            onUploadDataClick = ::handleUploadDataClick
+            onDeleteClick = ::handleDeleteClick
+        }
+    }
+
+    /**
+     * 处理测试规则点击事件
+     */
+    private fun handleTestRuleClick(item: AppDataModel) {
+        lifecycleScope.launch {
+            val loading = LoadingUtils(requireContext())
+            loading.show(R.string.rule_testing)
+
+            val billResultModel = JsAPI.analysis(item.type, item.data, item.app, true)
+                ?: throw IllegalStateException(getString(R.string.no_rule_hint))
+
+            BaseSheetDialog.create<BillEditorDialog>(requireContext())
+                .setBillInfo(billResultModel.billInfoModel)
+                .setOnConfirm { _ ->
+                    ToastUtils.info("规则测试完成")
+                }
+                .setOnCancel { _ -> }
+                .show()
+
+            loading.close()
+        }
+    }
+
+    /**
+     * 处理内容点击事件
+     */
+    private fun handleContentClick(item: AppDataModel) {
+        BaseSheetDialog.create<BottomSheetDialogBuilder>(requireContext())
+            .setTitle(getString(R.string.content_title))
+            .setMessage(item.data)
+            .setNegativeButton(getString(R.string.cancel_msg)) { _, _ -> }
+            .setPositiveButton(getString(R.string.copy)) { _, _ ->
+                SystemUtils.copyToClipboard(item.data)
+                ToastUtils.info(R.string.copy_command_success)
+            }
+            .show()
+    }
+
+    /**
+     * 处理创建规则点击事件
+     */
+    private fun handleCreateRuleClick(item: AppDataModel) {
+        val args = Bundle().apply {
+            putString("data", Gson().toJson(item))
+        }
+        findNavController().navigate(R.id.ruleEditFragment, args)
+    }
+
+    /**
+     * 处理上传数据点击事件
+     */
+    private fun handleUploadDataClick(item: AppDataModel) {
+        BaseSheetDialog.create<DataEditorDialog>(requireContext())
+            .setData(item.data)
+            .setOnConfirm { result ->
+                lifecycleScope.launch {
+                    val loading = LoadingUtils(requireContext())
+                    loading.show(R.string.upload_waiting)
+
+                    if (!(item.match && item.rule.isNotEmpty())) {
+                        repository.requestRuleHelp(item, result)
+                    } else {
+                        showRuleBugDialog(item, result)
+                    }
+
+                    loading.close()
+                }
+            }
+            .show()
+    }
+
+    /**
+     * 处理删除点击事件
+     */
+    private fun handleDeleteClick(item: AppDataModel) {
+        BaseSheetDialog.create<BottomSheetDialogBuilder>(requireContext())
+            .setTitle(getString(R.string.delete_title))
+            .setMessage(getString(R.string.delete_data_message))
+            .setPositiveButton(getString(R.string.btn_confirm)) { _, _ ->
+                removeItem(item)  // 使用基类的辅助函数
+                lifecycleScope.launch {
+                    AppDataAPI.delete(item.id)
+                }
+            }
+            .setNegativeButton(getString(R.string.btn_cancel)) { _, _ -> }
+            .show()
+    }
+
+    /**
+     * 显示规则Bug反馈对话框
+     */
+    private fun showRuleBugDialog(item: AppDataModel, result: String) {
+        BaseSheetDialog.create<EditorDialogBuilder>(requireContext())
+            .setTitleInt(R.string.rule_issue)
+            .setMessage("")
+            .setEditorPositiveButton(R.string.btn_confirm) { description ->
+                lifecycleScope.launch {
+                    repository.requestRuleBug(item, result, description)
+                }
+            }
+            .setNegativeButton(R.string.btn_cancel) { _, _ -> }
+            .show()
     }
 
     /**
@@ -273,10 +398,10 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
                     return true
                 }
 
-                BottomSheetDialogBuilder.create(this)
-                    .setTitle(requireActivity().getString(R.string.delete_data))
-                    .setMessage(requireActivity().getString(R.string.delete_msg))
-                    .setPositiveButton(requireActivity().getString(R.string.sure_msg)) { _, _ ->
+                BaseSheetDialog.create<BottomSheetDialogBuilder>(requireContext())
+                    .setTitle(getString(R.string.delete_data))
+                    .setMessage(getString(R.string.delete_msg))
+                    .setPositiveButton(getString(R.string.sure_msg)) { _, _ ->
                         lifecycleScope.launch {
                             try {
                                 AppDataAPI.clear()
