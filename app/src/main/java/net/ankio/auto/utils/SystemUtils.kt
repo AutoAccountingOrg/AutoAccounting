@@ -29,6 +29,7 @@ import android.util.TypedValue
 import androidx.lifecycle.LifecycleOwner
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.activity.HomeActivity
+import net.ankio.auto.ui.activity.MainActivity
 import java.math.BigInteger
 import java.security.MessageDigest
 
@@ -68,7 +69,7 @@ object SystemUtils {
      * 重启应用
      */
     fun restart() {
-        val intent = Intent(application, HomeActivity::class.java)
+        val intent = Intent(application, MainActivity::class.java)
         intent.addFlags(FLAG_ACTIVITY_NEW_TASK)
         application.startActivity(intent)
         Process.killProcess(Process.myPid())

@@ -1,93 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory android:title="@string/setting_category_local_backup">
+    <PreferenceCategory android:title="@string/setting_category_auto_backup">
         <rikka.material.preference.MaterialSwitchPreference
             android:defaultValue="false"
             android:icon="@drawable/setting2_icon_backup"
-            android:key="autoBackup"
+            android:key="auto_backup"
             android:summary="@string/setting_auto_backup_summary"
             android:title="@string/setting_auto_backup" />
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="@string/setting_category_cloud_sync">
+    <PreferenceCategory android:title="@string/setting_category_local_backup">
+        <androidx.preference.Preference
+            android:icon="@drawable/setting2_icon_to_local"
+            android:key="backupToLocal"
+            android:summary="@string/setting_backup_to_local_summary"
+            android:title="@string/setting_backup_to_local" />
+
+        <androidx.preference.Preference
+            android:icon="@drawable/setting2_icon_from_local"
+            android:key="restoreFromLocal"
+            android:summary="@string/setting_restore_from_local_summary"
+            android:title="@string/setting_restore_from_local" />
+
+        <androidx.preference.Preference
+            android:icon="@drawable/setting2_icon_dir"
+            android:key="setting_local_backup_path"
+            android:summary="@string/setting_local_backup_path_summary"
+            android:title="@string/setting_local_backup_path" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/setting_category_webdav_backup">
         <rikka.material.preference.MaterialSwitchPreference
             android:defaultValue="false"
             android:icon="@drawable/ic_sync"
-            android:key="useWebdav"
-            android:summary="@string/setting_use_webdav_summary"
-            android:title="@string/setting_use_webdav" />
+            android:key="setting_use_webdav"
+            android:summary="@string/setting_use_webdav_replace_local_summary"
+            android:title="@string/setting_use_webdav_replace_local" />
 
-        <rikka.preference.SimpleMenuPreference
-            android:defaultValue="none"
-            android:dependency="useWebdav"
-            android:entries="@array/sync_type_texts"
-            android:entryValues="@array/sync_type_values"
-            android:icon="@drawable/ic_sync2"
-            android:key="syncType"
-            android:summary="%s"
-            android:title="@string/setting_sync_type" />
-
-        <androidx.preference.EditTextPreference
-            android:defaultValue=""
-            android:dependency="useWebdav"
+        <androidx.preference.Preference
+            android:dependency="setting_use_webdav"
             android:icon="@drawable/ic_open_in_new"
-            android:key="webdavHost"
+            android:key="setting_webdav_host"
             android:summary="@string/setting_webdav_url_summary"
             android:title="@string/setting_webdav_url" />
 
-        <androidx.preference.EditTextPreference
-            android:defaultValue=""
-            android:dependency="useWebdav"
+        <androidx.preference.Preference
+            android:dependency="setting_use_webdav"
             android:icon="@drawable/ic_explore"
-            android:key="webdavUser"
+            android:key="setting_webdav_user"
             android:summary="@string/setting_webdav_user_summary"
             android:title="@string/setting_webdav_user" />
 
-        <androidx.preference.EditTextPreference
-            android:defaultValue=""
-            android:dependency="useWebdav"
+        <androidx.preference.Preference
+            android:dependency="setting_use_webdav"
             android:icon="@drawable/ic_lock"
-            android:key="webdavPassword"
-            android:inputType="textPassword"
+            android:key="setting_webdav_password"
             android:summary="@string/setting_webdav_password_summary"
             android:title="@string/setting_webdav_password" />
 
-        <androidx.preference.EditTextPreference
-            android:defaultValue="/AutoAccounting/"
-            android:dependency="useWebdav"
+        <androidx.preference.Preference
+            android:dependency="setting_use_webdav"
             android:icon="@drawable/setting2_icon_dir"
-            android:key="localBackupPath"
+            android:key="setting_webdav_path"
             android:summary="@string/setting_webdav_path_summary"
             android:title="@string/setting_webdav_path" />
+
+        <androidx.preference.Preference
+            android:dependency="setting_use_webdav"
+            android:icon="@drawable/ic_network"
+            android:key="testWebdav"
+            android:summary="@string/setting_test_webdav_summary"
+            android:title="@string/setting_test_webdav" />
+
+        <androidx.preference.Preference
+            android:dependency="setting_use_webdav"
+            android:icon="@drawable/setting2_icon_to_local"
+            android:key="backupToWebdav"
+            android:summary="@string/setting_backup_to_webdav_summary"
+            android:title="@string/setting_backup_to_webdav" />
+
+        <androidx.preference.Preference
+            android:dependency="setting_use_webdav"
+            android:icon="@drawable/setting2_icon_from_local"
+            android:key="restoreFromWebdav"
+            android:summary="@string/setting_restore_from_webdav_summary"
+            android:title="@string/setting_restore_from_webdav" />
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="@string/setting_category_app_update">
-        <rikka.material.preference.MaterialSwitchPreference
-            android:defaultValue="true"
-            android:icon="@drawable/setting2_icon_update"
-            android:key="autoCheckAppUpdate"
-            android:summary="@string/setting_auto_update_summary"
-            android:title="@string/setting_auto_update" />
-
-        <rikka.preference.SimpleMenuPreference
-            android:defaultValue="stable"
-            android:dependency="autoCheckAppUpdate"
-            android:entries="@array/update_channel_texts"
-            android:entryValues="@array/update_channel_values"
-            android:icon="@drawable/setting2_icon_update_channel"
-            android:key="appChannel"
-            android:summary="%s"
-            android:title="@string/setting_update_channel" />
-    </PreferenceCategory>
-
-    <PreferenceCategory android:title="@string/setting_category_rule_update">
-        <rikka.material.preference.MaterialSwitchPreference
-            android:defaultValue="true"
-            android:icon="@drawable/setting2_icon_rule"
-            android:key="autoCheckRuleUpdate"
-            android:summary="@string/setting_auto_rule_update_summary"
-            android:title="@string/setting_auto_rule_update" />
-    </PreferenceCategory>
 
 </PreferenceScreen>

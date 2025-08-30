@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <PreferenceCategory android:title="@string/setting_category_ai_config">
+        <androidx.preference.Preference
+            android:icon="@drawable/ic_ai"
+            android:key="aiConfig"
+            android:summary="@string/setting_ai_config_summary"
+            android:title="@string/setting_ai_config" />
+    </PreferenceCategory>
+
     <PreferenceCategory android:title="@string/setting_category_ai_features">
         <rikka.material.preference.MaterialSwitchPreference
             android:defaultValue="false"
@@ -32,7 +40,7 @@
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/setting_category_ai_advanced">
-        <androidx.preference.EditTextPreference
+        <androidx.preference.Preference
             android:defaultValue=""
             android:dependency="aiMonthlySummary"
             android:icon="@drawable/icon_edit"

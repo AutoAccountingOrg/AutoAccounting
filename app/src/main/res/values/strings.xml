@@ -232,6 +232,18 @@
     <string name="restore_webdav">Downloading backup file</string>
     <string name="backup_webdav">Preparing to upload...</string>
     <string name="backup_pack">Packing data...</string>
+    <string name="backup_preparing">Preparing backup...</string>
+    <string name="backup_database">Backing up database...</string>
+    <string name="backup_preferences">Backing up preferences...</string>
+    <string name="backup_creating_index">Creating index file...</string>
+    <string name="backup_compressing">Compressing files...</string>
+    <string name="restore_preparing">Preparing restore...</string>
+    <string name="restore_extracting">Extracting backup...</string>
+    <string name="restore_validating">Validating backup...</string>
+    <string name="restore_database">Restoring database...</string>
+    <string name="restore_preferences">Restoring preferences...</string>
+    <string name="restore_clearing_cache">Clearing cache...</string>
+    <string name="restore_restarting">Restarting app...</string>
     <string name="setting_webdav_password_desc">Nutstore requires creating an app password for normal use.</string>
     <string name="setting_bill_remark">Remark format</string>
     <string name="setting_bill_repeat">Bill deduplication</string>
@@ -379,6 +391,16 @@
     <string name="setting_desc_features">Asset · Currency · Reimbursement · Debt · Multi-book · Fee</string>
 
     <string name="setting_title_ai">AI Assistant</string>
+    <string name="setting_title_ai_config">AI Configuration</string>
+    <string name="setting_ai_config">AI Configuration</string>
+    <string name="setting_ai_config_summary">Configure AI model and API settings</string>
+    <string name="setting_category_ai_config">AI Configuration</string>
+    <string name="ai_test_connection">Test Connection</string>
+    <string name="ai_test_result">Test Result</string>
+    <string name="ai_test_success_message">AI connection successful! The model is working properly.</string>
+    <string name="ai_test_failed_message">AI connection failed: %s</string>
+    <string name="ai_test_in_progress">Testing AI connection...</string>
+    <string name="ai_test_no_config">Please configure provider, model and API key first</string>
     <string name="setting_desc_ai">AI model configuration · Smart recognition · Category mapping</string>
 
     <string name="setting_title_experimental">Experimental features</string>
@@ -387,7 +409,30 @@
     <string name="setting_title_appearance">Appearance</string>
     <string name="setting_desc_appearance">Theme · Language · Popup style</string>
 
-    <string name="setting_title_backup">Backup and update</string>
+    <string name="setting_title_backup">Backup and sync</string>
+    <string name="setting_backup_to_local">Backup to local</string>
+    <string name="setting_backup_to_local_summary">Export data to local file</string>
+    <string name="setting_restore_from_local">Restore from local</string>
+    <string name="setting_restore_from_local_summary">Import data from local file</string>
+    <string name="setting_category_auto_backup">Auto Backup</string>
+    <string name="setting_category_webdav_backup">WebDAV Backup</string>
+    <string name="setting_use_webdav_replace_local">Use WebDAV instead of local backup</string>
+    <string name="setting_use_webdav_replace_local_summary">When enabled, auto backup will use WebDAV instead of local storage</string>
+    <string name="setting_test_webdav">Test WebDAV Connection</string>
+    <string name="setting_test_webdav_summary">Test WebDAV server connectivity and authentication</string>
+    <string name="setting_webdav_config_incomplete">Please configure WebDAV host, username and password first</string>
+    <string name="setting_webdav_testing">Testing WebDAV connection...</string>
+    <string name="setting_webdav_test_success">WebDAV connection successful!</string>
+    <string name="setting_webdav_test_failed">WebDAV connection failed</string>
+    <string name="setting_webdav_test_error">WebDAV test error: %s</string>
+    <string name="setting_webdav_test_uploading">Uploading test file...</string>
+    <string name="setting_webdav_test_downloading">Downloading test file...</string>
+    <string name="setting_webdav_test_verifying">Verifying data integrity...</string>
+    <string name="setting_webdav_test_cleaning">Cleaning up test files...</string>
+    <string name="setting_backup_to_webdav">Backup to WebDAV</string>
+    <string name="setting_backup_to_webdav_summary">Create backup and upload to WebDAV server</string>
+    <string name="setting_restore_from_webdav">Restore from WebDAV</string>
+    <string name="setting_restore_from_webdav_summary">Download and restore the latest backup from WebDAV server</string>
     <string name="setting_desc_backup">Local backup · Cloud backup · App update · Rule update</string>
 
     <string name="setting_desc_danger">Anonymous analytics · Debug · Database · Hook app adjustment</string>
@@ -864,6 +909,8 @@
     <string name="setting_webdav_password_summary">WebDAV password</string>
     <string name="setting_webdav_path">WebDAV Path</string>
     <string name="setting_webdav_path_summary">Remote backup path</string>
+    <string name="setting_local_backup_path">Local Backup Path</string>
+    <string name="setting_local_backup_path_summary">Local backup storage path</string>
     <string name="setting_auto_update">Auto Update</string>
     <string name="setting_auto_update_summary">Automatically check for app updates</string>
     <string name="setting_auto_rule_update">Auto Rule Update</string>

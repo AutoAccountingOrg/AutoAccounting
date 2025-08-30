@@ -379,6 +379,16 @@
     <string name="setting_desc_features">资产 · 货币 · 报销 · 债务 · 多账本 · 手续费</string>
 
     <string name="setting_title_ai">AI 助手</string>
+    <string name="setting_title_ai_config">AI 配置</string>
+    <string name="setting_ai_config">AI 配置</string>
+    <string name="setting_ai_config_summary">配置 AI 模型和 API 设置</string>
+    <string name="setting_category_ai_config">AI 配置</string>
+    <string name="ai_test_connection">测试连接</string>
+    <string name="ai_test_result">测试结果</string>
+    <string name="ai_test_success_message">AI 连接成功！模型工作正常。</string>
+    <string name="ai_test_failed_message">AI 连接失败：%s</string>
+    <string name="ai_test_in_progress">正在测试 AI 连接...</string>
+    <string name="ai_test_no_config">请先配置服务商、模型和 API 密钥</string>
     <string name="setting_desc_ai">AI 模型配置 · 智能识别 · 分类映射</string>
 
     <string name="setting_title_experimental">实验性功能</string>
@@ -387,7 +397,30 @@
     <string name="setting_title_appearance">外观</string>
     <string name="setting_desc_appearance">主题 · 语言 · 弹窗样式</string>
 
-    <string name="setting_title_backup">备份和更新</string>
+    <string name="setting_title_backup">备份和同步</string>
+    <string name="setting_backup_to_local">备份到本地</string>
+    <string name="setting_backup_to_local_summary">导出数据到本地文件</string>
+    <string name="setting_restore_from_local">从本地恢复</string>
+    <string name="setting_restore_from_local_summary">从本地文件导入数据</string>
+    <string name="setting_category_auto_backup">自动备份</string>
+    <string name="setting_category_webdav_backup">WebDAV 备份</string>
+    <string name="setting_use_webdav_replace_local">使用 WebDAV 取代本地备份</string>
+    <string name="setting_use_webdav_replace_local_summary">启用后，自动备份将使用 WebDAV 而不是本地存储</string>
+    <string name="setting_test_webdav">测试 WebDAV 连接</string>
+    <string name="setting_test_webdav_summary">测试 WebDAV 服务器连通性和身份验证</string>
+    <string name="setting_webdav_config_incomplete">请先配置 WebDAV 主机、用户名和密码</string>
+    <string name="setting_webdav_testing">正在测试 WebDAV 连接...</string>
+    <string name="setting_webdav_test_success">WebDAV 连接成功！</string>
+    <string name="setting_webdav_test_failed">WebDAV 连接失败</string>
+    <string name="setting_webdav_test_error">WebDAV 测试错误：%s</string>
+    <string name="setting_webdav_test_uploading">正在上传测试文件...</string>
+    <string name="setting_webdav_test_downloading">正在下载测试文件...</string>
+    <string name="setting_webdav_test_verifying">正在校验数据完整性...</string>
+    <string name="setting_webdav_test_cleaning">正在清理测试文件...</string>
+    <string name="setting_backup_to_webdav">备份到 WebDAV</string>
+    <string name="setting_backup_to_webdav_summary">创建备份并上传到 WebDAV 服务器</string>
+    <string name="setting_restore_from_webdav">从 WebDAV 恢复</string>
+    <string name="setting_restore_from_webdav_summary">从 WebDAV 服务器下载并恢复最新备份</string>
     <string name="setting_desc_backup">本地备份 · 云备份 · 应用更新 · 规则更新</string>
 
     <string name="setting_desc_danger">匿名分析 · 调试 · 数据库 · Hook 应用调整</string>

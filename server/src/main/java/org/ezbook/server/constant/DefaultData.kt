@@ -162,9 +162,10 @@ object DefaultData {
     val LAST_BACKUP_TIME = 0L
     val AUTO_BACKUP = false
     val USE_WEBDAV = false
-    val WEBDAV_HOST = ""
+    val WEBDAV_HOST = "https://dav.jianguoyun.com/dav/"
     val WEBDAV_USER = ""
     val WEBDAV_PASSWORD = ""
+    val WEBDAV_PATH = ""
     val DEBUG_MODE = false
     val FLOAT_TIMEOUT_OFF = 0
     val DEFAULT_BOOK_NAME = "默认账本"

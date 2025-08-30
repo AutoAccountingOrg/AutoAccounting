@@ -60,6 +60,7 @@ object Setting {
     const val WEBDAV_HOST = "setting_webdav_host"                   // WebDAV服务器
     const val WEBDAV_USER = "setting_webdav_user"                   // WebDAV用户名
     const val WEBDAV_PASSWORD = "setting_webdav_password"           // WebDAV密码
+    const val WEBDAV_PATH = "setting_webdav_path"                   // WebDAV路径
     const val LOCAL_BACKUP_PATH = "setting_local_backup_path"       // 本地备份路径
 
     // 同步哈希值

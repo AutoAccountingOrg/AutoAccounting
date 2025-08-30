@@ -252,6 +252,11 @@ object PrefManager {
         get() = getString(Setting.WEBDAV_PASSWORD, DefaultData.WEBDAV_PASSWORD)
         set(value) = putString(Setting.WEBDAV_PASSWORD, value)
 
+    /** WebDAV 路径 */
+    var webdavPath: String
+        get() = getString(Setting.WEBDAV_PATH, DefaultData.WEBDAV_PATH)
+        set(value) = putString(Setting.WEBDAV_PATH, value)
+
     /** 本地备份路径 */
     var localBackupPath: String
         get() = getString(Setting.LOCAL_BACKUP_PATH, DefaultData.LOCAL_BACKUP_PATH)
