@@ -19,8 +19,11 @@ import android.os.Bundle
 import androidx.activity.OnBackPressedCallback
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
+import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.databinding.ActivityMainBinding
+import net.ankio.auto.storage.Logger
+import net.ankio.auto.storage.backup.BackupManager
 import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.ui.utils.slideDown
@@ -68,6 +71,17 @@ class HomeActivity : BaseActivity() {
                 }
             }
         });
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        Logger.d("HomeActivity onStop - 触发自动备份检查")
+
+        // 使用全局协程作用域执行备份，避免阻塞UI线程
+        App.launch {
+            BackupManager.autoBackup()
+        }
     }
 
     override fun onDestroy() {

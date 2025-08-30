@@ -23,9 +23,13 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.exceptions.RestoreBackupException
+import kotlinx.coroutines.delay
 import net.ankio.auto.http.RequestsUtils
+import net.ankio.auto.storage.CacheManager
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.storage.ZipUtils
+import net.ankio.auto.ui.utils.LoadingUtils
+import net.ankio.auto.utils.SystemUtils
 import java.io.File
 import java.io.FileOutputStream
 
@@ -39,21 +43,40 @@ class BackupFileManager(private val context: Context) {
         const val SUPPORT_VERSION = 202
     }
 
+    private var loading = runCatching {
+        LoadingUtils(context)
+    }.getOrNull()
+
     /**
      * 打包数据文件
      * @param filename 目标文件名
      */
     suspend fun packData(filename: String) = withContext(Dispatchers.IO) {
-        val backupDir = prepareBackupDirectory()
+        try {
+            loading?.show(context.getString(R.string.backup_preparing))
+            val backupDir = prepareBackupDirectory()
 
-        // 下载数据库文件
-        downloadDatabase(backupDir)
+            // 下载数据库文件
+            loading?.setText(context.getString(R.string.backup_database))
+            downloadDatabase(backupDir)
 
-        // 创建索引文件
-        createIndexFile(backupDir)
+            // 备份配置文件
+            loading?.setText(context.getString(R.string.backup_preferences))
+            backupPreferences(backupDir)
 
-        // 压缩所有文件
-        ZipUtils.zipAll(backupDir, filename)
+            // 创建索引文件
+            loading?.setText(context.getString(R.string.backup_creating_index))
+            createIndexFile(backupDir)
+
+            // 压缩所有文件
+            loading?.setText(context.getString(R.string.backup_compressing))
+            ZipUtils.zipAll(backupDir, filename, excludeRootDir = true)
+
+            loading?.close()
+        } catch (e: Exception) {
+            loading?.close()
+            throw e
+        }
     }
 
     /**
@@ -61,19 +84,44 @@ class BackupFileManager(private val context: Context) {
      * @param file 备份文件
      */
     suspend fun unpackData(file: File) = withContext(Dispatchers.IO) {
-        val backupDir = prepareBackupDirectory()
+        try {
+            loading?.show(context.getString(R.string.restore_preparing))
+            val backupDir = prepareBackupDirectory()
 
-        // 解压文件
-        ZipUtils.unzip(file.absolutePath, backupDir.absolutePath) {
-            Logger.i("Unzip progress: $it")
+            // 解压文件
+            loading?.setText(context.getString(R.string.restore_extracting))
+            ZipUtils.unzip(file.absolutePath, backupDir.absolutePath) {
+                Logger.i("Unzip progress: $it")
+            }
+            file.delete()
+
+            // 验证备份文件
+            loading?.setText(context.getString(R.string.restore_validating))
+            validateBackup(backupDir)
+
+            // 恢复数据库
+            loading?.setText(context.getString(R.string.restore_database))
+            restoreDatabase(backupDir)
+
+            // 恢复配置文件
+            loading?.setText(context.getString(R.string.restore_preferences))
+            restorePreferences(backupDir)
+
+            // 清空缓存，确保恢复的数据生效
+            loading?.setText(context.getString(R.string.restore_clearing_cache))
+            CacheManager.clear()
+
+            // 准备重启应用
+            loading?.setText(context.getString(R.string.restore_restarting))
+            loading?.close()
+
+            // 延迟后重启应用，确保UI有时间关闭
+            delay(1000)
+            SystemUtils.restart()
+        } catch (e: Exception) {
+            loading?.close()
+            throw e
         }
-        file.delete()
-
-        // 验证备份文件
-        validateBackup(backupDir)
-
-        // 恢复数据库
-        restoreDatabase(backupDir)
     }
 
     /**
@@ -157,5 +205,55 @@ class BackupFileManager(private val context: Context) {
         val requestUtils = RequestsUtils()
         val result = requestUtils.upload("http://127.0.0.1:52045/db/import", dbFile)
         Logger.i("Upload result: $result")
+    }
+
+    /**
+     * 备份配置文件
+     */
+    private fun backupPreferences(backupDir: File) {
+        try {
+            // Android SharedPreferences 文件路径
+            val prefsDir = File(context.applicationInfo.dataDir, "shared_prefs")
+            val settingsFile = File(prefsDir, "settings.xml")
+
+            if (settingsFile.exists()) {
+                val backupPrefsFile = File(backupDir, "settings.xml")
+                settingsFile.copyTo(backupPrefsFile, overwrite = true)
+                Logger.i("Preferences backed up successfully")
+            } else {
+                Logger.w("Settings file not found, skipping preferences backup")
+            }
+        } catch (e: Exception) {
+            Logger.e("Failed to backup preferences: ${e.message}")
+        }
+    }
+
+    /**
+     * 恢复配置文件
+     */
+    private fun restorePreferences(backupDir: File) {
+        try {
+            val backupPrefsFile = File(backupDir, "settings.xml")
+
+            if (backupPrefsFile.exists()) {
+                // Android SharedPreferences 文件路径
+                val prefsDir = File(context.applicationInfo.dataDir, "shared_prefs")
+                if (!prefsDir.exists()) {
+                    prefsDir.mkdirs()
+                }
+
+                val settingsFile = File(prefsDir, "settings.xml")
+                backupPrefsFile.copyTo(settingsFile, overwrite = true)
+
+                // 清理备份文件
+                backupPrefsFile.delete()
+
+                Logger.i("Preferences restored successfully")
+            } else {
+                Logger.w("No preferences file found in backup, skipping restore")
+            }
+        } catch (e: Exception) {
+            Logger.e("Failed to restore preferences: ${e.message}")
+        }
     }
 }

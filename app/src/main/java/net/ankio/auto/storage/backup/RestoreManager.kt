@@ -18,12 +18,14 @@ package net.ankio.auto.storage.backup
 import android.content.Context
 import android.net.Uri
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
+import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.activity.HomeActivity
 import net.ankio.auto.ui.utils.LoadingUtils
-import net.ankio.auto.utils.SystemUtils
+import net.ankio.auto.ui.utils.ToastUtils
+import net.ankio.auto.utils.CoroutineUtils.withIO
+import net.ankio.auto.utils.CoroutineUtils.withMain
 import java.io.File
 
 /**
@@ -32,25 +34,14 @@ import java.io.File
 class RestoreManager(private val context: Context) {
 
     private val fileManager = BackupFileManager(context)
-    private val webDAVManager = WebDAVManager(context)
+    private val webDAVManager = WebDAVManager()
 
     /**
      * 从本地文件恢复
      * @param uri 文件 URI
      */
-    suspend fun restoreFromLocal(uri: Uri) = withContext(Dispatchers.IO) {
-        BackupResultHandler.handleOperation(
-            context = context,
-            operation = "本地恢复",
-            onSuccess = {
-                BackupResultHandler.showSuccess(R.string.restore_success)
-                // 延迟后重启应用
-                withContext(Dispatchers.IO) {
-                    delay(3000)
-                    SystemUtils.restart()
-                }
-            }
-        ) {
+    suspend fun restoreFromLocal(uri: Uri) = withIO {
+        try {
             val filename = "restore_${System.currentTimeMillis()}.${BackupFileManager.SUFFIX}"
 
             // 读取文件内容
@@ -61,6 +52,14 @@ class RestoreManager(private val context: Context) {
                 // 解包并恢复数据
                 fileManager.unpackData(file)
             }
+
+            Logger.i("本地恢复操作成功")
+            // BackupFileManager 已经处理了重启逻辑
+            ToastUtils.info(R.string.restore_success)
+        } catch (throwable: Throwable) {
+            Logger.e("本地恢复操作失败", throwable)
+            ToastUtils.error(R.string.backup_error)
+            throw throwable
         }
     }
 
@@ -72,35 +71,25 @@ class RestoreManager(private val context: Context) {
     suspend fun restoreFromWebDAV(
         activity: HomeActivity,
         filename: String
-    ) = withContext(Dispatchers.IO) {
-        val loadingUtils = LoadingUtils(activity)
+    ) = withIO {
+
+        var loadingUtils: LoadingUtils? = null
+        withMain {
+            loadingUtils = LoadingUtils(activity)
+        }
         val targetFile = File(context.cacheDir, "auto_backup.${BackupFileManager.SUFFIX}")
 
-        BackupResultHandler.handleOperation(
-            context = context,
-            operation = "WebDAV恢复",
-            onSuccess = {
-                withContext(Dispatchers.Main) {
-                    loadingUtils.close()
-                    BackupResultHandler.showSuccess(R.string.restore_success)
-                }
-                // 延迟后重启应用
-                delay(3000)
-                SystemUtils.restart()
-            },
-            onError = {
-                withContext(Dispatchers.Main) {
-                    loadingUtils.close()
-                }
-            }
-        ) {
+        try {
             // 下载文件
-            val downloadSuccess = webDAVManager.downloadBackup(filename, targetFile, loadingUtils)
+            withMain {
+                loadingUtils?.setText(R.string.restore_webdav)
+            }
+            val downloadSuccess = webDAVManager.download(filename, targetFile)
 
             if (downloadSuccess) {
                 // 切换到恢复进度提示
-                withContext(Dispatchers.Main) {
-                    loadingUtils.setText(R.string.restore_loading)
+                withMain {
+                    loadingUtils?.setText(R.string.restore_loading)
                 }
 
                 // 解包并恢复数据
@@ -108,6 +97,20 @@ class RestoreManager(private val context: Context) {
             } else {
                 throw RuntimeException("下载备份文件失败")
             }
+
+            Logger.i("WebDAV恢复操作成功")
+            withMain {
+                loadingUtils?.close()
+                // BackupFileManager 已经处理了重启逻辑
+                ToastUtils.info(R.string.restore_success)
+            }
+        } catch (throwable: Throwable) {
+            Logger.e("WebDAV恢复操作失败", throwable)
+            withMain {
+                loadingUtils?.close()
+                ToastUtils.error(R.string.backup_error)
+            }
+            throw throwable
         }
     }
 }
