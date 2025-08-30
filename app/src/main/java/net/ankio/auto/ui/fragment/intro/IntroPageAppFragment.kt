@@ -62,7 +62,7 @@ class IntroPageAppFragment : BaseIntroPageFragment<FragmentIntroPageAppBinding>(
                 setOnCardClickListener {
                     //判断App是否安装
                     if (!context.isAppInstalled(app.pkg) && app.link.isNotEmpty()) {
-                        CustomTabsHelper.launchUrl(context, app.link.toUri())
+                        CustomTabsHelper.launchUrl(app.link.toUri())
                     }
                 }
                 if (index == 0) {
