@@ -30,12 +30,12 @@ import net.ankio.auto.R
 import net.ankio.auto.databinding.ComponentCategoryBinding
 import net.ankio.auto.databinding.FragmentCategoryBinding
 import net.ankio.auto.http.api.CategoryAPI
-import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseFragment
+import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.api.bindAs
 import net.ankio.auto.ui.dialog.BookSelectorDialog
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
-import net.ankio.auto.ui.fragment.book.CategoryComponent
+import net.ankio.auto.ui.fragment.components.CategoryComponent
 import net.ankio.auto.ui.utils.CategoryUtils
 import net.ankio.auto.ui.utils.DisplayUtils.dp2px
 import net.ankio.auto.ui.utils.ListPopupUtilsGeneric
@@ -58,10 +58,8 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>(),
     androidx.appcompat.widget.Toolbar.OnMenuItemClickListener {
 
     companion object {
-        private const val KEY_SELECTED_BOOK_ID = "selected_book_id"
-        private const val KEY_SELECTED_BOOK_NAME = "selected_book_name"
-        private const val KEY_SELECTED_BOOK_REMOTE_ID = "selected_book_remote_id"
-        private const val KEY_SELECTED_BOOK_ICON = "selected_book_icon"
+        // 用于传递和保存账本信息的参数键（Gson序列化）
+        const val ARG_BOOK_MODEL = "arg_book_model"
     }
 
     /** 当前选中的账本 */
@@ -75,16 +73,34 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>(),
 
         // 设置工具栏
         setupToolbar()
+        loadBookFromSavedState(savedInstanceState)
 
-        // 恢复保存的账本状态
-        restoreBookState(savedInstanceState)
-
-        // 如果没有选中的账本，显示账本选择对话框
         if (selectedBook == null) {
-            showBookSelectorDialog()
-        } else {
-            // 如果已有选中的账本，直接初始化分类Tab
-            initializeCategoryTabs()
+            // 从参数中获取账本信息
+            loadBookFromArguments()
+        }
+
+        // 如果仍然没有账本信息，直接退出
+        if (selectedBook == null) {
+            findNavController().popBackStack()
+            return
+        }
+
+        // 初始化分类Tab
+        initializeCategoryTabs()
+    }
+
+    /**
+     * 从参数中加载账本信息
+     */
+    private fun loadBookFromArguments() {
+        arguments?.getString(ARG_BOOK_MODEL)?.let { bookJson ->
+            selectedBook = try {
+                Gson().fromJson(bookJson, BookNameModel::class.java)
+            } catch (e: Exception) {
+                // Gson反序列化失败，忽略错误继续其他逻辑
+                null
+            }
         }
     }
 
@@ -94,31 +110,19 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>(),
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         selectedBook?.let { book ->
-            outState.putLong(KEY_SELECTED_BOOK_ID, book.id)
-            outState.putString(KEY_SELECTED_BOOK_NAME, book.name)
-            outState.putString(KEY_SELECTED_BOOK_REMOTE_ID, book.remoteId)
-            outState.putString(KEY_SELECTED_BOOK_ICON, book.icon)
+            outState.putString(ARG_BOOK_MODEL, Gson().toJson(book))
         }
     }
 
     /**
-     * 恢复账本状态
+     * 从保存的状态中加载账本信息
      */
-    private fun restoreBookState(savedInstanceState: Bundle?) {
-        savedInstanceState?.let { bundle ->
-            val bookId = bundle.getLong(KEY_SELECTED_BOOK_ID, 0L)
-            val bookName = bundle.getString(KEY_SELECTED_BOOK_NAME)
-            val bookRemoteId = bundle.getString(KEY_SELECTED_BOOK_REMOTE_ID)
-            val bookIcon = bundle.getString(KEY_SELECTED_BOOK_ICON)
-
-            // 如果有保存的账本信息，重新创建BookNameModel对象
-            if (bookId > 0L && !bookName.isNullOrEmpty()) {
-                selectedBook = BookNameModel().apply {
-                    id = bookId
-                    name = bookName
-                    remoteId = bookRemoteId ?: ""
-                    icon = bookIcon ?: ""
-                }
+    private fun loadBookFromSavedState(savedInstanceState: Bundle?) {
+        savedInstanceState?.getString(ARG_BOOK_MODEL)?.let { bookJson ->
+            selectedBook = try {
+                Gson().fromJson(bookJson, BookNameModel::class.java)
+            } catch (e: Exception) {
+                null
             }
         }
     }
@@ -162,13 +166,13 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>(),
      * 显示账本选择对话框
      */
     private fun showBookSelectorDialog() {
-        val dialog = BookSelectorDialog.create(this)
+        BaseSheetDialog.create<BookSelectorDialog>(requireContext())
             .setShowSelect(false)
             .setCallback { bookModel, _ ->
                 selectedBook = bookModel
                 initializeCategoryTabs()
             }
-        dialog.show()
+            .show()
     }
 
     /**
@@ -184,7 +188,7 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>(),
             binding.topAppBar.title = "${getString(R.string.title_category)} - ${book.name}"
 
             // 设置ViewPager适配器
-            pagerAdapter = CategoryPagerAdapter(this, book.remoteId, book.name)
+            pagerAdapter = CategoryPagerAdapter(this, book)
             binding.viewPager.adapter = pagerAdapter
 
             // 连接TabLayout和ViewPager2
@@ -225,7 +229,7 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>(),
             ToastUtils.error(getString(R.string.select_book_first))
             return
         }
-        BottomSheetDialogBuilder.create(this)
+        BaseSheetDialog.create<BottomSheetDialogBuilder>(requireContext())
             .setTitle(getString(R.string.restore_default_categories_title))
             .setMessage(getString(R.string.restore_default_categories_message))
             .setPositiveButton(getString(R.string.ok)) { _, _ ->
@@ -256,8 +260,7 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>(),
      */
     private class CategoryPagerAdapter(
         fragment: Fragment,
-        private val bookRemoteId: String,
-        private val bookName: String
+        private val book: BookNameModel,
     ) : FragmentStateAdapter(fragment) {
 
         override fun getItemCount(): Int = 2
@@ -268,7 +271,7 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>(),
                 1 -> BillType.Income  // 收入
                 else -> BillType.Expend
             }
-            return CategoryPageFragment.newInstance(bookRemoteId, bookName, billType)
+            return CategoryPageFragment.newInstance(book, billType)
         }
     }
 
@@ -283,14 +286,13 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>(),
             private const val ARG_BILL_TYPE = "bill_type"
 
             fun newInstance(
-                bookRemoteId: String,
-                bookName: String,
+                book: BookNameModel,
                 billType: BillType
             ): CategoryPageFragment {
                 return CategoryPageFragment().apply {
                     arguments = Bundle().apply {
-                        putString(ARG_REMOTE_BOOK_ID, bookRemoteId)
-                        putString(ARG_BOOK_NAME, bookName)
+                        putString(ARG_REMOTE_BOOK_ID, book.remoteId)
+                        putString(ARG_BOOK_NAME, book.name)
                         putString(ARG_BILL_TYPE, billType.name)
                     }
                 }
@@ -308,7 +310,7 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>(),
             // 获取参数
             bookRemoteId = arguments?.getString(ARG_REMOTE_BOOK_ID) ?: ""
             bookName = arguments?.getString(ARG_BOOK_NAME) ?: ""
-            billType = BillType.valueOf(arguments?.getString(ARG_BILL_TYPE) ?: "Expend")
+            billType = BillType.valueOf(arguments?.getString(ARG_BILL_TYPE) ?: BillType.Expend.name)
 
             // 初始化分类组件
             initCategoryComponent()
@@ -320,7 +322,7 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>(),
         private fun initCategoryComponent() {
             binding.root.setPadding(dp2px(20f))
             // 使用bindAs创建CategoryComponent实例
-            categoryComponent = binding.bindAs<CategoryComponent>(lifecycle)
+            categoryComponent = binding.bindAs()
 
             // 设置账本信息
             categoryComponent.setBookInfo(bookRemoteId, billType, true)
@@ -376,14 +378,17 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>(),
             parentId: String,
             parentCategoryName: String
         ) {
+
             val bundle = Bundle().apply {
                 putLong("categoryId", categoryId)
                 putString("bookName", bookName)
+                putString("bookRemoteId", bookRemoteId)
                 putString("billType", billType.name)
                 putString("parentId", parentId)
                 // 父分类名称将在编辑页面中根据parentId动态获取
                 putString("parentCategoryName", parentCategoryName)
             }
+
             findNavController().navigate(
                 R.id.action_categoryFragment_to_categoryEditFragment,
                 bundle
@@ -399,15 +404,13 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>(),
                 getString(R.string.delete) to "delete"
             )
 
-            ListPopupUtilsGeneric<String>(
-                context = requireContext(),
-                anchor = anchorView,
-                list = actionMap,
-                value = "",
-                lifecycle = lifecycle
-            ) { position, key, value ->
-                when (value) {
-                    "edit" -> {
+            ListPopupUtilsGeneric.create<String>(requireContext())
+                .setAnchor(anchorView)
+                .setList(actionMap)
+                .setSelectedValue("")
+                .setOnItemClick { position, key, value ->
+                    when (value) {
+                        "edit" -> {
                         // 编辑分类 - 跳转到编辑页面
                         navigateToCategoryEdit(
                             categoryId = category.id,
@@ -428,7 +431,7 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>(),
          * 显示删除分类确认对话框
          */
         private fun showDeleteCategoryDialog(category: CategoryModel) {
-            BottomSheetDialogBuilder.create(this)
+            BaseSheetDialog.create<BottomSheetDialogBuilder>(requireContext())
                 .setTitle(getString(R.string.delete_category))
                 .setMessage(getString(R.string.delete_category_message, category.name))
                 .setPositiveButton(getString(R.string.ok)) { _, _ ->

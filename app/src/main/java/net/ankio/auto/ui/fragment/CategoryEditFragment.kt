@@ -56,6 +56,7 @@ class CategoryEditFragment : BaseFragment<FragmentCategoryEditBinding>() {
     /** 页面参数 */
     private var categoryId: Long = 0L
     private var bookName: String = ""
+    private var bookRemoteId: String = ""
     private var billType: BillType = BillType.Expend
     private var parentId: String = "-1"
     private var parentCategoryName: String = ""
@@ -89,6 +90,7 @@ class CategoryEditFragment : BaseFragment<FragmentCategoryEditBinding>() {
         arguments?.let { bundle ->
             categoryId = bundle.getLong("categoryId", 0L)
             bookName = bundle.getString("bookName", "")
+            bookRemoteId = bundle.getString("bookRemoteId", "")
             billType = BillType.valueOf(bundle.getString("billType", "Expend"))
             parentId = bundle.getString("parentId", "-1")
             parentCategoryName = bundle.getString("parentCategoryName", "")
@@ -217,7 +219,7 @@ class CategoryEditFragment : BaseFragment<FragmentCategoryEditBinding>() {
      */
     private fun setupNewCategory() {
         currentCategory = CategoryModel().apply {
-            remoteBookId = bookName
+            remoteBookId = bookRemoteId
             type = billType
             remoteParentId = parentId
         }
@@ -274,7 +276,7 @@ class CategoryEditFragment : BaseFragment<FragmentCategoryEditBinding>() {
         // 更新分类信息
         currentCategory.apply {
             name = categoryName
-            remoteBookId = bookName
+            remoteBookId = bookRemoteId
             type = billType
             remoteParentId = parentId
             icon = selectedIcon?.icon
