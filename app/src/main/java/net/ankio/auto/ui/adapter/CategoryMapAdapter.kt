@@ -23,11 +23,13 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.databinding.AdapterMapBinding
 import net.ankio.auto.http.api.CategoryMapAPI
 import net.ankio.auto.ui.api.BaseAdapter
+import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.api.BaseViewHolder
 import net.ankio.auto.ui.dialog.BookSelectorDialog
 import net.ankio.auto.ui.dialog.CategorySelectorDialog
 import net.ankio.auto.ui.utils.setCategoryIcon
 import net.ankio.auto.utils.BillTool
+import net.ankio.auto.utils.CoroutineUtils.withMain
 import org.ezbook.server.db.model.CategoryMapModel
 
 class CategoryMapAdapter(
@@ -42,29 +44,27 @@ class CategoryMapAdapter(
             val position = indexOf(item)
 
             // 显示账本选择对话框
-            BookSelectorDialog(
-                showSelect = true,
-                callback = { book, type ->
+            BaseSheetDialog.create<BookSelectorDialog>(activity)
+                .setShowSelect(true)
+                .setCallback { book, type ->
                     // 显示分类选择对话框
-                    CategorySelectorDialog(
-                        book = book.name,
-                        type = type,
-                        callback = { category1, category2 ->
+                    BaseSheetDialog.create<CategorySelectorDialog>(activity)
+                        .setBook(book.name)
+                        .setType(type)
+                        .setCallback { category1, category2 ->
                             launchInAdapter {
                                 // 更新映射名称
                                 item.mapName =
                                     BillTool.getCateName(category1?.name ?: "", category2?.name)
                                 CategoryMapAPI.put(item)
-                                withContext(Dispatchers.Main) {
+                                withMain {
                                     updateItem(position, item)
                                 }
                             }
-                        },
-                        activity = activity
-                    ).show()
-                },
-                activity = activity
-            ).show()
+                        }
+                        .show()
+                }
+                .show()
 
         }
     }

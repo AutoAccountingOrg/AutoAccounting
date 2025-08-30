@@ -60,6 +60,8 @@ class CategoryMapFragment : BasePageFragment<CategoryMapModel, FragmentCategoryM
      * @return CategoryMapAdapter实例
      */
     override fun onCreateAdapter(): RecyclerView.Adapter<*> {
+        // 设置RecyclerView布局管理器
+        statusPage.contentView?.layoutManager = WrapContentLinearLayoutManager(context)
         return CategoryMapAdapter(requireActivity())
     }
 
@@ -68,8 +70,7 @@ class CategoryMapFragment : BasePageFragment<CategoryMapModel, FragmentCategoryM
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 设置RecyclerView布局管理器
-        statusPage.contentView?.layoutManager = WrapContentLinearLayoutManager(context)
+
         binding.topAppBar.setNavigationOnClickListener { findNavController().popBackStack() }
         // 设置工具栏搜索功能
         setupSearchView()
