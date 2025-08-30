@@ -29,16 +29,29 @@ import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentTagEditBinding
 import net.ankio.auto.http.api.TagAPI
 import net.ankio.auto.ui.api.BaseFragment
+import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.dialog.ColorPickerDialog
 import net.ankio.auto.ui.utils.ToastUtils
 import org.ezbook.server.db.model.TagModel
 
 /**
- * 标签编辑Fragment
+ * 标签编辑Fragment - Linus式极简设计
  *
- * 用于创建或编辑标签，提供标签名称输入和颜色选择功能
+ * 设计原则：
+ * 1. 消除重复代码 - 统一颜色处理逻辑
+ * 2. 统一协程管理 - 使用BaseFragment的launch方法
+ * 3. 消除魔法数字 - 使用常量定义
+ * 4. 简化状态管理 - 减少不必要的状态变量
+ *
+ * 功能：创建或编辑标签，提供标签名称输入和颜色选择功能
  */
 class TagEditFragment : BaseFragment<FragmentTagEditBinding>() {
+
+    companion object {
+        private const val DEFAULT_COLOR = "#E57373"
+        private const val MAX_TAG_NAME_LENGTH = 50
+        private const val DROPDOWN_THRESHOLD = 0
+    }
 
     private lateinit var tagModel: TagModel
     private var isEditing = false
@@ -211,8 +224,9 @@ class TagEditFragment : BaseFragment<FragmentTagEditBinding>() {
      * 显示颜色选择器
      */
     private fun showColorPicker() {
-        ColorPickerDialog.create(this)
-            .setInitialColor(tagModel.color).setOnColorSelected { selectedColor ->
+        BaseSheetDialog.create<ColorPickerDialog>(requireContext())
+            .setInitialColor(tagModel.color)
+            .setOnColorSelected { selectedColor ->
                 tagModel.color = selectedColor
                 updateColorDisplay(selectedColor)
             }

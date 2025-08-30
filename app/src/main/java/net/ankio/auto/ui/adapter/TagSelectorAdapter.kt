@@ -29,7 +29,7 @@ import net.ankio.auto.databinding.AdapterTagListBinding
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
 import net.ankio.auto.utils.ThemeUtils
-import net.ankio.auto.utils.toThemeColor
+import net.ankio.auto.ui.utils.toThemeColor
 import org.ezbook.server.db.model.TagModel
 
 /**

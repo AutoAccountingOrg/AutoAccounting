@@ -19,7 +19,6 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.widget.Toolbar
-import androidx.core.view.setPadding
 import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -27,11 +26,11 @@ import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentTagBinding
 import net.ankio.auto.http.api.TagAPI
-import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseFragment
+import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.api.bindAs
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
-import net.ankio.auto.ui.fragment.book.TagComponent
+import net.ankio.auto.ui.fragment.components.TagComponent
 import net.ankio.auto.ui.utils.DisplayUtils
 import net.ankio.auto.ui.utils.TagUtils
 import net.ankio.auto.ui.utils.ToastUtils
@@ -70,10 +69,7 @@ class TagFragment : BaseFragment<FragmentTagBinding>(), Toolbar.OnMenuItemClickL
      */
     private fun setupTagComponent() {
         // 使用bindAs扩展函数创建TagComponent实例
-        tagComponent = binding.tagComponent.bindAs<TagComponent>(lifecycle)
-        binding.tagComponent.root.updatePadding(
-            bottom = DisplayUtils.getNavigationBarHeight(requireContext())
-        )
+        tagComponent = binding.tagComponent.bindAs()
         binding.tagComponent.statusPage.swipeRefreshLayout = binding.swipeRefreshLayout
         tagComponent.setEditMode(true) // 编辑模式：显示删除按钮，长按编辑
         tagComponent.setOnTagSelectedListener { tag, type ->
@@ -89,7 +85,7 @@ class TagFragment : BaseFragment<FragmentTagBinding>(), Toolbar.OnMenuItemClickL
      * @param tag 要删除的标签
      */
     private fun showDeleteTagDialog(tag: org.ezbook.server.db.model.TagModel) {
-        BottomSheetDialogBuilder.create(this)
+        BaseSheetDialog.create<BottomSheetDialogBuilder>(requireContext())
             .setTitle(getString(R.string.delete_tag))
             .setMessage(getString(R.string.delete_tag_message, tag.name))
             .setPositiveButton(getString(R.string.ok)) { _, _ ->
@@ -142,7 +138,7 @@ class TagFragment : BaseFragment<FragmentTagBinding>(), Toolbar.OnMenuItemClickL
      * 显示恢复默认标签确认对话框
      */
     private fun showRestoreDefaultTagsDialog() {
-        BottomSheetDialogBuilder.create(this)
+        BaseSheetDialog.create<BottomSheetDialogBuilder>(requireContext())
             .setTitle(getString(R.string.restore_default_tags_title))
             .setMessage(getString(R.string.restore_default_tags_message))
             .setPositiveButton(getString(R.string.ok)) { _, _ ->
