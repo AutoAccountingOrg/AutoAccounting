@@ -68,13 +68,6 @@
 
         <androidx.preference.Preference
             android:dependency="setting_use_webdav"
-            android:icon="@drawable/ic_network"
-            android:key="testWebdav"
-            android:summary="@string/setting_test_webdav_summary"
-            android:title="@string/setting_test_webdav" />
-
-        <androidx.preference.Preference
-            android:dependency="setting_use_webdav"
             android:icon="@drawable/setting2_icon_to_local"
             android:key="backupToWebdav"
             android:summary="@string/setting_backup_to_webdav_summary"

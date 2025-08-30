@@ -23,9 +23,7 @@ import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
 import androidx.preference.PreferenceDataStore
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.storage.backup.BackupManager
@@ -35,12 +33,9 @@ import net.ankio.auto.ui.activity.HomeActivity
 import net.ankio.auto.ui.api.BasePreferenceFragment
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.dialog.EditorDialogBuilder
-import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.ToastUtils
-import net.ankio.auto.utils.CoroutineUtils.withMain
 import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.constant.DefaultData
-import java.io.File
 
 /**
  * 备份设置页面 - Linus式极简重构
@@ -95,7 +90,6 @@ class BackupPreferenceFragment : BasePreferenceFragment() {
         setPreferenceClickListener("setting_local_backup_path") { backupFolderLauncher.launch(null) }
 
         // WebDAV操作
-        setPreferenceClickListener("testWebdav") { performWebDAVTest() }
         setPreferenceClickListener("backupToWebdav") { performWebDAVBackup() }
         setPreferenceClickListener("restoreFromWebdav") { performWebDAVRestore() }
 
@@ -165,38 +159,7 @@ class BackupPreferenceFragment : BasePreferenceFragment() {
         }
     }
 
-    /**
-     * 执行WebDAV测试 - 简化版本
-     */
-    private fun performWebDAVTest() {
-        if (!isWebDAVConfigured()) {
-            ToastUtils.error(getString(R.string.setting_webdav_config_incomplete))
-            return
-        }
 
-        lifecycleScope.launch {
-            val loading = LoadingUtils(requireActivity() as HomeActivity)
-
-            try {
-                withMain { loading.show(R.string.setting_webdav_testing) }
-
-                val success = testWebDAVConnection()
-
-                withMain {
-                    loading.close()
-                    val message = if (success) R.string.setting_webdav_test_success
-                    else R.string.setting_webdav_test_failed
-                    ToastUtils.info(getString(message))
-                }
-            } catch (e: Exception) {
-                withMain {
-                    loading.close()
-                    ToastUtils.error(getString(R.string.setting_webdav_test_error, e.message))
-                }
-                Logger.e("WebDAV测试失败", e)
-            }
-        }
-    }
 
     /**
      * 执行WebDAV备份
@@ -245,47 +208,7 @@ class BackupPreferenceFragment : BasePreferenceFragment() {
         }
     }
 
-    /**
-     * 简化的WebDAV连接测试 - 去掉过度复杂的逻辑
-     */
-    private suspend fun testWebDAVConnection(): Boolean = withContext(Dispatchers.IO) {
-        val testFile = File(requireContext().cacheDir, "webdav_test.txt")
-        val testFilename = "test_${System.currentTimeMillis()}.txt"
 
-        try {
-            // 简单测试：创建小文件，上传，下载，对比
-            testFile.writeText("WebDAV Test ${System.currentTimeMillis()}")
-
-            val webDAVManager = WebDAVManager()
-
-            // 上传测试
-            if (!webDAVManager.upload(testFile, testFilename)) {
-                return@withContext false
-            }
-
-            // 下载测试
-            val downloadFile = File(requireContext().cacheDir, "webdav_download.txt")
-            if (!webDAVManager.download(testFilename, downloadFile)) {
-                return@withContext false
-            }
-
-            // 简单校验
-            val originalContent = testFile.readText()
-            val downloadedContent = downloadFile.readText()
-            val success = originalContent == downloadedContent
-
-            // 清理
-            downloadFile.delete()
-            Logger.i("WebDAV测试${if (success) "成功" else "失败"}")
-
-            success
-        } catch (e: Exception) {
-            Logger.e("WebDAV测试异常", e)
-            false
-        } finally {
-            testFile.delete()
-        }
-    }
 
     /**
      * 保存备份路径
