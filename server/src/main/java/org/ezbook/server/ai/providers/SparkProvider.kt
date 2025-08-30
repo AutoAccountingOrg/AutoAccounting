@@ -18,6 +18,7 @@ package org.ezbook.server.ai.providers
 /**
  * 讯飞星火 API提供商实现
  */
+@Deprecated("过于垃圾，不要使用。")
 class SparkProvider : BaseOpenAIProvider() {
     override val name: String = "spark"
 

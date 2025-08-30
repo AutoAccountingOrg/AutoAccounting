@@ -43,7 +43,7 @@ class AiManager {
         "Gemini" to GeminiProvider(),
         "Kimi" to KimiProvider(),
         "OpenRouter" to OpenRouterProvider(),
-        "讯飞星火" to SparkProvider(),
+        //   "讯飞星火" to SparkProvider(),
         "通义千问" to QWenProvider()
     )
 
