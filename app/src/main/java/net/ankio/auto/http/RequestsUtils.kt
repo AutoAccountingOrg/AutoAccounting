@@ -265,6 +265,18 @@ class RequestsUtils {
         }
     }
 
+    suspend fun delete(url: String): Pair<Int, String> = executeRequest(fallback = { 500 to "" }) {
+        val request = Request.Builder()
+            .url(url)
+            .addHeaders()
+            .delete()
+            .build()
+
+        client.newCall(request).execute().use { response ->
+            Pair(response.code, response.body?.string() ?: "")
+        }
+    }
+
     suspend fun dir(url: String): Pair<Int, List<String>> =
         executeRequest(fallback = { 500 to emptyList() }) {
             val request = Request.Builder()
