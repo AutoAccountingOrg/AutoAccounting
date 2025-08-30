@@ -61,7 +61,7 @@ import org.ezbook.server.db.model.TagModel
         BookBillModel::class,
         TagModel::class
     ],
-    version = 10,
+    version = 11,
     exportSchema = false,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -223,5 +223,16 @@ val MIGRATION_9_10 = object : Migration(9, 10) {
     override fun migrate(database: SupportSQLiteDatabase) {
         // 为TagModel表添加group字段，支持标签分组
         database.execSQL("ALTER TABLE TagModel ADD COLUMN `group` TEXT NOT NULL DEFAULT ''")
+    }
+}
+
+val MIGRATION_10_11 = object : Migration(10, 11) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        // 修复AssetsType枚举问题：将所有FINANCIAL类型的资产转换为NORMAL类型
+        // 这是因为FINANCIAL枚举值已被移除，但数据库中可能仍有使用该值的记录
+        database.execSQL("UPDATE AssetsModel SET type = 'NORMAL' WHERE type = 'FINANCIAL'")
+
+        // 同样处理可能存在的VIRTUAL类型（也被注释掉了）
+        database.execSQL("UPDATE AssetsModel SET type = 'NORMAL' WHERE type = 'VIRTUAL'")
     }
 }
