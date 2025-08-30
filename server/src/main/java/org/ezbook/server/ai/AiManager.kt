@@ -71,9 +71,11 @@ class AiManager {
      * @param providerName AI提供者名称
      * @return 是否设置成功
      */
-    fun setCurrentProvider(providerName: String): Boolean {
+    suspend fun setCurrentProvider(providerName: String): Boolean {
         if (providers.containsKey(providerName)) {
             currentProviderName = providerName
+            // 必须写入数据库，否则重启后丢失
+            Db.get().settingDao().set(Setting.AI_MODEL, providerName)
             return true
         }
         return false
