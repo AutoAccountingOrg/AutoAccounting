@@ -16,10 +16,10 @@
 package net.ankio.auto.ui.fragment.components
 
 import net.ankio.auto.databinding.ComponentBookBinding
+import net.ankio.auto.http.api.BookNameAPI
 import net.ankio.auto.ui.adapter.BookSelectorAdapter
 import net.ankio.auto.ui.api.BaseComponent
 import net.ankio.auto.ui.components.WrapContentLinearLayoutManager
-import net.ankio.auto.http.api.BookNameAPI
 import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.db.model.BookNameModel
 
@@ -64,10 +64,17 @@ class BookComponent(binding: ComponentBookBinding) :
         // 外部已注入 SwipeRefreshLayout，这里仅使用刷新动画（存在即使用）
         recyclerView.layoutManager = WrapContentLinearLayoutManager(context)
 
-        // 创建适配器，支持showSelect参数
-        adapter = BookSelectorAdapter(showSelect = showSelect, showEdit = showEdit) { item, type ->
-            onBookSelected?.invoke(item, type)
+        // 创建适配器，根据显示选项确定模式
+        val mode = when {
+            showSelect -> BookSelectorAdapter.Mode.SELECT
+            showEdit -> BookSelectorAdapter.Mode.EDIT
+            else -> BookSelectorAdapter.Mode.NORMAL
         }
+
+        adapter = BookSelectorAdapter(mode)
+            .setOnItemClickListener { item, type ->
+                onBookSelected?.invoke(item, type)
+            }
 
         recyclerView.adapter = adapter
     }
