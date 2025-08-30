@@ -36,7 +36,7 @@ import net.ankio.auto.utils.Throttle
 import androidx.core.net.toUri
 import androidx.navigation.fragment.findNavController
 import net.ankio.auto.ui.api.BaseSheetDialog
-import net.ankio.auto.utils.toThemeColor
+import net.ankio.auto.ui.utils.toThemeColor
 
 class SettingFragment : BaseFragment<FragmentSettingBinding>() {
 
