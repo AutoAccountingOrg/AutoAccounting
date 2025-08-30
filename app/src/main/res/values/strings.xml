@@ -120,7 +120,7 @@
     <string name="book_name_hint">Enter book name</string>
     <string name="book_name_helper">Book name should be 1-20 characters</string>
     <string name="book_icon_label">Book Icon</string>
-    <string name="tap_to_select_icon">Tap to select an icon</string>
+    <string name="tap_to_select_icon">Select an icon</string>
     <string name="icon_selected">Icon selected</string>
     <string name="btn_create">Create</string>
     <string name="saving">Saving...</string>

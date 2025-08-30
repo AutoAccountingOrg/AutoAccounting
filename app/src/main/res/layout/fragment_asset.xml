@@ -40,7 +40,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:tabMode="scrollable"
-            app:tabGravity="start" />
+            app:tabGravity="center" />
 
     </com.google.android.material.appbar.AppBarLayout>
 

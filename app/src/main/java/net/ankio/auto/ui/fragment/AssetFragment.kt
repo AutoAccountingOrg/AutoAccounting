@@ -30,12 +30,15 @@ import net.ankio.auto.databinding.FragmentAssetBinding
 import net.ankio.auto.http.api.AssetsAPI
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseFragment
+import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.api.bindAs
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
-import net.ankio.auto.ui.fragment.book.AssetComponent
+import net.ankio.auto.ui.fragment.components.AssetComponent
 import net.ankio.auto.ui.utils.DisplayUtils.dp2px
 import net.ankio.auto.ui.utils.ListPopupUtilsGeneric
 import net.ankio.auto.ui.utils.ToastUtils
+import net.ankio.auto.ui.utils.adapterBottom
+import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.constant.AssetsType
 import org.ezbook.server.db.model.AssetsModel
 
@@ -52,13 +55,20 @@ class AssetFragment : BaseFragment<FragmentAssetBinding>() {
     /** Tab页面适配器 */
     private lateinit var pagerAdapter: AssetPagerAdapter
 
-    /** 资产类型列表，按显示顺序排列 */
-    private val assetTypes = listOf(
-        AssetsType.NORMAL,      // 普通资产
-        AssetsType.CREDIT,      // 信用资产
-        AssetsType.BORROWER,    // 借款人
-        AssetsType.CREDITOR     // 债权人
-    )
+    /** 资产类型列表，根据功能开关动态构建 */
+    private val assetTypes: List<AssetsType> by lazy {
+        buildList {
+            // 基础资产类型始终显示
+            add(AssetsType.NORMAL)      // 普通资产
+            add(AssetsType.CREDIT)      // 信用资产
+
+            // 只有开启债务功能时才显示借贷相关类型
+            if (PrefManager.featureDebt) {
+                add(AssetsType.BORROWER)    // 借款人
+                add(AssetsType.CREDITOR)    // 债权人
+            }
+        }
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -125,11 +135,12 @@ class AssetFragment : BaseFragment<FragmentAssetBinding>() {
 
         // 连接TabLayout和ViewPager2
         TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
-            tab.text = when (position) {
-                0 -> getString(R.string.type_normal)
-                1 -> getString(R.string.type_credit)
-                2 -> getString(R.string.type_borrower)
-                3 -> getString(R.string.type_creditor)
+            // 根据实际的资产类型列表动态设置Tab标题
+            tab.text = when (assetTypes.getOrNull(position)) {
+                AssetsType.NORMAL -> getString(R.string.type_normal)
+                AssetsType.CREDIT -> getString(R.string.type_credit)
+                AssetsType.BORROWER -> getString(R.string.type_borrower)
+                AssetsType.CREDITOR -> getString(R.string.type_creditor)
                 else -> ""
             }
         }.attach()
@@ -182,18 +193,19 @@ class AssetFragment : BaseFragment<FragmentAssetBinding>() {
             super.onViewCreated(view, savedInstanceState)
             assetType = AssetsType.valueOf(arguments?.getString(ARG_ASSET_TYPE) ?: "NORMAL")
             initAssetComponent()
+            binding.statusPage.adapterBottom(requireContext())
         }
 
         /**
          * 初始化资产组件
          */
         private fun initAssetComponent() {
-            binding.root.setPadding(dp2px(20f))
-            assetComponent = binding.bindAs<AssetComponent>(lifecycle)
+
+            assetComponent = binding.bindAs<AssetComponent>()
 
             // 设置资产选择回调
             assetComponent.setOnAssetSelectedListener { asset ->
-                asset?.let {
+                asset.let {
                     Logger.d("资产被选中: ${it.name}")
                 }
             }
@@ -225,25 +237,24 @@ class AssetFragment : BaseFragment<FragmentAssetBinding>() {
                 getString(R.string.delete) to "delete"
             )
 
-            ListPopupUtilsGeneric<String>(
-                context = requireContext(),
-                anchor = anchorView,
-                list = actionMap,
-                value = "",
-                lifecycle = lifecycle
-            ) { _, _, value ->
-                when (value) {
-                    "edit" -> parentAssetFragment?.navigateToAssetEdit(asset.id)
-                    "delete" -> showDeleteAssetDialog(asset)
+            ListPopupUtilsGeneric.create<String>(requireContext())
+                .setAnchor(anchorView)
+                .setList(actionMap)
+                .setSelectedValue("")
+                .setOnItemClick { _, _, value ->
+                    when (value) {
+                        "edit" -> parentAssetFragment?.navigateToAssetEdit(asset.id)
+                        "delete" -> showDeleteAssetDialog(asset)
+                    }
                 }
-            }.toggle()
+                .toggle()
         }
 
         /**
          * 显示删除资产确认对话框
          */
         private fun showDeleteAssetDialog(asset: AssetsModel) {
-            BottomSheetDialogBuilder.create(this)
+            BaseSheetDialog.create<BottomSheetDialogBuilder>(requireContext())
                 .setTitle(getString(R.string.delete_asset))
                 .setMessage(getString(R.string.delete_asset_message, asset.name))
                 .setPositiveButton(getString(R.string.ok)) { _, _ ->
