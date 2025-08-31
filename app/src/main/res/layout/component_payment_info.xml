@@ -84,50 +84,23 @@
 
         </LinearLayout>
 
-        <!-- 债务信息（借入/借出/还款/收款） -->
+    <!-- 债务信息 - 账户到人员（借出/支出还款） -->
         <LinearLayout
-            android:id="@+id/debt_container"
+            android:id="@+id/debt_account_to_person_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
+            android:gravity="center"
             android:padding="@dimen/float_padding">
 
-            <!-- 第一个账户（可能是固定账户或输入框） -->
-            <FrameLayout
-                android:id="@+id/debt_first_account_frame"
+            <net.ankio.auto.ui.components.IconView
+                android:id="@+id/debt_account"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1">
-
-                <!-- 固定账户显示 -->
-                <net.ankio.auto.ui.components.IconView
-                    android:id="@+id/debt_first_account"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:iconSrc="@mipmap/ic_launcher_round"
-                    app:iconTintEnabled="false"
-                    app:textColor="?attr/colorOnSurface"
-                    tools:text="微信零钱" />
-
-                <!-- 债权人/债务人输入框 -->
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/debt_first_input_layout"
-                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/float_income_debt"
-                    android:maxWidth="200dp">
-
-                    <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                        android:id="@+id/debt_first_input"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="text"
-                        tools:simpleItems="" />
-
-                </com.google.android.material.textfield.TextInputLayout>
-
-            </FrameLayout>
+                android:layout_weight="1"
+                app:iconSrc="@mipmap/ic_launcher_round"
+                app:iconTintEnabled="false"
+                app:textColor="?attr/colorOnSurface"
+                tools:text="微信零钱" />
 
             <TextView
                 android:layout_width="@dimen/padding"
@@ -138,42 +111,68 @@
                 android:gravity="center"
                 android:text="➜" />
 
-            <!-- 第二个账户（可能是固定账户或输入框） -->
-            <FrameLayout
-                android:id="@+id/debt_second_account_frame"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/debt_person_input_layout"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1">
+                android:layout_weight="1"
+                android:hint="@string/float_income_debt">
 
-                <!-- 固定账户显示 -->
-                <net.ankio.auto.ui.components.IconView
-                    android:id="@+id/debt_second_account"
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                    android:id="@+id/debt_person_input"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:iconSrc="@mipmap/ic_launcher_round"
-                    app:iconTintEnabled="false"
-                    app:textColor="?attr/colorOnSurface"
-                    tools:text="张三" />
+                    android:inputType="text"
+                    tools:simpleItems="" />
 
-                <!-- 债权人/债务人输入框 -->
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/debt_second_input_layout"
-                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/float_income_debt"
-                    android:maxWidth="200dp">
+            </com.google.android.material.textfield.TextInputLayout>
 
-                    <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                        android:id="@+id/debt_second_input"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="text"
-                        tools:simpleItems="" />
+        </LinearLayout>
 
-                </com.google.android.material.textfield.TextInputLayout>
+    <!-- 债务信息 - 人员到账户（借入/收入还款） -->
+    <LinearLayout
+        android:id="@+id/debt_person_to_account_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="@dimen/float_padding">
 
-            </FrameLayout>
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/debt_person_input_layout2"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="@string/float_income_debt">
+
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/debt_person_input2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                tools:simpleItems="" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:layout_width="@dimen/padding"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/one_padding"
+                android:layout_marginEnd="@dimen/one_padding"
+                android:layout_weight="0"
+                android:gravity="center"
+                android:text="➜" />
+
+        <net.ankio.auto.ui.components.IconView
+            android:id="@+id/debt_account2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+            android:layout_weight="1"
+            app:iconSrc="@mipmap/ic_launcher_round"
+            app:iconTintEnabled="false"
+            app:textColor="?attr/colorOnSurface"
+            tools:text="微信零钱" />
 
         </LinearLayout>
 
