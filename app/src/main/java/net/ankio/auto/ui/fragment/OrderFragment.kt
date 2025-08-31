@@ -140,6 +140,8 @@ open class OrderFragment : BasePageFragment<OrderGroup, FragmentBillBinding>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.swipeRefreshLayout.isEnabled = false
+
         // 顶部菜单事件监听
         binding.topAppBar.setOnMenuItemClickListener {
             when (it.itemId) {
