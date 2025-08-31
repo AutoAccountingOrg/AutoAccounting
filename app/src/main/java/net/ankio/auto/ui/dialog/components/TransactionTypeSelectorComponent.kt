@@ -112,7 +112,7 @@ class TransactionTypeSelectorComponent(
      * → 显示支出相关的子类型选项
      * → chip_reimbursement被选中
      */
-    private fun refresh() {
+    fun refresh() {
         // 使用BillTool.getType将具体类型转换为主类型
         // 例如：ExpendReimbursement → Expend, IncomeRefund → Income
         val newMainBillType = BillTool.getType(billInfoModel.type)

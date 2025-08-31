@@ -59,7 +59,7 @@ class BookHeaderComponent(
         refresh()
     }
 
-    private fun refresh() {
+    fun refresh() {
         launch {
             billInfoModel.bookName.toBookCover(binding.bookImage)
         }

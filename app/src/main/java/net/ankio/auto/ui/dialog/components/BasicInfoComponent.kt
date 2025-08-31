@@ -83,7 +83,7 @@ class BasicInfoComponent(
     /**
      * 刷新显示 - 根据当前账单信息更新UI
      */
-    private fun refresh() {
+    fun refresh() {
         val billType = BillTool.getType(billInfoModel.type)
 
         // 更新分类显示

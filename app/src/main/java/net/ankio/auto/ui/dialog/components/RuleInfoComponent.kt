@@ -66,7 +66,7 @@ class RuleInfoComponent(
     /**
      * 刷新显示 - 根据当前账单信息更新UI
      */
-    private fun refresh() {
+    fun refresh() {
         if (!::billInfoModel.isInitialized) return
 
         binding.root.isVisible = PrefManager.showRuleName
