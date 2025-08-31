@@ -23,6 +23,8 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import net.ankio.auto.utils.SystemUtils.findLifecycleOwner
+import android.graphics.Paint
+import android.util.TypedValue
 
 /**
  * 泛型版本的列表弹窗工具类 - Linus式极简设计
@@ -39,6 +41,7 @@ import net.ankio.auto.utils.SystemUtils.findLifecycleOwner
  *     .setAnchor(anchorView)
  *     .setList(mapOf("支出" to BillType.Expend, "收入" to BillType.Income))
  *     .setSelectedValue(BillType.Expend)
+ *     .setMinWidth(200) // 设置最小宽度200px，可选，内部自动计算最终宽度
  *     .setOnItemClick { position, key, value ->
  *         // value 已经是 BillType 类型，无需转换
  *         handleTypeChange(value)
@@ -75,6 +78,7 @@ class ListPopupUtilsGeneric<T>// 绑定生命周期
     private var itemList: Map<String, T> = emptyMap()
     private var selectedValue: T? = null
     private var onItemClickListener: ((position: Int, key: String, value: T) -> Unit)? = null
+    private var minWidth: Int = 0
 
     // 内部状态
     private var adapter: ArrayAdapter<String>? = null
@@ -141,16 +145,7 @@ class ListPopupUtilsGeneric<T>// 绑定生命周期
         return this
     }
 
-    /**
-     * 设置弹窗宽度 - 链式调用
-     *
-     * @param width 宽度值，可使用ListPopupWindow.WRAP_CONTENT等常量
-     * @return 当前实例，支持链式调用
-     */
-    fun setWidth(width: Int): ListPopupUtilsGeneric<T> {
-        listPopupWindow.width = width
-        return this
-    }
+
 
     /**
      * 设置弹窗高度 - 链式调用
@@ -175,6 +170,18 @@ class ListPopupUtilsGeneric<T>// 绑定生命周期
     }
 
     /**
+     * 设置弹窗最小宽度 - 链式调用
+     * 当内容宽度小于最小宽度时，弹窗将使用最小宽度
+     *
+     * @param minWidth 最小宽度值（像素），0表示不限制最小宽度
+     * @return 当前实例，支持链式调用
+     */
+    fun setMinWidth(minWidth: Int): ListPopupUtilsGeneric<T> {
+        this.minWidth = minWidth
+        return this
+    }
+
+    /**
      * 完成配置并准备显示
      * 内部方法，用于设置弹窗的具体行为
      */
@@ -195,8 +202,9 @@ class ListPopupUtilsGeneric<T>// 绑定生命周期
         listPopupWindow.apply {
             setAdapter(adapter)
             anchorView = this@ListPopupUtilsGeneric.anchorView
-            // 设置默认值（如果没有通过链式调用设置）
-            if (width == 0) width = ListPopupWindow.WRAP_CONTENT
+            // 内部统一控制宽度 - 根据内容和最小宽度自动计算
+            width = calculatePopupWidth()
+            // 设置默认高度
             if (height == 0) height = ListPopupWindow.WRAP_CONTENT
             isModal = true
 
@@ -248,6 +256,60 @@ class ListPopupUtilsGeneric<T>// 绑定生命周期
             show()
         }
         return this
+    }
+
+    /**
+     * 计算弹窗内容的实际宽度 - 内部使用
+     * 测量所有文本项的宽度，返回最大宽度与最小宽度的较大值
+     * 如果未设置最小宽度，则使用合理的默认最小宽度
+     */
+    private fun calculatePopupWidth(): Int {
+        if (itemList.isEmpty()) {
+            // 空列表时使用默认最小宽度
+            return if (minWidth > 0) minWidth else getDefaultMinWidth()
+        }
+
+        // 创建Paint对象测量文本宽度
+        val paint = Paint().apply {
+            // 获取系统默认文本大小
+            textSize = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_SP,
+                16f, // 默认文本大小
+                context.resources.displayMetrics
+            )
+        }
+
+        // 计算所有文本项的最大宽度
+        val maxTextWidth = itemList.keys.maxOfOrNull { key ->
+            paint.measureText(key).toInt()
+        } ?: 0
+
+        // 添加内边距（左右各16dp，参考simple_list_item_1的padding）
+        val paddingHorizontal = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            32f, // 左右各16dp
+            context.resources.displayMetrics
+        ).toInt()
+
+        val contentWidth = maxTextWidth + paddingHorizontal
+
+        // 确定最终最小宽度
+        val effectiveMinWidth = if (minWidth > 0) minWidth else getDefaultMinWidth()
+
+        // 返回内容宽度与最小宽度的较大值
+        return maxOf(contentWidth, effectiveMinWidth)
+    }
+
+    /**
+     * 获取默认最小宽度 - 120dp
+     * 确保即使没有设置最小宽度，弹窗也有合理的宽度
+     */
+    private fun getDefaultMinWidth(): Int {
+        return TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            120f, // 默认最小宽度120dp
+            context.resources.displayMetrics
+        ).toInt()
     }
 
     /**
