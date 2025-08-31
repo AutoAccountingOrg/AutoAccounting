@@ -354,6 +354,7 @@
     <string name="income_repayment_info">Debt - Collection</string>
     <string name="repeat_bill">Duplicate bill detected, automatically merged.</string>
     <string name="setting_bill_show_rule">Show recognition rule on bill page</string>
+    <string name="setting_bill_show_rule_summary">Display the name of the matching rule when editing bills</string>
     <string name="auto_create">Auto generate</string>
     <string name="setting_ai">AI features</string>
     <string name="setting_bill_ai">Use AI large model to assist bill recognition</string>
@@ -733,6 +734,21 @@
     <string name="press_again_to_exit">Press again to exit</string>
     <string name="ai_not_support">AI-generated data does not support feedback.</string>
 
+    <!-- 金额显示组件相关字符串 -->
+    <string name="edit_amount">Edit Amount</string>
+    <string name="edit_fee">Edit Fee</string>
+    <string name="no_discount">No discount</string>
+    <string name="discounted">Discounted %.2f</string>
+    <string name="handling_fee">Handling fee %.2f</string>
+    <string name="fee">Fee %.2f</string>
+
+    <!-- 规则信息组件相关字符串 -->
+    <string name="disable_rule_title">Disable Rule</string>
+    <string name="disable_rule_message">Are you sure you want to disable the rule \"%s\"?</string>
+    <string name="rule_not_found">Rule not found</string>
+    <string name="rule_disabled_success">Successfully disabled %d rule(s)</string>
+    <string name="rule_disable_failed">Failed to disable rule</string>
+
 
     <string name="label_replace">Replace / Substitute</string>
     <string name="hint_raw">Find text</string>
@@ -820,6 +836,7 @@
     <!-- 设置分类标题 -->
     <string name="setting_category_auto_record">Auto Recording</string>
     <string name="setting_category_notification">Notifications</string>
+    <string name="setting_category_display">Display Settings</string>
     <string name="setting_category_remark">Remark Settings</string>
     <string name="setting_category_popup_style">Rounded Popup Style</string>
     <string name="setting_category_float_badge">Float Badge Settings</string>
