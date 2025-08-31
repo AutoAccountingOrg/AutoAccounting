@@ -15,6 +15,8 @@
 
 package net.ankio.auto.ui.dialog.components
 
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleCoroutineScope
@@ -53,12 +55,14 @@ import org.ezbook.server.db.model.CategoryModel
  * - 处理时间点击事件，自动弹出时间选择对话框
  * - 处理货币点击事件，自动弹出货币选择列表
  * - 自动更新账单信息中的相关数据
+ * - 实时同步备注文本到账单模型（使用TextWatcher）
  *
  * 使用方式：
  * ```kotlin
  * val basicInfo: BasicInfoComponent = binding.basicInfo.bindAs()
  * basicInfo.setBillInfo(billInfoModel)
  * // 点击时会自动弹出相应的选择对话框并更新账单信息
+ * // 备注文本会实时同步到 billInfoModel，无需手动调用 updateBillInfoFromUI()
  * ```
  */
 class BasicInfoComponent(
@@ -70,6 +74,7 @@ class BasicInfoComponent(
     override fun onComponentCreate() {
         super.onComponentCreate()
         setupClickListeners()
+        setupRemarkWatcher()
     }
 
     /**
@@ -140,12 +145,28 @@ class BasicInfoComponent(
     }
 
     /**
-     * 更新billInfoModel中的备注信息
+     * 更新billInfoModel中的备注信息 - 已优化为自动同步，保留此方法用于向后兼容
      */
     fun updateBillInfoFromUI() {
-        billInfoModel.remark = binding.remark.text.toString()
+        // 备注已通过 TextWatcher 自动同步，此方法保留用于向后兼容
     }
 
+    /**
+     * 设置备注监听器 - 实时同步备注到 billInfoModel
+     */
+    private fun setupRemarkWatcher() {
+        binding.remark.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+            override fun afterTextChanged(s: Editable?) {
+                if (::billInfoModel.isInitialized) {
+                    billInfoModel.remark = s?.toString() ?: ""
+                }
+            }
+        })
+    }
 
     /**
      * 设置点击事件监听器

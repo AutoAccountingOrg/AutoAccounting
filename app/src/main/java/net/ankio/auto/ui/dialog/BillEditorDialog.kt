@@ -187,34 +187,11 @@ class BillEditorDialog internal constructor(
         val billInfo = billInfoModel ?: return
 
         lifecycleScope.launch {
-            try {
-                // 收集组件中可能需要手动同步的数据
-                if (::basicInfoComponent.isInitialized) {
-                    basicInfoComponent.updateBillInfoFromUI()
-                }
+            // 保存账单
+            billInfo.state = BillState.Edited
 
-                // 保存账单
-                billInfo.state = BillState.Edited
-                BillAPI.put(billInfo)
-
-                // 显示成功提示
-                if (PrefManager.showSuccessPopup) {
-                    ToastUtils.info(ctx.getString(R.string.auto_success, billInfo.money.toString()))
-                }
-
-                // 同步账单数据
-                BillTool.syncBills()
-
-                // 关闭对话框并回调
-                dismiss()
-                onConfirmClick?.invoke(billInfo)
-
-            } catch (e: BillException) {
-                ToastUtils.error(e.message ?: "未知错误")
-                Logger.e("保存账单失败", e)
-            } catch (e: Exception) {
-                Logger.e("保存账单异常", e)
-            }
+            dismiss()
+            onConfirmClick?.invoke(billInfo)
         }
     }
 
