@@ -16,10 +16,6 @@
 package net.ankio.auto.xposed.common
 
 object ActiveInfo {
-    fun getFramework(): String {
-        return "Unknown Framework"
-    }
-
     fun isModuleActive(): Boolean {
         return false
     }
