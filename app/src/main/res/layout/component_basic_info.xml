@@ -21,27 +21,35 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- 分类选择 -->
-        <net.ankio.auto.ui.components.IconView
-            android:id="@+id/category"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="@dimen/float_padding"
-            app:iconSrc="@drawable/default_cate"
-            app:iconTintEnabled="true"
-            app:textColor="?attr/colorOnSurface"
-            tools:text="分类" />
+            android:layout_height="wrap_content">
 
-        <!-- 货币类型选择 -->
-        <net.ankio.auto.ui.components.IconView
-            android:id="@+id/money_type"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="@dimen/float_padding"
-            app:iconSrc="@drawable/float_money"
-            app:iconTintEnabled="true"
-            app:textColor="?attr/colorOnSurface"
-            tools:text="人民币" />
+                <!-- 分类选择 -->
+                <net.ankio.auto.ui.components.IconView
+                    android:id="@+id/category"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:padding="@dimen/float_padding"
+                    app:iconSrc="@drawable/default_cate"
+                    app:iconTintEnabled="true"
+                    app:textColor="?attr/colorOnSurface"
+                    tools:text="分类" />
+
+                <!-- 货币类型选择 -->
+                <net.ankio.auto.ui.components.IconView
+                    android:id="@+id/money_type"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:padding="@dimen/float_padding"
+                    app:iconSrc="@drawable/float_money"
+                    app:iconTintEnabled="false"
+                    app:textColor="?attr/colorOnSurface"
+                    tools:text="人民币" />
+        </LinearLayout>
+
 
         <!-- 时间选择 -->
         <net.ankio.auto.ui.components.IconView

@@ -14,16 +14,18 @@
   -->
 
 <!-- 金额显示组件 - 显示交易金额和类型选择 -->
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="end">
+
     <TextView
         android:id="@+id/amount_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="end"
         android:maxLines="1"
         android:padding="@dimen/one_padding"
         android:textAppearance="?textAppearanceDisplayMedium"
@@ -32,5 +34,38 @@
         app:drawableStartCompat="@drawable/float_add"
         app:drawableTint="@color/success"
         tools:text="10000000.00" />
-</FrameLayout>
+
+    <!-- 类型标签和手续费信息容器 -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <!-- 类型标签芯片 -->
+        <com.google.android.material.chip.Chip
+            android:id="@+id/type_label"
+            style="@style/Widget.Material3.Chip.Assist"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:textSize="12sp"
+            android:background="?colorPrimaryContainer"
+            app:chipStrokeWidth="0dp"
+            app:ensureMinTouchTargetSize="true"
+            tools:text="支出" />
+
+        <TextView
+            android:id="@+id/fee_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:padding="@dimen/one_padding"
+            android:textAppearance="?textAppearanceTitleMedium"
+            android:textColor="@color/success"
+            tools:text="已优惠 2.0" />
+
+    </LinearLayout>
+
+</LinearLayout>
 

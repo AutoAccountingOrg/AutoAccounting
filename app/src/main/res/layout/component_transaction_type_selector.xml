@@ -19,17 +19,30 @@
     android:id="@+id/chip_group"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="@dimen/padding"
+    android:padding="@dimen/half_padding"
+    app:chipSpacing="0dp"
+    app:chipSpacingHorizontal="@dimen/one_padding"
+    app:chipSpacingVertical="@dimen/one_padding"
     app:singleSelection="true">
 
-    <!-- 报销选项 -->
+    <!-- 支出报销选项 -->
     <com.google.android.material.chip.Chip
-        android:id="@+id/chip_reimbursement"
+        android:id="@+id/chip_expend_reimbursement"
         style="@style/Widget.Material3.Chip.Filter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:checked="true"
-        android:text="@string/reimbursement" />
+        app:chipMinTouchTargetSize="0dp"
+
+        android:text="@string/expend_reimbursement" />
+
+    <!-- 收入报销选项 -->
+    <com.google.android.material.chip.Chip
+        android:id="@+id/chip_income_reimbursement"
+        style="@style/Widget.Material3.Chip.Filter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:chipMinTouchTargetSize="0dp"
+        android:text="@string/income_reimbursement" />
 
     <!-- 借出选项 -->
     <com.google.android.material.chip.Chip
@@ -37,17 +50,26 @@
         style="@style/Widget.Material3.Chip.Filter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:checked="false"
+        app:chipMinTouchTargetSize="0dp"
         android:text="@string/lend" />
 
-    <!-- 还款选项 -->
+    <!-- 支出还款选项 -->
     <com.google.android.material.chip.Chip
-        android:id="@+id/chip_repayment"
+        android:id="@+id/chip_expend_repayment"
         style="@style/Widget.Material3.Chip.Filter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:checked="false"
-        android:text="@string/repayment" />
+        app:chipMinTouchTargetSize="0dp"
+        android:text="@string/expend_repayment" />
+
+    <!-- 收入还款选项 -->
+    <com.google.android.material.chip.Chip
+        android:id="@+id/chip_income_repayment"
+        style="@style/Widget.Material3.Chip.Filter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:chipMinTouchTargetSize="0dp"
+        android:text="@string/income_repayment" />
 
     <!-- 借入选项 -->
     <com.google.android.material.chip.Chip
@@ -55,7 +77,7 @@
         style="@style/Widget.Material3.Chip.Filter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:checked="false"
+        app:chipMinTouchTargetSize="0dp"
         android:text="@string/borrow" />
 
     <!-- 退款选项 -->
@@ -64,7 +86,7 @@
         style="@style/Widget.Material3.Chip.Filter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:checked="false"
+        app:chipMinTouchTargetSize="0dp"
         android:text="@string/refund" />
 
 </com.google.android.material.chip.ChipGroup>

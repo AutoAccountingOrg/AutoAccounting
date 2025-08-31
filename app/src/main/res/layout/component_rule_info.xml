@@ -34,15 +34,15 @@
             android:maxLines="1"
             app:iconSrc="@drawable/home_rule"
             app:textColor="?attr/colorPrimary"
-            tools:text="这是一条规则名称" />
+            tools:text="这是一条很长的规则名称很长的规则名称很长的规则名称很长的规则名称很长的规则名称很长的规则名称很长的规则名称很长的规则名称" />
 
-        <!-- 手续费显示 -->
-        <net.ankio.auto.ui.components.IconView
-            android:id="@+id/fee"
+        <!-- 关闭规则 -->
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/close"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical|end"
-            app:textColor="?attr/colorError"
-            tools:text="-0.01" />
+            app:tint="?attr/colorPrimary"
+            app:srcCompat="@drawable/ic_cancel" />
 
 </LinearLayout>
