@@ -46,8 +46,8 @@ fun Route.billRoutes() {
          */
         get("/list") {
             // 清理无分组的账单和过期数据
-            Db.get().billInfoDao().deleteNoGroup()
-            Db.get().billInfoDao().clearOld(System.currentTimeMillis() - 365L * 24 * 60 * 60 * 1000)
+            // Db.get().billInfoDao().deleteNoGroup()
+            //   Db.get().billInfoDao().clearOld(System.currentTimeMillis() - 365L * 24 * 60 * 60 * 1000)
 
             val page = call.request.queryParameters["page"]?.toInt() ?: 1
             val limit = call.request.queryParameters["limit"]?.toInt() ?: 10
