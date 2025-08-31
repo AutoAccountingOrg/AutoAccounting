@@ -28,32 +28,12 @@ class FloatingWindowTriggerActivity : BaseActivity() {
     private val serviceManager = ServiceManager.create()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        // 1. 先设置自定义密度，保证全程生效
-        // DisplayUtils.setCustomDensity(this)
-
         super.onCreate(savedInstanceState)
-        // 2. 透明主题，无布局
         setTheme(R.style.TransparentActivityTheme)
-        // 3. 构造 1×1 悬浮窗
         createOnePxWindow()
 
-        // 使用协程初始化ServiceManager，避免阻塞主线程
-        serviceManager.initialize(
-            caller = this@FloatingWindowTriggerActivity,
-            onReady = {
-                Logger.i("ServiceManager初始化完成，准备启动服务")
-                serviceManager.startCoreService(
-                    this@FloatingWindowTriggerActivity,
-                    forceStart = true
-                )
-            },
-            onDenied = {
-                Logger.w("权限被拒绝，重新请求权限")
-                // 权限被拒绝时重新请求
-                serviceManager.requestProjectionPermission()
-            }
-        )
-        if (!serviceManager.isReady()) serviceManager.requestProjectionPermission()
+        // 提前注册屏幕录制权限启动器
+        serviceManager.registerProjectionLauncher(this)
     }
 
     private fun createOnePxWindow() {
@@ -90,11 +70,9 @@ class FloatingWindowTriggerActivity : BaseActivity() {
             return
         }
 
-        // 2. 检查悬浮窗权限（O+）
-        if (!Settings.canDrawOverlays(this)
-        ) {
+        // 2. 检查悬浮窗权限
+        if (!Settings.canDrawOverlays(this)) {
             Logger.e("没有悬浮窗权限")
-            // 跳转去申请权限
             startActivity(
                 Intent(
                     Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
@@ -105,38 +83,27 @@ class FloatingWindowTriggerActivity : BaseActivity() {
             return
         }
 
-
-        lifecycleScope.launch {
-            // 添加超时机制，避免无限等待
-            var waitCount = 0
-            val maxWaitCount = 50 // 最多等待10秒 (50 * 200ms)
-
-            while (!serviceManager.isReady() && waitCount < maxWaitCount) {
-                delay(200)
-                waitCount++
-            }
-
-            if (waitCount >= maxWaitCount) {
-                Logger.e("等待ServiceManager就绪超时")
-                exitActivity()
-                return@launch
-            }
-
-            try {
-                val targetIntent =
-                    Intent(this@FloatingWindowTriggerActivity, CoreService::class.java).apply {
+        // 3. 确保服务就绪后启动服务
+        serviceManager.ensureReady(
+            onReady = {
+                Logger.i("服务就绪，启动CoreService")
+                try {
+                    val targetIntent = Intent(this, CoreService::class.java).apply {
                         intent.extras?.let(::putExtras)
                     }
-                startForegroundService(targetIntent)
-                Logger.i("成功启动CoreService")
-
-            } catch (e: Exception) {
-                Logger.e("启动服务失败: ${e.message}", e)
-            } finally {
+                    startForegroundService(targetIntent)
+                    Logger.i("成功启动CoreService")
+                } catch (e: Exception) {
+                    Logger.e("启动服务失败: ${e.message}", e)
+                } finally {
+                    exitActivity()
+                }
+            },
+            onDenied = {
+                Logger.w("服务条件不满足，无法启动")
                 exitActivity()
             }
-
-        }
+        )
     }
 
     override fun onDestroy() {

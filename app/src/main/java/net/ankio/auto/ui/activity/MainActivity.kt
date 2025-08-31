@@ -18,6 +18,7 @@ package net.ankio.auto.ui.activity
 import android.os.Bundle
 import androidx.activity.viewModels
 import net.ankio.auto.databinding.ActivityIntroBinding
+import net.ankio.auto.service.CoreService
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.adapter.IntroPagerAdapter
 import net.ankio.auto.ui.adapter.IntroPagerAdapter.IntroPage
@@ -37,27 +38,28 @@ class MainActivity : BaseActivity() {
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        serviceManager.registerProjectionLauncher(this)
         Logger.i("PrefManager.introIndex = ${PrefManager.introIndex}")
 
         // 初始化服务管理器
-        serviceManager.initialize(
-            caller = this,
+        serviceManager.ensureReady(
             onReady = {
                 // 权限就绪后启动服务并检查是否需要跳转到主页
-                serviceManager.startCoreService(this, forceStart = true)
+                CoreService.start(this, intent)
+                Logger.d("初始化完成")
                 if (PrefManager.introIndex + 1 >= IntroPage.entries.size) {
                     start<HomeActivity>()
                 }
             },
             onDenied = {
-                // 权限被拒绝时重新请求
-                serviceManager.requestProjectionPermission()
+                Logger.d("权限被拒绝或者未完成初始化")
+                if (PrefManager.introIndex + 1 >= IntroPage.entries.size) {
+                    start<HomeActivity>()
+                }
             }
         )
 
-        // 尝试启动核心服务
-        startCoreService()
+        // CoreService.start(this, intent)
 
         // 如果引导页已完成，直接返回不显示引导界面
         if (PrefManager.introIndex + 1 >= IntroPage.entries.size) {
@@ -73,19 +75,11 @@ class MainActivity : BaseActivity() {
         // 监听页面切换请求
         vm.pageRequest.observe(this) { idx ->
             PrefManager.introIndex = idx.ordinal
-            startCoreService()
+            CoreService.start(this, intent)
             binding.viewPager.setCurrentItem(idx.ordinal, true)
         }
     }
 
-    /**
-     * 启动核心服务
-     * 使用ServiceManager统一管理服务启动逻辑
-     */
-    private fun startCoreService() {
-        val started = serviceManager.startCoreService(this)
-        Logger.i("服务启动结果: $started，状态: ${serviceManager.getServiceStatus()}")
-    }
 
     override fun onDestroy() {
         super.onDestroy()
