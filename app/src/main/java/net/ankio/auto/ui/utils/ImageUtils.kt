@@ -89,10 +89,10 @@ suspend fun String.toBookCover(imageView: ImageView) {
  */
 fun ImageView.load(
     src: String?,
-    defaultResId: Int,
+    defaultResId: Int? = null,
 ) {
 
-    Glide.with(this)
+    val glide = Glide.with(this)
         .load(
             when {
                 src.isNullOrBlank() -> defaultResId          // 空串直接用占位图
@@ -100,8 +100,10 @@ fun ImageView.load(
             }
         )
         .error(defaultResId)
-        .fallback(defaultResId)
-        .into(this)
+    if (defaultResId != null) {
+        glide.fallback(defaultResId)
+    }
+    glide.into(this)
 }
 
 /**
