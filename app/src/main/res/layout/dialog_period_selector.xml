@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (C) 2025 ankio(ankio@ankio.net)
+  ~ Licensed under the Apache License, Version 3.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~         http://www.apache.org/licenses/LICENSE-3.0
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~   limitations under the License.
+  -->
+
+<!-- 周期选择对话框布局 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- 标题 -->
+    <com.google.android.material.textview.MaterialTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="@string/period_selector_title"
+        android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
+        android:textColor="?attr/colorOnSurface"
+        android:gravity="center" />
+
+    <!-- 周期选项列表 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- 最近一周 -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnLastWeek"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:text="@string/period_last_week"
+            android:gravity="start|center_vertical"
+            app:icon="@drawable/ic_calendar_week"
+            app:iconGravity="start" />
+
+        <!-- 最近30天 -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnLast30Days"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:text="@string/period_last_30_days"
+            android:gravity="start|center_vertical"
+            app:icon="@drawable/ic_calendar_month"
+            app:iconGravity="start" />
+
+        <!-- 这个月 -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnThisMonth"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:text="@string/period_this_month"
+            android:gravity="start|center_vertical"
+            app:icon="@drawable/ic_calendar_month2"
+            app:iconGravity="start" />
+
+        <!-- 最近一年 -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnLastYear"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:text="@string/period_last_year"
+            android:gravity="start|center_vertical"
+            app:icon="@drawable/ic_date_range"
+            app:iconGravity="start" />
+
+        <!-- 今年 -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnThisYear"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/period_this_year"
+            android:gravity="start|center_vertical"
+            app:icon="@drawable/ic_calendar_view_year"
+            app:iconGravity="start" />
+
+    </LinearLayout>
+
+</LinearLayout>

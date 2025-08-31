@@ -21,25 +21,39 @@
 
     <com.google.android.material.materialswitch.MaterialSwitch
         android:id="@+id/regex"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/padding"
         android:text="@string/map_regex"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/editText" />
 
-    <net.ankio.auto.ui.componets.IconView
-        android:id="@+id/target"
-        android:layout_width="wrap_content"
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/regexDesc"
+        style="@style/TextAppearance.Material3.BodySmall"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/one_padding"
+        android:text="@string/map_regex_desc"
+        android:textColor="?colorOnSurfaceVariant"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/regex" />
+
+    <net.ankio.auto.ui.components.IconView
+        android:id="@+id/target"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/padding"
         android:background="@drawable/ripple_effect"
         android:clickable="true"
         android:focusable="true"
         android:padding="@dimen/padding"
         app:iconTintEnabled="false"
-        app:layout_constraintBottom_toBottomOf="@id/regex"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/regex"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/regexDesc"
         app:text="@string/map_target"
         app:textColor="?colorOnBackground" />
 
@@ -53,7 +67,7 @@
         android:text="@string/cancel_msg"
         app:layout_constraintEnd_toStartOf="@id/buttonSure"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/regex" />
+        app:layout_constraintTop_toBottomOf="@id/target" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/buttonSure"
