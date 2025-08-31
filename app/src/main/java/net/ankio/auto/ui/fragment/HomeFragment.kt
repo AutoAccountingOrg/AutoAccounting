@@ -53,8 +53,8 @@ class HomeFragment : BaseFragment<FragmentPluginHomeBinding>() {
             }
 
         val bookCard: BookCardComponent = binding.bookCard.bindAs()
-        bookCard.setOnRedirect {
-            findNavController().navigate(it)
+        bookCard.setOnRedirect { navigationId, bundle ->
+            findNavController().navigate(navigationId, bundle)
         }
         binding.toolbar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
