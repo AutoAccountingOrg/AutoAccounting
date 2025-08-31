@@ -26,6 +26,7 @@ import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentBillBinding
 import net.ankio.auto.http.api.BillAPI
+import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.adapter.OrderAdapter
 import net.ankio.auto.ui.api.BasePageFragment
 import net.ankio.auto.ui.api.BaseSheetDialog
@@ -36,6 +37,7 @@ import net.ankio.auto.ui.dialog.BillEditorDialog
 import net.ankio.auto.ui.models.OrderGroup
 import net.ankio.auto.ui.utils.AssetsUtils
 import net.ankio.auto.ui.utils.BookAppUtils
+import net.ankio.auto.utils.BillTool
 import net.ankio.auto.utils.DateUtils
 import org.ezbook.server.constant.BillState
 
@@ -67,6 +69,13 @@ open class OrderFragment : BasePageFragment<OrderGroup, FragmentBillBinding>() {
                         .setBillInfo(item)
                         .setOnConfirm { updatedBill ->
                             itemAdapter.updateItem(position, updatedBill)
+                            // 保存到
+                            lifecycleScope.launch {
+                                Logger.d("更新账单：$updatedBill")
+                                BillAPI.put(updatedBill)
+                                BillTool.syncBills()
+                            }
+
                         }
                         .show()
                 }
