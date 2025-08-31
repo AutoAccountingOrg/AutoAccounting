@@ -250,9 +250,8 @@ class CategoryComponent(
         var leftDistanceWithMargin =
             location[0] + view.paddingLeft + params.leftMargin - view.width / 2
 
-        if (PrefManager.uiRoundStyle) {
-            //TODO
-            //  leftDistanceWithMargin -= view.width / 2
+        if (PrefManager.uiRoundStyle && !isEditMode) {
+            leftDistanceWithMargin -= view.width / 2
         }
 
         categoryModel.id = leftDistanceWithMargin.toLong()
