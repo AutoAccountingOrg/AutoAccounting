@@ -18,13 +18,13 @@ package net.ankio.auto.ui.adapter
 import net.ankio.auto.databinding.AdapterOrderBinding
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
-import net.ankio.auto.ui.componets.WrapContentLinearLayoutManager
+import net.ankio.auto.ui.components.WrapContentLinearLayoutManager
 import net.ankio.auto.ui.models.OrderGroup
 import org.ezbook.server.db.model.BillInfoModel
 
 class OrderAdapter :
     BaseAdapter<AdapterOrderBinding, OrderGroup>(
-        AdapterOrderBinding::class.java
+
     ) {
 
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterOrderBinding, OrderGroup>) {

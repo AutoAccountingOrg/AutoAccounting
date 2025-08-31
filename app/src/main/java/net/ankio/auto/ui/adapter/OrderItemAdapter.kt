@@ -16,15 +16,14 @@
 package net.ankio.auto.ui.adapter
 
 import android.view.View
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterOrderItemBinding
-import net.ankio.auto.storage.ConfigUtils
+import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
-import net.ankio.auto.ui.componets.IconView
-import net.ankio.auto.ui.utils.ResourceUtils
+import net.ankio.auto.ui.components.IconView
+import net.ankio.auto.ui.utils.setAssetIconByName
+import net.ankio.auto.ui.utils.setCategoryIcon
 import net.ankio.auto.utils.BillTool
 import net.ankio.auto.utils.DateUtils
 import org.ezbook.server.constant.BillState
@@ -35,7 +34,7 @@ import org.ezbook.server.db.model.BillInfoModel
 
 class OrderItemAdapter(
     private val showMore: Boolean = true
-) : BaseAdapter<AdapterOrderItemBinding, BillInfoModel>(AdapterOrderItemBinding::class.java) {
+) : BaseAdapter<AdapterOrderItemBinding, BillInfoModel>() {
 
     private var onItemClickListener: ((BillInfoModel, Int) -> Unit)? = null
     private var onItemLongClickListener: ((BillInfoModel, Int) -> Unit)? = null
@@ -93,31 +92,20 @@ class OrderItemAdapter(
 
         fun loadCategoryIcon(name: String) {
             binding.category.setText(name)
-            holder.launch {
-                ResourceUtils.getCategoryDrawableByName(name, holder.context).let {
-                    withContext(Dispatchers.Main) {
-                        binding.category.setIcon(it, true)
-                    }
-                }
+            launchInAdapter {
+                binding.category.imageView().setCategoryIcon(name)
             }
         }
 
         fun loadAssetIcon(view: IconView, name: String) {
             view.setText(name)
-            holder.launch {
-                ResourceUtils.getAssetDrawableFromName(name).let {
-                    withContext(Dispatchers.Main) {
-                        view.setIcon(it, false)
-                    }
-                }
+            launchInAdapter {
+                view.imageView().setAssetIconByName(name)
             }
         }
 
         fun visibility(): Int {
-            return if (ConfigUtils.getBoolean(
-                    Setting.SETTING_ASSET_MANAGER,
-                    DefaultData.SETTING_ASSET_MANAGER
-                )
+            return if (PrefManager.featureAssetManage
             ) View.VISIBLE else View.GONE
         }
 
@@ -236,7 +224,7 @@ class OrderItemAdapter(
             binding.statusBar.visibility = View.GONE
         } else {
             binding.statusBar.visibility = View.VISIBLE
-            if (ConfigUtils.getBoolean(Setting.AUTO_GROUP, DefaultData.AUTO_GROUP)) {
+            if (PrefManager.autoGroup) {
                 binding.moreBills.visibility = View.VISIBLE
             } else {
                 binding.moreBills.visibility = View.GONE
