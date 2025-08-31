@@ -86,7 +86,7 @@ class FloatingWindowTriggerActivity : BaseActivity() {
         // 1. 超时检查
         if (t < System.currentTimeMillis() - Constants.INTENT_TIMEOUT) {
             Logger.e("Intent已超时: 时间戳=$t")
-            finishAffinity()
+            exitActivity()
             return
         }
 
@@ -101,7 +101,7 @@ class FloatingWindowTriggerActivity : BaseActivity() {
                     "package:$packageName".toUri()
                 ).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             )
-            finishAffinity()
+            exitActivity()
             return
         }
 
@@ -118,7 +118,7 @@ class FloatingWindowTriggerActivity : BaseActivity() {
 
             if (waitCount >= maxWaitCount) {
                 Logger.e("等待ServiceManager就绪超时")
-                finishAffinity()
+                exitActivity()
                 return@launch
             }
 
@@ -133,7 +133,7 @@ class FloatingWindowTriggerActivity : BaseActivity() {
             } catch (e: Exception) {
                 Logger.e("启动服务失败: ${e.message}", e)
             } finally {
-                finishAffinity()
+                exitActivity()
             }
 
         }
@@ -149,10 +149,8 @@ class FloatingWindowTriggerActivity : BaseActivity() {
             Logger.e("清理ServiceManager资源失败: ${e.message}", e)
         }
     }
-
-    override fun finish() {
-        super.finish()
-        // 无动画
+    private fun exitActivity() {
+        finishAffinity()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             // API 34+：新接口，第 3 个参数是背景色，传 0 表示不覆盖默认
             overrideActivityTransition(OVERRIDE_TRANSITION_OPEN, 0, 0)
@@ -161,6 +159,8 @@ class FloatingWindowTriggerActivity : BaseActivity() {
             // 旧接口：禁用入/出场动画
             overridePendingTransition(0, 0)
         }
+        window.setWindowAnimations(0)
     }
+
 
 }
