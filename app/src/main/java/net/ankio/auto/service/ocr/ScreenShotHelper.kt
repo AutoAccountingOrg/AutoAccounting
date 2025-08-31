@@ -92,8 +92,12 @@ class ScreenShotHelper(
             if (virtualDisplay == null) createVirtualDisplay()
             // 等待图像，超时500ms
             val image = acquireImageWithTimeout(5000)
+            val result = processImage(image)
+            // 每次截图后主动释放 VirtualDisplay，避免长时间持有导致 Surface/BLAST 队列失效
+            runCatching { virtualDisplay?.release() }.onFailure { Logger.w("释放VirtualDisplay失败: ${it.message}") }
+            virtualDisplay = null
             busy.set(false)
-            return@withContext processImage(image)
+            return@withContext result
         } catch (e: Exception) {
             busy.set(false)
             Logger.e("异常：$e", e)

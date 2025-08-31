@@ -266,9 +266,17 @@ class OcrService : ICoreService() {
      */
     private fun stopOcrView() {
         floatView?.let { view ->
-            windowManager?.removeView(view)
-            floatView = null
-            windowManager = null
+            try {
+                // 使用 removeViewImmediate 避免异步移除导致的 Surface 残留/队列死亡
+                if (view.isAttachedToWindow) {
+                    windowManager?.removeViewImmediate(view)
+                }
+            } catch (e: Exception) {
+                Logger.w("移除OCR悬浮窗失败: ${e.message}")
+            } finally {
+                floatView = null
+                windowManager = null
+            }
         }
     }
 

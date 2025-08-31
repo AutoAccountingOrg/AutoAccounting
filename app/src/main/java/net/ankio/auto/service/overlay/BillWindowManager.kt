@@ -504,7 +504,8 @@ class BillWindowManager(
                 Logger.d("编辑对话框已取消，删除账单")
                 deleteBill(bill)
             }
-            ?.setOnConfirm {
+            ?.setOnConfirm { billInfo ->
+                saveBill(billInfo)
                 Logger.d("编辑对话框已确认，处理下一个账单")
                 processNextBill()
             }?.show()
