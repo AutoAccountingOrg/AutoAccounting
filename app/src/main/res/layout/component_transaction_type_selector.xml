@@ -32,7 +32,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:chipMinTouchTargetSize="0dp"
-
+        app:checkedIcon="@null"
+        app:chipStrokeWidth="0dp"
         android:text="@string/expend_reimbursement" />
 
     <!-- 收入报销选项 -->
@@ -42,6 +43,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:chipMinTouchTargetSize="0dp"
+        app:checkedIcon="@null"
+        app:chipStrokeWidth="0dp"
         android:text="@string/income_reimbursement" />
 
     <!-- 借出选项 -->
@@ -51,6 +54,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:chipMinTouchTargetSize="0dp"
+        app:checkedIcon="@null"
+        app:chipStrokeWidth="0dp"
         android:text="@string/lend" />
 
     <!-- 支出还款选项 -->
@@ -60,6 +65,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:chipMinTouchTargetSize="0dp"
+        app:checkedIcon="@null"
+        app:chipStrokeWidth="0dp"
         android:text="@string/expend_repayment" />
 
     <!-- 收入还款选项 -->
@@ -69,6 +76,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:chipMinTouchTargetSize="0dp"
+        app:checkedIcon="@null"
+        app:chipStrokeWidth="0dp"
         android:text="@string/income_repayment" />
 
     <!-- 借入选项 -->
@@ -78,6 +87,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:chipMinTouchTargetSize="0dp"
+        app:checkedIcon="@null"
+        app:chipStrokeWidth="0dp"
         android:text="@string/borrow" />
 
     <!-- 退款选项 -->
@@ -87,6 +98,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:chipMinTouchTargetSize="0dp"
+        app:checkedIcon="@null"
+        app:chipStrokeWidth="0dp"
         android:text="@string/refund" />
 
 </com.google.android.material.chip.ChipGroup>
