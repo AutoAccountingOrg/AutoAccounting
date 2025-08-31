@@ -100,8 +100,8 @@
     <string name="float_income">收入</string>
     <string name="float_expend">支出</string>
     <string name="float_transfer">转账（信用卡还款）</string>
-    <string name="float_expend_debt">借出</string>
-    <string name="float_income_debt">借入</string>
+    <string name="float_expend_debt">欠款人</string>
+    <string name="float_income_debt">债主</string>
     <string name="restart">重启自动记账</string>
     <string name="copy_command_success">已复制到剪贴板</string>
     <string name="setting_lang">语言</string>

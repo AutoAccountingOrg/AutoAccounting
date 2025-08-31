@@ -326,6 +326,8 @@
     <string name="delete_category_map">Delete category mapping: %s</string>
     <string name="no_rule_hint">No rule matched</string>
     <string name="reimbursement">Reimbursement</string>
+    <string name="expend_reimbursement">Expense reimbursement</string>
+    <string name="income_reimbursement">Income reimbursement</string>
     <string name="lend">Lend</string>
     <string name="repayment">Repayment</string>
     <string name="borrow">Borrow</string>
