@@ -6,6 +6,10 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.PixelFormat
 import android.hardware.SensorManager
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
 import android.provider.Settings
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -115,6 +119,41 @@ class OcrService : ICoreService() {
     private var ocrDoing = false
 
     /**
+     * 触发振动反馈
+     * 在OCR识别开始时提供触觉反馈
+     */
+    private fun triggerVibration() {
+        try {
+            val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                // Android 12+ 使用VibratorManager
+                val vibratorManager =
+                    coreService.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+                vibratorManager.defaultVibrator
+            } else {
+                // Android 12以下使用传统Vibrator
+                @Suppress("DEPRECATION")
+                coreService.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+            }
+
+            // 检查设备是否支持振动
+            if (!vibrator.hasVibrator()) {
+                Logger.d("设备不支持振动功能")
+                return
+            }
+
+            // 创建振动效果
+            // Android 8.0+ 使用VibrationEffect
+            val vibrationEffect =
+                VibrationEffect.createOneShot(300, VibrationEffect.DEFAULT_AMPLITUDE)
+            vibrator.vibrate(vibrationEffect)
+
+            Logger.d("振动反馈已触发")
+        } catch (e: Exception) {
+            Logger.e("振动反馈失败: ${e.message}")
+        }
+    }
+
+    /**
      * 处理摇动事件
      */
     private fun onShake() {
@@ -148,6 +187,9 @@ class OcrService : ICoreService() {
 
         Logger.d("检测到白名单应用 [$pkg]，开始截屏 OCR")
         ocrDoing = true
+
+        // 触发振动反馈，提醒用户OCR识别已开始
+        triggerVibration()
 
         // 使用全局协程管理器
         App.launch {
