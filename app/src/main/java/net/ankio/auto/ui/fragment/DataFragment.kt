@@ -15,12 +15,14 @@
 
 package net.ankio.auto.ui.fragment
 
+import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import android.widget.ArrayAdapter
+import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.gson.Gson
@@ -42,9 +44,12 @@ import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
 import net.ankio.auto.ui.dialog.DataEditorDialog
 import net.ankio.auto.ui.dialog.EditorDialogBuilder
 import net.ankio.auto.ui.models.RailMenuItem
-import net.ankio.auto.ui.repository.AppDataRepository
+import net.ankio.auto.http.Pastebin
+import net.ankio.auto.http.license.RuleAPI
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.ToastUtils
+import net.ankio.auto.utils.CustomTabsHelper
+import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.utils.SystemUtils
 import net.ankio.auto.utils.getAppInfoFromPackageName
 import org.ezbook.server.constant.DataType
@@ -79,8 +84,10 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
     /** 左侧应用数据缓存 */
     private var leftData = JsonObject()
 
-    /** Repository实例，负责网络请求 */
-    private val repository = AppDataRepository()
+    companion object {
+        private const val GITHUB_ISSUE_URL =
+            "https://github.com/AutoAccountingOrg/AutoRuleSubmit/issues"
+    }
 
     /**
      * 加载数据的主要方法
@@ -119,10 +126,13 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
             loading.show(R.string.rule_testing)
 
             val billResultModel = JsAPI.analysis(item.type, item.data, item.app, true)
-                ?: throw IllegalStateException(getString(R.string.no_rule_hint))
+
+            if (billResultModel == null) {
+                ToastUtils.error(getString(R.string.no_rule_hint))
+            }
 
             BaseSheetDialog.create<BillEditorDialog>(requireContext())
-                .setBillInfo(billResultModel.billInfoModel)
+                .setBillInfo(billResultModel!!.billInfoModel)
                 .setOnConfirm { _ ->
                     ToastUtils.info("规则测试完成")
                 }
@@ -170,7 +180,7 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
                     loading.show(R.string.upload_waiting)
 
                     if (!(item.match && item.rule.isNotEmpty())) {
-                        repository.requestRuleHelp(item, result)
+                        requestRuleHelp(item, result)
                     } else {
                         showRuleBugDialog(item, result)
                     }
@@ -207,7 +217,7 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
             .setMessage("")
             .setEditorPositiveButton(R.string.btn_confirm) { description ->
                 lifecycleScope.launch {
-                    repository.requestRuleBug(item, result, description)
+                    requestRuleBug(item, result, description)
                 }
             }
             .setNegativeButton(R.string.btn_cancel) { _, _ -> }
@@ -424,6 +434,90 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
                 Logger.d("Unknown menu item clicked: ${item?.itemId}")
                 return false
             }
+        }
+    }
+
+    /**
+     * 请求规则适配帮助
+     * 原 AppDataRepository.requestRuleHelp 方法
+     */
+    private suspend fun requestRuleHelp(item: AppDataModel, result: String) {
+        val type = item.type.name
+        val title = "[Adaptation Request][$type]${item.app}"
+
+        val (url, timeout) = Pastebin.add(result)
+        val body = """
+<!------ 
+ 1. 请不要手动复制数据，下面的链接中已包含数据；
+ 2. 您可以新增信息，但是不要删除本页任何内容；
+ 3. 一般情况下，您直接划到底部点击submit即可。
+ ------>
+## 数据链接
+[数据过期时间：${timeout}](${url})
+## 其他信息
+<!------ 
+ 1. 您可以在下面添加说明信息。
+ ------>
+
+                """.trimIndent()
+
+        if (PrefManager.githubConnectivity) {
+            submitGithub(title, body)
+        } else {
+            submitCloud(title, body)
+        }
+    }
+
+    /**
+     * 反馈规则Bug
+     * 原 AppDataRepository.requestRuleBug 方法
+     */
+    private suspend fun requestRuleBug(item: AppDataModel, result: String, desc: String) {
+        val type = item.type.name
+        val title = "[Bug Report][$type]${item.app}"
+
+        val (url, timeout) = Pastebin.add(result)
+        val body = """
+<!------ 
+ 1. 请不要手动复制数据，下面的链接中已包含数据；
+ 2. 该功能是反馈规则识别错误的，请勿写其他无关内容；
+ ------>
+## 规则
+${item.rule}
+## 数据
+[数据过期时间：${timeout}](${url})
+## 说明
+$desc
+
+                         
+                                            """.trimIndent()
+
+        if (PrefManager.githubConnectivity) {
+            submitGithub(title, body)
+        } else {
+            submitCloud(title, body)
+        }
+    }
+
+    /**
+     * 通过Github提交Issue
+     * 原 AppDataRepository.submitGithub 方法
+     */
+    private fun submitGithub(title: String, body: String) {
+        CustomTabsHelper.launchUrl(
+            "$GITHUB_ISSUE_URL/new?title=${Uri.encode(title)}&body=${Uri.encode(body)}".toUri()
+        )
+    }
+
+    /**
+     * 通过云端API提交Issue
+     * 原 AppDataRepository.submitCloud 方法
+     */
+    private suspend fun submitCloud(title: String, body: String) {
+        val result = RuleAPI.submit(title, body)
+        val data = Gson().fromJson(result, JsonObject::class.java)
+        if (data.get("code").asInt != 200) {
+            throw RuntimeException(data.get("msg").asString)
         }
     }
 }

@@ -27,7 +27,7 @@ import net.ankio.auto.http.api.CategoryRuleAPI
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.api.bindAs
-import net.ankio.auto.ui.fragment.category.CategoryComponent
+import net.ankio.auto.ui.fragment.components.CategoryRuleEditComponent
 import net.ankio.auto.ui.utils.ToastUtils
 import org.ezbook.server.db.model.CategoryRuleModel
 
@@ -49,7 +49,7 @@ import org.ezbook.server.db.model.CategoryRuleModel
 class CategoryRuleEditFragment : BaseFragment<FragmentCategoryRuleEditBinding>() {
 
     /** 分类规则编辑组件 */
-    private lateinit var categoryComponent: CategoryComponent
+    private lateinit var categoryRuleEditComponent: CategoryRuleEditComponent
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -61,7 +61,7 @@ class CategoryRuleEditFragment : BaseFragment<FragmentCategoryRuleEditBinding>()
                 findNavController().popBackStack()
             }
 
-            categoryComponent = binding.categoryComponent.bindAs(lifecycle, requireActivity())
+            categoryRuleEditComponent = binding.categoryComponent.bindAs()
 
             // 设置事件监听器
             setupEventListeners()
@@ -125,7 +125,7 @@ class CategoryRuleEditFragment : BaseFragment<FragmentCategoryRuleEditBinding>()
     private fun setupForNewRule() {
 
         // 设置组件为编辑模式，传入空模型
-        categoryComponent.setRuleModel(null, readOnly = false)
+        categoryRuleEditComponent.setRuleModel(null, readOnly = false)
 
         Logger.d("设置为新规则创建模式")
     }
@@ -135,7 +135,7 @@ class CategoryRuleEditFragment : BaseFragment<FragmentCategoryRuleEditBinding>()
      */
     private fun setupForExistingRule(ruleModel: CategoryRuleModel) {
         // 设置组件为编辑模式，传入现有模型
-        categoryComponent.setRuleModel(ruleModel, readOnly = false)
+        categoryRuleEditComponent.setRuleModel(ruleModel, readOnly = false)
 
         Logger.d("设置为现有规则编辑模式: ${ruleModel.id}")
     }
@@ -144,7 +144,7 @@ class CategoryRuleEditFragment : BaseFragment<FragmentCategoryRuleEditBinding>()
      * 保存规则 - 简化后的实现
      */
     private fun saveRule() {
-        val categoryRuleModel = categoryComponent.getRule() ?: return
+        val categoryRuleModel = categoryRuleEditComponent.getRule() ?: return
         lifecycleScope.launch {
             // 调用API保存规则
             CategoryRuleAPI.put(categoryRuleModel)
@@ -181,7 +181,7 @@ class CategoryRuleEditFragment : BaseFragment<FragmentCategoryRuleEditBinding>()
         // CategoryComponent会通过BaseComponent自动清理
         // 这里只需要清理Fragment级别的资源
 
-        categoryComponent.cleanup()
+        // CategoryRuleEditComponent会通过BaseComponent自动清理，无需手动调用
 
         Logger.d("CategoryRuleEditFragment销毁完成")
     }

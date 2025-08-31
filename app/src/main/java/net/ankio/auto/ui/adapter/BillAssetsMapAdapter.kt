@@ -18,17 +18,15 @@ package net.ankio.auto.ui.adapter
 
 import android.content.Context
 import android.view.View
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import net.ankio.auto.databinding.AdapterMapBinding
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
-import net.ankio.auto.ui.utils.ResourceUtils
+import net.ankio.auto.ui.utils.setAssetIconByName
 import org.ezbook.server.db.model.AssetsMapModel
 
 class BillAssetsMapAdapter(
     val context: Context
-) : BaseAdapter<AdapterMapBinding, AssetsMapModel>(AdapterMapBinding::class.java) {
+) : BaseAdapter<AdapterMapBinding, AssetsMapModel>() {
 
     private var onClickListener: ((AssetsMapModel) -> Unit)? = null
     fun setOnClickListener(listener: (AssetsMapModel) -> Unit) {
@@ -50,11 +48,8 @@ class BillAssetsMapAdapter(
         position: Int
     ) {
         val binding = holder.binding
-        holder.launch {
-            val drawable = ResourceUtils.getAssetDrawableFromName(data.mapName)
-            withContext(Dispatchers.Main) {
-                binding.target.setIcon(drawable, false)
-            }
+        launchInAdapter {
+            binding.target.imageView().setAssetIconByName(data.mapName)
         }
 
         binding.raw.text = data.name

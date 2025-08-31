@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?><!--
-  ~ Copyright (C) 2023 ankio(ankio@ankio.net)
+  ~ Copyright (C) 2025 ankio(ankio@ankio.net)
   ~ Licensed under the Apache License, Version 3.0 (the "License");
   ~ you may not use this file except in compliance with the License.
   ~ You may obtain a copy of the License at
@@ -14,17 +14,24 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
+    <!-- 状态页组件：处理加载/空/错误/内容状态 -->
     <net.ankio.auto.ui.components.StatusPage
         android:id="@+id/statusPage"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        app:innerHeight="wrap_content" />
+        android:layout_height="400dp"
+        android:layout_weight="1" />
+
+    <!-- 确认按钮 -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/confirmButton"
+        style="@style/Widget.Material3.Button"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/btn_height_small"
+        android:layout_marginTop="@dimen/cardPadding"
+        android:text="@string/sure_msg" />
 
 </LinearLayout>
-

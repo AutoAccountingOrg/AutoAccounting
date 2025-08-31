@@ -36,6 +36,7 @@ import net.ankio.auto.http.api.JsAPI
 import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
 import net.ankio.auto.storage.Logger
+import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.ToastUtils
 import org.ezbook.server.db.model.AppDataModel
@@ -430,7 +431,7 @@ $jsCode
 
             if (result.isNotBlank()) {
                 val displayResult = extractAndFormatData(result)
-                BottomSheetDialogBuilder.create(requireActivity())
+                BaseSheetDialog.create<BottomSheetDialogBuilder>(requireContext())
                     .setTitle(getString(R.string.execution_result))
                     .setMessage(displayResult)
                     .setPositiveButton(getString(R.string.confirm)) { _, _ ->

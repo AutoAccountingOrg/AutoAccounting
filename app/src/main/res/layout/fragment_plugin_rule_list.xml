@@ -1,10 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (C) 2024 ankio(ankio@ankio.net)
+  ~ Licensed under the Apache License, Version 3.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~         http://www.apache.org/licenses/LICENSE-3.0
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~   limitations under the License.
+  -->
+
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
 
-    <!-- 顶部AppBar -->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/toolbarLayout"
         android:layout_width="match_parent"
@@ -15,22 +29,21 @@
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
+            style="@style/Widget.Material3.Toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@android:color/transparent"
-            style="@style/Widget.Material3.Toolbar"
-            app:menu="@menu/data_menu"
-            app:title="@string/title_data" />
+            app:menu="@menu/rule_menu"
+            app:title="@string/title_rule" />
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- 主内容区 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <!-- 左侧导航 -->
+
         <net.ankio.auto.ui.components.CustomNavigationRail
             android:id="@+id/leftList"
             android:layout_width="70dp"
@@ -39,14 +52,13 @@
             android:paddingTop="0dp"
             android:paddingEnd="0dp"
             android:paddingBottom="0dp" />
-
-        <!-- 右侧内容区：采用与规则页一致的下拉筛选布局 -->
+        <!-- 右侧内容区，使用ConstraintLayout避免嵌套weights -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1">
 
-            <!-- 数据类型下拉框（全部/通知/数据） -->
+            <!-- 规则类型下拉框 -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/typeDropdownLayout"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
@@ -56,47 +68,39 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
                 android:hint="@string/filter_rule_type"
-                app:layout_constraintEnd_toStartOf="@+id/matchDropdownLayout"
+                app:layout_constraintEnd_toStartOf="@+id/creatorDropdownLayout"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
-                <!-- 仅单行显示，超出以省略号结尾 -->
                 <com.google.android.material.textfield.MaterialAutoCompleteTextView
                     android:id="@+id/typeDropdown"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="none"
-                    android:singleLine="true"
-                    android:maxLines="1"
-                    android:ellipsize="end"
                     android:text="@string/filter_type_all" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- 匹配状态下拉框（全部/已匹配） -->
+            <!-- 创建者下拉框 -->
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/matchDropdownLayout"
+                android:id="@+id/creatorDropdownLayout"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
-                android:hint="@string/filter_match"
+                android:hint="@string/filter_creator"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/typeDropdownLayout"
                 app:layout_constraintTop_toTopOf="parent">
 
-                <!-- 仅单行显示，超出以省略号结尾 -->
                 <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                    android:id="@+id/matchDropdown"
+                    android:id="@+id/creatorDropdown"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="none"
-                    android:singleLine="true"
-                    android:maxLines="1"
-                    android:ellipsize="end"
-                    android:text="@string/filter_type_all" />
+                    android:text="@string/filter_creator_all" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -117,4 +121,5 @@
             </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

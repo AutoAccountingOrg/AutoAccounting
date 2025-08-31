@@ -16,7 +16,6 @@
 
 package net.ankio.auto.ui.adapter
 
-import android.app.Activity
 import android.view.View
 import androidx.fragment.app.FragmentActivity
 import com.google.android.material.elevation.SurfaceColors
@@ -26,26 +25,26 @@ import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterRuleBinding
 import net.ankio.auto.http.api.CategoryRuleAPI
 import net.ankio.auto.storage.Logger
-import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.api.BaseAdapter
+import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.api.BaseViewHolder
 import net.ankio.auto.ui.api.bindAs
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
-import net.ankio.auto.ui.fragment.category.CategoryComponent
+import net.ankio.auto.ui.fragment.components.CategoryRuleEditComponent
 import org.ezbook.server.db.model.CategoryRuleModel
 
 /**
- * 分类规则适配器 - 优化版本，使用 CategoryComponent 处理复杂的规则展示逻辑
+ * 分类规则适配器 - 优化版本，使用 CategoryRuleEditComponent 处理复杂的规则展示逻辑
  *
  * 设计原则（遵循Linus好品味）：
- * 1. 单一职责：适配器只负责列表管理，规则展示委托给 CategoryComponent
- * 2. 消除重复：移除所有与 CategoryComponent 重复的逻辑
+ * 1. 单一职责：适配器只负责列表管理，规则展示委托给 CategoryRuleEditComponent
+ * 2. 消除重复：移除所有与 CategoryRuleEditComponent 重复的逻辑
  * 3. 类型安全：正确的生命周期管理
  * 4. 简洁实现：3层嵌套以内，逻辑清晰
  *
  * 重构要点：
- * - 移除了重复的规则展示代码，使用 CategoryComponent 替代
- * - 使用 include 标签集成 CategoryComponent 布局
+ * - 移除了重复的规则展示代码，使用 CategoryRuleEditComponent 替代
+ * - 使用 include 标签集成 CategoryRuleEditComponent 布局
  * - 委托规则展示逻辑给专门的组件
  * - 保持原有功能：编辑和删除操作完全兼容
  * - 遵循"Never break userspace"原则：所有原有功能都保留
@@ -73,10 +72,7 @@ class CategoryRuleAdapter(
         binding.deleteData.setOnClickListener {
             val item = holder.item!!
 
-            // 确保有FragmentActivity上下文才能显示对话框
-            val fragmentActivity = activity as? FragmentActivity ?: return@setOnClickListener
-
-            BottomSheetDialogBuilder(fragmentActivity)
+            BaseSheetDialog.create<BottomSheetDialogBuilder>(activity)
                 .setTitle(activity.getString(R.string.delete_data))
                 .setMessage(activity.getString(R.string.delete_msg))
                 .setPositiveButton(activity.getString(R.string.sure_msg)) { _, _ ->
@@ -106,30 +102,30 @@ class CategoryRuleAdapter(
             View.VISIBLE
         }
 
-        // 使用 CategoryComponent 处理规则展示
-        setupCategoryComponent(holder, data)
+        // 使用 CategoryRuleEditComponent 处理规则展示
+        setupCategoryRuleEditComponent(holder, data)
     }
 
     /**
-     * 设置 CategoryComponent 来展示分类规则
+     * 设置 CategoryRuleEditComponent 来展示分类规则
      *
      * 功能说明：
-     * 1. 创建 CategoryComponent 实例
+     * 1. 创建 CategoryRuleEditComponent 实例
      * 2. 设置为只读模式，仅展示规则内容
-     * 3. 委托所有复杂的规则展示逻辑给 CategoryComponent
+     * 3. 委托所有复杂的规则展示逻辑给 CategoryRuleEditComponent
      */
-    private fun setupCategoryComponent(
+    private fun setupCategoryRuleEditComponent(
         holder: BaseViewHolder<AdapterRuleBinding, CategoryRuleModel>,
         data: CategoryRuleModel
     ) {
         val binding = holder.binding
-        // 获取 CategoryComponent 的绑定
-        val categoryComponent =
-            binding.categoryComponent.bindAs<CategoryComponent>(activity.lifecycle, activity)
+        // 获取 CategoryRuleEditComponent 的绑定
+        val categoryRuleEditComponent =
+            binding.categoryComponent.bindAs<CategoryRuleEditComponent>()
         // 设置规则模型，只读模式展示
-        categoryComponent.setRuleModel(data, readOnly = true)
+        categoryRuleEditComponent.setRuleModel(data, readOnly = true)
 
-        Logger.d("CategoryComponent 设置完成，展示规则: ${data.id}")
+        Logger.d("CategoryRuleEditComponent 设置完成，展示规则: ${data.id}")
     }
 
     override fun areItemsSame(oldItem: CategoryRuleModel, newItem: CategoryRuleModel): Boolean {

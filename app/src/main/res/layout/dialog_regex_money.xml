@@ -17,8 +17,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
-    android:orientation="horizontal"
-    android:padding="@dimen/padding">
+    android:orientation="horizontal">
 
     <com.google.android.material.textfield.TextInputLayout
 

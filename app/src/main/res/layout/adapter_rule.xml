@@ -20,9 +20,9 @@
     style="?attr/materialCardViewElevatedStyle"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/padding"
     android:layout_marginStart="@dimen/padding"
     android:layout_marginEnd="@dimen/padding"
-    android:layout_marginBottom="@dimen/padding"
     app:cardBackgroundColor="?attr/colorSurfaceContainer"
     app:cardCornerRadius="@dimen/radius"
     app:cardElevation="0dp">
@@ -33,16 +33,10 @@
         android:layout_margin="@dimen/padding"
         android:orientation="vertical">
 
-        <net.ankio.auto.ui.components.FlowLayoutManager
-            android:id="@+id/flexboxLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="@dimen/padding"
-            app:alignItems="center"
-            app:flexWrap="wrap"
-            app:justifyContent="flex_start">
-
-        </net.ankio.auto.ui.components.FlowLayoutManager>
+        <!-- 使用 CategoryComponent 的布局结构 -->
+        <include
+            android:id="@+id/categoryComponent"
+            layout="@layout/component_category_edit" />
 
         <LinearLayout
             android:id="@+id/status_bar"

@@ -25,6 +25,7 @@ import net.ankio.auto.databinding.AdapterDataRuleBinding
 import net.ankio.auto.http.api.RuleManageAPI
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseAdapter
+import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.api.BaseViewHolder
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
 import net.ankio.auto.ui.utils.ToastUtils
@@ -70,7 +71,7 @@ class DataRuleAdapter(
      * 确认后删除规则并刷新列表
      */
     private fun showDeleteConfirmDialog(view: View, rule: RuleModel) {
-        BottomSheetDialogBuilder(fragment)
+        BaseSheetDialog.create<BottomSheetDialogBuilder>(fragment.requireContext())
             .setTitle(fragment.getString(R.string.delete_rule_title))
             .setMessage(fragment.getString(R.string.delete_rule_message, rule.name))
             .setNegativeButton(fragment.getString(R.string.cancel)) { _, _ -> }

@@ -15,7 +15,7 @@
         android:orientation="horizontal">
 
 
-        <net.ankio.auto.ui.componets.IconView
+        <net.ankio.auto.ui.components.IconView
             android:id="@+id/category"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -71,7 +71,7 @@
             android:textSize="14sp"
             tools:text="@tools:sample/lorem/random" />
 
-        <net.ankio.auto.ui.componets.IconView
+        <net.ankio.auto.ui.components.IconView
             android:id="@+id/payTools1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -90,7 +90,8 @@
             android:importantForAccessibility="no"
             android:scaleType="centerInside"
             android:src="@drawable/icon_map_right" />
-        <net.ankio.auto.ui.componets.IconView
+
+        <net.ankio.auto.ui.components.IconView
             android:id="@+id/payTools2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

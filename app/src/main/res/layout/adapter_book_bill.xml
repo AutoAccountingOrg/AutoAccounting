@@ -19,7 +19,7 @@
         android:gravity="center_vertical"
         android:orientation="vertical">
         <!-- 金额 TextView -->
-        <net.ankio.auto.ui.componets.IconView
+        <net.ankio.auto.ui.components.IconView
             android:id="@+id/category"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

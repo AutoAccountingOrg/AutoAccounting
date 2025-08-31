@@ -1,11 +1,9 @@
 package net.ankio.auto.ui.adapter
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import net.ankio.auto.databinding.AdapterBookBillBinding
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
-import net.ankio.auto.ui.utils.ResourceUtils
+import net.ankio.auto.ui.utils.setCategoryIcon
 import net.ankio.auto.utils.BillTool
 import net.ankio.auto.utils.DateUtils
 import org.ezbook.server.constant.BillType
@@ -15,7 +13,7 @@ class BillSelectorAdapter(
     private val selectApp: MutableList<String>,
     private val multipleSelect: Boolean
 ) : BaseAdapter<AdapterBookBillBinding, BookBillModel>(
-    AdapterBookBillBinding::class.java
+
 ) {
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterBookBillBinding, BookBillModel>) {
         val binding = holder.binding
@@ -49,12 +47,9 @@ class BillSelectorAdapter(
         val binding = holder.binding
         binding.category.setText(data.category)
         BillTool.setTextViewPrice(data.money, BillType.Expend, binding.money)
-        holder.launch {
-            ResourceUtils.getCategoryDrawableByName(data.category, holder.context).let {
-                withContext(Dispatchers.Main) {
-                    binding.category.setIcon(it)
-                }
-            }
+
+        launchInAdapter {
+            binding.category.imageView().setCategoryIcon(data.category)
         }
         binding.checkbox.isChecked = selectApp.contains(data.remoteId)
 
