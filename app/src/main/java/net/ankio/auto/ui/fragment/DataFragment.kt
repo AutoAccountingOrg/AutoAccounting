@@ -121,7 +121,7 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
      * 处理测试规则点击事件
      */
     private fun handleTestRuleClick(item: AppDataModel) {
-        lifecycleScope.launch {
+        launch {
             val loading = LoadingUtils(requireContext())
             loading.show(R.string.rule_testing)
 
@@ -175,7 +175,7 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
         BaseSheetDialog.create<DataEditorDialog>(requireContext())
             .setData(item.data)
             .setOnConfirm { result ->
-                lifecycleScope.launch {
+                launch {
                     val loading = LoadingUtils(requireContext())
                     loading.show(R.string.upload_waiting)
 
@@ -200,7 +200,7 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
             .setMessage(getString(R.string.delete_data_message))
             .setPositiveButton(getString(R.string.btn_confirm)) { _, _ ->
                 removeItem(item)  // 使用基类的辅助函数
-                lifecycleScope.launch {
+                launch {
                     AppDataAPI.delete(item.id)
                 }
             }
@@ -216,7 +216,7 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
             .setTitleInt(R.string.rule_issue)
             .setMessage("")
             .setEditorPositiveButton(R.string.btn_confirm) { description ->
-                lifecycleScope.launch {
+                launch {
                     requestRuleBug(item, result, description)
                 }
             }
@@ -266,7 +266,7 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
      */
     private fun refreshLeftData() {
         Logger.d("Refreshing left data")
-        lifecycleScope.launch {
+        launch {
             try {
                 // 1. 清空列表
                 binding.leftList.clear()
@@ -412,7 +412,7 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
                     .setTitle(getString(R.string.delete_data))
                     .setMessage(getString(R.string.delete_msg))
                     .setPositiveButton(getString(R.string.sure_msg)) { _, _ ->
-                        lifecycleScope.launch {
+                        launch {
                             try {
                                 AppDataAPI.clear()
                                 Logger.i("Data cleared successfully")

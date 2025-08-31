@@ -20,9 +20,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.viewbinding.ViewBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import net.ankio.auto.storage.Logger
 import java.lang.reflect.ParameterizedType
+import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * 基础 Fragment 类，提供 ViewBinding 的自动绑定功能
@@ -104,5 +108,42 @@ abstract class BaseFragment<VB : ViewBinding> : Fragment() {
         super.onDestroyView()
         Logger.d("Destroying view for ${javaClass.simpleName}")
         _binding = null
+    }
+
+    /**
+     * 检查 Fragment 的 UI 是否已准备就绪
+     *
+     * 该方法检查以下条件来确定 UI 状态：
+     * 1. ViewBinding 实例是否已创建且非空
+     * 2. Fragment 是否已添加到 Activity 中
+     * 3. Fragment 的视图是否已创建且可访问
+     *
+     * 在以下场景中应该使用此方法：
+     * - 在异步操作完成后更新 UI 前
+     * - 在生命周期回调中访问视图前
+     * - 在延迟执行的任务中操作视图前
+     *
+     * @return true 如果 UI 已准备就绪可以安全访问，false 否则
+     */
+    fun uiReady(): Boolean {
+        return _binding != null &&
+                isAdded &&
+                view != null &&
+                !isDetached &&
+                !isRemoving
+    }
+
+    /**
+     */
+    protected fun launch(block: suspend CoroutineScope.() -> Unit) {
+        lifecycleScope.launch {
+            try {
+                block()
+            } catch (e: CancellationException) {
+                Logger.d("Fragment已取消: ${e.message}")
+            } catch (e: Exception) {
+                Logger.e("执行错误", e)
+            }
+        }
     }
 }
