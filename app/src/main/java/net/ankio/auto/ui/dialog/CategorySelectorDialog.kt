@@ -56,15 +56,16 @@ class CategorySelectorDialog internal constructor(
 
     /**
      * 设置账本名称
-     * @param book 账本名称
+     * @param bookID 账本名称
      * @return 当前对话框实例，支持链式调用
      */
-    fun setBook(book: String) = apply {
-        this.book = book
+    fun setBook(bookID: String) = apply {
+        this.book = bookID
         if (::categoryComponent.isInitialized) {
-            categoryComponent.setBookInfo(book, type)
+            categoryComponent.setBookInfo(bookID, type)
         }
     }
+
 
     /**
      * 设置账单类型
