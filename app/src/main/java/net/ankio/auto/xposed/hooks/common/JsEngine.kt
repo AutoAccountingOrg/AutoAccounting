@@ -38,17 +38,6 @@ object JsEngine {
             return
         }
 
-        if (AppRuntime.modulePath.contains("lspatch")) {
-            runCatching {
-                val pm = AppRuntime.application!!.packageManager
-                val appInfo = pm.getApplicationInfo(BuildConfig.APPLICATION_ID, 0)
-                // APK 文件路径
-                AppRuntime.moduleSoPath = appInfo.sourceDir
-            }.onFailure {
-                Logger.logE(TAG, it)
-            }
-        }
-
         AppRuntime.moduleSoPath =
             AppRuntime.modulePath.replace("/base.apk", "") + "/lib/$framework/"
 

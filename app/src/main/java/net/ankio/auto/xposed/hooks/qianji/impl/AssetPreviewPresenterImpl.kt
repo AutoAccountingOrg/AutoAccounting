@@ -34,6 +34,8 @@ import org.ezbook.server.db.model.SettingModel
 import java.lang.reflect.Proxy
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+import net.ankio.auto.http.api.AssetsAPI
+import net.ankio.auto.http.api.SettingAPI
 
 /**
  * 钱迹资产预览界面的Presenter实现类
@@ -128,8 +130,6 @@ object AssetPreviewPresenterImpl {
             model.type = when (type) {
                 QianJiAssetType.Type_Money -> AssetsType.NORMAL
                 QianJiAssetType.Type_Credit -> AssetsType.CREDIT
-                QianJiAssetType.Type_Recharge -> AssetsType.VIRTUAL
-                QianJiAssetType.Type_Invest -> AssetsType.FINANCIAL
                 QianJiAssetType.Type_DebtLoan -> when (stype) {
                     QianJiAssetType.SType_Loan -> AssetsType.BORROWER
                     else -> AssetsType.CREDITOR
@@ -147,14 +147,14 @@ object AssetPreviewPresenterImpl {
         }
         val sync = Gson().toJson(assets)
         val md5 = MD5HashTable.md5(sync)
-        val server = SettingModel.get(Setting.HASH_ASSET, "")
+        val server = SettingAPI.get(Setting.HASH_ASSET, "")
         DataUtils.set("sync_assets", Gson().toJson(assets))
         if (server == md5  && !AppRuntime.debug || assets.isEmpty() ) { //资产为空也不同步
             AppRuntime.log("No need to sync Assets, server md5:${server} local md5:${md5}")
             return@withContext
         }
         AppRuntime.logD("Sync Assets:${Gson().toJson(assets)}")
-        AssetsModel.put(assets, md5)
+        AssetsAPI.put(assets, md5)
         withContext(Dispatchers.Main) {
             MessageUtils.toast("已同步资产信息到自动记账")
         }

@@ -88,6 +88,7 @@ class PermissionCheckHooker: PartHooker() {
         val packageInfo = pm.getPackageInfo(packageName, PackageManager.GET_PERMISSIONS)
         val alertWindow = XposedHelpers.getStaticIntField(AppOpsManager::class.java, "OP_SYSTEM_ALERT_WINDOW")
         XposedHelpers.callMethod(appOpsManager, "setMode", alertWindow,
-            packageInfo.applicationInfo.uid, packageName, AppOpsManager.MODE_ALLOWED)
+            packageInfo.applicationInfo?.uid ?: "", packageName, AppOpsManager.MODE_ALLOWED
+        )
     }
 }

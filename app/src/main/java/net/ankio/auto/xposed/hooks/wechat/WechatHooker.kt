@@ -35,8 +35,6 @@ import java.io.File
 
 class WechatHooker : HookerManifest() {
     override val packageName: String = DefaultData.WECHAT_PACKAGE
-    override var aliasPackageName: String = DefaultData.WECHAT_PACKAGE_ALIAS
-
     override val appName: String = "微信"
 
     override fun hookLoadPackage() {

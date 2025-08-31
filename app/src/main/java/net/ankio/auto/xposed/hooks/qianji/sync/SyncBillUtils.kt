@@ -25,6 +25,7 @@ import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.core.utils.MessageUtils
 import net.ankio.auto.xposed.hooks.qianji.models.UserModel
 import net.ankio.auto.xposed.hooks.qianji.tools.QianJiUri
+import net.ankio.auto.http.api.BillAPI
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.BillInfoModel
 
@@ -94,7 +95,7 @@ class SyncBillUtils {
                 MessageUtils.toast("未登录无法自动记账")
                 return@withContext
             }
-            val bills = BillInfoModel.sync()
+            val bills = BillAPI.sync()
             if (bills.isEmpty()) {
                 AppRuntime.log("No bills need to sync")
                 return@withContext
@@ -127,7 +128,7 @@ class SyncBillUtils {
                 withContext(Dispatchers.Main) {
                     context.startActivity(intent)
                 }
-                BillInfoModel.status(it.id, true)
+                BillAPI.status(it.id, true)
                 delay(500)
             }
             withContext(Dispatchers.Main) {

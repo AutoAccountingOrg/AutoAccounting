@@ -26,7 +26,7 @@ import net.ankio.auto.xposed.core.utils.ThreadUtils
 import org.ezbook.server.constant.DataType
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
-import org.ezbook.server.db.model.SettingModel
+import net.ankio.auto.http.api.SettingAPI
 
 
 class NotificationHooker : PartHooker() {
@@ -69,7 +69,7 @@ class NotificationHooker : PartHooker() {
                 //AppRuntime.manifest.logD("hashTable contains $hash, $originalTitle, $originalText")
                 return@allMethodsEqBefore null
             }
-            hashTable.add(hash)
+            hashTable.put(hash)
 
             ThreadUtils.launch {
                 checkNotification(
@@ -97,7 +97,8 @@ class NotificationHooker : PartHooker() {
             return
         }
         val apps = runCatching {
-            SettingModel.get(Setting.LISTENER_APP_LIST, DefaultData.NOTICE_FILTER).split(",").toMutableList()
+            SettingAPI.get(Setting.LISTENER_APP_LIST, DefaultData.APP_FILTER).split(",")
+                .toMutableList()
         }.getOrElse { mutableListOf() }
         if (!apps.contains(pkg)) {
             return

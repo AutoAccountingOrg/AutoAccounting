@@ -23,13 +23,13 @@ import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.BuildConfig
-import net.ankio.auto.intent.FloatingIntent
+import org.ezbook.server.intent.BillInfoIntent
 import net.ankio.auto.xposed.core.logger.Logger
 import net.ankio.auto.xposed.core.utils.MessageUtils.toast
+import net.ankio.auto.http.api.BillAPI
 import org.ezbook.server.constant.BillAction
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
-import org.ezbook.server.constant.SyncType
 import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.models.BillResultModel
 
@@ -105,14 +105,10 @@ class BillUtils {
         // 获取同步类型设置
         val syncType = getSyncType()
 
-        // 如果是打开应用时同步，则直接返回
-        if (syncType == SyncType.WhenOpenApp.name) {
-            Logger.logD(TAG, "设置为打开应用时同步")
-            return
-        }
+
 
         // 获取待同步的账单
-        val pendingBills = BillInfoModel.sync()
+        val pendingBills = BillAPI.sync()
         if (pendingBills.isEmpty()) {
             Logger.logD(TAG, "无需同步：没有待同步账单")
             return
@@ -129,12 +125,7 @@ class BillUtils {
      * @return 同步类型，默认为打开应用时同步
      */
     private suspend fun getSyncType(): String {
-        val type =
-            DataUtils.configString(Setting.SYNC_TYPE, SyncType.WhenOpenApp.name)
-        if (type !in SyncType.entries.map { it.name }) {
-            return SyncType.WhenOpenApp.name
-        }
-        return type
+        return ""
     }
 
     /**
@@ -143,10 +134,7 @@ class BillUtils {
      * @param pendingCount 待同步账单数量
      * @return 是否应该开始同步
      */
-    private fun shouldStartSync(syncType: String, pendingCount: Int): Boolean =
-        (syncType == SyncType.BillsLimit10.name && pendingCount >= 10) ||
-                (syncType == SyncType.BillsLimit5.name && pendingCount >= 5) ||
-                (syncType == SyncType.BillsLimit1.name && pendingCount >= 1)
+    private fun shouldStartSync(syncType: String, pendingCount: Int): Boolean = false
 
     /**
      * 启动记账应用
@@ -223,7 +211,7 @@ class BillUtils {
      * @throws SecurityException 如果应用没有必要的权限
      */
     private suspend fun launchFloatingWindow(billInfoModel: BillInfoModel, parent: BillInfoModel?) {
-        val intent = FloatingIntent(billInfoModel, true, "JsRoute", parent).toIntent()
+        val intent = BillInfoIntent(billInfoModel, "JsRoute", parent).toIntent()
         Logger.log(TAG, "拉起自动记账悬浮窗口：$intent")
 
         runCatching {

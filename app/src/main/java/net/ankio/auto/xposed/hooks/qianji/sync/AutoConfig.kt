@@ -18,7 +18,7 @@ package net.ankio.auto.xposed.hooks.qianji.sync
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.ezbook.server.constant.Setting
-import org.ezbook.server.db.model.SettingModel
+import net.ankio.auto.http.api.SettingAPI
 
 object AutoConfig {
     var assetManagement: Boolean = true//是否开启资产管理
@@ -28,11 +28,11 @@ object AutoConfig {
     var multiBooks: Boolean = true//是否开启多账本
     var fee: Boolean = true//是否开启手续费
     suspend fun load() = withContext(Dispatchers.IO) {
-        assetManagement = SettingModel.get(Setting.SETTING_ASSET_MANAGER, "true")!= "false"
-        multiCurrency = SettingModel.get(Setting.SETTING_CURRENCY_MANAGER, "true")!= "false"
-        reimbursement = SettingModel.get(Setting.SETTING_REIMBURSEMENT, "true")!= "false"
-        lending = SettingModel.get(Setting.SETTING_DEBT, "true")!= "false"
-        multiBooks = SettingModel.get(Setting.SETTING_BOOK_MANAGER, "true")!= "false"
-        fee = SettingModel.get(Setting.SETTING_FEE, "true")!= "false"
+        assetManagement = SettingAPI.get(Setting.SETTING_ASSET_MANAGER, "true") != "false"
+        multiCurrency = SettingAPI.get(Setting.SETTING_CURRENCY_MANAGER, "true") != "false"
+        reimbursement = SettingAPI.get(Setting.SETTING_REIMBURSEMENT, "true") != "false"
+        lending = SettingAPI.get(Setting.SETTING_DEBT, "true") != "false"
+        multiBooks = SettingAPI.get(Setting.SETTING_BOOK_MANAGER, "true") != "false"
+        fee = SettingAPI.get(Setting.SETTING_FEE, "true") != "false"
     }
 }

@@ -18,7 +18,6 @@ package net.ankio.auto.xposed.hooks.wechat.hooks
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.utils.AppRuntime
-import net.ankio.auto.xposed.core.utils.DataUtils
 import org.ezbook.server.constant.DataType
 import org.json.JSONObject
 

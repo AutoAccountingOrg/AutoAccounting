@@ -15,7 +15,6 @@
 
 package net.ankio.auto.xposed.hooks.qianji.sync.debt
 
-import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.xposed.core.utils.AppRuntime

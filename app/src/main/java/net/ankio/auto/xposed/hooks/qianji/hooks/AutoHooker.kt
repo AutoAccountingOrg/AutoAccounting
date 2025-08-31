@@ -15,15 +15,14 @@
 
 package net.ankio.auto.xposed.hooks.qianji.hooks
 
-import android.R
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.view.View
 import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.Dispatchers
 import net.ankio.auto.BuildConfig
+import net.ankio.auto.http.api.BillAPI
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.ui.ViewUtils
@@ -162,7 +161,7 @@ class AutoHooker : PartHooker() {
             if (billInfo.id < 0) return@before
 
             ThreadUtils.launch {
-                BillInfoModel.status(billInfo.id, false)
+                BillAPI.status(billInfo.id, false)
             }
 
 
@@ -184,7 +183,7 @@ class AutoHooker : PartHooker() {
                             ExpendLendingUtils().sync(billInfo)
                         }.onSuccess {
                             MessageUtils.toast("借出成功")
-                            BillInfoModel.status(billInfo.id, true)
+                            BillAPI.status(billInfo.id, true)
                         }.onFailure {
 
                             manifest.logD("借出失败 ${it.message}")
@@ -203,7 +202,7 @@ class AutoHooker : PartHooker() {
                             ExpendRepaymentUtils().sync(billInfo)
                         }.onSuccess {
                             MessageUtils.toast("还款成功")
-                            BillInfoModel.status(billInfo.id, true)
+                            BillAPI.status(billInfo.id, true)
                         }.onFailure {
                             manifest.logE(it)
                             manifest.logD("还款失败 ${it.message}")
@@ -221,7 +220,7 @@ class AutoHooker : PartHooker() {
                             IncomeLendingUtils().sync(billInfo)
                         }.onSuccess {
                             MessageUtils.toast("借入成功")
-                            BillInfoModel.status(billInfo.id, true)
+                            BillAPI.status(billInfo.id, true)
                         }.onFailure {
                             manifest.logE(it)
                             manifest.logD("借入失败 ${it.message}")
@@ -239,7 +238,7 @@ class AutoHooker : PartHooker() {
                             IncomeRepaymentUtils().sync(billInfo)
                         }.onSuccess {
                             MessageUtils.toast("收款成功")
-                            BillInfoModel.status(billInfo.id, true)
+                            BillAPI.status(billInfo.id, true)
                         }.onFailure {
                             manifest.logE(it)
                             manifest.logD("收款失败 ${it.message}")
@@ -256,7 +255,7 @@ class AutoHooker : PartHooker() {
                             BxPresenterImpl.doBaoXiao(billInfo)
                         }.onSuccess {
                             MessageUtils.toast("报销成功")
-                            BillInfoModel.status(billInfo.id, true)
+                            BillAPI.status(billInfo.id, true)
                         }.onFailure {
                             manifest.logD("报销失败 ${it.message}")
                             MessageUtils.toast("报销失败 ${it.message ?: ""}")
@@ -273,7 +272,7 @@ class AutoHooker : PartHooker() {
                             RefundPresenterImpl.refund(billInfo)
                         }.onSuccess {
                             MessageUtils.toast("退款成功")
-                            BillInfoModel.status(billInfo.id, true)
+                            BillAPI.status(billInfo.id, true)
                         }.onFailure {
                             manifest.logE(it)
                             manifest.logD("退款失败 ${it.message}")

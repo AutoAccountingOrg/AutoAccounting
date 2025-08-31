@@ -19,7 +19,7 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XC_MethodHook.MethodHookParam
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
-import net.ankio.auto.xposed.Apps
+import net.ankio.auto.xposed.XposedModule
 import net.ankio.auto.xposed.core.api.HookerManifest
 import java.lang.reflect.Method
 
@@ -101,7 +101,7 @@ class PermissionHooker29(private val  manifest: HookerManifest, private val mCla
 
         val _packageName = XposedHelpers.getObjectField(pkg, "packageName") as String
 
-        for (appItems in Apps.get()) {
+        for (appItems in XposedModule.get()) {
             if (appItems.packageName == _packageName) {
                 manifest.logD("PackageName: ${_packageName}")
                 // PackageParser$Package.mExtras 实际上是 com.android.server.pm.PackageSetting mExtras 对象

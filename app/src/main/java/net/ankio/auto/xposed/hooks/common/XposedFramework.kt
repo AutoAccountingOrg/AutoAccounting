@@ -19,6 +19,7 @@ import de.robv.android.xposed.XposedBridge
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.SettingModel
 import java.lang.reflect.Field
+import net.ankio.auto.http.api.SettingAPI
 
 object XposedFramework {
     fun framework(): String {
@@ -31,6 +32,6 @@ object XposedFramework {
 
     suspend fun init() {
         val framework = framework()
-        SettingModel.set(Setting.KEY_FRAMEWORK, framework)
+        SettingAPI.set(Setting.KEY_FRAMEWORK, framework)
     }
 }

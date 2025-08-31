@@ -24,18 +24,18 @@ import net.ankio.auto.App
 import net.ankio.auto.xposed.core.App.Companion.TAG
 import net.ankio.auto.xposed.core.logger.Logger
 import net.ankio.auto.xposed.core.utils.AppRuntime
-import org.ezbook.server.db.model.BillInfoModel
-import net.ankio.auto.intent.FloatingIntent
+import net.ankio.auto.http.api.BillAPI
+import org.ezbook.server.intent.BillInfoIntent
 
 object UnLockScreen {
     suspend fun launchUnEditedBills(){
         delay(3000)
-        val list = BillInfoModel.edit()
-        Logger.logD(TAG, "BillInfoModel.edit()：$list")
+        val list = BillAPI.edit()
+        Logger.logD(TAG, "BillAPI.edit()：$list")
         list.forEach { billInfoModel ->
             delay(1000)
             val floatIntent =
-                FloatingIntent(billInfoModel, true, "JsRoute", null)
+                BillInfoIntent(billInfoModel, "JsRoute", null)
             val panelIntent = floatIntent.toIntent()
             try {
                 AppRuntime.application!!.baseContext.startActivity(panelIntent)

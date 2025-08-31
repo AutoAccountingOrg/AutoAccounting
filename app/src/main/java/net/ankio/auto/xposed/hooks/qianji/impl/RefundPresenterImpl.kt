@@ -20,12 +20,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.utils.AppRuntime
-import net.ankio.auto.xposed.hooks.qianji.impl.AssetPreviewPresenterImpl.assetPreviewPresenterImplClazz
 import net.ankio.auto.xposed.hooks.qianji.models.Bill
 import org.ezbook.server.db.model.BillInfoModel
 import java.lang.reflect.Proxy
 import java.util.Calendar
-import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 object RefundPresenterImpl {

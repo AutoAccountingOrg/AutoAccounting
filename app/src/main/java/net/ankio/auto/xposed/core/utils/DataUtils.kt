@@ -4,7 +4,9 @@ import android.content.Context
 import android.content.SharedPreferences
 import kotlinx.coroutines.runBlocking
 import net.ankio.auto.xposed.core.App.Companion.TAG
+import net.ankio.auto.http.api.SettingAPI
 import org.ezbook.server.db.model.SettingModel
+import androidx.core.content.edit
 
 
 object DataUtils {
@@ -26,9 +28,9 @@ object DataUtils {
         }
         val sharedPreferences: SharedPreferences =
             AppRuntime.application!!.getSharedPreferences(TAG, Context.MODE_PRIVATE) // 私有数据
-        val editor = sharedPreferences.edit() // 获取编辑器
-        editor.putString(key, value)
-        editor.apply() // 提交修改
+        sharedPreferences.edit { // 获取编辑器
+            putString(key, value)
+        } // 提交修改
     }
 
     /**
@@ -55,7 +57,7 @@ object DataUtils {
      */
     fun configString(key: String, def: String = ""): String {
         return runBlocking {
-            val result = SettingModel.get(key, def)
+            val result = SettingAPI.get(key, def)
             result.ifEmpty { def }
         }
     }
@@ -67,7 +69,7 @@ object DataUtils {
      */
     fun configBoolean(key: String, def: Boolean = false): Boolean {
         return runBlocking {
-            val result = SettingModel.get(key, def.toString())
+            val result = SettingAPI.get(key, def.toString())
             if (result.isEmpty()) def else result.toBoolean()
         }
     }

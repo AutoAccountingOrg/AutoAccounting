@@ -15,8 +15,6 @@
 
 package net.ankio.auto.xposed.hooks.wechat.hooks
 
-import android.app.Application
-import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.utils.AppRuntime

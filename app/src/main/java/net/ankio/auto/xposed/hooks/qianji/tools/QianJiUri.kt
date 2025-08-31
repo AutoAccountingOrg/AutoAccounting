@@ -18,18 +18,11 @@ package net.ankio.auto.xposed.hooks.qianji.tools
 import android.net.Uri
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.ankio.auto.xposed.core.utils.DataUtils
-import net.ankio.auto.xposed.hooks.qianji.impl.AssetPreviewPresenterImpl
 import net.ankio.auto.xposed.hooks.qianji.sync.AutoConfig
 import org.ezbook.server.db.model.BillInfoModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import net.ankio.auto.xposed.hooks.qianji.tools.formatTime
-import org.ezbook.server.constant.BillType
-import org.ezbook.server.constant.DefaultData
-import org.ezbook.server.constant.Setting
-import org.ezbook.server.db.model.SettingModel
 
 object QianJiUri {
     suspend fun toQianJi(billModel: BillInfoModel): Uri = withContext(Dispatchers.IO) {

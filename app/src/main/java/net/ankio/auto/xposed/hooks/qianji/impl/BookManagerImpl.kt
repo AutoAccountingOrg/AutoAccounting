@@ -24,6 +24,8 @@ import org.ezbook.server.tools.MD5HashTable
 import net.ankio.auto.xposed.core.utils.MessageUtils
 import net.ankio.auto.xposed.hooks.qianji.models.Book
 import org.ezbook.server.constant.Setting
+import net.ankio.auto.http.api.BookNameAPI
+import net.ankio.auto.http.api.SettingAPI
 import org.ezbook.server.db.model.BookNameModel
 import org.ezbook.server.db.model.SettingModel
 
@@ -109,13 +111,13 @@ object BookManagerImpl {
 
             val sync = Gson().toJson(bookList)
             val md5 = MD5HashTable.md5(sync)
-            val server = SettingModel.get(Setting.HASH_BOOK, "")
+            val server = SettingAPI.get(Setting.HASH_BOOK, "")
             if (server == md5 && !AppRuntime.debug) {
                 AppRuntime.log("No need to Sync Books, Server md5:${server} local md5:${md5}")
                 return@withContext bookList
             }
             AppRuntime.logD("Sync Books:$sync")
-            BookNameModel.put(bookList, md5)
+            BookNameAPI.put(bookList, md5)
             withContext(Dispatchers.Main) {
                 MessageUtils.toast("已同步账本信息到自动记账")
             }

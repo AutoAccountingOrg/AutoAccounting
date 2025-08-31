@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 ankio(ankio@ankio.net)
+ * Copyright (C) 2025 ankio(ankio@ankio.net)
  * Licensed under the Apache License, Version 3.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,12 +21,9 @@ import android.content.pm.PackageManager
 import android.provider.Settings
 import android.security.NetworkSecurityPolicy
 import com.google.gson.Gson
-import com.google.gson.JsonObject
 import com.google.gson.reflect.TypeToken
 import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.delay
-import net.ankio.auto.BuildConfig
-import net.ankio.auto.intent.WakeupIntent
 import net.ankio.auto.xposed.core.logger.Logger
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.core.utils.BillUtils
@@ -45,8 +42,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.ezbook.server.constant.DataType
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
-import org.ezbook.server.db.model.SettingModel
-import org.ezbook.server.models.BillResultModel
+import net.ankio.auto.http.api.SettingAPI
 
 /**
  * HookerManifest
@@ -286,7 +282,7 @@ abstract class HookerManifest {
     fun analysisData(type: DataType, data: String, appPackage: String = packageName) {
         ThreadUtils.launch {
 
-            val filter = SettingModel.get(Setting.SMS_FILTER, DefaultData.SMS_FILTER).split(",")
+            val filter = SettingAPI.get(Setting.SMS_FILTER, DefaultData.DATA_FILTER).split(",")
 
             if (filter.all { !data.contains(it) }) {
                 net.ankio.auto.storage.Logger.d("all filter not contains: $data, $filter")
@@ -302,14 +298,7 @@ abstract class HookerManifest {
 
                 if (result == null) {
                     //判断是否为lspatch,
-                    if (BuildConfig.FLAVOR == "lspatch") {
-                        WakeupIntent().toIntent().let {
-                            kotlin.runCatching {
-                                AppRuntime.application!!.startActivity(it)
-                                logE(Throwable("拉起自动记账失败：$it"))
-                            }
-                        }
-                    }
+
 
                     retryCount++
                     val delaySeconds = (1L shl (retryCount - 1)) * 10  // 10, 20, 40, 80, 160...

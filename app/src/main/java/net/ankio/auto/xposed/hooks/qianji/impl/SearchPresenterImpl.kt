@@ -32,6 +32,8 @@ import java.lang.reflect.Proxy
 import java.util.Calendar
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+import net.ankio.auto.http.api.BookBillAPI
+import net.ankio.auto.http.api.SettingAPI
 
 object SearchPresenterImpl {
     val CLAZZ = "com.mutangtech.qianji.bill.search.SearchPresenterImpl"
@@ -173,13 +175,13 @@ object SearchPresenterImpl {
         val bills = convert2Bill(bxList, Setting.HASH_BILL)
         val sync = Gson().toJson(bills)
         val md5 = MD5HashTable.md5(sync)
-        val server = SettingModel.get(Setting.HASH_BILL, "")
+        val server = SettingAPI.get(Setting.HASH_BILL, "")
         if (server == md5 && !AppRuntime.debug) {
             AppRuntime.log("No need to sync bill Data, server md5:${server} local md5:${md5}")
             return@withContext
         }
         AppRuntime.logD("Sync bills:$sync")
-        BookBillModel.put(bills, md5, Setting.HASH_BILL)
+        BookBillAPI.put(bills, md5, Setting.HASH_BILL)
         withContext(Dispatchers.Main) {
             MessageUtils.toast("已同步支出账单到自动记账")
         }

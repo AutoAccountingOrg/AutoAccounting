@@ -50,7 +50,7 @@ class WebViewHooker:PartHooker() {
                       AppRuntime.manifest.logD("Wechat WebViewHooker exist： $__json")
                      return@runCatching
                   }
-                  md5HashTable.add(md5)
+                  md5HashTable.put(md5)
                   AppRuntime.manifest.logD("Wechat WebViewHooker hook： $__json")
                   AppRuntime.manifest.analysisData(DataType.DATA, __json.toString())
               }.onFailure { e ->

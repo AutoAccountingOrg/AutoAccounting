@@ -20,6 +20,7 @@ import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.core.utils.ThreadUtils
 import org.ezbook.server.constant.LogLevel
 import org.ezbook.server.db.model.LogModel
+import net.ankio.auto.http.api.LogAPI
 
 /**
  * Xposed日志工具
@@ -44,7 +45,7 @@ object Logger {
         val tag = getTag()
         //写入自动记账日志
         ThreadUtils.launch {
-            LogModel.add(LogLevel.INFO, app, tag, msg)
+            LogAPI.add(LogLevel.INFO, app, tag, msg)
         }
 
     }
@@ -71,7 +72,7 @@ object Logger {
             e.stackTrace.forEach {
                 log.append(it.toString()).append("\n")
             }
-            LogModel.add(LogLevel.ERROR, app, tag, log.toString())
+            LogAPI.add(LogLevel.ERROR, app, tag, log.toString())
         }
     }
 }

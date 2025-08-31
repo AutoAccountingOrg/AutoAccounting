@@ -24,7 +24,6 @@ import net.ankio.auto.xposed.core.utils.AppRuntime
 import org.ezbook.server.tools.MD5HashTable
 import net.ankio.auto.xposed.core.utils.MessageUtils
 import net.ankio.auto.xposed.hooks.qianji.models.Bill
-import net.ankio.auto.xposed.hooks.qianji.models.Book
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.db.model.BookBillModel
@@ -34,6 +33,8 @@ import java.util.Calendar
 import java.util.HashSet
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+import net.ankio.auto.http.api.BookBillAPI
+import net.ankio.auto.http.api.SettingAPI
 
 object BxPresenterImpl {
     val baoXiaoImpl by lazy {
@@ -101,13 +102,13 @@ object BxPresenterImpl {
         val bills = convert2Bill(bxList, Setting.HASH_BAOXIAO_BILL)
         val sync = Gson().toJson(bills)
         val md5 = MD5HashTable.md5(sync)
-        val server = SettingModel.get(Setting.HASH_BAOXIAO_BILL, "")
+        val server = SettingAPI.get(Setting.HASH_BAOXIAO_BILL, "")
         if (server == md5 && !AppRuntime.debug) {
             AppRuntime.log("No need to sync BaoXiao, server md5:${server} local md5:${md5}")
             return@withContext
         }
         AppRuntime.logD("Sync BaoXiao:$sync")
-        BookBillModel.put(bills, md5, Setting.HASH_BAOXIAO_BILL)
+        BookBillAPI.put(bills, md5, Setting.HASH_BAOXIAO_BILL)
         withContext(Dispatchers.Main) {
             MessageUtils.toast("已同步报销账单到自动记账")
         }

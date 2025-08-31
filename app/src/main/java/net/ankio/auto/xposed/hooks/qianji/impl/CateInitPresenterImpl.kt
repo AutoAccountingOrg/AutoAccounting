@@ -32,6 +32,8 @@ import org.ezbook.server.db.model.SettingModel
 import java.lang.reflect.Proxy
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+import net.ankio.auto.http.api.CategoryAPI
+import net.ankio.auto.http.api.SettingAPI
 
 object CateInitPresenterImpl {
     private var cateInitPresenterImplClazz: Class<*> =
@@ -95,13 +97,13 @@ object CateInitPresenterImpl {
         }
         val sync = Gson().toJson(arrayList)
         val md5 = MD5HashTable.md5(sync)
-        val server = SettingModel.get(Setting.HASH_CATEGORY, "")
+        val server = SettingAPI.get(Setting.HASH_CATEGORY, "")
         if (server == md5 && !AppRuntime.debug) {
             AppRuntime.log("No need to sync categories, Server md5:${server} local md5:${md5}")
             return@withContext
         }
         AppRuntime.logD("Sync categories:$sync")
-        CategoryModel.put(arrayList, md5)
+        CategoryAPI.put(arrayList, md5)
         withContext(Dispatchers.Main) {
             MessageUtils.toast("已同步分类信息到自动记账")
         }
