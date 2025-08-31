@@ -47,7 +47,7 @@ fun Route.databaseRoutes(context: Context) {
             try {
                 val file = Db.copy(context)
                 call.respondFile(file.parentFile!!, file.name)
-            } catch (e: IOException) {
+            } catch (e: Exception) {
                 e.printStackTrace()
                 call.respond(ResultModel(500, "Database export failed: ${e.message}"))
             }
