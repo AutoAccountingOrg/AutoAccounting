@@ -179,8 +179,8 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
         
         isLoading = true
         Logger.d("开始加载数据：第${page}页")
-        
-        lifecycleScope.launch {
+
+        launch {
             try {
                 // 在IO线程中执行数据加载，避免阻塞UI
                 val resultData = withContext(Dispatchers.IO) { loadData() }
