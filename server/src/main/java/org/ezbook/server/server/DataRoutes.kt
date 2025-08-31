@@ -48,9 +48,6 @@ fun Route.dataRoutes() {
          * @return ResultModel 包含应用数据列表
          */
         get("/list") {
-            // 清理过期数据
-            Db.get().dataDao().clearOld()
-
             val page = call.request.queryParameters["page"]?.toInt() ?: 1
             val limit = call.request.queryParameters["limit"]?.toInt() ?: 10
             val offset = (page - 1) * limit
@@ -75,6 +72,17 @@ fun Route.dataRoutes() {
          */
         get("/clear") {
             Db.get().dataDao().clear()
+            call.respond(ResultModel(200, "OK"))
+        }
+
+        /**
+         * GET /data/clearOld - 清理旧数据（只保留最新2000条）
+         * 独立的数据清理接口，不会在查询时自动触发
+         *
+         * @return ResultModel 操作结果
+         */
+        get("/clearOld") {
+            Db.get().dataDao().clearOld()
             call.respond(ResultModel(200, "OK"))
         }
 
