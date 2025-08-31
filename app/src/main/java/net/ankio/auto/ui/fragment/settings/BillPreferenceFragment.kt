@@ -156,6 +156,8 @@ class BillPreferenceFragment : BasePreferenceFragment() {
                 "autoCreateCategory" -> PrefManager.autoCreateCategory
                 "autoAssetMapping" -> PrefManager.autoAssetMapping
                 "showDuplicatedPopup" -> PrefManager.showDuplicatedPopup
+                // 显示设置
+                "showRuleName" -> PrefManager.showRuleName
                 // 通知设置
                 "showSuccessPopup" -> PrefManager.showSuccessPopup
                 "loadSuccess" -> PrefManager.loadSuccess
@@ -174,6 +176,8 @@ class BillPreferenceFragment : BasePreferenceFragment() {
                 "autoCreateCategory" -> PrefManager.autoCreateCategory = value
                 "autoAssetMapping" -> PrefManager.autoAssetMapping = value
                 "showDuplicatedPopup" -> PrefManager.showDuplicatedPopup = value
+                // 显示设置
+                "showRuleName" -> PrefManager.showRuleName = value
                 // 通知设置
                 "showSuccessPopup" -> PrefManager.showSuccessPopup = value
                 "loadSuccess" -> PrefManager.loadSuccess = value
