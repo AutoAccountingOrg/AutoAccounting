@@ -213,14 +213,6 @@
                 app:settingTitle="@string/setting_title_appearance" />
 
             <net.ankio.auto.ui.components.SettingItemView
-                android:id="@+id/setting_experimental"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:settingDesc="@string/setting_desc_experimental"
-                app:settingIcon="@drawable/ic_science"
-                app:settingTitle="@string/setting_title_experimental" />
-
-            <net.ankio.auto.ui.components.SettingItemView
                 android:id="@+id/setting_backup"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
