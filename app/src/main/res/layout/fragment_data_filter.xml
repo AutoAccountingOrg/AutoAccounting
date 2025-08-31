@@ -13,12 +13,11 @@
   ~   limitations under the License.
   -->
 
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<net.ankio.auto.ui.components.AdaptiveCoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
     tools:context=".ui.fragment.CategoryEditFragment">
 
     <!-- Edge-to-Edge：沉浸式顶栏，随内容滚动抬升显示阴影 -->
@@ -79,4 +78,4 @@
         android:importantForAccessibility="no"
         app:srcCompat="@drawable/float_add" />
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</net.ankio.auto.ui.components.AdaptiveCoordinatorLayout>

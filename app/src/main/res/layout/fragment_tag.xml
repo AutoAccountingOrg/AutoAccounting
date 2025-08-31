@@ -1,8 +1,7 @@
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<net.ankio.auto.ui.components.AdaptiveCoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
+    android:layout_height="match_parent">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
@@ -45,4 +44,4 @@
         android:importantForAccessibility="no"
         app:srcCompat="@drawable/float_add" />
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</net.ankio.auto.ui.components.AdaptiveCoordinatorLayout>
