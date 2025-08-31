@@ -16,19 +16,19 @@
 package net.ankio.auto.ui.dialog.components
 
 import android.content.res.ColorStateList
+import android.text.InputType
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.core.widget.TextViewCompat
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
-import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.databinding.ComponentAmountDisplayBinding
 import net.ankio.auto.ui.api.BaseComponent
+import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.dialog.BillEditorDialog
+import net.ankio.auto.ui.dialog.EditorDialogBuilder
+
 import net.ankio.auto.ui.utils.ListPopupUtilsGeneric
 import net.ankio.auto.utils.BillTool
-import net.ankio.auto.utils.SystemUtils.findLifecycleOwner
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.BillInfoModel
 
@@ -52,7 +52,6 @@ class AmountDisplayComponent(
     binding: ComponentAmountDisplayBinding
 ) : BaseComponent<ComponentAmountDisplayBinding>(binding) {
 
-    private var onTypeChangeListener: ((BillType) -> Unit)? = null
     private var currentBillType: BillType = BillType.Expend
 
 
@@ -64,7 +63,7 @@ class AmountDisplayComponent(
     fun setBillInfo(billInfoModel: BillInfoModel) {
         this.billInfoModel = billInfoModel
         refresh()
-        setupTypeSelector()
+        setupClickListeners()
     }
 
     /**
@@ -79,14 +78,53 @@ class AmountDisplayComponent(
         // 更新账单类型
         currentBillType = BillTool.getType(billInfoModel.type)
         setBillType(currentBillType)
+
+        // 更新费用显示
+        setFeeDisplay(billInfoModel.fee)
+    }
+
+    /**
+     * 设置所有点击监听器
+     */
+    private fun setupClickListeners() {
+        if (!::billInfoModel.isInitialized) return
+
+        // 设置金额编辑点击监听器
+        setupAmountEditor()
+
+        // 设置类型选择点击监听器
+        setupTypeSelector()
+
+        // 设置费用编辑点击监听器  
+        setupFeeEditor()
+    }
+
+    /**
+     * 设置金额编辑器
+     */
+    private fun setupAmountEditor() {
+        binding.amountContainer.setOnClickListener {
+            BaseSheetDialog.create<EditorDialogBuilder>(context)
+                .setInputType(InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL)
+                .setTitleInt(R.string.edit_amount)
+                .setMessage(billInfoModel.money.toString())
+                .setEditorPositiveButton(R.string.sure_msg) { result ->
+                    val newAmount = result.toDoubleOrNull() ?: 0.0
+                    if (newAmount != billInfoModel.money) {
+                        val oldAmount = billInfoModel.money
+                        billInfoModel.money = newAmount
+                        refresh()
+                    }
+                }
+                .setNegativeButton(R.string.cancel_msg, null)
+                .show()
+        }
     }
 
     /**
      * 设置类型选择器
      */
     private fun setupTypeSelector() {
-        if (!::billInfoModel.isInitialized) return
-
         // 创建可用的交易类型映射
         val availableTypes = hashMapOf(
             context.getString(R.string.float_expend) to BillType.Expend,
@@ -94,15 +132,48 @@ class AmountDisplayComponent(
             context.getString(R.string.float_transfer) to BillType.Transfer
         )
 
-        setupTypeSelectorInternal(availableTypes)
+        // 为type_label设置点击监听器
+        binding.typeLabel.setOnClickListener {
+            ListPopupUtilsGeneric.create<BillType>(context)
+                .setAnchor(binding.typeLabel)
+                .setList(availableTypes)
+                .setSelectedValue(currentBillType)
+                .setOnItemClick { _, _, value ->
+                    if (value != currentBillType) {
+                        val oldType = billInfoModel.type
+                        currentBillType = value
+                        billInfoModel.type = value
+                        updateTypeDisplay()
+                        // 发送类型变化事件
+                        launch {
+                            BillEditorDialog.notifyRefresh()
+                        }
+                    }
+                }
+                .show()
+        }
 
-        // 设置类型变更监听器，自动更新账单信息并发送事件
-        onTypeChangeListener = { newType ->
-            billInfoModel.type = newType
-            // 发送刷新事件给主监听器
-            launch {
-                BillEditorDialog.notifyRefresh()
-            }
+
+    }
+
+    /**
+     * 设置费用编辑器
+     */
+    private fun setupFeeEditor() {
+        binding.feeContainer.setOnClickListener {
+            BaseSheetDialog.create<EditorDialogBuilder>(context)
+                .setInputType(InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL)
+                .setTitleInt(R.string.edit_fee)
+                .setMessage(billInfoModel.fee.toString())
+                .setEditorPositiveButton(R.string.sure_msg) { result ->
+                    val newFee = result.toDoubleOrNull() ?: 0.0
+                    if (newFee != billInfoModel.fee) {
+                        billInfoModel.fee = newFee
+                        setFeeDisplay(newFee)
+                    }
+                }
+                .setNegativeButton(R.string.cancel_msg, null)
+                .show()
         }
     }
 
@@ -123,29 +194,36 @@ class AmountDisplayComponent(
     private fun setBillType(billType: BillType) {
         currentBillType = billType
         updateTypeDisplay()
+        updateTypeLabelDisplay()
+    }
+
+    /**
+     * 设置费用显示
+     *
+     * @param fee 费用数值
+     */
+    private fun setFeeDisplay(fee: Double) {
+        val text = when {
+            fee == 0.0 -> context.getString(R.string.no_discount)
+            currentBillType == BillType.Expend -> context.getString(R.string.discounted, fee)
+            currentBillType == BillType.Income -> context.getString(R.string.handling_fee, fee)
+            else -> context.getString(R.string.fee, fee)
+        }
+        binding.feeContainer.text = text
     }
 
 
     /**
-     * 设置类型选择器可用选项
-     *
-     * @param availableTypes 可选的交易类型映射（显示名称 -> 类型）
+     * 更新类型标签显示
      */
-    private fun setupTypeSelectorInternal(availableTypes: HashMap<String, BillType>) {
-        // 设置点击监听器，使用新的链式调用方式
-        binding.amountContainer.setOnClickListener {
-            ListPopupUtilsGeneric.create<BillType>(context)
-                .setAnchor(binding.amountContainer)
-                .setList(availableTypes)
-                .setSelectedValue(currentBillType)
-                .setOnItemClick { _, _, value ->
-                    // value 已经是 BillType 类型，无需类型转换！
-                    currentBillType = value
-                    updateTypeDisplay()
-                    onTypeChangeListener?.invoke(value)
-                }
-                .show()
+    private fun updateTypeLabelDisplay() {
+        val typeText = when (currentBillType) {
+            BillType.Expend -> context.getString(R.string.float_expend)
+            BillType.Income -> context.getString(R.string.float_income)
+            BillType.Transfer -> context.getString(R.string.float_transfer)
+            else -> context.getString(R.string.float_expend)
         }
+        binding.typeLabel.text = typeText
     }
 
     /**

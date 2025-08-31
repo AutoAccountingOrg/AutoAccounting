@@ -27,7 +27,10 @@ import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.ui.dialog.CategorySelectorDialog
 import net.ankio.auto.ui.dialog.DateTimePickerDialog
 import net.ankio.auto.ui.utils.ListPopupUtilsGeneric
+import net.ankio.auto.ui.adapter.CurrencyDropdownAdapter
+import android.widget.ListPopupWindow
 import net.ankio.auto.ui.api.BaseSheetDialog
+import net.ankio.auto.ui.utils.load
 import net.ankio.auto.ui.utils.setCategoryIcon
 import net.ankio.auto.ui.utils.setAssetIcon
 import net.ankio.auto.utils.BillTool
@@ -38,6 +41,7 @@ import org.ezbook.server.constant.Currency
 import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BillInfoModel
+import org.ezbook.server.db.model.BookNameModel
 import org.ezbook.server.db.model.CategoryModel
 
 /**
@@ -79,7 +83,7 @@ class BasicInfoComponent(
     /**
      * 刷新显示 - 根据当前账单信息更新UI
      */
-    fun refresh() {
+    private fun refresh() {
         val billType = BillTool.getType(billInfoModel.type)
 
         // 更新分类显示
@@ -129,7 +133,9 @@ class BasicInfoComponent(
         val currency =
             runCatching { Currency.valueOf(billInfoModel.currency) }.getOrDefault(Currency.CNY)
         binding.moneyType.setText(currency.name(context))
-        binding.moneyType.imageView().setAssetIcon(currency.iconUrl())
+        binding.moneyType.imageView().load(currency.iconUrl())
+        // 确保货币图标不被染色，保持原始颜色
+        binding.moneyType.setTint(false)
         binding.moneyType.visibility = View.VISIBLE
     }
 
@@ -146,7 +152,11 @@ class BasicInfoComponent(
      */
     private fun setupClickListeners() {
         binding.category.setOnClickListener {
-            showCategorySelector()
+            launch {
+                val book = BookNameAPI.getBook(billInfoModel.bookName)
+                showCategorySelector(book)
+            }
+
         }
 
         binding.time.setOnClickListener {
@@ -161,7 +171,7 @@ class BasicInfoComponent(
     /**
      * 显示分类选择对话框
      */
-    private fun showCategorySelector() {
+    private fun showCategorySelector(book: BookNameModel) {
         if (!::billInfoModel.isInitialized) {
             return
         }
@@ -170,7 +180,10 @@ class BasicInfoComponent(
         val dialog = BaseSheetDialog.create<CategorySelectorDialog>(context)
 
         val billType = BillTool.getType(billInfoModel.type)
-        dialog.setBook(billInfoModel.bookName)
+
+
+
+        dialog.setBook(book.remoteId)
             .setType(billType)
             .setCallback { parent, child ->
                 // 更新分类名称
@@ -203,17 +216,11 @@ class BasicInfoComponent(
     }
 
     /**
-     * 显示货币选择列表
+     * 显示货币选择列表 - 使用带图标的CurrencyDropdownAdapter
      */
     private fun showCurrencySelector() {
         if (!::billInfoModel.isInitialized) {
             return
-        }
-
-        // 创建货币映射（显示名称 -> 枚举值）
-        val currencyMap = hashMapOf<String, Currency>()
-        Currency.entries.forEach { currency ->
-            currencyMap[currency.name(context)] = currency
         }
 
         // 获取当前选中的货币
@@ -221,20 +228,35 @@ class BasicInfoComponent(
             Currency.valueOf(billInfoModel.currency)
         }.getOrDefault(Currency.CNY)
 
-        // 从BaseComponent获取lifecycle
-        val lifecycle = context.findLifecycleOwner().lifecycle
+        // 创建货币列表
+        val currencyList = Currency.entries.toList()
 
-        // 使用 ListPopupUtilsGeneric 显示选择列表
-        ListPopupUtilsGeneric.create<Currency>(context)
-            .setAnchor(binding.moneyType)
-            .setList(currencyMap)
-            .setSelectedValue(currentCurrency)
-            .setOnItemClick { _, _, selectedCurrency ->
-                // 更新货币类型 - 无需类型转换
+        // 创建带图标的货币适配器
+        val adapter = CurrencyDropdownAdapter(context, currencyList)
+
+        // 创建ListPopupWindow显示选择列表
+        val popupWindow = ListPopupWindow(context).apply {
+            setAdapter(adapter)
+            anchorView = binding.moneyType
+            width = ListPopupWindow.WRAP_CONTENT
+            height = ListPopupWindow.WRAP_CONTENT
+            isModal = true
+
+            setOnItemClickListener { _, _, position, _ ->
+                val selectedCurrency = currencyList[position]
+                // 更新货币类型
                 billInfoModel.currency = selectedCurrency.name
                 // 刷新显示
                 refresh()
+                dismiss()
             }
-            .toggle()
+        }
+
+        // 显示弹窗并选中当前项
+        popupWindow.show()
+        val currentIndex = currencyList.indexOf(currentCurrency)
+        if (currentIndex >= 0) {
+            popupWindow.listView?.setSelection(currentIndex)
+        }
     }
 }
