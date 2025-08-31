@@ -13,6 +13,7 @@
  *   limitations under the License.
  */
 
+
 package net.ankio.auto.ui.fragment
 
 import android.os.Bundle
@@ -20,39 +21,29 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.Dispatchers
+import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentBillBinding
-import net.ankio.auto.storage.ConfigUtils
+import net.ankio.auto.http.api.BillAPI
 import net.ankio.auto.ui.adapter.OrderAdapter
 import net.ankio.auto.ui.api.BasePageFragment
-import net.ankio.auto.ui.componets.WrapContentLinearLayoutManager
+import net.ankio.auto.ui.api.BaseSheetDialog
+import net.ankio.auto.ui.components.WrapContentLinearLayoutManager
 import net.ankio.auto.ui.dialog.BillMoreDialog
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
-import net.ankio.auto.ui.dialog.FloatEditorDialog
+import net.ankio.auto.ui.dialog.BillEditorDialog
 import net.ankio.auto.ui.models.OrderGroup
 import net.ankio.auto.ui.utils.AssetsUtils
 import net.ankio.auto.ui.utils.BookAppUtils
-import net.ankio.auto.ui.utils.viewBinding
 import net.ankio.auto.utils.DateUtils
-import net.ankio.auto.xposed.core.utils.DataUtils
 import org.ezbook.server.constant.BillState
-import org.ezbook.server.constant.DataType
-import org.ezbook.server.constant.DefaultData
-import org.ezbook.server.constant.Setting
-import org.ezbook.server.constant.SyncType
-import org.ezbook.server.db.model.BillInfoModel
-import org.ezbook.server.db.model.SettingModel
 
 
-open class OrderFragment : BasePageFragment<OrderGroup>() {
-    override val binding: FragmentBillBinding by viewBinding(FragmentBillBinding::inflate)
-    var syncType = mutableListOf<String>()
-    override suspend fun loadData(callback: (resultData: List<OrderGroup>) -> Unit) {
-        val list = BillInfoModel.list(page, pageSize, syncType)
+open class OrderFragment : BasePageFragment<OrderGroup, FragmentBillBinding>() {
+    private var syncType = mutableListOf<String>()
+    override suspend fun loadData(): List<OrderGroup> {
+        val list = BillAPI.list(page, pageSize, syncType)
 
         val groupedData = list.groupBy {
             DateUtils.stampToDate(it.time, "yyyy-MM-dd")
@@ -60,60 +51,57 @@ open class OrderFragment : BasePageFragment<OrderGroup>() {
             OrderGroup(date, bills)
         }
 
-
-
-
-        withContext(Dispatchers.Main) {
-
-            //    adapter.updateItems(groupedData, page == 1)
-
-            callback.invoke(if (list.isEmpty()) emptyList() else groupedData)
-        }
+        return if (list.isEmpty()) emptyList() else groupedData
     }
 
-    val adapter = OrderAdapter()
+    private val adapter = OrderAdapter()
 
-    override fun onCreateAdapter() {
+    override fun onCreateAdapter(): RecyclerView.Adapter<*> {
         val recyclerView = binding.statusPage.contentView!!
         recyclerView.layoutManager = WrapContentLinearLayoutManager(requireContext())
 
         adapter.setOnItemClickListener { item, position, itemAdapter ->
             lifecycleScope.launch {
                 AssetsUtils.setMapAssets(requireContext(), false, item) {
-                    FloatEditorDialog(requireContext(), item, false, onConfirmClick = {
-                        itemAdapter.updateItem(position, it)
-                    }).showInFragment(this@OrderFragment, false, true)
+                    BaseSheetDialog.create<BillEditorDialog>(requireContext())
+                        .setBillInfo(item)
+                        .setOnConfirm { updatedBill ->
+                            itemAdapter.updateItem(position, updatedBill)
+                        }
+                        .show()
                 }
             }
 
         }
 
-// 设置长按事件
+        // 设置长按事件
         adapter.setOnItemLongClickListener { item, position, itemAdapter ->
-            BottomSheetDialogBuilder(requireContext())
+            BaseSheetDialog.create<BottomSheetDialogBuilder>(requireContext())
                 .setTitleInt(R.string.delete_title)
                 .setMessage(R.string.delete_bill_message)
                 .setPositiveButton(R.string.sure_msg) { _, _ ->
                     itemAdapter.removeItem(item)
                     lifecycleScope.launch {
-                        BillInfoModel.remove(item.id)
+                        BillAPI.remove(item.id)
                     }
                 }
                 .setNegativeButton(R.string.cancel_msg) { _, _ -> }
-                .showInFragment(this, false, true)
+                .show()
         }
 
-// 设置更多按钮点击事件
+        // 设置更多按钮点击事件
         adapter.setOnMoreClickListener { item, itemAdapter ->
-            BillMoreDialog(requireContext(), item, onReload = {
-                it.dismiss()
-                reload()
-            }).showInFragment(this, false, true)
+            BaseSheetDialog.create<BillMoreDialog>(requireContext())
+                .setBillInfo(item)
+                .setOnReload {
+                    it.dismiss()
+                    reload()
+                }
+                .show()
         }
-        recyclerView.adapter = adapter
-
 
         chipEvent()
+        return adapter
     }
 
 
@@ -148,11 +136,6 @@ open class OrderFragment : BasePageFragment<OrderGroup>() {
         reload()
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ) = binding.root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -179,17 +162,16 @@ open class OrderFragment : BasePageFragment<OrderGroup>() {
 
     // 抽取删除数据的逻辑
     private fun showClearDataDialog() {
-        BottomSheetDialogBuilder(requireActivity())
-            .setTitle(requireActivity().getString(R.string.delete_data))
-            .setMessage(requireActivity().getString(R.string.delete_msg))
-            .setPositiveButton(requireActivity().getString(R.string.sure_msg)) { _, _ ->
+        BaseSheetDialog.create<BottomSheetDialogBuilder>(requireContext())
+            .setTitle(getString(R.string.delete_data))
+            .setMessage(getString(R.string.delete_msg))
+            .setPositiveButton(getString(R.string.sure_msg)) { _, _ ->
                 lifecycleScope.launch {
-                    BillInfoModel.clear()
+                    BillAPI.clear()
                     reload()
                 }
             }
             .setNegativeButton(requireActivity().getString(R.string.cancel_msg)) { _, _ -> }
-            .showInFragment(this, false, true)
+            .show()
     }
 }
-

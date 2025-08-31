@@ -1,17 +1,16 @@
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/colorSurface"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:liftOnScroll="true"
+        android:fitsSystemWindows="true"
         app:liftOnScrollTargetViewId="@id/content_view">
 
         <com.google.android.material.appbar.MaterialToolbar
@@ -20,67 +19,70 @@
             android:layout_height="wrap_content"
             android:minHeight="?attr/actionBarSize"
 
-            android:tag="back_button"
             app:menu="@menu/bill_menu"
-            app:navigationIcon="@drawable/abc_ic_ab_back_material"
             app:title="@string/title_bill" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <com.google.android.material.chip.ChipGroup
-        android:id="@+id/chipGroup"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:padding="10dp"
-        app:layout_constraintTop_toBottomOf="@id/appBarLayout"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:chipSpacingHorizontal="10dp"
-        app:selectionRequired="true"
-        app:singleSelection="false">
+    <!-- 主内容区域 - 使用 LinearLayout 包装 ChipGroup 和 SwipeRefreshLayout -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chip_wait_sync"
-            style="@style/Widget.Material3.Chip.Filter"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:checked="true"
-            android:text="@string/item_wait_sync" />
-
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chip_wait_edit"
-            style="@style/Widget.Material3.Chip.Filter"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:checked="true"
-            android:text="@string/item_wait_edit" />
-
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chip_synced"
-            style="@style/Widget.Material3.Chip.Filter"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:checked="true"
-            android:text="@string/item_synced" />
-
-        <!-- Chips can be declared here, or added dynamically. -->
-
-    </com.google.android.material.chip.ChipGroup>
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/swipe_refresh_layout"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/chipGroup"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <net.ankio.auto.ui.componets.StatusPage
-            android:id="@+id/status_page"
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipGroup"
+            android:padding="@dimen/padding"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"></net.ankio.auto.ui.componets.StatusPage>
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="8dp"
+            app:chipSpacingHorizontal="8dp"
+            app:selectionRequired="true"
+            app:singleSelection="false">
 
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_wait_sync"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                app:chipMinTouchTargetSize="0dp"
+                android:text="@string/item_wait_sync" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_wait_edit"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                app:chipMinTouchTargetSize="0dp"
+                android:text="@string/item_wait_edit" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_synced"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                app:chipMinTouchTargetSize="0dp"
+                android:text="@string/item_synced" />
+
+        </com.google.android.material.chip.ChipGroup>
+
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swipe_refresh_layout"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <net.ankio.auto.ui.components.StatusPage
+                android:id="@+id/status_page"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    </LinearLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
