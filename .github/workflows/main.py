@@ -9,7 +9,7 @@ from urllib.parse import quote
 import md2tgmd
 import requests
 
-flavors = ['lsposed', 'lspatch']
+flavors = ['release']  # 项目只有一个标准构建版本
 
 def get_latest_tag_with_prefix(prefix):
     print(f"获取最新的 tag: {prefix}")
@@ -78,18 +78,40 @@ def get_commits_since_tag(tag):
     return commitItems
 
 def get_and_set_version(channel,workspace):
-    with open(workspace + '/app/build.gradle') as file:
+    with open(workspace + '/app/build.gradle.kts') as file:
         content = file.read()
-    versionName = re.search(r'versionName "(.*)"', content).group(1)
+    versionName = re.search(r'versionName = "(.*)"', content).group(1)
     print(f"versionName: {versionName}")
+    
+    # 获取版本代码 (需要先计算)
+    versionCode = get_version_code(workspace)
+    print(f"versionCode: {versionCode}")
+    
     # 新的版本号
-    # tagVersionName="${versionName}-${channel}.$(date +'%Y%m%d%H%M%S')"
     tagVersionName = f"{versionName}-{channel}.{datetime.datetime.now().strftime('%Y%m%d_%H%M')}"
     # 替换 versionName
-    content = re.sub(r'versionName "(.*)"', f'versionName "{tagVersionName}"', content)
-    with open(workspace+'/app/build.gradle', 'w') as file:
+    content = re.sub(r'versionName = "(.*)"', f'versionName = "{tagVersionName}"', content)
+    with open(workspace+'/app/build.gradle.kts', 'w') as file:
         file.write(content)
-    return tagVersionName
+    return tagVersionName, versionCode
+
+def get_version_code(workspace):
+    """获取版本代码，模拟 calculateVersionCode() 函数的逻辑"""
+    # 这里简化处理，实际项目中可能有复杂的版本代码计算逻辑
+    # 可以通过执行 gradle 任务来获取实际的 versionCode
+    result = subprocess.run(
+        ['./gradlew', 'app:properties', '-q'], 
+        cwd=workspace,
+        capture_output=True, 
+        text=True
+    )
+    
+    for line in result.stdout.split('\n'):
+        if 'versionCode:' in line:
+            return line.split(':')[1].strip()
+    
+    # 如果无法获取，使用时间戳作为后备方案
+    return str(int(datetime.datetime.now().timestamp()))
 
 def build_logs(commits,workspace):
     with open(workspace+ '/.github/workflows/configuration.json') as file:
@@ -127,10 +149,8 @@ def write_logs(logs,workspace,channel,tag,repo,restart):
     with open(workspace + '/dist/README.md', 'w', encoding='utf-8') as file:
         file.write("# 下载地址\n")
         # 对tag进行编码
-        for flavor in flavors:
-            # https://github.com/AutoAccountingOrg/AutoAccounting/releases/download/4.0.0-Canary.20241204_0420/app-lspatch-signed.apk
-            file.write(f" - [Github {flavor}](https://github.com/{repo}/releases/download/{tag}/app-{flavor}-signed.apk)\n")
-            file.write(f" - [网盘 {flavor}](https://cloud.ankio.net/%E8%87%AA%E5%8A%A8%E8%AE%B0%E8%B4%A6/%E8%87%AA%E5%8A%A8%E8%AE%B0%E8%B4%A6/%E7%89%88%E6%9C%AC%E6%9B%B4%E6%96%B0/{channel}/{tag}-{flavor}.apk)\n")
+        file.write(f" - [Github 下载](https://github.com/{repo}/releases/download/{tag}/app-release-signed.apk)\n")
+        file.write(f" - [网盘下载](https://cloud.ankio.net/%E8%87%AA%E5%8A%A8%E8%AE%B0%E8%B4%A6/%E8%87%AA%E5%8A%A8%E8%AE%B0%E8%B4%A6/%E7%89%88%E6%9C%AC%E6%9B%B4%E6%96%B0/{channel}/{tag}-release.apk)\n")
         if restart:
             file.write("# 重启提示\n")
             file.write(" - 由于修改了Android Framework部分，需要重新启动生效。\n")
@@ -148,20 +168,36 @@ def run_command_live(command):
         print(f"命令执行失败: {' '.join(command)}")
         sys.exit(1 )
 
-def build_apk(workspace):
+def build_apk(workspace, version_name, version_code):
     print("开始构建 APK")
     gradlew_path = os.path.join(workspace, 'gradlew')
-    # 构建 APK
-    for flavor in flavors:
-        assemble_task = f"assemble{flavor.capitalize()}Release"
-        print(f"开始构建 {flavor} 版本: {assemble_task}")
-        run_command_live([gradlew_path, assemble_task])
+    
+    # 构建标准 release 版本
+    assemble_task = "assembleRelease"
+    print(f"开始构建: {assemble_task}")
+    run_command_live([gradlew_path, assemble_task])
 
-        apk_source_path = os.path.join(workspace, 'app', 'build', 'outputs', 'apk', flavor, 'release', 'app.apk')
-        apk_dest_path = os.path.join(workspace,"dist", f'app-{flavor}.apk')
-        subprocess.run(['cp', apk_source_path, apk_dest_path], check=True)
-        print(f"{flavor} 版本的 APK 文件已保存到: {apk_dest_path}, 开始签名")
-        sign_apk(apk_dest_path,workspace)
+    # 根据 archivesBaseName 构造实际的文件名
+    actual_apk_name = f"app-{version_name}({version_code}).apk"
+    apk_source_path = os.path.join(workspace, 'app', 'build', 'outputs', 'apk', 'release', actual_apk_name)
+    apk_dest_path = os.path.join(workspace, "dist", 'app-release.apk')
+    
+    print(f"查找 APK 文件: {apk_source_path}")
+    if not os.path.exists(apk_source_path):
+        # 如果按预期名称找不到，尝试查找目录中的 APK 文件
+        apk_dir = os.path.join(workspace, 'app', 'build', 'outputs', 'apk', 'release')
+        apk_files = [f for f in os.listdir(apk_dir) if f.endswith('.apk')]
+        if apk_files:
+            actual_apk_name = apk_files[0]
+            apk_source_path = os.path.join(apk_dir, actual_apk_name)
+            print(f"找到 APK 文件: {actual_apk_name}")
+        else:
+            print(f"错误: 在 {apk_dir} 中找不到 APK 文件")
+            sys.exit(1)
+    
+    subprocess.run(['cp', apk_source_path, apk_dest_path], check=True)
+    print(f"APK 文件已保存到: {apk_dest_path}, 开始签名")
+    sign_apk(apk_dest_path, workspace)
 
 def sign_apk(absolute_path,workspace):
     androidHome = os.getenv('ANDROID_HOME')
@@ -268,29 +304,28 @@ def publish_to_github(repo, tag_name, release_name, release_body, file_path, pre
         release_id = release_info['id']
         release_url = release_info['html_url']
         print(f"Release created successfully: {release_url}")
-        for favor in flavors:
-            #app-lsposed-signed.apk
-            path = file_path + f"app-{favor}-signed.apk"
-            # 读取文件内容
-            with open(path, 'rb') as file:
-                file_data = file.read()  # 读取文件的二进制内容
-            # 上传文件
-            upload_url = release_info['upload_url'].split('{')[0]  # 去掉 URL 中的占位符
-            file_name = os.path.basename(path)
-            upload_response = requests.post(
-                upload_url + f"?name={file_name}",
-                headers={
-                    "Authorization": f"token {token}",
-                    "Accept": "application/vnd.github.v3+json",
-                    "Content-Type": "application/octet-stream"  # 明确指定上传内容类型
-                },
-                data=file_data  # 使用 data 参数传递文件的二进制内容
-            )
+        # 上传单个 APK 文件
+        path = file_path + "app-release-signed.apk"
+        # 读取文件内容
+        with open(path, 'rb') as file:
+            file_data = file.read()  # 读取文件的二进制内容
+        # 上传文件
+        upload_url = release_info['upload_url'].split('{')[0]  # 去掉 URL 中的占位符
+        file_name = os.path.basename(path)
+        upload_response = requests.post(
+            upload_url + f"?name={file_name}",
+            headers={
+                "Authorization": f"token {token}",
+                "Accept": "application/vnd.github.v3+json",
+                "Content-Type": "application/octet-stream"  # 明确指定上传内容类型
+            },
+            data=file_data  # 使用 data 参数传递文件的二进制内容
+        )
 
-            if upload_response.status_code == 201:
-                print(f"File uploaded successfully: {upload_response.json()['browser_download_url']}")
-            else:
-                print(f"Failed to upload file: {upload_response.status_code}, {upload_response.text}")
+        if upload_response.status_code == 201:
+            print(f"File uploaded successfully: {upload_response.json()['browser_download_url']}")
+        else:
+            print(f"Failed to upload file: {upload_response.status_code}, {upload_response.text}")
     else:
         print(f"Failed to create release: {response.status_code}, {response.text}")
 
@@ -302,8 +337,7 @@ def publish_to_github(repo, tag_name, release_name, release_body, file_path, pre
 def publish_to_pan(workspace,tag,channel):
     upload(workspace + "/dist/index.json", "/index.json", channel)
     upload(workspace + "/dist/README.md", "/README.md", channel)
-    for flavor in flavors:
-        upload(workspace + f"/dist/app-{flavor}-signed.apk", f"/{tag}-{flavor}.apk", channel)
+    upload(workspace + "/dist/app-release-signed.apk", f"/{tag}-release.apk", channel)
 
 def truncate_content(content):
     # 正则替换，将 ## 替换好
@@ -311,7 +345,7 @@ def truncate_content(content):
     # 检查字符串的长度
     if len(content) > 1024:
         # 截取前 4000 个字符并在末尾加上省略号
-        return content[:1024] + "\.\.\."
+        return content[:1024] + "\\.\\.\\."
     else:
         # 如果长度不超过 4000，返回原字符串
         return content
@@ -324,29 +358,27 @@ def send_apk_with_changelog(workspace, title):
     channel_id = "@qianji_auto"
     base_url = f"https://api.telegram.org/bot{token}"
     
-    # 先上传所有APK文件
+    # 上传 APK 文件
     file_ids = []
-    for flavor in flavors:
-        file_path = os.path.join(workspace, 'dist', f'app-{flavor}-signed.apk')
-        new_name = f"{title}-{flavor}.apk"
-        
-        try:
-            with open(file_path, "rb") as apk_file:
-                response = requests.post(
-                    f"{base_url}/sendDocument",
-                    data={
-                        "chat_id": "@ezbook_archives",
-                        "caption": "" # 空的说明文本
-                    },
-                    files={"document": (new_name, apk_file)}
-                )
-                response.raise_for_status()
-                file_id = response.json()['result']['document']['file_id']
-                file_ids.append(file_id)
-                print(f"成功上传 {flavor} 版本")
-        except Exception as e:
-            print(f"上传 {flavor} 版本时出错: {str(e)}")
-            continue
+    file_path = os.path.join(workspace, 'dist', 'app-release-signed.apk')
+    new_name = f"{title}-release.apk"
+    
+    try:
+        with open(file_path, "rb") as apk_file:
+            response = requests.post(
+                f"{base_url}/sendDocument",
+                data={
+                    "chat_id": "@ezbook_archives",
+                    "caption": "" # 空的说明文本
+                },
+                files={"document": (new_name, apk_file)}
+            )
+            response.raise_for_status()
+            file_id = response.json()['result']['document']['file_id']
+            file_ids.append(file_id)
+            print(f"成功上传 release 版本")
+    except Exception as e:
+        print(f"上传 release 版本时出错: {str(e)}")
     
     # 构建媒体组
     media = []
@@ -357,12 +389,8 @@ def send_apk_with_changelog(workspace, title):
         }
         # 在最后一个文件添加说明文本
         if i == len(file_ids) - 1:
-            # 添加版本选择提示
-            tips = "\n\n版本选择说明：\n" \
-                   "• Xposed版本：需要Root并安装LSPosed框架\n" \
-                   "• LSPatch版本：无需root，直接安装即可使用"
             item.update({
-                "caption": truncate_content(content + tips),
+                "caption": truncate_content(content),
                 "parse_mode": "MarkdownV2"
             })
         media.append(item)
@@ -435,12 +463,12 @@ def main(repo):
     if len(commits) == 0:
         print("没有新的提交，无需构建")
         sys.exit(0)
-    tagVersionName = get_and_set_version(channel,workspace)
-    print(f"新的版本号: {tagVersionName}")
+    tagVersionName, versionCode = get_and_set_version(channel,workspace)
+    print(f"新的版本号: {tagVersionName}, 版本代码: {versionCode}")
     restart = get_changed_files_since_tag(tag)
     logs = build_logs(commits,workspace)
     log_data = write_logs(logs,workspace,channel,tagVersionName,repo,restart)
-    build_apk(workspace)
+    build_apk(workspace, tagVersionName, versionCode)
     publish_apk(repo, tagVersionName,workspace,log_data,channel)
     notify(tagVersionName, channel, workspace)
     #create_tag(tagVersionName, channel)
