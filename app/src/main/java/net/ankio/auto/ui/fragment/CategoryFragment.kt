@@ -244,7 +244,7 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>(),
      */
     private fun restoreDefaultCategories() {
         val book = selectedBook ?: return
-        lifecycleScope.launch {
+        launch {
             val defaults = CategoryUtils().setDefaultCategory(book)
             CategoryAPI.put(defaults, MD5HashTable.md5(Gson().toJson(defaults)))
 
@@ -364,7 +364,7 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>(),
          */
         fun refreshData() {
             if (::categoryComponent.isInitialized) {
-                lifecycleScope.launch {
+                launch {
                     categoryComponent.refreshData()
                 }
             }
@@ -445,7 +445,7 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>(),
          * 删除分类
          */
         private fun deleteCategory(category: CategoryModel) {
-            lifecycleScope.launch {
+            launch {
                 val deletedId = CategoryAPI.delete(category.id)
                 if (deletedId > 0) {
                     ToastUtils.info(getString(R.string.delete_category_success))

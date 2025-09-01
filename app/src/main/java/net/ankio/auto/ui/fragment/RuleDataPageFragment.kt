@@ -138,7 +138,7 @@ class RuleDataPageFragment : BasePageFragment<RuleModel, FragmentRuleDataPageBin
      */
     private fun refreshLeftData() {
         Logger.d("Refreshing left data for rules")
-        lifecycleScope.launch {
+        launch {
             try {
                 // 1. 清空单一数据源
                 binding.leftList.clear()

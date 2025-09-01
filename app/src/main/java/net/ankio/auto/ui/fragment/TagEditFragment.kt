@@ -79,7 +79,7 @@ class TagEditFragment : BaseFragment<FragmentTagEditBinding>() {
 
         if (isEditing) {
             // 编辑模式，加载现有标签
-            lifecycleScope.launch {
+            launch {
                 try {
                     tagModel = TagAPI.getById(tagId) ?: TagModel().apply {
                         color = defaultColor
@@ -131,7 +131,7 @@ class TagEditFragment : BaseFragment<FragmentTagEditBinding>() {
      * 设置分组选择功能
      */
     private fun setupGroupSelection() {
-        lifecycleScope.launch {
+        launch {
             availableGroups = TagAPI.getGroups().toMutableList()
 
             // 添加预定义分组选项（确保所有常用分组都可选择）
@@ -292,7 +292,7 @@ class TagEditFragment : BaseFragment<FragmentTagEditBinding>() {
         }
 
         // 检查名称重复（异步）
-        lifecycleScope.launch {
+        launch {
             try {
                 val isAvailable = TagAPI.checkNameAvailable(name, tagModel.id)
                 if (!isAvailable) {
@@ -323,7 +323,7 @@ class TagEditFragment : BaseFragment<FragmentTagEditBinding>() {
 
         tagModel.name = name
 
-        lifecycleScope.launch {
+        launch {
             val result = TagAPI.put(tagModel)
 
             if (result.get("code").asInt == 200) {

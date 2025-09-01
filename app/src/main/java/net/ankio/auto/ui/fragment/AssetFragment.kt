@@ -258,7 +258,7 @@ class AssetFragment : BaseFragment<FragmentAssetBinding>() {
                 .setTitle(getString(R.string.delete_asset))
                 .setMessage(getString(R.string.delete_asset_message, asset.name))
                 .setPositiveButton(getString(R.string.ok)) { _, _ ->
-                    lifecycleScope.launch {
+                    launch {
                         // 调用删除API
                         AssetsAPI.delete(asset.id)
                         ToastUtils.info(getString(R.string.delete_asset_success))

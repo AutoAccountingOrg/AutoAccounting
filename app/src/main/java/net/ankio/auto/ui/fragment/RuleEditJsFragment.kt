@@ -282,7 +282,7 @@ let $name = {
      * 请求AI优化代码
      */
     private fun requestAiOptimization(jsCode: String) {
-        lifecycleScope.launch {
+        launch {
             val loading = LoadingUtils(requireActivity())
             loading.show(getString(R.string.ai_assist_optimizing))
 
@@ -422,7 +422,7 @@ $jsCode
             return
         }
 
-        lifecycleScope.launch {
+        launch {
             val loading = LoadingUtils(requireActivity())
             loading.show(getString(R.string.executing_js_code))
             val completeJs = buildExecutableJs(jsContent, testDataString)

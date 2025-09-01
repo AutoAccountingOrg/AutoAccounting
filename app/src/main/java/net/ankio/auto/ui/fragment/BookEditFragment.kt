@@ -99,7 +99,7 @@ class BookEditFragment : BaseFragment<FragmentBookEditBinding>() {
      * 加载现有账本数据
      */
     private fun loadBookData() {
-        lifecycleScope.launch {
+        launch {
             try {
                 val books = BookNameAPI.list()
                 val book = books.find { it.id == bookId }
@@ -177,7 +177,7 @@ class BookEditFragment : BaseFragment<FragmentBookEditBinding>() {
      * 处理选择的图片
      */
     private fun handleSelectedImage(imageUri: Uri) {
-        lifecycleScope.launch {
+        launch {
             try {
                 val inputStream = requireContext().contentResolver.openInputStream(imageUri)
                 val bitmap = BitmapFactory.decodeStream(inputStream)
@@ -238,7 +238,7 @@ class BookEditFragment : BaseFragment<FragmentBookEditBinding>() {
 
         currentBookModel.name = bookName
 
-        lifecycleScope.launch {
+        launch {
             try {
                 // 显示保存状态
                 saveButton.isEnabled = false

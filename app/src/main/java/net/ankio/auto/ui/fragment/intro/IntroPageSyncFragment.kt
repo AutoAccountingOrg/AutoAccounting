@@ -41,7 +41,7 @@ class IntroPageSyncFragment : BaseIntroPageFragment<FragmentIntroPageSyncBinding
     private val POLL_INTERVAL = 1_000L
     override fun onResume() {
         super.onResume()
-        viewLifecycleOwner.lifecycleScope.launch {
+        launch {
             while (isActive) {                       // 视图销毁自动退出
                 val synced = BookNameAPI.list().isNotEmpty()
 

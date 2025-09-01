@@ -179,7 +179,7 @@ class RuleEditFragment : BaseFragment<FragmentRuleEditBinding>() {
             return
         }
 
-        lifecycleScope.launch {
+        launch {
             runCatching {
                 if (currentRule.id > 0) {
                     RuleManageAPI.update(currentRule)

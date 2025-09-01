@@ -186,7 +186,7 @@ class BillEditorDialog internal constructor(
     private fun saveBill() {
         val billInfo = billInfoModel ?: return
 
-        lifecycleScope.launch {
+        launch {
             // 保存账单
             billInfo.state = BillState.Edited
 

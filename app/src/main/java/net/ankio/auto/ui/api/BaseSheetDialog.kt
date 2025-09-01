@@ -478,7 +478,6 @@ abstract class BaseSheetDialog<VB : ViewBinding> :
             } else {
                 Logger.d("对话框未显示或窗口未附加，跳过关闭操作")
             }
-            lifecycleScope.cancel()
         }.onFailure {
             it.printStackTrace()
             Logger.e("关闭对话框出错", it)

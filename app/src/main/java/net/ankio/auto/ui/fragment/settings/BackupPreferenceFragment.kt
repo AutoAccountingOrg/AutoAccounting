@@ -55,7 +55,7 @@ class BackupPreferenceFragment : BasePreferenceFragment() {
     // 文件选择器
     private val restoreFileLauncher = registerForActivityResult(
         ActivityResultContracts.OpenDocument()
-    ) { uri -> uri?.let { lifecycleScope.launch { restoreManager.restoreFromLocal(it) } } }
+    ) { uri -> uri?.let { launch { restoreManager.restoreFromLocal(it) } } }
 
     // 文件夹选择器
     private val backupFolderLauncher = registerForActivityResult(
@@ -66,7 +66,7 @@ class BackupPreferenceFragment : BasePreferenceFragment() {
             updatePreferenceDisplays()
             if (isBackupTriggered) {
                 isBackupTriggered = false
-                lifecycleScope.launch { backupManager.createLocalBackup() }
+                launch { backupManager.createLocalBackup() }
             }
         }
     }
@@ -155,7 +155,7 @@ class BackupPreferenceFragment : BasePreferenceFragment() {
             isBackupTriggered = true
             backupFolderLauncher.launch(null)
         } else {
-            lifecycleScope.launch { backupManager.createLocalBackup() }
+            launch { backupManager.createLocalBackup() }
         }
     }
 
@@ -170,7 +170,7 @@ class BackupPreferenceFragment : BasePreferenceFragment() {
             return
         }
 
-        lifecycleScope.launch {
+        launch {
             try {
                 backupManager.createWebDAVBackup()
                 ToastUtils.info(getString(R.string.backup_success))
@@ -190,7 +190,7 @@ class BackupPreferenceFragment : BasePreferenceFragment() {
             return
         }
 
-        lifecycleScope.launch {
+        launch {
             try {
                 val webDAVManager = WebDAVManager()
                 val latestBackup = webDAVManager.listLatest()

@@ -94,7 +94,7 @@ class LogFragment : BasePageFragment<LogModel, FragmentLogBinding>() {
                     loadingUtils.show(R.string.loading_logs)
 
                     // 在协程中执行分享操作
-                    lifecycleScope.launch {
+                    launch {
                         try {
                             // 打包日志文件
                             val logFile = Logger.packageLogs(requireContext())
@@ -119,7 +119,7 @@ class LogFragment : BasePageFragment<LogModel, FragmentLogBinding>() {
                         .setMessage(requireActivity().getString(R.string.delete_msg))
                         .setPositiveButton(requireActivity().getString(R.string.sure_msg)) { _, _ ->
                             // 用户确认后清空日志并重新加载
-                            lifecycleScope.launch {
+                            launch {
                                 LogAPI.clear()
                                 reload()
                             }

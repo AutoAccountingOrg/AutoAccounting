@@ -82,7 +82,7 @@ class AssetMapFragment : BasePageFragment<AssetsMapModel, FragmentMapBinding>() 
         // 设置添加按钮点击事件
         binding.addButton.setOnClickListener {
             BaseSheetDialog.create<AssetsMapDialog>(requireContext()).setOnClose { model ->
-                lifecycleScope.launch {
+                launch {
                     AssetsMapAPI.put(model)
                     reload()
                 }
@@ -121,7 +121,7 @@ class AssetMapFragment : BasePageFragment<AssetsMapModel, FragmentMapBinding>() 
      * 执行重新应用资产映射操作
      */
     private fun reapplyAssetMapping() {
-        lifecycleScope.launch {
+        launch {
             val loadingUtils = LoadingUtils(requireActivity())
             // 显示加载对话框
             loadingUtils.show(R.string.reapply_started)
@@ -144,7 +144,7 @@ class AssetMapFragment : BasePageFragment<AssetsMapModel, FragmentMapBinding>() 
         BaseSheetDialog.create<AssetsMapDialog>(requireContext())
             .setAssetsMapModel(item)
             .setOnClose { changedAssetsMap ->
-                lifecycleScope.launch {
+                launch {
                     AssetsMapAPI.put(changedAssetsMap)
                     // 更新适配器中的数据
                     updateItem(position, item)
@@ -165,7 +165,7 @@ class AssetMapFragment : BasePageFragment<AssetsMapModel, FragmentMapBinding>() 
                 dialog.dismiss()
             }
             .setPositiveButton(R.string.delete) { _, _ ->
-                lifecycleScope.launch {
+                launch {
                     AssetsMapAPI.remove(item.id)
                     // 从适配器中移除数据
                     removeItem(item)

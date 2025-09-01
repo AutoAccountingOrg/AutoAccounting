@@ -60,14 +60,14 @@ open class BillFragment : BasePageFragment<OrderGroup, FragmentBillBinding>() {
         recyclerView.layoutManager = WrapContentLinearLayoutManager(requireContext())
 
         adapter.setOnItemClickListener { item, position, itemAdapter ->
-            lifecycleScope.launch {
+            launch {
                 AssetsUtils.setMapAssets(requireContext(), false, item) {
                     BaseSheetDialog.create<BillEditorDialog>(requireContext())
                         .setBillInfo(item)
                         .setOnConfirm { updatedBill ->
                             itemAdapter.updateItem(position, updatedBill)
                             // 保存到
-                            lifecycleScope.launch {
+                            launch {
                                 Logger.d("更新账单：$updatedBill")
                                 BillAPI.put(updatedBill)
                                 BillTool.syncBill(updatedBill)
@@ -87,7 +87,7 @@ open class BillFragment : BasePageFragment<OrderGroup, FragmentBillBinding>() {
                 .setMessage(R.string.delete_bill_message)
                 .setPositiveButton(R.string.sure_msg) { _, _ ->
                     itemAdapter.removeItem(item)
-                    lifecycleScope.launch {
+                    launch {
                         BillAPI.remove(item.id)
                     }
                 }
@@ -152,7 +152,7 @@ open class BillFragment : BasePageFragment<OrderGroup, FragmentBillBinding>() {
         binding.topAppBar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.item_sync -> {
-                    lifecycleScope.launch {
+                    launch {
                         BillTool.syncBills()
                     }
                     true
@@ -174,7 +174,7 @@ open class BillFragment : BasePageFragment<OrderGroup, FragmentBillBinding>() {
             .setTitle(getString(R.string.delete_data))
             .setMessage(getString(R.string.delete_msg))
             .setPositiveButton(getString(R.string.sure_msg)) { _, _ ->
-                lifecycleScope.launch {
+                launch {
                     BillAPI.clear()
                     reload()
                 }

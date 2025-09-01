@@ -52,7 +52,7 @@ abstract class ICoreService {
         this.coreService = coreService
     }
 
-    protected fun launch(block: suspend CoroutineScope.() -> Unit) {
+    fun launch(block: suspend CoroutineScope.() -> Unit) {
         coreService.lifecycleScope.launch {
             try {
                 block()

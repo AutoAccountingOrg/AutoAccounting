@@ -77,7 +77,7 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>() {
     override fun onResume() {
         super.onResume()
         // 使用节流函数获取激活信息
-        lifecycleScope.launch {
+        launch {
             loadActivateInfo()
         }
     }
@@ -116,7 +116,7 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>() {
             .setTitleInt(R.string.pro_activate_dialog_title)
             .setMessage("")
             .setEditorPositiveButton(R.string.btn_confirm) { activationCode ->
-                lifecycleScope.launch {
+                launch {
                     handleActivation(activationCode)
                 }
             }
@@ -145,7 +145,7 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>() {
                     if (result == null) {
                         ToastUtils.info(R.string.pro_activate_success)
                         // 激活成功后重新加载信息
-                        lifecycleScope.launch { loadActivateInfo() }
+                        launch { loadActivateInfo() }
                     } else {
                         ToastUtils.error(getString(R.string.pro_activate_failed, result))
                     }

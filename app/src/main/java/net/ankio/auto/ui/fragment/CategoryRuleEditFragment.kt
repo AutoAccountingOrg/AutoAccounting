@@ -145,7 +145,7 @@ class CategoryRuleEditFragment : BaseFragment<FragmentCategoryRuleEditBinding>()
      */
     private fun saveRule() {
         val categoryRuleModel = categoryRuleEditComponent.getRule() ?: return
-        lifecycleScope.launch {
+        launch {
             // 调用API保存规则
             CategoryRuleAPI.put(categoryRuleModel)
 

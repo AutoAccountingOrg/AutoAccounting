@@ -147,7 +147,7 @@ class CategoryEditFragment : BaseFragment<FragmentCategoryEditBinding>() {
      */
     private fun loadData() {
         binding.statusPage.showLoading()
-        lifecycleScope.launch {
+        launch {
             try {
                 // 加载图标数据
                 loadIconData()
@@ -245,7 +245,7 @@ class CategoryEditFragment : BaseFragment<FragmentCategoryEditBinding>() {
             return
         }
 
-        searchJob = lifecycleScope.launch {
+        searchJob = launch {
             delay(300) // 防抖延迟
 
             val filteredIcons = allIcons.filter { icon ->
@@ -283,7 +283,7 @@ class CategoryEditFragment : BaseFragment<FragmentCategoryEditBinding>() {
         }
 
         // 保存分类
-        lifecycleScope.launch {
+        launch {
             try {
                 val savedId = CategoryAPI.save(currentCategory)
                 if (savedId > 0) {

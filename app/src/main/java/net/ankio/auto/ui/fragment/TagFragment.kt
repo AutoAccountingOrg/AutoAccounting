@@ -100,7 +100,7 @@ class TagFragment : BaseFragment<FragmentTagBinding>(), Toolbar.OnMenuItemClickL
      * @param tag 要删除的标签
      */
     private fun deleteTag(tag: org.ezbook.server.db.model.TagModel) {
-        lifecycleScope.launch {
+        launch {
             try {
                 // 调用API删除标签
                 TagAPI.remove(tag.id)
@@ -152,7 +152,7 @@ class TagFragment : BaseFragment<FragmentTagBinding>(), Toolbar.OnMenuItemClickL
      * 恢复默认标签
      */
     private fun restoreDefaultTags() {
-        lifecycleScope.launch {
+        launch {
             // 获取默认标签
             val tagUtils = TagUtils()
             val defaultTags = tagUtils.setDefaultTags()

@@ -119,7 +119,7 @@ class BookFragment : BaseFragment<FragmentBookBinding>() {
      * @param bookModel 要删除的账本模型
      */
     private fun deleteBook(bookModel: BookNameModel) {
-        lifecycleScope.launch {
+        launch {
             try {
                 BookNameAPI.delete(bookModel.id)
                 ToastUtils.info(R.string.delete_book_success)
@@ -136,7 +136,7 @@ class BookFragment : BaseFragment<FragmentBookBinding>() {
     private fun refreshBookList() {
         if (::bookComponent.isInitialized) {
             // 重新加载账本数据
-            lifecycleScope.launch {
+            launch {
                 bookComponent.refreshData()
             }
         }

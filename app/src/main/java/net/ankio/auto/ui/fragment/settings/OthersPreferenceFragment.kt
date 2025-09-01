@@ -152,7 +152,7 @@ class OthersPreferenceFragment : BasePreferenceFragment() {
      */
     private fun performClearDatabase() {
         val loading = LoadingUtils(requireContext())
-        lifecycleScope.launch {
+        launch {
             try {
                 loading.show(R.string.clearing_database)
                 DatabaseAPI.clear()

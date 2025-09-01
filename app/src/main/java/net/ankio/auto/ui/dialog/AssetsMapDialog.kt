@@ -102,7 +102,7 @@ class AssetsMapDialog internal constructor(
         }
         regex.isChecked = assetsMapModel.regex
 
-        lifecycleScope.launch {
+        launch {
             target.imageView().setAssetIconByName(assetsMapModel.mapName)
         }
     }
@@ -131,7 +131,7 @@ class AssetsMapDialog internal constructor(
                 this.mapName = mapName
                 this.regex = binding.regex.isChecked
             }
-            lifecycleScope.launch {
+            launch {
                 onClose?.invoke(assetsMapModel)
                 dismiss()
             }
@@ -156,7 +156,7 @@ class AssetsMapDialog internal constructor(
         assetsMapModel.mapName = asset.name
         binding.target.setText(asset.name)
 
-        lifecycleScope.launch {
+        launch {
             binding.target.imageView().setAssetIcon(asset)
         }
     }

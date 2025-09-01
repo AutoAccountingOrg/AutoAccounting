@@ -222,7 +222,7 @@ class AssetEditFragment : BaseFragment<FragmentAssetEditBinding>() {
      */
     private fun loadData() {
         binding.statusPage.showLoading()
-        lifecycleScope.launch {
+        launch {
             loadIconData()
             // 如果是编辑模式，加载资产数据
             if (assetId > 0) {
@@ -354,7 +354,7 @@ class AssetEditFragment : BaseFragment<FragmentAssetEditBinding>() {
             return
         }
 
-        searchJob = lifecycleScope.launch {
+        searchJob = launch {
             delay(300) // 防抖延迟
 
             // 在已过滤的图标中进行搜索

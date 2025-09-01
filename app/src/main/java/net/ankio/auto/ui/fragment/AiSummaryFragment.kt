@@ -165,7 +165,7 @@ class AiSummaryFragment : BaseFragment<FragmentAiSummaryBinding>() {
     private fun loadSummary(forceRefresh: Boolean = false) {
         val loading = LoadingUtils(requireActivity())
 
-        lifecycleScope.launch {
+        launch {
             loading.show(getString(R.string.ai_summary_generating))
 
             try {
@@ -406,7 +406,7 @@ class AiSummaryFragment : BaseFragment<FragmentAiSummaryBinding>() {
 
         val loading = LoadingUtils(requireActivity())
 
-        lifecycleScope.launch {
+        launch {
             loading.show(getString(R.string.ai_summary_generating_image))
 
             try {

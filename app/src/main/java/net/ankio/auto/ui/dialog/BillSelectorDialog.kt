@@ -127,8 +127,8 @@ class BillSelectorDialog internal constructor(
      */
     private fun loadBillData() {
         binding.statusPage.showLoading()
-        
-        lifecycleScope.launch {
+
+        launch {
             val proactively = PrefManager.featureLeading
             
             if (proactively) {

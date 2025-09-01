@@ -23,6 +23,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.viewbinding.ViewBinding
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import net.ankio.auto.storage.Logger
 import java.lang.reflect.ParameterizedType
@@ -135,8 +136,8 @@ abstract class BaseFragment<VB : ViewBinding> : Fragment() {
 
     /**
      */
-    protected fun launch(block: suspend CoroutineScope.() -> Unit) {
-        lifecycleScope.launch {
+    protected fun launch(block: suspend CoroutineScope.() -> Unit): Job {
+        return lifecycleScope.launch {
             try {
                 block()
             } catch (e: CancellationException) {

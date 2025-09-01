@@ -24,6 +24,7 @@ import android.view.View
 import android.view.WindowManager
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -98,7 +99,11 @@ class BillWindowManager(
         processNextBill()
     }
 
-
+    protected fun launch(block: suspend CoroutineScope.() -> Unit) {
+        service.launch {
+            block()
+        }
+    }
     // ============ 公共接口方法 ============
 
     /**
@@ -137,7 +142,7 @@ class BillWindowManager(
      */
     fun addBill(bill: BillInfoModel) {
         Logger.d("添加账单到处理通道: ${bill.id}")
-        service.service().lifecycleScope.launch {
+        launch {
             billChannel.send(bill)
         }
     }
@@ -166,7 +171,7 @@ class BillWindowManager(
         // 只有在tipBinding已经初始化的情况下才尝试移除窗口
 
 
-        service.service().lifecycleScope.launch {
+        launch {
             try {
                 Logger.d("等待接收下一个账单...")
                 // 阻塞等待下一个账单
@@ -421,7 +426,7 @@ class BillWindowManager(
         bill.state = BillState.Edited
 
         // 异步保存
-        service.service().lifecycleScope.launch {
+        launch {
             BillAPI.put(bill)
             BillTool.syncBill(bill)
             Logger.d("账单保存成功: ${bill.id}")
@@ -519,7 +524,7 @@ class BillWindowManager(
     private fun deleteBill(bill: BillInfoModel) {
         Logger.d("删除账单: ${bill.id}")
 
-        service.service().lifecycleScope.launch {
+        launch {
             BillAPI.remove(bill.id)
         }
 
