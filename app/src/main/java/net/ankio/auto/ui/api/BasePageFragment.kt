@@ -180,17 +180,8 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
         isLoading = true
         Logger.d("开始加载数据：第${page}页")
 
-        launchWithErrorHandler(
-            onError = { e ->
-                Logger.e("数据加载失败：第${page}页", e)
-                statusPage.showError()
-                callback?.invoke(false, hasMoreData)
-            },
-            onFinally = {
-                isLoading = false
-                Logger.d("数据加载完成：第${page}页")
-            }
-        ) {
+        launch {
+
             // 在IO线程中执行数据加载，避免阻塞UI
             val resultData = withContext(Dispatchers.IO) { loadData() }
 
