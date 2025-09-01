@@ -60,7 +60,7 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
     }
 
     /**
-     * hook Application Context - 直接简洁版本
+     * Hook应用上下文
      */
     private fun hookAppContext(
         manifest: HookerManifest,
@@ -69,38 +69,35 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         when {
             manifest.packageName == "android" -> callback(null)
             manifest.applicationName.isEmpty() -> {
-                Logger.logD(TAG, "Using current application for ${manifest.appName}")
+                Logger.logD(TAG, "使用当前应用程序: ${manifest.appName}")
                 callback(AndroidAppHelper.currentApplication())
             }
 
             else -> {
-                var hookExecuted = false
-                runCatching {
+                try {
+                    var hooked = false
                     Hooker.after(
-                        Instrumentation::class.java.name,
+                        Instrumentation::class.java,
                         "callApplicationOnCreate",
-                        Application::class.java.name
+                        Application::class.java
                     ) {
-                        if (!hookExecuted) {
-                            hookExecuted = true
-                            val application = it.args[0] as Application
-                            Logger.logD(
-                                TAG,
-                                "Hook success: ${manifest.applicationName} -> $application"
-                            )
-                            callback(application)
-                        }
+                        if (hooked) return@after
+                        hooked = true
+                        val application = it.args[0] as Application
+                        Logger.logD(TAG, "Hook成功: ${manifest.applicationName} -> $application")
+                        callback(application)
+
                     }
-                }.onFailure {
-                    Logger.log(TAG, "Hook failed: ${it.message}")
-                    Logger.logE(TAG, it)
+                } catch (e: Exception) {
+                    Logger.log(TAG, "Hook失败: ${e.message}")
+                    Logger.logE(TAG, e)
                 }
             }
         }
     }
 
     /**
-     * 查找目标应用的Hook清单 - 使用原始包名直接查找
+     * 查找目标应用的Hook清单
      */
     private fun findTargetApp(pkg: String?, processName: String?): HookerManifest? {
         if (pkg == null || processName == null) return null
@@ -123,11 +120,11 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         hookAppContext(targetApp) { application ->
             AppRuntime.application = application
             application?.let { AppRuntime.classLoader = it.classLoader }
-            AppRuntime.debug = DataUtils.configBoolean(Setting.DEBUG_MODE, true)
+            AppRuntime.debug = DataUtils.configBoolean(Setting.DEBUG_MODE, DefaultData.DEBUG_MODE)
 
             Logger.logD(
                 TAG,
-                "Hooker: ${targetApp.appName}(${targetApp.packageName}) Run in ${if (AppRuntime.debug) "debug" else "production"} Mode"
+                "Hook器: ${targetApp.appName}(${targetApp.packageName}) 运行在${if (AppRuntime.debug) "调试" else "生产"}模式"
             )
             initHooker()
         }
@@ -135,29 +132,25 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
 
 
     /**
-     * 初始化Hooker - 直接执行，不过度抽象
+     * 初始化Hook器
      */
     private fun initHooker() {
         Logger.log(
             TAG,
-            "InitHooker: ${AppRuntime.name}, AutoVersion: ${BuildConfig.VERSION_NAME}, Application: ${AppRuntime.application?.applicationInfo?.sourceDir}"
+            "初始化Hook器: ${AppRuntime.name}, 自动记账版本: ${BuildConfig.VERSION_NAME}, 应用路径: ${AppRuntime.application?.applicationInfo?.sourceDir}"
         )
 
         // 基础设置
-        runCatching {
+        try {
             AppRuntime.manifest.networkError()
-            Logger.logD(TAG, "Allow Cleartext Traffic")
-        }.onFailure { Logger.logE(TAG, it) }
 
-        runCatching {
             Toaster.init(AppRuntime.application)
-            Logger.logD(TAG, "Toaster init success")
-        }.onFailure { Logger.logE(TAG, it) }
 
-        runCatching {
             AppRuntime.manifest.permissionCheck()
-            Logger.logD(TAG, "Permission check success")
-        }.onFailure { Logger.logE(TAG, it) }
+
+        } catch (e: Exception) {
+            Logger.logE(TAG, e)
+        }
 
         // 版本检查
         if (!AppRuntime.manifest.versionCheck()) return
@@ -167,31 +160,33 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
         if (!AppRuntime.manifest.autoAdaption(rules)) {
             Logger.log(
                 TAG,
-                "Auto adaption failed, ${AppRuntime.manifest.appName} will not be hooked"
+                "自动适配失败，${AppRuntime.manifest.appName} 将不会被Hook"
             )
             return
         }
 
         // 启动Hook
-        runCatching {
+        try {
             AppRuntime.manifest.hookLoadPackage()
-        }.onFailure { AppRuntime.manifest.logE(it) }
+        } catch (e: Exception) {
+            AppRuntime.manifest.logE(e)
+        }
 
         AppRuntime.manifest.partHookers.forEach { hooker ->
             val hookerName = hooker.javaClass.simpleName
-            AppRuntime.manifest.logD("PartHooker init: $hookerName")
+            AppRuntime.manifest.logD("初始化部分Hook器: $hookerName")
 
-            runCatching {
+            try {
                 hooker.hook()
-                AppRuntime.manifest.logD("PartHooker init success: $hookerName")
-            }.onFailure {
-                AppRuntime.manifest.logD("PartHooker error: ${it.message}")
-                AppRuntime.manifest.logE(it)
+                AppRuntime.manifest.logD("部分Hook器初始化成功: $hookerName")
+            } catch (e: Exception) {
+                AppRuntime.manifest.logD("部分Hook器错误: ${e.message}")
+                AppRuntime.manifest.logE(e)
                 set("adaptation_version", "0")
             }
         }
 
-        AppRuntime.manifest.logD("Hooker init success, ${AppRuntime.manifest.appName}(${AppRuntime.versionCode})")
+        AppRuntime.manifest.logD("Hook器初始化成功, ${AppRuntime.manifest.appName}(${AppRuntime.versionCode})")
 
         // 成功通知
         if (!AppRuntime.manifest.systemApp &&
