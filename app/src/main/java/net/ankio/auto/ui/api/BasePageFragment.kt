@@ -197,7 +197,9 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
                 hasMoreData = resultData.size >= pageSize
                 callback?.invoke(true, hasMoreData)
             }
+            isLoading = false
         }
+
     }
 
     /**
