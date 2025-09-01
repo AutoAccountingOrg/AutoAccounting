@@ -50,7 +50,7 @@ class IntroPagePermissionFragment : BaseIntroPageFragment<FragmentIntroPagePermi
                 if (::perms.isInitialized && isAdded && view != null) {
                     perms.forEach {
                         val card = binding.cardGroup.findViewById<ExpandableCardView>(it.viewId)
-                        setState(card, it.checkGranted())
+                        setState(card, it.checkGranted(), it.isRequired)
                     }
                 }
             },
@@ -77,6 +77,7 @@ class IntroPagePermissionFragment : BaseIntroPageFragment<FragmentIntroPagePermi
      * @param descRes 权限描述资源ID
      * @param checkGranted 检查权限是否已授予的方法
      * @param onClick 点击权限项时的处理方法
+     * @param isRequired 是否为必需权限，false表示可选权限
      * @param viewId 权限项视图ID
      */
     data class PermItem(
@@ -85,6 +86,7 @@ class IntroPagePermissionFragment : BaseIntroPageFragment<FragmentIntroPagePermi
         @StringRes val descRes: Int,
         val checkGranted: () -> Boolean,        // 检查权限的方法
         val onClick: () -> Unit,                 // 点击跳转的方法
+        val isRequired: Boolean = true,          // 是否为必需权限，默认为必需
         var viewId: Int = View.NO_ID
     )
 
@@ -118,24 +120,26 @@ class IntroPagePermissionFragment : BaseIntroPageFragment<FragmentIntroPagePermi
 
             // 非Xposed模式下添加额外权限
             if (!isXposed) {
-                // 短信权限
+                // 短信权限（OCR模式下为可选）
                 add(
                     PermItem(
                         iconRes = R.drawable.ic_sms,
                         titleRes = R.string.perm_sms_title,
-                        descRes = R.string.perm_sms_desc,
+                        descRes = R.string.perm_sms_desc_optional,
                         checkGranted = { SmsReceiver.hasPermission() },
-                        onClick = { SmsReceiver.startPermissionActivity(requireActivity()) }
+                        onClick = { SmsReceiver.startPermissionActivity(requireActivity()) },
+                        isRequired = false  // OCR模式下短信权限为可选
                     )
                 )
-                // 通知权限
+                // 通知权限（OCR模式下为可选）
                 add(
                     PermItem(
                         iconRes = R.drawable.ic_notifications,
                         titleRes = R.string.perm_notification_title,
-                        descRes = R.string.perm_notification_desc,
+                        descRes = R.string.perm_notification_desc_optional,
                         checkGranted = { NotificationService.hasPermission() },
-                        onClick = { NotificationService.startPermissionActivity(ctx) }
+                        onClick = { NotificationService.startPermissionActivity(ctx) },
+                        isRequired = false  // OCR模式下通知权限为可选
                     )
                 )
                 // 截屏权限（用于OCR功能）
@@ -205,7 +209,13 @@ class IntroPagePermissionFragment : BaseIntroPageFragment<FragmentIntroPagePermi
             p.viewId = View.generateViewId()
             val card = ExpandableCardView(requireContext()).apply {
                 icon.setImageResource(p.iconRes)
-                setTitle(context.getString(p.titleRes))
+                // 为可选权限添加"（可选）"标识
+                val titleText = if (p.isRequired) {
+                    context.getString(p.titleRes)
+                } else {
+                    "${context.getString(p.titleRes)}（${context.getString(R.string.perm_optional)}）"
+                }
+                setTitle(titleText)
                 setDescription(context.getString(p.descRes))
                 setOnCardClickListener { p.onClick() }
                 id = p.viewId
@@ -221,21 +231,31 @@ class IntroPagePermissionFragment : BaseIntroPageFragment<FragmentIntroPagePermi
         // 刷新所有权限的授予状态
         perms.forEach {
             val card = binding.cardGroup.findViewById<ExpandableCardView>(it.viewId)
-            setState(card, it.checkGranted())
+            setState(card, it.checkGranted(), it.isRequired)
         }
     }
 
     /**
      * 处理"下一步"按钮点击事件
-     * 检查所有必需权限是否已授予，只有全部授予才允许进入下一步
+     * 检查所有必需权限是否已授予，只有必需权限全部授予才允许进入下一步
+     * 可选权限不影响进入下一步
      */
     private fun handleNext() {
-        val requiredGranted = perms.all { it.checkGranted() }
+        val requiredPerms = perms.filter { it.isRequired }
+        val requiredGranted = requiredPerms.all { it.checkGranted() }
+
+        val optionalPerms = perms.filter { !it.isRequired }
+        val optionalGrantedCount = optionalPerms.count { it.checkGranted() }
 
         if (requiredGranted) {
+            // 如果有可选权限未授予，给出提示但仍允许继续
+            if (optionalGrantedCount < optionalPerms.size) {
+                val missingOptional = optionalPerms.size - optionalGrantedCount
+                ToastUtils.info(getString(R.string.perm_optional_missing_hint, missingOptional))
+            }
             vm.pageRequest.value = IntroPagerAdapter.IntroPage.KEEP
         } else {
-            ToastUtils.error(R.string.perm_not_complete)
+            ToastUtils.error(R.string.perm_required_not_complete)
         }
     }
 
@@ -250,22 +270,43 @@ class IntroPagePermissionFragment : BaseIntroPageFragment<FragmentIntroPagePermi
      * 设置权限卡片的状态显示
      * @param cardView 权限卡片视图
      * @param granted 权限是否已授予
+     * @param isRequired 是否为必需权限
      */
-    private fun setState(cardView: ExpandableCardView, granted: Boolean) {
+    private fun setState(
+        cardView: ExpandableCardView,
+        granted: Boolean,
+        isRequired: Boolean = true
+    ) {
         val icon = cardView.findViewById<ImageView>(R.id.stateIcon)
         val ctx = cardView.context
-        if (granted) {
-            // 已授予权限，显示成功图标
-            icon.setImageResource(R.drawable.ic_success)
-            icon.imageTintList = ColorStateList.valueOf(
-                MaterialColors.getColor(ctx, com.google.android.material.R.attr.colorPrimary, 0)
-            )
-        } else {
-            // 未授予权限，显示错误图标
-            icon.setImageResource(R.drawable.ic_error)
-            icon.imageTintList = ColorStateList.valueOf(
-                MaterialColors.getColor(ctx, com.google.android.material.R.attr.colorError, 0)
-            )
+        when {
+            granted -> {
+                // 已授予权限，显示成功图标
+                icon.setImageResource(R.drawable.ic_success)
+                icon.imageTintList = ColorStateList.valueOf(
+                    MaterialColors.getColor(ctx, com.google.android.material.R.attr.colorPrimary, 0)
+                )
+            }
+
+            isRequired -> {
+                // 必需权限未授予，显示错误图标
+                icon.setImageResource(R.drawable.ic_error)
+                icon.imageTintList = ColorStateList.valueOf(
+                    MaterialColors.getColor(ctx, com.google.android.material.R.attr.colorError, 0)
+                )
+            }
+
+            else -> {
+                // 可选权限未授予，显示警告图标
+                icon.setImageResource(R.drawable.ic_warning)
+                icon.imageTintList = ColorStateList.valueOf(
+                    MaterialColors.getColor(
+                        ctx,
+                        com.google.android.material.R.attr.colorTertiary,
+                        0
+                    )
+                )
+            }
         }
     }
 }

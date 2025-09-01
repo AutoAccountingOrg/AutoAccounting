@@ -561,9 +561,11 @@
 
     <string name="perm_notification_title">Notification Access</string>
     <string name="perm_notification_desc">Allows the app to read incoming notifications to capture bill alerts.</string>
+    <string name="perm_notification_desc_optional">Allows the app to read incoming notifications to capture bill alerts. This is optional for OCR mode.</string>
 
     <string name="perm_sms_title">SMS Read Access</string>
     <string name="perm_sms_desc">Allows the app to read SMS messages for payment confirmation codes.</string>
+    <string name="perm_sms_desc_optional">Allows the app to read SMS messages for payment confirmation codes. This is optional for OCR mode.</string>
 
     <string name="perm_overlay_title">Overlay Permission</string>
     <string name="perm_overlay_desc">Allows displaying floating windows for quick extraction tools.</string>
@@ -603,6 +605,9 @@
 
     <string name="action_continue">Continue</string>
     <string name="perm_not_complete">Some permissions are still missing. Please grant them before continuing.</string>
+    <string name="perm_required_not_complete">Some required permissions are still missing. Please grant them before continuing.</string>
+    <string name="perm_optional">optional</string>
+    <string name="perm_optional_missing_hint">%d optional permissions not granted, may affect some features</string>
 
     <!-- Battery optimization -->
     <string name="keepalive_battery_fail">
