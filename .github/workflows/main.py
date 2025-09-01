@@ -5,6 +5,7 @@ import os
 import re
 import subprocess
 import sys
+import time
 from urllib.parse import quote
 import md2tgmd
 import requests
@@ -241,15 +242,14 @@ def create_tag(tag,channel):
 发布 APK
 """
 def publish_apk(repo, tag_name,workspace,log,channel):
+    """发布APK - 只处理GitHub发布，网盘上传移到通知后执行"""
     publish_to_github(repo, tag_name,  tag_name, log,f"{workspace}/dist/",False if channel == 'Stable' else True)
-    publish_to_pan(workspace,tag_name,channel)
     pass
 
-def upload(filename, filename_new, channel):
-    # 上传文件
+def upload_single_attempt(filename, filename_new, channel, timeout=300):
+    """单次上传尝试，使用更长的超时时间"""
     url2 = "https://cloud.ankio.net/api/fs/put"
-    #
-    filename_new = quote('/自动记账/自动记账/版本更新/' + channel + "/" + filename_new, 'utf-8')  # 对文件名进行URL编码
+    filename_new = quote('/自动记账/自动记账/版本更新/' + channel + "/" + filename_new, 'utf-8')
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
                       'Chrome/58.0.3029.110 Safari/537.3',
@@ -257,11 +257,49 @@ def upload(filename, filename_new, channel):
         'file-path': filename_new,
         'As-Task': 'true'
     }
-    # 读取文件内容
+    
+    # 获取文件大小用于日志
+    file_size = os.path.getsize(filename)
+    print(f"开始上传文件: {filename_new}, 大小: {file_size / (1024*1024):.2f} MB")
+    
     with open(filename, 'rb') as file:
         file_data = file.read()
-    res = requests.put(url=url2, data=file_data, headers=headers,timeout=120)
-    print(res.text)
+    
+    res = requests.put(url=url2, data=file_data, headers=headers, timeout=timeout)
+    return res
+
+def upload(filename, filename_new, channel, max_retries=3):
+    """带重试机制的上传函数"""
+    last_exception = None
+    
+    for attempt in range(max_retries):
+        try:
+            print(f"上传尝试 {attempt + 1}/{max_retries}: {filename_new}")
+            res = upload_single_attempt(filename, filename_new, channel)
+            print(f"上传成功: {res.text}")
+            return True
+            
+        except (requests.exceptions.ConnectionError, 
+                requests.exceptions.Timeout, 
+                requests.exceptions.RequestException) as e:
+            last_exception = e
+            print(f"上传尝试 {attempt + 1} 失败: {str(e)}")
+            
+            if attempt < max_retries - 1:
+                # 指数退避：2^attempt 秒
+                wait_time = 2 ** attempt
+                print(f"等待 {wait_time} 秒后重试...")
+                time.sleep(wait_time)
+            else:
+                print(f"所有上传尝试均失败，最后错误: {str(last_exception)}")
+                return False
+        
+        except Exception as e:
+            # 其他非网络错误，不重试
+            print(f"上传失败 (不可重试错误): {str(e)}")
+            return False
+    
+    return False
 
 
 """
@@ -334,10 +372,36 @@ def publish_to_github(repo, tag_name, release_name, release_body, file_path, pre
 """
 发布到网盘
 """
-def publish_to_pan(workspace,tag,channel):
-    upload(workspace + "/dist/index.json", "/index.json", channel)
-    upload(workspace + "/dist/README.md", "/README.md", channel)
-    upload(workspace + "/dist/app-release-signed.apk", f"/{tag}-release.apk", channel)
+def publish_to_pan(workspace, tag, channel):
+    """发布文件到网盘，失败不影响主要发布流程"""
+    # 按优先级排序：APK最重要，index.json次之，README.md最后
+    files_to_upload = [
+        (workspace + "/dist/app-release-signed.apk", f"/{tag}-release.apk"),
+        (workspace + "/dist/index.json", "/index.json"),
+        (workspace + "/dist/README.md", "/README.md")
+    ]
+    
+    success_count = 0
+    total_files = len(files_to_upload)
+    
+    print(f"开始上传 {total_files} 个文件到网盘...")
+    
+    for local_path, remote_name in files_to_upload:
+        if os.path.exists(local_path):
+            if upload(local_path, remote_name, channel):
+                success_count += 1
+            else:
+                print(f"警告: 文件 {remote_name} 上传失败，但不影响发布流程")
+        else:
+            print(f"警告: 本地文件 {local_path} 不存在，跳过上传")
+    
+    print(f"网盘上传完成: {success_count}/{total_files} 个文件成功")
+    
+    # 即使全部失败也不抛出异常，只记录警告
+    if success_count == 0:
+        print("警告: 所有文件上传到网盘均失败，但 GitHub Release 已成功创建")
+    elif success_count < total_files:
+        print("警告: 部分文件上传失败，用户仍可从 GitHub 下载")
 
 def truncate_content(content):
     # 正则替换，将 ## 替换好
@@ -469,8 +533,18 @@ def main(repo):
     logs = build_logs(commits,workspace)
     log_data = write_logs(logs,workspace,channel,tagVersionName,repo,restart)
     build_apk(workspace, tagVersionName, versionCode)
+    
+    # 按优先级执行发布流程：
+    # 1. GitHub发布（最重要，用户主要下载源）
     publish_apk(repo, tagVersionName,workspace,log_data,channel)
+    
+    # 2. 通知服务（Telegram、论坛 - 用户需要及时知道更新）
     notify(tagVersionName, channel, workspace)
+    
+    # 3. 网盘上传（备用下载源，失败不影响主要流程）
+    print("开始网盘上传（备用下载源）...")
+    publish_to_pan(workspace, tagVersionName, channel)
+    
     #create_tag(tagVersionName, channel)
 
 main("AutoAccountingOrg/AutoAccounting")
