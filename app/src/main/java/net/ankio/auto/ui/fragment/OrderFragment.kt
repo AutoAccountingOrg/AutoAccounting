@@ -17,9 +17,7 @@
 package net.ankio.auto.ui.fragment
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.launch
@@ -31,12 +29,11 @@ import net.ankio.auto.ui.adapter.OrderAdapter
 import net.ankio.auto.ui.api.BasePageFragment
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.components.WrapContentLinearLayoutManager
+import net.ankio.auto.ui.dialog.BillEditorDialog
 import net.ankio.auto.ui.dialog.BillMoreDialog
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
-import net.ankio.auto.ui.dialog.BillEditorDialog
 import net.ankio.auto.ui.models.OrderGroup
 import net.ankio.auto.ui.utils.AssetsUtils
-import net.ankio.auto.ui.utils.BookAppUtils
 import net.ankio.auto.utils.BillTool
 import net.ankio.auto.utils.DateUtils
 import org.ezbook.server.constant.BillState
@@ -73,7 +70,7 @@ open class OrderFragment : BasePageFragment<OrderGroup, FragmentBillBinding>() {
                             lifecycleScope.launch {
                                 Logger.d("更新账单：$updatedBill")
                                 BillAPI.put(updatedBill)
-                                BillTool.syncBills()
+                                BillTool.syncBill(updatedBill)
                             }
 
                         }
@@ -156,7 +153,7 @@ open class OrderFragment : BasePageFragment<OrderGroup, FragmentBillBinding>() {
             when (it.itemId) {
                 R.id.item_sync -> {
                     lifecycleScope.launch {
-                        BookAppUtils.syncData()
+                        BillTool.syncBills()
                     }
                     true
                 }

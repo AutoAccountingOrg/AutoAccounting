@@ -18,11 +18,10 @@ package net.ankio.auto.utils
 import androidx.core.content.ContextCompat
 import com.google.android.material.textview.MaterialTextView
 import net.ankio.auto.R
-import net.ankio.auto.utils.PrefManager
-import net.ankio.auto.ui.utils.BookAppUtils
+import net.ankio.auto.adapter.AppAdapterManager
+import net.ankio.auto.http.api.BillAPI
 import org.ezbook.server.constant.BillType
-import org.ezbook.server.constant.DefaultData
-import org.ezbook.server.constant.Setting
+import org.ezbook.server.db.model.BillInfoModel
 
 object BillTool {
 
@@ -87,7 +86,14 @@ object BillTool {
     }
 
     suspend fun syncBills() {
+        //获取所有未同步的账单
+        BillAPI.sync().forEach {
+            AppAdapterManager.adapter().syncBill(it)
+        }
 
-        BookAppUtils.syncData()
+    }
+
+    fun syncBill(billInfoModel: BillInfoModel) {
+        AppAdapterManager.adapter().syncBill(billInfoModel)
     }
 }

@@ -15,11 +15,7 @@
 
 package net.ankio.auto.ui.dialog
 
-import android.app.Activity
 import android.view.View
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -27,14 +23,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.databinding.DialogBillSelectBinding
 import net.ankio.auto.http.api.BookBillAPI
-import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.storage.Constants
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.adapter.BillSelectorAdapter
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.components.WrapContentLinearLayoutManager
-import net.ankio.auto.ui.utils.BookAppUtils
-import org.ezbook.server.constant.DefaultData
+import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.constant.Setting
 
 /**
@@ -150,8 +144,9 @@ class BillSelectorDialog internal constructor(
      */
     private suspend fun syncDataIfNeeded() = withContext(Dispatchers.IO) {
         try {
+            //TODO 每个Adapter应该自己提供记账数据
             // 同步基础数据
-            BookAppUtils.syncData()
+            //BookAppUtils.syncData()
 
             // 清空现有数据
             BookBillAPI.put(arrayListOf(), "", billType)
@@ -164,8 +159,8 @@ class BillSelectorDialog internal constructor(
                 PrefManager.lastSyncTime = now
 
                 when (billType) {
-                    Setting.HASH_BAOXIAO_BILL -> BookAppUtils.syncReimburseBill()
-                    Setting.HASH_BILL -> BookAppUtils.syncRecentExpenseBill()
+                    Setting.HASH_BAOXIAO_BILL -> {}//BookAppUtils.syncReimburseBill()
+                    Setting.HASH_BILL -> {}//BookAppUtils.syncRecentExpenseBill()
                 }
 
                 Logger.d("同步完成，账单类型: $billType")
