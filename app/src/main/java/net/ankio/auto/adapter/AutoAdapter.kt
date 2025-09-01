@@ -40,7 +40,7 @@ class AutoAdapter : IAppAdapter {
     }
 
     override fun syncBill(billInfoModel: BillInfoModel) {
-
+        AppAdapterManager.markSynced(billInfoModel)
     }
 
     override fun supportSyncAssets(): Boolean {

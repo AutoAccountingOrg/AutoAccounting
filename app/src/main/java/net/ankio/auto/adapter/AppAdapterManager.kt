@@ -15,8 +15,13 @@
 
 package net.ankio.auto.adapter
 
+import net.ankio.auto.App
 import net.ankio.auto.constant.WorkMode
+import net.ankio.auto.http.api.BillAPI
+import net.ankio.auto.utils.BillTool
 import net.ankio.auto.utils.PrefManager
+import org.ezbook.server.constant.BillState
+import org.ezbook.server.db.model.BillInfoModel
 
 /**
  * 记账应用适配器管理器。
@@ -69,5 +74,13 @@ object AppAdapterManager {
      */
     fun adapter(): IAppAdapter {
         return adapterList().firstOrNull { it.pkg == PrefManager.bookApp } ?: AutoAdapter()
+    }
+
+    fun markSynced(billInfoModel: BillInfoModel) {
+        billInfoModel.state = BillState.Synced
+        App.launch {
+            BillAPI.put(billInfoModel)
+        }
+
     }
 }

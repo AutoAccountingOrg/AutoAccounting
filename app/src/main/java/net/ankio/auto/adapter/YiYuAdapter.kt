@@ -135,6 +135,8 @@ class YiYuAdapter : IAppAdapter {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
         autoApp.startActivity(intent)
+
+        AppAdapterManager.markSynced(billInfoModel)
     }
 
     /**

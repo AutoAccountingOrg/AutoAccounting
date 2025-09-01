@@ -30,6 +30,8 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import androidx.core.net.toUri
+import net.ankio.auto.App
+import net.ankio.auto.constant.WorkMode
 import net.ankio.auto.utils.PrefManager
 
 class QianJiAdapter : IAppAdapter {
@@ -222,6 +224,9 @@ class QianJiAdapter : IAppAdapter {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
         autoApp.startActivity(intent)
+        if (PrefManager.workMode == WorkMode.Ocr) {
+            AppAdapterManager.markSynced(billInfoModel)
+        }
     }
     override fun supportSyncAssets(): Boolean {
         if (AppAdapterManager.xposedMode()) return true

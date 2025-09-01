@@ -120,6 +120,8 @@ class YiMuAdapter : IAppAdapter {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
         SystemUtils.startActivity(intent)
+
+        AppAdapterManager.markSynced(billInfoModel)
     }
 
     /**
