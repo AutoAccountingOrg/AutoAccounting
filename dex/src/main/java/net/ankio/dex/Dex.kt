@@ -44,7 +44,8 @@ object Dex {
     fun findClazz(
         path: String,
         classLoader: ClassLoader,
-        rules: List<Clazz>
+        rules: List<Clazz>,
+        onProgress: ((found: Int, total: Int, ruleName: String) -> Unit)? = null
     ): HashMap<String, ClazzResult> {
         val results = HashMap<String, ClazzResult>()
 
@@ -107,6 +108,7 @@ object Dex {
                         }
                         if (matchEnumFields) {
                             results[clazzRule.name] = ClazzResult(clazz.name)
+                            onProgress?.invoke(results.size, rules.size, clazzRule.name)
                             //print("Class $className found success. ")
                             return@rules  // 匹配成功，跳过其他规则
                         }
@@ -151,6 +153,7 @@ object Dex {
                         return@rules
                     } // 方法不匹配，跳过
                     results[clazzRule.name] = ClazzResult(clazz.name, methods)
+                    onProgress?.invoke(results.size, rules.size, clazzRule.name)
                 }
             }
         }
