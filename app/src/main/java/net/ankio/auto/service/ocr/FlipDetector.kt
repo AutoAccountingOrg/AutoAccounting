@@ -8,13 +8,14 @@ import android.os.SystemClock
 import net.ankio.auto.storage.Logger
 
 /**
- * 朝向变化检测器：检测到朝向变化时立即触发回调
+ * 设备翻转检测器：检测设备从朝下翻转到朝上时触发回调
+ * 主要用于OCR功能，当用户将手机从朝下翻转到朝上时触发屏幕识别
  *
  * @param manager     SensorManager
- * @param debounceMs  最短稳定间隔（ms）
- * @param onFlipChange 回调；参数为 true = Face-Down，false = Face-Up（即当前朝向）
+ * @param debounceMs  防抖时间间隔（ms），避免频繁触发
+ * @param onFlipChange 翻转回调，当检测到从朝下翻转到朝上时调用
  */
-class ShakeDetector(
+class FlipDetector(
     private val manager: SensorManager,
     private val debounceMs: Long = 400L,
     private val onFlipChange: () -> Unit
@@ -49,11 +50,12 @@ class ShakeDetector(
         // 跳过噪声、未变化的状态和防抖时间内的变化
         if (face == Face.UNKNOWN || face == lastFace || now - lastTime < debounceMs) return
 
-        // 状态发生变化，立即触发回调
-        Logger.d("Face changed: $lastFace -> $face (z=$z)")
+        // 设备朝向发生变化，记录日志
+        Logger.d("Device orientation changed: $lastFace -> $face (z=$z)")
 
-        //只有to Up的才进行回调
+        // 只有从朝下翻转到朝上时才触发回调（用于OCR功能）
         if (face == Face.UP && lastFace == Face.DOWN) {
+            Logger.d("Device flipped from face-down to face-up, triggering OCR")
             onFlipChange()
         }
 

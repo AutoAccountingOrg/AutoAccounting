@@ -26,7 +26,7 @@ import net.ankio.auto.service.api.IService
 import net.ankio.auto.service.ocr.OcrProcessor
 import net.ankio.auto.service.ocr.ProjectionGateway
 import net.ankio.auto.service.ocr.ScreenShotHelper
-import net.ankio.auto.service.ocr.ShakeDetector
+import net.ankio.auto.service.ocr.FlipDetector
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.constant.DataType
@@ -35,7 +35,7 @@ import org.ezbook.server.intent.IntentType
 /**
  * OCR服务类，用于实现屏幕文字识别功能
  * 主要功能：
- * 1. 监听设备摇动事件
+ * 1. 监听设备翻转事件（从朝下翻转到朝上）
  * 2. 截取屏幕内容
  * 3. 进行OCR文字识别
  * 4. 显示识别动画界面
@@ -47,12 +47,12 @@ class OcrService : ICoreService() {
 
     private lateinit var ocrProcessor: OcrProcessor
 
-    // 摇动检测器，使用节流函数防止频繁触发
+    // 翻转检测器，当设备从朝下翻转到朝上时触发OCR
     private val detector by lazy {
-        ShakeDetector(
+        FlipDetector(
             coreService.getSystemService(Context.SENSOR_SERVICE) as SensorManager,
         ) {
-            onShake()
+            onFlip()
         }
     }
 
@@ -81,13 +81,13 @@ class OcrService : ICoreService() {
 
         serverStarted = true
 
-        // 启动摇动检测
+        // 启动翻转检测
         if (!detector.start()) {
-            Logger.e("设备不支持加速度传感器")
+            Logger.e("设备不支持重力/加速度传感器")
             shotHelper.release()
             return
         }
-        Logger.d("摇一摇监听中")
+        Logger.d("设备翻转检测已启动，等待用户翻转设备触发OCR")
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int) {
@@ -153,16 +153,17 @@ class OcrService : ICoreService() {
     }
 
     /**
-     * 处理摇动事件
+     * 处理设备翻转事件
+     * 当设备从朝下翻转到朝上时触发OCR识别
      */
-    private fun onShake() {
-        Logger.d("检测到摇动事件")
+    private fun onFlip() {
+        Logger.d("检测到设备翻转事件（朝下→朝上）")
         triggerOcr()
     }
 
     /**
      * 触发OCR识别
-     * 支持多种触发方式：摇动、Intent、磁贴等
+     * 支持多种触发方式：设备翻转、Intent、磁贴等
      * 1. 获取当前前台应用
      * 2. 显示OCR动画界面
      * 3. 截取屏幕并进行OCR识别
