@@ -22,7 +22,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.storage.Logger
-import okhttp3.Dns
 import okhttp3.FormBody
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -31,13 +30,11 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import okhttp3.logging.HttpLoggingInterceptor
 import org.w3c.dom.Element
 import org.w3c.dom.NodeList
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileOutputStream
-import java.net.InetAddress
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.TimeUnit
 import javax.xml.parsers.DocumentBuilderFactory
@@ -52,24 +49,7 @@ class RequestsUtils {
         private const val DEFAULT_MEDIA_TYPE = "application/json; charset=utf-8"
 
         private val okHttpClient = OkHttpClient.Builder()
-            .apply {
-                if (BuildConfig.DEBUG) {
-                    addInterceptor { chain ->
-                        val request = chain.request()
-                        if (!request.url.encodedPath.contains("/log")) {
-                            val logger = HttpLoggingInterceptor.Logger { message ->
-                                Log.w("Request", message)
-                            }
-                            val loggingInterceptor = HttpLoggingInterceptor(logger)
-                            loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
-                            return@addInterceptor loggingInterceptor.intercept(chain)
-                        } else {
-                            return@addInterceptor chain.proceed(request)
-                        }
-                    }
-                }
 
-            }
             .connectTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
             .readTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
             .writeTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
