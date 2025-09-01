@@ -98,11 +98,10 @@ abstract class BaseSheetDialog<VB : ViewBinding> :
                 block()
             } catch (e: CancellationException) {
                 Logger.d("dialog协程已取消: ${e.message}")
-            } catch (e: Exception) {
-                Logger.e("适配器协程执行错误", e)
             }
         }
     }
+
     // ① 在 class 里加一个小工具函数（放在 init 外即可）
     private fun findViewBindingClass(start: Class<*>): Class<out ViewBinding>? {
         var current: Class<*>? = start

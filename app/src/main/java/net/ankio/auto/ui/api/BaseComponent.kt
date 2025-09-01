@@ -86,8 +86,6 @@ abstract class BaseComponent<T : ViewBinding> : DefaultLifecycleObserver {
                 block()
             } catch (e: CancellationException) {
                 Logger.d("组件协程已取消: ${e.message}")
-            } catch (e: Exception) {
-                Logger.e("组件协程执行错误", e)
             }
         }
     }

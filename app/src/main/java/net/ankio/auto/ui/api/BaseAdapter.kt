@@ -42,8 +42,6 @@ abstract class BaseAdapter<T : ViewBinding, E> : RecyclerView.Adapter<BaseViewHo
                 block()
             } catch (e: CancellationException) {
                 Logger.d("适配器协程已取消: ${e.message}")
-            } catch (e: Exception) {
-                Logger.e("适配器协程执行错误", e)
             }
         }
     }

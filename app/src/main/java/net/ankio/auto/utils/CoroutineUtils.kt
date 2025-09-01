@@ -18,13 +18,16 @@ package net.ankio.auto.utils
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import net.ankio.auto.storage.Logger
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * 协程工具类
@@ -120,7 +123,13 @@ object CoroutineUtils {
         context: CoroutineContext = EmptyCoroutineContext,
         block: suspend CoroutineScope.() -> Unit
     ) {
-        mainScope.launch(context = context, block = block)
+        mainScope.launch(context) {
+            try {
+                block()
+            } catch (e: CancellationException) {
+                Logger.d("全局协程已取消: ${e.message}")
+            }
+        }
     }
 
     /**

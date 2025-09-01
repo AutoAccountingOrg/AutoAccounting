@@ -22,11 +22,16 @@ import android.view.ViewGroup
 import androidx.annotation.StringRes
 import androidx.annotation.XmlRes
 import androidx.core.view.updatePadding
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import net.ankio.auto.databinding.FragmentPreferenceBaseBinding
+import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.utils.DisplayUtils
+import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * 基础PreferenceFragment类
@@ -114,5 +119,15 @@ abstract class BasePreferenceFragment : PreferenceFragmentCompat() {
         // 清理 Toolbar 的导航监听器，防止 Lambda 持有 Fragment 引用导致内存泄漏
         binding.toolbar.setNavigationOnClickListener(null)
         _binding = null
+    }
+
+    protected fun launch(block: suspend CoroutineScope.() -> Unit) {
+        lifecycleScope.launch {
+            try {
+                block()
+            } catch (e: CancellationException) {
+                Logger.d("Fragment已取消: ${e.message}")
+            }
+        }
     }
 }

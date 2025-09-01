@@ -18,6 +18,7 @@ package net.ankio.auto.storage.backup
 import android.content.Context
 import android.provider.DocumentsContract
 import androidx.core.net.toUri
+import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.autoApp
@@ -228,7 +229,7 @@ class BackupManager(private val context: Context) {
             Logger.i("开始自动备份")
 
             // 在协程中执行备份操作
-            CoroutineUtils.launchOnMain {
+            App.launch {
                 try {
                     val context = autoApp
 

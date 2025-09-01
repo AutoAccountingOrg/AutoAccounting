@@ -141,8 +141,6 @@ abstract class BaseFragment<VB : ViewBinding> : Fragment() {
                 block()
             } catch (e: CancellationException) {
                 Logger.d("Fragment已取消: ${e.message}")
-            } catch (e: Exception) {
-                Logger.e("执行错误", e)
             }
         }
     }

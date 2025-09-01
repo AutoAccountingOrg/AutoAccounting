@@ -18,9 +18,13 @@ package net.ankio.auto.ui.api
 import android.content.Intent
 import android.content.res.Resources
 import android.graphics.Color
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.utils.ThemeUtils
 import rikka.material.app.MaterialActivity
+import kotlin.coroutines.cancellation.CancellationException
 
 
 /**
@@ -120,6 +124,16 @@ open class BaseActivity : MaterialActivity() {
             finish()
         }
 
+    }
+
+    protected fun launch(block: suspend CoroutineScope.() -> Unit) {
+        lifecycleScope.launch {
+            try {
+                block()
+            } catch (e: CancellationException) {
+                Logger.d("Activity取消: ${e.message}")
+            }
+        }
     }
 
 }
