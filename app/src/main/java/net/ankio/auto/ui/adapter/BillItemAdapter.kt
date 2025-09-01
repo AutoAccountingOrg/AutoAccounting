@@ -28,11 +28,9 @@ import net.ankio.auto.utils.BillTool
 import net.ankio.auto.utils.DateUtils
 import org.ezbook.server.constant.BillState
 import org.ezbook.server.constant.BillType
-import org.ezbook.server.constant.DefaultData
-import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BillInfoModel
 
-class OrderItemAdapter(
+class BillItemAdapter(
     private val showMore: Boolean = true
 ) : BaseAdapter<AdapterOrderItemBinding, BillInfoModel>() {
 

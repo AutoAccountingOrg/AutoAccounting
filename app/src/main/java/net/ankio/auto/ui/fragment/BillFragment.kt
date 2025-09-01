@@ -25,7 +25,7 @@ import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentBillBinding
 import net.ankio.auto.http.api.BillAPI
 import net.ankio.auto.storage.Logger
-import net.ankio.auto.ui.adapter.OrderAdapter
+import net.ankio.auto.ui.adapter.BillAdapter
 import net.ankio.auto.ui.api.BasePageFragment
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.components.WrapContentLinearLayoutManager
@@ -39,7 +39,7 @@ import net.ankio.auto.utils.DateUtils
 import org.ezbook.server.constant.BillState
 
 
-open class OrderFragment : BasePageFragment<OrderGroup, FragmentBillBinding>() {
+open class BillFragment : BasePageFragment<OrderGroup, FragmentBillBinding>() {
     private var syncType = mutableListOf<String>()
     override suspend fun loadData(): List<OrderGroup> {
         val list = BillAPI.list(page, pageSize, syncType)
@@ -53,7 +53,7 @@ open class OrderFragment : BasePageFragment<OrderGroup, FragmentBillBinding>() {
         return if (list.isEmpty()) emptyList() else groupedData
     }
 
-    private val adapter = OrderAdapter()
+    private val adapter = BillAdapter()
 
     override fun onCreateAdapter(): RecyclerView.Adapter<*> {
         val recyclerView = binding.statusPage.contentView!!

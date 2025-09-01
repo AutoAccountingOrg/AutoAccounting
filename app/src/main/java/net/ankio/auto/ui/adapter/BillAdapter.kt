@@ -22,7 +22,7 @@ import net.ankio.auto.ui.components.WrapContentLinearLayoutManager
 import net.ankio.auto.ui.models.OrderGroup
 import org.ezbook.server.db.model.BillInfoModel
 
-class OrderAdapter :
+class BillAdapter :
     BaseAdapter<AdapterOrderBinding, OrderGroup>(
 
     ) {
@@ -41,7 +41,7 @@ class OrderAdapter :
     ) {
         val binding = holder.binding
         // 直接创建新的适配器，避免缓存导致的问题
-        val adapter = OrderItemAdapter()
+        val adapter = BillItemAdapter()
         adapter.setOnItemClickListener { billInfoModel, pos ->
             onItemClickListener?.invoke(billInfoModel, pos, adapter)
         }
@@ -57,19 +57,19 @@ class OrderAdapter :
 
     }
 
-    private var onItemClickListener: ((BillInfoModel, Int, OrderItemAdapter) -> Unit)? = null
-    private var onItemLongClickListener: ((BillInfoModel, Int, OrderItemAdapter) -> Unit)? = null
-    private var onMoreClickListener: ((BillInfoModel, OrderItemAdapter) -> Unit)? = null
+    private var onItemClickListener: ((BillInfoModel, Int, BillItemAdapter) -> Unit)? = null
+    private var onItemLongClickListener: ((BillInfoModel, Int, BillItemAdapter) -> Unit)? = null
+    private var onMoreClickListener: ((BillInfoModel, BillItemAdapter) -> Unit)? = null
 
-    fun setOnItemClickListener(listener: (BillInfoModel, Int, OrderItemAdapter) -> Unit) {
+    fun setOnItemClickListener(listener: (BillInfoModel, Int, BillItemAdapter) -> Unit) {
         onItemClickListener = listener
     }
 
-    fun setOnItemLongClickListener(listener: (BillInfoModel, Int, OrderItemAdapter) -> Unit) {
+    fun setOnItemLongClickListener(listener: (BillInfoModel, Int, BillItemAdapter) -> Unit) {
         onItemLongClickListener = listener
     }
 
-    fun setOnMoreClickListener(listener: (BillInfoModel, OrderItemAdapter) -> Unit) {
+    fun setOnMoreClickListener(listener: (BillInfoModel, BillItemAdapter) -> Unit) {
         onMoreClickListener = listener
     }
 

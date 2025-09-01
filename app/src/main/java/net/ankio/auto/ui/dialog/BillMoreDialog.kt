@@ -15,18 +15,12 @@
 
 package net.ankio.auto.ui.dialog
 
-import android.app.Activity
 import android.view.View
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LifecycleService
-import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.databinding.DialogBillMoreBinding
-import net.ankio.auto.ui.adapter.OrderItemAdapter
+import net.ankio.auto.ui.adapter.BillItemAdapter
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.components.WrapContentLinearLayoutManager
 import net.ankio.auto.http.api.BillAPI
@@ -51,7 +45,7 @@ class BillMoreDialog internal constructor(
 
     private var billInfoModel: BillInfoModel? = null
     private var onReload: ((BillMoreDialog) -> Unit)? = null
-    private val adapter = OrderItemAdapter(false)
+    private val adapter = BillItemAdapter(false)
 
     /**
      * 设置账单信息

@@ -345,7 +345,7 @@
 
     <fragment
         android:id="@+id/orderFragment"
-        android:name="net.ankio.auto.ui.fragment.OrderFragment"
+        android:name="net.ankio.auto.ui.fragment.BillFragment"
         android:label="@string/title_bill"
         tools:layout="@layout/fragment_bill">
 
