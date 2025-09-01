@@ -21,6 +21,7 @@ import android.app.Instrumentation
 import com.hjq.toast.Toaster
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.IXposedHookZygoteInit
+import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.xposed.XposedModule
@@ -114,17 +115,14 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
      */
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
         val targetApp = findTargetApp(lpparam.packageName, lpparam.processName) ?: return
-        Logger.log(TAG, "Hooking")
         // 设置运行时环境
         AppRuntime.classLoader = lpparam.classLoader
         AppRuntime.name = targetApp.appName
         AppRuntime.manifest = targetApp
-        Logger.log(TAG, "Hooking")
         hookAppContext(targetApp) { application ->
             AppRuntime.application = application
             application?.let { AppRuntime.classLoader = it.classLoader }
-            AppRuntime.debug = DataUtils.configBoolean(Setting.DEBUG_MODE, DefaultData.DEBUG_MODE)
-
+            AppRuntime.debug = DataUtils.configBoolean(Setting.DEBUG_MODE, BuildConfig.DEBUG)
             Logger.logD(
                 TAG,
                 "Hook器: ${targetApp.appName}(${targetApp.packageName}) 运行在${if (AppRuntime.debug) "调试" else "生产"}模式"
