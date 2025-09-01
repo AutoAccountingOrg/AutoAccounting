@@ -66,5 +66,4 @@ dependencies {
     implementation(libs.ktor.server.netty)
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.gson)
-    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 }

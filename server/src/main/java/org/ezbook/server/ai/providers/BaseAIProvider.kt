@@ -3,7 +3,6 @@ package org.ezbook.server.ai.providers
 import android.util.Log
 import com.google.gson.Gson
 import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import org.ezbook.server.Server
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.Db
@@ -60,19 +59,6 @@ abstract class BaseAIProvider {
 
 
     protected val client = OkHttpClient.Builder()
-        .apply {
-            if (Server.debug) {
-                class LoudLogger : HttpLoggingInterceptor.Logger {
-                    override fun log(message: String) {
-                        Log.w("BaseAIProvider", message)
-                    }
-                }
-
-                val loud =
-                    HttpLoggingInterceptor(LoudLogger()).setLevel(HttpLoggingInterceptor.Level.BODY)
-                addInterceptor(loud)
-            }
-        }
         .connectTimeout(5, TimeUnit.MINUTES)
         .writeTimeout(5, TimeUnit.MINUTES)
         .readTimeout(5, TimeUnit.MINUTES)

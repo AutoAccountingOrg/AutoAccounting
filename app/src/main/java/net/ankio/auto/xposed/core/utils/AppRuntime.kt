@@ -130,7 +130,7 @@ object AppRuntime {
     }
 
     fun clazz(name: String): Class<*> {
-        return manifest.clazz(name)
+        return manifest.clazz(name)!!
     }
 
 }

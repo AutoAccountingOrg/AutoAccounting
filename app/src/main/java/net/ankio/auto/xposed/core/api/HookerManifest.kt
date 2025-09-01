@@ -384,15 +384,9 @@ abstract class HookerManifest {
         }
     }
 
-    fun clazz(name: String): Class<*>? {
-        return clazz[name]?.let {
-            try {
-                AppRuntime.classLoader.loadClass(it.clazzName)
-            } catch (e: ClassNotFoundException) {
-                logE(e)
-                null
-            }
-        }
+    fun clazz(name: String): Class<*> {
+
+        return AppRuntime.classLoader.loadClass(clazz[name]!!.clazzName)!!
     }
 
     fun method(clazzName: String, methodName: String): String {
