@@ -121,12 +121,27 @@ abstract class BasePreferenceFragment : PreferenceFragmentCompat() {
         _binding = null
     }
 
+    /**
+     * 在PreferenceFragment生命周期内启动协程
+     * 统一处理异常，业务代码无需再捕获异常
+     *
+     * @param block 协程代码块，专注于业务逻辑
+     */
     protected fun launch(block: suspend CoroutineScope.() -> Unit) {
         lifecycleScope.launch {
-            try {
+            runCatching {
                 block()
-            } catch (e: CancellationException) {
-                Logger.d("Fragment已取消: ${e.message}")
+            }.onFailure { e ->
+                when (e) {
+                    is CancellationException -> {
+                        Logger.d("PreferenceFragment协程已取消: ${e.message}")
+                    }
+
+                    else -> {
+                        Logger.e("PreferenceFragment协程执行异常: ${javaClass.simpleName}", e)
+                        // 可以在这里添加全局异常处理逻辑
+                    }
+                }
             }
         }
     }

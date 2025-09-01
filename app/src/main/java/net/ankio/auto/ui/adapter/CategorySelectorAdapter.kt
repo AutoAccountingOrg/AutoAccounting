@@ -267,16 +267,11 @@ class CategorySelectorAdapter : BaseAdapter<AdapterCategoryListBinding, Category
         }
 
         launchInAdapter {
-            try {
-                // 检查当前绑定的数据是否还是同一个
-                if (holder.item == data) {
-                    val child = loadChildData(data)
-                    val hasChild = child.isNotEmpty() || isEditMode
-                    renderMoreItem(binding, hasChild)
-                }
-            } catch (e: Exception) {
-                // 如果加载失败，隐藏更多按钮
-                renderMoreItem(binding, false)
+            // 检查当前绑定的数据是否还是同一个
+            if (holder.item == data) {
+                val child = runCatching { loadChildData(data) }.getOrElse { emptyList() }
+                val hasChild = child.isNotEmpty() || isEditMode
+                renderMoreItem(binding, hasChild)
             }
         }
     }

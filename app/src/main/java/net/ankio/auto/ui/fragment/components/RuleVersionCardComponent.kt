@@ -71,11 +71,7 @@ class RuleVersionCardComponent(
         // 设置更新按钮点击事件
         binding.updateButton.setOnClickListener {
             launch {
-                try {
-                    updateRules(true)
-                } catch (e: Exception) {
-                    Logger.e(e.message ?: "", e)
-                }
+                updateRules(true)
             }
         }
 
@@ -83,11 +79,7 @@ class RuleVersionCardComponent(
         binding.updateButton.setOnLongClickListener {
             PrefManager.ruleVersion = ""
             launch {
-                try {
-                    updateRules(true)
-                } catch (e: Exception) {
-                    Logger.e(e.message ?: "", e)
-                }
+                updateRules(true)
             }
             true
         }
@@ -95,11 +87,7 @@ class RuleVersionCardComponent(
         // 如果开启了自动检查更新，则执行更新检查
         if (PrefManager.autoCheckRuleUpdate) {
             launch {
-                try {
-                    updateRules(false)
-                } catch (e: Exception) {
-                    Logger.e(e.message ?: "", e)
-                }
+                updateRules(false)
             }
         }
     }
@@ -169,14 +157,9 @@ class RuleVersionCardComponent(
                 .setRuleTitle(context.getString(R.string.rule))
                 .setOnClickUpdate {
                     launch {
-                        try {
-                            updateRule(update)
-                        } catch (e: Exception) {
-                            Logger.e(e.message ?: "", e)
-                        } finally {
-                            setUpdateButtonEnabled(true)
-                            updateDisplay()
-                        }
+                        updateRule(update)
+                        setUpdateButtonEnabled(true)
+                        updateDisplay()
                     }
                 }.show()
         } finally {

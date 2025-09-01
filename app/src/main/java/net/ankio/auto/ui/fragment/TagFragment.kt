@@ -101,19 +101,14 @@ class TagFragment : BaseFragment<FragmentTagBinding>(), Toolbar.OnMenuItemClickL
      */
     private fun deleteTag(tag: org.ezbook.server.db.model.TagModel) {
         launch {
-            try {
-                // 调用API删除标签
-                TagAPI.remove(tag.id)
+            // 调用API删除标签
+            TagAPI.remove(tag.id)
 
-                // 显示成功提示
-                ToastUtils.info(getString(R.string.tag_deleted_successfully))
+            // 显示成功提示
+            ToastUtils.info(getString(R.string.tag_deleted_successfully))
 
-                // 刷新标签列表
-                tagComponent.refreshData()
-            } catch (e: Exception) {
-                // 显示错误提示
-                ToastUtils.error(getString(R.string.delete_failed))
-            }
+            // 刷新标签列表
+            tagComponent.refreshData()
         }
     }
 

@@ -120,13 +120,9 @@ class BookFragment : BaseFragment<FragmentBookBinding>() {
      */
     private fun deleteBook(bookModel: BookNameModel) {
         launch {
-            try {
-                BookNameAPI.delete(bookModel.id)
-                ToastUtils.info(R.string.delete_book_success)
-                refreshBookList()
-            } catch (e: Exception) {
-                ToastUtils.error("删除账本失败: ${e.message}")
-            }
+            BookNameAPI.delete(bookModel.id)
+            ToastUtils.info(R.string.delete_book_success)
+            refreshBookList()
         }
     }
 

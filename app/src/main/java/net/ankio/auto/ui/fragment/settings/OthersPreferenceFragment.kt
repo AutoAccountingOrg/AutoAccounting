@@ -153,15 +153,10 @@ class OthersPreferenceFragment : BasePreferenceFragment() {
     private fun performClearDatabase() {
         val loading = LoadingUtils(requireContext())
         launch {
-            try {
-                loading.show(R.string.clearing_database)
-                DatabaseAPI.clear()
-                ToastUtils.info(getString(R.string.clear_database_success))
-            } catch (e: Exception) {
-                ToastUtils.error(getString(R.string.clear_database_failed, e.message))
-            } finally {
-                loading.close()
-            }
+            loading.show(R.string.clearing_database)
+            DatabaseAPI.clear()
+            ToastUtils.info(getString(R.string.clear_database_success))
+            loading.close()
         }
     }
 }

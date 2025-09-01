@@ -180,19 +180,13 @@ class RuleEditFragment : BaseFragment<FragmentRuleEditBinding>() {
         }
 
         launch {
-            runCatching {
-                if (currentRule.id > 0) {
-                    RuleManageAPI.update(currentRule)
-                } else {
-                    RuleManageAPI.add(currentRule)
-                }
-            }.onSuccess {
-                ToastUtils.info(R.string.btn_save)
-                findNavController().popBackStack()
-            }.onFailure { error ->
-                Logger.e("Failed to save rule", error)
-                ToastUtils.error(error.message ?: getString(R.string.rule_save_failed))
+            if (currentRule.id > 0) {
+                RuleManageAPI.update(currentRule)
+            } else {
+                RuleManageAPI.add(currentRule)
             }
+            ToastUtils.info(R.string.btn_save)
+            findNavController().popBackStack()
         }
     }
 

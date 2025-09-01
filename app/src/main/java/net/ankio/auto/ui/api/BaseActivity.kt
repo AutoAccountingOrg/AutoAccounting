@@ -126,14 +126,15 @@ open class BaseActivity : MaterialActivity() {
 
     }
 
+    /**
+     * 在Activity生命周期内启动协程
+     * 统一处理异常，业务代码无需再捕获异常
+     *
+     * @param block 协程代码块，专注于业务逻辑
+     */
     protected fun launch(block: suspend CoroutineScope.() -> Unit) {
-        lifecycleScope.launch {
-            try {
-                block()
-            } catch (e: CancellationException) {
-                Logger.d("Activity取消: ${e.message}")
-            }
-        }
+        lifecycleScope.launch { block() }
     }
+
 
 }

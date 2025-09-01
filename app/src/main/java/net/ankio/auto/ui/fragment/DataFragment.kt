@@ -413,14 +413,10 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
                     .setMessage(getString(R.string.delete_msg))
                     .setPositiveButton(getString(R.string.sure_msg)) { _, _ ->
                         launch {
-                            try {
-                                AppDataAPI.clear()
-                                Logger.i("Data cleared successfully")
-                                page = 1
-                                reload()
-                            } catch (e: Exception) {
-                                Logger.e("Error clearing data", e)
-                            }
+                            AppDataAPI.clear()
+                            Logger.i("Data cleared successfully")
+                            page = 1
+                            reload()
                         }
                     }
                     .setNegativeButton(requireActivity().getString(R.string.cancel_msg)) { _, _ ->

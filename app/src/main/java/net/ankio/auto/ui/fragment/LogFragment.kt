@@ -95,18 +95,12 @@ class LogFragment : BasePageFragment<LogModel, FragmentLogBinding>() {
 
                     // 在协程中执行分享操作
                     launch {
-                        try {
-                            // 打包日志文件
-                            val logFile = Logger.packageLogs(requireContext())
-                            // 分享日志文件
-                            shareLogFile(logFile)
-                        } catch (e: Exception) {
-                            // 记录分享错误
-                            Logger.e("Share Log Error", e)
-                        } finally {
-                            // 关闭加载对话框
-                            loadingUtils.close()
-                        }
+                        // 打包日志文件
+                        val logFile = Logger.packageLogs(requireContext())
+                        // 分享日志文件
+                        shareLogFile(logFile)
+                        // 关闭加载对话框
+                        loadingUtils.close()
                     }
                     true
                 }

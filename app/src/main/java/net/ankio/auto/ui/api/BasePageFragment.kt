@@ -180,30 +180,31 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
         isLoading = true
         Logger.d("开始加载数据：第${page}页")
 
-        launch {
-            try {
-                // 在IO线程中执行数据加载，避免阻塞UI
-                val resultData = withContext(Dispatchers.IO) { loadData() }
-
-                // 根据加载结果更新UI状态
-                if (resultData.isEmpty()) {
-                    Logger.d("第${page}页无数据返回")
-                    handleEmptyResult()
-                    hasMoreData = false
-                    callback?.invoke(true, false)
-                } else {
-                    Logger.d("第${page}页加载成功：${resultData.size}条数据")
-                    handleDataResult(resultData)
-                    hasMoreData = resultData.size >= pageSize
-                    callback?.invoke(true, hasMoreData)
-                }
-            } catch (e: Exception) {
+        launchWithErrorHandler(
+            onError = { e ->
                 Logger.e("数据加载失败：第${page}页", e)
                 statusPage.showError()
                 callback?.invoke(false, hasMoreData)
-            } finally {
+            },
+            onFinally = {
                 isLoading = false
                 Logger.d("数据加载完成：第${page}页")
+            }
+        ) {
+            // 在IO线程中执行数据加载，避免阻塞UI
+            val resultData = withContext(Dispatchers.IO) { loadData() }
+
+            // 根据加载结果更新UI状态
+            if (resultData.isEmpty()) {
+                Logger.d("第${page}页无数据返回")
+                handleEmptyResult()
+                hasMoreData = false
+                callback?.invoke(true, false)
+            } else {
+                Logger.d("第${page}页加载成功：${resultData.size}条数据")
+                handleDataResult(resultData)
+                hasMoreData = resultData.size >= pageSize
+                callback?.invoke(true, hasMoreData)
             }
         }
     }

@@ -148,24 +148,18 @@ class CategoryEditFragment : BaseFragment<FragmentCategoryEditBinding>() {
     private fun loadData() {
         binding.statusPage.showLoading()
         launch {
-            try {
-                // 加载图标数据
-                loadIconData()
+            // 加载图标数据
+            loadIconData()
 
-                // 如果是编辑模式，加载分类数据
-                if (categoryId > 0) {
-                    loadCategoryData()
-                } else {
-                    // 新建模式，设置默认值
-                    setupNewCategory()
-                }
-
-                binding.statusPage.showContent()
-            } catch (e: Exception) {
-                Logger.e("Failed to load data", e)
-                ToastUtils.error(getString(R.string.category_load_failed))
-                binding.statusPage.showError()
+            // 如果是编辑模式，加载分类数据
+            if (categoryId > 0) {
+                loadCategoryData()
+            } else {
+                // 新建模式，设置默认值
+                setupNewCategory()
             }
+
+            binding.statusPage.showContent()
         }
     }
 
@@ -284,16 +278,11 @@ class CategoryEditFragment : BaseFragment<FragmentCategoryEditBinding>() {
 
         // 保存分类
         launch {
-            try {
-                val savedId = CategoryAPI.save(currentCategory)
-                if (savedId > 0) {
-                    ToastUtils.info(getString(R.string.save_category_success))
-                    findNavController().popBackStack()
-                } else {
-                    ToastUtils.error(getString(R.string.save_failed))
-                }
-            } catch (e: Exception) {
-                Logger.e("Failed to save category", e)
+            val savedId = CategoryAPI.save(currentCategory)
+            if (savedId > 0) {
+                ToastUtils.info(getString(R.string.save_category_success))
+                findNavController().popBackStack()
+            } else {
                 ToastUtils.error(getString(R.string.save_failed))
             }
         }

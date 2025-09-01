@@ -34,14 +34,26 @@ abstract class BaseAdapter<T : ViewBinding, E> : RecyclerView.Adapter<BaseViewHo
     private val adapterScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
     /**
-     * 在 Adapter 的协程作用域中执行操作
+     * 在Adapter生命周期内启动协程
+     * 统一处理异常，业务代码无需再捕获异常
+     *
+     * @param block 协程代码块，专注于业务逻辑
      */
     protected fun launchInAdapter(block: suspend CoroutineScope.() -> Unit) {
         adapterScope.launch {
-            try {
+            runCatching {
                 block()
-            } catch (e: CancellationException) {
-                Logger.d("适配器协程已取消: ${e.message}")
+            }.onFailure { e ->
+                when (e) {
+                    is CancellationException -> {
+                        Logger.d("适配器协程已取消: ${e.message}")
+                    }
+
+                    else -> {
+                        Logger.e("适配器协程执行异常: ${javaClass.simpleName}", e)
+                        // 可以在这里添加全局异常处理逻辑
+                    }
+                }
             }
         }
     }

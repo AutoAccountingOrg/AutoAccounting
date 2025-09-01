@@ -82,11 +82,7 @@ class AiComponent(
             }
             tilAiToken.error = null
             launch {
-                try {
-                    AiAPI.setCurrentProvider(providerList[pos])
-                } catch (e: Exception) {
-                    // 静默失败，不影响用户体验
-                }
+                AiAPI.setCurrentProvider(providerList[pos])
             }
         }
 
@@ -97,12 +93,8 @@ class AiComponent(
         actAiModel.setOnItemClickListener { _, _, pos, _ ->
             val model = models[pos]
             launch {
-                try {
-                    AiAPI.setCurrentModel(model)
-                    modelKeyUri = AiAPI.getCreateKeyUri()
-                } catch (e: Exception) {
-                    // 静默失败，不影响用户体验
-                }
+                AiAPI.setCurrentModel(model)
+                modelKeyUri = AiAPI.getCreateKeyUri()
             }
         }
 
@@ -279,26 +271,20 @@ class AiComponent(
     override fun onComponentResume() {
         super.onComponentResume()
         launch {
-            try {
-                providerList = AiAPI.getProviders()
-                modelKeyUri = AiAPI.getApiUrl()
+            providerList = AiAPI.getProviders()
+            modelKeyUri = AiAPI.getApiUrl()
 
-                // Provider
-                binding.actAiProvider.setSimpleItems(providerList.toTypedArray())
-                binding.actAiProvider.setText(AiAPI.getCurrentProvider(), false)
+            // Provider
+            binding.actAiProvider.setSimpleItems(providerList.toTypedArray())
+            binding.actAiProvider.setText(AiAPI.getCurrentProvider(), false)
 
-                // Model
-                binding.actAiModel.setText(AiAPI.getCurrentModel(), false)
+            // Model
+            binding.actAiModel.setText(AiAPI.getCurrentModel(), false)
 
-                // Token
-                binding.etAiToken.setText(AiAPI.getApiKey())
+            // Token
+            binding.etAiToken.setText(AiAPI.getApiKey())
 
-                // 测试按钮始终可用，无需更新状态
-
-            } catch (e: Exception) {
-                // 静默失败，不影响页面显示
-                // 用户可以通过手动刷新来重试
-            }
+            // 测试按钮始终可用，无需更新状态
         }
     }
 }

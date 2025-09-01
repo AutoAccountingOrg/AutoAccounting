@@ -171,13 +171,8 @@ class BackupPreferenceFragment : BasePreferenceFragment() {
         }
 
         launch {
-            try {
-                backupManager.createWebDAVBackup()
-                ToastUtils.info(getString(R.string.backup_success))
-            } catch (e: Exception) {
-                ToastUtils.error(getString(R.string.backup_error))
-                Logger.e("WebDAV备份失败", e)
-            }
+            backupManager.createWebDAVBackup()
+            ToastUtils.info(getString(R.string.backup_success))
         }
     }
 

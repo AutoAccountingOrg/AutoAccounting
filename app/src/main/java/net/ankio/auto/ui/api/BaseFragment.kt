@@ -135,13 +135,27 @@ abstract class BaseFragment<VB : ViewBinding> : Fragment() {
     }
 
     /**
+     * 在Fragment生命周期内启动协程
+     * 统一处理异常，业务代码无需再捕获异常
+     *
+     * @param block 协程代码块，专注于业务逻辑
+     * @return 协程Job，可用于取消操作
      */
     protected fun launch(block: suspend CoroutineScope.() -> Unit): Job {
         return lifecycleScope.launch {
-            try {
+            runCatching {
                 block()
-            } catch (e: CancellationException) {
-                Logger.d("Fragment已取消: ${e.message}")
+            }.onFailure { e ->
+                when (e) {
+                    is CancellationException -> {
+                        Logger.d("Fragment已取消: ${e.message}")
+                    }
+
+                    else -> {
+                        Logger.e("Fragment协程执行异常: ${javaClass.simpleName}", e)
+                        // 可以在这里添加全局异常处理逻辑，如显示错误提示等
+                    }
+                }
             }
         }
     }
