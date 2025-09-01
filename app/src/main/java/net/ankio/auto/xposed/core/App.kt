@@ -54,7 +54,7 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
          */
         private fun buildHookerMap(): Map<String, HookerManifest> {
             return XposedModule.get().associateBy { manifest ->
-                "${manifest.packageName}${manifest.processName}"
+                manifest.packageName + (manifest.processName.ifEmpty { manifest.packageName })
             }
         }
     }
@@ -72,7 +72,6 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
                 Logger.logD(TAG, "使用当前应用程序: ${manifest.appName}")
                 callback(AndroidAppHelper.currentApplication())
             }
-
             else -> {
                 try {
                     var hooked = false
@@ -100,9 +99,13 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
      * 查找目标应用的Hook清单
      */
     private fun findTargetApp(pkg: String?, processName: String?): HookerManifest? {
+
+        Logger.log(TAG, "$pkg$processName")
+        Logger.log(TAG, "$hookerMap")
         if (pkg == null || processName == null) return null
 
         val key = "$pkg$processName"
+
         return hookerMap[key]
     }
 
@@ -111,12 +114,12 @@ class App : IXposedHookLoadPackage, IXposedHookZygoteInit {
      */
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
         val targetApp = findTargetApp(lpparam.packageName, lpparam.processName) ?: return
-
+        Logger.log(TAG, "Hooking")
         // 设置运行时环境
         AppRuntime.classLoader = lpparam.classLoader
         AppRuntime.name = targetApp.appName
         AppRuntime.manifest = targetApp
-
+        Logger.log(TAG, "Hooking")
         hookAppContext(targetApp) { application ->
             AppRuntime.application = application
             application?.let { AppRuntime.classLoader = it.classLoader }
