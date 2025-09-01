@@ -22,21 +22,13 @@ import net.ankio.auto.xposed.hooks.common.XposedFramework
 class ActiveHooker : PartHooker() {
 
     override fun hook() {
-        val activeUtils = Hooker.loader("net.ankio.auto.xposed.common.ActiveInfo")
+        val xposedModule = Hooker.loader("net.ankio.auto.xposed.XposedModule")
         Hooker.replaceReturn(
-            activeUtils,
-            "isModuleActive",
+            xposedModule,
+            "active",
             true
         )
         // hook激活方法
 
-
-        Hooker.after(
-            activeUtils,
-            "getFramework"
-        ) {
-            // 获取TAG字段的值
-            it.result = XposedFramework.framework()
-        }
     }
 }
