@@ -26,7 +26,7 @@ import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.xposed.XposedModule
 import net.ankio.auto.service.OcrService
 import net.ankio.auto.service.OverlayService
-import net.ankio.auto.service.ocr.ProjectionGateway
+import net.ankio.auto.service.ocr.ScreenCapture
 import net.ankio.auto.service.overlay.BillWindowManager
 
 /**
@@ -43,7 +43,7 @@ class IntroPagePermissionFragment : BaseIntroPageFragment<FragmentIntroPagePermi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // 在 Fragment 创建时初始化屏幕投影权限请求启动器
-        projLauncher = ProjectionGateway.register(
+        projLauncher = ScreenCapture.registerPermission(
             caller = this,
             onReady = {
                 // 权限授予成功，刷新权限状态
@@ -149,7 +149,7 @@ class IntroPagePermissionFragment : BaseIntroPageFragment<FragmentIntroPagePermi
                         titleRes = R.string.perm_screenshot_title,
                         descRes = R.string.perm_screenshot_desc,
                     checkGranted = {
-                        ProjectionGateway.isReady()
+                        ScreenCapture.isReady()
                     },
                     onClick = {
                         projLauncher.launch(Unit)

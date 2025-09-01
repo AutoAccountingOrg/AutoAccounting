@@ -16,7 +16,6 @@ class OcrProcessor(private val context: Context) {
         if (!::ocrEngine.isInitialized) {
             // 这里做一次初始化
             ocrEngine = OcrEngine(context)
-            // 如有其它参数设置也写这
             Logger.d("OcrLite OCR引擎初始化完成")
         }
     }
@@ -30,11 +29,7 @@ class OcrProcessor(private val context: Context) {
         Logger.d("OCR 开始识别...")
         ensureOcrReady()
         return@withContext try {
-            // 确保OCR引擎已初始化
-
-
-            val engine = ocrEngine ?: throw IllegalStateException("OCR引擎初始化失败")
-            val result = engine.detect(bitmap, bitmap, 0)
+            val result = ocrEngine.detect(bitmap, bitmap, 0)
             val text = result.textBlocks.joinToString("\n") { it.text }
             val totalRecognizeTime = System.currentTimeMillis() - recognizeStartTime
             Logger.d("OCR识别耗时: ${totalRecognizeTime}ms")

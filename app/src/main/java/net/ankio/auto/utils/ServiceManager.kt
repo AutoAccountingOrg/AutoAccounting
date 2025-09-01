@@ -21,7 +21,7 @@ import androidx.activity.result.ActivityResultCaller
 import androidx.activity.result.ActivityResultLauncher
 import net.ankio.auto.constant.WorkMode
 import net.ankio.auto.service.CoreService
-import net.ankio.auto.service.ocr.ProjectionGateway
+import net.ankio.auto.service.ocr.ScreenCapture
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.adapter.IntroPagerAdapter
 import net.ankio.auto.ui.api.BaseActivity
@@ -50,7 +50,7 @@ class ServiceManager private constructor() {
         if (PrefManager.workMode != WorkMode.Ocr) return
         if (projectionLauncher != null) return
 
-        projectionLauncher = ProjectionGateway.register(
+        projectionLauncher = ScreenCapture.registerPermission(
             caller = caller,
             onReady = {
                 currentOnReady?.invoke()
@@ -85,7 +85,7 @@ class ServiceManager private constructor() {
         }
 
         // OCR模式已有权限
-        if (ProjectionGateway.isReady()) {
+        if (ScreenCapture.isReady()) {
             onReady()
             return
         }

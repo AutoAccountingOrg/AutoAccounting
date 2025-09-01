@@ -24,8 +24,7 @@ import net.ankio.auto.http.api.JsAPI
 import net.ankio.auto.service.api.ICoreService
 import net.ankio.auto.service.api.IService
 import net.ankio.auto.service.ocr.OcrProcessor
-import net.ankio.auto.service.ocr.ProjectionGateway
-import net.ankio.auto.service.ocr.ScreenShotHelper
+import net.ankio.auto.service.ocr.ScreenCapture
 import net.ankio.auto.service.ocr.FlipDetector
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.utils.PrefManager
@@ -42,9 +41,7 @@ import org.ezbook.server.intent.IntentType
  */
 class OcrService : ICoreService() {
 
-    // 屏幕截图助手
-    private lateinit var shotHelper: ScreenShotHelper
-
+    // OCR处理器
     private lateinit var ocrProcessor: OcrProcessor
 
     // 翻转检测器，当设备从朝下翻转到朝上时触发OCR
@@ -63,31 +60,41 @@ class OcrService : ICoreService() {
     override fun onCreate(coreService: CoreService) {
         super.onCreate(coreService)
 
-        if (!hasPermission()) {
-            Logger.e("缺少 UsageStats 权限")
+        // 统一检查所有权限和依赖
+        if (!initializeOcrService(coreService)) {
             return
         }
-
-        if (!ProjectionGateway.isReady()) {
-            Logger.e("缺少 截屏 权限")
-            return
-        }
-
-        // 初始化屏幕截图助手
-        shotHelper = ScreenShotHelper(coreService, ProjectionGateway.get(coreService))
-
-        // OCR处理器使用懒加载，不在服务启动时初始化
-        ocrProcessor = OcrProcessor(coreService)
 
         serverStarted = true
+        Logger.d("OCR服务初始化成功，等待翻转触发")
+    }
+
+    /**
+     * 初始化OCR服务的所有组件
+     * @return true 如果初始化成功，false 如果失败
+     */
+    private fun initializeOcrService(coreService: CoreService): Boolean {
+        // 检查权限
+        if (!hasPermission()) {
+            Logger.e("缺少 UsageStats 权限")
+            return false
+        }
+
+        if (!ScreenCapture.isReady()) {
+            Logger.e("缺少截屏权限")
+            return false
+        }
+
+        // 初始化OCR处理器
+        ocrProcessor = OcrProcessor(coreService)
 
         // 启动翻转检测
         if (!detector.start()) {
             Logger.e("设备不支持重力/加速度传感器")
-            shotHelper.release()
-            return
+            return false
         }
-        Logger.d("设备翻转检测已启动，等待用户翻转设备触发OCR")
+
+        return true
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int) {
@@ -109,8 +116,12 @@ class OcrService : ICoreService() {
      */
     override fun onDestroy() {
         detector.stop()
-        shotHelper.release()
-        ProjectionGateway.release()
+
+        // 释放截图资源
+        ScreenCapture.release()
+
+        // 确保悬浮窗被清理
+        stopOcrView()
     }
 
     /* -------------------------------- 业务逻辑 ------------------------------- */
@@ -164,10 +175,6 @@ class OcrService : ICoreService() {
     /**
      * 触发OCR识别
      * 支持多种触发方式：设备翻转、Intent、磁贴等
-     * 1. 获取当前前台应用
-     * 2. 显示OCR动画界面
-     * 3. 截取屏幕并进行OCR识别
-     * 4. 将识别结果发送给JS引擎处理
      */
     private fun triggerOcr() {
         if (ocrDoing) {
@@ -175,54 +182,84 @@ class OcrService : ICoreService() {
             return
         }
 
+        // 验证前台应用
+        val packageName = validateForegroundApp() ?: return
+
+        Logger.d("检测到白名单应用 [$packageName]，开始OCR")
+        ocrDoing = true
+
+        // 执行OCR流程
+        executeOcrFlow(packageName)
+    }
+
+    /**
+     * 验证前台应用是否在白名单中
+     * @return 有效的包名，如果无效则返回null
+     */
+    private fun validateForegroundApp(): String? {
         val pkg = getTopPackagePostL(coreService) ?: run {
             Logger.d("无法获取前台应用")
-            return
+            return null
         }
 
         if (pkg !in PrefManager.appWhiteList) {
-            Logger.d("前台应用 $pkg 不在监控白名单，忽略。")
-            return
+            Logger.d("前台应用 $pkg 不在监控白名单")
+            return null
         }
 
-        Logger.d("检测到白名单应用 [$pkg]，开始截屏 OCR")
-        ocrDoing = true
+        return pkg
+    }
 
-        // 触发振动反馈，提醒用户OCR识别已开始
+    /**
+     * 执行OCR识别的完整流程
+     */
+    private fun executeOcrFlow(packageName: String) {
+        // 触发振动反馈
         triggerVibration()
 
-        // 使用全局协程管理器
         App.launch {
             val startTime = System.currentTimeMillis()
             try {
-                // 在主线程显示OCR动画
+                // 显示OCR界面
                 startOcrView(coreService)
 
-                // 在IO线程进行截图和OCR识别
-                val captureStartTime = System.currentTimeMillis()
-                val image = shotHelper.capture()
-                val captureTime = System.currentTimeMillis() - captureStartTime
-                Logger.d("截图耗时: ${captureTime}ms")
+                // 执行截图和识别
+                val ocrResult = performOcrCapture()
 
-                if (image != null) {
-                    val text = ocrProcessor.recognize(image)
-                    if (text.isNotBlank()) {
-                        send2JsEngine(text, pkg)
-                    }
+                // 处理识别结果
+                if (ocrResult != null) {
+                    send2JsEngine(ocrResult, packageName)
                 }
-
-                stopOcrView()
 
                 val totalTime = System.currentTimeMillis() - startTime
                 Logger.d("OCR处理完成，总耗时: ${totalTime}ms")
+
             } catch (e: Exception) {
                 Logger.e("OCR处理异常: ${e.message}")
-                // 确保在异常情况下也能关闭动画
-                stopOcrView()
             } finally {
+                stopOcrView()
                 ocrDoing = false
             }
         }
+    }
+
+    /**
+     * 执行屏幕截图和OCR识别
+     * @return 识别出的文本，如果失败则返回null
+     */
+    private suspend fun performOcrCapture(): String? {
+        val captureStartTime = System.currentTimeMillis()
+        val image = ScreenCapture.captureScreen(coreService)
+        val captureTime = System.currentTimeMillis() - captureStartTime
+        Logger.d("截图耗时: ${captureTime}ms")
+
+        if (image == null) {
+            Logger.e("截图失败")
+            return null
+        }
+
+        val text = ocrProcessor.recognize(image)
+        return if (text.isNotBlank()) text else null
     }
 
     // 悬浮窗相关变量
