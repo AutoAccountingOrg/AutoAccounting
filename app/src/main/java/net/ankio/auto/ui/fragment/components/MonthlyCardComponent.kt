@@ -131,7 +131,9 @@ class MonthlyCardComponent(binding: CardMonthlyBinding) :
      * 执行同步操作
      */
     private fun performSync() {
-        // TODO 执行同步
+        launch {
+            BillTool.syncBills()
+        }
     }
 
     /**
