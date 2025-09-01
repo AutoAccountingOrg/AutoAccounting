@@ -15,14 +15,14 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
-import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.autoApp
 import net.ankio.auto.databinding.OcrViewBinding
 import net.ankio.auto.http.api.JsAPI
+import net.ankio.auto.service.api.ICoreService
+import net.ankio.auto.service.api.IService
 import net.ankio.auto.service.ocr.OcrProcessor
 import net.ankio.auto.service.ocr.ProjectionGateway
 import net.ankio.auto.service.ocr.ScreenShotHelper
@@ -30,7 +30,6 @@ import net.ankio.auto.service.ocr.ShakeDetector
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.constant.DataType
-import org.ezbook.server.intent.BillInfoIntent
 import org.ezbook.server.intent.IntentType
 
 /**

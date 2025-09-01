@@ -26,6 +26,8 @@ import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.intent.BillInfoIntent
 import androidx.core.net.toUri
+import net.ankio.auto.service.api.ICoreService
+import net.ankio.auto.service.api.IService
 
 class OverlayService : ICoreService() {
 

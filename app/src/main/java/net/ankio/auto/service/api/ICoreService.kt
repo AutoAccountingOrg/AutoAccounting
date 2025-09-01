@@ -13,9 +13,15 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.service
+package net.ankio.auto.service.api
 
 import android.content.Intent
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import net.ankio.auto.service.CoreService
+import net.ankio.auto.storage.Logger
+import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * 核心服务的抽象基类
@@ -44,6 +50,16 @@ abstract class ICoreService {
      */
     open fun onCreate(coreService: CoreService) {
         this.coreService = coreService
+    }
+
+    protected fun launch(block: suspend CoroutineScope.() -> Unit) {
+        coreService.lifecycleScope.launch {
+            try {
+                block()
+            } catch (e: CancellationException) {
+                Logger.d("服务已取消: ${e.message}")
+            }
+        }
     }
 
     /**

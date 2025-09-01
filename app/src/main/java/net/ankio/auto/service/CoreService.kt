@@ -9,6 +9,7 @@ import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
 import net.ankio.auto.R
 import net.ankio.auto.constant.WorkMode
+import net.ankio.auto.service.api.ICoreService
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.utils.PrefManager
 

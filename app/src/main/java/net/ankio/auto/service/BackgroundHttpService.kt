@@ -4,6 +4,7 @@ import android.content.Intent
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.autoApp
 import net.ankio.auto.constant.WorkMode
+import net.ankio.auto.service.api.ICoreService
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.xposed.core.utils.AppRuntime

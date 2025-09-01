@@ -13,7 +13,7 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.service
+package net.ankio.auto.service.api
 
 import android.content.Context
 

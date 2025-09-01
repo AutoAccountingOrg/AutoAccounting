@@ -35,6 +35,7 @@ import net.ankio.auto.App
 import net.ankio.auto.autoApp
 import net.ankio.auto.constant.WorkMode
 import net.ankio.auto.http.api.JsAPI
+import net.ankio.auto.service.api.IService
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.constant.DataType
