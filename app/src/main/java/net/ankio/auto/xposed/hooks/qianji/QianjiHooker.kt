@@ -33,13 +33,7 @@ class QianjiHooker : HookerManifest() {
 
     override var applicationName = "com.mutangtech.qianji.app.CoreApp"
     override fun hookLoadPackage() {
-        /* Hooker.allMethodsAfter(Hooker.loader("com.mutangtech.qianji.data.model.AssetAccount")) { it, method ->
-             AppRuntime.manifest.logD("AssetAccount: ${method.name}( ${it.args.joinToString { it.toString() }} ) -> ${it.result}")
-         }
 
-         Hooker.allMethodsAfter(Hooker.loader("com.mutangtech.qianji.data.model.Bill")) { it, method ->
-             AppRuntime.manifest.logD("BillInfo: ${method.name}( ${it.args.joinToString { it.toString() }} ) -> ${it.result}")
-         }*/
     }
 
     override var partHookers: MutableList<PartHooker>
@@ -144,8 +138,8 @@ class QianjiHooker : HookerManifest() {
             ),
             ///////////////////////////AssetInsert//////////////////////////////////////
             Clazz(
-                name = "AssetDbHelper",
-                nameRule = "com.mutangtech.qianji.data.db.convert.\\w+",
+                name = "AssetDbHelper",//com.mutangtech.qianji.data.db.dbhelper
+                nameRule = "com.mutangtech.qianji.data.db.\\[\\w\\.]+",
                 type = "class",
                 methods =
                 listOf(
