@@ -423,7 +423,7 @@ class BillWindowManager(
         // 异步保存
         service.service().lifecycleScope.launch {
             BillAPI.put(bill)
-            AppAdapterManager.adapter().syncBill(bill)
+            BillTool.syncBill(bill)
             Logger.d("账单保存成功: ${bill.id}")
         }
 
