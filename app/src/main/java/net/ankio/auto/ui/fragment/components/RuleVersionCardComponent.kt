@@ -191,7 +191,7 @@ class RuleVersionCardComponent(
             val zipDir = context.cacheDir.resolve("rule")
 
             // 判断当前版本是否大于免费版本，决定是否需要密码解压
-            val passwd = if (VersionUtils.checkVersionLarge(updateModel.version, "v0.5.6")) {
+            val passwd = if (VersionUtils.checkVersionLarge("v0.5.6", updateModel.version)) {
                 PrefManager.token
             } else null
 
