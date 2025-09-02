@@ -133,7 +133,7 @@ class RuleVersionCardComponent(
         }
         try {
             // 获取服务器最新版本信息
-            val json = RuleAPI.lastVer()
+            val json = RuleAPI.lastVer(PrefManager.ruleVersion.isEmpty())
             val update = try {
                 VersionUtils.fromJSON(json)
             } catch (e: NullPointerException) {
