@@ -39,14 +39,11 @@ class CoreService : LifecycleService() {
      */
     override fun onCreate() {
         super.onCreate()
-        Logger.i("服务创建，工作模式 = ${PrefManager.workMode}")
-
-        // 根据工作模式初始化服务列表
-        initializeServices()
-
         createNotificationChannel()
         startForeground(notificationId, buildNotification())
-
+        Logger.i("服务创建，工作模式 = ${PrefManager.workMode}")
+        // 根据工作模式初始化服务列表
+        initializeServices()
         // 初始化所有子服务
         initializeChildServices()
     }
@@ -68,7 +65,6 @@ class CoreService : LifecycleService() {
                 OverlayService() // 悬浮窗服务
             )
         }
-        Logger.i("已为工作模式 ${PrefManager.workMode} 初始化 ${services.size} 个服务")
     }
 
     /**
@@ -81,7 +77,6 @@ class CoreService : LifecycleService() {
         
         services.forEach { service ->
             try {
-                Logger.i("正在初始化服务: ${service.javaClass.simpleName}")
                 service.onCreate(this)
                 successCount++
             } catch (e: Exception) {
@@ -89,8 +84,6 @@ class CoreService : LifecycleService() {
                 failureCount++
             }
         }
-
-        Logger.i("服务初始化完成: 成功 $successCount 个，失败 $failureCount 个")
     }
 
     /**
@@ -100,11 +93,9 @@ class CoreService : LifecycleService() {
      */
     private fun createNotificationChannel() {
         if (isNotificationChannelCreated) {
-            Logger.d("通知渠道已创建，跳过")
             return
         }
 
-        Logger.d("正在创建通知渠道: $channelId")
         val nm = getSystemService(NotificationManager::class.java)
         val channel = NotificationChannel(
             channelId,
@@ -120,7 +111,6 @@ class CoreService : LifecycleService() {
         }
         nm.createNotificationChannel(channel)
         isNotificationChannelCreated = true
-        Logger.d("通知渠道创建成功")
     }
 
     /**
@@ -215,10 +205,7 @@ class CoreService : LifecycleService() {
                 val targetIntent = Intent(activity, CoreService::class.java).apply {
                     intent?.extras?.let(::putExtras)
                 }
-                Logger.i("通过伴生对象启动核心服务，工作模式: ${PrefManager.workMode}")
-                
                 activity.startForegroundService(targetIntent)
-                Logger.i("核心服务启动成功")
                 true
 
             } catch (e: Exception) {
