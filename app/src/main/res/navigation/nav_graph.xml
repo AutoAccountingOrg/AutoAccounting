@@ -19,15 +19,8 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/homeFragment">
 
-    <activity
-        tools:layout="@layout/activity_main"
-        android:id="@+id/mainActivity"
-        android:name="net.ankio.auto.ui.activity.HomeActivity"
-        android:label="@string/title_home">
 
-
-    </activity>
-    <fragment
+<fragment
         android:id="@+id/homeFragment"
         android:name="net.ankio.auto.ui.fragment.HomeFragment"
         android:label="@string/title_home"
