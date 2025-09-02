@@ -30,6 +30,7 @@ import androidx.lifecycle.LifecycleOwner
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.activity.HomeActivity
 import net.ankio.auto.ui.activity.MainActivity
+import net.ankio.auto.ui.utils.ToastUtils
 import java.math.BigInteger
 import java.security.MessageDigest
 
@@ -114,6 +115,47 @@ object SystemUtils {
         } catch (e: Exception) {
             Logger.e("Failed to start activity", e)
         }
+    }
+
+    /**
+     * 安全启动Activity：在调用前检查是否有可处理该Intent的Activity。
+     * 当不可处理时，提示用户目标应用未安装，避免崩溃。
+     *
+     * @param intent 需要启动的隐式或显式Intent
+     * @param appName 目标应用名称（用于提示文案）
+     * @param onStarted 启动成功后的回调
+     * @return 是否成功发起启动
+     */
+    fun startActivityIfResolvable(
+        intent: Intent,
+        appName: String,
+        onStarted: (() -> Unit)? = null,
+    ): Boolean {
+        // 保证 NEW_TASK 标志
+        if (intent.flags and FLAG_ACTIVITY_NEW_TASK == 0) {
+            intent.addFlags(FLAG_ACTIVITY_NEW_TASK)
+        }
+
+        val canResolve = application.packageManager.resolveActivity(intent, 0) != null
+        if (canResolve) {
+            return try {
+                application.startActivity(intent)
+                onStarted?.invoke()
+                true
+            } catch (e: Exception) {
+                Logger.e("Failed to start activity", e)
+                false
+            }
+        }
+
+        // 统一提示：目标应用未安装 / 无法处理
+        ToastUtils.error(
+            application.getString(
+                net.ankio.auto.R.string.toast_target_app_not_installed,
+                appName
+            )
+        )
+        return false
     }
     
     /**

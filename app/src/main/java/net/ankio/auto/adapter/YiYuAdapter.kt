@@ -25,7 +25,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import androidx.core.net.toUri
-import net.ankio.auto.autoApp
+import net.ankio.auto.utils.SystemUtils
 
 //TODO 适配页面
 class YiYuAdapter : IAppAdapter {
@@ -131,12 +131,10 @@ class YiYuAdapter : IAppAdapter {
         val uri = url.toString().toUri()
 
         // 4) 通过隐式 Intent 拉起一羽记账
-        val intent = Intent(Intent.ACTION_VIEW, uri).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        val intent = Intent(Intent.ACTION_VIEW, uri).apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK }
+        SystemUtils.startActivityIfResolvable(intent, name) {
+            AppAdapterManager.markSynced(billInfoModel)
         }
-        autoApp.startActivity(intent)
-
-        AppAdapterManager.markSynced(billInfoModel)
     }
 
     /**

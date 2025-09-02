@@ -33,6 +33,7 @@ import androidx.core.net.toUri
 import net.ankio.auto.App
 import net.ankio.auto.constant.WorkMode
 import net.ankio.auto.utils.PrefManager
+import net.ankio.auto.utils.SystemUtils
 
 class QianJiAdapter : IAppAdapter {
     override val pkg: String
@@ -114,7 +115,7 @@ class QianJiAdapter : IAppAdapter {
         val intent = Intent(Intent.ACTION_VIEW, uriBuilder.toString().toUri()).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
-        autoApp.startActivity(intent)
+        SystemUtils.startActivityIfResolvable(intent, name)
     }
 
 
@@ -128,7 +129,7 @@ class QianJiAdapter : IAppAdapter {
         val intent = Intent(Intent.ACTION_VIEW, uriBuilder.toString().toUri()).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
-        autoApp.startActivity(intent)
+        SystemUtils.startActivityIfResolvable(intent, name)
     }
 
     override fun syncBill(billInfoModel: BillInfoModel) {
@@ -223,9 +224,10 @@ class QianJiAdapter : IAppAdapter {
         val intent = Intent(Intent.ACTION_VIEW, uriBuilder.toString().toUri()).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
-        autoApp.startActivity(intent)
-        if (PrefManager.workMode == WorkMode.Ocr) {
-            AppAdapterManager.markSynced(billInfoModel)
+        SystemUtils.startActivityIfResolvable(intent, name) {
+            if (PrefManager.workMode == WorkMode.Ocr) {
+                AppAdapterManager.markSynced(billInfoModel)
+            }
         }
     }
     override fun supportSyncAssets(): Boolean {
@@ -292,4 +294,6 @@ class QianJiAdapter : IAppAdapter {
         val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
         return sdf.format(date)
     }
+
+
 }

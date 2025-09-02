@@ -18,8 +18,8 @@ package net.ankio.auto.adapter
 import android.content.Intent
 import android.net.Uri
 import androidx.core.net.toUri
-import net.ankio.auto.autoApp
 import net.ankio.auto.constant.BookFeatures
+import net.ankio.auto.utils.SystemUtils
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.BillInfoModel
 import java.text.SimpleDateFormat
@@ -89,9 +89,9 @@ class XiaoXinAdapter : IAppAdapter {
         val intent = Intent(Intent.ACTION_VIEW, url.toUri()).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
-        autoApp.startActivity(intent)
-
-        AppAdapterManager.markSynced(billInfoModel)
+        SystemUtils.startActivityIfResolvable(intent, name) {
+            AppAdapterManager.markSynced(billInfoModel)
+        }
     }
 
     /**

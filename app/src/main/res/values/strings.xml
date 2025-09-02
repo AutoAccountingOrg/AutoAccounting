@@ -703,6 +703,9 @@
 
     <string name="success_subtitle">Everything is ready. Let\'s get started.</string>
     <string name="success_button">Get Started</string>
+
+    <!-- Common toast: target app missing / cannot handle intent -->
+    <string name="toast_target_app_not_installed">Target app "%1$s" not installed, unable to proceed</string>
     <!-- Finance card labels -->
     <string name="month_income">Monthly income</string>
     <string name="month_expense">Monthly expense</string>

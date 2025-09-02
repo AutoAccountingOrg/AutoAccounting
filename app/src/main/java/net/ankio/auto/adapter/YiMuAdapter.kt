@@ -119,9 +119,9 @@ class YiMuAdapter : IAppAdapter {
         val intent = Intent(Intent.ACTION_VIEW, uri).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
-        SystemUtils.startActivity(intent)
-
-        AppAdapterManager.markSynced(billInfoModel)
+        SystemUtils.startActivityIfResolvable(intent, name) {
+            AppAdapterManager.markSynced(billInfoModel)
+        }
     }
 
     /**
