@@ -215,7 +215,11 @@ class RuleVersionCardComponent(
             file.delete()
 
             // 更新规则和分类
-            val distDir = zipDir.resolve("home/runner/work/AutoRule/AutoRule/dist")
+            val distDir = if (VersionUtils.isCloudVersionNewer("v0.5.6", updateModel.version)) {
+                zipDir
+            } else {
+                zipDir.resolve("home/runner/work/AutoRule/AutoRule/dist")
+            }
             updateRulesFromDist(distDir, loading)
             updateCategoriesFromDist(distDir, loading)
 
