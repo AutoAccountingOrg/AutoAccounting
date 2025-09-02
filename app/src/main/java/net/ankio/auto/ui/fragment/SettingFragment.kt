@@ -65,9 +65,7 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>() {
 
         // 设置激活信息卡片点击事件
         binding.proCard.setOnClickListener {
-            if (PrefManager.token.isEmpty()) {
-                showActivationDialog()
-            }
+            showActivationDialog()
         }
 
         // 设置导航点击事件 - 消除重复代码
