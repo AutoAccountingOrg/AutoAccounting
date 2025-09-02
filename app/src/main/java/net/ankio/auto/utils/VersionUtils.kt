@@ -16,6 +16,7 @@
 package net.ankio.auto.utils
 
 import com.google.gson.JsonObject
+import net.ankio.auto.storage.Logger
 
 object VersionUtils {
     const val CHANNEL_CANARY = "Canary"
@@ -51,6 +52,7 @@ object VersionUtils {
 
     fun fromJSON(jsonObject: JsonObject?): UpdateModel? {
         if (jsonObject == null) return null
+        Logger.i("尝试解析的json数据：$jsonObject")
         return UpdateModel(
             jsonObject.get("log").asString,
             jsonObject.get("date").asString,
