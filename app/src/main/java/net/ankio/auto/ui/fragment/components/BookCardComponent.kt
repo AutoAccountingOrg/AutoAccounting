@@ -197,7 +197,8 @@ class BookCardComponent(binding: CardBookBinding) :
      * 占位回调：请替换成真正实现
      * ----------------------------------------------------- */
     private fun openBookManager() {
-        onRedirect?.invoke(R.id.action_homeFragment_to_bookFragment, null)
+        // 使用目的地 ID 导航，减少对当前目的地 action 的依赖
+        onRedirect?.invoke(R.id.bookFragment, null)
     }
 
     private fun openCategoryManager() {
@@ -207,33 +208,42 @@ class BookCardComponent(binding: CardBookBinding) :
                 val bundle = android.os.Bundle().apply {
                     putString(CategoryFragment.ARG_BOOK_MODEL, Gson().toJson(bookModel))
                 }
-                onRedirect?.invoke(R.id.action_homeFragment_to_categoryFragment, bundle)
+                // 使用目的地 ID 导航，避免当前目的地不为 HomeFragment 时找不到 action
+                onRedirect?.invoke(R.id.categoryFragment, bundle)
             }
             .show()
     }
 
     private fun openCategoryMapping() {
-        onRedirect?.invoke(R.id.action_homeFragment_to_categoryMapFragment, null)
+        // 使用目的地 ID 导航
+        onRedirect?.invoke(R.id.categoryMapFragment, null)
     }
 
     private fun openAssetManager() {
-        onRedirect?.invoke(R.id.action_homeFragment_to_assetFragment, null)
+        // 使用目的地 ID 导航
+        onRedirect?.invoke(R.id.assetFragment, null)
     }
 
     private fun openAssetMapping() {
-        onRedirect?.invoke(R.id.action_homeFragment_to_assetMapFragment, null)
+        // 这里使用目的地 ID 而非 action ID，避免当当前目的地被识别为 NavGraph
+        // （而不是具体 Fragment）时，抛出 “action/destination ... cannot be found from the current destination NavGraph” 的异常。
+        // 直接导航到目的地可在整个图内解析节点，减少对当前目的地 action 的耦合。
+        onRedirect?.invoke(R.id.assetMapFragment, null)
     }
 
     private fun openTagManager() {
-        onRedirect?.invoke(R.id.action_homeFragment_to_tagFragment, null)
+        // 使用目的地 ID 导航
+        onRedirect?.invoke(R.id.tagFragment, null)
     }
 
     private fun openAppWhitelist() { /* TODO 跳转应用监控白名单管理页面 */
-        onRedirect?.invoke(R.id.action_homeFragment_to_appWhiteListFragment, null)
+        // 使用目的地 ID 导航
+        onRedirect?.invoke(R.id.appWhiteListFragment, null)
     }
 
     private fun openDataFilter() {
-        onRedirect?.invoke(R.id.action_homeFragment_to_dataFilterFragment, null)
+        // 使用目的地 ID 导航
+        onRedirect?.invoke(R.id.dataFilterFragment, null)
     }
 
 

@@ -49,7 +49,8 @@ class HomeFragment : BaseFragment<FragmentPluginHomeBinding>() {
                 if (periodData != null) {
                     bundle.putString("period_data", gson.toJson(periodData))
                 }
-                findNavController().navigate(R.id.action_homeFragment_to_aiSummaryFragment, bundle)
+                // 使用目的地 ID 导航，避免当前目的地识别为 NavGraph 时解析不到 action
+                findNavController().navigate(R.id.aiSummaryFragment, bundle)
             }
 
         val bookCard: BookCardComponent = binding.bookCard.bindAs()
@@ -59,7 +60,8 @@ class HomeFragment : BaseFragment<FragmentPluginHomeBinding>() {
         binding.toolbar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.title_log -> {
-                    findNavController().navigate(R.id.action_homeFragment_to_logFragment)
+                    // 使用目的地 ID 导航
+                    findNavController().navigate(R.id.logFragment)
                     true
                 }
 
