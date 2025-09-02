@@ -39,7 +39,11 @@ class HomeActivity : BaseActivity() {
         setContentView(binding.root)
         val navController = (supportFragmentManager
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment).navController
-        binding.bottomNavigation.setupWithNavController(navController)
+        // 将 BottomNavigation 与 NavController 的绑定延后到下一帧，
+        // 避免在 NavController.currentDestination 尚未初始化时触发点击导致 NPE。
+        binding.bottomNavigation.post {
+            binding.bottomNavigation.setupWithNavController(navController)
+        }
         // 监听当前fragment变化
         navController.addOnDestinationChangedListener { _, destination, _ ->
             // 这里判断destination.id是否在底部tab范围内
