@@ -37,7 +37,7 @@ import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.utils.VersionUtils
 import net.ankio.auto.ui.utils.toDrawable
 import net.ankio.auto.ui.utils.toThemeColor
-import net.ankio.auto.xposed.common.ActiveInfo
+import net.ankio.auto.xposed.XposedModule
 
 class StatusCardComponent(binding: CardStatusBinding) :
     BaseComponent<CardStatusBinding>(binding) {
@@ -68,7 +68,7 @@ class StatusCardComponent(binding: CardStatusBinding) :
     private fun isCurrentModeActive(): Boolean {
         return when (PrefManager.workMode) {
             WorkMode.Ocr -> OcrService.serverStarted
-            else -> ActiveInfo.isModuleActive()
+            else -> XposedModule.active()
         }
     }
 

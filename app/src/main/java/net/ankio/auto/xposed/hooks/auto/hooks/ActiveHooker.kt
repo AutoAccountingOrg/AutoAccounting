@@ -17,7 +17,6 @@ package net.ankio.auto.xposed.hooks.auto.hooks
 
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
-import net.ankio.auto.xposed.hooks.common.XposedFramework
 
 class ActiveHooker : PartHooker() {
 
