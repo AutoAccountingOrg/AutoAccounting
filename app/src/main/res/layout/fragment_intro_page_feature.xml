@@ -50,8 +50,7 @@
         <net.ankio.auto.ui.components.ExpandableCardGroup
             android:id="@+id/cardGroup"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:animateLayoutChanges="true">
+            android:layout_height="wrap_content">
 
             <!-- 资产管理 -->
             <net.ankio.auto.ui.components.ExpandableCardView

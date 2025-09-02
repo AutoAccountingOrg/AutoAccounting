@@ -44,6 +44,8 @@ open class ExpandableCardGroup @JvmOverloads constructor(
         // enable smooth layout changes for expansions/collapses
         layoutTransition = LayoutTransition().apply {
             enableTransitionType(LayoutTransition.CHANGING)
+            // 禁用向父层级传播动画，避免与 ViewPager2 滚动动画冲突
+            setAnimateParentHierarchy(false)
         }
     }
 
