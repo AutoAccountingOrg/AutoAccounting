@@ -201,7 +201,13 @@ class RuleEditFragment : BaseFragment<FragmentRuleEditBinding>() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        collectViewsToRule()
+        // 在某些生命周期时机（如系统回收或Fragment视图已销毁）可能触发保存状态，
+        // 此时访问 binding 会导致 NPE。仅当 UI 就绪时才从视图收集最新输入。
+        if (uiReady()) {
+            collectViewsToRule()
+        } else {
+            Logger.d("Skip collectViewsToRule: UI not ready in onSaveInstanceState")
+        }
         outState.putString(stateKey, Gson().toJson(currentRule))
     }
 
