@@ -23,31 +23,48 @@ object VersionUtils {
     const val CHANNEL_BETA = "Beta"
     const val CHANNEL_STABLE = "Stable"
 
-    private fun replaceChannel(string: String): String {
-        return string.replace("-${CHANNEL_STABLE}", "")
+    private fun removeChannelSuffix(version: String): String {
+        return version.replace("-${CHANNEL_STABLE}", "")
             .replace("-${CHANNEL_BETA}", "")
             .replace("-${CHANNEL_CANARY}", "")
+            .replace("v", "")
     }
 
     /**
-     * 检查两个版本号哪个大
+     * 检查云端版本是否比本地版本更新
      * @param localVersion 本地版本号
      * @param cloudVersion 云端版本号
+     * @return true表示云端版本更新，需要升级；false表示本地版本相同或更新
      */
-    fun checkVersionLarge(localVersion: String, cloudVersion: String): Boolean {
-        val localParts = replaceChannel(localVersion).replace("_", "").split(".")
-        val cloudParts = replaceChannel(cloudVersion).replace("_", "").split(".")
-        // 找出较长的版本号长度，补齐较短版本号的空位
+    fun isCloudVersionNewer(localVersion: String, cloudVersion: String): Boolean {
+        val localParts = removeChannelSuffix(localVersion).replace("_", "").split(".")
+        val cloudParts = removeChannelSuffix(cloudVersion).replace("_", "").split(".")
+        
         val maxLength = maxOf(localParts.size, cloudParts.size)
 
         for (i in 0 until maxLength) {
-            val localPart = localParts.getOrNull(i)?.toLongOrNull() ?: 0  // 如果某个部分不存在，默认视为0
+            val localPart = localParts.getOrNull(i)?.toLongOrNull() ?: 0
             val cloudPart = cloudParts.getOrNull(i)?.toLongOrNull() ?: 0
-            if (cloudPart > localPart) {
-                return true
+
+            when {
+                cloudPart > localPart -> return true   // 云端版本更大
+                cloudPart < localPart -> return false  // 本地版本更大
+                // 相等时继续比较下一部分
             }
         }
-        return false
+        return false  // 版本完全相同
+    }
+
+    /**
+     * 检查两个版本号哪个大（保持向后兼容）
+     * @deprecated 使用 isCloudVersionNewer 替代，命名更清晰
+     */
+    @Deprecated(
+        "Use isCloudVersionNewer instead",
+        ReplaceWith("isCloudVersionNewer(localVersion, cloudVersion)")
+    )
+    fun checkVersionLarge(localVersion: String, cloudVersion: String): Boolean {
+        return isCloudVersionNewer(localVersion, cloudVersion)
     }
 
     fun fromJSON(jsonObject: JsonObject?): UpdateModel? {

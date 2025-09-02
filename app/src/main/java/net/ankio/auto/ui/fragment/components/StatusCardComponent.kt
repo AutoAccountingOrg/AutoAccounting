@@ -25,6 +25,7 @@ import net.ankio.auto.constant.WorkMode
 import net.ankio.auto.databinding.CardStatusBinding
 import net.ankio.auto.http.license.AppAPI
 import net.ankio.auto.service.OcrService
+import net.ankio.auto.storage.CacheManager
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseComponent
 import net.ankio.auto.ui.dialog.UpdateDialog
@@ -139,7 +140,13 @@ class StatusCardComponent(binding: CardStatusBinding) :
         // 网络请求在IO线程
         val update = withIO {
             val json = AppAPI.lastVer()
-            VersionUtils.fromJSON(json)
+            try {
+                VersionUtils.fromJSON(json)
+            } catch (e: NullPointerException) {
+                val channel = PrefManager.appChannel
+                CacheManager.remove("app_version_$channel")
+                null
+            }
         }
 
         if (update == null) {
@@ -152,7 +159,7 @@ class StatusCardComponent(binding: CardStatusBinding) :
         }
 
         // 检查版本是否需要更新
-        if (!VersionUtils.checkVersionLarge(BuildConfig.VERSION_NAME, update.version)) {
+        if (!VersionUtils.isCloudVersionNewer(BuildConfig.VERSION_NAME, update.version)) {
             if (fromUser) {
                 withMain {
                     ToastUtils.error(R.string.no_need_to_update)

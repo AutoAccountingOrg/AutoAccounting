@@ -27,6 +27,7 @@ import net.ankio.auto.http.api.CategoryMapAPI
 import net.ankio.auto.http.api.RuleManageAPI
 import net.ankio.auto.http.api.SettingAPI
 import net.ankio.auto.http.license.RuleAPI
+import net.ankio.auto.storage.CacheManager
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.storage.ZipUtils
 import net.ankio.auto.ui.api.BaseComponent
@@ -133,7 +134,13 @@ class RuleVersionCardComponent(
         try {
             // 获取服务器最新版本信息
             val json = RuleAPI.lastVer()
-            val update = VersionUtils.fromJSON(json)
+            val update = try {
+                VersionUtils.fromJSON(json)
+            } catch (e: NullPointerException) {
+                val channel = PrefManager.appChannel
+                CacheManager.remove("app_version_$channel")
+                null
+            }
             if (update == null) {
                 if (fromUser) {
                     ToastUtils.error(R.string.no_need_to_update)
@@ -143,7 +150,7 @@ class RuleVersionCardComponent(
             }
 
             // 检查版本是否需要更新
-            if (!VersionUtils.checkVersionLarge(PrefManager.ruleVersion, update.version)) {
+            if (!VersionUtils.isCloudVersionNewer(PrefManager.ruleVersion, update.version)) {
                 if (fromUser) {
                     ToastUtils.error(R.string.no_need_to_update)
                 }
@@ -191,7 +198,7 @@ class RuleVersionCardComponent(
             val zipDir = context.cacheDir.resolve("rule")
 
             // 判断当前版本是否大于免费版本，决定是否需要密码解压
-            val passwd = if (VersionUtils.checkVersionLarge("v0.5.6", updateModel.version)) {
+            val passwd = if (VersionUtils.isCloudVersionNewer("v0.5.6", updateModel.version)) {
                 PrefManager.token
             } else null
 

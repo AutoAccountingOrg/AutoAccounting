@@ -27,7 +27,7 @@ object ActivateAPI {
     private const val CACHE_KEY_INFO = "activate_api_info"
 
     /** 缓存时间：30分钟（毫秒） */
-    private const val CACHE_DURATION_MS = 30 * 60 * 1000L
+    private const val CACHE_DURATION_MS = 24 * 60 * 60 * 1000L
     suspend fun active(code: String): String? {
         if (code.isEmpty() || !Regex("^ak-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$").matches(
                 code
