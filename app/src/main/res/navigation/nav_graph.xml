@@ -121,6 +121,14 @@
     </fragment>
 
     <fragment
+        android:id="@+id/orderFragment"
+        android:name="net.ankio.auto.ui.fragment.BillFragment"
+        android:label="@string/title_bill"
+        tools:layout="@layout/fragment_bill">
+
+    </fragment>
+
+    <fragment
         android:id="@+id/settingFragment"
         android:name="net.ankio.auto.ui.fragment.SettingFragment"
         android:label="@string/title_setting"
@@ -141,9 +149,6 @@
         <action
             android:id="@+id/action_settingFragment_to_appearancePreferenceFragment"
             app:destination="@id/appearancePreferenceFragment" />
-        <action
-            android:id="@+id/action_settingFragment_to_experimentalPreferenceFragment"
-            app:destination="@id/experimentalPreferenceFragment" />
         <action
             android:id="@+id/action_settingFragment_to_backupPreferenceFragment"
             app:destination="@id/backupPreferenceFragment" />
@@ -189,10 +194,6 @@
         android:name="net.ankio.auto.ui.fragment.settings.AppearancePreferenceFragment"
         android:label="@string/setting_title_appearance" />
 
-    <fragment
-        android:id="@+id/experimentalPreferenceFragment"
-        android:name="net.ankio.auto.ui.fragment.settings.ExperimentalPreferenceFragment"
-        android:label="@string/setting_title_experimental" />
 
     <fragment
         android:id="@+id/backupPreferenceFragment"
@@ -204,13 +205,6 @@
         android:name="net.ankio.auto.ui.fragment.settings.OthersPreferenceFragment"
         android:label="@string/setting_title_others" />
 
-    <fragment
-        android:id="@+id/appearanceFragment"
-        android:name="net.ankio.auto.ui.fragment.settings.AppearanceFragment"
-        android:label="@string/setting_theme"
-        tools:layout="@layout/fragment_setting_appearance">
-
-    </fragment>
 
     <fragment
         android:id="@+id/bookFragment"
@@ -342,14 +336,6 @@
         android:name="net.ankio.auto.ui.fragment.AppWhiteListFragment"
         android:label="@string/title_app_whitelist"
         tools:layout="@layout/fragment_notice" />
-
-    <fragment
-        android:id="@+id/orderFragment"
-        android:name="net.ankio.auto.ui.fragment.BillFragment"
-        android:label="@string/title_bill"
-        tools:layout="@layout/fragment_bill">
-
-    </fragment>
 
     <fragment
         android:id="@+id/aiSummaryFragment"
