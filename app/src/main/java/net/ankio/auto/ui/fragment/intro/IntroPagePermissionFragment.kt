@@ -46,8 +46,8 @@ class IntroPagePermissionFragment : BaseIntroPageFragment<FragmentIntroPagePermi
         projLauncher = ScreenCapture.registerPermission(
             caller = this,
             onReady = {
-                // 权限授予成功，刷新权限状态
-                if (::perms.isInitialized && isAdded && view != null) {
+                // 权限授予成功，刷新权限状态（仅在视图存在且已创建卡片时刷新）
+                if (isAdded && view != null && perms.isNotEmpty()) {
                     perms.forEach {
                         val card = binding.cardGroup.findViewById<ExpandableCardView>(it.viewId)
                         setState(card, it.checkGranted(), it.isRequired)
@@ -62,6 +62,8 @@ class IntroPagePermissionFragment : BaseIntroPageFragment<FragmentIntroPagePermi
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        // 构建权限卡片，确保 perms 已初始化，避免按钮点击过早导致崩溃
+        setupCardsDynamic()
         // 设置下一步按钮点击事件
         binding.btnNext.setOnClickListener { handleNext() }
         // 设置返回按钮点击事件，返回到模式选择页面
@@ -90,8 +92,8 @@ class IntroPagePermissionFragment : BaseIntroPageFragment<FragmentIntroPagePermi
         var viewId: Int = View.NO_ID
     )
 
-    // 权限项列表
-    private lateinit var perms: MutableList<PermItem>
+    // 权限项列表：默认初始化为空，避免 lateinit 未初始化访问导致崩溃
+    private var perms: MutableList<PermItem> = mutableListOf()
 
     // 屏幕投影权限请求启动器
     private lateinit var projLauncher: ActivityResultLauncher<Unit>
@@ -226,8 +228,6 @@ class IntroPagePermissionFragment : BaseIntroPageFragment<FragmentIntroPagePermi
 
     override fun onResume() {
         super.onResume()
-        // 重新设置权限卡片并刷新状态
-        setupCardsDynamic()
         // 刷新所有权限的授予状态
         perms.forEach {
             val card = binding.cardGroup.findViewById<ExpandableCardView>(it.viewId)
