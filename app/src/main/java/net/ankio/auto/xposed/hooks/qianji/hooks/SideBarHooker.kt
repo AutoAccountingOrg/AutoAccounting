@@ -20,14 +20,12 @@ import android.content.Intent
 import android.view.LayoutInflater
 import android.widget.FrameLayout
 import android.widget.LinearLayout
-import androidx.appcompat.content.res.AppCompatResources
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.databinding.MenuItemBinding
 import net.ankio.auto.storage.Constants
-import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.ui.ViewUtils
@@ -60,21 +58,8 @@ class SideBarHooker : PartHooker() {
             android.os.Bundle::class.java
         ){ param ->
             val activity = param.thisObject as Activity
+            AppRuntime.manifest.attachResource(activity)
             hookMenu(activity)
-        }
-
-        // Hook MainActivity的onResume方法，用于检查服务状态和同步数据
-        Hooker.after(
-            clazz,
-            "onResume"
-        ){ param ->
-            val activity = param.thisObject as Activity
-            runCatching {
-                AppRuntime.manifest.attachResource(activity)
-                syncData2Auto()
-            }.onFailure {
-                AppRuntime.manifest.logE(it)
-            }
         }
     }
 
@@ -130,7 +115,7 @@ class SideBarHooker : PartHooker() {
         // 设置菜单项标题和版本号
         itemMenuBinding.title.text = context.getString(R.string.app_name)
         itemMenuBinding.title.setTextColor(mainColor)
-        itemMenuBinding.version.text = BuildConfig.VERSION_NAME.replace(" - Xposed", "")
+        itemMenuBinding.version.text = BuildConfig.VERSION_NAME
         itemMenuBinding.version.setTextColor(subColor)
 
 
@@ -145,11 +130,6 @@ class SideBarHooker : PartHooker() {
         }
 
 
-        // 设置点击事件，触发数据同步
-        itemMenuBinding.root.setOnClickListener {
-            MessageUtils.toast("强制同步数据中...")
-            syncData2Auto(true)
-        }
 
         // 添加菜单项到侧边栏
         linearLayout.addView(itemMenuBinding.root)
@@ -157,39 +137,15 @@ class SideBarHooker : PartHooker() {
         // 启动持续状态检查
         ThreadUtils.launch {
             while (true) {
+                if (!itemMenuBinding.root.isAttachedToWindow) break
                 val background =
-                    if (Server.request("/") !== null) R.drawable.status_running else R.drawable.status_stopped
+                    if (Server.request("/") != null) R.drawable.status_running else R.drawable.status_stopped
                 withContext(Dispatchers.Main) {
-                    itemMenuBinding.serviceStatus.background =
-                        AppCompatResources.getDrawable(context, background)
+                    itemMenuBinding.serviceStatus.setBackgroundResource(background)
                 }
                 kotlinx.coroutines.delay(1000) // 延迟1秒
             }
         }
     }
 
-    // 记录上次同步时间
-    private var last = 0L
-
-    /**
-     * 同步钱迹数据到自动记账
-     * @param force 是否强制同步，忽略时间间隔限制
-     */
-    private fun syncData2Auto(force: Boolean = false) {
-        if (force) last = 0
-        // 检查同步间隔，避免频繁同步
-        if (System.currentTimeMillis() - last < Constants.SYNC_INTERVAL) {
-            return
-        }
-        last = System.currentTimeMillis()
-
-        ThreadUtils.launch {
-            // 同步资产
-            AssetPreviewPresenterImpl.syncAssets()
-            // 同步账本
-            val books = BookManagerImpl.syncBooks()
-            // 同步分类
-            CateInitPresenterImpl.syncCategory(books)
-        }
-    }
 }
