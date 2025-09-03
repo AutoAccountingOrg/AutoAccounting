@@ -60,11 +60,8 @@ class AiComponent(
 
     override fun onComponentCreate() {
         super.onComponentCreate()
-        // UI 初始禁用，避免误触
+        // UI 默认启用，减少不必要的限制
         with(binding) {
-            actAiProvider.isEnabled = false
-            actAiModel.isEnabled = false
-            btnRefreshModels.isEnabled = false
             btnTestAi.isEnabled = true
             // 测试按钮始终可用 - 让用户随时可以测试
             cardTestResult.visibility = View.GONE
@@ -76,10 +73,7 @@ class AiComponent(
     private fun bindListeners() = with(binding) {
         // Provider 选择后重置 Model
         actAiProvider.setOnItemClickListener { _, _, pos, _ ->
-            actAiModel.apply {
-                setText("")
-                isEnabled = false
-            }
+            actAiModel.setText("")
             tilAiToken.error = null
             launch {
                 AiAPI.setCurrentProvider(providerList[pos])
@@ -104,14 +98,8 @@ class AiComponent(
         }
 
         // Token 输入后动态控制 UI
-        etAiToken.doOnTextChanged { text, _, _, _ ->
-            val hasToken = !text.isNullOrBlank()
-            actAiProvider.isEnabled = hasToken
-            actAiModel.apply {
-                isEnabled = hasToken
-            }
-            btnRefreshModels.isEnabled = hasToken
-            // 移除测试按钮的禁用逻辑 - 让用户随时可以测试
+        etAiToken.doOnTextChanged { _, _, _, _ ->
+            // 保持所有控件启用，不做联动禁用
         }
 
         // AI 测试功能
@@ -249,16 +237,12 @@ class AiComponent(
                 models = AiAPI.getModels()
 
                 // 成功时更新UI
-                actAiModel.apply {
-                    setSimpleItems(models.toTypedArray())
-                    isEnabled = true
-                }
+                actAiModel.setSimpleItems(models.toTypedArray())
                 tilAiToken.error = null
 
             } catch (e: Exception) {
                 // 失败时显示错误信息
                 tilAiToken.error = e.message ?: "获取模型列表失败"
-                actAiModel.isEnabled = false
             } finally {
                 loading.close()
             }
