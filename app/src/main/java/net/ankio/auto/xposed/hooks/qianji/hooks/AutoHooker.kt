@@ -47,12 +47,13 @@ import net.ankio.auto.xposed.hooks.qianji.tools.QianJiBillType
 import net.ankio.auto.xposed.hooks.qianji.tools.QianJiUri
 import org.ezbook.server.constant.BillAction
 import org.ezbook.server.db.model.BillInfoModel
+import androidx.core.net.toUri
 
 
 class AutoHooker : PartHooker() {
     lateinit var addBillIntentAct: Class<*>
 
-    val className = "com.mutangtech.qianji.bill.auto.AddBillIntentAct"
+
 
 
 
@@ -99,14 +100,17 @@ class AutoHooker : PartHooker() {
             Intent::class.java
         ) {
             val intent = it.args[0] as Intent
-            val from = intent.getStringExtra("from")
-            if (from != BuildConfig.APPLICATION_ID) return@before
+            val data = intent.data ?: return@before
             // 只处理来自自动记账的账单
-            val action = intent.getStringExtra("action") ?: return@before
+            val action = data.getQueryParameter("action") ?: return@before
             it.result = null
+            AppRuntime.log("intent $action")
             val actionItem = BillAction.valueOf(action)
             ThreadUtils.launch(Dispatchers.Main) {
                 when (actionItem) {
+
+                    // TODO 账单同步应该由自动记账主动发起？
+
                     BillAction.SYNC_BILL -> {
                         // 同步账单的请求
                         SyncBillUtils().sync(application!!)
@@ -155,7 +159,7 @@ class AutoHooker : PartHooker() {
             autoTaskLog.setFrom(BuildConfig.APPLICATION_ID)
             param.args[1] = autoTaskLog.toObject()
             val value = autoTaskLog.getValue() ?: return@before
-            val uri = Uri.parse(value)
+            val uri = value.toUri()
             AppRuntime.log("hookTaskLog: $value")
             val billInfo = QianJiUri.toAuto(uri)
             if (billInfo.id < 0) return@before
