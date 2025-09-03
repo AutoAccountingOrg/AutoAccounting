@@ -29,7 +29,6 @@
         app:layout_constraintStart_toEndOf="@id/icon_view_image"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.5"
-        app:layout_constraintWidth_default="wrap"
         tools:text="@tools:sample/lorem/random" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
