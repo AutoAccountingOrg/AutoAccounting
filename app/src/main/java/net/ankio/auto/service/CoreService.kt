@@ -40,7 +40,17 @@ class CoreService : LifecycleService() {
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
-        startForeground(notificationId, buildNotification())
+        // Android 14+ 要求前台服务在启动后尽快调用带类型的 startForeground
+        // 这里根据清单声明的类型 dataSync | mediaProjection 传入匹配的类型掩码，避免系统认为类型不明确而超时
+        val notification = buildNotification()
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            // 同时声明数据同步与媒体投射两种前台类型，覆盖 OCR 场景与常规后台工作
+            val fgsType = android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC or
+                    android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
+            startForeground(notificationId, notification, fgsType)
+        } else {
+            startForeground(notificationId, notification)
+        }
         Logger.i("服务创建，工作模式 = ${PrefManager.workMode}")
         // 根据工作模式初始化服务列表
         initializeServices()
