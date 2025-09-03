@@ -227,7 +227,7 @@ class BillService(
         // 执行规则代码进行分析
         val result = executeJs(js, data)
         if (result.isBlank()) return null
-
+        Server.logD("规则分析结果:$result")
         // 解析分析结果为账单信息对象
         return parseBillInfo(result, app, dataType)
     }
@@ -244,6 +244,11 @@ class BillService(
      */
     private suspend fun analyzeWithAI(app: String, data: String): BillInfoModel? =
         runCatching {
+            if (!Db.get().settingDao().query(Setting.AI_BILL_RECOGNITION)?.value.toBoolean()) {
+                Server.logD("AI 功能禁用")
+                return@runCatching null
+            }
+
             Server.logD("调用AI分析")
             BillTool().execute(data)
         }.getOrNull()?.apply {
@@ -285,7 +290,7 @@ class BillService(
             currency = json.safeGetString("currency")
             channel = json.safeGetString("channel")
             ruleName = json.safeGetString("ruleName")
-
+            cateName = json.safeGetString("cateName")
             // 根据ruleName判断是否需要自动记录
             val rule = Db.get().ruleDao().query(dataType.name, app, ruleName)
             auto = rule?.autoRecord ?: false
