@@ -27,6 +27,7 @@ import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.databinding.MenuItemBinding
 import net.ankio.auto.storage.Constants
+import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
 import net.ankio.auto.xposed.core.ui.ViewUtils
@@ -136,7 +137,11 @@ class SideBarHooker : PartHooker() {
         // 设置图标点击事件，打开自动记账
         itemMenuBinding.appIcon.setOnClickListener {
             context.startActivity(Intent().setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                .setClassName(PACKAGE_NAME, MAIN_ACTIVITY))
+                .setClassName(
+                    BuildConfig.APPLICATION_ID,
+                    BuildConfig.APPLICATION_ID + ".ui.activity.MainActivity"
+                )
+            )
         }
 
 
