@@ -108,13 +108,6 @@ class AutoHooker : PartHooker() {
             ThreadUtils.launch(Dispatchers.Main) {
                 when (actionItem) {
 
-                    // TODO 账单同步应该由自动记账主动发起？
-
-                    BillAction.SYNC_BILL -> {
-                        // 同步账单的请求
-                        SyncBillUtils().sync(application!!)
-                    }
-
                     BillAction.SYNC_BOOK_CATEGORY_ASSET -> {
                         MessageUtils.toast("正在同步资产信息")
                         //同步资产、账本、分类等数据的请求
@@ -140,7 +133,6 @@ class AutoHooker : PartHooker() {
             }
         }
     }
-
 
 
     private fun hookTaskLog() {
@@ -177,7 +169,7 @@ class AutoHooker : PartHooker() {
                 QianJiBillType.ExpendReimbursement.value
                     -> {
                     manifest.log("Qianji Error: $msg")
-                    return@before
+
                 }
 
                 // 支出（借出）,ok
