@@ -105,13 +105,14 @@ class QianJiAdapter : IAppAdapter {
         }
     }
 
+
     override fun syncAssets() {
         if (AppAdapterManager.ocrMode()) {
             return
         }
         // Xposed模式下对该接口进行了Hook,支持数据同步功能
         val uriBuilder = StringBuilder("qianji://publicapi/addbill")
-        uriBuilder.append("?type=-9990") //同步资产、账单等数据
+        uriBuilder.append("?type=").append(TYPE_SYNC_DATA) //同步资产、账单等数据
         val intent = Intent(Intent.ACTION_VIEW, uriBuilder.toString().toUri()).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
@@ -125,7 +126,7 @@ class QianJiAdapter : IAppAdapter {
         }
         // Xposed模式下对该接口进行了Hook,支持数据同步功能
         val uriBuilder = StringBuilder("qianji://publicapi/addbill")
-        uriBuilder.append("?type=-9991") // 同步需要报销和退款的账单
+        uriBuilder.append("?type=").append(TYPE_SYNC_BAOXIAO) // 同步需要报销和退款的账单
         val intent = Intent(Intent.ACTION_VIEW, uriBuilder.toString().toUri()).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
@@ -295,5 +296,9 @@ class QianJiAdapter : IAppAdapter {
         return sdf.format(date)
     }
 
+    companion object {
+        const val TYPE_SYNC_DATA = "-9990" //同步资产数据
+        const val TYPE_SYNC_BAOXIAO = "-9991" //同步报销和退款数据
+    }
 
 }
