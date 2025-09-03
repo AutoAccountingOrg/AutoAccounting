@@ -32,9 +32,6 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
     /** 每页数据条数 */
     val pageSize = 100
 
-    /** 存储所有已加载的数据 */
-    val pageData = mutableListOf<T>()
-
     /**
      * 加载数据的抽象方法，子类需要实现
      * @return 返回当前页的数据列表
@@ -92,10 +89,8 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
         setupEventListeners()
 
         // 如果已有数据（例如从其他Fragment返回后视图重建），直接展示并尝试恢复滚动
-        if (pageData.isNotEmpty()) {
+        if (baseAdapter?.itemCount ?: 0 > 0) {
             Logger.d("检测到已有数据，跳过初始加载并尝试恢复滚动位置")
-            statusPage.showContent()
-            baseAdapter?.updateItems(pageData.toList())
             restoreScrollPositionIfNeeded()
         } else {
             // 启动首次数据加载
@@ -163,7 +158,6 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
     protected fun resetPage() {
         Logger.d("重置分页状态：清空页码和数据")
         page = 1
-        pageData.clear()
         baseAdapter?.updateItems(emptyList())
     }
 
@@ -204,7 +198,7 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
             // 根据加载结果更新UI状态
             if (resultData.isEmpty()) {
                 Logger.d("第${page}页无数据返回")
-                handleEmptyResult()
+                statusPage.showEmpty()
                 hasMoreData = false
                 callback?.invoke(true, false)
             } else {
@@ -221,17 +215,6 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
 
     }
 
-    /**
-     * 处理空数据结果
-     * 根据是否为首页决定显示空状态还是内容状态
-     */
-    private fun handleEmptyResult() {
-        if (pageData.isEmpty()) {
-            statusPage.showEmpty()
-        } else {
-            statusPage.showContent()
-        }
-    }
 
     /**
      * 绑定下拉刷新事件
@@ -311,7 +294,7 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
      */
     protected fun removeItem(item: T): Boolean {
         val boolean = baseAdapter?.removeItem(item) ?: false
-        if (pageData.isEmpty()) {
+        if (getItemCount() == 0) {
             statusPage.showEmpty()
         }
         return boolean
@@ -325,7 +308,7 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
     protected fun removeItemAt(index: Int): T? {
         val item = baseAdapter?.index(index)
         baseAdapter?.removeItem(index)
-        if (pageData.isEmpty()) {
+        if (getItemCount() == 0) {
             statusPage.showEmpty()
         }
         return item
@@ -345,7 +328,6 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
      * 清空所有数据
      */
     protected fun clearItems() {
-        pageData.clear()
         baseAdapter?.replaceItems(listOf())
         statusPage.showEmpty()
         Logger.d("清空所有数据项")
@@ -355,7 +337,7 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
      * 获取数据项数量
      * @return 当前数据项总数
      */
-    protected fun getItemCount(): Int = pageData.size
+    protected fun getItemCount(): Int = baseAdapter?.itemCount ?: 0
 
     /**
      * 获取指定位置的数据项

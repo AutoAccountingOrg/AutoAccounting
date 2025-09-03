@@ -166,7 +166,7 @@ class AssetMapFragment : BasePageFragment<AssetsMapModel, FragmentMapBinding>() 
                 dialog.dismiss()
             }
             .setPositiveButton(R.string.delete) { _, _ ->
-                launch {
+                this@AssetMapFragment.launch {
                     AssetsMapAPI.remove(item.id)
                     // 从适配器中移除数据
                     removeItem(item)

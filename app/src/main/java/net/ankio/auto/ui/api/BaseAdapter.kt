@@ -116,7 +116,7 @@ abstract class BaseAdapter<T : ViewBinding, E> : RecyclerView.Adapter<BaseViewHo
         if (index in items.indices) {
             items.removeAt(index)
             notifyItemRemoved(index)
-            Logger.d("已移除位置 $index 的数据项")
+            Logger.d("已移除位置 $index 的数据项，剩余大小 ${items.size}")
             return true
         } else {
             Logger.w("移除数据项失败: 索引 $index 超出范围 (大小: ${items.size})")
