@@ -21,6 +21,7 @@ import androidx.annotation.CallSuper
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.viewbinding.ViewBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -58,7 +59,7 @@ abstract class BaseComponent<T : ViewBinding> : DefaultLifecycleObserver {
      */
     val binding get() = _binding!!
 
-    /** 生命周期对象，从ViewBinding的Context自动推断 */
+    /** 生命周期对象，从ViewTreeLifecycleOwner优先获取，其次从Context推断 */
     private val lifecycle: Lifecycle
 
     /**
@@ -68,7 +69,15 @@ abstract class BaseComponent<T : ViewBinding> : DefaultLifecycleObserver {
      */
     constructor(binding: T) {
         this._binding = binding
-        this.lifecycle = binding.root.context.findLifecycleOwner().lifecycle
+        val owner = ViewTreeLifecycleOwner.get(binding.root)
+        this.lifecycle = owner?.lifecycle
+            ?: run {
+                // 回退到从 Context 推断（通常是 Activity），可能导致作用域过大
+                // 仅在无 ViewTreeLifecycleOwner 时使用
+                val lc = binding.root.context.findLifecycleOwner().lifecycle
+                Logger.w("未从ViewTreeLifecycleOwner获取到LifecycleOwner，回退到Context关联的Lifecycle：${lc.javaClass.simpleName}")
+                lc
+            }
         lifecycle.addObserver(this)
     }
 
