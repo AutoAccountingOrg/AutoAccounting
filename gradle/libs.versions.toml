@@ -16,7 +16,7 @@ recyclerviewSelection = "1.1.0"
 
 # Navigation and Lifecycle
 navigationFragment = "2.9.0"
-lifecycleRuntimeKtx = "2.8.7"
+lifecycleRuntimeKtx = "2.9.3"
 lifecycleLiveDataKtx = "2.8.7"
 fragmentKtx = "1.8.6"
 
@@ -71,6 +71,7 @@ playServicesMlkitTextRecognitionChinese = "16.0.1"
 [libraries]
 # AndroidX Core
 androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
+androidx-lifecycle-viewtree = { module = "androidx.lifecycle:lifecycle-viewtree", version.ref = "lifecycleRuntimeKtx" }
 androidx-navigation-fragment-ktx = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigationFragment" }
 androidx-navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigationFragment" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomVersion" }
