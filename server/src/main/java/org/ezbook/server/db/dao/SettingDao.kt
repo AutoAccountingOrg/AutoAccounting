@@ -17,13 +17,14 @@ package org.ezbook.server.db.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import org.ezbook.server.db.model.SettingModel
 
 @Dao
 interface SettingDao {
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(setting: SettingModel)
 
     @Update

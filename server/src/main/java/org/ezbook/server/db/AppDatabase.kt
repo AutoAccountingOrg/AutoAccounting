@@ -61,7 +61,7 @@ import org.ezbook.server.db.model.TagModel
         BookBillModel::class,
         TagModel::class
     ],
-    version = 11,
+    version = 12,
     exportSchema = false,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -234,5 +234,44 @@ val MIGRATION_10_11 = object : Migration(10, 11) {
 
         // 同样处理可能存在的VIRTUAL类型（也被注释掉了）
         database.execSQL("UPDATE AssetsModel SET type = 'NORMAL' WHERE type = 'VIRTUAL'")
+    }
+}
+
+val MIGRATION_11_12 = object : Migration(11, 12) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        // 采用“新表拷贝 + 聚合插入 + 重命名 + 建索引”的安全迁移策略
+        // 1) 创建临时表（无唯一约束）
+        database.execSQL(
+            """
+            CREATE TABLE new_SettingModel (
+                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                `key` TEXT NOT NULL,
+                `value` TEXT NOT NULL
+            )
+            """.trimIndent()
+        )
+
+        // 2) 将每个 key 的最新记录（按最大 id）插入到新表
+        database.execSQL(
+            """
+            INSERT INTO new_SettingModel (id, `key`, `value`)
+            SELECT s.id, s.`key`, s.`value`
+            FROM SettingModel s
+            WHERE s.id IN (
+                SELECT MAX(id) FROM SettingModel GROUP BY `key`
+            )
+            """.trimIndent()
+        )
+
+        // 3) 删除旧表
+        database.execSQL("DROP TABLE SettingModel")
+
+        // 4) 临时表重命名为正式表
+        database.execSQL("ALTER TABLE new_SettingModel RENAME TO SettingModel")
+
+        // 5) 补建与实体匹配的唯一索引（Room 校验期望该索引名）
+        database.execSQL(
+            "CREATE UNIQUE INDEX IF NOT EXISTS index_SettingModel_key ON SettingModel(`key`)"
+        )
     }
 }

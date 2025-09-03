@@ -85,23 +85,15 @@ fun Route.settingRoutes() {
  * @param key 设置项的键名
  * @param value 设置项的值
  */
+/**
+ * 以唯一键 + REPLACE 的方式写入设置
+ * 依赖 SettingModel.key 的唯一索引，统一走 insert(onConflict = REPLACE)
+ */
 suspend fun setByInner(key: String, value: String) {
-    val existingData = Db.get().settingDao().query(key)
-
-    if (existingData != null) {
-        // 更新现有设置
-        val model = SettingModel().apply {
-            id = existingData.id
+    Db.get().settingDao().insert(
+        SettingModel().apply {
             this.key = key
             this.value = value
         }
-        Db.get().settingDao().update(model)
-    } else {
-        // 插入新设置
-        val model = SettingModel().apply {
-            this.key = key
-            this.value = value
-        }
-        Db.get().settingDao().insert(model)
-    }
-} 
+    )
+}

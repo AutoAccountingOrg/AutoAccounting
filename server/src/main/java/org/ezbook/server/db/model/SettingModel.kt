@@ -16,9 +16,17 @@
 package org.ezbook.server.db.model
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity
+/**
+ * 系统设置表
+ *
+ * 约束：`key` 必须全局唯一，避免产生重复的设置项。
+ */
+@Entity(
+    indices = [Index(value = ["key"], unique = true)]
+)
 class SettingModel {
     @PrimaryKey(autoGenerate = true)
     var id = 0
