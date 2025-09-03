@@ -19,6 +19,7 @@ import org.ezbook.server.Server
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.Db
+import org.ezbook.server.db.model.AssetsModel
 import org.ezbook.server.db.model.AssetsMapModel
 import org.ezbook.server.db.model.BillInfoModel
 
@@ -41,6 +42,7 @@ object AssetsMap {
     // 使用线程安全的缓存实现
     private val cache = MemoryCache.instance
     private const val REGEX_MAPPINGS_CACHE_KEY = "assets_regex_mappings"
+    private const val ASSETS_LIST_CACHE_KEY = "assets_list"
     private const val CACHE_DURATION_SECONDS = 300L // 5分钟缓存
 
     /**
@@ -52,6 +54,7 @@ object AssetsMap {
      */
     fun clearCache() {
         cache.remove(REGEX_MAPPINGS_CACHE_KEY)
+        cache.remove(ASSETS_LIST_CACHE_KEY)
     }
 
     /**
@@ -77,6 +80,27 @@ object AssetsMap {
             Server.log("获取正则映射规则失败: ${e.message}")
             Server.log(e)
             emptyList() // 返回空列表，避免系统崩溃
+        }
+    }
+
+    /**
+     * 获取资产列表（带缓存）
+     *
+     * 说明：算法映射需要遍历现有资产，使用缓存减少数据库压力。
+     */
+    private suspend fun getAssetsList(): List<AssetsModel> {
+        cache.get(ASSETS_LIST_CACHE_KEY)?.let { cached ->
+            return cached as List<AssetsModel>
+        }
+        return try {
+            val assets = Db.get().assetsDao().load()
+            cache.put(ASSETS_LIST_CACHE_KEY, assets, CACHE_DURATION_SECONDS)
+            Server.logD("从数据库加载并缓存了 ${assets.size} 个资产")
+            assets
+        } catch (e: Exception) {
+            Server.log("获取资产列表失败: ${e.message}")
+            Server.log(e)
+            emptyList()
         }
     }
 
@@ -185,6 +209,9 @@ object AssetsMap {
         // 3. 正则表达式匹配
         findRegexMapping(accountName)?.let { return it }
 
+        // 3.5 基于算法的智能匹配（在空映射创建之前尝试）
+        findByAlgorithm(accountName)?.let { return it }
+
         // 4. 创建空映射（仅当非AI生成且不存在映射时）
         if (!billInfoModel.generateByAi() && existingMap == null) {
             createEmptyMapping(accountName)
@@ -233,6 +260,97 @@ object AssetsMap {
             Server.log(e)
             null
         }
+    }
+
+    /**
+     * 基于算法的资产匹配
+     *
+     * 逻辑：
+     * 1. 若原始账户名中包含数字（如卡号），优先用数字在资产名中匹配
+     * 2. 否则使用“最长连续相似子串”作为相似度指标选取最佳匹配
+     *
+     * 返回匹配到的资产名称；若无匹配则返回null
+     */
+    private suspend fun findByAlgorithm(accountName: String): String? {
+        val assets = getAssetsList()
+        if (assets.isEmpty()) return null
+
+        // 1) 数字优先匹配（如卡号）
+        val number = Regex("\\d+").find(accountName)?.value ?: ""
+        if (number.isNotEmpty()) {
+            assets.firstOrNull { it.name.contains(number.trim()) }?.let { asset ->
+                Server.logD("算法映射-卡号命中: ${asset.name}")
+                return asset.name
+            }
+        }
+
+        // 2) 文本相似度匹配（最长连续相似子串）
+        val cleanInput = accountName.cleanText(number)
+        var bestName: String? = null
+        var bestSimilarity = 0
+        var bestDiff = Int.MAX_VALUE
+
+        for (asset in assets) {
+            val cleanAssetName = asset.name.cleanText()
+            val similarity = calculateConsecutiveSimilarity(cleanAssetName, cleanInput)
+            if (similarity > 0) {
+                val diff = cleanAssetName.length - similarity
+                if (similarity > bestSimilarity || (similarity == bestSimilarity && diff < bestDiff)) {
+                    // 过滤过短的中文前缀导致的误命中（对齐端侧实现）
+                    if (!(similarity == 2 && cleanInput.startsWith("中国"))) {
+                        bestName = asset.name
+                        bestSimilarity = similarity
+                        bestDiff = diff
+                    }
+                }
+            }
+        }
+
+        bestName?.let {
+            Server.logD("算法映射-文本命中: '$accountName' -> '$it' 相似度=$bestSimilarity 差异=$bestDiff")
+            return it
+        }
+        return null
+    }
+
+    /**
+     * 计算两个字符串的最长连续相似子串长度
+     */
+    private fun calculateConsecutiveSimilarity(a: String, b: String): Int {
+        val m = a.length
+        val n = b.length
+        if (m == 0 || n == 0) return 0
+
+        var previousRow = IntArray(n + 1)
+        var currentRow = IntArray(n + 1)
+        var maxLength = 0
+
+        for (i in 1..m) {
+            for (j in 1..n) {
+                if (a[i - 1] == b[j - 1]) {
+                    currentRow[j] = previousRow[j - 1] + 1
+                    if (currentRow[j] > maxLength) maxLength = currentRow[j]
+                } else {
+                    currentRow[j] = 0
+                }
+            }
+            val temp = previousRow
+            previousRow = currentRow
+            currentRow = temp
+        }
+        return maxLength
+    }
+
+    /**
+     * 字符串清理（去除卡号、常见无效词）
+     */
+    private fun String.cleanText(numberToRemove: String = ""): String {
+        return this
+            .replace(numberToRemove, "")
+            .replace(Regex("\\([^(（【】）)]*\\)"), "")
+            .replace(Regex("[卡银行储蓄借记]"), "")
+            .replace("支付", "")
+            .trim()
     }
 
     /**
