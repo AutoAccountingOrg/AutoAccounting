@@ -922,4 +922,54 @@
     <string name="period_last_year">最近一年</string>
     <string name="period_this_year">今年</string>
 
+    <!-- 以下为与默认英文 strings 对齐而新增的缺失条目 -->
+    <!-- 权限可选提示 -->
+    <string name="perm_optional">可选</string>
+    <string name="perm_optional_missing_hint">%d个可选权限未授予，可能影响部分功能</string>
+    <string name="perm_notification_desc_optional">允许应用读取传入通知以捕获账单提醒。OCR 模式下为可选。</string>
+    <string name="perm_sms_desc_optional">允许应用读取短信以获取支付确认码。OCR 模式下为可选。</string>
+
+    <!-- 通用提示与吐司 -->
+    <string name="toast_target_app_not_installed">未安装目标应用“%1$s”，无法继续</string>
+
+    <!-- 金额与手续费编辑相关 -->
+    <string name="edit_amount">编辑金额</string>
+    <string name="edit_fee">编辑手续费</string>
+    <string name="no_discount">无折扣</string>
+    <string name="discounted">已优惠 %.2f</string>
+    <string name="handling_fee">手续费 %.2f</string>
+    <string name="fee">费用 %.2f</string>
+
+    <!-- 规则禁用相关 -->
+    <string name="disable_rule_title">禁用规则</string>
+    <string name="disable_rule_message">确定要禁用规则“%s”吗？</string>
+    <string name="rule_not_found">未找到规则</string>
+    <string name="rule_disabled_success">已成功禁用 %d 条规则</string>
+    <string name="rule_disable_failed">禁用规则失败</string>
+
+    <!-- 替换预览对话框补全 -->
+    <string name="replace_preview_title">替换预览</string>
+    <string name="select_all">全选</string>
+    <string name="btn_confirm_replace">确认替换</string>
+    <string name="item_count_format">共 %1$d 项</string>
+
+    <!-- 浮窗动作显示名称 & 通用字符串 -->
+    <string name="seconds">秒</string>
+    <string name="never">从不</string>
+    <string name="setting_not_set">未设置</string>
+    <string name="setting_timeout_seconds">%d 秒</string>
+    <string name="float_action_edit">编辑账单</string>
+    <string name="float_action_save">保存</string>
+    <string name="float_action_dismiss">关闭</string>
+    <string name="float_action_auto_record">自动记录</string>
+    <string name="float_action_minimize">最小化</string>
+    <string name="float_action_settings">设置</string>
+
+    <!-- 资产与账单相关补全 -->
+    <string name="save_bill_success">账单保存成功</string>
+    <string name="expend_reimbursement">支出报销</string>
+    <string name="income_reimbursement">收入报销</string>
+    <string name="setting_current_selection">当前选择：%s</string>
+    <string name="setting_auto_asset_mapping_disabled">必须先启用资产管理功能</string>
+
 </resources>
