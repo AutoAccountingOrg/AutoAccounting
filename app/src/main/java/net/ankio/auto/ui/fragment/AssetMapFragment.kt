@@ -22,6 +22,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.launch
+import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentMapBinding
 import net.ankio.auto.http.api.AssetsMapAPI
@@ -172,5 +173,13 @@ class AssetMapFragment : BasePageFragment<AssetsMapModel, FragmentMapBinding>() 
                 }
             }
             .show()
+    }
+
+
+    override fun onStop() {
+        super.onStop()
+        App.launch {
+            AssetsMapAPI.reapply()
+        }
     }
 }
