@@ -19,6 +19,7 @@ import android.content.res.ColorStateList
 import android.text.InputType
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.core.widget.TextViewCompat
 import net.ankio.auto.R
 import net.ankio.auto.databinding.ComponentAmountDisplayBinding
@@ -29,6 +30,7 @@ import net.ankio.auto.ui.dialog.EditorDialogBuilder
 
 import net.ankio.auto.ui.utils.ListPopupUtilsGeneric
 import net.ankio.auto.utils.BillTool
+import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.BillInfoModel
 
@@ -125,12 +127,14 @@ class AmountDisplayComponent(
      * 设置类型选择器
      */
     private fun setupTypeSelector() {
-        // 创建可用的交易类型映射
-        val availableTypes = hashMapOf(
+        // 创建可用的交易类型映射；仅在启用资产管理功能时显示“转账”
+        val availableTypes = linkedMapOf(
             context.getString(R.string.float_expend) to BillType.Expend,
-            context.getString(R.string.float_income) to BillType.Income,
-            context.getString(R.string.float_transfer) to BillType.Transfer
+            context.getString(R.string.float_income) to BillType.Income
         )
+        if (PrefManager.featureAssetManage) {
+            availableTypes[context.getString(R.string.float_transfer)] = BillType.Transfer
+        }
 
         // 为type_label设置点击监听器
         binding.typeLabel.setOnClickListener {
@@ -203,10 +207,17 @@ class AmountDisplayComponent(
      * @param fee 费用数值
      */
     private fun setFeeDisplay(fee: Double) {
+        binding.feeContainer.isVisible = PrefManager.featureFee
+        // 当未启用资产管理时，将“转账”的展示按“支出”样式处理（仅影响展示，不修改数据）
+        val displayType =
+            if (currentBillType == BillType.Transfer && !PrefManager.featureAssetManage) {
+                BillType.Expend
+            } else currentBillType
+
         val text = when {
             fee == 0.0 -> context.getString(R.string.no_discount)
-            currentBillType == BillType.Expend -> context.getString(R.string.discounted, fee)
-            currentBillType == BillType.Income -> context.getString(R.string.handling_fee, fee)
+            displayType == BillType.Expend -> context.getString(R.string.discounted, fee)
+            displayType == BillType.Income -> context.getString(R.string.handling_fee, fee)
             else -> context.getString(R.string.fee, fee)
         }
         binding.feeContainer.text = text
@@ -217,7 +228,13 @@ class AmountDisplayComponent(
      * 更新类型标签显示
      */
     private fun updateTypeLabelDisplay() {
-        val typeText = when (currentBillType) {
+        // 当未启用资产管理时，将“转账”按“支出”标签展示
+        val displayType =
+            if (currentBillType == BillType.Transfer && !PrefManager.featureAssetManage) {
+                BillType.Expend
+            } else currentBillType
+
+        val typeText = when (displayType) {
             BillType.Expend -> context.getString(R.string.float_expend)
             BillType.Income -> context.getString(R.string.float_income)
             BillType.Transfer -> context.getString(R.string.float_transfer)
@@ -231,14 +248,20 @@ class AmountDisplayComponent(
      * 包括图标、颜色等视觉元素
      */
     private fun updateTypeDisplay() {
-        val drawableRes = when (currentBillType) {
+        // 当未启用资产管理时，将“转账”的视觉样式按“支出”处理
+        val displayType =
+            if (currentBillType == BillType.Transfer && !PrefManager.featureAssetManage) {
+                BillType.Expend
+            } else currentBillType
+
+        val drawableRes = when (displayType) {
             BillType.Expend -> R.drawable.float_minus
             BillType.Income -> R.drawable.float_add
             BillType.Transfer -> R.drawable.float_round
             else -> R.drawable.float_minus
         }
 
-        val tintRes = BillTool.getColor(currentBillType)
+        val tintRes = BillTool.getColor(displayType)
         val drawable = AppCompatResources.getDrawable(context, drawableRes)
         val tint = ColorStateList.valueOf(ContextCompat.getColor(context, tintRes))
         val color = ContextCompat.getColor(context, tintRes)
