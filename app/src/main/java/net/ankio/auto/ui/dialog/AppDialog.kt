@@ -15,11 +15,7 @@
 
 package net.ankio.auto.ui.dialog
 
-import android.app.Activity
 import android.view.View
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LifecycleService
 import androidx.recyclerview.widget.RecyclerView
 import net.ankio.auto.adapter.AppAdapterManager
 import net.ankio.auto.adapter.IAppAdapter
@@ -89,7 +85,7 @@ class AppDialog internal constructor(
         }
         recyclerView.adapter = adapter
         // 使用全量提交，避免依赖 Diff 回调
-        adapter.submitItems(apps)
+        adapter.replaceItems(apps)
     }
 
     override fun dismiss() {

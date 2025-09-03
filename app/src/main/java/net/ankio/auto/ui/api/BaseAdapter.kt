@@ -11,9 +11,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import net.ankio.auto.storage.Logger
-import java.lang.reflect.Method
 import java.lang.reflect.ParameterizedType
-import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.cancellation.CancellationException
 
 /**
@@ -65,19 +63,40 @@ abstract class BaseAdapter<T : ViewBinding, E> : RecyclerView.Adapter<BaseViewHo
         super.onDetachedFromRecyclerView(recyclerView)
         adapterScope.cancel()
     }
+
+    /**
+     * 统一处理列表更新的 DiffUtil 流程，消除重复代码
+     *
+     * @param buildNewList 基于旧数据生成新列表的函数（应返回不可变副本）
+     */
+    private fun applyListUpdate(buildNewList: (List<E>) -> List<E>) {
+        val oldItems = items.toList()
+        val newList = buildNewList(oldItems)
+
+        val diffResult = DiffUtil.calculateDiff(AdapterDiffCallback(oldItems, newList))
+
+        items.clear()
+        items.addAll(newList)
+
+        diffResult.dispatchUpdatesTo(this)
+
+        Logger.d("已使用 DiffUtil 更新数据项: 旧=${oldItems.size}项, 新=${newList.size}项")
+    }
     /**
      * 更新指定位置的数据项
      *
      * @param index 要更新的位置索引
      * @param item 新的数据项
      */
-    fun updateItem(index: Int, item: E) {
+    fun updateItem(index: Int, item: E): Boolean {
         if (index in items.indices) {
             items[index] = item
             notifyItemChanged(index)
             Logger.d("已更新位置 $index 的数据项")
+            return true
         } else {
             Logger.w("更新数据项失败: 索引 $index 超出范围 (大小: ${items.size})")
+            return false
         }
     }
 
@@ -93,13 +112,15 @@ abstract class BaseAdapter<T : ViewBinding, E> : RecyclerView.Adapter<BaseViewHo
      *
      * @param index 要移除的位置索引
      */
-    fun removeItem(index: Int) {
+    fun removeItem(index: Int): Boolean {
         if (index in items.indices) {
             items.removeAt(index)
             notifyItemRemoved(index)
             Logger.d("已移除位置 $index 的数据项")
+            return true
         } else {
             Logger.w("移除数据项失败: 索引 $index 超出范围 (大小: ${items.size})")
+            return false
         }
     }
 
@@ -108,15 +129,17 @@ abstract class BaseAdapter<T : ViewBinding, E> : RecyclerView.Adapter<BaseViewHo
      *
      * @param item 要移除的数据项
      */
-    fun removeItem(item: E) {
+    fun removeItem(item: E): Boolean {
         val index = items.indexOf(item)
         if (index >= 0) {
-            removeItem(index)
+            return removeItem(index)
         } else {
             Logger.w("移除数据项失败: 在列表中未找到该项")
+            return false
         }
     }
 
+    fun index(index: Int): E? = items[index]
     /**
      * 获取数据项在列表中的索引
      *
@@ -133,15 +156,21 @@ abstract class BaseAdapter<T : ViewBinding, E> : RecyclerView.Adapter<BaseViewHo
     fun getItems(): List<E> = items.toList()
 
     /**
-     * 提交新的数据列表（使用 notifyDataSetChanged）
+     * 提交新的数据列表（使用 DiffUtil 高效更新）
      *
      * @param newItems 新的数据列表
      */
+    fun replaceItems(newItems: List<E>) {
+        applyListUpdate { _ -> newItems }
+    }
+
+    /**
+     * 追加新的数据列表（使用 DiffUtil 高效更新）
+     *
+     * @param newItems 追加的数据列表
+     */
     fun submitItems(newItems: List<E>) {
-        items.clear()
-        items.addAll(newItems)
-        notifyDataSetChanged()
-        Logger.d("已提交 ${newItems.size} 个数据项 (使用 notifyDataSetChanged)")
+        applyListUpdate { old -> old + newItems }
     }
 
     /**
@@ -150,21 +179,7 @@ abstract class BaseAdapter<T : ViewBinding, E> : RecyclerView.Adapter<BaseViewHo
      * @param newItems 新的数据列表
      */
     fun updateItems(newItems: List<E>) {
-        // 1. 拷贝旧数据，防止后面清空 items 时影响 diff (好习惯)
-        val oldItems = items.toList()
-
-        // 2. 计算差异
-        val diffResult = DiffUtil.calculateDiff(AdapterDiffCallback(oldItems, newItems))
-
-        // 3. 替换数据集
-        items.clear()
-        items.addAll(newItems)
-
-        // 4. 分发更新
-        diffResult.dispatchUpdatesTo(this)
-
-        Logger.d("已使用 DiffUtil 更新数据项: 旧=${oldItems.size}项, 新=${newItems.size}项")
-//        Logger.e("pdated items with DiffUtil", Exception())
+        applyListUpdate { _ -> newItems }
     }
 
     /**

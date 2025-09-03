@@ -362,7 +362,7 @@ class AssetEditFragment : BaseFragment<FragmentAssetEditBinding>() {
                 icon.name.contains(query, ignoreCase = true)
             }
 
-            iconAdapter.submitItems(searchResults)
+            iconAdapter.replaceItems(searchResults)
         }
     }
 

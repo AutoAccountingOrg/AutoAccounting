@@ -23,7 +23,6 @@ import net.ankio.auto.databinding.DialogReplacePreviewBinding
 import net.ankio.auto.ui.adapter.ReplacePreviewAdapter
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.model.ReplaceItem
-import net.ankio.auto.ui.utils.Desensitizer
 import net.ankio.auto.ui.utils.DesensitizeResult
 
 /**
@@ -60,7 +59,7 @@ class ReplacePreviewDialog internal constructor(
 
         // 如果适配器已初始化，更新数据
         if (::adapter.isInitialized) {
-            adapter.submitItems(replaceItems)
+            adapter.replaceItems(replaceItems)
             updateItemCount()
         }
     }
@@ -80,7 +79,7 @@ class ReplacePreviewDialog internal constructor(
         setupButtons()
 
         // 设置初始数据
-        adapter.submitItems(replaceItems)
+        adapter.replaceItems(replaceItems)
         updateItemCount()
     }
 

@@ -18,14 +18,11 @@ package net.ankio.auto.ui.fragment
 import android.os.Bundle
 import android.view.View
 import androidx.core.widget.addTextChangedListener
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
-import com.bumptech.glide.Glide
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentCategoryEditBinding
@@ -36,7 +33,6 @@ import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.utils.CategoryUtils
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.ui.utils.adapterBottom
-import net.ankio.auto.ui.utils.load
 import net.ankio.auto.ui.utils.setCategoryIcon
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.CategoryModel
@@ -171,7 +167,7 @@ class CategoryEditFragment : BaseFragment<FragmentCategoryEditBinding>() {
         allIcons = categoryUtils.list(requireContext())
 
         withContext(Dispatchers.Main) {
-            iconAdapter.submitItems(allIcons)
+            iconAdapter.replaceItems(allIcons)
 
             // 设置默认选中第一个图标
             if (allIcons.isNotEmpty() && selectedIcon == null) {
@@ -235,7 +231,7 @@ class CategoryEditFragment : BaseFragment<FragmentCategoryEditBinding>() {
         searchJob?.cancel()
 
         if (query.isEmpty()) {
-            iconAdapter.submitItems(allIcons)
+            iconAdapter.replaceItems(allIcons)
             return
         }
 
@@ -246,7 +242,7 @@ class CategoryEditFragment : BaseFragment<FragmentCategoryEditBinding>() {
                 icon.name?.contains(query, ignoreCase = true) == true
             }
 
-            iconAdapter.submitItems(filteredIcons)
+            iconAdapter.replaceItems(filteredIcons)
         }
     }
 

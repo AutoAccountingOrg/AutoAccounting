@@ -3,17 +3,14 @@ package net.ankio.auto.ui.api
 import android.os.Bundle
 import android.os.Parcelable
 import android.view.View
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.viewbinding.ViewBinding
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import net.ankio.auto.R
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.components.StatusPage
+import net.ankio.auto.utils.CoroutineUtils.withIO
 
 /**
  * 基础分页Fragment抽象类
@@ -43,7 +40,7 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
      * @return 返回当前页的数据列表
      */
     abstract suspend fun loadData(): List<T>
-    
+
     /**
      * 创建RecyclerView适配器的抽象方法，子类需要实现
      * @return 返回适配器实例
@@ -67,6 +64,8 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
 
     /** 适配器实例 */
     private var adapter: RecyclerView.Adapter<*>? = null
+
+    private var baseAdapter: BaseAdapter<*, T>? = null
 
     /**
      * RecyclerView 布局管理器的滚动位置状态
@@ -96,7 +95,7 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
         if (pageData.isNotEmpty()) {
             Logger.d("检测到已有数据，跳过初始加载并尝试恢复滚动位置")
             statusPage.showContent()
-            (adapter as? BaseAdapter<*, T>)?.updateItems(pageData.toList())
+            baseAdapter?.updateItems(pageData.toList())
             restoreScrollPositionIfNeeded()
         } else {
             // 启动首次数据加载
@@ -126,6 +125,7 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
         adapter = onCreateAdapter()
         recyclerView = statusPage.contentView
         recyclerView?.adapter = adapter
+        baseAdapter = adapter as? BaseAdapter<*, T>
     }
 
     /**
@@ -153,6 +153,7 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
         _swipeRefreshLayout = null
         recyclerView = null
         adapter = null
+        baseAdapter = null
     }
 
     /**
@@ -163,7 +164,7 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
         Logger.d("重置分页状态：清空页码和数据")
         page = 1
         pageData.clear()
-        (adapter as? BaseAdapter<*, T>)?.updateItems(emptyList())
+        baseAdapter?.updateItems(emptyList())
     }
 
     /**
@@ -186,19 +187,19 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
      */
     protected open fun loadDataInside(callback: ((success: Boolean, hasMore: Boolean) -> Unit)? = null) {
         // 防护检查：Fragment状态和重复加载
-        if (!isAdded || activity == null || isLoading) {
+        if (!uiReady() || isLoading) {
             Logger.d("数据加载中止：Fragment未添加或正在加载中")
             callback?.invoke(false, hasMoreData)
             return
         }
-        
+
         isLoading = true
         Logger.d("开始加载数据：第${page}页")
 
         launch {
 
             // 在IO线程中执行数据加载，避免阻塞UI
-            val resultData = withContext(Dispatchers.IO) { loadData() }
+            val resultData = withIO { loadData() }
 
             // 根据加载结果更新UI状态
             if (resultData.isEmpty()) {
@@ -208,7 +209,8 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
                 callback?.invoke(true, false)
             } else {
                 Logger.d("第${page}页加载成功：${resultData.size}条数据")
-                handleDataResult(resultData)
+                baseAdapter?.submitItems(resultData)
+                statusPage.showContent()
                 hasMoreData = resultData.size >= pageSize
                 callback?.invoke(true, hasMoreData)
                 // 如果这是一次返回后的首次数据可见阶段，确保尝试恢复滚动
@@ -229,16 +231,6 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
         } else {
             statusPage.showContent()
         }
-    }
-
-    /**
-     * 处理有数据的结果
-     * 更新数据集合和适配器
-     */
-    private fun handleDataResult(resultData: List<T>) {
-        pageData.addAll(resultData)
-        statusPage.showContent()
-        (adapter as? BaseAdapter<*, T>)?.updateItems(pageData.toList())
     }
 
     /**
@@ -277,7 +269,7 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
                 // 预加载阈值：距离底部5个item时触发
                 if (lastVisibleItem >= totalItemCount - 5) {
                     Logger.d("触发加载更多：当前位置${lastVisibleItem}，总数${totalItemCount}")
-                    
+
                     page++
                     loadDataInside { success, hasMore ->
                         if (!success) {
@@ -300,9 +292,7 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
      * @param item 要添加的数据项
      */
     protected fun addItem(item: T) {
-        pageData.add(item)
-        updateAdapter()
-        Logger.d("添加数据项：当前总数${pageData.size}")
+        baseAdapter?.submitItems(listOf(item))
     }
 
     /**
@@ -310,25 +300,9 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
      * @param items 要添加的数据项列表
      */
     protected fun addItems(items: List<T>) {
-        pageData.addAll(items)
-        updateAdapter()
-        Logger.d("批量添加数据项：${items.size}条，当前总数${pageData.size}")
+        baseAdapter?.submitItems(items)
     }
 
-    /**
-     * 在指定位置插入数据项
-     * @param index 插入位置
-     * @param item 要插入的数据项
-     */
-    protected fun insertItem(index: Int, item: T) {
-        if (index in 0..pageData.size) {
-            pageData.add(index, item)
-            updateAdapter()
-            Logger.d("在位置${index}插入数据项：当前总数${pageData.size}")
-        } else {
-            Logger.w("插入位置无效：${index}，列表大小：${pageData.size}")
-        }
-    }
 
     /**
      * 移除指定数据项
@@ -336,19 +310,11 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
      * @return 是否移除成功
      */
     protected fun removeItem(item: T): Boolean {
-        val removed = pageData.remove(item)
-        if (removed) {
-            updateAdapter()
-            Logger.d("移除数据项成功：当前总数${pageData.size}")
-
-            // 如果列表为空，显示空状态
-            if (pageData.isEmpty()) {
-                statusPage.showEmpty()
-            }
-        } else {
-            Logger.w("移除数据项失败：项目不存在")
+        val boolean = baseAdapter?.removeItem(item) ?: false
+        if (pageData.isEmpty()) {
+            statusPage.showEmpty()
         }
-        return removed
+        return boolean
     }
 
     /**
@@ -357,21 +323,12 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
      * @return 被移除的数据项，如果位置无效则返回null
      */
     protected fun removeItemAt(index: Int): T? {
-        return if (index in 0 until pageData.size) {
-            val removedItem = pageData.removeAt(index)
-            updateAdapter()
-            Logger.d("移除位置${index}的数据项：当前总数${pageData.size}")
-
-            // 如果列表为空，显示空状态
-            if (pageData.isEmpty()) {
-                statusPage.showEmpty()
-            }
-
-            removedItem
-        } else {
-            Logger.w("移除位置无效：${index}，列表大小：${pageData.size}")
-            null
+        val item = baseAdapter?.index(index)
+        baseAdapter?.removeItem(index)
+        if (pageData.isEmpty()) {
+            statusPage.showEmpty()
         }
+        return item
     }
 
     /**
@@ -381,34 +338,7 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
      * @return 是否更新成功
      */
     protected fun updateItem(index: Int, item: T): Boolean {
-        return if (index in 0 until pageData.size) {
-            pageData[index] = item
-            updateAdapter()
-            Logger.d("更新位置${index}的数据项")
-            true
-        } else {
-            Logger.w("更新位置无效：${index}，列表大小：${pageData.size}")
-            false
-        }
-    }
-
-    /**
-     * 替换指定数据项
-     * @param oldItem 要替换的旧数据项
-     * @param newItem 新的数据项
-     * @return 是否替换成功
-     */
-    protected fun replaceItem(oldItem: T, newItem: T): Boolean {
-        val index = pageData.indexOf(oldItem)
-        return if (index != -1) {
-            pageData[index] = newItem
-            updateAdapter()
-            Logger.d("替换数据项成功：位置${index}")
-            true
-        } else {
-            Logger.w("替换数据项失败：旧项目不存在")
-            false
-        }
+        return baseAdapter?.updateItem(index, item) ?: false
     }
 
     /**
@@ -416,7 +346,7 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
      */
     protected fun clearItems() {
         pageData.clear()
-        updateAdapter()
+        baseAdapter?.replaceItems(listOf())
         statusPage.showEmpty()
         Logger.d("清空所有数据项")
     }
@@ -433,34 +363,7 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
      * @return 数据项，如果位置无效则返回null
      */
     protected fun getItem(index: Int): T? {
-        return if (index in 0 until pageData.size) {
-            pageData[index]
-        } else {
-            Logger.w("获取位置无效：${index}，列表大小：${pageData.size}")
-            null
-        }
-    }
-
-    /**
-     * 查找数据项的位置
-     * @param item 要查找的数据项
-     * @return 位置索引，如果不存在则返回-1
-     */
-    protected fun indexOf(item: T): Int = pageData.indexOf(item)
-
-    /**
-     * 检查是否包含指定数据项
-     * @param item 要检查的数据项
-     * @return 是否包含
-     */
-    protected fun contains(item: T): Boolean = pageData.contains(item)
-
-    /**
-     * 更新适配器数据
-     * 统一的适配器更新方法，确保数据同步
-     */
-    private fun updateAdapter() {
-        (adapter as? BaseAdapter<*, T>)?.updateItems(pageData.toList())
+        return baseAdapter?.index(index)
     }
 
     // ================================
