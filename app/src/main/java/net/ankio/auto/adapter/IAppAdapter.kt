@@ -49,4 +49,7 @@ interface IAppAdapter {
 
     //将账单同步到目标APP
     fun syncBill(billInfoModel: BillInfoModel)
+
+    //睡眠时间，单位毫秒
+    fun sleep(): Long
 }

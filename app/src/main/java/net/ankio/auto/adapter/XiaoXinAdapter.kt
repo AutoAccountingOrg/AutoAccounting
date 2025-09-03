@@ -312,4 +312,8 @@ class XiaoXinAdapter : IAppAdapter {
         val parent: String,
         val child: String
     )
+
+    override fun sleep(): Long {
+        return 0L
+    }
 }

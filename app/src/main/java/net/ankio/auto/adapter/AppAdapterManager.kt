@@ -18,7 +18,6 @@ package net.ankio.auto.adapter
 import net.ankio.auto.App
 import net.ankio.auto.constant.WorkMode
 import net.ankio.auto.http.api.BillAPI
-import net.ankio.auto.utils.BillTool
 import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.constant.BillState
 import org.ezbook.server.db.model.BillInfoModel

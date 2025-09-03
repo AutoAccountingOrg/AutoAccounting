@@ -44,6 +44,10 @@ class AutoAdapter : IAppAdapter {
         AppAdapterManager.markSynced(billInfoModel)
     }
 
+    override fun sleep(): Long {
+        return 0L
+    }
+
     override fun supportSyncAssets(): Boolean {
         return false
     }

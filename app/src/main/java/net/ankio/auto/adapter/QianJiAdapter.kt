@@ -296,10 +296,8 @@ class QianJiAdapter : IAppAdapter {
         val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
         return sdf.format(date)
     }
-
-    companion object {
-        const val TYPE_SYNC_DATA = "-9990" //同步资产数据
-        const val TYPE_SYNC_BAOXIAO = "-9991" //同步报销和退款数据
+    override fun sleep(): Long {
+        return if (PrefManager.workMode == WorkMode.Xposed) 0L else 3000L
     }
 
 }

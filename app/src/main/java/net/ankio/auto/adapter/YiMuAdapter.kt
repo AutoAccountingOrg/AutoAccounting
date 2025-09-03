@@ -154,4 +154,8 @@ class YiMuAdapter : IAppAdapter {
     override fun syncWaitBills(billAction: BillAction) {
 
     }
+
+    override fun sleep(): Long {
+        return 0L
+    }
 }
