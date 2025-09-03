@@ -26,6 +26,8 @@ import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.PrefManager
+import net.ankio.auto.utils.CoroutineUtils.withIO
+import net.ankio.auto.utils.SystemUtils
 
 /**
  * 其他设置页面 - Linus式极简设计
@@ -155,8 +157,14 @@ class OthersPreferenceFragment : BasePreferenceFragment() {
         launch {
             loading.show(R.string.clearing_database)
             DatabaseAPI.clear()
+            // 同步清理内置缓存与数据目录（仅删除子项，不删除目录本身）
+            withIO {
+                val ctx = requireContext()
+                ctx.deleteSharedPreferences("settings")
+            }
             ToastUtils.info(getString(R.string.clear_database_success))
             loading.close()
+            SystemUtils.restart()
         }
     }
 }
