@@ -189,9 +189,8 @@ class BillEditorDialog internal constructor(
         launch {
             // 保存账单
             billInfo.state = BillState.Edited
-
-            dismiss()
             onConfirmClick?.invoke(billInfo)
+            dismiss()
         }
     }
 
