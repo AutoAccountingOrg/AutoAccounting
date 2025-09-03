@@ -274,21 +274,21 @@ class AiComponent(
         launch {
             try {
                 loading.show()
-            providerList = AiAPI.getProviders()
-            modelKeyUri = AiAPI.getApiUrl()
+                providerList = AiAPI.getProviders()
+                modelKeyUri = AiAPI.getApiUrl()
                 binding.etAiBaseUrl.setText(modelKeyUri)
 
-            // Provider
-            binding.actAiProvider.setSimpleItems(providerList.toTypedArray())
-            binding.actAiProvider.setText(AiAPI.getCurrentProvider(), false)
+                // Provider
+                binding.actAiProvider.setSimpleItems(providerList.toTypedArray())
+                binding.actAiProvider.setText(AiAPI.getCurrentProvider(), false)
 
-            // Model
-            binding.actAiModel.setText(AiAPI.getCurrentModel(), false)
+                // Model
+                binding.actAiModel.setText(AiAPI.getCurrentModel(), false)
 
-            // Token
-            binding.etAiToken.setText(AiAPI.getApiKey())
+                // Token
+                binding.etAiToken.setText(AiAPI.getApiKey())
 
-            // 测试按钮始终可用，无需更新状态
+                // 测试按钮始终可用，无需更新状态
             } finally {
                 loading.close()
             }
