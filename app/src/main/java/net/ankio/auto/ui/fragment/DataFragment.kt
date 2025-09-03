@@ -133,7 +133,7 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
                     .setBillInfo(billResultModel.billInfoModel)
                     .setOnConfirm {
                         //点击保存，直接保存账单，不会进行去重
-                        launch {
+                        this@DataFragment.launch {
                             BillAPI.put(it)
                             ToastUtils.info(getString(R.string.save_bill_success))
                         }
