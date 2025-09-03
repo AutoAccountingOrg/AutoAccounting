@@ -18,6 +18,7 @@ package net.ankio.auto.ui.activity
 import android.os.Bundle
 import androidx.activity.OnBackPressedCallback
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
 import net.ankio.auto.App
 import net.ankio.auto.R
@@ -37,15 +38,15 @@ class HomeActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        val navController = (supportFragmentManager
-            .findFragmentById(R.id.nav_host_fragment) as NavHostFragment).navController
-        // 将 BottomNavigation 与 NavController 的绑定延后到下一帧，
-        // 避免在 NavController.currentDestination 尚未初始化时触发点击导致 NPE。
-        binding.bottomNavigation.post {
-            binding.bottomNavigation.setupWithNavController(navController)
-        }
+        val navHostFragment = supportFragmentManager
+            .findFragmentById(R.id.nav_host_fragment) as NavHostFragment?
+            ?: throw IllegalStateException("NavHostFragment not found")
+        val navController = navHostFragment.navController
+        binding.bottomNavigation.setupWithNavController(navController)
+
+        NavigationUI.setupWithNavController(binding.bottomNavigation, navController)
         // 监听当前fragment变化
-        navController.addOnDestinationChangedListener { _, destination, _ ->
+        navHostFragment.navController.addOnDestinationChangedListener { _, destination, _ ->
             // 这里判断destination.id是否在底部tab范围内
             val idsToShowBottomNav = setOf(
                 R.id.homeFragment,
