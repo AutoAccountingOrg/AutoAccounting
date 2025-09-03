@@ -45,6 +45,7 @@ import net.ankio.auto.ui.dialog.DataEditorDialog
 import net.ankio.auto.ui.dialog.EditorDialogBuilder
 import net.ankio.auto.ui.models.RailMenuItem
 import net.ankio.auto.http.Pastebin
+import net.ankio.auto.http.api.BillAPI
 import net.ankio.auto.http.license.RuleAPI
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.ToastUtils
@@ -130,8 +131,12 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
             billResultModel?.let {
                 BaseSheetDialog.create<BillEditorDialog>(requireContext())
                     .setBillInfo(billResultModel.billInfoModel)
-                    .setOnConfirm { _ ->
-                        ToastUtils.info("规则测试完成")
+                    .setOnConfirm {
+                        //点击保存，直接保存账单，不会进行去重
+                        launch {
+                            BillAPI.put(it)
+                            ToastUtils.info(getString(R.string.save_bill_success))
+                        }
                     }
                     .setOnCancel { _ -> }
                     .show()

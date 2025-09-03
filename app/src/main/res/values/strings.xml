@@ -162,6 +162,7 @@
     <string name="asset_not_found">Asset not found</string>
     <string name="asset_load_failed">Failed to load asset</string>
     <string name="save_asset_success">Asset saved successfully</string>
+    <string name="save_bill_success">Bill saved successfully</string>
     <string name="delete_asset_success">Asset deleted successfully</string>
     <string name="title_tag">Tags</string>
     <string name="title_app_whitelist">App Whitelist</string>
