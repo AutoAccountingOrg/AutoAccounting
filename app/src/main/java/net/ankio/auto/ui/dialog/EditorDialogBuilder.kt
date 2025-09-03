@@ -23,10 +23,12 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleService
 import com.google.android.material.textfield.TextInputEditText
+import net.ankio.auto.BuildConfig
 import net.ankio.auto.databinding.DialogBottomSheetBinding
 import net.ankio.auto.databinding.SettingItemInputBinding
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseSheetDialog
+import net.ankio.auto.utils.PrefManager
 
 /**
  * 编辑器对话框构建器
@@ -61,7 +63,9 @@ class EditorDialogBuilder internal constructor(
     fun setInputType(inputType: Int) = apply {
         this.inputTypeInt = inputType
         if (::editText.isInitialized) {
-            editText.inputType = inputType
+            // 调试模式下，如果为密码输入类型，则切换为明文输入类型，便于调试
+            // 非调试模式保持原样，确保不破坏用户空间（Never break userspace）
+            editText.inputType = adjustInputTypeForDebug(inputType)
         }
     }
 
@@ -104,7 +108,8 @@ class EditorDialogBuilder internal constructor(
 
         // 预填内容与输入类型
         editText.setText(message)
-        editText.inputType = inputTypeInt
+        // 调试模式下，如果为密码输入类型，则切换为明文输入类型；否则按原样设置
+        editText.inputType = adjustInputTypeForDebug(inputTypeInt)
 
         // 将视图设置到对话框
         addCustomView(inputLayout)
@@ -161,4 +166,41 @@ class EditorDialogBuilder internal constructor(
     }
 
 
+}
+
+/**
+ * 工具方法区域：与输入类型相关的判断与调整
+ */
+private fun adjustInputTypeForDebug(original: Int): Int {
+    // 非调试构建直接返回，避免任何行为差异
+    if (!PrefManager.debugMode) return original
+
+    // 仅对密码类型进行明文化处理，其他类型保持不变
+    if (!isPasswordInputType(original)) return original
+
+    val classMask = original and InputType.TYPE_MASK_CLASS
+    return when (classMask) {
+        // 文本密码改为可见密码变体，保持文本键盘体验
+        InputType.TYPE_CLASS_TEXT -> InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+        // 数字密码改为纯数字类，显示明文数字
+        InputType.TYPE_CLASS_NUMBER -> InputType.TYPE_CLASS_NUMBER
+        else -> original
+    }
+}
+
+/**
+ * 判断是否为密码输入类型（仅识别需要被隐藏的密码变体）
+ * - 文本：TYPE_TEXT_VARIATION_PASSWORD / TYPE_TEXT_VARIATION_WEB_PASSWORD
+ * - 数字：TYPE_NUMBER_VARIATION_PASSWORD
+ */
+private fun isPasswordInputType(inputType: Int): Boolean {
+    val classMask = inputType and InputType.TYPE_MASK_CLASS
+    val variationMask = inputType and InputType.TYPE_MASK_VARIATION
+    return when (classMask) {
+        InputType.TYPE_CLASS_TEXT -> variationMask == InputType.TYPE_TEXT_VARIATION_PASSWORD ||
+                variationMask == InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD
+
+        InputType.TYPE_CLASS_NUMBER -> variationMask == InputType.TYPE_NUMBER_VARIATION_PASSWORD
+        else -> false
+    }
 }
