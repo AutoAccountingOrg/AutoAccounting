@@ -236,7 +236,7 @@ class BookCardComponent(binding: CardBookBinding) :
         onRedirect?.invoke(R.id.tagFragment, null)
     }
 
-    private fun openAppWhitelist() { /* TODO 跳转应用监控白名单管理页面 */
+    private fun openAppWhitelist() {
         // 使用目的地 ID 导航
         onRedirect?.invoke(R.id.appWhiteListFragment, null)
     }
