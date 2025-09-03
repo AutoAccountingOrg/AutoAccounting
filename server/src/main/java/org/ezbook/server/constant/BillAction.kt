@@ -16,8 +16,6 @@
 package org.ezbook.server.constant
 
 enum class BillAction {
-    //同步账单
-    SYNC_BILL,
 
     //同步账本分类资产
     SYNC_BOOK_CATEGORY_ASSET,

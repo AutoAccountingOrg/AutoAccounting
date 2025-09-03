@@ -26,7 +26,6 @@ import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.delay
 import net.ankio.auto.xposed.core.logger.Logger
 import net.ankio.auto.xposed.core.utils.AppRuntime
-import net.ankio.auto.xposed.core.utils.BillUtils
 import net.ankio.auto.xposed.core.utils.DataUtils.get
 import net.ankio.auto.xposed.core.utils.DataUtils.set
 import net.ankio.auto.xposed.core.utils.MessageUtils.toast
