@@ -182,6 +182,7 @@ class TagFragment : BaseFragment<FragmentTagBinding>(), Toolbar.OnMenuItemClickL
         val bundle = Bundle().apply {
             putLong("tagId", tagId)
         }
-        findNavController().navigate(R.id.action_tagFragment_to_tagEditFragment, bundle)
+        // 使用目的地 ID 导航，避免当前目的地为 NavGraph 时解析不到 action
+        findNavController().navigate(R.id.tagEditFragment, bundle)
     }
 }

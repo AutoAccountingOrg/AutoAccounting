@@ -119,10 +119,8 @@ class AssetFragment : BaseFragment<FragmentAssetBinding>() {
         val bundle = Bundle().apply {
             putLong("assetId", assetId)
         }
-        findNavController().navigate(
-            R.id.action_assetFragment_to_assetEditFragment,
-            bundle
-        )
+        // 使用目的地 ID 导航，避免当前目的地为 NavGraph 时解析不到 action
+        findNavController().navigate(R.id.assetEditFragment, bundle)
     }
 
     /**

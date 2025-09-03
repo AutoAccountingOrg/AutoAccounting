@@ -389,10 +389,8 @@ class CategoryFragment : BaseFragment<FragmentCategoryBinding>(),
                 putString("parentCategoryName", parentCategoryName)
             }
 
-            findNavController().navigate(
-                R.id.action_categoryFragment_to_categoryEditFragment,
-                bundle
-            )
+            // 使用目的地 ID 导航，避免当前目的地为 NavGraph 时解析不到 action
+            findNavController().navigate(R.id.categoryEditFragment, bundle)
         }
 
         /**

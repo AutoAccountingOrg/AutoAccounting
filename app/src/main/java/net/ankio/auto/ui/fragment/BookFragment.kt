@@ -92,10 +92,8 @@ class BookFragment : BaseFragment<FragmentBookBinding>() {
         val bundle = Bundle().apply {
             putLong("bookId", bookId)
         }
-        findNavController().navigate(
-            R.id.action_bookFragment_to_bookEditFragment,
-            bundle
-        )
+        // 使用目的地 ID 导航，避免当前目的地识别为 NavGraph 时解析不到 action
+        findNavController().navigate(R.id.bookEditFragment, bundle)
     }
 
 

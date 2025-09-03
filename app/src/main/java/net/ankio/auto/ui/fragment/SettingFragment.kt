@@ -85,13 +85,14 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>() {
      */
     private fun setupNavigationClickListeners() {
         val navigationMap = mapOf(
-            binding.settingBill to R.id.action_settingFragment_to_billPreferenceFragment,
-            binding.settingPopup to R.id.action_settingFragment_to_popupPreferenceFragment,
-            binding.settingFeatures to R.id.action_settingFragment_to_featuresPreferenceFragment,
-            binding.settingAi to R.id.action_settingFragment_to_aiPreferenceFragment,
-            binding.settingAppearance to R.id.action_settingFragment_to_appearancePreferenceFragment,
-            binding.settingBackup to R.id.action_settingFragment_to_backupPreferenceFragment,
-            binding.settingOthers to R.id.action_settingFragment_to_othersPreferenceFragment
+            // 使用目的地 ID 导航，避免当前目的地为 NavGraph 时解析不到 action
+            binding.settingBill to R.id.billPreferenceFragment,
+            binding.settingPopup to R.id.popupPreferenceFragment,
+            binding.settingFeatures to R.id.featuresPreferenceFragment,
+            binding.settingAi to R.id.aiPreferenceFragment,
+            binding.settingAppearance to R.id.appearancePreferenceFragment,
+            binding.settingBackup to R.id.backupPreferenceFragment,
+            binding.settingOthers to R.id.othersPreferenceFragment
         )
 
         navigationMap.forEach { (view, actionId) ->

@@ -84,7 +84,8 @@ class AiPreferenceFragment : BasePreferenceFragment() {
 
         // AI配置页面跳转
         findPreference<Preference>("aiConfig")?.setOnPreferenceClickListener {
-            findNavController().navigate(R.id.action_aiPreferenceFragment_to_aiConfigFragment)
+            // 使用目的地 ID 导航，避免当前目的地为 NavGraph 时解析不到 action
+            findNavController().navigate(R.id.aiConfigFragment)
             true
         }
 

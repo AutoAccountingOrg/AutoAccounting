@@ -66,10 +66,8 @@ class CategoryRulePageFragment :
                 putLong("ruleId", item.id)
             }
             Logger.d("Navigate to category rule edit with item: ${item.id}")
-            findNavController().navigate(
-                R.id.action_ruleManageFragment_to_categoryRuleEditFragment,
-                bundle
-            )
+            // 使用目的地 ID 导航，避免当前目的地为 NavGraph 时解析不到 action
+            findNavController().navigate(R.id.categoryRuleEditFragment, bundle)
         }
     }
 
@@ -87,7 +85,8 @@ class CategoryRulePageFragment :
     private fun setupAddButton() {
         binding.addButton.setOnClickListener {
             Logger.d("Navigate to create new category rule")
-            findNavController().navigate(R.id.action_ruleManageFragment_to_categoryRuleEditFragment)
+            // 使用目的地 ID 导航
+            findNavController().navigate(R.id.categoryRuleEditFragment)
         }
     }
 }
