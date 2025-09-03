@@ -227,9 +227,7 @@ class QianJiAdapter : IAppAdapter {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
         SystemUtils.startActivityIfResolvable(intent, name) {
-            if (PrefManager.workMode == WorkMode.Ocr) {
-                AppAdapterManager.markSynced(billInfoModel)
-            }
+            AppAdapterManager.markSynced(billInfoModel)
         }
     }
     override fun supportSyncAssets(): Boolean {
