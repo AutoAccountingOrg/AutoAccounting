@@ -1,6 +1,7 @@
 package net.ankio.auto.ui.api
 
 import android.os.Bundle
+import android.os.Parcelable
 import android.view.View
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -67,6 +68,12 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
     /** 适配器实例 */
     private var adapter: RecyclerView.Adapter<*>? = null
 
+    /**
+     * RecyclerView 布局管理器的滚动位置状态
+     * 当离开 Fragment 再返回时用于恢复滚动位置
+     */
+    private var recyclerViewLayoutState: Parcelable? = null
+
     /** 状态页面的公共访问器 */
     val statusPage get() = _statusPage!!
 
@@ -85,9 +92,17 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
         // 配置事件监听器
         setupEventListeners()
 
-        // 启动首次数据加载
-        resetPage()
-        loadDataInside()
+        // 如果已有数据（例如从其他Fragment返回后视图重建），直接展示并尝试恢复滚动
+        if (pageData.isNotEmpty()) {
+            Logger.d("检测到已有数据，跳过初始加载并尝试恢复滚动位置")
+            statusPage.showContent()
+            (adapter as? BaseAdapter<*, T>)?.updateItems(pageData.toList())
+            restoreScrollPositionIfNeeded()
+        } else {
+            // 启动首次数据加载
+            resetPage()
+            loadDataInside()
+        }
     }
 
     /**
@@ -196,6 +211,8 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
                 handleDataResult(resultData)
                 hasMoreData = resultData.size >= pageSize
                 callback?.invoke(true, hasMoreData)
+                // 如果这是一次返回后的首次数据可见阶段，确保尝试恢复滚动
+                restoreScrollPositionIfNeeded()
             }
             isLoading = false
         }
@@ -444,5 +461,37 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
      */
     private fun updateAdapter() {
         (adapter as? BaseAdapter<*, T>)?.updateItems(pageData.toList())
+    }
+
+    // ================================
+    // 滚动位置保存/恢复
+    // ================================
+
+    /**
+     * 在页面即将不可见时保存滚动位置。
+     * 使用 onPause 确保在导航离开当前 Fragment 时也能捕获状态。
+     */
+    override fun onPause() {
+        super.onPause()
+        try {
+            recyclerViewLayoutState = statusPage.contentView?.layoutManager?.onSaveInstanceState()
+            Logger.d("保存列表滚动位置状态成功")
+        } catch (e: Exception) {
+            Logger.w("保存列表滚动位置状态失败：${e.message}")
+        }
+    }
+
+    /**
+     * 尝试恢复滚动位置，仅当存在已保存状态且RecyclerView/布局管理器已就绪。
+     */
+    private fun restoreScrollPositionIfNeeded() {
+        val lm = statusPage.contentView?.layoutManager ?: return
+        val state = recyclerViewLayoutState ?: return
+        try {
+            lm.onRestoreInstanceState(state)
+            Logger.d("恢复列表滚动位置成功")
+        } catch (e: Exception) {
+            Logger.w("恢复列表滚动位置失败：${e.message}")
+        }
     }
 }
