@@ -22,6 +22,7 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+import android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Process
@@ -72,6 +73,7 @@ object SystemUtils {
     fun restart() {
         val intent = Intent(application, MainActivity::class.java)
         intent.addFlags(FLAG_ACTIVITY_NEW_TASK)
+        intent.addFlags(FLAG_ACTIVITY_NO_ANIMATION)
         application.startActivity(intent)
         Process.killProcess(Process.myPid())
     }
@@ -111,6 +113,10 @@ object SystemUtils {
             if (intent.flags and FLAG_ACTIVITY_NEW_TASK == 0) {
                 intent.addFlags(FLAG_ACTIVITY_NEW_TASK)
             }
+            // 禁用过渡动画
+            if (intent.flags and FLAG_ACTIVITY_NO_ANIMATION == 0) {
+                intent.addFlags(FLAG_ACTIVITY_NO_ANIMATION)
+            }
             application.startActivity(intent)
         } catch (e: Exception) {
             Logger.e("Failed to start activity", e)
@@ -135,6 +141,10 @@ object SystemUtils {
         if (intent.flags and FLAG_ACTIVITY_NEW_TASK == 0) {
             intent.addFlags(FLAG_ACTIVITY_NEW_TASK)
         }
+        // 禁用过渡动画
+        if (intent.flags and FLAG_ACTIVITY_NO_ANIMATION == 0) {
+            intent.addFlags(FLAG_ACTIVITY_NO_ANIMATION)
+        }
 
         val canResolve = application.packageManager.resolveActivity(intent, 0) != null
         if (canResolve) {
@@ -158,16 +168,6 @@ object SystemUtils {
         return false
     }
     
-    /**
-     * 打开记账软件应用
-     */
-    fun startBookApp() {
-        val packageName = PrefManager.bookApp
-        val launchIntent = application.packageManager.getLaunchIntentForPackage(packageName)
-        if (launchIntent != null) {
-            startActivity(launchIntent)
-        }
-    }
 
     /**
      * 从Context自动推断LifecycleOwner的扩展函数
