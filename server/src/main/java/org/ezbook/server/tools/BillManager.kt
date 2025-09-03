@@ -167,7 +167,7 @@ object BillManager {
     ): BillInfoModel? {
 
         // 检查是否启用自动分组
-        if (Db.get().settingDao().query(Setting.AUTO_GROUP)?.value == "false") {
+        if (!SettingUtils.autoGroup()) {
             Server.logD("未启用自动去重")
             return null
         }

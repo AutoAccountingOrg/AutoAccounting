@@ -244,7 +244,7 @@ class BillService(
      */
     private suspend fun analyzeWithAI(app: String, data: String): BillInfoModel? =
         runCatching {
-            if (!Db.get().settingDao().query(Setting.AI_BILL_RECOGNITION)?.value.toBoolean()) {
+            if (!SettingUtils.aiBillRecognition()) {
                 Server.logD("AI 功能禁用")
                 return@runCatching null
             }
@@ -348,7 +348,7 @@ class BillService(
         context: Context
     ): BillInfoModel? {
         // 设置资产映射，返回是否需要用户操作
-        val needAction = AssetsMap.setAssetsMap(bill)
+        AssetsMap.setAssetsMap(bill)
 
         // 设置分类映射
         setCategoryMap(bill)

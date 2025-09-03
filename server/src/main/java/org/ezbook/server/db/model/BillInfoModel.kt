@@ -156,7 +156,9 @@ class BillInfoModel {
     }
 
     fun needReCategory(): Boolean {
-        return cateName.isEmpty() || cateName == "其他" || cateName == "其它"
+        return cateName.isEmpty() || cateName == "其他" || cateName == "其它" || !ruleName.contains(
+            "生成"
+        )
     }
 
     fun generateByAi(): Boolean {
