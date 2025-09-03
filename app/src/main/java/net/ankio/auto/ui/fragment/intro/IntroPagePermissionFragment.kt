@@ -62,8 +62,6 @@ class IntroPagePermissionFragment : BaseIntroPageFragment<FragmentIntroPagePermi
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // 构建权限卡片，确保 perms 已初始化，避免按钮点击过早导致崩溃
-        setupCardsDynamic()
         // 设置下一步按钮点击事件
         binding.btnNext.setOnClickListener { handleNext() }
         // 设置返回按钮点击事件，返回到模式选择页面
@@ -228,6 +226,8 @@ class IntroPagePermissionFragment : BaseIntroPageFragment<FragmentIntroPagePermi
 
     override fun onResume() {
         super.onResume()
+        // 构建权限卡片，确保 perms 已初始化，避免按钮点击过早导致崩溃
+        setupCardsDynamic()
         // 刷新所有权限的授予状态
         perms.forEach {
             val card = binding.cardGroup.findViewById<ExpandableCardView>(it.viewId)
