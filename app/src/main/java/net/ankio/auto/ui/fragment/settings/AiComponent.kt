@@ -83,6 +83,25 @@ class AiComponent(
         // 刷新模型列表
         btnRefreshModels.setOnClickListener { fetchModels() }
 
+        // 保存 Base URL
+        btnSaveBaseUrl.setOnClickListener {
+            val url = etAiBaseUrl.text?.toString()?.trim().orEmpty()
+            if (url.isBlank()) {
+                tilAiBaseUrl.error = context.getString(R.string.setting_not_set)
+                return@setOnClickListener
+            }
+            tilAiBaseUrl.error = null
+            val loading = LoadingUtils(context)
+            launch {
+                try {
+                    loading.show()
+                    AiAPI.setApiUrl(url)
+                } finally {
+                    loading.close()
+                }
+            }
+        }
+
         // 选中模型后更新后端，并获取申请地址
         actAiModel.setOnItemClickListener { _, _, pos, _ ->
             val model = models[pos]
@@ -240,9 +259,6 @@ class AiComponent(
                 actAiModel.setSimpleItems(models.toTypedArray())
                 tilAiToken.error = null
 
-            } catch (e: Exception) {
-                // 失败时显示错误信息
-                tilAiToken.error = e.message ?: "获取模型列表失败"
             } finally {
                 loading.close()
             }
@@ -254,9 +270,13 @@ class AiComponent(
     /** 恢复页面时同步后端状态到 UI - Linus式异常安全 */
     override fun onComponentResume() {
         super.onComponentResume()
+        val loading = LoadingUtils(context)
         launch {
+            try {
+                loading.show()
             providerList = AiAPI.getProviders()
             modelKeyUri = AiAPI.getApiUrl()
+                binding.etAiBaseUrl.setText(modelKeyUri)
 
             // Provider
             binding.actAiProvider.setSimpleItems(providerList.toTypedArray())
@@ -269,6 +289,9 @@ class AiComponent(
             binding.etAiToken.setText(AiAPI.getApiKey())
 
             // 测试按钮始终可用，无需更新状态
+            } finally {
+                loading.close()
+            }
         }
     }
 }
