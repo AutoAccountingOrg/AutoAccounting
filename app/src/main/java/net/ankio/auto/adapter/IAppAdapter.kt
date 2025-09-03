@@ -16,6 +16,7 @@
 package net.ankio.auto.adapter
 
 import net.ankio.auto.constant.BookFeatures
+import org.ezbook.server.constant.BillAction
 import org.ezbook.server.db.model.BillInfoModel
 
 interface IAppAdapter {
@@ -44,7 +45,7 @@ interface IAppAdapter {
     fun syncAssets()
 
     // 从目标App同步待退款及报销的账单
-    fun syncWaitBills()
+    fun syncWaitBills(billAction: BillAction)
 
     //将账单同步到目标APP
     fun syncBill(billInfoModel: BillInfoModel)

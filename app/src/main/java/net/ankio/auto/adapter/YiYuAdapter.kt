@@ -26,6 +26,7 @@ import java.util.Date
 import java.util.Locale
 import androidx.core.net.toUri
 import net.ankio.auto.utils.SystemUtils
+import org.ezbook.server.constant.BillAction
 
 //TODO 适配页面
 class YiYuAdapter : IAppAdapter {
@@ -165,7 +166,7 @@ class YiYuAdapter : IAppAdapter {
         return sdf.format(date)
     }
 
-    override fun syncWaitBills() {
+    override fun syncWaitBills(billAction: BillAction) {
 
     }
 }

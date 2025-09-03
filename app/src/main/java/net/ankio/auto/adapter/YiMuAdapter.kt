@@ -21,6 +21,7 @@ import net.ankio.auto.constant.BookFeatures
 import org.ezbook.server.db.model.BillInfoModel
 import net.ankio.auto.App
 import net.ankio.auto.utils.SystemUtils
+import org.ezbook.server.constant.BillAction
 import org.ezbook.server.constant.BillType
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -150,7 +151,7 @@ class YiMuAdapter : IAppAdapter {
         return "" to name
     }
 
-    override fun syncWaitBills() {
+    override fun syncWaitBills(billAction: BillAction) {
 
     }
 }

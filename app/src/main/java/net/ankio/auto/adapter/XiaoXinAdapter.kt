@@ -20,6 +20,7 @@ import android.net.Uri
 import androidx.core.net.toUri
 import net.ankio.auto.constant.BookFeatures
 import net.ankio.auto.utils.SystemUtils
+import org.ezbook.server.constant.BillAction
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.BillInfoModel
 import java.text.SimpleDateFormat
@@ -73,7 +74,7 @@ class XiaoXinAdapter : IAppAdapter {
         // 暂不支持资产同步
     }
 
-    override fun syncWaitBills() {
+    override fun syncWaitBills(billAction: BillAction) {
         // 暂不支持待处理账单同步
     }
 

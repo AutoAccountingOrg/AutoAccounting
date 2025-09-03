@@ -34,6 +34,7 @@ import net.ankio.auto.App
 import net.ankio.auto.constant.WorkMode
 import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.utils.SystemUtils
+import org.ezbook.server.constant.BillAction
 
 class QianJiAdapter : IAppAdapter {
     override val pkg: String
@@ -112,7 +113,7 @@ class QianJiAdapter : IAppAdapter {
         }
         // Xposed模式下对该接口进行了Hook,支持数据同步功能
         val uriBuilder = StringBuilder("qianji://publicapi/addbill")
-        uriBuilder.append("?type=").append(TYPE_SYNC_DATA) //同步资产、账单等数据
+        uriBuilder.append("?action=").append(BillAction.SYNC_BOOK_CATEGORY_ASSET) //同步资产、账单等数据
         val intent = Intent(Intent.ACTION_VIEW, uriBuilder.toString().toUri()).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
@@ -120,13 +121,13 @@ class QianJiAdapter : IAppAdapter {
     }
 
 
-    override fun syncWaitBills() {
+    override fun syncWaitBills(billAction: BillAction) {
         if (AppAdapterManager.ocrMode()) {
             return
         }
         // Xposed模式下对该接口进行了Hook,支持数据同步功能
         val uriBuilder = StringBuilder("qianji://publicapi/addbill")
-        uriBuilder.append("?type=").append(TYPE_SYNC_BAOXIAO) // 同步需要报销和退款的账单
+        uriBuilder.append("?action=").append(billAction) // 同步需要报销和退款的账单
         val intent = Intent(Intent.ACTION_VIEW, uriBuilder.toString().toUri()).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }

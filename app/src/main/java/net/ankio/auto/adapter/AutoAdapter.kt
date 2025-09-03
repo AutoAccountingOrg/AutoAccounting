@@ -17,6 +17,7 @@ package net.ankio.auto.adapter
 
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.constant.BookFeatures
+import org.ezbook.server.constant.BillAction
 import org.ezbook.server.db.model.BillInfoModel
 
 class AutoAdapter : IAppAdapter {
@@ -47,7 +48,7 @@ class AutoAdapter : IAppAdapter {
         return false
     }
 
-    override fun syncWaitBills() {
+    override fun syncWaitBills(billAction: BillAction) {
 
     }
 }
