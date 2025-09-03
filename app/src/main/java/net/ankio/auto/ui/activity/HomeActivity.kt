@@ -44,7 +44,8 @@ class HomeActivity : BaseActivity() {
         val navController = navHostFragment.navController
         binding.bottomNavigation.setupWithNavController(navController)
 
-        NavigationUI.setupWithNavController(binding.bottomNavigation, navController)
+        // 仅保留一次绑定，防止重复监听导致潜在的空指针或双重导航
+        // NavigationUI.setupWithNavController(binding.bottomNavigation, navController)
         // 监听当前fragment变化
         navHostFragment.navController.addOnDestinationChangedListener { _, destination, _ ->
             // 这里判断destination.id是否在底部tab范围内
