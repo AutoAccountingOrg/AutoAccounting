@@ -104,7 +104,6 @@ class AutoHooker : PartHooker() {
             // 只处理来自自动记账的账单
             val action = data.getQueryParameter("action") ?: return@before
             it.result = null
-            AppRuntime.log("intent $action")
             val actionItem = BillAction.valueOf(action)
             ThreadUtils.launch(Dispatchers.Main) {
                 when (actionItem) {
@@ -117,10 +116,12 @@ class AutoHooker : PartHooker() {
                     }
 
                     BillAction.SYNC_BOOK_CATEGORY_ASSET -> {
+                        MessageUtils.toast("正在同步资产信息")
                         //同步资产、账本、分类等数据的请求
                         AssetPreviewPresenterImpl.syncAssets()
                         val books = BookManagerImpl.syncBooks()
                         CateInitPresenterImpl.syncCategory(books)
+                        MessageUtils.toast("资产信息同步完成")
                     }
 
                     BillAction.SYNC_REIMBURSE_BILL -> {
