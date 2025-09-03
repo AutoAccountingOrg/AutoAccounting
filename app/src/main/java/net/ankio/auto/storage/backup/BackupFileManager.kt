@@ -190,11 +190,7 @@ class BackupFileManager(private val context: Context) {
             )
         }
 
-        // 检查包名
-        val packageName = backupInfo["packageName"].asString
-        if (packageName != BuildConfig.APPLICATION_ID && !BuildConfig.DEBUG) {
-            throw RestoreBackupException(context.getString(R.string.unspport_package_backup))
-        }
+
     }
 
     /**
