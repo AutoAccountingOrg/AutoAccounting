@@ -9,6 +9,7 @@ import net.ankio.auto.BuildConfig
 import net.ankio.auto.autoApp
 import net.ankio.auto.http.api.LogAPI
 import net.ankio.auto.utils.DateUtils
+import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.utils.Throttle
 import org.ezbook.server.constant.LogLevel
 import org.ezbook.server.db.model.LogModel
@@ -190,7 +191,7 @@ object Logger {
      * @param message 日志消息
      */
     fun d(message: String) {
-        if (!BuildConfig.DEBUG) return; printLog(Log.DEBUG, getTag(), message)
+        if (!PrefManager.debugMode) return; printLog(Log.DEBUG, getTag(), message)
     }
 
     /**
