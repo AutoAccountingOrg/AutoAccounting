@@ -26,58 +26,68 @@ import org.ezbook.server.tools.Category
 class BillTool {
 
     private val prompt = """
-# Task Description
+# Role
+You extract structured transaction info from raw financial texts.
 
-You are an AI assistant specialized in structured information extraction from transaction-related raw data.
+# Output
+Return ONLY one JSON object. No code fences, no prose. If any hard rule fails, return {}.
 
-## Objective
-Extract and output a structured JSON object containing **ONLY** the fields listed below.
+# Hard Rules
+1) accountNameFrom is MANDATORY. If missing/uncertain -> {}.
+2) No guessing. Use data explicitly present in input.
+3) Ignore promotions/ads and any non-transaction texts (e.g., 验证码/登录提醒/快递通知/系统提示/聊天/新闻/纯营销). If the content is unrelated to bills or contains no transaction signals (no explicit transaction amount/keyword, no account), return {}.
+4) Human personal names are not valid account names.
+5) cateName must be chosen strictly from Category Data (comma-separated). If no exact match, set "".
+6) Defaults: currency="CNY"; fee=0; money=0.00; empty string for optional text; time=0.
+7) Numbers: output absolute value for money/fee; money with 2 decimals; dot as decimal point.
+8) Output must be valid JSON with keys exactly as the schema; no extra keys or trailing commas.
 
----
+# Field Rules
+- accountNameFrom: source account (e.g., 支付宝/微信/银行卡/理财/余额宝)。
+- accountNameTo: destination account if explicitly present; otherwise "".
+- cateName: pick exactly one from Category Data; do not invent.
+- currency: 3-letter ISO if present; else "CNY".
+- fee: explicit transaction fee; else 0.
+- money: transaction amount (not balance/limit/可用额度)。
+- shopItem: concrete item name if present; else "".
+- shopName: merchant or counterparty if present; else "".
+- type: one of ["Transfer","Income","Expend"], based on explicit words/signs:
+  - Transfer: both accountNameFrom and accountNameTo are present and different.
+  - Income: 收到/入账/到账/退款/收款/转入/充值 等。
+  - Expend: 支付/扣款/消费/转出/提现/付款 等。
+- time: Unix ms timestamp if full date/time is present; otherwise 0.
 
-## Absolute Rules
+# Disambiguation
+- If multiple amounts appear, choose the one labeled as 支付/收款/退款/转账 金额; never choose 余额/限额。
+- If multiple categories fit, choose the most specific; if undecidable, set "".
+- Prefer omission over fabrication when OCR noise/ambiguity exists.
 
-1. **"accountNameFrom" is MANDATORY**  
-   - If missing or unextractable, **immediately return `{}`** without outputting anything else.
-
-2. **No Guessing or Inferring**  
-   - Only extract data **explicitly** appearing in the raw text.
-   - **Do NOT** generate, assume, or deduce any missing or ambiguous information.
-
-3. **Reject Promotional Content**  
-   - Ignore advertisements, promotions, marketing texts — do not extract from them.
-
-4. **People's Names are NOT valid account names**  
-   - Do not treat human names as `accountNameFrom` or `accountNameTo`.
-
-5. **Category Matching**  
-   - `cateName` must be selected **strictly** from a given Category Data. No custom or improvised categories.
-
-6. **Default Values**  
-   - If `currency` is missing, set it to `"CNY"`.
-   - If `fee` is missing, set it to `0`.
-   - If `money` is missing, set it to `0.00`.
-   - Empty string `""` for any non-present optional fields.
-
----
-
-## Output Schema
-
-```json
+# Schema
 {
-   "accountNameFrom": "",  // (Optional) Source account
-   "accountNameTo": "",    // (Optional) Destination account
-   "cateName": "",         // (REQUIRED) Category (must match Category Data)
-   "currency": "",         // (Optional) Currency, default "CNY"
-   "fee": 0,               // (Optional) Transaction fee, default 0
-   "money": 0.00,          // (REQUIRED) Transaction amount, default 0.00
-   "shopItem": "",         // (Optional) Specific item purchased
-   "shopName": "",         // (Optional) Merchant name
-   "type": "",             // (Optional) Must be one of ["Transfer", "Income", "Expend"]
-   "time": 0               // (Optional) Unix timestamp in milliseconds
+  "accountNameFrom": "",
+  "accountNameTo": "",
+  "cateName": "",
+  "currency": "CNY",
+  "fee": 0,
+  "money": 0.00,
+  "shopItem": "",
+  "shopName": "",
+  "type": "",
+  "time": 0
 }
 
-"""".trimIndent()
+# Examples
+Input: 支付宝消费，商户：肯德基，支付金额￥36.50，账户余额...，时间2024-08-02 12:01:22
+Category Data: 餐饮,交通,购物
+Output:
+{"accountNameFrom":"支付宝","accountNameTo":"","cateName":"餐饮","currency":"CNY","fee":0,"money":36.50,"shopItem":"","shopName":"肯德基","type":"Expend","time":0}
+
+Input: 推广信息：本店大促销...
+Category Data: 餐饮,交通
+Output:
+{}
+
+""".trimIndent()
 
     suspend fun execute(data: String): BillInfoModel? {
         val categories = Db.get().categoryDao().all()
