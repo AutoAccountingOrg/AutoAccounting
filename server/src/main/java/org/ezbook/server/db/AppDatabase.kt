@@ -61,7 +61,7 @@ import org.ezbook.server.db.model.TagModel
         BookBillModel::class,
         TagModel::class
     ],
-    version = 12,
+    version = 13,
     exportSchema = false,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -272,6 +272,46 @@ val MIGRATION_11_12 = object : Migration(11, 12) {
         // 5) 补建与实体匹配的唯一索引（Room 校验期望该索引名）
         database.execSQL(
             "CREATE UNIQUE INDEX IF NOT EXISTS index_SettingModel_key ON SettingModel(`key`)"
+        )
+    }
+}
+
+val MIGRATION_12_13 = object : Migration(12, 13) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        // 采用“新表拷贝 + 聚合插入 + 重命名 + 建索引”的安全迁移策略
+        // 1) 创建临时表（保持与实体一致的列定义）
+        database.execSQL(
+            """
+            CREATE TABLE new_AssetsMapModel (
+                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                regex INTEGER NOT NULL DEFAULT 0,
+                name TEXT NOT NULL,
+                mapName TEXT NOT NULL
+            )
+            """.trimIndent()
+        )
+
+        // 2) 将每个 name 的最新记录（按最大 id）插入到新表
+        database.execSQL(
+            """
+            INSERT INTO new_AssetsMapModel (id, regex, name, mapName)
+            SELECT a.id, a.regex, a.name, a.mapName
+            FROM AssetsMapModel a
+            WHERE a.id IN (
+                SELECT MAX(id) FROM AssetsMapModel GROUP BY name
+            )
+            """.trimIndent()
+        )
+
+        // 3) 删除旧表
+        database.execSQL("DROP TABLE AssetsMapModel")
+
+        // 4) 临时表重命名为正式表
+        database.execSQL("ALTER TABLE new_AssetsMapModel RENAME TO AssetsMapModel")
+
+        // 5) 为 name 建立唯一索引（与实体索引名匹配）
+        database.execSQL(
+            "CREATE UNIQUE INDEX IF NOT EXISTS index_AssetsMapModel_name ON AssetsMapModel(name)"
         )
     }
 }

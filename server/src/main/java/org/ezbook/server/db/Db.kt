@@ -55,7 +55,7 @@ object Db {
                 it,
                 AppDatabase::class.java,
                 DATABASE_NAME
-            ).fallbackToDestructiveMigrationFrom(1)
+            ).fallbackToDestructiveMigrationFrom(false, 1)
                 .addMigrations(MIGRATION_2_3) // 注册迁移
                 .addMigrations(MIGRATION_3_4) // 注册迁移
                 .addMigrations(MIGRATION_4_5)
@@ -66,6 +66,7 @@ object Db {
                 .addMigrations(MIGRATION_9_10)
                 .addMigrations(MIGRATION_10_11)
                 .addMigrations(MIGRATION_11_12)
+                .addMigrations(MIGRATION_12_13)
                 .build()
         }
     }

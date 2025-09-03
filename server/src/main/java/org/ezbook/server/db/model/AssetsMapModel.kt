@@ -16,9 +16,16 @@
 package org.ezbook.server.db.model
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity
+/**
+ * 资产名称映射表
+ * 按 name 建唯一索引，便于使用 INSERT ... REPLACE 进行幂等写入
+ */
+@Entity(
+    indices = [Index(value = ["name"], unique = true)]
+)
 class AssetsMapModel {
     @PrimaryKey(autoGenerate = true)
     var id = 0L

@@ -73,19 +73,13 @@ fun Route.assetsMapRoutes() {
          */
         post("/put") {
             val model = call.receive(AssetsMapModel::class)
-            val existingMapping = Db.get().assetsMapDao().query(model.name)
-
-            if (existingMapping == null) {
-                model.id = Db.get().assetsMapDao().insert(model)
-            } else {
-                model.id = existingMapping.id
-                Db.get().assetsMapDao().update(model)
-            }
+            // 基于 name 的唯一索引 + REPLACE 策略，幂等写入
+            val id = Db.get().assetsMapDao().insert(model)
 
             // 清除缓存，确保下次使用最新的映射规则
             AssetsMap.clearCache()
 
-            call.respond(ResultModel(200, "OK", model.id))
+            call.respond(ResultModel(200, "OK", id))
         }
 
         /**

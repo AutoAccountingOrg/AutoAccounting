@@ -17,6 +17,7 @@ package org.ezbook.server.db.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
@@ -32,7 +33,8 @@ interface AssetMapDao {
 
     @Query("SELECT * FROM AssetsMapModel ORDER BY id DESC")
     suspend fun list(): List<AssetsMapModel>
-    @Insert
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(log: AssetsMapModel): Long
 
     @Update
@@ -52,11 +54,8 @@ interface AssetMapDao {
 
     @Transaction
     suspend fun put(data: AssetsMapModel) {
-        if (query(data.name) == null) {
-            insert(data)
-        } else {
-            update(data)
-        }
+        // 依赖 name 唯一索引触发 REPLACE，简化逻辑
+        insert(data)
     }
 
 }
