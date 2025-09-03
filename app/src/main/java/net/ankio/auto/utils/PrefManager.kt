@@ -78,10 +78,6 @@ object PrefManager {
 
     // ======== AI 设置 ========
 
-    /** AI 模型选择（如 "DeepSeek", "GPT-4" 等） */
-    var aiModel: String
-        get() = getString(Setting.AI_MODEL, DefaultData.AI_MODEL)
-        set(value) = putString(Setting.AI_MODEL, value)
 
 
     /** 使用AI识别账单 - 从原始数据中提取账单信息 */
@@ -109,30 +105,6 @@ object PrefManager {
         get() = getString(Setting.AI_SUMMARY_PROMPT, DefaultData.AI_SUMMARY_PROMPT)
         set(value) = putString(Setting.AI_SUMMARY_PROMPT, value)
 
-    /** API 密钥 - 用于访问 AI 服务 */
-    var apiKey: String
-        get() = getString(Setting.API_KEY, DefaultData.API_KEY)
-        set(value) = putString(Setting.API_KEY, value)
-
-    /** One API 服务地址 - 统一 AI 接口地址 */
-    var aiOneApiUri: String
-        get() = getString(Setting.AI_ONE_API_URI, DefaultData.AI_ONE_API_URI)
-        set(value) = putString(Setting.AI_ONE_API_URI, value)
-
-    /** One API 模型名称 */
-    var aiOneApiModel: String
-        get() = getString(Setting.AI_ONE_API_MODEL, DefaultData.AI_ONE_API_MODEL)
-        set(value) = putString(Setting.AI_ONE_API_MODEL, value)
-
-    /** 通用 API 服务地址 */
-    var apiUri: String
-        get() = getString(Setting.API_URI, DefaultData.API_URI)
-        set(value) = putString(Setting.API_URI, value)
-
-    /** 通用 API 模型名称 */
-    var apiModel: String
-        get() = getString(Setting.API_MODEL, DefaultData.API_MODEL)
-        set(value) = putString(Setting.API_MODEL, value)
 
     // ======== 自动记账设置 ========
 
@@ -146,20 +118,11 @@ object PrefManager {
         get() = getBoolean(Setting.AUTO_ASSET_MAPPING, DefaultData.AUTO_ASSET_MAPPING)
         set(value) = putBoolean(Setting.AUTO_ASSET_MAPPING, value)
 
-    /** Hook 自动记账服务开关 - 是否启用自动记账 */
-    var hookAutoServer: Boolean
-        get() = getBoolean(Setting.HOOK_AUTO_SERVER, DefaultData.HOOK_AUTO_SERVER)
-        set(value) = putBoolean(Setting.HOOK_AUTO_SERVER, value)
 
     /** 记账软件包名 - 目标记账应用的包名 */
     var bookApp: String
         get() = getString(Setting.BOOK_APP_ID, DefaultData.BOOK_APP)
         set(value) = putString(Setting.BOOK_APP_ID, value)
-
-    /** 记账软件 Activity - 用于启动记账页面的组件名 */
-    var bookAppActivity: String
-        get() = getString(Setting.BOOK_APP_ACTIVITY, DefaultData.BOOK_APP_ACTIVITY)
-        set(value) = putString(Setting.BOOK_APP_ACTIVITY, value)
 
     /** 自动记账提示开关 - 是否显示记账成功提示 */
     var showAutoBillTip: Boolean
