@@ -127,17 +127,15 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
 
             val billResultModel = JsAPI.analysis(item.type, item.data, item.app, true)
 
-            if (billResultModel == null) {
-                ToastUtils.error(getString(R.string.no_rule_hint))
-            }
-
-            BaseSheetDialog.create<BillEditorDialog>(requireContext())
-                .setBillInfo(billResultModel!!.billInfoModel)
-                .setOnConfirm { _ ->
-                    ToastUtils.info("规则测试完成")
-                }
-                .setOnCancel { _ -> }
-                .show()
+            billResultModel?.let {
+                BaseSheetDialog.create<BillEditorDialog>(requireContext())
+                    .setBillInfo(billResultModel.billInfoModel)
+                    .setOnConfirm { _ ->
+                        ToastUtils.info("规则测试完成")
+                    }
+                    .setOnCancel { _ -> }
+                    .show()
+            } ?: ToastUtils.error(getString(R.string.no_rule_hint))
 
             loading.close()
         }
