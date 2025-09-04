@@ -78,6 +78,35 @@ object PrefManager {
 
     // ======== AI 设置 ========
 
+    /**
+     * 旧版 Provider 名称（兼容用）
+     */
+    var apiProvider: String
+        get() = getString(Setting.API_PROVIDER, DefaultData.API_PROVIDER)
+        set(value) = putString(Setting.API_PROVIDER, value)
+
+
+    /**
+     * 统一 API Key（与服务端 SettingUtils.apiKey 对齐）
+     */
+    var apiKey: String
+        get() = getString(Setting.API_KEY, DefaultData.API_KEY)
+        set(value) = putString(Setting.API_KEY, value)
+
+
+    /**
+     * 直连 API 地址（与服务端 SettingUtils.apiUri 对齐）
+     */
+    var apiUri: String
+        get() = getString(Setting.API_URI, DefaultData.API_URI)
+        set(value) = putString(Setting.API_URI, value)
+
+    /**
+     * 直连模型（与服务端 SettingUtils.apiModel 对齐）
+     */
+    var apiModel: String
+        get() = getString(Setting.API_MODEL, DefaultData.API_MODEL)
+        set(value) = putString(Setting.API_MODEL, value)
 
 
     /** 使用AI识别账单 - 从原始数据中提取账单信息 */
