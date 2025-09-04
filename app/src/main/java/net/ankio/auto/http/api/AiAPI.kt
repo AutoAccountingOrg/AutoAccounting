@@ -18,7 +18,7 @@ object AiAPI {
     )
 
     /**
-     * 列出所有 AI 提供者名称
+     * 列出所有 AI 提供者名称（后端保留）
      */
     suspend fun getProviders(): List<String> = withContext(Dispatchers.IO) {
         val resp = LocalNetwork.get("/ai/providers")
@@ -33,91 +33,32 @@ object AiAPI {
     }
 
     /**
-     * 获取当前选中的提供者
+     * 获取 Provider 信息（apiUri、apiModel）
      */
-    suspend fun getCurrentProvider(): String = withContext(Dispatchers.IO) {
-        val resp = LocalNetwork.get("/ai/provider")
-        val type = object : TypeToken<ApiResponse<String>>() {}.type
+    suspend fun getInfo(provider: String): Map<String, String> = withContext(Dispatchers.IO) {
+        val resp = LocalNetwork.get("/ai/info?provider=${provider}")
+        val type = object : TypeToken<ApiResponse<Map<String, String>>>() {}.type
         return@withContext try {
-            val apiResp: ApiResponse<String> = gson.fromJson(resp, type)
-            apiResp.data ?: ""
+            val apiResp: ApiResponse<Map<String, String>> = gson.fromJson(resp, type)
+            apiResp.data ?: emptyMap()
         } catch (e: Exception) {
-            Logger.e("getCurrentProvider gson error: ${e.message}", e)
-            ""
+            Logger.e("getInfo gson error: ${e.message}", e)
+            emptyMap()
         }
     }
 
     /**
-     * 设置当前提供者
+     * 列出可用模型（POST），支持传入 provider 与 apiKey
      */
-    suspend fun setCurrentProvider(name: String) = withContext(Dispatchers.IO) {
-        try {
-            val body = gson.toJson(mapOf("name" to name))
-            LocalNetwork.post("/ai/provider", body)
-        } catch (e: Exception) {
-            Logger.e("setCurrentProvider gson/req error: ${e.message}", e)
-        }
-    }
-
-    /**
-     * 获取当前 API Key
-     */
-    suspend fun getApiKey(): String = withContext(Dispatchers.IO) {
-        val resp = LocalNetwork.get("/ai/apikey")
-        val type = object : TypeToken<ApiResponse<String>>() {}.type
-        return@withContext try {
-            val apiResp: ApiResponse<String> = gson.fromJson(resp, type)
-            apiResp.data ?: ""
-        } catch (e: Exception) {
-            Logger.e("getApiKey gson error: ${e.message}", e)
-            ""
-        }
-    }
-
-    /**
-     * 设置 API Key
-     */
-    suspend fun setApiKey(key: String) = withContext(Dispatchers.IO) {
-        try {
-            val body = gson.toJson(mapOf("key" to key))
-            LocalNetwork.post("/ai/apikey", body)
-        } catch (e: Exception) {
-            Logger.e("setApiKey gson/req error: ${e.message}", e)
-        }
-    }
-
-    /**
-     * 获取当前 API URL
-     */
-    suspend fun getApiUrl(): String = withContext(Dispatchers.IO) {
-        val resp = LocalNetwork.get("/ai/apiurl")
-        val type = object : TypeToken<ApiResponse<String>>() {}.type
-        return@withContext try {
-            val apiResp: ApiResponse<String> = gson.fromJson(resp, type)
-            apiResp.data ?: ""
-        } catch (e: Exception) {
-            Logger.e("getApiUrl gson error: ${e.message}", e)
-            ""
-        }
-    }
-
-    /**
-     * 设置 API URL
-     */
-    suspend fun setApiUrl(url: String) = withContext(Dispatchers.IO) {
-        try {
-            val body = gson.toJson(mapOf("url" to url))
-            LocalNetwork.post("/ai/apiurl", body)
-        } catch (e: Exception) {
-            Logger.e("setApiUrl gson/req error: ${e.message}", e)
-        }
-    }
-
-    /**
-     * 列出可用模型
-     */
-    suspend fun getModels(): List<String> = withContext(Dispatchers.IO) {
-        val resp = LocalNetwork.get("/ai/models")
+    suspend fun getModels(provider: String, apiKey: String, apiUri: String? = null): List<String> =
+        withContext(Dispatchers.IO) {
+            val payload = mutableMapOf(
+                "provider" to provider,
+                "apiKey" to apiKey
+            )
+            apiUri?.takeIf { it.isNotEmpty() }?.let { payload["apiUri"] = it }
+            val body = gson.toJson(payload)
+            val resp = LocalNetwork.post("/ai/models", body)
         val type = object : TypeToken<ApiResponse<List<String>>>() {}.type
         return@withContext try {
             val apiResp: ApiResponse<List<String>> = gson.fromJson(resp, type)
@@ -129,63 +70,36 @@ object AiAPI {
     }
 
     /**
-     * 获取当前模型
-     */
-    suspend fun getCurrentModel(): String = withContext(Dispatchers.IO) {
-        val resp = LocalNetwork.get("/ai/model")
-        val type = object : TypeToken<ApiResponse<String>>() {}.type
-        return@withContext try {
-            val apiResp: ApiResponse<String> = gson.fromJson(resp, type)
-            apiResp.data ?: ""
-        } catch (e: Exception) {
-            Logger.e("getCurrentModel gson error: ${e.message}", e)
-            ""
-        }
-    }
-
-    /**
-     * 设置当前模型
-     */
-    suspend fun setCurrentModel(model: String) = withContext(Dispatchers.IO) {
-        try {
-            val body = gson.toJson(mapOf("model" to model))
-            LocalNetwork.post("/ai/model", body)
-        } catch (e: Exception) {
-            Logger.e("setCurrentModel gson/req error: ${e.message}", e)
-        }
-    }
-
-    /**
-     * 获取创建 API Key 的链接
-     */
-    suspend fun getCreateKeyUri(): String = withContext(Dispatchers.IO) {
-        val resp = LocalNetwork.get("/ai/createKeyUri")
-        val type = object : TypeToken<ApiResponse<String>>() {}.type
-        return@withContext try {
-            val apiResp: ApiResponse<String> = gson.fromJson(resp, type)
-            apiResp.data ?: ""
-        } catch (e: Exception) {
-            Logger.e("getCreateKeyUri gson error: ${e.message}", e)
-            ""
-        }
-    }
-
-    /**
      * 向 AI 服务发送对话请求
      */
-    suspend fun request(systemPrompt: String, userPrompt: String): String =
-        withContext(Dispatchers.IO) {
-            try {
-                val body = gson.toJson(mapOf("system" to systemPrompt, "user" to userPrompt))
-                val resp = LocalNetwork.post("/ai/request", body)
-                val type = object : TypeToken<ApiResponse<String>>() {}.type
-                val apiResp: ApiResponse<String> = gson.fromJson(resp, type)
-                apiResp.data ?: ""
-            } catch (e: Exception) {
-                Logger.e("request gson/req error: ${e.message}", e)
-                ""
-            }
+    suspend fun request(
+        systemPrompt: String,
+        userPrompt: String,
+        provider: String? = null,
+        apiKey: String? = null,
+        apiUri: String? = null,
+        model: String? = null
+    ): String = withContext(Dispatchers.IO) {
+        try {
+            val payload = mutableMapOf(
+                "system" to systemPrompt,
+                "user" to userPrompt
+            )
+            provider?.takeIf { it.isNotEmpty() }?.let { payload["provider"] = it }
+            apiKey?.takeIf { it.isNotEmpty() }?.let { payload["apiKey"] = it }
+            apiUri?.takeIf { it.isNotEmpty() }?.let { payload["apiUri"] = it }
+            model?.takeIf { it.isNotEmpty() }?.let { payload["model"] = it }
+
+            val body = gson.toJson(payload)
+            val resp = LocalNetwork.post("/ai/request", body)
+            val type = object : TypeToken<ApiResponse<String>>() {}.type
+            val apiResp: ApiResponse<String> = gson.fromJson(resp, type)
+            apiResp.data ?: ""
+        } catch (e: Exception) {
+            Logger.e("request gson/req error: ${e.message}", e)
+            ""
         }
+    }
 
     /**
      * 向 AI 服务发送流式对话请求
@@ -200,11 +114,24 @@ object AiAPI {
         userPrompt: String,
         onChunk: (String) -> Unit,
         onComplete: () -> Unit = {},
-        onError: (String) -> Unit = {}
+        onError: (String) -> Unit = {},
+        provider: String? = null,
+        apiKey: String? = null,
+        apiUri: String? = null,
+        model: String? = null
     ) = withContext(Dispatchers.IO) {
         try {
             Logger.d("开始流式AI请求")
-            val body = gson.toJson(mapOf("system" to systemPrompt, "user" to userPrompt))
+            val payload = mutableMapOf(
+                "system" to systemPrompt,
+                "user" to userPrompt
+            )
+            provider?.takeIf { it.isNotEmpty() }?.let { payload["provider"] = it }
+            apiKey?.takeIf { it.isNotEmpty() }?.let { payload["apiKey"] = it }
+            apiUri?.takeIf { it.isNotEmpty() }?.let { payload["apiUri"] = it }
+            model?.takeIf { it.isNotEmpty() }?.let { payload["model"] = it }
+
+            val body = gson.toJson(payload)
             Logger.d("请求体: ${body.take(200)}...")
 
             LocalNetwork.postStream("/ai/request/stream", body) { event, data ->
