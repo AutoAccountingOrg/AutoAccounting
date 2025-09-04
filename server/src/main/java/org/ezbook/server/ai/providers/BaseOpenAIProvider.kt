@@ -92,7 +92,7 @@ abstract class BaseOpenAIProvider : BaseAIProvider() {
             )
         )
 
-        val requestBody = mutableMapOf<String, Any>(
+        val requestBody = mutableMapOf(
             "model" to getModel(),
             "messages" to messages,
             "temperature" to 0.7
@@ -123,7 +123,10 @@ abstract class BaseOpenAIProvider : BaseAIProvider() {
             } else {
                 // 普通处理
                 client.newCall(request).execute().use { response ->
-                    if (!response.isSuccessful) return null
+                    if (!response.isSuccessful) {
+                        Server.log("AI响应失败：${response.body?.string()}")
+                        return null
+                    }
 
                     val body = response.body?.string()?.removeThink() ?: return null
                     val jsonObject = JsonParser.parseString(body).asJsonObject
