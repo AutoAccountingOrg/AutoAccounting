@@ -49,7 +49,7 @@ class CategoryMapAdapter(
                 .setCallback { book, type ->
                     // 显示分类选择对话框
                     BaseSheetDialog.create<CategorySelectorDialog>(activity)
-                        .setBook(book.name)
+                        .setBook(book.remoteId)
                         .setType(type)
                         .setCallback { category1, category2 ->
                             launchInAdapter {

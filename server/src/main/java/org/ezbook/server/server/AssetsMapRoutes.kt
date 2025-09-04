@@ -182,7 +182,7 @@ private suspend fun reapplyAssetMappingToHistoryData() {
                     val billCopy = bill.copy()
 
                     // 重新应用资产映射
-                    AssetsMap.setAssetsMap(billCopy)
+                    AssetsMap().setAssetsMap(billCopy)
 
                     // 只更新资产相关字段
                     bill.accountNameFrom = billCopy.accountNameFrom
