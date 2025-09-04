@@ -21,12 +21,14 @@ import io.ktor.request.receiveText
 import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.post
+import io.ktor.routing.get
 import io.ktor.routing.route
 import org.ezbook.server.Server
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.BookNameModel
 import org.ezbook.server.models.ResultModel
+import org.ezbook.server.tools.SettingUtils
 
 /**
  * 账本管理路由配置
@@ -34,6 +36,16 @@ import org.ezbook.server.models.ResultModel
  */
 fun Route.bookRoutes() {
     route("/book") {
+        /**
+         * GET /book/get - 根据ID获取单个账本
+         * @param id 账本ID（query）
+         */
+        get("/get") {
+            val requestName = call.request.queryParameters["name"].orEmpty()
+            val book = resolveBookByNameOrDefault(requestName)
+            call.respond(ResultModel(200, "OK", book))
+        }
+
         /**
          * POST /book/list - 获取账本列表
          *
@@ -63,6 +75,25 @@ fun Route.bookRoutes() {
         }
 
         /**
+         * POST /book/add - 新增账本
+         */
+        post("/add") {
+            val model = call.receive(BookNameModel::class)
+            model.id = 0
+            val id = Db.get().bookNameDao().insert(model)
+            call.respond(ResultModel(200, "OK", id))
+        }
+
+        /**
+         * POST /book/update - 更新账本
+         */
+        post("/update") {
+            val model = call.receive(BookNameModel::class)
+            val updated = Db.get().bookNameDao().update(model)
+            call.respond(ResultModel(200, "OK", updated))
+        }
+
+        /**
          * POST /book/delete - 删除指定账本
          * 根据账本ID删除对应的账本记录
          *
@@ -78,5 +109,35 @@ fun Route.bookRoutes() {
             Db.get().bookNameDao().delete(id)
             call.respond(ResultModel(200, "OK", 0))
         }
+
+        /**
+         * GET /book/default - 获取默认账本（来自设置）
+         */
+        get("/default") {
+            val book = resolveBookByNameOrDefault(SettingUtils.bookName())
+            call.respond(ResultModel(200, "OK", book))
+        }
     }
-} 
+}
+
+/**
+ * 账本解析（含默认回退）
+ *
+ * 优先级：精确名称 → 默认账本名称 → 列表第一个 → 空表时返回默认名的新对象
+ */
+suspend fun resolveBookByNameOrDefault(name: String): BookNameModel {
+    val books = Db.get().bookNameDao().load()
+    val defaultName = SettingUtils.bookName()
+
+    if (books.isEmpty()) {
+        return BookNameModel().apply { this.name = defaultName }
+    }
+
+    if (name.isNotEmpty()) {
+        books.firstOrNull { it.name == name }?.let { return it }
+    }
+
+    books.firstOrNull { it.name == defaultName }?.let { return it }
+
+    return books.first()
+}

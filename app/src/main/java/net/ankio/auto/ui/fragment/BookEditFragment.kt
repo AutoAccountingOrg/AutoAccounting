@@ -35,10 +35,10 @@ import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.utils.ToastUtils
 import org.ezbook.server.db.model.BookNameModel
 import java.io.ByteArrayOutputStream
-import java.security.MessageDigest
 import androidx.core.graphics.scale
 import net.ankio.auto.http.api.BookNameAPI
 import net.ankio.auto.ui.utils.load
+import org.ezbook.server.tools.runCatchingExceptCancel
 
 /**
  * 账本编辑Fragment - 用于创建新账本或编辑现有账本
@@ -100,29 +100,21 @@ class BookEditFragment : BaseFragment<FragmentBookEditBinding>() {
      */
     private fun loadBookData() {
         launch {
-            try {
-                val books = BookNameAPI.list()
-                val book = books.find { it.id == bookId }
-
-                book?.let {
-                    // 手动复制BookNameModel属性
-                    currentBookModel = BookNameModel().apply {
-                        id = it.id
-                        name = it.name
-                        icon = it.icon
-                        remoteId = it.remoteId
-                    }
-                    binding.bookNameEditText.setText(it.name)
-                    updateIconPreview()
-                } ?: run {
-                    ToastUtils.error(getString(R.string.book_not_found))
-                    findNavController().popBackStack()
-                }
-            } catch (e: Exception) {
-                Logger.e("Failed to load book data", e)
-                ToastUtils.error(getString(R.string.book_load_failed))
+            val books = runCatchingExceptCancel { BookNameAPI.list() }.getOrDefault(emptyList())
+            val book = books.find { it.id == bookId }
+            if (book == null) {
+                ToastUtils.error(getString(R.string.book_not_found))
                 findNavController().popBackStack()
+                return@launch
             }
+            currentBookModel = BookNameModel().apply {
+                id = book.id
+                name = book.name
+                icon = book.icon
+                remoteId = book.remoteId
+            }
+            binding.bookNameEditText.setText(book.name)
+            updateIconPreview()
         }
     }
 
@@ -239,76 +231,31 @@ class BookEditFragment : BaseFragment<FragmentBookEditBinding>() {
         currentBookModel.name = bookName
 
         launch {
-            try {
-                // 显示保存状态
-                saveButton.isEnabled = false
-                saveButton.text = getString(R.string.saving)
+            // 显示保存状态
+            saveButton.isEnabled = false
+            saveButton.text = getString(R.string.saving)
 
-                // 获取当前所有账本
-                val existingBooks = BookNameAPI.list().toMutableList()
+            val result = runCatchingExceptCancel {
+                if (isEditMode) BookNameAPI.update(currentBookModel) else BookNameAPI.add(
+                    currentBookModel
+                )
+            }
 
-                // 检查是否存在同名账本
-                val nameExists = existingBooks.any {
-                    it.name == bookName && it.id != currentBookModel.id
-                }
-
-                if (nameExists) {
-                    ToastUtils.error(getString(R.string.book_name_exists))
-                    return@launch
-                }
-
-                if (isEditMode) {
-                    // 更新现有账本
-                    val index = existingBooks.indexOfFirst { it.id == currentBookModel.id }
-                    if (index >= 0) {
-                        existingBooks[index] = currentBookModel
-                    }
-                } else {
-                    // 添加新账本（生成新ID）
-                    val maxId = existingBooks.maxOfOrNull { it.id } ?: 0
-                    currentBookModel.id = maxId + 1
-                    currentBookModel.remoteId = currentBookModel.id.toString()
-                    existingBooks.add(currentBookModel)
-                }
-
-                // 计算MD5校验值
-                val md5 = calculateMD5(existingBooks)
-
-                // 保存到服务器
-                BookNameAPI.put(ArrayList(existingBooks), md5)
-
+            if (result.isSuccess) {
                 ToastUtils.info(
                     getString(if (isEditMode) R.string.book_updated_success else R.string.book_created_success)
                 )
-
                 findNavController().popBackStack()
-
-            } catch (e: Exception) {
-                Logger.e("Failed to save book", e)
+            } else {
+                Logger.e("Failed to save book")
                 ToastUtils.error(
                     getString(if (isEditMode) R.string.book_update_failed else R.string.book_create_failed)
                 )
-            } finally {
-                // 恢复按钮状态
-                saveButton.isEnabled = true
-                saveButton.text =
-                    getString(if (isEditMode) R.string.btn_save else R.string.btn_create)
             }
-        }
-    }
 
-    /**
-     * 计算账本列表的MD5校验值
-     */
-    private fun calculateMD5(books: List<BookNameModel>): String {
-        return try {
-            val content = books.sortedBy { it.id }.joinToString { "${it.id}-${it.name}-${it.icon}" }
-            val md = MessageDigest.getInstance("MD5")
-            val digest = md.digest(content.toByteArray())
-            digest.joinToString("") { "%02x".format(it) }
-        } catch (e: Exception) {
-            Logger.e("Failed to calculate MD5", e)
-            System.currentTimeMillis().toString()
+            // 恢复按钮状态
+            saveButton.isEnabled = true
+            saveButton.text = getString(if (isEditMode) R.string.btn_save else R.string.btn_create)
         }
     }
 

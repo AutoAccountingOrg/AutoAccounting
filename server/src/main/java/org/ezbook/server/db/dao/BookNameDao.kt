@@ -17,6 +17,7 @@ package org.ezbook.server.db.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.Update
 import androidx.room.Query
 import androidx.room.Transaction
 import org.ezbook.server.db.model.BookNameModel
@@ -31,6 +32,9 @@ interface BookNameDao {
 
     @Insert
     suspend fun insert(log: BookNameModel): Long
+
+    @Update
+    suspend fun update(book: BookNameModel): Int
 
     @Query("DELETE FROM BookNameModel")
     suspend fun clear()

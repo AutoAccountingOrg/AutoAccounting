@@ -20,7 +20,10 @@ import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.http.LocalNetwork
+import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.db.model.BookNameModel
+import org.ezbook.server.tools.runCatchingExceptCancel
+import java.net.URLEncoder
 
 /**
  * 账本名称API类，提供账本相关的网络请求操作
@@ -36,7 +39,7 @@ object BookNameAPI {
     ) {
         val response = LocalNetwork.post("book/list")
 
-        runCatching {
+        runCatchingExceptCancel {
             val json = Gson().fromJson(response, JsonObject::class.java)
             Gson().fromJson(
                 json.getAsJsonArray("data"),
@@ -45,42 +48,31 @@ object BookNameAPI {
         }.getOrNull() ?: emptyList()
     }
 
-
-
     /**
-     * 获取默认账本
-     * @return 按以下优先级返回账本：
-     * 1. 如果账本列表为空，创建新账本
-     * 2. 如果找到指定名称的账本，返回该账本
-     * 3. 如果请求的是"默认账本"但未找到，返回列表第一个账本
-     * 4. 其他情况创建新账本
+     * 根据名称从服务端获取账本（含默认回退逻辑，由后端兜底）。
      */
-    const val DEFAULT_BOOK = "默认账本"
-
-    suspend fun getBook(bookName: String): BookNameModel {
-        val books = list()
-
-        // ❶ 列表为空 → 直接返回默认账本
-        if (books.isEmpty()) return BookNameModel().apply { name = DEFAULT_BOOK }
-
-        // ❷ 尝试在已有列表里找到同名账本
-        books.firstOrNull { it.name == bookName }?.let { return it }
-
-        // ❸ 若请求的是“默认账本”却没找到 → 退而求其次返回第一个账本
-        if (bookName == DEFAULT_BOOK) return books.first()
-
-        // ❹ 其余情况：新建一个同名账本
-        return BookNameModel().apply { name = bookName }
+    suspend fun getBook(bookName: String): BookNameModel = withContext(Dispatchers.IO) {
+        val encoded = URLEncoder.encode(bookName, Charsets.UTF_8.name())
+        val response = LocalNetwork.get("book/get?name=$encoded")
+        runCatchingExceptCancel {
+            val json = Gson().fromJson(response, JsonObject::class.java)
+            Gson().fromJson(json.getAsJsonObject("data"), BookNameModel::class.java)
+        }.getOrNull() ?: BookNameModel().apply {
+            name = bookName.ifEmpty { DefaultData.DEFAULT_BOOK_NAME }
+        }
     }
 
-
     /**
-     * 获取第一个账本
-     * @return 如果存在账本则返回第一个账本，否则返回一个名为"默认账本"的新账本
+     * 从服务端获取默认账本（含回退逻辑）。
      */
-    suspend fun getFirstBook(): BookNameModel {
-        return getBook(DEFAULT_BOOK)
+    suspend fun getDefaultBook(): BookNameModel = withContext(Dispatchers.IO) {
+        val response = LocalNetwork.get("book/default")
+        runCatchingExceptCancel {
+            val json = Gson().fromJson(response, JsonObject::class.java)
+            Gson().fromJson(json.getAsJsonObject("data"), BookNameModel::class.java)
+        }.getOrNull() ?: BookNameModel().apply { name = DefaultData.DEFAULT_BOOK_NAME }
     }
+
 
     /**
      * 更新账本列表
@@ -92,6 +84,16 @@ object BookNameAPI {
         withContext(Dispatchers.IO) {
             LocalNetwork.post("book/put?md5=$md5", Gson().toJson(bookList))
         }
+
+    /** 新增单个账本 */
+    suspend fun add(book: BookNameModel) = withContext(Dispatchers.IO) {
+        LocalNetwork.post("book/add", Gson().toJson(book))
+    }
+
+    /** 更新单个账本 */
+    suspend fun update(book: BookNameModel) = withContext(Dispatchers.IO) {
+        LocalNetwork.post("book/update", Gson().toJson(book))
+    }
 
     /**
      * 删除指定账本
