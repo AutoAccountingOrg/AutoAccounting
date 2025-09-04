@@ -24,10 +24,8 @@ object Setting {
     const val AI_ASSET_MAPPING: String = "ai_asset_mapping"              // 使用AI进行资产映射
     const val AI_MONTHLY_SUMMARY: String = "ai_monthly_summary"          // 使用AI进行账单总结（月度）
     const val AI_SUMMARY_PROMPT: String = "ai_summary_prompt"            // 自定义AI总结Prompt
-    
+    const val API_PROVIDER = "api_provider"                                     // API提供商
     const val API_KEY = "api_key"                                     // API密钥
-    const val AI_ONE_API_URI = "ai_one_api_uri"                      // One API地址
-    const val AI_ONE_API_MODEL = "ai_one_api_model"                  // One API模型
     const val API_URI: String = "api_uri"                                  // API地址
     const val API_MODEL: String = "api_model"                              // API模型
 
@@ -36,7 +34,6 @@ object Setting {
     const val AUTO_ASSET_MAPPING: String = "auto_asset_mapping"     // 自动资产映射（非AI版本）
     const val HOOK_AUTO_SERVER: String = "hook_auto_server"          // 自动记账服务
     const val BOOK_APP_ID = "setting_book_app_id"                    // 记账软件ID
-    const val BOOK_APP_ACTIVITY: String = "book_app_activity"              // 记账软件Activity
     const val SHOW_AUTO_BILL_TIP = "show_auto_bill_tip"             // 自动记账提示
     const val SETTING_REMIND_BOOK: String = "setting_remind_book"    // 记账提醒
     const val AUTO_CREATE_CATEGORY = "setting_auto_create_category"  // 自动创建分类

@@ -158,55 +158,29 @@ object SettingUtils {
     // —— AI 接入参数 ——
 
     /** 后端统一 API Key */
-    suspend fun apiKey(): String = getString(Setting.API_KEY, DefaultData.API_KEY)
+    suspend fun apiKey(value: String): String = getString(Setting.API_KEY, value)
 
     /** 设置：后端统一 API Key */
     suspend fun setApiKey(value: String) = setString(Setting.API_KEY, value)
 
-    /** One API 网关地址 */
-    suspend fun aiOneApiUri(): String =
-        getString(Setting.AI_ONE_API_URI, DefaultData.AI_ONE_API_URI)
-
-    /** 设置：One API 网关地址 */
-    suspend fun setAiOneApiUri(value: String) = setString(Setting.AI_ONE_API_URI, value)
-
-    /** One API 模型 */
-    suspend fun aiOneApiModel(): String =
-        getString(Setting.AI_ONE_API_MODEL, DefaultData.AI_ONE_API_MODEL)
-
-    /** 设置：One API 模型 */
-    suspend fun setAiOneApiModel(value: String) = setString(Setting.AI_ONE_API_MODEL, value)
-
     /** 直连 API 地址 */
-    suspend fun apiUri(): String = getString(Setting.API_URI, DefaultData.API_URI)
+    suspend fun apiUri(uri: String): String = getString(Setting.API_URI, uri)
 
     /** 设置：直连 API 地址 */
     suspend fun setApiUri(value: String) = setString(Setting.API_URI, value)
 
     /** 直连 API 模型 */
-    suspend fun apiModel(): String = getString(Setting.API_MODEL, DefaultData.API_MODEL)
+    suspend fun apiModel(model: String): String = getString(Setting.API_MODEL, model)
 
     /** 设置：直连 API 模型 */
     suspend fun setApiModel(value: String) = setString(Setting.API_MODEL, value)
 
-    // —— Provider 作用域（BaseAIProvider 用） ——
+    /** 直连 API 提供商 */
+    suspend fun apiProvider(): String = getString(Setting.API_PROVIDER, DefaultData.API_PROVIDER)
 
-    /** Provider 作用域 API Key（不存在返回传入默认值） */
-    suspend fun providerApiKey(name: String, defaultValue: String): String =
-        getString("${Setting.API_KEY}_$name", defaultValue)
+    /** 设置：直连 API 提供商 */
+    suspend fun setApiProvider(value: String) = setString(Setting.API_PROVIDER, value)
 
-    /** Provider 作用域 API URI（不存在返回传入默认值） */
-    suspend fun providerApiUri(name: String, defaultValue: String): String =
-        getString("${Setting.API_URI}_$name", defaultValue)
-
-    /** Provider 作用域 Model（不存在返回传入默认值） */
-    suspend fun providerApiModel(name: String, defaultValue: String): String =
-        getString("${Setting.API_MODEL}_$name", defaultValue)
-
-    // —— 其他服务端直接使用到的配置 ——
-
-    /** 当前 AI Provider 名称（AiManager 用） */
-    suspend fun aiModel(): String = getString(Setting.AI_MODEL, DefaultData.AI_MODEL)
 
     /** 调试开关（Server.logD 用） */
     suspend fun debugMode(): Boolean = getBoolean(Setting.DEBUG_MODE, DefaultData.DEBUG_MODE)

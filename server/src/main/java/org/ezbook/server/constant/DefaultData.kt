@@ -210,8 +210,7 @@ object DefaultData {
 
     // ======== AI 完整默认值 ========
     val API_KEY: String = ""
-    val AI_ONE_API_URI: String = ""
-    val AI_ONE_API_MODEL: String = ""
+    val API_PROVIDER: String = "DeepSeek"
     val API_URI: String = ""
     val API_MODEL: String = ""
 
