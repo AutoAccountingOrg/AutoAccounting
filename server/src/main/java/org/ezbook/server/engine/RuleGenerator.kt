@@ -20,6 +20,7 @@ import com.google.gson.JsonObject
 import org.ezbook.server.constant.DataType
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.Db
+import org.ezbook.server.tools.SettingUtils
 
 /**
  * 这个代码运行在服务端，所以可以直接查库
@@ -31,7 +32,7 @@ object RuleGenerator {
         val js = StringBuilder()
 
         //注入common.js
-        val commonJs = Db.get().settingDao().query(Setting.JS_COMMON)?.value ?: ""
+        val commonJs = SettingUtils.jsCommon()
 
         js.append(commonJs)
         // 注入规则
@@ -94,9 +95,9 @@ object RuleGenerator {
         val categoryCustom = Db.get().categoryRuleDao().loadAll().joinToString("\n") {
             it.js
         }
-        val category = Db.get().settingDao().query(Setting.JS_CATEGORY)?.value ?: ""
+        val category = SettingUtils.jsCategory()
         //注入common.js
-        val commonJs = Db.get().settingDao().query(Setting.JS_COMMON)?.value ?: ""
+        val commonJs = SettingUtils.jsCommon()
         return """
             var window = JSON.parse(data);
             $commonJs
