@@ -168,8 +168,27 @@ class BillService(
             // 5) 分类（规则 → 可选 AI）
             categorize(billInfo)
 
-            // 6) 后续处理
-            val parentBillInfo = process(billInfo, analysisParams.fromAppData, context)
+            // 设置资产映射
+            AssetsMap().setAssetsMap(billInfo)
+            // 设置分类映射、查找
+            CategoryProcessor().setCategoryMap(billInfo)
+
+            // 生成账单备注
+            billInfo.remark = BillManager.getRemark(billInfo, context)
+
+            // 如果不是来自应用数据，则保存到数据库
+            if (!analysisParams.fromAppData) {
+                billInfo.id = db.billInfoDao().insert(billInfo)
+            }
+
+            // 将账单加入处理队列并等待自动分组处理完成
+            val task = Server.billProcessor.addTask(billInfo, context)
+            task.await()
+
+            // 根据处理结果更新账单状态
+            billInfo.state = if (task.result == null) BillState.Wait2Edit else BillState.Edited
+            db.billInfoDao().update(billInfo)
+
 
             // 7) 统计耗时
             val cost = System.currentTimeMillis() - start
@@ -184,10 +203,10 @@ class BillService(
             }
 
             // 9) 拉起悬浮窗（仅外部数据）
-            if (!analysisParams.fromAppData) startAutoPanel(billInfo, parentBillInfo)
+            if (!analysisParams.fromAppData) startAutoPanel(billInfo, task.result)
 
             // 10) 返回
-            ResultModel.ok(BillResultModel(billInfo, parentBillInfo))
+            ResultModel.ok(BillResultModel(billInfo, task.result))
         }
 
     /**
@@ -327,64 +346,6 @@ class BillService(
             ) ?: "其他"
         }
     }
-
-    /**
-     * 处理账单的后续业务逻辑
-     *
-     * 包括资产映射、分类映射、备注生成、账本设置等操作。
-     * 如果不是来自应用数据，会将账单保存到数据库。
-     * 最后会将账单加入处理队列进行异步处理。
-     *
-     * @param bill 要处理的账单信息
-     * @param fromAppData 是否来自应用数据（如果是，则不保存到数据库）
-     * @param context Android上下文
-     * @return 包含父级账单和是否需要用户操作标识的Pair
-     */
-    private suspend fun process(
-        bill: BillInfoModel,
-        fromAppData: Boolean,
-        context: Context
-    ): BillInfoModel? {
-        // 设置资产映射，返回是否需要用户操作
-        AssetsMap().setAssetsMap(bill)
-
-        // 设置分类映射
-        setCategoryMap(bill)
-
-        // 生成账单备注
-        bill.remark = BillManager.getRemark(bill, context)
-
-
-        // 如果不是来自应用数据，则保存到数据库
-        if (!fromAppData) {
-            bill.id = db.billInfoDao().insert(bill)
-        }
-
-        // 将账单加入处理队列并等待自动分组处理完成
-        val task = Server.billProcessor.addTask(bill, context)
-        task.await()
-
-        // 根据处理结果更新账单状态
-        bill.state = if (task.result == null) BillState.Wait2Edit else BillState.Edited
-        db.billInfoDao().update(bill)
-
-        return task.result
-    }
-
-    /**
-     * 应用分类映射（仅在 IO 线程调用）
-     *
-     * 如果存在分类映射记录，则将账单的分类名替换为映射后的目标分类名。
-     *
-     * @param billInfoModel 待处理的账单信息
-     */
-    private suspend fun setCategoryMap(billInfoModel: BillInfoModel) {
-        val category = billInfoModel.cateName
-        Db.get().categoryMapDao().query(category)?.let {
-            billInfoModel.cateName = it.mapName
-        }
-    }
-
 
     /**
      * 关闭服务，释放资源
