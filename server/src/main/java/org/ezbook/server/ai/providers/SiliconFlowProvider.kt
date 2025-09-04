@@ -16,21 +16,17 @@
 package org.ezbook.server.ai.providers
 
 /**
- * 讯飞星火 API提供商实现
+ * 硅基流动 API提供商实现
  */
-@Deprecated("过于垃圾，不要使用。")
-class SparkProvider : BaseOpenAIProvider() {
-    override val name: String = "spark"
+class SiliconFlowProvider : BaseOpenAIProvider() {
+    override val name: String = "sf"
 
-    override val createKeyUri: String = "https://console.xfyun.cn/services/cbm"
+    override val createKeyUri: String = "https://cloud.siliconflow.cn/me/account/ak"
 
-    override val apiUri: String = "https://spark-api-open.xf-yun.com/v1"
 
-    override var model: String = "lite"
+    override val apiUri: String = "https://api.siliconflow.cn/v1"
 
-    override suspend fun getAvailableModels(): List<String> {
-        return listOf(
-            model
-        ) //只有lite版本好用
-    }
-} 
+    override var model: String = "Qwen/QwQ-32B"
+
+
+}

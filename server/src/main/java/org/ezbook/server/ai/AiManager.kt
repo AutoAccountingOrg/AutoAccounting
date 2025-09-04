@@ -23,7 +23,7 @@ import org.ezbook.server.ai.providers.GeminiProvider
 import org.ezbook.server.ai.providers.KimiProvider
 import org.ezbook.server.ai.providers.OpenRouterProvider
 import org.ezbook.server.ai.providers.QWenProvider
-import org.ezbook.server.ai.providers.SparkProvider
+import org.ezbook.server.ai.providers.SiliconFlowProvider
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.Db
 
@@ -43,8 +43,8 @@ class AiManager {
         "Gemini" to GeminiProvider(),
         "Kimi" to KimiProvider(),
         "OpenRouter" to OpenRouterProvider(),
-        //   "讯飞星火" to SparkProvider(),
-        "通义千问" to QWenProvider()
+        "通义千问" to QWenProvider(),
+        "硅基流动" to SiliconFlowProvider()
     )
 
     /**
