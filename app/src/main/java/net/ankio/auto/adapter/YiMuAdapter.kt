@@ -62,27 +62,29 @@ class YiMuAdapter : IAppAdapter {
     }
 
     override fun syncBill(billInfoModel: BillInfoModel) {
-        // 仅支持支出
-        if (billInfoModel.type !== BillType.Expend) return
+        // 仅支持：支出/收入；其他类型直接返回
+        if (billInfoModel.type != BillType.Expend && billInfoModel.type != BillType.Income) return
 
-        // 分类（父/子）
-        val (parentCategory, childCategory) = billInfoModel.categoryPair()
+        // 分类（父/子）：收入场景将父类固定为"收入"，子类使用原父类；支出保持原父/子
+        val (rawParent, rawChild) = billInfoModel.categoryPair()
+        val (parentCategory, childCategory) = if (billInfoModel.type == BillType.Income) {
+            "收入" to rawParent
+        } else {
+            rawParent to rawChild
+        }
 
         // 必填：金额
         val money = billInfoModel.money.toString()
 
         // 可选：时间、备注、账户、账本、标签
-        val timeString = if (billInfoModel.time > 0) formatTime(billInfoModel.time) else ""
-        val remark = billInfoModel.remark
-        val asset = when {
-            billInfoModel.accountNameFrom.isNotEmpty() -> billInfoModel.accountNameFrom
-            billInfoModel.accountNameTo.isNotEmpty() -> billInfoModel.accountNameTo
-            else -> ""
-        }
+        val timeString = billInfoModel.time.takeIf { it > 0 }?.let(::formatTime).orEmpty()
+        val asset = sequenceOf(billInfoModel.accountNameFrom, billInfoModel.accountNameTo)
+            .firstOrNull { it.isNotEmpty() }
+            .orEmpty()
         val bookName = billInfoModel.bookName
         val tags = billInfoModel.tags.trim(',', ' ')
 
-        // 构建 yimu://api/addbill?...
+        // 构建 yimu://api/addbill?... 协议
         val uri = Uri.Builder()
             .scheme("yimu")
             .authority("api")
@@ -92,19 +94,17 @@ class YiMuAdapter : IAppAdapter {
                 appendIfNotBlank("parentCategory", parentCategory)
                 appendIfNotBlank("childCategory", childCategory)
                 appendIfNotBlank("time", timeString)
-                appendIfNotBlank("remark", remark)
+                appendIfNotBlank("remark", billInfoModel.remark)
                 appendIfNotBlank("asset", asset)
                 appendIfNotBlank("bookName", bookName)
                 appendIfNotBlank("tags", tags)
             }
             .build()
 
-        // 打开协议
+        // 调起目标 App 处理并在成功后标记同步完成
         val intent = Intent(Intent.ACTION_VIEW, uri).apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK }
         SystemUtils.startActivityIfResolvable(intent, name) {
-            AppAdapterManager.markSynced(
-                billInfoModel
-            )
+            AppAdapterManager.markSynced(billInfoModel)
         }
     }
 
