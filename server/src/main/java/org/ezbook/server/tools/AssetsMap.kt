@@ -103,19 +103,6 @@ class AssetsMap {
     }
 
     /**
-     * 检查资产管理器是否启用
-     */
-    private suspend fun isAssetManagerEnabled(): Boolean {
-        return try {
-            Db.get().settingDao().query(Setting.SETTING_ASSET_MANAGER)?.value == "true"
-        } catch (e: Exception) {
-            Server.log("检查资产管理器设置失败: ${e.message}")
-            Server.log(e)
-            false // 默认禁用，确保系统稳定
-        }
-    }
-
-    /**
      * 判断是否应该映射来源账户
      * 跳过收入借贷和收入还款类型
      */
