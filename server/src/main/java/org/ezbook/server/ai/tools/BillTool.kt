@@ -19,9 +19,7 @@ import com.google.gson.Gson
 import org.ezbook.server.Server
 import org.ezbook.server.ai.AiManager
 import org.ezbook.server.db.Db
-import org.ezbook.server.db.dao.CategoryDao
 import org.ezbook.server.db.model.BillInfoModel
-import org.ezbook.server.tools.Category
 
 class BillTool {
 

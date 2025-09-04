@@ -23,9 +23,7 @@ import kotlinx.coroutines.delay
 import net.ankio.auto.App
 import net.ankio.auto.R
 import net.ankio.auto.adapter.AppAdapterManager
-import net.ankio.auto.http.api.AssetsMapAPI
 import net.ankio.auto.http.api.BillAPI
-import net.ankio.auto.ui.utils.ToastUtils
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.BillInfoModel
 
