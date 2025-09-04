@@ -24,8 +24,7 @@ import org.ezbook.server.ai.providers.KimiProvider
 import org.ezbook.server.ai.providers.OpenRouterProvider
 import org.ezbook.server.ai.providers.QWenProvider
 import org.ezbook.server.ai.providers.SiliconFlowProvider
-import org.ezbook.server.constant.Setting
-import org.ezbook.server.db.Db
+import org.ezbook.server.tools.SettingUtils
 
 /**
  * AI 管理器
@@ -33,8 +32,7 @@ import org.ezbook.server.db.Db
  */
 class AiManager {
 
-    // 当前选择的AI提供者名称
-    var currentProviderName: String = "DeepSeek"
+
 
     // 所有可用的AI提供者列表
     private val providers = mapOf(
@@ -57,111 +55,33 @@ class AiManager {
      * 获取当前选择的AI提供者
      * @return 当前选择的AI提供者实例
      */
-    private suspend fun getCurrentProvider(): BaseAIProvider? {
-
-        val providerName =
-            Db.get().settingDao().query(Setting.AI_MODEL)?.value ?: currentProviderName
-        //默认deepseek
-
-        return providers[providerName] ?: providers[currentProviderName]
+    private suspend fun getCurrentProvider(): BaseAIProvider {
+        val providerName = SettingUtils.apiProvider()
+        return getProvider(providerName)
     }
 
-    /**
-     * 设置当前选择的AI提供者
-     * @param providerName AI提供者名称
-     * @return 是否设置成功
-     */
-    suspend fun setCurrentProvider(providerName: String): Boolean {
-        if (providers.containsKey(providerName)) {
-            currentProviderName = providerName
-            // 必须写入数据库，否则重启后丢失
-            Db.get().settingDao().set(Setting.AI_MODEL, providerName)
-            return true
-        }
-        return false
+    fun getProvider(providerName: String): BaseAIProvider {
+        return providers[providerName] ?: providers["DeepSeek"]!!
     }
 
-    /**
-     * 获取当前AI提供者的API Key
-     * @return API Key
-     */
-    suspend fun getCurrentApiKey(): String {
-        return getCurrentProvider()?.getApiKey() ?: ""
-    }
+    suspend fun getAvailableModels(providerName: String): List<String> =
+        getProvider(providerName).getAvailableModels()
 
-    /**
-     * 设置当前AI提供者的API Key
-     * @param apiKey 要设置的API Key
-     */
-    suspend fun setCurrentApiKey(apiKey: String) {
-        val provider = getCurrentProvider() ?: return
-
-        Db.get().settingDao().set(
-            "${Setting.API_KEY}_${provider.name}", apiKey
+    suspend fun getProviderInfo(providerName: String): HashMap<String, String> {
+        val provider = getProvider(providerName)
+        return hashMapOf(
+            "apiUri" to provider.getApiUri(),
+            "apiModel" to provider.getModel()
         )
-        provider.apiKey = apiKey
     }
-
-    /**
-     * 获取当前AI提供者的API URL
-     * @return API URL
-     */
-    suspend fun getCurrentApiUrl(): String {
-        return getCurrentProvider()?.getApiUri() ?: ""
-    }
-
-    /**
-     * 设置当前AI提供者的API URL
-     * @param apiUrl 要设置的API URL
-     */
-    suspend fun setCurrentApiUrl(apiUrl: String) {
-        val provider = getCurrentProvider() ?: return
-        Db.get().settingDao().set("${Setting.API_URI}_${provider.name}", apiUrl)
-    }
-
-    /**
-     * 获取当前AI提供者的模型
-     * @return 模型名称
-     */
-    suspend fun getCurrentModel(): String {
-        return getCurrentProvider()?.getModel() ?: ""
-    }
-
-    /**
-     * 设置当前AI提供者的模型
-     * @param model 要设置的模型名称
-     */
-    suspend fun setCurrentModel(model: String) {
-        val provider = getCurrentProvider() ?: return
-        Db.get().settingDao().set("${Setting.API_MODEL}_${provider.name}", model)
-    }
-
-    /**
-     * 获取当前AI提供者可用的模型列表
-     * @return 可用的模型列表
-     */
-    suspend fun getAvailableModels(): List<String> {
-        return runCatching { getCurrentProvider()?.getAvailableModels() }.onFailure {
-            Log.e("模块错误", it.message ?: "", it)
-        }.getOrNull() ?: emptyList()
-    }
-
-    /**
-     * 获取创建API Key的URI
-     * @return 创建API Key的URI
-     */
-    suspend fun getCreateKeyUri(): String {
-        return getCurrentProvider()?.createKeyUri ?: ""
-    }
-
     /**
      * 发送请求到当前AI服务
      * @param system 系统提示
      * @param user 用户提示
      * @return AI响应
      */
-    suspend fun request(system: String, user: String): String? {
-        return getCurrentProvider()?.request(system, user)
+    suspend fun request(system: String, user: String, provider: BaseAIProvider? = null): String? {
+        return (provider ?: getCurrentProvider())?.request(system, user)
     }
 
 
@@ -172,8 +92,13 @@ class AiManager {
      * @param onChunk 接收到数据块时的回调函数
      * @return 是否成功开始流式请求
      */
-    suspend fun requestStream(system: String, user: String, onChunk: (String) -> Unit) {
-        getCurrentProvider()?.request(system, user, onChunk)
+    suspend fun requestStream(
+        system: String,
+        user: String,
+        provider: BaseAIProvider? = null,
+        onChunk: (String) -> Unit
+    ) {
+        (provider ?: getCurrentProvider())?.request(system, user, onChunk)
     }
 
     companion object {

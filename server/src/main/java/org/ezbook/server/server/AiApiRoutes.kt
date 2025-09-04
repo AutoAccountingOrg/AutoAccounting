@@ -29,99 +29,84 @@ import kotlinx.coroutines.launch
 import org.ezbook.server.Server
 import org.ezbook.server.ai.AiManager
 import org.ezbook.server.models.ResultModel
+import org.ezbook.server.tools.SettingUtils
 
 fun Route.aiApiRoutes() {
     route("/ai") {
-        // 列出所有提供者
         get("/providers") {
-            val names = AiManager.getInstance().getProviderNames()
-            call.respond(HttpStatusCode.OK, ResultModel(200, "success", names))
-        }
-
-        // 获取/设置当前提供者名称
-        get("/provider") {
-            val current = AiManager.getInstance().getProviderNames()
-                .find { it == AiManager.getInstance().currentProviderName }
-            call.respond(HttpStatusCode.OK, ResultModel(200, "success", current))
-        }
-        post("/provider") {
-            val body = call.receive<Map<String, String>>()
-            val name = body["name"] ?: ""
-            val ok = AiManager.getInstance().setCurrentProvider(name)
             call.respond(
-                if (ok) HttpStatusCode.OK else HttpStatusCode.BadRequest,
-                ResultModel(if (ok) 200 else 400, if (ok) "success" else "invalid provider")
+                HttpStatusCode.OK,
+                ResultModel(200, "success", AiManager.getInstance().getProviderNames())
             )
         }
-
-        // API Key
-        get("/apikey") {
-            val key = AiManager.getInstance().getCurrentApiKey()
-            call.respond(HttpStatusCode.OK, ResultModel(200, "success", key))
-        }
-        post("/apikey") {
+        // 获取模型列表（可选 provider 参数）
+        post("/models") {
             val body = call.receive<Map<String, String>>()
-            val key = body["key"] ?: ""
-            AiManager.getInstance().setCurrentApiKey(key)
-            call.respond(HttpStatusCode.OK, ResultModel(200, "success"))
-        }
-
-        // API URL
-        get("/apiurl") {
-            val url = AiManager.getInstance().getCurrentApiUrl()
-            call.respond(HttpStatusCode.OK, ResultModel(200, "success", url))
-        }
-        post("/apiurl") {
-            val body = call.receive<Map<String, String>>()
-            val url = body["url"] ?: ""
-            AiManager.getInstance().setCurrentApiUrl(url)
-            call.respond(HttpStatusCode.OK, ResultModel(200, "success"))
-        }
-
-        // 模型列表
-        get("/models") {
-            val list = AiManager.getInstance().getAvailableModels()
+            val providerName = body["provider"].orEmpty()
+            val providerKey = body["apiKey"].orEmpty()
+            SettingUtils.setApiProvider(providerName)
+            SettingUtils.setApiKey(providerKey)
+            val list = AiManager.getInstance().getAvailableModels(providerName)
             call.respond(HttpStatusCode.OK, ResultModel(200, "success", list))
         }
-        // 获取/设置当前模型
-        get("/model") {
-            val model = AiManager.getInstance().getCurrentModel()
-            call.respond(HttpStatusCode.OK, ResultModel(200, "success", model))
-        }
-        post("/model") {
-            val body = call.receive<Map<String, String>>()
-            val model = body["model"] ?: ""
-            AiManager.getInstance().setCurrentModel(model)
-            call.respond(HttpStatusCode.OK, ResultModel(200, "success"))
+
+        // 获取当前 Provider 信息（apiUri、apiModel）；可选 provider 参数
+        get("/info") {
+            val providerName = call.request.queryParameters["provider"].orEmpty()
+            SettingUtils.setApiProvider(providerName)
+            val info = AiManager.getInstance().getProviderInfo(providerName)
+            call.respond(HttpStatusCode.OK, ResultModel(200, "success", info))
         }
 
-        // 创建 Key URI
-        get("/createKeyUri") {
-            val uri = AiManager.getInstance().getCreateKeyUri()
-            call.respond(HttpStatusCode.OK, ResultModel(200, "success", uri))
-        }
-
-        // 发送请求
+        // 发送请求（支持前端传入 provider/apiUri/apiKey/model 参数构造临时 Provider）
         post("/request") {
             val body = call.receive<Map<String, String>>()
             val systemPrompt = body["system"] ?: ""
             val userPrompt = body["user"] ?: ""
-            val resp = AiManager.getInstance().request(systemPrompt, userPrompt)
+
+            val providerName = body["provider"].orEmpty()
+            val apiKey = body["apiKey"].orEmpty()
+            val apiUri = body["apiUri"].orEmpty()
+            val model = body["model"].orEmpty()
+
+
+            // 如果前端传入了参数，则写入到 SettingUtils，供 Provider 读取（简单可靠）
+            if (apiKey.isNotEmpty()) SettingUtils.setApiKey(apiKey)
+            if (apiUri.isNotEmpty()) SettingUtils.setApiUri(apiUri)
+            if (model.isNotEmpty()) SettingUtils.setApiModel(model)
+
+            val provider = if (providerName.isNotEmpty())
+                AiManager.getInstance().getProvider(providerName) else null
+
+            val resp = AiManager.getInstance().request(systemPrompt, userPrompt, provider)
             call.respond(HttpStatusCode.OK, ResultModel(200, "success", resp))
         }
 
-        // 发送流式请求 - 真正的SSE响应
+        // 流式请求（SSE）
         post("/request/stream") {
             val body = call.receive<Map<String, String>>()
             val systemPrompt = body["system"] ?: ""
             val userPrompt = body["user"] ?: ""
-            // 使用respondTextWriter实现真正的流式响应
+
+            val providerName = body["provider"].orEmpty()
+            val apiKey = body["apiKey"].orEmpty()
+            val apiUri = body["apiUri"].orEmpty()
+            val model = body["model"].orEmpty()
+
+            if (apiKey.isNotEmpty()) SettingUtils.setApiKey(apiKey)
+            if (apiUri.isNotEmpty()) SettingUtils.setApiUri(apiUri)
+            if (model.isNotEmpty()) SettingUtils.setApiModel(model)
+
+            val provider = if (providerName.isNotEmpty())
+                AiManager.getInstance().getProvider(providerName) else null
+
             call.respondTextWriter(ContentType.Text.EventStream) {
                 try {
                     write("data: [START]\n\n")
                     flush()
 
-                    AiManager.getInstance().requestStream(systemPrompt, userPrompt) { chunk ->
+                    AiManager.getInstance()
+                        .requestStream(systemPrompt, userPrompt, provider) { chunk ->
                         write("data: $chunk\n\n")
                         flush()
                     }
@@ -136,7 +121,6 @@ fun Route.aiApiRoutes() {
                     flush()
                 }
             }
-
         }
     }
 }

@@ -243,7 +243,7 @@ class BillService(
         val result = BillTool().execute(data) ?: return null
         return result.apply {
             // 设置AI分析的标识信息
-            ruleName = "${AiManager.getInstance().currentProviderName} 生成"
+            ruleName = "${SettingUtils.apiProvider()} 生成"
             state = BillState.Wait2Edit
             this.app = app
         }
