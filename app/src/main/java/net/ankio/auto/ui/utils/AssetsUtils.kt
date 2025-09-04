@@ -133,7 +133,7 @@ object AssetsUtils {
 
         list.forEach { asset ->
             val cleanAssetName = asset.name.cleanText()
-            Logger.d("尝试匹配: $cleanInput => $cleanAssetName")
+            Logger.d("尝试匹配：$cleanInput => $cleanAssetName")
 
             val similarity = calculateConsecutiveSimilarity(cleanAssetName, cleanInput)
 
@@ -175,7 +175,7 @@ object AssetsUtils {
 
     private suspend fun handleEmptyMapping(accountName: String): String? {
         val list = AssetsMapAPI.list(1, 10000)
-        Logger.d("handleEmptyMapping: $accountName, list: $list")
+        Logger.d("处理空映射：账户名=$accountName，匹配列表=$list")
         return list.firstOrNull { it.regex && accountName.contains(it.name) }?.mapName
     }
     /**
@@ -194,7 +194,7 @@ object AssetsUtils {
             val mapName = AssetsMapAPI.getByName(billInfoModel.accountNameFrom)
             val assetName = AssetsAPI.getByName(billInfoModel.accountNameFrom)
 
-            Logger.d("setMapAssets: $billInfoModel, mapName: $mapName, assetName: $assetName")
+            Logger.d("资产映射：账单=$billInfoModel，映射名=$mapName，资产名=$assetName")
             if (assetName == null) {
                 if (mapName == null) {
                     if (!listOf(BillType.IncomeLending, BillType.IncomeRepayment).contains(
@@ -218,7 +218,7 @@ object AssetsUtils {
         if (billInfoModel.accountNameTo.isNotEmpty()) {
             val mapName = AssetsMapAPI.getByName(billInfoModel.accountNameTo)
             val assetName = AssetsAPI.getByName(billInfoModel.accountNameTo)
-            Logger.d("setMapAssets: $billInfoModel, mapName: $mapName, assetName: $assetName")
+            Logger.d("资产映射：账单=$billInfoModel，映射名=$mapName，资产名=$assetName")
             if (assetName == null) {
                 if (mapName == null) {
                     if (!listOf(BillType.ExpendLending, BillType.ExpendRepayment).contains(

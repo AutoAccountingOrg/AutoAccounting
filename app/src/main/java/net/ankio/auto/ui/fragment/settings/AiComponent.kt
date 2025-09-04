@@ -26,6 +26,7 @@ import net.ankio.auto.ui.api.BaseComponent
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.utils.CustomTabsHelper
 import net.ankio.auto.ui.utils.toThemeColor
+import net.ankio.auto.utils.PrefManager
 
 /**
  * AI 接入设置组件 - Linus式极简设计
@@ -47,12 +48,9 @@ class AiComponent(
 
     // ------------------------------------ 本地缓存数据 ------------------------------------ //
 
-    /** 当前模型的申请地址（随着 provider/model 变化而变化） */
-    private var modelKeyUri: String = ""
-
     /** AI 服务商列表 */
     private var providerList: List<String> = emptyList()
-
+    private var createKeyUri = ""
     /** AI 模型列表 */
     private var models: List<String> = emptyList()
 
@@ -60,65 +58,44 @@ class AiComponent(
 
     override fun onComponentCreate() {
         super.onComponentCreate()
-        // UI 默认启用，减少不必要的限制
-        with(binding) {
-            btnTestAi.isEnabled = true
-            // 测试按钮始终可用 - 让用户随时可以测试
-            cardTestResult.visibility = View.GONE
-        }
         bindListeners()
+    }
+
+    private suspend fun loadProvider(provider: String) {
+        runCatching { AiAPI.getInfo(provider) }.onSuccess { info ->
+            val apiUri = info["apiUri"].orEmpty()
+            val apiModel = info["apiModel"].orEmpty()
+            createKeyUri = info["createKeyUri"].orEmpty()
+            if (apiUri.isNotEmpty()) binding.etAiBaseUrl.setText(apiUri)
+            if (apiModel.isNotEmpty()) binding.actAiModel.setText(apiModel, false)
+        }
     }
 
     /** 统一注册所有 UI 事件 */
     private fun bindListeners() = with(binding) {
-        // Provider 选择后重置 Model
+        // Provider 选择：根据后端信息填充 URL / Model（仅更新UI，不保存）
         actAiProvider.setOnItemClickListener { _, _, pos, _ ->
             actAiModel.setText("")
             tilAiToken.error = null
+            val provider = providerList.getOrNull(pos).orEmpty()
             launch {
-                AiAPI.setCurrentProvider(providerList[pos])
+                loadProvider(provider)
             }
         }
 
         // 刷新模型列表
         btnRefreshModels.setOnClickListener { fetchModels() }
 
-        // 保存 Base URL
-        btnSaveBaseUrl.setOnClickListener {
-            val url = etAiBaseUrl.text?.toString()?.trim().orEmpty()
-            if (url.isBlank()) {
-                tilAiBaseUrl.error = context.getString(R.string.setting_not_set)
-                return@setOnClickListener
-            }
-            tilAiBaseUrl.error = null
-            val loading = LoadingUtils(context)
-            launch {
-                try {
-                    loading.show()
-                    AiAPI.setApiUrl(url)
-                } finally {
-                    loading.close()
-                }
-            }
-        }
 
-        // 选中模型后更新后端，并获取申请地址
+        // 选中模型：仅更新 UI，不立即保存
         actAiModel.setOnItemClickListener { _, _, pos, _ ->
-            val model = models[pos]
-            launch {
-                AiAPI.setCurrentModel(model)
-                modelKeyUri = AiAPI.getCreateKeyUri()
-            }
+            val model = models.getOrNull(pos).orEmpty()
+            if (model.isNotEmpty()) actAiModel.setText(model, false)
         }
 
         // 跳转浏览器或复制模型申请地址
         btnGetToken.setOnClickListener {
-            CustomTabsHelper.launchUrlOrCopy(modelKeyUri)
-        }
-
-        // Token 输入后动态控制 UI
-        etAiToken.doOnTextChanged { _, _, _, _ ->
-            // 保持所有控件启用，不做联动禁用
+            CustomTabsHelper.launchUrlOrCopy(createKeyUri)
         }
 
         // AI 测试功能
@@ -163,6 +140,7 @@ class AiComponent(
         val token = etAiToken.text?.toString()?.trim().orEmpty()
         val provider = actAiProvider.text?.toString()?.trim().orEmpty()
         val model = actAiModel.text?.toString()?.trim().orEmpty()
+        val apiUri = etAiBaseUrl.text?.toString()?.trim().orEmpty()
 
         if (token.isBlank() || provider.isBlank() || model.isBlank()) {
             showTestResult(
@@ -177,35 +155,29 @@ class AiComponent(
         launch {
             try {
                 loading.show()
-
-                // 临时保存当前配置
-                val originalProvider = AiAPI.getCurrentProvider()
-                val originalModel = AiAPI.getCurrentModel()
-                val originalKey = AiAPI.getApiKey()
-
-                // 设置测试配置
-                AiAPI.setCurrentProvider(provider)
-                AiAPI.setCurrentModel(model)
-                AiAPI.setApiKey(token)
-
-                // 执行简单的AI测试
                 val response = AiAPI.request(
-                    "You are a helpful assistant. Please respond briefly.",
-                    "Hello, please respond with a simple greeting to confirm the connection is working."
+                    systemPrompt = "You are a helpful assistant. Please respond briefly.",
+                    userPrompt = "Hello, please respond with a simple greeting to confirm the connection is working.",
+                    provider = provider,
+                    apiKey = token,
+                    apiUri = apiUri,
+                    model = model
                 )
-
-                // 恢复原始配置
-                AiAPI.setCurrentProvider(originalProvider)
-                AiAPI.setCurrentModel(originalModel)
-                AiAPI.setApiKey(originalKey)
 
                 if (response.isNotBlank()) {
                     showTestResult(
                         true,
                         context.getString(R.string.ai_test_success_message) + "\n\n" +
-                                "AI Response: ${response.take(100)}${if (response.length > 100) "..." else ""}",
+                                " ${response.take(100)}${if (response.length > 100) "..." else ""}",
                         R.drawable.ic_success
                     )
+                    // 测试成功：保存到本地 Pref
+                    PrefManager.apply {
+                        apiProvider = provider
+                        apiKey = token
+                        this.apiUri = apiUri
+                        apiModel = model
+                    }
                 } else {
                     showTestResult(
                         false,
@@ -214,15 +186,7 @@ class AiComponent(
                     )
                 }
 
-            } catch (e: Exception) {
-                showTestResult(
-                    false,
-                    context.getString(
-                        R.string.ai_test_failed_message,
-                        e.message ?: "Unknown error"
-                    ),
-                    R.drawable.ic_error
-                )
+
             } finally {
                 loading.close()
             }
@@ -249,11 +213,9 @@ class AiComponent(
         launch {
             try {
                 loading.show()
-                AiAPI.apply {
-                    setCurrentProvider(actAiProvider.text.toString())
-                    setApiKey(token)
-                }
-                models = AiAPI.getModels()
+                val provider = actAiProvider.text?.toString()?.trim().orEmpty()
+                val url = etAiBaseUrl.text?.toString()?.trim().orEmpty()
+                models = AiAPI.getModels(provider = provider, apiKey = token, apiUri = url)
 
                 // 成功时更新UI
                 actAiModel.setSimpleItems(models.toTypedArray())
@@ -274,19 +236,15 @@ class AiComponent(
         launch {
             try {
                 loading.show()
+                // 1) 载入 Provider 列表
                 providerList = AiAPI.getProviders()
-                modelKeyUri = AiAPI.getApiUrl()
-                binding.etAiBaseUrl.setText(modelKeyUri)
-
-                // Provider
                 binding.actAiProvider.setSimpleItems(providerList.toTypedArray())
-                binding.actAiProvider.setText(AiAPI.getCurrentProvider(), false)
-
-                // Model
-                binding.actAiModel.setText(AiAPI.getCurrentModel(), false)
-
-                // Token
-                binding.etAiToken.setText(AiAPI.getApiKey())
+                loadProvider(PrefManager.apiProvider)
+                // 2) 使用 PrefManager 将配置填充到页面
+                binding.actAiProvider.setText(PrefManager.apiProvider, false)
+                binding.etAiToken.setText(PrefManager.apiKey)
+                binding.etAiBaseUrl.setText(PrefManager.apiUri)
+                binding.actAiModel.setText(PrefManager.apiModel, false)
 
                 // 测试按钮始终可用，无需更新状态
             } finally {
