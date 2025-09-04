@@ -34,6 +34,7 @@ import net.ankio.auto.App
 import net.ankio.auto.constant.WorkMode
 import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.utils.SystemUtils
+import net.ankio.auto.storage.Logger
 import org.ezbook.server.constant.BillAction
 
 class QianJiAdapter : IAppAdapter {
@@ -226,6 +227,7 @@ class QianJiAdapter : IAppAdapter {
         val intent = Intent(Intent.ACTION_VIEW, uriBuilder.toString().toUri()).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
+        Logger.i("目标应用uri：${uriBuilder}")
         SystemUtils.startActivityIfResolvable(intent, name) {
             AppAdapterManager.markSynced(billInfoModel)
         }

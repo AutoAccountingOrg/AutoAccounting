@@ -27,6 +27,7 @@ import java.util.Locale
 import androidx.core.net.toUri
 import net.ankio.auto.utils.SystemUtils
 import org.ezbook.server.constant.BillAction
+import net.ankio.auto.storage.Logger
 
 //TODO 适配页面
 class YiYuAdapter : IAppAdapter {
@@ -131,6 +132,7 @@ class YiYuAdapter : IAppAdapter {
         }
 
         val uri = url.toString().toUri()
+        Logger.i("目标应用uri：$uri")
 
         // 4) 通过隐式 Intent 拉起一羽记账
         val intent = Intent(Intent.ACTION_VIEW, uri).apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK }

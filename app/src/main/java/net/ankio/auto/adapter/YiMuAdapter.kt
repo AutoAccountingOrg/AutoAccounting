@@ -101,7 +101,7 @@ class YiMuAdapter : IAppAdapter {
                 appendIfNotBlank("tags", tags)
             }
             .build()
-        Logger.i("构建：$uri")
+        Logger.i("目标应用uri：$uri")
         // 调起目标 App 处理并在成功后标记同步完成
         val intent = Intent(Intent.ACTION_VIEW, uri).apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK }
         SystemUtils.startActivityIfResolvable(intent, name) {
