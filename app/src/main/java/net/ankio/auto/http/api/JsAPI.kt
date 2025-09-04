@@ -33,7 +33,6 @@ object JsAPI {
             "js/analysis?type=${type.name}&app=$appPackage&fromAppData=$fromAppData",
             data
         )
-            ?: return null
 
         val json = Gson().fromJson(result, JsonObject::class.java)
         val resultData = json?.getAsJsonObject("data") ?: return null
