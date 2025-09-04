@@ -56,7 +56,7 @@ class CategorySelectorDialog internal constructor(
 
     /**
      * 设置账本名称
-     * @param bookID 账本名称
+     * @param bookID 账本ID
      * @return 当前对话框实例，支持链式调用
      */
     fun setBook(bookID: String) = apply {
