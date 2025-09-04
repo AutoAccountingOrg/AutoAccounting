@@ -76,8 +76,6 @@ fun Route.assetsMapRoutes() {
             // 基于 name 的唯一索引 + REPLACE 策略，幂等写入
             val id = Db.get().assetsMapDao().insert(model)
 
-            // 清除缓存，确保下次使用最新的映射规则
-            AssetsMap.clearCache()
 
             call.respond(ResultModel(200, "OK", id))
         }
@@ -95,9 +93,8 @@ fun Route.assetsMapRoutes() {
             val id = json?.get("id")?.asLong ?: 0
             Db.get().assetsMapDao().delete(id)
 
-            // 清除缓存，确保删除后的映射规则生效
-            AssetsMap.clearCache()
-            
+
+
             call.respond(ResultModel(200, "OK", id))
         }
 
