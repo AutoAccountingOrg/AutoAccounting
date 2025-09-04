@@ -221,7 +221,9 @@ class BillService(
         // 执行规则代码进行分析
         val result = executeJs(js, data)
         // 解析分析结果为账单信息对象
-        return parseBillInfo(result, app, dataType)
+        return runCatching {
+            parseBillInfo(result, app, dataType)
+        }.getOrNull()
     }
 
     /**
