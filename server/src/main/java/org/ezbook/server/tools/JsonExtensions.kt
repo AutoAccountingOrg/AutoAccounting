@@ -68,6 +68,10 @@ fun JsonObject.safeGetString(key: String, defaultValue: String = ""): String {
     }
 }
 
+fun JsonObject?.safeGetStringNonBlank(key: String, default: String): String {
+    val value = this?.safeGetString(key, default)
+    return if (value.isNullOrBlank()) default else value
+}
 /**
  * 安全获取 Boolean 值
  * @param key JSON 键名

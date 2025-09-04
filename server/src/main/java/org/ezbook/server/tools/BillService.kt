@@ -109,13 +109,14 @@ class BillService(
         // 调起悬浮窗（调试用日志）
         Server.logD("拉起自动记账悬浮窗口：$intent")
 
-        runCatching {
+        runCatchingExceptCancel {
             Server.application.startActivity(intent)
         }.onFailure { throwable ->
             Server.log("自动记账悬浮窗拉起失败：$throwable")
             Server.log(throwable)
         }
     }
+
     /**
      * 分析账单数据的主要入口方法
      *
@@ -130,7 +131,7 @@ class BillService(
     suspend fun analyze(analysisParams: AnalysisParams, context: Context): ResultModel =
         withContext(Dispatchers.IO) {
             // 1) 校验数据类型
-            val dataType = runCatching { DataType.valueOf(analysisParams.type) }
+            val dataType = runCatchingExceptCancel { DataType.valueOf(analysisParams.type) }
                 .getOrElse {
                     return@withContext ResultModel.error(
                         400,
@@ -162,7 +163,8 @@ class BillService(
                 analyzeWithRule(analysisParams.app, analysisParams.data, dataType)
                     ?: analyzeWithAI(analysisParams.app, analysisParams.data)
                     ?: return@withContext ResultModel.error(404, "未分析到有效账单。")
-            if (billInfo.bookName.isEmpty()) billInfo.bookName = SettingUtils.bookName()
+
+            //这里也不加bookName, bookName在分类里面处理
             // 5) 分类（规则 → 可选 AI）
             categorize(billInfo)
 
@@ -221,9 +223,7 @@ class BillService(
         // 执行规则代码进行分析
         val result = executeJs(js, data)
         // 解析分析结果为账单信息对象
-        return runCatching {
-            parseBillInfo(result, app, dataType)
-        }.getOrNull()
+        return parseBillInfo(result, app, dataType)
     }
 
     /**
@@ -262,13 +262,14 @@ class BillService(
         result: String,
         app: String,
         dataType: DataType
-    ): BillInfoModel {
+    ): BillInfoModel? {
         Server.logD("解析数据：$result")
-        val json = Gson().fromJson(result, JsonObject::class.java)
-
+        val json =
+            runCatchingExceptCancel { Gson().fromJson(result, JsonObject::class.java) }.getOrNull()
+                ?: return null
         // 使用安全的 JSON 访问扩展函数
         return BillInfoModel().apply {
-            type = runCatching {
+            type = runCatchingExceptCancel {
                 BillType.valueOf(json.safeGetString("type", "Expend"))
             }.getOrDefault(BillType.Expend)
 
@@ -284,10 +285,11 @@ class BillService(
             channel = json.safeGetString("channel")
             ruleName = json.safeGetString("ruleName")
             cateName = json.safeGetString("cateName")
-            bookName = json.safeGetString("bookName", SettingUtils.bookName())
-            // 根据ruleName判断是否需要自动记录
-            val rule = Db.get().ruleDao().query(dataType.name, app, ruleName)
-            auto = rule?.autoRecord ?: false
+            // 这个地方不要带上bookName，因为这里的数据来源是JS生成的，Js里面不会输出bookName和cateName，但是AI会携带cateName
+            if (!this.generateByAi()) {
+                val rule = Db.get().ruleDao().query(dataType.name, app, ruleName)
+                auto = rule?.autoRecord ?: false
+            }
         }
     }
 
@@ -309,15 +311,15 @@ class BillService(
             addProperty("shopItem", bill.shopItem)
         }
 
-        val categoryJson = runCatching {
+        val categoryJson = runCatchingExceptCancel {
             Gson().fromJson(
                 executeJs(ruleGenerator.category(), win.toString()),
                 JsonObject::class.java
             )
         }.getOrNull()
-        // 设置账本名称
-        bill.bookName = categoryJson?.safeGetString("bookName") ?: SettingUtils.bookName()
-        bill.cateName = categoryJson?.safeGetString("category", "其他") ?: "其他"
+        // 设置账本名称与分类（优先规则结果，否则默认值）
+        bill.bookName = categoryJson.safeGetStringNonBlank("bookName", SettingUtils.bookName())
+        bill.cateName = categoryJson.safeGetStringNonBlank("category", "其他")
 
         if (bill.needReCategory() && SettingUtils.aiCategoryRecognition()) {
             bill.cateName = CategoryTool().execute(

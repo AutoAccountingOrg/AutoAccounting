@@ -35,6 +35,7 @@ import org.ezbook.server.db.model.LogModel
 import org.ezbook.server.server.module
 import org.ezbook.server.task.BillProcessor
 import org.ezbook.server.tools.SettingUtils
+import org.ezbook.server.tools.runCatchingExceptCancel
 import java.net.ConnectException
 import java.net.Proxy
 import java.util.concurrent.TimeUnit
@@ -89,7 +90,7 @@ class Server(private val context: Application) {
          */
         suspend fun request(path: String, json: String = ""): String? =
             withContext(Dispatchers.IO) {
-                runCatching {
+                runCatchingExceptCancel {
                     val uri = "http://127.0.0.1:52045/$path"
                     val client = OkHttpClient.Builder()
                         .readTimeout(60, TimeUnit.SECONDS)
@@ -127,7 +128,7 @@ class Server(private val context: Application) {
          * 日志
          */
         suspend fun log(msg: String) = withContext(Dispatchers.IO) {
-            runCatching {
+            runCatchingExceptCancel {
                 Db.get().logDao().insert(LogModel().apply {
                     level = LogLevel.INFO
                     app = TAG
@@ -141,7 +142,7 @@ class Server(private val context: Application) {
          * 日志
          */
         suspend fun logW(msg: String) = withContext(Dispatchers.IO) {
-            runCatching {
+            runCatchingExceptCancel {
                 Db.get().logDao().insert(LogModel().apply {
                     level = LogLevel.WARN
                     app = TAG
@@ -156,7 +157,7 @@ class Server(private val context: Application) {
          */
         suspend fun log(e: Throwable) = withContext(Dispatchers.IO) {
 
-            runCatching {
+            runCatchingExceptCancel {
                 Db.get().logDao().insert(LogModel().apply {
                     level = LogLevel.ERROR
                     app = TAG
@@ -167,7 +168,7 @@ class Server(private val context: Application) {
         }
 
         suspend fun logD(s: String) = withContext(Dispatchers.IO) {
-            runCatching {
+            runCatchingExceptCancel {
                 val debug = SettingUtils.debugMode()
                 if (debug) {
                     Db.get().logDao().insert(LogModel().apply {

@@ -71,7 +71,7 @@ object SettingUtils {
     }
 
     /** 写入字符串配置 */
-    suspend fun setString(key: String, value: String) {
+    private suspend fun setString(key: String, value: String) {
         setRaw(key, value)
     }
 
