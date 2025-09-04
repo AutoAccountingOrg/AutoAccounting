@@ -17,8 +17,10 @@
 package net.ankio.auto.ui.fragment.settings
 
 import android.view.View
+import android.text.InputType
 import androidx.core.content.ContextCompat
 import androidx.core.widget.doOnTextChanged
+import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.databinding.ComponentAiBinding
 import net.ankio.auto.http.api.AiAPI
@@ -59,6 +61,11 @@ class AiComponent(
     override fun onComponentCreate() {
         super.onComponentCreate()
         bindListeners()
+        // Debug 模式下将 Token 输入框设置为明文文本，便于开发调试
+        if (BuildConfig.DEBUG) {
+            binding.etAiToken.inputType =
+                InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+        }
     }
 
     private suspend fun loadProvider(provider: String) {
@@ -155,7 +162,7 @@ class AiComponent(
         launch {
             try {
                 loading.show()
-                val response = AiAPI.request(
+                val result = AiAPI.request(
                     systemPrompt = "You are a helpful assistant. Please respond briefly.",
                     userPrompt = "Hello, please respond with a simple greeting to confirm the connection is working.",
                     provider = provider,
@@ -164,7 +171,8 @@ class AiComponent(
                     model = model
                 )
 
-                if (response.isNotBlank()) {
+                if (result.isSuccess) {
+                    val response = result.getOrNull().orEmpty()
                     showTestResult(
                         true,
                         context.getString(R.string.ai_test_success_message) + "\n\n" +
@@ -179,9 +187,10 @@ class AiComponent(
                         apiModel = model
                     }
                 } else {
+                    val errMsg = result.exceptionOrNull()?.message ?: "Empty response"
                     showTestResult(
                         false,
-                        context.getString(R.string.ai_test_failed_message, "Empty response"),
+                        context.getString(R.string.ai_test_failed_message, errMsg),
                         R.drawable.ic_error
                     )
                 }

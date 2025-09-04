@@ -30,6 +30,7 @@ import org.ezbook.server.Server
 import org.ezbook.server.ai.AiManager
 import org.ezbook.server.models.ResultModel
 import org.ezbook.server.tools.SettingUtils
+import java.lang.IllegalStateException
 
 fun Route.aiApiRoutes() {
     route("/ai") {
@@ -80,8 +81,13 @@ fun Route.aiApiRoutes() {
             val body = call.receive<Map<String, String>>()
             applyIncomingSettings(body)
             val provider = resolveProvider(body)
-            val resp = AiManager.getInstance().request(systemOf(body), userOf(body), provider)
-            call.respond(HttpStatusCode.OK, ResultModel(200, "success", resp))
+            try {
+                val resp = AiManager.getInstance().request(systemOf(body), userOf(body), provider)
+                call.respond(HttpStatusCode.OK, ResultModel(200, "success", resp))
+            } catch (exception: IllegalStateException) {
+                call.respond(HttpStatusCode.OK, ResultModel(500, exception.message ?: ""))
+            }
+
         }
 
         // 流式请求（SSE）

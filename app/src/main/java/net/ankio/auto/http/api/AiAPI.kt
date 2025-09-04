@@ -13,7 +13,7 @@ object AiAPI {
 
     private data class ApiResponse<T>(
         val code: Int,
-        val message: String,
+        val msg: String,
         val data: T?
     )
 
@@ -79,8 +79,8 @@ object AiAPI {
         apiKey: String? = null,
         apiUri: String? = null,
         model: String? = null
-    ): String = withContext(Dispatchers.IO) {
-        try {
+    ): Result<String> = withContext(Dispatchers.IO) {
+
             val payload = mutableMapOf(
                 "system" to systemPrompt,
                 "user" to userPrompt
@@ -94,11 +94,11 @@ object AiAPI {
             val resp = LocalNetwork.post("/ai/request", body)
             val type = object : TypeToken<ApiResponse<String>>() {}.type
             val apiResp: ApiResponse<String> = gson.fromJson(resp, type)
-            apiResp.data ?: ""
-        } catch (e: Exception) {
-            Logger.e("request gson/req error: ${e.message}", e)
-            ""
+        if (apiResp.code != 200) {
+            return@withContext Result.failure<String>(Exception(apiResp.msg))
         }
+        return@withContext Result.success(apiResp.data ?: "")
+
     }
 
     /**

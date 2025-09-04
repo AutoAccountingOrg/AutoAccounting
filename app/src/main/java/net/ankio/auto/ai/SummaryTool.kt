@@ -69,12 +69,8 @@ $dataSummary
         """.trimIndent()
 
         // 调用AI生成总结
-        return try {
-            AiAPI.request(PrefManager.aiSummaryPrompt, userInput)
-        } catch (e: Exception) {
-            Logger.e("AI总结生成失败: ${e.message}", e)
-            null
-        }
+        val result = AiAPI.request(PrefManager.aiSummaryPrompt, userInput)
+        return if (result.isSuccess) result.getOrNull() else null
     }
 
 }

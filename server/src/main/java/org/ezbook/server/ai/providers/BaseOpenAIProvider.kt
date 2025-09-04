@@ -115,34 +115,33 @@ abstract class BaseOpenAIProvider : BaseAIProvider() {
             .post(gson.toJson(requestBody).toRequestBody("application/json".toMediaTypeOrNull()))
             .build()
 
-        return runCatching {
-            if (onChunk != null) {
-                // 流式处理
-                handleStreamResponse(request, onChunk)
-                null // 流式模式返回null
-            } else {
-                // 普通处理
-                client.newCall(request).execute().use { response ->
-                    if (!response.isSuccessful) {
-                        Server.log("AI响应失败：${response.body?.string()}")
-                        return null
-                    }
-
+        if (onChunk != null) {
+            // 流式处理
+            handleStreamResponse(request, onChunk)
+            return null // 流式模式返回null
+        } else {
+            // 普通处理
+            return client.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) {
                     val body = response.body?.string()?.removeThink() ?: return null
+                    Server.log("AI响应失败：${body}")
                     val jsonObject = JsonParser.parseString(body).asJsonObject
-
-                    jsonObject
-                        .getAsJsonArray("choices")
-                        ?.get(0)
-                        ?.asJsonObject
-                        ?.getAsJsonObject("message")
-                        ?.get("content")
-                        ?.asString
+                    val message = jsonObject.get("error").asJsonObject.get("message").asString
+                    error(message)
                 }
+
+                val body = response.body?.string()?.removeThink() ?: return null
+                val jsonObject = JsonParser.parseString(body).asJsonObject
+
+                jsonObject
+                    .getAsJsonArray("choices")
+                    ?.get(0)
+                    ?.asJsonObject
+                    ?.getAsJsonObject("message")
+                    ?.get("content")
+                    ?.asString
             }
-        }.onFailure {
-            Server.log(it)
-        }.getOrElse { null }
+        }
     }
 
     /**

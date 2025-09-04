@@ -289,11 +289,12 @@ let $name = {
             try {
                 val systemPrompt = buildAiSystemPrompt()
                 val userPrompt = buildAiUserPrompt(jsCode)
-                val optimizedCode = AiAPI.request(systemPrompt, userPrompt)
+                val result = AiAPI.request(systemPrompt, userPrompt)
 
                 loading.close()
 
-                if (optimizedCode.isNotBlank()) {
+                if (result.isSuccess && !result.getOrNull().isNullOrBlank()) {
+                    val optimizedCode = result.getOrNull().orEmpty()
                     // 提取纯JS代码并设置到编辑器
                     val cleanCode = extractJsCodeFromAiResponse(optimizedCode)
                     if (cleanCode.isNotBlank()) {
@@ -302,6 +303,7 @@ let $name = {
                         ToastUtils.error(getString(R.string.ai_assist_no_result))
                     }
                 } else {
+                    val errMsg = result.exceptionOrNull()?.message
                     ToastUtils.error(getString(R.string.ai_assist_no_result))
                 }
             } catch (e: Exception) {
