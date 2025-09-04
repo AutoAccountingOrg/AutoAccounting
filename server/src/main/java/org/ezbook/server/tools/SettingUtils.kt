@@ -227,4 +227,11 @@ object SettingUtils {
     /** 功能：资产管理（AssetsMap 用） */
     suspend fun featureAssetManager(): Boolean =
         getBoolean(Setting.SETTING_ASSET_MANAGER, DefaultData.SETTING_ASSET_MANAGER)
+
+
+    suspend fun noteFormat(): String = getString(Setting.NOTE_FORMAT, DefaultData.NOTE_FORMAT)
+
+
+    suspend fun bookName(): String =
+        getString(Setting.DEFAULT_BOOK_NAME, DefaultData.DEFAULT_BOOK_NAME)
 }

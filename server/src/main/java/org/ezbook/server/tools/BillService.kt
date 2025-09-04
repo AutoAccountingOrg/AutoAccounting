@@ -25,6 +25,7 @@ import kotlinx.coroutines.withContext
 import org.ezbook.server.Server
 import org.ezbook.server.ai.AiManager
 import org.ezbook.server.ai.tools.BillTool
+import org.ezbook.server.ai.tools.CategoryTool
 import org.ezbook.server.constant.BillState
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.constant.DataType
@@ -68,15 +69,13 @@ class BillService(
      * 启动自动记账面板
      * @param billInfoModel 账单信息模型
      * @param parent 父账单信息
-     * @param dnd 横屏勿扰
      */
     private suspend fun startAutoPanel(
         billInfoModel: BillInfoModel,
         parent: BillInfoModel?,
-        dnd: Boolean = false
     ) {
+        val dnd = SettingUtils.landscapeDnd()
         val isLandscape = isLandscapeMode()
-        Server.log("横屏状态：$isLandscape, 是否横屏勿扰：$dnd")
         // 检查横屏状态并处理
         if (isLandscape && dnd) {
             Toast.makeText(
@@ -107,7 +106,8 @@ class BillService(
      */
     private suspend fun launchFloatingWindow(billInfoModel: BillInfoModel, parent: BillInfoModel?) {
         val intent = BillInfoIntent(billInfoModel, "JsRoute", parent).toIntent()
-        Server.log("拉起自动记账悬浮窗口：$intent")
+        // 调起悬浮窗（调试用日志）
+        Server.logD("拉起自动记账悬浮窗口：$intent")
 
         runCatching {
             Server.application.startActivity(intent)
@@ -129,67 +129,63 @@ class BillService(
      */
     suspend fun analyze(analysisParams: AnalysisParams, context: Context): ResultModel =
         withContext(Dispatchers.IO) {
-            // 验证数据类型参数的有效性
-            val dataType = runCatching { DataType.valueOf(analysisParams.type) }.getOrElse {
-                return@withContext ResultModel.error(400, "Type exception: ${analysisParams.type}")
+            // 1) 校验数据类型
+            val dataType = runCatching { DataType.valueOf(analysisParams.type) }
+                .getOrElse {
+                    return@withContext ResultModel.error(
+                        400,
+                        "Type exception: ${analysisParams.type}"
+                    )
+                }
+
+            // 2) 仅对外部数据做重复触发过滤
+            val key = MD5HashTable.md5(analysisParams.data)
+            if (!analysisParams.fromAppData && hash.contains(key)) {
+                return@withContext ResultModel.error(400, "检测到重复触发分析")
             }
+            hash.put(key)
 
-            var appDataModel: AppDataModel? = null
+            // 3) 如有需要，先持久化原始数据
+            val appDataModel: AppDataModel? = if (!analysisParams.fromAppData) {
+                AppDataModel().apply {
+                    data = analysisParams.data
+                    app = analysisParams.app
+                    type = dataType
+                    time = System.currentTimeMillis()
+                    id = Db.get().dataDao().insert(this)
+                }
+            } else null
 
-            if (!analysisParams.fromAppData) {
-                //数据不是存储在AppData
-                appDataModel = AppDataModel()
-                appDataModel.data = analysisParams.data
-                appDataModel.app = analysisParams.app
-                appDataModel.type = dataType
-                appDataModel.id = Db.get().dataDao().insert(appDataModel)
-                appDataModel.time = System.currentTimeMillis()
-            }
-
-            // 记录分析开始时间，用于性能统计
+            // 4) 分析（先规则，后 AI）
             val start = System.currentTimeMillis()
-
-            // 根据参数决定使用AI分析还是规则分析
-            val billInfo: BillInfoModel? = // 先尝试规则分析，失败则回退到AI分析，不再有指定AI分析的功能
+            val billInfo: BillInfoModel =
                 analyzeWithRule(analysisParams.app, analysisParams.data, dataType)
                     ?: analyzeWithAI(analysisParams.app, analysisParams.data)
+                    ?: return@withContext ResultModel.error(404, "未分析到有效账单。")
 
-            // 如果分析失败，返回错误结果
-            if (billInfo == null) {
-                return@withContext ResultModel.error(404, "未分析到有效账单。")
-            }
-
-            // 对账单进行分类处理
+            // 5) 分类（规则 → 可选 AI）
             categorize(billInfo)
 
-            // 执行账单的后续处理逻辑
+            // 6) 后续处理
             val parentBillInfo = process(billInfo, analysisParams.fromAppData, context)
 
-            // 计算并记录分析耗时
+            // 7) 统计耗时
             val cost = System.currentTimeMillis() - start
             Server.log("识别用时: $cost ms")
 
-            if (appDataModel != null) {
-                appDataModel.match = true
-                appDataModel.rule = billInfo.ruleName
-                appDataModel.version = ""
-                Db.get().dataDao().update(appDataModel)
+            // 8) 更新原始数据存档
+            appDataModel?.let {
+                it.match = true
+                it.rule = billInfo.ruleName
+                it.version = ""
+                Db.get().dataDao().update(it)
             }
 
+            // 9) 拉起悬浮窗（仅外部数据）
+            if (!analysisParams.fromAppData) startAutoPanel(billInfo, parentBillInfo)
 
-            // 拉起悬浮窗
-            if (!analysisParams.fromAppData) {
-                val dnd = Db.get().settingDao().query(Setting.LANDSCAPE_DND)?.value !== "false"
-                startAutoPanel(billInfo, parentBillInfo, dnd)
-            }
-
-            // 返回成功结果
-            ResultModel.ok(
-                BillResultModel(
-                    billInfo,
-                    parentBillInfo
-                )
-            )
+            // 10) 返回
+            ResultModel.ok(BillResultModel(billInfo, parentBillInfo))
         }
 
     /**
@@ -222,12 +218,8 @@ class BillService(
         Server.logD("执行规则分析")
         // 获取对应应用和数据类型的规则代码
         val js = ruleGenerator.data(app, dataType)
-        if (js.isBlank()) return null
-
         // 执行规则代码进行分析
         val result = executeJs(js, data)
-        if (result.isBlank()) return null
-        Server.logD("规则分析结果:$result")
         // 解析分析结果为账单信息对象
         return parseBillInfo(result, app, dataType)
     }
@@ -242,21 +234,20 @@ class BillService(
      * @param data 要分析的原始数据
      * @return 分析得到的账单信息，如果分析失败则返回null
      */
-    private suspend fun analyzeWithAI(app: String, data: String): BillInfoModel? =
-        runCatching {
-            if (!SettingUtils.aiBillRecognition()) {
-                Server.logD("AI 功能禁用")
-                return@runCatching null
-            }
-
-            Server.logD("调用AI分析")
-            BillTool().execute(data)
-        }.getOrNull()?.apply {
+    private suspend fun analyzeWithAI(app: String, data: String): BillInfoModel? {
+        if (!SettingUtils.aiBillRecognition()) {
+            Server.logD("AI 功能禁用")
+            return null
+        }
+        Server.logD("调用AI分析")
+        val result = BillTool().execute(data) ?: return null
+        return result.apply {
             // 设置AI分析的标识信息
             ruleName = "${AiManager.getInstance().currentProviderName} 生成"
             state = BillState.Wait2Edit
             this.app = app
         }
+    }
 
     /**
      * 解析账单信息
@@ -306,10 +297,8 @@ class BillService(
      * @param bill 需要分类的账单信息
      */
     private suspend fun categorize(bill: BillInfoModel) {
-        // 检查是否需要重新分类
         if (!bill.needReCategory()) return
 
-        // 构造分类所需的数据对象
         val win = JsonObject().apply {
             addProperty("type", bill.type.name)
             addProperty("money", bill.money)
@@ -317,17 +306,21 @@ class BillService(
             addProperty("shopItem", bill.shopItem)
         }
 
-        // 执行分类规则并解析结果
         val categoryJson = runCatching {
             Gson().fromJson(
                 executeJs(ruleGenerator.category(), win.toString()),
                 JsonObject::class.java
             )
         }.getOrNull()
-
-        // 设置账本名称和分类名称，使用默认值作为回退
-        bill.bookName = categoryJson?.safeGetString("book", "默认账本") ?: "默认账本"
+        // 设置账本名称
+        bill.bookName = categoryJson?.safeGetString("bookName") ?: SettingUtils.bookName()
         bill.cateName = categoryJson?.safeGetString("category", "其他") ?: "其他"
+
+        if (bill.needReCategory() && SettingUtils.aiCategoryRecognition()) {
+            bill.cateName = CategoryTool().execute(
+                win.toString()
+            ) ?: "其他"
+        }
     }
 
     /**
@@ -348,7 +341,7 @@ class BillService(
         context: Context
     ): BillInfoModel? {
         // 设置资产映射，返回是否需要用户操作
-        AssetsMap.setAssetsMap(bill)
+        AssetsMap().setAssetsMap(bill)
 
         // 设置分类映射
         setCategoryMap(bill)
@@ -356,8 +349,6 @@ class BillService(
         // 生成账单备注
         bill.remark = BillManager.getRemark(bill, context)
 
-        // 设置账本名称
-        BillManager.setBookName(bill)
 
         // 如果不是来自应用数据，则保存到数据库
         if (!fromAppData) {
@@ -375,7 +366,13 @@ class BillService(
         return task.result
     }
 
-    //只允许在io线程
+    /**
+     * 应用分类映射（仅在 IO 线程调用）
+     *
+     * 如果存在分类映射记录，则将账单的分类名替换为映射后的目标分类名。
+     *
+     * @param billInfoModel 待处理的账单信息
+     */
     private suspend fun setCategoryMap(billInfoModel: BillInfoModel) {
         val category = billInfoModel.cateName
         Db.get().categoryMapDao().query(category)?.let {
@@ -396,18 +393,7 @@ class BillService(
     // endregion
 
     companion object {
-        /**
-         * 验证账单信息是否有效
-         *
-         * 有效的账单必须满足以下条件：
-         * - 金额不为0
-         * - 来源账户名称不为空
-         *
-         * @param bill 要验证的账单信息
-         * @return 账单是否有效
-         */
-        private fun isValid(bill: BillInfoModel) =
-            bill.money != 0.0 && bill.accountNameFrom.isNotEmpty()
+        private val hash = MD5HashTable(300_000)
     }
 }
 

@@ -228,8 +228,7 @@ object BillManager {
      * @param context 上下文
      */
     suspend fun getRemark(billInfoModel: BillInfoModel, context: Context): String {
-        val settingBillRemark = Db.get().settingDao()
-            .query(Setting.NOTE_FORMAT)?.value ?: DefaultData.NOTE_FORMAT
+        val settingBillRemark = SettingUtils.noteFormat()
 
         return settingBillRemark
             .replace("【商户名称】", billInfoModel.shopName)
@@ -253,21 +252,6 @@ object BillManager {
         }.onFailure {
             it.printStackTrace()
         }.getOrDefault(packageName)
-    }
-
-    /**
-     * 设置账单的账本名称
-     * 如果账本名称为空或为"默认账本"，则使用系统设置的默认账本名称
-     */
-    suspend fun setBookName(billInfoModel: BillInfoModel) {
-        val defaultBookName = Db.get().settingDao()
-            .query(Setting.DEFAULT_BOOK_NAME)
-            ?.value ?: DEFAULT_BOOK_NAME
-
-        billInfoModel.bookName = when (billInfoModel.bookName) {
-            "", DEFAULT_BOOK_NAME -> defaultBookName
-            else -> billInfoModel.bookName
-        }
     }
 
 }
