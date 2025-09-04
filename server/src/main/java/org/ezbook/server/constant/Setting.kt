@@ -17,7 +17,6 @@ package org.ezbook.server.constant
 
 object Setting {
     // ======== AI设置 ========
-    const val AI_MODEL = "ai_model"                                    // AI模型选择
 
     const val AI_BILL_RECOGNITION: String = "ai_bill_recognition"        // 使用AI识别账单
     const val AI_CATEGORY_RECOGNITION: String = "ai_category_recognition" // 使用AI识别分类

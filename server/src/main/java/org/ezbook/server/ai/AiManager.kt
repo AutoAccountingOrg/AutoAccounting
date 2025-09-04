@@ -71,7 +71,8 @@ class AiManager {
         val provider = getProvider(providerName)
         return hashMapOf(
             "apiUri" to provider.getApiUri(),
-            "apiModel" to provider.getModel()
+            "apiModel" to provider.getModel(),
+            "createKeyUri" to provider.createKeyUri
         )
     }
     /**
