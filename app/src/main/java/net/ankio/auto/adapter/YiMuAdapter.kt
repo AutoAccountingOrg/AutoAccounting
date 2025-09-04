@@ -18,6 +18,7 @@ package net.ankio.auto.adapter
 import android.content.Intent
 import android.net.Uri
 import net.ankio.auto.constant.BookFeatures
+import net.ankio.auto.storage.Logger
 import org.ezbook.server.db.model.BillInfoModel
 import net.ankio.auto.utils.SystemUtils
 import net.ankio.auto.utils.appendIfNotBlank
@@ -100,7 +101,7 @@ class YiMuAdapter : IAppAdapter {
                 appendIfNotBlank("tags", tags)
             }
             .build()
-
+        Logger.i("构建：$uri")
         // 调起目标 App 处理并在成功后标记同步完成
         val intent = Intent(Intent.ACTION_VIEW, uri).apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK }
         SystemUtils.startActivityIfResolvable(intent, name) {
