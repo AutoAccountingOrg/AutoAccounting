@@ -6,6 +6,7 @@ import okhttp3.OkHttpClient
 import org.ezbook.server.Server
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.Db
+import org.ezbook.server.tools.SettingUtils
 import java.util.concurrent.TimeUnit
 
 /**
@@ -30,22 +31,20 @@ abstract class BaseAIProvider {
     abstract suspend fun getAvailableModels(): List<String>
 
 
-    var apiKey: String = ""
-
     abstract val apiUri: String
 
     abstract var model: String
 
     suspend fun getApiKey(): String {
-        return Db.get().settingDao().query("${Setting.API_KEY}_$name")?.value ?: apiKey
+        return SettingUtils.apiKey("")
     }
 
     suspend fun getApiUri(): String {
-        return Db.get().settingDao().query("${Setting.API_URI}_$name")?.value ?: apiUri
+        return SettingUtils.apiUri(apiUri)
     }
 
     suspend fun getModel(): String {
-        return Db.get().settingDao().query("${Setting.API_MODEL}_$name")?.value ?: model
+        return SettingUtils.apiModel(model)
     }
 
     /**
