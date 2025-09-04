@@ -162,7 +162,7 @@ class BillService(
                 analyzeWithRule(analysisParams.app, analysisParams.data, dataType)
                     ?: analyzeWithAI(analysisParams.app, analysisParams.data)
                     ?: return@withContext ResultModel.error(404, "未分析到有效账单。")
-
+            if (billInfo.bookName.isEmpty()) billInfo.bookName = SettingUtils.bookName()
             // 5) 分类（规则 → 可选 AI）
             categorize(billInfo)
 
@@ -284,6 +284,7 @@ class BillService(
             channel = json.safeGetString("channel")
             ruleName = json.safeGetString("ruleName")
             cateName = json.safeGetString("cateName")
+            bookName = json.safeGetString("bookName", SettingUtils.bookName())
             // 根据ruleName判断是否需要自动记录
             val rule = Db.get().ruleDao().query(dataType.name, app, ruleName)
             auto = rule?.autoRecord ?: false
