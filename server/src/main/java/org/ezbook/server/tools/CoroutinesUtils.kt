@@ -17,7 +17,7 @@ package org.ezbook.server.tools
 
 import kotlin.coroutines.cancellation.CancellationException
 
-inline fun <R> runCatchingExceptCancel(block: () -> R): Result<R> {
+suspend inline fun <R> runCatchingExceptCancel(block: () -> R): Result<R> {
     return try {
         Result.success(block())
     } catch (e: CancellationException) {

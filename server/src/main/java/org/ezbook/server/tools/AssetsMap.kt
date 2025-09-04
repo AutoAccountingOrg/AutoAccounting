@@ -18,7 +18,6 @@ package org.ezbook.server.tools
 import org.ezbook.server.Server
 import org.ezbook.server.ai.tools.AssetTool
 import org.ezbook.server.constant.BillType
-import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.AssetsMapModel
 import org.ezbook.server.db.model.AssetsModel
@@ -156,8 +155,8 @@ class AssetsMap {
 
         // 3. 正则表达式匹配（简化为 contains 判断）
         getAssetsMap().filter { it.regex }.firstOrNull { mapping ->
-            runCatching { Regex(mapping.name).containsMatchIn(accountName) }.getOrElse { false }
-        }?.mapName
+            runCatchingExceptCancel { Regex(mapping.name).containsMatchIn(accountName) }.getOrElse { false }
+        }?.mapName?.let { return it }
 
         // 3.5 让AI处理
         if (SettingUtils.aiAssetMapping() && !isAccountName2) {
@@ -177,7 +176,7 @@ class AssetsMap {
 
         // 4. 创建空映射（仅当非AI生成且不存在映射时）
         if (!billInfoModel.generateByAi()) {
-            runCatching {
+            runCatchingExceptCancel {
                 val emptyMapping = AssetsMapModel().apply {
                     name = accountName
                     mapName = ""
