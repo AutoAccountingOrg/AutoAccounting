@@ -23,7 +23,7 @@ class KimiProvider : BaseOpenAIProvider() {
 
     override val createKeyUri: String = "https://platform.moonshot.cn/console/api-keys"
 
-    override val apiUri: String = "https://api.moonshot.cn/v1"
+    override val apiUri: String = "https://api.moonshot.cn"
 
     override var model: String = "moonshot-v1-8k"
 } 

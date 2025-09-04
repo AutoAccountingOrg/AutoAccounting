@@ -24,7 +24,7 @@ class SiliconFlowProvider : BaseOpenAIProvider() {
     override val createKeyUri: String = "https://cloud.siliconflow.cn/me/account/ak"
 
 
-    override val apiUri: String = "https://api.siliconflow.cn/v1"
+    override val apiUri: String = "https://api.siliconflow.cn"
 
     override var model: String = "Qwen/QwQ-32B"
 

@@ -35,7 +35,7 @@ abstract class BaseOpenAIProvider : BaseAIProvider() {
      */
     override suspend fun getAvailableModels(): List<String> {
         val request = Request.Builder()
-            .url("$apiUri/models")
+            .url("${getApiUri()}/v1/models")
             .addHeader("Authorization", "Bearer ${getApiKey()}")
             .build()
 
@@ -104,7 +104,7 @@ abstract class BaseOpenAIProvider : BaseAIProvider() {
         }
 
         val request = Request.Builder()
-            .url("$apiUri/chat/completions")
+            .url("${getApiUri()}/v1/chat/completions")
             .addHeader("Authorization", "Bearer ${getApiKey()}")
             .addHeader("Content-Type", "application/json")
             .apply {

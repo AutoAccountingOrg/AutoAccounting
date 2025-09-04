@@ -28,7 +28,7 @@ class GeminiProvider : BaseAIProvider() {
      * 获取可用模型列表
      */
     override suspend fun getAvailableModels(): List<String> = withContext(Dispatchers.IO) {
-        val url = "$apiUri?key=${getApiKey()}"
+        val url = "$${getApiUri()}?key=${getApiKey()}"
         val request = Request.Builder()
             .url(url)
             .get()
@@ -60,7 +60,7 @@ class GeminiProvider : BaseAIProvider() {
     ): String? =
         withContext(Dispatchers.IO) {
             val path = if (onChunk === null) "generateContent" else "streamGenerateContent?alt=sse"
-            val url = "$apiUri/$model:$path"
+            val url = "${getApiUri()}/$model:$path"
             val requestBody = mapOf(
                 "contents" to listOf(
                     mapOf(

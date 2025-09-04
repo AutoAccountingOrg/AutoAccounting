@@ -23,7 +23,7 @@ class DeepSeekProvider : BaseOpenAIProvider() {
 
     override val createKeyUri: String = "https://platform.deepseek.com/api-keys"
 
-    override val apiUri: String = "https://api.deepseek.com/v1"
+    override val apiUri: String = "https://api.deepseek.com"
 
     override var model: String = "deepseek-chat"
 } 

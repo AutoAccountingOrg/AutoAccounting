@@ -33,7 +33,7 @@ class QWenProvider : BaseOpenAIProvider() {
         )
     }
 
-    override val apiUri: String = "https://dashscope.aliyuncs.com/compatible-mode/v1"
+    override val apiUri: String = "https://dashscope.aliyuncs.com/compatible-mode"
 
     override var model: String = "qwen-turbo"
 
