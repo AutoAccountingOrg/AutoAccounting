@@ -20,56 +20,39 @@ import org.ezbook.server.db.Db
 
 class CategoryTool {
     private val prompt = """
-# Task Description
+# Role
+You select exactly one category name from Category Data.
 
-You are an AI assistant responsible for categorizing transactions based on provided transaction details.
+# Inputs
+Fields: ruleName, shopName, shopItem
 
-## Objective
-Given an input containing `ruleName`,`shopName` and `shopItem`, match them against a provided Category Data and **output ONLY the matching category name**.
+# Category Data
+- A comma-separated list of valid category names.
+- You MUST choose one exactly from this list. Do not invent, translate, or combine names.
+- Exception: if uncertain after matching, output 其他.
 
----
+# Output
+- Raw text, single line: the chosen category name only.
+- No quotes, no JSON, no explanations, no comments, no extra whitespace.
+- If uncertain, output 其他.
 
-## Instructions
+# Matching rules (apply in order)
+1) Exact equality (case-sensitive): compare against shopItem, then shopName, then ruleName.
+2) Case-insensitive equality.
+3) Substring/contains match. Prefer the candidate with the longest overlap.
+4) If still uncertain, output 其他.
 
-1. Read the fields:
-   - `shopName`
-   - `shopItem`
-   - `ruleName`
+# Tie-breakers
+- Prefer shopItem over shopName over ruleName.
+- Prefer longer and more specific matches.
+- Except the fallback 其他, never output a name that is not in Category Data.
 
-2. Match these details with the provided Category Data:
-   - Use either `shopName` or `shopItem` or `ruleName` for matching.
-   - Prefer exact or most appropriate match based on available information.
+# Example Input
+{"shopName": "钱塘江超市", "shopItem": "上好佳薯片", "ruleName": "支付宝红包"}
 
-3. **Strict Output Rule**:
-   - Output **ONLY** the matching category name.
-   - **No explanations, no extra text, no JSON formatting, no comments.**
-   - If no match can be confidently determined, output an empty string `""`.
-
-4. **Do Not Guess**:
-   - Do not create or invent new category names.
-   - Only select from the given Category Data.
-
----
-
-## Example Input
-
-```json
-{
-    "shopName": "钱塘江超市",
-    "shopItem": "上好佳薯片",
-    "ruleName: "支付宝红包"
-}
-
-## Example Output
-
-```
+# Example Output
 购物
-```
-## Important
-Always match to the closest and most accurate category from the provided list.
-
-If unsure or if no match is possible, return "" (an empty string) without explanation.
-"""".trimIndent()
+""".trimIndent()
 
     suspend fun execute(data: String): String? {
         val categories = Db.get().categoryDao().all()
