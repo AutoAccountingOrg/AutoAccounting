@@ -141,14 +141,10 @@ class XiaoXinAdapter : IAppAdapter {
         params["amount"] = billInfoModel.money.toString()
         params["account"] = billInfoModel.accountNameFrom
 
-        // 分类处理：支持一二级分类
-        val categoryInfo = parseCategoryInfo(billInfoModel.cateName, billInfoModel.type)
-        if (categoryInfo.parent.isNotEmpty()) {
-            params["parent"] = categoryInfo.parent
-        }
-        if (categoryInfo.child.isNotEmpty()) {
-            params["child"] = categoryInfo.child
-        }
+        // 分类处理：支持一二级分类（默认单级在前）
+        val (parent, child) = billInfoModel.categoryPair()
+        if (parent.isNotEmpty()) params["parent"] = parent
+        if (child.isNotEmpty()) params["child"] = child
 
         // 转账和借贷需要第二个账户
         if (billInfoModel.type == BillType.Transfer ||
@@ -268,23 +264,6 @@ class XiaoXinAdapter : IAppAdapter {
     }
 
     /**
-     * 解析分类信息，支持一二级分类
-     */
-    private fun parseCategoryInfo(cateName: String, type: BillType): CategoryInfo {
-        if (cateName.isEmpty()) return CategoryInfo("", "")
-
-        // 处理一二级分类（使用"-"分隔）
-        val parts = cateName.split("-", limit = 2)
-        return if (parts.size == 2 && parts[1].trim().isNotEmpty()) {
-            // 有父子分类：前面是父类，后面是子类
-            CategoryInfo(parts[0].trim(), parts[1].trim())
-        } else {
-            // 单级分类：直接作为子类
-            CategoryInfo("", cateName.trim())
-        }
-    }
-
-    /**
      * 构建URL字符串
      */
     private fun buildUrl(baseUrl: String, params: Map<String, String>): String {
@@ -304,14 +283,6 @@ class XiaoXinAdapter : IAppAdapter {
         val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
         return sdf.format(date)
     }
-
-    /**
-     * 分类信息数据类
-     */
-    private data class CategoryInfo(
-        val parent: String,
-        val child: String
-    )
 
     override fun sleep(): Long {
         return 0L

@@ -80,7 +80,8 @@ class YiYuAdapter : IAppAdapter {
         val money = billInfoModel.money.toString()
 
         // 2) 可选参数
-        val category = billInfoModel.cateName.trim()
+        val (parent, child) = billInfoModel.categoryPair()
+        val category = if (child.isNotEmpty()) child else parent
         val book = billInfoModel.bookName.trim()
         val remark = billInfoModel.remark.trim()
         val tags = billInfoModel.tags.trim(',', ' ').trim()

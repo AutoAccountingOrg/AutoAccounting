@@ -174,6 +174,19 @@ class BillInfoModel {
     }
 
     /**
+     * 分类拆分：按 '-' 分割父/子分类。
+     * - 正常："父-子" -> Pair(父, 子)
+     * - 其它（无 '-'、在首位、在末位）：返回 Pair(原字符串, "")，默认放在前面
+     */
+    fun categoryPair(): Pair<String, String> {
+        val name = cateName.trim()
+        val i = name.indexOf('-')
+        val parent = if (i <= 0) name else name.substring(0, i).trim()
+        val child = if (i in 1 until name.lastIndex) name.substring(i + 1).trim() else ""
+        return parent to child
+    }
+
+    /**
      * 获取标签列表
      * @return 标签名称列表
      */

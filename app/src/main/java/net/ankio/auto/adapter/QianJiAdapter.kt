@@ -157,9 +157,9 @@ class QianJiAdapter : IAppAdapter {
                 .append(Uri.encode(billInfoModel.remark))
         }
 
-        // 5) 分类：支持一二级分类，内部以 "-" 拆分转换为 "/::/"
+        // 5) 分类：支持一二级分类，按 model 拆分后转换为 "/::/"
         if (qjType == 0 || qjType == 1) { // 仅收入/支出需要分类
-            val cate = buildQianJiCategory(billInfoModel.cateName)
+            val cate = buildQianJiCategory(billInfoModel)
             if (cate.isNotEmpty()) {
                 uriBuilder.append("&catename=")
                     .append(Uri.encode(cate))
@@ -274,16 +274,13 @@ class QianJiAdapter : IAppAdapter {
 
     /**
      * 构造钱迹可识别的分类字符串。
-     * - 若内部以 "-" 表示一二级分类（如 "三餐-午餐"），则转换为 "三餐/::/午餐"。
-     * - 否则原样返回。
+     * - 使用 BillInfoModel.categoryPair() 获取 (父, 子)
+     * - 有子类时输出 "父/::/子"；否则仅输出父
      */
-    private fun buildQianJiCategory(cateName: String): String {
-        val name = cateName.trim()
-        if (name.isEmpty()) return ""
-        return if (name.contains("-")) {
-            val parts = name.split("-", limit = 2).map { it.trim() }
-            if (parts.size == 2 && parts[1].isNotEmpty()) "${parts[0]}/::/${parts[1]}" else name
-        } else name
+    private fun buildQianJiCategory(model: BillInfoModel): String {
+        val (parent, child) = model.categoryPair()
+        if (parent.isEmpty()) return ""
+        return if (child.isNotEmpty()) "${parent}/::/${child}" else parent
     }
 
     /**

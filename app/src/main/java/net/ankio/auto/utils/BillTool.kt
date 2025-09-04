@@ -15,6 +15,7 @@
 
 package net.ankio.auto.utils
 
+import android.net.Uri
 import androidx.core.content.ContextCompat
 import com.google.android.material.textview.MaterialTextView
 import kotlinx.coroutines.Dispatchers
@@ -104,4 +105,9 @@ object BillTool {
         AppAdapterManager.adapter().syncBill(billInfoModel)
         delay(AppAdapterManager.adapter().sleep())
     }
+}
+
+/** Uri.Builder 扩展：仅在 value 非空时追加参数 */
+fun Uri.Builder.appendIfNotBlank(key: String, value: String) {
+    if (value.isNotEmpty()) appendQueryParameter(key, value)
 }
