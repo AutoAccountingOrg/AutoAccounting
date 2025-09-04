@@ -16,65 +16,47 @@
 package org.ezbook.server.ai.tools
 
 import com.google.gson.Gson
+import com.google.gson.JsonObject
 import org.ezbook.server.ai.AiManager
 import org.ezbook.server.constant.AssetsType
 import org.ezbook.server.db.Db
 
 class AssetTool {
     private val prompt = """
-# Task Description
-You are an AI assistant responsible for locating assets from a provided Asset Data list.
+# Role
+You select asset names strictly from Asset Data.
 
-## Objective
-Given up to two input asset clues (`asset1`, `asset2`), match each against the Asset Data and **output ONLY the best-matching asset name(s)**.
+# Inputs
+Fields (may be empty): asset1, asset2
 
----
+# Asset Data
+- A comma-separated list of valid asset names.
+- You MUST choose exactly from this list. Do not invent, translate, or combine names.
 
-## Instructions
+# Output (strict JSON only)
+- Return ONLY a JSON object with exactly two keys:
+  {"asset1":"<name-or-empty>", "asset2":"<name-or-empty>"}
+- If a clue has no match, set its value to an empty string: "".
+- No extra fields, no explanations, no markdown, no text outside JSON.
 
-1. Read the fields (they may be empty):
-   - `asset1`
-   - `asset2`
+# Matching rules (apply in order, independently for each clue)
+1) Exact equality (case-sensitive)
+2) Case-insensitive equality
+3) Substring/contains match; prefer the candidate with the longest overlap
+4) If multiple candidates tie, prefer the longer candidate name
+5) If still uncertain, use ""
 
-2. Match each clue independently against the Asset Data:
-   - Use the most precise and appropriate matching logic (fuzzy matching allowed, but be confident).
-   - Do not mix clues; each line corresponds to one input.
+# Example Input
+{"asset1":"中国银行储蓄卡","asset2":"支付宝"}
 
-3. **Strict Output Rules**  
-   - Line 1: result for `asset1`  
-   - Line 2: result for `asset2`  
-   - If a clue has no match, output an empty string `""` on that line.  
-   - If both clues have no match, still output two lines of empty strings (second line immediately after the first, no extra text).
+# Example Output
+{"asset1":"中国银行","asset2":"支付宝"}
 
-4. **Do NOT guess**  
-   - Do not invent new asset names.  
-   - Only choose from the provided Asset Data.
+# Example Output (asset2 not found)
+{"asset1":"中国银行","asset2":""}
+""".trimIndent()
 
----
-
-## Example Input
-
-```json
-{
-  "asset1": "中国银行储蓄卡",
-  "asset2": "支付宝"
-}
-## Example Output
-
-中国银行
-支付宝
-
-If asset2 had no match, the correct output would be
-
-中国银行
-""
-
-## Important
-Always pick the closest and most accurate asset from the list.  
-When unsure or if no match is possible, return `""` for that line—**no explanations, no extra text**.
-"""".trimIndent()
-
-    suspend fun execute(asset1: String, asset2: String): String? {
+    suspend fun execute(asset1: String, asset2: String): JsonObject? {
         val data = Gson().toJson(
             hashMapOf(
                 "asset1" to asset1,
@@ -99,6 +81,7 @@ Input:
   ```     
         """.trimIndent()
 
-        return AiManager.getInstance().request(prompt, user)
+        val resp = AiManager.getInstance().request(prompt, user) ?: return null
+        return runCatching { Gson().fromJson(resp, JsonObject::class.java) }.getOrNull()
     }
 }
