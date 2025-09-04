@@ -16,9 +16,10 @@
 package org.ezbook.server.db.model
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity
+@Entity(indices = [Index(value = ["name"], unique = true)])
 class BookNameModel {
     // 远程账本id
     var remoteId: String = ""

@@ -21,6 +21,7 @@ import net.ankio.auto.ui.adapter.BookSelectorAdapter
 import net.ankio.auto.ui.api.BaseComponent
 import net.ankio.auto.ui.components.WrapContentLinearLayoutManager
 import net.ankio.auto.utils.PrefManager
+import org.ezbook.server.constant.DefaultData
 import org.ezbook.server.db.model.BookNameModel
 
 class BookComponent(binding: ComponentBookBinding) :
@@ -87,15 +88,6 @@ class BookComponent(binding: ComponentBookBinding) :
             try {
                 dataItems.clear()
                 var newData = BookNameAPI.list()
-
-                // 如果数据为空，创建默认账本
-                if (newData.isEmpty()) {
-                    newData = mutableListOf(BookNameModel().apply {
-                        name = "默认账本"
-                        id = 1
-                        icon = ""
-                    })
-                }
 
                 // 对账本列表进行排序：默认账本排在第一位，其他账本按原顺序排列
                 val defaultBookName = PrefManager.defaultBook

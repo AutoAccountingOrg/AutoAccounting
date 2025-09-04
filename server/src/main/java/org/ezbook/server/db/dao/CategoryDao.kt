@@ -35,6 +35,9 @@ interface CategoryDao {
     @Query("SELECT * FROM CategoryModel WHERE id = :id")
     suspend fun getById(id: Long): CategoryModel?
 
+    @Query("SELECT * FROM CategoryModel WHERE remoteId = :remoteId LIMIT 1")
+    suspend fun getByRemoteId(remoteId: String): CategoryModel?
+
     @Insert
     suspend fun insert(log: CategoryModel): Long
 

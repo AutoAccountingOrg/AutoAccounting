@@ -52,7 +52,18 @@ fun Route.bookRoutes() {
          * @return ResultModel 包含所有账本数据
          */
         post("/list") {
-            val books = Db.get().bookNameDao().load()
+            // 加载账本列表
+            var books = Db.get().bookNameDao().load()
+
+            // 若无任何账本，则创建并插入一个默认账本，确保用户开箱即用
+            if (books.isEmpty()) {
+                val defaultName = SettingUtils.bookName()
+                val defaultBook = BookNameModel().apply { this.name = defaultName }
+                Db.get().bookNameDao().insertOrReplace(defaultBook)
+                // 重新加载以返回包含默认账本的完整列表
+                books = Db.get().bookNameDao().load()
+            }
+
             call.respond(ResultModel(200, "OK", books))
         }
 
@@ -80,7 +91,7 @@ fun Route.bookRoutes() {
         post("/add") {
             val model = call.receive(BookNameModel::class)
             model.id = 0
-            val id = Db.get().bookNameDao().insert(model)
+            val id = Db.get().bookNameDao().insertOrReplace(model)
             call.respond(ResultModel(200, "OK", id))
         }
 
@@ -89,7 +100,7 @@ fun Route.bookRoutes() {
          */
         post("/update") {
             val model = call.receive(BookNameModel::class)
-            val updated = Db.get().bookNameDao().update(model)
+            val updated = Db.get().bookNameDao().insertOrReplace(model)
             call.respond(ResultModel(200, "OK", updated))
         }
 

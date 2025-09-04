@@ -61,7 +61,7 @@ import org.ezbook.server.db.model.TagModel
         BookBillModel::class,
         TagModel::class
     ],
-    version = 13,
+    version = 14,
     exportSchema = false,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -312,6 +312,40 @@ val MIGRATION_12_13 = object : Migration(12, 13) {
         // 5) 为 name 建立唯一索引（与实体索引名匹配）
         database.execSQL(
             "CREATE UNIQUE INDEX IF NOT EXISTS index_AssetsMapModel_name ON AssetsMapModel(name)"
+        )
+    }
+}
+
+val MIGRATION_13_14 = object : Migration(13, 14) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        // 为 BookNameModel 添加唯一索引（name），在此之前进行去重，保留每个 name 的最新记录
+        database.execSQL(
+            """
+            CREATE TABLE new_BookNameModel (
+                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                remoteId TEXT NOT NULL,
+                name TEXT NOT NULL,
+                icon TEXT NOT NULL
+            )
+            """.trimIndent()
+        )
+
+        database.execSQL(
+            """
+            INSERT INTO new_BookNameModel (id, remoteId, name, icon)
+            SELECT b.id, b.remoteId, b.name, b.icon
+            FROM BookNameModel b
+            WHERE b.id IN (
+                SELECT MAX(id) FROM BookNameModel GROUP BY name
+            )
+            """.trimIndent()
+        )
+
+        database.execSQL("DROP TABLE BookNameModel")
+        database.execSQL("ALTER TABLE new_BookNameModel RENAME TO BookNameModel")
+
+        database.execSQL(
+            "CREATE UNIQUE INDEX IF NOT EXISTS index_BookNameModel_name ON BookNameModel(name)"
         )
     }
 }

@@ -21,6 +21,7 @@ import androidx.room.Update
 import androidx.room.Query
 import androidx.room.Transaction
 import org.ezbook.server.db.model.BookNameModel
+import androidx.room.OnConflictStrategy
 
 
 @Dao
@@ -30,8 +31,8 @@ interface BookNameDao {
     @Query("SELECT * FROM BookNameModel ORDER BY id DESC")
     suspend fun load(): List<BookNameModel>
 
-    @Insert
-    suspend fun insert(log: BookNameModel): Long
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertOrReplace(book: BookNameModel): Long
 
     @Update
     suspend fun update(book: BookNameModel): Int
@@ -50,7 +51,7 @@ interface BookNameDao {
     suspend fun put(data: Array<BookNameModel>) {
         clear()
         data.forEach {
-            insert(it)
+            insertOrReplace(it)
         }
     }
 }

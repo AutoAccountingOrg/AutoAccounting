@@ -45,10 +45,7 @@ fun Route.categoryRoutes() {
          */
         get("/list") {
             val book = call.request.queryParameters["book"] ?: ""
-            if (book.isEmpty()) {
-                call.respond(ResultModel(400, "book is empty"))
-                return@get
-            }
+
 
             val type = call.request.queryParameters["type"] ?: ""
             if (type.isEmpty()) {
