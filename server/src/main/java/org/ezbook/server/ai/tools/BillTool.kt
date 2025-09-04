@@ -35,7 +35,7 @@ Return ONLY one JSON object. No code fences, no prose. If any hard rule fails, r
 2) No guessing. Use data explicitly present in input.
 3) Ignore promotions/ads and any non-transaction texts (e.g., 验证码/登录提醒/快递通知/系统提示/聊天/新闻/纯营销). If the content is unrelated to bills or contains no transaction signals (no explicit transaction amount/keyword, no account), return {}.
 4) Human personal names are not valid account names.
-5) cateName must be chosen strictly from Category Data (comma-separated). If no exact match, set "".
+5) cateName must be chosen strictly from Category Data (comma-separated). If no exact match, set "其他".
 6) Defaults: currency="CNY"; fee=0; money=0.00; empty string for optional text; time=0.
 7) Numbers: output absolute value for money/fee; money with 2 decimals; dot as decimal point.
 8) Output must be valid JSON with keys exactly as the schema; no extra keys or trailing commas.

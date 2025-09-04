@@ -336,6 +336,7 @@ class BillService(
                 JsonObject::class.java
             )
         }.getOrNull()
+        Server.logD("categoryJson $categoryJson")
         // 设置账本名称与分类（优先规则结果，否则默认值）
         bill.bookName = categoryJson.safeGetStringNonBlank("bookName", SettingUtils.bookName())
         bill.cateName = categoryJson.safeGetStringNonBlank("category", "其他")
@@ -343,7 +344,7 @@ class BillService(
         if (bill.needReCategory() && SettingUtils.aiCategoryRecognition()) {
             bill.cateName = CategoryTool().execute(
                 win.toString()
-            ) ?: "其他"
+            ).takeUnless { it.isNullOrEmpty() } ?: "其他"
         }
     }
 

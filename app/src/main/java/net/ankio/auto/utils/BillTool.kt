@@ -78,15 +78,10 @@ object BillTool {
 
     fun getCateName(category1: String, category2: String? = null): String {
 
-        val showParent =
-            PrefManager.categoryShowParent
         if (category2 === null) {
             return category1
         }
-        if (showParent) {
-            return "$category1 - $category2"
-        }
-        return category2
+        return "$category1 - $category2"
     }
 
     suspend fun syncBills() {
