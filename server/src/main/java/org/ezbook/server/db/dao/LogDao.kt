@@ -29,6 +29,13 @@ interface LogDao {
     @Insert
     suspend fun insert(log: LogModel): Long
 
+    /**
+     * 批量插入日志
+     * 使用Room批量插入以提升性能，返回每条记录的自增ID
+     */
+    @Insert
+    suspend fun insert(logs: List<LogModel>): List<Long>
+
     @Query("DELETE FROM LogModel")
     suspend fun clear()
 

@@ -35,6 +35,8 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.io.File
 import java.io.IOException
+import org.ezbook.server.tools.ServerLog
+import org.ezbook.server.tools.runCatchingExceptCancel
 
 object Db {
     private const val DATABASE_NAME = "autoAccount.db"
@@ -99,18 +101,16 @@ object Db {
     suspend fun copy(context: Context): File = dbMutex.withLock {
         val dbNewFile =
             File(context.filesDir, "autoAccount_backup_${System.currentTimeMillis()}.db")
-        
-        try {
+
+        runCatchingExceptCancel {
             // 确保父目录存在
             dbNewFile.parentFile?.apply { if (!exists()) mkdirs() }
 
             // 使用VACUUM INTO进行安全备份，无需关闭数据库
             db.openHelper.writableDatabase.execSQL("VACUUM INTO '${dbNewFile.absolutePath}'")
-
-            println("Database safely copied to: ${dbNewFile.absolutePath}")
-        } catch (e: Exception) {
-            e.printStackTrace()
-            println("Error copying database: ${e.message}")
+            ServerLog.d("数据库已安全复制到：${dbNewFile.absolutePath}")
+        }.onFailure { e ->
+            ServerLog.e("数据库VACUUM复制失败，回退到文件复制：${e.message}", e)
             // 如果VACUUM INTO失败，回退到文件复制（但仍需要同步）
             val originalDbFile = context.getDatabasePath(DATABASE_NAME)
             if (originalDbFile.exists()) {
@@ -127,7 +127,7 @@ object Db {
      * 此操作必须在应用重启后生效
      */
     suspend fun import(context: Context, file: File) = dbMutex.withLock {
-        try {
+        runCatchingExceptCancel {
             // 先验证导入文件的有效性
             if (!file.exists() || file.length() == 0L) {
                 throw IOException("Import file does not exist or is empty")
@@ -147,16 +147,16 @@ object Db {
                 dbFile.copyTo(backupFile, overwrite = true)
             }
 
-            try {
+            runCatchingExceptCancel {
                 // 复制导入文件
                 file.copyTo(dbFile, overwrite = true)
-                println("Database imported to: ${dbFile.absolutePath}")
+                ServerLog.d("数据库导入成功：${dbFile.absolutePath}")
 
                 // 删除备份文件
                 if (backupFile.exists()) {
                     backupFile.delete()
                 }
-            } catch (e: Exception) {
+            }.onFailure { e ->
                 // 导入失败，恢复备份
                 if (backupFile.exists()) {
                     backupFile.copyTo(dbFile, overwrite = true)
@@ -164,12 +164,10 @@ object Db {
                 }
                 throw e
             }
-            
-        } catch (e: IOException) {
-            e.printStackTrace()
-            println("Error importing database: ${e.message}")
+        }.onFailure { e ->
+            ServerLog.e("数据库导入失败：${e.message}", e)
             throw e
-        } finally {
+        }.also {
             // 重新初始化数据库
             init(context)
         }
@@ -180,7 +178,7 @@ object Db {
      * 关闭当前连接，删除数据库文件后重新初始化
      */
     suspend fun clear(context: Context) = dbMutex.withLock {
-        try {
+        runCatchingExceptCancel {
             // 关闭当前数据库连接（这里必须关闭，因为要删除文件）
             db.close()
 
@@ -196,16 +194,14 @@ object Db {
             filesToDelete.forEach { file ->
                 if (file.exists()) {
                     file.delete()
-                    println("Deleted: ${file.absolutePath}")
+                    ServerLog.d("删除文件：${file.absolutePath}")
                 }
             }
-
-            println("Database cleared successfully")
-        } catch (e: Exception) {
-            e.printStackTrace()
-            println("Error clearing database: ${e.message}")
+            ServerLog.d("数据库清空成功")
+        }.onFailure { e ->
+            ServerLog.e("清空数据库失败：${e.message}", e)
             throw e
-        } finally {
+        }.also {
             // 重新初始化数据库
             init(context)
         }
