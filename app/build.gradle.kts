@@ -213,6 +213,11 @@ dependencies {
     implementation("net.lingala.zip4j:zip4j:2.11.5")
     implementation(kotlin("reflect"))
 
+    // Sora Editor - 代码编辑器
+    val editorVersion = "0.23.7"
+    implementation("io.github.rosemoe:editor:$editorVersion")
+    implementation("io.github.rosemoe:language-textmate:$editorVersion")
+
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar", "*.aar"))))
 
 }
