@@ -29,7 +29,9 @@ import kotlinx.coroutines.launch
 import org.ezbook.server.Server
 import org.ezbook.server.ai.AiManager
 import org.ezbook.server.models.ResultModel
+import org.ezbook.server.tools.ServerLog
 import org.ezbook.server.tools.SettingUtils
+import org.ezbook.server.tools.runCatchingExceptCancel
 import java.lang.IllegalStateException
 
 fun Route.aiApiRoutes() {
@@ -81,12 +83,15 @@ fun Route.aiApiRoutes() {
             val body = call.receive<Map<String, String>>()
             applyIncomingSettings(body)
             val provider = resolveProvider(body)
-            try {
-                val resp = AiManager.getInstance().request(systemOf(body), userOf(body), provider)
-                call.respond(HttpStatusCode.OK, ResultModel(200, "success", resp))
-            } catch (exception: IllegalStateException) {
-                call.respond(HttpStatusCode.OK, ResultModel(500, exception.message ?: ""))
-            }
+            val result = AiManager.getInstance().request(systemOf(body), userOf(body), provider)
+            result.fold(
+                onSuccess = { resp ->
+                    call.respond(HttpStatusCode.OK, ResultModel(200, "success", resp))
+                },
+                onFailure = { e ->
+                    call.respond(HttpStatusCode.OK, ResultModel<String?>(500, e.message ?: ""))
+                }
+            )
 
         }
 
@@ -97,7 +102,7 @@ fun Route.aiApiRoutes() {
             val provider = resolveProvider(body)
 
             call.respondTextWriter(ContentType.Text.EventStream) {
-                try {
+                runCatchingExceptCancel {
                     write("data: [START]\n\n")
                     flush()
 
@@ -110,10 +115,10 @@ fun Route.aiApiRoutes() {
                     write("data: [DONE]\n\n")
                     flush()
 
-                } catch (e: Exception) {
-                    Server.logD("catch error: ${e.message}")
+                }.onFailure {
+                    ServerLog.e("catch error: ${it.message}", it)
                     write("event: error\n")
-                    write("data: ${e.message}\n\n")
+                    write("data: ${it.message}\n\n")
                     flush()
                 }
             }
