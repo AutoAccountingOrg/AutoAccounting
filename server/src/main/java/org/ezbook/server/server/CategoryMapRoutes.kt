@@ -45,7 +45,7 @@ fun Route.categoryMapRoutes() {
                 com.google.gson.Gson().fromJson(requestBody, com.google.gson.JsonObject::class.java)
             val id = json?.get("id")?.asLong ?: 0
             Db.get().categoryMapDao().delete(id)
-            call.respond(ResultModel(200, "OK", id))
+            call.respond(ResultModel.ok(id))
         }
 
         /**
@@ -63,7 +63,7 @@ fun Route.categoryMapRoutes() {
             if (limit == 0) {
                 // 返回所有数据，不分页
                 val mappings = Db.get().categoryMapDao().loadWithoutLimit()
-                call.respond(ResultModel(200, "OK", mappings))
+                call.respond(ResultModel.ok(mappings))
                 return@get
             }
 
@@ -72,7 +72,7 @@ fun Route.categoryMapRoutes() {
             val search = call.request.queryParameters["search"]?.takeIf { it.isNotEmpty() }
 
             val mappings = Db.get().categoryMapDao().loadWithLimit(limit, offset, search)
-            call.respond(ResultModel(200, "OK", mappings))
+            call.respond(ResultModel.ok(mappings))
         }
 
         /**
@@ -93,7 +93,7 @@ fun Route.categoryMapRoutes() {
                 Db.get().categoryMapDao().update(model)
             }
 
-            call.respond(ResultModel(200, "OK", model.id))
+            call.respond(ResultModel.ok(model.id))
         }
     }
 } 

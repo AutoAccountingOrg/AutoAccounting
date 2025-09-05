@@ -41,7 +41,7 @@ fun Route.assetsRoutes() {
          */
         get("/list") {
             val assets = Db.get().assetsDao().load()
-            call.respond(ResultModel(200, "OK", assets))
+            call.respond(ResultModel.ok(assets))
         }
 
         /**
@@ -59,7 +59,7 @@ fun Route.assetsRoutes() {
 
             // 更新资产数据的hash值
             setByInner(Setting.HASH_ASSET, md5)
-            call.respond(ResultModel(200, "OK", result))
+            call.respond(ResultModel.ok(result))
         }
 
         /**
@@ -71,7 +71,7 @@ fun Route.assetsRoutes() {
         get("/get") {
             val name = call.request.queryParameters["name"] ?: ""
             val asset = Db.get().assetsDao().query(name)
-            call.respond(ResultModel(200, "OK", asset))
+            call.respond(ResultModel.ok(asset))
         }
 
         /**
@@ -83,7 +83,7 @@ fun Route.assetsRoutes() {
         get("/getById") {
             val id = call.request.queryParameters["id"]?.toLongOrNull() ?: 0L
             val asset = Db.get().assetsDao().getById(id)
-            call.respond(ResultModel(200, "OK", asset))
+            call.respond(ResultModel.ok(asset))
         }
 
         /**
@@ -95,7 +95,7 @@ fun Route.assetsRoutes() {
         post("/save") {
             val asset = call.receive<AssetsModel>()
             val assetId = Db.get().assetsDao().save(asset)
-            call.respond(ResultModel(200, "OK", assetId))
+            call.respond(ResultModel.ok(assetId))
         }
 
         /**
@@ -111,13 +111,13 @@ fun Route.assetsRoutes() {
             val id = json?.get("id")?.asLong ?: 0
 
             if (id <= 0) {
-                call.respond(ResultModel(400, "id is invalid"))
+                call.respond(ResultModel<String>(400, "id is invalid"))
                 return@post
             }
 
             val deleteCount = Db.get().assetsDao().delete(id)
             val resultId = if (deleteCount > 0) id else 0L
-            call.respond(ResultModel(200, "OK", resultId))
+            call.respond(ResultModel.ok(resultId))
         }
     }
 } 

@@ -20,14 +20,14 @@ import io.ktor.request.receive
 import io.ktor.request.receiveText
 import io.ktor.response.respond
 import io.ktor.routing.Route
-import io.ktor.routing.post
 import io.ktor.routing.get
+import io.ktor.routing.post
 import io.ktor.routing.route
-import org.ezbook.server.Server
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.BookNameModel
 import org.ezbook.server.models.ResultModel
+import org.ezbook.server.tools.ServerLog
 import org.ezbook.server.tools.SettingUtils
 
 /**
@@ -43,7 +43,7 @@ fun Route.bookRoutes() {
         get("/get") {
             val requestName = call.request.queryParameters["name"].orEmpty()
             val book = resolveBookByNameOrDefault(requestName)
-            call.respond(ResultModel(200, "OK", book))
+            call.respond(ResultModel.ok(book))
         }
 
         /**
@@ -64,7 +64,7 @@ fun Route.bookRoutes() {
                 books = Db.get().bookNameDao().load()
             }
 
-            call.respond(ResultModel(200, "OK", books))
+            call.respond(ResultModel.ok(books))
         }
 
         /**
@@ -82,7 +82,7 @@ fun Route.bookRoutes() {
 
             // 更新账本数据的hash值
             setByInner(Setting.HASH_BOOK, md5)
-            call.respond(ResultModel(200, "OK", result))
+            call.respond(ResultModel.ok(result))
         }
 
         /**
@@ -92,7 +92,7 @@ fun Route.bookRoutes() {
             val model = call.receive(BookNameModel::class)
             model.id = 0
             val id = Db.get().bookNameDao().insertOrReplace(model)
-            call.respond(ResultModel(200, "OK", id))
+            call.respond(ResultModel.ok(id))
         }
 
         /**
@@ -101,7 +101,7 @@ fun Route.bookRoutes() {
         post("/update") {
             val model = call.receive(BookNameModel::class)
             val updated = Db.get().bookNameDao().insertOrReplace(model)
-            call.respond(ResultModel(200, "OK", updated))
+            call.respond(ResultModel.ok(updated))
         }
 
         /**
@@ -116,9 +116,9 @@ fun Route.bookRoutes() {
             val json =
                 com.google.gson.Gson().fromJson(requestBody, com.google.gson.JsonObject::class.java)
             val id = json?.get("id")?.asLong ?: 0
-            Server.log("删除账本:$id")
+            ServerLog.d("删除账本：$id")
             Db.get().bookNameDao().delete(id)
-            call.respond(ResultModel(200, "OK", 0))
+            call.respond(ResultModel.ok(0))
         }
 
         /**
@@ -126,7 +126,7 @@ fun Route.bookRoutes() {
          */
         get("/default") {
             val book = resolveBookByNameOrDefault(SettingUtils.bookName())
-            call.respond(ResultModel(200, "OK", book))
+            call.respond(ResultModel.ok(book))
         }
     }
 }

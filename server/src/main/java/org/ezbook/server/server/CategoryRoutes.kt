@@ -49,13 +49,13 @@ fun Route.categoryRoutes() {
 
             val type = call.request.queryParameters["type"] ?: ""
             if (type.isEmpty()) {
-                call.respond(ResultModel(400, "type is empty"))
+                call.respond(ResultModel.error(400, "type is empty"))
                 return@get
             }
 
             val parent = call.request.queryParameters["parent"] ?: "-1"
             val categories = Db.get().categoryDao().load(book, type, parent)
-            call.respond(ResultModel(200, "OK", categories))
+            call.respond(ResultModel.ok(categories))
         }
 
         /**
@@ -73,7 +73,7 @@ fun Route.categoryRoutes() {
 
             // 更新分类数据的hash值
             setByInner(Setting.HASH_CATEGORY, md5)
-            call.respond(ResultModel(200, "OK", result))
+            call.respond(ResultModel.ok(result))
         }
 
         /**
@@ -90,12 +90,12 @@ fun Route.categoryRoutes() {
             val name = call.request.queryParameters["name"] ?: ""
 
             if (name.isEmpty()) {
-                call.respond(ResultModel(400, "name is empty"))
+                call.respond(ResultModel.error(400, "name is empty"))
                 return@get
             }
 
             val category = Db.get().categoryDao().getByName(book, type, name)
-            call.respond(ResultModel(200, "OK", category))
+            call.respond(ResultModel.ok(category))
         }
 
         /**
@@ -108,12 +108,12 @@ fun Route.categoryRoutes() {
             val id = call.request.queryParameters["id"]?.toLongOrNull()
 
             if (id == null || id <= 0) {
-                call.respond(ResultModel(400, "id is invalid"))
+                call.respond(ResultModel.error(400, "id is invalid"))
                 return@get
             }
 
             val category = Db.get().categoryDao().getById(id)
-            call.respond(ResultModel(200, "OK", category))
+            call.respond(ResultModel.ok(category))
         }
 
         /**
@@ -138,7 +138,7 @@ fun Route.categoryRoutes() {
                 if (updateCount > 0) category.id else 0L
             }
 
-            call.respond(ResultModel(200, "OK", resultId))
+            call.respond(ResultModel.ok(resultId))
         }
 
         /**
@@ -148,19 +148,16 @@ fun Route.categoryRoutes() {
          * @return ResultModel 包含删除的分类ID
          */
         post("/delete") {
-            val requestBody = call.receiveText()
-            val json =
-                com.google.gson.Gson().fromJson(requestBody, com.google.gson.JsonObject::class.java)
-            val id = json?.get("id")?.asLong ?: 0
+            val req = call.receive<DeleteRequest>()
 
-            if (id <= 0) {
-                call.respond(ResultModel(400, "id is invalid"))
+            if (req.id <= 0) {
+                call.respond(ResultModel.error(400, "id is invalid"))
                 return@post
             }
 
-            val deleteCount = Db.get().categoryDao().delete(id)
-            val resultId = if (deleteCount > 0) id else 0L
-            call.respond(ResultModel(200, "OK", resultId))
+            val deleteCount = Db.get().categoryDao().delete(req.id)
+            val resultId = if (deleteCount > 0) req.id else 0L
+            call.respond(ResultModel.ok(resultId))
         }
     }
 } 

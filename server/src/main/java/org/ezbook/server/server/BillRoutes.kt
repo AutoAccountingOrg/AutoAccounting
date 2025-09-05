@@ -23,11 +23,12 @@ import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.route
-import org.ezbook.server.Server
 import org.ezbook.server.constant.BillState
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.models.ResultModel
+import org.ezbook.server.tools.ServerLog
+import org.ezbook.server.tools.SummaryService
 
 /**
  * 账单管理路由配置
@@ -55,10 +56,10 @@ fun Route.billRoutes() {
                 listOf(BillState.Edited.name, BillState.Synced.name, BillState.Wait2Edit.name)
             val type = call.request.queryParameters["type"]?.split(", ") ?: defaultStates
 
-            Server.logD("获取账单列表:$page $limit $type")
+            ServerLog.d("获取账单列表：page=$page, limit=$limit, type=$type")
             val offset = (page - 1) * limit
             val bills = Db.get().billInfoDao().loadPage(limit, offset, type)
-            call.respond(ResultModel(200, "OK", bills))
+            call.respond(ResultModel.ok(bills))
         }
 
         /**
@@ -70,7 +71,7 @@ fun Route.billRoutes() {
         get("/group") {
             val id = call.request.queryParameters["id"]?.toLong() ?: 0
             val result = Db.get().billInfoDao().queryGroup(id)
-            call.respond(ResultModel(200, "OK", result))
+            call.respond(ResultModel.ok(result))
         }
 
         /**
@@ -85,7 +86,7 @@ fun Route.billRoutes() {
                 com.google.gson.Gson().fromJson(requestBody, com.google.gson.JsonObject::class.java)
             val id = json?.get("id")?.asLong ?: 0
             Db.get().billInfoDao().unGroup(id)
-            call.respond(ResultModel(200, "OK", 0))
+            call.respond(ResultModel.ok(0))
         }
 
         /**
@@ -105,7 +106,7 @@ fun Route.billRoutes() {
             } else {
                 Db.get().billInfoDao().insert(bill)
             }
-            call.respond(ResultModel(200, "OK", id))
+            call.respond(ResultModel.ok(id))
         }
 
         /**
@@ -120,10 +121,10 @@ fun Route.billRoutes() {
             val json =
                 com.google.gson.Gson().fromJson(requestBody, com.google.gson.JsonObject::class.java)
             val id = json?.get("id")?.asLong ?: 0
-            Server.log("删除账单:$id")
+            ServerLog.d("删除账单：$id")
             Db.get().billInfoDao().deleteId(id)
             Db.get().billInfoDao().deleteGroup(id)
-            call.respond(ResultModel(200, "OK", 0))
+            call.respond(ResultModel.ok(0))
         }
 
         /**
@@ -133,7 +134,7 @@ fun Route.billRoutes() {
          */
         post("/clear") {
             Db.get().billInfoDao().clear()
-            call.respond(ResultModel(200, "OK"))
+            call.respond(ResultModel.ok("OK"))
         }
 
         /**
@@ -143,7 +144,7 @@ fun Route.billRoutes() {
          */
         get("/sync/list") {
             val result = Db.get().billInfoDao().queryNoSync()
-            call.respond(ResultModel(200, "OK", result))
+            call.respond(ResultModel.ok(result))
         }
 
         /**
@@ -160,7 +161,7 @@ fun Route.billRoutes() {
             val status = json?.get("sync")?.asBoolean ?: false
             val newState = if (status) BillState.Synced else BillState.Edited
             Db.get().billInfoDao().updateStatus(id, newState)
-            call.respond(ResultModel(200, "OK", 0))
+            call.respond(ResultModel.ok(0))
         }
 
         /**
@@ -172,7 +173,7 @@ fun Route.billRoutes() {
         get("/get") {
             val id = call.request.queryParameters["id"]?.toLong() ?: 0
             val result = Db.get().billInfoDao().queryId(id)
-            call.respond(ResultModel(200, "OK", result))
+            call.respond(ResultModel.ok(result))
         }
 
         /**
@@ -182,7 +183,7 @@ fun Route.billRoutes() {
          */
         get("/edit") {
             val bills = Db.get().billInfoDao().loadWaitEdit()
-            call.respond(ResultModel(200, "OK", bills))
+            call.respond(ResultModel.ok(bills))
         }
 
         /**
@@ -197,7 +198,7 @@ fun Route.billRoutes() {
             val endTime =
                 call.request.queryParameters["end"]?.toLong() ?: System.currentTimeMillis()
             val bills = Db.get().billInfoDao().getBillsByTimeRange(startTime, endTime)
-            call.respond(ResultModel(200, "OK", bills))
+            call.respond(ResultModel.ok(bills))
         }
 
         /**
@@ -210,9 +211,9 @@ fun Route.billRoutes() {
          */
         post("/monthly/stats") {
             val year = call.request.queryParameters["year"]?.toInt()
-                ?: return@post call.respond(ResultModel(400, "Year parameter is required"))
+                ?: return@post call.respond(ResultModel.error(400, "Year parameter is required"))
             val month = call.request.queryParameters["month"]?.toInt()
-                ?: return@post call.respond(ResultModel(400, "Month parameter is required"))
+                ?: return@post call.respond(ResultModel.error(400, "Month parameter is required"))
 
             // 计算时间范围
             val calendar = java.util.Calendar.getInstance().apply {
@@ -227,14 +228,7 @@ fun Route.billRoutes() {
             val income = Db.get().billInfoDao().getMonthlyIncome(startTime, endTime) ?: 0.0
             val expense = Db.get().billInfoDao().getMonthlyExpense(startTime, endTime) ?: 0.0
 
-            call.respond(
-                ResultModel(
-                    200, "OK", mapOf(
-                        "income" to income,
-                        "expense" to expense
-                    )
-                )
-            )
+            call.respond(ResultModel.ok(mapOf("income" to income, "expense" to expense)))
         }
 
         /**
@@ -248,17 +242,22 @@ fun Route.billRoutes() {
          */
         get("/summary") {
             val startTime = call.request.queryParameters["start"]?.toLong()
-                ?: return@get call.respond(ResultModel(400, "Start time parameter is required"))
+                ?: return@get call.respond(
+                    ResultModel.error(
+                        400,
+                        "Start time parameter is required"
+                    )
+                )
             val endTime = call.request.queryParameters["end"]?.toLong()
-                ?: return@get call.respond(ResultModel(400, "End time parameter is required"))
+                ?: return@get call.respond(ResultModel.error(400, "End time parameter is required"))
             val periodName = call.request.queryParameters["period"] ?: "指定时间段"
 
-            val summary = org.ezbook.server.tools.SummaryService.generateSummary(
+            val summary = SummaryService.generateSummary(
                 startTime,
                 endTime,
                 periodName
             )
-            call.respond(ResultModel(200, "OK", summary))
+            call.respond(ResultModel.ok(summary))
         }
 
         /**
@@ -270,7 +269,7 @@ fun Route.billRoutes() {
         get("/book/list") {
             val type = call.request.queryParameters["type"] ?: ""
             val data = Db.get().bookBillDao().list(type)
-            call.respond(ResultModel(200, "OK", data))
+            call.respond(ResultModel.ok(data))
         }
 
         /**
@@ -287,7 +286,7 @@ fun Route.billRoutes() {
             val bills = call.receive<Array<org.ezbook.server.db.model.BookBillModel>>()
             Db.get().bookBillDao().put(bills.toList(), type)
             setByInner(type, md5)
-            call.respond(ResultModel(200, "OK"))
+            call.respond(ResultModel.ok("OK"))
         }
     }
 } 

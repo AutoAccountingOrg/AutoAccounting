@@ -17,19 +17,16 @@ package org.ezbook.server.server
 
 import io.ktor.application.call
 import io.ktor.request.receive
-import io.ktor.request.receiveText
 import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.route
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import org.ezbook.server.Server
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.AssetsMapModel
 import org.ezbook.server.models.ResultModel
 import org.ezbook.server.tools.AssetsMap
+import org.ezbook.server.tools.ServerLog
 
 /**
  * 资产映射管理路由配置
@@ -52,7 +49,7 @@ fun Route.assetsMapRoutes() {
             if (limit == 0) {
                 // 返回所有数据，不分页
                 val mappings = Db.get().assetsMapDao().list()
-                call.respond(ResultModel(200, "OK", mappings))
+                call.respond(ResultModel.ok(mappings))
                 return@get
             }
 
@@ -61,7 +58,7 @@ fun Route.assetsMapRoutes() {
             //  val search = call.request.queryParameters["search"]?.takeIf { it.isNotEmpty() }
 
             val mappings = Db.get().assetsMapDao().load(limit, offset)
-            call.respond(ResultModel(200, "OK", mappings))
+            call.respond(ResultModel.ok(mappings))
         }
 
         /**
@@ -72,12 +69,12 @@ fun Route.assetsMapRoutes() {
          * @return ResultModel 包含映射ID
          */
         post("/put") {
-            val model = call.receive(AssetsMapModel::class)
+            val model = call.receive<AssetsMapModel>()
             // 基于 name 的唯一索引 + REPLACE 策略，幂等写入
             val id = Db.get().assetsMapDao().insert(model)
 
 
-            call.respond(ResultModel(200, "OK", id))
+            call.respond(ResultModel.ok(id))
         }
 
         /**
@@ -87,15 +84,9 @@ fun Route.assetsMapRoutes() {
          * @return ResultModel 包含删除的映射ID
          */
         post("/delete") {
-            val requestBody = call.receiveText()
-            val json =
-                com.google.gson.Gson().fromJson(requestBody, com.google.gson.JsonObject::class.java)
-            val id = json?.get("id")?.asLong ?: 0
-            Db.get().assetsMapDao().delete(id)
-
-
-
-            call.respond(ResultModel(200, "OK", id))
+            val req = call.receive<DeleteRequest>()
+            Db.get().assetsMapDao().delete(req.id)
+            call.respond(ResultModel.ok(req.id))
         }
 
         /**
@@ -107,7 +98,7 @@ fun Route.assetsMapRoutes() {
         get("/get") {
             val name = call.request.queryParameters["name"] ?: ""
             val mapping = Db.get().assetsMapDao().query(name)
-            call.respond(ResultModel(200, "OK", mapping))
+            call.respond(ResultModel.ok(mapping))
         }
 
         /**
@@ -118,7 +109,7 @@ fun Route.assetsMapRoutes() {
          */
         get("/empty") {
             val emptyMappings = Db.get().assetsMapDao().empty()
-            call.respond(ResultModel(200, "OK", emptyMappings))
+            call.respond(ResultModel.ok(emptyMappings))
         }
 
         /**
@@ -129,84 +120,79 @@ fun Route.assetsMapRoutes() {
          * @return ResultModel 包含操作启动结果
          */
         post("/reapply") {
-            try {
-                reapplyAssetMappingToHistoryData()
-
-                call.respond(
-                    ResultModel(
-                        200,
-                        "Asset mapping reapplication started successfully",
-                        true
-                    )
-                )
-            } catch (e: Exception) {
-                Server.log("Error starting asset mapping reapplication: ${e.message}")
-                call.respond(ResultModel(500, "Failed to start reapplication: ${e.message}", false))
-            }
+            reapplyAssetMappingToHistoryData()
+            call.respond(ResultModel.ok(true))
         }
     }
 }
+
+/**
+ * 删除请求体
+ * 仅包含要删除记录的唯一标识。
+ */
+private data class DeleteRequest(
+    /** 要删除的记录ID */
+    val id: Long
+)
 
 /**
  * 重新应用资产映射到历史数据
  * 只处理最近3个月的账单，分批处理避免内存溢出
  */
 private suspend fun reapplyAssetMappingToHistoryData() {
-    try {
-        Server.log("开始重新应用资产映射到最近3个月的历史数据")
 
-        val db = Db.get()
+    ServerLog.d("开始重新应用资产映射到最近3个月的历史数据")
 
-        // 计算3个月前的时间戳
-        val threeMonthsAgo = calculateThreeMonthsAgo()
-        Server.log("处理时间范围: ${java.util.Date(threeMonthsAgo)} 至今")
+    val db = Db.get()
 
-        val totalBills = db.billInfoDao().getRecentBillsCount(threeMonthsAgo)
-        val batchSize = 100 // 每批处理100条记录
-        var processedCount = 0
+    // 计算3个月前的时间戳
+    val threeMonthsAgo = calculateThreeMonthsAgo()
+    ServerLog.d("处理时间范围: ${java.util.Date(threeMonthsAgo)} 至今")
 
-        Server.log("最近3个月账单数量: $totalBills")
+    val totalBills = db.billInfoDao().getRecentBillsCount(threeMonthsAgo)
+    val batchSize = 100 // 每批处理100条记录
+    var processedCount = 0
 
-        if (totalBills == 0) {
-            Server.log("没有找到最近3个月的账单，操作结束")
-            return
-        }
+    ServerLog.d("最近3个月账单数量: $totalBills")
 
-        // 分批处理账单
-        for (offset in 0 until totalBills step batchSize) {
-            val bills = db.billInfoDao().getRecentBillsBatch(batchSize, offset, threeMonthsAgo)
-
-            for (bill in bills) {
-                try {
-                    // 创建账单副本以避免修改原始数据
-                    val billCopy = bill.copy()
-
-                    // 重新应用资产映射
-                    AssetsMap().setAssetsMap(billCopy)
-
-                    // 只更新资产相关字段
-                    bill.accountNameFrom = billCopy.accountNameFrom
-                    bill.accountNameTo = billCopy.accountNameTo
-
-                    // 更新到数据库
-                    db.billInfoDao().update(bill)
-
-                    processedCount++
-                } catch (e: Exception) {
-                    Server.log("处理账单 ${bill.id} 时出错: ${e.message}")
-                }
-            }
-
-            // 每处理一批后记录进度
-            Server.log("已处理账单: $processedCount / $totalBills")
-        }
-
-        Server.log("资产映射重新应用完成，共处理最近3个月的 $processedCount 条账单")
-
-    } catch (e: Exception) {
-        Server.log("重新应用资产映射时发生错误: ${e.message}")
-        Server.log(e)
+    if (totalBills == 0) {
+        ServerLog.d("没有找到最近3个月的账单，操作结束")
+        return
     }
+    val assetsMap = AssetsMap()
+
+    // 分批处理账单
+    for (offset in 0 until totalBills step batchSize) {
+        val bills = db.billInfoDao().getRecentBillsBatch(batchSize, offset, threeMonthsAgo)
+
+        for (bill in bills) {
+            try {
+                // 创建账单副本以避免修改原始数据
+                val billCopy = bill.copy()
+
+                // 重新应用资产映射
+                assetsMap.setAssetsMap(billCopy, false)
+
+                // 只更新资产相关字段
+                bill.accountNameFrom = billCopy.accountNameFrom
+                bill.accountNameTo = billCopy.accountNameTo
+
+                // 更新到数据库
+                db.billInfoDao().update(bill)
+
+                processedCount++
+            } catch (e: Exception) {
+                ServerLog.e("处理账单 ${bill.id} 时出错: ${e.message}")
+            }
+        }
+
+        // 每处理一批后记录进度
+        ServerLog.d("已处理账单: $processedCount / $totalBills")
+    }
+
+    ServerLog.d("资产映射重新应用完成，共处理最近3个月的 $processedCount 条账单")
+
+
 }
 
 /**

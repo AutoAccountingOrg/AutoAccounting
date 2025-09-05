@@ -49,7 +49,7 @@ fun Route.logRoutes() {
             val offset = (page - 1) * limit
 
             val logs = Db.get().logDao().loadPage(limit, offset)
-            call.respond(ResultModel(200, "OK", logs))
+            call.respond(ResultModel.ok(logs))
         }
 
         /**
@@ -59,9 +59,21 @@ fun Route.logRoutes() {
          * @return ResultModel 包含新创建的日志ID
          */
         post("/add") {
-            val log = call.receive(LogModel::class)
+            val log = call.receive<LogModel>()
             val id = Db.get().logDao().insert(log)
-            call.respond(ResultModel(200, "OK", id))
+            call.respond(ResultModel.ok(id))
+        }
+
+        /**
+         * POST /log/addBatch - 批量添加日志
+         *
+         * @param body List<LogModel> 日志数据列表
+         * @return ResultModel 包含新创建的日志ID列表
+         */
+        post("/addBatch") {
+            val logs = call.receive<List<LogModel>>()
+            val ids = Db.get().logDao().insert(logs)
+            call.respond(ResultModel.ok(ids))
         }
 
         /**
@@ -71,7 +83,7 @@ fun Route.logRoutes() {
          */
         post("/clear") {
             Db.get().logDao().clear()
-            call.respond(ResultModel(200, "OK", null))
+            call.respond(ResultModel.ok(null))
         }
     }
 } 

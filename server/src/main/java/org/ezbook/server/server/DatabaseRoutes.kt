@@ -29,7 +29,8 @@ import io.ktor.routing.post
 import io.ktor.routing.route
 import org.ezbook.server.db.Db
 import org.ezbook.server.models.ResultModel
-import java.io.IOException
+import org.ezbook.server.tools.ServerLog
+import org.ezbook.server.tools.runCatchingExceptCancel
 
 /**
  * 数据库管理路由配置
@@ -44,12 +45,12 @@ fun Route.databaseRoutes(context: Context) {
          * @return 数据库备份文件
          */
         get("/export") {
-            try {
+            runCatchingExceptCancel {
                 val file = Db.copy(context)
                 call.respondFile(file.parentFile!!, file.name)
-            } catch (e: Exception) {
-                e.printStackTrace()
-                call.respond(ResultModel(500, "Database export failed: ${e.message}"))
+            }.onFailure {
+                ServerLog.e("数据库导出失败：${it.message}", it)
+                call.respond(ResultModel.error(500, "Database export failed: ${it.message}"))
             }
         }
 
@@ -62,35 +63,30 @@ fun Route.databaseRoutes(context: Context) {
          * @return ResultModel 导入操作结果
          */
         post("/import") {
-            try {
+            runCatchingExceptCancel {
                 val multipart = call.receiveMultipart()
 
-                // 遍历上传的文件部分
                 multipart.forEachPart { part ->
                     when (part) {
                         is PartData.FileItem -> {
                             val targetFile = context.getDatabasePath("db_backup.db")
-                            // 保存上传的文件
                             part.streamProvider().use { input ->
                                 targetFile.outputStream().buffered().use { output ->
                                     input.copyTo(output)
                                 }
                             }
-
-                            // 导入数据库
                             Db.import(context, targetFile)
-                            call.respond(ResultModel(200, "File uploaded successfully"))
+                            call.respond(ResultModel.ok("File uploaded successfully"))
                             return@forEachPart
                         }
 
-                        else -> {
-                            // 忽略非文件部分
-                        }
+                        else -> {}
                     }
                     part.dispose()
                 }
-            } catch (e: Exception) {
-                call.respond(ResultModel(500, "Database import failed: ${e.message}"))
+            }.onFailure {
+                ServerLog.e("数据库导入失败：${it.message}", it)
+                call.respond(ResultModel.error(500, "Database import failed: ${it.message}"))
             }
         }
 
@@ -101,11 +97,12 @@ fun Route.databaseRoutes(context: Context) {
          * @return ResultModel 清理操作结果
          */
         post("/clear") {
-            try {
+            runCatchingExceptCancel {
                 Db.clear(context)
-                call.respond(ResultModel(200, "Database cleared"))
-            } catch (e: Exception) {
-                call.respond(ResultModel(500, "Database clear failed: ${e.message}"))
+                call.respond(ResultModel.ok("Database cleared"))
+            }.onFailure {
+                ServerLog.e("清空数据库失败：${it.message}", it)
+                call.respond(ResultModel.error(500, "Database clear failed: ${it.message}"))
             }
         }
     }

@@ -23,7 +23,6 @@ import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.route
-import org.ezbook.server.Server
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.TagModel
 import org.ezbook.server.models.ResultModel
@@ -49,7 +48,7 @@ fun Route.tagRoutes() {
             if (limit == 0) {
                 // 返回所有数据，不分页
                 val tags = Db.get().tagDao().list()
-                call.respond(ResultModel(200, "OK", tags))
+                call.respond(ResultModel.ok(tags))
                 return@get
             }
 
@@ -62,7 +61,7 @@ fun Route.tagRoutes() {
             } else {
                 Db.get().tagDao().load(limit, offset)
             }
-            call.respond(ResultModel(200, "OK", tags))
+            call.respond(ResultModel.ok(tags))
         }
 
         /**
@@ -74,12 +73,12 @@ fun Route.tagRoutes() {
          * @return ResultModel 包含标签ID
          */
         post("/put") {
-            val model = call.receive(TagModel::class)
+            val model = call.receive<TagModel>()
 
             // 检查标签名称是否重复（排除自己）
             val existingTag = Db.get().tagDao().queryByName(model.name)
             if (existingTag != null && existingTag.id != model.id) {
-                call.respond(ResultModel(400, "标签名称已存在", null))
+                call.respond(ResultModel.error(400, "标签名称已存在"))
                 return@post
             }
 
@@ -91,7 +90,7 @@ fun Route.tagRoutes() {
                 Db.get().tagDao().update(model)
             }
 
-            call.respond(ResultModel(200, "OK", model.id))
+            call.respond(ResultModel.ok(model.id))
         }
 
         /**
@@ -101,13 +100,9 @@ fun Route.tagRoutes() {
          * @return ResultModel 包含删除的标签ID
          */
         post("/delete") {
-            val requestBody = call.receiveText()
-            val json =
-                com.google.gson.Gson().fromJson(requestBody, com.google.gson.JsonObject::class.java)
-            val id = json?.get("id")?.asLong ?: 0
-
-            Db.get().tagDao().delete(id)
-            call.respond(ResultModel(200, "OK", id))
+            val req = call.receive<DeleteRequest>()
+            Db.get().tagDao().delete(req.id)
+            call.respond(ResultModel.ok(req.id))
         }
 
         /**
@@ -119,7 +114,7 @@ fun Route.tagRoutes() {
         get("/get") {
             val id = call.request.queryParameters["id"]?.toLongOrNull() ?: 0
             val tag = Db.get().tagDao().query(id)
-            call.respond(ResultModel(200, "OK", tag))
+            call.respond(ResultModel.ok(tag))
         }
 
         /**
@@ -129,7 +124,7 @@ fun Route.tagRoutes() {
          */
         get("/count") {
             val count = Db.get().tagDao().count()
-            call.respond(ResultModel(200, "OK", count))
+            call.respond(ResultModel.ok(count))
         }
 
         /**
@@ -145,8 +140,7 @@ fun Route.tagRoutes() {
 
             val existingTag = Db.get().tagDao().queryByName(name)
             val isAvailable = existingTag == null || existingTag.id == id
-
-            call.respond(ResultModel(200, "OK", isAvailable))
+            call.respond(ResultModel.ok(isAvailable))
         }
 
         /**
@@ -158,18 +152,10 @@ fun Route.tagRoutes() {
          * @return ResultModel 包含插入的标签ID列表
          */
         post("/batch") {
-            val requestBody = call.receiveText()
-            val gson = com.google.gson.Gson()
-            val tagsList = try {
-                val listType = object : com.google.gson.reflect.TypeToken<List<TagModel>>() {}.type
-                gson.fromJson<List<TagModel>>(requestBody, listType)
-            } catch (e: Exception) {
-                call.respond(ResultModel(400, "无效的标签数据格式: ${e.message}", null))
-                return@post
-            }
+            val tagsList = call.receive<List<TagModel>>()
 
             if (tagsList.isEmpty()) {
-                call.respond(ResultModel(400, "标签列表不能为空", null))
+                call.respond(ResultModel.error(400, "标签列表不能为空"))
                 return@post
             }
 
@@ -183,14 +169,12 @@ fun Route.tagRoutes() {
                 // 再批量插入新标签
                 val insertedIds = Db.get().tagDao().batchInsert(tagsList)
                 call.respond(
-                    ResultModel(
-                        200,
-                        "标签重置成功",
+                    ResultModel.ok(
                         mapOf("insertedIds" to insertedIds, "count" to insertedIds.size)
                     )
                 )
             } catch (e: Exception) {
-                call.respond(ResultModel(500, "标签重置失败: ${e.message}", null))
+                call.respond(ResultModel.error(500, "标签重置失败: ${e.message}"))
             }
         }
     }

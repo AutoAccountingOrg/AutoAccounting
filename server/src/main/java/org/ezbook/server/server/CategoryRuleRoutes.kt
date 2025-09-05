@@ -46,7 +46,7 @@ fun Route.categoryRuleRoutes() {
             val offset = (page - 1) * limit
 
             val rules = Db.get().categoryRuleDao().load(limit, offset)
-            call.respond(ResultModel(200, "OK", rules))
+            call.respond(ResultModel.ok(rules))
         }
 
         /**
@@ -65,7 +65,7 @@ fun Route.categoryRuleRoutes() {
                 Db.get().categoryRuleDao().update(model)
             }
 
-            call.respond(ResultModel(200, "OK", model.id))
+            call.respond(ResultModel.ok(model.id))
         }
 
         /**
@@ -80,7 +80,7 @@ fun Route.categoryRuleRoutes() {
                 com.google.gson.Gson().fromJson(requestBody, com.google.gson.JsonObject::class.java)
             val id = json?.get("id")?.asLong ?: 0
             Db.get().categoryRuleDao().delete(id)
-            call.respond(ResultModel(200, "OK", id))
+            call.respond(ResultModel.ok(id))
         }
     }
 } 

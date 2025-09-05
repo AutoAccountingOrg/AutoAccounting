@@ -25,14 +25,11 @@ import io.ktor.routing.Route
 import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.route
-import kotlinx.coroutines.launch
-import org.ezbook.server.Server
 import org.ezbook.server.ai.AiManager
 import org.ezbook.server.models.ResultModel
 import org.ezbook.server.tools.ServerLog
 import org.ezbook.server.tools.SettingUtils
 import org.ezbook.server.tools.runCatchingExceptCancel
-import java.lang.IllegalStateException
 
 fun Route.aiApiRoutes() {
     route("/ai") {
@@ -59,7 +56,7 @@ fun Route.aiApiRoutes() {
         get("/providers") {
             call.respond(
                 HttpStatusCode.OK,
-                ResultModel(200, "success", AiManager.getInstance().getProviderNames())
+                ResultModel.ok(AiManager.getInstance().getProviderNames())
             )
         }
         // 获取模型列表（可选 provider 参数）
@@ -67,7 +64,7 @@ fun Route.aiApiRoutes() {
             val body = call.receive<Map<String, String>>()
             applyIncomingSettings(body)
             val list = AiManager.getInstance().getAvailableModels(body["provider"].orEmpty())
-            call.respond(HttpStatusCode.OK, ResultModel(200, "success", list))
+            call.respond(HttpStatusCode.OK, ResultModel.ok(list))
         }
 
         // 获取当前 Provider 信息（apiUri、apiModel）；可选 provider 参数
@@ -75,7 +72,7 @@ fun Route.aiApiRoutes() {
             val providerName = call.request.queryParameters["provider"].orEmpty()
             SettingUtils.setApiProvider(providerName)
             val info = AiManager.getInstance().getProviderInfo(providerName)
-            call.respond(HttpStatusCode.OK, ResultModel(200, "success", info))
+            call.respond(HttpStatusCode.OK, ResultModel.ok(info))
         }
 
         // 发送请求（支持前端传入 provider/apiUri/apiKey/model 参数构造临时 Provider）
@@ -85,11 +82,12 @@ fun Route.aiApiRoutes() {
             val provider = resolveProvider(body)
             val result = AiManager.getInstance().request(systemOf(body), userOf(body), provider)
             result.fold(
-                onSuccess = { resp ->
-                    call.respond(HttpStatusCode.OK, ResultModel(200, "success", resp))
-                },
+                onSuccess = { resp -> call.respond(HttpStatusCode.OK, ResultModel.ok(resp)) },
                 onFailure = { e ->
-                    call.respond(HttpStatusCode.OK, ResultModel<String?>(500, e.message ?: ""))
+                    call.respond(
+                        HttpStatusCode.OK,
+                        ResultModel.error(500, e.message ?: "")
+                    )
                 }
             )
 
@@ -108,9 +106,9 @@ fun Route.aiApiRoutes() {
 
                     AiManager.getInstance()
                         .requestStream(systemOf(body), userOf(body), provider) { chunk ->
-                        write("data: $chunk\n\n")
-                        flush()
-                    }
+                            write("data: $chunk\n\n")
+                            flush()
+                        }
 
                     write("data: [DONE]\n\n")
                     flush()

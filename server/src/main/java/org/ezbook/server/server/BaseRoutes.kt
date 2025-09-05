@@ -34,11 +34,7 @@ fun Route.baseRoutes() {
      *
      * @return ResultModel 包含欢迎信息和版本号
      */
-    get("/") {
-        call.respond(
-            ResultModel(200, "欢迎使用自动记账", Server.versionName)
-        )
-    }
+    get("/") { call.respond(ResultModel.ok(Server.versionName)) }
 
     /**
      * POST / - 获取应用基本信息（POST方式）
@@ -46,9 +42,5 @@ fun Route.baseRoutes() {
      *
      * @return ResultModel 包含欢迎信息和版本号
      */
-    post("/") {
-        call.respond(
-            ResultModel(200, "欢迎使用自动记账", Server.versionName)
-        )
-    }
+    post("/") { call.respond(ResultModel.ok(Server.versionName)) }
 } 

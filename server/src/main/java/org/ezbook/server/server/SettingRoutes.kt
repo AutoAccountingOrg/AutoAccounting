@@ -40,12 +40,12 @@ fun Route.settingRoutes() {
         post("/get") {
             val key = call.request.queryParameters["key"] ?: ""
             if (key.isEmpty()) {
-                call.respond(ResultModel(400, "key is required"))
+                call.respond(ResultModel.error(400, "key is required"))
                 return@post
             }
 
             val data = Db.get().settingDao().query(key)
-            call.respond(ResultModel(200, "OK", data?.value ?: ""))
+            call.respond(ResultModel.ok(data?.value ?: ""))
         }
 
         /**
@@ -58,13 +58,13 @@ fun Route.settingRoutes() {
         post("/set") {
             val key = call.request.queryParameters["key"] ?: ""
             if (key.isEmpty()) {
-                call.respond(ResultModel(400, "key is required"))
+                call.respond(ResultModel.error(400, "key is required"))
                 return@post
             }
 
             val value = call.receiveText()
             setByInner(key, value)
-            call.respond(ResultModel(200, "OK"))
+            call.respond(ResultModel.ok("OK"))
         }
 
         /**
@@ -73,7 +73,7 @@ fun Route.settingRoutes() {
          * @return ResultModel 包含所有设置项的列表
          */
         post("/list") {
-            call.respond(ResultModel(200, "OK", Db.get().settingDao().load()))
+            call.respond(ResultModel.ok(Db.get().settingDao().load()))
         }
     }
 }

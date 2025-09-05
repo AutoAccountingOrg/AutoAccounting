@@ -54,15 +54,14 @@ fun Route.dataRoutes() {
 
             val app = call.request.queryParameters["app"] ?: ""
             val type = call.request.queryParameters["type"]?.takeIf { it.isNotEmpty() }
-            val matchParam = call.request.queryParameters["match"]
-            val match: Boolean? = when (matchParam) {
+            val match: Boolean? = when (val matchParam = call.request.queryParameters["match"]) {
                 null, "" -> null
                 else -> matchParam.toBoolean()
             }
             val search = call.request.queryParameters["search"]?.takeIf { it.isNotEmpty() }
 
             val data = Db.get().dataDao().load(limit, offset, app, match, type, search)
-            call.respond(ResultModel(200, "OK", data))
+            call.respond(ResultModel.ok(data))
         }
 
         /**
@@ -72,7 +71,7 @@ fun Route.dataRoutes() {
          */
         get("/clear") {
             Db.get().dataDao().clear()
-            call.respond(ResultModel(200, "OK"))
+            call.respond(ResultModel.ok("OK"))
         }
 
         /**
@@ -83,7 +82,7 @@ fun Route.dataRoutes() {
          */
         get("/clearOld") {
             Db.get().dataDao().clearOld()
-            call.respond(ResultModel(200, "OK"))
+            call.respond(ResultModel.ok("OK"))
         }
 
         /**
@@ -95,7 +94,7 @@ fun Route.dataRoutes() {
         get("/apps") {
             val apps = Db.get().dataDao().queryApps()
             val appCounts = apps.groupingBy { it }.eachCount()
-            call.respond(ResultModel(200, "OK", appCounts))
+            call.respond(ResultModel.ok(appCounts))
         }
 
         /**
@@ -112,7 +111,7 @@ fun Route.dataRoutes() {
             } else {
                 Db.get().dataDao().update(data)
             }
-            call.respond(ResultModel(200, "OK"))
+            call.respond(ResultModel.ok("OK"))
         }
 
         /**
@@ -126,7 +125,7 @@ fun Route.dataRoutes() {
             val json = Gson().fromJson(requestBody, JsonObject::class.java)
             val id = json?.get("id")?.asLong ?: 0
             Db.get().dataDao().delete(id)
-            call.respond(ResultModel(200, "OK"))
+            call.respond(ResultModel.ok("OK"))
         }
     }
 } 

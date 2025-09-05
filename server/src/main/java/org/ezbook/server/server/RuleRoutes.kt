@@ -57,7 +57,7 @@ fun Route.ruleRoutes() {
 
             val rules =
                 Db.get().ruleDao().loadByAppAndFilters(limit, offset, app, type, search, creator)
-            call.respond(ResultModel(200, "OK", rules))
+            call.respond(ResultModel.ok(rules))
         }
 
         /**
@@ -69,7 +69,7 @@ fun Route.ruleRoutes() {
         post("/add") {
             val data = call.receive(RuleModel::class)
             val id = Db.get().ruleDao().insert(data)
-            call.respond(ResultModel(200, "OK", id))
+            call.respond(ResultModel.ok(id))
         }
 
         /**
@@ -84,7 +84,7 @@ fun Route.ruleRoutes() {
                 com.google.gson.Gson().fromJson(requestBody, com.google.gson.JsonObject::class.java)
             val id = json?.get("id")?.asInt ?: 0
             Db.get().ruleDao().delete(id)
-            call.respond(ResultModel(200, "OK"))
+            call.respond(ResultModel.ok("OK"))
         }
 
         /**
@@ -96,7 +96,7 @@ fun Route.ruleRoutes() {
         post("/update") {
             val data = call.receive(RuleModel::class)
             val id = Db.get().ruleDao().update(data)
-            call.respond(ResultModel(200, "OK", id))
+            call.respond(ResultModel.ok(id))
         }
 
         /**
@@ -108,7 +108,7 @@ fun Route.ruleRoutes() {
         get("/apps") {
             val apps = Db.get().ruleDao().queryApps()
             val appCounts = apps.groupingBy { it }.eachCount()
-            call.respond(ResultModel(200, "OK", appCounts))
+            call.respond(ResultModel.ok(appCounts))
         }
 
         /**
@@ -121,7 +121,7 @@ fun Route.ruleRoutes() {
         get("/system") {
             val name = call.request.queryParameters["name"] ?: ""
             val rules = Db.get().ruleDao().loadSystemRule(name)
-            call.respond(ResultModel(200, "OK", rules))
+            call.respond(ResultModel.ok(rules))
         }
 
         /**
@@ -133,7 +133,7 @@ fun Route.ruleRoutes() {
         post("/deleteSystemRule") {
             val timeoutMs = System.currentTimeMillis() - 5 * 60 * 1000 // 5分钟前
             Db.get().ruleDao().deleteSystemRule(timeoutMs)
-            call.respond(ResultModel(200, "OK"))
+            call.respond(ResultModel.ok("OK"))
         }
 
         /**
@@ -151,7 +151,7 @@ fun Route.ruleRoutes() {
                 Db.get().ruleDao().update(data)
                 data.id
             }
-            call.respond(ResultModel(200, "OK", id))
+            call.respond(ResultModel.ok(id))
         }
     }
 } 
