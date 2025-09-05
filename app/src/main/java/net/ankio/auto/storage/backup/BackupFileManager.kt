@@ -91,7 +91,7 @@ class BackupFileManager(private val context: Context) {
             // 解压文件
             loading?.setText(context.getString(R.string.restore_extracting))
             ZipUtils.unzip(file.absolutePath, backupDir.absolutePath) {
-                Logger.i("Unzip progress: $it")
+                Logger.d("解压进度: $it")
             }
             file.delete()
 
@@ -144,7 +144,6 @@ class BackupFileManager(private val context: Context) {
         val dbFile = File(backupDir, "auto.db")
         val result = requestUtils.download("http://127.0.0.1:52045/db/export", dbFile)
 
-        Logger.i("Download database: $result")
         if (result.isFailure) {
             throw RestoreBackupException(context.getString(R.string.backup_error))
         }
@@ -177,7 +176,7 @@ class BackupFileManager(private val context: Context) {
         indexFile.delete()
 
         val backupInfo = Gson().fromJson(json, JsonObject::class.java)
-        Logger.i("Backup Data: $backupInfo")
+        Logger.d("备份文件信息: $backupInfo")
 
         // 检查版本兼容性
         val version = backupInfo.get("version").asInt
@@ -200,7 +199,7 @@ class BackupFileManager(private val context: Context) {
         val dbFile = File(backupDir, "auto.db")
         val requestUtils = RequestsUtils()
         val result = requestUtils.upload("http://127.0.0.1:52045/db/import", dbFile)
-        Logger.i("Upload result: $result")
+        Logger.d("数据库导入结果: $result")
     }
 
     /**
@@ -215,12 +214,12 @@ class BackupFileManager(private val context: Context) {
             if (settingsFile.exists()) {
                 val backupPrefsFile = File(backupDir, "settings.xml")
                 settingsFile.copyTo(backupPrefsFile, overwrite = true)
-                Logger.i("Preferences backed up successfully")
+                Logger.d("配置文件备份完成")
             } else {
-                Logger.w("Settings file not found, skipping preferences backup")
+                Logger.w("配置文件不存在，跳过备份")
             }
         } catch (e: Exception) {
-            Logger.e("Failed to backup preferences: ${e.message}")
+            Logger.w("配置文件备份失败: ${e.message}")
         }
     }
 
@@ -244,12 +243,12 @@ class BackupFileManager(private val context: Context) {
                 // 清理备份文件
                 backupPrefsFile.delete()
 
-                Logger.i("Preferences restored successfully")
+                Logger.d("配置文件恢复完成")
             } else {
-                Logger.w("No preferences file found in backup, skipping restore")
+                Logger.w("备份中无配置文件，跳过恢复")
             }
         } catch (e: Exception) {
-            Logger.e("Failed to restore preferences: ${e.message}")
+            Logger.w("配置文件恢复失败: ${e.message}")
         }
     }
 }

@@ -79,7 +79,7 @@ class BackupManager(private val context: Context) {
         val backupFile = File(context.cacheDir, filename)
 
         try {
-            Logger.i("开始本地备份：$filename")
+            Logger.i("开始本地备份")
 
             // 打包数据
             fileManager.packData(backupFile.absolutePath)
@@ -90,7 +90,7 @@ class BackupManager(private val context: Context) {
             // 清理临时文件
             backupFile.delete()
 
-            Logger.i("本地备份完成：$filename")
+            Logger.i("本地备份完成")
             ToastUtils.info(R.string.backup_success)
 
         } catch (e: Exception) {
@@ -113,7 +113,7 @@ class BackupManager(private val context: Context) {
         }
 
         try {
-            Logger.i("开始WebDAV备份：$filename")
+            Logger.i("开始WebDAV备份")
             
             // 显示打包进度
             withMain {
@@ -132,7 +132,7 @@ class BackupManager(private val context: Context) {
                 throw RuntimeException("WebDAV上传失败")
             }
 
-            Logger.i("WebDAV备份完成：$filename")
+            Logger.i("WebDAV备份完成")
 
         } catch (e: Exception) {
             Logger.e("WebDAV备份失败", e)
@@ -221,7 +221,7 @@ class BackupManager(private val context: Context) {
          */
         private fun performAutoBackup() {
             if (!PrefManager.autoBackup) {
-                Logger.d("自动备份已关闭，跳过")
+                Logger.d("自动备份已关闭")
                 return
             }
 

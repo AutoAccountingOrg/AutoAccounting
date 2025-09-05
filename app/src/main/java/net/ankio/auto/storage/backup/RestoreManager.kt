@@ -53,11 +53,11 @@ class RestoreManager(private val context: Context) {
                 fileManager.unpackData(file)
             }
 
-            Logger.i("本地恢复操作成功")
+            Logger.i("本地恢复完成")
             // BackupFileManager 已经处理了重启逻辑
             ToastUtils.info(R.string.restore_success)
         } catch (throwable: Throwable) {
-            Logger.e("本地恢复操作失败", throwable)
+            Logger.e("本地恢复失败", throwable)
             ToastUtils.error(R.string.backup_error)
             throw throwable
         }
@@ -98,14 +98,14 @@ class RestoreManager(private val context: Context) {
                 throw RuntimeException("下载备份文件失败")
             }
 
-            Logger.i("WebDAV恢复操作成功")
+            Logger.i("WebDAV恢复完成")
             withMain {
                 loadingUtils?.close()
                 // BackupFileManager 已经处理了重启逻辑
                 ToastUtils.info(R.string.restore_success)
             }
         } catch (throwable: Throwable) {
-            Logger.e("WebDAV恢复操作失败", throwable)
+            Logger.e("WebDAV恢复失败", throwable)
             withMain {
                 loadingUtils?.close()
                 ToastUtils.error(R.string.backup_error)

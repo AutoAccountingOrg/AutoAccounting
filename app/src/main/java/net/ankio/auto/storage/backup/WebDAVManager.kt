@@ -53,14 +53,15 @@ class WebDAVManager {
     suspend fun upload(file: File, filename: String): Boolean = withContext(Dispatchers.IO) {
 
         return@withContext runCatchingExceptCancel {
-            requestUtils.mkcol(backupUrl).getOrThrow()
+            Logger.d("备份路径: $backupUrl")
+            requestUtils.mkcol(backupUrl).getOrNull()
             requestUtils.put("$backupUrl/$filename", file).getOrThrow()
-            Logger.i("上传成功: $filename")
+            Logger.d("上传成功: $filename")
             // 上传成功后自动清理旧备份，保持最多10个文件
             cleanupOldBackups()
             true
         }.getOrElse {
-            Logger.e("upload error: ${it.message}", it)
+            Logger.e("上传失败: ${it.message}", it)
             false
         }
     }
@@ -73,10 +74,10 @@ class WebDAVManager {
 
             return@withContext runCatchingExceptCancel {
                 requestUtils.download("$backupUrl/$filename", targetFile).getOrThrow()
-                Logger.i("下载成功: $filename")
+                Logger.d("下载成功: $filename")
                 true
             }.getOrElse {
-                Logger.e("download error: ${it.message}", it)
+                Logger.e("下载失败: ${it.message}", it)
             false
         }
     }
@@ -92,7 +93,7 @@ class WebDAVManager {
             files.filter { it.endsWith("." + BackupFileManager.SUFFIX) }
                 .maxByOrNull { it }
         }.getOrElse {
-            Logger.e("listLatest error: ${it.message}", it)
+            Logger.w("获取最新备份失败: ${it.message}")
             null
         }
     }
@@ -109,13 +110,13 @@ class WebDAVManager {
                 .sortedDescending()
             if (backupFiles.size > 10) {
                 val filesToDelete = backupFiles.drop(10)
-                Logger.i("清理WebDAV备份：删除${filesToDelete.size}个旧文件，保留${backupFiles.size - filesToDelete.size}个")
+                Logger.d("清理WebDAV备份: 删除${filesToDelete.size}个旧文件")
                 var deletedCount = 0
                 filesToDelete.forEach { filename -> if (deleteFile(filename)) deletedCount++ }
-                Logger.i("清理完成：成功删除${deletedCount}个文件")
+                Logger.d("清理完成: 成功删除${deletedCount}个文件")
             }
         }.getOrElse {
-            Logger.e("cleanupOldBackups error: ${it.message}", it)
+            Logger.w("清理旧备份失败: ${it.message}")
         }
     }
 
@@ -129,7 +130,7 @@ class WebDAVManager {
             requestUtils.delete("$backupUrl/$filename").getOrThrow()
             true
         }.getOrElse {
-            Logger.e("deleteFile error: $filename - ${it.message}", it)
+            Logger.w("删除文件失败: $filename - ${it.message}")
             false
         }
     }
