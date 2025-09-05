@@ -39,8 +39,13 @@ import net.ankio.auto.ui.utils.ToastUtils
 import org.eclipse.tm4e.core.registry.IThemeSource
 import rikka.core.util.ResourceUtils
 import android.view.WindowManager
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import com.google.android.material.chip.Chip
 import io.github.rosemoe.sora.widget.subscribeEvent
+import net.ankio.auto.storage.Logger
+import net.ankio.auto.ui.utils.DisplayUtils
 
 /**
  * JS 规则编辑页面 - 简洁版本
@@ -85,6 +90,23 @@ class RuleEditJsFragment : BaseFragment<FragmentRuleJsEditBinding>() {
         initData()
         setupCodeEditor()
         setupToolbar()
+        ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
+            val imeVisible = insets.isVisible(WindowInsetsCompat.Type.ime())
+            val imeHeight = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
+
+            // 键盘弹出时调整底部边距
+            view.updatePadding(
+                bottom = if (imeVisible) imeHeight - DisplayUtils.getNavigationBarHeight(
+                    requireContext()
+                ) else 0
+            )
+
+            // 通知子类键盘状态变化
+            if (imeVisible) {
+                Logger.d("输入法可见，高度: $imeHeight")
+            }
+            insets
+        }
     }
 
     /** 初始化数据 - 简单直接 */
