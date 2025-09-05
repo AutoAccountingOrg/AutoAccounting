@@ -31,7 +31,6 @@ import net.ankio.auto.ui.dialog.BillEditorDialog
 import net.ankio.auto.ui.dialog.BillMoreDialog
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
 import net.ankio.auto.ui.models.OrderGroup
-import net.ankio.auto.ui.utils.AssetsUtils
 import net.ankio.auto.utils.BillTool
 import net.ankio.auto.utils.DateUtils
 import org.ezbook.server.constant.BillState
@@ -41,6 +40,7 @@ open class BillFragment : BasePageFragment<OrderGroup, FragmentBillBinding>() {
     private var syncType = mutableListOf<String>()
     override suspend fun loadData(): List<OrderGroup> {
         val list = BillAPI.list(page, pageSize, syncType)
+        Logger.i("加载账单: ${list.size}条")
 
         val groupedData = list.groupBy {
             DateUtils.stampToDate(it.time, "yyyy-MM-dd")
@@ -61,6 +61,7 @@ open class BillFragment : BasePageFragment<OrderGroup, FragmentBillBinding>() {
             BaseSheetDialog.create<BillEditorDialog>(requireContext())
                 .setBillInfo(item)
                 .setOnConfirm { updatedBill ->
+                    Logger.i("编辑账单: ${updatedBill.id}")
                     updatedBill.state = BillState.Edited
                     itemAdapter.updateItem(position, updatedBill)
                     // 保存到
@@ -80,6 +81,7 @@ open class BillFragment : BasePageFragment<OrderGroup, FragmentBillBinding>() {
                 .setTitleInt(R.string.delete_title)
                 .setMessage(R.string.delete_bill_message)
                 .setPositiveButton(R.string.sure_msg) { _, _ ->
+                    Logger.i("删除账单: ${item.id}")
                     itemAdapter.removeItem(item)
                     launch {
                         BillAPI.remove(item.id)
@@ -146,6 +148,7 @@ open class BillFragment : BasePageFragment<OrderGroup, FragmentBillBinding>() {
         binding.topAppBar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.item_sync -> {
+                    Logger.i("账单同步")
                     launch {
                         BillTool.syncBills()
                     }
@@ -168,6 +171,7 @@ open class BillFragment : BasePageFragment<OrderGroup, FragmentBillBinding>() {
             .setTitle(getString(R.string.delete_data))
             .setMessage(getString(R.string.delete_msg))
             .setPositiveButton(getString(R.string.sure_msg)) { _, _ ->
+                Logger.i("清空账单数据")
                 launch {
                     BillAPI.clear()
                     reload()
