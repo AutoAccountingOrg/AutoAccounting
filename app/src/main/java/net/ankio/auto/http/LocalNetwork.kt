@@ -15,79 +15,61 @@
 
 package net.ankio.auto.http
 
+import com.google.gson.Gson
 import com.google.gson.JsonObject
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.storage.Logger
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
+import org.ezbook.server.models.ResultModel
+import org.ezbook.server.tools.runCatchingExceptCancel
 import java.net.Proxy
 import java.util.concurrent.TimeUnit
 
 object LocalNetwork {
     // 1. 复用同一个 OkHttpClient，按需配置超时 & 禁用代理
-    private val client by lazy {
+    val client by lazy {
         RequestsUtils()
     }
 
+    val baseUrl = "http://127.0.0.1:52045"
+
 
     /**
-     * 发起网络请求：
-     * - 可通过 method 强制指定；
-     * - headers 用于附加额外请求头。
+     * 发起 POST 请求，返回 Result<String>
+     * - payload 为 JsonObject 时使用 JSON 请求，否则按字符串发送
      */
-    /**
-     * 发起网络请求
-     *
-     * @param path        请求路径（自动拼接到 http://127.0.0.1:52045/）
-     * @param payload     可选请求体，非空则默认使用 POST（也可通过 method 强制覆盖）
-     */
-    suspend fun post(
+    suspend inline fun <reified T> post(
         path: String,
         payload: Any? = null,
-    ): String = withContext(Dispatchers.IO) {
-        val url = "http://127.0.0.1:52045/${path.trimStart('/')}"
+    ): Result<ResultModel<T>> = withContext(Dispatchers.IO) {
+        val url = "${baseUrl}/${path.trimStart('/')}"
         client.addHeader("Authorize", "")
-        try {
-            when (payload) {
-                is JsonObject -> {
-                    return@withContext client.json(url, payload).second
-                }
-
-                else -> {
-                    return@withContext client.jsonStr(url, payload.toString()).second
-
-                }
-
-            }
-        } catch (e: Exception) {
-            Logger.e("请求失败：$e", e)
-            return@withContext ""
+        val data = when (payload) {
+            is JsonObject -> client.json(url, payload)
+            else -> client.jsonStr(url, payload.toString())
+        }
+        data.map { json ->
+            val type = object : TypeToken<ResultModel<T>>() {}.type
+            Gson().fromJson(json, type)
         }
     }
+
     /**
-     * 发起网络请求：
-     * - 当 json != null 且非空时，默认 POST；
-     * - 否则 GET；
-     * - 可通过 method 强制指定；
-     * - headers 用于附加额外请求头。
+     * 发起 GET 请求，返回 Result<String>
      */
-    /**
-     * 发起网络请求
-     *
-     * @param path        请求路径（自动拼接到 http://127.0.0.1:52045/）
-     */
-    suspend fun get(
+    suspend inline fun <reified T> get(
         path: String,
-    ): String = withContext(Dispatchers.IO) {
-        val url = "http://127.0.0.1:52045/${path.trimStart('/')}"
+    ): Result<ResultModel<T>> = withContext(Dispatchers.IO) {
+        val url = "${baseUrl}/${path.trimStart('/')}"
         client.addHeader("Authorize", "")
-        try {
-            return@withContext client.get(url).second
-        } catch (e: Exception) {
-            Logger.e("请求失败：$e", e)
-            return@withContext ""
+        val data = client.get(url)
+        data.map { json ->
+            val type = object : TypeToken<ResultModel<T>>() {}.type
+            Gson().fromJson<ResultModel<T>>(json, type)
         }
     }
 
@@ -97,15 +79,14 @@ object LocalNetwork {
      * @param path        请求路径（自动拼接到 http://127.0.0.1:52045/）
      * @param payload     可选请求体，为空则使用GET请求，否则使用POST请求
      */
-    suspend fun request(
+    /**
+     * 通用请求：payload 为空则 GET，否则 POST。
+     */
+    suspend inline fun <reified T> request(
         path: String,
         payload: String? = null,
-    ): String = withContext(Dispatchers.IO) {
-        if (payload.isNullOrEmpty()) {
-            get(path)
-        } else {
-            post(path, payload)
-        }
+    ): Result<ResultModel<T>> = withContext(Dispatchers.IO) {
+        if (payload.isNullOrEmpty()) get<T>(path) else post<T>(path, payload)
     }
 
     /**
@@ -119,7 +100,7 @@ object LocalNetwork {
         payload: String,
         onEvent: (String, String) -> Unit
     ) = withContext(Dispatchers.IO) {
-        val url = "http://127.0.0.1:52045/${path.trimStart('/')}"
+        val url = "${baseUrl}/${path.trimStart('/')}"
 
         // 创建专用的OkHttpClient用于流式请求
         val streamClient = OkHttpClient.Builder()
@@ -136,7 +117,7 @@ object LocalNetwork {
             .post(payload.toRequestBody("application/json".toMediaType()))
             .build()
 
-        try {
+        runCatchingExceptCancel {
             streamClient.newCall(request).execute().use { response ->
                 if (!response.isSuccessful) {
                     Logger.e("流式请求失败: ${response.code}")
@@ -153,7 +134,7 @@ object LocalNetwork {
                     return@withContext
                 }
 
-                try {
+                runCatchingExceptCancel {
                     var lineCount = 0
                     while (!source.exhausted()) {
                         val line = source.readUtf8Line() ?: break
@@ -197,14 +178,14 @@ object LocalNetwork {
                         }
                     }
                     Logger.d("流式响应处理完成，共读取${lineCount}行")
-                } catch (e: Exception) {
-                    Logger.e("读取流式响应失败: ${e.message}", e)
-                    onEvent("error", e.message ?: "Unknown error")
+                }.onFailure {
+                    Logger.e("读取流式响应失败: ${it.message}", it)
+                    onEvent("error", it.message ?: "Unknown error")
                 }
             }
-        } catch (e: Exception) {
-            Logger.e("创建流式请求失败: ${e.message}", e)
-            onEvent("error", e.message ?: "Unknown error")
+        }.onFailure {
+            Logger.e("创建流式请求失败: ${it.message}", it)
+            onEvent("error", it.message ?: "Unknown error")
         }
     }
 }

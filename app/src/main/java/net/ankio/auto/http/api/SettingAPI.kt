@@ -16,33 +16,48 @@
 package net.ankio.auto.http.api
 
 import com.google.gson.Gson
-import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.http.LocalNetwork
+import net.ankio.auto.storage.Logger
+import org.ezbook.server.tools.runCatchingExceptCancel
 
 object SettingAPI {
     /**
      * 获取设置
      */
     suspend fun get(key: String, default: String): String = withContext(Dispatchers.IO) {
-        val response = LocalNetwork.post("setting/get?key=$key")
 
-        runCatching {
-            val json = Gson().fromJson(response, JsonObject::class.java)
-            json.get("data").asString
-        }.getOrNull() ?: default
+        return@withContext runCatchingExceptCancel {
+            val resp = LocalNetwork.post<String>("setting/get?key=$key", "{}").getOrThrow()
+            resp.data ?: default
+        }.getOrElse {
+            Logger.e("get error: ${it.message}", it)
+            default
+        }
     }
 
     /**
      * 设置
      */
     suspend fun set(key: String, value: String) = withContext(Dispatchers.IO) {
-        LocalNetwork.post("setting/set?key=$key", value)
+
+        runCatchingExceptCancel {
+            LocalNetwork.post<String>("setting/set?key=$key", value).getOrThrow()
+        }.getOrElse {
+            Logger.e("set error: ${it.message}", it)
+
+        }
     }
 
     suspend fun clearDatabase() = withContext(Dispatchers.IO) {
-        LocalNetwork.post("db/clear")
+
+        runCatchingExceptCancel {
+            LocalNetwork.post<String>("db/clear").getOrThrow()
+        }.getOrElse {
+            Logger.e("clearDatabase error: ${it.message}", it)
+
+        }
     }
 
     /**
@@ -50,14 +65,16 @@ object SettingAPI {
      */
     suspend fun list(): List<org.ezbook.server.db.model.SettingModel> =
         withContext(Dispatchers.IO) {
-            val response = LocalNetwork.post("setting/list")
 
-            runCatching {
-                val json = Gson().fromJson(response, JsonObject::class.java)
-                Gson().fromJson(
-                    json.getAsJsonArray("data"),
-                    Array<org.ezbook.server.db.model.SettingModel>::class.java
-                ).toList()
-            }.getOrNull() ?: emptyList()
-    }
+            return@withContext runCatchingExceptCancel {
+                val resp = LocalNetwork.post<List<org.ezbook.server.db.model.SettingModel>>(
+                    "setting/list",
+                    "{}"
+                ).getOrThrow()
+                resp.data ?: emptyList()
+            }.getOrElse {
+                Logger.e("list error: ${it.message}", it)
+                emptyList()
+            }
+        }
 }

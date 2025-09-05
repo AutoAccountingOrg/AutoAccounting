@@ -17,11 +17,11 @@ package net.ankio.auto.http.api
 
 import android.net.Uri
 import com.google.gson.Gson
-import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.http.LocalNetwork
 import net.ankio.auto.storage.Logger
+import org.ezbook.server.tools.runCatchingExceptCancel
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.CategoryModel
 
@@ -44,15 +44,16 @@ object CategoryAPI {
         type: BillType,
         parent: String,
     ): List<CategoryModel> = withContext(Dispatchers.IO) {
-        val response = LocalNetwork.get("category/list?book=$bookID&type=$type&parent=$parent")
 
-        runCatching {
-            val json = Gson().fromJson(response, JsonObject::class.java)
-            Gson().fromJson(
-                json.getAsJsonArray("data"),
-                Array<CategoryModel>::class.java
-            ).toList()
-        }.getOrNull() ?: emptyList()
+        return@withContext runCatchingExceptCancel {
+            val resp =
+                LocalNetwork.get<List<CategoryModel>>("category/list?book=$bookID&type=$type&parent=$parent")
+                    .getOrThrow()
+            resp.data ?: emptyList()
+        }.getOrElse {
+            Logger.e("list error: ${it.message}", it)
+            emptyList()
+        }
     }
 
     /**
@@ -68,16 +69,16 @@ object CategoryAPI {
         bookID: String = "",
         type: String = ""
     ): CategoryModel? = withContext(Dispatchers.IO) {
-        val response =
-            LocalNetwork.get("category/get?name=${Uri.encode(name)}&book=$bookID&type=$type")
 
-        runCatching {
-            val json = Gson().fromJson(response, JsonObject::class.java)
-            Gson().fromJson(
-                json.getAsJsonObject("data"),
-                CategoryModel::class.java
-            )
-        }.getOrNull()
+        return@withContext runCatchingExceptCancel {
+            val resp =
+                LocalNetwork.get<CategoryModel>("category/get?name=${Uri.encode(name)}&book=$bookID&type=$type")
+                    .getOrThrow()
+            resp.data
+        }.getOrElse {
+            Logger.e("getByName error: ${it.message}", it)
+            null
+        }
     }
 
     /**
@@ -88,7 +89,12 @@ object CategoryAPI {
      * @return 返回服务器响应结果
      */
     suspend fun put(data: List<CategoryModel>, md5: String) = withContext(Dispatchers.IO) {
-        LocalNetwork.post("category/put?md5=$md5", Gson().toJson(data))
+
+        runCatchingExceptCancel {
+            LocalNetwork.post<String>("category/put?md5=$md5", Gson().toJson(data)).getOrThrow()
+        }.getOrElse {
+            Logger.e("put error: ${it.message}", it)
+        }
     }
 
     /**
@@ -98,12 +104,15 @@ object CategoryAPI {
      * @return 返回分类ID
      */
     suspend fun save(category: CategoryModel): Long = withContext(Dispatchers.IO) {
-        val response = LocalNetwork.post("category/save", Gson().toJson(category))
 
-        runCatching {
-            val json = Gson().fromJson(response, JsonObject::class.java)
-            json.get("data")?.asLong ?: 0L
-        }.getOrElse { 0L }
+        return@withContext runCatchingExceptCancel {
+            val resp =
+                LocalNetwork.post<Long>("category/save", Gson().toJson(category)).getOrThrow()
+            resp.data ?: 0L
+        }.getOrElse {
+            Logger.e("save error: ${it.message}", it)
+            0L
+        }
     }
 
     /**
@@ -113,13 +122,16 @@ object CategoryAPI {
      * @return 返回删除的分类ID
      */
     suspend fun delete(categoryId: Long): Long = withContext(Dispatchers.IO) {
-        val response =
-            LocalNetwork.post("category/delete", Gson().toJson(mapOf("id" to categoryId)))
 
-        runCatching {
-            val json = Gson().fromJson(response, JsonObject::class.java)
-            json.get("data")?.asLong ?: 0L
-        }.getOrElse { 0L }
+        return@withContext runCatchingExceptCancel {
+            val resp =
+                LocalNetwork.post<Long>("category/delete", Gson().toJson(mapOf("id" to categoryId)))
+                    .getOrThrow()
+            resp.data ?: 0L
+        }.getOrElse {
+            Logger.e("delete error: ${it.message}", it)
+            0L
+        }
     }
 
     /**
@@ -129,14 +141,14 @@ object CategoryAPI {
      * @return 返回分类模型，如果未找到则返回null
      */
     suspend fun getById(categoryId: Long): CategoryModel? = withContext(Dispatchers.IO) {
-        val response = LocalNetwork.get("category/getById?id=$categoryId")
 
-        runCatching {
-            val json = Gson().fromJson(response, JsonObject::class.java)
-            Gson().fromJson(
-                json.getAsJsonObject("data"),
-                CategoryModel::class.java
-            )
-        }.getOrNull()
+        return@withContext runCatchingExceptCancel {
+            val resp =
+                LocalNetwork.get<CategoryModel>("category/getById?id=$categoryId").getOrThrow()
+            resp.data
+        }.getOrElse {
+            Logger.e("getById error: ${it.message}", it)
+            null
+        }
     }
 }

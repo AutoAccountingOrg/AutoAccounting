@@ -17,10 +17,11 @@ package net.ankio.auto.http.api
 
 import android.net.Uri
 import com.google.gson.Gson
-import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.http.LocalNetwork
+import net.ankio.auto.storage.Logger
+import org.ezbook.server.tools.runCatchingExceptCancel
 import org.ezbook.server.db.model.CategoryMapModel
 
 /**
@@ -36,25 +37,21 @@ object CategoryMapAPI {
      * @return 返回分类映射模型列表，如果请求失败则返回空列表
      */
     suspend fun list(page: Int, pageSize: Int, search: String = ""): List<CategoryMapModel> =
-        withContext(
-            Dispatchers.IO
-        ) {
-            val response = LocalNetwork.get(
-                "category/map/list?page=$page&limit=$pageSize&search=${
-                    Uri.encode(
-                        search
-                    )
-                }"
-            )
+        withContext(Dispatchers.IO) {
 
-
-            runCatching {
-                val json = Gson().fromJson(response, JsonObject::class.java)
-                Gson().fromJson(
-                    json.getAsJsonArray("data"),
-                    Array<CategoryMapModel>::class.java
-                ).toList()
-            }.getOrNull() ?: emptyList()
+            return@withContext runCatchingExceptCancel {
+                val resp = LocalNetwork.get<List<CategoryMapModel>>(
+                    "category/map/list?page=$page&limit=$pageSize&search=${
+                        Uri.encode(
+                            search
+                        )
+                    }"
+                ).getOrThrow()
+                resp.data ?: emptyList()
+            }.getOrElse {
+                Logger.e("list error: ${it.message}", it)
+                emptyList()
+            }
         }
 
     /**
@@ -63,7 +60,13 @@ object CategoryMapAPI {
      * @return 返回服务器响应结果
      */
     suspend fun put(model: CategoryMapModel) = withContext(Dispatchers.IO) {
-        LocalNetwork.post("category/map/put", Gson().toJson(model))
+
+        runCatchingExceptCancel {
+            LocalNetwork.post<String>("category/map/put", Gson().toJson(model)).getOrThrow()
+        }.getOrElse {
+            Logger.e("put error: ${it.message}", it)
+
+        }
     }
 
     /**
@@ -72,6 +75,13 @@ object CategoryMapAPI {
      * @return 返回服务器响应结果
      */
     suspend fun remove(id: Long) = withContext(Dispatchers.IO) {
-        LocalNetwork.post("category/map/delete", Gson().toJson(mapOf("id" to id)))
+
+        runCatchingExceptCancel {
+            LocalNetwork.post<String>("category/map/delete", Gson().toJson(mapOf("id" to id)))
+                .getOrThrow()
+        }.getOrElse {
+            Logger.e("remove error: ${it.message}", it)
+
+        }
     }
 }

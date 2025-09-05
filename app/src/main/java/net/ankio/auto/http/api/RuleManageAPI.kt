@@ -21,6 +21,8 @@ import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.http.LocalNetwork
+import net.ankio.auto.storage.Logger
+import org.ezbook.server.tools.runCatchingExceptCancel
 import org.ezbook.server.db.model.RuleModel
 
 object RuleManageAPI {
@@ -40,72 +42,106 @@ object RuleManageAPI {
         limit: Int,
         search: String = ""
     ): List<RuleModel> = withContext(Dispatchers.IO) {
-        val response = LocalNetwork.get(
-            "rule/list?page=$page&limit=$limit&app=$app&creator=${creator}&type=$type&search=${
-                Uri.encode(search)
-            }"
-        )
 
-        runCatching {
-            val json = Gson().fromJson(response, JsonObject::class.java)
-            Gson().fromJson(json.getAsJsonArray("data"), Array<RuleModel>::class.java).toList()
-        }.getOrNull() ?: emptyList()
+        return@withContext runCatchingExceptCancel {
+            val resp = LocalNetwork.get<List<RuleModel>>(
+                "rule/list?page=$page&limit=$limit&app=$app&creator=${creator}&type=$type&search=${
+                    Uri.encode(search)
+                }"
+            ).getOrThrow()
+            resp.data ?: emptyList()
+        }.getOrElse {
+            Logger.e("list error: ${it.message}", it)
+            emptyList()
+        }
     }
 
     /**
      * 获取所有系统规则
      */
     suspend fun system(name: String): RuleModel? = withContext(Dispatchers.IO) {
-        val response = LocalNetwork.get("rule/system?name=${Uri.encode(name)}")
 
-        runCatching {
-            val json = Gson().fromJson(response, JsonObject::class.java)
-            Gson().fromJson(json.getAsJsonObject("data"), RuleModel::class.java)
-        }.getOrNull()
+        return@withContext runCatchingExceptCancel {
+            val resp =
+                LocalNetwork.get<RuleModel>("rule/system?name=${Uri.encode(name)}").getOrThrow()
+            resp.data
+        }.getOrElse {
+            Logger.e("system error: ${it.message}", it)
+            null
+        }
     }
 
     suspend fun deleteSystemRule() = withContext(Dispatchers.IO) {
-        LocalNetwork.post("rule/deleteSystemRule")
+
+        runCatchingExceptCancel {
+            LocalNetwork.post<String>("rule/deleteSystemRule").getOrThrow()
+        }.getOrElse {
+            Logger.e("deleteSystemRule error: ${it.message}", it)
+
+        }
     }
 
     suspend fun put(rule: RuleModel) = withContext(Dispatchers.IO) {
-        LocalNetwork.post("rule/put", Gson().toJson(rule))
+
+        runCatchingExceptCancel {
+            LocalNetwork.post<String>("rule/put", Gson().toJson(rule)).getOrThrow()
+        }.getOrElse {
+            Logger.e("put error: ${it.message}", it)
+
+        }
     }
 
     /**
      * 添加规则
      */
     suspend fun add(rule: RuleModel): Int = withContext(Dispatchers.IO) {
-        val response = LocalNetwork.post("rule/add", Gson().toJson(rule))
-        runCatching {
-            val json = Gson().fromJson(response, JsonObject::class.java)
-            json.get("data").asInt
-        }.getOrDefault(0)
+
+        return@withContext runCatchingExceptCancel {
+            val resp = LocalNetwork.post<Int>("rule/add", Gson().toJson(rule)).getOrThrow()
+            resp.data ?: 0
+        }.getOrElse {
+            Logger.e("add error: ${it.message}", it)
+            0
+        }
     }
 
     /**
      * 更新规则
      */
     suspend fun update(rule: RuleModel) = withContext(Dispatchers.IO) {
-        LocalNetwork.post("rule/update", Gson().toJson(rule))
+
+        runCatchingExceptCancel {
+            LocalNetwork.post<String>("rule/update", Gson().toJson(rule)).getOrThrow()
+        }.getOrElse {
+            Logger.e("update error: ${it.message}", it)
+
+        }
     }
 
     /**
      * 删除规则
      */
     suspend fun delete(id: Int) = withContext(Dispatchers.IO) {
-        LocalNetwork.post("rule/delete", Gson().toJson(mapOf("id" to id)))
+
+        runCatchingExceptCancel {
+            LocalNetwork.post<String>("rule/delete", Gson().toJson(mapOf("id" to id))).getOrThrow()
+        }.getOrElse {
+            Logger.e("delete error: ${it.message}", it)
+
+        }
     }
 
     /**
      * 获取app列表
      */
     suspend fun apps(): JsonObject = withContext(Dispatchers.IO) {
-        val response = LocalNetwork.get("rule/apps")
 
-        runCatching {
-            val json = Gson().fromJson(response, JsonObject::class.java)
-            json.getAsJsonObject("data")
-        }.getOrNull() ?: JsonObject()
+        return@withContext runCatchingExceptCancel {
+            val resp = LocalNetwork.get<JsonObject>("rule/apps").getOrThrow()
+            resp.data ?: JsonObject()
+        }.getOrElse {
+            Logger.e("apps error: ${it.message}", it)
+            JsonObject()
+        }
     }
 }

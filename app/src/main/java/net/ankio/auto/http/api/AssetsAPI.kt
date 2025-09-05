@@ -17,11 +17,12 @@ package net.ankio.auto.http.api
 
 import android.net.Uri
 import com.google.gson.Gson
-import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.http.LocalNetwork
+import net.ankio.auto.storage.Logger
 import org.ezbook.server.db.model.AssetsModel
+import org.ezbook.server.tools.runCatchingExceptCancel
 
 /**
  * 资产相关的API接口
@@ -32,19 +33,15 @@ object AssetsAPI {
      * 获取所有资产列表
      * @return 返回资产模型列表，如果请求失败则返回空列表
      */
-    suspend fun list(): List<AssetsModel> = withContext(
-        Dispatchers.IO
-    ) {
-        val response = LocalNetwork.get("assets/list")
+    suspend fun list(): List<AssetsModel> = withContext(Dispatchers.IO) {
 
-
-        runCatching {
-            val json = Gson().fromJson(response, JsonObject::class.java)
-            Gson().fromJson(
-                json.getAsJsonArray("data"),
-                Array<AssetsModel>::class.java
-            ).toList()
-        }.getOrNull() ?: emptyList()
+        return@withContext runCatchingExceptCancel {
+            val resp = LocalNetwork.get<List<AssetsModel>>("assets/list").getOrThrow()
+            resp.data ?: emptyList()
+        }.getOrElse {
+            Logger.e("list error: ${it.message}", it)
+            emptyList()
+        }
     }
 
     /**
@@ -52,9 +49,15 @@ object AssetsAPI {
      * @param data 要添加或更新的资产数据列表
      * @param md5 数据的MD5校验值，用于验证数据完整性
      */
-    suspend fun put(data: ArrayList<AssetsModel>, md5: String) {
-        val json = Gson().toJson(data)
-        LocalNetwork.post("assets/put?md5=$md5", json)
+    suspend fun put(data: ArrayList<AssetsModel>, md5: String) = withContext(Dispatchers.IO) {
+
+        runCatchingExceptCancel {
+            val json = Gson().toJson(data)
+            LocalNetwork.post<String>("assets/put?md5=$md5", json).getOrThrow()
+        }.getOrElse {
+            Logger.e("put error: ${it.message}", it)
+
+        }
     }
 
     /**
@@ -62,16 +65,16 @@ object AssetsAPI {
      * @param name 资产名称
      * @return 返回对应的资产模型，如果未找到则返回null
      */
-    suspend fun getByName(name: String): AssetsModel? {
-        val response = LocalNetwork.get("assets/get?name=${Uri.encode(name)}")
+    suspend fun getByName(name: String): AssetsModel? = withContext(Dispatchers.IO) {
 
-        return runCatching {
-            val json = Gson().fromJson(response, JsonObject::class.java)
-            Gson().fromJson(
-                json.getAsJsonObject("data"),
-                AssetsModel::class.java
-            )
-        }.getOrNull()
+        return@withContext runCatchingExceptCancel {
+            val resp =
+                LocalNetwork.get<AssetsModel>("assets/get?name=${Uri.encode(name)}").getOrThrow()
+            resp.data
+        }.getOrElse {
+            Logger.e("getByName error: ${it.message}", it)
+            null
+        }
     }
 
     /**
@@ -80,12 +83,14 @@ object AssetsAPI {
      * @return 返回资产ID
      */
     suspend fun save(asset: AssetsModel): Long = withContext(Dispatchers.IO) {
-        val response = LocalNetwork.post("assets/save", Gson().toJson(asset))
 
-        runCatching {
-            val json = Gson().fromJson(response, JsonObject::class.java)
-            json.get("data")?.asLong ?: 0L
-        }.getOrElse { 0L }
+        return@withContext runCatchingExceptCancel {
+            val resp = LocalNetwork.post<Long>("assets/save", Gson().toJson(asset)).getOrThrow()
+            resp.data ?: 0L
+        }.getOrElse {
+            Logger.e("save error: ${it.message}", it)
+            0L
+        }
     }
 
     /**
@@ -94,12 +99,16 @@ object AssetsAPI {
      * @return 返回删除的资产ID
      */
     suspend fun delete(assetId: Long): Long = withContext(Dispatchers.IO) {
-        val response = LocalNetwork.post("assets/delete", Gson().toJson(mapOf("id" to assetId)))
 
-        runCatching {
-            val json = Gson().fromJson(response, JsonObject::class.java)
-            json.get("data")?.asLong ?: 0L
-        }.getOrElse { 0L }
+        return@withContext runCatchingExceptCancel {
+            val resp =
+                LocalNetwork.post<Long>("assets/delete", Gson().toJson(mapOf("id" to assetId)))
+                    .getOrThrow()
+            resp.data ?: 0L
+        }.getOrElse {
+            Logger.e("delete error: ${it.message}", it)
+            0L
+        }
     }
 
     /**
@@ -108,15 +117,14 @@ object AssetsAPI {
      * @return 返回资产模型，如果未找到则返回null
      */
     suspend fun getById(assetId: Long): AssetsModel? = withContext(Dispatchers.IO) {
-        val response = LocalNetwork.get("assets/getById?id=$assetId")
 
-        runCatching {
-            val json = Gson().fromJson(response, JsonObject::class.java)
-            Gson().fromJson(
-                json.getAsJsonObject("data"),
-                AssetsModel::class.java
-            )
-        }.getOrNull()
+        return@withContext runCatchingExceptCancel {
+            val resp = LocalNetwork.get<AssetsModel>("assets/getById?id=$assetId").getOrThrow()
+            resp.data
+        }.getOrElse {
+            Logger.e("getById error: ${it.message}", it)
+            null
+        }
     }
 
 }

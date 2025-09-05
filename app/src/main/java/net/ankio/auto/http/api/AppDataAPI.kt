@@ -21,6 +21,8 @@ import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.http.LocalNetwork
+import net.ankio.auto.storage.Logger
+import org.ezbook.server.tools.runCatchingExceptCancel
 import org.ezbook.server.db.model.AppDataModel
 
 /**
@@ -51,22 +53,20 @@ object AppDataAPI {
     ): List<AppDataModel> = withContext(Dispatchers.IO) {
         // 构建查询URL，对搜索关键词进行URL编码以防止特殊字符问题
         val matchParam = match?.toString()?.let { "&match=$it" } ?: ""
-        val response = LocalNetwork.get(
-            "data/list?page=$page&limit=$limit&app=$app&type=$type$matchParam&search=${
-                Uri.encode(
-                    search
-                )
-            }"
-        )
 
-        // 安全地解析JSON响应，如果解析失败则返回空列表
-        runCatching {
-            val json = Gson().fromJson(response, JsonObject::class.java)
-            Gson().fromJson(
-                json.getAsJsonArray("data"),
-                Array<AppDataModel>::class.java
-            ).toList()
-        }.getOrNull() ?: emptyList()
+        return@withContext runCatchingExceptCancel {
+            val resp = LocalNetwork.get<List<AppDataModel>>(
+                "data/list?page=$page&limit=$limit&app=$app&type=$type$matchParam&search=${
+                    Uri.encode(
+                        search
+                    )
+                }"
+            ).getOrThrow()
+            resp.data ?: emptyList()
+        }.getOrElse {
+            Logger.e("list error: ${it.message}", it)
+            emptyList()
+        }
     }
 
     /**
@@ -76,7 +76,12 @@ object AppDataAPI {
      * @return 返回服务器响应结果
      */
     suspend fun clear() = withContext(Dispatchers.IO) {
-        LocalNetwork.post("data/clear")
+
+        runCatchingExceptCancel {
+            LocalNetwork.post<String>("data/clear").getOrThrow()
+        }.getOrElse {
+            Logger.e("clear error: ${it.message}", it)
+        }
     }
 
     /**
@@ -87,8 +92,13 @@ object AppDataAPI {
      * @return 返回服务器响应结果
      */
     suspend fun put(data: AppDataModel) = withContext(Dispatchers.IO) {
-        // 将数据模型转换为JSON格式发送到服务器
-        LocalNetwork.post("data/put", Gson().toJson(data))
+
+        runCatchingExceptCancel {
+            // 将数据模型转换为JSON格式发送到服务器
+            LocalNetwork.post<String>("data/put", Gson().toJson(data)).getOrThrow()
+        }.getOrElse {
+            Logger.e("put error: ${it.message}", it)
+        }
     }
 
     /**
@@ -98,7 +108,12 @@ object AppDataAPI {
      * @return 返回服务器响应结果
      */
     suspend fun delete(id: Long) = withContext(Dispatchers.IO) {
-        LocalNetwork.post("data/delete", Gson().toJson(mapOf("id" to id)))
+
+        runCatchingExceptCancel {
+            LocalNetwork.post<String>("data/delete", Gson().toJson(mapOf("id" to id))).getOrThrow()
+        }.getOrElse {
+            Logger.e("delete error: ${it.message}", it)
+        }
     }
 
     /**
@@ -108,12 +123,13 @@ object AppDataAPI {
      * @return 返回包含应用统计信息的JsonObject，如果获取失败则返回空的JsonObject
      */
     suspend fun apps(): JsonObject = withContext(Dispatchers.IO) {
-        val response = LocalNetwork.get("data/apps")
 
-        // 安全地解析JSON响应，提取data字段中的应用统计信息
-        runCatching {
-            val json = Gson().fromJson(response, JsonObject::class.java)
-            json.getAsJsonObject("data")
-        }.getOrNull() ?: JsonObject()
+        return@withContext runCatchingExceptCancel {
+            val resp = LocalNetwork.get<JsonObject>("data/apps").getOrThrow()
+            resp.data ?: JsonObject()
+        }.getOrElse {
+            Logger.e("apps error: ${it.message}", it)
+            JsonObject()
+        }
     }
 }

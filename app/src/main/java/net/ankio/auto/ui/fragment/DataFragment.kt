@@ -444,7 +444,7 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
         val type = item.type.name
         val title = "[Adaptation Request][$type]${item.app}"
 
-        val (url, timeout) = Pastebin.add(result)
+        val (url, timeout) = Pastebin.add(result).getOrThrow()
         val body = """
 <!------ 
  1. 请不要手动复制数据，下面的链接中已包含数据；
@@ -475,7 +475,7 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
         val type = item.type.name
         val title = "[Bug Report][$type]${item.app}"
 
-        val (url, timeout) = Pastebin.add(result)
+        val (url, timeout) = Pastebin.add(result).getOrThrow()
         val body = """
 <!------ 
  1. 请不要手动复制数据，下面的链接中已包含数据；

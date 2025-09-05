@@ -21,6 +21,8 @@ import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.http.LocalNetwork
+import net.ankio.auto.storage.Logger
+import org.ezbook.server.tools.runCatchingExceptCancel
 import org.ezbook.server.db.model.TagModel
 
 /**
@@ -38,16 +40,16 @@ object TagAPI {
         withContext(Dispatchers.IO) {
             val searchParam =
                 if (searchKeyword.isNotEmpty()) "&search=${Uri.encode(searchKeyword)}" else ""
-            val response =
-                LocalNetwork.get("tag/list?page=$page&limit=$pageSize$searchParam")
 
-            runCatching {
-                val json = Gson().fromJson(response, JsonObject::class.java)
-                Gson().fromJson(
-                    json.getAsJsonArray("data"),
-                    Array<TagModel>::class.java
-                ).toList()
-            }.getOrNull() ?: emptyList()
+            return@withContext runCatchingExceptCancel {
+                val resp =
+                    LocalNetwork.get<List<TagModel>>("tag/list?page=$page&limit=$pageSize$searchParam")
+                        .getOrThrow()
+                resp.data ?: emptyList()
+            }.getOrElse {
+                Logger.e("list error: ${it.message}", it)
+                emptyList()
+            }
         }
 
     /**
@@ -55,14 +57,14 @@ object TagAPI {
      * @return 所有标签模型列表
      */
     suspend fun all(): List<TagModel> = withContext(Dispatchers.IO) {
-        val response = LocalNetwork.get("tag/list?limit=0")
-        runCatching {
-            val json = Gson().fromJson(response, JsonObject::class.java)
-            Gson().fromJson(
-                json.getAsJsonArray("data"),
-                Array<TagModel>::class.java
-            ).toList()
-        }.getOrNull() ?: emptyList()
+
+        return@withContext runCatchingExceptCancel {
+            val resp = LocalNetwork.get<List<TagModel>>("tag/list?limit=0").getOrThrow()
+            resp.data ?: emptyList()
+        }.getOrElse {
+            Logger.e("all error: ${it.message}", it)
+            emptyList()
+        }
     }
 
     /**
@@ -71,11 +73,14 @@ object TagAPI {
      * @return 后端返回的操作结果
      */
     suspend fun put(model: TagModel): JsonObject = withContext(Dispatchers.IO) {
-        val response = LocalNetwork.post("tag/put", Gson().toJson(model))
 
-        runCatching {
-            Gson().fromJson(response, JsonObject::class.java)
-        }.getOrNull() ?: JsonObject()
+        return@withContext runCatchingExceptCancel {
+            val resp = LocalNetwork.post<JsonObject>("tag/put", Gson().toJson(model)).getOrThrow()
+            resp.data ?: JsonObject()
+        }.getOrElse {
+            Logger.e("put error: ${it.message}", it)
+            JsonObject()
+        }
     }
 
     /**
@@ -83,7 +88,12 @@ object TagAPI {
      * @param id 标签ID
      */
     suspend fun remove(id: Long) = withContext(Dispatchers.IO) {
-        LocalNetwork.post("tag/delete", Gson().toJson(mapOf("id" to id)))
+
+        runCatchingExceptCancel {
+            LocalNetwork.post<String>("tag/delete", Gson().toJson(mapOf("id" to id))).getOrThrow()
+        }.getOrElse {
+            Logger.e("remove error: ${it.message}", it)
+        }
     }
 
     /**
@@ -92,15 +102,14 @@ object TagAPI {
      * @return 对应的标签模型，若不存在则为null
      */
     suspend fun getById(id: Long): TagModel? = withContext(Dispatchers.IO) {
-        val response = LocalNetwork.get("tag/get?id=$id")
 
-        runCatching {
-            val json = Gson().fromJson(response, JsonObject::class.java)
-            Gson().fromJson(
-                json.getAsJsonObject("data"),
-                TagModel::class.java
-            )
-        }.getOrNull()
+        return@withContext runCatchingExceptCancel {
+            val resp = LocalNetwork.get<TagModel>("tag/get?id=$id").getOrThrow()
+            resp.data
+        }.getOrElse {
+            Logger.e("getById error: ${it.message}", it)
+            null
+        }
     }
 
     /**
@@ -108,12 +117,14 @@ object TagAPI {
      * @return 标签总数
      */
     suspend fun count(): Int = withContext(Dispatchers.IO) {
-        val response = LocalNetwork.get("tag/count")
 
-        runCatching {
-            val json = Gson().fromJson(response, JsonObject::class.java)
-            json.getAsJsonPrimitive("data").asInt
-        }.getOrNull() ?: 0
+        return@withContext runCatchingExceptCancel {
+            val resp = LocalNetwork.get<Int>("tag/count").getOrThrow()
+            resp.data ?: 0
+        }.getOrElse {
+            Logger.e("count error: ${it.message}", it)
+            0
+        }
     }
 
     /**
@@ -124,12 +135,16 @@ object TagAPI {
      */
     suspend fun checkNameAvailable(name: String, excludeId: Long = 0): Boolean =
         withContext(Dispatchers.IO) {
-            val response = LocalNetwork.get("tag/check?name=${Uri.encode(name)}&id=$excludeId")
 
-            runCatching {
-                val json = Gson().fromJson(response, JsonObject::class.java)
-                json.getAsJsonPrimitive("data").asBoolean
-            }.getOrNull() ?: false
+            return@withContext runCatchingExceptCancel {
+                val resp =
+                    LocalNetwork.get<Boolean>("tag/check?name=${Uri.encode(name)}&id=$excludeId")
+                        .getOrThrow()
+                resp.data ?: false
+            }.getOrElse {
+                Logger.e("checkNameAvailable error: ${it.message}", it)
+                false
+            }
         }
 
     /**
@@ -167,10 +182,13 @@ object TagAPI {
      * @return 后端返回的操作结果
      */
     suspend fun batchInsert(tags: List<TagModel>): JsonObject = withContext(Dispatchers.IO) {
-        val response = LocalNetwork.post("tag/batch", Gson().toJson(tags))
 
-        runCatching {
-            Gson().fromJson(response, JsonObject::class.java)
-        }.getOrNull() ?: JsonObject()
+        return@withContext runCatchingExceptCancel {
+            val resp = LocalNetwork.post<JsonObject>("tag/batch", Gson().toJson(tags)).getOrThrow()
+            resp.data ?: JsonObject()
+        }.getOrElse {
+            Logger.e("batchInsert error: ${it.message}", it)
+            JsonObject()
+        }
     }
 }

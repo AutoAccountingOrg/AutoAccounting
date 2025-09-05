@@ -18,9 +18,9 @@ package net.ankio.auto.http
 import android.os.Build
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.ankio.auto.BuildConfig
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.utils.PrefManager
+import org.ezbook.server.tools.runCatchingExceptCancel
 import java.io.File
 import java.util.UUID
 import javax.crypto.Mac
@@ -81,17 +81,17 @@ class LicenseNetwork {
         path: String,
         postData: HashMap<String, String>,
     ): String = withContext(Dispatchers.IO) {
-        val uri = "$url/${path.trimStart('/')}"
-        val (signature, timestamp) = generateSignature(postData)
-        client.addHeader("X-Token", PrefManager.token)
-        client.addHeader("X-Signature", signature)
-        client.addHeader("X-Timestamp", timestamp)
 
-        try {
-            return@withContext client.form(uri, postData).second
-        } catch (e: Exception) {
-            Logger.e("请求失败：$e", e)
-            return@withContext ""
+        return@withContext runCatchingExceptCancel {
+            val uri = "$url/${path.trimStart('/')}"
+            val (signature, timestamp) = generateSignature(postData)
+            client.addHeader("X-Token", PrefManager.token)
+            client.addHeader("X-Signature", signature)
+            client.addHeader("X-Timestamp", timestamp)
+            client.form(uri, postData).getOrThrow()
+        }.getOrElse {
+            Logger.e("post error: ${it.message}", it)
+            ""
         }
     }
 
@@ -100,17 +100,17 @@ class LicenseNetwork {
         path: String,
         queryData: HashMap<String, String> = hashMapOf(),
     ): String = withContext(Dispatchers.IO) {
-        val uri = "$url/${path.trimStart('/')}"
-        val (signature, timestamp) = generateSignature(queryData)
-        client.addHeader("X-Token", PrefManager.token)
-        client.addHeader("X-Signature", signature)
-        client.addHeader("X-Timestamp", timestamp)
 
-        try {
-            return@withContext client.get(uri, queryData).second
-        } catch (e: Exception) {
-            Logger.e("请求失败：$e", e)
-            return@withContext ""
+        return@withContext runCatchingExceptCancel {
+            val uri = "$url/${path.trimStart('/')}"
+            val (signature, timestamp) = generateSignature(queryData)
+            client.addHeader("X-Token", PrefManager.token)
+            client.addHeader("X-Signature", signature)
+            client.addHeader("X-Timestamp", timestamp)
+            client.get(uri, queryData).getOrThrow()
+        }.getOrElse {
+            Logger.e("get error: ${it.message}", it)
+            ""
         }
     }
 
@@ -119,25 +119,24 @@ class LicenseNetwork {
         path: String,
         file: File,
         queryData: HashMap<String, String> = hashMapOf(),
+    ): Boolean = withContext(Dispatchers.IO) {
 
-        ): Boolean = withContext(Dispatchers.IO) {
-        val uri =
-            "$url/${path.trimStart('/')}?" + queryData.entries.joinToString("&") { "${it.key}=${it.value}" }
-        val (signature, timestamp) = generateSignature(queryData)
-        client.addHeader("X-Token", PrefManager.token)
-        client.addHeader("X-Signature", signature)
-        client.addHeader("X-Timestamp", timestamp)
-        try {
-            return@withContext client.download(uri, file)
-        } catch (e: Exception) {
-            Logger.e("请求失败：$e", e)
-            return@withContext false
+        return@withContext runCatchingExceptCancel {
+            val uri =
+                "$url/${path.trimStart('/')}?" + queryData.entries.joinToString("&") { "${it.key}=${it.value}" }
+            val (signature, timestamp) = generateSignature(queryData)
+            client.addHeader("X-Token", PrefManager.token)
+            client.addHeader("X-Signature", signature)
+            client.addHeader("X-Timestamp", timestamp)
+            client.download(uri, file).getOrThrow()
+            true
+        }.getOrElse {
+            Logger.e("download error: ${it.message}", it)
+            false
         }
     }
 
     companion object {
         val url: String = "https://license.ez-book.org"
     }
-
-
 }

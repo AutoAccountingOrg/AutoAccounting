@@ -19,6 +19,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.http.LocalNetwork
 import net.ankio.auto.storage.Logger
+import org.ezbook.server.tools.runCatchingExceptCancel
 import java.io.File
 
 /**
@@ -33,7 +34,8 @@ object DatabaseAPI {
      */
     suspend fun export(targetFile: File): Boolean = withContext(Dispatchers.IO) {
         val requestUtils = net.ankio.auto.http.RequestsUtils()
-        requestUtils.download("http://127.0.0.1:52045/db/export", targetFile)
+        val result = requestUtils.download("http://127.0.0.1:52045/db/export", targetFile)
+        true
     }
 
     /**
@@ -52,6 +54,12 @@ object DatabaseAPI {
      * @return 服务器响应结果
      */
     suspend fun clear() = withContext(Dispatchers.IO) {
-        LocalNetwork.post("db/clear")
+
+        runCatchingExceptCancel {
+            LocalNetwork.post<String>("db/clear").getOrThrow()
+        }.getOrElse {
+            Logger.e("clear error: ${it.message}", it)
+            throw it
+        }
     }
 } 

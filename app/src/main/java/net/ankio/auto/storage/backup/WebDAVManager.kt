@@ -20,6 +20,7 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.http.RequestsUtils
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.utils.PrefManager
+import org.ezbook.server.tools.runCatchingExceptCancel
 import okhttp3.Credentials
 import java.io.File
 
@@ -50,22 +51,16 @@ class WebDAVManager {
      * 上传文件，上传成功后自动清理旧备份
      */
     suspend fun upload(file: File, filename: String): Boolean = withContext(Dispatchers.IO) {
-        try {
-            requestUtils.mkcol(backupUrl)
-            val (code, _) = requestUtils.put("$backupUrl/$filename", file)
-            val success = code in 200..299
 
-            if (success) {
-                Logger.i("上传成功: $filename")
-                // 上传成功后自动清理旧备份，保持最多10个文件
-                cleanupOldBackups()
-            } else {
-                Logger.e("上传失败: HTTP $code")
-            }
-
-            success
-        } catch (e: Exception) {
-            Logger.e("上传异常: ${e.message}", e)
+        return@withContext runCatchingExceptCancel {
+            requestUtils.mkcol(backupUrl).getOrThrow()
+            requestUtils.put("$backupUrl/$filename", file).getOrThrow()
+            Logger.i("上传成功: $filename")
+            // 上传成功后自动清理旧备份，保持最多10个文件
+            cleanupOldBackups()
+            true
+        }.getOrElse {
+            Logger.e("upload error: ${it.message}", it)
             false
         }
     }
@@ -75,16 +70,13 @@ class WebDAVManager {
      */
     suspend fun download(filename: String, targetFile: File): Boolean =
         withContext(Dispatchers.IO) {
-        try {
-            requestUtils.download("$backupUrl/$filename", targetFile).also { success ->
-                if (success) {
-                    Logger.i("下载成功: $filename")
-                } else {
-                    Logger.e("下载失败: $filename")
-                }
-            }
-        } catch (e: Exception) {
-            Logger.e("下载异常: ${e.message}", e)
+
+            return@withContext runCatchingExceptCancel {
+                requestUtils.download("$backupUrl/$filename", targetFile).getOrThrow()
+                Logger.i("下载成功: $filename")
+                true
+            }.getOrElse {
+                Logger.e("download error: ${it.message}", it)
             false
         }
     }
@@ -94,18 +86,13 @@ class WebDAVManager {
      * @return 最新的备份文件名，没有则返回null
      */
     suspend fun listLatest(): String? = withContext(Dispatchers.IO) {
-        try {
-            val (code, files) = requestUtils.dir(backupUrl)
-            if (code in 200..299) {
-                files.filter { it.endsWith("." + BackupFileManager.SUFFIX) }
-                    .maxByOrNull { it }
-                // 移除频繁的日志记录，只在异常时记录
-            } else {
-                Logger.e("列举失败: HTTP $code")
-                null
-            }
-        } catch (e: Exception) {
-            Logger.e("列举异常: ${e.message}", e)
+
+        return@withContext runCatchingExceptCancel {
+            val files = requestUtils.dir(backupUrl).getOrThrow()
+            files.filter { it.endsWith("." + BackupFileManager.SUFFIX) }
+                .maxByOrNull { it }
+        }.getOrElse {
+            Logger.e("listLatest error: ${it.message}", it)
             null
         }
     }
@@ -115,27 +102,20 @@ class WebDAVManager {
      * Linus式简化：上传后自动清理，用户无感知
      */
     private suspend fun cleanupOldBackups() = withContext(Dispatchers.IO) {
-        try {
-            val (code, files) = requestUtils.dir(backupUrl)
-            if (code in 200..299) {
-                val backupFiles = files.filter { it.endsWith(".pk") }
-                    .sortedDescending() // 按文件名降序，最新的在前
 
-                if (backupFiles.size > 10) {
-                    val filesToDelete = backupFiles.drop(10) // 跳过前10个，删除其余的
-                    Logger.i("清理WebDAV备份：删除${filesToDelete.size}个旧文件，保留${backupFiles.size - filesToDelete.size}个")
-
-                    var deletedCount = 0
-                    filesToDelete.forEach { filename ->
-                        if (deleteFile(filename)) deletedCount++
-                    }
-
-                    Logger.i("清理完成：成功删除${deletedCount}个文件")
-                }
-                // 移除"无需清理"的日志，减少噪音
+        runCatchingExceptCancel {
+            val files = requestUtils.dir(backupUrl).getOrThrow()
+            val backupFiles = files.filter { it.endsWith(".pk") }
+                .sortedDescending()
+            if (backupFiles.size > 10) {
+                val filesToDelete = backupFiles.drop(10)
+                Logger.i("清理WebDAV备份：删除${filesToDelete.size}个旧文件，保留${backupFiles.size - filesToDelete.size}个")
+                var deletedCount = 0
+                filesToDelete.forEach { filename -> if (deleteFile(filename)) deletedCount++ }
+                Logger.i("清理完成：成功删除${deletedCount}个文件")
             }
-        } catch (e: Exception) {
-            Logger.e("清理备份异常: ${e.message}", e)
+        }.getOrElse {
+            Logger.e("cleanupOldBackups error: ${it.message}", it)
         }
     }
 
@@ -144,17 +124,12 @@ class WebDAVManager {
      * @return 是否删除成功
      */
     private suspend fun deleteFile(filename: String): Boolean {
-        return try {
-            val (code, _) = requestUtils.delete("$backupUrl/$filename")
-            if (code in 200..299) {
-                // 移除单个文件删除的成功日志，减少噪音
-                true
-            } else {
-                Logger.e("删除失败: $filename (HTTP $code)")
-                false
-            }
-        } catch (e: Exception) {
-            Logger.e("删除文件异常: $filename - ${e.message}", e)
+
+        return runCatchingExceptCancel {
+            requestUtils.delete("$backupUrl/$filename").getOrThrow()
+            true
+        }.getOrElse {
+            Logger.e("deleteFile error: $filename - ${it.message}", it)
             false
         }
     }

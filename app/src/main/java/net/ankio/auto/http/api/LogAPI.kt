@@ -16,10 +16,11 @@
 package net.ankio.auto.http.api
 
 import com.google.gson.Gson
-import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.http.LocalNetwork
+import net.ankio.auto.storage.Logger
+import org.ezbook.server.tools.runCatchingExceptCancel
 import org.ezbook.server.constant.LogLevel
 import org.ezbook.server.db.model.LogModel
 
@@ -29,12 +30,17 @@ object LogAPI {
      */
     suspend fun add(level: LogLevel, app: String, location: String, message: String) =
         withContext(Dispatchers.IO) {
-            val log = LogModel()
-            log.level = level
-            log.app = app
-            log.location = location
-            log.message = message
-            LocalNetwork.post("log/add", Gson().toJson(log))
+
+            runCatchingExceptCancel {
+                val log = LogModel()
+                log.level = level
+                log.app = app
+                log.location = location
+                log.message = message
+                LocalNetwork.post<String>("log/add", Gson().toJson(log)).getOrThrow()
+            }.getOrElse {
+
+            }
         }
 
     /**
@@ -45,24 +51,27 @@ object LogAPI {
      */
     suspend fun list(page: Int = 1, limit: Int = 10): List<LogModel> =
         withContext(Dispatchers.IO) {
-            val response = LocalNetwork.get("log/list?page=$page&limit=$limit")
 
-
-            runCatching {
-                val json = Gson().fromJson(response, JsonObject::class.java)
-                Gson().fromJson(
-                    json.getAsJsonArray("data"),
-                    Array<LogModel>::class.java
-                ).toList()
-            }.getOrDefault(
+            return@withContext runCatchingExceptCancel {
+                val resp = LocalNetwork.get<List<LogModel>>("log/list?page=$page&limit=$limit")
+                    .getOrThrow()
+                resp.data ?: emptyList()
+            }.getOrElse {
+                Logger.e("list error: ${it.message}", it)
                 emptyList()
-            )
+            }
         }
 
     /**
      * 清空日志
      */
     suspend fun clear() = withContext(Dispatchers.IO) {
-        LocalNetwork.post("log/clear")
+
+        runCatchingExceptCancel {
+            LocalNetwork.post<String>("log/clear").getOrThrow()
+        }.getOrElse {
+            Logger.e("clear error: ${it.message}", it)
+
+        }
     }
 }

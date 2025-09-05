@@ -15,22 +15,24 @@
 
 package net.ankio.auto.http.api
 
-import com.google.gson.Gson
-import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.http.LocalNetwork
+import net.ankio.auto.storage.Logger
+import org.ezbook.server.tools.runCatchingExceptCancel
 
 object HomeAPI {
     /**
      * 响应内容为服务器版本号
      */
     suspend fun index(): String? = withContext(Dispatchers.IO) {
-        val response = LocalNetwork.get("/")
 
-        runCatching {
-            val json = Gson().fromJson(response, JsonObject::class.java)
-            json.get("data").asString
-        }.getOrNull()
+        return@withContext runCatchingExceptCancel {
+            val resp = LocalNetwork.get<String>("/").getOrThrow()
+            resp.data
+        }.getOrElse {
+            Logger.e("index error: ${it.message}", it)
+            null
+        }
     }
 }

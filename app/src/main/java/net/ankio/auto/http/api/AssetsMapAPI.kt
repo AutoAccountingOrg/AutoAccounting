@@ -21,6 +21,8 @@ import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.http.LocalNetwork
+import net.ankio.auto.storage.Logger
+import org.ezbook.server.tools.runCatchingExceptCancel
 import org.ezbook.server.db.model.AssetsMapModel
 
 /**
@@ -35,36 +37,34 @@ object AssetsMapAPI {
      * @return 资产映射模型列表
      */
     suspend fun list(page: Int, pageSize: Int, searchKeyword: String = ""): List<AssetsMapModel> =
-        withContext(
-        Dispatchers.IO
-    ) {
+        withContext(Dispatchers.IO) {
             val searchParam =
                 if (searchKeyword.isNotEmpty()) "&search=${Uri.encode(searchKeyword)}" else ""
-            val response =
-                LocalNetwork.get("assets/map/list?page=$page&limit=$pageSize$searchParam")
 
-        runCatching {
-            val json = Gson().fromJson(response, JsonObject::class.java)
-            Gson().fromJson(
-                json.getAsJsonArray("data"),
-                Array<AssetsMapModel>::class.java
-            ).toList()
-        }.getOrNull() ?: emptyList()
-    }
+            return@withContext runCatchingExceptCancel {
+                val resp =
+                    LocalNetwork.get<List<AssetsMapModel>>("assets/map/list?page=$page&limit=$pageSize$searchParam")
+                        .getOrThrow()
+                resp.data ?: emptyList()
+            }.getOrElse {
+                Logger.e("list error: ${it.message}", it)
+                emptyList()
+            }
+        }
 
     /**
      * 获取未映射的资产列表。
      * @return 未映射的资产模型列表
      */
     suspend fun empty(): List<AssetsMapModel> = withContext(Dispatchers.IO) {
-        val response = LocalNetwork.get("assets/map/empty")
-        runCatching {
-            val json = Gson().fromJson(response, JsonObject::class.java)
-            Gson().fromJson(
-                json.getAsJsonArray("data"),
-                Array<AssetsMapModel>::class.java
-            ).toList()
-        }.getOrNull() ?: emptyList()
+
+        return@withContext runCatchingExceptCancel {
+            val resp = LocalNetwork.get<List<AssetsMapModel>>("assets/map/empty").getOrThrow()
+            resp.data ?: emptyList()
+        }.getOrElse {
+            Logger.e("empty error: ${it.message}", it)
+            emptyList()
+        }
     }
 
     /**
@@ -73,15 +73,15 @@ object AssetsMapAPI {
      * @return 后端返回的JsonObject结果
      */
     suspend fun put(model: AssetsMapModel): JsonObject = withContext(Dispatchers.IO) {
-        val response = LocalNetwork.post("assets/map/put", Gson().toJson(model))
 
-        runCatching {
-            val json = Gson().fromJson(response, JsonObject::class.java)
-            Gson().fromJson(
-                json.getAsJsonArray("data"),
-                JsonObject::class.java
-            )
-        }.getOrNull() ?: JsonObject()
+        return@withContext runCatchingExceptCancel {
+            val resp =
+                LocalNetwork.post<JsonObject>("assets/map/put", Gson().toJson(model)).getOrThrow()
+            resp.data ?: JsonObject()
+        }.getOrElse {
+            Logger.e("put error: ${it.message}", it)
+            JsonObject()
+        }
     }
 
     /**
@@ -89,7 +89,14 @@ object AssetsMapAPI {
      * @param id 资产映射ID
      */
     suspend fun remove(id: Long) = withContext(Dispatchers.IO) {
-        LocalNetwork.post("assets/map/delete", Gson().toJson(mapOf("id" to id)))
+
+        runCatchingExceptCancel {
+            LocalNetwork.post<String>("assets/map/delete", Gson().toJson(mapOf("id" to id)))
+                .getOrThrow()
+        }.getOrElse {
+            Logger.e("remove error: ${it.message}", it)
+
+        }
     }
 
     /**
@@ -98,15 +105,16 @@ object AssetsMapAPI {
      * @return 对应的资产映射模型，若不存在则为null
      */
     suspend fun getByName(account: String): AssetsMapModel? = withContext(Dispatchers.IO) {
-        val response = LocalNetwork.get("assets/map/get?name=${Uri.encode(account)}")
 
-        runCatching {
-            val json = Gson().fromJson(response, JsonObject::class.java)
-            Gson().fromJson(
-                json.getAsJsonObject("data"),
-                AssetsMapModel::class.java
-            )
-        }.getOrNull()
+        return@withContext runCatchingExceptCancel {
+            val resp =
+                LocalNetwork.get<AssetsMapModel>("assets/map/get?name=${Uri.encode(account)}")
+                    .getOrThrow()
+            resp.data
+        }.getOrElse {
+            Logger.e("getByName error: ${it.message}", it)
+            null
+        }
     }
 
     /**
@@ -115,11 +123,14 @@ object AssetsMapAPI {
      * @return 操作结果的JsonObject
      */
     suspend fun reapply(): JsonObject = withContext(Dispatchers.IO) {
-        val response = LocalNetwork.post("assets/map/reapply", "{}")
 
-        runCatching {
-            Gson().fromJson(response, JsonObject::class.java)
-        }.getOrNull() ?: JsonObject()
+        return@withContext runCatchingExceptCancel {
+            val resp = LocalNetwork.post<JsonObject>("assets/map/reapply", "{}").getOrThrow()
+            resp.data ?: JsonObject()
+        }.getOrElse {
+            Logger.e("reapply error: ${it.message}", it)
+            JsonObject()
+        }
     }
 
 }

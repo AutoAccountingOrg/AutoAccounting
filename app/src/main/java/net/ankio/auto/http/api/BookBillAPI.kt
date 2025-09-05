@@ -16,10 +16,11 @@
 package net.ankio.auto.http.api
 
 import com.google.gson.Gson
-import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.http.LocalNetwork
+import net.ankio.auto.storage.Logger
+import org.ezbook.server.tools.runCatchingExceptCancel
 import org.ezbook.server.db.model.BookBillModel
 
 /**
@@ -33,17 +34,16 @@ object BookBillAPI {
      * @param typeName 账单类型名称
      * @return 返回账单模型列表，如果请求失败则返回空列表
      */
-    suspend fun list(typeName: String): List<BookBillModel> = withContext(
-        Dispatchers.IO
-    ) {
-        val response = LocalNetwork.get("bill/book/list?type=${typeName}")
-        runCatching {
-            val json = Gson().fromJson(response, JsonObject::class.java)
-            Gson().fromJson(
-                json.getAsJsonArray("data"),
-                Array<BookBillModel>::class.java
-            ).toList()
-        }.getOrNull() ?: emptyList()
+    suspend fun list(typeName: String): List<BookBillModel> = withContext(Dispatchers.IO) {
+
+        return@withContext runCatchingExceptCancel {
+            val resp = LocalNetwork.get<List<BookBillModel>>("bill/book/list?type=${typeName}")
+                .getOrThrow()
+            resp.data ?: emptyList()
+        }.getOrElse {
+            Logger.e("list error: ${it.message}", it)
+            emptyList()
+        }
     }
 
     /**
@@ -56,8 +56,15 @@ object BookBillAPI {
      */
     suspend fun put(bills: ArrayList<BookBillModel>, md5: String, typeName: String) =
         withContext(Dispatchers.IO) {
-            val json = Gson().toJson(bills)
-            LocalNetwork.post("bill/book/put?md5=$md5&type=${typeName}", json)
+
+            runCatchingExceptCancel {
+                val json = Gson().toJson(bills)
+                LocalNetwork.post<String>("bill/book/put?md5=$md5&type=${typeName}", json)
+                    .getOrThrow()
+            }.getOrElse {
+                Logger.e("put error: ${it.message}", it)
+
+            }
         }
 
 }

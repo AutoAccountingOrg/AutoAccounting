@@ -16,10 +16,11 @@
 package net.ankio.auto.http.api
 
 import com.google.gson.Gson
-import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.http.LocalNetwork
+import net.ankio.auto.storage.Logger
+import org.ezbook.server.tools.runCatchingExceptCancel
 import org.ezbook.server.db.model.BillInfoModel
 import org.ezbook.server.constant.BillState
 
@@ -34,7 +35,13 @@ object BillAPI {
      * @return 服务器响应结果
      */
     suspend fun put(billInfoModel: BillInfoModel) = withContext(Dispatchers.IO) {
-        LocalNetwork.post("bill/put", Gson().toJson(billInfoModel))
+
+        runCatchingExceptCancel {
+            LocalNetwork.post<String>("bill/put", Gson().toJson(billInfoModel)).getOrThrow()
+        }.getOrElse {
+            Logger.e("put error: ${it.message}", it)
+
+        }
     }
 
     /**
@@ -43,7 +50,13 @@ object BillAPI {
      * @return 服务器响应结果
      */
     suspend fun remove(id: Long) = withContext(Dispatchers.IO) {
-        LocalNetwork.post("bill/remove", Gson().toJson(mapOf("id" to id)))
+
+        runCatchingExceptCancel {
+            LocalNetwork.post<String>("bill/remove", Gson().toJson(mapOf("id" to id))).getOrThrow()
+        }.getOrElse {
+            Logger.e("remove error: ${it.message}", it)
+
+        }
     }
 
     /**
@@ -52,14 +65,14 @@ object BillAPI {
      * @return 账单信息模型，如果获取失败则返回null
      */
     suspend fun get(id: Long): BillInfoModel? = withContext(Dispatchers.IO) {
-        val response = LocalNetwork.get("bill/get?id=$id")
-        runCatching {
-            val json = Gson().fromJson(response, JsonObject::class.java)
-            Gson().fromJson(
-                json.getAsJsonObject("data"),
-                BillInfoModel::class.java
-            )
-        }.getOrNull()
+
+        return@withContext runCatchingExceptCancel {
+            val resp = LocalNetwork.get<BillInfoModel>("bill/get?id=$id").getOrThrow()
+            resp.data
+        }.getOrElse {
+            Logger.e("get error: ${it.message}", it)
+            null
+        }
     }
 
     /**
@@ -78,16 +91,15 @@ object BillAPI {
             ).joinToString()
             val syncType = if (type.isNotEmpty()) type.joinToString() else typeName
 
-            val response =
-                LocalNetwork.get("bill/list?page=$page&limit=$pageSize&type=${syncType}")
-
-            runCatching {
-                val json = Gson().fromJson(response, JsonObject::class.java)
-                Gson().fromJson(
-                    json.getAsJsonArray("data"),
-                    Array<BillInfoModel>::class.java
-                ).toList()
-            }.getOrNull() ?: emptyList()
+            return@withContext runCatchingExceptCancel {
+                val resp =
+                    LocalNetwork.get<List<BillInfoModel>>("bill/list?page=$page&limit=$pageSize&type=${syncType}")
+                        .getOrThrow()
+                resp.data ?: emptyList()
+            }.getOrElse {
+                Logger.e("list error: ${it.message}", it)
+                emptyList()
+            }
         }
 
     /**
@@ -95,15 +107,14 @@ object BillAPI {
      * @return 需要同步的账单信息模型列表
      */
     suspend fun sync(): List<BillInfoModel> = withContext(Dispatchers.IO) {
-        val response = LocalNetwork.get("bill/sync/list")
 
-        runCatching {
-            val json = Gson().fromJson(response, JsonObject::class.java)
-            Gson().fromJson(
-                json.getAsJsonArray("data"),
-                Array<BillInfoModel>::class.java
-            ).toList()
-        }.getOrNull() ?: emptyList()
+        return@withContext runCatchingExceptCancel {
+            val resp = LocalNetwork.get<List<BillInfoModel>>("bill/sync/list").getOrThrow()
+            resp.data ?: emptyList()
+        }.getOrElse {
+            Logger.e("sync error: ${it.message}", it)
+            emptyList()
+        }
     }
 
     /**
@@ -113,7 +124,16 @@ object BillAPI {
      * @return 服务器响应结果
      */
     suspend fun status(id: Long, sync: Boolean) = withContext(Dispatchers.IO) {
-        LocalNetwork.post("bill/status", Gson().toJson(mapOf("id" to id, "sync" to sync)))
+
+        runCatchingExceptCancel {
+            LocalNetwork.post<String>(
+                "bill/status",
+                Gson().toJson(mapOf("id" to id, "sync" to sync))
+            ).getOrThrow()
+        }.getOrElse {
+            Logger.e("status error: ${it.message}", it)
+
+        }
     }
 
     /**
@@ -122,15 +142,14 @@ object BillAPI {
      * @return 该分组下的账单信息模型列表
      */
     suspend fun getBillByGroup(id: Long): List<BillInfoModel> = withContext(Dispatchers.IO) {
-        val response = LocalNetwork.get("bill/group?id=$id")
 
-        runCatching {
-            val json = Gson().fromJson(response, JsonObject::class.java)
-            Gson().fromJson(
-                json.getAsJsonArray("data"),
-                Array<BillInfoModel>::class.java
-            ).toList()
-        }.getOrNull() ?: emptyList()
+        return@withContext runCatchingExceptCancel {
+            val resp = LocalNetwork.get<List<BillInfoModel>>("bill/group?id=$id").getOrThrow()
+            resp.data ?: emptyList()
+        }.getOrElse {
+            Logger.e("getBillByGroup error: ${it.message}", it)
+            emptyList()
+        }
     }
 
     /**
@@ -138,7 +157,13 @@ object BillAPI {
      * @return 服务器响应结果
      */
     suspend fun clear() = withContext(Dispatchers.IO) {
-        LocalNetwork.post("bill/clear")
+
+        runCatchingExceptCancel {
+            LocalNetwork.post<String>("bill/clear").getOrThrow()
+        }.getOrElse {
+            Logger.e("clear error: ${it.message}", it)
+
+        }
     }
 
     /**
@@ -146,14 +171,14 @@ object BillAPI {
      * @return 需要编辑的账单信息模型列表
      */
     suspend fun edit(): List<BillInfoModel> = withContext(Dispatchers.IO) {
-        runCatching {
-            val response = LocalNetwork.get("bill/edit")
-            val json = Gson().fromJson(response, JsonObject::class.java)
-            Gson().fromJson(
-                json.getAsJsonArray("data"),
-                Array<BillInfoModel>::class.java
-            ).toList()
-        }.getOrNull() ?: emptyList()
+
+        return@withContext runCatchingExceptCancel {
+            val resp = LocalNetwork.get<List<BillInfoModel>>("bill/edit").getOrThrow()
+            resp.data ?: emptyList()
+        }.getOrElse {
+            Logger.e("edit error: ${it.message}", it)
+            emptyList()
+        }
     }
 
     /**
@@ -162,7 +187,13 @@ object BillAPI {
      * @return 服务器响应结果
      */
     suspend fun unGroup(id: Long) = withContext(Dispatchers.IO) {
-        LocalNetwork.post("bill/unGroup", Gson().toJson(mapOf("id" to id)))
+
+        runCatchingExceptCancel {
+            LocalNetwork.post<String>("bill/unGroup", Gson().toJson(mapOf("id" to id))).getOrThrow()
+        }.getOrElse {
+            Logger.e("unGroup error: ${it.message}", it)
+
+        }
     }
 
     /**
@@ -173,15 +204,17 @@ object BillAPI {
      */
     suspend fun getMonthlyStats(year: Int, month: Int): Map<String, Double>? =
         withContext(Dispatchers.IO) {
-            val response = LocalNetwork.post("/bill/monthly/stats?year=$year&month=$month", "{}")
-            runCatching {
-                val json = Gson().fromJson(response, JsonObject::class.java)
-                val data = json.getAsJsonObject("data")
-                mapOf(
-                    "income" to data.get("income").asDouble,
-                    "expense" to data.get("expense").asDouble
-                )
-            }.getOrNull()
+
+            return@withContext runCatchingExceptCancel {
+                val resp = LocalNetwork.post<Map<String, Double>>(
+                    "/bill/monthly/stats?year=$year&month=$month",
+                    "{}"
+                ).getOrThrow()
+                resp.data
+            }.getOrElse {
+                Logger.e("getMonthlyStats error: ${it.message}", it)
+                null
+            }
         }
 
 
@@ -194,11 +227,15 @@ object BillAPI {
      */
     suspend fun getBillSummary(startTime: Long, endTime: Long, periodName: String): String? =
         withContext(Dispatchers.IO) {
-            val response =
-                LocalNetwork.get("bill/summary?start=$startTime&end=$endTime&period=$periodName")
-            runCatching {
-                val json = Gson().fromJson(response, JsonObject::class.java)
-                json.get("data").asString
-            }.getOrNull()
+
+            return@withContext runCatchingExceptCancel {
+                val resp =
+                    LocalNetwork.get<String>("bill/summary?start=$startTime&end=$endTime&period=$periodName")
+                        .getOrThrow()
+                resp.data
+            }.getOrElse {
+                Logger.e("getBillSummary error: ${it.message}", it)
+                null
+            }
         }
 }

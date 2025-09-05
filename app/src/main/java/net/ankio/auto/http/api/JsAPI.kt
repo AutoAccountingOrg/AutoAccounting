@@ -16,8 +16,11 @@
 package net.ankio.auto.http.api
 
 import com.google.gson.Gson
-import com.google.gson.JsonObject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import net.ankio.auto.http.LocalNetwork
+import net.ankio.auto.storage.Logger
+import org.ezbook.server.tools.runCatchingExceptCancel
 import org.ezbook.server.constant.DataType
 import org.ezbook.server.models.BillResultModel
 
@@ -28,25 +31,29 @@ object JsAPI {
         data: String,
         appPackage: String,
         fromAppData: Boolean = false
-    ): BillResultModel? {
-        val result = LocalNetwork.post(
-            "js/analysis?type=${type.name}&app=$appPackage&fromAppData=$fromAppData",
-            data
-        )
+    ): BillResultModel? = withContext(Dispatchers.IO) {
 
-        val json = Gson().fromJson(result, JsonObject::class.java)
-        val resultData = json?.getAsJsonObject("data") ?: return null
-
-        return runCatching {
-            Gson().fromJson(resultData, BillResultModel::class.java)
-        }.getOrNull()
+        return@withContext runCatchingExceptCancel {
+            val resp = LocalNetwork.post<BillResultModel>(
+                "js/analysis?type=${type.name}&app=$appPackage&fromAppData=$fromAppData",
+                data
+            ).getOrThrow()
+            resp.data
+        }.getOrElse {
+            Logger.e("analysis error: ${it.message}", it)
+            null
+        }
     }
 
 
-    suspend fun run(js: String): String {
-        return LocalNetwork.post(
-            "js/run",
-            js
-        )
+    suspend fun run(js: String): String = withContext(Dispatchers.IO) {
+
+        return@withContext runCatchingExceptCancel {
+            val resp = LocalNetwork.post<String>("js/run", js).getOrThrow()
+            resp.data ?: ""
+        }.getOrElse {
+            Logger.e("run error: ${it.message}", it)
+            ""
+        }
     }
 }
