@@ -15,14 +15,35 @@
 
 package org.ezbook.server.models
 
-data class ResultModel(
+/**
+ * 统一的接口返回模型。
+ *
+ * @param T 业务数据的类型参数。
+ * @property code 业务状态码，200 表示成功。
+ * @property msg 文本消息，成功通常为 "OK"。
+ * @property data 业务数据，允许为 null 以兼容无数据场景。
+ */
+data class ResultModel<T>(
     val code: Int,
     val msg: String,
-    val data: Any? = null
+    val data: T? = null
 ) {
     companion object {
-        fun ok(data: Any?) = ResultModel(200, "OK", data)
+        /**
+         * 构造成功结果。
+         *
+         * @param data 成功结果的数据，允许为 null。
+         */
+        fun <T> ok(data: T? = null): ResultModel<T> = ResultModel(200, "OK", data)
 
-        fun error(code: Int, msg: String) = ResultModel(code, msg)
+        /**
+         * 构造错误结果。
+         *
+         * 使用 [Nothing?] 作为类型参数以避免无意义的数据占位，且与所有 T? 协变兼容。
+         *
+         * @param code 错误码。
+         * @param msg 错误消息。
+         */
+        fun error(code: Int, msg: String): ResultModel<Any?> = ResultModel(code, msg, null)
     }
 }
