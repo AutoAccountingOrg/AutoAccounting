@@ -31,13 +31,17 @@
 
             <net.ankio.auto.ui.components.IconView
                 android:id="@+id/single_account"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:iconSrc="@mipmap/ic_launcher_round"
                 app:iconTintEnabled="false"
                 app:textColor="?attr/colorOnSurface"
                 tools:text="微信零钱" />
 
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
 
         </LinearLayout>
 
