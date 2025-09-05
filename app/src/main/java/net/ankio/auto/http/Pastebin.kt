@@ -22,22 +22,26 @@ import net.ankio.auto.storage.Logger
 import net.ankio.auto.utils.DateUtils
 
 /**
- * 上传数据到Pastebin,并设置2个月有效期
+ * 上传数据到Pastebin,并设置3个月有效期
  */
 object Pastebin {
-    suspend fun add(data: String): Pair<String, String> = withContext(Dispatchers.IO) {
+    /**
+     * 上传数据到 Pastebin，并返回 [Result]，成功时包含 (url, timeout)
+     */
+    suspend fun add(data: String): Result<Pair<String, String>> = withContext(Dispatchers.IO) {
         val request = RequestsUtils()
         request.addHeader("Accept","application/json")
-       val (code,body) = request.form(
-           "https://bin.ankio.net/", hashMapOf(
-               "data" to data,
-               "ttl" to (60 * 24 * 60).toString()
-            )
-        )
 
-        val json = JsonParser.parseString(body).asJsonObject
-        val url = json.get("data").asString
-        val timeout = DateUtils.stampToDate(DateUtils.twoMonthsLater())
-        Pair(url,timeout)
+        request.form(
+            "https://bin.ankio.net/", hashMapOf(
+                "data" to data,
+                "ttl" to (60 * 24 * 90).toString()
+            )
+        ).map { body ->
+            val json = JsonParser.parseString(body).asJsonObject
+            val url = json.get("data").asString
+            val timeout = DateUtils.stampToDate(DateUtils.twoMonthsLater())
+            Pair(url, timeout)
+        }
     }
 }
