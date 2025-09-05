@@ -63,9 +63,10 @@ open class BillFragment : BasePageFragment<OrderGroup, FragmentBillBinding>() {
                     BaseSheetDialog.create<BillEditorDialog>(requireContext())
                         .setBillInfo(item)
                         .setOnConfirm { updatedBill ->
+                            updatedBill.state = BillState.Edited
                             itemAdapter.updateItem(position, updatedBill)
                             // 保存到
-                            this@BillFragment.launch {
+                            launch {
                                 Logger.d("更新账单：$updatedBill")
                                 BillAPI.put(updatedBill)
                                 BillTool.syncBill(updatedBill)
