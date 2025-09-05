@@ -20,6 +20,8 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
 import com.tencent.bugly.crashreport.CrashReport
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import net.ankio.auto.http.LicenseNetwork
 import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.CoroutineUtils
@@ -53,6 +55,15 @@ open class App : Application() {
             block: suspend CoroutineScope.() -> Unit
         ) {
             CoroutineUtils.launchOnMain(context, block)
+        }
+
+        fun launchIO(
+            block: suspend CoroutineScope.() -> Unit
+        ) {
+            CoroutineUtils.launchOnMain(
+                Dispatchers.IO,
+                block
+            )
         }
 
     }
