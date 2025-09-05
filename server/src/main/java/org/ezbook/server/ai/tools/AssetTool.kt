@@ -20,6 +20,8 @@ import com.google.gson.JsonObject
 import org.ezbook.server.ai.AiManager
 import org.ezbook.server.constant.AssetsType
 import org.ezbook.server.db.Db
+import org.ezbook.server.tools.ServerLog
+import org.ezbook.server.tools.runCatchingExceptCancel
 
 class AssetTool {
     private val prompt = """
@@ -57,6 +59,8 @@ Fields (may be empty): asset1, asset2
 """.trimIndent()
 
     suspend fun execute(asset1: String, asset2: String): JsonObject? {
+        // 记录输入参数，便于问题复现与排查
+        ServerLog.d("资产匹配请求：asset1=$asset1, asset2=$asset2")
         val data = Gson().toJson(
             hashMapOf(
                 "asset1" to asset1,
@@ -69,6 +73,8 @@ Fields (may be empty): asset1, asset2
             .map { it.name.trim() }
             .distinct()                         // 去重且保持原顺序
             .joinToString(",")
+        // 记录候选资产规模，避免日志过长不打印全部列表
+        ServerLog.d("资产候选统计：total=${assets.size}, usable=${assetsNames.split(',').size}")
         val user = """
 Input:
 - Raw Data: 
@@ -81,7 +87,16 @@ Input:
   ```     
         """.trimIndent()
 
-        val resp = AiManager.getInstance().request(prompt, user) ?: return null
-        return runCatching { Gson().fromJson(resp, JsonObject::class.java) }.getOrNull()
+        // 调用 AI 进行资产名匹配
+        ServerLog.d("调用AI进行资产匹配...")
+        val resp = AiManager.getInstance().request(prompt, user).getOrThrow()
+        // 打印原始响应（严格JSON预期），便于快速定位问题
+        ServerLog.d("AI资产匹配原始响应：$resp")
+
+        // 解析 AI 响应为 JSON，如失败则记录错误并返回空
+        return runCatchingExceptCancel { Gson().fromJson(resp, JsonObject::class.java) }
+            .onFailure { ServerLog.e("AI资产匹配JSON解析失败：${it.message}", it) }
+            .getOrNull()
+            .also { ServerLog.d("AI资产匹配解析结果：$it") }
     }
 }

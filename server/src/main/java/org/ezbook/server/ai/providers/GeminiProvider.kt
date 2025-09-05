@@ -1,6 +1,4 @@
 package org.ezbook.server.ai.providers
-
-import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import com.google.gson.Gson
@@ -9,6 +7,8 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import org.ezbook.server.tools.runCatchingExceptCancel
+import org.ezbook.server.tools.ServerLog
 import java.util.concurrent.TimeUnit
 
 /**
@@ -33,7 +33,7 @@ class GeminiProvider : BaseAIProvider() {
             .url(url)
             .get()
             .build()
-        runCatching {
+        runCatchingExceptCancel {
             client.newCall(request).execute().use { response ->
                 if (!response.isSuccessful) throw RuntimeException("Failed to get models: ${response.code}")
                 val body = response.body?.string()
@@ -46,7 +46,7 @@ class GeminiProvider : BaseAIProvider() {
                 models
             }
         }.onFailure {
-            Log.e("Request", "${it.message}", it)
+            ServerLog.e("GeminiProvider: 获取模型失败：${it.message}", it)
         }.getOrElse { emptyList() }
     }
 
@@ -57,7 +57,7 @@ class GeminiProvider : BaseAIProvider() {
         system: String,
         user: String,
         onChunk: ((String) -> Unit)?
-    ): String? =
+    ): Result<String> =
         withContext(Dispatchers.IO) {
             val path = if (onChunk === null) "generateContent" else "streamGenerateContent?alt=sse"
             val url = "${getApiUri()}/$model:$path"
@@ -85,7 +85,7 @@ class GeminiProvider : BaseAIProvider() {
                 .addHeader("x-goog-api-key", getApiKey())
                 .addHeader("Content-Type", "application/json")
                 .build()
-            runCatching {
+            runCatchingExceptCancel {
                 client.newCall(request).execute().use { response ->
                     if (!response.isSuccessful) {
                         val errorBody = response.body?.string()
@@ -109,23 +109,27 @@ class GeminiProvider : BaseAIProvider() {
                                 }
                             }
                         }
-                        return@withContext null // 流式模式返回null
+                        return@withContext Result.success("") // 流式模式返回空串占位
                     } else {
                         // 非流式处理
                         val body = response.body?.string()?.removeThink() ?: ""
-                        return@withContext parseGeminiContent(body)
+                        val content = parseGeminiContent(body) ?: error("Empty AI response")
+                        return@withContext Result.success(content)
                     }
                 }
             }.onFailure {
-                Log.e("Request", "${it.message}", it)
-            }.getOrElse { null }
+                ServerLog.e("GeminiProvider: 请求失败：${it.message}", it)
+            }.fold(
+                onSuccess = { it },
+                onFailure = { Result.failure(it) }
+            )
         }
 
     /**
      * 解析Gemini响应内容
      */
-    private fun parseGeminiContent(body: String): String? {
-        return try {
+    private suspend fun parseGeminiContent(body: String): String? {
+        return runCatchingExceptCancel {
             val jsonObject = JsonParser.parseString(body).asJsonObject
             jsonObject
                 .getAsJsonArray("candidates")
@@ -137,9 +141,8 @@ class GeminiProvider : BaseAIProvider() {
                 ?.asJsonObject
                 ?.get("text")
                 ?.asString
-        } catch (e: Exception) {
-            Log.e("GeminiParse", "解析失败: ${e.message}")
-            null
-        }
-        }
+        }.onFailure {
+            ServerLog.e("GeminiProvider: 解析失败: ${it.message}", it)
+        }.getOrNull()
+    }
 }

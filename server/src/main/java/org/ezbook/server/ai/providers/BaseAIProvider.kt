@@ -48,13 +48,13 @@ abstract class BaseAIProvider {
     }
 
     /**
-     * 发送请求到AI服务
+     * 发送请求到AI服务（返回 Result）。
      */
     abstract suspend fun request(
         system: String,
         user: String,
         onChunk: ((String) -> Unit)? = null
-    ): String?
+    ): Result<String>
 
 
     protected val client = OkHttpClient.Builder()

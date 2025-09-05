@@ -81,8 +81,12 @@ class AiManager {
      * @param user 用户提示
      * @return AI响应
      */
-    suspend fun request(system: String, user: String, provider: BaseAIProvider? = null): String? {
-        return (provider ?: getCurrentProvider())?.request(system, user)
+    suspend fun request(
+        system: String,
+        user: String,
+        provider: BaseAIProvider? = null
+    ): Result<String> {
+        return (provider ?: getCurrentProvider()).request(system, user)
     }
 
 
@@ -99,7 +103,7 @@ class AiManager {
         provider: BaseAIProvider? = null,
         onChunk: (String) -> Unit
     ) {
-        (provider ?: getCurrentProvider())?.request(system, user, onChunk)
+        (provider ?: getCurrentProvider()).request(system, user, onChunk)
     }
 
     companion object {

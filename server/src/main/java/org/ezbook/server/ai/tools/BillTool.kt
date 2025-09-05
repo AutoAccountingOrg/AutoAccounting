@@ -20,6 +20,8 @@ import org.ezbook.server.Server
 import org.ezbook.server.ai.AiManager
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.BillInfoModel
+import org.ezbook.server.tools.ServerLog
+import org.ezbook.server.tools.runCatchingExceptCancel
 
 class BillTool {
 
@@ -102,14 +104,16 @@ Input:
   ```      
         """.trimIndent()
 
-        val data = AiManager.getInstance().request(prompt, user)
-        val bill = data?.replace("```json", "")?.replace("```", "")
-        Server.logD("AI Response: $bill")
-        return runCatching {
+        val data = AiManager.getInstance().request(prompt, user).getOrThrow()
+        val bill = data.replace("```json", "").replace("```", "")
+        ServerLog.d("AI分析结果: $bill")
+        return runCatchingExceptCancel {
             val billInfoModel = Gson().fromJson(bill, BillInfoModel::class.java)
             if (billInfoModel.money < 0) billInfoModel.money = -billInfoModel.money
             if (billInfoModel.money == 0.0) return null
             billInfoModel
+        }.onFailure {
+            ServerLog.e("AI分析结果解析失败: $it", it)
         }.getOrNull()
     }
 }
