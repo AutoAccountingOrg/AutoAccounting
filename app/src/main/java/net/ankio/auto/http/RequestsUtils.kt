@@ -30,6 +30,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import org.ezbook.server.tools.runCatchingExceptCancel
 import org.w3c.dom.Element
 import org.w3c.dom.NodeList
 import java.io.ByteArrayInputStream
@@ -57,15 +58,6 @@ class RequestsUtils {
     }
 
 
-    // 自定义异常类
-    sealed class RequestException(message: String, cause: Throwable? = null) :
-        Exception(message, cause) {
-        class NetworkException(message: String, cause: Throwable? = null) :
-            RequestException(message, cause)
-
-        class ParseException(message: String, cause: Throwable? = null) :
-            RequestException(message, cause)
-    }
 
     private val headers = HashMap<String, String>()
     private val client: OkHttpClient = okHttpClient  // 使用单例实例
@@ -80,62 +72,41 @@ class RequestsUtils {
         }
     }
 
+
     /**
-     * 在 IO 线程执行 block；
-     * 发生异常时记录日志并返回 caller 提供的默认值。
+     * 统一执行请求并返回字符串响应体
+     * - 成功: 返回 body（空则返回空字符串）
+     * - 失败: 抛出 error(body) 以携带服务端错误信息
      */
-    private suspend inline fun <T> executeRequest(
-        crossinline fallback: () -> T,      // 默认值提供者
-        crossinline block: () -> T
-    ): T = withContext(Dispatchers.IO) {
-        runCatching { block() }
-            .onFailure { ex ->
-                if (ex.message?.contains("127.0.0.1:52045") == true || ex.message?.contains("timeout") == true) {
-                    //     Log.e("Request", ex.message ?: "", ex)
-                } else {
-                    Logger.e(ex.message ?: "", ex)
-                }
-            }
-            .getOrElse { fallback() }       // 关键：返回默认值
+    private fun executeAndGetBody(request: Request): String {
+        client.newCall(request).execute().use { resp ->
+            val body = resp.body?.string().orEmpty()
+            if (!resp.isSuccessful) error(body)
+            return body
+        }
     }
 
 
-    suspend fun image(url: String): Pair<Int, ByteArray> =
-        executeRequest(fallback = { 500 to ByteArray(0) }) {
+    suspend fun get(url: String, query: Map<String, String>? = null): Result<String> =
+        runCatchingExceptCancel {
+            val httpUrl = url.toHttpUrlOrNull()
+                ?: error("Invalid url: $url")
+
+            val finalUrl = httpUrl.newBuilder().apply {
+                query?.forEach { (k, v) -> addQueryParameter(k, v) }
+            }.build()
+
             val request = Request.Builder()
-                .url(url)
+                .url(finalUrl)
                 .addHeaders()
                 .build()
 
-
-            client.newCall(request).execute().use { response ->
-                val body = response.body?.bytes() ?: ByteArray(0)
-                Pair(response.code, body)
-            }
+            executeAndGetBody(request)
         }
 
-    suspend fun get(url: String, query: HashMap<String, String>? = null): Pair<Int, String> =
-        executeRequest(fallback = { 500 to "" }) {
 
-            val httpUrlBuilder = url.toHttpUrlOrNull()?.newBuilder()
-            query?.forEach { (key, value) ->
-                httpUrlBuilder?.addQueryParameter(key, value)
-            }
-
-            val request = Request.Builder()
-                .url(httpUrlBuilder?.build()?.toString() ?: url)
-                .addHeaders()
-                .build()
-
-
-
-            client.newCall(request).execute().use { response ->
-                Pair(response.code, response.body?.string() ?: "")
-            }
-        }
-
-    suspend fun form(url: String, body: HashMap<String, String>? = null): Pair<Int, String> =
-        executeRequest(fallback = { 500 to "" }) {
+    suspend fun form(url: String, body: HashMap<String, String>? = null): Result<String> =
+        runCatchingExceptCancel {
             val formBuilder = FormBody.Builder()
             body?.forEach { (key, value) ->
                 formBuilder.add(key, value)
@@ -147,39 +118,33 @@ class RequestsUtils {
                 .post(formBuilder.build())
                 .build()
 
-            client.newCall(request).execute().use { response ->
-                Pair(response.code, response.body?.string() ?: "")
-            }
+            executeAndGetBody(request)
         }
 
-    suspend fun jsonStr(url: String, payload: String): Pair<Int, String> =
-        executeRequest(fallback = { 500 to "" }) {
+    suspend fun jsonStr(url: String, payload: String): Result<String> =
+        runCatchingExceptCancel {
             val request = Request.Builder()
                 .url(url)
                 .addHeaders()
                 .post(payload.toRequestBody("application/json".toMediaTypeOrNull()))
                 .build()
 
-            client.newCall(request).execute().use { response ->
-                Pair(response.code, response.body?.string() ?: "")
-            }
+            executeAndGetBody(request)
         }
 
-    suspend fun json(url: String, body: JsonObject): Pair<Int, String> =
-        executeRequest(fallback = { 500 to "" }) {
+    suspend fun json(url: String, body: JsonObject): Result<String> =
+        runCatchingExceptCancel {
             val request = Request.Builder()
                 .url(url)
                 .addHeaders()
                 .post(body.toString().toRequestBody(DEFAULT_MEDIA_TYPE.toMediaTypeOrNull()))
                 .build()
 
-            client.newCall(request).execute().use { response ->
-                Pair(response.code, response.body?.string() ?: "")
-            }
+            executeAndGetBody(request)
         }
 
-    suspend fun upload(url: String, file: File): Pair<Int, String> =
-        executeRequest(fallback = { 500 to "" }) {
+    suspend fun upload(url: String, file: File): Result<String> =
+        runCatchingExceptCancel {
             val requestBody = MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
                 .addFormDataPart(
@@ -195,12 +160,10 @@ class RequestsUtils {
                 .post(requestBody)
                 .build()
 
-            client.newCall(request).execute().use { response ->
-                Pair(response.code, response.body?.string() ?: "")
-            }
+            executeAndGetBody(request)
         }
 
-    suspend fun download(url: String, file: File): Boolean = executeRequest(fallback = { false }) {
+    suspend fun download(url: String, file: File): Result<Unit> = runCatchingExceptCancel {
         val request = Request.Builder()
             .url(url)
             .addHeaders()
@@ -208,7 +171,7 @@ class RequestsUtils {
 
         client.newCall(request).execute().use { response ->
             if (!response.isSuccessful) {
-                throw RequestException.NetworkException("Download failed with code ${response.code}")
+                error("Download failed with code ${response.code}")
             }
 
             response.body?.byteStream().use { inputStream ->
@@ -216,49 +179,48 @@ class RequestsUtils {
                     inputStream?.copyTo(outputStream)
                 }
             }
-            true
+            Unit
         }
     }
 
-    suspend fun put(url: String, file: File): Pair<Int, String> =
-        executeRequest(fallback = { 500 to "" }) {
+    // 模仿 get：仅在成功时返回 body，失败抛出错误，不返回状态码
+    suspend fun put(url: String, file: File): Result<String> =
+        runCatchingExceptCancel {
             val request = Request.Builder()
                 .url(url)
                 .addHeaders()
                 .put(file.asRequestBody())
                 .build()
 
-            client.newCall(request).execute().use { response ->
-                Pair(response.code, response.body?.string() ?: "")
-            }
+            executeAndGetBody(request)
         }
 
-    suspend fun mkcol(url: String): Int = executeRequest(fallback = { 500 }) {
+    // 模仿 get：成功返回 Unit，失败抛出错误，不返回状态码
+    suspend fun mkcol(url: String): Result<Unit> = runCatchingExceptCancel {
         val request = Request.Builder()
             .url(url)
             .addHeaders()
             .method("MKCOL", null)
             .build()
 
-        client.newCall(request).execute().use { response ->
-            response.code
-        }
+        executeAndGetBody(request)
+        Unit
     }
 
-    suspend fun delete(url: String): Pair<Int, String> = executeRequest(fallback = { 500 to "" }) {
+    // 模仿 get：仅在成功时返回 body，失败抛出错误，不返回状态码
+    suspend fun delete(url: String): Result<String> = runCatchingExceptCancel {
         val request = Request.Builder()
             .url(url)
             .addHeaders()
             .delete()
             .build()
 
-        client.newCall(request).execute().use { response ->
-            Pair(response.code, response.body?.string() ?: "")
-        }
+        executeAndGetBody(request)
     }
 
-    suspend fun dir(url: String): Pair<Int, List<String>> =
-        executeRequest(fallback = { 500 to emptyList() }) {
+    // 模仿 get：仅在成功时返回解析后的列表，失败抛出错误，不返回状态码
+    suspend fun dir(url: String): Result<List<String>> =
+        runCatchingExceptCancel {
             val request = Request.Builder()
                 .url(url)
                 .addHeaders()
@@ -266,39 +228,32 @@ class RequestsUtils {
                 .header("Depth", "1")
                 .build()
 
-            client.newCall(request).execute().use { response ->
-                val body = response.body?.string() ?: ""
-                Logger.d("body: $body")
-                Pair(response.code, parseResponse(body))
-            }
+            val body = executeAndGetBody(request)
+            Logger.d("body: $body")
+            parseResponse(body)
         }
 
     private fun parseResponse(xml: String): List<String> {
         val data = xml.replace("D:response", "d:response").replace("D:href", "d:href")
         val fileList = mutableListOf<String>()
 
-        try {
-            val factory = DocumentBuilderFactory.newInstance()
-            val builder = factory.newDocumentBuilder()
-            ByteArrayInputStream(data.toByteArray(StandardCharsets.UTF_8)).use { inputStream ->
-                val document = builder.parse(inputStream)
-                document.documentElement.normalize()
+        val factory = DocumentBuilderFactory.newInstance()
+        val builder = factory.newDocumentBuilder()
+        ByteArrayInputStream(data.toByteArray(StandardCharsets.UTF_8)).use { inputStream ->
+            val document = builder.parse(inputStream)
+            document.documentElement.normalize()
 
-                val fileNodes: NodeList = document.getElementsByTagName("d:response")
-                for (i in 0 until fileNodes.length) {
-                    val fileElement = fileNodes.item(i) as Element
-                    val href: String =
-                        fileElement.getElementsByTagName("d:href").item(0).textContent
-                    val displayName = Uri.decode(href.substring(href.lastIndexOf("/") + 1))
-                    if (displayName.isNotEmpty()) {
-                        fileList.add(displayName)
-                    }
+            val fileNodes: NodeList = document.getElementsByTagName("d:response")
+            for (i in 0 until fileNodes.length) {
+                val fileElement = fileNodes.item(i) as Element
+                val href: String =
+                    fileElement.getElementsByTagName("d:href").item(0).textContent
+                val displayName = Uri.decode(href.substring(href.lastIndexOf("/") + 1))
+                if (displayName.isNotEmpty()) {
+                    fileList.add(displayName)
                 }
             }
-        } catch (e: Exception) {
-            throw RequestException.ParseException("Failed to parse XML response", e)
         }
-
         return fileList.reversed()
     }
 }
