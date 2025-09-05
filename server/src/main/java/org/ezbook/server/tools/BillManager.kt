@@ -16,10 +16,7 @@
 package org.ezbook.server.tools
 
 import android.content.Context
-import org.ezbook.server.Server
 import org.ezbook.server.constant.BillType
-import org.ezbook.server.constant.DefaultData
-import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.BillInfoModel
 
@@ -28,9 +25,14 @@ object BillManager {
     // 常量定义，缩短时间窗口，避免大量非重复账单
     private const val TIME_WINDOW_MINUTES = 2
     private const val TIME_WINDOW_MILLIS = TIME_WINDOW_MINUTES * 60 * 1000L
-    private const val DEFAULT_BOOK_NAME = "默认账本"
     private const val OTHER_CATEGORY_1 = "其他"
     private const val OTHER_CATEGORY_2 = "其它"
+
+    /**
+     * 生成账单简要信息，便于日志定位
+     */
+    private fun brief(bill: BillInfoModel): String =
+        "id=${bill.id}, money=${bill.money}, time=${bill.time}, type=${bill.type}, rule=${bill.ruleName}, ch=${bill.channel}, from=${bill.accountNameFrom}, to=${bill.accountNameTo}"
 
     /**
      * 检查账单是否重复
@@ -39,10 +41,11 @@ object BillManager {
      * @return true 表示是重复账单，false 表示不是重复账单
      */
     private suspend fun checkRepeat(bill1: BillInfoModel, bill2: BillInfoModel): Boolean {
+        ServerLog.d("重复判断开始：b1(${brief(bill1)}), b2(${brief(bill2)})")
         // 前提：金额相同、类型相同
         // 时间完全相同，是同一笔交易，场景：用户重复打开账单列表识别
         if (bill1.time == bill2.time) {
-            Server.logD("重复账单判据：金额相同、类型相同、时间完全相同，一定是重复账单")
+            ServerLog.d("重复判断：时间相同 -> 重复")
             return true
         }
 
@@ -55,22 +58,23 @@ object BillManager {
         if (bill1.ruleName == bill2.ruleName) {
 
             if (bill1.channel == bill2.channel) {
-                Server.logD("重复账单判据：金额相同、类型相同、时间不同、规则一样、细分渠道一样，一定不是重复账单")
+                ServerLog.d("重复判断：规则相同且渠道相同 -> 非重复")
                 return false
             }
         }
 
         if (bill1.accountNameFrom.isNotEmpty() && bill2.accountNameFrom.isNotEmpty() && bill1.accountNameFrom != bill2.accountNameFrom) {
-            Server.logD("重复账单判据：金额相同、类型相同、时间不同、规则一样、支出账户不一样，一定不是重复账单")
+            ServerLog.d("重复判断：支出账户不同 -> 非重复")
             return false
         }
 
 
         if (bill1.accountNameTo.isNotEmpty() && bill2.accountNameTo.isNotEmpty() && bill1.accountNameTo != bill2.accountNameTo) {
-            Server.logD("重复账单判据：金额相同、类型相同、时间不同、规则一样、收入账户不一样，一定不是重复账单")
+            ServerLog.d("重复判断：收入账户不同 -> 非重复")
             return false
         }
 
+        ServerLog.d("重复判断：未命中排除条件 -> 可能重复")
         return true
 
     }
@@ -165,16 +169,16 @@ object BillManager {
         billInfoModel: BillInfoModel,
         context: Context
     ): BillInfoModel? {
-
+        ServerLog.d("分组：开始，bill=${brief(billInfoModel)}")
         // 检查是否启用自动分组
         if (!SettingUtils.autoGroup()) {
-            Server.logD("未启用自动去重")
+            ServerLog.d("分组：未启用，跳过")
             return null
         }
 
         // 查找可能重复的账单
         val potentialDuplicates = findPotentialDuplicates(billInfoModel)
-        Server.log("潜在重复账单数量: ${potentialDuplicates.size}")
+        ServerLog.d("分组：候选数量=${potentialDuplicates.size}")
 
         // 查找并处理重复账单
         return potentialDuplicates
@@ -182,6 +186,7 @@ object BillManager {
                 bill.id != billInfoModel.id && checkRepeat(billInfoModel, bill)
             }
             ?.also { parentBill ->
+                ServerLog.d("分组：命中父账单 parentId=${parentBill.id}, currentId=${billInfoModel.id}")
                 handleDuplicateBill(billInfoModel, parentBill, context)
             }
     }
@@ -193,7 +198,7 @@ object BillManager {
         val startTime = bill.time - TIME_WINDOW_MILLIS
         val endTime = bill.time + TIME_WINDOW_MILLIS
 
-        Server.log("查找潜在重复账单 - 金额: ${bill.money}, 时间范围: $startTime - $endTime")
+        ServerLog.d("分组：候选查询 id=${bill.id}, 金额=${bill.money}, 时间范围=$startTime-$endTime")
         return Db.get().billInfoDao().query(bill.money, startTime, endTime, bill.type)
     }
 
@@ -205,7 +210,7 @@ object BillManager {
         parentBill: BillInfoModel,
         context: Context
     ) {
-        Server.log("发现重复账单 - 父账单: $parentBill, 当前账单: $currentBill")
+        ServerLog.d("分组：合并 parentId=${parentBill.id}, currentId=${currentBill.id}")
 
         // 设置分组ID
         currentBill.groupId = parentBill.id
@@ -219,7 +224,7 @@ object BillManager {
             update(currentBill)
         }
 
-        Server.log("账单合并完成 - 父账单: $parentBill, 当前账单: $currentBill")
+        ServerLog.d("分组：合并完成 parentId=${parentBill.id}, currentId=${currentBill.id}")
     }
 
     /**
@@ -244,13 +249,13 @@ object BillManager {
     /**
      * 获取应用名称
      */
-    private fun getAppName(packageName: String, context: Context): String {
-        return runCatching {
+    private suspend fun getAppName(packageName: String, context: Context): String {
+        return runCatchingExceptCancel {
             val packageManager = context.packageManager
             val applicationInfo = packageManager.getApplicationInfo(packageName, 0)
             packageManager.getApplicationLabel(applicationInfo).toString()
         }.onFailure {
-            it.printStackTrace()
+            ServerLog.e("获取应用名称失败：${it.message}", it)
         }.getOrDefault(packageName)
     }
 

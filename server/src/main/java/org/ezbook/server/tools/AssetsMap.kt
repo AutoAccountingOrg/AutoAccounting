@@ -74,7 +74,7 @@ class AssetsMap {
      *
      * 注意：必须运行在IO线程中，因为涉及数据库操作
      */
-    suspend fun setAssetsMap(billInfoModel: BillInfoModel) {
+    suspend fun setAssetsMap(billInfoModel: BillInfoModel, useAi: Boolean = true) {
         // 检查资产管理器是否启用
         if (!SettingUtils.featureAssetManager()) {
             ServerLog.d("资产管理未启用，跳过映射处理")
@@ -87,7 +87,11 @@ class AssetsMap {
 
         // 处理来源账户映射
         if (shouldMapFromAccount(billInfoModel)) {
-            mapAccount(billInfoModel.accountNameFrom, billInfoModel)?.let { mappedName ->
+            mapAccount(
+                billInfoModel.accountNameFrom,
+                billInfoModel,
+                useAi = useAi
+            )?.let { mappedName ->
                 billInfoModel.accountNameFrom = mappedName
                 ServerLog.d("来源账户映射: '$originalFromAccount' -> '$mappedName'")
             }
@@ -97,7 +101,7 @@ class AssetsMap {
 
         // 处理目标账户映射
         if (shouldMapToAccount(billInfoModel)) {
-            mapAccount(billInfoModel.accountNameTo, billInfoModel, true)?.let { mappedName ->
+            mapAccount(billInfoModel.accountNameTo, billInfoModel, true, useAi)?.let { mappedName ->
                 billInfoModel.accountNameTo = mappedName
                 ServerLog.d("目标账户映射: '$originalToAccount' -> '$mappedName'")
             }
@@ -148,7 +152,8 @@ class AssetsMap {
     private suspend fun mapAccount(
         accountName: String,
         billInfoModel: BillInfoModel,
-        isAccountName2: Boolean = false
+        isAccountName2: Boolean = false,
+        useAi: Boolean = true
     ): String? {
         ServerLog.d("映射账户开始: account='$accountName' isAccountName2=$isAccountName2")
         if (accountName.isBlank()) {
@@ -177,7 +182,7 @@ class AssetsMap {
         }
 
         // 3.5 让AI处理
-        if (SettingUtils.aiAssetMapping() && !isAccountName2) {
+        if (useAi && SettingUtils.aiAssetMapping() && !isAccountName2) {
             ServerLog.d("通过AI进行资产映射")
             val json =
                 AssetTool().execute(billInfoModel.accountNameTo, billInfoModel.accountNameFrom)
