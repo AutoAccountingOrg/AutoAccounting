@@ -50,9 +50,11 @@ object RuleGenerator {
         val rulesStr = jsonArray.toString().replace(Regex("\"(rule_\\d+)\""), "$1")
         // 注入检测逻辑
 
+        js.append("\n")
         //基础的js
         js.append(
             """
+                
              var window = {};
              window.rules = $rulesStr;
              window.data = data;
