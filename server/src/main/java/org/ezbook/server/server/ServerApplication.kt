@@ -48,7 +48,7 @@ fun Application.module(context: Context) {
     intercept(ApplicationCallPipeline.Setup) {
         if (SettingUtils.debugMode()) return@intercept
         val remoteIp = call.request.local.remoteHost  // 客户端 IP
-        val allowedIps = listOf("127.0.0.1")
+        val allowedIps = listOf("127.0.0.1", "localhost")
 
         if (remoteIp !in allowedIps) {
             call.respond(
