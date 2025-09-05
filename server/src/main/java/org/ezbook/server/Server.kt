@@ -42,8 +42,8 @@ class Server(private val context: Application) {
     /**
      * 启动服务
      */
-    fun startServer() {
-        server = embeddedServer(Netty, port = port) {
+    fun startServer(debug: Boolean) {
+        server = embeddedServer(Netty, port = port, host = if (debug) "0.0.0.0" else "127.0.0.1") {
             module(context)
         }
         server.start()
@@ -52,9 +52,9 @@ class Server(private val context: Application) {
         application = context
     }
 
-    fun restartServer() {
+    fun restartServer(debug: Boolean) {
         stopServer()
-        startServer()
+        startServer(debug)
     }
 
     fun stopServer() {

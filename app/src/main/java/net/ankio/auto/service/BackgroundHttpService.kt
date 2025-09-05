@@ -47,7 +47,7 @@ class BackgroundHttpService : ICoreService() {
              */
             httpService = Server(autoApp)
 
-            httpService.startServer()
+            httpService.startServer(AppRuntime.debug)
 
             Logger.d("Server start success")
 
