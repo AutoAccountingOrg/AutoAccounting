@@ -188,6 +188,7 @@ abstract class BaseOpenAIProvider : BaseAIProvider() {
                     return@withContext
                 }
 
+                runCatchingExceptCancel {
                 while (!source.exhausted()) {
                     val line = source.readUtf8Line() ?: break
 
@@ -217,7 +218,9 @@ abstract class BaseOpenAIProvider : BaseAIProvider() {
 
                     }
                 }
-
+                }.onFailure {
+                    ServerLog.e("AI Provider: ${it.message}", it)
+                }
             }
         }
     }
