@@ -199,17 +199,9 @@ dependencies {
     implementation(libs.rikkaMaterialPreference)
     implementation(libs.about)
 
-    implementation("dev.rikka.rikkax.insets:insets:1.3.0")
-    implementation("org.snakeyaml:snakeyaml-engine:2.9")
-
     implementation("com.github.bumptech.glide:glide:4.16.0")
 
     implementation("com.tencent.bugly:crashreport:latest.release")
-
-    debugImplementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
-    implementation("androidx.palette:palette-ktx:1.0.0")
-
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.8.1")
     implementation("net.lingala.zip4j:zip4j:2.11.5")
     implementation(kotlin("reflect"))
 
