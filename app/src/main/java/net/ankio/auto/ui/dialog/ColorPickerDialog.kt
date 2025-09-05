@@ -102,21 +102,6 @@ class ColorPickerDialog internal constructor(
         this.onColorSelected = callback
     }
 
-    /**
-     * 设置颜色配置（兼容旧接口）
-     * @deprecated 建议使用 setInitialColor 和 setOnColorSelected 分别设置
-     */
-    @Deprecated(
-        "Use setInitialColor and setOnColorSelected instead",
-        ReplaceWith("setInitialColor(initialColor).setOnColorSelected(onColorSelected)")
-    )
-    fun setColorConfig(
-        initialColor: String = "#2196F3",
-        onColorSelected: (String) -> Unit
-    ): ColorPickerDialog {
-        return setInitialColor(initialColor).setOnColorSelected(onColorSelected)
-    }
-
     override fun onViewCreated(view: View?) {
         super.onViewCreated(view)
         setupColorGrid()
