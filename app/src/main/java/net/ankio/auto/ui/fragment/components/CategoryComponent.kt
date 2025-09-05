@@ -153,9 +153,11 @@ class CategoryComponent(
 
                 if (pos == lastPosition) { // 两次点击同一个，收起面板
                     if (hasChild) {
-                        // 点击两次，说明需要删除
-                        items.removeAt(panelPosition)
-                        adapter.updateItems(items)
+                        // 点击两次，说明需要删除；但必须确保面板真实存在
+                        if (expand && panelPosition < items.size && items[panelPosition].isPanel()) {
+                            items.removeAt(panelPosition)
+                            adapter.updateItems(items)
+                        }
                         lastPosition = -1 // 归位
                         expand = false
                         categoryModel2 = null
@@ -181,8 +183,10 @@ class CategoryComponent(
                     } else {
                         // 没有就移除
                         if (lastPosition != -1 && expand) {
-                            items.removeAt(lastPanelPosition)
-                            adapter.updateItems(items)
+                            if (lastPanelPosition < items.size && items[lastPanelPosition].isPanel()) {
+                                items.removeAt(lastPanelPosition)
+                                adapter.updateItems(items)
+                            }
                             lastPosition = -1 // 归位
                             expand = false
                             return@onItemClick
@@ -191,8 +195,10 @@ class CategoryComponent(
                 } else {
                     // 不同行的需要先删除
                     if (lastPosition != -1 && expand) {
-                        items.removeAt(lastPanelPosition)
-                        adapter.updateItems(items)
+                        if (lastPanelPosition < items.size && items[lastPanelPosition].isPanel()) {
+                            items.removeAt(lastPanelPosition)
+                            adapter.updateItems(items)
+                        }
                         expand = false
                     }
                     if (hasChild) {
