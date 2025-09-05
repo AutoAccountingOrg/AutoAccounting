@@ -46,7 +46,7 @@ interface RuleDao {
     ): List<RuleModel>
 
     //查询所有启用的规则，用于JS执行
-    @Query("SELECT * FROM RuleModel WHERE app = :app AND type = :type AND enabled = 1 ORDER BY enabled DESC")
+    @Query("SELECT * FROM RuleModel WHERE app = :app AND type = :type AND enabled = 1")
     suspend fun loadAllEnabled(app: String, type: String): List<RuleModel>
 
 

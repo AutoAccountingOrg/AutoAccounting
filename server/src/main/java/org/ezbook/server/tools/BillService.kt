@@ -389,9 +389,10 @@ class BillService(
             addProperty("shopItem", bill.shopItem)
         }
 
+        val js = ruleGenerator.category()
         val categoryJson = runCatchingExceptCancel {
             Gson().fromJson(
-                executeJs(ruleGenerator.category(), win.toString()),
+                executeJs(js, win.toString()),
                 JsonObject::class.java
             )
         }.getOrNull()
