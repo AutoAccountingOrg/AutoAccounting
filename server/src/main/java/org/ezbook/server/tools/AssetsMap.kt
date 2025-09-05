@@ -49,6 +49,7 @@ class AssetsMap {
     private suspend fun getAssets(): List<AssetsModel> {
         if (assets.isEmpty()) {
             assets = Db.get().assetsDao().load()
+            ServerLog.d("资产列表已加载: ${assets.size} 条")
         }
         return assets
     }
@@ -59,6 +60,7 @@ class AssetsMap {
     private suspend fun getAssetsMap(): List<AssetsMapModel> {
         if (assetsMap.isEmpty()) {
             assetsMap = Db.get().assetsMapDao().list()
+            ServerLog.d("资产映射列表已加载: ${assetsMap.size} 条")
         }
         return assetsMap
     }
@@ -75,30 +77,35 @@ class AssetsMap {
     suspend fun setAssetsMap(billInfoModel: BillInfoModel) {
         // 检查资产管理器是否启用
         if (!SettingUtils.featureAssetManager()) {
-            Server.logD("资产管理未启用，跳过映射处理")
+            ServerLog.d("资产管理未启用，跳过映射处理")
             return
         }
 
         val originalFromAccount = billInfoModel.accountNameFrom
         val originalToAccount = billInfoModel.accountNameTo
+        ServerLog.d("开始资产映射: type=${billInfoModel.type} from='$originalFromAccount' to='$originalToAccount'")
 
         // 处理来源账户映射
         if (shouldMapFromAccount(billInfoModel)) {
             mapAccount(billInfoModel.accountNameFrom, billInfoModel)?.let { mappedName ->
                 billInfoModel.accountNameFrom = mappedName
-                Server.logD("来源账户映射: '$originalFromAccount' -> '$mappedName'")
+                ServerLog.d("来源账户映射: '$originalFromAccount' -> '$mappedName'")
             }
+        } else {
+            ServerLog.d("跳过来源账户映射: '${billInfoModel.accountNameFrom}' 不需要映射")
         }
 
         // 处理目标账户映射
         if (shouldMapToAccount(billInfoModel)) {
             mapAccount(billInfoModel.accountNameTo, billInfoModel, true)?.let { mappedName ->
                 billInfoModel.accountNameTo = mappedName
-                Server.logD("目标账户映射: '$originalToAccount' -> '$mappedName'")
+                ServerLog.d("目标账户映射: '$originalToAccount' -> '$mappedName'")
             }
+        } else {
+            ServerLog.d("跳过目标账户映射: '${billInfoModel.accountNameTo}' 不需要映射")
         }
 
-        Server.logD("资产映射完成: ${billInfoModel.type} | ${billInfoModel.accountNameFrom} -> ${billInfoModel.accountNameTo}")
+        ServerLog.d("资产映射完成: ${billInfoModel.type} | ${billInfoModel.accountNameFrom} -> ${billInfoModel.accountNameTo}")
     }
 
     /**
@@ -143,31 +150,48 @@ class AssetsMap {
         billInfoModel: BillInfoModel,
         isAccountName2: Boolean = false
     ): String? {
+        ServerLog.d("映射账户开始: account='$accountName' isAccountName2=$isAccountName2")
         if (accountName.isBlank()) {
+            ServerLog.d("映射账户跳过: 账户名为空")
             return null
         }
 
         // 1. 直接资产查找 - 最高优先级
-        getAssets().firstOrNull { it.name == accountName }?.name?.let { return it }
+        getAssets().firstOrNull { it.name == accountName }?.let { asset ->
+            ServerLog.d("直接资产查找命中: '${asset.name}'")
+            return asset.name
+        }
 
         // 2. 自定义映射查找
-        getAssetsMap().firstOrNull { it.name == accountName }?.let { return it.mapName }
+        getAssetsMap().firstOrNull { it.name == accountName }?.let {
+            ServerLog.d("自定义映射命中: '${it.name}' -> '${it.mapName}'")
+            return it.mapName
+        }
 
         // 3. 正则表达式匹配（简化为 contains 判断）
         getAssetsMap().filter { it.regex }.firstOrNull { mapping ->
             runCatchingExceptCancel { Regex(mapping.name).containsMatchIn(accountName) }.getOrElse { false }
-        }?.mapName?.let { return it }
+        }?.let { mapping ->
+            ServerLog.d("正则映射命中: /${mapping.name}/ -> '${mapping.mapName}'")
+            return mapping.mapName
+        }
 
         // 3.5 让AI处理
         if (SettingUtils.aiAssetMapping() && !isAccountName2) {
+            ServerLog.d("通过AI进行资产映射")
             val json =
                 AssetTool().execute(billInfoModel.accountNameTo, billInfoModel.accountNameFrom)
             if (json != null) {
+                val aiTo = json.safeGetString("asset1")
+                val aiFrom = json.safeGetString("asset2")
                 billInfoModel.accountNameTo =
-                    json.safeGetString("asset1").ifBlank { billInfoModel.accountNameTo }
+                    aiTo.ifBlank { billInfoModel.accountNameTo }
                 billInfoModel.accountNameFrom =
-                    json.safeGetString("asset2").ifBlank { billInfoModel.accountNameFrom }
+                    aiFrom.ifBlank { billInfoModel.accountNameFrom }
+                ServerLog.d("AI建议: to='$aiTo' from='$aiFrom'")
                 return null
+            } else {
+                ServerLog.d("AI未返回有效结果")
             }
         }
 
@@ -181,6 +205,7 @@ class AssetsMap {
                     name = accountName
                     mapName = ""
                 }
+                ServerLog.d("创建空资产映射占位符: '$accountName'")
                 Db.get().assetsMapDao().insert(emptyMapping)
             }
         }
@@ -205,7 +230,7 @@ class AssetsMap {
         val number = Regex("\\d+").find(accountName)?.value ?: ""
         if (number.isNotEmpty()) {
             assets.firstOrNull { it.name.contains(number.trim()) }?.let { asset ->
-                Server.logD("算法映射-卡号命中: ${asset.name}")
+                ServerLog.d("算法映射-卡号命中: ${asset.name}")
                 return asset.name
             }
         }
@@ -233,9 +258,10 @@ class AssetsMap {
         }
 
         bestName?.let {
-            Server.logD("算法映射-文本命中: '$accountName' -> '$it' 相似度=$bestSimilarity 差异=$bestDiff")
+            ServerLog.d("算法映射-文本命中: '$accountName' -> '$it' 相似度=$bestSimilarity 差异=$bestDiff")
             return it
         }
+        ServerLog.d("算法映射未命中: '$accountName'")
         return null
     }
 

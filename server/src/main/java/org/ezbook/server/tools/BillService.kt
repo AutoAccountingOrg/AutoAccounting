@@ -23,13 +23,11 @@ import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.ezbook.server.Server
-import org.ezbook.server.ai.AiManager
 import org.ezbook.server.ai.tools.BillTool
 import org.ezbook.server.ai.tools.CategoryTool
 import org.ezbook.server.constant.BillState
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.constant.DataType
-import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.AppDatabase
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.AppDataModel
@@ -83,6 +81,8 @@ class BillService(
                 "账单金额：${billInfoModel.money}，横屏状态下为您自动暂存。",
                 Toast.LENGTH_SHORT
             ).show()
+            // 记录横屏免打扰触发，便于排查为何未拉起悬浮窗
+            ServerLog.d("横屏免打扰开启，自动暂存账单并返回：money=${billInfoModel.money}, app=${billInfoModel.app}")
             return
         }
 
@@ -107,13 +107,12 @@ class BillService(
     private suspend fun launchFloatingWindow(billInfoModel: BillInfoModel, parent: BillInfoModel?) {
         val intent = BillInfoIntent(billInfoModel, "JsRoute", parent).toIntent()
         // 调起悬浮窗（调试用日志）
-        Server.logD("拉起自动记账悬浮窗口：$intent")
+        ServerLog.d("拉起自动记账悬浮窗口：$intent")
 
         runCatchingExceptCancel {
             Server.application.startActivity(intent)
         }.onFailure { throwable ->
-            Server.log("自动记账悬浮窗拉起失败：$throwable")
-            Server.log(throwable)
+            ServerLog.e("自动记账悬浮窗拉起失败：$throwable", throwable)
         }
     }
 
@@ -128,24 +127,31 @@ class BillService(
      * @param context Android上下文，用于访问系统资源
      * @return 分析结果，包含账单信息、父级账单和是否需要用户操作的标识
      */
-    suspend fun analyze(analysisParams: AnalysisParams, context: Context): ResultModel =
+    suspend fun analyze(
+        analysisParams: AnalysisParams,
+        context: Context
+    ): ResultModel<BillResultModel> =
         withContext(Dispatchers.IO) {
+            ServerLog.d("==============开始执行账单分析===============")
             // 1) 校验数据类型
             val dataType = runCatchingExceptCancel { DataType.valueOf(analysisParams.type) }
                 .getOrElse {
-                    return@withContext ResultModel.error(
+                    ServerLog.d("账单数据类型错误\n==============账单分析结束===============")
+                    return@withContext ResultModel<BillResultModel>(
                         400,
-                        "Type exception: ${analysisParams.type}"
+                        "Type exception: ${analysisParams.type}",
+                        null
                     )
                 }
 
             // 2) 仅对外部数据做重复触发过滤
             val key = MD5HashTable.md5(analysisParams.data)
             if (!analysisParams.fromAppData && hash.contains(key)) {
-                return@withContext ResultModel.error(400, "检测到重复触发分析")
+                ServerLog.d("检测到重复触发分析(同一个数据)\n==============账单分析结束===============")
+                return@withContext ResultModel<BillResultModel>(400, "检测到重复触发分析", null)
             }
             hash.put(key)
-
+            ServerLog.d("1. 分析初始化数据：$analysisParams")
             // 3) 如有需要，先持久化原始数据
             val appDataModel: AppDataModel? = if (!analysisParams.fromAppData) {
                 AppDataModel().apply {
@@ -154,45 +160,71 @@ class BillService(
                     type = dataType
                     time = System.currentTimeMillis()
                     id = Db.get().dataDao().insert(this)
+                    // 记录原始数据持久化的主键与摘要，方便追溯
+                    ServerLog.d("原始数据持久化成功：id=$id, app=$app, type=$type")
                 }
             } else null
 
             // 4) 分析（先规则，后 AI）
             val start = System.currentTimeMillis()
+            // TODO 有一些特殊情况只能在规则里面识别，需要规则返回忽略字段，用于特地忽略，这样也同时禁止AI来识别
             val billInfo: BillInfoModel =
                 analyzeWithRule(analysisParams.app, analysisParams.data, dataType)
                     ?: analyzeWithAI(analysisParams.app, analysisParams.data)
-                    ?: return@withContext ResultModel.error(404, "未分析到有效账单。")
-
+                    ?: run {
+                        ServerLog.d("AI和规则的解析结果都为NULL\n==============账单分析结束===============")
+                        return@withContext ResultModel<BillResultModel>(
+                            404,
+                            "未分析到有效账单。",
+                            null
+                        )
+                    }
+            ServerLog.d("初步解析的账单结果 $billInfo")
             //这里也不加bookName, bookName在分类里面处理
             // 5) 分类（规则 → 可选 AI）
             categorize(billInfo)
-
+            ServerLog.d("进行分类之后的账单 $billInfo")
             // 设置资产映射
             AssetsMap().setAssetsMap(billInfo)
+            // 记录资产映射摘要
+            ServerLog.d("资产映射完成：from=${billInfo.accountNameFrom}, to=${billInfo.accountNameTo}")
             // 设置分类映射、查找
             CategoryProcessor().setCategoryMap(billInfo)
+            // 记录分类映射摘要
+            ServerLog.d("分类映射完成：book=${billInfo.bookName}, cate=${billInfo.cateName}")
 
             // 生成账单备注
             billInfo.remark = BillManager.getRemark(billInfo, context)
+            // 记录备注生成结果
+            ServerLog.d("备注生成完成：remark=${billInfo.remark}")
 
             // 如果不是来自应用数据，则保存到数据库
             if (!analysisParams.fromAppData) {
                 billInfo.id = db.billInfoDao().insert(billInfo)
+                // 记录账单入库主键
+                ServerLog.d("账单入库成功：billId=${billInfo.id}")
             }
 
             // 将账单加入处理队列并等待自动分组处理完成
             val task = Server.billProcessor.addTask(billInfo, context)
             task.await()
+            // 记录自动分组处理的结果摘要
+            if (task.result == null) {
+                ServerLog.d("自动分组未找到父账单，待用户编辑")
+            } else {
+                ServerLog.d("自动分组找到父账单：parentId=${task.result?.id}")
+            }
 
             // 根据处理结果更新账单状态
             billInfo.state = if (task.result == null) BillState.Wait2Edit else BillState.Edited
             db.billInfoDao().update(billInfo)
+            // 记录账单最终状态
+            ServerLog.d("账单状态更新：state=${billInfo.state}")
 
 
             // 7) 统计耗时
             val cost = System.currentTimeMillis() - start
-            Server.log("识别用时: $cost ms")
+            ServerLog.d("识别用时: $cost ms")
 
             // 8) 更新原始数据存档
             appDataModel?.let {
@@ -200,11 +232,13 @@ class BillService(
                 it.rule = billInfo.ruleName
                 it.version = ""
                 Db.get().dataDao().update(it)
+                // 记录原始数据与规则的关联情况
+                ServerLog.d("原始数据归档更新：id=${it.id}, match=${it.match}, rule=${it.rule}")
             }
 
             // 9) 拉起悬浮窗（仅外部数据）
             if (!analysisParams.fromAppData) startAutoPanel(billInfo, task.result)
-
+            ServerLog.d("==============账单分析结束===============")
             // 10) 返回
             ResultModel.ok(BillResultModel(billInfo, task.result))
         }
@@ -236,13 +270,22 @@ class BillService(
         data: String,
         dataType: DataType
     ): BillInfoModel? {
-        Server.logD("执行规则分析")
+        ServerLog.d("使用规则进行分析：$data")
         // 获取对应应用和数据类型的规则代码
         val js = ruleGenerator.data(app, dataType)
+        ServerLog.d("调用的JS代码：$js")
         // 执行规则代码进行分析
         val result = executeJs(js, data)
+        ServerLog.d("规则js执行结果：$result")
         // 解析分析结果为账单信息对象
-        return parseBillInfo(result, app, dataType)
+        val info = parseBillInfo(result, app, dataType)
+        if (info == null) {
+            // 记录规则解析失败，便于快速回退到AI
+            ServerLog.d("规则解析失败，结果为空")
+        } else {
+            ServerLog.d("规则解析成功：type=${info.type}, money=${info.money}, shop=${info.shopName}")
+        }
+        return info
     }
 
     /**
@@ -256,17 +299,24 @@ class BillService(
      * @return 分析得到的账单信息，如果分析失败则返回null
      */
     private suspend fun analyzeWithAI(app: String, data: String): BillInfoModel? {
+
         if (!SettingUtils.aiBillRecognition()) {
-            Server.logD("AI 功能禁用")
+            ServerLog.d("AI分析账单功能禁用，跳过账单分析")
             return null
         }
-        Server.logD("调用AI分析")
-        val result = BillTool().execute(data) ?: return null
+        ServerLog.d("AI分析中，$data")
+        val result = BillTool().execute(data) ?: run {
+            // 记录AI未返回有效结果
+            ServerLog.d("AI未返回有效账单结果")
+            return null
+        }
         return result.apply {
             // 设置AI分析的标识信息
             ruleName = "${SettingUtils.apiProvider()} 生成"
             state = BillState.Wait2Edit
             this.app = app
+            // 记录AI解析成功的关键信息
+            ServerLog.d("AI解析成功：type=$type, money=$money, shop=$shopName")
         }
     }
 
@@ -282,10 +332,14 @@ class BillService(
         app: String,
         dataType: DataType
     ): BillInfoModel? {
-        Server.logD("解析数据：$result")
+        ServerLog.d("根据AI或者JS结果解析数据：$result")
         val json =
             runCatchingExceptCancel { Gson().fromJson(result, JsonObject::class.java) }.getOrNull()
-                ?: return null
+                ?: run {
+                    // 记录JSON解析失败信息
+                    ServerLog.d("结果JSON解析失败，返回空")
+                    return null
+                }
         // 使用安全的 JSON 访问扩展函数
         return BillInfoModel().apply {
             type = runCatchingExceptCancel {
@@ -308,6 +362,8 @@ class BillService(
             if (!this.generateByAi()) {
                 val rule = Db.get().ruleDao().query(dataType.name, app, ruleName)
                 auto = rule?.autoRecord ?: false
+                // 记录规则驱动的自动记账标记
+                ServerLog.d("规则匹配：rule=${ruleName}, auto=$auto")
             }
         }
     }
@@ -321,7 +377,10 @@ class BillService(
      * @param bill 需要分类的账单信息
      */
     private suspend fun categorize(bill: BillInfoModel) {
-        if (!bill.needReCategory()) return
+        if (!bill.needReCategory()) {
+            ServerLog.d("之前账单已有有效分类，无需重新分析")
+            return
+        }
 
         val win = JsonObject().apply {
             addProperty("type", bill.type.name)
@@ -336,15 +395,16 @@ class BillService(
                 JsonObject::class.java
             )
         }.getOrNull()
-        Server.logD("categoryJson $categoryJson")
+        ServerLog.d("规则分类结果：$categoryJson")
         // 设置账本名称与分类（优先规则结果，否则默认值）
         bill.bookName = categoryJson.safeGetStringNonBlank("bookName", SettingUtils.bookName())
         bill.cateName = categoryJson.safeGetStringNonBlank("category", "其他")
-
+        ServerLog.d("规则处理后的账单信息：$bill")
         if (bill.needReCategory() && SettingUtils.aiCategoryRecognition()) {
             bill.cateName = CategoryTool().execute(
                 win.toString()
             ).takeUnless { it.isNullOrEmpty() } ?: "其他"
+            ServerLog.d("AI分析的账单分类结果：${bill.cateName}")
         }
     }
 
