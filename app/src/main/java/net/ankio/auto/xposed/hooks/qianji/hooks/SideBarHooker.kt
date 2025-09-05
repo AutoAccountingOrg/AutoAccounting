@@ -25,6 +25,7 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.databinding.MenuItemBinding
+import net.ankio.auto.http.LocalNetwork
 import net.ankio.auto.storage.Constants
 import net.ankio.auto.xposed.core.api.PartHooker
 import net.ankio.auto.xposed.core.hook.Hooker
@@ -138,8 +139,9 @@ class SideBarHooker : PartHooker() {
         ThreadUtils.launch {
             while (true) {
                 if (!itemMenuBinding.root.isAttachedToWindow) break
+                val result = LocalNetwork.get<String>("/")
                 val background =
-                    if (Server.request("/") != null) R.drawable.status_running else R.drawable.status_stopped
+                    if (result.isSuccess) R.drawable.status_running else R.drawable.status_stopped
                 withContext(Dispatchers.Main) {
                     itemMenuBinding.serviceStatus.setBackgroundResource(background)
                 }
