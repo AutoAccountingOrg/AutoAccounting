@@ -148,16 +148,19 @@ fun Route.categoryRoutes() {
          * @return ResultModel 包含删除的分类ID
          */
         post("/delete") {
-            val req = call.receive<DeleteRequest>()
+            val requestBody = call.receiveText()
+            val json =
+                com.google.gson.Gson().fromJson(requestBody, com.google.gson.JsonObject::class.java)
+            val id = json?.get("id")?.asLong ?: 0
 
-            if (req.id <= 0) {
+            if (id <= 0) {
                 call.respond(ResultModel.error(400, "id is invalid"))
                 return@post
             }
 
-            val deleteCount = Db.get().categoryDao().delete(req.id)
-            val resultId = if (deleteCount > 0) req.id else 0L
+            val deleteCount = Db.get().categoryDao().delete(id)
+            val resultId = if (deleteCount > 0) id else 0L
             call.respond(ResultModel.ok(resultId))
         }
     }
-} 
+}

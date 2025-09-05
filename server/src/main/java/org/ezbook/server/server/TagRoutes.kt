@@ -73,7 +73,7 @@ fun Route.tagRoutes() {
          * @return ResultModel 包含标签ID
          */
         post("/put") {
-            val model = call.receive<TagModel>()
+            val model = call.receive(TagModel::class)
 
             // 检查标签名称是否重复（排除自己）
             val existingTag = Db.get().tagDao().queryByName(model.name)
@@ -100,9 +100,13 @@ fun Route.tagRoutes() {
          * @return ResultModel 包含删除的标签ID
          */
         post("/delete") {
-            val req = call.receive<DeleteRequest>()
-            Db.get().tagDao().delete(req.id)
-            call.respond(ResultModel.ok(req.id))
+            val requestBody = call.receiveText()
+            val json =
+                com.google.gson.Gson().fromJson(requestBody, com.google.gson.JsonObject::class.java)
+            val id = json?.get("id")?.asLong ?: 0
+
+            Db.get().tagDao().delete(id)
+            call.respond(ResultModel.ok(id))
         }
 
         /**
@@ -152,7 +156,15 @@ fun Route.tagRoutes() {
          * @return ResultModel 包含插入的标签ID列表
          */
         post("/batch") {
-            val tagsList = call.receive<List<TagModel>>()
+            val requestBody = call.receiveText()
+            val gson = com.google.gson.Gson()
+            val tagsList = try {
+                val listType = object : com.google.gson.reflect.TypeToken<List<TagModel>>() {}.type
+                gson.fromJson<List<TagModel>>(requestBody, listType)
+            } catch (e: Exception) {
+                call.respond(ResultModel.error(400, "无效的标签数据格式: ${e.message}"))
+                return@post
+            }
 
             if (tagsList.isEmpty()) {
                 call.respond(ResultModel.error(400, "标签列表不能为空"))
