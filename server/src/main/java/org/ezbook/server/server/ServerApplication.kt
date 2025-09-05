@@ -17,6 +17,7 @@ package org.ezbook.server.server
 
 import android.content.Context
 import io.ktor.application.Application
+import io.ktor.application.ApplicationCallPipeline
 import io.ktor.application.call
 import io.ktor.application.install
 import io.ktor.features.ContentNegotiation
@@ -28,6 +29,7 @@ import io.ktor.routing.routing
 import org.ezbook.server.models.ResultModel
 import org.ezbook.server.tools.BillService
 import org.ezbook.server.tools.ServerLog
+import org.ezbook.server.tools.SettingUtils
 
 fun Application.module(context: Context) {
     install(StatusPages) {
@@ -41,6 +43,20 @@ fun Application.module(context: Context) {
     }
     install(ContentNegotiation) {
         gson()
+    }
+
+    intercept(ApplicationCallPipeline.Setup) {
+        if (SettingUtils.debugMode()) return@intercept
+        val remoteIp = call.request.local.remoteHost  // 客户端 IP
+        val allowedIps = listOf("127.0.0.1")
+
+        if (remoteIp !in allowedIps) {
+            call.respond(
+                HttpStatusCode.Forbidden,
+                ResultModel.error(403, "Access denied from $remoteIp")
+            )
+            finish() // 阻止继续处理
+        }
     }
 
     routing {
