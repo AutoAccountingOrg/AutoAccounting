@@ -25,25 +25,18 @@ import io.ktor.gson.gson
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
 import io.ktor.routing.routing
-import org.ezbook.server.Server
 import org.ezbook.server.models.ResultModel
 import org.ezbook.server.tools.BillService
+import org.ezbook.server.tools.ServerLog
 
 fun Application.module(context: Context) {
     install(StatusPages) {
         exception<Throwable> { cause ->
             call.respond(
-                HttpStatusCode.InternalServerError,
-                ResultModel(500, cause.message ?: "")
+                HttpStatusCode.OK,
+                ResultModel.error(500, cause.message ?: "")
             )
-            Server.log(cause.message ?: "")
-            Server.log(cause)
-        }
-        status(HttpStatusCode.NotFound) {
-            call.respond(
-                HttpStatusCode.NotFound,
-                ResultModel(404, "Not Found")
-            )
+            ServerLog.e(cause.message ?: "", cause)
         }
     }
     install(ContentNegotiation) {
