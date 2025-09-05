@@ -16,6 +16,7 @@
 package net.ankio.auto.ui.activity
 
 import android.os.Bundle
+import android.view.MenuItem
 import androidx.activity.OnBackPressedCallback
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
@@ -44,10 +45,8 @@ class HomeActivity : BaseActivity() {
         val navController = navHostFragment.navController
         binding.bottomNavigation.setupWithNavController(navController)
 
-        // 仅保留一次绑定，防止重复监听导致潜在的空指针或双重导航
-        // NavigationUI.setupWithNavController(binding.bottomNavigation, navController)
-        // 监听当前fragment变化
-        navHostFragment.navController.addOnDestinationChangedListener { _, destination, _ ->
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+
             // 这里判断destination.id是否在底部tab范围内
             val idsToShowBottomNav = setOf(
                 R.id.homeFragment,
@@ -62,21 +61,15 @@ class HomeActivity : BaseActivity() {
                 binding.bottomNavigation.slideDown()
             }
         }
-
-        var lastBackPressedTime = 0L
-        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                if (!navController.popBackStack()) {
-                    val now = System.currentTimeMillis()
-                    if (now - lastBackPressedTime < 2000) {
-                        moveTaskToBack(true)
-                    } else {
-                        lastBackPressedTime = now
-                        ToastUtils.info(R.string.press_again_to_exit)
-                    }
-                }
+        binding.bottomNavigation.setOnItemSelectedListener { item: MenuItem ->
+            if (navController.currentDestination?.parent == null) {
+                true
+            } else {
+                NavigationUI.onNavDestinationSelected(item, navController)
             }
-        });
+        }
+
+
     }
 
     override fun onStop() {
