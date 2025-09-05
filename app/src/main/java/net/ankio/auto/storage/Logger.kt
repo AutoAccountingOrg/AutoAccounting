@@ -8,6 +8,7 @@ import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.autoApp
 import net.ankio.auto.http.api.LogAPI
+import net.ankio.auto.utils.CoroutineUtils.withIO
 import net.ankio.auto.utils.DateUtils
 import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.utils.Throttle
@@ -140,16 +141,19 @@ object Logger {
      * @param tag 日志标签
      * @param message 日志消息
      */
-    private fun printLog(type: Int, tag: String, message: String) {
+    private suspend fun printLog(type: Int, tag: String, message: String) = withIO {
+        // Logcat 输出
+        val suffix = "[ 自动记账 ] "
         // Logcat 输出
         when (type) {
-            Log.VERBOSE -> Log.v(tag, message)
-            Log.DEBUG -> Log.d(tag, message)
-            Log.INFO -> Log.i(tag, message)
-            Log.WARN -> Log.w(tag, message)
-            Log.ERROR -> Log.e(tag, message)
-            else -> Log.i(tag, message)
+            Log.VERBOSE -> Log.v(tag, suffix + message)
+            Log.DEBUG -> Log.d(tag, suffix + message)
+            Log.INFO -> Log.i(tag, suffix + message)
+            Log.WARN -> Log.w(tag, suffix + message)
+            Log.ERROR -> Log.e(tag, suffix + message)
+            else -> Log.i(tag, suffix + message)
         }
+
 
         // 构建调用位置信息
         val header = Throwable().stackTrace.getOrNull(3)?.let {
@@ -166,9 +170,7 @@ object Logger {
         }
 
         // 异步发送日志到服务器
-        App.launch {
-            LogAPI.add(logLevel, BuildConfig.APPLICATION_ID, tag + header, message)
-        }
+        LogAPI.add(logLevel, BuildConfig.APPLICATION_ID, tag + header, message)
     }
 
     /**
@@ -191,7 +193,11 @@ object Logger {
      * @param message 日志消息
      */
     fun d(message: String) {
-        if (!PrefManager.debugMode) return; printLog(Log.DEBUG, getTag(), message)
+        val tag = getTag()
+        App.launchIO {
+            if (!PrefManager.debugMode) return@launchIO; printLog(Log.DEBUG, tag, message)
+        }
+
     }
 
     /**
@@ -200,7 +206,10 @@ object Logger {
      * @param message 日志消息
      */
     fun i(message: String) {
-        printLog(Log.INFO, getTag(), message)
+        val tag = getTag()
+        App.launchIO {
+            printLog(Log.INFO, tag, message)
+        }
     }
 
     /**
@@ -209,7 +218,10 @@ object Logger {
      * @param message 日志消息
      */
     fun w(message: String) {
-        printLog(Log.WARN, getTag(), message)
+        val tag = getTag()
+        App.launchIO {
+            printLog(Log.WARN, tag, message)
+        }
     }
 
     /**
@@ -219,11 +231,14 @@ object Logger {
      * @param throwable 异常对象（可选）
      */
     fun e(message: String, throwable: Throwable? = null) {
-        val builder = StringBuilder().apply {
-            append(message)
-            throwable?.let { append("\n").append(Log.getStackTraceString(it)) }
+        val tag = getTag()
+        App.launchIO {
+            val builder = StringBuilder().apply {
+                append(message)
+                throwable?.let { append("\n").append(Log.getStackTraceString(it)) }
+            }
+            printLog(Log.ERROR, tag, builder.toString())
         }
-        printLog(Log.ERROR, getTag(), builder.toString())
     }
 
     /**
