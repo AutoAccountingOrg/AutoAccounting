@@ -25,6 +25,7 @@ import androidx.lifecycle.LifecycleService
 import net.ankio.auto.databinding.DialogBottomSheetBinding
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseSheetDialog
+import net.ankio.auto.ui.utils.toThemeColor
 
 /**
  * 底部弹窗构建器
@@ -207,10 +208,7 @@ open class BottomSheetDialogBuilder internal constructor(
             setPadding(0, 16, 0, 16)
             // 设置文本样式
             setTextColor(
-                androidx.core.content.ContextCompat.getColor(
-                    ctx,
-                    android.R.color.primary_text_light
-                )
+                com.google.android.material.R.attr.colorOnBackground.toThemeColor()
             )
         }
     }

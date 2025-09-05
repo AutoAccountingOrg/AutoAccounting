@@ -127,7 +127,6 @@ class EditorDialogBuilder internal constructor(
         listener: ((result: String) -> Unit)?
     ): EditorDialogBuilder {
         val buttonText = ctx.getString(text)
-        Logger.d("Setting positive button with resource ID $text: '$buttonText'")
         return setEditorPositiveButton(buttonText, listener)
     }
 
@@ -141,16 +140,9 @@ class EditorDialogBuilder internal constructor(
         text: String,
         listener: ((result: String) -> Unit)?
     ): EditorDialogBuilder {
-        Logger.d("Setting positive button: '$text'")
         binding.positiveButton.text = text
         binding.positiveButton.setOnClickListener {
-            Logger.d("Positive button clicked: '$text'")
-            if (listener != null) {
-                Logger.d("Executing positive button listener")
-                listener(editText.text.toString())
-            } else {
-                Logger.d("No positive button listener provided")
-            }
+            listener?.invoke(editText.text.toString())
             dismiss()
         }
         binding.positiveButton.visibility = View.VISIBLE
