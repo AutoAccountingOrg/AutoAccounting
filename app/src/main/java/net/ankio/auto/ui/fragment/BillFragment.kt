@@ -58,25 +58,20 @@ open class BillFragment : BasePageFragment<OrderGroup, FragmentBillBinding>() {
         recyclerView.layoutManager = WrapContentLinearLayoutManager(requireContext())
 
         adapter.setOnItemClickListener { item, position, itemAdapter ->
-            launch {
-                AssetsUtils.setMapAssets(requireContext(), false, item) {
-                    BaseSheetDialog.create<BillEditorDialog>(requireContext())
-                        .setBillInfo(item)
-                        .setOnConfirm { updatedBill ->
-                            updatedBill.state = BillState.Edited
-                            itemAdapter.updateItem(position, updatedBill)
-                            // 保存到
-                            launch {
-                                Logger.d("更新账单：$updatedBill")
-                                BillAPI.put(updatedBill)
-                                BillTool.syncBill(updatedBill)
-                            }
+            BaseSheetDialog.create<BillEditorDialog>(requireContext())
+                .setBillInfo(item)
+                .setOnConfirm { updatedBill ->
+                    updatedBill.state = BillState.Edited
+                    itemAdapter.updateItem(position, updatedBill)
+                    // 保存到
+                    launch {
+                        Logger.d("更新账单：$updatedBill")
+                        BillAPI.put(updatedBill)
+                        BillTool.syncBill(updatedBill)
+                    }
 
-                        }
-                        .show()
                 }
-            }
-
+                .show()
         }
 
         // 设置长按事件
