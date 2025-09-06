@@ -35,10 +35,16 @@ open class BaseIntent(
                 "net.ankio.auto.ui.activity.FloatingWindowTriggerActivity"
             )
         )
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-        intent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
+        // 使用单次设置的方式合并所有标志位：
+        // - NEW_TASK: 允许从服务端拉起 Activity
+        // - NO_HISTORY/EXCLUDE_FROM_RECENTS: 不保留历史、从最近任务中排除
+        // - NO_ANIMATION: 禁用切换动画
+        intent.addFlags(
+            Intent.FLAG_ACTIVITY_NEW_TASK or
+                    Intent.FLAG_ACTIVITY_NO_HISTORY or
+                    Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS or
+                    Intent.FLAG_ACTIVITY_NO_ANIMATION
+        )
         return intent
     }
 
