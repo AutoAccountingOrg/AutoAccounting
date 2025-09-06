@@ -180,6 +180,7 @@ class OcrService : ICoreService() {
         coreService.lifecycleScope.launch {
             val startTime = System.currentTimeMillis()
             try {
+                Logger.d("开始OCR流程")
                 // 显示OCR界面
                 ocrView.startOcrView(coreService)
 
@@ -188,7 +189,10 @@ class OcrService : ICoreService() {
 
                 // 处理识别结果
                 if (ocrResult != null) {
+                    Logger.d("识别文本长度: ${ocrResult.length}")
                     send2JsEngine(ocrResult, packageName)
+                } else {
+                    Logger.d("识别结果为空，跳过处理")
                 }
 
                 val totalTime = System.currentTimeMillis() - startTime
