@@ -48,13 +48,13 @@ class MainActivity : BaseActivity() {
                 CoreService.start(this, intent)
                 Logger.d("初始化完成")
                 if (PrefManager.introIndex + 1 >= IntroPage.entries.size) {
-                    start<HomeActivity>()
+                    start<HomeActivity>(true)
                 }
             },
             onDenied = {
                 Logger.d("权限被拒绝或者未完成初始化")
                 if (PrefManager.introIndex + 1 >= IntroPage.entries.size) {
-                    start<HomeActivity>()
+                    start<HomeActivity>(true)
                 }
             }
         )
