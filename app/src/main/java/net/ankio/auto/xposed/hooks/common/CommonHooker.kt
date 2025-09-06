@@ -40,7 +40,7 @@ object CommonHooker {
             Server.versionName = BuildConfig.VERSION_NAME
             Server.packageName = BuildConfig.APPLICATION_ID
             Server.debug = AppRuntime.debug
-            server.startServer(AppRuntime.debug)
+            server.startServer()
             AppInstaller.init(AppRuntime.application!!, server)
             Logger.logD(TAG, "Server start success")
         } catch (e: Throwable) {
