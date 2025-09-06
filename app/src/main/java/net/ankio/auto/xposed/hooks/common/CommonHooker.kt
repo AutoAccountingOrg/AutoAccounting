@@ -39,7 +39,7 @@ object CommonHooker {
             val server = Server(AppRuntime.application!!)
             Server.versionName = BuildConfig.VERSION_NAME
             Server.packageName = BuildConfig.APPLICATION_ID
-            Server.debug = BuildConfig.DEBUG
+            Server.debug = AppRuntime.debug
             server.startServer(AppRuntime.debug)
             AppInstaller.init(AppRuntime.application!!, server)
             Logger.logD(TAG, "Server start success")
