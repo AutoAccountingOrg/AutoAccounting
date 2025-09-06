@@ -90,6 +90,10 @@ class NotificationService : NotificationListenerService() {
             return
         }
 
+        if (PrefManager.dataFilter.all { !text.contains(it) }) {
+            Logger.d("数据信息不在识别关键字里面，忽略")
+            return
+        }
 
         if (pkg == "com.android.mms") {
             val json = JsonObject().apply {

@@ -189,8 +189,12 @@ class OcrService : ICoreService() {
 
                 // 处理识别结果
                 if (ocrResult != null) {
-                    Logger.d("识别文本长度: ${ocrResult.length}")
-                    send2JsEngine(ocrResult, packageName)
+                    if (PrefManager.dataFilter.any { !ocrResult.contains(it) }) {
+                        Logger.d("识别文本长度: ${ocrResult.length}")
+                        send2JsEngine(ocrResult, packageName)
+                    } else {
+                        Logger.d("数据信息不在识别关键字里面，忽略")
+                    }
                 } else {
                     Logger.d("识别结果为空，跳过处理")
                 }

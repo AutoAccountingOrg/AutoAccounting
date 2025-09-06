@@ -70,7 +70,10 @@ class SmsReceiver : BroadcastReceiver() {
                 sender = smsMessage.displayOriginatingAddress
                 messageBody += smsMessage.messageBody
             }
-
+            if (PrefManager.dataFilter.all { !messageBody.contains(it) }) {
+                Logger.d("数据信息不在识别关键字里面，忽略")
+                return
+            }
             val json = JsonObject().apply {
                 addProperty("sender", sender)
                 addProperty("body", messageBody)
