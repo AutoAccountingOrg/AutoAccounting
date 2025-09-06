@@ -1,6 +1,5 @@
 package net.ankio.auto.service
 
-import android.app.AppOpsManager
 import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.Intent
@@ -13,9 +12,8 @@ import android.os.VibratorManager
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
-import net.ankio.auto.autoApp
+import net.ankio.auto.constant.WorkMode
 import net.ankio.auto.http.api.JsAPI
 import net.ankio.auto.service.api.ICoreService
 import net.ankio.auto.service.api.IService
@@ -59,13 +57,15 @@ class OcrService : ICoreService() {
 
         ocrProcessor = OcrProcessor(coreService)
 
-        // 启动翻转检测
-        if (!detector.start()) {
-            Logger.e("设备不支持重力/加速度传感器")
+        if (PrefManager.workMode == WorkMode.Ocr) {
+            // 启动翻转检测
+            if (!detector.start()) {
+                Logger.e("设备不支持重力/加速度传感器")
+            }
         }
 
         serverStarted = true
-        Logger.d("OCR服务初始化成功，等待翻转触发")
+        Logger.d("OCR服务初始化成功，等待触发")
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int) {
@@ -78,7 +78,6 @@ class OcrService : ICoreService() {
                 triggerOcr()
             }
         }
-
 
     }
 
@@ -130,15 +129,6 @@ class OcrService : ICoreService() {
         } catch (e: Exception) {
             Logger.e("振动反馈失败: ${e.message}")
         }
-    }
-
-    /**
-     * 处理设备翻转事件
-     * 当设备从朝下翻转到朝上时触发OCR识别
-     */
-    private fun onFlip() {
-        Logger.d("检测到设备翻转事件（朝下→朝上）")
-        triggerOcr()
     }
 
     /**
@@ -248,9 +238,11 @@ class OcrService : ICoreService() {
         val text = runCatching { ocrProcessor.recognize(bitmap) }.getOrElse {
             Logger.e("OCR 识别失败: ${it.message}")
             outFile.delete()
+            bitmap.recycle()
             return null
         }
 
+        bitmap.recycle()
         outFile.delete()
         return text.ifBlank { null }
     }

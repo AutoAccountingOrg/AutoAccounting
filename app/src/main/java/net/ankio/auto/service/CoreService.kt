@@ -67,7 +67,8 @@ class CoreService : LifecycleService() {
      */
     private fun initializeServices() {
         services = if (PrefManager.workMode === WorkMode.Xposed) {
-            listOf<ICoreService>(
+            listOf(
+                OcrService(),
                 OverlayService()
             )
         } else {
