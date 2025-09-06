@@ -31,12 +31,9 @@ import org.ezbook.server.db.model.RuleModel
 import org.ezbook.server.tools.MD5HashTable
 
 /**
- * 规则编辑页面 - 简洁版本
+ * 规则编辑页面 - 简洁版
  *
- * 好品味原则：
- * - 单一数据源，消除复杂状态管理
- * - 直接的数据流动，没有特殊情况
- * - 简单的页面导航，不需要复杂回调
+ * 好品味原则：消除所有不必要的复杂性
  */
 class RuleEditFragment : BaseFragment<FragmentRuleEditBinding>() {
 
@@ -46,109 +43,108 @@ class RuleEditFragment : BaseFragment<FragmentRuleEditBinding>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 简单的数据初始化 - 消除特殊情况
         initRule()
         bindViews()
         setupEvents()
-        setupFragmentResultListener()
+        setupResultListener()
     }
 
-    /** 初始化规则数据 - 统一处理，没有特殊情况 */
+
+    /** 初始化规则 - 统一处理所有情况 */
     private fun initRule() {
-        // 从参数获取规则数据
-        val ruleJson = arguments?.getString("rule")
-        val dataJson = arguments?.getString("data")
+        // 恢复状态 > 编辑规则 > 新建规则 > 退出
+        rule = when {
 
-        Logger.d("ruleJson-> $ruleJson")
-        Logger.d("dataJson-> $dataJson")
+            arguments?.getString("rule") != null -> {
+                Logger.d("编辑规则")
+                Gson().fromJson(arguments?.getString("rule"), RuleModel::class.java)
+            }
 
-        if (!ruleJson.isNullOrEmpty()) {
-            // 编辑现有规则
-            rule = Gson().fromJson(ruleJson, RuleModel::class.java)
-        } else if (!dataJson.isNullOrEmpty()) {
-            // 从应用数据创建新规则
-            val appData = Gson().fromJson(dataJson, AppDataModel::class.java)
-            rule.app = appData.app
-            rule.type = appData.type.toString()
-            rule.name = "用户创建_" + MD5HashTable.md5(appData.data)
-            rule.systemRuleName = "rule_${System.currentTimeMillis()}"
-            rule.creator = "user"
-            rule.struct = appData.data
-        } else {
-            findNavController().popBackStack()
+            arguments?.getString("data") != null -> {
+                Logger.d("新建规则")
+                val appData =
+                    Gson().fromJson(arguments?.getString("data"), AppDataModel::class.java)
+                RuleModel().apply {
+                    app = appData.app
+                    type = appData.type.toString()
+                    name = "用户创建_" + MD5HashTable.md5(appData.data)
+
+                    creator = "user"
+                    struct = appData.data
+                }
+            }
+
+            else -> {
+                findNavController().popBackStack(); return
+            }
         }
-
+        Logger.d("初始化规则：$rule")
         binding.toolbar.setNavigationOnClickListener { findNavController().popBackStack() }
     }
 
-    /** 绑定数据到视图 - 简单直接 */
     private fun bindViews() = with(binding) {
         nameEdit.setText(rule.name)
         appEdit.setText(rule.app)
         typeEdit.setText(rule.type)
-        // JS预览 - 消除复杂的长度判断
-        jsEditInput.setText(
-            rule.js.ifBlank { getString(R.string.rule_tap_to_edit) }
-        )
+        updateJsDisplay()
     }
 
-    /** 绑定事件 - 简单直接 */
     private fun setupEvents() = with(binding) {
         jsEditInput.setOnClickListener { editJs() }
         saveButton.setOnClickListener { save() }
     }
 
-    /** 编辑JS - 直接导航，不需要复杂的数据同步 */
+    private fun updateJsDisplay() {
+        binding.jsEditInput.setText(
+            rule.js.ifBlank { getString(R.string.rule_tap_to_edit) }
+        )
+    }
+
     private fun editJs() {
         collectData()
-        val args = bundleOf(
+        if (rule.systemRuleName.isEmpty()) {
+            rule.systemRuleName = "rule_${System.currentTimeMillis()}"
+        }
+        findNavController().navigate(
+            R.id.ruleEditJsFragment, bundleOf(
             "js" to rule.js,
             "struct" to rule.struct,
             "name" to rule.systemRuleName
+            )
         )
-        findNavController().navigate(R.id.ruleEditJsFragment, args)
     }
 
-    /** 收集界面数据 - 简单直接 */
     private fun collectData() = with(binding) {
         rule.name = nameEdit.text.toString().trim()
         rule.app = appEdit.text.toString().trim()
         rule.type = typeEdit.text.toString().trim()
     }
 
-    /** 保存规则 - 简单验证和保存 */
     private fun save() {
         collectData()
-
         if (rule.name.isBlank()) {
             ToastUtils.error(getString(R.string.rule_name_required))
             return
         }
 
         launch {
-            if (rule.id > 0) {
-                RuleManageAPI.update(rule)
-            } else {
-                RuleManageAPI.add(rule)
-            }
+            if (rule.id > 0) RuleManageAPI.update(rule) else RuleManageAPI.add(rule)
             ToastUtils.info(R.string.btn_save)
             findNavController().popBackStack()
         }
     }
 
-    /** 监听JS编辑页面返回的数据 - 修复数据丢失问题 */
-    private fun setupFragmentResultListener() {
+    private fun setupResultListener() {
         parentFragmentManager.setFragmentResultListener("js_edit_result", this) { _, bundle ->
-            // 获取JS编辑页面返回的数据
-            val js = bundle.getString("js") ?: ""
-            // 更新规则数据
-            rule.js = js
-            // 刷新界面显示
-            bindViews()
-
-            Logger.d("接收到JS编辑结果: js长度=${js.length}")
+            rule.js = bundle.getString("js") ?: ""
+            rule.systemRuleName = bundle.getString("name") ?: ""
+            updateJsDisplay()
+            Logger.d("恢复数据：${rule.systemRuleName}")
         }
     }
-    
 
+    override fun onDestroyView() {
+        parentFragmentManager.clearFragmentResultListener("js_edit_result")
+        super.onDestroyView()
+    }
 }

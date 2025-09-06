@@ -54,6 +54,6 @@ class RuleModel {
     var updateAt: Long = System.currentTimeMillis()
 
     override fun toString(): String {
-        return "RuleModel(id=$id, app='$app', type='$type', js='$js', name='$name', systemRuleName='$systemRuleName', creator='$creator', struct='$struct', autoRecord=$autoRecord, enabled=$enabled)"
+        return "RuleModel(id=$id, app='$app', type='$type', js(length)='${js.length}', name='$name', systemRuleName='$systemRuleName', creator='$creator', struct='$struct', autoRecord=$autoRecord, enabled=$enabled)"
     }
 }

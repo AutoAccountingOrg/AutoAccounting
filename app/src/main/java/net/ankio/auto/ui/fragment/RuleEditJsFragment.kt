@@ -352,8 +352,13 @@ class RuleEditJsFragment : BaseFragment<FragmentRuleJsEditBinding>() {
     /** 保存JS代码 - 简化数据传递 */
     private fun save() {
         val currentJs = binding.codeEditor.text.toString()
-        val result = bundleOf("js" to currentJs, "struct" to jsRule.testData)
+        val result = bundleOf(
+            "js" to currentJs,
+            "struct" to jsRule.testData,
+            "name" to jsRule.name
+        )
         parentFragmentManager.setFragmentResult("js_edit_result", result)
+
         ToastUtils.info(R.string.js_saved)
         findNavController().popBackStack()
     }
