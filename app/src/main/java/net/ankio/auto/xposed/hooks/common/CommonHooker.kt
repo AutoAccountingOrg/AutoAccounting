@@ -16,7 +16,6 @@
 package net.ankio.auto.xposed.hooks.common
 
 import net.ankio.auto.BuildConfig
-import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.xposed.core.App.Companion.TAG
 import net.ankio.auto.xposed.core.logger.Logger
 import net.ankio.auto.xposed.core.utils.AppRuntime
@@ -41,7 +40,7 @@ object CommonHooker {
             Server.versionName = BuildConfig.VERSION_NAME
             Server.packageName = BuildConfig.APPLICATION_ID
             Server.debug = BuildConfig.DEBUG
-            server.startServer(PrefManager.debugMode)
+            server.startServer(AppRuntime.debug)
             AppInstaller.init(AppRuntime.application!!, server)
             Logger.logD(TAG, "Server start success")
         } catch (e: Throwable) {
