@@ -3,13 +3,8 @@ package net.ankio.auto.ui.activity
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
 import android.view.Gravity
 import android.view.WindowManager
-import androidx.core.net.toUri
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import net.ankio.auto.R
 import net.ankio.auto.service.CoreService
 import net.ankio.auto.storage.Constants
@@ -64,18 +59,10 @@ class FloatingWindowTriggerActivity : BaseActivity() {
             return
         }
 
-        // 2. 检查悬浮窗权限
-        if (!Settings.canDrawOverlays(this)) {
-            Logger.e("没有悬浮窗权限")
-            startActivity(
-                Intent(
-                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                    "package:$packageName".toUri()
-                ).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            )
-            exitActivity()
-            return
-        }
+
+        // https://stackoverflow.com/questions/46173460/why-does-settings-candrawoverlays-method-in-android-8-returns-false-when-use
+        // 应该是安卓的历史遗留问题
+        // 取消悬浮窗权限检查，直接在服务里面catch权限异常进行跳转
 
         // 3. 确保服务就绪后启动服务
         Logger.i("服务就绪，启动CoreService")
