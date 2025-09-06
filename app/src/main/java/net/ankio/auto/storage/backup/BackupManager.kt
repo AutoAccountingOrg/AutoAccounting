@@ -128,15 +128,13 @@ class BackupManager(private val context: Context) {
                 loading?.setText(R.string.backup_webdav)
             }
 
-            if (!webDAVManager.upload(backupFile, filename)) {
-                throw RuntimeException("WebDAV上传失败")
-            }
+            webDAVManager.upload(backupFile, filename).getOrThrow()
 
             Logger.i("WebDAV备份完成")
 
         } catch (e: Exception) {
             Logger.e("WebDAV备份失败", e)
-            throw e
+            ToastUtils.error(e.message ?: "")
         } finally {
             // 清理资源
             backupFile.delete()

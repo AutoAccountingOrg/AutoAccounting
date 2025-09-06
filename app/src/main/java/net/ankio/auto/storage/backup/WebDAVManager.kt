@@ -20,8 +20,8 @@ import kotlinx.coroutines.withContext
 import net.ankio.auto.http.RequestsUtils
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.utils.PrefManager
-import org.ezbook.server.tools.runCatchingExceptCancel
 import okhttp3.Credentials
+import org.ezbook.server.tools.runCatchingExceptCancel
 import java.io.File
 
 /**
@@ -50,88 +50,73 @@ class WebDAVManager {
     /**
      * 上传文件，上传成功后自动清理旧备份
      */
-    suspend fun upload(file: File, filename: String): Boolean = withContext(Dispatchers.IO) {
+    suspend fun upload(file: File, filename: String): Result<Unit> = withContext(Dispatchers.IO) {
 
-        return@withContext runCatchingExceptCancel {
+        runCatchingExceptCancel {
             Logger.d("备份路径: $backupUrl")
             requestUtils.mkcol(backupUrl).getOrNull()
             requestUtils.put("$backupUrl/$filename", file).getOrThrow()
             Logger.d("上传成功: $filename")
             // 上传成功后自动清理旧备份，保持最多10个文件
             cleanupOldBackups()
-            true
-        }.getOrElse {
+            Unit
+        }.onFailure {
             Logger.e("上传失败: ${it.message}", it)
-            false
         }
     }
 
     /**
      * 下载文件，只管下载，不管其他
+     * @return Result<Unit> 成功或失败
      */
-    suspend fun download(filename: String, targetFile: File): Boolean =
+    suspend fun download(filename: String, targetFile: File): Result<Unit> =
         withContext(Dispatchers.IO) {
-
-            return@withContext runCatchingExceptCancel {
+            runCatchingExceptCancel {
                 requestUtils.download("$backupUrl/$filename", targetFile).getOrThrow()
                 Logger.d("下载成功: $filename")
-                true
-            }.getOrElse {
-                Logger.e("下载失败: ${it.message}", it)
-            false
+            }.onFailure { Logger.e("下载失败: ${it.message}", it) }
         }
-    }
 
     /**
      * 列举最近一个备份文件
      * @return 最新的备份文件名，没有则返回null
      */
-    suspend fun listLatest(): String? = withContext(Dispatchers.IO) {
-
-        return@withContext runCatchingExceptCancel {
+    suspend fun listLatest(): Result<String?> = withContext(Dispatchers.IO) {
+        runCatchingExceptCancel {
             val files = requestUtils.dir(backupUrl).getOrThrow()
             files.filter { it.endsWith("." + BackupFileManager.SUFFIX) }
                 .maxByOrNull { it }
-        }.getOrElse {
-            Logger.w("获取最新备份失败: ${it.message}")
-            null
-        }
+        }.onFailure { Logger.w("获取最新备份失败: ${it.message}") }
     }
 
     /**
      * 清理旧备份，只保留最新的10个文件
      * Linus式简化：上传后自动清理，用户无感知
      */
-    private suspend fun cleanupOldBackups() = withContext(Dispatchers.IO) {
-
+    private suspend fun cleanupOldBackups(): Result<Unit> = withContext(Dispatchers.IO) {
         runCatchingExceptCancel {
             val files = requestUtils.dir(backupUrl).getOrThrow()
-            val backupFiles = files.filter { it.endsWith(".pk") }
+            val backupFiles = files.filter { it.endsWith("." + BackupFileManager.SUFFIX) }
                 .sortedDescending()
             if (backupFiles.size > 10) {
                 val filesToDelete = backupFiles.drop(10)
                 Logger.d("清理WebDAV备份: 删除${filesToDelete.size}个旧文件")
                 var deletedCount = 0
-                filesToDelete.forEach { filename -> if (deleteFile(filename)) deletedCount++ }
+                filesToDelete.forEach { filename -> if (deleteFile(filename).isSuccess) deletedCount++ }
                 Logger.d("清理完成: 成功删除${deletedCount}个文件")
             }
-        }.getOrElse {
-            Logger.w("清理旧备份失败: ${it.message}")
-        }
+            Unit
+        }.onFailure { Logger.w("清理旧备份失败: ${it.message}") }
     }
 
     /**
      * 删除单个文件
      * @return 是否删除成功
      */
-    private suspend fun deleteFile(filename: String): Boolean {
-
-        return runCatchingExceptCancel {
+    private suspend fun deleteFile(filename: String): Result<Unit> = withContext(Dispatchers.IO) {
+        runCatchingExceptCancel {
             requestUtils.delete("$backupUrl/$filename").getOrThrow()
-            true
-        }.getOrElse {
-            Logger.w("删除文件失败: $filename - ${it.message}")
-            false
-        }
+            Unit
+        }.onFailure { Logger.w("删除文件失败: $filename - ${it.message}") }
     }
 }

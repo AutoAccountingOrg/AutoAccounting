@@ -84,19 +84,14 @@ class RestoreManager(private val context: Context) {
             withMain {
                 loadingUtils?.setText(R.string.restore_webdav)
             }
-            val downloadSuccess = webDAVManager.download(filename, targetFile)
-
-            if (downloadSuccess) {
-                // 切换到恢复进度提示
+            webDAVManager.download(filename, targetFile).onSuccess {
                 withMain {
                     loadingUtils?.setText(R.string.restore_loading)
                 }
 
                 // 解包并恢复数据
                 fileManager.unpackData(targetFile)
-            } else {
-                throw RuntimeException("下载备份文件失败")
-            }
+            }.getOrThrow()
 
             Logger.i("WebDAV恢复完成")
             withMain {

@@ -188,7 +188,7 @@ class BackupPreferenceFragment : BasePreferenceFragment() {
         launch {
             try {
                 val webDAVManager = WebDAVManager()
-                val latestBackup = webDAVManager.listLatest()
+                val latestBackup = webDAVManager.listLatest().getOrNull()
 
                 if (latestBackup != null) {
                     val activity = requireActivity() as HomeActivity
