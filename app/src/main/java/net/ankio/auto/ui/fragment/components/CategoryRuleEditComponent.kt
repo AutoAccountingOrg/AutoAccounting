@@ -309,7 +309,7 @@ class CategoryRuleEditComponent(
 
     override fun onComponentDestroy() {
         super.onComponentDestroy()
-        flexboxLayout.removeAllElements()
+        flexboxLayout?.removeAllElements()
         Logger.d("CategoryRuleEditComponent清理完成")
     }
 
@@ -363,7 +363,7 @@ class CategoryRuleEditComponent(
                 }
             } else {
                 // 添加新的类型条件
-                flexboxLayout.appendWaveTextview(
+                flexboxLayout?.appendWaveTextview(
                     conditionText,
                     element,
                     true,
