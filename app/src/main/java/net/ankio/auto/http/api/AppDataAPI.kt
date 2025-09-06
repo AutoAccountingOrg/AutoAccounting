@@ -78,7 +78,7 @@ object AppDataAPI {
     suspend fun clear() = withContext(Dispatchers.IO) {
 
         runCatchingExceptCancel {
-            LocalNetwork.post<String>("data/clear").getOrThrow()
+            LocalNetwork.get<String>("data/clear").getOrThrow()
         }.getOrElse {
             Logger.e("clear error: ${it.message}", it)
         }
