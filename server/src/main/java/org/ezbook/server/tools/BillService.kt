@@ -273,7 +273,6 @@ class BillService(
         ServerLog.d("使用规则进行分析：$data")
         // 获取对应应用和数据类型的规则代码
         val js = ruleGenerator.data(app, dataType)
-        ServerLog.d("调用的JS代码：$js")
         // 执行规则代码进行分析
         val result = executeJs(js, data)
         ServerLog.d("规则js执行结果：$result")

@@ -31,6 +31,7 @@ class JsExecutor : Closeable {
 
     suspend fun run(code: String, data: String = ""): String =
         runCatchingExceptCancel {
+            ServerLog.d("执行JS：$code")
             // 每次执行创建独立的 Runtime/Context，避免跨脚本污染
             quickJs.createJSRuntime().use { rt ->
                 rt.createJSContext().use { ctx ->
@@ -57,7 +58,7 @@ class JsExecutor : Closeable {
         }.getOrElse {
             // 失败时打印详细错误，包含异常与堆栈，便于定位问题；返回空串让上层决定回退策略
             ServerLog.e("JS 执行失败：${it.message}", it)
-            ""
+            it.message ?: ""
         }
 
     override fun close() {}
