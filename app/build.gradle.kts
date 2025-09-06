@@ -75,6 +75,7 @@ android {
     buildFeatures {
         viewBinding = true
         buildConfig = true
+        aidl = true
     }
 
     buildTypes {
@@ -211,5 +212,9 @@ dependencies {
     implementation("io.github.rosemoe:language-textmate:$editorVersion")
 
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar", "*.aar"))))
+
+    // Shizuku API - 用于以 shell/system 身份访问系统服务
+    implementation("dev.rikka.shizuku:api:13.1.5")
+    implementation("dev.rikka.shizuku:provider:13.1.0")
 
 }
