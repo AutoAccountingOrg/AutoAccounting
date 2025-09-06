@@ -49,6 +49,10 @@ interface RuleDao {
     @Query("SELECT * FROM RuleModel WHERE app = :app AND type = :type AND enabled = 1")
     suspend fun loadAllEnabled(app: String, type: String): List<RuleModel>
 
+    //按创建者查询所有启用的规则（系统/用户），用于JS执行
+    @Query("SELECT * FROM RuleModel WHERE app = :app AND type = :type AND enabled = 1 AND creator = :creator")
+    suspend fun loadAllEnabledByCreator(app: String, type: String, creator: String): List<RuleModel>
+
 
     @Insert
     suspend fun insert(rule: RuleModel): Long

@@ -255,6 +255,33 @@ class BillService(
     // region --- 私有辅助方法 ---
 
     /**
+     * 使用指定来源（系统/用户）的规则进行一次解析尝试
+     * @param app 应用名称
+     * @param data 原始数据
+     * @param dataType 数据类型
+     * @param creator 规则来源（system/user）
+     * @return 解析成功返回账单，失败返回 null
+     */
+    private suspend fun analyzeWithCreator(
+        app: String,
+        data: String,
+        dataType: DataType,
+        creator: String
+    ): BillInfoModel? {
+        val src = if ("system" == creator) "系统" else "用户"
+        val js = ruleGenerator.data(app, dataType, creator)
+        if (js.isBlank()) {
+            ServerLog.d("${src}规则数据为空，跳过")
+            return null
+        }
+        val result = executeJs(js, data)
+        return parseBillInfo(result, app, dataType)?.also {
+
+            ServerLog.d("${src}规则解析成功：type=${'$'}{it.type}, money=${'$'}{it.money}")
+        }
+    }
+
+    /**
      * 使用规则引擎分析账单数据
      *
      * 通过规则生成器获取对应应用和数据类型的JavaScript规则代码，
@@ -271,20 +298,12 @@ class BillService(
         dataType: DataType
     ): BillInfoModel? {
         ServerLog.d("使用规则进行分析：$data")
-        // 获取对应应用和数据类型的规则代码
-        val js = ruleGenerator.data(app, dataType)
-        // 执行规则代码进行分析
-        val result = executeJs(js, data)
-        ServerLog.d("规则js执行结果：$result")
-        // 解析分析结果为账单信息对象
-        val info = parseBillInfo(result, app, dataType)
-        if (info == null) {
-            // 记录规则解析失败，便于快速回退到AI
-            ServerLog.d("规则解析失败，结果为空")
-        } else {
-            ServerLog.d("规则解析成功：type=${info.type}, money=${info.money}, shop=${info.shopName}")
+        //为了避免部分用户的错误规则影响自动记账整体规则的可用性，拆分成2部分处理
+        for (creator in arrayOf("system", "user")) {
+            analyzeWithCreator(app, data, dataType, creator)?.let { return it }
         }
-        return info
+        ServerLog.d("系统与用户规则均未解析出有效结果")
+        return null
     }
 
     /**

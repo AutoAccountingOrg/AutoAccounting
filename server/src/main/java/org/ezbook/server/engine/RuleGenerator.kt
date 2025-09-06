@@ -27,8 +27,14 @@ import org.ezbook.server.tools.SettingUtils
  */
 object RuleGenerator {
     // 生成 hook的 js代码
-    suspend fun data(app: String, type: DataType): String {
-        val rules = Db.get().ruleDao().loadAllEnabled(app, type.name)
+    // creator: "system" 生成系统规则，"user" 生成用户规则；为兼容旧接口，默认使用全部（保持原行为）
+    suspend fun data(app: String, type: DataType, creator: String? = null): String {
+        val rules = when (creator) {
+            "system" -> Db.get().ruleDao().loadAllEnabledByCreator(app, type.name, "system")
+            "user" -> Db.get().ruleDao().loadAllEnabledByCreator(app, type.name, "user")
+            else -> Db.get().ruleDao().loadAllEnabled(app, type.name)
+        }
+        if (rules.isEmpty()) return ""
         val js = StringBuilder()
 
         //注入common.js
