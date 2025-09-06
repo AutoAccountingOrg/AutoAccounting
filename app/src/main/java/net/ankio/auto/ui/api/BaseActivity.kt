@@ -19,12 +19,12 @@ import android.content.Intent
 import android.content.res.Resources
 import android.graphics.Color
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.utils.ThemeUtils
 import rikka.material.app.MaterialActivity
-import kotlin.coroutines.cancellation.CancellationException
 
 
 /**
@@ -115,7 +115,7 @@ open class BaseActivity : MaterialActivity() {
     ) {
         val targetActivity = T::class.java.simpleName
         Logger.d("Starting activity: $targetActivity, finishCurrent: $finishCurrent")
-        
+
         val intent = Intent(this, T::class.java).apply(builder)
         startActivity(intent)
 
@@ -132,9 +132,21 @@ open class BaseActivity : MaterialActivity() {
      *
      * @param block 协程代码块，专注于业务逻辑
      */
-    protected fun launch(block: suspend CoroutineScope.() -> Unit) {
-        lifecycleScope.launch { block() }
-    }
+    protected fun launch(block: suspend CoroutineScope.() -> Unit) =
+        lifecycleScope.launch(CoroutineExceptionHandler { _, _ -> }, block = block).apply {
+            invokeOnCompletion { e ->
+                when (e) {
+                    null -> Unit // 正常完成不处理
+                    is kotlinx.coroutines.CancellationException -> {
+                        Logger.e("Activity协程已取消: ${e.message}")
+                    }
+
+                    else -> {
+                        Logger.e("Activity协程执行异常: ${javaClass.simpleName}", e)
+                    }
+                }
+            }
+        }
 
 
 }

@@ -26,12 +26,13 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import net.ankio.auto.databinding.FragmentPreferenceBaseBinding
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.utils.DisplayUtils
-import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * 基础PreferenceFragment类
@@ -127,22 +128,20 @@ abstract class BasePreferenceFragment : PreferenceFragmentCompat() {
      *
      * @param block 协程代码块，专注于业务逻辑
      */
-    protected fun launch(block: suspend CoroutineScope.() -> Unit) {
-        lifecycleScope.launch {
-            runCatching {
-                block()
-            }.onFailure { e ->
+    protected fun launch(block: suspend CoroutineScope.() -> Unit) =
+        lifecycleScope.launch(CoroutineExceptionHandler { _, _ -> }, block = block).apply {
+            invokeOnCompletion { e ->
                 when (e) {
+                    null -> Unit // 正常完成不处理
                     is CancellationException -> {
-                        Logger.d("PreferenceFragment协程已取消: ${e.message}")
+                        Logger.e("PreferenceFragment协程已取消: ${e.message}")
                     }
 
                     else -> {
                         Logger.e("PreferenceFragment协程执行异常: ${javaClass.simpleName}", e)
-                        // 可以在这里添加全局异常处理逻辑
                     }
                 }
             }
         }
-    }
+
 }

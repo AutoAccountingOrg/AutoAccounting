@@ -21,18 +21,15 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
+import android.widget.ScrollView
 import androidx.core.view.children
 import androidx.core.widget.NestedScrollView
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.viewbinding.ViewBinding
-import android.widget.ScrollView
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import net.ankio.auto.storage.Logger
 import java.lang.reflect.ParameterizedType
-import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * 基础 Fragment 类，提供 ViewBinding 的自动绑定功能
@@ -177,24 +174,22 @@ abstract class BaseFragment<VB : ViewBinding> : Fragment() {
      * @param block 协程代码块，专注于业务逻辑
      * @return 协程Job，可用于取消操作
      */
-    protected fun launch(block: suspend CoroutineScope.() -> Unit): Job {
-        return lifecycleScope.launch {
-            runCatching {
-                block()
-            }.onFailure { e ->
+    protected fun launch(block: suspend CoroutineScope.() -> Unit): Job =
+        lifecycleScope.launch(CoroutineExceptionHandler { _, _ -> }, block = block).apply {
+            invokeOnCompletion { e ->
                 when (e) {
+                    null -> Unit // 正常完成不处理
                     is CancellationException -> {
-                        Logger.d("Fragment已取消: ${e.message}")
+                        Logger.e("Fragment协程已取消: ${e.message}")
                     }
 
                     else -> {
-                        Logger.e("Fragment协程执行异常: ${javaClass.simpleName}", e)
-                        // 可以在这里添加全局异常处理逻辑，如显示错误提示等
+                        Logger.e("Fragmentt协程执行异常: ${javaClass.simpleName}", e)
                     }
                 }
             }
         }
-    }
+
 
     // ================================
     // 通用滚动位置保存/恢复（NestedScrollView/ScrollView）
