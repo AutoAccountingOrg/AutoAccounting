@@ -365,8 +365,13 @@
     <string name="clear_database_failed">数据库清除失败：%s</string>
     <string name="clear_success">清除成功</string>
 
-    <string name="server_error_version_title">服务器版本不匹配</string>
-    <string name="server_error_btn">确定</string>
+    <string name="server_error_restart_title">需要重新启动</string>
+    <string name="server_error_version_message">检测到版本不匹配：\n服务器版本：%1$s\n应用版本：%2$s\n\n请重启设备以确保功能正常运行。</string>
+    <string name="server_error_connection_message">无法连接到自动记账服务器，请重启设备。</string>
+    <string name="server_error_btn_ok">我知道了</string>
+    <string name="restart_device_hint_title">重启提示</string>
+    <string name="restart_device_hint_message">请手动重启设备以使更改生效，或者您可以尝试在设置中重启自动记账服务。</string>
+    <string name="restart_device_hint_btn">我知道了</string>
     <string name="setting_load_success">成功加载自动记账后显示通知</string>
     <string name="load_msg">按需启用</string>
     <string name="donate_alipay">支付宝</string>

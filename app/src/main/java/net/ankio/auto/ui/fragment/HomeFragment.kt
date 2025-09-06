@@ -20,9 +20,13 @@ import android.os.Bundle
 import android.view.View
 import androidx.navigation.fragment.findNavController
 import com.google.gson.Gson
+import kotlinx.coroutines.delay
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
+import net.ankio.auto.constant.WorkMode
 import net.ankio.auto.databinding.FragmentPluginHomeBinding
+import net.ankio.auto.http.LocalNetwork
+import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.api.BaseSheetDialog
@@ -81,6 +85,7 @@ class HomeFragment : BaseFragment<FragmentPluginHomeBinding>() {
 
         // 检查并显示Canary版本警告
         checkAndShowCanaryWarning()
+        checkServer()
     }
 
     /**
@@ -112,4 +117,55 @@ class HomeFragment : BaseFragment<FragmentPluginHomeBinding>() {
             }
             .show()
     }
+
+
+    private fun checkServer() {
+        if (PrefManager.workMode == WorkMode.Ocr) return
+
+        launch {
+            LocalNetwork.get<String>("/").onSuccess {
+                if (it.data != BuildConfig.VERSION_NAME) {
+                    Logger.d("server:${it.data}, ${BuildConfig.VERSION_NAME}")
+                    // 版本不匹配，提示用户重启设备
+                    showServerVersionMismatchDialog(it.data ?: "")
+                }
+            }.onFailure {
+                // 连接失败，提示用户
+                showServerConnectionFailedDialog()
+            }
+        }
+    }
+
+    /**
+     * 显示服务器版本不匹配对话框
+     */
+    private fun showServerVersionMismatchDialog(serverVersion: String) {
+        BaseSheetDialog.create<BottomSheetDialogBuilder>(requireContext())
+            .setTitle(getString(R.string.server_error_restart_title))
+            .setMessage(
+                getString(
+                    R.string.server_error_version_message,
+                    serverVersion,
+                    BuildConfig.VERSION_NAME
+                )
+            )
+            .setPositiveButton(getString(R.string.server_error_btn_ok)) { _, _ ->
+                // 用户确认知道了
+            }
+            .show()
+    }
+
+    /**
+     * 显示服务器连接失败对话框
+     */
+    private fun showServerConnectionFailedDialog() {
+        BaseSheetDialog.create<BottomSheetDialogBuilder>(requireContext())
+            .setTitle(getString(R.string.server_error_restart_title))
+            .setMessage(getString(R.string.server_error_connection_message))
+            .setPositiveButton(getString(R.string.server_error_btn_ok)) { _, _ ->
+                // 用户确认知道了
+            }
+            .show()
+    }
+
 }

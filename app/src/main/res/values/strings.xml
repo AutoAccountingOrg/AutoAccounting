@@ -382,8 +382,13 @@
     <string name="clear_database_failed">Failed to clear database: %s</string>
     <string name="clear_success">Clear successful</string>
 
-    <string name="server_error_version_title">Server version mismatch</string>
-    <string name="server_error_btn">OK</string>
+    <string name="server_error_restart_title">Restart Required</string>
+    <string name="server_error_version_message">Version mismatch detected:\nServer version: %1$s\nApp version: %2$s\n\nPlease restart device to ensure proper functionality.</string>
+    <string name="server_error_connection_message">Unable to connect to Auto Accounting server. Please restart device.</string>
+    <string name="server_error_btn_ok">I Know</string>
+    <string name="restart_device_hint_title">Restart Hint</string>
+    <string name="restart_device_hint_message">Please manually restart your device to make changes effective, or try restarting Auto Accounting service in settings.</string>
+    <string name="restart_device_hint_btn">I Know</string>
     <string name="setting_load_success">Show notification after successfully loading auto accounting</string>
     <string name="load_msg">Enable on demand</string>
     <string name="donate_alipay">Alipay</string>
