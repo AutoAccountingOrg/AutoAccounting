@@ -45,6 +45,27 @@ fun Application.module(context: Context) {
         gson()
     }
 
+    intercept(ApplicationCallPipeline.Setup) {
+        if (SettingUtils.debugMode()) return@intercept
+        val remoteIp = call.request.local.remoteHost  // 客户端 IP
+        val allowedIps = listOf(
+            // IPv4 本地地址
+            "127.0.0.1",
+            "localhost",
+            // IPv6 本地地址
+            "::1",           // IPv6 localhost
+            "0:0:0:0:0:0:0:1" // IPv6 localhost 完整格式
+        )
+
+        if (remoteIp !in allowedIps) {
+            call.respond(
+                HttpStatusCode.Forbidden,
+                ResultModel.error(403, "Access denied from $remoteIp")
+            )
+            finish() // 阻止继续处理
+        }
+    }
+
     routing {
         // 基础路由
         baseRoutes()
