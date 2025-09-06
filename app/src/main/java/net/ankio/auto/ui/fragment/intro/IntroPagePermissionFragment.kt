@@ -121,7 +121,7 @@ class IntroPagePermissionFragment : BaseIntroPageFragment<FragmentIntroPagePermi
                         onClick = {
                             // 触发一次权限请求尝试（Shizuku 会弹权限；root 依赖 su 管理器弹窗）
                             try {
-                                Shell(ctx.packageName).use { it.checkPermission() }
+                                Shell(ctx.packageName).use { it.requestPermission() }
                             } catch (_: Throwable) {
                             }
                         }
