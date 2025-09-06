@@ -50,22 +50,12 @@ class OcrTileService : TileService() {
 
     /**
      * 更新磁贴状态
-     * 只有在OCR模式下才启用磁贴，其他模式下禁用
      */
     private fun updateTileState() {
         val tile = qsTile ?: return
 
-        if (AppAdapterManager.ocrMode()) {
-            // OCR模式：启用磁贴
-            tile.state = Tile.STATE_INACTIVE
-            tile.label = getString(R.string.ocr_tile_title)
-            Logger.d("OCR磁贴已启用")
-        } else {
-            // 非OCR模式：禁用磁贴
-            tile.state = Tile.STATE_UNAVAILABLE
-            tile.label = getString(R.string.ocr_tile_title)
-            Logger.d("OCR磁贴已禁用（非OCR模式）")
-        }
+        tile.state = Tile.STATE_INACTIVE
+        tile.label = getString(R.string.ocr_tile_title)
 
         tile.updateTile()
     }
