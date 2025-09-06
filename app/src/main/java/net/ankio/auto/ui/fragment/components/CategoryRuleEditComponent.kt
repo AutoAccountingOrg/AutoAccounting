@@ -63,8 +63,8 @@ class CategoryRuleEditComponent(
     /** 当前编辑的分类规则模型 */
     private var categoryRuleModel: CategoryRuleModel = CategoryRuleModel()
 
-    /** 流式布局管理器 */
-    private lateinit var flexboxLayout: FlowLayoutManager
+    /** 流式布局管理器（组件销毁时置空，避免持有View引用） */
+    private var flexboxLayout: FlowLayoutManager? = null
 
     /** 是否为只读模式 */
     private var readOnly: Boolean = false
@@ -87,7 +87,7 @@ class CategoryRuleEditComponent(
     fun setRuleModel(model: CategoryRuleModel? = null, readOnly: Boolean = false) {
         this.readOnly = readOnly
         if (readOnly) {
-            flexboxLayout.textAppearance =
+            flexboxLayout?.textAppearance =
                 com.google.android.material.R.style.TextAppearance_Material3_TitleSmall
         }
         categoryRuleModel = model ?: CategoryRuleModel()
@@ -195,7 +195,7 @@ class CategoryRuleEditComponent(
     private fun setupRuleUI() {
 
         // 清理现有UI
-        flexboxLayout.removeAllElements()
+        flexboxLayout?.removeAllElements()
 
         val listType = object : TypeToken<MutableList<HashMap<String, Any>>>() {}.type
         val list: MutableList<HashMap<String, Any>> =
@@ -203,10 +203,10 @@ class CategoryRuleEditComponent(
                 hashMapOf("book" to "默认账本", "category" to "其他")
             )
         val lastElement = list.removeAt(list.lastIndex)
-        flexboxLayout.appendTextView(context.getString(R.string.if_condition_true))
+        flexboxLayout?.appendTextView(context.getString(R.string.if_condition_true))
         for (hashMap in list) {
             if (hashMap.containsKey("jsPre") && readOnly) {
-                flexboxLayout.appendButton(
+                flexboxLayout?.appendButton(
                     if ((hashMap["jsPre"] as String).contains("&&")) {
                         context.getString(
                             R.string.and,
@@ -216,7 +216,7 @@ class CategoryRuleEditComponent(
                     },
                 )
             }
-            flexboxLayout.appendWaveTextview(
+            flexboxLayout?.appendWaveTextview(
                 hashMap["text"] as String,
                 connector = !readOnly,
                 data = hashMap
@@ -235,25 +235,25 @@ class CategoryRuleEditComponent(
         }
 
         if (!readOnly) {
-            flexboxLayout.appendAddButton(callback = { elem, textview ->
+            flexboxLayout?.appendAddButton(callback = { elem, textview ->
                 if (readOnly) return@appendAddButton
                 //添加按钮，用于添加
                 showSelectType(textview, elem)
             })
         }
 
-        flexboxLayout.appendTextView(context.getString(R.string.condition_result_book))
+        flexboxLayout?.appendTextView(context.getString(R.string.condition_result_book))
         bookName = lastElement["book"] as String
-        flexboxLayout.appendWaveTextview(
+        flexboxLayout?.appendWaveTextview(
             text = bookName,
             data = lastElement
         ) { elem, textview ->
             if (readOnly) return@appendWaveTextview
             onClickBook(elem)
         }
-        flexboxLayout.appendTextView(context.getString(R.string.condition_result_category))
+        flexboxLayout?.appendTextView(context.getString(R.string.condition_result_category))
         category = lastElement["category"] as String
-        flexboxLayout.appendWaveTextview(
+        flexboxLayout?.appendWaveTextview(
             text = category,
             data = lastElement
         ) { elem, textview ->
@@ -519,7 +519,7 @@ class CategoryRuleEditComponent(
             }
         } else {
             // 添加新的类型条件
-            flexboxLayout.appendWaveTextview(displayText, element, true, newData) { elem, view ->
+            flexboxLayout?.appendWaveTextview(displayText, element, true, newData) { elem, view ->
                 if (readOnly) return@appendWaveTextview
                 if (conditionType == "shopItem") {
                     inputShopItem(elem)
@@ -567,7 +567,7 @@ class CategoryRuleEditComponent(
                     }
                 } else {
                     // 添加新的类型条件
-                    flexboxLayout.appendWaveTextview(input, element, true, newData) { elem, view ->
+                    flexboxLayout?.appendWaveTextview(input, element, true, newData) { elem, view ->
                         if (readOnly) return@appendWaveTextview
                         inputTimeRange(elem)
                     }
@@ -678,7 +678,7 @@ class CategoryRuleEditComponent(
             }
         } else {
             // 添加新的类型条件
-            flexboxLayout.appendWaveTextview(input, element, true, newData) { elem, view ->
+            flexboxLayout?.appendWaveTextview(input, element, true, newData) { elem, view ->
                 if (readOnly) return@appendWaveTextview
                 inputMoneyRange(elem)
             }

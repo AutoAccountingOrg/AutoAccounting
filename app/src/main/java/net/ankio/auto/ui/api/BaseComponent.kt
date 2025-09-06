@@ -22,6 +22,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.viewbinding.ViewBinding
+import android.view.View
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -58,9 +59,11 @@ abstract class BaseComponent<T : ViewBinding> : DefaultLifecycleObserver {
      */
     val binding get() = _binding!!
 
-    /** 生命周期对象，从ViewTreeLifecycleOwner优先获取，其次从Context推断 */
-    private val lifecycle: Lifecycle
-
+    /**
+     * 生命周期对象：优先使用 ViewTreeLifecycleOwner（Fragment 的 View 生命周期），
+     * 在视图未附着时延迟绑定，避免退化到 Activity 生命周期导致的泄漏。
+     */
+    private var lifecycle: Lifecycle? = null
     /**
      * 推荐的构造函数 - 只需要ViewBinding，自动推断生命周期
      *
@@ -68,10 +71,9 @@ abstract class BaseComponent<T : ViewBinding> : DefaultLifecycleObserver {
      */
     constructor(binding: T) {
         this._binding = binding
-        val owner = binding.root.findViewTreeLifecycleOwner()
-        this.lifecycle = owner?.lifecycle
+        this.lifecycle = binding.root.findViewTreeLifecycleOwner()?.lifecycle
             ?: binding.root.context.findLifecycleOwner().lifecycle
-        lifecycle.addObserver(this)
+        this.lifecycle?.addObserver(this)
     }
 
 
@@ -214,7 +216,9 @@ abstract class BaseComponent<T : ViewBinding> : DefaultLifecycleObserver {
      */
     final override fun onDestroy(owner: LifecycleOwner) {
         //Logger.d("BaseComponent onDestroy called: ${this.javaClass.simpleName}")
-        lifecycle.removeObserver(this)
+        // 安全移除观察者
+        lifecycle?.removeObserver(this)
+        lifecycle = null
         onComponentDestroy()
     }
 }

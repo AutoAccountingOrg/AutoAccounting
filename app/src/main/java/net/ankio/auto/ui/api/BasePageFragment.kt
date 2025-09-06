@@ -144,6 +144,8 @@ abstract class BasePageFragment<T, VB : ViewBinding> : BaseFragment<VB>() {
      */
     private fun cleanupResources() {
         recyclerView?.clearOnScrollListeners()
+        // 断开适配器引用，避免 Adapter 持有 Fragment/Activity 导致泄漏
+        recyclerView?.adapter = null
         _statusPage = null
         _swipeRefreshLayout = null
         recyclerView = null
