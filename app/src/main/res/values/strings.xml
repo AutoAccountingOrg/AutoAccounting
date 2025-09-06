@@ -1005,6 +1005,13 @@
     <string name="ai_summary_image_failed">Failed to generate image</string>
     <string name="ai_summary_image_error">Image generation error: %s</string>
 
+    <!-- JS Editor UI Strings -->
+    <string name="js_code_empty">JS code is empty</string>
+    <string name="test_data_empty">Test data is empty</string>
+    <string name="js_executing">Executing...</string>
+    <string name="js_execution_result">Execution Result</string>
+    <string name="js_saved">Saved</string>
+
     <!-- Button texts -->
     <string name="btn_ai_analysis">AI Analysis</string>
     <string name="btn_bill_sync">Bill Sync</string>

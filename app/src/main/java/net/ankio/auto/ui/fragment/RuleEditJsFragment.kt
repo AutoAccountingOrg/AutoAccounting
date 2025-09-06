@@ -58,6 +58,29 @@ import rikka.core.util.ResourceUtils
  */
 class RuleEditJsFragment : BaseFragment<FragmentRuleJsEditBinding>() {
 
+    companion object {
+        /** Bundle key 常量 - 技术标识符不应国际化 */
+        private const val KEY_NAME = "name"
+        private const val KEY_JS = "js"
+        private const val KEY_STRUCT = "struct"
+        private const val RESULT_KEY = "js_edit_result"
+
+        /** TextMate 配置常量 */
+        private const val TEXTMATE_LANGUAGE = "source.js"
+        private const val TEXTMATE_THEME_DARK = "darcula"
+        private const val TEXTMATE_THEME_LIGHT = "quietlight"
+        private const val TEXTMATE_LANGUAGES_CONFIG = "textmate/languages.json"
+
+        /** JS模板常量 */
+        private const val JS_TYPE_EXPEND = "Expend"
+        private const val JS_CURRENCY_CNY = "CNY"
+        private const val JS_FIELD_SHOP_NAME = "shopName"
+        private const val JS_FIELD_SHOP_ITEM = "shopItem"
+        private const val JS_FIELD_ACCOUNT_FROM = "accountNameFrom"
+        private const val JS_FIELD_ACCOUNT_TO = "accountNameTo"
+        private const val JS_FIELD_CHANNEL = "channel"
+    }
+
     /**
      * JS规则数据 - 简单明了的数据结构
      */
@@ -85,16 +108,16 @@ class RuleEditJsFragment : BaseFragment<FragmentRuleJsEditBinding>() {
                     // ============代码从这里开始
                     // 如果无法匹配数据，请直接返回 null
                     return {
-                        type: "Expend", // Income, Transfer, Expend
+                        type: "$JS_TYPE_EXPEND", // Income, Transfer, Expend
                         money: 0.01,
-                        shopName: "",
-                        shopItem: "",
-                        accountNameFrom: "",
-                        accountNameTo: "",
+                        $JS_FIELD_SHOP_NAME: "",
+                        $JS_FIELD_SHOP_ITEM: "",
+                        $JS_FIELD_ACCOUNT_FROM: "",
+                        $JS_FIELD_ACCOUNT_TO: "",
                         fee: 0.0,
-                        currency: "CNY",
+                        currency: "$JS_CURRENCY_CNY",
                         time: 0,
-                        channel: ""
+                        $JS_FIELD_CHANNEL: ""
                     };
                      // ============代码从这里结束
                 }
@@ -154,9 +177,9 @@ class RuleEditJsFragment : BaseFragment<FragmentRuleJsEditBinding>() {
     private fun initData() {
         val args = arguments ?: return
         jsRule = JsRule(
-            name = args.getString("name") ?: "",
-            content = args.getString("js") ?: "",
-            testData = args.getString("struct") ?: ""
+            name = args.getString(KEY_NAME) ?: "",
+            content = args.getString(KEY_JS) ?: "",
+            testData = args.getString(KEY_STRUCT) ?: ""
         )
     }
 
@@ -204,7 +227,12 @@ class RuleEditJsFragment : BaseFragment<FragmentRuleJsEditBinding>() {
                     binding.codeEditor.setText(optimizedJs)
                 }
             } catch (e: Exception) {
-                ToastUtils.error(getString(R.string.ai_assist_failed, e.message ?: "未知错误"))
+                ToastUtils.error(
+                    getString(
+                        R.string.ai_assist_failed,
+                        e.message ?: getString(R.string.error_text)
+                    )
+                )
             } finally {
                 loading.close()
             }
@@ -280,17 +308,17 @@ class RuleEditJsFragment : BaseFragment<FragmentRuleJsEditBinding>() {
     private fun runJs() {
         val currentJs = binding.codeEditor.text.toString()
         if (currentJs.isBlank()) {
-            ToastUtils.error("JS代码为空")
+            ToastUtils.error(getString(R.string.js_code_empty))
             return
         }
         if (jsRule.testData.isBlank()) {
-            ToastUtils.error("测试数据为空")
+            ToastUtils.error(getString(R.string.test_data_empty))
             return
         }
 
         launch {
             val loading = LoadingUtils(requireActivity())
-            loading.show("执行中...")
+            loading.show(getString(R.string.js_executing))
             val result = JsAPI.run(buildExecutableJs(currentJs))
             if (result.isNotBlank()) {
                 showResult(result)
@@ -303,9 +331,9 @@ class RuleEditJsFragment : BaseFragment<FragmentRuleJsEditBinding>() {
     private fun showResult(result: String) {
         val formattedResult = formatResult(result)
         BaseSheetDialog.create<BottomSheetDialogBuilder>(requireContext())
-            .setTitle("执行结果")
+            .setTitle(getString(R.string.js_execution_result))
             .setMessage(formattedResult)
-            .setPositiveButton("确定") { _, _ -> }
+            .setPositiveButton(getString(R.string.ok)) { _, _ -> }
             .show()
     }
 
@@ -326,7 +354,7 @@ class RuleEditJsFragment : BaseFragment<FragmentRuleJsEditBinding>() {
         val currentJs = binding.codeEditor.text.toString()
         val result = bundleOf("js" to currentJs, "struct" to jsRule.testData)
         parentFragmentManager.setFragmentResult("js_edit_result", result)
-        ToastUtils.info("已保存")
+        ToastUtils.info(R.string.js_saved)
         findNavController().popBackStack()
     }
 
