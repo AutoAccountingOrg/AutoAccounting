@@ -13,10 +13,10 @@
  *   limitations under the License.
  */
 
-package net.ankio.auto.shell.shizuku
+package net.ankio.shell.shizuku
 
 import androidx.annotation.Keep
-import net.ankio.auto.IUserService
+import net.ankio.shell.IUserService
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import kotlin.system.exitProcess

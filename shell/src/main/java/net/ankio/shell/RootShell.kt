@@ -1,4 +1,4 @@
-package net.ankio.shortcuts.shell
+package net.ankio.shell
 
 import java.io.*
 import java.util.concurrent.TimeUnit
