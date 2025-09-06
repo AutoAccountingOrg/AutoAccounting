@@ -879,6 +879,12 @@
     <string name="update_type_automatic">Automatic</string>
     <string name="update_type_manual">Manual</string>
 
+    <!-- Canary版本警告 -->
+    <string name="canary_warning_title">Canary Version Risk Warning</string>
+    <string name="canary_warning_message">You are currently using a Canary version with the following characteristics:\n\n• Built automatically every 3 hours\n• Contains latest features and fixes\n• No guarantee of stability and availability\n• May contain unknown bugs\n\nRecommendations:\n• Use with caution in production environments\n• Please enable debug mode before reporting bugs\n• Back up important data promptly</string>
+    <string name="canary_warning_confirm">I understand</string>
+    <string name="canary_warning_enable_debug">Enable Debug Mode</string>
+
     <!-- 设置项标题和摘要 -->
     <string name="setting_auto_group">Auto Deduplication</string>
     <string name="setting_auto_group_summary">Automatically deduplicate bills by grouping similar transactions</string>

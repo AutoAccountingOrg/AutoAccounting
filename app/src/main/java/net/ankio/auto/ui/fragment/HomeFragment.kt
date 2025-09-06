@@ -20,17 +20,19 @@ import android.os.Bundle
 import android.view.View
 import androidx.navigation.fragment.findNavController
 import com.google.gson.Gson
+import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.databinding.FragmentPluginHomeBinding
 import net.ankio.auto.ui.activity.MainActivity
 import net.ankio.auto.ui.api.BaseFragment
+import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.api.bindAs
+import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
 import net.ankio.auto.ui.fragment.components.BookCardComponent
 import net.ankio.auto.ui.fragment.components.MonthlyCardComponent
 import net.ankio.auto.ui.fragment.components.RuleVersionCardComponent
 import net.ankio.auto.ui.fragment.components.StatusCardComponent
 import net.ankio.auto.utils.PrefManager
-import net.ankio.auto.utils.Throttle
 
 class HomeFragment : BaseFragment<FragmentPluginHomeBinding>() {
     private val gson = Gson()
@@ -76,5 +78,38 @@ class HomeFragment : BaseFragment<FragmentPluginHomeBinding>() {
                 else -> false
             }
         }
+
+        // 检查并显示Canary版本警告
+        checkAndShowCanaryWarning()
+    }
+
+    /**
+     * 检查并显示Canary版本警告
+     * 只在用户首次升级到Canary版本时显示警告
+     */
+    private fun checkAndShowCanaryWarning() {
+        if (BuildConfig.VERSION_NAME.contains("Canary") &&
+            PrefManager.lastCanaryWarningVersion != BuildConfig.VERSION_NAME
+        ) {
+            showCanaryRiskDialog()
+            PrefManager.lastCanaryWarningVersion = BuildConfig.VERSION_NAME
+        }
+    }
+
+    /**
+     * 显示Canary版本风险提醒对话框
+     */
+    private fun showCanaryRiskDialog() {
+        BaseSheetDialog.create<BottomSheetDialogBuilder>(requireContext())
+            .setTitle(getString(R.string.canary_warning_title))
+            .setMessage(getString(R.string.canary_warning_message))
+            .setPositiveButton(getString(R.string.canary_warning_confirm)) { _, _ ->
+                // 用户确认了解风险
+            }
+            .setNegativeButton(getString(R.string.canary_warning_enable_debug)) { _, _ ->
+                // 直接开启调试模式，方便用户反馈问题
+                PrefManager.debugMode = true
+            }
+            .show()
     }
 }

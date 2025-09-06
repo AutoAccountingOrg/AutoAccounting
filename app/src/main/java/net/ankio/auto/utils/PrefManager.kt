@@ -533,4 +533,13 @@ object PrefManager {
     var jsCategory: String
         get() = getString(Setting.JS_CATEGORY, DefaultData.JS_CATEGORY)
         set(value) = putString(Setting.JS_CATEGORY, value)
+
+    // ======== Canary版本警告设置 ========
+
+    /** 上次警告的Canary版本 - 记录已经显示过警告的版本号 */
+    var lastCanaryWarningVersion: String
+        get() = getString("canary_warning_version", "")
+        set(value) = putString("canary_warning_version", value)
+
+
 }
