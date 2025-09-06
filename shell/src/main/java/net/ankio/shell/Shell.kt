@@ -91,8 +91,10 @@ class Shell(packageName: String) : Closeable {
     private fun shizukuPermission(): Boolean =
         shizukuExecutor.isSupported && !shizukuExecutor.isPermissionDenied
 
-    private fun requestPermission() {
-        shizukuExecutor.requestPermission()
+    fun requestPermission() {
+        if (!checkPermission()) {
+            shizukuExecutor.requestPermission()
+        }
     }
 
     /**
