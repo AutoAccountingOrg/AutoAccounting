@@ -26,6 +26,7 @@ import net.ankio.auto.service.api.IService
 import net.ankio.auto.service.ocr.OcrProcessor
 import net.ankio.auto.service.ocr.ScreenCapture
 import net.ankio.auto.service.ocr.FlipDetector
+import net.ankio.auto.shell.Shell
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.constant.DataType
@@ -53,6 +54,8 @@ class OcrService : ICoreService() {
         }
     }
 
+    private val shell = Shell()
+
     /**
      * 服务创建时的初始化
      * 检查必要权限并初始化相关组件
@@ -74,17 +77,17 @@ class OcrService : ICoreService() {
      * @return true 如果初始化成功，false 如果失败
      */
     private fun initializeOcrService(coreService: CoreService): Boolean {
-        // 检查权限
-        if (!hasPermission()) {
-            Logger.e("缺少 UsageStats 权限")
-            return false
-        }
+        /* // 检查权限
+         if (!hasPermission()) {
+             Logger.e("缺少 UsageStats 权限")
+             return false
+         }
 
-        if (!ScreenCapture.isReady()) {
-            Logger.e("缺少截屏权限")
-            return false
-        }
-
+         if (!ScreenCapture.isReady()) {
+             Logger.e("缺少截屏权限")
+             return false
+         }
+ */
         // 初始化OCR处理器
         ocrProcessor = OcrProcessor(coreService)
 
@@ -118,7 +121,7 @@ class OcrService : ICoreService() {
         detector.stop()
 
         // 释放截图资源
-        ScreenCapture.release()
+        // ScreenCapture.release()
 
         // 确保悬浮窗被清理
         stopOcrView()
@@ -217,6 +220,7 @@ class OcrService : ICoreService() {
         // 触发振动反馈
         triggerVibration()
 
+
         App.launch {
             val startTime = System.currentTimeMillis()
             try {
@@ -241,6 +245,7 @@ class OcrService : ICoreService() {
                 ocrDoing = false
             }
         }
+
     }
 
     /**
@@ -248,18 +253,25 @@ class OcrService : ICoreService() {
      * @return 识别出的文本，如果失败则返回null
      */
     private suspend fun performOcrCapture(): String? {
+
         val captureStartTime = System.currentTimeMillis()
-        val image = ScreenCapture.captureScreen(coreService)
-        val captureTime = System.currentTimeMillis() - captureStartTime
-        Logger.d("截图耗时: ${captureTime}ms")
+        // 优先尝试使用 Shizuku 走系统截图通道获取 Bitmap；失败则回退 MediaProjection
+        val image = shell.exec("screencap -p " + coreService.externalCacheDir + "/screen.png")
+        Logger.d(image)
+        /*   if (image == null){
+               Logger.d("截图失败")
+           }
+           val captureTime = System.currentTimeMillis() - captureStartTime
+           Logger.d("截图耗时: ${captureTime}ms")
 
-        if (image == null) {
-            Logger.e("截图失败")
-            return null
-        }
+           if (image == null) {
+               Logger.e("截图失败")
+               return null
+           }
 
-        val text = ocrProcessor.recognize(image)
-        return if (text.isNotBlank()) text else null
+           val text = ocrProcessor.recognize(image)
+           return if (text.isNotBlank()) text else null*/
+        return null
     }
 
     // 悬浮窗相关变量
