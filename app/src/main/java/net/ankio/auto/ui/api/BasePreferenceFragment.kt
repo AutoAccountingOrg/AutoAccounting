@@ -134,7 +134,7 @@ abstract class BasePreferenceFragment : PreferenceFragmentCompat() {
                 when (e) {
                     null -> Unit // 正常完成不处理
                     is CancellationException -> {
-                        Logger.e("PreferenceFragment协程已取消: ${e.message}")
+                        Logger.d("PreferenceFragment协程已取消: ${e.message}")
                     }
 
                     else -> {

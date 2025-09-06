@@ -138,7 +138,7 @@ open class BaseActivity : MaterialActivity() {
                 when (e) {
                     null -> Unit // 正常完成不处理
                     is kotlinx.coroutines.CancellationException -> {
-                        Logger.e("Activity协程已取消: ${e.message}")
+                        Logger.d("Activity协程已取消: ${e.message}")
                     }
 
                     else -> {

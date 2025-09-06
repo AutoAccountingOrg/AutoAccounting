@@ -23,6 +23,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.viewbinding.ViewBinding
 import android.view.View
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -91,10 +92,8 @@ abstract class BaseComponent<T : ViewBinding> : DefaultLifecycleObserver {
      * @param block 协程代码块，专注于业务逻辑
      */
     protected fun launch(block: suspend CoroutineScope.() -> Unit) {
-        componentScope.launch {
-            runCatching {
-                block()
-            }.onFailure { e ->
+        componentScope.launch(CoroutineExceptionHandler { _, _ -> }, block = block).apply {
+            invokeOnCompletion { e ->
                 when (e) {
                     is CancellationException -> {
                         Logger.d("组件协程已取消: ${e.message}")

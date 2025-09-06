@@ -2,9 +2,11 @@ package net.ankio.auto.ui.api
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -38,10 +40,8 @@ abstract class BaseAdapter<T : ViewBinding, E> : RecyclerView.Adapter<BaseViewHo
      * @param block 协程代码块，专注于业务逻辑
      */
     protected fun launchInAdapter(block: suspend CoroutineScope.() -> Unit) {
-        adapterScope.launch {
-            runCatching {
-                block()
-            }.onFailure { e ->
+        adapterScope.launch(CoroutineExceptionHandler { _, _ -> }, block = block).apply {
+            invokeOnCompletion { e ->
                 when (e) {
                     is CancellationException -> {
                         Logger.d("适配器协程已取消: ${e.message}")

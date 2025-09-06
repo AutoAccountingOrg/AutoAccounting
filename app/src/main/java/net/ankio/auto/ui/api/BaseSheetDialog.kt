@@ -40,6 +40,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.elevation.SurfaceColors
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -100,10 +101,8 @@ abstract class BaseSheetDialog<VB : ViewBinding> :
      * @param block 协程代码块，专注于业务逻辑
      */
     protected fun launch(block: suspend CoroutineScope.() -> Unit) {
-        lifecycleScope.launch {
-            runCatching {
-                block()
-            }.onFailure { e ->
+        lifecycleScope.launch(CoroutineExceptionHandler { _, _ -> }, block = block).apply {
+            invokeOnCompletion { e ->
                 when (e) {
                     is CancellationException -> {
                         Logger.d("Dialog协程已取消: ${e.message}")

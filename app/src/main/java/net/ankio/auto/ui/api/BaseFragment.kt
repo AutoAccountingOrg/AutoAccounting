@@ -180,7 +180,7 @@ abstract class BaseFragment<VB : ViewBinding> : Fragment() {
                 when (e) {
                     null -> Unit // 正常完成不处理
                     is CancellationException -> {
-                        Logger.e("Fragment协程已取消: ${e.message}")
+                        Logger.d("Fragment协程已取消: ${e.message}")
                     }
 
                     else -> {
