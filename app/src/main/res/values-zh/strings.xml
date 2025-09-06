@@ -591,6 +591,10 @@
     <string name="action_continue">继续</string>
     <string name="perm_not_complete">某些权限仍然缺失。请在继续之前授予它们。</string>
 
+    <!-- Shell 能力（Root 或 Shizuku） -->
+    <string name="perm_shell_title">Root 或 Shizuku</string>
+    <string name="perm_shell_desc">授予 root（su）或 Shizuku 权限，使应用可执行 shell 命令（如截图）。若部分联发科设备通过 Shizuku 获取输出异常，请尝试使用 3.5.x 版本。</string>
+
     <!-- Battery optimization -->
     <string name="keepalive_battery_fail">
     无法打开电池优化设置。请手动将应用添加到白名单。

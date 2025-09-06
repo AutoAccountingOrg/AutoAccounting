@@ -4,33 +4,31 @@ import android.app.AppOpsManager
 import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.Intent
-import android.graphics.PixelFormat
 import android.hardware.SensorManager
+import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
-import android.provider.Settings
-import android.view.Gravity
-import android.view.LayoutInflater
-import android.view.View
-import android.view.WindowManager
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.autoApp
-import net.ankio.auto.databinding.OcrViewBinding
 import net.ankio.auto.http.api.JsAPI
 import net.ankio.auto.service.api.ICoreService
 import net.ankio.auto.service.api.IService
 import net.ankio.auto.service.ocr.OcrProcessor
-import net.ankio.auto.service.ocr.ScreenCapture
 import net.ankio.auto.service.ocr.FlipDetector
-import net.ankio.auto.shell.Shell
+import net.ankio.auto.service.ocr.OcrViews
+import net.ankio.shell.Shell
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.constant.DataType
 import org.ezbook.server.intent.IntentType
+import org.ezbook.server.tools.runCatchingExceptCancel
+import java.io.File
 
 /**
  * OCR服务类，用于实现屏幕文字识别功能
@@ -46,15 +44,11 @@ class OcrService : ICoreService() {
     private lateinit var ocrProcessor: OcrProcessor
 
     // 翻转检测器，当设备从朝下翻转到朝上时触发OCR
-    private val detector by lazy {
-        FlipDetector(
-            coreService.getSystemService(Context.SENSOR_SERVICE) as SensorManager,
-        ) {
-            onFlip()
-        }
-    }
+    private val detector by lazy { FlipDetector(coreService.getSystemService(Context.SENSOR_SERVICE) as SensorManager) { triggerOcr() } }
 
-    private val shell = Shell()
+    private val shell = Shell(BuildConfig.APPLICATION_ID)
+
+    private val ocrView = OcrViews()
 
     /**
      * 服务创建时的初始化
@@ -63,41 +57,15 @@ class OcrService : ICoreService() {
     override fun onCreate(coreService: CoreService) {
         super.onCreate(coreService)
 
-        // 统一检查所有权限和依赖
-        if (!initializeOcrService(coreService)) {
-            return
-        }
-
-        serverStarted = true
-        Logger.d("OCR服务初始化成功，等待翻转触发")
-    }
-
-    /**
-     * 初始化OCR服务的所有组件
-     * @return true 如果初始化成功，false 如果失败
-     */
-    private fun initializeOcrService(coreService: CoreService): Boolean {
-        /* // 检查权限
-         if (!hasPermission()) {
-             Logger.e("缺少 UsageStats 权限")
-             return false
-         }
-
-         if (!ScreenCapture.isReady()) {
-             Logger.e("缺少截屏权限")
-             return false
-         }
- */
-        // 初始化OCR处理器
         ocrProcessor = OcrProcessor(coreService)
 
         // 启动翻转检测
         if (!detector.start()) {
             Logger.e("设备不支持重力/加速度传感器")
-            return false
         }
 
-        return true
+        serverStarted = true
+        Logger.d("OCR服务初始化成功，等待翻转触发")
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int) {
@@ -105,7 +73,7 @@ class OcrService : ICoreService() {
         if (intent?.getStringExtra("intentType") == IntentType.OCR.name) {
             Logger.d("收到Intent启动OCR请求")
             //延迟1秒启动，等activity退出
-            App.launch {
+            coreService.lifecycleScope.launch {
                 delay(1000)
                 triggerOcr()
             }
@@ -120,11 +88,9 @@ class OcrService : ICoreService() {
     override fun onDestroy() {
         detector.stop()
 
-        // 释放截图资源
-        // ScreenCapture.release()
-
+        shell.close()
         // 确保悬浮窗被清理
-        stopOcrView()
+        ocrView.stopOcrView()
     }
 
     /* -------------------------------- 业务逻辑 ------------------------------- */
@@ -221,11 +187,11 @@ class OcrService : ICoreService() {
         triggerVibration()
 
 
-        App.launch {
+        coreService.lifecycleScope.launch {
             val startTime = System.currentTimeMillis()
             try {
                 // 显示OCR界面
-                startOcrView(coreService)
+                ocrView.startOcrView(coreService)
 
                 // 执行截图和识别
                 val ocrResult = performOcrCapture()
@@ -241,7 +207,7 @@ class OcrService : ICoreService() {
             } catch (e: Exception) {
                 Logger.e("OCR处理异常: ${e.message}")
             } finally {
-                stopOcrView()
+                ocrView.stopOcrView()
                 ocrDoing = false
             }
         }
@@ -253,81 +219,44 @@ class OcrService : ICoreService() {
      * @return 识别出的文本，如果失败则返回null
      */
     private suspend fun performOcrCapture(): String? {
-
         val captureStartTime = System.currentTimeMillis()
-        // 优先尝试使用 Shizuku 走系统截图通道获取 Bitmap；失败则回退 MediaProjection
-        val image = shell.exec("screencap -p " + coreService.externalCacheDir + "/screen.png")
-        Logger.d(image)
-        /*   if (image == null){
-               Logger.d("截图失败")
-           }
-           val captureTime = System.currentTimeMillis() - captureStartTime
-           Logger.d("截图耗时: ${captureTime}ms")
 
-           if (image == null) {
-               Logger.e("截图失败")
-               return null
-           }
-
-           val text = ocrProcessor.recognize(image)
-           return if (text.isNotBlank()) text else null*/
-        return null
-    }
-
-    // 悬浮窗相关变量
-    private var floatView: View? = null
-    private var windowManager: WindowManager? = null
-
-    /**
-     * 显示OCR识别动画界面
-     * 创建一个全屏悬浮窗来显示识别动画
-     */
-    private fun startOcrView(context: Context) {
-        // 已经显示则不再重复
-        if (floatView != null) return
-
-        // 检查悬浮窗权限
-        if (!Settings.canDrawOverlays(context)) {
-            Logger.e("不支持显示悬浮窗")
-            return
+        // 截图输出路径（外部缓存）
+        val outFile = File(coreService.externalCacheDir, "screen.png")
+        if (outFile.exists()) {
+            outFile.delete()
+        }
+        // 通过 Shell 执行系统截图
+        runCatchingExceptCancel {
+            shell.exec("screencap -p ${outFile.absolutePath}")
+        }.onFailure {
+            Logger.e("截图命令执行失败: ${it.message}")
+            return null
         }
 
-        windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        val captureTime = System.currentTimeMillis() - captureStartTime
+        Logger.d("截图耗时: ${captureTime}ms")
 
-        // 配置悬浮窗参数
-        val layoutParams = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.MATCH_PARENT,
-            WindowManager.LayoutParams.MATCH_PARENT,
-            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
-            PixelFormat.TRANSLUCENT
-        )
-        layoutParams.gravity = Gravity.CENTER
-
-        // 创建并显示悬浮窗
-        floatView = OcrViewBinding.inflate(LayoutInflater.from(context)).root
-        windowManager?.addView(floatView, layoutParams)
-    }
-
-    /**
-     * 关闭OCR识别动画界面
-     */
-    private fun stopOcrView() {
-        floatView?.let { view ->
-            try {
-                // 使用 removeViewImmediate 避免异步移除导致的 Surface 残留/队列死亡
-                if (view.isAttachedToWindow) {
-                    windowManager?.removeViewImmediate(view)
-                }
-            } catch (e: Exception) {
-                Logger.w("移除OCR悬浮窗失败: ${e.message}")
-            } finally {
-                floatView = null
-                windowManager = null
-            }
+        // 解码并识别
+        val bitmap = BitmapFactory.decodeFile(outFile.absolutePath)
+        if (bitmap == null) {
+            Logger.e("截图解码失败")
+            outFile.delete()
+            return null
         }
+
+        val text = runCatching { ocrProcessor.recognize(bitmap) }.getOrElse {
+            Logger.e("OCR 识别失败: ${it.message}")
+            outFile.delete()
+            return null
+        }
+
+        outFile.delete()
+        return text.ifBlank { null }
     }
+
+
+
 
     /**
      * 将OCR识别结果发送给JS引擎处理
@@ -345,39 +274,27 @@ class OcrService : ICoreService() {
      * @return 返回最近使用的应用包名
      */
     private fun getTopPackagePostL(ctx: Context): String? {
-        try {
+        return try {
             val usm = ctx.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
             val end = System.currentTimeMillis()
-            val begin = end - 60_000  // 最近1分钟
-
+            val begin = end - 60_000
             val list = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, begin, end)
-                .filter {
-                    !it.packageName.startsWith("com.android") &&
-                    !it.packageName.startsWith(BuildConfig.APPLICATION_ID)
-                            && it.lastTimeUsed > 0
-                            && it.totalTimeInForeground > 0
+                .filter { it.lastTimeUsed > 0 && it.totalTimeInForeground > 0 }
+                .filterNot {
+                    it.packageName.startsWith("com.android") || it.packageName.startsWith(
+                        BuildConfig.APPLICATION_ID
+                    )
                 }
             if (list.isEmpty()) return null
-
-
-
-
-            list.forEach { usageStats ->
-                Logger.d("包名: ${usageStats.packageName}, 最后使用时间: ${usageStats.lastTimeUsed}, 前台时间: ${usageStats.totalTimeInForeground}")
-            }
-
             val recent = list.maxByOrNull { it.lastTimeUsed }
-
-            return recent?.packageName
+            recent?.packageName
         } catch (e: Exception) {
             Logger.e("获取前台应用失败: ${e.message}")
-            return null
+            null
         }
     }
 
     companion object : IService {
-        /** OCR启动Action常量 */
-        const val ACTION_START_OCR = "net.ankio.auto.action.START_OCR"
 
         /** 服务启动状态 */
         var serverStarted = false
@@ -386,35 +303,16 @@ class OcrService : ICoreService() {
          * 检查是否有使用情况访问权限
          */
         override fun hasPermission(): Boolean {
-            val ctx = autoApp
-            val appOps = ctx.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
-            val mode = appOps.unsafeCheckOpNoThrow(
-                AppOpsManager.OPSTR_GET_USAGE_STATS,
-                android.os.Process.myUid(), ctx.packageName
-            )
-            return mode == AppOpsManager.MODE_ALLOWED
+            return true
         }
 
         /**
          * 启动权限设置页面
          */
         override fun startPermissionActivity(context: Context) {
-            context.startActivity(
-                Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            )
+
         }
 
-        /**
-         * 通过Intent启动OCR识别
-         * @param context 上下文
-         */
-        fun startOcrByIntent(context: Context) {
-            val intent = Intent(context, CoreService::class.java).apply {
-                action = ACTION_START_OCR
-            }
-            context.startService(intent)
-        }
     }
 }
 

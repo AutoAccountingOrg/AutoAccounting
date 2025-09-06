@@ -15,7 +15,6 @@ import net.ankio.auto.service.CoreService
 import net.ankio.auto.storage.Constants
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseActivity
-import net.ankio.auto.utils.ServiceManager
 
 class FloatingWindowTriggerActivity : BaseActivity() {
 
@@ -25,15 +24,10 @@ class FloatingWindowTriggerActivity : BaseActivity() {
         private const val TIMESTAMP_KEY = "t"
     }
 
-    private val serviceManager = ServiceManager.create()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setTheme(R.style.TransparentActivityTheme)
         createOnePxWindow()
-
-        // 提前注册屏幕录制权限启动器
-        serviceManager.registerProjectionLauncher(this)
     }
 
     private fun createOnePxWindow() {
@@ -84,33 +78,21 @@ class FloatingWindowTriggerActivity : BaseActivity() {
         }
 
         // 3. 确保服务就绪后启动服务
-        serviceManager.ensureReady(
-            onReady = {
-                Logger.i("服务就绪，启动CoreService")
-                try {
-                    val targetIntent = Intent(this, CoreService::class.java).apply {
-                        intent.extras?.let(::putExtras)
-                    }
-                    startForegroundService(targetIntent)
-                    Logger.i("成功启动CoreService")
-                } catch (e: Exception) {
-                    Logger.e("启动服务失败: ${e.message}", e)
-                } finally {
-                    exitActivity()
-                }
-            },
-            onDenied = {
-                Logger.w("服务条件不满足，无法启动")
-                exitActivity()
-            }
-        )
+        Logger.i("服务就绪，启动CoreService")
+        try {
+            CoreService.start(this, intent)
+            Logger.i("成功启动CoreService")
+        } catch (e: Exception) {
+            Logger.e("启动服务失败: ${e.message}", e)
+        } finally {
+            exitActivity()
+        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
         // 清理ServiceManager资源
         try {
-            serviceManager.release()
             Logger.i("ServiceManager资源已清理")
         } catch (e: Exception) {
             Logger.e("清理ServiceManager资源失败: ${e.message}", e)

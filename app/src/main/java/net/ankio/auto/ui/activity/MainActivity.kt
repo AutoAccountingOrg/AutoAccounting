@@ -17,6 +17,7 @@ package net.ankio.auto.ui.activity
 
 import android.os.Bundle
 import androidx.activity.viewModels
+import net.ankio.auto.constant.WorkMode
 import net.ankio.auto.databinding.ActivityIntroBinding
 import net.ankio.auto.service.CoreService
 import net.ankio.auto.storage.Logger
@@ -25,7 +26,6 @@ import net.ankio.auto.ui.adapter.IntroPagerAdapter.IntroPage
 import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.vm.IntroSharedVm
 import net.ankio.auto.utils.PrefManager
-import net.ankio.auto.utils.ServiceManager
 
 class MainActivity : BaseActivity() {
     private val binding: ActivityIntroBinding by lazy {
@@ -33,33 +33,17 @@ class MainActivity : BaseActivity() {
     }
     private val vm: IntroSharedVm by viewModels()
 
-    /** 服务管理器，负责处理服务启动和权限管理 */
-    private val serviceManager = ServiceManager.create()
-    
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        serviceManager.registerProjectionLauncher(this)
-        Logger.i("PrefManager.introIndex = ${PrefManager.introIndex}")
 
-        // 初始化服务管理器
-        serviceManager.ensureReady(
-            onReady = {
-                // 权限就绪后启动服务并检查是否需要跳转到主页
-                CoreService.start(this, intent)
-                Logger.d("初始化完成")
-                if (PrefManager.introIndex + 1 >= IntroPage.entries.size) {
-                    start<HomeActivity>(true)
-                }
-            },
-            onDenied = {
-                Logger.d("权限被拒绝或者未完成初始化")
-                if (PrefManager.introIndex + 1 >= IntroPage.entries.size) {
-                    start<HomeActivity>(true)
-                }
-            }
-        )
+        CoreService.start(this, intent)
+        Logger.d("初始化完成")
+        if (PrefManager.introIndex + 1 >= IntroPage.entries.size) {
+            if (PrefManager.workMode !== WorkMode.Xposed) start<HomeActivity>(true)
+            return
+        }
 
-        // CoreService.start(this, intent)
 
         // 如果引导页已完成，直接返回不显示引导界面
         if (PrefManager.introIndex + 1 >= IntroPage.entries.size) {
@@ -83,8 +67,6 @@ class MainActivity : BaseActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        // 释放服务管理器资源
-        serviceManager.release()
     }
 
 }

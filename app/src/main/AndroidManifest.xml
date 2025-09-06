@@ -4,11 +4,8 @@
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
-    <uses-permission
-        android:name="android.permission.PACKAGE_USAGE_STATS"
-        tools:ignore="ProtectedPermissions" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+
 
     <uses-permission
         android:name="android.permission.QUERY_ALL_PACKAGES"
@@ -18,11 +15,11 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
 
-    <!-- 6.0–10.0 普通存储 -->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <!--    &lt;!&ndash; 6.0–10.0 普通存储 &ndash;&gt;
+        <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
-    <!-- Android 11+ 所有文件访问 -->
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+        &lt;!&ndash; Android 11+ 所有文件访问 &ndash;&gt;
+        <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />-->
 
 
     <uses-feature
@@ -76,7 +73,7 @@
             android:name=".service.CoreService"
             android:enabled="true"
             android:exported="false"
-            android:foregroundServiceType="dataSync|mediaProjection"
+            android:foregroundServiceType="specialUse"
             android:permission="android.permission.FOREGROUND_SERVICE" />
 
         <receiver
@@ -109,13 +106,6 @@
             </intent-filter>
         </service>
 
-        <provider
-            android:name="rikka.shizuku.ShizukuProvider"
-            android:authorities="${applicationId}.shizuku"
-            android:multiprocess="false"
-            android:enabled="true"
-            android:exported="true"
-            android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

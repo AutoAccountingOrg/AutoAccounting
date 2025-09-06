@@ -25,8 +25,8 @@ import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.xposed.XposedModule
 import net.ankio.auto.service.OcrService
+import net.ankio.shell.Shell
 import net.ankio.auto.service.OverlayService
-import net.ankio.auto.service.ocr.ScreenCapture
 import net.ankio.auto.service.overlay.BillWindowManager
 
 /**
@@ -42,22 +42,6 @@ class IntroPagePermissionFragment : BaseIntroPageFragment<FragmentIntroPagePermi
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // 在 Fragment 创建时初始化屏幕投影权限请求启动器
-        projLauncher = ScreenCapture.registerPermission(
-            caller = this,
-            onReady = {
-                // 权限授予成功，刷新权限状态（仅在视图存在且已创建卡片时刷新）
-                if (isAdded && view != null && perms.isNotEmpty()) {
-                    perms.forEach {
-                        val card = binding.cardGroup.findViewById<ExpandableCardView>(it.viewId)
-                        setState(card, it.checkGranted(), it.isRequired)
-                    }
-                }
-            },
-            onDenied = {
-                // 权限被拒绝，无需额外处理，用户可以再次点击申请
-            }
-        )
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -120,6 +104,31 @@ class IntroPagePermissionFragment : BaseIntroPageFragment<FragmentIntroPagePermi
 
             // 非Xposed模式下添加额外权限
             if (!isXposed) {
+                // Root 或 Shizuku 权限（必需）
+                add(
+                    PermItem(
+                        iconRes = R.drawable.icon_proactive,
+                        titleRes = R.string.perm_shell_title,
+                        descRes = R.string.perm_shell_desc,
+                        checkGranted = {
+                            // 可用即视为已授予：root 可用或 Shizuku 可用
+                            try {
+                                Shell(ctx.packageName).use { it.checkPermission() }
+                            } catch (_: Throwable) {
+                                false
+                            }
+                        },
+                        onClick = {
+                            // 触发一次权限请求尝试（Shizuku 会弹权限；root 依赖 su 管理器弹窗）
+                            try {
+                                Shell(ctx.packageName).use { it.checkPermission() }
+                            } catch (_: Throwable) {
+                            }
+                        }
+                    )
+                )
+
+
                 // 短信权限（OCR模式下为可选）
                 add(
                     PermItem(
@@ -128,9 +137,10 @@ class IntroPagePermissionFragment : BaseIntroPageFragment<FragmentIntroPagePermi
                         descRes = R.string.perm_sms_desc_optional,
                         checkGranted = { SmsReceiver.hasPermission() },
                         onClick = { SmsReceiver.startPermissionActivity(requireActivity()) },
-                        isRequired = false  // OCR模式下短信权限为可选
+                        isRequired = false
                     )
                 )
+
                 // 通知权限（OCR模式下为可选）
                 add(
                     PermItem(
@@ -139,32 +149,9 @@ class IntroPagePermissionFragment : BaseIntroPageFragment<FragmentIntroPagePermi
                         descRes = R.string.perm_notification_desc_optional,
                         checkGranted = { NotificationService.hasPermission() },
                         onClick = { NotificationService.startPermissionActivity(ctx) },
-                        isRequired = false  // OCR模式下通知权限为可选
+                        isRequired = false
                     )
                 )
-                // 截屏权限（用于OCR功能）
-                add(
-                    PermItem(
-                        iconRes = R.drawable.ic_screenshot,
-                        titleRes = R.string.perm_screenshot_title,
-                        descRes = R.string.perm_screenshot_desc,
-                    checkGranted = {
-                        ScreenCapture.isReady()
-                    },
-                    onClick = {
-                        projLauncher.launch(Unit)
-                    }
-                ))
-
-                // 应用使用情况访问权限
-                add(
-                    PermItem(
-                        iconRes = R.drawable.ic_usage,
-                        titleRes = R.string.perm_usage_title,
-                        descRes = R.string.perm_usage_desc,
-                    checkGranted = { OcrService.hasPermission() },
-                    onClick = { OcrService.startPermissionActivity(ctx) }
-                ))
 
             } else {
                 // Xposed模式下添加Xposed框架权限

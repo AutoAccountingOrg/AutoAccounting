@@ -615,6 +615,10 @@
     <string name="perm_optional">optional</string>
     <string name="perm_optional_missing_hint">%d optional permissions not granted, may affect some features</string>
 
+    <!-- Shell capability (Root or Shizuku) -->
+    <string name="perm_shell_title">Root or Shizuku</string>
+    <string name="perm_shell_desc">Grant root (su) or Shizuku permission so the app can execute shell commands (e.g., screenshot). If Shizuku output fails on some MediaTek devices, try version 3.5.x.</string>
+
     <!-- Battery optimization -->
     <string name="keepalive_battery_fail">
     Unable to open the battery‑optimization settings. Please add the app to the whitelist manually.

@@ -26,5 +26,5 @@ object Constants {
 
     val DONATE_INTERVAL = 365L * 24 * 60 * 60 * 1000
 
-    val INTENT_TIMEOUT = 1000L * 60 * 1
+    val INTENT_TIMEOUT = 1000L * 300 * 1
 }
