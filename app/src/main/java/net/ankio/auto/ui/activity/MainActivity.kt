@@ -27,6 +27,13 @@ import net.ankio.auto.ui.api.BaseActivity
 import net.ankio.auto.ui.vm.IntroSharedVm
 import net.ankio.auto.utils.PrefManager
 
+/**
+ * 应用主入口 Activity。
+ *
+ * 负责：
+ * - 根据引导页完成状态，决定跳转到 `HomeActivity` 或显示引导页。
+ * - 在非 Xposed 工作模式下启动核心服务 `CoreService`。
+ */
 class MainActivity : BaseActivity() {
     private val binding: ActivityIntroBinding by lazy {
         ActivityIntroBinding.inflate(layoutInflater)
@@ -36,17 +43,11 @@ class MainActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        CoreService.start(this, intent)
+        // 非 Xposed 模式下启动核心服务
+        if (PrefManager.workMode != WorkMode.Xposed) CoreService.start(this, intent)
         Logger.d("初始化完成")
         if (PrefManager.introIndex + 1 >= IntroPage.entries.size) {
-            if (PrefManager.workMode !== WorkMode.Xposed) start<HomeActivity>(true)
-            return
-        }
-
-
-        // 如果引导页已完成，直接返回不显示引导界面
-        if (PrefManager.introIndex + 1 >= IntroPage.entries.size) {
+            start<HomeActivity>(true)
             return
         }
 
@@ -62,11 +63,6 @@ class MainActivity : BaseActivity() {
             CoreService.start(this, intent)
             binding.viewPager.setCurrentItem(idx.ordinal, true)
         }
-    }
-
-
-    override fun onDestroy() {
-        super.onDestroy()
     }
 
 }
