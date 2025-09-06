@@ -42,7 +42,13 @@ class OcrService : ICoreService() {
     private lateinit var ocrProcessor: OcrProcessor
 
     // 翻转检测器，当设备从朝下翻转到朝上时触发OCR
-    private val detector by lazy { FlipDetector(coreService.getSystemService(Context.SENSOR_SERVICE) as SensorManager) { triggerOcr() } }
+    private val detector by lazy {
+        FlipDetector(coreService.getSystemService(Context.SENSOR_SERVICE) as SensorManager) {
+            coreService.lifecycleScope.launch {
+                triggerOcr()
+            }
+        }
+    }
 
     private val shell = Shell(BuildConfig.APPLICATION_ID)
 
@@ -135,7 +141,7 @@ class OcrService : ICoreService() {
      * 触发OCR识别
      * 支持多种触发方式：设备翻转、Intent、磁贴等
      */
-    private fun triggerOcr() {
+    private suspend fun triggerOcr() {
         if (ocrDoing) {
             Logger.d("OCR正在处理中，跳过本次请求")
             return
@@ -155,9 +161,9 @@ class OcrService : ICoreService() {
      * 验证前台应用是否在白名单中
      * @return 有效的包名，如果无效则返回null
      */
-    private fun validateForegroundApp(): String? {
-        val pkg = getTopPackagePostL(coreService) ?: run {
-            Logger.d("无法获取前台应用")
+    private suspend fun validateForegroundApp(): String? {
+        val pkg = getTopPackagePostL() ?: run {
+            Logger.w("无法获取前台应用")
             return null
         }
 
@@ -273,26 +279,15 @@ class OcrService : ICoreService() {
      * 获取当前前台应用包名
      * @return 返回最近使用的应用包名
      */
-    private fun getTopPackagePostL(ctx: Context): String? {
-        return try {
-            val usm = ctx.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
-            val end = System.currentTimeMillis()
-            val begin = end - 60_000
-            val list = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, begin, end)
-                .filter { it.lastTimeUsed > 0 && it.totalTimeInForeground > 0 }
-                .filterNot {
-                    it.packageName.startsWith("com.android") || it.packageName.startsWith(
-                        BuildConfig.APPLICATION_ID
-                    )
-                }
-            if (list.isEmpty()) return null
-            val recent = list.maxByOrNull { it.lastTimeUsed }
-            recent?.packageName
-        } catch (e: Exception) {
-            Logger.e("获取前台应用失败: ${e.message}")
-            null
-        }
+    private suspend fun getTopPackagePostL(): String? {
+        val data = shell.exec("dumpsys activity activities | grep ResumedActivity")
+        if (data.isBlank()) return null
+
+        val pkg = data.split(" ").firstOrNull { it.contains("/") }?.substringBefore("/")
+
+        return pkg
     }
+
 
     companion object : IService {
 
