@@ -189,6 +189,7 @@ dependencies {
     implementation(libs.xmltojson)
 
     implementation(project(":server"))
+    implementation(project(":shell"))
     implementation(libs.markdownj.core)
 
     // debug依赖
@@ -213,8 +214,5 @@ dependencies {
 
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar", "*.aar"))))
 
-    // Shizuku API - 用于以 shell/system 身份访问系统服务
-    implementation("dev.rikka.shizuku:api:13.1.5")
-    implementation("dev.rikka.shizuku:provider:13.1.0")
 
 }
