@@ -18,8 +18,13 @@ package net.ankio.auto.ui.fragment
 import android.os.Bundle
 import android.view.View
 import androidx.core.os.bundleOf
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.navigation.fragment.findNavController
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonParser
 import io.github.rosemoe.sora.langs.textmate.TextMateColorScheme
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
 import io.github.rosemoe.sora.langs.textmate.registry.FileProviderRegistry
@@ -31,39 +36,75 @@ import net.ankio.auto.R
 import net.ankio.auto.ai.JsTool
 import net.ankio.auto.databinding.FragmentRuleJsEditBinding
 import net.ankio.auto.http.api.JsAPI
+import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseFragment
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
+import net.ankio.auto.ui.utils.DisplayUtils
 import net.ankio.auto.ui.utils.LoadingUtils
 import net.ankio.auto.ui.utils.ToastUtils
+import net.ankio.auto.utils.ThemeUtils
 import org.eclipse.tm4e.core.registry.IThemeSource
 import rikka.core.util.ResourceUtils
-import android.view.WindowManager
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updatePadding
-import com.google.android.material.chip.Chip
-import io.github.rosemoe.sora.widget.subscribeEvent
-import net.ankio.auto.storage.Logger
-import net.ankio.auto.ui.utils.DisplayUtils
+
 
 /**
- * JS 规则编辑页面 - 简洁版本
+ * JS规则编辑器 - Linus品味重构版
  *
- * 好品味原则：
- * - 单一职责：只负责JS代码编辑
- * - 简单数据：只存储必要的JS内容
- * - 直接交互：不需要复杂的回调机制
+ * 核心原则：
+ * 1. 数据结构优先 - 用一个JsRule类包含所有相关数据
+ * 2. 消除特殊情况 - 默认模板就是空规则的正常情况
+ * 3. 简化初始化 - 编辑器一次性配置完成
  */
 class RuleEditJsFragment : BaseFragment<FragmentRuleJsEditBinding>() {
 
-    /** 唯一的数据 - JS代码内容 */
-    private var jsContent = ""
+    /**
+     * JS规则数据 - 简单明了的数据结构
+     */
+    data class JsRule(
+        val name: String,
+        val content: String,
+        val testData: String
+    ) {
+        /** 是否为空规则 */
+        fun isEmpty() = content.isBlank()
 
-    /** 测试数据 - 简单字符串 */
-    private var testData = ""
+        /** 获取可执行代码 - 空规则返回默认模板 */
+        fun getExecutableContent() =
+            if (isEmpty()) createDefaultTemplate(name, testData) else content
 
-    private var name = ""
+        companion object {
+            /** 创建默认模板 - 消除特殊情况 */
+            fun createDefaultTemplate(ruleName: String, testData: String): String {
+                return """
+            /**
+            $testData
+            */
+            let $ruleName = {
+                get(data) {
+                    // ============代码从这里开始
+                    // 如果无法匹配数据，请直接返回 null
+                    return {
+                        type: "Expend", // Income, Transfer, Expend
+                        money: 0.01,
+                        shopName: "",
+                        shopItem: "",
+                        accountNameFrom: "",
+                        accountNameTo: "",
+                        fee: 0.0,
+                        currency: "CNY",
+                        time: 0,
+                        channel: ""
+                    };
+                     // ============代码从这里结束
+                }
+            }""".trimIndent()
+            }
+        }
+    }
+
+    /** 核心数据 - 简单明了的规则对象 */
+    private lateinit var jsRule: JsRule
 
     /**
      * Symbols to be displayed in symbol input view
@@ -109,42 +150,14 @@ class RuleEditJsFragment : BaseFragment<FragmentRuleJsEditBinding>() {
         }
     }
 
-    /** 初始化数据 - 简单直接 */
+    /** 初始化数据 - 消除特殊情况处理 */
     private fun initData() {
         val args = arguments ?: return
-        jsContent = args.getString("js") ?: ""
-        testData = args.getString("struct") ?: ""
-        name = args.getString("name") ?: ""
-
-        // 如果没有JS内容，生成简单模板
-        if (jsContent.isBlank()) {
-            jsContent = generateSimpleTemplate()
-        }
-    }
-
-    /** 生成简单模板 - 不要复杂的数据注入 */
-    private fun generateSimpleTemplate(): String {
-        return """
-            /**
-            $testData
-            */
-            let $name = {
-    get(data){
-        // 请在这里编写您的解析逻辑
-        return {
-            type: "Expend", // Income, Transfer, Expend
-            money: 0.01,
-            shopName: "",
-            shopItem: "",
-            accountNameFrom: "",
-            accountNameTo: "",
-            fee: 0.0,
-            currency: "CNY",
-            time: 0,
-            channel: ""
-        };
-    }
-}"""
+        jsRule = JsRule(
+            name = args.getString("name") ?: "",
+            content = args.getString("js") ?: "",
+            testData = args.getString("struct") ?: ""
+        )
     }
 
     /** 设置工具栏 - 只保留必要功能 */
@@ -171,7 +184,7 @@ class RuleEditJsFragment : BaseFragment<FragmentRuleJsEditBinding>() {
         }
     }
 
-    /** AI优化JavaScript代码 - 简洁直接 */
+    /** AI优化代码 - 简化错误处理 */
     private fun ai() {
         val currentJs = binding.codeEditor.text.toString()
         if (currentJs.isBlank()) {
@@ -179,71 +192,53 @@ class RuleEditJsFragment : BaseFragment<FragmentRuleJsEditBinding>() {
             return
         }
 
-        // 启动协程进行AI优化
         launch {
             val loading = LoadingUtils(requireActivity())
             loading.show(getString(R.string.ai_assist_optimizing))
 
             try {
-                // 调用JsTool优化代码
                 val optimizedJs = JsTool.optimizeJsCode(currentJs)
-                loading.close()
-
                 if (optimizedJs.isNullOrBlank()) {
                     ToastUtils.error(getString(R.string.ai_assist_no_result))
-                    return@launch
+                } else {
+                    binding.codeEditor.setText(optimizedJs)
                 }
-
-                // 直接设置到编辑器
-                jsContent = optimizedJs
-                binding.codeEditor.setText(jsContent)
-                
             } catch (e: Exception) {
-                loading.close()
                 ToastUtils.error(getString(R.string.ai_assist_failed, e.message ?: "未知错误"))
+            } finally {
+                loading.close()
             }
         }
     }
 
-    /** 设置代码编辑器 - 正确的初始化顺序 */
+    /** 设置代码编辑器 - 一次性配置完成 */
     private fun setupCodeEditor() {
-        // 1. 先初始化 TextMate 支持
+        // 初始化TextMate支持
         setupTextmate()
 
-        // 2. 配置编辑器基本属性
+        // 配置编辑器 - 所有配置一次完成
         binding.codeEditor.apply {
             isLineNumberEnabled = true
             isWordwrap = false
+            setEditorLanguage(TextMateLanguage.create("source.js", true))
+            colorScheme = createColorScheme()
+            setText(jsRule.getExecutableContent())
         }
 
-
-        // Configure symbol input view
-        val inputView = binding.symbolInput
-        inputView.bindEditor(binding.codeEditor)
-        inputView.addSymbols(SYMBOLS, SYMBOL_INSERT_TEXT)
-
-        // 3. 设置主题（根据PrefManager自适应）
-        setupAdaptiveTheme()
-
-        // 4. 设置语言支持
-        val language = TextMateLanguage.create("source.js", true)
-        binding.codeEditor.setEditorLanguage(language)
-
-        // 5. 设置自定义补全
-        //setupCustomAutoCompletion()
-
-        // 6. 最后设置内容
-        binding.codeEditor.setText(jsContent)
-    }
-
-    private fun ensureTextmateTheme() {
-        val editor = binding.codeEditor
-        var editorColorScheme = editor.colorScheme
-        if (editorColorScheme !is TextMateColorScheme) {
-            editorColorScheme = TextMateColorScheme.create(ThemeRegistry.getInstance())
-            editor.colorScheme = editorColorScheme
+        // 配置符号输入栏
+        binding.symbolInput.apply {
+            bindEditor(binding.codeEditor)
+            addSymbols(SYMBOLS, SYMBOL_INSERT_TEXT)
         }
     }
+
+    /** 创建颜色主题 - 消除if判断 */
+    private fun createColorScheme(): TextMateColorScheme {
+        val themeName = if (ThemeUtils.isDark) "darcula" else "quietlight"
+        ThemeRegistry.getInstance().setTheme(themeName)
+        return TextMateColorScheme.create(ThemeRegistry.getInstance())
+    }
+
 
 
     private fun setupTextmate() {
@@ -254,7 +249,7 @@ class RuleEditJsFragment : BaseFragment<FragmentRuleJsEditBinding>() {
             )
         )
         loadDefaultTextMateThemes()
-        loadDefaultTextMateLanguages()
+        GrammarRegistry.getInstance().loadGrammars("textmate/languages.json")
     }
     /**
      * Load default textmate themes
@@ -280,18 +275,15 @@ class RuleEditJsFragment : BaseFragment<FragmentRuleJsEditBinding>() {
         themeRegistry.setTheme("quietlight")
     }
 
-    private /*suspend*/ fun loadDefaultTextMateLanguages() /*= withContext(Dispatchers.Main)*/ {
-        GrammarRegistry.getInstance().loadGrammars("textmate/languages.json")
-    }
 
-
-    /** 运行JS代码 - 简单直接 */
+    /** 运行JS代码 - 简化验证逻辑 */
     private fun runJs() {
-        if (jsContent.isBlank()) {
+        val currentJs = binding.codeEditor.text.toString()
+        if (currentJs.isBlank()) {
             ToastUtils.error("JS代码为空")
             return
         }
-        if (testData.isBlank()) {
+        if (jsRule.testData.isBlank()) {
             ToastUtils.error("测试数据为空")
             return
         }
@@ -299,72 +291,74 @@ class RuleEditJsFragment : BaseFragment<FragmentRuleJsEditBinding>() {
         launch {
             val loading = LoadingUtils(requireActivity())
             loading.show("执行中...")
-            val result = JsAPI.run(buildExecutableJs())
-            loading.close()
-
+            val result = JsAPI.run(buildExecutableJs(currentJs))
             if (result.isNotBlank()) {
-                BaseSheetDialog.create<BottomSheetDialogBuilder>(requireContext())
-                    .setTitle("执行结果")
-                    .setMessage(result)
-                    .setPositiveButton("确定") { _, _ -> }
-                    .show()
+                showResult(result)
             }
+            loading.close()
         }
     }
 
-    /** 保存JS代码 */
+    /** 显示执行结果 - 支持JSON美化输出 */
+    private fun showResult(result: String) {
+        val formattedResult = formatResult(result)
+        BaseSheetDialog.create<BottomSheetDialogBuilder>(requireContext())
+            .setTitle("执行结果")
+            .setMessage(formattedResult)
+            .setPositiveButton("确定") { _, _ -> }
+            .show()
+    }
+
+    /** 格式化结果 - 简洁的JSON检测和美化 */
+    private fun formatResult(result: String): String {
+        return try {
+            // 尝试解析为JSON并美化 - 消除特殊情况判断
+            val jsonElement = JsonParser.parseString(result.trim())
+            GsonBuilder().setPrettyPrinting().create().toJson(jsonElement)
+        } catch (e: Exception) {
+            // 不是JSON或解析失败，返回原始内容
+            result
+        }
+    }
+
+    /** 保存JS代码 - 简化数据传递 */
     private fun save() {
-        jsContent = binding.codeEditor.text.toString()
-        val result = bundleOf("js" to jsContent, "struct" to testData)
+        val currentJs = binding.codeEditor.text.toString()
+        val result = bundleOf("js" to currentJs, "struct" to jsRule.testData)
         parentFragmentManager.setFragmentResult("js_edit_result", result)
         ToastUtils.info("已保存")
         findNavController().popBackStack()
     }
 
-    /** 构建可执行的JS代码 */
-    private fun buildExecutableJs(): String {
-        val escapedData = Gson().toJson(testData)
-        val ruleName = name
-        
-        return buildString {
-            appendLine(jsContent)
-            appendLine("let window = {};")
-            appendLine("window.data = $escapedData;")
-            appendLine("window.rules = [{name: \"$ruleName\", obj: $ruleName}];")
-            appendLine(
-                """
-                const data = window.data || '';
-                const rules = window.rules || [];
-                for (const rule of rules) {
-                    try {
-                        const result = rule.obj.get(data);
-                        if (result && result.money && parseFloat(result.money) > 0) {
-                            result.ruleName = rule.name;
-                            print(JSON.stringify(result));
-                            break;
-                        }
-                    } catch (e) {
-                        print(e.message);
+    /** 构建可执行的JS代码 - 简化字符串构建 */
+    private fun buildExecutableJs(jsCode: String): String {
+        val escapedData = Gson().toJson(jsRule.testData)
+        val ruleName = jsRule.name
+
+        return """
+            $jsCode
+            let window = {};
+            window.data = $escapedData;
+            window.rules = [{name: "$ruleName", obj: $ruleName}];
+            
+            const data = window.data || '';
+            const rules = window.rules || [];
+            for (const rule of rules) {
+                try {
+                    const result = rule.obj.get(data);
+                    if (result && result.money && parseFloat(result.money) > 0) {
+                        result.ruleName = rule.name;
+                        print(JSON.stringify(result));
+                        break;
                     }
+                } catch (e) {
+                    print(e.message);
                 }
-            """.trimIndent()
-            )
-        }
+            }
+        """.trimIndent()
     }
 
 
-    /** 设置自适应主题 - 根据PrefManager.darkTheme自动切换 */
-    private fun setupAdaptiveTheme() {
-        val isDarkMode = ResourceUtils.isNightMode(requireContext().resources.configuration)
-        val themeName = if (isDarkMode) "darcula" else "quietlight"
-
-        // 设置TextMate主题
-        ensureTextmateTheme()
-        ThemeRegistry.getInstance().setTheme(themeName)
-
-        // 强制刷新编辑器主题
-        binding.codeEditor.colorScheme = TextMateColorScheme.create(ThemeRegistry.getInstance())
-    }
 
     /** 清理资源 - 现在不需要特殊处理 */
     override fun onDestroyView() {
