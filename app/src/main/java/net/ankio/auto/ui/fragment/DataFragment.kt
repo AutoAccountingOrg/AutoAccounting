@@ -406,8 +406,7 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
         when (item?.itemId) {
             R.id.item_clear -> {
                 // 检查Fragment View是否仍然有效
-                if (view == null || !isAdded || isDetached) {
-                    Logger.w("Fragment is not in valid state, cannot show dialog")
+                if (!uiReady()) {
                     return true
                 }
 
