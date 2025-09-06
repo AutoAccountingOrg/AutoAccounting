@@ -972,4 +972,48 @@
     <string name="setting_current_selection">当前选择：%s</string>
     <string name="setting_auto_asset_mapping_disabled">必须先启用资产管理功能</string>
 
+    <!-- 备份恢复过程提示 -->
+    <string name="backup_preparing">准备备份...</string>
+    <string name="backup_database">备份数据库...</string>
+    <string name="backup_preferences">备份偏好设置...</string>
+    <string name="backup_creating_index">创建索引文件...</string>
+    <string name="backup_compressing">压缩文件...</string>
+    <string name="restore_preparing">准备恢复...</string>
+    <string name="restore_extracting">解压备份...</string>
+    <string name="restore_validating">验证备份...</string>
+    <string name="restore_database">恢复数据库...</string>
+    <string name="restore_preferences">恢复偏好设置...</string>
+    <string name="restore_clearing_cache">清理缓存...</string>
+    <string name="restore_restarting">重启应用...</string>
+
+    <!-- Canary版本警告 -->
+    <string name="canary_warning_title">Canary版本风险警告</string>
+    <string name="canary_warning_message">您当前使用的是Canary版本，具有以下特点：\n\n• 每3小时自动构建\n• 包含最新功能和修复\n• 不保证稳定性和可用性\n• 可能包含未知错误\n\n建议：\n• 在生产环境中谨慎使用\n• 报告错误前请启用调试模式\n• 及时备份重要数据</string>
+    <string name="canary_warning_confirm">我了解</string>
+    <string name="canary_warning_enable_debug">启用调试模式</string>
+
+    <!-- JS编辑器相关 -->
+    <string name="js_code_empty">JS代码为空</string>
+    <string name="js_executing">执行中...</string>
+    <string name="js_execution_result">执行结果</string>
+    <string name="js_saved">已保存</string>
+    <string name="test_data_empty">测试数据为空</string>
+
+    <!-- 权限相关 -->
+    <string name="perm_required_not_complete">某些必需权限仍然缺失。请在继续之前授予它们。</string>
+
+    <!-- 设置相关补充 -->
+    <string name="setting_auto_asset_mapping">自动资产映射</string>
+    <string name="setting_auto_asset_mapping_summary">自动将账单映射到相应的资产账户</string>
+    <string name="setting_auto_create_category_summary">遇到未知分类时自动创建分类</string>
+    <string name="setting_auto_record_bill">自动记录账单</string>
+    <string name="setting_auto_record_bill_summary">从通知和消息自动记录账单</string>
+    <string name="setting_bill_show_rule_summary">编辑账单时显示匹配规则的名称</string>
+    <string name="setting_book_app">记账应用</string>
+    <string name="setting_book_app_summary">目标记账应用包名</string>
+    <string name="setting_category_book_config">账本配置</string>
+    <string name="setting_category_display">显示设置</string>
+    <string name="setting_local_backup_path">本地备份路径</string>
+    <string name="setting_local_backup_path_summary">本地备份存储路径</string>
+
 </resources>
