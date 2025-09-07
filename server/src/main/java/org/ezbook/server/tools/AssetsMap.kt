@@ -167,14 +167,14 @@ class AssetsMap {
             return asset.name
         }
 
-        // 2. 自定义映射查找
-        getAssetsMap().firstOrNull { it.name == accountName }?.let {
+        // 2. 自定义映射查找（若 mapName 为空则跳过继续后续策略）
+        getAssetsMap().firstOrNull { it.name == accountName && it.mapName.isNotBlank() }?.let {
             ServerLog.d("自定义映射命中: '${it.name}' -> '${it.mapName}'")
             return it.mapName
         }
 
-        // 3. 正则表达式匹配（简化为 contains 判断）
-        getAssetsMap().filter { it.regex }.firstOrNull { mapping ->
+        // 3. 正则表达式匹配（简化为 contains 判断；若 mapName 为空则跳过）
+        getAssetsMap().filter { it.regex && it.mapName.isNotBlank() }.firstOrNull { mapping ->
             runCatchingExceptCancel { Regex(mapping.name).containsMatchIn(accountName) }.getOrElse { false }
         }?.let { mapping ->
             ServerLog.d("正则映射命中: /${mapping.name}/ -> '${mapping.mapName}'")
