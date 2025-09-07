@@ -150,7 +150,7 @@ class CoreService : LifecycleService() {
      * @param intent 启动服务的Intent
      * @param flags 启动标志
      * @param startId 启动ID
-     * @return START_STICKY 表示服务被系统杀死后会尝试重新创建
+     * @return 启动返回标志：Xposed 模式返回 START_NOT_STICKY，其他模式返回 START_STICKY
      */
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
@@ -166,7 +166,7 @@ class CoreService : LifecycleService() {
                 )
             }
         }
-        return START_STICKY
+        return if (PrefManager.workMode === WorkMode.Xposed) START_NOT_STICKY else START_STICKY
     }
 
     /**
