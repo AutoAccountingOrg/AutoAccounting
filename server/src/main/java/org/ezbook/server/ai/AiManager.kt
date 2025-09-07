@@ -70,8 +70,8 @@ class AiManager {
     suspend fun getProviderInfo(providerName: String): HashMap<String, String> {
         val provider = getProvider(providerName)
         return hashMapOf(
-            "apiUri" to provider.getApiUri(),
-            "apiModel" to provider.getModel(),
+            "apiUri" to provider.apiUri,
+            "apiModel" to provider.model,
             "createKeyUri" to provider.createKeyUri
         )
     }
