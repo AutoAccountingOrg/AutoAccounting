@@ -68,11 +68,6 @@ class OcrTileService : TileService() {
 
         Logger.d("OCR磁贴被点击")
 
-        // 检查是否为OCR模式
-        if (!AppAdapterManager.ocrMode()) {
-            Logger.w("当前不是OCR模式，忽略磁贴点击")
-            return
-        }
 
         try {
             // 创建启动FloatingWindowTriggerActivity的Intent
