@@ -64,7 +64,7 @@ class GeminiProvider : BaseAIProvider() {
             val requestBody = mapOf(
                 "contents" to listOf(
                     mapOf(
-                        "role" to "system",
+                        "role" to "user",
                         "parts" to listOf(
                             mapOf("text" to system)
                         )
