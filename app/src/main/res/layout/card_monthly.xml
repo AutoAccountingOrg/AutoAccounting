@@ -46,7 +46,7 @@
                     android:layout_height="28dp"
                     android:layout_marginBottom="8dp"
                     android:tint="?attr/colorPrimary"
-                    app:srcCompat="@drawable/ic_trending_up" />
+                    app:srcCompat="@drawable/ic_trending_down" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/tvIncomeAmount"
@@ -84,7 +84,7 @@
                     android:layout_height="28dp"
                     android:layout_marginBottom="8dp"
                     android:tint="?attr/colorError"
-                    app:srcCompat="@drawable/ic_trending_down" />
+                    app:srcCompat="@drawable/ic_trending_up" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/tvExpenseAmount"
