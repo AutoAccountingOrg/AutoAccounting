@@ -159,12 +159,10 @@ class QianJiAdapter : IAppAdapter {
         }
 
         // 5) 分类：支持一二级分类，按 model 拆分后转换为 "/::/"
-        if (qjType == 0 || qjType == 1) { // 仅收入/支出需要分类
-            val cate = buildQianJiCategory(billInfoModel)
-            if (cate.isNotEmpty()) {
-                uriBuilder.append("&catename=")
-                    .append(Uri.encode(cate))
-            }
+        val cate = buildQianJiCategory(billInfoModel)
+        if (cate.isNotEmpty()) {
+            uriBuilder.append("&catename=")
+                .append(Uri.encode(cate))
         }
 
         // 6) 分类选择模式：0表示自动选择
