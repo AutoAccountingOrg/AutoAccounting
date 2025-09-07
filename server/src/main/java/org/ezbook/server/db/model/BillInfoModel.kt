@@ -22,138 +22,112 @@ import org.ezbook.server.constant.BillType
 import org.ezbook.server.tools.MD5HashTable
 
 @Entity
-class BillInfoModel {
+data class BillInfoModel(
     @PrimaryKey(autoGenerate = true)
-    var id = 0L
+    var id: Long = 0L,
 
     /**
      * 账单类型
      */
-    var type: BillType = BillType.Income
+    var type: BillType = BillType.Income,
 
     /**
      * 币种类型
      */
-    var currency: String = ""
+    var currency: String = "",
 
     /**
      * 金额 大于0
      */
-    var money: Double = 0.00
+    var money: Double = 0.00,
 
     /**
      * 手续费
      */
-    var fee: Double = 0.00
+    var fee: Double = 0.00,
 
     /**
      * 记账时间
      * yyyy-MM-dd HH:mm:ss
      */
-    var time: Long = 0
+    var time: Long = 0,
 
     /**
      * 商户名称
      */
-    var shopName: String = ""
+    var shopName: String = "",
 
     /**
      * 商品名称
      */
-    var shopItem: String = ""
+    var shopItem: String = "",
 
     /**
      * 分类名称
      */
-    var cateName: String = ""
+    var cateName: String = "",
 
     /**
      * 拓展数据域，如果是报销或者销账，会对应账单ID
      */
-    var extendData: String = ""
+    var extendData: String = "",
 
     /**
      * 账本名称
      */
-    var bookName: String = "默认账本"
+    var bookName: String = "默认账本",
 
     /**
      * 账单所属资产名称（或者转出账户）
      */
-    var accountNameFrom: String = ""
+    var accountNameFrom: String = "",
 
     /**
      * 转入账户
      */
-    var accountNameTo = ""
+    var accountNameTo: String = "",
 
     /**
      * 这笔账单的来源,例如是微信还是支付宝
      */
-    var app = ""
+    var app: String = "",
 
     /**
      * 分组id，这个id是指将短时间内捕获到的同等金额进行合并的分组id
      */
-    var groupId: Long = -1
+    var groupId: Long = -1,
 
     /**
      * 数据来源渠道，这里指的是更具体的渠道，例如【建设银行】微信公众号，用户【xxxx】这种
      */
-    var channel: String = ""
-
+    var channel: String = "",
 
     /**
      * 订单状态
      */
-    var state: BillState = BillState.Wait2Edit
+    var state: BillState = BillState.Wait2Edit,
 
     /**
      * 备注信息
      */
-    var remark: String = ""
+    var remark: String = "",
 
     /**
      * 是否为自动记录的账单
      */
-    var auto: Boolean = false
+    var auto: Boolean = false,
 
     /**
      * 规则名称
      */
-    var ruleName: String = ""
+    var ruleName: String = "",
 
     /**
      * 标签名称列表，使用逗号分割的字符串存储多个标签名称
      * 例如: "餐饮,报销,出差" 表示该账单关联了这些标签
      */
     var tags: String = ""
-
-    fun copy(): BillInfoModel {
-        val billInfoModel = BillInfoModel()
-        billInfoModel.id = id
-        billInfoModel.type = type
-        billInfoModel.currency = currency
-        billInfoModel.money = money
-        billInfoModel.fee = fee
-        billInfoModel.time = time
-        billInfoModel.shopName = shopName
-        billInfoModel.shopItem = shopItem
-        billInfoModel.cateName = cateName
-        billInfoModel.extendData = extendData
-        billInfoModel.bookName = bookName
-        billInfoModel.accountNameFrom = accountNameFrom
-        billInfoModel.accountNameTo = accountNameTo
-        billInfoModel.app = app
-        billInfoModel.groupId = groupId
-        billInfoModel.channel = channel
-        billInfoModel.state = state
-        billInfoModel.remark = remark
-        billInfoModel.auto = auto
-        billInfoModel.ruleName = ruleName
-        billInfoModel.tags = tags
-        return billInfoModel
-    }
+) {
 
     fun needReCategory(): Boolean {
         // 分类内容为空 且 不是AI生成
