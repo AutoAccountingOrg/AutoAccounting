@@ -76,12 +76,8 @@ class Server(private val context: Application) {
         private val mainJob = Job()
         private val mainScope = CoroutineScope(Dispatchers.Main + mainJob)
 
-        fun withMain(block: suspend () -> Unit) {
-            mainScope.launch(Dispatchers.Main) { block() }
-        }
-
         fun withIO(block: suspend () -> Unit) {
-            mainScope.launch(Dispatchers.Main) { block() }
+            mainScope.launch(Dispatchers.IO) { block() }
         }
 
 

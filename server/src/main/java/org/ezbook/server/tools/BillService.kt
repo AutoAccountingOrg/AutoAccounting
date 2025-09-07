@@ -215,16 +215,16 @@ class BillService(
 
             // 将账单加入处理队列并等待自动分组处理完成
             val task = Server.billProcessor.addTask(billInfo, context)
-            task.await()
+            val parent = task.await()
             // 记录自动分组处理的结果摘要
-            if (task.result == null) {
+            if (parent == null) {
                 ServerLog.d("自动分组未找到父账单，待用户编辑")
             } else {
-                ServerLog.d("自动分组找到父账单：parentId=${task.result?.id}")
+                ServerLog.d("自动分组找到父账单：parentId=${parent.id}")
             }
 
             // 根据处理结果更新账单状态
-            billInfo.state = if (task.result == null) BillState.Wait2Edit else BillState.Edited
+            billInfo.state = if (parent == null) BillState.Wait2Edit else BillState.Edited
             db.billInfoDao().update(billInfo)
             // 记录账单最终状态
             ServerLog.d("账单状态更新：state=${billInfo.state}")
@@ -245,10 +245,10 @@ class BillService(
             }
 
             // 9) 拉起悬浮窗（仅外部数据）
-            if (!analysisParams.fromAppData) startAutoPanel(billInfo, task.result)
+            if (!analysisParams.fromAppData) startAutoPanel(billInfo, parent)
             ServerLog.d("==============账单分析结束===============")
             // 10) 返回
-            ResultModel.ok(BillResultModel(billInfo, task.result))
+            ResultModel.ok(BillResultModel(billInfo, parent))
         }
 
     /**
