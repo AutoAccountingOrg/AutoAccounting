@@ -10,12 +10,14 @@ class ChatUserHooker : PartHooker() {
 
     companion object {
         const val CHAT_USER = "hookerUser"
+        private const val DURATION_SECONDS = 300L
         // 内存缓存用户数据
         val users = hashMapOf<String,String>()
 
         fun get(wx: String): String {
             return users[wx]?:DataUtils.get(CHAT_USER)
         }
+
     }
 
 
@@ -50,7 +52,7 @@ class ChatUserHooker : PartHooker() {
             users[field_username] = username
             if (field_nickname != null) users[field_nickname] = username
 
-            DataUtils.set(CHAT_USER, username)
+            AppRuntime.memoryCache.put(CHAT_USER, username, DURATION_SECONDS)
 
         }
 

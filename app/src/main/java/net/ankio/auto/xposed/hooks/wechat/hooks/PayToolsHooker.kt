@@ -26,6 +26,7 @@ class PayToolsHooker : PartHooker() {
         const val PAY_TOOLS = "cachedPayTools"
         const val PAY_MONEY = "cachedPayMoney"
         const val PAY_SHOP = "cachedPayShop"
+        private const val DURATION_SECONDS = 120L
     }
 
     override fun hook() {
@@ -38,19 +39,19 @@ class PayToolsHooker : PartHooker() {
         ){ param ->
             val text = param.args[0] as String
             AppRuntime.manifest.logD("Text: $text")
-
+            // 这里的数据只缓存2分钟，超过2分钟自动失效
             when {
                 Regex(".*(卡|零钱).*").matches(text) -> {
                     AppRuntime.manifest.logD("支付方式Hook: $text")
-                    DataUtils.set(PAY_TOOLS, text)
+                    AppRuntime.memoryCache.put(PAY_TOOLS, text, DURATION_SECONDS)
                 }
                 Regex(".*([￥$]).*").matches(text) -> {
                     AppRuntime.manifest.logD("支付金额Hook: $text")
-                    DataUtils.set(PAY_MONEY, text)
+                    AppRuntime.memoryCache.put(PAY_MONEY, text, DURATION_SECONDS)
                 }
                 Regex(".*(转账|红包|付款给).*").matches(text) -> {
                     AppRuntime.manifest.logD("支付对象hook: $text")
-                    DataUtils.set(PAY_SHOP, text)
+                    AppRuntime.memoryCache.put(PAY_SHOP, text, DURATION_SECONDS)
                 }
             }
         }

@@ -23,6 +23,7 @@ import net.ankio.auto.BuildConfig
 import net.ankio.auto.xposed.core.App.Companion.TAG
 import net.ankio.auto.xposed.core.api.HookerManifest
 import net.ankio.auto.xposed.core.logger.Logger
+import org.ezbook.server.tools.MemoryCache
 
 object AppRuntime {
     /**
@@ -60,6 +61,7 @@ object AppRuntime {
      */
     lateinit var manifest: HookerManifest
 
+    var memoryCache = MemoryCache()
     /**
      * 表示应用程序的版本代码。
      *

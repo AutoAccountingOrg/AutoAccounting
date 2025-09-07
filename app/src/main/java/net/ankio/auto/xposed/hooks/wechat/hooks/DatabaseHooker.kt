@@ -171,9 +171,18 @@ class DatabaseHooker : PartHooker() {
 
     private fun putCache(json: JsonObject) {
        // json.addProperty(ChatUserHooker.CHAT_USER, DataUtils.get(ChatUserHooker.CHAT_USER))
-        json.addProperty(PayToolsHooker.PAY_TOOLS, DataUtils.get(PayToolsHooker.PAY_TOOLS))
-        json.addProperty(PayToolsHooker.PAY_MONEY, DataUtils.get(PayToolsHooker.PAY_MONEY))
-        json.addProperty(PayToolsHooker.PAY_SHOP, DataUtils.get(PayToolsHooker.PAY_SHOP))
+        json.addProperty(
+            PayToolsHooker.PAY_TOOLS,
+            AppRuntime.memoryCache.get(PayToolsHooker.PAY_TOOLS) as? String ?: ""
+        )
+        json.addProperty(
+            PayToolsHooker.PAY_MONEY,
+            AppRuntime.memoryCache.get(PayToolsHooker.PAY_MONEY) as? String ?: ""
+        )
+        json.addProperty(
+            PayToolsHooker.PAY_SHOP,
+            AppRuntime.memoryCache.get(PayToolsHooker.PAY_SHOP) as? String ?: ""
+        )
         json.addProperty("t", System.currentTimeMillis())
     }
 
