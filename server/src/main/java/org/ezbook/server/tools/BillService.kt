@@ -285,7 +285,7 @@ class BillService(
         val result = executeJs(js, data)
         return parseBillInfo(result, app, dataType)?.also {
 
-            ServerLog.d("${src}规则解析成功：type=${'$'}{it.type}, money=${'$'}{it.money}")
+            ServerLog.d("${src}规则解析成功：type=${it.type}, money=${it.money}")
         }
     }
 
