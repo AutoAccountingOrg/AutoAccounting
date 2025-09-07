@@ -104,6 +104,7 @@ abstract class BaseSheetDialog<VB : ViewBinding> :
         lifecycleScope.launch(CoroutineExceptionHandler { _, _ -> }, block = block).apply {
             invokeOnCompletion { e ->
                 when (e) {
+                    null -> Unit // 正常完成不处理
                     is CancellationException -> {
                         Logger.d("Dialog协程已取消: ${e.message}")
                     }
