@@ -63,7 +63,7 @@ class DatabaseHooker : PartHooker() {
             contentValues.put("arg", arg)
             //由于微信的数据经常没有时间，所以我们为他添加默认时间
             contentValues.put("t", System.currentTimeMillis())
-
+            AppRuntime.logD("微信数据: $contentValues")
             if (tableName == "message") {
 
                 when (type) {
@@ -72,6 +72,7 @@ class DatabaseHooker : PartHooker() {
                         val content = contentValues.get("content").toString()
                     //    if (!content.contains("CDATA[微信支付")) return@after // 只对微信支付特殊处理
                         val json = Gson().fromJson(xmlToJson(content), JsonObject::class.java)
+                        //TODO 有一些消息从这里漏出来了
                         val tpl =
                             Gson().fromJson(
                                 """
@@ -87,7 +88,6 @@ class DatabaseHooker : PartHooker() {
                                 JsonObject::class.java,
                             )
 
-                        //   logD("微信支付数据JSON：$json")
 
                         val msg = json.get("msg").asJsonObject.get("appmsg").asJsonObject
                         tpl.addProperty("description", msg.get("des").asString)
