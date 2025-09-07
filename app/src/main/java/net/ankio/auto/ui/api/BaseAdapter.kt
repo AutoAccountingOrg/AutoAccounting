@@ -43,6 +43,7 @@ abstract class BaseAdapter<T : ViewBinding, E> : RecyclerView.Adapter<BaseViewHo
         adapterScope.launch(CoroutineExceptionHandler { _, _ -> }, block = block).apply {
             invokeOnCompletion { e ->
                 when (e) {
+                    null -> Unit // 正常完成不处理
                     is CancellationException -> {
                         Logger.d("适配器协程已取消: ${e.message}")
                     }
