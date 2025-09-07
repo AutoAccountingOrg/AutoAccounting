@@ -85,6 +85,10 @@ abstract class BaseSheetDialog<VB : ViewBinding> :
         get() = _binding
             ?: throw IllegalStateException("ViewBinding 初始化失败，请检查布局文件和泛型参数")
 
+
+    protected fun uiReady() =
+        _binding != null && isShowing && window?.decorView?.isAttachedToWindow == true
+
     /** 宿主生命周期所有者，用于监听宿主销毁 */
     private val hostLifecycleOwner: LifecycleOwner
 

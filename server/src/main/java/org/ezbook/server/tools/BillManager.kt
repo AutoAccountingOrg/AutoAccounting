@@ -23,8 +23,7 @@ import org.ezbook.server.db.model.BillInfoModel
 object BillManager {
 
     // 常量定义，缩短时间窗口，避免大量非重复账单
-    private const val TIME_WINDOW_MINUTES = 2
-    private const val TIME_WINDOW_MILLIS = TIME_WINDOW_MINUTES * 60 * 1000L
+    private const val TIME_WINDOW_MILLIS = 60 * 1000L
     private const val OTHER_CATEGORY_1 = "其他"
     private const val OTHER_CATEGORY_2 = "其它"
 
@@ -55,24 +54,27 @@ object BillManager {
         //需要判断账户，如果支出或者收入账户完全一致
 
         // 时间不同，规则也一样,细分渠道也一样，一定不是重复账单：场景，用户多次转账给某人
-        if (bill1.ruleName == bill2.ruleName) {
-
+        if (!bill1.generateByAi() && bill1.ruleName == bill2.ruleName) {
             if (bill1.channel == bill2.channel) {
                 ServerLog.d("重复判断：规则相同且渠道相同 -> 非重复")
                 return false
             }
         }
 
-        if (bill1.accountNameFrom.isNotEmpty() && bill2.accountNameFrom.isNotEmpty() && bill1.accountNameFrom != bill2.accountNameFrom) {
-            ServerLog.d("重复判断：支出账户不同 -> 非重复")
-            return false
-        }
+        // 有一些支出账户不同的重复账单
+
+        /* // 账户判断依据不准确
+
+         if (bill1.accountNameFrom.isNotEmpty() && bill2.accountNameFrom.isNotEmpty() && bill1.accountNameFrom != bill2.accountNameFrom) {
+             ServerLog.d("重复判断：支出账户不同 -> 非重复")
+             return false
+         }
 
 
-        if (bill1.accountNameTo.isNotEmpty() && bill2.accountNameTo.isNotEmpty() && bill1.accountNameTo != bill2.accountNameTo) {
-            ServerLog.d("重复判断：收入账户不同 -> 非重复")
-            return false
-        }
+         if (bill1.accountNameTo.isNotEmpty() && bill2.accountNameTo.isNotEmpty() && bill1.accountNameTo != bill2.accountNameTo) {
+             ServerLog.d("重复判断：收入账户不同 -> 非重复")
+             return false
+         }*/
 
         ServerLog.d("重复判断：未命中排除条件 -> 可能重复")
         return true
@@ -107,6 +109,26 @@ object BillManager {
      * 合并账户信息
      */
     private fun mergeAccountInfo(source: BillInfoModel, target: BillInfoModel) {
+        val sourceAi = source.generateByAi()
+        val targetAi = target.generateByAi()
+
+        // 规则1：来源为AI、目标非AI -> 保留目标资产，直接跳过
+        if (sourceAi && !targetAi) {
+            ServerLog.d("合并账户信息：来源为AI，目标非AI，保留目标资产")
+            return
+        }
+
+        // 规则2：来源非AI、目标为AI -> 使用来源资产覆盖（在非空前提下）
+        if (!sourceAi && targetAi) {
+            if (source.accountNameFrom.isNotEmpty()) {
+                target.accountNameFrom = source.accountNameFrom
+            }
+            if (source.accountNameTo.isNotEmpty()) {
+                target.accountNameTo = source.accountNameTo
+            }
+            ServerLog.d("合并账户信息：目标为AI，采用来源资产")
+            return
+        }
         val isTransfer = source.type == BillType.Transfer
 
         // 合并源账户
@@ -234,8 +256,8 @@ object BillManager {
      */
     suspend fun getRemark(billInfoModel: BillInfoModel, context: Context): String {
         val settingBillRemark = SettingUtils.noteFormat()
-
-        return settingBillRemark
+        // 先按模板替换占位符
+        val raw = settingBillRemark
             .replace("【商户名称】", billInfoModel.shopName)
             .replace("【商品名称】", billInfoModel.shopItem)
             .replace("【金额】", billInfoModel.money.toString())
@@ -244,6 +266,29 @@ object BillManager {
             .replace("【来源】", getAppName(billInfoModel.app, context))
             .replace("【原始资产】", billInfoModel.accountNameFrom)
             .replace("【渠道】", billInfoModel.channel)
+        // 去除重复片段并规整空白，避免合并后出现重复词（例如 商户/渠道/商品名重复）
+        return normalizeRemark(raw)
+    }
+
+    /**
+     * 备注去重与规整：
+     * - 使用空白与连字符作为分隔，将重复片段去重（保留首次出现）
+     * - 规整多余空白，返回更简洁的备注
+     */
+    private fun normalizeRemark(text: String): String {
+        // 统一分隔：空白和连字符都作为分隔符
+        val tokens = text
+            .replace("\u00A0", " ") // 非断行空格
+            .trim()
+            .split(Regex("[\\s\u3000\\-]+"))
+            .filter { it.isNotBlank() }
+
+        val seen = LinkedHashSet<String>()
+        for (token in tokens) {
+            // 去重：只保留首次出现的片段
+            if (!seen.contains(token)) seen.add(token)
+        }
+        return seen.joinToString(" ")
     }
 
     /**

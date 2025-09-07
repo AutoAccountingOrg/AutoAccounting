@@ -16,20 +16,18 @@
 package net.ankio.auto.ui.dialog
 
 import android.view.View
-import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.launch
-import net.ankio.auto.R
 import net.ankio.auto.databinding.FloatEditorRefactoredBinding
-import net.ankio.auto.exceptions.BillException
-import net.ankio.auto.http.api.BillAPI
-import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.api.BaseSheetDialog
-import net.ankio.auto.ui.dialog.components.*
 import net.ankio.auto.ui.api.bindAs
-
-import net.ankio.auto.ui.utils.ToastUtils
+import net.ankio.auto.ui.dialog.components.ActionButtonsComponent
+import net.ankio.auto.ui.dialog.components.AmountDisplayComponent
+import net.ankio.auto.ui.dialog.components.BasicInfoComponent
+import net.ankio.auto.ui.dialog.components.BookHeaderComponent
+import net.ankio.auto.ui.dialog.components.PaymentInfoComponent
+import net.ankio.auto.ui.dialog.components.RuleInfoComponent
+import net.ankio.auto.ui.dialog.components.TransactionTypeSelectorComponent
 import net.ankio.auto.utils.BillTool
 import org.ezbook.server.constant.BillState
 import org.ezbook.server.constant.BillType
@@ -86,6 +84,17 @@ class BillEditorDialog internal constructor(
     fun setBillInfo(billInfo: BillInfoModel) = apply {
         this.billInfoModel = billInfo
         this.currentBillType = BillTool.getType(billInfo.type)
+        if (uiReady()) {
+            if (::bookHeaderComponent.isInitialized) bookHeaderComponent.setBillInfo(billInfo)
+            if (::amountDisplayComponent.isInitialized) amountDisplayComponent.setBillInfo(billInfo)
+            if (::ruleInfoComponent.isInitialized) ruleInfoComponent.setBillInfo(billInfo)
+            if (::transactionTypeSelectorComponent.isInitialized) transactionTypeSelectorComponent.setBillInfo(
+                billInfo
+            )
+            if (::paymentInfoComponent.isInitialized) paymentInfoComponent.setBillInfo(billInfo)
+            if (::basicInfoComponent.isInitialized) basicInfoComponent.setBillInfo(billInfo)
+            if (::actionButtonsComponent.isInitialized) actionButtonsComponent.setBillInfo(billInfo)
+        }
     }
 
 
@@ -115,7 +124,8 @@ class BillEditorDialog internal constructor(
 
         // 设置全局刷新监听 - 直接调用各组件的刷新方法
         launch {
-            refreshEvent.collect { event ->
+            refreshEvent.collect {
+                Logger.d("refresh all components")
                 refreshAllComponents()
             }
         }
