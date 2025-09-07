@@ -39,6 +39,9 @@ import org.ezbook.server.models.BillResultModel
 import org.ezbook.server.models.ResultModel
 import org.ezbook.server.server.AnalysisParams
 import java.io.Closeable
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 
 /**
@@ -204,6 +207,11 @@ class BillService(
                 // 记录账单入库主键
                 ServerLog.d("账单入库成功：billId=${billInfo.id}")
             }
+
+
+            // 对账单类型进行检查，这里如果没有开启资产管理，是没有转账类型的
+
+
 
             // 将账单加入处理队列并等待自动分组处理完成
             val task = Server.billProcessor.addTask(billInfo, context)
@@ -405,6 +413,10 @@ class BillService(
             addProperty("money", bill.money)
             addProperty("shopName", bill.shopName)
             addProperty("shopItem", bill.shopItem)
+            // 注入格式化后的实际账单时间（24小时制：HH:mm），供分类规则使用
+            val timeStr = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(bill.time))
+            addProperty("time", timeStr)
+            addProperty("ruleName", bill.ruleName)
         }
 
         val js = ruleGenerator.category()

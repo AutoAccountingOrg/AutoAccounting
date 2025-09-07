@@ -104,13 +104,13 @@ for (var i = 0; i < rules.length; i++) {
         return """
             var window = JSON.parse(data);
             $commonJs
-            function getCategory(money,type,shopName,shopItem,time){ $categoryCustom return null;};
-            var categoryInfo = getCategory(window.money,window.type,window.shopName,window.shopItem,window.time);
+            function getCategory(money,type,shopName,shopItem,time,ruleName){ $categoryCustom return null;};
+            var categoryInfo = getCategory(window.money,window.type,window.shopName,window.shopItem,window.time,window.ruleName);
             if(categoryInfo !== null) { 
                 print(JSON.stringify(categoryInfo));  
             } else {
                 $category
-                print(JSON.stringify(category.get(window.money, window.type, window.shopName, window.shopItem, window.time)));
+                print(JSON.stringify(category.get(window.money, window.type, window.shopName, window.shopItem, window.time,window.ruleName)));
             }
         """.trimIndent()
     }
