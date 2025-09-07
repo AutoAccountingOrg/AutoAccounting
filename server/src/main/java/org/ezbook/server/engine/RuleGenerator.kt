@@ -65,31 +65,26 @@ object RuleGenerator {
              window.rules = $rulesStr;
              window.data = data;
              
-             
-             var data = window.data || '';
+var data = window.data || '';
+var rules = window.rules || [];
 
-             var rules = window.rules || [];
+for (var i = 0; i < rules.length; i++) {
+  var rule = rules[i];
+  var result = null;
 
-         for (var i = 0; i < rules.length; i++) {
-                var rule = rules[i];
-                 var result = null;
   try {
     result = rule.obj.get(data);
-    } catch (e) {
-    //print(rule.name+"执行出错",e);
-    continue;
+  } catch (e) {
+    continue; // 出错就跳过
   }
-    if (
-      result !== null &&
-      result.money !== null &&
-      parseFloat(result.money) > 0
-    ) {
-      result.ruleName = rule.name;
-      print(JSON.stringify(result));
-      break;
-    }
-  
+
+  if (result && result.money && parseFloat(result.money) > 0) {
+    result.ruleName = rule.name;
+    print(JSON.stringify(result));
+    break;
+  }
 }
+
 
 
              
