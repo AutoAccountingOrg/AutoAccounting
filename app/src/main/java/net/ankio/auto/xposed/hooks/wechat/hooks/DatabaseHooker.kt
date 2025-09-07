@@ -63,7 +63,6 @@ class DatabaseHooker : PartHooker() {
             contentValues.put("arg", arg)
             //由于微信的数据经常没有时间，所以我们为他添加默认时间
             contentValues.put("t", System.currentTimeMillis())
-            AppRuntime.logD("微信数据: $contentValues")
             if (tableName == "message") {
 
                 when (type) {
@@ -92,14 +91,36 @@ class DatabaseHooker : PartHooker() {
                         val msg = json.get("msg").asJsonObject.get("appmsg").asJsonObject
                         tpl.addProperty("description", msg.get("des").asString)
                         tpl.addProperty("title", msg.get("title").asString)
+
                         runCatching {
+                            val header = msg.get("mmreader").asJsonObject.get("template_header")
+                            if (header.isJsonObject) {
+                                tpl.addProperty(
+                                    "display_name",
+                                    header.asJsonObject.get("display_name").asString,
+                                )
+                            }
+                        }
+
+                        runCatching {
+                            val publisher = msg.get("mmreader").asJsonObject.get("publisher")
+                            if (publisher.isJsonObject && tpl.get("display_name").asString.isEmpty()) {
+                                tpl.addProperty(
+                                    "display_name",
+                                    publisher.asJsonObject.get("nickname").asString,
+                                )
+                            }
+                        }
+
+                        runCatching {
+                            // 加上公众号信息
                             tpl.addProperty(
-                                "display_name",
-                                msg.get("mmreader")
-                                    .asJsonObject.get("template_header")
-                                    .asJsonObject.get("display_name").asString,
+                                "source",
+                                json.get("msg").asJsonObject.get("appinfo")
+                                    .asJsonObject.get("appname").asString,
                             )
                         }
+
                         putCache(tpl)
                         val result = JsonObject()
                         result.add("mMap", tpl)
