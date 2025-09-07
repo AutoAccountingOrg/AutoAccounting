@@ -230,11 +230,22 @@ class AssetsMap {
      * 返回匹配到的资产名称；若无匹配则返回 null
      */
     private suspend fun findByAlgorithm(accountName: String): String? {
+        // 提取原始账户名中的银行标识（如“招商银行”、“北京银行”），用于信用卡银行一致性校验
+        val inputBank = extractBankName(accountName)
 
         // 1) 数字优先匹配（如卡号）
         val number = Regex("\\d+").find(accountName)?.value ?: ""
         if (number.isNotEmpty()) {
-            assets.firstOrNull { it.name.contains(number.trim()) }?.let { asset ->
+            assets.firstOrNull { candidate ->
+                val hit = candidate.name.contains(number.trim())
+                if (!hit) return@firstOrNull false
+                // 若候选为信用卡且识别到输入中的银行名，则要求银行一致，避免不同银行信用卡混淆
+                if (candidate.name.contains("信用卡") && inputBank != null) {
+                    val candidateBank = extractBankName(candidate.name)
+                    return@firstOrNull candidateBank == null || candidateBank == inputBank
+                }
+                true
+            }?.let { asset ->
                 ServerLog.d("算法映射-卡号命中: ${asset.name}")
                 return asset.name
             }
@@ -247,6 +258,13 @@ class AssetsMap {
         var bestDiff = Int.MAX_VALUE
 
         for (asset in assets) {
+            // 若候选为信用卡且识别到输入中的银行名，但银行不一致，则跳过该候选
+            if (asset.name.contains("信用卡") && inputBank != null) {
+                val candidateBank = extractBankName(asset.name)
+                if (candidateBank != null && candidateBank != inputBank) {
+                    continue
+                }
+            }
             val cleanAssetName = asset.name.cleanText()
             val similarity = calculateConsecutiveSimilarity(cleanAssetName, cleanInput)
             if (similarity > 0) {
@@ -268,6 +286,15 @@ class AssetsMap {
         }
         ServerLog.d("算法映射未命中: '$accountName'")
         return null
+    }
+
+    /**
+     * 从文本中提取银行名称。
+     * 仅做保守提取：匹配“[若干中文]银行”的最早出现，用于信用卡银行一致性校验。
+     */
+    private fun extractBankName(text: String): String? {
+        val match = Regex("([\\u4e00-\\u9fa5]{2,10}银行)").find(text)
+        return match?.value
     }
 
     /**
