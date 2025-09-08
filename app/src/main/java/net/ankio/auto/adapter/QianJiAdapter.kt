@@ -145,7 +145,7 @@ class QianJiAdapter : IAppAdapter {
         // 2) 必填参数：type、money
         val uriBuilder = StringBuilder("qianji://publicapi/addbill")
             .append("?type=").append(qjType)
-            .append("&money=").append(billInfoModel.money)
+
 
         // 3) 可选参数：时间（yyyy-MM-dd HH:mm:ss）
         if (billInfoModel.time > 0) {
@@ -190,10 +190,22 @@ class QianJiAdapter : IAppAdapter {
             }
         }
 
+        // 转账或者信用卡还款的手续费，传入金额，必须>0，且 <money 。需要额外注意的是，如果想传入手续费，则 money 参数提供的金额，必须是包含 fee 参数的金额的，比如 money=2.0&fee=1.0 则代表 money 中，有 1.0 元的手续费。最终生成的账单金额为 2.0 元，且有 1.0 元的手续费，转入账户入账金额为 (money-fee)=1.0 元，转出账户扣除金额为 2.0 元
+
         // 9) 手续费（基于配置项）
-        if (PrefManager.featureFee && billInfoModel.fee > 0) {
-            uriBuilder.append("&fee=").append(billInfoModel.fee)
+        if (PrefManager.featureFee && billInfoModel.fee != 0.0) {
+
+            if (billInfoModel.fee < 0) {
+                uriBuilder.append("&fee=").append(-billInfoModel.fee)
+                billInfoModel.money -= billInfoModel.fee
+            } else {
+                Logger.w("钱迹接口不支持手续费记录")
+            }
+
+
         }
+
+        uriBuilder.append("&money=").append(billInfoModel.money)
 
         // 10) 货币（基于配置项）
         if (PrefManager.featureMultiCurrency && billInfoModel.currency.isNotEmpty()) {
