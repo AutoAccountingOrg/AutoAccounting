@@ -355,8 +355,12 @@ class CategoryRuleEditComponent(
             // 判断是替换现有类型条件还是添加新条件
             if (element.data["type"] == "type") {
                 // 替换现有的类型条件
-                element.remove().setAsWaveTextview(conditionText, element.connector) { elem, view ->
-                    if (readOnly) return@setAsWaveTextview
+                element.replaceAsWaveTextview(
+                    conditionText,
+                    newData,
+                    element.connector
+                ) { elem, view ->
+                    if (readOnly) return@replaceAsWaveTextview
                     inputBillType(elem, view)
                 }
             } else {
@@ -507,8 +511,8 @@ class CategoryRuleEditComponent(
 
         if (element.data["type"] == conditionType) {
             // 替换现有的类型条件
-            element.remove().setAsWaveTextview(displayText, element.connector) { elem, view ->
-                if (readOnly) return@setAsWaveTextview
+            element.replaceAsWaveTextview(displayText, newData, element.connector) { elem, view ->
+                if (readOnly) return@replaceAsWaveTextview
                 if (conditionType == "shopItem") {
                     inputShopItem(elem)
                 } else {
@@ -559,8 +563,8 @@ class CategoryRuleEditComponent(
 
                 if (element.data["type"] == "timeRange") {
                     // 替换现有的类型条件
-                    element.remove().setAsWaveTextview(input, element.connector) { elem, view ->
-                        if (readOnly) return@setAsWaveTextview
+                    element.replaceAsWaveTextview(input, newData, element.connector) { elem, view ->
+                        if (readOnly) return@replaceAsWaveTextview
                         inputTimeRange(elem)
                     }
                 } else {
@@ -670,8 +674,8 @@ class CategoryRuleEditComponent(
 
         if (element.data["type"] == "moneyRange") {
             // 替换现有的类型条件
-            element.remove().setAsWaveTextview(input, element.connector) { elem, view ->
-                if (readOnly) return@setAsWaveTextview
+            element.replaceAsWaveTextview(input, newData, element.connector) { elem, view ->
+                if (readOnly) return@replaceAsWaveTextview
                 inputMoneyRange(elem)
             }
         } else {

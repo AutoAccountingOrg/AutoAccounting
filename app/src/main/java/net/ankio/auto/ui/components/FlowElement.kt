@@ -219,13 +219,32 @@ class FlowElement(
         // 处理首个波浪文本的特殊逻辑
         setupFirstWavePosition()
 
-        // 创建字符级别的波浪文本视图
-        createWaveTextViews(text, callback)
-        // 根据条件创建连接符按钮
+        // 在当前波浪文本之前创建连接符（用于显示“且/或”在两条件之间）
         if (shouldCreateConnector(connector)) {
             createConnectorButton()
         }
+
+        // 创建字符级别的波浪文本视图
+        createWaveTextViews(text, callback)
         return index
+    }
+
+    /**
+     * 使用新的数据和文本替换当前波浪文本视图
+     * - 保留 jsPre（连接符）
+     * - 原子性更新 data 并重建视图
+     */
+    fun replaceAsWaveTextview(
+        text: String,
+        newData: MutableMap<String, Any>,
+        connector: Boolean = false,
+        callback: ((FlowElement, TextView) -> Unit)?,
+    ): Int {
+        val jsPre = data["jsPre"]
+        data.clear()
+        data.putAll(newData)
+        if (jsPre != null) data["jsPre"] = jsPre
+        return remove().setAsWaveTextview(text, connector, callback)
     }
 
     /**
@@ -254,12 +273,24 @@ class FlowElement(
     private fun createConnectorButton() {
         this.connector = true
         val content = getConnectorText()
-        index = getViewEnd()
-
-        // 创建可切换的按钮，点击时切换连接符类型
-        setAsButton(content) { _, view ->
-            toggleConnectorType(view)
+        // 直接创建一个按钮视图，但不改变当前元素类型
+        val buttonColor =
+            com.google.android.material.R.attr.colorOnSecondaryContainer.toThemeColor()
+        val textView = createBaseTextView(
+            text = content,
+            textColor = buttonColor,
+            isClickable = true,
+            backgroundResource = R.drawable.rounded_border3,
+            gravity = Gravity.CENTER,
+            padding = intArrayOf(10, 10, 10, 10),
+            width = net.ankio.auto.utils.SystemUtils.dp2px(50f),
+            textSizeScale = 0.7f
+        )
+        textView.setOnClickListener {
+            toggleConnectorType(textView)
         }
+        elements.add(textView)
+        flowLayoutManager.addView(textView, index++)
     }
 
     /**
