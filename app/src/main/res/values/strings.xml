@@ -1031,6 +1031,8 @@
     <!-- Button texts -->
     <string name="btn_ai_analysis">AI Analysis</string>
     <string name="btn_bill_sync">Bill Sync</string>
+    <string name="setting_manual_sync">Manual sync mode</string>
+    <string name="setting_manual_sync_summary">When enabled, saving a bill will not trigger sync automatically</string>
 
     <!-- Period selection -->
     <string name="period_selector_title">Select Analysis Period</string>

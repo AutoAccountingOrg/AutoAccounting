@@ -23,6 +23,9 @@ import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.dialog.AppDialog
 import net.ankio.auto.ui.dialog.BookSelectorDialog
 import net.ankio.auto.utils.PrefManager
+import net.ankio.auto.utils.BillTool
+import net.ankio.auto.ui.utils.ToastUtils
+import kotlinx.coroutines.launch
 import org.ezbook.server.constant.BillType
 import rikka.material.preference.MaterialSwitchPreference
 
@@ -156,6 +159,8 @@ class BillPreferenceFragment : BasePreferenceFragment() {
                 "autoCreateCategory" -> PrefManager.autoCreateCategory
                 "autoAssetMapping" -> PrefManager.autoAssetMapping
                 "showDuplicatedPopup" -> PrefManager.showDuplicatedPopup
+                // 手动同步：开启后保存时不触发同步
+                "manualSync" -> PrefManager.manualSync
                 // 显示设置
                 "showRuleName" -> PrefManager.showRuleName
                 // 通知设置
@@ -176,6 +181,8 @@ class BillPreferenceFragment : BasePreferenceFragment() {
                 "autoCreateCategory" -> PrefManager.autoCreateCategory = value
                 "autoAssetMapping" -> PrefManager.autoAssetMapping = value
                 "showDuplicatedPopup" -> PrefManager.showDuplicatedPopup = value
+                // 手动同步：开启后保存时不触发同步
+                "manualSync" -> PrefManager.manualSync = value
                 // 显示设置
                 "showRuleName" -> PrefManager.showRuleName = value
                 // 通知设置

@@ -219,6 +219,11 @@ object PrefManager {
         get() = getBoolean(Setting.AUTO_BACKUP, DefaultData.AUTO_BACKUP)
         set(value) = putBoolean(Setting.AUTO_BACKUP, value)
 
+    /** 手动同步模式 - 开启后保存账单不主动调用同步 */
+    var manualSync: Boolean
+        get() = getBoolean(Setting.MANUAL_SYNC, DefaultData.MANUAL_SYNC)
+        set(value) = putBoolean(Setting.MANUAL_SYNC, value)
+
     /** 最后备份时间 - Unix 时间戳 */
     var lastBackupTime: Long
         get() = getLong(Setting.LAST_BACKUP_TIME, DefaultData.LAST_BACKUP_TIME)

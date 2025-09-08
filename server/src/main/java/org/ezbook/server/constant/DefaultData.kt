@@ -161,6 +161,7 @@ object DefaultData {
     // ======== 备份/同步/UI/系统 默认值 ========
     val LAST_BACKUP_TIME = 0L
     val AUTO_BACKUP = false
+    val MANUAL_SYNC = false
     val USE_WEBDAV = false
     val WEBDAV_HOST = "https://dav.jianguoyun.com/dav/"
     val WEBDAV_USER = ""

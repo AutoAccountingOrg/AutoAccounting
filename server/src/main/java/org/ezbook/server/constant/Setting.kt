@@ -48,6 +48,7 @@ object Setting {
     // ======== 同步和备份 ========
     const val SYNC_TYPE = "setting_sync_type"                        // 同步类型
     const val LAST_SYNC_TIME: String = "last_sync_time"                   // 最后同步时间
+    const val MANUAL_SYNC: String = "setting_manual_sync"                 // 手动同步模式（开启后保存不自动同步）
     const val AUTO_BACKUP = "auto_backup"                           // 自动备份
     const val LAST_BACKUP_TIME: String = "last_backup_time"         // 最后备份时间
 

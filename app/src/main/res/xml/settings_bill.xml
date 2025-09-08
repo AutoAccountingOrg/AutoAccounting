@@ -76,6 +76,13 @@
             android:key="bookApp"
             android:summary="@string/setting_book_app_summary"
             android:title="@string/setting_book_app" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_sync"
+            android:key="manualSync"
+            android:summary="@string/setting_manual_sync_summary"
+            android:title="@string/setting_manual_sync" />
     </PreferenceCategory>
 
 </PreferenceScreen>
