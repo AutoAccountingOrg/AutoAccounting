@@ -125,7 +125,6 @@ class CategoryRuleAdapter(
         // 设置规则模型，只读模式展示
         categoryRuleEditComponent.setRuleModel(data, readOnly = true)
 
-        Logger.d("CategoryRuleEditComponent 设置完成，展示规则: ${data.id}")
     }
 
     override fun areItemsSame(oldItem: CategoryRuleModel, newItem: CategoryRuleModel): Boolean {
