@@ -212,4 +212,6 @@ data class BillInfoModel(
     fun hasTag(tag: String): Boolean {
         return getTagList().contains(tag)
     }
+
+    fun isChild() = this.groupId > 0
 }

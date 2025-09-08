@@ -113,7 +113,7 @@ object BillTool {
         App.launchIO {
             BillAPI.put(bill)
             // 若未开启手动同步，则保存后立即同步；否则跳过
-            if (!PrefManager.manualSync) {
+            if (!PrefManager.manualSync && !bill.isChild()) {
                 syncBill(bill)
             }
             Logger.d("账单保存成功: ${bill.id}")
