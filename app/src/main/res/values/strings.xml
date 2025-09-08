@@ -281,6 +281,7 @@
     <string name="no_need_to_update">No update needed. Long press to force update.</string>
     <string name="check_update">Checking for updates...</string>
     <string name="delete_bill_message">Are you sure you want to delete this bill?</string>
+    <string name="delete_option_is_delete">Also delete this bill</string>
     <string name="delete_data_message">Are you sure you want to delete this data?</string>
     <string name="copy">Copy</string>
     <string name="title_data_rule">Data rules</string>
@@ -925,6 +926,10 @@
     <string name="setting_float_timeout_action">Timeout Action</string>
     <string name="setting_float_click">Click Action</string>
     <string name="setting_float_long_click">Long Click Action</string>
+    <string name="setting_float_badge_right">Show on right side</string>
+    <string name="setting_float_badge_right_summary">Toggle to switch floating badge between right and left</string>
+    <string name="left">Left</string>
+    <string name="right">Right</string>
 
     <!-- Float action display names -->
     <string name="float_action_dismiss">Dismiss</string>

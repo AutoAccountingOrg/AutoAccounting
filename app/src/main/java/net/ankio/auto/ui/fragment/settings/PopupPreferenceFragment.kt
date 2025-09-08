@@ -139,6 +139,8 @@ class PopupPreferenceFragment : BasePreferenceFragment() {
             return when (key) {
                 // 圆角弹窗风格设置
                 "roundStyle" -> PrefManager.uiRoundStyle
+                // 悬浮窗位置
+                "floatGravityRight" -> PrefManager.floatGravityRight
                 else -> defValue
             }
         }
@@ -161,6 +163,8 @@ class PopupPreferenceFragment : BasePreferenceFragment() {
             when (key) {
                 // 圆角弹窗风格设置
                 "roundStyle" -> PrefManager.uiRoundStyle = value
+                // 悬浮窗位置
+                "floatGravityRight" -> PrefManager.floatGravityRight = value
             }
         }
 

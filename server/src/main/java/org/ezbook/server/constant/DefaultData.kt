@@ -244,6 +244,7 @@ object DefaultData {
     val FLOAT_TIMEOUT_ACTION: String = "AUTO_ACCOUNT"
     val FLOAT_CLICK: String = "POP_EDIT_WINDOW"
     val FLOAT_LONG_CLICK: String = "NO_ACCOUNT"
+    val FLOAT_GRAVITY_RIGHT: Boolean = true
 
     // ======== 更新完整默认值 ========
     val LAST_UPDATE_CHECK_TIME: Long = 0L

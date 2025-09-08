@@ -27,6 +27,13 @@
             android:key="floatTimeoutAction"
             android:summary="%s"
             android:title="@string/setting_float_timeout_action" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="true"
+            android:icon="@drawable/setting_icon_click"
+            android:key="floatGravityRight"
+            android:summary="@string/setting_float_badge_right_summary"
+            android:title="@string/setting_float_badge_right" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/setting_category_float_events">

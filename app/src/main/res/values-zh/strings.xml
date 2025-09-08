@@ -842,6 +842,13 @@
     <string name="setting_float_click">点击操作</string>
     <string name="setting_float_long_click">长按操作</string>
 
+    <!-- 浮窗左右位置与删除选项（新增补全） -->
+    <string name="setting_float_badge_right">在右侧显示</string>
+    <string name="setting_float_badge_right_summary">切换浮动徽章在左右侧的显示位置</string>
+    <string name="left">左侧</string>
+    <string name="right">右侧</string>
+    <string name="delete_option_is_delete">同时删除此账单</string>
+
     <string name="setting_asset_manager">资产管理</string>
     <string name="setting_asset_manager_summary">启用资产管理功能</string>
     <string name="setting_currency_manager">多货币</string>

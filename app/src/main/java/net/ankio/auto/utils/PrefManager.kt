@@ -375,6 +375,11 @@ object PrefManager {
         get() = getString(Setting.FLOAT_LONG_CLICK, DefaultData.FLOAT_LONG_CLICK)
         set(value) = putString(Setting.FLOAT_LONG_CLICK, value)
 
+    /** 悬浮窗位置 - true靠右/false靠左 */
+    var floatGravityRight: Boolean
+        get() = getBoolean(Setting.FLOAT_GRAVITY_RIGHT, DefaultData.FLOAT_GRAVITY_RIGHT)
+        set(value) = putBoolean(Setting.FLOAT_GRAVITY_RIGHT, value)
+
     // ======== 功能模块开关 ========
 
     /** 资产管理功能开关 - 是否启用资产管理模块 */

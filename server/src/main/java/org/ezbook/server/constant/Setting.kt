@@ -87,6 +87,7 @@ object Setting {
     const val FLOAT_TIMEOUT_ACTION = "setting_float_timeout_action" // 超时操作
     const val FLOAT_CLICK = "setting_float_click"                   // 点击事件
     const val FLOAT_LONG_CLICK = "setting_float_long_click"         // 长按事件
+    const val FLOAT_GRAVITY_RIGHT = "setting_float_gravity_right"   // 悬浮窗是否靠右显示（true=右，false=左）
 
     // ======== 功能模块开关 ========
     const val SETTING_ASSET_MANAGER = "setting_asset_manager"       // 资产管理
