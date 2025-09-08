@@ -97,7 +97,7 @@ class OverlayService : ICoreService() {
             billWindowManager.updateCurrentBill(parent)
             Logger.d("Repeat Bill, Parent: $parent")
         } else {
-            if (floatIntent.billInfoModel.auto) {
+            if (floatIntent.billInfoModel.auto || PrefManager.autoRecordBill) {
                 Logger.d("自动记录账单")
                 BillTool.saveBill(floatIntent.billInfoModel)
             } else {
