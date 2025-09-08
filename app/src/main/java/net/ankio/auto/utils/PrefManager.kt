@@ -163,8 +163,8 @@ object PrefManager {
         get() = getBoolean(Setting.SETTING_REMIND_BOOK, DefaultData.SETTING_REMIND_BOOK)
         set(value) = putBoolean(Setting.SETTING_REMIND_BOOK, value)
 
-    /** 自动创建分类开关 - 遇到未知分类时是否自动创建 */
-    var autoCreateCategory: Boolean
+    /** 记住分类开关 - 手动选择分类时记住该选择，用于相似账单 */
+    var rememberCategory: Boolean
         get() = getBoolean(Setting.AUTO_CREATE_CATEGORY, DefaultData.AUTO_CREATE_CATEGORY)
         set(value) = putBoolean(Setting.AUTO_CREATE_CATEGORY, value)
 

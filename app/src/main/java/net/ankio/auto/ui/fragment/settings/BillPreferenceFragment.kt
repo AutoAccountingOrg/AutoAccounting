@@ -156,7 +156,7 @@ class BillPreferenceFragment : BasePreferenceFragment() {
                 // 自动记账设置 - 使用明确的语义属性
                 "autoRecordBill" -> PrefManager.autoRecordBill
                 "autoGroup" -> PrefManager.autoGroup
-                "autoCreateCategory" -> PrefManager.autoCreateCategory
+                "autoCreateCategory" -> PrefManager.rememberCategory
                 "autoAssetMapping" -> PrefManager.autoAssetMapping
                 "showDuplicatedPopup" -> PrefManager.showDuplicatedPopup
                 // 手动同步：开启后保存时不触发同步
@@ -178,7 +178,7 @@ class BillPreferenceFragment : BasePreferenceFragment() {
                 // 自动记账设置 - 使用明确的语义属性
                 "autoRecordBill" -> PrefManager.autoRecordBill = value
                 "autoGroup" -> PrefManager.autoGroup = value
-                "autoCreateCategory" -> PrefManager.autoCreateCategory = value
+                "autoCreateCategory" -> PrefManager.rememberCategory = value
                 "autoAssetMapping" -> PrefManager.autoAssetMapping = value
                 "showDuplicatedPopup" -> PrefManager.showDuplicatedPopup = value
                 // 手动同步：开启后保存时不触发同步

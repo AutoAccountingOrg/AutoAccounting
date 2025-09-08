@@ -245,8 +245,8 @@
     <string name="setting_float_on_badge_long_click">长按浮动徽章时</string>
     <string name="setting_float_on_badge_timeout">浮动徽章超时后</string>
     <string name="setting_category">分类</string>
-    <string name="setting_auto_create_category">允许自动生成分类</string>
-    <string name="setting_auto_create_category_desc">如果手动选择的分类结果与自动分类结果不一致，提示自动生成分类。</string>
+    <string name="setting_auto_create_category">记住分类</string>
+    <string name="setting_auto_create_category_desc">当你手动选择分类时，记住该选择以便相似账单复用。</string>
     <string name="setting_color">颜色偏好</string>
     <string name="setting_pay_color">收入/支出高亮颜色</string>
     <string name="setting_pay_color_red">支出红色，收入绿色。</string>

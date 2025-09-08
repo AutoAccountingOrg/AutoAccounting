@@ -259,8 +259,8 @@
     <string name="setting_float_on_badge_long_click">When floating badge is long pressed</string>
     <string name="setting_float_on_badge_timeout">After floating badge timeout</string>
     <string name="setting_category">Category</string>
-    <string name="setting_auto_create_category">Allow auto generate category</string>
-    <string name="setting_auto_create_category_desc">If the manually selected category result is inconsistent with the automatic categorization result, prompt to auto generate category.</string>
+    <string name="setting_auto_create_category">Remember category</string>
+    <string name="setting_auto_create_category_desc">When you manually select a category, remember it for similar bills.</string>
     <string name="setting_color">Color preference</string>
     <string name="setting_pay_color">Income/expense highlight color</string>
     <string name="setting_pay_color_red">Red for expense, green for income.</string>
