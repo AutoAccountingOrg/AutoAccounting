@@ -38,6 +38,7 @@ import androidx.navigation.fragment.findNavController
 import net.ankio.auto.ui.api.BaseSheetDialog
 import net.ankio.auto.ui.utils.toThemeColor
 
+
 class SettingFragment : BaseFragment<FragmentSettingBinding>() {
 
     /**
@@ -48,6 +49,8 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>() {
         val displayText: String = "",
         val isError: Boolean = false
     )
+
+    // 缓存键删除：保持逻辑单一
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -74,10 +77,8 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>() {
 
     override fun onResume() {
         super.onResume()
-        // 使用节流函数获取激活信息
-        launch {
-            loadActivateInfo()
-        }
+        // 简化：直接加载激活信息
+        launch { loadActivateInfo() }
     }
 
     /**
@@ -100,12 +101,7 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>() {
         }
     }
 
-    /**
-     * 统一的UI更新方法 - 消除重复的线程切换代码
-     */
-    private suspend fun updateUI(action: () -> Unit) {
-        withContext(Dispatchers.Main) { action() }
-    }
+    // 移除多余的UI切换包装，直接在需要处切到主线程
 
     /**
      * 显示激活码输入对话框
@@ -133,33 +129,33 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>() {
 
         // 输入验证
         if (trimmedCode.isEmpty()) {
-            updateUI { ToastUtils.error(R.string.pro_activate_code_format_error) }
+            ToastUtils.error(R.string.pro_activate_code_format_error)
             return
         }
 
         // 执行激活并处理结果
         runCatching { ActivateAPI.active(trimmedCode) }
             .onSuccess { result ->
-                updateUI {
-                    if (result == null) {
-                        ToastUtils.info(R.string.pro_activate_success)
-                        // 激活成功后重新加载信息
-                        launch { loadActivateInfo() }
-                    } else {
-                        ToastUtils.error(getString(R.string.pro_activate_failed, result))
-                    }
+
+                if (result == null) {
+                    ToastUtils.info(R.string.pro_activate_success)
+                    // 激活成功后重新加载信息
+                    launch { loadActivateInfo() }
+                } else {
+                    ToastUtils.error(getString(R.string.pro_activate_failed, result))
                 }
+
             }
             .onFailure { e ->
                 Logger.e("激活码验证异常: ${e.message}", e)
-                updateUI {
-                    ToastUtils.error(
-                        getString(
-                            R.string.pro_activate_failed,
-                            e.message ?: getString(R.string.unknown_error)
-                        )
+
+                ToastUtils.error(
+                    getString(
+                        R.string.pro_activate_failed,
+                        e.message ?: getString(R.string.unknown_error)
                     )
-                }
+                )
+
             }
     }
 
@@ -167,31 +163,39 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>() {
      * 加载激活信息 - 使用状态数据类简化逻辑
      */
     private suspend fun loadActivateInfo() {
-        val state = when {
-            // 未设置token - 提示用户激活
-            PrefManager.token.isEmpty() -> ActivationState(
-                isActivated = false,
-                displayText = getString(R.string.pro_activate_click_to_enter),
-                isError = false
-            )
-
-            // 已设置token - 获取激活信息
-            else -> runCatching { ActivateAPI.info() }
-                .fold(
-                    onSuccess = { info -> createActivationStateFromInfo(info) },
-                    onFailure = { e ->
-                        Logger.e("获取激活信息异常: ${e.message}", e)
-                        ActivationState(
-                            isActivated = false,
-                            displayText = getString(R.string.pro_activate_network_error),
-                            isError = true
-                        )
-                    }
+        // 无 token：直接提示输入激活码
+        if (PrefManager.token.isEmpty()) {
+            withContext(Dispatchers.Main) {
+                applyActivationState(
+                    ActivationState(
+                        isActivated = false,
+                        displayText = getString(R.string.pro_activate_click_to_enter),
+                        isError = false
+                    )
                 )
+            }
+            return
         }
 
-        // 统一更新UI
-        updateUI { applyActivationState(state) }
+        // 有 token：先显示 Loading，再异步拉取最新信息
+        withContext(Dispatchers.Main) {
+            applyActivationState(
+                ActivationState(
+                    isActivated = false,
+                    displayText = getString(R.string.loading),
+                    isError = false
+                )
+            )
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            ActivateAPI.clearInfoCache()
+            val data = ActivateAPI.info()
+            if (data.isNotEmpty()) {
+                val fresh = createActivationStateFromInfo(data)
+                withContext(Dispatchers.Main) { applyActivationState(fresh) }
+            }
+        }
     }
 
     /**
@@ -226,6 +230,8 @@ class SettingFragment : BaseFragment<FragmentSettingBinding>() {
             binding.proActivateInfo.text = state.displayText
         }
     }
+
+    // 移除文件缓存读取：避免多路径与状态分叉
 
     /**
      * 更新高级版卡片状态
