@@ -92,7 +92,6 @@ class CategoryRuleEditComponent(
         }
         categoryRuleModel = model ?: CategoryRuleModel()
         setupRuleUI()
-        Logger.d("初始化完成")
     }
 
 
@@ -304,14 +303,12 @@ class CategoryRuleEditComponent(
     override fun onComponentCreate() {
         super.onComponentCreate()
         flexboxLayout = binding.flexboxLayout
-        Logger.d("CategoryRuleEditComponent初始化完成")
     }
 
     override fun onComponentDestroy() {
         super.onComponentDestroy()
         flexboxLayout?.removeAllElements()
         flexboxLayout = null
-        Logger.d("CategoryRuleEditComponent清理完成")
     }
 
     /**

@@ -69,7 +69,6 @@ class CategoryRuleEditFragment : BaseFragment<FragmentCategoryRuleEditBinding>()
             // 解析参数并设置数据
             parseArgumentsAndSetupComponent()
 
-            Logger.d("CategoryRuleEditFragment初始化完成")
         } catch (e: Exception) {
             Logger.e("Fragment初始化失败: ${e.message}")
             handleInitializationError(e)
