@@ -1027,7 +1027,7 @@
     <string name="setting_auto_asset_mapping_summary">自动将账单映射到相应的资产账户</string>
     <string name="setting_auto_create_category_summary">遇到未知分类时自动创建分类</string>
     <string name="setting_auto_record_bill">自动记录账单</string>
-    <string name="setting_auto_record_bill_summary">从通知和消息自动记录账单</string>
+    <string name="setting_auto_record_bill_summary">自动记录所有账单</string>
     <string name="setting_bill_show_rule_summary">编辑账单时显示匹配规则的名称</string>
     <string name="setting_book_app">记账应用</string>
     <string name="setting_book_app_summary">目标记账应用包名</string>

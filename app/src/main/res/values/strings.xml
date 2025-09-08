@@ -915,7 +915,7 @@
     <string name="setting_book_app">Accounting App</string>
     <string name="setting_book_app_summary">Target accounting application package name</string>
     <string name="setting_auto_record_bill">Auto Record Bills</string>
-    <string name="setting_auto_record_bill_summary">Automatically record bills from notifications and messages</string>
+    <string name="setting_auto_record_bill_summary">Record every bill automatically</string>
     <string name="setting_auto_asset_mapping_disabled">Asset management feature must be enabled first</string>
     <string name="setting_current_selection">Current selection: %s</string>
 
