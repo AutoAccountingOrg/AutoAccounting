@@ -28,6 +28,7 @@ import org.ezbook.server.intent.BillInfoIntent
 import androidx.core.net.toUri
 import net.ankio.auto.service.api.ICoreService
 import net.ankio.auto.service.api.IService
+import net.ankio.auto.utils.BillTool
 
 /**
  * 悬浮窗服务（OverlayService）。
@@ -96,7 +97,13 @@ class OverlayService : ICoreService() {
             billWindowManager.updateCurrentBill(parent)
             Logger.d("Repeat Bill, Parent: $parent")
         } else {
-            billWindowManager.addBill(floatIntent.billInfoModel)
+            if (floatIntent.billInfoModel.auto) {
+                Logger.d("自动记录账单")
+                BillTool.saveBill(floatIntent.billInfoModel)
+            } else {
+                billWindowManager.addBill(floatIntent.billInfoModel)
+            }
+
         }
     }
 

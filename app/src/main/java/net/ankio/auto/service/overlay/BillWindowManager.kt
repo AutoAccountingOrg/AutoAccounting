@@ -23,33 +23,29 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.lifecycleScope
+// removed unused: lifecycleScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
+// removed unused: Dispatchers, App, R
 import kotlinx.coroutines.launch
-import net.ankio.auto.App
-import net.ankio.auto.R
 import net.ankio.auto.constant.FloatEvent
+import net.ankio.auto.R
 import net.ankio.auto.databinding.FloatTipBinding
 import net.ankio.auto.http.api.BillAPI
 import net.ankio.auto.service.OverlayService
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.ui.dialog.BillEditorDialog
-import net.ankio.auto.ui.utils.AssetsUtils
-import net.ankio.auto.ui.utils.ToastUtils
+// removed unused: AssetsUtils, ToastUtils
 import net.ankio.auto.utils.BillTool
 import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.utils.toThemeCtx
-import org.ezbook.server.constant.BillState
 import org.ezbook.server.constant.Setting
 import org.ezbook.server.db.model.BillInfoModel
 import java.util.Locale
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.receiveAsFlow
-import net.ankio.auto.BuildConfig
-import net.ankio.auto.adapter.AppAdapterManager
+// removed unused: receiveAsFlow, BuildConfig, AppAdapterManager
 import net.ankio.auto.ui.api.BaseSheetDialog
+import net.ankio.auto.ui.dialog.BottomSheetDialogBuilder
 
 /**
  * 账单浮动窗口管理器
@@ -73,7 +69,6 @@ class BillWindowManager(
     // ============ 核心状态管理 ============
 
     /** 浮动窗口超时时间（秒） */
-    private val timeoutSeconds: Int = PrefManager.floatTimeoutOff
 
     /** 主题化的上下文，用于UI创建 */
     private val themedContext: Context = service.service().toThemeCtx()
@@ -91,11 +86,11 @@ class BillWindowManager(
     /** 当前显示的账单编辑对话框，确保同时只有一个对话框 */
     private var currentDialog: BillEditorDialog? = null
 
-    /** 当前的倒计时器，用于浮动窗口超时控制 */
-    private var countDownTimer: CountDownTimer? = null
+    /** 浮动提示视图控制器 */
+    private val floatingTip: FloatingTip by lazy { FloatingTip(themedContext, windowManager) }
 
     init {
-        Logger.i("账单窗口管理器已初始化，超时时间: ${timeoutSeconds}秒")
+        Logger.i("账单窗口管理器已初始化")
         processNextBill()
     }
 
@@ -118,11 +113,8 @@ class BillWindowManager(
     fun destroy() {
         Logger.d("正在销毁账单窗口管理器...")
 
-        // 停止倒计时器
-        countDownTimer?.cancel()
-        countDownTimer = null
-
-        removeTipWindow()
+        // 关闭浮动窗口
+        floatingTip.destroy()
 
         // 关闭编辑对话框
         currentDialog?.dismiss()
@@ -153,6 +145,7 @@ class BillWindowManager(
      * @param parentBill 父账单信息，用于重复账单的情况
      */
     fun updateCurrentBill(parentBill: BillInfoModel) {
+        currentBill = parentBill
         currentDialog?.setBillInfo(parentBill)
     }
 
@@ -202,62 +195,18 @@ class BillWindowManager(
     private fun processBill(bill: BillInfoModel) {
         currentBill = bill
         Logger.i("正在处理账单: ${bill.id}, 金额: ${bill.money}")
-
-
-        // 决定处理方式
-        when {
-            // 情况1：超时时间为0，直接进入编辑模式
-            timeoutSeconds == 0 -> {
-                Logger.d("超时时间为0，直接显示编辑器")
-                handleBillAction(Setting.FLOAT_TIMEOUT_ACTION, bill)
-            }
-
-            // 情况2：关闭了自动账单提示，直接进入编辑模式
-            !PrefManager.showAutoBillTip -> {
-                Logger.d("自动账单提示已禁用，直接显示编辑器")
-                handleBillAction(Setting.FLOAT_TIMEOUT_ACTION, bill)
-            }
-
-            // 情况3：自动账单，直接进入编辑模式
-            bill.auto -> {
-                Logger.d("自动账单，直接显示编辑器")
-                handleBillAction(Setting.FLOAT_TIMEOUT_ACTION, bill)
-            }
-
-            // 情况4：显示浮动提示窗口
-            else -> {
-                Logger.d("显示浮动提示窗口")
-                showFloatingTip(bill)
-            }
+        if (PrefManager.floatTimeoutOff == 0) {
+            Logger.d("超时时间为0，直接显示编辑器")
+            handleBillAction(Setting.FLOAT_TIMEOUT_ACTION, bill)
+        } else {
+            Logger.d("显示浮动提示窗口")
+            showFloatingTip(bill)
         }
     }
 
     // ============ 浮动窗口UI管理 ============
 
-    /**
-     * 浮动提示窗口的视图绑定
-     * 延迟初始化，只在需要时创建，提高性能
-     */
-    private val tipBinding: FloatTipBinding by lazy {
-        FloatTipBinding.inflate(LayoutInflater.from(themedContext))
-    }
-
-    /**
-     * 安全地移除浮动提示窗口
-     *
-     * 检查窗口是否已附加，如果是则安全移除
-     * 使用removeViewImmediate确保立即移除，避免动画延迟
-     */
-    private fun removeTipWindow() {
-        if (tipBinding.root.isAttachedToWindow) {
-            try {
-                windowManager.removeViewImmediate(tipBinding.root)
-                Logger.d("提示窗口移除成功")
-            } catch (e: Exception) {
-                Logger.w("移除提示窗口失败: ${e.message}")
-            }
-        }
-    }
+    // 浮动视图由 FloatingTip 负责，无需在此管理视图与移除
 
     /**
      * 显示浮动提示窗口
@@ -271,143 +220,14 @@ class BillWindowManager(
      * @param bill 要显示的账单信息
      */
     private fun showFloatingTip(bill: BillInfoModel) {
-        Logger.d("为账单显示浮动提示: ${bill.id}")
-
-        // 1. 设置账单信息显示
-        setupBillDisplay(bill)
-
-        // 2. 创建并启动倒计时器
-        startCountdownTimer(bill)
-
-        // 3. 设置用户交互
-        setupUserInteractions(bill)
-
-        // 4. 添加到窗口管理器
-        addTipToWindow()
-    }
-
-    /**
-     * 设置账单信息的显示内容
-     */
-    private fun setupBillDisplay(bill: BillInfoModel) {
-        // 设置金额显示
-        tipBinding.money.text = String.format(Locale.getDefault(), "%.2f", bill.money)
-
-        // 设置金额颜色（根据账单类型）
-        val colorRes = BillTool.getColor(bill.type)
-        val color = ContextCompat.getColor(themedContext, colorRes)
-        tipBinding.money.setTextColor(color)
-
-        // 初始化倒计时显示
-        tipBinding.time.text = String.format("%ss", timeoutSeconds)
-
-        // 初始状态为不可见，等待布局完成后显示
-        tipBinding.root.visibility = View.INVISIBLE
-    }
-
-    /**
-     * 启动倒计时器
-     */
-    private fun startCountdownTimer(bill: BillInfoModel) {
-        // 取消之前的计时器
-        countDownTimer?.cancel()
-
-        countDownTimer = object : CountDownTimer(timeoutSeconds * 1000L, 1000) {
-            override fun onTick(millisUntilFinished: Long) {
-                val secondsLeft = (millisUntilFinished / 1000).toInt()
-                tipBinding.time.text = String.format("%ss", secondsLeft)
-            }
-
-            override fun onFinish() {
-                Logger.d("倒计时结束，显示编辑器")
-                removeTipWindow()
-                handleBillAction(Setting.FLOAT_TIMEOUT_ACTION, bill)
+        floatingTip.show(bill) { event ->
+            when (event) {
+                is FloatingTip.Event.Click -> handleBillAction(Setting.FLOAT_CLICK, bill)
+                is FloatingTip.Event.LongClick -> handleBillAction(Setting.FLOAT_LONG_CLICK, bill)
+                is FloatingTip.Event.Timeout -> handleBillAction(Setting.FLOAT_TIMEOUT_ACTION, bill)
             }
         }
     }
-
-    /**
-     * 设置用户交互事件
-     */
-    private fun setupUserInteractions(bill: BillInfoModel) {
-        // 点击事件：进入编辑模式
-        tipBinding.root.setOnClickListener {
-            Logger.d("提示被点击")
-            countDownTimer?.cancel()
-            removeTipWindow()
-            handleBillAction(Setting.FLOAT_CLICK, bill)
-        }
-
-        // 长按事件：根据配置处理
-        tipBinding.root.setOnLongClickListener {
-            Logger.d("提示被长按")
-            countDownTimer?.cancel()
-            removeTipWindow()
-            handleBillAction(Setting.FLOAT_LONG_CLICK, bill)
-            true
-        }
-    }
-
-    /**
-     * 将提示窗口添加到窗口管理器
-     */
-    private fun addTipToWindow() {
-        val params = createWindowLayoutParams()
-
-        try {
-            windowManager.addView(tipBinding.root, params)
-
-            // 等待布局完成后调整窗口大小并显示
-            tipBinding.root.post {
-                adjustWindowSize(params)
-                tipBinding.root.visibility = View.VISIBLE
-                countDownTimer?.start()
-                Logger.d("提示窗口显示成功")
-            }
-        } catch (e: Exception) {
-            Logger.e("添加提示窗口失败", e)
-            // 失败时直接进入编辑模式
-            currentBill?.let { handleBillAction(Setting.FLOAT_TIMEOUT_ACTION, it) }
-        }
-    }
-
-    /**
-     * 创建窗口布局参数
-     */
-    private fun createWindowLayoutParams(): WindowManager.LayoutParams {
-        return WindowManager.LayoutParams(
-            WindowManager.LayoutParams.WRAP_CONTENT,
-            WindowManager.LayoutParams.WRAP_CONTENT,
-            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-            PixelFormat.TRANSLUCENT,
-        ).apply {
-            x = 0 // 水平居中
-            y = -120 // 垂直居中偏上
-            gravity = Gravity.CENTER or Gravity.END
-        }
-    }
-
-    /**
-     * 根据内容调整窗口大小
-     */
-    private fun adjustWindowSize(params: WindowManager.LayoutParams) {
-        // 计算实际需要的宽度（logo + 金额 + 时间 + 间距）
-        val calculatedWidth = tipBinding.logo.width + tipBinding.money.width +
-                tipBinding.time.width + 150 // 150为间距
-        val calculatedHeight = tipBinding.logo.height + 60 // 60为上下边距
-
-        // 更新布局参数
-        params.width = calculatedWidth
-        params.height = calculatedHeight
-
-        // 应用新的布局参数
-        windowManager.updateViewLayout(tipBinding.root, params)
-    }
-
-
-    // ============ 业务逻辑处理 ============
-
 
     /**
      * 处理账单操作
@@ -416,16 +236,19 @@ class BillWindowManager(
      * @param bill 账单信息
      */
     private fun handleBillAction(configKey: String, bill: BillInfoModel) {
-        // 自动账单直接保存
-        if (bill.auto) {
-            Logger.d("自动账单，直接保存")
-            BillTool.saveBill(bill)
-            processNextBill()
-            return
-        }
 
         // 获取用户配置的操作
-        val action = getUserAction(configKey)
+        val actionStr = when (configKey) {
+            Setting.FLOAT_TIMEOUT_ACTION -> PrefManager.floatTimeoutAction
+            Setting.FLOAT_CLICK -> PrefManager.floatClick
+            Setting.FLOAT_LONG_CLICK -> PrefManager.floatLongClick
+            else -> PrefManager.floatClick
+        }
+
+        val action = runCatching { FloatEvent.valueOf(actionStr) }.getOrElse {
+            Logger.w("事件类型错误: $configKey => $actionStr")
+            FloatEvent.POP_EDIT_WINDOW
+        }
 
         when (action) {
             FloatEvent.AUTO_ACCOUNT -> {
@@ -444,22 +267,6 @@ class BillWindowManager(
                 deleteBill(bill)
             }
         }
-    }
-
-    /**
-     * 根据配置键获取用户设置的操作
-     */
-    private fun getUserAction(configKey: String): FloatEvent {
-        val configValue = when (configKey) {
-            Setting.FLOAT_TIMEOUT_ACTION -> PrefManager.floatTimeoutAction
-            Setting.FLOAT_CLICK -> PrefManager.floatClick
-            Setting.FLOAT_LONG_CLICK -> PrefManager.floatLongClick
-            else -> PrefManager.floatClick
-        }
-
-        val actionOrdinal = configValue.toIntOrNull() ?: FloatEvent.POP_EDIT_WINDOW.ordinal
-        return FloatEvent.entries.toTypedArray()
-            .getOrElse(actionOrdinal) { FloatEvent.POP_EDIT_WINDOW }
     }
 
     /**
@@ -487,13 +294,24 @@ class BillWindowManager(
      * @param bill 要删除的账单
      */
     private fun deleteBill(bill: BillInfoModel) {
-        Logger.d("删除账单: ${bill.id}")
+        // 二次确认：防止误删
+        BaseSheetDialog.create<BottomSheetDialogBuilder>(service.service())
+            .setTitleInt(R.string.delete_title)
+            .setMessage(R.string.delete_bill_message)
+            .setPositiveButton(R.string.sure_msg) { _, _ ->
+                Logger.d("确认删除账单: ${bill.id}")
+                launch {
+                    BillAPI.remove(bill.id)
+                    processNextBill()
+                }
 
-        launch {
-            BillAPI.remove(bill.id)
-        }
-
-        processNextBill()
+            }
+            .setNegativeButton(R.string.cancel_msg) { _, _ ->
+                Logger.d("取消删除账单: ${bill.id}")
+                // 返回编辑对话框，避免流程卡住
+                processNextBill()
+            }
+            .show()
     }
 
 
