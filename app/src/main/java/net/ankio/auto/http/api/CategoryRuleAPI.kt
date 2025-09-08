@@ -55,17 +55,17 @@ object CategoryRuleAPI {
      * 创建或更新分类规则
      *
      * @param model 要创建或更新的[CategoryRuleModel]对象
-     * @return 返回包含响应数据的[JsonObject]
+     * @return 返回规则ID
      */
-    suspend fun put(model: CategoryRuleModel): JsonObject = withContext(Dispatchers.IO) {
+    suspend fun put(model: CategoryRuleModel): Long = withContext(Dispatchers.IO) {
 
         return@withContext runCatchingExceptCancel {
-            val resp = LocalNetwork.post<JsonObject>("category/rule/put", Gson().toJson(model))
+            val resp = LocalNetwork.post<Long>("category/rule/put", Gson().toJson(model))
                 .getOrThrow()
-            resp.data ?: JsonObject()
+            resp.data ?: 0L
         }.getOrElse {
             Logger.e("put error: ${it.message}", it)
-            JsonObject()
+            0L
         }
     }
 
