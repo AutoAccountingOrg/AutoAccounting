@@ -122,8 +122,8 @@ class ActionButtonsComponent(
      * - 去重逻辑在服务端执行：同键规则将被替换
      */
     private fun rememberCategoryAuto() {
-        val shopItem = billInfoModel.shopItem.trim()
-        val shopName = billInfoModel.shopName.trim()
+        val shopItem = sanitizeForRule(billInfoModel.shopItem.trim())
+        val shopName = sanitizeForRule(billInfoModel.shopName.trim())
         if (shopItem.isEmpty() && shopName.isEmpty()) return
 
         // 构建待保存的规则模型（自动生成）
@@ -197,6 +197,18 @@ class ActionButtonsComponent(
                 Logger.d("记住分类失败: ${e.message}")
             }
         }
+    }
+
+    /**
+     * 清洗用于分类规则的名称，剔除订单号/流水号等长编号片段
+     * 简化规则：仅移除所有数字字符
+     */
+    private fun sanitizeForRule(inputRaw: String): String {
+        if (inputRaw.isEmpty()) return inputRaw
+        return inputRaw
+            .replace(Regex("\\d+"), "")
+            .replace(Regex("\\s+"), " ")
+            .trim()
     }
 
     /**
