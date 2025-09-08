@@ -472,7 +472,8 @@
     <string name="un_group_message">您确定要将此订单从当前订单中拆分为独立订单吗？</string>
     <string name="assets_map_title">发现未识别资产</string>
     <string name="assets_map_description">记账应用无法处理未识别的资产，请映射以下资产以确保正确的资产名称。</string>
-    <string name="setting_duplicated">重复账单合并时显示通知</string>
+    <string name="setting_duplicated">检测到重复账单弹出提醒</string>
+    <string name="setting_duplicated_summary">当检测到重复账单时，弹出提醒窗口</string>
     <string name="income_reimbursement_info">报销 - %s</string>
     <string name="income_refund_info">退款 - %s</string>
     <string name="refund">退款</string>
@@ -824,8 +825,8 @@
     <string name="update_type_manual">手动</string>
 
     <!-- 设置项标题和摘要 -->
-    <string name="setting_auto_group">自动分组</string>
-    <string name="setting_auto_group_summary">自动分组相关账单</string>
+    <string name="setting_auto_group">自动去重</string>
+    <string name="setting_auto_group_summary">自动检测并合并重复账单</string>
     <string name="setting_duplicated_bill_filter">重复账单过滤</string>
     <string name="setting_duplicated_bill_filter_summary">过滤重复账单</string>
     <string name="setting_bill_auto_record_summary">自动记录账单时显示通知</string>
@@ -921,6 +922,8 @@
     <!-- 按钮文字 -->
     <string name="btn_ai_analysis">AI分析</string>
     <string name="btn_bill_sync">账单同步</string>
+    <string name="setting_manual_sync">手动同步模式</string>
+    <string name="setting_manual_sync_summary">开启后，保存账单将不会自动同步</string>
 
     <!-- 周期选择 -->
     <string name="period_selector_title">选择分析周期</string>

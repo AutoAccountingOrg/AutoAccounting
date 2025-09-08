@@ -488,7 +488,8 @@
     <string name="un_group_message">Are you sure you want to split this order from the current order into an independent order?</string>
     <string name="assets_map_title">Unrecognized asset found</string>
     <string name="assets_map_description">Accounting app cannot handle unrecognized assets, please map the following assets to ensure correct asset names.</string>
-    <string name="setting_duplicated">Show notification for duplicate bill merge</string>
+    <string name="setting_duplicated">Duplicate bill alert</string>
+    <string name="setting_duplicated_summary">Show a popup when a duplicate bill is detected</string>
     <string name="income_reimbursement_info">Reimbursement - %s</string>
     <string name="income_refund_info">Refund - %s</string>
     <string name="refund">Refund</string>
@@ -896,8 +897,8 @@
     <string name="canary_warning_enable_debug">Enable Debug Mode</string>
 
     <!-- 设置项标题和摘要 -->
-    <string name="setting_auto_group">Auto Deduplication</string>
-    <string name="setting_auto_group_summary">Automatically deduplicate bills by grouping similar transactions</string>
+    <string name="setting_auto_group">Automatic deduplication</string>
+    <string name="setting_auto_group_summary">Automatically detect and merge duplicate bills</string>
     <string name="setting_duplicated_bill_filter">Duplicate Bill Filter</string>
     <string name="setting_duplicated_bill_filter_summary">Filter out duplicate bills</string>
     <string name="setting_bill_auto_record_summary">Show notification when auto recording bills</string>

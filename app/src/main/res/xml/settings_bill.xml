@@ -8,15 +8,19 @@
             android:key="autoRecordBill"
             android:summary="@string/setting_auto_record_bill_summary"
             android:title="@string/setting_auto_record_bill" />
-
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_sync"
+            android:key="manualSync"
+            android:summary="@string/setting_manual_sync_summary"
+            android:title="@string/setting_manual_sync" />
 
         <rikka.material.preference.MaterialSwitchPreference
             android:defaultValue="false"
             android:icon="@drawable/setting_icon_repeat"
-            android:key="showDuplicatedPopup"
-            android:summary="@string/setting_duplicated_bill_filter_summary"
-            android:title="@string/setting_duplicated_bill_filter" />
-
+            android:key="autoGroup"
+            android:summary="@string/setting_auto_group_summary"
+            android:title="@string/setting_auto_group" />
         <rikka.material.preference.MaterialSwitchPreference
             android:defaultValue="false"
             android:icon="@drawable/ic_category"
@@ -49,6 +53,13 @@
 
         <rikka.material.preference.MaterialSwitchPreference
             android:defaultValue="false"
+            android:icon="@drawable/ic_notifications"
+            android:key="showDuplicatedPopup"
+            android:summary="@string/setting_duplicated_summary"
+            android:title="@string/setting_duplicated" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="false"
             android:icon="@drawable/setting_landscape_dnd"
             android:key="landscapeDnd"
             android:summary="@string/setting_landscape_dnd_summary"
@@ -77,12 +88,7 @@
             android:summary="@string/setting_book_app_summary"
             android:title="@string/setting_book_app" />
 
-        <rikka.material.preference.MaterialSwitchPreference
-            android:defaultValue="false"
-            android:icon="@drawable/ic_sync"
-            android:key="manualSync"
-            android:summary="@string/setting_manual_sync_summary"
-            android:title="@string/setting_manual_sync" />
+
     </PreferenceCategory>
 
 </PreferenceScreen>
