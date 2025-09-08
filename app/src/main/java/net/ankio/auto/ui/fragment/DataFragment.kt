@@ -178,7 +178,8 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
                     val loading = LoadingUtils(requireContext())
                     loading.show(R.string.upload_waiting)
 
-                    if (!(item.match && item.rule.isNotEmpty())) {
+                    // AI 生成视为未匹配：当规则为空、未匹配，或规则字符串标记为“生成”时，都走适配帮助
+                    if (!item.hasValidMatch() || item.isAiGeneratedRule()) {
                         requestRuleHelp(item, result)
                     } else {
                         showRuleBugDialog(item, result)

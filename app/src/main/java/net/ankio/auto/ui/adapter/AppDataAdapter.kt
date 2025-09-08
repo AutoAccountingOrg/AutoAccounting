@@ -22,14 +22,12 @@ import net.ankio.auto.R
 import net.ankio.auto.databinding.AdapterDataBinding
 import net.ankio.auto.ui.api.BaseAdapter
 import net.ankio.auto.ui.api.BaseViewHolder
-import net.ankio.auto.ui.utils.ToastUtils
 import net.ankio.auto.utils.DateUtils
 import org.ezbook.server.db.model.AppDataModel
 
 class AppDataAdapter : BaseAdapter<AdapterDataBinding, AppDataModel>() {
 
     companion object {
-        private const val AI_GENERATED_SUFFIX = "生成"
         private val RULE_NAME_REGEX = "\\[(.*?)]".toRegex()
     }
 
@@ -45,20 +43,6 @@ class AppDataAdapter : BaseAdapter<AdapterDataBinding, AppDataModel>() {
      */
     private fun extractRuleName(rule: String): String {
         return RULE_NAME_REGEX.find(rule)?.destructured?.component1() ?: rule
-    }
-
-    /**
-     * 检查是否为AI生成的规则
-     */
-    private fun isAiGeneratedRule(rule: String): Boolean {
-        return rule.contains(AI_GENERATED_SUFFIX)
-    }
-
-    /**
-     * 检查规则是否匹配
-     */
-    private fun isRuleMatched(data: AppDataModel): Boolean {
-        return data.match && data.rule.isNotEmpty()
     }
 
     override fun onInitViewHolder(holder: BaseViewHolder<AdapterDataBinding, AppDataModel>) {
@@ -80,12 +64,8 @@ class AppDataAdapter : BaseAdapter<AdapterDataBinding, AppDataModel>() {
 
         binding.uploadData.setOnClickListener {
             holder.item?.let { item ->
-                // 只做基本的UI验证，业务逻辑交给外部
-                if (isAiGeneratedRule(item.rule)) {
-                    ToastUtils.error(R.string.ai_not_support)
-                } else {
-                    onUploadDataClick?.invoke(item)
-                }
+                // 直接回调上传逻辑，不再限制 AI 生成规则
+                onUploadDataClick?.invoke(item)
             }
         }
 
@@ -113,13 +93,12 @@ class AppDataAdapter : BaseAdapter<AdapterDataBinding, AppDataModel>() {
         binding.time.setText(DateUtils.stampToDate(data.time))
 
         // 规则相关UI状态
-        val hasRule = isRuleMatched(data)
-        val isAiRule = isAiGeneratedRule(data.rule)
+        val hasRule = data.isMatched()
+        val isAiRule = data.isAiGeneratedRule()
 
         binding.ruleName.setText(if (hasRule) extractRuleName(data.rule) else "")
         binding.ruleName.visibility = if (hasRule) View.VISIBLE else View.INVISIBLE
         binding.createRule.visibility = if (!hasRule || isAiRule) View.VISIBLE else View.GONE
-        binding.uploadData.setIconResource(if (hasRule) R.drawable.icon_question else R.drawable.icon_upload)
         binding.uploadData.isVisible = true
     }
 

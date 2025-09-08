@@ -68,6 +68,39 @@ class AppDataModel {
     var version: String = ""
 
 
+    companion object {
+        /**
+         * 标识 AI 生成规则的后缀。
+         * 与客户端保持一致，凡是规则字符串包含该片段，均视为 AI 生成。
+         */
+        private const val AI_GENERATED_SUFFIX = "生成"
+    }
+
+    /**
+     * 判断当前条目的规则是否为 AI 生成。
+     *
+     * @return 当 `rule` 字符串包含 AI 标识时返回 true，否则返回 false。
+     */
+    fun isAiGeneratedRule(): Boolean {
+        return rule.contains(AI_GENERATED_SUFFIX)
+    }
+
+    /**
+     * 判断是否为“有效匹配”。
+     * 要求：已匹配（match=true）且规则非空，且规则不是 AI 生成。
+     *
+     * @return 满足上述条件返回 true，否则返回 false。
+     */
+    fun hasValidMatch(): Boolean {
+        return isMatched() && !isAiGeneratedRule()
+    }
+
+    /**
+     * 是否满足“已匹配且规则非空”。
+     */
+    fun isMatched(): Boolean {
+        return match && rule.isNotEmpty()
+    }
 
     override fun toString(): String {
         return "AppDataModel(id=$id, data='', type=$type, app='$app', time=$time, match=$match, rule='$rule', issue=$issue)"
