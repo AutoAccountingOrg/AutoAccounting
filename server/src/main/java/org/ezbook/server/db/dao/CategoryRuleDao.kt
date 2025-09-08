@@ -52,4 +52,10 @@ interface CategoryRuleDao {
 
     @Query("SELECT * FROM CategoryRuleModel")
     suspend fun loadAll(): List<CategoryRuleModel>
+
+    /**
+     * 按创建者筛选规则
+     */
+    @Query("SELECT * FROM CategoryRuleModel WHERE creator = :creator")
+    suspend fun loadByCreator(creator: String): List<CategoryRuleModel>
 }

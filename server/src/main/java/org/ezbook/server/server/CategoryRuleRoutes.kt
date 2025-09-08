@@ -25,6 +25,8 @@ import io.ktor.routing.route
 import org.ezbook.server.db.Db
 import org.ezbook.server.db.model.CategoryRuleModel
 import org.ezbook.server.models.ResultModel
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 /**
  * 分类规则管理路由配置
@@ -59,6 +61,25 @@ fun Route.categoryRuleRoutes() {
         post("/put") {
             val model = call.receive(CategoryRuleModel::class)
 
+            // 服务端去重策略：
+            // 1) 仅对 creator == "system" 的规则执行
+            // 2) 从 element 中提取 shopItem/shopName 的 content 值作为唯一键
+            // 3) 两者都为空则不保存
+            // 4) 若存在相同键的自动规则，则覆盖更新（使用其 id）
+            if (model.creator == "system") {
+                val (shopItemKey, shopNameKey) = extractShopKeys(model.element)
+                if (shopItemKey.isEmpty() && shopNameKey.isEmpty()) {
+                    call.respond(ResultModel.ok(0L))
+                    return@post
+                }
+                val autoRules = Db.get().categoryRuleDao().loadByCreator(model.creator)
+                val existed =
+                    autoRules.firstOrNull { sameShopKeys(it.element, shopItemKey, shopNameKey) }
+                if (existed != null) {
+                    model.id = existed.id
+                }
+            }
+
             if (model.id == 0L) {
                 model.id = Db.get().categoryRuleDao().insert(model)
             } else {
@@ -83,4 +104,37 @@ fun Route.categoryRuleRoutes() {
             call.respond(ResultModel.ok(id))
         }
     }
+}
+
+/**
+ * 从 element JSON 提取 shopItem/shopName 的 content 值
+ */
+private fun extractShopKeys(elementJson: String): Pair<String, String> {
+    return try {
+        val listType = object : TypeToken<MutableList<HashMap<String, Any>>>() {}.type
+        val list: MutableList<HashMap<String, Any>> =
+            Gson().fromJson(elementJson, listType) ?: mutableListOf()
+        if (list.isNotEmpty()) list.removeAt(list.lastIndex)
+        var item = ""
+        var name = ""
+        for (m in list) {
+            val type = m["type"]?.toString() ?: continue
+            val content = m["content"]?.toString() ?: ""
+            if (type == "shopItem") item = content
+            if (type == "shopName") name = content
+        }
+        item to name
+    } catch (e: Exception) {
+        "" to ""
+    }
+}
+
+/**
+ * 判断 element 是否与指定 shopItem/shopName 键相同
+ */
+private fun sameShopKeys(elementJson: String, shopItem: String, shopName: String): Boolean {
+    val (item, name) = extractShopKeys(elementJson)
+    val itemOk = if (shopItem.isEmpty()) true else (item == shopItem)
+    val nameOk = if (shopName.isEmpty()) true else (name == shopName)
+    return itemOk && nameOk
 } 
