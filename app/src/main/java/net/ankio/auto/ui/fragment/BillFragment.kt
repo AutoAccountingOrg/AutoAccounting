@@ -62,14 +62,7 @@ open class BillFragment : BasePageFragment<OrderGroup, FragmentBillBinding>() {
                 .setBillInfo(item)
                 .setOnConfirm { updatedBill ->
                     Logger.i("编辑账单: ${updatedBill.id}")
-                    updatedBill.state = BillState.Edited
                     itemAdapter.updateItem(position, updatedBill)
-                    // 保存到
-                    launch {
-                        Logger.d("更新账单：$updatedBill")
-                        BillAPI.put(updatedBill)
-                        BillTool.syncBill(updatedBill)
-                    }
 
                 }
                 .show()

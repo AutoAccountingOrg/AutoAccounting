@@ -132,11 +132,7 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
                 BaseSheetDialog.create<BillEditorDialog>(requireContext())
                     .setBillInfo(billResultModel.billInfoModel)
                     .setOnConfirm {
-                        //点击保存，直接保存账单，不会进行去重
-                        this@DataFragment.launch {
-                            BillAPI.put(it)
-                            ToastUtils.info(getString(R.string.save_bill_success))
-                        }
+
                     }
                     .setOnCancel { _ -> }
                     .show()

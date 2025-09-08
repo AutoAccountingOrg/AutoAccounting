@@ -408,40 +408,6 @@ class BillWindowManager(
 
     // ============ 业务逻辑处理 ============
 
-    /**
-     * 保存账单信息到数据库
-     *
-     * 功能：
-     * 1. 更新账单状态为已编辑
-     * 2. 异步保存到数据库
-     * 3. 同步账单数据
-     * 4. 显示成功提示（如果启用）
-     *
-     * @param bill 要保存的账单信息
-     */
-    private fun saveBill(bill: BillInfoModel) {
-        Logger.d("保存账单: ${bill.id}")
-
-        // 更新状态
-        bill.state = BillState.Edited
-
-        // 异步保存
-        launch {
-            BillAPI.put(bill)
-            BillTool.syncBill(bill)
-            Logger.d("账单保存成功: ${bill.id}")
-        }
-
-        // 显示成功提示
-        if (PrefManager.showSuccessPopup && AppAdapterManager.adapter().pkg == BuildConfig.APPLICATION_ID) {
-            val message = service.service().getString(
-                R.string.auto_success,
-                bill.money.toString()
-            )
-            ToastUtils.info(message)
-        }
-    }
-
 
     /**
      * 处理账单操作
@@ -453,7 +419,7 @@ class BillWindowManager(
         // 自动账单直接保存
         if (bill.auto) {
             Logger.d("自动账单，直接保存")
-            saveBill(bill)
+            BillTool.saveBill(bill)
             processNextBill()
             return
         }
@@ -464,7 +430,7 @@ class BillWindowManager(
         when (action) {
             FloatEvent.AUTO_ACCOUNT -> {
                 Logger.d("用户操作: 自动记账")
-                saveBill(bill)
+                BillTool.saveBill(bill)
                 processNextBill()
             }
 
@@ -510,7 +476,6 @@ class BillWindowManager(
                 deleteBill(bill)
             }
             ?.setOnConfirm { billInfo ->
-                saveBill(billInfo)
                 Logger.d("编辑对话框已确认，处理下一个账单")
                 processNextBill()
             }?.show()

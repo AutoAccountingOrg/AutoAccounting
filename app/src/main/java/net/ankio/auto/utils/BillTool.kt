@@ -21,9 +21,14 @@ import com.google.android.material.textview.MaterialTextView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import net.ankio.auto.App
+import net.ankio.auto.BuildConfig
 import net.ankio.auto.R
 import net.ankio.auto.adapter.AppAdapterManager
+import net.ankio.auto.autoApp
 import net.ankio.auto.http.api.BillAPI
+import net.ankio.auto.storage.Logger
+import net.ankio.auto.ui.utils.ToastUtils
+import org.ezbook.server.constant.BillState
 import org.ezbook.server.constant.BillType
 import org.ezbook.server.db.model.BillInfoModel
 
@@ -98,6 +103,32 @@ object BillTool {
         AppAdapterManager.adapter().syncBill(billInfoModel)
         delay(AppAdapterManager.adapter().sleep())
     }
+    fun saveBill(bill: BillInfoModel) {
+        Logger.d("保存账单: ${bill.id}")
+
+        // 更新状态
+        bill.state = BillState.Edited
+
+        // 异步保存
+        App.launchIO {
+            BillAPI.put(bill)
+            // 若未开启手动同步，则保存后立即同步；否则跳过
+            if (!PrefManager.manualSync) {
+                syncBill(bill)
+            }
+            Logger.d("账单保存成功: ${bill.id}")
+        }
+
+        // 显示成功提示
+        if (PrefManager.showSuccessPopup && AppAdapterManager.adapter().pkg == BuildConfig.APPLICATION_ID) {
+            val message = autoApp.getString(
+                R.string.auto_success,
+                bill.money.toString()
+            )
+            ToastUtils.info(message)
+        }
+    }
+
 }
 
 /** Uri.Builder 扩展：仅在 value 非空时追加参数 */

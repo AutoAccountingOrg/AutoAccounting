@@ -195,13 +195,9 @@ class BillEditorDialog internal constructor(
      */
     private fun saveBill() {
         val billInfo = billInfoModel ?: return
-
-        launch {
-            // 保存账单
-            billInfo.state = BillState.Edited
-            onConfirmClick?.invoke(billInfo)
-            dismiss()
-        }
+        BillTool.saveBill(billInfo)
+        onConfirmClick?.invoke(billInfo)
+        dismiss()
     }
 
 
