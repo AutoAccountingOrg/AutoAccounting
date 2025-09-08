@@ -23,6 +23,7 @@ import net.ankio.auto.service.ocr.OcrViews
 import net.ankio.shell.Shell
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.utils.PrefManager
+import net.ankio.auto.ui.utils.ToastUtils
 import org.ezbook.server.constant.DataType
 import org.ezbook.server.intent.IntentType
 import org.ezbook.server.tools.runCatchingExceptCancel
@@ -234,7 +235,9 @@ class OcrService : ICoreService() {
         runCatchingExceptCancel {
             shell.exec("screencap -p ${outFile.absolutePath}")
         }.onFailure {
-            Logger.e("截图命令执行失败: ${it.message}")
+            // 提醒用户未授权root或者shizuku未运行（使用资源字符串，避免硬编码）
+            ToastUtils.info(coreService.getString(net.ankio.auto.R.string.toast_shell_not_ready))
+            Logger.e(it.message ?: "", it)
             return null
         }
 
@@ -280,8 +283,14 @@ class OcrService : ICoreService() {
      * @return 返回最近使用的应用包名
      */
     private suspend fun getTopPackagePostL(): String? {
-        val data = shell.exec("dumpsys activity activities | grep ResumedActivity")
-        if (data.isBlank()) return null
+        val data = runCatchingExceptCancel {
+            shell.exec("dumpsys activity activities | grep ResumedActivity")
+        }.onFailure {
+            // 提醒用户未授权root或者shizuku未运行（使用资源字符串，避免硬编码）
+            ToastUtils.info(coreService.getString(net.ankio.auto.R.string.toast_shell_not_ready))
+            Logger.e(it.message ?: "", it)
+        }.getOrNull()
+        if (data.isNullOrBlank()) return null
 
         val pkg = data.split(" ").firstOrNull { it.contains("/") }?.substringBefore("/")
 

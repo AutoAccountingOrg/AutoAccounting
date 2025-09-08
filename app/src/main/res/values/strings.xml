@@ -716,6 +716,7 @@
 
     <!-- Common toast: target app missing / cannot handle intent -->
     <string name="toast_target_app_not_installed">Target app "%1$s" not installed, unable to proceed</string>
+    <string name="toast_shell_not_ready">Root is not granted or Shizuku is not running</string>
     <!-- Finance card labels -->
     <string name="month_income">Monthly income</string>
     <string name="month_expense">Monthly expense</string>

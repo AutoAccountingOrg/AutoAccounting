@@ -28,6 +28,7 @@ import net.ankio.auto.service.OcrService
 import net.ankio.shell.Shell
 import net.ankio.auto.service.OverlayService
 import net.ankio.auto.service.overlay.BillWindowManager
+import net.ankio.auto.storage.Logger
 
 /**
  * 引导页 #3 – 权限申请
@@ -123,6 +124,9 @@ class IntroPagePermissionFragment : BaseIntroPageFragment<FragmentIntroPagePermi
                             try {
                                 Shell(ctx.packageName).use { it.requestPermission() }
                             } catch (_: Throwable) {
+                                // 提醒用户未授权root或者shizuku未运行（使用资源字符串，避免硬编码）
+                                ToastUtils.info(getString(R.string.toast_shell_not_ready))
+
                             }
                         }
                     )
