@@ -949,7 +949,7 @@
     <string name="perm_sms_desc_optional">允许应用读取短信以获取支付确认码。OCR 模式下为可选。</string>
 
     <!-- 通用提示与吐司 -->
-    <string name="toast_target_app_not_installed">未安装目标应用“%1$s”，无法继续</string>
+    <string name="toast_target_app_not_installed">未安装目标应用"%1$s"，无法继续</string>
     <string name="toast_shell_not_ready">未授予 Root 或 Shizuku 未运行</string>
 
     <!-- 金额与手续费编辑相关 -->
@@ -962,7 +962,7 @@
 
     <!-- 规则禁用相关 -->
     <string name="disable_rule_title">禁用规则</string>
-    <string name="disable_rule_message">确定要禁用规则“%s”吗？</string>
+    <string name="disable_rule_message">确定要禁用规则"%s"吗？</string>
     <string name="rule_not_found">未找到规则</string>
     <string name="rule_disabled_success">已成功禁用 %d 条规则</string>
     <string name="rule_disable_failed">禁用规则失败</string>
@@ -1035,5 +1035,8 @@
     <string name="setting_category_display">显示设置</string>
     <string name="setting_local_backup_path">本地备份路径</string>
     <string name="setting_local_backup_path_summary">本地备份存储路径</string>
+
+    <!-- 提示 -->
+    <string name="remember_category_success">已自动记住分类：%s</string>
 
 </resources>

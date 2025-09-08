@@ -120,7 +120,7 @@ object BillTool {
         }
 
         // 显示成功提示
-        if (PrefManager.showSuccessPopup && AppAdapterManager.adapter().pkg == BuildConfig.APPLICATION_ID) {
+        if (PrefManager.showSuccessPopup) {
             val message = autoApp.getString(
                 R.string.auto_success,
                 bill.money.toString()

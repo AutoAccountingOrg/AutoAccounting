@@ -1049,4 +1049,7 @@
     <string name="period_last_year">Last Year</string>
     <string name="period_this_year">This Year</string>
 
+    <!-- Toasts -->
+    <string name="remember_category_success">Category remembered: %s</string>
+
 </resources>
