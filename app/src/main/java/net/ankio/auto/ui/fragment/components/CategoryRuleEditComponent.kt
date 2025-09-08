@@ -193,7 +193,7 @@ class CategoryRuleEditComponent(
     }
 
     private fun setupRuleUI() {
-
+        if (flexboxLayout == null) return
         // 清理现有UI
         flexboxLayout?.removeAllElements()
 
@@ -310,6 +310,7 @@ class CategoryRuleEditComponent(
     override fun onComponentDestroy() {
         super.onComponentDestroy()
         flexboxLayout?.removeAllElements()
+        flexboxLayout = null
         Logger.d("CategoryRuleEditComponent清理完成")
     }
 
