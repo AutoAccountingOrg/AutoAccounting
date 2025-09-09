@@ -191,8 +191,8 @@
 
     <string name="title_map">Asset mapping</string>
     <string name="map_input_raw">Please enter original asset</string>
-    <string name="map_regex">Fuzzy matching (supports partial matching of asset names)</string>
-    <string name="map_regex_desc">When enabled, asset names containing the input text will be matched. For example, entering \"Alipay\" can match \"Alipay Balance\", \"Alipay Yu\'e Bao\", etc.</string>
+    <string name="map_regex">Regex matching</string>
+    <string name="map_regex_desc"></string>
     <string name="map_target">Please select target asset</string>
     <string name="map_empty">Asset name or mapped asset cannot be empty</string>
     <string name="reapply_asset_mapping">Reapply Asset Mapping</string>
@@ -1051,5 +1051,8 @@
 
     <!-- Toasts -->
     <string name="remember_category_success">Category remembered: %s</string>
+
+    <!-- Short label -->
+    <string name="regex">Regex</string>
 
 </resources>

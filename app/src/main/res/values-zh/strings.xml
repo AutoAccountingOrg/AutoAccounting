@@ -189,8 +189,8 @@
 
     <string name="title_map">资产映射</string>
     <string name="map_input_raw">请输入原始资产</string>
-    <string name="map_regex">模糊匹配（支持资产名称的部分匹配）</string>
-    <string name="map_regex_desc">启用后，包含输入文本的资产名称将被匹配。例如，输入"支付宝"可以匹配"支付宝余额"、"支付宝余额宝"等。</string>
+    <string name="map_regex">正则匹配</string>
+    <string name="map_regex_desc"></string>
     <string name="map_target">请选择目标资产</string>
     <string name="map_empty">资产名称或映射资产不能为空</string>
     <string name="reapply_asset_mapping">重新应用资产映射</string>
@@ -1038,5 +1038,8 @@
 
     <!-- 提示 -->
     <string name="remember_category_success">已自动记住分类：%s</string>
+
+    <!-- 简短标签 -->
+    <string name="regex">正则</string>
 
 </resources>

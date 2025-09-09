@@ -27,7 +27,7 @@
     android:padding="@dimen/padding">
 
     <!-- 左侧内容区域，包含文本和标签 -->
-    <FrameLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
@@ -37,28 +37,33 @@
         <TextView
             android:id="@+id/raw"
             style="@style/TextAppearance.AppCompat.Medium"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
             android:ellipsize="end"
             android:maxLines="2"
-            android:paddingEnd="60dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/containment_chip"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             tools:text="映射文本很长很映射文本很长很长很长映射文本很长很长很长映射文本很长很长很长映射文本很长很长很长长很长" />
 
         <!-- 包含关系标签，附在右上角 -->
         <com.google.android.material.chip.Chip
             android:id="@+id/containment_chip"
+            style="@style/Widget.MaterialComponents.Chip.Action"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical|end"
-            android:text="@string/container"
-            style="@style/Widget.MaterialComponents.Chip.Action"
-            android:enabled="false"
             android:layout_marginEnd="8dp"
+            android:enabled="false"
+            android:minHeight="24dp"
+            android:text="@string/regex"
             android:textSize="10sp"
-            android:minHeight="24dp" />
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    </FrameLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- 中间固定宽度的箭头图标 -->
     <ImageView

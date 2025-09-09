@@ -29,18 +29,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/editText" />
 
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/regexDesc"
-        style="@style/TextAppearance.Material3.BodySmall"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/one_padding"
-        android:text="@string/map_regex_desc"
-        android:textColor="?colorOnSurfaceVariant"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/regex" />
-
     <net.ankio.auto.ui.components.IconView
         android:id="@+id/target"
         android:layout_width="0dp"
@@ -53,7 +41,7 @@
         app:iconTintEnabled="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/regexDesc"
+        app:layout_constraintTop_toBottomOf="@id/regex"
         app:text="@string/map_target"
         app:textColor="?colorOnBackground" />
 
