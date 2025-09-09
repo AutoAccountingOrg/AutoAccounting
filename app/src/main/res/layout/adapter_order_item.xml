@@ -17,14 +17,17 @@
 
         <net.ankio.auto.ui.components.IconView
             android:id="@+id/category"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/one_padding"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
             android:textColor="@color/black"
             app:iconSrc="@drawable/default_cate"
             app:iconTintEnabled="true"
             app:textColor="?colorPrimary"
-            tools:text="理财收益" />
+            tools:text="理财收xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx益" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/date"
@@ -34,11 +37,6 @@
             android:textColor="?colorSecondary"
             android:textSize="15sp"
             tools:text="11:00:22" />
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/money"
