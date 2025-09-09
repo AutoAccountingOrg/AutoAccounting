@@ -1053,6 +1053,6 @@
     <string name="remember_category_success">Category remembered: %s</string>
 
     <!-- Short label -->
-    <string name="regex">Regex</string>
+    <string name="regexLabel">Regex</string>
 
 </resources>

@@ -1040,6 +1040,6 @@
     <string name="remember_category_success">已自动记住分类：%s</string>
 
     <!-- 简短标签 -->
-    <string name="regex">正则</string>
+    <string name="regexLabel">正则</string>
 
 </resources>
