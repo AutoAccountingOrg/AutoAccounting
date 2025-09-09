@@ -106,6 +106,7 @@ class RuleVersionCardComponent(
      * 显示当前规则版本和最后更新时间
      */
     private fun updateDisplay() {
+        if (!uiReady()) return
         binding.titleText.text =
             context.getString(R.string.rule_version_title, PrefManager.ruleVersion)
         binding.subtitleText.text =
@@ -118,6 +119,7 @@ class RuleVersionCardComponent(
      * @param enabled 是否启用按钮
      */
     private fun setUpdateButtonEnabled(enabled: Boolean) {
+        if (!uiReady()) return
         binding.updateButton.isEnabled = enabled
         binding.updateButton.alpha = if (enabled) 1.0f else 0.5f
     }

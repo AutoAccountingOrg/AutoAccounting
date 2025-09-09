@@ -22,12 +22,12 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.viewbinding.ViewBinding
-import android.view.View
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import net.ankio.auto.storage.Logger
 import net.ankio.auto.utils.SystemUtils.findLifecycleOwner
@@ -65,6 +65,7 @@ abstract class BaseComponent<T : ViewBinding> : DefaultLifecycleObserver {
      * 在视图未附着时延迟绑定，避免退化到 Activity 生命周期导致的泄漏。
      */
     private var lifecycle: Lifecycle? = null
+
     /**
      * 推荐的构造函数 - 只需要ViewBinding，自动推断生命周期
      *
@@ -76,7 +77,6 @@ abstract class BaseComponent<T : ViewBinding> : DefaultLifecycleObserver {
             ?: binding.root.context.findLifecycleOwner().lifecycle
         this.lifecycle?.addObserver(this)
     }
-
 
 
     /** 上下文对象，从binding的根视图获取 */
@@ -158,9 +158,11 @@ abstract class BaseComponent<T : ViewBinding> : DefaultLifecycleObserver {
         _binding = null
     }
 
+    protected fun uiReady() = componentScope.isActive && _binding != null
+
     /**
      * 清理 ViewBinding 中的监听器，防止内存泄漏
-     * 
+     *
      * 通过反射清理 binding.root 及其子视图的所有监听器，
      * 这是防止 BaseComponent 持有视图引用导致内存泄漏的关键步骤。
      */
