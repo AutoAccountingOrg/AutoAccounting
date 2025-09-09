@@ -102,6 +102,17 @@ class AiSummaryFragment : BaseFragment<FragmentAiSummaryBinding>() {
         loadCurrentSummary()
     }
 
+    override fun onDestroyView() {
+        // 在销毁视图前，尽最大可能阻断 WebView 的后续回调，避免 onPageFinished 晚到触发 UI 访问
+        try {
+            binding.webView.apply {
+                stopLoading()
+            }
+        } catch (_: Throwable) {
+        }
+        super.onDestroyView()
+    }
+
     /**
      * 设置UI组件
      */
@@ -143,8 +154,10 @@ class AiSummaryFragment : BaseFragment<FragmentAiSummaryBinding>() {
                 override fun onPageFinished(view: WebView?, url: String?) {
                     super.onPageFinished(view, url)
                     // 页面加载完成后显示分享按钮
+                    // 注意：WebView 的回调可能在 Fragment 视图销毁后抵达，
+                    // 必须先检查 UI 是否仍处于可用状态，避免访问已置空的 binding 导致 NPE。
+                    if (!uiReady()) return
                     binding.btnShare.visibility = View.VISIBLE
-
                     binding.webView.visibility = View.VISIBLE
                 }
             }
@@ -243,6 +256,8 @@ class AiSummaryFragment : BaseFragment<FragmentAiSummaryBinding>() {
      * 直接展示HTML（用于缓存命中或生成后展示）。
      */
     private fun displayHtml(htmlContent: String) {
+        // 防御：在异步流程/延迟回调中，可能发生视图已销毁的情况
+        if (!uiReady()) return
         binding.webView.loadDataWithBaseURL(null, htmlContent, "text/html", "UTF-8", null)
         binding.layoutActions.visibility = View.VISIBLE
         binding.statusPage.showContent()
@@ -562,7 +577,8 @@ class AiSummaryFragment : BaseFragment<FragmentAiSummaryBinding>() {
      * 显示错误信息
      */
     private fun showError(message: String) {
-
+        // 防御：在错误处理的延迟分支中，可能发生视图已销毁的情况
+        if (!uiReady()) return
         binding.layoutActions.visibility = View.GONE
     }
 
