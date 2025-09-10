@@ -590,6 +590,7 @@ class CategoryRuleEditComponent(
         val dialog = BaseSheetDialog.create<DateTimePickerDialog>(context)
         dialog.setDateTime(0, 0, 0, result[0].toInt(), result[1].toInt())
             .setTitle(title)
+            .setTimeOnly(true)
             .setOnDateTimeSelected { year, month, day, hour, minute ->
                 callback("$hour:$minute")
             }.show(true)
