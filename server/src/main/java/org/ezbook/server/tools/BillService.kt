@@ -192,10 +192,6 @@ class BillService(
             AssetsMap().setAssetsMap(billInfo)
             // 记录资产映射摘要
             ServerLog.d("资产映射完成：from=${billInfo.accountNameFrom}, to=${billInfo.accountNameTo}")
-            // 设置分类映射、查找
-            CategoryProcessor().setCategoryMap(billInfo)
-            // 记录分类映射摘要
-            ServerLog.d("分类映射完成：book=${billInfo.bookName}, cate=${billInfo.cateName}")
 
             // 生成账单备注
             billInfo.remark = BillManager.getRemark(billInfo, context)
@@ -442,6 +438,12 @@ class BillService(
             ).takeUnless { it.isNullOrEmpty() } ?: "其他"
             ServerLog.d("AI分析的账单分类结果：${bill.cateName}")
         }
+
+        // 设置分类映射、查找
+        CategoryProcessor().setCategoryMap(bill)
+        // 记录分类映射摘要
+        ServerLog.d("分类映射完成：book=${bill.bookName}, cate=${bill.cateName}")
+
     }
 
     /**
