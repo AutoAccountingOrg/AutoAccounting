@@ -170,7 +170,7 @@ class BillService(
 
             // 4) 分析（先规则，后 AI）
             val start = System.currentTimeMillis()
-            // TODO 有一些特殊情况只能在规则里面识别，需要规则返回忽略字段，用于特地忽略，这样也同时禁止AI来识别
+
             val billInfo: BillInfoModel =
                 analyzeWithRule(analysisParams.app, analysisParams.data, dataType)
                     ?: analyzeWithAI(analysisParams.app, analysisParams.data)
@@ -184,7 +184,10 @@ class BillService(
                     }
             ServerLog.d("初步解析的账单结果 $billInfo")
             //这里也不加bookName, bookName在分类里面处理
-
+            if (appDataModel != null) {
+                appDataModel.version = SettingUtils.ruleVersion()
+                Db.get().dataDao().update(appDataModel)
+            }
             // 设置资产映射
             AssetsMap().setAssetsMap(billInfo)
             // 记录资产映射摘要

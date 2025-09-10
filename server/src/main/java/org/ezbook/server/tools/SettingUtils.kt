@@ -211,4 +211,7 @@ object SettingUtils {
 
     suspend fun autoAssetMap(): Boolean =
         getBoolean(Setting.AUTO_ASSET_MAPPING, DefaultData.AUTO_ASSET_MAPPING)
+
+    suspend fun ruleVersion(): String =
+        getString(Setting.RULE_VERSION, DefaultData.RULE_VERSION)
 }
