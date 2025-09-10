@@ -16,6 +16,7 @@
 package net.ankio.auto.xposed.core.logger
 
 import android.util.Log
+import de.robv.android.xposed.XposedBridge
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.core.utils.ThreadUtils
 import org.ezbook.server.constant.LogLevel
@@ -40,6 +41,7 @@ object Logger {
      */
     fun log(app: String, msg: String) {
         if (AppRuntime.debug) {
+            XposedBridge.log("[ 自动记账 ] ( $app ) $msg")
             Log.d(TAG, "[ 自动记账 ] ( $app ) $msg")
         }
         val tag = getTag()
@@ -54,7 +56,9 @@ object Logger {
      * 只在调试模式输出日志
      */
     fun logD(app: String, msg: String) {
+
         if (AppRuntime.debug) {
+            XposedBridge.log("[ 自动记账 ] ( $app ) $msg")
             log(app, msg)
         }
     }
@@ -64,7 +68,9 @@ object Logger {
      */
     fun logE(app: String, e: Throwable) {
         Log.d(TAG, "[ 自动记账 ] ( $app ) ${e.message ?: ""}")
+        XposedBridge.log("[ 自动记账 ] ( $app ) ${e.message ?: ""}")
         Log.e(TAG, e.message ?: "")
+        XposedBridge.log(e)
         val tag = getTag()
         ThreadUtils.launch {
             val log = StringBuilder()
