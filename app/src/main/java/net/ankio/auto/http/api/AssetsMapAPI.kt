@@ -17,7 +17,7 @@ package net.ankio.auto.http.api
 
 import android.net.Uri
 import com.google.gson.Gson
-import com.google.gson.JsonObject
+
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ankio.auto.http.LocalNetwork
@@ -70,17 +70,17 @@ object AssetsMapAPI {
     /**
      * 新增或更新资产映射。
      * @param model 资产映射模型
-     * @return 后端返回的JsonObject结果
+     * @return 映射ID（失败返回 0）
      */
-    suspend fun put(model: AssetsMapModel): JsonObject = withContext(Dispatchers.IO) {
+    suspend fun put(model: AssetsMapModel): Long = withContext(Dispatchers.IO) {
 
         return@withContext runCatchingExceptCancel {
             val resp =
-                LocalNetwork.post<JsonObject>("assets/map/put", Gson().toJson(model)).getOrThrow()
-            resp.data ?: JsonObject()
+                LocalNetwork.post<Long>("assets/map/put", Gson().toJson(model)).getOrThrow()
+            resp.data ?: 0L
         }.getOrElse {
             Logger.e("put error: ${it.message}", it)
-            JsonObject()
+            0L
         }
     }
 
@@ -91,7 +91,7 @@ object AssetsMapAPI {
     suspend fun remove(id: Long) = withContext(Dispatchers.IO) {
 
         runCatchingExceptCancel {
-            LocalNetwork.post<String>("assets/map/delete", Gson().toJson(mapOf("id" to id)))
+            LocalNetwork.post<Long>("assets/map/delete", Gson().toJson(mapOf("id" to id)))
                 .getOrThrow()
         }.getOrElse {
             Logger.e("remove error: ${it.message}", it)
@@ -120,16 +120,16 @@ object AssetsMapAPI {
     /**
      * 重新应用资产映射到历史数据。
      * 此操作会在服务端执行，对所有历史账单重新应用当前的资产映射规则。
-     * @return 操作结果的JsonObject
+     * @return 是否成功（true 表示任务已触发）
      */
-    suspend fun reapply(): JsonObject = withContext(Dispatchers.IO) {
+    suspend fun reapply(): Boolean = withContext(Dispatchers.IO) {
 
         return@withContext runCatchingExceptCancel {
-            val resp = LocalNetwork.post<JsonObject>("assets/map/reapply", "{}").getOrThrow()
-            resp.data ?: JsonObject()
+            val resp = LocalNetwork.post<Boolean>("assets/map/reapply", "{}").getOrThrow()
+            resp.data ?: false
         }.getOrElse {
             Logger.e("reapply error: ${it.message}", it)
-            JsonObject()
+            false
         }
     }
 
