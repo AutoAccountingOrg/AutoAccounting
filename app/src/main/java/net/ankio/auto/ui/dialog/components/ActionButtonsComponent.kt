@@ -20,10 +20,15 @@ import net.ankio.auto.ui.api.BaseComponent
 import net.ankio.auto.utils.PrefManager
 import org.ezbook.server.db.model.BillInfoModel
 import com.google.gson.Gson
+import net.ankio.auto.App
 import net.ankio.auto.http.api.CategoryRuleAPI
 import net.ankio.auto.storage.Logger
 import org.ezbook.server.db.model.CategoryRuleModel
 import net.ankio.auto.ui.utils.ToastUtils
+import net.ankio.auto.http.api.AssetsMapAPI
+import org.ezbook.server.db.model.AssetsMapModel
+import org.ezbook.server.constant.BillType
+import org.ezbook.server.tools.runCatchingExceptCancel
 
 /**
  * 操作按钮组件 - 专用于账单编辑对话框
@@ -110,7 +115,62 @@ class ActionButtonsComponent(
                     rememberCategoryAuto()
                 }
             }
+
+            if (PrefManager.autoAssetMapping) {
+                rememberAssetMap()
+            }
+
             onConfirmClickListener?.invoke()
+        }
+    }
+
+    private fun rememberAssetMap() {
+        // 通过 getMap 接口，使用原始资产名称获取资产映射模型
+        // 如果没有就返回；如果有，则将映射的目的资产替换为当前编辑值，并更新到远程
+        if (!::billInfoModel.isInitialized || !::rawBillInfoModel.isInitialized) return
+
+        // 构建需要处理的“原始资产名 → 当前资产名”对，仅限账户字段（人员字段不参与映射）
+        val pairs: List<Pair<String, String>> = when (billInfoModel.type) {
+            // 单账户：仅来源账户
+            BillType.Expend, BillType.Income, BillType.ExpendReimbursement,
+            BillType.IncomeRefund, BillType.IncomeReimbursement -> listOf(
+                rawBillInfoModel.accountNameFrom to billInfoModel.accountNameFrom
+            )
+
+            // 转账：来源与目标账户
+            BillType.Transfer -> listOf(
+                rawBillInfoModel.accountNameFrom to billInfoModel.accountNameFrom,
+                rawBillInfoModel.accountNameTo to billInfoModel.accountNameTo
+            )
+
+            // 借出/还款：仅来源账户（目标为人员）
+            BillType.ExpendLending, BillType.ExpendRepayment -> listOf(
+                rawBillInfoModel.accountNameFrom to billInfoModel.accountNameFrom
+            )
+
+            // 借入/收款：仅目标账户（来源为人员）
+            BillType.IncomeLending, BillType.IncomeRepayment -> listOf(
+                rawBillInfoModel.accountNameTo to billInfoModel.accountNameTo
+            )
+        }
+            .filter { (orig, curr) -> orig.isNotBlank() && curr.isNotBlank() && orig != curr }
+
+        if (pairs.isEmpty()) return
+
+        App.launchIO {
+            pairs.forEach { (originalName, currentName) ->
+                // 拉取现有映射；按需求：没有则不创建，直接跳过
+                val model: AssetsMapModel = AssetsMapAPI.getByName(originalName) ?: return@forEach
+                // 更新目的资产
+                if (model.mapName != currentName) {
+                    model.mapName = currentName
+                    runCatchingExceptCancel {
+                        AssetsMapAPI.put(model)
+                    }.onFailure { e ->
+                        Logger.d("更新资产映射失败: ${e.message}")
+                    }
+                }
+            }
         }
     }
 
@@ -182,7 +242,7 @@ class ActionButtonsComponent(
             "if(${cond}){ return { book:'${billInfoModel.bookName}',category:'${billInfoModel.cateName}'} }"
 
         // 直接保存，由服务端去重
-        launch {
+        App.launchIO {
             try {
                 CategoryRuleAPI.put(model)
                 Logger.i("已自动记住分类: ${billInfoModel.cateName}")
