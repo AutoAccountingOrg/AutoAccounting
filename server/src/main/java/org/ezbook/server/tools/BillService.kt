@@ -184,9 +184,7 @@ class BillService(
                     }
             ServerLog.d("初步解析的账单结果 $billInfo")
             //这里也不加bookName, bookName在分类里面处理
-            // 5) 分类（规则 → 可选 AI）
-            categorize(billInfo)
-            ServerLog.d("进行分类之后的账单 $billInfo")
+
             // 设置资产映射
             AssetsMap().setAssetsMap(billInfo)
             // 记录资产映射摘要
@@ -219,10 +217,14 @@ class BillService(
             // 记录自动分组处理的结果摘要
             if (parent == null) {
                 ServerLog.d("自动分组未找到父账单，待用户编辑")
+                categorize(billInfo)
+                ServerLog.d("进行分类之后的账单 $billInfo")
             } else {
                 ServerLog.d("自动分组找到父账单：parentId=${parent.id}")
+                categorize(parent)
+                ServerLog.d("进行分类之后的账单 $parent")
+                // 对父账单重新分类
             }
-
             // 根据处理结果更新账单状态
             billInfo.state = if (parent == null) BillState.Wait2Edit else BillState.Edited
             db.billInfoDao().update(billInfo)
