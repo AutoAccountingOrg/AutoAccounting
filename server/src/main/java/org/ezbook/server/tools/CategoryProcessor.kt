@@ -58,7 +58,9 @@ class CategoryProcessor {
     }
 
     /**
-     * 应用分类映射并规范显示格式。
+     * 应用分类映射。
+     * 规则：仅当原始分类名与映射项的 `name` 完全相等时，才替换为 `mapName`；
+     * 不进行子串替换，避免误伤（如 "外卖" 不应影响 "外卖红包"）。
      * @param original 原始分类名
      */
     private suspend fun mapCategory(original: String): String {
@@ -70,15 +72,10 @@ class CategoryProcessor {
 
         if (mappings.isEmpty()) return original
 
-        var mapped = original
-        mappings
-            .filter { it.name.isNotEmpty() && it.mapName.isNotEmpty() }
-            .sortedByDescending { it.name.length }
-            .forEach { model ->
-                mapped = mapped.replace(model.name, model.mapName)
-            }
-
-        return mapped
+        // 仅精确匹配；找到第一条匹配即返回映射结果，否则返回原始值
+        val matched =
+            mappings.firstOrNull { it.name.isNotEmpty() && it.mapName.isNotEmpty() && it.name == original }
+        return matched?.mapName ?: original
     }
 
 }
