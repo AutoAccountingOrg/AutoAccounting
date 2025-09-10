@@ -130,7 +130,7 @@ class DataFragment : BasePageFragment<AppDataModel, FragmentPluginDataBinding>()
 
             billResultModel?.let {
                 BaseSheetDialog.create<BillEditorDialog>(requireContext())
-                    .setBillInfo(billResultModel.billInfoModel)
+                    .setBillInfo(billResultModel.parentInfoModel ?: billResultModel.billInfoModel)
                     .setOnConfirm {
 
                     }
