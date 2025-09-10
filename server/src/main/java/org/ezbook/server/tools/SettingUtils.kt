@@ -208,4 +208,7 @@ object SettingUtils {
 
     suspend fun bookName(): String =
         getString(Setting.DEFAULT_BOOK_NAME, DefaultData.DEFAULT_BOOK_NAME)
+
+    suspend fun autoAssetMap(): Boolean =
+        getBoolean(Setting.AUTO_ASSET_MAPPING, DefaultData.AUTO_ASSET_MAPPING)
 }

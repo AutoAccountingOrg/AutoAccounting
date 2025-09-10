@@ -204,7 +204,7 @@ class AssetsMap {
         findByAlgorithm(accountName)?.let { return it }
 
         // 4. 创建空映射（仅当非AI生成且不存在映射时）
-        if (!billInfoModel.generateByAi()) {
+        if (!billInfoModel.generateByAi() && SettingUtils.autoAssetMap()) {
             runCatchingExceptCancel {
                 val emptyMapping = AssetsMapModel().apply {
                     name = accountName
