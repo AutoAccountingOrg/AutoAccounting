@@ -145,6 +145,7 @@ class BillWindowManager(
      * @param parentBill 父账单信息，用于重复账单的情况
      */
     fun updateCurrentBill(parentBill: BillInfoModel) {
+        Logger.d("使用父账单更新：$parentBill")
         currentBill = parentBill
         currentDialog?.setBillInfo(parentBill)
     }
