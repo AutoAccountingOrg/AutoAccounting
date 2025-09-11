@@ -550,7 +550,7 @@ class CategoryRuleEditComponent(
             minTime = it1
             showTimer(maxTime, context.getString(R.string.select_time_higher)) {
                 maxTime = it
-                val js = "common.isTimeInRange('$minTime','$maxTime',currentTime)"
+                val js = "common.isTimeInRange('$minTime','$maxTime',time)"
                 val input = context.getString(R.string.time_range, minTime, maxTime)
 
                 val newData = mutableMapOf<String, Any>(
