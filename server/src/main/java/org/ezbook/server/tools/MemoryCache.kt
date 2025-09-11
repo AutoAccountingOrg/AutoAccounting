@@ -29,6 +29,25 @@ class MemoryCache {
 
         // 使用object声明替代复杂的双重检查单例
         val instance: MemoryCache by lazy { MemoryCache() }
+
+        /**
+         * 便捷静态方法：写入缓存
+         * @param key 缓存键
+         * @param value 缓存值
+         * @param durationSeconds 过期时间（秒），默认30秒
+         */
+        @JvmStatic
+        fun put(key: String, value: Any, durationSeconds: Long = DEFAULT_DURATION_SECONDS) {
+            instance.put(key, value, durationSeconds)
+        }
+
+        /**
+         * 便捷静态方法：读取缓存
+         * @param key 缓存键
+         * @return 缓存值，如果不存在或已过期返回null
+         */
+        @JvmStatic
+        fun get(key: String): Any? = instance.get(key)
     }
 
     // LRU缓存实现，accessOrder=true按访问顺序排序
