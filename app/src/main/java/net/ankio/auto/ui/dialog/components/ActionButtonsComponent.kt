@@ -260,13 +260,17 @@ class ActionButtonsComponent(
     }
 
     /**
-     * 清洗用于分类规则的名称，剔除订单号/流水号等长编号片段
-     * 简化规则：仅移除所有数字字符
+     * 清洗用于分类规则的名称，剔除订单号/流水号等变化标识
+     * 保留短数字（金额、数量等），清理长串标识符
      */
     private fun sanitizeForRule(inputRaw: String): String {
         if (inputRaw.isEmpty()) return inputRaw
         return inputRaw
-            .replace(Regex("\\d+"), "")
+            // 清理长数字串（5位以上视为订单号）
+            .replace(Regex("\\d{5,}"), "")
+            // 清理字母数字混合的长串（通常是订单号）
+            .replace(Regex("\\b[A-Za-z0-9]{8,}\\b"), "")
+            // 清理多余空白
             .replace(Regex("\\s+"), " ")
             .trim()
     }
