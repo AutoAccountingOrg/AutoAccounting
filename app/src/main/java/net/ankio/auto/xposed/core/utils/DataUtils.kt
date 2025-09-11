@@ -2,11 +2,10 @@ package net.ankio.auto.xposed.core.utils
 
 import android.content.Context
 import android.content.SharedPreferences
-import kotlinx.coroutines.runBlocking
-import net.ankio.auto.xposed.core.App.Companion.TAG
-import net.ankio.auto.http.api.SettingAPI
-import org.ezbook.server.db.model.SettingModel
 import androidx.core.content.edit
+import kotlinx.coroutines.withTimeoutOrNull
+import net.ankio.auto.http.api.SettingAPI
+import net.ankio.auto.xposed.core.App.Companion.TAG
 
 
 object DataUtils {
@@ -18,19 +17,14 @@ object DataUtils {
      * @param value String
      */
     fun set(key: String, value: String) {
+        // 在 system_server 或应用未就绪时直接返回，避免无意义操作
+        if (AppRuntime.manifest.packageName == "android" || AppRuntime.application == null) return
 
-        if (AppRuntime.manifest.packageName == "android") {
-            return
-        }
-
-        if (AppRuntime.application == null) {
-            return
-        }
         val sharedPreferences: SharedPreferences =
-            AppRuntime.application!!.getSharedPreferences(TAG, Context.MODE_PRIVATE) // 私有数据
-        sharedPreferences.edit { // 获取编辑器
+            AppRuntime.application!!.getSharedPreferences(TAG, Context.MODE_PRIVATE)
+        sharedPreferences.edit {
             putString(key, value)
-        } // 提交修改
+        }
     }
 
     /**
@@ -39,27 +33,26 @@ object DataUtils {
      * @return String
      */
     fun get(key: String, def: String = ""): String {
-        if (AppRuntime.manifest.packageName == "android") {
-            return def
-        }
-        if (AppRuntime.application == null) {
-            return def
-        }
+        // 在 system_server 或应用未就绪时返回默认值，确保稳定性
+        if (AppRuntime.manifest.packageName == "android" || AppRuntime.application == null) return def
+
         val sharedPreferences: SharedPreferences =
-            AppRuntime.application!!.getSharedPreferences(TAG, Context.MODE_PRIVATE) // 私有数据
+            AppRuntime.application!!.getSharedPreferences(TAG, Context.MODE_PRIVATE)
         return sharedPreferences.getString(key, def) ?: def
     }
 
+    private const val TIMEOUT_MS = 3000L
+
     /**
      * 读取配置
      * @param key String
      * @return String
      */
-    fun configString(key: String, def: String = ""): String {
-        return runBlocking {
-            val result = SettingAPI.get(key, def)
-            result.ifEmpty { def }
-        }
+    suspend fun configString(key: String, def: String = ""): String {
+        val result = withTimeoutOrNull(TIMEOUT_MS) {
+            SettingAPI.get(key, def)
+        } ?: ""
+        return result.ifEmpty { def }
     }
 
     /**
@@ -67,10 +60,10 @@ object DataUtils {
      * @param key String
      * @return String
      */
-    fun configBoolean(key: String, def: Boolean = false): Boolean {
-        return runBlocking {
-            val result = SettingAPI.get(key, def.toString())
-            if (result.isEmpty()) def else result.toBoolean()
-        }
+    suspend fun configBoolean(key: String, def: Boolean = false): Boolean {
+        val result = withTimeoutOrNull(TIMEOUT_MS) {
+            SettingAPI.get(key, def.toString())
+        } ?: ""
+        return if (result.isEmpty()) def else result.toBoolean()
     }
 }
