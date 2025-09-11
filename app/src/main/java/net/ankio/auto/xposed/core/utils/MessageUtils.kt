@@ -19,6 +19,7 @@ import android.widget.Toast
 import com.hjq.toast.Toaster
 import net.ankio.auto.xposed.core.App.Companion.TAG
 import net.ankio.auto.xposed.core.logger.Logger
+import net.ankio.auto.xposed.core.utils.CoroutineUtils.Companion.withMain
 
 object MessageUtils {
 
@@ -30,14 +31,14 @@ object MessageUtils {
         if (AppRuntime.application == null) {
             return
         }
-        try {
-            Toaster.show(msg)
-        } catch (e: Throwable) {
-            Toast.makeText(AppRuntime.application, msg, Toast.LENGTH_LONG).show()
-        } finally {
-            Logger.log(TAG, msg)
+        withMain {
+            try {
+                Toaster.show(msg)
+            } catch (e: Throwable) {
+                Toast.makeText(AppRuntime.application, msg, Toast.LENGTH_LONG).show()
+            } finally {
+                Logger.log(TAG, msg)
+            }
         }
-
-
     }
 }
