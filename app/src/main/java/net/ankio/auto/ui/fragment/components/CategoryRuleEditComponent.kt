@@ -329,7 +329,7 @@ class CategoryRuleEditComponent(
         )
 
         // 定义对应的JavaScript条件表达式
-        val billTypeJS = arrayOf("type === 0", "type === 1")
+        val billTypeJS = arrayOf("type === 'Expend'", "type === 'Income'")
 
         // 直接创建菜单数据，避免不必要的类型转换
         val menuItems = hashMapOf<String, Int>()
