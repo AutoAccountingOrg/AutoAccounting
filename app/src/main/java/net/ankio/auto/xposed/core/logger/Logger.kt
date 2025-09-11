@@ -16,12 +16,10 @@
 package net.ankio.auto.xposed.core.logger
 
 import android.util.Log
-import de.robv.android.xposed.XposedBridge
+import net.ankio.auto.http.api.LogAPI
 import net.ankio.auto.xposed.core.utils.AppRuntime
 import net.ankio.auto.xposed.core.utils.ThreadUtils
 import org.ezbook.server.constant.LogLevel
-import org.ezbook.server.db.model.LogModel
-import net.ankio.auto.http.api.LogAPI
 
 /**
  * Xposed日志工具
@@ -37,13 +35,39 @@ object Logger {
     private val TAG = "Logger"
 
     /**
+     * 是否存在 Xposed 框架（通过反射检测），避免在非 Xposed 进程中触发类加载错误。
+     */
+    private val xposedBridgeClass by lazy {
+        runCatching { Class.forName("de.robv.android.xposed.XposedBridge") }.getOrNull()
+    }
+
+    /** 反射调用 XposedBridge.log(String) */
+    private fun xposedLogString(message: String) {
+        val clazz = xposedBridgeClass ?: return
+        runCatching { clazz.getMethod("log", String::class.java).invoke(null, message) }
+    }
+
+    /** 反射调用 XposedBridge.log(Throwable) */
+    private fun xposedLogThrowable(e: Throwable) {
+        val clazz = xposedBridgeClass ?: return
+        runCatching { clazz.getMethod("log", Throwable::class.java).invoke(null, e) }
+    }
+
+    /**
+     * 统一输出到 Xposed（若存在）与 Android Log。
+     * 仅在调试模式下输出到本地，以保持与既有行为一致。
+     */
+    private fun callXposedOrLogger(app: String, msg: String, priority: Int) {
+        if (!AppRuntime.debug) return
+        val formatted = "[ 自动记账 ] ( $app ) $msg"
+        xposedLogString(formatted)
+        Log.println(priority, TAG, formatted)
+    }
+    /**
      * 打印日志
      */
     fun log(app: String, msg: String) {
-        if (AppRuntime.debug) {
-            XposedBridge.log("[ 自动记账 ] ( $app ) $msg")
-            Log.d(TAG, "[ 自动记账 ] ( $app ) $msg")
-        }
+        callXposedOrLogger(app, msg, Log.DEBUG)
         val tag = getTag()
         //写入自动记账日志
         ThreadUtils.launch {
@@ -56,21 +80,17 @@ object Logger {
      * 只在调试模式输出日志
      */
     fun logD(app: String, msg: String) {
-
-        if (AppRuntime.debug) {
-            XposedBridge.log("[ 自动记账 ] ( $app ) $msg")
-            log(app, msg)
-        }
+        if (AppRuntime.debug) log(app, msg)
     }
 
     /**
      * 打印错误日志
      */
     fun logE(app: String, e: Throwable) {
-        Log.d(TAG, "[ 自动记账 ] ( $app ) ${e.message ?: ""}")
-        XposedBridge.log("[ 自动记账 ] ( $app ) ${e.message ?: ""}")
-        Log.e(TAG, e.message ?: "")
-        XposedBridge.log(e)
+        val msg = e.message ?: ""
+        callXposedOrLogger(app, msg, Log.ERROR)
+        xposedLogThrowable(e)
+        Log.e(TAG, msg)
         val tag = getTag()
         ThreadUtils.launch {
             val log = StringBuilder()
