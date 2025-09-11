@@ -16,8 +16,6 @@
 package org.ezbook.server.tools
 
 import android.util.Log
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import org.ezbook.server.Server
 import org.ezbook.server.constant.LogLevel
 import org.ezbook.server.db.Db
@@ -28,56 +26,56 @@ object ServerLog {
      * 输出日志到Logcat并发送到服务器
      *
      * @param type 日志级别（Log.VERBOSE, Log.DEBUG, Log.INFO, Log.WARN, Log.ERROR）
-     * @param tag 日志标签
+     * @param tag 日志标签（调用方类名）
+     * @param header 源位置标头，形如 (File.kt:123)
      * @param message 日志消息
      */
-    private suspend fun printLog(type: Int, tag: String, message: String) =
-        withContext(Dispatchers.IO) {
-            val suffix = "[ 自动记账 ] "
-            // Logcat 输出
-            when (type) {
-                Log.VERBOSE -> Log.v(tag, suffix + message)
-                Log.DEBUG -> Log.d(tag, suffix + message)
-                Log.INFO -> Log.i(tag, suffix + message)
-                Log.WARN -> Log.w(tag, suffix + message)
-                Log.ERROR -> Log.e(tag, suffix + message)
-                else -> Log.i(tag, suffix + message)
-            }
+    private suspend fun printLog(type: Int, tag: String, header: String, message: String) {
+        val suffix = "[ 自动记账 ]$header"
+        val priority = when (type) {
+            Log.VERBOSE, Log.DEBUG, Log.INFO, Log.WARN, Log.ERROR -> type
+            else -> Log.INFO
+        }
+        Log.println(priority, tag, suffix + message)
 
-            // 构建调用位置信息
-            val header = Throwable().stackTrace.getOrNull(3)?.let {
-                "(${it.fileName}:${it.lineNumber})"
-            } ?: ""
-
-            // 将日志级别转换为服务器端格式
-            val logLevel = when (type) {
-                Log.DEBUG -> LogLevel.DEBUG
-                Log.INFO -> LogLevel.INFO
-                Log.WARN -> LogLevel.WARN
-                Log.ERROR -> LogLevel.ERROR
-                else -> LogLevel.DEBUG
-            }
-
-            Db.get().logDao().insert(LogModel().apply {
-                level = logLevel
-                app = "AutoServer"
-                location = tag
-                this.message = header + message
-            })
-
+        val logLevel = when (type) {
+            Log.DEBUG -> LogLevel.DEBUG
+            Log.INFO -> LogLevel.INFO
+            Log.WARN -> LogLevel.WARN
+            Log.ERROR -> LogLevel.ERROR
+            else -> LogLevel.DEBUG
         }
 
-    /**
-     * 获取调用者的类名作为日志标签
-     *
-     * @return 调用者的类名（去掉包名和内部类标识）
-     */
-    private fun getTag(): String {
-        return Throwable().stackTrace.getOrNull(2)
-            ?.className
-            ?.substringAfterLast('.')
-            ?.substringBefore('$')
-            ?: ""
+        // 组装日志并直接入库（客户端未批量，这里也不批量）
+        val model = LogModel().apply {
+            level = logLevel
+            app = "AutoServer"
+            // location 统一为 "类名(File.kt:行号)"
+            location = (if (tag.isNotEmpty()) tag else "ServerLog") + header
+            this.message = message
+            time = System.currentTimeMillis()
+        }
+        try {
+            Db.get().logDao().insert(model)
+        } catch (e: Exception) {
+            Log.e("ServerLog", "write db failed: ${e.message}")
+        }
+    }
+
+    /** 单次栈捕获，返回 (tag, header) */
+    private fun getCallerInfo(): Pair<String, String> {
+        val frames = Throwable().stackTrace
+        // 0:getStackTrace,1:<init>,2:getCallerInfo,3:上层(d/i/w/e),4+:业务
+        var index = 0
+        while (index < frames.size && frames[index].className == ServerLog::class.java.name) {
+            index++
+        }
+        val candidate = frames.getOrNull(index) ?: frames.getOrNull(3)
+
+
+        val tag = candidate?.className?.substringAfterLast('.')?.substringBefore('$') ?: "ServerLog"
+        val header = candidate?.let { "(${it.fileName}:${it.lineNumber})" } ?: ""
+        return tag to header
     }
 
     /**
@@ -87,10 +85,8 @@ object ServerLog {
      * @param message 日志消息
      */
     fun d(message: String) {
-        val tag = getTag()
-        Server.withIO {
-            if (SettingUtils.debugMode()) printLog(Log.DEBUG, tag, message)
-        }
+        val (tag, header) = getCallerInfo()
+        Server.withIO { if (SettingUtils.debugMode()) printLog(Log.DEBUG, tag, header, message) }
     }
 
     /**
@@ -99,10 +95,8 @@ object ServerLog {
      * @param message 日志消息
      */
     fun i(message: String) {
-        val tag = getTag()
-        Server.withIO {
-            printLog(Log.INFO, tag, message)
-        }
+        val (tag, header) = getCallerInfo()
+        Server.withIO { printLog(Log.INFO, tag, header, message) }
     }
 
     /**
@@ -111,10 +105,8 @@ object ServerLog {
      * @param message 日志消息
      */
     fun w(message: String) {
-        val tag = getTag()
-        Server.withIO {
-            printLog(Log.WARN, tag, message)
-        }
+        val (tag, header) = getCallerInfo()
+        Server.withIO { printLog(Log.WARN, tag, header, message) }
     }
 
     /**
@@ -124,13 +116,13 @@ object ServerLog {
      * @param throwable 异常对象（可选）
      */
     fun e(message: String, throwable: Throwable? = null) {
-        val tag = getTag()
+        val (tag, header) = getCallerInfo()
         Server.withIO {
             val builder = StringBuilder().apply {
                 append(message)
                 throwable?.let { append("\n").append(Log.getStackTraceString(it)) }
             }
-            printLog(Log.ERROR, tag, builder.toString())
+            printLog(Log.ERROR, tag, header, builder.toString())
         }
     }
 }

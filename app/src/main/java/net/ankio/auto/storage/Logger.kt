@@ -3,12 +3,12 @@ package net.ankio.auto.storage
 import android.content.Context
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.withContext
 import net.ankio.auto.App
 import net.ankio.auto.BuildConfig
 import net.ankio.auto.autoApp
 import net.ankio.auto.http.api.LogAPI
-import net.ankio.auto.utils.CoroutineUtils.withIO
 import net.ankio.auto.utils.DateUtils
 import net.ankio.auto.utils.PrefManager
 import net.ankio.auto.utils.Throttle
@@ -122,7 +122,7 @@ object Logger {
      * @param logModel 日志模型对象
      * @return 格式化后的日志字符串
      */
-    fun formatLog(logModel: LogModel): String {
+    private fun formatLog(logModel: LogModel): String {
         val timestamp = DateUtils.stampToDate(logModel.time, FORMAT)
         val level = when (logModel.level) {
             LogLevel.DEBUG -> "D"
@@ -141,24 +141,14 @@ object Logger {
      * @param tag 日志标签
      * @param message 日志消息
      */
-    private suspend fun printLog(type: Int, tag: String, message: String) = withIO {
+    private suspend fun printLog(type: Int, tag: String, header: String, message: String) {
         // Logcat 输出
-        val suffix = "[ 自动记账 ] "
-        // Logcat 输出
-        when (type) {
-            Log.VERBOSE -> Log.v(tag, suffix + message)
-            Log.DEBUG -> Log.d(tag, suffix + message)
-            Log.INFO -> Log.i(tag, suffix + message)
-            Log.WARN -> Log.w(tag, suffix + message)
-            Log.ERROR -> Log.e(tag, suffix + message)
-            else -> Log.i(tag, suffix + message)
+        val suffix = "[ 自动记账 ]$header"
+        val priority = when (type) {
+            Log.VERBOSE, Log.DEBUG, Log.INFO, Log.WARN, Log.ERROR -> type
+            else -> Log.INFO
         }
-
-
-        // 构建调用位置信息
-        val header = Throwable().stackTrace.getOrNull(3)?.let {
-            "(${it.fileName}:${it.lineNumber})"
-        } ?: ""
+        Log.println(priority, tag, suffix + message)
 
         // 将日志级别转换为服务器端格式
         val logLevel = when (type) {
@@ -168,9 +158,25 @@ object Logger {
             Log.ERROR -> LogLevel.ERROR
             else -> LogLevel.DEBUG
         }
+        LogAPI.add(logLevel, BuildConfig.APPLICATION_ID, tag, message)
+    }
 
-        // 异步发送日志到服务器
-        LogAPI.add(logLevel, BuildConfig.APPLICATION_ID, tag + header, message)
+
+    /**
+     * 一次性捕获调用方信息：TAG 与 位置头部。
+     * 通过跳过日志自身与协程栈，取第一个业务帧，避免重复创建 Throwable。
+     */
+    private fun getCallerInfo(): Pair<String, String> {
+        // 0:getStackTrace,1:<init>,2:getCallerInfo,3:Logger.d/i/w/e,4:业务调用方
+        val frames = Throwable().stackTrace
+        var index = 0
+        while (index < frames.size && frames[index].className == Logger::class.java.name) {
+            index++
+        }
+        val f = frames.getOrNull(index) ?: frames.getOrNull(3)
+        val tag = f?.className?.substringAfterLast('.')?.substringBefore('$') ?: "Logger"
+        val header = f?.let { "(${it.fileName}:${it.lineNumber})" } ?: ""
+        return tag to header
     }
 
     /**
@@ -178,13 +184,7 @@ object Logger {
      *
      * @return 调用者的类名（去掉包名和内部类标识）
      */
-    private fun getTag(): String {
-        return Throwable().stackTrace.getOrNull(2)
-            ?.className
-            ?.substringAfterLast('.')
-            ?.substringBefore('$')
-            ?: ""
-    }
+    // 已用 getCallerInfo 统一提供 TAG，无需单独 getTag()
 
     /**
      * 输出DEBUG级别日志
@@ -193,9 +193,11 @@ object Logger {
      * @param message 日志消息
      */
     fun d(message: String) {
-        val tag = getTag()
+        if (!PrefManager.debugMode) return
+        val (tag, header) = getCallerInfo()
+
         App.launchIO {
-            if (!PrefManager.debugMode) return@launchIO; printLog(Log.DEBUG, tag, message)
+            printLog(Log.DEBUG, tag, header, message)
         }
 
     }
@@ -206,9 +208,9 @@ object Logger {
      * @param message 日志消息
      */
     fun i(message: String) {
-        val tag = getTag()
+        val (tag, header) = getCallerInfo()
         App.launchIO {
-            printLog(Log.INFO, tag, message)
+            printLog(Log.INFO, tag, header, message)
         }
     }
 
@@ -218,9 +220,9 @@ object Logger {
      * @param message 日志消息
      */
     fun w(message: String) {
-        val tag = getTag()
+        val (tag, header) = getCallerInfo()
         App.launchIO {
-            printLog(Log.WARN, tag, message)
+            printLog(Log.WARN, tag, header, message)
         }
     }
 
@@ -231,13 +233,13 @@ object Logger {
      * @param throwable 异常对象（可选）
      */
     fun e(message: String, throwable: Throwable? = null) {
-        val tag = getTag()
+        val (tag, header) = getCallerInfo()
         App.launchIO {
             val builder = StringBuilder().apply {
                 append(message)
                 throwable?.let { append("\n").append(Log.getStackTraceString(it)) }
             }
-            printLog(Log.ERROR, tag, builder.toString())
+            printLog(Log.ERROR, tag, header, builder.toString())
         }
     }
 

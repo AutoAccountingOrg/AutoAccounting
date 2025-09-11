@@ -27,9 +27,24 @@ import org.ezbook.server.constant.LogLevel
  */
 object Logger {
 
+    /**
+     * 一次性获取调用方 TAG 与 header，例如 (File.kt:123)
+     * 避免重复创建 Throwable 与二次解析栈
+     */
+    private fun getCallerInfo(): Pair<String, String> {
+        val frames = Throwable().stackTrace
+        var index = 0
+        while (index < frames.size && frames[index].className == Logger::class.java.name) {
+            index++
+        }
+        val f = frames.getOrNull(index) ?: frames.getOrNull(3)
 
-    private fun getTag(): String {
-        return Throwable().stackTrace[3].className.substringBefore('$').substringAfterLast(".")
+        val tag = f?.className
+            ?.substringAfterLast('.')
+            ?.substringBefore('$')
+            ?: "Logger"
+        val header = f?.let { "(${it.fileName}:${it.lineNumber})" } ?: ""
+        return tag to header
     }
 
     private val TAG = "Logger"
@@ -57,21 +72,28 @@ object Logger {
      * 统一输出到 Xposed（若存在）与 Android Log。
      * 仅在调试模式下输出到本地，以保持与既有行为一致。
      */
-    private fun callXposedOrLogger(app: String, msg: String, priority: Int) {
+    private fun callXposedOrLogger(
+        app: String,
+        msg: String,
+        priority: Int,
+        tag: String,
+        header: String
+    ) {
         if (!AppRuntime.debug) return
-        val formatted = "[ 自动记账 ] ( $app ) $msg"
+        val formatted = "[ 自动记账 ][ $app ]$header $msg"
         xposedLogString(formatted)
-        Log.println(priority, TAG, formatted)
+        Log.println(priority, tag, formatted)
     }
     /**
      * 打印日志
      */
     fun log(app: String, msg: String) {
-        callXposedOrLogger(app, msg, Log.DEBUG)
-        val tag = getTag()
+
+        val (tag, header) = getCallerInfo()
+        callXposedOrLogger(app, msg, Log.DEBUG, tag, header)
         //写入自动记账日志
         ThreadUtils.launch {
-            LogAPI.add(LogLevel.INFO, app, tag, msg)
+            LogAPI.add(LogLevel.INFO, app, tag + header, msg)
         }
 
     }
@@ -88,17 +110,17 @@ object Logger {
      */
     fun logE(app: String, e: Throwable) {
         val msg = e.message ?: ""
-        callXposedOrLogger(app, msg, Log.ERROR)
+        val (tag, header) = getCallerInfo()
         xposedLogThrowable(e)
-        Log.e(TAG, msg)
-        val tag = getTag()
+        val formatted = "[ 自动记账 ][ $app ]$header $msg"
+        Log.e(tag, formatted)
         ThreadUtils.launch {
             val log = StringBuilder()
             log.append(e.message).append("\n")
             e.stackTrace.forEach {
                 log.append(it.toString()).append("\n")
             }
-            LogAPI.add(LogLevel.ERROR, app, tag, log.toString())
+            LogAPI.add(LogLevel.ERROR, app, tag + header, log.toString())
         }
     }
 }
