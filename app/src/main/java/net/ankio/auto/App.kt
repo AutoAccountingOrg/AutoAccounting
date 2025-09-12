@@ -74,7 +74,8 @@ open class App : Application() {
         autoApp = this
 
 
-            LoggerConfig.init(BuildConfig.APPLICATION_ID, PrefManager.debugMode)
+        if (PrefManager.workMode != WorkMode.Xposed) {
+            LoggerConfig.reinit(BuildConfig.APPLICATION_ID, PrefManager.debugMode)
         }
 
         // 初始化核心组件（优先初始化PrefManager以获取用户设置）
