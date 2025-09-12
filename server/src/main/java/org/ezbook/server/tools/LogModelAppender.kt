@@ -17,16 +17,9 @@ package org.ezbook.server.tools
 
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.UnsynchronizedAppenderBase
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ObsoleteCoroutinesApi
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.actor
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
 import org.ezbook.server.constant.LogLevel
 import org.ezbook.server.db.model.LogModel
 
@@ -39,14 +32,38 @@ class LogModelAppender(
 
     var packageName: String? = null
 
-    private var actor: SendChannel<ILoggingEvent>? = null
+    private var actor: SendChannel<LogModel>? = null
 
     @OptIn(DelicateCoroutinesApi::class)
-    override fun append(eventObject: ILoggingEvent) {
+    override fun append(event: ILoggingEvent) {
         if (scope?.isActive != true || actor?.isClosedForSend ?: true) return
 
+        val logLevel = runCatching {
+            LogLevel.valueOf(event.level.levelStr)
+        }.getOrDefault(LogLevel.ERROR)
+
+        val location = when {
+            !packageName.isNullOrBlank() && debugging -> {
+                event.callerData.firstOrNull()?.run { "${event.loggerName}(${fileName}:${lineNumber})" }
+            }
+
+            !packageName.isNullOrEmpty() -> event.loggerName
+
+            else -> event.threadName
+        } ?: "unknown"
+
+        val app = packageName ?: event.loggerName
+
+        val model = LogModel().apply {
+            level = logLevel
+            this.app = app
+            this.location = location
+            this.message = event.formattedMessage
+            time = System.currentTimeMillis()
+        }
+
         scope?.launch {
-            actor?.send(eventObject)
+            actor?.send(model)
         }
     }
 
@@ -54,31 +71,8 @@ class LogModelAppender(
     override fun start() {
         scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
         actor = scope?.actor(Dispatchers.IO, capacity = 100) {
-            for (event in channel) {
+            for (model in channel) {
                 try {
-                    val logLevel = runCatching {
-                        LogLevel.valueOf(event.level.levelStr)
-                    }.getOrDefault(LogLevel.ERROR)
-
-                    var location = (takeIf { debugging }?.let {
-                        event.callerData.firstOrNull()?.run {
-                            "${fileName}:${lineNumber}"
-                        }
-                    } ?: event.threadName)
-                    location = packageName?.let {
-                        "${event.loggerName}($location)"
-                    }
-
-                    val app = packageName ?: event.loggerName
-
-                    val model = LogModel().apply {
-                        level = logLevel
-                        this.app = app
-                        this.location = location
-                        this.message = event.formattedMessage
-                        time = System.currentTimeMillis()
-                    }
-
                     callback(model)
                 } catch (e: Exception) {
                     // 处理异常，例如记录日志或其他操作
